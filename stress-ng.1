@@ -4572,7 +4572,7 @@ full sparse matrix.
 .B \-\-sparsematrix\-size N
 use a N \(mu N sized sparse matrix
 .TP
-.B \-\-sparsematrix\-method [ all | hash | judy | list | mmap | qhash | rb ]
+.B \-\-sparsematrix\-method [ all | hash | hashjudy | judy | list | mmap | qhash | rb ]
 specify the type of sparse matrix implementation to use. The 'all' method
 uses all the methods and is the default.
 .TS
@@ -4586,6 +4586,10 @@ T}
 hash	T{
 use a hash table and allocate nodes on the heap for each unique value at a (x, y)
 matrix position.
+T}
+hashjudy	T{
+use a hash table for x co-ordinates and a Judy array for y co-ordinates for values
+at a (x, y) matrix position.
 T}
 judy	T{
 use a Judy array with a unique 1-to-1 mapping of (x, y) matrix position into
