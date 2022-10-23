@@ -28,6 +28,9 @@ static const stress_help_t help[] = {
 typedef struct {
 	volatile bool handler_enabled;	/* True if using a SIGABRT handler */
 	volatile bool signalled;	/* True if handler handled SIGABRT */
+	volatile double count;
+	volatile double t_start;
+	volatile double latency;
 } stress_sigabrt_info_t;
 
 static volatile stress_sigabrt_info_t *sigabrt_info;
@@ -36,8 +39,15 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 {
 	(void)num;
 
-	if (sigabrt_info)  /* Should always be not null */
+	if (sigabrt_info) { /* Should always be not null */
+		double latency = stress_time_now() - sigabrt_info->t_start;
+
 		sigabrt_info->signalled = true;
+		if (latency > 0.0) {
+			sigabrt_info->latency += latency;
+			sigabrt_info->count += 1.0;
+		}
+	}
 }
 
 /*
@@ -48,6 +58,7 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 static int stress_sigabrt(const stress_args_t *args)
 {
 	void *sigabrt_mapping;
+	double rate;
 
 	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -62,6 +73,7 @@ static int stress_sigabrt(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	sigabrt_info = (stress_sigabrt_info_t *)sigabrt_mapping;
+	sigabrt_info->count = 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -93,12 +105,14 @@ again:
 				 * then be disabled and a second SIGABRT will occur causing the
 				 * abort.
 				 */
+				sigabrt_info->t_start = stress_time_now();
 				abort();
 				/* Should never get here */
 			} else {
 				(void)stress_sighandler_default(SIGABRT);
 
 				/* Raising SIGABRT without an handler will abort */
+				sigabrt_info->t_start = stress_time_now();
 				raise(SIGABRT);
 			}
 
@@ -136,9 +150,11 @@ rewait:
 			}
 		}
 	} while (keep_stressing(args));
-
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (sigabrt_info->count > 0.0) ? sigabrt_info->latency / sigabrt_info->count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosec SIGABRT latency", rate * 1000000000.0);
 
 	(void)munmap((void *)sigabrt_mapping, args->page_size);
 
