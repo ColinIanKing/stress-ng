@@ -269,9 +269,9 @@ static int gles2_init(
 	GLuint apos, acolor;
 
 	if (args->instance == 0) {
-		pr_inf("GL_VENDOR: %s\n", (const char *)glGetString(GL_VENDOR));
-		pr_inf("GL_VERSION: %s\n", (const char *)glGetString(GL_VERSION));
-		pr_inf("GL_RENDERER: %s\n", (const char *)glGetString(GL_RENDERER));
+		pr_inf("%s: GL_VENDOR: %s\n", args->name, (const char *)glGetString(GL_VENDOR));
+		pr_inf("%s: GL_VERSION: %s\n", args->name, (const char *)glGetString(GL_VERSION));
+		pr_inf("%s: GL_RENDERER: %s\n", args->name, (const char *)glGetString(GL_RENDERER));
 	}
 
 	ret = load_shaders(args);
