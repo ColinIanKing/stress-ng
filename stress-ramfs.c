@@ -26,7 +26,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"ramfs N",	 "start N workers exercising ramfs mounts" },
-	{ NULL, "ramfs-bytes N", "set the ramfs size in bytes, e.g. 2M is 2MB" },
+	{ NULL, "ramfs-size N",  "set the ramfs size in bytes, e.g. 2M is 2MB" },
+	{ NULL,	"ramfs-fill",	 "attempt to fill ramfs" },
 	{ NULL,	"ramfs-ops N",	 "stop after N bogo ramfs mount operations" },
 	{ NULL,	NULL,		 NULL }
 };
@@ -46,14 +47,10 @@ static int stress_ramfs_supported(const char *name)
 	return 0;
 }
 
-#if defined(__linux__) && \
-    defined(HAVE_CLONE) && \
-    defined(CLONE_NEWUSER) && \
-    defined(CLONE_NEWNS) && \
-    defined(CLONE_VM)
-
-static volatile bool keep_mounting = true;
-
+/*
+ *  stress_set_ramfs_size()
+ *	set ramfs allocation size
+ */
 static int stress_set_ramfs_size(const char *opt)
 {
 	uint64_t ramfs_size;
@@ -70,6 +67,29 @@ static int stress_set_ramfs_size(const char *opt)
 	}
 	return stress_set_setting("ramfs-size", TYPE_ID_UINT64, &ramfs_size);
 }
+
+/*
+ *  stress_set_ramfs_fill()
+ *      set flag to fill ramfs
+ */
+static int stress_set_ramfs_fill(const char *opt)
+{
+	return stress_set_setting_true("ramfs-fill", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_ramfs_size,	stress_set_ramfs_size },
+	{ OPT_ramfs_fill,	stress_set_ramfs_fill },
+	{ 0,                    NULL }
+};
+
+#if defined(__linux__) && \
+    defined(HAVE_CLONE) && \
+    defined(CLONE_NEWUSER) && \
+    defined(CLONE_NEWNS) && \
+    defined(CLONE_VM)
+
+static volatile bool keep_mounting = true;
 
 static void stress_ramfs_child_handler(int signum)
 {
@@ -155,7 +175,11 @@ misc_tests:
  *  stress_ramfs_fs_ops()
  *	exercise the ram based file system;
  */
-static int stress_ramfs_fs_ops(const stress_args_t *args, const char *pathname)
+static int stress_ramfs_fs_ops(
+	const stress_args_t *args,
+	const uint64_t ramfs_size,
+	const bool ramfs_fill,
+	const char *pathname)
 {
 	char filename[PATH_MAX + 5];
 	char symlinkname[PATH_MAX + 5];
@@ -175,6 +199,18 @@ static int stress_ramfs_fs_ops(const stress_args_t *args, const char *pathname)
 			pr_fail("%s: cannot fstat file on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
+		}
+		if (ramfs_fill) {
+			off_t offset = 0, scale;
+
+			for (scale = 80; scale <= 100; scale++) {
+				off_t end = scale * (ramfs_size / 100);
+
+				errno = 0;
+				if (shim_fallocate(fd, 0, offset, end - offset) < 0)
+					break;
+				offset = end;
+			}
 		}
 		if (symlink(pathname, symlinkname) < 0) {
 			pr_fail("%s: cannot create symbolic link on ram based file system, errno=%d (%s)\n",
@@ -227,6 +263,7 @@ static int stress_ramfs_child(const stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	uint64_t ramfs_size = 2 * MB;
+	bool ramfs_fill = false;
 	int i = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -246,6 +283,7 @@ static int stress_ramfs_child(const stress_args_t *args)
 	(void)sched_settings_apply(true);
 
 	(void)stress_get_setting("ramfs-size", &ramfs_size);
+	(void)stress_get_setting("ramfs-fill", &ramfs_fill);
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
@@ -285,7 +323,7 @@ static int stress_ramfs_child(const stress_args_t *args)
 			/* Just in case, force umount */
 			goto cleanup;
 		}
-		if (stress_ramfs_fs_ops(args, realpathname) == EXIT_FAILURE)
+		if (stress_ramfs_fs_ops(args, ramfs_size, ramfs_fill, realpathname) == EXIT_FAILURE)
 			rc = EXIT_FAILURE;
 		stress_ramfs_umount(args, realpathname);
 
@@ -353,7 +391,7 @@ cleanup_mfd:
 		(void)close(mfd);
 cleanup_fd:
 		(void)close(fd);
-		if (stress_ramfs_fs_ops(args, realpathname) == EXIT_FAILURE)
+		if (stress_ramfs_fs_ops(args, ramfs_size, ramfs_fill, realpathname) == EXIT_FAILURE)
 			rc = EXIT_FAILURE;
 		stress_ramfs_umount(args, realpathname);
 skip_fsopen:
@@ -433,11 +471,6 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_ramfs_size,	stress_set_ramfs_size},
-	{ 0,                    NULL }
-};
-
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_ramfs_mount,
 	.class = CLASS_OS,
@@ -450,6 +483,7 @@ stressor_info_t stress_ramfs_info = {
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_ramfs_supported,
 	.help = help
 };

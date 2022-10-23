@@ -793,6 +793,7 @@ static const struct option long_options[] = {
 	{ "radixsort-ops",	1,	0,	OPT_radixsort_ops },
 	{ "radixsort-size",	1,	0,	OPT_radixsort_size },
 	{ "ramfs",		1,	0,	OPT_ramfs },
+	{ "ramfs-fill",		0,	0,	OPT_ramfs_fill },
 	{ "ramfs-ops",		1,	0,	OPT_ramfs_ops },
 	{ "ramfs-size",		1,	0,	OPT_ramfs_size },
 	{ "randlist",		1,	0,	OPT_randlist },

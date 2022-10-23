@@ -3830,6 +3830,10 @@ are available. The default ram file system size is 2MB.
 .B \-\-ramfs\-ops N
 stop after N ramfs mount operations.
 .TP
+.B \-\-ramfs\-fill
+fill ramfs with zero'd data using fallocate(2) if it is available or
+multiple calls to write(2) if not.
+.TP
 .B \-\-ramfs\-size N
 set the ramfs size (must be multiples of the page size).
 .TP

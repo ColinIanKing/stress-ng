@@ -1724,6 +1724,7 @@ typedef enum {
 
 	OPT_ramfs,
 	OPT_ramfs_ops,
+	OPT_ramfs_fill,
 	OPT_ramfs_size,
 
 	OPT_rawdev,
