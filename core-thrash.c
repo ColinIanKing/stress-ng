@@ -46,6 +46,14 @@ static void MLOCKED_TEXT stress_pagein_handler(int signum)
 		siglongjmp(jmp_env, 1);
 }
 
+static void stress_thrash_state(char *state)
+{
+	char buf[64];
+
+	(void)snprintf(buf, sizeof(buf), "thrash [%s]", state);
+	stress_set_proc_name(buf);
+}
+
 /*
  *  stress_pagein_self()
  *	force pages into memory for current process
@@ -355,23 +363,36 @@ int stress_thrash_start(void)
 #if defined(SCHED_RR)
 		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, 10, true));
 #endif
-		stress_set_proc_name("thrash");
+		stress_thrash_state("init");
 		if (stress_sighandler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
 			_exit(0);
 
 		while (thrash_run) {
 			if ((stress_mwc8() & 0x3) == 0) {
+				stress_thrash_state("shrink");
 				stress_slab_shrink();
+
+				stress_thrash_state("pagein");
 				stress_pagein_all_procs();
 			}
-			if ((stress_mwc8() & 0x7) == 0)
+			if ((stress_mwc8() & 0x7) == 0) {
+				stress_thrash_state("dropcache");
 				stress_drop_caches();
+			}
+			stress_thrash_state("compact");
 			stress_compact_memory();
+
+			stress_thrash_state("merge");
 			stress_merge_memory();
+
+			stress_thrash_state("reclaim");
 			stress_zone_reclaim();
+
+			stress_thrash_state("sleep");
 			(void)sleep(1);
 		}
 		thrash_run = false;
+		stress_thrash_state("exit");
 		_exit(0);
 	}
 	return 0;
