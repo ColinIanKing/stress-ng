@@ -2786,16 +2786,21 @@ static void stress_metrics_dump(
 				const char *description = ss->stats[0]->misc_stats[i].description;
 
 				if (*description) {
-					double metric, total = 0.0;
+					int64_t exponent = 0;
+					double geomean, mantissa = 1.0;
+					const double inverse_n = 1.0 / (double)ss->started_instances;
 
 					for (j = 0; j < ss->started_instances; j++) {
+						int e;
 						const stress_stats_t *const stats = ss->stats[j];
-
-						total += stats->misc_stats[i].value;
+						const double f = frexp(stats->misc_stats[i].value, &e);
+					
+						mantissa *= f;
+						exponent += e;
 					}
-					metric = ss->started_instances ? total / ss->started_instances : 0.0;
-					pr_inf("%-13s %11.2f %s (average per stressor)\n",
-						munged, metric, description);
+					geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
+					pr_inf("%-13s %11.2f %s (geometic mean)\n",
+						munged, geomean, description);
 				}
 			}
 		}
