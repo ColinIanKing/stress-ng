@@ -383,6 +383,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [request_module DoS](https://www.spinics.net/lists/kernel/msg4349826.html)
 * [NUMA Benchmark Regression In Linux 5.18](https://lore.kernel.org/lkml/YmrWK%2FKoU1zrAxPI@fuller.cnet)
 * [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
+* [mm/huge_memory: do not clobber swp_entry_t during THP split](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=71e2d666ef85d51834d658830f823560c402b8b6)
 
 ## Kernel improvements that used stress-ng
 
