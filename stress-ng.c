@@ -1860,6 +1860,7 @@ static void stress_clean_dir(
 	const char *temp_path = stress_get_temp_path();
 	const size_t temp_path_len = strlen(temp_path);
 
+
 	(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
 	if (access(path, F_OK) == 0) {
 		pr_dbg("%s: removing temporary files in %s\n", name, path);
@@ -1967,7 +1968,7 @@ redo:
 #endif
 			}
 #else
-			pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
+			pr_dbg("process [%d] (%s) terminated on signal\n",
 				ret, stressor_name);
 #endif
 			/*
@@ -2079,12 +2080,9 @@ static void stress_wait_stressors(
 
 			if (pid) {
 				const char *stressor_name = stress_munge_underscore(ss->stressor->name);
-				char name[64];
 
-				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name, stressor_name);
-				stress_wait_pid(pid, name, stats, success, resource_success, metrics_success);
-				stress_clean_dir(name, pid, (uint32_t)j);
-
+				stress_wait_pid(pid, stressor_name, stats, success, resource_success, metrics_success);
+				stress_clean_dir(stressor_name, pid, (uint32_t)j);
 			}
 		}
 	}
@@ -2308,9 +2306,9 @@ again:
 			case 0:
 				/* Child */
 				child_pid = getpid();
+				char *munged = stress_munge_underscore(g_stressor_current->stressor->name);
 
-				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-					stress_munge_underscore(g_stressor_current->stressor->name));
+				shim_strlcpy(name, munged, sizeof(name));
 				stress_set_proc_state(name, STRESS_STATE_START);
 
 				(void)sched_settings_apply(true);

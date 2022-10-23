@@ -355,7 +355,7 @@ int stress_thrash_start(void)
 #if defined(SCHED_RR)
 		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, 10, true));
 #endif
-		stress_set_proc_name("stress-ng-thrash");
+		stress_set_proc_name("thrash");
 		if (stress_sighandler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
 			_exit(0);
 

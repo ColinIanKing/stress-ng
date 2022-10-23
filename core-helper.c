@@ -1096,21 +1096,23 @@ void stress_set_proc_name_init(int argc, char *argv[], char *envp[])
  */
 void stress_set_proc_name(const char *name)
 {
-	(void)name;
+	char long_name[64];
 
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
 		return;
+	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
+			g_app_name, name);
 
 #if defined(HAVE_BSD_UNISTD_H) &&	\
     defined(HAVE_SETPROCTITLE)
 	/* Sets argv[0] */
-	setproctitle("-%s", name);
+	setproctitle("-%s", long_name);
 #endif
 #if defined(HAVE_PRCTL) &&		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_NAME)
 	/* Sets the comm field */
-	(void)prctl(PR_SET_NAME, name);
+	(void)prctl(PR_SET_NAME, long_name);
 #endif
 }
 
@@ -1121,15 +1123,22 @@ void stress_set_proc_name(const char *name)
  */
 void stress_set_proc_state_str(const char *name, const char *str)
 {
+	char long_name[64];
+
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
 		return;
+	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
+			g_app_name, name);
 
 #if defined(HAVE_BSD_UNISTD_H) &&	\
     defined(HAVE_SETPROCTITLE)
-	setproctitle("-%s [%s]", name, str);
-#else
-	(void)name;
-	(void)str;
+	setproctitle("-%s [%s]", long_name, str);
+#endif
+#if defined(HAVE_PRCTL) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_NAME)
+	/* Sets the comm field */
+	(void)prctl(PR_SET_NAME, long_name);
 #endif
 }
 
@@ -1312,13 +1321,13 @@ int stress_temp_filename(
 	char filename[PATH_MAX];
 
 	(void)snprintf(directoryname, sizeof(directoryname),
-		"tmp-%s-%d-%" PRIu32,
-		name, (int)pid, instance);
+		"tmp-%s-%s-%d-%" PRIu32,
+		g_app_name, name, (int)pid, instance);
 	stress_temp_hash_truncate(directoryname);
 
 	(void)snprintf(filename, sizeof(filename),
-		"%s-%d-%" PRIu32 "-%" PRIu64,
-		name, (int)pid, instance, magic);
+		"%s-%s-%d-%" PRIu32 "-%" PRIu64,
+		g_app_name, name, (int)pid, instance, magic);
 	stress_temp_hash_truncate(filename);
 
 	return snprintf(path, len, "%s/%s/%s",
@@ -1351,14 +1360,16 @@ int stress_temp_dir(
 	const uint32_t instance)
 {
 	char directoryname[256];
+	int l;
 
 	(void)snprintf(directoryname, sizeof(directoryname),
-		"tmp-%s-%d-%" PRIu32,
-		name, (int)pid, instance);
+		"tmp-%s-%s-%d-%" PRIu32,
+		g_app_name, name, (int)pid, instance);
 	stress_temp_hash_truncate(directoryname);
 
-	return snprintf(path, len, "%s/%s",
+	l = snprintf(path, len, "%s/%s",
 		stress_get_temp_path(), directoryname);
+	return l;
 }
 
 /*
