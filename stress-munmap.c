@@ -23,6 +23,8 @@ typedef struct {
 	const stress_args_t *args;	/* stress-ng arguments */
 	size_t page_shift;		/* log2(page_size) */
 	char *exe_path;			/* path of executable */
+	double duration;		/* mmap run time duration */
+	double count;			/* count of mmap calls */
 } munmap_context_t;
 
 static const stress_help_t help[] = {
@@ -70,8 +72,9 @@ static void stress_munmap_range(
 	const stress_args_t *args,
 	void *start,
 	void *end,
-	const size_t page_shift)
+	munmap_context_t *ctxt)
 {
+	const size_t page_shift = ctxt->page_shift;
 	const size_t page_size = args->page_size;
 	const size_t size = (uintptr_t)end - (uintptr_t)start;
 	const size_t n_pages = size / page_size;
@@ -81,9 +84,14 @@ static void stress_munmap_range(
 	for (i = 0, j = 0; keep_stressing(args) && (i < n_pages); i++) {
 		const size_t offset = j << page_shift;
 		void *addr = ((uint8_t *)start) + offset;
+		double t;
 
-		if (munmap(addr, page_size) == 0)
+		t = stress_time_now();
+		if (munmap(addr, page_size) == 0) {
+			ctxt->duration += stress_time_now() - t;
+			ctxt->count += 1.0;
 			inc_counter(args);
+		}
 		j += stride;
 		j %= n_pages;
 	}
@@ -176,7 +184,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 			continue;	/* don't unmap non-readable pages */
 		if (prot[2] == 'x')
 			continue;	/* don't unmap executable pages */
-		stress_munmap_range(args, start, end, ctxt->page_shift);
+		stress_munmap_range(args, start, end, ctxt);
 	}
 	(void)fclose(fp);
 
@@ -206,6 +214,7 @@ static inline void stress_munmap_clean_path(char *path)
 static int stress_munmap(const stress_args_t *args)
 {
 	munmap_context_t *ctxt;
+	double rate;
 
 	ctxt = mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -214,6 +223,8 @@ static int stress_munmap(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	ctxt->duration = 0.0;
+	ctxt->count = 0.0;
 	ctxt->args = args;
 	ctxt->page_shift = stress_munmap_log2(args->page_size);
 	ctxt->exe_path = stress_proc_self_exe();
@@ -230,6 +241,10 @@ static int stress_munmap(const stress_args_t *args)
 		VOID_RET(int, stress_oomable_child(args, (void *)ctxt, stress_munmap_child, STRESS_OOMABLE_QUIET));
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = ctxt->count > 0.0 ? ctxt->duration / ctxt->count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per page mmap()", rate * 1000000000.0);
+
 
 	(void)munmap((void *)ctxt, sizeof(*ctxt));
 
