@@ -125,6 +125,7 @@ static int stress_uprobe(const stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int fd;
 	pid_t pid = getpid();
+	double t_start, duration = 0.0, bytes = 0.0, rate;
 
 	libc_addr = stress_uprobe_libc_start(pid, libc_path);
 	if (!libc_addr) {
@@ -178,6 +179,7 @@ static int stress_uprobe(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t_start = stress_time_now();
 	do {
 		/*
 		 *  Generate trace events on each stress_get_cpu call
@@ -213,6 +215,7 @@ static int stress_uprobe(const stress_args_t *args)
 			n = read(fd, data, sizeof(data));
 			if (n <= 0)
 				break;
+			bytes += (double)n;
 
 			/*
 			 *  Quick and dirty ubprobe event parsing,
@@ -233,6 +236,9 @@ static int stress_uprobe(const stress_args_t *args)
 			} while (ptr < data + sizeof(data));
 		}
 	} while (keep_stressing(args));
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB trace data per second", rate / (double)MB);
 
 terminate:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
