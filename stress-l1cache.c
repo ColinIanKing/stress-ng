@@ -106,7 +106,7 @@ static int stress_l1cache_info_check(
 		stress_uint64_to_str(szstr, sizeof(szstr), sz);
 
 		pr_inf("%s: l1cache: size: %s, sets: %" PRIu32
-			", ways: %" PRIu32 ", line size: %" PRIu32 "\n",
+			", ways: %" PRIu32 ", line size: %" PRIu32 " bytes\n",
 			args->name, szstr, sets, ways, line_size);
 #if DEBUG_TAG_INFO
 		pr_inf("%s: l1cache: offset size: %" PRIu32 ", index size: %" PRIu32 "\n",
