@@ -190,7 +190,7 @@ static int stress_dirmany(const stress_args_t *args)
 
 	total_time = create_time + remove_time;
 	if (total_time > 0.0) {
-		pr_inf("%s: %.2f%% create time, %.2f%% remove time\n",
+		pr_inf("%s: %.2f%% creation time, %.2f%% removal time\n",
 			args->name,
 			create_time / total_time * 100.0,
 			remove_time / total_time * 100.0);
