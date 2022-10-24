@@ -846,6 +846,8 @@ static uint64_t value_map(const uint32_t x, const uint32_t y)
 	return ((uint64_t)x << 32) ^ y;
 }
 
+#if defined(HAVE_JUDY)
+
 /*
  *  hashjudy_create()
  *	create a hash table of Judy arrays
@@ -930,7 +932,7 @@ static void OPTIMIZE3 hashjudy_del(void *handle, const uint32_t x, const uint32_
 	JLG(pvalue, table->hash_table[x], y);
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return;
-	*(uint64_t *)pvalue = 0;
+	*(Word_t *)pvalue = 0;
 }
 
 /*
@@ -950,6 +952,8 @@ static uint64_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uin
 		return 0;
 	return *(uint64_t *)pvalue;
 }
+
+#endif
 
 static int stress_sparse_method_test(
 	const stress_args_t *args,
@@ -1164,8 +1168,8 @@ static uint64_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
 static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 	{ "all",	NULL, NULL, NULL, NULL, NULL },
 	{ "hash",	hash_create, hash_destroy, hash_put, hash_del, hash_get },
-	{ "hashjudy",	hashjudy_create, hashjudy_destroy, hashjudy_put, hashjudy_del, hashjudy_get },
 #if defined(HAVE_JUDY)
+	{ "hashjudy",	hashjudy_create, hashjudy_destroy, hashjudy_put, hashjudy_del, hashjudy_get },
 	{ "judy",	judy_create, judy_destroy, judy_put, judy_del, judy_get },
 #endif
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
