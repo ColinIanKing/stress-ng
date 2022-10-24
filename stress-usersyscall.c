@@ -205,6 +205,7 @@ static int stress_usersyscall(const stress_args_t *args)
 	const bool libc_ok = (stress_sigsys_libc_mapping(&begin, &end) == 0);
 	const pid_t pid = getpid();
 #endif
+	double duration = 0.0, count = 0.0, rate;
 
 	(void)memset(&action, 0, sizeof action);
 	action.sa_sigaction = stress_sigsys_handler;
@@ -228,6 +229,8 @@ static int stress_usersyscall(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		double t;
+
 		/*
 		 *  Test case 1: call user syscall with
 		 *  dispatcher disabled
@@ -253,9 +256,12 @@ static int stress_usersyscall(const stress_args_t *args)
 		 *  dispatcher enabled
 		 */
 		(void)memset(&siginfo, 0, sizeof(siginfo));
+		t = stress_time_now();
 		dispatcher_on();
 		ret = (int)syscall(USR_SYSCALL);
 		dispatcher_off();
+		duration += stress_time_now() - t;
+		count += 1.0;
 		/*  Should return USR_SYSCALL */
 		if (ret != USR_SYSCALL) {
 			if (errno == ENOSYS) {
@@ -339,6 +345,8 @@ static int stress_usersyscall(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per syscall", rate * 1000000000.0);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
