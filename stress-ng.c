@@ -978,6 +978,7 @@ static const struct option long_options[] = {
 	{ "stack-fill",		0,	0,	OPT_stack_fill },
 	{ "stack-mlock",	0,	0,	OPT_stack_mlock },
 	{ "stack-ops",		1,	0,	OPT_stack_ops },
+	{ "stack-pageout",	0,	0,	OPT_stack_pageout },
 	{ "stackmmap",		1,	0,	OPT_stackmmap },
 	{ "stackmmap-ops",	1,	0,	OPT_stackmmap_ops },
 	{ "stdout",		0,	0,	OPT_stdout },

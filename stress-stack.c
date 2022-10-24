@@ -28,6 +28,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"stack-fill",	"fill stack, touches all new pages " },
 	{ NULL, "stack-mlock",	"mlock stack, force pages to be unswappable" },
 	{ NULL,	"stack-ops N",	"stop after N bogo stack overflows" },
+	{ NULL, "stack-pageout","use madvise to try to swap out stack" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -41,9 +42,15 @@ static int stress_set_stack_mlock(const char *opt)
 	return stress_set_setting_true("stack-mlock", opt);
 }
 
+static int stress_set_stack_pageout(const char *opt)
+{
+	return stress_set_setting_true("stack-pageout", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_stack_fill,	stress_set_stack_fill },
 	{ OPT_stack_mlock,	stress_set_stack_mlock },
+	{ OPT_stack_pageout,	stress_set_stack_pageout },
 	{ 0,			NULL }
 };
 
@@ -70,6 +77,7 @@ static void stress_stack_alloc(
 	void *start,
 	const bool stack_fill,
 	bool stack_mlock,
+	const bool stack_pageout,
 	ssize_t last_size)
 {
 
@@ -90,7 +98,7 @@ static void stress_stack_alloc(
 		 *  is random and non-zero to avoid
 		 *  kernel same page merging
 		 */
-		for (i = 0; i < STRESS_DATA_SIZE; i += page_size4) {
+		for (i = 0; i < STRESS_DATA_SIZE / sizeof(uint32_t); i += page_size4) {
 			uint32_t *ptr = data + i;
 
 			*ptr = stress_mwc32();
@@ -118,10 +126,19 @@ static void stress_stack_alloc(
 #else
 	UNEXPECTED
 #endif
+
+#if defined(MADV_PAGEOUT)
+	if (stack_pageout) {
+		intptr_t ptr = ((intptr_t)data) + ((intptr_t)page_size - 1);
+		ptr &= ~(page_size - 1);
+
+		(void)madvise((void *)ptr, sizeof(data), MADV_PAGEOUT);
+	}
+#endif
 	inc_counter(args);
 
 	if (keep_stressing(args))
-		stress_stack_alloc(args, start, stack_fill, stack_mlock, last_size);
+		stress_stack_alloc(args, start, stack_fill, stack_mlock, stack_pageout, last_size);
 }
 
 static int stress_stack_child(const stress_args_t *args, void *context)
@@ -130,11 +147,19 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	void *altstack;
 	bool stack_fill = false;
 	bool stack_mlock = false;
+	bool stack_pageout = false;
 
 	(void)context;
 
 	(void)stress_get_setting("stack-fill", &stack_fill);
 	(void)stress_get_setting("stack-mlock", &stack_mlock);
+	(void)stress_get_setting("stack-pageout", &stack_pageout);
+
+#if !defined(MADV_PAGEOUT)
+	if (stack_pageout && (args->instance == 0))
+		pr_inf("%s: stack-pageout not supported on this system\n", args->name);
+		stack_pageout = false;
+#endif
 
 	/*
 	 *  Allocate altstack on heap rather than an
@@ -211,7 +236,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 			char start;
 
 			/* Expand the stack and cause a fault */
-			stress_stack_alloc(args, &start, stack_fill, stack_mlock, 0);
+			stress_stack_alloc(args, &start, stack_fill, stack_mlock, stack_pageout, 0);
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
