@@ -126,22 +126,29 @@ static const char vert_shader[] =
     "attribute vec4 pos;\n"
     "attribute vec4 color;\n"
     "varying vec4 v_color;\n"
-    "void main()\n" "{\n" "v_color = color;\n" "gl_Position = pos;\n" "}\n";
+    "\n"
+    "void main()\n"
+    "{\n"
+    "    v_color = color;\n"
+    "    gl_Position = pos;\n"
+    "}\n";
 
 static const char frag_shader[] =
     "precision mediump float;\n"
     "varying vec4 v_color;\n"
     "uniform int frag_n;\n"
+    "\n"
     "void main()\n"
     "{\n"
-    "int i;\n"
-    "vec4 a = v_color;\n"
-    "for (i = 0; i < frag_n; i++) {\n"
-    "float f = float(i);\n"
-    "a = a / clamp(sin(f) * exp(f), 0.1, 0.9);\n"
-    "}\n"
-    "a = clamp(a, -1.0, 1.0);\n"
-    "gl_FragColor = v_color + 0.000001 * a;\n" "}\n";
+    "    int i;\n"
+    "    vec4 a = v_color;\n"
+    "    for (i = 0; i < frag_n; i++) {\n"
+    "        float f = float(i);\n"
+    "        a = a / clamp(sin(f) * exp(f), 0.1, 0.9);\n"
+    "    }\n"
+    "    a = clamp(a, -1.0, 1.0);\n"
+    "    gl_FragColor = v_color + 0.000001 * a;\n"
+    "}\n";
 
 static GLuint compile_shader(
 	const stress_args_t *args,
@@ -413,7 +420,8 @@ static int egl_init(
 
 	fd = open(gpu_devnode, O_RDWR);
 	if (fd < 0) {
-		pr_inf_skip("%s: couldn't open device %s, skipping stressor\n", args->name, gpu_devnode);
+		pr_inf_skip("%s: couldn't open device %s: %d (%s), skipping stressor\n",
+			args->name, gpu_devnode, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
