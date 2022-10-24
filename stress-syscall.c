@@ -8599,8 +8599,9 @@ static int stress_syscall(const stress_args_t *args)
 	}
 
 	if (args->instance == 0) {
-		pr_inf("%s: %zd system call tests, %zd fastest tests exercised\n",
-			args->name, available, exercised);
+		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest tests exercised\n",
+			args->name, available, exercised,
+			(double)exercised * 100.0 / (double)available);
 		stress_syscall_report_syscall_top10(args);
 	}
 
