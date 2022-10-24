@@ -160,7 +160,7 @@ static int stress_getrandom(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? (8.0 * bytes) / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "getrandom bits per second", rate);
+	stress_misc_stats_set(args->misc_stats, 0, "getrandom bits per sec", rate);
 
 	return EXIT_SUCCESS;
 }

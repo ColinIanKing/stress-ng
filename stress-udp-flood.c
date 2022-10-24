@@ -173,9 +173,9 @@ static int stress_udp_flood(const stress_args_t *args)
 	duration = stress_time_now() - t;
 
 	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB/sec sendto rate", rate);
+	stress_misc_stats_set(args->misc_stats, 0, "MB per sec sendto rate", rate);
 	rate = (duration > 0.0) ? (get_counter(args) / duration) : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "sendto calls/sec", rate);
+	stress_misc_stats_set(args->misc_stats, 1, "sendto calls per sec", rate);
 	
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

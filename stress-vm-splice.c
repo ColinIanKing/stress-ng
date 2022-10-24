@@ -158,9 +158,9 @@ static int stress_vm_splice(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB vm-splice'd per second", rate / (double)MB);
+	stress_misc_stats_set(args->misc_stats, 0, "MB per sec vm-splice rate", rate / (double)MB);
 	rate = (duration > 0.0) ? vm_splices / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "vm-splice calls per second", rate);
+	stress_misc_stats_set(args->misc_stats, 1, "vm-splice calls per sec", rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

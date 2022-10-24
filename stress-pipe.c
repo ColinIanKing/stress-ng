@@ -278,7 +278,7 @@ again:
 		} while (keep_stressing(args));
 		duration = stress_time_now() - t;
 		rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
-		stress_misc_stats_set(args->misc_stats, 0, "MB/sec pipe write rate", rate);
+		stress_misc_stats_set(args->misc_stats, 0, "MB per sec pipe write rate", rate);
 
 		(void)memset(buf, 0, pipe_data_size);
 		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));

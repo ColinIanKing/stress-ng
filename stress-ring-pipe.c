@@ -285,7 +285,7 @@ finish:
 	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
 	stress_misc_stats_set(args->misc_stats, 0, "pipe read+write calls per sec", rate);
 	rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "MB data pipe'd per sec", rate / (double)MB);
+	stress_misc_stats_set(args->misc_stats, 1, "MB per sec data pipe write", rate / (double)MB);
 
 err_deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

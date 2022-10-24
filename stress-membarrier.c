@@ -204,7 +204,7 @@ static int stress_membarrier(const stress_args_t *args)
 		count += info[i].count;
 	}
 	rate = (duration > 0) ? count / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "membarrier calls per second", rate);
+	stress_misc_stats_set(args->misc_stats, 0, "membarrier calls per sec", rate);
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		if (info[i].pthread_ret == 0)

@@ -202,7 +202,7 @@ tidy:
 	}
 	overrun_nsec -= overhead_nsec;
 	overrun_nsec = (count > 0.0) ? overrun_nsec / count : 0.0;
-	stress_misc_stats_set(args->misc_stats, 2, "nanosecond timer overrun", overrun_nsec);
+	stress_misc_stats_set(args->misc_stats, 2, "nanosec sleep overrun", overrun_nsec);
 #endif
 
 	if (limited) {

@@ -177,7 +177,7 @@ static int stress_crypt(const stress_args_t *args)
 		const double duration = crypt_metrics[i].duration;
 		const double rate = duration > 0 ? crypt_metrics[i].count / duration : 0.0;
 
-		snprintf(str, sizeof(str), "%s encrypts/sec", crypt_methods[i].method);
+		snprintf(str, sizeof(str), "%s encrypts per sec", crypt_methods[i].method);
 		stress_misc_stats_set(args->misc_stats, i, str, rate);
 	}
 

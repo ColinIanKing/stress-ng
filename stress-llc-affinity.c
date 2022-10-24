@@ -224,7 +224,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 	stress_misc_stats_set(args->misc_stats, 1, "read memory rate (MB per sec)", rate);
 
 	rate = duration > 0.0 ? (double)affinity_changes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 2, "CPU affinity changes/sec", rate);
+	stress_misc_stats_set(args->misc_stats, 2, "CPU affinity changes per sec", rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)buf, mmap_sz);

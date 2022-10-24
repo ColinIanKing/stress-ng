@@ -245,7 +245,7 @@ static int stress_tsc(const stress_args_t *args)
 
 		count = 32.0 * 4.0 * (double)get_counter(args);
 		duration = (count > 0.0) ? duration / count : 0.0;
-		stress_misc_stats_set(args->misc_stats, 0, "ns per time counter read", duration * 1000000000.0);
+		stress_misc_stats_set(args->misc_stats, 0, "nanosecs per time counter read", duration * 1000000000.0);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

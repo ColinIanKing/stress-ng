@@ -786,10 +786,10 @@ do_stats:
 			char tmp[32];
 			const double rate = (double)stats[i].ops / stats[i].duration;
 
-			pr_dbg("%s: %s %.3f bogo/ops per second\n",
+			pr_dbg("%s: %s %.3f bogo ops per sec\n",
 				args->name, init_mb[i].name, rate);
 
-			(void)snprintf(tmp, sizeof(tmp), "%s bogo/ops per second", init_mb[i].name);
+			(void)snprintf(tmp, sizeof(tmp), "%s bogo ops per sec", init_mb[i].name);
 			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
 		}
 	}

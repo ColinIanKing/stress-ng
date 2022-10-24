@@ -516,9 +516,9 @@ static int stress_vdso(const stress_args_t *args)
 	if (dt > 0.0) {
 		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)counter) - overhead_ns;
 
-		pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
+		pr_inf("%s: %.2f nanosecs per call (excluding %.2f nanosecs test overhead)\n",
 			args->name, ns, overhead_ns);
-		stress_misc_stats_set(args->misc_stats, 0, "nanoseconds per call", ns);
+		stress_misc_stats_set(args->misc_stats, 0, "nanosecs per call", ns);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
