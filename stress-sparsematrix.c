@@ -1325,7 +1325,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 			pr_inf("%s: %-6s skipped (out of memory)\n",
 				args->name, sparsematrix_methods[i].name);
 		} else {
-			pr_inf("%s: %-8s %8.8s %15.2f Get/s %15.2f Put/s\n",
+			pr_inf("%s: %-8s %8.8s %15.2f get/s %15.2f put/s\n",
 				args->name,
 				sparsematrix_methods[i].name, str,
 				test_info[i].get_duration > 0.0 ?
