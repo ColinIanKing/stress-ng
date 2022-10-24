@@ -259,7 +259,7 @@ static int stress_prefetch(const stress_args_t *args)
 	else
 		ns = 0.0;
 
-	pr_inf("%s: best prefetch read rate @ %.2f GB per sec at offset %zd (~%.2f nanoseconds)\n",
+	pr_inf("%s: best prefetch read rate @ %.2f GB per sec at offset %zd (~%.2f nanosecs)\n",
 		args->name, best_rate / (double)GB,
 		prefetch_info[best].offset, ns);
 

@@ -71,7 +71,7 @@ static void stress_switch_rate(
 	const double t_end,
 	uint64_t counter)
 {
-	pr_inf("%s: (%s) %.2f nanoseconds per context switch (based on parent run time)\n",
+	pr_inf("%s: (%s) %.2f nanosecs per context switch (based on parent run time)\n",
 		args->name, method,
 		((t_end - t_start) * STRESS_NANOSECOND) / (double)counter);
 }
