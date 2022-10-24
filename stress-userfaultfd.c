@@ -197,6 +197,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
 	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
 	size_t userfaultfd_bytes = DEFAULT_USERFAULT_BYTES;
+	double t, duration = 0.0, rate;
 
 	(void)context;
 
@@ -331,11 +332,13 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		struct uffd_msg msg;
 		struct uffdio_range wake;
 		ssize_t ret;
+		double counter;
 
 		/* check we should break out before we block on the read */
 		if (!keep_stressing_flag())
 			break;
 
+		t = stress_time_now();
 		/*
 		 * polled wait exercises userfaultfd_poll
 		 * in the kernel, but only works if fd is NONBLOCKing
@@ -402,13 +405,18 @@ do_read:
 		if (handle_page_fault(args, fd, (uint8_t *)(intptr_t)msg.arg.pagefault.address,
 				zero_page, data, data + sz, page_size) < 0)
 			break;
+		duration += stress_time_now() - t;
+		inc_counter(args);
+		counter = (double)get_counter(args);
+
+		rate = (counter > 0.0) ? duration / counter : 0.0;
+		stress_misc_stats_set(args->misc_stats, 0, "nanosecs per page fault", rate * 1000000000.0);
 
 		(void)memset(&wake, 0, sizeof(wake));
 		wake.start = (uintptr_t)data;
 		wake.len = page_size;
 		VOID_RET(int, ioctl(fd, UFFDIO_WAKE, &wake));
 
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
