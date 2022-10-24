@@ -38,7 +38,7 @@
 /* Number of items in sparse matrix */
 #define MIN_SPARSEMATRIX_ITEMS		(100)
 #define MAX_SPARSEMATRIX_ITEMS		(10000000)
-#define DEFAULT_SPARSEMATRIX_ITEMS	(5000)
+#define DEFAULT_SPARSEMATRIX_ITEMS	(10000)
 
 /* Sparse matrix X x Y size */
 #define MIN_SPARSEMATRIX_SIZE		(10)
@@ -72,9 +72,9 @@
 
 typedef void * (*func_create)(const uint64_t n, const uint32_t x, const uint32_t y);
 typedef void (*func_destroy)(void *handle, size_t *objmem);
-typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
+typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint32_t value);
 typedef void (*func_del)(void *handle, const uint32_t x, const uint32_t y);
-typedef uint64_t (*func_get)(void *handle, const uint32_t x, const uint32_t y);
+typedef uint32_t (*func_get)(void *handle, const uint32_t x, const uint32_t y);
 
 typedef struct {
 	const char              *name;  /* human readable form of sparse method */
@@ -99,7 +99,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_RB_TREE)
 typedef struct sparse_rb {
 	uint64_t xy;		/* x,y matrix position */
-	uint64_t value;		/* value in matrix x,y */
+	uint32_t value;		/* value in matrix x,y */
 	RB_ENTRY(sparse_rb) rb;	/* red-black tree node entry */
 } sparse_rb_t;
 #else
@@ -109,7 +109,7 @@ UNEXPECTED
 typedef struct sparse_hash_node {
 	struct sparse_hash_node *next;
 	uint64_t xy;		/* x,y matrix position */
-	uint64_t value;		/* value in matrix x,y */
+	uint32_t value;		/* value in matrix x,y */
 } sparse_hash_node_t;
 
 typedef struct sparse_hash_table {
@@ -125,7 +125,7 @@ typedef struct sparse_hashjudy_table {
 typedef struct sparse_qhash_node {
 	struct sparse_qhash_node *next;
 	uint64_t xy;		/* x,y matrix position */
-	uint64_t value;		/* value in matrix x,y */
+	uint32_t value;		/* value in matrix x,y */
 } sparse_qhash_node_t;
 
 typedef struct sparse_qhash_table {
@@ -140,7 +140,7 @@ typedef struct sparse_qhash_table {
 
 typedef struct sparse_x_list_node {
 	CIRCLEQ_ENTRY(sparse_x_list_node) sparse_x_list;
-	uint64_t value;		/* value in matrix x,y */
+	uint32_t value;		/* value in matrix x,y */
 	uint32_t x;		/* x matrix position */
 } sparse_x_list_node_t;
 
@@ -172,8 +172,8 @@ typedef struct {
 	size_t	max_objmem;	/* Object memory allocation estimate */
 	double	put_duration;	/* Total put duration time, seconds */
 	double	get_duration;	/* Total get duration time, seconds */
-	uint64_t put_ops;	/* Totoal put object op count */
-	uint64_t get_ops;	/* Totoal put object op count */
+	uint64_t put_ops;	/* Total put object op count */
+	uint64_t get_ops;	/* Total put object op count */
 	bool	skip_no_mem;	/* True if can't allocate memory */
 } test_info_t;
 
@@ -203,6 +203,11 @@ static int stress_set_sparsematrix_size(const char *opt)
 	stress_check_range("sparsematrix-size", (uint64_t)sparsematrix_size,
 		MIN_SPARSEMATRIX_SIZE, MAX_SPARSEMATRIX_SIZE);
 	return stress_set_setting("sparsematrix-size", TYPE_ID_UINT32, &sparsematrix_size);
+}
+
+static uint32_t value_map(const uint32_t x, const uint32_t y)
+{
+	return x ^ ~y;
 }
 
 /*
@@ -271,7 +276,7 @@ static void hash_destroy(void *handle, size_t *objmem)
  *  hash_put()
  *	put a value into a hash based sparse matrix
  */
-static int OPTIMIZE3 hash_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int OPTIMIZE3 hash_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_hash_node_t *node;
 	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
@@ -328,7 +333,7 @@ static sparse_hash_node_t OPTIMIZE3 *hash_get_node(void *handle, const uint32_t 
  *  hash_get()
  *	get the (x,y) value in hash table based sparse matrix
  */
-static uint64_t OPTIMIZE3 hash_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t OPTIMIZE3 hash_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_node_t *node = hash_get_node(handle, x, y);
 
@@ -415,7 +420,7 @@ static void qhash_destroy(void *handle, size_t *objmem)
  *  qhash_put()
  *	put a value into a hash based sparse matrix
  */
-static int OPTIMIZE3 qhash_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int OPTIMIZE3 qhash_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_qhash_node_t *node;
 	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
@@ -472,7 +477,7 @@ static sparse_qhash_node_t OPTIMIZE3 *qhash_get_node(void *handle, const uint32_
  *  qhash_get()
  *	get the (x,y) value in hash table based sparse matrix
  */
-static uint64_t OPTIMIZE3 qhash_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t OPTIMIZE3 qhash_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_qhash_node_t *node = qhash_get_node(handle, x, y);
 
@@ -531,7 +536,7 @@ STRESS_PRAGMA_POP
  *  judy_put()
  *	put a value into a judy based sparse matrix
  */
-static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	Word_t *pvalue;
 
@@ -547,12 +552,12 @@ static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, 
  *  judy_get()
  *	get the (x,y) value in judy array based sparse matrix
  */
-static uint64_t OPTIMIZE3 judy_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t OPTIMIZE3 judy_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	Word_t *pvalue;
 
 	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
-	return pvalue ? *(uint64_t *)pvalue : 0;
+	return pvalue ? *(uint32_t *)pvalue : 0;
 }
 
 /*
@@ -626,7 +631,7 @@ static void rb_destroy(void *handle, size_t *objmem)
  *  rb_put()
  *	put a value into a red black tree sparse matrix
  */
-static int OPTIMIZE3 rb_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int OPTIMIZE3 rb_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_rb_t node, *found;
 
@@ -670,7 +675,7 @@ static void OPTIMIZE3 rb_del(void *handle, const uint32_t x, const uint32_t y)
  *  rb_get()
  *	get the (x,y) value in a red back tree sparse matrix
  */
-static uint64_t OPTIMIZE3 rb_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t OPTIMIZE3 rb_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_rb_t node, *found;
 
@@ -733,7 +738,7 @@ static void list_destroy(void *handle, size_t *objmem)
  *  list_put()
  *	put a value into a circular list based sparse matrix
  */
-static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_y_list_t *y_head = (sparse_y_list_t *)handle;
 	sparse_y_list_node_t *y_node, *new_y_node;
@@ -831,7 +836,7 @@ static void list_del(void *handle, const uint32_t x, const uint32_t y)
  *  list_get()
  *	get the (x,y) value in a circular list based sparse matrix
  */
-static uint64_t OPTIMIZE3 list_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t OPTIMIZE3 list_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	const sparse_x_list_node_t *x_node = list_get_node(handle, x, y);
 
@@ -840,11 +845,6 @@ static uint64_t OPTIMIZE3 list_get(void *handle, const uint32_t x, const uint32_
 #else
 UNEXPECTED
 #endif
-
-static uint64_t value_map(const uint32_t x, const uint32_t y)
-{
-	return ((uint64_t)x << 32) ^ y;
-}
 
 #if defined(HAVE_JUDY)
 
@@ -901,7 +901,7 @@ static void hashjudy_destroy(void *handle, size_t *objmem)
  *  hashjudy_put()
  *	put a value into a hash based judy array
  */
-static int OPTIMIZE3 hashjudy_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int OPTIMIZE3 hashjudy_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
 	Word_t *pvalue;
@@ -939,7 +939,7 @@ static void OPTIMIZE3 hashjudy_del(void *handle, const uint32_t x, const uint32_
  *  hashjudy_get()
  *	get the (x,y) value in hash judy array based sparse matrix
  */
-static uint64_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
 	Word_t *pvalue;
@@ -950,7 +950,7 @@ static uint64_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uin
 	JLG(pvalue, table->hash_table[x], y);
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return 0;
-	return *(uint64_t *)pvalue;
+	return *(uint32_t *)pvalue;
 }
 
 #endif
@@ -983,19 +983,18 @@ static int stress_sparse_method_test(
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
-		uint64_t v = value_map(x, y);
-		uint64_t gv;
+		uint32_t gv, v = value_map(x, y);
 
 		if (v == 0)
-			v = ~0ULL;
+			v = ~(uint32_t)0;
 
 		gv = info->get(handle, x, y);
 		if (gv == 0) {
 			if (info->put(handle, x, y, v) < 0) {
-				pr_fail("%s: failed to put into "
+				pr_fail("%s: %s failed to put into "
 					"sparse matrix at position "
 					"(%" PRIu32 ",%" PRIu32 ")\n",
-					args->name, x, y);
+					args->name, info->name, x, y);
 				rc = SPARSE_TEST_FAILED;
 				goto err;
 			}
@@ -1010,17 +1009,16 @@ static int stress_sparse_method_test(
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
-		uint64_t v = value_map(x, y);
-		uint64_t gv;
+		uint32_t gv, v = value_map(x, y);
 
 		if (v == 0)
-			v = ~0ULL;
+			v = ~(uint32_t)0;
 
 		gv = info->get(handle, x, y);
 		if (gv != v) {
-			pr_fail("%s: mismatch (%" PRIu32 ",%" PRIu32
-				") was %" PRIx64 ", got %" PRIx64 "\n",
-				args->name, x, y, v, gv);
+			pr_fail("%s: %s mismatch (%" PRIu32 ",%" PRIu32
+				") was %" PRIu32 ", got %" PRIu32 "\n",
+				args->name, info->name, x, y, v, gv);
 		}
 	}
 	t2 = stress_time_now();
@@ -1043,7 +1041,7 @@ static int stress_sparse_method_test(
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
-		uint64_t v = value_map(x, y);
+		uint32_t v = value_map(x, y);
 		(void)v;
 
 		info->del(handle, x, y);
@@ -1073,7 +1071,7 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	 */
 	max_phys = (size_t)n * page_size * 2;
 
-	m.mmap_size = (size_t)x * (size_t)y * sizeof(uint64_t);
+	m.mmap_size = (size_t)x * (size_t)y * sizeof(uint32_t);
 	m.mmap_size = (m.mmap_size + page_size - 1) & ~(page_size - 1);
 
 	if (max_phys > freemem + freeswap)
@@ -1124,7 +1122,7 @@ static void mmap_destroy(void *handle, size_t *objmem)
 	(void)munmap(m->mmap, m->mmap_size);
 }
 
-static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
 	off_t offset;
@@ -1133,7 +1131,7 @@ static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint
 		return -1;
 
 	offset = (x + ((off_t)m->y * y));
-	*((uint64_t *)(m->mmap) + offset) = value;
+	*((uint32_t *)(m->mmap) + offset) = value;
 
 	return 0;
 }
@@ -1147,19 +1145,19 @@ static void mmap_del(void *handle, const uint32_t x, const uint32_t y)
 		return;
 
 	offset = (x + ((uint64_t)m->y * y));
-	*((uint64_t *)(m->mmap) + offset) = 0;
+	*((uint32_t *)(m->mmap) + offset) = 0;
 }
 
-static uint64_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
+static uint32_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
 	uint64_t offset;
 
 	if (m->x <= x || m->y <= y)
-		return (uint64_t)-1;
+		return (uint32_t)-1;
 
 	offset = (x + ((uint64_t)m->y * y));
-	return *((uint64_t *)(m->mmap) + offset);
+	return *((uint32_t *)(m->mmap) + offset);
 }
 
 /*
