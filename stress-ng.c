@@ -2798,7 +2798,7 @@ static void stress_metrics_dump(
 						exponent += e;
 					}
 					geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
-					pr_inf("%-13s %11.2f %s (geometic mean)\n",
+					pr_inf("%-13s %13.2f %s (geometic mean)\n",
 						munged, geomean, description);
 				}
 			}
