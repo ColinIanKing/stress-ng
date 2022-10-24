@@ -251,7 +251,7 @@ static int stress_prefetch(const stress_args_t *args)
 	}
 	pr_inf("%s: using a %zd KB L3 cache, %" PRIu64 " benchmark rounds\n",
 		args->name, l3_data_size >> 10, total_count);
-	pr_inf("%s: non-prefetch read rate @ %.2f GB/s\n",
+	pr_inf("%s: non-prefetch read rate @ %.2f GB per sec\n",
 		args->name, prefetch_info[0].rate / (double)GB);
 
 	if (best_rate > 0.0)
@@ -259,7 +259,7 @@ static int stress_prefetch(const stress_args_t *args)
 	else
 		ns = 0.0;
 
-	pr_inf("%s: best prefetch read rate @ %.2f GB/s at offset %zd (~%.2f nanoseconds)\n",
+	pr_inf("%s: best prefetch read rate @ %.2f GB per sec at offset %zd (~%.2f nanoseconds)\n",
 		args->name, best_rate / (double)GB,
 		prefetch_info[best].offset, ns);
 
