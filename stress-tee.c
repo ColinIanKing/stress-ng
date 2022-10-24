@@ -205,6 +205,7 @@ static int stress_tee(const stress_args_t *args)
 	pid_t pids[2];
 	int ret = EXIT_FAILURE, status;
 	const int release = stress_get_kernel_release();
+	double duration = 0.0, bytes = 0.0, rate;
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -231,8 +232,10 @@ static int stress_tee(const stress_args_t *args)
 	(void)close(pipe_out[0]);
 
 	do {
-		len = tee(pipe_in[0], pipe_out[1],
-			INT_MAX, 0 & SPLICE_F_NONBLOCK);
+		double t;
+
+		t = stress_time_now();
+		len = tee(pipe_in[0], pipe_out[1], INT_MAX, 0);
 
 		if (len < 0) {
 			if (errno == EAGAIN)
@@ -251,6 +254,8 @@ static int stress_tee(const stress_args_t *args)
 		} else {
 			if (len == 0)
 				break;
+			duration += stress_time_now() - t;
+			bytes += (double)len;
 		}
 
 		while (len > 0) {
@@ -273,6 +278,9 @@ static int stress_tee(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
+
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB tee'd per second", rate / (double)MB);
 
 tidy_child2:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
