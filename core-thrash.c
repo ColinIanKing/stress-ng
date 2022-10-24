@@ -48,10 +48,7 @@ static void MLOCKED_TEXT stress_pagein_handler(int signum)
 
 static void stress_thrash_state(char *state)
 {
-	char buf[64];
-
-	(void)snprintf(buf, sizeof(buf), "thrash [%s]", state);
-	stress_set_proc_name(buf);
+	stress_set_proc_state_str("thrash", state);
 }
 
 /*
