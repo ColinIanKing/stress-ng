@@ -1076,6 +1076,8 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 
 	if (max_phys > freemem + freeswap)
 		return NULL;
+	if (m.mmap_size >= ~((size_t)(void *)0))
+		return NULL;
 
 	m.x = x;
 	m.y = y;
