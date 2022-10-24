@@ -239,7 +239,6 @@ static void hash_destroy(void *handle, size_t *objmem)
 {
 	size_t i, n;
 	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
-	size_t max = 0;
 
 	*objmem = 0;
 	if (!handle)
@@ -259,8 +258,6 @@ static void hash_destroy(void *handle, size_t *objmem)
 			node = next;
 			j++;
 		}
-		if (max < j)
-			max = j;
 	}
 	*objmem += sizeof(*table) +
 		   sizeof(*table->table) * table->n;
