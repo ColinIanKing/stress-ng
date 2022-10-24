@@ -79,6 +79,8 @@ static int stress_utime(const stress_args_t *args)
     defined(HAVE_UTIMBUF)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
+	double duration = 0.0, count = 0.0, rate;
+
 	(void)stress_get_setting("utime-fsync", &utime_fsync);
 
 	ret = stress_temp_dir_mk_args(args);
@@ -111,6 +113,7 @@ static int stress_utime(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		double t;
 		struct timeval timevals[2];
 #if (defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)) && \
     (defined(UTIME_NOW) || defined(UTIME_OMIT))
@@ -119,18 +122,25 @@ static int stress_utime(const stress_args_t *args)
 
 		(void)gettimeofday(&timevals[0], NULL);
 		timevals[1] = timevals[0];
+		t = stress_time_now();
 		if (utimes(filename, timevals) < 0) {
 			pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_fs_type(filename));
 			break;
 		}
+		duration += stress_time_now() - t;
+		count += 1.0;
+		
+		t = stress_time_now();
 		if (utimes(filename, NULL) < 0) {
 			pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_fs_type(filename));
 			break;
 		}
+		duration += stress_time_now() - t;
+		count += 1.0;
 
 		/* Exercise with invalid filename, ENOENT */
 		VOID_RET(int, utimes("", timevals));
@@ -139,12 +149,15 @@ static int stress_utime(const stress_args_t *args)
 		VOID_RET(int, utimes(hugename, timevals));
 
 #if defined(HAVE_FUTIMENS)
+		t = stress_time_now();
 		if (futimens(fd, NULL) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_fs_type(filename));
 			break;
 		}
+		duration += stress_time_now() - t;
+		count += 1.0;
 
 		/* Exercise with invalid fd */
 		ts[0].tv_sec = UTIME_NOW;
@@ -158,12 +171,15 @@ static int stress_utime(const stress_args_t *args)
 		ts[0].tv_nsec = UTIME_NOW;
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
+		t = stress_time_now();
 		if (futimens(fd, ts) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_fs_type(filename));
 			break;
 		}
+		duration += stress_time_now() - t;
+		count += 1.0;
 #else
 		UNEXPECTED
 #endif
@@ -171,12 +187,15 @@ static int stress_utime(const stress_args_t *args)
 #if defined(UTIME_OMIT)
 		ts[0].tv_sec = UTIME_OMIT;
 		ts[0].tv_nsec = UTIME_OMIT;
+		t = stress_time_now();
 		if (futimens(fd, ts) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_fs_type(filename));
 			break;
 		}
+		duration += stress_time_now() - t;
+		count += 1.0;
 #else
 		UNEXPECTED
 #endif
@@ -191,7 +210,10 @@ static int stress_utime(const stress_args_t *args)
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
 
+		t = stress_time_now();
 		VOID_RET(int, utimensat(AT_FDCWD, filename, ts, 0));
+		duration += stress_time_now() - t;
+		count += 1.0;
 
 		/* Exercise invalid filename, ENOENT */
 		VOID_RET(int, utimensat(AT_FDCWD, "", ts, 0));
@@ -260,12 +282,15 @@ STRESS_PRAGMA_POP
 			utbuf.actime = (time_t)tv.tv_sec;
 			utbuf.modtime = utbuf.actime;
 
+			t = stress_time_now();
 			if (shim_utime(filename, &utbuf) < 0) {
 				pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_fs_type(filename));
 				break;
 			}
+			duration += stress_time_now() - t;
+			count += 1.0;
 
 			if (verify) {
 				struct stat statbuf;
@@ -281,12 +306,15 @@ STRESS_PRAGMA_POP
 					}
 				}
 			}
+			t = stress_time_now();
 			if (shim_utime(filename, NULL) < 0) {
 				pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_fs_type(filename));
 				break;
 			}
+			duration += stress_time_now() - t;
+			count += 1.0;
 
 			/* Exercise invalid timename, ENOENT */
 			VOID_RET(int, shim_utime("", &utbuf));
@@ -305,6 +333,9 @@ STRESS_PRAGMA_POP
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "utime calls per sec", rate);
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\
