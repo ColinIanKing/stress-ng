@@ -276,20 +276,23 @@ static int stress_plugin(const stress_args_t *args)
 	bool report_sigs;
 
 	if (!stress_plugin_so) {
-		pr_inf_skip("%s: plugin shared library failed to open, skipping stressor\n", args->name);
+		if (args->instance == 0)
+			pr_inf_skip("%s: plugin shared library failed to open, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	(void)stress_get_setting("plugin-method", &plugin_method);
 	if (!stress_plugin_methods) {
-		pr_inf("%s: no plugin methods found, need to specify a valid shared library with --plug-so\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: no plugin methods found, need to specify a valid shared library with --plug-so\n",
+				args->name);
 		(void)dlclose(stress_plugin_so);
 		return EXIT_NO_RESOURCE;
 	}
 	if (plugin_method > stress_plugin_methods_num) {
-		pr_inf("%s: invalid plugin method index %zd, expecting 0..%zd\n",
-			args->name, plugin_method, stress_plugin_methods_num);
+		if (args->instance == 0)
+			pr_inf("%s: invalid plugin method index %zd, expecting 0..%zd\n",
+				args->name, plugin_method, stress_plugin_methods_num);
 		(void)dlclose(stress_plugin_so);
 		return EXIT_NO_RESOURCE;
 	}
