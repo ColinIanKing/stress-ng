@@ -617,10 +617,9 @@ static int stress_cache(const stress_args_t *args)
 {
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
-	cpu_set_t mask;
+	cpu_set_t proc_mask;
 	NOCLOBBER uint32_t cpu = 0;
 	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
-	cpu_set_t proc_mask;
 	NOCLOBBER bool pinned = false;
 #endif
 	uint32_t cache_flags = 0;
@@ -813,6 +812,8 @@ static int stress_cache(const stress_args_t *args)
 		}
 
 		if (!(cache_flags & FLAGS_CACHE_NOAFF) || !pinned) {
+			cpu_set_t mask;
+
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
 			(void)sched_setaffinity(0, sizeof(mask), &mask);
