@@ -7262,7 +7262,7 @@ static const syscall_t syscalls[] = {
 	SYSCALL(syscall_chroot),
 #endif
 #if defined(HAVE_SYSCALL_CLOCK_ADJTIME)
-	SYSCALL(syscall_clock_adjtime
+	SYSCALL(syscall_clock_adjtime),
 #endif
 #if defined(HAVE_SYSCALL_CLOCK_GETRES)
 	SYSCALL(syscall_clock_getres),
