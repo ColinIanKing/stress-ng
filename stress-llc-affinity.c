@@ -31,13 +31,13 @@ static const stress_help_t help[] = {
 
 typedef void (*cache_line_func_t)(
         uint64_t *buf,
-        uint64_t *buf_end,
+        const uint64_t *buf_end,
         double *duration,
         const size_t cache_line_size);
 
 static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_64(
 	uint64_t *buf,
-	uint64_t *buf_end,
+	const uint64_t *buf_end,
 	double *duration,
 	const size_t cache_line_size)
 {
@@ -66,7 +66,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_64(
 
 static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n(
 	uint64_t *buf,
-	uint64_t *buf_end,
+	const uint64_t *buf_end,
 	double *duration,
 	const size_t cache_line_size)
 {
@@ -89,7 +89,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_n(
 
 static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_64(
 	uint64_t *buf,
-	uint64_t *buf_end,
+	const uint64_t *buf_end,
 	double *duration,
 	const size_t cache_line_size)
 {
@@ -117,7 +117,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_64(
 
 static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_n(
 	uint64_t *buf,
-	uint64_t *buf_end,
+	const uint64_t *buf_end,
 	double *duration,
 	const size_t cache_line_size)
 {
