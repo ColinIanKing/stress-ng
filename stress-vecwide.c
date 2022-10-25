@@ -186,7 +186,7 @@ static int stress_vecwide(const stress_args_t *args)
 
 	if (args->instance == 0) {
 		pr_lock();
-		pr_dbg("Bytes %% dur  %% exp (x win) (> 1.0 is better than expected)\n");
+		pr_dbg("%s: Bytes %% Dur  %% Exp (x Win) (> 1.0 is better than expected)\n", args->name);
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 			double dur_pc, exp_pc, win;
 
@@ -194,10 +194,12 @@ static int stress_vecwide(const stress_args_t *args)
 			exp_pc = (double)stress_vecwide_funcs[i].byte_size / (double)total_bytes * 100.0;
 			win    = exp_pc / dur_pc;
 
-			pr_dbg("%5zd %5.2f%% %5.2f%% %5.2f\n",
-				stress_vecwide_funcs[i].byte_size,
+			pr_dbg("%s: %5zd %5.2f%% %5.2f%% %5.2f\n",
+				args->name, stress_vecwide_funcs[i].byte_size,
 				dur_pc, exp_pc, win);
 		}
+		pr_dbg("%s: Key: Bytes = vector width in bytes, Dur = %% total run time,\n", args->name);
+		pr_dbg("%s       Exp = %% expected run time, Win = performance gain\n", args->name);
 		pr_unlock();
 	}
 
