@@ -163,7 +163,7 @@ UNEXPECTED
 
 typedef struct {
 	void *mmap;
-	size_t mmap_size;
+	uint64_t mmap_size;
 	uint32_t x;
 	uint32_t y;
 } sparse_mmap_t;
@@ -1058,7 +1058,8 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	const size_t page_size = stress_get_page_size();
 	static sparse_mmap_t m;
-	size_t shmall, freemem, totalmem, freeswap, totalswap, max_phys;
+	size_t shmall, freemem, totalmem, freeswap, totalswap;
+	uint64_t max_phys, total_free, max_size_t;
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
@@ -1069,14 +1070,17 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	 *  2 x n x pages. Make sure there is enough spare
 	 *  physical pages to allow this w/o OOMing
 	 */
-	max_phys = (size_t)n * page_size * 2;
+	max_phys = n * page_size * 2;
 
-	m.mmap_size = (size_t)x * (size_t)y * sizeof(uint32_t);
-	m.mmap_size = (m.mmap_size + page_size - 1) & ~(page_size - 1);
+	m.mmap_size = (uint64_t)x * (uint64_t)y * sizeof(uint32_t);
+	m.mmap_size = (m.mmap_size + page_size - 1) & (uint64_t)~(page_size - 1);
 
-	if (max_phys > freemem + freeswap)
+	total_free = (uint64_t)freemem + (uint64_t)freeswap;
+	if (max_phys > total_free)
 		return NULL;
-	if (m.mmap_size >= ~((size_t)(void *)0))
+
+	max_size_t = (uint64_t)(~(size_t)0);
+	if (m.mmap_size >= max_size_t)
 		return NULL;
 
 	m.x = x;
@@ -1132,7 +1136,7 @@ static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint
 	if (m->x <= x || m->y <= y)
 		return -1;
 
-	offset = (x + ((off_t)m->y * y));
+	offset = (x + ((uint64_t)m->y * y));
 	*((uint32_t *)(m->mmap) + offset) = value;
 
 	return 0;
