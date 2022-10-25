@@ -64,7 +64,7 @@ static int stress_fault(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_MINFLT)
 	double t1 = 0.0, t2 = 0.0, dt;
 #endif
-	double duration = 0.0, count = 0.0, average_duration;
+	double duration = 0.0, count = 0.0;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -228,6 +228,8 @@ next:
 	}
 	dt = t2 - t1;
 	if (dt > 0.0) {
+		double average_duration;
+
 		stress_misc_stats_set(args->misc_stats, 0, "minor page faults per sec",
 			(double)usage.ru_minflt / dt);
 		stress_misc_stats_set(args->misc_stats, 1, "major page faults per sec",
