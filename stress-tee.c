@@ -117,10 +117,11 @@ static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 	(void)close(fds[1]);
 
 	while (keep_stressing_flag()) {
-		ssize_t ret;
 		size_t n = 0;
 
 		while (n < sizeof(buffer)) {
+			ssize_t ret;
+
 			ret = read(fds[0], buffer, sizeof(buffer));
 			if (ret < 0) {
 				if (errno != EAGAIN)
