@@ -117,10 +117,12 @@ typedef struct sparse_hash_table {
 	sparse_hash_node_t **table;
 } sparse_hash_table_t;
 
+#if defined(HAVE_JUDY_H)
 typedef struct sparse_hashjudy_table {
 	uint64_t n;		/* size of hash table */
 	Pvoid_t *hash_table;	/* hash table of Judy arrays */
 } sparse_hashjudy_table_t;
+#endif
 
 typedef struct sparse_qhash_node {
 	struct sparse_qhash_node *next;
