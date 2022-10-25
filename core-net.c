@@ -318,7 +318,7 @@ static bool stress_net_port_range_ok(const int start_port, const int end_port)
  */
 int stress_net_reserve_ports(const int start_port, const int end_port)
 {
-	int i, j = 0, port = -1;
+	int i, port = -1;
 
 	if (!stress_net_port_range_ok(start_port, end_port))
 		return -1;
@@ -337,6 +337,7 @@ int stress_net_reserve_ports(const int start_port, const int end_port)
 		}
 	} else {
 		const int quantity = (end_port - start_port) + 1;
+		int j = 0;
 
 		/* otherwise scan for contiguous port range */
 		for (i = start_port; i < 65536; i++) {
