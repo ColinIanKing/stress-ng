@@ -1930,6 +1930,22 @@ int shim_clock_getres(clockid_t clk_id, struct timespec *res)
 }
 
 /*
+ *   shim_clock_adjtime
+ *	wrapper for linux clock_adjtime system call
+ */
+int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *buf)
+{
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_ADJTIME) &&	\
+    defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_TIMEX)
+	return clock_adjtime(clk_id, buf);
+#else
+	return (int)shim_enosys(0, clk_id, buf);
+#endif
+}
+
+/*
  *   shim_clock_gettime
  *	wrapper for linux clock_gettime system call,
  *	prefer to use the system call to avoid and

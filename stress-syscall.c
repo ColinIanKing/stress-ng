@@ -169,6 +169,10 @@
 #include <sys/timerfd.h>
 #endif
 
+#if defined(HAVE_SYS_TIMEX_H)
+#include <sys/timex.h>
+#endif
+
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif
@@ -1038,11 +1042,14 @@ static int syscall_chroot(void)
 }
 #endif
 
-#if defined(HAVE_CLOCK_ADJTIME)
+#if defined(HAVE_CLOCK_ADJTIME) &&	\
+    defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_TIMEX)
 #define HAVE_SYSCALL_CLOCK_ADJTIME
 static int syscall_clock_adjtime(void)
 {
-	struct timespec t;
+
+	struct shim_timex t;
 	static size_t i = 0;
 	int ret;
 	const int clock = clocks[i];
@@ -1050,9 +1057,6 @@ static int syscall_clock_adjtime(void)
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
-	ret = shim_clock_gettime(clock, &t);
-	if (ret < 0)
-		return -1;
 	t1 = syscall_time_now();
 	ret = shim_clock_adjtime(clock, &t);
 	t2 = syscall_time_now();

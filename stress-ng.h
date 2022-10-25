@@ -2756,6 +2756,18 @@ struct shim_ustat {
 #define P_PIDFD		(3)
 #endif
 
+/* shim'd timex struct */
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_TIMEX)
+#define shim_timex	timex
+#else
+struct shim_timex {
+	int modes;
+	/* other fields we don't care about */
+	uint8_t padding[256 - sizeof(int)];
+};
+#endif
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
@@ -2777,6 +2789,7 @@ extern int shim_arch_prctl(int code, unsigned long addr);
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_flush_icache(void *begin, void *end);
+extern int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *buf);
 extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
 extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
 extern int shim_clock_settime(clockid_t clk_id, struct timespec *tp);
