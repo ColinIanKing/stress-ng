@@ -110,8 +110,6 @@ try_read:
 		}
 #if defined(HAVE_PREAD)
 		{
-			off_t offset;
-
 			offset = (sizeof(offset) == sizeof(uint64_t)) ?
 				(off_t)(stress_mwc64() & 0x7fffffffffffffff) :
 				(off_t)(stress_mwc32() & 0x7fffffffUL);
