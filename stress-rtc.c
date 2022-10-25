@@ -182,7 +182,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	 *  there are no RTC alarm interrupts pending
 	 */
 	timeout.tv_sec = 0;
-	timeout.tv_usec = 1000;
+	timeout.tv_usec = 1;
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
 	(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
