@@ -227,10 +227,11 @@ static inline void rdtsc(void)
  */
 static int stress_tsc(const stress_args_t *args)
 {
-	double duration = 0.0, count;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (tsc_supported) {
+		double duration = 0.0, count;
+
 		do {
 			const double t = stress_time_now();
 
