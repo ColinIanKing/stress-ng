@@ -196,7 +196,7 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	} while (stress_hrtimers_keep_stressing());
 
 	if (!hrtimer_interrupt) {
-		pr_fail("%s: did not detect any hrtimer interrupts of a sleep\n",
+		pr_dbg("%s: failed to detect hrtimer interrupts during a 1 sec sleep\n",
 			args->name);
 	}
 
