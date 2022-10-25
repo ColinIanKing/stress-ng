@@ -2787,17 +2787,27 @@ static void stress_metrics_dump(
 				if (*description) {
 					int64_t exponent = 0;
 					double geomean, mantissa = 1.0;
-					const double inverse_n = 1.0 / (double)ss->started_instances;
+					double inverse_n;
+					double n = 0.0;
 
 					for (j = 0; j < ss->started_instances; j++) {
 						int e;
 						const stress_stats_t *const stats = ss->stats[j];
-						const double f = frexp(stats->misc_stats[i].value, &e);
-					
-						mantissa *= f;
-						exponent += e;
+						double f;
+
+						if (stats->misc_stats[i].value > 0.0) {
+							f = frexp(stats->misc_stats[i].value, &e);
+							mantissa *= f;
+							exponent += e;
+							n += 1.0;
+						}
 					}
-					geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
+					if (n > 0.0) {
+						inverse_n = 1.0 / (double)ss->started_instances;
+						geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
+					} else {
+						geomean = 0.0;
+					}
 					pr_inf("%-13s %13.2f %s (geometic mean)\n",
 						munged, geomean, description);
 				}
