@@ -371,7 +371,7 @@ static int stress_clock(const stress_args_t *args)
     defined(ADJ_SETOFFSET)
 		{
 			size_t i;
-			struct shim_timex tx;
+			shim_timex_t tx;
 
 			/* Exercise clock_adjtime on invalid clock id */
 			if (invalid_clock_id) {

@@ -1049,7 +1049,7 @@ static int syscall_chroot(void)
 static int syscall_clock_adjtime(void)
 {
 
-	struct shim_timex t;
+	shim_timex_t t;
 	static size_t i = 0;
 	int ret;
 	const int clock = clocks[i];
