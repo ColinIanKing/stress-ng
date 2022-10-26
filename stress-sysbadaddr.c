@@ -737,7 +737,11 @@ UNEXPECTED
 
 static int bad_time(void *addr)
 {
-	return (int )time((time_t *)addr);
+	time_t ret;
+
+	ret = time((time_t *)addr);
+
+	return (ret == ((time_t) -1)) ? -1 : 0;
 }
 
 #if defined(HAVE_LIB_RT) &&	\
