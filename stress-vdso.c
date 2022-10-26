@@ -115,10 +115,11 @@ static int wrap_gettimeofday(void *vdso_func)
 static int wrap_time(void *vdso_func)
 {
 	time_t (*vdso_time)(time_t *tloc);
-	time_t t;
+	time_t t, ret;
 
 	*(void **)(&vdso_time) = vdso_func;
-	return (int)vdso_time(&t);
+	ret = vdso_time(&t);
+	return (ret == ((time_t)-1)) ? -1 : 0;
 }
 
 #if defined(HAVE_CLOCK_GETTIME)
