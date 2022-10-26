@@ -6494,7 +6494,7 @@ static int syscall_time(void)
 	t1 = syscall_time_now();
 	ret = time(&t);
 	t2 = syscall_time_now();
-	return (int)ret;
+	return (ret == ((time_t) -1)) ? -1 : 0;
 }
 
 #if defined(HAVE_LIB_RT) &&             \
