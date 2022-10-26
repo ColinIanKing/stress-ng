@@ -1933,7 +1933,7 @@ int shim_clock_getres(clockid_t clk_id, struct timespec *res)
  *   shim_clock_adjtime
  *	wrapper for linux clock_adjtime system call
  */
-int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *buf)
+int shim_clock_adjtime(clockid_t clk_id, shim_timex_t *buf)
 {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
     defined(HAVE_CLOCK_ADJTIME) &&	\

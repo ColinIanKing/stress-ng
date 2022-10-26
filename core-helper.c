@@ -1125,6 +1125,7 @@ void stress_set_proc_state_str(const char *name, const char *str)
 {
 	char long_name[64];
 
+	(void)str;
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
 		return;
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
