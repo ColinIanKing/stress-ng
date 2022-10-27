@@ -169,7 +169,7 @@ static int stress_loadavg(const stress_args_t *args)
 	const uint64_t threads_max = stress_loadavg_threads_max();
 	const uint32_t instances = (args->num_instances > 1 ?
 				   args->num_instances : 1);
-	uint64_t loadavg_max = 65536 * instances;
+	uint64_t loadavg_max = (uint64_t)instances * 65536;
 	int ret;
 #if defined(LOADAVG_IO)
 	int fd;
