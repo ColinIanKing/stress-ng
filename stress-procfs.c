@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-pthread.h"
 #include "core-put.h"
 
@@ -125,7 +126,8 @@ static void stress_proc_mtrr(const int fd)
  *	exercise PCI PCIIOC_CONTROLLER
  */
 #if defined(HAVE_LINUX_PCI_H) &&	\
-    defined(PCIIOC_CONTROLLER)
+    defined(PCIIOC_CONTROLLER) &&	\
+    !defined(STRESS_ARCH_SH4)
 static void stress_proc_pci(const int fd)
 {
 	VOID_RET(int, ioctl(fd, PCIIOC_CONTROLLER));
@@ -144,7 +146,8 @@ static stress_proc_info_t stress_proc_info[] = {
 	{ "/proc/mtrr",			stress_proc_mtrr },
 #endif
 #if defined(HAVE_LINUX_PCI_H) &&	\
-    defined(PCIIOC_CONTROLLER)
+    defined(PCIIOC_CONTROLLER) &&	\
+    !defined(STRESS_ARCH_SH4)
 	{ "/proc/bus/pci/00/00.0",	stress_proc_pci },	/* x86 */
 	{ "/proc/bus/pci/0000:00/00.0",	stress_proc_pci },	/* RISC-V */
 #endif
