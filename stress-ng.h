@@ -1712,6 +1712,9 @@ typedef enum {
 	OPT_quota,
 	OPT_quota_ops,
 
+	OPT_race_sched,
+	OPT_race_sched_ops,
+
 	OPT_radixsort,
 	OPT_radixsort_ops,
 	OPT_radixsort_size,

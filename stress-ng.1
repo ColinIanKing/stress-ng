@@ -3810,6 +3810,15 @@ systems. Requires CAP_SYS_ADMIN capability to run.
 .B \-\-\quota\-ops N
 stop quota stress workers after N bogo quotactl operations.
 .TP
+.B \-\-race\-sched N
+start N workers that exercise rapid changing CPU affinity child processes
+both from the controlling stressor and by the child processes. Child
+processes are created and terminated rapidly with the aim to create
+race conditions where affinity changing occurs during process run states.
+.TP
+.B \-\-race\-sched\-ops N
+stop after N process creation bogo-operations.
+.TP
 .B \-\-radixsort N
 start N workers that sort random 8 byte strings using radixsort.
 .TP

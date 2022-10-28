@@ -204,6 +204,7 @@
 	MACRO(pty)		\
 	MACRO(qsort)		\
 	MACRO(quota)		\
+	MACRO(race_sched)	\
 	MACRO(radixsort)	\
 	MACRO(randlist)		\
 	MACRO(ramfs)		\

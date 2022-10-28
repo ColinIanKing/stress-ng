@@ -320,6 +320,7 @@ STRESS_SRC = \
 	stress-pty.c \
 	stress-quota.c \
 	stress-qsort.c \
+	stress-race-sched.c \
 	stress-radixsort.c \
 	stress-randlist.c \
 	stress-ramfs.c \
