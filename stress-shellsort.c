@@ -49,7 +49,7 @@ static int stress_set_shellsort_size(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_shellsort_integers,	stress_set_shellsort_size },
+	{ OPT_shellsort_size,		stress_set_shellsort_size },
 	{ 0,				NULL }
 };
 

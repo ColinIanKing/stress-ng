@@ -1849,7 +1849,7 @@ typedef enum {
 
 	OPT_shellsort,
 	OPT_shellsort_ops,
-	OPT_shellsort_integers,
+	OPT_shellsort_size,
 
 	OPT_shm,
 	OPT_shm_ops,
