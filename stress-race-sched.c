@@ -175,6 +175,9 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 			} else if (child_info->pid == 0) {
 				/* child */
 				cpu_set_t cpu_set;
+				int inc = (int)(stress_mwc8() % 20);
+
+				VOID_RET(int, shim_nice(inc));
 
 				/* Move process to next cpu */
 				cpu = (cpu + 1) % cpus;
