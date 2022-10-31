@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    !defined(STRESS_ARCH_ALPHA)
 
 typedef struct {
 	uint16_t	varname[512];
