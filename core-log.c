@@ -44,6 +44,9 @@ static inline FILE *pr_file(void)
  */
 void pr_lock_init(void)
 {
+	if (!g_shared)
+		return;
+
 	g_shared->pr_pid = -1;
 	g_shared->pr_lock_count = 0;
 	g_shared->pr_atomic_lock = 0;
@@ -56,9 +59,15 @@ void pr_lock_init(void)
  */
 static void pr_spin_lock(void)
 {
-	double timeout_time = stress_time_now() + PR_TIMEOUT;
+	double timeout_time;
 	pid_t val, orig;
-	const pid_t pid = getpid();
+	pid_t pid;
+
+	if (!g_shared)
+		return;
+
+	timeout_time = stress_time_now() + PR_TIMEOUT;
+	pid = getpid();
 
 	for (;;) {
 		while (stress_time_now() < timeout_time) {
@@ -93,8 +102,12 @@ static void pr_spin_lock(void)
  */
 static void pr_spin_unlock(void)
 {
-	int zero = 0;
+	int zero;
 
+	if (!g_shared)
+		return;
+
+	zero = 0;
 	__atomic_store(&g_shared->pr_atomic_lock, &zero, __ATOMIC_SEQ_CST);
 }
 
@@ -105,6 +118,9 @@ static void pr_spin_unlock(void)
  */
 static void pr_lock_acquire(const pid_t pid)
 {
+	if (!g_shared)
+		return;
+
 	for (;;) {
 		int32_t count;
 		double whence, now;
@@ -141,12 +157,13 @@ static void pr_lock_acquire(const pid_t pid)
  */
 void pr_lock(void)
 {
-	const pid_t pid = getpid();
+	pid_t pid = getpid();
 	double now;
 
 	if (!g_shared)
 		return;
 
+	pid = getpid();
 	pr_spin_lock();
 	/* Already own lock? */
 	if (g_shared->pr_pid == pid) {
@@ -189,11 +206,12 @@ void pr_lock(void)
  */
 void pr_unlock(void)
 {
-	const pid_t pid = getpid();
+	pid_t pid;
 
 	if (!g_shared)
 		return;
 
+	pid = getpid();
 	pr_spin_lock();
 	/* Do we own the lock? */
 	if (g_shared->pr_pid == pid) {
@@ -212,6 +230,9 @@ void pr_unlock(void)
  */
 void pr_lock_exited(const pid_t pid)
 {
+	if (!g_shared)
+		return;
+
 	pr_spin_lock();
 	if (g_shared->pr_pid == pid) {
 		g_shared->pr_pid = -1;
