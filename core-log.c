@@ -44,6 +44,8 @@ static inline FILE *pr_file(void)
  */
 void pr_lock_init(void)
 {
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 
@@ -63,6 +65,8 @@ static void pr_spin_lock(void)
 	pid_t val, orig;
 	pid_t pid;
 
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 
@@ -104,6 +108,8 @@ static void pr_spin_unlock(void)
 {
 	int zero;
 
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 
@@ -118,6 +124,8 @@ static void pr_spin_unlock(void)
  */
 static void pr_lock_acquire(const pid_t pid)
 {
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 
@@ -160,6 +168,8 @@ void pr_lock(void)
 	pid_t pid = getpid();
 	double now;
 
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 
@@ -208,6 +218,8 @@ void pr_unlock(void)
 {
 	pid_t pid;
 
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 
@@ -230,6 +242,8 @@ void pr_unlock(void)
  */
 void pr_lock_exited(const pid_t pid)
 {
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return;
 	if (!g_shared)
 		return;
 

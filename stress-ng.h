@@ -321,6 +321,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(45)	/* Don't actually run */
 #define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(46)	/* --oom-avoid */
 #define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(47)	/* Require thermal zone info */
+#define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(48)	/* --log-lockless */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1441,6 +1442,7 @@ typedef enum {
 
 	OPT_log_brief,
 	OPT_log_file,
+	OPT_log_lockless,
 
 	OPT_longjmp,
 	OPT_longjmp_ops,

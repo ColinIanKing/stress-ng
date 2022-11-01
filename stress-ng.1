@@ -228,6 +228,11 @@ output messages without these fields to produce a less verbose output.
 .B \-\-log\-file filename
 write messages to the specified log file.
 .TP
+.B \-\-log\-lockless
+log messages use a lock to avoid intermingling of blocks of stressor messages,
+however this may cause contention when emitting a high rate of logging messages
+in verbose mode. This option disables log message locking.
+.TP
 .B \-\-maximize
 overrides the default stressor settings and instead sets these to the maximum
 settings allowed.  These defaults can always be overridden by the per stressor
