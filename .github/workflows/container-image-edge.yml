@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - meysam/feat/build-docker-image-for-dockerhub
   schedule:
     - cron: 0 0 * * *
 
@@ -51,7 +50,7 @@ jobs:
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.IMAGE_NAME }}:latest
-          # platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
+          platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
   scan-image:
     runs-on: ubuntu-latest
