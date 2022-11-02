@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - meysam/feat/build-docker-image-for-dockerhub
   schedule:
     - cron: 0 0 * * *
 
