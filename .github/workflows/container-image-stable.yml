@@ -37,13 +37,16 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-            ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           push: true
           context: .
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
           platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
