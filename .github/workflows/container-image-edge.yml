@@ -68,6 +68,6 @@ jobs:
           # vuln-type: os,library
       - if: always()
         name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v1
+        uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: trivy-results.sarif
