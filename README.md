@@ -46,8 +46,14 @@ https://github.com/ColinIanKing/stress-ng/tarball/V0.13.05
 
 ## Running latest stress-ng snapshot in a container
 
+```bash
+docker run --rm ghcr.io/colinianking/stress-ng --help
 ```
-        docker run --rm ghcr.io/colinianking/stress-ng:master --help
+
+or
+
+```bash
+docker run --rm colinianking/stress-ng --help
 ```
 
 ## Building stress-ng
