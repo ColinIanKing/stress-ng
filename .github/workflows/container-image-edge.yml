@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  docker:
+  build-image:
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -55,6 +55,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   scan-image:
     runs-on: ubuntu-latest
+    needs: [build-image]
     steps:
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@master
