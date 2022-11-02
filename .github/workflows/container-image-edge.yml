@@ -51,5 +51,22 @@ jobs:
             ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.IMAGE_NAME }}:latest
-          platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
+          # platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
+  scan-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          format: sarif
+          # ignore-unfixed: true
+          image-ref: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          output: trivy-results.sarif
+          # severity: CRITICAL,HIGH
+          # vuln-type: os,library
+      - if: always()
+        name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: trivy-results.sarif
