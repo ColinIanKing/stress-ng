@@ -78,7 +78,7 @@ static int stress_tsc_supported(const char *name)
 	 */
 	if (sigsetjmp(jmpbuf, 1) != 0) {
 		pr_inf_skip("%s stressor will be skipped, "
-			"rdcycle not allowed\n", name);
+			"rdtime not allowed\n", name);
 		return -1;
 	}
 
