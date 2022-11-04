@@ -165,7 +165,7 @@ static void pr_lock_acquire(const pid_t pid)
  */
 void pr_lock(void)
 {
-	pid_t pid = getpid();
+	pid_t pid;
 	double now;
 
 	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
