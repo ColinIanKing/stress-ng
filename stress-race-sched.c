@@ -18,6 +18,14 @@
  */
 #include "stress-ng.h"
 
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
+    (defined(SCHED_OTHER) || defined(SCHED_BATCH) || defined(SCHED_IDLE)) && \
+     !defined(__OpenBSD__) &&						     \
+     !defined(__minix__) &&						     \
+     !defined(__APPLE__)
+#define HAVE_SCHEDULING
+#endif
+
 #define DEFAULT_CHILDREN		(8)
 
 #define RACE_SCHED_METHOD_ALL		(0)
@@ -64,6 +72,24 @@ static const stress_race_sched_method_t stress_race_sched_methods[] = {
 };
 
 static stress_race_sched_list_t children;
+
+#if defined(HAVE_SCHEDULING) &&		\
+    defined(HAVE_SCHED_SETSCHEDULER)
+/*
+ *  "Normal" non-realtime scheduling policies
+ */
+static const int normal_policies[] = {
+#if defined(SCHED_OTHER)
+		SCHED_OTHER,
+#endif
+#if defined(SCHED_BATCH)
+		SCHED_BATCH,
+#endif
+#if defined(SCHED_IDLE)
+		SCHED_IDLE,
+#endif
+};
+#endif
 
 /*
  *  stress_set_race_sched_method()
@@ -133,13 +159,28 @@ again:
 	return new_cpu;
 }
 
-static void stress_race_sched_setaffinity(const int cpu)
+static void stress_race_sched_setaffinity(const pid_t pid, const int cpu)
 {
 	cpu_set_t cpu_set;
 
 	CPU_ZERO(&cpu_set);
 	CPU_SET(cpu, &cpu_set);
-	VOID_RET(int, sched_setaffinity(0, sizeof(cpu_set), &cpu_set));
+	VOID_RET(int, sched_setaffinity(pid, sizeof(cpu_set), &cpu_set));
+}
+
+static void stress_race_sched_setscheduling(const pid_t pid)
+{
+#if defined(HAVE_SCHEDULING) &&		\
+    defined(HAVE_SCHED_SETSCHEDULER)
+	struct sched_param param;
+	const uint32_t i = stress_mwc8() % (uint32_t)SIZEOF_ARRAY(normal_policies);
+
+	(void)memset(&param, 0, sizeof(param));
+	param.sched_priority = 0;
+	VOID_RET(int, sched_setscheduler(pid, normal_policies[i], &param));
+#else
+	(void)pid;
+#endif
 }
 
 
@@ -153,7 +194,8 @@ static void stress_race_sched_exercise(const int cpus, const size_t method_index
 			const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
 
 			child->cpu = cpu;
-			stress_race_sched_setaffinity(cpu);
+			stress_race_sched_setaffinity(child->pid, cpu);
+			stress_race_sched_setscheduling(child->pid);
 		}
 	}
 }
@@ -242,6 +284,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 	uint32_t children_max = DEFAULT_CHILDREN;
 	int cpu = 0, cpus = (int)stress_get_processors_configured();
 	size_t method_index = 0;
+	const pid_t mypid = getpid();
 
 	(void)stress_get_setting("race-sched-method", &method_index);
 
@@ -255,7 +298,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 					   stress_low_memory((size_t)(1 * MB)));
 
 		cpu = stress_race_sched_method(cpu, cpus, method_index);
-		stress_race_sched_setaffinity(cpu);
+		stress_race_sched_setaffinity(mypid, cpu);
 
 		if (!low_mem_reap && (children.length < children_max)) {
 			stress_race_sched_child_t *child_info;
@@ -276,11 +319,10 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				continue;
 			} else if (child_info->pid == 0) {
 				/* child */
-				int inc = (int)(stress_mwc8() % 20);
+				const pid_t child_pid = getpid();
 
-				stress_race_sched_setaffinity(cpu);
-				VOID_RET(int, shim_nice(inc));
-
+				stress_race_sched_setaffinity(child_pid, cpu);
+				stress_race_sched_setscheduling(child_pid);
 				stress_race_sched_exercise(cpus, method_index);
 				/* child */
 				_exit(0);
