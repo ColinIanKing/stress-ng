@@ -793,6 +793,7 @@ static const struct option long_options[] = {
 	{ "quota-ops",		1,	0,	OPT_quota_ops },
 	{ "race-sched",		1,	0,	OPT_race_sched },
 	{ "race-sched-ops",	1,	0,	OPT_race_sched_ops },
+	{ "race-sched-method",	1,	0,	OPT_race_sched_method },
 	{ "radixsort",		1,	0,	OPT_radixsort },
 	{ "radixsort-ops",	1,	0,	OPT_radixsort_ops },
 	{ "radixsort-size",	1,	0,	OPT_radixsort_size },

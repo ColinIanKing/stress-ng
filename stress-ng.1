@@ -3820,6 +3820,34 @@ start N workers that exercise rapid changing CPU affinity child processes
 both from the controlling stressor and by the child processes. Child
 processes are created and terminated rapidly with the aim to create
 race conditions where affinity changing occurs during process run states.
+.TP 
+.B \-\-race\-sched\-method [ all | next | prev | rand | randinc ]
+Select the method moving a process to a specific CPU.  Available methods are
+described as follows:
+.TS
+expand;
+lB2 lB lB lB
+l l s s.
+Method	Description
+all	T{
+iterate over all the race\-sched methods as listed below:
+T}
+next	T{
+move a process to the next CPU, wrap around to zero when maximum CPU
+is reached.
+T}
+prev	T{
+move a process to the previous CPU, wrap around to the maximum CPU when
+the first CPU is reached.
+T}
+rand	T{
+move a process to any randomly chosen CPU.
+T}
+randinc	T{
+move a process to the current CPU + a randomly chosen value 1..4, modulo
+the number of CPUs.
+T}
+.TE
 .TP
 .B \-\-race\-sched\-ops N
 stop after N process creation bogo-operations.
