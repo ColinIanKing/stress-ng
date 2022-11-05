@@ -1424,7 +1424,7 @@ T}
 .TP
 .B \-\-cyclic\-policy [ fifo | rr ]
 specify the desired real time scheduling policy, ff (first-in, first-out)
-or rr (round robin).
+or rr (round\-robin).
 .TP
 .B \-\-cyclic\-prio P
 specify the scheduling priority P. Range from 1 (lowest) to 100 (highest).
@@ -3665,7 +3665,7 @@ stop after N pkey_mprotect page protection cycles.
 start N workers that run user provided stressor functions loaded from a shared
 library. The shared library can contain one or more stressor functions prefixed
 with stress_ in their name. By default the plugin stressor will find all functions
-prefixed with stress_ in their name and exercise these one by one in a round-robin
+prefixed with stress_ in their name and exercise these one by one in a round\-robin
 loop, but a specific stressor can be selected using the \-\-plugin\-method option.
 The stressor function takes no parameters and returns 0 for success and non-zero
 for failure (and will terminate the plugin stressor). Each time a stressor function
@@ -3821,7 +3821,7 @@ both from the controlling stressor and by the child processes. Child
 processes are created and terminated rapidly with the aim to create
 race conditions where affinity changing occurs during process run states.
 .TP 
-.B \-\-race\-sched\-method [ all | next | prev | rand | randinc ]
+.B \-\-race\-sched\-method [ all | next | prev | rand | randinc | syncnext | syncprev ]
 Select the method moving a process to a specific CPU.  Available methods are
 described as follows:
 .TS
@@ -3846,6 +3846,14 @@ T}
 randinc	T{
 move a process to the current CPU + a randomly chosen value 1..4, modulo
 the number of CPUs.
+T}
+syncnext	T{
+move synchronously all the race-sched stressor processes to the next CPU
+every second; this loads just 1 CPU at a time in a round\-robin method.
+T}
+syncprev	T{
+move synchronously all the race-sched stressor processes to the previous CPU
+every second; this loads just 1 CPU at a time in a round\-robin method.
 T}
 .TE
 .TP
@@ -4176,7 +4184,7 @@ are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix
 domain.
 .TP
 .B \-\-sctp\-sched [ fcfs | prio | rr ]
-specify SCTP scheduler, one of fcfs (default), prio (priority) or rr (round-robin).
+specify SCTP scheduler, one of fcfs (default), prio (priority) or rr (round\-robin).
 .TP
 .B \-\-seal N
 start N workers that exercise the fcntl(2) SEAL commands on a small anonymous

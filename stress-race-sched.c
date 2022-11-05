@@ -25,6 +25,8 @@
 #define RACE_SCHED_METHOD_PREV		(2)
 #define RACE_SCHED_METHOD_RAND		(3)
 #define RACE_SCHED_METHOD_RANDINC	(4)
+#define RACE_SCHED_METHOD_SYNCNEXT	(5)
+#define RACE_SCHED_METHOD_SYNCPREV	(6)
 
 typedef struct {
 	const char *name;
@@ -57,6 +59,8 @@ static const stress_race_sched_method_t stress_race_sched_methods[] = {
 	{ "prev",	RACE_SCHED_METHOD_PREV },
 	{ "rand",	RACE_SCHED_METHOD_RAND },
 	{ "randinc",	RACE_SCHED_METHOD_RANDINC },
+	{ "syncnext",	RACE_SCHED_METHOD_SYNCNEXT },
+	{ "syncprev",	RACE_SCHED_METHOD_SYNCPREV },
 };
 
 static stress_race_sched_list_t children;
@@ -117,9 +121,27 @@ again:
 		new_cpu += (int)((1 + (stress_mwc8() & 0x3)) % (uint32_t)max_cpus);
 		new_cpu = (uint32_t)new_cpu % (uint32_t)max_cpus;
 		break;
+	case RACE_SCHED_METHOD_SYNCNEXT:
+		/* Move every second */
+		new_cpu = (uint32_t)rint(stress_time_now()) % (uint32_t)max_cpus;
+		break;
+	case RACE_SCHED_METHOD_SYNCPREV:
+		/* Move every second */
+		new_cpu = (~(uint32_t)rint(stress_time_now())) % (uint32_t)max_cpus;
+		break;
 	}
 	return new_cpu;
 }
+
+static void stress_race_sched_setaffinity(const int cpu)
+{
+	cpu_set_t cpu_set;
+
+	CPU_ZERO(&cpu_set);
+	CPU_SET(cpu, &cpu_set);
+	VOID_RET(int, sched_setaffinity(0, sizeof(cpu_set), &cpu_set));
+}
+
 
 static void stress_race_sched_exercise(const int cpus, const size_t method_index)
 {
@@ -128,13 +150,10 @@ static void stress_race_sched_exercise(const int cpus, const size_t method_index
 
 	for (i = 0; keep_stressing_flag() && (i < 20); i++)  {
 		for (child = children.head; child; child = child->next) {
-			cpu_set_t cpu_set;
 			const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
 
 			child->cpu = cpu;
-			CPU_ZERO(&cpu_set);
-			CPU_SET(cpu, &cpu_set);
-			VOID_RET(int, sched_setaffinity(child->pid, sizeof(cpu_set), &cpu_set));
+			stress_race_sched_setaffinity(cpu);
 		}
 	}
 }
@@ -236,6 +255,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 					   stress_low_memory((size_t)(1 * MB)));
 
 		cpu = stress_race_sched_method(cpu, cpus, method_index);
+		stress_race_sched_setaffinity(cpu);
 
 		if (!low_mem_reap && (children.length < children_max)) {
 			stress_race_sched_child_t *child_info;
@@ -256,14 +276,10 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				continue;
 			} else if (child_info->pid == 0) {
 				/* child */
-				cpu_set_t cpu_set;
 				int inc = (int)(stress_mwc8() % 20);
 
+				stress_race_sched_setaffinity(cpu);
 				VOID_RET(int, shim_nice(inc));
-
-				CPU_ZERO(&cpu_set);
-				CPU_SET(cpu, &cpu_set);
-				VOID_RET(int, sched_setaffinity(0, sizeof(cpu_set), &cpu_set));
 
 				stress_race_sched_exercise(cpus, method_index);
 				/* child */
