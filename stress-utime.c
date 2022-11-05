@@ -131,7 +131,7 @@ static int stress_utime(const stress_args_t *args)
 		}
 		duration += stress_time_now() - t;
 		count += 1.0;
-		
+
 		t = stress_time_now();
 		if (utimes(filename, NULL) < 0) {
 			pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
