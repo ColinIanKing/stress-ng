@@ -324,7 +324,9 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				stress_race_sched_setaffinity(child_pid, cpu);
 				stress_race_sched_setscheduling(child_pid);
 				stress_race_sched_exercise(cpus, method_index);
-				/* child */
+
+				/* Yield before exiting for more rescheduling */
+				shim_sched_yield();
 				_exit(0);
 			} else {
 				/* parent */
