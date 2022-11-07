@@ -619,13 +619,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	(void)memset(context->numa_node_mask, 0, context->numa_node_mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
-		long ret;
-
 		STRESS_SETBIT(context->numa_node_mask, node);
 
-		ret = shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, context->numa_node_mask, context->max_numa_nodes, 0);
+		(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, context->numa_node_mask, context->max_numa_nodes, 0);
 		STRESS_CLRBIT(context->numa_node_mask, node);
-		pr_inf("%p -> %ld %ld\n", ptr, ret, node);
 		node++;
 		if (node >= context->numa_nodes)
 			node = 0;
@@ -921,7 +918,7 @@ static int stress_memthrash(const stress_args_t *args)
 
 		context.numa_nodes = stress_numa_count_mem_nodes(&context.max_numa_nodes);
 
- 		numa_elements = (context.max_numa_nodes + numa_bits - 1) / numa_bits;
+		numa_elements = (context.max_numa_nodes + numa_bits - 1) / numa_bits;
 		numa_elements = numa_elements ? numa_elements: 1;
 		context.numa_node_mask = calloc(context.max_numa_nodes, numa_elements);
 		context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
