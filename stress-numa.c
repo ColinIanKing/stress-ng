@@ -246,14 +246,14 @@ static int stress_numa(const stress_args_t *args)
 	mask_elements = (max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
 	node_mask = (unsigned long *)calloc(mask_elements, sizeof(*node_mask));
 	if (!node_mask) {
-		pr_inf_skip("%s: cannot allocate node mask array of %lu elements, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate node mask array of %zu elements, skipping stressor\n",
 			args->name, mask_elements);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	old_node_mask = (unsigned long *)calloc(mask_elements, sizeof(*old_node_mask));
 	if (!old_node_mask) {
-		pr_inf_skip("%s: cannot allocate old mask array of %lu elements, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate old mask array of %zu elements, skipping stressor\n",
 			args->name, mask_elements);
 		rc = EXIT_NO_RESOURCE;
 		goto node_mask_free;
