@@ -7,9 +7,12 @@ on:
   schedule:
     - cron: 0 0 * * *
 
+run: |
+  echo ::set-env name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+
 env:
   GITHUB_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ env.IMAGE_REPOSITORY }}
 
 jobs:
   build-image:
