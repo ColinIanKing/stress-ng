@@ -191,11 +191,13 @@ static void stress_race_sched_exercise(const int cpus, const size_t method_index
 
 	for (i = 0; keep_stressing_flag() && (i < 20); i++)  {
 		for (child = children.head; child; child = child->next) {
-			const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
+			if (stress_mwc1()) {
+				const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
 
-			child->cpu = cpu;
-			stress_race_sched_setaffinity(child->pid, cpu);
-			stress_race_sched_setscheduling(child->pid);
+				child->cpu = cpu;
+				stress_race_sched_setaffinity(child->pid, cpu);
+				stress_race_sched_setscheduling(child->pid);
+			}
 		}
 	}
 }
@@ -296,6 +298,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 	do {
 		const bool low_mem_reap = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
 					   stress_low_memory((size_t)(1 * MB)));
+		const uint8_t rnd = stress_mwc8();
 
 		cpu = stress_race_sched_method(cpu, cpus, method_index);
 		stress_race_sched_setaffinity(mypid, cpu);
@@ -321,25 +324,36 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				/* child */
 				const pid_t child_pid = getpid();
 
-				stress_race_sched_setaffinity(child_pid, cpu);
-				stress_race_sched_setscheduling(child_pid);
-				stress_race_sched_exercise(cpus, method_index);
-
-				/* Yield before exiting for more rescheduling */
-				shim_sched_yield();
+				if (rnd & 0x01)
+					shim_sched_yield();
+				if (rnd & 0x02)
+					stress_race_sched_setaffinity(child_pid, cpu);
+				if (rnd & 0x04)
+					stress_race_sched_setscheduling(child_pid);
+				if (rnd & 0x08)
+					stress_race_sched_exercise(cpus, method_index);
+				if (rnd & 0x10)
+					shim_sched_yield();
 				_exit(0);
 			} else {
 				/* parent */
-				stress_race_sched_exercise(cpus, method_index);
+				if (rnd & 0x20)
+					shim_sched_yield();
+				if (rnd & 0x40)
+					stress_race_sched_exercise(cpus, method_index);
+				if (rnd & 0x80)
+					shim_sched_yield();
 			}
 
 			if (max_forks < children.length)
 				max_forks = children.length;
 			inc_counter(args);
 		} else {
-			stress_race_sched_exercise(cpus, method_index);
+			if (rnd & 0x01)
+				stress_race_sched_exercise(cpus, method_index);
 			stress_race_sched_head_remove(WNOHANG);
-			stress_race_sched_exercise(cpus, method_index);
+			if (rnd & 0x02)
+				stress_race_sched_exercise(cpus, method_index);
 		}
 	} while (keep_stressing(args));
 
