@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cache.h"
 #include "core-cpu.h"
 #include "core-nt-store.h"
 
@@ -37,7 +38,7 @@
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
 static volatile void *fault_addr;
-static void *expected_addr;
+static volatile void *expected_addr;
 static volatile int signo;
 static volatile int code;
 #endif
@@ -387,6 +388,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			case 6:
 #if defined(SA_SIGINFO)
 				expected_addr = BAD_ADDR;
+				shim_cacheflush((char *)expected_addr, (int)sizeof(expected_addr), SHIM_DCACHE);
 #endif
 				stress_sigsegv_vdso();
 				CASE_FALLTHROUGH;
@@ -394,6 +396,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			default:
 #if defined(SA_SIGINFO)
 				expected_addr = ptr;
+				shim_cacheflush((char *)expected_addr, (int)sizeof(expected_addr), SHIM_DCACHE);
 #endif
 				*ptr = 0;
 				break;
