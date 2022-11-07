@@ -2464,6 +2464,7 @@ extern void stress_check_range_bytes(const char *const opt,
 	const uint64_t val, const uint64_t lo, const uint64_t hi);
 extern WARN_UNUSED int stress_set_cpu_affinity(const char *arg);
 extern WARN_UNUSED int stress_set_mbind(const char *arg);
+extern int stress_numa_count_mem_nodes(unsigned long *max_node);
 extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_int32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);

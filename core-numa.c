@@ -56,15 +56,14 @@ static void stress_check_numa_range(
 
 /*
  *  stress_numa_count_mem_nodes()
- *	collect number of NUMA memory nodes, add them to a
- *	circular linked list - also, return maximum number
- *	of nodes
+ *	determine the number of NUMA memory nodes
  */
-static int stress_numa_count_mem_nodes(unsigned long *max_node)
+int stress_numa_count_mem_nodes(unsigned long *max_node)
 {
 	FILE *fp;
 	unsigned long node_id = 0;
 	char buffer[8192], *str = NULL, *ptr;
+	long n = 0;
 
 	*max_node = 0;
 
@@ -106,6 +105,8 @@ static int stress_numa_count_mem_nodes(unsigned long *max_node)
 
 		/* Each hex digit represent 4 memory nodes */
 		for (i = 0; i < 4; i++) {
+			if (val & (1 << i))
+				n++;
 			node_id++;
 			if (*max_node < node_id)
 				*max_node = node_id;
@@ -113,7 +114,7 @@ static int stress_numa_count_mem_nodes(unsigned long *max_node)
 		ptr--;
 	}
 
-	return 0;
+	return n;
 }
 
 /*
@@ -208,6 +209,13 @@ int stress_set_mbind(const char *arg)
 }
 
 #else
+int stress_numa_count_mem_nodes(unsigned long *max_node)
+{
+	*max_node = 0;
+
+	return -1;
+}
+
 int stress_set_mbind(const char *arg)
 {
 	(void)arg;
