@@ -4730,9 +4730,9 @@ the default and will exercise all the string methods.
 stop after N bogo string operations.
 .TP
 .B \-\-stream N
-start N workers exercising a memory bandwidth stressor loosely based on the
+start N workers exercising a memory bandwidth stressor very loosely based on the
 STREAM "Sustainable Memory Bandwidth in High Performance Computers" benchmarking
-tool by John D. McCalpin, Ph.D.  This stressor allocates buffers that are at
+tool by John D. McCalpin, Ph.D. This stressor allocates buffers that are at
 least 4 times the size of the CPU L2 cache and continually performs rounds of
 following computations on large arrays of double precision floating point numbers:
 .TS
@@ -4758,8 +4758,13 @@ T}
 Since this is loosely based on a variant of the STREAM benchmark code,
 DO NOT submit results based on this as it is intended to in stress-ng just
 to stress memory and compute and NOT intended for STREAM accurate
-tuned or non-tuned benchmarking whatsoever.  Use the official STREAM
+tuned or non-tuned benchmarking whatsoever. Use the official STREAM
 benchmarking tool if you desire accurate and standardised STREAM benchmarks.
+.PP
+The stressor calculates the memory read rate, memory write rate and floating
+point operations rate. These will differ from the maximum theoretical
+read/write/compute rates because of loop overheads and the use of volatile
+pointers to ensure the compiler does not optimize out stores.
 .RE
 .TP
 .B \-\-stream\-ops N
