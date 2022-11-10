@@ -27,6 +27,10 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__)
 
+typedef struct {
+	int fd;			/* /dev/shm File descriptor */
+} stress_dev_shm_context_t;
+
 /*
  *  stress_dev_shm_child()
  * 	stress /dev/shm by filling it with data and mmap'ing
@@ -106,47 +110,11 @@ static inline int stress_dev_shm_child(
 	return rc;
 }
 
-/*
- *  stress_dev_shm()
- *	stress /dev/shm
- */
-static int stress_dev_shm(const stress_args_t *args)
+static int stress_dev_shm_oomable_child(const stress_args_t *args, void *ctxt)
 {
-	int fd, rc = EXIT_SUCCESS;
-	char path[PATH_MAX];
 	pid_t pid;
-
-	/*
-	 *  Sanity check for existence and r/w permissions
-	 *  on /dev/shm, it may not be configure for the
-	 *  kernel, so don't make it a failure of it does
-	 *  not exist or we can't access it.
-	 */
-	if (access("/dev/shm", R_OK | W_OK) < 0) {
-		if (errno == ENOENT) {
-			if (args->instance == 0)
-				pr_inf_skip("%s: /dev/shm does not exist, skipping test\n",
-					args->name);
-			return EXIT_NO_RESOURCE;
-		} else {
-			if (args->instance == 0)
-				pr_inf_skip("%s: cannot access /dev/shm, errno=%d (%s), skipping test\n",
-					args->name, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
-		}
-	}
-
-	(void)snprintf(path, sizeof(path), "/dev/shm/stress-dev-shm-%d-%d-%" PRIu32,
-		args->instance, getpid(), stress_mwc32());
-	fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd < 0) {
-		pr_inf("%s: cannot create %s, errno=%d (%s)\n",
-			args->name, path, errno, strerror(errno));
-		return EXIT_SUCCESS;
-	}
-	(void)shim_unlink(path);
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	int rc = EXIT_SUCCESS;
+	stress_dev_shm_context_t *context = (stress_dev_shm_context_t *)ctxt;
 
 	while (keep_stressing(args)) {
 again:
@@ -159,7 +127,7 @@ again:
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			/* Nope, give up! */
-			(void)close(fd);
+			(void)close(context->fd);
 			return EXIT_FAILURE;
 		} else if (pid > 0) {
 			/* Parent */
@@ -188,14 +156,61 @@ again:
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			rc = stress_dev_shm_child(args, fd);
+			rc = stress_dev_shm_child(args, context->fd);
 			_exit(rc);
 		}
 	}
 finish:
+	return rc;
+}
+
+/*
+ *  stress_dev_shm()
+ *	stress /dev/shm
+ */
+static int stress_dev_shm(const stress_args_t *args)
+{
+	int rc = EXIT_SUCCESS;
+	char path[PATH_MAX];
+	stress_dev_shm_context_t context;
+
+	/*
+	 *  Sanity check for existence and r/w permissions
+	 *  on /dev/shm, it may not be configure for the
+	 *  kernel, so don't make it a failure of it does
+	 *  not exist or we can't access it.
+	 */
+	if (access("/dev/shm", R_OK | W_OK) < 0) {
+		if (errno == ENOENT) {
+			if (args->instance == 0)
+				pr_inf_skip("%s: /dev/shm does not exist, skipping test\n",
+					args->name);
+			return EXIT_NO_RESOURCE;
+		} else {
+			if (args->instance == 0)
+				pr_inf_skip("%s: cannot access /dev/shm, errno=%d (%s), skipping test\n",
+					args->name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		}
+	}
+
+	(void)snprintf(path, sizeof(path), "/dev/shm/stress-dev-shm-%d-%d-%" PRIu32,
+		args->instance, getpid(), stress_mwc32());
+	context.fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+	if (context.fd < 0) {
+		pr_inf("%s: cannot create %s, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		return EXIT_SUCCESS;
+	}
+	(void)shim_unlink(path);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_oomable_child(args, &context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)close(fd);
+	(void)close(context.fd);
 	return rc;
 }
 
