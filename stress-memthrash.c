@@ -431,8 +431,8 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
+		/* Force prefetch and then modify to thrash cache */
 		shim_builtin_prefetch(ptr, 1, 1);
-		//(void)*vptr;
 		*vptr = i & 0xff;
 	}
 }
