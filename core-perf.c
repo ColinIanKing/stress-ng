@@ -261,6 +261,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("kmem/mm_page_alloc",		"MM Page Alloc"),
 	PERF_INFO_TP("kmem/mm_page_free",		"MM Page Free"),
 
+	PERF_INFO_TP("mmap_lock/mmap_lock_start_locking",	"MMAP lock start"),
+	PERF_INFO_TP("mmap_lock/mmap_lock_released",	"MMAP lock release"),
+
 	PERF_INFO_TP("rcu/rcu_utilization",		"RCU Utilization"),
 
 	PERF_INFO_TP("sched/sched_migrate_task",	"Sched Migrate Task"),
@@ -283,6 +286,11 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("irq/softirq_exit",		"Soft IRQ Exit"),
 	PERF_INFO_TP("nmi/nmi_handler",			"NMI handler"),
 
+	PERF_INFO_TP("block/block_bio_complete",	"Block BIO complete"),
+
+	PERF_INFO_TP("io_uring/io_uring_submit_sqe",	"IO uring submit"),
+	PERF_INFO_TP("io_uring/io_uring_complete",	"IO uring complete"),
+
 	PERF_INFO_TP("writeback/writeback_dirty_inode",	"Writeback Dirty Inode"),
 	PERF_INFO_TP("writeback/writeback_dirty_page",	"Writeback Dirty Page"),
 
@@ -290,6 +298,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("skb/consume_skb",			"SKB Consume"),
 	PERF_INFO_TP("skb/kfree_skb",			"SKB Kfree"),
+
+	PERF_INFO_TP("lock/contention_begin",		"Lock Contention Begin"),
+	PERF_INFO_TP("lock/contention_end",		"Lock Contention End"),
 
 	PERF_INFO_TP("iommu/io_page_fault",		"IOMMU IO Page Fault"),
 	PERF_INFO_TP("iommu/map",			"IOMMU Map"),
