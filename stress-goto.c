@@ -66,7 +66,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LABEL_AS_VALUE) &&	\
     !defined(__PCC__)
 
-#define G(n) L ## n:		goto *labels[n];
+#define G(n) L ## n:	goto *labels[n];
 
 /*
  *  stress_goto()
@@ -229,8 +229,8 @@ static int OPTIMIZE3 stress_goto(const stress_args_t *args)
 	const void **labels = labels_forward;
 
 	for (i = 0; i < MAX_LABELS; i++) {
-		labels_forward[i] = default_labels[(i + 1) & (MAX_LABELS - 1)];
-		labels_backward[i] = default_labels[(i + MAX_LABELS - 1) & (MAX_LABELS - 1)];
+		labels_forward[i] = default_labels[(i + 1) % MAX_LABELS];
+		labels_backward[i] = default_labels[(MAX_LABELS + i - 1) % MAX_LABELS];
 	}
 
 	goto_direction = STRESS_GOTO_RANDOM;
@@ -238,32 +238,27 @@ static int OPTIMIZE3 stress_goto(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	switch (goto_direction) {
+	case STRESS_GOTO_FORWARD:
+		labels = labels_forward;
+		break;
+	case STRESS_GOTO_BACKWARD:
+		labels = labels_backward;
+		break;
+	case STRESS_GOTO_RANDOM:
+		labels = labels_forward;
+		break;
+	}
+
 	t1 = stress_time_now();
 	for (;;) {
-		uint8_t rnd;
 L0x000:
 		if (!keep_stressing(args))
 			break;
+		if (goto_direction == STRESS_GOTO_RANDOM)
+			labels = stress_mwc1() ? labels_backward : labels_forward;
 		inc_counter(args);
-
-		switch (goto_direction) {
-		case STRESS_GOTO_FORWARD:
-			labels = labels_forward;
-			break;
-		case STRESS_GOTO_BACKWARD:
-			labels = labels_backward;
-			goto L0x3ff;
-			break;
-		case STRESS_GOTO_RANDOM:
-			rnd = stress_mwc1();
-			if (rnd == 0) {
-				labels = labels_forward;
-			} else {
-				labels = labels_backward;
-				goto L0x3ff;
-			}
-			break;
-		}
+		goto *labels[0];
 
 			 G(0x001) G(0x002) G(0x003) G(0x004) G(0x005) G(0x006) G(0x007)
 		G(0x008) G(0x009) G(0x00a) G(0x00b) G(0x00c) G(0x00d) G(0x00e) G(0x00f)
