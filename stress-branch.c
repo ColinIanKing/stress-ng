@@ -28,10 +28,14 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LABEL_AS_VALUE) &&		\
     !defined(__PCC__)
 
-#define RESEED_JMP				\
-		seed = (a * seed + c);		\
-		idx = (seed >> 22);		\
-		goto *labels[idx];
+#define RESEED_JMP					\
+{							\
+	register const uint32_t idx = (seed >> 22);	\
+	register const void *label = labels[idx];	\
+							\
+	seed = (a * seed + c);				\
+	goto *label;					\
+}
 
 #define J(n) L ## n:	RESEED_JMP
 
@@ -44,7 +48,6 @@ static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 	register uint32_t const a = 16843009;
 	register uint32_t const c = 826366247;
 	register uint32_t seed = 123456789;
-	register uint32_t idx;
 
 	static const void ALIGN64 *labels[] = {
 		&&L0x000, &&L0x001, &&L0x002, &&L0x003, &&L0x004, &&L0x005, &&L0x006, &&L0x007,
