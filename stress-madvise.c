@@ -533,7 +533,7 @@ static int stress_madvise(const stress_args_t *args)
 
 	do {
 		NOCLOBBER uint8_t *buf;
-		bool file_mapped;
+		NOCLOBBER bool file_mapped;
 
 		if (num_mem_retries >= NUM_MEM_RETRIES_MAX) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
