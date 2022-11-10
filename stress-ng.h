@@ -587,6 +587,14 @@ typedef struct {
 #define OPTIMIZE0
 #endif
 
+/* loop unroll hint */
+#if defined(HAVE_UNROLL) &&	\
+    NEED_GNUC(8, 0, 0)
+#define UNROLL 		__attribute__((optimize("unroll-loops")))
+#else
+#define UNROLL
+#endif
+
 /* warn unused attribute */
 #if (defined(__GNUC__) && NEED_GNUC(4, 2, 0)) ||	\
     (defined(__clang__) && NEED_CLANG(3, 0, 0))

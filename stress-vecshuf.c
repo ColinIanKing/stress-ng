@@ -104,7 +104,7 @@ static double stress_vecshuf_all(
 	stress_vec_data_t *vec_data);
 
 #define STRESS_VEC_SHUFFLE(tag, elements)				\
-static double TARGET_CLONES OPTIMIZE3 stress_vecshuf_ ## tag ## _ ## elements (	\
+static double TARGET_CLONES OPTIMIZE3 UNROLL stress_vecshuf_ ## tag ## _ ## elements (	\
 	const stress_args_t *args,					\
 	stress_vec_data_t *data)					\
 {									\

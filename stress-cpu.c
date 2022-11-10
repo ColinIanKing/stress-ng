@@ -612,7 +612,7 @@ static void HOT OPTIMIZE3 fft_partial(
  *  stress_cpu_fft()
  *	Fast Fourier Transform
  */
-static void TARGET_CLONES stress_cpu_fft(const char *name)
+static void TARGET_CLONES UNROLL stress_cpu_fft(const char *name)
 {
 	static double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
