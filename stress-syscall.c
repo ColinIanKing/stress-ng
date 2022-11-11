@@ -3279,7 +3279,8 @@ static int syscall_mknod(void)
 	return ret;
 }
 
-#if defined(HAVE_MKNODAT)
+#if defined(HAVE_MKNODAT) &&	\
+    !defined(__APPLE__)
 #define HAVE_SYSCALL_MKNODAT
 static int syscall_mknodat(void)
 {
