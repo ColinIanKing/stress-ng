@@ -373,7 +373,8 @@ static int do_fcntl(
 	}
 #endif
 
-#if defined(F_GETLEASE)
+#if defined(F_GETLEASE) &&	\
+    !defined(__APPLE__)
 	{
 		int ret;
 
