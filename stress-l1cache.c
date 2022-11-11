@@ -187,9 +187,8 @@ static int stress_l1cache_info_ok(
 		goto bad_cache_free;
 
 	cache = stress_get_cpu_cache(cpu_caches, 1);
-	if (!cache) {
+	if (!cache)
 		goto bad_cache_free;
-	}
 
 	if (*size == 0)
 		*size = (uint32_t)cache->size;
