@@ -71,26 +71,6 @@ static const stress_race_sched_method_t stress_race_sched_methods[] = {
 	{ "syncprev",	RACE_SCHED_METHOD_SYNCPREV },
 };
 
-static stress_race_sched_list_t children;
-
-#if defined(HAVE_SCHEDULING) &&		\
-    defined(HAVE_SCHED_SETSCHEDULER)
-/*
- *  "Normal" non-realtime scheduling policies
- */
-static const int normal_policies[] = {
-#if defined(SCHED_OTHER)
-		SCHED_OTHER,
-#endif
-#if defined(SCHED_BATCH)
-		SCHED_BATCH,
-#endif
-#if defined(SCHED_IDLE)
-		SCHED_IDLE,
-#endif
-};
-#endif
-
 /*
  *  stress_set_race_sched_method()
  *	set the default race sched method
@@ -114,6 +94,31 @@ static int stress_set_race_sched_method(const char *name)
 
 	return -1;
 }
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_race_sched_method,	stress_set_race_sched_method },
+	{ 0,				NULL },
+};
+
+#if defined(HAVE_SCHEDULING) &&		\
+    defined(HAVE_SCHED_SETSCHEDULER)
+static stress_race_sched_list_t children;
+
+/*
+ *  "Normal" non-realtime scheduling policies
+ */
+static const int normal_policies[] = {
+#if defined(SCHED_OTHER)
+		SCHED_OTHER,
+#endif
+#if defined(SCHED_BATCH)
+		SCHED_BATCH,
+#endif
+#if defined(SCHED_IDLE)
+		SCHED_IDLE,
+#endif
+};
+
 
 static int stress_race_sched_method(const int cpu, const int max_cpus, size_t method_index)
 {
@@ -170,19 +175,13 @@ static void stress_race_sched_setaffinity(const pid_t pid, const int cpu)
 
 static void stress_race_sched_setscheduling(const pid_t pid)
 {
-#if defined(HAVE_SCHEDULING) &&		\
-    defined(HAVE_SCHED_SETSCHEDULER)
 	struct sched_param param;
 	const uint32_t i = stress_mwc8() % (uint32_t)SIZEOF_ARRAY(normal_policies);
 
 	(void)memset(&param, 0, sizeof(param));
 	param.sched_priority = 0;
 	VOID_RET(int, sched_setscheduler(pid, normal_policies[i], &param));
-#else
-	(void)pid;
-#endif
 }
-
 
 static void stress_race_sched_exercise(const int cpus, const size_t method_index)
 {
@@ -384,14 +383,19 @@ static int stress_race_sched(const stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_race_sched_method,	stress_set_race_sched_method },
-	{ 0,				NULL },
-};
-
 stressor_info_t stress_race_sched_info = {
 	.stressor = stress_race_sched,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
+
+#else
+
+stressor_info_t stress_race_sched_info = {
+        .stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
+};
+#endif
