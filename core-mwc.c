@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-target-clones.h"
 
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
@@ -175,7 +176,7 @@ void stress_mwc_seed(void)
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-HOT OPTIMIZE3 uint32_t stress_mwc32(void)
+HOT OPTIMIZE3 TARGET_CLONES uint32_t stress_mwc32(void)
 {
 	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
 	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
