@@ -503,6 +503,35 @@ static void stress_hash_method_mulxror64(
 	stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0x8d38b213, 0x458932cd);
 }
 
+static uint32_t stress_hash_sedgwick_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_sedgwick(str);
+}
+
+static void stress_hash_method_sedgwick(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_sedgwick_wrapper, 0x266c1ca9, 0x266c1ca9);
+}
+
+static uint32_t stress_hash_sobel_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_sobel(str);
+}
+
+static void stress_hash_method_sobel(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_sobel_wrapper, 0x2a7cdb61, 0x2a7cdb61);
+}
 
 /*
  *  stress_hash_all()
@@ -547,6 +576,8 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "nhash",		stress_hash_method_nhash,	NULL },
 	{ "pjw",		stress_hash_method_pjw,		NULL },
 	{ "sdbm",		stress_hash_method_sdbm,	NULL },
+	{ "sedgwick",		stress_hash_method_sedgwick,	NULL },
+	{ "sobel",		stress_hash_method_sobel,	NULL },
 	{ "x17",		stress_hash_method_x17,		NULL },
 	{ "xor",		stress_hash_method_xor,		NULL },
 #if defined(HAVE_XXHASH_H) &&	\

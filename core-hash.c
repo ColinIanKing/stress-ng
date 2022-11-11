@@ -557,6 +557,37 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 }
 
 /*
+ *  stress_hash_sedgwick()
+ *	simple hash from Robert Sedgwicks Algorithms in C book.
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_sedgwick(const char *str)
+{
+	const uint32_t b = 378551;
+	register uint32_t a = 63689;
+	register uint32_t hash = 0;
+
+	while (*str) {
+		hash = (hash * a) + (uint8_t)*str++;
+		a *= b;
+	}
+	return hash;
+}
+
+/*
+ *  stress_hash_sobel()
+ *	bitwise hash by Justin Sobel
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_sobel(const char *str)
+{
+	register uint32_t hash = 1315423911;
+
+	while (*str) {
+		hash ^= ((hash << 5) + (hash >> 2) + (uint8_t)*str++);
+	}
+	return hash;
+}
+
+/*
  *  stress_hash_create()
  *	create a hash table with size of n base hash entries
  */

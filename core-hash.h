@@ -60,5 +60,7 @@ extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_sedgwick(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_sobel(const char *str);
 
 #endif
