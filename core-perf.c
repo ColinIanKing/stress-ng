@@ -48,7 +48,7 @@
 /* used for table of perf events to gather */
 typedef struct {
 	const unsigned int type;	/* perf types */
-	unsigned long config;	/* perf type specific config */
+	unsigned long config;		/* perf type specific config */
 	const char *path;		/* perf trace point path (only for trace points) */
 	const char *label;		/* human readable name for perf type */
 } stress_perf_info_t;
