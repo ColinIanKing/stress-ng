@@ -123,8 +123,12 @@ static inline void OPTIMIZE3 stress_stream_copy_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = (double volatile *RESTRICT)c;
 
-	for (i = 0; i < n; i++)
-		STORE(cv[i], a[i]);
+	for (i = 0; i < n; i += 4) {
+		STORE(cv[i + 0], a[i + 0]);
+		STORE(cv[i + 1], a[i + 1]);
+		STORE(cv[i + 2], a[i + 2]);
+		STORE(cv[i + 3], a[i + 3]);
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*a));
 	*wr_bytes += (double)n * (double)(sizeof(*c));
@@ -142,8 +146,12 @@ static inline void OPTIMIZE3 stress_stream_copy_index0_nt(
 {
 	register uint64_t i;
 
-	for (i = 0; i < n; i++)
-		NT_STORE(c[i], a[i]);
+	for (i = 0; i < n; i += 4) {
+		NT_STORE(c[i + 0], a[i + 0]);
+		NT_STORE(c[i + 1], a[i + 1]);
+		NT_STORE(c[i + 2], a[i + 2]);
+		NT_STORE(c[i + 3], a[i + 3]);
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*a));
 	*wr_bytes += (double)n * (double)(sizeof(*c));
@@ -229,8 +237,12 @@ static inline void OPTIMIZE3 stress_stream_scale_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT bv = (double volatile *RESTRICT)b;
 
-	for (i = 0; i < n; i++)
-		STORE(bv[i], q * c[i]);
+	for (i = 0; i < n; i += 4) {
+		STORE(bv[i + 0], q * c[i + 0]);
+		STORE(bv[i + 1], q * c[i + 1]);
+		STORE(bv[i + 2], q * c[i + 2]);
+		STORE(bv[i + 3], q * c[i + 3]);
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*c));
 	*wr_bytes += (double)n * (double)(sizeof(*b));
@@ -249,8 +261,12 @@ static inline void OPTIMIZE3 stress_stream_scale_index0_nt(
 {
 	register uint64_t i;
 
-	for (i = 0; i < n; i++)
-		NT_STORE(b[i], q * c[i]);
+	for (i = 0; i < n; i += 4) {
+		NT_STORE(b[i + 0], q * c[i + 0]);
+		NT_STORE(b[i + 1], q * c[i + 1]);
+		NT_STORE(b[i + 2], q * c[i + 2]);
+		NT_STORE(b[i + 3], q * c[i + 3]);
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*c));
 	*wr_bytes += (double)n * (double)(sizeof(*b));
@@ -339,8 +355,12 @@ static inline void OPTIMIZE3 stress_stream_add_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = (double volatile *RESTRICT)c;
 
-	for (i = 0; i < n; i++)
-		STORE(cv[i], a[i] + b[i]);
+	for (i = 0; i < n; i += 4) {
+		STORE(cv[i + 0], a[i + 0] + b[i + 0]);
+		STORE(cv[i + 1], a[i + 1] + b[i + 1]);
+		STORE(cv[i + 2], a[i + 2] + b[i + 2]);
+		STORE(cv[i + 3], a[i + 3] + b[i + 3]);
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));
 	*wr_bytes += (double)n * (double)(sizeof(*c));
@@ -359,8 +379,12 @@ static inline void OPTIMIZE3 stress_stream_add_index0_nt(
 {
 	register uint64_t i;
 
-	for (i = 0; i < n; i++)
-		NT_STORE(c[i], a[i] + b[i]);
+	for (i = 0; i < n; i += 4) {
+		NT_STORE(c[i + 0], a[i + 0] + b[i + 0]);
+		NT_STORE(c[i + 1], a[i + 1] + b[i + 1]);
+		NT_STORE(c[i + 2], a[i + 2] + b[i + 2]);
+		NT_STORE(c[i + 3], a[i + 3] + b[i + 3]);
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*a) + sizeof(*b));
 	*wr_bytes += (double)n * (double)(sizeof(*c));
@@ -453,8 +477,12 @@ static inline void OPTIMIZE3 stress_stream_triad_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT av = (double volatile *RESTRICT)a;
 
-	for (i = 0; i < n; i++)
-		STORE(av[i], b[i] + (c[i] * q));
+	for (i = 0; i < n; i += 4) {
+		STORE(av[i + 0], b[i + 0] + (c[i + 0] * q));
+		STORE(av[i + 1], b[i + 1] + (c[i + 1] * q));
+		STORE(av[i + 2], b[i + 2] + (c[i + 2] * q));
+		STORE(av[i + 3], b[i + 3] + (c[i + 3] * q));
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));
 	*wr_bytes += (double)n * (double)(sizeof(*a));
@@ -474,8 +502,12 @@ static inline void OPTIMIZE3 stress_stream_triad_index0_nt(
 {
 	register uint64_t i;
 
-	for (i = 0; i < n; i++)
-		NT_STORE(a[i], b[i] + (c[i] * q));
+	for (i = 0; i < n; i+= 4) {
+		NT_STORE(a[i + 0], b[i + 0] + (c[i + 0] * q));
+		NT_STORE(a[i + 1], b[i + 1] + (c[i + 1] * q));
+		NT_STORE(a[i + 2], b[i + 2] + (c[i + 2] * q));
+		NT_STORE(a[i + 3], b[i + 3] + (c[i + 3] * q));
+	}
 
 	*rd_bytes += (double)n * (double)(sizeof(*b) + sizeof(*c));
 	*wr_bytes += (double)n * (double)(sizeof(*a));
@@ -728,6 +760,7 @@ static int stress_stream(const stress_args_t *args)
 	 */
 	sz = (L3 * 4);
 	n = sz / sizeof(*a);
+	sz &= ~(uint64_t)63;
 
 	a = stress_stream_mmap(args, sz);
 	if (a == MAP_FAILED)
