@@ -110,7 +110,6 @@ int stress_parse_jobfile(
 	uint32_t flag;
 	static uint32_t lineno;
 
-
 	if (!jobfile) {
 		if (optind >= argc)
 			return 0;
