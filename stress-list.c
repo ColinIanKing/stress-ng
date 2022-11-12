@@ -42,7 +42,7 @@ static const stress_list_method_info_t list_methods[];
 
 static const stress_help_t help[] = {
 	{ NULL,	"list N",	 "start N workers that exercise list structures" },
-	{ NULL,	"list-method M", "select tlistmethod, all, circleq, insque, list, slist, stailq, tailq" },
+	{ NULL,	"list-method M", "select list method: all, circleq, list, slist, slistt, stailq, tailq" },
 	{ NULL,	"list-ops N",	 "stop after N bogo list operations" },
 	{ NULL,	"list-size N",	 "N is the number of items in the list" },
 	{ NULL,	NULL,		 NULL }
