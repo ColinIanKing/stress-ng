@@ -64,16 +64,24 @@
 
 struct tree_node;
 
+typedef struct {
+	double insert;		/* total insert duration */
+	double find;		/* total find duration */
+	double remove;		/* total remove duration */
+	double count;		/* total nodes exercised */
+} stress_tree_metrics_t;
+
 typedef void (*stress_tree_func)(const stress_args_t *args,
 				 const size_t n,
-				 struct tree_node *data);
+				 struct tree_node *data,
+				 stress_tree_metrics_t *metrics);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
 	const stress_tree_func   func;	/* the tree method function */
 } stress_tree_method_info_t;
 
-static const stress_tree_method_info_t tree_methods[];
+static const stress_tree_method_info_t stress_tree_methods[];
 
 static const stress_help_t help[] = {
 	{ NULL,	"tree N",	 "start N workers that exercise tree structures" },
@@ -178,14 +186,17 @@ RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 static void stress_tree_rb(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *nodes)
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics)
 {
 	size_t i;
 	register struct tree_node *node, *next;
 	struct tree_node *find;
+	double t;
 
 	RB_INIT(&rb_root);
 
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
@@ -193,14 +204,18 @@ static void stress_tree_rb(
 		if (!res)
 			RB_INSERT(stress_rb_tree, &rb_root, node);
 	}
+	metrics->insert += stress_time_now() - t;
 
 	/* Manditory forward tree check */
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!find)
 			pr_fail("%s: rb tree node #%zd not found\n",
 				args->name, i);
 	}
+	metrics->find += stress_time_now() - t;
+
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
@@ -220,10 +235,13 @@ static void stress_tree_rb(
 		}
 	}
 
+	t = stress_time_now();
 	for (node = RB_MIN(stress_rb_tree, &rb_root); node; node = next) {
 		next = RB_NEXT(stress_rb_tree, &rb_root, node);
 		RB_REMOVE(stress_rb_tree, &rb_root, node);
 	}
+	metrics->remove += stress_time_now() - t;
+	metrics->count += (double)n;
 }
 #endif
 
@@ -235,14 +253,17 @@ SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 static void stress_tree_splay(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *nodes)
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics)
 {
 	size_t i;
 	register struct tree_node *node, *next;
 	struct tree_node *find;
+	double t;
 
 	SPLAY_INIT(&splay_root);
 
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
@@ -250,14 +271,18 @@ static void stress_tree_splay(
 		if (!res)
 			SPLAY_INSERT(stress_splay_tree, &splay_root, node);
 	}
+	metrics->insert += stress_time_now() - t;
 
 	/* Manditory forward tree check */
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!find)
 			pr_fail("%s: splay tree node #%zd not found\n",
 				args->name, i);
 	}
+	metrics->find += stress_time_now() - t;
+
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
@@ -276,11 +301,14 @@ static void stress_tree_splay(
 					args->name, j);
 		}
 	}
+	t = stress_time_now();
 	for (node = SPLAY_MIN(stress_splay_tree, &splay_root); node; node = next) {
 		next = SPLAY_NEXT(stress_splay_tree, &splay_root, node);
 		SPLAY_REMOVE(stress_splay_tree, &splay_root, node);
 		(void)memset(&node->u.splay, 0, sizeof(node->u.splay));
 	}
+	metrics->remove += stress_time_now() - t;
+	metrics->count += (double)n;
 }
 #endif
 
@@ -323,23 +351,30 @@ static void OPTIMIZE3 binary_remove_tree(struct tree_node *node)
 static void stress_tree_binary(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *nodes)
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics)
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
 	struct tree_node *find;
+	double t;
 
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		binary_insert(&head, node);
 	}
+	metrics->insert += stress_time_now() - t;
 
 	/* Manditory forward tree check */
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
 		if (!find)
 			pr_fail("%s: binary tree node #%zd not found\n",
 				args->name, i);
 	}
+	metrics->find += stress_time_now() - t;
+
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
@@ -358,7 +393,10 @@ static void stress_tree_binary(
 					args->name, j);
 		}
 	}
+	t = stress_time_now();
 	binary_remove_tree(head);
+	metrics->remove += stress_time_now() - t;
+	metrics->count += (double)n;
 }
 
 static void OPTIMIZE3 avl_insert(
@@ -516,24 +554,31 @@ static void OPTIMIZE3 avl_remove_tree(struct tree_node *node)
 static void stress_tree_avl(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *nodes)
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics)
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
 	struct tree_node *find;
+	double t;
 
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		bool taller = false;
 		avl_insert(&head, node, &taller);
 	}
+	metrics->insert += stress_time_now() - t;
 
 	/* Manditory forward tree check */
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
 		if (!find)
 			pr_fail("%s: avl tree node #%zd not found\n",
 				args->name, i);
 	}
+	metrics->find += stress_time_now() - t;
+
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
@@ -552,7 +597,10 @@ static void stress_tree_avl(
 					args->name, j);
 		}
 	}
+	t = stress_time_now();
 	avl_remove_tree(head);
+	metrics->remove += stress_time_now() - t;
+	metrics->count += (double)n;
 }
 
 static void OPTIMIZE3 btree_insert_node(
@@ -723,23 +771,30 @@ static inline bool OPTIMIZE3 btree_find(btree_node_t *root, const uint64_t value
 static void stress_tree_btree(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *nodes)
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics)
 {
 	size_t i;
 	struct tree_node *node;
 	btree_node_t *root = NULL;
 	bool find;
+	double t;
 
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++)
 		btree_insert(&root, node->value);
+	metrics->insert += stress_time_now() - t;
 
 	/* Manditory forward tree check */
+	t = stress_time_now();
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = btree_find(root, node->value);
 		if (!find)
 			pr_fail("%s: btree node #%zd not found\n",
 				args->name, i);
 	}
+	metrics->find += stress_time_now() - t;
+
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
@@ -758,29 +813,22 @@ static void stress_tree_btree(
 					args->name, j);
 		}
 	}
+	t = stress_time_now();
 	btree_remove_tree(&root);
+	metrics->remove += stress_time_now() - t;
+	metrics->count += (double)n;
 }
 
 static void stress_tree_all(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *nodes)
-{
-#if defined(HAVE_RB_TREE)
-	stress_tree_rb(args, n, nodes);
-#endif
-#if defined(HAVE_SPLAY_TREE)
-	stress_tree_splay(args, n, nodes);
-#endif
-	stress_tree_binary(args, n, nodes);
-	stress_tree_avl(args, n, nodes);
-	stress_tree_btree(args, n, nodes);
-}
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics);
 
 /*
  * Table of tree stress methods
  */
-static const stress_tree_method_info_t tree_methods[] = {
+static const stress_tree_method_info_t stress_tree_methods[] = {
 	{ "all",	stress_tree_all },
 	{ "avl",	stress_tree_avl },
 	{ "binary",	stress_tree_binary },
@@ -791,8 +839,25 @@ static const stress_tree_method_info_t tree_methods[] = {
 	{ "splay",	stress_tree_splay },
 #endif
 	{ "btree",	stress_tree_btree },
-	{ NULL,		NULL },
 };
+
+static stress_tree_metrics_t stress_tree_metrics[SIZEOF_ARRAY(stress_tree_methods)];
+
+static void stress_tree_all(
+	const stress_args_t *args,
+	const size_t n,
+	struct tree_node *nodes,
+	stress_tree_metrics_t *metrics)
+{
+	size_t i;
+
+	(void)metrics;
+
+	for (i = 1; i < SIZEOF_ARRAY(stress_tree_methods); i++) {
+		stress_tree_methods[i].func(args, n, nodes, &stress_tree_metrics[i]);
+	}
+}
+
 
 /*
  *  stress_set_tree_method()
@@ -800,18 +865,18 @@ static const stress_tree_method_info_t tree_methods[] = {
  */
 static int stress_set_tree_method(const char *name)
 {
-	stress_tree_method_info_t const *info;
+	size_t i;
 
-	for (info = tree_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("tree-method", TYPE_ID_UINTPTR_T, &info);
+	for (i = 0; i < SIZEOF_ARRAY(stress_tree_methods); i++) {
+		if (!strcmp(stress_tree_methods[i].name, name)) {
+			stress_set_setting("tree-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "tree-method must be one of:");
-	for (info = tree_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(stress_tree_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_tree_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -845,12 +910,23 @@ static int stress_tree(const stress_args_t *args)
 {
 	uint64_t v, tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *nodes, *node;
-	size_t n, i, bit;
+	size_t n, i, j, bit, tree_method = 0;
 	struct sigaction old_action;
 	int ret;
-	stress_tree_method_info_t const *info = &tree_methods[0];
+	stress_tree_func func;
+	stress_tree_metrics_t *metrics;
 
-	(void)stress_get_setting("tree-method", &info);
+	for (i = 0; i < SIZEOF_ARRAY(stress_tree_metrics); i++) {
+		stress_tree_metrics[i].insert = 0.0;
+		stress_tree_metrics[i].find = 0.0;
+		stress_tree_metrics[i].remove = 0.0;
+		stress_tree_metrics[i].count = 0.0;
+	}
+
+	(void)stress_get_setting("tree-method", &tree_method);
+
+	func = stress_tree_methods[tree_method].func;
+	metrics = &stress_tree_metrics[tree_method];
 
 	if (!stress_get_setting("tree-size", &tree_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -898,7 +974,7 @@ static int stress_tree(const stress_args_t *args)
 	do {
 		uint64_t rnd;
 
-		info->func(args, n, nodes);
+		func(args, n, nodes, metrics);
 
 		rnd = stress_mwc64();
 		for (node = nodes, i = 0; i < n; i++, node++)
@@ -909,7 +985,22 @@ static int stress_tree(const stress_args_t *args)
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+
 tidy:
+	for (i = 0, j = 0; i < SIZEOF_ARRAY(stress_tree_metrics); i++) {
+		double duration = stress_tree_metrics[i].insert +
+				  stress_tree_metrics[i].find +
+				  stress_tree_metrics[i].remove;
+
+		if ((duration > 0.0) && (stress_tree_metrics[i].count > 0.0)) {
+			double rate = stress_tree_metrics[i].count / duration;
+			char msg[64];
+
+			snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
+			stress_misc_stats_set(args->misc_stats, j, msg, rate);
+			j++;
+		}
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(nodes);
 
