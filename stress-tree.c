@@ -27,6 +27,37 @@
 #include <bsd/sys/tree.h>
 #endif
 
+#if defined(HAVE_LIB_BSD) &&	\
+    !defined(__APPLE__)
+/* BSD red-black tree */
+#if defined(RB_HEAD) &&		\
+    defined(RB_PROTOTYPE) &&	\
+    defined(RB_GENERATE) &&	\
+    defined(RB_ENTRY) &&	\
+    defined(RB_INIT) &&		\
+    defined(RB_FIND) &&		\
+    defined(RB_INSERT) &&	\
+    defined(RB_MIN) &&		\
+    defined(RB_NEXT) &&		\
+    defined(RB_REMOVE)
+#define HAVE_RB_TREE
+#endif
+
+/* BSD splay tree */
+#if defined(SPLAY_HEAD) &&	\
+    defined(SPLAY_PROTOTYPE) &&	\
+    defined(SPLAY_GENERATE) &&	\
+    defined(SPLAY_ENTRY) &&	\
+    defined(SPLAY_INIT) &&	\
+    defined(SPLAY_FIND) &&	\
+    defined(SPLAY_INSERT) &&	\
+    defined(SPLAY_MIN) &&	\
+    defined(SPLAY_NEXT) &&	\
+    defined(SPLAY_REMOVE)
+#define HAVE_SPLAY_TREE
+#endif
+#endif
+
 #define MIN_TREE_SIZE		(1000)
 #define MAX_TREE_SIZE		(25000000)
 #define DEFAULT_TREE_SIZE	(250000)
@@ -51,9 +82,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"tree-size N",	 "N is the number of items in the tree" },
 	{ NULL,	NULL,		 NULL }
 };
-
-#if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -86,15 +114,20 @@ typedef struct btree_node {
 struct tree_node {
 	uint64_t value;
 	union {
+#if defined(HAVE_RB_TREE)
 		RB_ENTRY(tree_node)	rb;
+#endif
+#if defined(HAVE_SPLAY_TREE)
 		SPLAY_ENTRY(tree_node)	splay;
+#endif
 		struct binary_node	binary;
 		struct avl_node		avl;
+#if defined(HAVE_RB_TREE) &&	\
+    defined(HAVE_SLAY_TREE)
 		uint64_t		padding[3]; /* cppcheck-suppress unusedStructMember */
+#endif
 	} u;
 };
-
-#endif
 
 /*
  *  stress_set_tree_size()
@@ -110,9 +143,6 @@ static int stress_set_tree_size(const char *opt)
 	return stress_set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
-#if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
-
 /*
  *  stress_tree_handler()
  *	SIGALRM generic handler
@@ -127,6 +157,8 @@ static void MLOCKED_TEXT stress_tree_handler(int signum)
 	}
 }
 
+#if defined(HAVE_RB_TREE) ||	\
+    defined(HAVE_SPLAY_TREE)
 static int tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n2)
 {
 	if (n1->value == n2->value)
@@ -136,14 +168,12 @@ static int tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n2)
 	else
 		return -1;
 }
+#endif
 
+#if defined(HAVE_RB_TREE)
 static RB_HEAD(stress_rb_tree, tree_node) rb_root;
 RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
-
-static SPLAY_HEAD(stress_splay_tree, tree_node) splay_root;
-SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
-SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void stress_tree_rb(
 	const stress_args_t *args,
@@ -195,6 +225,12 @@ static void stress_tree_rb(
 		RB_REMOVE(stress_rb_tree, &rb_root, node);
 	}
 }
+#endif
+
+#if defined(HAVE_SPLAY_TREE)
+static SPLAY_HEAD(stress_splay_tree, tree_node) splay_root;
+SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
+SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void stress_tree_splay(
 	const stress_args_t *args,
@@ -246,6 +282,7 @@ static void stress_tree_splay(
 		(void)memset(&node->u.splay, 0, sizeof(node->u.splay));
 	}
 }
+#endif
 
 static void OPTIMIZE3 binary_insert(
 	struct tree_node **head,
@@ -282,7 +319,6 @@ static void OPTIMIZE3 binary_remove_tree(struct tree_node *node)
 		node->u.binary.right = NULL;
 	}
 }
-
 
 static void stress_tree_binary(
 	const stress_args_t *args,
@@ -730,27 +766,31 @@ static void stress_tree_all(
 	const size_t n,
 	struct tree_node *nodes)
 {
+#if defined(HAVE_RB_TREE)
 	stress_tree_rb(args, n, nodes);
+#endif
+#if defined(HAVE_SPLAY_TREE)
 	stress_tree_splay(args, n, nodes);
+#endif
 	stress_tree_binary(args, n, nodes);
 	stress_tree_avl(args, n, nodes);
 	stress_tree_btree(args, n, nodes);
 }
-#endif
 
 /*
  * Table of tree stress methods
  */
 static const stress_tree_method_info_t tree_methods[] = {
-#if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
 	{ "all",	stress_tree_all },
 	{ "avl",	stress_tree_avl },
 	{ "binary",	stress_tree_binary },
+#if defined(HAVE_RB_TREE)
 	{ "rb",		stress_tree_rb },
-	{ "splay",	stress_tree_splay },
-	{ "btree",	stress_tree_btree },
 #endif
+#if defined(HAVE_SPLAY_TREE)
+	{ "splay",	stress_tree_splay },
+#endif
+	{ "btree",	stress_tree_btree },
 	{ NULL,		NULL },
 };
 
@@ -783,9 +823,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tree_size,	stress_set_tree_size },
 	{ 0,			NULL }
 };
-
-#if defined(HAVE_LIB_BSD) && 	\
-    !defined(__APPLE__)
 
 /*
  *  Rotate right a 64 bit value, compiler
@@ -886,11 +923,3 @@ stressor_info_t stress_tree_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-#else
-stressor_info_t stress_tree_info = {
-	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.help = help
-};
-#endif
