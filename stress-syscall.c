@@ -6174,8 +6174,9 @@ static int syscall_sigsuspend(void)
 		syscall_shared_info->t2 = syscall_time_now();
 		_exit(0);
 	} else {
-		while (keep_stressing_flag()) {
-			int status;
+		int status;
+
+		do {
 
 			VOID_RET(int, kill(pid, SIGUSR1));
 
@@ -6183,7 +6184,10 @@ static int syscall_sigsuspend(void)
 			if (ret == pid)
 				break;
 			shim_sched_yield();
-		}
+		} while (keep_stressing_flag());
+
+		VOID_RET(int, kill(pid, SIGKILL));
+		VOID_RET(int, waitpid(pid, &status, WNOHANG));
 	}
 	t1 = syscall_shared_info->t1;
 	t2 = syscall_shared_info->t2;
