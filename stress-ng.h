@@ -457,8 +457,6 @@ typedef struct {
 	double value;
 } stress_misc_stats_t;
 
-typedef struct stressor_info stressor_info_t;
-
 /* stressor args */
 typedef struct {
 	uint64_t *counter;		/* stressor counter */
@@ -471,7 +469,7 @@ typedef struct {
 	size_t page_size;		/* page size */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
 	stress_misc_stats_t *misc_stats;/* misc per stressor stats */
-	const stressor_info_t *info;	/* stressor info */
+	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
 
 typedef struct {
