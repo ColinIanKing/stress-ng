@@ -989,7 +989,7 @@ stressor_info_t stress_prctl_info = {
 };
 #else
 stressor_info_t stress_prctl_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without sys/prctl.h or prctl() system call"

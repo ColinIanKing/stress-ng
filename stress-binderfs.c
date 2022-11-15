@@ -189,7 +189,7 @@ stressor_info_t stress_binderfs_info = {
 };
 #else
 stressor_info_t stress_binderfs_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_binderfs_supported,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help,

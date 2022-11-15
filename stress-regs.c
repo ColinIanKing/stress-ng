@@ -988,7 +988,7 @@ stressor_info_t stress_regs_info = {
 #else
 
 stressor_info_t stress_regs_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.verify = VERIFY_NONE,
 	.class = CLASS_CPU,
 	.help = help,

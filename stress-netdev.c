@@ -250,7 +250,7 @@ stressor_info_t stress_netdev_info = {
 };
 #else
 stressor_info_t stress_netdev_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK,
 	.help = help,
 	.unimplemented_reason = "built without linux/sockios.h, net/if.h, struct ifconf or ioctl() SIOCGIFCONF command support"

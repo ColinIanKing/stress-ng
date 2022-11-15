@@ -416,7 +416,7 @@ static int stress_rdrand_supported(const char *name)
 }
 
 stressor_info_t stress_rdrand_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_rdrand_supported,
 	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,

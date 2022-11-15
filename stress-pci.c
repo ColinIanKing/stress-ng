@@ -298,7 +298,7 @@ stressor_info_t stress_pci_info = {
 };
 #else
 stressor_info_t stress_pci_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

@@ -291,7 +291,7 @@ stressor_info_t stress_ioport_info = {
 };
 #else
 stressor_info_t stress_ioport_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

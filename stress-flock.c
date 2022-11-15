@@ -244,7 +244,7 @@ stressor_info_t stress_flock_info = {
 };
 #else
 stressor_info_t stress_flock_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without flock() or LOCK_EX/LOCK_UN support"

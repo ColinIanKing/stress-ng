@@ -269,7 +269,7 @@ static int stress_tsc_supported(const char *name)
 }
 
 stressor_info_t stress_tsc_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
 	.help = help,

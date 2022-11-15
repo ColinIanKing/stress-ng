@@ -224,7 +224,7 @@ stressor_info_t stress_nanosleep_info = {
 };
 #else
 stressor_info_t stress_nanosleep_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without librt or nanosleep() system call support"

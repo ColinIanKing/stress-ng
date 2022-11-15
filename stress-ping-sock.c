@@ -116,7 +116,7 @@ stressor_info_t stress_ping_sock_info = {
 };
 #else
 stressor_info_t stress_ping_sock_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without netinet/ip_icmp.h, SOCK_DGRAM, IPPROTO_ICMP or struct icmphdr"

@@ -193,7 +193,7 @@ stressor_info_t stress_bind_mount_info = {
 };
 #else
 stressor_info_t stress_bind_mount_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help,
 	.unimplemented_reason = "built without Linux bind-mount options MS_BIND"

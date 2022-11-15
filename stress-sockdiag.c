@@ -331,7 +331,7 @@ stressor_info_t stress_sockdiag_info = {
 };
 #else
 stressor_info_t stress_sockdiag_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without linux/sock_diag.h, linux/netlink.h, linux/rtnetlink.h or linux/unix_diag.h"

@@ -403,7 +403,7 @@ static int stress_chroot_supported(const char *name)
 }
 
 stressor_info_t stress_chroot_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_chroot_supported,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -157,7 +157,7 @@ stressor_info_t stress_msyncmany_info = {
 };
 #else
 stressor_info_t stress_msyncmany_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

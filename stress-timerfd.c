@@ -430,7 +430,7 @@ stressor_info_t stress_timerfd_info = {
 };
 #else
 stressor_info_t stress_timerfd_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

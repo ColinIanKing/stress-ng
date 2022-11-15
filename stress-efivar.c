@@ -459,7 +459,7 @@ static int stress_efivar_supported(const char *name)
 	return -1;
 }
 stressor_info_t stress_efivar_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_efivar_supported,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

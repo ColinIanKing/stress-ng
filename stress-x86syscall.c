@@ -374,7 +374,7 @@ stressor_info_t stress_x86syscall_info = {
 };
 #else
 stressor_info_t stress_x86syscall_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

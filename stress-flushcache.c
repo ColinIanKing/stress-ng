@@ -342,7 +342,7 @@ stressor_info_t stress_flushcache_info = {
 };
 #else
 stressor_info_t stress_flushcache_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.help = help,
 	.unimplemented_reason = "built without cache flush support"

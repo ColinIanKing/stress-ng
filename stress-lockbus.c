@@ -228,7 +228,7 @@ stressor_info_t stress_lockbus_info = {
 };
 #else
 stressor_info_t stress_lockbus_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

@@ -148,7 +148,7 @@ stressor_info_t stress_tsearch_info = {
 #else
 
 stressor_info_t stress_tsearch_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,

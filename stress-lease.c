@@ -269,7 +269,7 @@ stressor_info_t stress_lease_info = {
 };
 #else
 stressor_info_t stress_lease_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

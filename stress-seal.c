@@ -217,7 +217,7 @@ stressor_info_t stress_seal_info = {
 };
 #else
 stressor_info_t stress_seal_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without Linux memfd_create() system call support"

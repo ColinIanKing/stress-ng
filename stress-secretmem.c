@@ -196,7 +196,7 @@ stressor_info_t stress_secretmem_info = {
 };
 #else
 stressor_info_t stress_secretmem_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.help = help,
 	.unimplemented_reason = "built with headers that did not define memfd_secret() system call"

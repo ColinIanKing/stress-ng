@@ -616,7 +616,7 @@ stressor_info_t stress_sem_sysv_info = {
 };
 #else
 stressor_info_t stress_sem_sysv_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

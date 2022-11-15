@@ -185,7 +185,7 @@ stressor_info_t stress_sigq_info = {
 };
 #else
 stressor_info_t stress_sigq_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without sigqueue() or sigwaitinfo() or defined SA_SIGINFO"

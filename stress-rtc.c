@@ -331,7 +331,7 @@ stressor_info_t stress_rtc_info = {
 };
 #else
 stressor_info_t stress_rtc_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without linux/rtc.h real-time clock support"

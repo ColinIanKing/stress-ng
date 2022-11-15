@@ -141,7 +141,7 @@ stressor_info_t stress_pageswap_info = {
 #else
 
 stressor_info_t stress_pageswap_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_pageswap_supported,
 	.class = CLASS_OS | CLASS_VM,
 	.help = help,

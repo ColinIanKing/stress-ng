@@ -987,7 +987,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 stressor_info_t stress_memthrash_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

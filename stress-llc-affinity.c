@@ -242,7 +242,7 @@ stressor_info_t stress_llc_affinity_info = {
 #else
 
 stressor_info_t stress_llc_affinity_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

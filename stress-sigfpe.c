@@ -311,7 +311,7 @@ stressor_info_t stress_sigfpe_info = {
 };
 #else
 stressor_info_t stress_sigfpe_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built using uclibc or without fenv.h or float.h"

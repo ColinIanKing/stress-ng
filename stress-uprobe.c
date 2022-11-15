@@ -267,7 +267,7 @@ stressor_info_t stress_uprobe_info = {
 };
 #else
 stressor_info_t stress_uprobe_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.supported = stress_uprobe_supported,
 	.help = help,

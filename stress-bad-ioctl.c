@@ -510,7 +510,7 @@ stressor_info_t stress_bad_ioctl_info = {
 };
 #else
 stressor_info_t stress_bad_ioctl_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help,
 	.unimplemented_reason = "built without pthread and/or ioctl() _IOR macro or is not Linux"

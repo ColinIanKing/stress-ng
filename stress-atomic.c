@@ -382,7 +382,7 @@ stressor_info_t stress_atomic_info = {
 
 #else
 stressor_info_t stress_atomic_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_MEMORY,
 	.help = help,
 	.unimplemented_reason = "built without gcc __atomic builtin functions"

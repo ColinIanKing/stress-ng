@@ -768,7 +768,7 @@ static int stress_wcs(const stress_args_t *args)
 
 	/* No wcs* functions available on this system? */
 	if (SIZEOF_ARRAY(wcs_methods) <= 2)
-		return stress_not_implemented(args);
+		return stress_unimplemented(args);
 
 	(void)stress_get_setting("wcs-method", &wcs_method);
 	func = wcs_method->func;

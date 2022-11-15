@@ -478,7 +478,7 @@ stressor_info_t stress_seccomp_info = {
 };
 #else
 stressor_info_t stress_seccomp_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without linux/seccomp.h, linux/audit.h, linux/filter.h or prctl()"

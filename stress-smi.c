@@ -300,7 +300,7 @@ stressor_info_t stress_smi_info = {
 };
 #else
 stressor_info_t stress_smi_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
 	.help = help,
 	.unimplemented_reason = "built for non-x86 target without sys/io.h or ioperm() or out op-code"

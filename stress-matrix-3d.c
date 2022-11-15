@@ -1025,7 +1025,7 @@ stressor_info_t stress_matrix_3d_info = {
 };
 #else
 stressor_info_t stress_matrix_3d_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.help = help,
 	.unimplemented_reason = "compiler does not support variable length array function arguments"

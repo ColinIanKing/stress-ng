@@ -2549,7 +2549,7 @@ extern WARN_UNUSED int stress_sig_stop_stressing(const char *name,
 	const int sig);
 extern int stress_sigrestore(const char *name, const int signum,
 	struct sigaction *orig_action);
-extern WARN_UNUSED int stress_not_implemented(const stress_args_t *args);
+extern WARN_UNUSED int stress_unimplemented(const stress_args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *stress_align_address(const void *addr,
 	const size_t alignment);

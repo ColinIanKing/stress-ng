@@ -827,7 +827,7 @@ static int stress_ipsec_mb_supported(const char *name)
 }
 
 stressor_info_t stress_ipsec_mb_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_ipsec_mb_supported,
 	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,

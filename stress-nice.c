@@ -170,7 +170,7 @@ stressor_info_t stress_nice_info = {
 
 #else
 stressor_info_t stress_nice_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without nice() or setpriority() system call support"

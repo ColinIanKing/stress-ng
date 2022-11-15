@@ -481,7 +481,7 @@ stressor_info_t stress_ramfs_info = {
 };
 #else
 stressor_info_t stress_ramfs_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_ramfs_supported,

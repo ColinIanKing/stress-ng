@@ -2259,11 +2259,11 @@ const char *stress_get_uname_info(void)
 }
 
 /*
- *  stress_not_implemented()
+ *  stress_unimplemented()
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int stress_not_implemented(const stress_args_t *args)
+int stress_unimplemented(const stress_args_t *args)
 {
 	static const char msg[] = "this stressor is not implemented on "
 				  "this system";

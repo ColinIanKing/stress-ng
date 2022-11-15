@@ -84,7 +84,7 @@ static int stress_sigtrap_supported(const char *name)
 }
 
 stressor_info_t stress_sigtrap_info = {
-        .stressor = stress_not_implemented,
+        .stressor = stress_unimplemented,
         .supported = stress_sigtrap_supported,
 	.class = CLASS_INTERRUPT | CLASS_OS,
         .help = help,

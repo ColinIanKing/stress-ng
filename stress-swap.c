@@ -438,7 +438,7 @@ stressor_info_t stress_swap_info = {
 };
 #else
 stressor_info_t stress_swap_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without sys/swap.h or swap() system call"

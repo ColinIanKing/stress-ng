@@ -155,7 +155,7 @@ stressor_info_t stress_dekker_info = {
 #else
 
 stressor_info_t stress_dekker_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

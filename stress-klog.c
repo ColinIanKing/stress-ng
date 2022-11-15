@@ -185,7 +185,7 @@ stressor_info_t stress_klog_info = {
 };
 #else
 stressor_info_t stress_klog_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without syslog() system call or klogctl()"

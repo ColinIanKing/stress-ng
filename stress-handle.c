@@ -268,7 +268,7 @@ stressor_info_t stress_handle_info = {
 };
 #else
 stressor_info_t stress_handle_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without name_to_handle_at(), open_by_handle_at() or AT_FDCWD"

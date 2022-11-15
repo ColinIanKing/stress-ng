@@ -214,7 +214,7 @@ stressor_info_t stress_fp_error_info = {
 };
 #else
 stressor_info_t stress_fp_error_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.help = help,
 	.unimplemented_reason = "built without fully functional floating point error support"

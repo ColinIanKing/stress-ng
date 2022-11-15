@@ -298,7 +298,7 @@ stressor_info_t stress_physpage_info = {
 };
 #else
 stressor_info_t stress_physpage_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_VM,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

@@ -174,7 +174,7 @@ stressor_info_t stress_getrandom_info = {
 };
 #else
 stressor_info_t stress_getrandom_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_CPU,
 	.help = help,
 	.unimplemented_reason = "built without getrandom() support"

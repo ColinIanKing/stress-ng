@@ -440,7 +440,7 @@ stressor_info_t stress_tmpfs_info = {
 };
 #else
 stressor_info_t stress_tmpfs_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

@@ -133,7 +133,7 @@ stressor_info_t stress_idle_page_info = {
 };
 #else
 stressor_info_t stress_idle_page_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_idle_page_supported,
 	.class = CLASS_OS,
 	.help = help,

@@ -690,7 +690,7 @@ stressor_info_t stress_madvise_info = {
 };
 #else
 stressor_info_t stress_madvise_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without madvise() system call"

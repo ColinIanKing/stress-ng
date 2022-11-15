@@ -411,7 +411,7 @@ static int stress_loop_supported(const char *name)
 }
 
 stressor_info_t stress_loop_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,
 	.help = help,

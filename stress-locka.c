@@ -322,7 +322,7 @@ stressor_info_t stress_locka_info = {
 };
 #else
 stressor_info_t stress_locka_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help,
 	.unimplemented_reason = "built without fcntl() F_GETLK, F_SETLK, F_SETLKW, F_WRLCK or F_UNLCK commands"

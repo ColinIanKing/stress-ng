@@ -446,7 +446,7 @@ stressor_info_t stress_jpeg_info = {
 };
 #else
 stressor_info_t stress_jpeg_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

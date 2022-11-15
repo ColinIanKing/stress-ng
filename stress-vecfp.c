@@ -472,7 +472,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 stressor_info_t stress_vecfp_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

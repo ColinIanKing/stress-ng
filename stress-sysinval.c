@@ -2873,7 +2873,7 @@ stressor_info_t stress_sysinval_info = {
 };
 #else
 stressor_info_t stress_sysinval_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help,
 	.unimplemented_reason = "built without syscall.h, syscall() or system is GNU/HURD or OS X"

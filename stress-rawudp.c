@@ -321,7 +321,7 @@ stressor_info_t stress_rawudp_info = {
 };
 #else
 stressor_info_t stress_rawudp_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawudp_supported,

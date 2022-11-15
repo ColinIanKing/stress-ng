@@ -179,7 +179,7 @@ stressor_info_t stress_icmp_flood_info = {
 };
 #else
 stressor_info_t stress_icmp_flood_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_NETWORK,
 	.help = help,
 	.unimplemented_reason = "built without netinet/ip.h, netinet/ip_icmp.h or struct icmphdr support"

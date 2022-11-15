@@ -497,7 +497,7 @@ stressor_info_t stress_rawdev_info = {
 };
 #else
 stressor_info_t stress_rawdev_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_IO,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,

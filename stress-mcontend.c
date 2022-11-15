@@ -406,7 +406,7 @@ stressor_info_t stress_mcontend_info = {
 };
 #else
 stressor_info_t stress_mcontend_info = {
-	.stressor = stress_not_implemented,
+	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
