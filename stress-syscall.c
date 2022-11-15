@@ -244,6 +244,12 @@ typedef struct {
 	bool succeed;			/* syscall returned OK */
 } syscall_stats_t;
 
+#if (defined(HAVE_CLOCK_ADJTIME) &&	\
+     defined(HAVE_SYS_TIMEX_H) &&	\
+     defined(HAVE_TIMEX)) ||		\
+     defined(HAVE_CLOCK_GETRES) ||	\
+     defined(HAVE_CLOCK_GETTIME) ||	\
+     defined(HAVE_CLOCK_SETTIME)
 /*
  *  various clock types
  */
@@ -279,6 +285,7 @@ static const int clocks[] = {
 	CLOCK_TAI,
 #endif
 };
+#endif
 
 /*
  *  various access() system call access mode flags
@@ -312,6 +319,7 @@ static const int chmod_modes[] = {
 	S_IXOTH,
 };
 
+#if defined(HAVE_GETITIMER)
 /*
  *  various itimer types
  */
@@ -326,6 +334,7 @@ static const shim_itimer_which_t itimers[] = {
         ITIMER_PROF,
 #endif
 };
+#endif
 
 /*
  *  various ulimit/rlimit limit types
