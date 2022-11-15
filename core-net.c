@@ -82,6 +82,10 @@ int stress_net_interface_exists(const char *interface, const int domain, struct 
 
 	return ret;
 #else
+	(void)interface;
+	(void)domain;
+	(void)addr;
+
 	return -1;
 #endif
 }
@@ -162,6 +166,9 @@ int stress_set_sockaddr_if(
 	const int net_addr)
 {
 	uint16_t sin_port = (uint16_t)port;
+
+	(void)instance;
+	(void)pid;
 
 	*sockaddr = NULL;
 	*len = 0;
