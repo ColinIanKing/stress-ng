@@ -209,6 +209,7 @@ stressor_info_t stress_icache_info = {
 stressor_info_t stress_icache_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without mprotect() or userspace instruction cache flushing support"
 };
 #endif

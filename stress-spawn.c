@@ -129,6 +129,7 @@ stressor_info_t stress_spawn_info = {
 stressor_info_t stress_spawn_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without spawn.h or posix_spawn()"
 };
 #endif

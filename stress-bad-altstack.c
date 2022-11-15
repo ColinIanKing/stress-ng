@@ -435,6 +435,7 @@ stressor_info_t stress_bad_altstack_info = {
 stressor_info_t stress_bad_altstack_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sigaltstack()"
 };
 #endif

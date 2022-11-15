@@ -413,6 +413,7 @@ stressor_info_t stress_key_info = {
 stressor_info_t stress_key_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without keyutils.h, add_key(), keyctl() or syscall() support"
 };
 #endif

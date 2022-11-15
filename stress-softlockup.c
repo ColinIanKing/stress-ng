@@ -288,6 +288,7 @@ stressor_info_t stress_softlockup_info = {
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sched_get_priority_min() or sched_setscheduler()"
 };
 #endif

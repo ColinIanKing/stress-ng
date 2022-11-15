@@ -300,6 +300,7 @@ stressor_info_t stress_physpage_info = {
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "only supported on Linux"
 };
 #endif

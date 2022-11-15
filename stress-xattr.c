@@ -523,6 +523,7 @@ stressor_info_t stress_xattr_info = {
 stressor_info_t stress_xattr_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/xattr.h or attr/xattr.h and xattr family of system calls"
 };
 #endif

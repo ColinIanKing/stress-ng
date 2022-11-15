@@ -136,6 +136,7 @@ stressor_info_t stress_idle_page_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_idle_page_supported,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "only supported on Linux"
 };
 #endif

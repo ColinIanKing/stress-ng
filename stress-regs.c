@@ -991,6 +991,7 @@ stressor_info_t stress_regs_info = {
 	.stressor = stress_not_implemented,
 	.verify = VERIFY_NONE,
 	.class = CLASS_CPU,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without gcc 8 or higher supporting asm register assignments"
 };
 #endif

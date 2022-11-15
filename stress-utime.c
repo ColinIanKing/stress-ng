@@ -365,7 +365,8 @@ stressor_info_t stress_utime_info = {
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without utime.h"
 };
 
 #endif

@@ -312,6 +312,7 @@ stressor_info_t stress_msync_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without msync() system call support"
 };
 #endif

@@ -457,6 +457,8 @@ typedef struct {
 	double value;
 } stress_misc_stats_t;
 
+typedef struct stressor_info stressor_info_t;
+
 /* stressor args */
 typedef struct {
 	uint64_t *counter;		/* stressor counter */
@@ -469,6 +471,7 @@ typedef struct {
 	size_t page_size;		/* page size */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
 	stress_misc_stats_t *misc_stats;/* misc per stressor stats */
+	const stressor_info_t *info;	/* stressor info */
 } stress_args_t;
 
 typedef struct {
@@ -483,7 +486,7 @@ typedef enum {
 } stress_verify_t;
 
 /* stressor information */
-typedef struct {
+typedef struct stressor_info {
 	int (*stressor)(const stress_args_t *args);	/* stressor function */
 	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
 	void (*init)(void);		/* stressor init, NULL = ignore */
@@ -494,7 +497,9 @@ typedef struct {
 	const stress_help_t *help;	/* stressor help options */
 	const stress_class_t class;	/* stressor class */
 	const stress_verify_t verify;	/* verification mode */
+	const char *unimplemented_reason;	/* unsupported reason message */
 } stressor_info_t;
+
 
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) &&	\

@@ -449,6 +449,7 @@ stressor_info_t stress_jpeg_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without jpeg library"
 };
 #endif

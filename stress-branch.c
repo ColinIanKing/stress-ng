@@ -362,6 +362,7 @@ stressor_info_t stress_branch_info = {
 stressor_info_t stress_branch_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without compiler support gcc style 'labels as values' feature"
 };
 #endif

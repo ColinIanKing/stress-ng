@@ -325,6 +325,7 @@ stressor_info_t stress_rawudp_info = {
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawudp_supported,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/udp.h or only supported on Linux"
 };
 #endif

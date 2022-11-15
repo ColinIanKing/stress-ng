@@ -192,6 +192,7 @@ stressor_info_t stress_binderfs_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_binderfs_supported,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without android linux/android/binder.h or linux/android/binderfs.h"
 };
 #endif

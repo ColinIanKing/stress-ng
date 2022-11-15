@@ -237,6 +237,7 @@ stressor_info_t stress_oom_pipe_info = {
 stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without F_SETFL, F_SETPIPE_SZ or O_NONBLOCK fcntl() commands"
 };
 #endif

@@ -308,8 +308,9 @@ stressor_info_t stress_inode_flags_info = {
 };
 #else
 stressor_info_t stress_inode_flags_info = {
-	.stressor = stress_not_implemented ,
+	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_FILESYSTEM,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without libgen.h, linux/fs.h or pthread sypport"
 };
 #endif

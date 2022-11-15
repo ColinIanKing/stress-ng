@@ -546,6 +546,7 @@ stressor_info_t stress_clock_info = {
 stressor_info_t stress_clock_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without librt or clock_gettime()/clock_settime() support"
 };
 #endif

@@ -230,6 +230,7 @@ stressor_info_t stress_sigio_info = {
 stressor_info_t stress_sigio_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without fcntl() commands O_ASYNC, O_NONBLOCK, F_SETOWN, F_GETFL or F_SETFL"
 };
 #endif

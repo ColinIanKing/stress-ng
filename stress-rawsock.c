@@ -302,6 +302,7 @@ stressor_info_t stress_rawsock_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/sockios.h, SOCK_RAW, IPPROTO_RAW or only supported on Linux"
 };
 #endif

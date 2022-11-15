@@ -87,6 +87,7 @@ stressor_info_t stress_sigtrap_info = {
         .stressor = stress_not_implemented,
         .supported = stress_sigtrap_supported,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-        .help = help
+        .help = help,
+	.unimplemented_reason = "built without SIGTRAP signal number defined"
 };
 #endif

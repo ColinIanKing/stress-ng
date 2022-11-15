@@ -204,6 +204,7 @@ stressor_info_t stress_cpu_online_info = {
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "only supported on Linux"
 };
 #endif

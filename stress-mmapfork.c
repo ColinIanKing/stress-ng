@@ -280,6 +280,7 @@ stressor_info_t stress_mmapfork_info = {
 stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/sysinfo_h or sysinfo() system call"
 };
 #endif

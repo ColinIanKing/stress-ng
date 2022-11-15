@@ -392,6 +392,7 @@ stressor_info_t stress_wait_info = {
 stressor_info_t stress_wait_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "disabled for GNU/HURD because it causes the kernel to assert"
 };
 #endif

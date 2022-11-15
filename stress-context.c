@@ -185,6 +185,7 @@ stressor_info_t stress_context_info = {
 stressor_info_t stress_context_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_MEMORY | CLASS_CPU,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without ucontext.h"
 };
 #endif

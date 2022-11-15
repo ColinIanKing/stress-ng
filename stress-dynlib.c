@@ -185,6 +185,7 @@ stressor_info_t stress_dynlib_info = {
 stressor_info_t stress_dynlib_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without dynamic library libdl support"
 };
 #endif

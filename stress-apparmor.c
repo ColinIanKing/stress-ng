@@ -725,6 +725,7 @@ stressor_info_t stress_apparmor_info = {
 	.supported = stress_apparmor_supported,
 	.class = CLASS_OS | CLASS_SECURITY,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/apparmor.h"
 };
 #endif

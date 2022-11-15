@@ -298,6 +298,7 @@ stressor_info_t stress_mincore_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without mincore() system call support"
 };
 #endif

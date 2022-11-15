@@ -414,6 +414,7 @@ stressor_info_t stress_loop_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/loop.h or loop ioctl() commands"
 };
 #endif

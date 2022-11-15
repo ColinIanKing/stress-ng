@@ -508,6 +508,7 @@ stressor_info_t stress_rawpkt_info = {
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawpkt_supported,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/if_packet.h, linux/if_tun.h, linux/sockios.h or linux/udp.h"
 };
 #endif

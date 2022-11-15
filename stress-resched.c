@@ -245,6 +245,7 @@ stressor_info_t stress_resched_info = {
 stressor_info_t stress_resched_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without Linux scheduling support"
 };
 #endif

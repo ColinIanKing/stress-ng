@@ -427,7 +427,8 @@ stressor_info_t stress_plugin_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without link.h, dlfcn.h or built as a static image"
 };
 
 #endif

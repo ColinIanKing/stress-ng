@@ -273,6 +273,7 @@ stressor_info_t stress_netlink_proc_info = {
 stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/connector.h, linux/netlink.h or linux/cn_proc.h support"
 };
 #endif

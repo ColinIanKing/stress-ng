@@ -631,6 +631,7 @@ stressor_info_t stress_numa_info = {
 stressor_info_t stress_numa_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/mempolicy.h, get_mempolicy(), mbind(), migrate_pages(), move_pages() or set_mempolicy()"
 };
 #endif

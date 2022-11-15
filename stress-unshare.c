@@ -268,6 +268,7 @@ stressor_info_t stress_unshare_info = {
 stressor_info_t stress_unshare_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without unshare() system call"
 };
 #endif

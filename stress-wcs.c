@@ -822,5 +822,6 @@ stressor_info_t stress_wcs_info = {
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without wchar.h or bsd/wchar.h"
 };

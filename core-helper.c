@@ -2273,14 +2273,27 @@ int stress_not_implemented(const stress_args_t *args)
 		struct utsname buf;
 
 		if (!uname(&buf)) {
-			pr_inf_skip("%s: %s: %s %s\n",
-				args->name, msg, stress_get_uname_info(),
-				stress_get_compiler());
+			if (args->info->unimplemented_reason) {
+				pr_inf_skip("%s: %s: %s %s (%s)\n",
+					args->name, msg, stress_get_uname_info(),
+					stress_get_compiler(),
+					args->info->unimplemented_reason);
+			} else {
+				pr_inf_skip("%s: %s: %s %s\n",
+					args->name, msg, stress_get_uname_info(),
+					stress_get_compiler());
+			}
 			return EXIT_NOT_IMPLEMENTED;
 		}
 #endif
-		pr_inf_skip("%s: %s: %s\n",
-			args->name, msg, stress_get_compiler());
+		if (args->info->unimplemented_reason) {
+			pr_inf_skip("%s: %s: %s (%s)\n",
+				args->name, msg, stress_get_compiler(),
+				args->info->unimplemented_reason);
+		} else {
+			pr_inf_skip("%s: %s: %s\n",
+				args->name, msg, stress_get_compiler());
+		}
 	}
 	return EXIT_NOT_IMPLEMENTED;
 }

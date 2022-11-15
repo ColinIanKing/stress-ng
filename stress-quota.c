@@ -446,6 +446,7 @@ stressor_info_t stress_quota_info = {
 stressor_info_t stress_quota_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/quota.h or only supported on Linux"
 };
 #endif

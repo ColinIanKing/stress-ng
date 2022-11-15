@@ -2363,7 +2363,8 @@ again:
 						.pid = child_pid,
 						.page_size = page_size,
 						.mapped = &g_shared->mapped,
-						.misc_stats = stats->misc_stats
+						.misc_stats = stats->misc_stats,
+						.info = g_stressor_current->stressor->info
 					};
 
 					(void)memset(*checksum, 0, sizeof(**checksum));

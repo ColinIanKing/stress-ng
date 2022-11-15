@@ -265,6 +265,7 @@ stressor_info_t stress_stackmmap_info = {
 stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_MEMORY,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without ucontext.h or swapcontext()"
 };
 #endif

@@ -173,7 +173,8 @@ stressor_info_t stress_hsearch_info = {
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without libc hsearch() support"
 };
 
 #endif

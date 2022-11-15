@@ -390,6 +390,7 @@ stressor_info_t stress_splice_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without splice() system call"
 };
 #endif

@@ -245,6 +245,7 @@ stressor_info_t stress_pidfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without pidfd_send_signal() system call"
 };
 #endif

@@ -245,7 +245,8 @@ stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sched_setaffinity() support"
 };
 
 #endif

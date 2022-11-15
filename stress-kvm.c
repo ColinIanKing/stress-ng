@@ -287,6 +287,7 @@ stressor_info_t stress_kvm_info = {
 stressor_info_t stress_kvm_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_DEV | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built on non-x86-64 without linux/kvm.h"
 };
 #endif

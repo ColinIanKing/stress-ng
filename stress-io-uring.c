@@ -841,6 +841,7 @@ stressor_info_t stress_io_uring_info = {
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/io_uring.h or syscall() support"
 };
 #endif

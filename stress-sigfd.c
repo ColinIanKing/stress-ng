@@ -196,6 +196,7 @@ stressor_info_t stress_sigfd_info = {
 stressor_info_t stress_sigfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/signalfd.h, signalfd() or sigqueue() system calls"
 };
 #endif

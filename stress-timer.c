@@ -280,6 +280,7 @@ stressor_info_t stress_timer_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without librt, timer_create(), timer_delete(), timer_getoverrun() or timer_settime()"
 };
 #endif

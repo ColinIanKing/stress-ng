@@ -419,6 +419,7 @@ stressor_info_t stress_pty_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without termios.h, termio.h or ptsname()"
 };
 #endif

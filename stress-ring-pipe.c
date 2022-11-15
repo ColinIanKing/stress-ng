@@ -318,7 +318,8 @@ stressor_info_t stress_ring_pipe_info = {
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_NONE,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without poll.h or poll() support"
 };
 
 #endif

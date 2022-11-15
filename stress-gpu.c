@@ -533,6 +533,7 @@ stressor_info_t stress_gpu_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_GPU,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without EGL/egl.h, EGL/eglext.h, GLES2/gl2.h or gbm.h"
 };
 #endif

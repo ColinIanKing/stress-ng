@@ -268,6 +268,7 @@ stressor_info_t stress_ioprio_info = {
 stressor_info_t stress_ioprio_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/uio.h, ioprio_get(), ioprio_set() or pwritev() support"
 };
 #endif

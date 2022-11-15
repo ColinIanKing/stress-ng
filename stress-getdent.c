@@ -308,6 +308,7 @@ stressor_info_t stress_getdent_info = {
 stressor_info_t stress_getdent_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without getdents() or getdents64() support"
 };
 #endif

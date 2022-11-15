@@ -231,6 +231,7 @@ stressor_info_t stress_lockbus_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without gcc __atomic* lock builtins"
 };
 #endif

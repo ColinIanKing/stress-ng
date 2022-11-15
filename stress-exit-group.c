@@ -238,6 +238,7 @@ stressor_info_t stress_exit_group_info = {
 stressor_info_t stress_exit_group_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without pthread support or exit_group() system call"
 };
 #endif

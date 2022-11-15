@@ -205,6 +205,7 @@ stressor_info_t stress_tlb_shootdown_info = {
 stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sched_getaffinity() or mprotect() system calls"
 };
 #endif

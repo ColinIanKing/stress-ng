@@ -480,6 +480,7 @@ stressor_info_t stress_opcode_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without linux/seccomp.h, linux/audit.h, linux/filter.h, sys/prctl.h or mprotect()"
 };
 #endif

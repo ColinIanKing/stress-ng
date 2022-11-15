@@ -327,7 +327,8 @@ stressor_info_t stress_link_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = hardlink_help
+	.help = hardlink_help,
+	.unimplemented_reason = "unsupported on Haiku"
 };
 #endif
 
@@ -336,5 +337,5 @@ stressor_info_t stress_symlink_info = {
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = symlink_help
+	.help = symlink_help,
 };

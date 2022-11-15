@@ -475,6 +475,7 @@ stressor_info_t stress_vecfp_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without compiler support for vector data/operations"
 };
 #endif

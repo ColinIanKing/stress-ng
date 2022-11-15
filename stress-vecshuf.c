@@ -424,6 +424,7 @@ stressor_info_t stress_vecshuf_info = {
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without compiler support for vector shuffling operations"
 };
 #endif

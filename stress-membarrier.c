@@ -222,6 +222,7 @@ stressor_info_t stress_membarrier_info = {
 stressor_info_t stress_membarrier_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without pthread support or membarrier() system call"
 };
 #endif

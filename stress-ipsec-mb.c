@@ -831,6 +831,7 @@ stressor_info_t stress_ipsec_mb_info = {
 	.supported = stress_ipsec_mb_supported,
 	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built on non-x86-64 without IPSec MB library"
 };
 #endif

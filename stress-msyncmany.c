@@ -160,6 +160,7 @@ stressor_info_t stress_msyncmany_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without msync() system call support"
 };
 #endif

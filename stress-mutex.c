@@ -242,6 +242,7 @@ stressor_info_t stress_mutex_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without librt, pthread_np.h, pthread or SCHED_FIFO support"
 };
 #endif

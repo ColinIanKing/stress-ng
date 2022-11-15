@@ -20,9 +20,9 @@
 #include "core-arch.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"sigsusr N",	 "start N workers exercising a userspace system call handler" },
-	{ NULL,	"sigsusr-ops N", "stop after N successful SIGSYS system callls" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	"usersyscall N",	"start N workers exercising a userspace system call handler" },
+	{ NULL,	"usersyscall-ops N", 	"stop after N successful SIGSYS system callls" },
+	{ NULL,	NULL,		 	NULL }
 };
 
 #if defined(SA_SIGINFO) &&	\
@@ -366,7 +366,8 @@ stressor_info_t stress_usersyscall_info = {
 stressor_info_t stress_usersyscall_info = {
         .stressor = stress_not_implemented,
 	.class = CLASS_OS,
-        .help = help
+        .help = help,
+	.unimplemented_reason = "only supported on Linux",
 };
 
 #endif

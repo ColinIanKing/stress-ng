@@ -365,6 +365,7 @@ stressor_info_t stress_rseq_info = {
 stressor_info_t stress_rseq_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without Linux restartable sequences support"
 };
 #endif

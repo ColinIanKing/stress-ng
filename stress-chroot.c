@@ -407,6 +407,7 @@ stressor_info_t stress_chroot_info = {
 	.supported = stress_chroot_supported,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without chroot() support"
 };
 #endif

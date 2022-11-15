@@ -159,6 +159,7 @@ stressor_info_t stress_sigrt_info = {
 stressor_info_t stress_sigrt_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sigqueue() or sigwaitinfo() or defined SIGRTMIN or SIGRTMAX"
 };
 #endif

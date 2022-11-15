@@ -144,7 +144,8 @@ stressor_info_t stress_pageswap_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_pageswap_supported,
 	.class = CLASS_OS | CLASS_VM,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without madvise() MADV_PAGEOUT defined"
 };
 
 #endif

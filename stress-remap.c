@@ -246,6 +246,7 @@ stressor_info_t stress_remap_info = {
 stressor_info_t stress_remap_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_MEMORY | CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without remap_file_pages() or unsupported for SPARC Linux"
 };
 #endif

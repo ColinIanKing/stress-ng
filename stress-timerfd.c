@@ -58,6 +58,8 @@ static const stress_help_t help[] = {
 #elif defined(HAVE_SELECT)
 #define USE_SELECT		(1)
 #define TIMER_FDS_MAX		(FD_SETSIZE)
+#else
+#define TIMER_FDS_MAX		(INT_MAX)
 #endif
 #define TIMER_FDS_DEFAULT	STRESS_MINIMUM(1024, TIMER_FDS_MAX)
 
@@ -431,6 +433,7 @@ stressor_info_t stress_timerfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/timerfd.h, timerfd_create(), timerfd_settime(), timerfd_setime, select() or poll()"
 };
 #endif

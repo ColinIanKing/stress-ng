@@ -232,6 +232,7 @@ stressor_info_t stress_itimer_info = {
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without getitimer() or setitimer() support"
 };
 #endif

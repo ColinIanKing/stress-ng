@@ -272,6 +272,7 @@ stressor_info_t stress_tsc_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()"
 };
 #endif

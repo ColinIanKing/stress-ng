@@ -1104,6 +1104,7 @@ stressor_info_t stress_epoll_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without sys/epoll.h or librt or timer support"
 };
 #endif

@@ -306,6 +306,7 @@ stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without librt or hrtimer support"
 };
 #endif

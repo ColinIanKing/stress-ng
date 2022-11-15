@@ -219,6 +219,7 @@ stressor_info_t stress_vecwide_info = {
 stressor_info_t stress_vecwide_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without compiler support for vector data/operations"
 };
 #endif

@@ -158,7 +158,8 @@ stressor_info_t stress_dekker_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without user space memory fencing"
 };
 
 #endif

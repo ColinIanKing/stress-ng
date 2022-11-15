@@ -261,6 +261,7 @@ stressor_info_t stress_munmap_info = {
 stressor_info_t stress_munmap_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
-        .help = help
+        .help = help,
+	.unimplemented_reason = "only supported on Linux"
 };
 #endif

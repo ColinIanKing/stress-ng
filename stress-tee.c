@@ -310,6 +310,7 @@ stressor_info_t stress_tee_info = {
 stressor_info_t stress_tee_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "built without tee() system call or undefined SPLICE_F_NONBLOCK"
 };
 #endif

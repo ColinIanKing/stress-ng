@@ -185,6 +185,7 @@ stressor_info_t stress_reboot_info = {
 stressor_info_t stress_reboot_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "only supported on Linux with reboot() support"
 };
 #endif

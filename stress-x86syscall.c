@@ -377,6 +377,7 @@ stressor_info_t stress_x86syscall_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.help = help
+	.help = help,
+	.unimplemented_reason = "only supported on Linux x86-64 and non-PCC compilers"
 };
 #endif
