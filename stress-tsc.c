@@ -35,7 +35,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-
 #if defined(STRESS_ARCH_RISCV) &&	\
     defined(SIGILL)
 
@@ -44,7 +43,7 @@ static const stress_help_t help[] = {
 static sigjmp_buf jmpbuf;
 static bool tsc_supported = false;
 
-static inline unsigned long rdtsc(void)
+static inline uint64_t rdtsc(void)
 {
 	register unsigned long ticks;
 
@@ -52,7 +51,7 @@ static inline unsigned long rdtsc(void)
                               : "=r" (ticks)
 			      :
                               : "memory");
-	return ticks;
+	return (uint64_t)ticks;
 }
 
 static void stress_sigill_handler(int signum)
@@ -121,15 +120,26 @@ static int stress_tsc_supported(const char *name)
 }
 
 /*
- *  read tsc
+ *  x86 read TSC
  */
-static inline void rdtsc(void)
+static uint64_t rdtsc(void)
 {
 #if defined(STRESS_TSC_SERIALIZED)
-	__asm__ __volatile__("cpuid\nrdtsc\n" : : : "%edx", "%eax");
-#else
-	__asm__ __volatile__("rdtsc\n" : : : "%edx", "%eax");
+	__asm__ __volatile__("cpuid\n");
 #endif
+#if defined(STRESS_ARCH_X86_64)
+	uint32_t lo, hi;
+
+	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
+	return ((uint64_t)hi << 32) | lo;
+#endif
+#if defined(STRESS_ARCH_X86_32)
+	uint64_t tsc;
+
+	__asm__ __volatile__("rdtsc" : "=A" (tsc))
+	return tsc;
+#endif
+	return 0;
 }
 
 #elif defined(STRESS_ARCH_PPC64) &&		\
@@ -151,9 +161,9 @@ static int stress_tsc_supported(const char *name)
 	return 0;
 }
 
-static inline void rdtsc(void)
+static inline uint64_t rdtsc(void)
 {
-	(void)__ppc_get_timebase();
+	return (uint64_t)__ppc_get_timebase();
 }
 
 #elif defined(STRESS_ARCH_S390)
@@ -173,20 +183,38 @@ static int stress_tsc_supported(const char *name)
 	return 0;
 }
 
-static inline void rdtsc(void)
+static inline uint64_t rdtsc(void)
 {
 	uint64_t tick;
 
 	__asm__ __volatile__("\tstck\t%0\n" : "=Q" (tick) : : "cc");
+
+	return tick;
 }
 #endif
 
+static inline void stress_tsc_check(
+	const stress_args_t *args,
+	const uint64_t tsc,
+	const uint64_t old_tsc)
+{
+	if (LIKELY(tsc > old_tsc))
+		return;
+
+	/* top bits different, tsc -> wrapped around? */
+	if (((old_tsc ^ tsc) >> 63) == 1)
+		return;
+
+	pr_fail("%s: TSC not monitonically increasing, TSC %" PRIx64 " vs previous TSC %" PRIx64 "\n",
+		args->name, tsc, old_tsc);
+}
+
 #if defined(HAVE_STRESS_TSC_CAPABILITY)
 /*
- *  Unrolled 32 times
+ *  Unrolled 32 times, no verify
  */
 #define TSCx32()	\
-{			\
+do {			\
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
@@ -195,6 +223,7 @@ static inline void rdtsc(void)
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
+			\
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
@@ -203,6 +232,7 @@ static inline void rdtsc(void)
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
+			\
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
@@ -211,6 +241,7 @@ static inline void rdtsc(void)
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
+			\
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
@@ -219,7 +250,51 @@ static inline void rdtsc(void)
 	rdtsc();	\
 	rdtsc();	\
 	rdtsc();	\
-}
+} while (0)
+
+/*
+ *  Unrolled 32 times, verify monitonically increasing at end
+ */
+#define TSCx32_verify(args, tsc, old_tsc)	\
+do {			\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+			\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+			\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+			\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	rdtsc();	\
+	tsc = rdtsc();	\
+	stress_tsc_check(args, tsc, old_tsc);	\
+	old_tsc = tsc;	\
+} while (0)
 
 /*
  *  stress_tsc()
@@ -227,23 +302,42 @@ static inline void rdtsc(void)
  */
 static int stress_tsc(const stress_args_t *args)
 {
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (tsc_supported) {
+		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 		double duration = 0.0, count;
 
-		do {
-			const double t = stress_time_now();
 
-			TSCx32()
-			TSCx32()
-			TSCx32()
-			TSCx32()
+		if (verify) {
+			uint64_t tsc, old_tsc;
 
-			duration += stress_time_now() - t;
-			inc_counter(args);
-		} while (keep_stressing(args));
+			old_tsc = rdtsc();
+			do {
+				const double t = stress_time_now();
 
+				TSCx32_verify(args, tsc, old_tsc);
+				TSCx32_verify(args, tsc, old_tsc);
+				TSCx32_verify(args, tsc, old_tsc);
+				TSCx32_verify(args, tsc, old_tsc);
+
+				duration += stress_time_now() - t;
+				inc_counter(args);
+			} while (keep_stressing(args));
+		} else {
+			do {
+				const double t = stress_time_now();
+
+				TSCx32();
+				TSCx32();
+				TSCx32();
+				TSCx32();
+
+				duration += stress_time_now() - t;
+				inc_counter(args);
+			} while (keep_stressing(args));
+		}
 		count = 32.0 * 4.0 * (double)get_counter(args);
 		duration = (count > 0.0) ? duration / count : 0.0;
 		stress_misc_stats_set(args->misc_stats, 0, "nanosecs per time counter read", duration * 1000000000.0);
@@ -257,6 +351,7 @@ stressor_info_t stress_tsc_info = {
 	.stressor = stress_tsc,
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
@@ -272,6 +367,7 @@ stressor_info_t stress_tsc_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()"
 };
