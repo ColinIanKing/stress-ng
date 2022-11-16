@@ -60,7 +60,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(SOCK_RAW) &&	\
     defined(IPPROTO_RAW) &&	\
-    defined(HAVE_ICMPHDR) &&	\
+    defined(HAVE_IPHDR) &&	\
     defined(__linux__)
 
 typedef struct {
