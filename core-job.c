@@ -148,13 +148,12 @@ int stress_parse_jobfile(
 
 		/* remove comments */
 		stress_chop(buf, '#');
-
-		if (!*ptr)
+		if (!*buf)
 			continue;
 
 		/* skip leading blanks */
-		while (ISBLANK(*ptr))
-			ptr++;
+		for (ptr = buf; ISBLANK(*ptr); ptr++)
+			;
 
 		while (new_argc < MAX_ARGS && *ptr) {
 			new_argv[new_argc++] = ptr;
