@@ -136,7 +136,7 @@ static uint64_t rdtsc(void)
 #if defined(STRESS_ARCH_X86_32)
 	uint64_t tsc;
 
-	__asm__ __volatile__("rdtsc" : "=A" (tsc))
+	__asm__ __volatile__("rdtsc" : "=A" (tsc));
 	return tsc;
 #endif
 	return 0;
