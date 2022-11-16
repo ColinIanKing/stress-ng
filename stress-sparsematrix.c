@@ -538,12 +538,13 @@ STRESS_PRAGMA_POP
 static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	Word_t *pvalue;
+	const Word_t index = ((Word_t)x << 32) | y;
 
-	JLI(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
+	JLI(pvalue, *(Pvoid_t *)handle, index);
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return -1;
 
-	*pvalue = (Word_t)value;
+	*pvalue = value;
 	return 0;
 }
 
@@ -553,10 +554,12 @@ static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, 
  */
 static uint32_t OPTIMIZE3 judy_get(void *handle, const uint32_t x, const uint32_t y)
 {
-	Word_t *pvalue;
+	Word_t *pvalue, value;
+	const Word_t index = ((Word_t)x << 32) | y;
 
-	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
-	return pvalue ? *(uint32_t *)pvalue : 0;
+	JLG(pvalue, *(Pvoid_t *)handle, index);
+	value = pvalue ? *pvalue : 0;
+	return value;
 }
 
 /*
@@ -912,7 +915,6 @@ static int OPTIMIZE3 hashjudy_put(void *handle, const uint32_t x, const uint32_t
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return -1;
 	*pvalue = (Word_t)value;
-
 	return 0;
 }
 
@@ -931,7 +933,7 @@ static void OPTIMIZE3 hashjudy_del(void *handle, const uint32_t x, const uint32_
 	JLG(pvalue, table->hash_table[x], y);
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return;
-	*(Word_t *)pvalue = 0;
+	*pvalue = 0;
 }
 
 /*
@@ -941,7 +943,7 @@ static void OPTIMIZE3 hashjudy_del(void *handle, const uint32_t x, const uint32_
 static uint32_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hashjudy_table_t *table = (sparse_hashjudy_table_t *)handle;
-	Word_t *pvalue;
+	Word_t *pvalue, value;
 
 	if (!table)
 		return -1;
@@ -949,7 +951,8 @@ static uint32_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uin
 	JLG(pvalue, table->hash_table[x], y);
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return 0;
-	return *(uint32_t *)pvalue;
+	value = *pvalue;
+	return (uint32_t)value;
 }
 
 #endif
