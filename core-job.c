@@ -135,7 +135,7 @@ int stress_parse_jobfile(
 	ret = -1;
 
 	while (fgets(buf, sizeof(buf), fp)) {
-		char *ptr = buf;
+		char *ptr;
 		int new_argc = 1;
 
 		(void)memset(new_argv, 0, sizeof(new_argv));
