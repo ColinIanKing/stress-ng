@@ -608,7 +608,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
-	const uint8_t *ptr, *end = (uint8_t *)((uintptr_t)mem + mem_size);
+	uint8_t *ptr;
+	const uint8_t *end = (uint8_t *)((uintptr_t)mem + mem_size);
 	const size_t page_size = context->args->page_size;
 	unsigned long node;
 
@@ -817,7 +818,7 @@ static void stress_memthrash_sigalrm_handler(int signum)
 
 static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 {
-	const stress_memthrash_context_t *context = (const stress_memthrash_context_t *)ctxt;
+	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const uint32_t max_threads = context->max_threads;
 	uint32_t i;
 	int ret;
