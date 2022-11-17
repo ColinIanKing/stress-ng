@@ -447,7 +447,6 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		for (buf_addr = args->page_size; buf_addr && (buf_addr < max_addr); buf_addr <<= 1) {
-
 			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 				pr_err("%s: gave up trying to mmap, no available memory\n",
 					args->name);
@@ -470,6 +469,8 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 			*(context->bit_error_count) += func(buf, buf_sz);
 			(void)munmap((void *)buf, buf_sz);
 			inc_counter(args);
+			if (!keep_stressing_vm(args))
+				break;
 		}
 		buf_sz <<= 1;
 		if (buf_sz > MAX_VM_ADDR_BYTES)
