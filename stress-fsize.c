@@ -28,6 +28,9 @@ static const stress_help_t help[] = {
     defined(RLIMIT_FSIZE) &&	\
     defined(SIGXFSZ)
 
+#define FSIZE_TYPE_FALLOC	(1)
+#define FSIZE_TYPE_SIGXFSZ	(2)
+
 static volatile bool sigxfsz;
 static uint64_t sigxfsz_count;
 
@@ -37,6 +40,38 @@ static void stress_fsize_handler(int signum)
 		sigxfsz = true;
 		sigxfsz_count++;
 	}
+}
+
+/*
+ *  stress_fsize_reported()
+ *	check if an issue has already been reported to reduce message
+ *	spamming
+ */
+static bool stress_fsize_reported(const off_t offset, const uint8_t type)
+{
+	typedef struct {
+		off_t offset;
+		bool reported;
+		uint8_t type;
+	} stress_fsize_reported_t;
+
+	static stress_fsize_reported_t reported[sizeof(off_t) * 8 * 4];
+	static size_t max;
+	size_t i;
+
+	for (i = 0; i < max; i++) {
+		if ((reported[i].offset == offset) &&
+		    (reported[i].type == type) &&
+		    (reported[i].reported))
+			return true;
+	}
+	if (i < SIZEOF_ARRAY(reported)) {
+		reported[i].offset = offset;
+		reported[i].type = type;
+		reported[i].reported = true;
+		max++;
+	}
+	return false;
 }
 
 /*
@@ -52,6 +87,7 @@ static void stress_fsize_boundary(
 	const off_t size)
 {
 	struct rlimit new_rlim;
+	off_t off;
 	int ret;
 
 	if ((rlim_t)offset >= old_rlim->rlim_max)
@@ -59,7 +95,8 @@ static void stress_fsize_boundary(
 	if (offset < 1)
 		return;
 
-	new_rlim.rlim_max = old_rlim->rlim_max;
+	off = (off_t)old_rlim->rlim_max;
+	new_rlim.rlim_max = off;
 	new_rlim.rlim_cur = offset;
 
 	if (setrlimit(RLIMIT_FSIZE, &new_rlim) < 0) {
@@ -69,33 +106,36 @@ static void stress_fsize_boundary(
 	}
 
 	sigxfsz = false;
-	ret = shim_fallocate(fd, 0, (off_t)new_rlim.rlim_cur - 1, size);
+	off = (off_t)new_rlim.rlim_cur - 1;
+	ret = shim_fallocate(fd, 0, off, size);
 	if (ret < 0) {
 		if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 			pr_fail("%s: fallocate failed at offset %jd (0x%jx) with unexpected error: %d (%s)\n",
-				args->name, (intmax_t)new_rlim.rlim_cur, (intmax_t)new_rlim.rlim_cur,
+				args->name, (intmax_t)off, (intmax_t)off,
 				errno, strerror(errno));
 		}
 		return;
 	}
 	if (sigxfsz)
-		pr_fail("%s: got an unexpected SIGXFSZ signal\n", args->name);
+		pr_fail("%s: got an unexpected SIGXFSZ signal at offset %jd (0x%jx)\n",
+			args->name, (intmax_t)off, (intmax_t)off);
 
 	sigxfsz = false;
-	ret = shim_fallocate(fd, 0, (off_t)new_rlim.rlim_cur, size);
-	if (ret == 0) {
-		pr_fail("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
-			args->name, (intmax_t)new_rlim.rlim_cur, (intmax_t)new_rlim.rlim_cur);
+	off = (off_t)new_rlim.rlim_cur;
+	ret = shim_fallocate(fd, 0, off, size);
+	if ((ret == 0) && !stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
+		pr_inf("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
+			args->name, (intmax_t)off, (intmax_t)off);
 		return;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 		pr_fail("%s: fallocate failed at offset %jd (0x%jd) with unexpected error: %d (%s)\n",
-			args->name, (intmax_t)new_rlim.rlim_cur, (intmax_t)new_rlim.rlim_cur,
+			args->name, (intmax_t)off, (intmax_t)off,
 			errno, strerror(errno));
 		return;
 	}
-	if (!sigxfsz)
-		pr_fail("%s: did not get expected SIGXFSZ signal\n", args->name);
-
+	if (!sigxfsz && !stress_fsize_reported(off, FSIZE_TYPE_SIGXFSZ))
+		pr_inf("%s: did not get expected SIGXFSZ signal at offset %jd (0x%jx)\n",
+			args->name, (intmax_t)off, (intmax_t)off);
 }
 
 /*
@@ -196,14 +236,15 @@ static int stress_fsize(const stress_args_t *args)
 		}
 		sigxfsz = false;
 		if (shim_fallocate(fd, 0, (off_t)max, 4096) == 0) {
-			pr_fail("%s: fallocate unexpectedly succeeded using offset %jd (0x%jx), expecting EFBIG error\n",
+			pr_fail("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
 				args->name, (intmax_t)max, (intmax_t)max);
 		} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
-			pr_fail("%s: failed using offset %jd (0x%jx) with unexpected error: %d (%s)\n",
+			pr_fail("%s: failed at offset %jd (0x%jx) with unexpected error: %d (%s)\n",
 				args->name, (intmax_t)max, (intmax_t)max, errno, strerror(errno) );
 		}
 		if (!sigxfsz)
-			pr_fail("%s: expected a SIGXFSZ signal, nothing happened\n", args->name);
+			pr_fail("%s: expected a SIGXFSZ signal at offset %jd (0x%jd), nothing happened\n",
+				args->name, (intmax_t)max, (intmax_t)max);
 
 		/*
 		 *  Test #2, test for allocation 0..offset and file offset..max
