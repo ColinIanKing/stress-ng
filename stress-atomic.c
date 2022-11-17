@@ -312,7 +312,7 @@ static int stress_atomic(const stress_args_t *args)
 	const size_t n_metrics = STRESS_ATOMIC_MAX_PROCS + 1;
 
 	metrics_sz = sizeof(stress_atomic_metrics_t) * n_metrics;
-	metrics = mmap(NULL, metrics_sz, PROT_READ | PROT_WRITE,
+	metrics = (stress_atomic_metrics_t *)mmap(NULL, metrics_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: could not mmap share metrics of "
