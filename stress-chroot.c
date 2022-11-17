@@ -305,7 +305,7 @@ static int stress_chroot(const stress_args_t *args)
 	chroot_metrics_t *metrics;
 	double rate;
 
-	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
+	metrics = (chroot_metrics_t *)mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap metrics shared data, skipping stressor\n",
