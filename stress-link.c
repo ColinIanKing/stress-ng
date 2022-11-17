@@ -111,7 +111,7 @@ static int stress_link_generic(
 		temp_dir_fd = open(dir_path, O_RDONLY | O_DIRECTORY);
 	}
 #else
-	(void)do_sync
+	(void)do_sync;
 #endif
 
 	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0UL);
