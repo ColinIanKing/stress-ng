@@ -389,7 +389,9 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 		size_t n;
 		int rnd, rnd_flag;
 		uint8_t *buf = NULL;
+#if defined(HAVE_MPROTECT)
 		uint64_t *buf64;
+#endif
 retry:
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_inf("%s: gave up trying to mmap, no available memory\n",
