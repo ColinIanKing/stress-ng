@@ -74,10 +74,12 @@ static int stress_crypt_id(
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
+#endif
 	(void)shim_strlcpy(newsalt, salt, sizeof(newsalt));
 	(void)memcpy(newsalt, prefix, prefix_len);
 	errno = 0;
 
+#if defined (HAVE_CRYPT_R)
 	t1 = stress_time_now();
 	encrypted = crypt_r(passwd, newsalt, &data);
 	t2 = stress_time_now();
