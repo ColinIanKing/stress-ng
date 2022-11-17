@@ -23,14 +23,13 @@
 
 #define MIN_VM_ADDR_BYTES	(8 * MB)
 #define MAX_VM_ADDR_BYTES	(64 * MB)
-#define NO_MEM_RETRIES_MAX	(100)
 
-#define ALIGN_VM	ALIGNED(64)
+#define NO_MEM_RETRIES_MAX	(100)
 
 /*
  *  the VM stress test has diffent methods of vm stressor
  */
-typedef size_t (*stress_vm_addr_func)(void *buf, const size_t sz);
+typedef size_t (*stress_vm_addr_func)(uint8_t *buf, const size_t sz);
 
 typedef struct {
 	const char *name;
@@ -65,12 +64,10 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
  *	set data on power of 2 addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t n, errs = 0, step;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + n) = rnd;
@@ -89,13 +86,11 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2(
  *	set data on inverted power of 2 addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2inv(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	const size_t mask = sz - 1;
 	size_t n, errs = 0, step;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + (n ^ mask)) = rnd;
@@ -115,13 +110,11 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2inv(
  *	each address changes by just 1 bit
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_gray(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t errs = 0, n;
 	const size_t mask = sz - 1;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
@@ -143,13 +136,11 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_gray(
  *	each address changes by as many bits possible
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t n, errs = 0;
 	const size_t mask = sz - 1;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
@@ -173,12 +164,10 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
  * 	0x00000002 -> 0x2000000
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0, shift;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
@@ -205,12 +194,10 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
  * 	0x00000002 -> 0xdffffff
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0, shift;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
@@ -234,19 +221,17 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
  *	set data on incrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t errs = 0;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
-	uint8_t *ALIGN_VM buf_end = (uint8_t *)ptr + sz;
+	uint8_t *ptr, *ptr_end = buf + sz;
 
-	for (buf = ptr; buf < buf_end; buf++) {
-		*buf = rnd;
+	for (ptr = buf; LIKELY(ptr < ptr_end); ptr++) {
+		*ptr = rnd;
 	}
-	for (buf = ptr; LIKELY(buf < buf_end); buf++) {
-		if (UNLIKELY(*buf != rnd))
+	for (ptr = buf; LIKELY(ptr < ptr_end); ptr++) {
+		if (UNLIKELY(*ptr != rnd))
 			errs++;
 	}
 	return errs;
@@ -257,12 +242,10 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
  *	set data on inverted incrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
@@ -283,19 +266,17 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
  *	set data on decrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t errs = 0;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf_end = (uint8_t *)ptr;
-	uint8_t *ALIGN_VM buf;
+	uint8_t *ptr;
 
-	for (buf = (uint8_t *)ptr + sz - 1; buf != buf_end; buf--) {
-		*buf = rnd;
+	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
+		*ptr = rnd;
 	}
-	for (buf = (uint8_t *)ptr + sz - 1; buf != buf_end; buf--) {
-		if (UNLIKELY(*buf != rnd))
+	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
+		if (UNLIKELY(*ptr != rnd))
 			errs++;
 	}
 
@@ -307,12 +288,10 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
  *	set data on inverted decrementing addresses
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
 	const uint8_t rnd = stress_mwc8();
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = sz; n; n--) {
 		const size_t i = ((n - 1) ^ mask) & mask;
@@ -335,13 +314,12 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
  *	to log2(sz / 2)
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	int bits, nbits;
 	size_t mask;
 	size_t errs = 0;
-	const uint8_t *buf_end = (uint8_t *)ptr + sz;
+	const uint8_t *ptr_end = buf + sz;
 	const uint8_t rnd = stress_mwc8();
 
 	/* log2(sz / 2) */
@@ -350,18 +328,18 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 
 	for (bits = nbits; --bits >= 0; ) {
 		register size_t stride = 1U << bits;
-		register uint8_t *buf;
+		register uint8_t *ptr;
 
-		for (buf = ptr; buf < buf_end; buf += stride)
-			*buf = rnd;
+		for (ptr = buf; ptr < ptr_end; ptr += stride)
+			*ptr = rnd;
 	}
 
 	for (bits = 0; bits < nbits; bits++) {
 		register size_t stride = 1U << bits;
-		register uint8_t *buf;
+		register uint8_t *ptr;
 
-		for (buf = ptr; buf < buf_end; buf += stride) {
-			if (UNLIKELY(*buf != rnd))
+		for (ptr = buf; ptr < ptr_end; ptr += stride) {
+			if (UNLIKELY(*ptr != rnd))
 				errs++;
 		}
 	}
@@ -374,12 +352,10 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
  *	to flip as many address bits per write/read cycle
  */
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	register size_t n;
 	const uint8_t rnd = stress_mwc8();
-	register uint8_t *buf = ptr;
 	size_t errs = 0;
 	register const size_t mask = sz - 1;
 
@@ -406,13 +382,12 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
  *	work through all vm stressors sequentially
  */
 static size_t stress_vm_addr_all(
-	void *ptr,
-	const size_t sz)
+	uint8_t *buf, const size_t sz)
 {
 	static int i = 1;
 	size_t bit_errors = 0;
 
-	bit_errors = vm_addr_methods[i].func(ptr, sz);
+	bit_errors = vm_addr_methods[i].func(buf, sz);
 	i++;
 	if (vm_addr_methods[i].func == NULL)
 		i = 1;
@@ -464,43 +439,41 @@ static int stress_set_vm_addr_method(const char *name)
 static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
-	void *vm_base_addr;
-	size_t buf_sz;
-	void *buf = NULL;
+	size_t buf_sz = MIN_VM_ADDR_BYTES;
+	uintptr_t buf_addr, max_addr = ~(uintptr_t)0;
+	uint8_t *buf = NULL;
 	stress_vm_addr_context_t *context = (stress_vm_addr_context_t *)ctxt;
 	const stress_vm_addr_func func = context->vm_addr_method->func;
 
-	buf_sz = MIN_VM_ADDR_BYTES;
-
 	do {
-		vm_base_addr = (void *)buf_sz;
+		for (buf_addr = args->page_size; buf_addr && (buf_addr < max_addr); buf_addr <<= 1) {
 
-		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-			pr_err("%s: gave up trying to mmap, no available memory\n",
-				args->name);
-			break;
+			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+				pr_err("%s: gave up trying to mmap, no available memory\n",
+					args->name);
+				break;
+			}
+			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))
+				buf_sz = MIN_VM_ADDR_BYTES;
+
+			buf = (uint8_t *)mmap((void *)buf_addr, buf_sz,
+				PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+			if (buf == MAP_FAILED) {
+				buf = NULL;
+				no_mem_retries++;
+				(void)shim_usleep(100000);
+				continue;
+			}
+
+			no_mem_retries = 0;
+			*(context->bit_error_count) += func(buf, buf_sz);
+			(void)munmap((void *)buf, buf_sz);
+			inc_counter(args);
 		}
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))
-			buf_sz = MIN_VM_ADDR_BYTES;
-
-		buf = (void *)mmap(vm_base_addr, buf_sz,
-			PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (buf == MAP_FAILED) {
-			buf = NULL;
-			no_mem_retries++;
-			(void)shim_usleep(100000);
-			goto next;	/* Try again */
-		}
-
-		no_mem_retries = 0;
-		*(context->bit_error_count) += func(buf, buf_sz);
-		(void)munmap((void *)buf, buf_sz);
-next:
 		buf_sz <<= 1;
 		if (buf_sz > MAX_VM_ADDR_BYTES)
 			buf_sz = MIN_VM_ADDR_BYTES;
-		inc_counter(args);
 	} while (keep_stressing_vm(args));
 
 	return EXIT_SUCCESS;
