@@ -43,7 +43,6 @@ static int stress_flushcache_nohugepage(void *addr, size_t size)
 #if defined(MADV_NOHUGEPAGE)
 	(void)shim_madvise((void *)addr, size, MADV_NOHUGEPAGE);
 #else
-	(void)args;
 	(void)addr;
 	(void)size;
 #endif
