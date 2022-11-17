@@ -175,6 +175,9 @@ static void *stress_far_mmap(
 		}
 		offset <<= 1;
 	}
+#else
+	(void)base;
+	(void)offset;
 #endif
 	if (ptr == MAP_FAILED) {
 		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
