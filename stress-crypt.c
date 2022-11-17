@@ -94,6 +94,10 @@ static int stress_crypt_id(
 			break;
 		case EINVAL:
 			break;
+#if defined(ENOENT)
+		case ENOENT:
+			break;
+#endif
 #if defined(ENOSYS)
 		case ENOSYS:
 			break;
