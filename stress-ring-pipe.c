@@ -190,7 +190,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 			break;
 
 		poll_fds[n_pipes].fd = pipe_fds[n_pipes].fds[0];
-		poll_fds[n_pipes].events = POLL_IN;
+		poll_fds[n_pipes].events = POLLIN;
 		poll_fds[n_pipes].revents = 0;
 
 		if (max_fd < pipe_fds[n_pipes].fds[0])
