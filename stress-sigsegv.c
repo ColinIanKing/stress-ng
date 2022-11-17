@@ -323,7 +323,7 @@ static int stress_sigsegv(const stress_args_t *args)
 #if defined(SA_SIGINFO)
 			if (verify && expected_addr && fault_addr && fault_addr != expected_addr) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
-					args->name, (void *)expected_addr, fault_addr);
+					args->name, (volatile void *)expected_addr, fault_addr);
 			}
 			if (verify &&
 			    (signo != -1) &&
@@ -388,7 +388,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			case 6:
 #if defined(SA_SIGINFO)
 				expected_addr = BAD_ADDR;
-				shim_cacheflush((char *)expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
+				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
 				stress_sigsegv_vdso();
 				CASE_FALLTHROUGH;
@@ -396,7 +396,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			default:
 #if defined(SA_SIGINFO)
 				expected_addr = ptr;
-				shim_cacheflush((char *)expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
+				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
 				*ptr = 0;
 				break;
