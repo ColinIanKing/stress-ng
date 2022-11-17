@@ -702,6 +702,7 @@ cleanup:
 			(void)munmap((void *)buf64, page_size);
 		}
 #endif
+#if defined(HAVE_MPROTECT)
 		/*
 		 *  Step #10, mmap read-only page, change to write-only page, write data.
 		 */
@@ -715,6 +716,7 @@ cleanup:
 			}
 			(void)munmap((void *)buf64, page_size);
 		}
+#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
