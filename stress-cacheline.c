@@ -260,53 +260,55 @@ static int stress_cacheline_rdwr(
 	(void)l1_cacheline_size;
 
 	for (i = 0; i < 1024; i++) {
-		(void)*data8;
-		*data8 = *data8;
+		uint8_t tmp;
+
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
-		(void)*data8;
-		*data8 = *data8;
+		tmp = *data8;
+		*data8 = tmp;
 		shim_mb();
 
 		if (UNLIKELY(*data8 != val8)) {
@@ -494,7 +496,8 @@ static int stress_cacheline_bits(
 	for (i = 0; i < 1024; i++) {
 		register uint8_t val8;
 
-		(void)*(data8);
+		val8 = *(data8);
+		(void)val8;
 
 		val8 = (uint8_t)(1U << (i & 7));
 		*data8 = val8;
