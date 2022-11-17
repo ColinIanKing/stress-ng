@@ -192,7 +192,16 @@ static void stress_sigsegv_readtsc(void)
 {
 	/* SEGV reading tsc when tsc is not allowed */
 	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0) {
-		__asm__ __volatile__("rdtsc\n" : : : "%edx", "%eax");
+#if defined(STRESS_ARCH_X86_64)
+		uint32_t lo, hi;
+
+		__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
+#endif
+#if defined(STRESS_ARCH_X86_32)
+		uint64_t tsc;
+
+		__asm__ __volatile__("rdtsc" : "=A" (tsc));
+#endif
 	}
 }
 
