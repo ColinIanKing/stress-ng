@@ -677,6 +677,7 @@ cleanup:
 			index++;
 			index %= context->mmap_flag_count;
 		}
+#if defined(HAVE_MPROTECT)
 		/*
 		 *  Step #9, mmap write-only page, write data,
 		 *  change to read-only page, read data.
@@ -700,6 +701,7 @@ cleanup:
 			}
 			(void)munmap((void *)buf64, page_size);
 		}
+#endif
 		/*
 		 *  Step #10, mmap read-only page, change to write-only page, write data.
 		 */
