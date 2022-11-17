@@ -123,12 +123,14 @@ static void stress_fsize_boundary(
 	sigxfsz = false;
 	off = (off_t)new_rlim.rlim_cur;
 	ret = shim_fallocate(fd, 0, off, size);
-	if ((ret == 0) && !stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
-		pr_inf("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
-			args->name, (intmax_t)off, (intmax_t)off);
+	if (ret == 0) {
+		if (!stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
+			pr_inf("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
+				args->name, (intmax_t)off, (intmax_t)off);
+		}
 		return;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
-		pr_fail("%s: fallocate failed at offset %jd (0x%jd) with unexpected error: %d (%s)\n",
+		pr_fail("%s: fallocate failed at offset %jd (0x%jx) with unexpected error: %d (%s)\n",
 			args->name, (intmax_t)off, (intmax_t)off,
 			errno, strerror(errno));
 		return;
@@ -243,7 +245,7 @@ static int stress_fsize(const stress_args_t *args)
 				args->name, (intmax_t)max, (intmax_t)max, errno, strerror(errno) );
 		}
 		if (!sigxfsz)
-			pr_fail("%s: expected a SIGXFSZ signal at offset %jd (0x%jd), nothing happened\n",
+			pr_fail("%s: expected a SIGXFSZ signal at offset %jd (0x%jx), nothing happened\n",
 				args->name, (intmax_t)max, (intmax_t)max);
 
 		/*
