@@ -118,6 +118,7 @@ HEADERS = \
 	core-pthread.h \
 	core-put.h \
 	core-smart.h \
+	core-sort.h \
 	core-stressors.h \
 	core-syslog.h \
 	core-target-clones.h \
