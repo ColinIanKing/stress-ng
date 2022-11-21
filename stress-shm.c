@@ -122,18 +122,6 @@ static int stress_shm_posix_child(
 	const size_t page_size = args->page_size;
 	struct sigaction sa;
 
-#if defined(__linux__)
-	/*
-	 *  /dev/shm should be mounted with tmpfs and
-	 *  be writeable, if not shm_open will fail
-	 */
-	if (access("/dev/shm", W_OK) < 0) {
-		pr_inf("%s: cannot access /dev/shm for writes, errno=%d (%s) skipping stressor\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-#endif
-
 	addrs = calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
 		pr_fail("%s: calloc on addrs failed, out of memory\n", args->name);
@@ -384,6 +372,17 @@ static int stress_shm(const stress_args_t *args)
 	}
 	orig_sz = sz = shm_posix_bytes & ~(page_size - 1);
 
+#if defined(__linux__)
+	/*
+	 *  /dev/shm should be mounted with tmpfs and
+	 *  be writeable, if not shm_open will fail
+	 */
+	if (access("/dev/shm", W_OK) < 0) {
+		pr_inf("%s: cannot access /dev/shm for writes, errno=%d (%s) skipping stressor\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (keep_stressing_flag() && retry) {
