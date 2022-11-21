@@ -634,14 +634,11 @@ static int stress_sysfs(const stress_args_t *args)
 	}
 
 	n = scandir("/sys", &dlist, NULL, alphasort);
-	if (n <= 0) {
-		if (args->instance == 0)
-			pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
-		stress_dirent_list_free(dlist, n);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
-	}
+	if (n <= 0)
+		goto exit_no_sysfs_entries;
 	n = stress_dirent_list_prune(dlist, n);
+	if (n <= 0)
+		goto exit_no_sysfs_entries;
 
 	os_release = 0;
 #if defined(HAVE_UNAME) &&	\
@@ -806,10 +803,17 @@ finish:
 		(void)close(ctxt->kmsgfd);
 	(void)shim_pthread_spin_destroy(&lock);
 
+exit_free:
 	stress_dirent_list_free(dlist, n);
 	(void)munmap((void *)ctxt, sizeof(*ctxt));
 
 	return rc;
+
+exit_no_sysfs_entries:
+	if (args->instance == 0)
+		pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
+	rc = EXIT_NO_RESOURCE;
+	goto exit_free;
 }
 
 stressor_info_t stress_sysfs_info = {
