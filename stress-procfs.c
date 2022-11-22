@@ -54,7 +54,7 @@ typedef struct stress_ctxt {
 
 typedef struct {
 	const char *filename;
-	void (*stress_func)(const int fd);
+	void (*stress_func)(const stress_args_t *args, const int fd);
 } stress_proc_info_t;
 
 #if !defined(NSIO)
@@ -77,6 +77,57 @@ static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static char proc_path[PATH_MAX];
 static uint32_t mixup;
+
+/*
+ *  stress_dirent_proc_prune()
+ *	remove . and .. and pid files from directory list
+ */
+static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
+{
+	int i, j, digit_count = 0;
+
+	for (i = 0, j = 0; i < n; i++) {
+		if (dlist[i]) {
+			register bool ignore = false;
+
+			if (stress_is_dot_filename(dlist[i]->d_name))
+				ignore = true;
+			else if (isdigit((int)dlist[i]->d_name[0])) {
+				/* only allow a small numeric files.. */
+				ignore = (digit_count > 1);
+				digit_count++;
+			}
+
+			if (ignore) {
+				free(dlist[i]);
+				dlist[i] = NULL;
+			} else {
+				dlist[j] = dlist[i];
+				j++;
+			}
+		}
+	}
+	return j;
+}
+
+/*
+ *  stress_proc_scandir()
+ *	scan dir with pruning of dot and numeric proc files
+ */
+int stress_proc_scandir(
+	const char *dirp,
+	struct dirent ***namelist,
+	int (*filter)(const struct dirent *),
+	int (*compar)(const struct dirent **, const struct dirent **))
+{
+	int n;
+
+	n = scandir(dirp, namelist, filter, compar);
+	if (n <= 0)
+		return n;
+	n = stress_dirent_proc_prune(*namelist, n);
+	return n;
+}
 
 static uint32_t path_sum(const char *path)
 {
@@ -103,6 +154,44 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 	return (s1 < s2) ? -1 : 1;
 }
 
+/*
+ *  stress_proc_self_mem()
+ *	check if /proc/self/mem can be mmap'd and read and values
+ *	match that of mmap'd page and page read via the fd
+ */
+static void stress_proc_self_mem(const stress_args_t *args, const int fd)
+{
+	uint8_t *page, *buf, rnd = stress_mwc8();
+	const size_t page_size = stress_get_page_size();
+
+	buf = (uint8_t *)malloc(page_size);
+	if (!buf)
+		return;
+
+	page = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (page == MAP_FAILED) {
+		free(buf);
+		return;
+	}
+
+	(void)memset(page, rnd, page_size);
+	if (lseek(fd, (off_t)page, SEEK_SET) == (off_t)page) {
+		ssize_t ret;
+		size_t offset = stress_mwc32() % page_size;
+
+		ret = read(fd, buf, page_size);
+		if ((ret == (ssize_t)page_size) &&
+		    (buf[offset] != page[offset])) {
+			pr_inf("%s /proc/self/mem read/mmap failure at offset %p, mmap value 0x%2x vs read value 0x%2x\n",
+				args->name, page + offset, page[offset], buf[offset]);
+		}
+	}
+
+	(void)munmap(page, page_size);
+	free(buf);
+}
+
 #if defined(HAVE_ASM_MTRR_H) &&		\
     defined(HAVE_MTRR_GENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
@@ -110,9 +199,11 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
  *  stress_proc_mtrr()
  *	exercise /proc/mtrr ioctl MTRRIOC_GET_ENTRY
  */
-static void stress_proc_mtrr(const int fd)
+static void stress_proc_mtrr(const stress_args_t *args, const int fd)
 {
 	struct mtrr_gentry gentry;
+
+	(void)args;
 
 	(void)memset(&gentry, 0, sizeof(gentry));
 	while (ioctl(fd, MTRRIOC_GET_ENTRY, &gentry) == 0) {
@@ -128,8 +219,10 @@ static void stress_proc_mtrr(const int fd)
 #if defined(HAVE_LINUX_PCI_H) &&	\
     defined(PCIIOC_CONTROLLER) &&	\
     !defined(STRESS_ARCH_SH4)
-static void stress_proc_pci(const int fd)
+static void stress_proc_pci(const stress_args_t *args, const int fd)
 {
+	(void)args;
+
 	VOID_RET(int, ioctl(fd, PCIIOC_CONTROLLER));
 #if defined(PCIIOC_BASE)
 	/* EINVAL ioctl */
@@ -140,6 +233,7 @@ static void stress_proc_pci(const int fd)
 #endif
 
 static stress_proc_info_t stress_proc_info[] = {
+	{ "/proc/self/mem",		stress_proc_self_mem },
 #if defined(HAVE_ASM_MTRR_H) &&		\
     defined(HAVE_MTRR_GENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
@@ -209,7 +303,7 @@ static inline void stress_proc_rw(
 		 */
 		for (i = 0; i < (ssize_t)SIZEOF_ARRAY(stress_proc_info); i++) {
 			if (!strcmp(path, stress_proc_info[i].filename)) {
-				stress_proc_info[i].stress_func(fd);
+				stress_proc_info[i].stress_func(ctxt->args, fd);
 				break;
 			}
 		}
@@ -571,7 +665,7 @@ static void stress_proc_dir(
 
 	mixup = stress_mwc32();
 	dlist = NULL;
-	n = scandir(path, &dlist, NULL, mixup_sort);
+	n = stress_proc_scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0) {
 		stress_dirent_list_free(dlist, n);
 		return;
@@ -637,7 +731,7 @@ static char *stress_random_pid(void)
 
 	(void)shim_strlcpy(path, "/proc/self", sizeof(path));
 
-	n = scandir("/proc", &dlist, NULL, mixup_sort);
+	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
 	if (!n) {
 		stress_dirent_list_free(dlist, n);
 		return path;
@@ -665,29 +759,6 @@ static char *stress_random_pid(void)
 }
 
 /*
- *  stress_dirent_proc_prune()
- *	remove . and .. and pid files from directory list
- */
-static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
-{
-	int i, j;
-
-	for (i = 0, j = 0; i < n; i++) {
-		if (dlist[i]) {
-			if (stress_is_dot_filename(dlist[i]->d_name) ||
-			    isdigit((int)dlist[i]->d_name[0])) {
-				free(dlist[i]);
-				dlist[i] = NULL;
-			} else {
-				dlist[j] = dlist[i];
-				j++;
-			}
-		}
-	}
-	return j;
-}
-
-/*
  *  stress_procfs_no_entries()
  *	report when no /proc entries are found
  */
@@ -710,10 +781,7 @@ static int stress_procfs(const stress_args_t *args)
 	stress_ctxt_t ctxt;
 	struct dirent **dlist = NULL;
 
-	n = scandir("/proc", &dlist, NULL, alphasort);
-	if (n <= 0)
-		return stress_procfs_no_entries(args);
-	n = stress_dirent_proc_prune(dlist, n);
+	n = stress_proc_scandir("/proc", &dlist, NULL, alphasort);
 	if (n <= 0)
 		return stress_procfs_no_entries(args);
 
