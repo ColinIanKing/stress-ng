@@ -70,6 +70,9 @@ jobs:
           output: trivy-results.sarif
           # severity: CRITICAL,HIGH
           # vuln-type: os,library
+      - name: Revert Docker Image Identifiers for Trivy for Upload
+        id: revert-docker-image-identifiers-for-trivy-for-upload
+        run: echo "IMAGE_REPOSITORY=$(echo ${{ github.repository }})"
       - if: always()
         name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v2
