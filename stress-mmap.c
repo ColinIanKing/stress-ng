@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 #if defined(__NR_mmap2)
 #define HAVE_MMAP2
 #endif
@@ -260,6 +264,21 @@ static int stress_set_mmap_odirect(const char *opt)
 static int stress_set_mmap_mmap2(const char *opt)
 {
 	return stress_set_setting_true("mmap-mmap2", opt);
+}
+
+/*
+ *  attempt to set vma name using prctl SET_VMA_ANON_NAME
+ */
+static void stress_mmap_set_vma_name(void *buf)
+{
+#if defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_VMA) &&		\
+    defined(PR_SET_VMA_ANON_NAME)
+	/* set vma anon name, even if it's not anonymous */
+	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, buf, "stress-mmap"));
+#else
+	(void)buf;
+#endif
 }
 
 /*
@@ -672,8 +691,10 @@ cleanup:
 				tmpfd = open("/dev/zero", O_RDONLY);
 
 			buf = (uint8_t *)mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
-			if (buf != MAP_FAILED)
+			if (buf != MAP_FAILED) {
+				stress_mmap_set_vma_name((void *)buf);
 				(void)munmap((void *)buf, page_size);
+			}
 			if (tmpfd >= 0)
 				(void)close(tmpfd);
 			index++;
@@ -688,6 +709,8 @@ cleanup:
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (buf64 != MAP_FAILED) {
 			uint64_t val = stress_mwc64();
+
+			stress_mmap_set_vma_name((void *)buf64);
 
 			*buf64 = val;
 			ret = mprotect((void *)buf64, page_size, PROT_READ);
@@ -711,6 +734,8 @@ cleanup:
 		buf64 = (uint64_t *)mmap(NULL, page_size, PROT_READ,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (buf64 != MAP_FAILED) {
+			stress_mmap_set_vma_name((void *)buf64);
+
 			ret = mprotect((void *)buf64, page_size, PROT_WRITE);
 			if ((ret < 0) && (errno != ENOMEM)) {
 				pr_fail("%s: cannot set read-only page to write-only, errno=%d (%s)\n",
