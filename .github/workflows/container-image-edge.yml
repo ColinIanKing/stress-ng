@@ -58,6 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-image]
     steps:
+      - name: Read Docker Image Identifiers for Trivy
+        id: read-docker-image-identifiers-for-trivy
+        run: echo "IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@master
         with:
