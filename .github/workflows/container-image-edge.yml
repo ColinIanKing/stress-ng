@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Read Docker Image Identifiers
         id: read-docker-image-identifiers
-        run: echo "name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        run: echo "IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set up QEMU
