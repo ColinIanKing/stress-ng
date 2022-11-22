@@ -7,12 +7,8 @@ on:
   schedule:
     - cron: 0 0 * * *
 
-run: |
-  echo ::set-env name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-
 env:
   GITHUB_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ env.IMAGE_REPOSITORY }}
 
 jobs:
   build-image:
@@ -20,6 +16,9 @@ jobs:
     permissions:
       packages: write
     steps:
+      - name: Read Docker Image Identifiers
+        id: read-docker-image-identifiers
+        run: echo ::set-env name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'
       - name: Checkout
         uses: actions/checkout@v3
       - name: Set up QEMU
@@ -42,17 +41,17 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           push: true
           context: .
           tags: |
-            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:${{ github.sha }}
+            ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:latest
+            ${{ env.IMAGE_REPOSITORY }}:${{ github.sha }}
+            ${{ env.IMAGE_REPOSITORY }}:latest
           platforms: linux/amd64,linux/s390x,linux/ppc64le,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
   scan-image:
@@ -64,7 +63,7 @@ jobs:
         with:
           format: sarif
           # ignore-unfixed: true
-          image-ref: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          image-ref: ${{ env.GITHUB_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:latest
           output: trivy-results.sarif
           # severity: CRITICAL,HIGH
           # vuln-type: os,library
