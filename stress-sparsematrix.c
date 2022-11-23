@@ -60,6 +60,20 @@
 #define HAVE_RB_TREE	(1)
 #endif
 
+/* BSD splay tree */
+#if defined(SPLAY_HEAD) &&	\
+    defined(SPLAY_PROTOTYPE) &&	\
+    defined(SPLAY_GENERATE) &&	\
+    defined(SPLAY_ENTRY) &&	\
+    defined(SPLAY_INIT) &&	\
+    defined(SPLAY_FIND) &&	\
+    defined(SPLAY_INSERT) &&	\
+    defined(SPLAY_MIN) &&	\
+    defined(SPLAY_NEXT) &&	\
+    defined(SPLAY_REMOVE)
+#define HAVE_SPLAY_TREE
+#endif
+
 #if defined(HAVE_JUDY_H) && 	\
     defined(HAVE_LIB_JUDY) &&	\
     (ULONG_MAX > 0xffffffff)
@@ -90,7 +104,7 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[];
 static const stress_help_t help[] = {
 	{ NULL,	"sparsematrix N",	 "start N workers that exercise a sparse matrix" },
 	{ NULL,	"sparsematrix-items N",	 "N is the number of items in the spare matrix" },
-	{ NULL,	"sparsematrix-method M", "select storage method: all, hash, judy, list or rb" },
+	{ NULL,	"sparsematrix-method M", "select storage method: all, hash, hashjudt, judy, list, mmap, qhash, rb, splay" },
 	{ NULL,	"sparsematrix-ops N",	 "stop after N bogo sparse matrix operations" },
 	{ NULL,	"sparsematrix-size N",	 "M is the width and height X x Y of the matrix" },
 	{ NULL,	NULL,		 	 NULL }
@@ -102,6 +116,16 @@ typedef struct sparse_rb {
 	uint32_t value;		/* value in matrix x,y */
 	RB_ENTRY(sparse_rb) rb;	/* red-black tree node entry */
 } sparse_rb_t;
+#else
+UNEXPECTED
+#endif
+
+#if defined(HAVE_SPLAY_TREE)
+typedef struct sparse_splay {
+	uint64_t xy;		/* x,y matrix position */
+	uint32_t value;		/* value in matrix x,y */
+	SPLAY_ENTRY(sparse_splay) splay; /* splay tree node entry */
+} sparse_splay_t;
 #else
 UNEXPECTED
 #endif
@@ -583,10 +607,10 @@ UNEXPECTED
 static size_t rb_objmem;
 
 /*
- *  sparse_node_cmp()
+ *  sparse_rb_node_cmp()
  *	rb tree comparison function
  */
-static int sparse_node_cmp(sparse_rb_t *n1, sparse_rb_t *n2)
+static int sparse_rb_node_cmp(sparse_rb_t *n1, sparse_rb_t *n2)
 {
 	register uint64_t n1xy = n1->xy;
 	register uint64_t n2xy = n2->xy;
@@ -600,8 +624,8 @@ static int sparse_node_cmp(sparse_rb_t *n1, sparse_rb_t *n2)
 }
 
 static RB_HEAD(sparse_rb_tree, sparse_rb) rb_root;
-RB_PROTOTYPE(sparse_rb_tree, sparse_rb, rb, sparse_node_cmp);
-RB_GENERATE(sparse_rb_tree, sparse_rb, rb, sparse_node_cmp);
+RB_PROTOTYPE(sparse_rb_tree, sparse_rb, rb, sparse_rb_node_cmp);
+RB_GENERATE(sparse_rb_tree, sparse_rb, rb, sparse_rb_node_cmp);
 
 /*
  *  rb_create()
@@ -685,6 +709,119 @@ static uint32_t OPTIMIZE3 rb_get(void *handle, const uint32_t x, const uint32_t 
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = RB_FIND(sparse_rb_tree, handle, &node);
+	return found ? found->value : 0;
+}
+#else
+UNEXPECTED
+#endif
+
+#if defined(HAVE_SPLAY_TREE)
+
+static size_t splay_objmem;
+
+/*
+ *  sparse_splay_node_cmp()
+ *	splay tree comparison function
+ */
+static int sparse_splay_node_cmp(sparse_splay_t *n1, sparse_splay_t *n2)
+{
+	register uint64_t n1xy = n1->xy;
+	register uint64_t n2xy = n2->xy;
+
+	if (n1xy == n2xy)
+		return 0;
+	else if (n1xy > n2xy)
+		return 1;
+	else
+		return -1;
+}
+
+static SPLAY_HEAD(sparse_splay_tree, sparse_splay) splay_root;
+SPLAY_PROTOTYPE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp);
+SPLAY_GENERATE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp);
+
+/*
+ *  splay_create()
+ *	create a red black tree based sparse matrix
+ */
+static void *splay_create(const uint64_t n, const uint32_t x, const uint32_t y)
+{
+	(void)n;
+	(void)x;
+	(void)y;
+
+	splay_objmem = 0;
+	SPLAY_INIT(&splay_root);
+	return &splay_root;
+}
+
+/*
+ *  splay_destroy()
+ *	destroy a red black tree based sparse matrix
+ */
+static void splay_destroy(void *handle, size_t *objmem)
+{
+	*objmem = splay_objmem;
+	splay_objmem = 0;
+	(void)handle;
+}
+
+/*
+ *  splay_put()
+ *	put a value into a red black tree sparse matrix
+ */
+static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
+{
+	sparse_splay_t node, *found;
+
+	node.xy = ((uint64_t)x << 32) | y;
+	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
+	if (!found) {
+		sparse_splay_t *new_node;
+
+		new_node = malloc(sizeof(*new_node));
+		if (!new_node)
+			return -1;
+		new_node->value = value;
+		new_node->xy = node.xy;
+		if (SPLAY_INSERT(sparse_splay_tree, handle, new_node) != NULL)
+			free(new_node);
+		splay_objmem += sizeof(sparse_splay_t);
+	} else {
+		found->value = value;
+	}
+	return 0;
+}
+
+/*
+ *  splay_del()
+ *	zero the (x,y) value in red black tree sparse matrix
+ */
+static void OPTIMIZE3 splay_del(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_splay_t node, *found;
+	node.xy = ((uint64_t)x << 32) | y;
+
+	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
+	if (!found)
+		return;
+
+	SPLAY_REMOVE(sparse_splay_tree, handle, found);
+	free(found);
+}
+
+/*
+ *  splay_get()
+ *	get the (x,y) value in a red back tree sparse matrix
+ */
+static uint32_t OPTIMIZE3 splay_get(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_splay_t node, *found;
+
+	memset(&node, 0xff, sizeof(node));
+	node.xy = ((uint64_t)x << 32) | y;
+
+	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
 	return found ? found->value : 0;
 }
 #else
@@ -1185,6 +1322,9 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 	{ "qhash",	qhash_create, qhash_destroy, qhash_put, qhash_del, qhash_get },
 #if defined(HAVE_RB_TREE)
 	{ "rb",		rb_create, rb_destroy, rb_put, rb_del, rb_get },
+#endif
+#if defined(HAVE_SPLAY_TREE)
+	{ "splay",	splay_create, splay_destroy, splay_put, splay_del, splay_get },
 #endif
 	{ NULL,		NULL, NULL, NULL, NULL, NULL },
 };

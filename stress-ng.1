@@ -4669,6 +4669,14 @@ use a hash table with pre-allocated nodes for each unique value. This is a quick
 table implementation, nodes are not allocated each time with calloc and are allocated
 from a pre-allocated pool leading to quicker hash table performance than the hash method.
 T}
+rb	T{
+use a red-black balanced tree using one tree node for each unique value at a (x, y)
+matrix position.
+T}
+splay	T{
+use a splay tree using one tree node for each unique value at a (x, y) matrix
+position.
+T}
 .TE
 .TP
 .B \-\-spawn N
