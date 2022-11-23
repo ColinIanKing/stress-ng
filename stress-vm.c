@@ -2691,6 +2691,79 @@ abort:
 	return bit_errors;
 }
 
+/*
+ *  stress_vm_lfsr32()
+ *	sequentially set all memory to 32 bit random values
+ *	check if they are still set correctly.
+ */
+static size_t stress_vm_lfsr32(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	volatile uint32_t *ptr;
+	uint64_t c = get_counter(args);
+	size_t bit_errors = 0;
+	const size_t chunk_sz = sizeof(*ptr) * 8;
+	register uint32_t lfsr = 0xf63acb01;
+
+	(void)buf_end;
+
+	for (lfsr = 0xf63acb01, ptr = (uint32_t *)buf; ptr < (uint32_t *)buf_end; ptr += chunk_sz) {
+		*(ptr + 0) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 1) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 2) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 3) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 4) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 5) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 6) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*(ptr + 7) = lfsr;
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		c++;
+		if (UNLIKELY(max_ops && (c >= max_ops)))
+			goto abort;
+		if (UNLIKELY(!keep_stressing_flag()))
+			goto abort;
+	}
+
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+
+	for (lfsr = 0xf63acb01, ptr = (uint32_t *)buf; ptr < (uint32_t *)buf_end; ptr += chunk_sz) {
+		bit_errors += stress_vm_count_bits(*(ptr + 0) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 1) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 2) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 3) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 4) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 5) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 6) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		bit_errors += stress_vm_count_bits(*(ptr + 7) ^ lfsr);
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		if (UNLIKELY(!keep_stressing_flag()))
+			break;
+	}
+	stress_vm_check("lfsr32", bit_errors);
+abort:
+	set_counter(args, c);
+
+	return bit_errors;
+}
 
 /*
  *  stress_vm_all()
@@ -2727,6 +2800,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "rowhammer",		stress_vm_rowhammer },
 	{ "incdec",		stress_vm_incdec },
 	{ "inc-nybble",		stress_vm_inc_nybble },
+	{ "lfsr32",		stress_vm_lfsr32 },
 	{ "rand-set",		stress_vm_rand_set },
 	{ "rand-sum",		stress_vm_rand_sum },
 	{ "read64",		stress_vm_read64 },

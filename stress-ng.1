@@ -5601,6 +5601,12 @@ initialise memory to a set value (that changes on each invocation of the
 stressor) and then sequentially work through each byte incrementing the bottom
 4 bits by 1 and the top 4 bits by 15.
 T}
+lfsr32	T{
+fill memory with values generated from a 32 bit Galois linear feedback shift
+register using the polynomial  x\[ua]32 + x\[ua]31 + x\[ua]29 + x + 1. This
+generates a ring of  2\[ua]32 - 1 unique values (all 32 bit values except
+for 0).
+T}
 rand-set	T{
 sequentially work through memory in 64 bit chunks setting bytes in the chunk
 to the same 8 bit random value.  The random value changes on each chunk.
