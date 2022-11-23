@@ -130,6 +130,63 @@ static void MLOCKED_TEXT stress_sig_handler(
 }
 
 /*
+ *  stress_far_mmap_try32()
+ *	try to mmap, if address is in 32 bit address space and
+ *	x86-64 then try to force lower 32 bit address first
+ */
+static void *stress_far_mmap_try32(
+	void *addr,
+	size_t length,
+	int prot,
+	int flags,
+	int fd,
+	off_t offset)
+{
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(MAP_32BIT)
+		/*
+		 *  x86-64, offset in 32 bit address space, then try
+		 *  MAP_32BIT first
+		 */
+		if (((uintptr_t)addr >> 32U) == 0) {
+			void *ptr;
+
+			ptr = mmap(addr, length, prot, flags | MAP_32BIT, fd, offset);
+			if (ptr != MAP_FAILED)
+				return ptr;
+		}
+#endif
+	return mmap(addr, length, prot, flags, fd, offset);
+}
+
+static void *stress_far_try_mmap(void *addr, size_t length)
+{
+#if defined(MAP_FIXED_NOREPLACE)
+	{
+		void *ptr;
+
+		ptr = (uint8_t *)stress_far_mmap_try32(addr, length, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE, -1, 0);
+		if (ptr != MAP_FAILED)
+			return ptr;
+	}
+#endif
+#if defined(HAVE_MSYNC) &&	\
+    defined(MAP_FIXED)
+	if ((msync(addr, length, MS_SYNC) < 0) &&
+	    (errno == ENOMEM)) {
+		void *ptr;
+
+		ptr = (uint8_t *)stress_far_mmap_try32(addr, length, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
+		if (ptr != MAP_FAILED)
+			return ptr;
+	}
+#endif
+	return MAP_FAILED;
+}
+
+/*
  *  stress_far_mmap()
  *	mmap and fill pages with return op codes to simulate
  *	functions that are spread around the address space
@@ -141,51 +198,58 @@ static void *stress_far_mmap(
 	ret_func_t *funcs,		/* Array of function pointers */
 	size_t *total_funcs)		/* Total number of functions */
 {
-	uint8_t *ptr = MAP_FAILED;
+	uint8_t *ptr;
 	size_t i;
 
-#if defined(MAP_FIXED_NOREPLACE)
 	/*
 	 *  Have several attempts to mmap to a chosen location,
 	 *  and shift and change offset if mapping failed (e.g.
 	 *  due to clash or unmapped fixed location
 	 */
 	for (i = 0; offset && (i < 10); i++) {
-		offset += (stress_mwc8() * 4096);
-		ptr = (uint8_t *)mmap((void *)(base + offset), page_size, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE, -1, 0);
-		if (ptr != MAP_FAILED)
-			break;
-		offset <<= 1;
-	}
-#elif defined(HAVE_MSYNC) &&	\
-      defined(MAP_FIXED)
-	for (i = 0; offset && (i < 10); i++) {
 		void *addr;
+		size_t j;
 
-		offset += (stress_mwc8() * 4096);
-		addr = (void *)(base + offset);
+		for (j = 0; j < 10; j++) {
+			offset += (stress_mwc8() * 4096);
+			addr = (void *)(base + offset);
 
-		if ((msync(addr, page_size, MS_SYNC) < 0) &&
-		    (errno == ENOMEM)) {
-			ptr = (uint8_t *)mmap((void *)(base + offset), page_size, PROT_READ | PROT_WRITE,
-				MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
+			ptr = (uint8_t *)stress_far_try_mmap(addr, page_size);
 			if (ptr != MAP_FAILED)
-				break;
+				goto use_page;
+			offset <<= 1;
 		}
-		offset <<= 1;
 	}
-#else
-	(void)base;
-	(void)offset;
-#endif
+
+	/*
+	 *  failed to mmap to a fixed address, try anywhere in
+	 *  the entire address space
+	 */
+	for (i = 0; i < 10; i++) {
+		uintptr_t addr;
+
+		if (sizeof(void *) > 4) {
+			addr = (uintptr_t)stress_mwc64() >> (stress_mwc8() % 32);
+		} else {
+			addr = (uintptr_t)stress_mwc32() >> (stress_mwc8() % 12);
+		}
+		addr &= ~(uintptr_t)(page_size - 1);
+		ptr = (uint8_t *)stress_far_try_mmap((void *)addr, page_size);
+		if (ptr != MAP_FAILED)
+			goto use_page;
+	}
+
+	/*
+	 *  still no luck, try anything mmap gives us
+	 */
 	if (ptr == MAP_FAILED) {
 		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (ptr == MAP_FAILED)
-			return NULL;
+			return NULL;	/* Give up */
 	}
 
+use_page:
 	for (i = 0; i < page_size; i += ret_opcode.stride) {
 		(void)memcpy((ptr + i), ret_opcode.opcodes, ret_opcode.len);
 		funcs[*total_funcs] = (ret_func_t)(ptr + i);
@@ -221,6 +285,7 @@ static int stress_far_branch(const stress_args_t *args)
 	NOCLOBBER double calls = 0.0;
 
 	base = (uintptr_t)stress_far_branch & mask;
+	base = 0;
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -306,8 +371,11 @@ static int stress_far_branch(const stress_args_t *args)
 		}
 	}
 
+	total_funcs &= ~((size_t)15);
+
 	if (args->instance == 0)
 		pr_inf("%s: %zu functions over %zu pages\n", args->name, total_funcs, n_pages);
+
 
 	/*
 	 *  Shuffle function pointers to get a fairly good
@@ -330,8 +398,24 @@ static int stress_far_branch(const stress_args_t *args)
 
 	t_start = stress_time_now();
 	do {
-		for (i = 0; i < total_funcs; i++)
-			funcs[i]();
+		for (i = 0; i < total_funcs; i += 16) {
+			funcs[i + 0x0]();
+			funcs[i + 0x1]();
+			funcs[i + 0x2]();
+			funcs[i + 0x3]();
+			funcs[i + 0x4]();
+			funcs[i + 0x5]();
+			funcs[i + 0x6]();
+			funcs[i + 0x7]();
+			funcs[i + 0x8]();
+			funcs[i + 0x9]();
+			funcs[i + 0xa]();
+			funcs[i + 0xb]();
+			funcs[i + 0xc]();
+			funcs[i + 0xd]();
+			funcs[i + 0xe]();
+			funcs[i + 0xf]();
+		}
 		inc_counter(args);
 		calls += (double)total_funcs;
 	} while (keep_stressing(args));
