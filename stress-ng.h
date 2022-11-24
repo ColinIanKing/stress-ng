@@ -609,7 +609,8 @@ typedef struct stressor_info {
 #if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
      (defined(__clang__) && NEED_CLANG(3, 0, 0)) ||	\
      (defined(__ICC) && NEED_ICC(2021, 0, 0))) &&	\
-    !defined(__PCC__)
+    !defined(__PCC__) &&				\
+    !defined(__minix__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
 #define ALIGNED(a)
