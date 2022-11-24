@@ -114,7 +114,7 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
  *  stress_proc_scandir()
  *	scan dir with pruning of dot and numeric proc files
  */
-int stress_proc_scandir(
+static int stress_proc_scandir(
 	const char *dirp,
 	struct dirent ***namelist,
 	int (*filter)(const struct dirent *),
