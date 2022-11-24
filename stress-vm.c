@@ -303,12 +303,15 @@ static void stress_vm_check(const char *name, const size_t bit_errors)
  */
 static inline size_t stress_vm_count_bits8(uint8_t v)
 {
+#if defined(HAVE_BUILTIN_POPCOUNT)
+	return (size_t)__builtin_popcount((unsigned int)v);
+#else
 	size_t n;
 
 	for (n = 0; v; n++)
 		v &= v - 1;
-
 	return n;
+#endif
 }
 
 /*
@@ -317,12 +320,37 @@ static inline size_t stress_vm_count_bits8(uint8_t v)
  */
 static inline size_t stress_vm_count_bits(uint64_t v)
 {
+#if defined(HAVE_BUILTIN_POPCOUNTLL)
+	if (sizeof(unsigned long long) == sizeof(uint64_t)) {
+		return (size_t)__builtin_popcountll((unsigned long long)v);
+	}
+#endif
+#if defined(HAVE_BUILTIN_POPCOUNTL)
+	if (sizeof(unsigned long) == sizeof(uint64_t)) {
+		return (size_t)__builtin_popcountl((unsigned long)v);
+	} else if (sizeof(unsigned long) == sizeof(uint32_t)) {
+		unsigned long lo, hi;
+
+		lo = (unsigned long)(v >> 32);
+		hi = (unsigned long)(v & 0xffffffff);
+		return (size_t)__builtin_popcountl(hi) + __builtin_popcountl(lo);
+	}
+#endif
+#if defined(HAVE_BUILTIN_POPCOUNT)
+	if (sizeof(unsigned int) == sizeof(uint32_t)) {
+		unsigned int lo, hi;
+
+		lo = (unsigned int)(v >> 32);
+		hi = (unsigned int)(v & 0xffffffff);
+		return (size_t)__builtin_popcount(hi) + __builtin_popcount(lo);
+	}
+#else
 	size_t n;
 
 	for (n = 0; v; n++)
 		v &= v - 1;
-
 	return n;
+#endif
 }
 
 /*
