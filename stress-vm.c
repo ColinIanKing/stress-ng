@@ -2779,6 +2779,115 @@ abort:
 	return bit_errors;
 }
 
+#define STRESS_VM_CHECKERBOARD_SWAP(p1, p2)	\
+do {						\
+		register uint64_t tmp;		\
+						\
+		tmp = *(p1);			\
+		shim_mb();			\
+		*(p1) = *(p2);			\
+		shim_mb();			\
+		*(p2) = tmp;			\
+		shim_mb();			\
+} while (0);
+
+/*
+ *  stress_vm_checkerboard()
+ *	fill adjecent bytes with alternative bit patterns
+ */
+static size_t TARGET_CLONES stress_vm_checkerboard(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	volatile uint64_t *ptr;
+	size_t bit_errors = 0;
+	uint64_t c = get_counter(args);
+
+	const uint64_t v0 = 0x5555aaaa5555aaaaULL;
+	const uint64_t v1 = 0xaaaa5555aaaa5555ULL;
+	const uint64_t v2 = 0x5a5a5a5a5a5a5a5aULL;
+	const uint64_t v3 = 0xa5a5a5a5a5a5a5a5ULL;
+	const uint64_t v4 = 0x55aa55aa55aa55aaULL;
+	const uint64_t v5 = 0xaa55aa55aa55aa55ULL;
+	const uint64_t v6 = 0x5a5a5a5a5a5a5a5aULL;
+	const uint64_t v7 = 0xa5a5a5a5a5a5a5a5ULL;
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
+		if (UNLIKELY(!keep_stressing_flag()))
+			return 0;
+		*(ptr + 0) = v1;
+		shim_mb();
+		*(ptr + 1) = v0;
+		shim_mb();
+		*(ptr + 2) = v3;
+		shim_mb();
+		*(ptr + 3) = v2;
+		shim_mb();
+		*(ptr + 4) = v5;
+		shim_mb();
+		*(ptr + 5) = v4;
+		shim_mb();
+		*(ptr + 6) = v7;
+		shim_mb();
+		*(ptr + 7) = v6;
+		shim_mb();
+
+		*(ptr + 0) = v0;
+		shim_mb();
+		*(ptr + 1) = v1;
+		shim_mb();
+		*(ptr + 2) = v2;
+		shim_mb();
+		*(ptr + 3) = v3;
+		shim_mb();
+		*(ptr + 4) = v4;
+		shim_mb();
+		*(ptr + 5) = v5;
+		shim_mb();
+		*(ptr + 6) = v6;
+		shim_mb();
+		*(ptr + 7) = v7;
+		shim_mb();
+	}
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
+		if (UNLIKELY(!keep_stressing_flag()))
+			break;
+
+		STRESS_VM_CHECKERBOARD_SWAP(ptr + 0, ptr + 1);
+		STRESS_VM_CHECKERBOARD_SWAP(ptr + 2, ptr + 3);
+		STRESS_VM_CHECKERBOARD_SWAP(ptr + 4, ptr + 5);
+		STRESS_VM_CHECKERBOARD_SWAP(ptr + 6, ptr + 7);
+	}
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
+		if (UNLIKELY(!keep_stressing_flag()))
+			return 0;
+		bit_errors += (*(ptr + 0) != v1);
+		bit_errors += (*(ptr + 1) != v0);
+		bit_errors += (*(ptr + 2) != v3);
+		bit_errors += (*(ptr + 3) != v2);
+		bit_errors += (*(ptr + 4) != v5);
+		bit_errors += (*(ptr + 5) != v4);
+		bit_errors += (*(ptr + 6) != v7);
+		bit_errors += (*(ptr + 7) != v6);
+
+		c++;
+		if (UNLIKELY(max_ops && (c >= max_ops)))
+			break;
+	}
+
+	stress_vm_check("checkerboard", bit_errors);
+	set_counter(args, c);
+
+	return bit_errors;
+}
+
 /*
  *  stress_vm_all()
  *	work through all vm stressors sequentially
@@ -2805,6 +2914,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "all",		stress_vm_all },
 	{ "cache-lines",	stress_vm_cache_lines },
 	{ "cache-stripe",	stress_vm_cache_stripe },
+	{ "checkerboard",	stress_vm_checkerboard },
 	{ "flip",		stress_vm_flip },
 	{ "fwdrev",		stress_vm_fwdrev },
 	{ "galpat-0",		stress_vm_galpat_zero },
