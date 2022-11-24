@@ -2202,20 +2202,6 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 }
 
 /*
- *  stress_vm_popcount()
- *	population count - count number of 1 bits in val (K & R method)
- */
-static inline unsigned int OPTIMIZE3 stress_vm_popcount(register uint8_t val)
-{
-	register unsigned int count;
-
-	for (count = 0; val; count++)
-		val &= val - 1;
-
-	return count;
-}
-
-/*
  *  stress_vm_mscan()
  *	for each byte, walk through each bit set to 0, check, set to 1, check
  */
@@ -2250,7 +2236,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 	add_counter(args, c);
 
 	for (ptr = (volatile uint8_t *)buf; ptr < end; ptr++) {
-		bit_errors += 8 - stress_vm_popcount(*ptr);
+		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 	}
 
 	for (ptr = (volatile uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
@@ -2271,7 +2257,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 	add_counter(args, c);
 
 	for (ptr = (volatile uint8_t *)buf; ptr < end; ptr++) {
-		bit_errors += stress_vm_popcount(*ptr);
+		bit_errors += stress_vm_count_bits8(*ptr);
 	}
 
 abort:
