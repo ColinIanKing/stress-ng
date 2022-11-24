@@ -2280,7 +2280,7 @@ static void MLOCKED_TEXT stress_run(
 			int rc = EXIT_SUCCESS;
 			size_t i;
 			pid_t pid, child_pid;
-			char name[64];
+			char name[64], *munged;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
 			double run_duration, fork_time_start;
 			bool ok;
@@ -2312,7 +2312,7 @@ again:
 			case 0:
 				/* Child */
 				child_pid = getpid();
-				char *munged = stress_munge_underscore(g_stressor_current->stressor->name);
+				munged = stress_munge_underscore(g_stressor_current->stressor->name);
 
 				shim_strlcpy(name, munged, sizeof(name));
 				stress_set_proc_state(name, STRESS_STATE_START);
