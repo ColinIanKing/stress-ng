@@ -206,6 +206,7 @@ static int stress_dup(const stress_args_t *args)
 	size_t i;
 	bool do_dup3 = true;
 	const int bad_fd = stress_get_bad_fd();
+	double dup_duration = 0.0, dup_count = 0.0, rate;
 #if defined(STRESS_DUP2_RACE)
 	info_t *info;
 
@@ -239,10 +240,14 @@ static int stress_dup(const stress_args_t *args)
 
 		for (n = 1; n < max_fd; n++) {
 			int tmp;
+			double t;
 
+			t = stress_time_now();
 			fds[n] = dup(fds[0]);
 			if (fds[n] < 0)
 				break;
+			dup_duration += stress_time_now() - t;
+			dup_count += 1;
 
 			/* do an invalid dup on an invalid fd */
 			tmp = dup(bad_fd);
@@ -295,23 +300,39 @@ static int stress_dup(const stress_args_t *args)
 			if (do_dup3 && stress_mwc1()) {
 				int fd;
 
+				t = stress_time_now();
 				fd = shim_dup3(fds[0], fds[n], O_CLOEXEC);
 				/* No dup3 support? then fallback to dup2 */
 				if ((fd < 0) && (errno == ENOSYS)) {
+					t = stress_time_now();
 					fd = dup2(fds[0], fds[n]);
 					do_dup3 = false;
 				}
+				if (fd >= 0) {
+					dup_duration += stress_time_now() - t;
+					dup_count += 1;
+				}
 				fds[n] = fd;
 			} else {
+				t = stress_time_now();
 				fds[n] = dup2(fds[0], fds[n]);
+				if (fds[n] >= 0) {
+					dup_duration += stress_time_now() - t;
+					dup_count += 1;
+				}
 			}
 
 			if (!keep_stressing(args))
 				break;
 
+			t = stress_time_now();
 			fds[n] = dup2(fds[0], fds[n]);
-			if (fds[n] < 0)
+			if (fds[n] >= 0) {
+				dup_duration += stress_time_now() - t;
+				dup_count += 1;
+			} else {
 				break;
+			}
 
 			if (!keep_stressing(args))
 				break;
@@ -335,9 +356,14 @@ static int stress_dup(const stress_args_t *args)
 			/* POSIX.1-2001 fcntl() */
 
 			(void)close(fds[n]);
+			t = stress_time_now();
 			fds[n] = fcntl(fds[0], F_DUPFD, fds[0]);
-			if (fds[n] < 0)
+			if (fds[n] >= 0) {
+				dup_duration += stress_time_now() - t;
+				dup_count += 1;
+			} else {
 				break;
+			}
 
 			if (!keep_stressing(args))
 				break;
@@ -380,6 +406,8 @@ tidy_mmap:
 		(void)munmap(info, sizeof(*info));
 	}
 #endif
+	rate = (dup_count > 0.0) ? (double)dup_duration / dup_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per dup call", rate * 1000000000.0);
 
 	return rc;
 }
