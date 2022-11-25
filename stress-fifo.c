@@ -27,15 +27,20 @@
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)
 
+#define MIN_FIFO_DATA_SIZE	(sizeof(uint64_t))
+#define MAX_FIFO_DATA_SIZE	(4096)
+#define DEFAULT_FIFO_DATA_SIZE	(MIN_FIFO_DATA_SIZE)
+
 #if defined(HAVE_SYS_SELECT_H)
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"fifo N",	  "start N workers exercising fifo I/O" },
-	{ NULL,	"fifo-ops N",	  "stop after N fifo bogo operations" },
-	{ NULL,	"fifo-readers N", "number of fifo reader stressors to start" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	"fifo N",		"start N workers exercising fifo I/O" },
+	{ NULL,	"fifo-data-size N",	"set fifo read/write size in bytes (default 8)" },
+	{ NULL,	"fifo-ops N",		"stop after N fifo bogo operations" },
+	{ NULL,	"fifo-readers N",	"number of fifo reader stressors to start" },
+	{ NULL,	NULL,			NULL }
 };
 
 static int stress_set_fifo_readers(const char *opt)
@@ -48,7 +53,22 @@ static int stress_set_fifo_readers(const char *opt)
 	return stress_set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
 
+/*
+ *  stress_set_fifo_data_size()
+ *	set fifo data read/write size in bytes
+ */
+static int stress_set_fifo_data_size(const char *opt)
+{
+	size_t fifo_data_size;
+
+	fifo_data_size = (size_t)stress_get_uint64_byte(opt);
+	stress_check_range_bytes("fifo-data-size", fifo_data_size,
+		MIN_FIFO_DATA_SIZE, MAX_FIFO_DATA_SIZE);
+	return stress_set_setting("fifo-data-size", TYPE_ID_SIZE_T, &fifo_data_size);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fifo_data_size,	stress_set_fifo_data_size },
 	{ OPT_fifo_readers,	stress_set_fifo_readers },
 	{ 0,			NULL }
 };
@@ -60,9 +80,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static pid_t fifo_spawn(
 	const stress_args_t *args,
-	void (*func)(const stress_args_t *args, const char *name, const char *fifoname),
+	void (*func)(const stress_args_t *args, const char *name,
+		     const char *fifoname, const size_t fifo_data_size),
 	const char *name,
-	const char *fifoname)
+	const char *fifoname,
+	const size_t fifo_data_size)
 {
 	pid_t pid;
 
@@ -73,7 +95,7 @@ static pid_t fifo_spawn(
 	if (pid == 0) {
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-		func(args, name, fifoname);
+		func(args, name, fifoname, fifo_data_size);
 		_exit(EXIT_SUCCESS);
 	}
 	return pid;
@@ -86,10 +108,12 @@ static pid_t fifo_spawn(
 static void stress_fifo_reader(
 	const stress_args_t *args,
 	const char *name,
-	const char *fifoname)
+	const char *fifoname,
+	const size_t fifo_data_size)
 {
 	int fd, count = 0;
-	uint64_t val, lastval = 0;
+	uint64_t lastval = 0;
+	uint64_t ALIGN64 buf[MAX_FIFO_DATA_SIZE / sizeof(uint64_t)];
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
@@ -137,7 +161,7 @@ redo:
 #else
 		UNEXPECTED
 #endif
-		sz = read(fd, &val, sizeof(val));
+		sz = read(fd, buf, fifo_data_size);
 		if (sz < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
@@ -147,18 +171,18 @@ redo:
 		}
 		if (sz == 0)
 			break;
-		if (sz != sizeof(val)) {
-			pr_fail("%s: fifo read did not get uint64\n",
-				name);
+		if (sz != (ssize_t)fifo_data_size) {
+			pr_fail("%s: fifo read did not get buffer of size %zu\n",
+				name, fifo_data_size);
 			break;
 		}
-		if ((val < lastval) &&
-		    ((~val & wrap_mask) && (lastval & wrap_mask))) {
+		if ((buf[0] < lastval) &&
+		    ((~buf[0] & wrap_mask) && (lastval & wrap_mask))) {
 			pr_fail("%s: fifo read did not get "
 				"expected value\n", name);
 			break;
 		}
-		lastval = val;
+		lastval = buf[0];
 
 		if ((count & 0x1ff) == 0) {
 			void *ptr;
@@ -187,9 +211,13 @@ static int stress_fifo(const stress_args_t *args)
 	pid_t pids[MAX_FIFO_READERS];
 	int fd;
 	char fifoname[PATH_MAX];
-	uint64_t i, val = 0ULL;
+	uint64_t i;
 	uint64_t fifo_readers = DEFAULT_FIFO_READERS;
 	int rc = EXIT_SUCCESS;
+	double t, fifo_duration = 0.0, fifo_count = 0.0, rate;
+	size_t fifo_data_size = DEFAULT_FIFO_DATA_SIZE;
+	uint64_t ALIGN64 buf[MAX_FIFO_DATA_SIZE / sizeof(uint64_t)];
+	char msg[64];
 
 	if (!stress_get_setting("fifo-readers", &fifo_readers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -197,6 +225,8 @@ static int stress_fifo(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			fifo_readers = MIN_FIFO_READERS;
 	}
+
+	(void)stress_get_setting("fifo-data-size", &fifo_data_size);
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
@@ -214,7 +244,7 @@ static int stress_fifo(const stress_args_t *args)
 
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < fifo_readers; i++) {
-		pids[i] = fifo_spawn(args, stress_fifo_reader, args->name, fifoname);
+		pids[i] = fifo_spawn(args, stress_fifo_reader, args->name, fifoname, fifo_data_size);
 		if (pids[i] < 0) {
 			rc = EXIT_NO_RESOURCE;
 			goto reap;
@@ -238,13 +268,19 @@ static int stress_fifo(const stress_args_t *args)
 		goto reap;
 	}
 
+	(void)memset(buf, 0xaa, sizeof(buf));
+	buf[0] = 0ULL;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t = stress_time_now();
 	do {
 		ssize_t ret;
 
-		ret = write(fd, &val, sizeof(val));
-		if (ret <= 0) {
+		ret = write(fd, buf, fifo_data_size);
+		if (ret > 0) {
+			fifo_count += 1.0;
+		} else {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
@@ -255,10 +291,15 @@ static int stress_fifo(const stress_args_t *args)
 			}
 			continue;
 		}
-		val++;
-		val &= ~wrap_mask;
+		buf[0]++;
+		buf[0] &= ~wrap_mask;
 		inc_counter(args);
 	} while (keep_stressing(args));
+	fifo_duration = stress_time_now() - t;
+
+	rate = (fifo_duration > 0.0) ? (fifo_count / fifo_duration) : 0.0;
+	snprintf(msg, sizeof(msg), "fifo %zu byte writes per sec", fifo_data_size);
+	stress_misc_stats_set(args->misc_stats, 0, msg, rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);

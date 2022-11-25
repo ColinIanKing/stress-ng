@@ -1781,12 +1781,15 @@ extents, causing more stress when gathering extent information.
 .B \-\-fifo N
 start N workers that exercise a named pipe by transmitting 64 bit integers.
 .TP
+.B \-\-fifo\-data\-size N
+set the byte size of the fifo write/reads, default is 8, range 8..4096.
+.TP
 .B \-\-fifo-ops N
 stop fifo workers after N bogo pipe write operations.
 .TP
 .B \-\-fifo-readers N
 for each worker, create N fifo reader workers that read
-the named pipe using simple blocking reads.
+the named pipe using simple blocking reads. Default is 4, range 1..64.
 .TP
 .B \-\-file\-ioctl N
 start N workers that exercise various file specific ioctl(2) calls. This will

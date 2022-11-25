@@ -419,6 +419,7 @@ static const struct option long_options[] = {
 	{ "fiemap-bytes",	1,	0,	OPT_fiemap_bytes },
 	{ "fiemap-ops",		1,	0,	OPT_fiemap_ops },
 	{ "fifo",		1,	0,	OPT_fifo },
+	{ "fifo-data-size",	1,	0,	OPT_fifo_data_size },
 	{ "fifo-ops",		1,	0,	OPT_fifo_ops },
 	{ "fifo-readers",	1,	0,	OPT_fifo_readers },
 	{ "file-ioctl",		1,	0,	OPT_file_ioctl },

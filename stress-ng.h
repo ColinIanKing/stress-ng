@@ -1235,6 +1235,7 @@ typedef enum {
 	OPT_fiemap_bytes,
 
 	OPT_fifo,
+	OPT_fifo_data_size,
 	OPT_fifo_ops,
 	OPT_fifo_readers,
 
