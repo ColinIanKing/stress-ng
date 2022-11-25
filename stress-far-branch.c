@@ -453,6 +453,6 @@ stressor_info_t stress_far_branch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.help = help,
-	.unimplemented_reason = "built without mprotect() support"
+	.unimplemented_reason = "built without mprotect() support or architecture not supported"
 };
 #endif
