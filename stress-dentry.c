@@ -314,6 +314,11 @@ static int stress_dentry(const stress_args_t *args)
 	uint8_t dentry_order = ORDER_RANDOM;
 	char dir_path[PATH_MAX];
 	int64_t nr_dentry1, nr_dentry2, nr_dentries;
+	double creat_duration = 0.0, creat_count = 0.0;
+	double access_duration = 0.0, access_count = 0.0;
+	double bogus_access_duration = 0.0, bogus_access_count = 0.0;
+	double bogus_unlink_duration = 0.0, bogus_unlink_count = 0.0;
+	double rate;
 
 	if (!stress_get_setting("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -339,6 +344,7 @@ static int stress_dentry(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			const uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
+			double t;
 
 			if (!keep_stressing(args))
 				goto abort;
@@ -346,6 +352,7 @@ static int stress_dentry(const stress_args_t *args)
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
 
+			t = stress_time_now();
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
 				if (errno != ENOSPC)
@@ -354,6 +361,8 @@ static int stress_dentry(const stress_args_t *args)
 				n = i;
 				break;
 			}
+			creat_duration += stress_time_now() - t;
+			creat_count += 1.0;
 			(void)close(fd);
 
 			inc_counter(args);
@@ -368,23 +377,44 @@ static int stress_dentry(const stress_args_t *args)
 		 */
 		for (i = 0; i < n; i++) {
 			const uint64_t gray_code = (i >> 1) ^ i;
+			double t;
 
 			if (!keep_stressing(args))
 				goto abort;
+			
+			/* The following should succeed */
+			stress_temp_filename_args(args,
+				path, sizeof(path), gray_code * 2);
+
+			t = stress_time_now();
+			if (access(path, R_OK) == 0) {
+				access_duration += stress_time_now() - t;
+				access_count += 1.0;
+			}
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), dentry_offset + (gray_code * 2) + 1);
-
-			/* The following should fail, ignore error return */
-			VOID_RET(int, access(path, R_OK));
+			/* The following should fail */
+			t = stress_time_now();
+			if (access(path, R_OK) != 0) {
+				bogus_access_duration += stress_time_now() - t;
+				bogus_access_count += 1.0;
+			}
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), dentry_offset + i);
-			/* The following should fail, ignore error return */
-			VOID_RET(int, access(path, R_OK));
+			/* The following should fail */
+			t = stress_time_now();
+			if (access(path, R_OK) != 0) {
+				bogus_access_duration += stress_time_now() - t;
+				bogus_access_count += 1.0;
+			}
 
-			/* The following should fail, ignore error return */
-			VOID_RET(int, shim_unlink(path));
+			/* The following should fail */
+			if (shim_unlink(path) < 0) {
+				bogus_unlink_duration += stress_time_now() - t;
+				bogus_unlink_count += 1.0;
+			}
 		}
 		dentry_offset += dentries;
 
@@ -406,6 +436,15 @@ abort:
 			args->name, nr_dentries);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (creat_count > 0.0) ? (double)creat_duration / creat_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per file creation", rate * 1000000000.0);
+	rate = (access_count > 0.0) ? (double)access_duration / access_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "nanosecs per file access", rate * 1000000000.0);
+	rate = (bogus_access_count > 0.0) ? (double)bogus_access_duration / bogus_access_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 2, "nanosecs per bogus file access", rate * 1000000000.0);
+	rate = (bogus_unlink_count > 0.0) ? (double)bogus_unlink_duration / bogus_unlink_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 3, "nanosecs per bogus file unlink", rate * 1000000000.0);
 
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " entries\n",
