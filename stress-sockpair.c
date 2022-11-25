@@ -74,6 +74,25 @@ static void socket_pair_close(
 }
 
 /*
+ *  socket_pair_try_leak()
+ *	exercise Linux kernel fix:
+ * 	(" 7a62ed61367b8fd") af_unix: Fix memory leaks of the whole sk due to OOB skb.
+ */
+static void socket_pair_try_leak(void)
+{
+	int fds[2];
+
+	if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0)
+		return;
+
+	(void)send(fds[0], "0", 1, MSG_OOB);
+	(void)send(fds[1], "1", 1, MSG_OOB);
+
+	(void)close(fds[0]);
+	(void)close(fds[1]);
+}
+
+/*
  *  stress_sockpair_oomable()
  *	this stressor needs to be oom-able in the parent
  *	and child cases
@@ -214,6 +233,7 @@ again:
 					pr_fail("%s: socket_pair read error detected, "
 						"failed to read expected data\n", args->name);
 				}
+				socket_pair_try_leak();
 			}
 		}
 abort:
