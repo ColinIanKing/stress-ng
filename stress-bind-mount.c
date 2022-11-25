@@ -59,6 +59,9 @@ static int stress_bind_mount_child(void *parg)
 	stress_pthread_args_t *pargs = (stress_pthread_args_t *)parg;
 	const stress_args_t *args = pargs->args;
 	const char *path = (const char *)pargs->data;
+	double mount_duration = 0.0, umount_duration = 0.0;
+	double mount_count = 0.0, umount_count = 0.0;
+	double rate;
 
 	if (stress_sighandler(args->name, SIGALRM,
 				stress_bind_mount_child_handler, NULL) < 0) {
@@ -78,7 +81,9 @@ static int stress_bind_mount_child(void *parg)
 		int rc, retries;
 		DIR *dir;
 		struct dirent *d;
+		double t;
 
+		t = stress_time_now();
 		rc = mount("/", path, "", MS_BIND | MS_REC | MS_RDONLY, 0);
 		if (rc < 0) {
 			if (errno != ENOSPC)
@@ -86,6 +91,8 @@ static int stress_bind_mount_child(void *parg)
 					args->name, errno, strerror(errno));
 			break;
 		}
+		mount_duration += stress_time_now() - t;
+		mount_count += 1.0;
 
 		/*
 		 *  Check if we can stat the files in the bound mount path
@@ -114,23 +121,36 @@ bind_umount:
 		for (retries = 0; retries < 15; retries++) {
 #if defined(HAVE_UMOUNT2) &&	\
     defined(MNT_DETACH)
+			t = stress_time_now();
 			rc = umount2(path, MNT_DETACH);
-			if (rc == 0)
+			if (rc == 0) {
+				umount_duration += stress_time_now() - t;
+				umount_count += 1.0;
 				break;
+			}
 			(void)shim_usleep(50000);
 #else
 			/*
 			 * The following fails with -EBUSY, but try it anyhow
 			 *  just to make the kernel work harder
 			 */
+			t = stress_time_now();
 			rc = umount(path);
-			if (rc == 0)
+			if (rc == 0) {
+				umount_duration += stress_time_now() - t;
+				umount_count += 1.0;
 				break;
+			}
 #endif
 		}
 		inc_counter(args);
 	} while (keep_stressing_flag() &&
 		 (!args->max_ops || (get_counter(args) < args->max_ops)));
+
+	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "microsecs per mount", rate * 1000000.0);
+	rate = (umount_count > 0.0) ? (double)umount_duration / umount_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "microsecs per umount", rate * 1000000.0);
 
 	/* Remove path in child process just in case parent fails to reap it */
 	(void)shim_rmdir(path);
