@@ -62,7 +62,7 @@ static int stress_idle_page_supported(const char *name)
 
 /*
  *  stress_idle_page
- *	stress kernel logging interface
+ *	stress page scanning
  */
 static int stress_idle_page(const stress_args_t *args)
 {
