@@ -42,12 +42,13 @@ static const stress_help_t help[] = {
 #endif
 
 #if defined(HAVE_MPROTECT) &&					\
-    ((defined(STRESS_ARCH_ARM) && defined(__aarch64___)) ||	\
+    ((defined(STRESS_ARCH_ARM) && defined(__aarch64__)) ||	\
      defined(STRESS_ARCH_ALPHA) ||				\
      defined(STRESS_ARCH_HPPA) ||				\
      defined(STRESS_ARCH_M68K) ||				\
      (defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_LE)) ||	\
      (defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_BE)) ||	\
+     (defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)) ||	\
      defined(STRESS_ARCH_RISCV) ||				\
      defined(STRESS_ARCH_S390) ||				\
      defined(STRESS_ARCH_SH4) ||				\
@@ -63,37 +64,40 @@ typedef struct {
 
 static ret_opcode_t ret_opcode =
 #if defined(STRESS_ARCH_ALPHA)
-        { 16, 4, "ret", { 0x01, 0x80, 0xfa, 0x6b } };
+        { 4, 4, "ret", { 0x01, 0x80, 0xfa, 0x6b } };
 #endif
-#if defined(STRESS_ARCH_ARM) && defined(__aarch64___)
-	{ 8, 4, "ret", { 0xc0, 0x03, 0x5f, 0xd6 } };
+#if defined(STRESS_ARCH_ARM) && defined(__aarch64__)
+	{ 4, 4, "ret", { 0xc0, 0x03, 0x5f, 0xd6 } };
 #endif
 #if defined(STRESS_ARCH_HPPA)
-	{ 8, 4, "bv,n r0(rp)", { 0xe8, 0x40, 0xc0, 0x02 } };
+	{ 8, 8, "bv,n r0(rp); nop", { 0xe8, 0x40, 0xc0, 0x02, 0x08, 0x00, 0x02, 0x40 } };
 #endif
 #if defined(STRESS_ARCH_M68K)
-	{ 8, 2, "rts", { 0x4e, 0x75 } };
+	{ 2, 2, "rts", { 0x4e, 0x75 } };
 #endif
 #if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_LE)
-	{ 8, 4, "jr ra", { 0x08, 0x00, 0xe0, 0x03 } };
+	{ 8, 8, "jr ra; nop", { 0x08, 0x00, 0xe0, 0x03, 0x00, 0x00, 0x00, 0x00 } };
 #endif
 #if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_BE)
-	{ 8, 4, "jr ra", { 0x03, 0xe0, 0x00, 0x08 } };
+	{ 8, 8, "jr ra; nop", { 0x03, 0xe0, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 } };
+#endif
+#if defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)
+	{ 8, 8, "blr; nop", { 0x20, 0x00, 0x80, 0x4e, 0x00, 0x00, 0x00, 0x60 } };
 #endif
 #if defined(STRESS_ARCH_RISCV)
-	{ 8, 2, "ret", { 0x82, 0x080 } };
+	{ 2, 2, "ret", { 0x82, 0x080 } };
 #endif
 #if defined(STRESS_ARCH_S390)
-	{ 8, 2, "br %r14", { 0x07, 0xfe } };
+	{ 2, 2, "br %r14", { 0x07, 0xfe } };
 #endif
 #if defined(STRESS_ARCH_SH4)
-	{ 8, 4, "rts", { 0x0b, 0x00, 0x09, 0x00 } };	/* rts, nop */
+	{ 4, 4, "rts; nop", { 0x0b, 0x00, 0x09, 0x00 } };
 #endif
 #if defined(STRESS_ARCH_SPARC)
-	{ 16, 8, "retl; add %o7, %l7, %l7", { 0x81, 0xc3, 0xe0, 0x08, 0xae, 0x03, 0xc0, 0x17 } };
+	{ 8, 8, "retl; add %o7, %l7, %l7", { 0x81, 0xc3, 0xe0, 0x08, 0xae, 0x03, 0xc0, 0x17 } };
 #endif
 #if defined(STRESS_ARCH_X86)
-	{ 8, 1, "ret", { 0xc3 } };
+	{ 1, 1, "ret", { 0xc3 } };
 #endif
 
 typedef void (*ret_func_t)(void);
