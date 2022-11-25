@@ -381,7 +381,7 @@ static int stress_dentry(const stress_args_t *args)
 
 			if (!keep_stressing(args))
 				goto abort;
-			
+
 			/* The following should succeed */
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
