@@ -59,18 +59,26 @@ static int stress_binderfs_supported(const char *name)
 
 #define UNMOUNT_TIMEOUT		(5.0)	/* In seconds */
 
-static int stress_binderfs_umount(const stress_args_t *args, const char *pathname)
+static int stress_binderfs_umount(
+	const stress_args_t *args,
+	const char *pathname,
+	double *umount_duration,
+	double *umount_count)
 {
 	double t1;
 
 	t1 = stress_time_now();
 	for (;;) {
-		double t2;
+		double t, t2;
 		int ret;
 
+		t = stress_time_now();
 		ret = umount(pathname);
-		if (ret == 0)
+		if (ret == 0) {
+			(*umount_duration) += stress_time_now() - t;
+			(*umount_count) += 1.0;
 			break;
+		}
 
 		if (errno != EBUSY) {
 			pr_fail("%s: umount failed on binderfs, errno=%d (%s)\n",
@@ -104,6 +112,9 @@ static int stress_binderfs(const stress_args_t *args)
 	int rc, ret;
 	char pathname[PATH_MAX];
 	char filename[PATH_MAX + 16];
+	double mount_duration = 0.0, umount_duration = 0.0;
+	double mount_count = 0.0, umount_count = 0.0;
+	double rate;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	ret = stress_temp_dir_mk_args(args);
@@ -114,12 +125,18 @@ static int stress_binderfs(const stress_args_t *args)
 
 	do {
 		int fd;
+		double t;
 #if defined(BINDER_CTL_ADD)
 		int i;
 		struct binderfs_device device;
 #endif
 
+		t = stress_time_now();
 		ret = mount("binder", pathname, "binder", 0, 0);
+		if (ret >= 0) {
+			mount_duration += stress_time_now() - t;
+			mount_count += 1.0;
+		}
 		if (ret < 0) {
 			if (errno == ENODEV) {
 				/* ENODEV indicates it's not available on this kernel */
@@ -148,7 +165,7 @@ static int stress_binderfs(const stress_args_t *args)
 		if (fd < 0) {
 			pr_fail("%s: cannot open binder control file, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)stress_binderfs_umount(args, pathname);
+			(void)stress_binderfs_umount(args, pathname, &umount_duration, &umount_count);
 			rc = EXIT_FAILURE;
 			goto clean;
 		}
@@ -166,7 +183,7 @@ close_control:
 #endif
 		(void)close(fd);
 
-		rc = stress_binderfs_umount(args, pathname);
+		rc = stress_binderfs_umount(args, pathname, &umount_duration, &umount_count);
 		if (rc != EXIT_SUCCESS)
 			break;
 		inc_counter(args);
@@ -177,6 +194,11 @@ clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)stress_temp_dir_rm_args(args);
+
+	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "microsecs per mount", rate * 1000000.0);
+	rate = (umount_count > 0.0) ? (double)umount_duration / umount_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "microsecs per umount", rate * 1000000.0);
 
 	return rc;
 }
