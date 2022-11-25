@@ -81,6 +81,9 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 	int i = 0;
 	const size_t page_size = args->page_size;
 	const brk_context_t *brk_context = (brk_context_t *)context;
+	double sbrk_exp_duration = 0.0, sbrk_exp_count = 0.0;
+	double sbrk_shr_duration = 0.0, sbrk_shr_count = 0.0;
+	double rate;
 
 	start_ptr = shim_sbrk(0);
 	if (start_ptr == (void *) -1) {
@@ -98,6 +101,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 
 	do {
 		uint8_t *ptr;
+		double t;
 
 		/* Low memory avoidance, re-start */
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
@@ -106,7 +110,12 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 		i++;
 		if (i < 8) {
 			/* Expand brk by 1 page */
+			t = stress_time_now();
 			ptr = shim_sbrk((intptr_t)page_size);
+			if (ptr != (void *)-1) {
+				sbrk_exp_duration += stress_time_now() - t;
+				sbrk_exp_count += 1.0;
+			}
 		} else if (i < 9) {
 			/* brk to same brk position */
 			ptr = shim_sbrk(0);
@@ -115,7 +124,12 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 		} else {
 			/* Shrink brk by 1 page */
 			i = 0;
+			t = stress_time_now();
 			ptr = shim_sbrk(0);
+			if (ptr != (void *)-1) {
+				sbrk_shr_duration += stress_time_now() - t;
+				sbrk_shr_count += 1.0;
+			}
 			ptr -= page_size;
 			if (shim_brk(ptr) < 0)
 				ptr = (void *)-1;
@@ -144,6 +158,11 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	rate = (sbrk_exp_count > 0.0) ? (double)sbrk_exp_duration / sbrk_exp_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per sbrk page expand", rate * 1000000000.0);
+	rate = (sbrk_shr_count > 0.0) ? (double)sbrk_shr_duration / sbrk_shr_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "nanosecs per sbrk page shrink", rate * 1000000000.0);
 
 	return EXIT_SUCCESS;
 }
