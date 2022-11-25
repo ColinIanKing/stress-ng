@@ -20,7 +20,7 @@
 #include "stress-ng.h"
 
 #define MAX_SOCKET_PAIRS	(32768)
-#define SOCKET_PAIR_BUF         (64)	/* Socket pair I/O buffer size */
+#define SOCKET_PAIR_BUF         (4096)	/* Socket pair I/O buffer size */
 
 static const stress_help_t help[] = {
 	{ NULL,	"sockpair N",	  "start N workers exercising socket pair I/O activity" },
@@ -103,6 +103,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
 	int socket_pair_fds_bad[2];
 	int i, max, ret;
+	double t, duration, rate, bytes = 0.0;
 
 	(void)context;
 
@@ -134,6 +135,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 	(void)memset(socket_pair_fds, 0, sizeof(socket_pair_fds));
 	errno = 0;
 
+	t = stress_time_now();
 	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
 		if (!keep_stressing(args)) {
 			socket_pair_close(socket_pair_fds, max, 0);
@@ -143,6 +145,9 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)
 			break;
 	}
+	duration = stress_time_now() - t;
+	rate = (duration > 0.0) ? (double)max / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "socketpair calls sec", rate);
 
 	if (max == 0) {
 		int rc;
@@ -249,13 +254,18 @@ abort:
 
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
+
 		do {
 			for (i = 0; keep_stressing(args) && (i < max); i++) {
 				ssize_t wret;
 
 				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
+				t = stress_time_now();
 				wret = write(socket_pair_fds[i][1], buf, sizeof(buf));
-				if (wret <= 0) {
+				if (wret > 0) {
+					bytes += (double)wret;
+					duration += stress_time_now() - t;
+				} else {
 					if (errno == EPIPE)
 						break;
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -270,6 +280,9 @@ abort:
 				inc_counter(args);
 			}
 		} while (keep_stressing(args));
+
+		rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
+		stress_misc_stats_set(args->misc_stats, 1, "MB written per sec", rate / (double)MB);
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
