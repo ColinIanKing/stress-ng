@@ -30,7 +30,11 @@ static const stress_help_t help[] = {
 typedef struct dekker {
 	volatile bool	wants_to_enter[2];
 	volatile int	turn;
-	volatile int check;
+	volatile int	check;
+	double		p0_duration;
+	double		p0_count;
+	double		p1_duration;
+	double		p1_count;
 } dekker_t;
 
 dekker_t *dekker;
@@ -38,7 +42,9 @@ dekker_t *dekker;
 static void stress_dekker_p0(const stress_args_t *args)
 {
 	int check0, check1;
+	double t;
 
+	t = stress_time_now();
 	dekker->wants_to_enter[0] = true;
 	shim_mfence();
 	while (LIKELY(dekker->wants_to_enter[1])) {
@@ -60,6 +66,8 @@ static void stress_dekker_p0(const stress_args_t *args)
 	dekker->turn = 1;
 	dekker->wants_to_enter[0] = false;
 	shim_mfence();
+	dekker->p0_duration += stress_time_now() - t;
+	dekker->p0_count += 1.0;
 
 	if (check0 + 1 != check1) {
 		pr_fail("%s p0: dekker mutex check failed %d vs %d\n",
@@ -70,6 +78,9 @@ static void stress_dekker_p0(const stress_args_t *args)
 static void stress_dekker_p1(const stress_args_t *args)
 {
 	int check0, check1;
+	double t;
+
+	t = stress_time_now();
 
 	dekker->wants_to_enter[1] = true;
 	shim_mfence();
@@ -93,6 +104,8 @@ static void stress_dekker_p1(const stress_args_t *args)
 	dekker->turn = 0;
 	dekker->wants_to_enter[1] = false;
 	shim_mfence();
+	dekker->p1_duration += stress_time_now() - t;
+	dekker->p1_count += 1.0;
 
 	if (check0 - 1 != check1) {
 		pr_fail("%s p1: dekker mutex check failed %d vs %d\n",
@@ -108,6 +121,7 @@ static int stress_dekker(const stress_args_t *args)
 {
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*dekker));
 	pid_t pid;
+	double rate, duration, count;
 
 	dekker = (dekker_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -136,6 +150,11 @@ static int stress_dekker(const stress_args_t *args)
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}
+
+	duration = dekker->p0_duration + dekker->p1_duration;
+	count = dekker->p0_count + dekker->p1_count;
+	rate = (count > 0.0) ? (duration / count) : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per mutex", rate * 1000000000.0);
 
 	(void)munmap((void *)dekker, 4096);
 
