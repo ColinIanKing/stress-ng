@@ -80,19 +80,27 @@ static int remap_order(
 	const size_t stride,
 	stress_mapdata_t *data,
 	const size_t *order,
-	const size_t page_size)
+	const size_t page_size,
+	double *duration,
+	double *count)
 {
 	size_t i;
 
 	for (i = 0; i < N_PAGES; i++) {
+		double t;
 		int ret;
 #if defined(HAVE_MLOCK)
 		int lock_ret;
 
 		lock_ret = mlock(data + (i * stride), page_size);
 #endif
+		t = stress_time_now();
 		ret = remap_file_pages(data + (i * stride), page_size,
 			0, order[i], 0);
+		if (ret == 0) {
+			(*duration) += stress_time_now() - t;
+			(*count) += 1.0;
+		}
 #if defined(HAVE_MLOCK)
 		if (lock_ret == 0) {
 			(void)munlock(data + (i * stride), page_size);
@@ -125,6 +133,7 @@ static int stress_remap(const stress_args_t *args)
 	const size_t data_size = N_PAGES * page_size;
 	const size_t stride = page_size / sizeof(*data);
 	size_t i, mapped_size = page_size + page_size;
+	double duration = 0.0, count = 0.0, rate = 0.0;
 
 	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -168,7 +177,7 @@ static int stress_remap(const stress_args_t *args)
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = N_PAGES - 1 - i;
 
-		if (remap_order(args, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
 			break;
 		check_order(args, stride, data, order, "reverse");
 
@@ -183,21 +192,21 @@ static int stress_remap(const stress_args_t *args)
 			order[j] = tmp;
 		}
 
-		if (remap_order(args, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
 			break;
 		check_order(args, stride, data, order, "random");
 
 		/* all mapped to 1 page */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = 0;
-		if (remap_order(args, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
 			break;
 		check_order(args, stride, data, order, "all-to-1");
 
 		/* reorder pages back again */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = i;
-		if (remap_order(args, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
 			break;
 		check_order(args, stride, data, order, "forward");
 
@@ -226,6 +235,9 @@ static int stress_remap(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per page remap", rate * 1000000000);
 
 	(void)munmap(data, data_size);
 	if (mapped)
