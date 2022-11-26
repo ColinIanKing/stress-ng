@@ -31,6 +31,10 @@ typedef struct peterson {
 	volatile int	turn;
 	volatile int check;
 	volatile bool	flag[2];
+	double p0_duration;
+	double p0_count;
+	double p1_duration;
+	double p1_count;
 } peterson_t;
 
 static peterson_t *peterson;
@@ -38,7 +42,9 @@ static peterson_t *peterson;
 static void stress_peterson_p0(const stress_args_t *args)
 {
 	int check0, check1;
+	double t;
 
+	t = stress_time_now();
 	peterson->flag[0] = true;
 	peterson->turn = 1;
 	shim_mfence();
@@ -52,6 +58,8 @@ static void stress_peterson_p0(const stress_args_t *args)
 
 	peterson->flag[0] = false;
 	shim_mfence();
+	peterson->p0_duration += stress_time_now() - t;
+	peterson->p0_count += 1.0;
 
 	if (check0 + 1 != check1) {
 		pr_fail("%s p0: peterson mutex check failed %d vs %d\n",
@@ -62,7 +70,9 @@ static void stress_peterson_p0(const stress_args_t *args)
 static void stress_peterson_p1(const stress_args_t *args)
 {
 	int check0, check1;
+	double t;
 
+	t = stress_time_now();
 	peterson->flag[1] = true;
 	peterson->turn = 0;
 	shim_mfence();
@@ -77,6 +87,8 @@ static void stress_peterson_p1(const stress_args_t *args)
 
 	peterson->flag[1] = false;
 	shim_mfence();
+	peterson->p1_duration += stress_time_now() - t;
+	peterson->p1_count += 1.0;
 
 	if (check0 - 1 != check1) {
 		pr_fail("%s p1: peterson mutex check failed %d vs %d\n",
@@ -92,6 +104,7 @@ static int stress_peterson(const stress_args_t *args)
 {
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*peterson));
 	pid_t pid;
+	double duration, count, rate;
 
 	peterson = (peterson_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -124,9 +137,13 @@ static int stress_peterson(const stress_args_t *args)
 		(void)waitpid(pid, &status, 0);
 	}
 
-	(void)munmap((void *)peterson, 4096);
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	duration = peterson->p0_duration + peterson->p1_duration;
+	count = peterson->p0_count + peterson->p1_count;
+	rate = (count > 0.0) ? (duration / count) : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per mutex", rate * 1000000000.0);
+
 	(void)munmap((void *)peterson, sz);
 
 	return EXIT_SUCCESS;
