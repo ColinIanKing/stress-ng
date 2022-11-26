@@ -82,6 +82,8 @@ typedef struct {
 	bool mutex_affinity;
 	pthread_t pthread;
 	int ret;
+	double lock_duration;
+	double lock_count;
 } pthread_info_t;
 
 /*
@@ -117,12 +119,18 @@ static void *mutex_exercise(void *arg)
 
 	do {
 		struct sched_param param;
+		double t;
+
 		param.sched_priority = max > 0 ? (int)stress_mwc32() % max : max;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
+		t = stress_time_now();
 		if (pthread_mutex_lock(&mutex) < 0) {
 			pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
+		} else {
+			pthread_info->lock_duration += stress_time_now() - t;
+			pthread_info->lock_count += 1.0;
 		}
 		param.sched_priority = pthread_info->prio_min;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
@@ -169,6 +177,7 @@ static int stress_mutex(const stress_args_t *args)
 	pthread_info_t pthread_info[DEFAULT_MUTEX_PROCS];
 	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
 	bool mutex_affinity = false;
+	double duration = 0.0, count = 0.0, rate;
 
 	(void)stress_get_setting("mutex-affinity", &mutex_affinity);
 	if (!stress_get_setting("mutex-procs", &mutex_procs)) {
@@ -196,6 +205,8 @@ static int stress_mutex(const stress_args_t *args)
 		pthread_info[i].prio_min = prio_min;
 		pthread_info[i].prio_max = prio_max;
 		pthread_info[i].mutex_affinity = mutex_affinity;
+		pthread_info[i].lock_duration = 0.0;
+		pthread_info[i].lock_count = 0.0;
 		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
                                 mutex_exercise, (void *)&pthread_info[i]);
 		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {
@@ -223,9 +234,15 @@ static int stress_mutex(const stress_args_t *args)
 		if (pthread_info[i].ret)
 			continue;
 
+		duration += pthread_info[i].lock_duration;
+		count += pthread_info[i].lock_count;
+
 		VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
 	}
 	(void)pthread_mutex_destroy(&mutex);
+
+	rate = (count > 0.0) ? (duration / count) : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per mutex", rate * 1000000000.0);
 
 	return EXIT_SUCCESS;
 }
