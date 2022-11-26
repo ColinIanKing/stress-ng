@@ -58,6 +58,7 @@ static int stress_urandom(const stress_args_t *args)
 	int fd_rnd_wr;
 #endif
 	bool sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
+	double duration = 0.0, bytes = 0.0, rate;
 
 	fd_urnd = open("/dev/urandom", O_RDONLY);
 	if (fd_urnd < 0) {
@@ -122,8 +123,14 @@ static int stress_urandom(const stress_args_t *args)
 #endif
 
 		if (fd_urnd >= 0) {
+			double t;
+
+			t = stress_time_now();
 			ret = read(fd_urnd, buffer, sizeof(buffer));
-			if (ret < 0) {
+			if (ret >= 0) {
+				duration += stress_time_now() - t;
+				bytes += (double)ret;
+			} else {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
 					pr_fail("%s: read of /dev/urandom failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -137,6 +144,7 @@ static int stress_urandom(const stress_args_t *args)
 		 * this fails, just skip this part of the stressor
 		 */
 		if (fd_rnd >= 0) {
+			double t;
 #if defined(RNDGETENTCNT)
 			unsigned long val = 0;
 
@@ -148,8 +156,12 @@ static int stress_urandom(const stress_args_t *args)
 #else
 			UNEXPECTED
 #endif
+			t = stress_time_now();
 			ret = read(fd_rnd, buffer, 1);
-			if (ret < 0) {
+			if (ret >= 0) {
+				duration += stress_time_now() - t;
+				bytes += (double)ret;
+			} else {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
 					pr_fail("%s: read of /dev/urandom failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -259,14 +271,27 @@ next:
 					ptr = (char *)mmap(NULL, args->page_size, PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 					if (ptr != MAP_FAILED) {
+						double t;
 						/* Exercise 2 byte read on last 1 byte of page */
+
+						t = stress_time_now();
 						ret = read(fd_rnd, ptr + args->page_size - 1, 2);
+						if (ret >= 0) {
+							duration += stress_time_now() - t;
+							bytes += (double)ret;
+						}
 						(void)munmap((void *)ptr, args->page_size);
 					}
 #endif
 					if (ret < 0) {
+						double t;
+
+						t = stress_time_now();
 						ret = read(fd_rnd, buffer, 1);
-						if (ret < 0) {
+						if (ret >= 0) {
+							duration += stress_time_now() - t;
+							bytes += (double)ret;
+						} else {
 							if ((errno != EAGAIN) && (errno != EINTR)) {
 								pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
 									args->name, errno, strerror(errno));
@@ -281,6 +306,10 @@ next:
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_misc_stats_set(args->misc_stats, 0, "million random bits read", bytes * 8.0 / 1000000.0);
+	rate = (duration > 0.0) ? bytes * 8.0 / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "million random bits per sec", rate / 1000000.0);
 
 	rc = EXIT_SUCCESS;
 err:
