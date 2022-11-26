@@ -43,16 +43,38 @@ static int stress_pageswap_supported(const char *name)
 #endif
 }
 
+static void stress_pageswap_count_paged_out(void *page, const size_t page_size, double *count)
+{
+#if defined(HAVE_MINCORE) &&    \
+    NEED_GLIBC(2,2,0)
+	unsigned char vec[1];
+	int ret;
+
+	ret = shim_mincore(page, page_size, vec);
+	if ((ret == 0) && ((vec[0] & 0x01) == 0))
+		(*count) += 1.0;
+#else
+	(void)page;
+	(void)page_size;
+	(void)count;
+#endif
+}
+
 #if defined(MADV_PAGEOUT)
-static void stress_pageswap_unmap(const stress_args_t *args, page_info_t **head)
+static void stress_pageswap_unmap(
+	const stress_args_t *args,
+	page_info_t **head,
+	double *count)
 {
 	page_info_t *pi = *head;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	while (pi) {
 		page_info_t *next = pi->next;
+		size_t size = pi->size;
 
-		(void)madvise(pi, pi->size, MADV_PAGEOUT);
+		(void)madvise(pi, size, MADV_PAGEOUT);
+		stress_pageswap_count_paged_out(pi, size, count);
 		if (verify && (pi->self != pi)) {
 			pr_fail("%s: page at %p does not contain expected data\n",
 				args->name, (void *)pi);
@@ -75,21 +97,23 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 	const size_t page_size = STRESS_MAXIMUM(args->page_size, sizeof(page_info_t));
 	size_t max = 0;
 	page_info_t *head = NULL;
+	double count = 0.0, t, duration, rate;
 
 	(void)context;
 
+	t = stress_time_now();
 	do {
 		page_info_t *pi;
 
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size)) {
-			stress_pageswap_unmap(args, &head);
+			stress_pageswap_unmap(args, &head, &count);
 			max = 0;
 		}
 
 		pi = (page_info_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (pi == MAP_FAILED) {
-			stress_pageswap_unmap(args, &head);
+			stress_pageswap_unmap(args, &head, &count);
 			max = 0;
 		} else {
 			page_info_t *oldhead = head;
@@ -102,15 +126,21 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 			(void)madvise(pi, pi->size, MADV_PAGEOUT);
 			if (oldhead)
 				(void)madvise(oldhead, oldhead->size, MADV_PAGEOUT);
+
 			if (max++ > 65536) {
-				stress_pageswap_unmap(args, &head);
+				stress_pageswap_unmap(args, &head, &count);
 				max = 0;
 			}
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
+	duration = stress_time_now() - t;
 
-	stress_pageswap_unmap(args, &head);
+	stress_pageswap_unmap(args, &head, &count);
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	if (rate > 0.0)
+		stress_misc_stats_set(args->misc_stats, 0, "millisecs per page swapout", rate * 1000000);
 
 	return EXIT_SUCCESS;
 }
