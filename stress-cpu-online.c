@@ -45,7 +45,7 @@ static int stress_cpu_online_set(
 	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
-	ret = system_write(filename, data, sizeof data);
+	ret = system_write(filename, data, sizeof(data));
 	if ((ret < 0) &&
 	    ((ret != -EAGAIN) && (ret != -EINTR) &&
 	     (ret != -EBUSY) && (ret != -EOPNOTSUPP))) {
@@ -55,6 +55,40 @@ static int stress_cpu_online_set(
 	}
 	return EXIT_SUCCESS;
 }
+
+/*
+ *  stress_cpu_online_get()
+ *	get a specified CPUs online or offline state
+ */
+static int stress_cpu_online_get(const uint32_t cpu, int *setting)
+{
+	char filename[PATH_MAX];
+	char data[3];
+	ssize_t ret;
+
+	(void)snprintf(filename, sizeof(filename),
+		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
+
+	(void)memset(data, 0, sizeof(data));
+	ret = system_read(filename, data, sizeof(data));
+	if (ret < 1) {
+		*setting = -1;
+		return EXIT_FAILURE;
+	}
+	switch (data[0]) {
+	case '0':
+		*setting = 0;
+		break;
+	case '1':
+		*setting = 1;
+		break;
+	default:
+		*setting = -1;
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
 
 /*
  *  stress_cpu_online_supported()
@@ -90,6 +124,9 @@ static int stress_cpu_online(const stress_args_t *args)
 	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	int rc = EXIT_SUCCESS;
+	double offline_duration = 0.0, offline_count = 0.0;
+	double online_duration  = 0.0, online_count = 0.0;
+	double rate;
 
 	if (geteuid() != 0) {
 		if (args->instance == 0)
@@ -161,6 +198,7 @@ static int stress_cpu_online(const stress_args_t *args)
 	 */
 	do {
 		const uint32_t cpu = stress_mwc32() % (uint32_t)cpus;
+		double t;
 
 		/*
 		 * Only allow CPU 0 to be offlined if OPT_FLAGS_CPU_ONLINE_ALL
@@ -169,12 +207,32 @@ static int stress_cpu_online(const stress_args_t *args)
 		if ((cpu == 0) && !(g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL))
 			continue;
 		if (cpu_online[cpu]) {
+			int setting;
+
+			t = stress_time_now();
 			rc = stress_cpu_online_set(args, cpu, 0);
 			if (rc != EXIT_SUCCESS)
 				break;
+			rc = stress_cpu_online_get(cpu, &setting);
+			if ((rc == EXIT_SUCCESS) && (setting != 0)) {
+				pr_inf("%s: set cpu offline, expecting setting to be 0, got %d instead\n",
+					args->name, setting);
+			} else {
+				offline_duration += stress_time_now() - t;
+				offline_count += 1.0;
+			}
+			t = stress_time_now();
 			rc = stress_cpu_online_set(args, cpu, 1);
 			if (rc != EXIT_SUCCESS)
 				break;
+			rc = stress_cpu_online_get(cpu, &setting);
+			if ((rc == EXIT_SUCCESS) && (setting != 1)) {
+				pr_inf("%s: set cpu offline, expecting setting to be 1, got %d instead\n",
+					args->name, setting);
+			} else {
+				online_duration += stress_time_now() - t;
+				online_count += 1.0;
+			}
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
@@ -189,6 +247,11 @@ static int stress_cpu_online(const stress_args_t *args)
 			(void)stress_cpu_online_set(args, (uint32_t)i, 1);
 	}
 	free(cpu_online);
+
+	rate = (offline_count > 0.0) ? (double)offline_duration / offline_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "millisecs per offline action", rate * 1000.0);
+	rate = (online_count > 0.0) ? (double)online_duration / online_count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "millisecs per online action", rate * 1000.0);
 
 	return rc;
 }
