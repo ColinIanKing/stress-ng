@@ -27,14 +27,23 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SHIM_MFENCE)
 
-typedef struct peterson {
+typedef struct {
+	double 		duration;
+	double 		count;
+} peterson_metrics_t;
+
+typedef struct {
 	volatile int	turn;
-	volatile int check;
+	volatile int 	check;
 	volatile bool	flag[2];
-	double p0_duration;
-	double p0_count;
-	double p1_duration;
-	double p1_count;
+} peterson_mutex_t;
+
+typedef struct peterson {
+	peterson_mutex_t	m;
+	char 			pad1[64 - sizeof(peterson_mutex_t)];
+	peterson_metrics_t	p0;
+	char 			pad2[64 - sizeof(peterson_metrics_t)];
+	peterson_metrics_t	p1;
 } peterson_t;
 
 static peterson_t *peterson;
@@ -45,21 +54,21 @@ static void stress_peterson_p0(const stress_args_t *args)
 	double t;
 
 	t = stress_time_now();
-	peterson->flag[0] = true;
-	peterson->turn = 1;
+	peterson->m.flag[0] = true;
+	peterson->m.turn = 1;
 	shim_mfence();
-	while (peterson->flag[1] && peterson->turn == 1) {
+	while (peterson->m.flag[1] && peterson->m.turn == 1) {
 	}
 
 	/* Critical section */
-	check0 = peterson->check;
-	peterson->check++;
-	check1 = peterson->check;
+	check0 = peterson->m.check;
+	peterson->m.check++;
+	check1 = peterson->m.check;
 
-	peterson->flag[0] = false;
+	peterson->m.flag[0] = false;
 	shim_mfence();
-	peterson->p0_duration += stress_time_now() - t;
-	peterson->p0_count += 1.0;
+	peterson->p0.duration += stress_time_now() - t;
+	peterson->p0.count += 1.0;
 
 	if (check0 + 1 != check1) {
 		pr_fail("%s p0: peterson mutex check failed %d vs %d\n",
@@ -73,22 +82,22 @@ static void stress_peterson_p1(const stress_args_t *args)
 	double t;
 
 	t = stress_time_now();
-	peterson->flag[1] = true;
-	peterson->turn = 0;
+	peterson->m.flag[1] = true;
+	peterson->m.turn = 0;
 	shim_mfence();
-	while (peterson->flag[0] && peterson->turn == 0) {
+	while (peterson->m.flag[0] && peterson->m.turn == 0) {
 	}
 
 	/* Critical section */
-	check0 = peterson->check;
-	peterson->check--;
-	check1 = peterson->check;
+	check0 = peterson->m.check;
+	peterson->m.check--;
+	check1 = peterson->m.check;
 	inc_counter(args);
 
-	peterson->flag[1] = false;
+	peterson->m.flag[1] = false;
 	shim_mfence();
-	peterson->p1_duration += stress_time_now() - t;
-	peterson->p1_count += 1.0;
+	peterson->p1.duration += stress_time_now() - t;
+	peterson->p1.count += 1.0;
 
 	if (check0 - 1 != check1) {
 		pr_fail("%s p1: peterson mutex check failed %d vs %d\n",
@@ -115,8 +124,8 @@ static int stress_peterson(const stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	peterson->flag[0] = false;
-	peterson->flag[1] = false;
+	peterson->m.flag[0] = false;
+	peterson->m.flag[1] = false;
 
 	pid = fork();
 	if (pid < 0) {
@@ -139,8 +148,8 @@ static int stress_peterson(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	duration = peterson->p0_duration + peterson->p1_duration;
-	count = peterson->p0_count + peterson->p1_count;
+	duration = peterson->p0.duration + peterson->p1.duration;
+	count = peterson->p0.count + peterson->p1.count;
 	rate = (count > 0.0) ? (duration / count) : 0.0;
 	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per mutex", rate * 1000000000.0);
 
