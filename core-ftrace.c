@@ -29,12 +29,21 @@
 #include <sys/statfs.h>
 #endif
 
-#if defined(HAVE_BSD_SYS_TREE_H)
-#include <bsd/sys/tree.h>
+/* BSD red-black tree */
+#if defined(RB_HEAD) &&		\
+    defined(RB_PROTOTYPE) &&	\
+    defined(RB_GENERATE) &&	\
+    defined(RB_ENTRY) &&	\
+    defined(RB_INIT) &&		\
+    defined(RB_FIND) &&		\
+    defined(RB_INSERT) &&	\
+    defined(RB_MIN) &&		\
+    defined(RB_NEXT) &&		\
+    defined(RB_REMOVE)
+#define HAVE_RB_TREE
 #endif
 
-#if defined(HAVE_LIB_BSD) &&	\
-    defined(__linux__)
+#if defined(__linux__) && defined(HAVE_RB_TREE)
 
 #define MAX_MOUNTS	(256)
 #if !defined(DEBUGFS_MAGIC)

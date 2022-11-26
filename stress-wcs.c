@@ -21,13 +21,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
-#if defined(HAVE_BSD_WCHAR)
-#include <bsd/wchar.h>
-#endif
-
-#if defined(HAVE_WCHAR)
 #include <wchar.h>
-#endif
 
 #define STR1LEN 256
 #define STR2LEN 128
@@ -770,5 +764,5 @@ stressor_info_t stress_wcs_info = {
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without wchar.h or bsd/wchar.h"
+	.unimplemented_reason = "built without wchar.h"
 };

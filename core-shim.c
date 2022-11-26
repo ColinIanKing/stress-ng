@@ -1233,7 +1233,7 @@ STRESS_PRAGMA_POP
  */
 size_t shim_strlcpy(char *dst, const char *src, size_t len)
 {
-#if defined(HAVE_BSD_STRLCPY) &&	\
+#if defined(HAVE_STRLCPY) &&	\
     !defined(BUILD_STATIC)
 	return strlcpy(dst, src, len);
 #else
@@ -1268,7 +1268,7 @@ size_t shim_strlcpy(char *dst, const char *src, size_t len)
  */
 size_t shim_strlcat(char *dst, const char *src, size_t len)
 {
-#if defined(HAVE_BSD_STRLCAT) &&	\
+#if defined(HAVE_STRLCAT) &&	\
     !defined(BUILD_STATIC)
 	return strlcat(dst, src, len);
 #else

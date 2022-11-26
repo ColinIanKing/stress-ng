@@ -27,10 +27,6 @@
 #include <sys/queue.h>
 #endif
 
-#if defined(HAVE_BSD_SYS_TREE_H)
-#include <bsd/sys/tree.h>
-#endif
-
 #if defined(HAVE_JUDY_H)
 #include <Judy.h>
 #endif
@@ -55,9 +51,18 @@
 #define HAVE_SYS_QUEUE_CIRCLEQ	(1)
 #endif
 
-#if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
-#define HAVE_RB_TREE	(1)
+/* BSD red-black tree */
+#if defined(RB_HEAD) &&		\
+    defined(RB_PROTOTYPE) &&	\
+    defined(RB_GENERATE) &&	\
+    defined(RB_ENTRY) &&	\
+    defined(RB_INIT) &&		\
+    defined(RB_FIND) &&		\
+    defined(RB_INSERT) &&	\
+    defined(RB_MIN) &&		\
+    defined(RB_NEXT) &&		\
+    defined(RB_REMOVE)
+#define HAVE_RB_TREE
 #endif
 
 /* BSD splay tree */

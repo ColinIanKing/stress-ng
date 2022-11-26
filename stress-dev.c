@@ -3745,8 +3745,7 @@ static void stress_dev_procname(const char *path)
 		char procname[55];
 
 		(void)snprintf(procname, sizeof(procname), "stress-ng-dev:%-40.40s", path);
-#if defined(HAVE_BSD_UNISTD_H) &&       \
-    defined(HAVE_SETPROCTITLE)
+#if defined(HAVE_SETPROCTITLE)
 		/* Sets argv[0] */
 		setproctitle("-%s", procname);
 #endif

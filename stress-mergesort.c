@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_MERGESORT)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
@@ -55,7 +55,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_MERGESORT)
 
 #if !defined(__OpenBSD__) &&	\
     !defined(__NetBSD__)
@@ -237,6 +237,6 @@ stressor_info_t stress_mergesort_info = {
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
-	.unimplemented_reason = "built without BSD library"
+	.unimplemented_reason = "function not in OS or BSD compat library"
 };
 #endif

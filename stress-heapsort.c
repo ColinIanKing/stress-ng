@@ -24,7 +24,7 @@
 #define MAX_HEAPSORT_SIZE	(4 * MB)
 #define DEFAULT_HEAPSORT_SIZE	(256 * KB)
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_HEAPSORT)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
@@ -55,7 +55,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_HEAPSORT)
 
 /*
  *  stress_heapsort_handler()
@@ -226,6 +226,6 @@ stressor_info_t stress_heapsort_info = {
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
-	.unimplemented_reason = "built without BSD library"
+	.unimplemented_reason = "function not in OS or BSD compat library"
 };
 #endif
