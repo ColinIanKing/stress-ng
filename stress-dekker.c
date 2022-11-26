@@ -27,14 +27,23 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SHIM_MFENCE)
 
-typedef struct dekker {
+typedef struct {
 	volatile bool	wants_to_enter[2];
 	volatile int	turn;
 	volatile int	check;
-	double		p0_duration;
-	double		p0_count;
-	double		p1_duration;
-	double		p1_count;
+} dekker_mutex_t;
+
+typedef struct {
+	double          duration;
+	double          count;
+} dekker_metrics_t;
+
+typedef struct dekker {
+	dekker_mutex_t	m;
+	char 		pad1[64 - sizeof(dekker_mutex_t)];
+	dekker_metrics_t p0;
+	char		pad2[64 - sizeof(dekker_metrics_t)];
+	dekker_metrics_t p1;
 } dekker_t;
 
 dekker_t *dekker;
@@ -45,29 +54,29 @@ static void stress_dekker_p0(const stress_args_t *args)
 	double t;
 
 	t = stress_time_now();
-	dekker->wants_to_enter[0] = true;
+	dekker->m.wants_to_enter[0] = true;
 	shim_mfence();
-	while (LIKELY(dekker->wants_to_enter[1])) {
-		if (dekker->turn != 0) {
-			dekker->wants_to_enter[0] = false;
+	while (LIKELY(dekker->m.wants_to_enter[1])) {
+		if (dekker->m.turn != 0) {
+			dekker->m.wants_to_enter[0] = false;
 			shim_mfence();
-			while (dekker->turn != 0) {
+			while (dekker->m.turn != 0) {
 			}
-			dekker->wants_to_enter[0] = true;
+			dekker->m.wants_to_enter[0] = true;
 			shim_mfence();
 		}
 	}
 
 	/* Critical section */
-	check0 = dekker->check;
-	dekker->check++;
-	check1 = dekker->check;
+	check0 = dekker->m.check;
+	dekker->m.check++;
+	check1 = dekker->m.check;
 
-	dekker->turn = 1;
-	dekker->wants_to_enter[0] = false;
+	dekker->m.turn = 1;
+	dekker->m.wants_to_enter[0] = false;
 	shim_mfence();
-	dekker->p0_duration += stress_time_now() - t;
-	dekker->p0_count += 1.0;
+	dekker->p0.duration += stress_time_now() - t;
+	dekker->p0.count += 1.0;
 
 	if (check0 + 1 != check1) {
 		pr_fail("%s p0: dekker mutex check failed %d vs %d\n",
@@ -82,30 +91,30 @@ static void stress_dekker_p1(const stress_args_t *args)
 
 	t = stress_time_now();
 
-	dekker->wants_to_enter[1] = true;
+	dekker->m.wants_to_enter[1] = true;
 	shim_mfence();
-	while (LIKELY(dekker->wants_to_enter[0])) {
-		if (dekker->turn != 1) {
-			dekker->wants_to_enter[1] = false;
+	while (LIKELY(dekker->m.wants_to_enter[0])) {
+		if (dekker->m.turn != 1) {
+			dekker->m.wants_to_enter[1] = false;
 			shim_mfence();
-			while (dekker->turn != 1) {
+			while (dekker->m.turn != 1) {
 			}
-			dekker->wants_to_enter[1] = true;
+			dekker->m.wants_to_enter[1] = true;
 			shim_mfence();
 		}
 	}
 
 	/* Critical section */
-	check0 = dekker->check;
-	dekker->check--;
-	check1 = dekker->check;
+	check0 = dekker->m.check;
+	dekker->m.check--;
+	check1 = dekker->m.check;
 	inc_counter(args);
 
-	dekker->turn = 0;
-	dekker->wants_to_enter[1] = false;
+	dekker->m.turn = 0;
+	dekker->m.wants_to_enter[1] = false;
 	shim_mfence();
-	dekker->p1_duration += stress_time_now() - t;
-	dekker->p1_count += 1.0;
+	dekker->p1.duration += stress_time_now() - t;
+	dekker->p1.count += 1.0;
 
 	if (check0 - 1 != check1) {
 		pr_fail("%s p1: dekker mutex check failed %d vs %d\n",
@@ -151,8 +160,8 @@ static int stress_dekker(const stress_args_t *args)
 		(void)waitpid(pid, &status, 0);
 	}
 
-	duration = dekker->p0_duration + dekker->p1_duration;
-	count = dekker->p0_count + dekker->p1_count;
+	duration = dekker->p0.duration + dekker->p1.duration;
+	count = dekker->p0.count + dekker->p1.count;
 	rate = (count > 0.0) ? (duration / count) : 0.0;
 	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per mutex", rate * 1000000000.0);
 
