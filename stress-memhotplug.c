@@ -25,6 +25,13 @@ typedef struct {
 	char *name;
 	bool timeout;
 } stress_mem_info_t;
+
+typedef struct {
+	double online_duration;
+	double online_count;
+	double offline_duration;
+	double offline_count;
+} stress_memhotplug_metrics_t;
 #endif
 
 static const stress_help_t help[] = {
@@ -85,11 +92,14 @@ static void stress_memhotplug_set_timer(const unsigned int secs)
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 }
 
-static void stress_memhotplug_mem_toggle(stress_mem_info_t *mem_info)
+static void stress_memhotplug_mem_toggle(
+	stress_mem_info_t *mem_info,
+	stress_memhotplug_metrics_t *metrics)
 {
 	char path[PATH_MAX];
 	int fd;
 	ssize_t n;
+	double t;
 
 	/*
 	 *  Skip any hotplug memory regions that previously
@@ -107,17 +117,26 @@ static void stress_memhotplug_mem_toggle(stress_mem_info_t *mem_info)
 	if (fd < 0)
 		return;
 
-	stress_memhotplug_set_timer(3);
+	stress_memhotplug_set_timer(5);
+	t = stress_time_now();
 	errno = 0;
 	n = write(fd, "offline", 7);
 	if (n < 0) {
 		if (errno == EINTR)
 			mem_info->timeout = true;
+	} else {
+		metrics->offline_duration = stress_time_now() - t;
+		metrics->offline_count += 1.0;
 	}
 
 	stress_memhotplug_set_timer(5);
+	t = stress_time_now();
 	errno = 0;
-	VOID_RET(ssize_t, write(fd, "online", 6));
+	n = write(fd, "online", 6);
+	if (n >= 0) {
+		metrics->online_duration = stress_time_now() - t;
+		metrics->online_count += 1.0;
+	}
 	stress_memhotplug_set_timer(0);
 	(void)close(fd);
 }
@@ -155,6 +174,8 @@ static int stress_memhotplug(const stress_args_t *args)
 	struct dirent *d;
 	stress_mem_info_t *mem_info;
 	size_t i, n = 0, max;
+	stress_memhotplug_metrics_t metrics;
+	double rate;
 
 	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL))
 		return EXIT_NO_RESOURCE;
@@ -203,12 +224,17 @@ static int stress_memhotplug(const stress_args_t *args)
 	pr_dbg("%s: found %zd removable hotplug memory regions\n",
 		args->name, max);
 
+	metrics.offline_duration = 0.0;
+	metrics.offline_count = 0.0;
+	metrics.online_duration = 0.0;
+	metrics.online_count = 0.0;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		bool ok = false;
 		for (i = 0; keep_stressing(args) && (i < max); i++) {
-			stress_memhotplug_mem_toggle(&mem_info[i]);
+			stress_memhotplug_mem_toggle(&mem_info[i], &metrics);
 			if (!mem_info[i].timeout)
 				ok = true;
 			inc_counter(args);
@@ -220,6 +246,13 @@ static int stress_memhotplug(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (metrics.offline_count > 0.0) ? (double)metrics.offline_duration / metrics.offline_count : 0.0;
+	if (rate > 0.0)
+		stress_misc_stats_set(args->misc_stats, 0, "millisecs per offline action", rate * 1000.0);
+	rate = (metrics.online_count > 0.0) ? (double)metrics.online_duration / metrics.online_count : 0.0;
+	if (rate > 0.0)
+		stress_misc_stats_set(args->misc_stats, 1, "millisecs per online action", rate * 1000.0);
 
 	for (i = 0; i < max; i++)
 		stress_memhotplug_mem_online(&mem_info[i]);
