@@ -72,7 +72,7 @@ typedef struct {
 	char sysfs_path[PATH_MAX];	/* path to exercise */
 } stress_ctxt_t;
 
-static uint32_t path_sum(const char *path)
+static inline uint32_t path_sum(const char *path)
 {
 	return stress_hash_x17(path);
 }
@@ -413,17 +413,26 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	return &nowt;
 }
 
+static const char *sys_skip_paths[] = {
+	"/sys/class/zram-control/hot_add",	/* reading this will add a new zram dev */
+	"/sys/kernel/debug",			/* don't read debug interfaces */
+};
+
 /*
  *  stress_sys_skip()
  *	skip paths that are known to cause issues
  */
 static bool stress_sys_skip(const char *path)
 {
-	/*
-	 *  Skip over debug interfaces
-	 */
-	if (!strncmp(path, "/sys/kernel/debug", 17))
-		return true;
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(sys_skip_paths); i++) {
+		const char *skip_path = sys_skip_paths[i];
+		const size_t len = strlen(skip_path);
+
+		if (!strncmp(path, skip_path, len))
+			return true;
+	}
 	/*
 	 *  Can OOPS on Azure when reading
 	 *  "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:07/" \
