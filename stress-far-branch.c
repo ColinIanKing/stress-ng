@@ -133,6 +133,9 @@ static void MLOCKED_TEXT stress_sig_handler(
 	siglongjmp(jmp_env, 1);
 }
 
+#if defined(MAP_FIXED_NOREPLACE) ||	\
+    (defined(HAVE_MSYNC) &&		\
+     defined(MAP_FIXED))
 /*
  *  stress_far_mmap_try32()
  *	try to mmap, if address is in 32 bit address space and
@@ -187,8 +190,12 @@ static void *stress_far_try_mmap(void *addr, size_t length)
 			return ptr;
 	}
 #endif
+	(void)addr;
+	(void)length;
+
 	return MAP_FAILED;
 }
+#endif
 
 /*
  *  stress_far_mmap()
