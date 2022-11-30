@@ -43,6 +43,8 @@ static int stress_pageswap_supported(const char *name)
 #endif
 }
 
+#if defined(MADV_PAGEOUT)
+
 static void stress_pageswap_count_paged_out(void *page, const size_t page_size, double *count)
 {
 #if defined(HAVE_MINCORE) &&    \
@@ -60,7 +62,6 @@ static void stress_pageswap_count_paged_out(void *page, const size_t page_size, 
 #endif
 }
 
-#if defined(MADV_PAGEOUT)
 static void stress_pageswap_unmap(
 	const stress_args_t *args,
 	page_info_t **head,
