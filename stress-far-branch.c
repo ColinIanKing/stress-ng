@@ -165,6 +165,7 @@ static void *stress_far_mmap_try32(
 #endif
 	return mmap(addr, length, prot, flags, fd, offset);
 }
+#endif
 
 static void *stress_far_try_mmap(void *addr, size_t length)
 {
@@ -195,7 +196,6 @@ static void *stress_far_try_mmap(void *addr, size_t length)
 
 	return MAP_FAILED;
 }
-#endif
 
 /*
  *  stress_far_mmap()
