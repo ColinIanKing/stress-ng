@@ -481,6 +481,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [Performance Isolation of Co-located Workload in a Container-based Vehicle Software Architecture](https://www.thinkmind.org/articles/ambient_2019_2_20_40020.pdf)
 * [Achieving Isolation in Mixed-Criticality Industrial Edge Systems with Real-Time Containers](https://drops.dagstuhl.de/opus/volltexte/2022/16332/pdf/LIPIcs-ECRTS-2022-15.pdf)
 * [UIE: User-centric Interference Estimation for Cloud Applications](https://www3.cs.stonybrook.edu/~anshul/ic2e16_uie.pdf)
+* [Design and Implementation of Machine Learning-Based Fault Prediction System in Cloud Infrastructure](https://www.mdpi.com/2079-9292/11/22/3765)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
