@@ -118,7 +118,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_sdbm(const char *str)
  */
 uint32_t HOT OPTIMIZE3 stress_hash_nhash(const char *str)
 {
-	static const uint32_t primes[] = {
+	static const uint32_t ALIGN64 primes[] = {
 		3, 5, 7, 11, 13, 17, 19, 23, 29, 31,
 		37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
 		79, 83, 89, 97, 101, 103, 107, 109, 113
