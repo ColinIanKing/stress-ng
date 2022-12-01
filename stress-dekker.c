@@ -22,7 +22,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"dekker N",		"start N workers that exercise ther Dekker algorithm" },
 	{ NULL,	"dekker-ops N",		"stop after N dekker mutex bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_SHIM_MFENCE)
@@ -38,6 +38,10 @@ typedef struct {
 	double          count;
 } dekker_metrics_t;
 
+/*
+ *  dekker_t is mmap'd shared and m, p0, p1 are 64 byte cache aligned
+ *  to reduce cache contention when updating metrics on p0 and p1
+ */
 typedef struct dekker {
 	dekker_mutex_t	m;
 	char 		pad1[64 - sizeof(dekker_mutex_t)];
