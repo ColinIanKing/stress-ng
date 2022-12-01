@@ -22,7 +22,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"peterson N",		"start N workers that exercise Peterson's algorithm" },
 	{ NULL,	"peterson-ops N",	"stop after N peterson mutex bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_SHIM_MFENCE)
@@ -38,6 +38,10 @@ typedef struct {
 	volatile bool	flag[2];
 } peterson_mutex_t;
 
+/*
+ *  peterson_t is mmap'd shared and m, p0, p1 are 64 byte cache aligned
+ *  to reduce cache contention when updating metrics on p0 and p1
+ */
 typedef struct peterson {
 	peterson_mutex_t	m;
 	char 			pad1[64 - sizeof(peterson_mutex_t)];
