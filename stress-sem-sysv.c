@@ -540,11 +540,6 @@ again:
 	return pid;
 }
 
-static void stress_sem_sysv_sigchild(int sig)
-{
-	(void)sig;
-}
-
 /*
  *  stress_sem_sysv()
  *	stress system by sem ops
@@ -568,7 +563,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(args->name, SIGCHLD, stress_sem_sysv_sigchild, NULL) < 0)
+	if (stress_sighandler(args->name, SIGCHLD, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

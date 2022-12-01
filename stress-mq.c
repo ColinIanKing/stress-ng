@@ -69,13 +69,6 @@ static void stress_mq_notify_func(union sigval s)
 	(void)s;
 }
 
-#if defined(SIGUSR2)
-static void MLOCKED_TEXT stress_sigusr2_handler(int signum)
-{
-	(void)signum;
-}
-#endif
-
 /*
  *  stress_mq_invalid_open()
  *	perform invalid mq open and perform tidy up
@@ -114,7 +107,7 @@ static int stress_mq(const stress_args_t *args)
 	unsigned int max_prio = UINT_MAX;
 
 #if defined(SIGUSR2)
-	if (stress_sighandler(args->name, SIGUSR2, stress_sigusr2_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR2, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 #endif
 

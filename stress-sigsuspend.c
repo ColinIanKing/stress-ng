@@ -30,15 +30,6 @@ static const stress_help_t help[] = {
 static void *counter_lock;
 
 /*
- *  stress_usr1_handler()
- *      SIGUSR1 handler
- */
-static void MLOCKED_TEXT stress_usr1_handler(int signum)
-{
-	(void)signum;
-}
-
-/*
  *  stress_sigsuspend
  *	stress sigsuspend
  */
@@ -49,7 +40,7 @@ static int stress_sigsuspend(const stress_args_t *args)
 	sigset_t mask, oldmask;
 	int status;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
 
 	counter_lock = stress_lock_create();

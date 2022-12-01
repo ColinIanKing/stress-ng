@@ -26,15 +26,6 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  stress_kill_handle_sigusr1()
- *	handle SIGUSR1
- */
-static void stress_kill_handle_sigusr1(int sig)
-{
-	(void)sig;
-}
-
-/*
  *  stress on sched_kill()
  *	stress system by rapid kills
  */
@@ -51,7 +42,7 @@ static int stress_kill(const stress_args_t *args)
 
 	pid = fork();
 	if (pid == 0) {
-		VOID_RET(int, stress_sighandler(args->name, SIGUSR1, stress_kill_handle_sigusr1, NULL));
+		VOID_RET(int, stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL));
 
 		while (keep_stressing(args)) {
 			if (kill(ppid, 0) < 0)

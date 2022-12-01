@@ -35,11 +35,6 @@ static const stress_help_t help[] = {
 
 #define ABORT_TIMEOUT	(0.0025)
 
-static void MLOCKED_TEXT stress_usr1_handler(int signum)
-{
-	(void)signum;
-}
-
 /*
  *  spawn()
  *	spawn a process
@@ -190,7 +185,7 @@ static int stress_wait(const stress_args_t *args)
 	pr_dbg("%s: waiter started [%d]\n",
 		args->name, (int)args->pid);
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

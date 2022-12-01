@@ -126,11 +126,6 @@ static void MLOCKED_TEXT stress_apparmor_alrm_handler(int signum)
 	apparmor_run = false;
 }
 
-static void MLOCKED_TEXT stress_apparmor_usr1_handler(int signum)
-{
-	(void)signum;
-}
-
 /*
  *  stress_apparmor_read()
  *	read a proc file
@@ -639,7 +634,7 @@ static int stress_apparmor(const stress_args_t *args)
 	size_t i;
 	int rc = EXIT_NO_RESOURCE;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_apparmor_usr1_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
 
 	data_copy = malloc(g_apparmor_data_len);

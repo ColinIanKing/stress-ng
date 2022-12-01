@@ -83,11 +83,6 @@ static int stress_dup2_race_clone(void *arg)
 	return 0;
 }
 
-static void stress_dup2_sigalrm(int sig)
-{
-	(void)sig;
-}
-
 static int static_dup2_child(info_t *info)
 {
 	struct sigaction action;
@@ -100,7 +95,7 @@ static int static_dup2_child(info_t *info)
 
 	(void)memset(&action, 0, sizeof(action));
 	action.sa_flags = 0;
-	action.sa_handler = stress_dup2_sigalrm;
+	action.sa_handler = stress_sighandler_nop;
 	if (sigaction(SIGALRM, &action, NULL) < 0)
 		_exit(1);
 

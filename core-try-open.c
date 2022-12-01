@@ -125,11 +125,6 @@ done:
     defined(HAVE_TIMER_GETOVERRUN) &&   \
     defined(HAVE_TIMER_SETTIME)
 
-static void MLOCKED_TEXT stress_timer_handler(int sig)
-{
-	(void)sig;
-}
-
 /*
  *  Try to open a file, return 0 if can open it, non-zero
  *  if it cannot be opened within timeout nanoseconds.
@@ -150,7 +145,7 @@ int stress_open_timeout(
 	 *  we can't test, so just return 0 and try
 	 *  it anyhow.
 	 */
-	ret = stress_sighandler(name, SIGRTMIN, stress_timer_handler, NULL);
+	ret = stress_sighandler(name, SIGRTMIN, stress_sighandler_nop, NULL);
 	if (ret < 0)
 		return open(path, flags);
 

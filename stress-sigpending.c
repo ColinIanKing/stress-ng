@@ -26,15 +26,6 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  stress_usr1_handler()
- *	SIGUSR1 signal handler
- */
-static void MLOCKED_TEXT stress_usr1_handler(int signum)
-{
-	(void)signum;
-}
-
-/*
  *  stress_sigpending
  *	stress sigpending system call
  */
@@ -42,7 +33,7 @@ static int stress_sigpending(const stress_args_t *args)
 {
 	sigset_t new_sigset, old_sigset;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

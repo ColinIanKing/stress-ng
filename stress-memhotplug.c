@@ -58,11 +58,6 @@ static int stress_memhotplug_supported(const char *name)
 	return 0;
 }
 
-static void stress_itimer_handler(int sig)
-{
-	(void)sig;
-}
-
 static bool stress_memhotplug_removable(char *name)
 {
 	char path[PATH_MAX];
@@ -177,7 +172,7 @@ static int stress_memhotplug(const stress_args_t *args)
 	stress_memhotplug_metrics_t metrics;
 	double rate;
 
-	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL))
+	if (stress_sighandler(args->name, SIGPROF, stress_sighandler_nop, NULL))
 		return EXIT_NO_RESOURCE;
 
 	dir = opendir(sys_memory_path);
