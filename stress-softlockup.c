@@ -256,7 +256,6 @@ again:
 tidy_ok:
 		rc = EXIT_SUCCESS;
 tidy:
-		(void)fflush(stdout);
 		_exit(rc);
 	} else {
 		int status;
