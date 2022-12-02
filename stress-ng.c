@@ -700,6 +700,7 @@ static const struct option long_options[] = {
 	{ "mutex-procs",	1,	0,	OPT_mutex_procs },
 	{ "nanosleep",		1,	0,	OPT_nanosleep },
 	{ "nanosleep-ops",	1,	0,	OPT_nanosleep_ops },
+	{ "nanosleep-threads",	1,	0,	OPT_nanosleep_threads },
 	{ "netdev",		1,	0,	OPT_netdev },
 	{ "netdev-ops",		1,	0,	OPT_netdev_ops },
 	{ "netlink-proc",	1,	0,	OPT_netlink_proc },

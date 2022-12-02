@@ -19,7 +19,9 @@
  */
 #include "stress-ng.h"
 
-#define MAX_NANOSLEEP_THREADS	(8)
+#define MIN_NANOSLEEP_THREADS		(1)
+#define MAX_NANOSLEEP_THREADS		(1024)
+#define DEFAULT_NANOSLEEP_THREADS	(8)
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_NANOSLEEP)
@@ -27,6 +29,7 @@
 typedef struct {
 	const stress_args_t *args;
 	uint64_t counter;
+	uint64_t max_ops;
 	pthread_t pthread;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
@@ -42,7 +45,23 @@ static sigset_t set;
 static const stress_help_t help[] = {
 	{ NULL,	"nanosleep N",		"start N workers performing short sleeps" },
 	{ NULL,	"nanosleep-ops N",	"stop after N bogo sleep operations" },
+	{ NULL,	"nanosleep-threads N",	"number of threads to run concurrently (default 8)" },
 	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_nanosleep_threads(const char *opt)
+{
+	uint32_t nanosleep_threads;
+
+	nanosleep_threads = stress_get_uint32(opt);
+	stress_check_range("nanosleep_threads", nanosleep_threads,
+		MIN_NANOSLEEP_THREADS, MAX_NANOSLEEP_THREADS);
+	return stress_set_setting("nanosleep-threads", TYPE_ID_UINT32, &nanosleep_threads);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_nanosleep_threads,	stress_set_nanosleep_threads },
+	{ 0,				NULL }
 };
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -63,12 +82,10 @@ static void *stress_pthread_func(void *c)
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const stress_args_t *args = ctxt->args;
-	const uint64_t max_ops =
-		args->max_ops ? (args->max_ops / MAX_NANOSLEEP_THREADS) + 1 : 0;
 
 	while (keep_stressing(args) &&
 	       !thread_terminate &&
-	       (!max_ops || (ctxt->counter < max_ops))) {
+	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
 		unsigned long i;
 
 		for (i = 1 << 18; i > 0; i >>=1) {
@@ -115,8 +132,10 @@ static void *stress_pthread_func(void *c)
  */
 static int stress_nanosleep(const stress_args_t *args)
 {
-	uint64_t i, n, limited = 0;
-	static stress_ctxt_t ctxts[MAX_NANOSLEEP_THREADS];
+	uint64_t max_ops;
+	uint32_t i, n, limited = 0;
+	uint32_t nanosleep_threads = DEFAULT_NANOSLEEP_THREADS;
+	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
@@ -124,14 +143,25 @@ static int stress_nanosleep(const stress_args_t *args)
 	const uint64_t benchmark_loops = 10000;
 #endif
 
+	(void)stress_get_setting("nanosleep-threads", &nanosleep_threads);
+	max_ops = args->max_ops ? (args->max_ops / nanosleep_threads) + 1 : 0;
+
 	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)memset(ctxts, 0, sizeof(ctxts));
+	ctxts = calloc(nanosleep_threads, sizeof(*ctxts));
+	if (!ctxts) {
+		pr_inf_skip("%s: could not allocate context for %" PRIu32
+			" pthreads, skipping stressor\n",
+			args->name, nanosleep_threads);
+		return EXIT_NO_RESOURCE;
+	}
+
 	(void)sigfillset(&set);
 
-	for (n = 0; n < MAX_NANOSLEEP_THREADS; n++) {
+	for (n = 0; n < nanosleep_threads; n++) {
 		ctxts[n].counter = 0;
+		ctxts[n].max_ops = max_ops;
 		ctxts[n].args = args;
 #if defined(HAVE_CLOCK_GETTIME) && 	\
     defined(CLOCK_MONOTONIC)
@@ -202,7 +232,7 @@ tidy:
 	}
 	overrun_nsec -= overhead_nsec;
 	overrun_nsec = (count > 0.0) ? overrun_nsec / count : 0.0;
-	stress_misc_stats_set(args->misc_stats, 2, "nanosec sleep overrun", overrun_nsec);
+	stress_misc_stats_set(args->misc_stats, 0, "nanosec sleep overrun", overrun_nsec);
 #endif
 
 	if (limited) {
@@ -210,9 +240,11 @@ tidy:
 			"requested %d threads (instance %"
 			PRIu32 ")\n",
 			args->name,
-			100.0 * (double)limited / (double)MAX_NANOSLEEP_THREADS,
-			MAX_NANOSLEEP_THREADS, args->instance);
+			100.0 * (double)limited / (double)nanosleep_threads,
+			nanosleep_threads, args->instance);
 	}
+
+	free(ctxts);
 
 	return ret;
 }
@@ -220,13 +252,15 @@ tidy:
 stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_nanosleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
-	.unimplemented_reason = "built without librt or nanosleep() system call support"
+	.unimplemented_reason = "built without pthread, librt or nanosleep() system call support"
 };
 #endif

@@ -1609,6 +1609,7 @@ typedef enum {
 
 	OPT_nanosleep,
 	OPT_nanosleep_ops,
+	OPT_nanosleep_threads,
 
 	OPT_netdev,
 	OPT_netdev_ops,

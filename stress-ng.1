@@ -3412,12 +3412,16 @@ By default 2 threads are used for locking/unlocking on a single mutex. This opti
 allows the default to be changed to 2 to 64 concurrent threads.
 .TP
 .B \-\-nanosleep N
-start N workers that each run 256 pthreads that call nanosleep with random
+start N workers that each run pthreads that call nanosleep with random
 delays from 1 to 2\[ua]18 nanoseconds. This should exercise the high resolution
 timers and scheduler.
 .TP
 .B \-\-nanosleep\-ops N
 stop the nanosleep stressor after N bogo nanosleep operations.
+.TP
+.B \-\-nanosleep\-threads N
+specify the number of concurrent pthreads to run per stressor. The default is 8
+and the allowed range is 1 to 1024.
 .TP
 .B \-\-netdev N
 start N workers that exercise various netdevice ioctl commands across
