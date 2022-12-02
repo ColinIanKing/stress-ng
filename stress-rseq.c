@@ -332,7 +332,8 @@ static int stress_rseq(const stress_args_t *args)
 	rseq_info = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rseq_info == MAP_FAILED) {
-		pr_inf("%s: cannot allocate shared page, errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot allocate shared page, "
+			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

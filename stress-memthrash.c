@@ -831,7 +831,7 @@ static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 
 	pthread_info = calloc(max_threads, sizeof(*pthread_info));
 	if (!pthread_info) {
-		pr_inf("%s: failed to allocate pthread information array\n",
+		pr_inf_skip("%s: failed to allocate pthread information array, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -924,7 +924,7 @@ static int stress_memthrash(const stress_args_t *args)
 		context.numa_node_mask = calloc(context.max_numa_nodes, numa_elements);
 		context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
 		if (!context.numa_node_mask) {
-			pr_inf("%s: could not allocate %zd numa elements in numa mask, skipping stressor\n",
+			pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, skipping stressor\n",
 				args->name, numa_elements);
 			return EXIT_NO_RESOURCE;
 		}

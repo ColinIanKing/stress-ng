@@ -95,7 +95,8 @@ static int stress_mergesort(const stress_args_t *args)
 	n = (size_t)mergesort_size;
 
 	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: malloc failed, allocating %zd integers, skipping stressor\n",
+			args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
 

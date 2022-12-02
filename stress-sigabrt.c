@@ -68,7 +68,8 @@ static int stress_sigabrt(const stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
 	if (sigabrt_mapping == MAP_FAILED) {
-		pr_inf("%s: failed to mmap shared page, errno=%d (%s)\n",
+		pr_inf_skip("%s: failed to mmap shared page, "
+			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

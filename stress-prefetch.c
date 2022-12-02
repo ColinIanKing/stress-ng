@@ -209,7 +209,7 @@ static int stress_prefetch(const stress_args_t *args)
 #endif
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (l3_data == MAP_FAILED) {
-		pr_err("%s: cannot allocate %zu bytes\n",
+		pr_inf_skip("%s: cannot allocate %zu bytes, skipping stressor\n",
 			args->name, l3_data_mmap_size);
 		return EXIT_NO_RESOURCE;
 	}

@@ -96,12 +96,14 @@ static int stress_radixsort(const stress_args_t *args)
 
 	text = calloc((size_t)n, STR_SIZE);
 	if (!text) {
-		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: calloc failed allocating %d strings, "
+			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
 	data = calloc((size_t)n, sizeof(*data));
 	if (!data) {
-		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: calloc failed allocating %d string pointers, "
+			"skipping stressor\n", args->name, n);
 		free(text);
 		return EXIT_NO_RESOURCE;
 	}

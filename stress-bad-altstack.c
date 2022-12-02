@@ -128,8 +128,9 @@ static int stress_bad_altstack(const stress_args_t *args)
 	stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
-		pr_err("%s: cannot mmap signal handler stack, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap %zu byte signal handler stack, "
+			    "errno=%d (%s), skipping stressor\n",
+			args->name, (size_t)STRESS_MINSIGSTKSZ, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 

@@ -690,8 +690,11 @@ static int stress_memrate(const stress_args_t *args)
 
 	context.stats = (stress_memrate_stats_t *)mmap(NULL, stats_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (context.stats == MAP_FAILED)
+	if (context.stats == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zd byte statistics buffer, skipping stressor\n",
+			args->name, stats_size);
 		return EXIT_NO_RESOURCE;
+	}
 	for (i = 0; i < memrate_items; i++) {
 		context.stats[i].duration = 0.0;
 		context.stats[i].kbytes = 0.0;

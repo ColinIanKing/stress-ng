@@ -232,8 +232,8 @@ static int stress_numa(const stress_args_t *args)
 
 	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
 	if (numa_nodes < 1) {
-		pr_inf("%s: no NUMA nodes found, "
-			"aborting test\n", args->name);
+		pr_inf_skip("%s: no NUMA nodes found, "
+			"skipping test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}

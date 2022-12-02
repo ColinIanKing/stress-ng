@@ -185,11 +185,13 @@ static int stress_icache(const stress_args_t *args)
 #endif
 	default:
 #if defined(HAVE_ALIGNED_64K)
-		pr_inf("%s: page size %zu is not %u or %u or %u, cannot test\n",
+		pr_inf_skip("%s: page size %zu is not %u or %u or %u, "
+			"cannot test, skipping stressor\n",
 			args->name, args->page_size,
 			SIZE_4K, SIZE_16K, SIZE_64K);
 #else
-		pr_inf("%s: page size %zu is not %u or %u, cannot test\n",
+		pr_inf_skip("%s: page size %zu is not %u or %u, "
+			"cannot test, skipping stressor\n",
 			args->name, args->page_size,
 			SIZE_4K, SIZE_16K);
 #endif

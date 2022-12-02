@@ -77,7 +77,7 @@ static int stress_mlockmany(const stress_args_t *args)
 
 	pids = calloc((size_t)mlockmany_procs, sizeof(*pids));
 	if (!pids) {
-		pr_inf("%s: cannot allocate pids array\n", args->name);
+		pr_inf_skip("%s: cannot allocate pids array, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

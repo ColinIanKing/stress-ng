@@ -281,8 +281,9 @@ static int stress_opcode(const stress_args_t *args)
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
+			"skipping stressor\n",
+			args->name, sig_count_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 #endif

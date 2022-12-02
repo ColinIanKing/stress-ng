@@ -142,7 +142,8 @@ static int stress_shellsort(const stress_args_t *args)
 	n = (size_t)shellsort_size;
 
 	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_err("%s: malloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: malloc failed to allocate %zu integers, "
+			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
 

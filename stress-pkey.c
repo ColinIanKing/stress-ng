@@ -43,7 +43,7 @@ static int stress_pkey(const stress_args_t *args)
 	pages = mmap(NULL, pages_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (pages == MAP_FAILED) {
-		pr_inf("%s: cannot allocate a page, errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot allocate a page, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

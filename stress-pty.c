@@ -83,7 +83,8 @@ static int stress_pty(const stress_args_t *args)
 
 	ptys = calloc(pty_max, sizeof(*ptys));
 	if (!ptys) {
-		pr_inf("%s: allocation of pty array failed: %d (%s)\n",
+		pr_inf_skip("%s: allocation of pty array failed: %d (%s) "
+			"skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

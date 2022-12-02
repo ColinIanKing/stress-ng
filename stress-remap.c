@@ -138,8 +138,9 @@ static int stress_remap(const stress_args_t *args)
 	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_err("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: mmap failed to allocate %zd bytes: "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, data_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 

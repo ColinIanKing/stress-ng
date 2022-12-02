@@ -200,7 +200,8 @@ static int stress_memhotplug(const stress_args_t *args)
 
 	mem_info = calloc(n, sizeof(*mem_info));
 	if (!mem_info) {
-		pr_inf("%s: out of memory\n", args->name);
+		pr_inf_skip("%s: failed to allocate %zd mem_info structs, skipping stressor\n",
+			args->name, n);
 		(void)closedir(dir);
 		return EXIT_NO_RESOURCE;
 	}

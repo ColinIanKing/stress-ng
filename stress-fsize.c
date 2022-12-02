@@ -223,7 +223,7 @@ static int stress_fsize(const stress_args_t *args)
 		if (shim_fallocate(fd, 0, 0, (off_t)max) < 0) {
 			if ((errno == ENOSPC) || (errno == EINTR)) {
 				/* No resource */
-				pr_inf("%s: allocating file to %jd (0x%jx) bytes failed, errno=%d (%s), "
+				pr_inf_skip("%s: allocating file to %jd (0x%jx) bytes failed, errno=%d (%s), "
 					"skipping stressor\n", args->name, (intmax_t)max, (intmax_t)max,
 					errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;

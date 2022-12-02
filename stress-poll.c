@@ -110,14 +110,14 @@ static int stress_poll(const stress_args_t *args)
 
 	pipe_fds = calloc((size_t)max_fds, sizeof(*pipe_fds));
 	if (!pipe_fds) {
-		pr_inf("%s: out of memory allocating %zd pipe file descriptors\n",
-			args->name, max_fds);
+		pr_inf_skip("%s: out of memory allocating %zd pipe file descriptors, "
+			"skipping stressor\n", args->name, max_fds);
 		return EXIT_NO_RESOURCE;
 	}
 	poll_fds = calloc((size_t)max_fds, sizeof(*poll_fds));
 	if (!poll_fds) {
-		pr_inf("%s: out of memory allocating %zd poll file descriptors\n",
-			args->name, max_fds);
+		pr_inf("%s: out of memory allocating %zd poll file descriptors, "
+			"skipping stressor\n", args->name, max_fds);
 		free(pipe_fds);
 		return EXIT_NO_RESOURCE;
 	}

@@ -228,8 +228,9 @@ static int stress_hrtimers(const stress_args_t *args)
 	counters = (uint64_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: failed to mmap %zd bytes, errno=%d (%s), "
+			"skipping stressor\n",
+			args->name, sz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 

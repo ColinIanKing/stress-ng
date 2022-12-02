@@ -315,8 +315,8 @@ free_cb:
 free_buffer:
 	free(*buffer);
 err_msg:
-	pr_inf("%s: out of memory allocating memory, errno=%d (%s)\n",
-		args->name, errno, strerror(errno));
+	pr_inf_skip("%s: out of memory allocating buffers, skipping stressors\n",
+		args->name);
 
 	*buffer = NULL;
 	*cb = NULL;

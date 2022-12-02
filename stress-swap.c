@@ -250,7 +250,7 @@ static int stress_swap(const stress_args_t *args)
 
 	page = calloc(1, page_size);
 	if (!page) {
-		pr_err("%s: failed to allocate 1 page: errno=%d (%s)\n",
+		pr_inf_skip("%s: failed to allocate 1 page: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_ret;

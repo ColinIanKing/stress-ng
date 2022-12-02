@@ -1016,7 +1016,7 @@ static int stress_epoll(const stress_args_t *args)
 		start_port = epoll_port + (int)args->instance;
 		reserved_port = stress_net_reserve_ports(start_port, start_port);
 		if (reserved_port < 0) {
-			pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 				args->name, start_port);
 			return EXIT_NO_RESOURCE;
 		}
@@ -1034,7 +1034,7 @@ static int stress_epoll(const stress_args_t *args)
 
 		reserved_port = stress_net_reserve_ports(start_port, end_port);
 		if (reserved_port < 0) {
-			pr_inf("%s: cannot reserve ports %d..%d, skipping stressor\n",
+			pr_inf_skip("%s: cannot reserve ports %d..%d, skipping stressor\n",
 				args->name, start_port, end_port);
 			return EXIT_NO_RESOURCE;
 		}

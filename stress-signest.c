@@ -179,7 +179,8 @@ static int stress_signest(const stress_args_t *args)
 	altstack = (uint8_t*)mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (altstack == MAP_FAILED) {
-		pr_inf("%s: cannot allocate alternative signal stack, errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot allocate alternative signal stack, "
+			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

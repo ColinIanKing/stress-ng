@@ -277,7 +277,7 @@ static int stress_access(const stress_args_t *args)
 	metrics = (stress_access_metrics_t *)mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_inf("%s: cannot mmap %zd bytes for metrics, skipping stressor\n",
+		pr_inf_skip("%s: cannot mmap %zd bytes for metrics, skipping stressor\n",
 			args->name, metrics_size);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;

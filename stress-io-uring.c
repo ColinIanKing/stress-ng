@@ -213,7 +213,8 @@ static int stress_setup_io_uring(
 		MAP_SHARED | MAP_POPULATE,
 		submit->io_uring_fd, IORING_OFF_SQ_RING);
 	if (submit->sq_mmap == MAP_FAILED) {
-		pr_inf("%s: could not mmap submission queue buffer, errno=%d (%s)\n",
+		pr_inf_skip("%s: could not mmap submission queue buffer, "
+			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -225,7 +226,8 @@ static int stress_setup_io_uring(
 				MAP_SHARED | MAP_POPULATE,
 				submit->io_uring_fd, IORING_OFF_CQ_RING);
 		if (submit->cq_mmap == MAP_FAILED) {
-			pr_inf("%s: could not mmap completion queue buffer, errno=%d (%s)\n",
+			pr_inf_skip("%s: could not mmap completion queue buffer, "
+				"errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			(void)munmap(submit->sq_mmap, submit->cq_size);
 			return EXIT_NO_RESOURCE;
@@ -244,7 +246,8 @@ static int stress_setup_io_uring(
 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE,
 			submit->io_uring_fd, IORING_OFF_SQES);
 	if (submit->sqes_mmap == MAP_FAILED) {
-		pr_inf("%s: count not mmap submission queue buffer, errno=%d (%s)\n",
+		pr_inf_skip("%s: count not mmap submission queue buffer, "
+			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		if (submit->cq_mmap != submit->sq_mmap)
 			(void)munmap(submit->cq_mmap, submit->cq_size);
@@ -749,7 +752,9 @@ static int stress_io_uring(const stress_args_t *args)
 			MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
 	if (io_uring_file.iovecs == MAP_FAILED) {
 		io_uring_file.iovecs = NULL;
-		pr_inf("%s: cannot allocate iovecs\n", args->name);
+		pr_inf_skip("%s: cannot mmap iovecs, errno=%d (%s), "
+				"skipping stressor\n", args->name,
+				errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -762,7 +767,9 @@ static int stress_io_uring(const stress_args_t *args)
 				MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
 		if (io_uring_file.iovecs[i].iov_base == MAP_FAILED) {
 			io_uring_file.iovecs[i].iov_base = NULL;
-			pr_inf("%s: cannot allocate iovec iov_base\n", args->name);
+			pr_inf_skip("%s: cannot mmap allocate iovec iov_base, errno=%d (%s), "
+				"skipping stressor\n", args->name,
+				errno, strerror(errno));
 			stress_io_uring_unmap_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}

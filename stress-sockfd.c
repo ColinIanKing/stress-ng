@@ -379,7 +379,7 @@ static int stress_sockfd(const stress_args_t *args)
 	socket_fd_port += args->instance;
 	reserved_port = stress_net_reserve_ports(socket_fd_port, socket_fd_port);
 	if (reserved_port < 0) {
-		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, socket_fd_port);
 		return EXIT_NO_RESOURCE;
 	}

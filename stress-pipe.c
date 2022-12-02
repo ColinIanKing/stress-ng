@@ -147,7 +147,8 @@ static int stress_pipe(const stress_args_t *args)
 	buf = (char *)mmap(NULL, pipe_data_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_err("%s: failed to allocate buffer\n", args->name);
+		pr_inf_skip("%s: failed to mmap %zu byte buffer, skipping stressor\n",
+			args->name, pipe_data_size);
 		return EXIT_NO_RESOURCE;
 	}
 

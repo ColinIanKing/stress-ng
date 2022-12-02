@@ -531,7 +531,8 @@ static int stress_list(const stress_args_t *args)
 
 	entries = calloc(n, sizeof(*entries));
 	if (!entries) {
-		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: malloc failed allocating %zu list entries, "
+			"out of memory, skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
 

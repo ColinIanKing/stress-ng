@@ -454,7 +454,7 @@ static int stress_dccp(const stress_args_t *args)
 	dccp_port += args->instance;
 	reserved_port = stress_net_reserve_ports(dccp_port, dccp_port);
 	if (reserved_port < 0) {
-		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, dccp_port);
 		return EXIT_NO_RESOURCE;
 	}

@@ -938,7 +938,8 @@ static int stress_tree(const stress_args_t *args)
 
 	nodes = calloc(n, sizeof(*nodes));
 	if (!nodes) {
-		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		pr_inf_skip("%s: malloc failed allocating %zd tree nodes, "
+			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
 

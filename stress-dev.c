@@ -4428,7 +4428,8 @@ static int stress_dev(const stress_args_t *args)
 	mmap_dev_states = mmap(NULL, mmap_dev_states_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mmap_dev_states == MAP_FAILED) {
-		pr_inf("%s: cannot allocate shared memory for device state data, errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot allocate shared memory for device state data, "
+			"errno=%d (%s), slipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto deinit;

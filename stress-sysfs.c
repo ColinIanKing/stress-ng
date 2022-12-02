@@ -638,7 +638,7 @@ static int stress_sysfs(const stress_args_t *args)
 				     PROT_READ | PROT_WRITE,
 				     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt == MAP_FAILED) {
-		pr_inf("%s: cannot mmap shared context region\n", args->name);
+		pr_inf_skip("%s: cannot mmap shared context region, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

@@ -1141,40 +1141,45 @@ static int stress_sysbadaddr(const stress_args_t *args)
 	ro_page = mmap(NULL, page_size, PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (ro_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous read-only page: "
-		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap anonymous read-only page: "
+		       "errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
 	rw_page = mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rw_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous read-write page: "
-		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap anonymous read-write page: "
+		       "errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
 	rx_page = mmap(NULL, page_size, PROT_EXEC | PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rx_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous execute-only page: "
-		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap anonymous execute-only page: "
+		       "errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
 	no_page = mmap(NULL, page_size, PROT_NONE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (no_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous prot-none page: "
-		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap anonymous prot-none page: "
+		       "errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
 	wo_page = mmap(NULL, page_size, PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wo_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous write-only page: "
-		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap anonymous write-only page: "
+		       "errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}

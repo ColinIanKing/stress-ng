@@ -64,18 +64,21 @@ static int stress_chdir(const stress_args_t *args)
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
 	if (!paths) {
-		pr_err("%s: out of memory allocating paths\n", args->name);
+		pr_inf_skip("%s: out of memory allocating %" PRIu32 " paths, "
+			    "skipping stressor\n", args->name, chdir_dirs);
 		return EXIT_NO_RESOURCE;
 	}
 	fds = calloc(chdir_dirs, sizeof(*fds));
 	if (!fds) {
-		pr_err("%s: out of memory allocating file descriptors\n", args->name);
+		pr_inf_skip("%s: out of memory allocating %" PRIu32 " file descriptors, "
+			    "skipping stressor\n", args->name, chdir_dirs);
 		free(paths);
 		return EXIT_NO_RESOURCE;
 	}
 	mkdir_ok = calloc(chdir_dirs, sizeof(*mkdir_ok));
 	if (!mkdir_ok) {
-		pr_err("%s: out of memory allocating file descriptors\n", args->name);
+		pr_inf_skip("%s: out of memory allocating %" PRIu32 " boolean flags, "
+			    "skipping stressor\n", args->name, chdir_dirs);
 		free(fds);
 		free(paths);
 		return EXIT_NO_RESOURCE;

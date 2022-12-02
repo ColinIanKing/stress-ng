@@ -86,7 +86,8 @@ static int stress_yield(const stress_args_t *args)
 	max_ops_per_yielder = args->max_ops / yielders;
 	pids = calloc(yielders, sizeof(*pids));
 	if (!pids) {
-		pr_err("%s: calloc failed\n", args->name);
+		pr_inf_skip("%s: calloc failed allocating %" PRIu32
+			" pids, skipping stressor\n", args->name, yielders);
 		return EXIT_NO_RESOURCE;
 	}
 

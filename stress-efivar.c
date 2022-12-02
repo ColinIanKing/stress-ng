@@ -389,8 +389,9 @@ static int stress_efivar(const stress_args_t *args)
 	efi_ignore = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
-		pr_fail("%s: cannot mmap shared memory: %d (%s))\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot mmap %zd bytes of shared memory: "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, sz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 

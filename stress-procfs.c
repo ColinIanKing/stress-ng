@@ -794,7 +794,7 @@ static int stress_procfs(const stress_args_t *args)
 
 	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
 	if (rc) {
-		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+		pr_err("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, rc, strerror(rc));
 		return EXIT_NO_RESOURCE;
 	}

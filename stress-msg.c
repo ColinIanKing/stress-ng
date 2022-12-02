@@ -239,7 +239,7 @@ static int stress_msg(const stress_args_t *args)
 
 	msgq_ids = calloc(max_ids, sizeof(*msgq_ids));
 	if (!msgq_ids) {
-		pr_inf("%s: failed to allocate msgq id array\n", args->name);
+		pr_inf_skip("%s: failed to allocate msgq id array, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

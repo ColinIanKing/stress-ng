@@ -74,8 +74,8 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		value = (char *)mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (value == MAP_FAILED) {
-			pr_inf("%s: could not allocate %zd bytes for environment variable value, "
-				"errno = %d (%s)\n",
+			pr_inf_skip("%s: could not allocate %zd bytes for environment variable value, "
+				"errno = %d (%s), skipping stressor\n",
 				args->name, arg_max,
 				errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
