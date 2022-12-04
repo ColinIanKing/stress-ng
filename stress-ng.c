@@ -1152,6 +1152,8 @@ static const struct option long_options[] = {
 	{ "wcs",		1,	0,	OPT_wcs},
 	{ "wcs-method",		1,	0,	OPT_wcs_method },
 	{ "wcs-ops",		1,	0,	OPT_wcs_ops },
+	{ "x86cpuid",		1,	0,	OPT_x86cpuid },
+	{ "x86cpuid-ops",	1,	0,	OPT_x86cpuid_ops },
 	{ "x86syscall",		1,	0,	OPT_x86syscall },
 	{ "x86syscall-func",	1,	0,	OPT_x86syscall_func },
 	{ "x86syscall-ops",	1,	0,	OPT_x86syscall_ops },

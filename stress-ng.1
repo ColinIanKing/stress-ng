@@ -1070,9 +1070,6 @@ T}
 correlate	T{
 perform a 8192 \(mu 512 correlation of random doubles
 T}
-cpuid	T{
-fetch cpu specific information using the cpuid instruction (x86 only)
-T}
 crc16	T{
 compute 1024 rounds of CCITT CRC16 on random data
 T}
@@ -5884,6 +5881,13 @@ The 'all' method is the default and will exercise all the string methods.
 .TP
 .B \-\-wcs-ops N
 stop after N bogo wide character string operations.
+.TP
+.B \-\-x86cpuid N
+start N workers that exercise the x86 cpuid instruction with 18 different leaf
+types.
+.TP
+.B \-\-x86cpuid\-ops N
+stop after N iterations that exercise the different cpuid leaf types.
 .TP
 .B \-\-x86syscall N
 start N workers that repeatedly exercise the x86-64 syscall instruction to

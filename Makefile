@@ -430,6 +430,7 @@ STRESS_SRC = \
 	stress-wait.c \
 	stress-watchdog.c \
 	stress-wcs.c \
+	stress-x86cpuid.c \
 	stress-x86syscall.c \
 	stress-xattr.c \
 	stress-yield.c \

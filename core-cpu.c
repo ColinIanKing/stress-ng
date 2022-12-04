@@ -166,32 +166,6 @@
 #define CPUID_syscall_EDX	(1U << 11)	/* EAX=0x80000001  -> EDX */
 
 /*
- *  stress_x86_cpuid()
- *	cpuid for x86
- */
-void stress_x86_cpuid(
-	uint32_t *eax,
-	uint32_t *ebx,
-	uint32_t *ecx,
-	uint32_t *edx)
-{
-#if defined(STRESS_ARCH_X86)
-        __asm__ __volatile__("cpuid"
-            : "=a" (*eax),
-              "=b" (*ebx),
-              "=c" (*ecx),
-              "=d" (*edx)
-            : "0" (*eax), "2" (*ecx)
-            : "memory");
-#else
-	*eax = 0;
-	*ebx = 0;
-	*ecx = 0;
-	*edx = 0;
-#endif
-}
-
-/*
  *  stress_cpu_is_x86()
  *	Intel x86 test
  */

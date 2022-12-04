@@ -21,7 +21,32 @@
 
 /* Always included after stress-ng.h is included */
 
-extern void stress_x86_cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
+/*
+ *  stress_x86_cpuid()
+ *	cpuid for x86
+ */
+static inline void stress_x86_cpuid(
+	uint32_t *eax,
+	uint32_t *ebx,
+	uint32_t *ecx,
+	uint32_t *edx)
+{
+#if defined(STRESS_ARCH_X86)
+        __asm__ __volatile__("cpuid"
+            : "=a" (*eax),
+              "=b" (*ebx),
+              "=c" (*ecx),
+              "=d" (*edx)
+            : "0" (*eax), "2" (*ecx)
+            : "memory");
+#else
+	*eax = 0;
+	*ebx = 0;
+	*ecx = 0;
+	*edx = 0;
+#endif
+}
+
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);

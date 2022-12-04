@@ -315,6 +315,7 @@
 	MACRO(wait)		\
 	MACRO(watchdog)		\
 	MACRO(wcs)		\
+	MACRO(x86cpuid)		\
 	MACRO(x86syscall)	\
 	MACRO(xattr)		\
 	MACRO(yield)		\

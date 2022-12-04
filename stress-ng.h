@@ -2200,6 +2200,9 @@ typedef enum {
 	OPT_wcs_ops,
 	OPT_wcs_method,
 
+	OPT_x86cpuid,
+	OPT_x86cpuid_ops,
+
 	OPT_x86syscall,
 	OPT_x86syscall_ops,
 	OPT_x86syscall_func,
