@@ -233,6 +233,8 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 		for (i = 0; i < n; i++) {
 			tz_info = tz_infos[i];
+			total = 0;
+			count = 0;
 
 			for (j = 0; j < ss->started_instances; j++) {
 				const uint64_t temp =
