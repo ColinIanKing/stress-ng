@@ -5100,6 +5100,20 @@ static int syscall_request_key(void)
 }
 #endif
 
+#if defined(HAVE_SYSCALL) &&		\
+    defined(__NR_restart_syscall)
+#define HAVE_SYSCALL_RESTART_SYSCALL
+static int syscall_restart_syscall(void)
+{
+	int ret;
+
+	t1 = syscall_time_now();
+	ret = syscall(__NR_restart_syscall);
+	t2 = syscall_time_now();
+	return ret;
+}
+#endif
+
 #define HAVE_SYSCALL_RMDIR
 static int syscall_rmdir(void)
 {
@@ -7868,6 +7882,9 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_REQUEST_KEY)
 	SYSCALL(syscall_request_key),
+#endif
+#if defined(HAVE_SYSCALL_RESTART_SYSCALL)
+	SYSCALL(syscall_restart_syscall),
 #endif
 #if defined(HAVE_SYSCALL_RMDIR)
 	SYSCALL(syscall_rmdir),
