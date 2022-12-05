@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+#define NOP_LOOPS	(1024)
+
 static const stress_help_t help[] = {
 	{ NULL,	"nop N",		"start N workers that burn cycles with no-ops" },
 	{ NULL, "nop-instr INSTR",	"specify nop instruction to use" },
@@ -33,7 +35,8 @@ static sigjmp_buf jmpbuf;
 
 typedef struct {
 	const char *name;
-	void (*func)(const stress_args_t *args, const bool flag);
+	void (*func)(const stress_args_t *args, const bool flag,
+		     double *duratio, double *count);
 	bool ignore;
 } stress_nop_instr_t;
 
@@ -44,19 +47,27 @@ static stress_nop_instr_t *current_instr = NULL;
 #define OPx16(op)	OPx4(op) OPx4(op) OPx4(op) OPx4(op)
 #define OPx64(op)	do { OPx16(op) OPx16(op) OPx16(op) OPx16(op) } while (0)
 
-#define STRESS_NOP_SPIN_OP(name, op)		\
-static void stress_nop_spin_ ## name(		\
-	const stress_args_t *args,		\
-	const bool flag)			\
-{						\
-	do {					\
-		register int i = 1024;		\
-						\
-		while (i--)			\
-			OPx64(op); 		\
-						\
-		inc_counter(args);		\
-	} while (flag && keep_stressing(args));	\
+#define STRESS_NOP_SPIN_OP(name, op)				\
+static void stress_nop_spin_ ## name(				\
+	const stress_args_t *args,				\
+	const bool flag,					\
+	double *duration,					\
+	double *count)						\
+{								\
+	do {							\
+		register int j = 64;				\
+		while (j--) {					\
+			register int i = NOP_LOOPS;		\
+			double t = stress_time_now();		\
+								\
+			while (i--)				\
+				OPx64(op); 			\
+			(*duration) += stress_time_now() - t;	\
+			(*count) += (double)(64 * NOP_LOOPS);	\
+								\
+			inc_counter(args);			\
+		}						\
+	} while (flag && keep_stressing(args));			\
 }
 
 static inline void stress_op_nop(void)
@@ -84,7 +95,7 @@ STRESS_NOP_SPIN_OP(x86_pause, stress_op_x86_pause)
 #endif
 
 #if defined(HAVE_ASM_X86_TPAUSE)
-static void x86_tpause(uint32_t ecx, uint32_t delay)
+static inline void x86_tpause(uint32_t ecx, uint32_t delay)
 {
 	uint32_t lo, hi;
 	uint64_t val;
@@ -96,7 +107,7 @@ static void x86_tpause(uint32_t ecx, uint32_t delay)
 	__asm__ __volatile__("tpause %%ecx\n" :: "c"(ecx), "d"(hi), "a"(lo));
 }
 
-static void stress_op_x86_tpause(void)
+static inline void stress_op_x86_tpause(void)
 {
 	x86_tpause(0, 5000);
 	x86_tpause(1, 5000);
@@ -165,6 +176,26 @@ static inline void stress_op_x86_nop11(void)
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
+static inline void stress_op_x86_nop12(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop13(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop14(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop15(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
 STRESS_NOP_SPIN_OP(x86_nop2, stress_op_x86_nop2)
 STRESS_NOP_SPIN_OP(x86_nop3, stress_op_x86_nop3)
 STRESS_NOP_SPIN_OP(x86_nop4, stress_op_x86_nop4)
@@ -175,6 +206,10 @@ STRESS_NOP_SPIN_OP(x86_nop8, stress_op_x86_nop8)
 STRESS_NOP_SPIN_OP(x86_nop9, stress_op_x86_nop9)
 STRESS_NOP_SPIN_OP(x86_nop10, stress_op_x86_nop10)
 STRESS_NOP_SPIN_OP(x86_nop11, stress_op_x86_nop11)
+STRESS_NOP_SPIN_OP(x86_nop12, stress_op_x86_nop12)
+STRESS_NOP_SPIN_OP(x86_nop13, stress_op_x86_nop13)
+STRESS_NOP_SPIN_OP(x86_nop14, stress_op_x86_nop14)
+STRESS_NOP_SPIN_OP(x86_nop15, stress_op_x86_nop15)
 #endif
 
 #if defined(STRESS_ARCH_PPC64)
@@ -207,7 +242,8 @@ static inline void stress_op_s390_nopr(void)
 STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
 #endif
 
-static void stress_nop_random(const stress_args_t *args, const bool flag);
+static void stress_nop_random(const stress_args_t *args, const bool flag,
+			      double *duration, double *count);
 
 static stress_nop_instr_t nop_instr[] = {
 	{ "nop",	stress_nop_spin_nop,		false },
@@ -222,6 +258,10 @@ static stress_nop_instr_t nop_instr[] = {
 	{ "nop9",	stress_nop_spin_x86_nop9,	false },
 	{ "nop10",	stress_nop_spin_x86_nop10,	false },
 	{ "nop11",	stress_nop_spin_x86_nop11,	false },
+	{ "nop12",	stress_nop_spin_x86_nop12,	false },
+	{ "nop13",	stress_nop_spin_x86_nop13,	false },
+	{ "nop14",	stress_nop_spin_x86_nop14,	false },
+	{ "nop15",	stress_nop_spin_x86_nop15,	false },
 #endif
 #if defined(STRESS_ARCH_S390)
 	{ "nopr",	stress_nop_spin_s390_nopr,	false },
@@ -247,15 +287,21 @@ static stress_nop_instr_t nop_instr[] = {
 static inline void stress_nop_callfunc(
 	const stress_nop_instr_t *instr,
 	const stress_args_t *args,
-	const bool flag)
+	const bool flag,
+	double *duration,
+	double *count)
 {
 	if (UNLIKELY(instr->ignore))
-		stress_nop_spin_nop(args, flag);
+		stress_nop_spin_nop(args, flag, duration, count);
 	else
-		instr->func(args, flag);
+		instr->func(args, flag, duration, count);
 }
 
-static void stress_nop_random(const stress_args_t *args, const bool flag)
+static void stress_nop_random(
+	const stress_args_t *args,
+	const bool flag,
+	double *duration,
+	double *count)
 {
 	(void)flag;
 
@@ -264,7 +310,7 @@ static void stress_nop_random(const stress_args_t *args, const bool flag)
 
 		current_instr = &nop_instr[n];
 		if (!current_instr->ignore)
-			stress_nop_callfunc(current_instr, args, false);
+			stress_nop_callfunc(current_instr, args, false, duration, count);
 	} while (keep_stressing(args));
 }
 
@@ -306,6 +352,7 @@ static int stress_nop(const stress_args_t *args)
 {
 	stress_nop_instr_t *instr = &nop_instr[0];
 	bool do_random;
+	double duration = 0.0, count = 0.0, rate;
 
 	(void)stress_get_setting("nop-instr", &instr);
 
@@ -332,8 +379,11 @@ static int stress_nop(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	current_instr = instr;
-	stress_nop_callfunc(instr, args, true);
+	stress_nop_callfunc(instr, args, true, &duration, &count);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (count > 0.0) ? (duration / count) : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "picosecs per nop instruction", 1000000000000.0 * rate);
 
 	return EXIT_SUCCESS;
 }
