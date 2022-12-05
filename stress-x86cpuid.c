@@ -174,49 +174,49 @@ static int stress_x86cpuid(const stress_args_t *args)
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get TLB configuration descriptors */ 
+		/* get TLB configuration descriptors */
 		eax = 0x80000019;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get performance optimization identifiers */ 
+		/* get performance optimization identifiers */
 		eax = 0x8000001a;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get IBS information */ 
+		/* get IBS information */
 		eax = 0x8000001a;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get LWP information */ 
+		/* get LWP information */
 		eax = 0x8000001c;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get cache configuration descriptors */ 
+		/* get cache configuration descriptors */
 		eax = 0x8000001d;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get APIC/unit/node information */ 
+		/* get APIC/unit/node information */
 		eax = 0x8000001e;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
-		/* get SME/SEV information */ 
+		/* get SME/SEV information */
 		eax = 0x8000001f;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
