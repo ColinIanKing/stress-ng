@@ -35,6 +35,73 @@ static const stress_help_t help[] = {
 #define STRESS_CACHE_LINE_SIZE	(1 << STRESS_CACHE_LINE_SHIFT)
 
 /*
+ *  stress_tlb_shootdown_read_mem()
+ *	read from every cache line in mem
+ */
+static inline void stress_tlb_shootdown_read_mem(const uint8_t *mem, const size_t size, const size_t page_size)
+{
+	const volatile uint8_t *vmem;
+
+	for (vmem = mem; vmem < mem + size; vmem += page_size) {
+		register size_t m;
+
+		for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
+			(void)vmem[m];
+	}
+}
+
+/*
+ *  stress_tlb_shootdown_read_mem()
+ *	write to every cache line in mem
+ */
+static inline void stress_tlb_shootdown_write_mem(uint8_t *mem, const size_t size, const size_t page_size)
+{
+	volatile uint8_t *vmem;
+	uint8_t rnd8 = stress_mwc8();
+
+	for (vmem = mem; vmem < mem + size; vmem += page_size) {
+		register size_t m;
+
+		for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
+			vmem[m] = m + rnd8;
+	}
+}
+
+/*
+ *  stress_tlb_shootdown_read_mem()
+ *	mmap with retries
+ */
+static void *stress_tlb_shootdown_mmap(
+	const stress_args_t *args,
+	void *addr,
+	size_t length,
+	int prot,
+	int flags,
+	int fd,
+	off_t offset)
+{
+	int retry = 128;
+	void *mem;
+
+	do {
+		mem = mmap(addr, length, prot, flags, fd, offset);
+		if ((void *)mem != MAP_FAILED)
+			return mem;
+		if ((errno == EAGAIN) ||
+		    (errno == ENOMEM) ||
+		    (errno == ENFILE)) {
+			retry--;
+		} else {
+			break;
+		}
+	} while (retry > 0);
+
+	pr_inf_skip("%s: mmap failed, errno=%d (%s), skipping stressor\n",
+		args->name, errno, strerror(errno));
+	return mem;
+}
+
+/*
  *  stress_tlb_shootdown()
  *	stress out TLB shootdowns
  */
@@ -47,35 +114,60 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 	pid_t pids[MAX_TLB_PROCS];
 	const pid_t pid = getpid();
 	cpu_set_t proc_mask_initial;
-	int retry = 128;
+	int rc = EXIT_SUCCESS;
 	cpu_set_t proc_mask;
 	int32_t tlb_procs, i;
 	uint8_t *mem;
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
+	int fd, ret;
+	uint8_t *memfd;
+	const size_t mmapfd_size = page_size * 4;
+	char filename[PATH_MAX];
+#endif
 
-	for (;;) {
-		mem = mmap(NULL, mmap_size, PROT_WRITE | PROT_READ,
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return stress_exit_status(-ret);
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), stress_mwc32());
+	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		ret = stress_exit_status(errno);
+		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		return ret;
+	}
+	(void)shim_unlink(filename);
+	if (ftruncate(fd, mmapfd_size) < 0) {
+		pr_fail("%s: ftruncate to %zu bytes on %s failed, errno=%d (%s)\n",
+			args->name, mmapfd_size, filename, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto err_close;
+	}
+	memfd = stress_tlb_shootdown_mmap(args, NULL, mmapfd_size,
+			PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
+	if ((void *)memfd == MAP_FAILED) {
+		rc = EXIT_NO_RESOURCE;
+		goto err_close;
+	}
+#endif
+
+	mem = stress_tlb_shootdown_mmap(args, NULL, mmap_size,
+			PROT_WRITE | PROT_READ,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-		if ((void *)mem == MAP_FAILED) {
-			if ((errno == EAGAIN) ||
-			    (errno == ENOMEM) ||
-			    (errno == ENFILE)) {
-				if (--retry < 0)
-					return EXIT_NO_RESOURCE;
-			} else {
-				pr_fail("%s: mmap failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				return EXIT_NO_RESOURCE;
-			}
-		} else {
-			break;
-		}
+	if ((void *)mem == MAP_FAILED) {
+		rc = EXIT_NO_RESOURCE;
+		goto err_munmap_memfd;
 	}
 	(void)memset(mem, 0xff, mmap_size);
 
 	if (sched_getaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial) < 0) {
 		pr_fail("%s: sched_getaffinity could not get CPU affinity, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err_munmap_mem;
 	}
 
 	tlb_procs = max_cpus;
@@ -126,22 +218,14 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 			do {
 				size_t l;
 				size_t k = stress_mwc32() & mem_mask;
+				uint8_t rnd8 = stress_mwc8();
 				volatile uint8_t *vmem;
 
 				(void)mprotect(mem, mmap_size, PROT_READ);
-				for (vmem = mem; vmem < mem + mmap_size; vmem += page_size) {
-					size_t m;
+				stress_tlb_shootdown_read_mem(mem, mmap_size, page_size);
 
-					for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
-						(void)vmem[m];
-				}
 				(void)mprotect(mem, mmap_size, PROT_WRITE);
-				for (vmem = mem; vmem < mem + mmap_size; vmem += page_size) {
-					size_t m;
-
-					for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
-						vmem[m] = m;
-				}
+				stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
 
 				vmem = mem;
 				(void)mprotect(mem, mmap_size, PROT_READ);
@@ -151,7 +235,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 				}
 				(void)mprotect(mem, mmap_size, PROT_WRITE);
 				for (l = 0; l < cache_lines; l++) {
-					vmem[k] = (uint8_t)k;
+					vmem[k] = (uint8_t)(k + rnd8);
 					k = (k + stride) & mem_mask;
 				}
 				inc_counter(args);
@@ -162,8 +246,27 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		}
 	}
 
+	do {
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
+		(void)madvise(memfd, mmapfd_size, MADV_DONTNEED);
+		stress_tlb_shootdown_write_mem(memfd, mmapfd_size, page_size);
+
+		(void)madvise(memfd, mmapfd_size, MADV_DONTNEED);
+		stress_tlb_shootdown_read_mem(memfd, mmapfd_size, page_size);
+#endif
+
+		(void)madvise(mem, mmap_size, MADV_DONTNEED);
+		stress_tlb_shootdown_read_mem(mem, mmap_size, page_size);
+
+		(void)madvise(mem, mmap_size, MADV_DONTNEED);
+		stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
+
+		inc_counter(args);
+	} while(keep_stressing(args));
+
 	for (i = 0; i < tlb_procs; i++) {
-		int status, ret;
+		int status;
 
 		if (pids[i] == -1)
 			continue;
@@ -189,11 +292,20 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		}
 	}
 
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+err_munmap_mem:
 	(void)munmap(mem, mmap_size);
+err_munmap_memfd:
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
+	(void)munmap(memfd, mmapfd_size);
+err_close:
+	(void)close(fd);
+#endif
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_tlb_shootdown_info = {
