@@ -32,6 +32,7 @@ static const stress_help_t help[] = {
  *  stress_x86cpuid()
  *	get CPU id info, x86 only
  *	see https://en.wikipedia.org/wiki/CPUID
+ *	and https://www.sandpile.org/x86/cpuid.htm
  */
 static int stress_x86cpuid(const stress_args_t *args)
 {
@@ -166,8 +167,64 @@ static int stress_x86cpuid(const stress_args_t *args)
 		edx = 0; /* Not required */
 		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
+		/* get SVM information */
+		eax = 0x8000000a;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get TLB configuration descriptors */ 
+		eax = 0x80000019;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get performance optimization identifiers */ 
+		eax = 0x8000001a;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get IBS information */ 
+		eax = 0x8000001a;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get LWP information */ 
+		eax = 0x8000001c;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get cache configuration descriptors */ 
+		eax = 0x8000001d;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get APIC/unit/node information */ 
+		eax = 0x8000001e;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+		/* get SME/SEV information */ 
+		eax = 0x8000001f;
+		ebx = 0; /* Not required */
+		ecx = 0; /* Not required */
+		edx = 0; /* Not required */
+		stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
 		duration += stress_time_now() - t;
-		count += 18.0;
+		count += 26.0;
 
 		inc_counter(args);
 	} while (keep_stressing(args));
