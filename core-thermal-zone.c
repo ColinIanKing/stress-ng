@@ -209,10 +209,9 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		stress_tz_info_t *tz_info;
 		int32_t  j;
 		size_t i, n;
-		uint64_t total = 0;
-		uint32_t count = 0;
 		bool dumped_heading = false;
 		stress_tz_info_t **tz_infos;
+		bool print_nl = false;
 
 		/* Find how many items in list */
 		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
@@ -232,9 +231,10 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		qsort(tz_infos, n, sizeof(*tz_infos), stress_tz_compare);
 
 		for (i = 0; i < n; i++) {
+			uint64_t total = 0;
+			uint32_t count = 0;
+
 			tz_info = tz_infos[i];
-			total = 0;
-			count = 0;
 
 			for (j = 0; j < ss->started_instances; j++) {
 				const uint64_t temp =
@@ -247,7 +247,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			}
 
 			if (total) {
-				const double temp = ((double)total / count) / 1000.0;
+				const double temp = (count > 0) ? ((double)total / count) / 1000.0 : 0.0;
 				char *munged = stress_munge_underscore(ss->stressor->name);
 
 				if (!dumped_heading) {
@@ -273,9 +273,10 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 						temp);
 				}
 				no_tz_stats = false;
+				print_nl = true;
 			}
 		}
-		if (total)
+		if (print_nl)
 			pr_yaml(yaml, "\n");
 
 		free(tz_infos);
