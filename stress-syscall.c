@@ -586,9 +586,10 @@ static int syscall_socket_measure(const int measure)
 	struct msghdr msg;
 #if defined(HAVE_RECVMMSG) || 	\
     defined(HAVE_SENDMMSG)
-		struct mmsghdr msgvec[1];
+	struct mmsghdr msgvec[1];
 #endif
 
+	(void)memset(buffer, 0, sizeof(buffer));
 	(void)memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	snprintf(addr.sun_path, sizeof(addr.sun_path), "/tmp/stress-ng-client-%" PRIdMAX, (intmax_t)getpid());
@@ -1063,6 +1064,7 @@ static int syscall_clock_adjtime(void)
 	int ret;
 	const int clock = clocks[i];
 
+	(void)memset(&t, 0, sizeof(t));
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
