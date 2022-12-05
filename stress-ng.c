@@ -1809,7 +1809,6 @@ static void stress_clean_dir_files(
 
 		(void)snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
 		name_len = strlen(ptr);
-		free(names[n]);
 
 #if defined(DT_DIR) &&	\
     defined(DT_LNK) &&	\
@@ -1817,6 +1816,7 @@ static void stress_clean_dir_files(
 		/* Modern fast d_type method */
 		switch (names[n]->d_type) {
 		case DT_DIR:
+			free(names[n]);
 #if defined(O_DIRECTORY)
 			stress_unset_inode_flags(temp_path, O_DIRECTORY);
 #endif
@@ -1825,14 +1825,17 @@ static void stress_clean_dir_files(
 			break;
 		case DT_LNK:
 		case DT_REG:
+			free(names[n]);
 			stress_unset_inode_flags(temp_path, 0);
 			(void)shim_unlink(path);
 			break;
 		default:
+			free(names[n]);
 			break;
 		}
 #else
 		/* Slower stat method */
+		free(names[n]);
 		ret = stat(path, &statbuf);
 		if (ret < 0)
 			continue;
@@ -1869,7 +1872,6 @@ static void stress_clean_dir(
 	char path[PATH_MAX];
 	const char *temp_path = stress_get_temp_path();
 	const size_t temp_path_len = strlen(temp_path);
-
 
 	(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
 	if (access(path, F_OK) == 0) {
