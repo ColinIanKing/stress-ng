@@ -186,6 +186,15 @@ redo:
 		}
 #endif
 
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_PAGEOUT)
+		if (madvise((void *)ptr, page_size, MADV_PAGEOUT) == 0) {
+			t = stress_time_now();
+			*ptr = 0;	/* Cause the page fault */
+			duration += stress_time_now() - t;
+			count += 1.0;
+		}
+#endif
 		if (munmap((void *)ptr, page_size) < 0) {
 			pr_err("%s: munmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
