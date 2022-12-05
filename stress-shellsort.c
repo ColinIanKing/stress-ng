@@ -176,7 +176,7 @@ static int stress_shellsort(const stress_args_t *args)
 		} else {
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr > *(ptr+1)) {
+					if (*ptr > *(ptr + 1)) {
 						pr_fail("%s: sort error "
 							"detected, incorrect ordering "
 							"found\n", args->name);
@@ -195,7 +195,7 @@ static int stress_shellsort(const stress_args_t *args)
 		} else {
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr < *(ptr+1)) {
+					if (*ptr < *(ptr + 1)) {
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
@@ -219,7 +219,7 @@ static int stress_shellsort(const stress_args_t *args)
 		} else {
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr < *(ptr+1)) {
+					if (*ptr < *(ptr + 1)) {
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);

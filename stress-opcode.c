@@ -51,8 +51,8 @@ static const stress_help_t help[] = {
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 
 #define ALLOW_SYSCALL(syscall)					\
-	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##syscall, 0, 1), 	\
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+	BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, __NR_##syscall, 0, 1), 	\
+	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
 
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
@@ -103,11 +103,11 @@ static const int sigs[] = {
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(SECCOMP_SET_MODE_FILTER)
 static struct sock_filter filter[] = {
-	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+	BPF_STMT(BPF_LD + BPF_W + BPF_ABS, SYSCALL_NR),
 #if defined(__NR_exit_group)
 	ALLOW_SYSCALL(exit_group),
 #endif
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRAP)
+	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRAP)
 };
 
 static struct sock_fprog prog = {

@@ -125,14 +125,14 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			if (!keep_stressing(args))
 				goto finish;
 
-			for (i = 0; i < n; i+= stride, u8ptr += stride) {
+			for (i = 0; i < n; i += stride, u8ptr += stride) {
 				if (!keep_stressing(args))
 					goto finish;
 				*u8ptr = (uint8_t)i;
 			}
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				for (i = 0; i < n; i+= stride, tmp += stride) {
+				for (i = 0; i < n; i += stride, tmp += stride) {
 					if (!keep_stressing(args))
 						goto finish;
 					if (*tmp != (uint8_t)i)

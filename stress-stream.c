@@ -502,7 +502,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index0_nt(
 {
 	register uint64_t i;
 
-	for (i = 0; i < n; i+= 4) {
+	for (i = 0; i < n; i += 4) {
 		NT_STORE(a[i + 0], b[i + 0] + (c[i + 0] * q));
 		NT_STORE(a[i + 1], b[i + 1] + (c[i + 1] * q));
 		NT_STORE(a[i + 2], b[i + 2] + (c[i + 2] * q));

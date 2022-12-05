@@ -229,7 +229,7 @@ retry:
 	 */
 	for (i = 0; i < randlist_items; i++) {
 		ptr = ptrs[i];
-		ptr->next = (i == randlist_items - 1) ? NULL : ptrs[i+1];
+		ptr->next = (i == randlist_items - 1) ? NULL : ptrs[i + 1];
 	}
 
 	head = ptrs[0];

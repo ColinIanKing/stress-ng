@@ -1648,7 +1648,7 @@ static inline HOT OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
 
 	dsqrt = shim_sqrt(n);
 	max = (uint32_t)dsqrt + 1;
-	for (i = 5; i < max; i+= 6)
+	for (i = 5; i < max; i += 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
 			return 0;
 	return 1;

@@ -875,7 +875,7 @@ next:
 
 				shim_strlcpy(ptr, mask_flag_info[j].name, buf_len);
 				buf_len -= len;
-				ptr+= len;
+				ptr += len;
 			}
 		}
 		*ptr = '\0';

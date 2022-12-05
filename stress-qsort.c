@@ -113,7 +113,7 @@ static int stress_qsort(const stress_args_t *args)
 		qsort(data, n, sizeof(*data), stress_sort_cmp_int32);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr > *(ptr+1)) {
+				if (*ptr > *(ptr + 1)) {
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
@@ -128,7 +128,7 @@ static int stress_qsort(const stress_args_t *args)
 		qsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr+1)) {
+				if (*ptr < *(ptr + 1)) {
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
@@ -145,7 +145,7 @@ static int stress_qsort(const stress_args_t *args)
 		qsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr+1)) {
+				if (*ptr < *(ptr + 1)) {
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);

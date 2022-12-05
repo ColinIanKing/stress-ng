@@ -5373,7 +5373,7 @@ static int syscall_sched_yield(void)
 static int syscall_seccomp(void)
 {
 	static struct sock_filter filter_allow_all[] = {
-		BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+		BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
 	};
 
 	static struct sock_fprog prog_allow_all = {

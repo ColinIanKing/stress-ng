@@ -60,19 +60,19 @@ static const stress_help_t help[] = {
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 
 #define ALLOW_SYSCALL(syscall) \
-	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##syscall, 0, 1), \
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+	BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, __NR_##syscall, 0, 1), \
+	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
 
 #if defined(__NR_seccomp)
 static bool use_seccomp = true;
 #endif
 
 static struct sock_filter filter_allow_all[] = {
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
 };
 
 static struct sock_filter filter_allow_write[] = {
-	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+	BPF_STMT(BPF_LD + BPF_W + BPF_ABS, SYSCALL_NR),
 #if defined(__NR_open)
 	ALLOW_SYSCALL(open),
 #endif
@@ -91,11 +91,11 @@ static struct sock_filter filter_allow_write[] = {
 #if defined(__NR_set_robust_list)
 	ALLOW_SYSCALL(set_robust_list),
 #endif
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRAP)
+	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRAP)
 };
 
 static struct sock_filter filter[] = {
-	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+	BPF_STMT(BPF_LD + BPF_W + BPF_ABS, SYSCALL_NR),
 #if defined(__NR_open)
 	ALLOW_SYSCALL(open),
 #endif
@@ -111,7 +111,7 @@ static struct sock_filter filter[] = {
 #if defined(__NR_set_robust_list)
 	ALLOW_SYSCALL(set_robust_list),
 #endif
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRAP)
+	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRAP)
 };
 
 static struct sock_filter filter_random[64];
@@ -220,7 +220,7 @@ static void MLOCKED_TEXT NORETURN stress_sigsys(int signum)
 static int stress_seccomp_set_huge_filter(const stress_args_t *args)
 {
 	static struct sock_filter bpf_stmt =
-		BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW);
+		BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW);
 	struct sock_fprog huge_prog;
 	const size_t bits = sizeof(huge_prog.len) * 8 > 31 ? 31 : sizeof(huge_prog.len) * 8;
 	const size_t n_max = ((size_t)1 << bits) - 1;

@@ -404,8 +404,8 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(
 	(void)context;
 	(void)mem_size;
 
-	for (i = 0; !thread_terminate && (i < MATRIX_SIZE); i+= ((stress_mwc8() & 0xf) + 1)) {
-		for (j = 0; j < MATRIX_SIZE; j+= 16) {
+	for (i = 0; !thread_terminate && (i < MATRIX_SIZE); i += ((stress_mwc8() & 0xf) + 1)) {
+		for (j = 0; j < MATRIX_SIZE; j += 16) {
 			size_t i1 = (i * MATRIX_SIZE) + j;
 			size_t i2 = (j * MATRIX_SIZE) + i;
 			uint8_t tmp;
