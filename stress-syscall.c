@@ -8361,7 +8361,7 @@ static int cmp_test_duration(const void *p1, const void *p2)
 
 /*
  *  stress_syscall_rank_calls_by_sort()
- *	rank system calls in order of maxium test run duration
+ *	rank system calls in order of maximum test run duration
  *	(and NOT by system call run time). We want to get the fastest
  *	run times so we can max out the system call rate.
  */
@@ -8373,12 +8373,10 @@ static void stress_syscall_rank_calls_by_sort(const int percent)
 
 	for (max = 0, i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		sort_index[i] = i;
-		if (syscall_stats[i].succeed)
-			max++;
 	}
 
 	syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_test_duration);
-	max = (double)max * ((double)percent / 100.0);
+	max = (double)STRESS_SYSCALLS_MAX * ((double)percent / 100.0);
 	for (n = 0, i = 0; (n < max) && (i < STRESS_SYSCALLS_MAX); i++) {
 		syscall_stats_t *ss = &syscall_stats[sort_index[i]];
 
@@ -8446,10 +8444,9 @@ static void stress_syscall_rank_calls(const int syscall_method)
  *  stress_syscall_benchmark_calls()
  *	benchmark the system calls that are not marked to be ignored
  */
-static size_t stress_syscall_benchmark_calls(const stress_args_t *args)
+static void stress_syscall_benchmark_calls(const stress_args_t *args)
 {
-	register size_t i;
-	size_t n = 0;
+	size_t i;
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		int ret;
@@ -8489,11 +8486,9 @@ static size_t stress_syscall_benchmark_calls(const stress_args_t *args)
 			ss->total_duration += (double)d;
 			ss->succeed = true;
 			ss->count++;
-			n++;
 		}
 		inc_counter(args);
 	}
-	return n;
 }
 
 /*
@@ -8504,7 +8499,6 @@ static int stress_syscall(const stress_args_t *args)
 {
 	int ret, rc = EXIT_NO_RESOURCE;
 	size_t exercised = 0;
-	size_t available = 0;
 	size_t i;
 	int syscall_method = SYSCALL_METHOD_FAST75;
 	const uint32_t rnd_filenum = stress_mwc32();
@@ -8611,7 +8605,7 @@ static int stress_syscall(const stress_args_t *args)
 	 */
 	stress_syscall_reset_ignore();
 	stress_syscall_reset_index();
-	available = stress_syscall_benchmark_calls(args);
+	stress_syscall_benchmark_calls(args);
 	stress_syscall_rank_calls(syscall_method);
 
 	/*
@@ -8620,7 +8614,7 @@ static int stress_syscall(const stress_args_t *args)
  	 *  alarm() timer so we can't rely on this on some systems.
 	 */
 	do {
-		(void)stress_syscall_benchmark_calls(args);
+		stress_syscall_benchmark_calls(args);
 		stress_syscall_shuffle_calls();
 	} while (keep_stressing(args) && (stress_time_now() < time_end));
 
@@ -8634,9 +8628,9 @@ static int stress_syscall(const stress_args_t *args)
 	}
 
 	if (args->instance == 0) {
-		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest tests exercised\n",
-			args->name, available, exercised,
-			(double)exercised * 100.0 / (double)available);
+		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest non-failing tests exercised\n",
+			args->name, STRESS_SYSCALLS_MAX, exercised,
+			(double)exercised * 100.0 / (double)STRESS_SYSCALLS_MAX);
 		stress_syscall_report_syscall_top10(args);
 	}
 
