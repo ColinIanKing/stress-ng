@@ -345,7 +345,7 @@ static int stress_rdrand(const stress_args_t *args)
 #if defined(HAVE_SEED_CAPABILITY)
 		if (rdrand_seed) {
 			do {
-				for (i = 0; i < 4096; i++) {
+				for (i = 0; i < 64; i++) {
 					SEED64x32()
 					SEED64x32()
 					SEED64x32()
@@ -361,7 +361,7 @@ static int stress_rdrand(const stress_args_t *args)
 #endif
 		{
 			do {
-				for (i = 0; i < 4096; i++) {
+				for (i = 0; i < 64; i++) {
 					RAND64x32()
 					RAND64x32()
 					RAND64x32()
