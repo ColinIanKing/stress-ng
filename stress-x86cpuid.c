@@ -238,7 +238,7 @@ static int stress_x86cpuid(const stress_args_t *args)
 stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_x86cpuid,
 	.class = CLASS_CPU,
-	.verify = VERIFY_OPTIONAL,
+	.verify = VERIFY_NONE,
 	.help = help
 };
 #else
@@ -246,7 +246,7 @@ stressor_info_t stress_x86cpuid_info = {
 stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
-	.verify = VERIFY_OPTIONAL,
+	.verify = VERIFY_NONE,
 	.help = help,
 	.unimplemented_reason = "built without x86 cpuid instruction support"
 };
