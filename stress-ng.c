@@ -2974,7 +2974,7 @@ static void stress_log_system_info(void)
     defined(HAVE_SYSLOG_H)
 	struct utsname buf;
 
-	if (uname(&buf) == 0) {
+	if (uname(&buf) >= 0) {
 		shim_syslog(LOG_INFO, "system: '%s' %s %s %s %s\n",
 			buf.nodename,
 			buf.sysname,

@@ -1590,7 +1590,7 @@ void pr_runinfo(void)
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
-	if (uname(&uts) == 0) {
+	if (uname(&uts) >= 0) {
 		pr_dbg("system: %s %s %s %s %s\n",
 			uts.sysname, uts.nodename, uts.release,
 			uts.version, uts.machine);
@@ -1652,7 +1652,7 @@ void pr_yaml_runinfo(FILE *yaml)
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
-	if (uname(&uts) == 0) {
+	if (uname(&uts) >= 0) {
 		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
 		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
 		pr_yaml(yaml, "      release: %s\n", uts.release);
@@ -2244,7 +2244,7 @@ const char *stress_get_uname_info(void)
     defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
 
-	if (!uname(&buf)) {
+	if (uname(&buf) >= 0) {
 		static char str[sizeof(buf.machine) +
 	                        sizeof(buf.sysname) +
 				sizeof(buf.release) + 3];
@@ -2272,7 +2272,7 @@ int stress_unimplemented(const stress_args_t *args)
     defined(HAVE_SYS_UTSNAME_H)
 		struct utsname buf;
 
-		if (!uname(&buf)) {
+		if (uname(&buf) >= 0) {
 			if (args->info->unimplemented_reason) {
 				pr_inf_skip("%s: %s: %s %s (%s)\n",
 					args->name, msg, stress_get_uname_info(),

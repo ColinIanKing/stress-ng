@@ -633,7 +633,7 @@ static int stress_get(const stress_args_t *args)
 					uname_segv = true;
 				} else {
 					ret = uname(args->mapped->page_none);
-					if (ret == 0) {
+					if (ret >= 0) {
 						pr_fail("%s: uname unexpectedly succeeded with read only utsbuf, "
 							"expected -EFAULT, instead got errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
