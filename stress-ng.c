@@ -777,6 +777,8 @@ static const struct option long_options[] = {
 	{ "prefetch",		1,	0,	OPT_prefetch },
 	{ "prefetch-l3-size",	1,	0,	OPT_prefetch_l3_size },
 	{ "prefetch-ops",	1,	0,	OPT_prefetch_ops },
+	{ "priv-instr",		1,	0,	OPT_priv_instr },
+	{ "priv-instr-ops",	1,	0,	OPT_priv_instr_ops },
 	{ "procfs",		1,	0,	OPT_procfs },
 	{ "procfs-ops",		1,	0,	OPT_procfs_ops },
 	{ "pthread",		1,	0,	OPT_pthread },

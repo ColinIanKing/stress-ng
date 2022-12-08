@@ -1707,6 +1707,9 @@ typedef enum {
 	OPT_prctl,
 	OPT_prctl_ops,
 
+	OPT_priv_instr,
+	OPT_priv_instr_ops,
+
 	OPT_procfs,
 	OPT_procfs_ops,
 

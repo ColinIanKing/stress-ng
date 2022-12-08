@@ -198,6 +198,7 @@
 	MACRO(poll)		\
 	MACRO(prctl)		\
 	MACRO(prefetch)		\
+	MACRO(priv_instr)	\
 	MACRO(procfs)		\
 	MACRO(pthread)		\
 	MACRO(ptrace)		\

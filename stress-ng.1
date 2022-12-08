@@ -3770,6 +3770,15 @@ stop prefetch stressors after N benchmark operations
 .B \-\-prefetch-l3-size N
 specify the size of the l3 cache
 .TP
+.B \-\-priv\-instr N
+start N workers that exercise various architecture specific privileged
+instructions that cannot be executed by userspace programs. These
+instructions will be trapped and processed by SIGSEGV or SIGILL signal
+handlers.
+.TP
+.B \-\-priv\-instr\-ops N
+stop priv\-instr stressors after N rounds of executing privileged instructions.
+.TP
 .B \-\-procfs N
 start N workers that read files from /proc and recursively read files from
 /proc/self (Linux only).
