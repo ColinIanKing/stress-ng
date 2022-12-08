@@ -22,7 +22,7 @@
 #include "core-put.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"x86cpuid N",		"start N workers reading the x86 cpuid instruction" },
+	{ NULL,	"x86cpuid N",		"start N workers exercising the x86 cpuid instruction" },
 	{ NULL,	"x86cpuid-ops N",	"stop after N cpuid bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
