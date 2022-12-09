@@ -284,8 +284,7 @@ static int stress_far_branch(const stress_args_t *args)
 	size_t n = (bits - 16);
 	size_t n_pages = n * PAGE_MULTIPLES;
 	const size_t page_size = args->page_size;
-	const uintptr_t mask = ~((uintptr_t)page_size - 1);
-	uintptr_t base;
+	uintptr_t base = 0;
 	const size_t max_funcs = (n_pages * page_size) / ret_opcode.stride;
 	double t_start, duration, rate;
 	struct sigaction sa;
@@ -294,9 +293,6 @@ static int stress_far_branch(const stress_args_t *args)
 	NOCLOBBER void **pages = NULL;
 	NOCLOBBER size_t total_funcs = 0;
 	NOCLOBBER double calls = 0.0;
-
-	base = (uintptr_t)stress_far_branch & mask;
-	base = 0;
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
