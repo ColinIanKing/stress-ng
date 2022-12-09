@@ -163,6 +163,7 @@ static void stress_proc_self_mem(const stress_args_t *args, const int fd)
 {
 	uint8_t *page, *buf, rnd = stress_mwc8();
 	const size_t page_size = stress_get_page_size();
+	off_t offset;
 
 	buf = (uint8_t *)malloc(page_size);
 	if (!buf)
@@ -174,9 +175,10 @@ static void stress_proc_self_mem(const stress_args_t *args, const int fd)
 		free(buf);
 		return;
 	}
+	offset = (off_t)(uintptr_t)page;
 
 	(void)memset(page, rnd, page_size);
-	if (lseek(fd, (off_t)page, SEEK_SET) == (off_t)page) {
+	if (lseek(fd, offset, SEEK_SET) == offset) {
 		ssize_t ret;
 		size_t offset = stress_mwc32() % page_size;
 
