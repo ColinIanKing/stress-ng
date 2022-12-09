@@ -130,7 +130,7 @@ static op_info_t op_info[] =
 #endif
 
 #if defined(STRESS_ARCH_S390) &&	\
-    defined(HAVE_ASM_S390_PTLV)
+    defined(HAVE_ASM_S390_PTLB)
 #define HAVE_PRIV_INSTR
 static void stress_s390_ptlb(void)
 {
