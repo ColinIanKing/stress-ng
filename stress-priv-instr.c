@@ -36,6 +36,20 @@ typedef struct {
 	bool trapped;
 } op_info_t;
 
+#if defined(STRESS_ARCH_ARM) &&	\
+    defined(HAVE_ASM_ARM_TLBI)
+#define HAVE_PRIV_INSTR
+static void stress_arm_tlbi(void)
+{
+	__asm__ __volatile__("tlbi vmalle1is");
+}
+
+static op_info_t op_info[] =
+{
+	{ "tlbi",	stress_arm_tlbi,	false, false },
+};
+#endif
+
 #if defined(STRESS_ARCH_HPPA) &&	\
     (defined(HAVE_ASM_HPPA_DIAG) || 	\
      defined(HAVE_ASM_HPPA_RFI))
