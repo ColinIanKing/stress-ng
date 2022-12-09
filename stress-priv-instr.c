@@ -441,8 +441,10 @@ finish:
         stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Get an overestimated buffer length */
-	for (len = 0, i = 0; i < SIZEOF_ARRAY(op_info); i++)
-		len += strlen(op_info[i].instr) + 3;
+	for (len = 0, i = 0; i < SIZEOF_ARRAY(op_info); i++) {
+		if (!op_info[i].trapped)
+			len += strlen(op_info[i].instr) + 3;
+	}
 
 	if (len > 0) {
 		char *str;
