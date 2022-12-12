@@ -180,13 +180,13 @@ static void stress_proc_self_mem(const stress_args_t *args, const int fd)
 	(void)memset(page, rnd, page_size);
 	if (lseek(fd, offset, SEEK_SET) == offset) {
 		ssize_t ret;
-		size_t offset = stress_mwc32() % page_size;
+		size_t mem_offset = stress_mwc32() % page_size;
 
 		ret = read(fd, buf, page_size);
 		if ((ret == (ssize_t)page_size) &&
-		    (buf[offset] != page[offset])) {
+		    (buf[mem_offset] != page[mem_offset])) {
 			pr_inf("%s /proc/self/mem read/mmap failure at offset %p, mmap value 0x%2x vs read value 0x%2x\n",
-				args->name, page + offset, page[offset], buf[offset]);
+				args->name, page + mem_offset, page[mem_offset], buf[mem_offset]);
 		}
 	}
 
