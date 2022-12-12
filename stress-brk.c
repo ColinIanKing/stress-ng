@@ -139,7 +139,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 			i = 0;
 			/* remove a page from brk region */
 			if (unmap_ptr) {
-				(void)munmap(unmap_ptr, page_size);
+				(void)munmap((void *)unmap_ptr, page_size);
 				unmap_ptr = NULL;
 			}
 			continue;
