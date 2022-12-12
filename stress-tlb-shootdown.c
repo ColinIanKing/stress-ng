@@ -137,7 +137,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		ret = stress_exit_status(errno);
 		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		return ret;
+		rc = ret;
+		goto err_rmdir;
 	}
 	(void)shim_unlink(filename);
 	if (ftruncate(fd, mmapfd_size) < 0) {
@@ -303,8 +304,9 @@ err_munmap_memfd:
 	(void)munmap(memfd, mmapfd_size);
 err_close:
 	(void)close(fd);
+err_rmdir:
+	(void)stress_temp_dir_rm_args(args);
 #endif
-
 	return rc;
 }
 
