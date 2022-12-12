@@ -8373,7 +8373,7 @@ static void stress_syscall_rank_calls_by_sort(const int percent)
 
 	stress_syscall_reset_index();
 
-	for (max = 0, i = 0; i < STRESS_SYSCALLS_MAX; i++) {
+	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		sort_index[i] = i;
 	}
 
