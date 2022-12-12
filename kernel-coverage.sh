@@ -506,6 +506,8 @@ do_stress --sock -1 --sock-opts send --sock-zerocopy
 
 do_stress --stack -1 --stack-mlock
 do_stress --stack -1 --stack-fill
+do_stress --stack -1 --stack-pageout
+do_stress --stack -1 --stack-unmap
 
 do_stress --stream -1 --stream-madvise hugepage
 do_stress --stream -1 --stream-madvise nohugepage
