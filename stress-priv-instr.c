@@ -396,11 +396,14 @@ static inline void stress_sigsegv_handler(int signum)
 	siglongjmp(jmp_env, 1);
 }
 
+#if defined(SIGILL) ||	\
+    defined(SIGBUS)
 static void stress_sigill_handler(int signum)
 {
 	op_info[idx].invalid = true;
 	stress_sigsegv_handler(signum);
 }
+#endif
 
 /*
  *  stress_priv_instr()
@@ -422,8 +425,14 @@ static int stress_priv_instr(const stress_args_t *args)
 #endif
 	if (stress_sighandler(args->name, SIGSEGV, stress_sigsegv_handler, NULL))
 		return EXIT_NO_RESOURCE;
+#if defined(SIGILL)
 	if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL))
 		return EXIT_NO_RESOURCE;
+#endif
+#if defined(SIGBUS)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigill_handler, NULL))
+		return EXIT_NO_RESOURCE;
+#endif
 
 	for (i = 0; i < SIZEOF_ARRAY(op_info); i++) {
 		op_info[i].invalid = false;
