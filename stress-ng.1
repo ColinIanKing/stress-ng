@@ -4728,11 +4728,16 @@ which forces physical pages to be allocated and hence is more aggressive.
 attempt to mlock stack pages into memory prohibiting them from being
 paged out.  This is a no-op if mlock(2) is not available.
 .TP
+.B \-\-stack\-ops N
+stop stack stress workers after N bogo stack overflows.
+.TP
 .B \-\-stack\-pageout
 force stack pages out to swap (available when madvise(2) supports MADV_PAGEOUT).
 .TP
-.B \-\-stack\-ops N
-stop stack stress workers after N bogo stack overflows.
+.B \-\-stack\-unmap
+unmap a single page in the middle of a large buffer allocated on the stack on each
+stack allocation. This forces the stack mapping into multiple seperate
+allocation mappings.
 .TP
 .B \-\-stackmmap N
 start N workers that use a 2MB stack that is memory mapped onto a temporary

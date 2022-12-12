@@ -1997,6 +1997,7 @@ typedef enum {
 	OPT_stack_fill,
 	OPT_stack_mlock,
 	OPT_stack_pageout,
+	OPT_stack_unmap,
 
 	OPT_stackmmap,
 	OPT_stackmmap_ops,

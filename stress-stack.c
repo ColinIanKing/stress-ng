@@ -29,6 +29,7 @@ static const stress_help_t help[] = {
 	{ NULL, "stack-mlock",	"mlock stack, force pages to be unswappable" },
 	{ NULL,	"stack-ops N",	"stop after N bogo stack overflows" },
 	{ NULL, "stack-pageout","use madvise to try to swap out stack" },
+	{ NULL,	"stack-unmap",	"unmap a page in the stack on each iteration" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -47,10 +48,16 @@ static int stress_set_stack_pageout(const char *opt)
 	return stress_set_setting_true("stack-pageout", opt);
 }
 
+static int stress_set_stack_unmap(const char *opt)
+{
+	return stress_set_setting_true("stack-unmap", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_stack_fill,	stress_set_stack_fill },
 	{ OPT_stack_mlock,	stress_set_stack_mlock },
 	{ OPT_stack_pageout,	stress_set_stack_pageout },
+	{ OPT_stack_unmap,	stress_set_stack_unmap },
 	{ 0,			NULL }
 };
 
@@ -78,6 +85,7 @@ static void stress_stack_alloc(
 	const bool stack_fill,
 	bool stack_mlock,
 	const bool stack_pageout,
+	const bool stack_unmap,
 	ssize_t last_size)
 {
 
@@ -135,10 +143,20 @@ static void stress_stack_alloc(
 		(void)madvise((void *)ptr, sizeof(data), MADV_PAGEOUT);
 	}
 #endif
+
+	if (stack_unmap) {
+		const uintptr_t page_mask = ~(uintptr_t)(page_size - 1);
+		const uintptr_t unmap_ptr = ((uintptr_t)&data[0] + (sizeof(data) >> 1)) & page_mask;
+
+		(void)munmap((void *)unmap_ptr, page_size);
+	}
+
+	sleep(1);
+
 	inc_counter(args);
 
 	if (keep_stressing(args))
-		stress_stack_alloc(args, start, stack_fill, stack_mlock, stack_pageout, last_size);
+		stress_stack_alloc(args, start, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
 }
 
 static int stress_stack_child(const stress_args_t *args, void *context)
@@ -148,12 +166,14 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	bool stack_fill = false;
 	bool stack_mlock = false;
 	bool stack_pageout = false;
+	bool stack_unmap = false;
 
 	(void)context;
 
 	(void)stress_get_setting("stack-fill", &stack_fill);
 	(void)stress_get_setting("stack-mlock", &stack_mlock);
 	(void)stress_get_setting("stack-pageout", &stack_pageout);
+	(void)stress_get_setting("stack-unmap", &stack_unmap);
 
 #if !defined(MADV_PAGEOUT)
 	if (stack_pageout && (args->instance == 0)) {
@@ -238,7 +258,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 			char start;
 
 			/* Expand the stack and cause a fault */
-			stress_stack_alloc(args, &start, stack_fill, stack_mlock, stack_pageout, 0);
+			stress_stack_alloc(args, &start, stack_fill, stack_mlock, stack_pageout, stack_unmap, 0);
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
