@@ -77,7 +77,7 @@ static int stress_brk_supported(const char *name)
 
 static int stress_brk_child(const stress_args_t *args, void *context)
 {
-	uint8_t *start_ptr;
+	uint8_t *start_ptr, *unmap_ptr = NULL;
 	int i = 0;
 	const size_t page_size = args->page_size;
 	const brk_context_t *brk_context = (brk_context_t *)context;
@@ -103,6 +103,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 		uint8_t *ptr;
 		double t;
 
+
 		/* Low memory avoidance, re-start */
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
 			VOID_RET(int, shim_brk(start_ptr));
@@ -115,15 +116,16 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 			if (ptr != (void *)-1) {
 				sbrk_exp_duration += stress_time_now() - t;
 				sbrk_exp_count += 1.0;
+				if (!unmap_ptr)
+					unmap_ptr = ptr;
 			}
 		} else if (i < 9) {
 			/* brk to same brk position */
 			ptr = shim_sbrk(0);
 			if (shim_brk(ptr) < 0)
 				ptr = (void *)-1;
-		} else {
+		} else if (i < 10) {
 			/* Shrink brk by 1 page */
-			i = 0;
 			t = stress_time_now();
 			ptr = shim_sbrk(0);
 			if (ptr != (void *)-1) {
@@ -133,6 +135,14 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 			ptr -= page_size;
 			if (shim_brk(ptr) < 0)
 				ptr = (void *)-1;
+		} else {
+			i = 0;
+			/* remove a page from brk region */
+			if (unmap_ptr) {
+				(void)munmap(unmap_ptr, page_size);
+				unmap_ptr = NULL;
+			}
+			continue;
 		}
 
 		if (ptr == (void *)-1) {
