@@ -39,11 +39,17 @@ static const stress_help_t help[] = {
 
 #define J(n) L ## n:	RESEED_JMP
 
+#if defined(STRESS_ARCH_SH4)
+#define OPTIMIZE_HINT
+#else
+#define OPTIMIZE_HINT	OPTIMIZE3
+#endif
+
 /*
  *  stress_branch()
  *	stress instruction branch prediction
  */
-static int OPTIMIZE3 stress_branch(const stress_args_t *args)
+static int OPTIMIZE_HINT stress_branch(const stress_args_t *args)
 {
 	register uint32_t const a = 16843009;
 	register uint32_t const c = 826366247;
