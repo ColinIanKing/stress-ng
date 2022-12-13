@@ -1,3 +1,126 @@
+stress-ng (0.15.01-1) unstable; urgency=medium
+
+  [Davidson Francis]
+  * core-thermal-zone: fix the average temperature calculation
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * debian/control: update standards version to 4.6.1
+  * stress-tlb-shootdown: fix missing temporary directory removal
+  * stress-priv-instr: handle SIGBUS as SIGILL for FreeBSD
+  * stress-procfs: rename shadowed variable offset to mem_offset
+  * stress-brk: cast uint8_t ptr to void * for munmap
+  * stress-syscall: remove redundant initialization of variable max
+  * kernel-coverage: add two more stack stressor options
+  * stress-stack: add a new --stack-unmap option to unmap pages in stack
+  * stress-brk: regularly unmap pages in heap to create many heap mappings
+  * stress-pagemove: fix modulo of negative issue causing page check
+    failure
+  * stress-procfs: clean up off_t and ptr cast warnings
+  * stress-priv-instr: add support for aarch64
+  * stress-far-branch: set base to 0, remove mask
+  * stress-priv-instr: fix swapped size and fd args to mmap
+  * stress-priv-instruct: fix typo: HAVE_ASM_S390_PTLV -> HAVE_ASM_S390_PTLB
+  * stress-priv-instr: onlt log unhandled instructions info if any ops are
+    not trapped
+  * stress-priv-instr: add privileged instruction stressor
+  * stress-x86cpuid: fix short help message
+  * stress-*, core-*: Fix uname success check for Solaris/OpenHipster
+  * stress-x86cpuid: stressor does not verify, so set VERIFY_NONE
+  * stress-rdrand: reduce number of loops to avoid timeout overrun
+  * stress-x86cpuid: remove trailing spaces after comments
+  * stress-ng: free names[i] at first opportunity
+  * stress-syscall: clean up some valgrind uninitialized memory warnings
+  * stress-syscall: set threshold based on total available syscall tests
+  * stress-syscall: add restart_syscall system call
+  * stress-x86cpuid: add some more CPUID leaf types
+  * stress-nop: add some more x86 long nops, add metrics
+  * core-thermal-zone: move scope of total and count, add division by zero
+    check
+  * stress-*: add missing space between + operator
+  * Manual: update contributors
+  * stress-x86cpuid: replace ns with nanosecs in metrics
+  * stress-fault: double major faults using madvise PAGE_OUT where
+    possible
+  * stress-fault: triple minor page faults using MADV_DONTNEED where
+    available
+  * stress-tlb-shootdown: double TLB read/writes and misses
+  * stress-x86cpuid: more cpuid method for cpu stressor and make new
+    stressor
+  * stress-touch: add spacing between list of touch opts
+  * stress-softlockup: remove redundant fflush call
+  * stress-open: add open duration metrics
+  * stress-*: use pr_inf_skip for skipped stressor messages
+  * stress-nanosleep: add option --nanosleep-threads
+  * core-hash: align primes lookup table, slight improvement
+  * README.md: add another research paper citation
+  * stress-peterson: add note describing cache alignment optimization
+  * stress-dekker: add note describing cache alignment optimization
+  * stress-*: replace various empty signal handlers with
+    stress_sighandler_nop
+  * stress-page-swap: only define stress_pageswap_count_paged_out when
+    required
+  * stress-far-branch: move #endif to end of correct function
+  * stress-far-branch: only define stress_far_mmap_try32 if required
+  * stress-sysfs: add sys_skip_paths array for paths to skip reading
+  * stress-rdrand: remove metrics from debug, they are in the metrics
+    output
+  * stress-urandom: add random read rate metrics
+  * stress-remap: add remap page metrics
+  * stress-pageswap: add duration per page swapout metrics
+  * stress-mutex: add mutex locking rate metrics
+  * stress-mergesort: style: replace ptr+1 with ptr + 1
+  * stress-memhotplug: add metrics reporting for successful
+    offline/online operations
+  * stress-dekker: add cache friendly padding in mutex and counters
+  * stress-peterson: add cache friendly padding in mutex and counters
+  * stress-peterson: add mutex duration metrics
+  * stress-dekker: add mutex duration metrics
+  * stress-cpu-online: add offline/online duration metrics
+  * stress-munmap: use __builtin_clzl for faster log2(n) calculation
+  * stress-idle-page: fix comment description of stressor
+  * stress-far-branch: report that architecture may not be supported
+  * stress-far-branch: trim stride to minimum size, add ppc6le
+    implementation
+  * stress-dentry: remove empty tabbed line
+  * stress-fifo: add --fifo-data-size option to specify the data
+    read/write size
+  * stress-dup: add dup call duration metrics
+  * stress-dentry: add some dentry create/access/unlink metrics
+  * stress-brk: add sbrk page expand/shrink metrics
+  * stress-binderfs: add mount/umount duration metrics
+  * stress-bind-mount: add mount/umount duration metrics
+  * stress-sockpair: add metrics for socketpair call rate and write rates
+  * stress-sockpair: add potential sockpair sk leak test
+  * stress-vm: add a checkboard method
+  * stress-procfs: make helper function stress_proc_scandir static
+  * stress-stream: remove redundant casts
+  * stress-ng: move declaration of pointer munged
+  * stress_vm: replace stress_vm_popcount with stress_vm_count_bits8
+  * stress-cpu/vm: use builtin popcount where available
+  * stress-ng.h: make ALIGNED macro a no-op for Minix (wrong number of
+    segments error)
+  * stress-vm: fill memory from a 32 bit Galois linear feedback shift
+    register
+  * Manual: fix spelling mistake "iterively" -> "iteratively"
+  * stress-far-branch: re-work mmap handling for 32 bit and improved random
+    mmaps
+  * stress-sparsematrix: add a splay tree implementation to the mix
+  * stress-procfs: sanity check /proc/self/mem
+  * stress-mmap: attempt to name VMA using prctl
+  * workflows: unset env for Trivy upload
+  * workflows: set env for Trivy
+  * workflows: set correct name for env
+  * workflows: append env setting into $GITHUB_ENV
+  * workflows: add missing ) at end of expression
+  * workflows: fix IMAGE_REPOSITORY env setting
+  * stress-shm: move /dev/shm check to earlier in the setup phase
+  * stress-shm: skip stressor if /dev/shm is not mounted with tmpfs on
+    linux
+  * stress-sysfs: check for zero sysfs entries after pruning the directory
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 13 Dec 2022 09:26:11 +0100
+
 stress-ng (0.15.00-1) unstable; urgency=medium
 
   [Meysam Azad]
