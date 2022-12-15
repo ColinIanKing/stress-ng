@@ -51,7 +51,8 @@ static inline unsigned int stress_cache_get_cpu(const stress_cpus_t *cpus)
 	return (cpu >= cpus->count) ? 0 : cpu;
 }
 
-#if defined(__linux__)
+#if defined(__linux__) ||	\
+    defined(__APPLE__)
 /*
  * stress_get_string_from_file()
  * 	read data from file into a fixed size buffer
@@ -591,27 +592,6 @@ static int index_sort(const struct dirent **d1, const struct dirent **d2)
 }
 
 /*
- *  cpu_filter()
- *	return 1 when filename is cpu followed by a digit
- */
-static int cpu_filter(const struct dirent *d)
-{
-	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit(d->d_name[3]));
-}
-
-/*
- *  cpu_sort()
- *	sort by CPU number (digits 3 onwards)
- */
-static int cpusort(const struct dirent **d1, const struct dirent **d2)
-{
-	const int c1 = atoi(&(*d1)->d_name[3]);
-	const int c2 = atoi(&(*d2)->d_name[3]);
-
-	return c1 - c2;
-}
-
-/*
  *  stress_get_cpu_cache_index()
  *	find cache information as provided by cache info indexes
  *	in /sys/devices/system/cpu/cpu*
@@ -801,6 +781,28 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 #endif
 
 #if defined(__linux__)
+
+/*
+ *  cpu_filter()
+ *	return 1 when filename is cpu followed by a digit
+ */
+static int cpu_filter(const struct dirent *d)
+{
+	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit(d->d_name[3]));
+}
+
+/*
+ *  cpu_sort()
+ *	sort by CPU number (digits 3 onwards)
+ */
+static int cpu_sort(const struct dirent **d1, const struct dirent **d2)
+{
+	const int c1 = atoi(&(*d1)->d_name[3]);
+	const int c2 = atoi(&(*d2)->d_name[3]);
+
+	return c1 - c2;
+}
+
 /*
  * stress_get_all_cpu_cache_details()
  * Obtain information on all cpus caches on the system.
@@ -813,7 +815,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	stress_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
-	cpu_count = scandir(SYS_CPU_PREFIX, &namelist, cpu_filter, cpusort);
+	cpu_count = scandir(SYS_CPU_PREFIX, &namelist, cpu_filter, cpu_sort);
 	if (cpu_count < 1) {
 		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
 		goto out;
