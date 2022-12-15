@@ -60,6 +60,24 @@ static void stress_tz_type_fix(char *type)
 }
 
 /*
+ *  stress_tz_insert()
+ *	insert new_tz_info into tz_info_list ordered by the type name
+ */
+static void stress_tz_insert(stress_tz_info_t **tz_info_list, stress_tz_info_t *new_tz_info)
+{
+	stress_tz_info_t **tz_info = tz_info_list;
+
+	while (*tz_info) {
+		if (strcmp((*tz_info)->type, new_tz_info->type) > 0) {
+			new_tz_info->next = *tz_info;
+			break;
+		}
+		tz_info = &(*tz_info)->next;
+	}
+	*tz_info = new_tz_info;
+}
+
+/*
  *  stress_tz_init()
  *	gather all thermal zones
  */
@@ -67,16 +85,17 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 {
 	DIR *dir;
         struct dirent *entry;
-	size_t i = 0;
+	stress_tz_info_t *tz_info;
+	size_t i;
 
 	dir = opendir("/sys/class/thermal");
 	if (!dir)
 		return 0;
 
+	i = 0;
 	while ((entry = readdir(dir)) != NULL) {
 		char path[PATH_MAX];
 		FILE *fp;
-		stress_tz_info_t *tz_info;
 
 		/* Ignore non TZ interfaces */
 		if (strncmp(entry->d_name, "thermal_zone", 12))
@@ -119,9 +138,14 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 			(void)closedir(dir);
 			return -1;
 		}
-		tz_info->index = i++;
-		tz_info->next = *tz_info_list;
-		*tz_info_list = tz_info;
+
+		stress_tz_insert(tz_info_list, tz_info);
+		i++;
+	}
+
+	/* .. set index based on ordered position in list */
+	for (i = 0, tz_info = *tz_info_list; tz_info; tz_info = tz_info->next, i++) {
+		tz_info->index = i;
 	}
 
 	(void)closedir(dir);
