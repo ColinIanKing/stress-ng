@@ -26,29 +26,19 @@
 #include <sys/auxv.h>
 #endif
 
-#if defined(__linux__) ||	\
-    defined(__APPLE__)
-
 typedef struct {
 	const char	*name;			/* cache type name */
 	const stress_cache_type_t value;	/* cache type ID */
 } stress_generic_map_t;
 
 typedef enum {
-	CACHE_SIZE,
-	CACHE_LINE_SIZE,
-	CACHE_WAYS
+	STRESS_CACHE_SIZE,
+	STRESS_CACHE_LINE_SIZE,
+	STRESS_CACHE_WAYS
 } cache_size_type_t;
 
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
 #define SYS_CPU_CACHE_DIR            "cache"
-
-static const stress_generic_map_t cache_type_map[] = {
-	{ "data",		CACHE_TYPE_DATA },
-	{ "instruction",	CACHE_TYPE_INSTRUCTION },
-	{ "unified",		CACHE_TYPE_UNIFIED },
-	{  NULL,		CACHE_TYPE_UNKNOWN }
-};
 
 /*
  * stress_cache_get_cpu()
@@ -61,6 +51,7 @@ static inline unsigned int stress_cache_get_cpu(const stress_cpus_t *cpus)
 	return (cpu >= cpus->count) ? 0 : cpu;
 }
 
+#if defined(__linux__)
 /*
  * stress_get_string_from_file()
  * 	read data from file into a fixed size buffer
@@ -85,141 +76,7 @@ static int stress_get_string_from_file(
 
 	return 0;
 }
-
-/*
- * stress_size_to_bytes()
- * 	Convert human-readable integer sizes (such as "32K", "4M") into bytes.
- *
- * Supports:
- *
- * - bytes ('B').
- * - kibibytes ('K' - aka KiB).
- * - mebibytes ('M' - aka MiB).
- * - gibibytes ('G' - aka GiB).
- * - tebibutes ('T' - aka TiB).
- *
- * Returns: size in bytes, or 0 on error.
- */
-static uint64_t stress_size_to_bytes(const char *str)
-{
-	uint64_t bytes;
-	int	 ret;
-	char	 sz;
-
-	if (!str) {
-		pr_dbg("%s: empty string specified\n", __func__);
-		return 0;
-	}
-
-	ret = sscanf(str, "%" SCNu64 "%c", &bytes, &sz);
-	if (ret != 2) {
-		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
-			__func__, str);
-		return 0;
-	}
-
-	switch (sz) {
-	case 'B':
-		/* no-op */
-		break;
-	case 'K':
-		bytes *= KB;
-		break;
-	case 'M':
-		bytes *= MB;
-		break;
-	case 'G':
-		bytes *= GB;
-		break;
-	case 'T':
-		bytes *= TB;
-		break;
-	default:
-		pr_err("unable to convert '%c' size to bytes\n", sz);
-		bytes = 0;
-		break;
-	}
-	return bytes;
-}
-
-/*
- * stress_get_cache_type()
- * @name: human-readable cache type.
- * Convert a human-readable cache type into a stress_cache_type_t.
- *
- * Returns: stress_cache_type_t or CACHE_TYPE_UNKNOWN on error.
- */
-static stress_cache_type_t stress_get_cache_type(const char *name)
-{
-	const stress_generic_map_t *p;
-
-	if (!name) {
-		pr_dbg("%s: no cache type specified\n", __func__);
-		goto out;
-	}
-
-	for (p = cache_type_map; p && p->name; p++) {
-		if (!strcasecmp(p->name, name))
-			return p->value;
-	}
-
-out:
-	return CACHE_TYPE_UNKNOWN;
-}
-
-/*
- * stress_add_cpu_cache_detail()
- * @cache: stress_cpu_cache_t pointer.
- * @index_path: full /sys path to the particular cpu cache which is to
- *   be represented by @cache.
- * Populate the specified @cache based on the given cache index.
- *
- * Returns: EXIT_FAILURE or EXIT_SUCCESS.
- */
-static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_path)
-{
-	int ret = EXIT_FAILURE;
-	char tmp[2048];
-	char path[PATH_MAX];
-
-	(void)memset(path, 0, sizeof(path));
-	if (!cache)
-		goto out;
-	if (!index_path)
-		goto out;
-	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
-		goto out;
-	cache->type = (stress_cache_type_t)stress_get_cache_type(tmp);
-	if (cache->type == CACHE_TYPE_UNKNOWN)
-		goto out;
-
-	(void)stress_mk_filename(path, sizeof(path), index_path, "size");
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
-		goto out;
-	cache->size = stress_size_to_bytes(tmp);
-
-	(void)stress_mk_filename(path, sizeof(path), index_path, "level");
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
-		goto out;
-	cache->level = (uint16_t)atoi(tmp);
-
-	(void)stress_mk_filename(path, sizeof(path), index_path, "coherency_line_size");
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
-		goto out;
-	cache->line_size = (uint32_t)atoi(tmp);
-
-	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
-		cache->ways = 0;
-	} else {
-		if (sscanf(tmp, "%" SCNu32, &cache->ways) != 1)
-			cache->ways = 0;
-	}
-	ret = EXIT_SUCCESS;
-out:
-	return ret;
-}
+#endif
 
 /*
  * stress_get_cache_by_cpu()
@@ -325,94 +182,6 @@ static int stress_get_cpu_cache_value(
 	return -1;
 }
 #endif
-
-/*
- *  stress_get_cpu_cache_auxval()
- *	find cache information as provided by getauxval
- */
-static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
-{
-#if defined(HAVE_SYS_AUXV_H) && 	\
-    defined(HAVE_GETAUXVAL) &&		\
-    (defined(AT_L1D_CACHESIZE) ||	\
-     defined(AT_L1I_CACHESIZE) ||	\
-     defined(AT_L2_CACHESIZE) ||	\
-     defined(AT_L3_CACHESIZE))
-	typedef struct {
-		const unsigned long auxval_type;
-		const stress_cache_type_t type;		/* cache type */
-		const uint16_t level;			/* cache level 1, 2 */
-		const cache_size_type_t size_type;	/* cache size field */
-		const size_t index;			/* map to cpu->cache array index */
-	} cache_auxval_info_t;
-
-	static const cache_auxval_info_t cache_auxval_info[] = {
-#if defined(AT_L1D_CACHESIZE)
-		{ AT_L1D_CACHESIZE,	CACHE_TYPE_DATA,	1, CACHE_SIZE,	0 },
-#endif
-#if defined(AT_L1I_CACHESIZE)
-		{ AT_L1I_CACHESIZE,	CACHE_TYPE_INSTRUCTION,	1, CACHE_SIZE,	1 },
-#endif
-#if defined(AT_L2_CACHESIZE)
-		{ AT_L2_CACHESIZE,	CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,	2 },
-#endif
-#if defined(AT_L3_CACHESIZE)
-		{ AT_L3_CACHESIZE,	CACHE_TYPE_UNIFIED,	3, CACHE_SIZE,	2 },
-#endif
-	};
-
-	const size_t count = 4;
-	size_t i;
-	bool valid = false;
-
-	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
-	if (!cpu->caches) {
-		pr_err("failed to allocate %zu bytes for cpu caches\n",
-			count * sizeof(*(cpu->caches)));
-		return 0;
-	}
-
-	for (i = 0; i < SIZEOF_ARRAY(cache_auxval_info); i++) {
-		const uint64_t value = getauxval(cache_auxval_info[i].auxval_type);
-		const size_t index = cache_auxval_info[i].index;
-
-		if (value)
-			valid = true;
-
-		cpu->caches[index].type = cache_auxval_info[i].type;
-		cpu->caches[index].level = cache_auxval_info[i].level;
-		switch (cache_auxval_info[i].size_type) {
-		case CACHE_SIZE:
-			cpu->caches[index].size = value;
-			break;
-		case CACHE_LINE_SIZE:
-			cpu->caches[index].line_size = (uint32_t)value;
-			break;
-		case CACHE_WAYS:
-			cpu->caches[index].size = (uint32_t)value;
-			break;
-		default:
-			break;
-		}
-	}
-
-	if (!valid) {
-		free(cpu->caches);
-		cpu->caches = NULL;
-		cpu->cache_count = 0;
-
-		return 0;
-	}
-
-	cpu->cache_count = count;
-
-	return count;
-#else
-	(void)cpu;
-
-	return 0;
-#endif
-}
 
 #if defined(STRESS_ARCH_ALPHA)
 /*
@@ -520,12 +289,12 @@ static int stress_get_cpu_cache_apple(stress_cpu_t *cpu)
 	} cache_info_t;
 
 	static const cache_info_t cache_info[] = {
-		{ "hw.cachelinesize",		CACHE_TYPE_DATA,	1, CACHE_LINE_SIZE,	0 },
-		{ "hw.l1dcachesize",		CACHE_TYPE_DATA,	1, CACHE_SIZE,		0 },
-		{ "hw.cachelinesize",		CACHE_TYPE_INSTRUCTION,	1, CACHE_LINE_SIZE,	1 },
-		{ "hw.l1icachesize",		CACHE_TYPE_INSTRUCTION,	1, CACHE_SIZE,		1 },
-		{ "hw.l2cachesize",		CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,		2 },
-		{ "hw.l3cachesize",		CACHE_TYPE_UNIFIED,	3, CACHE_SIZE,		2 },
+		{ "hw.cachelinesize",		CACHE_TYPE_DATA,	1, STRESS_CACHE_LINE_SIZE,	0 },
+		{ "hw.l1dcachesize",		CACHE_TYPE_DATA,	1, STRESS_CACHE_SIZE,		0 },
+		{ "hw.cachelinesize",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_LINE_SIZE,	1 },
+		{ "hw.l1icachesize",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,		1 },
+		{ "hw.l2cachesize",		CACHE_TYPE_UNIFIED,	2, STRESS_CACHE_SIZE,		2 },
+		{ "hw.l3cachesize",		CACHE_TYPE_UNIFIED,	3, STRESS_CACHE_SIZE,		2 },
 	};
 
 	const size_t count = 3;
@@ -548,15 +317,15 @@ static int stress_get_cpu_cache_apple(stress_cpu_t *cpu)
 		cpu->caches[idx].type = cache_info[i].type;
 		cpu->caches[idx].level = cache_info[i].level;
 		switch (cache_info[i].size_type) {
-		case CACHE_SIZE:
+		case STRESS_CACHE_SIZE:
 			cpu->caches[idx].size = value;
 			valid = true;
 			break;
-		case CACHE_LINE_SIZE:
+		case STRESS_CACHE_LINE_SIZE:
 			cpu->caches[idx].line_size = (uint32_t)value;
 			valid = true;
 			break;
-		case CACHE_WAYS:
+		case STRESS_CACHE_WAYS:
 			cpu->caches[idx].size = (uint32_t)value;
 			valid = true;
 			break;
@@ -597,12 +366,12 @@ static int stress_get_cpu_cache_sparc64(
 	} cache_info_t;
 
 	static const cache_info_t cache_info[] = {
-		{ "l1_dcache_line_size",	CACHE_TYPE_DATA,	1, CACHE_LINE_SIZE,	0 },
-		{ "l1_dcache_size",		CACHE_TYPE_DATA,	1, CACHE_SIZE,		0 },
-		{ "l1_icache_line_size",	CACHE_TYPE_INSTRUCTION,	1, CACHE_LINE_SIZE,	1 },
-		{ "l1_icache_size",		CACHE_TYPE_INSTRUCTION,	1, CACHE_SIZE,		1 },
-		{ "l2_cache_line_size",		CACHE_TYPE_UNIFIED,	2, CACHE_LINE_SIZE,	2 },
-		{ "l2_cache_size",		CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,		2 },
+		{ "l1_dcache_line_size",	CACHE_TYPE_DATA,	1, STRESS_CACHE_LINE_SIZE,	0 },
+		{ "l1_dcache_size",		CACHE_TYPE_DATA,	1, STRESS_CACHE_SIZE,		0 },
+		{ "l1_icache_line_size",	CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_LINE_SIZE,	1 },
+		{ "l1_icache_size",		CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,		1 },
+		{ "l2_cache_line_size",		CACHE_TYPE_UNIFIED,	2, STRESS_CACHE_LINE_SIZE,	2 },
+		{ "l2_cache_size",		CACHE_TYPE_UNIFIED,	2, STRESS_CACHE_SIZE,		2 },
 	};
 
 	const size_t count = 3;
@@ -626,15 +395,15 @@ static int stress_get_cpu_cache_sparc64(
 		cpu->caches[idx].type = cache_info[i].type;
 		cpu->caches[idx].level = cache_info[i].level;
 		switch (cache_info[i].size_type) {
-		case CACHE_SIZE:
+		case STRESS_CACHE_SIZE:
 			cpu->caches[idx].size = value;
 			valid = true;
 			break;
-		case CACHE_LINE_SIZE:
+		case STRESS_CACHE_LINE_SIZE:
 			cpu->caches[idx].line_size = (uint32_t)value;
 			valid = true;
 			break;
-		case CACHE_WAYS:
+		case STRESS_CACHE_WAYS:
 			cpu->caches[idx].size = (uint32_t)value;
 			valid = true;
 			break;
@@ -655,6 +424,150 @@ static int stress_get_cpu_cache_sparc64(
 	return count;
 }
 #endif
+
+#if defined(__linux__) ||	\
+    defined(__APPLE__)
+/*
+ * stress_size_to_bytes()
+ * 	Convert human-readable integer sizes (such as "32K", "4M") into bytes.
+ *
+ * Supports:
+ *
+ * - bytes ('B').
+ * - kibibytes ('K' - aka KiB).
+ * - mebibytes ('M' - aka MiB).
+ * - gibibytes ('G' - aka GiB).
+ * - tebibutes ('T' - aka TiB).
+ *
+ * Returns: size in bytes, or 0 on error.
+ */
+static uint64_t stress_size_to_bytes(const char *str)
+{
+	uint64_t bytes;
+	int	 ret;
+	char	 sz;
+
+	if (!str) {
+		pr_dbg("%s: empty string specified\n", __func__);
+		return 0;
+	}
+
+	ret = sscanf(str, "%" SCNu64 "%c", &bytes, &sz);
+	if (ret != 2) {
+		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
+			__func__, str);
+		return 0;
+	}
+
+	switch (sz) {
+	case 'B':
+		/* no-op */
+		break;
+	case 'K':
+		bytes *= KB;
+		break;
+	case 'M':
+		bytes *= MB;
+		break;
+	case 'G':
+		bytes *= GB;
+		break;
+	case 'T':
+		bytes *= TB;
+		break;
+	default:
+		pr_err("unable to convert '%c' size to bytes\n", sz);
+		bytes = 0;
+		break;
+	}
+	return bytes;
+}
+
+static const stress_generic_map_t cache_type_map[] = {
+	{ "data",		CACHE_TYPE_DATA },
+	{ "instruction",	CACHE_TYPE_INSTRUCTION },
+	{ "unified",		CACHE_TYPE_UNIFIED },
+	{  NULL,		CACHE_TYPE_UNKNOWN }
+};
+
+/*
+ * stress_get_cache_type()
+ * @name: human-readable cache type.
+ * Convert a human-readable cache type into a stress_cache_type_t.
+ *
+ * Returns: stress_cache_type_t or CACHE_TYPE_UNKNOWN on error.
+ */
+static stress_cache_type_t stress_get_cache_type(const char *name)
+{
+	const stress_generic_map_t *p;
+
+	if (!name) {
+		pr_dbg("%s: no cache type specified\n", __func__);
+		goto out;
+	}
+
+	for (p = cache_type_map; p && p->name; p++) {
+		if (!strcasecmp(p->name, name))
+			return p->value;
+	}
+
+out:
+	return CACHE_TYPE_UNKNOWN;
+}
+
+/*
+ * stress_add_cpu_cache_detail()
+ * @cache: stress_cpu_cache_t pointer.
+ * @index_path: full /sys path to the particular cpu cache which is to
+ *   be represented by @cache.
+ * Populate the specified @cache based on the given cache index.
+ *
+ * Returns: EXIT_FAILURE or EXIT_SUCCESS.
+ */
+static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_path)
+{
+	int ret = EXIT_FAILURE;
+	char tmp[2048];
+	char path[PATH_MAX];
+
+	(void)memset(path, 0, sizeof(path));
+	if (!cache)
+		goto out;
+	if (!index_path)
+		goto out;
+	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+		goto out;
+	cache->type = (stress_cache_type_t)stress_get_cache_type(tmp);
+	if (cache->type == CACHE_TYPE_UNKNOWN)
+		goto out;
+
+	(void)stress_mk_filename(path, sizeof(path), index_path, "size");
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+		goto out;
+	cache->size = stress_size_to_bytes(tmp);
+
+	(void)stress_mk_filename(path, sizeof(path), index_path, "level");
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+		goto out;
+	cache->level = (uint16_t)atoi(tmp);
+
+	(void)stress_mk_filename(path, sizeof(path), index_path, "coherency_line_size");
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+		goto out;
+	cache->line_size = (uint32_t)atoi(tmp);
+
+	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
+		cache->ways = 0;
+	} else {
+		if (sscanf(tmp, "%" SCNu32, &cache->ways) != 1)
+			cache->ways = 0;
+	}
+	ret = EXIT_SUCCESS;
+out:
+	return ret;
+}
 
 /*
  *  index_filter()
@@ -753,6 +666,94 @@ list_free:
 }
 
 /*
+ *  stress_get_cpu_cache_auxval()
+ *	find cache information as provided by getauxval
+ */
+static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
+{
+#if defined(HAVE_SYS_AUXV_H) && 	\
+    defined(HAVE_GETAUXVAL) &&		\
+    (defined(AT_L1D_CACHESIZE) ||	\
+     defined(AT_L1I_CACHESIZE) ||	\
+     defined(AT_L2_CACHESIZE) ||	\
+     defined(AT_L3_CACHESIZE))
+	typedef struct {
+		const unsigned long auxval_type;
+		const stress_cache_type_t type;		/* cache type */
+		const uint16_t level;			/* cache level 1, 2 */
+		const cache_size_type_t size_type;	/* cache size field */
+		const size_t index;			/* map to cpu->cache array index */
+	} cache_auxval_info_t;
+
+	static const cache_auxval_info_t cache_auxval_info[] = {
+#if defined(AT_L1D_CACHESIZE)
+		{ AT_L1D_CACHESIZE,	CACHE_TYPE_DATA,	1, STRESS_CACHE_SIZE,	0 },
+#endif
+#if defined(AT_L1I_CACHESIZE)
+		{ AT_L1I_CACHESIZE,	CACHE_TYPE_INSTRUCTION,	1, STRESS_CACHE_SIZE,	1 },
+#endif
+#if defined(AT_L2_CACHESIZE)
+		{ AT_L2_CACHESIZE,	CACHE_TYPE_UNIFIED,	2, STRESS_CACHE_SIZE,	2 },
+#endif
+#if defined(AT_L3_CACHESIZE)
+		{ AT_L3_CACHESIZE,	CACHE_TYPE_UNIFIED,	3, STRESS_CACHE_SIZE,	2 },
+#endif
+	};
+
+	const size_t count = 4;
+	size_t i;
+	bool valid = false;
+
+	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(*(cpu->caches)));
+		return 0;
+	}
+
+	for (i = 0; i < SIZEOF_ARRAY(cache_auxval_info); i++) {
+		const uint64_t value = getauxval(cache_auxval_info[i].auxval_type);
+		const size_t index = cache_auxval_info[i].index;
+
+		if (value)
+			valid = true;
+
+		cpu->caches[index].type = cache_auxval_info[i].type;
+		cpu->caches[index].level = cache_auxval_info[i].level;
+		switch (cache_auxval_info[i].size_type) {
+		case STRESS_CACHE_SIZE:
+			cpu->caches[index].size = value;
+			break;
+		case STRESS_CACHE_LINE_SIZE:
+			cpu->caches[index].line_size = (uint32_t)value;
+			break;
+		case STRESS_CACHE_WAYS:
+			cpu->caches[index].size = (uint32_t)value;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (!valid) {
+		free(cpu->caches);
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+
+		return 0;
+	}
+
+	cpu->cache_count = count;
+
+	return count;
+#else
+	(void)cpu;
+
+	return 0;
+#endif
+}
+
+/*
  * stress_get_cpu_cache_details()
  * @cpu: cpu to fill in.
  * @cpu_path: Full /sys path to cpu which will be represented by @cpu.
@@ -797,6 +798,7 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 
 	return;
 }
+#endif
 
 #if defined(__linux__)
 /*
@@ -860,9 +862,7 @@ out:
 	stress_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
-#endif
-
-#if defined(__APPLE__)
+#elif defined(__APPLE__)
 /*
  * stress_get_all_cpu_cache_details()
  * Obtain information on all cpus caches on the system.
@@ -899,6 +899,11 @@ out:
 	stress_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
+#else
+stress_cpus_t *stress_get_all_cpu_cache_details(void)
+{
+	return NULL;
+}
 #endif
 
 /*
@@ -927,8 +932,6 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
 	cpus->cpus = NULL;
 	free(cpus);
 }
-
-#endif
 
 /*
  *  stress_get_llc_size()
