@@ -83,7 +83,8 @@ typedef struct {
 static uint64_t get_L1_line_size(const stress_args_t *args)
 {
 	uint64_t cache_size = DEFAULT_L1_SIZE;
-#if defined(__linux__)
+#if defined(__linux__) ||	\
+    defined(__APPLE__)
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 

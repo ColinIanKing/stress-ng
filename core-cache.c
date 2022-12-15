@@ -26,7 +26,8 @@
 #include <sys/auxv.h>
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) ||	\
+    defined(__APPLE__)
 
 typedef struct {
 	const char	*name;			/* cache type name */
@@ -356,7 +357,7 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 		{ AT_L2_CACHESIZE,	CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,	2 },
 #endif
 #if defined(AT_L3_CACHESIZE)
-		{ AT_L3_CACHESIZE,	CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,	3 },
+		{ AT_L3_CACHESIZE,	CACHE_TYPE_UNIFIED,	3, CACHE_SIZE,	2 },
 #endif
 	};
 
@@ -500,6 +501,80 @@ static int stress_get_cpu_cache_alpha(
 	cpu->cache_count = idx;
 
 	return idx;
+}
+#endif
+
+#if defined(__APPLE__)
+/*
+ *  stress_get_cpu_cache_apple()
+ *	find cache information as provided by BSD sysctl
+ */
+static int stress_get_cpu_cache_apple(stress_cpu_t *cpu)
+{
+	typedef struct {
+		const char *name;			/* sysctl name */
+		const stress_cache_type_t type;		/* cache type */
+		const uint16_t level;			/* cache level 1, 2 */
+		const cache_size_type_t size_type;	/* cache size field */
+		const size_t index;			/* map to cpu->cache array index */
+	} cache_info_t;
+
+	static const cache_info_t cache_info[] = {
+		{ "hw.cachelinesize",		CACHE_TYPE_DATA,	1, CACHE_LINE_SIZE,	0 },
+		{ "hw.l1dcachesize",		CACHE_TYPE_DATA,	1, CACHE_SIZE,		0 },
+		{ "hw.cachelinesize",		CACHE_TYPE_INSTRUCTION,	1, CACHE_LINE_SIZE,	1 },
+		{ "hw.l1icachesize",		CACHE_TYPE_INSTRUCTION,	1, CACHE_SIZE,		1 },
+		{ "hw.l2cachesize",		CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,		2 },
+		{ "hw.l3cachesize",		CACHE_TYPE_UNIFIED,	3, CACHE_SIZE,		2 },
+	};
+
+	const size_t count = 3;
+	size_t i;
+	bool valid = false;
+
+	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(*(cpu->caches)));
+		return 0;
+	}
+
+	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
+		const size_t idx = cache_info[i].index;
+		uint64_t value;
+
+		value = stress_bsd_getsysctl_uint64(cache_info[i].name);
+
+		cpu->caches[idx].type = cache_info[i].type;
+		cpu->caches[idx].level = cache_info[i].level;
+		switch (cache_info[i].size_type) {
+		case CACHE_SIZE:
+			cpu->caches[idx].size = value;
+			valid = true;
+			break;
+		case CACHE_LINE_SIZE:
+			cpu->caches[idx].line_size = (uint32_t)value;
+			valid = true;
+			break;
+		case CACHE_WAYS:
+			cpu->caches[idx].size = (uint32_t)value;
+			valid = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (!valid) {
+		free(cpu->caches);
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+
+		return 0;
+	}
+	cpu->cache_count = count;
+
+	return count;
 }
 #endif
 
@@ -715,9 +790,15 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 		return;
 #endif
 
+#if defined(__APPLE__)
+	if (stress_get_cpu_cache_apple(cpu) > 0)
+		return;
+#endif
+
 	return;
 }
 
+#if defined(__linux__)
 /*
  * stress_get_all_cpu_cache_details()
  * Obtain information on all cpus caches on the system.
@@ -779,6 +860,46 @@ out:
 	stress_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
+#endif
+
+#if defined(__APPLE__)
+/*
+ * stress_get_all_cpu_cache_details()
+ * Obtain information on all cpus caches on the system.
+ *
+ * Returns: dynamically-allocated stress_cpus_t object, or NULL on error.
+ */
+stress_cpus_t *stress_get_all_cpu_cache_details(void)
+{
+	int32_t i, cpu_count;
+	stress_cpus_t *cpus = NULL;
+	struct dirent **namelist = NULL;
+
+	if (stress_bsd_getsysctl("hw.physicalcpu", &cpu_count, sizeof(cpu_count)) < 0) {
+		pr_err("no CPUs found using sysctl hw.physicalcpu\n");
+		goto out;
+	}
+	cpus = calloc(1, sizeof(*cpus));
+	if (!cpus)
+		goto out;
+
+	cpus->cpus = calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
+	if (!cpus->cpus) {
+		free(cpus);
+		cpus = NULL;
+		goto out;
+	}
+	cpus->count = (uint32_t)cpu_count;
+
+	for (i = 0; i < cpu_count; i++) {
+		stress_get_cpu_cache_details(&cpus->cpus[i], "");
+	}
+
+out:
+	stress_dirent_list_free(namelist, cpu_count);
+	return cpus;
+}
+#endif
 
 /*
  * stress_free_cpu_caches()
@@ -816,7 +937,8 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
  */
 void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 {
-#if defined(__linux__)
+#if defined(__linux__) ||	\
+    defined(__APPLE__)
 	uint16_t max_cache_level;
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;

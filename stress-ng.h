@@ -2585,7 +2585,8 @@ extern WARN_UNUSED bool stress_little_endian(void);
 extern WARN_UNUSED char *stress_proc_self_exe_path(const char *proc_path);
 extern WARN_UNUSED char *stress_proc_self_exe(void);
 #if defined(__FreeBSD__) ||	\
-    defined(__NetBSD__)
+    defined(__NetBSD__) ||	\
+    defined(__APPLE__)
 extern WARN_UNUSED int stress_bsd_getsysctl(const char *name, void *ptr, size_t size);
 extern WARN_UNUSED uint64_t stress_bsd_getsysctl_uint64(const char *name);
 extern WARN_UNUSED uint32_t stress_bsd_getsysctl_uint32(const char *name);

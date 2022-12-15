@@ -1686,15 +1686,10 @@ void pr_yaml_runinfo(FILE *yaml)
  */
 int stress_cache_alloc(const char *name)
 {
-#if defined(__linux__)
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level = 0;
-#endif
 
-#if !defined(__linux__)
-	g_shared->mem_cache_size = MEM_CACHE_SIZE;
-#else
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (stress_warn_once())
@@ -1753,7 +1748,6 @@ int stress_cache_alloc(const char *name)
 	}
 init_done:
 	stress_free_cpu_caches(cpu_caches);
-#endif
 	g_shared->mem_cache =
 		(uint8_t *)mmap(NULL, g_shared->mem_cache_size,
 				PROT_READ | PROT_WRITE,
@@ -3471,7 +3465,8 @@ char *stress_proc_self_exe(void)
 }
 
 #if defined(__FreeBSD__) ||	\
-    defined(__NetBSD__)
+    defined(__NetBSD__) ||	\
+    defined(__APPLE__)
 /*
  *  stress_bsd_getsysctl()
  *	get sysctl using name, ptr to obj, size = size of obj
