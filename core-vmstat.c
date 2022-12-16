@@ -801,7 +801,8 @@ static void stress_get_cpu_ghz(
 		*max_ghz *= ONE_MILLIONTH;
 	}
 }
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) ||	\
+      defined(__APPLE__)
 static void stress_get_cpu_ghz(
 	double *avg_ghz,
 	double *min_ghz,
@@ -816,11 +817,18 @@ static void stress_get_cpu_ghz(
 	*max_ghz = 0.0;
 
 	for (i = 0; i < ncpus; i++) {
-		char name[32];
 		double freq;
+#if defined(__FreeBSD__)
+		{
+			char name[32];
 
-		(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
-		freq = (double)stress_bsd_getsysctl_uint(name);
+			(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
+			freq = (double)stress_bsd_getsysctl_uint(name) * ONE_THOUSANDTH;
+		}
+#endif
+#if defined(__APPLE__)
+		freq = (double)stress_bsd_getsysctl_uint64("hw.cpufrequency") * ONE_BILLIONTH;
+#endif
 		if (freq >= 0.0) {
 			total_freq += freq;
 			if (*min_ghz > freq)
@@ -833,9 +841,7 @@ static void stress_get_cpu_ghz(
 	if (n == 0) {
 		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
 	} else {
-		*avg_ghz = (total_freq / n) * ONE_THOUSANDTH;
-		*min_ghz *= ONE_THOUSANDTH;
-		*max_ghz *= ONE_THOUSANDTH;
+		*avg_ghz = (total_freq / n);
 	}
 }
 #else
