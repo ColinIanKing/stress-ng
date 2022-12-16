@@ -839,7 +839,7 @@ static void stress_get_cpu_ghz(
 	}
 }
 #else
-static void stress_get_cpu_ghz_average(
+static void stress_get_cpu_ghz(
 	double *avg_ghz,
 	double *min_ghz,
 	double *max_ghz)
