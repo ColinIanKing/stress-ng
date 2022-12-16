@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-thermal-zone.h"
 
+#include <float.h>
+
 #if defined(HAVE_SYS_SYSMACROS_H)
 #include <sys/sysmacros.h>
 #endif
@@ -733,16 +735,32 @@ static double stress_get_tz_info(stress_tz_info_t *tz_info)
 }
 #endif
 
+static void stress_zero_cpu_ghz(
+	double *avg_ghz,
+	double *min_ghz,
+	double *max_ghz)
+{
+	*avg_ghz = 0.0;
+	*min_ghz = 0.0;
+	*max_ghz = 0.0;
+}
+
 #if defined(__linux__)
 /*
- *  stress_get_cpu_ghz_average()
- *	compute average CPU frequencies in GHz
+ *  stress_get_cpu_ghz()
+ *	get CPU frequencies in GHz
  */
-static double stress_get_cpu_ghz_average(void)
+static void stress_get_cpu_ghz(
+	double *avg_ghz,
+	double *min_ghz,
+	double *max_ghz)
 {
 	struct dirent **cpu_list = NULL;
 	int i, n_cpus, n = 0;
 	double total_freq = 0.0;
+
+	*min_ghz = DBL_MAX;
+	*max_ghz = 0.0;
 
 	n_cpus = scandir("/sys/devices/system/cpu", &cpu_list, NULL, alphasort);
 	for (i = 0; i < n_cpus; i++) {
@@ -758,8 +776,14 @@ static double stress_get_cpu_ghz_average(void)
 				name);
 			if ((fp = fopen(path, "r")) != NULL) {
 				if (fscanf(fp, "%lf", &freq) == 1) {
-					total_freq += freq;
-					n++;
+					if (freq >= 0.0) {
+						total_freq += freq;
+						if (*min_ghz > freq)
+							*min_ghz = freq;
+						if (*max_ghz < freq)
+							*max_ghz = freq;
+						n++;
+					}
 				}
 				(void)fclose(fp);
 			}
@@ -769,31 +793,58 @@ static double stress_get_cpu_ghz_average(void)
 	if (n_cpus > -1)
 		free(cpu_list);
 
-	return (n == 0) ? 0.0 : (total_freq / n) * ONE_MILLIONTH;
+	if (n == 0) {
+		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
+	} else {
+		*avg_ghz = (total_freq / n) * ONE_MILLIONTH;
+		*min_ghz *= ONE_MILLIONTH;
+		*max_ghz *= ONE_MILLIONTH;
+	}
 }
 #elif defined(__FreeBSD__)
-static double stress_get_cpu_ghz_average(void)
+static void stress_get_cpu_ghz(
+	double *avg_ghz,
+	double *min_ghz,
+	double *max_ghz)
 {
 	const int32_t ncpus = stress_get_processors_configured();
 	int32_t i;
-	double total = 0.0;
+	double total_freq = 0.0;
+	int n = 0;
+
+	*min_ghz = DBL_MAX;
+	*max_ghz = 0.0;
 
 	for (i = 0; i < ncpus; i++) {
 		char name[32];
+		double freq;
 
 		(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
-		total += (double)stress_bsd_getsysctl_uint(name);
+		freq = (double)stress_bsd_getsysctl_uint(name);
+		if (freq >= 0.0) {
+			total_freq += freq;
+			if (*min_ghz > freq)
+				*min_ghz = freq;
+			if (*max_ghz < freq)
+				*max_ghz = freq;
+			n++;
+		}
 	}
-	total /= 1000.0;
-	if (ncpus > 0)
-		return total / (double)ncpus;
-
-	return 0.0;
+	if (n == 0) {
+		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
+	} else {
+		*avg_ghz = (total_freq / n) * ONE_THOUSANDTH;
+		*min_ghz *= ONE_THOUSANDTH;
+		*max_ghz *= ONE_THOUSANDTH;
+	}
 }
 #else
-static double stress_get_cpu_ghz_average(void)
+static void stress_get_cpu_ghz_average(
+	double *avg_ghz,
+	double *min_ghz,
+	double *max_ghz)
 {
-	return 0.0;
+	stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
 }
 #endif
 
@@ -929,10 +980,10 @@ void stress_vmstat_start(void)
 		}
 
 		if (thermalstat_delay == thermalstat_sleep) {
-			double min1, min5, min15, ghz;
+			double min1, min5, min15, avg_ghz, min_ghz, max_ghz;
 			size_t therms_len = 1 + (tz_num * 7);
 			char *therms;
-			char cpuspeed[6];
+			char cpuspeed[19];
 #if defined(__linux__)
 			char *ptr;
 #endif
@@ -947,7 +998,7 @@ void stress_vmstat_start(void)
 				}
 #endif
 				if ((thermalstat_count++ % 25) == 0)
-					pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
+					pr_inf("therm: AvGHz MnGhz MxGHz  LdA1  LdA5 LdA15 %s\n", therms);
 
 #if defined(__linux__)
 				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
@@ -955,14 +1006,16 @@ void stress_vmstat_start(void)
 					ptr += 7;
 				}
 #endif
-				ghz = stress_get_cpu_ghz_average();
-				if (ghz > 0.0)
-					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f", ghz);
+				stress_get_cpu_ghz(&avg_ghz, &min_ghz, &max_ghz);
+				if (avg_ghz > 0.0)
+					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f %5.2f %5.2f",
+						avg_ghz, min_ghz, max_ghz);
 				else
-					(void)shim_strlcpy(cpuspeed, "n/a", sizeof(cpuspeed));
+					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.5s %5.5s %5.5s",
+						" n/a ", " n/a ", " n/a ");
 
 				if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
-					pr_inf("therm: %5s %5.5s %5.5s %5.5s %s\n",
+					pr_inf("therm: %18s %5.5s %5.5s %5.5s %s\n",
 						cpuspeed, "n/a", "n/a", "n/a", therms);
 				} else {
 					pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
