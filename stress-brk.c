@@ -155,9 +155,11 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 				return EXIT_FAILURE;
 			}
 		} else {
+#if !defined(__APPLE__)
 			/* Touch page, force it to be resident */
 			if (!brk_context->brk_notouch)
 				*(ptr - 1) = 0;
+#endif
 
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_MERGEABLE)
