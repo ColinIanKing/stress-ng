@@ -27,10 +27,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if !defined(__APPLE__)
-#define HAVE_UNMAPPABLE_BRK
-#endif
-
 typedef struct {
 	bool brk_mlock;
 	bool brk_notouch;
@@ -81,10 +77,7 @@ static int stress_brk_supported(const char *name)
 
 static int stress_brk_child(const stress_args_t *args, void *context)
 {
-	uint8_t *start_ptr;
-#if defined(HAVE_UNMAPPABLE_BRK)
-	uint8_t *unmap_ptr = NULL;
-#endif
+	uint8_t *start_ptr, *unmap_ptr = NULL;
 	int i = 0;
 	const size_t page_size = args->page_size;
 	const brk_context_t *brk_context = (brk_context_t *)context;
@@ -123,10 +116,8 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 			if (ptr != (void *)-1) {
 				sbrk_exp_duration += stress_time_now() - t;
 				sbrk_exp_count += 1.0;
-#if defined(HAVE_UNMAPPABLE_BRK)
 				if (!unmap_ptr)
 					unmap_ptr = ptr;
-#endif
 			}
 		} else if (i < 9) {
 			/* brk to same brk position */
@@ -146,13 +137,11 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 				ptr = (void *)-1;
 		} else {
 			i = 0;
-#if defined(HAVE_UNMAPPABLE_BRK)
 			/* remove a page from brk region */
 			if (unmap_ptr) {
 				(void)munmap((void *)unmap_ptr, page_size);
 				unmap_ptr = NULL;
 			}
-#endif
 			continue;
 		}
 
