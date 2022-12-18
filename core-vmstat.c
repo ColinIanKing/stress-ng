@@ -20,6 +20,18 @@
 #include "stress-ng.h"
 #include "core-thermal-zone.h"
 
+#if defined(HAVE_MACH_MACH_H)
+#include <mach/mach.h>
+#endif
+
+#if defined(HAVE_MACH_VM_STATISTICS_H)
+#include <mach/vm_statistics.h>
+#endif
+
+#if defined(HAVE_SYS_SYSCTL_H)
+#include <sys/sysctl.h>
+#endif
+
 #include <float.h>
 
 #if defined(HAVE_SYS_SYSMACROS_H)
@@ -659,6 +671,36 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		vmstat->procs_blocked = t.t_dw + t.t_pw;
 	}
 #endif
+}
+#elif defined(__APPLE__) &&		\
+      defined(HAVE_SYS_SYSCTL_H) &&	\
+      defined(HAVE_MACH_MACH_H) &&	\
+      defined(HAVE_MACH_VM_STATISTICS_H)
+/*
+ *  stress_read_vmstat()
+ *	read vmstat statistics, OS X variant, partially implemented
+ */
+static void stress_read_vmstat(stress_vmstat_t *vmstat)
+{
+	vm_statistics64_data_t vm_stat;
+	struct xsw_usage xsu;
+	mach_port_t host = mach_host_self();
+	natural_t count = HOST_VM_INFO64_COUNT;
+	size_t page_size = stress_get_page_size();
+	int ret;
+
+	ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
+	if (ret >= 0) {
+		vmstat->swap_in = vm_stat.pageins;
+		vmstat->swap_out = vm_stat.pageouts;
+		vmstat->memory_free = (page_size / 1024) * vm_stat.free_count;
+	}
+	ret = stress_bsd_getsysctl("vm.swapusage", &xsu, sizeof(xsu));
+	if (ret >= 0) {
+		vmstat->swap_total = xsu.xsu_total;
+		vmstat->swap_used = xsu.xsu_used;
+		vmstat->swap_free = xsu.xsu_avail;
+	}
 }
 #else
 /*

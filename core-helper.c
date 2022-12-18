@@ -40,6 +40,14 @@
 #include <sys/loadavg.h>
 #endif
 
+#if defined(HAVE_MACH_MACH_H)
+#include <mach/mach.h>
+#endif
+
+#if defined(HAVE_MACH_VM_STATISTICS_H)
+#include <mach/vm_statistics.h>
+#endif
+
 #if (defined(__FreeBSD__) || 	\
      defined(__OpenBSD__)) &&	\
      defined(HAVE_SYS_MOUNT_H)
@@ -715,6 +723,29 @@ static int stress_get_meminfo(
 		}
 	}
 #endif
+#if defined(__APPLE__) &&		\
+    defined(HAVE_MACH_MACH_H) &&	\
+    defined(HAVE_MACH_VM_STATISTICS_H)
+	{
+		vm_statistics64_data_t vm_stat;
+		mach_port_t host = mach_host_self();
+		natural_t count = HOST_VM_INFO64_COUNT;
+		size_t page_size = stress_get_page_size();
+		int ret;
+
+		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
+		if (ret >= 0) {
+			*freemem = page_size * vm_stat.free_count;
+			*totalmem = page_size * (vm_stat.active_count +
+						 vm_stat.inactive_count +
+						 vm_stat.wire_count +
+						 vm_stat.zero_fill_count);
+			return 0;
+		}
+
+	}
+#endif
+
 	*freemem = 0;
 	*totalmem = 0;
 	*freeswap = 0;
