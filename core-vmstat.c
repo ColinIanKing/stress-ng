@@ -24,6 +24,10 @@
 #include <mach/mach.h>
 #endif
 
+#if defined(HAVE_MACH_MACHINE_H)
+#include <mach/machine.h>
+#endif
+
 #if defined(HAVE_MACH_VM_STATISTICS_H)
 #include <mach/vm_statistics.h>
 #endif
@@ -686,6 +690,8 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	struct xsw_usage xsu;
 	mach_port_t host = mach_host_self();
 	natural_t count = HOST_VM_INFO64_COUNT;
+	natural_t pcount, pi_array_count;
+	processor_info_array_t pi_array;
 	size_t page_size = stress_get_page_size();
 	int ret;
 
@@ -701,6 +707,30 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		vmstat->swap_used = xsu.xsu_used;
 		vmstat->swap_free = xsu.xsu_avail;
 	}
+	vmstat->user_time = 0;
+	vmstat->system_time= 0;
+	vmstat->idle_time = 0;
+	vmstat->wait_time = 0;
+	vmstat->stolen_time = 0;
+#if defined(HAVE_MACH_MACH_H) &&	\
+    defined(PROCESSOR_CPU_LOAD_INFO) && \
+    defined(CPU_STATE_USER) &&		\
+    defined(CPU_STATE_SYSTEM) &&	\
+    defined(CPU_STATE_IDLE)
+	ret = host_processor_info(host, PROCESSOR_CPU_LOAD_INFO, &pcount, &pi_array, &pi_array_count);
+	if (ret >= 0) {
+		natural_t i;
+
+
+		for (i = 0; i < pi_array_count; i++) {
+			integer_t *cpu_ticks = &pi_array[i * CPU_STATE_MAX];
+
+			vmstat->user_time += cpu_ticks[CPU_STATE_USER];
+			vmstat->system_time += cpu_ticks[CPU_STATE_SYSTEM];
+			vmstat->idle_time += cpu_ticks[CPU_STATE_IDLE];
+		}
+	}
+#endif
 }
 #else
 /*
