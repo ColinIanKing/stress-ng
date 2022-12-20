@@ -56,6 +56,19 @@ or
 docker run --rm colinianking/stress-ng --help
 ```
 
+## Debian packages for Ubuntu
+
+Recent versions of stress-ng are available in the Ubuntu stress-ng ppa for various
+Ubuntu releases:
+
+https://launchpad.net/~colin-king/+archive/ubuntu/stress-ng
+
+```
+sudo add-apt-repository ppa:colin-king/stress-ng
+sudo apt update
+sudo apt install stress-ng
+```
+
 ## Building stress-ng
 
 To build, the following libraries will ensure a fully functional stress-ng
