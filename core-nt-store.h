@@ -24,7 +24,8 @@
 #if defined(HAVE_IMMINTRIN_H)
 #include <immintrin.h>
 #endif
-#if defined(HAVE_XMMINTRIN_H)
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(__SSE__)
 #include <xmmintrin.h>
 #endif
 
@@ -43,6 +44,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr,
 }
 #define HAVE_NT_STORE128
 #elif defined(HAVE_XMMINTRIN_H) &&			\
+    defined(__SSE__) &&					\
     defined(HAVE_INT128_T) &&				\
     defined(HAVE_V2DI) && 				\
     defined(STRESS_ARCH_X86_64)	&&			\
@@ -79,6 +81,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, reg
 }
 #define HAVE_NT_STORE64
 #elif defined(HAVE_XMMINTRIN_H) &&			\
+    defined(__SSE__) &&					\
     defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
@@ -111,6 +114,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, reg
 }
 #define HAVE_NT_STORE32
 #elif defined(HAVE_XMMINTRIN_H) &&			\
+    defined(__SSE__) &&					\
     defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI)
@@ -143,6 +147,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
 }
 #define HAVE_NT_STORE_DOUBLE
 #elif defined(HAVE_XMMINTRIN_H) &&			\
+    defined(__SSE__) &&					\
     defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
