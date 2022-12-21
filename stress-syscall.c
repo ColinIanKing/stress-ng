@@ -3902,7 +3902,7 @@ static int syscall_msgrcv(void)
 	const uint32_t value = stress_mwc32();
 	int msgq_id, ret;
 
-	struct msgbuf {
+	struct syscall_msgbuf {
 		long mtype;
 		uint32_t value;
 	} msg_snd, msg_rcv;
@@ -3937,7 +3937,7 @@ static int syscall_msgsnd(void)
 	const uint32_t value = stress_mwc32();
 	int msgq_id, ret;
 
-	struct msgbuf {
+	struct syscall_msgbuf {
 		long mtype;
 		uint32_t value;
 	} msg_snd;
