@@ -386,7 +386,8 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
 	void *hint;
-	int ret, mask = ~0;
+	int ret;
+	NOCLOBBER int mask = ~0;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
