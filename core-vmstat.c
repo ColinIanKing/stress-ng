@@ -731,6 +731,57 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		}
 	}
 #endif
+#if defined(HAVE_SYS_SYSCTL_H) &&	\
+    defined(CTL_KERN) &&		\
+    defined(KERN_PROC) &&		\
+    defined(KERN_PROC_ALL) &&		\
+    defined(SRUN)
+	{
+		size_t length;
+		static const int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
+
+		vmstat->procs_running = 0;
+		vmstat->procs_blocked = 0;
+
+		for (;;) {
+			struct kinfo_proc * result;
+			size_t i, n;
+
+			ret = sysctl((int *)name, (sizeof(name)/sizeof(*name))-1, NULL,
+				&length, NULL, 0);
+			if (ret < 0)
+				break;
+
+			result = malloc(length);
+			if (!result)
+				break;
+
+			ret = sysctl((int *)name, (sizeof(name)/sizeof(*name))-1, result,
+				&length, NULL, 0);
+			if (ret < 0) {
+				free(result);
+				break;
+			}
+
+			n = length / sizeof(struct kinfo_proc);
+			for (i = 0; i < n; i++) {
+				if (result[i].kp_proc.p_flag & P_SYSTEM)
+					continue;
+				switch (result[i].kp_proc.p_stat) {
+				case SRUN:
+					vmstat->procs_running++;
+					break;
+				default:
+					vmstat->procs_blocked++;
+					break;
+				}
+			}
+			free(result);
+			if (ret == 0)
+				break;
+		}
+	}
+#endif
 }
 #else
 /*
