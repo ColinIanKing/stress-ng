@@ -64,7 +64,7 @@ static int stress_fault(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_MINFLT)
 	double t1 = 0.0, t2 = 0.0, dt;
 #endif
-	double duration = 0.0, count = 0.0;
+	NOCLOBBER double duration = 0.0, count = 0.0;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
