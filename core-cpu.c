@@ -175,7 +175,7 @@ bool stress_cpu_is_x86(void)
 	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
 
 	/* Intel CPU? */
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 	if ((memcmp(&ebx, "Genu", 4) == 0) &&
 	    (memcmp(&edx, "ineI", 4) == 0) &&
 	    (memcmp(&ecx, "ntel", 4) == 0))
@@ -187,19 +187,16 @@ bool stress_cpu_is_x86(void)
 #endif
 }
 
-#if defined(STRESS_ARCH_X86)
 /*
  *  stress_cpu_x86_extended_features
  *	cpuid EAX=7, ECX=0: Extended Features
  */
-static void stress_cpu_x86_extended_features(
-	uint32_t *ebx,
-	uint32_t *ecx,
-	uint32_t *edx)
-{
-	uint32_t eax = 7;
-
-	stress_x86_cpuid(&eax, ebx, ecx, edx);
+#if defined(STRESS_ARCH_X86)
+#define stress_cpu_x86_extended_features(ebx, ecx, edx)	\
+{							\
+	uint32_t eax = 7;				\
+							\
+	stress_x86_cpuid(eax, ebx, ecx, edx);		\
 }
 #endif
 
@@ -215,7 +212,7 @@ bool stress_cpu_x86_has_clflushopt(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+	stress_cpu_x86_extended_features(ebx, ecx, edx);
 
 	return !!(ebx & CPUID_clflushopt_EBX);
 #else
@@ -235,7 +232,7 @@ bool stress_cpu_x86_has_clwb(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+	stress_cpu_x86_extended_features(ebx, ecx, edx);
 
 	return !!(ebx & CPUID_clwb_EBX);
 #else
@@ -255,7 +252,7 @@ bool stress_cpu_x86_has_cldemote(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+	stress_cpu_x86_extended_features(ebx, ecx, edx);
 
 	return !!(ecx & CPUID_cldemote_ECX);
 #else
@@ -275,7 +272,7 @@ bool stress_cpu_x86_has_waitpkg(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+	stress_cpu_x86_extended_features(ebx, ecx, edx);
 
 	return !!(ecx & CPUID_waitpkg_ECX);
 #else
@@ -296,7 +293,7 @@ bool stress_cpu_x86_has_rdseed(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+	stress_cpu_x86_extended_features(ebx, ecx, edx);
 
 	return !!(ebx & CPUID_rdseed_EBX);
 #else
@@ -316,7 +313,7 @@ bool stress_cpu_x86_has_syscall(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_syscall_EDX);
 #else
@@ -336,7 +333,7 @@ bool stress_cpu_x86_has_rdrand(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(ecx & CPUID_rdrnd_ECX);
 #else
@@ -356,7 +353,7 @@ bool stress_cpu_x86_has_tsc(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_tsc_EDX);
 #else
@@ -376,7 +373,7 @@ bool stress_cpu_x86_has_msr(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_msr_EDX);
 #else
@@ -396,7 +393,7 @@ bool stress_cpu_x86_has_clfsh(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_clfsh_EDX);
 #else
@@ -416,7 +413,7 @@ bool stress_cpu_x86_has_mmx(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_mmx_EDX);
 #else
@@ -436,7 +433,7 @@ bool stress_cpu_x86_has_sse(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_sse_EDX);
 #else
@@ -456,7 +453,7 @@ bool stress_cpu_x86_has_sse2(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+	stress_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_sse2_EDX);
 #else
