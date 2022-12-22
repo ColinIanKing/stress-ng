@@ -159,6 +159,7 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #endif
 
 #if defined(STRESS_ARCH_SPARC) &&	\
+    defined(HAVE_ASM_SPARC_MEMBAR) &&	\
     !defined(HAVE_SHIM_MFENCE)
 	 __asm__ __volatile__ ("membar #StoreLoad" : : : "memory");
 #define HAVE_SHIM_MFENCE
