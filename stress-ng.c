@@ -2215,7 +2215,7 @@ static void NORETURN stress_child_atexit(void)
 
 void stress_metrics_set(
 	const stress_args_t *args,
-        const size_t idx,
+	const size_t idx,
 	const char *description,
 	const double value)
 {
