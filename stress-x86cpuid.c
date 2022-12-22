@@ -230,7 +230,7 @@ static int stress_x86cpuid(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per cpuid instruction", 1000000000.0 * rate);
+	stress_metrics_set(args, 0, "nanosecs per cpuid instruction", 1000000000.0 * rate);
 
 	return EXIT_SUCCESS;
 }

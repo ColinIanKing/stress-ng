@@ -368,7 +368,7 @@ again:
 	} while (keep_stressing(args));
 
 	rate = (metrics->duration > 0.0) ? metrics->count / metrics->duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "chroot calls per sec", rate);
+	stress_metrics_set(args, 0, "chroot calls per sec", rate);
 
 	ret = EXIT_SUCCESS;
 tidy_all:

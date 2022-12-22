@@ -224,7 +224,7 @@ static int stress_rawudp_server(
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB recv'd per sec", rate / (double)MB);
+	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
 
 die_close:
 	(void)close(fd);

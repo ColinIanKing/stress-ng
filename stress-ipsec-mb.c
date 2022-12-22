@@ -790,7 +790,7 @@ do_stats:
 				args->name, init_mb[i].name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s bogo ops per sec", init_mb[i].name);
-			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
+			stress_metrics_set(args, i, tmp, rate);
 		}
 	}
 

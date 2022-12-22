@@ -307,9 +307,9 @@ next:
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	stress_misc_stats_set(args->misc_stats, 0, "million random bits read", bytes * 8.0 / 1000000.0);
+	stress_metrics_set(args, 0, "million random bits read", bytes * 8.0 / 1000000.0);
 	rate = (duration > 0.0) ? bytes * 8.0 / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "million random bits per sec", rate / 1000000.0);
+	stress_metrics_set(args, 1, "million random bits per sec", rate / 1000000.0);
 
 	rc = EXIT_SUCCESS;
 err:

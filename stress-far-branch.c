@@ -429,7 +429,7 @@ static int stress_far_branch(const stress_args_t *args)
 	duration = stress_time_now() - t_start;
 
 	rate = (duration > 0.0) ? calls / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "function calls per sec", rate);
+	stress_metrics_set(args, 0, "function calls per sec", rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -268,11 +268,11 @@ static int stress_ioport(const stress_args_t *args)
 
 	rate = count_in > 0.0 ? duration_in / count_in : 0.0;
 	snprintf(msg, sizeof(msg), "nanosecs per inb(0x%x) op", IO_PORT);
-	stress_misc_stats_set(args->misc_stats, 0, msg, rate * 1000000000.0);
+	stress_metrics_set(args, 0, msg, rate * 1000000000.0);
 
 	rate = count_out > 0.0 ? duration_out / count_out : 0.0;
 	snprintf(msg, sizeof(msg), "nanosecs per outb(0x%x) op", IO_PORT);
-	stress_misc_stats_set(args->misc_stats, 1, msg, rate * 1000000000.0);
+	stress_metrics_set(args, 1, msg, rate * 1000000000.0);
 
 	if (fd >= 0)
 		(void)close(fd);

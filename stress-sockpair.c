@@ -147,7 +147,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 	}
 	duration = stress_time_now() - t;
 	rate = (duration > 0.0) ? (double)max / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "socketpair calls sec", rate);
+	stress_metrics_set(args, 0, "socketpair calls sec", rate);
 
 	if (max == 0) {
 		int rc;
@@ -282,7 +282,7 @@ abort:
 		} while (keep_stressing(args));
 
 		rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
-		stress_misc_stats_set(args->misc_stats, 1, "MB written per sec", rate / (double)MB);
+		stress_metrics_set(args, 1, "MB written per sec", rate / (double)MB);
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)

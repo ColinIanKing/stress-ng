@@ -2227,6 +2227,15 @@ void stress_misc_stats_set(
 	misc_stats[idx].value = value;
 }
 
+void stress_metrics_set(
+	const stress_args_t *args,
+        const size_t idx,
+	const char *description,
+	const double value)
+{
+        stress_misc_stats_set(args->misc_stats, idx, description, value);
+}
+
 #if defined(HAVE_GETRUSAGE)
 /*
  *  stress_getrusage()

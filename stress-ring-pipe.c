@@ -283,9 +283,9 @@ static int stress_ring_pipe(const stress_args_t *args)
 
 finish:
 	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "pipe read+write calls per sec", rate);
+	stress_metrics_set(args, 0, "pipe read+write calls per sec", rate);
 	rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "MB per sec data pipe write", rate / (double)MB);
+	stress_metrics_set(args, 1, "MB per sec data pipe write", rate / (double)MB);
 
 err_deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

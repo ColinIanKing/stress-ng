@@ -410,7 +410,7 @@ do_read:
 		counter = (double)get_counter(args);
 
 		rate = (counter > 0.0) ? duration / counter : 0.0;
-		stress_misc_stats_set(args->misc_stats, 0, "nanosecs per page fault", rate * 1000000000.0);
+		stress_metrics_set(args, 0, "nanosecs per page fault", rate * 1000000000.0);
 
 		(void)memset(&wake, 0, sizeof(wake));
 		wake.start = (uintptr_t)data;

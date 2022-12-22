@@ -357,10 +357,8 @@ die:
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 	dt = t2 - t1;
-	if (dt > 0.0) {
-		stress_misc_stats_set(args->misc_stats, 0,
-			"messages sent per sec", (double)msgs / dt);
-	}
+	if (dt > 0.0)
+		stress_metrics_set(args, 0, "messages sent per sec", (double)msgs / dt);
 
 	return rc;
 }

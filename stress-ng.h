@@ -2609,6 +2609,8 @@ extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
 extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const size_t idx, const char *description, const double value);
+extern void stress_metrics_set(const stress_args_t *args,
+	const size_t idx, const char *description, const double value);
 extern WARN_UNUSED int stress_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(const int err);

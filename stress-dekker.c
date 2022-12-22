@@ -167,7 +167,7 @@ static int stress_dekker(const stress_args_t *args)
 	duration = dekker->p0.duration + dekker->p1.duration;
 	count = dekker->p0.count + dekker->p1.count;
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "nanosecs per mutex", rate * 1000000000.0);
+	stress_metrics_set(args, 0, "nanosecs per mutex", rate * 1000000000.0);
 
 	(void)munmap((void *)dekker, 4096);
 

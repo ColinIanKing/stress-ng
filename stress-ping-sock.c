@@ -102,7 +102,7 @@ static int stress_ping_sock(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "ping sendto calls per sec", rate);
+	stress_metrics_set(args, 0, "ping sendto calls per sec", rate);
 
 	(void)close(fd);
 

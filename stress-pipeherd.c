@@ -194,9 +194,9 @@ static int stress_pipeherd(const stress_args_t *args)
 					args->name,
 					(count > 0) ? ((double)total / (double)count) : 0.0,
 					(dt > 0.0) ? ((double)total / dt) : 0.0);
-				stress_misc_stats_set(args->misc_stats, 0, "context switches per bogo op",
+				stress_metrics_set(args, 0, "context switches per bogo op",
 					(count > 0) ? ((double)total / (double)count) : 0.0);
-				stress_misc_stats_set(args->misc_stats, 1, "context switches per sec",
+				stress_metrics_set(args, 1, "context switches per sec",
 					(dt > 0.0) ? ((double)total / dt) : 0.0);
 			}
 		}

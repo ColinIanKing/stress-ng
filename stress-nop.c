@@ -383,7 +383,7 @@ static int stress_nop(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "picosecs per nop instruction", 1000000000000.0 * rate);
+	stress_metrics_set(args, 0, "picosecs per nop instruction", 1000000000000.0 * rate);
 
 	return EXIT_SUCCESS;
 }

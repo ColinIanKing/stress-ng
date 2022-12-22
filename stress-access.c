@@ -425,7 +425,7 @@ static int stress_access(const stress_args_t *args)
 	metrics[2].count = metrics[0].count + metrics[1].count;
 
 	rate = (metrics[2].duration > 0.0) ? metrics[2].count / metrics[2].duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "access calls per sec", rate);
+	stress_metrics_set(args, 0, "access calls per sec", rate);
 
 	rc = EXIT_SUCCESS;
 

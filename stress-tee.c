@@ -281,7 +281,7 @@ static int stress_tee(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB per sec tee rate", rate / (double)MB);
+	stress_metrics_set(args, 0, "MB per sec tee rate", rate / (double)MB);
 
 tidy_child2:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

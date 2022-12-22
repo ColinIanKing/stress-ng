@@ -253,7 +253,7 @@ reap:
 	pr_dbg("%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
 	dt = t2 - t1;
 	if (dt > 0.0) {
-		stress_misc_stats_set(args->misc_stats, 0, "lease sigio interrupts per sec",
+		stress_metrics_set(args, 0, "lease sigio interrupts per sec",
 			(double)lease_sigio / dt);
 	}
 

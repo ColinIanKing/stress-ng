@@ -258,13 +258,12 @@ next:
 	if (dt > 0.0) {
 		double average_duration;
 
-		stress_misc_stats_set(args->misc_stats, 0, "minor page faults per sec",
+		stress_metrics_set(args, 0, "minor page faults per sec",
 			(double)usage.ru_minflt / dt);
-		stress_misc_stats_set(args->misc_stats, 1, "major page faults per sec",
+		stress_metrics_set(args, 1, "major page faults per sec",
 			(double)usage.ru_majflt / dt);
-
 		average_duration = (count > 0.0) ? duration / count : 0.0;
-		stress_misc_stats_set(args->misc_stats, 2, "nanosecs per page fault", average_duration * 1000000000.0);
+		stress_metrics_set(args, 2, "nanosecs per page fault", average_duration * 1000000000.0);
 	}
 #endif
 	return EXIT_SUCCESS;

@@ -416,7 +416,7 @@ die:
 
 	dt = t2 - t1;
 	if (dt > 0.0)
-		stress_misc_stats_set(args->misc_stats, 0, "messages per sec", (double)msgs / dt);
+		stress_metrics_set(args, 0, "messages per sec", (double)msgs / dt);
 
 	return rc;
 }

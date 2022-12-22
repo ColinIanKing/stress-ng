@@ -196,9 +196,9 @@ clean:
 	(void)stress_temp_dir_rm_args(args);
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "microsecs per mount", rate * 1000000.0);
+	stress_metrics_set(args, 0, "microsecs per mount", rate * 1000000.0);
 	rate = (umount_count > 0.0) ? (double)umount_duration / umount_count : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "microsecs per umount", rate * 1000000.0);
+	stress_metrics_set(args, 1, "microsecs per umount", rate * 1000000.0);
 
 	return rc;
 }

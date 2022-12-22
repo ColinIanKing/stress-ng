@@ -238,7 +238,7 @@ static int stress_uprobe(const stress_args_t *args)
 	} while (keep_stressing(args));
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB trace data per second", rate / (double)MB);
+	stress_metrics_set(args, 0, "MB trace data per second", rate / (double)MB);
 
 terminate:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

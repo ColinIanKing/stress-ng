@@ -218,13 +218,12 @@ static int stress_llc_affinity(const stress_args_t *args)
 
 	writes /= (double)MB;
 	rate = write_duration > 0.0 ? (double)writes / write_duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB pec sec memory write rate", rate);
+	stress_metrics_set(args, 0, "MB pec sec memory write rate", rate);
 	reads /= (double)MB;
 	rate = read_duration > 0.0 ? (double)reads / read_duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 1, "MB per sec memiry read rate", rate);
-
+	stress_metrics_set(args, 1, "MB per sec memiry read rate", rate);
 	rate = duration > 0.0 ? (double)affinity_changes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 2, "CPU affinity changes per sec", rate);
+	stress_metrics_set(args, 2, "CPU affinity changes per sec", rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)buf, mmap_sz);

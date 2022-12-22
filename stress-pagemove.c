@@ -182,7 +182,7 @@ fail:
 	(void)munmap(buf, sz);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "page remaps per sec", rate);
+	stress_metrics_set(args, 0, "page remaps per sec", rate);
 
 	return rc;
 }

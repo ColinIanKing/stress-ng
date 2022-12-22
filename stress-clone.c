@@ -582,7 +582,7 @@ static int stress_clone(const stress_args_t *args)
 		free(flag_perms);
 
 	average = (metrics->count > 0.0) ? metrics->duration / metrics->count : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "microsecs per clone" , average * 1000000);
+	stress_metrics_set(args, 0, "microsecs per clone" , average * 1000000);
 
 	(void)munmap((void *)metrics, sizeof(*metrics));
 

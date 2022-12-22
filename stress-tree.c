@@ -998,7 +998,7 @@ tidy:
 			char msg[64];
 
 			snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
-			stress_misc_stats_set(args->misc_stats, j, msg, rate);
+			stress_metrics_set(args, j, msg, rate);
 			j++;
 		}
 	}

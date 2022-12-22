@@ -395,7 +395,7 @@ static int stress_rawpkt_server(
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_misc_stats_set(args->misc_stats, 0, "MB recv'd per sec", rate / (double)MB);
+	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
 
 	stress_rawpkt_sockopts(fd);
 	(void)close(fd);

@@ -476,7 +476,7 @@ static int stress_rawdev(const stress_args_t *args)
 
 			rate = (metrics[i].bytes_read / duration) / (double)MB;
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
-			stress_misc_stats_set(args->misc_stats, j, str, rate);
+			stress_metrics_set(args, j, str, rate);
 			j++;
 		}
 	}
