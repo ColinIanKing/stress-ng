@@ -166,7 +166,8 @@ stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16
 	return stress_get_cache_by_cpu(cpu, cache_level);
 }
 
-#if defined(STRESS_ARCH_SPARC)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_SPARC)
 static int stress_get_cpu_cache_value(
 	const char *cpu_path,
 	const char *file,
@@ -184,7 +185,8 @@ static int stress_get_cpu_cache_value(
 }
 #endif
 
-#if defined(STRESS_ARCH_ALPHA)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_ALPHA)
 /*
  *  stress_get_cpu_cache_alpha()
  *	find cache information as provided by linux Alpha from
@@ -348,7 +350,8 @@ static int stress_get_cpu_cache_apple(stress_cpu_t *cpu)
 }
 #endif
 
-#if defined(STRESS_ARCH_SPARC)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_SPARC)
 /*
  *  stress_get_cpu_cache_sparc64()
  *	find cache information as provided by linux SPARC64
@@ -419,6 +422,83 @@ static int stress_get_cpu_cache_sparc64(
 		cpu->cache_count = 0;
 
 		return 0;
+	}
+	cpu->cache_count = count;
+
+	return count;
+}
+#endif
+
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_M68K)
+static int stress_get_cpu_cache_m68k(stress_cpu_t *cpu)
+{
+	FILE *fp;
+	char buffer[1024];
+	size_t i, count;
+	size_t cache_type[2] = { 0, 0 };
+	size_t cache_size[2] = { 0, 0 };
+	int cpu_id = -1;
+
+	cpu->caches = NULL;
+	cpu->cache_count = 0;
+
+	fp = fopen("/proc/cpuinfo", "r");
+	if (!fp)
+		return 0;
+
+	(void)memset(buffer, 0, sizeof(buffer));
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		if (strncmp("CPU:", buffer, 4) == 0) {
+			if (sscanf(buffer + 4, "%d", &cpu_id) == 1)
+				break;
+		}
+	}
+	(void)fclose(fp);
+
+	switch (cpu_id) {
+	case 68020:
+		count = 1;
+		cache_type[0] = CACHE_TYPE_INSTRUCTION;
+		cache_size[0] = 256;
+		break;
+	case 68030:
+		count = 2;
+		cache_type[0] = CACHE_TYPE_INSTRUCTION;
+		cache_size[0] = 256;
+		cache_type[1] = CACHE_TYPE_DATA;
+		cache_size[1] = 256;
+		break;
+	case 68040:
+		count = 2;
+		cache_type[0] = CACHE_TYPE_INSTRUCTION;
+		cache_size[0] = 4096;
+		cache_type[1] = CACHE_TYPE_DATA;
+		cache_size[1] = 4096;
+		break;
+	case 68060:
+		count = 2;
+		cache_type[0] = CACHE_TYPE_INSTRUCTION;
+		cache_size[0] = 8192;
+		cache_type[1] = CACHE_TYPE_DATA;
+		cache_size[1] = 8192;
+		break;
+	default:
+		return 0;
+	}
+
+	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(*(cpu->caches)));
+		return 0;
+	}
+	for (i = 0; i < count; i++) {
+		cpu->caches[i].type = cache_type[i];
+		cpu->caches[i].level = 1;
+		cpu->caches[i].size = cache_size[i];
+		cpu->caches[i].line_size = 64;	/* Assumption! */
+		cpu->caches[i].ways = cache_size[i] / 64;
 	}
 	cpu->cache_count = count;
 
@@ -760,13 +840,21 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 	if (stress_get_cpu_cache_auxval(cpu) > 0)
 		return;
 
-#if defined(STRESS_ARCH_SPARC)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_SPARC)
 	/* Try cache info for sparc CPUs */
 	if (stress_get_cpu_cache_sparc64(cpu, cpu_path) > 0)
 		return;
 #endif
 
-#if defined(STRESS_ARCH_ALPHA)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_M68K)
+	if (stress_get_cpu_cache_m68k(cpu) > 0)
+		return;
+#endif
+
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_ALPHA)
 	if (stress_get_cpu_cache_alpha(cpu, cpu_path) > 0)
 		return;
 #endif
