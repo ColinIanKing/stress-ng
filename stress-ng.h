@@ -455,7 +455,7 @@ typedef struct {
 typedef struct {
 	char description[32];
 	double value;
-} stress_misc_stats_t;
+} stress_metrics_t;
 
 /* stressor args */
 typedef struct {
@@ -468,7 +468,7 @@ typedef struct {
 	pid_t pid;			/* stressor pid */
 	size_t page_size;		/* page size */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
-	stress_misc_stats_t *misc_stats;/* misc per stressor stats */
+	stress_metrics_t *metrics;	/* misc per stressor metrics */
 	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
 
@@ -863,7 +863,7 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
-	stress_misc_stats_t misc_stats[STRESS_MISC_STATS_MAX];
+	stress_metrics_t metrics[STRESS_MISC_STATS_MAX];
 #if defined(HAVE_GETRUSAGE)
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
@@ -2607,8 +2607,6 @@ extern WARN_UNUSED size_t stress_hostname_length(void);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
-extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
-	const size_t idx, const char *description, const double value);
 extern void stress_metrics_set(const stress_args_t *args,
 	const size_t idx, const char *description, const double value);
 extern WARN_UNUSED int stress_tty_width(void);

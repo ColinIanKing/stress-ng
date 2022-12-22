@@ -2213,27 +2213,25 @@ static void NORETURN stress_child_atexit(void)
 	_exit(EXIT_BY_SYS_EXIT);
 }
 
-void stress_misc_stats_set(
-	stress_misc_stats_t *misc_stats,
-	const size_t idx,
-	const char *description,
-	const double value)
-{
-	if (idx >= STRESS_MISC_STATS_MAX)
-		return;
-
-	(void)shim_strlcpy(misc_stats[idx].description, description,
-			sizeof(misc_stats[idx].description));
-	misc_stats[idx].value = value;
-}
-
 void stress_metrics_set(
 	const stress_args_t *args,
         const size_t idx,
 	const char *description,
 	const double value)
 {
-        stress_misc_stats_set(args->misc_stats, idx, description, value);
+	stress_metrics_t *metrics;
+
+	if (idx >= STRESS_MISC_STATS_MAX)
+		return;
+	if (!args)
+		return;
+	metrics = args->metrics;
+	if (!metrics)
+		return;
+
+	(void)shim_strlcpy(metrics[idx].description, description,
+			sizeof(metrics[idx].description));
+	metrics[idx].value = value;
 }
 
 #if defined(HAVE_GETRUSAGE)
@@ -2309,8 +2307,9 @@ static void MLOCKED_TEXT stress_run(
 			stats->counter_ready = true;
 			stats->counter = 0;
 			stats->checksum = *checksum;
-			for (i = 0; i < SIZEOF_ARRAY(stats->misc_stats); i++) {
-				stress_misc_stats_set(stats->misc_stats, i, "", -1.0);
+			for (i = 0; i < SIZEOF_ARRAY(stats->metrics); i++) {
+				stats->metrics[i].value = -1.0;
+				stats->metrics[i].description[0] = '\0';
 			}
 again:
 			if (!keep_stressing_flag())
@@ -2381,7 +2380,7 @@ again:
 						.pid = child_pid,
 						.page_size = page_size,
 						.mapped = &g_shared->mapped,
-						.misc_stats = stats->misc_stats,
+						.metrics = stats->metrics,
 						.info = g_stressor_current->stressor->info
 					};
 
@@ -2775,8 +2774,8 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
 		pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 
-		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-			const char *description = ss->stats[0]->misc_stats[i].description;
+		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->metrics); i++) {
+			const char *description = ss->stats[0]->metrics[i].description;
 
 			if (*description) {
 				double metric, total = 0.0;
@@ -2785,7 +2784,7 @@ static void stress_metrics_dump(
 				for (j = 0; j < ss->started_instances; j++) {
 					const stress_stats_t *const stats = ss->stats[j];
 
-					total += stats->misc_stats[i].value;
+					total += stats->metrics[i].value;
 				}
 				metric = ss->started_instances ? total / ss->started_instances : 0.0;
 				pr_yaml(yaml, "      %s: %f\n", stess_description_yamlify(description), metric);
@@ -2805,8 +2804,8 @@ static void stress_metrics_dump(
 			if (!ss->stats)
 				continue;
 
-			for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-				const char *description = ss->stats[0]->misc_stats[i].description;
+			for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->metrics); i++) {
+				const char *description = ss->stats[0]->metrics[i].description;
 
 				if (*description) {
 					int64_t exponent = 0;
@@ -2819,8 +2818,8 @@ static void stress_metrics_dump(
 						const stress_stats_t *const stats = ss->stats[j];
 						double f;
 
-						if (stats->misc_stats[i].value > 0.0) {
-							f = frexp(stats->misc_stats[i].value, &e);
+						if (stats->metrics[i].value > 0.0) {
+							f = frexp(stats->metrics[i].value, &e);
 							mantissa *= f;
 							exponent += e;
 							n += 1.0;
