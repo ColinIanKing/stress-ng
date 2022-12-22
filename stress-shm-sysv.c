@@ -139,6 +139,21 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_SHM_SYSV)
+
+static void stress_shm_metrics(
+	const stress_args_t *args,
+	const double duration,
+	const double count,
+	const char *syscall,
+	const int index)
+{
+	char buffer[40];
+	const double rate = (count > 0.0) ? (duration / count) : 0.0;
+
+	(void)snprintf(buffer, sizeof(buffer), "nanosecs per %s call", syscall);
+	stress_misc_stats_set(args->misc_stats, index, buffer, 1000000000.0 * rate);
+}
+
 /*
  *  stress_shm_sysv_check()
  *	simple check if shared memory is sane
@@ -555,6 +570,9 @@ static int stress_shm_sysv_child(
 	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
 	const size_t buffer_size = (page_size / sizeof(uint64_t)) + 1;
 	uint64_t *buffer;
+	double shmget_duration = 0.0, shmget_count = 0.0;
+	double shmat_duration = 0.0, shmat_count = 0.0;
+	double shmdt_duration = 0.0, shmdt_count = 0.0;
 
 	buffer = calloc(buffer_size, sizeof(*buffer));
 	if (!buffer) {
@@ -588,6 +606,7 @@ static int stress_shm_sysv_child(
 			void *addr;
 			key_t key = 0;
 			size_t shmall, freemem, totalmem, freeswap, totalswap;
+			double t;
 
 			/* Try hard not to overcommit at this current time */
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
@@ -629,11 +648,15 @@ static int stress_shm_sysv_child(
 						goto reap;
 				} while (!unique);
 
+				t = stress_time_now();
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
-				if (shm_id >= 0)
+				if (shm_id >= 0) {
+					shmget_duration += stress_time_now() - t;
+					shmget_count += 1.0;
 					break;
+				}
 				if (errno == EINTR)
 					goto reap;
 				if (errno == EPERM) {
@@ -666,6 +689,7 @@ static int stress_shm_sysv_child(
 				goto reap;
 			}
 
+			t = stress_time_now();
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
 				ok = false;
@@ -674,6 +698,8 @@ static int stress_shm_sysv_child(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
+			shmat_duration += stress_time_now() - t;
+			shmat_count += 1.0;
 			addrs[i] = addr;
 			shm_ids[i] = shm_id;
 			keys[i] = key;
@@ -816,13 +842,19 @@ static int stress_shm_sysv_child(
 reap:
 		for (i = 0; i < shm_sysv_segments; i++) {
 			if (addrs[i]) {
+				double t;
+
 #if defined(_POSIX_MEMLOCK_RANGE) &&   \
     defined(HAVE_MLOCK)
 				(void)shim_munlock(addrs[i], 4096);
 #endif
+				t = stress_time_now();
 				if (shmdt(addrs[i]) < 0) {
 					pr_fail("%s: shmdt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				} else {
+					shmdt_duration += stress_time_now() - t;
+					shmdt_count += 1.0;
 				}
 			}
 			if (shm_ids[i] >= 0) {
@@ -864,8 +896,14 @@ reap:
 	}
 	free(buffer);
 
+	pr_inf("%f %f %f\n", shmget_count, shmat_count, shmdt_count);
+
+	stress_shm_metrics(args, shmget_duration, shmget_count, "shmget", 0);
+	stress_shm_metrics(args, shmat_duration, shmat_count, "shmat", 1);
+	stress_shm_metrics(args, shmdt_duration, shmdt_count, "shmdt", 2);
 	return rc;
 }
+
 
 /*
  *  stress_shm_sysv()
