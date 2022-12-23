@@ -55,6 +55,7 @@ extern WARN_UNUSED uint32_t stress_hash_mid5(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_muladd32(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_muladd64(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_mulxror64(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_xorror64(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t *key, size_t len, uint32_t seed);
 extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);

@@ -503,6 +503,18 @@ static void stress_hash_method_mulxror64(
 	stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0x8d38b213, 0x458932cd);
 }
 
+/*
+ *  stress_hash_method_xorror64()
+ *	stress test hash mulxror64
+ */
+static void stress_hash_method_xorror64(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_xorror64, 0xe49ed85f, 0xc2beaf93);
+}
+
 static uint32_t stress_hash_sedgwick_wrapper(const char *str, const size_t len)
 {
 	(void)len;
@@ -580,6 +592,7 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "sobel",		stress_hash_method_sobel,	NULL },
 	{ "x17",		stress_hash_method_x17,		NULL },
 	{ "xor",		stress_hash_method_xor,		NULL },
+	{ "xorror64",		stress_hash_method_xorror64,	NULL },
 #if defined(HAVE_XXHASH_H) &&	\
     defined(HAVE_LIB_XXHASH)
 	{ "xxh64",		stress_hash_method_xxh64,	NULL },

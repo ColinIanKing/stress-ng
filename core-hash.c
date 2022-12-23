@@ -557,6 +557,31 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 }
 
 /*
+ * stress_hash_xorror64()
+ *
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_xorror64(const char *str, const size_t len)
+{
+	register uint64_t hash = ~len;
+	register size_t i;
+
+	for (i = len >> 3; i; ) {
+		uint64_t v64;
+
+		(void)memcpy(&v64, str, sizeof(v64));
+		str += sizeof(v64);
+		i--;
+		hash = v64 ^ hash_ror_uint64(hash, 16);
+	}
+	for (i = len & 7; i;) {
+		uint8_t v8 = *(str++);
+		i--;
+		hash = v8 ^ hash_ror_uint64(hash, 2);
+	}
+	return (uint32_t)((hash >> 32) ^ hash);
+}
+
+/*
  *  stress_hash_sedgwick()
  *	simple hash from Robert Sedgwicks Algorithms in C book.
  */
