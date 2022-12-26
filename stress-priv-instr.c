@@ -50,6 +50,39 @@ static op_info_t op_info[] =
 };
 #endif
 
+#if defined(STRESS_ARCH_ALPHA) &&	\
+    (defined(HAVE_ASM_ALPHA_DRAINA) ||	\
+     defined(HAVE_ASM_ALPHA_HALT))
+#define HAVE_PRIV_INSTR
+
+#define PAL_halt	0
+#define PAL_draina	2
+
+#if defined(HAVE_ASM_ALPHA_DRAINA)
+static void stress_alpha_draina(void)
+{
+	__asm__ __volatile__("call_pal %0 #draina" : : "i" (PAL_draina) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_ALPHA_HALT))
+static void stress_alpha_halt(void)
+{
+	__asm__ __volatile__("call_pal %0 #halt" : : "i" (PAL_halt));
+}
+#endif
+
+static op_info_t op_info[] =
+{
+#if defined(HAVE_ASM_ALPHA_DRAINA)
+	{ "call_pal %0 #draina",	stress_alpha_draina,	false, false },
+#endif
+#if defined(HAVE_ASM_ALPHA_HALT))
+	{ "call_pal %0 #halt",		stress_alpha_halt,	false, false },
+#endif
+};
+#endif
+
 #if defined(STRESS_ARCH_HPPA) &&	\
     (defined(HAVE_ASM_HPPA_DIAG) || 	\
      defined(HAVE_ASM_HPPA_RFI))
