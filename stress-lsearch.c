@@ -66,6 +66,7 @@ static int stress_lsearch(const stress_args_t *args)
 	int32_t *data, *root;
 	size_t i, max;
 	uint64_t lsearch_size = DEFAULT_LSEARCH_SIZE;
+	double rate, t, duration = 0.0, count = 0.0, sorted = 0.0;
 
 	if (!stress_get_setting("lsearch-size", &lsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -87,17 +88,22 @@ static int stress_lsearch(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_sort_data_int32_init(data, max);
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		size_t n = 0;
 
+		stress_sort_data_int32_shuffle(data, max);
+
 		/* Step #1, populate with data */
 		for (i = 0; keep_stressing_flag() && i < max; i++) {
-			data[i] = (int32_t)(((stress_mwc16() & 0xfff) << LSEARCH_SIZE_SHIFT) ^ i);
 			VOID_RET(void *, lsearch(&data[i], root, &n, sizeof(*data), stress_sort_cmp_int32));
 		}
 		/* Step #2, find */
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
 			int32_t *result;
 
@@ -110,10 +116,17 @@ static int stress_lsearch(const stress_args_t *args)
 					args->name, i, *result, data[i]);
 			}
 		}
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)i;
 		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_metrics_set(args, 0, "lsearch comparisons per sec", rate);
+	stress_metrics_set(args, 1, "lsearch comparisons per item", count / sorted);
 
 	free(root);
 	free(data);

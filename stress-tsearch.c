@@ -66,6 +66,7 @@ static int stress_tsearch(const stress_args_t *args)
 	uint64_t tsearch_size = DEFAULT_TSEARCH_SIZE;
 	int32_t *data;
 	size_t i, n;
+	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
 
 	if (!stress_get_setting("tsearch-size", &tsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -83,12 +84,16 @@ static int stress_tsearch(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	stress_sort_data_int32_init(data, n);
+
 	do {
+		double t;
 		void *root = NULL;
+
+		stress_sort_data_int32_shuffle(data, n);
 
 		/* Step #1, populate tree */
 		for (i = 0; i < n; i++) {
-			data[i] = (int32_t)(((stress_mwc16() & 0xfff) << TSEARCH_SIZE_SHIFT) ^ i);
 			if (tsearch(&data[i], &root, stress_sort_cmp_int32) == NULL) {
 				size_t j;
 
@@ -100,6 +105,8 @@ static int stress_tsearch(const stress_args_t *args)
 			}
 		}
 		/* Step #2, find */
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
 			const void **result = tfind(&data[i], &root, stress_sort_cmp_int32);
 
@@ -119,6 +126,10 @@ static int stress_tsearch(const stress_args_t *args)
 				}
 			}
 		}
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)i;
+
 		/* Step #3, delete */
 		for (i = 0; i < n; i++) {
 			const void **result = tdelete(&data[i], &root, stress_sort_cmp_int32);
@@ -130,9 +141,12 @@ static int stress_tsearch(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
-
 abort:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_metrics_set(args, 0, "tsearch comparisons per sec", rate);
+	stress_metrics_set(args, 1, "tsearch comparisons per item", count / sorted);
 
 	free(data);
 	return EXIT_SUCCESS;

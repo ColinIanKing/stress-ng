@@ -73,6 +73,8 @@ static int stress_qsort(const stress_args_t *args)
 	size_t n, i;
 	struct sigaction old_action;
 	int ret;
+	double rate;
+	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 
 	if (!stress_get_setting("qsort-size", &qsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -102,15 +104,23 @@ static int stress_qsort(const stress_args_t *args)
 		goto tidy;
 	}
 
-	/* This is expensive, do it once */
-	for (ptr = data, i = 0; i < n; i++)
-		*ptr++ = (int32_t)stress_mwc32();
+	stress_sort_data_int32_init(data, n);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		double t;
+
+		stress_sort_data_int32_shuffle(data, n);
+
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		/* Sort "random" data */
 		qsort(data, n, sizeof(*data), stress_sort_cmp_int32);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
+
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr + 1)) {
@@ -125,7 +135,13 @@ static int stress_qsort(const stress_args_t *args)
 			break;
 
 		/* Reverse sort */
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		qsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
+
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr + 1)) {
@@ -139,10 +155,21 @@ static int stress_qsort(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		/* And re-order by byte compare */
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_sort_cmp_int8);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
 
 		/* Reverse sort this again */
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		qsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
+
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr + 1)) {
@@ -163,6 +190,9 @@ static int stress_qsort(const stress_args_t *args)
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_metrics_set(args, 0, "qsort comparisons per sec", rate);
+	stress_metrics_set(args, 1, "qsort comparisons per item", count / sorted);
 
 	free(data);
 

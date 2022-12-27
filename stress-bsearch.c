@@ -57,25 +57,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_BSEARCH)
 
 /*
- *  Monotonically increasing values
- */
-#define SETDATA(d, i, v, prev)		\
-do {					\
-	d[i] = 1 + prev + (v & 0x7);	\
-	v >>= 2;			\
-	prev = d[i];			\
-	i++;				\
-} while (0)
-
-/*
  *  stress_bsearch()
  *	stress bsearch
  */
 static int stress_bsearch(const stress_args_t *args)
 {
-	int32_t *data, *ptr, prev = 0;
+	int32_t *data, *ptr;
 	size_t n, n8, i;
 	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
+	double rate, t, duration = 0.0, count = 0.0, sorted = 0.0;
 
 	if (!stress_get_setting("bsearch-size", &bsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -93,24 +83,12 @@ static int stress_bsearch(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	/* Populate with ascending data */
-	prev = 0;
-	for (i = 0; i < n;) {
-		int32_t v = (int32_t)stress_mwc32();
-
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-		SETDATA(data, i, v, prev);
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		stress_sort_data_int32_init(data, n);
+		stress_sort_compare_reset();
+		t = stress_time_now();
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
 
@@ -126,10 +104,17 @@ static int stress_bsearch(const stress_args_t *args)
 						args->name, i, *result, *ptr);
 			}
 		}
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)i;
 		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_metrics_set(args, 0, "bsearch comparisons per sec", rate);
+	stress_metrics_set(args, 1, "bsearch comparisons per item", count / sorted);
 
 	free(data);
 	return EXIT_SUCCESS;

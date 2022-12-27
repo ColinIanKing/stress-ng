@@ -21,10 +21,15 @@
 
 #include <inttypes.h>
 
+extern void stress_sort_data_int32_init(int32_t *data, const size_t n);
+extern void stress_sort_data_int32_shuffle(int32_t *data, const size_t n);
+extern void stress_sort_compare_reset(void);
+extern uint64_t stress_sort_compare_get(void);
+
 #define STRESS_SORT_CMP(name, type)				\
-int stress_sort_cmp_ ## name(const void *p1, const void *p2);
+extern int stress_sort_cmp_ ## name(const void *p1, const void *p2);
 #define STRESS_SORT_CMP_REV(name, type)				\
-int stress_sort_cmp_rev_ ## name(const void *p1, const void *p2);
+extern int stress_sort_cmp_rev_ ## name(const void *p1, const void *p2);
 
 STRESS_SORT_CMP(int8,  int8_t)
 STRESS_SORT_CMP(int16, int16_t)
