@@ -230,6 +230,7 @@ static int stress_zombie(const stress_args_t *args)
 				 *
 				stress_zombie_free();
 				 */
+				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				_exit(0);
 			}
 			if (zombie->pid == -1) {

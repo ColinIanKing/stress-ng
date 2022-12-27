@@ -220,6 +220,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_STATE_STOP		(4)
 #define STRESS_STATE_EXIT		(5)
 #define STRESS_STATE_WAIT		(6)
+#define STRESS_STATE_ZOMBIE		(7)
 
 /*
  *  Timing units

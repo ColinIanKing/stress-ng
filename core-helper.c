@@ -1188,7 +1188,8 @@ void stress_set_proc_state(const char *name, const int state)
 		"deinit",
 		"stop",
 		"exit",
-		"wait"
+		"wait",
+		"zombie",
 	};
 
 	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))

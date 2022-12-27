@@ -217,6 +217,7 @@ static int stress_fork_fn(
 				VOID_RET(int, setpgid(-1, 0));
 
 				(void)shim_sched_yield();
+				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				_exit(0);
 			} else if (pid < 0) {
 				info[n].err = errno;
