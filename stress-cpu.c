@@ -2934,7 +2934,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			stress_cpu_counter_scale[i] = 1484.50 / cpu_methods[i].bogo_op_rate;
 	}
 
-	pr_dbg("%s: using method '%s'\n", args->name, cpu_methods[cpu_method].name);
+	if (args->instance == 0)
+		pr_dbg("%s: using method '%s'\n", args->name, cpu_methods[cpu_method].name);
 
 	/*
 	 * It is unlikely, but somebody may request to do a zero

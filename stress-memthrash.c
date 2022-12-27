@@ -933,8 +933,8 @@ static int stress_memthrash(const stress_args_t *args)
 
 	(void)stress_get_setting("memthrash-method", &context.memthrash_method);
 
-	pr_dbg("%s: using method '%s'\n", args->name, context.memthrash_method->name);
 	if (args->instance == 0) {
+		pr_dbg("%s: using method '%s'\n", args->name, context.memthrash_method->name);
 		pr_inf("%s: starting %" PRIu32 " thread%s on each of the %"
 			PRIu32 " stressors on a %" PRIu32 " CPU system\n",
 			args->name, context.max_threads, plural(context.max_threads),
