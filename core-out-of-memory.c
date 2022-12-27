@@ -225,8 +225,10 @@ again:
 		int status, ret;
 
 rewait:
+		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			/* No longer alive? */
 			if (errno == ECHILD)
 				goto report;
@@ -249,6 +251,7 @@ rewait:
 				(void)shim_usleep(500000);
 			goto rewait;
 		} else if (WIFSIGNALED(status)) {
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			if (not_quiet)
 				pr_dbg("%s: child died: %s (instance %d)\n",
 					args->name, stress_strsignal(WTERMSIG(status)),
@@ -303,8 +306,10 @@ rewait:
 		/* Child */
 		int ret;
 
-		if (!keep_stressing(args))
+		if (!keep_stressing(args)) {
+			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
+		}
 
 		stress_parent_died_alarm();
 
@@ -315,14 +320,17 @@ rewait:
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
 			VOID_RET(int, stress_drop_capabilities(args->name));
 		}
-		if (!keep_stressing(args))
+		if (!keep_stressing(args)) {
+			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
+		}
 
 		ret = func(args, context);
 		pr_fail_check(&rc);
 		if (rc != EXIT_SUCCESS)
 			ret = rc;
 
+		stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 		_exit(ret);
 	}
 
