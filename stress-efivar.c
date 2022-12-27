@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#define STRESS_EFI_UNKNOWN	(0)
+#define STRESS_EFI_VARS		(1)
+#define STRESS_EFI_EFIVARS	(2)
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif
@@ -42,18 +46,12 @@ typedef struct {
 	uint32_t	attributes;
 } __attribute__((packed)) stress_efi_var_t;
 
-static const char vars[] = "/sys/firmware/efi/vars";
-static const char efi_vars[] = "/sys/firmware/efi/efivars";
+static const char sysfs_efi_vars[] = "/sys/firmware/efi/vars";
+static const char sysfs_efi_efivars[] = "/sys/firmware/efi/efivars";
 static struct dirent **efi_dentries;
 static bool *efi_ignore;
 static int dir_count;
-
-static const char * const efi_sysfs_names[] = {
-	"attributes",
-	"data",
-	"guid",
-	"size"
-};
+static int efi_mode = STRESS_EFI_UNKNOWN;
 
 /*
  *  efi_var_ignore()
@@ -81,14 +79,15 @@ static inline void guid_to_str(const uint8_t *guid, char *guid_str, const size_t
 	if (!guid_str)
 		return;
 
-	if (guid_len > 36)
+	if (guid_len > 36) {
 		(void)snprintf(guid_str, guid_len,
 			"%02x%02x%02x%02x-%02x%02x-%02x%02x-"
 			"%02x%02x-%02x%02x%02x%02x%02x%02x",
 			guid[3], guid[2], guid[1], guid[0], guid[5], guid[4], guid[7], guid[6],
 		guid[8], guid[9], guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
-	else
+	} else {
 		*guid_str = '\0';
+	}
 }
 
 /*
@@ -130,47 +129,12 @@ static void efi_lseek_read(const int fd, const off_t offset, const int whence)
 	}
 }
 
-/*
- *  efi_get_data()
- *	read data from a raw efi sysfs entry
- */
-static int efi_get_data(
+static void stress_efi_sysfs_fd(
 	const stress_args_t *args,
-	const char *varname,
-	const char *field,
-	void *buf,
-	const size_t buf_len,
-	const pid_t pid)
+	const int fd,
+	const ssize_t n)
 {
-	int fd, rc = -1;
-	ssize_t n;
-	char filename[PATH_MAX];
-	struct stat statbuf;
 	off_t offset;
-
-	(void)snprintf(filename, sizeof(filename),
-		"%s/%s/%s", vars, varname, field);
-	if ((fd = open(filename, O_RDONLY)) < 0)
-		return rc;
-
-	if (fstat(fd, &statbuf) < 0) {
-		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
-			args->name, filename, errno, strerror(errno));
-		goto err_vars;
-	}
-
-	(void)stress_read_fdinfo(pid, fd);
-	(void)memset(buf, 0, buf_len);
-
-	n = read(fd, buf, buf_len);
-	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
-		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
-			args->name, filename, errno, strerror(errno));
-		goto err_vars;
-	}
-
-	rc = 0;
-
 	/*
 	 *  And exercise the interface for some extra kernel
 	 *  test coverage
@@ -213,46 +177,83 @@ static int efi_get_data(
 		VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 	}
 #endif
-
-err_vars:
-	(void)close(fd);
-
-	return rc;
 }
 
 /*
- *  efi_get_variable()
- *	fetch a UEFI variable given its name.
+ *  efi_get_data()
+ *	read data from a raw efi sysfs entry
  */
-static int efi_get_variable(
+static int efi_get_data(
 	const stress_args_t *args,
+	const pid_t pid,
 	const char *varname,
-	stress_efi_var_t *var,
-	const pid_t pid)
+	const char *field,
+	void *buf,
+	const size_t buf_len,
+	double *duration,
+	double *count)
 {
+	int fd;
+	ssize_t n;
+	char filename[PATH_MAX];
+	struct stat statbuf;
+	double t;
+	const bool metrics = (duration != NULL) && (count != NULL);
+
+	(void)snprintf(filename, sizeof(filename),
+		"%s/%s/%s", sysfs_efi_vars, varname, field);
+	if ((fd = open(filename, O_RDONLY)) < 0)
+		return -1;
+
+	if (fstat(fd, &statbuf) < 0) {
+		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_vars;
+	}
+
+	(void)stress_read_fdinfo(pid, fd);
+	(void)memset(buf, 0, buf_len);
+
+	if (metrics)
+		t = stress_time_now();
+	n = read(fd, buf, buf_len);
+	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
+		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_vars;
+	}
+	if (metrics) {
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
+	}
+	stress_efi_sysfs_fd(args, fd, n);
+err_vars:
+	(void)close(fd);
+
+	return 0;
+}
+
+static int efi_read_variable(
+	const stress_args_t *args,
+	char *data,
+	const size_t data_len,
+	const pid_t pid,
+	const char *efi_path,
+	const char *varname,
+	double *duration,
+	double *count)
+{
+	char filename[PATH_MAX];
+	struct stat statbuf;
+	double t;
+	ssize_t n;
+	int fd, ret, rc = 0;
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_IOC_SETFLAGS)
 	int flags;
 #endif
-	int fd, ret, rc = 0;
-	size_t i;
-	ssize_t n;
-	char filename[PATH_MAX];
-	static char data[4096];
-	struct stat statbuf;
 
-	if ((!varname) || (!var))
-		return -1;
-
-	if (efi_get_data(args, varname, "raw_var", var, sizeof(*var), pid) < 0)
-		rc = -1;
-
-	/* Exercise reading the efi sysfs files */
-	for (i = 0; i < SIZEOF_ARRAY(efi_sysfs_names); i++) {
-		(void)efi_get_data(args, varname, efi_sysfs_names[i], data, sizeof(data), pid);
-	}
-
-	(void)stress_mk_filename(filename, sizeof(filename), efi_vars, varname);
+	(void)stress_mk_filename(filename, sizeof(filename), efi_path, varname);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return -1;
 
@@ -264,15 +265,19 @@ static int efi_get_variable(
 		goto err_efi_vars;
 	}
 
-	n = read(fd, data, sizeof(data));
+	t = stress_time_now();
+	n = read(fd, data, data_len);
 	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
 		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
 	}
+	(*duration) += stress_time_now() - t;
+	(*count) += 1.0;
 
 	(void)stress_read_fdinfo(pid, fd);
+	stress_efi_sysfs_fd(args, fd, n);
 
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_IOC_SETFLAGS)
@@ -285,10 +290,11 @@ static int efi_get_variable(
 	}
 
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &flags);
-	if (ret < 0) {
+	if ((ret < 0) && (errno != EPERM)) {
 		pr_fail("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
+		goto err_efi_vars;
 	}
 #endif
 
@@ -299,19 +305,95 @@ err_efi_vars:
 }
 
 /*
+ *  get_variable_sysfs_efi_vars
+ *	fetch a UEFI variable given its name via /sys/firmware/efi/vars
+ */
+static int get_variable_sysfs_efi_vars(
+	const stress_args_t *args,
+	const pid_t pid,
+	char *data,
+	const size_t data_len,
+	const char *varname,
+	double *duration,
+	double *count)
+{
+	size_t i;
+	stress_efi_var_t var;
+
+	static const char * const efi_sysfs_names[] = {
+		"attributes",
+		"data",
+		"guid",
+		"size"
+	};
+
+	(void)efi_get_data(args, pid, varname, "raw_var", &var, sizeof(var),
+			   duration, count);
+
+	/* Exercise reading the efi sysfs files */
+	for (i = 0; i < SIZEOF_ARRAY(efi_sysfs_names); i++) {
+		(void)efi_get_data(args, pid, varname, efi_sysfs_names[i],
+				   data, data_len, NULL, NULL);
+	}
+
+	if (efi_read_variable(args, data, data_len, pid,
+			      sysfs_efi_vars, varname,
+			      duration, count) < 0)
+		return -1;
+
+	if (var.attributes) {
+		char varname[513];
+		char guid_str[37];
+
+		efi_get_varname(varname, sizeof(varname), &var);
+		guid_to_str(var.guid, guid_str, sizeof(guid_str));
+
+		(void)guid_str;
+	} else {
+		efi_ignore[i] = true;
+	}
+	return 0;
+}
+
+/*
+ *  get_variable_sysfs_efi_efivars
+ *	fetch a UEFI variable given its name via /sys/firmware/efi/efivars
+ */
+static int get_variable_sysfs_efi_efivars(
+	const stress_args_t *args,
+	const pid_t pid,
+	char *data,
+	const size_t data_len,
+	const char *varname,
+	double *duration,
+	double *count)
+{
+	return efi_read_variable(args, data, data_len, pid,
+				 sysfs_efi_efivars, varname,
+				 duration, count);
+}
+
+/*
  *  efi_vars_get()
  *	read EFI variables
  */
-static int efi_vars_get(const stress_args_t *args, const pid_t pid)
+static int efi_vars_get(
+	const stress_args_t *args,
+	const pid_t pid,
+	double *duration,
+	double *count)
 {
+	static char data[4096];
 	int i;
 
-	for (i = 0; i < dir_count; i++) {
-		stress_efi_var_t var;
+	for (i = 0; keep_stressing(args) && (i < dir_count); i++) {
 		char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
 		if (efi_ignore[i])
+			continue;
+
+		if (!d_name)
 			continue;
 
 		if (efi_var_ignore(d_name)) {
@@ -319,23 +401,21 @@ static int efi_vars_get(const stress_args_t *args, const pid_t pid)
 			continue;
 		}
 
-		ret = efi_get_variable(args, d_name, &var, pid);
+		switch (efi_mode) {
+		case STRESS_EFI_VARS:
+			ret = get_variable_sysfs_efi_vars(args, pid, data, sizeof(data), d_name, duration, count);
+			break;
+		case STRESS_EFI_EFIVARS:
+			ret = get_variable_sysfs_efi_efivars(args, pid, data, sizeof(data), d_name, duration, count);
+			break;
+		default:
+			ret = -1;
+		}
 		if (ret < 0) {
 			efi_ignore[i] = true;
 			continue;
 		}
 
-		if (var.attributes) {
-			char varname[513];
-			char guid_str[37];
-
-			efi_get_varname(varname, sizeof(varname), &var);
-			guid_to_str(var.guid, guid_str, sizeof(guid_str));
-
-			(void)guid_str;
-		} else {
-			efi_ignore[i] = true;
-		}
 		inc_counter(args);
 	}
 
@@ -348,7 +428,14 @@ static int efi_vars_get(const stress_args_t *args, const pid_t pid)
  */
 static int stress_efivar_supported(const char *name)
 {
-	DIR *dir;
+	if (access(sysfs_efi_efivars, R_OK)) {
+		efi_mode = STRESS_EFI_EFIVARS;
+		return 0;
+	}
+	if (access(sysfs_efi_vars, R_OK)) {
+		efi_mode = STRESS_EFI_VARS;
+		return 0;
+	}
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
@@ -357,18 +444,15 @@ static int stress_efivar_supported(const char *name)
 		return -1;
 	}
 
-	dir = opendir(efi_vars);
-	if (!dir) {
-		pr_inf_skip("%s stressor will be skipped, "
-			"need to have access to EFI vars in %s\n",
-			name, vars);
-		return -1;
-	}
-	(void)closedir(dir);
-
-	return 0;
+	pr_inf_skip("%s stressor will be skipped, "
+		"need to have access to EFI vars in %s\n",
+		name, sysfs_efi_vars);
+	return -1;
 }
 
+#define STRESS_EFI_UNKNOWN	(0)
+#define STRESS_EFI_VARS		(1)
+#define STRESS_EFI_EFIVARS	(2)
 /*
  *  stress_efivar()
  *	stress that exercises the efi variables
@@ -377,12 +461,22 @@ static int stress_efivar(const stress_args_t *args)
 {
 	pid_t pid;
 	size_t sz;
+	double duration = 0.0, count = 0.0;
+	efi_mode = STRESS_EFI_UNKNOWN;
 
 	efi_dentries = NULL;
-	dir_count = scandir(vars, &efi_dentries, NULL, alphasort);
-	if (!efi_dentries || (dir_count <= 0)) {
-		pr_inf("%s: cannot read EFI vars in %s\n", args->name, vars);
-		return EXIT_SUCCESS;
+
+	dir_count = scandir(sysfs_efi_efivars, &efi_dentries, NULL, alphasort);
+	if (efi_dentries && (dir_count > 0)) {
+		efi_mode = STRESS_EFI_EFIVARS;
+	} else {
+		dir_count = scandir(sysfs_efi_vars, &efi_dentries, NULL, alphasort);
+		if (efi_dentries && (dir_count > 0)) {
+			efi_mode = STRESS_EFI_VARS;
+		} else {
+			pr_inf("%s: cannot read EFI vars in %s or %s\n", args->name, sysfs_efi_efivars, sysfs_efi_vars);
+			return EXIT_NO_RESOURCE;
+		}
 	}
 
 	sz = (((size_t)dir_count * sizeof(*efi_ignore)) + args->page_size) & (args->page_size - 1);
@@ -425,14 +519,19 @@ again:
 		}
 	} else {
 		const pid_t mypid = getpid();
+		double rate;
 
 		stress_parent_died_alarm();
 		stress_set_oom_adjustment(args->name, true);
 		(void)sched_settings_apply(true);
 
 		do {
-			efi_vars_get(args, mypid);
+			efi_vars_get(args, mypid, &duration, &count);
 		} while (keep_stressing(args));
+
+		rate = (duration > 0.0) ? count / duration : 0.0;
+		stress_metrics_set(args, 0, "efi raw data reads per sec", rate);
+
 		_exit(0);
 	}
 

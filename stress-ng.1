@@ -1603,10 +1603,10 @@ dlopen(3) for more details of this mechanism.
 stop workers after N bogo load/unload cycles.
 .TP
 .B \-\-efivar N
-start N works that exercise the Linux /sys/firmware/efi/vars interface by
-reading the EFI variables. This is a Linux only stress test for platforms
-that support the EFI vars interface and requires the CAP_SYS_ADMIN
-capability.
+start N works that exercise the Linux /sys/firmware/efi/efivars and
+/sys/firmware/efi/vars interfaces by reading the EFI variables. This
+is a Linux only stress test for platforms that support the EFI vars
+interface and may require the CAP_SYS_ADMIN capability.
 .TP
 .B \-\-efivar-ops N
 stop the efivar stressors after N EFI variable read operations.
