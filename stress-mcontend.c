@@ -297,6 +297,7 @@ static void *stress_memory_contend_thread(void *arg)
 		(void)sched_setaffinity(0, sizeof(mask), &mask);
 #endif
 	}
+
 	return &nowt;
 }
 
@@ -368,13 +369,12 @@ static int stress_mcontend(const stress_args_t *args)
 	(void)shim_mlock(data[0], args->page_size);
 	(void)shim_mlock(data[1], args->page_size);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	pa.data = data;
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_memory_contend_thread, &pa);
 	}
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		stress_memory_contend(&pa);
@@ -385,12 +385,14 @@ static int stress_mcontend(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap(data[0], args->page_size);
 	(void)munmap(data[1], args->page_size);
 
