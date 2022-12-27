@@ -71,7 +71,7 @@ void stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 
 	for (i = 0; i < n; i++) {
 		register uint32_t tmp;
-		register j = seed % n;
+		register uint32_t j = seed % n;
 
 		seed = (a * seed + c);
 		tmp = data32[i];
