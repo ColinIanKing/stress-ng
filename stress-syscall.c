@@ -153,6 +153,10 @@
 #include <sys/sendfile.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
 #endif
@@ -5406,6 +5410,9 @@ static int syscall_seccomp(void)
 }
 #endif
 
+
+#if defined(HAVE_SELECT) &&	\
+    defined(HAVE_SYS_SELECT_H)
 #define HAVE_SYSCALL_SELECT
 static int syscall_select(void)
 {
@@ -5439,6 +5446,7 @@ static int syscall_select(void)
 	t2 = syscall_time_now();
 	return ret;
 }
+#endif
 
 #if defined(HAVE_SEM_SYSV) &&	\
     defined(HAVE_SYS_IPC_H)
