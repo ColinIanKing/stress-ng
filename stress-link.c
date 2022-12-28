@@ -151,6 +151,7 @@ static int stress_link_generic(
 				if ((errno == EDQUOT) ||
 				    (errno == ENOMEM) ||
 				    (errno == EMLINK) ||
+				    (errno == EINTR) ||
 				    (errno == ENOSPC)) {
 					/* Try again */
 					continue;
