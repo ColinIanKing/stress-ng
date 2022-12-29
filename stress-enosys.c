@@ -323,6 +323,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 	register stress_hash_syscall_t *h;
 	register int i;
 	register const long number16 = number & 0xffff;
+	const unsigned long index = (unsigned long)number;
 
 	/* Really make sure some syscalls are never called */
 	for (i = 0; i < (int)SIZEOF_ARRAY(syscall_ignore); i++) {
@@ -330,7 +331,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 			return true;
 	}
 
-	h = hash_syscall_table[number % HASH_SYSCALL_SIZE];
+	h = hash_syscall_table[index % HASH_SYSCALL_SIZE];
 	while (h) {
 		if (h->number == number)
 			return true;
@@ -341,7 +342,8 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 
 static inline void HOT OPTIMIZE3 syscall_add(const long number)
 {
-	const long hash = number % HASH_SYSCALL_SIZE;
+	const unsigned long index = (unsigned long)number;
+	const unsigned long hash = index % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
 
 	while (h) {
@@ -375,21 +377,25 @@ static inline void syscall_free(void)
 	}
 }
 
+
 static const int sigs[] = {
 #if defined(SIGILL)
 	SIGILL,
-#endif
-#if defined(SIGTRAP)
-	SIGTRAP,
-#endif
-#if defined(SIGFPE)
-	SIGFPE,
 #endif
 #if defined(SIGBUS)
 	SIGBUS,
 #endif
 #if defined(SIGSEGV)
 	SIGSEGV,
+#endif
+};
+
+static const int exit_sigs[] = {
+#if defined(SIGTRAP)
+	SIGTRAP,
+#endif
+#if defined(SIGFPE)
+	SIGFPE,
 #endif
 #if defined(SIGIOT)
 	SIGIOT,
@@ -3476,13 +3482,13 @@ static void limit_procs(const unsigned long procs)
 #endif
 }
 
-static void NORETURN MLOCKED_TEXT stress_badhandler(int signum)
+static void NORETURN MLOCKED_TEXT stress_exit_handler(int signum)
 {
 	(void)signum;
 	_exit(1);
 }
 
-static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 {
 	(void)signum;
 
@@ -3529,12 +3535,14 @@ static inline int stress_do_syscall(
 		if (stress_drop_capabilities(args->name) < 0) {
 			_exit(EXIT_NO_RESOURCE);
 		}
-		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
+		for (i = 0; i < SIZEOF_ARRAY(exit_sigs); i++) {
+			if (stress_sighandler(args->name, exit_sigs[i], stress_exit_handler, NULL) < 0)
 				_exit(EXIT_FAILURE);
 		}
-		if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0)
-			_exit(EXIT_FAILURE);
+		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
+			if (stress_sighandler(args->name, sigs[i], stress_sig_handler, NULL) < 0)
+				_exit(EXIT_FAILURE);
+		}
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
