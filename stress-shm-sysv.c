@@ -896,8 +896,6 @@ reap:
 	}
 	free(buffer);
 
-	pr_inf("%f %f %f\n", shmget_count, shmat_count, shmdt_count);
-
 	stress_shm_metrics(args, shmget_duration, shmget_count, "shmget", 0);
 	stress_shm_metrics(args, shmat_duration, shmat_count, "shmat", 1);
 	stress_shm_metrics(args, shmdt_duration, shmdt_count, "shmdt", 2);
