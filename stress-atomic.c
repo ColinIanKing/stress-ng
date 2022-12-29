@@ -241,22 +241,22 @@ static const stress_help_t help[] = {
 static void ATOMIC_OPTIMIZE stress_atomic_uint64(void)
 {
 	if (sizeof(long int) == sizeof(uint64_t))
-		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
+		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64[0]);
 }
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint32(void)
 {
-	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32);
+	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32[0]);
 }
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint16(void)
 {
-	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16);
+	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16[0]);
 }
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint8(void)
 {
-	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
+	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8[0]);
 }
 
 typedef struct {
