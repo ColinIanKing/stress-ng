@@ -148,10 +148,12 @@
 
 #define STRESS_ATOMIC_OPS_COUNT		(60)
 
-#define DO_ATOMIC_OPS(type, var)					\
+#define DO_ATOMIC_OPS(type, var, duration, count)			\
 do {									\
+	double t;							\
 	type tmp = (type)stress_mwc64();				\
 									\
+	t = stress_time_now();						\
 	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);			\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);			\
@@ -215,6 +217,8 @@ do {									\
 	SHIM_ATOMIC_FETCH_OR(var, (type)32, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)128, __ATOMIC_ACQUIRE);	\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
+	(*duration) += stress_time_now() - t;				\
+	(*count) += 60.0;						\
 									\
 	(void)tmp;							\
 } while (0)
@@ -238,29 +242,29 @@ static const stress_help_t help[] = {
 #define ATOMIC_OPTIMIZE
 #endif
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint64(void)
+static void ATOMIC_OPTIMIZE stress_atomic_uint64(double *duration, double *count)
 {
 	if (sizeof(long int) == sizeof(uint64_t))
-		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64[0]);
+		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64[0], duration, count);
 }
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint32(void)
+static void ATOMIC_OPTIMIZE stress_atomic_uint32(double *duration, double *count)
 {
-	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32[0]);
+	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32[0], duration, count);
 }
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint16(void)
+static void ATOMIC_OPTIMIZE stress_atomic_uint16(double *duration, double *count)
 {
-	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16[0]);
+	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16[0], duration, count);
 }
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint8(void)
+static void ATOMIC_OPTIMIZE stress_atomic_uint8(double *duration, double *count)
 {
-	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8[0]);
+	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8[0], duration, count);
 }
 
 typedef struct {
-	void (*func)(void);
+	void (*func)(double *duration, double *count);
 	char *name;
 } atomic_func_info_t;
 
@@ -286,16 +290,10 @@ static void stress_atomic_exercise(
 		size_t i;
 
 		for (i = 0; i < STRESS_ATOMIC_MAX_FUNCS; i++) {
-			double t1, t2;
 			int j;
 
-			t1 = stress_time_now();
 			for (j = 0; j < rounds; j++)
-				atomic_func_info[i].func();
-			t2 = stress_time_now();
-
-			metrics->duration[i] += t2 - t1;
-			metrics->count[i] += (double)(STRESS_ATOMIC_OPS_COUNT * rounds);
+				atomic_func_info[i].func(&metrics->duration[i], &metrics->count[i]);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
