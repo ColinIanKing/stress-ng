@@ -157,8 +157,9 @@ static int stress_lockbus(const stress_args_t *args)
 	/* Split lock on a cache boundary */
 	splitlock_ptr2 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
 	do_splitlock = !lockbus_nosplit;
-	pr_dbg("%s: splitlocks %s\n", args->name,
-		do_splitlock ? "enabled" : "disabled");
+	if (args->instance == 0)
+		pr_dbg("%s: splitlocks %s\n", args->name,
+			do_splitlock ? "enabled" : "disabled");
 	if (sigsetjmp(jmp_env, 1) && !keep_stressing(args))
 		goto done;
 #endif
