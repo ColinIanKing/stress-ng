@@ -1257,6 +1257,9 @@ typedef enum {
 	OPT_fork_max,
 	OPT_fork_vm,
 
+	OPT_forkheavy,
+	OPT_forkheavy_ops,
+
 	OPT_fp_error,
 	OPT_fp_error_ops,
 

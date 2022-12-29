@@ -1860,6 +1860,16 @@ all pages of the forked process. Where possible this will try to set
 every page in the new process with using madvise MADV_MERGEABLE,
 MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .TP
+.B \-\-fork\-heavy N
+start N workers that fork child processes from a parent that has thousands
+of allocated system resources. The fork becomes a heavyweight operations as
+it has to duplicate the resource references of the parent. Each stressor
+instance creates and reaps up to 4096 child processes that are created and
+reaped in a first-in first-out manner.
+.TP
+.B \-\-fork\-heavy\-ops N
+stop after N fork calls.
+.TP
 .B \-\-fp\-error N
 start N workers that generate floating point exceptions. Computations are
 performed to force and check for the FE_DIVBYZERO, FE_INEXACT, FE_INVALID,

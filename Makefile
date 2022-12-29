@@ -117,6 +117,7 @@ HEADERS = \
 	core-pragma.h \
 	core-pthread.h \
 	core-put.h \
+	core-resources.h \
 	core-smart.h \
 	core-sort.h \
 	core-stressors.h \
@@ -206,6 +207,7 @@ STRESS_SRC = \
 	stress-flock.c \
 	stress-flushcache.c \
 	stress-fork.c \
+	stress-forkheavy.c \
 	stress-fp-error.c \
 	stress-fpunch.c \
 	stress-fsize.c \
@@ -469,6 +471,7 @@ CORE_SRC = \
 	core-out-of-memory.c \
 	core-parse-opts.c \
 	core-perf.c \
+	core-resources.c \
 	core-sched.c \
 	core-setting.c \
 	core-shim.c \

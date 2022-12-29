@@ -89,6 +89,7 @@
 	MACRO(flock)		\
 	MACRO(flushcache)	\
 	MACRO(fork)		\
+	MACRO(forkheavy)	\
 	MACRO(fp_error)		\
 	MACRO(fpunch)		\
 	MACRO(fsize)		\

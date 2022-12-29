@@ -435,6 +435,8 @@ static const struct option long_options[] = {
 	{ "fork-max",		1,	0,	OPT_fork_max },
 	{ "fork-ops",		1,	0,	OPT_fork_ops },
 	{ "fork-vm",		0,	0,	OPT_fork_vm },
+	{ "forkheavy",		1,	0,	OPT_forkheavy },
+	{ "forkheavy-ops",	1,	0,	OPT_forkheavy_ops },
 	{ "fp-error",		1,	0,	OPT_fp_error},
 	{ "fp-error-ops",	1,	0,	OPT_fp_error_ops },
 	{ "fpunch",		1,	0,	OPT_fpunch },
