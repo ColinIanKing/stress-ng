@@ -3196,8 +3196,11 @@ size_t stress_min_pthread_stack_size(void)
 	if (PTHREAD_STACK_MIN > min)
 		min = PTHREAD_STACK_MIN;
 #endif
+#if defined(PTHREAD_STACK_MIN) && 	\
+    (PTHREAD_STACK_MIN < 8192)
 	if (8192 > min)
 		min = 8192;
+#endif
 
 	sz = min;
 
