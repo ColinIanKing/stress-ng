@@ -742,22 +742,31 @@ SPLAY_GENERATE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp);
 
 /*
  *  splay_create()
- *	create a red black tree based sparse matrix
+ *	create a splay tree based sparse matrix
  */
 static void *splay_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
+	sparse_splay_t *node;
+
 	(void)n;
 	(void)x;
 	(void)y;
 
 	splay_objmem = 0;
 	SPLAY_INIT(&splay_root);
+
+	/* The following just silence warnings about unused SPLAY funcs */
+	node = SPLAY_MIN(sparse_splay_tree, &splay_root);
+	/* Node is always NULL, so this is a no-op */
+	if (node)
+		(void)SPLAY_NEXT(sparse_splay_tree, &splay_root, node);
+
 	return &splay_root;
 }
 
 /*
  *  splay_destroy()
- *	destroy a red black tree based sparse matrix
+ *	destroy a splay tree based sparse matrix
  */
 static void splay_destroy(void *handle, size_t *objmem)
 {
@@ -768,7 +777,7 @@ static void splay_destroy(void *handle, size_t *objmem)
 
 /*
  *  splay_put()
- *	put a value into a red black tree sparse matrix
+ *	put a value into a splay tree sparse matrix
  */
 static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
@@ -795,7 +804,7 @@ static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y,
 
 /*
  *  splay_del()
- *	zero the (x,y) value in red black tree sparse matrix
+ *	zero the (x,y) value in splay tree sparse matrix
  */
 static void OPTIMIZE3 splay_del(void *handle, const uint32_t x, const uint32_t y)
 {
@@ -812,7 +821,7 @@ static void OPTIMIZE3 splay_del(void *handle, const uint32_t x, const uint32_t y
 
 /*
  *  splay_get()
- *	get the (x,y) value in a red back tree sparse matrix
+ *	get the (x,y) value in a splay tree sparse matrix
  */
 static uint32_t OPTIMIZE3 splay_get(void *handle, const uint32_t x, const uint32_t y)
 {
