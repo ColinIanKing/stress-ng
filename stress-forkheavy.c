@@ -20,8 +20,14 @@
 #include "core-resources.h"
 
 #define MIN_MEM_FREE		((size_t)(16 * MB))
-#define DEFAULT_FORKS		(4096)
-#define DEFAULT_RESOURCES	(16384)
+
+#define DEFAULT_FORKHEAVY_PROCS		(4096)
+#define MIN_FORKHEAVY_PROCS		(1)
+#define MAX_FORKHEAVY_PROCS		(65536)
+
+#define DEFAULT_FORKHEAVY_ALLOCS	(16384)
+#define MIN_FORKHEAVY_ALLOCS		(1)
+#define MAX_FORKHEAVY_ALLOCS		(1024 * 1024)
 
 typedef struct {
 	void *lock;			/* lock on shared metrics data */
@@ -49,9 +55,39 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"forkheavy N",		"start N workers that rapidly fork and reap resource heavy processes" },
+	{ NULL,	"forkheavy-allocs N",	"attempt to allocate N x resources" },
 	{ NULL,	"forkheavy-ops N",	"stop after N bogo fork operations" },
+	{ NULL, "forkheavy-procs N",	"attempt to fork N processes" },
 	{ NULL,	NULL,			NULL }
 };
+
+/*
+ *  stress_set_forkeheavy_allocs()
+ *	set maximum number of resources allocated
+ */
+static int stress_set_forkheavy_allocs(const char *opt)
+{
+	uint32_t forkheavy_allocs;
+
+	forkheavy_allocs = stress_get_uint32(opt);
+	stress_check_range("forkheavy-allocs", (uint64_t)forkheavy_allocs,
+		MIN_FORKHEAVY_ALLOCS, MAX_FORKHEAVY_ALLOCS);
+	return stress_set_setting("forkheavy-allocs", TYPE_ID_UINT32, &forkheavy_allocs);
+}
+
+/*
+ *  stress_set_forkeheavy_procs()
+ *	set maximum number of processes allowed
+ */
+static int stress_set_forkheavy_procs(const char *opt)
+{
+	uint32_t forkheavy_procs;
+
+	forkheavy_procs = stress_get_uint32(opt);
+	stress_check_range("forkheavy-procs", (uint64_t)forkheavy_procs,
+		MIN_FORKHEAVY_PROCS, MAX_FORKHEAVY_PROCS);
+	return stress_set_setting("forkheavy-procs", TYPE_ID_UINT32, &forkheavy_procs);
+}
 
 static stress_forkheavy_list_t forkheavy_list;
 
@@ -137,11 +173,16 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
 {
 	const stress_forkheavy_args_t *forkheavy_args = (stress_forkheavy_args_t *)context;
 	stress_forkheavy_metrics_t *metrics = forkheavy_args->metrics;
+	uint32_t forkheavy_allocs = DEFAULT_FORKHEAVY_ALLOCS;
+	uint32_t forkheavy_procs = DEFAULT_FORKHEAVY_PROCS;
+
+	(void)stress_get_setting("forkheavy-allocs", &forkheavy_allocs);
+	(void)stress_get_setting("forkheavy-procs", &forkheavy_procs);
 
 	do {
 		const bool low_mem_reap = stress_low_memory(MIN_MEM_FREE);
 
-		if (!low_mem_reap && (forkheavy_list.length < DEFAULT_FORKS)) {
+		if (!low_mem_reap && (forkheavy_list.length < forkheavy_procs)) {
 			stress_forkheavy_t *forkheavy;
 			bool update_metrics;
 
@@ -202,7 +243,7 @@ static int stress_forkheavy(const stress_args_t *args)
 	int rc;
 	double average;
 	stress_resources_t *resources;
-	size_t num_resources = DEFAULT_RESOURCES;
+	size_t num_resources = DEFAULT_FORKHEAVY_ALLOCS;
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	stress_forkheavy_metrics_t *metrics;
 	stress_forkheavy_args_t forkheavy_args;
@@ -257,8 +298,15 @@ static int stress_forkheavy(const stress_args_t *args)
 	return rc;
 }
 
+static const stress_opt_set_func_t forkheavy_opt_set_funcs[] = {
+	{ OPT_forkheavy_allocs,	stress_set_forkheavy_allocs },
+	{ OPT_forkheavy_procs,	stress_set_forkheavy_procs },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_forkheavy_info = {
 	.stressor = stress_forkheavy,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = forkheavy_opt_set_funcs,
 	.help = help
 };
