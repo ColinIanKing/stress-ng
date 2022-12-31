@@ -104,10 +104,8 @@ static int stress_resources(const stress_args_t *args)
 			}
 
 			pids[i] = pid;
-			if (!keep_stressing(args)) {
-				stress_resources_kill(pids, num_pids);
-				return EXIT_SUCCESS;
-			}
+			if (!keep_stressing(args))
+				break;
 			inc_counter(args);
 		}
 		stress_resources_kill(pids, num_pids);
