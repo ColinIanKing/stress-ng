@@ -23,6 +23,7 @@
 #include "core-capabilities.h"
 #include "core-cache.h"
 #include "core-hash.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
@@ -68,7 +69,10 @@
 #endif
 
 #if defined(HAVE_SYS_SYSCTL_H)
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_CPP_OFF
 #include <sys/sysctl.h>
+STRESS_PRAGMA_POP
 #endif
 
 #if defined(HAVE_SYS_UTSNAME_H)

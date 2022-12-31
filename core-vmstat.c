@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 #include "core-thermal-zone.h"
 
 #if defined(HAVE_MACH_MACH_H)
@@ -33,7 +34,10 @@
 #endif
 
 #if defined(HAVE_SYS_SYSCTL_H)
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_CPP_OFF
 #include <sys/sysctl.h>
+STRESS_PRAGMA_POP
 #endif
 
 #include <float.h>
