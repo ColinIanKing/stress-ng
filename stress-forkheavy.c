@@ -278,6 +278,7 @@ static int stress_forkheavy(const stress_args_t *args)
 	if (num_resources < 1) {
 		pr_inf("%s: failed to allocate resources, skipping stressor\n", args->name);
 		(void)munmap((void *)metrics, sizeof(*metrics));
+		free(resources);
 		return EXIT_NO_RESOURCE;
 	}
 	forkheavy_args.metrics = metrics;
