@@ -132,6 +132,38 @@ static inline void TARGET_CLONES stress_memfd_fill_pages(void *ptr, const size_t
 	}
 }
 
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_PAGEOUT)
+/*
+ *  uint64_ptr_offset()
+ *	add offset to 64 bit ptr
+ */
+static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_t offset)
+{
+	return (uint64_t *)((uintptr_t)ptr + offset);
+}
+
+/*
+ *  stress_memfd_check()
+ *	check if buffer buf contains uint64_t values val, return true if OK, false if not
+ */
+static bool stress_memfd_check(
+	const uint64_t val,
+	const uint64_t *buf,
+	const size_t size)
+{
+	const uint64_t *ptr, *end_ptr = uint64_ptr_offset(buf, size);
+
+	for (ptr = buf; ptr < end_ptr; ptr++)
+		if (*ptr != val) {
+			pr_inf("%p %" PRIx64 "\n", ptr, *ptr);
+			return false;
+		}
+
+	return true;
+}
+#endif
+
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
@@ -208,18 +240,18 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				case ENFILE:
 					break;
 				case ENOMEM:
-					goto clean;
+					goto memfd_unmap;
 				case ENOSYS:
 				case EFAULT:
 				default:
 					pr_fail("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					keep_stressing_set_flag(false);
-					goto clean;
+					goto memfd_unmap;
 				}
 			}
 			if (!keep_stressing_flag())
-				goto clean;
+				goto memfd_unmap;
 		}
 
 		for (i = 0; i < memfd_fds; i++) {
@@ -273,7 +305,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			VOID_RET(ssize_t, shim_fallocate(fds[i], 0, (off_t)size, 0));
 
 			if (!keep_stressing_flag())
-				goto clean;
+				goto memfd_unmap;
 		}
 
 		for (i = 0; i < memfd_fds; i++) {
@@ -315,12 +347,55 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			}
 #endif
 			if (!keep_stressing_flag())
-				goto clean;
+				goto memfd_unmap;
 		}
-clean:
+
+memfd_unmap:
 		for (i = 0; i < memfd_fds; i++) {
 			if (maps[i] != MAP_FAILED)
 				(void)munmap(maps[i], size);
+		}
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_PAGEOUT)
+		/*
+		 *  Check for zap_pte bug, see Linux commit
+		 *  5abfd71d936a8aefd9f9ccd299dea7a164a5d455
+		 */
+		for (i = 0; keep_stressing_flag() && (i < memfd_fds); i++) {
+			uint64_t *buf, *ptr;
+			const uint64_t *end_ptr;
+			uint64_t val = stress_mwc64();
+			const ssize_t test_size = page_size << 1;
+
+			if (ftruncate(fds[i], (off_t)test_size) < 0)
+				continue;
+			buf = mmap(NULL, test_size, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE, fds[i], 0);
+			if (buf == MAP_FAILED)
+				continue;
+			end_ptr = uint64_ptr_offset(buf, test_size);
+			for (ptr = buf; ptr < end_ptr; ptr++)
+				*ptr = val;
+
+			if (madvise(buf, test_size, MADV_PAGEOUT) < 0)
+				goto buf_unmap;
+			if (ftruncate(fds[i], (off_t)page_size) < 0)
+				goto buf_unmap;
+			if (ftruncate(fds[i], (off_t)test_size) < 0)
+				goto buf_unmap;
+			if (!stress_memfd_check(val, buf, page_size))
+				pr_fail("%s: unexpected memfd %d data mismatch in first page\n",
+					args->name, fds[i]);
+			if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size))
+				pr_fail("%s: unexpected memfd %d data mismatch in zero'd second page\n",
+					args->name, fds[i]);
+buf_unmap:
+			(void)munmap((void *)buf, test_size);
+			VOID_RET(int, ftruncate(fds[i], 0));
+		}
+#endif
+
+		for (i = 0; i < memfd_fds; i++) {
 			if (fds[i] >= 0)
 				(void)close(fds[i]);
 		}
