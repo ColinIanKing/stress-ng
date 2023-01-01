@@ -89,11 +89,24 @@ static const unsigned int flags[] = {
 #endif
 };
 
+/*
+ *  uint64_ptr_offset()
+ *	add offset to 64 bit ptr
+ */
+static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_t offset)
+{
+	return (uint64_t *)((uintptr_t)ptr + offset);
+}
+
+/*
+ *  stress_memfd_fill_pages()
+ *	fill pages with random uin64_t values
+ */
 static inline void TARGET_CLONES stress_memfd_fill_pages(void *ptr, const size_t size)
 {
-	uint64_t *u64ptr = (uint64_t *)ptr;
-	uint64_t *u64end = (uint64_t *)((uintptr_t)ptr + size);
-	uint64_t v = stress_mwc64();
+	register uint64_t *u64ptr = (uint64_t *)ptr;
+	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
+	register uint64_t v = stress_mwc64();
 
 	while (u64ptr < u64end) {
 		*u64ptr++ = v;
@@ -134,15 +147,6 @@ static inline void TARGET_CLONES stress_memfd_fill_pages(void *ptr, const size_t
 
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_PAGEOUT)
-/*
- *  uint64_ptr_offset()
- *	add offset to 64 bit ptr
- */
-static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_t offset)
-{
-	return (uint64_t *)((uintptr_t)ptr + offset);
-}
-
 /*
  *  stress_memfd_check()
  *	check if buffer buf contains uint64_t values val, return true if OK, false if not
