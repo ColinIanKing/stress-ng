@@ -4,8 +4,6 @@
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -98,14 +96,14 @@ static int stress_pty(const stress_args_t *args)
 			ptys[n].follower = -1;
 			ptys[n].leader = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].leader < 0) {
-				if ((errno != ENOMEM) &&
-				    (errno != ENOSPC) &&
-				    (errno != EIO) &&
-				    (errno != EMFILE)) {
-					pr_fail("%s: open /dev/ptmx failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					goto clean;
-				}
+				if ((errno == ENOMEM) ||
+				    (errno == ENOSPC) ||
+				    (errno == EIO) ||
+				    (errno == EMFILE))
+					break;
+				pr_fail("%s: open /dev/ptmx failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				goto clean;
 			} else {
 				ptys[n].followername = ptsname(ptys[n].leader);
 				if (!ptys[n].followername) {
@@ -388,6 +386,38 @@ static int stress_pty(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				goto clean;
 		}
+#if defined(TIOCSETD) &&	\
+    defined(TIOCGETD) &&	\
+    defined(TCXONC)
+		if ((args->instance == 0) && (fcntl(ptys[i].follower, F_SETFL, O_NONBLOCK) == 0)) {
+#if defined(NR_LDISCS)
+			const int max_ldisc = NR_LDISCS;
+#else
+			const int max_ldisc = 32;
+#endif
+			int ldisc, orig_ldisc;
+
+			if (ioctl(ptys[i].follower, TIOCGETD, &orig_ldisc) == 0) {
+				pr_lock();
+				for (ldisc = 0; ldisc < max_ldisc; ldisc++) {
+					int j;
+
+					if (ioctl(ptys[i].follower, TIOCSETD, &ldisc) < 0)
+						break;
+					for (j = 0; j < 256; j++) {
+						if (ioctl(ptys[i].follower, TCXONC, 0) < 0)
+							break;
+						VOID_RET(ssize_t, write(ptys[i].follower, "", 1));
+						if (ioctl(ptys[i].follower, TCXONC, 1) < 0)
+							break;
+					}
+				}
+				VOID_RET(int, ioctl(ptys[i].follower, TIOCSETD, &orig_ldisc));
+				pr_unlock();
+				shim_sched_yield();
+			}
+		}
+#endif
 clean:
 		/*
 		 *  and close
