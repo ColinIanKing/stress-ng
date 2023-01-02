@@ -900,14 +900,14 @@ static inline stress_matrix_3d_type_t stress_matrix_data(const stress_matrix_3d_
 static inline int stress_matrix_3d_exercise(
 	const stress_args_t *args,
 	const size_t matrix_3d_method,
-	const size_t matrix_3d_yx,
+	const size_t matrix_3d_zyx,
 	const size_t n)
 {
 	int ret = EXIT_NO_RESOURCE;
 	typedef stress_matrix_3d_type_t (*matrix_3d_ptr_t)[n][n];
 	size_t matrix_3d_size = round_up(args->page_size, (sizeof(stress_matrix_3d_type_t) * n * n * n));
 	const size_t num_matrix_3d_methods = SIZEOF_ARRAY(matrix_3d_methods);
-	const stress_matrix_3d_func func = matrix_3d_methods[matrix_3d_method].func[matrix_3d_yx];
+	const stress_matrix_3d_func func = matrix_3d_methods[matrix_3d_method].func[matrix_3d_zyx];
 
 	matrix_3d_ptr_t a, b = NULL, r = NULL;
 	register size_t i, j;
@@ -1001,15 +1001,15 @@ static int stress_matrix(const stress_args_t *args)
 {
 	size_t matrix_3d_method = 0; 	/* All method */
 	size_t matrix_3d_size = DEFAULT_MATRIX3D_SIZE;
-	size_t matrix_3d_yx = 0;
+	size_t matrix_3d_zyx = 0;
 	int rc;
 
 	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method);
-	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_yx);
+	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_zyx);
 
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_3d_methods[matrix_3d_method].name,
-			matrix_3d_yx ? "z by y by x" : "x by y by z");
+			matrix_3d_zyx ? "z by y by x" : "x by y by z");
 
 	if (!stress_get_setting("matrix-3d-size", &matrix_3d_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -1020,7 +1020,7 @@ static int stress_matrix(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_matrix_3d_exercise(args, matrix_3d_method, matrix_3d_yx, matrix_3d_size);
+	rc = stress_matrix_3d_exercise(args, matrix_3d_method, matrix_3d_zyx, matrix_3d_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
