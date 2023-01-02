@@ -158,12 +158,10 @@ static bool stress_memfd_check(
 {
 	const uint64_t *ptr, *end_ptr = uint64_ptr_offset(buf, size);
 
-	for (ptr = buf; ptr < end_ptr; ptr++)
-		if (*ptr != val) {
-			pr_inf("%p %" PRIx64 "\n", ptr, *ptr);
+	for (ptr = buf; ptr < end_ptr; ptr++) {
+		if (*ptr != val)
 			return false;
-		}
-
+	}
 	return true;
 }
 #endif
@@ -182,6 +180,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
 	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	int mmap_flags = MAP_FILE | MAP_SHARED;
+	double duration = 0.0, count = 0.0, rate;
 
 #if defined(MAP_POPULATE)
 	mmap_flags |= MAP_POPULATE;
@@ -223,6 +222,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 
 	do {
 		char filename[PATH_MAX];
+		double t;
 
 		for (i = 0; i < memfd_fds; i++) {
 			fds[i] = -1;
@@ -237,8 +237,13 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			(void)snprintf(filename, sizeof(filename),
 				"memfd-%" PRIdMAX "-%" PRIu64,
 				(intmax_t)args->pid, i);
+
+			t = stress_time_now();
 			fds[i] = shim_memfd_create(filename, 0);
-			if (fds[i] < 0) {
+			if (fds[i] >= 0) {
+				duration += stress_time_now() - t;
+				count += 1.0;
+			} else {
 				switch (errno) {
 				case EMFILE:
 				case ENFILE:
@@ -450,14 +455,21 @@ buf_unmap:
 			(void)snprintf(filename, sizeof(filename),
 				"memfd-%" PRIdMAX"-%" PRIu64,
 				(intmax_t)args->pid, i);
+			t = stress_time_now();
 			fd = shim_memfd_create(filename, flags[i]);
-			if (fd >= 0)
+			if (fd >= 0) {
+				duration += stress_time_now() - t;
+				count += 1.0;
 				(void)close(fd);
+			}
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per memfd_create call", rate * 1000000000.0);
 
 	free(maps);
 	free(fds);
