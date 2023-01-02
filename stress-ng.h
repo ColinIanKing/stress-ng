@@ -451,7 +451,7 @@ typedef struct {
 	void *page_wo;			/* mmap'd PROT_WO page */
 } stress_mapped_t;
 
-#define STRESS_MISC_STATS_MAX	(10)
+#define STRESS_MISC_STATS_MAX	(16)
 
 typedef struct {
 	char description[32];

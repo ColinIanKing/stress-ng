@@ -37,10 +37,15 @@ static const stress_help_t help[] = {
 #if defined(HAVE_VLA_ARG) &&	\
     !defined(__PCC__)
 
+typedef struct {
+	double	duration;
+	double	count;
+} stress_matrix_3d_metrics_t;
+
 typedef float 	stress_matrix_3d_type_t;
 
 /*
- *  the matrix stress test has different classes of maxtrix stressor
+ *  the matrix stress test has different classes of matrix stressor
  */
 typedef void (*stress_matrix_3d_func)(
 	const size_t n,
@@ -95,9 +100,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_add(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -122,9 +127,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_add(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -149,9 +154,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_sub(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] - b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -176,9 +181,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_sub(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -205,9 +210,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_trans(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[k][j][i];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -234,9 +239,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_trans(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[k][j][i];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -264,9 +269,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mult(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = v * a[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -294,9 +299,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mult(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = v * a[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -324,9 +329,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_div(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] / v;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -354,9 +359,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_div(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] / v;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -382,9 +387,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_hadamard(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -410,9 +415,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_hadamard(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -441,9 +446,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_frobenius(
 			for (k = 0; k < n; k++) {
 				sum += a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 	stress_float_put((float)sum);
 }
@@ -473,9 +478,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 			for (i = 0; i < n; i++) {
 				sum += a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 	stress_float_put((float)sum);
 }
@@ -503,9 +508,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_copy(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -532,9 +537,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_copy(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -559,9 +564,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mean(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / (stress_matrix_3d_type_t)2.0;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -586,9 +591,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mean(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / (stress_matrix_3d_type_t)2.0;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -616,9 +621,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_zero(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = 0.0;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -646,9 +651,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_zero(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = 0.0;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -676,9 +681,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_negate(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = -a[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -706,9 +711,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_negate(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = -a[i][j][k];
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -736,9 +741,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_identity(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = ((i == j) && (j == k)) ? 1.0 : 0.0;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
 
@@ -766,11 +771,45 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_identity(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = ((i == j) && (j == k)) ? 1.0 : 0.0;
 			}
-			if (UNLIKELY(!keep_stressing_flag()))
-				return;
 		}
+		if (UNLIKELY(!keep_stressing_flag()))
+			return;
 	}
 }
+
+static void stress_matrix_3d_xyz_all(
+	const size_t n,
+	stress_matrix_3d_type_t a[RESTRICT n][n][n],
+	stress_matrix_3d_type_t b[RESTRICT n][n][n],
+	stress_matrix_3d_type_t r[RESTRICT n][n][n]);
+
+static void stress_matrix_3d_zyx_all(
+	const size_t n,
+	stress_matrix_3d_type_t a[RESTRICT n][n][n],
+	stress_matrix_3d_type_t b[RESTRICT n][n][n],
+	stress_matrix_3d_type_t r[RESTRICT n][n][n]);
+
+/*
+ * Table of cpu stress methods, ordered x by y by z and z by y by x
+ */
+static const stress_matrix_3d_method_info_t matrix_3d_methods[] = {
+	{ "all",		{ stress_matrix_3d_xyz_all,		stress_matrix_3d_zyx_all } },/* Special "all" test */
+
+	{ "add",		{ stress_matrix_3d_xyz_add,		stress_matrix_3d_zyx_add } },
+	{ "copy",		{ stress_matrix_3d_xyz_copy,		stress_matrix_3d_zyx_copy } },
+	{ "div",		{ stress_matrix_3d_xyz_div,		stress_matrix_3d_zyx_div } },
+	{ "frobenius",		{ stress_matrix_3d_xyz_frobenius,	stress_matrix_3d_zyx_frobenius } },
+	{ "hadamard",		{ stress_matrix_3d_xyz_hadamard,	stress_matrix_3d_zyx_hadamard } },
+	{ "identity",		{ stress_matrix_3d_xyz_identity,	stress_matrix_3d_zyx_identity } },
+	{ "mean",		{ stress_matrix_3d_xyz_mean,		stress_matrix_3d_zyx_mean } },
+	{ "mult",		{ stress_matrix_3d_xyz_mult,		stress_matrix_3d_zyx_mult } },
+	{ "negate",		{ stress_matrix_3d_xyz_negate,		stress_matrix_3d_zyx_negate } },
+	{ "sub",		{ stress_matrix_3d_xyz_sub,		stress_matrix_3d_zyx_sub } },
+	{ "trans",		{ stress_matrix_3d_xyz_trans,		stress_matrix_3d_zyx_trans } },
+	{ "zero",		{ stress_matrix_3d_xyz_zero,		stress_matrix_3d_zyx_zero } },
+};
+
+static stress_matrix_3d_metrics_t matrix_3d_metrics[SIZEOF_ARRAY(matrix_3d_methods)];
 
 /*
  *  stress_matrix_3d_all()
@@ -782,10 +821,15 @@ static void OPTIMIZE3 stress_matrix_3d_xyz_all(
 	stress_matrix_3d_type_t b[RESTRICT n][n][n],
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
-	static int i = 1;	/* Skip over stress_matrix_3d_all */
+	static size_t i = 1;	/* Skip over stress_matrix_3d_all */
+	double t;
 
-	matrix_3d_methods[i++].func[0](n, a, b, r);
-	if (!matrix_3d_methods[i].name)
+	t = stress_time_now();
+	matrix_3d_methods[i].func[0](n, a, b, r);
+	matrix_3d_metrics[i].duration += stress_time_now() - t;
+	matrix_3d_metrics[i].count += 1.0;
+	i++;
+	if (i >= SIZEOF_ARRAY(matrix_3d_methods))
 		i = 1;
 }
 
@@ -799,73 +843,38 @@ static void OPTIMIZE3 stress_matrix_3d_zyx_all(
 	stress_matrix_3d_type_t b[RESTRICT n][n][n],
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
-	static int i = 1;	/* Skip over stress_matrix_3d_all */
+	static size_t i = 1;	/* Skip over stress_matrix_3d_all */
+	double t;
 
-	matrix_3d_methods[i++].func[1](n, a, b, r);
-	if (!matrix_3d_methods[i].name)
+	t = stress_time_now();
+	matrix_3d_methods[i].func[1](n, a, b, r);
+	matrix_3d_metrics[i].duration += stress_time_now() - t;
+	matrix_3d_metrics[i].count += 1.0;
+	i++;
+	if (i >= SIZEOF_ARRAY(matrix_3d_methods))
 		i = 1;
 }
 
 
 /*
- * Table of cpu stress methods, ordered x by y by z and z by y by x
- */
-static const stress_matrix_3d_method_info_t matrix_3d_methods[] = {
-	{ "all",		{ stress_matrix_3d_xyz_all,	stress_matrix_3d_zyx_all } },/* Special "all" test */
-
-	{ "add",		{ stress_matrix_3d_xyz_add,	stress_matrix_3d_zyx_add } },
-	{ "copy",		{ stress_matrix_3d_xyz_copy,	stress_matrix_3d_zyx_copy } },
-	{ "div",		{ stress_matrix_3d_xyz_div,	stress_matrix_3d_zyx_div } },
-	{ "frobenius",		{ stress_matrix_3d_xyz_frobenius,stress_matrix_3d_zyx_frobenius } },
-	{ "hadamard",		{ stress_matrix_3d_xyz_hadamard,	stress_matrix_3d_zyx_hadamard } },
-	{ "identity",		{ stress_matrix_3d_xyz_identity,	stress_matrix_3d_zyx_identity } },
-	{ "mean",		{ stress_matrix_3d_xyz_mean,	stress_matrix_3d_zyx_mean } },
-	{ "mult",		{ stress_matrix_3d_xyz_mult,	stress_matrix_3d_zyx_mult } },
-	{ "negate",		{ stress_matrix_3d_xyz_negate,	stress_matrix_3d_zyx_negate } },
-	{ "sub",		{ stress_matrix_3d_xyz_sub,	stress_matrix_3d_zyx_sub } },
-	{ "trans",		{ stress_matrix_3d_xyz_trans,	stress_matrix_3d_zyx_trans } },
-	{ "zero",		{ stress_matrix_3d_xyz_zero,	stress_matrix_3d_zyx_zero } },
-	{ NULL,			{ NULL, NULL } }
-};
-
-static const stress_matrix_3d_method_info_t *stress_get_matrix_3d_method(
-	const char *name)
-{
-	const stress_matrix_3d_method_info_t *info;
-
-	for (info = matrix_3d_methods; info->name; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("matrix-3d-method", TYPE_ID_STR, name);
-			return info;
-		}
-	}
-	return NULL;
-}
-
-static void stress_matrix_3d_method_error(void)
-{
-	const stress_matrix_3d_method_info_t *info;
-
-	(void)fprintf(stderr, "matrix-3d-method must be one of:");
-	for (info = matrix_3d_methods; info->name; info++)
-		(void)fprintf(stderr, " %s", info->name);
-	(void)fprintf(stderr, "\n");
-}
-
-/*
  *  stress_set_matrix_3d_method()
- *	set the default matrix stress method
+ *	get the default matrix stress method
  */
 static int stress_set_matrix_3d_method(const char *name)
 {
-	const stress_matrix_3d_method_info_t *info;
+	size_t matrix_3d_method;
 
-	info = stress_get_matrix_3d_method(name);
-	if (info) {
-		stress_set_setting("matrix-3d-method", TYPE_ID_STR, name);
-		return 0;
+	for (matrix_3d_method = 0; matrix_3d_method < SIZEOF_ARRAY(matrix_3d_methods); matrix_3d_method++) {
+		if (!strcmp(matrix_3d_methods[matrix_3d_method].name, name)) {
+			stress_set_setting("matrix-3d-method", TYPE_ID_SIZE_T, &matrix_3d_method);
+			return 0;
+		}
 	}
-	stress_matrix_3d_method_error();
+
+	(void)fprintf(stderr, "matrix-3d-method must be one of:");
+	for (matrix_3d_method = 0; matrix_3d_method < SIZEOF_ARRAY(matrix_3d_methods); matrix_3d_method++)
+		(void)fprintf(stderr, " %s", matrix_3d_methods[matrix_3d_method].name);
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }
@@ -890,20 +899,28 @@ static inline stress_matrix_3d_type_t stress_matrix_data(const stress_matrix_3d_
 
 static inline int stress_matrix_3d_exercise(
 	const stress_args_t *args,
-	const stress_matrix_3d_func func,
+	const size_t matrix_3d_method,
+	const size_t matrix_3d_yx,
 	const size_t n)
 {
 	int ret = EXIT_NO_RESOURCE;
 	typedef stress_matrix_3d_type_t (*matrix_3d_ptr_t)[n][n];
 	size_t matrix_3d_size = round_up(args->page_size, (sizeof(stress_matrix_3d_type_t) * n * n * n));
+	const size_t num_matrix_3d_methods = SIZEOF_ARRAY(matrix_3d_methods);
+	const stress_matrix_3d_func func = matrix_3d_methods[matrix_3d_method].func[matrix_3d_yx];
 
 	matrix_3d_ptr_t a, b = NULL, r = NULL;
-	register size_t i;
+	register size_t i, j;
 	const stress_matrix_3d_type_t v = 65535 / (stress_matrix_3d_type_t)((uint64_t)~0);
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
+
+	for (i = 0; i < num_matrix_3d_methods; i++) {
+		matrix_3d_metrics[i].duration = 0.0;
+		matrix_3d_metrics[i].count = 0.0;
+	}
 
 	a = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
@@ -945,12 +962,28 @@ static inline int stress_matrix_3d_exercise(
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
 	do {
+		double t;
+
+		t = stress_time_now();
 		(void)func(n, a, b, r);
+		matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
+		matrix_3d_metrics[matrix_3d_method].count += 1.0;
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	ret = EXIT_SUCCESS;
+	/* Dump metrics except for 'all' method */
+	for (i = 1, j = 0; i < num_matrix_3d_methods; i++) {
+		if (matrix_3d_metrics[i].duration > 0.0) {
+			char msg[64];
+			const double rate = matrix_3d_metrics[i].count / matrix_3d_metrics[i].duration;
 
+			(void)snprintf(msg, sizeof(msg), "%s matrix-3d ops per sec", matrix_3d_methods[i].name);
+			stress_metrics_set(args, j, msg, rate);
+			j++;
+		}
+	}
+
+	ret = EXIT_SUCCESS;
 	(void)munmap((void *)r, matrix_3d_size);
 tidy_b:
 	(void)munmap((void *)b, matrix_3d_size);
@@ -966,26 +999,16 @@ tidy_ret:
  */
 static int stress_matrix(const stress_args_t *args)
 {
-	char *matrix_3d_method_name = NULL;
-	const stress_matrix_3d_method_info_t *matrix_3d_method;
-	stress_matrix_3d_func func;
+	size_t matrix_3d_method = 0; 	/* All method */
 	size_t matrix_3d_size = DEFAULT_MATRIX3D_SIZE;
 	size_t matrix_3d_yx = 0;
 	int rc;
 
-	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method_name);
+	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method);
 	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_yx);
 
-	matrix_3d_method = stress_get_matrix_3d_method(matrix_3d_method_name);
-	if (!matrix_3d_method) {
-		/* Should *never* get here... */
-		stress_matrix_3d_method_error();
-		return EXIT_FAILURE;
-	}
-
-	func = matrix_3d_method->func[matrix_3d_yx];
 	if (args->instance == 0)
-		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_3d_method->name,
+		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_3d_methods[matrix_3d_method].name,
 			matrix_3d_yx ? "z by y by x" : "x by y by z");
 
 	if (!stress_get_setting("matrix-3d-size", &matrix_3d_size)) {
@@ -997,7 +1020,7 @@ static int stress_matrix(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_matrix_3d_exercise(args, func, matrix_3d_size);
+	rc = stress_matrix_3d_exercise(args, matrix_3d_method, matrix_3d_yx, matrix_3d_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
