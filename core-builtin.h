@@ -19,6 +19,10 @@
 #ifndef CORE_BUILTIN_H
 #define CORE_BUILTIN_H
 
+#if defined(HAVE_X86INTRIN_H)
+#include <x86intrin.h>
+#endif
+
 #if defined(HAVE_BUILTIN_CABSL)
 #define shim_cabsl(x)	__builtin_cabsl(x)
 #else
@@ -284,24 +288,40 @@ do {							\
 
 #if defined(HAVE_BUILTIN_ROTATELEFT8)
 #define shim_rol8(x)	do { x = __builtin_rotateleft8(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_ROLB) &&	\
+      defined(HAVE_X86INTRIN_H) && 	\
+      !defined(__ICC)
+#define shim_rol8(x)	do { x = __rolb(x, 1); } while (0)
 #else
 #define shim_rol8(x)	SHIM_ROLx(uint8_t, 7U, x)
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATELEFT16)
 #define shim_rol16(x)	do { x = __builtin_rotateleft16(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_ROLW) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_rol16(x)	do { x = __rolw(x, 1); } while (0)
 #else
 #define shim_rol16(x)	SHIM_ROLx(uint16_t, 15U, x)
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATELEFT32)
 #define shim_rol32(x)	do { x = __builtin_rotateleft32(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_ROLD) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_rol32(x)	do { x = __rold(x, 1); } while (0)
 #else
 #define shim_rol32(x)	SHIM_ROLx(uint32_t, 31U, x)
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATELEFT64)
 #define shim_rol64(x)	do { x = __builtin_rotateleft64(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_ROLQ) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_rol64(x)	do { x = __rolq(x, 1); } while (0)
 #else
 #define shim_rol64(x)	SHIM_ROLx(uint64_t, 63U, x)
 #endif
@@ -324,24 +344,40 @@ do {							\
 
 #if defined(HAVE_BUILTIN_ROTATERIGHT8)
 #define shim_ror8(x)	do { x = __builtin_rotateright8(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_RORB) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_ror8(x)	do { x = __rorb(x, 1); } while (0)
 #else
 #define shim_ror8(x)	SHIM_RORx(uint8_t, 7U, x)
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATERIGHT16)
 #define shim_ror16(x)	do { x = __builtin_rotateright16(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_RORW) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_ror16(x)	do { x = __rorw(x, 1); } while (0)
 #else
 #define shim_ror16(x)	SHIM_RORx(uint16_t, 15U, x)
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATERIGHT32)
 #define shim_ror32(x)	do { x = __builtin_rotateright32(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_RORD) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_ror32(x)	do { x = __rord(x, 1); } while (0)
 #else
 #define shim_ror32(x)	SHIM_RORx(uint32_t, 31U, x)
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATERIGHT64)
 #define shim_ror64(x)	do { x = __builtin_rotateright64(x, 1); } while (0)
+#elif defined(HAVE_INTRINSIC_RORQ) &&	\
+      defined(HAVE_X86INTRIN_H) &&	\
+      !defined(__ICC)
+#define shim_ror64(x)	do { x = __rorq(x, 1); } while (0)
 #else
 #define shim_ror64(x)	SHIM_RORx(uint64_t, 63U, x)
 #endif
