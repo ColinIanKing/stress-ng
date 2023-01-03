@@ -46,7 +46,7 @@ static int icache_madvise_nohugepage(
 	if (shim_madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
 		/*
 		 * We may get EINVAL on kernels that don't support this
-		 * so don't treat that as non-fatal as this is just advistory
+		 * so don't treat that as non-fatal as this is just advisory
 		 */
 		if (errno != EINVAL) {
 			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text "
