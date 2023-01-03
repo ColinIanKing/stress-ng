@@ -75,6 +75,13 @@ endif
 #CFLAGS += -Weverything
 #endif
 
+#
+# Use gold linker
+#
+ifeq ($(LD_GOLD),1)
+LDFLAGS += -fuse-ld=gold
+endif
+
 GREP = grep
 #
 # SunOS requires special grep for -e support
