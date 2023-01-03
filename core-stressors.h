@@ -226,6 +226,7 @@
 	MACRO(ring_pipe)	\
 	MACRO(rlimit)		\
 	MACRO(rmap)		\
+	MACRO(rotate)		\
 	MACRO(rseq)		\
 	MACRO(rtc)		\
 	MACRO(schedpolicy)	\

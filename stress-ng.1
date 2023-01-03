@@ -4178,6 +4178,35 @@ of the mappings. Data is synchronously msync'd to the file 1 in every
 .B \-\-rmap\-ops N
 stop after N bogo rmap memory writes/reads.
 .TP
+.B \-\-rotate N
+start N workers that exercise 1 bit rotates left and right of unsigned integer
+variables.  The default will rotate four 8, 16, 32, 64 (and if supported 128) bit
+values 10000 times in a loop per bogo-op.
+.TP
+.B \-\-rotate\-method M
+specify the method of rotation to use. The 'all' methJod uses all the methods
+and is the default.
+.TS
+expand;
+lB2 lB lB lB
+l l s s.
+Method	Description
+all	exercise with all the rotate stressor methods (see below):
+rol8	8 bit unsigned rotate left by 1 bit
+ror8	8 bit unsigned rotate right by 1 bit
+rol16	16 bit unsigned rotate left by 1 bit
+ror16	16 bit unsigned rotate right by 1 bit
+rol32	32 bit unsigned rotate left by 1 bit
+ror32	32 bit unsigned rotate right by 1 bit
+rol64	64 bit unsigned rotate left by 1 bit
+ror64	64 bit unsigned rotate right by 1 bit
+rol128	128 bit unsigned rotate left by 1 bit
+ror128	128 bit unsigned rotate right by 1 bit
+.TE
+.TP
+.B \-\-rotate\-ops N
+stop after N bogo rotate operations.
+.TP
 .B \-\-rseq N
 start N workers that exercise restartable sequences via the rseq(2) system
 call.  This loops over a long duration critical section that is likely to

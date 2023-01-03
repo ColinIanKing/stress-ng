@@ -1814,6 +1814,10 @@ typedef enum {
 	OPT_rmap,
 	OPT_rmap_ops,
 
+	OPT_rotate,
+	OPT_rotate_method,
+	OPT_rotate_ops,
+
 	OPT_rseq,
 	OPT_rseq_ops,
 
