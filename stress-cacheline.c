@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cache.h"
 
 #define DEFAULT_L1_SIZE		(64)
@@ -27,37 +28,13 @@
 	do { __atomic_fetch_add(ptr, 1, __ATOMIC_RELAXED); } while (0)
 #endif
 
-/*
- *  8 bit rotate right
- */
-#define ROR8(val)					\
-do {							\
-	uint8_t tmpval = (val);				\
-	const uint8_t bit0 = (tmpval & 1);		\
-	const uint8_t bit7 = (uint8_t)(bit0 << 7);	\
-							\
-	(val) = (tmpval >> 1) | bit7;			\
-} while (0)
-
-/*
- *  8 bit rotate left
- */
-#define ROL8(val)					\
-do {							\
-	uint8_t tmpval = (val);				\
-	const uint8_t bit7 = (tmpval & 0x80);		\
-	const uint8_t bit0 = (uint8_t)(bit7 >> 7);	\
-							\
-	(val) = (uint8_t)(tmpval << 1) | bit0;		\
-} while (0)
-
 #define EXERCISE(data)	\
 do {			\
 	(data)++;	\
 	shim_mb();	\
-	ROL8(data);	\
+	shim_rol8(data);\
 	shim_mb();	\
-	ROR8(data);	\
+	shim_ror8(data);\
 	shim_mb();	\
 } while (0)
 
