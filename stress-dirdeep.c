@@ -97,7 +97,6 @@ static int stress_set_dirdeep_files(const char *opt)
 	dirdeep_files = stress_get_uint32(opt);
 	stress_check_range("dirdeep-files", (uint64_t)dirdeep_files, 0, 65535);
 	return stress_set_setting("dirdeep-files", TYPE_ID_UINT32, &dirdeep_files);
-
 }
 
 /*
