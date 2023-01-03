@@ -95,7 +95,9 @@ static int try_remap(
 	uint8_t **buf,
 	const size_t old_sz,
 	const size_t new_sz,
-	const bool mremap_mlock)
+	const bool mremap_mlock,
+	double *duration,
+	double *count)
 {
 	uint8_t *newbuf;
 	int retry, flags = 0;
@@ -113,6 +115,8 @@ static int try_remap(
 #endif
 
 	for (retry = 0; retry < 100; retry++) {
+		double t;
+
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
 #endif
@@ -123,14 +127,19 @@ static int try_remap(
 		}
 #if defined(MREMAP_FIXED)
 		if (addr) {
+			t = stress_time_now();
 			newbuf = mremap(*buf, old_sz, new_sz, flags, addr);
 		} else {
+			t = stress_time_now();
 			newbuf = mremap(*buf, old_sz, new_sz, flags & ~MREMAP_FIXED);
 		}
 #else
+		t = stress_time_now();
 		newbuf = mremap(*buf, old_sz, new_sz, flags);
 #endif
 		if (newbuf && newbuf != MAP_FAILED) {
+			(*duration) += stress_time_now() - t;
+			(*count) += 1.0;
 			*buf = newbuf;
 
 #if defined(MREMAP_DONTUNMAP)
@@ -139,9 +148,13 @@ static int try_remap(
 			 *  followed by an unmap of the old mapping for
 			 *  some more exercise
 			 */
+			t = stress_time_now();
 			newbuf = mremap(*buf, new_sz, new_sz,
 					MREMAP_DONTUNMAP | MREMAP_MAYMOVE);
 			if (newbuf && newbuf != MAP_FAILED) {
+				(*duration) += stress_time_now() - t;
+				(*count) += 1.0;
+
 				if (*buf)
 					(void)munmap(*buf, new_sz);
 				*buf = newbuf;
@@ -188,6 +201,8 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	const size_t page_size = args->page_size;
 	bool mremap_mlock = false;
+	double duration = 0.0, count = 0.0, rate;
+	int ret = EXIT_SUCCESS;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -216,7 +231,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		size_t old_sz;
 
 		if (!keep_stressing_flag())
-			break;
+			goto deinit;
 
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED) {
@@ -237,19 +252,21 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 					"bytes does not contain expected data\n",
 					args->name, sz);
 				(void)munmap(buf, new_sz);
-				return EXIT_FAILURE;
+				ret = EXIT_FAILURE;
+				goto deinit;
 			}
 		}
 
 		old_sz = new_sz;
 		new_sz >>= 1;
 		while (new_sz > page_size) {
-			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock) < 0) {
+			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0) {
 				(void)munmap(buf, old_sz);
-				return EXIT_FAILURE;
+				ret = EXIT_FAILURE;
+				goto deinit;
 			}
 			if (!keep_stressing(args))
-				return EXIT_SUCCESS;
+				goto deinit;
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (stress_mmap_check(buf, new_sz, page_size) < 0) {
@@ -258,7 +275,8 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 						"not contain expected data\n",
 						args->name, sz);
 					(void)munmap(buf, new_sz);
-					return EXIT_FAILURE;
+					ret = EXIT_FAILURE;
+					goto deinit;
 				}
 			}
 			old_sz = new_sz;
@@ -267,12 +285,13 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 
 		new_sz <<= 1;
 		while (new_sz < mremap_bytes) {
-			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock) < 0) {
+			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0) {
 				(void)munmap(buf, old_sz);
-				return EXIT_FAILURE;
+				ret = EXIT_FAILURE;
+				goto deinit;
 			}
 			if (!keep_stressing(args))
-				return EXIT_SUCCESS;
+				goto deinit;
 			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
 			new_sz <<= 1;
@@ -296,9 +315,13 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per mremap call", rate * STRESS_DBL_NANOSECOND);
+
+	return ret;
 }
 
 /*
