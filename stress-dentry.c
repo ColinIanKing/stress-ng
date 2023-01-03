@@ -438,13 +438,13 @@ abort:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (creat_count > 0.0) ? (double)creat_duration / creat_count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per file creation", rate * 1000000000.0);
+	stress_metrics_set(args, 0, "nanosecs per file creation", rate * STRESS_DBL_NANOSECOND);
 	rate = (access_count > 0.0) ? (double)access_duration / access_count : 0.0;
-	stress_metrics_set(args, 1, "nanosecs per file access", rate * 1000000000.0);
+	stress_metrics_set(args, 1, "nanosecs per file access", rate * STRESS_DBL_NANOSECOND);
 	rate = (bogus_access_count > 0.0) ? (double)bogus_access_duration / bogus_access_count : 0.0;
-	stress_metrics_set(args, 2, "nanosecs per bogus file access", rate * 1000000000.0);
+	stress_metrics_set(args, 2, "nanosecs per bogus file access", rate * STRESS_DBL_NANOSECOND);
 	rate = (bogus_unlink_count > 0.0) ? (double)bogus_unlink_duration / bogus_unlink_count : 0.0;
-	stress_metrics_set(args, 3, "nanosecs per bogus file unlink", rate * 1000000000.0);
+	stress_metrics_set(args, 3, "nanosecs per bogus file unlink", rate * STRESS_DBL_NANOSECOND);
 
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " entries\n",

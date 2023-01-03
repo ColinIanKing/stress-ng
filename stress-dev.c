@@ -277,7 +277,7 @@ static void ioctl_set_timeout(const double secs)
 		time_t tsecs = (time_t)secs;
 
 		it.it_interval.tv_sec = (time_t)secs;
-		it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (double)tsecs));
+		it.it_interval.tv_usec = (suseconds_t)(STRESS_DBL_MICROSECOND * (secs - (double)tsecs));
 		it.it_value.tv_sec = it.it_interval.tv_sec;
 		it.it_value.tv_usec = it.it_interval.tv_usec;
 		VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));

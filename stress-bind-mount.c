@@ -148,9 +148,9 @@ bind_umount:
 		 (!args->max_ops || (get_counter(args) < args->max_ops)));
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
-	stress_metrics_set(args, 0, "microsecs per mount", rate * 1000000.0);
+	stress_metrics_set(args, 0, "microsecs per mount", rate * STRESS_DBL_MICROSECOND);
 	rate = (umount_count > 0.0) ? (double)umount_duration / umount_count : 0.0;
-	stress_metrics_set(args, 1, "microsecs per umount", rate * 1000000.0);
+	stress_metrics_set(args, 1, "microsecs per umount", rate * STRESS_DBL_MICROSECOND);
 
 	/* Remove path in child process just in case parent fails to reap it */
 	(void)shim_rmdir(path);

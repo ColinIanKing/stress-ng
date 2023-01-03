@@ -255,7 +255,7 @@ static int stress_prefetch(const stress_args_t *args)
 		args->name, prefetch_info[0].rate / (double)GB);
 
 	if (best_rate > 0.0)
-		ns = 1000000000.0 * (double)prefetch_info[best].offset / best_rate;
+		ns = STRESS_DBL_NANOSECOND * (double)prefetch_info[best].offset / best_rate;
 	else
 		ns = 0.0;
 

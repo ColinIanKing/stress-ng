@@ -263,7 +263,7 @@ next:
 		stress_metrics_set(args, 1, "major page faults per sec",
 			(double)usage.ru_majflt / dt);
 		average_duration = (count > 0.0) ? duration / count : 0.0;
-		stress_metrics_set(args, 2, "nanosecs per page fault", average_duration * 1000000000.0);
+		stress_metrics_set(args, 2, "nanosecs per page fault", average_duration * STRESS_DBL_NANOSECOND);
 	}
 #endif
 	return EXIT_SUCCESS;

@@ -788,7 +788,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 
 				if (t_left < 0.0)
 					return 0;
-				usec = (useconds_t)(t_left * 1000000.0);
+				usec = (useconds_t)(t_left * STRESS_DBL_MICROSECOND);
 				if (usec == 0)
 					return 0;
 				if (keep_stressing_flag())

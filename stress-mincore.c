@@ -107,6 +107,7 @@ static int stress_mincore(const stress_args_t *args)
 	bool mincore_rand = false;
 	int fd, rc = EXIT_SUCCESS;
 	uint8_t *mapped, *unmapped, *fdmapped;
+	double duration = 0.0, count = 0.0, rate;
 
 	(void)stress_get_setting("mincore-rand", &mincore_rand);
 
@@ -139,6 +140,7 @@ static int stress_mincore(const stress_args_t *args)
 		for (i = 0; (i < 100) && keep_stressing_flag(); i++) {
 			int ret, redo = 0;
 			static unsigned char vec[1];
+			double t;
 
 redo: 			errno = 0;
 			ret = shim_mincore((void *)addr, page_size, vec);
@@ -168,9 +170,13 @@ redo: 			errno = 0;
 			if (mapped != MAP_FAILED) {
 				/* Force page to be resident */
 				*mapped = 0xff;
+				t = stress_time_now();
 				ret = shim_mincore((void *)mapped, page_size, vec);
-				if (ret < 0) {
-					/* Should no return ENOMEM on a mapped page */
+				if (ret >= 0) {
+					duration += stress_time_now() - t;
+					count += 1.0;
+				} else {
+					/* Should not return ENOMEM on a mapped page */
 					if (errno == ENOMEM) {
 						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
 							args->name, (void *)mapped, errno,
@@ -270,6 +276,9 @@ redo: 			errno = 0;
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per mincore call", rate * STRESS_DBL_NANOSECOND);
 
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

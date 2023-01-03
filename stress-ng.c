@@ -2251,8 +2251,8 @@ static void stress_getrusage(const int who, stress_stats_t *stats)
 	struct rusage usage;
 
 	if (shim_getrusage(who, &usage) == 0) {
-		stats->rusage_utime += (double)usage.ru_utime.tv_sec + ((double)usage.ru_utime.tv_usec) / 1000000.0;
-		stats->rusage_stime += (double)usage.ru_stime.tv_sec + ((double)usage.ru_stime.tv_usec) / 1000000.0;
+		stats->rusage_utime += (double)usage.ru_utime.tv_sec + ((double)usage.ru_utime.tv_usec) / STRESS_DBL_MICROSECOND;
+		stats->rusage_stime += (double)usage.ru_stime.tv_sec + ((double)usage.ru_stime.tv_usec) / STRESS_DBL_MICROSECOND;
 #if defined(HAVE_RUSAGE_RU_MAXRSS)
 		if (stats->rusage_maxrss < usage.ru_maxrss)
 			stats->rusage_maxrss = usage.ru_maxrss;

@@ -654,7 +654,7 @@ reap:
 	} while (!locked && keep_running() && keep_stressing(args));
 
 	average = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs to start a pthread", average * 1000000000.0);
+	stress_metrics_set(args, 0, "nanosecs to start a pthread", average * STRESS_DBL_NANOSECOND);
 
 	pr_inf("%s: maximum of %" PRIu64 " concurrent pthreads created\n",
 		args->name, maximum);

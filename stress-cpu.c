@@ -2997,7 +2997,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			} while (t2 < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
-			const double slice_end = t1 + ((double)cpu_load_slice / 1000.0);
+			const double slice_end = t1 + ((double)cpu_load_slice / STRESS_DBL_MILLISECOND);
 
 			do {
 				stress_cpu_method(cpu_method, args, &counter);
@@ -3026,10 +3026,10 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 
 #if defined(HAVE_SELECT)
 			tv.tv_sec = (time_t)delay;
-			tv.tv_usec = (long)((delay - (double)tv.tv_sec) * 1000000.0);
+			tv.tv_usec = (long)((delay - (double)tv.tv_sec) * STRESS_DBL_MICROSECOND);
 			(void)select(0, NULL, NULL, NULL, &tv);
 #else
-			shim_nanosleep_uint64((uint64_t)(delay * 1000000000.0));
+			shim_nanosleep_uint64((uint64_t)(delay * STRESS_DBL_NANOSECOND));
 #endif
 
 			t3 = stress_time_now();

@@ -1052,7 +1052,7 @@ void stress_vmstat_start(void)
 
 		delta = t1 - t2;
 		if (delta > 0) {
-			uint64_t nsec = (uint64_t)(delta * 1000000000.0);
+			uint64_t nsec = (uint64_t)(delta * STRESS_DBL_NANOSECOND);
 			(void)shim_nanosleep_uint64(nsec);
 		}
 

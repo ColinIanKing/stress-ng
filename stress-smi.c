@@ -270,10 +270,10 @@ static int stress_smi(const stress_args_t *args)
 			const double secs = d2 - d1;
 			const uint64_t smis = (s2 - s1) / (uint64_t)cpus;
 			const double rate = (secs > 0.0) ? (double)smis / secs : 0.0;
-			const double duration = (rate > 0.0) ? 1000000.0 / rate : 0.0;
+			const double duration = (rate > 0.0) ? STRESS_DBL_MICROSECOND / rate : 0.0;
 
 			if ((secs > 0.0) && (duration > 0.0)) {
-				pr_inf("%s: %.2f SMIs per second per CPU (%.2fus per SMI)\n",
+				pr_inf("%s: %.2f SMIs per second per CPU (%.2f microsecs per SMI)\n",
 					args->name, rate, duration);
 			} else {
 				pr_inf("%s: cannot determine SMI rate, data is not unreliable\n",

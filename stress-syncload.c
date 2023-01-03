@@ -243,8 +243,8 @@ static int stress_syncload(const stress_args_t *args)
 	(void)stress_get_setting("syncload-msbusy", &syncload_msbusy);
 	(void)stress_get_setting("syncload-mssleep", &syncload_mssleep);
 
-	sec_busy = (double)syncload_msbusy / 1000.0;
-	sec_sleep = (double)syncload_mssleep / 1000.0;
+	sec_busy = (double)syncload_msbusy / STRESS_DBL_MILLISECOND;
+	sec_sleep = (double)syncload_mssleep / STRESS_DBL_MILLISECOND;
 
 	stress_sysload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 

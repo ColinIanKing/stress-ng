@@ -229,6 +229,10 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_MICROSECOND		(1000000L)
 #define STRESS_MILLISECOND		(1000L)
 
+#define STRESS_DBL_NANOSECOND		(1000000000.0)
+#define STRESS_DBL_MICROSECOND		(1000000.0)
+#define STRESS_DBL_MILLISECOND		(1000.0)
+
 /*
  * STRESS_ASSERT(test)
  *   throw compile time error if test not true
