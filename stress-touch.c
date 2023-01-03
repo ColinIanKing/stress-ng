@@ -195,7 +195,6 @@ static void stress_touch_dir_clean(const stress_args_t *args)
 			(void)shim_unlink(filename);
 	}
 	(void)closedir(dir);
-
 }
 
 static void stress_touch_child(
