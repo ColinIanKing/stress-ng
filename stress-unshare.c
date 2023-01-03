@@ -27,6 +27,12 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_UNSHARE)
 
+typedef struct {
+	pid_t	pid;		/* Process ID */
+	double	duration;	/* unshare duration time (secs) */
+	double	count;		/* unshare count */
+} stress_unshare_info_t;
+
 #define MAX_PIDS	(32)
 
 #if defined(CLONE_FS)		|| \
@@ -43,8 +49,8 @@ static const stress_help_t help[] = {
     defined(CLONE_SIGHAND)	|| \
     defined(CLONE_VM)
 
-#define UNSHARE(flags)	\
-	check_unshare(args, flags, #flags)
+#define UNSHARE(flags, duration, count)	\
+	check_unshare(args, flags, #flags, duration, count)
 
 static const int clone_flags[] = {
 #if defined(CLONE_FS)
@@ -88,10 +94,17 @@ static const int clone_flags[] = {
 /*
  *  unshare with some error checking
  */
-static void check_unshare(const stress_args_t *args, int flags, const char *flags_name)
+static void check_unshare(
+	const stress_args_t *args,
+	const int flags,
+	const char *flags_name,
+	double *duration,
+	double *count)
 {
 	int rc;
+	double t;
 
+	t = stress_time_now();
 	rc = shim_unshare(flags);
 	if ((rc < 0) &&
             (errno != EPERM) &&
@@ -100,6 +113,9 @@ static void check_unshare(const stress_args_t *args, int flags, const char *flag
 		pr_fail("%s: unshare(%s) failed, errno=%d (%s)\n",
 			args->name, flags_name,
 			errno, strerror(errno));
+	} else {
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
 	}
 }
 #endif
@@ -128,12 +144,28 @@ static inline bool enough_memory(void)
  */
 static int stress_unshare(const stress_args_t *args)
 {
-	pid_t pids[MAX_PIDS];
 #if defined(CLONE_NEWNET)
 	const uid_t euid = geteuid();
 #endif
 	int *clone_flag_perms, all_flags;
 	size_t i, clone_flag_count;
+	const size_t unshare_info_size = sizeof(stress_unshare_info_t) * MAX_PIDS;
+	stress_unshare_info_t *unshare_info;
+	double total_duration = 0.0, total_count = 0.0, rate;
+
+	unshare_info = (stress_unshare_info_t *)mmap(NULL, unshare_info_size,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (unshare_info == MAP_FAILED) {
+		pr_inf("%s: could not mmap %zu bytes for unshare metrics, skipping stressor\n", 
+			args->name, unshare_info_size);
+		return EXIT_NO_RESOURCE;
+	}
+
+	for (i = 0; i < MAX_PIDS; i++) {
+		unshare_info[i].duration = 0.0;
+		unshare_info[i].count = 0.0;
+	}
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(clone_flags); i++)
 		all_flags |= clone_flags[i];
@@ -145,7 +177,9 @@ static int stress_unshare(const stress_args_t *args)
 	do {
 		size_t n;
 
-		(void)memset(pids, 0, sizeof(pids));
+		for (n = 0; n < MAX_PIDS; n++) {
+			unshare_info[i].pid = 0;
+		}
 
 		for (n = 0; n < MAX_PIDS; n++) {
 			static int index;
@@ -166,12 +200,15 @@ static int stress_unshare(const stress_args_t *args)
 				index %= clone_flag_count;
 			}
 
-			pids[n] = fork();
-			if (pids[n] < 0) {
+			unshare_info[n].pid = fork();
+			if (unshare_info[n].pid < 0) {
 				/* Out of resources for fork */
 				if (errno == EAGAIN)
 					break;
-			} else if (pids[n] == 0) {
+			} else if (unshare_info[n].pid == 0) {
+				double *duration = &unshare_info[i].duration;
+				double *count = &unshare_info[i].count;
+
 				/* Child */
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
@@ -180,18 +217,18 @@ static int stress_unshare(const stress_args_t *args)
 				stress_set_oom_adjustment(args->name, true);
 
 				if (do_flag_perm)
-					UNSHARE(clone_flag);
+					UNSHARE(clone_flag, duration, count);
 #if defined(CLONE_FS)
-				UNSHARE(CLONE_FS);
+				UNSHARE(CLONE_FS, duration, count);
 #endif
 #if defined(CLONE_FILES)
-				UNSHARE(CLONE_FILES);
+				UNSHARE(CLONE_FILES, duration, count);
 #endif
 #if defined(CLONE_NEWCGROUP)
-				UNSHARE(CLONE_NEWCGROUP);
+				UNSHARE(CLONE_NEWCGROUP, duration, count);
 #endif
 #if defined(CLONE_NEWIPC)
-				UNSHARE(CLONE_NEWIPC);
+				UNSHARE(CLONE_NEWIPC, duration, count);
 #endif
 #if defined(CLONE_NEWNET)
 				/*
@@ -202,31 +239,31 @@ static int stress_unshare(const stress_args_t *args)
 				 *  and don't unshare of root
 				 */
 				if ((n == 0) && (euid != 0))
-					UNSHARE(CLONE_NEWNET);
+					UNSHARE(CLONE_NEWNET, duration, count);
 #endif
 #if defined(CLONE_NEWNS)
-				UNSHARE(CLONE_NEWNS);
+				UNSHARE(CLONE_NEWNS, duration, count);
 #endif
 #if defined(CLONE_NEWPID)
-				UNSHARE(CLONE_NEWPID);
+				UNSHARE(CLONE_NEWPID, duration, count);
 #endif
 #if defined(CLONE_NEWUSER)
-				UNSHARE(CLONE_NEWUSER);
+				UNSHARE(CLONE_NEWUSER, duration, count);
 #endif
 #if defined(CLONE_NEWUTS)
-				UNSHARE(CLONE_NEWUTS);
+				UNSHARE(CLONE_NEWUTS, duration, count);
 #endif
 #if defined(CLONE_SYSVSEM)
-				UNSHARE(CLONE_SYSVSEM);
+				UNSHARE(CLONE_SYSVSEM, duration, count);
 #endif
 #if defined(CLONE_THREAD)
-				UNSHARE(CLONE_THREAD);
+				UNSHARE(CLONE_THREAD, duration, count);
 #endif
 #if defined(CLONE_SIGHAND)
-				UNSHARE(CLONE_SIGHAND);
+				UNSHARE(CLONE_SIGHAND, duration, count);
 #endif
 #if defined(CLONE_VM)
-				UNSHARE(CLONE_VM);
+				UNSHARE(CLONE_VM, duration, count);
 #endif
 				_exit(0);
 			}
@@ -234,12 +271,12 @@ static int stress_unshare(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			int status;
 
-			if (pids[i] > 0) {
+			if (unshare_info[i].pid > 0) {
 				int ret;
 
-				ret = stress_killpid(pids[i]);
+				ret = stress_killpid(unshare_info[i].pid);
 				if (ret == 0) {
-					if (shim_waitpid(pids[i], &status, 0) < 0) {
+					if (shim_waitpid(unshare_info[i].pid, &status, 0) < 0) {
 						if (errno != EINTR)
 							pr_err("%s: waitpid errno=%d (%s)\n",
 								args->name, errno, strerror(errno));
@@ -250,10 +287,19 @@ static int stress_unshare(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	for (i = 0; i < MAX_PIDS; i++) {
+		total_duration += unshare_info[i].duration;
+		total_count += unshare_info[i].count;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	rate = (total_count > 0.0) ? total_duration / total_count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per unshare call", rate * STRESS_DBL_NANOSECOND);
 
 	if (clone_flag_perms)
 		free(clone_flag_perms);
+
+	(void)munmap((void *)unshare_info, unshare_info_size);
 
 	return EXIT_SUCCESS;
 }
