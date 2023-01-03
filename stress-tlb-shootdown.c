@@ -293,7 +293,6 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		}
 	}
 
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 err_munmap_mem:
