@@ -1523,7 +1523,7 @@ static int stress_zlib_deflate(
 	uint64_t bytes_in = 0, bytes_out = 0;
 	int flush;
 	stress_zlib_args_t zlib_args;
-	double t1, t2;
+	double t1, duration, rate, ratio;
 	stress_zlib_checksum_t zlib_checksum;
 	stress_zlib_rand_data_info_t *info;
 
@@ -1670,11 +1670,12 @@ static int stress_zlib_deflate(
 	} while (keep_stressing(args));
 
 finish:
-	t2 = stress_time_now();
-	pr_inf("%s: instance %" PRIu32 ": compression ratio: %5.2f%% (%.2f MB/sec)\n",
-		args->name, args->instance,
-		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,
-		(t2 - t1 > 0.0) ? ((double)bytes_in / (t2 - t1)) / MB : 0.0);
+	duration = stress_time_now() - t1;
+
+	ratio = (bytes_in > 0) ? 100.0 * (double)bytes_out / (double)bytes_in : 0.0;
+	stress_metrics_set(args, 0, "% compression ratio", ratio);
+	rate = (duration > 0.0) ? ((double)bytes_in / duration) / MB : 0.0;
+	stress_metrics_set(args, 1, "MB/sec compression rate", rate);
 
 	ret = EXIT_SUCCESS;
 zlib_checksum_error:
