@@ -34,20 +34,34 @@ static const stress_help_t help[] = {
 static void stress_flock_child(
 	const stress_args_t *args,
 	const int fd,
-	const int bad_fd)
+	const int bad_fd,
+	const bool save_metrics)
 {
 	bool cont;
 	int i;
+	double lock_duration = 0.0, lock_count = 0.0;
+	double unlock_duration = 0.0, unlock_count = 0.0;
+	double rate;
 
 	for (i = 0; ; i++) {
 		int ret;
+		double t;
 
 #if defined(LOCK_EX)
+		t = stress_time_now();
 		if (flock(fd, LOCK_EX) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -62,11 +76,20 @@ static void stress_flock_child(
 		(void)flock(bad_fd, LOCK_UN);
 
 #if defined(LOCK_NB)
+		t = stress_time_now();
 		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -87,11 +110,21 @@ static void stress_flock_child(
 #if defined(LOCK_SH)
 		if (!keep_stressing(args))
 			break;
+
+		t = stress_time_now();
 		if (flock(fd, LOCK_SH) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -103,11 +136,21 @@ static void stress_flock_child(
     defined(LOCK_NB)
 		if (!keep_stressing(args))
 			break;
+
+		t = stress_time_now();
 		if (flock(fd, LOCK_SH | LOCK_NB) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -119,11 +162,21 @@ static void stress_flock_child(
     defined(LOCK_READ)
 		if (!keep_stressing(args))
 			break;
+
+		t = stress_time_now();
 		if (flock(fd, LOCK_MAND | LOCK_READ) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -135,11 +188,21 @@ static void stress_flock_child(
     defined(LOCK_WRITE)
 		if (!keep_stressing(args))
 			break;
+
+		t = stress_time_now();
 		if (flock(fd, LOCK_MAND | LOCK_WRITE) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -151,12 +214,22 @@ static void stress_flock_child(
     defined(LOCK_SH)
 		if (!keep_stressing(args))
 			break;
+
 		/* Exercise invalid lock combination */
+		t = stress_time_now();
 		if (flock(fd, LOCK_EX | LOCK_SH) == 0) {
+			lock_duration += stress_time_now() - t;
+			lock_count += 1.0;
+
 			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
-			(void)flock(fd, LOCK_UN);
+
+			t = stress_time_now();
+			if (flock(fd, LOCK_UN) == 0) {
+				unlock_duration += stress_time_now() - t;
+				unlock_count += 1.0;
+			}
 			if (!cont)
 				break;
 		}
@@ -170,6 +243,12 @@ static void stress_flock_child(
 			VOID_RET(ssize_t, system_read("/proc/locks", buf, sizeof(buf)));
 		}
 #endif
+	}
+	if (save_metrics) {
+		rate = (lock_count > 0.0) ? lock_duration / lock_count : 0.0;
+		stress_metrics_set(args, 0, "nanosecs per flock lock call", rate * STRESS_DBL_NANOSECOND);
+		rate = (unlock_count > 0.0) ? unlock_duration / unlock_count : 0.0;
+		stress_metrics_set(args, 1, "nanosecs per flock unlock call", rate * STRESS_DBL_NANOSECOND);
 	}
 }
 
@@ -209,15 +288,16 @@ static int stress_flock(const stress_args_t *args)
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			stress_flock_child(args, fd, bad_fd);
+			stress_flock_child(args, fd, bad_fd, false);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
-	stress_flock_child(args, fd, bad_fd);
+	stress_flock_child(args, fd, bad_fd, true);
 	rc = EXIT_SUCCESS;
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)close(fd);
 
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
