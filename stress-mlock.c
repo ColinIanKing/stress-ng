@@ -42,9 +42,15 @@ static const stress_help_t help[] = {
  *	or mlock.  If not available, just fallback to
  *	mlock.  Also, pick random mlock2 flags
  */
-static int do_mlock(const void *addr, size_t len)
+static int do_mlock(
+	const void *addr,
+	size_t len,
+	double *duration,
+	double *count)
 {
 	static bool use_mlock2 = true;
+	int ret;
+	double t;
 
 	if (use_mlock2) {
 		const uint32_t rnd = stress_mwc32() >> 5;
@@ -53,11 +59,14 @@ static int do_mlock(const void *addr, size_t len)
 		if (rnd & 1) {
 			const int flags = (rnd & 2) ?
 				0 : MLOCK_ONFAULT;
-			int ret;
 
+			t = stress_time_now();
 			ret = shim_mlock2(addr, len, flags);
-			if (!ret)
+			if (ret == 0) {
+				(*duration) += stress_time_now() - t;
+				(*count) += 1.0;
 				return 0;
+			}
 			if (errno != ENOSYS)
 				return ret;
 
@@ -67,12 +76,31 @@ static int do_mlock(const void *addr, size_t len)
 	}
 
 	/* Just do mlock */
-	return shim_mlock((const void *)addr, len);
+	t = stress_time_now();
+	ret = shim_mlock((const void *)addr, len);
+	if (ret == 0) {
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
+	}
+	return ret;
 }
 #else
-static inline int do_mlock(const void *addr, size_t len)
+static inline int do_mlock(
+	const void *addr,
+	size_t len,
+	double *duration,
+	double *count)
 {
-	return shim_mlock((const void *)addr, len);
+	int ret;
+	double t;
+	
+	t = stess_time_now();
+	ret = shim_mlock((const void *)addr, len);
+	if (ret == 0) {
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
+	}
+	return ret;
 }
 #endif
 
@@ -187,6 +215,9 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	const size_t max = stress_mlock_max_lockable();
 	const size_t mappings_len = max * sizeof(*mappings);
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
+	double mlock_duration = 0.0, mlock_count = 0.0;
+	double munlock_duration = 0.0, munlock_count = 0.0;
+	double rate;
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
@@ -239,14 +270,14 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			 */
 			if (!keep_stressing(args))
 				break;
-			(void)do_mlock((void *)(mappings[n] + page_size), 0);
+			(void)do_mlock((void *)(mappings[n] + page_size), 0, &mlock_duration, &mlock_count);
 
 			/*
 			 *  Attempt a correct mlock
 			 */
 			if (!keep_stressing(args))
 				break;
-			ret = do_mlock((void *)(mappings[n] + page_size), page_size);
+			ret = do_mlock((void *)(mappings[n] + page_size), page_size, &mlock_duration, &mlock_count);
 			if (ret < 0) {
 				if (errno == EAGAIN)
 					continue;
@@ -277,8 +308,16 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 
 			if (keep_stressing(args)) {
 				addr ^= mlocked;
-				if (mlocked)
-					(void)shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
+				if (mlocked) {
+					double t;
+
+					t = stress_time_now();
+					ret = shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
+					if (ret == 0) {
+						munlock_duration += stress_time_now() - t;
+						munlock_count += 1.0;
+					}
+				}
 				/*
 				 *  Attempt a bogus munlock, ignore failure
 				 */
@@ -305,6 +344,11 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (mlock_count > 0.0) ? mlock_duration / mlock_count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per mlock call", rate * STRESS_DBL_NANOSECOND);
+	rate = (munlock_count > 0.0) ? munlock_duration / munlock_count : 0.0;
+	stress_metrics_set(args, 1, "nanosecs per munlock call", rate * STRESS_DBL_NANOSECOND);
 
 	(void)munmap((void *)mappings, mappings_len);
 
