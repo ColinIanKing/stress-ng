@@ -93,7 +93,7 @@ static inline int do_mlock(
 {
 	int ret;
 	double t;
-	
+
 	t = stess_time_now();
 	ret = shim_mlock((const void *)addr, len);
 	if (ret == 0) {
