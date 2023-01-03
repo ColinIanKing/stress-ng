@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #define ROTATE_LOOPS	(10000)
@@ -32,29 +33,6 @@ typedef double (*stress_rotate_func_t)(const stress_args_t *args);
 
 static double stress_rotate_all(const stress_args_t *args);
 
-/*
- *  Rotate left 1 place the variable val of type
- */
-#define ROLx(type, shift, val)				\
-do {							\
-	const type tmp = (val);				\
-	const type bit0 = ((type)val >> shift);		\
-							\
-	(val) = (type)(tmp << (type)1) | (bit0 & 1);	\
-} while (0)
-
-/*
- *  Rotate right 1 place the variable val of type
- */
-#define RORx(type, shift, val) 				\
-do {							\
-	type tmp = val;					\
-	const type bit0 = (type)((tmp & 1) << shift);	\
-	tmp >>= 1;					\
-	tmp |= bit0;					\
-	val = tmp;					\
-} while (0)
-
 #if defined(HAVE_INT128_T)
 static __uint128_t stress_mwc128(void)
 {
@@ -65,24 +43,8 @@ static __uint128_t stress_mwc128(void)
 }
 #endif
 
-#define ROL8(val)	ROLx(uint8_t,   7U, val)
-#define ROL16(val)	ROLx(uint16_t, 15U, val)
-#define ROL32(val)	ROLx(uint32_t, 31U, val)
-#define ROL64(val)	ROLx(uint64_t, 63U, val)
-#if defined(HAVE_INT128_T)
-#define ROL128(val)	ROLx(__uint128_t, 127U, val)
-#endif
-
-#define ROR8(val)	RORx(uint8_t,   7U, val)
-#define ROR16(val)	RORx(uint16_t, 15U, val)
-#define ROR32(val)	RORx(uint32_t, 31U, val)
-#define ROR64(val)	RORx(uint64_t, 63U, val)
-#if defined(HAVE_INT128_T)
-#define ROR128(val)	RORx(__uint128_t, 127U, val)
-#endif
-
 #define STRESS_ROTATE(name, type, size, rotate_macro)	\
-static OPTIMIZE3 double 				\
+static double 						\
 stress_ ## name ## size(const stress_args_t *args)	\
 {							\
 	type v0 = stress_mwc ## size();			\
@@ -93,14 +55,12 @@ stress_ ## name ## size(const stress_args_t *args)	\
 	register int i = 0;				\
 							\
 	t1 = stress_time_now();				\
-	shim_mb();					\
 	for (i = 0; i < ROTATE_LOOPS; i++) {		\
 		rotate_macro ## size(v0);		\
 		rotate_macro ## size(v1);		\
 		rotate_macro ## size(v2);		\
 		rotate_macro ## size(v3);		\
 	}						\
-	shim_mb();					\
 	t2 = stress_time_now();				\
 							\
 	stress_uint ## size ## _put(v0);		\
@@ -112,20 +72,20 @@ stress_ ## name ## size(const stress_args_t *args)	\
 	return t2 - t1;					\
 }
 
-STRESS_ROTATE(rol,     uint8_t,   8, ROL)
-STRESS_ROTATE(rol,    uint16_t,  16, ROL)
-STRESS_ROTATE(rol,    uint32_t,  32, ROL)
-STRESS_ROTATE(rol,    uint64_t,  64, ROL)
+STRESS_ROTATE(rol,     uint8_t,   8, shim_rol)
+STRESS_ROTATE(rol,    uint16_t,  16, shim_rol)
+STRESS_ROTATE(rol,    uint32_t,  32, shim_rol)
+STRESS_ROTATE(rol,    uint64_t,  64, shim_rol)
 #if defined(HAVE_INT128_T)
-STRESS_ROTATE(rol, __uint128_t, 128, ROL)
+STRESS_ROTATE(rol, __uint128_t, 128, shim_ror)
 #endif
 
-STRESS_ROTATE(ror,     uint8_t,   8, ROR)
-STRESS_ROTATE(ror,    uint16_t,  16, ROR)
-STRESS_ROTATE(ror,    uint32_t,  32, ROR)
-STRESS_ROTATE(ror,    uint64_t,  64, ROR)
+STRESS_ROTATE(ror,     uint8_t,   8, shim_ror)
+STRESS_ROTATE(ror,    uint16_t,  16, shim_ror)
+STRESS_ROTATE(ror,    uint32_t,  32, shim_ror)
+STRESS_ROTATE(ror,    uint64_t,  64, shim_ror)
 #if defined(HAVE_INT128_T)
-STRESS_ROTATE(ror, __uint128_t, 128, ROR)
+STRESS_ROTATE(ror, __uint128_t, 128, shim_ror)
 #endif
 
 typedef struct {
