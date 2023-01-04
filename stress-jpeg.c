@@ -41,7 +41,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"jpeg-image type",	"image type: one of brown, flat, gradient, noise, plasma or xstripes" },
 	{ NULL,	"jpeg-ops N",		"stop after N jpeg bogo no-op operations" },
 	{ NULL,	"jpeg-quality Q",	"compression quality 1 (low) .. 100 (high)" },
-	{ NULL,	"jpeg-width N",		"image width  in pixels "},
+	{ NULL,	"jpeg-width N",		"image width in pixels "},
 	{ NULL,	NULL,			NULL }
 };
 
@@ -360,7 +360,7 @@ static int stress_jpeg(const stress_args_t *args)
 	int32_t jpeg_quality = 95;
 	size_t rgb_size;
 	int jpeg_image = JPEG_IMAGE_PLASMA;
-	double total_pixels = 0.0, t_start, duration, rate;
+	double total_pixels = 0.0, t_start, duration, rate, ratio;
 
 	(void)stress_get_setting("jpeg-width", &x_max);
 	(void)stress_get_setting("jpeg-height", &y_max);
@@ -424,13 +424,14 @@ static int stress_jpeg(const stress_args_t *args)
 
 	rate = (duration > 0) ? total_pixels / duration : 0.0;
 	stress_metrics_set(args, 0, "megapixels compressed per sec" , rate / 1000000.0);
+	ratio = (size_uncompressed > 0) ? 100.0 * (double)size_compressed / (double)size_uncompressed : 0.0;
+	stress_metrics_set(args, 1, "% compression ratio" , ratio);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if ((size_compressed > 0) && (size_uncompressed > 0)) {
 		pr_dbg("%s: compressed to %.1f%% of original size, %.2f secs of jpeg compute, %.2f jpegs/sec\n",
-			args->name, 100.0 * size_compressed / size_uncompressed,
-			t_jpeg, (double)get_counter(args) / t_jpeg);
+			args->name, ratio, t_jpeg, (double)get_counter(args) / t_jpeg);
 	}
 
 	(void)munmap((void *)rgb, rgb_size);
