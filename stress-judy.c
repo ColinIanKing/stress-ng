@@ -32,12 +32,6 @@
 #define JUDY_OP_DELETE		(2)
 #define JUDY_OP_MAX		(3)
 
-static const char * const judy_ops[] = {
-	"insert",
-	"find",
-	"delete",
-};
-
 static const stress_help_t help[] = {
 	{ NULL,	"judy N",	"start N workers that exercise a judy array search" },
 	{ NULL,	"judy-ops N",	"stop after N judy array search bogo operations" },
@@ -86,6 +80,12 @@ static int stress_judy(const stress_args_t *args)
 	Word_t i, j;
 	double duration[JUDY_OP_MAX], count[JUDY_OP_MAX];
 	size_t k;
+
+	static const char * const judy_ops[] = {
+		"insert",
+		"find",
+		"delete",
+	};
 
 	if (!stress_get_setting("judy-size", &judy_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
