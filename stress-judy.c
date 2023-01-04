@@ -27,6 +27,17 @@
 #define MAX_JUDY_SIZE		(4 * MB)
 #define DEFAULT_JUDY_SIZE	(256 * KB)
 
+#define JUDY_OP_INSERT		(0)
+#define JUDY_OP_FIND		(1)
+#define JUDY_OP_DELETE		(2)
+#define JUDY_OP_MAX		(3)
+
+static const char * const judy_ops[] = {
+	"insert",
+	"find",
+	"delete",
+};
+
 static const stress_help_t help[] = {
 	{ NULL,	"judy N",	"start N workers that exercise a judy array search" },
 	{ NULL,	"judy-ops N",	"stop after N judy array search bogo operations" },
@@ -73,6 +84,8 @@ static int stress_judy(const stress_args_t *args)
 	uint64_t judy_size = DEFAULT_JUDY_SIZE;
 	size_t n;
 	Word_t i, j;
+	double duration[JUDY_OP_MAX], count[JUDY_OP_MAX];
+	size_t k;
 
 	if (!stress_get_setting("judy-size", &judy_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -82,14 +95,21 @@ static int stress_judy(const stress_args_t *args)
 	}
 	n = (size_t)judy_size;
 
+	for (k = 0; k < JUDY_OP_MAX; k++) {
+		duration[k] = 0.0;
+		count[k] = 0.0;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		Pvoid_t PJLArray = (Pvoid_t)NULL;
 		Word_t *pvalue;
 		int rc;
+		double t;
 
 		/* Step #1, populate Judy array in sparse index order */
+		t = stress_time_now();
 		for (i = 0; i < n; i++) {
 			Word_t idx = gen_index(i);
 
@@ -104,8 +124,11 @@ static int stress_judy(const stress_args_t *args)
 			}
 			*pvalue = i;
 		}
+		duration[JUDY_OP_INSERT] += stress_time_now() - t;
+		count[JUDY_OP_INSERT] += n;
 
 		/* Step #2, find */
+		t = stress_time_now();
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
 			Word_t idx = gen_index(i);
 
@@ -125,8 +148,11 @@ static int stress_judy(const stress_args_t *args)
 				}
 			}
 		}
+		duration[JUDY_OP_FIND] += stress_time_now() - t;
+		count[JUDY_OP_FIND] += n;
 
 		/* Step #3, delete, reverse index order */
+		t = stress_time_now();
 		for (j = n -1, i = 0; i < n; i++, j--) {
 			Word_t idx = gen_index(j);
 
@@ -135,10 +161,20 @@ static int stress_judy(const stress_args_t *args)
 				pr_fail("%s: element %" PRIu32 " could not "
 					"be found\n", args->name, (uint32_t)idx);
 		}
+		duration[JUDY_OP_DELETE] += stress_time_now() - t;
+		count[JUDY_OP_DELETE] += n;
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
 abort:
+	for (k = 0; k < JUDY_OP_MAX; k++) {
+		char msg[64];
+		const double rate = (duration[k] > 0.0) ? count[k] / duration[k] : 0.0;
+
+		(void)snprintf(msg, sizeof(msg), "Judy %s operations per sec", judy_ops[k]);
+		stress_metrics_set(args, k, msg, rate);
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
