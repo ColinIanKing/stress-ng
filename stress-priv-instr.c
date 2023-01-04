@@ -77,7 +77,7 @@ static op_info_t op_info[] =
 #if defined(HAVE_ASM_ALPHA_DRAINA)
 	{ "call_pal %0 #draina",	stress_alpha_draina,	false, false },
 #endif
-#if defined(HAVE_ASM_ALPHA_HALT))
+#if defined(HAVE_ASM_ALPHA_HALT)
 	{ "call_pal %0 #halt",		stress_alpha_halt,	false, false },
 #endif
 };
