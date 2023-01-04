@@ -1913,18 +1913,22 @@ bool stress_is_prime64(const uint64_t n)
 uint64_t stress_get_prime64(const uint64_t n)
 {
 	static uint64_t p = 1009;
-	const uint64_t odd_n = (n & ~1UL) + 1;
+	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;
+	int i;
 
 	if (p < odd_n)
 		p = odd_n;
 
 	/* Search for next prime.. */
-	for (;;) {
+	for (i = 0; keep_stressing_flag() && (i < 2000); i++) {
 		p += 2;
 
 		if ((n % p) && stress_is_prime64(p))
 			return p;
 	}
+	/* Give up */
+	p = 1009;
+	return p;
 }
 
 /*
