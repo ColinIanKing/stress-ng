@@ -87,7 +87,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 static int stress_sigio(const stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE, fds[2], status, flags = -1;
-	double t_start, t_delta;
+	double t_start, t_delta, rate;
 
 	rd_fd = -1;
 	sigio_args = args;
@@ -190,10 +190,8 @@ again:
 	} while (keep_stressing(args));
 
 	t_delta = stress_time_now() - t_start;
-
-	if (t_delta > 0.0) 
-		pr_inf("%s: %.2f SIGIO signals/sec\n",
-			args->name, (double)async_sigs / t_delta);
+	rate = (t_delta > 0.0) ? (double)async_sigs / t_delta : 0.0;
+	stress_metrics_set(args, 0, "SIGIO signals per sec", rate);
 
 finish:
 	/*  And ignore IO signals from now on */
