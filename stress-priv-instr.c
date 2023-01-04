@@ -65,7 +65,7 @@ static void stress_alpha_draina(void)
 }
 #endif
 
-#if defined(HAVE_ASM_ALPHA_HALT))
+#if defined(HAVE_ASM_ALPHA_HALT)
 static void stress_alpha_halt(void)
 {
 	__asm__ __volatile__("call_pal %0 #halt" : : "i" (PAL_halt));
