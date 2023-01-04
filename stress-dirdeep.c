@@ -379,9 +379,11 @@ static void stress_dir_tidy(
 	const stress_args_t *args,
 	char *const path,
 	const size_t len,
-	const size_t path_len)
+	const size_t path_len,
+	const double start_time)
 {
 	struct dirent **namelist = NULL;
+	static bool tidy_info = false;
 	int n;
 
 	if (len + 2 >= path_len)
@@ -390,6 +392,16 @@ static void stress_dir_tidy(
 	n = scandir(path, &namelist, NULL, alphasort);
 	if (n < 0)
 		return;
+
+	/*
+	 * If recursive deletion is taking more than 1 second then
+	 * inform the user
+	 */
+	if ((args->instance == 0) && !tidy_info &&
+	    (stress_time_now() > start_time + 1.0)) {
+		tidy_info = true;
+		pr_tidy("%s: removing directories\n", args->name);
+	}
 
 	while (n--) {
 		char *name = namelist[n]->d_name;
@@ -403,7 +415,7 @@ static void stress_dir_tidy(
 		(void)snprintf(path + len, path_len - len, "/%s", name);
 		if (name[1] == '\0' && (isdigit(ch) || isupper(ch))) {
 			free(namelist[n]);
-			stress_dir_tidy(args, path, len + 2, path_len);
+			stress_dir_tidy(args, path, len + 2, path_len, start_time);
 		} else {
 			free(namelist[n]);
 			(void)shim_unlink(path);
@@ -493,8 +505,7 @@ static int stress_dirdeep(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
-	pr_tidy("%s: removing directories\n", args->name);
-	stress_dir_tidy(args, path, path_len, sizeof(path));
+	stress_dir_tidy(args, path, path_len, sizeof(path), stress_time_now());
 
 	inodes_exercised = (inodes_start == 0) ? inodes_estimate : inodes_start - inodes_min;
 	pr_dbg("%s: %" PRIu64 " inodes exercised%s\n",
