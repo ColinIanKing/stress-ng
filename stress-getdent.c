@@ -42,8 +42,9 @@ typedef int (stress_getdents_func)(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size,
-	const int bad_fd);
+	const int bad_fd,
+	double *duration,
+	double *count);
 
 #if defined(HAVE_GETDENTS)
 static stress_getdents_func stress_getdents_dir;
@@ -66,8 +67,9 @@ static inline int stress_getdents_rand(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size,
-	const int bad_fd)
+	const int bad_fd,
+	double *duration,
+	double *count)
 {
 	int ret = -ENOSYS;
 	const size_t n = SIZEOF_ARRAY(getdents_funcs);
@@ -77,7 +79,7 @@ static inline int stress_getdents_rand(
 		stress_getdents_func *func = getdents_funcs[j];
 
 		if (func) {
-			ret = func(args, path, recurse, depth, page_size, bad_fd);
+			ret = func(args, path, recurse, depth, bad_fd, duration, count);
 			if (ret == -ENOSYS)
 				getdents_funcs[j] = NULL;
 			else
@@ -114,12 +116,14 @@ static int stress_getdents_dir(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size,
-	const int bad_fd)
+	const int bad_fd,
+	double *duration,
+	double *count)
 {
 	int fd, rc = 0, nread;
 	struct shim_linux_dirent *buf;
 	unsigned int buf_sz;
+	const size_t page_size = args->page_size;
 
 	if (!keep_stressing(args))
 		return 0;
@@ -146,12 +150,16 @@ static int stress_getdents_dir(
 	do {
 		struct shim_linux_dirent *ptr = buf;
 		struct shim_linux_dirent *end;
+		double t;
 
+		t = stress_time_now();
 		nread = shim_getdents((unsigned int)fd, buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
 		}
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
 		if (nread == 0)
 			break;
 
@@ -169,7 +177,7 @@ static int stress_getdents_dir(
 				char newpath[PATH_MAX];
 
 				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
-				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size, bad_fd);
+				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, bad_fd, duration, count);
 				if (rc < 0)
 					goto exit_free;
 			}
@@ -195,12 +203,14 @@ static int stress_getdents64_dir(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size,
-	const int bad_fd)
+	const int bad_fd,
+	double *duration,
+	double *count)
 {
 	int fd, rc = 0;
 	struct shim_linux_dirent64 *buf;
 	unsigned int buf_sz;
+	const size_t page_size = args->page_size;
 
 	if (!keep_stressing(args))
 		return 0;
@@ -223,12 +233,16 @@ static int stress_getdents64_dir(
 		struct shim_linux_dirent64 *ptr = (struct shim_linux_dirent64 *)buf;
 		struct shim_linux_dirent64 *end;
 		int nread;
+		double t;
 
+		t = stress_time_now();
 		nread = shim_getdents64((unsigned int)fd, buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
 		}
+		(*duration) += stress_time_now() - t;
+		(*count) += 1.0;
 		if (nread == 0)
 			break;
 
@@ -246,7 +260,7 @@ static int stress_getdents64_dir(
 				char newpath[PATH_MAX];
 
 				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
-				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size, bad_fd);
+				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, bad_fd, duration, count);
 				if (rc < 0)
 					goto exit_free;
 			}
@@ -268,30 +282,33 @@ exit_close:
  */
 static int stress_getdent(const stress_args_t *args)
 {
-	const size_t page_size = args->page_size;
 	const int bad_fd = stress_get_bad_fd();
+	double duration = 0.0, count = 0.0, rate;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int ret;
 
-		ret = stress_getdents_rand(args, "/proc", true, 8, page_size, bad_fd);
+		ret = stress_getdents_rand(args, "/proc", true, 8, bad_fd, &duration, &count);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/dev", true, 1, page_size, bad_fd);
+		ret = stress_getdents_rand(args, "/dev", true, 1, bad_fd, &duration, &count);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/tmp", true, 4, page_size, bad_fd);
+		ret = stress_getdents_rand(args, "/tmp", true, 4, bad_fd, &duration, &count);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/sys", true, 8, page_size, bad_fd);
+		ret = stress_getdents_rand(args, "/sys", true, 8, bad_fd, &duration, &count);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/run", true, 2, page_size, bad_fd);
+		ret = stress_getdents_rand(args, "/run", true, 2, bad_fd, &duration, &count);
 		if (ret == -ENOSYS)
 			break;
 	} while (keep_stressing(args));
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per getdents call", rate * STRESS_DBL_NANOSECOND);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
