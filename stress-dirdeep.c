@@ -400,11 +400,7 @@ static void stress_dir_tidy(
 			continue;
 		}
 
-		snprintf(path + len, path_len - len, "/%s", name);
-		//path[len] = '/';
-		//path[len + 1] = ch;
-		//path[len + 2] = '\0';
-
+		(void)snprintf(path + len, path_len - len, "/%s", name);
 		if (name[1] == '\0' && (isdigit(ch) || isupper(ch))) {
 			free(namelist[n]);
 			stress_dir_tidy(args, path, len + 2, path_len);
