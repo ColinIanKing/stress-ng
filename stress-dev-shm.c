@@ -88,12 +88,13 @@ static inline int stress_dev_shm_child(
 			if (addr != MAP_FAILED) {
 				uint32_t *ptr, *end = addr + ((size_t)sz / sizeof(*end));
 				const size_t words = page_size / sizeof(*ptr);
+				uint32_t rnd = stress_mwc32();
 
 				(void)stress_madvise_random(addr, (size_t)sz);
 
-				/* Touch all pages with random data */
+				/* Touch all pages with data */
 				for (ptr = addr; ptr < end; ptr += words) {
-					*ptr = stress_mwc32();
+					*ptr = (uintptr_t)ptr ^ rnd;
 				}
 				(void)msync(addr, (size_t)sz, MS_INVALIDATE);
 				(void)munmap(addr, (size_t)sz);
