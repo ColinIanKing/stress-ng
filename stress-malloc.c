@@ -441,7 +441,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
 	{ OPT_malloc_touch,	stress_set_malloc_touch },
 	{ OPT_malloc_zerofree,	stress_set_malloc_zerofree },
-	{ 0,		NULL }
+	{ 0,			NULL }
 };
 
 stressor_info_t stress_malloc_info = {
