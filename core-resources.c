@@ -54,6 +54,9 @@ size_t stress_resources_allocate(
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
 
+	(void)pid;
+	(void)page_size;
+
 #if defined(RLIMIT_MEMLOCK)
 	{
 		int ret;
@@ -198,7 +201,7 @@ size_t stress_resources_allocate(
 			if (!keep_stressing_flag())
 				break;
 			if (resources[i].m_mmap != MAP_FAILED) {
-				size_t locked = STRESS_MINIMUM(mlock_size, resources[i].m_mmap_size);
+				const size_t locked = STRESS_MINIMUM(mlock_size, resources[i].m_mmap_size);
 
 				(void)stress_madvise_random(resources[i].m_mmap, resources[i].m_mmap_size);
 				(void)stress_mincore_touch_pages_interruptible(resources[i].m_mmap, resources[i].m_mmap_size);
@@ -291,7 +294,7 @@ size_t stress_resources_allocate(
 		if (!keep_stressing_flag())
 			break;
 		if (resources[i].fd_tmp != -1) {
-			size_t sz = page_size * stress_mwc32();
+			const size_t sz = page_size * stress_mwc32();
 
 			(void)shim_fallocate(resources[i].fd_tmp, 0, 0, (off_t)sz);
 #if defined(F_GETLK) &&		\
@@ -431,7 +434,7 @@ size_t stress_resources_allocate(
 #if defined(HAVE_SEM_SYSV) &&	\
     defined(HAVE_KEY_T)
 		{
-			key_t sem_key = (key_t)stress_mwc32();
+			const key_t sem_key = (key_t)stress_mwc32();
 
 			resources[i].sem_id = semget(sem_key, 1,
 				IPC_CREAT | S_IRUSR | S_IWUSR);
@@ -456,8 +459,8 @@ size_t stress_resources_allocate(
 			struct mq_attr attr;
 
 			(void)snprintf(resources[i].mq_name, sizeof(resources[i].mq_name),
-				"/%s-%i-%" PRIu32 "-%zu",
-				args->name, getpid(), args->instance, i);
+				"/%s-%" PRIdMAX "-%" PRIu32 "-%zu",
+				args->name, (intmax_t)pid, args->instance, i);
 			attr.mq_flags = 0;
 			attr.mq_maxmsg = 1;
 			attr.mq_msgsize = 32;
@@ -477,7 +480,7 @@ size_t stress_resources_allocate(
 			break;
 
 #if defined(HAVE_PIDFD_OPEN)
-		resources[i].pid_fd = shim_pidfd_open(getpid(), 0);
+		resources[i].pid_fd = shim_pidfd_open(pid, 0);
 #endif
 
 		if (do_fork) {
@@ -497,8 +500,8 @@ size_t stress_resources_allocate(
 	for (i = 0; i < num_resources; i++) {
 		if (resources[i].m_mmap && (resources[i].m_mmap != MAP_FAILED)) {
 			if (resources[i].m_mmap_size > page_size) {
-				size_t free_size = resources[i].m_mmap_size - page_size;
-				uintptr_t addr = (uintptr_t)resources[i].m_mmap + page_size;
+				const size_t free_size = resources[i].m_mmap_size - page_size;
+				const uintptr_t addr = (uintptr_t)resources[i].m_mmap + page_size;
 
 				(void)munmap((void *)addr, free_size);
 				resources[i].m_mmap_size -= page_size;
@@ -522,6 +525,8 @@ void stress_resources_free(
 {
 	const size_t page_size = args->page_size;
 	size_t i;
+
+	(void)page_size;
 
 	for (i = 0; i < num_resources; i++) {
 		if (resources[i].m_malloc)
