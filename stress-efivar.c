@@ -289,13 +289,7 @@ static int efi_read_variable(
 		goto err_efi_vars;
 	}
 
-	ret = ioctl(fd, FS_IOC_SETFLAGS, &flags);
-	if ((ret < 0) && (errno != EPERM)) {
-		pr_fail("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
-			args->name, filename, errno, strerror(errno));
-		rc = -1;
-		goto err_efi_vars;
-	}
+	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &flags));
 #endif
 
 err_efi_vars:
