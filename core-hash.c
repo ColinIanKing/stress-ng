@@ -562,7 +562,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
  */
 uint32_t HOT OPTIMIZE3 stress_hash_xorror64(const char *str, const size_t len)
 {
-	register uint64_t hash = ~len;
+	register uint64_t hash = ~(uint64_t)len;
 	register size_t i;
 
 	for (i = len >> 3; i; ) {
