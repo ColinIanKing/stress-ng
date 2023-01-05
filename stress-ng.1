@@ -2100,8 +2100,11 @@ T}
 muladd64	T{
 simple multiply and add hash using 64 bit math and xor folding of overflow
 T}
+mulxror32	T{
+32 bit multiply, xor and rotate right. Mangles 32 bits where possible. Designed by Colin Ian King
+T}
 mulxror64	T{
-64 bit multiply, xor and rotate right. Mangles 64 bits where possible. Designed by Colin Ian King
+64 bit multiply, xor and rotate right. 64 Bit version of mulxror32
 T}
 murmur3_32	T{
 murmur3_32 hash, Austin Appleby's Murmur3 hash, 32 bit variant
@@ -2129,8 +2132,11 @@ T}
 xor	T{
 simple rotate shift and xor of values
 T}
+xorror32	T{
+32 bit exclusive-or with right rotate hash, a fast string hash, designed by Colin Ian King
+T}
 xorror64	T{
-64 bit exclusive-or with right rotate hash, a fast string hash, designed by Colin Ian King
+64 bit version of xorror32
 T}
 xxhash	T{
 the "Extremely fast" hash in non-streaming mode

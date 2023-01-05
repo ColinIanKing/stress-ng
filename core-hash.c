@@ -557,6 +557,39 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 	return (uint32_t)((hash >> 32) ^ hash);
 }
 
+static HOT OPTIMIZE3 inline uint32_t hash_ror_uint32(const uint32_t x, const uint32_t bits)
+{
+	return (x >> bits) | x << (32 - bits);
+}
+
+/*
+ *  stress_hash_mulxror32()
+ *	mangles 32 bits per iteration on fast path, scaling by the 32 bits
+ *	from the string and partially rolling right to remix bits back into
+ *	the hash. Designed and Implemented Colin Ian King, free to re-use.
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_mulxror32(const char *str, const size_t len)
+{
+	register uint32_t hash = len;
+	register size_t i;
+
+	for (i = len >> 2; i; i--) {
+		uint32_t v;
+
+		/* memcpy optimizes down to a 32 bit load */
+		(void)memcpy(&v, str, sizeof(v));
+		str += sizeof(v);
+		hash *= v;
+		hash ^= hash_ror_uint32(hash, 20);
+	}
+	for (i = len & 3; i; i--) {
+		hash *= (uint8_t)*str++;
+		hash ^= hash_ror_uint32(hash, 5);
+	}
+	return hash;
+}
+
+
 /*
  * stress_hash_xorror64()
  *
@@ -582,6 +615,33 @@ uint32_t HOT OPTIMIZE3 stress_hash_xorror64(const char *str, const size_t len)
 	}
 	return (uint32_t)((hash >> 32) ^ hash);
 }
+
+/*
+ * stress_hash_xorror32()
+ *
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_xorror32(const char *str, const size_t len)
+{
+	register uint32_t hash = ~(uint32_t)len;
+	register size_t i;
+
+	for (i = len >> 2; i; ) {
+		uint32_t v32;
+
+		/* memcpy optimizes down to a 32 bit load */
+		(void)memcpy(&v32, str, sizeof(v32));
+		str += sizeof(v32);
+		i--;
+		hash = v32 ^ hash_ror_uint32(hash, 4);
+	}
+	for (i = len & 3; i;) {
+		register uint8_t v8 = *(str++);
+		i--;
+		hash = v8 ^ hash_ror_uint32(hash, 1);
+	}
+	return hash;
+}
+
 
 /*
  *  stress_hash_sedgwick()
