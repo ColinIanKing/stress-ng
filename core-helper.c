@@ -3182,11 +3182,11 @@ size_t stress_min_pthread_stack_size(void)
 	min = stress_min_aux_sig_stack_size();
 #if defined(__SC_THREAD_STACK_MIN_VALUE)
 	sz = sysconf(__SC_THREAD_STACK_MIN_VALUE);
-	min = STRESS_MAXIMIM(sz, min);
+	min = STRESS_MAXIMUM(sz, min);
 #endif
 #if defined(_SC_THREAD_STACK_MIN_VALUE)
 	sz = sysconf(_SC_THREAD_STACK_MIN_VALUE);
-	min = STRESS_MAXIMIM(sz, min);
+	min = STRESS_MAXIMUM(sz, min);
 #endif
 #if defined(PTHREAD_STACK_MIN)
 	sz = STRESS_MAXIMUM(PTHREAD_STACK_MIN, 8192);
