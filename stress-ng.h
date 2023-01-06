@@ -2562,6 +2562,7 @@ extern void stress_vmstat_stop(void);
 extern WARN_UNUSED char *stress_find_mount_dev(const char *name);
 extern WARN_UNUSED int stress_sigaltstack_no_check(void *stack, const size_t size);
 extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
+extern void stress_sigaltstack_disable(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
 extern int stress_sighandler_default(const int signum);

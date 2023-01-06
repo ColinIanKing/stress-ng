@@ -258,6 +258,7 @@ finish:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	stress_sigaltstack_disable();
 	(void)munmap((void *)altstack, altstack_size);
 
 	return EXIT_SUCCESS;

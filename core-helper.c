@@ -2121,6 +2121,24 @@ int stress_sigaltstack(void *stack, const size_t size)
 }
 
 /*
+ *  stress_sigaltstack_disable()
+ *	disable the alternative signal stack
+ */
+void stress_sigaltstack_disable(void)
+{
+#if defined(HAVE_SIGALTSTACK)
+	stack_t ss;
+
+	ss.ss_sp = NULL;
+	ss.ss_size = 0;
+	ss.ss_flags = SS_DISABLE;
+
+	sigaltstack(&ss, NULL);
+#endif
+	return;
+}
+
+/*
  *  stress_sighandler()
  *	set signal handler in generic way
  */
