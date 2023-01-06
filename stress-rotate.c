@@ -56,10 +56,10 @@ stress_ ## name ## size(const stress_args_t *args)	\
 							\
 	t1 = stress_time_now();				\
 	for (i = 0; i < ROTATE_LOOPS; i++) {		\
-		rotate_macro ## size(v0);		\
-		rotate_macro ## size(v1);		\
-		rotate_macro ## size(v2);		\
-		rotate_macro ## size(v3);		\
+		v0 = rotate_macro ## size(v0);		\
+		v1 = rotate_macro ## size(v1);		\
+		v2 = rotate_macro ## size(v2);		\
+		v3 = rotate_macro ## size(v3);		\
 	}						\
 	t2 = stress_time_now();				\
 							\

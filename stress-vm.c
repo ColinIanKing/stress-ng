@@ -1114,14 +1114,14 @@ static size_t TARGET_CLONES stress_vm_ror(
 	(void)stress_mincore_touch_pages(buf, sz);
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		shim_ror8(*(ptr + 0));
-		shim_ror8(*(ptr + 1));
-		shim_ror8(*(ptr + 2));
-		shim_ror8(*(ptr + 3));
-		shim_ror8(*(ptr + 4));
-		shim_ror8(*(ptr + 5));
-		shim_ror8(*(ptr + 6));
-		shim_ror8(*(ptr + 7));
+		*(ptr + 0) = shim_ror8(*(ptr + 0));
+		*(ptr + 1) = shim_ror8(*(ptr + 1));
+		*(ptr + 2) = shim_ror8(*(ptr + 2));
+		*(ptr + 3) = shim_ror8(*(ptr + 3));
+		*(ptr + 4) = shim_ror8(*(ptr + 4));
+		*(ptr + 5) = shim_ror8(*(ptr + 5));
+		*(ptr + 6) = shim_ror8(*(ptr + 6));
+		*(ptr + 7) = shim_ror8(*(ptr + 7));
 
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1136,7 +1136,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
-		shim_ror8(val);
+		val = shim_ror8(val);
 
 		bit_errors += (*(ptr + 0) != val);
 		bit_errors += (*(ptr + 1) != val);
@@ -1186,19 +1186,19 @@ static size_t TARGET_CLONES stress_vm_flip(
 		uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 1) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 2) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 3) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 4) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 5) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 6) = val;
-		shim_ror8(val);
+		val = shim_ror8(val);
 		*(ptr + 7) = val;
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1209,7 +1209,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 	(void)stress_mincore_touch_pages(buf, sz);
 
 	for (i = 0; i < 8; i++) {
-		shim_ror8(bit);
+		bit = shim_ror8(bit);
 		for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 			*(ptr + 0) ^= bit;
 			*(ptr + 1) ^= bit;
@@ -1235,19 +1235,19 @@ static size_t TARGET_CLONES stress_vm_flip(
 		uint8_t val = stress_mwc8();
 
 		bit_errors += (*(ptr + 0) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 1) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 2) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 3) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 4) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 5) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 6) != val);
-		shim_ror8(val);
+		val = shim_ror8(val);
 		bit_errors += (*(ptr + 7) != val);
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;

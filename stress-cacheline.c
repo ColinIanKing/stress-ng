@@ -28,14 +28,14 @@
 	do { __atomic_fetch_add(ptr, 1, __ATOMIC_RELAXED); } while (0)
 #endif
 
-#define EXERCISE(data)	\
-do {			\
-	(data)++;	\
-	shim_mb();	\
-	shim_rol8(data);\
-	shim_mb();	\
-	shim_ror8(data);\
-	shim_mb();	\
+#define EXERCISE(data)		\
+do {				\
+	(data)++;		\
+	shim_mb();		\
+	data = shim_rol8(data);	\
+	shim_mb();		\
+	data = shim_ror8(data);	\
+	shim_mb();		\
 } while (0)
 
 static const stress_help_t help[] = {
