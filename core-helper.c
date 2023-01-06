@@ -3144,19 +3144,12 @@ size_t stress_sig_stack_size(void)
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_SIGSTKSZ)
 	sz = sysconf(_SC_SIGSTKSZ);
-	if (min < sz)
-		min = sz;
+	min = STRESS_MAXIMUM(sz, min);
 #endif
 #if defined(SIGSTKSZ)
-	if (SIGSTKSZ > min) {
-		/* SIGSTKSZ may be sysconf(_SC_SIGSTKSZ) */
-		min = SIGSTKSZ;
-	}
+	min = STRESS_MAXIMUM(SIGSTKSZ, min);
 #endif
-	if (min < STRESS_ABS_MIN_STACK_SIZE)
-		min = STRESS_ABS_MIN_STACK_SIZE;
-	sz = min;
-
+	sz = STRESS_MAXIMUM(STRESS_ABS_MIN_STACK_SIZE, min);
 	return (size_t)sz;
 }
 
@@ -3180,9 +3173,8 @@ size_t stress_min_sig_stack_size(void)
 #if defined(SIGSTKSZ)
 	min = STRESS_MAXIMUM(SIGSTKSZ, min);
 #endif
-	min = STRESS_MAXIMUM(STRESS_ABS_MIN_STACK_SIZE, min);
-
-	return (size_t)min;
+	sz = STRESS_MAXIMUM(STRESS_ABS_MIN_STACK_SIZE, min);
+	return (size_t)sz;
 }
 
 /*
@@ -3211,9 +3203,8 @@ size_t stress_min_pthread_stack_size(void)
 #else
 	sz = 8192;
 #endif
-	min = STRESS_MAXIMUM(sz, min);
-
-	return (size_t)min;
+	sz = STRESS_MAXIMUM(sz, min);
+	return (size_t)sz;
 }
 
 /*
