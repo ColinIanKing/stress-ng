@@ -29,26 +29,22 @@ static const stress_help_t help[] = {
 
 static sigjmp_buf jmp_env;
 
-typedef struct stress_pci_info {
-	char *path;			/* PCI /sysfs path name */
-	bool	ignore;			/* true = ignore the entry */
-	struct stress_pci_info	*next;	/* next in list */
-} stress_pci_info_t;
+#define PCI_METRICS_CONFIG		(0)
+#define PCI_METRICS_RESOURCE		(1)
+#define PCI_METRICS_MAX			(2)
 
-/*
- *  stress_pci_filter()
- *	scandir filter on /sys/devices/pci[0-9]*
- */
-static int stress_pci_filter(const struct dirent *d)
-{
-	if (strlen(d->d_name) < 4)
-		return 0;
-	if (strncmp(d->d_name, "pci", 3))
-		return 0;
-	if (isdigit((int)d->d_name[3]))
-		return 1;
-	return 0;
-}
+typedef struct stress_pci_metrics {
+	double duration;
+	double count;
+} stress_pci_metrics_t;
+
+typedef struct stress_pci_info {
+	char *path;				/* PCI /sysfs path name */
+	char *name;				/* PCI dev name */
+	bool ignore;				/* true = ignore the entry */
+	stress_pci_metrics_t metrics[PCI_METRICS_MAX]; /* PCI read rate metrics */
+	struct stress_pci_info	*next;		/* next in list */
+} stress_pci_info_t;
 
 /*
  *  stress_pci_dev_filter()
@@ -82,15 +78,21 @@ static int stress_pci_dot_filter(const struct dirent *d)
  */
 static void stress_pci_info_free(stress_pci_info_t *pci_info_list)
 {
-	stress_pci_info_t *pi = pci_info_list, *next;
+	stress_pci_info_t *pci_info = pci_info_list, *next;
 
-	while (pi) {
-		next = pi->next;
+	while (pci_info) {
+		next = pci_info->next;
 
-		free(pi->path);
-		free(pi);
-		pi = next;
+		free(pci_info->path);
+		free(pci_info->name);
+		free(pci_info);
+		pci_info = next;
 	}
+}
+
+static int stress_pci_rev_sort(const struct dirent **a, const struct dirent **b)
+{
+	return alphasort(b, a);
 }
 
 /*
@@ -99,45 +101,45 @@ static void stress_pci_info_free(stress_pci_info_t *pci_info_list)
  */
 static stress_pci_info_t *stress_pci_info_get(void)
 {
-	struct dirent **list = NULL;
-	static const char sys_devices[] = "/sys/devices";
-	int i, n;
+	static const char sys_devices[] = "/sys/bus/pci/devices";
 	stress_pci_info_t *pci_info_list = NULL;
 
-	n = scandir(sys_devices, &list, stress_pci_filter, alphasort);
-	for (i = 0; i < n; i++) {
-		int j, n_devs;
-		char path[PATH_MAX];
-		struct dirent **pci_list = NULL;
+	int n_devs, i;
+	struct dirent **pci_list = NULL;
 
-		(void)snprintf(path, sizeof(path), "%s/%s", sys_devices, list[i]->d_name);
-		n_devs = scandir(path, &pci_list, stress_pci_dev_filter, alphasort);
+	n_devs = scandir(sys_devices, &pci_list, stress_pci_dev_filter, stress_pci_rev_sort);
+	for (i = 0; i < n_devs; i++) {
+		stress_pci_info_t *pci_info;
 
-		for (j = 0; j < n_devs; j++) {
-			stress_pci_info_t *pi;
+		pci_info = calloc(1, sizeof(*pci_info));
+		if (pci_info) {
+			char pci_path[PATH_MAX];
+			int j;
 
-			pi = calloc(1, sizeof(*pi));
-			if (pi) {
-				char pci_path[PATH_MAX];
-
-				(void)snprintf(pci_path, sizeof(pci_path),
-					"%s/%s/%s", sys_devices,
-					list[i]->d_name, pci_list[j]->d_name);
-				pi->path = strdup(pci_path);
-				if (!pi->path) {
-					free(pi);
-					continue;
-				}
-				pi->ignore = false;
-				pi->next = pci_info_list;
-				pci_info_list = pi;
+			(void)snprintf(pci_path, sizeof(pci_path),
+				"%s/%s", sys_devices, pci_list[i]->d_name);
+			pci_info->path = strdup(pci_path);
+			if (!pci_info->path) {
+				free(pci_info);
+				continue;
 			}
-			free(pci_list[j]);
+			pci_info->name = strdup(pci_list[i]->d_name);
+			if (!pci_info->name) {
+				free(pci_info->path);
+				free(pci_info);
+				continue;
+			}
+			for (j = 0; j < PCI_METRICS_MAX; j++) {
+				pci_info->metrics[j].duration = 0.0;
+				pci_info->metrics[j].count = 0.0;
+			}
+			pci_info->ignore = false;
+			pci_info->next = pci_info_list;
+			pci_info_list = pci_info;
 		}
-		free(pci_list);
-		free(list[i]);
+		free(pci_list[i]);
 	}
-	free(list);
+	free(pci_list);
 
 	return pci_info_list;
 }
@@ -147,22 +149,24 @@ static stress_pci_info_t *stress_pci_info_get(void)
  *	exercise a PCI file,
  */
 static void stress_pci_exercise_file(
-	stress_pci_info_t *pi,
+	stress_pci_info_t *pci_info,
 	const char *name,
-	const bool rd,
-	const bool map,
+	const bool config,
+	const bool resource,
 	const bool rom)
 {
 	char path[PATH_MAX];
 	int fd;
 
-	(void)snprintf(path, sizeof(path), "%s/%s", pi->path, name);
+	(void)snprintf(path, sizeof(path), "%s/%s", pci_info->path, name);
 	fd = open(path, rom ? O_RDWR : O_RDONLY);
 	if (fd >= 0) {
 		void *ptr;
 		char buf[4096];
 		size_t sz;
 		struct stat statbuf;
+		size_t n_left, n_read;
+		double t;
 
 		if (fstat(fd, &statbuf) < 0)
 			goto err;
@@ -174,13 +178,31 @@ static void stress_pci_exercise_file(
 			VOID_RET(ssize_t, write(fd, "1\n", 2));
 		}
 
-		if (map) {
-			ptr = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
-			if (ptr != MAP_FAILED)
-				(void)munmap(ptr, sz);
+		ptr = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
+		if (ptr != MAP_FAILED)
+			(void)munmap(ptr, sz);
+
+		n_left = sz;
+		n_read = 0;
+		t = stress_time_now();
+		while (n_left != 0) {
+			const size_t n_cpy = n_left > sizeof(buf) ? sizeof(buf) : n_left;
+			ssize_t n;
+
+			n = read(fd, buf, n_cpy);
+			if (n <= 0)
+				break;
+			n_left -= n;
+			n_read += n;
 		}
-		if (rd) {
-			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
+		if (n_read > 0) {
+			if (config) {
+				pci_info->metrics[PCI_METRICS_CONFIG].duration += stress_time_now() - t;
+				pci_info->metrics[PCI_METRICS_CONFIG].count += n_read;
+			} else if (resource) {
+				pci_info->metrics[PCI_METRICS_RESOURCE].duration += stress_time_now() - t;
+				pci_info->metrics[PCI_METRICS_RESOURCE].count += n_read;
+			}
 		}
 		if (rom) {
 			VOID_RET(ssize_t, write(fd, "0\n", 2));
@@ -194,26 +216,22 @@ err:
  *  stress_pci_exercise()
  *	exercise all PCI files in a given PCI info path
  */
-static void stress_pci_exercise(const stress_args_t *args, stress_pci_info_t *pi)
+static void stress_pci_exercise(const stress_args_t *args, stress_pci_info_t *pci_info)
 {
 	int i, n;
 	struct dirent **list = NULL;
 
-	n = scandir(pi->path, &list, stress_pci_dot_filter, alphasort);
+	n = scandir(pci_info->path, &list, stress_pci_dot_filter, alphasort);
 	if (n == 0)
-		pi->ignore = true;
+		pci_info->ignore = true;
 
 	for (i = 0; keep_stressing(args) && (i < n); i++) {
 		const char *name = list[i]->d_name;
-		bool map = (!strcmp(name, "config") ||
-		            !strncmp(name, "resource", 8));
-		bool rom = false;
+		const bool config = !strcmp(name, "config");
+		const bool resource = !strncmp(name, "resource", 8);
+		const bool rom = !strcmp(name, "rom");
 
-		if (!strcmp(name, "rom")) {
-			map = true;
-			rom = true;
-		}
-		stress_pci_exercise_file(pi, name, true, map, rom);
+		stress_pci_exercise_file(pci_info, name, config, resource, rom);
 	}
 
 	for (i = 0; i < n; i++) {
@@ -235,6 +253,11 @@ static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 	siglongjmp(jmp_env, 1);
 }
 
+static double stress_pci_rate(const stress_pci_metrics_t *metrics)
+{
+	return metrics->duration > 0.0 ? metrics->count / metrics->duration : 0.0;
+}
+
 /*
  *  stress_pci()
  *	stress /sysfs PCI files with open/read/close and mmap where possible
@@ -242,6 +265,7 @@ static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 static int stress_pci(const stress_args_t *args)
 {
 	NOCLOBBER stress_pci_info_t *pci_info_list;
+	NOCLOBBER stress_pci_info_t *pci_info;
 	int ret;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -265,26 +289,35 @@ static int stress_pci(const stress_args_t *args)
 	}
 
 	do {
-		NOCLOBBER stress_pci_info_t *pi;
-
-		for (pi = pci_info_list; pi; pi = pi->next) {
+		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
 			if (!keep_stressing(args))
 				break;
 			ret = sigsetjmp(jmp_env, 1);
 
 			if (ret) {
-				pi->ignore = true;
+				pci_info->ignore = true;
 				continue;
 			}
 
-			if (pi->ignore)
+			if (pci_info->ignore)
 				continue;
-			stress_pci_exercise(args, pi);
+			stress_pci_exercise(args, pci_info);
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (args->instance == 0) {
+		pr_inf("%s: PCI space read rates in MB per sec for stressor instance 0:\n", args->name);
+		pr_inf("%s: PCI Device     Config Resource\n", args->name);
+		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
+			pr_inf("%s: %s %8.2f %8.2f\n",
+				args->name, pci_info->name,
+				stress_pci_rate(&pci_info->metrics[PCI_METRICS_CONFIG]) / MB,
+				stress_pci_rate(&pci_info->metrics[PCI_METRICS_RESOURCE]) / MB);
+		}
+	}
 
 	stress_pci_info_free(pci_info_list);
 
