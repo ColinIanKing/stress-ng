@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-hash.h"
 
 /*
@@ -525,11 +526,6 @@ uint32_t HOT OPTIMIZE3 stress_hash_mid5(const char *str, const size_t len)
 	return 0;
 }
 
-static HOT OPTIMIZE3 inline uint64_t hash_ror_uint64(const uint64_t x, const uint32_t bits)
-{
-	return (x >> bits) | x << (64 - bits);
-}
-
 /*
  *  stress_hash_mulxror64()
  *	mangles 64 bits per iteration on fast path, scaling by the 64 bits
@@ -548,18 +544,13 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 		(void)memcpy(&v, str, sizeof(v));
 		str += sizeof(v);
 		hash *= v;
-		hash ^= hash_ror_uint64(hash, 40);
+		hash ^= shim_ror64n(hash, 40);
 	}
 	for (i = len & 7; i; i--) {
 		hash *= (uint8_t)*str++;
-		hash ^= hash_ror_uint64(hash, 5);
+		hash ^= shim_ror64n(hash, 5);
 	}
 	return (uint32_t)((hash >> 32) ^ hash);
-}
-
-static HOT OPTIMIZE3 inline uint32_t hash_ror_uint32(const uint32_t x, const uint32_t bits)
-{
-	return (x >> bits) | x << (32 - bits);
 }
 
 /*
@@ -580,15 +571,14 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror32(const char *str, const size_t len)
 		(void)memcpy(&v, str, sizeof(v));
 		str += sizeof(v);
 		hash *= v;
-		hash ^= hash_ror_uint32(hash, 20);
+		hash ^= shim_ror32n(hash, 20);
 	}
 	for (i = len & 3; i; i--) {
 		hash *= (uint8_t)*str++;
-		hash ^= hash_ror_uint32(hash, 5);
+		hash ^= shim_ror32n(hash, 5);
 	}
 	return hash;
 }
-
 
 /*
  * stress_hash_xorror64()
@@ -606,12 +596,12 @@ uint32_t HOT OPTIMIZE3 stress_hash_xorror64(const char *str, const size_t len)
 		(void)memcpy(&v64, str, sizeof(v64));
 		str += sizeof(v64);
 		i--;
-		hash = v64 ^ hash_ror_uint64(hash, 16);
+		hash = v64 ^ shim_ror64n(hash, 16);
 	}
 	for (i = len & 7; i;) {
 		register uint8_t v8 = *(str++);
 		i--;
-		hash = v8 ^ hash_ror_uint64(hash, 2);
+		hash = v8 ^ shim_ror64n(hash, 2);
 	}
 	return (uint32_t)((hash >> 32) ^ hash);
 }
@@ -632,12 +622,12 @@ uint32_t HOT OPTIMIZE3 stress_hash_xorror32(const char *str, const size_t len)
 		(void)memcpy(&v32, str, sizeof(v32));
 		str += sizeof(v32);
 		i--;
-		hash = v32 ^ hash_ror_uint32(hash, 4);
+		hash = v32 ^ shim_ror32n(hash, 4);
 	}
 	for (i = len & 3; i;) {
 		register uint8_t v8 = *(str++);
 		i--;
-		hash = v8 ^ hash_ror_uint32(hash, 1);
+		hash = v8 ^ shim_ror32n(hash, 1);
 	}
 	return hash;
 }
