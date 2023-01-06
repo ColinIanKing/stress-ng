@@ -126,14 +126,15 @@ static stress_forkheavy_t *stress_forkheavy_new(void)
  *	reap a clone and remove a clone from head of list, put it onto
  *	the free clone list
  */
-static void stress_forkheavy_head_remove(void)
+static void stress_forkheavy_head_remove(const bool send_alarm)
 {
 	if (forkheavy_list.head) {
 		int status;
 		stress_forkheavy_t *head = forkheavy_list.head;
 
+		if (send_alarm)
+			(void)kill(forkheavy_list.head->pid, SIGALRM);
 		(void)waitpid(forkheavy_list.head->pid, &status, 0);
-
 		if (forkheavy_list.tail == forkheavy_list.head) {
 			forkheavy_list.tail = NULL;
 			forkheavy_list.head = NULL;
@@ -213,20 +214,19 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
 				 * Reached max forks or error
 				 * (e.g. EPERM)? .. then reap
 				 */
-				sleep(200);
-				stress_forkheavy_head_remove();
+				stress_forkheavy_head_remove(false);
 				continue;
 			} else {
 				inc_counter(args);
 			}
 		} else {
-			stress_forkheavy_head_remove();
+			stress_forkheavy_head_remove(false);
 		}
 	} while (keep_stressing(args));
 
 	/* And reap */
 	while (forkheavy_list.head) {
-		stress_forkheavy_head_remove();
+		stress_forkheavy_head_remove(true);
 	}
 	/* And free */
 	stress_forkheavy_free();
