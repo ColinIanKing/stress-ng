@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_QUEUE_H)
 #include <sys/queue.h>
@@ -494,19 +495,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_SYS_QUEUE_H)
 /*
- *  Rotate right a 64 bit value, compiler
- *  optimizes this down to a rotate and store
- */
-static inline uint64_t ror64(const uint64_t val)
-{
-	register uint64_t tmp = val;
-	register const uint64_t bit0 = (tmp & 1) << 63;
-
-	tmp >>= 1;
-	return (tmp | bit0);
-}
-
-/*
  *  stress_list()
  *	stress list
  */
@@ -560,7 +548,7 @@ static int stress_list(const stress_args_t *args)
 			bit <<= 1;
 		}
 		entry->value = v;
-		v = ror64(v);
+		shim_ror64(v);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -571,8 +559,10 @@ static int stress_list(const stress_args_t *args)
 		info->func(args, n, entries);
 
 		rnd = stress_mwc64();
-		for (entry = entries, i = 0; i < n; i++, entry++)
-			entry->value = ror64(entry->value ^ rnd);
+		for (entry = entries, i = 0; i < n; i++, entry++) {
+			entry->value ^= rnd;
+			shim_ror64(entry->value);
+		}
 
 		inc_counter(args);
 	} while (keep_stressing(args));
