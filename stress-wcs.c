@@ -636,7 +636,6 @@ static int stress_set_wcs_method(const char *name)
 static int stress_wcs(const stress_args_t *args)
 {
 	stress_wcs_method_info_t const *wcs_method = &wcs_methods[0];
-	bool failed = false;
 	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	wchar_t strdst[STRDSTLEN];
 	stress_wcs_args_t info;
@@ -679,7 +678,7 @@ static int stress_wcs(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
+	return info.failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 static void stress_wcs_set_default(void)
