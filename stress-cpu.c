@@ -251,7 +251,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 
 	for (i = 0; i < 16384; i++) {
 		{
-			register uint32_t r, v, s = (sizeof(v) * 8) - 1;
+			register uint32_t r;
+#if defined(HAVE_BUILTIN_BITREVERSE)
+			r = __builtin_bitreverse32(i);
+#else
+			register uint32_t v, s = (sizeof(v) * 8) - 1;
 
 			/* Reverse bits */
 			r = v = i;
@@ -260,6 +264,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 				r |= v & 1;
 			}
 			r <<= s;
+#endif
 			i_sum += r;
 		}
 		{
