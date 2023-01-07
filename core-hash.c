@@ -356,11 +356,6 @@ uint32_t HOT OPTIMIZE3 stress_hash_kandr(const char *str)
 	return hash;
 }
 
-static HOT OPTIMIZE3 inline uint32_t hash_rol_uint32(const uint32_t x, const uint32_t bits)
-{
-	return (x << bits) | x >> (32 - bits);
-}
-
 /*
  * stress_hash_coffin()
  *	Coffin hash
@@ -372,7 +367,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin(const char *str)
 
 	while (*str) {
 		result ^= (uint8_t)*str++;
-		result = hash_rol_uint32(result, 5);
+		result = shim_rol32n(result, 5);
 	}
 	return result;
 }
@@ -393,15 +388,15 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, const size_t len
 
 		tmp = val & 0xff;
 		n -= 4;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val >> 8 & 0xff;
 		ptr32++;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val >> 16 & 0xff;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val >> 24 & 0xff;
 		val = *ptr32;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 	}
 
 	{
@@ -409,7 +404,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, const size_t len
 
 		while (n--) {
 			result ^= *ptr8++;
-			result = hash_rol_uint32(result, 5);
+			result = shim_rol32n(result, 5);
 		}
 	}
 	return result;
@@ -431,15 +426,15 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, const size_t len
 
 		tmp = val >> 24 & 0xff;
 		n -= 4;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val >> 16 & 0xff;
 		ptr32++;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val >> 8 & 0xff;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 		tmp = val & 0xff;
 		val = *ptr32;
-		result = hash_rol_uint32(result ^ tmp, 5);
+		result = shim_rol32n(result ^ tmp, 5);
 	}
 
 	{
@@ -447,7 +442,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, const size_t len
 
 		while (n--) {
 			result ^= *ptr8++;
-			result = hash_rol_uint32(result, 5);
+			result = shim_rol32n(result, 5);
 		}
 	}
 	return result;
