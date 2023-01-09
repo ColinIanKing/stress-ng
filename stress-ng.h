@@ -458,7 +458,7 @@ typedef struct {
 #define STRESS_MISC_STATS_MAX	(16)
 
 typedef struct {
-	char description[32];
+	char *description;
 	double value;
 } stress_metrics_t;
 
@@ -883,6 +883,15 @@ typedef struct {
 
 #define	STRESS_WARN_HASH_MAX		(128)
 
+typedef struct shared_heap {
+	void *str_list_head;		/* list of heap strings */
+	void *lock;			/* heap global lock */
+	void *heap;			/* mmap'd heap */
+	size_t heap_size;		/* heap size */
+	size_t offset;			/* next free offset in current slap */
+	bool out_of_memory;		/* true if allocation failed */
+} shared_heap_t;
+
 /* The stress-ng global shared memory segment */
 typedef struct {
 	size_t length;					/* Size of segment */
@@ -905,6 +914,7 @@ typedef struct {
 	bool     klog_error;				/* True if error detected in klog */
 	pid_t (*vfork)(void);				/* vfork syscall */
 	stress_mapped_t mapped;				/* mmap'd pages to help testing */
+	shared_heap_t shared_heap;
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */
 		void *lock;				/* protection lock */
@@ -2598,6 +2608,10 @@ extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED bool stress_little_endian(void);
 extern WARN_UNUSED char *stress_proc_self_exe_path(const char *proc_path);
 extern WARN_UNUSED char *stress_proc_self_exe(void);
+extern WARN_UNUSED void *stress_shared_heap_init(void);
+extern void stress_shared_heap_deinit(void);
+extern WARN_UNUSED void *stress_shared_heap_malloc(const size_t size);
+extern WARN_UNUSED char *stress_shared_heap_dup_const(const char *str);
 #if defined(__FreeBSD__) ||	\
     defined(__NetBSD__) ||	\
     defined(__APPLE__)
@@ -2621,8 +2635,15 @@ extern WARN_UNUSED size_t stress_hostname_length(void);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
-extern void stress_metrics_set(const stress_args_t *args,
-	const size_t idx, const char *description, const double value);
+extern void stress_metrics_set_const_check(const stress_args_t *args,
+	const size_t idx, char *description, const bool const_description, const double value);
+#if defined(HAVE_BUILTIN_CONSTANT_P)
+#define stress_metrics_set(args, idx, description, value)	\
+	stress_metrics_set_const_check(args, idx, description, __builtin_constant_p(description), value)
+#else
+#define stress_metrics_set(args, idx, description, value)	\
+	stress_metrics_set_const_check(args, idx, description, false, value)
+#endif
 extern WARN_UNUSED int stress_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(const int err);

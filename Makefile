@@ -475,6 +475,7 @@ CORE_SRC = \
 	core-resources.c \
 	core-sched.c \
 	core-setting.c \
+	core-shared-heap.c \
 	core-shim.c \
 	core-smart.c \
 	core-sort.c \

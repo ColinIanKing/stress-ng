@@ -2220,10 +2220,23 @@ static void NORETURN stress_child_atexit(void)
 	_exit(EXIT_BY_SYS_EXIT);
 }
 
-void stress_metrics_set(
+/*
+ *  stress_metrics_set_const_check()
+ *	set metrics with given description a value. If const_description is
+ *	true then the description is a literal string and does not need
+ *	to be dup'd from the shared memory heap, otherwise it's a stack
+ *	based string and needs to be dup'd so it does not go out of scope.
+ *
+ *	Note that stress_shared_heap_dup_const will dup a string using
+ *	special reserved shared heap that all stressors can access. The
+ *	returned string must not be written to. It may even be a cached
+ *	copy of another dup by another stressor process (to save memory).
+ */
+void stress_metrics_set_const_check(
 	const stress_args_t *args,
 	const size_t idx,
-	const char *description,
+	char *description,
+	const bool const_description,
 	const double value)
 {
 	stress_metrics_t *metrics;
@@ -2236,9 +2249,11 @@ void stress_metrics_set(
 	if (!metrics)
 		return;
 
-	(void)shim_strlcpy(metrics[idx].description, description,
-			sizeof(metrics[idx].description));
-	metrics[idx].value = value;
+	metrics[idx].description = const_description ?
+		description :
+		stress_shared_heap_dup_const(description);
+	if (metrics[idx].description)
+		metrics[idx].value = value;
 }
 
 #if defined(HAVE_GETRUSAGE)
@@ -2316,7 +2331,7 @@ static void MLOCKED_TEXT stress_run(
 			stats->checksum = *checksum;
 			for (i = 0; i < SIZEOF_ARRAY(stats->metrics); i++) {
 				stats->metrics[i].value = -1.0;
-				stats->metrics[i].description[0] = '\0';
+				stats->metrics[i].description = NULL;
 			}
 again:
 			if (!keep_stressing_flag())
@@ -2784,7 +2799,7 @@ static void stress_metrics_dump(
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
 			const char *description = ss->stats[0]->metrics[i].description;
 
-			if (*description) {
+			if (description) {
 				double metric, total = 0.0;
 
 				misc_metrics = true;
@@ -2814,7 +2829,7 @@ static void stress_metrics_dump(
 			for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
 				const char *description = ss->stats[0]->metrics[i].description;
 
-				if (*description) {
+				if (description) {
 					int64_t exponent = 0;
 					double geomean, mantissa = 1.0;
 					double inverse_n;
@@ -4117,6 +4132,10 @@ int main(int argc, char **argv, char **envp)
 	 *  And now shared memory is created, initialize pr_* lock mechanism
 	 */
 	pr_lock_init();
+	if (!stress_shared_heap_init()) {
+		pr_err("failed to create shared heap \n");
+		goto exit_shared_unmap;
+	}
 
 	/*
 	 *  Initialize global locks
@@ -4241,6 +4260,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_lock_destroy(g_shared->perf.lock);
 #endif
 
+	stress_shared_heap_deinit();
 	stress_stressors_deinit();
 	stress_stressors_free();
 	stress_cache_free();
