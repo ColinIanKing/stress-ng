@@ -214,6 +214,7 @@ static void stress_wcscpy(stress_wcs_args_t *info)
 	const test_wcscpy_t test_wcscpy = (test_wcscpy_t)info->libc_func;
 	wchar_t *str1 = info->str1;
 	wchar_t *str2 = info->str2;
+	wchar_t *strdst = info->strdst;
 	const size_t len1 = info->len1;
 	register size_t i;
 
