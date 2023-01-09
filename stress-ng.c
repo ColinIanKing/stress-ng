@@ -2781,7 +2781,7 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
 		pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 
-		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->metrics); i++) {
+		for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
 			const char *description = ss->stats[0]->metrics[i].description;
 
 			if (*description) {
@@ -2811,7 +2811,7 @@ static void stress_metrics_dump(
 			if (!ss->stats)
 				continue;
 
-			for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->metrics); i++) {
+			for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
 				const char *description = ss->stats[0]->metrics[i].description;
 
 				if (*description) {
