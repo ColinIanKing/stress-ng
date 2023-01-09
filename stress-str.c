@@ -216,11 +216,11 @@ static void stress_strlcpy(stress_str_args_t *info)
  *  stress_strcpy()
  *	stress on strcpy
  */
-static void stress_strcpy([200~stress_str_args_t *info)
+static void stress_strcpy(stress_str_args_t *info)
 {
-	typedef size_t (*test_strcpy_t)(char *dest, const char *src);
+	typedef char * (*test_strcpy_t)(char *dest, const char *src);
 
-	const char * (*test_strcpy)(char *dest, const char *src) = (test_strcpy_t)info->libc_func;
+	char * (*test_strcpy)(char *dest, const char *src) = (test_strcpy_t)info->libc_func;
 	const char *str1 = info->str1;
 	const char *str2 = info->str2;
 	char *strdst = info->strdst;
