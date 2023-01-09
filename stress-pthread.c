@@ -215,7 +215,7 @@ static void *stress_pthread_func(void *parg)
 
 	pthread_info->t_run = t_run;
 
-	snprintf(str, sizeof(str), "%" PRIu64, pthread_info->index);
+	(void)snprintf(str, sizeof(str), "%" PRIu64, pthread_info->index);
 	stress_set_proc_state_str(args->name, str);
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\

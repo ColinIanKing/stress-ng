@@ -361,7 +361,7 @@ static int stress_atomic(const stress_args_t *args)
 			count += metrics[i].count[j];
 		}
 		rate = (duration > 0.0) ? count / duration : 0.0;
-		snprintf(str, sizeof(str), "%s atomic ops per sec", atomic_func_info[j].name);
+		(void)snprintf(str, sizeof(str), "%s atomic ops per sec", atomic_func_info[j].name);
 		stress_metrics_set(args, j, str, rate);
 	}
 

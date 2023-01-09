@@ -596,7 +596,7 @@ static int syscall_socket_measure(const int measure)
 	(void)memset(buffer, 0, sizeof(buffer));
 	(void)memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
-	snprintf(addr.sun_path, sizeof(addr.sun_path), "/tmp/stress-ng-client-%" PRIdMAX, (intmax_t)getpid());
+	(void)snprintf(addr.sun_path, sizeof(addr.sun_path), "/tmp/stress-ng-client-%" PRIdMAX, (intmax_t)getpid());
 
 	syscall_shared_error(-1);
 

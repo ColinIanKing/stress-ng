@@ -997,7 +997,7 @@ tidy:
 			double rate = stress_tree_metrics[i].count / duration;
 			char msg[64];
 
-			snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
+			(void)snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
 			stress_metrics_set(args, j, msg, rate);
 			j++;
 		}
