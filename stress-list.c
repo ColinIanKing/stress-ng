@@ -560,7 +560,9 @@ static int stress_list(const stress_args_t *args)
 
 		rnd = stress_mwc64();
 		for (entry = entries, i = 0; i < n; i++, entry++) {
-			entry->value = shim_ror64(entry->value ^ rnd);
+			register uint64_t value = entry->value ^ rnd;
+
+			entry->value = shim_ror64(value);
 		}
 
 		inc_counter(args);
