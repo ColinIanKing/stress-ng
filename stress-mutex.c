@@ -121,7 +121,7 @@ static void *mutex_exercise(void *arg)
 		struct sched_param param;
 		double t;
 
-		param.sched_priority = max > 0 ? (int)stress_mwc32() % max : max;
+		param.sched_priority = max > 0 ? (int)stress_mwc32modn(max) : max;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
 		t = stress_time_now();
 		if (pthread_mutex_lock(&mutex) < 0) {
@@ -137,7 +137,7 @@ static void *mutex_exercise(void *arg)
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
 		if (pthread_info->mutex_affinity) {
 			cpu_set_t cpuset;
-			const uint32_t cpu = stress_mwc32() % cpus;
+			const uint32_t cpu = stress_mwc32modn(cpus);
 
 			CPU_ZERO(&cpuset);
 			CPU_SET(cpu, &cpuset);

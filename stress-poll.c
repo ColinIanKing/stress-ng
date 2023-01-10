@@ -165,7 +165,7 @@ again:
 			ssize_t ret;
 
 			/* Write on a randomly chosen pipe */
-			i = (stress_mwc32() >> 8) % max_fds;
+			i = stress_mwc32modn(max_fds);
 			(void)memset(buf, (int)('0' + i), sizeof(buf));
 			ret = write(pipe_fds[i].fd[1], buf, sizeof(buf));
 			if (ret < (ssize_t)sizeof(buf)) {

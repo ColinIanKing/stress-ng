@@ -224,7 +224,7 @@ static int stress_random_advise(
 	void *addr,
 	const size_t size)
 {
-	const int idx = stress_mwc32() % SIZEOF_ARRAY(madvise_options);	/* cppcheck-suppress moduloofone */
+	const int idx = stress_mwc32modn((size_t)SIZEOF_ARRAY(madvise_options));
 	const int advise = madvise_options[idx];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
 	static int poison_count;
@@ -345,7 +345,7 @@ static void *stress_madvise_pages(void *arg)
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
 	for (n = 0; n < sz; n += page_size) {
-		size_t m = (stress_mwc64() % sz) & ~(page_size - 1);
+		size_t m = (size_t)(stress_mwc64modn((uint64_t)sz) & ~(page_size - 1));
 		void *ptr = (void *)(((uint8_t *)buf) + m);
 		const int advise = stress_random_advise(args, ptr, page_size);
 

@@ -218,9 +218,9 @@ static int stress_copy_file(const stress_args_t *args)
 		shim_loff_t off_in, off_out, off_in_orig, off_out_orig;
 		double t;
 
-		off_in_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
+		off_in_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_in = off_in_orig;
-		off_out_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
+		off_out_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = off_out_orig;
 
 		if (!keep_stressing(args))

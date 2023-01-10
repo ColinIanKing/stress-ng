@@ -153,7 +153,7 @@ try_read:
 		/*
 		 *  Seeks will always succeed
 		 */
-		w = stress_mwc32() % 3;
+		w = stress_mwc32modn(3);
 		offset = (off_t)stress_mwc64();
 		ret = lseek(fd, offset, whences[w].whence);
 		if (ret < 0) {

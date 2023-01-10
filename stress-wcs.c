@@ -73,7 +73,7 @@ static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 	register size_t i;
 
 	for (i = 0; i < (len-1); i++) {
-		*wcstr++ = (stress_mwc8() % 26) + L'a';
+		*wcstr++ = (stress_mwc8modn(26)) + L'a';
 	}
 	*wcstr = L'\0';
 }

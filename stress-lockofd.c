@@ -175,7 +175,7 @@ static int stress_lockofd_contention(
 				return -1;
 
 		len = (stress_mwc16() + 1) & 0xfff;
-		offset = (off_t)stress_mwc64() % (LOCK_FILE_SIZE - len);
+		offset = (off_t)stress_mwc64modn((uint64_t)(LOCK_FILE_SIZE - len));
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;

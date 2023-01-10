@@ -233,7 +233,7 @@ static ssize_t stress_hdd_write(
 			data += sz;
 		}
 
-		switch (stress_mwc8() & 3) {
+		switch (stress_mwc8modn(3)) {
 #if defined(HAVE_PWRITEV2)
 		case 0:
 			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
@@ -321,7 +321,7 @@ static ssize_t stress_hdd_read(
 
 			data += sz;
 		}
-		switch (stress_mwc8() & 3) {
+		switch (stress_mwc8modn(3)) {
 #if defined(HAVE_PREADV2)
 		case 0:
 			return preadv2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
@@ -778,9 +778,8 @@ static int stress_hdd(const stress_args_t *args)
 
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
-				uint64_t offset = ((i == 0) ?
-					hdd_bytes :
-					(stress_mwc64() % hdd_bytes)) & ~511UL;
+				uint64_t offset = (i == 0) ?
+					hdd_bytes : stress_mwc64modn(hdd_bytes) & ~511UL;
 rnd_wr_retry:
 				if (!keep_stressing(args)) {
 					(void)close(fd);
@@ -922,7 +921,7 @@ seq_rd_retry:
 
 			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
 				size_t offset = (hdd_bytes > hdd_write_size) ?
-					(stress_mwc64() % (hdd_bytes - hdd_write_size)) & ~511UL : 0;
+					stress_mwc64modn(hdd_bytes - hdd_write_size) & ~511UL : 0;
 
 				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 					pr_fail("%s: lseek failed, errno=%d (%s)%s\n",

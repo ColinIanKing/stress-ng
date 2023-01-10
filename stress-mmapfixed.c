@@ -114,7 +114,7 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 	do {
 		uint8_t *buf;
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
-		size_t  sz = page_size * (1 + (stress_mwc8() % 7));
+		size_t  sz = page_size * (1 + stress_mwc8modn(7));
 
 #if defined(MAP_SHARED) &&	\
     defined(MAP_PRIVATE)

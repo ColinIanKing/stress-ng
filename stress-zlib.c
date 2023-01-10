@@ -1003,11 +1003,11 @@ static void stress_rand_data_latin(
 	(void)args;
 
 	if (!ptr)
-		ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+		ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
 
 	while (dataptr < end) {
 		if (!*ptr)
-			ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+			ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
 
 		*dataptr++ = *ptr++;
 	}
@@ -1044,7 +1044,7 @@ static void stress_rand_data_morse(
 		register char *mptr;
 
 		if (!*ptr)
-			ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+			ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
 
 		ch = tolower((int)*ptr);
 		mptr = morse_table[ch];
@@ -1114,7 +1114,7 @@ static void stress_rand_data_objcode(
 		text_start = (char *)stress_rand_data_objcode;
 		text_end = (char *)stress_rand_data_bcd;
 	}
-	text = text_start + (stress_mwc64() % (uint64_t)(text_end - text_start));
+	text = text_start + (stress_mwc64modn((uint64_t)(text_end - text_start)));
 
 	for (dataptr = (char *)data; dataptr < (char *)data_end; dataptr++) {
 		*dataptr = *text;
@@ -1200,7 +1200,7 @@ static void stress_zlib_random_test(
 {
 	/* We ignore 1st method (random) and last (NULL) entry */
 	const int max = SIZEOF_ARRAY(zlib_rand_data_methods) - 2;
-	const int idx = (stress_mwc32() % max) + 1;
+	const int idx = (stress_mwc32modn(max)) + 1;
 
 	zlib_rand_data_methods[idx].func(args, data, data_end);
 }

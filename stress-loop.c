@@ -288,7 +288,7 @@ static int stress_loop(const stress_args_t *args)
 		 *  produce kernel warnings but should not break the
 		 *  kernel.
 		 */
-		blk_size = (unsigned long)blk_sizes[stress_mwc8() % SIZEOF_ARRAY(blk_sizes)];
+		blk_size = (unsigned long)blk_sizes[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(blk_sizes))];
 		VOID_RET(int, ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size));
 
 #endif

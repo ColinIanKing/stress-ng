@@ -194,8 +194,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 					min_prio, max_prio);
 				break;
 			}
-			param.sched_priority = ((int)stress_mwc32() % rng_prio) +
-						min_prio;
+			param.sched_priority = (int)stress_mwc32modn(rng_prio) + min_prio;
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
 		default:

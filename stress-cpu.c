@@ -539,8 +539,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 	int i;
 
 	/* Pick any two starting points */
-	a = stress_mwc64() % 99;
-	b = stress_mwc64() % 99;
+	a = stress_mwc64modn(99);
+	b = stress_mwc64modn(99);
 
 	/* Iterate until we approach overflow */
 	for (i = 0; (i < 64) && !((a | b) & mask); i++) {

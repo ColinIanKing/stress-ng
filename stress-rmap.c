@@ -100,7 +100,7 @@ static void NORETURN stress_rmap_child(
 			}
 			break;
 		case 2: for (i = 0; i < MAPPINGS_MAX; i++) {
-				size_t j = stress_mwc32() % MAPPINGS_MAX;
+				const size_t j = stress_mwc32modn(MAPPINGS_MAX);
 
 				if (mappings[j] != MAP_FAILED) {
 					if (!inc_counter_lock(args, counter_lock, false))

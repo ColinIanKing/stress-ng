@@ -2439,11 +2439,16 @@ extern const char *stress_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
 
 /* Fast random numbers */
+extern uint8_t stress_mwc1(void);
+extern uint8_t stress_mwc8(void);
+extern uint16_t stress_mwc16(void);
 extern uint32_t stress_mwc32(void);
 extern uint64_t stress_mwc64(void);
-extern uint16_t stress_mwc16(void);
-extern uint8_t stress_mwc8(void);
-extern uint8_t stress_mwc1(void);
+/* Fast random numbers 1..max inclusive  */
+extern uint8_t stress_mwc8modn(const uint8_t max);
+extern uint16_t stress_mwc16modn(const uint16_t max);
+extern uint32_t stress_mwc32modn(const uint32_t max);
+extern uint64_t stress_mwc64modn(const uint64_t max);
 extern void stress_mwc_seed(void);
 extern void stress_mwc_set_seed(const uint32_t w, const uint32_t z);
 extern void stress_mwc_get_seed(uint32_t *w, uint32_t *z);

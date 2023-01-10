@@ -1056,7 +1056,7 @@ static int stress_open(const stress_args_t *args)
 					goto close_all;
 				}
 
-				idx = stress_mwc32() % SIZEOF_ARRAY(open_funcs);
+				idx = stress_mwc32modn(SIZEOF_ARRAY(open_funcs));
 				fds[i] = open_funcs[idx](args, mypid, &duration, &count);
 
 				if (fds[i] >= 0)

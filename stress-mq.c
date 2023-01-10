@@ -261,7 +261,7 @@ again:
 #endif
 
 					(void)memset(&sigev, 0, sizeof sigev);
-					switch (stress_mwc8() % 5) {
+					switch (stress_mwc8modn(5)) {
 					case 3:
 						/* Illegal signal */
 						sigev.sigev_notify = SIGEV_SIGNAL;
@@ -408,7 +408,7 @@ again:
 
 		do {
 			int ret;
-			unsigned int prio = stress_mwc8() % PRIOS_MAX;
+			unsigned int prio = stress_mwc8modn(PRIOS_MAX);
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {

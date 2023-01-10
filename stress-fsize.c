@@ -251,7 +251,7 @@ static int stress_fsize(const stress_args_t *args)
 		/*
 		 *  Test #2, test for allocation 0..offset and file offset..max
 		 */
-		offset = ((off_t)stress_mwc32() % max);
+		offset = (off_t)stress_mwc32modn((uint32_t)max);
 		offset = (offset == 0) ? 1 : offset;
 
 		if (ftruncate(fd, 0) < 0) {

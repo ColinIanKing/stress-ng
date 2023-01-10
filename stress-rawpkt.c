@@ -157,7 +157,7 @@ static void stress_rawpkt_sockopts(const int fd)
 #if defined(PACKET_HDRLEN)
 	{
 		static const int vals[] = { 0, 1, 2 };
-		int val = (int)stress_mwc32() % (int)SIZEOF_ARRAY(vals);
+		int val = (int)stress_mwc32modn(SIZEOF_ARRAY(vals));
 		socklen_t len = sizeof(val);
 
 		(void)getsockopt(fd, SOL_PACKET, PACKET_HDRLEN, &val, &len);

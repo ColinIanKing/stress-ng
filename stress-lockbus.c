@@ -166,7 +166,7 @@ static int stress_lockbus(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint32_t *ptr0 = buffer + ((stress_mwc32() % (BUFFER_SIZE - CHUNK_SIZE)) >> 2);
+		uint32_t *ptr0 = buffer + (stress_mwc32modn(BUFFER_SIZE - CHUNK_SIZE) >> 2);
 #if defined(STRESS_ARCH_X86)
 		uint32_t *ptr1 = do_splitlock ? splitlock_ptr1 : ptr0;
 		uint32_t *ptr2 = do_splitlock ? splitlock_ptr2 : ptr0;

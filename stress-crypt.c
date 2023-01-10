@@ -156,7 +156,7 @@ static int stress_crypt(const stress_args_t *args)
 		for (i = 0; i < 8; i++)
 			salt[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
 		for (i = 0; i < sizeof(passwd) - 1; i++)
-			passwd[i] = seedchars[stress_mwc32() % sizeof(seedchars)];
+			passwd[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
 		passwd[i] = '\0';
 
 		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++) {

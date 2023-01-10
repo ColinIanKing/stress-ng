@@ -154,7 +154,7 @@ static int stress_udp_flood(const stress_args_t *args)
 		if (!keep_stressing(args))
 			break;
 
-		rand_port = 1024 + (stress_mwc16() % (65535 - 1024));
+		rand_port = 1024 + stress_mwc16modn(65535 - 1024);
 		reserved_port = stress_net_reserve_ports(rand_port, rand_port);
 		if (reserved_port < 0)
 			continue;	/* try again */

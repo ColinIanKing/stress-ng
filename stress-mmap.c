@@ -438,7 +438,7 @@ retry:
 			continue;
 		jmp_env_set = true;
 
-		rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
+		rnd = stress_mwc32modn(SIZEOF_ARRAY(mmap_flags));
 		rnd_flag = mmap_flags[rnd];
 		/*
 		 *  ARM64, one can opt-int to getting VAs from 52 bit
@@ -530,7 +530,7 @@ retry:
 		 */
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64modn(pages4k);
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
@@ -560,7 +560,7 @@ retry:
 		 *  Step #2, map them back in random order
 		 */
 		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64modn(pages4k);
 
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
@@ -670,7 +670,7 @@ cleanup:
 		 *  mmap flag permutations
 		 */
 		if ((context->mmap_prot_perms) && (context->mmap_prot_count > 0)) {
-			const size_t rnd_sz = stress_mwc16() % context->mmap_prot_count;
+			const size_t rnd_sz = stress_mwc16modn(context->mmap_prot_count);
 			const int rnd_prot = context->mmap_prot_perms[rnd_sz];
 
 			buf = (uint8_t *)mmap(NULL, rnd_sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);

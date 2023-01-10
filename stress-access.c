@@ -177,7 +177,7 @@ static pid_t stress_access_spawn(
 
 		do {
 			double t;
-			const size_t i = stress_mwc8() % SIZEOF_ARRAY(modes);
+			const size_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(modes));
 			int ret;
 
 			ret = chmod(filename, modes[i].chmod_mode);

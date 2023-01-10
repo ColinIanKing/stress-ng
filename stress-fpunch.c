@@ -179,7 +179,7 @@ static void stress_punch_file(
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset + 128, 16);
 		if (!keep_stressing(args))
 			break;
-		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32() % punch_length, 16);
+		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32modn((uint32_t)punch_length), 16);
 		if (!keep_stressing(args))
 			break;
 #endif

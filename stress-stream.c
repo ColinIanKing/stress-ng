@@ -693,7 +693,7 @@ static void stress_stream_init_index(
 		idx[i] = i;
 
 	for (i = 0; i < n; i++) {
-		register const uint64_t j = stress_mwc64() % n;
+		register const uint64_t j = stress_mwc64modn(n);
 		register const uint64_t tmp = idx[i];
 
 		idx[i] = idx[j];

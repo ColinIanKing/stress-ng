@@ -144,7 +144,7 @@ static void stress_apparmor_read(
 	 *  Multiple randomly sized reads
 	 */
 	while (i < (4096 * APPARMOR_BUF_SZ)) {
-		ssize_t ret, sz = 1 + (stress_mwc32() % sizeof(buffer));
+		ssize_t ret, sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 redo:
 		if (!stress_apparmor_keep_stressing_inc(args, false))
 			break;
@@ -361,7 +361,7 @@ static inline void apparmor_corrupt_flip_bits_random(
 	char *copy, const size_t len)
 {
 	uint32_t i;
-	const uint32_t n = stress_mwc32() % 17;
+	const uint32_t n = stress_mwc32modn(17);
 
 	for (i = 0; i < n; i++) {
 		uint32_t rnd = stress_mwc32();
@@ -425,7 +425,7 @@ static inline void apparmor_corrupt_set_seq(
 static inline void apparmor_corrupt_flip_byte_random(
 	char *copy, const size_t len)
 {
-	copy[stress_mwc32() % len] ^= 0xff;
+	copy[stress_mwc32modn((uint32_t)len)] ^= 0xff;
 }
 
 /*
@@ -436,7 +436,7 @@ static inline void apparmor_corrupt_clr_bits_random(
 	char *copy, const size_t len)
 {
 	uint32_t i;
-	const uint32_t n = stress_mwc32() % 17;
+	const uint32_t n = stress_mwc32modn(17);
 
 	for (i = 0; i < n; i++) {
 		uint32_t rnd = stress_mwc32();
@@ -453,7 +453,7 @@ static inline void apparmor_corrupt_set_bits_random(
 	char *copy, const size_t len)
 {
 	uint32_t i;
-	const uint32_t n = stress_mwc32() % 17;
+	const uint32_t n = stress_mwc32modn(17);
 
 	for (i = 0; i < n; i++) {
 		uint32_t rnd = stress_mwc32();
@@ -469,7 +469,7 @@ static inline void apparmor_corrupt_set_bits_random(
 static inline void apparmor_corrupt_clr_byte_random(
 	char *copy, const size_t len)
 {
-	copy[stress_mwc32() % len] = 0;
+	copy[stress_mwc32modn((uint32_t)len)] = 0;
 }
 
 /*
@@ -479,7 +479,7 @@ static inline void apparmor_corrupt_clr_byte_random(
 static inline void apparmor_corrupt_set_byte_random(
 	char *copy, const size_t len)
 {
-	copy[stress_mwc32() % len] = (char)0xff;
+	copy[stress_mwc32modn((uint32_t)len)] = (char)0xff;
 }
 
 /*
@@ -490,7 +490,7 @@ static inline void apparmor_corrupt_flip_bits_random_burst(
 	char *copy, const size_t len)
 {
 	uint32_t i;
-	size_t p = (size_t)stress_mwc32() % (len * sizeof(*copy));
+	size_t p = (size_t)stress_mwc32modn((uint32_t)len * sizeof(*copy));
 
 	for (i = 0; i < 32; i++) {
 		if (p > len)
@@ -510,7 +510,7 @@ static inline void apparmor_corrupt_flip_one_bit_random(
 {
 	uint32_t rnd = stress_mwc32();
 
-	copy[rnd % len] ^= (1 << ((stress_mwc8() & 7)));
+	copy[rnd % len] ^= 1 << stress_mwc8modn(8);
 }
 
 /*

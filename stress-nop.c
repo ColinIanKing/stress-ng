@@ -306,7 +306,7 @@ static void stress_nop_random(
 	(void)flag;
 
 	do {
-		const size_t n = stress_mwc8() % (SIZEOF_ARRAY(nop_instr) - 2);
+		const size_t n = stress_mwc8modn(SIZEOF_ARRAY(nop_instr) - 2);
 
 		current_instr = &nop_instr[n];
 		if (!current_instr->ignore)

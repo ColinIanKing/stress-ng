@@ -208,7 +208,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 			void *oldbrk;
 			int fds[MAX_RLIMIT_NOFILE];
 
-			switch (stress_mwc32() % 5) {
+			switch (stress_mwc8modn(5)) {
 			default:
 			case 0:
 				/* Trigger an rlimit signal */

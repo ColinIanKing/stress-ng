@@ -147,10 +147,10 @@ again:
 			new_cpu = max_cpus - 1;
 		break;
 	case RACE_SCHED_METHOD_RAND:
-		new_cpu = (int)(stress_mwc32() % (uint32_t)max_cpus);
+		new_cpu = (int)stress_mwc32modn((uint32_t)max_cpus);
 		break;
 	case RACE_SCHED_METHOD_RANDINC:
-		new_cpu += (int)((1 + (stress_mwc8() & 0x3)) % (uint32_t)max_cpus);
+		new_cpu += (int)(stress_mwc8modn((uint32_t)max_cpus) & 0x3) + 1;
 		new_cpu = (uint32_t)new_cpu % (uint32_t)max_cpus;
 		break;
 	case RACE_SCHED_METHOD_SYNCNEXT:
@@ -177,7 +177,7 @@ static void stress_race_sched_setaffinity(const pid_t pid, const int cpu)
 static void stress_race_sched_setscheduling(const pid_t pid)
 {
 	struct sched_param param;
-	const uint32_t i = stress_mwc8() % (uint32_t)SIZEOF_ARRAY(normal_policies);
+	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(normal_policies));
 
 	(void)memset(&param, 0, sizeof(param));
 	param.sched_priority = 0;

@@ -190,7 +190,7 @@ static int stress_msync(const stress_args_t *args)
 		/*
 		 *  Change data in memory, msync to disk
 		 */
-		offset = (off_t)(stress_mwc64() % (sz - page_size)) & ~((off_t)page_size - 1);
+		offset = (off_t)stress_mwc64modn(sz - page_size) & ~((off_t)page_size - 1);
 		val = stress_mwc8();
 
 		(void)memset(buf + offset, val, page_size);
@@ -226,7 +226,7 @@ do_invalidate:
 		/*
 		 *  Now change data on disc, msync invalidate
 		 */
-		offset = (off_t)(stress_mwc64() % (sz - page_size)) & ~((off_t)page_size - 1);
+		offset = (off_t)stress_mwc64modn(sz - page_size) & ~((off_t)page_size - 1);
 		val = stress_mwc8();
 
 		(void)memset(buf + offset, val, page_size);

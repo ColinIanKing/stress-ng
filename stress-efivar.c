@@ -139,10 +139,10 @@ static void stress_efi_sysfs_fd(
 	 *  And exercise the interface for some extra kernel
 	 *  test coverage
 	 */
-	offset = (n > 0) ? stress_mwc32() % n : 0;
+	offset = (n > 0) ? stress_mwc32modn((uint32_t)n) : 0;
 	efi_lseek_read(fd, offset, SEEK_SET);
 
-	offset = (n > 0) ? stress_mwc32() % n : 0;
+	offset = (n > 0) ? stress_mwc32modn((uint32_t)n) : 0;
 	efi_lseek_read(fd, offset, SEEK_END);
 
 	efi_lseek_read(fd, 0, SEEK_SET);

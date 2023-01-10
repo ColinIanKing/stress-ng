@@ -73,7 +73,7 @@ static inline int stress_getdents_rand(
 {
 	int ret = -ENOSYS;
 	const size_t n = SIZEOF_ARRAY(getdents_funcs);
-	size_t i, j = stress_mwc32() % n;
+	size_t i, j = stress_mwc32modn(n);
 
 	for (i = 0; i < n; i++) {
 		stress_getdents_func *func = getdents_funcs[j];
@@ -132,7 +132,7 @@ static int stress_getdents_dir(
 	if (fd < 0)
 		return 0;
 
-	buf_sz = (unsigned int)((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
+	buf_sz = (unsigned int)(stress_mwc32modn(BUF_SIZE) + page_size) & ~(page_size - 1);
 	buf = (struct shim_linux_dirent *)malloc((size_t)buf_sz);
 	if (!buf)
 		goto exit_close;
@@ -219,7 +219,7 @@ static int stress_getdents64_dir(
 	if (fd < 0)
 		return 0;
 
-	buf_sz = (unsigned int)((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
+	buf_sz = (unsigned int)(stress_mwc32modn(BUF_SIZE) + page_size) & ~(page_size - 1);
 	buf = (struct shim_linux_dirent64 *)malloc((size_t)buf_sz);
 	if (!buf)
 		goto exit_close;

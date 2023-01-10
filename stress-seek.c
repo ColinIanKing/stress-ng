@@ -146,7 +146,7 @@ static int stress_seek(const stress_args_t *args)
 		uint8_t tmp[512];
 		ssize_t rwret;
 
-		offset = (off_t)(stress_mwc64() % len);
+		offset = (off_t)stress_mwc64modn(len);
 		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
@@ -169,7 +169,7 @@ re_write:
 		}
 
 do_read:
-		offset = (off_t)(stress_mwc64() % len);
+		offset = (off_t)stress_mwc64modn(len);
 		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
@@ -272,7 +272,7 @@ re_read:
 		{
 			int i;
 
-			offset = (off_t)(stress_mwc64() % seek_size);
+			offset = (off_t)stress_mwc64modn(seek_size);
 			for (i = 0; i < 20 && keep_stressing(args); i++) {
 				offset = stress_shim_lseek(fd, offset, SEEK_DATA);
 				if (offset < 0)
@@ -287,7 +287,7 @@ re_read:
 		if (!seek_punch)
 			goto inc;
 
-		offset = (off_t)(stress_mwc64() % len);
+		offset = (off_t)stress_mwc64modn(len);
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
 			if (errno == EOPNOTSUPP)
@@ -299,7 +299,7 @@ re_read:
 		/*
 		 *  Exercise lseek on an invalid fd
 		 */
-		offset = (off_t)(stress_mwc64() % len);
+		offset = (off_t)stress_mwc64modn(len);
 		VOID_RET(off_t, lseek(bad_fd, (off_t)offset, SEEK_SET));
 
 		/*

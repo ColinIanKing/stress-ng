@@ -88,7 +88,7 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 		 * select random msgq index numbers, we may hit
 		 * some that are in use. Ignore failures
 		 */
-		(void)msgctl(stress_mwc8() % (msgq_id + 1), MSG_STAT_ANY, &buf);
+		(void)msgctl(stress_mwc8modn(msgq_id + 1), MSG_STAT_ANY, &buf);
 	}
 #endif
 
@@ -350,7 +350,7 @@ again:
 		msg.value = 0;
 
 		do {
-			msg.mtype = (msg_types) ? (stress_mwc8() % msg_types) + 1 : 1;
+			msg.mtype = (msg_types) ? stress_mwc8modn(msg_types) + 1 : 1;
 			if (msgsnd(msgq_id, &msg, sizeof(msg.value), 0) < 0) {
 				if (errno != EINTR)
 					pr_fail("%s: msgsnd failed, errno=%d (%s)\n",

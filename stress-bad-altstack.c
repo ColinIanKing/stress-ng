@@ -293,7 +293,7 @@ again:
 
 			/* Child */
 			stress_mwc_reseed();
-			rnd = stress_mwc32() % 11;
+			rnd = stress_mwc32modn(11);
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);

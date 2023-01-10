@@ -8245,7 +8245,7 @@ static void stress_syscall_shuffle_calls(void)
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		register size_t j, tmp;
 
-		j = stress_mwc16() % STRESS_SYSCALLS_MAX;
+		j = stress_mwc16modn(STRESS_SYSCALLS_MAX);
 		tmp = stress_syscall_index[i];
 		stress_syscall_index[i] = stress_syscall_index[j];
 		stress_syscall_index[j] = tmp;

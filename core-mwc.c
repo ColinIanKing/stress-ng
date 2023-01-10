@@ -245,3 +245,93 @@ HOT OPTIMIZE3 uint8_t stress_mwc1(void)
 	}
 	return mwc_saved & 0x1;
 }
+
+/*
+ *  stress_mwc8modn()
+ *	return 8 bit non-modulo biased value 1..max (inclusive)
+ *	see https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
+ */
+uint8_t stress_mwc8modn(const uint8_t max)
+{
+	if (max > 0) {
+		register uint8_t threshold = max;
+		register uint8_t val;
+
+		while (threshold < 0x80U) {
+			threshold <<= 1;
+		}
+		do {
+			val = stress_mwc8();
+		} while (val >= threshold);
+
+
+		return val % max;
+	}
+	return 0;
+}
+
+/*
+ *  stress_mwc16modn()
+ *	return 16 bit non-modulo biased value 1..max (inclusive)
+ */
+uint16_t stress_mwc16modn(const uint16_t max)
+{
+	if (max > 0) {
+		register uint16_t threshold = max;
+		register uint16_t val;
+
+		while (threshold < 0x8000U) {
+			threshold <<= 1;
+		}
+		do {
+			val = stress_mwc16();
+		} while (val >= threshold);
+
+		return val % max;
+	}
+	return 0;
+}
+
+/*
+ *  stress_mwc32modn()
+ *	return 32 bit non-modulo biased value 1..max (inclusive)
+ */
+uint32_t stress_mwc32modn(const uint32_t max)
+{
+	if (max > 0) {
+		uint32_t threshold = max;
+		uint32_t val;
+
+		while (threshold < 0x80000000UL) {
+			threshold <<= 1;
+		}
+		do {
+			val = stress_mwc32();
+		} while (val >= threshold);
+
+		return val % max;
+	}
+	return 0;
+}
+
+/*
+ *  stress_mwc32modn()
+ *	return 32 bit non-modulo biased value 1..max (inclusive)
+ */
+uint64_t stress_mwc64modn(const uint64_t max)
+{
+	if (max > 0) {
+		uint64_t threshold = max;
+		uint64_t val;
+
+		while (threshold < 0x8000000000000000ULL) {
+			threshold <<= 1;
+		}
+		do {
+			val = stress_mwc64();
+		} while (val >= threshold);
+
+		return val % max;
+	}
+	return 0;
+}

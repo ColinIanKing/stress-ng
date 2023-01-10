@@ -102,7 +102,7 @@ int stress_madvise_random(void *addr, const size_t length)
 {
 #if defined(HAVE_MADVISE)
 	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {
-		const int i = (stress_mwc32() >> 7) % SIZEOF_ARRAY(madvise_options);
+		const int i = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(madvise_options));
 
 		return madvise(addr, length, madvise_options[i]);
 	}

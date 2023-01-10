@@ -240,9 +240,9 @@ static void *stress_far_mmap(
 		uintptr_t addr;
 
 		if (sizeof(void *) > 4) {
-			addr = (uintptr_t)stress_mwc64() >> (stress_mwc8() % 32);
+			addr = (uintptr_t)stress_mwc64() >> (stress_mwc8modn(32));
 		} else {
-			addr = (uintptr_t)stress_mwc32() >> (stress_mwc8() % 12);
+			addr = (uintptr_t)stress_mwc32() >> (stress_mwc8modn(12));
 		}
 		addr &= ~(uintptr_t)(page_size - 1);
 		ptr = (uint8_t *)stress_far_try_mmap((void *)addr, page_size);
@@ -393,7 +393,7 @@ static int stress_far_branch(const stress_args_t *args)
 		for (i = 0; i < total_funcs; i++) {
 			register ret_func_t tmp;
 
-			k = stress_mwc32() % total_funcs;
+			k = stress_mwc32modn(total_funcs);
 
 			tmp = funcs[i];
 			funcs[i] = funcs[k];

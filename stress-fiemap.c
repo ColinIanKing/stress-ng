@@ -86,7 +86,7 @@ static int stress_fiemap_writer(
 	do {
 		uint64_t offset;
 
-		offset = (stress_mwc64() % len) & ~0x1fffUL;
+		offset = stress_mwc64modn(len) & ~0x1fffUL;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
 		if (!inc_counter_lock(args, counter_lock, false))
@@ -108,7 +108,7 @@ static int stress_fiemap_writer(
 			continue;
 		(void)shim_usleep(1000);
 
-		offset = stress_mwc64() % len;
+		offset = stress_mwc64modn(len);
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, (off_t)offset, 8192) < 0) {
 			if (errno == ENOSPC)
@@ -139,7 +139,7 @@ static void stress_fiemap_ioctl(
 	const int fd)
 {
 #if !defined(O_SYNC)
-	int c = stress_mwc32() % COUNT_MAX;
+	int c = stress_mwc32modn(COUNT_MAX);
 #endif
 
 	do {

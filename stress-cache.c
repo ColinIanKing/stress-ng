@@ -627,7 +627,7 @@ static int stress_cache(const stress_args_t *args)
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
 	const uint64_t mem_cache_size = g_shared->mem_cache_size;
-	uint64_t i = stress_mwc64() % mem_cache_size;
+	uint64_t i = stress_mwc64modn(mem_cache_size);
 	uint64_t k = i + (mem_cache_size >> 1);
 	NOCLOBBER uint64_t r = 0;
 	uint64_t inc = (mem_cache_size >> 2) + 1;

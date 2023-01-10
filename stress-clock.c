@@ -347,7 +347,7 @@ static int stress_clock(const stress_args_t *args)
 				int ret;
 
 				t.tv_sec = 0;
-				t.tv_nsec = (stress_mwc32() % 2500) + 1;
+				t.tv_nsec = stress_mwc32modn(2500) + 1;
 				/*
 				 *  Calling with TIMER_ABSTIME will force
 				 *  clock_nanosleep() to return immediately
@@ -444,7 +444,7 @@ static int stress_clock(const stress_args_t *args)
 
 				/* One shot mode, for random time 0..5000 ns */
 				its.it_value.tv_sec = 0;
-				its.it_value.tv_nsec = (stress_mwc32() % 5000) + 1;
+				its.it_value.tv_nsec = stress_mwc32modn(5000) + 1;
 				its.it_interval.tv_sec = 0;
 				its.it_interval.tv_nsec = 0;
 

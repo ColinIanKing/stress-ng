@@ -90,7 +90,7 @@ static void *stress_pthread_func(void *c)
 
 		for (i = 1 << 18; i > 0; i >>=1) {
 			struct timespec tv;
-			long nsec = (long)(stress_mwc32() % i) + 8;
+			long nsec = (long)stress_mwc32modn(i) + 8;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
 			struct timespec t1;

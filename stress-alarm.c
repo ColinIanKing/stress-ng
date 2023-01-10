@@ -116,7 +116,7 @@ again:
 
 		while (keep_stressing(args) &&
 		       (stress_time_now() < t_end)) {
-			const uint64_t delay_ns = 1000 + stress_mwc32() % 10000;
+			const uint64_t delay_ns = 1000 + stress_mwc32modn(10000);
 
 			(void)kill(pid, SIGALRM);
 			shim_nanosleep_uint64(delay_ns);

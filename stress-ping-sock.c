@@ -80,7 +80,7 @@ static int stress_ping_sock(const stress_args_t *args)
 	icmp_hdr->un.echo.id = (uint16_t)getpid();	/* some unique ID */
 	icmp_hdr->un.echo.sequence = 1;
 
-	rand_port = 1024 + (stress_mwc16() % (65535 - 1024));
+	rand_port = 1024 + stress_mwc16modn(65535 - 1024);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

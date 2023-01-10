@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 
 static size_t stress_env_size(const size_t arg_max)
 {
-	return (size_t)(1 + (stress_mwc32() % (arg_max - 2)));
+	return (size_t)(1 + stress_mwc32modn((uint32_t)(arg_max - 2)));
 }
 
 static uint64_t stress_env_max(void)

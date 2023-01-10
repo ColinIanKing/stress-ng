@@ -55,14 +55,14 @@ static void stress_mprotect_mem(
 	VOID_RET(int, sigsetjmp(jmp_env, 1));
 
 	while (keep_stressing(args)) {
-		const uint32_t page = stress_mwc32() % mem_pages;
+		const uint32_t page = stress_mwc32modn(mem_pages);
 		uint8_t *ptr = mem + (page_size * page);
 		const size_t max_size = (size_t)(mem_end - ptr);
-		const size_t size = stress_mwc32() % max_size;
+		const size_t size = stress_mwc32modn(max_size);
 		int i;
 
 		for (i = 0; (i < 10) && keep_stressing(args); i++) {
-			const int j = stress_mwc16() % n_flags;
+			const int j = stress_mwc16modn(n_flags);
 
 			if (mprotect((void *)ptr, size, prot_flags[j]) == 0) {
 				inc_counter(args);

@@ -244,23 +244,23 @@ static void inject_random_bit_errors(uint8_t *buf, const size_t sz)
 
 	for (i = 0; i < 8; i++) {
 		/* 1 bit errors */
-		buf[stress_mwc64() % sz] ^= (1 << i);
-		buf[stress_mwc64() % sz] |= (1 << i);
-		buf[stress_mwc64() % sz] &= ~(1 << i);
+		buf[stress_mwc64modn(sz)] ^= (1 << i);
+		buf[stress_mwc64modn(sz)] |= (1 << i);
+		buf[stress_mwc64modn(sz)] &= ~(1 << i);
 	}
 
 	for (i = 0; i < 7; i++) {
 		/* 2 bit errors */
-		buf[stress_mwc64() % sz] ^= (3 << i);
-		buf[stress_mwc64() % sz] |= (3 << i);
-		buf[stress_mwc64() % sz] &= ~(3 << i);
+		buf[stress_mwc64modn(sz)] ^= (3 << i);
+		buf[stress_mwc64modn(sz)] |= (3 << i);
+		buf[stress_mwc64modn(sz)] &= ~(3 << i);
 	}
 
 	for (i = 0; i < 6; i++) {
 		/* 3 bit errors */
-		buf[stress_mwc64() % sz] ^= (7 << i);
-		buf[stress_mwc64() % sz] |= (7 << i);
-		buf[stress_mwc64() % sz] &= ~(7 << i);
+		buf[stress_mwc64modn(sz)] ^= (7 << i);
+		buf[stress_mwc64modn(sz)] |= (7 << i);
+		buf[stress_mwc64modn(sz)] &= ~(7 << i);
 	}
 }
 #else
@@ -927,7 +927,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	}
 
 	for (i = 0; i < chunks; i++) {
-		swaps[i] = (stress_mwc64() % chunks) * chunk_sz;
+		swaps[i] = (stress_mwc64modn(chunks)) * chunk_sz;
 	}
 
 	stress_mwc_set_seed(w1, z1);
@@ -1346,7 +1346,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 
 	for (i = 0; i < bits_bad; i++) {
 		for (;;) {
-			const size_t offset = stress_mwc64() % sz;
+			const size_t offset = stress_mwc64modn(sz);
 			const uint8_t bit = stress_mwc32() & 3;
 			register uint8_t *ptr8 = (uint8_t *)buf + offset;
 
@@ -1410,7 +1410,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 
 	for (i = 0; i < bits_bad; i++) {
 		for (;;) {
-			const size_t offset = stress_mwc64() % sz;
+			const size_t offset = stress_mwc64modn(sz);
 			const uint8_t bit = stress_mwc32() & 3;
 			register uint8_t *ptr8 = (uint8_t *)buf + offset;
 
@@ -2135,6 +2135,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	register volatile uint32_t *addr0, *addr1;
 	register size_t errors = 0;
 	register const size_t n = sz / sizeof(*addr0);
+	uint64_t mask = ~(uint64_t)(args->page_size - 1);
 
 	(void)buf_end;
 	(void)max_ops;
@@ -2151,8 +2152,8 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 		buf32[j] = val;
 
 	/* Pick two random addresses */
-	addr0 = &buf32[(stress_mwc64() << 12) % n];
-	addr1 = &buf32[(stress_mwc64() << 12) % n];
+	addr0 = &buf32[stress_mwc64modn(n) & mask];
+	addr1 = &buf32[stress_mwc64modn(n) & mask];
 
 	/* Hammer the rows */
 	for (j = VM_ROWHAMMER_LOOPS / 4; j; j--) {

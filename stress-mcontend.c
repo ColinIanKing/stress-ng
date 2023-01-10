@@ -286,7 +286,7 @@ static void *stress_memory_contend_thread(void *arg)
 	while (keep_stressing_flag()) {
 #if defined(HAVE_SCHED_SETAFFINITY)
 		cpu_set_t mask;
-		const uint32_t cpu = stress_mwc32() % cpus;
+		const uint32_t cpu = stress_mwc32modn(cpus);
 #endif
 		stress_memory_contend(pa);
 

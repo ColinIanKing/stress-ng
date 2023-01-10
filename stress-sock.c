@@ -526,7 +526,7 @@ retry:
 		 *  Randomly set congestion control
 		 */
 		if (n_ctrls > 0) {
-			const int idx = stress_mwc16() % n_ctrls;
+			const int idx = stress_mwc16modn(n_ctrls);
 			const char *control = ctrls[idx];
 			char name[256];
 			socklen_t len;
@@ -729,7 +729,7 @@ retry:
 			const int max_opt = 2;
 #endif
 			const int opt = (sock_opts == SOCKET_OPT_RANDOM) ?
-					stress_mwc8() % max_opt: sock_opts;
+					stress_mwc8modn(max_opt): sock_opts;
 
 #if defined(FIONREAD)
 			/*
@@ -1034,7 +1034,7 @@ static int stress_sock_server(
 			(void)memset(buf, 'A' + (get_counter(args) % 26), MMAP_IO_SIZE);
 
 			if (sock_opts == SOCKET_OPT_RANDOM)
-				opt = stress_mwc8() % 3;
+				opt = stress_mwc8modn(3);
 			else
 				opt = sock_opts;
 

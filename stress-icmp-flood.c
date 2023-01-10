@@ -107,7 +107,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 
 	t_start = stress_time_now();
 	do {
-		const size_t payload_len = (stress_mwc32() % MAX_PAYLOAD_SIZE) + 1;
+		const size_t payload_len = stress_mwc32modn(MAX_PAYLOAD_SIZE) + 1;
 		const size_t pkt_len =
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
 		ssize_t ret;

@@ -224,7 +224,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		size_t n;
-		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
+		const int rnd = stress_mwc32modn(SIZEOF_ARRAY(mmap_flags));
 		const int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
 		off_t offset;
@@ -238,7 +238,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		/*
 		 *  exercise some random file operations
 		 */
-		offset = (off_t)(stress_mwc64() % (sz + 1));
+		offset = (off_t)stress_mwc64modn(sz + 1);
 		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
 			char data[1];
 
@@ -266,7 +266,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 				VOID_RET(int, shim_fremovexattr(fd, attrname));
 		}
 #endif
-		offset = (off_t)(stress_mwc64() % (sz + 1));
+		offset = (off_t)stress_mwc64modn(sz + 1);
 		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
 			char data[1];
 			ssize_t wr;
@@ -325,7 +325,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		 */
 		(void)stress_mincore_touch_pages(buf, sz);
 		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64modn(pages4k);
 
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
@@ -347,7 +347,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		 *  Step #2, map them back in random order
 		 */
 		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64modn(pages4k);
 
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;

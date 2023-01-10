@@ -1547,7 +1547,7 @@ void stress_strnrnd(char *str, const size_t len)
 	const char *end = str + len;
 
 	while (str < end - 1)
-		*str++ = (stress_mwc8() % 26) + 'a';
+		*str++ = stress_mwc8modn(26) + 'a';
 
 	*str = '\0';
 }
@@ -3055,7 +3055,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	 */
 	n = (uint32_t)max_pid - 1023;
 	for (i = 0; i < 20; i++) {
-		pid = (pid_t)(stress_mwc32() % n) + 1023;
+		pid = (pid_t)stress_mwc32modn(n) + 1023;
 
 		if ((kill(pid, 0) < 0) && (errno == ESRCH))
 			return pid;

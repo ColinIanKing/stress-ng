@@ -107,7 +107,7 @@ static void stress_dentry_unlink(
 	uint64_t i, j;
 	uint64_t prime;
 	const uint8_t ord = (dentry_order == ORDER_RANDOM) ?
-				stress_mwc32() % 3 : dentry_order;
+				stress_mwc8modn(3) : dentry_order;
 
 	switch (ord) {
 	case ORDER_REVERSE:

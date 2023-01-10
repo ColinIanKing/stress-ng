@@ -58,7 +58,7 @@ static int stress_set_iomix_bytes(const char *opt)
  */
 static off_t stress_iomix_rnd_offset(const off_t max)
 {
-	return (off_t)(stress_mwc64() % (uint64_t)max);
+	return (off_t)stress_mwc64modn((uint64_t)max);
 }
 
 /*
@@ -116,7 +116,7 @@ static void stress_iomix_fsync_min_1Hz(const int fd)
 		counter = 0;
 		time_last = now;
 
-		switch (stress_mwc8() % 3) {
+		switch (stress_mwc8modn(3)) {
 		case 0:
 			(void)shim_fsync(fd);
 			break;
@@ -180,7 +180,7 @@ static void stress_iomix_wr_seq_bursts(
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
-		shim_usleep(stress_mwc32() % 1000000);
+		shim_usleep(stress_mwc32modn(1000000));
 	} while (inc_counter_lock(args, counter_lock, false));
 }
 
@@ -231,7 +231,7 @@ static void stress_iomix_wr_rnd_bursts(
 				return;
 			stress_iomix_fsync_min_1Hz(fd);
 		}
-		shim_usleep(stress_mwc32() % 2000000);
+		shim_usleep(stress_mwc32modn(2000000));
 	} while (inc_counter_lock(args, counter_lock, false));
 }
 
@@ -333,7 +333,7 @@ static void stress_iomix_rd_seq_bursts(
 			/* Add some unhelpful advice */
 			stress_iomix_fadvise_random_dontneed(fd, posn, 4096);
 		}
-		shim_usleep(stress_mwc32() % 1000000);
+		shim_usleep(stress_mwc32modn(1000000));
 	} while (inc_counter_lock(args, counter_lock, false));
 }
 
@@ -447,7 +447,7 @@ static void stress_iomix_sync(
 		(void)shim_fsync(fd);
 		if (!inc_counter_lock(args, counter_lock, true))
 			break;
-		shim_usleep(stress_mwc32() % 4000000);
+		shim_usleep(stress_mwc32modn(4000000));
 		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 
@@ -457,7 +457,7 @@ static void stress_iomix_sync(
 		(void)shim_fdatasync(-1);
 		if (!inc_counter_lock(args, counter_lock, false))
 			break;
-		shim_usleep(stress_mwc32() % 4000000);
+		shim_usleep(stress_mwc32modn(4000000));
 		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 #else
@@ -474,7 +474,7 @@ static void stress_iomix_sync(
 
 			if (!inc_counter_lock(args, counter_lock, false))
 				break;
-			shim_usleep(stress_mwc32() % 4000000);
+			shim_usleep(stress_mwc32modn(4000000));
 		}
 #else
 		(void)iomix_bytes;
@@ -579,7 +579,7 @@ static void stress_iomix_wr_bytes(
 			return;
 		}
 		while (posn < iomix_bytes) {
-			char buffer[1] = { (stress_mwc8() % 26) + 'A' };
+			char buffer[1] = { stress_mwc8modn(26) + 'A' };
 			ssize_t rc;
 
 			rc = write(fd, buffer, sizeof(buffer));
@@ -618,7 +618,7 @@ static void stress_iomix_wr_rev_bytes(
 			return;
 		}
 		while (posn != 0) {
-			char buffer[1] = { (stress_mwc8() % 26) + 'A' };
+			char buffer[1] = { stress_mwc8modn(26) + 'A' };
 			ssize_t rc;
 
 			rc = write(fd, buffer, sizeof(buffer));
@@ -872,7 +872,7 @@ static void stress_iomix_copy_file_range(
 			return;
 		stress_iomix_fsync_min_1Hz(fd);
 
-		shim_usleep(stress_mwc32() % 100000);
+		shim_usleep(stress_mwc32modn(100000));
 	} while (inc_counter_lock(args, counter_lock, true));
 }
 #endif
@@ -909,7 +909,7 @@ static void stress_iomix_sendfile(
 			return;
 		stress_iomix_fsync_min_1Hz(fd);
 
-		shim_usleep(stress_mwc32() % 130000);
+		shim_usleep(stress_mwc32modn(130000));
 	} while (inc_counter_lock(args, counter_lock, true));
 }
 #endif

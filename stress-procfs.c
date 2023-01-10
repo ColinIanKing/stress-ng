@@ -180,7 +180,7 @@ static void stress_proc_self_mem(const stress_args_t *args, const int fd)
 	(void)memset(page, rnd, page_size);
 	if (lseek(fd, offset, SEEK_SET) == offset) {
 		ssize_t ret;
-		size_t mem_offset = stress_mwc32() % page_size;
+		size_t mem_offset = stress_mwc32modn((uint32_t)page_size);
 
 		ret = read(fd, buf, page_size);
 		if ((ret == (ssize_t)page_size) &&
@@ -358,7 +358,7 @@ static inline void stress_proc_rw(
 		 *  Multiple randomly sized reads
 		 */
 		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
-			const ssize_t sz = 1 + (stress_mwc32() % sizeof(buffer));
+			const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 
 			if (!keep_stressing_flag())
 				break;
@@ -589,7 +589,7 @@ err:
 
 		/* /proc + ... */
 		if (len > 5) {
-			char *pptr = path + 5 + (stress_mwc16() % (len - 5));
+			char *pptr = path + 5 + stress_mwc16modn(len - 5);
 
 			/* Skip over / */
 			while (*pptr == '/')

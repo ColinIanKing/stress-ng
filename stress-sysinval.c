@@ -2594,7 +2594,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				for (n = 0; n < 5; n++) {
 					for (i = 0; i < SIZEOF_ARRAY(reorder); i++) {
 						register size_t tmp;
-						register size_t j = (sz == 0) ? 0 : stress_mwc32() % sz;
+						register size_t j = (sz == 0) ? 0 : stress_mwc32modn(sz);
 
 						tmp = reorder[i];
 						reorder[i] = reorder[j];

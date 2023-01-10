@@ -57,7 +57,7 @@ static const uint32_t boot_magic[] = {
  */
 static int NORETURN reboot_clone_func(void *arg)
 {
-	size_t i, j = stress_mwc8() % SIZEOF_ARRAY(boot_magic);
+	size_t i, j = stress_mwc8modn(SIZEOF_ARRAY(boot_magic));
 
 	(void)arg;
 

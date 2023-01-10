@@ -198,7 +198,7 @@ static int stress_cpu_online(const stress_args_t *args)
 	 *  Now randomly offline/online them all
 	 */
 	do {
-		const uint32_t cpu = stress_mwc32() % (uint32_t)cpus;
+		const uint32_t cpu = stress_mwc32modn((uint32_t)cpus);
 		double t;
 
 		/*

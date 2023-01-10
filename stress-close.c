@@ -148,7 +148,7 @@ static void *stress_close_func(void *arg)
 
 	while (keep_stressing(args)) {
 		const uint64_t delay =
-			max_delay_us ? stress_mwc32() % max_delay_us : 0;
+			max_delay_us ? stress_mwc64modn(max_delay_us) : 0;
 		int fds[FDS_TO_DUP], i, ret;
 
 		for (i = 0; i < FDS_TO_DUP; i++) {
@@ -272,10 +272,10 @@ static int stress_close(const stress_args_t *args)
 		fd = -1;
 		t1 = stress_time_now();
 
-		switch (stress_mwc8() % 15) {
+		switch (stress_mwc8modn(15)) {
 		case 0:
-			domain = stress_mwc8() % SIZEOF_ARRAY(domains);	/* cppcheck-suppress moduloofone */
-			type = stress_mwc8() % SIZEOF_ARRAY(types);	/* cppcheck-suppress moduloofone */
+			domain = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(domains));
+			type = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(types));
 			fd = socket(domains[domain], types[type], 0);
 			break;
 		case 1:

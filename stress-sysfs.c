@@ -179,7 +179,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		 *  Multiple randomly sized reads
 		 */
 		while (i < (4096 * SYS_BUF_SZ)) {
-			const ssize_t sz = 1 + (stress_mwc32() % (sizeof(buffer) - 1));
+			const ssize_t sz = 1 + stress_mwc32modn(sizeof(buffer) - 1);
 
 			if (!keep_stressing_flag())
 				break;

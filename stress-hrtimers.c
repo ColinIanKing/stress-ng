@@ -55,7 +55,7 @@ static long ns_delay;
 static void stress_hrtimers_set(struct itimerspec *timer)
 {
 	if (ns_delay < 0) {
-		timer->it_value.tv_nsec = (stress_mwc64() % 50000) + 1;
+		timer->it_value.tv_nsec = stress_mwc64modn(50000) + 1;
 	} else {
 		timer->it_value.tv_nsec = ns_delay;
 	}

@@ -226,7 +226,7 @@ static void stress_tree_rb(
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32() % n;
+			const size_t j = stress_mwc32modn(n);
 
 			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
 			if (!find)
@@ -293,7 +293,7 @@ static void stress_tree_splay(
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32() % n;
+			const size_t j = stress_mwc32modn(n);
 
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
 			if (!find)
@@ -385,7 +385,7 @@ static void stress_tree_binary(
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32() % n;
+			const size_t j = stress_mwc32modn(n);
 
 			find = binary_find(head, &nodes[j]);
 			if (!find)
@@ -589,7 +589,7 @@ static void stress_tree_avl(
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32() % n;
+			const size_t j = stress_mwc32modn(n);
 
 			find = avl_find(head, &nodes[j]);
 			if (!find)
@@ -805,7 +805,7 @@ static void stress_tree_btree(
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
-			const size_t j = stress_mwc32() % n;
+			const size_t j = stress_mwc32modn(n);
 
 			find = btree_find(root, nodes[j].value);
 			if (!find)

@@ -64,7 +64,7 @@ static int do_readahead(
 	int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (off_t)(stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~(BUF_SIZE - 1);
+		offsets[i] = (off_t)stress_mwc64modn(rounded_readahead_bytes - BUF_SIZE) & ~(BUF_SIZE - 1);
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);

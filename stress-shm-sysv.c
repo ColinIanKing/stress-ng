@@ -621,8 +621,7 @@ static int stress_shm_sysv_child(
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
 				bool unique;
-				const int rnd =
-					stress_mwc32() % SIZEOF_ARRAY(shm_flags); /* cppcheck-suppress moduloofone */
+				const int rnd = stress_mwc32modn(SIZEOF_ARRAY(shm_flags));
 				const int rnd_flag = shm_flags[rnd] & mask;
 
 				if (sz < page_size)

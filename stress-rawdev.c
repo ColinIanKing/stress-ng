@@ -226,7 +226,7 @@ static void stress_rawdev_random(
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
 		ssize_t ret;
-		const off_t offset = (off_t)(blksz * (stress_mwc64() % blks));
+		const off_t offset = (off_t)blksz * stress_mwc64modn(blks);
 		double t;
 
 		t = stress_time_now();
@@ -255,7 +255,7 @@ static void stress_rawdev_burst(
 	stress_rawdev_metrics_t *metrics)
 {
 	int i;
-	off_t blk = (off_t)(stress_mwc64() % blks);
+	off_t blk = (off_t)stress_mwc64modn(blks);
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
 		ssize_t ret;

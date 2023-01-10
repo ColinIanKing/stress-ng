@@ -231,8 +231,8 @@ static int stress_fallocate(const stress_args_t *args)
 				break;
 
 			for (i = 0; i < 64; i++) {
-				const size_t j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);	/* cppcheck-suppress moduloofone */
-				const off_t offset = ((off_t)stress_mwc64() % fallocate_bytes) & ~0xfff;
+				const size_t j = stress_mwc32modn((uint32_t)SIZEOF_ARRAY(modes));
+				const off_t offset = (off_t)stress_mwc64modn((uint64_t)fallocate_bytes) & ~0xfff;
 
 				if (shim_fallocate(fd, modes[j], offset, 64 * KB) == 0)
 					(void)shim_fsync(fd);
@@ -241,7 +241,7 @@ static int stress_fallocate(const stress_args_t *args)
 			}
 			/* Exercise all the mode permutations, most will fail */
 			for (i = 0; i < mode_count; i++) {
-				const off_t offset = ((off_t)stress_mwc64() % fallocate_bytes) & ~0xfff;
+				const off_t offset = (off_t)stress_mwc64modn((uint64_t)fallocate_bytes) & ~0xfff;
 
 				if (shim_fallocate(fd, mode_perms[i], offset, 64 * KB) == 0)
 					(void)shim_fsync(fd);

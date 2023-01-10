@@ -386,8 +386,8 @@ static int stress_seccomp(const stress_args_t *args)
 
 	do {
 		pid_t pid;
-		const bool allow_write = (stress_mwc32() % 2) != 0;
-		const bool do_random = (stress_mwc32() % 20) != 0;
+		const bool allow_write = stress_mwc1() != 0;
+		const bool do_random = stress_mwc32modn(20) != 0;
 
 		pid = fork();
 		if (pid == -1) {

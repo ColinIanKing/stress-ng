@@ -185,7 +185,7 @@ static int stress_lockf_contention(
 			if (stress_lockf_unlock(args, fd) < 0)
 				return -1;
 
-		offset = stress_mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
+		offset = (off_t)stress_mwc64modn(LOCK_FILE_SIZE - LOCK_SIZE);
 		if (lseek(fd, offset, SEEK_SET) < 0) {
 			pr_err("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

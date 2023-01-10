@@ -215,9 +215,7 @@ static void stress_opcode_text(
 		return;
 	}
 
-	offset = stress_mwc64() % (text_len - ops_len);
-	offset &= ~(0x7ULL);
-
+	offset = stress_mwc64modn(text_len - ops_len) & ~(0x7ULL);
 	(void)memcpy(ops_begin, text_start + offset, ops_len);
 	for (ops = (uint8_t *)ops_begin; ops < (const uint8_t *)ops_end; ops++) {
 		const uint8_t rnd = stress_mwc8();

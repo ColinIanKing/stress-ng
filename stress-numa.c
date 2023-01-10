@@ -356,7 +356,7 @@ static int stress_numa(const stress_args_t *args)
 			mode |= MPOL_F_RELATIVE_NODES;
 #endif
 
-		switch (stress_mwc8() % 11) {
+		switch (stress_mwc8modn(11)) {
 		case 0:
 #if defined(MPOL_DEFAULT)
 			VOID_RET(long, shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes));

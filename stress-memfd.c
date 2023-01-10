@@ -302,7 +302,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			/*
 			 *  ..and punch a hole
 			 */
-			whence = (off_t)((stress_mwc32() % size) & ~(page_size - 1));
+			whence = (off_t)(stress_mwc32modn(size) & ~(page_size - 1));
 			VOID_RET(ssize_t, shim_fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
 				FALLOC_FL_KEEP_SIZE, whence, (off_t)page_size));
 #endif

@@ -120,7 +120,7 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
 		chunks = 1;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		const size_t chunk = stress_mwc32() % chunks;
+		const size_t chunk = stress_mwc32modn(chunks);
 		const size_t offset = chunk * chunk_size;
 		void *ptr = (void *)(((uint8_t *)mem) + offset);
 
@@ -372,8 +372,8 @@ static void HOT OPTIMIZE3 stress_memthrash_swap(
 	const size_t mem_size)
 {
 	size_t i;
-	register size_t offset1 = stress_mwc32() % mem_size;
-	register size_t offset2 = stress_mwc32() % mem_size;
+	register size_t offset1 = stress_mwc32modn(mem_size);
+	register size_t offset2 = stress_mwc32modn(mem_size);
 	uint8_t *mem_u8 = (uint8_t *)mem;
 
 	(void)context;
@@ -427,7 +427,7 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		size_t offset = stress_mwc32() % mem_size;
+		size_t offset = stress_mwc32modn(mem_size);
 		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
@@ -448,7 +448,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		size_t offset = stress_mwc32() % mem_size;
+		size_t offset = stress_mwc32modn(mem_size);
 		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
@@ -468,7 +468,7 @@ static void HOT OPTIMIZE3 stress_memthrash_mfence(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
-		size_t offset = stress_mwc32() % mem_size;
+		size_t offset = stress_mwc32modn(mem_size);
 		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		*ptr = i & 0xff;
@@ -486,7 +486,7 @@ static void HOT OPTIMIZE3 stress_memthrash_lock(
 	(void)context;
 
 	for (i = 0; !thread_terminate && (i < 64); i++) {
-		size_t offset = stress_mwc32() % mem_size;
+		size_t offset = stress_mwc32modn(mem_size);
 		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		MEM_LOCK(ptr, 1);
@@ -501,7 +501,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 	uint32_t i;
 	volatile uint32_t *ptr;
 	const size_t size = mem_size - (8 * sizeof(*ptr));
-	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
+	const size_t offset = stress_mwc32modn(size) & ~(size_t)3;
 
 	(void)context;
 	ptr = (uint32_t *)(((uintptr_t)mem) + offset);
@@ -526,7 +526,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 	uint32_t i;
 	volatile uint32_t *ptr;
 	const size_t size = mem_size - (8 * sizeof(*ptr));
-	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
+	const size_t offset = stress_mwc32modn(size) & ~(size_t)3;
 
 	(void)context;
 	ptr = (uint32_t *)(((uintptr_t)mem) + offset);
@@ -616,7 +616,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	if (context->numa_nodes < 1)
 		return;
 
-	node = (unsigned long)stress_mwc32() % context->numa_nodes;
+	node = (unsigned long)stress_mwc32modn(context->numa_nodes);
 	(void)memset(context->numa_node_mask, 0, context->numa_node_mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
@@ -688,7 +688,7 @@ static void stress_memthrash_random(const stress_memthrash_context_t *context, s
 {
 	/* loop until we find a good candidate */
 	for (;;) {
-		size_t i = stress_mwc8() % SIZEOF_ARRAY(memthrash_methods);
+		size_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(memthrash_methods));
 		const stress_memthrash_func_t func = (stress_memthrash_func_t)memthrash_methods[i].func;
 
 		/* Don't run stress_memthrash_random/all to avoid recursion */

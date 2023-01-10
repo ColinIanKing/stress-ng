@@ -164,7 +164,7 @@ static void stress_malloc_zerofree(void *ptr, size_t len)
  */
 static inline size_t stress_alloc_size(const size_t size)
 {
-	const size_t len = stress_mwc64() % size;
+	const size_t len = stress_mwc64modn(size);
 	const size_t min_size = sizeof(uintptr_t);
 
 	return (len >= min_size) ? len : min_size;

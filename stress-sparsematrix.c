@@ -1129,8 +1129,8 @@ static int stress_sparse_method_test(
 
 	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
-		const uint32_t x = stress_mwc32() % sparsematrix_size;
-		const uint32_t y = stress_mwc32() % sparsematrix_size;
+		const uint32_t x = stress_mwc32modn(sparsematrix_size);
+		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t gv, v = value_map(x, y);
 
 		if (v == 0)
@@ -1155,8 +1155,8 @@ static int stress_sparse_method_test(
 	stress_mwc_set_seed(w, z);
 	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
-		const uint32_t x = stress_mwc32() % sparsematrix_size;
-		const uint32_t y = stress_mwc32() % sparsematrix_size;
+		const uint32_t x = stress_mwc32modn(sparsematrix_size);
+		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t gv, v = value_map(x, y);
 
 		if (v == 0)
@@ -1176,8 +1176,8 @@ static int stress_sparse_method_test(
 	/* Random fetches, most probably all zero unset values */
 	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
-		const uint32_t x = stress_mwc32() % sparsematrix_size;
-		const uint32_t y = stress_mwc32() % sparsematrix_size;
+		const uint32_t x = stress_mwc32modn(sparsematrix_size);
+		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 
 		(void)info->get(handle, x, y);
 	}
@@ -1187,8 +1187,8 @@ static int stress_sparse_method_test(
 
 	stress_mwc_set_seed(w, z);
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
-		const uint32_t x = stress_mwc32() % sparsematrix_size;
-		const uint32_t y = stress_mwc32() % sparsematrix_size;
+		const uint32_t x = stress_mwc32modn(sparsematrix_size);
+		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t v = value_map(x, y);
 		(void)v;
 

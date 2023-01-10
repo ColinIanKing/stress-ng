@@ -270,8 +270,8 @@ size_t stress_resources_allocate(
 			break;
 #endif
 		resources[i].fd_sock = socket(
-			domains[stress_mwc32() % SIZEOF_ARRAY(domains)],
-			types[stress_mwc32() % SIZEOF_ARRAY(types)], 0);
+			domains[stress_mwc32modn((uint32_t)SIZEOF_ARRAY(domains))],
+			types[stress_mwc32modn((uint32_t)SIZEOF_ARRAY(types))], 0);
 		if (!keep_stressing_flag())
 			break;
 

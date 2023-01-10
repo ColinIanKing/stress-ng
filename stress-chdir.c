@@ -160,7 +160,7 @@ static int stress_chdir(const stress_args_t *args)
 
 	do {
 		for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
-			const uint32_t j = stress_mwc32() % chdir_dirs;
+			const uint32_t j = stress_mwc32modn(chdir_dirs);
 			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
 			double t;
 

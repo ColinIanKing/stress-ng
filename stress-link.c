@@ -76,7 +76,7 @@ static void stress_link_unlink(
 
 static inline size_t random_mount(const int mounts_max)
 {
-	return (size_t)stress_mwc32() % (size_t)mounts_max;
+	return (size_t)stress_mwc32modn((uint32_t)mounts_max);
 }
 
 /*

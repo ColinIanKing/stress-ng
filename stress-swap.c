@@ -299,7 +299,7 @@ static int stress_swap(const stress_args_t *args)
 		int swapflags = 0;
 		int bad_flags;
 		char *ptr;
-		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
+		uint32_t npages = stress_mwc32modn(MAX_SWAP_PAGES - MIN_SWAP_PAGES) +
 				  MIN_SWAP_PAGES;
 		const size_t mmap_size = (size_t)npages * page_size;
 
@@ -315,7 +315,7 @@ static int stress_swap(const stress_args_t *args)
 #endif
 		/* Periodically create bad swap header */
 		if (stress_mwc8() < 16) {
-			const size_t idx = stress_mwc8() % SIZEOF_ARRAY(bad_header_flags);
+			const size_t idx = stress_mwc8modn(SIZEOF_ARRAY(bad_header_flags));
 			bad_flags = bad_header_flags[idx];
 		} else {
 			bad_flags = SWAP_HDR_SANE;	/* No bad header */

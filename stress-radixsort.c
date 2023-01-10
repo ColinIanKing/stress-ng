@@ -167,7 +167,7 @@ static int stress_radixsort(const stress_args_t *args)
 
 		/* Randomize first char */
 		for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE)
-			*ptr = 'a' + (stress_mwc8() % 26);
+			*ptr = 'a' + stress_mwc8modn(26);
 
 		inc_counter(args);
 	} while (keep_stressing(args));

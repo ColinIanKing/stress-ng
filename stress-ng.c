@@ -1938,7 +1938,7 @@ static void stress_wait_aggressive(stress_stressor_t *stressors_list)
 					procs_alive = true;
 
 					do {
-						cpu_num = (int32_t)stress_mwc32() % cpus;
+						cpu_num = (int32_t)stress_mwc32modn(cpus);
 					} while (!(CPU_ISSET(cpu_num, &proc_mask)));
 
 					CPU_ZERO(&mask);
@@ -3382,7 +3382,7 @@ static inline void stress_set_random_stressors(void)
 
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			const uint32_t i = stress_mwc32() % n_procs;
+			const uint32_t i = stress_mwc32modn(n_procs);
 			stress_stressor_t *ss = stress_get_nth_stressor(i);
 
 			if (!ss)
