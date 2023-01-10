@@ -108,7 +108,7 @@ static int stress_utime(const stress_args_t *args)
 		return ret;
 	}
 
-	stress_strnrnd(hugename, sizeof(hugename));
+	stress_rndstr(hugename, sizeof(hugename));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

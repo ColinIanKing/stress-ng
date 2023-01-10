@@ -109,7 +109,7 @@ static int stress_vm_splice(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	stress_strnrnd(data, page_size);
+	stress_rndbuf(data, page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

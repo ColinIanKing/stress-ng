@@ -131,7 +131,7 @@ static int stress_key(const stress_args_t *args)
 			args->name, key_huge_desc_size);
 		return EXIT_NO_RESOURCE;
 	}
-	stress_strnrnd(huge_description, key_huge_desc_size);
+	stress_rndstr(huge_description, key_huge_desc_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

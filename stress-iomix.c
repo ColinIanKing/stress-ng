@@ -164,7 +164,7 @@ static void stress_iomix_wr_seq_bursts(
 			ssize_t rc;
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 
-			stress_strnrnd(buffer, len);
+			stress_rndbuf(buffer, len);
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
@@ -218,7 +218,7 @@ static void stress_iomix_wr_rnd_bursts(
 				return;
 			}
 
-			stress_strnrnd(buffer, len);
+			stress_rndbuf(buffer, len);
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
@@ -266,7 +266,7 @@ static void stress_iomix_wr_seq_slow(
 			ssize_t rc;
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 
-			stress_strnrnd(buffer, len);
+			stress_rndbuf(buffer, len);
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
@@ -546,7 +546,7 @@ static void stress_iomix_rd_wr_mmap(
 					sum += buffer[j];
 				stress_uint64_put(sum);
 
-				stress_strnrnd(mmaps[i], page_size);
+				stress_rndbuf(mmaps[i], page_size);
 				(void)shim_msync(mmaps[i], page_size,
 					stress_mwc1() ? MS_ASYNC : MS_SYNC);
 			}

@@ -81,7 +81,7 @@ static int stress_fiemap_writer(
 	bool punch_hole = true;
 #endif
 
-	stress_strnrnd((char *)buf, sizeof(buf));
+	*buf = stress_mwc8();
 
 	do {
 		uint64_t offset;

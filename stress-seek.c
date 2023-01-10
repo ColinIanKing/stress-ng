@@ -109,7 +109,7 @@ static int stress_seek(const stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	stress_strnrnd((char *)buf, sizeof(buf));
+	stress_rndbuf(buf, sizeof(buf));
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -338,7 +338,7 @@ close_finish:
 finish:
 	duration = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per seek", duration * 1000000000);
-	
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;

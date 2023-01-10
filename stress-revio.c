@@ -345,7 +345,7 @@ static int stress_revio(const stress_args_t *args)
 	buf = (uint8_t *)stress_align_address(alloc_buf, BUF_ALIGNMENT);
 #endif
 
-	stress_strnrnd((char *)buf, DEFAULT_REVIO_WRITE_SIZE);
+	stress_rndbuf(buf, DEFAULT_REVIO_WRITE_SIZE);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());

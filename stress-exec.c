@@ -531,7 +531,7 @@ static int stress_exec_child(void *arg)
 			goto do_exec;
 		}
 
-		stress_strnrnd(buffer, sizeof(buffer));
+		stress_rndbuf(buffer, sizeof(buffer));
 		if (stress_mwc1()) {
 			buffer[0] = '#';
 			buffer[1] = '!';

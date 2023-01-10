@@ -259,13 +259,13 @@ static int stress_chroot_test7(
 	const size_t path_len = 256 * KB;
 	int ret1, ret2, errno1, errno2;
 	char *path;
-	
+
 	/* Don't throw a failure of we can't allocate large path */
 	path = malloc(path_len);
 	if (!path)
 		return EXIT_SUCCESS;
 
-	stress_strnrnd(path, path_len);
+	stress_rndstr(path, path_len);
 	path[0] = '/';
 
 	do_chroot(path, &ret1, &ret2, &errno1, &errno2, metrics);
@@ -313,7 +313,7 @@ static int stress_chroot(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	stress_strnrnd(longpath, sizeof(longpath));
+	stress_rndstr(longpath, sizeof(longpath));
 	(void)stress_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
 	(void)stress_temp_dir_args(args, temppath, sizeof(temppath));
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());

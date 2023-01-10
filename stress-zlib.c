@@ -269,7 +269,7 @@ static void stress_rand_data_text(
 	const size_t size = (size_t)((uintptr_t)data_end - (uintptr_t)data);
 
 	(void)args;
-	stress_strnrnd((char *)data, size);
+	stress_rndstr((char *)data, size);
 }
 
 /*
