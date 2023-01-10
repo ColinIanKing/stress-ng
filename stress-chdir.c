@@ -101,7 +101,7 @@ static int stress_chdir(const stress_args_t *args)
 		paths[i] = NULL;
 	}
 
-	stress_strnrnd(longpath, sizeof(longpath));
+	stress_rndstr(longpath, sizeof(longpath));
 	longpath[0] = '/';
 
 	(void)stress_temp_filename_args(args, badpath, sizeof(badpath), ~0ULL);

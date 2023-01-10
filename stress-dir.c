@@ -226,7 +226,7 @@ static void stress_invalid_mkdir(const char *path)
 	(void)shim_strlcpy(filename, path, sizeof(filename));
 	(void)shim_strlcat(filename, "/", sizeof(filename));
 	len = strlen(filename);
-	(void)stress_strnrnd(filename + len, sizeof(filename) - len);
+	(void)stress_rndstr(filename + len, sizeof(filename) - len);
 	ret = mkdir(filename,  S_IRUSR | S_IWUSR);
 	if (ret == 0)
 		(void)shim_rmdir(filename);
@@ -303,7 +303,7 @@ static int stress_dir(const stress_args_t *args)
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
 
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0) 
+	if (ret < 0)
 		return stress_exit_status(-ret);
 
 #if defined(O_DIRECTORY)

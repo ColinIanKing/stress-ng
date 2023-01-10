@@ -247,7 +247,7 @@ retry_bind:
 		goto err;
 	}
 
-	stress_strnrnd(input, DATA_LEN);
+	stress_rndbuf(input, DATA_LEN);
 
 	for (j = 32; j < DATA_LEN; j += 32) {
 		if (!keep_stressing(args))
@@ -372,7 +372,7 @@ retry_bind:
 			goto err;
 		}
 
-		stress_strnrnd(key, (size_t)info->max_key_size);
+		stress_rndbuf(key, (size_t)info->max_key_size);
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, (socklen_t)info->max_key_size) < 0) {
 			free(key);
 			if (errno == ENOPROTOOPT) {
@@ -400,7 +400,7 @@ retry_bind:
 			goto err;
 		}
 
-		stress_strnrnd(assocdata, (size_t)info->max_auth_size);
+		stress_rndbuf(assocdata, (size_t)info->max_auth_size);
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, (socklen_t)info->max_auth_size) < 0) {
 			free(assocdata);
 			if (errno == ENOPROTOOPT) {
@@ -468,10 +468,10 @@ retry_bind:
 		iv = (void *)CMSG_DATA(cmsg);
 		iv->ivlen = (uint32_t)iv_size;
 
-		stress_strnrnd((char *)iv->iv, (size_t)iv_size);
+		stress_rndbuf((char *)iv->iv, (size_t)iv_size);
 
 		/* Generate random message to encrypt */
-		stress_strnrnd(input, DATA_LEN);
+		stress_rndbuf(input, DATA_LEN);
 		iov.iov_base = input;
 		iov.iov_len = DATA_LEN;
 

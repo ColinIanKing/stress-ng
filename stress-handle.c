@@ -220,7 +220,7 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		 *  failure
 		 */
 		ptr = (char *)shim_unconstify_ptr(&fhp->f_handle);
-		stress_strnrnd(ptr, 32);
+		stress_rndbuf(ptr, 32);
 		fd = open_by_handle_at(mount_fd, fhp, O_RDONLY);
 		if (fd >= 0)
 			(void)close(fd);

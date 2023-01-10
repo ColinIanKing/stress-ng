@@ -222,7 +222,7 @@ static int stress_chmod(const stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	stress_strnrnd(longpath, sizeof(longpath));
+	stress_rndstr(longpath, sizeof(longpath));
 	longpath[0] = '/';
 
 	(void)stress_temp_filename(filename, sizeof(filename),

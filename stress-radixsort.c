@@ -129,7 +129,7 @@ static int stress_radixsort(const stress_args_t *args)
 	/* This is very expensive, do it once */
 	for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE) {
 		data[i] = ptr;
-		stress_strnrnd((char *)ptr, STR_SIZE);
+		stress_rndstr((char *)ptr, STR_SIZE);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

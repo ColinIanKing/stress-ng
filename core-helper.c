@@ -1539,17 +1539,48 @@ const char *stress_strsignal(const int signum)
 }
 
 /*
- *  stress_strnrnd()
- *	fill string with random chars
+ *  stress_rndstr()
+ *	generate pseudorandom string
  */
-void stress_strnrnd(char *str, const size_t len)
+void stress_rndstr(char *str, size_t len)
 {
-	const char *end = str + len;
+	/*
+	 * base64url alphabet.
+	 * Be careful if expanding this alphabet, some of this function's users
+	 * use it to generate random filenames.
+	 */
+	static const char alphabet[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz" "0123456789" "-_";
+	size_t i;
+	uint32_t r;
+	if (len == 0)
+		return;
 
-	while (str < end - 1)
-		*str++ = stress_mwc8modn(26) + 'a';
+	len--; /* Leave one byte for the terminator. */
+	for (i = 0; i < len; i++) {
+		/* If we don't have any random bits in r, get some more. */
+		if (i % (sizeof(r) * CHAR_BIT / 6) == 0)
+			r = stress_mwc32();
 
-	*str = '\0';
+		/*
+		 * Use 6 bits from the 32-bit integer at a time.
+		 * This means 2 bits from each 32-bit integer are wasted.
+		 */
+		str[i] = alphabet[r & 0x3F];
+		r >>= 6;
+	}
+	str[i] = '\0';
+}
+
+/*
+ *  stress_rndbuf()
+ *	fill buffer with pseudorandom bytes
+ */
+void stress_rndbuf(void *buf, size_t len)
+{
+	size_t i;
+	for (i = 0; i < len; i++)
+		*(char *)buf = stress_mwc8();
 }
 
 /*

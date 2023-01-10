@@ -85,7 +85,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 	}
 
 	stress_mwc_reseed();
-	stress_strnrnd(value, arg_max);
+	stress_rndstr(value, arg_max);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	env_max = stress_env_max();

@@ -167,7 +167,7 @@ misc_tests:
 #endif
 
 	/* Exercise umount of hugepath, ENAMETOOLONG */
-	stress_strnrnd(hugepath, sizeof(hugepath));
+	stress_rndstr(hugepath, sizeof(hugepath));
 	VOID_RET(int, umount(hugepath));
 }
 

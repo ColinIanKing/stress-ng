@@ -410,7 +410,7 @@ buf_unmap:
 		}
 
 		/* Exercise illegal memfd name */
-		stress_strnrnd(filename, sizeof(filename));
+		stress_rndstr(filename, sizeof(filename));
 		fd = shim_memfd_create(filename, 0);
 		if (fd >= 0)
 			(void)close(fd);

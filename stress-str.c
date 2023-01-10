@@ -624,7 +624,7 @@ static int stress_str(const stress_args_t *args)
 	info.strdstlen = sizeof(strdst);
 	info.failed = false;
 
-	stress_strnrnd(info.str1, info.len1);
+	stress_rndstr(info.str1, info.len1);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -632,7 +632,7 @@ static int stress_str(const stress_args_t *args)
 		register char *tmpptr;
 		register size_t tmplen;
 
-		stress_strnrnd(info.str2, info.len2);
+		stress_rndstr(info.str2, info.len2);
 		str_method->func(&info);
 
 		tmpptr = info.str1;

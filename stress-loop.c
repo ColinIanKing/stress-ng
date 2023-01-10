@@ -231,7 +231,7 @@ static int stress_loop(const stress_args_t *args)
 			break;
 		case 1:
 			info.lo_encrypt_type = LO_CRYPT_XOR;
-			stress_strnrnd((char *)info.lo_encrypt_key, LO_KEY_SIZE);
+			stress_rndbuf(info.lo_encrypt_key, LO_KEY_SIZE);
 			info.lo_encrypt_key[LO_KEY_SIZE - 1] = '\0';
 			info.lo_encrypt_key_size = LO_KEY_SIZE - 1;
 			break;

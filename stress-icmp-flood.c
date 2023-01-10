@@ -78,7 +78,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
 
 	(void)memset(pkt, 0, sizeof(pkt));
-	stress_strnrnd(payload, MAX_PAYLOAD_SIZE);
+	stress_rndbuf(payload, MAX_PAYLOAD_SIZE);
 
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
@@ -134,7 +134,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 		 * Generating random data is expensive so do it every 64 packets
 		 */
 		if ((get_counter(args) & 0x3f) == 0)
-			stress_strnrnd(payload, payload_len);
+			stress_rndbuf(payload, payload_len);
 		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 

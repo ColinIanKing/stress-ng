@@ -324,7 +324,7 @@ static int stress_memcpy(const stress_args_t *args)
 
 	(void)stress_get_setting("memcpy-method", &memcpy_method);
 
-	stress_strnrnd((char *)aligned_buf, ALIGN_SIZE);
+	stress_rndbuf(aligned_buf, ALIGN_SIZE);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
