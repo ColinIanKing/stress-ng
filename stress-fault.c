@@ -233,6 +233,10 @@ next:
 		i++;
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	(void)stress_sighandler_default(SIGBUS);
+	(void)stress_sighandler_default(SIGSEGV);
+
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\
     defined(HAVE_RUSAGE_RU_MINFLT)
