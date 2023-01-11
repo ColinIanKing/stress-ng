@@ -780,6 +780,7 @@ do_stats:
 		}
 	} while (keep_stressing(args));
 
+	pr_lock();
 	for (i = 0; i < FEATURES_MAX; i++) {
 		if (((init_mb[i].features & features) == init_mb[i].features) &&
 		    (stats[i].duration > 0.0)) {
@@ -793,6 +794,7 @@ do_stats:
 			stress_metrics_set(args, i, tmp, rate);
 		}
 	}
+	pr_unlock();
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
