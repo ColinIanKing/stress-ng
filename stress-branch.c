@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"branch N",	"start N workers that force branch misprediction" },
@@ -39,17 +40,11 @@ static const stress_help_t help[] = {
 
 #define J(n) L ## n:	RESEED_JMP
 
-#if defined(STRESS_ARCH_SH4)
-#define OPTIMIZE_HINT
-#else
-#define OPTIMIZE_HINT	OPTIMIZE3
-#endif
-
 /*
  *  stress_branch()
  *	stress instruction branch prediction
  */
-static int OPTIMIZE_HINT stress_branch(const stress_args_t *args)
+static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 {
 	register uint32_t const a = 16843009;
 	register uint32_t const c = 826366247;
@@ -206,6 +201,10 @@ static int OPTIMIZE_HINT stress_branch(const stress_args_t *args)
 	for (;;) {
 L0x000:
 		inc_counter(args);
+#if defined(STRESS_ARCH_SH4)
+		/* For some reason, can't interrupt SH4 in QEMU, add yield to do so */
+		shim_sched_yield();
+#endif
 		if (!keep_stressing(args))
 			break;
 		RESEED_JMP
