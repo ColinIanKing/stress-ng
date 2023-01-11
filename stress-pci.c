@@ -309,6 +309,7 @@ static int stress_pci(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (args->instance == 0) {
+		pr_lock();
 		pr_inf("%s: PCI space read rates in MB per sec for stressor instance 0:\n", args->name);
 		pr_inf("%s: PCI Device     Config Resource\n", args->name);
 		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
@@ -317,6 +318,7 @@ static int stress_pci(const stress_args_t *args)
 				stress_pci_rate(&pci_info->metrics[PCI_METRICS_CONFIG]) / MB,
 				stress_pci_rate(&pci_info->metrics[PCI_METRICS_RESOURCE]) / MB);
 		}
+		pr_unlock();
 	}
 
 	stress_pci_info_free(pci_info_list);
