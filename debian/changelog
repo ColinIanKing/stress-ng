@@ -1,3 +1,172 @@
+stress-ng (0.15.02-1) unstable; urgency=medium
+
+  [Florian Weimer]
+  * test/test-float.c: Avoid tickling an implicit int error
+  * test-aligned-alloc: Define _GNU_SOURCE for the aligned_alloc prototype
+  * test-fchmodat: Include <sys/stat.h> for the fchmodat prototype
+  * test-pidfd-getfd: Include <syspidfd.h> if available for pidfd_getfd
+
+  [Guilherme Janczak]
+  * rework stress_strnrnd()
+
+  [Yong-Xuan Wang]
+  * stress-signest: disable alternative stack before unmap
+
+  [Colin Ian King]
+  * Makefile: bump verison, update to new code name
+  * stress-forkheavy: cast mmap return to same type as pointer metrics
+  * stress-fp: disable float128 for OpenBSD
+  * stress-fp: disable float80 due to unresolved division by zero SIGFPEs
+  * core-shared-heap: cast void * ptt to uintptr_t to clean up icc build
+    warning
+  * stress-matrix-3d: remove redundant redeclaration of variable j
+  * stress-matrix: remove redundant redeclaration of variable j
+  * stress-efivar: rename varname to get_varname to avoid name shadowing
+  * stress-fp: add fp rates into metrics output, increase metrics to 24
+    slots
+  * stress-fp: only count bogo-ops for float, double, long double
+  * core-helper: silence a spurious gcc warning
+  * stress-str: replace search for _ with +
+  * README.md: update number of stressors
+  * stress-fp: exercise various floating point values with +, *, /
+    operations
+  * stress-branch: add yield call for SH4 to allow it to be interrupted
+  * stress-pci: add locking around PCI memory rate stats
+  * stress-ipsec-mb: add locking around statistics being dumped in debug
+  * core-shared-heap: ensure offset is always aligned to natural pointer
+    alignment
+  * stress-fault: restore signal handlers at end of stressor loop
+  * stress-bad-altstack: replace STRESS_MINSIGSTKSZ with static size_t
+    stress_minsigstksz
+  * core-shared-heap: only report shared heap usage if it has been used
+  * core-mwc: add stress_mwc*modn() functions for modulo'd range
+  * core-builtin.h: convert macros into inline functions
+  * stress-*: voidify return from snprintf
+  * stress-str: fix prototype for test_strcpy_t
+  * stress-list: evaluate entry->value ^ rnd before passing it into a macro
+  * stress-wcs: add missing strdsc for stress_wcscpy testcase
+  * core-shared-heap: add strdup for shared description metrics string
+  * stress-ng: replace size of on index element j with 0
+  * stress-ng.h: divide by size of make allocator bitmap elements instead
+    of 8
+  * stress-cpu: use a clang builtin for reversing bits
+  * core-hash: replace hash_rol_uint32 with shim_rol32n
+  * stress-wcs: remove variable failed, use info.failed instead
+  * stress-str: bundle wcs function args into a struct, improves run time
+  * stress-wcs: bundle wcs function args into a struct, improves run time
+  * core-hash: use builtin rotate macros for rotating values
+  * core-builtin: re-work rotate helpers, add generalised rotate
+    left/right macros
+  * stress-list: use builtin shim_ror64
+  * stress-resources: free resources before child exit
+  * core-helper: fix stack size for non-first calls (incorrect cached value)
+  * stress-pci: print PCI config and resource space read rates
+  * core-helper: fix typo on STRESS_MAXIMUM macro
+  * core-cache: Add 32 bit variants of 64 bit hashes
+  * core-hash: add more comments to explain the nuances of memcpy
+  * core-hash: xorror64: cast len to uint64_t before flipping bits
+  * core-helper: simplify stack size calculations using STRESS_MAXIMUM macro
+  * core-helper: limit iterations on stress_get_prime64
+  * stress-priv-instr: remove extraneous ) for SPARC (again)
+  * stress-priv-instr: remove extraneous ) for SPARC
+  * stress-mlock: fix typo on time function
+  * stress-judy: move judy_ops array to function scope
+  * core-resources: clean up code, voidify, constify, misc cleanups
+  * stress-dirdeep: only report directories being deleted if it is taking
+    a while to complete
+  * stress-dirdeep: remove commented out cruft.
+  * stress-evivar: ignore ioctl FS_IOC_SETFLAGS error return
+  * stress-sigio: use metrics interface to report SIGIOs per sec
+  * stress-malloc: add missing tab
+  * stress-judy: add judy insert/find/delete rate metrics
+  * stress-jpeg: add compression ratio metrics
+  * stress-getdent: add duration metrics for getdent call
+  * stress-dev-shm: use more efficient method to touch pages with data
+  * stress-dirdeep: remove empty line
+  * stress-icache: fix spelling mistake in comment
+  * stress-flock: add lock/unlock flock metrics
+  * stress-zlib: use the generic metrics API to report metrics
+  * stress-unshare: add unshare() duration metrics
+  * stress-touch: remove empty line
+  * stress-tlb-shootdown: remove empty line
+  * stress-mremap: add metrics
+  * stress-mlock: remove extraneous tab
+  * stress-mlock: add mlock/munlock metrics
+  * stress-*: replace hard coded time constants with #defined constants
+  * Add x86intrin.h implementations for rotate left/right
+  * stress-*: use shim_rol/shim_ror builtins
+  * stress-rotate: add builtin support for clang rotateleft/rotateright
+  * stress-rotate: add a 8/16/32/64/128 bit rotate left/right stressor
+  * Update copyright to 2023
+  * stress-matrix: rename matrix_3d_yx to matrix_3d_zyx
+  * stress-matrix: add per method metrics
+  * stress-matrix-3d: add per method metrics and bump metrics to 16 items
+  * stress-memfd: add memfd_create metrics
+  * Revert "core-helper: use 8K stack check if PTHREAD_STACK_MIN is less
+    than 8K"
+  * stress-memfd: use uint64_t ptr offset helper, re-order code
+  * stress-memfd: add a zap pte linux stress test cast
+  * stress-tty: exercise ldisc settings on stressor instance 0's ptys
+  * stress-sparsematrix: force remove the unused splay function warnings
+  * core-pragma.h: define STRESS_PRAGMA_WARN_CPP_OFF for clang
+  * stress-resources: break from loop rather than use a leaky exit return
+  * stress-forkheavy: free resources to clean up memory leak
+  * core-helper: use 8K stack check if PTHREAD_STACK_MIN is less than 8K
+  * core-*: silence sys/sysctl.h deprecated warning
+  * stress-forkheavy: Add --forkheavy-allocs and --forkheavy-procs options
+  * stress-shm-sysv: remove debug of memory sizes
+  * stress-lockbus: only report splitlocks enabled on stressor instance 0
+  * stress-enosys: index into hash table using unsigned long
+  * stress-cacheline: only print out the method being used on instance 0
+  * stress-atomic: move metric measurments closer to lock instructions
+  * stress-atomic: make atomic ops operate on union'd data for more
+    contention
+  * Add new forkheavy stressor
+  * stress-link: add EINTR check for Serenity OS
+  * stress-syscall: add build time detection for select
+  * stress-efivar: add support for reading vars from the sysfs file
+    /sys/firmware/efi/efivars
+  * core-out-of-memory: add wait/exit/run states
+  * core-helper: add STRESS_STATE_ZOMBIE state
+  * stress-mcontend: set process state to run for all threads
+  * stress-*: print method being used only by first stressor instance
+  * core-sort: fix missing int type for j
+  * stress sort/search: add data helpers, add metrics
+  * stress-priv-instr: add SPARC draina and halt instructions
+  * stress-hash: add new xorror64 hash, a fast string hash
+  * core-cache: add M68K cache sizes
+  * Add build time check for SPARC membar instruction
+  * stress-ng: fix space identation with tab
+  * stress-ng: rename stress_misc_stats_t to stress_metrics and clean up
+    code
+  * stress-*: Add helper function stress_metrics_set to set metrics
+  * stress-shm-sysv: add shm* syscall metrics
+  * Add x86 mfence instruction auto build detection
+  * stress-syscall: rename struct with stress_ prefix to avoid name clashes
+  * core-vmstat: add OS X vmstat runnable/blocked process count
+  * stress-mmap: make variable mask non-clobberable
+  * stress-fault: make variables duration and count non-clobberable
+  * core-cpu: rework cpuid macros to build on gcc 4.8 with and without -fPIC
+  * core-nt-store: only use HAVE_XMMINTRIN_H with SSE supported by toolchain
+  * README.md: add the Ubuntu stress-ng ppa
+  * core-vmstat: Add OS X cpu system/user/idle stats in vmstat output
+  * stress-brk: disable page touching for OS X
+  * Revert "stress-brk: unmapping pages in brk will cause OS X segfaults,
+    disable it"
+  * Add more system statistics for OS X
+  * core-vmstat: add OS X support for CPU frequency stats
+  * core-vmstat: fix stress_get_cpu_ghz for non-FreeBSD and non-Linux builds
+  * Add min, max CPU frequencies to --thermalstat stats
+  * core-cache: move two more functions and rename cpusort to cpu_sort
+  * core-cache: re-order functions and #ifdef for Linux, OS X, etc
+  * core-cache: add OS X cache size support
+  * stress-brk: unmapping pages in brk will cause OS X segfaults, disable it
+  * core-thermal-zone: order thermal zone entries by type
+  * README.md: add another citation "The TSN Building Blocks in Linux"
+  * stress-branch: don't use -O3 on branch stessor for SH4
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 12 Jan 2023 17:27:22 +0000
+
 stress-ng (0.15.01-1) unstable; urgency=medium
 
   [Davidson Francis]
