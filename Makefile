@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.15.01
+VERSION=0.15.02
 #
-# Codename "frozen hedgehog"
+# Codename "deluded hurling snail"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
