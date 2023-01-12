@@ -152,10 +152,10 @@ static void stress_index(stress_str_args_t *info)
 	register size_t i;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
-		STRCHK(info, NULL == test_index(str1, '_'));
+		STRCHK(info, NULL == test_index(str1, '+'));
 		STRCHK(info, NULL != test_index(str1, str1[0]));
 
-		STRCHK(info, NULL == test_index(str2, '_'));
+		STRCHK(info, NULL == test_index(str2, '+'));
 		STRCHK(info, NULL != test_index(str2, str2[0]));
 	}
 }
@@ -177,10 +177,10 @@ static void stress_rindex(stress_str_args_t *info)
 	register size_t i;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
-		STRCHK(info, NULL == test_rindex(str1, '_'));
+		STRCHK(info, NULL == test_rindex(str1, '+'));
 		STRCHK(info, NULL != test_rindex(str1, str1[0]));
 
-		STRCHK(info, NULL == test_rindex(str2, '_'));
+		STRCHK(info, NULL == test_rindex(str2, '+'));
 		STRCHK(info, NULL != test_rindex(str2, str2[0]));
 	}
 }
@@ -345,10 +345,10 @@ static void stress_strchr(stress_str_args_t *info)
 	register size_t i;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
-		STRCHK(info, NULL == test_strchr(str1, '_'));
+		STRCHK(info, NULL == test_strchr(str1, '+'));
 		STRCHK(info, NULL != test_strchr(str1, str1[0]));
 
-		STRCHK(info, NULL == test_strchr(str2, '_'));
+		STRCHK(info, NULL == test_strchr(str2, '+'));
 		STRCHK(info, NULL != test_strchr(str2, str2[0]));
 	}
 }
@@ -368,10 +368,10 @@ static void stress_strrchr(stress_str_args_t *info)
 	register size_t i;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
-		STRCHK(info, NULL == test_strrchr(str1, '_'));
+		STRCHK(info, NULL == test_strrchr(str1, '+'));
 		STRCHK(info, NULL != test_strrchr(str1, str1[0]));
 
-		STRCHK(info, NULL == test_strrchr(str2, '_'));
+		STRCHK(info, NULL == test_strrchr(str2, '+'));
 		STRCHK(info, NULL != test_strrchr(str2, str2[0]));
 	}
 }
