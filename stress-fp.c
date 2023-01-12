@@ -24,6 +24,11 @@
 #define LOOPS_PER_CALL	(65536)
 #define FP_ELEMENTS	(8)
 
+/* Currently division with float 80 on ICC trips SIGFPEs, so disable */
+#if defined(__ICC)
+#undef HAVE_FLOAT80
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"fp N",	 	"start N workers performing floating point math ops" },
 	{ NULL,	"fp-method M",	"select the floating point method to operate with" },
