@@ -90,6 +90,7 @@
 	MACRO(flushcache)	\
 	MACRO(fork)		\
 	MACRO(forkheavy)	\
+	MACRO(fp)		\
 	MACRO(fp_error)		\
 	MACRO(fpunch)		\
 	MACRO(fsize)		\

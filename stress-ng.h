@@ -1275,6 +1275,10 @@ typedef enum {
 	OPT_forkheavy_procs,
 	OPT_forkheavy_allocs,
 
+	OPT_fp,
+	OPT_fp_method,
+	OPT_fp_ops,
+
 	OPT_fp_error,
 	OPT_fp_error_ops,
 

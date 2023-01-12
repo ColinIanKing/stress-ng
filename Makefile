@@ -208,6 +208,7 @@ STRESS_SRC = \
 	stress-flushcache.c \
 	stress-fork.c \
 	stress-forkheavy.c \
+	stress-fp.c \
 	stress-fp-error.c \
 	stress-fpunch.c \
 	stress-fsize.c \

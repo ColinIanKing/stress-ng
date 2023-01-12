@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 Oct 2022"
+.TH STRESS-NG 1 "12 Jan 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1878,6 +1878,49 @@ stop after N fork calls.
 .TP
 .B \-\-forkheavy\-procs N
 attempt to fork N processes per stressor. The default is 4096 processes.
+.TP
+.B \-\-fp N
+start N workers that exercise addition, multiplication and division
+operations on a range of floating point types. For each type, 8 floating
+point values are operated upon 65536 times in a loop per bogo op.
+.TP
+.B \-\-fp\-ops N
+stop after N floating point bogo ops.
+.TP
+.B \-\-fp\-method method
+select the floating point method to use, available methods are:
+.TS
+expand;
+lB2 lB lB lB
+l l s s.
+Method	Description
+all	iterate over all the following floating point methods:
+float128add	128 bit floating point add
+float80add	80 bit floating point add
+float64add	64 bit floating point add
+float32add	32 bit binary32 floating point add
+floatadd	floating point add
+doubleadd	double precision floating point add
+ldoubleadd	long double precision floating point add
+float128mul	128 bit floating point multiply
+float80mul	80 bit floating point multiply
+float64mul	64 bit floating point multiply
+float32mul	32 bit binary32 floating point multiply
+floatmul	floating point multiply
+doublemul	double precision floating point multiply
+ldoublemul	long double precision floating point multiply
+float128div	128 bit floating point divide
+float80div	80 bit floating point divide
+float64div	64 bit floating point divide
+float32div	32 bit binary32 floating point divide
+floatdiv	floating point divide
+doublediv	double precision floating point divide
+ldoublediv	long double precision floating point divide
+.TE
+.RS
+.PP
+Note that some of these floating point methods may not be available on some systems.
+.RE
 .TP
 .B \-\-fp\-error N
 start N workers that generate floating point exceptions. Computations are
@@ -6333,7 +6376,7 @@ Adrian Ratiu, André Wild, Aleksandar N. Kostadinov, Alexander Kanavin,
 Alexandru Ardelean, Alfonso Sánchez-Beato, André Wild, Arjan van de Ven,
 Baruch Siach, Bryan W. Lewis, Camille Constans, Carlos Santo,
 Christian Ehrhardt, Christopher Brown, Chunyu Hu, Danilo Krummrich,
-David Turner, Davidson Francis, Dominik B Czarnota, Dorinda Bassey, 
+David Turner, Davidson Francis, Dominik B Czarnota, Dorinda Bassey,
 Eric Lin, Fabien Malfoy, Fabrice Fontaine, Francis Laniel,
 Iyán Méndez Veig a,Helmut Grohne, James Hunt, James Wang, Jan Luebbe,
 Jianshen Liu, Jim Rowan, John Kacur, Joseph DeVincentis, Jules Maselbas,
