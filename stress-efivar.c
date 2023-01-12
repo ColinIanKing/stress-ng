@@ -336,10 +336,10 @@ static int get_variable_sysfs_efi_vars(
 		return -1;
 
 	if (var.attributes) {
-		char varname[513];
+		char get_varname[513];
 		char guid_str[37];
 
-		efi_get_varname(varname, sizeof(varname), &var);
+		efi_get_varname(get_varname, sizeof(get_varname), &var);
 		guid_to_str(var.guid, guid_str, sizeof(guid_str));
 
 		(void)guid_str;
