@@ -106,7 +106,7 @@ static double stress_fp_all(
 	const stress_args_t *args,
 	fp_data_t *fp_data);
 
-#define STRESS_FP_ADD(field, name)				\
+#define STRESS_FP_ADD(field, name, do_bogo_ops)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
 	fp_data_t *fp_data)					\
@@ -140,11 +140,12 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 	t2 = stress_time_now();					\
 								\
-	inc_counter(args);					\
+	if (do_bogo_ops)					\
+		inc_counter(args);				\
 	return t2 - t1;						\
 }
 
-#define STRESS_FP_MUL(field, name)				\
+#define STRESS_FP_MUL(field, name, do_bogo_ops)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
 	fp_data_t *fp_data)					\
@@ -178,11 +179,12 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 	t2 = stress_time_now();					\
 								\
-	inc_counter(args);					\
+	if (do_bogo_ops)					\
+		inc_counter(args);				\
 	return t2 - t1;						\
 }
 
-#define STRESS_FP_DIV(field, name)				\
+#define STRESS_FP_DIV(field, name, do_bogo_ops)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
 	fp_data_t *fp_data)					\
@@ -216,44 +218,45 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 	t2 = stress_time_now();					\
 								\
-	inc_counter(args);					\
+	if (do_bogo_ops)					\
+		inc_counter(args);				\
 	return t2 - t1;						\
 }
 
-STRESS_FP_ADD(ld, stress_fp_ldouble_add)
-STRESS_FP_MUL(ld, stress_fp_ldouble_mul)
-STRESS_FP_DIV(ld, stress_fp_ldouble_div)
+STRESS_FP_ADD(ld, stress_fp_ldouble_add, true)
+STRESS_FP_MUL(ld, stress_fp_ldouble_mul, true)
+STRESS_FP_DIV(ld, stress_fp_ldouble_div, true)
 
-STRESS_FP_ADD(d, stress_fp_double_add)
-STRESS_FP_MUL(d, stress_fp_double_mul)
-STRESS_FP_DIV(d, stress_fp_double_div)
+STRESS_FP_ADD(d, stress_fp_double_add, true)
+STRESS_FP_MUL(d, stress_fp_double_mul, true)
+STRESS_FP_DIV(d, stress_fp_double_div, true)
 
-STRESS_FP_ADD(f, stress_fp_float_add)
-STRESS_FP_MUL(f, stress_fp_float_mul)
-STRESS_FP_DIV(f, stress_fp_float_div)
+STRESS_FP_ADD(f, stress_fp_float_add, true)
+STRESS_FP_MUL(f, stress_fp_float_mul, true)
+STRESS_FP_DIV(f, stress_fp_float_div, true)
 
 #if defined(HAVE_FLOAT32)
-STRESS_FP_ADD(f32, stress_fp_float32_add)
-STRESS_FP_MUL(f32, stress_fp_float32_mul)
-STRESS_FP_DIV(f32, stress_fp_float32_div)
+STRESS_FP_ADD(f32, stress_fp_float32_add, false)
+STRESS_FP_MUL(f32, stress_fp_float32_mul, false)
+STRESS_FP_DIV(f32, stress_fp_float32_div, false)
 #endif
 
 #if defined(HAVE_FLOAT64)
-STRESS_FP_ADD(f64, stress_fp_float64_add)
-STRESS_FP_MUL(f64, stress_fp_float64_mul)
-STRESS_FP_DIV(f64, stress_fp_float64_div)
+STRESS_FP_ADD(f64, stress_fp_float64_add, false)
+STRESS_FP_MUL(f64, stress_fp_float64_mul, false)
+STRESS_FP_DIV(f64, stress_fp_float64_div, false)
 #endif
 
 #if defined(HAVE_FLOAT80)
-STRESS_FP_ADD(f80, stress_fp_float80_add)
-STRESS_FP_MUL(f80, stress_fp_float80_mul)
-STRESS_FP_DIV(f80, stress_fp_float80_div)
+STRESS_FP_ADD(f80, stress_fp_float80_add, false)
+STRESS_FP_MUL(f80, stress_fp_float80_mul, false)
+STRESS_FP_DIV(f80, stress_fp_float80_div, false)
 #endif
 
 #if defined(HAVE_FLOAT128)
-STRESS_FP_ADD(f128, stress_fp_float128_add)
-STRESS_FP_MUL(f128, stress_fp_float128_mul)
-STRESS_FP_DIV(f128, stress_fp_float128_div)
+STRESS_FP_ADD(f128, stress_fp_float128_add, false)
+STRESS_FP_MUL(f128, stress_fp_float128_mul, false)
+STRESS_FP_DIV(f128, stress_fp_float128_div, false)
 #endif
 
 typedef struct {

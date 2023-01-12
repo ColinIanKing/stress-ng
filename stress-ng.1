@@ -1885,7 +1885,8 @@ operations on a range of floating point types. For each type, 8 floating
 point values are operated upon 65536 times in a loop per bogo op.
 .TP
 .B \-\-fp\-ops N
-stop after N floating point bogo ops.
+stop after N floating point bogo ops. Note that bogo-ops are counted for
+just standard float, double and long double floating point types.
 .TP
 .B \-\-fp\-method method
 select the floating point method to use, available methods are:
