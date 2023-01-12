@@ -28,6 +28,9 @@
 #if defined(__ICC)
 #undef HAVE_FLOAT80
 #endif
+#if defined(__OpenBSD__)
+#undef HAVE_FLOAT128
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"fp N",	 	"start N workers performing floating point math ops" },
