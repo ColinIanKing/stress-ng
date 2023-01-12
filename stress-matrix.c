@@ -921,8 +921,6 @@ static inline int stress_matrix_exercise(
 	 *  Initialise matrices
 	 */
 	for (i = 0; i < n; i++) {
-		register size_t j;
-
 		for (j = 0; j < n; j++) {
 			a[i][j] = stress_matrix_data(v);
 			b[i][j] = stress_matrix_data(v);
