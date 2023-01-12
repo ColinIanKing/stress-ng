@@ -256,7 +256,8 @@ static int stress_forkheavy(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
+	metrics = (stress_forkheavy_metrics_t *)mmap(NULL, sizeof(*metrics),
+			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: failed to memory map %zd bytes, skipping stressor\n",
