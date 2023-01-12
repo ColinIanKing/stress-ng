@@ -945,8 +945,6 @@ static inline int stress_matrix_3d_exercise(
 	 *  Initialise matrices
 	 */
 	for (i = 0; i < n; i++) {
-		register size_t j;
-
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
