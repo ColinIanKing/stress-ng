@@ -261,61 +261,62 @@ STRESS_FP_DIV(f128, stress_fp_float128_div, false)
 
 typedef struct {
 	const char *name;
+	const char *description;
 	stress_fp_func_t	fp_func;
 	double duration;
 	double ops;
 } stress_fp_funcs_t;
 
 static stress_fp_funcs_t stress_fp_funcs[] = {
-	{ "all",		stress_fp_all,		0.0, 0.0 },
+	{ "all",		"all fp methods",	stress_fp_all,		0.0, 0.0 },
 
 #if defined(HAVE_FLOAT128)
-	{ "float128add",	stress_fp_float128_add,	0.0, 0.0 },
+	{ "float128add",	"float128 add",		stress_fp_float128_add,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT80)
-	{ "float80add",		stress_fp_float80_add,	0.0, 0.0 },
+	{ "float80add",		"float80 add",		stress_fp_float80_add,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT64)
-	{ "float64add",		stress_fp_float64_add,	0.0, 0.0 },
+	{ "float64add",		"float64 add",		stress_fp_float64_add,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT32)
-	{ "float32add",		stress_fp_float32_add,	0.0, 0.0 },
+	{ "float32add",		"float32 add",		stress_fp_float32_add,	0.0, 0.0 },
 #endif
-	{ "floatadd",		stress_fp_float_add,	0.0, 0.0 },
-	{ "doubleadd",		stress_fp_double_add,	0.0, 0.0 },
-	{ "ldoubleadd",		stress_fp_ldouble_add,	0.0, 0.0 },
+	{ "floatadd",		"float add",		stress_fp_float_add,	0.0, 0.0 },
+	{ "doubleadd",		"double add",		stress_fp_double_add,	0.0, 0.0 },
+	{ "ldoubleadd",		"long double add",	stress_fp_ldouble_add,	0.0, 0.0 },
 
 #if defined(HAVE_FLOAT128)
-	{ "float128mul",	stress_fp_float128_mul,	0.0, 0.0 },
+	{ "float128mul",	"float128 multiply",	stress_fp_float128_mul,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT80)
-	{ "float80mul",		stress_fp_float80_mul,	0.0, 0.0 },
+	{ "float80mul",		"float80 multiply",	stress_fp_float80_mul,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT64)
-	{ "float64mul",		stress_fp_float64_mul,	0.0, 0.0 },
+	{ "float64mul",		"float64 multiply",	stress_fp_float64_mul,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT32)
-	{ "float32mul",		stress_fp_float32_mul,	0.0, 0.0 },
+	{ "float32mul",		"float32 multiply",	stress_fp_float32_mul,	0.0, 0.0 },
 #endif
-	{ "floatmul",		stress_fp_float_mul,	0.0, 0.0 },
-	{ "doublemul",		stress_fp_double_mul,	0.0, 0.0 },
-	{ "ldoublemul",		stress_fp_ldouble_mul,	0.0, 0.0 },
+	{ "floatmul",		"float multiply",	stress_fp_float_mul,	0.0, 0.0 },
+	{ "doublemul",		"double multiply",	stress_fp_double_mul,	0.0, 0.0 },
+	{ "ldoublemul",		"long double multiply",	stress_fp_ldouble_mul,	0.0, 0.0 },
 
 #if defined(HAVE_FLOAT128)
-	{ "float128div",	stress_fp_float128_div,	0.0, 0.0 },
+	{ "float128div",	"float128 divide",	stress_fp_float128_div,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT80)
-	{ "float80div",		stress_fp_float80_div,	0.0, 0.0 },
+	{ "float80div",		"float80 divide",	stress_fp_float80_div,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT64)
-	{ "float64div",		stress_fp_float64_div,	0.0, 0.0 },
+	{ "float64div",		"float64 divide",	stress_fp_float64_div,	0.0, 0.0 },
 #endif
 #if defined(HAVE_FLOAT32)
-	{ "float32div",		stress_fp_float32_div,	0.0, 0.0 },
+	{ "float32div",		"float32 divide",	stress_fp_float32_div,	0.0, 0.0 },
 #endif
-	{ "floatdiv",		stress_fp_float_div,	0.0, 0.0 },
-	{ "doublediv",		stress_fp_double_div,	0.0, 0.0 },
-	{ "ldoublediv",		stress_fp_ldouble_div,	0.0, 0.0 },
+	{ "floatdiv",		"float divide",		stress_fp_float_div,	0.0, 0.0 },
+	{ "doublediv",		"double divide",	stress_fp_double_div,	0.0, 0.0 },
+	{ "ldoublediv",		"long double divide",	stress_fp_ldouble_div,	0.0, 0.0 },
 };
 
 static void stress_fp_call_method(
@@ -484,20 +485,17 @@ static int stress_fp(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	if (args->instance == 0) {
-		pr_lock();
-		pr_dbg("%s: compute throughput for just stressor instance 0:\n", args->name);
-		pr_dbg("%s: %14.14s %13.13s\n",
-			args->name, "Method", "Mfp-ops/sec");
 		for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
 			const double ops = stress_fp_funcs[i].ops;
 			const double duration = stress_fp_funcs[i].duration;
 			if (duration > 0.0 && ops > 0.0) {
-				double rate = stress_fp_funcs[i].ops / stress_fp_funcs[i].duration;
+				char msg[64];
+				const double rate = stress_fp_funcs[i].ops / stress_fp_funcs[i].duration;
 
-				pr_dbg("%s: %14.14s %13.3f\n", args->name, stress_fp_funcs[i].name, rate / 1000000.0);
+				(void)snprintf(msg, sizeof(msg), "Mfp-ops per sec, %-20s", stress_fp_funcs[i].description);
+				stress_metrics_set(args, i - 1, msg, rate / 1000000.0);
 			}
 		}
-		pr_unlock();
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

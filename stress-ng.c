@@ -2244,7 +2244,7 @@ void stress_metrics_set_const_check(
 {
 	stress_metrics_t *metrics;
 
-	if (idx >= STRESS_MISC_STATS_MAX)
+	if (idx >= STRESS_MISC_METRICS_MAX)
 		return;
 	if (!args)
 		return;

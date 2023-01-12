@@ -455,7 +455,7 @@ typedef struct {
 	void *page_wo;			/* mmap'd PROT_WO page */
 } stress_mapped_t;
 
-#define STRESS_MISC_STATS_MAX	(16)
+#define STRESS_MISC_METRICS_MAX	(24)
 
 typedef struct {
 	char *description;
@@ -868,7 +868,7 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
-	stress_metrics_t metrics[STRESS_MISC_STATS_MAX];
+	stress_metrics_t metrics[STRESS_MISC_METRICS_MAX];
 #if defined(HAVE_GETRUSAGE)
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
