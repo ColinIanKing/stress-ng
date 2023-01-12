@@ -107,7 +107,7 @@ void *stress_shared_heap_malloc(const size_t size)
 		(void)stress_lock_release(g_shared->shared_heap.lock);
 		return NULL;
 	}
-	ptr = (void *)(g_shared->shared_heap.heap + g_shared->shared_heap.offset);
+	ptr = (void *)((uintptr_t)g_shared->shared_heap.heap + g_shared->shared_heap.offset);
 	g_shared->shared_heap.offset += (size + sizeof(void *) - 1) & ~(sizeof(void *) - 1);
 	(void)stress_lock_release(g_shared->shared_heap.lock);
 
