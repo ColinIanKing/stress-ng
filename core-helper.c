@@ -2298,6 +2298,11 @@ const char *stress_get_compiler(void)
 {
 #if   defined(__ICC) && 		\
       defined(__INTEL_COMPILER) &&	\
+      defined(__INTEL_COMPILER_UPDATE) && \
+      defined(__INTEL_COMPILER_BUILD_DATE)
+	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) " Build " XSTRINGIFY(__INTEL_COMPILER_BUILD_DATE) "";
+#elif defined(__ICC) && 		\
+      defined(__INTEL_COMPILER) &&	\
       defined(__INTEL_COMPILER_UPDATE)
 	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) "";
 #elif defined(__TINYC__)
@@ -2306,8 +2311,16 @@ const char *stress_get_compiler(void)
        defined(__PCC_MINOR__)
 	static const char cc[] = "pcc " XSTRINGIFY(__PCC__) "." XSTRINGIFY(__PCC_MINOR__) "." XSTRINGIFY(__PCC_MINORMINOR__) "";
 #elif defined(__clang_major__) &&	\
+      defined(__clang_minor__) &&	\
+      defined(__clang_patchlevel__)
+	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "." XSTRINGIFY(__clang_patchlevel__) "";
+#elif defined(__clang_major__) &&	\
       defined(__clang_minor__)
 	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
+#elif defined(__GNUC__) &&		\
+      defined(__GNUC_MINOR__) &&	\
+      defined(__GNUC_PATCHLEVEL__)
+	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "." XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
 #elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__)
 	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
