@@ -492,7 +492,6 @@ static int stress_fp(const stress_args_t *args)
 		stress_fp_call_method(args, fp_data, fp_method);
 	} while (keep_stressing(args));
 
-	if (args->instance == 0) {
 		for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
 			const double ops = stress_fp_funcs[i].ops;
 			const double duration = stress_fp_funcs[i].duration;
@@ -500,11 +499,12 @@ static int stress_fp(const stress_args_t *args)
 				char msg[64];
 				const double rate = stress_fp_funcs[i].ops / stress_fp_funcs[i].duration;
 
+pr_inf("%f %f -> %f\n", stress_fp_funcs[i].ops, stress_fp_funcs[i].duration, rate);
+
 				(void)snprintf(msg, sizeof(msg), "Mfp-ops per sec, %-20s", stress_fp_funcs[i].description);
 				stress_metrics_set(args, i - 1, msg, rate / 1000000.0);
 			}
 		}
-	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
