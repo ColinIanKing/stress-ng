@@ -327,6 +327,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(46)	/* --oom-avoid */
 #define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(47)	/* Require thermal zone info */
 #define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(48)	/* --log-lockless */
+#define OPT_FLAGS_SN		 STRESS_BIT_ULL(49)	/* --sn scientific notation */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1966,6 +1967,8 @@ typedef enum {
 
 	OPT_smi,
 	OPT_smi_ops,
+
+	OPT_sn,
 
 	OPT_sock_ops,
 	OPT_sock_domain,

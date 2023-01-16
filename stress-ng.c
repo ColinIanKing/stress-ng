@@ -107,6 +107,7 @@ static const stress_opt_flag_t opt_flags[] = {
 #endif
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
 	{ OPT_smart,		OPT_FLAGS_SMART },
+	{ OPT_sn,		OPT_FLAGS_SN },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
 	{ OPT_stdout,		OPT_FLAGS_STDOUT },
 #if defined(HAVE_SYSLOG_H)
@@ -957,6 +958,7 @@ static const struct option long_options[] = {
 	{ "smart",		0,	0,	OPT_smart },
 	{ "smi",		1,	0,	OPT_smi },
 	{ "smi-ops",		1,	0,	OPT_smi_ops },
+	{ "sn",			0,	0,	OPT_sn },
 	{ "sock",		1,	0,	OPT_sock },
 	{ "sock-domain",	1,	0,	OPT_sock_domain },
 	{ "sock-if",		1,	0,	OPT_sock_if },
@@ -1242,6 +1244,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"skip-silent",		"silently skip unimplemented stressors" },
 	{ NULL,		"stressors",		"show available stress tests" },
 	{ NULL,		"smart",		"show changes in S.M.A.R.T. data" },
+	{ NULL,		"sn",			"use scientific notation for metrics" },
 #if defined(HAVE_SYSLOG_H)
 	{ NULL,		"syslog",		"log messages to the syslog" },
 #endif
@@ -2767,37 +2770,73 @@ static void stress_metrics_dump(
 		cpu_usage = ss->started_instances ? cpu_usage / ss->started_instances : 0.0;
 
 		if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
-			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
-				munged,		/* stress test name */
-				c_total,	/* op count */
-				r_total,	/* average real (wall) clock time */
-				u_time, 	/* actual user time */
-				s_time,		/* actual system time */
-				bogo_rate_r_time, /* bogo ops on wall clock time */
-				bogo_rate);	/* bogo ops per second */
+			if (g_opt_flags & OPT_FLAGS_SN) {
+				pr_inf("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e\n",
+					munged,		/* stress test name */
+					c_total,	/* op count */
+					r_total,	/* average real (wall) clock time */
+					u_time, 	/* actual user time */
+					s_time,		/* actual system time */
+					bogo_rate_r_time, /* bogo ops on wall clock time */
+					bogo_rate);	/* bogo ops per second */
+			} else {
+				pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
+					munged,		/* stress test name */
+					c_total,	/* op count */
+					r_total,	/* average real (wall) clock time */
+					u_time, 	/* actual user time */
+					s_time,		/* actual system time */
+					bogo_rate_r_time, /* bogo ops on wall clock time */
+					bogo_rate);	/* bogo ops per second */
+			}
 		} else {
 			/* extended metrics */
-			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f %13ld\n",
-				munged,		/* stress test name */
-				c_total,	/* op count */
-				r_total,	/* average real (wall) clock time */
-				u_time, 	/* actual user time */
-				s_time,		/* actual system time */
-				bogo_rate_r_time, /* bogo ops on wall clock time */
-				bogo_rate,	/* bogo ops per second */
-				cpu_usage,	/* % cpu usage */
-				maxrss);	/* maximum RSS in KB */
+			if (g_opt_flags & OPT_FLAGS_SN) {
+				pr_inf("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e %15.4e %13ld\n",
+					munged,		/* stress test name */
+					c_total,	/* op count */
+					r_total,	/* average real (wall) clock time */
+					u_time, 	/* actual user time */
+					s_time,		/* actual system time */
+					bogo_rate_r_time, /* bogo ops on wall clock time */
+					bogo_rate,	/* bogo ops per second */
+					cpu_usage,	/* % cpu usage */
+					maxrss);	/* maximum RSS in KB */
+			} else {
+				pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f %13ld\n",
+					munged,		/* stress test name */
+					c_total,	/* op count */
+					r_total,	/* average real (wall) clock time */
+					u_time, 	/* actual user time */
+					s_time,		/* actual system time */
+					bogo_rate_r_time, /* bogo ops on wall clock time */
+					bogo_rate,	/* bogo ops per second */
+					cpu_usage,	/* % cpu usage */
+					maxrss);	/* maximum RSS in KB */
+			}
 		}
 
-		pr_yaml(yaml, "    - stressor: %s\n", munged);
-		pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
-		pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
-		pr_yaml(yaml, "      bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
-		pr_yaml(yaml, "      wall-clock-time: %f\n", r_total);
-		pr_yaml(yaml, "      user-time: %f\n", u_time);
-		pr_yaml(yaml, "      system-time: %f\n", s_time);
-		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
-		pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
+		if (g_opt_flags & OPT_FLAGS_SN) {
+			pr_yaml(yaml, "    - stressor: %s\n", munged);
+			pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
+			pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %e\n", bogo_rate);
+			pr_yaml(yaml, "      bogo-ops-per-second-real-time: %e\n", bogo_rate_r_time);
+			pr_yaml(yaml, "      wall-clock-time: %e\n", r_total);
+			pr_yaml(yaml, "      user-time: %e\n", u_time);
+			pr_yaml(yaml, "      system-time: %e\n", s_time);
+			pr_yaml(yaml, "      cpu-usage-per-instance: %e\n", cpu_usage);
+			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
+		} else {
+			pr_yaml(yaml, "    - stressor: %s\n", munged);
+			pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
+			pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
+			pr_yaml(yaml, "      bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
+			pr_yaml(yaml, "      wall-clock-time: %f\n", r_total);
+			pr_yaml(yaml, "      user-time: %f\n", u_time);
+			pr_yaml(yaml, "      system-time: %f\n", s_time);
+			pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
+			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
+		}
 
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
 			const char *description = ss->stats[0]->metrics[i].description;
@@ -2812,7 +2851,11 @@ static void stress_metrics_dump(
 					total += stats->metrics[i].value;
 				}
 				metric = ss->started_instances ? total / ss->started_instances : 0.0;
-				pr_yaml(yaml, "      %s: %f\n", stess_description_yamlify(description), metric);
+				if (g_opt_flags & OPT_FLAGS_SN) {
+					pr_yaml(yaml, "      %s: %e\n", stess_description_yamlify(description), metric);
+				} else {
+					pr_yaml(yaml, "      %s: %f\n", stess_description_yamlify(description), metric);
+				}
 			}
 		}
 
@@ -2856,8 +2899,13 @@ static void stress_metrics_dump(
 					} else {
 						geomean = 0.0;
 					}
-					pr_inf("%-13s %13.2f %s (geometic mean)\n",
-						munged, geomean, description);
+					if (g_opt_flags & OPT_FLAGS_SN) {
+						pr_inf("%-13s %13.2e %s (geometic mean)\n",
+							munged, geomean, description);
+					} else {
+						pr_inf("%-13s %13.2f %s (geometic mean)\n",
+							munged, geomean, description);
+					}
 				}
 			}
 		}
