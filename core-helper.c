@@ -1549,8 +1549,10 @@ void stress_rndstr(char *str, size_t len)
 	 * Be careful if expanding this alphabet, some of this function's users
 	 * use it to generate random filenames.
 	 */
-	static const char alphabet[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"abcdefghijklmnopqrstuvwxyz" "0123456789" "-_";
+	static const char alphabet[64] = 
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789" "-_";
 	size_t i;
 	uint32_t r = 0;		/* Silence a gcc warning */
 	if (len == 0)
