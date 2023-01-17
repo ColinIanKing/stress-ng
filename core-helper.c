@@ -1727,6 +1727,7 @@ void pr_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      machine: %s\n", uts.machine);
 	}
 #endif
+	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 	(void)memset(&info, 0, sizeof(info));
