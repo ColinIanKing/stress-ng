@@ -19,7 +19,7 @@
 #ifndef CORE_CPU_H
 #define CORE_CPU_H
 
-#include "stress-version.h"
+#include "core-version.h"
 #include "core-arch.h"
 
 /* Always included after stress-ng.h is included */

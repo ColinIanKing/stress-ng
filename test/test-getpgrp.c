@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <features.h>
-#include "../stress-version.h"
+#include "../core-version.h"
 
 /*
  * Test for POSIX getpgrp, only

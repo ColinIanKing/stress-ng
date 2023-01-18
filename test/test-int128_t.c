@@ -18,7 +18,7 @@
  *
  */
 #include <inttypes.h>
-#include "../stress-version.h"
+#include "../core-version.h"
 
 #if NEED_GNUC(4,0,0)
 int main(void)

@@ -126,9 +126,9 @@ HEADERS = \
 	core-thermal-zone.h \
 	core-thrash.h \
 	core-vecmath.h \
+	core-version.h \
 	stress-af-alg-defconfigs.h \
-	stress-ng.h \
-	stress-version.h
+	stress-ng.h
 
 #
 #  Build time generated header files

@@ -19,7 +19,7 @@
  */
 #include <math.h>
 
-#include "../stress-version.h"
+#include "../core-version.h"
 
 /* GCC hot attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,6,0)

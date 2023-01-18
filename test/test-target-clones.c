@@ -19,7 +19,7 @@
  */
 
 #include <features.h>
-#include "../stress-version.h"
+#include "../core-version.h"
 
 /*
  *  For now, only x86-64 systems with GNUC > 5.5 are known
