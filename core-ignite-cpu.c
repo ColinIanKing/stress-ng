@@ -307,11 +307,13 @@ void stress_ignite_cpu_start(void)
 
 			if (cpu_settings) {
 				int32_t cpu;
+				const char *governor = (stress_mwc8() < 240) ? "performance" : "powersave";
 
 				/*
 				 *  Attempt to crank CPUs up to max freq
 				 */
 				for (cpu = 0; cpu < max_cpus; cpu++) {
+
 					if (cpu_settings[cpu].setting_flag == 0)
 						continue;
 
@@ -319,7 +321,7 @@ void stress_ignite_cpu_start(void)
 						cpu_settings[cpu].cpuinfo_max_freq,
 						cpu_settings[cpu].cpuinfo_min_freq,
 						0,
-						"performance",
+						governor,
 						&cpu_settings[cpu].setting_flag);
 				}
 			}
