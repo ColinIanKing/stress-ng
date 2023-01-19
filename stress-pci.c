@@ -182,26 +182,34 @@ static void stress_pci_exercise_file(
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, sz);
 
-		n_left = sz;
-		n_read = 0;
-		t = stress_time_now();
-		while (n_left != 0) {
-			const size_t n_cpy = n_left > sizeof(buf) ? sizeof(buf) : n_left;
-			ssize_t n;
+		/*
+		 *  PCI ROM reads on some systems cause issues because
+		 *  the ROM sizes are incorrectly reported, so don't
+		 *  read memory for ROMs at the moment, cf.:
+		 *  https://github.com/ColinIanKing/stress-ng/issues/255
+		 */
+		if (!rom) {
+			n_left = sz;
+			n_read = 0;
+			t = stress_time_now();
+			while (n_left != 0) {
+				const size_t n_cpy = n_left > sizeof(buf) ? sizeof(buf) : n_left;
+				ssize_t n;
 
-			n = read(fd, buf, n_cpy);
-			if (n <= 0)
-				break;
-			n_left -= n;
-			n_read += n;
-		}
-		if (n_read > 0) {
-			if (config) {
-				pci_info->metrics[PCI_METRICS_CONFIG].duration += stress_time_now() - t;
-				pci_info->metrics[PCI_METRICS_CONFIG].count += n_read;
-			} else if (resource) {
-				pci_info->metrics[PCI_METRICS_RESOURCE].duration += stress_time_now() - t;
-				pci_info->metrics[PCI_METRICS_RESOURCE].count += n_read;
+				n = read(fd, buf, n_cpy);
+				if (n <= 0)
+					break;
+				n_left -= n;
+				n_read += n;
+			}
+			if (n_read > 0) {
+				if (config) {
+					pci_info->metrics[PCI_METRICS_CONFIG].duration += stress_time_now() - t;
+					pci_info->metrics[PCI_METRICS_CONFIG].count += n_read;
+				} else if (resource) {
+					pci_info->metrics[PCI_METRICS_RESOURCE].duration += stress_time_now() - t;
+					pci_info->metrics[PCI_METRICS_RESOURCE].count += n_read;
+				}
 			}
 		}
 		if (rom) {
