@@ -1,3 +1,28 @@
+stress-ng (0.15.03-1) unstable; urgency=medium
+
+  [Anton Eliasson]
+  * stress-cpu: Add verification to rand48
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update contributors names
+  * stress-cpu: only verify rand48 for Linux glibc
+  * stress-pci: disable reading of ROMs
+  * core-ignite-cpu: randomly flip between cpu governors
+  * Manual: update nop stressor INSTR to note nop15 is the largest nop
+    for x86
+  * stress-version.h: rename to core-version.h
+  * stress-list: add per list method metrics
+  * core-helper: minor code reformatting for alphabet string
+  * core-helper: add compiler information to yaml file
+  * Add number of instances used in geometric mean metrics
+  * stress-fp: add alarm check flag in main stress fp loop, remove debug
+  * stress-fp: fix metrics, should be adding stats for all instances
+  * Add --sn (scientific notation) for metrics
+  * core-helper: add more gcc and icc version information
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 19 Jan 2023 10:50:01 +0000
+
 stress-ng (0.15.02-1) unstable; urgency=medium
 
   [Florian Weimer]
