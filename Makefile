@@ -22,7 +22,13 @@ VERSION=0.15.03
 # Codename "hydrophonic purple squid"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
+#
+# Default -O2 if optimization level not defined
+#
+ifeq "$(findstring -O,$(CFLAGS))" ""
+	CFLAGS += -O2
+endif
 
 #
 # Pedantic flags
