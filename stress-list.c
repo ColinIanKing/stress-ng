@@ -55,8 +55,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_SYS_QUEUE_H)
-
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
@@ -70,8 +68,10 @@ static sigjmp_buf jmp_env;
     defined(CIRCLEQ_INSERT_TAIL) &&	\
     defined(CIRCLEQ_FOREACH) &&		\
     defined(CIRCLEQ_FIRST) &&		\
-    defined(CIRCLEQ_REMOVE)
+    defined(CIRCLEQ_REMOVE) &&		\
+    defined(HAVE_SYS_QUEUE_H)
 #define HAVE_SYS_QUEUE_CIRCLEQ
+CIRCLEQ_HEAD(circleqhead, list_entry);
 #endif
 
 #if defined(LIST_ENTRY) &&		\
@@ -81,8 +81,10 @@ static sigjmp_buf jmp_env;
     defined(LIST_FOREACH) &&		\
     defined(LIST_EMPTY) &&		\
     defined(LIST_FIRST) &&		\
-    defined(LIST_REMOVE)
+    defined(LIST_REMOVE) &&		\
+    defined(HAVE_SYS_QUEUE_H)
 #define HAVE_SYS_QUEUE_LIST
+LIST_HEAD(listhead, list_entry);
 #endif
 
 #if defined(SLIST_ENTRY) &&		\
@@ -91,8 +93,10 @@ static sigjmp_buf jmp_env;
     defined(SLIST_INSERT_HEAD) &&	\
     defined(SLIST_FOREACH) &&		\
     defined(SLIST_EMPTY) &&		\
-    defined(SLIST_REMOVE_HEAD)
+    defined(SLIST_REMOVE_HEAD) &&	\
+    defined(HAVE_SYS_QUEUE_H)
 #define HAVE_SYS_QUEUE_SLIST
+SLIST_HEAD(slisthead, list_entry);
 #endif
 
 #if defined(STAILQ_ENTRY) &&		\
@@ -101,8 +105,10 @@ static sigjmp_buf jmp_env;
     defined(STAILQ_INSERT_TAIL) &&	\
     defined(STAILQ_FOREACH) &&		\
     defined(STAILQ_FIRST) &&		\
-    defined(STAILQ_REMOVE)
+    defined(STAILQ_REMOVE) &&		\
+    defined(HAVE_SYS_QUEUE_H)
 #define HAVE_SYS_QUEUE_STAILQ
+STAILQ_HEAD(stailhead, list_entry);
 #endif
 
 #if defined(TAILQ_ENTRY) &&		\
@@ -111,8 +117,10 @@ static sigjmp_buf jmp_env;
     defined(TAILQ_INSERT_TAIL) &&	\
     defined(TAILQ_FOREACH) &&		\
     defined(TAILQ_FIRST) &&		\
-    defined(TAILQ_REMOVE)
+    defined(TAILQ_REMOVE) &&		\
+    defined(HAVE_SYS_QUEUE_H)
 #define HAVE_SYS_QUEUE_TAILQ
+TAILQ_HEAD(tailhead, list_entry);
 #endif
 
 struct list_entry {
@@ -137,23 +145,6 @@ struct list_entry {
 	} u;
 };
 
-#if defined(HAVE_SYS_QUEUE_CIRCLEQ)
-CIRCLEQ_HEAD(circleqhead, list_entry);
-#endif
-#if defined(HAVE_SYS_QUEUE_LIST)
-LIST_HEAD(listhead, list_entry);
-#endif
-#if defined(HAVE_SYS_QUEUE_SLIST)
-SLIST_HEAD(slisthead, list_entry);
-#endif
-#if defined(HAVE_SYS_QUEUE_STAILQ)
-STAILQ_HEAD(stailhead, list_entry);
-#endif
-#if defined(HAVE_SYS_QUEUE_TAILQ)
-TAILQ_HEAD(tailhead, list_entry);
-#endif
-#endif
-
 /*
  *  stress_set_list_size()
  *	set list size
@@ -167,8 +158,6 @@ static int stress_set_list_size(const char *opt)
 		MIN_LIST_SIZE, MAX_LIST_SIZE);
 	return stress_set_setting("list-size", TYPE_ID_UINT64, &list_size);
 }
-
-#if defined(HAVE_SYS_QUEUE_H)
 
 /*
  *  stress_list_handler()
@@ -462,7 +451,6 @@ static void stress_list_all(
  * Table of list stress methods
  */
 static const stress_list_method_info_t list_methods[] = {
-#if defined(HAVE_SYS_QUEUE_H)
 	{ "all",	stress_list_all },
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
 	{ "circleq",	stress_list_circleq },
@@ -480,7 +468,6 @@ static const stress_list_method_info_t list_methods[] = {
 #if defined(HAVE_SYS_QUEUE_TAILQ)
 	{ "tailq",	stress_list_tailq },
 #endif
-#endif
 };
 
 static void stress_list_all(
@@ -496,7 +483,6 @@ static void stress_list_all(
 	if (index >= SIZEOF_ARRAY(list_methods))
 		index = 1;
 }
-#endif
 
 /*
  *  stress_set_list_method()
@@ -528,7 +514,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_SYS_QUEUE_H)
 /*
  *  stress_list()
  *	stress list
@@ -638,11 +623,3 @@ stressor_info_t stress_list_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
-#else
-stressor_info_t stress_list_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.help = help
-};
-#endif
