@@ -114,12 +114,10 @@ HEADERS = \
 	core-hash.h \
 	core-icache.h \
 	core-io-priority.h \
-	core-io-uring.c \
 	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \
 	core-perf.h \
-	core-personality.c \
 	core-pragma.h \
 	core-pthread.h \
 	core-put.h \
@@ -460,6 +458,7 @@ CORE_SRC = \
 	core-helper.c \
 	core-icache.c \
 	core-ignite-cpu.c \
+	core-io-uring.c \
 	core-io-priority.c \
 	core-job.c \
 	core-killpid.c \
@@ -500,7 +499,7 @@ OBJS += $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
 
-all: config.h config stress-ng
+all: config.h stress-ng
 
 .SUFFIXES: .c .o
 
@@ -549,7 +548,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg config.h
 #
 #  extract the PER_* personality enums
 #
-personality.h:
+personality.h: config.h
 	$(PRE_V)$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
 	$(PRE_Q)echo "MK personality.h"
@@ -560,21 +559,21 @@ stress-personality.c: personality.h
 #  extract IORING_OP enums and #define HAVE_ prefixed values
 #  so we can check if these enums exist
 #
-io-uring.h:
+io-uring.h: config.h
 	$(PRE_V)$(CPP) $(CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
 	sed 's/.*\(IORING_OP_.*\)/#define HAVE_\1/' > io-uring.h
 	$(PRE_Q)echo "MK io-uring.h"
 
 stress-io-uring.c: io-uring.h
 
-core-perf.o: core-perf.c core-perf-event.c
+core-perf.o: core-perf.c core-perf-event.c config.h
 	$(PRE_V)$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
 	awk {'print "#define STRESS_" $$1 " (1)"'} > core-perf-event.h
 	$(PRE_Q)echo CC $<
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-vecmath.o: stress-vecmath.c
+stress-vecmath.o: stress-vecmath.c config.h
 	$(PRE_Q)echo CC $<
 	$(PRE_V)$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 
