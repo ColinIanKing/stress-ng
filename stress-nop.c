@@ -109,8 +109,8 @@ static inline void x86_tpause(uint32_t ecx, uint32_t delay)
 
 static inline void stress_op_x86_tpause(void)
 {
-	x86_tpause(0, 5000);
-	x86_tpause(1, 5000);
+	x86_tpause(0, 100);
+	x86_tpause(1, 100);
 }
 
 STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause)
