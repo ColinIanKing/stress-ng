@@ -71,7 +71,7 @@ static sigjmp_buf jmp_env;
     defined(CIRCLEQ_FOREACH) &&		\
     defined(CIRCLEQ_FIRST) &&		\
     defined(CIRCLEQ_REMOVE)
-//#define HAVE_SYS_QUEUE_CIRCLEQ
+#define HAVE_SYS_QUEUE_CIRCLEQ
 #endif
 
 #if defined(LIST_ENTRY) &&		\
