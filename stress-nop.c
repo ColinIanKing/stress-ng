@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cpu.h"
 
 #define NOP_LOOPS	(1024)
 
@@ -37,7 +38,9 @@ typedef struct {
 	const char *name;
 	void (*func)(const stress_args_t *args, const bool flag,
 		     double *duratio, double *count);
+	bool (*supported)(void);
 	bool ignore;
+	bool supported_check;
 } stress_nop_instr_t;
 
 static stress_nop_instr_t *current_instr = NULL;
@@ -114,6 +117,15 @@ static inline void stress_op_x86_tpause(void)
 }
 
 STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause)
+#endif
+
+#if defined(HAVE_ASM_X86_SERIALIZE)
+static inline void stress_op_x86_serialize(void)
+{
+	__asm__ __volatile__("serialize");
+}
+
+STRESS_NOP_SPIN_OP(x86_serialize, stress_op_x86_serialize)
 #endif
 
 #if defined(HAVE_ASM_ARM_YIELD)
@@ -246,51 +258,62 @@ static void stress_nop_random(const stress_args_t *args, const bool flag,
 			      double *duration, double *count);
 
 static stress_nop_instr_t nop_instr[] = {
-	{ "nop",	stress_nop_spin_nop,		false },
+	{ "nop",	stress_nop_spin_nop,		NULL,	false,	false },
 #if defined(STRESS_ARCH_X86)
-	{ "nop2",	stress_nop_spin_x86_nop2,	false },
-	{ "nop3",	stress_nop_spin_x86_nop3,	false },
-	{ "nop4",	stress_nop_spin_x86_nop4,	false },
-	{ "nop5",	stress_nop_spin_x86_nop5,	false },
-	{ "nop6",	stress_nop_spin_x86_nop6,	false },
-	{ "nop7",	stress_nop_spin_x86_nop7,	false },
-	{ "nop8",	stress_nop_spin_x86_nop8,	false },
-	{ "nop9",	stress_nop_spin_x86_nop9,	false },
-	{ "nop10",	stress_nop_spin_x86_nop10,	false },
-	{ "nop11",	stress_nop_spin_x86_nop11,	false },
-	{ "nop12",	stress_nop_spin_x86_nop12,	false },
-	{ "nop13",	stress_nop_spin_x86_nop13,	false },
-	{ "nop14",	stress_nop_spin_x86_nop14,	false },
-	{ "nop15",	stress_nop_spin_x86_nop15,	false },
+	{ "nop2",	stress_nop_spin_x86_nop2,	NULL,	false,	false },
+	{ "nop3",	stress_nop_spin_x86_nop3,	NULL,	false,	false },
+	{ "nop4",	stress_nop_spin_x86_nop4,	NULL,	false,	false },
+	{ "nop5",	stress_nop_spin_x86_nop5,	NULL,	false,	false },
+	{ "nop6",	stress_nop_spin_x86_nop6,	NULL,	false,	false },
+	{ "nop7",	stress_nop_spin_x86_nop7,	NULL,	false,	false },
+	{ "nop8",	stress_nop_spin_x86_nop8,	NULL,	false,	false },
+	{ "nop9",	stress_nop_spin_x86_nop9,	NULL,	false,	false },
+	{ "nop10",	stress_nop_spin_x86_nop10,	NULL,	false,	false },
+	{ "nop11",	stress_nop_spin_x86_nop11,	NULL,	false,	false },
+	{ "nop12",	stress_nop_spin_x86_nop12,	NULL,	false,	false },
+	{ "nop13",	stress_nop_spin_x86_nop13,	NULL,	false,	false },
+	{ "nop14",	stress_nop_spin_x86_nop14,	NULL,	false,	false },
+	{ "nop15",	stress_nop_spin_x86_nop15,	NULL,	false,	false },
 #endif
 #if defined(STRESS_ARCH_S390)
-	{ "nopr",	stress_nop_spin_s390_nopr,	false },
+	{ "nopr",	stress_nop_spin_s390_nopr,	NULL,	false,	false },
 #endif
 #if defined(HAVE_ASM_X86_PAUSE)
-	{ "pause",	stress_nop_spin_x86_pause,	false },
+	{ "pause",	stress_nop_spin_x86_pause,	NULL,	false,	false },
+#endif
+#if defined(HAVE_ASM_X86_SERIALIZE)
+	{ "serialize",	stress_nop_spin_x86_serialize,	stress_cpu_x86_has_serialize,	false,	false },
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE)
-	{ "tpause",	stress_nop_spin_x86_tpause,	false },
+	{ "tpause",	stress_nop_spin_x86_tpause,	stress_cpu_x86_has_waitpkg,	false,	false },
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
-	{ "yield",	stress_nop_spin_arm_yield,	false },
+	{ "yield",	stress_nop_spin_arm_yield,	NULL,	false,	false },
 #endif
 #if defined(STRESS_ARCH_PPC64)
-	{ "mdoio",	stress_nop_spin_ppc64_mdoio,	false },
-	{ "mdoom",	stress_nop_spin_ppc64_mdoom,	false },
-	{ "yield",	stress_nop_spin_ppc64_yield,	false },
+	{ "mdoio",	stress_nop_spin_ppc64_mdoio,	NULL,	false,	false },
+	{ "mdoom",	stress_nop_spin_ppc64_mdoom,	NULL,	false,	false },
+	{ "yield",	stress_nop_spin_ppc64_yield,	NULL,	false,	false },
 #endif
-	{ "random",	stress_nop_random,		false },
-	{ NULL,		NULL ,				false },
+	{ "random",	stress_nop_random,		NULL,	false,	false },
 };
 
 static inline void stress_nop_callfunc(
-	const stress_nop_instr_t *instr,
+	stress_nop_instr_t *instr,
 	const stress_args_t *args,
 	const bool flag,
 	double *duration,
 	double *count)
 {
+	if (UNLIKELY(instr->supported_check == false)) {
+		instr->supported_check = true;
+		if (instr->supported && !instr->supported()) {
+			if (args->instance == 0)
+				pr_inf("%s: '%s' instruction is not supported, ignoring, defaulting to nop\n",
+					args->name, instr->name);
+			instr->ignore = true;
+		}
+	}
 	if (UNLIKELY(instr->ignore))
 		stress_nop_spin_nop(args, flag, duration, count);
 	else
@@ -306,29 +329,32 @@ static void stress_nop_random(
 	(void)flag;
 
 	do {
-		const size_t n = stress_mwc8modn(SIZEOF_ARRAY(nop_instr) - 2);
+		const size_t n = stress_mwc8modn(SIZEOF_ARRAY(nop_instr) - 1);
 
 		current_instr = &nop_instr[n];
-		if (!current_instr->ignore)
-			stress_nop_callfunc(current_instr, args, false, duration, count);
+		stress_nop_callfunc(current_instr, args, false, duration, count);
 	} while (keep_stressing(args));
 }
 
 static int stress_set_nop_instr(const char *opt)
 {
 	stress_nop_instr_t *instr;
+	size_t i;
 
-	for (instr = nop_instr; instr->func; instr++) {
-		current_instr = instr;
+	current_instr = &nop_instr[0];
+
+	for (i = 0; i < SIZEOF_ARRAY(nop_instr); i++) {
+		instr = &nop_instr[i];
 		if (!strcmp(instr->name, opt)) {
 			stress_set_setting("nop-instr", TYPE_ID_UINTPTR_T, &instr);
+			current_instr = instr;
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "nop-instr must be one of:");
-	for (instr = nop_instr; instr->func; instr++) {
-		(void)fprintf(stderr, " %s", instr->name);
+	for (i = 0; i < SIZEOF_ARRAY(nop_instr); i++) {
+		(void)fprintf(stderr, " %s", nop_instr[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -365,14 +391,14 @@ static int stress_nop(const stress_args_t *args)
 		/* We reach here on an SIGILL trap */
 		if (current_instr == &nop_instr[0]) {
 			/* Really should be able to do nop, skip */
-			pr_inf_skip("%s 'nop' instruction was illegal, skipping stressor\n",
+			pr_inf_skip("%s: 'nop' instruction was illegal, skipping stressor\n",
 				args->name);
 			return EXIT_NO_RESOURCE;
 		} else {
 			/* not random choice?, then default to nop */
 			if (!do_random)
 				instr = &nop_instr[0];
-			pr_inf("%s '%s' instruction was illegal, ignoring, defaulting to nop\n",
+			pr_inf("%s: '%s' instruction was illegal, ignoring, defaulting to nop\n",
 				args->name, current_instr->name);
 		}
 	}
