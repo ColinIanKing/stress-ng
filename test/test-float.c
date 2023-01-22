@@ -61,10 +61,9 @@
 /* Avoid implicit int in the definition of test even if FLOAT is not known. */
 typedef FLOAT float_type;
 
+FLOAT a = 0.0, b = 0.0, c = 0.0, d = 0.0;
 static float_type HOT OPTIMIZE3 test(void)
 {
-	FLOAT a = 0.0, b = 0.0, c = 0.0, d = 0.0;
-
 	float_ops(FLOAT, a, b, c, d, sin, cos);
 	float_ops(FLOAT, a, b, c, d, sinl, cosl);
 
