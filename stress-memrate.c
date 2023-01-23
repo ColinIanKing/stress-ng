@@ -904,9 +904,6 @@ static int stress_memrate(const stress_args_t *args)
 			char tmp[32];
 			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
 
-			pr_inf("%s: %10.10s: %12.2f MB per sec\n",
-				args->name, memrate_info[i].name, rate);
-
 			(void)snprintf(tmp, sizeof(tmp), "%s MB per sec", memrate_info[i].name);
 			stress_metrics_set(args, i, tmp, rate);
 		} else {
