@@ -235,7 +235,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-#define no_prefetch(ptr, arg1, arg2)	
+#define no_prefetch(ptr, arg1, arg2)
 
 #if defined(HAVE_VECMATH)
 STRESS_MEMRATE_READ(1024, stress_vint8w1024_t, no_prefetch)
@@ -308,6 +308,181 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
+
+static uint64_t stress_memrate_stos(
+	const stress_memrate_context_t *context,
+	bool *valid,
+	void (*func)(void *ptr, const uint64_t mb_loops),
+	const size_t bytes)
+{
+	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	register uint8_t *ptr;
+	const uint64_t mb_loops = MB / bytes;
+
+	for (ptr = start; keep_stressing_flag() && (ptr < end); ptr += MB) {
+		func((void *)ptr, mb_loops);
+	}
+	*valid = true;
+	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
+}
+
+static uint64_t stress_memrate_stos_rate(
+	const stress_memrate_context_t *context,
+	bool *valid,
+	void (*func)(void *ptr, const uint64_t mb_loops),
+	const size_t bytes)
+{
+	double t1;
+	const double dur = 1.0 / (double)context->memrate_wr_mbs;
+	double total_dur = 0.0;
+	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	register uint8_t *ptr;
+	const uint64_t mb_loops = MB / bytes;
+
+	t1 = stress_time_now();
+	for (ptr = start; keep_stressing_flag() && (ptr < end); ptr += MB) {
+		double t2, dur_remainder;
+
+		func((void *)ptr, mb_loops);
+
+		t2 = stress_time_now();
+		total_dur += dur;
+		dur_remainder = total_dur - (t2 - t1);
+
+		if (dur_remainder >= 0.0) {
+			struct timespec t;
+			time_t sec = (time_t)dur_remainder;
+
+			t.tv_sec = sec;
+			t.tv_nsec = (long)((dur_remainder -
+				(double)sec) *
+				STRESS_NANOSECOND);
+			(void)nanosleep(&t, NULL);
+		}
+		if (!keep_stressing_flag())
+			break;
+	}
+	*valid = true;
+	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
+}
+
+#if defined(HAVE_ASM_X86_REP_STOSQ)
+static void stress_memrate_stosq(void *ptr, const uint64_t mb_loops)
+{
+	__asm__ __volatile__(
+		"mov $0xaaaaaaaaaaaaaaaa,%%rax\n;"
+		"mov %0,%%rdi\n;"
+		"mov %1,%%ecx\n;"
+		"rep stosq %%rax,%%es:(%%rdi);\n"
+		:
+		: "m" (ptr),
+		  "m" (mb_loops)
+		: "ecx","rdi","rax");
+}
+
+static uint64_t stress_memrate_write_stos64(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos(context, valid, stress_memrate_stosq, sizeof(uint64_t));
+}
+
+static uint64_t stress_memrate_write_stos_rate64(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos_rate(context, valid, stress_memrate_stosq, sizeof(uint64_t));
+}
+#endif
+
+#if defined(HAVE_ASM_X86_REP_STOSD)
+static void stress_memrate_stosd(void *ptr, const uint64_t mb_loops)
+{
+	__asm__ __volatile__(
+		"mov $0xaaaaaaaa,%%eax\n;"
+		"mov %0,%%rdi\n;"
+		"mov %1,%%ecx\n;"
+		"rep stosl %%eax,%%es:(%%rdi);\n"	/* gcc calls it stosl and not stosw */
+		:
+		: "m" (ptr),
+		  "m" (mb_loops)
+		: "ecx","rdi","eax");
+}
+
+static uint64_t stress_memrate_write_stos32(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos(context, valid, stress_memrate_stosd, sizeof(uint32_t));
+}
+
+static uint64_t stress_memrate_write_stos_rate32(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos_rate(context, valid, stress_memrate_stosd, sizeof(uint32_t));
+}
+#endif
+
+#if defined(HAVE_ASM_X86_REP_STOSW)
+static void stress_memrate_stosw(void *ptr, const uint64_t mb_loops)
+{
+	__asm__ __volatile__(
+		"mov $0xaaaa,%%ax\n;"
+		"mov %0,%%rdi\n;"
+		"mov %1,%%ecx\n;"
+		"rep stosw %%ax,%%es:(%%rdi);\n"
+		:
+		: "m" (ptr),
+		  "m" (mb_loops)
+		: "ecx","rdi","ax");
+}
+
+static uint64_t stress_memrate_write_stos16(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos(context, valid, stress_memrate_stosw, sizeof(uint16_t));
+}
+
+static uint64_t stress_memrate_write_stos_rate16(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos_rate(context, valid, stress_memrate_stosw, sizeof(uint16_t));
+}
+#endif
+
+#if defined(HAVE_ASM_X86_REP_STOSB)
+static void stress_memrate_stosb(void *ptr, const uint64_t mb_loops)
+{
+	__asm__ __volatile__(
+		"mov $0xaa,%%al\n;"
+		"mov %0,%%rdi\n;"
+		"mov %1,%%ecx\n;"
+		"rep stosb %%al,%%es:(%%rdi);\n"
+		:
+		: "m" (ptr),
+		  "m" (mb_loops)
+		: "ecx","rdi","al");
+}
+
+static uint64_t stress_memrate_write_stos8(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos(context, valid, stress_memrate_stosb, sizeof(uint8_t));
+}
+
+static uint64_t stress_memrate_write_stos_rate8(
+        const stress_memrate_context_t *context,
+        bool *valid)
+{
+	return stress_memrate_stos_rate(context, valid, stress_memrate_stosb, sizeof(uint8_t));
+}
+#endif
 
 #define STRESS_MEMRATE_WRITE_RATE(size, type)			\
 static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
@@ -532,6 +707,18 @@ STRESS_MEMRATE_WRITE(8, uint8_t)
 STRESS_MEMRATE_WRITE_RATE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
+#if defined(HAVE_ASM_X86_REP_STOSQ)
+	{ "write64stoq", MR_WR,	stress_memrate_write_stos64,	stress_memrate_write_stos_rate64 },
+#endif
+#if defined(HAVE_ASM_X86_REP_STOSD)
+	{ "write32stow",MR_WR,	stress_memrate_write_stos32,	stress_memrate_write_stos_rate32 },
+#endif
+#if defined(HAVE_ASM_X86_REP_STOSW)
+	{ "write16stod",MR_WR,	stress_memrate_write_stos16,	stress_memrate_write_stos_rate16 },
+#endif
+#if defined(HAVE_ASM_X86_REP_STOSB)
+	{ "write8stob",	MR_WR,	stress_memrate_write_stos8,	stress_memrate_write_stos_rate8 },
+#endif
 #if defined(HAVE_NT_STORE128)
 	{ "write128nt",	MR_WR, stress_memrate_write_nt128,	stress_memrate_write_nt_rate128 },
 #endif
