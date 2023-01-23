@@ -244,23 +244,39 @@ static const stress_help_t help[] = {
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint64(double *duration, double *count)
 {
+	static int idx = 0;
+
 	if (sizeof(long int) == sizeof(uint64_t))
-		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64[0], duration, count);
+		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64[idx], duration, count);
+	idx++;
+	idx &= (SIZEOF_ARRAY(g_shared->atomic.val64) - 1);
 }
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint32(double *duration, double *count)
 {
+	static int idx = 0;
+
 	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32[0], duration, count);
+	idx++;
+	idx &= (SIZEOF_ARRAY(g_shared->atomic.val32) - 1);
 }
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint16(double *duration, double *count)
 {
+	static int idx = 0;
+
 	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16[0], duration, count);
+	idx++;
+	idx &= (SIZEOF_ARRAY(g_shared->atomic.val16) - 1);
 }
 
 static void ATOMIC_OPTIMIZE stress_atomic_uint8(double *duration, double *count)
 {
+	static int idx = 0;
+
 	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8[0], duration, count);
+	idx++;
+	idx &= (SIZEOF_ARRAY(g_shared->atomic.val8) - 1);
 }
 
 typedef struct {
