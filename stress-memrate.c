@@ -312,7 +312,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	const stress_memrate_context_t *context,
 	bool *valid,
-	void (*func)(void *ptr, const uint64_t mb_loops),
+	void (*func)(void *ptr, const uint32_t mb_loops),
 	const size_t bytes)
 {
 	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
@@ -330,7 +330,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	const stress_memrate_context_t *context,
 	bool *valid,
-	void (*func)(void *ptr, const uint64_t mb_loops),
+	void (*func)(void *ptr, const uint32_t mb_loops),
 	const size_t bytes)
 {
 	double t1;
@@ -369,16 +369,19 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 }
 
 #if defined(HAVE_ASM_X86_REP_STOSQ)
-static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint32_t mb_loops)
 {
+	register void *p = ptr;
+	register const uint32_t l = mb_loops;
+
 	__asm__ __volatile__(
 		"mov $0xaaaaaaaaaaaaaaaa,%%rax\n;"
 		"mov %0,%%rdi\n;"
 		"mov %1,%%ecx\n;"
 		"rep stosq %%rax,%%es:(%%rdi);\n"
 		:
-		: "m" (ptr),
-		  "m" (mb_loops)
+		: "r" (p),
+		  "r" (l)
 		: "ecx","rdi","rax");
 }
 
@@ -398,16 +401,19 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate64(
 #endif
 
 #if defined(HAVE_ASM_X86_REP_STOSD)
-static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint32_t mb_loops)
 {
+	register void *p = ptr;
+	register const uint32_t l = mb_loops;
+
 	__asm__ __volatile__(
 		"mov $0xaaaaaaaa,%%eax\n;"
 		"mov %0,%%rdi\n;"
 		"mov %1,%%ecx\n;"
 		"rep stosl %%eax,%%es:(%%rdi);\n"	/* gcc calls it stosl and not stosw */
 		:
-		: "m" (ptr),
-		  "m" (mb_loops)
+		: "r" (p),
+		  "r" (l)
 		: "ecx","rdi","eax");
 }
 
@@ -427,16 +433,19 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate32(
 #endif
 
 #if defined(HAVE_ASM_X86_REP_STOSW)
-static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint32_t mb_loops)
 {
+	register void *p = ptr;
+	register const uint32_t l = mb_loops;
+
 	__asm__ __volatile__(
 		"mov $0xaaaa,%%ax\n;"
 		"mov %0,%%rdi\n;"
 		"mov %1,%%ecx\n;"
 		"rep stosw %%ax,%%es:(%%rdi);\n"
 		:
-		: "m" (ptr),
-		  "m" (mb_loops)
+		: "r" (p),
+		  "r" (l)
 		: "ecx","rdi","ax");
 }
 
@@ -456,16 +465,19 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate16(
 #endif
 
 #if defined(HAVE_ASM_X86_REP_STOSB)
-static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint32_t mb_loops)
 {
+	register void *p = ptr;
+	register const uint32_t l = mb_loops;
+
 	__asm__ __volatile__(
 		"mov $0xaa,%%al\n;"
 		"mov %0,%%rdi\n;"
 		"mov %1,%%ecx\n;"
 		"rep stosb %%al,%%es:(%%rdi);\n"
 		:
-		: "m" (ptr),
-		  "m" (mb_loops)
+		: "r" (p),
+		  "r" (l)
 		: "ecx","rdi","al");
 }
 
