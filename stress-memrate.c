@@ -309,7 +309,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-static uint64_t stress_memrate_stos(
+static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	const stress_memrate_context_t *context,
 	bool *valid,
 	void (*func)(void *ptr, const uint64_t mb_loops),
@@ -327,7 +327,7 @@ static uint64_t stress_memrate_stos(
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
 }
 
-static uint64_t stress_memrate_stos_rate(
+static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	const stress_memrate_context_t *context,
 	bool *valid,
 	void (*func)(void *ptr, const uint64_t mb_loops),
@@ -369,7 +369,7 @@ static uint64_t stress_memrate_stos_rate(
 }
 
 #if defined(HAVE_ASM_X86_REP_STOSQ)
-static void stress_memrate_stosq(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint64_t mb_loops)
 {
 	__asm__ __volatile__(
 		"mov $0xaaaaaaaaaaaaaaaa,%%rax\n;"
@@ -382,14 +382,14 @@ static void stress_memrate_stosq(void *ptr, const uint64_t mb_loops)
 		: "ecx","rdi","rax");
 }
 
-static uint64_t stress_memrate_write_stos64(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos64(
         const stress_memrate_context_t *context,
         bool *valid)
 {
 	return stress_memrate_stos(context, valid, stress_memrate_stosq, sizeof(uint64_t));
 }
 
-static uint64_t stress_memrate_write_stos_rate64(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate64(
         const stress_memrate_context_t *context,
         bool *valid)
 {
@@ -398,7 +398,7 @@ static uint64_t stress_memrate_write_stos_rate64(
 #endif
 
 #if defined(HAVE_ASM_X86_REP_STOSD)
-static void stress_memrate_stosd(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint64_t mb_loops)
 {
 	__asm__ __volatile__(
 		"mov $0xaaaaaaaa,%%eax\n;"
@@ -411,14 +411,14 @@ static void stress_memrate_stosd(void *ptr, const uint64_t mb_loops)
 		: "ecx","rdi","eax");
 }
 
-static uint64_t stress_memrate_write_stos32(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos32(
         const stress_memrate_context_t *context,
         bool *valid)
 {
 	return stress_memrate_stos(context, valid, stress_memrate_stosd, sizeof(uint32_t));
 }
 
-static uint64_t stress_memrate_write_stos_rate32(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate32(
         const stress_memrate_context_t *context,
         bool *valid)
 {
@@ -427,7 +427,7 @@ static uint64_t stress_memrate_write_stos_rate32(
 #endif
 
 #if defined(HAVE_ASM_X86_REP_STOSW)
-static void stress_memrate_stosw(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint64_t mb_loops)
 {
 	__asm__ __volatile__(
 		"mov $0xaaaa,%%ax\n;"
@@ -440,14 +440,14 @@ static void stress_memrate_stosw(void *ptr, const uint64_t mb_loops)
 		: "ecx","rdi","ax");
 }
 
-static uint64_t stress_memrate_write_stos16(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos16(
         const stress_memrate_context_t *context,
         bool *valid)
 {
 	return stress_memrate_stos(context, valid, stress_memrate_stosw, sizeof(uint16_t));
 }
 
-static uint64_t stress_memrate_write_stos_rate16(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate16(
         const stress_memrate_context_t *context,
         bool *valid)
 {
@@ -456,7 +456,7 @@ static uint64_t stress_memrate_write_stos_rate16(
 #endif
 
 #if defined(HAVE_ASM_X86_REP_STOSB)
-static void stress_memrate_stosb(void *ptr, const uint64_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint64_t mb_loops)
 {
 	__asm__ __volatile__(
 		"mov $0xaa,%%al\n;"
@@ -469,14 +469,14 @@ static void stress_memrate_stosb(void *ptr, const uint64_t mb_loops)
 		: "ecx","rdi","al");
 }
 
-static uint64_t stress_memrate_write_stos8(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos8(
         const stress_memrate_context_t *context,
         bool *valid)
 {
 	return stress_memrate_stos(context, valid, stress_memrate_stosb, sizeof(uint8_t));
 }
 
-static uint64_t stress_memrate_write_stos_rate8(
+static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate8(
         const stress_memrate_context_t *context,
         bool *valid)
 {
