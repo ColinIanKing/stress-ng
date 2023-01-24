@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-x86.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_LINUX_FUTEX_H)
@@ -148,7 +149,7 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 	if (lock) {
 		while (test_and_set(&lock->u.flag) == true) {
 #if defined(HAVE_ASM_X86_PAUSE)
-			__asm__ __volatile__("pause;\n" ::: "memory");
+			stress_asm_x86_pause();
 #else
 			shim_sched_yield();
 #endif

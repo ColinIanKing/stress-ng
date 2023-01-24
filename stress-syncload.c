@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 #include "stress-ng.h"
+#include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-cache.h"
 #include "core-put.h"
@@ -85,7 +86,7 @@ static void stress_syncload_nop(void)
 #if defined(HAVE_ASM_X86_PAUSE)
 static void stress_syncload_pause(void)
 {
-	__asm__ __volatile__("pause;\n");
+	stress_asm_x86_pause();
 }
 #endif
 

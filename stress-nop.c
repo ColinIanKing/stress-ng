@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cpu.h"
 
 #define NOP_LOOPS	(1024)
@@ -89,43 +90,21 @@ static inline void stress_op_nop(void)
 STRESS_NOP_SPIN_OP(nop, stress_op_nop)
 
 #if defined(HAVE_ASM_X86_PAUSE)
-static inline void stress_op_x86_pause(void)
-{
-	__asm__ __volatile__("pause;\n" ::: "memory");
-}
-
-STRESS_NOP_SPIN_OP(x86_pause, stress_op_x86_pause)
+STRESS_NOP_SPIN_OP(x86_pause, stress_asm_x86_pause)
 #endif
 
 #if defined(HAVE_ASM_X86_TPAUSE)
-static inline void x86_tpause(uint32_t ecx, uint32_t delay)
-{
-	uint32_t lo, hi;
-	uint64_t val;
-
-	__asm__ __volatile__("rdtsc\n" : "=a"(lo),"=d"(hi));
-	val = (((uint64_t)hi << 32) | lo) + delay;
-	lo = val & 0xffffffff;
-	hi = val >> 32;
-	__asm__ __volatile__("tpause %%ecx\n" :: "c"(ecx), "d"(hi), "a"(lo));
-}
-
 static inline void stress_op_x86_tpause(void)
 {
-	x86_tpause(0, 100);
-	x86_tpause(1, 100);
+	stress_asm_x86_tpause(0, 100);
+	stress_asm_x86_tpause(1, 100);
 }
 
 STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause)
 #endif
 
 #if defined(HAVE_ASM_X86_SERIALIZE)
-static inline void stress_op_x86_serialize(void)
-{
-	__asm__ __volatile__("serialize");
-}
-
-STRESS_NOP_SPIN_OP(x86_serialize, stress_op_x86_serialize)
+STRESS_NOP_SPIN_OP(x86_serialize, stress_asm_x86_serialize)
 #endif
 
 #if defined(HAVE_ASM_ARM_YIELD)

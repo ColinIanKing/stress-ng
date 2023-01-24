@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cache.h"
 #include "core-pthread.h"
 
@@ -34,14 +35,6 @@ static sigset_t set;
 
 #define MAX_READ_THREADS	(4)
 #define MAX_MAPPINGS		(2)
-
-#if defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_ASM_X86_PAUSE)
-static inline void cpu_relax(void)
-{
-	__asm__ __volatile__("pause\n": : :"memory");
-}
-#endif
 
 /*
  *  page_write_sync()
@@ -191,37 +184,37 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
     defined(HAVE_ASM_X86_PAUSE)
 	for (i = 0; i < 1024; i++) {
 		vdata0[0] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[0] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[1] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[1] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[2] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[2] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[3] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[3] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[4] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[4] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[5] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[5] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[6] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[6] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata0[7] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		vdata1[7] = (uint64_t)i;
-		cpu_relax();
+		stress_asm_x86_pause();
 		read64(data0);
 		read64(data1);
 	}
