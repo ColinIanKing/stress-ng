@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cpu.h"
 #include "core-target-clones.h"
 
@@ -472,8 +473,7 @@ static void TARGET_CLONES stress_rand_data_fixed(
 	}
 }
 
-#if defined(HAVE_ASM_X86_RDRAND) &&		\
-    defined(STRESS_ARCH_X86_64)
+#if defined(HAVE_ASM_X86_RDRAND)
 /*
  *  rdrand64()
  *	read 64 bit random value
@@ -505,10 +505,10 @@ static void stress_rand_data_rdrand(
 
 	if (stress_cpu_x86_has_rdrand()) {
 		while (ptr < end) {
-			*(ptr++) = rand64();
-			*(ptr++) = rand64();
-			*(ptr++) = rand64();
-			*(ptr++) = rand64();
+			*(ptr++) = stress_asm_x86_rdrand();
+			*(ptr++) = stress_asm_x86_rdrand();
+			*(ptr++) = stress_asm_x86_rdrand();
+			*(ptr++) = stress_asm_x86_rdrand();
 		}
 	} else {
 		while (ptr < end) {

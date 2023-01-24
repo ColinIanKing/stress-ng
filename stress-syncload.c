@@ -97,19 +97,14 @@ static void stress_syncload_yield(void)
 }
 #endif
 
-#if !defined(__TINYC__) &&	\
-    defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86)
 static void stress_syncload_rdrand(void)
 {
 	if (stress_sysload_x86_has_rdrand) {
-		int64_t        ret;
-
-		__asm__ __volatile__("1:;\n\
-			     rdrand %0;\n\
-			     jnc 1b;\n":"=r"(ret));
-		return;
+		(void)stress_asm_x86_rdrand();
+	} else {
+		stress_syncload_nop();
 	}
-	stress_syncload_nop();
 }
 #endif
 

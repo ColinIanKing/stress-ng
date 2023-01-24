@@ -74,3 +74,87 @@ static inline uint64_t stress_asm_x86_rdtsc(void)
 }
 
 #endif
+
+#if defined(STRESS_ARCH_X86_64)
+/*
+ *  stress_asm_x86_rdrand()
+ *	read 64 bit random value
+ */
+static inline uint64_t stress_asm_x86_rdrand(void)
+{
+	uint64_t        ret;
+
+	__asm__ __volatile__(
+	"1:;\n\
+		rdrand %0;\n\
+		jnc 1b;\n"
+	: "=r"(ret));
+
+	return ret;
+}
+
+/*
+ *  stress_asm_x86_rdseed()
+ *	read 64 bit random value
+ */
+static inline uint64_t stress_asm_x86_rdseed(void)
+{
+	uint64_t        ret;
+
+	__asm__ __volatile__(
+	"1:;\n\
+		rdseed %0;\n\
+		jnc 1b;\n"
+	: "=r"(ret));
+
+	return ret;
+}
+#elif defined(STRESS_ARCH_X86_32)
+/*
+ *  stress_asm_x86_rdrand()
+ *	read 2 x 32 bit random value
+ */
+static inline uint64_t stress_asm_x86_rdrand(void)
+{
+	uint32_t ret;
+	uint64_t ret64;
+
+	__asm__ __volatile__("1:;\n\
+	rdrand %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	ret64 = (uint64_t)ret << 32;
+
+	__asm__ __volatile__("1:;\n\
+	rdrand %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	return ret64 | ret;
+}
+
+/*
+ *  stress_asm_x86_rdseed()
+ *	read 2 x 32 bit random value
+ */
+static inline uint64_t stress_asm_x86_rdseed(void)
+{
+	uint32_t ret;
+	uint64_t ret64;
+
+	__asm__ __volatile__(
+	"1:;\n\
+		rdseed %0;\n\
+		jnc 1b;\n"
+	: "=r"(ret));
+
+	ret64 = (uint64_t)ret << 32;
+
+	__asm__ __volatile__(
+	"1:;\n\
+		rdseed %0;\n\
+		jnc 1b;\n"
+	: "=r"(ret));
+
+	return ret64 | ret;
+}
+#endif

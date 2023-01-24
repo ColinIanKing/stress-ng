@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cpu.h"
 
 #if defined(HAVE_SYS_CAPABILITY_H)
@@ -87,20 +88,13 @@ static int stress_rdrand_supported(const char *name)
 	return 0;
 }
 
-#if defined(STRESS_ARCH_X86_64)
 /*
  *  rdrand64()
  *	read 64 bit random value
  */
 static inline uint64_t rand64(void)
 {
-	uint64_t        ret;
-
-	__asm__ __volatile__("1:;\n\
-	rdrand %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	return ret;
+	return stress_asm_x86_rdrand();
 }
 
 /*
@@ -109,53 +103,8 @@ static inline uint64_t rand64(void)
  */
 static inline uint64_t seed64(void)
 {
-	uint64_t        ret;
-
-	__asm__ __volatile__("1:;\n\
-	rdseed %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	return ret;
+	return stress_asm_x86_rdseed();
 }
-#else
-/*
- *  rdrand64()
- *	read 2 x 32 bit random value
- */
-static inline uint32_t rand64(void)
-{
-	uint32_t        ret;
-
-	__asm__ __volatile__("1:;\n\
-	rdrand %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	__asm__ __volatile__("1:;\n\
-	rdrand %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	return ret;
-}
-
-/*
- *  seed64()
- *	read 2 x 32 bit random value
- */
-static inline uint32_t seed64(void)
-{
-	uint32_t        ret;
-
-	__asm__ __volatile__("1:;\n\
-	rdseed %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	__asm__ __volatile__("1:;\n\
-	rdseed %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	return ret;
-}
-#endif
 #endif
 
 #if defined(STRESS_ARCH_PPC64) &&	\
