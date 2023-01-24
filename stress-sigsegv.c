@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cache.h"
 #include "core-cpu.h"
 #include "core-nt-store.h"
@@ -191,18 +192,8 @@ static void stress_sigsegv_misaligned128nt(void)
 static void stress_sigsegv_readtsc(void)
 {
 	/* SEGV reading tsc when tsc is not allowed */
-	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0) {
-#if defined(STRESS_ARCH_X86_64)
-		uint32_t lo, hi;
-
-		__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
-#endif
-#if defined(STRESS_ARCH_X86_32)
-		uint64_t tsc;
-
-		__asm__ __volatile__("rdtsc" : "=A" (tsc));
-#endif
-	}
+	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0)
+		(void)stress_asm_x86_rdtsc();
 }
 
 static void stress_enable_readtsc(void)

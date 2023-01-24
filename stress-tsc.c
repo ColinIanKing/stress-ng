@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cpu.h"
 
 #if defined(HAVE_SYS_PLATFORM_PPC_H)
@@ -122,24 +123,9 @@ static int stress_tsc_supported(const char *name)
 /*
  *  x86 read TSC
  */
-static uint64_t rdtsc(void)
+static inline uint64_t rdtsc(void)
 {
-#if defined(STRESS_TSC_SERIALIZED)
-	__asm__ __volatile__("cpuid\n");
-#endif
-#if defined(STRESS_ARCH_X86_64)
-	uint32_t lo, hi;
-
-	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
-	return ((uint64_t)hi << 32) | lo;
-#endif
-#if defined(STRESS_ARCH_X86_32)
-	uint64_t tsc;
-
-	__asm__ __volatile__("rdtsc" : "=A" (tsc));
-	return tsc;
-#endif
-	return 0;
+	return stress_asm_x86_rdtsc();
 }
 
 #elif defined(STRESS_ARCH_PPC64) &&		\

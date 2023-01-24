@@ -20,6 +20,7 @@
 #define CORE_ASM_X86_H
 
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_ASM_X86_PAUSE)
 static inline void stress_asm_x86_pause(void)
@@ -48,5 +49,28 @@ static inline void stress_asm_x86_serialize(void)
 	__asm__ __volatile__("serialize");
 }
 #endif
+
+/*
+ *  x86 read TSC
+ */
+static inline uint64_t stress_asm_x86_rdtsc(void)
+{
+#if defined(STRESS_TSC_SERIALIZED)
+	__asm__ __volatile__("cpuid\n");
+#endif
+#if defined(STRESS_ARCH_X86_64)
+	uint32_t lo, hi;
+
+	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
+	return ((uint64_t)hi << 32) | lo;
+#endif
+#if defined(STRESS_ARCH_X86_32)
+	uint64_t tsc;
+
+	__asm__ __volatile__("rdtsc" : "=A" (tsc));
+	return tsc;
+#endif
+	return 0;
+}
 
 #endif
