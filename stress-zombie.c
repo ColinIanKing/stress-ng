@@ -134,7 +134,6 @@ static void stress_zombie_head_remove(const stress_args_t *args, const bool chec
 		const pid_t pid = zombies.head->pid;
 
 		if (verify && check) {
-
 			if (pid > 1) {
 				(void)kill(pid, SIGKILL);
 				if (stress_pid_not_a_zombie(pid))
