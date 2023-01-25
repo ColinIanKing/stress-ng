@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cache.h"
 #include "core-nt-store.h"
 #include "core-pthread.h"
@@ -94,17 +95,10 @@ static stress_memthrash_primes_t stress_memthrash_primes[MEM_SIZE_PRIMES];
       defined(__ATOMIC_SEQ_CST) &&			\
       NEED_GNUC(4,7,0) && 				\
       defined(STRESS_ARCH_ARM)))
-
 #if defined(HAVE_ATOMIC_ADD_FETCH)
-#define MEM_LOCK(ptr, inc) 				\
-do {							\
-	__atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);	\
-} while (0)
+#define MEM_LOCK(ptr, inc)	__atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST)
 #else
-#define MEM_LOCK(ptr, inc)				\
-do {							\
-	asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));	\
-} while (0);
+#define MEM_LOCK(ptr, inc)	stress_asm_x86_lock_add(ptr, inc)
 #endif
 #endif
 

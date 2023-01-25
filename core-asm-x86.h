@@ -23,6 +23,16 @@
 #include "core-arch.h"
 
 #if defined(STRESS_ARCH_X86)
+#define stress_asm_x86_lock_add(ptr, inc) 		\
+	do {						\
+		__asm__ __volatile__(			\
+			"lock addl %1,%0"		\
+			: "+m" (*ptr)			\
+			: "ir" (inc));			\
+	} while (0)
+#endif
+
+#if defined(STRESS_ARCH_X86)
 #if defined(STRESS_ARCH_X86_32) && !NEED_GNUC(5, 0, 0) && defined(__PIC__)
 #define stress_asm_x86_cpuid(a, b, c, d)		\
 	do {						\
