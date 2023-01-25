@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 {
 	unsigned long dr0;
 
-	asm volatile("mov %%dr0, %0" : "=r"(dr0) : : "memory");
+	__asm__ __volatile__("mov %%dr0, %0" : "=r"(dr0) : : "memory");
 
 	return 0;
 }
