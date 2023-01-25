@@ -22,45 +22,6 @@
 #include "core-version.h"
 #include "core-arch.h"
 
-/* Always included after stress-ng.h is included */
-
-#if defined(STRESS_ARCH_X86)
-#if defined(STRESS_ARCH_X86_32) && !NEED_GNUC(5, 0, 0) && defined(__PIC__)
-#define stress_x86_cpuid(a, b, c, d)			\
-	do {						\
-		__asm__ __volatile__ (			\
-			"pushl %%ebx\n"			\
-			"cpuid\n"			\
-			"mov %%ebx,%1\n"		\
-			"popl %%ebx\n"			\
-			: "=a"(a),			\
-			  "=r"(b),			\
-			  "=r"(c),			\
-			  "=d"(d)			\
-			: "0"(a),"2"(c));		\
-	} while (0)
-#else
-#define stress_x86_cpuid(a, b, c, d)			\
-	do {						\
-		__asm__ __volatile__ (			\
-			"cpuid\n"			\
-			: "=a"(a),			\
-			  "=b"(b),			\
-			  "=c"(c),			\
-			  "=d"(d)			\
-			: "0"(a),"2"(c));		\
-	} while (0)
-#endif
-#else
-#define stress_x86_cpuid(a, b, c, d)			\
-	do {						\
-		a = 0;					\
-		b = 0;					\
-		c = 0;					\
-		d = 0;					\
-	} while (0)
-#endif
-
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);

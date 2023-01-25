@@ -22,6 +22,43 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86_32) && !NEED_GNUC(5, 0, 0) && defined(__PIC__)
+#define stress_asm_x86_cpuid(a, b, c, d)		\
+	do {						\
+		__asm__ __volatile__ (			\
+			"pushl %%ebx\n"			\
+			"cpuid\n"			\
+			"mov %%ebx,%1\n"		\
+			"popl %%ebx\n"			\
+			: "=a"(a),			\
+			  "=r"(b),			\
+			  "=r"(c),			\
+			  "=d"(d)			\
+			: "0"(a),"2"(c));		\
+	} while (0)
+#else
+#define stress_asm_x86_cpuid(a, b, c, d)		\
+	do {						\
+		__asm__ __volatile__ (			\
+			"cpuid\n"			\
+			: "=a"(a),			\
+			  "=b"(b),			\
+			  "=c"(c),			\
+			  "=d"(d)			\
+			: "0"(a),"2"(c));		\
+	} while (0)
+#endif
+#else
+#define stress_asm_x86_cpuid(a, b, c, d)		\
+	do {						\
+		a = 0;					\
+		b = 0;					\
+		c = 0;					\
+		d = 0;					\
+	} while (0)
+#endif
+
 #if defined(HAVE_ASM_X86_PAUSE)
 static inline void stress_asm_x86_pause(void)
 {

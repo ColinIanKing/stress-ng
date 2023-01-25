@@ -18,7 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
-#include "core-cpu.h"
+#include "core-asm-x86.h"
 #include "core-put.h"
 
 static const stress_help_t help[] = {
@@ -46,182 +46,182 @@ static int stress_x86cpuid(const stress_args_t *args)
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Processor Info and Feature Bits */
 		eax = 1;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/*  Cache and TLB Descriptor information */
 		eax = 2;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Processor Serial Number */
 		eax = 3;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Intel thread/core and cache topology */
 		eax = 4;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Thermal and power management */
 		eax = 6;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Extended Features */
 		eax = 7;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Must be 0 */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Extended Features */
 		eax = 7;
 		ebx = 0; /* Not required */
 		ecx = 1; /* Must be 1 */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Intel thread/core and cache topology */
 		eax = 0xb;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Get highest extended function index */
 		eax = 0x80000000;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Extended processor info */
 		eax = 0x80000001;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Processor brand string */
 		eax = 0x80000002;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Processor brand string */
 		eax = 0x80000003;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Processor brand string */
 		eax = 0x80000004;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* L1 Cache and TLB Identifiers */
 		eax = 0x80000005;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Extended L2 Cache Features */
 		eax = 0x80000006;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Advanced Power Management information */
 		eax = 0x80000007;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* Virtual and Physical address size */
 		eax = 0x80000008;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get SVM information */
 		eax = 0x8000000a;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get TLB configuration descriptors */
 		eax = 0x80000019;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get performance optimization identifiers */
 		eax = 0x8000001a;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get IBS information */
 		eax = 0x8000001a;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get LWP information */
 		eax = 0x8000001c;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get cache configuration descriptors */
 		eax = 0x8000001d;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get APIC/unit/node information */
 		eax = 0x8000001e;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		/* get SME/SEV information */
 		eax = 0x8000001f;
 		ebx = 0; /* Not required */
 		ecx = 0; /* Not required */
 		edx = 0; /* Not required */
-		stress_x86_cpuid(eax, ebx, ecx, edx);
+		stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 		duration += stress_time_now() - t;
 		count += 26.0;

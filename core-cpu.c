@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-x86.h"
 #include "core-cpu.h"
 
 	/* Name + dest reg */			/* Input -> Output */
@@ -175,7 +176,7 @@ bool stress_cpu_is_x86(void)
 	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
 
 	/* Intel CPU? */
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 	if ((memcmp(&ebx, "Genu", 4) == 0) &&
 	    (memcmp(&edx, "ineI", 4) == 0) &&
 	    (memcmp(&ecx, "ntel", 4) == 0))
@@ -196,7 +197,7 @@ bool stress_cpu_is_x86(void)
 {							\
 	uint32_t eax = 7;				\
 							\
-	stress_x86_cpuid(eax, ebx, ecx, edx);		\
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);	\
 }
 #endif
 
@@ -313,7 +314,7 @@ bool stress_cpu_x86_has_syscall(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_syscall_EDX);
 #else
@@ -333,7 +334,7 @@ bool stress_cpu_x86_has_rdrand(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(ecx & CPUID_rdrnd_ECX);
 #else
@@ -353,7 +354,7 @@ bool stress_cpu_x86_has_tsc(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_tsc_EDX);
 #else
@@ -373,7 +374,7 @@ bool stress_cpu_x86_has_msr(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_msr_EDX);
 #else
@@ -393,7 +394,7 @@ bool stress_cpu_x86_has_clfsh(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_clfsh_EDX);
 #else
@@ -413,7 +414,7 @@ bool stress_cpu_x86_has_mmx(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_mmx_EDX);
 #else
@@ -433,7 +434,7 @@ bool stress_cpu_x86_has_sse(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_sse_EDX);
 #else
@@ -453,7 +454,7 @@ bool stress_cpu_x86_has_sse2(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_sse2_EDX);
 #else
@@ -473,7 +474,7 @@ bool stress_cpu_x86_has_serialize(void)
 	if (!stress_cpu_is_x86())
 		return false;
 
-	stress_x86_cpuid(eax, ebx, ecx, edx);
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	return !!(edx & CPUID_serialize_EDX);
 #else
