@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-asm-ppc64.h"
 #include "core-cpu.h"
 
 #if defined(HAVE_SYS_CAPABILITY_H)
@@ -134,11 +135,7 @@ static int stress_rdrand_supported(const char *name)
 
 static inline uint64_t rand64(void)
 {
-	uint64_t val;
-
-	/* Unconditioned raw deliver a raw number */
-	__asm__ __volatile__("darn %0, 0\n" : "=r"(val) :);
-	return val;
+	return stress_asm_ppc64_darn();
 }
 #endif
 
