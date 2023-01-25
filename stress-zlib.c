@@ -475,21 +475,6 @@ static void TARGET_CLONES stress_rand_data_fixed(
 
 #if defined(HAVE_ASM_X86_RDRAND)
 /*
- *  rdrand64()
- *	read 64 bit random value
- */
-static inline uint64_t rand64(void)
-{
-	uint64_t        ret;
-
-	__asm__ __volatile__("1:;\n\
-	rdrand %0;\n\
-	jnc 1b;\n":"=r"(ret));
-
-	return ret;
-}
-
-/*
  *  stress_rand_data_rdrand()
  *	fill buffer with data from x86 rdrand instruction
  */
