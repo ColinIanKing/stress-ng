@@ -30,9 +30,7 @@
 			: "+m" (*ptr)			\
 			: "ir" (inc));			\
 	} while (0)
-#endif
 
-#if defined(STRESS_ARCH_X86)
 #if defined(STRESS_ARCH_X86_32) && !NEED_GNUC(5, 0, 0) && defined(__PIC__)
 #define stress_asm_x86_cpuid(a, b, c, d)		\
 	do {						\
@@ -57,15 +55,6 @@
 			  "=c"(c),			\
 			  "=d"(d)			\
 			: "0"(a),"2"(c));		\
-	} while (0)
-#endif
-#else
-#define stress_asm_x86_cpuid(a, b, c, d)		\
-	do {						\
-		a = 0;					\
-		b = 0;					\
-		c = 0;					\
-		d = 0;					\
 	} while (0)
 #endif
 
@@ -204,4 +193,8 @@ static inline uint64_t stress_asm_x86_rdseed(void)
 
 	return ret64 | ret;
 }
+/* #if defined(STRESS_ARCH_X86) */
+#endif
+
+/* #ifndef CORE_ASM_X86_H */
 #endif
