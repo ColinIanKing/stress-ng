@@ -106,6 +106,7 @@ static struct sock_filter filter[] = {
 	BPF_STMT(BPF_LD + BPF_W + BPF_ABS, SYSCALL_NR),
 #if defined(__NR_exit_group)
 	ALLOW_SYSCALL(exit_group),
+	ALLOW_SYSCALL(write),
 #endif
 	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRAP)
 };
@@ -171,8 +172,6 @@ static void stress_opcode_inc(
 
 	while (ops < (const uint32_t *)ops_end)
 		*(ops++) = tmp++;
-
-	*op = tmp;
 }
 
 static void stress_opcode_mixed(
@@ -196,7 +195,6 @@ static void stress_opcode_mixed(
 		*(ops++) = ((rnd >> 1) ^ rnd);
 		*(ops++) = reverse32(rnd);
 	}
-	*op = tmp;
 }
 
 static void stress_opcode_text(
@@ -268,12 +266,21 @@ static int stress_opcode(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc;
-	uint32_t op = 0;
 	size_t i;
 	const stress_opcode_method_info_t *opcode_method = &stress_opcode_methods[0];
 #if TRACK_SIGCOUNT
 	const size_t sig_count_size = MAX_SIGS * sizeof(*sig_count);
 #endif
+	uint32_t *op;
+
+	op = (uint32_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+                MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (op == MAP_FAILED) {
+		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
+			"skipping stressor\n",
+			args->name, args->page_size, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 #if TRACK_SIGCOUNT
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
@@ -282,6 +289,7 @@ static int stress_opcode(const stress_args_t *args)
 		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
 			"skipping stressor\n",
 			args->name, sig_count_size, errno, strerror(errno));
+		(void)munmap(op, args->page_size);
 		return EXIT_NO_RESOURCE;
 	}
 #endif
@@ -289,6 +297,8 @@ static int stress_opcode(const stress_args_t *args)
 	(void)stress_get_setting("opcode-method", &opcode_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	*op = (uint32_t)(((uint64_t)0x100000000ULL * args->instance) / args->num_instances);
 
 	do {
 		pid_t pid;
@@ -298,7 +308,12 @@ static int stress_opcode(const stress_args_t *args)
 		 *  gets a different random value on each fork
 		 */
 		(void)stress_mwc32();
-		op += 1024;
+		if (opcode_method->func == stress_opcode_inc) {
+			char buf[32];
+
+			(void)snprintf(buf, sizeof(buf), "opcode-0x%" PRIx32 " [run]", *op);
+			stress_set_proc_name(buf);
+		}
 again:
 		pid = fork();
 		if (pid < 0) {
@@ -349,7 +364,7 @@ again:
 			(void)mprotect((void *)ops_end, page_size, PROT_NONE);
 			(void)mprotect((void *)ops_begin, page_size, PROT_WRITE);
 
-			opcode_method->func(ops_begin, ops_end, &op);
+			opcode_method->func(ops_begin, ops_end, op);
 
 			(void)mprotect((void *)ops_begin, page_size, PROT_READ | PROT_EXEC);
 			shim_flush_icache((char *)ops_begin, (char *)ops_end);
@@ -393,6 +408,7 @@ again:
 				 */
 				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
 #endif
+				(*op)++;
 				((void (*)(void))(ops_begin + i))();
 			}
 
@@ -436,6 +452,7 @@ finish:
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)munmap(op, args->page_size);
 #if TRACK_SIGCOUNT
 	(void)munmap(sig_count, sig_count_size);
 #endif
