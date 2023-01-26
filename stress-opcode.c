@@ -311,7 +311,7 @@ static int stress_opcode(const stress_args_t *args)
 		if (opcode_method->func == stress_opcode_inc) {
 			char buf[32];
 
-			(void)snprintf(buf, sizeof(buf), "opcode-0x%" PRIx32 " [run]", *op);
+			(void)snprintf(buf, sizeof(buf), "opcode-0x%8.8" PRIx32 " [run]", *op);
 			stress_set_proc_name(buf);
 		}
 again:
