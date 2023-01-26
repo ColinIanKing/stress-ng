@@ -351,7 +351,7 @@ stress-ng: info:  [1171714]                598,760,234 Branch Misses            
 
 ## Bugs found with stress-ng
 
-stress-ng has found several Linux Kernel bugs and appropriate fixes have been landed to address these issues:
+stress-ng has found Kernel and QEMU bugs and appropriate fixes have been landed to address these issues:
 
 * [fs/locks.c: kernel oops during posix lock stress test](https://lkml.org/lkml/2016/11/27/212)
 * [rcu_preempt detected stalls on CPUs/tasks](https://lkml.org/lkml/2017/8/28/574)
@@ -403,6 +403,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [NUMA Benchmark Regression In Linux 5.18](https://lore.kernel.org/lkml/YmrWK%2FKoU1zrAxPI@fuller.cnet)
 * [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
 * [mm/huge_memory: do not clobber swp_entry_t during THP split](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=71e2d666ef85d51834d658830f823560c402b8b6)
+* [qemu-system-m68k segfaults on opcode 0x4848](https://gitlab.com/qemu-project/qemu/-/issues/1462)
 
 ## Kernel improvements that used stress-ng
 
