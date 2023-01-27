@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
@@ -57,7 +58,7 @@ static const stress_help_t help[] = {
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
 
-typedef void(*stress_opcode_func)(uint32_t *ops_begin, const uint32_t *ops_end, uint32_t *op);
+typedef void(*stress_opcode_func)(const size_t page_size, void *ops_begin, const void *ops_end, uint64_t *op);
 
 typedef struct {
 	const char *name;
@@ -141,66 +142,139 @@ static void MLOCKED_TEXT NORETURN stress_badhandler(int signum)
 	_exit(1);
 }
 
-static inline uint32_t reverse32(register uint64_t x)
+static inline ALWAYS_INLINE uint64_t OPTIMIZE3 reverse64(register uint64_t x)
 {
-	x = (((x & 0xaaaaaaaa) >> 1) | ((x & 0x55555555) << 1));
-	x = (((x & 0xcccccccc) >> 2) | ((x & 0x33333333) << 2));
-	x = (((x & 0xf0f0f0f0) >> 4) | ((x & 0x0f0f0f0f) << 4));
-	x = (((x & 0xff00ff00) >> 8) | ((x & 0x00ff00ff) << 8));
-	return (uint32_t)(x >> 16) | (uint32_t)(x << 16);
+	x = ((x & 0xf0f0f0f0f0f0f0f0ULL) >> 4) |
+	    ((x & 0x0f0f0f0f0f0f0f0fULL) << 4);
+	x = ((x & 0xccccccccccccccccULL) >> 2) |
+	    ((x & 0x3333333333333333ULL) << 2);
+	x = ((x & 0xaaaaaaaaaaaaaaaaULL) >> 1) |
+	    ((x & 0x5555555555555555ULL) << 1);
+	return x;
 }
 
-static void stress_opcode_random(
-	uint32_t *ops_begin,
-	const uint32_t *ops_end,
-	uint32_t *op)
+static void OPTIMIZE3 stress_opcode_random(
+	size_t page_size,
+	void *ops_begin,
+	const void *ops_end,
+	uint64_t *op)
 {
-	register uint32_t *ops = ops_begin;
-	(void)op;
+	register uint32_t *ops = (uint32_t *)ops_begin;
 
-	while (ops < ops_end)
+	(void)op;
+	(void)page_size;
+
+	while (ops < (uint32_t *)ops_end)
 		*(ops++) = stress_mwc32();
 }
 
-static void stress_opcode_inc(
-	uint32_t *ops_begin,
-	const uint32_t *ops_end,
-	uint32_t *op)
-{
-	register uint32_t tmp = *op;
-	register uint32_t *ops = ops_begin;
+#if !defined(STRESS_OPCODE_SIZE)
+/* Not defimed? Default to 64 bit */
+#define STRESS_OPCODE_SIZE	(64)
+#define STRESS_OPCODE_MASK	(0xffffffffffffffffULL)
+#endif
+#define OPCODE_HEX_DIGITS	(STRESS_OPCODE_SIZE >> 2)
 
-	while (ops < (const uint32_t *)ops_end)
-		*(ops++) = tmp++;
+static void OPTIMIZE3 stress_opcode_inc(
+	size_t page_size,
+	void *ops_begin,
+	const void *ops_end,
+	uint64_t *op)
+{
+	switch (STRESS_OPCODE_SIZE) {
+	case 8:	{
+			register uint8_t tmp8 = *op & 0xff;
+			register uint8_t *ops = (uint8_t *)ops_begin;
+			register ssize_t i = (ssize_t)page_size;
+
+			while (i--) {
+				*(ops++) = tmp8;
+			}
+		}
+		break;
+	case 16: {
+			register uint16_t tmp16 = *op & 0xffff;
+			register uint16_t *ops = (uint16_t *)ops_begin;
+			register ssize_t i = (ssize_t)(page_size >> 1);
+
+			while (i--) {
+				*(ops++) = tmp16;
+			}
+		}
+		break;
+	default:
+	case 32: {
+			register uint32_t tmp32 = *op & 0xffffffffL;
+			register uint32_t *ops = (uint32_t *)ops_begin;
+			register size_t i = (ssize_t)(page_size >> 2);
+
+			while (i--) {
+				*(ops++) = tmp32;
+			}
+		}
+		break;
+	case 48:
+		{
+			register uint64_t tmp64 = *op;
+			register uint8_t *ops = (uint8_t *)ops_begin;
+			register size_t i = (ssize_t)(page_size / 6);
+
+			while (i--) {
+				*(ops++) = (tmp64 >> 0);
+				*(ops++) = (tmp64 >> 8);
+				*(ops++) = (tmp64 >> 16);
+				*(ops++) = (tmp64 >> 24);
+				*(ops++) = (tmp64 >> 32);
+				*(ops++) = (tmp64 >> 40);
+			}
+			/* There is some slop at the end */
+			while (ops < (uint8_t *)ops_end)
+				*ops++ = 0x00;
+		}
+		break;
+	case 64: {
+			register uint64_t tmp64 = *op;
+			register uint64_t *ops = (uint64_t *)ops_begin;
+			register size_t i = (ssize_t)(page_size >> 3);
+
+			while (i--) {
+				*(ops++) = tmp64;
+			}
+		}
+		break;
+	}
 }
 
-static void stress_opcode_mixed(
-	uint32_t *ops_begin,
-	const uint32_t *ops_end,
-	uint32_t *op)
+static void OPTIMIZE3 stress_opcode_mixed(
+	size_t page_size,
+	void *ops_begin,
+	const void *ops_end,
+	uint64_t *op)
 {
-	register uint32_t tmp = *op;
-	register uint32_t *ops = ops_begin;
+	register uint64_t tmp = *op;
+	register uint64_t *ops = (uint64_t *)ops_begin;
 
-	while (ops < ops_end) {
-		register const uint32_t rnd = stress_mwc32();
+	(void)page_size;
+	while (ops < (uint64_t *)ops_end) {
+		register const uint64_t rnd = stress_mwc64();
 
 		*(ops++) = tmp;
 		*(ops++) = tmp ^ 0xffffffff;	/* Inverted */
 		*(ops++) = ((tmp >> 1) ^ tmp);	/* Gray */
-		*(ops++) = reverse32(tmp);
+		*(ops++) = reverse64(tmp);
 
 		*(ops++) = rnd;
 		*(ops++) = rnd ^ 0xffffffff;
 		*(ops++) = ((rnd >> 1) ^ rnd);
-		*(ops++) = reverse32(rnd);
+		*(ops++) = reverse64(rnd);
 	}
 }
 
 static void stress_opcode_text(
-	uint32_t *ops_begin,
-	const uint32_t *ops_end,
-	uint32_t *op)
+	size_t page_size,
+	void *ops_begin,
+	const void *ops_end,
+	uint64_t *op)
 {
 	char *text_start, *text_end;
 	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
@@ -209,7 +283,7 @@ static void stress_opcode_text(
 	size_t offset;
 
 	if (text_len < ops_len) {
-		stress_opcode_random(ops_begin, ops_end, op);
+		stress_opcode_random(page_size, ops_begin, ops_end, op);
 		return;
 	}
 
@@ -267,13 +341,16 @@ static int stress_opcode(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	int rc;
 	size_t i;
+	const size_t opcode_bytes = STRESS_OPCODE_SIZE >> 3;
+	const size_t opcode_loops = page_size / opcode_bytes;
 	const stress_opcode_method_info_t *opcode_method = &stress_opcode_methods[0];
 #if TRACK_SIGCOUNT
 	const size_t sig_count_size = MAX_SIGS * sizeof(*sig_count);
 #endif
-	uint32_t *op;
+	uint64_t *op;
+	double op_start;
 
-	op = (uint32_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+	op = (uint64_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
                 MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (op == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
@@ -298,7 +375,8 @@ static int stress_opcode(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	*op = (uint32_t)(((uint64_t)0x100000000ULL * args->instance) / args->num_instances);
+	op_start = (pow(2.0, STRESS_OPCODE_SIZE) * (double)args->instance) / args->num_instances;
+	*op = (uint64_t)op_start;
 
 	do {
 		pid_t pid;
@@ -311,7 +389,8 @@ static int stress_opcode(const stress_args_t *args)
 		if (opcode_method->func == stress_opcode_inc) {
 			char buf[32];
 
-			(void)snprintf(buf, sizeof(buf), "opcode-0x%8.8" PRIx32 " [run]", *op);
+			(void)snprintf(buf, sizeof(buf), "opcode-0x%*.*" PRIx64 " [run]",
+				OPCODE_HEX_DIGITS, OPCODE_HEX_DIGITS, *op);
 			stress_set_proc_name(buf);
 		}
 again:
@@ -328,7 +407,7 @@ again:
 		}
 		if (pid == 0) {
 			struct itimerval it;
-			uint32_t *opcodes, *ops_begin, *ops_end;
+			void *opcodes, *ops_begin, *ops_end;
 
 			(void)sched_settings_apply(true);
 
@@ -347,7 +426,7 @@ again:
 					_exit(EXIT_FAILURE);
 			}
 
-			opcodes = mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
+			opcodes = (void *)mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (opcodes == MAP_FAILED) {
 				pr_fail("%s: mmap failed, errno=%d (%s)\n",
@@ -357,14 +436,14 @@ again:
 			/* Force pages resident */
 			(void)memset(opcodes, 0x00, page_size * PAGES);
 
-			ops_begin = (uint32_t *)((uintptr_t)opcodes + page_size);
-			ops_end = (uint32_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
+			ops_begin = (uint8_t *)((uintptr_t)opcodes + page_size);
+			ops_end = (uint8_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
 
 			(void)mprotect((void *)opcodes, page_size, PROT_NONE);
 			(void)mprotect((void *)ops_end, page_size, PROT_NONE);
 			(void)mprotect((void *)ops_begin, page_size, PROT_WRITE);
 
-			opcode_method->func(ops_begin, ops_end, op);
+			opcode_method->func(page_size, ops_begin, ops_end, op);
 
 			(void)mprotect((void *)ops_begin, page_size, PROT_READ | PROT_EXEC);
 			shim_flush_icache((char *)ops_begin, (char *)ops_end);
@@ -400,7 +479,7 @@ again:
 			(void)close(fileno(stdout));
 			(void)close(fileno(stderr));
 
-			for (i = 0; i < 1024; i++) {
+			for (i = 0; i < opcode_loops; i++) {
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(SECCOMP_SET_MODE_FILTER)
 				/*
@@ -408,8 +487,9 @@ again:
 				 */
 				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
 #endif
-				(*op)++;
-				((void (*)(void))(ops_begin + i))();
+				*op = (*op + 1) & STRESS_OPCODE_MASK;
+				((void (*)(void))(ops_begin))();
+				ops_begin += opcode_bytes;
 			}
 
 			/*
@@ -452,7 +532,7 @@ finish:
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(op, args->page_size);
+	(void)munmap(op, page_size);
 #if TRACK_SIGCOUNT
 	(void)munmap(sig_count, sig_count_size);
 #endif
