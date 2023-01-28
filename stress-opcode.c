@@ -37,9 +37,9 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"opcode N",	   "start N workers exercising random opcodes" },
-	{ NULL,	"opcode-method M", "set opcode stress method (M = random, inc, mixed, text)" },
-	{ NULL,	"opcode-ops N",	   "stop after N opcode bogo operations" },
+	{ NULL,	"opcode N",		"start N workers exercising random opcodes" },
+	{ NULL,	"opcode-method M",	"set opcode stress method (M = random, inc, mixed, text)" },
+	{ NULL,	"opcode-ops N",		"stop after N opcode bogo operations" },
 	{ NULL, NULL,		   NULL }
 };
 
@@ -49,6 +49,12 @@ static const stress_help_t help[] = {
     defined(HAVE_MPROTECT) &&		\
     defined(HAVE_SYS_PRCTL_H)
 
+#if defined(__NR_rt_sigreturn)	&&	\
+    defined(__NR_rt_sigprocmask)
+#define STRESS_OPCODE_USE_SIGLONGJMP
+static sigjmp_buf jmp_env;
+#endif
+
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 
 #define ALLOW_SYSCALL(syscall)					\
@@ -56,14 +62,39 @@ static const stress_help_t help[] = {
 	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW)
 
 #define PAGES		(16)
-#define TRACK_SIGCOUNT	(0)
 
-typedef void(*stress_opcode_func)(const size_t page_size, void *ops_begin, const void *ops_end, uint64_t *op);
+typedef void(*stress_opcode_func)(const size_t page_size, void *ops_begin,
+				  const void *ops_end, volatile uint64_t *op);
 
 typedef struct {
 	const char *name;
 	const stress_opcode_func func;
 } stress_opcode_method_info_t;
+
+#if defined(NSIG)
+#define MAX_SIGS	(NSIG)
+#elif defined(_NSIG)
+#define MAX_SIGS	(_NSIG)
+#else
+#define MAX_SIGS	(256)
+#endif
+
+typedef struct  {
+	volatile uint64_t opcode;
+	volatile uint64_t ops_attempted;
+	volatile uint64_t ops_ok;
+	volatile uint64_t count;
+	volatile uint64_t opcode_prev;
+	volatile uint64_t sig_count[MAX_SIGS];
+} stress_opcode_state_t;
+
+/*
+ *  This needs to be volatile to force non-register usage
+ *  of state and hence to try to avoid clobbering by
+ *  an invalid opcode. Same applies for all the elements
+ *  in the structure.
+ */
+static volatile stress_opcode_state_t *state;
 
 static const int sigs[] = {
 #if defined(SIGILL)
@@ -107,7 +138,15 @@ static struct sock_filter filter[] = {
 	BPF_STMT(BPF_LD + BPF_W + BPF_ABS, SYSCALL_NR),
 #if defined(__NR_exit_group)
 	ALLOW_SYSCALL(exit_group),
-	ALLOW_SYSCALL(write),
+#endif
+#if defined(__NR_rt_sigreturn)
+	ALLOW_SYSCALL(rt_sigreturn),
+#endif
+#if defined(__NR_rt_sigprocmask)
+	ALLOW_SYSCALL(rt_sigprocmask),
+#endif
+#if defined(__NR_mprotect)
+	ALLOW_SYSCALL(mprotect),
 #endif
 	BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRAP)
 };
@@ -116,30 +155,37 @@ static struct sock_fprog prog = {
 	.len = (unsigned short)SIZEOF_ARRAY(filter),
 	.filter = filter
 };
-
 #endif
 
-#if TRACK_SIGCOUNT
-#if defined(NSIG)
-#define MAX_SIGS	(NSIG)
-#elif defined(_NSIG)
-#define MAX_SIGS	(_NSIG)
-#else
-#define MAX_SIGS	(256)
-#endif
-
-static uint64_t *sig_count;
-#endif
-
-static void MLOCKED_TEXT NORETURN stress_badhandler(int signum)
+static void MLOCKED_TEXT stress_badhandler(int signum)
 {
-#if TRACK_SIGCOUNT
-	if (signum < MAX_SIGS)
-		sig_count[signum]++;
+	if ((signum >= 0) && (signum < MAX_SIGS)) {
+		(void)mprotect((void *)state, sizeof(*state), PROT_READ | PROT_WRITE);
+		state->sig_count[signum]++;
+		(void)mprotect((void *)state, sizeof(*state), PROT_READ);
+	}
+
+#if defined(STRESS_OPCODE_USE_SIGLONGJMP)
+	/*
+	 *  SIGINT, SIGALRM, SIGHUP are for termination,
+	 *  SIGSEGV and SIGBUS we force exit in case state
+	 *  is really messed up
+	 */
+	if ((signum == SIGINT) ||
+	    (signum == SIGALRM) ||
+	    (signum == SIGHUP) ||
+	    (signum == SIGSEGV) ||
+	    (signum == SIGBUS))
+		_exit(1);
+
+	/*
+	 *  try to continue for less significant signals
+	 *  such as SIGFPE and SIGTRAP
+	 */
+	siglongjmp(jmp_env, 1);
 #else
-	(void)signum;
-#endif
 	_exit(1);
+#endif
 }
 
 static inline ALWAYS_INLINE uint64_t OPTIMIZE3 reverse64(register uint64_t x)
@@ -157,7 +203,7 @@ static void OPTIMIZE3 stress_opcode_random(
 	size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	uint64_t *op)
+	volatile uint64_t *op)
 {
 	register uint32_t *ops = (uint32_t *)ops_begin;
 
@@ -179,7 +225,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 	size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	uint64_t *op)
+	volatile uint64_t *op)
 {
 	switch (STRESS_OPCODE_SIZE) {
 	case 8:	{
@@ -237,9 +283,8 @@ static void OPTIMIZE3 stress_opcode_inc(
 			register uint64_t *ops = (uint64_t *)ops_begin;
 			register size_t i = (ssize_t)(page_size >> 3);
 
-			while (i--) {
+			while (i--)
 				*(ops++) = tmp64;
-			}
 		}
 		break;
 	}
@@ -249,7 +294,7 @@ static void OPTIMIZE3 stress_opcode_mixed(
 	size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	uint64_t *op)
+	volatile uint64_t *op)
 {
 	register uint64_t tmp = *op;
 	register uint64_t *ops = (uint64_t *)ops_begin;
@@ -274,7 +319,7 @@ static void stress_opcode_text(
 	size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	uint64_t *op)
+	volatile uint64_t *op)
 {
 	char *text_start, *text_end;
 	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
@@ -344,40 +389,27 @@ static int stress_opcode(const stress_args_t *args)
 	const size_t opcode_bytes = STRESS_OPCODE_SIZE >> 3;
 	const size_t opcode_loops = page_size / opcode_bytes;
 	const stress_opcode_method_info_t *opcode_method = &stress_opcode_methods[0];
-#if TRACK_SIGCOUNT
-	const size_t sig_count_size = MAX_SIGS * sizeof(*sig_count);
-#endif
-	uint64_t *op;
-	double op_start;
+	double op_start, rate, t, duration, percent;
+	const double num_opcodes = pow(2.0, STRESS_OPCODE_SIZE);
+	uint64_t forks = 0;
 
-	op = (uint64_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	state = (stress_opcode_state_t *)mmap(NULL, sizeof(*state), PROT_READ | PROT_WRITE,
                 MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (op == MAP_FAILED) {
+	if (state == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
 			"skipping stressor\n",
 			args->name, args->page_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
-#if TRACK_SIGCOUNT
-	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (sig_count == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
-			"skipping stressor\n",
-			args->name, sig_count_size, errno, strerror(errno));
-		(void)munmap(op, args->page_size);
-		return EXIT_NO_RESOURCE;
-	}
-#endif
-
 	(void)stress_get_setting("opcode-method", &opcode_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	op_start = (pow(2.0, STRESS_OPCODE_SIZE) * (double)args->instance) / args->num_instances;
-	*op = (uint64_t)op_start;
+	op_start = (num_opcodes * (double)args->instance) / args->num_instances;
+	state->opcode = (uint64_t)op_start;
 
+	t = stress_time_now();
 	do {
 		pid_t pid;
 
@@ -390,7 +422,7 @@ static int stress_opcode(const stress_args_t *args)
 			char buf[32];
 
 			(void)snprintf(buf, sizeof(buf), "opcode-0x%*.*" PRIx64 " [run]",
-				OPCODE_HEX_DIGITS, OPCODE_HEX_DIGITS, *op);
+				OPCODE_HEX_DIGITS, OPCODE_HEX_DIGITS, state->opcode);
 			stress_set_proc_name(buf);
 		}
 again:
@@ -407,7 +439,7 @@ again:
 		}
 		if (pid == 0) {
 			struct itimerval it;
-			void *opcodes, *ops_begin, *ops_end;
+			void *opcodes, *ops_begin, *ops_end, *ops_ptr;
 
 			(void)sched_settings_apply(true);
 
@@ -443,20 +475,23 @@ again:
 			(void)mprotect((void *)ops_end, page_size, PROT_NONE);
 			(void)mprotect((void *)ops_begin, page_size, PROT_WRITE);
 
-			opcode_method->func(page_size, ops_begin, ops_end, op);
+			/* Populate with opcodes */
+			opcode_method->func(page_size, ops_begin, ops_end, &state->opcode);
 
+			/* Make read-only executable and force I$ flush */
 			(void)mprotect((void *)ops_begin, page_size, PROT_READ | PROT_EXEC);
 			shim_flush_icache((char *)ops_begin, (char *)ops_end);
+
 			stress_parent_died_alarm();
 
 			/*
-			 * Force abort if the opcodes magically
+			 * Force timeout abort if the opcodes magically
 			 * do an infinite loop
 			 */
 			it.it_interval.tv_sec = 0;
-			it.it_interval.tv_usec = 50000;
+			it.it_interval.tv_usec = 15000;
 			it.it_value.tv_sec = 0;
-			it.it_value.tv_usec = 50000;
+			it.it_value.tv_usec = 15000;
 			if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
 				pr_fail("%s: setitimer failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -479,17 +514,40 @@ again:
 			(void)close(fileno(stdout));
 			(void)close(fileno(stderr));
 
-			for (i = 0; i < opcode_loops; i++) {
+#if defined(STRESS_OPCODE_USE_SIGLONGJMP)
+			{
+				int ret;
+
+				ret = sigsetjmp(jmp_env, 1);
+				if (ret == 1)
+					goto exercise;
+			}
+#endif
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(SECCOMP_SET_MODE_FILTER)
-				/*
-				 * Limit syscall using seccomp
-				 */
-				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
+			/*
+			 *  Limit syscall using seccomp
+			 */
+			(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
 #endif
-				*op = (*op + 1) & STRESS_OPCODE_MASK;
-				((void (*)(void))(ops_begin))();
-				ops_begin += opcode_bytes;
+
+#if defined(STRESS_OPCODE_USE_SIGLONGJMP)
+exercise:
+#endif
+			for (i = 0, ops_ptr = ops_begin; i < opcode_loops; i++) {
+				state->opcode = (state->opcode + 1) & STRESS_OPCODE_MASK;
+				state->ops_attempted++;
+				(void)mprotect((void *)state, sizeof(*state), PROT_READ);
+
+				((void (*)(void))(ops_ptr))();
+
+				(void)mprotect((void *)state, sizeof(*state), PROT_READ | PROT_WRITE);
+				ops_ptr = (void *)((uintptr_t)ops_ptr + opcode_bytes);
+				/* Check if got stuck */
+				if (state->opcode_prev == state->opcode)
+					break;
+				state->opcode_prev = state->opcode;
+				state->ops_ok++;
 			}
 
 			/*
@@ -505,6 +563,7 @@ again:
 		if (pid > 0) {
 			int ret, status;
 
+			forks++;
 			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
@@ -519,23 +578,29 @@ again:
 	} while (keep_stressing(args));
 
 finish:
+	duration = stress_time_now() - t;
 	rc = EXIT_SUCCESS;
 
-#if TRACK_SIGCOUNT
-	for (i = 0; i < MAX_SIGS; i++) {
-		if (sig_count[i]) {
-			pr_dbg("%s: %-25.25s: %" PRIu64 "\n",
-				args->name, strsignal(i), sig_count[i]);
-		}
-	}
-#endif
+	rate = (duration > 0.0) ? (double)state->ops_attempted / duration : 0.0;
+	stress_metrics_set(args, 0, "opcodes exercised per sec", rate);
+	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->ops_ok / (double)state->ops_attempted : 0.0;
+	stress_metrics_set(args, 1, "% opcodes successfully executed", percent);
+	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->sig_count[SIGILL] / (double)state->ops_attempted : 0.0;
+	stress_metrics_set(args, 2, "% illegal opcodes executed", percent);
+	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->sig_count[SIGBUS] / (double)state->ops_attempted : 0.0;
+	stress_metrics_set(args, 3, "% opcodes generated SIGBUS", percent);
+	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->sig_count[SIGSEGV] / (double)state->ops_attempted : 0.0;
+	stress_metrics_set(args, 4, "% opcodes generated SIGSEGV", percent);
+	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->sig_count[SIGFPE] / (double)state->ops_attempted : 0.0;
+	stress_metrics_set(args, 5, "% opcodes generated SIGFPE", percent);
+	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->sig_count[SIGTRAP] / (double)state->ops_attempted : 0.0;
+	stress_metrics_set(args, 6, "% opcodes generated SIGTRAP", percent);
+	rate = (duration > 0.0) ? (double)forks / duration : 0.0;
+	stress_metrics_set(args, 7, "forks per sec", rate);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(op, page_size);
-#if TRACK_SIGCOUNT
-	(void)munmap(sig_count, sig_count_size);
-#endif
+	(void)munmap((void *)state, sizeof(*state));
 	return rc;
 }
 
