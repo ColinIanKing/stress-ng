@@ -19,6 +19,8 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-x86.h"
+#include "core-cpu.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -85,6 +87,9 @@ static void *stress_pthread_func(void *c)
 	const stress_args_t *args = ctxt->args;
 	const uint64_t max_ops =
 		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
+#if defined(HAVE_ASM_X86_TPAUSE)
+	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
+#endif
 
 	while (keep_stressing(args) &&
 	       !thread_terminate &&
@@ -134,7 +139,6 @@ static void *stress_pthread_func(void *c)
 		tv.tv_nsec = 1000;
 		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
-
 skip_pselect:
 #endif
 
@@ -156,6 +160,14 @@ skip_pselect:
 		timeout.tv_usec = 10000;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
+#endif
+#if defined(HAVE_ASM_X86_TPAUSE)
+		if (x86_has_waitpkg) {
+			int i;
+
+			for (i = 1; keep_stressing_flag() && (i < 1024); i <<= 1)
+				stress_asm_x86_tpause(0, i);
+		}
 #endif
 
 		ctxt->counter++;
