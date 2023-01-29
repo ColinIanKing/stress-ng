@@ -392,15 +392,26 @@ static int stress_opcode(const stress_args_t *args)
 	double op_start, rate, t, duration, percent;
 	const double num_opcodes = pow(2.0, STRESS_OPCODE_SIZE);
 	uint64_t forks = 0;
+	void *opcodes;
 
 	state = (stress_opcode_state_t *)mmap(NULL, sizeof(*state), PROT_READ | PROT_WRITE,
-                MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+						MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (state == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
 			"skipping stressor\n",
 			args->name, args->page_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	opcodes = (void *)mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (opcodes == MAP_FAILED) {
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)munmap((void *)state, sizeof(*state));
+		return EXIT_NO_RESOURCE;
+	}
+	/* Force pages resident */
+	(void)memset(opcodes, 0x00, page_size * PAGES);
 
 	(void)stress_get_setting("opcode-method", &opcode_method);
 
@@ -439,7 +450,9 @@ again:
 		}
 		if (pid == 0) {
 			struct itimerval it;
-			void *opcodes, *ops_begin, *ops_end, *ops_ptr;
+			void *ops_begin = (uint8_t *)((uintptr_t)opcodes + page_size);
+			void *ops_end = (uint8_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
+			void *ops_ptr;
 
 			(void)sched_settings_apply(true);
 
@@ -457,19 +470,6 @@ again:
 				if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
 					_exit(EXIT_FAILURE);
 			}
-
-			opcodes = (void *)mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-			if (opcodes == MAP_FAILED) {
-				pr_fail("%s: mmap failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				_exit(EXIT_NO_RESOURCE);
-			}
-			/* Force pages resident */
-			(void)memset(opcodes, 0x00, page_size * PAGES);
-
-			ops_begin = (uint8_t *)((uintptr_t)opcodes + page_size);
-			ops_end = (uint8_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
 
 			(void)mprotect((void *)opcodes, page_size, PROT_NONE);
 			(void)mprotect((void *)ops_end, page_size, PROT_NONE);
@@ -502,17 +502,16 @@ again:
 			stress_set_stack_smash_check_flag(false);
 
 			/*
-			 * Flush and close stdio fds, we
+			 * close stdio fds, we
 			 * really don't care if the child dies
 			 * in a bad way and libc or whatever
 			 * reports of stack smashing or heap
 			 * corruption since the child will
 			 * die soon anyhow
 			 */
-			(void)fflush(NULL);
-			(void)close(fileno(stdin));
-			(void)close(fileno(stdout));
-			(void)close(fileno(stderr));
+			(void)fclose(stdin);
+			(void)fclose(stdout);
+			(void)fclose(stderr);
 
 #if defined(STRESS_OPCODE_USE_SIGLONGJMP)
 			{
@@ -549,15 +548,6 @@ exercise:
 				state->opcode_prev = state->opcode;
 				state->ops_ok++;
 			}
-
-			/*
-			 * Originally we unmapped these, but this is
-			 * another system call required that may go
-			 * wrong because libc or the stack has been
-			 * trashed, so just skip it.
-			 *
-			(void)munmap((void *)opcodes, page_size * PAGES);
-			 */
 			_exit(0);
 		}
 		if (pid > 0) {
@@ -600,6 +590,7 @@ finish:
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)munmap((void *)opcodes, page_size * PAGES);
 	(void)munmap((void *)state, sizeof(*state));
 	return rc;
 }
