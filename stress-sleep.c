@@ -30,7 +30,7 @@ UNEXPECTED
 
 #define MIN_SLEEP		(1)
 #define MAX_SLEEP		(30000)
-#define DEFAULT_SLEEP		(1024)
+#define DEFAULT_SLEEP		(256)
 
 #if defined(HAVE_LIB_PTHREAD)
 
@@ -102,42 +102,42 @@ static void *stress_pthread_func(void *c)
 
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
-		if (nanosleep(&tv, NULL) < 0)
+		if (!keep_stressing_flag() && (nanosleep(&tv, NULL) < 0))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
-		if (nanosleep(&tv, NULL) < 0)
+		if (!keep_stressing_flag() && (nanosleep(&tv, NULL) < 0))
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 100;
-		if (nanosleep(&tv, NULL) < 0)
+		if (!keep_stressing_flag() && (nanosleep(&tv, NULL) < 0))
 			break;
-		if (shim_usleep(1) < 0)
+		if (!keep_stressing_flag() && (shim_usleep(1) < 0))
 			break;
-		if (shim_usleep(10) < 0)
+		if (!keep_stressing_flag() && (shim_usleep(10) < 0))
 			break;
-		if (shim_usleep(100) < 0)
+		if (!keep_stressing_flag() && (shim_usleep(100) < 0))
 			break;
-		if (shim_usleep(1000) < 0)
+		if (!keep_stressing_flag() && (shim_usleep(1000) < 0))
 			break;
-		if (shim_usleep(10000) < 0)
+		if (!keep_stressing_flag() && (shim_usleep(10000) < 0))
 			break;
 #if defined(HAVE_PSELECT)
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
-		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
-		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 100;
-		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
-		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
 			goto skip_pselect;
 skip_pselect:
 #endif
@@ -146,19 +146,19 @@ skip_pselect:
     defined(HAVE_SELECT)
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
-		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 100;
-		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1000;
-		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10000;
-		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE)
