@@ -351,7 +351,7 @@ stress-ng: info:  [1171714]                598,760,234 Branch Misses            
 
 ## Bugs found with stress-ng
 
-stress-ng has found Kernel and QEMU bugs and appropriate fixes have been landed to address these issues:
+stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have been landed to address these issues:
 
 * [fs/locks.c: kernel oops during posix lock stress test](https://lkml.org/lkml/2016/11/27/212)
 * [rcu_preempt detected stalls on CPUs/tasks](https://lkml.org/lkml/2017/8/28/574)
@@ -404,6 +404,7 @@ stress-ng has found Kernel and QEMU bugs and appropriate fixes have been landed 
 * [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
 * [mm/huge_memory: do not clobber swp_entry_t during THP split](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=71e2d666ef85d51834d658830f823560c402b8b6)
 * [qemu-system-m68k segfaults on opcode 0x4848](https://gitlab.com/qemu-project/qemu/-/issues/1462)
+* [AppArmor: -42.5% regression of stress-ng.kill.ops_per_sec due to commit](https://lkml.org/lkml/2022/12/31/27)
 
 ## Kernel improvements that used stress-ng
 
@@ -422,6 +423,7 @@ stress-ng has found Kernel and QEMU bugs and appropriate fixes have been landed 
 * [powerpc/rtas: rtas_busy_delay() improvements](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=38f7b7067dae0c101be573106018e8af22a90fdf)
 * [sched/core: Accounting forceidle time for all tasks except idle task](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b171501f258063f5c56dd2c5fdf310802d8d7dc1)
 * [ipc/mqueue: use get_tree_nodev() in mqueue_get_tree()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d60c4d01a98bc1942dba6e3adc02031f5519f94b)
+* [mm/swapfile: add cond_resched() in get_swap_pages()](https://lore.kernel.org/lkml/20230129130320.7e2e4445ecc4b172c61c7b9c@linux-foundation.org/T/)
 ## Presentations
 
 * [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
@@ -497,6 +499,7 @@ stress-ng has found Kernel and QEMU bugs and appropriate fixes have been landed 
 * [UIE: User-centric Interference Estimation for Cloud Applications](https://www3.cs.stonybrook.edu/~anshul/ic2e16_uie.pdf)
 * [Design and Implementation of Machine Learning-Based Fault Prediction System in Cloud Infrastructure](https://www.mdpi.com/2079-9292/11/22/3765)
 * [The TSN Building Blocks in Linux](https://arxiv.org/pdf/2211.14138.pdf)
+* [A Comprehensive Study on Optimizing Systems with Data Processing Units](https://arxiv.org/pdf/2301.06070.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
