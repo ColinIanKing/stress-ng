@@ -182,6 +182,28 @@ static void stress_memthrash_memset(
 #endif
 }
 
+#if defined(HAVE_ASM_X86_REP_STOSD)
+static inline void OPTIMIZE3 stress_memtrash_memsetstosd(
+	const stress_memthrash_context_t *context,
+	const size_t mem_size)
+{
+	register void *p = (void *)mem;
+	register const uint32_t l = (uint32_t)(mem_size >> 2);
+
+	(void)context;
+
+	__asm__ __volatile__(
+		"mov $0x00000000,%%eax\n;"
+		"mov %0,%%rdi\n;"
+		"mov %1,%%ecx\n;"
+		"rep stosl %%eax,%%es:(%%rdi);\n"	/* gcc calls it stosl and not stosw */
+		:
+		: "r" (p),
+		  "r" (l)
+		: "ecx","rdi","eax");
+}
+#endif
+
 static void stress_memthrash_memmove(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
@@ -650,6 +672,9 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "memmove",	stress_memthrash_memmove },
 	{ "memset",	stress_memthrash_memset },
 	{ "memset64",	stress_memthrash_memset64 },
+#if defined(HAVE_ASM_X86_REP_STOSD)
+	{ "memsetstosd",stress_memtrash_memsetstosd },
+#endif
 	{ "mfence",	stress_memthrash_mfence },
 #if defined(HAVE_MEMTHRASH_NUMA)
 	{ "numa",	stress_memthrash_numa },
