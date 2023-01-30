@@ -34,6 +34,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"ipsec-mb N",		"start N workers exercising the IPSec MB encoding" },
 	{ NULL, "ipsec-mb-feature F",	"specify CPU feature F" },
 	{ NULL,	"ipsec-mb-jobs N",	"specify number of jobs to run per round (default 1)" },
+	{ NULL,	"ipsec-mb-method M",	"specify crypto/integrity method" },
 	{ NULL,	"ipsec-mb-ops N",	"stop after N ipsec bogo encoding operations" },
 	{ NULL,	NULL,		  	NULL }
 };
@@ -52,12 +53,6 @@ static int stress_set_ipsec_mb_jobs(const char *opt)
 	stress_check_range("ipsec-mb-jobs", (uint64_t)ipsec_mb_jobs, 1, 65536);
 	return stress_set_setting("ipsec-mb-jobs", TYPE_ID_INT, &ipsec_mb_jobs);
 }
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
-	{ OPT_ipsec_mb_jobs,	stress_set_ipsec_mb_jobs },
-	{ 0,                    NULL }
-};
 
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
     defined(HAVE_LIB_IPSEC_MB) &&	\
@@ -269,7 +264,7 @@ static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const s
 
 #define SHA_DIGEST_SIZE		(64)
 
-static void stress_sha(
+static void stress_ipsec_sha(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -314,7 +309,7 @@ static void stress_sha(
 	free(auth_data);
 }
 
-static void stress_des(
+static void stress_ipsec_des(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -371,7 +366,7 @@ static void stress_des(
 	free(encoded);
 }
 
-static void stress_cmac(
+static void stress_ipsec_cmac(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -426,7 +421,7 @@ static void stress_cmac(
 	free(output);
 }
 
-static void stress_ctr(
+static void stress_ipsec_ctr(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -484,7 +479,7 @@ static void stress_ctr(
 #define HMAC_MD5_DIGEST_SIZE	(16)
 #define MMAC_MD5_BLOCK_SIZE	(64)
 
-static void stress_hmac_md5(
+static void stress_ipsec_hmac_md5(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -555,7 +550,7 @@ static void stress_hmac_md5(
 #define HMAC_SHA1_DIGEST_SIZE	(20)
 #define HMAC_SHA1_BLOCK_SIZE	(64)
 
-static void stress_hmac_sha1(
+static void stress_ipsec_hmac_sha1(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -623,7 +618,7 @@ static void stress_hmac_sha1(
 	free(output);
 }
 
-static void stress_hmac_sha512(
+static void stress_ipsec_hmac_sha512(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
@@ -696,15 +691,85 @@ static void stress_hmac_sha512(
 	free(output);
 }
 
+static void stress_ipsec_all(
+	const stress_args_t *args,
+	struct MB_MGR *mb_mgr,
+	const uint8_t *data,
+	const size_t data_len,
+	const int jobs);
+
 static stress_ipsec_funcs_t stress_ipsec_funcs[] = {
-	{ stress_cmac,		"cmac",		},
-	{ stress_ctr,		"ctr",		},
-	{ stress_des,		"des",		},
-	{ stress_hmac_md5,	"hmac-md5",	},
-	{ stress_hmac_sha1,	"hmac-sha1",	},
-	{ stress_hmac_sha512,	"hmac-sha512",	},
-	{ stress_sha,		"sha",		},
+	{ stress_ipsec_all,		"all",		},
+	{ stress_ipsec_cmac,		"cmac",		},
+	{ stress_ipsec_ctr,		"ctr",		},
+	{ stress_ipsec_des,		"des",		},
+	{ stress_ipsec_hmac_md5,	"hmac-md5",	},
+	{ stress_ipsec_hmac_sha1,	"hmac-sha1",	},
+	{ stress_ipsec_hmac_sha512,	"hmac-sha512",	},
+	{ stress_ipsec_sha,		"sha",		},
 };
+
+static void stress_ipsec_call_func(
+        const stress_args_t *args,
+        struct MB_MGR *mb_mgr,
+        const uint8_t *data,
+        const size_t data_len,
+        const int jobs,
+	const size_t func_index)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
+		if (mb_features[i].supported) {
+			double t;
+			uint64_t c;
+
+			c = get_counter(args);
+			t = stress_time_now();
+
+			mb_features[i].init_func(mb_mgr);
+			stress_ipsec_funcs[func_index].func(args, mb_mgr, data, data_len, jobs);
+
+			mb_features[i].stats.duration += (stress_time_now() - t);
+			mb_features[i].stats.ops += (double)(get_counter(args) - c);
+		}
+	}
+}
+
+/*
+ *  stress_ipsec_all()
+ *	exercise all
+ */
+static void stress_ipsec_all(
+	const stress_args_t *args,
+	struct MB_MGR *mb_mgr,
+	const uint8_t *data,
+	const size_t data_len,
+	const int jobs)
+{
+	size_t i;
+
+	for (i = 1; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_ipsec_funcs)); i++)
+		stress_ipsec_call_func(args, mb_mgr, data, data_len, jobs, i);
+}
+
+static int stress_set_ipsec_mb_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_ipsec_funcs); i++) {
+		if (!strcmp(opt, stress_ipsec_funcs[i].name))
+			return stress_set_setting("ipsec-mb-method", TYPE_ID_SIZE_T, &i);
+	}
+
+	(void)fprintf(stderr, "invalid ipsec-mb-method '%s', allowed options are:", opt);
+	for (i = 0; i < SIZEOF_ARRAY(stress_ipsec_funcs); i++) {
+		(void)fprintf(stderr, " %s", stress_ipsec_funcs[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
 
 /*
  *  stress_ipsec_mb()
@@ -712,15 +777,17 @@ static stress_ipsec_funcs_t stress_ipsec_funcs[] = {
  */
 static int stress_ipsec_mb(const stress_args_t *args)
 {
-	MB_MGR *p_mgr = NULL;
+	MB_MGR *mb_mgr = NULL;
 	uint64_t features;
 	uint8_t data[8192] ALIGNED(64);
 	size_t i, j;
 	bool got_features = false;
 	size_t ipsec_mb_feature = 0;
+	size_t ipsec_mb_method = 0;
 	int ipsec_mb_jobs = 128;
 
 	(void)stress_get_setting("ipsec-mb-jobs", &ipsec_mb_jobs);
+	(void)stress_get_setting("ipsec-mb-method", &ipsec_mb_method);
 
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
 		if (args->instance == 0)
@@ -729,14 +796,14 @@ static int stress_ipsec_mb(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
-	p_mgr = alloc_mb_mgr(0);
-	if (!p_mgr) {
+	mb_mgr = alloc_mb_mgr(0);
+	if (!mb_mgr) {
 		if (args->instance == 0)
 			pr_inf_skip("%s: failed to setup Intel IPSec MB library, skipping\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
-	features = stress_ipsec_mb_features(args, p_mgr);
+	features = stress_ipsec_mb_features(args, mb_mgr);
 
 	for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
 		mb_features[i].supported =
@@ -748,7 +815,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	if (!got_features) {
 		if (args->instance == 0)
 			pr_inf_skip("%s: not enough CPU features to support Intel IPSec MB library, skipping\n", args->name);
-		free_mb_mgr(p_mgr);
+		free_mb_mgr(mb_mgr);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -761,7 +828,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 				pr_inf_skip("%s: requested ipsec-mb-feature feature '%s' is not supported, skipping\n",
 					args->name, feature_name);
 			}
-			free_mb_mgr(p_mgr);
+			free_mb_mgr(mb_mgr);
 			return EXIT_NOT_IMPLEMENTED;
 		}
 		for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
@@ -777,23 +844,8 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
 			if (mb_features[i].supported) {
-				double t1, t2;
-				uint64_t c1, c2;
-				size_t j;
-
-				mb_features[i].init_func(p_mgr);
-
-				c1 = get_counter(args);
-				t1 = stress_time_now();
-
-				for (j = 0; keep_stressing(args) && (j < SIZEOF_ARRAY(stress_ipsec_funcs)); j++) {
-					stress_ipsec_funcs[i].func(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
-				}
-
-				c2 = get_counter(args);
-				t2 = stress_time_now();
-				mb_features[i].stats.duration += (t2 - t1);
-				mb_features[i].stats.ops += (double)(c2 - c1);
+				mb_features[i].init_func(mb_mgr);
+				stress_ipsec_call_func(args, mb_mgr, data, sizeof(data), ipsec_mb_jobs, ipsec_mb_method);
 			}
 		}
 	} while (keep_stressing(args));
@@ -819,10 +871,17 @@ static int stress_ipsec_mb(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	free_mb_mgr(p_mgr);
+	free_mb_mgr(mb_mgr);
 
 	return EXIT_SUCCESS;
 }
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
+	{ OPT_ipsec_mb_jobs,	stress_set_ipsec_mb_jobs },
+	{ OPT_ipsec_mb_method,	stress_set_ipsec_mb_method },
+	{ 0,                    NULL }
+};
 
 stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_ipsec_mb,

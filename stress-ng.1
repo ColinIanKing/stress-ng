@@ -2443,13 +2443,16 @@ modern Intel CPUs.
 stop after N rounds of processing of data using the cryptographic
 routines.
 .TP
+.B \-\-ipsec\-mb\-jobs N
+Process N multi-block rounds of cryptographic processing per iteration. The
+default is 256.
+.TP
 .B \-\-ipsec\-mb\-feature [ sse | avx | avx2 | avx512 ]
 Just use the specified processor CPU feature. By default, all the available
 features for the CPU are exercised.
 .TP
-.B \-\-ipsec\-mb\-jobs N
-Process N multi-block rounds of cryptographic processing per iteration. The
-default is 256.
+.B \-\-ipsec\-mb\-method [ all | cmac | ctr | des | hmac-md5 | hmac-sha1 | hmac-sha512 | sha ]
+Select the ipsec-mb crypto/integrity method.
 .TP
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
