@@ -600,6 +600,29 @@ static void TARGET_CLONES stress_rand_data_gray(
 	val = v;
 }
 
+/*
+ *  stress_rand_data_gray()
+ *	fill buffer with incrementing 16 bit values
+ *
+ */
+static void TARGET_CLONES stress_rand_data_inc16(
+	const stress_args_t *args,
+	uint64_t *RESTRICT data,
+	uint64_t *RESTRICT data_end)
+{
+	register uint16_t val = stress_mwc16();
+	register uint16_t *ptr = (uint16_t *)data;
+	register const uint16_t *end = (uint16_t *)data_end;
+
+	(void)args;
+
+	while (ptr < end) {
+		*(ptr++) = val++;
+		*(ptr++) = val++;
+		*(ptr++) = val++;
+		*(ptr++) = val++;
+	}
+}
 
 /*
  *  stress_rand_data_parity()
@@ -1143,9 +1166,10 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "binary",	stress_rand_data_binary },
 	{ "brown",	stress_rand_data_brown },
 	{ "double",	stress_rand_data_double },
+	{ "fixed",	stress_rand_data_fixed },
 	{ "gcr",	stress_rand_data_gcr },
 	{ "gray",	stress_rand_data_gray },
-	{ "fixed",	stress_rand_data_fixed },
+	{ "inc16",	stress_rand_data_inc16 },
 	{ "latin",	stress_rand_data_latin },
 #if defined(HAVE_INT128_T)
 	{ "lehmer",	stress_rand_data_lehmer },
