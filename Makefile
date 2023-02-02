@@ -108,6 +108,7 @@ HEADERS = \
 	core-asm-ppc64.h \
 	core-asm-riscv.h \
 	core-asm-s390.h \
+	core-asm-sparc.h \
 	core-asm-x86.h \
 	core-bitops.h \
 	core-builtin.h \

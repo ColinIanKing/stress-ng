@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-asm-riscv.h"
 #include "core-asm-s390.h"
+#include "core-asm-sparc.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
 
@@ -169,6 +170,25 @@ static inline uint64_t rdtsc(void)
 {
 	return stress_asm_s390_stck();
 }
+
+#elif defined(STRESS_ARCH_SPARC)
+
+#define HAVE_STRESS_TSC_CAPABILITY
+
+static bool tsc_supported = true;
+
+static int stress_tsc_supported(const char *name)
+{
+	(void)name;
+
+	return 0;
+}
+
+static inline uint64_t rdtsc(void)
+{
+	return stress_asm_sparc_tick();
+}
+
 #endif
 
 static inline void stress_tsc_check(

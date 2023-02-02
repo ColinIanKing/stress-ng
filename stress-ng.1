@@ -5230,7 +5230,8 @@ used (the 'all' option).
 .B \-\-tsc N
 start N workers that read the Time Stamp Counter (TSC) 256 times per loop
 iteration (bogo operation).  This exercises the tsc instruction for x86,
-the mftb instruction for ppc64 and the rdcycle instruction for RISC-V.
+the mftb instruction for ppc64, the rdcycle instruction for RISC-V and
+the tick instruction on SPARC.
 .TP
 .B \-\-tsc\-ops N
 stop the tsc workers after N bogo operations are completed.
