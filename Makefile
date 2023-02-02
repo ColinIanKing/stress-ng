@@ -105,8 +105,9 @@ BASHDIR=/usr/share/bash-completion/completions
 #
 HEADERS = \
 	core-arch.h \
-	core-asm-x86.h \
 	core-asm-ppc64.h \
+	core-asm-riscv.h \
+	core-asm-x86.h \
 	core-bitops.h \
 	core-builtin.h \
 	core-cache.h \

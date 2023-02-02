@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-riscv.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
 
@@ -46,13 +47,7 @@ static bool tsc_supported = false;
 
 static inline uint64_t rdtsc(void)
 {
-	register unsigned long ticks;
-
-        __asm__ __volatile__("rdtime %0"
-                              : "=r" (ticks)
-			      :
-                              : "memory");
-	return (uint64_t)ticks;
+	return stress_asm_riscv_rdtime();
 }
 
 static void stress_sigill_handler(int signum)
