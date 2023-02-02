@@ -107,6 +107,7 @@ HEADERS = \
 	core-arch.h \
 	core-asm-ppc64.h \
 	core-asm-riscv.h \
+	core-asm-s390.h \
 	core-asm-x86.h \
 	core-bitops.h \
 	core-builtin.h \

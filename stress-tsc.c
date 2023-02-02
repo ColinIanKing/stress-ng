@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-riscv.h"
+#include "core-asm-s390.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
 
@@ -166,11 +167,7 @@ static int stress_tsc_supported(const char *name)
 
 static inline uint64_t rdtsc(void)
 {
-	uint64_t tick;
-
-	__asm__ __volatile__("\tstck\t%0\n" : "=Q" (tick) : : "cc");
-
-	return tick;
+	return stress_asm_s390_stck();
 }
 #endif
 
