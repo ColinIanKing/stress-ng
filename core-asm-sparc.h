@@ -33,6 +33,13 @@ static inline uint64_t stress_asm_sparc_tick(void)
 	return (uint64_t)ticks;
 }
 
+#if defined(HAVE_ASM_SPARC_MEMBAR)
+static inline void stress_asm_sparc_membar(void)
+{
+         __asm__ __volatile__ ("membar #StoreLoad" : : : "memory");
+}
+#endif
+
 /* #if defined(STRESS_ARCH_SPARC) */
 #endif
 

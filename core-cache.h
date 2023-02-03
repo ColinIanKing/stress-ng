@@ -20,6 +20,7 @@
 #define CORE_CACHE_H
 
 #include "core-asm-riscv.h"
+#include "core-asm-sparc.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-cpu.h"
@@ -163,7 +164,7 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #if defined(STRESS_ARCH_SPARC) &&	\
     defined(HAVE_ASM_SPARC_MEMBAR) &&	\
     !defined(HAVE_SHIM_MFENCE)
-	 __asm__ __volatile__ ("membar #StoreLoad" : : : "memory");
+	stress_asm_sparc_membar();
 #define HAVE_SHIM_MFENCE
 #endif
 
