@@ -146,7 +146,7 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #if defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_ASM_X86_MFENCE) &&	\
     !defined(HAVE_SHIM_MFENCE)
-	__asm__ __volatile__("mfence" : : : "memory");
+	stress_asm_x86_mfence();
 #define HAVE_SHIM_MFENCE
 #endif
 
