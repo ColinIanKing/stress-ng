@@ -35,6 +35,13 @@ static inline uint64_t stress_asm_riscv_rdtime(void)
 	return (uint64_t)ticks;
 }
 
+#if defined(HAVE_ASM_RISCV_FENCE)
+static inline void stress_asm_riscv_fence(void)
+{
+         __asm__ __volatile__("fence" ::: "memory");
+}
+#endif
+
 /* #if defined(STRESS_ARCH_RISCV) */
 #endif
 
