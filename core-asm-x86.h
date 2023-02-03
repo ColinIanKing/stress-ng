@@ -202,5 +202,33 @@ static inline uint64_t stress_asm_x86_rdseed(void)
 /* #if defined(STRESS_ARCH_X86) */
 #endif
 
+#if defined(HAVE_ASM_X86_CLFLUSH)
+static inline void stress_asm_x86_clflush(void *p)
+{
+        __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
+static inline void stress_asm_x86_clflushopt(void *p)
+{
+        __asm__ __volatile__("clflushopt (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_CLDEMOTE)
+static inline void stress_asm_x86_cldemote(void *p)
+{
+        __asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_CLWB)
+static inline void stress_asm_x86_clwb(void *p)
+{
+        __asm__ __volatile__("clwb (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
 /* #ifndef CORE_ASM_X86_H */
 #endif

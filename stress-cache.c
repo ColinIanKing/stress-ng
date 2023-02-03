@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-x86.h"
 #include "core-cache.h"
 #include "core-put.h"
 
@@ -183,41 +184,25 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
-static inline void clflush(void *p)
-{
-        __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
-}
-#define SHIM_CLFLUSH(p)		clflush(p)
+#define SHIM_CLFLUSH(p)		stress_asm_x86_clflush(p)
 #else
 #define SHIM_CLFLUSH(p)
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
-static inline void clflushopt(void *p)
-{
-        __asm__ __volatile__("clflushopt (%0)\n" : : "r"(p) : "memory");
-}
-#define SHIM_CLFLUSHOPT(p)	clflushopt(p)
+#define SHIM_CLFLUSHOPT(p)	stress_asm_x86_clflushopt(p)
 #else
 #define SHIM_CLFLUSHOPT(p)
 #endif
 
 #if defined(HAVE_ASM_X86_CLDEMOTE)
-static inline void cldemote(void *p)
-{
-        __asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
-}
-#define SHIM_CLDEMOTE(p)	cldemote(p)
+#define SHIM_CLDEMOTE(p)	stress_asm_x86_cldemote(p)
 #else
 #define SHIM_CLDEMOTE(p)
 #endif
 
 #if defined(HAVE_ASM_X86_CLWB)
-static inline void clwb(void *p)
-{
-        __asm__ __volatile__("clwb (%0)\n" : : "r"(p) : "memory");
-}
-#define SHIM_CLWB(p)		clwb(p)
+#define SHIM_CLWB(p)		stress_asm_x86_clwb(p)
 #else
 #define SHIM_CLWB(p)
 #endif
