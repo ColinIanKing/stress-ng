@@ -59,7 +59,7 @@
 #endif
 
 #define MIN_TREE_SIZE		(1000)
-#define MAX_TREE_SIZE		(25000000)
+#define MAX_TREE_SIZE		(25000000)	/* Must be uint32_t sized or less */
 #define DEFAULT_TREE_SIZE	(250000)
 
 struct tree_node;
@@ -889,17 +889,22 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-/*
- *  Rotate right a 64 bit value, compiler
- *  optimizes this down to a rotate and store
- */
-static inline uint64_t ror64(const uint64_t val)
+void stress_tree_shuffle(struct tree_node *nodes, const size_t n)
 {
-	register uint64_t tmp = val;
-	register const uint64_t bit0 = (tmp & 1) << 63;
+	register uint32_t const a = 16843009;
+	register uint32_t const c = 826366247;
+	register uint32_t seed = stress_mwc32();
+	register size_t i;
 
-	tmp >>= 1;
-	return (tmp | bit0);
+	for (i = 0; i < n; i++) {
+		register uint64_t tmp;
+		register uint32_t j = seed % n;
+
+		seed = (a * seed + c);
+		tmp = nodes[i].value;
+		nodes[i].value = nodes[j].value;
+		nodes[j].value = tmp;
+	}
 }
 
 /*
@@ -908,9 +913,9 @@ static inline uint64_t ror64(const uint64_t val)
  */
 static int stress_tree(const stress_args_t *args)
 {
-	uint64_t v, tree_size = DEFAULT_TREE_SIZE;
-	struct tree_node *nodes, *node;
-	size_t n, i, j, bit, tree_method = 0;
+	uint64_t tree_size = DEFAULT_TREE_SIZE;
+	struct tree_node *nodes;
+	size_t n, i, j, tree_method = 0;
 	struct sigaction old_action;
 	int ret;
 	stress_tree_func func;
@@ -957,29 +962,15 @@ static int stress_tree(const stress_args_t *args)
 		goto tidy;
 	}
 
-	v = 0;
-	for (node = nodes, i = 0, bit = 0; i < n; i++, node++) {
-		if (!bit) {
-			v = stress_mwc64();
-			bit = 1;
-		} else {
-			v ^= bit;
-			bit <<= 1;
-		}
-		node->value = v;
-		v = ror64(v);
-	}
+	for (i = 0; i < n; i++)
+		nodes[i].value = (uint64_t)i;
+	stress_tree_shuffle(nodes, n);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint64_t rnd;
-
 		func(args, n, nodes, metrics);
-
-		rnd = stress_mwc64();
-		for (node = nodes, i = 0; i < n; i++, node++)
-			node->value = ror64(node->value ^ rnd);
+		stress_tree_shuffle(nodes, n);
 
 		inc_counter(args);
 	} while (keep_stressing(args));
