@@ -18,6 +18,8 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-ppc64.h"
+#include "core-asm-x86.h"
 #include "core-cache.h"
 #include "core-icache.h"
 
@@ -88,11 +90,6 @@ static void clear_cache_page(
 #endif
 
 #if defined(HAVE_ASM_PPC64_DCBST)
-static inline void dcbst(void *addr)
-{
-	__asm__ __volatile__ ("dcbst %y0" : : "Z"(*(uint8_t *)addr) : "memory");
-}
-
 static inline void dcbst_page(
 	void *addr,
 	const size_t page_size,
@@ -104,25 +101,13 @@ static inline void dcbst_page(
 	while (ptr < ptr_end) {
 		(*(volatile uint8_t *)ptr)++;
 		(*(volatile uint8_t *)ptr)--;
-		dcbst((void *)ptr);
+		stress_asm_ppc64_dcbst((void *)ptr);
 		ptr += cl_size;
 	}
 }
 #endif
 
-#if defined(HAVE_ASM_PPC64_ICBI)
-static inline void icbi(void *addr)
-{
-	__asm__ __volatile__ ("icbi %y0" : : "Z"(*(uint8_t *)addr) : "memory");
-}
-#endif
-
 #if defined(HAVE_ASM_X86_CLDEMOTE)
-static inline void cldemote(void *p)
-{
-        __asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
-}
-
 static inline void cldemote_page(
 	void *addr,
 	const size_t page_size,
@@ -134,18 +119,13 @@ static inline void cldemote_page(
 	while (ptr < ptr_end) {
 		(*(volatile uint8_t *)ptr)++;
 		(*(volatile uint8_t *)ptr)--;
-		cldemote((void *)ptr);
+		stress_asm_x86_cldemote((void *)ptr);
 		ptr += cl_size;
 	}
 }
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
-static inline void clflush(void *p)
-{
-        __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
-}
-
 static inline void clflush_page(
 	void *addr,
 	const size_t page_size,
@@ -157,7 +137,7 @@ static inline void clflush_page(
 	while (ptr < ptr_end) {
 		(*(volatile uint8_t *)ptr)++;
 		(*(volatile uint8_t *)ptr)--;
-		clflush((void *)ptr);
+		stress_asm_x86_clflush((void *)ptr);
 		ptr += cl_size;
 	}
 }
@@ -194,12 +174,12 @@ static inline int stress_flush_icache(
 		*vptr ^= ~0;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
-		icbi((void *)ptr);
+		stress_asm_ppc64_icbi((void *)ptr);
 #endif
 		*vptr = val;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
-		icbi((void *)ptr);
+		stress_asm_ppc64_icbi((void *)ptr);
 #endif
 		ptr += cl_size;
 	}

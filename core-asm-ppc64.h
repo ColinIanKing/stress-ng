@@ -32,6 +32,20 @@ static inline uint64_t stress_asm_ppc64_darn(void)
 }
 #endif
 
+#if defined(HAVE_ASM_PPC64_DCBST)
+static inline void stress_asm_ppc64_dcbst(void *addr)
+{
+	__asm__ __volatile__("dcbst %y0" : : "Z"(*(uint8_t *)addr) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_ICBI)
+static inline void stress_asm_ppc64_icbi(void *addr)
+{
+	__asm__ __volatile__("icbi %y0" : : "Z"(*(uint8_t *)addr) : "memory");
+}
+#endif
+
 /* #if defined(STRESS_ARCH_PPC64) */
 #endif
 
