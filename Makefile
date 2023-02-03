@@ -41,6 +41,10 @@ CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-DHAVE_PEDANTIC
 endif
 
+ifneq ($(findstring pcc,$(CC)),pcc)
+CFLAGS += -fstack-protector-strong -Werror=format-security -D_FORTIFY_SOURCE=2
+endif
+
 #
 # Expected build warnings
 #
