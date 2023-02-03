@@ -27,7 +27,7 @@
 static inline uint64_t stress_asm_sparc_tick(void)
 {
 	register uint64_t ticks;
-	
+
 	__asm__ __volatile__("rd %%tick, %0"
 			     : "=r" (ticks));
 	return (uint64_t)ticks;
