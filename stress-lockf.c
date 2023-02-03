@@ -186,17 +186,23 @@ static int stress_lockf_contention(
 				return -1;
 
 		offset = (off_t)stress_mwc64modn(LOCK_FILE_SIZE - LOCK_SIZE);
+		if (!keep_stressing_flag())
+			break;
 		if (lseek(fd, offset, SEEK_SET) < 0) {
 			pr_err("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
+		if (!keep_stressing_flag())
+			break;
 		rc = lockf(fd, lockf_cmd, LOCK_SIZE);
 		if (rc < 0) {
 			if (stress_lockf_unlock(args, fd) < 0)
 				return -1;
 			continue;
 		}
+		if (!keep_stressing_flag())
+			break;
 
 		/* Locked OK, add to lock list */
 		lockf_info = stress_lockf_info_new();
@@ -209,9 +215,13 @@ static int stress_lockf_contention(
 		 *  Occasionally exercise lock on a bad fd, ignore error
 		 */
 		if (counter++ >= 65536) {
+			if (!keep_stressing_flag())
+				break;
 			VOID_RET(int, lockf(bad_fd, lockf_cmd, LOCK_SIZE));
 			counter = 0;
 
+			if (!keep_stressing_flag())
+				break;
 			/* Exercise F_TEST, ignore result */
 			VOID_RET(int, lockf(fd, F_TEST, LOCK_SIZE));
 		}
@@ -320,7 +330,7 @@ tidy:
 	if (cpid > 0) {
 		int status;
 
-		(void)kill(cpid, SIGKILL);
+		(void)kill(cpid, SIGALRM);
 		(void)shim_waitpid(cpid, &status, 0);
 	}
 	stress_lockf_info_free();

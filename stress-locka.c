@@ -184,9 +184,13 @@ static int stress_locka_contention(
 		f.l_len = len;
 		f.l_pid = args->pid;
 
+		if (!keep_stressing_flag())
+			break;
 		rc = fcntl(fd, F_GETLK, &f);
 		if (rc < 0)
 			continue;
+		if (!keep_stressing_flag())
+			break;
 
 		/* Locked OK, add to lock list */
 
@@ -303,7 +307,7 @@ tidy:
 	if (cpid > 0) {
 		int status;
 
-		(void)kill(cpid, SIGKILL);
+		(void)kill(cpid, SIGALRM);
 		(void)shim_waitpid(cpid, &status, 0);
 	}
 	stress_locka_info_free();
