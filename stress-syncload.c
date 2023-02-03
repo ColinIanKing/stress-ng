@@ -97,7 +97,8 @@ static void stress_syncload_yield(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_X86_RDRAND)
 static void stress_syncload_rdrand(void)
 {
 	if (stress_sysload_x86_has_rdrand) {

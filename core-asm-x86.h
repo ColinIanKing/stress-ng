@@ -109,9 +109,8 @@ static inline uint64_t stress_asm_x86_rdtsc(void)
 	return 0;
 }
 
-#endif
-
-#if defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_ASM_X86_RDRAND)
 /*
  *  stress_asm_x86_rdrand()
  *	read 64 bit random value
@@ -128,24 +127,8 @@ static inline uint64_t stress_asm_x86_rdrand(void)
 
 	return ret;
 }
-
-/*
- *  stress_asm_x86_rdseed()
- *	read 64 bit random value
- */
-static inline uint64_t stress_asm_x86_rdseed(void)
-{
-	uint64_t        ret;
-
-	__asm__ __volatile__(
-	"1:;\n\
-		rdseed %0;\n\
-		jnc 1b;\n"
-	: "=r"(ret));
-
-	return ret;
-}
-#elif defined(STRESS_ARCH_X86_32)
+#elif defined(STRESS_ARCH_X86_32) &&	\
+      defined(HAVE_ASM_X86_RDRAND)
 /*
  *  stress_asm_x86_rdrand()
  *	read 2 x 32 bit random value
@@ -167,7 +150,28 @@ static inline uint64_t stress_asm_x86_rdrand(void)
 
 	return ret64 | ret;
 }
+#endif
 
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_ASM_X86_RDSEED)
+/*
+ *  stress_asm_x86_rdseed()
+ *	read 64 bit random value
+ */
+static inline uint64_t stress_asm_x86_rdseed(void)
+{
+	uint64_t        ret;
+
+	__asm__ __volatile__(
+	"1:;\n\
+		rdseed %0;\n\
+		jnc 1b;\n"
+	: "=r"(ret));
+
+	return ret;
+}
+#elif defined(STRESS_ARCH_X86_32) &&	\
+      defined(HAVE_ASM_X86_RDSEED)
 /*
  *  stress_asm_x86_rdseed()
  *	read 2 x 32 bit random value
@@ -193,6 +197,8 @@ static inline uint64_t stress_asm_x86_rdseed(void)
 
 	return ret64 | ret;
 }
+#endif
+
 /* #if defined(STRESS_ARCH_X86) */
 #endif
 
