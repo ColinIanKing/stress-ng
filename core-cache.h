@@ -19,6 +19,7 @@
 #ifndef CORE_CACHE_H
 #define CORE_CACHE_H
 
+#include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-cpu.h"
 
@@ -86,7 +87,7 @@ static shim_clflush_func_t shim_clflush_func =  shim_clflush_select;
 
 static inline void ALWAYS_INLINE shim_clflush_op(volatile void *ptr)
 {
-	__asm__ __volatile__("clflush (%0)\n" : : "r"(ptr) : "memory");
+	stress_asm_x86_clflush((void *)ptr);
 }
 
 static inline void ALWAYS_INLINE shim_clflush_nop(volatile void *ptr)
