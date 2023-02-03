@@ -24,6 +24,7 @@
 
 #if defined(STRESS_ARCH_SPARC)
 
+#if defined(HAVE_ASM_SPARC_TICK)
 static inline uint64_t stress_asm_sparc_tick(void)
 {
 	register uint64_t ticks;
@@ -32,6 +33,7 @@ static inline uint64_t stress_asm_sparc_tick(void)
 			     : "=r" (ticks));
 	return (uint64_t)ticks;
 }
+#endif
 
 #if defined(HAVE_ASM_SPARC_MEMBAR)
 static inline void stress_asm_sparc_membar(void)

@@ -171,7 +171,8 @@ static inline uint64_t rdtsc(void)
 	return stress_asm_s390_stck();
 }
 
-#elif defined(STRESS_ARCH_SPARC)
+#elif defined(STRESS_ARCH_SPARC) &&	\
+      defined(HAVE_ASM_SPARC_TICK)
 
 #define HAVE_STRESS_TSC_CAPABILITY
 
