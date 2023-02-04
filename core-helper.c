@@ -1549,7 +1549,7 @@ void stress_rndstr(char *str, size_t len)
 	 * Be careful if expanding this alphabet, some of this function's users
 	 * use it to generate random filenames.
 	 */
-	static const char alphabet[64] = 
+	static const char alphabet[64] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789" "-_";
@@ -3270,7 +3270,8 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
  *  __stack_chk_fail()
  *	override stack smashing callback
  */
-#if (defined(__GNUC__) || defined(__clang__)) &&	\
+#if defined(__GNUC__) &&	\
+    !defined(__clang__) &&	\
     defined(HAVE_WEAK_ATTRIBUTE)
 extern void __stack_chk_fail(void);
 
