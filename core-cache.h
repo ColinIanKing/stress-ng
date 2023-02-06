@@ -19,6 +19,7 @@
 #ifndef CORE_CACHE_H
 #define CORE_CACHE_H
 
+#include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-sparc.h"
 #include "core-asm-x86.h"
@@ -153,11 +154,12 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #endif
 
 /* Disabled for now */
-#if 0
+#if 1
 #if defined(STRESS_ARCH_PPC64) &&	\
+    defined(STRESS_ASM_PPC64_MSYNC) &&	\
     !defined(HAVE_SHIM_MFENCE)
-	__asm__ __volatile__ ("msync" : : : "memory");
 #define HAVE_SHIM_MFENCE
+	stress_asm_ppc64_msync();
 #endif
 #endif
 

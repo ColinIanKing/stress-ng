@@ -19,6 +19,9 @@
 #ifndef CORE_ASM_PPC64_H
 #define CORE_ASM_PPC64_H
 
+#include "stress-ng.h"
+#include "core-arch.h"
+
 #if defined(STRESS_ARCH_PPC64)
 
 #if defined(HAVE_ASM_PPC64_DARN)
@@ -43,6 +46,14 @@ static inline void stress_asm_ppc64_dcbst(void *addr)
 static inline void stress_asm_ppc64_icbi(void *addr)
 {
 	__asm__ __volatile__("icbi %y0" : : "Z"(*(uint8_t *)addr) : "memory");
+}
+#endif
+
+
+#if defined(HAVE_ASM_PPC64_MSYNC)
+static inline void stress_asm_ppc64_msync(void)
+{
+	__asm__ __volatile__ ("msync" : : : "memory");
 }
 #endif
 
