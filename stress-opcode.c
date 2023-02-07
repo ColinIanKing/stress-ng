@@ -571,6 +571,26 @@ finish:
 	duration = stress_time_now() - t;
 	rc = EXIT_SUCCESS;
 
+	if ((duration > 0.0) &&
+	    (state->ops_attempted > 0.0) &&
+	    (args->instance == 0) &&
+	    (args->num_instances > 0)) {
+		const double secs_in_tropical_year = 365.2422 * 24.0 * 60.0 * 60.0;
+		double estimated_duration = (duration * num_opcodes / state->ops_attempted) / args->num_instances;
+
+		if (estimated_duration > secs_in_tropical_year * 5) {
+			estimated_duration = round(estimated_duration / secs_in_tropical_year);
+			pr_dbg("%s estimated time to cover all op-codes: %.0f years\n",
+				args->name, estimated_duration);
+		} else if (estimated_duration < 1.0) {
+			pr_dbg("%s estimated time to cover all op-codes: %.4f seconds\n",
+				args->name, estimated_duration);
+		} else {
+			pr_dbg("%s: estimated time to cover all op-codes: %s\n",
+				args->name, stress_duration_to_str(estimated_duration));
+		}
+	}
+
 	rate = (duration > 0.0) ? (double)state->ops_attempted / duration : 0.0;
 	stress_metrics_set(args, 0, "opcodes exercised per sec", rate);
 	percent = (state->ops_attempted > 0.0) ? 100.0 * (double)state->ops_ok / (double)state->ops_attempted : 0.0;
