@@ -65,20 +65,6 @@ static inline void stress_asm_x86_pause(void)
 }
 #endif
 
-#if defined(HAVE_ASM_X86_TPAUSE)
-static inline void stress_asm_x86_tpause(uint32_t ecx, uint32_t delay)
-{
-	uint32_t lo, hi;
-	uint64_t val;
-
-	__asm__ __volatile__("rdtsc\n" : "=a"(lo),"=d"(hi));
-	val = (((uint64_t)hi << 32) | lo) + delay;
-	lo = val & 0xffffffff;
-	hi = val >> 32;
-	__asm__ __volatile__("tpause %%ecx\n" :: "c"(ecx), "d"(hi), "a"(lo));
-}
-#endif
-
 #if defined(HAVE_ASM_X86_SERIALIZE)
 static inline void stress_asm_x86_serialize(void)
 {
@@ -200,6 +186,25 @@ static inline uint64_t stress_asm_x86_rdseed(void)
 #endif
 
 /* #if defined(STRESS_ARCH_X86) */
+#endif
+
+#if defined(HAVE_ASM_X86_TPAUSE)
+static inline int stress_asm_x86_tpause(const uint32_t ecx, const uint64_t delay)
+{
+	const uint64_t val = stress_asm_x86_rdtsc() + delay;
+	char flag;
+	uint32_t lo, hi;
+
+	lo = (uint32_t)val & 0xffffffff;
+	hi = (val >> 32) & 0xffffffff;
+
+	__asm__ __volatile__(
+			"tpause %%ecx;\n"
+			"setb %0;\n"
+			: "=r"(flag)
+			: "c"(ecx), "d"(hi), "a"(lo));
+	return (int)flag;
+}
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
