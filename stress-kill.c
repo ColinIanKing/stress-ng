@@ -42,6 +42,8 @@ static int stress_kill(const stress_args_t *args)
 
 	pid = fork();
 	if (pid == 0) {
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 		VOID_RET(int, stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL));
 
 		while (keep_stressing(args)) {
@@ -49,6 +51,7 @@ static int stress_kill(const stress_args_t *args)
 				break;
 			pause();
 		}
+		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		_exit(0);
 	}
 
