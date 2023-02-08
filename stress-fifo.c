@@ -95,7 +95,9 @@ static pid_t fifo_spawn(
 	if (pid == 0) {
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		func(args, name, fifoname, fifo_data_size);
+		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		_exit(EXIT_SUCCESS);
 	}
 	return pid;
