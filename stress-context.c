@@ -142,6 +142,7 @@ static int stress_context(const stress_args_t *args)
 	if (stress_context_init(args, thread3, &uctx_main, &context[2]) < 0)
 		return EXIT_FAILURE;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	duration = 0.0;
 	t1 = 0.0;
 	t2 = 0.0;
@@ -154,8 +155,6 @@ static int stress_context(const stress_args_t *args)
 	}
 
 	set_counter(args, context_counter / 1000);
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < SIZEOF_ARRAY(context); i++) {
 		if (context[i].canary.check0 != context[i].cu.check0) {
