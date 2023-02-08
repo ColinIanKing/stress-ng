@@ -215,7 +215,10 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		func(args, parent, path);
+		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
+
 		_exit(EXIT_SUCCESS);
 	}
 	return pid;
