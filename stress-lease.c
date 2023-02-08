@@ -96,6 +96,7 @@ again:
 	if (pid == 0) {
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		do {
 			int fd;
@@ -115,6 +116,8 @@ again:
 			(void)stress_get_lease(fd);
 			(void)close(fd);
 		} while (keep_stressing(args));
+
+		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		_exit(EXIT_SUCCESS);
 	}
 	return pid;
