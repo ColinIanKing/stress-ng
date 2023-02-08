@@ -49,7 +49,7 @@ static int stress_idle_page_supported(const char *name)
 
 	if (access(bitmap_file, R_OK) != 0) {
 		pr_inf_skip("%s stressor will be skipped, "
-			"cannot access file %s\n", bitmap_file, name);
+			"cannot access file %s\n", name, bitmap_file);
 		return -1;
 	}
 	return 0;
