@@ -148,6 +148,8 @@ again:
 		(void)close(fds[0]);
 		(void)memset(buffer, 0, sizeof buffer);
 
+		stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 		while (keep_stressing(args)) {
 			ssize_t n;
 
