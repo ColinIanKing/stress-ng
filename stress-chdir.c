@@ -59,7 +59,8 @@ static int stress_chdir(const stress_args_t *args)
 	struct stat statbuf;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 	bool got_statbuf = false;
-	double count = 0.0, duration = 0.0, rate;
+	bool tidy_info = false;
+	double count = 0.0, duration = 0.0, rate, start_time;
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
@@ -272,16 +273,21 @@ abort:
 			stress_fs_type(cwd));
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu32 " directories\n",
-		args->name, chdir_dirs);
 
+	/* force unlink of all files */
+	start_time = stress_time_now();
 	for (i = 0; (i < chdir_dirs) && paths[i] ; i++) {
 		if (fds[i] >= 0)
 			(void)close(fds[i]);
 		if (paths[i]) {
 			(void)shim_rmdir(paths[i]);
 			free(paths[i]);
+		}
+		/* ..taking a while?, inform user */
+		if ((args->instance == 0) && !tidy_info &&
+		    (stress_time_now() > start_time + 0.5)) {
+			tidy_info = true;
+			pr_tidy("%s: removing %" PRIu32 " directories\n", args->name, chdir_dirs);
 		}
 	}
 	(void)stress_temp_dir_rm_args(args);
