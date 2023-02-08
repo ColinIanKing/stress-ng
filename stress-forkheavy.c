@@ -180,6 +180,7 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
 	(void)stress_get_setting("forkheavy-allocs", &forkheavy_allocs);
 	(void)stress_get_setting("forkheavy-procs", &forkheavy_procs);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
 		const bool low_mem_reap = stress_low_memory(MIN_MEM_FREE);
 
