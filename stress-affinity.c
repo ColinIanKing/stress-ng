@@ -169,6 +169,8 @@ static void stress_affinity_child(
 
 	CPU_ZERO(&mask0);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		cpu_set_t mask;
 
