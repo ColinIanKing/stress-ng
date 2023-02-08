@@ -211,12 +211,9 @@ static void *stress_pthread_func(void *parg)
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
 	const stress_args_t *args = spa->args;
 	stress_pthread_info_t *pthread_info = (stress_pthread_info_t *)spa->data;
-	char str[16];
 
 	pthread_info->t_run = t_run;
-
-	(void)snprintf(str, sizeof(str), "%" PRIu64, pthread_info->index);
-	stress_set_proc_state_str(args->name, str);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
