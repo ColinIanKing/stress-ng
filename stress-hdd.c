@@ -208,9 +208,12 @@ static ssize_t stress_hdd_write(
 	uint8_t *buf,
 	const off_t offset,
 	const uint64_t hdd_write_size,
-	const int hdd_flags)
+	const int hdd_flags,
+	double *hdd_write_bytes,
+	double *hdd_write_duration)
 {
-	ssize_t ret;
+	ssize_t ret = -1;
+	double t;
 
 #if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
@@ -236,34 +239,59 @@ static ssize_t stress_hdd_write(
 		switch (stress_mwc8modn(3)) {
 #if defined(HAVE_PWRITEV2)
 		case 0:
+			t = stress_time_now();
 			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
+			if (ret > 0) {
+				(*hdd_write_duration) += stress_time_now() - t;
+				(*hdd_write_bytes) += (double)ret;
+			}
 			break;
 #endif
 #if defined(HAVE_PWRITEV)
 		case 1:
+			t = stress_time_now();
 			ret = pwritev(fd, iov, HDD_IO_VEC_MAX, offset);
+			if (ret > 0) {
+				(*hdd_write_duration) += stress_time_now() - t;
+				(*hdd_write_bytes) += (double)ret;
+			}
 			break;
 #endif
 		default:
+			t = stress_time_now();
 			if (lseek(fd, offset, SEEK_SET) < 0) {
 				ret = -1;
 			} else {
 				ret = writev(fd, iov, HDD_IO_VEC_MAX);
+				if (ret > 0) {
+					(*hdd_write_duration) += stress_time_now() - t;
+					(*hdd_write_bytes) += (double)ret;
+				}
 			}
 			break;
 		}
 #else
+		t = stress_time_now();
 		if (lseek(fd, offset, SEEK_SET) < 0) {
 			ret = -1;
 		} else {
 			ret = write(fd, buf, (size_t)hdd_write_size);
+			if (ret > 0) {
+				(*hdd_write_duration) += stress_time_now() - t;
+				(*hdd_write_bytes) += (double)ret;
+			}
 		}
 #endif
 	} else {
+		t = stress_time_now();
 		if (lseek(fd, offset, SEEK_SET) < 0) {
 			ret = -1;
 		} else {
 			ret = write(fd, buf, (size_t)hdd_write_size);
+			if (ret > 0) {
+				(*hdd_write_duration) += stress_time_now() - t;
+				(*hdd_write_bytes) += (double)ret;
+			}
 		}
 	}
 
@@ -298,8 +326,13 @@ static ssize_t stress_hdd_read(
 	uint8_t *buf,
 	const off_t offset,
 	const uint64_t hdd_read_size,
-	const int hdd_flags)
+	const int hdd_flags,
+	double *hdd_read_bytes,
+	double *hdd_read_duration)
 {
+	ssize_t ret = -1;
+	double t;
+
 #if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
 		stress_hdd_utimes(fd);
@@ -324,27 +357,58 @@ static ssize_t stress_hdd_read(
 		switch (stress_mwc8modn(3)) {
 #if defined(HAVE_PREADV2)
 		case 0:
-			return preadv2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
+			t = stress_time_now();
+			ret = preadv2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
+			if (ret > 0) {
+				(*hdd_read_duration) += stress_time_now() - t;
+				(*hdd_read_bytes) += (double)ret;
+			}
+			return ret;
 #endif
 #if defined(HAVE_PREADV)
 		case 1:
-			return preadv(fd, iov, HDD_IO_VEC_MAX, offset);
+			t = stress_time_now();
+			ret = preadv(fd, iov, HDD_IO_VEC_MAX, offset);
+			if (ret > 0) {
+				(*hdd_read_duration) += stress_time_now() - t;
+				(*hdd_read_bytes) += (double)ret;
+			}
+			return ret;
 #endif
 		default:
+			t = stress_time_now();
 			if (lseek(fd, offset, SEEK_SET) < 0)
 				return -1;
-			return readv(fd, iov, HDD_IO_VEC_MAX);
+			ret = readv(fd, iov, HDD_IO_VEC_MAX);
+			if (ret > 0) {
+				(*hdd_read_duration) += stress_time_now() - t;
+				(*hdd_read_bytes) += (double)ret;
+			}
+			return ret;
 		}
 #else
+		t = stress_time_now();
 		if (lseek(fd, offset, SEEK_SET) < 0)
 			return -1;
-		return read(fd, buf, (size_t)hdd_read_size);
+		ret = read(fd, buf, (size_t)hdd_read_size);
+		if (ret > 0) {
+			(*hdd_read_duration) += stress_time_now() - t;
+			(*hdd_read_bytes) += (double)ret;
+		}
+		return ret;
 #endif
 	} else {
+		t = stress_time_now();
 		if (lseek(fd, offset, SEEK_SET) < 0)
 			return -1;
-		return read(fd, buf, (size_t)hdd_read_size);
+		ret = read(fd, buf, (size_t)hdd_read_size);
+		if (ret > 0) {
+			(*hdd_read_duration) += stress_time_now() - t;
+			(*hdd_read_bytes) += (double)ret;
+		}
+		return ret;
 	}
+	return ret;
 }
 
 /*
@@ -585,6 +649,10 @@ static int stress_hdd(const stress_args_t *args)
 	int hdd_flags = 0, hdd_oflags = 0;
 	int flags, fadvise_flags;
 	bool opts_set = false;
+	double hdd_read_bytes = 0.0, hdd_read_duration = 0.0;
+	double hdd_write_bytes = 0.0, hdd_write_duration = 0.0;
+	double hdd_rdwr_bytes, hdd_rdwr_duration;
+	double rate;
 
 	(void)stress_get_setting("hdd-flags", &hdd_flags);
 	(void)stress_get_setting("hdd-oflags", &hdd_oflags);
@@ -641,7 +709,6 @@ static int stress_hdd(const stress_args_t *args)
 			PRIu64 " bytes\n",
 			args->name, hdd_bytes);
 	}
-
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -791,7 +858,8 @@ rnd_wr_retry:
 				}
 
 				ret = stress_hdd_write(fd, buf, (off_t)offset,
-					hdd_write_size, hdd_flags);
+					hdd_write_size, hdd_flags,
+					&hdd_write_bytes, &hdd_write_duration);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_wr_retry;
@@ -823,7 +891,8 @@ seq_wr_retry:
 				for (j = 0; j < hdd_write_size; j++)
 					buf[j] = data_value(i, j, args);
 				ret = stress_hdd_write(fd, buf, (off_t)i,
-					hdd_write_size, hdd_flags);
+					hdd_write_size, hdd_flags,
+					&hdd_write_bytes, &hdd_write_duration);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_wr_retry;
@@ -863,7 +932,8 @@ seq_rd_retry:
 					goto yielded;
 				}
 				ret = stress_hdd_read(fd, buf, (off_t)i,
-					hdd_write_size, hdd_flags);
+					hdd_write_size, hdd_flags,
+					&hdd_read_bytes, &hdd_read_duration);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
@@ -935,7 +1005,8 @@ rnd_rd_retry:
 					goto yielded;
 				}
 				ret = stress_hdd_read(fd, buf, (off_t)offset,
-					hdd_write_size, hdd_flags);
+					hdd_write_size, hdd_flags,
+					&hdd_read_bytes, &hdd_read_duration);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
@@ -986,6 +1057,17 @@ yielded:
 	rc = EXIT_SUCCESS;
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (hdd_read_duration > 0.0) ? hdd_read_bytes / hdd_read_duration : 0.0;
+	stress_metrics_set(args, 0, "MB/sec read rate", rate / (double)MB);
+	rate = (hdd_write_duration > 0.0) ? hdd_write_bytes / hdd_write_duration : 0.0;
+	stress_metrics_set(args, 1, "MB/sec write rate", rate / (double)MB);
+
+	hdd_rdwr_duration = hdd_read_duration + hdd_write_duration;
+	hdd_rdwr_bytes = hdd_read_bytes + hdd_write_bytes;
+
+	rate = (hdd_rdwr_duration > 0.0) ? hdd_rdwr_bytes / hdd_rdwr_duration : 0.0;
+	stress_metrics_set(args, 2, "MB/sec read/write combined rate", rate / (double)MB);
 
 	free(alloc_buf);
 	(void)stress_temp_dir_rm_args(args);
