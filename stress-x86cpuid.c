@@ -37,6 +37,8 @@ static const stress_help_t help[] = {
 static int stress_x86cpuid(const stress_args_t *args)
 {
 	double count = 0.0, duration = 0.0, rate;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
 		uint32_t eax, ebx, ecx, edx;
 		double t = stress_time_now();
@@ -228,6 +230,8 @@ static int stress_x86cpuid(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per cpuid instruction", STRESS_DBL_NANOSECOND * rate);
