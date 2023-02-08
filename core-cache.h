@@ -90,7 +90,7 @@ static shim_clflush_func_t shim_clflush_func =  shim_clflush_select;
 
 static inline void ALWAYS_INLINE shim_clflush_op(volatile void *ptr)
 {
-	stress_asm_x86_clflush((void *)ptr);
+	stress_asm_x86_clflush(ptr);
 }
 
 static inline void ALWAYS_INLINE shim_clflush_nop(volatile void *ptr)

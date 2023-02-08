@@ -208,7 +208,7 @@ static inline int stress_asm_x86_tpause(const uint32_t ecx, const uint64_t delay
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
-static inline void stress_asm_x86_clflush(void *p)
+static inline void stress_asm_x86_clflush(volatile void *p)
 {
         __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
 }
