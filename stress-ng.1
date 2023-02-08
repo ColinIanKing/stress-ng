@@ -5303,6 +5303,15 @@ up or does not support the domain then the loopback (lo) interface is used as th
 .B \-\-udp\-flood\-ops N
 stop udp-flood stress workers after N bogo operations.
 .TP
+.B \-\-umount N
+start N workers that exercise mounting and racying unmounting of small tmpfs and ramfs
+file systems. Three child processes are invoked, one to mount, another to force umount
+and a third to exercice /proc/mounts. Small random delays are used between mount and
+umount calls to try to trigger race conditions on the umount calls.
+.TP
+.B \-\-umount\-ops N
+stop umount workers after N successful bogo mount/umount operations.
+.TP
 .B \-\-unshare N
 start N workers that each fork off 32 child processes, each of which exercises
 the unshare(2) system call by disassociating parts of the process execution

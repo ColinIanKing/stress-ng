@@ -297,6 +297,7 @@
 	MACRO(tun)		\
 	MACRO(udp)		\
 	MACRO(udp_flood)	\
+	MACRO(umount)		\
 	MACRO(unshare)		\
 	MACRO(uprobe)		\
 	MACRO(urandom)		\
