@@ -75,6 +75,8 @@ static void NORETURN stress_rmap_child(
 {
 	const size_t sz = MAPPING_PAGES * page_size;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t i;
 		const uint8_t rnd8 = stress_mwc8();
@@ -124,6 +126,7 @@ static void NORETURN stress_rmap_child(
 
 	(void)kill(getppid(), SIGALRM);
 
+	stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 	_exit(0);
 }
 
@@ -225,6 +228,7 @@ static int stress_rmap(const stress_args_t *args)
 
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
+
 			stress_rmap_child(args, page_size, mappings);
 		}
 	}
