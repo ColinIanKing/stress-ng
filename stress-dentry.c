@@ -447,8 +447,6 @@ abort:
 	stress_metrics_set(args, 3, "nanosecs per bogus file unlink", rate * STRESS_DBL_NANOSECOND);
 
 	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu64 " entries\n",
-		args->name, dentries);
 	stress_dentry_unlink(args, dentries, dentry_order);
 	(void)stress_temp_dir_rm_args(args);
 
