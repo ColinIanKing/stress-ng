@@ -490,11 +490,11 @@ static int stress_dirdeep(const stress_args_t *args)
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
 	inodes_estimate = 1;		/* created one for root */
 	inodes_min = inodes_start;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_dirdeep_make(args, linkpath, path, path_len, sizeof(path),
 		dirdeep_dirs, dirdeep_inodes, dirdeep_files, dirdeep_bytes,
 		inodes_start, &inodes_estimate, &inodes_min, 0);
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		(void)shim_strlcpy(path, rootpath, sizeof(path));
