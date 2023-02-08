@@ -315,8 +315,8 @@ uint32_t stress_mwc32modn(const uint32_t max)
 }
 
 /*
- *  stress_mwc32modn()
- *	return 32 bit non-modulo biased value 1..max (inclusive)
+ *  stress_mwc64modn()
+ *	return 64 bit non-modulo biased value 1..max (inclusive)
  */
 uint64_t stress_mwc64modn(const uint64_t max)
 {
