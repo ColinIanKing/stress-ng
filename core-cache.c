@@ -19,6 +19,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-cache.h"
 
@@ -564,6 +565,110 @@ static uint64_t stress_size_to_bytes(const char *str)
 	return bytes;
 }
 
+#if defined(STRESS_ARCH_X86)
+/*
+ *  stress_get_cpu_cache_x86()
+ *	find cache information as provided by CPUID. Currently
+ *	modern Intel x86 cache info only. Also assumes cpu 0 == cpu n
+ *	for cache sizes.
+ */
+static int stress_get_cpu_cache_x86(stress_cpu_t *cpu)
+{
+	uint32_t eax, ebx, ecx, edx;
+
+	if (!stress_cpu_is_x86())
+		return 0;
+
+	eax = 0;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+	if (eax < 0x0b) {
+		/* Nehalem-based processors or lower, no cache info */
+		return 0;
+	}
+
+	eax = 1;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	/* Currently only handle modern CPUs with cpuid eax = 4 */
+	if (edx & (1U << 28)) {
+		uint32_t subleaf;
+		int i;
+
+		/* Gather max number of cache entries */
+		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
+			uint32_t cache_type;
+
+			eax = 4;
+			ebx = 0;
+			ecx = subleaf;
+			edx = 0;
+			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+			cache_type = eax & 0x1f;
+
+			if (cache_type == 0)
+				 break;
+			if (cache_type > 3)
+				continue;
+			i++;
+		}
+
+		/* Now allocate */
+		cpu->caches = calloc(i, sizeof(*(cpu->caches)));
+		if (!cpu->caches) {
+			pr_err("failed to allocate %zu bytes for cpu caches\n",
+			i * sizeof(*(cpu->caches)));
+			return 0;
+		}
+
+		/* ..and save */
+		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
+			uint32_t cache_type;
+
+			eax = 4;
+			ebx = 0;
+			ecx = subleaf;
+			edx = 0;
+			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+			cache_type = eax & 0x1f;
+
+			if (cache_type == 0)
+				 break;
+			switch (cache_type) {
+			case 1:
+				cpu->caches[i].type = CACHE_TYPE_DATA;
+				break;
+			case 2:
+				cpu->caches[i].type = CACHE_TYPE_INSTRUCTION;
+				break;
+			case 3:
+				cpu->caches[i].type = CACHE_TYPE_UNIFIED;
+				break;
+			default:
+				continue;
+			}
+
+			cpu->caches[i].level = (eax >> 5) & 0x7;
+			cpu->caches[i].line_size = ((ebx >> 0) & 0x7ff) + 1;
+			cpu->caches[i].ways = ((ebx >> 22) & 0x3ff) + 1;
+			cpu->caches[i].size = (((ebx >> 12) & 0x3ff) + 1) *
+					cpu->caches[i].line_size *
+					cpu->caches[i].ways *
+					(ecx + 1);
+			i++;
+		}
+		cpu->cache_count = i;
+		return i;
+	}
+	return 0;
+}
+#endif
+
 static const stress_generic_map_t cache_type_map[] = {
 	{ "data",		CACHE_TYPE_DATA },
 	{ "instruction",	CACHE_TYPE_INSTRUCTION },
@@ -840,6 +945,12 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 	if (stress_get_cpu_cache_auxval(cpu) > 0)
 		return;
 
+#if defined(STRESS_ARCH_X86)
+	/* Try CPUID info */
+	if (stress_get_cpu_cache_x86(cpu) > 0)
+		return;
+#endif
+
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_SPARC)
 	/* Try cache info for sparc CPUs */
@@ -863,6 +974,7 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 	if (stress_get_cpu_cache_apple(cpu) > 0)
 		return;
 #endif
+
 
 	return;
 }
