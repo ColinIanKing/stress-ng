@@ -61,6 +61,18 @@ static void stress_waitcpu_nop(void)
 #endif
 }
 
+#if defined(HAVE_ASM_ARM_YIELD)
+static inline bool stress_waitcpu_arm_yield_supported(void)
+{
+	return true;
+}
+
+static inline void stress_waitcpu_arm_yield(void)
+{
+	__asm__ __volatile__("yield;\n");
+}
+#endif
+
 #if defined(STRESS_ARCH_X86)
 static bool stress_waitcpu_x86_pause_supported(void)
 {
@@ -164,6 +176,9 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "umwait0",	stress_waitcpu_x86_umwait0,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0 },
 	{ "umwait0",	stress_waitcpu_x86_umwait1,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0 },
 #endif
+#endif
+#if defined(HAVE_ASM_ARM_YIELD)
+	{ "yield",	stress_waitcpu_arm_yield,	stress_waitcpu_arm_yield_supported,	false, 0.0, 0.0 },
 #endif
 };
 
