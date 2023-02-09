@@ -161,7 +161,8 @@ skip_pselect:
 		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
 			break;
 #endif
-#if defined(HAVE_ASM_X86_TPAUSE)
+#if defined(HAVE_ASM_X86_TPAUSE) &&	\
+    !defined(__PCC__)
 		if (x86_has_waitpkg) {
 			int i;
 

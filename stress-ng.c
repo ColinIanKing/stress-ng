@@ -1165,6 +1165,8 @@ static const struct option long_options[] = {
 	{ "vmstat",		1,	0,	OPT_vmstat },
 	{ "wait",		1,	0,	OPT_wait },
 	{ "wait-ops",		1,	0,	OPT_wait_ops },
+	{ "waitcpu",		1,	0,	OPT_waitcpu },
+	{ "waitcpu-ops",	1,	0,	OPT_waitcpu_ops },
 	{ "watchdog",		1,	0,	OPT_watchdog },
 	{ "watchdog-ops",	1,	0,	OPT_watchdog_ops },
 	{ "wcs",		1,	0,	OPT_wcs},

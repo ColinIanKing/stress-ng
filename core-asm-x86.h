@@ -77,22 +77,19 @@ static inline void stress_asm_x86_serialize(void)
  */
 static inline uint64_t stress_asm_x86_rdtsc(void)
 {
-#if defined(STRESS_TSC_SERIALIZED)
-	__asm__ __volatile__("cpuid\n");
-#endif
 #if defined(STRESS_ARCH_X86_64)
 	uint32_t lo, hi;
 
 	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
 	return ((uint64_t)hi << 32) | lo;
-#endif
-#if defined(STRESS_ARCH_X86_32)
+#elif defined(STRESS_ARCH_X86_32)
 	uint64_t tsc;
 
 	__asm__ __volatile__("rdtsc" : "=A" (tsc));
 	return tsc;
-#endif
+#else
 	return 0;
+#endif
 }
 
 #if defined(STRESS_ARCH_X86_64) &&	\
@@ -188,22 +185,30 @@ static inline uint64_t stress_asm_x86_rdseed(void)
 /* #if defined(STRESS_ARCH_X86) */
 #endif
 
-#if defined(HAVE_ASM_X86_TPAUSE)
-static inline int stress_asm_x86_tpause(const uint32_t ecx, const uint64_t delay)
+#if defined(HAVE_ASM_X86_TPAUSE) && 	\
+    !defined(__PCC__)
+static inline int stress_asm_x86_tpause__(int state, uint32_t hi, uint32_t lo)
 {
-	const uint64_t val = stress_asm_x86_rdtsc() + delay;
-	char flag;
-	uint32_t lo, hi;
+	uint8_t cflags;
 
-	lo = (uint32_t)val & 0xffffffff;
-	hi = (val >> 32) & 0xffffffff;
+	asm volatile(
+		"mov %1, %%edx;\n"
+		"mov %2, %%eax;\n"
+		"mov %3, %%edi;\n"
+		".byte 0x66,0x0f,0xae,0xf7;\n"	/* tpause %%edi; */
+		"setb %0;\n"
+		: "=r" (cflags)
+		: "r" (hi), "r" (lo), "r"(state)
+		: "cc", "eax", "edx", "edi");
+	return cflags;
+}
 
-	__asm__ __volatile__(
-			"tpause %%ecx;\n"
-			"setb %0;\n"
-			: "=r"(flag)
-			: "c"(ecx), "d"(hi), "a"(lo));
-	return (int)flag;
+static inline int stress_asm_x86_tpause(const int state, const uint64_t delay)
+{
+	register uint32_t lo = delay & 0xffffffff;
+	register uint32_t hi = (uint32_t)(delay >> 32);
+
+	return stress_asm_x86_tpause__(state, hi, lo);
 }
 #endif
 
@@ -239,6 +244,39 @@ static inline void stress_asm_x86_clwb(void *p)
 static inline void stress_asm_x86_mfence(void)
 {
 	__asm__ __volatile__("mfence" : : : "memory");
+}
+#endif
+
+#if !defined(__PCC__)
+static inline int stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
+{
+	uint8_t cflags;
+
+	asm volatile(
+		"mov %1, %%edx;\n"
+		"mov %2, %%eax;\n"
+		"mov %3, %%edi;\n"
+		".byte 0xf2, 0x0f, 0xae, 0xf7;\n"	/* umwait %edi */
+		"setb %0;\n"
+		: "=r" (cflags)
+		: "r" (hi), "r" (lo), "r"(state)
+		: "cc", "eax", "edx", "edi");
+	return cflags;
+}
+
+static inline int stress_asm_x86_umwait(const int state, const uint64_t delay)
+{
+	register uint32_t lo = delay & 0xffffffff;
+	register uint32_t hi = (uint32_t)(delay >> 32);
+
+	return stress_asm_x86_umwait__(state, hi, lo);
+}
+
+static inline void stress_asm_x86_umonitor(void *addr)
+{
+	asm volatile("mov %0, %%rdi\t\n"
+		     ".byte 0xf3, 0x0f, 0xae, 0xf7\t\n"
+		     : : "r" (addr));
 }
 #endif
 

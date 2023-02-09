@@ -447,6 +447,7 @@ STRESS_SRC = \
 	stress-vm-segv.c \
 	stress-vm-splice.c \
 	stress-wait.c \
+	stress-waitcpu.c \
 	stress-watchdog.c \
 	stress-wcs.c \
 	stress-x86cpuid.c \

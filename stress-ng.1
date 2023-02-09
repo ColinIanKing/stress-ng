@@ -5993,6 +5993,14 @@ and waitid(2).
 .B \-\-wait\-ops N
 stop after N bogo wait operations.
 .TP
+.B \-\-waitcpu N
+start N workers that exercise processor wait instructions. For x86 these
+are pause, tpause and umwait (when available) and nop. For other architectures
+currently nop instructions are used.
+.TP
+.B \-\-waitcpu\-ops N
+stop after N bogo processor wait operations.
+.TP
 .B \-\-watchdog N
 start N workers that exercising the /dev/watchdog watchdog interface by
 opening it, perform various watchdog specific ioctl(2) commands on the

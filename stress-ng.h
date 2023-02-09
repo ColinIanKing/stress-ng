@@ -2231,6 +2231,9 @@ typedef enum {
 	OPT_wait,
 	OPT_wait_ops,
 
+	OPT_waitcpu,
+	OPT_waitcpu_ops,
+
 	OPT_watchdog,
 	OPT_watchdog_ops,
 

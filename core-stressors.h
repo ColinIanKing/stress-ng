@@ -318,6 +318,7 @@
 	MACRO(vm_segv)		\
 	MACRO(vm_splice)	\
 	MACRO(wait)		\
+	MACRO(waitcpu)		\
 	MACRO(watchdog)		\
 	MACRO(wcs)		\
 	MACRO(x86cpuid)		\

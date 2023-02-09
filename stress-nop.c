@@ -93,11 +93,16 @@ STRESS_NOP_SPIN_OP(nop, stress_op_nop)
 STRESS_NOP_SPIN_OP(x86_pause, stress_asm_x86_pause)
 #endif
 
-#if defined(HAVE_ASM_X86_TPAUSE)
+#if defined(HAVE_ASM_X86_TPAUSE) &&	\
+    !defined(__PCC__)
 static inline void stress_op_x86_tpause(void)
 {
-	stress_asm_x86_tpause(0, 100);
-	stress_asm_x86_tpause(1, 100);
+	uint64_t tsc;
+
+	tsc = stress_asm_x86_rdtsc();
+	stress_asm_x86_tpause(0, 10000 + tsc);
+	tsc = stress_asm_x86_rdtsc();
+	stress_asm_x86_tpause(1, 10000 + tsc);
 }
 
 STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause)
@@ -263,7 +268,8 @@ static stress_nop_instr_t nop_instr[] = {
 #if defined(HAVE_ASM_X86_SERIALIZE)
 	{ "serialize",	stress_nop_spin_x86_serialize,	stress_cpu_x86_has_serialize,	false,	false },
 #endif
-#if defined(HAVE_ASM_X86_TPAUSE)
+#if defined(HAVE_ASM_X86_TPAUSE) &&	\
+    !defined(__PCC__)
 	{ "tpause",	stress_nop_spin_x86_tpause,	stress_cpu_x86_has_waitpkg,	false,	false },
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
