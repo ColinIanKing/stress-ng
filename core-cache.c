@@ -430,6 +430,110 @@ static int stress_get_cpu_cache_sparc64(
 }
 #endif
 
+#if defined(STRESS_ARCH_X86)
+/*
+ *  stress_get_cpu_cache_x86()
+ *	find cache information as provided by CPUID. Currently
+ *	modern Intel x86 cache info only. Also assumes cpu 0 == cpu n
+ *	for cache sizes.
+ */
+static int stress_get_cpu_cache_x86(stress_cpu_t *cpu)
+{
+	uint32_t eax, ebx, ecx, edx;
+
+	if (!stress_cpu_is_x86())
+		return 0;
+
+	eax = 0;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+	if (eax < 0x0b) {
+		/* Nehalem-based processors or lower, no cache info */
+		return 0;
+	}
+
+	eax = 1;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	/* Currently only handle modern CPUs with cpuid eax = 4 */
+	if (edx & (1U << 28)) {
+		uint32_t subleaf;
+		int i;
+
+		/* Gather max number of cache entries */
+		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
+			uint32_t cache_type;
+
+			eax = 4;
+			ebx = 0;
+			ecx = subleaf;
+			edx = 0;
+			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+			cache_type = eax & 0x1f;
+
+			if (cache_type == 0)
+				 break;
+			if (cache_type > 3)
+				continue;
+			i++;
+		}
+
+		/* Now allocate */
+		cpu->caches = calloc(i, sizeof(*(cpu->caches)));
+		if (!cpu->caches) {
+			pr_err("failed to allocate %zu bytes for cpu caches\n",
+			i * sizeof(*(cpu->caches)));
+			return 0;
+		}
+
+		/* ..and save */
+		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
+			uint32_t cache_type;
+
+			eax = 4;
+			ebx = 0;
+			ecx = subleaf;
+			edx = 0;
+			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+			cache_type = eax & 0x1f;
+
+			if (cache_type == 0)
+				 break;
+			switch (cache_type) {
+			case 1:
+				cpu->caches[i].type = CACHE_TYPE_DATA;
+				break;
+			case 2:
+				cpu->caches[i].type = CACHE_TYPE_INSTRUCTION;
+				break;
+			case 3:
+				cpu->caches[i].type = CACHE_TYPE_UNIFIED;
+				break;
+			default:
+				continue;
+			}
+
+			cpu->caches[i].level = (eax >> 5) & 0x7;
+			cpu->caches[i].line_size = ((ebx >> 0) & 0x7ff) + 1;
+			cpu->caches[i].ways = ((ebx >> 22) & 0x3ff) + 1;
+			cpu->caches[i].size = (((ebx >> 12) & 0x3ff) + 1) *
+					cpu->caches[i].line_size *
+					cpu->caches[i].ways *
+					(ecx + 1);
+			i++;
+		}
+		cpu->cache_count = i;
+		return i;
+	}
+	return 0;
+}
+#endif
+
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_M68K)
 static int stress_get_cpu_cache_m68k(stress_cpu_t *cpu)
@@ -564,110 +668,6 @@ static uint64_t stress_size_to_bytes(const char *str)
 	}
 	return bytes;
 }
-
-#if defined(STRESS_ARCH_X86)
-/*
- *  stress_get_cpu_cache_x86()
- *	find cache information as provided by CPUID. Currently
- *	modern Intel x86 cache info only. Also assumes cpu 0 == cpu n
- *	for cache sizes.
- */
-static int stress_get_cpu_cache_x86(stress_cpu_t *cpu)
-{
-	uint32_t eax, ebx, ecx, edx;
-
-	if (!stress_cpu_is_x86())
-		return 0;
-
-	eax = 0;
-	ebx = 0;
-	ecx = 0;
-	edx = 0;
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-	if (eax < 0x0b) {
-		/* Nehalem-based processors or lower, no cache info */
-		return 0;
-	}
-
-	eax = 1;
-	ebx = 0;
-	ecx = 0;
-	edx = 0;
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-
-	/* Currently only handle modern CPUs with cpuid eax = 4 */
-	if (edx & (1U << 28)) {
-		uint32_t subleaf;
-		int i;
-
-		/* Gather max number of cache entries */
-		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
-			uint32_t cache_type;
-
-			eax = 4;
-			ebx = 0;
-			ecx = subleaf;
-			edx = 0;
-			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-			cache_type = eax & 0x1f;
-
-			if (cache_type == 0)
-				 break;
-			if (cache_type > 3)
-				continue;
-			i++;
-		}
-
-		/* Now allocate */
-		cpu->caches = calloc(i, sizeof(*(cpu->caches)));
-		if (!cpu->caches) {
-			pr_err("failed to allocate %zu bytes for cpu caches\n",
-			i * sizeof(*(cpu->caches)));
-			return 0;
-		}
-
-		/* ..and save */
-		for (i = 0, subleaf = 0; subleaf < 0xff; subleaf++) {
-			uint32_t cache_type;
-
-			eax = 4;
-			ebx = 0;
-			ecx = subleaf;
-			edx = 0;
-			stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-			cache_type = eax & 0x1f;
-
-			if (cache_type == 0)
-				 break;
-			switch (cache_type) {
-			case 1:
-				cpu->caches[i].type = CACHE_TYPE_DATA;
-				break;
-			case 2:
-				cpu->caches[i].type = CACHE_TYPE_INSTRUCTION;
-				break;
-			case 3:
-				cpu->caches[i].type = CACHE_TYPE_UNIFIED;
-				break;
-			default:
-				continue;
-			}
-
-			cpu->caches[i].level = (eax >> 5) & 0x7;
-			cpu->caches[i].line_size = ((ebx >> 0) & 0x7ff) + 1;
-			cpu->caches[i].ways = ((ebx >> 22) & 0x3ff) + 1;
-			cpu->caches[i].size = (((ebx >> 12) & 0x3ff) + 1) *
-					cpu->caches[i].line_size *
-					cpu->caches[i].ways *
-					(ecx + 1);
-			i++;
-		}
-		cpu->cache_count = i;
-		return i;
-	}
-	return 0;
-}
-#endif
 
 static const stress_generic_map_t cache_type_map[] = {
 	{ "data",		CACHE_TYPE_DATA },
@@ -1101,6 +1101,42 @@ out:
 	stress_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
+#elif defined(STRESS_ARCH_X86)
+stress_cpus_t *stress_get_all_cpu_cache_details(void)
+{
+	uint32_t eax, ebx, ecx, edx;
+	int32_t i, cpu_count;
+	stress_cpus_t *cpus;
+
+	if (!stress_cpu_is_x86())
+		return NULL;
+
+	cpu_count = stress_get_processors_configured();
+
+	eax = 0;
+	ebx = 0;
+	ecx = 0;
+	edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+	if (eax < 0x0b) {
+		/* Nehalem-based processors or lower, no cache info */
+		return NULL;
+	}
+	cpus = calloc(1, sizeof(*cpus));
+	if (!cpus)
+		return NULL;
+	cpus->cpus = calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
+	if (!cpus->cpus) {
+		free(cpus);
+		return NULL;
+	}
+	cpus->count = (uint32_t)cpu_count;
+
+	for (i = 0; i < cpu_count; i++) {
+		stress_get_cpu_cache_x86(&cpus->cpus[i]);
+	}
+	return cpus;
+}
 #else
 stress_cpus_t *stress_get_all_cpu_cache_details(void)
 {
@@ -1143,7 +1179,8 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
 void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 {
 #if defined(__linux__) ||	\
-    defined(__APPLE__)
+    defined(__APPLE__) ||	\
+    defined(STRESS_ARCH_X86)
 	uint16_t max_cache_level;
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
