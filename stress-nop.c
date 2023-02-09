@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
 
@@ -209,24 +210,9 @@ STRESS_NOP_SPIN_OP(x86_nop15, stress_op_x86_nop15)
 #endif
 
 #if defined(STRESS_ARCH_PPC64)
-static inline void stress_op_ppc64_yield(void)
-{
-	__asm__ __volatile__("or 27,27,27;\n");
-}
-
-static inline void stress_op_ppc64_mdoio(void)
-{
-	__asm__ __volatile__("or 29,29,29;\n");
-}
-
-static inline void stress_op_ppc64_mdoom(void)
-{
-	__asm__ __volatile__("or 30,30,30;\n");
-}
-
-STRESS_NOP_SPIN_OP(ppc64_yield, stress_op_ppc64_yield);
-STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_op_ppc64_mdoio);
-STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_op_ppc64_mdoom);
+STRESS_NOP_SPIN_OP(ppc64_yield, stress_asm_ppc64_yield);
+STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_asm_ppc64_mdoio);
+STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_asm_ppc64_mdoom);
 #endif
 
 #if defined(STRESS_ARCH_S390)

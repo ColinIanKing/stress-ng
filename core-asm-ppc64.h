@@ -57,6 +57,21 @@ static inline void stress_asm_ppc64_msync(void)
 }
 #endif
 
+static inline void stress_asm_ppc64_yield(void)
+{
+	__asm__ __volatile__("or 27,27,27;\n");
+}
+
+static inline void stress_asm_ppc64_mdoio(void)
+{
+	__asm__ __volatile__("or 29,29,29;\n");
+}
+
+static inline void stress_asm_ppc64_mdoom(void)
+{
+	__asm__ __volatile__("or 30,30,30;\n");
+}
+
 /* #if defined(STRESS_ARCH_PPC64) */
 #endif
 

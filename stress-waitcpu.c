@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
 
@@ -163,6 +164,28 @@ static void stress_waitcpu_x86_umwait1(void)
 
 #endif
 
+#if defined(STRESS_ARCH_PPC64)
+static bool stress_waitcpu_ppc64_supported(void)
+{
+	return true;
+}
+
+static void stress_waitcpu_ppc64_yield(void)
+{
+	stress_asm_ppc64_yield();
+}
+
+static void stress_waitcpu_ppc64_mdoio(void)
+{
+	stress_asm_ppc64_mdoio();
+}
+
+static void stress_waitcpu_ppc64_mdoom(void)
+{
+	stress_asm_ppc64_mdoom();
+}
+#endif
+
 stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0 },
 #if defined(STRESS_ARCH_X86)
@@ -179,6 +202,11 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
 	{ "yield",	stress_waitcpu_arm_yield,	stress_waitcpu_arm_yield_supported,	false, 0.0, 0.0 },
+#endif
+#if defined(STRESS_ARCH_PPC64)
+	{ "mdoio",	stress_waitcpu_ppc64_mdoio,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0 },
+	{ "mdoom",	stress_waitcpu_ppc64_mdoom,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0 },
+	{ "yield",	stress_waitcpu_ppc64_yield,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0 },
 #endif
 };
 
