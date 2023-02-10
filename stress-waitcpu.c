@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
@@ -70,7 +71,7 @@ static inline bool stress_waitcpu_arm_yield_supported(void)
 
 static inline void stress_waitcpu_arm_yield(void)
 {
-	__asm__ __volatile__("yield;\n");
+	stress_asm_arm_yield();
 }
 #endif
 

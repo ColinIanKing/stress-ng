@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-cpu.h"
@@ -114,12 +115,7 @@ STRESS_NOP_SPIN_OP(x86_serialize, stress_asm_x86_serialize)
 #endif
 
 #if defined(HAVE_ASM_ARM_YIELD)
-static inline void stress_op_arm_yield(void)
-{
-	__asm__ __volatile__("yield;\n");
-}
-
-STRESS_NOP_SPIN_OP(arm_yield, stress_op_arm_yield);
+STRESS_NOP_SPIN_OP(arm_yield, stress_asm_arm_yield);
 #endif
 
 #if defined(STRESS_ARCH_X86)
