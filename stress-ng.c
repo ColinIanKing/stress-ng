@@ -2250,7 +2250,7 @@ void stress_metrics_set_const_check(
 	const bool const_description,
 	const double value)
 {
-	stress_metrics_t *metrics;
+	stress_metrics_data_t *metrics;
 
 	if (idx >= STRESS_MISC_METRICS_MAX)
 		return;

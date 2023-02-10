@@ -461,7 +461,7 @@ typedef struct {
 typedef struct {
 	char *description;
 	double value;
-} stress_metrics_t;
+} stress_metrics_data_t;
 
 /* stressor args */
 typedef struct {
@@ -474,7 +474,7 @@ typedef struct {
 	pid_t pid;			/* stressor pid */
 	size_t page_size;		/* page size */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
-	stress_metrics_t *metrics;	/* misc per stressor metrics */
+	stress_metrics_data_t *metrics;	/* misc per stressor metrics */
 	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
 
@@ -869,7 +869,7 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
-	stress_metrics_t metrics[STRESS_MISC_METRICS_MAX];
+	stress_metrics_data_t metrics[STRESS_MISC_METRICS_MAX];
 #if defined(HAVE_GETRUSAGE)
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
