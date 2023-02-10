@@ -33,16 +33,11 @@ static sigjmp_buf jmp_env;
 #define PCI_METRICS_RESOURCE		(1)
 #define PCI_METRICS_MAX			(2)
 
-typedef struct stress_pci_metrics {
-	double duration;
-	double count;
-} stress_pci_metrics_t;
-
 typedef struct stress_pci_info {
 	char *path;				/* PCI /sysfs path name */
 	char *name;				/* PCI dev name */
 	bool ignore;				/* true = ignore the entry */
-	stress_pci_metrics_t metrics[PCI_METRICS_MAX]; /* PCI read rate metrics */
+	stress_metrics_t metrics[PCI_METRICS_MAX]; /* PCI read rate metrics */
 	struct stress_pci_info	*next;		/* next in list */
 } stress_pci_info_t;
 
@@ -261,7 +256,7 @@ static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 	siglongjmp(jmp_env, 1);
 }
 
-static double stress_pci_rate(const stress_pci_metrics_t *metrics)
+static double stress_pci_rate(const stress_metrics_t *metrics)
 {
 	return metrics->duration > 0.0 ? metrics->count / metrics->duration : 0.0;
 }

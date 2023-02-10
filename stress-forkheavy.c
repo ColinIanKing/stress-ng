@@ -29,16 +29,9 @@
 #define MIN_FORKHEAVY_ALLOCS		(1)
 #define MAX_FORKHEAVY_ALLOCS		(1024 * 1024)
 
-typedef struct {
-	void *lock;			/* lock on shared metrics data */
-	double duration;		/* total duration for fork calls */
-	double count;			/* total number of fork calls */
-	volatile double t_start;	/* start time of fork call */
-} stress_forkheavy_metrics_t;
-
 typedef struct stress_forkheavy_args {
 	const stress_args_t *args;
-	stress_forkheavy_metrics_t *metrics;
+	stress_metrics_t *metrics;
 } stress_forkheavy_args_t;
 
 typedef struct stress_forkheavy {
@@ -173,7 +166,7 @@ static void stress_forkheavy_free(void)
 static int stress_forkheavy_child(const stress_args_t *args, void *context)
 {
 	const stress_forkheavy_args_t *forkheavy_args = (stress_forkheavy_args_t *)context;
-	stress_forkheavy_metrics_t *metrics = forkheavy_args->metrics;
+	stress_metrics_t *metrics = forkheavy_args->metrics;
 	uint32_t forkheavy_allocs = DEFAULT_FORKHEAVY_ALLOCS;
 	uint32_t forkheavy_procs = DEFAULT_FORKHEAVY_PROCS;
 
@@ -246,7 +239,7 @@ static int stress_forkheavy(const stress_args_t *args)
 	stress_resources_t *resources;
 	size_t num_resources = DEFAULT_FORKHEAVY_ALLOCS;
 	const size_t pipe_size = stress_probe_max_pipe_size();
-	stress_forkheavy_metrics_t *metrics;
+	stress_metrics_t *metrics;
 	stress_forkheavy_args_t forkheavy_args;
 	size_t shmall, freemem, totalmem, freeswap, totalswap, min_mem_free;
 
@@ -257,7 +250,7 @@ static int stress_forkheavy(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	metrics = (stress_forkheavy_metrics_t *)mmap(NULL, sizeof(*metrics),
+	metrics = (stress_metrics_t *)mmap(NULL, sizeof(*metrics),
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {

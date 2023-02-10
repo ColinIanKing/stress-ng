@@ -28,13 +28,8 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_CHROOT)
 
-typedef struct {
-	double duration;
-	double count;
-} chroot_metrics_t;
-
 typedef int (*stress_chroot_test_func)(const stress_args_t *args,
-				       chroot_metrics_t *metrics);
+				       stress_metrics_t *metrics);
 
 static char temppath[PATH_MAX];
 static char longpath[PATH_MAX + 32];
@@ -64,7 +59,7 @@ static void do_chroot(
 	const char *path,
 	int *ret1, int *ret2,
 	int *errno1, int *errno2,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	double t1, t2;
 
@@ -92,7 +87,7 @@ static void do_chroot(
  */
 static int stress_chroot_test1(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	char cwd[PATH_MAX];
 	int ret1, ret2, errno1, errno2;
@@ -131,7 +126,7 @@ static int stress_chroot_test1(
  */
 static int stress_chroot_test2(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 #if defined(__linux__)
 	int ret1, ret2, errno1, errno2;
@@ -157,7 +152,7 @@ static int stress_chroot_test2(
  */
 static int stress_chroot_test3(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -182,7 +177,7 @@ static int stress_chroot_test3(
  */
 static int stress_chroot_test4(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -203,7 +198,7 @@ static int stress_chroot_test4(
  */
 static int stress_chroot_test5(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -230,7 +225,7 @@ static int stress_chroot_test5(
  */
 static int stress_chroot_test6(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 	static const char dev[] = "/dev/null";
@@ -254,7 +249,7 @@ static int stress_chroot_test6(
  */
 static int stress_chroot_test7(
 	const stress_args_t *args,
-	chroot_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	const size_t path_len = 256 * KB;
 	int ret1, ret2, errno1, errno2;
@@ -302,10 +297,10 @@ static int stress_chroot(const stress_args_t *args)
 {
 	size_t i = 0;
 	int fd, ret = EXIT_FAILURE;
-	chroot_metrics_t *metrics;
+	stress_metrics_t *metrics;
 	double rate;
 
-	metrics = (chroot_metrics_t *)mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
+	metrics = (stress_metrics_t *)mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap metrics shared data, skipping stressor\n",

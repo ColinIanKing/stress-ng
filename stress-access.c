@@ -25,12 +25,7 @@ typedef struct {
 	const int	access_mode;
 } stress_access_t;
 
-typedef struct {
-	double	duration;
-	double	count;
-} stress_access_metrics_t;
-
-stress_access_metrics_t *metrics;
+stress_metrics_t *metrics;
 
 static const stress_access_t modes[] = {
 #if defined(S_IRUSR) &&	\
@@ -274,7 +269,7 @@ static int stress_access(const stress_args_t *args)
 	fs_type = stress_fs_type(filename1);
 
 	/* metrics in a shared page for child stats to be available to parent */
-	metrics = (stress_access_metrics_t *)mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
+	metrics = (stress_metrics_t *)mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for metrics, skipping stressor\n",

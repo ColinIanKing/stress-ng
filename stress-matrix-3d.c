@@ -37,11 +37,6 @@ static const stress_help_t help[] = {
 #if defined(HAVE_VLA_ARG) &&	\
     !defined(__PCC__)
 
-typedef struct {
-	double	duration;
-	double	count;
-} stress_matrix_3d_metrics_t;
-
 typedef float 	stress_matrix_3d_type_t;
 
 /*
@@ -809,7 +804,7 @@ static const stress_matrix_3d_method_info_t matrix_3d_methods[] = {
 	{ "zero",		{ stress_matrix_3d_xyz_zero,		stress_matrix_3d_zyx_zero } },
 };
 
-static stress_matrix_3d_metrics_t matrix_3d_metrics[SIZEOF_ARRAY(matrix_3d_methods)];
+static stress_metrics_t matrix_3d_metrics[SIZEOF_ARRAY(matrix_3d_methods)];
 
 /*
  *  stress_matrix_3d_all()

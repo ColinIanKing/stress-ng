@@ -30,15 +30,10 @@
 
 struct list_entry;
 
-typedef struct {
-	double	duration;
-	double	count;
-} stress_list_metrics_t;
-
 typedef void (*stress_list_func)(const stress_args_t *args,
 				 const size_t n,
 				 struct list_entry *data,
-				 stress_list_metrics_t *metrics);
+				 stress_metrics_t *metrics);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
@@ -177,7 +172,7 @@ static void OPTIMIZE3 stress_list_slistt(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	register struct list_entry *entry, *head, *tail;
@@ -224,7 +219,7 @@ static void stress_list_list(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	struct list_entry *entry;
@@ -269,7 +264,7 @@ static void stress_list_slist(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	struct list_entry *entry;
@@ -313,7 +308,7 @@ static void stress_list_circleq(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	struct list_entry *entry;
@@ -357,7 +352,7 @@ static void stress_list_stailq(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	struct list_entry *entry;
@@ -401,7 +396,7 @@ static void stress_list_tailq(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	struct list_entry *entry;
@@ -444,7 +439,7 @@ static void stress_list_all(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics);
+	stress_metrics_t *metrics);
 
 
 /*
@@ -474,7 +469,7 @@ static void stress_list_all(
 	const stress_args_t *args,
 	const size_t n,
 	struct list_entry *data,
-	stress_list_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	static size_t index = 1;
 
@@ -525,7 +520,7 @@ static int stress_list(const stress_args_t *args)
 	size_t n, i, j, bit, list_method = 0;
 	struct sigaction old_action;
 	int ret;
-	stress_list_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
+	stress_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;
 
 	for (i = 0; i < SIZEOF_ARRAY(list_metrics); i++) {

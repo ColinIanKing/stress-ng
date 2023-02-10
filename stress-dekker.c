@@ -33,11 +33,6 @@ typedef struct {
 	volatile int	check;
 } dekker_mutex_t;
 
-typedef struct {
-	double          duration;
-	double          count;
-} dekker_metrics_t;
-
 /*
  *  dekker_t is mmap'd shared and m, p0, p1 are 64 byte cache aligned
  *  to reduce cache contention when updating metrics on p0 and p1
@@ -45,9 +40,9 @@ typedef struct {
 typedef struct dekker {
 	dekker_mutex_t	m;
 	char 		pad1[64 - sizeof(dekker_mutex_t)];
-	dekker_metrics_t p0;
-	char		pad2[64 - sizeof(dekker_metrics_t)];
-	dekker_metrics_t p1;
+	stress_metrics_t p0;
+	char		pad2[64 - sizeof(stress_metrics_t)];
+	stress_metrics_t p1;
 } dekker_t;
 
 dekker_t *dekker;

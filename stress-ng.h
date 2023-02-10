@@ -459,8 +459,15 @@ typedef struct {
 #define STRESS_MISC_METRICS_MAX	(24)
 
 typedef struct {
-	char *description;
-	double value;
+	void *lock;			/* optional lock */
+	double	duration;		/* time per op */
+	double	count;			/* number of ops */
+	volatile double	t_start;	/* optional start time */
+} stress_metrics_t;
+
+typedef struct {
+	char *description;		/* description of metric */
+	double value;			/* value of metric */
 } stress_metrics_data_t;
 
 /* stressor args */

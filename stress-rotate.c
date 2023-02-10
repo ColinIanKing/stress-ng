@@ -93,11 +93,6 @@ typedef struct {
 	stress_rotate_func_t	rotate_func;
 } stress_rotate_funcs_t;
 
-typedef struct {
-	double	duration;
-	double	count;
-} stress_rotate_metrics_t;
-
 static stress_rotate_funcs_t stress_rotate_funcs[] = {
 	{ "all",	stress_rotate_all, },
 	{ "rol8",	stress_rol8 },
@@ -116,7 +111,7 @@ static stress_rotate_funcs_t stress_rotate_funcs[] = {
 #endif
 };
 
-static stress_rotate_metrics_t stress_rotate_metrics[SIZEOF_ARRAY(stress_rotate_funcs)];
+static stress_metrics_t stress_rotate_metrics[SIZEOF_ARRAY(stress_rotate_funcs)];
 
 static void stress_rotate_call_method(
 	const stress_args_t *args,

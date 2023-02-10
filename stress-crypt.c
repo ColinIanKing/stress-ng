@@ -33,11 +33,6 @@ static const stress_help_t help[] = {
     defined(HAVE_CRYPT_H)
 
 typedef struct {
-	double duration;	/* duration of each crypt */
-	double count;		/* number of crypts executed */
-} crypt_metrics_t;
-
-typedef struct {
 	const char *prefix;
 	const size_t prefix_len;
 	const char *method;
@@ -65,7 +60,7 @@ static int stress_crypt_id(
 	const char *method,
 	const char *passwd,
 	char *salt,
-	crypt_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	char *encrypted;
 	double t1, t2;
@@ -124,7 +119,7 @@ static int stress_crypt_id(
  */
 static int stress_crypt(const stress_args_t *args)
 {
-	crypt_metrics_t *crypt_metrics;
+	stress_metrics_t *crypt_metrics;
 	size_t i;
 
 	crypt_metrics = calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));

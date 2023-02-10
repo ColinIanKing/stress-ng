@@ -42,15 +42,10 @@ static const stress_help_t help[] = {
     defined(BLKGETSIZE) && 		\
     defined(BLKSSZGET)
 
-typedef struct {
-	double	duration;
-	double	bytes_read;
-} stress_rawdev_metrics_t;
-
 typedef void (*stress_rawdev_func)(const stress_args_t *args, const int fd,
 				   char *buffer, const size_t blks,
 				   const size_t blksz,
-				   stress_rawdev_metrics_t *metrics);
+				   stress_metrics_t *metrics);
 
 typedef struct {
 	const char              *name;
@@ -91,7 +86,7 @@ static void stress_rawdev_sweep(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	ssize_t ret;
@@ -107,7 +102,7 @@ static void stress_rawdev_sweep(
 				args->name, (intmax_t)offset, errno, strerror(errno));
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->bytes_read += ret;
+			metrics->count += ret;
 			inc_counter(args);
 		}
 	}
@@ -121,7 +116,7 @@ static void stress_rawdev_sweep(
 				args->name, (intmax_t)offset, errno, strerror(errno));
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->bytes_read += ret;
+			metrics->count += ret;
 			inc_counter(args);
 		}
 	}
@@ -137,7 +132,7 @@ static void stress_rawdev_wiggle(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 	ssize_t ret;
@@ -156,7 +151,7 @@ static void stress_rawdev_wiggle(
 					args->name, (intmax_t)offset, errno, strerror(errno));
 			} else {
 				metrics->duration += stress_time_now() - t;
-				metrics->bytes_read += ret;
+				metrics->count += ret;
 				inc_counter(args);
 			}
 		}
@@ -174,7 +169,7 @@ static void stress_rawdev_ends(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 
@@ -191,7 +186,7 @@ static void stress_rawdev_ends(
 				args->name, (intmax_t)offset, errno, strerror(errno));
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->bytes_read += ret;
+			metrics->count += ret;
 			inc_counter(args);
 		}
 
@@ -203,7 +198,7 @@ static void stress_rawdev_ends(
 				args->name, (intmax_t)offset, errno, strerror(errno));
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->bytes_read += ret;
+			metrics->count += ret;
 			inc_counter(args);
 		}
 		inc_counter(args);
@@ -220,7 +215,7 @@ static void stress_rawdev_random(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	size_t i;
 
@@ -236,7 +231,7 @@ static void stress_rawdev_random(
 				args->name, (intmax_t)offset, errno, strerror(errno));
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->bytes_read += ret;
+			metrics->count += ret;
 			inc_counter(args);
 		}
 	}
@@ -252,7 +247,7 @@ static void stress_rawdev_burst(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	int i;
 	off_t blk = (off_t)stress_mwc64modn(blks);
@@ -269,7 +264,7 @@ static void stress_rawdev_burst(
 				args->name, (intmax_t)offset, errno, strerror(errno));
 		} else {
 			metrics->duration += stress_time_now() - t;
-			metrics->bytes_read += ret;
+			metrics->count += ret;
 			inc_counter(args);
 		}
 		blk++;
@@ -283,7 +278,7 @@ static void stress_rawdev_all(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics);
+	stress_metrics_t *metrics);
 
 /*
  *  rawdev methods
@@ -307,14 +302,14 @@ static void stress_rawdev_all(
 	char *buffer,
 	const size_t blks,
 	const size_t blksz,
-	stress_rawdev_metrics_t *metrics)
+	stress_metrics_t *metrics)
 {
 	static size_t i = 1;       /* Skip over stress_rawdev_all */
 
 	rawdev_methods[i].func(args, fd, buffer, blks, blksz, &metrics[i]);
 
 	metrics[0].duration += metrics[i].duration;
-	metrics[0].bytes_read += metrics[i].bytes_read;
+	metrics[0].count += metrics[i].count;
 
 	i++;
 	if (i >= SIZEOF_ARRAY(rawdev_methods))
@@ -376,7 +371,7 @@ static int stress_rawdev(const stress_args_t *args)
 	size_t i, j, rawdev_method = 0;
 	const size_t page_size = args->page_size;
 	stress_rawdev_func func;
-	stress_rawdev_metrics_t *metrics;
+	stress_metrics_t *metrics;
 
 	metrics = calloc(SIZEOF_ARRAY(rawdev_methods), sizeof(*metrics));
 	if (!metrics) {
@@ -387,7 +382,7 @@ static int stress_rawdev(const stress_args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
 		metrics[i].duration = 0.0;
-		metrics[i].bytes_read = 0.0;
+		metrics[i].count = 0.0;
 	}
 
 	if (!path) {
@@ -474,7 +469,7 @@ static int stress_rawdev(const stress_args_t *args)
 		if (duration > 0.0) {
 			char str[50];
 
-			rate = (metrics[i].bytes_read / duration) / (double)MB;
+			rate = (metrics[i].count / duration) / (double)MB;
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
 			stress_metrics_set(args, j, str, rate);
 			j++;

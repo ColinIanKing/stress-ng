@@ -31,16 +31,9 @@
 
 #if defined(HAVE_CLONE)
 
-typedef struct {
-	void *lock;
-	double duration;
-	double count;
-	volatile double t_start;
-} stress_clone_metrics_t;
-
 typedef struct stress_clone_args {
 	const stress_args_t *args;
-	stress_clone_metrics_t *metrics;
+	stress_metrics_t *metrics;
 } stress_clone_args_t;
 
 typedef struct clone {
@@ -347,7 +340,7 @@ static int clone_func(void *arg)
 {
 	size_t i;
 	stress_clone_args_t *clone_arg = arg;
-	stress_clone_metrics_t *metrics = clone_arg->metrics;
+	stress_metrics_t *metrics = clone_arg->metrics;
 
 	if (metrics->lock && (stress_lock_acquire(metrics->lock) == 0)) {
 		double duration = stress_time_now() - metrics->t_start;
@@ -440,7 +433,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 #else
 	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
 #endif
-	stress_clone_metrics_t *metrics = (stress_clone_metrics_t *)context;
+	stress_metrics_t *metrics = (stress_metrics_t *)context;
 
 	if (!stress_get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -555,7 +548,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 static int stress_clone(const stress_args_t *args)
 {
 	int rc;
-	stress_clone_metrics_t *metrics;
+	stress_metrics_t *metrics;
 	double average;
 
 	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
