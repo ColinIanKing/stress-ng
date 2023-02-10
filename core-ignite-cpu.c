@@ -294,7 +294,7 @@ void stress_ignite_cpu_start(void)
 		/* Child */
 
 		stress_parent_died_alarm();
-		stress_set_proc_name("ignite");
+		stress_set_proc_state_str("ignite","periodic");
 
 		while (keep_stressing_flag()) {
 			for (i = 0; settings[i].path; i++) {
