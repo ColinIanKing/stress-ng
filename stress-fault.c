@@ -22,6 +22,7 @@
 
 static sigjmp_buf jmp_env;
 static volatile bool do_jmp = true;
+static volatile int die_signum = -1;
 
 static const stress_help_t help[] = {
 	{ NULL,	"fault N",	"start N workers producing page faults" },
@@ -35,7 +36,7 @@ static const stress_help_t help[] = {
  */
 static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)signum;
+	die_signum = signum;
 
 	if (do_jmp)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
@@ -97,8 +98,8 @@ static int stress_fault(const stress_args_t *args)
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
 			do_jmp = false;
-			pr_fail("%s: unexpected segmentation fault\n",
-				args->name);
+			pr_fail("%s: unexpected %s, terminating early\n",
+				args->name, stress_strsignal(die_signum));
 			break;
 		}
 
