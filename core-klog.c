@@ -64,6 +64,7 @@ void stress_klog_start(void)
 	if (klog_pid == 0) {
 		char buf[8192];
 
+		stress_set_proc_state_str("klog","monitoring");
 		(void)fseek(klog_fp, 0, SEEK_END);
 
 		while (fgets(buf, sizeof(buf), klog_fp)) {
