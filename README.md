@@ -406,6 +406,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [qemu-system-m68k segfaults on opcode 0x4848](https://gitlab.com/qemu-project/qemu/-/issues/1462)
 * [AppArmor: -42.5% regression of stress-ng.kill.ops_per_sec due to commit](https://lkml.org/lkml/2022/12/31/27)
 * [clocksource: Suspend the watchdog temporarily when high read lantency detected](https://lore.kernel.org/lkml/20221220082512.186283-1-feng.tang@intel.com/t/)
+* [rtmutex: Ensure that the top waiter is always woken up](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=db370a8b9f67ae5f17e3d5482493294467784504)
 
 ## Kernel improvements that used stress-ng
 
