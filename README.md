@@ -502,6 +502,11 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Design and Implementation of Machine Learning-Based Fault Prediction System in Cloud Infrastructure](https://www.mdpi.com/2079-9292/11/22/3765)
 * [The TSN Building Blocks in Linux](https://arxiv.org/pdf/2211.14138.pdf)
 * [A Comprehensive Study on Optimizing Systems with Data Processing Units](https://arxiv.org/pdf/2301.06070.pdf)
+* [Sage: Practical & Scalable ML-Driven Performance Debugging in Microservices](https://people.csail.mit.edu/delimitrou/papers/2021.asplos.sage.pdf)
+* [Estimating Cloud Application Performance Based on Micro-Benchmark Profiling](https://research.chalmers.se/publication/506903/file/506903_Fulltext.pdf)
+* [PSPRAY: Timing Side-Channel based Linux Kernel Heap Exploitation Technique](https://lifeasageek.github.io/papers/yoochan-pspray.pdf)
+* [A Generalized Approach For Practical Task Allocation Using A MAPE-K Control Loop](https://www.marquez-barja.com/images/papers/A_Generalized_Approach_For_Software_Placement_In_The_Fog_Using_A_MAPE_K_Control_Loop-AuthorVersion.pdf)]
+* [Analysis and Detection of Cache-Based Exploits](https://ssg.lancs.ac.uk/wp-content/uploads/2020/07/analysis_and_detection_vateva.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
