@@ -458,7 +458,7 @@ again:
 			struct itimerval it;
 			void *ops_begin = (uint8_t *)((uintptr_t)opcodes + page_size);
 			void *ops_end = (uint8_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
-			void *ops_ptr;
+			NOCLOBBER void *ops_ptr;
 
 			(void)sched_settings_apply(true);
 
