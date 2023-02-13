@@ -308,7 +308,7 @@ static int stress_prefetch(const stress_args_t *args)
 	stress_prefetch_info_t prefetch_info[STRESS_PREFETCH_OFFSETS];
 	size_t i, best;
 	size_t prefetch_method = STRESS_PREFETCH_BUILTIN;
-	double best_rate, ns;
+	double best_rate, ns, rate;
 
 	(void)stress_get_setting("prefetch-method", &prefetch_method);
 	(void)stress_get_setting("prefetch-L3-size", &l3_data_size);
@@ -340,6 +340,10 @@ static int stress_prefetch(const stress_args_t *args)
 		prefetch_info[i].bytes = 0.0;
 		prefetch_info[i].rate = 0.0;
 	}
+	if (args->instance == 0) {
+		pr_inf("%s: using a %zd KB L3 cache with prefetch method '%s'\n",
+		args->name, l3_data_size >> 10, prefetch_methods[prefetch_method].name);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -365,20 +369,21 @@ static int stress_prefetch(const stress_args_t *args)
 			best = i;
 		}
 	}
-	pr_inf("%s: using a %zd KB L3 cache, %" PRIu64 " benchmark rounds, prefetch method '%s'\n",
-		args->name, l3_data_size >> 10, total_count,
-		prefetch_methods[prefetch_method].name);
-	pr_inf("%s: non-prefetch read rate @ %.2f GB per sec\n",
-		args->name, prefetch_info[0].rate / (double)GB);
+
+	rate = prefetch_info[0].rate / (double)GB;
+	stress_metrics_set(args, 0, "GB per sec non-prefetch read rate", rate);
 
 	if (best_rate > 0.0)
 		ns = STRESS_DBL_NANOSECOND * (double)prefetch_info[best].offset / best_rate;
 	else
 		ns = 0.0;
 
-	pr_inf("%s: best prefetch read rate @ %.2f GB per sec at offset %zd (~%.2f nanosecs)\n",
+	pr_dbg("%s: best prefetch read rate @ %.2f GB per sec at offset %zd (~%.2f nanosecs)\n",
 		args->name, best_rate / (double)GB,
 		prefetch_info[best].offset, ns);
+
+	rate = best_rate / (double)GB;
+	stress_metrics_set(args, 1, "GB per sec best read rate", rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
