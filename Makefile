@@ -41,8 +41,19 @@ CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-DHAVE_PEDANTIC
 endif
 
+#
+# Test for hardening flags and apply them if applicable
+#
+ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
+CFLAGS += -fstack-protector-strong
+endif
+ifeq ($(shell $(CC) $(CFLAGS) -Werror=format-security -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
+CFLAGS += -Werror=format-security
+endif
 ifneq ($(findstring pcc,$(CC)),pcc)
-CFLAGS += -fstack-protector-strong -Werror=format-security -D_FORTIFY_SOURCE=2
+ifeq ($(shell $(CC) $(CFLAGS) -D_FORTIFY_SOURCE=2 -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
+CFLAGS += -D_FORTIFY_SOURCE=2
+endif
 endif
 
 #
