@@ -66,6 +66,10 @@ UNEXPECTED
 #include <sys/prctl.h>
 #endif
 
+#if defined(HAVE_SYS_TIMEX_H)
+#include <sys/timex.h>
+#endif
+
 #if defined(HAVE_SYS_RANDOM_H)
 #include <sys/random.h>
 #endif
