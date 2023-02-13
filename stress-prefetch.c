@@ -53,15 +53,19 @@ typedef struct {
 } stress_prefetch_method_t;
 
 #define STRESS_PREFETCH_BUILTIN		(0)
-#define STRESS_PREFETCH_X86_PREFETCHT0	(1)
-#define STRESS_PREFETCH_X86_PREFETCHT1	(2)
-#define STRESS_PREFETCH_X86_PREFETCHT2	(3)
-#define STRESS_PREFETCH_X86_PREFETCHNTA	(4)
-#define STRESS_PREFETCH_PPC64_DCBT	(5)
-#define STRESS_PREFETCH_PPC64_DCBTST	(6)
+#define STRESS_PREFETCH_BUILTIN_L0	(1)
+#define STRESS_PREFETCH_BUILTIN_L3	(2)
+#define STRESS_PREFETCH_X86_PREFETCHT0	(3)
+#define STRESS_PREFETCH_X86_PREFETCHT1	(4)
+#define STRESS_PREFETCH_X86_PREFETCHT2	(5)
+#define STRESS_PREFETCH_X86_PREFETCHNTA	(6)
+#define STRESS_PREFETCH_PPC64_DCBT	(7)
+#define STRESS_PREFETCH_PPC64_DCBTST	(8)
 
 stress_prefetch_method_t prefetch_methods[] = {
-	{ "builtin-prefetch",	STRESS_PREFETCH_BUILTIN },
+	{ "builtin",		STRESS_PREFETCH_BUILTIN },
+	{ "builtinl0",		STRESS_PREFETCH_BUILTIN_L0 },
+	{ "builtinl3",		STRESS_PREFETCH_BUILTIN_L3 },
 #if defined(HAVE_ASM_X86_PREFETCHT0)
 	{ "prefetcht0",		STRESS_PREFETCH_X86_PREFETCHT0 },
 #endif
@@ -159,6 +163,42 @@ static inline uint64_t get_prefetch_L3_size(const stress_args_t *args)
 	return cache_size;
 }
 
+static inline void stress_prefetch_builtin(void *addr)
+{
+	shim_builtin_prefetch(addr);
+}
+
+static inline void stress_prefetch_builtin_locality0(void *addr)
+{
+	shim_builtin_prefetch(addr, 0, 0);
+}
+
+static inline void stress_prefetch_builtin_locality3(void *addr)
+{
+	shim_builtin_prefetch(addr, 0, 3);
+}
+
+static inline void stress_prefetch_none(void *addr)
+{
+	(void)addr;
+}
+
+#define STRESS_PREFETCH_LOOP(func)	\
+	while (ptr < l3_data_end) {	\
+		(void)(*(ptr + 0));	\
+		(void)(*(ptr + 1));	\
+		(void)(*(ptr + 2));	\
+		(void)(*(ptr + 3));	\
+		(void)(*(ptr + 4));	\
+		(void)(*(ptr + 5));	\
+		(void)(*(ptr + 6));	\
+		(void)(*(ptr + 7));	\
+		func(pre_ptr);		\
+		ptr += 8;		\
+		pre_ptr += 8;		\
+		shim_mb();		\
+	}
+
 static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	stress_prefetch_info_t *prefetch_info,
 	const size_t prefetch_method,
@@ -190,160 +230,64 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	stress_void_ptr_put((volatile void *)ptr);
 	stress_void_ptr_put((volatile void *)pre_ptr);
 
+	shim_cacheflush((char *)l3_data, (int)l3_data_size, SHIM_DCACHE);
+#if defined(HAVE_BUILTIN___CLEAR_CACHE)
+	__builtin___clear_cache((void *)l3_data, (void *)l3_data_end);
+#endif
+
+	ptr = l3_data;
+	pre_ptr = l3_data + prefetch_info[i].offset;
+	t3 = stress_time_now();
+
 	/* Benchmark reads */
 	if (prefetch_info[i].offset == 0) {
 		/* Benchmark no prefetch */
-		t3 = stress_time_now();
-		ptr = l3_data;
-		pre_ptr = l3_data + prefetch_info[i].offset;
-
-		while (ptr < l3_data_end) {
-			(void)(*(ptr + 0));
-			(void)(*(ptr + 1));
-			(void)(*(ptr + 2));
-			(void)(*(ptr + 3));
-			(void)(*(ptr + 4));
-			(void)(*(ptr + 5));
-			(void)(*(ptr + 6));
-			(void)(*(ptr + 7));
-			ptr += 8;
-			pre_ptr += 8;
-			shim_mb();
-		}
-		stress_void_ptr_put(pre_ptr);
+		STRESS_PREFETCH_LOOP(stress_prefetch_none);
 	} else {
-		ptr = l3_data;
-		pre_ptr = l3_data + prefetch_info[i].offset;
-		t3 = stress_time_now();
-
 		switch (prefetch_method) {
 		default:
 		case STRESS_PREFETCH_BUILTIN:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				shim_builtin_prefetch(pre_ptr, 0, 3);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_prefetch_builtin);
+			break;
+		case STRESS_PREFETCH_BUILTIN_L0:
+			STRESS_PREFETCH_LOOP(stress_prefetch_builtin_locality0);
+			break;
+		case STRESS_PREFETCH_BUILTIN_L3:
+			STRESS_PREFETCH_LOOP(stress_prefetch_builtin_locality3);
 			break;
 #if defined(HAVE_ASM_X86_PREFETCHT0)
 		case STRESS_PREFETCH_X86_PREFETCHT0:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				stress_asm_x86_prefetcht0(pre_ptr);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht0);
 			break;
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT1)
 		case STRESS_PREFETCH_X86_PREFETCHT1:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				stress_asm_x86_prefetcht1(pre_ptr);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht1);
 			break;
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT2)
 		case STRESS_PREFETCH_X86_PREFETCHT2:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				stress_asm_x86_prefetcht2(pre_ptr);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht2);
 			break;
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
 		case STRESS_PREFETCH_X86_PREFETCHNTA:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				stress_asm_x86_prefetchnta(pre_ptr);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetchnta);
 			break;
 #endif
 #if defined(HAVE_ASM_PPC64_DCBT)
 		case STRESS_PREFETCH_PPC64_DCBT:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				stress_asm_ppc64_dcbt(pre_ptr);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbt);
 			break;
 #endif
 #if defined(HAVE_ASM_PPC64_DCBTST)
 		case STRESS_PREFETCH_PPC64_DCBTST:
-			while (ptr < l3_data_end) {
-				(void)(*(ptr + 0));
-				(void)(*(ptr + 1));
-				(void)(*(ptr + 2));
-				(void)(*(ptr + 3));
-				(void)(*(ptr + 4));
-				(void)(*(ptr + 5));
-				(void)(*(ptr + 6));
-				(void)(*(ptr + 7));
-				stress_asm_ppc64_dcbtst(pre_ptr);
-				ptr += 8;
-				pre_ptr += 8;
-				shim_mb();
-			}
+			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbtst);
 			break;
 #endif
 		}
 	}
+	stress_void_ptr_put(pre_ptr);
 	t4 = stress_time_now();
 
 	/* Update stats */
@@ -421,8 +365,9 @@ static int stress_prefetch(const stress_args_t *args)
 			best = i;
 		}
 	}
-	pr_inf("%s: using a %zd KB L3 cache, %" PRIu64 " benchmark rounds\n",
-		args->name, l3_data_size >> 10, total_count);
+	pr_inf("%s: using a %zd KB L3 cache, %" PRIu64 " benchmark rounds, prefetch method '%s'\n",
+		args->name, l3_data_size >> 10, total_count,
+		prefetch_methods[prefetch_method].name);
 	pr_inf("%s: non-prefetch read rate @ %.2f GB per sec\n",
 		args->name, prefetch_info[0].rate / (double)GB);
 

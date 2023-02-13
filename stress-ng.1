@@ -3860,8 +3860,14 @@ expand;
 lB2 lB lB lB
 l l s s.
 Method	Description
-builtin-prefetch	T{
+builtin	T{
 Use the __builtin_prefetch(3) function for prefetching. This is the default.
+T}
+builtinl0	T{
+Use the __builtin_prefetch(3) function for prefetching, with a locality 0 hint.
+T}
+builtinl3	T{
+Use the __builtin_prefetch(3) function for prefetching, with a locality 3 hint.
 T}
 dcbt	T{
 Use the ppc64 dcbt instruction to fetch data into the L1 cache (ppc64 only).
