@@ -199,7 +199,7 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 #endif
 	stress_syncload_sched_yield,
 #if !defined(__TINYC__) &&	\
-    defined(STRESS_ARCH_X86_64)
+    defined(STRESS_ARCH_X86)
 	stress_syncload_rdrand,
 #endif
 	stress_syncload_mfence,
