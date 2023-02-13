@@ -95,18 +95,13 @@ static void stress_waitcpu_x86_pause(void)
 	stress_asm_x86_pause();
 }
 
-static bool stress_waitcpu_x86_waitpkg_supported(void)
-{
-	if (!stress_cpu_is_x86())
-		return false;
-	return stress_cpu_x86_has_waitpkg();
-}
-
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(__PCC__)
 static bool stress_waitcpu_x86_tpause_supported(void)
 {
-	return stress_waitcpu_x86_waitpkg_supported();
+	if (!stress_cpu_is_x86())
+		return false;
+	return stress_cpu_x86_has_waitpkg();
 }
 
 static void stress_waitcpu_x86_tpause0(void)
@@ -132,10 +127,13 @@ static void stress_waitcpu_x86_tpause1(void)
 }
 #endif
 
-#if !defined(__PCC__)
+#if !defined(__PCC__) &&	\
+    defined(HAVE_ARCH_X86_64)
 static bool stress_waitcpu_x86_umwait_supported(void)
 {
-	return stress_waitcpu_x86_waitpkg_supported();
+	if (!stress_cpu_is_x86())
+		return false;
+	return stress_cpu_x86_has_waitpkg();
 }
 
 static void stress_waitcpu_x86_umwait0(void)
@@ -196,7 +194,8 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "tpause0",	stress_waitcpu_x86_tpause0,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0 },
 	{ "tpause1",	stress_waitcpu_x86_tpause1,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0 },
 #endif
-#if !defined(__PCC__)
+#if !defined(__PCC__) &&	\
+    defined(HAVE_ARCH_X86_64)
 	{ "umwait0",	stress_waitcpu_x86_umwait0,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0 },
 	{ "umwait0",	stress_waitcpu_x86_umwait1,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0 },
 #endif

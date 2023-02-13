@@ -275,7 +275,8 @@ static inline void stress_asm_x86_prefetchnta(void *p)
 }
 #endif
 
-#if !defined(__PCC__)
+#if !defined(__PCC__) && 	\
+    defined(HAVE_ARCH_X86_64)
 static inline int stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
