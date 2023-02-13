@@ -1187,8 +1187,7 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "pink",	stress_rand_data_pink },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
-#if defined(HAVE_ASM_X86_RDRAND) &&		\
-    defined(STRESS_ARCH_X86_64)
+#if defined(HAVE_ASM_X86_RDRAND)
 	{ "rdrand",	stress_rand_data_rdrand },
 #endif
 	{ "ror32",	stress_rand_data_ror32 },
