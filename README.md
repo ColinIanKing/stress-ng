@@ -507,6 +507,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [PSPRAY: Timing Side-Channel based Linux Kernel Heap Exploitation Technique](https://lifeasageek.github.io/papers/yoochan-pspray.pdf)
 * [A Generalized Approach For Practical Task Allocation Using A MAPE-K Control Loop](https://www.marquez-barja.com/images/papers/A_Generalized_Approach_For_Software_Placement_In_The_Fog_Using_A_MAPE_K_Control_Loop-AuthorVersion.pdf)]
 * [Analysis and Detection of Cache-Based Exploits](https://ssg.lancs.ac.uk/wp-content/uploads/2020/07/analysis_and_detection_vateva.pdf)
+* [Robust and accurate performance anomaly detection and prediction for cloud applications: a novel ensemble learning-based framework](https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-022-00383-6#Fn4)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
