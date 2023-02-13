@@ -192,18 +192,17 @@ static inline void stress_prefetch_none(void *addr)
 
 #define STRESS_PREFETCH_LOOP(func)	\
 	while (ptr < l3_data_end) {	\
+		func(pre_ptr);		\
 		(void)(*(ptr + 0));	\
 		(void)(*(ptr + 1));	\
 		(void)(*(ptr + 2));	\
 		(void)(*(ptr + 3));	\
+		pre_ptr += 8;		\
 		(void)(*(ptr + 4));	\
 		(void)(*(ptr + 5));	\
 		(void)(*(ptr + 6));	\
 		(void)(*(ptr + 7));	\
-		func(pre_ptr);		\
 		ptr += 8;		\
-		pre_ptr += 8;		\
-		shim_mb();		\
 	}
 
 static inline void OPTIMIZE3 stress_prefetch_benchmark(
