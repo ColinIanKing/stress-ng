@@ -3853,6 +3853,35 @@ stop prefetch stressors after N benchmark operations
 .B \-\-prefetch-l3-size N
 specify the size of the l3 cache
 .TP
+.B \-\-prefetch\-method N
+select the prefetching method. Available methods are:
+.TS
+expand;
+lB2 lB lB lB
+l l s s.
+Method	Description
+builtin-prefetch	T{
+Use the __builtin_prefetch(3) function for prefetching. This is the default.
+T}
+prefetcht0	T{
+Use the x86 prefetcht0 instruction to prefetch data into all levels of the
+cache hierarchy (x86 only).
+T}
+prefetcht1	T{
+Use the x86 prefetcht1 instruction (temporal data with respect to first level
+cache) to prefetch data into level 2 cache and higher (x86 only).
+T}
+prefetcht2	T{
+Use the x86 prefetcht2 instruction (temporal data with respect to second level
+cache) to prefetch data into level 2 cache and higher (x86 only).
+T}
+prefetchnta	T{
+Use the x86 prefetchnta instruction (non-temporal data with respect to all
+cache levels) into a location close to the processor, minimizing cache
+pollution (x86 only).
+T}
+.TE
+.TP
 .B \-\-priv\-instr N
 start N workers that exercise various architecture specific privileged
 instructions that cannot be executed by userspace programs. These

@@ -247,6 +247,34 @@ static inline void stress_asm_x86_mfence(void)
 }
 #endif
 
+#if defined(HAVE_ASM_X86_PREFETCHT0)
+static inline void stress_asm_x86_prefetcht0(void *p)
+{
+	__asm__ __volatile__("prefetcht0 (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_PREFETCHT1)
+static inline void stress_asm_x86_prefetcht1(void *p)
+{
+	__asm__ __volatile__("prefetcht1 (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_PREFETCHT2)
+static inline void stress_asm_x86_prefetcht2(void *p)
+{
+	__asm__ __volatile__("prefetcht2 (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_PREFETCHNTA)
+static inline void stress_asm_x86_prefetchnta(void *p)
+{
+	__asm__ __volatile__("prefetchnta (%0)\n" : : "r"(p) : "memory");
+}
+#endif
+
 #if !defined(__PCC__)
 static inline int stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
 {

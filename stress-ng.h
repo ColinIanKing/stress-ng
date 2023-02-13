@@ -1733,8 +1733,9 @@ typedef enum {
 	OPT_poll_fds,
 
 	OPT_prefetch,
-	OPT_prefetch_ops,
 	OPT_prefetch_l3_size,
+	OPT_prefetch_method,
+	OPT_prefetch_ops,
 
 	OPT_prctl,
 	OPT_prctl_ops,
