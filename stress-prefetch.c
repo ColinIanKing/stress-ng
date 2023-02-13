@@ -21,6 +21,7 @@
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-cache.h"
+#include "core-cpu.h"
 #include "core-put.h"
 
 #define MIN_PREFETCH_L3_SIZE      (4 * KB)
@@ -50,6 +51,7 @@ typedef struct {
 typedef struct {
 	char *name;
 	int method;
+	bool (*available)(void);
 } stress_prefetch_method_t;
 
 #define STRESS_PREFETCH_BUILTIN		(0)
@@ -62,27 +64,32 @@ typedef struct {
 #define STRESS_PREFETCH_PPC64_DCBT	(7)
 #define STRESS_PREFETCH_PPC64_DCBTST	(8)
 
+static inline bool stress_prefetch_true(void)
+{
+	return true;
+}
+
 stress_prefetch_method_t prefetch_methods[] = {
-	{ "builtin",		STRESS_PREFETCH_BUILTIN },
-	{ "builtinl0",		STRESS_PREFETCH_BUILTIN_L0 },
-	{ "builtinl3",		STRESS_PREFETCH_BUILTIN_L3 },
+	{ "builtin",		STRESS_PREFETCH_BUILTIN,	stress_prefetch_true },
+	{ "builtinl0",		STRESS_PREFETCH_BUILTIN_L0,	stress_prefetch_true },
+	{ "builtinl3",		STRESS_PREFETCH_BUILTIN_L3,	stress_prefetch_true },
 #if defined(HAVE_ASM_X86_PREFETCHT0)
-	{ "prefetcht0",		STRESS_PREFETCH_X86_PREFETCHT0 },
+	{ "prefetcht0",		STRESS_PREFETCH_X86_PREFETCHT0,	stress_cpu_x86_has_sse },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT1)
-	{ "prefetcht1",		STRESS_PREFETCH_X86_PREFETCHT1 },
+	{ "prefetcht1",		STRESS_PREFETCH_X86_PREFETCHT1, stress_cpu_x86_has_sse },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT2)
-	{ "prefetcht2",		STRESS_PREFETCH_X86_PREFETCHT2 },
+	{ "prefetcht2",		STRESS_PREFETCH_X86_PREFETCHT2, stress_cpu_x86_has_sse },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
-	{ "prefetchnta",	STRESS_PREFETCH_X86_PREFETCHNTA },
+	{ "prefetchnta",	STRESS_PREFETCH_X86_PREFETCHNTA, stress_cpu_x86_has_sse },
 #endif
 #if defined(HAVE_ASM_PPC64_DCBT)
-	{ "dcbt",		STRESS_PREFETCH_PPC64_DCBT },
+	{ "dcbt",		STRESS_PREFETCH_PPC64_DCBT,	stress_prefetch_true },
 #endif
 #if defined(HAVE_ASM_PPC64_DCBTST)
-	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST },
+	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST,	stress_prefetch_true },
 #endif
 };
 
@@ -109,7 +116,7 @@ static int stress_set_prefetch_method(const char *opt)
 		}
 	}
 
-	(void)fprintf(stderr, "cpu-method must be one of:");
+	(void)fprintf(stderr, "prefetch-method must be one of:");
 	for (i = 0; i < SIZEOF_ARRAY(prefetch_methods); i++) {
 		(void)fprintf(stderr, " %s", prefetch_methods[i].name);
 	}
@@ -311,6 +318,12 @@ static int stress_prefetch(const stress_args_t *args)
 	double best_rate, ns, rate;
 
 	(void)stress_get_setting("prefetch-method", &prefetch_method);
+
+	if (!prefetch_methods[prefetch_method].available()) {
+		(void)pr_inf("%s: prefetch-method '%s' is not available on this CPU, skipping stressor\n",
+			args->name, prefetch_methods[prefetch_method].name);
+		return EXIT_NO_RESOURCE;
+	}
 	(void)stress_get_setting("prefetch-L3-size", &l3_data_size);
 	if (l3_data_size == 0)
 		l3_data_size = get_prefetch_L3_size(args);
