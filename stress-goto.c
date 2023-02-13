@@ -69,10 +69,22 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define G(n) L ## n:	goto *labels[n];
 
 /*
+ *  Intel icx can take hours optimizating the code,
+ *  so workaround this by defaulting it to -O0 until
+ *  this is resolved
+ */
+#if defined(__INTEL_CLANG_COMPILER) ||	\
+    defined(__INTEL_LLVM_COMPILER)
+#define OPTIMIZE_GOTO	OPTIMIZE0
+#else
+#define OPTIMIZE_GOTO	OPTIMIZE3
+#endif
+
+/*
  *  stress_goto()
  *	stress instruction goto prediction
  */
-static int OPTIMIZE3 stress_goto(const stress_args_t *args)
+static int OPTIMIZE_GOTO stress_goto(const stress_args_t *args)
 {
 	size_t i;
 	int goto_direction;
