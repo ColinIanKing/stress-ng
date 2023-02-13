@@ -2308,6 +2308,10 @@ const char *stress_get_compiler(void)
       defined(__INTEL_COMPILER) &&	\
       defined(__INTEL_COMPILER_UPDATE)
 	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) "";
+#elif defined(__INTEL_CLANG_COMPILER)
+	static const char cc[] = "icx " XSTRINGIFY(__INTEL_CLANG_COMPILER) "";
+#elif defined(__INTEL_LLVM_COMPILER)
+	static const char cc[] = "icx " XSTRINGIFY(__INTEL_LLVM_COMPILER) "";
 #elif defined(__TINYC__)
 	static const char cc[] = "tcc " XSTRINGIFY(__TINYC__) "";
 #elif defined(__PCC__) &&			\
