@@ -42,6 +42,20 @@ static inline void stress_asm_ppc64_dcbst(void *addr)
 }
 #endif
 
+#if defined(HAVE_ASM_PPC64_DCBT)
+static inline void stress_asm_ppc64_dcbt(void *addr)
+{
+	__asm__ __volatile__("dcbt 0,%0" : : "r"(addr));
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_DCBTST)
+static inline void stress_asm_ppc64_dcbtst(void *addr)
+{
+	__asm__ __volatile__("dcbtst 0,%0" : : "r"(addr));
+}
+#endif
+
 #if defined(HAVE_ASM_PPC64_ICBI)
 static inline void stress_asm_ppc64_icbi(void *addr)
 {

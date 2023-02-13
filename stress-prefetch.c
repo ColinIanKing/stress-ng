@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-cache.h"
 #include "core-put.h"
@@ -56,6 +57,8 @@ typedef struct {
 #define STRESS_PREFETCH_X86_PREFETCHT1	(2)
 #define STRESS_PREFETCH_X86_PREFETCHT2	(3)
 #define STRESS_PREFETCH_X86_PREFETCHNTA	(4)
+#define STRESS_PREFETCH_PPC64_DCBT	(5)
+#define STRESS_PREFETCH_PPC64_DCBTST	(6)
 
 stress_prefetch_method_t prefetch_methods[] = {
 	{ "builtin-prefetch",	STRESS_PREFETCH_BUILTIN },
@@ -70,6 +73,12 @@ stress_prefetch_method_t prefetch_methods[] = {
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
 	{ "prefetchnta",	STRESS_PREFETCH_X86_PREFETCHNTA },
+#endif
+#if defined(HAVE_ASM_PPC64_DCBT)
+	{ "dcbt",		STRESS_PREFETCH_PPC64_DCBT },
+#endif
+#if defined(HAVE_ASM_PPC64_DCBTST)
+	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST },
 #endif
 };
 
@@ -291,6 +300,42 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 				(void)(*(ptr + 6));
 				(void)(*(ptr + 7));
 				stress_asm_x86_prefetchnta(pre_ptr);
+				ptr += 8;
+				pre_ptr += 8;
+				shim_mb();
+			}
+			break;
+#endif
+#if defined(HAVE_ASM_PPC64_DCBT)
+		case STRESS_PREFETCH_PPC64_DCBT:
+			while (ptr < l3_data_end) {
+				(void)(*(ptr + 0));
+				(void)(*(ptr + 1));
+				(void)(*(ptr + 2));
+				(void)(*(ptr + 3));
+				(void)(*(ptr + 4));
+				(void)(*(ptr + 5));
+				(void)(*(ptr + 6));
+				(void)(*(ptr + 7));
+				stress_asm_ppc64_dcbt(pre_ptr);
+				ptr += 8;
+				pre_ptr += 8;
+				shim_mb();
+			}
+			break;
+#endif
+#if defined(HAVE_ASM_PPC64_DCBTST)
+		case STRESS_PREFETCH_PPC64_DCBTST:
+			while (ptr < l3_data_end) {
+				(void)(*(ptr + 0));
+				(void)(*(ptr + 1));
+				(void)(*(ptr + 2));
+				(void)(*(ptr + 3));
+				(void)(*(ptr + 4));
+				(void)(*(ptr + 5));
+				(void)(*(ptr + 6));
+				(void)(*(ptr + 7));
+				stress_asm_ppc64_dcbtst(pre_ptr);
 				ptr += 8;
 				pre_ptr += 8;
 				shim_mb();
