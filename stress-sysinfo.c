@@ -115,10 +115,11 @@ static int stress_sysinfo(const stress_args_t *args)
 					continue;
 				}
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					if (errno != ENOSYS &&
-					    errno != EOVERFLOW &&
-					    errno != EACCES &&
-					    errno != EPERM) {
+					if ((errno != ENOSYS) &&
+					    (errno != EOVERFLOW) &&
+					    (errno != EACCES) &&
+					    (errno != ENOTCONN) &&
+					    (errno != EPERM)) {
 						pr_fail("%s: statfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
@@ -150,10 +151,11 @@ static int stress_sysinfo(const stress_args_t *args)
 				if ((ret < 0) && (errno == ENOENT))
 					continue;
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					if (errno != ENOSYS &&
-					    errno != EOVERFLOW &&
-					    errno != EACCES &&
-					    errno != EPERM) {
+					if ((errno != ENOSYS) &&
+					    (errno != EOVERFLOW) &&
+					    (errno != EACCES) &&
+					    (errno != ENOTCONN) &&
+					    (errno != EPERM)) {
 						pr_fail("%s: fstatfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
@@ -185,10 +187,11 @@ static int stress_sysinfo(const stress_args_t *args)
 
 				ret = shim_ustat(sbuf.st_dev, &ubuf);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					if (errno != EINVAL &&
-					    errno != EFAULT &&
-					    errno != ENOSYS &&
-					    errno != EPERM) {
+					if ((errno != EINVAL) &&
+					    (errno != EFAULT) &&
+					    (errno != ENOSYS) &&
+					    (errno != ENOTCONN) &&
+					    (errno != EPERM)) {
 						pr_fail("%s: ustat on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
@@ -225,10 +228,11 @@ static int stress_sysinfo(const stress_args_t *args)
 
 				ret = statvfs(mnts[i], &statvfs_buf);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					if (errno != ENOSYS &&
-					    errno != EOVERFLOW &&
-					    errno != EACCES &&
-					    errno != EPERM) {
+					if ((errno != ENOSYS) &&
+					    (errno != EOVERFLOW) &&
+					    (errno != EACCES) &&
+					    (errno != ENOTCONN) &&
+					    (errno != EPERM)) {
 						pr_fail("%s: statvfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
