@@ -240,6 +240,13 @@ static inline void stress_asm_x86_clwb(void *p)
 }
 #endif
 
+#if defined(HAVE_ASM_X86_LFENCE)
+static inline void stress_asm_x86_lfence(void)
+{
+	__asm__ __volatile__("lfence" : : : "memory");
+}
+#endif
+
 #if defined(HAVE_ASM_X86_MFENCE)
 static inline void stress_asm_x86_mfence(void)
 {

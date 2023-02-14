@@ -5277,6 +5277,9 @@ the tick instruction on SPARC.
 .B \-\-tsc\-ops N
 stop the tsc workers after N bogo operations are completed.
 .TP
+.B \-\-tsc\-lfence
+add lfence after each tsc read to force serialization (x86 only).
+.TP
 .B \-\-tsearch N
 start N workers that insert, search and delete 32 bit integers on a binary
 tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536

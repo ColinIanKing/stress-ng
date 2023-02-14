@@ -1075,6 +1075,7 @@ static const struct option long_options[] = {
 	{ "tree-ops",		1,	0,	OPT_tree_ops },
 	{ "tree-size",		1,	0,	OPT_tree_size },
 	{ "tsc",		1,	0,	OPT_tsc },
+	{ "tsc-lfence",		0,	0,	OPT_tsc_lfence },
 	{ "tsc-ops",		1,	0,	OPT_tsc_ops },
 	{ "tsearch",		1,	0,	OPT_tsearch },
 	{ "tsearch-ops",	1,	0,	OPT_tsearch_ops },

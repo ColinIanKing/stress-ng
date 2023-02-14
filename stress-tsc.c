@@ -36,7 +36,18 @@
 static const stress_help_t help[] = {
 	{ NULL,	"tsc N",	"start N workers reading the time stamp counter" },
 	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },
+	{ NULL, "tsc-lfence",	"add lfence after TSC reads for serialization (x86 only)" },
 	{ NULL,	NULL,		NULL }
+};
+
+static int stress_set_tsc_lfence(const char *opt)
+{
+	return stress_set_setting_true("tsc-lfence", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_tsc_lfence,	stress_set_tsc_lfence },
+	{ 0,			NULL }
 };
 
 #if defined(STRESS_ARCH_RISCV) &&	\
@@ -92,6 +103,14 @@ static int stress_tsc_supported(const char *name)
     !defined(__TINYC__)
 
 #define HAVE_STRESS_TSC_CAPABILITY
+
+#if defined(HAVE_ASM_X86_LFENCE)
+#define HAVE_STRESS_TSC_LFENCE
+static inline void lfence(void)
+{
+	stress_asm_x86_lfence();
+}
+#endif
 
 static bool tsc_supported = false;
 
@@ -209,6 +228,7 @@ static inline void stress_tsc_check(
 }
 
 #if defined(HAVE_STRESS_TSC_CAPABILITY)
+
 /*
  *  Unrolled 32 times, no verify
  */
@@ -295,47 +315,187 @@ do {			\
 	old_tsc = tsc;	\
 } while (0)
 
+#if defined(HAVE_STRESS_TSC_LFENCE)
+
+#define rdtsc_lfence()		\
+	do {			\
+		rdtsc();	\
+		lfence();	\
+	} while (0);
+
+/*
+ *  Unrolled 32 times, no verify with lfence
+ */
+#define TSCx32_lfence()	\
+do {			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+} while (0)
+
+/*
+ *  Unrolled 32 times, verify monitonically increasing at end, with lfence
+ */
+#define TSCx32_lfence_verify(args, tsc, old_tsc)	\
+do {			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+			\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	rdtsc_lfence();	\
+	tsc = rdtsc();	\
+	stress_tsc_check(args, tsc, old_tsc);	\
+	old_tsc = tsc;	\
+} while (0)
+
+#endif
+
 /*
  *  stress_tsc()
  *      stress Intel tsc instruction
  */
 static int stress_tsc(const stress_args_t *args)
 {
+	bool tsc_lfence = false;
+	int ret = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_get_setting("tsc-lfence", &tsc_lfence);
+
+	if (tsc_lfence && !stress_cpu_is_x86()) {
+		pr_inf("%s: tsc-lfence is disabled, this is an x86 only option\n", args->name);
+		tsc_lfence = false;
+	}
 
 	if (tsc_supported) {
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 		double duration = 0.0, count;
 
+		if (tsc_lfence) {
+#if defined(HAVE_STRESS_TSC_LFENCE)
+			if (verify) {
+				uint64_t tsc, old_tsc;
 
-		if (verify) {
-			uint64_t tsc, old_tsc;
+				old_tsc = rdtsc();
+				do {
+					const double t = stress_time_now();
 
-			old_tsc = rdtsc();
-			do {
-				const double t = stress_time_now();
+					TSCx32_lfence_verify(args, tsc, old_tsc);
+					TSCx32_lfence_verify(args, tsc, old_tsc);
+					TSCx32_lfence_verify(args, tsc, old_tsc);
+					TSCx32_lfence_verify(args, tsc, old_tsc);
 
-				TSCx32_verify(args, tsc, old_tsc);
-				TSCx32_verify(args, tsc, old_tsc);
-				TSCx32_verify(args, tsc, old_tsc);
-				TSCx32_verify(args, tsc, old_tsc);
+					duration += stress_time_now() - t;
+					inc_counter(args);
+				} while (keep_stressing(args));
+			} else {
+				do {
+					const double t = stress_time_now();
 
-				duration += stress_time_now() - t;
-				inc_counter(args);
-			} while (keep_stressing(args));
+					TSCx32_lfence();
+					TSCx32_lfence();
+					TSCx32_lfence();
+					TSCx32_lfence();
+
+					duration += stress_time_now() - t;
+					inc_counter(args);
+				} while (keep_stressing(args));
+			}
+#else
+			if (args->instance == 0)
+				pr_inf("%s: tsc-lfence enabled but cpu does not support it, skipping stressor\n", args->name);
+			ret = EXIT_NO_RESOURCE;
+#endif
 		} else {
-			do {
-				const double t = stress_time_now();
+			if (verify) {
+				uint64_t tsc, old_tsc;
 
-				TSCx32();
-				TSCx32();
-				TSCx32();
-				TSCx32();
+				old_tsc = rdtsc();
+				do {
+					const double t = stress_time_now();
 
-				duration += stress_time_now() - t;
-				inc_counter(args);
-			} while (keep_stressing(args));
+					TSCx32_verify(args, tsc, old_tsc);
+					TSCx32_verify(args, tsc, old_tsc);
+					TSCx32_verify(args, tsc, old_tsc);
+					TSCx32_verify(args, tsc, old_tsc);
+
+					duration += stress_time_now() - t;
+					inc_counter(args);
+				} while (keep_stressing(args));
+			} else {
+				do {
+					const double t = stress_time_now();
+
+					TSCx32();
+					TSCx32();
+					TSCx32();
+					TSCx32();
+
+					duration += stress_time_now() - t;
+					inc_counter(args);
+				} while (keep_stressing(args));
+			}
 		}
 		count = 32.0 * 4.0 * (double)get_counter(args);
 		duration = (count > 0.0) ? duration / count : 0.0;
@@ -343,7 +503,7 @@ static int stress_tsc(const stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 stressor_info_t stress_tsc_info = {
@@ -351,6 +511,7 @@ stressor_info_t stress_tsc_info = {
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
 	.verify = VERIFY_OPTIONAL,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
@@ -367,6 +528,7 @@ stressor_info_t stress_tsc_info = {
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
 	.verify = VERIFY_OPTIONAL,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()"
 };
