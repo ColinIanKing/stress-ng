@@ -44,8 +44,10 @@ endif
 #
 # Test for hardening flags and apply them if applicable
 #
+ifneq ($(findstring alpha,$(shell uname -m)),alpha)
 ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
 CFLAGS += -fstack-protector-strong
+endif
 endif
 ifeq ($(shell $(CC) $(CFLAGS) -Werror=format-security -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
 CFLAGS += -Werror=format-security
