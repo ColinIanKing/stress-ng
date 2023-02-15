@@ -45,7 +45,7 @@ endif
 # Test for hardening flags and apply them if applicable
 #
 MACHINE = $(shell uname -m)
-ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc))
+ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisci ia64))
 ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
 CFLAGS += -fstack-protector-strong
 endif
