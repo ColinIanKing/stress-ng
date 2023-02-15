@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.15.03
+VERSION=0.15.04
 #
-# Codename "hydrophonic purple squid"
+# Codename "inconsequential levitating tardigrade"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
