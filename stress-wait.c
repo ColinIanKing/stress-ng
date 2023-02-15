@@ -135,7 +135,7 @@ static void NORETURN killer(
  *  stress_wait_continued()
  *	check WIFCONTINUED
  */
-static void stress_wait_continued(const stress_args_t *args, const int status)
+static void stress_wait_continued(const stress_args_t *args, int status)
 {
 #if defined(WIFCONTINUED)
 	if (WIFCONTINUED(status))
