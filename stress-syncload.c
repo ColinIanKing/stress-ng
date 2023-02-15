@@ -97,7 +97,8 @@ static void stress_syncload_yield(void)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86) &&		\
+#if !defined(__TINYC__) &&		\
+    defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_ASM_X86_RDRAND)
 static void stress_syncload_rdrand(void)
 {
@@ -198,8 +199,9 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_yield,
 #endif
 	stress_syncload_sched_yield,
-#if !defined(__TINYC__) &&	\
-    defined(STRESS_ARCH_X86)
+#if !defined(__TINYC__) &&		\
+    defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_X86_RDRAND)
 	stress_syncload_rdrand,
 #endif
 	stress_syncload_mfence,
