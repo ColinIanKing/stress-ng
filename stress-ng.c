@@ -2885,23 +2885,23 @@ static void stress_metrics_dump(
 				if (description) {
 					int64_t exponent = 0;
 					double geomean, mantissa = 1.0;
-					double inverse_n;
 					double n = 0.0;
 
 					for (j = 0; j < ss->started_instances; j++) {
 						int e;
 						const stress_stats_t *const stats = ss->stats[j];
-						double f;
 
 						if (stats->metrics[i].value > 0.0) {
-							f = frexp(stats->metrics[i].value, &e);
+							const double f = frexp(stats->metrics[i].value, &e);
+
 							mantissa *= f;
 							exponent += e;
 							n += 1.0;
 						}
 					}
 					if (n > 0.0) {
-						inverse_n = 1.0 / (double)ss->started_instances;
+						const double inverse_n = 1.0 / (double)ss->started_instances;
+
 						geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
 					} else {
 						geomean = 0.0;
