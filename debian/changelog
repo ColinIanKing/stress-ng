@@ -1,3 +1,171 @@
+stress-ng (0.15.04-1) unstable; urgency=medium
+
+  [Khem Raj]
+  * Include sys/timex.h for clock_adjtime
+  * test-float: Make variables global
+
+  [Nick Hanley]
+  * Makefile.config: fix mktemp file leak
+  * Makefile.config: style: consistently omit parens around call arguments
+  * Makefile.config: style: replace trailing tabs with spaces
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-waitcpu: reduce scope for variables t and j
+  * stress-ng: reduce scope of variables inverse_n and f
+  * stress-lsearch: reduce the scope of variable t
+  * stress-cpu-online: reduce the scope of variable t
+  * stress-cpu: add missing line
+  * stress-bsearch: reduce scope of variable t
+  * stress-misaligned: disable misaligned atomic ops on PPC64 with older gcc
+  * stress-epoll: return client error return back to parent
+  * stress-waitcpu: add check for PAUSE instruction
+  * stress-vecwide: disable stress_vint8w16_t as this causes build failures
+  * stress-memrate: only define stos helpers if STOS instructions are
+    available
+  * stress-syncload: fix #ifdef's around stress_syncload_rdrand
+  * stress-wait: unconstify status to clear warning on OS X builds
+  * Makefile: disable -fstack-protector-strong for hppa too
+  * stress-sysinfo: don't fail on gvfs ENOTCONN errors
+  * Makefile: disable -fstack-protector-strong for alpha
+  * stress-tsc: add --tsc-lfence option to force tsc read serialization
+  * Manual: update copyright year and date
+  * stress-goto: add optimization tweak for icx compiler
+  * core-helper: add Intel icx compiler version detection
+  * stress-zlib: allow rdrand for 32 and 64 bit x86
+  * stress-waitcpu: disable umwait for x86-32
+  * stress-syncload: allow 32 bit x86 as well as 64 bit
+  * stress-opcode: mark ops_ptr as NOCLOBBERable to clear up longjmp warning
+  * Makefile: check and use hardening flags where available
+  * stress-prefetch: move prefetch and increment to increase throughput
+  * stress-prefetch: add check to see if prefetch* on x86 is available
+  * README.md: add another citation of an academic paper
+  * stress-prefetch: move read rates to metrics output
+  * stress-prefetch: add locality hinted prefetch, move read loop into a
+    macro
+  * stress-prefetch: add ppc64 prefetch methods
+  * stress-prefetch: add prefetch-method option to specify prefetch
+    instructions
+  * README.md: add some more citiations
+  * README.md: add another kernel issue found with stress-ng
+  * core-klog: add proc title status
+  * core-ignite-cpu: add proc title status
+  * core-vmstat: set proc title to indicate periodic stats process
+  * stress-fault: add more signal failure information
+  * stress-mremap: fix mremap with MAP_FIXED and no target address to use
+    NULL
+  * stress-waitcpu: annotate the address umonitor is waiting on
+  * stress-vecwide: add 16 bit vector, add metrics, report stats in bit
+    width
+  * core-asm-arm.h: helper include file for ARM assembler helpers
+  * stress-*: use generic stress_metrics_t type for per-stressor metrics
+  * stess-ng.h: rename stress_metrics_t to stress_metrics_data_t
+  * stress-waitcpu: add in ppc64 yieldy instructions
+  * stress-waitcpu: use yield instruction for ARM
+  * stress-waitcpu: use processor specific wait/pause instructions
+  * README.md: add another kernel issue found with stress-ng
+  * core-cache: allow x86 cache size checking for non-Linux/Apple systems
+  * core-cache: attempt to find cache size using x86 CPUID info
+  * stress-x86cpuid: add missing running and deinit proc state
+  * stress-umount: set child process in running state
+  * stress-rmap: set child process in running state
+  * stress-pthread: remove pthread instance id from proc cmdline
+  * stress-lease: set child process in running state
+  * stress-kill: set child process in running state
+  * stress-forkheavy: set child process in running state
+  * stress-fifo: set child process in running state
+  * stress-dir-deep: set run state earlier
+  * stress-context: set run state earlier
+  * stress-affinity: set child process in running state
+  * stress-vdso: set run state earlier
+  * stress-sigio: set child process in running state
+  * stress-idle-page: fix swapped args in error message
+  * stress-landlock: fix missing space between call & is in message
+  * stress-dentry: remove "removing .. dentries" message
+  * stress-chdir: inform user of delay in removing directories after 0.5
+    seconds
+  * core-mwc: fix comment of stress_mwc64modn
+  * stress-hdd: add read/write metrics
+  * stress-opcode: use non-volatile pointer state for mmap/mprotect/munmap
+    calls
+  * core-cache, core-asm-x86: modify volatile pointer casting
+  * stress-ipsec-mb: use shim_strlcat for a safer strcat
+  * stress-umount: stressor to exercise racy umount calls
+  * core-asm-x86.h: rework tpause to use rdtsc inlined code and return
+    carry flag
+  * core-cache.h: remove redundant #if 1 .. #endif
+  * stress-opcode: print estimate of total run time when using -v mode
+  * core-asm-ppc64.h: Enable msync instruction
+  * core-helper: disable __stack_chk_fail for clang - it breaks clang-16
+  * stress-flushcache: use more asm inline helpers
+  * stress-lock{a|f|ofd}: terminate contention process with SIGALRM
+  * core-asm-sparc.h, stress-tsc: check for HAVE_ASM_SPARC_TICK when using
+    tick opcode
+  * core-cache: use stress_asm_sparc_membar from core-asm-sparc.h
+  * core-cache: use stress_asm_riscv_fence from core-asm-riscv.h
+  * core-cache: use stress_asm_x86_clflush from core-asm-x86.h
+  * core-cache: use stress_asm_x86_clflush from core-asm-x86.h
+  * core-asm-x86.h: move x86 cache ops to core-asm-x86.h
+  * Makefile: add code fortify flags
+  * core-asm-x86: add checks for rdrand and rdseek opcodes being supported
+  * core-asm-sparc: remove extraneous tab
+  * stress-tree: add some minor optimization tweaks
+  * stress-tree: ensure all data is unique to avoid dups
+  * stress-tsc: add tick instruction for SPARC implementation of clock
+    tick read
+  * core-asm-s390.h: header for inlined s390 assembler
+  * core-asm-riscv.h: header for inlined RISC-V assembler
+  * stress-af-alg: check if HAVE_LIB_IPSEC_MB is defined
+  * stress-ipsec-mb: fix build failure for systems without ipsec-mb library
+  * stress-zlib: add inc16 zlib data filling method
+  * stress_atomic_lock_acquire: provide 5 seconds grace before bailing on Xi
+    EAGAIN
+  * stress-ipsec-mb: add ipsec-method option to select crypto/integrity
+    to use
+  * stress-ipsec-mb: re-work feature flag mechanism, add ipsec functions
+    in an array
+  * README.md: Add some more references and citations
+  * stress-memthrash: add memsetstosd memory zero method
+  * stress-sleep: reduce default threads per instance to 256, add more
+    yield checks
+  * stress-sleep: use x86 tpause where available
+  * stress-opcode: map/unmap opcodes in parent, fclose stdio descriptors
+  * stress-opcode: add siglongjmp handler for some signals, add metrics
+  * stress-opcode: cater for different arch opcode sizes
+  * stress-opcode: format opcode number as 8 hex digit wide string
+  * stress-opcode: implement inc opcode method more efficiently
+  * README.md: Add another bug found by stress-ng
+  * Add core-asm-ppc64.h for ppc64 asm helper code
+  * stress-zlib: remove unused function rand64
+  * core-asm-x86.h: add check for x86 arch
+  * test/test-asm-x86-mov-dr0.c: replace asm volatile with __asm__
+    __volatile__
+  * Add stress_asm_x86_lock_add to core-asm-x86.h for memthrash MEM_LOCK
+    macro
+  * rename stress_x86_cpuid to stress_asm_x86_cpuid and move it to
+    core-asm-x86.h
+  * stress-zombie: remove empty line
+  * core-asm-x86.h: add rdrand and rdseed x86 asm helpers
+  * core-asm-x86.h: add rdtsc x86 asm helper
+  * Move common x86 assembler into core-asm-x86.h
+  * stress-atomic: fix non-indexing of atomic lock space
+  * stress-memrate: use registers for rep stos, reduces stack loads
+  * stress-memrate: inline and add OPTIMIZE3 rep sto* code
+  * Manual: add rep sto x86 writes to the memrate stressor
+  * stress-memrate: don't print out metrics to log, use --metrics instead
+  * stress-memrate: use fast string write rep stos* instructions
+  * stress-atomic: exercise atomic locks on different offsets
+  * Makefile.config: don't build with libatomic for musl-gcc
+  * stress-list: fix build issue with musl-gcc
+  * stress-list: uncomment out HAVE_SYS_QUEUE_CIRCLEQ
+  * stress-nop: add serialize opcode for x86 and opcode support for x86
+  * stress-nop: reduce tpause from 5000 to 100 for more responsive handling
+  * Makefile: fix some missing config dependencies, remove gold ld
+  * Makefile: replace include with some eval magic
+  * Makefile: use -O2 as default only if -O option not defined in CFLAGS
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 15 Feb 2023 15:50:31 +0000
+
 stress-ng (0.15.03-1) unstable; urgency=medium
 
   [Anton Eliasson]
