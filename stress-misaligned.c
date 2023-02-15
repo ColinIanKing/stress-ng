@@ -28,6 +28,11 @@
 #if defined(STRESS_ARCH_SH4)
 #undef HAVE_ATOMIC
 #endif
+/* Disable atomic ops for PPC64 with gcc < 5.0 as these can lock up in VM */
+#if defined(STRESS_ARCH_PPC64) &&	\
+    !NEED_GNUC(5, 0, 0)
+#undef HAVE_ATOMIC
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
