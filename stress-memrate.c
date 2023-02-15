@@ -309,6 +309,10 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
+#if defined(HAVE_ASM_X86_REP_STOSQ) || 	\
+    defined(HAVE_ASM_X86_REP_STOSD) ||	\
+    defined(HAVE_ASM_X86_REP_STOSW) ||	\
+    defined(HAVE_ASM_X86_REP_STOSB)
 static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	const stress_memrate_context_t *context,
 	bool *valid,
@@ -367,6 +371,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	*valid = true;
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
 }
+#endif
 
 #if defined(HAVE_ASM_X86_REP_STOSQ)
 static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint32_t mb_loops)
