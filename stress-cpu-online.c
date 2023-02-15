@@ -199,7 +199,6 @@ static int stress_cpu_online(const stress_args_t *args)
 	 */
 	do {
 		const uint32_t cpu = stress_mwc32modn((uint32_t)cpus);
-		double t;
 
 		/*
 		 * Only allow CPU 0 to be offlined if OPT_FLAGS_CPU_ONLINE_ALL
@@ -208,6 +207,7 @@ static int stress_cpu_online(const stress_args_t *args)
 		if ((cpu == 0) && !(g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL))
 			continue;
 		if (cpu_online[cpu]) {
+			double t;
 			int setting;
 
 			t = stress_time_now();
