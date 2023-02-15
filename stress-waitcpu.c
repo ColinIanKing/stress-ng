@@ -248,10 +248,11 @@ static int stress_waitcpu(const stress_args_t *args)
 	do {
 		for (i = 0; (i < SIZEOF_ARRAY(stress_waitcpu_method)) && keep_stressing(args); i++) {
 			const int loops = 1000;
-			double t;
-			register int j;
 
 			if (stress_waitcpu_method[i].supported) {
+				double t;
+				register int j;
+
 				t = stress_time_now();
 				for (j = 0; j < loops; j++) {
 					stress_waitcpu_method[i].waitfunc();
