@@ -309,10 +309,11 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-#if defined(HAVE_ASM_X86_REP_STOSQ) || 	\
-    defined(HAVE_ASM_X86_REP_STOSD) ||	\
-    defined(HAVE_ASM_X86_REP_STOSW) ||	\
-    defined(HAVE_ASM_X86_REP_STOSB)
+#if (defined(HAVE_ASM_X86_REP_STOSQ) ||		\
+     defined(HAVE_ASM_X86_REP_STOSD) ||		\
+     defined(HAVE_ASM_X86_REP_STOSW) ||		\
+     defined(HAVE_ASM_X86_REP_STOSB)) &&	\
+    !defined(__ILP32__)
 static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	const stress_memrate_context_t *context,
 	bool *valid,
@@ -373,7 +374,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 }
 #endif
 
-#if defined(HAVE_ASM_X86_REP_STOSQ)
+#if defined(HAVE_ASM_X86_REP_STOSQ) &&	\
+    !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint32_t mb_loops)
 {
 	register void *p = ptr;
@@ -405,7 +407,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate64(
 }
 #endif
 
-#if defined(HAVE_ASM_X86_REP_STOSD)
+#if defined(HAVE_ASM_X86_REP_STOSD) &&	\
+    !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint32_t mb_loops)
 {
 	register void *p = ptr;
@@ -437,7 +440,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate32(
 }
 #endif
 
-#if defined(HAVE_ASM_X86_REP_STOSW)
+#if defined(HAVE_ASM_X86_REP_STOSW) &&	\
+    !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint32_t mb_loops)
 {
 	register void *p = ptr;
@@ -469,7 +473,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate16(
 }
 #endif
 
-#if defined(HAVE_ASM_X86_REP_STOSB)
+#if defined(HAVE_ASM_X86_REP_STOSB) &&	\
+    !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint32_t mb_loops)
 {
 	register void *p = ptr;
@@ -724,16 +729,20 @@ STRESS_MEMRATE_WRITE(8, uint8_t)
 STRESS_MEMRATE_WRITE_RATE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
-#if defined(HAVE_ASM_X86_REP_STOSQ)
+#if defined(HAVE_ASM_X86_REP_STOSQ) &&	\
+    !defined(__ILP32__)
 	{ "write64stoq", MR_WR,	stress_memrate_write_stos64,	stress_memrate_write_stos_rate64 },
 #endif
-#if defined(HAVE_ASM_X86_REP_STOSD)
+#if defined(HAVE_ASM_X86_REP_STOSD) &&	\
+    !defined(__ILP32__)
 	{ "write32stow",MR_WR,	stress_memrate_write_stos32,	stress_memrate_write_stos_rate32 },
 #endif
-#if defined(HAVE_ASM_X86_REP_STOSW)
+#if defined(HAVE_ASM_X86_REP_STOSW) &&	\
+    !defined(__ILP32__)
 	{ "write16stod",MR_WR,	stress_memrate_write_stos16,	stress_memrate_write_stos_rate16 },
 #endif
-#if defined(HAVE_ASM_X86_REP_STOSB)
+#if defined(HAVE_ASM_X86_REP_STOSB) &&	\
+    !defined(__ILP32__)
 	{ "write8stob",	MR_WR,	stress_memrate_write_stos8,	stress_memrate_write_stos_rate8 },
 #endif
 #if defined(HAVE_NT_STORE128)
