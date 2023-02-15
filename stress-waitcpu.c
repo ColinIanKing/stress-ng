@@ -76,24 +76,23 @@ static inline void stress_waitcpu_arm_yield(void)
 #endif
 
 #if defined(STRESS_ARCH_X86)
+
+#if defined(HAVE_ASM_X86_PAUSE)
 static bool stress_waitcpu_x86_pause_supported(void)
 {
-#if defined(HAVE_ASM_X86_PAUSE)
 	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
 	if (!stress_cpu_is_x86())
 		return false;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 	/* Pentium 4 or higher? */
 	return (eax > 0x02);
-#else
-	return false;
-#endif
 }
 
 static void stress_waitcpu_x86_pause(void)
 {
 	stress_asm_x86_pause();
 }
+#endif
 
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(__PCC__)
@@ -188,7 +187,9 @@ static void stress_waitcpu_ppc64_mdoom(void)
 stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0 },
 #if defined(STRESS_ARCH_X86)
+#if defined(HAVE_ASM_X86_PAUSE)
 	{ "pause",	stress_waitcpu_x86_pause,	stress_waitcpu_x86_pause_supported,	false, 0.0, 0.0 },
+#endif
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(__PCC__)
 	{ "tpause0",	stress_waitcpu_x86_tpause0,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0 },
