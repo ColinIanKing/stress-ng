@@ -627,7 +627,7 @@ dist:
 		COPYING syscalls.txt mascot README.md Dockerfile \
 		README.Android test snap presentations .github \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
-		bash-completion example-jobs .travis.yml \
+		core-personality.c bash-completion example-jobs .travis.yml \
 		kernel-coverage.sh code-of-conduct.txt stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
