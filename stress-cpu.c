@@ -2356,6 +2356,7 @@ static void TARGET_CLONES stress_cpu_div8(const char *name)
 	while (i > 0) {
 		const uint8_t n = (uint8_t)STRESS_MINIMUM(i, 224);
 		register uint8_t k, l;
+
 		for (l = 0, k = 1; l < n; l++, k += delta) {
 			register uint8_t r = (uint8_t)(j / k);
 			sum += r;
