@@ -651,9 +651,9 @@ retry:
 			(void)shim_usleep(100000);	/* Twiddle fingers for a moment */
 
 			retries++;
-			if (retries > 1000) {
+			if (retries > 10) {
 				/* Sigh, give up.. */
-				pr_fail("%s: giving up too many failed connects;, errno = %d (%s)\n",
+				pr_fail("%s: giving up, too many failed connects;, errno = %d (%s)\n",
 					args->name, saved_errno, strerror(saved_errno));
 				return EXIT_FAILURE;
 			}
@@ -1073,7 +1073,7 @@ static int stress_epoll(const stress_args_t *args)
 		}
 	}
 
-	epoll_client(args, mypid, epoll_port, epoll_domain);
+	rc = epoll_client(args, mypid, epoll_port, epoll_domain);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(start_port, end_port);
