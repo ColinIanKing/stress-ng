@@ -421,7 +421,7 @@ static int stress_tsc(const stress_args_t *args)
 	int ret = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_get_setting("tsc-lfence", &tsc_lfence);
+	(void)stress_get_setting("tsc-lfence", &tsc_lfence);
 
 	if (tsc_lfence && !stress_cpu_is_x86()) {
 		pr_inf("%s: tsc-lfence is disabled, this is an x86 only option\n", args->name);
