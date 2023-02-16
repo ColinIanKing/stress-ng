@@ -568,14 +568,14 @@ apparmor-data.o: usr.bin.pulseaudio.eg config.h
 	$(PRE_V)rm -f apparmor-data.bin
 	$(PRE_V)echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
 	$(PRE_Q)echo "CC apparmor-data.c"
-	$(PRE_V)$(CC) -c apparmor-data.c -o apparmor-data.o
+	$(PRE_V)$(CC) $(CFLAGS) -c apparmor-data.c -o apparmor-data.o
 	$(PRE_V)rm -f apparmor-data.c
 
 #
 #  extract the PER_* personality enums
 #
 personality.h: config.h
-	$(PRE_V)$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	$(PRE_V)$(CPP) $(CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
 	$(PRE_Q)echo "MK personality.h"
 
