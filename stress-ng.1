@@ -5901,13 +5901,13 @@ sequentially write to memory using 1 \(mu 1024 bit vector write per bogo loop
 Each loop equates to one bogo operation.  This exercises raw memory writes.
 Note that memory writes are not checked at the end of each test iteration.
 T}
-wrrd64128	T{
+wrrd128nt T{
 write to memory in 128 bit chunks using non-temporal writes (bypassing the cache).
 Each chunk is written 4 times to hammer the memory. Then check to see if the
 data is correct using non-temporal reads if they are available or normal memory reads
 if not. Only available with processors that provide non-temporal 128 bit writes.
 T}
-zero-one	T{
+zero\-one	T{
 set all memory bits to zero and then check if any bits are not zero. Next, set
 all the memory bits to one and check if any bits are not one.
 T}
