@@ -179,12 +179,13 @@ static int stress_chown(const stress_args_t *args)
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			if (++retries >= 100) {
-				pr_err("%s: chown: file %s took %d "
+			if (++retries >= 1000) {
+				pr_inf("%s: chown: file %s took %d "
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")%s\n",
 					args->name, filename, retries, args->instance,
 					stress_fs_type(filename));
+				rc = EXIT_NO_RESOURCE;
 				goto tidy;
 			}
 		}
