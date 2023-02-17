@@ -960,7 +960,7 @@ next:
 	 */
 	if ((args->instance == 0) && (disabled_flags)) {
 		char buf[1024], *ptr = buf;
-		size_t j, buf_len = sizeof(buf);
+		size_t buf_len = sizeof(buf);
 
 		(void)memset(buf, 0, sizeof(buf));
 		for (j = 0; j < SIZEOF_ARRAY(mask_flag_info); j++) {
