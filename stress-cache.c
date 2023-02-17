@@ -31,7 +31,15 @@
 #define FLAGS_CACHE_CLWB	(0x0040U)
 #define FLAGS_CACHE_NOAFF	(0x8000U)
 
-typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi, uint64_t *pk);
+#define STRESS_CACHE_MIXED_OPS	(0)
+#define STRESS_CACHE_READ	(1)
+#define STRESS_CACHE_WRITE	(2)
+#define STRESS_CACHE_MAX	(3)
+
+typedef void (*cache_mixed_ops_func_t)(const stress_args_t *args,
+	uint64_t inc, const uint64_t r,
+	uint64_t *pi, uint64_t *pk,
+	stress_metrics_t *metrics);
 typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
 
 #define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |		\
@@ -54,6 +62,7 @@ static mask_flag_info_t mask_flag_info[] = {
 	{ FLAGS_CACHE_SFENCE,		"sfence" },
 	{ FLAGS_CACHE_CLFLUSHOPT,	"clflushopt" },
 	{ FLAGS_CACHE_CLDEMOTE,		"cldemote" },
+	{ FLAGS_CACHE_CLWB,		"clwb" }
 };
 
 static sigjmp_buf jmp_env;
@@ -245,14 +254,23 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define CACHE_WRITE_USE_MOD(x)						\
 static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
-	const uint64_t inc, const uint64_t r, 				\
-	uint64_t *pi, uint64_t *pk)					\
+	const stress_args_t *args,					\
+	const uint64_t inc,						\
+	const uint64_t r, 						\
+	uint64_t *pi,							\
+	uint64_t *pk,							\
+	stress_metrics_t *metrics)					\
 {									\
 	register uint64_t i = *pi, j, k = *pk;				\
 	uint8_t *const mem_cache = g_shared->mem_cache;			\
 	const uint64_t mem_cache_size = g_shared->mem_cache_size;	\
+	double t;							\
 									\
+	t = stress_time_now();						\
 	CACHE_WRITE_MOD(x);						\
+	metrics->duration += stress_time_now() - t;			\
+	metrics->count += (double)mem_cache_size;			\
+	add_counter(args, j >> 10);					\
 									\
 	*pi = i;							\
 	*pk = k;							\
@@ -394,7 +412,7 @@ CACHE_WRITE_USE_MOD(0x7d)
 CACHE_WRITE_USE_MOD(0x7e)
 CACHE_WRITE_USE_MOD(0x7f)
 
-static const cache_write_func_t cache_write_funcs[] = {
+static const cache_mixed_ops_func_t cache_mixed_ops_funcs[] = {
 	stress_cache_write_mod_0x00,
 	stress_cache_write_mod_0x01,
 	stress_cache_write_mod_0x02,
@@ -592,6 +610,93 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 #endif
 }
 
+static void stress_cache_read(
+	const stress_args_t *args,
+	uint8_t *mem_cache,
+	const uint64_t mem_cache_size,
+	const uint64_t inc,
+	uint64_t *i_ptr,
+	uint64_t *k_ptr,
+	stress_metrics_t *metrics_read)
+{
+	register uint64_t i = *i_ptr;
+	register uint64_t j;
+	register uint64_t k = *k_ptr;
+	uint32_t total = 0;
+	double t;
+
+	t = stress_time_now();
+	for (j = 0; j < mem_cache_size; j++) {
+		i += inc;
+		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+		k += 33;
+		k = (k >= mem_cache_size) ? k - mem_cache_size : k;
+		total += mem_cache[i] + mem_cache[k];
+		if (!keep_stressing_flag())
+			break;
+	}
+	metrics_read->duration += stress_time_now() - t;
+	metrics_read->count += (double)(j + j); /* two reads per loop */
+	add_counter(args, j >> 10);
+
+	*i_ptr = i;
+	*k_ptr = k;
+
+	stress_uint32_put(total);
+}
+
+static void stress_cache_write(
+	const stress_args_t *args,
+	uint8_t *mem_cache,
+	const uint64_t mem_cache_size,
+	const uint64_t inc,
+	uint64_t *i_ptr,
+	uint64_t *k_ptr,
+	stress_metrics_t *metrics_write)
+{
+	register uint64_t i = *i_ptr;
+	register uint64_t j;
+	register uint64_t k = *k_ptr;
+	uint32_t total = 0;
+	double t;
+
+	t = stress_time_now();
+	for (j = 0; j < mem_cache_size; j++) {
+		register uint8_t v = j & 0xff;
+		i += inc;
+		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+		k += 33;
+		k = (k >= mem_cache_size) ? k - mem_cache_size : k;
+		mem_cache[i] = v;
+		mem_cache[k] = v;
+		if (!keep_stressing_flag())
+			break;
+	}
+	metrics_write->duration += stress_time_now() - t;
+	metrics_write->count += (double)(j + j); /* 2 writes per loop */
+	add_counter(args, j >> 10);
+
+	*i_ptr = i;
+	*k_ptr = k;
+
+	stress_uint32_put(total);
+}
+
+static void stress_cache_show_flags(const stress_args_t *args, const uint32_t flags)
+{
+	size_t i;
+	char buf[256];
+
+	(void)memset(buf, 0, sizeof(buf));
+	for (i = 0; i < SIZEOF_ARRAY(mask_flag_info); i++) {
+		if (flags & mask_flag_info[i].flag) {
+			shim_strlcat(buf, " ", sizeof(buf));
+			shim_strlcat(buf, mask_flag_info[i].name, sizeof(buf));
+		}
+	}
+	pr_inf("%s: cache flags used:%s\n", args->name, buf);
+}
+
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -617,6 +722,19 @@ static int stress_cache(const stress_args_t *args)
 	NOCLOBBER uint64_t r = 0;
 	uint64_t inc = (mem_cache_size >> 2) + 1;
 	void *bad_addr;
+	size_t j;
+	stress_metrics_t metrics[STRESS_CACHE_MAX];
+
+	static char *const metrics_description[] = {
+		"cache ops per second",
+		"shared cache reads per second",
+		"shared cache writes per second",
+	};
+
+	for (j = 0; j < SIZEOF_ARRAY(metrics); j++) {
+		metrics[j].duration = 0.0;
+		metrics[j].count = 0.0;
+	}
 
 	disabled_flags = 0;
 
@@ -729,7 +847,6 @@ static int stress_cache(const stress_args_t *args)
 		}
 	}
 #endif
-
 	/*
 	 *  map a page then unmap it, then we have an address
 	 *  that is known to be not available. If the mapping
@@ -742,12 +859,13 @@ static int stress_cache(const stress_args_t *args)
 		(void)munmap(bad_addr, args->page_size);
 
 	masked_flags = cache_flags & FLAGS_CACHE_MASK;
+	if (args->instance == 0)
+		stress_cache_show_flags(args, masked_flags ? masked_flags : FLAGS_CACHE_MASK);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int jmpret;
-
-		r++;
+		uint32_t flags;
 
 		jmpret = sigsetjmp(jmp_env, 1);
 		/*
@@ -759,24 +877,21 @@ static int stress_cache(const stress_args_t *args)
 				goto next;
 			break;
 		}
-		if (r & 1) {
-			uint32_t flags;
-
+		switch (r) {
+		case STRESS_CACHE_MIXED_OPS:
 			flags = masked_flags ? masked_flags : ((stress_mwc32() & FLAGS_CACHE_MASK) & masked_flags);
-			cache_write_funcs[flags](inc, r, &i, &k);
-		} else {
-			register volatile uint64_t j;
-
-			for (j = 0; j < mem_cache_size; j++) {
-				i += inc;
-				i = (i >= mem_cache_size) ? i - mem_cache_size : i;
-				k += 33;
-				k = (k >= mem_cache_size) ? k - mem_cache_size : k;
-				total += mem_cache[i] + mem_cache[k];
-				if (!keep_stressing_flag())
-					break;
-			}
+			cache_mixed_ops_funcs[flags](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
+			break;
+		case STRESS_CACHE_READ:
+			stress_cache_read(args, mem_cache, mem_cache_size, inc, &i, &j, &metrics[STRESS_CACHE_READ]);
+			break;
+		case STRESS_CACHE_WRITE:
+			stress_cache_write(args, mem_cache, mem_cache_size, inc, &i, &j, &metrics[STRESS_CACHE_WRITE]);
+			break;
 		}
+		r++;
+		if (r >= STRESS_CACHE_MAX)
+			r = 0;
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
@@ -833,8 +948,6 @@ static int stress_cache(const stress_args_t *args)
 			if (!jmpret)
 				stress_cache_flush(mem_cache, bad_addr, (int)args->page_size);
 		}
-		inc_counter(args);
-
 next:
 		/* Move forward a bit */
 		i += inc;
@@ -870,6 +983,13 @@ next:
 	stress_uint32_put(total);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (j = 0; j < SIZEOF_ARRAY(metrics); j++) {
+		const double rate = metrics[j].duration > 0.0 ?
+			metrics[j].count / metrics[j].duration : 0.0;
+
+		stress_metrics_set(args, j, metrics_description[j], rate);
+	}
 
 	return ret;
 }
