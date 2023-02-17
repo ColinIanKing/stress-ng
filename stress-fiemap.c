@@ -167,6 +167,7 @@ static void stress_fiemap_ioctl(
 			free(fiemap);
 			break;
 		}
+		shim_sched_yield();
 		if (!keep_stressing(args)) {
 			free(fiemap);
 			break;
@@ -198,6 +199,7 @@ static void stress_fiemap_ioctl(
 			break;
 		}
 		free(fiemap);
+		shim_sched_yield();
 		if (!keep_stressing(args))
 			break;
 #if !defined(O_SYNC)
