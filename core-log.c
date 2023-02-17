@@ -561,3 +561,16 @@ void pr_warn(const char *fmt, ...)
 	va_end(ap);
 }
 
+/*
+ *  pr_warn_skip()
+ *	print warn message, don't print if skip silent is enabled
+ */
+void pr_warn_skip(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
+		(void)pr_msg(pr_file(), PR_WARN, fmt, ap);
+	va_end(ap);
+}

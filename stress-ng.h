@@ -719,6 +719,7 @@ extern void pr_err_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_warn(const char *fmt, ...) FORMAT(printf, 1, 2);
+extern void pr_warn_skip(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 extern void pr_lock_init(void);
 extern void pr_lock(void);

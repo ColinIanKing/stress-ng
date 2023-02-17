@@ -2026,7 +2026,7 @@ redo:
 		case EXIT_SUCCESS:
 			break;
 		case EXIT_NO_RESOURCE:
-			pr_err_skip("process [%d] (%s) aborted early, out of system resources\n",
+			pr_warn_skip("process [%d] (%s) aborted early, out of system resources\n",
 				ret, stressor_name);
 			*resource_success = false;
 			do_abort = true;
