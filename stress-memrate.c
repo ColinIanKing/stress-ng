@@ -111,8 +111,17 @@ static uint64_t stress_memrate_loops(
 	const stress_memrate_context_t *context,
 	const size_t size)
 {
-	return (context->memrate_bytes < MB) ?
-		context->memrate_bytes / size : MB / size;
+	uint64_t chunk_shift = 20;	/* 1 MB */
+	uint64_t bytes = context->memrate_bytes;
+
+	/* check for powers of 2 size, from 1MB down to 1K */
+	for (chunk_shift = 20; chunk_shift >= 10; chunk_shift--) {
+		if (((bytes >> chunk_shift) << chunk_shift) == bytes) {
+			return 1ULL << chunk_shift;
+		}
+	}
+	/* best fit on non-power of 2 */
+	return bytes / size;
 }
 
 static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *context)
@@ -354,13 +363,19 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
 	const size_t size = end - start;
 	const size_t chunk_size = (size > MB) ? MB : size;
-	const uint32_t loops = (uint32_t)(chunk_size / wr_size);
-	size_t todo = size;
+	uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	register uint8_t *ptr;
 
-	for (ptr = start; keep_stressing_flag() && (todo > 0); todo -= chunk_size, ptr += chunk_size) {
+	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) < end; ptr += chunk_size) {
 		func((void *)ptr, loops);
 	}
+	/* And any residual less than chunk_size .. */
+	loops = (uint32_t)((end - ptr)/ wr_size);
+	if (loops) {
+		func((void *)ptr, loops);
+		ptr = end;
+	}
+
 	*valid = true;
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
 }
@@ -375,16 +390,13 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
 	const size_t size = end - start;
 	const size_t chunk_size = (size > MB) ? MB : size;
-	const uint32_t loops = (uint32_t)(chunk_size / wr_size);
-	size_t todo = size;
+	uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	register uint8_t *ptr;
-	double t1, total_dur = 0.0;
+	double t1, t2, total_dur = 0.0, dur_remainder;
 	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);	
 
 	t1 = stress_time_now();
-	for (ptr = start; keep_stressing_flag() && (todo > 0); todo -= chunk_size, ptr += chunk_size) {
-		double t2, dur_remainder;
-
+	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) > end; ptr += chunk_size) {
 		func((void *)ptr, loops);
 
 		t2 = stress_time_now();
@@ -404,6 +416,28 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 		if (!keep_stressing_flag())
 			break;
 	}
+
+	/* And any residual less than chunk_size .. */
+	loops = (uint32_t)((end - ptr)/ wr_size);
+	if (loops) {
+		func((void *)ptr, loops);
+		t2 = stress_time_now();
+		total_dur += dur;
+		dur_remainder = total_dur - (t2 - t1);
+
+		if (dur_remainder >= 0.0) {
+			struct timespec t;
+			time_t sec = (time_t)dur_remainder;
+
+			t.tv_sec = sec;
+			t.tv_nsec = (long)((dur_remainder -
+				(double)sec) *
+				STRESS_NANOSECOND);
+			(void)nanosleep(&t, NULL);
+		}
+		ptr = end;
+	}
+
 	*valid = true;
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
 }
@@ -853,8 +887,8 @@ static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)
 		MAP_ANONYMOUS, -1, 0);
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
-		pr_err("%s: cannot allocate %" PRIu64 " bytes\n",
-			args->name, sz);
+		pr_err("%s: cannot allocate %" PRIu64 " K\n",
+			args->name, sz / 1024);
 		ptr = MAP_FAILED;
 	} else {
 #if defined(HAVE_MADVISE) &&	\
@@ -957,13 +991,16 @@ static int stress_memrate(const stress_args_t *args)
 		context.stats[i].valid = false;
 	}
 
-	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63ULL);
+	context.memrate_bytes = (context.memrate_bytes + 1023) & ~(1023ULL);
 	if (args->instance == 0) {
 		pr_inf("%s: using buffer size of %" PRIu64 "K, cache flushing %s\n", args->name,
 			context.memrate_bytes >> 10,
 			context.memrate_flush ? "enabled" : "disabled");
+		if ((context.memrate_bytes > MB) && (context.memrate_bytes & MB)) {
+			pr_inf("%s: for optimial speed, use multiples of 1 MB for --memrate-bytes\n", args->name);
+		}
 		if (!context.memrate_flush)
-			pr_inf("cache flushing can be enabled with --memrate-flush option\n");
+			pr_inf("%s: cache flushing can be enabled with --memrate-flush option\n", args->name);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
