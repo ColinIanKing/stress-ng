@@ -29,7 +29,7 @@
 
 typedef struct {
 	const char	*name;			/* cache type name */
-	const stress_cache_type_t value;	/* cache type ID */
+	const stress_cpu_cache_type_t value;	/* cache type ID */
 } stress_generic_map_t;
 
 typedef enum {
@@ -42,10 +42,10 @@ typedef enum {
 #define SYS_CPU_CACHE_DIR            "cache"
 
 /*
- * stress_cache_get_cpu()
+ * stress_cpu_cache_get_cpu()
  *
  */
-static inline unsigned int stress_cache_get_cpu(const stress_cpus_t *cpus)
+static inline unsigned int stress_cpu_cache_get_cpu(const stress_cpu_cache_cpus_t *cpus)
 {
 	const unsigned int cpu = stress_get_cpu();
 
@@ -81,7 +81,7 @@ static int stress_get_string_from_file(
 #endif
 
 /*
- * stress_get_cache_by_cpu()
+ * stress_cpu_cache_get_by_cpu()
  * @cpu: cpu to consider.
  * @cache_level: numeric cache level (1-indexed).
  * Obtain the cpu cache indexed by @cache_level.
@@ -90,7 +90,9 @@ static int stress_get_string_from_file(
  *
  * Returns: stress_cpu_cache_t, or NULL on error.
  */
-static stress_cpu_cache_t * stress_get_cache_by_cpu(const stress_cpu_t *cpu, const int cache_level)
+static stress_cpu_cache_t * stress_cpu_cache_get_by_cpu(
+	const stress_cpu_cache_cpu_t *cpu,
+	const int cache_level)
 {
 	uint32_t  i;
 
@@ -111,15 +113,15 @@ static stress_cpu_cache_t * stress_get_cache_by_cpu(const stress_cpu_t *cpu, con
 }
 
 /*
- * stress_get_max_cache_level()
+ * stress_cpu_cache_get_max_level()
  * @cpus: array of cpus to query.
  * Determine the maximum cache level available on the system.
  *
  * Returns: 1-index value denoting highest cache level, or 0 on error.
  */
-uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus)
+uint16_t stress_cpu_cache_get_max_level(const stress_cpu_cache_cpus_t *cpus)
 {
-	stress_cpu_t    *cpu;
+	stress_cpu_cache_cpu_t    *cpu;
 	uint32_t  i;
 	uint16_t  max = 0;
 
@@ -128,7 +130,7 @@ uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus)
 		return 0;
 	}
 
-	cpu = &cpus->cpus[stress_cache_get_cpu(cpus)];
+	cpu = &cpus->cpus[stress_cpu_cache_get_cpu(cpus)];
 
 	for (i = 0; i < cpu->cache_count; i++) {
 		const stress_cpu_cache_t *cache = &cpu->caches[i];
@@ -140,16 +142,16 @@ uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus)
 }
 
 /*
- * stress_get_cpu_cache()
+ * stress_cpu_cache_get()
  * @cpus: array of cpus to query.
  * @cache_level: numeric cache level (1-indexed).
  * Obtain a cpu cache of level @cache_level.
  *
  * Returns: stress_cpu_cache_t pointer, or NULL on error.
  */
-stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level)
+stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *cpus, const uint16_t cache_level)
 {
-	stress_cpu_t *cpu;
+	stress_cpu_cache_cpu_t *cpu;
 
 	if (!cpus) {
 		pr_dbg("%s: invalid cpus parameter\n", __func__);
@@ -162,14 +164,14 @@ stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16
 		return NULL;
 	}
 
-	cpu = &cpus->cpus[stress_cache_get_cpu(cpus)];
+	cpu = &cpus->cpus[stress_cpu_cache_get_cpu(cpus)];
 
-	return stress_get_cache_by_cpu(cpu, cache_level);
+	return stress_cpu_cache_get_by_cpu(cpu, cache_level);
 }
 
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_SPARC)
-static int stress_get_cpu_cache_value(
+static int stress_cpu_cache_get_value(
 	const char *cpu_path,
 	const char *file,
 	uint64_t *value)
@@ -189,13 +191,13 @@ static int stress_get_cpu_cache_value(
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_ALPHA)
 /*
- *  stress_get_cpu_cache_alpha()
+ *  stress_cpu_cache_get_alpha()
  *	find cache information as provided by linux Alpha from
  *	/proc/cpu. Assume cache layout for 1st CPU is same for
  *	all CPUs.
  */
-static int stress_get_cpu_cache_alpha(
-	stress_cpu_t *cpu,
+static int stress_cpu_cache_get_alpha(
+	stress_cpu_cache_cpu_t *cpu,
 	const char *cpu_path)
 {
 	FILE *fp;
@@ -223,7 +225,7 @@ static int stress_get_cpu_cache_alpha(
 		char buffer[4096];
 
 		while ((idx < count) && fgets(buffer, sizeof(buffer), fp)) {
-			stress_cache_type_t cache_type = CACHE_TYPE_UNKNOWN;
+			stress_cpu_cache_type_t cache_type = CACHE_TYPE_UNKNOWN;
 			uint16_t cache_level = 0;
 			char *ptr;
 			int cache_size, cache_ways, cache_line_size, n;
@@ -279,14 +281,14 @@ static int stress_get_cpu_cache_alpha(
 
 #if defined(__APPLE__)
 /*
- *  stress_get_cpu_cache_apple()
+ *  stress_cpu_cache_get_apple()
  *	find cache information as provided by BSD sysctl
  */
-static int stress_get_cpu_cache_apple(stress_cpu_t *cpu)
+static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 {
 	typedef struct {
 		const char *name;			/* sysctl name */
-		const stress_cache_type_t type;		/* cache type */
+		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */
 		const size_t index;			/* map to cpu->cache array index */
@@ -354,17 +356,17 @@ static int stress_get_cpu_cache_apple(stress_cpu_t *cpu)
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_SPARC)
 /*
- *  stress_get_cpu_cache_sparc64()
+ *  stress_cpu_cache_get_sparc64()
  *	find cache information as provided by linux SPARC64
  *	/sys/devices/system/cpu/cpu0
  */
-static int stress_get_cpu_cache_sparc64(
-	stress_cpu_t *cpu,
+static int stress_cpu_cache_get_sparc64(
+	stress_cpu_cache_cpu_t *cpu,
 	const char *cpu_path)
 {
 	typedef struct {
 		const char *filename;			/* /sys proc name */
-		const stress_cache_type_t type;		/* cache type */
+		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */
 		const size_t index;			/* map to cpu->cache array index */
@@ -394,7 +396,7 @@ static int stress_get_cpu_cache_sparc64(
 		const size_t idx = cache_info[i].index;
 		uint64_t value;
 
-		if (stress_get_cpu_cache_value(cpu_path, cache_info[i].filename, &value) < 0)
+		if (stress_cpu_cache_get_value(cpu_path, cache_info[i].filename, &value) < 0)
 			continue;
 
 		cpu->caches[idx].type = cache_info[i].type;
@@ -432,12 +434,12 @@ static int stress_get_cpu_cache_sparc64(
 
 #if defined(STRESS_ARCH_X86)
 /*
- *  stress_get_cpu_cache_x86()
+ *  stress_cpu_cache_get_x86()
  *	find cache information as provided by CPUID. Currently
  *	modern Intel x86 cache info only. Also assumes cpu 0 == cpu n
  *	for cache sizes.
  */
-static int stress_get_cpu_cache_x86(stress_cpu_t *cpu)
+static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 {
 	uint32_t eax, ebx, ecx, edx;
 
@@ -536,7 +538,7 @@ static int stress_get_cpu_cache_x86(stress_cpu_t *cpu)
 
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_M68K)
-static int stress_get_cpu_cache_m68k(stress_cpu_t *cpu)
+static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 {
 	FILE *fp;
 	char buffer[1024];
@@ -614,7 +616,7 @@ static int stress_get_cpu_cache_m68k(stress_cpu_t *cpu)
 #if defined(__linux__) ||	\
     defined(__APPLE__)
 /*
- * stress_size_to_bytes()
+ * stress_cpu_cache_size_to_bytes()
  * 	Convert human-readable integer sizes (such as "32K", "4M") into bytes.
  *
  * Supports:
@@ -627,7 +629,7 @@ static int stress_get_cpu_cache_m68k(stress_cpu_t *cpu)
  *
  * Returns: size in bytes, or 0 on error.
  */
-static uint64_t stress_size_to_bytes(const char *str)
+static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
 {
 	uint64_t bytes;
 	int	 ret;
@@ -669,7 +671,7 @@ static uint64_t stress_size_to_bytes(const char *str)
 	return bytes;
 }
 
-static const stress_generic_map_t cache_type_map[] = {
+static const stress_generic_map_t stress_cpu_cache_type_map[] = {
 	{ "data",		CACHE_TYPE_DATA },
 	{ "instruction",	CACHE_TYPE_INSTRUCTION },
 	{ "unified",		CACHE_TYPE_UNIFIED },
@@ -677,13 +679,13 @@ static const stress_generic_map_t cache_type_map[] = {
 };
 
 /*
- * stress_get_cache_type()
+ * stress_cpu_cache_get_type()
  * @name: human-readable cache type.
- * Convert a human-readable cache type into a stress_cache_type_t.
+ * Convert a human-readable cache type into a stress_cpu_cache_type_t.
  *
- * Returns: stress_cache_type_t or CACHE_TYPE_UNKNOWN on error.
+ * Returns: stress_cpu_cache_type_t or CACHE_TYPE_UNKNOWN on error.
  */
-static stress_cache_type_t stress_get_cache_type(const char *name)
+static stress_cpu_cache_type_t stress_cpu_cache_get_type(const char *name)
 {
 	const stress_generic_map_t *p;
 
@@ -692,7 +694,7 @@ static stress_cache_type_t stress_get_cache_type(const char *name)
 		goto out;
 	}
 
-	for (p = cache_type_map; p && p->name; p++) {
+	for (p = stress_cpu_cache_type_map; p && p->name; p++) {
 		if (!strcasecmp(p->name, name))
 			return p->value;
 	}
@@ -724,14 +726,14 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->type = (stress_cache_type_t)stress_get_cache_type(tmp);
+	cache->type = (stress_cpu_cache_type_t)stress_cpu_cache_get_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 
 	(void)stress_mk_filename(path, sizeof(path), index_path, "size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->size = stress_size_to_bytes(tmp);
+	cache->size = stress_cpu_cache_size_to_bytes(tmp);
 
 	(void)stress_mk_filename(path, sizeof(path), index_path, "level");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
@@ -777,12 +779,12 @@ static int index_sort(const struct dirent **d1, const struct dirent **d2)
 }
 
 /*
- *  stress_get_cpu_cache_index()
+ *  stress_cpu_cache_get_index()
  *	find cache information as provided by cache info indexes
  *	in /sys/devices/system/cpu/cpu*
  */
-static int stress_get_cpu_cache_index(
-	stress_cpu_t *cpu,
+static int stress_cpu_cache_get_index(
+	stress_cpu_cache_cpu_t *cpu,
 	const char *cpu_path)
 {
 	struct dirent **namelist = NULL;
@@ -831,10 +833,10 @@ list_free:
 }
 
 /*
- *  stress_get_cpu_cache_auxval()
+ *  stress_cpu_cache_get_auxval()
  *	find cache information as provided by getauxval
  */
-static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
+static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 {
 #if defined(HAVE_SYS_AUXV_H) && 	\
     defined(HAVE_GETAUXVAL) &&		\
@@ -844,7 +846,7 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
      defined(AT_L3_CACHESIZE))
 	typedef struct {
 		const unsigned long auxval_type;
-		const stress_cache_type_t type;		/* cache type */
+		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */
 		const size_t index;			/* map to cpu->cache array index */
@@ -919,14 +921,14 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 }
 
 /*
- * stress_get_cpu_cache_details()
+ * stress_cpu_cache_get_details()
  * @cpu: cpu to fill in.
  * @cpu_path: Full /sys path to cpu which will be represented by @cpu.
  * Populate @cpu with details from @cpu_path.
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
+static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char *cpu_path)
 {
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
@@ -938,40 +940,40 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 	}
 
 	/* The default x86 cache method */
-	if (stress_get_cpu_cache_index(cpu, cpu_path) > 0)
+	if (stress_cpu_cache_get_index(cpu, cpu_path) > 0)
 		return;
 
 	/* Try cache info using auxinfo */
-	if (stress_get_cpu_cache_auxval(cpu) > 0)
+	if (stress_cpu_cache_get_auxval(cpu) > 0)
 		return;
 
 #if defined(STRESS_ARCH_X86)
 	/* Try CPUID info */
-	if (stress_get_cpu_cache_x86(cpu) > 0)
+	if (stress_cpu_cache_get_x86(cpu) > 0)
 		return;
 #endif
 
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_SPARC)
 	/* Try cache info for sparc CPUs */
-	if (stress_get_cpu_cache_sparc64(cpu, cpu_path) > 0)
+	if (stress_cpu_cache_get_sparc64(cpu, cpu_path) > 0)
 		return;
 #endif
 
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_M68K)
-	if (stress_get_cpu_cache_m68k(cpu) > 0)
+	if (stress_cpu_cache_get_m68k(cpu) > 0)
 		return;
 #endif
 
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_ALPHA)
-	if (stress_get_cpu_cache_alpha(cpu, cpu_path) > 0)
+	if (stress_cpu_cache_get_alpha(cpu, cpu_path) > 0)
 		return;
 #endif
 
 #if defined(__APPLE__)
-	if (stress_get_cpu_cache_apple(cpu) > 0)
+	if (stress_cpu_cache_get_apple(cpu) > 0)
 		return;
 #endif
 
@@ -983,10 +985,10 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 #if defined(__linux__)
 
 /*
- *  cpu_filter()
+ *  stress_cpu_cache_filter()
  *	return 1 when filename is cpu followed by a digit
  */
-static int cpu_filter(const struct dirent *d)
+static int stress_cpu_cache_filter(const struct dirent *d)
 {
 	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit(d->d_name[3]));
 }
@@ -1004,18 +1006,18 @@ static int cpu_sort(const struct dirent **d1, const struct dirent **d2)
 }
 
 /*
- * stress_get_all_cpu_cache_details()
+ * stress_cpu_cache_get_all_details()
  * Obtain information on all cpus caches on the system.
  *
- * Returns: dynamically-allocated stress_cpus_t object, or NULL on error.
+ * Returns: dynamically-allocated stress_cpu_cache_cpus_t object, or NULL on error.
  */
-stress_cpus_t *stress_get_all_cpu_cache_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 {
 	int i, cpu_count;
-	stress_cpus_t *cpus = NULL;
+	stress_cpu_cache_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
-	cpu_count = scandir(SYS_CPU_PREFIX, &namelist, cpu_filter, cpu_sort);
+	cpu_count = scandir(SYS_CPU_PREFIX, &namelist, stress_cpu_cache_filter, cpu_sort);
 	if (cpu_count < 1) {
 		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
 		goto out;
@@ -1035,7 +1037,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	for (i = 0; i < cpu_count; i++) {
 		const char *name = namelist[i]->d_name;
 		char fullpath[PATH_MAX];
-		stress_cpu_t *const cpu = &cpus->cpus[i];
+		stress_cpu_cache_cpu_t *const cpu = &cpus->cpus[i];
 
 		(void)memset(fullpath, 0, sizeof(fullpath));
 		(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
@@ -1057,7 +1059,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 			}
 		}
 		if (cpu->online)
-			stress_get_cpu_cache_details(&cpus->cpus[i], fullpath);
+			stress_cpu_cache_get_details(&cpus->cpus[i], fullpath);
 	}
 
 out:
@@ -1066,15 +1068,15 @@ out:
 }
 #elif defined(__APPLE__)
 /*
- * stress_get_all_cpu_cache_details()
+ * stress_cpu_cache_get_all_details()
  * Obtain information on all cpus caches on the system.
  *
- * Returns: dynamically-allocated stress_cpus_t object, or NULL on error.
+ * Returns: dynamically-allocated stress_cpu_cache_cpus_t object, or NULL on error.
  */
-stress_cpus_t *stress_get_all_cpu_cache_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 {
 	int32_t i, cpu_count;
-	stress_cpus_t *cpus = NULL;
+	stress_cpu_cache_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
 	if (stress_bsd_getsysctl("hw.physicalcpu", &cpu_count, sizeof(cpu_count)) < 0) {
@@ -1094,7 +1096,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	cpus->count = (uint32_t)cpu_count;
 
 	for (i = 0; i < cpu_count; i++) {
-		stress_get_cpu_cache_details(&cpus->cpus[i], "");
+		stress_cpu_cache_get_details(&cpus->cpus[i], "");
 	}
 
 out:
@@ -1102,11 +1104,11 @@ out:
 	return cpus;
 }
 #elif defined(STRESS_ARCH_X86)
-stress_cpus_t *stress_get_all_cpu_cache_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 {
 	uint32_t eax, ebx, ecx, edx;
 	int32_t i, cpu_count;
-	stress_cpus_t *cpus;
+	stress_cpu_cache_cpus_t *cpus;
 
 	if (!stress_cpu_is_x86())
 		return NULL;
@@ -1133,12 +1135,12 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	cpus->count = (uint32_t)cpu_count;
 
 	for (i = 0; i < cpu_count; i++) {
-		stress_get_cpu_cache_x86(&cpus->cpus[i]);
+		stress_cpu_cache_get_x86(&cpus->cpus[i]);
 	}
 	return cpus;
 }
 #else
-stress_cpus_t *stress_get_all_cpu_cache_details(void)
+stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 {
 	return NULL;
 }
@@ -1151,7 +1153,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
  * Undo the action of get_all_cpu_cache_details() by freeing all
  * associated resources.
  */
-void stress_free_cpu_caches(stress_cpus_t *cpus)
+void stress_free_cpu_caches(stress_cpu_cache_cpus_t *cpus)
 {
 	uint32_t  i;
 
@@ -1159,7 +1161,7 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
 		return;
 
 	for (i = 0; i < cpus->count; i++) {
-		stress_cpu_t *cpu = &cpus->cpus[i];
+		stress_cpu_cache_cpu_t *cpu = &cpus->cpus[i];
 
 		if (cpu->caches) {
 			free(cpu->caches);
@@ -1172,30 +1174,30 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
 }
 
 /*
- *  stress_get_llc_size()
+ *  stress_cpu_cache_get_llc_size()
  * 	get Lower Level Cache size and Cache Line size (sizes in bytes)
  *	sizes are zero if not available.
  */
-void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size)
+void stress_cpu_cache_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 {
 #if defined(__linux__) ||	\
     defined(__APPLE__) ||	\
     defined(STRESS_ARCH_X86)
 	uint16_t max_cache_level;
-	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 
 	*llc_size = 0;
 	*cache_line_size = 0;
 
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches)
 		return;
 
-	max_cache_level = stress_get_max_cache_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
 	if (max_cache_level < 1)
 		goto free_cpu_caches;
-	cache = stress_get_cpu_cache(cpu_caches, max_cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, max_cache_level);
 	if (!cache)
 		goto free_cpu_caches;
 
@@ -1210,22 +1212,26 @@ free_cpu_caches:
 #endif
 }
 
-void stress_get_cache_level_size(const uint16_t cache_level, size_t *llc_size, size_t *cache_line_size)
+/*
+ *  stress_cpu_cache_get_level_size()
+ *	get cpu cache size for a specific cache level
+ */
+void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *llc_size, size_t *cache_line_size)
 {
 #if defined(__linux__) ||	\
     defined(__APPLE__) ||	\
     defined(STRESS_ARCH_X86)
-	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 
 	*llc_size = 0;
 	*cache_line_size = 0;
 
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches)
 		return;
 
-	cache = stress_get_cpu_cache(cpu_caches, cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, cache_level);
 	if (!cache)
 		goto free_cpu_caches;
 

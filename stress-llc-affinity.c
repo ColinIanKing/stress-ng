@@ -152,7 +152,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 	double write_duration, read_duration, rate, writes, reads, t_start, duration;
 	cache_line_func_t write_func, read_func;
 
-	stress_get_llc_size(&llc_size, &cache_line_size);
+	stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
 	if (llc_size == 0) {
 		pr_inf_skip("%s: cannot determine cache details, skipping stressor\n",
 			args->name);

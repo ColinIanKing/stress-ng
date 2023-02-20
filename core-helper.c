@@ -1756,11 +1756,11 @@ void pr_yaml_runinfo(FILE *yaml)
  */
 int stress_cache_alloc(const char *name)
 {
-	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level = 0;
 
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache details\n", name);
@@ -1768,7 +1768,7 @@ int stress_cache_alloc(const char *name)
 		goto init_done;
 	}
 
-	max_cache_level = stress_get_max_cache_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
 	if (max_cache_level == 0) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache level details\n", name);
@@ -1782,7 +1782,7 @@ int stress_cache_alloc(const char *name)
 		g_shared->mem_cache_level = max_cache_level;
 	}
 
-	cache = stress_get_cpu_cache(cpu_caches, g_shared->mem_cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, g_shared->mem_cache_level);
 	if (!cache) {
 		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as no suitable "

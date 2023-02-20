@@ -3066,15 +3066,15 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 static void stress_vm_get_cache_line_size(void)
 {
 #if defined(__linux__)
-        stress_cpus_t *cpu_caches;
+        stress_cpu_cache_cpus_t *cpu_caches;
         stress_cpu_cache_t *cache;
 
 	stress_vm_cache_line_size = 64;	/* Default guess */
 
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches)
 		return;
-	cache = stress_get_cpu_cache(cpu_caches, 1);
+	cache = stress_cpu_cache_get(cpu_caches, 1);
 	if (cache && cache->line_size)
 		stress_vm_cache_line_size = (size_t)cache->line_size;
 

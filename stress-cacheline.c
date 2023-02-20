@@ -62,10 +62,10 @@ static uint64_t get_L1_line_size(const stress_args_t *args)
 	uint64_t cache_size = DEFAULT_L1_SIZE;
 #if defined(__linux__) ||	\
     defined(__APPLE__)
-	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
@@ -73,7 +73,7 @@ static uint64_t get_L1_line_size(const stress_args_t *args)
 		return cache_size;
 	}
 
-	cache = stress_get_cpu_cache(cpu_caches, 1);
+	cache = stress_cpu_cache_get(cpu_caches, 1);
 	if (!cache) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "

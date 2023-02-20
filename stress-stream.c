@@ -641,23 +641,23 @@ static inline uint64_t get_stream_L3_size(const stress_args_t *args)
 {
 	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
-	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
 
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache details\n", args->name);
 		return cache_size;
 	}
-	max_cache_level = stress_get_max_cache_level(cpu_caches);
+	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
 	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance))
 		pr_inf("%s: no L3 cache, using L%" PRIu16 " size instead\n",
 			args->name, max_cache_level);
 
-	cache = stress_get_cpu_cache(cpu_caches, max_cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, max_cache_level);
 	if (!cache) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "

@@ -278,7 +278,7 @@ static int stress_flushcache(const stress_args_t *args)
 	i_size = page_size;
 	i_addr = (void *)icache_func;
 
-	stress_get_llc_size(&d_size, &cl_size);
+	stress_cpu_cache_get_llc_size(&d_size, &cl_size);
 	if (d_size < page_size)
 		d_size = page_size;
 	if (cl_size == 0)

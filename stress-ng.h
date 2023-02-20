@@ -2578,8 +2578,6 @@ extern void stress_temp_path_free(void);
 extern void stress_rndstr(char *str, size_t len);
 extern void stress_rndbuf(void *str, const size_t len);
 extern void stress_uint8rnd4(uint8_t *data, const size_t len);
-extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
-extern void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size);
 extern WARN_UNUSED unsigned int stress_get_cpu(void);
 extern WARN_UNUSED const char *stress_get_compiler(void);
 extern WARN_UNUSED const char *stress_get_uname_info(void);

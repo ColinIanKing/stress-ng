@@ -150,7 +150,7 @@ static int stress_l1cache_info_ok(
 {
 	int ret;
 #if defined(__linux__)
-	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 #endif
 
@@ -179,14 +179,14 @@ static int stress_l1cache_info_ok(
 	 *  User didn't provide cache info, try and figure it
 	 *  out
 	 */
-	cpu_caches = stress_get_all_cpu_cache_details();
+	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches)
 		goto bad_cache;
 
-	if (stress_get_max_cache_level(cpu_caches) < 1)
+	if (stress_cpu_cache_get_max_level(cpu_caches) < 1)
 		goto bad_cache_free;
 
-	cache = stress_get_cpu_cache(cpu_caches, 1);
+	cache = stress_cpu_cache_get(cpu_caches, 1);
 	if (!cache)
 		goto bad_cache_free;
 

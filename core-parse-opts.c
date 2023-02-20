@@ -253,7 +253,7 @@ uint64_t stress_get_uint64_byte(const char *const str)
 
 	/* Try cache sizes */
 	if (strcasecmp(str, "LLC")  == 0) {
-		stress_get_llc_size(&llc_size, &cache_line_size);
+		stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
 	} else {
 		const int cache_level = atoi(str + 1);
 
@@ -261,7 +261,7 @@ uint64_t stress_get_uint64_byte(const char *const str)
 			(void)fprintf(stderr, "Illegal cache size '%s'\n", str);
 			longjmp(g_error_env, 1);
 		}
-		stress_get_cache_level_size((uint16_t)cache_level, &llc_size, &cache_line_size);
+		stress_cpu_cache_get_level_size((uint16_t)cache_level, &llc_size, &cache_line_size);
 	}
 
 	if (llc_size == 0) {
