@@ -20,8 +20,8 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
-#include "core-cache.h"
 #include "core-cpu.h"
+#include "core-cpu-cache.h"
 #include "core-nt-store.h"
 
 #if defined(HAVE_SYS_IO_H)

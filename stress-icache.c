@@ -19,7 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 #include "core-icache.h"
 
 static const stress_help_t help[] = {

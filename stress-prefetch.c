@@ -20,8 +20,8 @@
 #include "stress-ng.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
-#include "core-cache.h"
 #include "core-cpu.h"
+#include "core-cpu-cache.h"
 #include "core-put.h"
 
 #define MIN_PREFETCH_L3_SIZE      (4 * KB)

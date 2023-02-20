@@ -29,8 +29,8 @@
  *
  */
 #include "stress-ng.h"
-#include "core-cache.h"
 #include "core-cpu.h"
+#include "core-cpu-cache.h"
 #include "core-nt-store.h"
 
 #define MIN_STREAM_L3_SIZE	(4 * KB)

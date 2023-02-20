@@ -131,9 +131,9 @@ HEADERS = \
 	core-asm-x86.h \
 	core-bitops.h \
 	core-builtin.h \
-	core-cache.h \
 	core-capabilities.h \
 	core-cpu.h \
+	core-cpu-cache.h \
 	core-ftrace.h \
 	core-hash.h \
 	core-icache.h \
@@ -478,8 +478,8 @@ STRESS_SRC = \
 #
 CORE_SRC = \
 	core-affinity.c \
-	core-cache.c \
 	core-cpu.c \
+	core-cpu-cache.c \
 	core-hash.c \
 	core-helper.c \
 	core-icache.c \

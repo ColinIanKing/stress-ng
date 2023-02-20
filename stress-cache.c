@@ -19,7 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-x86.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 #include "core-put.h"
 
 #define FLAGS_CACHE_PREFETCH	(0x0001U)

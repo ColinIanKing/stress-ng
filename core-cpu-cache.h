@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_CACHE_H
-#define CORE_CACHE_H
+#ifndef CORE_CPU_CACHE_H
+#define CORE_CPU_CACHE_H
 
 #include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"

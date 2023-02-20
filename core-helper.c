@@ -21,7 +21,7 @@
 #include "git-commit-id.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 #include "core-hash.h"
 #include "core-pragma.h"
 

@@ -18,7 +18,7 @@
  *
  */
 #include "stress-ng.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 
 #if defined(HAVE_PTRACE)
 #include <sys/ptrace.h>

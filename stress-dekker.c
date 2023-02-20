@@ -17,7 +17,7 @@
  *
  */
 #include "stress-ng.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"dekker N",		"start N workers that exercise ther Dekker algorithm" },

@@ -19,7 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 #include "core-target-clones.h"
 #include "core-nt-load.h"
 #include "core-nt-store.h"

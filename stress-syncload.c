@@ -18,7 +18,7 @@
 #include "stress-ng.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 

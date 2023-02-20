@@ -18,7 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 
 #define DEFAULT_L1_SIZE		(64)
 

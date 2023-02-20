@@ -18,7 +18,7 @@
  *
  */
 #include "stress-ng.h"
-#include "core-cache.h"
+#include "core-cpu-cache.h"
 
 /*
  *  stress_check_max_stressors()
