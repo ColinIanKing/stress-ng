@@ -36,6 +36,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"memrate-ops N",	"stop after N memrate bogo operations" },
 	{ NULL,	"memrate-rd-mbs N",	"read rate from buffer in megabytes per second" },
 	{ NULL,	"memrate-wr-mbs N",	"write rate to buffer in megabytes per second" },
+	{ NULL,	"memrate-flush",	"flush cache before each iteration" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -59,6 +60,7 @@ typedef struct {
 	uint64_t memrate_wr_mbs;
 	void *start;
 	void *end;
+	bool memrate_flush;
 } stress_memrate_context_t;
 
 typedef uint64_t (*stress_memrate_func_t)(const stress_memrate_context_t *context, bool *valid);
@@ -100,14 +102,28 @@ static int stress_set_memrate_wr_mbs(const char *opt)
 	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
 }
 
-static inline uint64_t stress_memrate_loops(const size_t size)
+static int stress_set_memrate_flush(const char *opt)
 {
-	uint64_t loops;
+	return stress_set_setting_true("memrate-flush", opt);
+}
 
-	loops = MB / size;
-	loops = (loops == 0) ? (KB / size) : loops;
+static uint64_t stress_memrate_loops(
+	const stress_memrate_context_t *context,
+	const size_t size)
+{
+	return (context->memrate_bytes < MB) ?
+		context->memrate_bytes / size : MB / size;
+}
 
-	return loops;
+static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *context)
+{
+	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+
+	while (start < end) {
+		shim_clflush(start);
+		start += 64;
+	}
 }
 
 #define STRESS_MEMRATE_READ(size, type, prefetch)		\
@@ -120,7 +136,7 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
 	const uint64_t loops = 					\
-		stress_memrate_loops(sizeof(type) * 16);	\
+		stress_memrate_loops(context, sizeof(type) * 16);\
 								\
 	for (ptr = start; ptr < (type *)end;) {			\
 		uint32_t i;					\
@@ -175,14 +191,15 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	bool *valid)						\
 {								\
 	register type *ptr;					\
-	double t1;						\
-	const double dur = 1.0 / (double)context->memrate_rd_mbs;\
-	double total_dur = 0.0;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
 	const uint64_t loops = 					\
-		stress_memrate_loops(sizeof(type) * 16);	\
+		stress_memrate_loops(context, sizeof(type) * 16);\
+	uint64_t loop_size = loops * sizeof(type) * 16;		\
+	double t1, total_dur = 0.0;				\
+	const double dur = (double)loop_size / 			\
+		(MB * (double)context->memrate_wr_mbs);		\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
@@ -288,7 +305,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	const uint64_t loops = 					\
-		stress_memrate_loops(sizeof(type) * 16);	\
+		stress_memrate_loops(context, sizeof(type) * 16);\
 								\
 	(void)memset(&v, 0xaa, sizeof(v));			\
 								\
@@ -354,9 +371,6 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	void (*func)(void *ptr, const uint32_t loops),
 	const size_t wr_size)
 {
-	double t1;
-	const double dur = 1.0 / (double)context->memrate_wr_mbs;
-	double total_dur = 0.0;
 	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
 	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
 	const size_t size = end - start;
@@ -364,6 +378,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	const uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	size_t todo = size;
 	register uint8_t *ptr;
+	double t1, total_dur = 0.0;
+	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);	
 
 	t1 = stress_time_now();
 	for (ptr = start; keep_stressing_flag() && (todo > 0); todo -= chunk_size, ptr += chunk_size) {
@@ -531,14 +547,15 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	bool *valid)						\
 {								\
 	register volatile type *ptr;				\
-	double t1;						\
-	const double dur = 1.0 / (double)context->memrate_wr_mbs;\
-	double total_dur = 0.0;					\
 	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	const uint64_t loops = 					\
-		stress_memrate_loops(sizeof(type) * 16);	\
+		stress_memrate_loops(context, sizeof(type) * 16);\
+	uint64_t loop_size = loops * sizeof(type) * 16;		\
+	double t1, total_dur = 0.0 ;				\
+	const double dur = (double)loop_size / 			\
+		(MB * (double)context->memrate_wr_mbs);		\
 								\
 	(void)memset(&v, 0xaa, sizeof(v));			\
 								\
@@ -604,7 +621,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	const uint64_t loops = 					\
-		stress_memrate_loops(sizeof(type) * 16);	\
+		stress_memrate_loops(context, sizeof(type) * 16);\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
@@ -650,13 +667,14 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	bool *valid)						\
 {								\
 	register type *ptr;					\
-	double t1;						\
-	const double dur = 1.0 / (double)context->memrate_wr_mbs;\
-	double total_dur = 0.0;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	const uint64_t loops = 					\
-		stress_memrate_loops(sizeof(type) * 16);	\
+		stress_memrate_loops(context, sizeof(type) * 16);\
+	uint64_t loop_size = loops * sizeof(type) * 16;		\
+	double t1, total_dur = 0.0;				\
+	const double dur = (double)loop_size / 			\
+		(MB * (double)context->memrate_wr_mbs);		\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
@@ -884,6 +902,8 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 			stress_memrate_info_t *info = &memrate_info[i];
 			bool valid = false;
 
+			if (context->memrate_flush)
+				stress_memrate_flush(context);
 			t1 = stress_time_now();
 			kbytes = stress_memrate_dispatch(info, context, &valid);
 			context->stats[i].kbytes += (double)kbytes;
@@ -914,8 +934,10 @@ static int stress_memrate(const stress_args_t *args)
 	context.memrate_bytes = DEFAULT_MEMRATE_BYTES;
 	context.memrate_rd_mbs = ~0ULL;
 	context.memrate_wr_mbs = ~0ULL;
+	context.memrate_flush = false;
 
 	(void)stress_get_setting("memrate-bytes", &context.memrate_bytes);
+	(void)stress_get_setting("memrate-flush", &context.memrate_flush);
 	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
 	(void)stress_get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
 
@@ -937,8 +959,11 @@ static int stress_memrate(const stress_args_t *args)
 
 	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63ULL);
 	if (args->instance == 0) {
-		pr_inf("%s: using buffer size of %" PRIu64 "K\n", args->name,
-			context.memrate_bytes >> 10);
+		pr_inf("%s: using buffer size of %" PRIu64 "K, cache flushing %s\n", args->name,
+			context.memrate_bytes >> 10,
+			context.memrate_flush ? "enabled" : "disabled");
+		if (!context.memrate_flush)
+			pr_inf("cache flushing can be enabled with --memrate-flush option\n");
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -971,6 +996,7 @@ static int stress_memrate(const stress_args_t *args)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memrate_bytes,	stress_set_memrate_bytes },
+	{ OPT_memrate_flush,	stress_set_memrate_flush },
 	{ OPT_memrate_rd_mbs,	stress_set_memrate_rd_mbs },
 	{ OPT_memrate_wr_mbs,	stress_set_memrate_wr_mbs },
 	{ 0,			NULL }

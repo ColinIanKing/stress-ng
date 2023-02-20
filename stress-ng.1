@@ -3064,6 +3064,10 @@ write rates are specified.
 .B \-\-memrate\-ops N
 stop after N bogo memrate operations.
 .TP
+.B \-\-memrate\-flush
+flush cache between each memory exercising test to remove caching benefits in
+memory rate metrics.
+.TP
 .B \-\-memrate\-bytes N
 specify the size of the memory buffer being exercised. The default size
 is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and
