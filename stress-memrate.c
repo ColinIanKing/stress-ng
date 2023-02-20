@@ -915,6 +915,10 @@ static int stress_memrate(const stress_args_t *args)
 	}
 
 	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63ULL);
+	if (args->instance == 0) {
+		pr_inf("%s: using buffer size of %" PRIu64 "K\n", args->name,
+			context.memrate_bytes >> 10);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

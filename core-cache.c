@@ -1209,3 +1209,33 @@ free_cpu_caches:
 	*cache_line_size = 0;
 #endif
 }
+
+void stress_get_cache_level_size(const uint16_t cache_level, size_t *llc_size, size_t *cache_line_size)
+{
+#if defined(__linux__) ||	\
+    defined(__APPLE__) ||	\
+    defined(STRESS_ARCH_X86)
+	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_t *cache = NULL;
+
+	*llc_size = 0;
+	*cache_line_size = 0;
+
+	cpu_caches = stress_get_all_cpu_cache_details();
+	if (!cpu_caches)
+		return;
+
+	cache = stress_get_cpu_cache(cpu_caches, cache_level);
+	if (!cache)
+		goto free_cpu_caches;
+
+	*llc_size = cache->size;
+	*cache_line_size = cache->line_size ? cache->line_size : 64;
+
+free_cpu_caches:
+	stress_free_cpu_caches(cpu_caches);
+#else
+	*llc_size = 0;
+	*cache_line_size = 0;
+#endif
+}

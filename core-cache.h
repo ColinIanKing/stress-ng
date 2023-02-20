@@ -64,6 +64,8 @@ extern uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus);
 extern stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus,
 	const uint16_t cache_level);
 extern void stress_free_cpu_caches(stress_cpus_t *cpus);
+extern void stress_get_cache_level_size(const uint16_t cache_level,
+	size_t *llc_size, size_t *cache_line_size);
 
 /*
  *  cacheflush(2) cache options

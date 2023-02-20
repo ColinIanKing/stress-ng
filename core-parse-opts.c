@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cache.h"
 
 /*
  *  stress_check_max_stressors()
@@ -245,8 +246,29 @@ uint64_t stress_get_uint64_byte(const char *const str)
 		{ 'e',  1ULL << 60 },	/* exabytes */
 		{ 0,    0 },
 	};
+	size_t llc_size = 0, cache_line_size = 0;
 
-	return stress_get_uint64_scale(str, scales, "length");
+	if (strncasecmp(str, "L", 1) != 0)
+		return stress_get_uint64_scale(str, scales, "length");
+
+	/* Try cache sizes */
+	if (strcasecmp(str, "LLC")  == 0) {
+		stress_get_llc_size(&llc_size, &cache_line_size);
+	} else {
+		const int cache_level = atoi(str + 1);
+
+		if ((cache_level < 0) || (cache_level > 5)) {
+			(void)fprintf(stderr, "Illegal cache size '%s'\n", str);
+			longjmp(g_error_env, 1);
+		}
+		stress_get_cache_level_size((uint16_t)cache_level, &llc_size, &cache_line_size);
+	}
+
+	if (llc_size == 0) {
+		(void)fprintf(stderr, "Cannot determine %s cache size\n", str);
+		longjmp(g_error_env, 1);
+	}
+	return (uint64_t)llc_size;
 }
 
 /*
