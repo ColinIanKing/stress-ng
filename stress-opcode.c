@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-bitops.h"
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
@@ -184,17 +185,6 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 #endif
 }
 
-static inline ALWAYS_INLINE uint64_t OPTIMIZE3 reverse64(register uint64_t x)
-{
-	x = ((x & 0xf0f0f0f0f0f0f0f0ULL) >> 4) |
-	    ((x & 0x0f0f0f0f0f0f0f0fULL) << 4);
-	x = ((x & 0xccccccccccccccccULL) >> 2) |
-	    ((x & 0x3333333333333333ULL) << 2);
-	x = ((x & 0xaaaaaaaaaaaaaaaaULL) >> 1) |
-	    ((x & 0x5555555555555555ULL) << 1);
-	return x;
-}
-
 static void OPTIMIZE3 stress_opcode_random(
 	size_t page_size,
 	void *ops_begin,
@@ -302,12 +292,12 @@ static void OPTIMIZE3 stress_opcode_mixed(
 		*(ops++) = tmp;
 		*(ops++) = tmp ^ 0xffffffff;	/* Inverted */
 		*(ops++) = ((tmp >> 1) ^ tmp);	/* Gray */
-		*(ops++) = reverse64(tmp);
+		*(ops++) = stress_reverse64(tmp);
 
 		*(ops++) = rnd;
 		*(ops++) = rnd ^ 0xffffffff;
 		*(ops++) = ((rnd >> 1) ^ rnd);
-		*(ops++) = reverse64(rnd);
+		*(ops++) = stress_reverse64(rnd);
 	}
 }
 
