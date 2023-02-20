@@ -100,6 +100,16 @@ static int stress_set_memrate_wr_mbs(const char *opt)
 	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
 }
 
+static inline uint64_t stress_memrate_loops(const size_t size)
+{
+	uint64_t loops;
+
+	loops = MB / size;
+	loops = (loops == 0) ? (KB / size) : loops;
+
+	return loops;
+}
+
 #define STRESS_MEMRATE_READ(size, type, prefetch)		\
 static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	const stress_memrate_context_t *context,		\
@@ -109,14 +119,15 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
-	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
+	const uint64_t loops = 					\
+		stress_memrate_loops(sizeof(type) * 16);	\
 								\
 	for (ptr = start; ptr < (type *)end;) {			\
 		uint32_t i;					\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < mb_loops) &&			\
+		for (i = 0; (i < loops) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
@@ -170,7 +181,8 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
-	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
+	const uint64_t loops = 					\
+		stress_memrate_loops(sizeof(type) * 16);	\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
@@ -179,7 +191,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < mb_loops) &&			\
+		for (i = 0; (i < loops) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i ++) {				\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
@@ -275,7 +287,8 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
-	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
+	const uint64_t loops = 					\
+		stress_memrate_loops(sizeof(type) * 16);	\
 								\
 	(void)memset(&v, 0xaa, sizeof(v));			\
 								\
@@ -284,7 +297,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < mb_loops) &&			\
+		for (i = 0; (i < loops) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			ptr[0] = v;				\
@@ -317,16 +330,19 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	const stress_memrate_context_t *context,
 	bool *valid,
-	void (*func)(void *ptr, const uint32_t mb_loops),
-	const size_t bytes)
+	void (*func)(void *ptr, const uint32_t loops),
+	const size_t wr_size)
 {
 	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
 	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	const size_t size = end - start;
+	const size_t chunk_size = (size > MB) ? MB : size;
+	const uint32_t loops = (uint32_t)(chunk_size / wr_size);
+	size_t todo = size;
 	register uint8_t *ptr;
-	const uint64_t mb_loops = MB / bytes;
 
-	for (ptr = start; keep_stressing_flag() && (ptr < end); ptr += MB) {
-		func((void *)ptr, mb_loops);
+	for (ptr = start; keep_stressing_flag() && (todo > 0); todo -= chunk_size, ptr += chunk_size) {
+		func((void *)ptr, loops);
 	}
 	*valid = true;
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
@@ -335,22 +351,25 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	const stress_memrate_context_t *context,
 	bool *valid,
-	void (*func)(void *ptr, const uint32_t mb_loops),
-	const size_t bytes)
+	void (*func)(void *ptr, const uint32_t loops),
+	const size_t wr_size)
 {
 	double t1;
 	const double dur = 1.0 / (double)context->memrate_wr_mbs;
 	double total_dur = 0.0;
 	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
 	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	const size_t size = end - start;
+	const size_t chunk_size = (size > MB) ? MB : size;
+	const uint32_t loops = (uint32_t)(chunk_size / wr_size);
+	size_t todo = size;
 	register uint8_t *ptr;
-	const uint64_t mb_loops = MB / bytes;
 
 	t1 = stress_time_now();
-	for (ptr = start; keep_stressing_flag() && (ptr < end); ptr += MB) {
+	for (ptr = start; keep_stressing_flag() && (todo > 0); todo -= chunk_size, ptr += chunk_size) {
 		double t2, dur_remainder;
 
-		func((void *)ptr, mb_loops);
+		func((void *)ptr, loops);
 
 		t2 = stress_time_now();
 		total_dur += dur;
@@ -376,10 +395,10 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&	\
     !defined(__ILP32__)
-static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint32_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosq(void *ptr, const uint32_t loops)
 {
 	register void *p = ptr;
-	register const uint32_t l = mb_loops;
+	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
 		"mov $0xaaaaaaaaaaaaaaaa,%%rax\n;"
@@ -409,10 +428,10 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate64(
 
 #if defined(HAVE_ASM_X86_REP_STOSD) &&	\
     !defined(__ILP32__)
-static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint32_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint32_t loops)
 {
 	register void *p = ptr;
-	register const uint32_t l = mb_loops;
+	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
 		"mov $0xaaaaaaaa,%%eax\n;"
@@ -442,10 +461,10 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate32(
 
 #if defined(HAVE_ASM_X86_REP_STOSW) &&	\
     !defined(__ILP32__)
-static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint32_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint32_t loops)
 {
 	register void *p = ptr;
-	register const uint32_t l = mb_loops;
+	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
 		"mov $0xaaaa,%%ax\n;"
@@ -475,10 +494,10 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate16(
 
 #if defined(HAVE_ASM_X86_REP_STOSB) &&	\
     !defined(__ILP32__)
-static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint32_t mb_loops)
+static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint32_t loops)
 {
 	register void *p = ptr;
-	register const uint32_t l = mb_loops;
+	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
 		"mov $0xaa,%%al\n;"
@@ -518,7 +537,8 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
-	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
+	const uint64_t loops = 					\
+		stress_memrate_loops(sizeof(type) * 16);	\
 								\
 	(void)memset(&v, 0xaa, sizeof(v));			\
 								\
@@ -529,7 +549,7 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < mb_loops) &&			\
+		for (i = 0; (i < loops) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i ++) {				\
 			ptr[0] = v;				\
@@ -583,7 +603,8 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	register type *ptr;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
-	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
+	const uint64_t loops = 					\
+		stress_memrate_loops(sizeof(type) * 16);	\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
@@ -595,7 +616,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < mb_loops) &&			\
+		for (i = 0; (i < loops) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			register type *vptr = (type *)ptr;	\
@@ -634,7 +655,8 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	double total_dur = 0.0;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
-	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
+	const uint64_t loops = 					\
+		stress_memrate_loops(sizeof(type) * 16);	\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
@@ -648,7 +670,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < mb_loops) &&			\
+		for (i = 0; (i < loops) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			register type *vptr = (type *)ptr;	\
@@ -872,7 +894,6 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 			if (!keep_stressing(args))
 				break;
 		}
-
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -930,7 +951,7 @@ static int stress_memrate(const stress_args_t *args)
 	for (i = 0; i < memrate_items; i++) {
 		if (!context.stats[i].valid)
 			continue;
-		if (context.stats[i].duration > 0.001) {
+		if (context.stats[i].duration > 0.0) {
 			char tmp[32];
 			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
 
