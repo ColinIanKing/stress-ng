@@ -1581,6 +1581,7 @@ void stress_rndstr(char *str, size_t len)
 void stress_rndbuf(void *buf, size_t len)
 {
 	size_t i;
+
 	for (i = 0; i < len; i++)
 		*(char *)buf = stress_mwc8();
 }
