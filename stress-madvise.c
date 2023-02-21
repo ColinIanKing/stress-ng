@@ -660,8 +660,6 @@ madv_free_out:
 			(void)madvise(bad_addr, page_size * 2, MADV_NORMAL);
 		}
 #endif
-
-
 		inc_counter(args);
 	} while (keep_stressing(args));
 
