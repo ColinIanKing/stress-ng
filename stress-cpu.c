@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 
@@ -429,6 +430,7 @@ static void HOT OPTIMIZE3 stress_cpu_logmap(const char *name)
 
 	(void)name;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < 16384; i++) {
 		/*
 		 *  Scale up a fractional part of x
@@ -504,6 +506,7 @@ static void HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 
 	(void)name;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++) {
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 	}
@@ -743,6 +746,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 	 *  Set up DCT
 	 */
 	for (i = 0; i < IDCT_SIZE; i++) {
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < IDCT_SIZE; j++) {
 			data[i][j] = (i + j == 0) ? 2040: 0;
 		}
@@ -1186,6 +1190,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 	(void)name;
 
 	/* Do a 1000 colours starting from the rgb seed */
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < 1000; i++) {
 		float y, u, v;
 
@@ -1243,6 +1248,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 	}
 
 	for (i = 0; i < MATRIX_PROD_SIZE; i++)
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
 	stress_long_double_put(sum);
@@ -1652,6 +1658,7 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 				STRESS_CLRBIT(sieve, j);
 
 	/* And count up number of primes */
+PRAGMA_UNROLL_N(8)
 	for (j = 0, i = 2; i < SIEVE_SIZE; i++) {
 		if (STRESS_GETBIT(sieve, i))
 			j++;
@@ -2290,6 +2297,7 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 	 *  Generate some random 8 bit image
 	 */
 	for (y = 0; y < STRESS_CPU_DITHER_Y; y += 8) {
+PRAGMA_UNROLL_N(8)
 		for (x = 0; x < STRESS_CPU_DITHER_X; x ++) {
 			uint64_t v = stress_mwc64();
 
