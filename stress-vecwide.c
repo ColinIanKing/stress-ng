@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
@@ -76,7 +77,7 @@ typedef struct {
 } stress_vecwide_funcs_t;
 
 #define STRESS_VECWIDE(name, type)				\
-static void TARGET_CLONES OPTIMIZE3 UNROLL name (vec_args_t *vec_args) \
+static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
 {								\
 	type ALIGN64 a;						\
 	type ALIGN64 b;						\
@@ -94,7 +95,8 @@ static void TARGET_CLONES OPTIMIZE3 UNROLL name (vec_args_t *vec_args) \
 	(void)memcpy(&v23, vec_args->v23, sizeof(s));		\
 	(void)memcpy(&v3, vec_args->v23, sizeof(s));		\
 								\
-	for (i = 2048; i; i--) {				\
+PRAGMA_UNROLL_N(8)						\
+	for (i = 0; i < 2048; i++) {				\
 		a += b;						\
 		b -= c;						\
 		c += v3;					\
@@ -106,6 +108,7 @@ static void TARGET_CLONES OPTIMIZE3 UNROLL name (vec_args_t *vec_args) \
 								\
 	res = a + b + c;					\
 								\
+PRAGMA_UNROLL							\
 	for (i = 0; i < (int)sizeof(res); i++) {		\
 		stress_uint8_put((uint8_t)res[i]);		\
 	}							\

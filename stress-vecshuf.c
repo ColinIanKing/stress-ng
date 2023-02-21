@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
@@ -104,7 +105,7 @@ static double stress_vecshuf_all(
 	stress_vec_data_t *vec_data);
 
 #define STRESS_VEC_SHUFFLE(tag, elements)				\
-static double TARGET_CLONES OPTIMIZE3 UNROLL stress_vecshuf_ ## tag ## _ ## elements (	\
+static double TARGET_CLONES OPTIMIZE3 stress_vecshuf_ ## tag ## _ ## elements (	\
 	const stress_args_t *args,					\
 	stress_vec_data_t *data)					\
 {									\
@@ -119,6 +120,7 @@ static double TARGET_CLONES OPTIMIZE3 UNROLL stress_vecshuf_ ## tag ## _ ## elem
 	mask2 = &data->tag ## _ ## elements.mask2;			\
 									\
 	t1 = stress_time_now();						\
+PRAGMA_UNROLL_N(4)							\
 	for (i = 0; i < LOOPS_PER_CALL; i++) {				\
 		stress_vec_ ## tag ## _ ## elements ## _t tmp;		\
 									\
