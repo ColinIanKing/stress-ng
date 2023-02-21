@@ -404,6 +404,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 	const uint32_t sum = 0xc253698c;
 
 	stress_mwc_seed();
+PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++)
 		i_sum += stress_mwc32();
 
