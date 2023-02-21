@@ -19,7 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
-#include "core-put.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"x86cpuid N",		"start N workers exercising the x86 cpuid instruction" },
@@ -133,6 +133,7 @@ static int stress_x86cpuid(const stress_args_t *args)
 		stress_x86cpuid_reorder_regs(n, reordered_cpu_regs);
 
 		for (j = 0; j < 1024; j++) {
+PRAGMA_UNROLL_N(8)
 			for (i = 0; i < n; i++) {
 				eax = reordered_cpu_regs[i].eax;
 				ebx = 0; /* Not required */
