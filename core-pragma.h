@@ -19,6 +19,9 @@
 #ifndef CORE_PRAGMA_H
 #define CORE_PRAGMA_H
 
+#define STRESS_PRAGMA_(x) _Pragma (#x)
+#define STRESS_PRAGMA(x) STRESS_PRAGMA_(x)
+
 #if defined(__clang__) &&	\
     NEED_CLANG(4, 0, 0) &&	\
     defined(HAVE_PRAGMA)
@@ -42,6 +45,24 @@
 #define STRESS_PRAGMA_POP
 #define STRESS_PRAGMA_WARN_OFF
 #define STRESS_PRAGMA_WARN_CPP_OFF
+#endif
+
+#if defined(__ICC) &&			\
+    defined(__INTEL_COMPILER) &&	\
+    defined(__INTEL_COMPILER_UPDATE)
+#define PRAGMA_UNROLL_N(n)	STRESS_PRAGMA(unroll n)
+#define PRAGMA_UNROLL		STRESS_PRAGMA(unroll)
+#elif defined(__clang__) &&       \
+    NEED_CLANG(9, 0, 0)
+#define PRAGMA_UNROLL_N(n)	STRESS_PRAGMA(unroll n)
+#define PRAGMA_UNROLL		STRESS_PRAGMA(unroll)
+#elif defined(__GNUC__) &&      \
+    NEED_GNUC(10, 0, 0)
+#define PRAGMA_UNROLL_N(n)	STRESS_PRAGMA(GCC unroll n)
+#define PRAGMA_UNROLL		STRESS_PRAGMA(GCC unroll 8)
+#else
+#define PRAGMA_UNROLL_N(n)
+#define PRAGMA_UNROLL
 #endif
 
 #endif
