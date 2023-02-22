@@ -40,13 +40,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_SETTIME)
-static volatile uint64_t *timer_counter;
+static uint64_t timer_counter;
 static uint64_t max_ops;
 static timer_t timerid;
 static double start;
 static long ns_delay;
+static int overrun;
+void *lock;
 
-#define PROCS_MAX	(32)
+#define PROCS_MAX	(8)
 
 /*
  *  stress_hrtimers_set()
@@ -54,11 +56,7 @@ static long ns_delay;
  */
 static void stress_hrtimers_set(struct itimerspec *timer)
 {
-	if (ns_delay < 0) {
-		timer->it_value.tv_nsec = stress_mwc64modn(50000) + 1;
-	} else {
-		timer->it_value.tv_nsec = ns_delay;
-	}
+	timer->it_value.tv_nsec = (ns_delay < 0) ? stress_mwc16() + 1 : ns_delay;
 	timer->it_value.tv_sec = 0;
 	timer->it_interval.tv_sec = timer->it_value.tv_sec;
 	timer->it_interval.tv_nsec = timer->it_value.tv_nsec;
@@ -71,33 +69,45 @@ static void stress_hrtimers_set(struct itimerspec *timer)
 static bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
 {
 	return (LIKELY(keep_stressing_flag()) &&
-		LIKELY(!max_ops || ((*timer_counter) < max_ops)));
+		LIKELY(!max_ops || ((timer_counter) < max_ops)));
 }
 
 /*
  *  stress_hrtimers_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
-static void MLOCKED_TEXT stress_hrtimers_handler(int sig)
+static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 {
 	struct itimerspec timer;
 	sigset_t mask;
 
 	(void)sig;
 
-	if (!stress_hrtimers_keep_stressing())
+	timer_counter++;
+	if (UNLIKELY(!stress_hrtimers_keep_stressing()))
 		goto cancel;
-	(*timer_counter)++;
 
-	if (sigpending(&mask) == 0)
-		if (sigismember(&mask, SIGINT))
-			goto cancel;
-	/* High freq timer, check periodically for timeout */
-	if (((*timer_counter) & 65535) == 0)
-		if ((stress_time_now() - start) > (double)g_opt_timeout)
-			goto cancel;
-	stress_hrtimers_set(&timer);
-	(void)timer_settime(timerid, 0, &timer, NULL);
+	if (UNLIKELY((timer_counter & 4095) == 0)) {
+		if (ns_delay >= 0) {
+			const long ns_adjust = ns_delay >> 2;
+
+			if (timer_getoverrun(&timer)) {
+				ns_delay += ns_adjust;
+			} else {
+				ns_delay -= ns_adjust;
+			}
+		}
+		stress_hrtimers_set(&timer);
+		(void)timer_settime(timerid, 0, &timer, NULL);
+
+		/* check periodically for timeout */
+		if ((timer_counter & 65535) == 0) {
+			if ((sigpending(&mask) == 0) && (sigismember(&mask, SIGINT)))
+				goto cancel;
+			if ((stress_time_now() - start) > (double)g_opt_timeout)
+				goto cancel;
+		}
+	}
 	return;
 
 cancel:
@@ -105,23 +115,20 @@ cancel:
 	/* Cancel timer if we detect no more runs */
 	(void)memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
+	(void)kill(getpid(), SIGALRM);
 }
+
 
 /*
  *  stress_hrtimer_process
  *	stress timer child process
  */
-static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
+static int stress_hrtimer_process(const stress_args_t *args)
 {
+	struct sigaction action;
 	struct sigevent sev;
 	struct itimerspec timer;
 	sigset_t mask;
-	static uint64_t last_count;
-	double previous_time, dt;
-	bool hrtimer_interrupt = false;
-
-	timer_counter = counter;
-	last_count = *counter;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -130,7 +137,12 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
 
 	start = stress_time_now();
-	if (stress_sighandler(args->name, SIGRTMIN, stress_hrtimers_handler, NULL) < 0)
+
+	(void)memset(&action, 0, sizeof action);
+	action.sa_handler = stress_hrtimers_handler;
+	(void)sigemptyset(&action.sa_mask);
+
+	if (sigaction(SIGRTMIN, &action, NULL) < 0)
 		return EXIT_FAILURE;
 
 	(void)memset(&sev, 0, sizeof(sev));
@@ -150,55 +162,11 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 		return EXIT_FAILURE;
 	}
 
-	previous_time = stress_time_now();
-
 	do {
-		unsigned int sl_ret;
-
-		if (ns_delay < 0) {
-			sl_ret = sleep(1);
-			if (sl_ret == 0)
-				hrtimer_interrupt = true;
-		} else {
-			const long ns_adjust = ns_delay >> 2;
-			double now;
-
-			/* The sleep will be interrupted on each hrtimer tick */
-			sl_ret = sleep(1);
-			if (sl_ret == 0)
-				hrtimer_interrupt = true;
-
-			now = stress_time_now();
-			dt = now - previous_time;
-
-			if (dt > 0.1) {
-				static double last_signal_rate = -1.0;
-				double signal_rate;
-				const uint64_t signal_count = *counter - last_count;
-
-				previous_time = now;
-
-				/* Handle unlikely time warping */
-				if (UNLIKELY(dt <= 0.0))
-					continue;
-
-				signal_rate = (double)signal_count / dt;
-				if (last_signal_rate > 0.0) {
-					if (last_signal_rate > signal_rate) {
-						ns_delay += ns_adjust;
-					} else {
-						ns_delay -= ns_adjust;
-					}
-				}
-				last_signal_rate = signal_rate;
-			}
-		}
+		shim_usleep(100000);
 	} while (stress_hrtimers_keep_stressing());
 
-	if (!hrtimer_interrupt) {
-		pr_dbg("%s: failed to detect hrtimer interrupts during a 1 sec sleep\n",
-			args->name);
-	}
+	add_counter_lock(args, lock, timer_counter);
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
@@ -211,29 +179,24 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 static int stress_hrtimers(const stress_args_t *args)
 {
 	pid_t pids[PROCS_MAX];
-	uint64_t *counters;
-	const size_t page_size = args->page_size;
-	const size_t counters_sz = sizeof(*counters) * PROCS_MAX;
-	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
-        bool hrtimers_adjust = false;
-	double start_time, dt;
+	const pid_t parent = getpid();
 	size_t i;
+        bool hrtimers_adjust = false;
+	double start_time = -1.0, end_time;
+	sigset_t mask;
 
-        (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
-	ns_delay = hrtimers_adjust ? 50000 : -1;
-
-	max_ops = args->max_ops / PROCS_MAX;
-
-	(void)memset(pids, 0, sizeof(pids));
-	counters = (uint64_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (counters == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap %zd bytes, errno=%d (%s), "
-			"skipping stressor\n",
-			args->name, sz, errno, strerror(errno));
+	lock = stress_lock_create();
+	if (!lock) {
+		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
+        (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
+	overrun = 0;
+	ns_delay = hrtimers_adjust ? 10000 : -1;
+	max_ops = args->max_ops / PROCS_MAX;
+
+	(void)memset(pids, 0, sizeof(pids));
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < PROCS_MAX; i++) {
@@ -243,37 +206,23 @@ static int stress_hrtimers(const stress_args_t *args)
 		pids[i] = fork();
 		if (pids[i] == 0) {
 			/* Child */
-
 			stress_parent_died_alarm();
 			stress_set_oom_adjustment(args->name, true);
 			(void)sched_settings_apply(true);
-			stress_hrtimer_process(args, &counters[i]);
+			stress_hrtimer_process(args);
+			(void)kill(parent, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
+	(void)sigemptyset(&mask);
+        (void)sigaddset(&mask, SIGRTMIN);
+	(void)sigprocmask(SIG_BLOCK, &mask, NULL);
+
 	start_time = stress_time_now();
-
 	do {
-		struct timespec req;
-
-		req.tv_sec = 0;
-		req.tv_nsec = 10000000;
-		(void)nanosleep(&req, NULL);
-
-		set_counter(args, 0);
-		for (i = 0; i < PROCS_MAX; i++)
-			add_counter(args, counters[i]);
+		shim_usleep(100000);
 	} while (keep_stressing(args));
-
-	dt = stress_time_now() - start_time;
-	if (dt > 0.0) {
-		const uint64_t c = get_counter(args);
-
-		pr_inf("%s: hrtimer signals at %.3f MHz\n",
-			args->name, ((double)c / dt) / 1000000.0);
-	}
-
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -282,6 +231,8 @@ reap:
 		if (pids[i] > 0)
 			(void)kill(pids[i], SIGALRM);
 	}
+	end_time = stress_time_now();
+
 	for (i = 0; i < PROCS_MAX; i++) {
 		if (pids[i] > 0) {
 			int status;
@@ -290,7 +241,17 @@ reap:
 		}
 	}
 
-	(void)munmap((void *)counters, sz);
+	if (start_time >= 0.0) {
+		const double dt = end_time - start_time;
+
+		if (dt > 0.0) {
+			const double rate = (double)get_counter(args) / dt;
+
+			pr_dbg("%s: hrtimer signals at %.3f MHz\n", args->name, rate / 1000000.0);
+			stress_metrics_set(args, 0, "hrtimer signals per sec", rate);
+		}
+	}
+	stress_lock_destroy(lock);
 
 	return EXIT_SUCCESS;
 }

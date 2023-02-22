@@ -2332,6 +2332,20 @@ static inline void ALWAYS_INLINE OPTIMIZE3 keep_stressing_set_flag(const bool se
 }
 
 /*
+ *  add_counter()
+ *	add inc to the stessor bogo ops counter
+ */
+static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
+{
+	*args->counter_ready = false;
+	shim_mb();
+	*args->counter += inc;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
+}
+
+/*
  *  inc_counter()
  *	increment the stessor bogo ops counter
  */
@@ -2369,20 +2383,6 @@ static inline void ALWAYS_INLINE set_counter(const stress_args_t *args, const ui
 }
 
 /*
- *  add_counter()
- *	add inc to the stessor bogo ops counter
- */
-static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
-{
-	*args->counter_ready = false;
-	shim_mb();
-	*args->counter += inc;
-	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
-}
-
-/*
  *  keep_stressing()
  *      returns true if we can keep on running a stressor
  */
@@ -2390,6 +2390,28 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing(const stress_args_t *a
 {
 	return (LIKELY(g_keep_stressing_flag) &&
 		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
+}
+
+/*
+ *  add_counter_lock()
+ *	add val to the stessor bogo ops counter with lock, return true
+ *	if keep_stressing is true
+ */
+static inline bool add_counter_lock(const stress_args_t *args, void *lock, const int64_t val)
+{
+	bool ret;
+
+	/*
+	 *  Failure in lock acquire, don't bump counter
+	 *  and get racy keep_stressing state, that's
+	 *  probably the best we can do in this failure mode
+	 */
+	if (stress_lock_acquire(lock) < 0)
+		return keep_stressing(args);
+	add_counter(args, val);
+	stress_lock_release(lock);
+
+	return ret;
 }
 
 /*
