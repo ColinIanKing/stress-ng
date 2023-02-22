@@ -24,6 +24,12 @@
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
 
+#if defined(MAP_HUGETLB) &&	\
+    defined(MAP_HUGE_SHIFT) &&	\
+    !defined(MAP_HUGE_2MB)
+#define MAP_HUGE_2MB		(21 << MAP_HUGE_SHIFT)
+#endif
+
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
@@ -69,12 +75,13 @@ static int stress_set_qsort_size(const char *opt)
 static int stress_qsort(const stress_args_t *args)
 {
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
-	int32_t *data, *ptr;
-	size_t n, i;
+	int32_t *data;
+	size_t n, data_size;
 	struct sigaction old_action;
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	int mmap_flags = MAP_ANONYMOUS | MAP_PRIVATE;
 
 	if (!stress_get_setting("qsort-size", &qsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -83,10 +90,15 @@ static int stress_qsort(const stress_args_t *args)
 			qsort_size = MIN_QSORT_SIZE;
 	}
 	n = (size_t)qsort_size;
+	data_size = n * sizeof(*data);
 
-	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_inf_skip("%s: calloc failed allocating %zd integers, "
-			"skipping stressor\n", args->name, n);
+#if defined(MAP_POPULATE)
+	mmap_flags |= MAP_POPULATE;
+#endif
+	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf_skip("%s: mmap failed allocating %zd 32 bit integers, errno=%d (%s), "
+			"skipping stressor\n", args->name, n, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -122,6 +134,9 @@ static int stress_qsort(const stress_args_t *args)
 		sorted += (double)n;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			register int *ptr;
+			register size_t i;
+
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr + 1)) {
 					pr_fail("%s: sort error "
@@ -143,6 +158,9 @@ static int stress_qsort(const stress_args_t *args)
 		sorted += (double)n;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			register int *ptr;
+			register size_t i;
+
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr + 1)) {
 					pr_fail("%s: reverse sort "
@@ -171,6 +189,9 @@ static int stress_qsort(const stress_args_t *args)
 		sorted += (double)n;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			register int *ptr;
+			register size_t i;
+
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr + 1)) {
 					pr_fail("%s: reverse sort "
@@ -194,7 +215,7 @@ tidy:
 	stress_metrics_set(args, 0, "qsort comparisons per sec", rate);
 	stress_metrics_set(args, 1, "qsort comparisons per item", count / sorted);
 
-	free(data);
+	(void)munmap((void *)data, data_size);
 
 	return EXIT_SUCCESS;
 }
