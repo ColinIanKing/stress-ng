@@ -2398,21 +2398,17 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing(const stress_args_t *a
  *	add val to the stessor bogo ops counter with lock, return true
  *	if keep_stressing is true
  */
-static inline bool add_counter_lock(const stress_args_t *args, void *lock, const int64_t val)
+static inline void add_counter_lock(const stress_args_t *args, void *lock, const int64_t val)
 {
-	bool ret;
-
 	/*
 	 *  Failure in lock acquire, don't bump counter
 	 *  and get racy keep_stressing state, that's
 	 *  probably the best we can do in this failure mode
 	 */
 	if (stress_lock_acquire(lock) < 0)
-		return keep_stressing(args);
+		return;
 	add_counter(args, val);
 	stress_lock_release(lock);
-
-	return ret;
 }
 
 /*
