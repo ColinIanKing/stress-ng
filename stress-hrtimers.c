@@ -91,7 +91,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 		if (ns_delay >= 0) {
 			const long ns_adjust = ns_delay >> 2;
 
-			if (timer_getoverrun(&timer)) {
+			if (timer_getoverrun(timerid)) {
 				ns_delay += ns_adjust;
 			} else {
 				ns_delay -= ns_adjust;
