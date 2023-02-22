@@ -1754,6 +1754,7 @@ typedef enum {
 	OPT_qsort,
 	OPT_qsort_ops,
 	OPT_qsort_integers,
+	OPT_qsort_method,
 
 	OPT_quota,
 	OPT_quota_ops,

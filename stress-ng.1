@@ -3958,6 +3958,10 @@ stop qsort stress workers after N bogo qsorts.
 .B \-\-qsort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
+.B \-\-qsort\-method [ qsort-libc | qsort-bm ]
+select either the libc implementation of qsort or the J. L. Bentley and M. D. McIlroy
+implementation of qsort. The default is the libc implementation.
+.TP
 .B \-\-quota N
 start N workers that exercise the Q_GETQUOTA, Q_GETFMT, Q_GETINFO, Q_GETSTATS
 and Q_SYNC quotactl(2) commands on all the available mounted block based file

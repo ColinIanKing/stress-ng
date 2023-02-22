@@ -801,6 +801,7 @@ static const struct option long_options[] = {
 	{ "pty-max",		1,	0,	OPT_pty_max },
 	{ "pty-ops",		1,	0,	OPT_pty_ops },
 	{ "qsort",		1,	0,	OPT_qsort },
+	{ "qsort-method",	1,	0,	OPT_qsort_method },
 	{ "qsort-ops",		1,	0,	OPT_qsort_ops },
 	{ "qsort-size",		1,	0,	OPT_qsort_integers },
 	{ "quiet",		0,	0,	OPT_quiet },
