@@ -24,12 +24,6 @@
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
 
-#if defined(MAP_HUGETLB) &&	\
-    defined(MAP_HUGE_SHIFT) &&	\
-    !defined(MAP_HUGE_2MB)
-#define MAP_HUGE_2MB		(21 << MAP_HUGE_SHIFT)
-#endif
-
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
