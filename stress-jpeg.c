@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_LIBJPEG_H)
 #include <jpeglib.h>
@@ -281,13 +282,13 @@ static void OPTIMIZE3 stress_rgb_flat(
 
 static int stress_rgb_compress_to_jpeg(
 	uint8_t		*rgb,
+	JSAMPROW 	*row_pointer,
 	const int32_t	x_max,
 	const int32_t	y_max,
 	const int32_t	quality)
 {
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
-	JSAMPROW *row_pointer;
 	FILE *fp;
 #if defined(HAVE_OPEN_MEMSTREAM)
 	char *ptr;
@@ -298,9 +299,6 @@ static int stress_rgb_compress_to_jpeg(
 	const int row_stride = x_max * 3;
 
 	if (y_max < 1)
-		return 0;
-	row_pointer = calloc((size_t)y_max, sizeof(JSAMPROW));
-	if (!row_pointer)
 		return 0;
 
 #if defined(HAVE_OPEN_MEMSTREAM)
@@ -325,6 +323,7 @@ static int stress_rgb_compress_to_jpeg(
 	jpeg_set_quality(&cinfo, (int)quality, TRUE);
 	jpeg_start_compress(&cinfo, TRUE);
 
+PRAGMA_UNROLL_N(8)
 	for (y = 0; y < y_max; y++, rgb += row_stride) {
 		yy %= y_max;
 		row_pointer[yy] = rgb;
@@ -339,7 +338,6 @@ static int stress_rgb_compress_to_jpeg(
 #if defined(HAVE_OPEN_MEMSTREAM)
 	free(ptr);
 #endif
-	free(row_pointer);
 
 	return (int)size;
 }
@@ -354,11 +352,12 @@ static int stress_jpeg(const stress_args_t *args)
 	int32_t y_max = 512;
 	uint64_t pixels;
 	uint8_t *rgb;
+	JSAMPROW *row_pointer;
 	double size_compressed = 0.0;
 	double size_uncompressed = 0.0;
 	double t_jpeg;
 	int32_t jpeg_quality = 95;
-	size_t rgb_size;
+	size_t rgb_size, row_pointer_size;
 	int jpeg_image = JPEG_IMAGE_PLASMA;
 	double total_pixels = 0.0, t_start, duration, rate, ratio;
 
@@ -375,6 +374,16 @@ static int stress_jpeg(const stress_args_t *args)
 			args->name, x_max, y_max, 3);
 		return EXIT_NO_RESOURCE;
 	}
+	row_pointer_size = (size_t)y_max * sizeof(*row_pointer);
+	row_pointer = (JSAMPROW *)mmap(NULL, row_pointer_size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (row_pointer == MAP_FAILED) {
+		pr_inf_skip("%s: cannot allocate row pointer array of size %" PRId32 " x %zu, skipping stressor\n",
+			args->name, y_max, sizeof(*row_pointer));
+		(void)munmap(rgb, rgb_size);
+		return EXIT_NO_RESOURCE;
+	}
+
 
 	stress_mwc_set_seed(0xf1379ab2, 0x679ce25d);
 
@@ -410,7 +419,7 @@ static int stress_jpeg(const stress_args_t *args)
 		double t1, t2;
 
 		t1 = stress_time_now();
-		size = stress_rgb_compress_to_jpeg(rgb, x_max, y_max, jpeg_quality);
+		size = stress_rgb_compress_to_jpeg(rgb, row_pointer, x_max, y_max, jpeg_quality);
 		t2 = stress_time_now();
 		t_jpeg += (t2 - t1);
 		if (size > 0) {
@@ -434,6 +443,7 @@ static int stress_jpeg(const stress_args_t *args)
 			args->name, ratio, t_jpeg, (double)get_counter(args) / t_jpeg);
 	}
 
+	(void)munmap((void *)row_pointer, row_pointer_size);
 	(void)munmap((void *)rgb, rgb_size);
 
 	return EXIT_SUCCESS;
