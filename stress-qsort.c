@@ -72,10 +72,11 @@ static int stress_set_qsort_size(const char *opt)
 	return stress_set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
 }
 
-static void stress_sort_data_int32_mangle(int32_t *data, size_t n)
+static inline void OPTIMIZE3 stress_sort_data_int32_mangle(int32_t *data, size_t n)
 {
 	const int32_t *end = data + n;
 
+PRAGMA_UNROLL_N(8)
 	while (data < end) {
 		*(data++) ^= 0x80008000;
 	}
@@ -88,18 +89,18 @@ static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
 	return x <= y ? x : y;
 }
 
-static uint8_t *qsort_bm_med3(uint8_t *a, uint8_t *b, uint8_t *c, comp_func_t cmp)
+static uint8_t OPTIMIZE3 *qsort_bm_med3(uint8_t *a, uint8_t *b, uint8_t *c, comp_func_t cmp)
 {
 	return (cmp(a, b) < 0) ?
 		((cmp(b, c) < 0) ? b : (cmp(a, c) < 0) ? c : a) :
 		((cmp(b, c) > 0) ? b : (cmp(a, c) > 0) ? c : a);
 }
 
-static inline void OPTIMIZE3 qsort_bm_swapfunc( uint8_t *a, uint8_t *b, size_t n, int swaptype)
+static inline void OPTIMIZE3 qsort_bm_swapfunc(uint8_t *a, uint8_t *b, size_t n, int swaptype)
 {
 	if (swaptype <= 1) {
-		register qsort_swap_type_t *pi = (qsort_swap_type_t *)a;
-		register qsort_swap_type_t *pj = (qsort_swap_type_t *)b;
+		register qsort_swap_type_t * RESTRICT pi = (qsort_swap_type_t *)a;
+		register qsort_swap_type_t * RESTRICT pj = (qsort_swap_type_t *)b;
 
 PRAGMA_UNROLL_N(4)
 		do {
@@ -110,8 +111,8 @@ PRAGMA_UNROLL_N(4)
 			*pj++ = tmp;
 		} while ((n -= sizeof(qsort_swap_type_t)) > 0);
 	} else {
-		register uint8_t *pi = (uint8_t *)a;
-		register uint8_t *pj = (uint8_t *)b;
+		register uint8_t * RESTRICT pi = (uint8_t *)a;
+		register uint8_t * RESTRICT pj = (uint8_t *)b;
 
 PRAGMA_UNROLL_N(4)
 		do {
@@ -246,19 +247,25 @@ static int stress_set_qsort_method(const char *opt)
 	return -1;
 }
 
-static inline bool stress_qsort_verify_forward(
+static inline bool OPTIMIZE3 stress_qsort_verify_forward(
 	const stress_args_t *args,
 	const int32_t *data,
 	const size_t n)
 {
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		register const int32_t *ptr;
-		register size_t i;
+		register const int32_t *ptr = data;
+		register const int32_t *end = data + n - 1;
+		register int32_t val = *ptr;
 
 PRAGMA_UNROLL_N(8)
-		for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-			if (UNLIKELY(*ptr > *(ptr + 1)))
+		while (ptr < end) {
+			register int32_t next_val = *(ptr + 1);
+
+			if (UNLIKELY(val > next_val))
 				goto fail;
+
+			ptr++;
+			val = next_val;
 		}
 	}
 	return true;
@@ -269,19 +276,25 @@ fail:
 	return false;
 }
 
-static inline bool stress_qsort_verify_reverse(
+static inline bool OPTIMIZE3 stress_qsort_verify_reverse(
 	const stress_args_t *args,
 	const int32_t *data,
 	const size_t n)
 {
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		register const int32_t *ptr;
-		register size_t i;
+		register const int32_t *ptr = data;
+		register const int32_t *end = data + n - 1;
+		register int32_t val = *ptr;
 
 PRAGMA_UNROLL_N(8)
-		for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-			if (UNLIKELY(*ptr < *(ptr + 1)))
+		while (ptr < end) {
+			register int32_t next_val = *(ptr + 1);
+
+			if (UNLIKELY(val < next_val))
 				goto fail;
+
+			ptr++;
+			val = next_val;
 		}
 	}
 	return true;
@@ -296,7 +309,7 @@ fail:
  *  stress_qsort()
  *	stress qsort
  */
-static int stress_qsort(const stress_args_t *args)
+static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 {
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data;
@@ -367,19 +380,6 @@ static int stress_qsort(const stress_args_t *args)
 		if (!stress_qsort_verify_forward(args, data, n))
 			break;
 
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			register int *ptr;
-			register size_t i;
-
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr > *(ptr + 1)) {
-					pr_fail("%s: sort error "
-						"detected, incorrect ordering "
-						"found\n", args->name);
-					break;
-				}
-			}
-		}
 		if (!keep_stressing_flag())
 			break;
 
