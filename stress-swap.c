@@ -248,8 +248,9 @@ static int stress_swap(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	double swapped_percent;
 
-	page = calloc(1, page_size);
-	if (!page) {
+	page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (page == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate 1 page: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
@@ -423,7 +424,7 @@ tidy_rm:
 	(void)stress_temp_dir_rm_args(args);
 tidy_free:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	free(page);
+	(void)munmap((void *)page, page_size);
 tidy_ret:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return ret;
