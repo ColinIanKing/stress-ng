@@ -473,7 +473,7 @@ do {			\
 }
 #endif
 
-#if defined(STRESS_ARCH_RISCV)
+#if defined(STRESS_ARCH_RISCV) && (__riscv_xlen == 64)
 
 #define STRESS_REGS_HELPER
 /*
