@@ -22,6 +22,8 @@
 #include "core-target-clones.h"
 #include "core-pragma.h"
 
+#define THRESH 63
+
 #define MIN_QSORT_SIZE		(1 * KB)
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
@@ -138,6 +140,7 @@ static inline void OPTIMIZE3 qsort_bm_swap(uint8_t *a, uint8_t *b, const size_t 
 	}
 }
 
+
 /*
  *  Bentley and MacIlroy’s quicksort, v2
  *  https://web.ecs.syr.edu/~royer/cis675/slides/07engSort.pdf
@@ -151,7 +154,7 @@ static void TARGET_CLONES OPTIMIZE3 qsort_bm(void *base, size_t n, size_t es, co
 	size_t s;
 	qsort_swap_type_t v;
 
-	if (n < 7) {
+	if (n < THRESH) {
 		for (pm = a + es; pm < a + (n * es); pm += es) {
 			register uint8_t *p;
 
@@ -162,11 +165,11 @@ static void TARGET_CLONES OPTIMIZE3 qsort_bm(void *base, size_t n, size_t es, co
 		return;
 	}
 	pm = a + (n >> 1) * es;
-	if (n > 7) {
+	if (n > THRESH) {
 		register uint8_t *p = a;
 
 		pn = a + (n - 1) * es;
-		if (n > 40) {
+		if (n > 63) {
 			s = (n >> 3) * es;
 			p = qsort_bm_med3(p, p + s, p + (s << 1), cmp);
 			pm = qsort_bm_med3(pm - s, pm, pm + s, cmp);
