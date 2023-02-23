@@ -255,15 +255,18 @@ static inline bool stress_qsort_verify_forward(
 		register const int32_t *ptr;
 		register size_t i;
 
+PRAGMA_UNROLL_N(8)
 		for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-			if (*ptr > *(ptr + 1)) {
-				pr_fail("%s: forward sort error detected, "
-					"incorrect ordering found\n", args->name);
-				return false;
-			}
+			if (UNLIKELY(*ptr > *(ptr + 1)))
+				goto fail;
 		}
 	}
 	return true;
+
+fail:
+	pr_fail("%s: forward sort error detected, incorrect ordering found\n",
+		args->name);
+	return false;
 }
 
 static inline bool stress_qsort_verify_reverse(
@@ -275,16 +278,18 @@ static inline bool stress_qsort_verify_reverse(
 		register const int32_t *ptr;
 		register size_t i;
 
+PRAGMA_UNROLL_N(8)
 		for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-			if (*ptr < *(ptr + 1)) {
-				pr_fail("%s: reverse sort "
-					"error detected, incorrect "
-					"ordering found\n", args->name);
-				return false;
-			}
+			if (UNLIKELY(*ptr < *(ptr + 1)))
+				goto fail;
 		}
 	}
 	return true;
+
+fail:
+	pr_fail("%s: reverse sort error detected, incorrect ordering found\n",
+		args->name);
+	return false;
 }
 
 /*
