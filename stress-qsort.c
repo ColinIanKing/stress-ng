@@ -246,6 +246,47 @@ static int stress_set_qsort_method(const char *opt)
 	return -1;
 }
 
+static inline bool stress_qsort_verify_forward(
+	const stress_args_t *args,
+	const int32_t *data,
+	const size_t n)
+{
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		register const int32_t *ptr;
+		register size_t i;
+
+		for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+			if (*ptr > *(ptr + 1)) {
+				pr_fail("%s: forward sort error detected, "
+					"incorrect ordering found\n", args->name);
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+static inline bool stress_qsort_verify_reverse(
+	const stress_args_t *args,
+	const int32_t *data,
+	const size_t n)
+{
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		register const int32_t *ptr;
+		register size_t i;
+
+		for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+			if (*ptr < *(ptr + 1)) {
+				pr_fail("%s: reverse sort "
+					"error detected, incorrect "
+					"ordering found\n", args->name);
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
 /*
  *  stress_qsort()
  *	stress qsort
@@ -318,6 +359,9 @@ static int stress_qsort(const stress_args_t *args)
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
 
+		if (!stress_qsort_verify_forward(args, data, n))
+			break;
+
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			register int *ptr;
 			register size_t i;
@@ -342,19 +386,9 @@ static int stress_qsort(const stress_args_t *args)
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
 
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			register int *ptr;
-			register size_t i;
+		if (!stress_qsort_verify_reverse(args, data, n))
+			break;
 
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr + 1)) {
-					pr_fail("%s: reverse sort "
-						"error detected, incorrect "
-						"ordering found\n", args->name);
-					break;
-				}
-			}
-		}
 		if (!keep_stressing_flag())
 			break;
 
@@ -374,21 +408,9 @@ static int stress_qsort(const stress_args_t *args)
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
 
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			register int *ptr;
-			register size_t i;
-
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr + 1)) {
-					pr_fail("%s: reverse sort "
-						"error detected, incorrect "
-						"ordering found\n", args->name);
-					break;
-				}
-			}
-		}
-		if (!keep_stressing_flag())
+		if (!stress_qsort_verify_reverse(args, data, n))
 			break;
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
