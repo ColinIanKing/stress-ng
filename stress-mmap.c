@@ -805,7 +805,9 @@ static int stress_mmap(const stress_args_t *args)
 		context.mmap_file = true;
 
 	if (mmap_mmap2) {
-#if defined(HAVE_MMAP2)
+#if defined(HAVE_MMAP2) && \
+    defined(HAVE_SYSCALL) && \
+    defined(__NR_mmap2)
 		context.mmap = (mmap_func_t)mmap2_try;
 #else
 		if (args->instance == 0)
