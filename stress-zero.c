@@ -121,22 +121,23 @@ static int stress_zero(const stress_args_t *args)
 		size_t i;
 #endif
 
-		t = stress_time_now();
-		ret = read(fd, rd_buffer, page_size);
-		if (UNLIKELY(ret < 0)) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				continue;
-			pr_fail("%s: read failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
-		} else {
-			duration += stress_time_now() - t;
+		for (i = 0; i < 64; i++) {
+			t = stress_time_now();
+			ret = read(fd, rd_buffer, page_size);
+			if (UNLIKELY(ret < 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)close(fd);
+				return EXIT_FAILURE;
+			}
 			bytes += (double)ret;
-		}
-		if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
-			pr_fail("%s: non-zero value from a read of /dev/zero\n",
-				args->name);
+			duration += stress_time_now() - t;
+			if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+				pr_fail("%s: non-zero value from a read of /dev/zero\n",
+					args->name);
+			}
 		}
 
 #if !defined(__minix__)
