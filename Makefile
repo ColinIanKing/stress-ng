@@ -45,6 +45,7 @@ endif
 # Test for hardening flags and apply them if applicable
 #
 MACHINE = $(shell uname -m)
+ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisci ia64))
 ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
 CFLAGS += -fstack-protector-strong
@@ -56,6 +57,7 @@ endif
 ifneq ($(findstring pcc,$(CC)),pcc)
 ifeq ($(shell $(CC) $(CFLAGS) -D_FORTIFY_SOURCE=2 -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
 CFLAGS += -D_FORTIFY_SOURCE=2
+endif
 endif
 endif
 
@@ -83,10 +85,12 @@ PRE_V=
 PRE_Q=@#
 endif
 
+ifneq ($(PRESERVE_CFLAGS),1)
 ifeq ($(findstring icc,$(CC)),icc)
 CFLAGS += -no-inline-max-size -no-inline-max-total-size
 CFLAGS += -axAVX,CORE-AVX2,CORE-AVX-I,CORE-AVX512,SSE2,SSE3,SSSE3,SSE4.1,SSE4.2,SANDYBRIDGE,SKYLAKE,SKYLAKE-AVX512,TIGERLAKE,SAPPHIRERAPIDS
 CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-limits
+endif
 endif
 
 #ifeq ($(findstring clang,$(CC)),clang)
