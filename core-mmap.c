@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 /*
  *  stress_mmap_set()
@@ -37,6 +38,7 @@ void stress_mmap_set(
 	for (i = 0; i < sz; i += page_size) {
 		if (!keep_stressing_flag())
 			break;
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < page_size; j++)
 			*ptr++ = val++;
 		val++;
@@ -59,6 +61,7 @@ int stress_mmap_check(
 	for (i = 0; i < sz; i += page_size) {
 		if (!keep_stressing_flag())
 			break;
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < page_size; j++)
 			if (*ptr++ != val++)
 				return -1;
