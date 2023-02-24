@@ -64,7 +64,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  generate a unique large index position into a Judy array
  *  from a known small index
  */
-static inline Word_t gen_index(const Word_t idx)
+static inline OPTIMIZE3 Word_t gen_index(const Word_t idx)
 {
 	return ((~idx & 0xff) << 24) | (idx & 0x00ffffff);
 }
@@ -114,7 +114,7 @@ static int stress_judy(const stress_args_t *args)
 			Word_t idx = gen_index(i);
 
 			JLI(pvalue, PJLArray, idx);
-			if ((pvalue == NULL) || (pvalue == PJERR)) {
+			if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR))) {
 				pr_err("%s: cannot allocate new "
 					"judy node\n", args->name);
 				for (j = 0; j < n; j++) {
@@ -129,17 +129,17 @@ static int stress_judy(const stress_args_t *args)
 
 		/* Step #2, find */
 		t = stress_time_now();
-		for (i = 0; keep_stressing_flag() && i < n; i++) {
+		for (i = 0; keep_stressing_flag() && (i < n); i++) {
 			Word_t idx = gen_index(i);
 
 			JLG(pvalue, PJLArray, idx);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (!pvalue) {
+				if (UNLIKELY(!pvalue)) {
 					pr_fail("%s: element %" PRIu32
 						"could not be found\n",
 						args->name, (uint32_t)idx);
 				} else {
-					if ((uint32_t)*pvalue != i)
+					if (UNLIKELY((uint32_t)*pvalue != i))
 						pr_fail("%s: element "
 							"%" PRIu32 " found %" PRIu32
 							", expecting %" PRIu32 "\n",
