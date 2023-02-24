@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-hash.h"
+#include "core-pragma.h"
 
 /*
  *  stress_hash_jenkin()
@@ -532,6 +533,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 	register uint64_t hash = len;
 	register size_t i;
 
+PRAGMA_UNROLL_N(4)
 	for (i = len >> 3; i; i--) {
 		uint64_t v;
 
@@ -559,6 +561,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror32(const char *str, const size_t len)
 	register uint32_t hash = len;
 	register size_t i;
 
+PRAGMA_UNROLL_N(4)
 	for (i = len >> 2; i; i--) {
 		uint32_t v;
 
@@ -584,6 +587,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_xorror64(const char *str, const size_t len)
 	register uint64_t hash = ~(uint64_t)len;
 	register size_t i;
 
+PRAGMA_UNROLL_N(4)
 	for (i = len >> 3; i; ) {
 		uint64_t v64;
 
@@ -610,6 +614,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_xorror32(const char *str, const size_t len)
 	register uint32_t hash = ~(uint32_t)len;
 	register size_t i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = len >> 2; i; ) {
 		uint32_t v32;
 
