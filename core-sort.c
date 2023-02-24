@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-sort.h"
+#include "core-pragma.h"
 
 static uint64_t stress_sort_compares;
 
@@ -69,6 +70,7 @@ void stress_sort_data_int32_shuffle(int32_t *data, const size_t n)
 	register uint32_t *data32 = (uint32_t *)data;
 	register size_t i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		register uint32_t tmp;
 		register uint32_t j = seed % n;
