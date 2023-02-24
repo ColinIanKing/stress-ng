@@ -263,7 +263,7 @@ static void NORETURN stress_rawpkt_client(
 {
 	int rc = EXIT_FAILURE;
 	uint16_t id = 12345;
-	uint32_t buf[PACKET_SIZE / sizeof(uint32_t)];
+	uint32_t buf[PACKET_SIZE / sizeof(uint32_t)] ALIGN64;
 	struct ethhdr *eth = (struct ethhdr *)buf;
 	struct iphdr *ip = (struct iphdr *)((uintptr_t)buf + sizeof(struct ethhdr));
 	struct udphdr *udp = (struct udphdr *)((uintptr_t)buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
