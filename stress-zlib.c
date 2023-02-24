@@ -693,7 +693,7 @@ static inline uint32_t TARGET_CLONES stress_builtin_ctz(register uint32_t x)
 
 /*
  *  stress_rand_data_pink()
- *	fill buffer with pink noise 0..255 using an
+ *	fill buffer with pink noise 0..255 using
  *	the Gardner method with the McCartney
  *	selection tree optimization
  */
