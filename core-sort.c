@@ -20,7 +20,7 @@
 #include "core-sort.h"
 #include "core-pragma.h"
 
-static uint64_t stress_sort_compares;
+static uint64_t stress_sort_compares ALIGN64;
 
 void stress_sort_compare_reset(void)
 {
@@ -82,11 +82,12 @@ PRAGMA_UNROLL_N(8)
 	}
 }
 
+#if 0
 #define STRESS_SORT_CMP(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2)	\
+int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2) \
 {								\
-	const type v1 = *(const type *)p1;			\
-	const type v2 = *(const type *)p2;			\
+	register const type v1 = *(const type *)p1;		\
+	register const type v2 = *(const type *)p2;		\
 								\
 	stress_sort_compares++;					\
 	if (v1 > v2)						\
@@ -96,12 +97,24 @@ int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2)	\
 	else							\
 		return 0;					\
 }
+#else
+#define STRESS_SORT_CMP(name, type)				\
+int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2) \
+{								\
+	register const type v1 = *(const type *)p1;		\
+	register const type v2 = *(const type *)p2;		\
+								\
+	stress_sort_compares++;					\
+	return (v1 < v2) ? -(v1 != v2) : (v1 != v2);		\
+}
+#endif
 
+#if 0
 #define STRESS_SORT_CMP_REV(name, type)				\
 int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 {								\
-	const type v1 = *(const type *)p1;			\
-	const type v2 = *(const type *)p2;			\
+	register const type v1 = *(const type *)p1;		\
+	register const type v2 = *(const type *)p2;		\
 								\
 	stress_sort_compares++;					\
 	if (v1 < v2)						\
@@ -111,6 +124,17 @@ int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 	else							\
 		return 0;					\
 }
+#else
+#define STRESS_SORT_CMP_REV(name, type)				\
+int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
+{								\
+	register const type v1 = *(const type *)p1;		\
+	register const type v2 = *(const type *)p2;		\
+								\
+	stress_sort_compares++;					\
+	return (v1 > v2) ? -(v1 != v2) : (v1 != v2);		\
+}
+#endif
 
 STRESS_SORT_CMP(int8,  int8_t)
 STRESS_SORT_CMP(int16, int16_t)
