@@ -32,6 +32,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_jenkin(const uint8_t *data, const size_t len)
 	register size_t i;
 	register uint32_t h = 0;
 
+PRAGMA_UNROLL_N(4)
 	for (i = 0; i < len; i++) {
 		h += *data++;
 		h += h << 10;
@@ -52,6 +53,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_pjw(const char *str)
 {
 	register uint32_t h = 0;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		register uint32_t g;
 
@@ -74,6 +76,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_djb2a(const char *str)
 	register uint32_t hash = 5381;
 	register int c;
 
+PRAGMA_UNROLL_N(4)
 	while ((c = *str++)) {
 		/* (hash * 33) ^ c */
 		hash = ((hash << 5) + hash) ^ (uint32_t)c;
@@ -91,6 +94,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_fnv1a(const char *str)
 	const uint32_t fnv_prime = 16777619; /* 2^24 + 2^9 + 0x93 */
 	register int c;
 
+PRAGMA_UNROLL_N(4)
 	while ((c = *str++)) {
 		hash ^= (uint32_t)c;
 		hash *= fnv_prime;
@@ -108,6 +112,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_sdbm(const char *str)
 	register uint32_t hash = 0;
 	register int c;
 
+PRAGMA_UNROLL_N(4)
 	while ((c = *str++))
 		hash = (uint32_t)c + (hash << 6) + (hash << 16) - hash;
 	return hash;
@@ -129,6 +134,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_nhash(const char *str)
 	register int i = 0;
 	register uint32_t sum = 0;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		i += (n - 1);
 		if (i >= n)
@@ -286,6 +292,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_crc32c(const char *str)
 	register uint8_t val;
 	register const uint8_t *ptr = (const uint8_t *)str;
 
+PRAGMA_UNROLL_N(4)
 	while ((val = *ptr++))
 		crc = (crc >> 8) ^ crc32c_table[(crc ^ val) & 0xff];
 
@@ -303,6 +310,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
 
 	(void)len;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		a = (a + (uint8_t)*str++) % mod;
 		b = (b + a) % mod;
@@ -318,6 +326,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
 {
 	register uint32_t prod = (uint32_t)len;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		register uint32_t top = (prod >> 24);
 		prod *= (uint8_t)*str++;
@@ -334,6 +343,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
 {
 	register uint64_t prod = len;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		register uint64_t top = (prod >> 56);
 		prod *= (uint8_t)*str++;
@@ -351,6 +361,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_kandr(const char *str)
 {
 	register uint32_t hash;
 
+PRAGMA_UNROLL_N(4)
 	for (hash = 0; *str; str++)
 		hash = (uint8_t)*str + 31 * hash;
 
@@ -458,6 +469,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_loselose(const char *str)
 {
 	register uint32_t hash;
 
+PRAGMA_UNROLL_N(4)
 	for (hash = 0; *str; str++) {
 		hash += (uint8_t)*str;
 	}
@@ -474,6 +486,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_knuth(const char *str, const size_t len)
 {
 	register uint32_t hash = (uint32_t)len;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		hash = ((hash << 5) ^ (hash >> 27)) ^ ((uint8_t)*str++);
 	}
@@ -493,6 +506,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_x17(const char *str)
 	register uint8_t val;
 	register uint32_t hash = 0x5179efb3;  /* seed */
 
+PRAGMA_UNROLL_N(4)
 	while ((val = *ptr++)) {
 		hash = (17 * hash) + (val - ' ');
 	}
@@ -643,6 +657,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_sedgwick(const char *str)
 	register uint32_t a = 63689;
 	register uint32_t hash = 0;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		hash = (hash * a) + (uint8_t)*str++;
 		a *= b;
@@ -658,6 +673,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_sobel(const char *str)
 {
 	register uint32_t hash = 1315423911;
 
+PRAGMA_UNROLL_N(4)
 	while (*str) {
 		hash ^= ((hash << 5) + (hash >> 2) + (uint8_t)*str++);
 	}
