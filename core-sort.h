@@ -26,22 +26,22 @@ extern void stress_sort_data_int32_shuffle(int32_t *data, const size_t n);
 extern void stress_sort_compare_reset(void);
 extern uint64_t stress_sort_compare_get(void);
 
-#define STRESS_SORT_CMP(name, type)				\
-extern int stress_sort_cmp_ ## name(const void *p1, const void *p2);
+#define STRESS_SORT_CMP_FWD(name, type)				\
+extern int stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2);
 #define STRESS_SORT_CMP_REV(name, type)				\
 extern int stress_sort_cmp_rev_ ## name(const void *p1, const void *p2);
 
-STRESS_SORT_CMP(int8,  int8_t)
-STRESS_SORT_CMP(int16, int16_t)
-STRESS_SORT_CMP(int32, int32_t)
-STRESS_SORT_CMP(int64, int64_t)
+STRESS_SORT_CMP_FWD(int8,  int8_t)
+STRESS_SORT_CMP_FWD(int16, int16_t)
+STRESS_SORT_CMP_FWD(int32, int32_t)
+STRESS_SORT_CMP_FWD(int64, int64_t)
 
 STRESS_SORT_CMP_REV(int8,  int8_t)
 STRESS_SORT_CMP_REV(int16, int16_t)
 STRESS_SORT_CMP_REV(int32, int32_t)
 STRESS_SORT_CMP_REV(int64, int64_t)
 
-#undef STRESS_SORT_CMP
+#undef STRESS_SORT_CMP_FWD
 #undef STRESS_SORT_CMP_REV
 
 #endif

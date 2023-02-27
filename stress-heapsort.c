@@ -124,7 +124,7 @@ static int stress_heapsort(const stress_args_t *args)
 		/* Sort "random" data */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_int32) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
 			pr_fail("%s: heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -171,7 +171,7 @@ static int stress_heapsort(const stress_args_t *args)
 		/* And re-order by byte compare */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (heapsort(data, n * 4, sizeof(uint8_t), stress_sort_cmp_int8) < 0) {
+		if (heapsort(data, n * 4, sizeof(uint8_t), stress_sort_cmp_fwd_int8) < 0) {
 			pr_fail("%s: heapsort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {

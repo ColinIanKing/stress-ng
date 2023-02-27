@@ -82,9 +82,9 @@ PRAGMA_UNROLL_N(8)
 	}
 }
 
-#if 0
-#define STRESS_SORT_CMP(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2) \
+#if 1
+#define STRESS_SORT_CMP_FWD(name, type)				\
+int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
 {								\
 	register const type v1 = *(const type *)p1;		\
 	register const type v2 = *(const type *)p2;		\
@@ -98,8 +98,8 @@ int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2) \
 		return 0;					\
 }
 #else
-#define STRESS_SORT_CMP(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2) \
+#define STRESS_SORT_CMP_FWD(name, type)				\
+int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
 {								\
 	register const type v1 = *(const type *)p1;		\
 	register const type v2 = *(const type *)p2;		\
@@ -109,7 +109,7 @@ int OPTIMIZE3 stress_sort_cmp_ ## name(const void *p1, const void *p2) \
 }
 #endif
 
-#if 0
+#if 1
 #define STRESS_SORT_CMP_REV(name, type)				\
 int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 {								\
@@ -136,10 +136,10 @@ int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 }
 #endif
 
-STRESS_SORT_CMP(int8,  int8_t)
-STRESS_SORT_CMP(int16, int16_t)
-STRESS_SORT_CMP(int32, int32_t)
-STRESS_SORT_CMP(int64, int64_t)
+STRESS_SORT_CMP_FWD(int8,  int8_t)
+STRESS_SORT_CMP_FWD(int16, int16_t)
+STRESS_SORT_CMP_FWD(int32, int32_t)
+STRESS_SORT_CMP_FWD(int64, int64_t)
 
 STRESS_SORT_CMP_REV(int8,  int8_t)
 STRESS_SORT_CMP_REV(int16, int16_t)

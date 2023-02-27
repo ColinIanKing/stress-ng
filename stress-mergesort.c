@@ -130,7 +130,7 @@ static int stress_mergesort(const stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		/* Sort "random" data */
-		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_int32) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
 			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -179,7 +179,7 @@ static int stress_mergesort(const stress_args_t *args)
 		/* And re-order by uint64 compare */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (mergesort(data, n / 2, sizeof(int64_t), stress_sort_cmp_int64) < 0) {
+		if (mergesort(data, n / 2, sizeof(int64_t), stress_sort_cmp_fwd_int64) < 0) {
 			pr_fail("%s: mergesort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {

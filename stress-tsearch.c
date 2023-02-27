@@ -94,13 +94,13 @@ static int stress_tsearch(const stress_args_t *args)
 
 		/* Step #1, populate tree */
 		for (i = 0; i < n; i++) {
-			if (tsearch(&data[i], &root, stress_sort_cmp_int32) == NULL) {
+			if (tsearch(&data[i], &root, stress_sort_cmp_fwd_int32) == NULL) {
 				size_t j;
 
 				pr_err("%s: cannot allocate new "
 					"tree node\n", args->name);
 				for (j = 0; j < i; j++)
-					tdelete(&data[j], &root, stress_sort_cmp_int32);
+					tdelete(&data[j], &root, stress_sort_cmp_fwd_int32);
 				goto abort;
 			}
 		}
@@ -108,7 +108,7 @@ static int stress_tsearch(const stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
-			const void **result = tfind(&data[i], &root, stress_sort_cmp_int32);
+			const void **result = tfind(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (!result) {
@@ -132,7 +132,7 @@ static int stress_tsearch(const stress_args_t *args)
 
 		/* Step #3, delete */
 		for (i = 0; i < n; i++) {
-			const void **result = tdelete(&data[i], &root, stress_sort_cmp_int32);
+			const void **result = tdelete(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL)) {
 				pr_fail("%s: element %zu could not be found\n",
