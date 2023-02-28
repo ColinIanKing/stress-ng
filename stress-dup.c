@@ -198,7 +198,6 @@ static int stress_dup(const stress_args_t *args)
 	static int fds[STRESS_FD_MAX];
 	int rc = EXIT_SUCCESS;
 	size_t max_fd = stress_get_file_limit();
-	size_t i;
 	bool do_dup3 = true;
 	const int bad_fd = stress_get_bad_fd();
 	double dup_duration = 0.0, dup_count = 0.0, rate;
@@ -371,13 +370,8 @@ static int stress_dup(const stress_args_t *args)
 
 			inc_counter(args);
 		}
-		for (i = 1; i < n; i++) {
-			if (fds[i] < 0)
-				break;
-			if (!keep_stressing_flag())
-				break;
-			(void)close(fds[i]);
-		}
+		/* close from fds[1]..fds[n], i.e. n - 1 fds in total */
+		stress_close_fds(&fds[1], n - 1);
 	} while (keep_stressing(args));
 
 tidy_fds:
