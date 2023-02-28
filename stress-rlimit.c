@@ -246,10 +246,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 				for (i = 0; i < MAX_RLIMIT_NOFILE; i++) {
 					fds[i] = open("/dev/null", O_RDONLY);
 				}
-				for (i = 0; i < MAX_RLIMIT_NOFILE; i++) {
-					if (fds[i] != -1)
-						(void)close(fds[i]);
-				}
+				stress_close_fds(fds, MAX_RLIMIT_NOFILE);
 				break;
 			}
 		} else if (ret == 1) {
