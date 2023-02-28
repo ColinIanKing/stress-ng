@@ -252,7 +252,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("raw_syscalls/sys_exit",		"System Call Exit"),
 
 	/* This perf metric causes 5.4+ kernel hangs, disable it for now */
-	/* PERF_INFO_TP("tlb/tlb_flush",		"TLB Flushes"), */
+#if 0
+	PERF_INFO_TP("tlb/tlb_flush",			"TLB Flushes"),
+#endif
 	PERF_INFO_TP("kmem/kmalloc",			"Kmalloc"),
 	PERF_INFO_TP("kmem/kmalloc_node",		"Kmalloc Node"),
 	PERF_INFO_TP("kmem/kfree",			"Kfree"),
@@ -262,10 +264,15 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("kmem/mm_page_alloc",		"MM Page Alloc"),
 	PERF_INFO_TP("kmem/mm_page_free",		"MM Page Free"),
 
-	PERF_INFO_TP("mmap_lock/mmap_lock_start_locking",	"MMAP lock start"),
+	PERF_INFO_TP("mmap_lock/mmap_lock_start_locking","MMAP lock start"),
 	PERF_INFO_TP("mmap_lock/mmap_lock_released",	"MMAP lock release"),
+#if 0
+	PERF_INFO_TP("mmap_lock/mmap_lock_acquire_returned","MMAP lock acquire"),
+#endif
 
 	PERF_INFO_TP("rcu/rcu_utilization",		"RCU Utilization"),
+	PERF_INFO_TP("rcu/rcu_stall_warning",		"RCU Stall Warning"),
+	PERF_INFO_TP("rcu/rcu_preempt_task",		"RCU Preempt Task"),
 
 	PERF_INFO_TP("sched/sched_migrate_task",	"Sched Migrate Task"),
 	PERF_INFO_TP("sched/sched_move_numa",		"Sched Move NUMA"),
@@ -278,6 +285,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("sched/sched_process_wait",	"Sched Proc Wait"),
 	PERF_INFO_TP("sched/sched_switch",		"Sched Switch"),
 
+	PERF_INFO_TP("task/task_newtask",		"New Task"),
+	PERF_INFO_TP("context_tracking/user_exit",	"Context User Exit"),
+
 	PERF_INFO_TP("signal/signal_generate",		"Signal Generate"),
 	PERF_INFO_TP("signal/signal_deliver",		"Signal Deliver"),
 
@@ -287,7 +297,11 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("irq/softirq_exit",		"Soft IRQ Exit"),
 	PERF_INFO_TP("nmi/nmi_handler",			"NMI handler"),
 
-	PERF_INFO_TP("block/block_bio_complete",	"Block BIO complete"),
+	PERF_INFO_TP("block/block_bio_complete",	"Block BIO Complete"),
+#if 0
+	PERF_INFO_TP("iomap/iomap_readpage",		"IOMAP Read Page"),
+	PERF_INFO_TP("iomap/iomap_writepage",		"IOMAP Write Page"),
+#endif
 
 	PERF_INFO_TP("io_uring/io_uring_submit_sqe",	"IO uring submit"),
 	PERF_INFO_TP("io_uring/io_uring_complete",	"IO uring complete"),
@@ -312,6 +326,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("oom/compact_retry",		"OOM Compact Retry"),
 	PERF_INFO_TP("oom/wake_reaper",			"OOM Wake Reaper"),
+	PERF_INFO_TP("oom/oom_score_adj_update",	"OOM Score Adjust Update"),
 
 	PERF_INFO_TP("thermal/thermal_zone_trip",	"Thermal Zone Trip"),
 
