@@ -20,8 +20,10 @@
 #define STRESS_CORE_SHIM
 
 #include "stress-ng.h"
-#include "core-pragma.h"
 #include "core-arch.h"
+#include "core-asm-riscv.h"
+#include "core-cpu-cache.h"
+#include "core-pragma.h"
 
 #if defined(__NR_pkey_get)
 #define HAVE_PKEY_GET
@@ -153,6 +155,28 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 	extern int cacheflush(void *addr, int nbytes, int cache);
 
 	return cacheflush((void *)addr, nbytes, cache);
+#elif defined(STRESS_ARCH_RISCV)
+#if defined(__NR_riscv_flush_icache)
+	if (cache == SHIM_ICACHE) {
+		if (syscall(__NR_riscv_flush_icache, (uintptr_t)addr,
+			    ((uintptr_t)addr) + nbytes, 0) == 0) {
+			return 0;
+		}
+	}
+#endif
+#if defined(HAVE_ASM_RISCV_FENCE_I)
+	if (cache == SHIM_ICACHE)  {
+		stress_asm_riscv_fence_i();
+		return 0;
+	}
+#endif
+#if defined(HAVE_ASM_RISCV_FENCE)
+	if (cache == SHIM_ICACHE)  {
+		stress_asm_riscv_fence();
+		return 0;
+	}
+	return -1;
+#endif
 #elif defined(HAVE_BUILTIN___CLEAR_CACHE)
 	/* More portable builtin */
 	(void)cache;

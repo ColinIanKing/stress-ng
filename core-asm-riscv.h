@@ -42,6 +42,14 @@ static inline void stress_asm_riscv_fence(void)
 }
 #endif
 
+/* Flush instruction cache */
+#if defined(HAVE_ASM_RISCV_FENCE_I)
+static inline void stress_asm_riscv_fence_i(void)
+{
+         __asm__ __volatile__("fence.i" ::: "memory");
+}
+#endif
+
 /* #if defined(STRESS_ARCH_RISCV) */
 #endif
 
