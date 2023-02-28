@@ -89,9 +89,7 @@ static int stress_io(const stress_args_t *args)
 	if (fd != -1)
 		(void)close(fd);
 
-	for (i = 0; i < n_mnts; i++)
-		if (fds[i] != -1)
-			(void)close(fds[i]);
+	stress_close_fds(fds, n_mnts);
 
 	stress_mount_free(mnts, n_mnts);
 #else
