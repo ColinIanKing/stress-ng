@@ -306,10 +306,8 @@ static int stress_rgb_compress_to_jpeg(
 #else
 	fp = fopen("/dev/null", "w");
 #endif
-	if (!fp) {
-		free(row_pointer);
+	if (!fp)
 		return -1;
-	}
 
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
