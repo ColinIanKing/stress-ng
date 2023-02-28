@@ -27,6 +27,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#if defined(STRESS_ARCH_X86)
+
 typedef struct {
 	uint32_t	eax;
 	uint32_t	ecx;
@@ -110,7 +112,6 @@ static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_
 		reordered_cpu_regs[i] = stress_cpuid_regs[index[i]];
 }
 
-#if defined(STRESS_ARCH_X86)
 /*
  *  stress_x86cpuid()
  *	get CPU id info, x86 only
