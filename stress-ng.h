@@ -280,7 +280,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define PR_DEBUG		 STRESS_BIT_ULL(2) 	/* Print debug */
 #define PR_FAIL			 STRESS_BIT_ULL(3) 	/* Print test failure message */
 #define PR_WARN			 STRESS_BIT_ULL(4)	/* Print warning */
-#define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL | PR_WARN)
+#define PR_METRICS		 STRESS_BIT_ULL(5)	/* Print metrics */
+#define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL | PR_WARN | PR_METRICS)
 
 /* Option bit masks */
 #define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(5)	/* Dump metrics at end */
@@ -712,6 +713,7 @@ extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_warn(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_warn_skip(const char *fmt, ...) FORMAT(printf, 1, 2);
+extern void pr_metrics(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 extern void pr_lock_init(void);
 extern void pr_lock(void);

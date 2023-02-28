@@ -2700,20 +2700,20 @@ static void stress_metrics_dump(
 
 	pr_lock();
 	if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
-		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
-			"stressor", "bogo ops", "real time", "usr time",
-			"sys time", "bogo ops/s", "bogo ops/s");
-		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
-			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
-			"(usr+sys time)");
+		pr_metrics("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
+			   "stressor", "bogo ops", "real time", "usr time",
+			   "sys time", "bogo ops/s", "bogo ops/s");
+		pr_metrics("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
+			   "", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
+			   "(usr+sys time)");
 	} else {
-		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s %13.13s\n",
-			"stressor", "bogo ops", "real time", "usr time",
-			"sys time", "bogo ops/s", "bogo ops/s", "CPU used per",
-			"RSS Max");
-		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s %13.13s\n",
-			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
-			"(usr+sys time)","instance (%)", "(KB)");
+		pr_metrics("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s %13.13s\n",
+			   "stressor", "bogo ops", "real time", "usr time",
+			   "sys time", "bogo ops/s", "bogo ops/s", "CPU used per",
+			   "RSS Max");
+		pr_metrics("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s %13.13s\n",
+			   "", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
+			   "(usr+sys time)","instance (%)", "(KB)");
 	}
 	pr_yaml(yaml, "metrics:\n");
 
@@ -2780,7 +2780,7 @@ static void stress_metrics_dump(
 
 		if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
 			if (g_opt_flags & OPT_FLAGS_SN) {
-				pr_inf("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e\n",
+				pr_metrics("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e\n",
 					munged,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
@@ -2789,7 +2789,7 @@ static void stress_metrics_dump(
 					bogo_rate_r_time, /* bogo ops on wall clock time */
 					bogo_rate);	/* bogo ops per second */
 			} else {
-				pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
+				pr_metrics("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
 					munged,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
@@ -2801,7 +2801,7 @@ static void stress_metrics_dump(
 		} else {
 			/* extended metrics */
 			if (g_opt_flags & OPT_FLAGS_SN) {
-				pr_inf("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e %15.4e %13ld\n",
+				pr_metrics("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e %15.4e %13ld\n",
 					munged,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
@@ -2812,7 +2812,7 @@ static void stress_metrics_dump(
 					cpu_usage,	/* % cpu usage */
 					maxrss);	/* maximum RSS in KB */
 			} else {
-				pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f %13ld\n",
+				pr_metrics("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f %13ld\n",
 					munged,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
@@ -2872,7 +2872,7 @@ static void stress_metrics_dump(
 	}
 
 	if (misc_metrics) {
-		pr_inf("miscellaneous metrics:\n");
+		pr_metrics("miscellaneous metrics:\n");
 		for (ss = stressors_head; ss; ss = ss->next) {
 			size_t i;
 			int32_t j;
@@ -2909,11 +2909,11 @@ static void stress_metrics_dump(
 						geomean = 0.0;
 					}
 					if (g_opt_flags & OPT_FLAGS_SN) {
-						pr_inf("%-13s %13.2e %s (geometic mean of %" PRIu32 " instances)\n",
-							munged, geomean, description, ss->started_instances);
+						pr_metrics("%-13s %13.2e %s (geometic mean of %" PRIu32 " instances)\n",
+							   munged, geomean, description, ss->started_instances);
 					} else {
-						pr_inf("%-13s %13.2f %s (geometic mean of %" PRIu32 " instances)\n",
-							munged, geomean, description, ss->started_instances);
+						pr_metrics("%-13s %13.2f %s (geometic mean of %" PRIu32 " instances)\n",
+							   munged, geomean, description, ss->started_instances);
 					}
 				}
 			}

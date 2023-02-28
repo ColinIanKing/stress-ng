@@ -395,6 +395,8 @@ static int pr_msg(
 			type = "fail: ";
 		if (flag & PR_WARN)
 			type = "warn: ";
+		if (flag & PR_METRICS)
+			type = "metrc:";
 
 		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			size_t n = (size_t)vsnprintf(buf, sizeof(buf), fmt, ap);
@@ -572,5 +574,18 @@ void pr_warn_skip(const char *fmt, ...)
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
 		(void)pr_msg(pr_file(), PR_WARN, fmt, ap);
+	va_end(ap);
+}
+
+/*
+ *  pr_metrics()
+ *	print metrics messages
+ */
+void pr_metrics(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(pr_file(), PR_METRICS, fmt, ap);
 	va_end(ap);
 }
