@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_ARCH_H
-#define CORE_ARCH_H
+#ifndef CORE_SORT_H
+#define CORE_SORT_H
 
 #include <inttypes.h>
 
@@ -40,6 +40,9 @@ STRESS_SORT_CMP_REV(int8,  int8_t)
 STRESS_SORT_CMP_REV(int16, int16_t)
 STRESS_SORT_CMP_REV(int32, int32_t)
 STRESS_SORT_CMP_REV(int64, int64_t)
+
+STRESS_SORT_CMP_FWD(int, int)
+STRESS_SORT_CMP_REV(int, int)
 
 #undef STRESS_SORT_CMP_FWD
 #undef STRESS_SORT_CMP_REV

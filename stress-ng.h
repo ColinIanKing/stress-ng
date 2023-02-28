@@ -2528,6 +2528,7 @@ extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
 extern WARN_UNUSED const char *stress_fs_magic_to_name(const unsigned long fs_magic);
 extern WARN_UNUSED const char *stress_fs_type(const char *filename);
+extern void stress_close_fds(int *fds, const size_t n);
 
 /* Memory locking */
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);

@@ -24,6 +24,7 @@
 #include "core-cpu-cache.h"
 #include "core-hash.h"
 #include "core-pragma.h"
+#include "core-sort.h"
 
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
@@ -3632,3 +3633,31 @@ int stress_bsd_getsysctl_int(const char *name)
 	return 0;
 }
 #endif
+
+/*
+ *  stress_close_fds()
+ *	close an array of file descriptors
+ */
+void stress_close_fds(int *fds, const size_t n)
+{
+	size_t i, j;
+
+	if (n < 1)
+		return;
+
+	qsort(fds, n, sizeof(*fds), stress_sort_cmp_fwd_int);
+	for (j = 0; j < n - 1; j++) {
+		if (fds[j] >= 0)
+			break;
+	}
+	for (i = j; i < n - 1; i++) {
+		if (fds[i] + 1 != fds[i + 1])
+			goto close_slow;
+	}
+	if (shim_close_range(fds[j], fds[n - 1], 0) == 0)
+		return;
+
+close_slow:
+	for (i = j; i < n; i++)
+		(void)close(fds[i]);
+}

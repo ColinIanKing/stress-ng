@@ -118,7 +118,7 @@ static inline int stress_socket_fd_recv(const int fd)
 	msg.msg_controllen = sizeof(ctrl);
 
 	if (recvmsg(fd, &msg, 0) <= 0)
-		return -errno;
+		return -1;
 	if (msg_data[0] != MSG_ID)
 		return -1;
 	if ((msg.msg_flags & MSG_CTRUNC) == MSG_CTRUNC)
@@ -155,7 +155,7 @@ static int stress_socket_client(
 
 	do {
 		int fd, retries = 0;
-		ssize_t i, n;
+		ssize_t n;
 		socklen_t addr_len = 0;
 		int so_reuseaddr = 1;
 
@@ -214,11 +214,7 @@ retry:
 			}
 		}
 
-		for (i = 0; i < n; i++) {
-			if (fds[i] >= 0)
-				(void)close(fds[i]);
-		}
-
+		stress_close_fds(fds, n);
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 	} while (keep_stressing(args));
