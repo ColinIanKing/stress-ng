@@ -420,7 +420,7 @@ static int egl_init(
 
 	fd = open(gpu_devnode, O_RDWR);
 	if (fd < 0) {
-		pr_inf_skip("%s: couldn't open device %s: errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: couldn't open device '%s': errno=%d (%s), skipping stressor\n",
 			args->name, gpu_devnode, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -478,6 +478,22 @@ static int egl_init(
 	return EXIT_SUCCESS;
 }
 
+static int stress_gpu_supported(const char *name)
+{
+	const char *gpu_devnode = default_gpu_devnode;
+	int fd;
+
+	(void)stress_get_setting("gpu-devnode", &gpu_devnode);
+	fd = open(gpu_devnode, O_RDWR);
+	if (fd < 0) {
+		pr_inf_skip("%s: cannot open GPU device '%s', errno=%d (%s), skipping stressor\n",
+			name, gpu_devnode, errno, strerror(errno));
+		return -1;
+	}
+	(void)close(fd);
+	return 0;
+}
+
 static int stress_gpu(const stress_args_t *args)
 {
 	int frag_n = 0;
@@ -528,6 +544,7 @@ stressor_info_t stress_gpu_info = {
 	.stressor = stress_gpu,
 	.class = CLASS_GPU,
 	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_gpu_supported,
 	.help = help
 };
 #else
