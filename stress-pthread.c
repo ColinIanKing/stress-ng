@@ -406,6 +406,7 @@ die:
  */
 static int stress_pthread(const stress_args_t *args)
 {
+	char msg[64];
 	bool locked = false;
 	uint64_t limited = 0, attempted = 0, maximum = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
@@ -652,17 +653,9 @@ reap:
 
 	average = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs to start a pthread", average * STRESS_DBL_NANOSECOND);
-
-	pr_inf("%s: maximum of %" PRIu64 " concurrent pthreads created\n",
-		args->name, maximum);
-	if (limited) {
-		pr_inf("%s: %.2f%% of iterations could not reach "
-			"requested %" PRIu64 " threads (instance %"
-			PRIu32 ")\n",
-			args->name,
-			100.0 * (double)limited / (double)attempted,
-			pthread_max, args->instance);
-	}
+	snprintf(msg, sizeof(msg), "%% of %" PRIu64 " pthreads created",
+		pthread_max * args->num_instances);
+	stress_metrics_set(args, 1, msg, 100.0 * (double)(attempted - limited) / (double)attempted);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
