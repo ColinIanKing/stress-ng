@@ -99,6 +99,15 @@ static const sig_report_t sig_report[] = {
 
 static uint64_t *sig_count;
 
+static int stress_plugin_supported(const char *name)
+{
+	if (stress_plugin_methods_num == 0) {
+		pr_inf_skip("%s: no plugin-so specified, skipping stressor\n", name);
+		return -1;
+	}
+	return 0;
+}
+
 static bool stress_plugin_report_signum(const int signum)
 {
 	register size_t i;
@@ -149,7 +158,7 @@ static int stress_set_plugin_so(const char *opt)
 
 	stress_plugin_so = dlopen(opt, RTLD_LAZY | RTLD_GLOBAL);
 	if (!stress_plugin_so) {
-		fprintf(stderr, "plugin-so: cannot load shared object file %s\n", opt);
+		fprintf(stderr, "plugin-so: cannot load shared object file %s (please specify full path to .so file)\n", opt);
 		return -1;
 	}
 
@@ -405,6 +414,7 @@ stressor_info_t stress_plugin_info = {
 	.stressor = stress_plugin,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_plugin_supported,
 	.help = help
 };
 
