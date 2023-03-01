@@ -25,6 +25,35 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static int OPTIMIZE3 stress_chown_check(const int ret)
+{
+	static const int ignore_errors[] = {
+#if defined(ENOENT)
+		ENOENT,
+#endif
+#if defined(ENOTDIR)
+		ENOTDIR,
+#endif
+#if defined(ENOSYS)
+		ENOSYS,
+#endif
+#if defined(EPERM)
+		EPERM,
+#endif
+	};
+
+	size_t i;
+
+	if (!ret)
+		return 0;
+
+	for (i = 0; i < SIZEOF_ARRAY(ignore_errors); i++) {
+		if (errno == ignore_errors[i])
+			return 0;
+	}
+	return -1;
+}
+
 /*
  *  do_fchown()
  *	set ownership different ways
@@ -36,30 +65,35 @@ static int do_fchown(
 	const uid_t uid,
 	const gid_t gid)
 {
-	int tmp;
+	int tmp, ret;
 
-	if (fchown(fd, uid, gid) < 0)
+	if (stress_chown_check(fchown(fd, uid, gid) < 0))
 		return -errno;
-	if (fchown(fd, (uid_t)-1, gid) < 0)
+	if (stress_chown_check(fchown(fd, (uid_t)-1, gid) < 0))
 		return -errno;
-	if (fchown(fd, uid, (gid_t)-1) < 0)
+	if (stress_chown_check(fchown(fd, uid, (gid_t)-1) < 0))
 		return -errno;
-	if (fchown(fd, (uid_t)-1, (gid_t)-1) < 0)
+	if (stress_chown_check(fchown(fd, (uid_t)-1, (gid_t)-1) < 0))
 		return -errno;
 
 	if (cap_chown)
 		return 0;
-	if (fchown(fd, (uid_t)0, (gid_t)0) == 0)
+	ret = fchown(fd, (uid_t)0, (gid_t)0);
+	if (ret == 0)
 		goto restore;
-	if (errno != EPERM)
+	if (stress_chown_check(ret) < 0)
 		goto restore;
-	if ((fchown(fd, (uid_t)-1, (gid_t)0) == 0) && (errno != EPERM))
+
+	ret = fchown(fd, (uid_t)-1, (gid_t)0);
+	if (ret == 0)
 		goto restore;
-	if (errno != EPERM)
+	if (stress_chown_check(ret) < 0)
 		goto restore;
-	if (fchown(fd, (uid_t)0, (gid_t)-1) == 0)
+	ret = fchown(fd, (uid_t)0, (gid_t)-1);
 		goto restore;
-	if (errno != EPERM)
+	if (ret == 0)
+		goto restore;
+	if (stress_chown_check(ret) < 0)
 		goto restore;
 
 	/*
@@ -87,32 +121,34 @@ static int do_chown(
 	const uid_t uid,
 	const gid_t gid)
 {
-	int tmp;
+	int tmp, ret;
 
-	if (chown_func(filename, uid, gid) < 0)
+	if (stress_chown_check(chown_func(filename, uid, gid)) < 0)
 		return -errno;
-	if (chown_func(filename, (uid_t)-1, gid) < 0)
+	if (stress_chown_check(chown_func(filename, (uid_t)-1, gid)) < 0)
 		return -errno;
-	if (chown_func(filename, uid, (gid_t)-1) < 0)
+	if (stress_chown_check(chown_func(filename, uid, (gid_t)-1)) < 0)
 		return -errno;
-	if (chown_func(filename, (uid_t)-1, (gid_t)-1) < 0)
+	if (stress_chown_check(chown_func(filename, (uid_t)-1, (gid_t)-1)) < 0)
 		return -errno;
 
 	if (cap_chown)
 		return 0;
-	if (chown_func(filename, (uid_t)0, (gid_t)0) == 0)
+	ret = chown_func(filename, (uid_t)0, (gid_t)0);
+	if (ret == 0)
 		goto restore;
-	if (errno != EPERM)
+	if (stress_chown_check(ret))
 		goto restore;
-	if ((chown_func(filename, (uid_t)-1, (gid_t)0) == 0) && (errno != EPERM))
+	ret = chown_func(filename, (uid_t)-1, (gid_t)0);
+	if (ret == 0)
 		goto restore;
-	if (errno != EPERM)
+	if (stress_chown_check(ret))
 		goto restore;
-	if (chown_func(filename, (uid_t)0, (gid_t)-1) == 0)
+	ret = chown_func(filename, (uid_t)0, (gid_t)-1);
+	if (ret == 0)
 		goto restore;
-	if (errno != EPERM)
+	if (stress_chown_check(ret))
 		goto restore;
-
 	return 0;
 
 restore:
@@ -203,34 +239,16 @@ static int stress_chown(const stress_args_t *args)
 				stress_fs_type(filename));
 
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
-		if (ret < 0) {
-			if ((ret == -ENOENT) || (ret == -ENOTDIR)) {
-				/*
-				 * File was removed during test by
-				 * another worker
-				 */
-				rc = EXIT_SUCCESS;
-				goto tidy;
-			}
-			if (ret != -EPERM)
-				pr_fail("%s: chown %s failed, errno=%d (%s)%s\n",
-					args->name, filename, errno, strerror(errno),
-					stress_fs_type(filename));
+		if ((ret < 0) && (ret != -EPERM)) {
+			pr_fail("%s: chown %s failed, errno=%d (%s)%s\n",
+				args->name, filename, errno, strerror(errno),
+				stress_fs_type(filename));
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
-		if (ret < 0) {
-			if ((ret == -ENOENT) || (ret == -ENOTDIR)) {
-				/*
-				 * File was removed during test by
-				 * another worker
-				 */
-				rc = EXIT_SUCCESS;
-				goto tidy;
-			}
-			if (ret != -EPERM)
-				pr_fail("%s: lchown %s failed, errno=%d (%s)%s\n",
-					args->name, filename, errno, strerror(errno),
-					stress_fs_type(filename));
+		if ((ret < 0) && (ret != -EPERM)) {
+			pr_fail("%s: lchown %s failed, errno=%d (%s)%s\n",
+				args->name, filename, errno, strerror(errno),
+				stress_fs_type(filename));
 		}
 		(void)shim_fsync(fd);
 		inc_counter(args);
