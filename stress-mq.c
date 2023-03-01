@@ -170,6 +170,15 @@ static int stress_mq(const stress_args_t *args)
 		sz--;
 	}
 	if (mq < 0) {
+		/*
+		 *  With bulk testing we may run out of mq space, so skip rather
+		 *  than hard fail
+		 */
+		if (errno == ENOSPC) {
+			pr_inf_skip("%s: mq_open: no more free queue space, skipping stressor\n",
+				args->name);
+			return EXIT_NO_RESOURCE;
+		}
 		pr_fail("%s: mq_open failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
