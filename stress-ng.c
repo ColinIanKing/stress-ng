@@ -2902,7 +2902,7 @@ static void stress_metrics_dump(
 						}
 					}
 					if (n > 0.0) {
-						const double inverse_n = 1.0 / (double)ss->started_instances;
+						const double inverse_n = 1.0 / (double)n;
 
 						geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
 					} else {
