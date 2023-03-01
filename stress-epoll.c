@@ -653,7 +653,7 @@ retry:
 			retries++;
 			if (retries > 10) {
 				/* Sigh, give up.. */
-				pr_fail("%s: giving up, too many failed connects;, errno = %d (%s)\n",
+				pr_fail("%s: giving up, too many failed connects, errno = %d (%s)\n",
 					args->name, saved_errno, strerror(saved_errno));
 				return EXIT_FAILURE;
 			}
