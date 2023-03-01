@@ -82,6 +82,65 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_CLONE) &&			\
     defined(HAVE_POSIX_MEMALIGN)
 
+#define STRESS_USERFAULT_REPORT_ALWAYS		(0x01)
+#define STRESS_USERFAULT_SUPPORTED_CHECK	(0x02)
+#define STRESS_USERFAULT_SUPPORTED_CHECK_ALWAYS	(STRESS_USERFAULT_REPORT_ALWAYS |	\
+						 STRESS_USERFAULT_SUPPORTED_CHECK)
+
+/*
+ *  stress_userfaultfd_error()
+ *	convert errno into stress-ng return error code and report
+ *	a message if carp is true
+ */
+static int stress_userfaultfd_error(const char *name, const int err, const int mode)
+{
+	int rc;
+	static const char skipped[] = "stressor will be skipped";
+
+	switch (err) {
+	case EPERM:
+		if (mode & STRESS_USERFAULT_REPORT_ALWAYS)
+			pr_inf_skip("%s: %s, insufficient privilege\n",
+				name, skipped);
+		rc = EXIT_NO_RESOURCE;
+		break;
+	case ENOSYS:
+		if (mode & STRESS_USERFAULT_REPORT_ALWAYS)
+			pr_inf_skip("%s: %s, userfaultfd() not supported\n",
+				name, skipped);
+		rc = EXIT_NOT_IMPLEMENTED;
+		break;
+	default:
+		rc = stress_exit_status(errno);
+		if (mode & STRESS_USERFAULT_REPORT_ALWAYS) {
+			if (mode & STRESS_USERFAULT_SUPPORTED_CHECK) {
+				pr_inf_skip("%s: %s, userfaultfd() failed, errno = %d (%s)\n",
+					name, skipped, errno, strerror(errno));
+				rc = EXIT_NO_RESOURCE;
+			} else {
+				pr_fail("%s: userfaultfd() failed, errno = %d (%s)\n",
+					name, errno, strerror(errno));
+			}
+		}
+		break;
+	}
+	return rc;
+}
+
+
+static int stress_userfaultfd_supported(const char *name)
+{
+	int fd;
+
+	fd = shim_userfaultfd(0);
+	if (fd >= 0) {
+		(void)close(fd);
+		return 0;
+	}
+	stress_userfaultfd_error(name, errno, STRESS_USERFAULT_SUPPORTED_CHECK_ALWAYS);
+	return -1;
+}
+
 /*
  *  stress_child_alarm_handler()
  *	SIGALRM handler to terminate child immediately
@@ -236,26 +295,8 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	/* Get userfault fd */
 	fd = shim_userfaultfd(0);
 	if (fd < 0) {
-		switch (errno) {
-		case EPERM:
-			if (args->instance == 0)
-				pr_inf_skip("%s: stressor will be skipped, insufficient "
-					"privilege\n", args->name);
-			rc = EXIT_NO_RESOURCE;
-			break;
-		case ENOSYS:
-			if (args->instance == 0)
-				pr_inf_skip("%s: stressor will be skipped, "
-					"userfaultfd not supported\n",
-					args->name);
-			rc = EXIT_NOT_IMPLEMENTED;
-			break;
-		default:
-			rc = stress_exit_status(errno);
-			pr_fail("%s: userfaultfd failed, errno = %d (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
-		}
+		rc = stress_userfaultfd_error(args->name, errno,
+			args->instance ? 0 : STRESS_USERFAULT_REPORT_ALWAYS);
 		goto unmap_data;
 	}
 
@@ -459,6 +500,7 @@ stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_userfaultfd_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
