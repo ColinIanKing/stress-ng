@@ -29,7 +29,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-
 static const mode_t modes[] = {
 #if defined(S_ISUID)
 	S_ISUID,
@@ -70,24 +69,43 @@ static const mode_t modes[] = {
 	0
 };
 
+static int OPTIMIZE3 stress_chmod_check(const int ret)
+{
+	static const int ignore_errors[] = {
+#if defined(ENOENT)
+		ENOENT,
+#endif
+#if defined(ENOTDIR)
+		ENOTDIR,
+#endif
+#if defined(ENOSYS)
+		ENOSYS,
+#endif
+#if defined(EFTYPE)
+		EFTYPE,
+#endif
+#if defined(EPERM)
+		EPERM,
+#endif
+	};
+
+	size_t i;
+
+	if (!ret)
+		return 0;
+
+	for (i = 0; i < SIZEOF_ARRAY(ignore_errors); i++) {
+		if (errno == ignore_errors[i])
+			return 0;
+	}
+	return -1;
+}
+
 /*
  *  BSD systems can return EFTYPE which we can ignore
  *  as a "known" error on invalid chmod mode bits
  */
-#if defined(EFTYPE)
-#define CHECK(x) 			\
-	if ((x) &&			\
-	    ((errno != ENOSYS) &&	\
-	     (errno != EPERM) &&	\
-	     (errno != EFTYPE)))	\
-		return -1
-#else
-#define CHECK(x)			\
-	if ((x) &&			\
-	    ((errno != ENOSYS) &&	\
-	     (errno != EPERM)))		\
-		return -1
-#endif
+#define CHECK(x)	stress_chmod_check(x)
 
 /*
  *  do_fchmod()
@@ -104,10 +122,10 @@ static int do_fchmod(
 	const mode_t mask,
 	const mode_t all_mask)
 {
-	CHECK(fchmod(fd, modes[i]) < 0);
-	CHECK(fchmod(fd, mask) < 0);
-	CHECK(fchmod(fd, modes[i] ^ all_mask) < 0);
-	CHECK(fchmod(fd, mask ^ all_mask) < 0);
+	stress_chmod_check(fchmod(fd, modes[i]) < 0);
+	stress_chmod_check(fchmod(fd, mask) < 0);
+	stress_chmod_check(fchmod(fd, modes[i] ^ all_mask) < 0);
+	stress_chmod_check(fchmod(fd, mask ^ all_mask) < 0);
 
 	/*
 	 *  Exercise bad fchmod, ignore failure
@@ -146,17 +164,17 @@ static int do_chmod(
 	index++;
 	index %= mode_count;
 
-	CHECK(chmod(filename, modes[i]) < 0);
-	CHECK(chmod(filename, mask) < 0);
-	CHECK(chmod(filename, modes[i] ^ all_mask) < 0);
-	CHECK(chmod(filename, mask ^ all_mask) < 0);
+	stress_chmod_check(chmod(filename, modes[i]) < 0);
+	stress_chmod_check(chmod(filename, mask) < 0);
+	stress_chmod_check(chmod(filename, modes[i] ^ all_mask) < 0);
+	stress_chmod_check(chmod(filename, mask ^ all_mask) < 0);
 
 #if defined(HAVE_FCHMODAT)
 	if (dfd >= 0) {
-		CHECK(fchmodat(dfd, filebase, modes[i], 0) < 0);
-		CHECK(fchmodat(dfd, filebase, mask, 0) < 0);
-		CHECK(fchmodat(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
-		CHECK(fchmodat(dfd, filebase, mask ^ all_mask, 0) < 0);
+		stress_chmod_check(fchmodat(dfd, filebase, modes[i], 0) < 0);
+		stress_chmod_check(fchmodat(dfd, filebase, mask, 0) < 0);
+		stress_chmod_check(fchmodat(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
+		stress_chmod_check(fchmodat(dfd, filebase, mask ^ all_mask, 0) < 0);
 
 		/*
 		 *  Exercise bad fchmodat, ignore failure
