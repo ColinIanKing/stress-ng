@@ -561,7 +561,9 @@ static int epoll_client(
 	do {
 		char buf[4096];
 		int fd, saved_errno;
+#if defined(STRESS_EPOLL_RETRY_COUNT)
 		int retries = 0;
+#endif
 		int ret;
 		const int port = epoll_port + port_counter +
 				(max_servers * (int)args->instance);
@@ -650,6 +652,7 @@ retry:
 			(void)close(fd);
 			(void)shim_usleep(100000);	/* Twiddle fingers for a moment */
 
+#if defined(STRESS_EPOLL_RETRY_COUNT)
 			retries++;
 			if (retries > 10) {
 				/* Sigh, give up.. */
@@ -657,6 +660,7 @@ retry:
 					args->name, saved_errno, strerror(saved_errno));
 				return EXIT_FAILURE;
 			}
+#endif
 			goto retry;
 		}
 
