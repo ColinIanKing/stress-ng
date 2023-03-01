@@ -488,6 +488,8 @@ static int stress_gpu(const stress_args_t *args)
 	GLsizei uploads = 1;
 	const char *gpu_devnode = default_gpu_devnode;
 
+	(void)setenv("MESA_SHADER_CACHE_DISABLE", "true", 1);
+
 	(void)stress_get_setting("gpu-devnode", &gpu_devnode);
 	(void)stress_get_setting("gpu-frag", &frag_n);
 	(void)stress_get_setting("gpu-xsize", &size_x);
