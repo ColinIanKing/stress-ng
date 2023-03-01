@@ -190,10 +190,6 @@ static int stress_pipeherd(const stress_args_t *args)
 
 			total += usage.ru_nvcsw + usage.ru_nivcsw;
 			if (total) {
-				pr_inf("%s: %.2f context switches per bogo operation (%.2f per sec)\n",
-					args->name,
-					(count > 0) ? ((double)total / (double)count) : 0.0,
-					(dt > 0.0) ? ((double)total / dt) : 0.0);
 				stress_metrics_set(args, 0, "context switches per bogo op",
 					(count > 0) ? ((double)total / (double)count) : 0.0);
 				stress_metrics_set(args, 1, "context switches per sec",
