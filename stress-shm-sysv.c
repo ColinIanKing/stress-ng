@@ -671,6 +671,19 @@ static int stress_shm_sysv_child(
 				}
 			}
 			if (shm_id < 0) {
+				/* Run out of shm segments, just reap and die */
+				if (errno == ENOSPC) {
+					pr_inf_skip("%s: shmget ran out of free space, "
+						"skipping stressor\n", args->name);
+					rc = EXIT_NO_RESOURCE;
+					goto reap;
+				}
+				/* Run out of shm space, or existing key, so reap, die, repawn */
+				if ((errno == ENOMEM) || (errno == EEXIST)) {
+					rc = EXIT_SUCCESS;
+					goto reap;
+				}
+				/* Some unexpected failures handler here */
 				ok = false;
 				pr_fail("%s: shmget failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
