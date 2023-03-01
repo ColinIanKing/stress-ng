@@ -102,12 +102,6 @@ static int OPTIMIZE3 stress_chmod_check(const int ret)
 }
 
 /*
- *  BSD systems can return EFTYPE which we can ignore
- *  as a "known" error on invalid chmod mode bits
- */
-#define CHECK(x)	stress_chmod_check(x)
-
-/*
  *  do_fchmod()
  *	fchmod the 4 different masks from a mode flag, namely:
  *		mode flag
