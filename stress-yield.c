@@ -52,13 +52,13 @@ static int stress_yield(const stress_args_t *args)
 	 *  then make sure we do not create too many yielders
 	 */
 	if (sched_getaffinity(0, sizeof(mask), &mask) < 0) {
-		pr_inf("%s: can't get sched affinity, defaulting to %"
+		pr_dbg("%s: can't get sched affinity, defaulting to %"
 			PRId32 " yielder%s (instance %" PRIu32 ")\n",
 			args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	} else {
 		if (CPU_COUNT(&mask) < (int)cpus)
 			cpus = (int32_t)CPU_COUNT(&mask);
-		pr_inf("%s: limiting to %" PRId32 " child yielder%s (instance %"
+		pr_dbg("%s: limiting to %" PRId32 " child yielder%s (instance %"
 			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	}
 #else
