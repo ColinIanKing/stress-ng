@@ -73,7 +73,8 @@ static uint64_t stress_dirmany_create(
 	const double t_start,
 	const uint64_t i_start,
 	double *create_time,
-	size_t *max_len)
+	size_t *max_len,
+	uint64_t *total_created)
 {
 	const double t_now = stress_time_now();
 	const double t_left = (t_start + (double)g_opt_timeout) - t_now;
@@ -97,6 +98,8 @@ static uint64_t stress_dirmany_create(
 				continue;
 			}
 			break;
+		} else {
+			(*total_created)++;
 		}
 		if (filename_len < *max_len)
 			filename_len++;
@@ -150,7 +153,7 @@ static void stress_dirmany_remove(
 static int stress_dirmany(const stress_args_t *args)
 {
 	int ret;
-	uint64_t i_start = 0;
+	uint64_t i_start = 0, total_created = 0;
 	char pathname[PATH_MAX];
 	const double t_start = stress_time_now();
 	double create_time = 0.0, remove_time = 0.0, total_time = 0.0;
@@ -179,8 +182,11 @@ static int stress_dirmany(const stress_args_t *args)
 		uint64_t i_end;
 		size_t max_len;
 
-		i_end = stress_dirmany_create(args, pathname, pathname_len, dirmany_bytes, t_start, i_start, &create_time, &max_len);
-		stress_dirmany_remove(pathname, pathname_len, i_start, i_end, &remove_time, max_len);
+		i_end = stress_dirmany_create(args, pathname, pathname_len,
+				dirmany_bytes, t_start, i_start,
+				&create_time, &max_len, &total_created);
+		stress_dirmany_remove(pathname, pathname_len,
+				i_start, i_end, &remove_time, max_len);
 		i_start = i_end;
 
 		/* Avoid i_start wraparound */
@@ -189,11 +195,9 @@ static int stress_dirmany(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	total_time = create_time + remove_time;
-	if (total_time > 0.0) {
-		pr_inf("%s: %.2f%% creation time, %.2f%% removal time\n",
-			args->name,
-			create_time / total_time * 100.0,
-			remove_time / total_time * 100.0);
+	if ((total_created > 0) && (total_time > 0.0)) {
+		stress_metrics_set(args, 0, "% of time creating directories", create_time / total_time * 100.0);
+		stress_metrics_set(args, 1, "% of time removing directories", remove_time / total_time * 100.0);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
