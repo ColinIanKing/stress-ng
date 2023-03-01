@@ -95,15 +95,201 @@ static int stress_rawsock_supported(const char *name)
 	return 0;
 }
 
+static int stress_rawsock_client(const stress_args_t *args, const int rawsock_port)
+{
+	/* Child, client */
+	int fd;
+	stress_raw_packet_t ALIGN64 pkt;
+	struct sockaddr_in addr;
+
+	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
+
+	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		/* failed, kick parent to finish */
+		(void)kill(getppid(), SIGALRM);
+		return EXIT_FAILURE;
+	}
+
+	(void)memset(&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_port = rawsock_port;
+	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+	(void)memset(&pkt, 0, sizeof(pkt));
+	pkt.iph.version = 4;
+	pkt.iph.ihl = sizeof(struct iphdr) >> 2;
+	pkt.iph.tos = 0;
+	pkt.iph.tot_len = htons(40);
+	pkt.iph.id = 0;
+	pkt.iph.ttl = 64;
+	pkt.iph.protocol = IPPROTO_RAW;
+	pkt.iph.frag_off = 0;
+	pkt.iph.check = 0;
+	pkt.iph.saddr = addr.sin_addr.s_addr;
+	pkt.iph.daddr = addr.sin_addr.s_addr;
+
+	/* Wait for server to start */
+	while (keep_stressing(args)) {
+		uint32_t ready;
+
+		if (stress_lock_acquire(rawsock_lock) < 0) {
+			(void)kill(getppid(), SIGALRM);
+			_exit(EXIT_FAILURE);
+			}
+		ready = g_shared->rawsock.ready;
+		(void)stress_lock_release(rawsock_lock);
+
+		if (ready == args->num_instances)
+			break;
+		shim_usleep(20000);
+	}
+
+	while (keep_stressing(args)) {
+		ssize_t sret;
+
+		sret = sendto(fd, &pkt, sizeof(pkt), 0,
+			(const struct sockaddr *)&addr,
+			(socklen_t)sizeof(addr));
+		if (sret < 0) {
+			if (errno == ENOBUFS) {
+				/* Throttle */
+				VOID_RET(int, nice(1));
+				shim_usleep(250000);
+				continue;
+			}
+			break;
+		}
+		pkt.data++;
+#if defined(SIOCOUTQ)
+		/* Occasionally exercise SIOCOUTQ */
+		if ((pkt.data & 0xff) == 0) {
+			int queued;
+
+			if (!keep_stressing(args))
+				break;
+
+			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
+		}
+#endif
+	}
+	(void)close(fd);
+	return EXIT_SUCCESS;
+}
+
+static int stress_rawsock_server(const stress_args_t *args, const pid_t pid)
+{
+	/* Parent, server */
+	int rc = EXIT_SUCCESS, fd = -1, status;
+	struct sockaddr_in addr;
+	double t_start, duration = 0.0, bytes = 0.0, rate;
+
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+		rc = EXIT_FAILURE;
+		goto die;
+	}
+	if (!keep_stressing(args))
+		goto die;
+
+	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+		goto die;
+	}
+
+	(void)memset(&addr, 0, sizeof(addr));
+
+	(void)stress_lock_acquire(rawsock_lock);
+	g_shared->rawsock.ready++;
+	(void)stress_lock_release(rawsock_lock);
+
+	t_start = stress_time_now();
+	while (keep_stressing(args)) {
+		stress_raw_packet_t ALIGN64 pkt;
+		socklen_t len = sizeof(addr);
+		ssize_t n;
+
+		n = recvfrom(fd, &pkt, sizeof(pkt), 0,
+				(struct sockaddr *)&addr, &len);
+		if (UNLIKELY(n == 0)) {
+			pr_inf("%s: recvfrom got zero bytes\n", args->name);
+			break;
+		} else if (UNLIKELY(n < 0)) {
+			if (errno != EINTR)
+				pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			break;
+		} else  {
+			bytes += n;
+		}
+#if defined(SIOCINQ)
+		/* Occasionally exercise SIOCINQ */
+		if ((pkt.data & 0xfff) == 0) {
+			int queued;
+
+			if (!keep_stressing(args))
+				break;
+
+			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
+		}
+#endif
+		inc_counter(args);
+	}
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
+die:
+	if (pid) {
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
+	}
+	/* close recv socket after sender closed */
+	if (fd > -1)
+		(void)close(fd);
+
+	return rc;
+}
+
+
+static int stress_rawsock_child(const stress_args_t *args, void *context)
+{
+	int rc = EXIT_SUCCESS;
+	pid_t pid;
+	const int rawsock_port = *(int *)context;
+
+again:
+	pid = fork();
+	if (pid < 0) {
+		if (stress_redo_fork(errno)) {
+			shim_usleep(100000);
+			goto again;
+		}
+		if (!keep_stressing(args)) {
+			return EXIT_SUCCESS;
+		}
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_FAILURE;
+	} else if (pid == 0) {
+		rc = stress_rawsock_client(args, rawsock_port);
+		(void)kill(getppid(), SIGALRM);
+		_exit(rc);
+	} else {
+		rc = stress_rawsock_server(args, pid);
+	}
+	return rc;
+}
+
 /*
  *  stress_rawsock
  *	stress by heavy raw udp ops
  */
 static int stress_rawsock(const stress_args_t *args)
 {
-	pid_t pid;
-	int rc = EXIT_SUCCESS, reserved_port;
-	double t_start, duration = 0.0, bytes = 0.0, rate;
+	int rc, reserved_port;
 	int rawsock_port = DEFAULT_RAWSOCK_PORT;
 
 	if (!rawsock_lock) {
@@ -125,163 +311,9 @@ static int stress_rawsock(const stress_args_t *args)
 		args->name, (int)args->pid, rawsock_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (stress_redo_fork(errno))
-			goto again;
-		if (!keep_stressing(args)) {
-			rc = EXIT_SUCCESS;
-			goto finish;
-		}
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	} else if (pid == 0) {
-		/* Child, client */
-		int fd;
-		stress_raw_packet_t ALIGN64 pkt;
-		struct sockaddr_in addr;
 
-		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
+	rc = stress_oomable_child(args, (void *)&rawsock_port, stress_rawsock_child, STRESS_OOMABLE_NORMAL);
 
-		if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
-			pr_fail("%s: socket failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			/* failed, kick parent to finish */
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
-		}
-
-		(void)memset(&addr, 0, sizeof(addr));
-		addr.sin_family = AF_INET;
-		addr.sin_port = rawsock_port;
-		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-
-		(void)memset(&pkt, 0, sizeof(pkt));
-		pkt.iph.version = 4;
-		pkt.iph.ihl = sizeof(struct iphdr) >> 2;
-		pkt.iph.tos = 0;
-		pkt.iph.tot_len = htons(40);
-		pkt.iph.id = 0;
-		pkt.iph.ttl = 64;
-		pkt.iph.protocol = IPPROTO_RAW;
-		pkt.iph.frag_off = 0;
-		pkt.iph.check = 0;
-		pkt.iph.saddr = addr.sin_addr.s_addr;
-		pkt.iph.daddr = addr.sin_addr.s_addr;
-
-		/* Wait for server to start */
-		while (keep_stressing(args)) {
-			uint32_t ready;
-
-			if (stress_lock_acquire(rawsock_lock) < 0) {
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
-			}
-			ready = g_shared->rawsock.ready;
-			(void)stress_lock_release(rawsock_lock);
-
-			if (ready == args->num_instances)
-				break;
-			shim_usleep(20000);
-		}
-
-		while (keep_stressing(args)) {
-			ssize_t sret;
-
-			sret = sendto(fd, &pkt, sizeof(pkt), 0,
-				(const struct sockaddr *)&addr,
-				(socklen_t)sizeof(addr));
-			if (sret < 0)
-				break;
-			pkt.data++;
-#if defined(SIOCOUTQ)
-			/* Occasionally exercise SIOCINQ */
-			if ((pkt.data & 0xff) == 0) {
-				int queued;
-
-				if (!keep_stressing(args))
-					break;
-
-				VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
-			}
-#endif
-		}
-		(void)close(fd);
-
-		(void)kill(getppid(), SIGALRM);
-		_exit(EXIT_SUCCESS);
-	} else {
-		/* Parent, server */
-		int fd = -1, status;
-		struct sockaddr_in addr;
-
-		if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-		if (!keep_stressing(args))
-			goto die;
-
-		if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
-			pr_fail("%s: socket failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-
-		(void)memset(&addr, 0, sizeof(addr));
-
-		(void)stress_lock_acquire(rawsock_lock);
-		g_shared->rawsock.ready++;
-		(void)stress_lock_release(rawsock_lock);
-
-		t_start = stress_time_now();
-		while (keep_stressing(args)) {
-			stress_raw_packet_t ALIGN64 pkt;
-			socklen_t len = sizeof(addr);
-			ssize_t n;
-
-			n = recvfrom(fd, &pkt, sizeof(pkt), 0,
-					(struct sockaddr *)&addr, &len);
-			if (UNLIKELY(n == 0)) {
-				break;
-			} else if (UNLIKELY(n < 0)) {
-				if (errno != EINTR)
-					pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-				break;
-			} else  {
-				bytes += n;
-			}
-#if defined(SIOCINQ)
-			/* Occasionally exercise SIOCINQ */
-			if ((pkt.data & 0xff) == 0) {
-				int queued;
-
-				if (!keep_stressing(args))
-					break;
-
-				VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
-			}
-#endif
-			inc_counter(args);
-		}
-		duration = stress_time_now() - t_start;
-		rate = (duration > 0.0) ? bytes / duration : 0.0;
-		stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
-die:
-		if (pid) {
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		}
-		/* close recv socket after sender closed */
-		if (fd > -1)
-			(void)close(fd);
-	}
-finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(rawsock_port, rawsock_port);
 
