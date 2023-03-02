@@ -127,8 +127,8 @@ again:
 			}
 		} while (keep_stressing(args));
 
-		/* Kill waiter process */
-		(void)kill(pid, SIGKILL);
+		/* send alarm to waiter process */
+		(void)kill(pid, SIGALRM);
 		(void)shim_waitpid(pid, &status, 0);
 
 		pr_dbg("%s: futex timeouts: %" PRIu64 "\n",
