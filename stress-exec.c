@@ -501,13 +501,13 @@ static int stress_exec_child(void *arg)
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 		pr_fail("%s: child open on /dev/null failed\n",
 						argp->args->name);
-		_exit(EXIT_FAILURE);
+		_exit(EXIT_NO_RESOURCE);
 	}
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		pr_fail("%s: child open on /dev/zero failed\n",
 						argp->args->name);
 		(void)close(fd_out);
-		_exit(EXIT_FAILURE);
+		_exit(EXIT_NO_RESOURCE);
 	}
 	(void)dup2(fd_out, STDOUT_FILENO);
 	(void)dup2(fd_out, STDERR_FILENO);
@@ -581,8 +581,7 @@ do_exec:
 #if defined(ENOEXEC)
 		case ENOEXEC:
 			/* we expect this error if exec'ing garbage */
-			if (exec_garbage)
-				rc = EXIT_SUCCESS;
+			rc = exec_garbage ? EXIT_SUCCESS : EXIT_FAILURE;
 			break;
 #endif
 #if defined(ENOMEM)
@@ -595,17 +594,61 @@ do_exec:
 			rc = EXIT_NO_RESOURCE;
 			break;
 #endif
+#if defined(ENFILE)
+		case ENFILE:
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(ENOTDIR)
+		case ENOTDIR:
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(ENOENT)
+		case ENOENT:
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(ELOOP)
+		case ELOOP:
+			/* Ignore error */
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
 #if defined(EAGAIN)
 		case EAGAIN:
-			/* Ignore as an error */
+			/* Ignore error */
 			rc = EXIT_SUCCESS;
+			break;
+#endif
+#if defined(EINTR)
+		case EINTR:
+			/* Ignore error */
+			rc = EXIT_NO_RESOURCE;
 			break;
 #endif
 #if defined(E2BIG)
 		case E2BIG:
 			/* E2BIG only happens on large args or env */
-			if (!big_arg && !big_env)
-				rc = EXIT_FAILURE;
+			rc = (!big_arg && !big_env) ? EXIT_FAILURE : EXIT_SUCCESS;
+			break;
+#endif
+#if defined(ETXTBSY)
+		case ETXTBSY:
+			/* this is expected, no able to exec */
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(EPERM)
+		case EPERM:
+			/* Ignore error */
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(EACCES)
+		case EACCES:
+			/* Ignore error */
+			rc = EXIT_NO_RESOURCE;
 			break;
 #endif
 		default:
@@ -812,8 +855,18 @@ static int stress_exec(const stress_args_t *args)
 					stress_exec_remove_pid(sph->pid);
 					exec_calls++;
 					inc_counter(args);
-					if (WEXITSTATUS(status) != EXIT_SUCCESS)
-						exec_fails++;
+
+					switch (exec_fork_method) {
+					case EXEC_FORK_METHOD_FORK:
+						if (WEXITSTATUS(status) == EXIT_FAILURE) {
+							pr_inf("status = %d\n", WEXITSTATUS(status));
+							exec_fails++;
+						}
+					case EXEC_FORK_METHOD_VFORK:
+					case EXEC_FORK_METHOD_CLONE:
+					case EXEC_FORK_METHOD_SPAWN:
+						break;
+					}
 				}
 				sph = next;
 			}
