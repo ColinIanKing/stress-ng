@@ -355,9 +355,8 @@ static int stress_x86syscall(const stress_args_t *args)
 		const uint64_t c = get_counter(args);
 		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)c) - overhead_ns;
 
-		pr_inf("%s: %.2f nanosecs per call (excluding %.2f nanosecs test overhead)\n",
-			args->name, ns, overhead_ns);
-		stress_metrics_set(args, 0, "nanosecs per call", ns);
+		stress_metrics_set(args, 0, "nanosecs per call (excluding test overhead", ns);
+		stress_metrics_set(args, 1, "nanosecs for test overhead", overhead_ns);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
