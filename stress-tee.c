@@ -28,7 +28,10 @@ static const stress_help_t help[] = {
 #if defined(HAVE_TEE) &&	\
     defined(SPLICE_F_NONBLOCK)
 
-#define TEE_IO_SIZE	(65536)
+typedef struct {
+	uint64_t	length;
+	uint64_t	counter;
+} stress_tee_t;
 
 static void stress_sigpipe_handler(int signum)
 {
@@ -83,24 +86,32 @@ again:
  */
 static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
 {
-	static uint64_t ALIGN64 buffer[TEE_IO_SIZE / sizeof(uint64_t)];
-	uint64_t counter = 0;
+	static stress_tee_t ALIGN64 data;
+
+	data.length = sizeof(data);
+	data.counter = 0;
 
 	(void)args;
 	(void)close(fds[0]);
 
-	(void)memset(buffer, 0, sizeof(buffer));
 	while (keep_stressing_flag()) {
 		ssize_t ret;
 
-		buffer[0] = sizeof(buffer);
-		buffer[1] = counter++;
-
-		ret = write(fds[1], buffer, sizeof(buffer));
+		ret = write(fds[1], &data, sizeof(data));
 		if (ret < 0) {
-			if (errno != EAGAIN)
+			switch (errno) {
+			case EPIPE:
 				break;
+			case EINTR:
+			case EAGAIN:
+				continue;
+			default:
+				pr_fail("%s: unexpected write error, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				break;
+			}
 		}
+		data.counter++;
 	}
 	(void)close(fds[1]);
 }
@@ -111,33 +122,46 @@ static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
  */
 static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 {
-	static uint64_t ALIGN64 buffer[TEE_IO_SIZE / sizeof(uint64_t)];
-	uint64_t count = 0;
+	static stress_tee_t ALIGN64 data;
+	uint64_t counter = 0;
+
+	data.length = sizeof(data);
 
 	(void)close(fds[1]);
 
 	while (keep_stressing_flag()) {
 		size_t n = 0;
+		ssize_t ret;
 
-		while (n < sizeof(buffer)) {
-			ssize_t ret;
-
-			ret = read(fds[0], buffer, sizeof(buffer));
+		while (n < sizeof(data)) {
+			ret = read(fds[0], &data, sizeof(data));
 			if (ret < 0) {
-				if (errno != EAGAIN)
-					break;
+				switch (errno) {
+				case EPIPE:
+					goto finish;
+				case EAGAIN:
+				case EINTR:
+					continue;
+				default:
+					pr_fail("%s: unexpected read error, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					goto finish;
+				}
 			} else {
 				n += (size_t)ret;
 			}
 		}
-		if (buffer[0] != sizeof(buffer)) {
-			pr_fail("%s: pipe read, wrong size detected\n", args->name);
+		if (data.length != sizeof(data)) {
+			pr_fail("%s: pipe read of %zd bytes, wrong size detected, got %" PRIu64
+				", expected %" PRIu64 "\n", args->name,
+				n, data.length, sizeof(data));
 		}
-		if (buffer[1] != count) {
+		if (data.counter != counter) {
 			pr_fail("%s: pipe read, wrong check value detected\n", args->name);
 		}
-		count++;
+		counter++;
 	}
+finish:
 	(void)close(fds[1]);
 }
 
@@ -239,11 +263,15 @@ static int stress_tee(const stress_args_t *args)
 		len = tee(pipe_in[0], pipe_out[1], INT_MAX, 0);
 
 		if (len < 0) {
-			if (errno == EAGAIN)
+			switch (errno) {
+			case EPIPE:
+			case EAGAIN:
 				continue;
-			if (errno == EINTR)
+			case EINTR:
+				ret = EXIT_SUCCESS;
+				goto tidy_child2;
 				break;
-			if (errno == ENOMEM) {
+			case ENOMEM:
 				pr_inf_skip("%s: skipping stressor, out of memory\n",
 					args->name);
 				ret = EXIT_NO_RESOURCE;
