@@ -113,6 +113,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	defined(HAVE_LIB_GBM) &&	\
 	defined(HAVE_GBM_H)
 
+static volatile bool do_jmp = true;
+static sigjmp_buf jmp_env;
+
 static GLuint program;
 static EGLDisplay display;
 static EGLSurface surface;
@@ -334,7 +337,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 	if (texsize > 0) {
 		int i;
 
-		for (i = 0; i < uploads; i++) {
+		for (i = 0; keep_stressing_flag() && (i < uploads); i++) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texsize,
 				     texsize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 				     teximage);
@@ -494,7 +497,17 @@ static int stress_gpu_supported(const char *name)
 	return 0;
 }
 
-static int stress_gpu(const stress_args_t *args)
+static void stress_gpu_alarm_handler(int sig)
+{
+	(void)sig;
+
+	if (do_jmp) {
+		do_jmp = false;
+		siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+        }
+}
+
+static int stress_gpu_child(const stress_args_t *args, void *context)
 {
 	int frag_n = 0;
 	int ret;
@@ -503,6 +516,12 @@ static int stress_gpu(const stress_args_t *args)
 	GLsizei texsize = 4096;
 	GLsizei uploads = 1;
 	const char *gpu_devnode = default_gpu_devnode;
+	struct sigaction old_action;
+
+	(void)context;
+
+	if (stress_sighandler(args->name, SIGALRM, stress_gpu_alarm_handler, &old_action) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)setenv("MESA_SHADER_CACHE_DISABLE", "true", 1);
 
@@ -523,12 +542,24 @@ static int stress_gpu(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		/*
+		 * We return here if SIGALRM jmp'd back
+		 */
+		goto finish;
+	}
+
 	do {
 		stress_gpu_run(texsize, uploads);
 		if (glGetError() != GL_NO_ERROR)
 			return EXIT_NO_RESOURCE;
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+finish:
+	do_jmp = false;
+	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 
 	ret = EXIT_SUCCESS;
 deinit:
@@ -538,6 +569,11 @@ deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return ret;
+}
+
+static int stress_gpu(const stress_args_t *args)
+{
+	return stress_oomable_child(args, NULL, stress_gpu_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_gpu_info = {
