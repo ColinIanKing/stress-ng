@@ -163,7 +163,7 @@ static void stress_msgsnd(const int msgq_id)
 	stress_msg_t msg;
 
 	/* Invalid msgq_id */
-	msg.mtype = 1;
+	msg.mtype = 0;
 	msg.value = 0;
 	VOID_RET(int, msgsnd(-1, &msg, sizeof(msg.value), 0));
 
@@ -172,7 +172,7 @@ static void stress_msgsnd(const int msgq_id)
 	VOID_RET(int, msgsnd(msgq_id, &msg, 0, 0));
 
 	/* Illegal flags, may or may not succeed */
-	msg.mtype = 1;
+	msg.mtype = 0;
 	VOID_RET(int, msgsnd(msgq_id, &msg, sizeof(msg.value), ~0));
 }
 
@@ -290,6 +290,8 @@ again:
 			register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
 			for (i = 0; keep_stressing(args); i++) {
+				ssize_t n;
+
 #if defined(MSG_COPY) &&	\
     defined(IPC_NOWAIT)
 				/*
@@ -315,7 +317,8 @@ again:
 					(void)msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, ~0);
 				}
 
-				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
+				n = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0);
+				if (n < 0) {
 					/*
 					 * Check for errors that can occur
 					 * when the termination occurs and
@@ -328,6 +331,9 @@ again:
 						args->name, errno, strerror(errno));
 					break;
 				}
+				/*  Short data in message, bail out */
+				if (n < (ssize_t)sizeof(msg.value))
+					break;
 				/*
 				 *  Only when msg_types is not set can we fetch
 				 *  data in an ordered FIFO to sanity check data
@@ -336,8 +342,8 @@ again:
 				if ((msg_types == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (msg.value != i)
 						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx32
-							" but received 0x%" PRIx32 " instead\n",
-							 args->name, i, msg.value);
+							" but received 0x%" PRIx32 " instead (data length %zd)\n",
+							 args->name, i, msg.value, n);
 				}
 			}
 			_exit(EXIT_SUCCESS);
@@ -381,7 +387,6 @@ again:
 			if (get_procinfo && ((msg.value & 0xffff) == 0))
 				stress_msg_get_procinfo(&get_procinfo);
 #endif
-
 		} while (keep_stressing(args));
 
 		stress_msgsnd(msgq_id);
