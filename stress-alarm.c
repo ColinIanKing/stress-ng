@@ -37,6 +37,13 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
+static void stress_alarm_sigusr1_handler(int sig)
+{
+	(void)sig;
+
+	_exit(0);
+}
+
 /*
  *  stress_alarm
  *	stress alarm()
@@ -47,7 +54,7 @@ static int stress_alarm(const stress_args_t *args)
 	pid_t pid;
 
 	if (stress_sighandler(args->name, SIGALRM, stress_sighandler_nop, NULL) < 0)
-                return EXIT_FAILURE;
+		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -63,7 +70,10 @@ again:
 	} else if (pid == 0) {
 		int err_mask = 0;
 
-		for (;;) {
+		if (stress_sighandler(args->name, SIGUSR1, stress_alarm_sigusr1_handler, NULL) < 0)
+			_exit(EXIT_FAILURE);
+
+		do {
 			unsigned int secs_sleep;
 			unsigned int secs_left;
 
@@ -80,7 +90,7 @@ again:
 			if (secs_left == 0)
 				err_mask |= STRESS_SLEEP_INTMAX;
 			inc_counter(args);
-			if ((!keep_stressing(args)) || (stress_time_now() > t_end))
+			if (!keep_stressing(args))
 				break;
 
 			/* zeros second interrupted sleep */
@@ -93,7 +103,7 @@ again:
 			if (secs_left != 0)
 				err_mask |= STRESS_SLEEP_ZERO;
 			inc_counter(args);
-			if ((!keep_stressing(args)) || (stress_time_now() > t_end))
+			if (!keep_stressing(args))
 				break;
 
 			/* random duration interrupted sleep */
@@ -106,12 +116,10 @@ again:
 			if (secs_left > secs_sleep)
 				err_mask |= STRESS_SLEEP_RANDOM;
 			inc_counter(args);
-			if ((!keep_stressing(args)) || (stress_time_now() > t_end))
-				break;
-		}
+		} while (keep_stressing(args));
 		_exit(err_mask);
 	} else {
-		int status, i;
+		int status;
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		while (keep_stressing(args) &&
@@ -124,9 +132,8 @@ again:
 			(void)kill(pid, SIGALRM);
 			shim_sched_yield();
 		}
-		/* Wake and wait */
-		for (i = 0; i < 10; i++)
-			(void)kill(pid, SIGKILL);
+
+		(void)kill(pid, SIGUSR1);
 		(void)waitpid(pid, &status, 0);
 
 		if (verify && WIFEXITED(status)) {
