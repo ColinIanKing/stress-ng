@@ -45,8 +45,7 @@ typedef struct {
 	char	*mount;		/* Mount point */
 	dev_t	st_dev;		/* Device major/minor */
 	bool	valid;		/* A valid device that is mountable */
-	bool	enosys;		/* System call not enabled */
-	bool	esrch;		/* Quota not enabled for the file system */
+	bool	skip;		/* Skip testing this device */
 } stress_dev_info_t;
 
 struct shim_nextdqblk {
@@ -61,6 +60,16 @@ struct shim_nextdqblk {
 	uint32_t dqb_valid;
 	uint32_t dqb_id;
 };
+
+/* Account different failure modes */
+typedef struct {
+	int tested;	/* Device test count */
+	int failed;	/* Device test failure count */
+	int enosys;	/* No system call */
+	int esrch;	/* Device path not found */
+	int erofs;	/* Read only device */
+	int enotblk;	/* Not a block device */
+} quotactl_status_t;
 
 /*
  *  stress_quota_supported()
@@ -121,6 +130,7 @@ do_quotactl:
 	return quotactl(cmd, dev->name, id, addr);
 }
 
+
 /*
  *  do_quotactl()
  *	do a quotactl command
@@ -128,10 +138,7 @@ do_quotactl:
 static int do_quotactl(
 	const stress_args_t *args,
 	const char *cmdname,
-	int *tested,
-	int *failed,
-	int *enosys,
-	int *esrch,
+	quotactl_status_t *status,
 	const int cmd,
 	stress_dev_info_t *dev,
 	const int id,
@@ -139,27 +146,31 @@ static int do_quotactl(
 {
 	int ret = do_quotactl_call(cmd, dev, id, addr);
 
-	(*tested)++;
+	status->tested++;
 	if (ret < 0) {
 		/* Quota not enabled for this file system? */
-		if (errno == ESRCH) {
-			(*esrch)++;
+		switch (errno) {
+		case ENOSYS:
+			status->enosys++;
+			break;
+		case ESRCH:
+			status->esrch++;
 			return 0;
-		}
-		/* Not a block device? - ship it */
-		if (errno == ENOTBLK)
+		case EROFS:
+			/* Read-only device?- skip it */
+			status->erofs++;
 			return errno;
-
-		if (errno == EPERM) {
+		case ENOTBLK:
+			status->enotblk++;
+			/* Not a block device? - skip it */
+			return errno;
+		case EPERM:
 			pr_inf("%s: need CAP_SYS_ADMIN capability to "
 				"run quota stressor, aborting stress test\n",
 				args->name);
 			return errno;
-		}
-		if (errno == ENOSYS) {
-			(*enosys)++;
-		} else {
-			(*failed)++;
+		default:
+			status->failed++;
 			pr_fail("%s: quotactl command %s on %s (%s) failed: errno=%d (%s)\n",
 				args->name, cmdname, dev->name, dev->mount, errno, strerror(errno));
 		}
@@ -173,15 +184,17 @@ static int do_quotactl(
  */
 static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 {
-	int err, tested = 0, failed = 0, enosys = 0, esrch = 0;
+	int err;
 	char buffer[1024];
+	quotactl_status_t status;
+
+	(void)memset(&status, 0, sizeof(status));
 
 #if defined(Q_GETQUOTA)
 	if (keep_stressing_flag()) {
 		struct dqblk dqblk;
 
-		err = do_quotactl(args, "Q_GETQUOTA",
-			&tested, &failed, &enosys, &esrch,
+		err = do_quotactl(args, "Q_GETQUOTA", &status,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&dqblk);
 		if (err == EPERM)
@@ -192,8 +205,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct shim_nextdqblk nextdqblk;
 
-		err = do_quotactl(args, "Q_GETNEXTQUOTA",
-			&tested, &failed, &enosys, &esrch,
+		err = do_quotactl(args, "Q_GETNEXTQUOTA", &status,
 			QCMD(Q_GETNEXTQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&nextdqblk);
 		if (err == EPERM)
@@ -204,8 +216,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		uint32_t format;
 
-		err = do_quotactl(args, "Q_GETFMT",
-			&tested, &failed, &enosys, &esrch,
+		err = do_quotactl(args, "Q_GETFMT", &status,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev, 0, (caddr_t)&format);
 		if (err == EPERM)
@@ -216,8 +227,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqinfo dqinfo;
 
-		err = do_quotactl(args, "Q_GETINFO",
-			&tested, &failed, &enosys, &esrch,
+		err = do_quotactl(args, "Q_GETINFO", &status,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev, 0, (caddr_t)&dqinfo);
 		if (err == EPERM)
@@ -229,8 +239,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqstats dqstats;
 
-		err = do_quotactl(args, "Q_GETSTATS",
-			&tested, &failed, &enosys, &esrch,
+		err = do_quotactl(args, "Q_GETSTATS", &status,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev, 0, (caddr_t)&dqstats);
 		if (err == EPERM)
@@ -239,8 +248,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 #endif
 #if defined(Q_SYNC)
 	if (keep_stressing_flag()) {
-		err = do_quotactl(args, "Q_SYNC",
-			&tested, &failed, &enosys, &esrch,
+		err = do_quotactl(args, "Q_SYNC", &status,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev, 0, 0);
 		if (err == EPERM)
@@ -268,23 +276,35 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	VOID_RET(int, quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, NULL));
 #endif
 
-	if (tested == 0) {
+	if (status.tested == 0) {
 		pr_err("%s: quotactl() failed, quota commands "
 			"not available\n", args->name);
 		return -1;
 	}
-	if (!dev->esrch && (esrch > 0)) {
+	if (!dev->skip && (status.esrch > 0)) {
 		pr_dbg("%s: quotactl() failed on %s, perhaps not enabled\n",
 			args->name, dev->name);
-		dev->esrch = true;
+		dev->skip = true;
 	}
-	if (tested == enosys) {
+	if (status.tested == status.enosys) {
 		pr_dbg("%s: quotactl() failed on %s, not available "
 			"on this kernel or filesystem\n", args->name, dev->name);
-		dev->enosys = true;
+		dev->skip = true;
 		return ENOSYS;
 	}
-	if (tested == failed) {
+	if (status.tested == status.enotblk) {
+		pr_dbg("%s: quotactl() failed on %s, device is not a block device\n",
+			args->name, dev->name);
+		dev->skip = true;
+		return ENOTBLK;
+	}
+	if (status.tested == status.erofs) {
+		pr_dbg("%s: quotactl() failed on %s, device is a read-only device\n",
+			args->name, dev->name);
+		dev->skip = true;
+		return EROFS;
+	}
+	if (status.tested == status.failed) {
 		pr_err("%s: quotactl() failed, all quota commands "
 			"failed (maybe privilege issues, use -v "
 			"to see why)\n", args->name);
@@ -386,8 +406,8 @@ static int stress_quota(const stress_args_t *args)
 			for (i = 0; keep_stressing_flag() && (i < n_devs); i++) {
 				int ret;
 
-				/* This failed before, so don't retest */
-				if ((devs[i].enosys) || (devs[i].esrch)) {
+				/* This failed before, so don't re-test */
+				if (devs[i].skip) {
 					skipped++;
 					continue;
 				}
@@ -397,6 +417,8 @@ static int stress_quota(const stress_args_t *args)
 				case 0:
 					break;
 				case ENOSYS:
+				case EROFS:
+				case ENOTBLK:
 					skipped++;
 					break;
 				case EPERM:
@@ -413,7 +435,9 @@ static int stress_quota(const stress_args_t *args)
 			 * then do a non-fatal skip test
 			 */
 			if (skipped == n_devs) {
-				rc = EXIT_SUCCESS;
+				pr_inf("%s: cannot test accounting on available devices, "
+					"skipping stressor\n", args->name);
+				rc = EXIT_NO_RESOURCE;
 				goto tidy;
 			}
 
