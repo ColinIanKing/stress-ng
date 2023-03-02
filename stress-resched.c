@@ -75,6 +75,9 @@ static void NORETURN stress_resched_child(
 			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
 				struct sched_param param;
 
+				if (!keep_stressing(args))
+					break;
+
 				(void)memset(&param, 0, sizeof(param));
 				param.sched_priority = 0;
 				VOID_RET(int, sched_setscheduler(pid, normal_policies[j], &param));
@@ -185,7 +188,7 @@ static int stress_resched(const stress_args_t *args)
 	/* Kill children */
 	for (i = 0; i < pids_max; i++) {
 		if (pids[i] != -1)
-			(void)kill(pids[i], SIGKILL);
+			(void)kill(pids[i], SIGALRM);
 	}
 
 	/* Reap children */
