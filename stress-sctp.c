@@ -432,7 +432,7 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail("%s: connect failed after 100 retrues, errno=%d (%s)\n",
+				pr_fail("%s: connect failed after 100 retries, errno=%d (%s)\n",
 					args->name, save_errno, strerror(save_errno));
 				return EXIT_FAILURE;
 			}
