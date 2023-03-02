@@ -251,8 +251,7 @@ static int stress_zombie(const stress_args_t *args)
 		}
 	} while (keep_stressing(args));
 
-	pr_inf("%s: created a maximum of %" PRIu32 " zombies\n",
-		args->name, max_zombies);
+	stress_metrics_set(args, 0, "created zombies per stressor", (double)max_zombies);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
