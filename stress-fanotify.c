@@ -261,7 +261,7 @@ static void fanotify_event_init_invalid(void)
  *  test_fanotify_mark()
  *     tests fanotify_mark syscall
  */
-static int test_fanotify_mark(const char *name, char *mounts[])
+static int test_fanotify_mark(char *mounts[])
 {
 	int ret_fd;
 #if defined(FAN_MARK_INODE)
@@ -269,11 +269,8 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 #endif
 
 	ret_fd = fanotify_init(0, 0);
-	if (ret_fd < 0) {
-		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+	if (ret_fd < 0)
 		return -errno;
-	}
 
 	/* Exercise fanotify_mark with invalid mask */
 #if defined(FAN_MARK_MOUNT)
@@ -328,16 +325,13 @@ static int test_fanotify_mark(const char *name, char *mounts[])
  *  fanotify_event_init()
  *	initialize fanotify
  */
-static int fanotify_event_init(const char *name, char *mounts[], const unsigned int flags)
+static int fanotify_event_init(char *mounts[], const unsigned int flags)
 {
 	int fan_fd, count = 0, i;
 
 	fan_fd = fanotify_init(flags, 0);
-	if (fan_fd < 0) {
-		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
-			name, errno, strerror(errno));
-		return -1;
-	}
+	if (fan_fd < 0)
+		return -errno;
 
 	/*
 	 *  Gather all mounted file systems and monitor them
@@ -366,12 +360,8 @@ static int fanotify_event_init(const char *name, char *mounts[], const unsigned 
 	}
 
 	/* This really should not happen, / is always mounted */
-	if (!count) {	/* cppcheck-suppress knownConditionTrueFalse */
-		pr_err("%s: no mount points could be monitored\n",
-			name);
-		(void)close(fan_fd);
-		return -1;
-	}
+	if (!count)
+		return 0;
 	return fan_fd;
 }
 
@@ -589,16 +579,36 @@ static int stress_fanotify(const stress_args_t *args)
 			goto tidy;
 		}
 
-		fan_fd1 = fanotify_event_init(args->name, mnts, 0);
-		if (fan_fd1 < 0) {
+		fan_fd1 = fanotify_event_init(mnts, 0);
+		if (fan_fd1 == 0) {
+			pr_inf_skip("%s: no mount points found, "
+				"skipping stressor\n", args->name);
 			free(buffer);
-			rc = EXIT_FAILURE;
+			rc = EXIT_NO_RESOURCE;
+			goto tidy;
+		}
+		if (fan_fd1 < 0) {
+			switch (-fan_fd1) {
+			case EMFILE:
+				pr_inf_skip("%s: fanotify_init: too many open files, skipping stressor\n", args->name);
+				rc = EXIT_NO_RESOURCE;
+				break;
+			case ENOMEM:
+				pr_inf_skip("%s: fanotify_init: out of memory, skipping stressor\n", args->name);
+				rc = EXIT_NO_RESOURCE;
+				break;
+			default:
+				pr_fail("%s: fanotify_init failed, errno=%d (%s)\n",
+					args->name, -fan_fd1, strerror(-fan_fd1));
+				rc = EXIT_FAILURE;
+			}
+			free(buffer);
 			goto tidy;
 		}
 
 #if defined(FAN_CLASS_NOTIF) &&		\
     defined(FAN_REPORT_DFID_NAME)
-		fan_fd2 = fanotify_event_init(args->name, mnts, FAN_CLASS_NOTIF | FAN_REPORT_DFID_NAME);
+		fan_fd2 = fanotify_event_init(mnts, FAN_CLASS_NOTIF | FAN_REPORT_DFID_NAME);
 		if (fan_fd2 < 0) {
 			fan_fd2 = -1;
 		}
@@ -611,19 +621,21 @@ static int stress_fanotify(const stress_args_t *args)
 #endif
 #endif
 
-		ret = test_fanotify_mark(args->name, mnts);
+		ret = test_fanotify_mark(mnts);
 		if (ret < 0) {
 			free(buffer);
 			switch (-ret) {
 			case EMFILE:
-				pr_inf_skip("%s: too many open files, skipping stressor\n", args->name);
+				pr_inf_skip("%s: fanotify_init: too many open files, skipping stressor\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				break;
 			case ENOMEM:
-				pr_inf_skip("%s: out of memory, skipping stressor\n", args->name);
+				pr_inf_skip("%s: fanotify_init: out of memory, skipping stressor\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				break;
 			default:
+				pr_fail("%s: fanotify_init failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 			goto tidy;
