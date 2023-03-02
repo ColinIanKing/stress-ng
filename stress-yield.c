@@ -34,12 +34,13 @@ static const stress_help_t help[] = {
  */
 static int stress_yield(const stress_args_t *args)
 {
-	uint64_t *counters;
+	stress_metrics_t *metrics;
+	size_t metrics_size;
 	uint64_t max_ops_per_yielder;
-	size_t counters_sz;
 	int32_t cpus = stress_get_processors_configured();
 	const uint32_t instances = args->num_instances;
 	uint32_t yielders = 2;
+	double count, duration, ns;
 #if defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 #endif
@@ -58,8 +59,10 @@ static int stress_yield(const stress_args_t *args)
 	} else {
 		if (CPU_COUNT(&mask) < (int)cpus)
 			cpus = (int32_t)CPU_COUNT(&mask);
+#if 0
 		pr_dbg("%s: limiting to %" PRId32 " child yielder%s (instance %"
 			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
+#endif
 	}
 #else
 	UNEXPECTED
@@ -91,18 +94,20 @@ static int stress_yield(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	counters_sz = yielders * sizeof(*counters);
-	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (counters == MAP_FAILED) {
-		int rc = stress_exit_status(errno);
-
-		pr_err("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+	metrics_size = yielders * sizeof(*metrics);
+	metrics = (stress_metrics_t *)
+		mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (metrics == MAP_FAILED) {
+		pr_err("%s: mmap failed, count not allocate %zd bytes, errno=%d (%s)\n",
+			args->name, metrics_size, errno, strerror(errno));
 		free(pids);
-		return rc;
+		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(counters, 0, counters_sz);
+	for (i = 0; i < yielders; i++) {
+		metrics[i].count = 0.0;
+		metrics[i].duration = 0.0;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -118,43 +123,49 @@ static int stress_yield(const stress_args_t *args)
 
 			do {
 				int ret;
+				double t = stress_time_now();
 
 				ret = shim_sched_yield();
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+				if (ret == 0) {
+					metrics[i].count += 1.0;
+					metrics[i].duration += (stress_time_now() - t);
+				} else if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					pr_fail("%s: sched_yield failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-				counters[i]++;
-			} while (keep_stressing_flag() && (!max_ops_per_yielder || (counters[i] < max_ops_per_yielder)));
+				}
+			} while (keep_stressing_flag() && (!max_ops_per_yielder || (metrics[i].count < max_ops_per_yielder)));
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	do {
-		set_counter(args, 0);
 #if defined(__FreeBSD__)
 		VOID_RET(int, shim_sched_yield());
+		inc_counter(agrs);
 #else
 		VOID_RET(int, shim_usleep(100000));
 #endif
-
-		for (i = 0; i < yielders; i++)
-			add_counter(args, counters[i]);
 	} while (keep_stressing(args));
 
 	/* Parent, wait for children */
-	set_counter(args, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	for (i = 0; i < yielders; i++) {
+	for (duration = 0.0, count = 0.0, i = 0; i < yielders; i++) {
 		if (pids[i] > 0) {
 			int status;
 
 			(void)kill(pids[i], SIGKILL);
 			(void)shim_waitpid(pids[i], &status, 0);
-			add_counter(args, counters[i]);
+			duration += metrics[i].duration;
+			count += metrics[i].count;
 		}
 	}
-	(void)munmap((void *)counters, counters_sz);
+	add_counter(args, (uint64_t)count);
+
+	ns = count > 0.0 ? (STRESS_DBL_NANOSECOND * duration) / count : 0.0;
+	stress_metrics_set(args, 0, "ns duration per sched_yield call", ns);
+
+	(void)munmap((void *)metrics, metrics_size);
 	free(pids);
 
 	return EXIT_SUCCESS;
