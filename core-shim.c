@@ -175,8 +175,8 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 		stress_asm_riscv_fence();
 		return 0;
 	}
-	return -1;
 #endif
+	return -1;
 #elif defined(HAVE_BUILTIN___CLEAR_CACHE)
 	/* More portable builtin */
 	(void)cache;
