@@ -580,7 +580,6 @@ static const stress_str_method_info_t str_methods[] = {
 	{ "strncmp",		stress_strncmp,		(void *)strncmp },
 	{ "strrchr",		stress_strrchr,		(void *)strrchr },
 	{ "strxfrm",		stress_strxfrm,		(void *)strxfrm },
-	{ NULL,			NULL,			NULL }
 };
 
 static stress_metrics_t metrics[SIZEOF_ARRAY(str_methods)];
