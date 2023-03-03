@@ -862,9 +862,20 @@ static int stress_exec(const stress_args_t *args)
 							pr_inf("status = %d\n", WEXITSTATUS(status));
 							exec_fails++;
 						}
+#if defined(HAVE_VFORK)
 					case EXEC_FORK_METHOD_VFORK:
+						break;
+#endif
+#if defined(HAVE_CLONE)
 					case EXEC_FORK_METHOD_CLONE:
+						break;
+#endif
+#if defined(HAVE_SPAWN_H) &&	\
+    defined(HAVE_POSIX_SPAWN)
 					case EXEC_FORK_METHOD_SPAWN:
+						break;
+#endif
+					default:
 						break;
 					}
 				}
