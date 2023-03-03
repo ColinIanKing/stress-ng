@@ -105,7 +105,6 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 
 		for (i = 0; keep_stressing(args) && (i < ctxt->mmaphuge_mmaps); i++) {
 			size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
-			int flags;
 			size_t j;
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
@@ -113,8 +112,8 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 			for (j = 0; j < SIZEOF_ARRAY(stress_mmap_settings); j++) {
 				uint8_t *buf;
 				const size_t sz = stress_mmap_settings[idx].sz;
+				int flags = MAP_ANONYMOUS;
 
-				flags = MAP_ANONYMOUS;
 				flags |= (stress_mwc1() ? MAP_PRIVATE : MAP_SHARED);
 				flags |= stress_mmap_settings[idx].flags;
 
