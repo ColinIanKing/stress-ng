@@ -247,8 +247,12 @@ static int stress_msg(const stress_args_t *args)
 	if (msgq_id < 0) {
 		const int ret = stress_exit_status(errno);
 
-		pr_fail("%s: msgget failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		if (ret == EXIT_FAILURE) {
+			pr_fail("%s: msgget failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else {
+			pr_inf_skip("%s: msgget out of resources or not implemented, skipping stessor\n", args->name);
+		}
 		free(msgq_ids);
 		return ret;
 	}
