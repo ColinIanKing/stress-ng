@@ -738,6 +738,8 @@ static int stress_get_meminfo(
 		size_t page_size = stress_get_page_size();
 		int ret;
 
+		/* zero vm_stat, keep cppcheck silent */
+		(void)memset(&vm_stat, 0, sizeof(vm_stat));
 		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 		if (ret >= 0) {
 			*freemem = page_size * vm_stat.free_count;
@@ -2455,7 +2457,7 @@ size_t stress_probe_max_pipe_size(void)
 	 */
 	ret = system_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
 	if (ret > 0) {
-		if (sscanf(buf, "%zd", &sz) == 1)
+		if (sscanf(buf, "%zu", &sz) == 1)
 			if (!stress_check_max_pipe_size(sz, page_size))
 				goto ret;
 	}
