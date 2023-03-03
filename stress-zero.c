@@ -116,10 +116,7 @@ static int stress_zero(const stress_args_t *args)
 	do {
 		ssize_t ret;
 		double t;
-#if defined(__linux__)
-		int32_t *ptr;
 		size_t i;
-#endif
 
 		for (i = 0; i < 64; i++) {
 			t = stress_time_now();
@@ -155,6 +152,8 @@ static int stress_zero(const stress_args_t *args)
 
 #if defined(__linux__)
 		for (i = 0; i < SIZEOF_ARRAY(mmap_flags); i++) {
+			int32_t *ptr;
+
 			/*
 			 *  check if we can mmap /dev/zero
 			 */
