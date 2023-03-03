@@ -64,6 +64,7 @@ typedef struct {
 } stress_wcs_method_info_t;
 
 static const stress_wcs_method_info_t wcs_methods[];
+static stress_metrics_t metrics[];
 
 /*
  *  stress_wcs_fill
@@ -532,24 +533,7 @@ static void stress_wcsxfrm(stress_wcs_args_t *info)
 }
 #endif
 
-/*
- *  stress_wcs_all()
- *	iterate over all wcs stressors
- */
-static void stress_wcs_all(stress_wcs_args_t *info)
-{
-	static int i = 1;	/* Skip over stress_wcs_all */
-	stress_wcs_args_t info_all = *info;
-
-	info_all.libc_func = wcs_methods[i].libc_func;
-
-	wcs_methods[i].func(&info_all);
-	i++;
-	if (!wcs_methods[i].func)
-		i = 1;
-
-	info->failed = info_all.failed;
-}
+static void stress_wcs_all(stress_wcs_args_t *info);
 
 /*
  * Table of wcs stress methods
@@ -603,8 +587,33 @@ static const stress_wcs_method_info_t wcs_methods[] = {
 #if defined(HAVE_WCSXFRM)
 	{ "wcsxfrm",		stress_wcsxfrm,		(void *)wcsxfrm },
 #endif
-	{ NULL,			NULL,			NULL }
 };
+
+static stress_metrics_t metrics[SIZEOF_ARRAY(wcs_methods)];
+
+/*
+ *  stress_wcs_all()
+ *	iterate over all wcs stressors
+ */
+static void stress_wcs_all(stress_wcs_args_t *info)
+{
+	static size_t i = 1;	/* Skip over stress_wcs_all */
+	stress_wcs_args_t info_all = *info;
+	double t;
+
+	info_all.libc_func = wcs_methods[i].libc_func;
+
+	t = stress_time_now();
+	wcs_methods[i].func(&info_all);
+	metrics[i].duration += (stress_time_now() - t);
+	metrics[i].count += 1.0;
+	i++;
+	if (i >= SIZEOF_ARRAY(wcs_methods))
+		i = 1;
+
+	info->failed = info_all.failed;
+}
+
 
 /*
  *  stress_set_wcs_method()
@@ -612,18 +621,18 @@ static const stress_wcs_method_info_t wcs_methods[] = {
  */
 static int stress_set_wcs_method(const char *name)
 {
-	stress_wcs_method_info_t const *info;
+	size_t i;
 
-	for (info = wcs_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("wcs-method", TYPE_ID_UINTPTR_T, &info);
+	for (i = 0; i < SIZEOF_ARRAY(wcs_methods); i++) {
+		if (!strcmp(wcs_methods[i].name, name)) {
+			stress_set_setting("wcs-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "wcs-method must be one of:");
-	for (info = wcs_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(wcs_methods); i++) {
+		(void)fprintf(stderr, " %s", wcs_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -636,7 +645,8 @@ static int stress_set_wcs_method(const char *name)
  */
 static int stress_wcs(const stress_args_t *args)
 {
-	stress_wcs_method_info_t const *wcs_method = &wcs_methods[0];
+	size_t i, j, wcs_method = 0;
+	const stress_wcs_method_info_t *wcs_method_info;
 	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	wchar_t strdst[STRDSTLEN];
 	stress_wcs_args_t info;
@@ -646,7 +656,8 @@ static int stress_wcs(const stress_args_t *args)
 		return stress_unimplemented(args);
 
 	(void)stress_get_setting("wcs-method", &wcs_method);
-	info.libc_func = wcs_method->libc_func;
+	wcs_method_info = &wcs_methods[wcs_method];
+	info.libc_func = wcs_method_info->libc_func;
 	info.str1 = str1;
 	info.len1 = STR1LEN;
 	info.str2 = str2;
@@ -657,14 +668,23 @@ static int stress_wcs(const stress_args_t *args)
 
 	stress_wcs_fill(info.str1, info.len1);
 
+	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
+		metrics[i].duration = 0.0;
+		metrics[i].count = 0.0;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		register wchar_t *tmpptr;
 		register size_t tmplen;
+		double t;
 
 		stress_wcs_fill(info.str2, info.len2);
-		(void)wcs_method->func(&info);
+		t = stress_time_now();
+		(void)wcs_method_info->func(&info);
+		metrics[wcs_method].duration += (stress_time_now() - t);
+		metrics[wcs_method].count += 1.0;
 
 		tmpptr = info.str1;
 		info.str1 = info.str2;
@@ -678,6 +698,18 @@ static int stress_wcs(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	/* dump metrics of methods except for first "all" method */
+	for (i = 1, j = 0; i < SIZEOF_ARRAY(metrics); i++) {
+		if (metrics[i].duration > 0.0) {
+			char msg[64];
+			const double rate = metrics[i].count / metrics[i].duration;
+
+			(void)snprintf(msg, sizeof(msg), "%s calls per sec", wcs_methods[i].name);
+			stress_metrics_set(args, j, msg, rate);
+			j++;
+		}
+	}
 
 	return info.failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
