@@ -38,7 +38,7 @@ typedef struct stress_str_args {
 /*
  *  the STR stress test has different classes of string stressors
  */
-typedef void (*stress_str_func)(stress_str_args_t *info);
+typedef size_t (*stress_str_func)(const stress_args_t *args, stress_str_args_t *info);
 
 typedef struct {
 	const char 		*name;	/* human readable form of stressor */
@@ -76,7 +76,7 @@ static inline void strchk(
  *  stress_strcasecmp()
  *	stress on strcasecmp
  */
-static void stress_strcasecmp(stress_str_args_t *info)
+static size_t stress_strcasecmp(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strcasecmp_t)(const char *s1, const char *s2);
 
@@ -100,6 +100,8 @@ static void stress_strcasecmp(stress_str_args_t *info)
 		STRCHK(info, 0 != test_strcasecmp(str1 + i, str2));
 		STRCHK(info, 0 != test_strcasecmp(str2, str1 + i));
 	}
+	add_counter(args, 9);
+	return i * 9;
 }
 #endif
 
@@ -108,7 +110,7 @@ static void stress_strcasecmp(stress_str_args_t *info)
  *  stress_strncasecmp()
  *	stress on strncasecmp
  */
-static void stress_strncasecmp(stress_str_args_t *info)
+static size_t stress_strncasecmp(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strncasecmp_t)(const char *s1, const char *s2, size_t n);
 
@@ -133,6 +135,8 @@ static void stress_strncasecmp(stress_str_args_t *info)
 		STRCHK(info, 0 != test_strncasecmp(str1 + i, str2, len1));
 		STRCHK(info, 0 != test_strncasecmp(str2, str1 + i, len2));
 	}
+	add_counter(args, 9);
+	return i * 9;
 }
 #endif
 
@@ -141,7 +145,7 @@ static void stress_strncasecmp(stress_str_args_t *info)
  *  stress_index()
  *	stress on index
  */
-static void stress_index(stress_str_args_t *info)
+static size_t stress_index(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_index_t)(const char *s, int c);
 
@@ -158,6 +162,8 @@ static void stress_index(stress_str_args_t *info)
 		STRCHK(info, NULL == test_index(str2, '+'));
 		STRCHK(info, NULL != test_index(str2, str2[0]));
 	}
+	add_counter(args, 4);
+	return i * 4;
 }
 #endif
 
@@ -166,7 +172,7 @@ static void stress_index(stress_str_args_t *info)
  *  stress_rindex()
  *	stress on rindex
  */
-static void stress_rindex(stress_str_args_t *info)
+static size_t stress_rindex(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_rindex_t)(const char *s, int c);
 
@@ -183,6 +189,8 @@ static void stress_rindex(stress_str_args_t *info)
 		STRCHK(info, NULL == test_rindex(str2, '+'));
 		STRCHK(info, NULL != test_rindex(str2, str2[0]));
 	}
+	add_counter(args, 4);
+	return i * 4;
 }
 #endif
 
@@ -192,7 +200,7 @@ static void stress_rindex(stress_str_args_t *info)
  *  stress_strlcpy()
  *	stress on strlcpy
  */
-static void stress_strlcpy(stress_str_args_t *info)
+static size_t stress_strlcpy(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strlcpy_t)(char *dest, const char *src, size_t len);
 
@@ -210,13 +218,15 @@ static void stress_strlcpy(stress_str_args_t *info)
 		STRCHK(info, str_len1 == test_strlcpy(strdst, str1, strdstlen));
 		STRCHK(info, str_len2 == test_strlcpy(strdst, str2, strdstlen));
 	}
+	add_counter(args, 2);
+	return i * 2;
 }
 #else
 /*
  *  stress_strcpy()
  *	stress on strcpy
  */
-static void stress_strcpy(stress_str_args_t *info)
+static size_t stress_strcpy(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strcpy_t)(char *dest, const char *src);
 
@@ -231,6 +241,8 @@ static void stress_strcpy(stress_str_args_t *info)
 		STRCHK(info, strdst == test_strcpy(strdst, str1));
 		STRCHK(info, strdst == test_strcpy(strdst, str2));
 	}
+	add_counter(args, 2);
+	return i * 2;
 }
 #endif
 
@@ -241,7 +253,7 @@ static void stress_strcpy(stress_str_args_t *info)
  *  stress_strlcat()
  *	stress on strlcat
  */
-static void stress_strlcat(stress_str_args_t *info)
+static size_t stress_strlcat(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strlcat_t)(char *dest, const char *src, size_t len);
 
@@ -268,13 +280,15 @@ static void stress_strlcat(stress_str_args_t *info)
 		STRCHK(info, str_len2 == test_strlcat(strdst, str2, strdstlen));
 		STRCHK(info, str_len  == test_strlcat(strdst, str1, strdstlen));
 	}
+	add_counter(args, 6);
+	return i * 6;
 }
 #else
 /*
  *  stress_strcat()
  *	stress on strcat
  */
-static void stress_strcat(stress_str_args_t *info)
+static size_t stress_strcat(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strcat_t)(char *dest, const char *src);
 
@@ -297,6 +311,8 @@ static void stress_strcat(stress_str_args_t *info)
 		STRCHK(info, strdst == test_strcat(strdst, str2));
 		STRCHK(info, strdst == test_strcat(strdst, str1));
 	}
+	add_counter(args, 6);
+	return i * 6;
 }
 #endif
 
@@ -304,7 +320,7 @@ static void stress_strcat(stress_str_args_t *info)
  *  stress_strncat()
  *	stress on strncat
  */
-static void stress_strncat(stress_str_args_t *info)
+static size_t stress_strncat(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strncat_t)(char *dest, const char *src, size_t n);
 
@@ -328,13 +344,15 @@ static void stress_strncat(stress_str_args_t *info)
 		STRCHK(info, strdst == test_strncat(strdst, str2, i));
 		STRCHK(info, strdst == test_strncat(strdst, str1, i));
 	}
+	add_counter(args, 6);
+	return i * 6;
 }
 
 /*
  *  stress_strchr()
  *	stress on strchr
  */
-static void stress_strchr(stress_str_args_t *info)
+static size_t stress_strchr(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strchr_t)(const char *s, int c);
 
@@ -351,13 +369,15 @@ static void stress_strchr(stress_str_args_t *info)
 		STRCHK(info, NULL == test_strchr(str2, '+'));
 		STRCHK(info, NULL != test_strchr(str2, str2[0]));
 	}
+	add_counter(args, 4);
+	return i * 4;
 }
 
 /*
  *  stress_strrchr()
  *	stress on strrchr
  */
-static void stress_strrchr(stress_str_args_t *info)
+static size_t stress_strrchr(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strrchr_t)(const char *s, int c);
 
@@ -374,13 +394,15 @@ static void stress_strrchr(stress_str_args_t *info)
 		STRCHK(info, NULL == test_strrchr(str2, '+'));
 		STRCHK(info, NULL != test_strrchr(str2, str2[0]));
 	}
+	add_counter(args, 4);
+	return i * 4;
 }
 
 /*
  *  stress_strcmp()
  *	stress on strcmp
  */
-static void stress_strcmp(stress_str_args_t *info)
+static size_t stress_strcmp(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strcmp_t)(const char *s1, const char *s2);
 
@@ -404,13 +426,15 @@ static void stress_strcmp(stress_str_args_t *info)
 		STRCHK(info, 0 != test_strcmp(str1 + i, str2));
 		STRCHK(info, 0 != test_strcmp(str2, str1 + i));
 	}
+	add_counter(args, 9);
+	return i * 9;
 }
 
 /*
  *  stress_strncmp()
  *	stress on strncmp
  */
-static void stress_strncmp(stress_str_args_t *info)
+static size_t stress_strncmp(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strncmp_t)(const char *s1, const char *s2, size_t n);
 
@@ -435,12 +459,14 @@ static void stress_strncmp(stress_str_args_t *info)
 		STRCHK(info, 0 != test_strncmp(str1 + i, str2, len2));
 		STRCHK(info, 0 != test_strncmp(str2, str1 + i, len2));
 	}
+	add_counter(args, 9);
+	return i * 9;
 }
 /*
  *  stress_strcoll()
  *	stress on strcoll
  */
-static void stress_strcoll(stress_str_args_t *info)
+static size_t stress_strcoll(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strcoll_t)(const char *s1, const char *s2);
 
@@ -464,13 +490,15 @@ static void stress_strcoll(stress_str_args_t *info)
 		STRCHK(info, 0 != test_strcoll(str1 + i, str2));
 		STRCHK(info, 0 != test_strcoll(str2, str1 + i));
 	}
+	add_counter(args, 9);
+	return i * 9;
 }
 
 /*
  *  stress_strlen()
  *	stress on strlen
  */
-static void stress_strlen(stress_str_args_t *info)
+static size_t stress_strlen(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strlen_t)(const char *s);
 
@@ -480,23 +508,28 @@ static void stress_strlen(stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	const size_t len2 = info->len2;
 	register size_t i;
+	size_t n;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, len1 - 1 == test_strlen(str1));
 		STRCHK(info, len1 - 1 - i == test_strlen(str1 + i));
 	}
+	n = i * 2;
 
 	for (i = 0; keep_stressing_flag() && (i < len2 - 1); i++) {
 		STRCHK(info, len2 - 1 == test_strlen(str2));
 		STRCHK(info, len2 - 1 - i == test_strlen(str2 + i));
 	}
+	n += i * 2;
+	add_counter(args, 4);
+	return n;
 }
 
 /*
  *  stress_strxfrm()
  *	stress on strxfrm
  */
-static void stress_strxfrm(stress_str_args_t *info)
+static size_t stress_strxfrm(const stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strxfrm_t)(char *dest, const char *src, size_t n);
 
@@ -520,9 +553,11 @@ static void stress_strxfrm(stress_str_args_t *info)
 		STRCHK(info, 0 != test_strxfrm(strdst, str2, strdstlen));
 		STRCHK(info, 0 != test_strxfrm(strdst, str1, strdstlen));
 	}
+	add_counter(args, 6);
+	return i * 6;
 }
 
-static void stress_str_all(stress_str_args_t *info);
+static size_t stress_str_all(const stress_args_t *args, stress_str_args_t *info);
 
 /*
  * Table of string stress methods
@@ -566,22 +601,22 @@ static stress_metrics_t metrics[SIZEOF_ARRAY(str_methods)];
  *  stress_str_all()
  *	iterate over all string stressors
  */
-static void stress_str_all(stress_str_args_t *info)
+static size_t stress_str_all(const stress_args_t *args, stress_str_args_t *info)
 {
 	static size_t i = 1;	/* Skip over stress_str_all */
 	stress_str_args_t info_all = *info;
 	double t;
 
-	t = stress_time_now();
 	info_all.libc_func = str_methods[i].libc_func;
-	metrics[i].duration += (stress_time_now() - t);
-	metrics[i].count += 1.0;
 
-	str_methods[i].func(&info_all);
+	t = stress_time_now();
+	metrics[i].count += (double)str_methods[i].func(args, &info_all);
+	metrics[i].duration += (stress_time_now() - t);
 	i++;
 	if (i >= SIZEOF_ARRAY(str_methods))
 		i = 1;
 	info->failed = info_all.failed;
+	return 0;
 }
 
 /*
@@ -650,9 +685,8 @@ static int stress_str(const stress_args_t *args)
 		stress_rndstr(info.str2, info.len2);
 
 		t = stress_time_now();
-		str_method_info->func(&info);
+		metrics[str_method].count += (double)str_method_info->func(args, &info);
 		metrics[str_method].duration += (stress_time_now() - t);
-		metrics[str_method].count += 1.0;
 
 		tmpptr = info.str1;
 		info.str1 = info.str2;
@@ -661,8 +695,6 @@ static int stress_str(const stress_args_t *args)
 		tmplen = info.len1;
 		info.len1 = info.len2;
 		info.len2 = tmplen;
-
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
