@@ -141,7 +141,7 @@ static int stress_yield(const stress_args_t *args)
 	do {
 #if defined(__FreeBSD__)
 		VOID_RET(int, shim_sched_yield());
-		inc_counter(agrs);
+		inc_counter(args);
 #else
 		VOID_RET(int, shim_usleep(100000));
 #endif
