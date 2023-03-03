@@ -294,7 +294,7 @@ again:
 			register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
 			for (i = 0; keep_stressing(args); i++) {
-				ssize_t n;
+				ssize_t msgsz;
 
 #if defined(MSG_COPY) &&	\
     defined(IPC_NOWAIT)
@@ -321,8 +321,8 @@ again:
 					(void)msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, ~0);
 				}
 
-				n = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0);
-				if (n < 0) {
+				msgsz = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0);
+				if (msgsz < 0) {
 					/*
 					 * Check for errors that can occur
 					 * when the termination occurs and
@@ -336,7 +336,7 @@ again:
 					break;
 				}
 				/*  Short data in message, bail out */
-				if (n < (ssize_t)sizeof(msg.value))
+				if (msgsz < (ssize_t)sizeof(msg.value))
 					break;
 				/*
 				 *  Only when msg_types is not set can we fetch
@@ -347,7 +347,7 @@ again:
 					if (msg.value != i)
 						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx32
 							" but received 0x%" PRIx32 " instead (data length %zd)\n",
-							 args->name, i, msg.value, n);
+							 args->name, i, msg.value, msgsz);
 				}
 			}
 			_exit(EXIT_SUCCESS);
