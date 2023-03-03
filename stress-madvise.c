@@ -239,9 +239,7 @@ static int stress_random_advise(
 	if (advise == MADV_HWPOISON) {
 		const size_t page_size = args->page_size;
 		const size_t vec_size = (size + page_size - 1) / page_size;
-		size_t i;
 		unsigned char *vec;
-		int ret;
 		uint8_t *ptr = (uint8_t *)addr;
 
 		/*
@@ -257,6 +255,9 @@ static int stress_random_advise(
 
 		vec = (unsigned char *)calloc(vec_size, sizeof(*vec));
 		if (vec) {
+			size_t i;
+			int ret;
+
 			/*
 			 * Don't poison mapping if it's not physically backed
 			 */
