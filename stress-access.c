@@ -25,7 +25,7 @@ typedef struct {
 	const int	access_mode;
 } stress_access_t;
 
-stress_metrics_t *metrics;
+static stress_metrics_t *metrics;
 
 static const stress_access_t modes[] = {
 #if defined(S_IRUSR) &&	\
