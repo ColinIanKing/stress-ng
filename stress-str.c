@@ -54,6 +54,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_str_method_info_t str_methods[];
+static stress_metrics_t metrics[];
 
 static inline void strchk(
 	stress_str_args_t *info,
@@ -531,8 +532,12 @@ static void stress_str_all(stress_str_args_t *info)
 {
 	static int i = 1;	/* Skip over stress_str_all */
 	stress_str_args_t info_all = *info;
+	double t;
 
+	t = stress_time_now();
 	info_all.libc_func = str_methods[i].libc_func;
+	metrics[i].duration += (stress_time_now() - t);
+	metrics[i].count += 1.0;
 
 	str_methods[i].func(&info_all);
 	i++;
@@ -578,24 +583,26 @@ static const stress_str_method_info_t str_methods[] = {
 	{ NULL,			NULL,			NULL }
 };
 
+static stress_metrics_t metrics[SIZEOF_ARRAY(str_methods)];
+
 /*
  *  stress_set_str_method()
  *	set the default string stress method
  */
 static int stress_set_str_method(const char *name)
 {
-	stress_str_method_info_t const *info;
+	size_t i;
 
-	for (info = str_methods; keep_stressing_flag() && info->func; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("str-method", TYPE_ID_UINTPTR_T, &info);
+	for (i = 0; i < SIZEOF_ARRAY(str_methods); i++) {
+		if (!strcmp(str_methods[i].name, name)) {
+			stress_set_setting("str-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "str-method must be one of:");
-	for (info = str_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(str_methods); i++) {
+		(void)fprintf(stderr, " %s", str_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -608,13 +615,16 @@ static int stress_set_str_method(const char *name)
  */
 static int stress_str(const stress_args_t *args)
 {
-	const stress_str_method_info_t *str_method = &str_methods[0];
 	char ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	char ALIGN64 strdst[STRDSTLEN];
 	stress_str_args_t info;
+	const stress_str_method_info_t *str_method_info;
+	size_t i, j, str_method = 0;
 
 	(void)stress_get_setting("str-method", &str_method);
-	info.libc_func = str_method->libc_func;
+	str_method_info = &str_methods[str_method];
+
+	info.libc_func = str_method_info->libc_func;
 	info.str1 = str1;
 	info.len1 = sizeof(str1);
 	info.str2 = str2;
@@ -626,14 +636,24 @@ static int stress_str(const stress_args_t *args)
 
 	stress_rndstr(info.str1, info.len1);
 
+	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
+		metrics[i].duration = 0.0;
+		metrics[i].count = 0.0;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		register char *tmpptr;
 		register size_t tmplen;
+		double t;
 
 		stress_rndstr(info.str2, info.len2);
-		str_method->func(&info);
+
+		t = stress_time_now();
+		str_method_info->func(&info);
+		metrics[str_method].duration += (stress_time_now() - t);
+		metrics[str_method].count += 1.0;
 
 		tmpptr = info.str1;
 		info.str1 = info.str2;
@@ -647,6 +667,18 @@ static int stress_str(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	/* dump metrics of methods except for first "all" method */
+	for (i = 1, j = 0; i < SIZEOF_ARRAY(metrics); i++) {
+		if (metrics[i].duration > 0.0) {
+			char msg[64];
+			const double rate = metrics[i].count / metrics[i].duration;
+
+			(void)snprintf(msg, sizeof(msg), "%s calls per sec", str_methods[i].name);
+			stress_metrics_set(args, j, msg, rate);
+			j++;
+		}
+	}
 
 	return info.failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
