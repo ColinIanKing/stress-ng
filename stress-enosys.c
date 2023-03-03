@@ -3676,7 +3676,7 @@ again:
 			syscall_add(skip_syscalls[j]);
 
 		do {
-			long number;
+			unsigned long number;
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
@@ -3711,7 +3711,7 @@ again:
 				stress_do_syscall(args, number | 1, false);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, number | (number << 1), false);
+				stress_do_syscall(args, number | (number << 1U), false);
 				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, ~number, false);
