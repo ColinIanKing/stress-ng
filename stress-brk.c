@@ -86,7 +86,7 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 	/* Touch page, force it to be resident */
 	if (LIKELY(brk_touch)) {
 #if defined(HAVE_NT_LOAD32)
-		(void)stress_nt_load32(addr);
+		(void)stress_nt_load32((uint32_t *)addr);
 #else
 		(void )*(volatile uint8_t *)addr;
 #endif
