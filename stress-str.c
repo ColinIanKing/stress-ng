@@ -53,7 +53,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static const stress_str_method_info_t str_methods[];
 static stress_metrics_t metrics[];
 
 static inline void strchk(
@@ -523,28 +522,7 @@ static void stress_strxfrm(stress_str_args_t *info)
 	}
 }
 
-
-/*
- *  stress_str_all()
- *	iterate over all string stressors
- */
-static void stress_str_all(stress_str_args_t *info)
-{
-	static int i = 1;	/* Skip over stress_str_all */
-	stress_str_args_t info_all = *info;
-	double t;
-
-	t = stress_time_now();
-	info_all.libc_func = str_methods[i].libc_func;
-	metrics[i].duration += (stress_time_now() - t);
-	metrics[i].count += 1.0;
-
-	str_methods[i].func(&info_all);
-	i++;
-	if (!str_methods[i].func)
-		i = 1;
-	info->failed = info_all.failed;
-}
+static void stress_str_all(stress_str_args_t *info);
 
 /*
  * Table of string stress methods
@@ -583,6 +561,28 @@ static const stress_str_method_info_t str_methods[] = {
 };
 
 static stress_metrics_t metrics[SIZEOF_ARRAY(str_methods)];
+
+/*
+ *  stress_str_all()
+ *	iterate over all string stressors
+ */
+static void stress_str_all(stress_str_args_t *info)
+{
+	static size_t i = 1;	/* Skip over stress_str_all */
+	stress_str_args_t info_all = *info;
+	double t;
+
+	t = stress_time_now();
+	info_all.libc_func = str_methods[i].libc_func;
+	metrics[i].duration += (stress_time_now() - t);
+	metrics[i].count += 1.0;
+
+	str_methods[i].func(&info_all);
+	i++;
+	if (i >= SIZEOF_ARRAY(str_methods))
+		i = 1;
+	info->failed = info_all.failed;
+}
 
 /*
  *  stress_set_str_method()
