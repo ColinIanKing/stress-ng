@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 #include "core-target-clones.h"
 
 #if defined(HAVE_SYS_TREE_H)
@@ -194,6 +195,7 @@ static void OPTIMIZE3 stress_tree_rb(
 	RB_INIT(&rb_root);
 
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
@@ -205,6 +207,7 @@ static void OPTIMIZE3 stress_tree_rb(
 
 	/* Manditory forward tree check */
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!find)
@@ -222,6 +225,7 @@ static void OPTIMIZE3 stress_tree_rb(
 					args->name, i);
 		}
 		/* optional random find */
+PRAGMA_UNROLL_N(4)
 		for (i = 0; i < n; i++) {
 			const size_t j = stress_mwc32modn(n);
 
@@ -261,6 +265,7 @@ static void OPTIMIZE3 stress_tree_splay(
 	SPLAY_INIT(&splay_root);
 
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
@@ -272,6 +277,7 @@ static void OPTIMIZE3 stress_tree_splay(
 
 	/* Manditory forward tree check */
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!find)
@@ -357,6 +363,7 @@ static void OPTIMIZE3 stress_tree_binary(
 	double t;
 
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		binary_insert(&head, node);
 	}
@@ -364,6 +371,7 @@ static void OPTIMIZE3 stress_tree_binary(
 
 	/* Manditory forward tree check */
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
 		if (!find)
@@ -560,6 +568,7 @@ static void OPTIMIZE3 stress_tree_avl(
 	double t;
 
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		bool taller = false;
 		avl_insert(&head, node, &taller);
@@ -568,6 +577,7 @@ static void OPTIMIZE3 stress_tree_avl(
 
 	/* Manditory forward tree check */
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
 		if (!find)
@@ -726,6 +736,7 @@ static void OPTIMIZE3 btree_remove_tree(btree_node_t **node)
 	if (!*node)
 		return;
 
+PRAGMA_UNROLL_N(4)
 	for (i = 0; i <= (*node)->count; i++) {
 		btree_remove_tree(&(*node)->node[i]);
 		free((*node)->node[i]);
@@ -778,12 +789,14 @@ static void stress_tree_btree(
 	double t;
 
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++)
 		btree_insert(&root, node->value);
 	metrics->insert += stress_time_now() - t;
 
 	/* Manditory forward tree check */
 	t = stress_time_now();
+PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = btree_find(root, node->value);
 		if (!find)
@@ -892,6 +905,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_tree_shuffle(struct tree_node *nodes,
 	register uint32_t seed = 99; //stress_mwc32();
 	register size_t i;
 
+PRAGMA_UNROLL_N(4)
 	for (i = 0; i < n; i++) {
 		register uint32_t j;
 		register uint32_t tmp;
