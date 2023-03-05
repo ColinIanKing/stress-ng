@@ -311,7 +311,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
  *  stress_cpu_trig()
  *	simple sin, cos trig functions
  */
-static void HOT stress_cpu_trig(const char *name)
+static void HOT OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 {
 	int i;
 	long double d_sum = 0.0L;
@@ -354,7 +354,7 @@ static void HOT stress_cpu_trig(const char *name)
  *  stress_cpu_hyperbolic()
  *	simple hyperbolic sinh, cosh functions
  */
-static void HOT stress_cpu_hyperbolic(const char *name)
+static void HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 {
 	int i;
 	long double d_sum = 0.0L;
@@ -1315,7 +1315,7 @@ static void OPTIMIZE3 stress_cpu_psi(const char *name)
  *   stress_cpu_ln2
  *	compute ln(2) using series
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_ln2(const char *name)
+static void OPTIMIZE3 TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_ln2(const char *name)
 {
 	long double ln2 = 0.0L, last_ln2 = 0.0L;
 	long double precision = 1.0e-7L;
@@ -1374,7 +1374,7 @@ static void stress_cpu_ackermann(const char *name)
  *   stress_cpu_explog
  *	compute exp(log(n))
  */
-static void HOT stress_cpu_explog(const char *name)
+static void HOT OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
 {
 	uint32_t i;
 	double n = 1e6;
@@ -1537,7 +1537,7 @@ static void stress_cpu_ipv4checksum(const char *name)
  *  zeta()
  *	Riemann zeta function
  */
-static inline long double complex HOT OPTIMIZE3 zeta(
+static inline long double complex HOT OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
 	const long double complex s,
 	long double precision)
 {
@@ -1578,7 +1578,7 @@ static void stress_cpu_zeta(const char *name)
  * stress_cpu_gamma()
  *	stress Euler-Mascheroni constant gamma
  */
-static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
+static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
 {
 	long double precision = 1.0e-10L;
 	long double sum = 0.0L, k = 1.0L, _gamma = 0.0L, gammaold;
@@ -1790,7 +1790,7 @@ static void stress_cpu_hanoi(const char *name)
  *  stress_floatconversion
  *	exercise conversion to/from different floating point values
  */
-static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
+static void TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_floatconversion(const char *name)
 {
 	float f_sum = 0.0;
 	double d_sum = 0.0;
@@ -2008,7 +2008,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
  *	compute the constant omega
  *	See http://en.wikipedia.org/wiki/Omega_constant
  */
-static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
+static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 {
 	long double omega = 0.5L, last_omega = 0.0L;
 	const long double precision = 1.0e-20L;
@@ -2613,7 +2613,7 @@ static void stress_cpu_queens(const char *name)
  *	find factorials from 1..150 using
  *	Stirling's and Ramanujan's Approximations.
  */
-static void stress_cpu_factorial(const char *name)
+static void OPTIMIZE_FAST_MATH stress_cpu_factorial(const char *name)
 {
 	int n;
 	long double f = 1.0L;

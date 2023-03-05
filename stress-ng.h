@@ -521,9 +521,15 @@ typedef struct stressor_info {
 
 /* gcc 7.0 and later support __attribute__((fallthrough)); */
 #if defined(HAVE_ATTRIBUTE_FALLTHROUGH)
-#define CASE_FALLTHROUGH __attribute__((fallthrough)) /* Fallthrough */
+#define CASE_FALLTHROUGH __attribute__((fallthrough))
 #else
-#define CASE_FALLTHROUGH /* Fallthrough */
+#define CASE_FALLTHROUGH
+#endif
+
+#if defined(HAVE_ATTRIBUTE_FAST_MATH)
+#define OPTIMIZE_FAST_MATH __attribute__((optimize("fast-math")))
+#else
+#define OPTIMIZE_FAST_MATH
 #endif
 
 /* no return hint */
