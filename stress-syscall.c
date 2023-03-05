@@ -5672,7 +5672,7 @@ static int syscall_setitimer(void)
 
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&	\
     defined(HAVE_SYSCALL) &&		\
-    defined(__NR_get_sempolicy) &&	\
+    defined(__NR_get_mempolicy) &&	\
     defined(__NR_get_mempolicy) &&	\
     defined(MPOL_F_ADDR)
 #define HAVE_SYSCALL_SET_MEMPOLICY
@@ -5690,7 +5690,7 @@ static int syscall_set_mempolicy(void)
 
 	ret = shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_ADDR);
 	if (ret < 0)
-		goto unmap:
+		goto unmap;
 	t1 = syscall_time_now();
 	ret = shim_set_mempolicy(&mode, node_mask, max_nodes);
 	t2 = syscall_time_now();
