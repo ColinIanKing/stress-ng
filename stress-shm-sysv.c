@@ -400,7 +400,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 		 */
 		shm_id2 = shmget(key, sz + (1024 * 1024), IPC_CREAT);
 		if ((shm_id2 >= 0) && (errno == 0)) {
-			pr_fail("%s: shmget IPC_RMID unexpectedly succeeded and again "
+			pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded and again "
 				"created shared memory segment with a greater "
 				"size, errno=%d (%s)\n", name, errno, strerror(errno));
 			(void)shmctl(shm_id2, IPC_RMID, NULL);
@@ -413,7 +413,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 #if defined(SHMMIN)
 	shm_id = shmget(key, SHMMIN - 1, IPC_CREAT);
 	if ((SHMMIN > 0) && (shm_id >= 0)) {
-		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on invalid value of"
+		pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
@@ -423,13 +423,32 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 
 #if defined(SHMMAX)
 	shm_id = shmget(key, SHMMAX + 1, IPC_CREAT);
-	if (SHMMAX < ~(size_t)0) && (shm_id >= 0)) {
-		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on invalid value of"
+	if ((SHMMAX < ~(size_t)0) && (shm_id >= 0)) {
+		pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
-#else
-	/* UNEXPECTED */
+#elif defined(__linux__)
+	{
+		char buf[32];
+
+		/* Find size from shmmax proc value */
+		if (system_read("/proc/sys/kernel/shmmax", buf, sizeof(buf)) > 0) {
+			size_t sz;
+
+			if (sscanf(buf, "%zu", &sz) == 1) {
+				sz++;
+				if (sz > 0) {
+					shm_id = shmget(key, sz, IPC_CREAT);
+					if (shm_id >= 0) {
+						pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
+							"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+						(void)shmctl(shm_id, IPC_RMID, NULL);
+					}
+				}
+			}
+		}
+	}
 #endif
 
 #if defined(SHM_HUGETLB)
