@@ -194,6 +194,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqblk dqblk;
 
+		(void)memset(&dqblk, 0, sizeof(dqblk));
 		err = do_quotactl(args, "Q_GETQUOTA", &status,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&dqblk);
@@ -205,6 +206,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct shim_nextdqblk nextdqblk;
 
+		(void)memset(&nextdqblk, 0, sizeof(nextdqblk));
 		err = do_quotactl(args, "Q_GETNEXTQUOTA", &status,
 			QCMD(Q_GETNEXTQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&nextdqblk);
@@ -216,6 +218,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		uint32_t format;
 
+		(void)memset(&format, 0, sizeof(format));
 		err = do_quotactl(args, "Q_GETFMT", &status,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev, 0, (caddr_t)&format);
@@ -227,6 +230,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqinfo dqinfo;
 
+		(void)memset(&dqinfo, 0, sizeof(dqinfo));
 		err = do_quotactl(args, "Q_GETINFO", &status,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev, 0, (caddr_t)&dqinfo);
@@ -239,6 +243,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqstats dqstats;
 
+		(void)memset(&dqstats, 0, sizeof(dqstats));
 		err = do_quotactl(args, "Q_GETSTATS", &status,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev, 0, (caddr_t)&dqstats);
