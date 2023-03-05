@@ -374,7 +374,7 @@ static int open_flag_perm(
 #else
 	fd = open_arg3(filename, O_CREAT | O_RDWR, mode, duration, count);
 	if (fd >= 0)
-		void)close(fd);
+		(void)close(fd);
 #endif
 #endif
 	fd = open_arg3(filename, flags, mode, duration, count);
