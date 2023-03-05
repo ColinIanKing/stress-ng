@@ -5692,7 +5692,7 @@ static int syscall_set_mempolicy(void)
 	if (ret < 0)
 		goto unmap;
 	t1 = syscall_time_now();
-	ret = shim_set_mempolicy(&mode, node_mask, max_nodes);
+	ret = shim_set_mempolicy(mode, node_mask, max_nodes);
 	t2 = syscall_time_now();
 
 unmap:
@@ -7982,7 +7982,7 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_SETITIMER)
 	SYSCALL(syscall_setitimer),
 #endif
-#if defined(HAVE_SYSCALL_SETMEMPOLICY)
+#if defined(HAVE_SYSCALL_SET_MEMPOLICY)
 	SYSCALL(syscall_set_mempolicy),
 #endif
 #if defined(HAVE_SYSCALL_SETPGID)
