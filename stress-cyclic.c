@@ -632,7 +632,7 @@ static int stress_cyclic(const stress_args_t *args)
 	uint64_t cyclic_dist = 0;
 	int32_t cyclic_prio = INT32_MAX;
 	size_t cyclic_samples = DEFAULT_SAMPLES;
-	int policy;
+	int policy, rc = EXIT_SUCCESS;
 	size_t cyclic_policy = 0;
 	const double start = stress_time_now();
 	stress_rt_stats_t *rt_stats;
@@ -795,6 +795,12 @@ redo_policy:
 			if ((errno == E2BIG) &&
 			    (policies[cyclic_policy].policy == SCHED_DEADLINE)) {
 				cyclic_policy = 1;
+				if (cyclic_policy > SIZEOF_ARRAY(policies)) {
+					pr_inf("%s: DEADLINE not supported by kernel, no other policies "
+						"available. skipping stressor\n", args->name);
+					rc = EXIT_NO_RESOURCE;
+					goto finish;
+				}
 				policy = policies[cyclic_policy].policy;
 #if defined(HAVE_SCHED_GET_PRIORITY_MAX)
 				rt_stats->max_prio = sched_get_priority_max(policy);
@@ -904,7 +910,7 @@ finish:
 	(void)munmap((void *)rt_stats->latencies, rt_stats->latencies_size);
 	(void)munmap((void *)rt_stats, size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
