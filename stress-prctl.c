@@ -173,8 +173,9 @@ static inline void stress_arch_prctl(void)
 		ret = shim_arch_prctl(ARCH_GET_FS, (unsigned long)&fs);
 #if defined(ARCH_SET_FS)
 		if (ret == 0)
-			VOID_RET(int, shim_arch_prctl(ARCH_SET_FS, fs));
+			ret = shim_arch_prctl(ARCH_SET_FS, fs);
 #endif
+		(void)ret;
 	}
 #endif
 
@@ -189,8 +190,9 @@ static inline void stress_arch_prctl(void)
 		ret = shim_arch_prctl(ARCH_GET_GS, (unsigned long)&gs);
 #if defined(ARCH_SET_GS)
 		if (ret == 0)
-			VOID_RET(int, shim_arch_prctl(ARCH_SET_GS, gs));
+			ret = shim_arch_prctl(ARCH_SET_GS, gs);
 #endif
+		(void)ret;
 	}
 #endif
 
