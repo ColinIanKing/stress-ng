@@ -53,8 +53,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static stress_metrics_t metrics[];
-
 static inline void strchk(
 	stress_str_args_t *info,
 	const int ok,
