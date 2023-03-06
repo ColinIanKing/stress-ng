@@ -96,13 +96,17 @@ static void *mutex_exercise(void *arg)
 	const stress_args_t *args = pthread_info->args;
 	static void *nowt = NULL;
 	int max = (pthread_info->prio_max * 7) / 8;
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
 	uint32_t cpus = (uint32_t)stress_get_processors_configured();
+#endif
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	int mutexattr_ret;
 	pthread_mutexattr_t mutexattr;
 #endif
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
 	if (!cpus)
 		cpus = 1;
+#endif
 
 	stress_mwc_reseed();
 
