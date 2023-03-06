@@ -768,7 +768,7 @@ static int stress_prctl_child(
 
 		/* exercise invalid args */
 		VOID_RET(int, prctl(PR_GET_SPECULATION_CTRL, ~0, ~0, ~0, ~0));
-
+ 
 #if defined(PR_SPEC_STORE_BYPASS)
 		lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
 
@@ -783,8 +783,8 @@ static int stress_prctl_child(
 #endif
 			/* ..and restore */
 			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, lval, 0, 0));
-#endif
 		}
+#endif
 
 #if defined(PR_SPEC_INDIRECT_BRANCH)
 		lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
