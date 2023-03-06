@@ -392,6 +392,7 @@ static int stress_vm_rw(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	(void)memset(stack, 0, sizeof(stack));
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	ctxt.pid = clone(stress_vm_child, stress_align_stack(stack_top),
