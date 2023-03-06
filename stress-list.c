@@ -340,7 +340,7 @@ static void stress_list_circleq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)i;
 
-	while ((entry = CIRCLEQ_FIRST(&head)) != (struct list_entry *)&head) {
+	while ((entry = (struct list_entry *)CIRCLEQ_FIRST(&head)) != (struct list_entry *)&head) {
 		CIRCLEQ_REMOVE(&head, entry, u.circleq_entries);
 	}
 	CIRCLEQ_INIT(&head);
