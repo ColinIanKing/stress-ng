@@ -434,15 +434,16 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 
 		/* Find size from shmmax proc value */
 		if (system_read("/proc/sys/kernel/shmmax", buf, sizeof(buf)) > 0) {
-			size_t sz;
+			size_t shmmax;
 
-			if (sscanf(buf, "%zu", &sz) == 1) {
-				sz++;
-				if (sz > 0) {
-					shm_id = shmget(key, sz, IPC_CREAT);
+			if (sscanf(buf, "%zu", &shmmax) == 1) {
+				shmmax++;
+				if (shmmax > 0) {
+					shm_id = shmget(key, shmmax, IPC_CREAT);
 					if (shm_id >= 0) {
-						pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on invalid value of"
-							"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+						pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded on "
+							"invalid value %zu of size argument, errno=%d (%s)\n",
+							name, shmmax, errno, strerror(errno));
 						(void)shmctl(shm_id, IPC_RMID, NULL);
 					}
 				}
