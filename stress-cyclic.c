@@ -738,7 +738,7 @@ again:
 		uint32_t count;
 #endif
 		int ret;
-		NOCLOBBER int rc = EXIT_FAILURE;
+		NOCLOBBER int ncrc = EXIT_FAILURE;
 
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_add(&g_shared->softlockup_count, 1);
@@ -798,7 +798,7 @@ redo_policy:
 				if (cyclic_policy > SIZEOF_ARRAY(policies)) {
 					pr_inf("%s: DEADLINE not supported by kernel, no other policies "
 						"available. skipping stressor\n", args->name);
-					rc = EXIT_NO_RESOURCE;
+					ncrc = EXIT_NO_RESOURCE;
 					goto finish;
 				}
 				policy = policies[cyclic_policy].policy;
@@ -836,10 +836,10 @@ redo_policy:
 		} while (keep_stressing(args));
 
 tidy_ok:
-		rc = EXIT_SUCCESS;
+		ncrc = EXIT_SUCCESS;
 tidy:
 		(void)fflush(stdout);
-		_exit(rc);
+		_exit(ncrc);
 	} else {
 		int status;
 
