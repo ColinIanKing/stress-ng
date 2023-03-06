@@ -1462,7 +1462,6 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
 	static char buffer[80];
 	char *ptr = buffer;
-	int ret;
 	double min1, min5, min15;
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
 
@@ -1471,6 +1470,8 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 	*ptr = '\0';
 
 	if (stress_get_load_avg(&min1, &min5, &min15) == 0) {
+		int ret;
+
 		ret = snprintf(ptr, sizeof(buffer),
 			"Load Avg: %.2f %.2f %.2f, ",
 			min1, min5, min15);
