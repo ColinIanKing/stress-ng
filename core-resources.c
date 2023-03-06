@@ -313,10 +313,10 @@ size_t stress_resources_allocate(
 
 				(void)fcntl(resources[i].fd_tmp, F_SETLK, &f);
 			}
-		}
 #else
 		UNEXPECTED
 #endif
+		}
 #else
 		UNEXPECTED
 #endif
