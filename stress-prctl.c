@@ -222,9 +222,10 @@ static inline void stress_arch_prctl(void)
     defined(STRESS_ARCH_X86_64)
 	{
 		unsigned long idx;
-		int ret;
 
 		for (idx = 0; idx < 255; idx++) {
+			int ret;
+
 			errno = 0;
 			ret = shim_arch_prctl(ARCH_REQ_XCOMP_PERM, idx);
 			if ((ret < 0) && (errno == -EINVAL))
