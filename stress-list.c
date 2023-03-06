@@ -252,7 +252,7 @@ static void stress_list_list(
 	metrics->count += (double)i;
 
 	while (!LIST_EMPTY(&head)) {
-		entry = LIST_FIRST(&head);
+		entry = (struct list_entry *)LIST_FIRST(&head);
 		LIST_REMOVE(entry, u.list_entries);
 	}
 	LIST_INIT(&head);
@@ -384,7 +384,7 @@ static void stress_list_stailq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)i;
 
-	while ((entry = STAILQ_FIRST(&head)) != NULL) {
+	while ((entry = (struct list_entry *)STAILQ_FIRST(&head)) != NULL) {
 		STAILQ_REMOVE(&head, entry, list_entry, u.stailq_entries);
 	}
 	STAILQ_INIT(&head);
@@ -428,7 +428,7 @@ static void stress_list_tailq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)i;
 
-	while ((entry = TAILQ_FIRST(&head)) != NULL) {
+	while ((entry = (struct list_entry *)TAILQ_FIRST(&head)) != NULL) {
 		TAILQ_REMOVE(&head, entry, u.tailq_entries);
 	}
 	TAILQ_INIT(&head);
