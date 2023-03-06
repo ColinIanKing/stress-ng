@@ -127,7 +127,6 @@ static int stress_x86cpuid(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
-		uint32_t eax, ebx, ecx, edx;
 		double t = stress_time_now();
 		register size_t i, j;
 
@@ -136,6 +135,8 @@ static int stress_x86cpuid(const stress_args_t *args)
 		for (j = 0; j < 1024; j++) {
 PRAGMA_UNROLL_N(8)
 			for (i = 0; i < n; i++) {
+				uint32_t eax, ebx, ecx, edx;
+
 				eax = reordered_cpu_regs[i].eax;
 				ebx = 0; /* Not required */
 				ecx = reordered_cpu_regs[i].ecx;
