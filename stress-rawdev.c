@@ -464,12 +464,12 @@ static int stress_rawdev(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
-		double rate, duration = metrics[i].duration;
+		const double duration = metrics[i].duration;
 
 		if (duration > 0.0) {
 			char str[50];
+			const double rate = (metrics[i].count / duration) / (double)MB;
 
-			rate = (metrics[i].count / duration) / (double)MB;
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
 			stress_metrics_set(args, j, str, rate);
 			j++;
