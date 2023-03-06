@@ -52,8 +52,6 @@ static double time_end;
  */
 static void MLOCKED_TEXT stress_sigio_handler(int signum)
 {
-	static char buffer[BUFFER_SIZE];
-
 	(void)signum;
 
 	async_sigs++;
@@ -63,6 +61,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 		 *  Data is ready, so drain as much as possible
 		 */
 		while (keep_stressing_flag() &&  (stress_time_now() < time_end)) {
+			static char buffer[BUFFER_SIZE];
 			ssize_t ret;
 
 			got_err = 0;
