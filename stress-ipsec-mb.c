@@ -257,9 +257,10 @@ static void stress_jobs_done(
 static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const size_t alignment)
 {
 	const size_t sz = nmemb * size;
-	void *ptr;
 
 #if defined(HAVE_POSIX_MEMALIGN)
+	void *ptr;
+
 	if (posix_memalign(&ptr, alignment, sz) == 0)
 		return ptr;
 #elif defined(HAVE_ALIGNED_ALLOC)
