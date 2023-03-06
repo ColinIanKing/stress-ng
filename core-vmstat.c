@@ -699,6 +699,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	size_t page_size = stress_get_page_size();
 	int ret;
 
+	(void)memset(&vm_stat, 0, sizeof(vmstat));
 	ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 	if (ret >= 0) {
 		vmstat->swap_in = vm_stat.pageins;
