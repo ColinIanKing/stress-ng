@@ -64,7 +64,6 @@ typedef struct {
 } stress_wcs_method_info_t;
 
 static const stress_wcs_method_info_t wcs_methods[];
-static stress_metrics_t metrics[];
 
 /*
  *  stress_wcs_fill
