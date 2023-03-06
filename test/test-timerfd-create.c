@@ -24,8 +24,6 @@
 
 int main(void)
 {
-	int fd;
-
 #if defined(CLOCK_REALTIME)
 	return timerfd_create(CLOCK_REALTIME, 0);
 #elif defined(CLOCK_MONOTONIC)
