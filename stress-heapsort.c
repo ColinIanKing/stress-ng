@@ -168,17 +168,9 @@ static int stress_heapsort(const stress_args_t *args)
 		}
 		if (!keep_stressing_flag())
 			break;
-		/* And re-order by byte compare */
+		/* And re-order  */
+		stress_sort_data_int32_mangle(data, n);
 		stress_sort_compare_reset();
-		t = stress_time_now();
-		if (heapsort(data, n * 4, sizeof(uint8_t), stress_sort_cmp_fwd_int8) < 0) {
-			pr_fail("%s: heapsort failed: %d (%s)\n",
-				args->name, errno, strerror(errno));
-		} else {
-			duration += stress_time_now() - t;
-			count += (double)stress_sort_compare_get();
-			sorted += (double)n;
-		}
 
 		/* Reverse sort this again */
 		stress_sort_compare_reset();
