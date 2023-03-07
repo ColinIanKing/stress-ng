@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
  *  RTC interfaces, as described by
  *  	Documentation/rtc.txt
  */
-static const char *interfaces[] = {
+static const char * const interfaces[] = {
 	"date",
 	"hctosys",
 	"max_user_freq",
