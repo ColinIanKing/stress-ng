@@ -28,6 +28,7 @@ static const stress_help_t help[] = {
 	{ NULL, "l1cache-sets N",	"specify level 1 cache sets" },
 	{ NULL, "l1cache-size N",	"specify level 1 cache size" },
 	{ NULL,	"l1cache-ways N",	"only fill specified number of cache ways" },
+	{ NULL,	"l1cache-method M",	"l1 cache thrashing method: forward, reverse, random" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -61,14 +62,6 @@ static int stress_l1cache_set_sets(const char *opt)
 {
 	return stress_l1cache_set(opt, "l1cache-sets", 65536);
 }
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_l1cache_ways,	 stress_l1cache_set_ways },
-	{ OPT_l1cache_size,	 stress_l1cache_set_size },
-	{ OPT_l1cache_line_size, stress_l1cache_set_line_size },
-	{ OPT_l1cache_sets,	 stress_l1cache_set_sets },
-	{ 0,			NULL }
-};
 
 #if DEBUG_TAG_INFO
 /*
@@ -220,6 +213,297 @@ bad_cache:
 	return EXIT_NO_RESOURCE;
 }
 
+static void OPTIMIZE3 stress_l1cache_forward(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size)
+{
+	register int i;
+	static uint32_t set;
+
+	const uint32_t set_offset = set * l1cache_set_size;
+	uint8_t * const cache_start = cache_aligned + set_offset;
+	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
+
+	(void)args;
+
+	/*
+	 * cycle around 2 x cache size to force evictions
+	 * in cache set steps to hit every cache line in
+	 * the set, reads then writes
+	 */
+	for (i = 0; i < 1000000; i++) {
+		register volatile uint8_t *ptr;
+
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+			*(ptr);
+
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+			*(ptr) = (uint8_t)set;
+
+		set++;
+		if (set >= l1cache_sets)
+			set = 0;
+	}
+}
+
+static void OPTIMIZE3 stress_l1cache_forward_and_verify(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size)
+{
+	register int i;
+	static uint32_t set;
+
+	const uint32_t set_offset = set * l1cache_set_size;
+	uint8_t * const cache_start = cache_aligned + set_offset;
+	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
+
+	/*
+	 * cycle around 2 x cache size to force evictions
+	 * in cache set steps to hit every cache line in
+	 * the set, reads then writes
+	 */
+	for (i = 0; i < 1000000; i++) {
+		register volatile uint8_t *ptr;
+
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+			(void)*(ptr);
+
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+			*(ptr) = (uint8_t)set;
+
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+			if (*ptr != (uint8_t)set)
+				pr_fail("%s: cache value mismatch at offset %zd\n",
+					args->name, (size_t)(ptr - cache_start));
+		set++;
+		if (set >= l1cache_sets)
+			set = 0;
+	}
+}
+
+static void OPTIMIZE3 stress_l1cache_reverse(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size)
+{
+	register int i;
+	static uint32_t set;
+
+	const uint32_t set_offset = set * l1cache_set_size;
+	uint8_t * const cache_start = cache_aligned + set_offset;
+	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
+
+	(void)args;
+
+	/*
+	 * cycle around 2 x cache size to force evictions
+	 * in cache set steps to hit every cache line in
+	 * the set, reads then writes
+	 */
+	for (i = 0; i < 1000000; i++) {
+		register volatile uint8_t *ptr;
+
+		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
+			*(ptr);
+
+		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
+			*(ptr) = (uint8_t)set;
+
+		set++;
+		if (set >= l1cache_sets)
+			set = 0;
+	}
+}
+
+static void OPTIMIZE3 stress_l1cache_reverse_and_verify(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size)
+{
+	register int i;
+	static uint32_t set;
+
+	const uint32_t set_offset = set * l1cache_set_size;
+	uint8_t * const cache_start = cache_aligned + set_offset;
+	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
+
+	(void)args;
+
+	/*
+	 * cycle around 2 x cache size to force evictions
+	 * in cache set steps to hit every cache line in
+	 * the set, reads then writes
+	 */
+	for (i = 0; i < 1000000; i++) {
+		register volatile uint8_t *ptr;
+
+		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
+			*(ptr);
+
+		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
+			*(ptr) = (uint8_t)set;
+
+		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
+			if (*ptr != (uint8_t)set)
+				pr_fail("%s: cache value mismatch at offset %zd\n",
+					args->name, (size_t)(ptr - cache_start));
+
+		set++;
+		if (set >= l1cache_sets)
+			set = 0;
+	}
+}
+
+
+static void OPTIMIZE3 stress_l1cache_random(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size)
+{
+	register int i;
+	static uint32_t set;
+	uint32_t w, z;
+
+	const uint32_t set_offset = set * l1cache_set_size;
+	uint8_t * const cache_start = cache_aligned + set_offset;
+	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
+	const size_t cache_size = cache_end - cache_end;
+	const size_t loops = cache_size / l1cache_set_size;
+	register volatile uint8_t *ptr = (volatile uint8_t *)cache_start;
+
+	(void)args;
+	stress_mwc_get_seed(&w, &z);
+
+	/*
+	 * cycle around 2 x cache size to force evictions
+	 * in cache set steps to hit every cache line in
+	 * the set, reads then writes
+	 */
+	for (i = 0; i < 1000000; i++) {
+		register size_t j;
+
+		stress_mwc_set_seed(w, z);
+		for (j = 0; j < loops; j++)
+			(void)*(ptr + stress_mwc32modn((uint32_t)cache_size));
+
+		stress_mwc_set_seed(w, z);
+		for (j = 0; j < loops; j++)
+			*(ptr + stress_mwc32modn((uint32_t)cache_size)) = (uint8_t)set;
+
+		set++;
+		if (set >= l1cache_sets)
+			set = 0;
+	}
+}
+
+static void OPTIMIZE3 stress_l1cache_random_and_verify(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size)
+{
+	register int i;
+	static uint32_t set;
+	uint32_t w, z;
+
+	const uint32_t set_offset = set * l1cache_set_size;
+	uint8_t * const cache_start = cache_aligned + set_offset;
+	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
+	const size_t cache_size = cache_end - cache_end;
+	const size_t loops = cache_size / l1cache_set_size;
+	register volatile uint8_t *ptr = (volatile uint8_t *)cache_start;
+
+	(void)args;
+	stress_mwc_get_seed(&w, &z);
+
+	/*
+	 * cycle around 2 x cache size to force evictions
+	 * in cache set steps to hit every cache line in
+	 * the set, reads then writes
+	 */
+	for (i = 0; i < 1000000; i++) {
+		register size_t j;
+
+		stress_mwc_set_seed(w, z);
+		for (j = 0; j < loops; j++)
+			(void)*(ptr + stress_mwc32modn((uint32_t)cache_size));
+
+		stress_mwc_set_seed(w, z);
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+			*(ptr + stress_mwc32modn((uint32_t)cache_size)) = (uint8_t)set;
+
+		stress_mwc_set_seed(w, z);
+		for (j = 0; j < loops; j++) {
+			size_t idx = stress_mwc32modn((uint32_t)cache_size);
+			if (*(ptr + idx) != (uint8_t)set)
+				pr_fail("%s: cache value mismatch at offset %zd\n",
+					args->name, idx);
+		}
+
+		set++;
+		if (set >= l1cache_sets)
+			set = 0;
+	}
+}
+
+
+typedef void (*l1cache_func_t)(
+	const stress_args_t *args,
+	uint8_t *cache_aligned,
+	const uint32_t l1cache_size,
+	const uint32_t l1cache_sets,
+	const uint32_t l1cache_set_size);
+
+typedef struct {
+	const char *name;
+	const l1cache_func_t	func[2];
+} stress_l1cache_method_t;
+
+static const stress_l1cache_method_t stress_l1cache_methods[] = {
+	{ "forward",	{ stress_l1cache_forward,	stress_l1cache_forward_and_verify } },
+	{ "random",	{ stress_l1cache_random,	stress_l1cache_random_and_verify } },
+	{ "reverse",	{ stress_l1cache_reverse,	stress_l1cache_reverse_and_verify } },
+};
+
+static int stress_l1cache_set_method(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_l1cache_methods); i++) {
+		if (!strcmp(stress_l1cache_methods[i].name, name)) {
+			return stress_set_setting("l1cache-method", TYPE_ID_SIZE_T, &i);
+		}
+	}
+	(void)fprintf(stderr, "l1cache-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_l1cache_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_l1cache_methods[i].name);
+        }
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_l1cache_sets,	 stress_l1cache_set_sets },
+	{ OPT_l1cache_size,	 stress_l1cache_set_size },
+	{ OPT_l1cache_line_size, stress_l1cache_set_line_size },
+	{ OPT_l1cache_method,	 stress_l1cache_set_method },
+	{ OPT_l1cache_ways,	 stress_l1cache_set_ways },
+	{ 0,			NULL }
+};
+
 static int stress_l1cache(const stress_args_t *args)
 {
 	int ret;
@@ -228,15 +512,20 @@ static int stress_l1cache(const stress_args_t *args)
 	uint32_t l1cache_sets = 0;
 	uint32_t l1cache_line_size = 0;
 	uint32_t l1cache_set_size;
-	uint32_t set;
 	uint8_t *cache, *cache_aligned;
 	uintptr_t addr;
 	uint32_t padding;
+	size_t l1cache_method = 0;	/* Default forward */
+	const size_t verify = (g_opt_flags & OPT_FLAGS_VERIFY) ? 1 : 0;
+	l1cache_func_t stress_l1cache_func;
 
 	(void)stress_get_setting("l1cache-ways", &l1cache_ways);
 	(void)stress_get_setting("l1cache-size", &l1cache_size);
 	(void)stress_get_setting("l1cache-sets", &l1cache_sets);
 	(void)stress_get_setting("l1cache-line-size", &l1cache_line_size);
+	(void)stress_get_setting("l1cache-method", &l1cache_method);
+
+	stress_l1cache_func = stress_l1cache_methods[l1cache_method].func[verify];
 
 	ret = stress_l1cache_info_ok(args, &l1cache_ways, &l1cache_size,
 				     &l1cache_sets, &l1cache_line_size);
@@ -269,58 +558,9 @@ static int stress_l1cache(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	set = 0;
 	do {
-		const uint32_t set_offset = set * l1cache_set_size;
-		register uint8_t *cache_start, *cache_end;
-		register int i;
+		stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size);
 
-		cache_start = cache_aligned + set_offset;
-		cache_end = cache_start + (l1cache_size << 1);
-
-		/*
-		 * cycle around 2 x cache size to force evictions
-		 * in cache set steps to hit every cache line in
-		 * the set, reads then writes
-		 */
-		if (UNLIKELY(g_opt_flags & OPT_FLAGS_VERIFY)) {
-			/* Verify slow path */
-			for (i = 0; i < 1000000; i++) {
-				register volatile uint8_t *ptr;
-
-				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-					*(ptr);
-
-				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-					*(ptr) = (uint8_t)set;
-
-				if (UNLIKELY(g_opt_flags & OPT_FLAGS_VERIFY)) {
-					for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-						if (*ptr != (uint8_t)set)
-							pr_fail("%s: cache value mismatch at offset %zd\n",
-								args->name, (size_t)(ptr - cache_start));
-				}
-
-				set++;
-				if (set >= l1cache_sets)
-					set = 0;
-			}
-		} else {
-			/* non-verify fast path */
-			for (i = 0; i < 1000000; i++) {
-				register volatile uint8_t *ptr;
-
-				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-					*(ptr);
-
-				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-					*(ptr) = (uint8_t)set;
-
-				set++;
-				if (set >= l1cache_sets)
-					set = 0;
-			}
-		}
 		add_counter(args, l1cache_sets);
 	} while (keep_stressing(args));
 

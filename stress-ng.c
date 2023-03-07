@@ -560,6 +560,7 @@ static const struct option long_options[] = {
 	{ "kvm-ops",		1,	0,	OPT_kvm_ops },
 	{ "l1cache",		1,	0, 	OPT_l1cache },
 	{ "l1cache-line-size",	1,	0,	OPT_l1cache_line_size },
+	{ "l1cache-method",	1,	0,	OPT_l1cache_method },
 	{ "l1cache-ops",	1,	0,	OPT_l1cache_ops },
 	{ "l1cache-sets",	1,	0,	OPT_l1cache_sets},
 	{ "l1cache-size",	1,	0,	OPT_l1cache_size },

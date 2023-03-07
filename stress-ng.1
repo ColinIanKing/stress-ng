@@ -2599,6 +2599,13 @@ specify the level 1 cache size (in bytes)
 .B \-\-l1cache-ways N
 specify the number of level 1 cache ways
 .TP
+.B \-\-l1cache-ops N
+specify the number of cache read/write bogo-op loops to run
+.TP
+.B \-\-l1cache-method [ forward | random | reverse ]
+select the method of exercising a l1cache sized buffer. The default is a
+forward scan, random picks random bytes to exercise, reverse scans in reverse.
+.TP
 .B \-\-landlock N
 start N workers that exercise Linux 5.13 landlocking. A range of
 landlock_create_ruleset flags are exercised with a read only file rule
