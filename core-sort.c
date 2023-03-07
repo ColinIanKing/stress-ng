@@ -32,6 +32,16 @@ uint64_t stress_sort_compare_get(void)
 	return stress_sort_compares;
 }
 
+void OPTIMIZE3 stress_sort_data_int32_mangle(int32_t *data, const size_t n)
+{
+	const int32_t *end = data + n;
+
+PRAGMA_UNROLL_N(8)
+	while (data < end) {
+		*(data++) ^= 0x80008000;
+	}
+}
+
 /*
  *  Monotonically increasing values
  */

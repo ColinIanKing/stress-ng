@@ -74,16 +74,6 @@ static int stress_set_qsort_size(const char *opt)
 	return stress_set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
 }
 
-static inline void OPTIMIZE3 stress_sort_data_int32_mangle(int32_t *data, size_t n)
-{
-	const int32_t *end = data + n;
-
-PRAGMA_UNROLL_N(8)
-	while (data < end) {
-		*(data++) ^= 0x80008000;
-	}
-}
-
 typedef uint32_t qsort_swap_type_t;
 
 static inline size_t qsort_bm_minimum(const size_t x, const size_t y)

@@ -23,6 +23,7 @@
 
 extern void stress_sort_data_int32_init(int32_t *data, const size_t n);
 extern void stress_sort_data_int32_shuffle(int32_t *data, const size_t n);
+extern void stress_sort_data_int32_mangle(int32_t *data, const size_t n);
 extern void stress_sort_compare_reset(void);
 extern uint64_t stress_sort_compare_get(void);
 
