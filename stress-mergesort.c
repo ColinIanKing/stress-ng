@@ -176,17 +176,10 @@ static int stress_mergesort(const stress_args_t *args)
 		}
 		if (!keep_stressing_flag())
 			break;
-		/* And re-order by uint64 compare */
+
+		/* And re-order */
+		stress_sort_data_int32_mangle(data, n);
 		stress_sort_compare_reset();
-		t = stress_time_now();
-		if (mergesort(data, n / 2, sizeof(int64_t), stress_sort_cmp_fwd_int64) < 0) {
-			pr_fail("%s: mergesort failed: %d (%s)\n",
-				args->name, errno, strerror(errno));
-		} else {
-			duration += stress_time_now() - t;
-			count += (double)stress_sort_compare_get();
-			sorted += (double)n;
-		}
 
 		/* Reverse sort this again */
 		stress_sort_compare_reset();
