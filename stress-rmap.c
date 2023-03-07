@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
@@ -52,20 +53,22 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 	_exit(0);
 }
 
-static void stress_rmap_touch(uint32_t *ptr, const size_t sz)
+static void OPTIMIZE3 stress_rmap_touch(uint32_t *addr, const size_t sz)
 {
-	const uint32_t *end = (uint32_t *)((uintptr_t)ptr + sz);
-	static uint32_t val = 0;
+	static uint32_t val = ~0;
 	register const size_t inc = 64 >> 2; /* sizeof(*ptr) */
+	register uint32_t *ptr = addr;
+	register const uint32_t *end = (uint32_t *)((uintptr_t)ptr + sz);
+	register uint32_t v = val;
 
-	while (ptr < end) {
-		/* Bump val, never fill memory with non-zero val */
-		val++;
-		val = val ? val : 1;
-
-		*ptr = val;
+	while (LIKELY(keep_stressing_flag() && (ptr < end))) {
+		*ptr = v;
 		ptr += inc;
+		/* Bump val, never fill memory with zero val */
+		v++;
+		v = v ? v : 1;
 	}
+	val = v;
 }
 
 static void NORETURN stress_rmap_child(
