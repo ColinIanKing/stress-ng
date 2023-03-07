@@ -59,14 +59,20 @@ static int efi_mode = STRESS_EFI_UNKNOWN;
  */
 static inline bool efi_var_ignore(char *d_name)
 {
-	if (*d_name == '.')
-		return true;
-	if (strcmp(d_name, "del_var") == 0)
-		return true;
-	if (strcmp(d_name, "new_var") == 0)
-		return true;
-	if (strstr(d_name, "MokListRT"))
-		return true;
+	static const char * const ignore[] = {
+		".",
+		"..",
+		"del_var",
+		"new_var",
+		"MokListRT",
+	};
+
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(ignore); i++)
+		if (strcmp(d_name, ignore[i]) == 0)
+			return true;
+
 	return false;
 }
 
