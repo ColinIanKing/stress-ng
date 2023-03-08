@@ -719,11 +719,18 @@ static void random_buffer(uint8_t *data, const size_t len)
 static void OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
 {
 	register uint64_t n = 989345275647ULL;	/* Has 1348 steps in cycle */
+	register uint64_t s = stress_mwc8();
 	register int i;
 
+	/*
+	 *  We need to put in the accumulation of s to force the compiler
+	 *  to generate code that does the following computation at run time.
+	 */
 	for (i = 0; n != 1; i++) {
 		n = (n & 1) ? (3 * n) + 1 : n / 2;
+		s += n;		/* Force compiler to do iterative computations */
 	}
+	stress_uint64_put(s);
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i != 1348))
 		pr_fail("%s: error detected, failed collatz progression\n",
 			name);
