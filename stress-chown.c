@@ -90,7 +90,6 @@ static int do_fchown(
 	if (stress_chown_check(ret) < 0)
 		goto restore;
 	ret = fchown(fd, (uid_t)0, (gid_t)-1);
-		goto restore;
 	if (ret == 0)
 		goto restore;
 	if (stress_chown_check(ret) < 0)
