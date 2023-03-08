@@ -40,10 +40,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if (((defined(__GNUC__) || defined(__clang__)) && 	\
        defined(STRESS_ARCH_X86)) ||			\
      (defined(__GNUC__) && 				\
-      defined(HAVE_ATOMIC_ADD_FETCH) &&			\
+      (defined(HAVE_ATOMIC_ADD_FETCH) ||		\
+       defined(HAVE_ATOMIC_FETCH_ADD)) &&		\
       defined(__ATOMIC_SEQ_CST) &&			\
       NEED_GNUC(4,7,0) && 				\
-      defined(STRESS_ARCH_ARM)))
+      (defined(STRESS_ARCH_ARM) ||			\
+       defined(STRESS_ARCH_RISCV)) ))
 
 #if defined(HAVE_ATOMIC_ADD_FETCH)
 #define MEM_LOCK(ptr, inc)				\
