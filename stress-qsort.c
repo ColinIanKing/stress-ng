@@ -327,7 +327,7 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 #if defined(MAP_POPULATE)
 	mmap_flags |= MAP_POPULATE;
 #endif
-	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
+	data = (int32_t *)mmap(NULL, data_size, PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: mmap failed allocating %zd 32 bit integers, errno=%d (%s), "
 			"skipping stressor\n", args->name, n, errno, strerror(errno));
