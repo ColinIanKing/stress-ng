@@ -2010,7 +2010,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
  */
 static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 {
-	long double omega = 0.5L, last_omega = 0.0L;
+	long double omega = 0.5 + ((double)stress_mwc16() * 1.0E-9), last_omega = 0.0L;
 	const long double precision = 1.0e-20L;
 	const int max_iter = 6;
 	int n = 0;
