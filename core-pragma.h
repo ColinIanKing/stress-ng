@@ -45,7 +45,7 @@
 #endif
 
 #if defined(__clang__) &&	\
-    NEED_CLANG(4, 0, 0) &&	\
+    NEED_CLANG(8, 0, 0) &&	\
     defined(HAVE_PRAGMA)
 #define STRESS_PRAGMA_WARN_CPP_OFF	_Pragma("GCC diagnostic ignored \"-Wcpp\"")
 #elif defined(__GNUC__) &&	\
