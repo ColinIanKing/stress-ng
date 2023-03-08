@@ -655,7 +655,8 @@ reap:
 	stress_metrics_set(args, 0, "nanosecs to start a pthread", average * STRESS_DBL_NANOSECOND);
 	snprintf(msg, sizeof(msg), "%% of %" PRIu64 " pthreads created",
 		pthread_max * args->num_instances);
-	stress_metrics_set(args, 1, msg, 100.0 * (double)(attempted - limited) / (double)attempted);
+	if (attempted > 0)
+		stress_metrics_set(args, 1, msg, 100.0 * (double)(attempted - limited) / (double)attempted);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
