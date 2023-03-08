@@ -547,11 +547,6 @@ static int stress_list(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sighandler(args->name, SIGALRM, stress_list_handler, &old_action) < 0) {
-		free(entries);
-		return EXIT_FAILURE;
-	}
-
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -559,6 +554,10 @@ static int stress_list(const stress_args_t *args)
 		 */
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
+	}
+	if (stress_sighandler(args->name, SIGALRM, stress_list_handler, &old_action) < 0) {
+		free(entries);
+		return EXIT_FAILURE;
 	}
 
 	v = 0;

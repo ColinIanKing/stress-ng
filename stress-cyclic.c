@@ -770,12 +770,12 @@ again:
 		(void)setrlimit(RLIMIT_RTTIME, &rlim);
 #endif
 
-		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
-			goto tidy;
-
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret)
 			goto tidy_ok;
+
+		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+			goto tidy;
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)

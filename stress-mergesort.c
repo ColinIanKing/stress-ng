@@ -102,14 +102,6 @@ static int stress_mergesort(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-#if !defined(__OpenBSD__) &&	\
-    !defined(__NetBSD__)
-	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
-		free(data);
-		return EXIT_FAILURE;
-	}
-#endif
-
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -118,6 +110,15 @@ static int stress_mergesort(const stress_args_t *args)
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
+
+
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__)
+	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
+		free(data);
+		return EXIT_FAILURE;
+	}
+#endif
 
 	stress_sort_data_int32_init(data, n);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
