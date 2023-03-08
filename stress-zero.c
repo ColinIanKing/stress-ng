@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"zero N",	"start N workers reading /dev/zero" },
 	{ NULL,	"zero-ops N",	"stop after N /dev/zero bogo read operations" },
@@ -189,6 +193,21 @@ static int stress_zero(const stress_args_t *args)
 			VOID_RET(int, ioctl(fd, FIONBIO, &opt));
 			opt = 0;
 			VOID_RET(int, ioctl(fd, FIONBIO, &opt));
+		}
+#endif
+#if defined(FIONREAD)
+		{
+			int isz = 0;
+
+			/* Should be inappropriate ioctl */
+			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+		}
+#endif
+#if defined(FIGETBSZ)
+		{
+			int isz = 0;
+
+			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
 		}
 #endif
 
