@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"full N",	"start N workers exercising /dev/full" },
 	{ NULL, "full-ops N",	"stop after N /dev/full bogo I/O operations" },
@@ -162,6 +166,25 @@ try_read:
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
+
+		/*
+		 *  Exercise a couple of ioctls
+		 */
+#if defined(FIONREAD)
+		{
+			int isz = 0;
+
+			/* Should be inappropriate ioctl */
+			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+		}
+#endif
+#if defined(FIGETBSZ)
+		{
+			int isz = 0;
+
+			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
+		}
+#endif
 		(void)close(fd);
 		inc_counter(args);
 	} while (keep_stressing(args));
