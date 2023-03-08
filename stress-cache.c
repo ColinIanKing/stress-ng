@@ -883,10 +883,10 @@ static int stress_cache(const stress_args_t *args)
 			cache_mixed_ops_funcs[flags](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
 			break;
 		case STRESS_CACHE_READ:
-			stress_cache_read(args, mem_cache, mem_cache_size, inc, &i, &j, &metrics[STRESS_CACHE_READ]);
+			stress_cache_read(args, mem_cache, mem_cache_size, inc, &i, &k, &metrics[STRESS_CACHE_READ]);
 			break;
 		case STRESS_CACHE_WRITE:
-			stress_cache_write(args, mem_cache, mem_cache_size, inc, &i, &j, &metrics[STRESS_CACHE_WRITE]);
+			stress_cache_write(args, mem_cache, mem_cache_size, inc, &i, &k, &metrics[STRESS_CACHE_WRITE]);
 			break;
 		}
 		r++;
