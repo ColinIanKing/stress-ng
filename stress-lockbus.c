@@ -50,6 +50,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 do {							\
 	 __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);\
 } while (0)
+#elif defined(HAVE_ATOMIC_FETCH_ADD)
+#define MEM_LOCK(ptr, inc)				\
+do {							\
+	 __atomic_fetch_add(ptr, inc, __ATOMIC_SEQ_CST);\
+} while (0)
 #else
 #define MEM_LOCK(ptr, inc)				\
 do {							\
