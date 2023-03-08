@@ -1377,12 +1377,19 @@ static void stress_cpu_ackermann(const char *name)
 static void HOT OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
 {
 	uint32_t i;
-	double n = 1e6;
+	double n = 1e6 + (double)stress_mwc8();
+	double m = 0.0;
 
 	(void)name;
 
-	for (i = 1; LIKELY(i < 100000); i++)
-		n = shim_exp(shim_log(n) / 1.00002);
+	for (i = 1; LIKELY(i < 100000); i++) {
+		n = shim_log(n) / 1.00002;
+		m += n;
+		n = shim_exp(n);
+		m += n;
+	}
+	stress_double_put(m);
+	stress_double_put(n);
 }
 
 /*
