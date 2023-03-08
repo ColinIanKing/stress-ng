@@ -152,8 +152,8 @@ static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 			}
 		}
 		if (data.length != sizeof(data)) {
-			pr_fail("%s: pipe read of %zd bytes, wrong size detected, got %" PRIu64
-				", expected %" PRIu64 "\n", args->name,
+			pr_fail("%s: pipe read of %zu bytes, wrong size detected, got %" PRIu64
+				", expected %zu\n", args->name,
 				n, data.length, sizeof(data));
 		}
 		if (data.counter != counter) {
