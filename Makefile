@@ -46,7 +46,7 @@ endif
 #
 MACHINE = $(shell uname -m)
 ifneq ($(PRESERVE_CFLAGS),1)
-ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisci ia64))
+ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
 ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
 CFLAGS += -fstack-protector-strong
 endif
