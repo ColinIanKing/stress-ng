@@ -334,11 +334,6 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sighandler(args->name, SIGALRM, stress_qsort_handler, &old_action) < 0) {
-		free(data);
-		return EXIT_FAILURE;
-	}
-
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
@@ -347,6 +342,12 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
+
+	if (stress_sighandler(args->name, SIGALRM, stress_qsort_handler, &old_action) < 0) {
+		free(data);
+		return EXIT_FAILURE;
+	}
+
 
 	stress_sort_data_int32_init(data, n);
 
