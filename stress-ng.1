@@ -257,10 +257,14 @@ specify a range of NUMA nodes using '-', for example: \-\-mbind 0,2-3,6,7-11
 .TP
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes.
-Note that these are not a reliable metric of performance or throughput and
-have not been designed to be used for benchmarking whatsoever. The metrics are
-just a useful way to observe how a system behaves when under various kinds of
-load.
+Note that these are
+.B not a reliable metric of performance or throughput
+and
+.B
+have not been designed to be used for benchmarking whatsoever.
+Some stressors have additional metrics that are more useful than bogo-ops, and
+these are generally more useful for observing how a system behaves when under
+various kinds of load.
 .RS
 .PP
 The following columns of information are output:
@@ -274,6 +278,8 @@ bogo ops
 T}	T{
 number of iterations of the stressor during the run. This is metric of
 how much overall "work" has been achieved in bogo operations.
+.B
+Do not use this as a reliable measure of throughput for benchmarking.
 T}
 T{
 real time (secs)
