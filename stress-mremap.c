@@ -301,7 +301,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		ptr = mremap(buf, old_sz, old_sz, ~0);
 		if (ptr && ptr != MAP_FAILED)
 			buf = ptr;
-		ptr = mremap(buf, old_sz, old_sz, MREMAP_FIXED | MREMAP_MAYMOVE, NULL);
+		ptr = mremap(buf, old_sz, old_sz, MREMAP_FIXED | MREMAP_MAYMOVE, (void *)~(uintptr_t)0);
 		if (ptr && ptr != MAP_FAILED)
 			buf = ptr;
 #if defined(MREMAP_MAYMOVE)
