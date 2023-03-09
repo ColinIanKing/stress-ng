@@ -165,7 +165,7 @@ static void stress_pthread_tid_address(const stress_args_t *args)
     defined(HAVE_SYSCALL)
 	__kernel_ulong_t tid_addr = 0;
 
-	if (prctl(PR_GET_TID_ADDRESS, &tid_addr) == 0) {
+	if (prctl(PR_GET_TID_ADDRESS, &tid_addr, 0, 0, 0) == 0) {
 		if (tid_addr) {
 			pid_t tid1, tid2;
 
@@ -205,7 +205,7 @@ static void *stress_pthread_func(void *parg)
 #endif
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
-	struct robust_list_head *head;
+	struct robust_list_head *head, new_head;
 	size_t len;
 #endif
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
@@ -228,21 +228,27 @@ static void *stress_pthread_func(void *parg)
 		}
 	} else {
 #if defined(HAVE_SET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H) && 0
-		/* Currently disabled, valgrind complains that head is out of range */
-		if (sys_set_robust_list(head, len) < 0) {
-			if (errno != ENOSYS) {
-				pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
-					args->name, (int)tid, errno, strerror(errno));
-				goto die;
+    defined(HAVE_LINUX_FUTEX_H)
+		if (len > 0) {
+			(void)memcpy(&new_head, head, len);
+
+			/* Currently disabled, valgrind complains that head is out of range */
+			if (sys_set_robust_list(&new_head, len) < 0) {
+				if (errno != ENOSYS) {
+					pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
+						args->name, (int)tid, errno, strerror(errno));
+						goto die;
+				}
 			}
+
+			/* Exercise invalid zero length */
+			VOID_RET(long, sys_set_robust_list(&new_head, 0));
+
+#if 0
+			/* Exercise invalid length */
+			VOID_RET(long, sys_set_robust_list(new_head, (size_t)-1));
+#endif
 		}
-
-		/* Exercise invalid zero length */
-		VOID_RET(long, sys_set_robust_list(head, 0));
-
-		/* Exercise invalid length */
-		VOID_RET(long, sys_set_robust_list(head, (size_t)-1));
 #endif
 	/*
 	 *  Check get_robust_list with an invalid PID
