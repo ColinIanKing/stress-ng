@@ -59,7 +59,7 @@
 #if defined(__ICC) &&			\
     defined(__INTEL_COMPILER) &&	\
     defined(__INTEL_COMPILER_UPDATE)
-#define PRAGMA_UNROLL_N(n)	STRESS_PRAGMA(unroll n)
+#define PRAGMA_UNROLL_N(n)	STRESS_PRAGMA(unroll)
 #define PRAGMA_UNROLL		STRESS_PRAGMA(unroll)
 #elif defined(__clang__) &&       \
     NEED_CLANG(9, 0, 0)
