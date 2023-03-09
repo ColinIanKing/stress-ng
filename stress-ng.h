@@ -528,7 +528,8 @@ typedef struct stressor_info {
 
 #if defined(HAVE_ATTRIBUTE_FAST_MATH) &&		\
     defined(__GNUC__) &&				\
-    NEED_GNUC(10, 0, 0)
+    NEED_GNUC(10, 0, 0) &&				\
+    !defined(__INTEL_COMPILER)
 #define OPTIMIZE_FAST_MATH __attribute__((optimize("fast-math")))
 #else
 #define OPTIMIZE_FAST_MATH
