@@ -518,3 +518,24 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
 bugs or performance regressions found with stress-ng.
+
+## Contributors
+
+Many thanks to the following contributors to stress-ng (in alphabetical order):
+
+Abdul Haleem, Aboorva Devarajan, Adriand Martin, Adrian Ratiu,
+Aleksandar N. Kostadinov, Alexander Kanavin, Alexandru Ardelean,
+Alfonso Sánchez-Beato, Allen H, André Wild, Anton Eliasson,
+Arjan van de Ven, Baruch Siach, Bryan W. Lewis, Camille Constans,
+Carlos Santos, Christian Ehrhardt, Christopher Brown, Chunyu Hu,
+Danilo Krummrich, Davidson Francis, David Turner, Dominik B Czarnota,
+Dorinda Bassey, Eric Lin, Erik Stahlman, Fabien Malfoy, Fabrice Fontaine,
+Florian Weimer, Francis Laniel, Guilherme Janczak, Iyán Méndez Veiga,
+James Hunt, Jan Luebbe, Jianshen Liu, John Kacur, Jules Maselbas,
+Julien Olivain, Kenny Gong, Khalid Elmously, Khem Raj, Luca Pizzamiglio,
+Luis Henriques, Matthew Tippett, Mauricio Faria de Oliveira,
+Maxime Chevallier, Maya Rashish, Mayuresh Chitale, Meysam Azad,
+Mike Koreneff, Nick Hanley, Paul Menzel, Piyush Goyal, Ralf Ramsauer,
+Rosen Penev, Siddhesh Poyarekar, Thadeu Lima de Souza Cascardo,
+Thia Wyrod, Thinh Tran, Tim Gardner, Tim Gates, Tim Orling,
+Tommi Rantala, Witold Baryluk, Yong-Xuan Wang, Zhiyi Sun.
