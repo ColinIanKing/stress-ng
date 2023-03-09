@@ -228,7 +228,8 @@ static void *stress_pthread_func(void *parg)
 		}
 	} else {
 #if defined(HAVE_SET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H)
+    defined(HAVE_LINUX_FUTEX_H) && 0
+		/* Currently disabled, valgrind complains that head is out of range */
 		if (sys_set_robust_list(head, len) < 0) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
