@@ -14,7 +14,7 @@ the various operating system kernel interfaces. Stress-ng features:
     OpenSUSE, Ubuntu, etc..), Solaris, FreeBSD, NetBSD, OpenBSD, DragonFlyBSD,
     Minix, Android, MacOS X, Serenity OS, GNU/Hurd, Haiku, Windows Subsystem
     for Linux and SunOs/Dilos/Solaris.
-    with gcc, clang, icc, tcc and pcc.
+    with gcc, musl-gcc, clang, icc, icx, tcc and pcc.
   * tested on alpha, armel, armhf, arm64, hppa, i386, m68k, mips32, mips64,
     power32, ppc64el, risc-v, sh4, s390x, sparc64, x86-64
 
@@ -269,10 +269,16 @@ To build with the musl C library:
 	CC=musl-gcc make
 ```
 
-To build with the Intel C compiler use:
+To build with the Intel C compiler icc use:
 ```
 	make clean
 	CC=icc make
+```
+
+To build with the Intel C compiler icx use:
+```
+	make clean
+	CC=icx make
 ```
 
 ## Contributing to stress-ng:
