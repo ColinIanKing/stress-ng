@@ -2991,6 +2991,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	void *buf = NULL, *buf_end = NULL;
 	int vm_flags = 0;                      /* VM mmap flags */
 	int vm_madvise = -1;
+	int rc = EXIT_SUCCESS;
 	size_t buf_sz;
 	size_t vm_bytes = DEFAULT_VM_BYTES;
 	const size_t page_size = args->page_size;
@@ -3016,8 +3017,9 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-			pr_err("%s: gave up trying to mmap, no available memory\n",
+			pr_inf_skip("%s: gave up trying to mmap, no available memory, skipping stressor\n",
 				args->name);
+			rc = EXIT_NO_RESOURCE;
 			break;
 		}
 		if (!vm_keep || (buf == NULL)) {
@@ -3065,7 +3067,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	if (vm_keep && buf != NULL)
 		(void)munmap((void *)buf, buf_sz);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
