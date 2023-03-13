@@ -33,9 +33,6 @@
 #define MAX_VM_HANG		(3600)
 #define DEFAULT_VM_HANG		(~0ULL)
 
-/* Large prime to stride around large VM regions */
-#define PRIME_64		(0x8f0000000017116dULL)
-
 /* For testing, set this to 1 to simulate random memory errors */
 #define INJECT_BIT_ERRORS	(0)
 
@@ -856,7 +853,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	static uint8_t val = 0;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
-	const uint64_t prime = PRIME_64;
+	const uint64_t prime = stress_get_prime64(sz);
 	uint64_t j, c = get_counter(args);
 
 #if SIZE_MAX > UINT32_MAX
@@ -1607,7 +1604,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	volatile uint8_t *ptr = buf;
 	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = PRIME_64;
+	const uint64_t prime = stress_get_prime64(sz);
 	uint64_t k, c = get_counter(args);
 
 	(void)buf_end;
@@ -1616,7 +1613,6 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	if (sz > (1ULL << 63))
 		return 0;
 #endif
-
 	(void)memset(buf, 0xff, sz);
 
 	for (j = 0; j < 8; j++) {
@@ -1668,7 +1664,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	volatile uint8_t *ptr = buf;
 	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = PRIME_64;
+	const uint64_t prime = stress_get_prime64(sz);
 	uint64_t k, c = get_counter(args);
 
 	(void)buf_end;
@@ -1730,7 +1726,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	volatile uint8_t *ptr = buf;
 	uint8_t *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = PRIME_64;
+	const uint64_t prime = stress_get_prime64(sz);
 	uint64_t j, c = get_counter(args);
 
 	(void)buf_end;
@@ -1801,7 +1797,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	volatile uint8_t *ptr = buf;
 	uint8_t *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = PRIME_64;
+	const uint64_t prime = stress_get_prime64(sz);
 	uint64_t j, c = get_counter(args);
 
 	(void)buf_end;
