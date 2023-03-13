@@ -853,7 +853,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	static uint8_t val = 0;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
-	const uint64_t prime = stress_get_prime64(sz);
+	const uint64_t prime = stress_get_prime64(sz + 4096);
 	uint64_t j, c = get_counter(args);
 
 #if SIZE_MAX > UINT32_MAX
@@ -878,7 +878,9 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	 *  memory and cache stalls
 	 */
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
-		ptr[j % sz] -= val;
+		while (j >= sz)
+			j -= sz;
+		ptr[j] -= val;
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			return 0;
@@ -1604,7 +1606,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	volatile uint8_t *ptr = buf;
 	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = stress_get_prime64(sz);
+	const uint64_t prime = stress_get_prime64(sz + 4096);
 	uint64_t k, c = get_counter(args);
 
 	(void)buf_end;
@@ -1624,7 +1626,9 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 		 *  memory and cache stalls
 		 */
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
-			ptr[k % sz] &= mask;
+			while (k >= sz)
+				k -= sz;
+			ptr[k] &= mask;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
@@ -1664,7 +1668,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	volatile uint8_t *ptr = buf;
 	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = stress_get_prime64(sz);
+	const uint64_t prime = stress_get_prime64(sz + 4096);
 	uint64_t k, c = get_counter(args);
 
 	(void)buf_end;
@@ -1685,7 +1689,9 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 		 *  memory and cache stalls
 		 */
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
-			ptr[k % sz] |= mask;
+			while (k >= sz)
+				k =- sz;
+			ptr[k] |= mask;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
@@ -1726,7 +1732,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	volatile uint8_t *ptr = buf;
 	uint8_t *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = stress_get_prime64(sz);
+	const uint64_t prime = stress_get_prime64(sz + 4096);
 	uint64_t j, c = get_counter(args);
 
 	(void)buf_end;
@@ -1744,7 +1750,9 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		ptr[j % sz] &= ((i >> 1) ^ i);
+		while (j >= sz)
+			j -= sz;
+		ptr[j] &= ((i >> 1) ^ i);
 		if (!keep_stressing_flag())
 			goto abort;
 		c++;
@@ -1757,7 +1765,9 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		ptr[j % sz] &= ~((i >> 1) ^ i);
+		while (j >= sz)
+			j -= sz;
+		ptr[j] &= ~((i >> 1) ^ i);
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
@@ -1797,7 +1807,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	volatile uint8_t *ptr = buf;
 	uint8_t *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = stress_get_prime64(sz);
+	const uint64_t prime = stress_get_prime64(sz + 4096);
 	uint64_t j, c = get_counter(args);
 
 	(void)buf_end;
@@ -1815,7 +1825,9 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		ptr[j % sz] |= ((i >> 1) ^ i);
+		while (j >= sz)
+			j -= sz;
+		ptr[j] |= ((i >> 1) ^ i);
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
@@ -1829,7 +1841,9 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		ptr[j % sz] |= ~((i >> 1) ^ i);
+		while (j >= sz)
+			j -= sz;
+		ptr[j] |= ~((i >> 1) ^ i);
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
