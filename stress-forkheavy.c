@@ -243,6 +243,11 @@ static int stress_forkheavy(const stress_args_t *args)
 	stress_forkheavy_args_t forkheavy_args;
 	size_t shmall, freemem, totalmem, freeswap, totalswap, min_mem_free;
 
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
+
 	resources = malloc(num_resources * sizeof(*resources));
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",

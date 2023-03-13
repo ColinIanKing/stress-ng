@@ -61,6 +61,11 @@ static int stress_resources(const stress_args_t *args)
 	const size_t num_resources = MAX_LOOPS;
 	pid_t *pids;
 
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
+
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 	min_mem_free = (freemem / 100) * 2;
 	if (min_mem_free < MIN_MEM_FREE)

@@ -19,10 +19,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_MALLOC_H)
-#include <malloc.h>
-#endif
-
 #define MIN_BIGHEAP_GROWTH	(4 * KB)
 #define MAX_BIGHEAP_GROWTH	(64 * MB)
 #define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
@@ -88,15 +84,6 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		if (!keep_stressing(args))
 			goto finish;
 
-		/* Low memory avoidance, re-start */
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory((size_t)bigheap_growth)) {
-			free(old_ptr);
-#if defined(HAVE_MALLOC_TRIM)
-			(void)malloc_trim(0);
-#endif
-			old_ptr = 0;
-			size = 0;
-		}
 		size += (size_t)bigheap_growth;
 
 		t = stress_time_now();
@@ -163,6 +150,11 @@ finish:
  */
 static int stress_bigheap(const stress_args_t *args)
 {
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
+
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }
 

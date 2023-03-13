@@ -134,10 +134,6 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 		uint8_t *ptr;
 		double t;
 
-		/* Low memory avoidance, re-start */
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
-			VOID_RET(int, shim_brk(start_ptr));
-
 		i++;
 		if (LIKELY(i < 8)) {
 			/* Expand brk by 1 page */
@@ -207,6 +203,11 @@ static int stress_brk(const stress_args_t *args)
 {
 	int rc;
 	brk_context_t brk_context;
+
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
 
 	brk_context.brk_mlock = false;
 	brk_context.brk_notouch = false;

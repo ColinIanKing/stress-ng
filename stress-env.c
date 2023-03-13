@@ -169,6 +169,11 @@ reap:
  */
 static int stress_env(const stress_args_t *args)
 {
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
+
 	return stress_oomable_child(args, NULL, stress_env_child, STRESS_OOMABLE_DROP_CAP | STRESS_OOMABLE_QUIET);
 }
 

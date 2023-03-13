@@ -117,9 +117,6 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 				flags |= (stress_mwc1() ? MAP_PRIVATE : MAP_SHARED);
 				flags |= stress_mmap_settings[idx].flags;
 
-				if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
-					break;
-
 				bufs[i].sz = sz;
 				buf = (uint8_t *)mmap(NULL, sz,
 							PROT_READ | PROT_WRITE,
@@ -202,6 +199,11 @@ static int stress_mmaphuge(const stress_args_t *args)
 	stress_mmaphuge_context_t ctxt;
 
 	int ret;
+
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
 
 	ctxt.mmaphuge_mmaps = MAX_MMAP_BUFS;
 	(void)stress_get_setting("mmaphuge-mmaps", &ctxt.mmaphuge_mmaps);

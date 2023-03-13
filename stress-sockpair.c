@@ -308,6 +308,11 @@ static int stress_sockpair(const stress_args_t *args)
 {
 	int rc;
 
+	if (g_opt_flags & OPT_FLAGS_OOM_AVOID) {
+		pr_dbg("The test case stress-ng-%s is skipped because of the parameter --oom-avoid\n", args->name);
+		return EXIT_SUCCESS;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
