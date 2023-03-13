@@ -113,15 +113,19 @@ static uint64_t stress_memrate_loops(
 {
 	uint64_t chunk_shift = 20;	/* 1 MB */
 	uint64_t bytes = context->memrate_bytes;
+	uint64_t best_fit = bytes / size;
 
 	/* check for powers of 2 size, from 1MB down to 1K */
 	for (chunk_shift = 20; chunk_shift >= 10; chunk_shift--) {
 		if (((bytes >> chunk_shift) << chunk_shift) == bytes) {
-			return 1ULL << chunk_shift;
+			uint64_t n = 1ULL << chunk_shift;
+
+			if (n <= best_fit)
+				return n;
 		}
 	}
 	/* best fit on non-power of 2 */
-	return bytes / size;
+	return best_fit;
 }
 
 static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *context)
@@ -141,9 +145,9 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	bool *valid)						\
 {								\
 	register type *ptr;					\
+	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
-	type v;							\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 								\
@@ -200,15 +204,15 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	bool *valid)						\
 {								\
 	register type *ptr;					\
+	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
-	type v;							\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
 	double t1, total_dur = 0.0;				\
 	const double dur = (double)loop_size / 			\
-		(MB * (double)context->memrate_wr_mbs);		\
+		(MB * (double)context->memrate_rd_mbs);		\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
@@ -304,6 +308,73 @@ STRESS_MEMRATE_READ(64pf, uint64_t, shim_builtin_prefetch)
 STRESS_MEMRATE_READ_RATE(64pf, uint64_t, shim_builtin_prefetch)
 #endif
 
+static uint64_t stress_memrate_memset(
+	const stress_memrate_context_t *context,
+	bool *valid)
+{
+	const size_t size = context->memrate_bytes;
+
+	(void)memset(context->start, 0xaa, size);
+
+	*valid = true;
+	return (uint64_t)size / KB;
+}
+
+static uint64_t stress_memrate_memset_rate(
+	const stress_memrate_context_t *context,
+	bool *valid)
+{
+	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	const size_t size = end - start;
+	const size_t chunk_size = (size > MB) ? MB : size;
+	register uint8_t *ptr;
+	double t1, t2, total_dur = 0.0, dur_remainder;
+	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);
+
+	t1 = stress_time_now();
+	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) < end; ptr += chunk_size) {
+		(void)memset(ptr, 0xaa, chunk_size);
+
+		t2 = stress_time_now();
+		total_dur += dur;
+		dur_remainder = total_dur - (t2 - t1);
+
+		if (dur_remainder >= 0.0) {
+			struct timespec t;
+			time_t sec = (time_t)dur_remainder;
+
+			t.tv_sec = sec;
+			t.tv_nsec = (long)((dur_remainder -
+				(double)sec) *
+				STRESS_NANOSECOND);
+			(void)nanosleep(&t, NULL);
+		}
+	}
+
+	if (end - ptr > 0) {
+		(void)memset(ptr, 0xaa, end - ptr);
+		t2 = stress_time_now();
+		total_dur += dur;
+		dur_remainder = total_dur - (t2 - t1);
+
+		if (dur_remainder >= 0.0) {
+			struct timespec t;
+			time_t sec = (time_t)dur_remainder;
+
+			t.tv_sec = sec;
+			t.tv_nsec = (long)((dur_remainder -
+				(double)sec) *
+				STRESS_NANOSECOND);
+			(void)nanosleep(&t, NULL);
+		}
+		ptr = end;
+	}
+
+	*valid = true;
+	return ((uintptr_t)ptr - (uintptr_t)start) / KB;
+}
+
 #define STRESS_MEMRATE_WRITE(size, type)			\
 static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	const stress_memrate_context_t *context,		\
@@ -393,10 +464,10 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	register uint8_t *ptr;
 	double t1, t2, total_dur = 0.0, dur_remainder;
-	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);	
+	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);
 
 	t1 = stress_time_now();
-	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) > end; ptr += chunk_size) {
+	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) < end; ptr += chunk_size) {
 		func((void *)ptr, loops);
 
 		t2 = stress_time_now();
@@ -587,7 +658,7 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
-	double t1, total_dur = 0.0 ;				\
+	double t1, total_dur = 0.0;				\
 	const double dur = (double)loop_size / 			\
 		(MB * (double)context->memrate_wr_mbs);		\
 								\
@@ -652,6 +723,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	bool *valid)						\
 {								\
 	register type *ptr;					\
+	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	const uint64_t loops = 					\
@@ -662,6 +734,8 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 		return 0;					\
 	}							\
 								\
+	(void)memset(&v, 0xaa, sizeof(v));			\
+								\
 	for (ptr = start; ptr < (type *)end;) {			\
 		uint32_t i;					\
 								\
@@ -671,7 +745,6 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			register type *vptr = (type *)ptr;	\
-			register type v = (type)i;		\
 								\
 			op(vptr + 0, v);			\
 			op(vptr + 1, v);			\
@@ -701,6 +774,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	bool *valid)						\
 {								\
 	register type *ptr;					\
+	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	const uint64_t loops = 					\
@@ -715,6 +789,8 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 		return 0;					\
 	}							\
 								\
+	(void)memset(&v, 0xaa, sizeof(v));			\
+								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
 		double t2, dur_remainder;			\
@@ -726,7 +802,6 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			register type *vptr = (type *)ptr;	\
-			register type v = (type)i;		\
 								\
 			op(vptr + 0, v);			\
 			op(vptr + 1, v);			\
@@ -841,6 +916,7 @@ static stress_memrate_info_t memrate_info[] = {
 	{ "write32",	MR_WR, stress_memrate_write32,		stress_memrate_write_rate32 },
 	{ "write16",	MR_WR, stress_memrate_write16,		stress_memrate_write_rate16 },
 	{ "write8",	MR_WR, stress_memrate_write8,		stress_memrate_write_rate8 },
+	{ "memset",	MR_WR, stress_memrate_memset,		stress_memrate_memset_rate },
 #if defined(HAVE_BUILTIN_PREFETCH)
 	{ "read64pf",	MR_RD, stress_memrate_read64pf,		stress_memrate_read_rate64pf },
 #endif

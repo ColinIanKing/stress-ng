@@ -457,7 +457,7 @@ typedef struct {
 	void *page_wo;			/* mmap'd PROT_WO page */
 } stress_mapped_t;
 
-#define STRESS_MISC_METRICS_MAX	(24)
+#define STRESS_MISC_METRICS_MAX	(28)
 
 typedef struct {
 	void *lock;			/* optional lock */
