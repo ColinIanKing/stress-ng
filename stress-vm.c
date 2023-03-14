@@ -269,6 +269,17 @@ static inline void inject_random_bit_errors(uint8_t *buf, const size_t sz)
 }
 #endif
 
+/*
+ *  compute a % b where b is normally just larger than b, so we 
+ *  need to do a - b once and occassionally just twice. Use repeated
+ *  subtraction since this is faster than %
+ */
+static inline OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)
+{
+	while (LIKELY(a >= b))
+		a -= b;
+	return a;
+}
 
 /*
  *  stress_vm_check()
@@ -878,8 +889,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	 *  memory and cache stalls
 	 */
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
-		while (j >= sz)
-			j -= sz;
+		j = stress_vm_mod(j, sz);
 		ptr[j] -= val;
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1626,8 +1636,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 		 *  memory and cache stalls
 		 */
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
-			while (k >= sz)
-				k -= sz;
+			k = stress_vm_mod(k, sz);
 			ptr[k] &= mask;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1689,8 +1698,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 		 *  memory and cache stalls
 		 */
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
-			while (k >= sz)
-				k =- sz;
+			k = stress_vm_mod(k, sz);
 			ptr[k] |= mask;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1750,8 +1758,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		while (j >= sz)
-			j -= sz;
+		j = stress_vm_mod(j, sz);
 		ptr[j] &= ((i >> 1) ^ i);
 		if (!keep_stressing_flag())
 			goto abort;
@@ -1765,8 +1772,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		while (j >= sz)
-			j -= sz;
+		j = stress_vm_mod(j, sz);
 		ptr[j] &= ~((i >> 1) ^ i);
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1825,8 +1831,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		while (j >= sz)
-			j -= sz;
+		j = stress_vm_mod(j, sz);
 		ptr[j] |= ((i >> 1) ^ i);
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1841,8 +1846,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		 *  in a totally sub-optimal way to exercise
 		 *  memory and cache stalls
 		 */
-		while (j >= sz)
-			j -= sz;
+		j = stress_vm_mod(j, sz);
 		ptr[j] |= ~((i >> 1) ^ i);
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
