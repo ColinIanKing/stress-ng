@@ -49,6 +49,8 @@ typedef int8_t stress_vint8w256_t	__attribute__ ((vector_size(256 / 8)));
 typedef int8_t stress_vint8w128_t	__attribute__ ((vector_size(128 / 8)));
 #endif
 
+static sigjmp_buf jmpbuf;
+
 typedef struct {
 	double		duration;
 	double		kbytes;
@@ -102,6 +104,12 @@ static int stress_set_memrate_wr_mbs(const char *opt)
 	stress_check_range_bytes("memrate-wr-mbs", memrate_wr_mbs,
 		1, 1000000);
 	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
+}
+
+static void NORETURN MLOCKED_TEXT stress_memrate_alarm_handler(int signum)
+{
+        (void)signum;
+        siglongjmp(jmpbuf, 1);
 }
 
 static int stress_set_memrate_flush(const char *opt)
@@ -159,8 +167,6 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 		register type *read_end = (type *)		\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
-		if (!keep_stressing_flag())			\
-			break;					\
 		while (ptr < read_end) {			\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
 			v = *(volatile type *)&ptr[0];		\
@@ -226,8 +232,6 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 		register type *read_end = (type *)		\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
-		if (!keep_stressing_flag())			\
-			break;					\
 		while (ptr < read_end) {			\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
 			v = *(volatile type *)&ptr[0];		\
@@ -339,7 +343,7 @@ static uint64_t stress_memrate_memset_rate(
 	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);
 
 	t1 = stress_time_now();
-	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) < end; ptr += chunk_size) {
+	for (ptr = start; (ptr + chunk_size) < end; ptr += chunk_size) {
 		(void)memset(ptr, 0xaa, chunk_size);
 
 		t2 = stress_time_now();
@@ -405,8 +409,6 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 		register type *write_end = (type *)		\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
-		if (!keep_stressing_flag())			\
-			break;					\
 		while (ptr < write_end) {			\
 			ptr[0] = v;				\
 			ptr[1] = v;				\
@@ -449,7 +451,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	uint32_t loops = (uint32_t)(chunk_size / wr_size);
 	register uint8_t *ptr;
 
-	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) < end; ptr += chunk_size) {
+	for (ptr = start; (ptr + chunk_size) < end; ptr += chunk_size) {
 		func((void *)ptr, loops);
 	}
 	/* And any residual less than chunk_size .. */
@@ -479,7 +481,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	const double dur = (double)chunk_size / (MB * (double)context->memrate_wr_mbs);
 
 	t1 = stress_time_now();
-	for (ptr = start; keep_stressing_flag() && (ptr + chunk_size) < end; ptr += chunk_size) {
+	for (ptr = start; (ptr + chunk_size) < end; ptr += chunk_size) {
 		func((void *)ptr, loops);
 
 		t2 = stress_time_now();
@@ -496,8 +498,6 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 				STRESS_NANOSECOND);
 			(void)nanosleep(&t, NULL);
 		}
-		if (!keep_stressing_flag())
-			break;
 	}
 
 	/* And any residual less than chunk_size .. */
@@ -688,8 +688,6 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 		register type *write_end = (type *)		\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
-		if (!keep_stressing_flag())			\
-			break;					\
 		while (ptr < write_end) {			\
 			ptr[0] = v;				\
 			ptr[1] = v;				\
@@ -764,8 +762,6 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 		register type *write_end = (type *)		\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
-		if (!keep_stressing_flag())			\
-			break;					\
 		while (ptr < write_end)	{			\
 			register type *vptr = (type *)ptr;	\
 								\
@@ -827,8 +823,6 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 		register type *write_end = (type *)		\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
-		if (!keep_stressing_flag())			\
-			break;					\
 		while (ptr < write_end) {			\
 			register type *vptr = (type *)ptr;	\
 								\
@@ -1033,10 +1027,16 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 	context->start = buffer;
 	context->end = buffer_end;
 
+	if (sigsetjmp(jmpbuf, 1) != 0)
+		goto tidy;
+
+	if (stress_sighandler(args->name, SIGALRM, stress_memrate_alarm_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
 	do {
 		size_t i;
 
-		for (i = 0; keep_stressing(args) && (i < memrate_items); i++) {
+		for (i = 0; i < memrate_items; i++) {
 			double t1, t2;
 			uint64_t kbytes;
 			stress_memrate_info_t *info = &memrate_info[i];
@@ -1057,6 +1057,7 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+tidy:
 	(void)munmap((void *)buffer, context->memrate_bytes);
 	return EXIT_SUCCESS;
 }
