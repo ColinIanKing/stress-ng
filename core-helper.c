@@ -1970,6 +1970,32 @@ uint64_t stress_get_next_prime64(const uint64_t n)
 }
 
 /*
+ *  stress_get_prime64()
+ *	find a prime that is not a multiple of n,
+ *	used for file name striding. Minimum is 1009,
+ *	max is unbounded. Return a prime > n.
+ */
+uint64_t stress_get_prime64(const uint64_t n)
+{
+	uint64_t p = 1009;
+	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;
+	int i;
+
+	if (p < odd_n)
+		p = odd_n;
+
+	/* Search for next prime.. */
+	for (i = 0; keep_stressing_flag() && (i < 2000); i++) {
+		p += 2;
+
+		if ((n % p) && stress_is_prime64(p))
+			return p;
+	}
+	/* Give up */
+	return 18446744073709551557ULL;	/* Max 64 bit prime */
+}
+
+/*
  *  stress_get_max_file_limit()
  *	get max number of files that the current
  *	process can open not counting the files that

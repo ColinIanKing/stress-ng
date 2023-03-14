@@ -2617,6 +2617,7 @@ extern WARN_UNUSED ssize_t system_read(const char *path, char *buf,
 	const size_t buf_len);
 extern WARN_UNUSED bool stress_is_prime64(const uint64_t n);
 extern WARN_UNUSED uint64_t stress_get_next_prime64(const uint64_t n);
+extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED size_t stress_get_max_file_limit(void);
 extern WARN_UNUSED int stress_get_bad_fd(void);
