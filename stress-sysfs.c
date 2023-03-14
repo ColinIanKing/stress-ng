@@ -760,7 +760,7 @@ again:
 
 			do {
 				int j = (int)args->instance % n;
-				const int inc = (int)stress_get_prime64((((uint64_t)(args->instance + 1) * 50U) + 1200));
+				const int inc = (int)stress_get_next_prime64((((uint64_t)(args->instance + 1) * 50U) + 1200));
 
 				for (i = 0; i < n; i++) {
 					char sysfspath[PATH_MAX];

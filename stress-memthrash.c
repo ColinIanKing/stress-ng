@@ -756,7 +756,7 @@ static void stress_memthrash_find_primes(void)
 
 		stress_memthrash_primes[i].mem_size = mem_size;
 		stress_memthrash_primes[i].prime_stride =
-			(size_t)stress_get_prime64((uint64_t)cache_lines) * STRESS_CACHE_LINE_SIZE;
+			(size_t)stress_get_next_prime64((uint64_t)cache_lines) * STRESS_CACHE_LINE_SIZE;
 	}
 }
 

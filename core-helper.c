@@ -1941,14 +1941,14 @@ bool stress_is_prime64(const uint64_t n)
 }
 
 /*
- *  stress_get_prime64()
+ *  stress_get_next_prime64()
  *	find a prime that is not a multiple of n,
  *	used for file name striding. Minimum is 1009,
  *	max is unbounded. Return a prime > n, each
  *	call will return the next prime to keep the
  *	primes different each call.
  */
-uint64_t stress_get_prime64(const uint64_t n)
+uint64_t stress_get_next_prime64(const uint64_t n)
 {
 	static uint64_t p = 1009;
 	const uint64_t odd_n = (n & 0x0ffffffffffffffeUL) + 1;

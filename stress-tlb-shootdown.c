@@ -187,7 +187,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 
 	for (i = 0; i < tlb_procs; i++) {
 		int32_t j, cpu = -1;
-		const size_t stride = (137 + (size_t)stress_get_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
+		const size_t stride = (137 + (size_t)stress_get_next_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
 		const size_t mem_mask = (mmap_size - 1);
 
 		for (j = 0; j < max_cpus; j++) {
