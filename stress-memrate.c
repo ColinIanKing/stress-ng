@@ -44,10 +44,10 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_VECMATH)
-typedef int8_t stress_vint8w1024_t	__attribute__ ((vector_size(1024 / 8)));
-typedef int8_t stress_vint8w512_t	__attribute__ ((vector_size(512 / 8)));
-typedef int8_t stress_vint8w256_t	__attribute__ ((vector_size(256 / 8)));
-typedef int8_t stress_vint8w128_t	__attribute__ ((vector_size(128 / 8)));
+typedef uint64_t stress_uint32w1024_t	__attribute__ ((vector_size(1024 / 8)));
+typedef uint64_t stress_uint32w512_t	__attribute__ ((vector_size(512 / 8)));
+typedef uint64_t stress_uint32w256_t	__attribute__ ((vector_size(256 / 8)));
+typedef uint64_t stress_uint32w128_t	__attribute__ ((vector_size(128 / 8)));
 #endif
 
 static sigjmp_buf jmpbuf;
@@ -151,7 +151,7 @@ static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *conte
 }
 
 #define STRESS_MEMRATE_READ(size, type, prefetch)		\
-static uint64_t TARGET_CLONES stress_memrate_read##size(	\
+static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read##size(		\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
@@ -200,7 +200,7 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 }
 
 #define STRESS_MEMRATE_READ_RATE(size, type, prefetch)		\
-static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
+static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
@@ -281,14 +281,14 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 #define no_prefetch(ptr, arg1, arg2)
 
 #if defined(HAVE_VECMATH)
-STRESS_MEMRATE_READ(1024, stress_vint8w1024_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(1024, stress_vint8w1024_t, no_prefetch)
-STRESS_MEMRATE_READ(512, stress_vint8w512_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(512, stress_vint8w512_t, no_prefetch)
-STRESS_MEMRATE_READ(256, stress_vint8w256_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(256, stress_vint8w256_t, no_prefetch)
-STRESS_MEMRATE_READ(128, stress_vint8w128_t, no_prefetch)
-STRESS_MEMRATE_READ_RATE(128, stress_vint8w128_t, no_prefetch)
+STRESS_MEMRATE_READ(1024, stress_uint32w1024_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(1024, stress_uint32w1024_t, no_prefetch)
+STRESS_MEMRATE_READ(512, stress_uint32w512_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(512, stress_uint32w512_t, no_prefetch)
+STRESS_MEMRATE_READ(256, stress_uint32w256_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(256, stress_uint32w256_t, no_prefetch)
+STRESS_MEMRATE_READ(128, stress_uint32w128_t, no_prefetch)
+STRESS_MEMRATE_READ_RATE(128, stress_uint32w128_t, no_prefetch)
 #endif
 #if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 STRESS_MEMRATE_READ(128, __uint128_t, no_prefetch)
@@ -305,6 +305,10 @@ STRESS_MEMRATE_READ(8, uint8_t, no_prefetch)
 STRESS_MEMRATE_READ_RATE(8, uint8_t, no_prefetch)
 
 #if defined(HAVE_BUILTIN_PREFETCH)
+#if defined(HAVE_INT128_T)
+STRESS_MEMRATE_READ(128pf, __uint128_t, shim_builtin_prefetch)
+STRESS_MEMRATE_READ_RATE(128pf, __uint128_t, shim_builtin_prefetch)
+#endif
 STRESS_MEMRATE_READ(64pf, uint64_t, shim_builtin_prefetch)
 STRESS_MEMRATE_READ_RATE(64pf, uint64_t, shim_builtin_prefetch)
 #endif
@@ -321,7 +325,7 @@ static uint64_t stress_memrate_memset(
 	return (uint64_t)size / KB;
 }
 
-static uint64_t stress_memrate_memset_rate(
+static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 	const stress_memrate_context_t *context,
 	bool *valid)
 {
@@ -377,7 +381,7 @@ static uint64_t stress_memrate_memset_rate(
 }
 
 #define STRESS_MEMRATE_WRITE(size, type)			\
-static uint64_t TARGET_CLONES stress_memrate_write##size(	\
+static uint64_t TARGET_CLONES OPTIMIZE3	stress_memrate_write##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
@@ -640,7 +644,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate8(
 #endif
 
 #define STRESS_MEMRATE_WRITE_RATE(size, type)			\
-static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
+static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
@@ -850,14 +854,14 @@ STRESS_MEMRATE_WRITE_NT_RATE(32, uint32_t, stress_nt_store32, i)
 #endif
 
 #if defined(HAVE_VECMATH)
-STRESS_MEMRATE_WRITE(1024, stress_vint8w1024_t)
-STRESS_MEMRATE_WRITE_RATE(1024, stress_vint8w1024_t)
-STRESS_MEMRATE_WRITE(512, stress_vint8w512_t)
-STRESS_MEMRATE_WRITE_RATE(512, stress_vint8w512_t)
-STRESS_MEMRATE_WRITE(256, stress_vint8w256_t)
-STRESS_MEMRATE_WRITE_RATE(256, stress_vint8w256_t)
-STRESS_MEMRATE_WRITE(128, stress_vint8w128_t)
-STRESS_MEMRATE_WRITE_RATE(128, stress_vint8w128_t)
+STRESS_MEMRATE_WRITE(1024, stress_uint32w1024_t)
+STRESS_MEMRATE_WRITE_RATE(1024, stress_uint32w1024_t)
+STRESS_MEMRATE_WRITE(512, stress_uint32w512_t)
+STRESS_MEMRATE_WRITE_RATE(512, stress_uint32w512_t)
+STRESS_MEMRATE_WRITE(256, stress_uint32w256_t)
+STRESS_MEMRATE_WRITE_RATE(256, stress_uint32w256_t)
+STRESS_MEMRATE_WRITE(128, stress_uint32w128_t)
+STRESS_MEMRATE_WRITE_RATE(128, stress_uint32w128_t)
 #endif
 #if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 STRESS_MEMRATE_WRITE(128, __uint128_t)
@@ -913,6 +917,9 @@ static stress_memrate_info_t memrate_info[] = {
 	{ "write8",	MR_WR, stress_memrate_write8,		stress_memrate_write_rate8 },
 	{ "memset",	MR_WR, stress_memrate_memset,		stress_memrate_memset_rate },
 #if defined(HAVE_BUILTIN_PREFETCH)
+#if defined(HAVE_INT128_T)
+	{ "read128pf",	MR_RD, stress_memrate_read128pf,	stress_memrate_read_rate128pf },
+#endif
 	{ "read64pf",	MR_RD, stress_memrate_read64pf,		stress_memrate_read_rate64pf },
 #endif
 #if defined(HAVE_VECMATH)
