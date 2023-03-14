@@ -21,7 +21,7 @@
 #include "core-capabilities.h"
 
 #define DEFAULT_DELAY_NS	(100000)
-#define MAX_SAMPLES		(10000000)
+#define MAX_SAMPLES		(100000000)
 #define DEFAULT_SAMPLES		(10000)
 #define MAX_BUCKETS		(250)
 
@@ -38,6 +38,7 @@ typedef struct {
 	size_t		latencies_size;	/* size of latencies allocation */
 	size_t		cyclic_samples;	/* number of latency samples */
 	size_t		index;		/* index into latencies */
+	size_t		index_reqd;	/* theoretic size of index required for the run */
 	int32_t		min_prio;	/* min priority allowed */
 	int32_t		max_prio;	/* max priority allowed */
 	double		ns;		/* total nanosecond latency */
@@ -152,6 +153,7 @@ static void stress_cyclic_stats(
 
 	if (rt_stats->index < rt_stats->cyclic_samples)
 		rt_stats->latencies[rt_stats->index++] = delta_ns;
+	rt_stats->index_reqd++;
 
 	rt_stats->ns += (double)delta_ns;
 }
@@ -252,6 +254,7 @@ static int stress_cyclic_poll(
 
 			if (rt_stats->index < rt_stats->cyclic_samples)
 				rt_stats->latencies[rt_stats->index++] = delta_ns;
+			rt_stats->index_reqd++;
 
 			rt_stats->ns += (double)delta_ns;
 			break;
@@ -351,6 +354,7 @@ static int stress_cyclic_itimer(
 
 	if (rt_stats->index < rt_stats->cyclic_samples)
 		rt_stats->latencies[rt_stats->index++] = delta_ns;
+	rt_stats->index_reqd++;
 
 	rt_stats->ns += (double)delta_ns;
 
@@ -896,6 +900,10 @@ tidy:
 					rt_stats->latencies[j]);
 			}
 			stress_rt_dist(args->name, rt_stats, (int64_t)cyclic_dist);
+
+			if (rt_stats->index < rt_stats->index_reqd)
+				pr_inf("%s: Note: --cyclic-samples needed to be %zd to capture all the data for this run\n",
+					args->name, rt_stats->index_reqd);
 			pr_unlock();
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
