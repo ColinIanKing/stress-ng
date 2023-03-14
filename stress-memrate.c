@@ -29,6 +29,7 @@
 #define MIN_MEMRATE_BYTES       (4 * KB)
 #define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
 #define DEFAULT_MEMRATE_BYTES   (256 * MB)
+#define STRESS_MEMRATE_PF_OFFSET (2 * KB)
 
 #define STRESS_PTR_MINIMUM(a, b)	STRESS_MINIMUM((uintptr_t)a, (uintptr_t)b)
 
@@ -159,7 +160,7 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	const type *end ALIGNED(4096) = (type *)context->end;	\
 								\
 	for (ptr = start; ptr < end;) {				\
-		prefetch((uint8_t *)ptr + 1024, 0, 3);		\
+		prefetch((uint8_t *)ptr + STRESS_MEMRATE_PF_OFFSET, 0, 3);	\
 		v = *(volatile type *)&ptr[0];			\
 		(void)v;					\
 		v = *(volatile type *)&ptr[1];			\
@@ -223,7 +224,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		while (ptr < read_end) {			\
-			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
+			prefetch((uint8_t *)ptr + STRESS_MEMRATE_PF_OFFSET, 0, 3);	\
 			v = *(volatile type *)&ptr[0];		\
 			(void)v;				\
 			v = *(volatile type *)&ptr[1];		\
