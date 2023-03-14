@@ -154,55 +154,45 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register type *ptr;					\
-	type v;							\
+	register type v, *ptr;					\
 	void *start ALIGNED(4096) = context->start;		\
-	void *end ALIGNED(4096) = context->end;			\
-	const uint64_t loops = 					\
-		stress_memrate_loops(context, sizeof(type) * 16);\
-	const uint64_t loop_elements = loops * 16;		\
+	const type *end ALIGNED(4096) = (type *)context->end;	\
 								\
-	for (ptr = start; ptr < (type *)end;) {			\
-		const type *loop_end = ptr + loop_elements;	\
-		register type *read_end = (type *)		\
-			STRESS_PTR_MINIMUM(loop_end, end);	\
-								\
-		while (ptr < read_end) {			\
-			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
-			v = *(volatile type *)&ptr[0];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[1];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[2];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[3];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[4];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[5];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[6];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[7];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[8];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[9];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[10];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[11];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[12];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[13];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[14];		\
-			(void)v;				\
-			v = *(volatile type *)&ptr[15];		\
-			(void)v;				\
-			ptr += 16;				\
-		}						\
+	for (ptr = start; ptr < end;) {				\
+		prefetch((uint8_t *)ptr + 1024, 0, 3);		\
+		v = *(volatile type *)&ptr[0];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[1];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[2];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[3];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[4];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[5];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[6];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[7];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[8];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[9];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[10];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[11];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[12];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[13];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[14];			\
+		(void)v;					\
+		v = *(volatile type *)&ptr[15];			\
+		(void)v;					\
+		ptr += 16;					\
 	}							\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
@@ -216,7 +206,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	register type *ptr;					\
 	type v;							\
 	void *start ALIGNED(4096) = context->start;		\
-	void *end ALIGNED(4096) = context->end;			\
+	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	const uint64_t loop_elements = loops * 16;		\
@@ -226,7 +216,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 		(MB * (double)context->memrate_rd_mbs);		\
 								\
 	t1 = stress_time_now();					\
-	for (ptr = start; ptr < (type *)end;) {			\
+	for (ptr = start; ptr < end;) {				\
 		double t2, dur_remainder;			\
 		const type *loop_end = ptr + loop_elements;	\
 		register type *read_end = (type *)		\
@@ -391,10 +381,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	bool *valid)						\
 {								\
 	void *start ALIGNED(4096) = context->start;		\
-	void *end ALIGNED(4096) = context->end;			\
-	const uint64_t loops = 					\
-		stress_memrate_loops(context, sizeof(type) * 16);\
-	const uint64_t loop_elements = loops * 16;		\
+	const type *end ALIGNED(4096) = (type *)context->end;	\
 	register type v, *ptr;					\
 								\
 	{							\
@@ -404,30 +391,23 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 		v = vaa;					\
 	}							\
 								\
-	for (ptr = start; ptr < (type *)end;) {			\
-		const type *loop_end = ptr + loop_elements;	\
-		register type *write_end = (type *)		\
-			STRESS_PTR_MINIMUM(loop_end, end);	\
-								\
-		while (ptr < write_end) {			\
-			ptr[0] = v;				\
-			ptr[1] = v;				\
-			ptr[2] = v;				\
-			ptr[3] = v;				\
-			ptr[4] = v;				\
-			ptr[5] = v;				\
-			ptr[6] = v;				\
-			ptr[7] = v;				\
-			ptr[8] = v;				\
-			ptr[9] = v;				\
-			ptr[10] = v;				\
-			ptr[11] = v;				\
-			ptr[12] = v;				\
-			ptr[13] = v;				\
-			ptr[14] = v;				\
-			ptr[15] = v;				\
-			ptr += 16;				\
-		}						\
+	for (ptr = start; ptr < end; ptr += 16) {		\
+		ptr[0] = v;					\
+		ptr[1] = v;					\
+		ptr[2] = v;					\
+		ptr[3] = v;					\
+		ptr[4] = v;					\
+		ptr[5] = v;					\
+		ptr[6] = v;					\
+		ptr[7] = v;					\
+		ptr[8] = v;					\
+		ptr[9] = v;					\
+		ptr[10] = v;					\
+		ptr[11] = v;					\
+		ptr[12] = v;					\
+		ptr[13] = v;					\
+		ptr[14] = v;					\
+		ptr[15] = v;					\
 	}							\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
@@ -664,7 +644,7 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	bool *valid)						\
 {								\
 	void *start ALIGNED(4096) = context->start;		\
-	void *end ALIGNED(4096) = context->end;			\
+	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
@@ -682,7 +662,7 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	}							\
 								\
 	t1 = stress_time_now();					\
-	for (ptr = start; ptr < (type *)end;) {			\
+	for (ptr = start; ptr < end;) {				\
 		double t2, dur_remainder;			\
 		const type *loop_end = ptr + loop_elements;	\
 		register type *write_end = (type *)		\
@@ -726,7 +706,6 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-
 /*
  *
  * See https://akkadia.org/drepper/cpumemory.pdf - section 6.1
@@ -739,10 +718,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	bool *valid)						\
 {								\
 	void *start ALIGNED(4096) = context->start;		\
-	void *end ALIGNED(4096) = context->end;			\
-	const uint64_t loops = 					\
-		stress_memrate_loops(context, sizeof(type) * 16);\
-	const uint64_t loop_elements = loops * 16;		\
+	const type *end ALIGNED(4096) = (type *)context->end;	\
 	register type v, *ptr;					\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
@@ -757,32 +733,26 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 		v = vaa;					\
 	}							\
 								\
-	for (ptr = start; ptr < (type *)end;) {			\
-		const type *loop_end = ptr + loop_elements;	\
-		register type *write_end = (type *)		\
-			STRESS_PTR_MINIMUM(loop_end, end);	\
+	for (ptr = start; ptr < end;) {				\
+		register type *vptr = (type *)ptr;		\
 								\
-		while (ptr < write_end)	{			\
-			register type *vptr = (type *)ptr;	\
-								\
-			ptr += 16;				\
-			op(vptr + 0, v);			\
-			op(vptr + 1, v);			\
-			op(vptr + 2, v);			\
-			op(vptr + 3, v);			\
-			op(vptr + 4, v);			\
-			op(vptr + 5, v);			\
-			op(vptr + 6, v);			\
-			op(vptr + 7, v);			\
-			op(vptr + 8, v);			\
-			op(vptr + 9, v);			\
-			op(vptr + 10, v);			\
-			op(vptr + 11, v);			\
-			op(vptr + 12, v);			\
-			op(vptr + 13, v);			\
-			op(vptr + 14, v);			\
-			op(vptr + 15, v);			\
-		}						\
+		ptr += 16;					\
+		op(vptr + 0, v);				\
+		op(vptr + 1, v);				\
+		op(vptr + 2, v);				\
+		op(vptr + 3, v);				\
+		op(vptr + 4, v);				\
+		op(vptr + 5, v);				\
+		op(vptr + 6, v);				\
+		op(vptr + 7, v);				\
+		op(vptr + 8, v);				\
+		op(vptr + 9, v);				\
+		op(vptr + 10, v);				\
+		op(vptr + 11, v);				\
+		op(vptr + 12, v);				\
+		op(vptr + 13, v);				\
+		op(vptr + 14, v);				\
+		op(vptr + 15, v);				\
 	}							\
 	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
@@ -794,7 +764,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	bool *valid)						\
 {								\
 	void *start ALIGNED(4096) = context->start;		\
-	void *end ALIGNED(4096) = context->end;			\
+	const type *end ALIGNED(4096) = (type *)context->end;	\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
@@ -817,7 +787,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	}							\
 								\
 	t1 = stress_time_now();					\
-	for (ptr = start; ptr < (type *)end;) {			\
+	for (ptr = start; ptr < end;) {				\
 		double t2, dur_remainder;			\
 		const type *loop_end = ptr + loop_elements;	\
 		register type *write_end = (type *)		\
