@@ -30,6 +30,8 @@
 #define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
 #define DEFAULT_MEMRATE_BYTES   (256 * MB)
 
+#define STRESS_PTR_MINIMUM(a, b)	STRESS_MINIMUM((uintptr_t)a, (uintptr_t)b)
+
 static const stress_help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
 	{ NULL,	"memrate-bytes N",	"size of memory buffer being exercised" },
@@ -130,8 +132,8 @@ static uint64_t stress_memrate_loops(
 
 static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *context)
 {
-	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
-	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 
 	while (start < end) {
 		shim_clflush(start);
@@ -146,19 +148,20 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 {								\
 	register type *ptr;					\
 	type v;							\
-	void *start ALIGNED(1024) = context->start;		\
-	void *end ALIGNED(1024) = context->end;			\
+	void *start ALIGNED(4096) = context->start;		\
+	void *end ALIGNED(4096) = context->end;			\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
+	const uint64_t loop_elements = loops * 16;		\
 								\
 	for (ptr = start; ptr < (type *)end;) {			\
-		uint32_t i;					\
+		const type *loop_end = ptr + loop_elements;	\
+		register type *read_end = (type *)		\
+			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < loops) &&			\
-		     (ptr < (type *)end);			\
-		     ptr += 16, i++) {				\
+		while (ptr < read_end) {			\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
 			v = *(volatile type *)&ptr[0];		\
 			(void)v;				\
@@ -192,6 +195,7 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 			(void)v;				\
 			v = *(volatile type *)&ptr[15];		\
 			(void)v;				\
+			ptr += 16;				\
 		}						\
 	}							\
 	*valid = true;						\
@@ -205,10 +209,11 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 {								\
 	register type *ptr;					\
 	type v;							\
-	void *start ALIGNED(1024) = context->start;		\
-	void *end ALIGNED(1024) = context->end;			\
+	void *start ALIGNED(4096) = context->start;		\
+	void *end ALIGNED(4096) = context->end;			\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
+	const uint64_t loop_elements = loops * 16;		\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
 	double t1, total_dur = 0.0;				\
 	const double dur = (double)loop_size / 			\
@@ -217,13 +222,13 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
 		double t2, dur_remainder;			\
-		uint32_t i;					\
+		const type *loop_end = ptr + loop_elements;	\
+		register type *read_end = (type *)		\
+			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < loops) &&			\
-		     (ptr < (type *)end);			\
-		     ptr += 16, i ++) {				\
+		while (ptr < read_end) {			\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
 			v = *(volatile type *)&ptr[0];		\
 			(void)v;				\
@@ -257,6 +262,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 			(void)v;				\
 			v = *(volatile type *)&ptr[15];		\
 			(void)v;				\
+			ptr += 16;				\
 		}						\
 		t2 = stress_time_now();				\
 		total_dur += dur;				\
@@ -324,8 +330,8 @@ static uint64_t stress_memrate_memset_rate(
 	const stress_memrate_context_t *context,
 	bool *valid)
 {
-	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
-	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 	const size_t size = end - start;
 	const size_t chunk_size = (size > MB) ? MB : size;
 	register uint8_t *ptr;
@@ -380,23 +386,28 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register volatile type *ptr;				\
-	type v;							\
-	void *start ALIGNED(1024) = context->start;		\
-	void *end ALIGNED(1024) = context->end;			\
+	void *start ALIGNED(4096) = context->start;		\
+	void *end ALIGNED(4096) = context->end;			\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
+	const uint64_t loop_elements = loops * 16;		\
+	register type v, *ptr;					\
 								\
-	(void)memset(&v, 0xaa, sizeof(v));			\
+	{							\
+		type vaa;					\
+								\
+		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		v = vaa;					\
+	}							\
 								\
 	for (ptr = start; ptr < (type *)end;) {			\
-		uint32_t i;					\
+		const type *loop_end = ptr + loop_elements;	\
+		register type *write_end = (type *)		\
+			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < loops) &&			\
-		     (ptr < (type *)end);			\
-		     ptr += 16, i++) {				\
+		while (ptr < write_end) {			\
 			ptr[0] = v;				\
 			ptr[1] = v;				\
 			ptr[2] = v;				\
@@ -413,6 +424,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 			ptr[13] = v;				\
 			ptr[14] = v;				\
 			ptr[15] = v;				\
+			ptr += 16;				\
 		}						\
 	}							\
 	*valid = true;						\
@@ -430,8 +442,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos(
 	void (*func)(void *ptr, const uint32_t loops),
 	const size_t wr_size)
 {
-	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
-	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 	const size_t size = end - start;
 	const size_t chunk_size = (size > MB) ? MB : size;
 	uint32_t loops = (uint32_t)(chunk_size / wr_size);
@@ -457,8 +469,8 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 	void (*func)(void *ptr, const uint32_t loops),
 	const size_t wr_size)
 {
-	uint8_t *start ALIGNED(1024) = (uint8_t *)context->start;
-	uint8_t *end ALIGNED(1024) = (uint8_t *)context->end;
+	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
+	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 	const size_t size = end - start;
 	const size_t chunk_size = (size > MB) ? MB : size;
 	uint32_t loops = (uint32_t)(chunk_size / wr_size);
@@ -651,29 +663,34 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register volatile type *ptr;				\
-	type v;							\
-	void *start ALIGNED(1024) = context->start;		\
-	void *end ALIGNED(1024) = context->end;			\
+	void *start ALIGNED(4096) = context->start;		\
+	void *end ALIGNED(4096) = context->end;			\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
+	const uint64_t loop_elements = loops * 16;		\
 	double t1, total_dur = 0.0;				\
 	const double dur = (double)loop_size / 			\
 		(MB * (double)context->memrate_wr_mbs);		\
+	register type v, *ptr;					\
 								\
-	(void)memset(&v, 0xaa, sizeof(v));			\
+	{							\
+		type vaa;					\
+								\
+		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		v = vaa;					\
+	}							\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
 		double t2, dur_remainder;			\
-		uint32_t i;					\
+		const type *loop_end = ptr + loop_elements;	\
+		register type *write_end = (type *)		\
+			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < loops) &&			\
-		     (ptr < (type *)end);			\
-		     ptr += 16, i ++) {				\
+		while (ptr < write_end) {			\
 			ptr[0] = v;				\
 			ptr[1] = v;				\
 			ptr[2] = v;				\
@@ -690,6 +707,7 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 			ptr[13] = v;				\
 			ptr[14] = v;				\
 			ptr[15] = v;				\
+			ptr += 16;				\
 		}						\
 		t2 = stress_time_now();				\
 		total_dur += dur;				\
@@ -722,30 +740,36 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register type *ptr;					\
-	type v;							\
-	void *start ALIGNED(1024) = context->start;		\
-	void *end ALIGNED(1024) = context->end;			\
+	void *start ALIGNED(4096) = context->start;		\
+	void *end ALIGNED(4096) = context->end;			\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
+	const uint64_t loop_elements = loops * 16;		\
+	register type v, *ptr;					\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
 		return 0;					\
 	}							\
 								\
-	(void)memset(&v, 0xaa, sizeof(v));			\
+	{							\
+		type vaa;					\
+								\
+		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		v = vaa;					\
+	}							\
 								\
 	for (ptr = start; ptr < (type *)end;) {			\
-		uint32_t i;					\
+		const type *loop_end = ptr + loop_elements;	\
+		register type *write_end = (type *)		\
+			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < loops) &&			\
-		     (ptr < (type *)end);			\
-		     ptr += 16, i++) {				\
+		while (ptr < write_end)	{			\
 			register type *vptr = (type *)ptr;	\
 								\
+			ptr += 16;				\
 			op(vptr + 0, v);			\
 			op(vptr + 1, v);			\
 			op(vptr + 2, v);			\
@@ -773,36 +797,42 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register type *ptr;					\
-	type v;							\
-	void *start ALIGNED(1024) = context->start;		\
-	void *end ALIGNED(1024) = context->end;			\
+	void *start ALIGNED(4096) = context->start;		\
+	void *end ALIGNED(4096) = context->end;			\
 	const uint64_t loops = 					\
 		stress_memrate_loops(context, sizeof(type) * 16);\
 	uint64_t loop_size = loops * sizeof(type) * 16;		\
+	const uint64_t loop_elements = loops * 16;		\
 	double t1, total_dur = 0.0;				\
 	const double dur = (double)loop_size / 			\
 		(MB * (double)context->memrate_wr_mbs);		\
+	register type v, *ptr;					\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
 		return 0;					\
 	}							\
 								\
-	(void)memset(&v, 0xaa, sizeof(v));			\
+	{							\
+		type vaa;					\
+								\
+		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		v = vaa;					\
+	}							\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
 		double t2, dur_remainder;			\
-		uint32_t i;					\
+		const type *loop_end = ptr + loop_elements;	\
+		register type *write_end = (type *)		\
+			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < loops) &&			\
-		     (ptr < (type *)end);			\
-		     ptr += 16, i++) {				\
+		while (ptr < write_end) {			\
 			register type *vptr = (type *)ptr;	\
 								\
+			ptr += 16;				\
 			op(vptr + 0, v);			\
 			op(vptr + 1, v);			\
 			op(vptr + 2, v);			\
