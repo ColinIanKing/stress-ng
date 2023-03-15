@@ -452,11 +452,12 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	}
 #endif
 
-#if defined(SHM_HUGETLB)
+#if defined(SHM_HUGETLB) &&	\
+    defined(SHM_HUGE_2MB)
 	/* Check shmget cannot succeed without capabilities */
 	if (!cap_ipc_lock) {
 		errno = 0;
-		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
+		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_HUGE_2MB | SHM_R | SHM_W);
 		if (shm_id >= 0) {
 			pr_fail("%s: shmget IPC_PRIVATE unexpectedly succeeded on without suitable "
 				"capability, errno=%d (%s)\n", name, errno, strerror(errno));
