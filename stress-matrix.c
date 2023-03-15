@@ -537,7 +537,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mean(
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
- 
+
 		for (i = 0; i < n; i++) {
 			r[i][j] = (a[i][j] + b[i][j]) / (stress_matrix_type_t)2.0;
 		}

@@ -157,7 +157,7 @@ static int stress_unshare(const stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (unshare_info == MAP_FAILED) {
-		pr_inf("%s: could not mmap %zu bytes for unshare metrics, skipping stressor\n", 
+		pr_inf("%s: could not mmap %zu bytes for unshare metrics, skipping stressor\n",
 			args->name, unshare_info_size);
 		return EXIT_NO_RESOURCE;
 	}

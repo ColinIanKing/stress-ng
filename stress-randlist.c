@@ -123,7 +123,7 @@ static void stress_randlist_enomem(const stress_args_t *args)
 
 /*
  *  stress_randlist()
- *	stress a list containing random values 
+ *	stress a list containing random values
  */
 static int stress_randlist(const stress_args_t *args)
 {

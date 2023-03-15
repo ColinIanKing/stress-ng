@@ -405,7 +405,7 @@ again:
 			goto again;
 		if (!keep_stressing(args)) {
 			rc = EXIT_SUCCESS;
-			goto finish; 
+			goto finish;
 		}
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

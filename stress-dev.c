@@ -759,7 +759,7 @@ static void stress_dev_tty(
  *  a method to detect and skip this somehow. For the moment
  *  disable this stress test.
  */
-#if defined(TIOCGETD) 
+#if defined(TIOCGETD)
 	{
 		int ldis;
 
