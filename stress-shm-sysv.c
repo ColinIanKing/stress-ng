@@ -133,7 +133,7 @@ static int stress_set_shm_sysv_segments(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_shm_bytes,		stress_set_shm_sysv_bytes },
+	{ OPT_shm_sysv_bytes,		stress_set_shm_sysv_bytes },
 	{ OPT_shm_sysv_segments,	stress_set_shm_sysv_segments },
 	{ 0,				NULL }
 };
