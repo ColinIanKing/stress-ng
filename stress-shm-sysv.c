@@ -39,6 +39,16 @@ UNEXPECTED
 UNEXPECTED
 #endif
 
+#if !defined(SHM_HUGE_SHIFT)
+#define SHM_HUGE_SHIFT	(26)
+#endif
+#if !defined(SHM_HUGE_2MB)
+#define SHM_HUGE_2MB	(21 << SHM_HUGE_SHIFT)
+#endif
+#if !defined(SHM_HUGE_1GB)
+#define SHM_HUGE_1GB	(30 << SHM_HUGE_SHIFT)
+#endif
+
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(256 * MB)
 #define DEFAULT_SHM_SYSV_BYTES	(8 * MB)
@@ -366,7 +376,7 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
  *  exercise_shmget()
  *	exercise shmget syscall with all possible values of arguments
  */
-static void exercise_shmget(const size_t sz, const char *name, const bool cap_ipc_lock)
+static void exercise_shmget(const size_t sz, const char *name)
 {
 	key_t key;
 	int shm_id;
@@ -454,18 +464,9 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 
 #if defined(SHM_HUGETLB) &&	\
     defined(SHM_HUGE_2MB)
-	/* Check shmget cannot succeed without capabilities */
-	if (!cap_ipc_lock) {
-		errno = 0;
-		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_HUGE_2MB | SHM_R | SHM_W);
-		if (shm_id >= 0) {
-			pr_fail("%s: shmget IPC_PRIVATE unexpectedly succeeded on without suitable "
-				"capability, errno=%d (%s)\n", name, errno, strerror(errno));
-			(void)shmctl(shm_id, IPC_RMID, NULL);
-		}
-	}
-#else
-	(void)cap_ipc_lock;
+	shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_HUGE_2MB | SHM_R | SHM_W);
+	if (shm_id >= 0)
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 #endif
 
 #if defined(IPC_PRIVATE)
@@ -589,7 +590,6 @@ static int stress_shm_sysv_child(
 	bool ok = true;
 	int mask = ~0;
 	uint32_t instances = args->num_instances;
-	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
 	const size_t buffer_size = (page_size / sizeof(uint64_t)) + 1;
 	uint64_t *buffer;
 	double shmget_duration = 0.0, shmget_count = 0.0;
@@ -620,7 +620,7 @@ static int stress_shm_sysv_child(
 		size_t sz = max_sz;
 		pid_t pid = -1;
 
-		exercise_shmget(sz, args->name, cap_ipc_lock);
+		exercise_shmget(sz, args->name);
 		exercise_shmctl(sz, args);
 
 		for (i = 0; i < shm_sysv_segments; i++) {
