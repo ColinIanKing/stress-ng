@@ -907,7 +907,7 @@ static int stress_cache(const stress_args_t *args)
 		} else {
 			do {
 				cpu++;
-				cpu %= cpus;
+				cpu = (cpu >= cpus ) ? 0 : cpu;
 			} while (!(CPU_ISSET(cpu, &proc_mask)));
 		}
 
