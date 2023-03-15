@@ -410,7 +410,7 @@ cleanup:
 
 	for (j = 0; j < n; j++) {
 		if (msgq_ids[j] >= 0)
-			msgctl(msgq_ids[j], IPC_RMID, NULL);
+			(void)msgctl(msgq_ids[j], IPC_RMID, NULL);
 	}
 	free(msgq_ids);
 
