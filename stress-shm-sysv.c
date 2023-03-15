@@ -457,7 +457,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	if (!cap_ipc_lock) {
 		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
 		if (shm_id >= 0) {
-			pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on without suitable"
+			pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on without suitable "
 				"capability, errno=%d (%s)\n", name, errno, strerror(errno));
 			(void)shmctl(shm_id, IPC_RMID, NULL);
 		}
