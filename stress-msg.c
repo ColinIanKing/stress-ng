@@ -27,14 +27,28 @@
 #include <sys/msg.h>
 #endif
 
+#define MIN_MSG_BYTES		(4)
+#define MAX_MSG_BYTES		(8192)
+
 #define STRESS_MAX_IDS		(1024)
 
 static const stress_help_t help[] = {
 	{ NULL,	"msg N",	"start N workers stressing System V messages" },
 	{ NULL,	"msg-ops N",	"stop msg workers after N bogo messages" },
 	{ NULL, "msg-types N",	"enable N different message types" },
+	{ NULL, "msg-bytes N",	"set the message size 4..8192" },
 	{ NULL,	NULL,		NULL }
 };
+
+static int stress_set_msg_bytes(const char *opt)
+{
+	size_t bytes;
+
+	bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
+	stress_check_range_bytes("msg-bytes", bytes,
+		MIN_MSG_BYTES, MAX_MSG_BYTES);
+	return stress_set_setting("msg-bytes", TYPE_ID_SIZE_T, &bytes);
+}
 
 static int stress_set_msg_types(const char *opt) {
 	int32_t msg_types;
@@ -46,6 +60,7 @@ static int stress_set_msg_types(const char *opt) {
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_msg_types,	stress_set_msg_types },
+	{ OPT_msg_bytes,	stress_set_msg_bytes },
 	{ 0,                    NULL },
 };
 
@@ -55,7 +70,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 typedef struct {
 	long mtype;
-	uint32_t value;
+	union {
+		uint32_t value;
+		char data[MAX_MSG_BYTES];
+	} u;
 } stress_msg_t;
 
 static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
@@ -158,14 +176,14 @@ static void stress_msgget(void)
  *  stress_msgsnd()
  *	exercise msgsnd with some more unusual arguments
  */
-static void stress_msgsnd(const int msgq_id)
+static void stress_msgsnd(const int msgq_id, const size_t msg_bytes)
 {
 	stress_msg_t msg;
 
 	/* Invalid msgq_id */
 	msg.mtype = 0;
-	msg.value = 0;
-	VOID_RET(int, msgsnd(-1, &msg, sizeof(msg.value), 0));
+	msg.u.value = 0;
+	VOID_RET(int, msgsnd(-1, &msg, msg_bytes, 0));
 
 	/* Zero msg length + 0 msg.type */
 	msg.mtype = 0;
@@ -173,7 +191,7 @@ static void stress_msgsnd(const int msgq_id)
 
 	/* Illegal flags, may or may not succeed */
 	msg.mtype = 0;
-	VOID_RET(int, msgsnd(msgq_id, &msg, sizeof(msg.value), ~0));
+	VOID_RET(int, msgsnd(msgq_id, &msg, msg_bytes, ~0));
 }
 
 #if defined(__linux__)
@@ -233,9 +251,11 @@ static int stress_msg(const stress_args_t *args)
 #endif
 	const size_t max_ids = stress_max_ids(args);
 	int *msgq_ids;
-	size_t j, n;
+	stress_msg_t ALIGN64 msg;
+	size_t j, n, msg_bytes = sizeof(msg.u.value);
 
 	(void)stress_get_setting("msg-types", &msg_types);
+	(void)stress_get_setting("msg-bytes", &msg_bytes);
 
 	msgq_ids = calloc(max_ids, sizeof(*msgq_ids));
 	if (!msgq_ids) {
@@ -289,7 +309,6 @@ again:
 		(void)sched_settings_apply(true);
 
 		while (keep_stressing(args)) {
-			stress_msg_t ALIGN64 msg;
 			register uint32_t i;
 			register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
@@ -304,24 +323,24 @@ again:
 				 *  and we don't care if it succeeds or not
 				 */
 				if ((i & 0xfff) == 0) {
-					VOID_RET(ssize_t, msgrcv(msgq_id, &msg, sizeof(msg.value), mtype,
+					VOID_RET(ssize_t, msgrcv(msgq_id, &msg, msg_bytes, mtype,
 						MSG_COPY | IPC_NOWAIT));
 				}
 #endif
 
 				if ((i & 0x1ff) == 0) {
 					/* Exercise invalid msgrcv queue ID */
-					(void)msgrcv(-1, &msg, sizeof(msg.value), mtype, 0);
+					(void)msgrcv(-1, &msg, msg_bytes, mtype, 0);
 
 					/* Exercise invalid msgrcv message size */
 					(void)msgrcv(msgq_id, &msg, (size_t)-1, mtype, 0);
 					(void)msgrcv(msgq_id, &msg, 0, mtype, 0);
 
 					/* Exercise invalid msgrcv message flag */
-					(void)msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, ~0);
+					(void)msgrcv(msgq_id, &msg, msg_bytes, mtype, ~0);
 				}
 
-				msgsz = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0);
+				msgsz = msgrcv(msgq_id, &msg, msg_bytes, mtype, 0);
 				if (msgsz < 0) {
 					/*
 					 * Check for errors that can occur
@@ -336,7 +355,7 @@ again:
 					break;
 				}
 				/*  Short data in message, bail out */
-				if (msgsz < (ssize_t)sizeof(msg.value))
+				if (msgsz < (ssize_t)sizeof(msg.u.value))
 					break;
 				/*
 				 *  Only when msg_types is not set can we fetch
@@ -344,32 +363,32 @@ again:
 				 *  ordering.
 				 */
 				if ((msg_types == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					if (msg.value != i)
+					if (msg.u.value != i)
 						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx32
 							" but received 0x%" PRIx32 " instead (data length %zd)\n",
-							 args->name, i, msg.value, msgsz);
+							 args->name, i, msg.u.value, msgsz);
 				}
 			}
 			_exit(EXIT_SUCCESS);
 		}
 	} else {
-		stress_msg_t ALIGN64 msg;
 		int status;
 
 		/* Parent */
-		msg.value = 0;
+		(void)memset(&msg.u.data, '#', sizeof(msg.u.data));
+		msg.u.value = 0;
 
 		do {
 			msg.mtype = (msg_types) ? stress_mwc8modn(msg_types) + 1 : 1;
-			if (msgsnd(msgq_id, &msg, sizeof(msg.value), 0) < 0) {
+			if (msgsnd(msgq_id, &msg, msg_bytes, 0) < 0) {
 				if (errno != EINTR)
 					pr_fail("%s: msgsnd failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				break;
 			}
-			msg.value++;
+			msg.u.value++;
 			inc_counter(args);
-			if ((msg.value & 0xff) == 0) {
+			if ((msg.u.value & 0xff) == 0) {
 				if (stress_msg_get_stats(args, msgq_id) < 0)
 					break;
 #if defined(__NetBSD__)
@@ -388,12 +407,12 @@ again:
 			 *  Periodically read /proc/sysvipc/msg to exercise
 			 *  this interface if it exists
 			 */
-			if (get_procinfo && ((msg.value & 0xffff) == 0))
+			if (get_procinfo && ((msg.u.value & 0xffff) == 0))
 				stress_msg_get_procinfo(&get_procinfo);
 #endif
 		} while (keep_stressing(args));
 
-		stress_msgsnd(msgq_id);
+		stress_msgsnd(msgq_id, msg_bytes);
 
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

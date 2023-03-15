@@ -3449,6 +3449,10 @@ paged out.  This is a no-op if mlock(2) is not available.
 start N sender and receiver processes that continually send and receive
 messages using System V message IPC.
 .TP
+.B \-\-msg\-bytes N
+specify the size of the message being sent and received. Range 4 to 8192 bytes,
+default is 4 bytes.
+.TP
 .B \-\-msg\-ops N
 stop after N bogo message send operations completed.
 .TP
