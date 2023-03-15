@@ -1678,6 +1678,7 @@ typedef enum {
 
 	OPT_oomable,
 	OPT_oom_avoid,
+	OPT_oom_avoid_bytes,
 
 	OPT_oom_pipe,
 	OPT_oom_pipe_ops,

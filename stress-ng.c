@@ -733,6 +733,7 @@ static const struct option long_options[] = {
 	{ "numa-ops",		1,	0,	OPT_numa_ops },
 	{ "oomable",		0,	0,	OPT_oomable },
 	{ "oom-avoid",		0,	0,	OPT_oom_avoid },
+	{ "oom-avoid-bytes",	1,	0,	OPT_oom_avoid_bytes },
 	{ "oom-pipe",		1,	0,	OPT_oom_pipe },
 	{ "oom-pipe-ops",	1,	0,	OPT_oom_pipe_ops },
 	{ "opcode",		1,	0,	OPT_opcode },
@@ -3525,7 +3526,6 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 		size_t i;
 
 		opterr = (!jobmode) ? opterr : 0;
-
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
 			long_options, &option_index)) == -1) {
@@ -3649,6 +3649,24 @@ next_opt:
 			break;
 		case OPT_no_madvise:
 			g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
+			break;
+		case OPT_oom_avoid_bytes:
+			{
+				size_t shmall, freemem, totalmem, freeswap, totalswap, bytes;
+
+				bytes = (size_t)stress_get_uint64_byte_memory(optarg, 1);
+				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+				if ((freemem > 0) && (bytes > freemem / 2)) {
+					char buf[32];
+
+					bytes = freemem / 2;
+					r_inf("option --oom-avoid-bytes too large, limiting to "
+						"50%% (%s) of free memory\n",
+						stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes));
+				}
+				stress_set_setting("oom-avoid-bytes", TYPE_ID_SIZE_T, &bytes);
+				g_opt_flags |= OPT_FLAGS_OOM_AVOID;
+			}
 			break;
 		case OPT_query:
 			if (!jobmode) {

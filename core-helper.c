@@ -798,9 +798,23 @@ bool stress_low_memory(const size_t requested)
 	static size_t prev_freemem = 0;
 	static size_t prev_freeswap = 0;
 	size_t freemem, totalmem, freeswap, totalswap;
+	static double threshold = -1.0;
 	bool low_memory = false;
 
 	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
+		/*
+		 *  Threshold not set, then get
+		 */
+		if (threshold < 0.0) {
+			size_t bytes = 0;
+
+			if (stress_get_setting("oom-avoid-bytes", &bytes)) {
+				threshold = 100.0 * (double)bytes / (double)freemem;
+			} else {
+				/* Not specified, then default to 2.5% */
+				threshold = 2.5;
+			}
+		}
 		/*
 		 *  Stats from previous call valid, then check for memory
 		 *  changes
@@ -823,12 +837,12 @@ bool stress_low_memory(const size_t requested)
 			}
 		}
 		/* Not enough for allocation and slop? */
-		if (freemem < ((2 * MB) + requested)) {
+		if (freemem < ((4 * MB) + requested)) {
 			low_memory = true;
 			goto update;
 		}
-		/* Less than 1% left? */
-		if (((double)freemem * 100.0 / (double)(totalmem - requested)) < 1.0) {
+		/* Less than 3% left? */
+		if (((double)freemem * 100.0 / (double)(totalmem - requested)) < threshold) {
 			low_memory = true;
 			goto update;
 		}

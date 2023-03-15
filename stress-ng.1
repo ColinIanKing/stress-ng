@@ -358,6 +358,14 @@ Attempt to avoid out-of-memory conditions that can lead to the Out-of-Memory
 swapping before making memory allocations and hence adds some overhead to the
 stressors and will slow down stressor allocation speeds.
 .TP
+.B \-\-oom\-avoid\-bytes N
+Specify a low memory threshold to avoid making any further memory allocations.
+The parameter can be specified as an absolute number of bytes (e.g. 2M for 2MB)
+or a percentage of the current free memory, e.g. 5% (the default is 2.5%).
+This option implicitly enables \-\-oom\-avoid.  The option allows the system
+to have enough free memory to try to avoid the out-of-memory killer terminating
+processes.
+.TP
 .B \-\-oomable
 Do not respawn a stressor if it gets killed by the Out-of-Memory (OOM) killer.
 The default behaviour is to restart a new instance of a stressor if the kernel
