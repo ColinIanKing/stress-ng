@@ -3660,7 +3660,7 @@ next_opt:
 					char buf[32];
 
 					bytes = freemem / 2;
-					r_inf("option --oom-avoid-bytes too large, limiting to "
+					pr_inf("option --oom-avoid-bytes too large, limiting to "
 						"50%% (%s) of free memory\n",
 						stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes));
 				}
