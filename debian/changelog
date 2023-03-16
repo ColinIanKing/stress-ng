@@ -1,3 +1,42 @@
+stress-ng (0.15.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * README.md: add another citation
+  * Manual: update date
+  * debian/testing/fast-test-all: remove --klog-check
+  * stress-ng: fix truncated pr_inf call
+  * stress-ng: add --oom-avoid-bytes option for the free memory avoid
+    allocation threshold
+  * stress-cache: remove % operator, using compare and re-assign to zero
+  * stess-msg: add --msg-bytes option to specify size of message being
+    sent/recv'd
+  * stress-msg: voidify return of msgctl
+  * stress-*, test-*: remove trailing spaces at end of lines
+  * stress-shm-sysv: define SHM_HUGE_* macros if required, drop IPC_PRIVATE
+    error check
+  * stress-shm-sysv: add SHM_HUGE_2MB flag when using SHM_HUGETLB
+  * stess-shm-sysv: plumb in --sym-sysv-bytes option to correct ID
+  * stress-shm-sysv: replace IPC_RMID with IPC_PRIVATE in error message
+  * stress-shm-sysv: add missing space in error message
+  * stress-cyclic: report the number of samples required for the test run
+  * stress-memrate: make vector types based on uint32_t, add prefetch 128
+  * stress-memrate: make prefetch offset 2K
+  * stress-memrate: remove inner loops for non-memory rate timed functions
+  * stress-memrate: remove keep_stressing check, use siglongjmp in alarm
+    handler
+  * stress-memrate: add in further loop optimizations
+  * stress-vm: explicitly add modulo inline helper function
+  * core-helper: add stress_get_prime64 to get prime above a given value
+  * core-helper: rename stress_get_prime64 to stress_get_next_prime64
+  * stress-memrate: fix --memrate-wr-mbs/rd-mbs, use best fit size, add
+    memset writes too
+  * stress-vm: skip stressor when out of resources, return EXIT_NO_RESOURCES
+  * stress-vm: fix prime index accumulation overflow and speed up modulo
+  * stress-vm: compute a new prime that is larger than sz rather than use
+    PRIME_64
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 16 Mar 2023 12:47:17 +0000
+
 stress-ng (0.15.05-1) unstable; urgency=medium
 
   [Erik Stahlman]
