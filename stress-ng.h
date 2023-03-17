@@ -391,6 +391,12 @@ typedef enum {
 	TYPE_ID_UINTPTR_T
 } stress_type_id_t;
 
+typedef struct {
+	uint64_t	counter;	/* bogo-op counter */
+	bool		counter_ready;	/* ready flag */
+	bool	 	run_ok;		/* stressor run w/o issues */
+} stress_counter_info_t;
+
 /*
  *  Per ELISA request, we have a duplicated counter
  *  and run_ok flag in a different shared memory region
@@ -399,8 +405,7 @@ typedef enum {
  */
 typedef struct {
 	struct {
-		uint64_t counter;	/* Copy of stats counter */
-		bool     run_ok;	/* Copy of run_ok */
+		stress_counter_info_t ci; /* Copy of stats counter info ci */
 		uint8_t	 reserved[7];	/* Padding */
 	} data;
 	uint32_t	hash;		/* Hash of data */
@@ -473,8 +478,7 @@ typedef struct {
 
 /* stressor args */
 typedef struct {
-	uint64_t *counter;		/* stressor counter */
-	bool *counter_ready;		/* counter can be read */
+	stress_counter_info_t *ci;	/* counter info struct */
 	const char *name;		/* stressor name */
 	uint64_t max_ops;		/* max number of bogo ops */
 	const uint32_t instance;	/* stressor instance # */
@@ -868,8 +872,7 @@ typedef struct {
 
 /* Per stressor statistics and accounting info */
 typedef struct {
-	uint64_t counter ALIGN64;	/* number of bogo ops */
-	bool counter_ready;		/* counter can be read */
+	stress_counter_info_t ci;	/* counter info */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
 	pid_t pid;			/* stressor pid */
@@ -889,7 +892,6 @@ typedef struct {
 #else
 	struct tms tms;			/* run time stats of process */
 #endif
-	bool run_ok;			/* true if stressor exited OK */
 	uint8_t padding[6];		/* padding */
 } stress_stats_t;
 
@@ -2350,51 +2352,56 @@ static inline void ALWAYS_INLINE OPTIMIZE3 keep_stressing_set_flag(const bool se
  *  add_counter()
  *	add inc to the stessor bogo ops counter
  */
-static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
+static inline void ALWAYS_INLINE OPTIMIZE3 add_counter(const stress_args_t *args, const uint64_t inc)
 {
-	*args->counter_ready = false;
+	register stress_counter_info_t * const ci = args->ci;
+
+	ci->counter_ready = false;
 	shim_mb();
-	*args->counter += inc;
+	ci->counter += inc;
 	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
+	ci->counter_ready = true;
 }
 
 /*
  *  inc_counter()
  *	increment the stessor bogo ops counter
  */
-static inline void ALWAYS_INLINE inc_counter(const stress_args_t *args)
+static inline void ALWAYS_INLINE OPTIMIZE3 inc_counter(const stress_args_t *args)
 {
-	*args->counter_ready = false;
+	register stress_counter_info_t * const ci = args->ci;
+
+	ci->counter_ready = false;
 	shim_mb();
-	(*(args->counter))++;
+	ci->counter++;
 	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
+	ci->counter_ready = true;
 }
 
 /*
  *  get_counter()
  *	get the stessor bogo ops counter
  */
-static inline uint64_t ALWAYS_INLINE get_counter(const stress_args_t *args)
+static inline uint64_t ALWAYS_INLINE OPTIMIZE3 get_counter(const stress_args_t *args)
 {
-	return *args->counter;
+	register stress_counter_info_t * const ci = args->ci;
+
+	return ci->counter;
 }
 
 /*
  *  set_counter()
  *	set the stessor bogo ops counter
  */
-static inline void ALWAYS_INLINE set_counter(const stress_args_t *args, const uint64_t val)
+static inline void ALWAYS_INLINE OPTIMIZE3 set_counter(const stress_args_t *args, const uint64_t val)
 {
-	*args->counter_ready = false;
+	register stress_counter_info_t * const ci = args->ci;
+
+	ci->counter_ready = false;
 	shim_mb();
-	*args->counter = val;
+	ci->counter = val;
 	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
+	ci->counter_ready = true;
 }
 
 /*

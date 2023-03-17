@@ -2345,8 +2345,8 @@ static void MLOCKED_TEXT stress_run(
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
 
-			stats->counter_ready = true;
-			stats->counter = 0;
+			stats->ci.counter_ready = true;
+			stats->ci.counter = 0;
 			stats->checksum = *checksum;
 			for (i = 0; i < SIZEOF_ARRAY(stats->metrics); i++) {
 				stats->metrics[i].value = -1.0;
@@ -2412,8 +2412,7 @@ again:
 #endif
 				if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 					const stress_args_t args = {
-						.counter = &stats->counter,
-						.counter_ready = &stats->counter_ready,
+						.ci = &stats->ci,
 						.name = name,
 						.max_ops = g_stressor_current->bogo_ops,
 						.instance = (uint32_t)j,
@@ -2430,8 +2429,8 @@ again:
 					pr_fail_check(&rc);
 
 					ok = (rc == EXIT_SUCCESS);
-					stats->run_ok = ok;
-					(*checksum)->data.run_ok = ok;
+					stats->ci.run_ok = ok;
+					(*checksum)->data.ci.run_ok = ok;
 					/* Ensure reserved padding is zero to not confuse checksum */
 					(void)memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
 
@@ -2446,14 +2445,14 @@ again:
 					 *  if not then flag up that the counter may
 					 *  be untrustyworthy
 					 */
-					if (!stats->counter_ready) {
+					if (!stats->ci.counter_ready) {
 						pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
 							"metrics are untrustworthy (process may have been "
 							"terminated prematurely)\n",
 							name);
 						rc = EXIT_METRICS_UNTRUSTWORTHY;
 					}
-					(*checksum)->data.counter = *args.counter;
+					(*checksum)->data.ci.counter = args.ci->counter;
 					stress_hash_checksum(*checksum);
 				}
 #if defined(STRESS_PERF_STATS) &&	\
@@ -2490,9 +2489,9 @@ again:
 				 * Apparently succeeded but terminated early?
 				 * Could be a bug, so report a warning
 				 */
-				if (stats->run_ok && !g_caught_signal &&
+				if (stats->ci.run_ok && !g_caught_signal &&
 				    (run_duration < (double)g_opt_timeout) &&
-				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
+				    (!(g_stressor_current->bogo_ops && stats->ci.counter >= g_stressor_current->bogo_ops))) {
 
 					pr_warn("%s: WARNING: finished prematurely after just %.2fs%s\n",
 						name, run_duration, stress_duration_to_str(run_duration));
@@ -2615,7 +2614,7 @@ static void stress_metrics_check(bool *success)
 			stress_checksum_t stats_checksum;
 			const double duration = stats->finish - stats->start;
 
-			counter_check |= stats->counter;
+			counter_check |= stats->ci.counter;
 			if (duration < min_run_time)
 				min_run_time = duration;
 
@@ -2627,20 +2626,20 @@ static void stress_metrics_check(bool *success)
 			}
 
 			(void)memset(&stats_checksum, 0, sizeof(stats_checksum));
-			stats_checksum.data.counter = stats->counter;
-			stats_checksum.data.run_ok = stats->run_ok;
+			stats_checksum.data.ci.counter = stats->ci.counter;
+			stats_checksum.data.ci.run_ok = stats->ci.run_ok;
 			stress_hash_checksum(&stats_checksum);
 
-			if (stats->counter != checksum->data.counter) {
+			if (stats->ci.counter != checksum->data.ci.counter) {
 				pr_fail("%s instance %d corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "\n",
 					ss->stressor->name, j,
-					stats->counter, checksum->data.counter);
+					stats->ci.counter, checksum->data.ci.counter);
 				ok = false;
 			}
-			if (stats->run_ok != checksum->data.run_ok) {
+			if (stats->ci.run_ok != checksum->data.ci.run_ok) {
 				pr_fail("%s instance %d corrupted run flag, %d vs %d\n",
 					ss->stressor->name, j,
-					stats->run_ok, checksum->data.run_ok);
+					stats->ci.run_ok, checksum->data.ci.run_ok);
 				ok = false;
 			}
 			if (stats_checksum.hash != checksum->hash) {
@@ -2737,8 +2736,8 @@ static void stress_metrics_dump(
 		for (j = 0; j < ss->started_instances; j++) {
 			const stress_stats_t *const stats = ss->stats[j];
 
-			run_ok  |= stats->run_ok;
-			c_total += stats->counter;
+			run_ok  |= stats->ci.run_ok;
+			c_total += stats->ci.counter;
 #if defined(HAVE_GETRUSAGE)
 			u_total += stats->rusage_utime;
 			s_total += stats->rusage_stime;
