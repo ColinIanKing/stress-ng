@@ -200,6 +200,8 @@ again:
 		free(buf);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		register const int fd = pipefds[0];
+
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -208,7 +210,7 @@ again:
 		while (keep_stressing_flag()) {
 			ssize_t ret;
 
-			ret = read(pipefds[0], buf, buf_size);
+			ret = read(fd, buf, buf_size);
 			if (UNLIKELY(ret <= 0)) {
 				if (errno == 0)	/* ret == 0 case */
 					break;
@@ -227,6 +229,7 @@ again:
 		int status;
 		double t_start;
 		uint64_t delay = switch_delay;
+		register const int fd = pipefds[1];
 
 		/* Parent */
 		(void)close(pipefds[0]);
@@ -238,7 +241,7 @@ again:
 
 			inc_counter(args);
 
-			ret = write(pipefds[1], buf, buf_size);
+			ret = write(fd, buf, buf_size);
 			if (UNLIKELY(ret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -258,7 +261,7 @@ again:
 
 		stress_switch_rate(args, "pipe", t_start, stress_time_now(), get_counter(args));
 
-		(void)close(pipefds[0]);
+		(void)close(pipefds[1]);
 
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
