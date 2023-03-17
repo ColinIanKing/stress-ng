@@ -209,7 +209,7 @@ again:
 			ssize_t ret;
 
 			ret = read(pipefds[0], buf, buf_size);
-			if (ret <= 0) {
+			if (UNLIKELY(ret <= 0)) {
 				if (errno == 0)	/* ret == 0 case */
 					break;
 				if ((errno == EAGAIN) || (errno == EINTR))
@@ -239,7 +239,7 @@ again:
 			inc_counter(args);
 
 			ret = write(pipefds[1], buf, buf_size);
-			if (ret <= 0) {
+			if (UNLIKELY(ret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno == EPIPE)
@@ -252,7 +252,7 @@ again:
 				continue;
 			}
 
-			if (switch_freq)
+			if (UNLIKELY(switch_freq))
 				stress_switch_delay(args, switch_delay, threshold, t_start, &delay);
 		} while (keep_stressing(args));
 
@@ -323,14 +323,14 @@ again:
 			sem.sem_op = -1;
 			sem.sem_flg = SEM_UNDO;
 
-			if (semop(sem_id, &sem, 1) < 0)
+			if (UNLIKELY(semop(sem_id, &sem, 1) < 0))
 				break;
 
 			sem.sem_num = 0;
 			sem.sem_op = 1;
 			sem.sem_flg = SEM_UNDO;
 
-			if (semop(sem_id, &sem, 1) < 0)
+			if (UNLIKELY(semop(sem_id, &sem, 1) < 0))
 				break;
 		}
 		_exit(EXIT_SUCCESS);
@@ -349,10 +349,10 @@ again:
 			sem.sem_op = 1;
 			sem.sem_flg = SEM_UNDO;
 
-			if (semop(sem_id, &sem, 1) < 0)
+			if (UNLIKELY(semop(sem_id, &sem, 1) < 0))
 				break;
 
-			if (switch_freq)
+			if (UNLIKELY(switch_freq))
 				stress_switch_delay(args, switch_delay, threshold, t_start, &delay);
 
 			if (!keep_stressing(args))
@@ -361,7 +361,7 @@ again:
 			sem.sem_op = -1;
 			sem.sem_flg = SEM_UNDO;
 
-			if (semop(sem_id, &sem, 1) < 0)
+			if (UNLIKELY(semop(sem_id, &sem, 1) < 0))
 				break;
 		} while (keep_stressing(args));
 
@@ -433,7 +433,7 @@ again:
 
 		while (keep_stressing_flag()) {
 			msg.value++;
-			if (mq_send(mq, (char *)&msg, sizeof(msg), 0) < 0)
+			if (UNLIKELY(mq_send(mq, (char *)&msg, sizeof(msg), 0) < 0))
 				break;
 		}
 		_exit(EXIT_SUCCESS);
@@ -448,10 +448,10 @@ again:
 			unsigned int prio;
 
 			inc_counter(args);
-			if (mq_receive(mq, (char *)&msg, sizeof(msg), &prio) < 0)
+			if (UNLIKELY(mq_receive(mq, (char *)&msg, sizeof(msg), &prio) < 0))
 				break;
 
-			if (switch_freq)
+			if (UNLIKELY(switch_freq))
 				stress_switch_delay(args, switch_delay, threshold, t_start, &delay);
 		} while (keep_stressing(args));
 
