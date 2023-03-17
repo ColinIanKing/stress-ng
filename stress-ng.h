@@ -868,7 +868,8 @@ typedef struct {
 
 /* Per stressor statistics and accounting info */
 typedef struct {
-	uint64_t counter;		/* number of bogo ops */
+	uint64_t counter ALIGN64;	/* number of bogo ops */
+	bool counter_ready;		/* counter can be read */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
 	pid_t pid;			/* stressor pid */
@@ -888,7 +889,6 @@ typedef struct {
 #else
 	struct tms tms;			/* run time stats of process */
 #endif
-	bool counter_ready;		/* counter can be read */
 	bool run_ok;			/* true if stressor exited OK */
 	uint8_t padding[6];		/* padding */
 } stress_stats_t;
