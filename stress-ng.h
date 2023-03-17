@@ -2410,8 +2410,11 @@ static inline void ALWAYS_INLINE OPTIMIZE3 set_counter(const stress_args_t *args
  */
 static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing(const stress_args_t *args)
 {
-	return (LIKELY(g_keep_stressing_flag) &&
-		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
+	if (UNLIKELY(!g_keep_stressing_flag))
+		return false;
+	if (LIKELY(args->max_ops == 0))
+		return true;
+	return get_counter(args) < args->max_ops;
 }
 
 /*
