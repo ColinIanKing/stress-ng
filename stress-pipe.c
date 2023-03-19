@@ -19,8 +19,6 @@
  */
 #include "stress-ng.h"
 
-#define PIPE_STOP	"PS!"
-
 static const stress_help_t help[] = {
 	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,	"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },
@@ -44,7 +42,6 @@ static int stress_set_pipe_size(const char *opt)
 	stress_check_range_bytes("pipe-size", pipe_size, 4096, 1024 * 1024);
 	return stress_set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
 }
-
 #endif
 
 /*
@@ -57,34 +54,8 @@ static int stress_set_pipe_data_size(const char *opt)
 
 	pipe_data_size = (size_t)stress_get_uint64_byte(opt);
 	stress_check_range_bytes("pipe-data-size", pipe_data_size,
-		4, stress_get_page_size());
-	return stress_set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
-}
-
-/*
- *  pipe_memset()
- *	set pipe data to be incrementing chars from val upwards
- */
-static inline void pipe_memset(char *buf, char val, const size_t sz)
-{
-	size_t i;
-
-	for (i = 0; i < sz; i++)
-		*buf++ = val++;
-}
-
-/*
- *  pipe_memchk()
- *	check pipe data contains incrementing chars from val upwards
- */
-static inline int pipe_memchk(char *buf, char val, const size_t sz)
-{
-	size_t i;
-
-	for (i = 0; i < sz; i++)
-		if (*buf++ != val++)
-			return 1;
-	return 0;
+		8, stress_get_page_size());
+	return stress_set_setting("pipe-data-size", TYPE_ID_SIZE_T, &pipe_data_size);
 }
 
 #if defined(F_SETPIPE_SZ)
@@ -129,7 +100,6 @@ static void pipe_change_size(
 }
 #endif
 
-
 /*
  *  stress_pipe
  *	stress by heavy pipe I/O
@@ -140,6 +110,8 @@ static int stress_pipe(const stress_args_t *args)
 	int pipefds[2];
 	size_t pipe_data_size = 512;
 	char *buf;
+	uint32_t *buf32, val = stress_mwc32();
+	const uint32_t pipe_stop = 0xffffffffUL;
 	double duration = 0.0, bytes = 0.0, rate;
 
 	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
@@ -151,6 +123,8 @@ static int stress_pipe(const stress_args_t *args)
 			args->name, pipe_data_size);
 		return EXIT_NO_RESOURCE;
 	}
+	buf32 = (uint32_t *)buf;
+	stress_rndbuf(buf, pipe_data_size);
 
 	(void)memset(pipefds, 0, sizeof(pipefds));
 
@@ -203,11 +177,12 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		int val = 0;
 #if defined(FIONREAD)
 		int i = 0;
 #endif
 		const pid_t my_pid = getpid();
+		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+		register const int fd = pipefds[0];
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
@@ -218,8 +193,8 @@ again:
 		while (keep_stressing_flag()) {
 			ssize_t n;
 
-			n = read(pipefds[0], buf, pipe_data_size);
-			if (n <= 0) {
+			n = read(fd, buf, pipe_data_size);
+			if (UNLIKELY(n <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
@@ -233,36 +208,41 @@ again:
 
 #if defined(FIONREAD)
 			/* Occasionally exercise FIONREAD on read end */
-			if ((i++ & 0x1ff) == 0) {
+			if (UNLIKELY((i++ & 0x1ff) == 0)) {
 				int readbytes;
 
 				VOID_RET(int, ioctl(pipefds[0], FIONREAD, &readbytes));
 			}
 #endif
-			if (!strncmp(buf, PIPE_STOP, 3))
+			if (UNLIKELY(*buf32 == pipe_stop))
 				break;
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    pipe_memchk(buf, (char)val++, (size_t)n)) {
-				pr_fail("%s: pipe read error detected, "
-					"failed to read expected data\n", args->name);
+			if (UNLIKELY(verify)) {
+				if (UNLIKELY(*buf32 != val)) {
+					pr_fail("%s: pipe read error detected, "
+						"failed to read expected data\n", args->name);
+				}
+				val++;
+				val &= 0x7ffffffUL;
 			}
 		}
 		(void)close(pipefds[0]);
 		(void)munmap((void *)buf, pipe_data_size);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int val = 0, status;
+		int status;
 		double t;
+		register const int fd = pipefds[1];
 
 		/* Parent */
 		(void)close(pipefds[0]);
 
 		t = stress_time_now();
 		do {
-			ssize_t ret;
+			register ssize_t ret;
 
-			pipe_memset(buf, (char)val++, pipe_data_size);
-			ret = write(pipefds[1], buf, pipe_data_size);
+			*buf32 = val++;
+			val &= 0x7ffffffUL;
+			ret = write(fd, buf, pipe_data_size);
 			if (UNLIKELY(ret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -281,9 +261,8 @@ again:
 		rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
 		stress_metrics_set(args, 0, "MB per sec pipe write rate", rate);
 
-		(void)memset(buf, 0, pipe_data_size);
-		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));
-		if (write(pipefds[1], buf, pipe_data_size) <= 0) {
+		*buf32 = pipe_stop;
+		if (write(fd, buf, pipe_data_size) <= 0) {
 			if (errno != EPIPE)
 				pr_fail("%s: termination write failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
