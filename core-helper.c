@@ -1600,7 +1600,7 @@ void stress_rndbuf(void *buf, size_t len)
 	size_t i;
 
 	for (i = 0; i < len; i++)
-		*(char *)buf = stress_mwc8();
+		*(char *)buf++ = stress_mwc8();
 }
 
 /*
