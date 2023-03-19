@@ -44,9 +44,9 @@ typedef struct {
 	int	fd_pipe;		/* fifo file descriptor */
 	uint64_t race_count;		/* count of dup2 races */
 	uint64_t try_count;		/* dup2 race attempts */
-	char 	fifoname[PATH_MAX];	/* name of fifo file */
 	pid_t	pid_clone;		/* pid of clone process */
 	uint64_t stack[DUP_STACK_SIZE];	/* clone stack */
+	char 	fifoname[PATH_MAX];	/* name of fifo file */
 } info_t;
 
 static int stress_dup2_race_clone(void *arg)
@@ -55,17 +55,17 @@ static int stress_dup2_race_clone(void *arg)
 	info_t *info = (info_t *)arg;
 
 	/* Should never be null, but weird things may happen  */
-	if (!info)
+	if (UNLIKELY(!info))
 		_exit(1);
 
-	if ((fd = open("/dev/null", O_RDONLY)) == -1)
+	if (UNLIKELY((fd = open("/dev/null", O_RDONLY)) == -1))
 		_exit(1);
 
 	/*
 	 *  Unexpected, the next fd is the same as an earlier
 	 *  previous fd, so don't dup2 on this
 	 */
-	if (fd == info->fd)
+	if  (UNLIKELY(fd == info->fd))
 		_exit(0);
 
 	/*
@@ -96,7 +96,7 @@ static int static_dup2_child(info_t *info)
 	(void)memset(&action, 0, sizeof(action));
 	action.sa_flags = 0;
 	action.sa_handler = stress_sighandler_nop;
-	if (sigaction(SIGALRM, &action, NULL) < 0)
+	if (UNLIKELY(sigaction(SIGALRM, &action, NULL) < 0))
 		_exit(1);
 
 	/*
@@ -104,7 +104,7 @@ static int static_dup2_child(info_t *info)
 	 *  fd number with a process that shares the same fd table
 	 */
 	info->fd = open("/dev/null", O_RDONLY);
-	if (info->fd < 0)
+	if (UNLIKELY(info->fd < 0))
 		_exit(1);
 	(void)close(info->fd);
 
@@ -112,7 +112,7 @@ static int static_dup2_child(info_t *info)
 		stress_align_stack(stack_top),
 		CLONE_VM | CLONE_FILES | SIGCHLD, info, &parent_tid,
 		NULL, &child_tid);
-	if (info->pid_clone < 0)
+	if (UNLIKELY(info->pid_clone < 0))
 		_exit(1);
 
 	/*
@@ -122,7 +122,7 @@ static int static_dup2_child(info_t *info)
 	timer.it_interval.tv_usec = 1000;
 	timer.it_value.tv_sec = 0;
 	timer.it_value.tv_usec = 1000;
-	if (setitimer(ITIMER_REAL, &timer, NULL) < 0)
+	if (UNLIKELY(setitimer(ITIMER_REAL, &timer, NULL) < 0))
 		_exit(1);
 
 	info->try_count++;
@@ -143,13 +143,13 @@ static int static_dup2_child(info_t *info)
 	/*
 	 *  Unlikely to be open, but close it to be a good citizen
 	 */
-	if (info->fd_pipe >= 0)
+	if (UNLIKELY(info->fd_pipe >= 0))
 		(void)close(info->fd_pipe);
 
 	/*
 	 *  Should always be true..
 	 */
-	if (info->pid_clone >= 0) {
+	if (LIKELY(info->pid_clone >= 0)) {
 		int status;
 
 		(void)kill(info->pid_clone, SIGKILL);
@@ -169,7 +169,7 @@ static int static_dup2_child(info_t *info)
 static int stress_dup2_race(info_t *info)
 {
 	pid_t pid;
-	if (mkfifo(info->fifoname, S_IRUSR | S_IWUSR))
+	if (UNLIKELY(mkfifo(info->fifoname, S_IRUSR | S_IWUSR)))
 		return -1;
 
 	pid = fork();
@@ -238,14 +238,14 @@ static int stress_dup(const stress_args_t *args)
 
 			t = stress_time_now();
 			fds[n] = dup(fds[0]);
-			if (fds[n] < 0)
+			if (UNLIKELY(fds[n] < 0))
 				break;
 			dup_duration += stress_time_now() - t;
 			dup_count += 1;
 
 			/* do an invalid dup on an invalid fd */
 			tmp = dup(bad_fd);
-			if (tmp >= 0)
+			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 
 			if (!keep_stressing(args))
@@ -253,7 +253,7 @@ static int stress_dup(const stress_args_t *args)
 
 			/* do an invalid dup3 on an invalid fd */
 			tmp = shim_dup3(fds[0], bad_fd, O_CLOEXEC);
-			if (tmp >= 0)
+			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 			else if (errno == ENOSYS)
 				do_dup3 = false;
@@ -263,7 +263,7 @@ static int stress_dup(const stress_args_t *args)
 
 			/* do an invalid dup3 with an invalid flag */
 			tmp = shim_dup3(fds[0], fds[n], INT_MIN);
-			if (tmp >= 0)
+			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 			else if (errno == ENOSYS)
 				do_dup3 = false;
@@ -273,7 +273,7 @@ static int stress_dup(const stress_args_t *args)
 
 			/* do an invalid dup3 with an invalid fd */
 			tmp = shim_dup3(bad_fd, fds[n], INT_MIN);
-			if (tmp >= 0)
+			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 			else if (errno == ENOSYS)
 				do_dup3 = false;
@@ -283,7 +283,7 @@ static int stress_dup(const stress_args_t *args)
 
 			/* do an invalid dup3 with same oldfd and newfd */
 			tmp = shim_dup3(fds[0], fds[0], O_CLOEXEC);
-			if (tmp >= 0)
+			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 			else if (errno == ENOSYS)
 				do_dup3 = false;
@@ -302,7 +302,7 @@ static int stress_dup(const stress_args_t *args)
 					fd = dup2(fds[0], fds[n]);
 					do_dup3 = false;
 				}
-				if (fd >= 0) {
+				if (LIKELY(fd >= 0)) {
 					dup_duration += stress_time_now() - t;
 					dup_count += 1;
 				}
@@ -310,7 +310,7 @@ static int stress_dup(const stress_args_t *args)
 			} else {
 				t = stress_time_now();
 				fds[n] = dup2(fds[0], fds[n]);
-				if (fds[n] >= 0) {
+				if (LIKELY(fds[n] >= 0)) {
 					dup_duration += stress_time_now() - t;
 					dup_count += 1;
 				}
@@ -321,7 +321,7 @@ static int stress_dup(const stress_args_t *args)
 
 			t = stress_time_now();
 			fds[n] = dup2(fds[0], fds[n]);
-			if (fds[n] >= 0) {
+			if (LIKELY(fds[n] >= 0)) {
 				dup_duration += stress_time_now() - t;
 				dup_count += 1;
 			} else {
@@ -333,14 +333,14 @@ static int stress_dup(const stress_args_t *args)
 
 			/* dup2 on the same fd should be a no-op */
 			tmp = dup2(fds[n], fds[n]);
-			if (tmp != fds[n]) {
+			if (UNLIKELY(tmp != fds[n])) {
 				pr_fail("%s: dup2 failed with same fds, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
 			/* do an invalid dup2 on an invalid fd */
 			tmp = dup2(fds[0], bad_fd);
-			if (tmp >= 0)
+			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 
 			if (!keep_stressing(args))
@@ -352,7 +352,7 @@ static int stress_dup(const stress_args_t *args)
 			(void)close(fds[n]);
 			t = stress_time_now();
 			fds[n] = fcntl(fds[0], F_DUPFD, fds[0]);
-			if (fds[n] >= 0) {
+			if (LIKELY(fds[n] >= 0)) {
 				dup_duration += stress_time_now() - t;
 				dup_count += 1;
 			} else {
@@ -367,7 +367,6 @@ static int stress_dup(const stress_args_t *args)
 			if (info != MAP_FAILED)
 				stress_dup2_race(info);
 #endif
-
 			inc_counter(args);
 		}
 		/* close from fds[1]..fds[n], i.e. n - 1 fds in total */
