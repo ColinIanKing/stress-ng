@@ -272,7 +272,7 @@ static int stress_close(const stress_args_t *args)
 		fd = -1;
 		t1 = stress_time_now();
 
-		switch (stress_mwc8modn(15)) {
+		switch (stress_mwc8() & 0x0f) {
 		case 0:
 			domain = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(domains));
 			type = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(types));
@@ -312,7 +312,7 @@ static int stress_close(const stress_args_t *args)
 			break;
 #endif
 		case 7:
-			if (pipe(pipefds) == 0) {
+			if (LIKELY(pipe(pipefds) == 0)) {
 				fd = pipefds[0];
 				(void)close(pipefds[1]);
 			}
@@ -365,13 +365,17 @@ static int stress_close(const stress_args_t *args)
 			fd = dup(0);
 #endif
 			break;
+		case 15:
+			fd = open("/dev/stdin", O_RDONLY);
+			break;
 		default:
+			fd = open(".", O_RDONLY | O_DIRECTORY);
 			break;
 		}
-		if (fd == -1)
+		if (UNLIKELY(fd == -1))
 			fd = open("/dev/null", O_RDWR);
 
-		if (fd != -1) {
+		if (LIKELY(fd != -1)) {
 			double t;
 
 			dupfd = dup(fd);
@@ -401,7 +405,7 @@ static int stress_close(const stress_args_t *args)
 			 * is a file descriptor referring to a file other than a directory
 			 */
 			ret = faccessat(file_fd, "./", F_OK, 0);
-			if (ret >= 0) {
+			if (UNLIKELY(ret >= 0)) {
 				pr_fail("%s: faccessat opened file descriptor succeeded unexpectedly, "
 					"errno=%d (%s)\n", args->name, errno, strerror(errno));
 				(void)close(ret);
@@ -415,7 +419,7 @@ static int stress_close(const stress_args_t *args)
 			VOID_RET(int, close(dup(STDOUT_FILENO)));
 
 			t = stress_time_now();
-			if (close(fd) == 0) {
+			if (LIKELY(close(fd) == 0)) {
 				duration += stress_time_now() - t;
 				count += 1.0;
 			}
