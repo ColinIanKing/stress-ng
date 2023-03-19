@@ -122,7 +122,7 @@ again:
 				if (!keep_stressing_flag())
 					goto exit_child;
 				ret = read(fd1, &val, sizeof(val));
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) {
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
@@ -130,7 +130,7 @@ again:
 						args->name, errno, strerror(errno));
 					goto exit_child;
 				}
-				if (ret < (ssize_t)sizeof(val)) {
+				if (UNLIKELY(ret < (ssize_t)sizeof(val))) {
 					pr_fail("%s child short read, got %zd, expecting %zd bytes\n",
 						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_child;
@@ -141,7 +141,7 @@ again:
 			/*
 			 *  Periodically exercise with invalid writes
 			 */
-			if (n++ >= 64) {
+			if (UNLIKELY(n++ >= 64)) {
 				n = 0;
 
 				/* Exercise write using small buffer */
@@ -158,7 +158,7 @@ again:
 				if (!keep_stressing_flag())
 					goto exit_child;
 				ret = write(fd2, &val, sizeof(val));
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) {
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
@@ -166,7 +166,7 @@ again:
 						args->name, errno, strerror(errno));
 					goto exit_child;
 				}
-				if (ret < (ssize_t)sizeof(val)) {
+				if (UNLIKELY(ret < (ssize_t)sizeof(val))) {
 					pr_fail("%s child short write, got %zd, expecting %zd bytes\n",
 						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_child;
@@ -197,7 +197,7 @@ exit_child:
 					goto exit_parent;
 
 				ret = write(fd1, &val, sizeof(val));
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) {
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
@@ -205,7 +205,7 @@ exit_child:
 						args->name, errno, strerror(errno));
 					goto exit_parent;
 				}
-				if (ret < (ssize_t)sizeof(val)) {
+				if (UNLIKELY(ret < (ssize_t)sizeof(val))) {
 					pr_fail("%s parent short write, got %zd, expecting %zd bytes\n",
 						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_parent;
@@ -218,7 +218,7 @@ exit_child:
 					goto exit_parent;
 
 				ret = read(fd2, &val, sizeof(val));
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) {
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
@@ -226,7 +226,7 @@ exit_child:
 						args->name, errno, strerror(errno));
 					goto exit_parent;
 				}
-				if (ret < (ssize_t)sizeof(val)) {
+				if (UNLIKELY(ret < (ssize_t)sizeof(val))) {
 					pr_fail("%s parent short read, got %zd, expecting %zd bytes\n",
 						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_parent;
