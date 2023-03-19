@@ -279,7 +279,7 @@ static int epoll_ctl_add(const int efd, const int fd, const uint32_t events)
 	(void)memset(&event, 0, sizeof(event));
 	event.data.fd = fd;
 	event.events = events;
-	if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &event) < 0)
+	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_ADD, fd, &event) < 0))
 		return -1;
 
 	return 0;
@@ -296,7 +296,7 @@ static int epoll_ctl_mod(const int efd, const int fd, const uint32_t events)
 
 	(void)memset(&event, 0, sizeof(event));
 	event.events = events;
-	if (epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event) < 0)
+	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event) < 0))
 		return -1;
 
 	return 0;
@@ -312,7 +312,7 @@ static int epoll_ctl_del(const int efd, const int fd)
 	struct epoll_event event;
 
 	(void)memset(&event, 0, sizeof(event));
-	if (epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event) < 0)
+	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event) < 0))
 		return -1;
 
 	return 0;
@@ -344,7 +344,7 @@ static int epoll_notification(
 		if (*fd_count > epoll_sockets)
 			return 0;
 
-		if ((fd = accept(sfd, &saddr, &slen)) < 0) {
+		if (UNLIKELY((fd = accept(sfd, &saddr, &slen)) < 0)) {
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 				/* all incoming connections handled so finish */
 				break;
@@ -364,7 +364,7 @@ static int epoll_notification(
 		/*
 		 *  Add non-blocking fd to epoll event list
 		 */
-		if (epoll_set_fd_nonblock(fd) < 0) {
+		if (UNLIKELY(epoll_set_fd_nonblock(fd) < 0)) {
 			pr_fail("%s: setting socket to non-blocking failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -382,7 +382,7 @@ static int epoll_notification(
 		(void)epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event);
 #endif
 
-		if (epoll_ctl_add(efd, fd, EPOLLIN) < 0) {
+		if (UNLIKELY(epoll_ctl_add(efd, fd, EPOLLIN) < 0)) {
 			pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -402,8 +402,8 @@ static int epoll_notification(
 		 *  Exercise illegal epoll_ctl_add having fd
 		 *  same as efd, resulting in EINVAL error
 		 */
-		if ((epoll_ctl_add(efd, efd, EPOLLIN | EPOLLET) == 0) &&
-                    (errno == 0)) {
+		if (UNLIKELY((epoll_ctl_add(efd, efd, EPOLLIN | EPOLLET) == 0) &&
+			     (errno == 0))) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded with "
 				"invalid arguments\n", args->name);
 			(void)close(fd);
@@ -415,8 +415,8 @@ static int epoll_notification(
 		 *  fd which is already registered with efd
 		 *  resulting in EEXIST error
 		 */
-		if ((epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) == 0) &&
-                    (errno == 0)) {
+		if (UNLIKELY((epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) == 0) &&
+			     (errno == 0))) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
 				"with a file descriptor that has already "
 				"been registered\n", args->name);
@@ -427,8 +427,8 @@ static int epoll_notification(
 		/*
 		 *  Exercise epoll_ctl_add on a illegal epoll_fd
 		 */
-		if ((epoll_ctl_add(-1, fd, EPOLLIN | EPOLLET) == 0) &&
-                    (errno == 0)) {
+		if (UNLIKELY((epoll_ctl_add(-1, fd, EPOLLIN | EPOLLET) == 0) &&
+			     (errno == 0))) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
 				"with an illegal file descriptor\n", args->name);
 			(void)close(fd);
@@ -451,13 +451,13 @@ static int test_eloop(
 	int ret;
 
 	ret = epoll_ctl_add(efd, efd2, EPOLLIN | EPOLLET);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 
 	ret = epoll_ctl_add(efd2, efd, EPOLLIN | EPOLLET);
-	if (ret == 0) {
+	if (UNLIKELY(ret == 0)) {
 		pr_fail("%s: epoll_ctl_add failed, expected ELOOP, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		(void)epoll_ctl_del(efd2, efd);
@@ -493,14 +493,14 @@ static int test_epoll_exclusive(
 	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE event
 	 *  cannot be operated by EPOLL_CTL_MOD operation
 	 */
-	if ((epoll_ctl_mod(efd, sfd, EPOLLEXCLUSIVE) == 0) &&
-	    (errno == 0)) {
+	if (UNLIKELY((epoll_ctl_mod(efd, sfd, EPOLLEXCLUSIVE) == 0) &&
+		     (errno == 0))) {
 		pr_fail("%s: epoll_ctl failed, expected EINVAL or ENOENT, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		goto err;
 	}
 
-	if (epoll_ctl_add(efd, sfd, EPOLLEXCLUSIVE) < 0) {
+	if (UNLIKELY(epoll_ctl_add(efd, sfd, EPOLLEXCLUSIVE) < 0)) {
 		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto err;
@@ -510,8 +510,8 @@ static int test_epoll_exclusive(
 	 *  Invalid epoll_ctl syscall as sfd was registered
 	 *  as EPOLLEXCLUSIVE event so it can't be modified
 	 */
-	if ((epoll_ctl_mod(efd, sfd, 0) == 0) &&
-	    (errno == 0)) {
+	if (UNLIKELY((epoll_ctl_mod(efd, sfd, 0) == 0) &&
+		     (errno == 0))) {
 		pr_fail("%s: epoll_ctl failed, expected EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		goto err;
@@ -521,8 +521,8 @@ static int test_epoll_exclusive(
 	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE was
 	 *  specified in event and fd refers to an epoll instance.
 	 */
-	if ((epoll_ctl_add(efd, efd2, EPOLLEXCLUSIVE) == 0) &&
-	    (errno == 0)) {
+	if (UNLIKELY((epoll_ctl_add(efd, efd2, EPOLLEXCLUSIVE) == 0) &&
+		     (errno == 0))) {
 		pr_fail("%s: epoll_ctl failed, expected EINVAL, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		goto err;
@@ -531,7 +531,7 @@ static int test_epoll_exclusive(
 	rc = 0;
 err:
 	epoll_ctl_del(efd, sfd);
-	if (epoll_ctl_add(efd, sfd, EPOLLIN | EPOLLET) < 0)
+	if (UNLIKELY(epoll_ctl_add(efd, sfd, EPOLLIN | EPOLLET) < 0))
 		rc = -1;
 
 	return rc;
@@ -575,7 +575,7 @@ retry:
 		if (!keep_stressing_flag())
 			break;
 
-		if ((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {
+		if (UNLIKELY((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0)) {
 			if ((errno == EMFILE) ||
 			    (errno == ENFILE) ||
 			    (errno == ENOMEM) ||
@@ -590,7 +590,7 @@ retry:
 		sev.sigev_notify = SIGEV_SIGNAL;
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
-		if (timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0) {
+		if (UNLIKELY(timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0)) {
 			if ((errno == EAGAIN) || (errno == ENOMEM)) {
 				(void)close(fd);
 				continue;
@@ -611,15 +611,15 @@ retry:
 		timer.it_value.tv_nsec = 250000000;
 		timer.it_interval.tv_sec = timer.it_value.tv_sec;
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
-		if (timer_settime(epoll_timerid, 0, &timer, NULL) < 0) {
+		if (UNLIKELY(timer_settime(epoll_timerid, 0, &timer, NULL) < 0)) {
 			pr_fail("%s: timer_settime failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 
-		if (stress_set_sockaddr(args->name, args->instance, mypid,
-			epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
+			epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -629,14 +629,14 @@ retry:
 		saved_errno = errno;
 
 		/* No longer need timer */
-		if (timer_delete(epoll_timerid) < 0) {
+		if (UNLIKELY(timer_delete(epoll_timerid) < 0)) {
 			pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			switch (saved_errno) {
 			case EINTR:
 				connect_timeouts++;
@@ -665,7 +665,7 @@ retry:
 		}
 
 		(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
-		if (send(fd, buf, sizeof(buf), 0) < 0) {
+		if (UNLIKELY(send(fd, buf, sizeof(buf), 0) < 0)) {
 			(void)close(fd);
 			pr_dbg("%s: send failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -873,7 +873,7 @@ static void NORETURN epoll_server(
 		ret = sigsetjmp(jmp_env, 1);
 		if (!keep_stressing(args))
 			break;
-		if (ret != 0)
+		if (UNLIKELY(ret != 0))
 			wait_segv = true;
 
 		/*
@@ -889,7 +889,7 @@ static void NORETURN epoll_server(
 				 *  -EFAULT.
 				 */
 				n = epoll_wait(efd, args->mapped->page_none, 1, 100);
-				if (n > 0) {
+				if (UNLIKELY(n > 0)) {
 					pr_fail("%s: epoll_wait unexpectedly succeeded, "
 						"expected -EFAULT, instead got errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -909,7 +909,7 @@ static void NORETURN epoll_server(
 				 *  -EFAULT.
 				 */
 				n = stress_epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
-				if (n > 1) {
+				if (UNLIKELY(n > 1)) {
 					pr_fail("%s: epoll_pwait unexpectedly succeeded, "
 						"expected -EFAULT, instead got errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -922,7 +922,7 @@ static void NORETURN epoll_server(
 			(void)stress_epoll_pwait(efd, events, INT_MIN, 100, &sigmask);
 
 		}
-		if (n < 0) {
+		if (UNLIKELY(n < 0)) {
 			if ((saved_errno != EINTR) &&
 			    (saved_errno != EINVAL)) {
 				pr_fail("%s: epoll_wait failed, errno=%d (%s)\n",
@@ -948,12 +948,12 @@ static void NORETURN epoll_server(
 				 *  The listening socket has notification(s)
 				 *  pending, so handle incoming connections
 				 */
-				if (epoll_notification(args, efd, sfd, epoll_sockets, &fd_count) < 0)
+				if (UNLIKELY(epoll_notification(args, efd, sfd, epoll_sockets, &fd_count) < 0))
 					break;
-				if (test_eloop(args, efd, efd2) < 0)
+				if (UNLIKELY(test_eloop(args, efd, efd2) < 0))
 					break;
 #if defined(EPOLLEXCLUSIVE)
-				if (test_epoll_exclusive(args, efd, efd2, sfd) < 0)
+				if (UNLIKELY(test_epoll_exclusive(args, efd, efd2, sfd) < 0))
 					break;
 #endif
 			} else {
