@@ -158,6 +158,7 @@ static int stress_copy_file(const stress_args_t *args)
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 	double duration = 0.0, bytes = 0.0, rate;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -243,7 +244,7 @@ static int stress_copy_file(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_out;
 		}
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		if (verify) {
 			int verify_ret;
 			off_in = off_in_orig;
 			off_out = off_out_orig;
