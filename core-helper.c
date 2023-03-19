@@ -1891,7 +1891,7 @@ ssize_t system_write(
 	ssize_t ret;
 
 	fd = open(path, O_WRONLY);
-	if (fd < 0)
+	if (UNLIKELY(fd < 0))
 		return -errno;
 	ret = write(fd, buf, buf_len);
 	if (ret < (ssize_t)buf_len)
@@ -1916,10 +1916,10 @@ ssize_t system_read(
 	(void)memset(buf, 0, buf_len);
 
 	fd = open(path, O_RDONLY);
-	if (fd < 0)
+	if (UNLIKELY(fd < 0))
 		return -errno;
 	ret = read(fd, buf, buf_len);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		buf[0] = '\0';
 		ret = -errno;
 	}
