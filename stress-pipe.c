@@ -111,7 +111,6 @@ static int stress_pipe(const stress_args_t *args)
 	size_t pipe_data_size = 512;
 	char *buf;
 	uint32_t *buf32, val = stress_mwc32();
-	const uint32_t pipe_stop = 0xffffffffUL;
 	double duration = 0.0, bytes = 0.0, rate;
 
 	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
@@ -197,6 +196,8 @@ again:
 			if (UNLIKELY(n <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
+				if (errno == EPIPE)
+					break;
 				if (errno) {
 					pr_fail("%s: read failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -214,15 +215,12 @@ again:
 				VOID_RET(int, ioctl(pipefds[0], FIONREAD, &readbytes));
 			}
 #endif
-			if (UNLIKELY(*buf32 == pipe_stop))
-				break;
 			if (UNLIKELY(verify)) {
 				if (UNLIKELY(*buf32 != val)) {
 					pr_fail("%s: pipe read error detected, "
 						"failed to read expected data\n", args->name);
 				}
 				val++;
-				val &= 0x7ffffffUL;
 			}
 		}
 		(void)close(pipefds[0]);
@@ -241,11 +239,12 @@ again:
 			register ssize_t ret;
 
 			*buf32 = val++;
-			val &= 0x7ffffffUL;
 			ret = write(fd, buf, pipe_data_size);
 			if (UNLIKELY(ret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
+				if (errno == EPIPE)
+					break;
 				if (errno) {
 					pr_fail("%s: write failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -261,15 +260,9 @@ again:
 		rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
 		stress_metrics_set(args, 0, "MB per sec pipe write rate", rate);
 
-		*buf32 = pipe_stop;
-		if (write(fd, buf, pipe_data_size) <= 0) {
-			if (errno != EPIPE)
-				pr_fail("%s: termination write failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-		}
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
 		(void)close(pipefds[1]);
+		(void)kill(pid, SIGPIPE);
+		(void)shim_waitpid(pid, &status, 0);
 		(void)munmap((void *)buf, pipe_data_size);
 	}
 finish:
