@@ -48,56 +48,75 @@ typedef struct {
 } chk_canary_t;
 
 typedef struct {
-	chk_ucontext_t	cu;	/* check ucontext */
-	uint8_t		ALIGN64 stack[CONTEXT_STACK_SIZE + STACK_ALIGNMENT]; /* stack */
+	chk_ucontext_t	cu ALIGN64;	/* check ucontext */
+	uint8_t		stack[CONTEXT_STACK_SIZE + STACK_ALIGNMENT]; /* stack */
 	chk_canary_t	canary;	/* copy of canary */
 } context_data_t;
 
-#define CONTEXT_SIZE	(sizeof(context_data_t))
-#define ALIGNED_SIZE 	((CONTEXT_SIZE + 63) & ~(size_t)63)
-
-typedef struct {
-	context_data_t	d;
-	uint8_t padding[ALIGNED_SIZE - CONTEXT_SIZE];
-} context_info_t;
-
 static ucontext_t uctx_main;
-static context_info_t *context;
-static uint64_t context_counter;
+static context_data_t *context;
+static uint64_t context_counter ALIGN64;
 static uint64_t stress_max_ops;
-double duration, t1, t2, t3;
 
-static void stress_thread1(void)
+static void OPTIMIZE3 stress_thread1(void)
 {
-	do {
-		duration += stress_time_now() - t3;
-		context_counter++;
-		t1 = stress_time_now();
-		(void)swapcontext(&context[0].d.cu.uctx, &context[1].d.cu.uctx);
-	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
-	(void)swapcontext(&context[0].d.cu.uctx, &uctx_main);
+	register ucontext_t *uctx0 = &context[0].cu.uctx;
+	register ucontext_t *uctx1 = &context[1].cu.uctx;
+	register const uint64_t max_ops = stress_max_ops;
+
+	if (max_ops) {
+		do {
+			context_counter++;
+			(void)swapcontext(uctx0, uctx1);
+		} while (keep_stressing_flag() && (context_counter < max_ops));
+	} else {
+		do {
+			context_counter++;
+			(void)swapcontext(uctx0, uctx1);
+		} while (keep_stressing_flag());
+	}
+
+	(void)swapcontext(uctx0, &uctx_main);
 }
 
-static void stress_thread2(void)
+static void OPTIMIZE3 stress_thread2(void)
 {
-	do {
-		duration += stress_time_now() - t1;
-		context_counter++;
-		t2 = stress_time_now();
-		(void)swapcontext(&context[1].d.cu.uctx, &context[2].d.cu.uctx);
-	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
-	(void)swapcontext(&context[1].d.cu.uctx, &uctx_main);
+	register ucontext_t *uctx1 = &context[1].cu.uctx;
+	register ucontext_t *uctx2 = &context[2].cu.uctx;
+	register const uint64_t max_ops = stress_max_ops;
+
+	if (max_ops) {
+		do {
+			context_counter++;
+			(void)swapcontext(uctx1, uctx2);
+		} while (keep_stressing_flag() && (!max_ops || (context_counter < max_ops)));
+	} else {
+		do {
+			context_counter++;
+			(void)swapcontext(uctx1, uctx2);
+		} while (keep_stressing_flag());
+	}
+	(void)swapcontext(uctx1, &uctx_main);
 }
 
-static void stress_thread3(void)
+static void OPTIMIZE3 stress_thread3(void)
 {
-	do {
-		duration += stress_time_now() - t2;
-		context_counter++;
-		t3 = stress_time_now();
-		(void)swapcontext(&context[2].d.cu.uctx, &context[0].d.cu.uctx);
-	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
-	(void)swapcontext(&context[2].d.cu.uctx, &uctx_main);
+	register ucontext_t *uctx2 = &context[2].cu.uctx;
+	register ucontext_t *uctx0 = &context[0].cu.uctx;
+	register const uint64_t max_ops = stress_max_ops;
+
+	if (max_ops) {
+		do {
+			context_counter++;
+			(void)swapcontext(uctx2, uctx0);
+		} while (keep_stressing_flag() && (!max_ops || (context_counter < max_ops)));
+	} else {
+		do {
+			context_counter++;
+			(void)swapcontext(uctx2, uctx0);
+		} while (keep_stressing_flag());
+	}
+	(void)swapcontext(uctx2, &uctx_main);
 }
 
 static void (*stress_threads[STRESS_CONTEXTS])(void) = {
@@ -110,26 +129,26 @@ static int stress_context_init(
 	const stress_args_t *args,
 	void (*func)(void),
 	ucontext_t *uctx_link,
-	context_info_t *context_info)
+	context_data_t *context_data)
 {
-	(void)memset(context_info, 0, sizeof(*context_info));
+	(void)memset(context_data, 0, sizeof(*context_data));
 
-	if (getcontext(&context_info->d.cu.uctx) < 0) {
+	if (getcontext(&context_data->cu.uctx) < 0) {
 		pr_fail("%s: getcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
 
-	context_info->d.canary.check0 = stress_mwc32();
-	context_info->d.canary.check1 = stress_mwc32();
+	context_data->canary.check0 = stress_mwc32();
+	context_data->canary.check1 = stress_mwc32();
 
-	context_info->d.cu.check0 = context_info->d.canary.check0;
-	context_info->d.cu.check1 = context_info->d.canary.check1;
-	context_info->d.cu.uctx.uc_stack.ss_sp =
-		(void *)stress_align_address(context_info->d.stack, STACK_ALIGNMENT);
-	context_info->d.cu.uctx.uc_stack.ss_size = CONTEXT_STACK_SIZE;
-	context_info->d.cu.uctx.uc_link = uctx_link;
-	makecontext(&context_info->d.cu.uctx, func, 0);
+	context_data->cu.check0 = context_data->canary.check0;
+	context_data->cu.check1 = context_data->canary.check1;
+	context_data->cu.uctx.uc_stack.ss_sp =
+		(void *)stress_align_address(context_data->stack, STACK_ALIGNMENT);
+	context_data->cu.uctx.uc_stack.ss_size = CONTEXT_STACK_SIZE;
+	context_data->cu.uctx.uc_link = uctx_link;
+	makecontext(&context_data->cu.uctx, func, 0);
 
 	return 0;
 }
@@ -141,18 +160,18 @@ static int stress_context_init(
 static int stress_context(const stress_args_t *args)
 {
 	size_t i;
-	double rate;
+	const size_t context_size = 3 * sizeof(*context);
+	double duration, rate, t;
 	int rc = EXIT_FAILURE;
 
-	context = (context_info_t *)mmap(NULL, STRESS_CONTEXTS * sizeof(*context),
+	context = (context_data_t *)mmap(NULL, context_size,
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (context == MAP_FAILED) {
 		pr_inf("%s: failed to allocate %d x %zd byte context buffers, skipping stressor\n",
-			args->name, STRESS_CONTEXTS, sizeof(context_info_t));
+			args->name, STRESS_CONTEXTS, sizeof(context_data_t));
 		return EXIT_NO_RESOURCE;
 	}
-
 	(void)memset(&uctx_main, 0, sizeof(uctx_main));
 
 	context_counter = 0;
@@ -165,25 +184,24 @@ static int stress_context(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	duration = 0.0;
-	t1 = 0.0;
-	t2 = 0.0;
-	t3 = stress_time_now();
+
 	/* And start.. */
-	if (swapcontext(&uctx_main, &context[0].d.cu.uctx) < 0) {
+	t = stress_time_now();
+	if (swapcontext(&uctx_main, &context[0].cu.uctx) < 0) {
 		pr_fail("%s: swapcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto fail;
 	}
+	duration = stress_time_now() - t;
 
 	set_counter(args, context_counter / 1000);
 
 	for (i = 0; i < STRESS_CONTEXTS; i++) {
-		if (context[i].d.canary.check0 != context[i].d.cu.check0) {
+		if (context[i].canary.check0 != context[i].cu.check0) {
 			pr_fail("%s: swapcontext clobbered data before context region\n",
 				args->name);
 		}
-		if (context[i].d.canary.check1 != context[i].d.cu.check1) {
+		if (context[i].canary.check1 != context[i].cu.check1) {
 			pr_fail("%s: swapcontext clobbered data after context region\n",
 				args->name);
 		}
@@ -192,11 +210,11 @@ static int stress_context(const stress_args_t *args)
 
 	rate = (duration > 0.0) ? (double)context_counter / duration : 0.0;
 	stress_metrics_set(args, 0, "swapcontext calls per sec", rate);
+
 	rc = EXIT_SUCCESS;
 
 fail:
-	(void)munmap((void *)context, STRESS_CONTEXTS * sizeof(*context));
-
+	(void)munmap((void *)context, context_size);
 	return rc;
 }
 
