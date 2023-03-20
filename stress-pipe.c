@@ -113,6 +113,9 @@ static int stress_pipe(const stress_args_t *args)
 	uint32_t *buf32, val = stress_mwc32();
 	double duration = 0.0, bytes = 0.0, rate;
 
+	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
+		return EXIT_FAILURE;
+
 	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
 
 	buf = (char *)mmap(NULL, pipe_data_size, PROT_READ | PROT_WRITE,
