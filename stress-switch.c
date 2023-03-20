@@ -140,6 +140,9 @@ static int stress_switch_pipe(
 	size_t buf_size;
 	char *buf;
 
+	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
+		return EXIT_FAILURE;
+
 	(void)memset(pipefds, 0, sizeof(pipefds));
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
