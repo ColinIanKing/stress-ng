@@ -48,7 +48,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LINUX_IF_ALG_H) &&	\
     defined(HAVE_LINUX_SOCKET_H) &&	\
-    defined(HAVE_LIB_IPSEC_MB) &&	\
     defined(AF_ALG)
 
 #if !defined(SOL_ALG)
