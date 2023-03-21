@@ -515,6 +515,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Analysis and Detection of Cache-Based Exploits](https://ssg.lancs.ac.uk/wp-content/uploads/2020/07/analysis_and_detection_vateva.pdf)
 * [Robust and accurate performance anomaly detection and prediction for cloud applications: a novel ensemble learning-based framework](https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-022-00383-6#Fn4)
 * [kMVX: Detecting Kernel Information Leaks with Multi-variant Execution](https://research.vu.nl/ws/files/122357910/KMVX.pdf)
+* [Feasibility Study for a Python-Based Embedded Real-Time Control System](https://www.mdpi.com/2079-9292/12/6/1426)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
