@@ -197,6 +197,8 @@ again:
 
 			n = read(fd, buf, pipe_data_size);
 			if (UNLIKELY(n <= 0)) {
+				if (n == 0)
+					break;
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno == EPIPE)
