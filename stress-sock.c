@@ -440,7 +440,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
  *  stress_sock_client()
  *	client reader
  */
-static int stress_sock_client(
+static int OPTIMIZE3 stress_sock_client(
 	const stress_args_t *args,
 	char *buf,
 	const pid_t mypid,
@@ -795,16 +795,16 @@ retry:
 					msgvec[i].msg_hdr.msg_iovlen = j;
 				}
 				n = recvmmsg(fd, msgvec, MSGVEC_SIZE, 0, NULL);
-				if (n > 0) {
+				if (LIKELY(n > 0)) {
 					for (n = 0, i = 0; i < MSGVEC_SIZE; i++)
 						n += msgvec[i].msg_len;
 				}
 				break;
 #endif
 			}
-			if (n == 0)
-				break;
-			if (n < 0) {
+			if (UNLIKELY(n <= 0)) {
+				if (n == 0)
+					break;
 				if ((errno != EINTR) && (errno != ECONNRESET))
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
 						recvfunc, args->name,
@@ -858,7 +858,7 @@ static bool stress_send_error(const int err)
  *  stress_sock_server()
  *	server writer
  */
-static int stress_sock_server(
+static int OPTIMIZE3 stress_sock_server(
 	const stress_args_t *args,
 	char *buf,
 	const pid_t pid,
@@ -1041,8 +1041,7 @@ static int stress_sock_server(
 			switch (opt) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < MMAP_IO_SIZE; i += 16) {
-					ssize_t ret = send(sfd, buf, i, sendflag);
-					if (ret < 0) {
+					if (UNLIKELY(send(sfd, buf, i, sendflag) < 0)) {
 						if (stress_send_error(errno))
 							pr_fail("%s: send failed, errno=%d (%s)\n",
 								args->name, errno, strerror(errno));
@@ -1059,7 +1058,7 @@ static int stress_sock_server(
 				(void)memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
-				if (sendmsg(sfd, &msg, 0) < 0) {
+				if (UNLIKELY(sendmsg(sfd, &msg, 0) < 0)) {
 					if (stress_send_error(errno))
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
@@ -1077,7 +1076,7 @@ static int stress_sock_server(
 					msgvec[i].msg_hdr.msg_iov = vec;
 					msgvec[i].msg_hdr.msg_iovlen = j;
 				}
-				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
+				if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0)) {
 					if (stress_send_error(errno))
 						pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
@@ -1091,7 +1090,7 @@ static int stress_sock_server(
 				(void)close(sfd);
 				goto die_close;
 			}
-			if (getpeername(sfd, &saddr, &len) < 0) {
+			if (UNLIKELY(getpeername(sfd, &saddr, &len) < 0)) {
 				if (errno != ENOTCONN)
 					pr_fail("%s: getpeername failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
