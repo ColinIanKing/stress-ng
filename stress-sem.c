@@ -64,7 +64,7 @@ static int p_ret[MAX_SEM_POSIX_PROCS];
  *  semaphore_posix_thrash()
  *	exercise the semaphore
  */
-static void *semaphore_posix_thrash(void *arg)
+static void OPTIMIZE3 *semaphore_posix_thrash(void *arg)
 {
 	const stress_pthread_args_t *p_args = arg;
 	const stress_args_t *args = p_args->args;
@@ -75,13 +75,14 @@ static void *semaphore_posix_thrash(void *arg)
 
 		for (i = 0; keep_stressing_flag() && i < 1000; i++) {
 			int value;
+			register bool yield;
 
-			if (sem_getvalue(&sem, &value) < 0)
+			if (UNLIKELY(sem_getvalue(&sem, &value) < 0)) {
 				pr_fail("%s: sem_getvalue failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-
+			}
 			if (i & 1) {
-				if (sem_trywait(&sem) < 0) {
+				if (UNLIKELY(sem_trywait(&sem) < 0)) {
 					if (errno == 0 ||
 					    errno == EAGAIN)
 						continue;
@@ -94,13 +95,13 @@ static void *semaphore_posix_thrash(void *arg)
 				struct timespec ts;
 
 #if defined(CLOCK_REALTIME)
-				if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
+				if (UNLIKELY(clock_gettime(CLOCK_REALTIME, &ts) < 0))
 					(void)memset(&ts, 0, sizeof(ts));
 #else
 				(void)memset(&ts, 0, sizeof(ts));
 #endif
 
-				if (sem_timedwait(&sem, &ts) < 0) {
+				if (UNLIKELY(sem_timedwait(&sem, &ts) < 0)) {
 					if (errno == 0 ||
 					    errno == EAGAIN ||
 					    errno == ETIMEDOUT)
@@ -111,16 +112,18 @@ static void *semaphore_posix_thrash(void *arg)
 					break;
 				}
 			}
-			inc_counter(args);
-			if (sem_post(&sem) < 0) {
+			if (UNLIKELY(sem_post(&sem) < 0)) {
 				pr_fail("%s: sem_post failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
-			if (stress_mwc1())
-				(void)shim_sched_yield();
+
+			yield = stress_mwc1();
+			inc_counter(args);
+			if (yield)
+				shim_sched_yield();
 			else
-				(void)shim_usleep(0);
+				shim_usleep(0);
 		}
 	} while (keep_stressing(args));
 
