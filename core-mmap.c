@@ -32,7 +32,7 @@ void OPTIMIZE3 stress_mmap_set(
 	const size_t sz,
 	const size_t page_size)
 {
-	register uint64_t val = ~(uint64_t)buf;
+	register uint64_t val = stress_mwc64();
 	register uint64_t *ptr = (uint64_t *)buf;
 	register uint64_t *end = (uint64_t *)(buf + sz);
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
@@ -98,9 +98,9 @@ int OPTIMIZE3 stress_mmap_check(
 	const size_t sz,
 	const size_t page_size)
 {
-	register uint64_t val = ~(uint64_t)buf;
 	register uint64_t *ptr = (uint64_t *)buf;
 	register uint64_t *end = (uint64_t *)(buf + sz);
+	register uint64_t val = *ptr;
 
 	while (ptr < end) {
 		register uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
