@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_MODULE_H)
 #include <linux/module.h>
@@ -42,10 +43,6 @@ UNEXPECTED
 #define MODULE_INIT_IGNORE_VERMAGIC 2
 #endif
 
-#ifndef PATH_MAX
-#define PATH_MAX 1024
-#endif
-
 static const stress_help_t help[] = {
 	{ NULL,	"module N",	    "start N workers performing module requests" },
 	{ NULL,	"module-name F",    "use the specified module name F to load." },
@@ -54,22 +51,19 @@ static const stress_help_t help[] = {
 	{ NULL,	"module-nomodver",  "ignore symbol version hashes" },
 	{ NULL,	"module-novermag",  "ignore kernel version magic" },
 	{ NULL,	"module-ops N",     "stop after N module bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,		    NULL }
 };
 
-enum parse_line_type {
-	PARSE_COMMENT = 0,
-	PARSE_EMPTY,
-	PARSE_DEPMOD_MODULE,
-	PARSE_INVALID,
-	PARSE_EOF,
-};
-
-/* Taken from kmod.git to keep bug compatible */
-static const char *dirname_default_prefix = "/lib/modules";
-static bool module_path_found = false;
-static char global_module_path[PATH_MAX];
-static int global_module_fd;
+static int stress_module_supported(const char *name)
+{
+        if (!stress_check_capability(SHIM_CAP_SYS_MODULE)) {
+                pr_inf_skip("%s stressor will be skipped, "
+                        "need to be running with CAP_SYS_MODULE "
+                        "rights for this stressor\n", name);
+                return -1;
+        }
+	return 0;
+}
 
 static int stress_set_module_nounload(const char *opt)
 {
@@ -96,7 +90,34 @@ static int stress_set_module_name(const char *name)
 	return stress_set_setting("module-name", TYPE_ID_STR, name);
 }
 
-static bool isempty(const char *line, ssize_t linelen)
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_module_name,	stress_set_module_name},
+	{ OPT_module_nomodver,	stress_set_module_nomodver },
+	{ OPT_module_novermag,	stress_set_module_novermag },
+	{ OPT_module_nounload,	stress_set_module_nounload },
+	{ OPT_module_sharedfd,	stress_set_module_sharedfd},
+	{ 0,			NULL }
+};
+
+#if defined(__linux__)
+
+enum parse_line_type {
+	PARSE_COMMENT = 0,
+	PARSE_EMPTY,
+	PARSE_DEPMOD_MODULE,
+	PARSE_INVALID,
+	PARSE_EOF,
+};
+
+
+/* Taken from kmod.git to keep bug compatible */
+static const char *dirname_default_prefix = "/lib/modules";
+static bool module_path_found = false;
+static char global_module_path[PATH_MAX];
+static int global_module_fd;
+
+
+static bool isempty(const char *line, const ssize_t linelen)
 {
 	ssize_t i = 0;
 	char p;
@@ -112,7 +133,7 @@ static bool isempty(const char *line, ssize_t linelen)
 	return true;
 }
 
-static bool iscomment(const char *line, ssize_t	linelen)
+static bool iscomment(const char *line, const ssize_t linelen)
 {
 	ssize_t i = 0;
 	char p;
@@ -134,9 +155,10 @@ static bool iscomment(const char *line, ssize_t	linelen)
 	return false;
 }
 
-static enum parse_line_type parse_get_line_type(const char *line,
-						ssize_t linelen,
-						char *module)
+static enum parse_line_type parse_get_line_type(
+	const char *line,
+	const ssize_t linelen,
+	char *module)
 {
 	int ret;
 
@@ -148,9 +170,8 @@ static enum parse_line_type parse_get_line_type(const char *line,
 
 	/* should be a "kernel/foo/path.ko: .* */
 	ret = sscanf(line, "%[^:]:", module);
-	if (ret == 1) {
+	if (ret == 1)
 		return PARSE_DEPMOD_MODULE;
-	}
 
 	if (ret == EOF)
 		return PARSE_EOF;
@@ -174,7 +195,11 @@ static enum parse_line_type parse_get_line_type(const char *line,
  * On success returns 0 and sets module_path to the path of the
  * module you should load with finit_module.
  */
-int get_modpath_name(const char *name, char *module_path)
+int get_modpath_name(
+	const stress_args_t *args,
+	const char *name,
+	char *module_path,
+	const size_t module_path_size)
 {
 #if defined(HAVE_UNAME) &&      \
     defined(HAVE_SYS_UTSNAME_H)
@@ -193,12 +218,13 @@ int get_modpath_name(const char *name, char *module_path)
 
         if (uname(&u) < 0)
 		return -1;
-	snprintf(depmod, sizeof(depmod), "%s/%s/modules.dep",
+	(void)snprintf(depmod, sizeof(depmod), "%s/%s/modules.dep",
 		 dirname_default_prefix, u.release);
 
 	fp = fopen(depmod, "r");
 	if (!fp)
 		goto out_close;
+
 	while ((linelen = getline(&line, &len, fp)) != -1) {
 		char *module_pathp;
 		char *start_postfix;
@@ -223,25 +249,22 @@ int get_modpath_name(const char *name, char *module_path)
 				break;
 			}
 
-			memset(module_path_truncated, 0, PATH_MAX);
-			strncpy(module_path_truncated, module_pathp, PATH_MAX);
+			(void)shim_strlcpy(module_path_truncated, module_pathp, sizeof(module_path_truncated));
 
 			/* basename can modify the the original string */
 			modulenamep = basename(module_path_truncated);
-			memset(module_path_basename, 0, PATH_MAX);
-			strcpy(module_path_basename, modulenamep);
+			(void)shim_strlcpy(module_path_basename, modulenamep, sizeof(module_path_basename));
 
 			start_postfix = strchr(module_path_basename, '.');
-			if (start_postfix == NULL) {
+			if (!start_postfix) {
 				free(line);
 				line = NULL;
 				break;
 			}
 			*start_postfix  = '\0';
 
-			memset(module_short, 0, PATH_MAX);
-			strncpy(module_short, module_path_basename, PATH_MAX);
-			if (strlen(name) != strlen (module_short)) {
+			(void)shim_strlcpy(module_short, module_path_basename, sizeof(module_short));
+			if (strlen(name) != strlen(module_short)) {
 				free(line);
 				line = NULL;
 				break;
@@ -251,15 +274,15 @@ int get_modpath_name(const char *name, char *module_path)
 				line = NULL;
 				break;
 			}
-			//snprintf(module_path, strlen(module_path), "%s/%s/%s",
-			snprintf(module_path, PATH_MAX*2, "%s/%s/%s",
+			(void)snprintf(module_path, module_path_size, "%s/%s/%s",
 				 dirname_default_prefix,
 				 u.release, module);
 			ret = 0;
 			goto out_close;
 		case PARSE_INVALID:
 			ret = -1;
-			fprintf(stderr, "Invalid line %s:%zu : %s\n", depmod, lineno, line);
+			pr_inf("%s: invalid line in '%s' at line %zu: '%s'\n",
+				args->name, depmod, lineno, line);
 			goto out_close;
 		}
 
@@ -270,13 +293,12 @@ int get_modpath_name(const char *name, char *module_path)
 out_close:
 	if (line)
 		free(line);
-	fclose(fp);
+	(void)fclose(fp);
 	return ret;
 #else
 	return -1;
 #endif
 }
-
 
 /*
  *  stress_module
@@ -291,7 +313,7 @@ static int stress_module(const stress_args_t *args)
 	char *module_name_cli = NULL;
 	char module_path[PATH_MAX];
 	char *module_name;
-	char *default_module = "test_module";
+	static char default_module[] = "test_module";
 	const char *finit_args1 = "";
 	unsigned int kernel_flags = 0;
 	struct stat statbuf;
@@ -302,14 +324,6 @@ static int stress_module(const stress_args_t *args)
 	(void)stress_get_setting("module-nomodver", &ignore_modversions);
 	(void)stress_get_setting("module-nounload", &module_nounload);
 	(void)stress_get_setting("module-sharedfd", &module_sharedfd);
-
-	if (geteuid() != 0) {
-		if (args->instance == 0)
-			pr_inf("%s: need root privilege to run "
-				"this stressor\n", args->name);
-		/* Not strictly a test failure */
-		return EXIT_SUCCESS;
-	}
 
 	if (ignore_vermagic)
 		kernel_flags |= MODULE_INIT_IGNORE_VERMAGIC;
@@ -329,35 +343,46 @@ static int stress_module(const stress_args_t *args)
 		if (!module_path_found)
 			return EXIT_SUCCESS;
 	} else {
-		ret = get_modpath_name(module_name, module_path);
+		ret = get_modpath_name(args, module_name, module_path, sizeof(module_path));
 		if (ret != 0) {
-			if (module_name == default_module)
-				pr_inf_skip("%s: could not find a module path for the default test_module '%s', perhaps CONFIG_TEST_LKM is disabled in your kernel, skipping stressor\n",
-					    args->name, module_name);
-			else
-				pr_inf_skip("%s: could not find a module path for module you specified '%s', ensure it is enabld in your running kernel, skipping stressor\n",
-					    args->name, module_name);
+			if (module_name == default_module) {
+				pr_inf_skip("%s: could not find a module path for "
+					"the default test_module '%s', perhaps "
+					"CONFIG_TEST_LKM is disabled in your "
+					"kernel, skipping stressor\n",
+					args->name, module_name);
+			} else {
+				pr_inf_skip("%s: could not find a module path for "
+					"the module you specified '%s', ensure it "
+					"is enabld in your running kernel, "
+					"skipping stressor\n",
+					args->name, module_name);
+			}
 			return EXIT_NO_RESOURCE;
 		}
 		if (stat(module_path, &statbuf) < 0) {
 			if (args->instance == 0) {
 				if (module_path != default_module)
-					pr_inf_skip("%s: could not get stat() on the module you specified '%s', skipping stressor\n",
-						    args->name, module_path);
+					pr_inf_skip("%s: could not get stat() on "
+						"the module you specified '%s', "
+						"skipping stressor\n",
+						args->name, module_path);
 				else
-					pr_inf_skip("%s: could not get stat() on the default module '%s', skipping stressor (XXX implement utsname path completion)\n",
-						    args->name, module_path);
+					pr_inf_skip("%s: could not get stat() on "
+						"the default module '%s', "
+						"skipping stressor\n",
+						args->name, module_path);
 			}
 			return EXIT_NO_RESOURCE;
 		}
 		if (!S_ISREG(statbuf.st_mode)) {
-			pr_inf_skip("%s: module passed is not a regular file '%s', skipping stressor\n",
-				    args->name, module_path);
+			pr_inf_skip("%s: module passed is not a regular file "
+				"'%s', skipping stressor\n",
+				args->name, module_path);
 			return EXIT_NO_RESOURCE;
 		}
 
-		memcpy(global_module_path, module_path, PATH_MAX);
-
+		(void)shim_strlcpy(global_module_path, module_path, sizeof(global_module_path));
 		if (module_sharedfd) {
 			global_module_fd = open(global_module_path, O_RDONLY | O_CLOEXEC);
 
@@ -367,8 +392,9 @@ static int stress_module(const stress_args_t *args)
 					ret = EXIT_NO_RESOURCE;
 					goto out;
 				}
-				pr_inf_skip("%s: unexpected error while opening module file %s, skipping stressor\n",
-					    args->name, global_module_path);
+				pr_inf_skip("%s: unexpected error while opening the "
+					"module file %s, skipping stressor\n",
+					args->name, global_module_path);
 				ret = EXIT_NO_RESOURCE;
 				goto out;
 			}
@@ -382,22 +408,20 @@ static int stress_module(const stress_args_t *args)
 	 * the first time.
 	 */
 	if (!module_nounload)
-		shim_delete_module(module_name, 0);
+		(void)shim_delete_module(module_name, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret;
-		int fd;
+		int ret, fd;
 
 		if (!keep_stressing(args))
 			goto out;
 
-		if (module_sharedfd)
+		if (module_sharedfd) {
 			fd = global_module_fd;
-		else {
+		} else {
 			fd = open(global_module_path, O_RDONLY | O_CLOEXEC);
-
 			if (fd < 0) {
 				/* Check if we hit the open file limit */
 				if ((errno == EMFILE) || (errno == ENFILE)) {
@@ -412,35 +436,38 @@ static int stress_module(const stress_args_t *args)
 		ret = shim_finit_module(fd, finit_args1, kernel_flags);
 		if (ret == 0) {
 			if (!module_nounload)
-				shim_delete_module(module_name, 0);
+				(void)shim_delete_module(module_name, 0);
 		}
 
 		if (!module_sharedfd)
 			(void)close(fd);
 
+		inc_counter(args);
 	} while (keep_stressing(args));
 
 out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (module_sharedfd && args->instance == 0)
-		close(global_module_fd);
+	if (module_sharedfd > 0)
+		(void)close(global_module_fd);
 
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_module_name,	stress_set_module_name},
-	{ OPT_module_nomodver,	stress_set_module_nomodver },
-	{ OPT_module_novermag,	stress_set_module_novermag },
-	{ OPT_module_nounload,	stress_set_module_nounload },
-	{ OPT_module_sharedfd,	stress_set_module_sharedfd},
-	{ 0,					NULL }
-};
-
 stressor_info_t stress_module_info = {
 	.stressor = stress_module,
-	.class = CLASS_OS | CLASS_FILESYSTEM | CLASS_MEMORY,
+	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_module_supported,
 	.help = help
 };
+
+#else
+stressor_info_t stress_module_info = {
+	.stressor = stress_unimplemented,
+	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_module_supported,
+	.help = help
+};
+#endif
