@@ -1616,6 +1616,14 @@ typedef enum {
 	OPT_mmapmany,
 	OPT_mmapmany_ops,
 
+	OPT_module,
+	OPT_module_name,
+	OPT_module_nomodver,
+	OPT_module_novermag,
+	OPT_module_nounload,
+	OPT_module_ops,
+	OPT_module_sharedfd,
+
 	OPT_mprotect,
 	OPT_mprotect_ops,
 
@@ -2927,6 +2935,7 @@ extern int shim_clone3(struct shim_clone_args *cl_args, size_t size);
 extern int shim_close_range(unsigned int fd, unsigned int max_fd, unsigned int flags);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
 	int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);
+extern int shim_delete_module(const char *name, unsigned int flags);
 extern int shim_dup3(int oldfd, int newfd, int flags);
 extern int shim_execveat(int dir_fd, const char *pathname, char *const argv[],
 	char *const envp[], int flags);
@@ -2934,6 +2943,7 @@ extern void shim_exit_group(int status);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
 extern int shim_fdatasync(int fd);
 extern ssize_t shim_fgetxattr(int fd, const char *name, void *value, size_t size);
+extern int shim_finit_module(int fd, const char *uargs, int flags);
 extern ssize_t shim_flistxattr(int fd, char *list, size_t size);
 extern int shim_fsconfig(int fd, unsigned int cmd, const char *key,
 	const void *value, int aux);

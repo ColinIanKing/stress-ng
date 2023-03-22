@@ -166,6 +166,7 @@
 	MACRO(mmapfork)		\
 	MACRO(mmaphuge)		\
 	MACRO(mmapmany)		\
+	MACRO(module)		\
 	MACRO(mprotect)		\
 	MACRO(mq)		\
 	MACRO(mremap)		\

@@ -3410,6 +3410,43 @@ the maximum allowed mappings or a maximum of 262144 mappings are made.
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations
 .TP
+.B \-\-module N
+start N workers that will use finit_module() to load the module specified
+or the hello test module, if you've compiled that. There are different ways
+to test loading modules. Using modprobe calls in a loop, using the kernel
+kernel module autoloader, and this stress-ng module stressor. To stress tests
+modprobe we can simply run the userspace modprobe program in a loop. To stress
+test the kernel module autoloader we can stress tests using the upstream
+kernel tools/testing/selftests/kmod/kmod.sh. This ends up calling modprobe
+in the end, and it has its own caps built-in to self protect the kernel from
+too many requests at the same time. The userspace modprobe call will also
+prevent calls if the same module exists already. The stress-ng modules
+stressor is designed to help stress test the finit_module() system call
+even if the module is already loaded, letting us tests races which are
+otherwise hard to reproduce.
+.TP
+.B \-\-module\-name NAME
+NAME of the module to use. Examples: test_module, xfs, ext4. By default
+test_module is used so you must have CONFIG_TEST_LKM enabled on your kernel.
+Your module dependencies must be loaded prior to running these stressor
+tests, as this stresses running finit_module() not using modprobe.
+.TP
+.B \-\-module\-ignore\-modversions
+Ignore module modversions when using finit_module().
+.TP
+.B \-\-module\-ignore\-vermagic
+Ignore module versions when using finit_module().
+.TP
+.B \-\-module\-unload
+Unload the module right after loading it with finit_module().
+.TP
+.B \-\-module\-sharedfd
+Share the same file descriptor for for all jobs. If you don't want to
+stress test opening a new file descriptor per each finit_module() you want
+to test then enable this. This won't replicate most finit_module() uses
+as typically a shared file descriptor is not a goal by most system bringup
+software, although perhaps that should be an end goal.
+.TP
 .B \-\-mprotect N
 start N workers that exercise changing page protection settings and access
 memory after each change. 8 processes per worker contend with each other

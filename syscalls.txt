@@ -82,7 +82,7 @@ fchownat			close
 fcntl				open, lockf, fcntl
 fdatasync			hdd
 fgetxattr			xattr
-finit_module
+finit_module			module
 flistxattr			xattr
 flock				flock
 fork				fork
