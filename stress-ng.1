@@ -3411,8 +3411,8 @@ the maximum allowed mappings or a maximum of 262144 mappings are made.
 stop after N mmapmany bogo operations
 .TP
 .B \-\-module N
-start N workers that will use finit_module() to load the module specified
-or the hello test module, if you've compiled that. There are different ways
+start N workers that use finit_module() to load the module specified
+or the hello test module, if is available. There are different ways
 to test loading modules. Using modprobe calls in a loop, using the kernel
 kernel module autoloader, and this stress-ng module stressor. To stress tests
 modprobe we can simply run the userspace modprobe program in a loop. To stress
@@ -3426,26 +3426,19 @@ even if the module is already loaded, letting us tests races which are
 otherwise hard to reproduce.
 .TP
 .B \-\-module\-name NAME
-NAME of the module to use. Examples: test_module, xfs, ext4. By default
-test_module is used so you must have CONFIG_TEST_LKM enabled on your kernel.
-Your module dependencies must be loaded prior to running these stressor
+NAME of the module to use, for example: test_module, xfs, ext4. By default
+test_module is used so CONFIG_TEST_LKM must be enabled in the kernel.
+The module dependencies must be loaded prior to running these stressor
 tests, as this stresses running finit_module() not using modprobe.
 .TP
 .B \-\-module\-ignore\-modversions
-Ignore module modversions when using finit_module().
+ignore module modversions when using finit_module().
 .TP
 .B \-\-module\-ignore\-vermagic
-Ignore module versions when using finit_module().
+ignore module versions when using finit_module().
 .TP
 .B \-\-module\-unload
-Unload the module right after loading it with finit_module().
-.TP
-.B \-\-module\-sharedfd
-Share the same file descriptor for for all jobs. If you don't want to
-stress test opening a new file descriptor per each finit_module() you want
-to test then enable this. This won't replicate most finit_module() uses
-as typically a shared file descriptor is not a goal by most system bringup
-software, although perhaps that should be an end goal.
+unload the module right after loading it with finit_module().
 .TP
 .B \-\-mprotect N
 start N workers that exercise changing page protection settings and access

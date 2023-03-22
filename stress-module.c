@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2023 Luis Chamberlain <mcgrof@kernel.org>
+ * Copyright (C)      2023 Luis Chamberlain <mcgrof@kernel.org>
+ * Copyright (C)      2023 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +48,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"module N",	    "start N workers performing module requests" },
 	{ NULL,	"module-name F",    "use the specified module name F to load." },
 	{ NULL,	"module-nounload",  "skip unload of the module after module load" },
-	{ NULL,	"module-sharedfd",  "use a shared file descriptor for all loads" },
 	{ NULL,	"module-nomodver",  "ignore symbol version hashes" },
 	{ NULL,	"module-novermag",  "ignore kernel version magic" },
 	{ NULL,	"module-ops N",     "stop after N module bogo operations" },
@@ -109,13 +109,8 @@ enum parse_line_type {
 	PARSE_EOF,
 };
 
-
 /* Taken from kmod.git to keep bug compatible */
-static const char *dirname_default_prefix = "/lib/modules";
-static bool module_path_found = false;
 static char global_module_path[PATH_MAX];
-static int global_module_fd;
-
 
 static bool isempty(const char *line, const ssize_t linelen)
 {
@@ -195,7 +190,7 @@ static enum parse_line_type parse_get_line_type(
  * On success returns 0 and sets module_path to the path of the
  * module you should load with finit_module.
  */
-int get_modpath_name(
+static int get_modpath_name(
 	const stress_args_t *args,
 	const char *name,
 	char *module_path,
@@ -209,12 +204,13 @@ int get_modpath_name(
 	char *line = NULL;
 	ssize_t linelen;
 	size_t len = 0, lineno = 0;
-	char module[PATH_MAX]; /* used by our parser */
-	char module_path_truncated[PATH_MAX]; /* truncated path */
+	static const char *dirname_default_prefix = "/lib/modules";
+	char module[PATH_MAX - 256];		/* used by our parser */
+	char module_path_truncated[PATH_MAX];	/* truncated path */
 	char module_path_basename[PATH_MAX];
 	char module_short[PATH_MAX];
-	int ret = -1;
 	enum parse_line_type parse_type;
+	int ret = -1;
 
         if (uname(&u) < 0)
 		return -1;
@@ -248,7 +244,6 @@ int get_modpath_name(
 				line = NULL;
 				break;
 			}
-
 			(void)shim_strlcpy(module_path_truncated, module_pathp, sizeof(module_path_truncated));
 
 			/* basename can modify the the original string */
@@ -307,99 +302,90 @@ out_close:
 static int stress_module(const stress_args_t *args)
 {
 	bool module_nounload = false;
-	bool module_sharedfd = false;
 	bool ignore_vermagic = false;
 	bool ignore_modversions = false;
 	char *module_name_cli = NULL;
-	char module_path[PATH_MAX];
 	char *module_name;
 	static char default_module[] = "test_module";
 	const char *finit_args1 = "";
 	unsigned int kernel_flags = 0;
 	struct stat statbuf;
-	int ret = EXIT_SUCCESS;
+	int fd, ret = EXIT_SUCCESS;
 
 	(void)stress_get_setting("module-name", &module_name_cli);
 	(void)stress_get_setting("module-novermag", &ignore_vermagic);
 	(void)stress_get_setting("module-nomodver", &ignore_modversions);
 	(void)stress_get_setting("module-nounload", &module_nounload);
-	(void)stress_get_setting("module-sharedfd", &module_sharedfd);
 
 	if (ignore_vermagic)
 		kernel_flags |= MODULE_INIT_IGNORE_VERMAGIC;
 	if (ignore_modversions)
 		kernel_flags |= MODULE_INIT_IGNORE_MODVERSIONS;
 
-	if (module_name_cli)
-		module_name = module_name_cli;
-	else
-		module_name = default_module;
-
-	/*
-	 * We're not stressing the modules.dep --> module path lookup,
-	 * just the finit_module() calls and so only do the lookup once.
-	 */
-	if (args->instance != 0) {
-		if (!module_path_found)
-			return EXIT_SUCCESS;
-	} else {
-		ret = get_modpath_name(args, module_name, module_path, sizeof(module_path));
-		if (ret != 0) {
-			if (module_name == default_module) {
+	module_name = module_name_cli ? module_name_cli : default_module;
+	ret = get_modpath_name(args, module_name, global_module_path, sizeof(global_module_path));
+	if (ret) {
+		if (args->instance == 0) {
+			if (module_name_cli) {
+				pr_inf_skip("%s: could not find a module path for "
+					"the specified module '%s', ensure it "
+					"is enabled in your running kernel, "
+					"skipping stressor\n",
+					args->name, module_name);
+			} else {
 				pr_inf_skip("%s: could not find a module path for "
 					"the default test_module '%s', perhaps "
 					"CONFIG_TEST_LKM is disabled in your "
 					"kernel, skipping stressor\n",
 					args->name, module_name);
-			} else {
-				pr_inf_skip("%s: could not find a module path for "
-					"the module you specified '%s', ensure it "
-					"is enabld in your running kernel, "
+			}
+		}
+		return EXIT_NO_RESOURCE;
+	}
+
+	/*
+	 *  We're exercising modules, so if the open fails chalk this
+	 *  up as a resource failure rather than a module test failure.
+	 */
+	fd = open(global_module_path, O_RDONLY | O_CLOEXEC);
+	if (fd < 0) {
+		pr_inf_skip("%s: cannot open the module file %s, "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, global_module_path,
+			errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto out;
+	}
+
+	/*
+	 *  Use fstat rather than stat to avoid TOCTOU (time-of-check,
+	 *  time-of-use) race
+	 */
+	if (fstat(fd, &statbuf) < 0) {
+		if (args->instance == 0) {
+			if (module_name_cli) {
+				pr_inf_skip("%s: could not get stat() on "
+					"the specified module '%s', "
 					"skipping stressor\n",
-					args->name, module_name);
+					args->name, global_module_path);
+			} else {
+				pr_inf_skip("%s: could not get stat() on "
+					"the default module '%s', "
+					"skipping stressor\n",
+					args->name, global_module_path);
 			}
-			return EXIT_NO_RESOURCE;
 		}
-		if (stat(module_path, &statbuf) < 0) {
-			if (args->instance == 0) {
-				if (module_path != default_module)
-					pr_inf_skip("%s: could not get stat() on "
-						"the module you specified '%s', "
-						"skipping stressor\n",
-						args->name, module_path);
-				else
-					pr_inf_skip("%s: could not get stat() on "
-						"the default module '%s', "
-						"skipping stressor\n",
-						args->name, module_path);
-			}
-			return EXIT_NO_RESOURCE;
-		}
-		if (!S_ISREG(statbuf.st_mode)) {
+		(void)close(fd);
+		return EXIT_NO_RESOURCE;
+	}
+	if (!S_ISREG(statbuf.st_mode)) {
+		if (args->instance == 0) {
 			pr_inf_skip("%s: module passed is not a regular file "
 				"'%s', skipping stressor\n",
-				args->name, module_path);
-			return EXIT_NO_RESOURCE;
+				args->name, global_module_path);
 		}
-
-		(void)shim_strlcpy(global_module_path, module_path, sizeof(global_module_path));
-		if (module_sharedfd) {
-			global_module_fd = open(global_module_path, O_RDONLY | O_CLOEXEC);
-
-			if (global_module_fd < 0) {
-				/* Check if we hit the open file limit */
-				if ((errno == EMFILE) || (errno == ENFILE)) {
-					ret = EXIT_NO_RESOURCE;
-					goto out;
-				}
-				pr_inf_skip("%s: unexpected error while opening the "
-					"module file %s, skipping stressor\n",
-					args->name, global_module_path);
-				ret = EXIT_NO_RESOURCE;
-				goto out;
-			}
-		}
-		module_path_found = true;
+		(void)close(fd);
+		return EXIT_NO_RESOURCE;
 	}
 
 	/*
@@ -413,34 +399,13 @@ static int stress_module(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret, fd;
-
 		if (!keep_stressing(args))
-			goto out;
+			break;
 
-		if (module_sharedfd) {
-			fd = global_module_fd;
-		} else {
-			fd = open(global_module_path, O_RDONLY | O_CLOEXEC);
-			if (fd < 0) {
-				/* Check if we hit the open file limit */
-				if ((errno == EMFILE) || (errno == ENFILE)) {
-					ret = EXIT_NO_RESOURCE;
-					goto out;
-				}
-				/* Ignore other errors */
-				continue;
-			}
-		}
-
-		ret = shim_finit_module(fd, finit_args1, kernel_flags);
-		if (ret == 0) {
+		if (shim_finit_module(fd, finit_args1, kernel_flags) == 0) {
 			if (!module_nounload)
 				(void)shim_delete_module(module_name, 0);
 		}
-
-		if (!module_sharedfd)
-			(void)close(fd);
 
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -448,8 +413,8 @@ static int stress_module(const stress_args_t *args)
 out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (module_sharedfd > 0)
-		(void)close(global_module_fd);
+	if (fd >= 0)
+		(void)close(fd);
 
 	return ret;
 }
