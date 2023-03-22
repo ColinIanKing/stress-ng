@@ -99,17 +99,15 @@ UNEXPECTED
 #include <linux/module.h>
 #endif
 
-#ifndef HAVE_FINIT_MODULE
-#include <errno.h>
-#endif
-
-#ifndef __NR_finit_module
-# define __NR_finit_module -1
-#endif
-
+/*
+ *  shim_finit_module()
+ *      shim for linux finit_module
+ */
 int shim_finit_module(int fd, const char *uargs, int flags)
 {
-#ifdef HAVE_FINIT_MODULE
+#if defined(HAVE_FINIT_MODULE)
+	extern finit_module(int fd, const char *param_values, int flags);
+
 	return finit_module(fd, uargs, flags);
 #elif defined(__NR_finit_module)
 	return syscall(__NR_finit_module, fd, uargs, flags);
@@ -118,9 +116,15 @@ int shim_finit_module(int fd, const char *uargs, int flags)
 #endif
 }
 
+/*
+ *  shim_delete_module()
+ *      shim for linux delete_module
+ */
 int shim_delete_module(const char *name, unsigned int flags)
 {
-#ifdef HAVE_DELETE_MODULE
+#if defined(HAVE_DELETE_MODULE)
+	extern int delete_module(const char *name, int flags);
+
 	return delete_module(name, flags);
 #elif defined(__NR_delete_module)
 	return syscall(__NR_delete_module, name, flags);
