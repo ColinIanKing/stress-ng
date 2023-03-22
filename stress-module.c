@@ -200,8 +200,13 @@ int get_modpath_name(const char *name, char *module_path)
 	if (!fp)
 		goto out_close;
 	while ((linelen = getline(&line, &len, fp)) != -1) {
+		char *module_pathp;
+		char *start_postfix;
+		char *modulenamep;
+
 		lineno++;
 		parse_type = parse_get_line_type(line, linelen, module);
+
 		switch (parse_type) {
 		case PARSE_EMPTY:
 		case PARSE_COMMENT:
@@ -210,9 +215,6 @@ int get_modpath_name(const char *name, char *module_path)
 		case PARSE_EOF:
 			goto out_close;
 		case PARSE_DEPMOD_MODULE:
-			char *module_pathp;
-			char *start_postfix;
-			char *modulenamep;
 			/* truncates the "kernel/" part */
 			module_pathp = strchr(module, '/');
 			if (module_pathp == NULL) {
