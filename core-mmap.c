@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-pragma.h"
+#include "core-cpu-cache.h"
 
 /*
  *  stress_mmap_set()
@@ -26,21 +27,64 @@
  *	a specific pattern - check with
  *	mmap_check().
  */
-void stress_mmap_set(
+void OPTIMIZE3 stress_mmap_set(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
 {
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
+	register uint64_t val = ~(uint64_t)buf;
+	register uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t *end = (uint64_t *)(buf + sz);
+#if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
+    !defined(__ILP32__)
+        register const uint32_t loops = page_size / sizeof(uint64_t);
+#endif
 
-	for (i = 0; i < sz; i += page_size) {
+	while (ptr < end) {
+		register uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
+
 		if (!keep_stressing_flag())
 			break;
-PRAGMA_UNROLL_N(8)
-		for (j = 0; j < page_size; j++)
-			*ptr++ = val++;
+
+		page_end = STRESS_MINIMUM(end, page_end);
+
+		/*
+		 *  ..and fill a page with uint64_t values
+		 */
+#if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
+    !defined(__ILP32__)
+        __asm__ __volatile__(
+                "mov %0,%%rax\n;"
+                "mov %1,%%rdi\n;"
+                "mov %2,%%ecx\n;"
+                "rep stosq %%rax,%%es:(%%rdi);\n"
+                :
+                : "r" (val),
+		  "r" (ptr),
+                  "r" (loops)
+                : "ecx","rdi","rax");
+		ptr += loops;
+#else
+		while (ptr < page_end) {
+			ptr[0x00] = val;
+			ptr[0x01] = val;
+			ptr[0x02] = val;
+			ptr[0x03] = val;
+			ptr[0x04] = val;
+			ptr[0x05] = val;
+			ptr[0x06] = val;
+			ptr[0x07] = val;
+			ptr[0x08] = val;
+			ptr[0x09] = val;
+			ptr[0x0a] = val;
+			ptr[0x0b] = val;
+			ptr[0x0c] = val;
+			ptr[0x0d] = val;
+			ptr[0x0e] = val;
+			ptr[0x0f] = val;
+			ptr += 16;
+		}
+#endif
 		val++;
 	}
 }
@@ -49,22 +93,56 @@ PRAGMA_UNROLL_N(8)
  *  stress_mmap_check()
  *	check if mmap'd data is sane
  */
-int stress_mmap_check(
+int OPTIMIZE3 stress_mmap_check(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
 {
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
+	register uint64_t val = ~(uint64_t)buf;
+	register uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t *end = (uint64_t *)(buf + sz);
 
-	for (i = 0; i < sz; i += page_size) {
+	while (ptr < end) {
+		register uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
+
 		if (!keep_stressing_flag())
 			break;
-PRAGMA_UNROLL_N(8)
-		for (j = 0; j < page_size; j++)
-			if (*ptr++ != val++)
+
+		while (ptr < page_end) {
+			if (ptr[0x00] != val)
 				return -1;
+			if (ptr[0x01] != val)
+				return -1;
+			if (ptr[0x02] != val)
+				return -1;
+			if (ptr[0x03] != val)
+				return -1;
+			if (ptr[0x04] != val)
+				return -1;
+			if (ptr[0x05] != val)
+				return -1;
+			if (ptr[0x06] != val)
+				return -1;
+			if (ptr[0x07] != val)
+				return -1;
+			if (ptr[0x08] != val)
+				return -1;
+			if (ptr[0x09] != val)
+				return -1;
+			if (ptr[0x0a] != val)
+				return -1;
+			if (ptr[0x0b] != val)
+				return -1;
+			if (ptr[0x0c] != val)
+				return -1;
+			if (ptr[0x0d] != val)
+				return -1;
+			if (ptr[0x0e] != val)
+				return -1;
+			if (ptr[0x0f] != val)
+				return -1;
+			ptr += 16;
+		}
 		val++;
 	}
 	return 0;
