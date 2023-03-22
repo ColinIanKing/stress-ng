@@ -288,7 +288,8 @@ static int get_modpath_name(
 out_close:
 	if (line)
 		free(line);
-	(void)fclose(fp);
+	if (fp)
+		(void)fclose(fp);
 	return ret;
 #else
 	return -1;
