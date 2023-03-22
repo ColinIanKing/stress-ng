@@ -104,7 +104,9 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 	int socket_pair_fds_bad[2];
 	int i, max, ret;
 	double t, duration, rate, bytes = 0.0;
-
+	uint64_t low_memory_count = 0;
+	const size_t low_mem_size = args->page_size * 32 * args->num_instances;
+	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 	(void)context;
 
 	/* exercise invalid socketpair domain */
@@ -238,6 +240,8 @@ again:
 					pr_fail("%s: socket_pair read error detected, "
 						"failed to read expected data\n", args->name);
 				}
+				if (oom_avoid && stress_low_memory(low_mem_size))
+					continue;
 				socket_pair_try_leak();
 			}
 		}
@@ -259,6 +263,16 @@ abort:
 			for (i = 0; keep_stressing(args) && (i < max); i++) {
 				ssize_t wret;
 
+				/* Low memory avoidance, re-start */
+				if (UNLIKELY(oom_avoid)) {
+					while (stress_low_memory(low_mem_size)) {
+						low_memory_count++;
+						if (!keep_stressing_flag())
+							goto tidy;
+						shim_usleep(100000);
+					}
+				}
+
 				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
 				t = stress_time_now();
 				wret = write(socket_pair_fds[i][1], buf, sizeof(buf));
@@ -277,12 +291,19 @@ abort:
 					}
 					continue;
 				}
+				shim_sched_yield();
 				inc_counter(args);
 			}
 		} while (keep_stressing(args));
 
+tidy:
 		rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
 		stress_metrics_set(args, 1, "MB written per sec", rate / (double)MB);
+
+		if (low_memory_count > 0) {
+			pr_dbg("%s: %.2f%% of writes backed off due to low memory\n",
+				args->name, 100.0 * (double)low_memory_count / (double)get_counter(args));
+		}
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
