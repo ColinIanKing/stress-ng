@@ -102,11 +102,8 @@ int OPTIMIZE3 stress_mmap_check(
 	register uint64_t *end = (uint64_t *)(buf + sz);
 	register uint64_t val = *ptr;
 
-	while (ptr < end) {
+	while ((ptr < end) && keep_stressing_flag()) {
 		register uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
-
-		if (!keep_stressing_flag())
-			break;
 
 		while (ptr < page_end) {
 			if (ptr[0x00] != val)
@@ -125,6 +122,7 @@ int OPTIMIZE3 stress_mmap_check(
 				return -1;
 			if (ptr[0x07] != val)
 				return -1;
+			shim_builtin_prefetch(ptr + 64);
 			if (ptr[0x08] != val)
 				return -1;
 			if (ptr[0x09] != val)
@@ -141,6 +139,7 @@ int OPTIMIZE3 stress_mmap_check(
 				return -1;
 			if (ptr[0x0f] != val)
 				return -1;
+			shim_builtin_prefetch(ptr + 128);
 			ptr += 16;
 		}
 		val++;
