@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 March 2023"
+.TH STRESS-NG 1 "23 March 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3431,14 +3431,17 @@ test_module is used so CONFIG_TEST_LKM must be enabled in the kernel.
 The module dependencies must be loaded prior to running these stressor
 tests, as this stresses running finit_module() not using modprobe.
 .TP
-.B \-\-module\-ignore\-modversions
+.B \-\-module\-no\-modver
 ignore module modversions when using finit_module().
 .TP
-.B \-\-module\-ignore\-vermagic
+.B \-\-module\-no\-vermag
 ignore module versions when using finit_module().
 .TP
-.B \-\-module\-unload
-unload the module right after loading it with finit_module().
+.B \-\-module\-no-unload
+do not unload the module right after loading it with finit_module().
+.TP
+.B \-\-module\-ops N
+stop after N module load/unload cycles
 .TP
 .B \-\-mprotect N
 start N workers that exercise changing page protection settings and access

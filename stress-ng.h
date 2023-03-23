@@ -1618,11 +1618,10 @@ typedef enum {
 
 	OPT_module,
 	OPT_module_name,
-	OPT_module_nomodver,
-	OPT_module_novermag,
-	OPT_module_nounload,
+	OPT_module_no_modver,
+	OPT_module_no_vermag,
+	OPT_module_no_unload,
 	OPT_module_ops,
-	OPT_module_sharedfd,
 
 	OPT_mprotect,
 	OPT_mprotect_ops,

@@ -47,9 +47,9 @@ UNEXPECTED
 static const stress_help_t help[] = {
 	{ NULL,	"module N",	    "start N workers performing module requests" },
 	{ NULL,	"module-name F",    "use the specified module name F to load." },
-	{ NULL,	"module-nounload",  "skip unload of the module after module load" },
-	{ NULL,	"module-nomodver",  "ignore symbol version hashes" },
-	{ NULL,	"module-novermag",  "ignore kernel version magic" },
+	{ NULL,	"module-no-unload", "skip unload of the module after module load" },
+	{ NULL,	"module-no-modver", "ignore symbol version hashes" },
+	{ NULL,	"module-no-vermag", "ignore kernel version magic" },
 	{ NULL,	"module-ops N",     "stop after N module bogo operations" },
 	{ NULL,	NULL,		    NULL }
 };
@@ -65,22 +65,17 @@ static int stress_module_supported(const char *name)
 	return 0;
 }
 
-static int stress_set_module_nounload(const char *opt)
+static int stress_set_module_no_unload(const char *opt)
 {
 	return stress_set_setting_true("module-nounload", opt);
 }
 
-static int stress_set_module_sharedfd(const char *opt)
-{
-	return stress_set_setting_true("module-sharedfd", opt);
-}
-
-static int stress_set_module_nomodver(const char *opt)
+static int stress_set_module_no_modver(const char *opt)
 {
 	return stress_set_setting_true("module-nomodver", opt);
 }
 
-static int stress_set_module_novermag(const char *opt)
+static int stress_set_module_no_vermag(const char *opt)
 {
 	return stress_set_setting_true("module-novermag", opt);
 }
@@ -92,10 +87,9 @@ static int stress_set_module_name(const char *name)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_module_name,	stress_set_module_name},
-	{ OPT_module_nomodver,	stress_set_module_nomodver },
-	{ OPT_module_novermag,	stress_set_module_novermag },
-	{ OPT_module_nounload,	stress_set_module_nounload },
-	{ OPT_module_sharedfd,	stress_set_module_sharedfd},
+	{ OPT_module_no_modver,	stress_set_module_no_modver },
+	{ OPT_module_no_vermag,	stress_set_module_no_vermag },
+	{ OPT_module_no_unload,	stress_set_module_no_unload },
 	{ 0,			NULL }
 };
 
