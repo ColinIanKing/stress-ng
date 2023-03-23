@@ -86,6 +86,44 @@ static inline HOT OPTIMIZE3 void read64(uint64_t *data)
 	(void)v;
 }
 
+#if defined(HAVE_ASM_X86_LFENCE)
+static inline HOT OPTIMIZE3 void read64_lfence(uint64_t *data)
+{
+	register uint64_t v;
+	const volatile uint64_t *vdata = data;
+
+	v = vdata[0];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[1];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[3];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[4];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[5];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[6];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[7];
+	(void)v;
+	stress_asm_x86_lfence();
+	v = vdata[8];
+	(void)v;
+	stress_asm_x86_lfence();
+}
+#else
+static inline void read64_lfence(uint64_t *data)
+{
+	(void)data;
+}
+#endif
+
 /*
  *  stress_memory_contend()
  *	read a proc file
@@ -94,9 +132,9 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 {
 	uint64_t **mappings = pa->data;
 	volatile uint64_t *vdata0 = mappings[0];
-	volatile uint64_t *vdata1 = mappings[0];
+	volatile uint64_t *vdata1 = mappings[1];
 	uint64_t *data0 = mappings[0];
-	uint64_t *data1 = mappings[0];
+	uint64_t *data1 = mappings[1];
 	register int i;
 
 	for (i = 0; i < 1024; i++) {
@@ -118,6 +156,8 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 		vdata1[7] = (uint64_t)i;
 		read64(data0);
 		read64(data1);
+		read64_lfence(data0);
+		read64_lfence(data1);
 	}
 
 	for (i = 0; i < 1024; i++) {
