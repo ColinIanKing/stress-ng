@@ -4,7 +4,7 @@ description: stress-ng can stress various subsystems of a computer.  It can stre
 confinement: strict
 grade: stable
 type: app
-base: core20
+base: core22
 assumes: [snapd2.37]
 adopt-info: stress-ng
 
@@ -18,7 +18,7 @@ architectures:
 
 environment:
     CFLAGS: '-fstack-protector-strong -Wformat -Werror=format-security'
-    LDFLAGS: Wl,-z,relro
+    LDFLAGS: 'Wl,-z,relro -lrt'
 
 parts:
     stress-ng:
@@ -40,7 +40,7 @@ parts:
             fi
             snapcraftctl set-version "$version"
         make-parameters:
-            - STATIC=1
+            - STATIC=1 VERBOSE=1 UNEXPECTED=1
         build-packages:
             - gcc
             - make
@@ -55,8 +55,12 @@ parts:
             - libatomic1
             - libjudy-dev
             - libjpeg-dev
-            - try: [libipsec-mb-dev, libkmkod-dev, libglvnd-dev, libgbm-dev]
-            - try: [ibattr1-dev, libxxhash-dev]
+            - libipsec-mb-dev
+            - libkmod-dev
+            - libattr1-dev
+            - libxxhash-dev
+            - libmd-dev
+            - libxxhash-dev
 
 apps:
     stress-ng:
