@@ -40,7 +40,7 @@ parts:
             fi
             snapcraftctl set-version "$version"
         make-parameters:
-            - STATIC=1 VERBOSE=1 UNEXPECTED=1
+            - STATIC=1 VERBOSE=1
         build-packages:
             - gcc
             - make
