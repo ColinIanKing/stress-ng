@@ -55,12 +55,12 @@ parts:
             - libatomic1
             - libjudy-dev
             - libjpeg-dev
-            - libipsec-mb-dev
             - libkmod-dev
             - libattr1-dev
             - libxxhash-dev
             - libmd-dev
             - libxxhash-dev
+            - on amd64: [ libipsec-mb-dev ]
 
 apps:
     stress-ng:
