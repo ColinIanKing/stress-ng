@@ -78,6 +78,7 @@ int stress_pagein_self(const char *name)
 	if (!fpmap)
 		return -errno;
 
+	stress_thrash_state("pagein");
 	/*
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
@@ -209,6 +210,7 @@ static inline void stress_compact_memory(void)
 	if (!thrash_run)
 		return;
 
+	stress_thrash_state("compact");
 	VOID_RET(ssize_t, system_write("/proc/sys/vm/compact_memory", "1", 1));
 #endif
 }
@@ -228,7 +230,23 @@ static inline void stress_zone_reclaim(void)
 	mode[0] = '0' + (stress_mwc8() & 7);
 	mode[1] = '\0';
 
+	stress_thrash_state("reclaim");
 	VOID_RET(ssize_t, system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1));
+#endif
+}
+
+/*
+ *  stress_kmemleak_scan()
+ *	trigger kernel memory leak scan
+ */
+static inline void stress_kmemleak_scan(void)
+{
+#if defined(__linux__)
+	if (!thrash_run)
+		return;
+
+	stress_thrash_state("scan");
+	VOID_RET(ssize_t, system_write("/sys/kernel/debug/kmemleak", "scan", 4));
 #endif
 }
 
@@ -251,6 +269,7 @@ static inline void stress_slab_shrink(void)
 	if (!dir)
 		return;
 
+	stress_thrash_state("shrink");
 	/*
 	 *  shrink all slabs
 	 */
@@ -278,6 +297,7 @@ static inline void stress_drop_caches(void)
 	str[0] = '1' + (char)method;
 	str[1] = '\0';
 
+	stress_thrash_state("dropcache");
 	VOID_RET(ssize_t, system_write("/proc/sys/vm/drop_caches", str, 1));
 	if (method++ >= 2)
 		method = 0;
@@ -294,6 +314,7 @@ static inline void stress_merge_memory(void)
 	if (!thrash_run)
 		return;
 
+	stress_thrash_state("merge");
 	VOID_RET(ssize_t, system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1));
 #endif
 }
@@ -366,24 +387,19 @@ int stress_thrash_start(void)
 
 		while (thrash_run) {
 			if ((stress_mwc8() & 0x3) == 0) {
-				stress_thrash_state("shrink");
 				stress_slab_shrink();
-
-				stress_thrash_state("pagein");
 				stress_pagein_all_procs();
 			}
 			if ((stress_mwc8() & 0x7) == 0) {
-				stress_thrash_state("dropcache");
 				stress_drop_caches();
 			}
-			stress_thrash_state("compact");
 			stress_compact_memory();
 
-			stress_thrash_state("merge");
 			stress_merge_memory();
 
-			stress_thrash_state("reclaim");
 			stress_zone_reclaim();
+
+			stress_kmemleak_scan();
 
 			stress_thrash_state("sleep");
 			(void)sleep(1);
