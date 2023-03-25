@@ -57,67 +57,79 @@ static const stress_help_t help[] = {
 #define PR_SCHED_CORE_SCOPE_PROCESS_GROUP	(2)
 #endif
 
+#if defined(PR_SET_PDEATHSIG) ||		/* 1 */ \
+    defined(PR_GET_PDEATHSIG) ||		/* 2 */	\
+    defined(PR_GET_DUMPABLE) ||			/* 3 */ \
+    defined(PR_SET_DUMPABLE) ||			/* 4 */ \
+    defined(PR_GET_UNALIGN) ||			/* 5 */ \
+    defined(PR_SET_UNALIGN) ||			/* 6 */ \
+    defined(PR_GET_KEEPCAPS) ||			/* 7 */ \
+    defined(PR_SET_KEEPCAPS) ||			/* 8 */ \
+    defined(PR_GET_FPEMU) ||			/* 9 */ \
+    defined(PR_SET_FPEMU) ||			/* 10 */ \
+    defined(PR_GET_FPEXC) ||			/* 11 */ \
+    defined(PR_SET_FPEXC) ||			/* 12 */ \
+    defined(PR_GET_TIMING) ||			/* 13 */ \
+    defined(PR_SET_TIMING) ||			/* 14 */ \
+    defined(PR_SET_NAME) ||			/* 15 */ \
+    defined(PR_GET_NAME) ||			/* 16 */ \
+    defined(PR_GET_ENDIAN) ||			/* 19 */ \
+    defined(PR_SET_ENDIAN) ||			/* 20 */ \
+    defined(PR_GET_SECCOMP) ||			/* 21 */ \
+    defined(PR_SET_SECCOMP) ||			/* 22 */ \
+    defined(PR_CAPBSET_READ) ||			/* 23 */ \
+    defined(PR_CAPBSET_DROP) ||			/* 24 */ \
+    defined(PR_GET_TSC) ||			/* 25 */ \
+    defined(PR_SET_TSC) ||			/* 26 */ \
+    defined(PR_GET_SECUREBITS) ||		/* 27 */ \
+    defined(PR_SET_SECUREBITS) ||		/* 28 */ \
+    defined(PR_GET_TIMERSLACK) ||		/* 29 */ \
+    defined(PR_SET_TIMERSLACK) ||		/* 30 */ \
+    defined(PR_TASK_PERF_EVENTS_DISABLE) ||	/* 31 */ \
+    defined(PR_TASK_PERF_EVENTS_ENABLE) ||	/* 32 */ \
+    defined(PR_MCE_KILL) ||			/* 33 */ \
+    defined(PR_MCE_KILL_GET) ||			/* 34 */ \
+    defined(PR_SET_MM) ||			/* 35 */ \
+    defined(PR_SET_CHILD_SUBREAPER) ||		/* 36 */ \
+    defined(PR_GET_CHILD_SUBREAPER) ||		/* 37 */ \
+    defined(PR_SET_NO_NEW_PRIVS) ||		/* 38 */ \
+    defined(PR_GET_NO_NEW_PRIVS) ||		/* 39 */ \
+    defined(PR_GET_TID_ADDRESS) ||		/* 40 */ \
+    defined(PR_SET_THP_DISABLE) ||		/* 41 */ \
+    defined(PR_GET_THP_DISABLE) ||		/* 42 */ \
+    defined(PR_MPX_ENABLE_MANAGEMENT) ||	/* 43 */ \
+    defined(PR_MPX_DISABLE_MANAGEMENT) ||	/* 44 */ \
+    defined(PR_SET_FP_MODE) ||			/* 45 */ \
+    defined(PR_GET_FP_MODE) ||			/* 46 */ \
+    defined(PR_CAP_AMBIENT) ||			/* 47 */ \
+    defined(PR_SVE_SET_VL) ||			/* 50 */ \
+    defined(PR_SVE_GET_VL) ||			/* 51 */ \
+    defined(PR_GET_SPECULATION_CTRL) || 	/* 52 */ \
+    defined(PR_SET_SPECULATION_CTRL) || 	/* 53 */ \
+    defined(PR_PAC_RESET_KEYS) ||		/* 54 */ \
+    defined(PR_SET_TAGGED_ADDR_CTRL) ||		/* 55 */ \
+    defined(PR_GET_TAGGED_ADDR_CTRL) ||		/* 56 */ \
+    defined(PR_SET_IO_FLUSHER) ||		/* 57 */ \
+    defined(PR_GET_IO_FLUSHER) ||		/* 58 */ \
+    defined(PR_SET_SYSCALL_USER_DISPATCH) ||	/* 59 */ \
+    defined(PR_PAC_SET_ENABLED_KEYS) ||		/* 60 */ \
+    defined(PR_PAC_GET_ENABLED_KEYS) ||		/* 61 */ \
+    defined(PR_SCHED_CORE) ||			/* 62 */ \
+    defined(PR_SME_SET_VL) ||			/* 63 */ \
+    defined(PR_SME_SET_VL_ONEXEC) ||		/* 64 */ \
+    defined(PR_SME_GET_VL) ||			/* 64 */ \
+    defined(PR_SET_MDWE) ||			/* 65 */ \
+    defined(PR_GET_MDWE) ||			/* 66 */ \
+    defined(PR_SET_MEMORY_MERGE) ||		/* 67 */ \
+    defined(PR_GET_MEMORY_MERGE) ||		/* 68 */ \
+    defined(PR_SET_VMA) ||			/* 0x53564d41 */ \
+    defined(PR_SET_PTRACER)			/* 0x59616d61 */
+#define HAVE_PR_OPTIONS
+#endif
+
 #if defined(HAVE_SYS_PRCTL_H) &&		\
     defined(HAVE_PRCTL) &&			\
-    (defined(PR_SET_PDEATHSIG) ||		/* 1 */ \
-     defined(PR_GET_PDEATHSIG) ||		/* 2 */	\
-     defined(PR_GET_DUMPABLE) ||		/* 3 */ \
-     defined(PR_SET_DUMPABLE) ||		/* 4 */ \
-     defined(PR_GET_UNALIGN)) ||		/* 5 */ \
-     defined(PR_SET_UNALIGN) ||			/* 6 */ \
-     defined(PR_GET_KEEPCAPS) ||		/* 7 */ \
-     defined(PR_SET_KEEPCAPS) ||		/* 8 */ \
-     defined(PR_GET_FPEMU) ||			/* 9 */ \
-     defined(PR_SET_FPEMU) ||			/* 10 */ \
-     defined(PR_GET_FPEXC) ||			/* 11 */ \
-     defined(PR_SET_FPEXC) ||			/* 12 */ \
-     defined(PR_GET_TIMING) ||			/* 13 */ \
-     defined(PR_SET_TIMING) ||			/* 14 */ \
-     defined(PR_SET_NAME) ||			/* 15 */ \
-     defined(PR_GET_NAME) ||			/* 16 */ \
-     defined(PR_GET_ENDIAN) ||			/* 19 */ \
-     defined(PR_SET_ENDIAN) ||			/* 20 */ \
-     defined(PR_GET_SECCOMP) ||			/* 21 */ \
-     defined(PR_SET_SECCOMP) ||			/* 22 */ \
-     defined(PR_CAPBSET_READ) ||		/* 23 */ \
-     defined(PR_CAPBSET_DROP) ||		/* 24 */ \
-     defined(PR_GET_TSC) ||			/* 25 */ \
-     defined(PR_SET_TSC) ||			/* 26 */ \
-     defined(PR_GET_SECUREBITS) ||		/* 27 */ \
-     defined(PR_SET_SECUREBITS) ||		/* 28 */ \
-     defined(PR_GET_TIMERSLACK) ||		/* 29 */ \
-     defined(PR_SET_TIMERSLACK) ||		/* 30 */ \
-     defined(PR_TASK_PERF_EVENTS_DISABLE) ||	/* 31 */ \
-     defined(PR_TASK_PERF_EVENTS_ENABLE) ||	/* 32 */ \
-     defined(PR_MCE_KILL) ||			/* 33 */ \
-     defined(PR_MCE_KILL_GET) ||		/* 34 */ \
-     defined(PR_SET_MM) ||			/* 35 */ \
-     defined(PR_SET_CHILD_SUBREAPER) ||		/* 36 */ \
-     defined(PR_GET_CHILD_SUBREAPER) ||		/* 37 */ \
-     defined(PR_SET_NO_NEW_PRIVS) ||		/* 38 */ \
-     defined(PR_GET_NO_NEW_PRIVS) ||		/* 39 */ \
-     defined(PR_GET_TID_ADDRESS) ||		/* 40 */ \
-     defined(PR_SET_THP_DISABLE) ||		/* 41 */ \
-     defined(PR_GET_THP_DISABLE) ||		/* 42 */ \
-     defined(PR_MPX_ENABLE_MANAGEMENT) ||	/* 43 */ \
-     defined(PR_MPX_DISABLE_MANAGEMENT) ||	/* 44 */ \
-     defined(PR_SET_FP_MODE) ||			/* 45 */ \
-     defined(PR_GET_FP_MODE) ||			/* 46 */ \
-     defined(PR_CAP_AMBIENT) ||			/* 47 */ \
-     defined(PR_SVE_SET_VL) ||			/* 50 */ \
-     defined(PR_SVE_GET_VL) ||			/* 51 */ \
-     defined(PR_GET_SPECULATION_CTRL) || 	/* 52 */ \
-     defined(PR_SET_SPECULATION_CTRL) || 	/* 53 */ \
-     defined(PR_PAC_RESET_KEYS) ||		/* 54 */ \
-     defined(PR_SET_TAGGED_ADDR_CTRL) ||	/* 55 */ \
-     defined(PR_GET_TAGGED_ADDR_CTRL) ||	/* 56 */ \
-     defined(PR_SET_IO_FLUSHER) ||		/* 57 */ \
-     defined(PR_GET_IO_FLUSHER) ||		/* 58 */ \
-     defined(PR_SET_SYSCALL_USER_DISPATCH) ||	/* 59 */ \
-     defined(PR_PAC_SET_ENABLED_KEYS) ||	/* 60 */ \
-     defined(PR_PAC_GET_ENABLED_KEYS) ||	/* 61 */ \
-     defined(PR_SCHED_CORE) ||			/* 62 */ \
-     defined(PR_SET_PTRACER)			/* 0x59616d61 */
+    defined(HAVE_PR_OPTIONS)
 
 #if defined(PR_SET_MM) &&		\
     defined(PR_SET_MM_AUXV)
@@ -886,6 +898,44 @@ static int stress_prctl_child(
 	}
 #endif
 
+#if defined(PR_SME_GET_VL)
+	{
+		int arg;
+
+		arg = (unsigned long)prctl(PR_SME_GET_VL, 0, 0, 0, 0);
+#if defined(PR_SME_SET_VL)
+		if (arg >= 0)
+			arg = prctl(PR_SME_SET_VL, (unsigned long)arg, 0, 0, 0, 0);
+#endif
+		(void)arg;
+#endif
+
+#if defined(PR_GET_MDWE)
+	{
+		int bits;
+
+		bits = prctl(PR_GET_MDWE, 0, 0, 0, 0);
+#if defined(PR_SET_MDWE)
+		if (bits >= 0)
+			bits = prctl(PR_SET_MDWE, (unsigned long)bits, 0, 0, 0, 0);
+#endif
+		(void)bits;
+	}
+#endif
+
+#if defined(PR_GET_MEMORY_MERGE)
+	{
+		int flag;
+
+		flag = prctl(PR_GET_MEMORY_MERGE, 0, 0, 0, 0);
+#if defined(PR_SET_MEMORY_MERGE)
+		if (flag >= 0)
+			flag = prctl(PR_SET_MEMORY_MERGE, 0, 0, 0, 0)
+#endif
+		(void)flag;
+	}
+#endif
+
 #if defined(PR_PAC_RESET_KEYS)
 	{
 		/* exercise invalid args */
@@ -906,6 +956,7 @@ static int stress_prctl_child(
 	(void)page_anon;
 	(void)page_anon_size;
 #endif
+
 	stress_arch_prctl();
 
 	stress_prctl_syscall_user_dispatch(args);
