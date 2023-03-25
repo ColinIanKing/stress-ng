@@ -908,6 +908,7 @@ static int stress_prctl_child(
 			arg = prctl(PR_SME_SET_VL, (unsigned long)arg, 0, 0, 0, 0);
 #endif
 		(void)arg;
+	}
 #endif
 
 #if defined(PR_GET_MDWE)
