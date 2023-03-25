@@ -3733,3 +3733,19 @@ close_slow:
 	for (i = j; i < n; i++)
 		(void)close(fds[i]);
 }
+
+/*
+ *  stress_file_rw_hint_short()
+ *	hint that file data opened on fd hash short lifetime
+ */
+void stress_file_rw_hint_short(const int fd)
+{
+#if defined(F_SET_FILE_RW_HINT) &&	\
+    defined(RWH_WRITE_LIFE_SHORT)
+	uint64_t hint = RWH_WRITE_LIFE_SHORT;
+
+	VOID_RET(int, fcntl(fd, F_SET_FILE_RW_HINT, &hint));
+#else
+	(void)fd;
+#endif
+}
