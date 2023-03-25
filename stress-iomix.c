@@ -1017,6 +1017,8 @@ static int stress_iomix(const stress_args_t *args)
 		goto tidy;
 	}
 
+	stress_file_rw_hint_short(fd);
+
 	(void)memset(pids, 0, sizeof(pids));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

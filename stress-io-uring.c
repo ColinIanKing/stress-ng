@@ -800,6 +800,8 @@ static int stress_io_uring(const stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
+	stress_file_rw_hint_short(io_uring_file.fd);
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/*

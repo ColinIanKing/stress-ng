@@ -221,6 +221,8 @@ static int stress_fpunch(const stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
+	stress_file_rw_hint_short(fd);
+
 	(void)memset(buf_before, 0xff, sizeof(buf_before));
 	(void)memset(buf_after, 0xa5, sizeof(buf_after));
 

@@ -784,13 +784,7 @@ static int stress_hdd(const stress_args_t *args)
 
 		fs_type = stress_fs_type(filename);
 
-#if defined(F_SET_FILE_RW_HINT) &&	\
-    defined(RWH_WRITE_LIFE_SHORT)
-		{
-			uint64_t hint = RWH_WRITE_LIFE_SHORT;
-			VOID_RET(int, fcntl(fd, F_SET_FILE_RW_HINT, &hint));
-		}
-#endif
+		stress_file_rw_hint_short(fd);
 
 		/* Exercise ftruncate or truncate */
 		if (stress_mwc1()) {

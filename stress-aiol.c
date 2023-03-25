@@ -476,6 +476,8 @@ retry_open:
 		goto finish;
 	}
 
+	stress_file_rw_hint_short(fds[0]);
+
 #if defined(__NR_io_cancel)
 	bad_fd = stress_get_bad_fd();
 #endif
@@ -489,6 +491,8 @@ retry_open:
 		fds[i] = open(filename, O_RDWR | flags, S_IRUSR | S_IWUSR);
 		if (fds[i] < 0)
 			fds[i] = fds[0];
+		else
+			stress_file_rw_hint_short(fds[i]);
 	}
 	(void)shim_unlink(filename);
 

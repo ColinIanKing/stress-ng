@@ -146,6 +146,8 @@ static int stress_sync_file(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
+	stress_file_rw_hint_short(fd);
+
 	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 

@@ -276,6 +276,8 @@ static int stress_aio(const stress_args_t *args)
 	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
+	stress_file_rw_hint_short(fd);
+
 	(void)sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;

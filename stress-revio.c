@@ -375,6 +375,8 @@ static int stress_revio(const stress_args_t *args)
 				args->name, filename, errno, strerror(errno));
 			goto finish;
 		}
+		stress_file_rw_hint_short(fd);
+
 		fs_type = stress_fs_type(filename);
 		(void)shim_unlink(filename);
 		if (ftruncate(fd, (off_t)revio_bytes) < 0) {

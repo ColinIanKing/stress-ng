@@ -194,6 +194,8 @@ static int stress_fsize(const stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
+	stress_file_rw_hint_short(fd);
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t = stress_time_now();
