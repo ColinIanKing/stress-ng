@@ -54,6 +54,8 @@ size_t stress_resources_allocate(
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
 
+	stress_ksm_memory_merge(1);
+
 	(void)pid;
 	(void)page_size;
 

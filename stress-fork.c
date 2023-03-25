@@ -193,7 +193,10 @@ static int stress_fork_fn(
 						flags |= MADV_NOHUGEPAGE;
 #endif
 						break;
-					/* cases 5..7 */
+					case 5:
+						stress_ksm_memory_merge(1);
+						break;
+					/* cases 6..7 */
 					default:
 						break;
 					}

@@ -70,6 +70,8 @@ static int stress_vforkmany(const stress_args_t *args)
 
 	(void)stress_get_setting("vforkmany-vm", &vm);
 
+	stress_ksm_memory_merge(1);
+
 	/* We should use an alternative signal stack */
 	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);

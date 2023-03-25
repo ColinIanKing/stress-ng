@@ -2723,6 +2723,7 @@ extern WARN_UNUSED bool stress_redo_fork(const int err);
 extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
 extern WARN_UNUSED bool stress_low_memory(const size_t requested);
+extern void stress_ksm_memory_merge(const int flag);
 
 /* kernel module helpers */
 extern int stress_module_load(const char *name, const char *alias,

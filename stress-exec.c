@@ -691,6 +691,8 @@ static int stress_exec(const stress_args_t *args)
 	(void)stress_get_setting("exec-fork-method", &exec_fork_method);
 	(void)stress_get_setting("exec-no-pthread", &exec_no_pthread);
 
+	stress_ksm_memory_merge(1);
+
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
 	 */
