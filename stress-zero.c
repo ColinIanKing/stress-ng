@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -33,19 +34,21 @@ static const stress_help_t help[] = {
  *  stress_is_not_zero()
  *	checks if buffer is zero, buffer must be 64 bit aligned
  */
-static bool stress_is_not_zero(uint64_t *buffer, const size_t len)
+static bool OPTIMIZE3 stress_is_not_zero(uint64_t *buffer, const size_t len)
 {
 	register const uint8_t *end8 = ((uint8_t *)buffer) + len;
 	register uint8_t *ptr8;
 	register const uint64_t *end64 = buffer + (len / sizeof(uint64_t));
-	register uint64_t *ptr64;
+	register uint64_t *ptr64 ALIGNED(4096);
 
+PRAGMA_UNROLL_N(8)
 	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
-		if (*ptr64)
+		if (UNLIKELY(*ptr64))
 			return true;
 	}
+PRAGMA_UNROLL_N(8)
 	for (ptr8 = (uint8_t *)ptr64; ptr8 < end8; ptr8++) {
-		if (*ptr8)
+		if (UNLIKELY(*ptr8))
 			return true;
 	}
 	return false;
