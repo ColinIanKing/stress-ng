@@ -202,29 +202,46 @@ static int stress_fpunch(const stress_args_t *args)
 	off_t offset, punch_length = DEFAULT_FPUNCH_LENGTH;
 	pid_t pids[STRESS_PUNCH_PIDS];
 	size_t i, extents, n;
-	char buf_before[BUF_SIZE], buf_after[BUF_SIZE];
-	const size_t stride = sizeof(buf_before) << 1;
+	char *buf_before, *buf_after;
+	const size_t stride = (size_t)BUF_SIZE << 1;
 	const size_t max_punches = (size_t)(punch_length / (off_t)stride);
 
+	buf_before = mmap(NULL, (size_t)BUF_SIZE, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buf_before == MAP_FAILED) {
+		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",
+			args->name, (size_t)BUF_SIZE, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	buf_after = mmap(NULL, (size_t)BUF_SIZE, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buf_after == MAP_FAILED) {
+		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",
+			args->name, (size_t)BUF_SIZE, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_buf_before;
+	}
+
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
-		return stress_exit_status(-ret);
+	if (ret < 0) {
+		rc = stress_exit_status(-ret);
+		goto tidy_buf_after;
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		ret = stress_exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)stress_temp_dir_rm_args(args);
-		return ret;
+		goto tidy_temp;
 	}
 	(void)shim_unlink(filename);
 
 	stress_file_rw_hint_short(fd);
 
-	(void)memset(buf_before, 0xff, sizeof(buf_before));
-	(void)memset(buf_after, 0xa5, sizeof(buf_after));
+	(void)memset(buf_before, 0xff, (size_t)BUF_SIZE);
+	(void)memset(buf_after, 0xa5, (size_t)BUF_SIZE);
 
 	/*
 	 *  Create file with lots of holes and extents by populating
@@ -237,7 +254,7 @@ static int stress_fpunch(const stress_args_t *args)
 		ssize_t r;
 
 		offset -= stride;
-		r = stress_punch_pwrite(args, fd, buf_before, sizeof(buf_before), offset);
+		r = stress_punch_pwrite(args, fd, buf_before, (size_t)BUF_SIZE, offset);
 		n += (r > 0) ? (size_t)r : 0;
 	}
 
@@ -288,7 +305,14 @@ tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd != -1)
 		(void)close(fd);
+
+tidy_temp:
 	(void)stress_temp_dir_rm_args(args);
+
+tidy_buf_after:
+	(void)munmap((void *)buf_after, (size_t)BUF_SIZE);
+tidy_buf_before:
+	(void)munmap((void *)buf_before, (size_t)BUF_SIZE);
 
 	return rc;
 }
