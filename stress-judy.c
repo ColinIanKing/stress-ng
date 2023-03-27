@@ -73,13 +73,14 @@ static inline OPTIMIZE3 Word_t gen_index(const Word_t idx)
  *  stress_judy()
  *	stress a judy array, exercises cache/memory
  */
-static int stress_judy(const stress_args_t *args)
+static int OPTIMIZE3 stress_judy(const stress_args_t *args)
 {
 	uint64_t judy_size = DEFAULT_JUDY_SIZE;
 	size_t n;
-	Word_t i, j;
+	register Word_t i, j;
 	double duration[JUDY_OP_MAX], count[JUDY_OP_MAX];
 	size_t k;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	static const char * const judy_ops[] = {
 		"insert",
@@ -133,7 +134,7 @@ static int stress_judy(const stress_args_t *args)
 			Word_t idx = gen_index(i);
 
 			JLG(pvalue, PJLArray, idx);
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (UNLIKELY(verify)) {
 				if (UNLIKELY(!pvalue)) {
 					pr_fail("%s: element %" PRIu32
 						"could not be found\n",
@@ -157,7 +158,7 @@ static int stress_judy(const stress_args_t *args)
 			Word_t idx = gen_index(j);
 
 			JLD(rc, PJLArray, idx);
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (rc != 1))
+			if (UNLIKELY(verify && (rc != 1)))
 				pr_fail("%s: element %" PRIu32 " could not "
 					"be found\n", args->name, (uint32_t)idx);
 		}
