@@ -2516,6 +2516,11 @@ extern uint8_t stress_mwc8modn(const uint8_t max);
 extern uint16_t stress_mwc16modn(const uint16_t max);
 extern uint32_t stress_mwc32modn(const uint32_t max);
 extern uint64_t stress_mwc64modn(const uint64_t max);
+/* Fast random numbers 1..max inclusive, where max maybe power of 2  */
+extern uint8_t stress_mwc8modn_maybe_pwr2(const uint8_t max);
+extern uint16_t stress_mwc16modn_maybe_pwr2(const uint16_t max);
+extern uint32_t stress_mwc32modn_maybe_pwr2(const uint32_t max);
+extern uint64_t stress_mwc64modn_maybe_pwr2(const uint64_t max);
 extern void stress_mwc_seed(void);
 extern void stress_mwc_set_seed(const uint32_t w, const uint32_t z);
 extern void stress_mwc_get_seed(uint32_t *w, uint32_t *z);

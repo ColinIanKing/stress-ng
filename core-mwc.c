@@ -248,90 +248,176 @@ HOT OPTIMIZE3 uint8_t stress_mwc1(void)
 
 /*
  *  stress_mwc8modn()
- *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	see https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
+ *	return 8 bit non-modulo biased value 1..max (inclusive)
+ *	with no non-zero max check
  */
-uint8_t stress_mwc8modn(const uint8_t max)
+static uint8_t OPTIMIZE3 stress_mwc8modn_nonzero(const uint8_t max)
 {
-	if (max > 0) {
-		register uint8_t threshold = max;
-		register uint8_t val;
+	register uint8_t threshold = max;
+	register uint8_t val;
 
-		while (threshold < 0x80U) {
-			threshold <<= 1;
-		}
-		do {
-			val = stress_mwc8();
-		} while (val >= threshold);
-
-
-		return val % max;
+	while (threshold < 0x80U) {
+		threshold <<= 1;
 	}
-	return 0;
+	do {
+		val = stress_mwc8();
+	} while (val >= threshold);
+
+	return val % max;
+}
+
+/*
+ *  stress_mwc8modn()
+ *	return 8 bit non-modulo biased value 1..max (inclusive)
+ *	where max is most probably not a power of 2
+ */
+uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
+{
+	return (LIKELY(max > 0)) ? stress_mwc8modn_nonzero(max) : 0;
+}
+
+/*
+ *  stress_mwc8modn()
+ *	return 8 bit non-modulo biased value 1..max (inclusive)
+ *	where max is potentially a power of 2
+ */
+uint8_t OPTIMIZE3 stress_mwc8modn_maybe_pwr2(const uint8_t max)
+{
+	register const uint8_t mask = max - 1;
+
+	return ((max > 0) && ((max & mask) == 0)) ?
+		(stress_mwc8() & mask) : stress_mwc8modn_nonzero(max);
 }
 
 /*
  *  stress_mwc16modn()
  *	return 16 bit non-modulo biased value 1..max (inclusive)
+ *	with no non-zero max check
  */
-uint16_t stress_mwc16modn(const uint16_t max)
+static uint16_t OPTIMIZE3 stress_mwc16modn_nonzero(const uint16_t max)
 {
-	if (max > 0) {
-		register uint16_t threshold = max;
-		register uint16_t val;
+	register uint16_t threshold = max;
+	register uint16_t val;
 
-		while (threshold < 0x8000U) {
-			threshold <<= 1;
-		}
-		do {
-			val = stress_mwc16();
-		} while (val >= threshold);
-
-		return val % max;
+	while (threshold < 0x8000U) {
+		threshold <<= 1;
 	}
-	return 0;
+	do {
+		val = stress_mwc16();
+	} while (val >= threshold);
+
+	return val % max;
+}
+
+/*
+ *  stress_mwc16modn()
+ *	return 16 bit non-modulo biased value 1..max (inclusive)
+ *	where max is most probably not a power of 2
+ */
+uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
+{
+	return (LIKELY(max > 0)) ? stress_mwc16modn_nonzero(max) : 0;
+}
+
+/*
+ *  stress_mwc16modn()
+ *	return 16 bit non-modulo biased value 1..max (inclusive)
+ *	where max is potentially a power of 2
+ */
+uint16_t OPTIMIZE3 stress_mwc16modn_maybe_pwr2(const uint16_t max)
+{
+	register const uint16_t mask = max - 1;
+
+	return ((max > 0) && ((max & mask) == 0)) ?
+		(stress_mwc16() & mask) : stress_mwc16modn_nonzero(max);
 }
 
 /*
  *  stress_mwc32modn()
  *	return 32 bit non-modulo biased value 1..max (inclusive)
+ *	with no non-zero max check
  */
-uint32_t stress_mwc32modn(const uint32_t max)
+static uint32_t OPTIMIZE3 stress_mwc32modn_nonzero(const uint32_t max)
 {
-	if (max > 0) {
-		uint32_t threshold = max;
-		uint32_t val;
+	register uint32_t threshold = max;
+	register uint32_t val;
 
-		while (threshold < 0x80000000UL) {
-			threshold <<= 1;
-		}
-		do {
-			val = stress_mwc32();
-		} while (val >= threshold);
-
-		return val % max;
+	while (threshold < 0x80000000UL) {
+		threshold <<= 1;
 	}
-	return 0;
+	do {
+		val = stress_mwc32();
+	} while (val >= threshold);
+
+	return val % max;
+}
+
+/*
+ *  stress_mwc32modn()
+ *	return 32 bit non-modulo biased value 1..max (inclusive)
+ *	where max is most probably not a power of 2
+ */
+uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
+{
+	return (LIKELY(max > 0)) ? stress_mwc32modn_nonzero(max) : 0;
+}
+
+/*
+ *  stress_mwc32modn()
+ *	return 32 bit non-modulo biased value 1..max (inclusive)
+ *	where max is potentially a power of 2
+ */
+uint32_t OPTIMIZE3 stress_mwc32modn_maybe_pwr2(const uint32_t max)
+{
+	register const uint32_t mask = max - 1;
+
+	return ((max > 0) && ((max & mask) == 0)) ?
+		(stress_mwc32() & mask) : stress_mwc32modn_nonzero(max);
 }
 
 /*
  *  stress_mwc64modn()
  *	return 64 bit non-modulo biased value 1..max (inclusive)
+ *	with no non-zero max check
  */
-uint64_t stress_mwc64modn(const uint64_t max)
+static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
 {
-	if (max > 0) {
-		uint64_t threshold = max;
-		uint64_t val;
+	register uint64_t threshold = max;
+	register uint64_t val;
 
-		while (threshold < 0x8000000000000000ULL) {
-			threshold <<= 1;
-		}
-		do {
-			val = stress_mwc64();
-		} while (val >= threshold);
+	if ((max & (max - 1)) == 0)
+		return stress_mwc64() & (max - 1);
 
-		return val % max;
+	while (threshold < 0x8000000000000000ULL) {
+		threshold <<= 1;
 	}
-	return 0;
+	do {
+		val = stress_mwc64();
+	} while (val >= threshold);
+
+	return val % max;
+}
+
+/*
+ *  stress_mwc64modn()
+ *	return 64 bit non-modulo biased value 1..max (inclusive)
+ *	where max is most probably not a power of 2
+ */
+uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
+{
+	return (LIKELY(max > 0)) ? stress_mwc64modn_nonzero(max) : 0;
+}
+
+/*
+ *  stress_mwc64modn_maybe_pwr2()
+ *	return 64 bit non-modulo biased value 1..max (inclusive)
+ *	where max is potentially a power of 2
+ */
+uint64_t OPTIMIZE3 stress_mwc64modn_maybe_pwr2(const uint64_t max)
+{
+	register const uint64_t mask = max - 1;
+
+	return ((max > 0) && ((max & mask) == 0)) ?
+		(stress_mwc64() & mask) : stress_mwc64modn_nonzero(max);
 }
