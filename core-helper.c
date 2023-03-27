@@ -3749,3 +3749,24 @@ void stress_file_rw_hint_short(const int fd)
 	(void)fd;
 #endif
 }
+
+/*
+ *  stress_set_vma_anon_name()
+ *	set a name to an anonymously mapped vma
+ */
+void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name)
+{
+#if defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(HAVE_PRCTL) &&		\
+    defined(PR_SET_VMA) &&		\
+    defined(PR_SET_VMA_ANON_NAME)
+	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME,
+			(unsigned long)addr,
+			(unsigned long)size,
+			(unsigned long)name));
+#else
+	(void)addr;
+	(void)size;
+	(void)name;
+#endif
+}

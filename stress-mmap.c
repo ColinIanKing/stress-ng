@@ -267,21 +267,6 @@ static int stress_set_mmap_mmap2(const char *opt)
 }
 
 /*
- *  attempt to set vma name using prctl SET_VMA_ANON_NAME
- */
-static void stress_mmap_set_vma_name(void *buf)
-{
-#if defined(HAVE_SYS_PRCTL_H) &&	\
-    defined(PR_SET_VMA) &&		\
-    defined(PR_SET_VMA_ANON_NAME)
-	/* set vma anon name, even if it's not anonymous */
-	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, buf, "stress-mmap"));
-#else
-	(void)buf;
-#endif
-}
-
-/*
  *  stress_mmap_mprotect()
  *	cycle through page settings on a region of mmap'd memory
  */
@@ -388,6 +373,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	void *hint;
 	int ret;
 	NOCLOBBER int mask = ~0;
+	static const char mmap_name[] = "stress-mmap";
 
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
@@ -693,7 +679,7 @@ cleanup:
 
 			buf = (uint8_t *)mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
 			if (buf != MAP_FAILED) {
-				stress_mmap_set_vma_name((void *)buf);
+				stress_set_vma_anon_name((void *)buf, page_size, mmap_name);
 				(void)munmap((void *)buf, page_size);
 			}
 			if (tmpfd >= 0)
@@ -711,7 +697,7 @@ cleanup:
 		if (buf64 != MAP_FAILED) {
 			uint64_t val = stress_mwc64();
 
-			stress_mmap_set_vma_name((void *)buf64);
+			stress_set_vma_anon_name((void *)buf64, page_size, mmap_name);
 
 			*buf64 = val;
 			ret = mprotect((void *)buf64, page_size, PROT_READ);
@@ -735,7 +721,7 @@ cleanup:
 		buf64 = (uint64_t *)mmap(NULL, page_size, PROT_READ,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (buf64 != MAP_FAILED) {
-			stress_mmap_set_vma_name((void *)buf64);
+			stress_set_vma_anon_name((void *)buf64, page_size, mmap_name);
 
 			ret = mprotect((void *)buf64, page_size, PROT_WRITE);
 			if ((ret < 0) && (errno != ENOMEM)) {
