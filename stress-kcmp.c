@@ -70,7 +70,7 @@ struct shim_kcmp_epoll_slot {
 do {									\
 	int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
 									\
-	if (rc < 0) {	 						\
+	if (UNLIKELY(rc < 0)) {	 					\
 		if (errno == EPERM) {					\
 			pr_inf("%s: %s", capfail, args->name);		\
 			goto reap;					\
@@ -80,15 +80,13 @@ do {									\
 				"errno=%d (%s)\n", args->name,		\
 				errno, strerror(errno));		\
 	}								\
-	if (!keep_stressing_flag())					\
-		goto reap;						\
 } while (0)
 
 #define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)			\
 do {									\
 	int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
 									\
-	if (rc != res) {						\
+	if (UNLIKELY(rc != res)) {					\
 		if (rc < 0) {						\
 			if (errno == EPERM) {				\
 				pr_inf("%s: %s", capfail, args->name);	\
@@ -228,6 +226,7 @@ again:
 	} else {
 		/* Parent */
 		int fd2, status, pid2;
+		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
@@ -282,7 +281,7 @@ again:
 #endif
 
 			/* Same simple checks */
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (verify) {
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_FILE, fd1, fd1, 0);
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_FILES, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_FS, 0, 0, 0);
