@@ -48,9 +48,9 @@ typedef struct {
 	int file_fd;
 } stress_data_t;
 
+static void *inode_flags_counter_lock;
 static volatile bool keep_running;
 static sigset_t set;
-static shim_pthread_spinlock_t spinlock;
 
 static size_t inode_flag_count;
 static int *inode_flag_perms;
@@ -175,6 +175,7 @@ static int stress_inode_flags_stressor(
 			stress_inode_flags_ioctl(args, data->file_fd, inode_flags[i]);
 		stress_inode_flags_ioctl_sane(data->file_fd);
 		shim_fsync(data->file_fd);
+		inc_counter_lock(args, inode_flags_counter_lock, 1);
 	}
 
 	return 0;
@@ -214,6 +215,12 @@ static int stress_inode_flags(const stress_args_t *args)
 	char tmp[PATH_MAX], file_name[PATH_MAX];
 	char *dir_name;
 
+	inode_flags_counter_lock = stress_lock_create();
+	if (!inode_flags_counter_lock) {
+		pr_inf("%s: failed to create lock, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	for (all_inode_flags = 0, i = 0; i < SIZEOF_ARRAY(inode_flags); i++)
 		all_inode_flags |= inode_flags[i];
 
@@ -221,19 +228,15 @@ static int stress_inode_flags(const stress_args_t *args)
 
 	if ((inode_flag_count == 0) || (!inode_flag_perms)) {
 		pr_inf_skip("%s: no inode flags to exercise, skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
-	}
-
-	rc = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
-	if (rc) {
-		pr_fail("%s: pthread_spin_init failed, errno = %d (%s)\n",
-			args->name, rc, strerror(rc));
-		return EXIT_FAILURE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_lock;
 	}
 
 	rc = stress_temp_dir_mk_args(args);
-	if (rc < 0)
-		return stress_exit_status(-rc);
+	if (rc < 0) {
+		rc = stress_exit_status(-rc);
+		goto tidy_lock;
+	}
 	(void)stress_temp_filename_args(args,
 		file_name, sizeof(file_name), stress_mwc32());
 
@@ -245,7 +248,7 @@ static int stress_inode_flags(const stress_args_t *args)
 		pr_err("%s: cannot open %s: errno=%d (%s)\n",
 			args->name, dir_name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
-		goto tidy;
+		goto tidy_unlink;
 	}
 	data.file_fd = open(file_name, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (data.file_fd < 0) {
@@ -292,11 +295,12 @@ static int stress_inode_flags(const stress_args_t *args)
 tidy_dir_fd:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(data.dir_fd);
-tidy:
+tidy_unlink:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_unlink(file_name);
 	stress_temp_dir_rm_args(args);
-	(void)shim_pthread_spin_destroy(&spinlock);
+tidy_lock:
+	(void)stress_lock_destroy(inode_flags_counter_lock);
 
 	return rc;
 }
