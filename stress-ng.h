@@ -2732,6 +2732,9 @@ extern int stress_killpid(const pid_t pid);
 extern WARN_UNUSED bool stress_low_memory(const size_t requested);
 extern void stress_ksm_memory_merge(const int flag);
 
+/* process information */
+extern void stress_dump_processes(void);
+
 /* kernel module helpers */
 extern int stress_module_load(const char *name, const char *alias,
 	const char *options, bool *already_loaded);

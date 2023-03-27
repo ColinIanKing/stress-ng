@@ -509,6 +509,7 @@ CORE_SRC = \
 	core-out-of-memory.c \
 	core-parse-opts.c \
 	core-perf.c \
+	core-processes.c \
 	core-resources.c \
 	core-sched.c \
 	core-setting.c \

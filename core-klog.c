@@ -132,6 +132,7 @@ void stress_klog_start(void)
 
 log_err:
 			if (stress_klog_err_no_exceptions(buf)) {
+				stress_dump_processes();
 				pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 				g_shared->klog_error = true;
 				continue;
