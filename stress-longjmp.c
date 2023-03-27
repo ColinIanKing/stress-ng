@@ -28,6 +28,7 @@ typedef struct {
 
 static jmp_buf_check_t bufchk;
 static volatile bool longjmp_failed;
+static int sample_counter = 0;
 
 static const stress_help_t help[] = {
 	{ NULL,	"longjmp N",	 "start N workers exercising setjmp/longjmp" },
@@ -35,9 +36,17 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
+static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_sample_func(void)
 {
 	bufchk.ts = stress_time_now();
+	longjmp(bufchk.buf, 1);	/* Jump out */
+
+	longjmp_failed = true;
+	_exit(EXIT_FAILURE);	/* Never get here */
+}
+
+static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
+{
 	longjmp(bufchk.buf, 1);	/* Jump out */
 
 	longjmp_failed = true;
@@ -67,32 +76,36 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	ret = setjmp(bufchk.buf);
-
 	if (ret) {
-		static int c = 0;
-
-		t_total += (stress_time_now() - bufchk.ts);
-		n++;
+		if (UNLIKELY(sample_counter == 0)) {
+			t_total += (stress_time_now() - bufchk.ts);
+			n++;
+			inc_counter(args);
+		}
 		/*
 		 *  Sanity check to see if setjmp clobbers regions
 		 *  before/after the jmpbuf
 		 */
-		if (bufchk.check0 != check0) {
+		if (UNLIKELY(bufchk.check0 != check0)) {
 			pr_fail("%s: memory corrupted before jmpbuf region\n",
 				args->name);
 		}
-		if (bufchk.check1 != check1) {
+		if (UNLIKELY(bufchk.check1 != check1)) {
 			pr_fail("%s: memory corrupted before jmpbuf region\n",
 				args->name);
 		}
-
-		if (c++ >= 1000) {
-			inc_counter(args);
-			c = 0;
+		sample_counter++;
+		if (sample_counter >= 1000)
+			sample_counter = 0;
+	}
+	if (keep_stressing(args)) {
+		if (LIKELY(sample_counter > 0)) {
+			stress_longjmp_func();
+		} else {
+			stress_longjmp_sample_func();
 		}
 	}
-	if (keep_stressing(args))
-		stress_longjmp_func();
+
 
 	if (longjmp_failed)
 		pr_fail("%s failed, did not detect any successful longjmp calls\n", args->name);
