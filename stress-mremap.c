@@ -101,6 +101,7 @@ static int try_remap(
 {
 	uint8_t *newbuf;
 	int retry, flags = 0;
+	static int metrics_counter = 0;
 #if defined(MREMAP_MAYMOVE)
 	const int maymove = MREMAP_MAYMOVE;
 #else
@@ -115,7 +116,8 @@ static int try_remap(
 #endif
 
 	for (retry = 0; retry < 100; retry++) {
-		double t;
+		double t = 0.0;
+
 
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
@@ -125,21 +127,22 @@ static int try_remap(
 			*buf = 0;
 			return 0;
 		}
+		if (UNLIKELY(metrics_counter == 0))
+			t = stress_time_now();
 #if defined(MREMAP_FIXED)
 		if (addr) {
-			t = stress_time_now();
 			newbuf = mremap(*buf, old_sz, new_sz, flags, addr);
 		} else {
-			t = stress_time_now();
 			newbuf = mremap(*buf, old_sz, new_sz, flags & ~MREMAP_FIXED);
 		}
 #else
-		t = stress_time_now();
 		newbuf = mremap(*buf, old_sz, new_sz, flags);
 #endif
 		if (newbuf && newbuf != MAP_FAILED) {
-			(*duration) += stress_time_now() - t;
-			(*count) += 1.0;
+			if (UNLIKELY(metrics_counter == 0)) {
+				(*duration) += stress_time_now() - t;
+				(*count) += 1.0;
+			}
 			*buf = newbuf;
 
 #if defined(MREMAP_DONTUNMAP)
@@ -148,12 +151,15 @@ static int try_remap(
 			 *  followed by an unmap of the old mapping for
 			 *  some more exercise
 			 */
-			t = stress_time_now();
+			if (UNLIKELY(metrics_counter == 0))
+				t = stress_time_now();
 			newbuf = mremap(*buf, new_sz, new_sz,
 					MREMAP_DONTUNMAP | MREMAP_MAYMOVE);
 			if (newbuf && newbuf != MAP_FAILED) {
-				(*duration) += stress_time_now() - t;
-				(*count) += 1.0;
+				if (UNLIKELY(metrics_counter == 0)) {
+					(*duration) += stress_time_now() - t;
+					(*count) += 1.0;
+				}
 
 				if (*buf)
 					(void)munmap(*buf, new_sz);
@@ -167,6 +173,9 @@ static int try_remap(
 #else
 			(void)mremap_mlock;
 #endif
+			if (metrics_counter++ > 500)
+				metrics_counter = 0;
+
 			return 0;
 		}
 
