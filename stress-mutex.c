@@ -90,12 +90,13 @@ typedef struct {
  *  mutex_exercise()
  *	exercise the mutex
  */
-static void *mutex_exercise(void *arg)
+static void OPTIMIZE3 *mutex_exercise(void *arg)
 {
 	pthread_info_t *pthread_info = (pthread_info_t *)arg;
 	const stress_args_t *args = pthread_info->args;
 	static void *nowt = NULL;
 	int max = (pthread_info->prio_max * 7) / 8;
+	int metrics_count = 0;
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
 	uint32_t cpus = (uint32_t)stress_get_processors_configured();
 #endif
@@ -123,19 +124,35 @@ static void *mutex_exercise(void *arg)
 
 	do {
 		struct sched_param param;
-		double t;
 
 		param.sched_priority = max > 0 ? (int)stress_mwc32modn(max) : max;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
-		t = stress_time_now();
-		if (pthread_mutex_lock(&mutex) < 0) {
-			pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
+
+		if (LIKELY(metrics_count > 0)) {
+			/* fast non-metrics lock path */
+			if (UNLIKELY(pthread_mutex_lock(&mutex) < 0)) {
+				pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				break;
+			}
 		} else {
-			pthread_info->lock_duration += stress_time_now() - t;
-			pthread_info->lock_count += 1.0;
+			/* slow metrics lock path */
+			double t;
+
+			t = stress_time_now();
+			if (UNLIKELY(pthread_mutex_lock(&mutex) < 0)) {
+				pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				break;
+			} else {
+				pthread_info->lock_duration += stress_time_now() - t;
+				pthread_info->lock_count += 1.0;
+			}
 		}
+		metrics_count++;
+		if (metrics_count > 1000)
+			metrics_count = 0;
+
 		param.sched_priority = pthread_info->prio_min;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
@@ -152,7 +169,7 @@ static void *mutex_exercise(void *arg)
 		inc_counter(args);
 		shim_sched_yield();
 
-		if (pthread_mutex_unlock(&mutex) < 0) {
+		if (UNLIKELY(pthread_mutex_unlock(&mutex) < 0)) {
 			pr_fail("%s: pthread_mutex_unlock failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
