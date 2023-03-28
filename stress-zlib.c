@@ -1423,6 +1423,11 @@ static int stress_zlib_inflate(
 		do {
 			int def_size;
 
+			if (!keep_stressing(args)) {
+				sz = 0;
+				break;
+			}
+
 			/* read buffer size first */
 			sz = stress_read_buffer(fd, &def_size, sizeof(def_size), false);
 			if (sz == 0) {
@@ -1496,7 +1501,7 @@ static int stress_zlib_inflate(
 		stream_inf.zalloc = Z_NULL;
 		stream_inf.zfree = Z_NULL;
 		stream_inf.opaque = Z_NULL;
-	} while (sz > 0);
+	} while (keep_stressing(args) && (sz > 0));
 
 finish:
 	if (write(zlib_checksum_fd, &zlib_checksum, sizeof(zlib_checksum)) < 0) {
@@ -1610,6 +1615,7 @@ static int stress_zlib_deflate(
 				ssize_t sz;
 				int def_size;
 
+
 				stream_def.avail_out = DATA_SIZE;
 				stream_def.next_out = out;
 
@@ -1667,9 +1673,13 @@ static int stress_zlib_deflate(
 						goto finish;
 					}
 				}
+				if (!keep_stressing(args)) {
+					(void)deflateEnd(&stream_def);
+					goto finish;
+				}
 				inc_counter(args);
-			} while (stream_def.avail_out == 0);
-		} while (ret != Z_STREAM_END);
+			} while (keep_stressing(args) && (stream_def.avail_out == 0));
+		} while (keep_stressing(args) && (ret != Z_STREAM_END));
 
 		(void)deflateEnd(&stream_def);
 		stream_def.zalloc = Z_NULL;
