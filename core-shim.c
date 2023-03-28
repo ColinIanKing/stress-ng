@@ -95,43 +95,9 @@ UNEXPECTED
 #define shim_rusage_who_t	int
 #endif
 
-#ifdef HAVE_LINUX_MODULE_H
+#if defined(HAVE_LINUX_MODULE_H)
 #include <linux/module.h>
 #endif
-
-/*
- *  shim_finit_module()
- *      shim for linux finit_module
- */
-int shim_finit_module(int fd, const char *uargs, int flags)
-{
-#if defined(HAVE_FINIT_MODULE)
-	extern finit_module(int fd, const char *param_values, int flags);
-
-	return finit_module(fd, uargs, flags);
-#elif defined(__NR_finit_module)
-	return syscall(__NR_finit_module, fd, uargs, flags);
-#else
-	return shim_enosys(0, fd, uargs, flags);
-#endif
-}
-
-/*
- *  shim_delete_module()
- *      shim for linux delete_module
- */
-int shim_delete_module(const char *name, unsigned int flags)
-{
-#if defined(HAVE_DELETE_MODULE)
-	extern int delete_module(const char *name, int flags);
-
-	return delete_module(name, flags);
-#elif defined(__NR_delete_module)
-	return syscall(__NR_delete_module, name, flags);
-#else
-	return shim_enosys(0, name, flags);
-#endif
-}
 
 #if defined(__sun__)
 #if defined(HAVE_GETDOMAINNAME)
@@ -2487,5 +2453,39 @@ int shim_setgroups(int size, const gid_t *list)
 #endif
 #else
 	return (int)shim_enosys(size, list);
+#endif
+}
+
+/*
+ *  shim_finit_module()
+ *      shim for linux finit_module
+ */
+int shim_finit_module(int fd, const char *uargs, int flags)
+{
+#if defined(HAVE_FINIT_MODULE)
+	extern finit_module(int fd, const char *param_values, int flags);
+
+	return finit_module(fd, uargs, flags);
+#elif defined(__NR_finit_module)
+	return syscall(__NR_finit_module, fd, uargs, flags);
+#else
+	return shim_enosys(0, fd, uargs, flags);
+#endif
+}
+
+/*
+ *  shim_delete_module()
+ *      shim for linux delete_module
+ */
+int shim_delete_module(const char *name, unsigned int flags)
+{
+#if defined(HAVE_DELETE_MODULE)
+	extern int delete_module(const char *name, int flags);
+
+	return delete_module(name, flags);
+#elif defined(__NR_delete_module)
+	return syscall(__NR_delete_module, name, flags);
+#else
+	return shim_enosys(0, name, flags);
 #endif
 }
