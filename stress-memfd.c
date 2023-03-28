@@ -18,6 +18,8 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpu.h"
+//#include "core-nt-store.h"
 #include "core-target-clones.h"
 
 #define MIN_MEMFD_BYTES		(2 * MB)
@@ -108,7 +110,7 @@ static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_
  *  stress_memfd_fill_pages()
  *	fill pages with random uin64_t values
  */
-static inline void TARGET_CLONES stress_memfd_fill_pages(void *ptr, const size_t size)
+static void TARGET_CLONES stress_memfd_fill_pages_generic(void *ptr, const size_t size)
 {
 	register uint64_t *u64ptr = (uint64_t *)ptr;
 	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
@@ -151,6 +153,55 @@ static inline void TARGET_CLONES stress_memfd_fill_pages(void *ptr, const size_t
 	}
 }
 
+#if defined(HAVE_NT_STORE64)
+/*
+ *  stress_memfd_fill_pages_nt_store()
+ *	fill pages with random uin64_t values using nt_store
+ */
+static void OPTIMIZE3 stress_memfd_fill_pages_nt_store(void *ptr, const size_t size)
+{
+	register uint64_t *u64ptr = (uint64_t *)ptr;
+	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
+	register uint64_t v = stress_mwc64();
+
+	while (u64ptr < u64end) {
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr++, v);
+		v++;
+	}
+}
+#endif
+
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_PAGEOUT)
 /*
@@ -187,6 +238,12 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	int mmap_flags = MAP_FILE | MAP_SHARED;
 	double duration = 0.0, count = 0.0, rate;
+#if defined(HAVE_NT_STORE64)
+	void (*stress_memfd_fill_pages)(void *ptr, const size_t size) =
+		stress_cpu_x86_has_sse2() ? stress_memfd_fill_pages_nt_store : stress_memfd_fill_pages_generic;
+#else
+	void (*stress_memfd_fill_pages)(void *ptr, const size_t size) = stress_memfd_fill_pages_generic;
+#endif
 
 #if defined(MAP_POPULATE)
 	mmap_flags |= MAP_POPULATE;
