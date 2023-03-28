@@ -358,18 +358,47 @@ static void stress_mmap_invalid(
 		(void)munmap(ptr, length);
 }
 
+/*
+ *  stress_mmap_index_shuffle()
+ *	single pass shuffle to mix up page mapping orders
+ */
+static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
+{
+	size_t i;
+
+	if (LIKELY(n <= 0xffffffff)) {
+		/* small index < 4GB of items we can use 32bit mod */
+		for (i = 0; i < n; i++) {
+			register size_t tmp, j = (size_t)stress_mwc32modn_maybe_pwr2(n);
+
+			tmp = index[i];
+			index[i] = index[j];
+			index[j] = tmp;
+		}
+	} else {
+		for (i = 0; i < n; i++) {
+			register size_t tmp, j = (size_t)stress_mwc64modn_maybe_pwr2(n);
+
+			tmp = index[i];
+			index[i] = index[j];
+			index[j] = tmp;
+		}
+	}
+}
+
 static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 {
 	stress_mmap_context_t *context = (stress_mmap_context_t *)ctxt;
 	const size_t page_size = args->page_size;
 	const size_t sz = context->sz;
-	const size_t pages4k = sz / page_size;
+	const size_t pages = sz / page_size;
 	const bool mmap_file = context->mmap_file;
 	const int fd = context->fd;
 	NOCLOBBER int no_mem_retries = 0;
 	const int bad_fd = stress_get_bad_fd();
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
+	size_t *index;
 	void *hint;
 	int ret;
 	NOCLOBBER int mask = ~0;
@@ -377,17 +406,31 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
-	mapped = calloc(pages4k, sizeof(*mapped));
-	if (!mapped) {
+	mapped = (uint8_t *)mmap(NULL, pages * sizeof(*mapped),
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (mapped == MAP_FAILED) {
 		pr_dbg("%s: cannot allocate mapped buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	mappings = calloc(pages4k, sizeof(*mappings));
-	if (!mappings) {
+	mappings = (uint8_t **)mmap(NULL, pages * sizeof(*mappings),
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (mappings == MAP_FAILED) {
 		pr_dbg("%s: cannot allocate mappings buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
-		free(mapped);
+		(void)munmap((void *)mapped, pages * sizeof(*mapped));
+		return EXIT_NO_RESOURCE;
+	}
+	index = (size_t *)mmap(NULL, pages * sizeof(*index),
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (index == MAP_FAILED) {
+		pr_dbg("%s: cannot allocate index buffer: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)munmap((void *)mappings, pages * sizeof(*mappings));
+		(void)munmap((void *)mapped, pages * sizeof(*mapped));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -482,7 +525,7 @@ retry:
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz, page_size, context->mmap_mprotect);
-		for (n = 0; n < pages4k; n++) {
+		for (n = 0; n < pages; n++) {
 			mapped[n] = PAGE_MAPPED;
 			mappings[n] = buf + (n * page_size);
 		}
@@ -502,7 +545,7 @@ retry:
 		if ((fd >= 0) && (mmap_file)) {
 			off_t offset = 0;
 
-			for (n = 0; n < pages4k; n++, offset += page_size) {
+			for (n = 0; n < pages; n++, offset += page_size) {
 				if (lseek(fd, offset, SEEK_SET) < 0)
 					continue;
 
@@ -514,85 +557,82 @@ retry:
 		/*
 		 *  Step #1, unmap all pages in random order
 		 */
+		for (n = 0; n < pages; n++)
+			index[n] = n;
+		stress_mmap_index_shuffle(index, n);
+
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
-		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64modn(pages4k);
-			for (j = 0; j < n; j++) {
-				uint64_t page = (i + j) % pages4k;
-				if (mapped[page] == PAGE_MAPPED) {
-					mapped[page] = 0;
+		for (n = 0; n < pages; n++) {
+			register size_t page = index[n];
+
+			if (mapped[page] == PAGE_MAPPED) {
+				mapped[page] = 0;
 #if defined(HAVE_MQUERY) &&	\
     defined(MAP_FIXED)
-					{
-						/* Exercise OpenBSD mquery */
-						VOID_RET(void *, mquery(mappings[page], page_size,
-								PROT_READ, MAP_FIXED, -1, 0));
-					}
-#endif
-					(void)stress_madvise_random(mappings[page], page_size);
-					stress_mmap_mprotect(args->name, mappings[page],
-						page_size, page_size, context->mmap_mprotect);
-					(void)munmap((void *)mappings[page], page_size);
-					n--;
-					break;
+				{
+					/* Exercise OpenBSD mquery */
+					VOID_RET(void *, mquery(mappings[page], page_size,
+							PROT_READ, MAP_FIXED, -1, 0));
 				}
-				if (!keep_stressing_flag())
-					goto cleanup;
+#endif
+				(void)stress_madvise_random(mappings[page], page_size);
+				stress_mmap_mprotect(args->name, mappings[page],
+					page_size, page_size, context->mmap_mprotect);
+				(void)munmap((void *)mappings[page], page_size);
 			}
+			if (!keep_stressing_flag())
+				goto cleanup;
 		}
 		(void)munmap((void *)buf, sz);
 #if defined(MAP_FIXED)
+
 		/*
 		 *  Step #2, map them back in random order
 		 */
-		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64modn(pages4k);
+		stress_mmap_index_shuffle(index, n);
 
-			for (j = 0; j < n; j++) {
-				uint64_t page = (i + j) % pages4k;
+		for (n = 0; n < pages; n++) {
+			register size_t page = index[n];
 
-				if (!mapped[page]) {
-					off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
-					int fixed_flags = MAP_FIXED;
+			if (!mapped[page]) {
+				off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
+				int fixed_flags = MAP_FIXED;
 
-					/*
-					 * Attempt to map them back into the original address, this
-					 * may fail (it's not the most portable operation), so keep
-					 * track of failed mappings too
-					 */
+				/*
+				 * Attempt to map them back into the original address, this
+				 * may fail (it's not the most portable operation), so keep
+				 * track of failed mappings too
+				 */
 #if defined(MAP_FIXED_NOREPLACE)
-					if (stress_mwc1())
-						fixed_flags = MAP_FIXED_NOREPLACE;
+				if (stress_mwc1())
+					fixed_flags = MAP_FIXED_NOREPLACE;
 #endif
-					mappings[page] = (uint8_t *)context->mmap((void *)mappings[page],
-						page_size, PROT_READ | PROT_WRITE, fixed_flags | context->flags, fd, offset);
+				mappings[page] = (uint8_t *)context->mmap((void *)mappings[page],
+					page_size, PROT_READ | PROT_WRITE, fixed_flags | context->flags, fd, offset);
 
-					if (mappings[page] == MAP_FAILED) {
-						mapped[page] = PAGE_MAPPED_FAIL;
-						mappings[page] = NULL;
-					} else {
-						(void)stress_mincore_touch_pages(mappings[page], page_size);
-						(void)stress_madvise_random(mappings[page], page_size);
-						stress_mmap_mprotect(args->name, mappings[page],
-							page_size, page_size, context->mmap_mprotect);
-						mapped[page] = PAGE_MAPPED;
-						/* Ensure we can write to the mapped page */
-						stress_mmap_set(mappings[page], page_size, page_size);
-						if (stress_mmap_check(mappings[page], page_size, page_size) < 0)
-							pr_fail("%s: mmap'd region of %zu bytes does "
-								"not contain expected data\n", args->name, page_size);
-						if (mmap_file) {
-							(void)memset(mappings[page], (int)n, page_size);
-							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
+				if (mappings[page] == MAP_FAILED) {
+					mapped[page] = PAGE_MAPPED_FAIL;
+					mappings[page] = NULL;
+				} else {
+					(void)stress_mincore_touch_pages(mappings[page], page_size);
+					(void)stress_madvise_random(mappings[page], page_size);
+					stress_mmap_mprotect(args->name, mappings[page],
+						page_size, page_size, context->mmap_mprotect);
+					mapped[page] = PAGE_MAPPED;
+					/* Ensure we can write to the mapped page */
+					stress_mmap_set(mappings[page], page_size, page_size);
+					if (stress_mmap_check(mappings[page], page_size, page_size) < 0)
+						pr_fail("%s: mmap'd region of %zu bytes does "
+							"not contain expected data\n", args->name, page_size);
+					if (mmap_file) {
+						(void)memset(mappings[page], (int)n, page_size);
+						(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 #if defined(FALLOC_FL_KEEP_SIZE) &&	\
     defined(FALLOC_FL_PUNCH_HOLE)
-							(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
-								offset, (off_t)page_size);
+						(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+							offset, (off_t)page_size);
 #endif
-						}
 					}
-					n--;
-					break;
 				}
 				if (!keep_stressing_flag())
 					goto cleanup;
@@ -603,7 +643,7 @@ cleanup:
 		/*
 		 *  Step #3, unmap them all
 		 */
-		for (n = 0; n < pages4k; n++) {
+		for (n = 0; n < pages; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)stress_madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(args->name, mappings[n],
@@ -617,7 +657,7 @@ cleanup:
 		 *  was successfully mapped earlier. This page should be now
 		 *  unmapped so unmap it again in various ways
 		 */
-		for (n = 0; n < pages4k; n++) {
+		for (n = 0; n < pages; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)munmap((void *)mappings[n], 0);
 				(void)munmap((void *)mappings[n], page_size);
@@ -736,8 +776,9 @@ cleanup:
 
 	jmp_env_set = false;
 
-	free(mappings);
-	free(mapped);
+	(void)munmap((void *)index, pages * sizeof(*index));
+	(void)munmap((void *)mappings, pages * sizeof(*mappings));
+	(void)munmap((void *)mapped, pages * sizeof(*mapped));
 
 	return EXIT_SUCCESS;
 }
