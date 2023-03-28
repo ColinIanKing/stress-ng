@@ -53,9 +53,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_MSYNC)
 /*
  *  stress_page_check()
- *	check if mmap'd data is sane
+ *	check if mmap'd data is sane, sz is a page size
+ *	check in 64 bit byte chunks
  */
-static int stress_page_check(
+static int OPTIMIZE3 stress_page_check(
 	const uint8_t *buf,
 	const uint8_t val,
 	const size_t sz)
@@ -65,10 +66,20 @@ static int stress_page_check(
 	(void)val;
 	(void)sz;
 #else
-	size_t i;
+	uint16_t val16 = (uint16_t)val << 8 | val;
+	uint32_t val32 = (uint32_t)val16 << 16 | val16;
+	register uint64_t val64 = (uint64_t)val32 << 32 | val32;
+	register uint64_t *buf64 = (uint64_t *)buf;
+	register uint64_t *buf64end = (uint64_t *)(buf + sz);
 
-	for (i = 0; i < sz; i++) {
-		if (buf[i] != val)
+	while (buf64 < buf64end) {
+		if (UNLIKELY(*(buf64++) != val64))
+			return -1;
+		if (UNLIKELY(*(buf64++) != val64))
+			return -1;
+		if (UNLIKELY(*(buf64++) != val64))
+			return -1;
+		if (UNLIKELY(*(buf64++) != val64))
 			return -1;
 	}
 #endif
