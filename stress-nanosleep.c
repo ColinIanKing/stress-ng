@@ -86,11 +86,13 @@ static void *stress_pthread_func(void *c)
 	while (keep_stressing(args) &&
 	       !thread_terminate &&
 	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
-		unsigned long i;
+		register unsigned long i;
 
 		for (i = 1 << 18; i > 0; i >>=1) {
 			struct timespec tv;
-			long nsec = (long)stress_mwc32modn(i) + 8;
+			register const unsigned long mask = (i - 1);
+
+			long nsec = (long)(stress_mwc32() & mask) + 8;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
 			struct timespec t1;
