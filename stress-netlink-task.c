@@ -84,7 +84,7 @@ static int stress_netlink_task_supported(const char *name)
  *  stress_netlink_sendcmd()
  *	send a netlink cmd
  */
-static int stress_netlink_sendcmd(
+static int OPTIMIZE3 stress_netlink_sendcmd(
 	const stress_args_t *args,
 	const int sock,
 	const uint16_t nlmsg_type,
@@ -98,7 +98,7 @@ static int stress_netlink_sendcmd(
 	char *nlmsgbuf;
 	ssize_t nlmsgbuf_len;
 	struct sockaddr_nl addr;
-	stress_nlmsg_t nlmsg;
+	stress_nlmsg_t nlmsg ALIGN64;
 
 	nlmsg.n.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
 	nlmsg.n.nlmsg_type = nlmsg_type;
@@ -121,7 +121,7 @@ static int stress_netlink_sendcmd(
 	addr.nl_family = AF_NETLINK;
 
 	while (nlmsgbuf_len > 0) {
-		ssize_t len;
+		register ssize_t len;
 
 		len = sendto(sock, nlmsgbuf, (size_t)nlmsgbuf_len, 0,
 			(struct sockaddr *)&addr, sizeof(addr));
@@ -144,7 +144,7 @@ static int stress_netlink_sendcmd(
  * 	check that the pid matches and involuntary context
  *	switches are incrementing over time.
  */
-static void stress_parse_payload(
+static void OPTIMIZE3 stress_parse_payload(
 	const stress_args_t *args,
 	struct nlattr *na,
 	const pid_t pid,
@@ -162,7 +162,7 @@ static void stress_parse_payload(
 		switch (na->nla_type) {
 		case TASKSTATS_TYPE_PID:
 			task_pid = *(pid_t *)NLA_DATA(na);
-			if (task_pid != pid) {
+			if (UNLIKELY(task_pid != pid)) {
 				pr_fail("%s: TASKSTATS_TYPE_PID got pid %" PRIdMAX ", "
 					"expected %" PRIdMAX "\n",
 					args->name,
@@ -171,7 +171,7 @@ static void stress_parse_payload(
 			break;
 		case TASKSTATS_TYPE_STATS:
 			t = (struct taskstats *)NLA_DATA(na);
-			if ((uint64_t)t->nivcsw < *nivcsw) {
+			if (UNLIKELY((uint64_t)t->nivcsw < *nivcsw)) {
 				pr_fail("%s: TASKSTATS_TYPE_STATS got %"
 					PRIu64 " involuntary context switches, "
 					"expected at least %" PRIu64 "\n",
@@ -189,7 +189,7 @@ static void stress_parse_payload(
  *   stress_netlink_taskstats_monitor()
  *	monitor parent's activity using taskstats info
  */
-static int stress_netlink_taskstats_monitor(
+static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 	const stress_args_t *args,
 	const int sock,
 	const pid_t pid,
@@ -197,7 +197,7 @@ static int stress_netlink_taskstats_monitor(
 	uint64_t *nivcsw)
 {
 	do {
-		stress_nlmsg_t msg;
+		stress_nlmsg_t msg ALIGN64;
 		ssize_t msg_len, len;
 		int ret;
 		pid_t pid_data = pid;
@@ -208,7 +208,7 @@ static int stress_netlink_taskstats_monitor(
 						TASKSTATS_CMD_ATTR_PID,
 						&pid_data,
 						(uint16_t)sizeof(pid_data));
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: sendto TASKSTATS_CMD_GET failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
@@ -216,7 +216,7 @@ static int stress_netlink_taskstats_monitor(
 
 		(void)memset(&msg, 0, sizeof(msg));
 		msg_len = recv(sock, &msg, sizeof(msg), 0);
-		if (msg_len < 0)
+		if (UNLIKELY(msg_len < 0))
 			continue;
 
 		if (!NLMSG_OK((&msg.n), (unsigned int)msg_len)) {
@@ -247,7 +247,7 @@ static int stress_netlink_task(const stress_args_t *args)
 	ssize_t len;
 	struct sockaddr_nl addr;
 	struct nlattr *na;
-	stress_nlmsg_t nlmsg;
+	stress_nlmsg_t nlmsg ALIGN64;
 	const pid_t pid = getpid();
 	uint16_t id;
 	uint64_t nivcsw = 0ULL;	/* number of involuntary context switches */
