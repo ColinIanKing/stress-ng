@@ -271,19 +271,19 @@ again:
 
 					(void)memset(&sigev, 0, sizeof sigev);
 					switch (stress_mwc8modn(5)) {
-					case 3:
+					case 0:
 						/* Illegal signal */
 						sigev.sigev_notify = SIGEV_SIGNAL;
 						sigev.sigev_signo = ~0;
 						break;
-					case 2:
+					case 1:
 						/* Illegal notify event */
 						sigev.sigev_notify = ~0;
 						break;
-					case 1:
+					case 2:
 						sigev.sigev_notify = SIGEV_NONE;
 						break;
-					case 0:
+					case 3:
 #if defined(SIGUSR2)
 						sigev.sigev_notify = SIGEV_SIGNAL;
 						sigev.sigev_signo = SIGUSR2;
@@ -417,7 +417,7 @@ again:
 
 		do {
 			int ret;
-			unsigned int prio = stress_mwc8modn(PRIOS_MAX);
+			unsigned int prio = stress_mwc8modn_maybe_pwr2(PRIOS_MAX);
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {
