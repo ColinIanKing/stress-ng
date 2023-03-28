@@ -50,37 +50,65 @@ static int do_mlock(
 {
 	static bool use_mlock2 = true;
 	int ret;
-	double t;
+	static int metrics_count = 0;
 
-	if (use_mlock2) {
-		const uint32_t rnd = stress_mwc32() >> 5;
+	if (LIKELY(metrics_count++ < 1000)) {
+		/* faster non-metrics timed mlock operations */
+		if (use_mlock2) {
+			const uint32_t rnd = stress_mwc32() >> 5;
 
-		/* Randomly use mlock2 or mlock */
-		if (rnd & 1) {
-			const int flags = (rnd & 2) ?
-				0 : MLOCK_ONFAULT;
+			/* Randomly use mlock2 or mlock */
+			if (rnd & 1) {
+				const int flags = (rnd & 2) ?
+					0 : MLOCK_ONFAULT;
 
-			t = stress_time_now();
-			ret = shim_mlock2(addr, len, flags);
-			if (ret == 0) {
-				(*duration) += stress_time_now() - t;
-				(*count) += 1.0;
-				return 0;
+				ret = shim_mlock2(addr, len, flags);
+				if (ret == 0)
+					return 0;
+				if (errno != ENOSYS)
+					return ret;
+
+				/* mlock2 not supported... */
+				use_mlock2 = false;
 			}
-			if (errno != ENOSYS)
-				return ret;
-
-			/* mlock2 not supported... */
-			use_mlock2 = false;
 		}
-	}
 
-	/* Just do mlock */
-	t = stress_time_now();
-	ret = shim_mlock((const void *)addr, len);
-	if (ret == 0) {
-		(*duration) += stress_time_now() - t;
-		(*count) += 1.0;
+		/* Just do mlock */
+		ret = shim_mlock((const void *)addr, len);
+	} else {
+		double t;
+
+		/* slower metrics timed mlock operations */
+		if (use_mlock2) {
+			const uint32_t rnd = stress_mwc32() >> 5;
+
+			/* Randomly use mlock2 or mlock */
+			if (rnd & 1) {
+				const int flags = (rnd & 2) ?
+					0 : MLOCK_ONFAULT;
+
+				t = stress_time_now();
+				ret = shim_mlock2(addr, len, flags);
+				if (ret == 0) {
+					(*duration) += stress_time_now() - t;
+					(*count) += 1.0;
+					return 0;
+				}
+				if (errno != ENOSYS)
+					return ret;
+
+				/* mlock2 not supported... */
+				use_mlock2 = false;
+			}
+		}
+
+		/* Just do mlock */
+		t = stress_time_now();
+		ret = shim_mlock((const void *)addr, len);
+		if (ret == 0) {
+			(*duration) += stress_time_now() - t;
+			(*count) += 1.0;
+		}
 	}
 	return ret;
 }
@@ -92,13 +120,21 @@ static inline int do_mlock(
 	double *count)
 {
 	int ret;
-	double t;
+	static int metrics_count = 0;
 
-	t = stress_time_now();
-	ret = shim_mlock((const void *)addr, len);
-	if (ret == 0) {
-		(*duration) += stress_time_now() - t;
-		(*count) += 1.0;
+	if (LIKELY(metrics_count++ < 1000)) {
+		/* faster non-metrics timed mlock operations */
+		ret = shim_mlock((const void *)addr, len);
+	} else {
+		double t;
+
+		/* slower metrics timed mlock operations */
+		t = stress_time_now();
+		ret = shim_mlock((const void *)addr, len);
+		if (ret == 0) {
+			(*duration) += stress_time_now() - t;
+			(*count) += 1.0;
+		}
 	}
 	return ret;
 }
