@@ -51,12 +51,17 @@ typedef struct {
 } stress_zlib_rand_data_info_t;
 
 typedef struct {
-	uint64_t	zlib_checksum;
+	uint64_t	checksum;
 	uint64_t	xchars;
 	bool		error;
 	bool		pipe_broken;
 	bool		interrupted;
 } stress_zlib_checksum_t;
+
+typedef struct {
+	stress_zlib_checksum_t deflate;
+	stress_zlib_checksum_t inflate;
+} stress_zlib_shared_checksums_t;
 
 typedef struct {
 	stress_zlib_rand_data_info_t	*info;	/* data generator info */
@@ -1382,24 +1387,22 @@ static void stress_zlib_get_args(stress_zlib_args_t *params) {
 static int stress_zlib_inflate(
 	const stress_args_t *args,
 	const int fd,
-	const int zlib_checksum_fd)
+	stress_zlib_checksum_t *zlib_checksum)
 {
 	ssize_t sz;
-	int ret, err = 0;
+	int ret;
 	z_stream stream_inf;
 	static unsigned char ALIGN64 in[DATA_SIZE];
 	static unsigned char ALIGN64 out[DATA_SIZE];
-	stress_zlib_checksum_t zlib_checksum;
 	stress_zlib_args_t zlib_args;
 
 	(void)stress_zlib_get_args(&zlib_args);
 
-	(void)memset(&zlib_checksum, 0, sizeof(zlib_checksum));
-	zlib_checksum.zlib_checksum = 0;
-	zlib_checksum.xchars = 0;
-	zlib_checksum.error = false;
-	zlib_checksum.pipe_broken = false;
-	zlib_checksum.interrupted = false;
+	zlib_checksum->checksum = 0;
+	zlib_checksum->xchars = 0;
+	zlib_checksum->error = false;
+	zlib_checksum->pipe_broken = false;
+	zlib_checksum->interrupted = false;
 
 	(void)memset(&stream_inf, 0, sizeof(stream_inf));
 	stream_inf.zalloc = Z_NULL;
@@ -1416,17 +1419,12 @@ static int stress_zlib_inflate(
 		if (ret != Z_OK) {
 			pr_fail("%s: zlib inflateInit error: %s\n",
 				args->name, stress_zlib_err(ret));
-			zlib_checksum.error = true;
+			zlib_checksum->error = true;
 			goto zlib_checksum_error;
 		}
 
 		do {
 			int def_size;
-
-			if (!keep_stressing(args)) {
-				sz = 0;
-				break;
-			}
 
 			/* read buffer size first */
 			sz = stress_read_buffer(fd, &def_size, sizeof(def_size), false);
@@ -1437,13 +1435,13 @@ static int stress_zlib_inflate(
 				if ((errno != EINTR) && (errno != EPIPE)) {
 					pr_fail("%s: zlib pipe read size error: %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
-					zlib_checksum.error = true;
+					zlib_checksum->error = true;
 					goto zlib_checksum_error;
 				} else {
 					if (errno == EINTR)
-						zlib_checksum.interrupted = true;
+						zlib_checksum->interrupted = true;
 					if (errno == EPIPE)
-						zlib_checksum.pipe_broken = true;
+						zlib_checksum->pipe_broken = true;
 					goto finish;
 				}
 			}
@@ -1456,13 +1454,13 @@ static int stress_zlib_inflate(
 				if ((errno != EINTR) && (errno != EPIPE)) {
 					pr_fail("%s: zlib pipe read buffer error: %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
-					zlib_checksum.error = true;
+					zlib_checksum->error = true;
 					goto zlib_checksum_error;
 				} else {
 					if (errno == EINTR)
-						zlib_checksum.interrupted = true;
+						zlib_checksum->interrupted = true;
 					if (errno == EPIPE)
-						zlib_checksum.pipe_broken = true;
+						zlib_checksum->pipe_broken = true;
 					goto finish;
 				}
 			}
@@ -1490,8 +1488,8 @@ static int stress_zlib_inflate(
 					size_t i;
 
 					for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
-						zlib_checksum.zlib_checksum += (uint64_t)out[i];
-						zlib_checksum.xchars++;
+						zlib_checksum->checksum += (uint64_t)out[i];
+						zlib_checksum->xchars++;
 					}
 				}
 			} while (stream_inf.avail_out == 0);
@@ -1501,22 +1499,14 @@ static int stress_zlib_inflate(
 		stream_inf.zalloc = Z_NULL;
 		stream_inf.zfree = Z_NULL;
 		stream_inf.opaque = Z_NULL;
-	} while (keep_stressing(args) && (sz > 0));
+	} while (sz > 0);
 
 finish:
-	if (write(zlib_checksum_fd, &zlib_checksum, sizeof(zlib_checksum)) < 0) {
-		pr_fail("%s: zlib inflate pipe write failed for zlib_checksum, errno=%d (%s)\n",
-			args->name, err, strerror(err));
-	}
 	return ((ret == Z_OK) || (ret == Z_STREAM_END)) ?
 		EXIT_SUCCESS : EXIT_FAILURE;
 
 zlib_checksum_error:
-	zlib_checksum.error = true;
-	if (write(zlib_checksum_fd, &zlib_checksum, sizeof(zlib_checksum)) < 0) {
-		pr_fail("%s: zlib inflate pipe write failed, errno=%d (%s)\n",
-			args->name, err, strerror(err));
-	}
+	zlib_checksum->error = true;
 	return EXIT_FAILURE;
 }
 
@@ -1528,27 +1518,25 @@ zlib_checksum_error:
 static int stress_zlib_deflate(
 	const stress_args_t *args,
 	const int fd,
-	const int zlib_checksum_fd)
+	stress_zlib_checksum_t *zlib_checksum)
 {
 	uint64_t stream_bytes_out = 0;
-	int ret, err = 0;
+	int ret;
 	z_stream stream_def;
 	uint64_t bytes_in = 0, bytes_out = 0;
 	int flush;
 	stress_zlib_args_t zlib_args;
 	double t1, duration, rate, ratio;
-	stress_zlib_checksum_t zlib_checksum;
 	stress_zlib_rand_data_info_t *info;
 
 	(void)stress_zlib_get_args(&zlib_args);
 	info = (stress_zlib_rand_data_info_t *)zlib_args.info;
 
-	(void)memset(&zlib_checksum, 0, sizeof(zlib_checksum));
-	zlib_checksum.zlib_checksum = 0;
-	zlib_checksum.xchars = 0;
-	zlib_checksum.error = false;
-	zlib_checksum.pipe_broken = false;
-	zlib_checksum.interrupted = false;
+	zlib_checksum->checksum = 0;
+	zlib_checksum->xchars = 0;
+	zlib_checksum->error = false;
+	zlib_checksum->pipe_broken = false;
+	zlib_checksum->interrupted = false;
 
 	(void)memset(&stream_def, 0, sizeof(stream_def));
 	stream_def.zalloc = Z_NULL;
@@ -1571,7 +1559,7 @@ static int stress_zlib_deflate(
 		if (ret != Z_OK) {
 			pr_fail("%s: zlib deflateInit error: %s\n",
 				args->name, stress_zlib_err(ret));
-			zlib_checksum.error = true;
+			zlib_checksum->error = true;
 			ret = EXIT_FAILURE;
 			goto zlib_checksum_error;
 		}
@@ -1604,8 +1592,8 @@ static int stress_zlib_deflate(
 				int i;
 
 				for (i = 0; i < gen_sz; i++) {
-					zlib_checksum.zlib_checksum += zlib_checksum_in[i];
-					zlib_checksum.xchars++;
+					zlib_checksum->checksum += zlib_checksum_in[i];
+					zlib_checksum->xchars++;
 				}
 			}
 
@@ -1614,7 +1602,6 @@ static int stress_zlib_deflate(
 				static unsigned char ALIGN64 out[DATA_SIZE];
 				ssize_t sz;
 				int def_size;
-
 
 				stream_def.avail_out = DATA_SIZE;
 				stream_def.next_out = out;
@@ -1648,9 +1635,9 @@ static int stress_zlib_deflate(
 						goto zlib_checksum_error;
 					} else {
 						if (errno == EINTR)
-							zlib_checksum.interrupted = true;
+							zlib_checksum->interrupted = true;
 						if (errno == EPIPE)
-							zlib_checksum.pipe_broken = true;
+							zlib_checksum->pipe_broken = true;
 						goto finish;
 					}
 				}
@@ -1667,19 +1654,15 @@ static int stress_zlib_deflate(
 						goto zlib_checksum_error;
 					} else {
 						if (errno == EINTR)
-							zlib_checksum.interrupted = true;
+							zlib_checksum->interrupted = true;
 						if (errno == EPIPE)
-							zlib_checksum.pipe_broken = true;
+							zlib_checksum->pipe_broken = true;
 						goto finish;
 					}
 				}
-				if (!keep_stressing(args)) {
-					(void)deflateEnd(&stream_def);
-					goto finish;
-				}
 				inc_counter(args);
-			} while (keep_stressing(args) && (stream_def.avail_out == 0));
-		} while (keep_stressing(args) && (ret != Z_STREAM_END));
+			} while (stream_def.avail_out == 0);
+		} while (ret != Z_STREAM_END);
 
 		(void)deflateEnd(&stream_def);
 		stream_def.zalloc = Z_NULL;
@@ -1697,11 +1680,6 @@ finish:
 
 	ret = EXIT_SUCCESS;
 zlib_checksum_error:
-	if (write(zlib_checksum_fd, &zlib_checksum, sizeof(zlib_checksum)) < 0 ) {
-		pr_fail("%s: zlib deflate pipe write error for zlib_checksum: errno=%d (%s)\n",
-			args->name, err, strerror(err));
-	}
-
 	return ret;
 }
 
@@ -1712,42 +1690,28 @@ zlib_checksum_error:
 static int stress_zlib(const stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS, fds[2];
-	int deflate_zlib_checksum_fds[2], inflate_zlib_checksum_fds[2], status;
-	int err = 0;
+	int status;
+	const pid_t parent_pid = getpid();
 	pid_t pid;
-	stress_zlib_checksum_t deflate_zlib_checksum, inflate_zlib_checksum;
-	ssize_t n;
-	bool bad_zlib_checksum_reads = false;
 	bool error = false;
 	bool interrupted = false;
-
-	(void)memset(&deflate_zlib_checksum, 0, sizeof(deflate_zlib_checksum));
-	(void)memset(&inflate_zlib_checksum, 0, sizeof(inflate_zlib_checksum));
+	stress_zlib_shared_checksums_t *shared_checksums;
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	shared_checksums = mmap(NULL, sizeof(*shared_checksums),
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (shared_checksums == MAP_FAILED) {
+		pr_inf("%s: failed to mmap %zd bytes, skipping stressor\n",
+			args->name, sizeof(*shared_checksums));
+		return EXIT_FAILURE;
+	}
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
-
-	if (pipe(deflate_zlib_checksum_fds) < 0) {
-		pr_err("%s: deflate zlib_checksum pipe failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		(void)close(fds[0]);
-		(void)close(fds[1]);
-		return EXIT_FAILURE;
-	}
-
-	if (pipe(inflate_zlib_checksum_fds) < 0) {
-		pr_err("%s: inflate zlib_checksum pipe failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		(void)close(fds[0]);
-		(void)close(fds[1]);
-		(void)close(deflate_zlib_checksum_fds[0]);
-		(void)close(deflate_zlib_checksum_fds[1]);
+		(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 		return EXIT_FAILURE;
 	}
 
@@ -1758,12 +1722,9 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		(void)close(deflate_zlib_checksum_fds[0]);
-		(void)close(deflate_zlib_checksum_fds[1]);
-		(void)close(inflate_zlib_checksum_fds[0]);
-		(void)close(inflate_zlib_checksum_fds[1]);
 
 		if (!keep_stressing(args))
 			return EXIT_SUCCESS;
@@ -1776,82 +1737,63 @@ again:
 		(void)sched_settings_apply(true);
 
 		(void)close(fds[1]);
-		ret = stress_zlib_inflate(args, fds[0], inflate_zlib_checksum_fds[1]);
+		ret = stress_zlib_inflate(args, fds[0], &shared_checksums->inflate);
 		(void)close(fds[0]);
+		(void)kill(parent_pid, SIGALRM);
 		_exit(ret);
 	} else {
 		int retval;
 
 		(void)close(fds[0]);
-		ret = stress_zlib_deflate(args, fds[1], deflate_zlib_checksum_fds[1]);
+		ret = stress_zlib_deflate(args, fds[1], &shared_checksums->deflate);
 		(void)close(fds[1]);
+		(void)kill(pid, SIGALRM);
 		(void)waitpid(pid, &retval, 0);
 	}
 
-	n = stress_read_buffer(deflate_zlib_checksum_fds[0], &deflate_zlib_checksum, sizeof(deflate_zlib_checksum), false);
-	if (n != sizeof(deflate_zlib_checksum)) {
-		bad_zlib_checksum_reads = true;
-		if ((errno != EINTR) && (errno != EPIPE)) {
-			pr_fail("%s: zlib deflate zlib_checksum read pipe error: errno=%d (%s)\n",
-				args->name, err, strerror(err));
-		}
-	} else {
-		pipe_broken |= deflate_zlib_checksum.pipe_broken;
-		interrupted |= deflate_zlib_checksum.interrupted;
-		error       |= deflate_zlib_checksum.error;
-	}
+	pipe_broken |= shared_checksums->deflate.pipe_broken;
+	interrupted |= shared_checksums->deflate.interrupted;
+	error       |= shared_checksums->deflate.error;
 
-	n = stress_read_buffer(inflate_zlib_checksum_fds[0], &inflate_zlib_checksum, sizeof(inflate_zlib_checksum), false);
-	if (n != sizeof(inflate_zlib_checksum)) {
-		bad_zlib_checksum_reads = true;
-		if ((errno != EINTR) && (errno != EPIPE)) {
-			pr_fail("%s: zlib inflate zlib_checksum read pipe error: errno=%d (%s)\n",
-				args->name, err, strerror(err));
-		}
-	} else {
-		pipe_broken |= inflate_zlib_checksum.pipe_broken;
-		interrupted |= inflate_zlib_checksum.interrupted;
-		error       |= inflate_zlib_checksum.error;
-	}
+	pipe_broken |= shared_checksums->inflate.pipe_broken;
+	interrupted |= shared_checksums->inflate.interrupted;
+	error       |= shared_checksums->inflate.error;
 
-	if (pipe_broken || bad_zlib_checksum_reads || interrupted || error) {
-		pr_inf("%s: cannot verify inflate(%d)/deflate zlib_checksums:%s%s%s%s%s%s%s\n",
+	if (pipe_broken || interrupted || error) {
+		pr_inf("%s: cannot verify inflate/deflate zlib_checksums:%s%s%s%s%s\n",
 			args->name,
-			(int)pid,
 			interrupted ? " interrupted" : "",
 			(interrupted & pipe_broken) ? " and" : "",
 			pipe_broken ? " broken pipe" : "",
 			(((interrupted | pipe_broken)) & error) ? " and" : "",
-			error ? " unexpected error" : "",
-			((interrupted | pipe_broken | error) & bad_zlib_checksum_reads) ? " and" : "",
-			bad_zlib_checksum_reads ? " could not read zlib_checksums" : "");
+			error ? " unexpected error" : "");
 	} else {
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (deflate_zlib_checksum.zlib_checksum != inflate_zlib_checksum.zlib_checksum) {
+			if (shared_checksums->deflate.checksum != shared_checksums->inflate.checksum) {
 				pr_fail("%s: zlib zlib_checksum values do NOT match "
 					"%" PRIu64 "/%" PRIu64
 					"(deflate/inflate)"
 					" vs "
 					"%" PRIu64 "/%" PRIu64
 					"(deflated/inflated bytes)\n",
-					args->name, deflate_zlib_checksum.zlib_checksum,
-					inflate_zlib_checksum.zlib_checksum, deflate_zlib_checksum.xchars,
-					inflate_zlib_checksum.xchars);
+					args->name,
+					shared_checksums->deflate.checksum,
+					shared_checksums->inflate.checksum,
+					shared_checksums->deflate.xchars,
+					shared_checksums->inflate.xchars);
 				ret = EXIT_FAILURE;
 			} else {
 				pr_inf("%s: zlib checksum values matches "
-					"%" PRIu64"/%" PRIu64
-					"(deflate/inflate)\n", args->name,
-					deflate_zlib_checksum.zlib_checksum, inflate_zlib_checksum.zlib_checksum);
+					"0x%" PRIx64"/0x%" PRIx64
+					" (deflate/inflate)\n", args->name,
+					shared_checksums->deflate.checksum,
+					shared_checksums->inflate.checksum);
 			}
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)close(deflate_zlib_checksum_fds[0]);
-	(void)close(deflate_zlib_checksum_fds[1]);
-	(void)close(inflate_zlib_checksum_fds[0]);
-	(void)close(inflate_zlib_checksum_fds[1]);
+	(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 
 	(void)kill(pid, SIGKILL);
 	(void)shim_waitpid(pid, &status, 0);
