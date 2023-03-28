@@ -286,7 +286,9 @@ uint8_t OPTIMIZE3 stress_mwc8modn_maybe_pwr2(const uint8_t max)
 {
 	register const uint8_t mask = max - 1;
 
-	return ((max > 0) && ((max & mask) == 0)) ?
+	if (UNLIKELY(max == 0))
+		return 0;
+	return ((max & mask) == 0) ?
 		(stress_mwc8() & mask) : stress_mwc8modn_nonzero(max);
 }
 
@@ -329,7 +331,9 @@ uint16_t OPTIMIZE3 stress_mwc16modn_maybe_pwr2(const uint16_t max)
 {
 	register const uint16_t mask = max - 1;
 
-	return ((max > 0) && ((max & mask) == 0)) ?
+	if (UNLIKELY(max == 0))
+		return 0;
+	return ((max & mask) == 0) ?
 		(stress_mwc16() & mask) : stress_mwc16modn_nonzero(max);
 }
 
@@ -372,7 +376,9 @@ uint32_t OPTIMIZE3 stress_mwc32modn_maybe_pwr2(const uint32_t max)
 {
 	register const uint32_t mask = max - 1;
 
-	return ((max > 0) && ((max & mask) == 0)) ?
+	if (UNLIKELY(max == 0))
+		return 0;
+	return ((max & mask) == 0) ?
 		(stress_mwc32() & mask) : stress_mwc32modn_nonzero(max);
 }
 
@@ -418,6 +424,8 @@ uint64_t OPTIMIZE3 stress_mwc64modn_maybe_pwr2(const uint64_t max)
 {
 	register const uint64_t mask = max - 1;
 
-	return ((max > 0) && ((max & mask) == 0)) ?
+	if (UNLIKELY(max == 0))
+		return 0;
+	return ((max & mask) == 0) ?
 		(stress_mwc64() & mask) : stress_mwc64modn_nonzero(max);
 }
