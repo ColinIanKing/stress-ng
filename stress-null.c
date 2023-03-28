@@ -39,6 +39,7 @@ static int stress_null(const stress_args_t *args)
 	char ALIGN64 buffer[4096];
 	int fcntl_mask = 0;
 	double duration = 0.0, bytes = 0.0, rate;
+	int metrics_count = 0;
 
 #if defined(O_APPEND)
 	fcntl_mask |= O_APPEND;
@@ -68,7 +69,8 @@ static int stress_null(const stress_args_t *args)
 		const size_t page_size = args->page_size;
 #endif
 
-		t = stress_time_now();
+		if (UNLIKELY(metrics_count == 0))
+			t = stress_time_now();
 		ret = write(fd, buffer, sizeof(buffer));
 		if (UNLIKELY(ret <= 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
@@ -81,9 +83,13 @@ static int stress_null(const stress_args_t *args)
 			}
 			continue;
 		} else {
-			duration += stress_time_now() - t;
-			bytes += (double)ret;
+			if (UNLIKELY(metrics_count == 0)) {
+				duration += stress_time_now() - t;
+				bytes += (double)ret;
+			}
 		}
+		if (metrics_count++ > 100)
+			metrics_count = 0;
 
 		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
 		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_END));
