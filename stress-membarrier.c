@@ -73,6 +73,7 @@ static int stress_membarrier_exercise(const stress_args_t *args, membarrier_info
 {
 	int ret;
 	unsigned int i, mask;
+	double t;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 	if (ret < 0) {
@@ -81,28 +82,30 @@ static int stress_membarrier_exercise(const stress_args_t *args, membarrier_info
 		return -1;
 	}
 	mask = (unsigned int)ret;
+
+	t = stress_time_now();
 	for (i = 1; i; i <<= 1) {
 		if (i & mask) {
-			double t;
 
-			t = stress_time_now();
 			VOID_RET(int, shim_membarrier((int)i, 0, 0));
-			info->duration += stress_time_now() - t;
 			info->count += 1.0;
 
+#if defined(MEMBARRIER_CMD_FLAG_CPU)
+			/* Exercise MEMBARRIER_CMD_FLAG_CPU flag */
+			VOID_RET(int, shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0));
+			info->count += 1.0;
+#endif
+		}
+	}
+	info->duration += stress_time_now() - t;
+
+	for (i = 1; i; i <<= 1) {
+		if (i & mask) {
 			/* Exercise illegal flags */
 			VOID_RET(int, shim_membarrier((int)i, ~0, 0));
 
 			/* Exercise illegal cpu_id */
 			VOID_RET(int, shim_membarrier((int)i, 0, INT_MAX));
-
-#if defined(MEMBARRIER_CMD_FLAG_CPU)
-			/* Exercise MEMBARRIER_CMD_FLAG_CPU flag */
-			t = stress_time_now();
-			VOID_RET(int, shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0));
-			info->duration += stress_time_now() - t;
-			info->count += 1.0;
-#endif
 		}
 	}
 
