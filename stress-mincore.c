@@ -81,14 +81,14 @@ static void stress_mincore_expect(
 	const int err_expected,	/* expected errno */
 	char *msg)		/* test message */
 {
-	if (ret == ret_expected) {
-		if (ret_expected == 0)
+	if (LIKELY(ret == ret_expected)) {
+		if (LIKELY(ret_expected == 0))
 			return;	/* Success! */
 		pr_fail("%s: unexpected success exercising %s\n",
 			args->name, msg);
 	}
 	/* Silently ignore ENOSYS for now */
-	if (err == ENOSYS)
+	if (UNLIKELY(err == ENOSYS))
 		return;
 	if (err != err_expected)
 		pr_fail("%s: expected errno %d, got %d instead while exercising %s\n",
@@ -144,7 +144,7 @@ static int stress_mincore(const stress_args_t *args)
 
 redo: 			errno = 0;
 			ret = shim_mincore((void *)addr, page_size, vec);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
 				case ENOMEM:
 					/* Page not mapped */
@@ -185,7 +185,7 @@ redo: 			errno = 0;
 					}
 				}
 			}
-			if (fdmapped != MAP_FAILED) {
+			if (UNLIKELY(fdmapped != MAP_FAILED)) {
 				/* Force page to be resident */
 				*fdmapped = stress_mwc8();
 #if defined(MS_ASYNC)
@@ -202,7 +202,7 @@ redo: 			errno = 0;
 					}
 				}
 			}
-			if (unmapped != MAP_FAILED) {
+			if (UNLIKELY(unmapped != MAP_FAILED)) {
 				/* mincore on unmapped page should fail */
 				ret = shim_mincore((void *)unmapped, page_size, vec);
 				if (ret == 0) {
@@ -221,7 +221,7 @@ redo: 			errno = 0;
 				addr += page_size;
 			}
 
-			if (mapped != MAP_FAILED) {
+			if (UNLIKELY(mapped != MAP_FAILED)) {
 				/*
 				 *  Exercise with zero length, ignore return
 				 */
