@@ -175,7 +175,7 @@ static int stress_inode_flags_stressor(
 			stress_inode_flags_ioctl(args, data->file_fd, inode_flags[i]);
 		stress_inode_flags_ioctl_sane(data->file_fd);
 		shim_fsync(data->file_fd);
-		inc_counter_lock(args, inode_flags_counter_lock, 1);
+		VOID_RET(bool, inc_counter_lock(args, inode_flags_counter_lock, 1));
 	}
 
 	return 0;
