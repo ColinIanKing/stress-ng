@@ -355,8 +355,8 @@ static void OPTIMIZE3 stress_msg_sender(
 			 */
 			if (UNLIKELY(get_procinfo && ((msg.u.value & 0xffff) == 0)))
 				stress_msg_get_procinfo(&get_procinfo);
-		}
 #endif
+		}
 	} while (keep_stressing(args));
 
 	stress_msgsnd(msgq_id, msg_bytes);
