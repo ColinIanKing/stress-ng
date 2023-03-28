@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfixed N",		"start N workers stressing mmap with fixed mappings" },
@@ -38,30 +39,32 @@ static const stress_help_t help[] = {
  *  stress_mmapfixed_is_mapped_slow()
  *	walk through region with mincore to see if any pages are mapped
  */
-static bool stress_mmapfixed_is_mapped_slow(
+static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 	void *addr,
 	size_t len,
 	const size_t page_size)
 {
-	unsigned char vec[PAGE_CHUNKS];
+	unsigned char vec[PAGE_CHUNKS] ALIGN64;
 	ssize_t n = (ssize_t)len;
+	size_t n_pages = len / page_size;
+
+	if (n_pages > PAGE_CHUNKS)
+		n_pages = PAGE_CHUNKS;
 
 	while (n > 0) {
-		size_t n_pages = len / page_size, sz;
 		int ret;
-		size_t j;
+		register size_t sz, j;
 
-		if (n_pages > PAGE_CHUNKS)
-			n_pages = PAGE_CHUNKS;
 
 		sz = n_pages * page_size;
 		n -= n_pages;
 
 		(void)memset(vec, 0, PAGE_CHUNKS);
 		ret = shim_mincore(addr, sz, vec);
-		if (ret == ENOSYS)
+		if (UNLIKELY(ret == ENOSYS))
 			return false;	/* Dodgy, assume not in memory */
 
+PRAGMA_UNROLL_N(4)
 		for (j = 0; j < n_pages; j++) {
 			if (vec[j])
 				return true;
