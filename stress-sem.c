@@ -101,7 +101,7 @@ do_semwait:
 				if (sem_trywait(&sem) < 0) {
 					if (LIKELY(errno == EAGAIN))
 						goto do_semwait;
-					if (errno != EINTR)
+					if (UNLIKELY(errno != EINTR))
 						pr_fail("%s: sem_trywait failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 					goto do_return;
@@ -127,7 +127,7 @@ do_semwait:
 						   errno == ETIMEDOUT ||
 						   errno == EINVAL))
 						goto do_semwait;
-					if (errno != EINTR)
+					if (UNLIKELY(errno != EINTR))
 						pr_fail("%s: sem_timedwait failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 					goto do_return;
@@ -136,7 +136,7 @@ do_semwait:
 				break;
 			case 2:
 				if (UNLIKELY(sem_wait(&sem) < 0)) {
-					if (errno != EINTR)
+					if (UNLIKELY(errno != EINTR))
 						pr_fail("%s: sem_wait failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 					goto do_return;
