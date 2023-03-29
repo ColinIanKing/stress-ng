@@ -2918,10 +2918,10 @@ static void stress_metrics_dump(
 						geomean = 0.0;
 					}
 					if (g_opt_flags & OPT_FLAGS_SN) {
-						pr_metrics("%-13s %13.2e %s (geometic mean of %" PRIu32 " instances)\n",
+						pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instances)\n",
 							   munged, geomean, description, ss->started_instances);
 					} else {
-						pr_metrics("%-13s %13.2f %s (geometic mean of %" PRIu32 " instances)\n",
+						pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instances)\n",
 							   munged, geomean, description, ss->started_instances);
 					}
 				}
