@@ -29,7 +29,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_REMAP_FILE_PAGES) &&	\
     !defined(STRESS_ARCH_SPARC)
 
-#define N_PAGES		(512)
+#define N_PAGES		(512)		/* Must be a power of 2 */
 
 typedef uint16_t stress_mapdata_t;
 
@@ -50,7 +50,7 @@ static inline void *stress_get_umapped_addr(const size_t sz)
  *  check_order()
  *	check page order
  */
-static void check_order(
+static void OPTIMIZE3 check_order(
 	const stress_args_t *args,
 	const size_t stride,
 	const stress_mapdata_t *data,
@@ -75,7 +75,7 @@ static void check_order(
  *  remap_order()
  *	remap based on given order
  */
-static int remap_order(
+static int OPTIMIZE3 remap_order(
 	const stress_args_t *args,
 	const size_t stride,
 	stress_mapdata_t *data,
@@ -97,7 +97,7 @@ static int remap_order(
 		t = stress_time_now();
 		ret = remap_file_pages(data + (i * stride), page_size,
 			0, order[i], 0);
-		if (ret == 0) {
+		if (LIKELY(ret == 0)) {
 			(*duration) += stress_time_now() - t;
 			(*count) += 1.0;
 		}
@@ -111,7 +111,7 @@ static int remap_order(
 				0, order[i], 0);
 		}
 #endif
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: remap_file_pages failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
@@ -172,13 +172,13 @@ static int stress_remap(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t order[N_PAGES];
+		size_t order[N_PAGES] ALIGN64;
 
 		/* Reverse pages */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = N_PAGES - 1 - i;
 
-		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
+		if (UNLIKELY(remap_order(args, stride, data, order, page_size, &duration, &count) < 0))
 			break;
 		check_order(args, stride, data, order, "reverse");
 
@@ -186,28 +186,28 @@ static int stress_remap(const stress_args_t *args)
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = i;
 		for (i = 0; i < N_PAGES; i++) {
-			size_t tmp, j = stress_mwc32modn(N_PAGES);
+			size_t tmp, j = stress_mwc16() & (N_PAGES - 1);
 
 			tmp = order[i];
 			order[i] = order[j];
 			order[j] = tmp;
 		}
 
-		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
+		if (UNLIKELY(remap_order(args, stride, data, order, page_size, &duration, &count)) < 0)
 			break;
 		check_order(args, stride, data, order, "random");
 
 		/* all mapped to 1 page */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = 0;
-		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
+		if (UNLIKELY(remap_order(args, stride, data, order, page_size, &duration, &count) < 0))
 			break;
 		check_order(args, stride, data, order, "all-to-1");
 
 		/* reorder pages back again */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = i;
-		if (remap_order(args, stride, data, order, page_size, &duration, &count) < 0)
+		if (UNLIKELY(remap_order(args, stride, data, order, page_size, &duration, &count) < 0))
 			break;
 		check_order(args, stride, data, order, "forward");
 
