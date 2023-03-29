@@ -57,6 +57,8 @@ static size_t malloc_threshold;		/* When to use mmap and not sbrk */
 #endif
 static bool malloc_touch;		/* True will touch allocate pages */
 static void *counter_lock;		/* Counter lock */
+static volatile bool do_jmp = true;	/* SIGSEGV jmp handler, longjmp back if true */
+static sigjmp_buf jmp_env;		/* SIGSEGV jmp environment */
 
 static void (*free_func)(void *ptr, size_t len);
 
@@ -320,12 +322,33 @@ static void *stress_malloc_loop(void *ptr)
 	return &nowt;
 }
 
+static void MLOCKED_TEXT stress_malloc_sigsegv_handler(int signum)
+{
+	(void)signum;
+
+	if (do_jmp) {
+		do_jmp = false;
+		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	}
+}
+
 static int stress_malloc_child(const stress_args_t *args, void *context)
 {
+	int ret;
 #if defined(HAVE_LIB_PTHREAD)
 	stress_pthread_info_t pthreads[MAX_MALLOC_PTHREADS];
 	size_t j;
 #endif
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret == 1) {
+		do_jmp = false;
+		pr_fail("%s: unexpected SIGSEGV occurred, exiting immediately\n", args->name);
+		return EXIT_FAILURE;
+	}
+
+	if (stress_sighandler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
+		return EXIT_FAILURE;
+
 	/*
 	 *  pthread instance 0 is actually the main child process,
 	 *  insances 1..N are pthreads 0..N-1
