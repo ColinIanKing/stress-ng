@@ -155,7 +155,7 @@ static bool keep_thread_running(void)
  *	Sanity check the current pthread tid is the same as the
  *	one returned by set_tid_address.
  */
-static void stress_pthread_tid_address(const stress_args_t *args)
+static void OPTIMIZE3 stress_pthread_tid_address(const stress_args_t *args)
 {
 #if defined(HAVE_SYS_PRCTL_H) &&	\
     defined(HAVE_PRCTL) &&		\
@@ -165,7 +165,7 @@ static void stress_pthread_tid_address(const stress_args_t *args)
     defined(HAVE_SYSCALL)
 	__kernel_ulong_t tid_addr = 0;
 
-	if (prctl(PR_GET_TID_ADDRESS, &tid_addr, 0, 0, 0) == 0) {
+	if (LIKELY(prctl(PR_GET_TID_ADDRESS, &tid_addr, 0, 0, 0) == 0)) {
 		if (tid_addr) {
 			pid_t tid1, tid2;
 
