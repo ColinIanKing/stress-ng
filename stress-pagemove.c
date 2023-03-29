@@ -49,6 +49,19 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+/*
+ *  stress_pagemove_remap_fail()
+ *	report remap failure message
+ */
+static void stress_pagemove_remap_fail(
+	const stress_args_t *args,
+	const uint8_t *from,
+	const uint8_t *to)
+{
+	pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
+		args->name, from, to, errno, strerror(errno));
+}
+
 #if defined(HAVE_MREMAP) &&	\
     defined(MREMAP_FIXED) &&	\
     defined(MREMAP_MAYMOVE)
@@ -62,6 +75,7 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 	uint8_t *buf, *buf_end, *unmapped_page = NULL, *ptr;
 	int rc = EXIT_FAILURE;
 	double duration = 0.0, count = 0.0, rate;
+	int metrics_count = 0;
 
 	(void)context;
 
@@ -110,8 +124,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			page_info_t *p = (page_info_t *)ptr;
 
-			if ((p->page_num != page_num) ||
-			    (p->virt_addr != (void *)ptr)) {
+			if (UNLIKELY((p->page_num != page_num) ||
+				     (p->virt_addr != (void *)ptr))) {
 				pr_fail("%s: mmap'd region of %zu "
 					"bytes does not contain expected data at page %zu\n",
 					args->name, sz, page_num);
@@ -127,50 +141,75 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 		 */
 		for (ptr = buf; ptr < buf_end - page_size; ptr += page_size) {
 			void *remap_addr1, *remap_addr2, *remap_addr3;
-			double t1, t2;
 
-			t1 = stress_time_now();
-			remap_addr1 = mremap((void *)ptr, page_size, page_size,
-					MREMAP_FIXED | MREMAP_MAYMOVE, unmapped_page);
-			t2 = stress_time_now();
-			duration += (t2 - t1);
-			count += 1.0;
-			if (remap_addr1 == MAP_FAILED) {
-				pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
-					args->name, ptr, unmapped_page, errno, strerror(errno));
-				goto fail;
-			}
+			if (LIKELY(metrics_count > 0)) {
+				/* faster non-metrics mremaps */
+				remap_addr1 = mremap((void *)ptr, page_size, page_size,
+						MREMAP_FIXED | MREMAP_MAYMOVE, unmapped_page);
+				if (UNLIKELY(remap_addr1 == MAP_FAILED)) {
+					stress_pagemove_remap_fail(args, ptr, unmapped_page);
+					goto fail;
+				}
 
-			t1 = stress_time_now();
-			remap_addr2 = mremap((void *)(ptr + page_size), page_size,
-				page_size, MREMAP_FIXED | MREMAP_MAYMOVE, ptr);
-			t2 = stress_time_now();
-			duration += (t2 - t1);
-			count += 1.0;
-			if (remap_addr2 == MAP_FAILED) {
-				pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
-					args->name, ptr + page_size, ptr, errno, strerror(errno));
-				goto fail;
-			}
+				remap_addr2 = mremap((void *)(ptr + page_size), page_size,
+					page_size, MREMAP_FIXED | MREMAP_MAYMOVE, ptr);
+				if (UNLIKELY(remap_addr2 == MAP_FAILED)) {
+					stress_pagemove_remap_fail(args, ptr + page_size, ptr);
+					goto fail;
+				}
 
-			t1 = stress_time_now();
-			remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
-				MREMAP_FIXED | MREMAP_MAYMOVE, (void *)(ptr + page_size));
-			t2 = stress_time_now();
-			duration += (t2 - t1);
-			count += 1.0;
-			if (remap_addr3 == MAP_FAILED) {
-				pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
-					args->name, remap_addr1, ptr + page_size, errno, strerror(errno));
-				goto fail;
+				remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
+					MREMAP_FIXED | MREMAP_MAYMOVE, (void *)(ptr + page_size));
+				if (UNLIKELY(remap_addr3 == MAP_FAILED)) {
+					stress_pagemove_remap_fail(args, remap_addr1, ptr + page_size);
+					goto fail;
+				}
+			} else {
+				/* slower metrics mremaps */
+				double t1, t2;
+
+				t1 = stress_time_now();
+				remap_addr1 = mremap((void *)ptr, page_size, page_size,
+						MREMAP_FIXED | MREMAP_MAYMOVE, unmapped_page);
+				t2 = stress_time_now();
+				duration += (t2 - t1);
+				count += 1.0;
+				if (UNLIKELY(remap_addr1 == MAP_FAILED)) {
+					stress_pagemove_remap_fail(args, ptr, unmapped_page);
+					goto fail;
+				}
+
+				t1 = stress_time_now();
+				remap_addr2 = mremap((void *)(ptr + page_size), page_size,
+					page_size, MREMAP_FIXED | MREMAP_MAYMOVE, ptr);
+				t2 = stress_time_now();
+				duration += (t2 - t1);
+				count += 1.0;
+				if (UNLIKELY(remap_addr2 == MAP_FAILED)) {
+					stress_pagemove_remap_fail(args, ptr + page_size, ptr);
+					goto fail;
+				}
+
+				t1 = stress_time_now();
+				remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
+					MREMAP_FIXED | MREMAP_MAYMOVE, (void *)(ptr + page_size));
+				t2 = stress_time_now();
+				duration += (t2 - t1);
+				count += 1.0;
+				if (UNLIKELY(remap_addr3 == MAP_FAILED)) {
+					stress_pagemove_remap_fail(args, remap_addr1, ptr + page_size);
+					goto fail;
+				}
 			}
+			if (metrics_count++ > 1000)
+				metrics_count = 0;
 		}
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
 			page_info_t *p = (page_info_t *)ptr;
 
-			if (((p->page_num + pages - 1) % pages) != page_num)
+			if (UNLIKELY(((p->page_num + pages - 1) % pages) != page_num))
 				pr_fail("%s: page shuffle failed for page %zu, mismatch on contents\n", args->name, page_num);
-			if (p->virt_addr == ptr)
+			if (UNLIKELY(p->virt_addr == ptr))
 				pr_fail("%s: page shuffle failed for page %zu, virtual address didn't change\n", args->name, page_num);
 		}
 		inc_counter(args);
