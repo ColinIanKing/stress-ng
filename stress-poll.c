@@ -20,7 +20,7 @@
 #include "stress-ng.h"
 
 #define MIN_POLL_FDS	(1)
-#define MAX_POLL_FDS	(8192)
+#define MAX_POLL_FDS	(8192)	/* Must be never larger than 65535 */
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -54,7 +54,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_POLL_H)
 
 #define MAX_PIPES	(5)
-#define POLL_BUF	(4)
 
 typedef struct {
 	int fd[2];
@@ -70,9 +69,9 @@ static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, cons
 
 	while (keep_stressing_flag()) {
 		ssize_t ret;
-		char buf[POLL_BUF] ALIGN64;
+		uint16_t buf ALIGN64 = ~0;
 
-		ret = read(fd, buf, sizeof(buf));
+		ret = read(fd, &buf, sizeof(buf));
 		if (UNLIKELY(verify)) {
 			if (UNLIKELY(ret < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
@@ -81,15 +80,11 @@ static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, cons
 					args->name, errno, strerror(errno));
 				return ret;
 			} else if (LIKELY(ret > 0)) {
-				register ssize_t i;
-
-				for (i = 0; i < ret; i++) {
-					if (UNLIKELY(buf[i] != (int)('0' + n))) {
-						pr_fail("%s: pipe read error, "
-							"expecting different data on "
-							"pipe\n", args->name);
-						return ret;
-					}
+				if (UNLIKELY(buf != (uint16_t)n)) {
+					pr_fail("%s: pipe read error, "
+						"expecting different data on "
+						"pipe\n", args->name);
+					return ret;
 				}
 			}
 		}
@@ -106,7 +101,8 @@ static int OPTIMIZE3 stress_poll(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
-	size_t i, max_fds = MAX_PIPES, max_rnd_fds;
+	register size_t i;
+	size_t max_fds = MAX_PIPES, max_rnd_fds;
 	pipe_fds_t *pipe_fds;
 	struct pollfd *poll_fds;
 	int *rnd_fds_index;
@@ -192,17 +188,16 @@ again:
 
 		i = 0;
 		do {
-			char buf[POLL_BUF] ALIGN64;
-			ssize_t ret;
-			register const size_t j = rnd_fds_index[i];
+			register size_t j = rnd_fds_index[i];
+			uint16_t buf ALIGN64 = (uint16_t)j;
+			register ssize_t ret;
 
 			i++;
 			if (UNLIKELY(i >= max_rnd_fds))
 				i = 0;
 
 			/* Write on a randomly chosen pipe */
-			(void)memset(buf, (int)('0' + j), sizeof(buf));
-			ret = write(pipe_fds[j].fd[1], buf, sizeof(buf));
+			ret = write(pipe_fds[j].fd[1], &buf, sizeof(buf));
 			if (UNLIKELY(ret < (ssize_t)sizeof(buf))) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
