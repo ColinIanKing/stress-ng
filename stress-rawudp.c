@@ -93,7 +93,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_rawudp_client()
  *	client sender
  */
-static void NORETURN stress_rawudp_client(
+static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	const stress_args_t *args,
 	const pid_t ppid,
 	in_addr_t addr,
@@ -133,13 +133,13 @@ static void NORETURN stress_rawudp_client(
 		int fd;
 		ssize_t n;
 
-		if ((fd = socket(PF_INET, SOCK_RAW, IPPROTO_UDP)) < 0) {
+		if (UNLIKELY((fd = socket(PF_INET, SOCK_RAW, IPPROTO_UDP)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto err;
 		}
 
-		if (setsockopt(fd,  IPPROTO_IP, IP_HDRINCL, &one, sizeof(one)) < 0) {
+		if (UNLIKELY(setsockopt(fd,  IPPROTO_IP, IP_HDRINCL, &one, sizeof(one)) < 0)) {
 			pr_fail("%s: setsocketopt failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -151,7 +151,7 @@ static void NORETURN stress_rawudp_client(
 		ip->check = stress_ipv4_checksum((uint16_t *)buf, sizeof(struct iphdr) + sizeof(struct udphdr));
 
 		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&s_in, sizeof(s_in));
-		if (n < 0) {
+		if (UNLIKELY(n < 0)) {
 			pr_fail("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
 		}
@@ -170,7 +170,7 @@ err:
  *  stress_rawudp_server()
  *	server reader
  */
-static int stress_rawudp_server(
+static int OPTIMIZE3 stress_rawudp_server(
 	const stress_args_t *args,
 	in_addr_t addr,
 	const int port)
@@ -212,7 +212,7 @@ static int stress_rawudp_server(
 		ssize_t n;
 
 		n = recv(fd, buf, sizeof(buf), 0);
-		if (n > 0) {
+		if (LIKELY(n > 0)) {
 			if ((ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
