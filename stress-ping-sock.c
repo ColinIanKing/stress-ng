@@ -89,13 +89,12 @@ static int stress_ping_sock(const stress_args_t *args)
 		(void)memset(buf + sizeof(*icmp_hdr), data[j++ & 63], PING_PAYLOAD_SIZE);
 		addr.sin_port = htons(rand_port);
 
-		if (sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0)
+		if (LIKELY(sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0))
 			inc_counter(args);
 
 		icmp_hdr->un.echo.sequence++;
 		rand_port++;
-		if (rand_port > 65535)
-			rand_port = 0;
+		rand_port &= 0xffff;
 	} while (keep_stressing(args));
 	duration = stress_time_now() - t;
 
