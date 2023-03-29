@@ -54,17 +54,33 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 typedef uint64_t	buffer_t;
 
+static void OPTIMIZE3 stress_readahead_generate_offsets(
+	off_t *offsets,
+	const uint64_t rounded_readahead_bytes)
+{
+	register size_t i;
+
+	for (i = 0; i < MAX_OFFSETS; i++)
+		offsets[i] = (off_t)stress_mwc64modn(rounded_readahead_bytes - BUF_SIZE) & ~(BUF_SIZE - 1);
+}
+
+static void OPTIMIZE3 stress_readahead_modify_offsets(off_t *offsets)
+{
+	register int i;
+
+	for (i = 0; i < MAX_OFFSETS; i++)
+		offsets[i] = ((offsets[i] * 31) >> 5) & ~(BUF_SIZE - 1);
+}
+
 static int do_readahead(
 	const stress_args_t *args,
 	const int fd,
 	const char *fs_type,
-	off_t *offsets,
-	const uint64_t rounded_readahead_bytes)
+	off_t *offsets)
 {
-	int i;
+	register int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (off_t)stress_mwc64modn(rounded_readahead_bytes - BUF_SIZE) & ~(BUF_SIZE - 1);
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
@@ -73,7 +89,6 @@ static int do_readahead(
 	}
 	return 0;
 }
-
 
 /*
  *  stress_readahead
@@ -92,6 +107,9 @@ static int stress_readahead(const stress_args_t *args)
 	int fd, fd_wr;
 	struct stat statbuf;
 	const char *fs_type;
+	off_t offsets[MAX_OFFSETS] ALIGN64;
+	int generate_offsets = 0;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_get_setting("readahead-bytes", &readahead_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -195,10 +213,10 @@ seq_wr_retry:
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	do {
-		off_t offsets[MAX_OFFSETS];
+	stress_readahead_generate_offsets(offsets, rounded_readahead_bytes);
 
-		if (do_readahead(args, fd, fs_type, offsets, rounded_readahead_bytes) < 0)
+	do {
+		if (UNLIKELY(do_readahead(args, fd, fs_type, offsets) < 0))
 			goto close_finish;
 
 		for (i = 0; i < MAX_OFFSETS; i++) {
@@ -206,8 +224,9 @@ seq_wr_retry:
 rnd_rd_retry:
 			if (!keep_stressing(args))
 				break;
+
 			pret = pread(fd, buf, BUF_SIZE, offsets[i]);
-			if (pret <= 0) {
+			if (UNLIKELY(pret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
@@ -217,19 +236,20 @@ rnd_rd_retry:
 				}
 				continue;
 			}
-			if (pret != BUF_SIZE)
+			if (UNLIKELY(pret != BUF_SIZE))
 				misreads++;
 
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (verify) {
 				size_t j;
 				const off_t o = offsets[i] / BUF_SIZE;
 
 				for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++) {
 					const buffer_t v = (buffer_t)o + j;
-					if (buf[j] != v)
+
+					if (UNLIKELY(buf[j] != v))
 						baddata++;
 				}
-				if (baddata) {
+				if (UNLIKELY(baddata)) {
 					pr_fail("%s: error in data between 0x%jx and 0x%jx\n",
 						args->name,
 						(intmax_t)offsets[i],
@@ -259,6 +279,14 @@ rnd_rd_retry:
 		for (i = 15; i < sizeof(size_t) * 8; i += 4) {
 			VOID_RET(ssize_t, readahead(fd, 0, 1ULL << i));
 		}
+
+		if (LIKELY(generate_offsets++ < 16)) {
+			stress_readahead_modify_offsets(offsets);
+		} else {
+			stress_readahead_generate_offsets(offsets, rounded_readahead_bytes);
+			generate_offsets = 0;
+		}
+
 	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
