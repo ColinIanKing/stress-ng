@@ -253,7 +253,7 @@ static void stress_rawpkt_sockopts(const int fd)
  *  stress_rawpkt_client()
  *	client sender
  */
-static void NORETURN stress_rawpkt_client(
+static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	const stress_args_t *args,
 	struct ifreq *hwaddr,
 	struct ifreq *ifaddr,
@@ -310,13 +310,13 @@ static void NORETURN stress_rawpkt_client(
 		ip->check = stress_ipv4_checksum((uint16_t *)ip, sizeof(struct iphdr) + sizeof(struct udphdr));
 
 		n = sendto(fd, buf, sizeof(struct ethhdr) + ip->tot_len, 0, (struct sockaddr *)&sadr, sizeof(sadr));
-		if (n < 0) {
+		if (UNLIKELY(n < 0)) {
 			pr_fail("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
 		}
 #if defined(SIOCOUTQ)
 		/* Occasionally exercise SIOCOUTQ */
-		if ((id & 0xff) == 0) {
+		if (UNLIKELY((id & 0xff) == 0)) {
 			int queued;
 
 			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
@@ -339,7 +339,7 @@ err:
  *  stress_rawpkt_server()
  *	server reader
  */
-static int stress_rawpkt_server(
+static int OPTIMIZE3 stress_rawpkt_server(
 	const stress_args_t *args,
 	struct ifreq *ifaddr,
 	const int port)
@@ -373,7 +373,7 @@ static int stress_rawpkt_server(
 		ssize_t n;
 
 		n = recvfrom(fd, buf, sizeof(buf), 0, &saddr, (socklen_t *)&saddr_len);
-		if (n >= min_size) {
+		if (LIKELY(n >= min_size)) {
 			all_pkts++;
 			if ((eth->h_proto == htons(ETH_P_IP)) &&
 			    (ip->saddr == addr) &&
@@ -385,7 +385,7 @@ static int stress_rawpkt_server(
 		}
 #if defined(SIOCINQ)
 		/* Exercise SIOCINQ */
-		if ((all_pkts & 0xff) == 0) {
+		if (UNLIKELY((all_pkts & 0xff) == 0)) {
 			int queued;
 
 			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
