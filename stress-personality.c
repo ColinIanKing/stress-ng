@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_PERSONALITY)
 
 /* Personalities are determined at build time */
-static const unsigned long personalities[] = {
+static const unsigned long personalities[] ALIGN64 = {
 #include "personality.h"
 };
 
@@ -71,17 +71,17 @@ static int stress_personality(const stress_args_t *args)
 
 			if (!keep_stressing_flag())
 				break;
-			if (failed[i]) {
+			if (UNLIKELY(failed[i])) {
 				fails++;
 				continue;
 			}
 			ret = personality(p);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				failed[i] = true;
 				continue;
 			}
 			ret = personality(0xffffffffUL);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: failed to get personality, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
