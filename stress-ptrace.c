@@ -40,21 +40,21 @@ static const stress_help_t help[] = {
 /*
  *  main syscall ptrace loop
  */
-static inline bool stress_syscall_wait(
+static inline bool OPTIMIZE3 stress_syscall_wait(
 	const stress_args_t *args,
 	const pid_t pid)
 {
 	while (keep_stressing_flag()) {
 		int status;
 
-		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
+		if (UNLIKELY(ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0)) {
 			if ((errno != ESRCH) && (errno != EPERM) && (errno != EACCES)) {
 				pr_fail("%s: ptrace failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return true;
 			}
 		}
-		if (shim_waitpid(pid, &status, 0) < 0) {
+		if (UNLIKELY(shim_waitpid(pid, &status, 0) < 0)) {
 			if ((errno != EINTR) && (errno != ECHILD))
 				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -75,7 +75,7 @@ static inline bool stress_syscall_wait(
  *  stress_ptrace()
  *	stress ptracing
  */
-static int stress_ptrace(const stress_args_t *args)
+static int OPTIMIZE3 stress_ptrace(const stress_args_t *args)
 {
 	pid_t pid;
 
@@ -172,7 +172,7 @@ again:
 				break;
 
 			/* periodicially perform invalid ptrace calls */
-			if ((i & 0x1ff) == 0) {
+			if (UNLIKELY((i & 0x1ff) == 0)) {
 				const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
 				/* exercise invalid options */
