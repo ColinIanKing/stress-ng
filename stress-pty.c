@@ -106,23 +106,23 @@ static int stress_pty(const stress_args_t *args)
 				goto clean;
 			} else {
 				ptys[n].followername = ptsname(ptys[n].leader);
-				if (!ptys[n].followername) {
+				if (UNLIKELY(!ptys[n].followername)) {
 					pr_fail("%s: ptsname failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto clean;
 				}
-				if (grantpt(ptys[n].leader) < 0) {
+				if (UNLIKELY(grantpt(ptys[n].leader) < 0)) {
 					pr_fail("%s: grantpt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto clean;
 				}
-				if (unlockpt(ptys[n].leader) < 0) {
+				if (UNLIKELY(unlockpt(ptys[n].leader) < 0)) {
 					pr_fail("%s: unlockpt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto clean;
 				}
 				ptys[n].follower = open(ptys[n].followername, O_RDWR);
-				if (ptys[n].follower < 0) {
+				if (UNLIKELY(ptys[n].follower < 0)) {
 					if (errno != EMFILE) {
 						pr_fail("%s: open %s failed, errno=%d (%s)\n",
 							args->name, ptys[n].followername, errno, strerror(errno));
@@ -147,7 +147,7 @@ static int stress_pty(const stress_args_t *args)
 			{
 				struct termios ios;
 
-				if (tcgetattr(ptys[i].leader, &ios) < 0) {
+				if (UNLIKELY(tcgetattr(ptys[i].leader, &ios) < 0)) {
 					pr_fail("%s: tcgetattr on leader pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -155,7 +155,7 @@ static int stress_pty(const stress_args_t *args)
 #endif
 #if defined(HAVE_TCDRAIN)
 			{
-				if (tcdrain(ptys[i].follower) < 0) {
+				if (UNLIKELY(tcdrain(ptys[i].follower) < 0)) {
 					pr_fail("%s: tcdrain on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -164,19 +164,19 @@ static int stress_pty(const stress_args_t *args)
 #if defined(HAVE_TCFLUSH)
 			{
 #if defined(TCIFLUSH)
-				if (tcflush(ptys[i].follower, TCIFLUSH) < 0) {
+				if (UNLIKELY(tcflush(ptys[i].follower, TCIFLUSH) < 0)) {
 					pr_fail("%s: tcflush TCIFLUSH on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 #endif
 #if defined(TCOFLUSH)
-				if (tcflush(ptys[i].follower, TCOFLUSH) < 0) {
+				if (UNLIKELY(tcflush(ptys[i].follower, TCOFLUSH) < 0)) {
 					pr_fail("%s: tcflush TCOFLUSH on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 #endif
 #if defined(TCIOFLUSH)
-				if (tcflush(ptys[i].follower, TCIOFLUSH) < 0) {
+				if (UNLIKELY(tcflush(ptys[i].follower, TCIOFLUSH) < 0)) {
 					pr_fail("%s: tcflush TCOOFLUSH on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -187,11 +187,11 @@ static int stress_pty(const stress_args_t *args)
 #if defined(TCOOFF) && \
     defined(TCOON)
 			{
-				if (tcflow(ptys[i].follower, TCOOFF) < 0) {
+				if (UNLIKELY(tcflow(ptys[i].follower, TCOOFF) < 0)) {
 					pr_fail("%s: tcflow TCOOFF on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
-				if (tcflow(ptys[i].follower, TCOON) < 0) {
+				if (UNLIKELY(tcflow(ptys[i].follower, TCOON) < 0)) {
 					pr_fail("%s: tcflow TCOON on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -200,11 +200,11 @@ static int stress_pty(const stress_args_t *args)
 #if defined(TCIOFF) && \
     defined(TCION)
 			{
-				if (tcflow(ptys[i].follower, TCIOFF) < 0) {
+				if (UNLIKELY(tcflow(ptys[i].follower, TCIOFF) < 0)) {
 					pr_fail("%s: tcflow TCIOFF on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
-				if (tcflow(ptys[i].follower, TCION) < 0) {
+				if (UNLIKELY(tcflow(ptys[i].follower, TCION) < 0)) {
 					pr_fail("%s: tcflow TCION on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -215,140 +215,154 @@ static int stress_pty(const stress_args_t *args)
 			{
 				struct termios ios;
 
-				if ((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCGETS, &ios) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCGETS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCSETS)
 			{
 				struct termios ios;
 
-				if ((ioctl(ptys[i].follower, TCSETS, &ios) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCSETS, &ios) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCSETS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCSETSW)
 			{
 				struct termios ios;
 
-				if ((ioctl(ptys[i].follower, TCSETSW, &ios) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCSETSW, &ios) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCSETSW on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCSETSF)
 			{
 				struct termios ios;
 
-				if ((ioctl(ptys[i].follower, TCSETSF, &ios) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCSETSF, &ios) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCSETSF on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCGETA)
 			{
 				struct termio io;
 
-				if ((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCGETA, &io) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCGETA on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCSETA)
 			{
 				struct termio io;
 
-				if ((ioctl(ptys[i].follower, TCSETA, &io) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCSETA, &io) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCSETA on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCSETAW)
 			{
 				struct termio io;
 
-				if ((ioctl(ptys[i].follower, TCSETAW, &io) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCSETAW, &io) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCSETAW on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TCSETAF)
 			{
 				struct termio io;
 
-				if ((ioctl(ptys[i].follower, TCSETAF, &io) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TCSETAF, &io) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TCSETAF on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TIOCGLCKTRMIOS)
 			{
 				struct termios ios;
 
-				if ((ioctl(ptys[i].follower, TIOCGLCKTRMIOS, &ios) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TIOCGLCKTRMIOS, &ios) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TIOCGLCKTRMIOS on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TIOCGWINSZ)
 			{
 				struct winsize ws;
 
-				if ((ioctl(ptys[i].follower, TIOCGWINSZ, &ws) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TIOCGWINSZ, &ws) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TIOCGWINSZ on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TIOCSWINSZ)
 			{
 				struct winsize ws;
 
-				if ((ioctl(ptys[i].follower, TIOCSWINSZ, &ws) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TIOCSWINSZ, &ws) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TIOCSWINSZ on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(FIONREAD)
 			{
 				int arg;
 
-				if ((ioctl(ptys[i].follower, FIONREAD, &arg) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, FIONREAD, &arg) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl FIONREAD on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TIOCINQ)
 			{
 				int arg;
 
-				if ((ioctl(ptys[i].follower, TIOCINQ, &arg) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TIOCINQ, &arg) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TIOCINQ on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TIOCOUTQ)
 			{
 				int arg;
 
-				if ((ioctl(ptys[i].follower, TIOCOUTQ, &arg) < 0) &&
-				    (errno != EINTR))
+				if (UNLIKELY((ioctl(ptys[i].follower, TIOCOUTQ, &arg) < 0) &&
+					     (errno != EINTR))) {
 					pr_fail("%s: ioctl TIOCOUTQ on follower pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				}
 			}
 #endif
 #if defined(TIOCGPTLCK)
