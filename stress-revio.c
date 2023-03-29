@@ -368,7 +368,7 @@ static int stress_revio(const stress_args_t *args)
 			revio_oflags = revio_opts[opt_index].oflag;
 		}
 
-		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
+		if (UNLIKELY((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0)) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
@@ -379,14 +379,14 @@ static int stress_revio(const stress_args_t *args)
 
 		fs_type = stress_fs_type(filename);
 		(void)shim_unlink(filename);
-		if (ftruncate(fd, (off_t)revio_bytes) < 0) {
+		if (UNLIKELY(ftruncate(fd, (off_t)revio_bytes) < 0)) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			(void)close(fd);
 			goto finish;
 		}
 
-		if (stress_revio_advise(args, fd, fadvise_flags) < 0) {
+		if (UNLIKELY(stress_revio_advise(args, fd, fadvise_flags) < 0)) {
 			(void)close(fd);
 			goto finish;
 		}
@@ -400,7 +400,7 @@ seq_wr_retry:
 				break;
 
 			lseek_ret = lseek(fd, offset, SEEK_SET);
-			if (lseek_ret < 0) {
+			if (UNLIKELY(lseek_ret < 0)) {
 				pr_fail("%s: write failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				(void)close(fd);
@@ -410,7 +410,7 @@ seq_wr_retry:
 			for (j = 0; j < DEFAULT_REVIO_WRITE_SIZE; j += 512)
 				buf[j] = (i * j) & 0xff;
 			ret = stress_revio_write(fd, buf, (size_t)DEFAULT_REVIO_WRITE_SIZE, revio_flags);
-			if (ret <= 0) {
+			if (UNLIKELY(ret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto seq_wr_retry;
 				if (errno == ENOSPC)
