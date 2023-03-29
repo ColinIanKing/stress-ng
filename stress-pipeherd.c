@@ -49,14 +49,14 @@ static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2]
 		ssize_t sz;
 
 		sz = read(fd[0], &counter, sizeof(counter));
-		if (sz < 0) {
+		if (UNLIKELY(sz < 0)) {
 			if ((errno == EINTR) || (errno == EPIPE))
 				break;
 			return EXIT_FAILURE;
 		}
 		counter++;
 		sz = write(fd[1], &counter, sizeof(counter));
-		if (sz < 0) {
+		if (UNLIKELY(sz < 0)) {
 			if ((errno == EINTR) || (errno == EPIPE))
 				break;
 			return EXIT_FAILURE;
