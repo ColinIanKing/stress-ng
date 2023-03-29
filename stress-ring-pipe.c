@@ -236,7 +236,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 
 	do {
 		ret = poll(poll_fds, n_pipes, 100);
-		if (ret == 0) {
+		if (UNLIKELY(ret == 0)) {
 			pr_inf("%s: unexpected poll timeout\n", args->name);
 			break;
 		} else {
@@ -254,7 +254,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 						t = stress_time_now();
 						sret = splice(pipe_fds[i].fds[0], 0, pipe_fds[j].fds[1], 0,
 							      ring_pipe_size, flag);
-						if (sret < 0) {
+						if (UNLIKELY(sret < 0)) {
 							pr_inf("%s: splice failed, errno=%d (%s)\n",
 								args->name, errno, strerror(errno));
 							goto finish;
@@ -267,10 +267,10 @@ static int stress_ring_pipe(const stress_args_t *args)
 #endif
 					t = stress_time_now();
 					sret = stress_pipe_read(args, pipe_fds[i].fds[0], buf, ring_pipe_size);
-					if (sret < 0)
+					if (UNLIKELY(sret < 0))
 						goto finish;
 					sret = stress_pipe_write(args, pipe_fds[j].fds[1], buf, sret);
-					if (sret < 0)
+					if (UNLIKELY(sret < 0))
 						goto finish;
 					duration += stress_time_now() - t;
 					bytes += (double)sret;
