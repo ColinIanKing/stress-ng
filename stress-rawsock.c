@@ -95,7 +95,7 @@ static int stress_rawsock_supported(const char *name)
 	return 0;
 }
 
-static int stress_rawsock_client(const stress_args_t *args, const int rawsock_port)
+static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int rawsock_port)
 {
 	/* Child, client */
 	int fd;
@@ -153,7 +153,7 @@ static int stress_rawsock_client(const stress_args_t *args, const int rawsock_po
 		sret = sendto(fd, &pkt, sizeof(pkt), 0,
 			(const struct sockaddr *)&addr,
 			(socklen_t)sizeof(addr));
-		if (sret < 0) {
+		if (UNLIKELY(sret < 0)) {
 			if (errno == ENOBUFS) {
 				/* Throttle */
 				VOID_RET(int, nice(1));
@@ -165,7 +165,7 @@ static int stress_rawsock_client(const stress_args_t *args, const int rawsock_po
 		pkt.data++;
 #if defined(SIOCOUTQ)
 		/* Occasionally exercise SIOCOUTQ */
-		if ((pkt.data & 0xff) == 0) {
+		if (UNLIKELY((pkt.data & 0xff) == 0)) {
 			int queued;
 
 			if (!keep_stressing(args))
@@ -179,7 +179,7 @@ static int stress_rawsock_client(const stress_args_t *args, const int rawsock_po
 	return EXIT_SUCCESS;
 }
 
-static int stress_rawsock_server(const stress_args_t *args, const pid_t pid)
+static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_t pid)
 {
 	/* Parent, server */
 	int rc = EXIT_SUCCESS, fd = -1, status;
@@ -227,7 +227,7 @@ static int stress_rawsock_server(const stress_args_t *args, const pid_t pid)
 		}
 #if defined(SIOCINQ)
 		/* Occasionally exercise SIOCINQ */
-		if ((pkt.data & 0xfff) == 0) {
+		if (UNLIKELY((pkt.data & 0xfff) == 0)) {
 			int queued;
 
 			if (!keep_stressing(args))
