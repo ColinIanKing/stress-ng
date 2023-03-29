@@ -19,6 +19,9 @@
  */
 #include "stress-ng.h"
 
+#define MIN_POLL_FDS	(1)
+#define MAX_POLL_FDS	(8192)
+
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif
@@ -39,7 +42,7 @@ static int stress_set_poll_fds(const char *opt)
 	size_t max_fds;
 
         max_fds = (size_t)stress_get_uint32(opt);
-        stress_check_range("poll-fds", (uint64_t)max_fds, 1, 8192);
+        stress_check_range("poll-fds", (uint64_t)max_fds, MIN_POLL_FDS, MAX_POLL_FDS);
         return stress_set_setting("poll-fds", TYPE_ID_SIZE_T, &max_fds);
 }
 
@@ -61,26 +64,27 @@ typedef struct {
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static ssize_t pipe_read(const stress_args_t *args, const int fd, const size_t n)
+static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, const size_t n)
 {
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+
 	while (keep_stressing_flag()) {
 		ssize_t ret;
-		char buf[POLL_BUF];
+		char buf[POLL_BUF] ALIGN64;
 
 		ret = read(fd, buf, sizeof(buf));
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (ret < 0) {
+		if (UNLIKELY(verify)) {
+			if (UNLIKELY(ret < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				pr_fail("%s: pipe read error detected, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return ret;
-			}
-			if (ret > 0) {
-				ssize_t i;
+			} else if (LIKELY(ret > 0)) {
+				register ssize_t i;
 
 				for (i = 0; i < ret; i++) {
-					if (buf[i] != (int)('0' + n)) {
+					if (UNLIKELY(buf[i] != (int)('0' + n))) {
 						pr_fail("%s: pipe read error, "
 							"expecting different data on "
 							"pipe\n", args->name);
@@ -98,28 +102,54 @@ static ssize_t pipe_read(const stress_args_t *args, const int fd, const size_t n
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-static int stress_poll(const stress_args_t *args)
+static int OPTIMIZE3 stress_poll(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
-	size_t i, max_fds = MAX_PIPES;
+	size_t i, max_fds = MAX_PIPES, max_rnd_fds;
 	pipe_fds_t *pipe_fds;
 	struct pollfd *poll_fds;
+	int *rnd_fds_index;
 
 	(void)stress_get_setting("poll-fds", &max_fds);
 
-	pipe_fds = calloc((size_t)max_fds, sizeof(*pipe_fds));
+	pipe_fds = calloc(max_fds, sizeof(*pipe_fds));
 	if (!pipe_fds) {
 		pr_inf_skip("%s: out of memory allocating %zd pipe file descriptors, "
 			"skipping stressor\n", args->name, max_fds);
 		return EXIT_NO_RESOURCE;
 	}
-	poll_fds = calloc((size_t)max_fds, sizeof(*poll_fds));
+	poll_fds = calloc(max_fds, sizeof(*poll_fds));
 	if (!poll_fds) {
 		pr_inf("%s: out of memory allocating %zd poll file descriptors, "
 			"skipping stressor\n", args->name, max_fds);
 		free(pipe_fds);
 		return EXIT_NO_RESOURCE;
+	}
+
+	max_rnd_fds = max_fds;
+	if (max_rnd_fds < MAX_POLL_FDS)
+		max_rnd_fds = MAX_POLL_FDS - (MAX_POLL_FDS % max_fds);
+
+	rnd_fds_index = calloc(max_rnd_fds, sizeof(*rnd_fds_index));
+	if (!rnd_fds_index) {
+		pr_inf("%s: out of memory allocating %zd randomized poll indices, "
+			"skipping stressor\n", args->name, max_fds);
+		free(poll_fds);
+		free(pipe_fds);
+		return EXIT_NO_RESOURCE;
+	}
+
+	/* randomize: shuffle rnd_fds_index */
+	for (i = 0; i < max_rnd_fds; i++) {
+		rnd_fds_index[i] = i % max_fds;
+	}
+	for (i = 0; i < max_rnd_fds; i++) {
+		register size_t tmp, j = stress_mwc32modn(max_rnd_fds);
+
+		tmp = rnd_fds_index[i];
+		rnd_fds_index[i] = rnd_fds_index[j];
+		rnd_fds_index[j] = tmp;
 	}
 
 	for (i = 0; i < max_fds; i++) {
@@ -160,15 +190,20 @@ again:
 		for (i = 0; i < max_fds; i++)
 			(void)close(pipe_fds[i].fd[0]);
 
+		i = 0;
 		do {
-			char buf[POLL_BUF];
+			char buf[POLL_BUF] ALIGN64;
 			ssize_t ret;
+			register const size_t j = rnd_fds_index[i];
+
+			i++;
+			if (UNLIKELY(i >= max_rnd_fds))
+				i = 0;
 
 			/* Write on a randomly chosen pipe */
-			i = stress_mwc32modn(max_fds);
-			(void)memset(buf, (int)('0' + i), sizeof(buf));
-			ret = write(pipe_fds[i].fd[1], buf, sizeof(buf));
-			if (ret < (ssize_t)sizeof(buf)) {
+			(void)memset(buf, (int)('0' + j), sizeof(buf));
+			ret = write(pipe_fds[j].fd[1], buf, sizeof(buf));
+			if (UNLIKELY(ret < (ssize_t)sizeof(buf))) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				pr_fail("%s: write failed, errno=%d (%s)\n",
@@ -218,10 +253,10 @@ abort:
 				pr_fail("%s: poll failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (ret > 0) {
+			if (LIKELY(ret > 0)) {
 				for (i = 0; i < max_fds; i++) {
 					if (poll_fds[i].revents == POLLIN) {
-						if (pipe_read(args, poll_fds[i].fd, i) < 0)
+						if (UNLIKELY(pipe_read(args, poll_fds[i].fd, i) < 0))
 							break;
 					}
 				}
@@ -246,10 +281,10 @@ abort:
 				pr_fail("%s: ppoll failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (ret > 0) {
+			if (LIKELY(ret > 0)) {
 				for (i = 0; i < max_fds; i++) {
 					if (poll_fds[i].revents == POLLIN) {
-						if (pipe_read(args, poll_fds[i].fd, i) < 0)
+						if (UNLIKELY(pipe_read(args, poll_fds[i].fd, i) < 0))
 							break;
 					}
 				}
@@ -273,11 +308,11 @@ abort:
 			{
 				struct rlimit old_rlim, new_rlim;
 
-				if (getrlimit(RLIMIT_NOFILE, &old_rlim) == 0) {
+				if (LIKELY(getrlimit(RLIMIT_NOFILE, &old_rlim) == 0)) {
 					new_rlim.rlim_cur = max_fds - 1;
 					new_rlim.rlim_max = old_rlim.rlim_max;
 
-					if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
+					if (LIKELY(setrlimit(RLIMIT_NOFILE, &new_rlim) == 0)) {
 						ts.tv_sec = 0;
 						ts.tv_nsec = 0;
 						VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
@@ -311,11 +346,11 @@ abort:
 				pr_fail("%s: select failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (ret > 0) {
+			if (LIKELY(ret > 0)) {
 				for (i = 0; i < max_fds; i++) {
 					if ((pipe_fds[i].fd[0] < FD_SETSIZE) &&
 					     FD_ISSET(pipe_fds[i].fd[0], &rfds)) {
-						if (pipe_read(args, pipe_fds[i].fd[0], i) < 0)
+						if (UNLIKELY(pipe_read(args, pipe_fds[i].fd[0], i) < 0))
 							break;
 					}
 				}
@@ -347,11 +382,11 @@ abort:
 				pr_fail("%s: pselect failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (ret > 0) {
+			if (LIKELY(ret > 0)) {
 				for (i = 0; i < max_fds; i++) {
 					if ((pipe_fds[i].fd[0] < FD_SETSIZE) &&
 					    (FD_ISSET(pipe_fds[i].fd[0], &rfds))) {
-						if (pipe_read(args, pipe_fds[i].fd[0], i) < 0)
+						if (UNLIKELY(pipe_read(args, pipe_fds[i].fd[0], i) < 0))
 							break;
 					}
 				}
@@ -377,6 +412,7 @@ tidy:
 		(void)close(pipe_fds[i].fd[1]);
 	}
 
+	free(rnd_fds_index);
 	free(poll_fds);
 	free(pipe_fds);
 
