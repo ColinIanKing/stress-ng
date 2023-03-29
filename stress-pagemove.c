@@ -49,6 +49,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+#if defined(HAVE_MREMAP) &&	\
+    defined(MREMAP_FIXED) &&	\
+    defined(MREMAP_MAYMOVE)
+
 /*
  *  stress_pagemove_remap_fail()
  *	report remap failure message
@@ -61,10 +65,6 @@ static void stress_pagemove_remap_fail(
 	pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
 		args->name, from, to, errno, strerror(errno));
 }
-
-#if defined(HAVE_MREMAP) &&	\
-    defined(MREMAP_FIXED) &&	\
-    defined(MREMAP_MAYMOVE)
 
 static int stress_pagemove_child(const stress_args_t *args, void *context)
 {
