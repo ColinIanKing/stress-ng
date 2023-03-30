@@ -166,7 +166,7 @@ static void stress_semaphore_sysv_get_procinfo(bool *get_procinfo)
  *  stress_semaphore_sysv_thrash()
  *	exercise the semaphore
  */
-static int stress_semaphore_sysv_thrash(const stress_args_t *args)
+static int OPTIMIZE3 stress_semaphore_sysv_thrash(const stress_args_t *args)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
 	int rc = EXIT_SUCCESS;
@@ -187,8 +187,8 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 
 #if defined(HAVE_SEMTIMEDOP)
 		if (got_semtimedop) {
-			struct timespec timeout;
-			struct sembuf sems[STRESS_MAX_SEMS * 3];
+			struct timespec timeout ALIGN64;
+			struct sembuf sems[STRESS_MAX_SEMS * 3] ALIGN64;
 
 			for (i = 0; i < STRESS_MAX_SEMS * 3; i += 3) {
 				sems[i].sem_num = 1;
@@ -224,7 +224,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 
 #if defined(HAVE_SEMTIMEDOP)
 			if (got_semtimedop) {
-				struct timespec timeout;
+				struct timespec timeout ALIGN64;
 
 				timeout.tv_sec = 1;
 				timeout.tv_nsec = 0;
@@ -239,7 +239,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 #else
 			ret = semop(sem_id, &semwait, 1);
 #endif
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				if (errno == EAGAIN)
 					goto timed_out;
 				if (errno != EINTR) {
@@ -249,7 +249,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 				}
 				break;
 			}
-			if (semop(sem_id, &semsignal, 1) < 0) {
+			if (UNLIKELY(semop(sem_id, &semsignal, 1) < 0)) {
 				if (errno != EINTR) {
 					pr_fail("%s: semop signal failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -258,7 +258,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 				break;
 			}
 timed_out:
-			if (!keep_stressing(args))
+			if (UNLIKELY(!keep_stressing(args)))
 				break;
 			inc_counter(args);
 		}
@@ -271,7 +271,7 @@ timed_out:
 			(void)memset(&ds, 0, sizeof(ds));
 
 			s.buf = &ds;
-			if (semctl(sem_id, 2, IPC_STAT, &s) < 0) {
+			if (UNLIKELY(semctl(sem_id, 2, IPC_STAT, &s) < 0)) {
 				pr_fail("%s: semctl IPC_STAT failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -345,7 +345,7 @@ timed_out:
 			stress_semun_t s;
 
 			s.__buf = &si;
-			if (semctl(sem_id, 0, IPC_INFO, &s) < 0) {
+			if (UNLIKELY(semctl(sem_id, 0, IPC_INFO, &s) < 0)) {
 				pr_fail("%s: semctl IPC_INFO failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -373,7 +373,7 @@ timed_out:
 			stress_semun_t s;
 
 			s.__buf = &si;
-			if (semctl(sem_id, 0, SEM_INFO, &s) < 0) {
+			if (UNLIKELY(semctl(sem_id, 0, SEM_INFO, &s) < 0)) {
 				pr_fail("%s: semctl SEM_INFO failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
