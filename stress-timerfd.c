@@ -307,7 +307,7 @@ static int stress_timerfd(const stress_args_t *args)
 			break;
 #if defined(USE_SELECT)
 		ret = select(max_timerfd + 1, &rdfs, NULL, NULL, &timeout);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno == EINTR)
 				continue;
 			pr_fail("%s: select failed, errno=%d (%s)\n",
@@ -317,7 +317,7 @@ static int stress_timerfd(const stress_args_t *args)
 #endif
 #if defined(USE_POLL)
 		ret = poll(pollfds, (nfds_t)j, 0);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno == EINTR)
 				continue;
 			pr_fail("%s: poll failed, errno=%d (%s)\n",
@@ -325,7 +325,7 @@ static int stress_timerfd(const stress_args_t *args)
 			break;
 		}
 #endif
-		if (ret < 1)
+		if (UNLIKELY(ret < 1))
 			continue; /* Timeout */
 
 		for (i = 0; i < timerfd_fds; i++) {
@@ -344,19 +344,19 @@ static int stress_timerfd(const stress_args_t *args)
 			rret = read(pollfds[i].fd, &expval, sizeof expval);
 #endif
 
-			if (rret < 0) {
+			if (UNLIKELY(rret < 0)) {
 				pr_fail("%s: read of timerfd failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
-			if (timerfd_gettime(timerfds[i], &value) < 0) {
+			if (UNLIKELY(timerfd_gettime(timerfds[i], &value) < 0)) {
 				pr_fail("%s: timerfd_gettime failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
 			if (timerfd_rand) {
 				stress_timerfd_set(&timer, timerfd_rand);
-				if (timerfd_settime(timerfds[i], 0, &timer, NULL) < 0) {
+				if (UNLIKELY(timerfd_settime(timerfds[i], 0, &timer, NULL) < 0)) {
 					pr_fail("%s: timerfd_settime failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					break;
