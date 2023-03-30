@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
  */
 static int stress_sigpending(const stress_args_t *args)
 {
-	sigset_t new_sigset, old_sigset;
+	sigset_t new_sigset ALIGN64, old_sigset ALIGN64;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
@@ -41,20 +41,20 @@ static int stress_sigpending(const stress_args_t *args)
 	do {
 		(void)sigemptyset(&new_sigset);
 		(void)sigaddset(&new_sigset, SIGUSR1);
-		if (sigprocmask(SIG_SETMASK, &new_sigset, NULL) < 0) {
+		if (UNLIKELY(sigprocmask(SIG_SETMASK, &new_sigset, NULL) < 0)) {
 			pr_fail("%s: sigprocmask failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(args->pid, SIGUSR1);
-		if (sigpending(&new_sigset) < 0) {
+		if (UNLIKELY(sigpending(&new_sigset) < 0)) {
 			pr_fail("%s: sigpending failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
-		if (!sigismember(&new_sigset, SIGUSR1)) {
+		if (UNLIKELY(!sigismember(&new_sigset, SIGUSR1))) {
 			pr_fail("%s: did not get a SIGUSR1 pending signal\n", args->name);
 			continue;
 		}
@@ -64,11 +64,11 @@ static int stress_sigpending(const stress_args_t *args)
 		(void)sigprocmask(SIG_SETMASK, &new_sigset, NULL);
 
 		/* And it is no longer pending */
-		if (sigpending(&new_sigset) < 0) {
+		if (UNLIKELY(sigpending(&new_sigset) < 0)) {
 			pr_fail("%s: got an unexpected SIGUSR1 pending signal\n", args->name);
 			continue;
 		}
-		if (sigismember(&new_sigset, SIGUSR1)) {
+		if (UNLIKELY(sigismember(&new_sigset, SIGUSR1))) {
 			pr_fail("%s: got an unexpected SIGUSR1 signal\n", args->name);
 			continue;
 		}
