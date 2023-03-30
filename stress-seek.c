@@ -63,12 +63,18 @@ static off_t stress_shim_lseek(int fd, off_t offset, int whence)
 {
 	off_t ret;
 	double t;
+	static int metrics_count = 0;
 
-	t = stress_time_now();
-	ret = lseek(fd, offset, whence);
-	if (ret >= 0) {
-		duration += stress_time_now() - t;
-		count += 1.0;
+	if (LIKELY(metrics_count++ < 1000)) {
+		ret = lseek(fd, offset, whence);
+	} else {
+		metrics_count = 0;
+		t = stress_time_now();
+		ret = lseek(fd, offset, whence);
+		if (LIKELY(ret >= 0)) {
+			duration += stress_time_now() - t;
+			count += 1.0;
+		}
 	}
 	return ret;
 }
@@ -84,7 +90,7 @@ static int stress_seek(const stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE;
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
-	uint8_t buf[512];
+	uint8_t buf[512] ALIGN64;
 	const off_t bad_off_t = max_off_t();
 	const char *fs_type;
 #if defined(HAVE_OFF64_T) &&	\
@@ -145,7 +151,7 @@ static int stress_seek(const stress_args_t *args)
 
 	do {
 		off_t offset;
-		uint8_t tmp[512];
+		uint8_t tmp[512] ALIGN64;
 		ssize_t rwret;
 
 		offset = (off_t)stress_mwc64modn(len);
@@ -158,7 +164,7 @@ re_write:
 		if (!keep_stressing_flag())
 			break;
 		rwret = write(fd, buf, sizeof(buf));
-		if (rwret <= 0) {
+		if (UNLIKELY(rwret <= 0)) {
 			if (errno == ENOSPC)
 				goto do_read;
 			if ((errno == EAGAIN) || (errno == EINTR))
@@ -172,16 +178,16 @@ re_write:
 
 do_read:
 		offset = (off_t)stress_mwc64modn(len);
-		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
+		if (UNLIKELY(stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0)) {
 			pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			goto close_finish;
 		}
 re_read:
-		if (!keep_stressing_flag())
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 		rwret = read(fd, tmp, sizeof(tmp));
-		if (rwret <= 0) {
+		if (UNLIKELY(rwret <= 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_read;
 			if (errno) {
@@ -190,12 +196,12 @@ re_read:
 				goto close_finish;
 			}
 		}
-		if ((rwret != sizeof(tmp)) &&
-		    (g_opt_flags & OPT_FLAGS_VERIFY)) {
+		if (UNLIKELY((rwret != sizeof(tmp)) &&
+		    (g_opt_flags & OPT_FLAGS_VERIFY))) {
 			pr_fail("%s: incorrect read size, expecting 512 bytes\n", args->name);
 		}
 #if defined(SEEK_END)
-		if (stress_shim_lseek(fd, 0, SEEK_END) < 0) {
+		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_END) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -204,7 +210,7 @@ re_read:
 		UNEXPECTED
 #endif
 #if defined(SEEK_CUR)
-		if (stress_shim_lseek(fd, 0, SEEK_CUR) < 0) {
+		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_CUR) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -221,7 +227,7 @@ re_read:
 		 *  but it is worth checking anyhow just in case it is
 		 *  broken on 32 or 64 bit systems
 		 */
-		if (lseek64(fd, offset64, SEEK_SET) < 0) {
+		if (UNLIKELY(lseek64(fd, offset64, SEEK_SET) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek64 SEEK_SET failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -230,7 +236,7 @@ re_read:
 		UNEXPECTED
 #endif
 #if defined(SEEK_END)
-		if (lseek64(fd, offset64, SEEK_END) < 0) {
+		if (UNLIKELY(lseek64(fd, offset64, SEEK_END) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek64 SEEK_END failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -239,7 +245,7 @@ re_read:
 		UNEXPECTED
 #endif
 #if defined(SEEK_CUR)
-		if (lseek64(fd, offset64, SEEK_CUR) < 0) {
+		if (UNLIKELY(lseek64(fd, offset64, SEEK_CUR) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek64 SEEK_CUR failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -250,7 +256,7 @@ re_read:
 #endif
 #if defined(SEEK_HOLE) &&	\
     !defined(__APPLE__)
-		if (stress_shim_lseek(fd, 0, SEEK_HOLE) < 0) {
+		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_HOLE) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -260,7 +266,7 @@ re_read:
 #endif
 #if defined(SEEK_DATA) &&	\
     !defined(__APPLE__)
-		if (stress_shim_lseek(fd, 0, SEEK_DATA) < 0) {
+		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_DATA) < 0)) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -277,10 +283,10 @@ re_read:
 			offset = (off_t)stress_mwc64modn(seek_size);
 			for (i = 0; i < 20 && keep_stressing(args); i++) {
 				offset = stress_shim_lseek(fd, offset, SEEK_DATA);
-				if (offset < 0)
+				if (UNLIKELY(offset < 0))
 					break;
 				offset = stress_shim_lseek(fd, offset, SEEK_HOLE);
-				if (offset < 0)
+				if (UNLIKELY(offset < 0))
 					break;
 			}
 		}
@@ -290,8 +296,8 @@ re_read:
 			goto inc;
 
 		offset = (off_t)stress_mwc64modn(len);
-		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
-				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
+		if (UNLIKELY(shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
+				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0)) {
 			if (errno == EOPNOTSUPP)
 				seek_punch = false;
 		}
