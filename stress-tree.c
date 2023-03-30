@@ -332,7 +332,7 @@ static struct tree_node * OPTIMIZE3 TARGET_CLONES binary_find(
 	struct tree_node *node)
 {
 	while (head) {
-		if (node->value == head->value)
+		if (UNLIKELY(node->value == head->value))
 			return head;
 		head = (node->value <= head->value) ?
 				head->u.binary.left :
@@ -537,7 +537,7 @@ static struct tree_node OPTIMIZE3 TARGET_CLONES *avl_find(
 	struct tree_node *node)
 {
 	while (LIKELY(head != NULL)) {
-		if (node->value == head->value)
+		if (UNLIKELY(node->value == head->value))
 			return head;
 		head = (node->value <= head->value) ?
 				head->u.avl.left :
