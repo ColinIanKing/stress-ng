@@ -45,6 +45,7 @@ static int rd_fd;
 static const stress_args_t *sigio_args;
 static pid_t pid;
 static double time_end;
+static char *rd_buffer;
 
 /*
  *  stress_sigio_handler()
@@ -56,18 +57,17 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 
 	async_sigs++;
 
-	if (rd_fd > 0) {
+	if (LIKELY(rd_fd > 0)) {
 		/*
 		 *  Data is ready, so drain as much as possible
 		 */
-		while (keep_stressing_flag() &&  (stress_time_now() < time_end)) {
-			static char buffer[BUFFER_SIZE];
+		while (keep_stressing_flag() && (stress_time_now() < time_end)) {
 			ssize_t ret;
 
 			got_err = 0;
 			errno = 0;
-			ret = read(rd_fd, buffer, sizeof(buffer));
-			if (ret < 0) {
+			ret = read(rd_fd, rd_buffer, BUFFER_SIZE);
+			if (UNLIKELY(ret < 0)) {
 				if (errno != EAGAIN)
 					got_err = errno;
 				break;
@@ -87,15 +87,28 @@ static int stress_sigio(const stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE, fds[2], status, flags = -1;
 	double t_start, t_delta, rate;
+	char *buffers, *wr_buffer;
 
 	rd_fd = -1;
 	sigio_args = args;
 	pid = -1;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
+
+	buffers = mmap(NULL, 2 * BUFFER_SIZE, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buffers == MAP_FAILED) {
+		pr_inf("%s: cannot allocate I/O buffers, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	rd_buffer = &buffers[BUFFER_SIZE * 0];
+	wr_buffer = &buffers[BUFFER_SIZE * 1];
+
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)munmap(buffers, 2 * BUFFER_SIZE);
 		return rc;
 	}
 	rd_fd = fds[0];
@@ -136,8 +149,6 @@ again:
 		goto err;
 	} else if (pid == 0) {
 		/* Child */
-		char buffer[BUFFER_SIZE];
-
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -145,15 +156,15 @@ again:
 		stress_set_oom_adjustment(args->name, true);
 
 		(void)close(fds[0]);
-		(void)memset(buffer, 0, sizeof buffer);
+		(void)memset(wr_buffer, 0, BUFFER_SIZE);
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		while (keep_stressing(args)) {
 			ssize_t n;
 
-			n = write(fds[1], buffer, sizeof buffer);
-			if (n < 0)
+			n = write(fds[1], wr_buffer, BUFFER_SIZE);
+			if (UNLIKELY(n < 0))
 				break;
 		}
 		(void)close(fds[1]);
@@ -216,6 +227,8 @@ err:
 		(void)close(fds[0]);
 	if (fds[1] != -1)
 		(void)close(fds[1]);
+
+	(void)munmap(buffers, 2 * BUFFER_SIZE);
 
 	return rc;
 }
