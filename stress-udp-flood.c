@@ -68,7 +68,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_udp_flood
  *	UDP flood
  */
-static int stress_udp_flood(const stress_args_t *args)
+static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	int udp_flood_domain = AF_INET;
@@ -118,30 +118,29 @@ static int stress_udp_flood(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t = stress_time_now();
-	do {
+	for (;;) {
 		char buf[MAX_UDP_SIZE];
 		int rand_port, reserved_port;
 		ssize_t n;
 
-		if (++port > 65535)
+		if (UNLIKELY(++port > 65535))
 			port = 1024;
 
-		(void)memset(buf, data[j++ & 63], sz);
-
 		reserved_port = stress_net_reserve_ports(port, port);
-		if (reserved_port < 0)
-			continue;	/* try again */
+		if (UNLIKELY(reserved_port < 0))
+			goto next;	/* try again */
 		port = reserved_port;
 
 		stress_set_sockaddr_port(udp_flood_domain, port, addr);
+		(void)memset(buf, data[j++ & 63], sz);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
-		if (n > 0) {
+		if (LIKELY(n > 0)) {
 			inc_counter(args);
 			bytes += (double)n;
 		}
 
 #if defined(SIOCOUTQ)
-		if ((port & 0x1f) == 0) {
+		if (UNLIKELY((port & 0x1f) == 0)) {
 			int pending;
 
 			VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
@@ -156,20 +155,22 @@ static int stress_udp_flood(const stress_args_t *args)
 
 		rand_port = 1024 + stress_mwc16modn(65535 - 1024);
 		reserved_port = stress_net_reserve_ports(rand_port, rand_port);
-		if (reserved_port < 0)
-			continue;	/* try again */
+		if (UNLIKELY(reserved_port < 0))
+			goto next;	/* try again */
 		rand_port = reserved_port;
 		stress_set_sockaddr_port(udp_flood_domain, rand_port, addr);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
-		if (n > 0) {
+		if (LIKELY(n > 0)) {
 			inc_counter(args);
 			bytes += (double)n;
 		}
 		stress_net_release_ports(rand_port, rand_port);
-
-		if (++sz >= sz_max)
+		if (UNLIKELY(++sz >= sz_max))
 			sz = 1;
-	} while (keep_stressing(args));
+next:
+		if (UNLIKELY(!keep_stressing(args)))
+			break;
+	}
 	duration = stress_time_now() - t;
 
 	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
