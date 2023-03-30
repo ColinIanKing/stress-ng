@@ -99,7 +99,7 @@ static inline int stress_splice_write(
 		const size_t n = (size_t)(size > buffer_len ? buffer_len : size);
 
 		ret = write(fd, buffer, n);
-		if (ret < 0)
+		if (UNLIKELY(ret < 0))
 			break;
 		size -= n;
 
@@ -114,13 +114,13 @@ static inline int stress_splice_write(
  */
 static bool stress_splice_non_block_write_4K(const int fd)
 {
-	char buffer[4096];
+	char buffer[4096] ALIGN64;
 	int flags;
 
 	flags = fcntl(fd, F_GETFL, 0);
-	if (flags < 0)
+	if (UNLIKELY(flags < 0))
 		return false;
-	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+	if (UNLIKELY(fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0))
 		return false;
 	(void)memset(buffer, 0xa5, sizeof(buffer));
         if (write(fd, buffer, sizeof(buffer)) < 0)
@@ -146,12 +146,12 @@ static void stress_splice_looped_pipe(
 		return;
 
 	ret = splice(fds3[0], 0, fds4[1], 0, 4096, stress_splice_flag());
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		*use_splice_loop = false;
 		return;
 	}
 	ret = splice(fds4[0], 0, fds3[1], 0, 4096, stress_splice_flag());
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		*use_splice_loop = false;
 		return;
 	}
@@ -166,6 +166,7 @@ static int stress_splice(const stress_args_t *args)
 	int fd_in, fd_out, fds1[2], fds2[2], fds3[2], fds4[2];
 	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
 	int rc = EXIT_FAILURE;
+	int metrics_count = 0;
 	bool use_splice = true;
 	bool use_splice_loop;
 	char *buffer;
@@ -254,7 +255,6 @@ static int stress_splice(const stress_args_t *args)
 	do {
 		ssize_t ret;
 		loff_t off_in, off_out;
-		double t;
 
 		/*
 		 *  Linux 5.9 dropped the ability to splice from /dev/zero to
@@ -265,7 +265,7 @@ static int stress_splice(const stress_args_t *args)
 		if (use_splice) {
 			ret = splice(fd_in, NULL, fds1[1], NULL,
 				splice_bytes, stress_splice_flag());
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				if (errno == EINVAL) {
 					if (args->instance == 0) {
 						pr_inf("%s: using direct write to pipe and not splicing "
@@ -281,28 +281,41 @@ static int stress_splice(const stress_args_t *args)
 			ret = stress_splice_write(fds1[1], buffer,
 						  buffer_len,
 						  (ssize_t)splice_bytes);
-			if (ret < 0)
+			if (UNLIKELY(ret < 0))
 				break;
 		}
 
-		t = stress_time_now();
-		ret = splice(fds1[0], NULL, fds2[1], NULL,
-			splice_bytes, stress_splice_flag());
-		if (LIKELY(ret >= 0)) {
-			duration += stress_time_now() - t;
-			bytes += (double)ret;
-		} else {
-			break;
-		}
+		if (LIKELY(metrics_count++ < 1000)) {
+			/* fast non-metric path */
+			ret = splice(fds1[0], NULL, fds2[1], NULL,
+				splice_bytes, stress_splice_flag());
+			if (UNLIKELY(ret < 0))
+				break;
 
-		t = stress_time_now();
-		ret = splice(fds2[0], NULL, fd_out, NULL,
-			splice_bytes, stress_splice_flag());
-		if (LIKELY(ret >= 0)) {
+			ret = splice(fds2[0], NULL, fd_out, NULL,
+				splice_bytes, stress_splice_flag());
+			if (UNLIKELY(ret < 0))
+				break;
+		} else {
+			/* slower metrics path */
+			double t;
+
+			metrics_count = 0;
+			t = stress_time_now();
+			ret = splice(fds1[0], NULL, fds2[1], NULL,
+				splice_bytes, stress_splice_flag());
+			if (UNLIKELY(ret < 0))
+				break;
 			duration += stress_time_now() - t;
 			bytes += (double)ret;
-		} else {
-			break;
+
+			t = stress_time_now();
+			ret = splice(fds2[0], NULL, fd_out, NULL,
+				splice_bytes, stress_splice_flag());
+			if (UNLIKELY(ret < 0))
+				break;
+			duration += stress_time_now() - t;
+			bytes += (double)ret;
 		}
 
 		/* Exercise -ESPIPE errors */
