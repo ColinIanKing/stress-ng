@@ -111,7 +111,7 @@ static int stress_shm_posix_child(
 {
 	void **addrs;
 	char *shm_names;
-	stress_shm_msg_t msg;
+	stress_shm_msg_t msg ALIGN64;
 	int i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
@@ -170,7 +170,7 @@ static int stress_shm_posix_child(
 
 			shm_fd = shm_open(shm_name, O_CREAT | O_RDWR | O_TRUNC,
 				S_IRUSR | S_IWUSR);
-			if (shm_fd < 0) {
+			if (UNLIKELY(shm_fd < 0)) {
 				ok = false;
 				pr_fail("%s: shm_open %s failed, errno=%d (%s)\n",
 					args->name, shm_name, errno, strerror(errno));
@@ -183,7 +183,7 @@ static int stress_shm_posix_child(
 			msg.index = i;
 			shm_name[SHM_NAME_LEN - 1] = '\0';
 			(void)shim_strlcpy(msg.shm_name, shm_name, SHM_NAME_LEN);
-			if (write(fd, &msg, sizeof(msg)) < 0) {
+			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 				pr_err("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -193,7 +193,7 @@ static int stress_shm_posix_child(
 
 			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, shm_fd, 0);
-			if (addr == MAP_FAILED) {
+			if (UNLIKELY(addr == MAP_FAILED)) {
 				ok = false;
 				pr_fail("%s: mmap failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -203,13 +203,13 @@ static int stress_shm_posix_child(
 			}
 			addrs[i] = addr;
 
-			if (!keep_stressing_flag()) {
+			if (UNLIKELY(!keep_stressing_flag())) {
 				(void)close(shm_fd);
 				goto reap;
 			}
 			(void)stress_mincore_touch_pages(addr, sz);
 
-			if (!keep_stressing_flag()) {
+			if (UNLIKELY(!keep_stressing_flag())) {
 				(void)close(shm_fd);
 				goto reap;
 			}
@@ -245,13 +245,13 @@ static int stress_shm_posix_child(
 
 			/* Now truncated it back */
 			ret = ftruncate(shm_fd, (off_t)sz);
-			if (ret < 0)
+			if (UNLIKELY(ret < 0))
 				pr_fail("%s: ftruncate of shared memory failed\n", args->name);
 			(void)shim_fsync(shm_fd);
 
 			/* fstat shared memory */
 			ret = fstat(shm_fd, &statbuf);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: fstat failed on shared memory\n", args->name);
 			} else {
 				if (statbuf.st_size != (off_t)sz) {
@@ -263,24 +263,24 @@ static int stress_shm_posix_child(
 
 			/* Make it read only */
 			ret = fchmod(shm_fd, S_IRUSR);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: failed to fchmod to S_IRUSR on shared memory\n", args->name);
 			}
 			ret = fchown(shm_fd, uid, gid);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: failed to fchown on shared memory\n", args->name);
 			}
 
 			(void)close(shm_fd);
-			if (newpid > 0) {
+			if (LIKELY(newpid > 0)) {
 				int status;
 
 				(void)shim_waitpid(newpid, &status, 0);
 			}
 
-			if (!keep_stressing(args))
+			if (UNLIKELY(!keep_stressing(args)))
 				goto reap;
-			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
+			if (UNLIKELY(stress_shm_posix_check(addr, sz, page_size) < 0)) {
 				ok = false;
 				pr_fail("%s: memory check failed\n", args->name);
 				rc = EXIT_FAILURE;
@@ -311,7 +311,7 @@ reap:
 			msg.index = i;
 			msg.shm_name[SHM_NAME_LEN - 1] = '\0';
 			(void)shim_strlcpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
-			if (write(fd, &msg, sizeof(msg)) < 0) {
+			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 				pr_dbg("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				ok = false;
