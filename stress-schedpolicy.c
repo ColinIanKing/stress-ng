@@ -185,7 +185,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 				continue;
 
 			rng_prio = max_prio - min_prio;
-			if (rng_prio == 0) {
+			if (UNLIKELY(rng_prio == 0)) {
 				pr_err("%s: invalid min/max priority "
 					"range for scheduling policy %s "
 					"(min=%d, max=%d)\n",
@@ -220,7 +220,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			}
 		} else {
 			ret = sched_getscheduler(pid);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: sched_getscheduler failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			} else if (ret != policies[policy]) {
@@ -232,7 +232,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			}
 		}
 #if defined(_POSIX_PRIORITY_SCHEDULING)
-		if (n++ >= 1024) {
+		if (UNLIKELY(n++ >= 1024)) {
 			n = 0;
 
 			/* Exercise invalid sched_getparam syscall */
@@ -275,12 +275,12 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 		(void)memset(&param, 0, sizeof(param));
 		ret = sched_getparam(pid, &param);
-		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
+		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM))))
 			pr_fail("%s: sched_getparam failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
 		ret = sched_setparam(pid, &param);
-		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
+		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM))))
 			pr_fail("%s: sched_setparam failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 #endif
@@ -323,8 +323,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		(void)memset(&attr, 0, sizeof(attr));
 		attr.size = sizeof(attr);
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
-		if (ret < 0) {
-			if (errno != ENOSYS) {
+		if (UNLIKELY(ret < 0)) {
+			if (UNLIKELY(errno != ENOSYS)) {
 				pr_fail("%s: sched_getattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
@@ -371,7 +371,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		 * Cycle down max value to min value to
 		 * exercise scheduler
 		 */
-		if ((counter++ > 256) &&
+		if (UNLIKELY((counter++ > 256)) &&
 		    (sched_util_max_value > 0) &&
 		    (sched_util_max_value > sched_util_min)) {
 			sched_util_max_value--;
@@ -381,7 +381,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		UNEXPECTED
 #endif
 		policy++;
-		policy %= SIZEOF_ARRAY(policies);
+		if (policy >= (int)SIZEOF_ARRAY(policies))
+			policy = 0;
 		inc_counter(args);
 	} while (keep_stressing(args));
 
