@@ -98,7 +98,7 @@ static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
 		ssize_t ret;
 
 		ret = write(fds[1], &data, sizeof(data));
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			switch (errno) {
 			case EPIPE:
 				break;
@@ -123,19 +123,19 @@ static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
 static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 {
 	static stress_tee_t ALIGN64 data;
-	uint64_t counter = 0;
+	register uint64_t counter = 0;
 
 	data.length = sizeof(data);
 
 	(void)close(fds[1]);
 
 	while (keep_stressing_flag()) {
-		size_t n = 0;
+		register size_t n = 0;
 		ssize_t ret;
 
 		while (n < sizeof(data)) {
 			ret = read(fds[0], &data, sizeof(data));
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
 				case EPIPE:
 					goto finish;
@@ -151,12 +151,12 @@ static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 				n += (size_t)ret;
 			}
 		}
-		if (data.length != sizeof(data)) {
+		if (UNLIKELY(data.length != sizeof(data))) {
 			pr_fail("%s: pipe read of %zu bytes, wrong size detected, got %" PRIu64
 				", expected %zu\n", args->name,
 				n, data.length, sizeof(data));
 		}
-		if (data.counter != counter) {
+		if (UNLIKELY(data.counter != counter)) {
 			pr_fail("%s: pipe read, wrong check value detected\n", args->name);
 		}
 		counter++;
@@ -187,7 +187,7 @@ static int exercise_tee(
 		 *  as it is throwing errors for pre-4.10 kernels
 		 */
 		ret = tee(fd_in, fd_out, INT_MAX, ~0U);
-		if (ret >= 0) {
+		if (UNLIKELY(ret >= 0)) {
 			pr_fail("%s: tee with illegal flags "
 				"unexpectedly succeeded\n",
 				args->name);
@@ -197,7 +197,7 @@ static int exercise_tee(
 
 	/* Exercise on same pipe */
 	ret = tee(fd_in, fd_in, INT_MAX, 0);
-	if (ret >= 0) {
+	if (UNLIKELY(ret >= 0)) {
 		pr_fail("%s: tee on same fd_out and fd_in "
 			"unexpectedly succeeded\n",
 			args->name);
@@ -209,7 +209,7 @@ static int exercise_tee(
 	 * no difference other than increase in kernel test coverage
 	 */
 	ret = tee(fd_in, fd_out, 0, 0);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		pr_fail("%s: tee with 0 len argument "
 			"unexpectedly failed\n",
 			args->name);
@@ -230,6 +230,7 @@ static int stress_tee(const stress_args_t *args)
 	pid_t pids[2];
 	int ret = EXIT_FAILURE, status;
 	const int release = stress_get_kernel_release();
+	int metrics_count = 0;
 	double duration = 0.0, bytes = 0.0, rate;
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
@@ -257,12 +258,27 @@ static int stress_tee(const stress_args_t *args)
 	(void)close(pipe_out[0]);
 
 	do {
-		double t;
+		if (LIKELY(metrics_count++ < 1000)) {
+			len = tee(pipe_in[0], pipe_out[1], INT_MAX, 0);
+			if (LIKELY(len > 0))
+				goto do_splice;
 
-		t = stress_time_now();
-		len = tee(pipe_in[0], pipe_out[1], INT_MAX, 0);
+		} else {
+			double t;
 
-		if (len < 0) {
+			metrics_count = 0;
+			t = stress_time_now();
+			len = tee(pipe_in[0], pipe_out[1], INT_MAX, 0);
+			if (LIKELY(len > 0)) {
+				duration += stress_time_now() - t;
+				bytes += (double)len;
+				goto do_splice;
+			}
+		}
+		if (len == 0)
+			break;
+
+		if (UNLIKELY(len < 0)) {
 			switch (errno) {
 			case EPIPE:
 			case EAGAIN:
@@ -280,19 +296,15 @@ static int stress_tee(const stress_args_t *args)
 			pr_fail("%s: tee failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_child2;
-		} else {
-			if (len == 0)
-				break;
-			duration += stress_time_now() - t;
-			bytes += (double)len;
 		}
 
+do_splice:
 		while (len > 0) {
 			slen = splice(pipe_in[0], NULL, fd, NULL,
 				(size_t)len, SPLICE_F_MOVE);
-			if (errno == EINTR)
+			if (UNLIKELY(errno == EINTR))
 				break;
-			if (slen < 0) {
+			if (UNLIKELY(slen < 0)) {
 				pr_err("%s: splice failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto tidy_child2;
