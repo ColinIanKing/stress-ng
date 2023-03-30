@@ -155,6 +155,7 @@ static int stress_sigfpe(const stress_args_t *args)
 	static int i = 0;
 	int ret;
 	double time_end;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	typedef struct {
 		unsigned int exception;
@@ -164,7 +165,7 @@ static int stress_sigfpe(const stress_args_t *args)
 	/*
 	 *  FPE errors to raise
 	 */
-	static const stress_fpe_err_t fpe_errs[] = {
+	static const stress_fpe_err_t fpe_errs[] ALIGN64 = {
 #if defined(FPE_INTDIV)
 		{ SNG_INTDIV,	FPE_INTDIV },	/* can be trapped */
 #else
@@ -261,7 +262,7 @@ static int stress_sigfpe(const stress_args_t *args)
 			(void)feclearexcept(FE_ALL_EXCEPT);
 
 #if defined(STRESS_CHECK_SIGINFO)
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+			if (verify &&
 			    (siginfo.si_code >= 0) &&
 			    (siginfo.si_code != expected_err_code)) {
 				pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
@@ -294,7 +295,8 @@ static int stress_sigfpe(const stress_args_t *args)
 			}
 		}
 		i++;
-		i %= SIZEOF_ARRAY(fpe_errs);
+		if (i >= (int)SIZEOF_ARRAY(fpe_errs))
+			i = 0;
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
