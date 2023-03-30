@@ -59,7 +59,7 @@ static int stress_set_skiplist_size(const char *opt)
  *  skip_list_random_level()
  *	generate a quasi-random skip list level
  */
-static inline size_t skip_list_random_level(const size_t max_level)
+static inline size_t OPTIMIZE3 skip_list_random_level(const size_t max_level)
 {
 	register size_t level = 1;
 	register size_t r = stress_mwc32();
@@ -76,7 +76,7 @@ static inline size_t skip_list_random_level(const size_t max_level)
  *  skip_node_alloc()
  *	allocate a skip list node
  */
-static skip_node_t *skip_node_alloc(const size_t levels)
+static inline skip_node_t *skip_node_alloc(const size_t levels)
 {
 	const size_t sz = sizeof(skip_node_t) + (levels * sizeof(skip_node_t *));
 
@@ -90,10 +90,10 @@ static skip_node_t *skip_node_alloc(const size_t levels)
 static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
 {
 	register size_t i;
-	skip_node_t *head;
+	register skip_node_t *head;
 
 	head = skip_node_alloc(max_level);
-	if (!head)
+	if (UNLIKELY(!head))
 		return NULL;
 	list->level = 1;
 	list->max_level = max_level;
@@ -110,14 +110,14 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
  *  skip_list_insert()
  *	insert a value into the skiplist
  */
-static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long value)
+static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const unsigned long value)
 {
 	skip_node_t **skip_nodes;
 	skip_node_t *skip_node = list->head;
 	register size_t i, level;
 
 	skip_nodes = calloc(list->max_level + 1, sizeof(*skip_nodes));
-	if (!skip_nodes)
+	if (UNLIKELY(!skip_nodes))
 		return NULL;
 
 	for (i = list->level; i >= 1; i--) {
@@ -142,12 +142,12 @@ static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long valu
 		list->level = level;
 	}
 
-	if (level < 1) {
+	if (UNLIKELY(level < 1)) {
 		free(skip_nodes);
 		return NULL;
 	}
 	skip_node = skip_node_alloc(level);
-	if (!skip_node) {
+	if (UNLIKELY(!skip_node)) {
 		free(skip_nodes);
 		return NULL;
 	}
@@ -164,7 +164,7 @@ static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long valu
  *  skip_list_search()
  *	search the skiplist for a specific value
  */
-static skip_node_t *skip_list_search(skip_list_t *list, const unsigned long value)
+static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned long value)
 {
 	skip_node_t *skip_node = list->head;
 	register size_t i;
@@ -180,7 +180,7 @@ static skip_node_t *skip_list_search(skip_list_t *list, const unsigned long valu
  *  skip_list_ln2()
  *	compute maximum skiplist level
  */
-static inline unsigned long skip_list_ln2(unsigned long n)
+static inline unsigned long skip_list_ln2(register unsigned long n)
 {
 	register unsigned long i = 0;
 
@@ -214,7 +214,7 @@ static void skip_list_free(skip_list_t *list)
  *  stress_skiplist()
  *	stress skiplist
  */
-static int stress_skiplist(const stress_args_t *args)
+static int OPTIMIZE3 stress_skiplist(const stress_args_t *args)
 {
 	unsigned long n, i, ln2n;
 	uint64_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
