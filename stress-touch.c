@@ -197,7 +197,7 @@ static void stress_touch_dir_clean(const stress_args_t *args)
 	(void)closedir(dir);
 }
 
-static void stress_touch_child(
+static void stress_touch_loop(
 	const stress_args_t *args,
 	const int touch_method,
 	const int open_flags)
@@ -328,11 +328,11 @@ static int stress_touch(const stress_args_t *args)
 		pids[i] = fork();
 
 		if (pids[i] == 0) {
-			stress_touch_child(args, touch_method, open_flags);
+			stress_touch_loop(args, touch_method, open_flags);
 			_exit(0);
 		}
 	}
-	stress_touch_child(args, touch_method, open_flags);
+	stress_touch_loop(args, touch_method, open_flags);
 
 	keep_stressing_set_flag(false);
 
