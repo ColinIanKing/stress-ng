@@ -166,8 +166,9 @@ static int stress_switch_pipe(
 	buf_size = args->page_size;
 #endif
 
-	buf = malloc(buf_size);
-	if (!buf) {
+	buf = (char *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (buf == MAP_FAILED) {
 		pr_fail("%s: pipe read/write buffer allocation failed\n",
 			args->name);
 		(void)close(pipefds[0]);
@@ -200,7 +201,7 @@ again:
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		free(buf);
+		(void)munmap((void *)buf, buf_size);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		register const int fd = pipefds[0];
@@ -272,7 +273,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	free(buf);
+	(void)munmap((void *)buf, buf_size);
 
 	return EXIT_SUCCESS;
 }
@@ -323,7 +324,7 @@ again:
 		(void)sched_settings_apply(true);
 
 		while (keep_stressing_flag()) {
-			struct sembuf sem;
+			struct sembuf sem ALIGN64;
 
 			sem.sem_num = 0;
 			sem.sem_op = -1;
@@ -344,7 +345,7 @@ again:
 		int status;
 		double t_start;
 		uint64_t delay = switch_delay;
-		struct sembuf sem;
+		struct sembuf sem ALIGN64;
 
 		/* Parent */
 		t_start = stress_time_now();
@@ -437,7 +438,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		while (keep_stressing_flag()) {
+		while (LIKELY(keep_stressing_flag())) {
 			msg.value++;
 			if (UNLIKELY(mq_send(mq, (char *)&msg, sizeof(msg), 0) < 0))
 				break;
