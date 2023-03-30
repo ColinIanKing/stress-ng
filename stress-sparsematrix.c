@@ -231,7 +231,7 @@ static int stress_set_sparsematrix_size(const char *opt)
 	return stress_set_setting("sparsematrix-size", TYPE_ID_UINT32, &sparsematrix_size);
 }
 
-static uint32_t value_map(const uint32_t x, const uint32_t y)
+static inline uint32_t value_map(const uint32_t x, register uint32_t y)
 {
 	return x ^ ~y;
 }
