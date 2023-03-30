@@ -66,7 +66,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static inline ssize_t stress_socket_fd_sendmsg(const int fd, const int fd_send)
 {
 	struct iovec iov;
-	struct msghdr msg;
+	struct msghdr msg ALIGN64;
 	struct cmsghdr *cmsg;
 	int *ptr;
 
@@ -101,7 +101,7 @@ static inline ssize_t stress_socket_fd_sendmsg(const int fd, const int fd_send)
 static inline int stress_socket_fd_recv(const int fd)
 {
 	struct iovec iov;
-	struct msghdr msg;
+	struct msghdr ALIGN64 msg;
 	struct cmsghdr *cmsg;
 	char msg_data[1] = { 0 };
 	char ctrl[CMSG_SPACE(sizeof(int))];
@@ -117,11 +117,11 @@ static inline int stress_socket_fd_recv(const int fd)
 	msg.msg_control = ctrl;
 	msg.msg_controllen = sizeof(ctrl);
 
-	if (recvmsg(fd, &msg, 0) <= 0)
+	if (UNLIKELY(recvmsg(fd, &msg, 0) <= 0))
 		return -1;
-	if (msg_data[0] != MSG_ID)
+	if (UNLIKELY(msg_data[0] != MSG_ID))
 		return -1;
-	if ((msg.msg_flags & MSG_CTRUNC) == MSG_CTRUNC)
+	if (UNLIKELY((msg.msg_flags & MSG_CTRUNC) == MSG_CTRUNC))
 		return -1;
 
 	cmsg = CMSG_FIRSTHDR(&msg);
@@ -140,7 +140,7 @@ static inline int stress_socket_fd_recv(const int fd)
  *  stress_socket_client()
  *	client reader
  */
-static int stress_socket_client(
+static int OPTIMIZE3 stress_socket_client(
 	const stress_args_t *args,
 	const pid_t mypid,
 	const ssize_t max_fd,
@@ -164,25 +164,25 @@ retry:
 		if (!keep_stressing_flag())
 			return EXIT_FAILURE;
 
-		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+		if (UNLIKELY((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-				&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+		if (UNLIKELY(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+				&so_reuseaddr, sizeof(so_reuseaddr)) < 0)) {
 			(void)close(fd);
 			pr_fail("%s: setsockopt SO_REUSEADDR failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
-		if (stress_set_sockaddr(args->name, args->instance, mypid,
+		if (UNLIKELY(stress_set_sockaddr(args->name, args->instance, mypid,
 				AF_UNIX, socket_fd_port,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+				&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 			return EXIT_FAILURE;
 		}
-		if (connect(fd, addr, addr_len) < 0) {
+		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
 			(void)close(fd);
 			(void)shim_usleep(10000);
 			retries++;
@@ -195,7 +195,7 @@ retry:
 			goto retry;
 		}
 
-		if (!keep_stressing_flag())
+		if (UNLIKELY(!keep_stressing_flag()))
 			return EXIT_SUCCESS;
 
 		for (n = 0; keep_stressing(args) && (n < max_fd); n++) {
@@ -236,7 +236,7 @@ retry:
  *  stress_socket_server()
  *	server writer
  */
-static int stress_socket_server(
+static int OPTIMIZE3 stress_socket_server(
 	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
