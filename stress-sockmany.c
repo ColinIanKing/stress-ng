@@ -68,9 +68,9 @@ static int stress_set_sockmany_if(const char *name)
  *  stress_sockmany_cleanup()
  *	close sockets
  */
-static void stress_sockmany_cleanup(int fds[], const int n)
+static void OPTIMIZE3 stress_sockmany_cleanup(int fds[], const int n)
 {
-	int i;
+	register int i;
 
 	for (i = 0; i < n; i++) {
 		if (fds[i] >= 0) {
@@ -85,7 +85,7 @@ static void stress_sockmany_cleanup(int fds[], const int n)
  *  stress_sockmany_client()
  *	client reader
  */
-static int stress_sockmany_client(
+static int OPTIMIZE3 stress_sockmany_client(
 	const stress_args_t *args,
 	const int sockmany_port,
 	const pid_t mypid,
@@ -109,11 +109,11 @@ static int stress_sockmany_client(
 			int retries = 0;
 			socklen_t addr_len = 0;
 retry:
-			if (!keep_stressing_flag()) {
+			if (UNLIKELY(!keep_stressing_flag())) {
 				stress_sockmany_cleanup(fds, i);
 				break;
 			}
-			if ((fds[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			if (UNLIKELY((fds[i] = socket(AF_INET, SOCK_STREAM, 0)) < 0)) {
 				/* Out of resources? */
 				if ((errno == EMFILE) ||
 				    (errno == ENFILE) ||
@@ -128,12 +128,12 @@ retry:
 				return EXIT_FAILURE;
 			}
 
-			if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+			if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
 					AF_INET, sockmany_port, sockmany_if,
-					&addr, &addr_len, NET_ADDR_ANY) < 0) {
+					&addr, &addr_len, NET_ADDR_ANY) < 0)) {
 				return EXIT_FAILURE;
 			}
-			if (connect(fds[i], addr, addr_len) < 0) {
+			if (UNLIKELY(connect(fds[i], addr, addr_len) < 0)) {
 				int save_errno = errno;
 
 				(void)close(fds[i]);
@@ -156,7 +156,7 @@ retry:
 			}
 
 			n = recv(fds[i], buf, sizeof(buf), 0);
-			if (n < 0) {
+			if (UNLIKELY(n < 0)) {
 				if ((errno != EINTR) && (errno != ECONNRESET))
 					pr_fail("%s: recv failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -175,7 +175,7 @@ retry:
  *  stress_sockmany_server()
  *	server writer
  */
-static int stress_sockmany_server(
+static int OPTIMIZE3 stress_sockmany_server(
 	const stress_args_t *args,
 	const int sockmany_port,
 	const pid_t pid,
@@ -234,20 +234,21 @@ static int stress_sockmany_server(
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
-		if (sfd >= 0) {
+		if (LIKELY(sfd >= 0)) {
 			ssize_t sret;
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
+
 			len = sizeof(saddr);
-			if (getsockname(fd, &saddr, &len) < 0) {
+			if (UNLIKELY(getsockname(fd, &saddr, &len) < 0)) {
 				pr_fail("%s: getsockname failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
 				break;
 			}
 			len = sizeof(sndbuf);
-			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
+			if (UNLIKELY(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len)) < 0) {
 				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(sfd);
@@ -269,7 +270,7 @@ static int stress_sockmany_server(
 #endif
 			(void)memset(buf, 'A' + (msgs % 26), sizeof(buf));
 			sret = send(sfd, buf, sizeof(buf), 0);
-			if (sret < 0) {
+			if (UNLIKELY(sret < 0)) {
 				if ((errno != EINTR) && (errno != EPIPE))
 					pr_fail("%s: send failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
