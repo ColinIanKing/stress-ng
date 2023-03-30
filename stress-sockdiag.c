@@ -182,14 +182,14 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 			ret = sendmsg(fd, &msg, 0);
 			if (ret > 0)
 				return 1;
-			if (errno != EINTR)
+			if (LIKELY(errno != EINTR))
 				return -1;
 		}
 		request.udr.udiag_show = ~0U;
 		ret = sendmsg(fd, &msg, 0);
 		if (ret > 0)
 			return 1;
-		if (errno != EINTR)
+		if (LIKELY(errno != EINTR))
 			return -1;
 
 		family++;
@@ -225,7 +225,7 @@ static int stress_sockdiag_parse(
 
 static int sockdiag_recv(const stress_args_t *args, const int fd)
 {
-	static uint32_t buf[4096];
+	static uint32_t buf[4096] ALIGN64;
 	int flags = 0;
 
 	static struct sockaddr_nl nladdr = {
@@ -239,21 +239,20 @@ static int sockdiag_recv(const stress_args_t *args, const int fd)
 
 	for (;;) {
 		ssize_t ret;
-		static struct msghdr msg = {
+		static struct msghdr msg ALIGN64 = {
 			.msg_name = (void *)&nladdr,
 			.msg_namelen = sizeof(nladdr),
 			.msg_iov = &iov,
 			.msg_iovlen = 1
-		};
+		} ;
 		struct nlmsghdr *h = (struct nlmsghdr *)buf;
 
 		ret = recvmsg(fd, &msg, flags);
-		if (ret == 0)
-			break;
-		if (ret < 0) {
+		if (UNLIKELY(ret <= 0)) {
+			if (ret == 0)
+				break;
 			if (errno == EINTR)
 				continue;
-
 			return -1;
 		}
 		if (!NLMSG_OK(h, ret))
@@ -263,10 +262,10 @@ static int sockdiag_recv(const stress_args_t *args, const int fd)
 			if (h->nlmsg_type == NLMSG_DONE)
 				return 0;
 
-			if (h->nlmsg_type == NLMSG_ERROR)
+			if (UNLIKELY(h->nlmsg_type == NLMSG_ERROR))
 				return -1;
 
-			if (h->nlmsg_type != SOCK_DIAG_BY_FAMILY)
+			if (UNLIKELY(h->nlmsg_type != SOCK_DIAG_BY_FAMILY))
 				return -1;
 
 			if (stress_sockdiag_parse(args, NLMSG_DATA(h), h->nlmsg_len))
@@ -290,7 +289,7 @@ static int stress_sockdiag(const stress_args_t *args)
 		int fd, rc;
 
 		fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_SOCK_DIAG);
-		if (fd < 0) {
+		if (UNLIKELY(fd < 0)) {
 			if (errno == EPROTONOSUPPORT) {
 				if (args->instance == 0)
 					pr_inf_skip("%s: NETLINK_SOCK_DIAG not supported, skipping stressor\n",
@@ -304,7 +303,7 @@ static int stress_sockdiag(const stress_args_t *args)
 			break;
 		}
 		rc = sockdiag_send(args, fd);
-		if (rc < 0) {
+		if (UNLIKELY(rc < 0)) {
 			pr_fail("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
