@@ -40,7 +40,7 @@ static const stress_help_t help[] = {
     defined(__linux__) &&		\
     defined(HAVE_SYSCALL)
 #define HAVE_SIGNALFD4
-static int shim_signalfd4(
+static inline int shim_signalfd4(
 	int ufd,
 	sigset_t *user_mask,
 	size_t sizemask,
@@ -116,21 +116,20 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		int val = 0;
+		union sigval s ALIGN64;
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
+		(void)memset(&s, 0, sizeof(s));
+
 		while (keep_stressing_flag()) {
-			union sigval s;
 			int ret;
 
-			(void)memset(&s, 0, sizeof(s));
 			s.sival_int = val++;
 			ret = sigqueue(ppid, SIGRTMIN, s);
-			if ((ret < 0) && (errno != EAGAIN)) {
+			if ((ret < 0) && (errno != EAGAIN))
 				break;
-			}
-
 		}
 		(void)close(sfd);
 		_exit(0);
@@ -138,13 +137,14 @@ again:
 		/* Parent */
 		int status;
 		const pid_t self = getpid();
+		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		do {
 			ssize_t ret;
-			struct signalfd_siginfo fdsi;
+			struct signalfd_siginfo fdsi ALIGN64;
 
 			ret = read(sfd, &fdsi, sizeof(fdsi));
-			if ((ret < 0) || (ret != sizeof(fdsi))) {
+			if (UNLIKELY((ret < 0) || (ret != sizeof(fdsi)))) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
@@ -155,10 +155,10 @@ again:
 				}
 				continue;
 			}
-			if (ret == 0)
+			if (UNLIKELY(ret == 0))
 				break;
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (fdsi.ssi_signo != (uint32_t)SIGRTMIN) {
+			if (UNLIKELY(verify)) {
+				if (UNLIKELY(fdsi.ssi_signo != (uint32_t)SIGRTMIN)) {
 					pr_fail("%s: unexpected signal %d\n",
 						args->name, fdsi.ssi_signo);
 					break;
@@ -169,7 +169,7 @@ again:
 			 *  the signal fd to exercise the sigmask setting
 			 *  for this specific kind of fd info.
 			 */
-			if ((fdsi.ssi_int & 0xffff) == 0)
+			if (UNLIKELY((fdsi.ssi_int & 0xffff) == 0))
 				(void)stress_read_fdinfo(self, sfd);
 
 			inc_counter(args);
