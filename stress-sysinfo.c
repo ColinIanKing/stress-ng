@@ -56,6 +56,7 @@ static const stress_help_t help[] = {
 static int stress_sysinfo(const stress_args_t *args)
 {
 	int n_mounts;
+	const int verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	char *mnts[128];
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO) &&		\
@@ -89,7 +90,7 @@ static int stress_sysinfo(const stress_args_t *args)
 
 			ret = sysinfo(&sysinfo_buf);
 			if ((ret < 0) &&
-			    (g_opt_flags & OPT_FLAGS_VERIFY) &&
+			    (verify) &&
 			    (errno != EPERM))
 			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -101,20 +102,20 @@ static int stress_sysinfo(const stress_args_t *args)
 			for (i = 0; i < n_mounts; i++) {
 				int fd;
 
-				if (!keep_stressing_flag())
+				if (UNLIKELY(!keep_stressing_flag()))
 					break;
 
-				if (!mnts[i])
+				if (UNLIKELY(!mnts[i]))
 					continue;
 
 				ret = statfs(mnts[i], &statfs_buf);
 				/* Mount may have been removed, so purge it */
-				if ((ret < 0) && (errno == ENOENT)) {
+				if (UNLIKELY((ret < 0) && (errno == ENOENT))) {
 					free(mnts[i]);
 					mnts[i] = NULL;
 					continue;
 				}
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != ENOSYS) &&
 					    (errno != EOVERFLOW) &&
 					    (errno != EACCES) &&
@@ -133,7 +134,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				VOID_RET(int, statfs("", &statfs_buf));
 
 				fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
-				if (fd < 0)
+				if (UNLIKELY(fd < 0))
 					continue;
 #if defined(FS_IOC_GETFSLABEL) &&	\
     defined(FSLABEL_MAX)
@@ -148,9 +149,9 @@ static int stress_sysinfo(const stress_args_t *args)
 
 				ret = fstatfs(fd, &statfs_buf);
 				(void)close(fd);
-				if ((ret < 0) && (errno == ENOENT))
+				if (UNLIKELY((ret < 0) && (errno == ENOENT)))
 					continue;
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != ENOSYS) &&
 					    (errno != EOVERFLOW) &&
 					    (errno != EACCES) &&
@@ -182,11 +183,11 @@ static int stress_sysinfo(const stress_args_t *args)
 					continue;
 
 				ret = stat(mnts[i], &sbuf);
-				if (ret < 0)
+				if (UNLIKELY(ret < 0))
 					continue;
 
 				ret = shim_ustat(sbuf.st_dev, &ubuf);
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != EINVAL) &&
 					    (errno != EFAULT) &&
 					    (errno != ENOSYS) &&
@@ -208,7 +209,7 @@ static int stress_sysinfo(const stress_args_t *args)
 #endif
 		}
 
-		if (!keep_stressing_flag())
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 
 #if defined(HAVE_SYS_STATVFS_H)
@@ -220,14 +221,14 @@ static int stress_sysinfo(const stress_args_t *args)
 			for (i = 0; i < n_mounts; i++) {
 				int ret;
 
-				if (!keep_stressing_flag())
+				if (UNLIKELY(!keep_stressing_flag()))
 					break;
 
-				if (!mnts[i])
+				if (UNLIKELY(!mnts[i]))
 					continue;
 
 				ret = statvfs(mnts[i], &statvfs_buf);
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != ENOSYS) &&
 					    (errno != EOVERFLOW) &&
 					    (errno != EACCES) &&
@@ -249,7 +250,7 @@ static int stress_sysinfo(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		clk = times(&tms_buf);
-		if ((clk == (clock_t)-1) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+		if ((clk == (clock_t)-1) && (verify)) {
 			 pr_fail("%s: times failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
