@@ -49,7 +49,7 @@ static inline void socket_pair_memset(
  *  socket_pair_memchk()
  *	check data contains incrementing chars from val upwards
  */
-static inline int socket_pair_memchk(
+static inline int OPTIMIZE3 socket_pair_memchk(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -82,7 +82,7 @@ static void socket_pair_try_leak(void)
 {
 	int fds[2];
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0)
+	if (UNLIKELY(socketpair(AF_UNIX, SOCK_STREAM, 0, fds) < 0))
 		return;
 
 	(void)send(fds[0], "0", 1, MSG_OOB);
@@ -204,20 +204,22 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+
 		stress_set_oom_adjustment(args->name, true);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
 		socket_pair_close(socket_pair_fds, max, 1);
 		while (keep_stressing(args)) {
-			uint8_t buf[SOCKET_PAIR_BUF];
+			uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
 			ssize_t n;
 
 			for (i = 0; keep_stressing(args) && (i < max); i++) {
 				errno = 0;
 
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
-				if (n <= 0) {
+				if (UNLIKELY(n <= 0)) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					else if (errno == ENFILE) /* Too many files! */
@@ -235,12 +237,11 @@ again:
 					}
 					continue;
 				}
-				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-				    socket_pair_memchk(buf, (size_t)n)) {
+				if (UNLIKELY(verify && socket_pair_memchk(buf, (size_t)n))) {
 					pr_fail("%s: socket_pair read error detected, "
 						"failed to read expected data\n", args->name);
 				}
-				if (oom_avoid && stress_low_memory(low_mem_size))
+				if (UNLIKELY(oom_avoid && stress_low_memory(low_mem_size)))
 					continue;
 				socket_pair_try_leak();
 			}
@@ -249,7 +250,7 @@ abort:
 		socket_pair_close(socket_pair_fds, max, 0);
 		_exit(EXIT_SUCCESS);
 	} else {
-		uint8_t buf[SOCKET_PAIR_BUF];
+		uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
 		int val = 0, status;
 
 		stress_set_oom_adjustment(args->name, true);
