@@ -66,6 +66,7 @@ static int stress_sendfile(const stress_args_t *args)
 	size_t sz;
 	int64_t sendfile_size = DEFAULT_SENDFILE_SIZE;
 	double duration = 0.0, bytes = 0.0, rate;
+	int metrics_count = 0;
 
 	if (!stress_get_setting("sendfile-size", &sendfile_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -123,29 +124,40 @@ static int stress_sendfile(const stress_args_t *args)
 		ssize_t nbytes;
 		double t;
 
-		t = stress_time_now();
-		nbytes = sendfile(fdout, fdin, &offset, sz);
-		if (LIKELY(nbytes >= 0)) {
-			duration += stress_time_now() - t;
-			bytes += (double)nbytes;
+		if (LIKELY(metrics_count++ < 1000)) {
+			/* fast non-metrics sendfile */
+			nbytes = sendfile(fdout, fdin, &offset, sz);
+			if (LIKELY(nbytes >= 0))
+				goto sendfile_ok;
 		} else {
-			if (errno == ENOSYS) {
-				if (args->instance == 0)
-					pr_inf_skip("%s: skipping stressor, sendfile not implemented\n",
-						args->name);
-				rc = EXIT_NOT_IMPLEMENTED;
-				goto close_out;
+			/* slow metrics sendfile */
+			metrics_count = 0;
+			t = stress_time_now();
+			nbytes = sendfile(fdout, fdin, &offset, sz);
+			if (LIKELY(nbytes >= 0)) {
+				duration += stress_time_now() - t;
+				bytes += (double)nbytes;
+				goto sendfile_ok;
 			}
-			if (errno == EINTR)
-				continue;
-			pr_fail("%s: sendfile failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto close_out;
 		}
 
+		if (errno == ENOSYS) {
+			if (args->instance == 0)
+				pr_inf_skip("%s: skipping stressor, sendfile not implemented\n",
+					args->name);
+			rc = EXIT_NOT_IMPLEMENTED;
+			goto close_out;
+		}
+		if (errno == EINTR)
+			continue;
+		pr_fail("%s: sendfile failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+		goto close_out;
+
+sendfile_ok:
 		/* Periodically perform some unusual sendfile calls */
-		if ((i++ & 0xff) == 0) {
+		if (UNLIKELY((i++ & 0xff) == 0)) {
 			/* Exercise with invalid destination fd */
 			offset = 0;
 			(void)sendfile(bad_fd, fdin, &offset, sz);
