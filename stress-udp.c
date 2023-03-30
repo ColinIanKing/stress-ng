@@ -107,7 +107,7 @@ static int stress_set_udp_if(const char *name)
 	return stress_set_setting("udp-if", TYPE_ID_STR, name);
 }
 
-static int stress_udp_client(
+static int OPTIMIZE3 stress_udp_client(
 	const stress_args_t *args,
 	const pid_t mypid,
 	const int udp_domain,
@@ -118,12 +118,12 @@ static int stress_udp_client(
 {
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_FAILURE;
+	int index = 0;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
 	do {
-		char buf[UDP_BUF];
 		socklen_t len;
 		int fd;
 		int j = 0;
@@ -147,7 +147,7 @@ static int stress_udp_client(
 			socklen_t slen;
 
 			slen = sizeof(val);
-			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, slen) < 0) {
+			if (UNLIKELY(setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, slen) < 0)) {
 				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(fd);
@@ -185,7 +185,7 @@ static int stress_udp_client(
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_CORK, &val, &slen);
-			if (ret == 0) {
+			if (LIKELY(ret == 0)) {
 				slen = sizeof(val);
 				VOID_RET(int, setsockopt(fd, udp_proto, UDP_CORK, &val, slen));
 			}
@@ -199,7 +199,7 @@ static int stress_udp_client(
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_ENCAP, &val, &slen);
-			if (ret == 0) {
+			if (LIKELY(ret == 0)) {
 				slen = sizeof(val);
 				VOID_RET(int, setsockopt(fd, udp_proto, UDP_ENCAP, &val, slen));
 			}
@@ -213,7 +213,7 @@ static int stress_udp_client(
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_TX, &val, &slen);
-			if (ret == 0) {
+			if (LIKELY(ret == 0)) {
 				slen = sizeof(val);
 				VOID_RET(int, setsockopt(fd, udp_proto, UDP_NO_CHECK6_TX, &val, slen));
 			}
@@ -226,7 +226,7 @@ static int stress_udp_client(
 			int val, ret;
 			socklen_t slen = sizeof(val);
 			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_RX, &val, &slen);
-			if (ret == 0) {
+			if (LIKELY(ret == 0)) {
 				slen = sizeof(val);
 				VOID_RET(int, setsockopt(fd, udp_proto, UDP_NO_CHECK6_RX, &val, slen));
 			}
@@ -240,7 +240,7 @@ static int stress_udp_client(
 			socklen_t slen = sizeof(val);
 
 			ret = getsockopt(fd, udp_proto, UDP_SEGMENT, &val, &slen);
-			if (ret == 0) {
+			if (LIKELY(ret == 0)) {
 				slen = sizeof(val);
 				VOID_RET(int, setsockopt(fd, udp_proto, UDP_SEGMENT, &val, slen));
 			}
@@ -249,14 +249,18 @@ static int stress_udp_client(
 		UNEXPECTED
 #endif
 		do {
-			size_t i;
+			char buf[UDP_BUF];
+			register size_t i;
 
 			for (i = 16; i < sizeof(buf); i += 16, j++) {
+				static char patterns[] ALIGN64 =
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
+				const int c = patterns[index++ & 0x1f];
 				ssize_t ret;
 
-				(void)memset(buf, 'A' + (j % 26), sizeof(buf));
+				(void)memset(buf, c, sizeof(buf));
 				ret = sendto(fd, buf, i, 0, addr, len);
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))
 						break;
 					pr_fail("%s: sendto failed, errno=%d (%s)\n",
@@ -291,7 +295,7 @@ child_die:
 	return rc;
 }
 
-static int stress_udp_server(
+static int OPTIMIZE3 stress_udp_server(
 	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t mypid,
@@ -375,9 +379,9 @@ static int stress_udp_server(
 		UNEXPECTED
 #endif
 		n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
-		if (n == 0)
-			break;
-		if (n < 0) {
+		if (UNLIKELY(n <= 0)) {
+			if (n == 0)
+				break;
 			if (errno != EINTR)
 				pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
