@@ -99,7 +99,7 @@ typedef struct {
 
 static volatile stress_signest_info_t signal_info;
 
-static ssize_t stress_signest_find(int signum)
+static inline ssize_t stress_signest_find(int signum)
 {
 	size_t i;
 
@@ -117,7 +117,8 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	double run_time = stress_time_now() - signal_info.time_start;
 
 	signal_info.depth++;
-	if (signal_info.depth > signal_info.max_depth)
+	/* After a while this becomes more unlikely than likely */
+	if (UNLIKELY(signal_info.depth > signal_info.max_depth))
 		signal_info.max_depth = signal_info.depth;
 
 	/* using alternative signal stack? */
@@ -132,21 +133,21 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 			signal_info.stack_depth = delta;
 	}
 
-	if (run_time > (double)g_opt_timeout)
+	if (UNLIKELY(run_time > (double)g_opt_timeout))
 		siglongjmp(jmp_env, 1);
 
-	if (signal_info.stop)
+	if (UNLIKELY(signal_info.stop))
 		siglongjmp(jmp_env, 1);
 
-	if (!signal_info.args)
+	if (UNLIKELY(!signal_info.args))
 		goto done;
 
 	inc_counter(signal_info.args);
-	if (!keep_stressing(signal_info.args))
+	if (UNLIKELY(!keep_stressing(signal_info.args)))
 		siglongjmp(jmp_env, 1);
 
 	i = stress_signest_find(signum);
-	if ((i < 0) || (i == (ssize_t)SIZEOF_ARRAY(signals)))
+	if (UNLIKELY((i < 0) || (i == (ssize_t)SIZEOF_ARRAY(signals))))
 		goto done;
 
 	signal_info.signalled |= 1U << i;
@@ -154,7 +155,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	for (; i < (ssize_t)SIZEOF_ARRAY(signals); i++) {
 		if (signal_info.stop || !keep_stressing(signal_info.args))
 			siglongjmp(jmp_env, 1);
-		raise(signals[i]);
+		(void)raise(signals[i]);
 	}
 
 done:
@@ -211,7 +212,7 @@ static int stress_signest(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		raise(signals[0]);
+		(void)raise(signals[0]);
 	} while (keep_stressing(args));
 
 finish:
