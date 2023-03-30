@@ -87,7 +87,7 @@ static int stress_seal(const stress_args_t *args)
 			args->instance, stress_mwc32());
 
 		fd = shim_memfd_create(filename, MFD_ALLOW_SEALING);
-		if (fd < 0) {
+		if (UNLIKELY(fd < 0)) {
 			if (errno == ENOSYS) {
 				pr_inf("%s: aborting, unimplemented "
 					"system call memfd_created\n", args->name);
@@ -98,14 +98,14 @@ static int stress_seal(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
-		if (ftruncate(fd, sz) < 0) {
+		if (UNLIKELY(ftruncate(fd, sz) < 0)) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			goto err;
 		}
 
-		if (fcntl(fd, F_GET_SEALS) < 0) {
+		if (UNLIKELY(fcntl(fd, F_GET_SEALS) < 0)) {
 			pr_fail("%s: fcntl F_GET_SEALS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -115,14 +115,14 @@ static int stress_seal(const stress_args_t *args)
 		/*
 		 *  Add shrink SEAL, file cannot be make smaller
 		 */
-		if (fcntl(fd, F_ADD_SEALS, F_SEAL_SHRINK) < 0) {
+		if (UNLIKELY(fcntl(fd, F_ADD_SEALS, F_SEAL_SHRINK) < 0)) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_SHRINK failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			goto err;
 		}
 		ret = ftruncate(fd, 0);
-		if ((ret == 0) || ((ret < 0) && (errno != EPERM))) {
+		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EPERM)))) {
 			pr_fail("%s: ftruncate did not fail with EPERM as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -132,14 +132,14 @@ static int stress_seal(const stress_args_t *args)
 		/*
 		 *  Add grow SEAL, file cannot be made larger
 		 */
-		if (fcntl(fd, F_ADD_SEALS, F_SEAL_GROW) < 0) {
+		if (UNLIKELY(fcntl(fd, F_ADD_SEALS, F_SEAL_GROW) < 0)) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_GROW failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			goto err;
 		}
 		ret = ftruncate(fd, sz + 1);
-		if ((ret == 0) || ((ret < 0) && (errno != EPERM))) {
+		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EPERM)))) {
 			pr_fail("%s: ftruncate did not fail with EPERM as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -152,7 +152,7 @@ static int stress_seal(const stress_args_t *args)
 		 */
 		ptr = mmap(NULL, (size_t)sz, PROT_WRITE, MAP_SHARED,
 			fd, 0);
-		if (ptr == MAP_FAILED) {
+		if (UNLIKELY(ptr == MAP_FAILED)) {
 			if (errno == ENOMEM)
 				goto next;
 			pr_fail("%s: mmap failed, errno=%d (%s)\n",
@@ -162,7 +162,7 @@ static int stress_seal(const stress_args_t *args)
 		}
 		(void)memset(ptr, 0xea, page_size);
 		ret = fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE);
-		if ((ret == 0) || ((ret < 0) && (errno != EBUSY))) {
+		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EBUSY)))) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_WRITE did not fail with EBUSY as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)munmap(ptr, (size_t)sz);
@@ -175,7 +175,7 @@ static int stress_seal(const stress_args_t *args)
 		/*
 		 *  Now write seal the file, no more writes allowed
 		 */
-		if (fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE) < 0) {
+		if (UNLIKELY(fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE) < 0)) {
 			if (errno == EBUSY)
 				goto next;
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_WRITE failed, errno=%d (%s)\n",
@@ -184,7 +184,7 @@ static int stress_seal(const stress_args_t *args)
 			goto err;
 		}
 		wret = write(fd, buf, page_size);
-		if ((wret == 0) || ((wret < 0) && (errno != EPERM))) {
+		if (UNLIKELY((wret == 0) || ((wret < 0) && (errno != EPERM)))) {
 			pr_fail("%s: write on sealed file did not fail with EPERM as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
