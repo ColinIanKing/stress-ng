@@ -42,6 +42,7 @@ static timer_t timerid;
 static uint64_t overruns = 0;
 static double rate_ns;
 static double start;
+static bool timer_rand;
 #endif
 
 /*
@@ -79,14 +80,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_timer_set()
  *	set timer, ensure it is never zero
  */
-static void stress_timer_set(struct itimerspec *timer)
+static void OPTIMIZE3 stress_timer_set(struct itimerspec *timer)
 {
 	double rate;
-	bool timer_rand = false;
 
-	(void)stress_get_setting("timer-rand", &timer_rand);
-
-	if (timer_rand) {
+	if (UNLIKELY(timer_rand)) {
 		/* Mix in some random variation */
 		const double r = ((double)stress_mwc32modn(10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
@@ -131,7 +129,7 @@ static inline void stress_proc_self_timer_read(void)
  *  stress_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
-static void MLOCKED_TEXT stress_timer_handler(int sig)
+static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 {
 	struct itimerspec timer;
 	sigset_t mask;
@@ -146,12 +144,12 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 		if (sigismember(&mask, SIGINT))
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
-	if ((timer_counter & 65535) == 0) {
+	if (UNLIKELY((timer_counter & 65535) == 0)) {
 		if ((stress_time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
 		stress_proc_self_timer_read();
 	}
-	if (keep_stressing_flag()) {
+	if (LIKELY(keep_stressing_flag())) {
 		const int ret = timer_getoverrun(timerid);
 
 		if (ret > 0)
@@ -187,6 +185,8 @@ static int stress_timer(const stress_args_t *args)
 	max_ops = args->max_ops;
 	start = stress_time_now();
 
+	timer_rand = false;
+	(void)stress_get_setting("timer-rand", &timer_rand);
 	if (!stress_get_setting("timer-freq", &timer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			timer_freq = MAX_TIMER_FREQ;
@@ -219,9 +219,9 @@ static int stress_timer(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		struct timespec req;
+		struct timespec req ALIGN64;
 
-		if (n++ >= 1024) {
+		if (UNLIKELY(n++ >= 1024)) {
 			n = 0;
 
 			/* Exercise nanosleep on non-permitted timespec object values */
