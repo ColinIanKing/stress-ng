@@ -380,7 +380,7 @@ static void stress_sctp_sockopts(const int fd)
  *  stress_sctp_client()
  *	client reader
  */
-static int stress_sctp_client(
+static int OPTIMIZE3 stress_sctp_client(
 	const stress_args_t *args,
 	const pid_t mypid,
 	const int sctp_port,
@@ -406,7 +406,7 @@ static int stress_sctp_client(
 retry:
 		if (!keep_stressing_flag())
 			return EXIT_FAILURE;
-		if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
+		if (UNLIKELY((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0)) {
 			if (errno == EPROTONOSUPPORT) {
 				if (args->instance == 0)
 					pr_inf_skip("%s: SCTP protocol not supported, skipping stressor\n",
@@ -418,13 +418,13 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+		if (UNLIKELY(stress_set_sockaddr_if(args->name, args->instance, mypid,
 				sctp_domain, sctp_port, sctp_if,
-				&addr, &addr_len, NET_ADDR_LOOPBACK) < 0) {
+				&addr, &addr_len, NET_ADDR_LOOPBACK) < 0)) {
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		if (connect(fd, addr, addr_len) < 0) {
+		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
 			const int save_errno = errno;
 
 			(void)close(fd);
@@ -441,8 +441,7 @@ retry:
 #if defined(HAVE_SCTP_EVENT_SUBSCRIBE)
 		(void)memset(&events, 0, sizeof(events));
 		events.sctp_data_io_event = 1;
-		if (setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events,
-			sizeof(events)) < 0) {
+		if (UNLIKELY(setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events, sizeof(events)) < 0)) {
 			(void)close(fd);
 			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -467,9 +466,9 @@ retry:
 
 			n = sctp_recvmsg(fd, buf, sizeof(buf),
 				NULL, 0, &sndrcvinfo, &flags);
-			if (n <= 0)
+			if (UNLIKELY(n <= 0))
 				break;
-		} while (keep_stressing(args));
+		} while (keep_stressing_flag());
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 	} while (keep_stressing(args));
@@ -491,7 +490,7 @@ retry:
  *  stress_sctp_server()
  *	server writer
  */
-static int stress_sctp_server(
+static int OPTIMIZE3 stress_sctp_server(
 	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t mypid,
@@ -506,6 +505,7 @@ static int stress_sctp_server(
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_SUCCESS;
+	int index = 0;
 
 	(void)sctp_sched;
 
@@ -577,28 +577,28 @@ static int stress_sctp_server(
 		(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 	}
 #endif
-
 	do {
 		int sfd;
 
-		if (!keep_stressing(args))
+		if (UNLIKELY(!keep_stressing(args)))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
-		if (sfd >= 0) {
+		if (LIKELY(sfd >= 0)) {
 			size_t i;
+			static char patterns[] ALIGN64 =
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
+			const int c = patterns[index++ & 0x1f];
 
-			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
-
+			(void)memset(buf, c, sizeof(buf));
 			for (i = 16; i < sizeof(buf); i += 16) {
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
 						LOCALTIME_STREAM, 0, 0);
-				if (ret < 0) {
+				if (UNLIKELY(ret < 0)) 
 					break;
-				} else {
-					inc_counter(args);
-				}
+
+				inc_counter(args);
 			}
 			stress_sctp_sockopts(sfd);
 			(void)close(sfd);
