@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 static int stress_sigrt(const stress_args_t *args)
 {
 	pid_t *pids;
-	union sigval s;
+	union sigval s ALIGN64;
 	int i, status;
 
 	pids = calloc((size_t)MAX_RTPIDS, sizeof(*pids));
@@ -71,7 +71,7 @@ again:
 			goto reap;
 		} else if (pids[i] == 0) {
 			sigset_t mask;
-			siginfo_t info;
+			siginfo_t info ALIGN64;
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
@@ -80,15 +80,15 @@ again:
 			for (i = 0; i < MAX_RTPIDS; i++)
 				(void)sigaddset(&mask, i + SIGRTMIN);
 
-			while (keep_stressing_flag()) {
-				(void)memset(&info, 0, sizeof info);
+			(void)memset(&info, 0, sizeof info);
 
-				if (sigwaitinfo(&mask, &info) < 0) {
+			while (keep_stressing_flag()) {
+				if (UNLIKELY(sigwaitinfo(&mask, &info) < 0)) {
 					if (errno == EINTR)
 						continue;
 					break;
 				}
-				if (info.si_value.sival_int == 0)
+				if (UNLIKELY(info.si_value.sival_int == 0))
 					break;
 
 				if (info.si_value.sival_int != -1) {
@@ -108,10 +108,10 @@ again:
 
 	/* Parent */
 	do {
+		(void)memset(&s, 0, sizeof(s));
+
 		for (i = 0; i < MAX_RTPIDS; i++) {
 			const int pid = pids[(i + 1) % MAX_RTPIDS];
-
-			(void)memset(&s, 0, sizeof(s));
 
 			/* Inform child which pid to queue a signal to */
 			s.sival_int = pid;
@@ -122,9 +122,9 @@ again:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)memset(&s, 0, sizeof(s));
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {
-			(void)memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
 			(void)sigqueue(pids[i], i + SIGRTMIN, s);
 		}
