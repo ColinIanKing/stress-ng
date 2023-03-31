@@ -104,13 +104,13 @@ static int stress_supported(const char *name)
  */
 static inline long x86_64_syscall0(const long number)
 {
-	long ret;
+	register long ret;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
 			: "0" (number)
 			: "memory", "cc", "r11", "cx");
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		errno = (int)-ret;
 		ret = -1;
 	}
@@ -123,7 +123,7 @@ static inline long x86_64_syscall0(const long number)
  */
 static int stress_sigsys_libc_mapping(uintptr_t *begin, uintptr_t *end)
 {
-	char perm[5], buf[1024];
+	char perm[5], buf[1024] ALIGN64;
 	char libc_path[PATH_MAX + 1];
 	FILE *fp;
 	uint64_t offset, dev_major, dev_minor, inode;
@@ -176,7 +176,7 @@ err:
  *  stress_sigsys_handler()
  *	SIGSYS handler
  */
-static void MLOCKED_TEXT stress_sigsys_handler(
+static void MLOCKED_TEXT OPTIMIZE3 stress_sigsys_handler(
 	int num,
 	siginfo_t *info,
 	void *ucontext)
@@ -196,7 +196,7 @@ static void MLOCKED_TEXT stress_sigsys_handler(
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-static int stress_usersyscall(const stress_args_t *args)
+static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
 {
 	int ret, rc;
 	struct sigaction action;
@@ -206,6 +206,7 @@ static int stress_usersyscall(const stress_args_t *args)
 	const pid_t pid = getpid();
 #endif
 	double duration = 0.0, count = 0.0, rate;
+	int metrics_count = 0;
 
 	(void)memset(&action, 0, sizeof action);
 	action.sa_sigaction = stress_sigsys_handler;
@@ -225,12 +226,11 @@ static int stress_usersyscall(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)memset(&siginfo, 0, sizeof(siginfo));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		double t;
-
 		/*
 		 *  Test case 1: call user syscall with
 		 *  dispatcher disabled
@@ -238,7 +238,7 @@ static int stress_usersyscall(const stress_args_t *args)
 		dispatcher_off();
 		ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
 			    PR_SYS_DISPATCH_ON, 0, 0, &selector);
-		if (ret) {
+		if (UNLIKELY(ret)) {
 			pr_inf("%s: user dispatch failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
@@ -246,7 +246,7 @@ static int stress_usersyscall(const stress_args_t *args)
 		/*  Expect ENOSYS for the system call return */
 		errno = 0;
 		VOID_RET(long, syscall(USR_SYSCALL));
-		if (errno != ENOSYS) {
+		if (UNLIKELY(errno != ENOSYS)) {
 			pr_fail("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
@@ -255,15 +255,24 @@ static int stress_usersyscall(const stress_args_t *args)
 		 *  Test case 2: call user syscall with
 		 *  dispatcher enabled
 		 */
-		(void)memset(&siginfo, 0, sizeof(siginfo));
-		t = stress_time_now();
-		dispatcher_on();
-		ret = (int)syscall(USR_SYSCALL);
-		dispatcher_off();
-		duration += stress_time_now() - t;
-		count += 1.0;
+		if (metrics_count++ < 1000) {
+			dispatcher_on();
+			ret = (int)syscall(USR_SYSCALL);
+			dispatcher_off();
+		} else {
+			double t;
+
+			metrics_count = 0;
+
+			t = stress_time_now();
+			dispatcher_on();
+			ret = (int)syscall(USR_SYSCALL);
+			dispatcher_off();
+			duration += stress_time_now() - t;
+			count += 1.0;
+		}
 		/*  Should return USR_SYSCALL */
-		if (ret != USR_SYSCALL) {
+		if (UNLIKELY(ret != USR_SYSCALL)) {
 			if (errno == ENOSYS) {
 				pr_inf_skip("%s: got ENOSYS for usersyscall, skipping stressor\n", args->name);
 				rc = EXIT_NOT_IMPLEMENTED;
@@ -275,13 +284,13 @@ static int stress_usersyscall(const stress_args_t *args)
 			continue;
 		}
 		/* check handler si_code */
-		if (siginfo.si_code != SYS_USER_DISPATCH) {
+		if (UNLIKELY(siginfo.si_code != SYS_USER_DISPATCH)) {
 			pr_fail("%s: didn't get SYS_USER_DISPATCH in siginfo.si_code, "
 				"got 0x%x instead\n", args->name, siginfo.si_code);
 			continue;
 		}
 		/* check handler si_error */
-		if (siginfo.si_errno != 0) {
+		if (UNLIKELY(siginfo.si_errno != 0)) {
 			pr_fail("%s: didn't get 0x0 in siginfo.si_errno, "
 				"got 0x%x instead\n", args->name, siginfo.si_errno);
 			continue;
@@ -301,7 +310,7 @@ static int stress_usersyscall(const stress_args_t *args)
 			 */
 			ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
 				    PR_SYS_DISPATCH_ON, begin, end - begin, &selector);
-			if (ret) {
+			if (UNLIKELY(ret != 0)) {
 				pr_inf("%s: user dispatch failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
@@ -326,14 +335,14 @@ static int stress_usersyscall(const stress_args_t *args)
 			VOID_RET(int, prctl(PR_SET_SYSCALL_USER_DISPATCH,
 				    PR_SYS_DISPATCH_OFF, 0, 0, 0));
 
-			if (ret_libc != pid) {
+			if (UNLIKELY(ret_libc != pid)) {
 				pr_fail("%s: didn't get pid on libc getpid syscall, "
 					"got %d instead, errno=%d (%s)\n",
 					args->name, ret_libc,
 					saved_errno, strerror(saved_errno));
 			}
 
-			if (ret_not_libc != __NR_getpid) {
+			if (UNLIKELY(ret_not_libc != __NR_getpid)) {
 				pr_fail("%s: didn't get __NR_getpid %x on user syscall, "
 					"got 0x%x instead, errno=%d (%s)\n",
 					args->name, __NR_getpid, ret_not_libc,
