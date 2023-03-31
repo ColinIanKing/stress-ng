@@ -95,6 +95,7 @@ static int stress_zero(const stress_args_t *args)
 #else
 	const int flags = O_RDWR;
 #endif
+	register int metrics_count = 0;
 
 	rd_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -122,22 +123,38 @@ static int stress_zero(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
-		double t;
 		size_t i;
 
 		for (i = 0; i < 64; i++) {
-			t = stress_time_now();
-			ret = read(fd, rd_buffer, page_size);
-			if (UNLIKELY(ret < 0)) {
-				if ((errno == EAGAIN) || (errno == EINTR))
-					continue;
-				pr_fail("%s: read failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				(void)close(fd);
-				return EXIT_FAILURE;
+			if (LIKELY(metrics_count++ < 1000)) {
+				ret = read(fd, rd_buffer, page_size);
+				if (UNLIKELY(ret < 0)) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					pr_fail("%s: read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)close(fd);
+					return EXIT_FAILURE;
+				}
+			} else {
+				double t;
+
+				metrics_count = 0;
+
+				t = stress_time_now();
+				ret = read(fd, rd_buffer, page_size);
+				if (UNLIKELY(ret < 0)) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					pr_fail("%s: read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)close(fd);
+					return EXIT_FAILURE;
+				}
+				bytes += (double)ret;
+				duration += stress_time_now() - t;
 			}
-			bytes += (double)ret;
-			duration += stress_time_now() - t;
+
 			if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 				pr_fail("%s: non-zero value from a read of /dev/zero\n",
 					args->name);
@@ -147,7 +164,7 @@ static int stress_zero(const stress_args_t *args)
 #if !defined(__minix__)
 		/* One can also write to /dev/zero w/o failure */
 		ret = write(fd, wr_buffer, page_size);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_fail("%s: write failed, errno=%d (%s)\n",
@@ -166,7 +183,7 @@ static int stress_zero(const stress_args_t *args)
 			 */
 			ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[i].flag,
 				fd, (off_t)(page_size * stress_mwc16()));
-			if (ptr == MAP_FAILED) {
+			if (UNLIKELY(ptr == MAP_FAILED)) {
 				if ((errno == ENOMEM) || (errno == EAGAIN))
 					continue;
 				pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
