@@ -60,6 +60,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
 	char *data;
 	double duration = 0.0, bytes = 0.0, vm_splices = 0.0, rate;
+	int metrics_counter = 0;
 
 	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -113,46 +114,61 @@ static int stress_vm_splice(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	(void)memset(buf, 0, sz);
 	do {
 		ssize_t ret, n_bytes;
-		struct iovec iov;
+		struct iovec iov ALIGN64;
 		double t;
 
 		/*
 		 *  vmsplice from memory to pipe
 		 */
-		(void)memset(buf, 0, sz);
 		iov.iov_base = buf;
 		iov.iov_len = sz;
-		t = stress_time_now();
-		n_bytes = vmsplice(fds[1], &iov, 1, 0);
-		if (UNLIKELY(n_bytes < 0))
-			break;
-		duration += stress_time_now() - t;
+
+		if (LIKELY(metrics_counter != 0)) {
+			n_bytes = vmsplice(fds[1], &iov, 1, 0);
+			if (UNLIKELY(n_bytes < 0))
+				break;
+		} else {
+			t = stress_time_now();
+			n_bytes = vmsplice(fds[1], &iov, 1, 0);
+			if (UNLIKELY(n_bytes < 0))
+				break;
+			duration += stress_time_now() - t;
+		}
 		bytes += (double)n_bytes;
 		vm_splices += 1.0;
 
 		ret = splice(fds[0], NULL, fd, NULL,
 			vm_splice_bytes, SPLICE_F_MOVE);
-		if (ret < 0)
+		if (UNLIKELY(ret < 0))
 			break;
 
 		/*
 		 *  vmsplice from pipe to memory
 		 */
 		n_bytes = write(fds[1], data, page_size);
-		if (n_bytes > 0) {
+		if (LIKELY(n_bytes > 0)) {
 			iov.iov_base = buf;
 			iov.iov_len = (size_t)n_bytes;
 
-			t = stress_time_now();
-			n_bytes = vmsplice(fds[0], &iov, 1, 0);
-			if (n_bytes < 0)
-				break;
-			duration += stress_time_now() - t;
+			if (LIKELY(metrics_counter != 0)) {
+				n_bytes = vmsplice(fds[0], &iov, 1, 0);
+				if (UNLIKELY(n_bytes < 0))
+					break;
+			} else {
+				t = stress_time_now();
+				n_bytes = vmsplice(fds[0], &iov, 1, 0);
+				if (UNLIKELY(n_bytes < 0))
+					break;
+				duration += stress_time_now() - t;
+			}
 			bytes += (double)n_bytes;
 			vm_splices += 1.0;
 		}
+		if (metrics_counter++ > 1000)
+			metrics_counter = 0;
 
 		inc_counter(args);
 	} while (keep_stressing(args));
