@@ -84,10 +84,11 @@ static int stress_vm_child(void *arg)
 {
 	const stress_context_t *ctxt = (stress_context_t *)arg;
 	const stress_args_t *args = ctxt->args;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	uint8_t *buf;
 	int ret = EXIT_SUCCESS;
-	stress_addr_msg_t msg_rd, msg_wr;
+	stress_addr_msg_t msg_rd ALIGN64, msg_wr ALIGN64;
 
 	stress_parent_died_alarm();
 
@@ -115,7 +116,7 @@ static int stress_vm_child(void *arg)
 		/* Send address of buffer to parent */
 redo_wr1:
 		rwret = write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr));
-		if (rwret < 0) {
+		if (UNLIKELY(rwret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
 			if (errno != EBADF)
@@ -126,25 +127,25 @@ redo_wr1:
 redo_rd1:
 		/* Wait for parent to populate data */
 		rwret = read(ctxt->pipe_rd[0], &msg_rd, sizeof(msg_rd));
-		if (rwret < 0) {
+		if (UNLIKELY(rwret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd1;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
-		if (rwret == 0)
-			break;
-		if (rwret != sizeof(msg_rd)) {
+		if (UNLIKELY(rwret != sizeof(msg_rd))) {
+			if (rwret == 0)
+				break;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		if (UNLIKELY(verify)) {
 			/* Check memory altered by parent is sane */
 			for (ptr = buf; ptr < end; ptr += args->page_size) {
-				if (*ptr != msg_rd.val) {
+				if (UNLIKELY(*ptr != msg_rd.val)) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
 						args->name, (void *)ptr, ptr - buf, *ptr, msg_rd.val);
 					goto cleanup;
@@ -157,7 +158,7 @@ cleanup:
 	/* Tell parent we're done */
 	msg_wr.addr = 0;
 	msg_wr.val = 0;
-	if (write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr)) <= 0) {
+	if (UNLIKELY(write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr)) <= 0)) {
 		if (errno != EBADF)
 			pr_dbg("%s: failed to write termination message "
 				"over pipe: errno=%d (%s)\n",
@@ -180,6 +181,7 @@ static int stress_vm_parent(stress_context_t *ctxt)
 	stress_addr_msg_t msg_rd, msg_wr;
 	const stress_args_t *args = ctxt->args;
 	size_t sz;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	localbuf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -198,7 +200,7 @@ static int stress_vm_parent(stress_context_t *ctxt)
 	(void)close(ctxt->pipe_rd[0]);
 
 	do {
-		struct iovec local[1], remote[1];
+		struct iovec local[1] ALIGN64, remote[1] ALIGN64;
 		uint8_t *ptr1, *ptr2, *end = localbuf + ctxt->sz;
 		ssize_t rwret;
 		size_t i, len;
@@ -208,22 +210,22 @@ redo_rd2:
 		if (!keep_stressing_flag())
 			break;
 		rwret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
-		if (rwret < 0) {
+		if (UNLIKELY(rwret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd2;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
-		if (rwret == 0)
-			break;
-		if (rwret != sizeof(msg_rd)) {
+		if (UNLIKELY(rwret != sizeof(msg_rd))) {
+			if (rwret == 0)
+				break;
 			pr_fail("%s: read failed, expected %zd bytes, got %zd\n",
 				args->name, sizeof(msg_rd), rwret);
 			break;
 		}
 		/* Child telling us it's terminating? */
-		if (!msg_rd.addr)
+		if (UNLIKELY(!msg_rd.addr))
 			break;
 
 		/* Perform read from child's memory */
@@ -241,17 +243,17 @@ redo_rd2:
 			ptr2 += len;
 			sz -= len;
 
-			if (process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0) {
+			if (UNLIKELY(process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0)) {
 				pr_fail("%s: process_vm_readv failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto fail;
 			}
 		}
 
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		if (UNLIKELY(verify)) {
 			/* Check data is sane */
 			for (ptr1 = localbuf; ptr1 < end; ptr1 += args->page_size) {
-				if (*ptr1) {
+				if (UNLIKELY(*ptr1)) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
 						args->name, (void *)ptr1, ptr1 - localbuf, *ptr1, msg_rd.val);
 					goto fail;
@@ -293,7 +295,7 @@ redo_rd2:
 			remote[0].iov_len = len;
 			ptr2 += len;
 			sz -= len;
-			if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
+			if (UNLIKELY(process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0)) {
 				pr_fail("%s: process_vm_writev failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto fail;
@@ -306,7 +308,7 @@ redo_wr2:
 			break;
 		/* Inform child that memory has been changed */
 		rwret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
-		if (rwret < 0) {
+		if (UNLIKELY(rwret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr2;
 			if (errno != EBADF)
