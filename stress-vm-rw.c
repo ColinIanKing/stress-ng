@@ -80,7 +80,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_CLONE) &&		\
     defined(CLONE_VM)
 
-static int stress_vm_child(void *arg)
+static int OPTIMIZE3 stress_vm_child(void *arg)
 {
 	const stress_context_t *ctxt = (stress_context_t *)arg;
 	const stress_args_t *args = ctxt->args;
@@ -172,7 +172,7 @@ cleanup:
 }
 
 
-static int stress_vm_parent(stress_context_t *ctxt)
+static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 {
 	/* Parent */
 	int status;
