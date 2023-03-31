@@ -85,7 +85,7 @@ static stress_vdso_sym_t *vdso_sym_list;
  *  wrap_getcpu()
  *	invoke getcpu()
  */
-static int wrap_getcpu(void *vdso_func)
+static int OPTIMIZE3 wrap_getcpu(void *vdso_func)
 {
 	unsigned cpu, node;
 
@@ -99,7 +99,7 @@ static int wrap_getcpu(void *vdso_func)
  *  wrap_gettimeofday()
  *	invoke gettimeofday()
  */
-static int wrap_gettimeofday(void *vdso_func)
+static int OPTIMIZE3 wrap_gettimeofday(void *vdso_func)
 {
 	int (*vdso_gettimeofday)(struct timeval *tv, struct timezone *tz);
 	struct timeval tv;
@@ -112,7 +112,7 @@ static int wrap_gettimeofday(void *vdso_func)
  *  wrap_time()
  *	invoke time()
  */
-static int wrap_time(void *vdso_func)
+static int OPTIMIZE3 wrap_time(void *vdso_func)
 {
 	time_t (*vdso_time)(time_t *tloc);
 	time_t t, ret;
@@ -127,7 +127,7 @@ static int wrap_time(void *vdso_func)
  *  wrap_clock_gettime()
  *	invoke clock_gettime()
  */
-static int wrap_clock_gettime(void *vdso_func)
+static int OPTIMIZE3 wrap_clock_gettime(void *vdso_func)
 {
 	int (*vdso_clock_gettime)(clockid_t clk_id, struct timespec *tp);
 	struct timespec tp;
@@ -141,7 +141,7 @@ static int wrap_clock_gettime(void *vdso_func)
  *  wrap_dummy()
  *      dummy empty function for baseline
  */
-static int wrap_dummy(void *vdso_func)
+static int OPTIMIZE3 wrap_dummy(void *vdso_func)
 {
 	int (*vdso_dummy)(void *ptr);
 
@@ -458,6 +458,8 @@ static int stress_vdso(const stress_args_t *args)
 {
 	double t1, t2, t3, dt, overhead_ns;
 	uint64_t counter;
+	int n_vdso = 0;
+	register stress_vdso_sym_t *vdso_sym;
 
 	if (!vdso_sym_list) {
 		/* Should not fail, but worth checking to avoid breakage */
@@ -482,16 +484,18 @@ static int stress_vdso(const stress_args_t *args)
 		}
 	}
 
+	for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next)
+		n_vdso++;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t1 = stress_time_now();
 	do {
-		stress_vdso_sym_t *vdso_sym;
 
 		for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 			vdso_sym->func(vdso_sym->addr);
-			inc_counter(args);
 		}
+		add_counter(args, n_vdso);
 	} while (keep_stressing(args));
 	t2 = stress_time_now();
 
@@ -505,8 +509,8 @@ static int stress_vdso(const stress_args_t *args)
 
 			for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 				vdso_sym->dummy_func(vdso_sym->addr);
-				inc_counter(args);
 			}
+			add_counter(args, n_vdso);
 		}
 		t3 = stress_time_now();
 	} while ((t3 - t2) < 0.1);
