@@ -71,9 +71,15 @@ static const stress_wcs_method_info_t wcs_methods[];
 static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 {
 	register size_t i;
+	static wchar_t letters[32] ALIGN64 = {
+		L'a', L'b', L'c', L'd', L'e', L'f', L'g', L'h',
+		L'i', L'j', L'k', L'l', L'm', L'n', L'o', L'p',
+		L'q', L'r', L's', L't', L'u', L'v', L'w', L'x',
+		L'y', L'z', L'_', L'+', L'!', L'#', L'*', L'+',
+	};
 
-	for (i = 0; i < (len-1); i++) {
-		*wcstr++ = (stress_mwc8modn(26)) + L'a';
+	for (i = 0; i < (len - 1); i++) {
+		*wcstr++ = letters[stress_mwc8() & 31];
 	}
 	*wcstr = L'\0';
 }
@@ -677,6 +683,7 @@ static int stress_wcs(const stress_args_t *args)
 	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	wchar_t strdst[STRDSTLEN];
 	stress_wcs_args_t info;
+	int metrics_count = 0;
 
 	/* No wcs* functions available on this system? */
 	if (SIZEOF_ARRAY(wcs_methods) <= 2)
@@ -708,9 +715,14 @@ static int stress_wcs(const stress_args_t *args)
 		double t;
 
 		stress_wcs_fill(info.str2, info.len2);
-		t = stress_time_now();
-		metrics[wcs_method].count += (double)wcs_method_info->func(args, &info);
-		metrics[wcs_method].duration += (stress_time_now() - t);
+		if (UNLIKELY(metrics_count++ > 1000)) {
+			metrics_count = 0;
+			t = stress_time_now();
+			metrics[wcs_method].count += (double)wcs_method_info->func(args, &info);
+			metrics[wcs_method].duration += (stress_time_now() - t);
+		} else {
+			(void)wcs_method_info->func(args, &info);
+		}
 
 		tmpptr = info.str1;
 		info.str1 = info.str2;
