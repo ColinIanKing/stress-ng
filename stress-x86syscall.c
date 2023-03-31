@@ -53,8 +53,8 @@ typedef int (*stress_wfunc_t)(void);
  */
 typedef struct stress_x86syscall {
 	const stress_wfunc_t func;	/* Wrapper function */
-	const char *name;	/* Function name */
-	bool exercise;		/* True = exercise the syscall */
+	const char *name;		/* Function name */
+	bool exercise;			/* True = exercise the syscall */
 } stress_x86syscall_t;
 
 /*
@@ -90,7 +90,7 @@ static int stress_x86syscall_supported(const char *name)
  *  x86_64_syscall1()
  *	syscall 1 arg wrapper
  */
-static inline long x86_64_syscall1(long number, long arg1)
+static inline long OPTIMIZE3 x86_64_syscall1(long number, long arg1)
 {
 	long ret;
 	long tmp_arg1 = arg1;
@@ -100,7 +100,7 @@ static inline long x86_64_syscall1(long number, long arg1)
 			: "=a" (ret)
 			: "0" (number), "r" (asm_arg1)
 			: "memory", "cc", "r11", "cx");
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		errno = (int)ret;
 		ret = -1;
 	}
@@ -111,7 +111,7 @@ static inline long x86_64_syscall1(long number, long arg1)
  *  x86_64_syscall2()
  *	syscall 2 arg wrapper
  */
-static inline long x86_64_syscall2(long number, long arg1, long arg2)
+static inline long OPTIMIZE3 x86_64_syscall2(long number, long arg1, long arg2)
 {
 	long ret;
 	long tmp_arg1 = arg1;
@@ -123,7 +123,7 @@ static inline long x86_64_syscall2(long number, long arg1, long arg2)
 			: "=a" (ret)
 			: "0" (number), "r" (asm_arg1), "r" (asm_arg2)
 			: "memory", "cc", "r11", "cx");
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		errno = (int)ret;
 		ret = -1;
 	}
@@ -134,7 +134,7 @@ static inline long x86_64_syscall2(long number, long arg1, long arg2)
  *  x86_64_syscall3()
  *	syscall 3 arg wrapper
  */
-static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
+static inline long OPTIMIZE3 x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 {
 	long ret;
 	long tmp_arg1 = arg1;
@@ -148,7 +148,7 @@ static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 			: "=a" (ret)
 			: "0" (number), "r" (asm_arg1), "r" (asm_arg2), "r" (asm_arg3)
 			: "memory", "cc", "r11", "cx");
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		errno = (int)ret;
 		ret = -1;
 	}
@@ -299,8 +299,10 @@ static int x86syscall_check_x86syscall_func(void)
  */
 static int stress_x86syscall(const stress_args_t *args)
 {
-	double t1, t2, t3, dt, overhead_ns;
+	double t1, t2, t3, t4, dt, overhead_ns;
 	uint64_t counter;
+	stress_wfunc_t x86syscall_funcs[SIZEOF_ARRAY(x86syscalls)] ALIGN64;
+	register size_t i, n;
 
 	if (x86syscall_check_x86syscall_func() < 0)
 		return EXIT_FAILURE;
@@ -315,18 +317,18 @@ static int stress_x86syscall(const stress_args_t *args)
 		}
 	}
 
+	for (i = 0, n = 0; x86syscalls[i].name; i++) {
+		if (x86syscalls[i].exercise)
+			x86syscall_funcs[n++] = x86syscalls[i].func;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t1 = stress_time_now();
 	do {
-		register size_t i;
-
-		for (i = 0; x86syscalls[i].name; i++) {
-			if (x86syscalls[i].exercise) {
-				x86syscalls[i].func();
-				inc_counter(args);
-			}
-		}
+		for (i = 0; i < n; i++)
+			x86syscall_funcs[i]();
+		add_counter(args, n);
 	} while (keep_stressing(args));
 	t2 = stress_time_now();
 
@@ -334,20 +336,23 @@ static int stress_x86syscall(const stress_args_t *args)
 	 *  And spend 1/10th of a second measuring overhead of
 	 *  the test framework
 	 */
+	for (i = 0; i < n; i++) {
+		x86syscall_funcs[i] = wrap_dummy;
+	}
 	counter = get_counter(args);
+	t3 = stress_time_now();
 	do {
 		register int j;
 
 		for (j = 0; j < 1000000; j++) {
-			if (dummy_x86syscalls[0].exercise) {
-				dummy_x86syscalls[0].func();
-				inc_counter(args);
-			}
+			for (i = 0; i < n; i++)
+				x86syscall_funcs[i]();
+			add_counter(args, n);
 		}
-		t3 = stress_time_now();
-	} while (t3 - t2 < 0.1);
+		t4 = stress_time_now();
+	} while (t4 - t3 < 0.1);
 
-	overhead_ns = (double)STRESS_NANOSECOND * ((t3 - t2) / (double)(get_counter(args) - counter));
+	overhead_ns = (double)STRESS_NANOSECOND * ((t4 - t3) / (double)(get_counter(args) - counter));
 	set_counter(args, counter);
 
 	dt = t2 - t1;
