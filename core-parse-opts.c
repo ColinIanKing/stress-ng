@@ -363,3 +363,22 @@ uint64_t stress_get_uint64_time(const char *const str)
 
 	return stress_get_uint64_scale(str, scales, "time");
 }
+
+/*
+ *  stress_check_power_of_2()
+ *  number must be power of 2
+ */
+void stress_check_power_of_2(
+	const char *const opt,
+	const uint64_t val,
+	const uint64_t lo,
+	const uint64_t hi)
+{
+	stress_check_range(opt, val, lo, hi);
+
+	if ((val & (val - 1)) != 0) {
+		(void)fprintf(stderr, "Value %" PRId64 " is not power of 2 for %s\n",
+					  val, opt);
+		longjmp(g_error_env, 1);
+	}
+}

@@ -1808,6 +1808,7 @@ typedef enum {
 	OPT_rawpkt,
 	OPT_rawpkt_ops,
 	OPT_rawpkt_port,
+	OPT_rawpkt_rxring,
 
 	OPT_rawsock,
 	OPT_rawsock_ops,
@@ -2593,6 +2594,8 @@ extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_int32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
+extern void stress_check_power_of_2(const char *const opt, const uint64_t val,
+	const uint64_t lo, const uint64_t hi);
 
 /* Misc helper funcs */
 extern WARN_UNUSED size_t stress_sig_stack_size(void);

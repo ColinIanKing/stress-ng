@@ -60,6 +60,7 @@ static const stress_help_t help[] = {
 	{ NULL, "rawpkt N",		"start N workers exercising raw packets" },
 	{ NULL,	"rawpkt-ops N",		"stop after N raw packet bogo operations" },
 	{ NULL,	"rawpkt-port P",	"use raw packet ports P to P + number of workers - 1" },
+	{ NULL, "rawpkt-rxring N", "setup raw packets with RX ring with N number of blocks. It will select TPACKET_V3"},
 	{ NULL,	NULL,			NULL }
 };
 
@@ -92,8 +93,21 @@ static int stress_set_port(const char *opt)
 	return stress_set_setting("rawpkt-port", TYPE_ID_INT, &port);
 }
 
+/*
+ *  stress_set_rawpkt_rxring()
+ *  set RX ring to use
+ */
+static int stress_set_rxring(const char *opt)
+{
+	const uint64_t val = stress_get_uint64(opt);
+
+	stress_check_power_of_2("rawpkt-rxring", val, (uint64_t)1, (uint64_t)16);
+	return stress_set_setting("rawpkt-blocknr", TYPE_ID_INT, &val);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_rawpkt_port,	stress_set_port },
+	{ OPT_rawpkt_rxring,stress_set_rxring },
 	{ 0,			NULL }
 };
 
@@ -342,7 +356,8 @@ err:
 static int OPTIMIZE3 stress_rawpkt_server(
 	const stress_args_t *args,
 	struct ifreq *ifaddr,
-	const int port)
+	const int port,
+	const int blocknr)
 {
 	int fd;
 	int rc = EXIT_SUCCESS;
@@ -356,6 +371,8 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	uint64_t all_pkts = 0;
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
 	double t_start, duration, bytes = 0.0, rate;
+	struct tpacket_req3 tp;
+	int val;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -366,6 +383,25 @@ static int OPTIMIZE3 stress_rawpkt_server(
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die;
+	}
+
+	if (blocknr) {
+		val = TPACKET_V3;
+		if (setsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, sizeof(val)) < 0) {
+			rc = stress_exit_status(errno);
+			pr_fail("%s: setsockopt failed to set packet version, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto die;
+		}
+		tp.tp_block_size = getpagesize();
+		tp.tp_block_nr = blocknr;
+		tp.tp_frame_size = getpagesize() / blocknr;
+		tp.tp_frame_nr = tp.tp_block_size / tp.tp_frame_size * blocknr;
+
+		if (setsockopt(fd, SOL_PACKET, PACKET_RX_RING, (void*) &tp, sizeof(tp)) < 0) {
+			rc = stress_exit_status(errno);
+			pr_fail("%s: setsockopt failed to set rx ring, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto die;
+		}
 	}
 
 	t_start = stress_time_now();
@@ -422,8 +458,10 @@ static int stress_rawpkt(const stress_args_t *args)
 	int rawpkt_port = DEFAULT_RAWPKT_PORT;
 	int fd, rc = EXIT_FAILURE;
 	struct ifreq hwaddr, ifaddr, idx;
+	int rawpkt_blocknr = 0;
 
 	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
+	(void)stress_get_setting("rawpkt-blocknr", &rawpkt_blocknr);
 
 	rawpkt_port += args->instance;
 
@@ -484,7 +522,7 @@ again:
 	} else {
 		int status;
 
-		rc = stress_rawpkt_server(args, &ifaddr, rawpkt_port);
+		rc = stress_rawpkt_server(args, &ifaddr, rawpkt_port, rawpkt_blocknr);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
