@@ -838,6 +838,7 @@ static const struct option long_options[] = {
 	{ "rawpkt",		1,	0,	OPT_rawpkt },
 	{ "rawpkt-ops",		1,	0,	OPT_rawpkt_ops },
 	{ "rawpkt-port",	1,	0,	OPT_rawpkt_port },
+	{ "rawpkt-rxring",	1,	0,	OPT_rawpkt_rxring },
 	{ "rawsock",		1,	0,	OPT_rawsock },
 	{ "rawsock-ops",	1,	0,	OPT_rawsock_ops },
 	{ "rawsock-port",	1,	0,	OPT_rawsock_port },
