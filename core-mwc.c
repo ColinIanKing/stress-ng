@@ -28,28 +28,51 @@
 #include <utime.h>
 #endif
 
+#define STRESS_USE_MWC_32
+
 /* MWC random number initial seed */
-#define STRESS_MWC_SEED_Z	(362436069UL)
 #define STRESS_MWC_SEED_W	(521288629UL)
+#define STRESS_MWC_SEED_Z	(362436069UL)
 
 /* Fast random number generator state */
 typedef struct {
+#if defined(STRESS_USE_MWC_32)
 	uint32_t w;
 	uint32_t z;
+#else
+	uint64_t state;
+#endif
+	uint32_t n16;
+	uint32_t saved16;
+	uint32_t n8;
+	uint32_t saved8;
+	uint32_t n1;
+	uint32_t saved1;
 } stress_mwc_t;
 
 static stress_mwc_t mwc = {
+#if defined(STRESS_USE_MWC_32)
 	STRESS_MWC_SEED_W,
-	STRESS_MWC_SEED_Z
+	STRESS_MWC_SEED_Z,
+#else
+	((uint64_t)STRESS_MWC_SEED_W << 32) | (STRESS_MWC_SEED_Z),
+#endif
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
 };
-
-static uint8_t mwc_n1, mwc_n8, mwc_n16;
 
 static inline void mwc_flush(void)
 {
-	mwc_n1 = 0;
-	mwc_n8 = 0;
-	mwc_n16 = 0;
+	mwc.n16 = 0;
+	mwc.n8 = 0;
+	mwc.n1 = 0;
+	mwc.saved16 = 0;
+	mwc.saved8 = 0;
+	mwc.saved1 = 0;
 }
 
 #if defined(HAVE_SYS_AUXV_H) && \
@@ -93,8 +116,12 @@ void stress_mwc_reseed(void)
 		uint64_t seed;
 
 		if (stress_get_setting("seed", &seed)) {
+#if defined(STRESS_USE_MWC_32)
 			mwc.z = seed >> 32;
 			mwc.w = seed & 0xffffffff;
+#else
+			mwc.state = seed;
+#endif
 			mwc_flush();
 			return;
 		} else {
@@ -103,35 +130,71 @@ void stress_mwc_reseed(void)
 		}
 	}
 	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
+#if defined(STRESS_USE_MWC_32)
 		mwc.w = STRESS_MWC_SEED_W;
 		mwc.z = STRESS_MWC_SEED_Z;
+#else
+		mwc.state = ((uint64_t)STRESS_MWC_SEED_W << 32) | (STRESS_MWC_SEED_Z);
+#endif
 	} else {
 		struct timeval tv;
 		struct rusage r;
 		double m1, m5, m15;
 		int i, n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
-		const intptr_t p1 = (intptr_t)&mwc.z;
+		const intptr_t p1 = (intptr_t)&mwc;
 		const intptr_t p2 = (intptr_t)&tv;
 
+#if defined(STRESS_USE_MWC_32)
 		mwc.z = aux_rnd >> 32;
 		mwc.w = aux_rnd & 0xffffffff;
+#else
+		mwc.state = aux_rnd;
+#endif
 		if (gettimeofday(&tv, NULL) == 0)
+#if defined(STRESS_USE_MWC_32)
 			mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+#else
+			mwc.state ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+#endif
+#if defined(STRESS_USE_MWC_32)
 		mwc.z += ~(p1 - p2);
-		mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+		mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid() << 12;
+#else
+		mwc.state += ~(p1 - p2);
+		mwc.state += (uint64_t)getpid() ^ (uint64_t)getppid() << 12;
+#endif
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
+#if defined(STRESS_USE_MWC_32)
 			mwc.z += (uint64_t)(128.0 * (m1 + m15));
 			mwc.w += (uint64_t)(256.0 * (m5));
+#else
+			mwc.state += (128.0 * (m1 + m15));
+			mwc.state += ((uint64_t)(256.0 * (m5))) << 32;
+#endif
 		}
 		if (getrusage(RUSAGE_SELF, &r) == 0) {
+#if defined(STRESS_USE_MWC_32)
 			mwc.z += r.ru_utime.tv_usec;
 			mwc.w += r.ru_utime.tv_sec;
+#else
+			mwc.state += r.ru_utime.tv_usec;
+			mwc.state += (uint64_t)r.ru_utime.tv_sec << 32;
+#endif
 		}
+#if defined(STRESS_USE_MWC_32)
 		mwc.z ^= stress_get_cpu();
 		mwc.w ^= stress_get_phys_mem_size();
+#else
+		mwc.state ^= stress_get_cpu();
+		mwc.state ^= stress_get_phys_mem_size();
+#endif
 
+#if defined(STRESS_USE_MWC_32)
 		n = (int)mwc.z % 1733;
+#else
+		n = (int)(mwc.state & 0xffffffff) % 1733;
+#endif
 		for (i = 0; i < n; i++) {
 			(void)stress_mwc32();
 		}
@@ -145,9 +208,12 @@ void stress_mwc_reseed(void)
  */
 void stress_mwc_set_seed(const uint32_t w, const uint32_t z)
 {
+#if defined(STRESS_USE_MWC_32)
 	mwc.w = w;
 	mwc.z = z;
-
+#else
+	mwc.state = ((uint64_t)w << 32) | z;
+#endif
 	mwc_flush();
 }
 
@@ -157,8 +223,13 @@ void stress_mwc_set_seed(const uint32_t w, const uint32_t z)
  */
 void stress_mwc_get_seed(uint32_t *w, uint32_t *z)
 {
+#if defined(STRESS_USE_MWC_32)
 	*w = mwc.w;
 	*z = mwc.z;
+#else
+	*w = mwc.state >> 32;
+	*z = mwc.state & 0xffffffff;
+#endif
 }
 
 /*
@@ -170,18 +241,38 @@ void stress_mwc_seed(void)
 	stress_mwc_set_seed(STRESS_MWC_SEED_W, STRESS_MWC_SEED_Z);
 }
 
+
+#if defined(STRESS_USE_MWC_32)
 /*
  *  stress_mwc32()
  *      Multiply-with-carry random numbers
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-HOT OPTIMIZE3 uint32_t stress_mwc32(void)
+HOT OPTIMIZE3 inline uint32_t stress_mwc32(void)
 {
 	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
 	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
+
 	return (mwc.z << 16) + mwc.w;
 }
+#else
+/*
+ *  stress_mwc32()
+ *      Multiply-with-carry random numbers
+ *      fast pseudo random number generator, using 64 bit
+ *	multiply
+ */
+HOT OPTIMIZE3 uint32_t stress_mwc32(void)
+{
+	register uint32_t c = (mwc.state) >> 32;
+	register uint32_t x = (uint32_t)(mwc.state);
+	register uint32_t r = x ^ c;
+
+	mwc.state = x * ((uint64_t)4294883355UL) + c;
+	return r;
+}
+#endif
 
 /*
  *  stress_mwc64()
@@ -198,16 +289,14 @@ HOT OPTIMIZE3 uint64_t stress_mwc64(void)
  */
 HOT OPTIMIZE3 uint16_t stress_mwc16(void)
 {
-	static uint32_t mwc_saved;
-
-	if (LIKELY(mwc_n16)) {
-		mwc_n16--;
-		mwc_saved >>= 16;
+	if (LIKELY(mwc.n16)) {
+		mwc.n16--;
+		mwc.saved16 >>= 16;
 	} else {
-		mwc_n16 = 1;
-		mwc_saved = stress_mwc32();
+		mwc.n16 = 1;
+		mwc.saved16 = stress_mwc32();
 	}
-	return mwc_saved & 0xffff;
+	return mwc.saved16 & 0xffff;
 }
 
 /*
@@ -216,16 +305,14 @@ HOT OPTIMIZE3 uint16_t stress_mwc16(void)
  */
 HOT OPTIMIZE3 uint8_t stress_mwc8(void)
 {
-	static uint32_t mwc_saved;
-
-	if (LIKELY(mwc_n8)) {
-		mwc_n8--;
-		mwc_saved >>= 8;
+	if (LIKELY(mwc.n8)) {
+		mwc.n8--;
+		mwc.saved8 >>= 8;
 	} else {
-		mwc_n8 = 3;
-		mwc_saved = stress_mwc32();
+		mwc.n8 = 3;
+		mwc.saved8 = stress_mwc32();
 	}
-	return mwc_saved & 0xff;
+	return mwc.saved8 & 0xff;
 }
 
 /*
@@ -234,16 +321,14 @@ HOT OPTIMIZE3 uint8_t stress_mwc8(void)
  */
 HOT OPTIMIZE3 uint8_t stress_mwc1(void)
 {
-	static uint32_t mwc_saved;
-
-	if (LIKELY(mwc_n1)) {
-		mwc_n1--;
-		mwc_saved >>= 1;
+	if (LIKELY(mwc.n1)) {
+		mwc.n1--;
+		mwc.saved1 >>= 1;
 	} else {
-		mwc_n1 = 31;
-		mwc_saved = stress_mwc32();
+		mwc.n1 = 31;
+		mwc.saved1 = stress_mwc32();
 	}
-	return mwc_saved & 0x1;
+	return mwc.saved1 & 0x1;
 }
 
 /*
