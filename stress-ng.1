@@ -4188,6 +4188,10 @@ stop rawpkt workers after N packets from the sender process are received.
 start at port P. For N rawpkt worker processes, ports P to (P * 4) - 1
 are used. The default starting port is port 14000.
 .TP
+.B \-\-rawpkt\-rxring N
+setup raw packets with RX ring with N number of blocks, this selects TPACKET_V. N must
+be one of 1, 2, 4, 8 or 16.
+.TP
 .B \-\-rawudp N
 start N workers that send and receive UDP packets using raw sockets on the
 localhost. Requires CAP_NET_RAW to run.
