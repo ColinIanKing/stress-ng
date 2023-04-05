@@ -57,6 +57,8 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	size_t size = 0;
 	uint8_t *last_ptr_end = NULL;
 	double duration = 0.0, count = 0.0, rate;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
 
 	(void)context;
 
@@ -89,12 +91,12 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			goto finish;
 
 		/* Low memory avoidance, re-start */
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory((size_t)bigheap_growth)) {
+		if (oom_avoid && stress_low_memory((size_t)bigheap_growth)) {
 			free(old_ptr);
 #if defined(HAVE_MALLOC_TRIM)
 			(void)malloc_trim(0);
 #endif
-			old_ptr = 0;
+			old_ptr = NULL;
 			size = 0;
 		}
 		size += (size_t)bigheap_growth;
@@ -131,7 +133,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 				*u8ptr = (uint8_t)i;
 			}
 
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (verify) {
 				for (i = 0; i < n; i += stride, tmp += stride) {
 					if (!keep_stressing(args))
 						goto finish;
