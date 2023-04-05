@@ -60,7 +60,7 @@ static const stress_help_t help[] = {
 	{ NULL, "rawpkt N",		"start N workers exercising raw packets" },
 	{ NULL,	"rawpkt-ops N",		"stop after N raw packet bogo operations" },
 	{ NULL,	"rawpkt-port P",	"use raw packet ports P to P + number of workers - 1" },
-	{ NULL, "rawpkt-rxring N", "setup raw packets with RX ring with N number of blocks. It will select TPACKET_V3"},
+	{ NULL, "rawpkt-rxring N",	"setup raw packets with RX ring with N number of blocks, this selects TPACKET_V3"},
 	{ NULL,	NULL,			NULL }
 };
 
@@ -100,14 +100,16 @@ static int stress_set_port(const char *opt)
 static int stress_set_rxring(const char *opt)
 {
 	const uint64_t val = stress_get_uint64(opt);
+	int ival;
 
 	stress_check_power_of_2("rawpkt-rxring", val, (uint64_t)1, (uint64_t)16);
-	return stress_set_setting("rawpkt-blocknr", TYPE_ID_INT, &val);
+	ival = (int)val;
+	return stress_set_setting("rawpkt-rxring", TYPE_ID_INT, &ival);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_rawpkt_port,	stress_set_port },
-	{ OPT_rawpkt_rxring,stress_set_rxring },
+	{ OPT_rawpkt_rxring,	stress_set_rxring },
 	{ 0,			NULL }
 };
 
@@ -458,10 +460,10 @@ static int stress_rawpkt(const stress_args_t *args)
 	int rawpkt_port = DEFAULT_RAWPKT_PORT;
 	int fd, rc = EXIT_FAILURE;
 	struct ifreq hwaddr, ifaddr, idx;
-	int rawpkt_blocknr = 0;
+	int rawpkt_rxring = 0;
 
 	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
-	(void)stress_get_setting("rawpkt-blocknr", &rawpkt_blocknr);
+	(void)stress_get_setting("rawpkt-rxring", &rawpkt_rxring);
 
 	rawpkt_port += args->instance;
 
@@ -522,7 +524,7 @@ again:
 	} else {
 		int status;
 
-		rc = stress_rawpkt_server(args, &ifaddr, rawpkt_port, rawpkt_blocknr);
+		rc = stress_rawpkt_server(args, &ifaddr, rawpkt_port, rawpkt_rxring);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
