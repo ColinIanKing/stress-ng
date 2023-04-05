@@ -21,6 +21,11 @@
 #include "core-pragma.h"
 #include "core-cpu-cache.h"
 
+#if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
+    !defined(__ILP32__)
+#define USE_ASM_X86_REP_STOSQ
+#endif
+
 /*
  *  stress_mmap_set()
  *	set mmap'd data, touching pages in
@@ -35,24 +40,22 @@ void OPTIMIZE3 stress_mmap_set(
 	register uint64_t val = stress_mwc64();
 	register uint64_t *ptr = (uint64_t *)buf;
 	register uint64_t *end = (uint64_t *)(buf + sz);
-#if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
-    !defined(__ILP32__)
+#if defined(USE_ASM_X86_REP_STOSQ)
         register const uint32_t loops = page_size / sizeof(uint64_t);
 #endif
 
 	while (ptr < end) {
+#if !defined(USE_ASM_X86_REP_STOSQ)
 		register uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
+#endif
 
 		if (!keep_stressing_flag())
 			break;
 
-		page_end = STRESS_MINIMUM(end, page_end);
-
 		/*
 		 *  ..and fill a page with uint64_t values
 		 */
-#if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
-    !defined(__ILP32__)
+#if defined(USE_ASM_X86_REP_STOSQ)
         __asm__ __volatile__(
                 "mov %0,%%rax\n;"
                 "mov %1,%%rdi\n;"
@@ -65,6 +68,8 @@ void OPTIMIZE3 stress_mmap_set(
                 : "ecx","rdi","rax");
 		ptr += loops;
 #else
+		page_end = STRESS_MINIMUM(end, page_end);
+
 		while (ptr < page_end) {
 			ptr[0x00] = val;
 			ptr[0x01] = val;
