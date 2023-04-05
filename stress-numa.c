@@ -205,7 +205,7 @@ static long stress_numa_get_mem_nodes(
 	return n;
 }
 
-static void stress_set_numa_array(void *array, uint8_t val, size_t nmemb, size_t size)
+static inline void stress_set_numa_array(void *array, uint8_t val, size_t nmemb, size_t size)
 {
 	const size_t n = nmemb * size;
 
@@ -227,6 +227,7 @@ static int stress_numa(const stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 	int *status, *dest_nodes;
+	void **pages;
 	size_t mask_elements;
 	unsigned long *node_mask, *old_node_mask;
 
@@ -273,6 +274,13 @@ static int stress_numa(const stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto status_free;
 	}
+	pages = (void **)calloc(num_pages, sizeof(*pages));
+	if (!pages) {
+		pr_inf_skip("%s: cannot allocate pages array of %lu elements, skipping stressor\n",
+			args->name, num_pages);
+		rc = EXIT_NO_RESOURCE;
+		goto dest_nodes_free;
+	}
 
 	/*
 	 *  We need a buffer to migrate around NUMA nodes
@@ -283,7 +291,7 @@ static int stress_numa(const stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_fail("%s: mmap'd region of %zu bytes failed\n",
 			args->name, (size_t)MMAP_SZ);
-		goto dest_nodes_free;
+		goto pages_free;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -292,7 +300,6 @@ static int stress_numa(const stress_args_t *args)
 		int j, mode, ret;
 		long lret;
 		unsigned long i;
-		void *pages[num_pages];
 		uint8_t *ptr;
 		stress_node_t *n_tmp;
 		unsigned cpu, curr_node;
@@ -305,7 +312,7 @@ static int stress_numa(const stress_args_t *args)
 		 */
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 					 buf, MPOL_F_ADDR);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: get_mempolicy failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -333,7 +340,7 @@ static int stress_numa(const stress_args_t *args)
 			break;
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_mempolicy failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -434,7 +441,7 @@ static int stress_numa(const stress_args_t *args)
 		STRESS_SETBIT(node_mask, n->node_id);
 		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
-		if (lret < 0) {
+		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -453,7 +460,7 @@ static int stress_numa(const stress_args_t *args)
 		STRESS_SETBIT(node_mask, n->node_id);
 		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_DEFAULT);
-		if (lret < 0) {
+		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -543,7 +550,7 @@ static int stress_numa(const stress_args_t *args)
 			stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
 			lret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
-			if (lret < 0) {
+			if (UNLIKELY(lret < 0)) {
 				if (errno != ENOSYS) {
 					pr_fail("%s: move_pages failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -606,6 +613,8 @@ err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(buf, MMAP_SZ);
 
+pages_free:
+	free(pages);
 dest_nodes_free:
 	free(dest_nodes);
 status_free:
