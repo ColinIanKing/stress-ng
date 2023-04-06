@@ -25,6 +25,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
+	{ NULL,	"itimer-freq F","set the itimer frequency, limited by jiffy clock rate" },
 	{ NULL,	"itimer-ops N",	"stop after N interval timer bogo operations" },
 	{ NULL,	"itimer-rand",	"enable random interval timer frequency" },
 	{ NULL, NULL,		NULL }
