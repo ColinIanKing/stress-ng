@@ -781,7 +781,6 @@ extern void pr_lock_exited(const pid_t pid);
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
-#define STR_SHARED_SIZE		(65536 * 32)
 #define MEM_CACHE_SIZE		(65536 * 32)
 #define DEFAULT_CACHE_LEVEL     (3)
 #define UNDEFINED		(-1)
@@ -971,7 +970,6 @@ typedef struct {
 		double start_time ALIGNED(8);		/* Time to complete operation */
 		uint32_t value;				/* Dummy value to operate on */
 	} syncload;
-	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_checksum_t *checksums;			/* per stressor counter checksum */
 	size_t	checksums_length;			/* size of checksums mapping */
 	struct {

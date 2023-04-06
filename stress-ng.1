@@ -3001,9 +3001,9 @@ start N workers that exercise the membarrier system call (Linux only).
 stop membarrier stress workers after N bogo membarrier operations.
 .TP
 .B \-\-memcpy N
-start N workers that copy 2MB of data from a shared region to a buffer using
+start N workers that copies data to and from a buffer using
 memcpy(3) and then move the data in the buffer with memmove(3) with 3
-different alignments. This will exercise processor cache and system memory.
+different alignments. This will exercise the data cache and memory copying.
 .TP
 .B \-\-memcpy\-ops N
 stop memcpy stress workers after N bogo memcpy operations.
