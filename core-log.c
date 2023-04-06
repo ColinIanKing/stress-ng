@@ -35,6 +35,21 @@ static inline FILE *pr_file(void)
 	return (g_opt_flags & OPT_FLAGS_STDOUT) ? stdout : stderr;
 }
 
+/*
+ *  pr_log_file_flush()
+ *	ensure log data is flushed as much as possible
+ */
+static void pr_log_file_flush(void)
+{
+
+	if (log_file) {
+		const int fd = fileno(log_file);
+
+		(void)fflush(log_file);
+		if (fd >= 0)
+			shim_fsync(fd);
+	}
+}
 
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
     defined(HAVE_ATOMIC_STORE)
@@ -402,7 +417,7 @@ static int pr_msg(
 			size_t n = (size_t)vsnprintf(buf, sizeof(buf), fmt, ap);
 			if (log_file) {
 				VOID_RET(size_t, fwrite(buf, 1, n, log_file));
-				(void)fflush(log_file);
+				pr_log_file_flush();
 			}
 			VOID_RET(size_t, fwrite(buf, 1, n, fp));
 		} else {
@@ -412,7 +427,7 @@ static int pr_msg(
 			(void)fprintf(fp, "%s: %s", g_app_name, buf);
 			if (log_file) {
 				(void)fprintf(log_file, "%s: %s", g_app_name, buf);
-				(void)fflush(log_file);
+				pr_log_file_flush();
 			}
 		}
 		(void)fflush(fp);
