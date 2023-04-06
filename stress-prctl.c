@@ -931,7 +931,7 @@ static int stress_prctl_child(
 		flag = prctl(PR_GET_MEMORY_MERGE, 0, 0, 0, 0);
 #if defined(PR_SET_MEMORY_MERGE)
 		if (flag >= 0)
-			flag = prctl(PR_SET_MEMORY_MERGE, 0, 0, 0, 0)
+			flag = prctl(PR_SET_MEMORY_MERGE, 0, 0, 0, 0);
 #endif
 		(void)flag;
 	}
