@@ -392,7 +392,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 		if (setsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, sizeof(val)) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: setsockopt failed to set packet version, errno=%d (%s)\n", args->name, errno, strerror(errno));
-			goto die;
+			goto close_fd;
 		}
 		tp.tp_block_size = getpagesize();
 		tp.tp_block_nr = blocknr;
@@ -402,7 +402,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 		if (setsockopt(fd, SOL_PACKET, PACKET_RX_RING, (void*) &tp, sizeof(tp)) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: setsockopt failed to set rx ring, errno=%d (%s)\n", args->name, errno, strerror(errno));
-			goto die;
+			goto close_fd;
 		}
 	}
 
@@ -436,6 +436,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
 
 	stress_rawpkt_sockopts(fd);
+close_fd:
 	(void)close(fd);
 die:
 	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, get_counter(args), all_pkts);
