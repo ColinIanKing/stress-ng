@@ -28,10 +28,7 @@
 #include <utime.h>
 #endif
 
-/*
- * Enable USE_MWC_32 for slower systems w/o 64 bit multiply
 #define STRESS_USE_MWC_32
- */
 
 /* MWC random number initial seed */
 #define STRESS_MWC_SEED_W	(521288629UL)
