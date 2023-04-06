@@ -252,13 +252,13 @@ static int stress_watchdog(const stress_args_t *args)
 
 stressor_info_t stress_watchdog_info = {
 	.stressor = stress_watchdog,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help
 };
 #else
 stressor_info_t stress_watchdog_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help,
 	.unimplemented_reason = "built without linux/watchdog.h"
 };
