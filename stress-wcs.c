@@ -75,7 +75,7 @@ static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 		L'a', L'b', L'c', L'd', L'e', L'f', L'g', L'h',
 		L'i', L'j', L'k', L'l', L'm', L'n', L'o', L'p',
 		L'q', L'r', L's', L't', L'u', L'v', L'w', L'x',
-		L'y', L'z', L'_', L'+', L'!', L'#', L'*', L'+',
+		L'y', L'z', L'~', L'+', L'!', L'#', L'*', L'+',
 	};
 
 	for (i = 0; i < (len - 1); i++) {
