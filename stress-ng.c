@@ -2629,7 +2629,9 @@ static void stress_exit_status_type(const char *name, const size_t type)
 			char *new_str;
 			size_t buf_len;
 
-			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")", ss->stressor->name, ss->status[type]);
+			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")",
+				stress_munge_underscore(ss->stressor->name),
+				ss->status[type]);
 			buf_len = strlen(buf);
 			new_str = realloc(str, str_len + buf_len);
 			if (!new_str) {
