@@ -373,8 +373,6 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	uint64_t all_pkts = 0;
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
 	double t_start, duration, bytes = 0.0, rate;
-	struct tpacket_req3 tp;
-	int val;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -387,13 +385,18 @@ static int OPTIMIZE3 stress_rawpkt_server(
 		goto die;
 	}
 
+#if defined(PACKET_RX_RING) &&	\
+    defined(PACKET_VERSION)
 	if (blocknr) {
-		val = TPACKET_V3;
+		struct tpacket_req3 tp;
+		int val = TPACKET_V3;
+
 		if (setsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, sizeof(val)) < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: setsockopt failed to set packet version, errno=%d (%s)\n", args->name, errno, strerror(errno));
 			goto close_fd;
 		}
+		(void)memset(&tp, 0, sizeof(tp));
 		tp.tp_block_size = getpagesize();
 		tp.tp_block_nr = blocknr;
 		tp.tp_frame_size = getpagesize() / blocknr;
@@ -405,6 +408,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 			goto close_fd;
 		}
 	}
+#endif
 
 	t_start = stress_time_now();
 	do {
