@@ -191,7 +191,7 @@ static inline int stress_asm_x86_tpause__(int state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
 
-	asm volatile(
+	__asm__ __volatile__(
 		"mov %1, %%edx;\n"
 		"mov %2, %%eax;\n"
 		"mov %3, %%edi;\n"
@@ -288,7 +288,7 @@ static inline int stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
 
-	asm volatile(
+	__asm__ __volatile__(
 		"mov %1, %%edx;\n"
 		"mov %2, %%eax;\n"
 		"mov %3, %%edi;\n"
@@ -310,7 +310,7 @@ static inline int stress_asm_x86_umwait(const int state, const uint64_t delay)
 
 static inline void stress_asm_x86_umonitor(void *addr)
 {
-	asm volatile("mov %0, %%rdi\t\n"
+	__asm__ __volatile__("mov %0, %%rdi\t\n"
 		     ".byte 0xf3, 0x0f, 0xae, 0xf7\t\n"
 		     : : "r" (addr));
 }
