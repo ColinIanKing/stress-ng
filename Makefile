@@ -669,6 +669,10 @@ lite-test: all
 slow-test-all: all
 	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics --klog-check
 
+.PHONY: verify-test-all
+verify-test-all: all
+	./stress-ng --seq 0 -t 10 --pathological --verbose --times --tz --metrics --klog-check --verify
+
 .PHONY: tags
 tags:
 	ctags -R --extra=+f --c-kinds=+p *
