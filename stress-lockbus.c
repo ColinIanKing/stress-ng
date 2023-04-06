@@ -68,9 +68,9 @@ do {							\
 #else
 #define MEM_LOCK(ptr, inc)				\
 do {							\
-	asm volatile("lock addl %1,%0" :		\
-		     "+m" (*ptr) :			\
-		     "ir" (inc));			\
+	__asm__ __volatile__("lock addl %1,%0" :	\
+			     "+m" (*ptr) :		\
+			     "ir" (inc));		\
 } while (0)
 #endif
 
