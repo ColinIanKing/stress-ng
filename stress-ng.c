@@ -1985,6 +1985,7 @@ static void stress_wait_aggressive(stress_stressor_t *stressors_list)
  *	wait for a stressor by their given pid
  */
 static void stress_wait_pid(
+	stress_stressor_t *ss,
 	const pid_t pid,
 	const char *stressor_name,
 	stress_stats_t *stats,
@@ -2037,14 +2038,17 @@ redo:
 		}
 		switch (wexit_status) {
 		case EXIT_SUCCESS:
+			ss->status[STRESS_STRESSOR_STATUS_PASSED]++;
 			break;
 		case EXIT_NO_RESOURCE:
+			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
 			pr_warn_skip("process [%d] (%s) aborted early, out of system resources\n",
 				ret, stressor_name);
 			*resource_success = false;
 			do_abort = true;
 			break;
 		case EXIT_NOT_IMPLEMENTED:
+			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
 			do_abort = true;
 			break;
 			case EXIT_SIGNALED:
@@ -2055,14 +2059,17 @@ redo:
 #endif
 			break;
 		case EXIT_BY_SYS_EXIT:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
 			pr_dbg("process [%d] (%s) aborted via exit() which was not expected\n",
 				ret, stressor_name);
 			do_abort = true;
 			break;
 		case EXIT_METRICS_UNTRUSTWORTHY:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
 			*metrics_success = false;
 			break;
 		case EXIT_FAILURE:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
 			/*
 			 *  Stressors should really return EXIT_NOT_SUCCESS
 			 *  as EXIT_FAILURE should indicate a core stress-ng
@@ -2070,7 +2077,7 @@ redo:
 			 */
 			wexit_status = EXIT_NOT_SUCCESS;
 		CASE_FALLTHROUGH;
-			default:
+		default:
 			pr_err("process [%d] (%s) terminated with an error, exit status=%d (%s)\n",
 				ret, stressor_name, wexit_status,
 				stress_exit_status_to_string(wexit_status));
@@ -2129,7 +2136,7 @@ static void stress_wait_stressors(
 			if (pid) {
 				const char *stressor_name = stress_munge_underscore(ss->stressor->name);
 
-				stress_wait_pid(pid, stressor_name, stats, success, resource_success, metrics_success);
+				stress_wait_pid(ss, pid, stressor_name, stats, success, resource_success, metrics_success);
 				stress_clean_dir(stressor_name, pid, (uint32_t)j);
 			}
 		}
@@ -2597,6 +2604,61 @@ static int stress_show_stressors(void)
 	free(str);
 
 	return 0;
+}
+
+/*
+ *  stress_exit_status_type()
+ *	report exit status of all instances of a given status type
+ */
+static void stress_exit_status_type(const char *name, const size_t type)
+{
+	stress_stressor_t *ss;
+
+	char *str;
+	size_t str_len = 1;
+	uint32_t n = 0;
+
+	str = malloc(1);
+	if (!str)
+		return;
+	*str = '\0';
+
+	for (ss = stressors_head; ss; ss = ss->next) {
+		if (ss->status[type] > 0) {
+			char buf[64];
+			char *new_str;
+			size_t buf_len;
+
+			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")", ss->stressor->name, ss->status[type]);
+			buf_len = strlen(buf);
+			new_str = realloc(str, str_len + buf_len);
+			if (!new_str) {
+				free(str);
+				return;
+			}
+			str = new_str;
+			str_len += buf_len;
+			shim_strlcat(str, buf, str_len);
+			n += ss->status[type];
+		}
+	}
+	if (n) {
+		pr_inf("%s: %" PRIu32 ":%s\n", name, n, str);
+	} else  {
+		pr_inf("%s: 0\n", name);
+	}
+	free(str);
+}
+
+/*
+ *  stress_exit_status_summary()
+ *	provide summary of exit status of all instances
+ */
+static void stress_exit_status_summary(void)
+{
+	stress_exit_status_type("passed", STRESS_STRESSOR_STATUS_PASSED);
+	stress_exit_status_type("failed", STRESS_STRESSOR_STATUS_FAILED);
+	stress_exit_status_type("skipped", STRESS_STRESSOR_STATUS_SKIPPED);
 }
 
 /*
@@ -4326,6 +4388,8 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump run times
 	 */
 	stress_times_dump(yaml, ticks_per_sec, duration);
+
+	stress_exit_status_summary();
 
 	stress_klog_stop(&success);
 	stress_smart_stop();

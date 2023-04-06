@@ -2307,6 +2307,11 @@ typedef struct {
 	const char *name;		/* name of stress test */
 } stress_t;
 
+#define STRESS_STRESSOR_STATUS_PASSED	(0)
+#define STRESS_STRESSOR_STATUS_FAILED	(1)
+#define STRESS_STRESSOR_STATUS_SKIPPED	(2)
+#define STRESS_STRESSOR_STATUS_MAX	(3)
+
 /* Per stressor information */
 typedef struct stress_stressor_info {
 	struct stress_stressor_info *next;	/* next proc info struct in list */
@@ -2316,7 +2321,10 @@ typedef struct stress_stressor_info {
 	int32_t started_instances;	/* count of started instances */
 	int32_t num_instances;		/* number of instances per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
+	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
+					/* number of instances that passed/failed/skipped */
 } stress_stressor_t;
+
 
 /* Pointer to current running stressor proc info */
 extern stress_stressor_t *g_stressor_current;
