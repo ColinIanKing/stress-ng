@@ -384,8 +384,6 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 #if defined(HAVE_LIB_PTHREAD)
 	keep_thread_running_flag = false;
 	for (j = 0; j < malloc_pthreads; j++) {
-		int ret;
-
 		if (pthreads[j].ret)
 			continue;
 
@@ -396,7 +394,6 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 		}
 	}
 #endif
-
 	return EXIT_SUCCESS;
 }
 
