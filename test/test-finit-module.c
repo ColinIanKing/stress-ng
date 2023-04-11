@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2023 Luis Chamberlain <mcgrof@kernel.org>
+ * Copyright (C)      2023 Luis Chamberlain <mcgrof@kernel.org>
+ * Copyright (C)      2023 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,15 +18,24 @@
  *
  */
 #include <linux/module.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+extern int finit_module(int fd, const char *param_values, int flags);
 
 int main(void)
 {
-	char *module = "hello";
-	int fd, ret;
+	const char *module = "hello";
+	int fd;
 
 	fd = open(module, O_RDONLY | O_CLOEXEC);
-	if (fd > 0)
-		ret = finit_module(fd, finit_args1, kernel_flags);
+	if (fd > 0) {
+		int ret;
+
+		ret = finit_module(fd, "", 0);
+		(void)ret;
+	}
 
 	return 0;
 }
