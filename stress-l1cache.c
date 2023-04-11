@@ -379,7 +379,7 @@ static void OPTIMIZE3 stress_l1cache_random(
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
-	const size_t cache_size = cache_end - cache_end;
+	const size_t cache_size = cache_end - cache_start;
 	const size_t loops = cache_size / l1cache_set_size;
 	register volatile uint8_t *ptr = (volatile uint8_t *)cache_start;
 
@@ -422,7 +422,7 @@ static void OPTIMIZE3 stress_l1cache_random_and_verify(
 	const uint32_t set_offset = set * l1cache_set_size;
 	uint8_t * const cache_start = cache_aligned + set_offset;
 	uint8_t * const cache_end = cache_start + (l1cache_size << 1);
-	const size_t cache_size = cache_end - cache_end;
+	const size_t cache_size = cache_end - cache_start;
 	const size_t loops = cache_size / l1cache_set_size;
 	register volatile uint8_t *ptr = (volatile uint8_t *)cache_start;
 
