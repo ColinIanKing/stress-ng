@@ -109,10 +109,9 @@ static char global_module_path[PATH_MAX];
 static bool isempty(const char *line, const size_t line_len)
 {
 	size_t i = 0;
-	char p;
 
 	while (i < line_len) {
-		p = line[i++];
+		const char p = line[i++];
 
 		/* tab or space */
 		if (!isblank(p))
@@ -125,12 +124,11 @@ static bool isempty(const char *line, const size_t line_len)
 static bool iscomment(const char *line, const size_t line_len)
 {
 	size_t i = 0;
-	char p;
 
 	while (i != line_len) {
-		p = line[i];
-		i++;
+		const char p = line[i];
 
+		i++;
 		/* tab or space */
 		if (isblank(p))
 			continue;
