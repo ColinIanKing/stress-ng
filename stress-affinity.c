@@ -236,7 +236,7 @@ affinity_continue:
 			stress_affinity_spin_delay(info->affinity_delay, info);
 		if (info->affinity_sleep > 0)
 			shim_nanosleep_uint64(info->affinity_sleep);
-	} while (keep_stressing_affinity);
+	} while (keep_stressing(args));
 
 	stress_affinity_reap(pids);
 }
