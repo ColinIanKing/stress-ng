@@ -440,7 +440,10 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
 
 	stress_rawpkt_sockopts(fd);
+#if defined(PACKET_RX_RING) &&	\
+    defined(PACKET_VERSION)
 close_fd:
+#endif
 	(void)close(fd);
 die:
 	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, get_counter(args), all_pkts);
