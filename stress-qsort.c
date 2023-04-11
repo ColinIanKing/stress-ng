@@ -138,8 +138,8 @@ static inline void OPTIMIZE3 qsort_bm_swap(uint8_t *a, uint8_t *b, const size_t 
 static void TARGET_CLONES OPTIMIZE3 qsort_bm(void *base, size_t n, size_t es, comp_func_t cmp)
 {
 	uint8_t *a = (uint8_t *)base;
-	const int swaptype = ((uintptr_t)a | (uintptr_t)es) % sizeof(qsort_swap_type_t) ?
-		2 : es > sizeof(qsort_swap_type_t);
+	const int swaptype = (((uintptr_t)a | (uintptr_t)es) % sizeof(qsort_swap_type_t)) ?
+		2 : (es > sizeof(qsort_swap_type_t));
 	uint8_t *pa, *pb, *pc, *pd, *pm, *pn, *pv;
 	size_t s;
 	qsort_swap_type_t v;
