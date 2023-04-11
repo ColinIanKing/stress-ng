@@ -471,7 +471,8 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			} else {
 				flag = (unsigned int)flag_perms[index];
 				index++;
-				index %= flag_count;
+				if (index >= flag_count)
+					index = 0;
 			}
 
 			if (use_clone3 && try_clone3) {
