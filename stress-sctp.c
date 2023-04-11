@@ -586,7 +586,7 @@ static int OPTIMIZE3 stress_sctp_server(
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (LIKELY(sfd >= 0)) {
 			size_t i;
-			static char patterns[] ALIGN64 =
+			static const char patterns[] ALIGN64 =
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
 			const int c = patterns[index++ & 0x1f];
 
