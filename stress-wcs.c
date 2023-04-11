@@ -712,10 +712,11 @@ static int stress_wcs(const stress_args_t *args)
 	do {
 		register wchar_t *tmpptr;
 		register size_t tmplen;
-		double t;
 
 		stress_wcs_fill(info.str2, info.len2);
 		if (UNLIKELY(metrics_count++ > 1000)) {
+			double t;
+
 			metrics_count = 0;
 			t = stress_time_now();
 			metrics[wcs_method].count += (double)wcs_method_info->func(args, &info);
