@@ -266,7 +266,9 @@ timed_out:
 		{
 			struct semid_ds ds;
 			stress_semun_t s;
+#if defined(GETALL)
 			size_t nsems;
+#endif
 
 			(void)memset(&ds, 0, sizeof(ds));
 
