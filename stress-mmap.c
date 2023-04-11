@@ -708,8 +708,8 @@ cleanup:
 		 *  Step #8, work through all flag permutations
 		 */
 		if ((context->mmap_flag_perms) && (context->mmap_flag_count > 0)) {
-			static int index;
-			const int flag = context->mmap_flag_perms[index];
+			static size_t flag_perms_index;
+			const int flag = context->mmap_flag_perms[flag_perms_index];
 			int tmpfd;
 
 			if (flag & MAP_ANONYMOUS)
@@ -724,8 +724,9 @@ cleanup:
 			}
 			if (tmpfd >= 0)
 				(void)close(tmpfd);
-			index++;
-			index %= context->mmap_flag_count;
+			flag_perms_index++;
+			if (flag_perms_index >= context->mmap_flag_count)
+				flag_perms_index = 0;
 		}
 #if defined(HAVE_MPROTECT)
 		/*
