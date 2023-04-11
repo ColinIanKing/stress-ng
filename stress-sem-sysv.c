@@ -210,7 +210,6 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(const stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
-
 		for (i = 0; i < 1000; i++) {
 			struct sembuf semwait, semsignal;
 
@@ -258,9 +257,9 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(const stress_args_t *args)
 				break;
 			}
 timed_out:
+			inc_counter(args);
 			if (UNLIKELY(!keep_stressing(args)))
 				break;
-			inc_counter(args);
 		}
 #if defined(IPC_STAT)
 		{
@@ -283,7 +282,6 @@ timed_out:
 				UNEXPECTED
 #endif
 			}
-
 #if defined(GETALL)
 			/* Avoid zero array size allocation */
 			nsems = ds.sem_nsems;
@@ -388,6 +386,8 @@ timed_out:
 			VOID_RET(int, semctl(sem_id, ~0, IPC_INFO, &s));
 		}
 #endif
+		if (UNLIKELY(!keep_stressing(args)))
+			break;
 #if defined(GETVAL)
 		VOID_RET(int, semctl(sem_id, 0, GETVAL, 0));
 
@@ -464,6 +464,8 @@ timed_out:
 			timeout.tv_sec = 0;
 			timeout.tv_nsec = 10000;
 			VOID_RET(int, semtimedop(sem_id, &semwait, (size_t)-1, &timeout));
+			if (UNLIKELY(!keep_stressing(args)))
+				break;
 		}
 #else
 		UNEXPECTED
@@ -508,7 +510,7 @@ timed_out:
     defined(HAVE_SYSCALL)
 		(void)syscall(__NR_semctl, sem_id, 0, INT_MAX, 0);
 #endif
-	} while ((rc == EXIT_SUCCESS)  && keep_stressing(args));
+	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
 	if (rc == EXIT_FAILURE)
 		(void)kill(getppid(), SIGALRM);
@@ -583,7 +585,7 @@ reap:
 
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)
-			(void)stress_killpid(pids[i]);
+			(void)kill(pids[i], SIGALRM);
 	}
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0) {
