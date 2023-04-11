@@ -669,7 +669,6 @@ void stress_resources_free(
 
 #if defined(HAVE_SEM_SYSV)
 		if (resources[i].sem_id >= 0) {
-			pr_inf("semctl IPC_RMID %d %d\n", i, resources[i].sem_id);
 			(void)semctl(resources[i].sem_id, 0, IPC_RMID);
 			resources[i].sem_id = -1;
 		}
