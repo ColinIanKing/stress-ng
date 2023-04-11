@@ -436,7 +436,8 @@ size_t stress_resources_allocate(
 #if defined(HAVE_SEM_SYSV) &&	\
     defined(HAVE_KEY_T)
 		{
-			const key_t sem_key = (key_t)stress_mwc32();
+			/* Use even key so it won't clash with odd global sem key */
+			const key_t sem_key = (key_t)stress_mwc32() & ~(key_t)1;
 
 			resources[i].sem_id = semget(sem_key, 1,
 				IPC_CREAT | S_IRUSR | S_IWUSR);
@@ -511,7 +512,6 @@ size_t stress_resources_allocate(
 		}
 	}
 
-
 	return STRESS_MINIMUM(num_resources, n);
 }
 
@@ -531,67 +531,99 @@ void stress_resources_free(
 	(void)page_size;
 
 	for (i = 0; i < num_resources; i++) {
-		if (resources[i].m_malloc)
+		if (resources[i].m_malloc) {
 			free(resources[i].m_malloc);
+			resources[i].m_malloc = NULL;
+		}
 		if (resources[i].m_mmap && (resources[i].m_mmap != MAP_FAILED)) {
 			(void)shim_munlock(resources[i].m_mmap, resources[i].m_mmap_size);
 			(void)munmap(resources[i].m_mmap, resources[i].m_mmap_size);
+			resources[i].m_mmap = MAP_FAILED;
 		}
 		if (resources[i].pipe_ret != -1) {
 			(void)close(resources[i].fd_pipe[0]);
 			(void)close(resources[i].fd_pipe[1]);
+			resources[i].fd_pipe[0] = -1;
+			resources[i].fd_pipe[1] = -1;
 		}
-		if (resources[i].fd_open != -1)
+		if (resources[i].fd_open != -1) {
 			(void)close(resources[i].fd_open);
+			resources[i].fd_open = -1;
+		}
 #if defined(HAVE_EVENTFD)
-		if (resources[i].fd_ev != -1)
+		if (resources[i].fd_ev != -1) {
 			(void)close(resources[i].fd_ev);
+			resources[i].fd_ev = -1;
+		}
 #endif
 #if defined(HAVE_MEMFD_CREATE)
-		if (resources[i].fd_memfd != -1)
+		if (resources[i].fd_memfd != -1) {
 			(void)close(resources[i].fd_memfd);
-		if (resources[i].ptr_memfd)
+			resources[i].fd_memfd = -1;
+		}
+		if (resources[i].ptr_memfd) {
 			(void)munmap(resources[i].ptr_memfd, page_size);
+			resources[i].ptr_memfd = MAP_FAILED;
+		}
 #endif
 #if defined(__NR_memfd_secret)
-		if (resources[i].fd_memfd_secret != -1)
+		if (resources[i].fd_memfd_secret != -1) {
 			(void)close(resources[i].fd_memfd_secret);
-		if (resources[i].ptr_memfd_secret)
+			resources[i].fd_memfd_secret = -1;
+		}
+		if (resources[i].ptr_memfd_secret) {
 			(void)munmap(resources[i].ptr_memfd_secret, page_size);
+			resources[i].ptr_memfd_secret = NULL;
+		}
 #endif
-		if (resources[i].fd_sock != -1)
+		if (resources[i].fd_sock != -1) {
 			(void)close(resources[i].fd_sock);
-		if (resources[i].fd_socketpair[0] != -1)
+			resources[i].fd_sock = -1;
+		}
+		if (resources[i].fd_socketpair[0] != -1) {
 			(void)close(resources[i].fd_socketpair[0]);
-		if (resources[i].fd_socketpair[1] != -1)
+			resources[i].fd_socketpair[0] = -1;
+		}
+		if (resources[i].fd_socketpair[1] != -1) {
 			(void)close(resources[i].fd_socketpair[1]);
+			resources[i].fd_socketpair[1] = -1;
+		}
 
 #if defined(HAVE_USERFAULTFD)
-		if (resources[i].fd_uf != -1)
+		if (resources[i].fd_uf != -1) {
 			(void)close(resources[i].fd_uf);
+			resources[i].fd_uf = -1;
+		}
 #endif
 
 #if defined(O_TMPFILE)
-		if (resources[i].fd_tmp != -1)
+		if (resources[i].fd_tmp != -1) {
 			(void)close(resources[i].fd_tmp);
+			resources[i].fd_tmp = -1;
+		}
 #endif
 
 #if defined(HAVE_LIB_PTHREAD)
-		if ((!i) && (!resources[i].pthread_ret) && (resources[i].pthread))
+		if ((!i) && (!resources[i].pthread_ret) && (resources[i].pthread)) {
 			(void)pthread_join(resources[i].pthread, NULL);
+			resources[i].pthread = -1;
 #if defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
 			(void)pthread_mutex_destroy(&resources[i].mutex);
+			(void)memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 #endif
+		}
 #endif
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(SIGUNUSED)
-		if ((!i) && (resources[i].timerok))
+		if ((!i) && (resources[i].timerok)) {
 			(void)timer_delete(resources[i].timerid);
+			resources[i].timerok = false;
+		}
 #endif
 
 #if defined(HAVE_SYS_TIMERFD_H) &&	\
@@ -599,65 +631,91 @@ void stress_resources_free(
     defined(HAVE_TIMERFD_GETTIME) &&	\
     defined(HAVE_TIMERFD_SETTIME) &&	\
     defined(CLOCK_REALTIME)
-		if ((!i) && (resources[i].timer_fd != -1))
+		if ((!i) && (resources[i].timer_fd != -1)) {
 			(void)close(resources[i].timer_fd);
+			resources[i].timer_fd = -1;
+		}
 #endif
 
 #if defined(HAVE_SYS_INOTIFY)
-		if (resources[i].wd_inotify != -1)
+		if (resources[i].wd_inotify != -1) {
 			(void)inotify_rm_watch(resources[i].fd_inotify, resources[i].wd_inotify);
-		if (resources[i].fd_inotify != -1)
+			resources[i].wd_inotify = -1;
+		}
+		if (resources[i].fd_inotify != -1) {
 			(void)close(resources[i].fd_inotify);
+			resources[i].fd_inotify = -1;
+		}
 #endif
 
 #if defined(HAVE_PTSNAME)
-		if (resources[i].pty != -1)
+		if (resources[i].pty != -1) {
 			(void)close(resources[i].pty);
-		if (resources[i].pty_mtx != -1)
+			resources[i].pty = -1;
+		}
+		if (resources[i].pty_mtx != -1) {
 			(void)close(resources[i].pty_mtx);
+			resources[i].pty_mtx = -1;
+		}
 #endif
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
-		if (resources[i].semok)
+		if (resources[i].semok) {
 			(void)sem_destroy(&resources[i].sem);
+			resources[i].semok = false;
+		}
 #endif
 
 #if defined(HAVE_SEM_SYSV)
-		if (resources[i].sem_id >= 0)
+		if (resources[i].sem_id >= 0) {
+			pr_inf("semctl IPC_RMID %d %d\n", i, resources[i].sem_id);
 			(void)semctl(resources[i].sem_id, 0, IPC_RMID);
+			resources[i].sem_id = -1;
+		}
 #endif
 
 #if defined(HAVE_MQ_SYSV) &&	\
     defined(HAVE_SYS_IPC_H) &&	\
     defined(HAVE_SYS_MSG_H)
-		if (resources[i].msgq_id >= 0)
+		if (resources[i].msgq_id >= 0) {
 			(void)msgctl(resources[i].msgq_id, IPC_RMID, NULL);
+			resources[i].msgq_id = -1;
+		}
 #endif
 
 #if defined(HAVE_LIB_RT) &&	\
     defined(HAVE_MQ_POSIX) &&	\
     defined(HAVE_MQUEUE_H)
-		if (resources[i].mq >= 0)
+		if (resources[i].mq >= 0) {
 			(void)mq_close(resources[i].mq);
-		if (resources[i].mq_name[0])
+			resources[i].mq = -1;
+		}
+		if (resources[i].mq_name[0]) {
 			(void)mq_unlink(resources[i].mq_name);
+			resources[i].mq_name[0] = '\0';
+		}
 #endif
 #if defined(HAVE_PKEY_ALLOC) &&	\
     defined(HAVE_PKEY_FREE)
-		if (resources[i].pkey > -1)
+		if (resources[i].pkey > -1) {
 			 (void)shim_pkey_free(resources[i].pkey);
+			 resources[i].pkey = -1;
+		}
 #endif
 
 #if defined(HAVE_PIDFD_OPEN)
-		if (resources[i].pid_fd > -1)
+		if (resources[i].pid_fd > -1) {
 			(void)close(resources[i].pid_fd);
+			resources[i].pid_fd = -1;
+		}
 #endif
 		if (resources[i].pid > 0) {
 			int status;
 
 			(void)stress_killpid(resources[i].pid);
 			(void)shim_waitpid(resources[i].pid, &status, 0);
+			resources[i].pid = 0;
 		}
 	}
 }

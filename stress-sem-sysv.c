@@ -92,7 +92,8 @@ static void stress_semaphore_sysv_init(void)
 		(void)semctl(sem_id, 0, IPC_RMID);
 
 	while (count < 100) {
-		g_shared->sem_sysv.key_id = (key_t)stress_mwc16();
+		/* use odd key so it won't clash with even core-resource sem keys */
+		g_shared->sem_sysv.key_id = (key_t)stress_mwc16() | 1;
 		g_shared->sem_sysv.sem_id =
 			semget(g_shared->sem_sysv.key_id, 3,
 				IPC_CREAT | S_IRUSR | S_IWUSR);
