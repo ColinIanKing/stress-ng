@@ -362,7 +362,9 @@ static int stress_revio(const stress_args_t *args)
 		 * the "work through all the options" mode
 		 */
 		if (!opts_set && (g_opt_flags & OPT_FLAGS_AGGRESSIVE)) {
-			opt_index = (opt_index + 1) % SIZEOF_ARRAY(revio_opts);
+			opt_index++;
+			if (opt_index >= SIZEOF_ARRAY(revio_opts))
+				opt_index = 0;
 
 			revio_flags = revio_opts[opt_index].flag;
 			revio_oflags = revio_opts[opt_index].oflag;
