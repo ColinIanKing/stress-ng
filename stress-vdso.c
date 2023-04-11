@@ -491,7 +491,6 @@ static int stress_vdso(const stress_args_t *args)
 
 	t1 = stress_time_now();
 	do {
-
 		for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 			vdso_sym->func(vdso_sym->addr);
 		}
@@ -505,8 +504,6 @@ static int stress_vdso(const stress_args_t *args)
 		int j;
 
 		for (j = 0; j < 1000000; j++) {
-			stress_vdso_sym_t *vdso_sym;
-
 			for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 				vdso_sym->dummy_func(vdso_sym->addr);
 			}
