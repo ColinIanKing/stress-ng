@@ -256,7 +256,7 @@ static int stress_set(const stress_args_t *args)
 			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
 			n = getgroups(ret, groups);
 			if (n > 0) {
-				gid_t bad_groups[1] = { (gid_t)-1 };
+				const gid_t bad_groups[1] = { (gid_t)-1 };
 
 				/* Exercise invalid groups */
 				VOID_RET(int, shim_setgroups(INT_MIN, groups));
