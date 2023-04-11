@@ -95,12 +95,14 @@ static int stress_resources(const stress_args_t *args)
 				break;
 			pid = fork();
 			if (pid == 0) {
+				size_t n;
+
 				stress_set_oom_adjustment(args->name, true);
 				VOID_RET(int, stress_drop_capabilities(args->name));
 				(void)sched_settings_apply(true);
 
-				(void)stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, true);
-				(void)stress_resources_free(args, resources, num_resources);
+				n = stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, true);
+				(void)stress_resources_free(args, resources, n);
 
 				_exit(0);
 			}
