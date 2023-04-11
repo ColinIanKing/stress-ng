@@ -164,6 +164,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 					max_size = (off_t)MAX_TMPFS_SIZE;
 			}
 			max_size /= args->num_instances;
+			max_size &= ~(off_t)4095;
 
 			(void)shim_unlink(path);
 			/*
