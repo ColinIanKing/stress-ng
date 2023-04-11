@@ -190,11 +190,19 @@ static int stress_bind_mount(const stress_args_t *args)
 			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | SIGCHLD,
 			(void *)&pargs, 0);
 		if (pid < 0) {
-			int rc = stress_exit_status(errno);
-
+			switch (errno) {
+			case ENOMEM:
+			case ENOSPC:
+			case EPERM:
+				return EXIT_NO_RESOURCE;
+			case ENOSYS:
+				return EXIT_NOT_IMPLEMENTED;
+			default:
+				break;
+			}
 			pr_fail("%s: clone failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return rc;
+			return EXIT_FAILURE;
 		}
 		VOID_RET(int, shim_waitpid(pid, &status, 0));
 	} while (keep_stressing(args));
