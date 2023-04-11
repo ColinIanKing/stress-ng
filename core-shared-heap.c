@@ -73,9 +73,11 @@ void stress_shared_heap_deinit(void)
 	if (g_shared->shared_heap.out_of_memory) {
 		pr_inf("shared heap: out of memory duplicating some strings, increase STRESS_MAX_SHARED_HEAP_SIZE to fix this\n");
 	}
+#if defined(STRESS_SHARED_HEAD_DEBUG)
 	if (g_shared->shared_heap.offset > 0) {
 		pr_dbg("shared heap: used %zd of %zd bytes of heap\n", g_shared->shared_heap.offset, g_shared->shared_heap.heap_size);
 	}
+#endif
 	if (g_shared->shared_heap.heap) {
 		(void)munmap((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
 		g_shared->shared_heap.heap = NULL;
