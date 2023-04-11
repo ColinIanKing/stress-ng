@@ -155,7 +155,9 @@ static int stress_sigfpe(const stress_args_t *args)
 	static int i = 0;
 	int ret;
 	double time_end;
+#if defined(STRESS_CHECK_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+#endif
 
 	typedef struct {
 		unsigned int exception;
