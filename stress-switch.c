@@ -380,7 +380,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	semctl(sem_id, 0, IPC_RMID);
+	(void)semctl(sem_id, 0, IPC_RMID);
 
 	return EXIT_SUCCESS;
 }
