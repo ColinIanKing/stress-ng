@@ -62,12 +62,13 @@ static inline off_t max_off_t(void)
 static off_t stress_shim_lseek(int fd, off_t offset, int whence)
 {
 	off_t ret;
-	double t;
 	static int metrics_count = 0;
 
 	if (LIKELY(metrics_count++ < 1000)) {
 		ret = lseek(fd, offset, whence);
 	} else {
+		double t;
+
 		metrics_count = 0;
 		t = stress_time_now();
 		ret = lseek(fd, offset, whence);
