@@ -155,7 +155,6 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 			const char data = 0;
 			off_t rc, max_size = (off_t)buf.f_bsize * (off_t)buf.f_bavail;
 
-			stress_file_rw_hint_short(fd);
 			/*
 			 * Don't use all the tmpfs, just 98% for all instance
 			 */
@@ -421,7 +420,6 @@ static int stress_tmpfs(const stress_args_t *args)
 			"tmpfs filesystem\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	stress_file_rw_hint_short(context.fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
