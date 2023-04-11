@@ -106,12 +106,12 @@ enum parse_line_type {
 /* Taken from kmod.git to keep bug compatible */
 static char global_module_path[PATH_MAX];
 
-static bool isempty(const char *line, const ssize_t linelen)
+static bool isempty(const char *line, const size_t line_len)
 {
-	ssize_t i = 0;
+	size_t i = 0;
 	char p;
 
-	while (i < linelen) {
+	while (i < line_len) {
 		p = line[i++];
 
 		/* tab or space */
@@ -122,12 +122,12 @@ static bool isempty(const char *line, const ssize_t linelen)
 	return true;
 }
 
-static bool iscomment(const char *line, const ssize_t linelen)
+static bool iscomment(const char *line, const size_t line_len)
 {
-	ssize_t i = 0;
+	size_t i = 0;
 	char p;
 
-	while (i != linelen) {
+	while (i != line_len) {
 		p = line[i];
 		i++;
 
@@ -146,19 +146,23 @@ static bool iscomment(const char *line, const ssize_t linelen)
 
 static enum parse_line_type parse_get_line_type(
 	const char *line,
-	const ssize_t linelen,
-	char *module)
+	const size_t line_len,
+	char *module,
+	const size_t module_len)
 {
 	int ret;
+	char fmt[16];
 
-	if (isempty(line, linelen))
+	if (isempty(line, line_len))
 		return PARSE_EMPTY;
 
-	if (iscomment(line, linelen))
+	if (iscomment(line, line_len))
 		return PARSE_COMMENT;
 
+	(void)snprintf(fmt, sizeof(fmt), "%%%zd[^:]:", module_len - 1);
+
 	/* should be a "kernel/foo/path.ko: .* */
-	ret = sscanf(line, "%[^:]:", module);
+	ret = sscanf(line, fmt, module);
 	if (ret == 1)
 		return PARSE_DEPMOD_MODULE;
 
@@ -196,7 +200,7 @@ static int get_modpath_name(
 	char depmod[PATH_MAX];
 	FILE *fp;
 	char *line = NULL;
-	ssize_t linelen;
+	ssize_t line_len;
 	size_t len = 0, lineno = 0;
 	static const char *dirname_default_prefix = "/lib/modules";
 	char module[PATH_MAX - 256];		/* used by our parser */
@@ -215,13 +219,13 @@ static int get_modpath_name(
 	if (!fp)
 		goto out_close;
 
-	while ((linelen = getline(&line, &len, fp)) != -1) {
+	while ((line_len = getline(&line, &len, fp)) != -1) {
 		char *module_pathp;
 		char *start_postfix;
 		char *modulenamep;
 
 		lineno++;
-		parse_type = parse_get_line_type(line, linelen, module);
+		parse_type = parse_get_line_type(line, (size_t)line_len, module, sizeof(module));
 
 		switch (parse_type) {
 		case PARSE_EMPTY:
