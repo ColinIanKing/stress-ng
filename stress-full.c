@@ -51,7 +51,7 @@ static const stress_whences_t whences[] = {
 static bool OPTIMIZE3 stress_data_is_not_zero(void *buffer, const size_t len)
 {
 	register const uint64_t *end64 = (uint64_t *)((uintptr_t)buffer + (len / sizeof(uint64_t)));
-	register uint64_t *ptr64 ALIGNED(4096);
+	register uint64_t *ptr64;
 
 PRAGMA_UNROLL_N(8)
 	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
