@@ -266,6 +266,9 @@ static void *stress_malloc_loop(void *ptr)
 				switch (do_calloc) {
 				case 0:
 					n = ((rnd >> 15) % 17) + 1;
+					/* Avoid zero len / n result */
+					if (len < n)
+						len = n;
 					info[i].addr = calloc(n, len / n);
 					len = n * (len / n);
 					break;
