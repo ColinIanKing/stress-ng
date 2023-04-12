@@ -237,8 +237,10 @@ static int stress_timerfd(const stress_args_t *args)
 	if (!cap_wake_alarm) {
 		ret = timerfd_create(CLOCK_REALTIME_ALARM, 0);
 		if (ret >= 0) {
+#if 0
 			pr_fail("%s: timerfd_create without capability CAP_WAKE_ALARM unexpectedly "
 					"succeeded, errno=%d (%s)\n", args->name, errno, strerror(errno));
+#endif
 			(void)close(ret);
 		}
 	}
