@@ -126,7 +126,7 @@ void *stress_shared_heap_malloc(const size_t size)
  */
 char *stress_shared_heap_dup_const(const char *str)
 {
-	size_t len;
+	size_t len, str_len;
 	stress_shared_heap_str_t *heap_str;
 
 	if (stress_lock_acquire(g_shared->shared_heap.lock) < 0)
@@ -139,12 +139,13 @@ char *stress_shared_heap_dup_const(const char *str)
 		}
 	}
 	(void)stress_lock_release(g_shared->shared_heap.lock);
-	len = strlen(str) + 1 + sizeof(void *);
+	str_len = strlen(str) + 1;
+	len = str_len + sizeof(void *);
 	heap_str = (stress_shared_heap_str_t *)stress_shared_heap_malloc(len);
 	if (!heap_str)
 		return NULL;
 
-	(void)strcpy(heap_str->str, str);
+	(void)strlcpy(heap_str->str, str, str_len);
 	heap_str->next = NULL;
 
 	/*
