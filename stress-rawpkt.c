@@ -386,7 +386,8 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	}
 
 #if defined(PACKET_RX_RING) &&	\
-    defined(PACKET_VERSION)
+    defined(PACKET_VERSION) &&	\
+    defined(HAVE_TPACKET_REQ3)
 	if (blocknr) {
 		struct tpacket_req3 tp;
 		int val = TPACKET_V3;
@@ -441,7 +442,8 @@ static int OPTIMIZE3 stress_rawpkt_server(
 
 	stress_rawpkt_sockopts(fd);
 #if defined(PACKET_RX_RING) &&	\
-    defined(PACKET_VERSION)
+    defined(PACKET_VERSION) &&	\
+    defined(HAVE_TPACKET_REQ3)
 close_fd:
 #endif
 	(void)close(fd);
