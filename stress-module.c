@@ -106,6 +106,8 @@ enum parse_line_type {
 /* Taken from kmod.git to keep bug compatible */
 static char global_module_path[PATH_MAX];
 
+#if defined(HAVE_UNAME) &&      \
+    defined(HAVE_SYS_UTSNAME_H)
 static bool isempty(const char *line, const size_t line_len)
 {
 	size_t i = 0;
@@ -170,6 +172,7 @@ static enum parse_line_type parse_get_line_type(
 	errno = EINVAL;
 	return PARSE_INVALID;
 }
+#endif
 
 /*
  * We can surely port over some of the kmod index file stuff, but
