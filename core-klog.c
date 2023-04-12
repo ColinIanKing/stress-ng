@@ -140,6 +140,8 @@ log_err:
 log_info:
 			pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 		}
+		(void)fclose(klog_fp);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)fclose(klog_fp);
 #endif
