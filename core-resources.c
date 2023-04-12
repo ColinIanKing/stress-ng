@@ -116,7 +116,7 @@ size_t stress_resources_allocate(
 #endif
 #if defined(HAVE_LIB_PTHREAD)
 		resources[i].pthread_ret = -1;
-		resources[i].pthread = 0;
+		resources[i].pthread = (pthread_t)0;
 #if defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
@@ -606,7 +606,7 @@ void stress_resources_free(
 #if defined(HAVE_LIB_PTHREAD)
 		if ((!i) && (!resources[i].pthread_ret) && (resources[i].pthread)) {
 			(void)pthread_join(resources[i].pthread, NULL);
-			resources[i].pthread = -1;
+			resources[i].pthread = (pthread_t)0;
 #if defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
