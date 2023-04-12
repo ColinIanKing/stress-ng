@@ -288,6 +288,10 @@ out_close:
 		(void)fclose(fp);
 	return ret;
 #else
+	(void)args;
+	(void)name;
+	(void)module_path;
+	(void)module_path_size;
 	return -1;
 #endif
 }
