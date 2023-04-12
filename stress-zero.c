@@ -39,7 +39,7 @@ static bool OPTIMIZE3 stress_is_not_zero(uint64_t *buffer, const size_t len)
 	register const uint8_t *end8 = ((uint8_t *)buffer) + len;
 	register uint8_t *ptr8;
 	register const uint64_t *end64 = buffer + (len / sizeof(uint64_t));
-	register uint64_t *ptr64 ALIGNED(4096);
+	register uint64_t *ptr64;
 
 PRAGMA_UNROLL_N(8)
 	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
