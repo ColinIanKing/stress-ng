@@ -198,9 +198,9 @@ static NOINLINE void stress_memcpy_builtin(
 		(void)memcpy_check(memcpy, str3, str2, MEMCPY_MEMSIZE);
 		(void)memcpy_check(memcpy, str2, str3, MEMCPY_MEMSIZE / 2);
 		(void)memmove_check(memmove, str3, str3 + 64, MEMCPY_MEMSIZE - 64);
-		(void)memcpy_check(memcpy, str1, b, MEMCPY_MEMSIZE);
+		(void)memcpy_check(memcpy, str1, str2, MEMCPY_MEMSIZE);
 		(void)memmove_check(memmove, str3 + 64, str3, MEMCPY_MEMSIZE - 64);
-		(void)memcpy_check(memcpy, b, str1, MEMCPY_MEMSIZE);
+		(void)memcpy_check(memcpy, str3, str1, MEMCPY_MEMSIZE);
 		(void)memmove_check(memmove, str3 + 1, str3, MEMCPY_MEMSIZE - 1);
 		(void)memmove_check(memmove, str3, str3 + 1, MEMCPY_MEMSIZE - 1);
 	}
