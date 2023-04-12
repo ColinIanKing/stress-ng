@@ -229,7 +229,7 @@ static void *stress_pthread_func(void *parg)
 	} else {
 #if defined(HAVE_SET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
-		if (len > 0) {
+		if ((head != NULL) && (len > 0)) {
 			(void)memcpy(&new_head, head, len);
 
 			/* Currently disabled, valgrind complains that head is out of range */
