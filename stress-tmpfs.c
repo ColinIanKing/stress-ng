@@ -164,7 +164,8 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 					max_size = (off_t)MAX_TMPFS_SIZE;
 			}
 			max_size /= args->num_instances;
-			max_size &= ~(off_t)4095;
+			max_size += (args->page_size - 1);
+			max_size &= ~(off_t)(args->page_size - 1);
 
 			(void)shim_unlink(path);
 			/*
@@ -198,7 +199,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 	stress_tmpfs_context_t *context = (stress_tmpfs_context_t *)ctxt;
 	const size_t page_size = args->page_size;
 	const size_t sz = (size_t)context->sz;
-	const size_t pages4k = (size_t)sz / page_size;
+	const size_t pages = (size_t)sz / page_size;
 	const int fd = context->fd;
 	bool tmpfs_mmap_async = false;
 	bool tmpfs_mmap_file = false;
@@ -211,7 +212,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 	flags |= MAP_POPULATE;
 #endif
 
-	mappings = calloc(pages4k, sizeof(*mappings));
+	mappings = calloc(pages, sizeof(*mappings));
 	if (!mappings) {
 		pr_inf_skip("%s: failed to allocate mapping array, skipping stressor\n",
 			args->name);
@@ -308,7 +309,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		}
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
-		for (n = 0; n < pages4k; n++) {
+		for (n = 0; n < pages; n++) {
 			mappings[n].state = PAGE_MAPPED;
 			mappings[n].addr = buf + (n * page_size);
 		}
@@ -325,11 +326,11 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		 *  Step #1, unmap all pages in random order
 		 */
 		(void)stress_mincore_touch_pages(buf, sz);
-		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64modn(pages4k);
+		for (n = pages; n; ) {
+			uint64_t j, i = stress_mwc64modn(pages);
 
 			for (j = 0; j < n; j++) {
-				uint64_t page = (i + j) % pages4k;
+				uint64_t page = (i + j) % pages;
 
 				if (mappings[page].state == PAGE_MAPPED) {
 					mappings[page].state = 0;
@@ -347,11 +348,11 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		/*
 		 *  Step #2, map them back in random order
 		 */
-		for (n = pages4k; n; ) {
-			uint64_t j, i = stress_mwc64modn(pages4k);
+		for (n = pages; n; ) {
+			uint64_t j, i = stress_mwc64modn(pages);
 
 			for (j = 0; j < n; j++) {
-				uint64_t page = (i + j) % pages4k;
+				uint64_t page = (i + j) % pages;
 
 				if (!mappings[page].state) {
 					offset = tmpfs_mmap_file ? (off_t)(page * page_size) : 0;
@@ -391,7 +392,7 @@ cleanup:
 		/*
 		 *  Step #3, unmap them all
 		 */
-		for (n = 0; n < pages4k; n++) {
+		for (n = 0; n < pages; n++) {
 			if (mappings[n].state & PAGE_MAPPED) {
 				(void)stress_madvise_random(mappings[n].addr, page_size);
 				(void)munmap((void *)mappings[n].addr, page_size);
