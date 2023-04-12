@@ -1700,9 +1700,10 @@ static int stress_zlib(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	shared_checksums = mmap(NULL, sizeof(*shared_checksums),
-				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	shared_checksums = (stress_zlib_shared_checksums_t *)mmap(NULL,
+			sizeof(*shared_checksums),
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (shared_checksums == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd bytes, skipping stressor\n",
 			args->name, sizeof(*shared_checksums));
