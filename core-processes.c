@@ -79,6 +79,10 @@ void stress_dump_processes(void)
 
 		(void)snprintf(path, sizeof(path), "/proc/%s", namelist[i]->d_name);
 		if (stat(path, &statbuf) == 0) {
+#if defined(BUILD_STATIC)
+			(void)snprintf(name, sizeof(name), "%u", (unsigned int)statbuf.st_uid);
+			p_name = name;
+#else
 			struct passwd *pwd;
 
 			pwd = getpwuid(statbuf.st_uid);
@@ -88,6 +92,7 @@ void stress_dump_processes(void)
 				(void)snprintf(name, sizeof(name), "%u", (unsigned int)statbuf.st_uid);
 				p_name = name;
 			}
+#endif
 		}
 
 		(void)snprintf(path, sizeof(path), "/proc/%s/status", namelist[i]->d_name);
