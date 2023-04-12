@@ -2930,16 +2930,16 @@ typedef struct shim_timex {
  *      some older system calls require non-const void *
  *      or caddr_t args, so we need to unconstify them
  */
-#if defined(__sun__)
 static inline void *shim_unconstify_ptr(const void *ptr)
 {
-	void *unconst_ptr = (void *)ptr;
+	union stress_unconstify {
+		const void *cptr;
+		void *ptr;
+	} su;
 
-	return unconst_ptr;
+	su.cptr = ptr;
+	return su.ptr;
 }
-#else
-#define shim_unconstify_ptr(ptr)        (ptr)
-#endif
 
 /* Shim'd kernel system calls */
 extern int shim_arch_prctl(int code, unsigned long addr);
