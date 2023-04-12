@@ -69,8 +69,8 @@ static int OPTIMIZE3 stress_page_check(
 	uint16_t val16 = (uint16_t)val << 8 | val;
 	uint32_t val32 = (uint32_t)val16 << 16 | val16;
 	register uint64_t val64 = (uint64_t)val32 << 32 | val32;
-	register uint64_t *buf64 = (uint64_t *)buf;
-	register uint64_t *buf64end = (uint64_t *)(buf + sz);
+	register const uint64_t *buf64 = (const uint64_t *)buf;
+	register const uint64_t *buf64end = (const uint64_t *)(buf + sz);
 
 	while (buf64 < buf64end) {
 		if (UNLIKELY(*(buf64++) != val64))
