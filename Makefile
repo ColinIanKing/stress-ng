@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.15.06
+VERSION=0.15.07
 #
-# Codename "hegemonic huffy haddock"
+# Codename "speedy supercharged swordfish"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
