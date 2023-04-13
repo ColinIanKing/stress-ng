@@ -69,10 +69,18 @@ typedef struct {
 } stress_raw_packet_t;
 
 static void *rawsock_lock;
+static volatile bool stop_rawsock;
+
+static void MLOCKED_TEXT rawsock_sigalrm_handler(int signum)
+{
+    (void)signum;
+    stop_rawsock = true;
+}
 
 static void stress_rawsock_init(void)
 {
 	rawsock_lock = stress_lock_create();
+	stop_rawsock = false;
 }
 
 static void stress_rawsock_deinit(void)
@@ -103,6 +111,9 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 	struct sockaddr_in addr;
 
 	stress_parent_died_alarm();
+	if (stress_sighandler(args->name, SIGALRM, rawsock_sigalrm_handler, NULL) < 0)
+		return EXIT_FAILURE;
+
 	(void)sched_settings_apply(true);
 
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
@@ -132,7 +143,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 	pkt.iph.daddr = addr.sin_addr.s_addr;
 
 	/* Wait for server to start */
-	while (keep_stressing(args)) {
+	while (!stop_rawsock && keep_stressing(args)) {
 		uint32_t ready;
 
 		if (stress_lock_acquire(rawsock_lock) < 0) {
@@ -147,7 +158,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		shim_usleep(20000);
 	}
 
-	while (keep_stressing(args)) {
+	while (!stop_rawsock && keep_stressing(args)) {
 		ssize_t sret;
 
 		sret = sendto(fd, &pkt, sizeof(pkt), 0,
@@ -175,6 +186,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		}
 #endif
 	}
+	(void)kill(getppid(), SIGALRM);
 	(void)close(fd);
 	return EXIT_SUCCESS;
 }
@@ -186,17 +198,14 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 	struct sockaddr_in addr;
 	double t_start, duration = 0.0, bytes = 0.0, rate;
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
-		rc = EXIT_FAILURE;
-		goto die;
-	}
-	if (!keep_stressing(args))
+	if (stop_rawsock || !keep_stressing(args))
 		goto die;
 
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
+		(void)kill(pid, SIGKILL);
 		goto die;
 	}
 
@@ -207,7 +216,7 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 	(void)stress_lock_release(rawsock_lock);
 
 	t_start = stress_time_now();
-	while (keep_stressing(args)) {
+	while (!stop_rawsock && keep_stressing(args)) {
 		stress_raw_packet_t ALIGN64 pkt;
 		socklen_t len = sizeof(addr);
 		ssize_t n;
@@ -242,10 +251,8 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
 die:
-	if (pid) {
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	(void)shim_waitpid(pid, &status, 0);
+
 	/* close recv socket after sender closed */
 	if (fd > -1)
 		(void)close(fd);
@@ -267,7 +274,7 @@ again:
 			shim_usleep(100000);
 			goto again;
 		}
-		if (!keep_stressing(args)) {
+		if (stop_rawsock || !keep_stressing(args)) {
 			return EXIT_SUCCESS;
 		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
@@ -275,7 +282,6 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		rc = stress_rawsock_client(args, rawsock_port);
-		(void)kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
 		rc = stress_rawsock_server(args, pid);
