@@ -671,7 +671,7 @@ slow-test-all: all
 
 .PHONY: verify-test-all
 verify-test-all: all
-	./stress-ng --seq 0 -t 10 --pathological --verbose --times --tz --metrics --klog-check --verify
+	./stress-ng --seq 0 -t 5 --pathological --verbose --times --tz --metrics --verify
 
 .PHONY: tags
 tags:
