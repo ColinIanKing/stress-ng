@@ -58,7 +58,7 @@ typedef struct {
 	uint32_t total_cpus;
 	uint32_t max_threads;
 #if defined(HAVE_MEMTHRASH_NUMA)
-	unsigned long numa_nodes;
+	int numa_nodes;
 	unsigned long max_numa_nodes;
 	unsigned long *numa_node_mask;
 	size_t numa_node_mask_size;
@@ -614,19 +614,19 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	uint8_t *ptr;
 	const uint8_t *end = (uint8_t *)((uintptr_t)mem + mem_size);
 	const size_t page_size = context->args->page_size;
-	unsigned long node;
+	int node;
 
 	if ((context->numa_nodes < 1) || (context->max_numa_nodes < 1))
 		return;
 
-	node = (unsigned long)stress_mwc32modn(context->numa_nodes);
+	node = (unsigned long)stress_mwc32modn((uint32_t)context->numa_nodes);
 	(void)memset(context->numa_node_mask, 0, context->numa_node_mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
-		STRESS_SETBIT(context->numa_node_mask, node);
+		STRESS_SETBIT(context->numa_node_mask, (unsigned long)node);
 
 		(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, context->numa_node_mask, context->max_numa_nodes, 0);
-		STRESS_CLRBIT(context->numa_node_mask, node);
+		STRESS_CLRBIT(context->numa_node_mask, (unsigned long)node);
 		node++;
 		if (node >= context->numa_nodes)
 			node = 0;
@@ -928,13 +928,13 @@ static int stress_memthrash(const stress_args_t *args)
 		numa_elements = numa_elements ? numa_elements : 1;
 
 		/* Some sanity checks are required */
-		if (!context.max_numa_nodes) {
-			pr_inf("%s: no maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
+		if ((context.numa_nodes < 1) || (context.max_numa_nodes < 1)) {
+			pr_inf("%s: no NUMA nodes or maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
 			context.numa_node_mask = NULL;
 			context.numa_node_mask_size = 0;
 			context.numa_nodes = 0;
 		} else {
-			context.numa_node_mask = calloc(context.max_numa_nodes, numa_elements);
+			context.numa_node_mask = calloc((size_t)context.max_numa_nodes, numa_elements);
 			context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
 
 			if (!context.numa_node_mask) {
