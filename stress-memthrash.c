@@ -321,7 +321,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 	const size_t mem_size)
 {
 	__uint128_t *ptr = (__uint128_t *)mem;
-	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size - 128);
+	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size);
 
 	(void)context;
 
