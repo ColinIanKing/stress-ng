@@ -31,6 +31,9 @@
 #define HAVE_MEMTHRASH_NUMA	(1)
 #endif
 
+#define BITS_PER_BYTE		(8)
+#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
+
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
 	{ NULL,	"memthrash-method M",	"specify memthrash method M, default is all" },
@@ -613,7 +616,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	const size_t page_size = context->args->page_size;
 	unsigned long node;
 
-	if (context->numa_nodes < 1)
+	if ((context->numa_nodes < 1) || (context->max_numa_nodes < 1))
 		return;
 
 	node = (unsigned long)stress_mwc32modn(context->numa_nodes);
@@ -918,19 +921,29 @@ static int stress_memthrash(const stress_args_t *args)
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
 #if defined(HAVE_MEMTHRASH_NUMA)
 	{
-		const size_t numa_bits = sizeof(unsigned long) * 8;
 		size_t numa_elements;
 
 		context.numa_nodes = stress_numa_count_mem_nodes(&context.max_numa_nodes);
+		numa_elements = (context.max_numa_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
+		numa_elements = numa_elements ? numa_elements : 1;
 
-		numa_elements = (context.max_numa_nodes + numa_bits - 1) / numa_bits;
-		numa_elements = numa_elements ? numa_elements: 1;
-		context.numa_node_mask = calloc(context.max_numa_nodes, numa_elements);
-		context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
-		if (!context.numa_node_mask) {
-			pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, skipping stressor\n",
-				args->name, numa_elements);
-			return EXIT_NO_RESOURCE;
+		/* Some sanity checks are required */
+		if (!context.max_numa_nodes) {
+			pr_inf("%s: no maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
+			context.numa_node_mask = NULL;
+			context.numa_node_mask_size = 0;
+			context.numa_nodes = 0;
+		} else {
+			context.numa_node_mask = calloc(context.max_numa_nodes, numa_elements);
+			context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
+
+			if (!context.numa_node_mask) {
+				pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, ignoring numa memthrash stressor\n",
+					args->name, numa_elements);
+				context.numa_node_mask = NULL;
+				context.numa_node_mask_size = 0;
+				context.numa_nodes = 0;
+			}
 		}
 	}
 #endif
