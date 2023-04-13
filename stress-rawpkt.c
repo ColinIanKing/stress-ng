@@ -409,6 +409,8 @@ static int OPTIMIZE3 stress_rawpkt_server(
 			goto close_fd;
 		}
 	}
+#else
+	(void)blocknr;
 #endif
 
 	t_start = stress_time_now();
