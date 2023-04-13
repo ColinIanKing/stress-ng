@@ -1,3 +1,279 @@
+stress-ng (0.15.07-1) unstable; urgency=medium
+
+  [Shoily Rahman]
+  * stress-rawpkt: use of rx ring to the rawpkt module
+
+  [Luis Chamberlain]
+  * stress-module: stress finit_module() and delete_module()
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-memthrash: check for negative return from
+    stress_numa_count_mem_nodes
+  * stress-memthrash: add some numa sanity checking
+  * stress-rawpkt: voidify blocknr if it is not being used
+  * stress-memthrash: reduce copy128 hunks by half, use correct end offset
+  * stress-memthrash: fix copy128 end offset
+  * Makefile: shorten run time of verify-test-all rule, remove kernel
+    log check
+  * core-klog: exit klog child process rather than return
+  * stress-timerfd: relax error message on timerfd creation w/o priv
+  * stress-timerfd: add missing space in failure message
+  * core-processes: don't use getpwuid for static builds
+  * stress-zero: remove alignment from register pointer, icc does not
+    support this idiom
+  * stress-full: remove alignment from register pointer, icc does not
+    support this idiom
+  * core-helper: use char * pointers to avoid auto increment on void * ptr
+  * stress-rawpkt: add built time check for struct tpacket_req3
+  * core-shared-heap: use shim_strlcpy as some systems don't have strlcpy
+  * core-shared-heap: use strlcpy rather than strcpy as it is safer
+  * stress-zlib: cast mmap'd memory to stress_zlib_shared_checksums_t *
+  * stress-module: only declare helper functions if they are required
+  * stress-module: voidify unused function args
+  * stress-msync: fix missing pointer constifications
+  * stress-ng.h: re-work unconstify macro
+  * core-resources: cast 0 for pthread to pthread_t
+  * stress-memcpy: replace references to b with str2/str3
+  * stress-tmpfs: don't assume page size is 4K, fixes PPC64 failure
+  * stress-pthread: check for head being null
+  * stress-malloc: avoid calloc allocatiob being less than a uintptr_t
+  * stress-malloc: avoid zero sized callocs when performing len / n
+    where len < n
+  * core-helper: reduce scope of variable prev_flag
+  * test/test-finit-module: ensure test is compilable
+  * stress-wcs: reduce scope of variable t
+  * stress-vdso: remove redudant shadowed declaration of pointer vdso_sym
+  * stress-set: make bad_groups const
+  * stress-sem-sysv: only declare variable nsems when required
+  * stress-rawpkt: declare lable close_fd only when required
+  * stress-seek: reduce scope of variable t
+  * stress-sctp: make char array patterns const
+  * stress-qsort: add ( ) to remove cppcheck precedence style warning
+  * stress-malloc: remove shadow'd variable declaration ret
+  * stress-mmap: rename shadow'd variable index with flag_perms_index,
+    remove % operator
+  * stress-ipsec-mb: only declare sz where it is required
+  * stress-l1cache: fix incorrect cache size calculation
+  * stress-revio: replace expensive % with compare and reset
+  * stress-hdd: replace expensive % with compare and reset
+  * stress-clone: replace expensive % with compare and reset
+  * stress-affinity: check args counter as well as keep_stressing_affinity
+  * stress-module: reduce scope of variable p and make it const
+  * stress-module: use sscanf with specified size limit
+  * stress-tmpfs: round file size to nearest 4K to avoid residual data
+    in page
+  * stress-sigfpe: declare variable verify only when required
+  * core-resource: remove debug
+  * stress-tmp: remove short life hint on tmpfs files to restore default
+    data longevity state
+  * stress-sem-sysv: use different key from core-resources sem keys
+  * stress-resources: use the number of resources allocated to free
+  * stress-switch: voidify semctl return
+  * stress-bind-mount: make clone failure with EPERM a resource exit
+    return
+  * stress-sem-sysv: terminate children with SIGALRM and not SIGKILL
+  * core-shared-heap: print shared heap stats if STRESS_SHARED_HEAP_DEBUG
+    is defined
+  * stress-lockbus: replace asm volatile with __asm__ __volatile__
+  * core-asm-x86.h: replace asm volatile with __asm__ __volatile__
+  * stress-itimer: add missing itimer-freq help information
+  * stress-memcpy: exercise copying on smaller chunks to allow larger
+    CPU scaling
+  * core-log: ensure log file data is flushed hard
+  * stress-ng: munge stressor name to replace _ with -
+  * stress-rawpkg: memset tp to clear up static analysis warnings and
+    #ifdef PACKET_RX_RING
+  * stress-rawpkt: fix leak of file descriptor on error exit paths
+  * stress-ng: provide passed/failed/skipped summary at end of run
+  * stress-watchdog: remove incorrect CLASS_VM classification
+  * Makefile: add verify-test-all make rule for test verification
+  * stress-prctl: add missing ; for PR_SET_MEMORY_MERGE prctl
+  * Revert "core-mwc.c: enable 64 bit multiply mwc, it is faster on 64
+    bit systems"
+  * stress-wcs: replace '_' with '~' in string patterns
+  * stress-numa: minor optimizations
+  * core-mmap: clean up build warnings for HAVE_ASM_X86_REP_STOSQ path
+  * stress-bigheap: add const bools for global mask'd options
+  * core-mwc.c: enable 64 bit multiply mwc, it is faster on 64 bit systems
+  * core-mwc: group mcw data together, also add 64 bit multiply version
+    (not enabled)
+  * README.md: add Shoily Rahman to contributors list
+  * Manual: add rawpkt-txring option to manual
+  * stress-rawpkt: ensure int type is saved as rawpkt-rxring
+  * stress-poll: fix missing free of rnd_fds_index array
+  * stress-zero: perform metrics less frequently
+  * stress-x86syscall: use filtered array of funcs to improve call rate
+  * stress-wcs: optimize random string filling, perform metrics less
+    frequently
+  * stress-vm-splice: add branch hints, add alignment, perform metrics
+    less frequently
+  * stress-vm-rw: add O3 optimizations on parent and child
+  * stress-vm-rw: add branch hints, add alignment on used data structs
+  * stress-vdso: remove inc_counter from vdso loop, removes counter
+    overhead
+  * stress-utime: add branch hints and measure metrics less frequently
+  * stress-usersyscall: add branch hints and O3 optimization level
+  * stress-udp-flood: add some branch hints
+  * stress-udp: optimize send/recv, remove need for % operator
+  * stress-tree: add two minor branch hints
+  * stress-touch: rename main touch loop function
+  * stress-timerfd: add some branch hints
+  * stress-timer: add branch hints, some alignments and O3
+  * stress-tee: add branch hints and measure metrics less frequently
+  * stress-sysinfo: add some branch hinting
+  * stress-switch: use mmap'd page aligned pipe buffers, align sysv
+    messages
+  * stress-splice: reduce frequency of metrics measurement, add branch
+    hints, align buffers
+  * stress-sparsematrix: explicitly inline value_map
+  * stress-sockpair: optimize using branch hints and some data alignments
+  * stress-sockmany: add some branch hints
+  * stress-sockfd: optimize using branch hints and some data alignments
+  * stress-sockdiag: optimize using branch hints and some data alignments
+  * stress-skiplist: use -O3 and add branch hints
+  * stress-sigrt: optimization on memsets and add branch hints
+  * stress-sigpending: add branch hints, align data structures
+  * stress-signest: add some branch hint optimizations
+  * stress-signal: minor optimizations
+  * stress-sigio: use mmap'd read/write buffers, add branch hints
+  * stress-sigfpe: minor optimizations, biggest win is removing % operator
+  * stress-sigfd: add branch hints, some alignments and reduce memcpy
+    overhead
+  * stress-shm: minor optimization tweaks, very small gains
+  * stress-sendfile: reduce metrics measurements frequency
+  * stress-sem-sysv: add alignment and branch hint optimizations
+  * stress-seek: reduce frequency of metrics measurement, add branch
+    hints, align buffers
+  * some minor optimizations to increase seek throughput
+  * stress-seal: add some branch hints
+  * stress-sctp: minor branch hint optimizations and remove expensive %
+    operators
+  * stress-schedpolicy: minor branch optimization hints
+  * stress-malloc: add SIGSEGV handler in child
+  * stress-ring-pipe: add some minor branch hint optimizations
+  * stress-revio: add branch hints
+  * stress-remap: optimize random shuffle and add branch hits, align
+    array order
+  * stress-readahead: optimize offset generation
+  * stress-rawudp: add branch hint and O3 optimization
+  * stress-rawsock: add branch hint and O3 optimization
+  * stress-rawpkt: add branch hint and O3 optimization
+  * stress-sem: add some more branch hinting
+  * stress-ng: fix spelling mistake "geometic" -> "geometric"
+  * stress-pagemove: move stress_pagemove_remap_fail to inside #ifdef hunk
+  * stress-pty: add some optimization hints
+  * stress-ptrace: add some optimization hints
+  * stress-pthread: minor optimization hints
+  * stress-poll: make buffer a uint16_t, halves payload, increases poll
+    calls
+  * stress-poll: pre-shuffle/randomize poll fds, remove random overhead
+    per write
+  * stress-pipeherd: add branch hints
+  * stress-ping-sock: minor branch and port wrap optimizations
+  * stress-personality: align an array, add branch hints
+  * stress-pagemove: only measure mremap calls every 1000 calls, add
+    branch hints
+  * stress-mmap: page align various arrays, use more shuffling on index
+  * stress-zlib: remove blocking complexity by putting checksum in shared
+    memory
+  * stress-msg: move #endif to correct position with respect to code block
+  * core-shim: move module shim wrappers to below shim_enosys declaration
+  * stress-null: gather metrics every 100 null reads
+  * stress-netlink-task: minor optimization tweaks
+  * stress-nanosleep: use mwc32 and mask for power of two random values
+  * stress-inode-flags: voidify return from inc_counter_lock
+  * core-mwc: check if max is zero before attempting zero division
+  * stress-mutex: only measure mutex calls every 1000 calls, add branch
+    hints
+  * stress-msync: optimize page checking, check in 64 bit chunks
+  * stress-mremap: only measure remap calls every 500 calls
+  * stress-mq: minor optimization on mwc mod operation and switch ordering
+  * stress-mmapfixed: minor optimizations to
+    stress_mmapfixed_is_mapped_slow
+  * stress-mlock: measure mlock/mlock2 duration every 1000 calls
+  * stress-mincore: add some branch hinting
+  * stress-memfd: use 64 bit nt stores where possible
+  * stress-membarrier: reduce number of time calls, increases membarrier
+    rate
+  * stress-zlib: add more yield points to detect SIGALRM timeouts
+  * core-processes: add stress_dump_processes to dump stress-ng process
+    state
+  * stress-madvise: use stress_mwc64modn_maybe_pwr2 for size modulo
+  * core-mwc: add modulo mwc functions for max where max is probably a
+    power of 2
+  * stress-longjmp: sample metrics time less frequently
+  * stress-list: pass end of entries rather than number of entries
+  * stress-kcmp: minor optimizations, reduced main loop by 0.5%
+    according to perf
+  * stress-judy: minor optimizations, very slim improvement
+  * stress-inode-flags: add locked bogo-ops increment
+  * stress-hdd: optimize data buffer setting
+  * stress-fpunch: mmap buffers, alignment makes copying a little faster
+  * stress-full: make buffer mmap'd, add zero check optimizations
+  * stress-mmap: move stress_mmap_set_vma_name to core-helper, rename to
+    stress_set_vma_anon_name
+  * stress-zero: optimize stress_is_not_zero
+  * core-thrash: add kmemleak scans
+  * stress-*: use stress_file_rw_hint_short on temporary test files
+  * core-helper: add stress_file_rw_hint_short file hint
+  * stress-memfd: exercise memfd flags MFD_NOEXEC_SEAL and MFD_EXEC
+  * stress-prctl: fix missing }
+  * core-helper: add kernel samepage merging helper, use it when forking
+    hard
+  * stress-prctl: add new PR_* prctl options
+  * snapcraft: remove UNEXPECTED setting
+  * snapcraft: make libipsec-mb-dev depend on amd64 arch
+  * snapcraft: move to snap22, add missing libs and -lrt flag
+  * core-mmap: add prefetch in check loop
+  * stress-mcontend: add more stress for x86 with lfence after reads
+  * README.md: Add Luis Chamberlain to contributors list
+  * stress-module: rename options, add '-' following the no part
+  * core-shim: remove need for errno.h include, add definitions for
+    module handling
+  * stress-module: only fclose fp if file is opened
+  * stress-module: remove module-sharedfd, clean up fd opening
+  * stress-module: changes to conform to stress-ng coding style
+  * stress-module: clean up gcc-10.2.1 build issues
+  * core-mmap: fill memory with random 64 bit value
+  * core-mmap: optimize, use 64 bit load/stores, add x86 rep sto for
+    stores
+  * stress-sockpair: try to avoid OOMing when using --oom-avoid option
+  * stress-msg: split send/recv code into functions, improve optimizations
+  * stress-sem: more even use of sem_wait, sem_trywait, sem_timedwait
+    and add metrics
+  * stress-sem: add branch hints and O3 optimization
+  * stress-sock: optimizations, move to -O3 on client/server + branch
+    hints
+  * stress-pipe: terminate run when read from pipe is zero bytes
+  * README.md: Add another citation
+  * core-helper: don't report failure on prctl PR_SET_NO_NEW_PRIVS with
+    errno EINVAL
+  * stress-pipe: add handler to stop stressor on SIGPIPE
+  * stress-switch: add handler to stop stressor on SIGPIPE
+  * stress-af-alg: remove check for HAVE_LIB_IPSEC_MB
+  * stress-eventfd: add branch hints
+  * core-help: minor branch hints on system_read and system_write
+  * stress-epoll: add branch hints
+  * stress-dup: add branch hints, minor optimization on info struct layout
+  * stress-copy-file: minor optimization repeated verify flag check
+  * stress-context: optimize: remove padding, optimize bogo-checks
+  * stress-close: add branch hints, add one more open type, replace %
+    with &
+  * stress-pipe: use EPIPE for stressor termination, remove need for
+    pipe stop token
+  * stress-pipe: verify just first 32 bits in buffer, add in more
+    optimizations
+  * core-helper: fix stress_rndbuf to fill entire buff
+  * stress-switch: use register for active fd, saves a load each loop
+  * stress-ng.h: add likely hints to keep_stressing()
+  * stress-switch: add branch hints
+  * stress-ng: move counter and flag into structure close to each other
+  * stress-ng.h: align counter to cache boundary
+  * stress-exec: remove logging the status on failed exec
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 13 Apr 2023 16:52:11 +0100
+
 stress-ng (0.15.06-1) unstable; urgency=medium
 
   * Makefile: bump version
