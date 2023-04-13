@@ -321,7 +321,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 	const size_t mem_size)
 {
 	__uint128_t *ptr = (__uint128_t *)mem;
-	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size);
+	size_t end_offset = sizeof(*ptr) * 16;
+	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size - end_offset);
 
 	(void)context;
 
@@ -345,25 +346,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 		ptr[6] = r6;
 		ptr[7] = r7;
 		shim_mb();
-		ptr += 8;
 
-		r0 = ptr[8];
-		r1 = ptr[9];
-		r2 = ptr[10];
-		r3 = ptr[11];
-		r4 = ptr[12];
-		r5 = ptr[13];
-		r6 = ptr[14];
-		r7 = ptr[15];
-		ptr[0] = r0;
-		ptr[1] = r1;
-		ptr[2] = r2;
-		ptr[3] = r3;
-		ptr[4] = r4;
-		ptr[5] = r5;
-		ptr[6] = r6;
-		ptr[7] = r7;
-		shim_mb();
 		ptr += 8;
 	}
 }
