@@ -46,12 +46,20 @@ static int stress_cpu_online_set(
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
 	ret = system_write(filename, data, sizeof(data));
-	if ((ret < 0) &&
-	    ((ret != -EAGAIN) && (ret != -EINTR) &&
-	     (ret != -EBUSY) && (ret != -EOPNOTSUPP))) {
-		pr_fail("%s: write failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+	if (ret < 0) {
+		switch (ret) {
+		case -EAGAIN:
+		case -EINTR:
+		case -EBUSY:
+		case -EOPNOTSUPP:
+			/* Not strictly a failure */
+			return EXIT_NO_RESOURCE;
+		default:
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			/* Anything else is a failure */
+			return EXIT_FAILURE;
+		}
 	}
 	return EXIT_SUCCESS;
 }
@@ -212,27 +220,32 @@ static int stress_cpu_online(const stress_args_t *args)
 
 			t = stress_time_now();
 			rc = stress_cpu_online_set(args, cpu, 0);
-			if (rc != EXIT_SUCCESS)
+			if (rc == EXIT_FAILURE)
 				break;
-			rc = stress_cpu_online_get(cpu, &setting);
-			if ((rc == EXIT_SUCCESS) && (setting != 0)) {
-				pr_inf("%s: set cpu offline, expecting setting to be 0, got %d instead\n",
-					args->name, setting);
-			} else {
-				offline_duration += stress_time_now() - t;
-				offline_count += 1.0;
+			if (rc == EXIT_SUCCESS) {
+				rc = stress_cpu_online_get(cpu, &setting);
+				if ((rc == EXIT_SUCCESS) && (setting != 0)) {
+					pr_inf("%s: set cpu offline, expecting setting to be 0, got %d instead\n",
+						args->name, setting);
+				} else {
+					offline_duration += stress_time_now() - t;
+					offline_count += 1.0;
+				}
 			}
+
 			t = stress_time_now();
 			rc = stress_cpu_online_set(args, cpu, 1);
-			if (rc != EXIT_SUCCESS)
+			if (rc == EXIT_FAILURE)
 				break;
-			rc = stress_cpu_online_get(cpu, &setting);
-			if ((rc == EXIT_SUCCESS) && (setting != 1)) {
-				pr_inf("%s: set cpu offline, expecting setting to be 1, got %d instead\n",
-					args->name, setting);
-			} else {
-				online_duration += stress_time_now() - t;
-				online_count += 1.0;
+			if (rc == EXIT_SUCCESS) {
+				rc = stress_cpu_online_get(cpu, &setting);
+				if ((rc == EXIT_SUCCESS) && (setting != 1)) {
+					pr_inf("%s: set cpu offline, expecting setting to be 1, got %d instead\n",
+						args->name, setting);
+				} else {
+					online_duration += stress_time_now() - t;
+					online_count += 1.0;
+				}
 			}
 			inc_counter(args);
 		}
