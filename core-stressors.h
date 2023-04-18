@@ -88,6 +88,7 @@
 	MACRO(filename)		\
 	MACRO(flock)		\
 	MACRO(flushcache)	\
+	MACRO(fma)		\
 	MACRO(fork)		\
 	MACRO(forkheavy)	\
 	MACRO(fp)		\

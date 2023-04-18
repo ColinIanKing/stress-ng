@@ -432,6 +432,8 @@ static const struct option long_options[] = {
 	{ "flock-ops",		1,	0,	OPT_flock_ops },
 	{ "flushcache",		1,	0,	OPT_flushcache },
 	{ "flushcache-ops",	1,	0,	OPT_flushcache_ops },
+	{ "fma",		1,	0,	OPT_fma },
+	{ "fma-ops",		1,	0,	OPT_fma_ops },
 	{ "fork",		1,	0,	OPT_fork },
 	{ "fork-max",		1,	0,	OPT_fork_max },
 	{ "fork-ops",		1,	0,	OPT_fork_ops },

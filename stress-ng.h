@@ -1278,6 +1278,9 @@ typedef enum {
 	OPT_flushcache,
 	OPT_flushcache_ops,
 
+	OPT_fma,
+	OPT_fma_ops,
+
 	OPT_fork_ops,
 	OPT_fork_max,
 	OPT_fork_vm,

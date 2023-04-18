@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 March 2023"
+.TH STRESS-NG 1 "18 April 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1858,6 +1858,24 @@ which case these become no-ops.
 .TP
 .B \-\-flush\-cache\-ops N
 stop after N cache flush iterations.
+.TP
+.B \-\-fma N
+start N workers that exercise single and double precision floating point
+multiplication and add operations on arrays of 512 floating point values.
+More modern processors (Intel Haswell, AMD Bulldozer and Piledriver) and
+modern C compilers these will be performed by fused-multiply-add (fma3)
+opcodes. Operations used are:
+.TS
+expand;
+l.
+a \(eq a \(mu b \(pl c
+a \(eq b \(mu a \(pl c
+a \(eq b \(mu c \(pl a
+.TE
+.TP
+.B \-\-fma\-ops N
+stop after N bogo-loops of the 3 above operations on 512 single and double
+precision floating point numbers.
 .TP
 .B \-f N, \-\-fork N
 start N workers continually forking children that immediately exit.

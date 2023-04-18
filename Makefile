@@ -238,6 +238,7 @@ STRESS_SRC = \
 	stress-filename.c \
 	stress-flock.c \
 	stress-flushcache.c \
+	stress-fma.c \
 	stress-fork.c \
 	stress-forkheavy.c \
 	stress-fp.c \
