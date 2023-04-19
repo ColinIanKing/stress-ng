@@ -163,7 +163,17 @@ static void OPTIMIZE3 stress_pthread_tid_address(const stress_args_t *args)
     defined(__NR_set_tid_address) &&	\
     defined(HAVE_KERNEL_ULONG_T) &&	\
     defined(HAVE_SYSCALL)
-	__kernel_ulong_t tid_addr = 0;
+	/*
+	 *   prctl(2) states:
+	 *    "Note that since the prctl() system call does not have a compat
+	 *     implementation for the AMD64 x32 and MIPS n32 ABIs, and
+	 *     the kernel writes out a pointer using the kernel's pointer
+	 *     size, this operation expects a user-space buffer of 8 (not
+	 *     4) bytes on these ABIs."
+	 *
+	 *   Use 64 bit tid_addr as default.
+	 */
+	uint64_t tid_addr = 0;
 
 	if (LIKELY(prctl(PR_GET_TID_ADDRESS, &tid_addr, 0, 0, 0) == 0)) {
 		if (tid_addr) {
