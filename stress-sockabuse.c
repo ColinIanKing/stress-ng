@@ -327,7 +327,7 @@ static int stress_sockabuse_server(
 					(void)close(sfd);
 					break;
 				}
-				(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
+				(void)memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
 
 				n = send(sfd, buf, sizeof(buf), 0);
 				if (n < 0) {
