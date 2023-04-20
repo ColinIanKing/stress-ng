@@ -809,8 +809,6 @@ static int stress_io_uring(const stress_args_t *args)
 #else
 	io_uring_file.fd_at = -1;
 #endif
-	(void)shim_unlink(filename);
-
 	stress_file_rw_hint_short(io_uring_file.fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -849,6 +847,7 @@ clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_close_io_uring(&submit);
 	stress_io_uring_unmap_iovecs(&io_uring_file);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
