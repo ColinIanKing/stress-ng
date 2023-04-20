@@ -268,7 +268,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 #else
 			UNEXPECTED
 #endif
-			(void)memset(buf, 'A' + (msgs % 26), sizeof(buf));
+			(void)memset(buf, stress_ascii64[msgs & 63], sizeof(buf));
 			sret = send(sfd, buf, sizeof(buf), 0);
 			if (UNLIKELY(sret < 0)) {
 				if ((errno != EINTR) && (errno != EPIPE))
