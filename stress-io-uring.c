@@ -64,6 +64,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	int fd;			/* file descriptor */
 	int fd_at;		/* file path descriptor */
+	int fd_dup;		/* file descriptor to dup */
 	char *filename;		/* filename */
 	struct iovec *iovecs;	/* iovecs array 1 per block to submit */
 	size_t iovecs_sz;	/* size of iovecs allocation */
@@ -564,7 +565,7 @@ static void stress_io_uring_close_setup(
 	(void)io_uring_file;
 
 	/* don't worry about bad fd if dup fails */
-	sqe->fd = dup(fileno(stdin));
+	sqe->fd = dup(io_uring_file->fd_dup);
 	sqe->opcode = IORING_OP_CLOSE;
 	sqe->ioprio = 0;
 	sqe->off = 0;
@@ -748,6 +749,7 @@ static int stress_io_uring(const stress_args_t *args)
 	(void)memset(&submit, 0, sizeof(submit));
 	(void)memset(&io_uring_file, 0, sizeof(io_uring_file));
 
+	io_uring_file.fd_dup = fileno(stdin);
 	io_uring_file.file_size = file_size;
 	io_uring_file.blocks = blocks;
 	io_uring_file.block_size = block_size;
