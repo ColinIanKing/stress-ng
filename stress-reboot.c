@@ -67,7 +67,9 @@ static int NORETURN reboot_clone_func(void *arg)
 		VOID_RET(int, shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
 			(int)boot_magic[j],
 			(int)SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL));
-		j = (j + 1) % SIZEOF_ARRAY(boot_magic);
+		j++;
+		if (j >= SIZEOF_ARRAY(boot_magic))
+			j = 0;
 	}
 
 	/* Should never get here */
