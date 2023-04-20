@@ -63,6 +63,7 @@ static const stress_help_t help[] = {
  */
 typedef struct {
 	int fd;			/* file descriptor */
+	int fd_at;		/* file path descriptor */
 	char *filename;		/* filename */
 	struct iovec *iovecs;	/* iovecs array 1 per block to submit */
 	size_t iovecs_sz;	/* size of iovecs allocation */
@@ -607,16 +608,21 @@ static void stress_io_uring_statx_setup(
 	stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe)
 {
-	static shim_statx_t statxbuf;
+#if defined(STATX_SIZE)
+	if (io_uring_file->fd_at >= 0) {
+		static shim_statx_t statxbuf;
 
-	sqe->opcode = IORING_OP_STATX;
-	sqe->fd = io_uring_file->fd;
-	sqe->addr = (uintptr_t)io_uring_file->filename;
-	sqe->addr2 = (uintptr_t)&statxbuf;
-	sqe->statx_flags = AT_EMPTY_PATH;
-	sqe->ioprio = 0;
-	sqe->buf_index = 0;
-	sqe->flags = 0;
+		sqe->opcode = IORING_OP_STATX;
+		sqe->fd = io_uring_file->fd_at;
+		sqe->addr = (uintptr_t)"";
+		sqe->addr2 = (uintptr_t)&statxbuf;
+		sqe->statx_flags = AT_EMPTY_PATH;
+		sqe->ioprio = 0;
+		sqe->buf_index = 0;
+		sqe->flags = 0;
+		sqe->len = STATX_SIZE;
+	}
+#endif
 }
 #endif
 
@@ -798,6 +804,11 @@ static int stress_io_uring(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto clean;
 	}
+#if defined(O_PATH)
+	io_uring_file.fd_at = open(filename, O_PATH);
+#else
+	io_uring_file.fd_at = -1;
+#endif
 	(void)shim_unlink(filename);
 
 	stress_file_rw_hint_short(io_uring_file.fd);
@@ -833,6 +844,8 @@ static int stress_io_uring(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(io_uring_file.fd);
 clean:
+	if (io_uring_file.fd_at >= 0)
+		(void)close(io_uring_file.fd_at);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_close_io_uring(&submit);
 	stress_io_uring_unmap_iovecs(&io_uring_file);
