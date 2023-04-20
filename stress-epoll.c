@@ -570,7 +570,9 @@ static int epoll_client(
 		socklen_t addr_len = 0;
 
 		/* Cycle through the servers */
-		port_counter = (port_counter + 1) % max_servers;
+		port_counter = 0;
+		if (port_counter >= max_servers)
+			port_counter = 0;
 retry:
 		if (!keep_stressing_flag())
 			break;
@@ -664,7 +666,7 @@ retry:
 			goto retry;
 		}
 
-		(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
+		(void)memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
 		if (UNLIKELY(send(fd, buf, sizeof(buf), 0) < 0)) {
 			(void)close(fd);
 			pr_dbg("%s: send failed, errno=%d (%s)\n",
