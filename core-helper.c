@@ -119,7 +119,12 @@ int __dso_handle;
 
 #define STRESS_ABS_MIN_STACK_SIZE	(64 * 1024)
 
+const char ALIGN64 stress_ascii64[64] =
+	"0123456789ABCDEFGHIJKLMNOPQRSTUV"
+	"WXYZabcdefghijklmnopqrstuvwxyz@!";
+
 static bool stress_stack_check_flag;
+
 
 typedef struct {
 	const unsigned long	fs_magic;
@@ -3771,3 +3776,4 @@ void stress_set_vma_anon_name(const void *addr, const size_t size, const char *n
 	(void)name;
 #endif
 }
+

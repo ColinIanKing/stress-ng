@@ -2549,6 +2549,9 @@ typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context
 #define STRESS_OOMABLE_QUIET	(0x00000002)		/* Don't report activity */
 
 /* Misc helpers */
+
+extern const char ALIGN64 stress_ascii64[64];
+
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);
 extern void stress_set_oom_adjustment(const char *name, const bool killable);

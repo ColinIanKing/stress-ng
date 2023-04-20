@@ -50,10 +50,6 @@ static int stress_ping_sock(const stress_args_t *args)
 	char ALIGN64 buf[sizeof(*icmp_hdr) + PING_PAYLOAD_SIZE];
 	double t, duration = 0.0, rate;
 
-	static const char ALIGN64 data[64] =
-		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
-		"WXYZabcdefghijklmnopqrstuvwxyz@!";
-
 	if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
 			pr_inf_skip("%s: skipping stressor, protocol not supported\n",
@@ -86,7 +82,7 @@ static int stress_ping_sock(const stress_args_t *args)
 
 	t = stress_time_now();
 	do {
-		(void)memset(buf + sizeof(*icmp_hdr), data[j++ & 63], PING_PAYLOAD_SIZE);
+		(void)memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], PING_PAYLOAD_SIZE);
 		addr.sin_port = htons(rand_port);
 
 		if (LIKELY(sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0))
