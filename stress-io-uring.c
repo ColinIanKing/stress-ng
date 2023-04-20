@@ -835,7 +835,7 @@ static int stress_io_uring(const stress_args_t *args)
 			}
 		}
 
-		if (i++ > 1024) {
+		if (i++ >= 4096) {
 			i = 0;
 			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
