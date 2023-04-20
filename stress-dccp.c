@@ -321,7 +321,7 @@ static int stress_dccp_server(
 				break;
 			}
 
-			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
+			(void)memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
 			switch (dccp_opts) {
 			case DCCP_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
