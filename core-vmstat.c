@@ -1079,7 +1079,7 @@ void stress_vmstat_start(void)
 			double clk_tick_vmstat_delay = (double)clk_tick * (double)vmstat_delay;
 			static uint32_t vmstat_count = 0;
 
-			if ((vmstat_count++ % 25) == 0)
+			if (vmstat_count == 0)
 				pr_inf("vmstat: %2s %2s %9s %9s %9s %9s "
 					"%4s %4s %6s %6s %4s %4s %2s %2s "
 					"%2s %2s %2s\n",
@@ -1087,6 +1087,9 @@ void stress_vmstat_start(void)
 					"cache", "si", "so", "bi", "bo",
 					"in", "cs", "us", "sy", "id",
 					"wa", "st");
+			vmstat_count++;
+			if (vmstat_count >= 25)
+				vmstat_count = 0;
 
 			stress_get_vmstat(&vmstat);
 			pr_inf("vmstat: %2" PRIu64 " %2" PRIu64 /* procs */
@@ -1135,8 +1138,11 @@ void stress_vmstat_start(void)
 					ptr += 7;
 				}
 #endif
-				if ((thermalstat_count++ % 25) == 0)
+				if (thermalstat_count == 0)
 					pr_inf("therm: AvGHz MnGhz MxGHz  LdA1  LdA5 LdA15 %s\n", therms);
+				thermalstat_count++;
+				if (thermalstat_count >= 25)
+					thermalstat_count = 0;
 
 #if defined(__linux__)
 				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
@@ -1169,8 +1175,11 @@ void stress_vmstat_start(void)
 			double clk_scale = (iostat_delay > 0) ? 1.0 / iostat_delay : 0.0;
 			static uint32_t iostat_count = 0;
 
-			if ((iostat_count++ % 25) == 0)
+			if (iostat_count == 0)
 				pr_inf("iostat: Inflght   Rd K/s   Wr K/s Dscd K/s     Rd/s     Wr/s   Dscd/s\n");
+			iostat_count++;
+			if (iostat_count >= 25)
+				iostat_count = 0;
 
 			stress_get_iostat(iostat_name, &iostat);
 			/* sectors are 512 bytes, so >> 1 to get stats in 1024 bytes */
