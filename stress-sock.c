@@ -1031,7 +1031,7 @@ static int OPTIMIZE3 stress_sock_server(
 				}
 			}
 #endif
-			(void)memset(buf, 'A' + (get_counter(args) % 26), MMAP_IO_SIZE);
+			(void)memset(buf, stress_ascii64[get_counter(args) & 63], MMAP_IO_SIZE);
 
 			if (sock_opts == SOCKET_OPT_RANDOM)
 				opt = stress_mwc8modn(3);
