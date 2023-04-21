@@ -80,7 +80,7 @@ static int shellsort32(void *base, size_t nmemb,
 			register size_t j;
 			const uint32_t temp = array[i];
 
-			for (j = i; j >= gap && compar(&array[j - gap], &temp) > 0; j -= gap) {
+			for (j = i; (j >= gap) && (compar(&array[j - gap], &temp) > 0); j -= gap) {
 				array[j] = array[j - gap];
 			}
 			array[j] = temp;
@@ -102,7 +102,7 @@ static int shellsort8(void *base, size_t nmemb,
 			register size_t j;
 			const uint8_t temp = array[i];
 
-			for (j = i; j >= gap && compar(&array[j - gap], &temp) > 0; j -= gap) {
+			for (j = i; (j >= gap) && (compar(&array[j - gap], &temp) > 0); j -= gap) {
 				array[j] = array[j - gap];
 			}
 			array[j] = temp;
