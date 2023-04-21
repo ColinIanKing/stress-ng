@@ -230,8 +230,8 @@ static int stress_sync_file(const stress_args_t *args)
 				continue;
 			break;
 		}
-		for (i = 0; keep_stressing_flag() && i <
-		     (shim_off64_t)sync_file_bytes / (shim_off64_t)(128 * KB); i++) {
+		for (i = 0; keep_stressing_flag() &&
+		     (i < (shim_off64_t)sync_file_bytes / (shim_off64_t)(128 * KB)); i++) {
 			offset = (shim_off64_t)(stress_mwc64modn((uint64_t)sync_file_bytes) & ~((128 * KB) - 1));
 
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
