@@ -755,7 +755,7 @@ again:
 				goto tidy_ok;
 			(void)usleep(50000);
 			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
-		} while (keep_stressing(args) && count < num_instances);
+		} while (keep_stressing(args) && (count < num_instances));
 #endif
 
 		/*
