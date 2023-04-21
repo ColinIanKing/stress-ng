@@ -198,7 +198,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_rotate_info = {
 	.stressor = stress_rotate,
-	.class = CLASS_CPU | CLASS_CPU_CACHE,
+	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
