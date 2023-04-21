@@ -31,7 +31,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
 	{ NULL,	"io-uring-ops N",	"stop after N bogo io-uring I/O requests" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_LINUX_IO_URING_H) &&	\
@@ -55,8 +55,6 @@ static const stress_help_t help[] = {
      defined(HAVE_IORING_OP_STATX) || 	\
      defined(HAVE_IORING_OP_GETXATTR) || \
      defined(HAVE_IORING_OP_SYNC_FILE_RANGE))
-
-
 
 /*
  *  io uring file info
@@ -122,13 +120,19 @@ typedef struct {
 	const stress_io_uring_setup setup_func;	/* setup function */
 } stress_io_uring_setup_info_t;
 
+typedef struct {
+	size_t  index;
+	uint8_t opcode;
+	bool	supported;
+} stress_io_uring_user_data_t;
+
 static const char *stress_io_uring_opcode_name(const uint8_t opcode);
 
 /*
  *  shim_io_uring_setup
  *	wrapper for io_uring_setup()
  */
-static int shim_io_uring_setup(unsigned entries, struct io_uring_params *p)
+static inline int shim_io_uring_setup(unsigned entries, struct io_uring_params *p)
 {
 	return (int)syscall(__NR_io_uring_setup, entries, p);
 }
@@ -137,7 +141,7 @@ static int shim_io_uring_setup(unsigned entries, struct io_uring_params *p)
  *  shim_io_uring_enter
  *	wrapper for io_uring_enter()
  */
-static int shim_io_uring_enter(
+static inline int shim_io_uring_enter(
 	int fd,
 	unsigned int to_submit,
 	unsigned int min_complete,
@@ -187,7 +191,7 @@ static int stress_setup_io_uring(
 	struct io_uring_params p;
 
 	(void)memset(&p, 0, sizeof(p));
-	submit->io_uring_fd = shim_io_uring_setup(256, &p);
+	submit->io_uring_fd = shim_io_uring_setup(64, &p);
 	if (submit->io_uring_fd < 0) {
 		if (errno == ENOSYS) {
 			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n",
@@ -299,14 +303,13 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
  */
 static inline int stress_io_uring_complete(
 	const stress_args_t *args,
-	stress_io_uring_submit_t *submit,
-	const uint8_t opcode,
-	bool *supported)
+	stress_io_uring_submit_t *submit)
 {
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
 	struct io_uring_cqe *cqe;
 	unsigned head = *cring->head;
 	int ret = EXIT_SUCCESS;
+	int completed = 0;
 
 	for (;;) {
 		shim_mb();
@@ -316,22 +319,34 @@ static inline int stress_io_uring_complete(
 			break;
 
 		cqe = &cring->cqes[head & *submit->cq_ring.ring_mask];
-		if ((cqe->res < 0)
-#ifdef HAVE_IORING_OP_FALLOCATE
-			&& (opcode != IORING_OP_FALLOCATE)
-#endif
-		) {
-			const int err = abs(cqe->res);
+		if (cqe->res >= 0) {
+			completed++;
+		} else {
+			int err;
+			stress_io_uring_user_data_t *const user_data =
+				(stress_io_uring_user_data_t *)cqe->user_data;
 
+			err = abs(cqe->res);
 			/* Silently ignore some completion errors */
 			if ((err == EOPNOTSUPP) || (err == ENOTDIR)) {
-				*supported = false;
+				user_data->supported = false;
 			} else  {
-				pr_fail("%s: completion opcode=%d (%s), error=%d (%s)\n",
-					args->name, opcode,
-					stress_io_uring_opcode_name(opcode),
-					err, strerror(err));
-				ret = EXIT_FAILURE;
+				switch (err) {
+				/* Silently ignore some errors */
+				case ENOSPC:
+				case EFBIG:
+					break;
+				case EINVAL:
+					if (user_data->opcode == IORING_OP_FALLOCATE)
+						break;
+					CASE_FALLTHROUGH;
+				default:
+					pr_fail("%s: completion opcode 0x%2.2x (%s), error=%d (%s)\n",
+						args->name, user_data->opcode,
+						stress_io_uring_opcode_name(user_data->opcode),
+						err, strerror(err));
+					ret = EXIT_FAILURE;
+				}
 			}
 		}
 		head++;
@@ -339,8 +354,6 @@ static inline int stress_io_uring_complete(
 
 	*cring->head = head;
 	shim_mb();
-	if (ret == EXIT_SUCCESS)
-		inc_counter(args);
 
 	return ret;
 }
@@ -354,13 +367,12 @@ static int stress_io_uring_submit(
 	stress_io_uring_setup setup_func,
 	stress_io_uring_file_t *io_uring_file,
 	stress_io_uring_submit_t *submit,
-	bool *supported)
+	stress_io_uring_user_data_t *user_data)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
 	unsigned index = 0, tail = 0, next_tail = 0;
 	struct io_uring_sqe *sqe;
 	int ret;
-	uint8_t opcode;
 
 	next_tail = tail = *sring->tail;
 	next_tail++;
@@ -370,7 +382,8 @@ static int stress_io_uring_submit(
 	(void)memset(sqe, 0, sizeof(*sqe));
 
 	setup_func(io_uring_file, sqe);
-	opcode = sqe->opcode;
+	/* Save opcode for later completion error reporting */
+	sqe->user_data = (uint64_t)user_data;
 
 	sring->array[index] = index;
 	tail = next_tail;
@@ -378,6 +391,8 @@ static int stress_io_uring_submit(
 		shim_mb();
 		*sring->tail = tail;
 		shim_mb();
+	} else {
+		return EXIT_FAILURE;
 	}
 
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
@@ -387,15 +402,15 @@ static int stress_io_uring_submit(
 		if (errno == ENOSPC)	
 			return EXIT_SUCCESS;
 		pr_fail("%s: io_uring_enter failed, opcode=%d (%s), errno=%d (%s)\n",
-			args->name, opcode,
-			stress_io_uring_opcode_name(opcode),
+			args->name, sqe->opcode,
+			stress_io_uring_opcode_name(sqe->opcode),
 			errno, strerror(errno));
 		if (errno == EOPNOTSUPP)
-			*supported = false;
+			user_data->supported = false;
 		return EXIT_FAILURE;
 	}
-
-	return stress_io_uring_complete(args, submit, opcode, supported);
+	inc_counter(args);
+	return EXIT_SUCCESS;
 }
 
 #if defined(HAVE_IORING_OP_READV)
@@ -647,47 +662,35 @@ static void stress_io_uring_sync_file_range_setup(
 }
 #endif
 
-#if defined(HAVE_IORING_OP_GETXATTR)
 /*
- *  stress_io_uring_getxattr_setup()
- *	setup getxattr submit over io_uring
+ *  We have some duplications here because we want to perform more than
+ *  one of these io-urion ops per round before we do a completion so we
+ *  can add more activity onto the ring for a bit more activity/stress.
  */
-static void stress_io_uring_getxattr_setup(
-	stress_io_uring_file_t *io_uring_file,
-	struct io_uring_sqe *sqe)
-{
-	char value[1024];
-
-	sqe->opcode = IORING_OP_STATX;
-	sqe->fd = io_uring_file->fd;
-	sqe->addr = (uintptr_t)io_uring_file->filename;
-	sqe->addr2 = (uintptr_t)value;
-	sqe->len = sizeof(value);
-	sqe->xattr_flags = 0;
-	sqe->ioprio = 0;
-	sqe->buf_index = 0;
-	sqe->flags = 0;
-}
-#endif
-
-
 static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_READV)
+	{ IORING_OP_READV,	"IORING_OP_READV", 	stress_io_uring_readv_setup },
 	{ IORING_OP_READV,	"IORING_OP_READV", 	stress_io_uring_readv_setup },
 #endif
 #if defined(HAVE_IORING_OP_WRITEV)
 	{ IORING_OP_WRITEV,	"IORING_OP_WRITEV",	stress_io_uring_writev_setup },
+	{ IORING_OP_WRITEV,	"IORING_OP_WRITEV",	stress_io_uring_writev_setup },
 #endif
 #if defined(HAVE_IORING_OP_READ)
 	{ IORING_OP_READ,	"IORING_OP_READ",	stress_io_uring_read_setup },
+	{ IORING_OP_READ,	"IORING_OP_READ",	stress_io_uring_read_setup },
 #endif
 #if defined(HAVE_IORING_OP_WRITE)
+	{ IORING_OP_WRITE,	"IORING_OP_WRITE",	stress_io_uring_write_setup },
 	{ IORING_OP_WRITE,	"IORING_OP_WRITE",	stress_io_uring_write_setup },
 #endif
 #if defined(HAVE_IORING_OP_FSYNC)
 	{ IORING_OP_FSYNC,	"IORING_OP_FSYNC",	stress_io_uring_fsync_setup },
 #endif
 #if defined(HAVE_IORING_OP_NOP)
+	{ IORING_OP_NOP,	"IORING_OP_NOP",	stress_io_uring_nop_setup },
+	{ IORING_OP_NOP,	"IORING_OP_NOP",	stress_io_uring_nop_setup },
+	{ IORING_OP_NOP,	"IORING_OP_NOP",	stress_io_uring_nop_setup },
 	{ IORING_OP_NOP,	"IORING_OP_NOP",	stress_io_uring_nop_setup },
 #endif
 #if defined(HAVE_IORING_OP_FALLOCATE)
@@ -704,12 +707,10 @@ static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_STATX)
 	{ IORING_OP_STATX,	"IORING_OP_STATX",	stress_io_uring_statx_setup },
+	{ IORING_OP_STATX,	"IORING_OP_STATX",	stress_io_uring_statx_setup },
 #endif
 #if defined(HAVE_IORING_OP_SYNC_FILE_RANGE)
 	{ IORING_OP_SYNC_FILE_RANGE, "IORING_OP_SYNC_FILE_RANGE", stress_io_uring_sync_file_range_setup },
-#endif
-#if defined(HAVE_IORING_OP_GETXATTR)
-	{ IORING_OP_GETXATTR, "IORING_OP_GETXATTR",	stress_io_uring_getxattr_setup },
 #endif
 };
 
@@ -728,7 +729,6 @@ static const char *stress_io_uring_opcode_name(const uint8_t opcode)
 	return "unknown";
 }
 
-
 /*
  *  stress_io_uring
  *	stress asynchronous I/O
@@ -744,7 +744,7 @@ static int stress_io_uring(const stress_args_t *args)
 	off_t file_size = (off_t)blocks * block_size;
 	stress_io_uring_submit_t submit;
 	const pid_t self = getpid();
-	bool supported[SIZEOF_ARRAY(stress_io_uring_setups)];
+	stress_io_uring_user_data_t user_data[SIZEOF_ARRAY(stress_io_uring_setups)];
 
 	(void)memset(&submit, 0, sizeof(submit));
 	(void)memset(&io_uring_file, 0, sizeof(io_uring_file));
@@ -819,21 +819,24 @@ static int stress_io_uring(const stress_args_t *args)
 	 *  Assume all opcodes are supported
 	 */
 	for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
-		supported[j] = true;
+		user_data[j].supported = true;
+		user_data[j].index = j;
+		user_data[j].opcode = stress_io_uring_setups[j].opcode;
 	}
 
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
 		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
-			if (supported[j]) {
+			if (user_data[j].supported) {
 				rc = stress_io_uring_submit(args,
 					stress_io_uring_setups[j].setup_func,
-					&io_uring_file, &submit, &supported[j]);
+					&io_uring_file, &submit, &user_data[j]);
 				if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
 					break;
 			}
 		}
+		stress_io_uring_complete(args, &submit);
 
 		if (i++ >= 4096) {
 			i = 0;
