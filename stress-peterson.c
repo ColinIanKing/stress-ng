@@ -56,7 +56,7 @@ static void stress_peterson_p0(const stress_args_t *args)
 	peterson->m.flag[0] = true;
 	peterson->m.turn = 1;
 	shim_mfence();
-	while (peterson->m.flag[1] && peterson->m.turn == 1) {
+	while (peterson->m.flag[1] && (peterson->m.turn == 1)) {
 	}
 
 	/* Critical section */
@@ -84,7 +84,7 @@ static void stress_peterson_p1(const stress_args_t *args)
 	peterson->m.flag[1] = true;
 	peterson->m.turn = 0;
 	shim_mfence();
-	while (peterson->m.flag[0] && peterson->m.turn == 0) {
+	while (peterson->m.flag[0] && (peterson->m.turn == 0)) {
 	}
 
 	/* Critical section */
