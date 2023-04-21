@@ -427,7 +427,7 @@ static int stress_vecfp(const stress_args_t *args)
 		for (i = 1; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 			const double ops = stress_vecfp_funcs[i].ops;
 			const double duration = stress_vecfp_funcs[i].duration;
-			if (duration > 0.0 && ops > 0.0) {
+			if ((duration > 0.0) && (ops > 0.0)) {
 				double rate = stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration;
 
 				pr_dbg("%s: %14.14s %13.3f\n", args->name, stress_vecfp_funcs[i].name, rate / 1000000.0);
