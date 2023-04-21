@@ -215,7 +215,7 @@ retry:
 			return;
 
 		/* This is just so wrong... */
-		if (n < 10000 && errno == EMFILE) {
+		if ((n < 10000) && (errno == EMFILE)) {
 			/*
 			 * inotify cleanup may be still running from a previous
 			 * iteration, in which case we've run out of resources
@@ -330,7 +330,7 @@ cleanup:
  */
 static int rm_file(const stress_args_t *args, const char *path)
 {
-	if ((shim_unlink(path) < 0) && errno != ENOENT) {
+	if ((shim_unlink(path) < 0) && (errno != ENOENT)) {
 		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
