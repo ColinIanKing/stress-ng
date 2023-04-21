@@ -709,7 +709,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 		for (i = 1; hash_methods[i].name; i++) {
 			stress_hash_stats_t *stats = hash_methods[i].stats;
 
-			if (stats->duration > 0.0 && stats->total > 0) {
+			if ((stats->duration > 0.0) && (stats->total > 0)) {
 				const double rate = (double)((stats->duration > 0.0) ?
 					(double)stats->total / stats->duration : (double)0.0);
 
