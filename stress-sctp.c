@@ -610,7 +610,7 @@ die_close:
 die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && sctp_domain == AF_UNIX) {
+	if (addr && (sctp_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
