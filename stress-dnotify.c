@@ -142,7 +142,7 @@ cleanup:
  */
 static int rm_file(const stress_args_t *args, const char *path)
 {
-	if ((shim_force_unlink(path) < 0) && errno != ENOENT) {
+	if ((shim_force_unlink(path) < 0) && (errno != ENOENT)) {
 		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
