@@ -148,7 +148,7 @@ static void stress_bad_ioctl_dev_dir(
 			int dev_n;
 			char *ptr = d->d_name + len - 1;
 
-			while (ptr > d->d_name && isdigit((int)*ptr))
+			while ((ptr > d->d_name) && isdigit((int)*ptr))
 				ptr--;
 			ptr++;
 			dev_n = atoi(ptr);
@@ -437,7 +437,7 @@ again:
 				(void)shim_waitpid(pid, &status, 0);
 			} else {
 				if (WIFEXITED(status) &&
-				    WEXITSTATUS(status) != 0) {
+				    (WEXITSTATUS(status) != 0)) {
 					rc = EXIT_FAILURE;
 					break;
 				}
