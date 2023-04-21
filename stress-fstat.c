@@ -296,7 +296,7 @@ static int stress_fstat(const stress_args_t *args)
 	do {
 		stat_some = false;
 
-		for (si = stat_info; keep_stressing_flag() && si; si = si->next) {
+		for (si = stat_info; si && keep_stressing_flag(); si = si->next) {
 			if (!keep_stressing(args))
 				break;
 			if (si->ignore == IGNORE_ALL)
