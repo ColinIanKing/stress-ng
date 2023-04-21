@@ -488,14 +488,14 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto ret;
 		for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += stride) {
-			for (j = 0; j < i && ptr < (uint8_t *)buf_end; j++) {
+			for (j = 0; (j < i) && (ptr < (uint8_t *)buf_end); j++) {
 				*ptr++ = compliment;
 				c++;
 			}
 			if (UNLIKELY(!keep_stressing_flag()))
 				goto ret;
 			ptr++;
-			for (j = i + 1; j < stride && ptr < (uint8_t *)buf_end; j++) {
+			for (j = i + 1; (j < stride) && (ptr < (uint8_t *)buf_end); j++) {
 				*ptr++ = compliment;
 				c++;
 			}
@@ -3068,7 +3068,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 		}
 	} while (keep_stressing_vm(args));
 
-	if (vm_keep && buf != NULL)
+	if (vm_keep && (buf != NULL))
 		(void)munmap((void *)buf, buf_sz);
 
 	return rc;
