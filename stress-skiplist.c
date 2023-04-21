@@ -200,7 +200,7 @@ static void skip_list_free(skip_list_t *list)
 	skip_node_t *head = list->head;
 	skip_node_t *skip_node = head;
 
-	while (skip_node && skip_node->skip_nodes[1] != head) {
+	while (skip_node && (skip_node->skip_nodes[1] != head)) {
 		skip_node_t *next = skip_node->skip_nodes[1];
 
 		free(skip_node);
