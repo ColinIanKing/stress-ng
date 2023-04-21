@@ -111,7 +111,7 @@ static int stress_hsearch(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing_flag() && i < max; i++) {
+		for (i = 0; keep_stressing_flag() && (i < max); i++) {
 			ENTRY e, *ep;
 
 			e.key = keys[i];
