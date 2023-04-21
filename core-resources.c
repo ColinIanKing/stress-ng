@@ -84,8 +84,6 @@ size_t stress_resources_allocate(
 	if ((freemem > 0) && (freemem < min_mem_free))
 		return 0;
 
-	(void)memset(resources, 0, sizeof(*resources) * num_resources);
-
 	for (i = 0; i < num_resources; i++) {
 #if defined(HAVE_MEMFD_CREATE)
 		char name[64];

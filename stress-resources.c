@@ -87,6 +87,11 @@ static int stress_resources(const stress_args_t *args)
 		unsigned int i;
 
 		(void)memset(pids, 0, sizeof(*pids));
+		(void)memset(resources, 0, sizeof(*resources) * num_resources);
+
+		for (i = 0; i < num_resources; i++)
+			resources[i].sem_id = -1;
+
 		for (i = 0; i < num_pids; i++) {
 			pid_t pid;
 
