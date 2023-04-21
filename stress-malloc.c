@@ -314,7 +314,7 @@ static void *stress_malloc_loop(void *ptr)
 	}
 
 	for (j = 0; j < malloc_max; j++) {
-		if (verify && info[j].addr && (uintptr_t)info[j].addr != *info[j].addr) {
+		if (verify && info[j].addr && ((uintptr_t)info[j].addr != *info[j].addr)) {
 			pr_fail("%s: allocation at %p does not contain correct value\n",
 				args->name, (void *)info[j].addr);
 		}
