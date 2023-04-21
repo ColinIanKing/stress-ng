@@ -200,7 +200,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		if ((stress_time_now() - context->start) > (double)g_opt_timeout)
 			break;
 		/* Check for counter limit reached */
-		if (args->max_ops && get_counter(args) >= args->max_ops)
+		if (args->max_ops && (get_counter(args) >= args->max_ops))
 			break;
 
 		if (ret == 0) {
