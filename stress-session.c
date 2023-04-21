@@ -211,7 +211,7 @@ static int stress_session(const stress_args_t *args)
 			if (WIFEXITED(status) &&
 			   (WEXITSTATUS(status) != STRESS_SESSION_SUCCESS)) {
 				if ((n < (ssize_t)sizeof(error)) ||
-				   ((n == (ssize_t)sizeof(error)) && error.err == 0)) {
+				   ((n == (ssize_t)sizeof(error)) && (error.err == 0))) {
 					pr_fail("%s: failure in child, %s\n", args->name,
 						stress_session_error(WEXITSTATUS(status)));
 				} else {
