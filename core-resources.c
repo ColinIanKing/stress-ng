@@ -31,6 +31,100 @@ static void *stress_resources_pthread_func(void *ctxt)
 #endif
 
 /*
+ *  stress_resources_init()
+ *	helper function to set resources to initial 'unallocated' values
+ */
+static void stress_resources_init(stress_resources_t *resources, const size_t num_resources)
+{
+	size_t i;
+
+	for (i = 0; i < num_resources; i++) {
+		resources[i].m_malloc = NULL;
+		resources[i].m_mmap = MAP_FAILED;
+		resources[i].pipe_ret = -1;
+		resources[i].fd_open = -1;
+#if defined(HAVE_EVENTFD)
+		resources[i].fd_ev = -1;
+#endif
+#if defined(HAVE_MEMFD_CREATE)
+		resources[i].fd_memfd = -1;
+		resources[i].ptr_memfd = NULL;
+#endif
+#if defined(__NR_memfd_secret)
+		resources[i].fd_memfd_secret = -1;
+		resources[i].ptr_memfd_secret = NULL;
+#endif
+		resources[i].fd_sock = -1;
+		resources[i].fd_socketpair[0] = -1;
+		resources[i].fd_socketpair[1] = -1;
+#if defined(HAVE_USERFAULTFD)
+		resources[i].fd_uf = -1;
+#endif
+#if defined(O_TMPFILE)
+		resources[i].fd_tmp = -1;
+#endif
+#if defined(HAVE_LIB_PTHREAD)
+		resources[i].pthread_ret = -1;
+		resources[i].pthread = (pthread_t)0;
+#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY)
+		(void)memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
+		resources[i].mutex_ret = -1;
+#endif
+#endif
+
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(SIGUNUSED)
+		resources[i].timerok = false;
+#endif
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME)
+		resources[i].timer_fd = -1;
+#endif
+#if defined(HAVE_SYS_INOTIFY)
+		resources[i].wd_inotify = -1;
+		resources[i].fd_inotify = -1;
+#endif
+#if defined(HAVE_PTSNAME)
+		resources[i].pty = -1;
+		resources[i].pty_mtx = -1;
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SEM_POSIX)
+		resources[i].semok = false;
+#endif
+#if defined(HAVE_SEM_SYSV)
+		resources[i].sem_id = -1;
+#endif
+#if defined(HAVE_MQ_SYSV) &&	\
+    defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_MSG_H)
+		resources[i].msgq_id = -1;
+#endif
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_MQ_POSIX) &&	\
+    defined(HAVE_MQUEUE_H)
+		resources[i].mq = -1;
+		resources[i].mq_name[0] = '\0';
+#endif
+#if defined(HAVE_PKEY_ALLOC) &&	\
+    defined(HAVE_PKEY_FREE)
+		resources[i].pkey = -1;
+#endif
+#if defined(HAVE_PIDFD_OPEN)
+		resources[i].pid_fd = -1;
+#endif
+		resources[i].pid = 0;
+	}
+}
+
+/*
  *  stress_resources_allocate()
  *	allocate a wide range of resources, perform num_resources
  *	resource allocations
@@ -54,6 +148,7 @@ size_t stress_resources_allocate(
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
 
+	stress_resources_init(resources, num_resources);
 	stress_ksm_memory_merge(1);
 
 	(void)pid;
