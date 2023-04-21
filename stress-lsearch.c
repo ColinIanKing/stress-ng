@@ -99,13 +99,13 @@ static int stress_lsearch(const stress_args_t *args)
 		stress_sort_data_int32_shuffle(data, max);
 
 		/* Step #1, populate with data */
-		for (i = 0; keep_stressing_flag() && i < max; i++) {
+		for (i = 0; keep_stressing_flag() && (i < max); i++) {
 			VOID_RET(void *, lsearch(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32));
 		}
 		/* Step #2, find */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		for (i = 0; keep_stressing_flag() && i < n; i++) {
+		for (i = 0; keep_stressing_flag() && (i < n); i++) {
 			int32_t *result;
 
 			result = lfind(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32);
