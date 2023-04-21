@@ -434,7 +434,7 @@ static inline void stress_proc_rw(
 		if (ret < (ssize_t)(sizeof(buffer) >> 1)) {
 			char *bptr;
 
-			for (bptr = buffer; *bptr && *bptr != '\n'; bptr++)
+			for (bptr = buffer; *bptr && (*bptr != '\n'); bptr++)
 				;
 			if (*bptr == '\n') {
 				const off_t offset = 2 + (bptr - buffer);
@@ -704,10 +704,10 @@ static void stress_proc_dir(
 	}
 
 	/* Now recurse on directories */
-	for (i = 0; i < n && keep_stressing_flag(); i++) {
+	for (i = 0; (i < n) && keep_stressing_flag(); i++) {
 		struct dirent *d = dlist[i];
 
-		if (d && d->d_type == DT_DIR) {
+		if (d && (d->d_type == DT_DIR)) {
 			(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 
 			free(d);
