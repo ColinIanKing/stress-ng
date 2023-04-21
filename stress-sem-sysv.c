@@ -229,7 +229,7 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(const stress_args_t *args)
 				timeout.tv_sec = 1;
 				timeout.tv_nsec = 0;
 				ret = semtimedop(sem_id, &semwait, 1, &timeout);
-				if (ret < 0 && ((errno == ENOSYS) || (errno == EINVAL))) {
+				if ((ret < 0) && ((errno == ENOSYS) || (errno == EINVAL))) {
 					got_semtimedop = false;
 					ret = semop(sem_id, &semwait, 1);
 				}
