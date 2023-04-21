@@ -206,7 +206,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 								\
 	t1 = stress_time_now();					\
-	for (i = 0; keep_stressing_flag() && i < loops ; i++) {	\
+	for (i = 0; keep_stressing_flag() && (i < loops); i++) {\
 		fp_data[0].field.r /= fp_data[0].field.mul;	\
 		fp_data[0].field.r /= fp_data[0].field.mul_rev;	\
 		fp_data[1].field.r /= fp_data[1].field.mul;	\
@@ -495,7 +495,7 @@ static int stress_fp(const stress_args_t *args)
 		for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
 			const double ops = stress_fp_funcs[i].ops;
 			const double duration = stress_fp_funcs[i].duration;
-			if (duration > 0.0 && ops > 0.0) {
+			if ((duration > 0.0) && (ops > 0.0)) {
 				char msg[64];
 				const double rate = stress_fp_funcs[i].ops / stress_fp_funcs[i].duration;
 
