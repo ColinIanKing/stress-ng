@@ -2842,17 +2842,17 @@ static int stress_sysinval(const stress_args_t *args)
 
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	if (stress_syscall_exercised && stress_syscall_exercised != MAP_FAILED)
+	if (stress_syscall_exercised && (stress_syscall_exercised != MAP_FAILED))
 		(void)munmap((void *)stress_syscall_exercised, stress_syscall_exercised_sz);
-	if (hash_table && hash_table != MAP_FAILED)
+	if (hash_table && (hash_table != MAP_FAILED))
 		(void)munmap((void *)hash_table, sizeof(*hash_table));
-	if (page_ptr_wr && page_ptr_wr != MAP_FAILED)
+	if (page_ptr_wr && (page_ptr_wr != MAP_FAILED))
 		(void)munmap((void *)page_ptr_wr, page_ptr_wr_size);
-	if (page_ptr && page_ptr != MAP_FAILED)
+	if (page_ptr && (page_ptr != MAP_FAILED))
 		(void)munmap((void *)page_ptr, page_size);
-	if (small_ptr && small_ptr != MAP_FAILED)
+	if (small_ptr && (small_ptr != MAP_FAILED))
 		(void)munmap((void *)small_ptr, small_ptr_size);
-	if (current_context && current_context != MAP_FAILED)
+	if (current_context && (current_context != MAP_FAILED))
 		(void)munmap((void *)current_context, current_context_size);
 	if (sockfds[0] >= 0)
 		(void)close((int)sockfds[0]);
