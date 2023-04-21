@@ -1041,7 +1041,7 @@ rnd_rd_retry:
 								baddata++;
 						} else {
 							/* Write rnd has written to some of the file, so data either zero or OK */
-							if (buf[j] != 0 && buf[j] != v)
+							if ((buf[j] != 0) && (buf[j] != v))
 								baddata++;
 						}
 					}
