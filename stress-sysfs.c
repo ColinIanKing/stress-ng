@@ -352,7 +352,7 @@ err:
 			 */
 			const char *rom = strstr(path, "rom");
 
-			if (rom && rom[3] == '\0') {
+			if (rom && (rom[3] == '\0')) {
 				if ((fd = open(path, O_RDWR | O_NONBLOCK)) < 0)
 					goto next;
 				/* Enable ROM read */
