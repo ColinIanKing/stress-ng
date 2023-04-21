@@ -442,7 +442,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 	int ret_dummy = EINVAL;
 	pthread_t pthread_exec, pthread_dummy = 0;
 
-	if (!context->no_pthread && (stress_mwc8() & 3) == 0) {
+	if (!context->no_pthread && ((stress_mwc8() & 3) == 0)) {
 		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)context);
 
 		ret = pthread_create(&pthread_exec, NULL, stress_exec_from_pthread, (void*)context);
