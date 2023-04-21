@@ -231,7 +231,7 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		if (errno == ETIMEDOUT && retries-- > 0)
+		if ((errno == ETIMEDOUT) && (retries-- > 0))
 			goto retry_bind;
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -354,7 +354,7 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		if (errno == ETIMEDOUT && retries-- > 0)
+		if ((errno == ETIMEDOUT) && (retries-- > 0))
 			goto retry_bind;
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -602,7 +602,7 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		if (errno == ETIMEDOUT && retries-- > 0)
+		if ((errno == ETIMEDOUT) && (retries-- > 0))
 			goto retry_bind;
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -763,7 +763,7 @@ static int stress_af_alg(const stress_args_t *args)
 
 	(void)stress_get_setting("af-alg-dump", &af_alg_dump);
 
-	if (af_alg_dump && args->instance == 0) {
+	if (af_alg_dump && (args->instance == 0)) {
 		pr_inf("%s: dumping cryptographic algorithms found in /proc/crypto to stdout\n",
 			args->name);
 		stress_af_alg_sort_crypto();
@@ -820,7 +820,7 @@ static int stress_af_alg(const stress_args_t *args)
 	do {
 		stress_crypto_info_t *info;
 
-		for (info = crypto_info_list; keep_stressing(args) && info; info = info->next) {
+		for (info = crypto_info_list; info && keep_stressing(args); info = info->next) {
 			if (info->internal || info->ignore)
 				continue;
 			switch (info->crypto_type) {
