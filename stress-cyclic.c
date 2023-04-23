@@ -850,6 +850,7 @@ tidy:
 		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
 
 		(void)pause();
+		force_killed_counter(args);
 		(void)kill(pid, SIGKILL);
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);

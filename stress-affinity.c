@@ -115,22 +115,26 @@ static int stress_affinity_supported(const char *name)
  *  stress_affinity_reap()
  *	kill and wait on child processes
  */
-static void stress_affinity_reap(const pid_t *pids)
+static void stress_affinity_reap(const stress_args_t *args, const pid_t *pids)
 {
 	size_t i;
 	const pid_t mypid = getpid();
 
+	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
+		if ((pids[i] > 1) && (pids[i] != mypid))
+			(void)kill(pids[i], SIGALRM);
+	}
 	/*
 	 *  Kill and reap children
 	 */
 	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
-		if ((pids[i] > 1) && (pids[i] != mypid))
-			(void)kill(pids[i], SIGKILL);
-	}
-	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid)) {
 			int status;
 
+			if (kill(pids[i], 0) == 0) {
+				force_killed_counter(args);
+				(void)kill(pids[i], SIGKILL);
+			}
 			(void)waitpid(pids[i], &status, 0);
 		}
 	}
@@ -238,7 +242,7 @@ affinity_continue:
 			shim_nanosleep_uint64(info->affinity_sleep);
 	} while (keep_stressing(args));
 
-	stress_affinity_reap(pids);
+	stress_affinity_reap(args, pids);
 }
 
 static int stress_affinity(const stress_args_t *args)
@@ -298,7 +302,7 @@ static int stress_affinity(const stress_args_t *args)
 	 *  will have reap'd the processes, but to be safe, reap again
 	 *  to ensure all processes are really dead and reaped.
 	 */
-	stress_affinity_reap(pids);
+	stress_affinity_reap(args, pids);
 
 	(void)munmap((void *)info, info_sz);
 	(void)stress_lock_destroy(counter_lock);

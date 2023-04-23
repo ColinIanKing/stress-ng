@@ -2461,7 +2461,7 @@ again:
 					 *  if not then flag up that the counter may
 					 *  be untrustyworthy
 					 */
-					if (!stats->ci.counter_ready) {
+					if ((!stats->ci.counter_ready) && (!stats->ci.force_killed)) {
 						pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
 							"metrics are untrustworthy (process may have been "
 							"terminated prematurely)\n",

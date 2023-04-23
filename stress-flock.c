@@ -301,10 +301,17 @@ reap:
 	(void)close(fd);
 
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
+		if (pids[i] > 0)
+			(void)kill(pids[i], SIGALRM);
+	}
+	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
 		if (pids[i] > 0) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
+			if (kill(pids[i], 0) == 0) {
+				force_killed_counter(args);
+				(void)kill(pids[i], SIGKILL);
+			}
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}

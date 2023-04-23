@@ -1796,8 +1796,11 @@ again:
 
 	(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 
-	(void)kill(pid, SIGKILL);
-	(void)shim_waitpid(pid, &status, 0);
+	if (kill(pid, 0) == 0) {
+		force_killed_counter(args);
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
+	}
 
 	return ret;
 }

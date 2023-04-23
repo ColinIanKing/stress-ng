@@ -38,7 +38,6 @@ static int stress_sigsuspend(const stress_args_t *args)
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;
 	sigset_t mask, oldmask;
-	int status;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
@@ -86,10 +85,16 @@ again:
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (i = 0; i < n; i++) {
-		/* terminate child */
-		(void)kill(pid[i], SIGKILL);
-		(void)shim_waitpid(pid[i], &status, 0);
+		if (kill(pid[i], 0) == 0) {
+			int status;
+
+			/* terminate child */
+			force_killed_counter(args);
+			(void)kill(pid[i], SIGKILL);
+			(void)shim_waitpid(pid[i], &status, 0);
+		}
 	}
+
 	(void)stress_lock_destroy(counter_lock);
 
 	return EXIT_SUCCESS;

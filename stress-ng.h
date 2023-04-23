@@ -395,6 +395,7 @@ typedef struct {
 	uint64_t	counter;	/* bogo-op counter */
 	bool		counter_ready;	/* ready flag */
 	bool	 	run_ok;		/* stressor run w/o issues */
+	bool		force_killed;	/* true if sent SIGKILL */
 } stress_counter_info_t;
 
 /*
@@ -2368,6 +2369,10 @@ static inline void ALWAYS_INLINE OPTIMIZE3 keep_stressing_set_flag(const bool se
 /*
  *  add_counter()
  *	add inc to the stessor bogo ops counter
+ *	NOTE: try to only add to the counter inside a stressor
+ *	and not a child process of a stressor. If one has to add to
+ *	the counter in a child and the child is force KILL'd then indicate
+ *	so with the force_killed_counter() call from the parent.
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 add_counter(const stress_args_t *args, const uint64_t inc)
 {
@@ -2383,6 +2388,10 @@ static inline void ALWAYS_INLINE OPTIMIZE3 add_counter(const stress_args_t *args
 /*
  *  inc_counter()
  *	increment the stessor bogo ops counter
+ *	NOTE: try to only increment the counter inside a stressor
+ *	and not a child process of a stressor. If one has to increment
+ *	the counter in a child and the child is force KILL'd then indicate
+ *	so with the force_killed_counter() call from the parent.
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 inc_counter(const stress_args_t *args)
 {
@@ -2409,6 +2418,10 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 get_counter(const stress_args_t *
 /*
  *  set_counter()
  *	set the stessor bogo ops counter
+ *	NOTE: try to only set the counter inside a stressor
+ *	and not a child process of a stressor. If one has to set
+ *	the counter in a child and the child is force KILL'd then indicate
+ *	so with the force_killed_counter() call from the parent.
  */
 static inline void ALWAYS_INLINE OPTIMIZE3 set_counter(const stress_args_t *args, const uint64_t val)
 {
@@ -2419,6 +2432,17 @@ static inline void ALWAYS_INLINE OPTIMIZE3 set_counter(const stress_args_t *args
 	ci->counter = val;
 	shim_mb();
 	ci->counter_ready = true;
+}
+
+/*
+ *  force_killed_counter()
+ *	note that the process is force killed and counter ready state can
+ *	be ignored. Use only if the parent kills the child *and* the child
+ *	was used to increment the bogo-op counter.
+ */
+static inline void ALWAYS_INLINE force_killed_counter(const stress_args_t *args)
+{
+	args->ci->force_killed = true;
 }
 
 /*

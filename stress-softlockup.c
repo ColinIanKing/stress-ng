@@ -264,7 +264,14 @@ tidy:
 		(void)sched_setscheduler(args->pid, policies[0].policy, &param);
 
 		(void)pause();
-		(void)kill(pid, SIGKILL);
+		(void)kill(pid, SIGALRM);
+		if (shim_waitpid(pid, &status, 0) < 0) {
+			if (kill(pid, 0) == 0) {
+				force_killed_counter(args);
+				(void)kill(pid, SIGKILL);
+				shim_waitpid(pid, &status, 0);
+			}
+		}
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
 #endif

@@ -151,6 +151,7 @@ static int stress_nice(const stress_args_t *args)
 
 			/* Parent, wait for child */
 			if (shim_waitpid(pid, &status, 0) < 0) {
+				force_killed_counter(args);
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
 			}

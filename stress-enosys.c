@@ -3631,8 +3631,13 @@ again:
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGALRM);
+
+			/* Still alive, kill it */
+			if (kill(pid, 0) == 0) {
+				force_killed_counter(args);
+				(void)kill(pid, SIGKILL);
+			}
 			(void)shim_waitpid(pid, &status, 0);
-			(void)kill(pid, SIGKILL);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),

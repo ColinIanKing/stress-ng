@@ -239,7 +239,7 @@ static inline pid_t stress_fiemap_spawn(const stress_args_t *args, const int fd)
 static int stress_fiemap(const stress_args_t *args)
 {
 	pid_t pids[MAX_FIEMAP_PROCS];
-	int ret, fd, rc = EXIT_FAILURE, status;
+	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	size_t i, n;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
@@ -314,9 +314,15 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* And reap stressors */
 	for (i = 0; i < n; i++) {
-		(void)kill(pids[i], SIGKILL);
+		(void)kill(pids[i], SIGALRM);
 	}
 	for (i = 0; i < n; i++) {
+		int status;
+
+		if (kill(pids[i], 0) == 0) {
+			force_killed_counter(args);
+			(void)kill(pids[i], SIGKILL);
+		}
 		(void)shim_waitpid(pids[i], &status, 0);
 	}
 close_clean:
