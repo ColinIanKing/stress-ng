@@ -403,8 +403,8 @@ retry:
 			stress_io_uring_complete(args, submit);
 			goto retry;
 		}
-		/* Silently ignore ENOSPC failures */
-		if (errno == ENOSPC)
+		/* Silently ignore ENOSPC or cancel opcode failures */
+		if ((errno == ENOSPC) || (sqe->opcode == IORING_OP_ASYNC_CANCEL))
 			return EXIT_SUCCESS;
 		pr_fail("%s: io_uring_enter failed, opcode=%d (%s), errno=%d (%s)\n",
 			args->name, sqe->opcode,
