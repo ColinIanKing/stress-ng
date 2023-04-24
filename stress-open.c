@@ -382,7 +382,8 @@ static int open_flag_perm(
 #endif
 	(void)shim_unlink(filename);
 	index++;
-	index %= open_count;
+	if (index >= open_count)
+		index = 0;
 
 	return fd;
 }
