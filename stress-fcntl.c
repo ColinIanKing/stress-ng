@@ -179,12 +179,13 @@ static int do_fcntl(
 
 			/* Exercise all permutations of SETFL flags */
 			if ((setfl_flag_count > 0) && (setfl_flag_perms)) {
-				static int index;
+				static size_t index;
 
 				VOID_RET(int, fcntl(fd, F_SETFL, setfl_flag_perms[index]));
 
 				index++;
-				index %= setfl_flag_count;
+				if (index >= setfl_flag_count)
+					index = 0;
 			}
 
 			new_flags = old_flags | O_APPEND;
