@@ -182,7 +182,7 @@ static int stress_unshare(const stress_args_t *args)
 		}
 
 		for (n = 0; n < MAX_PIDS; n++) {
-			static int index;
+			static size_t index;
 			int clone_flag = 0;
 			const bool do_flag_perm = stress_mwc1();
 
@@ -197,7 +197,8 @@ static int stress_unshare(const stress_args_t *args)
 			if (do_flag_perm) {
 				clone_flag = clone_flag_perms[index];
 				index++;
-				index %= clone_flag_count;
+				if (index >= clone_flag_count)
+					index = 0;
 			}
 
 			unshare_info[n].pid = fork();
