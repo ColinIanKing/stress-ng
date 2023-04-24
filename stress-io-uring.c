@@ -191,7 +191,7 @@ static int stress_setup_io_uring(
 	struct io_uring_params p;
 
 	(void)memset(&p, 0, sizeof(p));
-	submit->io_uring_fd = shim_io_uring_setup(64, &p);
+	submit->io_uring_fd = shim_io_uring_setup(256, &p);
 	if (submit->io_uring_fd < 0) {
 		if (errno == ENOSYS) {
 			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n",
@@ -309,9 +309,8 @@ static inline int stress_io_uring_complete(
 	struct io_uring_cqe *cqe;
 	unsigned head = *cring->head;
 	int ret = EXIT_SUCCESS;
-	int completed = 0;
 
-	for (;;) {
+	while (keep_stressing_flag()) {
 		shim_mb();
 
 		/* Empty? */
@@ -319,9 +318,7 @@ static inline int stress_io_uring_complete(
 			break;
 
 		cqe = &cring->cqes[head & *submit->cq_ring.ring_mask];
-		if (cqe->res >= 0) {
-			completed++;
-		} else {
+		if (cqe->res < 0) {
 			int err;
 			stress_io_uring_user_data_t *const user_data =
 				(stress_io_uring_user_data_t *)cqe->user_data;
@@ -374,6 +371,7 @@ static int stress_io_uring_submit(
 	struct io_uring_sqe *sqe;
 	int ret;
 
+
 	next_tail = tail = *sring->tail;
 	next_tail++;
 	shim_mb();
@@ -395,9 +393,16 @@ static int stress_io_uring_submit(
 		return EXIT_FAILURE;
 	}
 
+retry:
+	if (!keep_stressing_flag())
+		return EXIT_SUCCESS;
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
 	if (ret < 0) {
+		if (errno == EBUSY){
+			stress_io_uring_complete(args, submit);
+			goto retry;
+		}
 		/* Silently ignore ENOSPC failures */
 		if (errno == ENOSPC)	
 			return EXIT_SUCCESS;
@@ -674,14 +679,12 @@ static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_WRITEV)
 	{ IORING_OP_WRITEV,	"IORING_OP_WRITEV",	stress_io_uring_writev_setup },
-	{ IORING_OP_WRITEV,	"IORING_OP_WRITEV",	stress_io_uring_writev_setup },
 #endif
 #if defined(HAVE_IORING_OP_READ)
 	{ IORING_OP_READ,	"IORING_OP_READ",	stress_io_uring_read_setup },
 	{ IORING_OP_READ,	"IORING_OP_READ",	stress_io_uring_read_setup },
 #endif
 #if defined(HAVE_IORING_OP_WRITE)
-	{ IORING_OP_WRITE,	"IORING_OP_WRITE",	stress_io_uring_write_setup },
 	{ IORING_OP_WRITE,	"IORING_OP_WRITE",	stress_io_uring_write_setup },
 #endif
 #if defined(HAVE_IORING_OP_FSYNC)
@@ -827,7 +830,7 @@ static int stress_io_uring(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
-		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
+		for (j = 0; (j < SIZEOF_ARRAY(stress_io_uring_setups)) && keep_stressing_flag(); j++) {
 			if (user_data[j].supported) {
 				rc = stress_io_uring_submit(args,
 					stress_io_uring_setups[j].setup_func,
@@ -845,6 +848,7 @@ static int stress_io_uring(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	pr_dbg("%s: submits completed, closing uring and unlinking file\n", args->name);
 	(void)close(io_uring_file.fd);
 clean:
 	if (io_uring_file.fd_at >= 0)
