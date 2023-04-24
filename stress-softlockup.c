@@ -245,7 +245,8 @@ again:
 			}
 			drop_niceness();
 			policy++;
-			policy %= SIZEOF_ARRAY(policies);
+			if (policy >= SIZEOF_ARRAY(policies))
+				policy = 0;
 			inc_counter(args);
 
 			/* Ensure we NEVER spin forever */
