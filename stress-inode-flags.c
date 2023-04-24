@@ -152,7 +152,7 @@ static int stress_inode_flags_stressor(
 	const stress_args_t *args,
 	stress_data_t *data)
 {
-	int index = 0;
+	size_t index = 0;
 
 	while (keep_running && keep_stressing(args)) {
 		size_t i;
@@ -161,7 +161,8 @@ static int stress_inode_flags_stressor(
 		stress_inode_flags_ioctl(args, data->dir_fd, inode_flag_perms[index]);
 		stress_inode_flags_ioctl(args, data->file_fd, inode_flag_perms[index]);
 		index++;
-		index %= inode_flag_count;
+		if (index >= inode_flag_count)
+			index = 0;
 		stress_inode_flags_ioctl_sane(data->dir_fd);
 		stress_inode_flags_ioctl_sane(data->file_fd);
 
