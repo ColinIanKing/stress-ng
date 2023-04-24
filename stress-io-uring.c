@@ -334,20 +334,26 @@ static inline int stress_io_uring_complete(
 				/* Silently ignore some errors */
 				case ENOSPC:
 				case EFBIG:
+					goto next_head;
+				case ENOENT:
+					if (user_data->opcode == IORING_OP_ASYNC_CANCEL)
+						goto next_head;
 					break;
 				case EINVAL:
 					if (user_data->opcode == IORING_OP_FALLOCATE)
-						break;
-					CASE_FALLTHROUGH;
+						goto next_head;
+					break;
 				default:
-					pr_fail("%s: completion opcode 0x%2.2x (%s), error=%d (%s)\n",
-						args->name, user_data->opcode,
-						stress_io_uring_opcode_name(user_data->opcode),
-						err, strerror(err));
-					ret = EXIT_FAILURE;
+					break;
 				}
+				pr_fail("%s: completion opcode 0x%2.2x (%s), error=%d (%s)\n",
+					args->name, user_data->opcode,
+					stress_io_uring_opcode_name(user_data->opcode),
+					err, strerror(err));
+				ret = EXIT_FAILURE;
 			}
 		}
+next_head:
 		head++;
 	}
 
