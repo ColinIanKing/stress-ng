@@ -192,7 +192,13 @@ static int stress_setup_io_uring(
 	struct io_uring_params p;
 
 	(void)memset(&p, 0, sizeof(p));
-	submit->io_uring_fd = shim_io_uring_setup(256, &p);
+	/*
+	 *  16 is plenty, with too many we end up with lots of cache
+	 *  misses, with too few we end up with ring filling. This
+	 *  seems to be a good fit with the set of requests being
+	 *  issue by this stressor
+	 */
+	submit->io_uring_fd = shim_io_uring_setup(16, &p);
 	if (submit->io_uring_fd < 0) {
 		if (errno == ENOSYS) {
 			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n",
