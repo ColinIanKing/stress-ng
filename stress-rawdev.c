@@ -268,7 +268,8 @@ static void stress_rawdev_burst(
 			inc_counter(args);
 		}
 		blk++;
-		blk %= blks;
+		if (blk >= (off_t)blks)
+			blk = 0;
 	}
 }
 
