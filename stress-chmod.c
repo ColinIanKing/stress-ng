@@ -149,14 +149,15 @@ static int do_chmod(
 	const size_t mode_count,
 	const int *mode_perms)
 {
-	static int index;
+	static size_t index;
 
 	if (!mode_count)
 		return 0;
 
 	(void)chmod(filename, (mode_t)mode_perms[index]);
 	index++;
-	index %= mode_count;
+	if (index >= mode_count)
+		index = 0;
 
 	stress_chmod_check(chmod(filename, modes[i]) < 0);
 	stress_chmod_check(chmod(filename, mask) < 0);
