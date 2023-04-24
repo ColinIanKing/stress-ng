@@ -82,8 +82,6 @@ static int stress_set_adjustment(const char *procname, const char *name, const c
 	const size_t len = strlen(str);
 	int i, saved_errno = 0;
 
-	/* pr_dbg("%s: %s -> %s\n", name, procname, str); */
-
 	for (i = 0; i < 32; i++) {
 		ssize_t n;
 		int fd;
@@ -101,7 +99,8 @@ static int stress_set_adjustment(const char *procname, const char *name, const c
 		if (n < 0) {
 			if ((saved_errno != EAGAIN) &&
 			    (saved_errno != EINTR)) {
-				pr_dbg("%s: can't set oom_score_adj\n", name);
+				pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n",
+					name, errno, strerror(errno));
 				return -saved_errno;
 			}
 		}
