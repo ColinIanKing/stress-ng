@@ -217,7 +217,8 @@ static int stress_chattr(const stress_args_t *args)
 		if ((flag_count > 0) && (flag_perms)) {
 			(void)do_chattr(args, filename, (unsigned long)flag_perms[index]);
 			index++;
-			index %= flag_count;
+			if (index >= flag_count)
+				index = 0;
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
