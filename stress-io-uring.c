@@ -418,7 +418,7 @@ retry:
 	return EXIT_SUCCESS;
 }
 
-#if 1 //defined(HAVE_IORING_OP_READV)
+#if defined(HAVE_IORING_OP_ASYNC_CANCEL)
 /*
  *  stress_io_uring_cancel_setup()
  *	setup cancel submit over io_uring
@@ -441,7 +441,6 @@ static void stress_io_uring_async_cancel_setup(
 	sqe->len = 0;
 	sqe->splice_fd_in = 0;
 }
-#endif
 
 /*
  *  stress_io_uring_cancel_rdwr()
@@ -481,6 +480,7 @@ static void stress_io_uring_cancel_rdwr(
 	}
 	(void)stress_io_uring_complete(args, submit);
 }
+#endif
 
 #if defined(HAVE_IORING_OP_READV)
 /*
@@ -944,7 +944,9 @@ static int stress_io_uring(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	pr_dbg("%s: submits completed, closing uring and unlinking file\n", args->name);
+#if defined(HAVE_IORING_OP_ASYNC_CANCEL)
 	stress_io_uring_cancel_rdwr(args, &io_uring_file, &submit);
+#endif
 	(void)close(io_uring_file.fd);
 clean:
 	if (io_uring_file.fd_at >= 0)
