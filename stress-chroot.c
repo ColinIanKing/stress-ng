@@ -359,7 +359,8 @@ again:
 			inc_counter(args);
 		}
 		i++;
-		i %= SIZEOF_ARRAY(test_chroot_test_funcs);
+		if (i >= SIZEOF_ARRAY(test_chroot_test_funcs))
+			i = 0;
 	} while (keep_stressing(args));
 
 	rate = (metrics->duration > 0.0) ? metrics->count / metrics->duration : 0.0;
