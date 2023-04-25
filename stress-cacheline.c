@@ -660,18 +660,68 @@ static int stress_cacheline_child(
 }
 
 /*
+ *  stress_cacheline_init()
+ *	called once by stress-ng, so we can set index to 0
+ */
+static void stress_cacheline_init(void)
+{
+	g_shared->cacheline_index = 0;
+	g_shared->cacheline_lock = stress_lock_create();
+}
+
+/*
+ *  stress_cacheline_deinit()
+ *	called once by stress-ng, so we can set index to 0
+ */
+static void stress_cacheline_deinit(void)
+{
+	if (g_shared->cacheline_lock) {
+		stress_lock_destroy(g_shared->cacheline_lock);
+		g_shared->cacheline_lock = NULL;
+		g_shared->cacheline_index = 0;
+	}
+}
+
+static int stress_cacheline_next_index(void)
+{
+	int ret;
+
+	if (stress_lock_acquire(g_shared->cacheline_lock) < 0)
+		return -1;
+
+	ret = g_shared->cacheline_index;
+	g_shared->cacheline_index++;
+
+	if (stress_lock_release(g_shared->cacheline_lock) < 0)
+		return -1;
+
+	return ret * 2;
+}
+
+/*
  *  stress_cacheline()
  *	execise a cacheline by multiple processes
  */
 static int stress_cacheline(const stress_args_t *args)
 {
 	size_t l1_cacheline_size = (size_t)get_L1_line_size(args);
-	const int index = (int)(args->instance * 2);
+	int index;
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
 	size_t cacheline_method = 0;
 	stress_cacheline_func func;
 	bool cacheline_affinity = false;
+
+	if (!g_shared->cacheline_lock) {
+		pr_inf("%s: failed to initialized cacheline lock, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	index = stress_cacheline_next_index();
+	if (index < 0) {
+		pr_inf("%s: failed to get cacheline index, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)stress_get_setting("cacheline-affinity", &cacheline_affinity);
 	(void)stress_get_setting("cacheline-method", &cacheline_method);
@@ -731,5 +781,7 @@ stressor_info_t stress_cacheline_info = {
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.opt_set_funcs = opt_set_funcs,
+	.init = stress_cacheline_init,
+	.deinit = stress_cacheline_deinit,
 	.help = help
 };

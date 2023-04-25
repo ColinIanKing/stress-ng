@@ -909,6 +909,8 @@ typedef struct shared_heap {
 /* The stress-ng global shared memory segment */
 typedef struct {
 	size_t length;					/* Size of segment */
+	void *cacheline_lock;				/* Cacheline stressor lock */
+	int cacheline_index;				/* Cacheline stressor index */
 	uint8_t *cacheline;				/* Cacheline stressor buffer */
 	size_t cacheline_size;				/* Cacheline buffer size */
 	uint8_t	*mem_cache;				/* Shared memory cache */
