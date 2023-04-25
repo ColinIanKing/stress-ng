@@ -59,6 +59,7 @@ static int stress_urandom(const stress_args_t *args)
 #endif
 	bool sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
 	double duration = 0.0, bytes = 0.0, rate;
+	const size_t page_size = args->page_size;
 
 	fd_urnd = open("/dev/urandom", O_RDONLY);
 	if (fd_urnd < 0) {
@@ -235,10 +236,10 @@ next:
 		if (fd_urnd >= 0) {
 			void *ptr;
 
-			ptr = mmap(NULL, args->page_size, PROT_READ,
+			ptr = mmap(NULL, page_size, PROT_READ,
 				MAP_PRIVATE | MAP_ANONYMOUS, fd_urnd, 0);
 			if (ptr != MAP_FAILED)
-				(void)munmap(ptr, args->page_size);
+				(void)munmap(ptr, page_size);
 		}
 
 #if defined(HAVE_SELECT)
@@ -267,20 +268,26 @@ next:
 					 *  single byte in the same way as reading /dev/zero does,
 					 *  as fixed in Linux kernel commit:
 					 *  "random: allow partial reads if later user copies fail"
+					 *
+					 *  mmap 2 pages, make second page read-only then write off
+					 *  the end of the first page.
 					 */
-					ptr = (char *)mmap(NULL, args->page_size, PROT_WRITE,
+					ptr = (char *)mmap(NULL, page_size * 2, PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 					if (ptr != MAP_FAILED) {
-						double t;
-						/* Exercise 2 byte read on last 1 byte of page */
+						/* unmap last page.. */
+						if (mprotect((void *)(ptr + page_size), page_size, PROT_READ) == 0) {
+							double t;
 
-						t = stress_time_now();
-						ret = read(fd_rnd, ptr + args->page_size - 1, 2);
-						if (ret >= 0) {
-							duration += stress_time_now() - t;
-							bytes += (double)ret;
+							/* Exercise 2 byte read on last 1 byte of page */
+							t = stress_time_now();
+							ret = read(fd_rnd, ptr + args->page_size - 1, 2);
+							if (ret >= 0) {
+								duration += stress_time_now() - t;
+								bytes += (double)ret;
+							}
 						}
-						(void)munmap((void *)ptr, args->page_size);
+						(void)munmap((void *)ptr, page_size * 2);
 					}
 #endif
 					if (ret < 0) {
