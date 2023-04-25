@@ -125,7 +125,6 @@ const char ALIGN64 stress_ascii64[64] =
 
 static bool stress_stack_check_flag;
 
-
 typedef struct {
 	const unsigned long	fs_magic;
 	const char *		fs_name;
@@ -1252,32 +1251,42 @@ void stress_set_proc_state(const char *name, const int state)
 }
 
 /*
- *  stress_munge_underscore()
- *	turn '_' to '-' in strings
- */
-char *stress_munge_underscore(const char *str)
-{
-	static char munged[128];
-	char *dst;
-	const char *src;
-	const size_t str_len = strlen(str);
-	const ssize_t len = (ssize_t)STRESS_MINIMUM(str_len, sizeof(munged) - 1);
-
-	for (src = str, dst = munged; *src && (dst - munged) < len; src++)
-		*dst++ = (*src == '_' ? '-' : *src);
-
-	*dst = '\0';
-
-	return munged;
-}
-
-/*
  *  stress_chr_munge()
  *	convert ch _ to -, otherwise don't change it
  */
 static inline char stress_chr_munge(const char ch)
 {
 	return (ch == '_') ? '-' : ch;
+}
+
+/*
+ *   stress_munge_underscore()
+ *	turn '_' to '-' in strings with strlcpy api
+ */
+size_t stress_munge_underscore(char *dst, const char *src, size_t len)
+{
+	register char *d = dst;
+	register const char *s = src;
+	register size_t n = len;
+
+	if (n) {
+		while (--n) {
+			register char c = *s++;
+
+			*d++ = stress_chr_munge(c);
+			if (c == '\0')
+				break;
+		}
+	}
+
+	if (!n) {
+		if (len)
+			*d = '\0';
+		while (*s)
+			s++;
+	}
+
+	return (s - src - 1);
 }
 
 /*

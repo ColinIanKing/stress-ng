@@ -711,7 +711,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		int p;
 		uint64_t counter_totals[STRESS_PERF_MAX];
 		bool got_data = false;
-		char *munged;
+		char munged[64];
 
 		(void)memset(counter_totals, 0, sizeof(counter_totals));
 
@@ -738,7 +738,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		if (!got_data)
 			continue;
 
-		munged = stress_munge_underscore(ss->stressor->name);
+		(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 		pr_inf("%s:\n", munged);
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);

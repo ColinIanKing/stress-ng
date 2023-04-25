@@ -272,8 +272,9 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			if (total) {
 				const double temp = (count > 0) ? ((double)total / count) / 1000.0 : 0.0;
-				char *munged = stress_munge_underscore(ss->stressor->name);
+				char munged[64];
 
+				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 				if (!dumped_heading) {
 					dumped_heading = true;
 					pr_inf("%s:\n", munged);
