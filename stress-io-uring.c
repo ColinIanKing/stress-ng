@@ -473,8 +473,6 @@ static void stress_io_uring_cancel_rdwr(
 	for (i = 0; i < submit->sqes_entries; i++) {
 		struct io_uring_sqe *sqe_to_cancel = &submit->sqes_mmap[i];
 
-		if (!sqe_to_cancel)
-			continue;
 		if (!sqe_to_cancel->addr)
 			continue;
 
