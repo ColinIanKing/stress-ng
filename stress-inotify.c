@@ -224,8 +224,8 @@ retry:
 			(void)shim_usleep(10000);
 			goto retry;
 		}
-		/* Nope, give up */
-		pr_fail("%s: inotify_init failed: errno=%d (%s) after %" PRIu32 " calls\n",
+		/* Nope, give up, not necessarily a test failure, we maybe low on fds */
+		pr_warn("%s: inotify_init failed: errno=%d (%s) after %" PRIu32 " calls\n",
 			args->name, errno, strerror(errno), n);
 		return;
 	}
