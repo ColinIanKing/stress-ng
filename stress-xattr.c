@@ -47,7 +47,7 @@ static const stress_help_t help[] = {
     defined(HAVE_LISTXATTR) &&		\
     defined(HAVE_SETXATTR)
 
-#define MAX_XATTRS		(4096)
+#define MAX_XATTRS		(4096)	/* must be a multiple of sizeof(uint32_t) */
 
 /*
  *  stress_xattr
@@ -108,6 +108,9 @@ static int stress_xattr(const stress_args_t *args)
 		ssize_t sret;
 		char *buffer;
 		char bad_attrname[32];
+		uint32_t set_xattr_ok[MAX_XATTRS / sizeof(uint32_t)];
+
+		(void)memset(set_xattr_ok, 0, sizeof(set_xattr_ok));
 
 		for (i = 0; i < MAX_XATTRS; i++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", i);
@@ -128,6 +131,9 @@ static int stress_xattr(const stress_args_t *args)
 				pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
+			} else {
+				/* set xattr OK, lets remember that for later */
+				STRESS_SETBIT(set_xattr_ok, i);
 			}
 			if (!keep_stressing(args))
 				goto out_finished;
@@ -348,7 +354,7 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
-			if (strncmp(value, tmp, (size_t)sret)) {
+			if ((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret)) {
 				pr_fail("%s: fgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
@@ -364,7 +370,7 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 				goto out_close;
 			}
-			if (strncmp(value, tmp, (size_t)sret)) {
+			if ((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret)) {
 				pr_fail("%s: getxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
@@ -377,7 +383,7 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
-			if (strncmp(value, tmp, (size_t)sret)) {
+			if ((STRESS_GETBIT(set_xattr_ok, j) != 0) && strncmp(value, tmp, (size_t)sret)) {
 				pr_fail("%s: lgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
