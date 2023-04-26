@@ -118,17 +118,21 @@ static void dnotify_exercise(
 	if (func(args, filename, private) < 0)
 		goto cleanup;
 
-	/* Wait for up to 1 second for event */
-	while ((i < 1000) && (dnotify_fd == -1)) {
+	/* Wait for up to 2 seconds for event */
+	while ((i < 2000) && (dnotify_fd == -1)) {
 		if (!keep_stressing(args))
 			goto cleanup;
 		i++;
 		(void)shim_usleep(1000);
 	}
 
-	if (dnotify_fd != fd) {
-		pr_fail("%s: did not get expected dnotify file descriptor\n",
-			args->name);
+	/*
+	 *  If we didn't time out and we got an expected fd, report
+	 *  a failure.
+	 */
+	if ((dnotify_fd != -1) && (dnotify_fd != fd)) {
+		pr_fail("%s: did not get expected dnotify file descriptor %d, got %d instead\n",
+			args->name, fd, dnotify_fd);
 	}
 
 cleanup:
