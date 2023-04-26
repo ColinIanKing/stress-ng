@@ -22,7 +22,7 @@
 typedef struct {
 	const stress_args_t *args;	/* stress-ng arguments */
 	size_t page_shift;		/* log2(page_size) */
-	char *exe_path;			/* path of executable */
+	char *exec_path;		/* path of executable */
 	double duration;		/* mmap run time duration */
 	double count;			/* count of mmap calls */
 } munmap_context_t;
@@ -182,7 +182,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 			continue;	/* don't unmap libc */
 		if (strstr(path, "/dev/zero"))
 			continue;	/* need this for zero'd page data */
-		if (!strcmp(path, ctxt->exe_path))
+		if (!strcmp(path, ctxt->exec_path))
 			continue;	/* don't unmap stress-ng */
 		if (prot[0] != 'r')
 			continue;	/* don't unmap non-readable pages */
@@ -219,6 +219,7 @@ static int stress_munmap(const stress_args_t *args)
 {
 	munmap_context_t *ctxt;
 	double rate;
+	char exec_path[PATH_MAX];
 
 	ctxt = mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -231,14 +232,14 @@ static int stress_munmap(const stress_args_t *args)
 	ctxt->count = 0.0;
 	ctxt->args = args;
 	ctxt->page_shift = stress_munmap_log2(args->page_size);
-	ctxt->exe_path = stress_proc_self_exe();
-	if (!ctxt->exe_path) {
+	ctxt->exec_path = stress_proc_self_exe(exec_path, sizeof(exec_path));
+	if (!ctxt->exec_path) {
 		pr_inf_skip("%s: skipping stressor, cannot determine child executable path\n",
 			args->name);
 		(void)munmap((void *)ctxt, sizeof(*ctxt));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_munmap_clean_path(ctxt->exe_path);
+	stress_munmap_clean_path(ctxt->exec_path);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	while (keep_stressing(args)) {

@@ -672,6 +672,7 @@ do_exec:
 static int stress_exec(const stress_args_t *args)
 {
 	char *exec_prog;
+	char exec_path[PATH_MAX];
 	char garbage_prog[PATH_MAX];
 	int ret, rc = EXIT_FAILURE;
 #if defined(HAVE_EXECVEAT) &&	\
@@ -696,7 +697,7 @@ static int stress_exec(const stress_args_t *args)
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
 	 */
-	exec_prog = stress_proc_self_exe();
+	exec_prog = stress_proc_self_exe(exec_path, sizeof(exec_path));
 	if (!exec_prog) {
 		if (args->instance == 0)
 			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "

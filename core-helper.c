@@ -3601,17 +3601,17 @@ int stress_exit_status(const int err)
 
 /*
  *  stress_proc_self_exe_path()
- *	get proceess' executable path via readlink
+ *	get process' executable path via readlink
  */
-char *stress_proc_self_exe_path(const char *proc_path)
+static char *stress_proc_self_exe_path(char *path, const char *proc_path, const size_t path_len)
 {
-	static char path[PATH_MAX];
 	ssize_t len;
 
-	len = shim_readlink(proc_path, path, sizeof(path));
+	len = shim_readlink(proc_path, path, path_len);
 	if ((len < 0) || (len >= PATH_MAX))
 		return NULL;
 	path[len] = '\0';
+
 	return path;
 }
 
@@ -3619,26 +3619,25 @@ char *stress_proc_self_exe_path(const char *proc_path)
  *  stress_proc_self_exe()
  *  	determine the path to the executable, return NULL if not possible/failed
  */
-char *stress_proc_self_exe(void)
+char *stress_proc_self_exe(char *path, const size_t path_len)
 {
 #if defined(__linux__)
-	return stress_proc_self_exe_path("/proc/self/exe");
+	return stress_proc_self_exe_path(path, "/proc/self/exe", path_len);
 #elif defined(__NetBSD__)
-	return stress_proc_self_exe_path("/proc/curproc/exe");
+	return stress_proc_self_exe_path(path, "/proc/curproc/exe", path_len);
 #elif defined(__DragonFly__)
-	return stress_proc_self_exe_path("/proc/curproc/file");
+	return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 #elif defined(__FreeBSD__)
-	return stress_proc_self_exe_path("/proc/curproc/file");
+	return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 #elif defined(__sun__) && 	\
       defined(HAVE_GETEXECNAME)
-	static char path[PATH_MAX];
 	const char *execname = getexecname();
 
 	if (!execname)
 		return NULL;
 	/* Need to perform a string copy to deconstify execname */
-	(void)shim_strlcpy(path, execname, sizeof(path));
-	return  path;
+	(void)shim_strlcpy(path, execname, path_len);
+	return path;
 #else
 	return NULL;
 #endif
