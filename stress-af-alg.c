@@ -491,7 +491,7 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
-		if (read(fd, output, DATA_LEN) != DATA_LEN) {
+		if (recv(fd, output, DATA_LEN, 0) != DATA_LEN) {
 			pr_fail("%s: read using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
