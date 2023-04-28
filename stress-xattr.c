@@ -113,9 +113,11 @@ static int stress_xattr(const stress_args_t *args)
 		(void)memset(set_xattr_ok, 0, sizeof(set_xattr_ok));
 
 		for (i = 0; i < MAX_XATTRS; i++) {
+			STRESS_CLRBIT(set_xattr_ok, i);
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", i);
 			(void)snprintf(value, sizeof(value), "orig-value-%d", i);
 
+			(void)shim_fremovexattr(fd, attrname);
 			ret = shim_fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
 				if ((errno == ENOTSUP) || (errno == ENOSYS)) {
@@ -126,11 +128,11 @@ static int stress_xattr(const stress_args_t *args)
 					rc = EXIT_NO_RESOURCE;
 					goto out_close;
 				}
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
-					break;
-				pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
-					args->name, errno, strerror(errno), fs_type);
-				goto out_close;
+				if ((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG)) {
+					pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
+					goto out_close;
+				}
 			} else {
 				/* set xattr OK, lets remember that for later */
 				STRESS_SETBIT(set_xattr_ok, i);
@@ -280,6 +282,9 @@ static int stress_xattr(const stress_args_t *args)
 				"already exists, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
+		} else {
+			if (errno == ENOSPC)
+				STRESS_CLRBIT(set_xattr_ok, i);
 		}
 
 #if defined(HAVE_LSETXATTR)
@@ -291,6 +296,9 @@ static int stress_xattr(const stress_args_t *args)
 				"already exists, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
+		} else {
+			if (errno == ENOSPC)
+				STRESS_CLRBIT(set_xattr_ok, i);
 		}
 #endif
 		ret = shim_setxattr(filename, attrname, value, strlen(value),
@@ -301,31 +309,39 @@ static int stress_xattr(const stress_args_t *args)
 				"already exists, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
+		} else {
+			if (errno == ENOSPC)
+				STRESS_CLRBIT(set_xattr_ok, i);
 		}
 
 		for (j = 0; j < i; j++) {
+			if (STRESS_GETBIT(set_xattr_ok, i) == 0)
+				continue;
+
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
 			ret = shim_fsetxattr(fd, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
-					break;
-				pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
-					args->name, errno, strerror(errno), fs_type);
-				goto out_close;
+				STRESS_CLRBIT(set_xattr_ok, i);
+				if ((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG)) {
+					pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
+					goto out_close;
+				}
 			}
 
 			/* ..and do it again using setxattr */
 			ret = shim_setxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
-					break;
-				pr_fail("%s: setxattr failed, errno=%d (%s)%s\n",
-					args->name, errno, strerror(errno), fs_type);
-				goto out_close;
+				STRESS_CLRBIT(set_xattr_ok, i);
+				if ((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG)) {
+					pr_fail("%s: setxattr failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
+					goto out_close;
+				}
 			}
 
 #if defined(HAVE_LSETXATTR)
@@ -333,17 +349,20 @@ static int stress_xattr(const stress_args_t *args)
 			ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
-					break;
-				pr_fail("%s: lsetxattr failed, errno=%d (%s)%s\n",
-					args->name, errno, strerror(errno), fs_type);
-				goto out_close;
+				STRESS_CLRBIT(set_xattr_ok, i);
+				if ((errno != ENOSPC) && (errno != EDQUOT) && (errno != E2BIG)) {
+					pr_fail("%s: lsetxattr failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
+					goto out_close;
+				}
 			}
 #endif
 			if (!keep_stressing(args))
 				goto out_finished;
 		}
 		for (j = 0; j < i; j++) {
+			if (STRESS_GETBIT(set_xattr_ok, i) == 0)
+				continue;
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
@@ -464,9 +483,11 @@ static int stress_xattr(const stress_args_t *args)
 				break;
 			}
 			if (ret < 0) {
-				pr_fail("%s: %s failed, errno=%d (%s)\n",
-					args->name, errmsg, errno, strerror(errno));
-				goto out_close;
+				if ((errno != ENODATA) && (errno != ENOSPC)) {
+					pr_fail("%s: %s failed, errno=%d (%s)\n",
+						args->name, errmsg, errno, strerror(errno));
+					goto out_close;
+				}
 			}
 			if (!keep_stressing(args))
 				goto out_finished;
