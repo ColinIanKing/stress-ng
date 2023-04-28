@@ -1470,30 +1470,20 @@ static int stress_sparsematrix(const stress_args_t *args)
 		end = method + 1;
 	}
 
-	pr_lock();
 	for (i = begin; (i < end) && sparsematrix_methods[i].name; i++) {
-		char str[12];
+		if (!test_info[i].skip_no_mem) {
+			char tmp[32];
+			double rate;
 
-		if (test_info[i].max_objmem) {
-			stress_uint64_to_str(str, sizeof(str), (uint64_t)test_info[i].max_objmem);
-		} else {
-			shim_strlcpy(str, "n/a", sizeof(str));
-		}
+			(void)snprintf(tmp, sizeof(tmp), "%s gets per sec", sparsematrix_methods[i].name);
+			rate = test_info[i].get_duration > 0.0 ? (double)test_info[i].get_ops / test_info[i].get_duration : 0.0;
+			stress_metrics_set(args, (i * 2) + 0, tmp, rate);
 
-		if (test_info[i].skip_no_mem) {
-			pr_inf("%s: %-6s skipped (out of memory)\n",
-				args->name, sparsematrix_methods[i].name);
-		} else {
-			pr_inf("%s: %-8s %8.8s %15.2f get/s %15.2f put/s\n",
-				args->name,
-				sparsematrix_methods[i].name, str,
-				test_info[i].get_duration > 0.0 ?
-					(double)test_info[i].get_ops / test_info[i].get_duration : 0.0,
-				test_info[i].put_duration > 0.0 ?
-					(double)test_info[i].put_ops / test_info[i].put_duration : 0.0);
+			(void)snprintf(tmp, sizeof(tmp), "%s puts per sec", sparsematrix_methods[i].name);
+			rate = test_info[i].put_duration > 0.0 ? (double)test_info[i].put_ops / test_info[i].put_duration : 0.0;
+			stress_metrics_set(args, (i * 2) + 1, tmp, rate);
 		}
 	}
-	pr_unlock();
 
 	rc = EXIT_SUCCESS;
 err:
