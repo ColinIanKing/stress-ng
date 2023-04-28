@@ -317,7 +317,7 @@ static void stress_vecfp_call_method(
 	const size_t method)
 {
 	double dt, ops;
-	stress_vecfp_funcs_t *func = &stress_vecfp_funcs[method];
+	stress_vecfp_funcs_t *const func = &stress_vecfp_funcs[method];
 
 	dt = func->vecfp_func(args, vecfp_init);
 	func->duration += dt;
