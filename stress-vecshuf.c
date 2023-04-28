@@ -167,7 +167,7 @@ static void stress_vecshuf_call_method(
 	const size_t method)
 {
 	double dt, ops, bytes;
-	stress_vecshuf_funcs_t *func = &stress_vecshuf_funcs[method];
+	stress_vecshuf_funcs_t *const func = &stress_vecshuf_funcs[method];
 
 	dt = func->vecshuf_func(args, data);
 	func->duration += dt;
