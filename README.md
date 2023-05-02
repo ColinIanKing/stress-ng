@@ -434,6 +434,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [sched/core: Accounting forceidle time for all tasks except idle task](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b171501f258063f5c56dd2c5fdf310802d8d7dc1)
 * [ipc/mqueue: use get_tree_nodev() in mqueue_get_tree()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d60c4d01a98bc1942dba6e3adc02031f5519f94b)
 * [mm/swapfile: add cond_resched() in get_swap_pages()](https://lore.kernel.org/lkml/20230129130320.7e2e4445ecc4b172c61c7b9c@linux-foundation.org/T/)
+* [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
+
 ## Presentations
 
 * [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
