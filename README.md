@@ -520,6 +520,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Robust and accurate performance anomaly detection and prediction for cloud applications: a novel ensemble learning-based framework](https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-022-00383-6#Fn4)
 * [kMVX: Detecting Kernel Information Leaks with Multi-variant Execution](https://research.vu.nl/ws/files/122357910/KMVX.pdf)
 * [Feasibility Study for a Python-Based Embedded Real-Time Control System](https://www.mdpi.com/2079-9292/12/6/1426)
+* [Adaptation of Parallel SaaS to Heterogeneous Co-Located Cloud Resources](https://www.mdpi.com/2076-3417/13/8/5115#B56-applsci-13-05115)
+* [A Methodology and Framework to Determine the Isolation Capabilities of Virtualisation Technologies](https://dl.acm.org/doi/pdf/10.1145/3578244.3583728)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
