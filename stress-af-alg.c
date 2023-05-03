@@ -266,6 +266,8 @@ retry_bind:
 			goto err_close;
 		}
 		if (recv(fd, digest, (size_t)digest_size, MSG_WAITALL) != digest_size) {
+			if (errno == EOPNOTSUPP)
+				goto err_abort;
 			pr_fail("%s: recv using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
@@ -278,6 +280,7 @@ retry_bind:
 			goto err_close;
 		}
 	}
+err_abort:
 	rc = EXIT_SUCCESS;
 err_close:
 	(void)close(fd);
@@ -492,6 +495,8 @@ retry_bind:
 			goto err_close;
 		}
 		if (recv(fd, output, DATA_LEN, 0) != DATA_LEN) {
+			if (errno == EOPNOTSUPP)
+				goto err_abort;
 			pr_fail("%s: read using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
@@ -556,6 +561,7 @@ retry_bind:
 		}
 	}
 
+err_abort:
 	rc = EXIT_SUCCESS;
 	inc_counter(args);
 err_close:
