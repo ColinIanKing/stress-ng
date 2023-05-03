@@ -66,8 +66,18 @@
 
 #if defined(HAVE_ATOMIC_FETCH_NAND)
 #define HAVE_ATOMIC_OPS
+#if defined(__GNUC__) && __GNUC__ != 11
 #define	SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	\
 	do { __atomic_fetch_nand(ptr, val, memorder); } while (0)
+#else
+/*
+ *  gcc 11.x has a buggy fetch nand that can lock indefinitely, so
+ *  workaround this
+ */
+#define	SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	\
+	do { __atomic_fetch_and(ptr, val, memorder); 	\
+	     __atomic_fetch_xor(ptr, ~0, memorder); } while (0)
+#endif
 #else
 #define SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	DO_NOTHING()
 #endif
@@ -106,8 +116,18 @@
 
 #if defined(HAVE_ATOMIC_NAND_FETCH)
 #define HAVE_ATOMIC_OPS
+#if defined(__GNUC__) && __GNUC__ != 11
 #define	SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	\
 	do { __atomic_nand_fetch(ptr, val, memorder); } while (0)
+#else
+/*
+ *  gcc 11.x has a buggy fetch nand that can lock indefinitely, so
+ *  workaround this
+ */
+#define	SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	\
+	do { __atomic_and_fetch(ptr, val, memorder);	\
+	     __atomic_xor_fetch(ptr, ~0, memorder); } while (0)
+#endif
 #else
 #define SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
