@@ -3628,7 +3628,23 @@ char *stress_proc_self_exe(char *path, const size_t path_len)
 #elif defined(__DragonFly__)
 	return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 #elif defined(__FreeBSD__)
+#if defined(CTL_KERN) &&	\
+    defined(KERN_PROC) &&	\
+    defined(KERN_PROC_PATHNAME)
+	static int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1 };
+	size_t tmp_path_len = path_len;
+	int ret;
+
+	ret = sysctl(mib, SIZEOF_ARRAY(mib), (void *)path, &tmp_path_len, NULL, 0);
+	if (ret < 0) {
+		/* fall back to procfs */
+		return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+	}
+	return path;
+#else
+	/* fall back to procfs */
 	return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+#endif
 #elif defined(__sun__) && 	\
       defined(HAVE_GETEXECNAME)
 	const char *execname = getexecname();

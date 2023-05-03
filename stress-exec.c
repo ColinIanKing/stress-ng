@@ -45,6 +45,11 @@ UNEXPECTED
     defined(HAVE_POSIX_SPAWN)
 #define EXEC_FORK_METHOD_SPAWN	(0x13)
 #endif
+#if defined(HAVE_RFORK) &&	\
+    defined(RFPROC) &&		\
+    defined(RFFDG)
+#define EXEC_FORK_METHOD_RFORK	(0x14)
+#endif
 
 #define MAX_ARG_PAGES		(32)
 
@@ -101,6 +106,11 @@ static const stress_exec_method_t stress_exec_fork_methods[] = {
 	{ "clone",	EXEC_FORK_METHOD_CLONE },
 #endif
 	{ "fork",	EXEC_FORK_METHOD_FORK },
+#if defined(HAVE_RFORK) &&	\
+    defined(RFPROC) &&		\
+    defined(RFFDG)
+	{ "rfork",	EXEC_FORK_METHOD_RFORK },
+#endif
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
 	{ "spawn",	EXEC_FORK_METHOD_SPAWN },
@@ -118,6 +128,11 @@ static const stress_help_t help[] = {
 					" clone"
 #endif
 					" fork"
+#if defined(HAVE_RFORK) &&	\
+    defined(RFPROC) &&		\
+    defined(RFFDG)
+					" rfork"
+#endif
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
 					" spawn"
@@ -805,6 +820,16 @@ static int stress_exec(const stress_args_t *args)
 					_exit(stress_exec_child(&sph->arg));
 				}
 				break;
+#if defined(HAVE_RFORK) &&	\
+    defined(RFPROC) &&		\
+    defined(RFFDG)
+			case EXEC_FORK_METHOD_RFORK:
+				pid = rfork(RFPROC | RFFDG);
+				if (pid == 0) {
+					_exit(stress_exec_child(&sph->arg));
+				}
+				break;
+#endif
 #if defined(HAVE_VFORK)
 			case EXEC_FORK_METHOD_VFORK:
 				pid = shim_vfork();

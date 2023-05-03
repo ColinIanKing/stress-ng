@@ -1700,10 +1700,11 @@ context.
 .B \-\-exec\-ops N
 stop exec stress workers after N bogo operations.
 .TP
-.B \-\-exec\-fork\-method [ clone | fork | spawn | vfork ]
-select the process creation method using clone(2), fork(2), posix_spawn(3) or
-vfork(2). Note that vfork will only exec programs using execve due to the
-constraints on the shared stack between the parent and the child process.
+.B \-\-exec\-fork\-method [ clone | fork | rfork | spawn | vfork ]
+select the process creation method using clone(2), fork(2), BSD rfork(2),
+posix_spawn(3) or vfork(2). Note that vfork will only exec programs using
+execve due to the constraints on the shared stack between the parent and
+the child process.
 .TP
 .B \-\-exec\-max P
 create P child processes that exec stress-ng and then wait for them to exit per
