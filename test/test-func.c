@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2022-2023 Colin Ian King.
+ * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) 2022-2023 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,11 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#include <unistd.h>
+#define _GNU_SOURCE
+
+static void *funcs[] = {
+	FUNC,
+};
 
 int main(void)
 {
-	char buf[10];
-
-	return getentropy(buf, sizeof(buf));
+	return (funcs[0] == 0);
 }

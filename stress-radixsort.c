@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_RADIXSORT)
 
 #define STR_SIZE	(8)
 
@@ -71,7 +71,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_RADIXSORT)
 /*
  *  stress_radixsort()
  *	stress radixsort
@@ -197,6 +197,6 @@ stressor_info_t stress_radixsort_info = {
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
-	.unimplemented_reason = "built with BSD library"
+	.unimplemented_reason = "function not in OS or BSD compat library"
 };
 #endif

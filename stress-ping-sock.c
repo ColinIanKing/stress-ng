@@ -20,7 +20,10 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_NETINET_IP_ICMP_H)
-#include <netinet/ip_icmp.h>
+/* This is a hack to make sure we're including the system's ip_icmp.h and not
+ * libbsd-overlay's. libbsd-overlay replaces it with a BSD-style one.
+ */
+#include <../include/netinet/ip_icmp.h>
 #endif
 
 static const stress_help_t help[] = {
