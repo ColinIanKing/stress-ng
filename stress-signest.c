@@ -25,6 +25,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+static bool jmp_env_ok;
 static sigjmp_buf jmp_env;
 
 static const int signals[] = {
@@ -99,6 +100,14 @@ typedef struct {
 
 static volatile stress_signest_info_t signal_info;
 
+static void stress_signest_ignore(void)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(signals); i++)
+		VOID_RET(int, stress_sighandler("signest", signals[i], SIG_IGN, NULL));
+}
+
 static inline ssize_t stress_signest_find(int signum)
 {
 	size_t i;
@@ -133,18 +142,27 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 			signal_info.stack_depth = delta;
 	}
 
-	if (UNLIKELY(run_time > (double)g_opt_timeout))
-		siglongjmp(jmp_env, 1);
+	if (UNLIKELY(run_time > (double)g_opt_timeout)) {
+		stress_signest_ignore();
+		if (jmp_env_ok)
+			siglongjmp(jmp_env, 1);
+	}
 
-	if (UNLIKELY(signal_info.stop))
-		siglongjmp(jmp_env, 1);
+	if (UNLIKELY(signal_info.stop)) {
+		stress_signest_ignore();
+		if (jmp_env_ok)
+			siglongjmp(jmp_env, 1);
+	}
 
 	if (UNLIKELY(!signal_info.args))
 		goto done;
 
 	inc_counter(signal_info.args);
-	if (UNLIKELY(!keep_stressing(signal_info.args)))
-		siglongjmp(jmp_env, 1);
+	if (UNLIKELY(!keep_stressing(signal_info.args))) {
+		stress_signest_ignore();
+		if (jmp_env_ok)
+			siglongjmp(jmp_env, 1);
+	}
 
 	i = stress_signest_find(signum);
 	if (UNLIKELY((i < 0) || (i == (ssize_t)SIZEOF_ARRAY(signals))))
@@ -153,8 +171,10 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	signal_info.signalled |= 1U << i;
 
 	for (; i < (ssize_t)SIZEOF_ARRAY(signals); i++) {
-		if (signal_info.stop || !keep_stressing(signal_info.args))
-			siglongjmp(jmp_env, 1);
+		if (signal_info.stop || !keep_stressing(signal_info.args)) {
+			if (jmp_env_ok)
+				siglongjmp(jmp_env, 1);
+		}
 		(void)raise(signals[i]);
 	}
 
@@ -162,7 +182,6 @@ done:
 	--signal_info.depth;
 	return;
 }
-
 
 /*
  *  stress_signest
@@ -177,6 +196,7 @@ static int stress_signest(const stress_args_t *args)
 	char *buf, *ptr;
 	const size_t altstack_size = stress_min_sig_stack_size() * SIZEOF_ARRAY(signals);
 
+	jmp_env_ok = false;
 	altstack = (uint8_t*)mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (altstack == MAP_FAILED) {
@@ -209,6 +229,7 @@ static int stress_signest(const stress_args_t *args)
 			return EXIT_NO_RESOURCE;
 	}
 
+	jmp_env_ok = true;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -216,7 +237,9 @@ static int stress_signest(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 finish:
+	jmp_env_ok = false;
 	signal_info.stop = true;
+	stress_signest_ignore();
 
 	for (sz = 1, n = 0, i = 0; i < SIZEOF_ARRAY(signals); i++) {
 		if (signal_info.signalled & (1U << i)) {
