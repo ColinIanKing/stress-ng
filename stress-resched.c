@@ -155,6 +155,9 @@ static int stress_resched(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	for (i = 0; i < pids_max; i++)
+		pids[i] = -1;
+
 	yields_size = ((sizeof(*yields) * (size_t)pids_max) + args->page_size - 1) & ~(args->page_size - 1);
 	yields = (uint64_t *)mmap(NULL, yields_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
