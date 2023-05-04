@@ -93,6 +93,11 @@ CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-limits
 endif
 endif
 
+ifeq ($(findstring gcc,$(CC)),gcc)
+$(info $(CC))
+CFLAGS += -ftree-loop-vectorize
+endif
+
 #ifeq ($(findstring clang,$(CC)),clang)
 #CFLAGS += -Weverything
 #endif
