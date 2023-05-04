@@ -595,7 +595,7 @@ static int OPTIMIZE3 stress_sctp_server(
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
 						LOCALTIME_STREAM, 0, 0);
-				if (UNLIKELY(ret < 0)) 
+				if (UNLIKELY(ret < 0))
 					break;
 
 				inc_counter(args);
