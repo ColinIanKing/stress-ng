@@ -1149,12 +1149,11 @@ static void stress_rand_data_zero(
 {
 	(void)args;
 
-	while (data < data_end) {
-		*data++ = 0;
-		*data++ = 0;
-		*data++ = 0;
-		*data++ = 0;
-	}
+#if defined(HAVE_BUILTIN_MEMSET)
+	(void)__builtin_memset((void *)data, 0, (uintptr_t)data_end - (uintptr_t)data);
+#else
+	(void)memset((void *)data, 0, (uintptr_t)data_end - (uintptr_t)data);
+#endif
 }
 
 static void stress_zlib_random_test(const stress_args_t *args, uint64_t *RESTRICT data, uint64_t *RESTRICT data_end);
