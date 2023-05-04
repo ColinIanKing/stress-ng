@@ -3655,6 +3655,10 @@ char *stress_proc_self_exe(char *path, const size_t path_len)
 	(void)shim_strlcpy(path, execname, path_len);
 	return path;
 #else
+	(void)stress_proc_self_exe_path;
+
+	(void)path;
+	(void)path_len;
 	return NULL;
 #endif
 }
