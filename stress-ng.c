@@ -3970,7 +3970,6 @@ static inline void stress_run_sequential(
 		stress_run(ss, duration, success, resource_success,
 			metrics_success, &checksum);
 		ss->next = next;
-
 	}
 }
 
