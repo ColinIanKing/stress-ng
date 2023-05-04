@@ -1411,9 +1411,11 @@ static int stress_zlib_inflate(
 	stream_inf.avail_in = 0;
 	stream_inf.next_in = Z_NULL;
 
-	pr_dbg("INF: lvl=%d mem-lvl=%d wbits=%d strategy=%d\n",
-		zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
-		zlib_args.strategy);
+	if (args->instance == 0) {
+		pr_dbg("INF: lvl=%d mem-lvl=%d wbits=%d strategy=%d\n",
+			zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
+			zlib_args.strategy);
+	}
 	do {
 		ret = inflateInit2(&stream_inf, zlib_args.window_bits);
 		if (ret != Z_OK) {
@@ -1549,9 +1551,11 @@ static int stress_zlib_deflate(
 	if (zlib_args.window_bits > 31)
 		zlib_args.window_bits = zlib_args.window_bits - 32;
 
-	pr_dbg("DEF: lvl=%d mem-lvl=%d wbits=%d strategy=%d stream-bytes=%llu\n",
-		zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
-		zlib_args.strategy, (unsigned long long)zlib_args.stream_bytes);
+	if (args->instance == 0) {
+		pr_dbg("DEF: lvl=%d mem-lvl=%d wbits=%d strategy=%d stream-bytes=%llu\n",
+			zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
+			zlib_args.strategy, (unsigned long long)zlib_args.stream_bytes);
+	}
 	do {
 		ret = deflateInit2(&stream_def, zlib_args.level,
 				Z_DEFLATED, zlib_args.window_bits,
