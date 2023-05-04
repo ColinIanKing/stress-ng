@@ -588,18 +588,7 @@ reap:
 
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)
-			(void)kill(pids[i], SIGALRM);
-	}
-	for (i = 0; i < semaphore_sysv_procs; i++) {
-		if (pids[i] > 0) {
-			int status;
-
-			(void)shim_waitpid(pids[i], &status, 0);
-			if (WIFEXITED(status) &&
-			    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
-				rc = EXIT_FAILURE;
-			}
-		}
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	return rc;

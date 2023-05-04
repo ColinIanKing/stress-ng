@@ -47,3 +47,47 @@ int stress_killpid(const pid_t pid)
 	return kill(pid, SIGKILL);
 #endif
 }
+
+/*
+ *  stress_kill_and_wait()
+ *
+ */
+void stress_kill_and_wait(
+	const stress_args_t *args,
+	const pid_t pid,
+	const bool set_force_killed_counter)
+{
+	int count = 0;
+
+	(void)kill(pid, SIGALRM);
+
+	for (;;) {
+		pid_t ret;
+		int wstatus;
+
+		errno = 0;
+		ret = waitpid(pid, &wstatus, 0);
+		if ((ret >= 0) || (errno != EINTR))
+			break;
+
+		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+			return;
+
+		count++;
+		/*
+		 *  Retry if EINTR unless we've have 2 mins
+		 *  consecutive EINTRs then give up.
+		 */
+		if (!keep_stressing_flag()) {
+			(void)kill(pid, SIGALRM);
+			if (count > 120) {
+				if (set_force_killed_counter)
+					force_killed_counter(args);
+				stress_killpid(pid);
+			}
+		}
+		shim_sched_yield();
+		if (count > 10)
+			(void)sleep(1);
+	}
+}

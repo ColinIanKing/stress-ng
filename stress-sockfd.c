@@ -238,12 +238,11 @@ retry:
  */
 static int OPTIMIZE3 stress_socket_server(
 	const stress_args_t *args,
-	const pid_t pid,
 	const pid_t ppid,
 	const ssize_t max_fd,
 	const int socket_fd_port)
 {
-	int fd, status;
+	int fd;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -347,11 +346,6 @@ die:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
-
-	if (pid) {
-		(void)kill(pid, SIGALRM);
-		(void)shim_waitpid(pid, &status, 0);
-	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	return rc;
@@ -427,7 +421,11 @@ again:
 
 		_exit(ret);
 	} else {
-		ret = stress_socket_server(args, pid, mypid, max_fd, socket_fd_port);
+		int status;
+
+		ret = stress_socket_server(args, mypid, max_fd, socket_fd_port);
+		(void)kill(pid, SIGALRM);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 finish:

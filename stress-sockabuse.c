@@ -238,12 +238,11 @@ retry:
  */
 static int stress_sockabuse_server(
 	const stress_args_t *args,
-	const pid_t pid,
 	const pid_t mypid,
 	const int sockabuse_port)
 {
 	char buf[SOCKET_BUF];
-	int fd, status;
+	int fd;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -351,10 +350,6 @@ static int stress_sockabuse_server(
 	t2 = stress_time_now();
 
 die:
-	if (pid) {
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 	dt = t2 - t1;
 	if (dt > 0.0)
@@ -411,16 +406,18 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		rc = stress_sockabuse_client(args, mypid,
-			sockabuse_port);
+		rc = stress_sockabuse_client(args, mypid, sockabuse_port);
 
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
 
 		_exit(rc);
 	} else {
-		rc = stress_sockabuse_server(args, pid, mypid,
-			sockabuse_port);
+		int status;
+
+		rc = stress_sockabuse_server(args, mypid, sockabuse_port);
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

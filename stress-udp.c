@@ -297,7 +297,6 @@ child_die:
 
 static int OPTIMIZE3 stress_udp_server(
 	const stress_args_t *args,
-	const pid_t pid,
 	const pid_t mypid,
 	const int udp_domain,
 	const int udp_proto,
@@ -306,7 +305,7 @@ static int OPTIMIZE3 stress_udp_server(
 	const char *udp_if)
 {
 	char buf[UDP_BUF];
-	int fd, status;
+	int fd;
 #if !defined(__minix__)
 	int so_reuseaddr = 1;
 #endif
@@ -404,10 +403,6 @@ die:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
-	if (pid) {
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
 	return rc;
 }
 
@@ -488,7 +483,11 @@ again:
 		(void)kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
-		rc = stress_udp_server(args, pid, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
+		int status;
+
+		rc = stress_udp_server(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 	return rc;
 }

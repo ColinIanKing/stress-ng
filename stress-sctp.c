@@ -492,7 +492,6 @@ retry:
  */
 static int OPTIMIZE3 stress_sctp_server(
 	const stress_args_t *args,
-	const pid_t pid,
 	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
@@ -500,7 +499,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	const char *sctp_if)
 {
 	char ALIGN64 buf[SOCKET_BUF];
-	int fd, status;
+	int fd;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -618,11 +617,6 @@ die:
 #else
 	UNEXPECTED
 #endif
-	if (pid) {
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
-
 	return rc;
 }
 
@@ -695,7 +689,11 @@ again:
 		(void)kill(getppid(), SIGALRM);
 		_exit(ret);
 	} else {
-		ret = stress_sctp_server(args, pid, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
+		int status;
+
+		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 finish:

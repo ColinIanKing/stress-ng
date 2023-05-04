@@ -142,20 +142,8 @@ static int stress_mprotect(const stress_args_t *args)
 	stress_mprotect_mem(args, page_size, mem, mem_pages, prot_flags, n_flags);
 
 	for (i = 0; i < MPROTECT_MAX; i++) {
-		if (pids[i] >= 0)
-			(void)kill(pids[i], SIGALRM);
-	}
-
-	for (i = 0; i < MPROTECT_MAX; i++) {
-		if (pids[i] >= 0) {
-			int status;
-
-			if (kill(pids[i], 0) == 0) {
-				force_killed_counter(args);
-				(void)kill(pids[i], SIGKILL);
-			}
-			(void)waitpid(pids[i], &status, 0);
-		}
+		if (pids[i] > 0)
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

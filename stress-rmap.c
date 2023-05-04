@@ -252,25 +252,8 @@ cleanup:
 	 *  Kill and wait for children
 	 */
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
-		if (pids[i] <= 0)
-			continue;
-		(void)stress_killpid(pids[i]);
-	}
-	for (i = 0; i < RMAP_CHILD_MAX; i++) {
-		int status, ret;
-
-		if (pids[i] <= 0)
-			continue;
-
-		ret = shim_waitpid(pids[i], &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pids[i], SIGTERM);
-			(void)stress_killpid(pids[i]);
-			(void)shim_waitpid(pids[i], &status, 0);
-		}
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {

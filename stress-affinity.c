@@ -122,21 +122,7 @@ static void stress_affinity_reap(const stress_args_t *args, const pid_t *pids)
 
 	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid))
-			(void)kill(pids[i], SIGALRM);
-	}
-	/*
-	 *  Kill and reap children
-	 */
-	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
-		if ((pids[i] > 1) && (pids[i] != mypid)) {
-			int status;
-
-			if (kill(pids[i], 0) == 0) {
-				force_killed_counter(args);
-				(void)kill(pids[i], SIGKILL);
-			}
-			(void)waitpid(pids[i], &status, 0);
-		}
+			stress_kill_and_wait(args, pids[i], true);
 	}
 }
 

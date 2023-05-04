@@ -314,16 +314,8 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* And reap stressors */
 	for (i = 0; i < n; i++) {
-		(void)kill(pids[i], SIGALRM);
-	}
-	for (i = 0; i < n; i++) {
-		int status;
-
-		if (kill(pids[i], 0) == 0) {
-			force_killed_counter(args);
-			(void)kill(pids[i], SIGKILL);
-		}
-		(void)shim_waitpid(pids[i], &status, 0);
+		if (pids[i] > 0)
+			stress_kill_and_wait(args, pids[i], true);
 	}
 close_clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

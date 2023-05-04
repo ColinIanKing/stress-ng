@@ -269,12 +269,8 @@ static int stress_umount(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 reap:
 	for (i = 0; i < SIZEOF_ARRAY(pids); i++) {
-		if (pids[i] > 1) {
-			int status;
-
-			(void)kill(pids[i], SIGALRM);
-			(void)waitpid(pids[i], &status, 0);
-		}
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -282,12 +282,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 			 * SIGINT so force terminate
 			 */
 			for (j = i; j < tlb_procs; j++) {
-				if (pids[j] != -1) {
-					if (kill(pids[j], 0) == 0) {
-						force_killed_counter(args);
-						(void)kill(pids[j], SIGKILL);
-					}
-				}
+				if (pids[j] > 1)
+					stress_kill_and_wait(args, pids[i], true);
 			}
 
 			/* re-wait on the failed wait */

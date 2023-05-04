@@ -753,21 +753,14 @@ again:
 		rc = stress_cacheline_child(args, index + 1, false, l1_cacheline_size, func, cacheline_affinity);
 		_exit(rc);
 	} else {
-		int status;
-
 		stress_cacheline_child(args, index, true, l1_cacheline_size, func, cacheline_affinity);
-
-		(void)kill(pid, SIGALRM);
-		(void)shim_waitpid(pid, &status, 0);
-
-		if (WIFEXITED(status) && (WEXITSTATUS(status) != EXIT_SUCCESS))
-			rc = WEXITSTATUS(status);
+		stress_kill_and_wait(args, pid, false);
 	}
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return rc;
+	return EXIT_SUCCESS;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

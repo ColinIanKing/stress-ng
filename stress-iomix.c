@@ -1043,21 +1043,9 @@ static int stress_iomix(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 reap:
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-		if (pids[i])
-			(void)kill(pids[i], SIGALRM);
+		if (pids[i] > 0)
+			stress_kill_and_wait(args, pids[i], true);
 	}
-	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-		if (pids[i]) {
-			int status;
-
-			if (kill(pids[i], 0) == 0) {
-				force_killed_counter(args);
-				(void)kill(pids[i], SIGKILL);
-			}
-			(void)shim_waitpid(pids[i], &status, 0);
-		}
-	}
-
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);

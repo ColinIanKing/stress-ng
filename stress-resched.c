@@ -188,19 +188,9 @@ static int stress_resched(const stress_args_t *args)
 		}
 	} while (keep_stressing(args));
 
-	/* Kill children */
 	for (i = 0; i < pids_max; i++) {
 		if (pids[i] != -1)
-			(void)kill(pids[i], SIGALRM);
-	}
-
-	/* Reap children */
-	for (i = 0; i < pids_max; i++) {
-		if (pids[i] != -1) {
-			int status;
-
-			VOID_RET(int, waitpid(pids[i], &status, 0));
-		}
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

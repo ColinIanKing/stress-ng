@@ -289,15 +289,8 @@ static int stress_fpunch(const stress_args_t *args)
 			(void)kill(pids[i], SIGALRM);
 	}
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
-		if (pids[i] > 1) {
-			int status;
-
-			if (kill(pids[i], 0) == 0) {
-				force_killed_counter(args);
-				(void)kill(pids[i], SIGKILL);
-			}
-			(void)waitpid(pids[i], &status, 0);
-		}
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

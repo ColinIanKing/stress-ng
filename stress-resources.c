@@ -30,24 +30,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static void MLOCKED_TEXT stress_resources_kill(const pid_t *pids, const size_t num_pids)
-{
-	size_t i;
-
-	for (i = 0; i < num_pids; i++) {
-		if (pids[i] > 0)
-			(void)kill(pids[i], SIGALRM);
-	}
-
-	for (i = 0; i < num_pids; i++) {
-		if (pids[i] > 0) {
-			int status;
-
-			(void)shim_waitpid(pids[i], &status, 0);
-		}
-	}
-}
-
 /*
  *  stress_resources()
  *	stress by forking and exiting
@@ -112,7 +94,16 @@ static int stress_resources(const stress_args_t *args)
 				break;
 			inc_counter(args);
 		}
-		stress_resources_kill(pids, num_pids);
+		/* Signal all pids, fast turnaround */
+		for (i = 0; i < num_pids; i++) {
+			if (pids[i] > 0)
+				(void)kill(pids[i], SIGALRM);
+		}
+		/* Re-signal, slow reap */
+		for (i = 0; i < num_pids; i++) {
+			if (pids[i] > 0)
+				stress_kill_and_wait(args, pids[i], true);
+		}
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

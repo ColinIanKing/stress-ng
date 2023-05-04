@@ -178,12 +178,11 @@ retry:
 static int OPTIMIZE3 stress_sockmany_server(
 	const stress_args_t *args,
 	const int sockmany_port,
-	const pid_t pid,
 	const pid_t mypid,
 	const char *sockmany_if)
 {
 	char ALIGN64 buf[SOCKET_MANY_BUF];
-	int fd, status;
+	int fd;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -287,11 +286,6 @@ static int OPTIMIZE3 stress_sockmany_server(
 die_close:
 	(void)close(fd);
 die:
-	if (pid) {
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
-
 	return rc;
 }
 
@@ -373,7 +367,11 @@ again:
 
 		_exit(rc);
 	} else {
-		rc = stress_sockmany_server(args, sockmany_port, pid, ppid, sockmany_if);
+		int status;
+
+		rc = stress_sockmany_server(args, sockmany_port, ppid, sockmany_if);
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
 

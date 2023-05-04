@@ -227,18 +227,10 @@ static int stress_hrtimers(const stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	end_time = stress_time_now();
 	for (i = 0; i < PROCS_MAX; i++) {
 		if (pids[i] > 0)
-			(void)kill(pids[i], SIGALRM);
-	}
-	end_time = stress_time_now();
-
-	for (i = 0; i < PROCS_MAX; i++) {
-		if (pids[i] > 0) {
-			int status;
-
-			VOID_RET(int, shim_waitpid(pids[i], &status, 0));
-		}
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	if (start_time >= 0.0) {

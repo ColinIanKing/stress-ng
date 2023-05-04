@@ -1085,15 +1085,8 @@ reap:
 	stress_net_release_ports(start_port, end_port);
 
 	for (i = 0; i < max_servers; i++) {
-		int status;
-
-		if (pids[i] > 0) {
-			(void)kill(pids[i], SIGALRM);
-			if (shim_waitpid(pids[i], &status, 0) < 0) {
-				pr_dbg("%s: waitpid failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			}
-		}
+		if (pids[i] > 0)
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	return rc;

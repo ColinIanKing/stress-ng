@@ -673,20 +673,7 @@ static int stress_apparmor(const stress_args_t *args)
 	/* Wakeup, time to die */
 	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
 		if (pids[i] >= 0)
-			(void)kill(pids[i], SIGALRM);
-	}
-	/* Now apply death grip */
-	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
-		int status;
-
-		if (pids[i] >= 0) {
-			/* Still alive, kill it */
-			if (kill(pids[i], 0) == 0) {
-				force_killed_counter(args);
-				(void)kill(pids[i], SIGKILL);
-			}
-			(void)shim_waitpid(pids[i], &status, 0);
-		}
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	free(apparmor_path);

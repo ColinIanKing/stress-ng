@@ -3804,4 +3804,3 @@ void stress_set_vma_anon_name(const void *addr, const size_t size, const char *n
 	(void)name;
 #endif
 }
-

@@ -338,21 +338,7 @@ static int stress_touch(const stress_args_t *args)
 
 	for (i = 0; i < TOUCH_PROCS; i++) {
 		if (pids[i] > 1)
-			(void)kill(pids[i], SIGALRM);
-	}
-	for (i = 0; i < TOUCH_PROCS; i++) {
-		if (pids[i] > 1)  {
-			for (;;) {
-				int status;
-
-				ret = waitpid(pids[i], &status, 0);
-				if (ret == 0)
-					break;
-				if (errno == EINTR)
-					continue;
-				break;
-			}
-		}
+			stress_kill_and_wait(args, pids[i], true);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -1693,7 +1693,6 @@ zlib_checksum_error:
 static int stress_zlib(const stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS, fds[2];
-	int status;
 	const pid_t parent_pid = getpid();
 	pid_t pid;
 	bool error = false;
@@ -1799,11 +1798,7 @@ again:
 
 	(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 
-	if (kill(pid, 0) == 0) {
-		force_killed_counter(args);
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	stress_kill_and_wait(args, pid, true);
 
 	return ret;
 }

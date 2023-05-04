@@ -259,25 +259,14 @@ tidy_ok:
 tidy:
 		_exit(rc);
 	} else {
-		int status;
-
 		param.sched_priority = policies[0].max_prio;
 		(void)sched_setscheduler(args->pid, policies[0].policy, &param);
 
 		(void)pause();
-		(void)kill(pid, SIGALRM);
-		if (shim_waitpid(pid, &status, 0) < 0) {
-			if (kill(pid, 0) == 0) {
-				force_killed_counter(args);
-				(void)kill(pid, SIGKILL);
-				shim_waitpid(pid, &status, 0);
-			}
-		}
+		stress_kill_and_wait(args, pid, true);
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
 #endif
-
-		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
