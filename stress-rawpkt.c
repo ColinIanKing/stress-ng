@@ -273,7 +273,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	const stress_args_t *args,
 	struct ifreq *hwaddr,
 	struct ifreq *ifaddr,
-	struct ifreq *idx,
+	const struct ifreq *idx,
 	const pid_t ppid,
 	const int port)
 {
