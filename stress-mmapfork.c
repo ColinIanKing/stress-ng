@@ -82,7 +82,7 @@ static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
  *  stress_memory_is_not_zero()
  *	return true if memory is non-zero
  */
-static bool stress_memory_is_not_zero(uint8_t *ptr, const size_t size)
+static bool stress_memory_is_not_zero(const uint8_t *ptr, const size_t size)
 {
 	size_t i;
 
