@@ -129,12 +129,13 @@ static void stress_af_alg_add_crypto_defconfigs(void);
  */
 static stress_crypto_type_t name_to_type(const char *buffer)
 {
-	const char *ptr = strchr(buffer, ':');
-	const char *end = ptr + strlen(buffer);
+	char *end, *ptr = strchr(buffer, ':');
 	size_t i;
 
 	if (!ptr)
 		return CRYPTO_UNKNOWN;
+
+	end = ptr + strlen(buffer);
 	ptr += 2;
 	if (ptr >= end)
 		return CRYPTO_UNKNOWN;
