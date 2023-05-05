@@ -24,6 +24,13 @@
 #define MAX_CHDIR_DIRS		(65536)
 #define DEFAULT_CHDIR_DIRS	(8192)
 
+typedef struct {
+	char *path;		/* path to chdir to */
+	int fd;			/* fd of open dir */
+	bool mkdir_ok;		/* true if mkdir succeeded */
+} stress_chdir_info_t;
+
+
 static const stress_help_t help[] = {
 	{ NULL, "chdir N",	"start N workers thrashing chdir on many paths" },
 	{ NULL,	"chdir-dirs N",	"select number of directories to exercise chdir on" },
@@ -52,10 +59,9 @@ static int stress_set_chdir_dirs(const char *opt)
 static int stress_chdir(const stress_args_t *args)
 {
 	uint32_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
+	stress_chdir_info_t *chdir_info;
 	char path[PATH_MAX], cwd[PATH_MAX], badpath[PATH_MAX], longpath[PATH_MAX + 16];
-	int rc, ret = EXIT_FAILURE, *fds;
-	char **paths;
-	bool *mkdir_ok;
+	int rc, ret = EXIT_FAILURE;
 	struct stat statbuf;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 	bool got_statbuf = false;
@@ -63,25 +69,10 @@ static int stress_chdir(const stress_args_t *args)
 	double count = 0.0, duration = 0.0, rate, start_time;
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
-	paths = calloc(chdir_dirs, sizeof(*paths));
-	if (!paths) {
-		pr_inf_skip("%s: out of memory allocating %" PRIu32 " paths, "
+	chdir_info = calloc(chdir_dirs, sizeof(*chdir_info));
+	if (!chdir_info) {
+		pr_inf_skip("%s: out of memory allocating %" PRIu32 " chdir structs, "
 			    "skipping stressor\n", args->name, chdir_dirs);
-		return EXIT_NO_RESOURCE;
-	}
-	fds = calloc(chdir_dirs, sizeof(*fds));
-	if (!fds) {
-		pr_inf_skip("%s: out of memory allocating %" PRIu32 " file descriptors, "
-			    "skipping stressor\n", args->name, chdir_dirs);
-		free(paths);
-		return EXIT_NO_RESOURCE;
-	}
-	mkdir_ok = calloc(chdir_dirs, sizeof(*mkdir_ok));
-	if (!mkdir_ok) {
-		pr_inf_skip("%s: out of memory allocating %" PRIu32 " boolean flags, "
-			    "skipping stressor\n", args->name, chdir_dirs);
-		free(fds);
-		free(paths);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -98,8 +89,9 @@ static int stress_chdir(const stress_args_t *args)
 	}
 
 	for (i = 0; i < chdir_dirs; i++) {
-		fds[i] = -1;
-		paths[i] = NULL;
+		chdir_info[i].path = NULL;
+		chdir_info[i].fd = -1;
+		chdir_info[i].mkdir_ok = false;
 	}
 
 	stress_rndstr(longpath, sizeof(longpath));
@@ -122,16 +114,16 @@ static int stress_chdir(const stress_args_t *args)
 #endif
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), rnd | gray_code);
-		paths[i] = strdup(path);
-		if (paths[i] == NULL)
+		chdir_info[i].path = strdup(path);
+		if (chdir_info[i].path == NULL)
 			goto abort;
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (rc < 0) {
 			if ((errno == ENOMEM) ||
 			    (errno == ENOSPC) ||
 			    (errno == EMLINK)) {
-				mkdir_ok[i] = false;
-				fds[i] = -1;
+				chdir_info[i].mkdir_ok = false;
+				chdir_info[i].fd = -1;
 				continue;
 			}
 			ret = stress_exit_status(errno);
@@ -140,8 +132,8 @@ static int stress_chdir(const stress_args_t *args)
 					args->name, path, errno, strerror(errno));
 			goto abort;
 		}
-		mkdir_ok[i] = true;
-		fds[i] = open(paths[i], flags);
+		chdir_info[i].mkdir_ok = true;
+		chdir_info[i].fd = open(chdir_info[i].path, flags);
 
 		if (!got_statbuf) {
 			if (stat(path, &statbuf) == 0)
@@ -162,18 +154,18 @@ static int stress_chdir(const stress_args_t *args)
 	do {
 		for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
 			const uint32_t j = stress_mwc32modn(chdir_dirs);
-			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
+			const int fd = chdir_info[j].fd >= 0 ? chdir_info[j].fd : chdir_info[0].fd;
 			double t;
 
-			if (mkdir_ok[i] && paths[i]) {
+			if (chdir_info[i].mkdir_ok && chdir_info[i].path) {
 				t = stress_time_now();
-				if (chdir(paths[i]) == 0) {
+				if (chdir(chdir_info[i].path) == 0) {
 					duration += stress_time_now() - t;
 					count += 1.0;
 				} else {
 					if (errno != ENOMEM) {
 						pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
-							args->name, paths[i],
+							args->name, chdir_info[i].path,
 							errno, strerror(errno),
 							stress_fs_type(path));
 						goto abort;
@@ -186,7 +178,7 @@ static int stress_chdir(const stress_args_t *args)
 					pr_fail("%s: fchdir failed, errno=%d (%s)%s\n",
 						args->name,
 						errno, strerror(errno),
-						stress_fs_type(paths[i]));
+						stress_fs_type(chdir_info[i].path));
 					goto abort;
 				}
 			}
@@ -276,12 +268,12 @@ tidy:
 
 	/* force unlink of all files */
 	start_time = stress_time_now();
-	for (i = 0; (i < chdir_dirs) && paths[i] ; i++) {
-		if (fds[i] >= 0)
-			(void)close(fds[i]);
-		if (paths[i]) {
-			(void)shim_rmdir(paths[i]);
-			free(paths[i]);
+	for (i = 0; (i < chdir_dirs) && chdir_info[i].path ; i++) {
+		if (chdir_info[i].fd >= 0)
+			(void)close(chdir_info[i].fd);
+		if (chdir_info[i].path) {
+			(void)shim_rmdir(chdir_info[i].path);
+			free(chdir_info[i].path);
 		}
 		/* ..taking a while?, inform user */
 		if ((args->instance == 0) && !tidy_info &&
@@ -296,9 +288,7 @@ tidy:
 	stress_metrics_set(args, 0, "chdir calls per sec", rate);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	free(mkdir_ok);
-	free(fds);
-	free(paths);
+	free(chdir_info);
 
 	return ret;
 }
