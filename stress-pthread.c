@@ -215,7 +215,7 @@ static void *stress_pthread_func(void *parg)
 #endif
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
-	struct robust_list_head *head, new_head;
+	struct robust_list_head *head;
 	size_t len;
 #endif
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
@@ -240,7 +240,7 @@ static void *stress_pthread_func(void *parg)
 #if defined(HAVE_SET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
 		if ((head != NULL) && (len > 0)) {
-			(void)memcpy(&new_head, head, len);
+			struct robust_list_head new_head = *head;
 
 			/* Currently disabled, valgrind complains that head is out of range */
 			if (sys_set_robust_list(&new_head, len) < 0) {
