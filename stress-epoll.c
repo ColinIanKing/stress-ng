@@ -1085,8 +1085,8 @@ reap:
 	stress_net_release_ports(start_port, end_port);
 
 	for (i = 0; i < max_servers; i++) {
-		if (pids[i] > 0)
-			stress_kill_and_wait(args, pids[i], true);
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 
 	return rc;

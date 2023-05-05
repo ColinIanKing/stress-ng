@@ -754,7 +754,7 @@ again:
 		_exit(rc);
 	} else {
 		stress_cacheline_child(args, index, true, l1_cacheline_size, func, cacheline_affinity);
-		stress_kill_and_wait(args, pid, false);
+		stress_kill_and_wait(args, pid, SIGALRM, false);
 	}
 
 finish:

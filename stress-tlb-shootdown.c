@@ -283,7 +283,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 			 */
 			for (j = i; j < tlb_procs; j++) {
 				if (pids[j] > 1)
-					stress_kill_and_wait(args, pids[i], true);
+					stress_kill_and_wait(args, pids[i], SIGALRM, true);
 			}
 
 			/* re-wait on the failed wait */

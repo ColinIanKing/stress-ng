@@ -189,8 +189,8 @@ unmap:
 				break;
 		}
 		for (i = 0; i < n; i++) {
-			if (pids[i] > 0) {
-				stress_kill_and_wait(args, pids[i], false);
+			if (pids[i] > 1) {
+				stress_kill_and_wait(args, pids[i], SIGALRM, false);
 				inc_counter(args);
 			}
 		}

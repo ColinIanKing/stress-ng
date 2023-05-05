@@ -55,11 +55,12 @@ int stress_killpid(const pid_t pid)
 void stress_kill_and_wait(
 	const stress_args_t *args,
 	const pid_t pid,
+	const int signum,
 	const bool set_force_killed_counter)
 {
 	int count = 0;
 
-	(void)kill(pid, SIGALRM);
+	(void)kill(pid, signum);
 
 	for (;;) {
 		pid_t ret;
@@ -79,7 +80,7 @@ void stress_kill_and_wait(
 		 *  consecutive EINTRs then give up.
 		 */
 		if (!keep_stressing_flag()) {
-			(void)kill(pid, SIGALRM);
+			(void)kill(pid, signum);
 			if (count > 120) {
 				if (set_force_killed_counter)
 					force_killed_counter(args);

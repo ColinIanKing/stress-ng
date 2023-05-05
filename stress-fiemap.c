@@ -314,8 +314,8 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* And reap stressors */
 	for (i = 0; i < n; i++) {
-		if (pids[i] > 0)
-			stress_kill_and_wait(args, pids[i], true);
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 close_clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

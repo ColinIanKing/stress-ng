@@ -327,8 +327,8 @@ again:
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (cpid > 0)
-		stress_kill_and_wait(args, cpid, true);
+	if (cpid > 1)
+		stress_kill_and_wait(args, cpid, SIGALRM, true);
 	stress_lockf_info_free();
 
 	(void)close(fd);

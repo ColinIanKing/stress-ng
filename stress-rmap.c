@@ -253,7 +253,7 @@ cleanup:
 	 */
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], true);
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {

@@ -346,7 +346,8 @@ fail:
 	}
 	(void)close(ctxt->pipe_wr[0]);
 	(void)close(ctxt->pipe_rd[1]);
-	stress_kill_and_wait(args, ctxt->pid, false);
+	if (ctxt->pid > 1)
+		stress_kill_and_wait(args, ctxt->pid, SIGALRM, false);
 	(void)munmap(localbuf, ctxt->sz);
 
 	return EXIT_SUCCESS;

@@ -200,8 +200,7 @@ again:
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-				(void)kill(pid, SIGTERM);
-				stress_kill_and_wait(args, pid, false);
+				stress_kill_and_wait(args, pid, SIGTERM, false);
 			}
 		} else {
 			/* Child */

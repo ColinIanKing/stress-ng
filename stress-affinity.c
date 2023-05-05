@@ -122,7 +122,7 @@ static void stress_affinity_reap(const stress_args_t *args, const pid_t *pids)
 
 	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid))
-			stress_kill_and_wait(args, pids[i], true);
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 }
 

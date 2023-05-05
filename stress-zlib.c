@@ -1798,7 +1798,7 @@ again:
 
 	(void)munmap((void *)shared_checksums, sizeof(*shared_checksums));
 
-	stress_kill_and_wait(args, pid, true);
+	stress_kill_and_wait(args, pid, SIGALRM, true);
 
 	return ret;
 }

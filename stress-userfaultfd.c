@@ -462,7 +462,7 @@ do_read:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_kill_and_wait(args, pid, false);
+	stress_kill_and_wait(args, pid, SIGALRM, false);
 unreg:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {

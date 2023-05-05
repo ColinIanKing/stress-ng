@@ -244,22 +244,7 @@ vfork_again:
 		(void)sleep((unsigned int)g_opt_timeout);
 		*terminate = true;
 
-		for (;;) {
-			int ret, chstatus;
-
-			(void)kill(chpid, SIGALRM);
-			errno = 0;
-			ret = waitpid(chpid, &chstatus, 0);
-
-			/* Reaped? - all done */
-			if (ret >= 0)
-				break;
-			/* Interrupted? - retry */
-			if (errno == EINTR)
-				continue;
-			/* Something went wrong, kill */
-			(void)stress_killpid(chpid);
-		}
+		stress_kill_and_wait(args, chpid, SIGALRM, false);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

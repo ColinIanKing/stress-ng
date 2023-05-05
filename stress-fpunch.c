@@ -290,7 +290,7 @@ static int stress_fpunch(const stress_args_t *args)
 	}
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
 		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], true);
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

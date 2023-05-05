@@ -672,8 +672,8 @@ static int stress_apparmor(const stress_args_t *args)
 
 	/* Wakeup, time to die */
 	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
-		if (pids[i] >= 0)
-			stress_kill_and_wait(args, pids[i], true);
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 
 	free(apparmor_path);

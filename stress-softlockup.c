@@ -263,7 +263,7 @@ tidy:
 		(void)sched_setscheduler(args->pid, policies[0].policy, &param);
 
 		(void)pause();
-		stress_kill_and_wait(args, pid, true);
+		stress_kill_and_wait(args, pid, SIGALRM, true);
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
 #endif

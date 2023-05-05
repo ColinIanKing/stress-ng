@@ -457,8 +457,7 @@ again:
 			(void)stress_killpid(pid);
 			(void)shim_waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
-				if ((WTERMSIG(status) == SIGKILL) ||
-				    (WTERMSIG(status) == SIGKILL)) {
+				if (WTERMSIG(status) == SIGKILL) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",

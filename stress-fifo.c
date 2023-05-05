@@ -308,8 +308,8 @@ static int stress_fifo(const stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (i = 0; i < fifo_readers; i++) {
-		if (pids[i] > 0)
-			stress_kill_and_wait(args, pids[i], false);
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], SIGALRM, false);
 	}
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

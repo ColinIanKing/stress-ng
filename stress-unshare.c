@@ -269,8 +269,8 @@ static int stress_unshare(const stress_args_t *args)
 			}
 		}
 		for (i = 0; i < n; i++) {
-			if (unshare_info[i].pid < 1)
-				stress_kill_and_wait(args, unshare_info[i].pid, false);
+			if (unshare_info[i].pid > 1)
+				stress_kill_and_wait(args, unshare_info[i].pid, SIGALRM, false);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));

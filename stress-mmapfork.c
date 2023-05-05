@@ -229,9 +229,8 @@ reap:
 		 *  Force child death and reap
 		 */
 		for (i = 0; i < MAX_PIDS; i++) {
-			if (UNLIKELY(pids[i] < 0))
-				continue;
-			stress_kill_and_wait(args, pids[i], false);
+			if (LIKELY(pids[i] > 1))
+				stress_kill_and_wait(args, pids[i], SIGALRM, false);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));

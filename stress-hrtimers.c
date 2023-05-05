@@ -229,8 +229,8 @@ reap:
 
 	end_time = stress_time_now();
 	for (i = 0; i < PROCS_MAX; i++) {
-		if (pids[i] > 0)
-			stress_kill_and_wait(args, pids[i], true);
+		if (pids[i] > 1)
+			stress_kill_and_wait(args, pids[i], SIGALRM, true);
 	}
 
 	if (start_time >= 0.0) {
