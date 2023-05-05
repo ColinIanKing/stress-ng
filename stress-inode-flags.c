@@ -150,7 +150,7 @@ static inline void stress_inode_flags_ioctl_sane(const int fd)
  */
 static int stress_inode_flags_stressor(
 	const stress_args_t *args,
-	stress_data_t *data)
+	const stress_data_t *data)
 {
 	size_t index = 0;
 
