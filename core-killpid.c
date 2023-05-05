@@ -60,6 +60,13 @@ void stress_kill_and_wait(
 {
 	int count = 0;
 
+	if ((pid == 0) || (pid == 1)) {
+		pr_inf("%s: warning, attempt to kill pid %d ignored\n",
+			args->name, pid);
+	}
+	if (pid <= 1)
+		return;
+
 	(void)kill(pid, signum);
 
 	for (;;) {
