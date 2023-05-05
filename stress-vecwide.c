@@ -67,7 +67,7 @@ typedef struct {
 	uint8_t	res[VEC_MAX_SZ];
 } vec_args_t;
 
-typedef void (*stress_vecwide_func_t)(vec_args_t *vec_args);
+typedef void (*stress_vecwide_func_t)(const vec_args_t *vec_args);
 
 typedef struct {
 	stress_vecwide_func_t	vecwide_func;
@@ -77,7 +77,7 @@ typedef struct {
 } stress_vecwide_funcs_t;
 
 #define STRESS_VECWIDE(name, type)				\
-static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
+static void TARGET_CLONES OPTIMIZE3 name (const vec_args_t *vec_args) \
 {								\
 	type ALIGN64 a;						\
 	type ALIGN64 b;						\
