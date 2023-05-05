@@ -32,7 +32,7 @@ struct list_entry;
 
 typedef void (*stress_list_func)(const stress_args_t *args,
 				 struct list_entry *entries,
-				 struct list_entry *entries_end,
+				 const struct list_entry *entries_end,
 				 stress_metrics_t *metrics);
 
 typedef struct {
@@ -171,7 +171,7 @@ static void MLOCKED_TEXT stress_list_handler(int signum)
 static void OPTIMIZE3 stress_list_slistt(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	register struct list_entry *entry, *head, *tail;
@@ -215,7 +215,7 @@ static void OPTIMIZE3 stress_list_slistt(
 static void OPTIMIZE3 stress_list_list(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	register struct list_entry *entry;
@@ -259,7 +259,7 @@ static void OPTIMIZE3 stress_list_list(
 static void OPTIMIZE3 stress_list_slist(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	register struct list_entry *entry;
@@ -302,7 +302,7 @@ static void OPTIMIZE3 stress_list_slist(
 static void OPTIMIZE3 stress_list_circleq(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	register struct list_entry *entry;
@@ -345,7 +345,7 @@ static void OPTIMIZE3 stress_list_circleq(
 static void OPTIMIZE3 stress_list_stailq(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	register struct list_entry *entry;
@@ -388,7 +388,7 @@ static void OPTIMIZE3 stress_list_stailq(
 static void OPTIMIZE3 stress_list_tailq(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	register struct list_entry *entry;
@@ -430,7 +430,7 @@ static void OPTIMIZE3 stress_list_tailq(
 static void stress_list_all(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics);
 
 
@@ -460,7 +460,7 @@ static const stress_list_method_info_t list_methods[] = {
 static void stress_list_all(
 	const stress_args_t *args,
 	struct list_entry *entries,
-	struct list_entry *entries_end,
+	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	static size_t index = 1;
