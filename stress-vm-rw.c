@@ -175,7 +175,6 @@ cleanup:
 static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 {
 	/* Parent */
-	int status;
 	uint8_t val = 0x10;
 	uint8_t *localbuf;
 	stress_addr_msg_t msg_rd, msg_wr;
@@ -347,8 +346,7 @@ fail:
 	}
 	(void)close(ctxt->pipe_wr[0]);
 	(void)close(ctxt->pipe_rd[1]);
-	(void)stress_killpid(ctxt->pid);
-	(void)shim_waitpid(ctxt->pid, &status, 0);
+	stress_kill_and_wait(args, ctxt->pid, false);
 	(void)munmap(localbuf, ctxt->sz);
 
 	return EXIT_SUCCESS;

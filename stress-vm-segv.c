@@ -127,8 +127,7 @@ again:
 #endif
 kill_child:
 			(void)kill(pid, SIGTERM);
-			(void)stress_killpid(pid);
-			(void)shim_waitpid(pid, &status, 0);
+			stress_kill_and_wait(args, pid, false);
 		} else {
 			/* Child */
 			sigset_t set;

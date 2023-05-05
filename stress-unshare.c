@@ -177,9 +177,8 @@ static int stress_unshare(const stress_args_t *args)
 	do {
 		size_t n;
 
-		for (n = 0; n < MAX_PIDS; n++) {
-			unshare_info[i].pid = 0;
-		}
+		for (n = 0; n < MAX_PIDS; n++)
+			unshare_info[i].pid = -1;
 
 		for (n = 0; n < MAX_PIDS; n++) {
 			static size_t index;
@@ -270,20 +269,8 @@ static int stress_unshare(const stress_args_t *args)
 			}
 		}
 		for (i = 0; i < n; i++) {
-			int status;
-
-			if (unshare_info[i].pid > 0) {
-				int ret;
-
-				ret = stress_killpid(unshare_info[i].pid);
-				if (ret == 0) {
-					if (shim_waitpid(unshare_info[i].pid, &status, 0) < 0) {
-						if (errno != EINTR)
-							pr_err("%s: waitpid errno=%d (%s)\n",
-								args->name, errno, strerror(errno));
-					}
-				}
-			}
+			if (unshare_info[i].pid < 1)
+				stress_kill_and_wait(args, unshare_info[i].pid, false);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));

@@ -244,7 +244,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	size_t sz;
 	uint8_t *data;
 	void *zero_page = NULL;
-	int fd = -1, status, rc = EXIT_SUCCESS, count = 0;
+	int fd = -1, rc = EXIT_SUCCESS, count = 0;
 	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
 	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
 	pid_t pid;
@@ -461,12 +461,8 @@ do_read:
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	/* Run it over, zap child */
-	(void)stress_killpid(pid);
-	if (shim_waitpid(pid, &status, 0) < 0) {
-		pr_dbg("%s: waitpid failed, errno = %d (%s)\n",
-			args->name, errno, strerror(errno));
-	}
+
+	stress_kill_and_wait(args, pid, false);
 unreg:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {

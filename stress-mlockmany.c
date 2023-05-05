@@ -144,7 +144,6 @@ static int stress_mlockmany(const stress_args_t *args)
 				if (ptr == MAP_FAILED)
 					_exit(0);
 
-
 				(void)stress_mincore_touch_pages(ptr, mmap_size);
 
 				mlock_size = mmap_size;
@@ -191,10 +190,7 @@ unmap:
 		}
 		for (i = 0; i < n; i++) {
 			if (pids[i] > 0) {
-				int status;
-				/* Parent, wait for child */
-				(void)stress_killpid(pids[i]);
-				(void)shim_waitpid(pids[i], &status, 0);
+				stress_kill_and_wait(args, pids[i], false);
 				inc_counter(args);
 			}
 		}

@@ -229,12 +229,9 @@ reap:
 		 *  Force child death and reap
 		 */
 		for (i = 0; i < MAX_PIDS; i++) {
-			int status;
-
 			if (UNLIKELY(pids[i] < 0))
 				continue;
-			(void)stress_killpid(pids[i]);
-			(void)shim_waitpid(pids[i], &status, 0);
+			stress_kill_and_wait(args, pids[i], false);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
