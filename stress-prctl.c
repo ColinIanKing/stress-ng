@@ -367,8 +367,6 @@ static int stress_prctl_child(
 	void *page_anon,
 	size_t page_anon_size)
 {
-	int ret;
-
 	(void)args;
 	(void)mypid;
 
@@ -387,7 +385,7 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_CHILD_SUBREAPER)
 	{
-		int reaper = 0;
+		int ret, reaper = 0;
 
 		ret = prctl(PR_GET_CHILD_SUBREAPER, &reaper);
 		(void)ret;
@@ -403,6 +401,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_DUMPABLE)
 	{
+		int ret;
+
 		ret = prctl(PR_GET_DUMPABLE);
 		(void)ret;
 
@@ -417,7 +417,7 @@ static int stress_prctl_child(
 #if defined(PR_GET_ENDIAN)
 	/* PowerPC only, but try it on all arches */
 	{
-		int endian;
+		int ret, endian;
 
 		ret = prctl(PR_GET_ENDIAN, &endian);
 		(void)ret;
@@ -484,7 +484,7 @@ static int stress_prctl_child(
 #if defined(PR_GET_FPEMU)
 	/* ia64 only, but try it on all arches */
 	{
-		int control;
+		int ret, control;
 
 		ret = prctl(PR_GET_FPEMU, &control);
 		(void)ret;
@@ -500,7 +500,7 @@ static int stress_prctl_child(
 #if defined(PR_GET_FPEXC)
 	/* PowerPC only, but try it on all arches */
 	{
-		int mode;
+		int ret, mode;
 
 		ret = prctl(PR_GET_FPEXC, &mode);
 		(void)ret;
@@ -515,7 +515,7 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_KEEPCAPS)
 	{
-		int flag = 0;
+		int ret, flag = 0;
 
 		ret = prctl(PR_GET_KEEPCAPS, &flag);
 		(void)ret;
@@ -602,10 +602,11 @@ static int stress_prctl_child(
 #if defined(PR_GET_NAME)
 	{
 		char name[17];
+		int ret;
 
 		(void)memset(name, 0, sizeof name);
 
-		ret =prctl(PR_GET_NAME, name);
+		ret = prctl(PR_GET_NAME, name);
 		(void)ret;
 
 #if defined(PR_SET_NAME)
@@ -618,6 +619,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_NO_NEW_PRIVS)
 	{
+		int ret;
+
 		ret = prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0);
 		(void)ret;
 
@@ -634,7 +637,7 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_PDEATHSIG)
 	{
-		int sig;
+		int ret, sig;
 
 		ret = prctl(PR_GET_PDEATHSIG, &sig);
 		(void)ret;
@@ -651,8 +654,11 @@ static int stress_prctl_child(
 
 #if defined(PR_SET_PTRACER)
 	{
+		int ret;
+
 		ret = prctl(PR_SET_PTRACER, mypid, 0, 0, 0);
 		(void)ret;
+
 #if defined(PR_SET_PTRACER_ANY)
 		VOID_RET(int, prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0));
 #endif
@@ -672,7 +678,10 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_SECUREBITS)
 	{
+		int ret;
+
 		ret = prctl(PR_GET_SECUREBITS, 0, 0, 0, 0);
+		(void)ret;
 
 #if defined(PR_SET_SECUREBITS)
 		if (ret >= 0) {
@@ -684,6 +693,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_THP_DISABLE)
 	{
+		int ret;
+
 		ret = prctl(PR_GET_THP_DISABLE, 0, 0, 0, 0);
 		(void)ret;
 
@@ -734,6 +745,8 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_TIMING)
 	{
+		int ret;
+
 		ret = prctl(PR_GET_TIMING, 0, 0, 0, 0);
 		(void)ret;
 
@@ -748,7 +761,7 @@ static int stress_prctl_child(
 #if defined(PR_GET_TSC)
 	{
 		/* x86 only, but try it on all arches */
-		int state;
+		int ret, state;
 
 		ret = prctl(PR_GET_TSC, &state, 0, 0, 0);
 		(void)ret;
@@ -765,6 +778,7 @@ static int stress_prctl_child(
 	{
 		/* ia64, parisc, powerpc, alpha, sh, tile, but try it on all arches */
 		unsigned int control;
+		int ret;
 
 		ret = prctl(PR_GET_UNALIGN, &control, 0, 0, 0);
 		(void)ret;
@@ -779,55 +793,65 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_SPECULATION_CTRL)
 	{
-		unsigned long lval;
-
 		/* exercise invalid args */
 		VOID_RET(int, prctl(PR_GET_SPECULATION_CTRL, ~0, ~0, ~0, ~0));
 
 #if defined(PR_SPEC_STORE_BYPASS)
-		lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
+		{
+			unsigned long lval;
 
-		if (lval & PR_SPEC_PRCTL) {
-			lval &= ~PR_SPEC_PRCTL;
+			lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
+
+			if (lval & PR_SPEC_PRCTL) {
+				lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
 
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_ENABLE, 0, 0));
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_ENABLE, 0, 0));
 #endif
 #if defined(PR_SPEC_DISABLE)
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_DISABLE, 0, 0));
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_DISABLE, 0, 0));
 #endif
-			/* ..and restore */
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, lval, 0, 0));
+				/* ..and restore */
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, lval, 0, 0));
+			}
 		}
 #endif
 
 #if defined(PR_SPEC_INDIRECT_BRANCH)
-		lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
-		if (lval & PR_SPEC_PRCTL) {
-			lval &= ~PR_SPEC_PRCTL;
+		{
+			unsigned long lval;
+
+			lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
+			if (lval & PR_SPEC_PRCTL) {
+				lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_ENABLE, 0, 0));
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_ENABLE, 0, 0));
 #endif
 #if defined(PR_SPEC_DISABLE)
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_DISABLE, 0, 0));
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_DISABLE, 0, 0));
 #endif
-			/* ..and restore */
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, lval, 0, 0));
+				/* ..and restore */
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, lval, 0, 0));
+			}
 		}
 #endif
 
 #if defined(PR_SPEC_L1D_FLUSH)
-		lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, 0, 0, 0);
-		if (lval & PR_SPEC_PRCTL) {
-			lval &= ~PR_SPEC_PRCTL;
+		{
+			unsigned long lval;
+
+			lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, 0, 0, 0);
+			if (lval & PR_SPEC_PRCTL) {
+				lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_ENABLE, 0, 0));
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_ENABLE, 0, 0));
 #endif
 #if defined(PR_SPEC_DISABLE)
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_DISABLE, 0, 0));
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_DISABLE, 0, 0));
 #endif
-			/* ..and restore */
-			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, lval, 0, 0));
+				/* ..and restore */
+				VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, lval, 0, 0));
+			}
 		}
 #endif
 	}
@@ -842,10 +866,14 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_IO_FLUSHER)
 	{
-		VOID_RET(int, prctl(PR_GET_IO_FLUSHER, 0, 0, 0, 0));
+		int ret;
+
+		ret = prctl(PR_GET_IO_FLUSHER, 0, 0, 0, 0);
+		(void)ret;
 
 #if defined(PR_SET_IO_FLUSHER)
-		VOID_RET(int, prctl(PR_SET_IO_FLUSHER, ret, 0, 0, 0));
+		if (ret > 0)
+			VOID_RET(int, prctl(PR_SET_IO_FLUSHER, ret, 0, 0, 0));
 #endif
 	}
 #endif
@@ -967,8 +995,6 @@ static int stress_prctl_child(
 		VOID_RET(int, prctl(-1, ~0, ~0, ~0, ~0));
 		VOID_RET(int, prctl(0xf00000, ~0, ~0, ~0, ~0));
 	}
-
-	(void)ret;
 
 	return 0;
 }
