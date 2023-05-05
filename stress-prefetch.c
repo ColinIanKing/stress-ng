@@ -170,22 +170,22 @@ static inline uint64_t get_prefetch_L3_size(const stress_args_t *args)
 	return cache_size;
 }
 
-static inline void stress_prefetch_builtin(void *addr)
+static inline void stress_prefetch_builtin(const void *addr)
 {
 	shim_builtin_prefetch(addr);
 }
 
-static inline void stress_prefetch_builtin_locality0(void *addr)
+static inline void stress_prefetch_builtin_locality0(const void *addr)
 {
 	shim_builtin_prefetch(addr, 0, 0);
 }
 
-static inline void stress_prefetch_builtin_locality3(void *addr)
+static inline void stress_prefetch_builtin_locality3(const void *addr)
 {
 	shim_builtin_prefetch(addr, 0, 3);
 }
 
-static inline void stress_prefetch_none(void *addr)
+static inline void stress_prefetch_none(const void *addr)
 {
 	(void)addr;
 }
