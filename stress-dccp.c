@@ -225,7 +225,6 @@ retry:
  */
 static int stress_dccp_server(
 	const stress_args_t *args,
-	const pid_t pid,	/* Pid of client child */
 	const int mypid,
 	const int dccp_port,
 	const int dccp_domain,
@@ -233,12 +232,10 @@ static int stress_dccp_server(
 	const int dccp_opts)
 {
 	char buf[DCCP_BUF];
-	int fd, status;
-	int so_reuseaddr = 1;
+	int fd, so_reuseaddr = 1, rc = EXIT_SUCCESS;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
-	int rc = EXIT_SUCCESS;
 	double t1 = 0.0, t2 = 0.0, dt;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
@@ -407,11 +404,6 @@ die:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
-
-	if (pid) {
-		(void)kill(pid, SIGKILL);
-		(void)shim_waitpid(pid, &status, 0);
-	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	dt = t2 - t1;
@@ -481,8 +473,13 @@ again:
 		(void)kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
-		rc = stress_dccp_server(args, pid, mypid, dccp_port,
+		int status;
+
+		rc = stress_dccp_server(args, mypid, dccp_port,
 			dccp_domain, dccp_if, dccp_opts);
+
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
