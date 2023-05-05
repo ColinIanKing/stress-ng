@@ -65,7 +65,7 @@ static sigjmp_buf jmp_env;
 #define PAGES		(16)
 
 typedef void(*stress_opcode_func)(const size_t page_size, void *ops_begin,
-				  const void *ops_end, volatile uint64_t *op);
+				  const void *ops_end, const volatile uint64_t *op);
 
 typedef struct {
 	const char *name;
@@ -186,10 +186,10 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 }
 
 static void OPTIMIZE3 stress_opcode_random(
-	size_t page_size,
+	const size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	volatile uint64_t *op)
+	const volatile uint64_t *op)
 {
 	register uint32_t *ops = (uint32_t *)ops_begin;
 
@@ -208,10 +208,10 @@ static void OPTIMIZE3 stress_opcode_random(
 #define OPCODE_HEX_DIGITS	(STRESS_OPCODE_SIZE >> 2)
 
 static void OPTIMIZE3 stress_opcode_inc(
-	size_t page_size,
+	const size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	volatile uint64_t *op)
+	const volatile uint64_t *op)
 {
 	switch (STRESS_OPCODE_SIZE) {
 	case 8:	{
@@ -277,10 +277,10 @@ static void OPTIMIZE3 stress_opcode_inc(
 }
 
 static void OPTIMIZE3 stress_opcode_mixed(
-	size_t page_size,
+	const size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	volatile uint64_t *op)
+	const volatile uint64_t *op)
 {
 	register uint64_t tmp = *op;
 	register uint64_t *ops = (uint64_t *)ops_begin;
@@ -302,10 +302,10 @@ static void OPTIMIZE3 stress_opcode_mixed(
 }
 
 static void stress_opcode_text(
-	size_t page_size,
+	const size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
-	volatile uint64_t *op)
+	const volatile uint64_t *op)
 {
 	char *text_start, *text_end;
 	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
