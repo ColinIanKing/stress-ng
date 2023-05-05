@@ -227,7 +227,7 @@ static int stress_random_advise(
 	const int idx = stress_mwc32modn((size_t)SIZEOF_ARRAY(madvise_options));
 	const int advise = madvise_options[idx];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
-	static int poison_count;
+	static int poison_count = 0;
 #if defined(MADV_NORMAL)
 	const int madv_normal = MADV_NORMAL;
 #else
