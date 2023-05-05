@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_pagein_handler(int signum)
 		siglongjmp(jmp_env, 1);
 }
 
-static void stress_thrash_state(char *state)
+static void stress_thrash_state(const char *state)
 {
 	stress_set_proc_state_str("thrash", state);
 }
