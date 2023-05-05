@@ -153,7 +153,7 @@ static void stress_affinity_child(
 	const pid_t *pids,
 	const bool pin_controller)
 {
-	uint32_t cpu = args->instance;
+	uint32_t cpu = args->instance, last_cpu = cpu;
 	cpu_set_t mask0;
 	bool keep_stressing_affinity = true;
 
@@ -164,8 +164,15 @@ static void stress_affinity_child(
 	do {
 		cpu_set_t mask;
 
-		cpu = info->affinity_rand ? (stress_mwc32() >> 4) : cpu + 1;
-		cpu %= info->cpus;
+		if (info->affinity_rand) {
+			cpu = stress_mwc32modn(info->cpus);
+			/* More than 2 cpus and same as last, move to next cpu */
+			if ((cpu == last_cpu) && (info->cpus > 2))
+				cpu = (cpu + 1) % info->cpus;
+			last_cpu = cpu;
+		} else {
+			cpu = (cpu + 1) % info->cpus;
+		}
 
 		/*
 		 *  In pin mode stressor instance 0 controls the CPU
