@@ -327,7 +327,7 @@ static inline int stress_io_uring_complete(
 
 		cqe = &cring->cqes[head & *submit->cq_ring.ring_mask];
 		stress_io_uring_user_data_t *const user_data =
-			(stress_io_uring_user_data_t *)cqe->user_data;
+			(stress_io_uring_user_data_t *)(uintptr_t)cqe->user_data;
 		if (cqe->res < 0) {
 			int err;
 
@@ -395,7 +395,7 @@ static int stress_io_uring_submit(
 
 	setup_func(io_uring_file, sqe, extra_data);
 	/* Save opcode for later completion error reporting */
-	sqe->user_data = (uint64_t)user_data;
+	sqe->user_data = (uint64_t)(uintptr_t)user_data;
 
 	sring->array[index] = index;
 	tail = next_tail;
