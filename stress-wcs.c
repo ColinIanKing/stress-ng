@@ -71,7 +71,7 @@ static const stress_wcs_method_info_t wcs_methods[];
 static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 {
 	register size_t i;
-	static wchar_t letters[32] ALIGN64 = {
+	static const wchar_t letters[32] ALIGN64 = {
 		L'a', L'b', L'c', L'd', L'e', L'f', L'g', L'h',
 		L'i', L'j', L'k', L'l', L'm', L'n', L'o', L'p',
 		L'q', L'r', L's', L't', L'u', L'v', L'w', L'x',
