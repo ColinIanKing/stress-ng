@@ -1084,10 +1084,7 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(start_port, end_port);
 
-	for (i = 0; i < max_servers; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
+	stress_kill_and_wait_many(args, pids, max_servers, SIGALRM, true);
 
 	return rc;
 }

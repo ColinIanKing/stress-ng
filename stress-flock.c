@@ -299,12 +299,7 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
-
-	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
-		if (pids[i] > 0)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
-
+	stress_kill_and_wait_many(args, pids, MAX_FLOCK_STRESSORS, SIGALRM, true);
 	(void)shim_unlink(filename);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

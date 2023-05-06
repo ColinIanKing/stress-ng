@@ -248,13 +248,7 @@ static int stress_rmap(const stress_args_t *args)
 cleanup:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	/*
-	 *  Kill and wait for children
-	 */
-	for (i = 0; i < RMAP_CHILD_MAX; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
+	stress_kill_and_wait_many(args, pids, RMAP_CHILD_MAX, SIGALRM, true);
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)

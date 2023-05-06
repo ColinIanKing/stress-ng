@@ -94,7 +94,7 @@ static int stress_mlockmany(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		unsigned int i, n;
+		unsigned int n;
 		size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 
 		(void)memset(pids, 0, sizeof(*pids) * mlockmany_procs);
@@ -185,15 +185,12 @@ unmap:
 				_exit(0);
 			}
 			pids[n] = pid;
+			if (pid > 1)
+				inc_counter(args);
 			if (!keep_stressing_flag())
 				break;
 		}
-		for (i = 0; i < n; i++) {
-			if (pids[i] > 1) {
-				stress_kill_and_wait(args, pids[i], SIGALRM, false);
-				inc_counter(args);
-			}
-		}
+		stress_kill_and_wait_many(args, pids, n, SIGALRM, false);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -585,11 +585,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 		pause();
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
-	for (i = 0; i < semaphore_sysv_procs; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
+	stress_kill_and_wait_many(args, pids, semaphore_sysv_procs, SIGALRM, true);
 
 	return rc;
 }

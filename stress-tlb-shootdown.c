@@ -266,35 +266,9 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		inc_counter(args);
 	} while(keep_stressing(args));
 
-	for (i = 0; i < tlb_procs; i++) {
-		int status;
-
-		if (pids[i] == -1)
-			continue;
-
-		ret = waitpid(pids[i], &status, 0);
-		if ((ret < 0) && (errno == EINTR)) {
-			int j;
-
-			/*
-			 * We got interrupted, so assume
-			 * it was the alarm (timedout) or
-			 * SIGINT so force terminate
-			 */
-			for (j = i; j < tlb_procs; j++) {
-				if (pids[j] > 1)
-					stress_kill_and_wait(args, pids[i], SIGALRM, true);
-			}
-
-			/* re-wait on the failed wait */
-			(void)waitpid(pids[i], &status, 0);
-
-			/* and continue waitpid on the pids */
-		}
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	stress_kill_and_wait_many(args, pids, tlb_procs, SIGALRM, true);
 err_munmap_mem:
 	(void)munmap(mem, mmap_size);
 err_munmap_memfd:

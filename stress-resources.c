@@ -94,16 +94,7 @@ static int stress_resources(const stress_args_t *args)
 				break;
 			inc_counter(args);
 		}
-		/* Signal all pids, fast turnaround */
-		for (i = 0; i < num_pids; i++) {
-			if (pids[i] > 1)
-				(void)kill(pids[i], SIGALRM);
-		}
-		/* Re-signal, slow reap */
-		for (i = 0; i < num_pids; i++) {
-			if (pids[i] > 1)
-				stress_kill_and_wait(args, pids[i], SIGALRM, true);
-		}
+		stress_kill_and_wait_many(args, pids, num_pids, SIGALRM, true);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

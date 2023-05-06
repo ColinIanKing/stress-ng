@@ -232,7 +232,6 @@ static int stress_umount(const stress_args_t *args)
 {
 	pid_t pids[3] = { -1, -1, -1 };
 	const pid_t mypid = getpid();
-	size_t i;
 	int ret = EXIT_NO_RESOURCE;
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 
@@ -268,13 +267,8 @@ static int stress_umount(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 reap:
-	for (i = 0; i < SIZEOF_ARRAY(pids); i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
+	stress_kill_and_wait_many(args, pids, SIZEOF_ARRAY(pids), SIGALRM, true);
 	(void)stress_temp_dir_rm_args(args);
 
 	return ret;

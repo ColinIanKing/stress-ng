@@ -284,14 +284,7 @@ static int stress_fpunch(const stress_args_t *args)
 	/* Wait for test run duration to complete */
 	(void)sleep((unsigned int)g_opt_timeout);
 
-	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
-		if (pids[i] > 1)
-			(void)kill(pids[i], SIGALRM);
-	}
-	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
+	stress_kill_and_wait_many(args, pids, STRESS_PUNCH_PIDS, SIGALRM, true);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

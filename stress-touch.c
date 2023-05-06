@@ -336,13 +336,9 @@ static int stress_touch(const stress_args_t *args)
 
 	keep_stressing_set_flag(false);
 
-	for (i = 0; i < TOUCH_PROCS; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	stress_kill_and_wait_many(args, pids, TOUCH_PROCS, SIGALRM, true);
 	stress_touch_dir_clean(args);
 	(void)stress_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(touch_lock);

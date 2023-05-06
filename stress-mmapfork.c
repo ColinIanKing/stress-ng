@@ -225,13 +225,7 @@ static int stress_mmapfork(const stress_args_t *args)
 			}
 		}
 reap:
-		/*
-		 *  Force child death and reap
-		 */
-		for (i = 0; i < MAX_PIDS; i++) {
-			if (LIKELY(pids[i] > 1))
-				stress_kill_and_wait(args, pids[i], SIGALRM, false);
-		}
+		stress_kill_and_wait_many(args, pids, MAX_PIDS, SIGALRM, false);
 		inc_counter(args);
 	} while (keep_stressing(args));
 

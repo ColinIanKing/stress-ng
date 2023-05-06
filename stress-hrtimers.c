@@ -227,11 +227,8 @@ static int stress_hrtimers(const stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	stress_kill_and_wait_many(args, pids, PROCS_MAX, SIGALRM, true);
 	end_time = stress_time_now();
-	for (i = 0; i < PROCS_MAX; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
 
 	if (start_time >= 0.0) {
 		const double dt = end_time - start_time;

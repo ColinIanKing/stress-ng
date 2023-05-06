@@ -241,7 +241,7 @@ static int stress_fiemap(const stress_args_t *args)
 	pid_t pids[MAX_FIEMAP_PROCS];
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
-	size_t i, n;
+	size_t n;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
 	const char *fs_type;
@@ -312,11 +312,9 @@ static int stress_fiemap(const stress_args_t *args)
 	rc = stress_fiemap_writer(args, fd, fiemap_bytes);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	/* And reap stressors */
-	for (i = 0; i < n; i++) {
-		if (pids[i] > 1)
-			stress_kill_and_wait(args, pids[i], SIGALRM, true);
-	}
+	stress_kill_and_wait_many(args, pids, n, SIGALRM, true);
 close_clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);

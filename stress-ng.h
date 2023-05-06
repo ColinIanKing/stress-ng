@@ -2773,6 +2773,9 @@ extern WARN_UNUSED bool stress_low_memory(const size_t requested);
 extern void stress_ksm_memory_merge(const int flag);
 extern void stress_kill_and_wait(const stress_args_t *args,
 	const pid_t pid, const int signum, const bool set_force_killed_counter);
+extern void stress_kill_and_wait_many(const stress_args_t *args,
+	const pid_t *pids, const size_t n_pids, const int signum,
+	const bool set_force_killed_counter);
 
 /* process information */
 extern void stress_dump_processes(void);

@@ -49,25 +49,16 @@ int stress_killpid(const pid_t pid)
 }
 
 /*
- *  stress_kill_and_wait()
- *
+ *  stress_wait_until_reaped()
+ *	wait until a process has been removed from process table
  */
-void stress_kill_and_wait(
+static void stress_wait_until_reaped(
 	const stress_args_t *args,
 	const pid_t pid,
 	const int signum,
 	const bool set_force_killed_counter)
 {
 	int count = 0;
-
-	if ((pid == 0) || (pid == 1)) {
-		pr_inf("%s: warning, attempt to kill pid %d ignored\n",
-			args->name, pid);
-	}
-	if (pid <= 1)
-		return;
-
-	(void)kill(pid, signum);
 
 	for (;;) {
 		pid_t ret;
@@ -97,5 +88,56 @@ void stress_kill_and_wait(
 		shim_sched_yield();
 		if (count > 10)
 			(void)sleep(1);
+	}
+}
+
+/*
+ *  stress_kill_and_wait()
+ *
+ */
+void stress_kill_and_wait(
+	const stress_args_t *args,
+	const pid_t pid,
+	const int signum,
+	const bool set_force_killed_counter)
+{
+	const pid_t mypid = getpid();
+
+	if ((pid == 0) || (pid == 1) || (pid == mypid)) {
+		pr_inf("%s: warning, attempt to kill pid %d ignored\n",
+			args->name, pid);
+	}
+	if ((pid <= 1) || (pid == mypid))
+		return;
+
+	(void)kill(pid, signum);
+	stress_wait_until_reaped(args, pid, signum, set_force_killed_counter);
+}
+
+/*
+ *  stress_kill_and_wait_many()
+ *	kill and wait on an array of pids. Kill first, then reap.
+ *	Avoid killing pids < init and oneself to catch any stupid
+ *	breakage.
+ */
+void stress_kill_and_wait_many(
+	const stress_args_t *args,
+	const pid_t *pids,
+	const size_t n_pids,
+	const int signum,
+	const bool set_force_killed_counter)
+{
+	size_t i;
+	const pid_t mypid = getpid();
+
+	/* Kill first */
+	for (i = 0; i < n_pids; i++) {
+		if ((pids[i] > 1) && (pids[i] != mypid))
+			(void)kill(pids[i], signum);
+	}
+	/* Then reap */
+	for (i = 0; i < n_pids; i++) {
+		if ((pids[i] > 1) && (pids[i] != mypid))
+			stress_kill_and_wait(args, pids[i], signum, set_force_killed_counter);
 	}
 }
