@@ -271,6 +271,11 @@ static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ct
 		ctrls[n++] = ctrl;
 	}
 
+	if (n == 0) {
+		free(ctrls);
+		return NULL;
+	}
+
 	/* Shrink ctrls, hopefully should not fail, but check anyhow */
 	tmp = realloc(ctrls, n * sizeof(char *));
 	if (!tmp) {
