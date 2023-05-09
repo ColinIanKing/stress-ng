@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-put.h"
 
@@ -508,7 +509,7 @@ finish:
 		if (str) {
 			int unhandled = 0;
 
-			(void)memset(str, 0, len);
+			(void)shim_memset(str, 0, len);
 			for (i = 0; i < SIZEOF_ARRAY(op_info); i++) {
 				if (!op_info[i].trapped) {
 					unhandled++;

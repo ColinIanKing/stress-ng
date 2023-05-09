@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 
 #if defined(HAVE_SYS_TREE_H)
@@ -402,7 +403,7 @@ static void *qhash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 		free(table);
 		return NULL;
 	}
-	memset(table->nodes, 0xff, (size_t)n * sizeof(sparse_qhash_node_t));
+	(void)shim_memset(table->nodes, 0xff, (size_t)n * sizeof(sparse_qhash_node_t));
 	table->n_nodes = n;
 	table->n = n_prime;
 	table->idx = 0;
@@ -705,7 +706,7 @@ static uint32_t OPTIMIZE3 rb_get(void *handle, const uint32_t x, const uint32_t 
 {
 	sparse_rb_t node, *found;
 
-	memset(&node, 0xff, sizeof(node));
+	(void)shim_memset(&node, 0xff, sizeof(node));
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = RB_FIND(sparse_rb_tree, handle, &node);
@@ -827,7 +828,7 @@ static uint32_t OPTIMIZE3 splay_get(void *handle, const uint32_t x, const uint32
 {
 	sparse_splay_t node, *found;
 
-	memset(&node, 0xff, sizeof(node));
+	(void)shim_memset(&node, 0xff, sizeof(node));
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = SPLAY_FIND(sparse_splay_tree, handle, &node);

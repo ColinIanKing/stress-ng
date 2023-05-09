@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
@@ -128,7 +129,7 @@ static int stress_pipe(const stress_args_t *args)
 	buf32 = (uint32_t *)buf;
 	stress_rndbuf(buf, pipe_data_size);
 
-	(void)memset(pipefds, 0, sizeof(pipefds));
+	(void)shim_memset(pipefds, 0, sizeof(pipefds));
 
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)

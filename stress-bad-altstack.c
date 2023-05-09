@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 #include "core-pragma.h"
 
@@ -88,7 +89,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 
 	(void)signum;
 	(void)munmap(stack, stress_minsigstksz);
-	(void)memset(data, 0xff, sizeof(data));
+	(void)shim_memset(data, 0xff, sizeof(data));
 	stress_uint8_put(data[0]);
 
 	if (zero_stack != MAP_FAILED)

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define STRESS_SESSION_SUCCESS		(0x00)
 #define STRESS_SESSION_SETSID_FAILED	(0x10)
@@ -204,7 +205,7 @@ static int stress_session(const stress_args_t *args)
 			ssize_t n;
 			session_error_t error;
 
-			(void)memset(&error, 0, sizeof(error));
+			(void)shim_memset(&error, 0, sizeof(error));
 			n = read(fds[0], &error, sizeof(error));
 
 			(void)shim_waitpid(pid, &status, 0);

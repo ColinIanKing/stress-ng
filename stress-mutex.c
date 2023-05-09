@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_PTHREAD_NP_H)
 #include <pthread_np.h>
@@ -208,7 +209,7 @@ static int stress_mutex(const stress_args_t *args)
 			mutex_procs = MIN_MUTEX_PROCS;
 	}
 
-	(void)memset(&pthread_info, 0, sizeof(pthread_info));
+	(void)shim_memset(&pthread_info, 0, sizeof(pthread_info));
 
 	if (pthread_mutex_init(&mutex, NULL) < 0) {
 		pr_fail("pthread_mutex_init failed: errno=%d: "

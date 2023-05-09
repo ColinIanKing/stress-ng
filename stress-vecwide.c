@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -88,12 +89,12 @@ static void TARGET_CLONES OPTIMIZE3 name (const vec_args_t *vec_args) \
 	type ALIGN64 res;					\
 	register int i;						\
 								\
-	(void)memcpy(&a, vec_args->a, sizeof(a));		\
-	(void)memcpy(&b, vec_args->b, sizeof(b));		\
-	(void)memcpy(&c, vec_args->c, sizeof(c));		\
-	(void)memcpy(&s, vec_args->s, sizeof(s));		\
-	(void)memcpy(&v23, vec_args->v23, sizeof(s));		\
-	(void)memcpy(&v3, vec_args->v23, sizeof(s));		\
+	(void)shim_memcpy(&a, vec_args->a, sizeof(a));		\
+	(void)shim_memcpy(&b, vec_args->b, sizeof(b));		\
+	(void)shim_memcpy(&c, vec_args->c, sizeof(c));		\
+	(void)shim_memcpy(&s, vec_args->s, sizeof(s));		\
+	(void)shim_memcpy(&v23, vec_args->v23, sizeof(s));	\
+	(void)shim_memcpy(&v3, vec_args->v23, sizeof(s));	\
 								\
 PRAGMA_UNROLL_N(8)						\
 	for (i = 0; i < 2048; i++) {				\
@@ -174,8 +175,8 @@ static int stress_vecwide(const stress_args_t *args)
 		vec_args->s[i] = stress_mwc8();
 	}
 
-	(void)memset(&vec_args->v23, 23, sizeof(vec_args->v23));
-	(void)memset(&vec_args->v3, 3, sizeof(vec_args->v3));
+	(void)shim_memset(&vec_args->v23, 23, sizeof(vec_args->v23));
+	(void)shim_memset(&vec_args->v3, 3, sizeof(vec_args->v3));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

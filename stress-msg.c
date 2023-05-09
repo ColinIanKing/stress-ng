@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_IPC_H)
 #include <sys/ipc.h>
@@ -100,7 +101,7 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 		struct msqid_ds buf;
 
 		/* Keep static analyzers happy */
-		(void)memset(&buf, 0, sizeof(buf));
+		(void)shim_memset(&buf, 0, sizeof(buf));
 
 		/*
 		 * select random msgq index numbers, we may hit
@@ -138,7 +139,7 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 		struct msqid_ds buf;
 
 		/* Keep static analyzers happy */
-		(void)memset(&buf, 0, sizeof(buf));
+		(void)shim_memset(&buf, 0, sizeof(buf));
 
 		/* Exercise invalid msgctl commands */
 		(void)msgctl(msgq_id, ~0, &buf);
@@ -322,7 +323,7 @@ static void OPTIMIZE3 stress_msg_sender(
 #endif
 
 	/* Parent */
-	(void)memset(&msg.u.data, '#', sizeof(msg.u.data));
+	(void)shim_memset(&msg.u.data, '#', sizeof(msg.u.data));
 	msg.u.value = 0;
 
 	do {

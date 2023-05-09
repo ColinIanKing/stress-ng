@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 static const stress_help_t help[] = {
@@ -121,7 +122,7 @@ static int stress_softlockup(const stress_args_t *args)
 	const double start = stress_time_now();
 
 	timeout = g_opt_timeout;
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 
 	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (first_instance) {

@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-hash.h"
 #if defined(HAVE_XXHASH_H)
 #include <xxhash.h>
@@ -83,7 +84,7 @@ static void stress_hash_generic(
 		stress_mwc_reseed();
 	}
 
-	(void)memset(bucket->buckets, 0, bucket->size);
+	(void)shim_memset(bucket->buckets, 0, bucket->size);
 
 	stress_uint8rnd4((uint8_t *)bucket->buffer, bucket->n_keys);
 	/* Make it ASCII range ' '..'_' */

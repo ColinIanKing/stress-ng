@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
@@ -323,7 +324,7 @@ static void stress_sock_ioctl(
 	if (!rt) {
 		struct ifconf ifc;
 
-		(void)memset(&ifc, 0, sizeof(ifc));
+		(void)shim_memset(&ifc, 0, sizeof(ifc));
 		VOID_RET(int, ioctl(fd, SIOCGIFCONF, &ifc));
 	}
 #endif
@@ -403,7 +404,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 	case SOCKET_OPT_RECVMSG:
 		vec[0].iov_base = buf;
 		vec[0].iov_len = sizeof(buf);
-		(void)memset(&msg, 0, sizeof(msg));
+		(void)shim_memset(&msg, 0, sizeof(msg));
 		msg.msg_iov = vec;
 		msg.msg_iovlen = 1;
 
@@ -415,7 +416,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		break;
 #if defined(HAVE_RECVMMSG)
 	case SOCKET_OPT_RECVMMSG:
-		(void)memset(msgvec, 0, sizeof(msgvec));
+		(void)shim_memset(msgvec, 0, sizeof(msgvec));
 		vec[0].iov_base = buf;
 		vec[0].iov_len = sizeof(buf);
 		msgvec[0].msg_hdr.msg_iov = vec;
@@ -777,7 +778,7 @@ retry:
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
-				(void)memset(&msg, 0, sizeof(msg));
+				(void)shim_memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				n = recvmsg(fd, &msg, 0);
@@ -785,7 +786,7 @@ retry:
 #if defined(HAVE_RECVMMSG)
 			case SOCKET_OPT_RECVMMSG:
 				recvfunc = "recvmmsg";
-				(void)memset(msgvec, 0, sizeof(msgvec));
+				(void)shim_memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
@@ -1031,7 +1032,7 @@ static int OPTIMIZE3 stress_sock_server(
 				}
 			}
 #endif
-			(void)memset(buf, stress_ascii64[get_counter(args) & 63], MMAP_IO_SIZE);
+			(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], MMAP_IO_SIZE);
 
 			if (sock_opts == SOCKET_OPT_RANDOM)
 				opt = stress_mwc8modn(3);
@@ -1055,7 +1056,7 @@ static int OPTIMIZE3 stress_sock_server(
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
-				(void)memset(&msg, 0, sizeof(msg));
+				(void)shim_memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				if (UNLIKELY(sendmsg(sfd, &msg, 0) < 0)) {
@@ -1067,7 +1068,7 @@ static int OPTIMIZE3 stress_sock_server(
 				break;
 #if defined(HAVE_SENDMMSG)
 			case SOCKET_OPT_SENDMMSG:
-				(void)memset(msgvec, 0, sizeof(msgvec));
+				(void)shim_memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;

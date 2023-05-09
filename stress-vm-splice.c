@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_VM_SPLICE_BYTES	(4 * KB)
 #define MAX_VM_SPLICE_BYTES	(64 * MB)
@@ -114,7 +115,7 @@ static int stress_vm_splice(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	(void)memset(buf, 0, sz);
+	(void)shim_memset(buf, 0, sz);
 	do {
 		ssize_t ret, n_bytes;
 		struct iovec iov ALIGN64;

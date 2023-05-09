@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-perf.h"
 #include "core-perf-event.h"
 
@@ -442,7 +443,7 @@ int stress_perf_open(stress_perf_t *sp)
 	if (g_shared->perf.no_perf)
 		return -1;
 
-	(void)memset(sp, 0, sizeof(*sp));
+	(void)shim_memset(sp, 0, sizeof(*sp));
 	sp->perf_opened = 0;
 
 	for (i = 0; i < STRESS_PERF_MAX; i++) {
@@ -454,7 +455,7 @@ int stress_perf_open(stress_perf_t *sp)
 		if (perf_info[i].config != UNRESOLVED) {
 			struct perf_event_attr attr;
 
-			(void)memset(&attr, 0, sizeof(attr));
+			(void)shim_memset(&attr, 0, sizeof(attr));
 			attr.type = perf_info[i].type;
 			attr.config = perf_info[i].config;
 			attr.disabled = 1;
@@ -576,7 +577,7 @@ int stress_perf_close(stress_perf_t *sp)
 			continue;
 		}
 
-		(void)memset(&data, 0, sizeof(data));
+		(void)shim_memset(&data, 0, sizeof(data));
 		ret = read(fd, &data, sizeof(data));
 		if (ret != sizeof(data))
 			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
@@ -713,7 +714,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		bool got_data = false;
 		char munged[64];
 
-		(void)memset(counter_totals, 0, sizeof(counter_totals));
+		(void)shim_memset(counter_totals, 0, sizeof(counter_totals));
 
 		/* Sum totals across all instances of the stressor */
 		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {

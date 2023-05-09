@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-io-priority.h"
 
 #if defined(HAVE_SYS_UIO_H)
@@ -143,7 +144,7 @@ static int stress_ioprio(const stress_args_t *args)
 			break;
 
 		for (i = 0; i < MAX_IOV; i++) {
-			(void)memset(buffer[i], stress_mwc8(), BUF_SIZE);
+			(void)shim_memset(buffer[i], stress_mwc8(), BUF_SIZE);
 			iov[i].iov_base = buffer[i];
 			iov[i].iov_len = BUF_SIZE;
 		}

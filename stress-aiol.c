@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LIBAIO_H)
 #include <libaio.h>
@@ -506,7 +507,7 @@ retry_open:
 		/*
 		 *  async writes
 		 */
-		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		(void)shim_memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
@@ -530,9 +531,9 @@ retry_open:
 		/*
 		 *  async reads
 		 */
-		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		(void)shim_memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
-			(void)memset(bufptr, 0, BUFFER_SZ);
+			(void)shim_memset(bufptr, 0, BUFFER_SZ);
 
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PREAD;
@@ -571,7 +572,7 @@ retry_open:
 		/*
 		 *  async pwritev
 		 */
-		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		(void)shim_memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
@@ -598,7 +599,7 @@ retry_open:
 		/*
 		 *  async preadv
 		 */
-		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		(void)shim_memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
@@ -639,7 +640,7 @@ retry_open:
 				VOID_RET(int, shim_io_cancel(ctx, &cb[0], &event));
 
 				/* Exercise with io_cancel invalid context */
-				(void)memset(&bad_ctx, stress_mwc8() | 0x1, sizeof(bad_ctx));
+				(void)shim_memset(&bad_ctx, stress_mwc8() | 0x1, sizeof(bad_ctx));
 				VOID_RET(int, shim_io_cancel(bad_ctx, &cb[0], &event));
 
 				/* Exercise with io_invalid iocb */
@@ -711,14 +712,14 @@ retry_open:
 		/*
 		 *  Exercise aio_poll with illegal settings
 		 */
-		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		(void)shim_memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (i = 0; i < aio_linux_requests; i++) {
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_POLL;
 			cb[i].u.c.buf = (void *)POLLIN;
 			/* Set invalid sizes */
-			(void)memset(&cb[i].u.c.offset, 0xff, sizeof(cb[i].u.c.offset));
-			(void)memset(&cb[i].u.c.nbytes, 0xff, sizeof(cb[i].u.c.nbytes));
+			(void)shim_memset(&cb[i].u.c.offset, 0xff, sizeof(cb[i].u.c.offset));
+			(void)shim_memset(&cb[i].u.c.nbytes, 0xff, sizeof(cb[i].u.c.nbytes));
 			cbs[i] = &cb[i];
 		}
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
@@ -741,7 +742,7 @@ retry_open:
 
 			j = 0;
 			if (do_sync) {
-				(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+				(void)shim_memset(cb, 0, aio_linux_requests * sizeof(*cb));
 				cb[0].aio_fildes = fds[0];
 				cb[0].aio_lio_opcode = stress_mwc1() ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
 				cb[0].u.c.buf = NULL;

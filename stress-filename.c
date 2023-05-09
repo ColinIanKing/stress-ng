@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
@@ -348,7 +349,7 @@ static int stress_filename(const stress_args_t *args)
 	}
 
 #if defined(HAVE_SYS_STATVFS_H)
-	(void)memset(&buf, 0, sizeof(buf));
+	(void)shim_memset(&buf, 0, sizeof(buf));
 	if (statvfs(pathname, &buf) < 0) {
 		pr_fail("%s: statvfs %s failed, errno=%d (%s)%s\n",
 			args->name, pathname, errno, strerror(errno),

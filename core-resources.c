@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-resources.h"
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -69,7 +70,7 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 #if defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
-		(void)memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
+		(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 		resources[i].mutex_ret = -1;
 #endif
 #endif
@@ -179,7 +180,7 @@ size_t stress_resources_allocate(
 	if ((freemem > 0) && (freemem < min_mem_free))
 		return 0;
 
-	(void)memset(resources, 0, sizeof(*resources) * num_resources);
+	(void)shim_memset(resources, 0, sizeof(*resources) * num_resources);
 
 	for (i = 0; i < num_resources; i++) {
 #if defined(HAVE_MEMFD_CREATE)
@@ -215,7 +216,7 @@ size_t stress_resources_allocate(
 #if defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
-		(void)memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
+		(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 		resources[i].mutex_ret = -1;
 #endif
 #endif
@@ -706,7 +707,7 @@ void stress_resources_free(
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
 			(void)pthread_mutex_destroy(&resources[i].mutex);
-			(void)memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
+			(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 #endif
 		}
 #endif

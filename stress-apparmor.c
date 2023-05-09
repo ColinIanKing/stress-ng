@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_SYS_APPARMOR_H)
@@ -529,7 +530,7 @@ static int apparmor_stress_corruption(const stress_args_t *args)
 	 */
 	do {
 		if (ret < 0 || j > 1024) {
-			(void)memcpy(data_copy, g_apparmor_data, g_apparmor_data_len);
+			(void)shim_memcpy(data_copy, g_apparmor_data, g_apparmor_data_len);
 			j = 0;
 		}
 		/*
@@ -604,9 +605,9 @@ static int apparmor_stress_corruption(const stress_args_t *args)
 					"errno=%d (%s)\n", args->name, errno,
 					strerror(errno));
 			}
-			(void)memcpy(data_copy, data_prev, g_apparmor_data_len);
+			(void)shim_memcpy(data_copy, data_prev, g_apparmor_data_len);
 		} else {
-			(void)memcpy(data_prev, data_copy, g_apparmor_data_len);
+			(void)shim_memcpy(data_prev, data_copy, g_apparmor_data_len);
 		}
 		aa_kernel_interface_unref(kern_if);
 		i++;

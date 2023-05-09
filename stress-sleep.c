@@ -20,6 +20,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 
 #if defined(HAVE_SYS_SELECT_H)
@@ -197,7 +198,7 @@ static int stress_sleep(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)memset(ctxts, 0, sizeof(ctxts));
+	(void)shim_memset(ctxts, 0, sizeof(ctxts));
 	(void)sigfillset(&set);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

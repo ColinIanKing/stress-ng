@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 static const char bitmap_file[] = "/sys/kernel/mm/page_idle/bitmap";
@@ -78,7 +79,7 @@ static int stress_idle_page(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(bitmap_set, 0xff, sizeof(bitmap_set));
+	(void)shim_memset(bitmap_set, 0xff, sizeof(bitmap_set));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_SEMAPHORE_H)
@@ -112,9 +113,9 @@ do_semwait:
 				/* Attempt a very short timed wait */
 #if defined(CLOCK_REALTIME)
 				if (UNLIKELY(clock_gettime(CLOCK_REALTIME, &ts) < 0))
-					(void)memset(&ts, 0, sizeof(ts));
+					(void)shim_memset(&ts, 0, sizeof(ts));
 #else
-				(void)memset(&ts, 0, sizeof(ts));
+				(void)shim_memset(&ts, 0, sizeof(ts));
 #endif
 				ts.tv_nsec += 10000;
 				if (ts.tv_nsec >= 1000000000) {
@@ -198,7 +199,7 @@ static int stress_sem(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(sem_pthreads, 0, sizeof(sem_pthreads));
+	(void)shim_memset(sem_pthreads, 0, sizeof(sem_pthreads));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
@@ -95,7 +96,7 @@ static int stress_xattr(const stress_args_t *args)
 
 	hugevalue = calloc(1, hugevalue_sz);
 	if (hugevalue)
-		(void)memset(hugevalue, 'X', hugevalue_sz - 1);
+		(void)shim_memset(hugevalue, 'X', hugevalue_sz - 1);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -110,7 +111,7 @@ static int stress_xattr(const stress_args_t *args)
 		char bad_attrname[32];
 		uint32_t set_xattr_ok[MAX_XATTRS / sizeof(uint32_t)];
 
-		(void)memset(set_xattr_ok, 0, sizeof(set_xattr_ok));
+		(void)shim_memset(set_xattr_ok, 0, sizeof(set_xattr_ok));
 
 		for (i = 0; i < MAX_XATTRS; i++) {
 			STRESS_CLRBIT(set_xattr_ok, i);
@@ -229,7 +230,7 @@ static int stress_xattr(const stress_args_t *args)
 
 #if defined(XATTR_SIZE_MAX)
 		/* Exercise invalid size argument fsetxattr syscall */
-		(void)memset(large_tmp, 'f', XATTR_SIZE_MAX + 1);
+		(void)shim_memset(large_tmp, 'f', XATTR_SIZE_MAX + 1);
 		ret = shim_fsetxattr(fd, attrname, large_tmp, XATTR_SIZE_MAX + 1,
 			XATTR_CREATE);
 		if (ret >= 0) {
@@ -243,7 +244,7 @@ static int stress_xattr(const stress_args_t *args)
 
 #if defined(HAVE_LSETXATTR) && \
     defined(XATTR_SIZE_MAX)
-		(void)memset(large_tmp, 'l', XATTR_SIZE_MAX + 1);
+		(void)shim_memset(large_tmp, 'l', XATTR_SIZE_MAX + 1);
 		ret = shim_lsetxattr(filename, attrname, large_tmp,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
@@ -256,7 +257,7 @@ static int stress_xattr(const stress_args_t *args)
 #endif
 
 #if defined(XATTR_SIZE_MAX)
-		(void)memset(large_tmp, 's', XATTR_SIZE_MAX + 1);
+		(void)shim_memset(large_tmp, 's', XATTR_SIZE_MAX + 1);
 		ret = shim_setxattr(filename, attrname, large_tmp,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
@@ -366,7 +367,7 @@ static int stress_xattr(const stress_args_t *args)
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
-			(void)memset(tmp, 0, sizeof(tmp));
+			(void)shim_memset(tmp, 0, sizeof(tmp));
 			sret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (sret < 0) {
 				pr_fail("%s: fgetxattr failed, errno=%d (%s)%s\n",
@@ -409,7 +410,7 @@ static int stress_xattr(const stress_args_t *args)
 			}
 
 			/* Invalid attribute name */
-			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
+			(void)shim_memset(&bad_attrname, 0, sizeof(bad_attrname));
 			VOID_RET(ssize_t, shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp)));
 #endif
 			if (!keep_stressing(args))
@@ -422,7 +423,7 @@ static int stress_xattr(const stress_args_t *args)
 		VOID_RET(ssize_t, shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp)));
 
 		/* Invalid attribute name */
-		(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
+		(void)shim_memset(&bad_attrname, 0, sizeof(bad_attrname));
 		VOID_RET(ssize_t, shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp)));
 
 		/* Exercise fgetxattr syscall having small value buffer */
@@ -502,7 +503,7 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise long attribute, ERANGE
 		 */
-		(void)memset(large_tmp, 'X', XATTR_SIZE_MAX + 1);
+		(void)shim_memset(large_tmp, 'X', XATTR_SIZE_MAX + 1);
 		VOID_RET(int, shim_removexattr(filename, large_tmp));
 		VOID_RET(int, shim_lremovexattr(filename, large_tmp));
 		VOID_RET(int, shim_fremovexattr(fd, large_tmp));

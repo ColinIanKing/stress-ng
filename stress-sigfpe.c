@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #if defined(HAVE_FENV_H)
@@ -210,7 +211,7 @@ static int stress_sigfpe(const stress_args_t *args)
 #endif
 	};
 
-	(void)memset(&action, 0, sizeof action);
+	(void)shim_memset(&action, 0, sizeof action);
 
 #if defined(STRESS_CHECK_SIGINFO)
 	action.sa_sigaction = stress_fpehandler;

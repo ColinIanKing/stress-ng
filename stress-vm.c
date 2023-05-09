@@ -619,7 +619,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 	size_t bit_errors = 0;
 	uint64_t c = get_counter(args);
 
-	(void)memset(buf, d1, sz);
+	(void)shim_memset(buf, d1, sz);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 256) {
 		uint16_t i;
 		uint64_t mask;
@@ -671,7 +671,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 
 	sz_mask--;
 
-	(void)memset(buf, d1, sz);
+	(void)shim_memset(buf, d1, sz);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 256) {
 		uint16_t i;
 		uint64_t mask;
@@ -823,7 +823,7 @@ static size_t TARGET_CLONES stress_vm_incdec(
 	uint64_t c = get_counter(args);
 
 	val++;
-	(void)memset(buf, 0x00, sz);
+	(void)shim_memset(buf, 0x00, sz);
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		*ptr += val;
@@ -873,7 +873,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 		return 0;
 #endif
 
-	(void)memset(buf, 0x00, sz);
+	(void)shim_memset(buf, 0x00, sz);
 
 	for (i = 0; i < sz; i++) {
 		ptr[i] += val;
@@ -943,7 +943,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		const uint8_t val = stress_mwc8();
 
-		(void)memset((void *)ptr, val, chunk_sz);
+		(void)shim_memset((void *)ptr, val, chunk_sz);
 	}
 
 	/* Forward swaps */
@@ -1287,7 +1287,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 
 	(void)max_ops;
 
-	(void)memset(buf, 0x00, sz);
+	(void)shim_memset(buf, 0x00, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
@@ -1306,7 +1306,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 			goto abort;
 	}
 
-	(void)memset(buf, 0xff, sz);
+	(void)shim_memset(buf, 0xff, sz);
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
@@ -1349,7 +1349,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 	size_t bits_bad = sz / 4096;
 	uint64_t c = get_counter(args);
 
-	(void)memset(buf, 0x00, sz);
+	(void)shim_memset(buf, 0x00, sz);
 
 	stress_mwc_reseed();
 
@@ -1413,7 +1413,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 	size_t bits_bad = sz / 4096;
 	uint64_t c = get_counter(args);
 
-	(void)memset(buf, 0xff, sz);
+	(void)shim_memset(buf, 0xff, sz);
 
 	stress_mwc_reseed();
 
@@ -1476,7 +1476,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 	size_t bit_errors = 0;
 	uint64_t c = get_counter(args);
 
-	(void)memset(buf, val, sz);
+	(void)shim_memset(buf, val, sz);
 	INC_LO_NYBBLE(val);
 	INC_HI_NYBBLE(val);
 
@@ -1625,7 +1625,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	if (sz > (1ULL << 63))
 		return 0;
 #endif
-	(void)memset(buf, 0xff, sz);
+	(void)shim_memset(buf, 0xff, sz);
 
 	for (j = 0; j < 8; j++) {
 		const uint8_t mask = (uint8_t)~(1 << j);
@@ -1687,7 +1687,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 		return 0;
 #endif
 
-	(void)memset(buf, 0x00, sz);
+	(void)shim_memset(buf, 0x00, sz);
 
 	for (j = 0; j < 8; j++) {
 		const uint8_t mask = (uint8_t)(1 << j);
@@ -1750,7 +1750,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		return 0;
 #endif
 
-	(void)memset(buf, 0xff, sz);
+	(void)shim_memset(buf, 0xff, sz);
 
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		/*
@@ -1823,7 +1823,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		return 0;
 #endif
 
-	(void)memset(buf, 0x00, sz);
+	(void)shim_memset(buf, 0x00, sz);
 
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		/*

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_POLL_H)
@@ -150,7 +151,7 @@ static const char *stress_clock_name(int id)
 static inline bool check_invalid_clock_id(const clockid_t id) {
         struct timespec tp;
 
-        (void)memset(&tp, 0, sizeof(tp));
+        (void)shim_memset(&tp, 0, sizeof(tp));
         return (clock_gettime(id, &tp) != 0);
 }
 #endif
@@ -327,15 +328,15 @@ static int stress_clock(const stress_args_t *args)
 
 				/* Exercise clock_nanosleep on invalid clock id */
 				if (invalid_clock_id) {
-					(void)memset(&t, 0, sizeof(t));
+					(void)shim_memset(&t, 0, sizeof(t));
 					VOID_RET(int, clock_nanosleep(INT_MAX, TIMER_ABSTIME, &t, NULL));
 				}
 
-				(void)memset(&t, 0, sizeof(t));
+				(void)shim_memset(&t, 0, sizeof(t));
 				t.tv_sec = -1;
 				VOID_RET(int, clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL));
 
-				(void)memset(&t, 0, sizeof(t));
+				(void)shim_memset(&t, 0, sizeof(t));
 				t.tv_nsec = STRESS_NANOSECOND;
 				VOID_RET(int, clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL));
 			}
@@ -375,7 +376,7 @@ static int stress_clock(const stress_args_t *args)
 
 			/* Exercise clock_adjtime on invalid clock id */
 			if (invalid_clock_id) {
-				(void)memset(&tx, 0, sizeof(tx));
+				(void)shim_memset(&tx, 0, sizeof(tx));
 				VOID_RET(int, shim_clock_adjtime(INT_MAX, &tx));
 			}
 
@@ -385,7 +386,7 @@ static int stress_clock(const stress_args_t *args)
 			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
 				int ret;
 
-				(void)memset(&tx, 0, sizeof(tx));
+				(void)shim_memset(&tx, 0, sizeof(tx));
 
 				tx.modes = ADJ_SETOFFSET;
 				tx.time.tv_sec = 0;
@@ -426,7 +427,7 @@ static int stress_clock(const stress_args_t *args)
 				timer_fail[i] = false;
 				timer_id[i] = (timer_t)-1;
 
-				(void)memset(&sevp, 0, sizeof(sevp));
+				(void)shim_memset(&sevp, 0, sizeof(sevp));
 				sevp.sigev_notify = SIGEV_NONE;
 				ret = timer_create(timers[i], &sevp, &timer_id[i]);
 				if (ret < 0) {

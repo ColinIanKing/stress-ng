@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_LINUX_MEMBARRIER_H)
@@ -175,7 +176,7 @@ static int stress_membarrier(const stress_args_t *args)
 	(void)sigfillset(&set);
 	for (i = 0; i < MAX_MEMBARRIER_THREADS + 1; i++) {
 		info[i].pthread_ret = -1;
-		(void)memset(&info[i].pthread, 0, sizeof(info[i].pthread));
+		(void)shim_memset(&info[i].pthread, 0, sizeof(info[i].pthread));
 		info[i].duration = 0.0;
 		info[i].count = 0.0;
 	}

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_CN_PROC_H)
@@ -117,7 +118,7 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 	nlmsgbuf = (char *)&nlmsg;
 	nlmsgbuf_len = nlmsg.n.nlmsg_len;
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.nl_family = AF_NETLINK;
 
 	while (nlmsgbuf_len > 0) {
@@ -214,7 +215,7 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 			break;
 		}
 
-		(void)memset(&msg, 0, sizeof(msg));
+		(void)shim_memset(&msg, 0, sizeof(msg));
 		msg_len = recv(sock, &msg, sizeof(msg), 0);
 		if (UNLIKELY(msg_len < 0))
 			continue;
@@ -264,7 +265,7 @@ static int stress_netlink_task(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.nl_family = AF_NETLINK;
 
 	if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MAX_SOCKET_PAIRS	(32768)
 #define SOCKET_PAIR_BUF         (4096)	/* Socket pair I/O buffer size */
@@ -134,7 +135,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 		(void)close(socket_pair_fds_bad[1]);
 	}
 
-	(void)memset(socket_pair_fds, 0, sizeof(socket_pair_fds));
+	(void)shim_memset(socket_pair_fds, 0, sizeof(socket_pair_fds));
 	errno = 0;
 
 	t = stress_time_now();

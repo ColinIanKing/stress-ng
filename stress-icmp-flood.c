@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_NETINET_IP_H)
@@ -77,7 +78,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 	struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
 
-	(void)memset(pkt, 0, sizeof(pkt));
+	(void)shim_memset(pkt, 0, sizeof(pkt));
 	stress_rndbuf(payload, MAX_PAYLOAD_SIZE);
 
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
@@ -101,7 +102,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = (in_addr_t)addr;
-	(void)memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
+	(void)shim_memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -112,7 +113,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
 		ssize_t ret;
 
-		(void)memset(pkt, 0, sizeof(pkt));
+		(void)shim_memset(pkt, 0, sizeof(pkt));
 
 		ip_hdr->version = 4;
 		ip_hdr->ihl = 5;

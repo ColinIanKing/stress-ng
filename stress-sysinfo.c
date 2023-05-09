@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -64,7 +65,7 @@ static int stress_sysinfo(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 #endif
 
-	(void)memset(mnts, 0, sizeof(mnts));
+	(void)shim_memset(mnts, 0, sizeof(mnts));
 
 	n_mounts = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n_mounts < 0) {

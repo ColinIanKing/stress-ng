@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MAX_FSTAT_THREADS	(4)
 #define FSTAT_LOOPS		(16)
@@ -210,8 +211,8 @@ static void stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *
 
 	keep_running = true;
 #if defined(HAVE_LIB_PTHREAD)
-	(void)memset(ret, 0, sizeof(ret));
-	(void)memset(pthreads, 0, sizeof(pthreads));
+	(void)shim_memset(ret, 0, sizeof(ret));
+	(void)shim_memset(pthreads, 0, sizeof(pthreads));
 
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,

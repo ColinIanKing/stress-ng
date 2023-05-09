@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #if defined(HAVE_LINUX_FS_H)
@@ -1019,7 +1020,7 @@ static int stress_iomix(const stress_args_t *args)
 
 	stress_file_rw_hint_short(fd);
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

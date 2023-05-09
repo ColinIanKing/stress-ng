@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 typedef void (*stress_funcret_func)(const stress_args_t *argse);
 
@@ -55,8 +56,8 @@ static type NOINLINE stress_funcret_ ## type ## 1(type a)	\
 {								\
 	type b;							\
 								\
-	(void)memcpy(&b, &a, sizeof(a));			\
-	(void)memset(&a, 0, sizeof(a));				\
+	(void)shim_memcpy(&b, &a, sizeof(a));			\
+	(void)shim_memset(&a, 0, sizeof(a));			\
 	return b;						\
 }								\
 
@@ -67,8 +68,8 @@ static type NOINLINE stress_funcret_deep_ ## type ## 1(type a)	\
 {								\
 	type b;							\
 								\
-	(void)memcpy(&b, &a, sizeof(a));			\
-	(void)memset(&a, 0, sizeof(a));				\
+	(void)shim_memcpy(&b, &a, sizeof(a));			\
+	(void)shim_memset(&a, 0, sizeof(a));			\
 	return stress_funcret_ ## type ## 1(b);			\
 }								\
 
@@ -79,8 +80,8 @@ static type NOINLINE stress_funcret_deeper_ ## type ## 1(type a)\
 {								\
 	type b;							\
 								\
-	(void)memcpy(&b, &a, sizeof(a));			\
-	(void)memset(&a, 0, sizeof(a));				\
+	(void)shim_memcpy(&b, &a, sizeof(a));			\
+	(void)shim_memset(&a, 0, sizeof(a));			\
 								\
 	return stress_funcret_deep_ ## type ## 1(		\
 		stress_funcret_ ## type ## 1(b));		\

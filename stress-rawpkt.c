@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-net.h"
 
@@ -289,11 +290,11 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	(void)memset(&sadr, 0, sizeof(sadr));
-	(void)memset(buf, 0, sizeof(buf));
+	(void)shim_memset(&sadr, 0, sizeof(sadr));
+	(void)shim_memset(buf, 0, sizeof(buf));
 
-	(void)memcpy(eth->h_dest, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
-	(void)memcpy(eth->h_source, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
+	(void)shim_memcpy(eth->h_dest, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
+	(void)shim_memcpy(eth->h_source, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
 	eth->h_proto = htons(ETH_P_IP);
 
 	ip->ihl = 5;		/* Header length in 32 bit words */
@@ -311,7 +312,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 
 	sadr.sll_ifindex = idx->ifr_ifindex;
 	sadr.sll_halen = ETH_ALEN;
-	(void)memcpy(&sadr.sll_addr, eth->h_dest, sizeof(eth->h_dest));
+	(void)shim_memcpy(&sadr.sll_addr, eth->h_dest, sizeof(eth->h_dest));
 
 	if ((fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -397,7 +398,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 			pr_fail("%s: setsockopt failed to set packet version, errno=%d (%s)\n", args->name, errno, strerror(errno));
 			goto close_fd;
 		}
-		(void)memset(&tp, 0, sizeof(tp));
+		(void)shim_memset(&tp, 0, sizeof(tp));
 		tp.tp_block_size = getpagesize();
 		tp.tp_block_nr = blocknr;
 		tp.tp_frame_size = getpagesize() / blocknr;
@@ -490,7 +491,7 @@ static int stress_rawpkt(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	(void)memset(&hwaddr, 0, sizeof(hwaddr));
+	(void)shim_memset(&hwaddr, 0, sizeof(hwaddr));
 	(void)shim_strlcpy(hwaddr.ifr_name, "lo", sizeof(hwaddr.ifr_name));
 	if (ioctl(fd, SIOCGIFHWADDR, &hwaddr) < 0) {
 		pr_fail("%s: ioctl SIOCGIFHWADDR on lo failed, errno=%d (%s)\n",
@@ -499,7 +500,7 @@ static int stress_rawpkt(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&ifaddr, 0, sizeof(ifaddr));
+	(void)shim_memset(&ifaddr, 0, sizeof(ifaddr));
 	(void)shim_strlcpy(ifaddr.ifr_name, "lo", sizeof(ifaddr.ifr_name));
 	if (ioctl(fd, SIOCGIFADDR, &ifaddr) < 0) {
 		pr_fail("%s: ioctl SIOCGIFADDR on lo failed, errno=%d (%s)\n",
@@ -508,7 +509,7 @@ static int stress_rawpkt(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&idx, 0, sizeof(idx));
+	(void)shim_memset(&idx, 0, sizeof(idx));
 	(void)shim_strlcpy(idx.ifr_name, "lo", sizeof(idx.ifr_name));
 	if (ioctl(fd, SIOCGIFINDEX, &idx) < 0) {
 		pr_fail("%s: ioctl SIOCGIFINDEX on lo failed, errno=%d (%s)\n",

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_SYS_FSUID_H)
@@ -252,7 +253,7 @@ static int stress_set(const stress_args_t *args)
 			gid_t groups[GIDS_MAX];
 			int n;
 
-			(void)memset(groups, 0, sizeof(groups));
+			(void)shim_memset(groups, 0, sizeof(groups));
 			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
 			n = getgroups(ret, groups);
 			if (n > 0) {
@@ -471,7 +472,7 @@ static int stress_set(const stress_args_t *args)
 		 *  Invalid setrlimit syscall with invalid
 		 *  resource attribute resulting in EINVAL error
 		 */
-		(void)memset(&rlim, 0, sizeof(rlim));
+		(void)shim_memset(&rlim, 0, sizeof(rlim));
 		if ((getrlimit((shim_rlimit_resource_t)INT_MAX, &rlim) < 0) && (errno == EINVAL)) {
 			(void)setrlimit((shim_rlimit_resource_t)INT_MAX, &rlim);
 		}

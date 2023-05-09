@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_KVM_H)
 #include <linux/kvm.h>
@@ -115,7 +116,7 @@ static int stress_kvm(const stress_args_t *args)
 		if (vm_mem == MAP_FAILED)
 			goto tidy_vm_fd;
 
-		(void)memset(&kvm_mem, 0, sizeof(kvm_mem));
+		(void)shim_memset(&kvm_mem, 0, sizeof(kvm_mem));
 		kvm_mem.slot = 0;
 		kvm_mem.guest_phys_addr = 0;
 		kvm_mem.memory_size = vm_mem_size;
@@ -139,7 +140,7 @@ static int stress_kvm(const stress_args_t *args)
 			goto tidy_vm_mmap;
 		}
 
-		(void)memcpy(vm_mem, &kvm_x86_kernel, sizeof(kvm_x86_kernel));
+		(void)shim_memcpy(vm_mem, &kvm_x86_kernel, sizeof(kvm_x86_kernel));
 		if (ioctl(vcpu_fd, KVM_GET_SREGS, &sregs) < 0) {
 			if (errno == EINTR)
 				goto tidy_vcpu_fd;
@@ -167,7 +168,7 @@ static int stress_kvm(const stress_args_t *args)
 			goto tidy_vcpu_fd;
 		}
 
-		(void)memset(&regs, 0, sizeof(regs));
+		(void)shim_memset(&regs, 0, sizeof(regs));
 		regs.rflags = 2;
 		regs.rip = 0;
 		if (ioctl(vcpu_fd, KVM_SET_REGS, &regs) < 0) {

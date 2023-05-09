@@ -660,7 +660,7 @@ static void TARGET_CLONES stress_cpu_fft(const char *name)
 	for (i = 0; i < FFT_SIZE; i++)
 		buf[i] = (double complex)(i % 63);
 
-	(void)memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
+	(void)shim_memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
 }
 #else
@@ -1666,7 +1666,7 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i, j;
 
-	(void)memset(sieve, 0xff, sizeof(sieve));
+	(void)shim_memset(sieve, 0xff, sizeof(sieve));
 	for (i = 2; i < nsqrt; i++)
 		if (STRESS_GETBIT(sieve, i))
 			for (j = i * i; j < SIEVE_SIZE; j += i)

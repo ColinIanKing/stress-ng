@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_RTC_H)
 #include <linux/rtc.h>
@@ -205,21 +206,21 @@ static inline int stress_rtc_dev(const stress_args_t *args)
     defined(RTC_PARAM_FEATURES) &&	\
     defined(RTC_PARAM_CORRECTION)
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	param.param = RTC_PARAM_FEATURES;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
 		/* Should be EINVAL */
 		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
 	}
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	param.param = RTC_PARAM_CORRECTION;
 	param.index = 0;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
 		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
 	}
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	param.param = ~0U;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
 		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
@@ -230,7 +231,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	{
 		char buf[4096];
 
-		(void)memset(buf, 0, sizeof(buf));
+		(void)shim_memset(buf, 0, sizeof(buf));
 		VOID_RET(int, ioctl(fd, 0xff, buf));
 	}
 

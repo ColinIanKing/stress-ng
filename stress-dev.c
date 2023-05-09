@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 #include "core-pragma.h"
 #include "core-put.h"
@@ -298,7 +299,7 @@ static void ioctl_clr_timeout(void)
 #if defined(ITIMER_REAL)
 	struct itimerval it;
 
-	(void)memset(&it, 0, sizeof(it));
+	(void)shim_memset(&it, 0, sizeof(it));
 	VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
 #else
 	UNEXPECTED
@@ -449,7 +450,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_capability c;
 
-		(void)memset(&c, 0, sizeof(c));
+		(void)shim_memset(&c, 0, sizeof(c));
 		VOID_RET(int, ioctl(fd, VIDIOC_QUERYCAP, &c));
 	}
 #else
@@ -460,7 +461,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_framebuffer f;
 
-		(void)memset(&f, 0, sizeof(f));
+		(void)shim_memset(&f, 0, sizeof(f));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_FBUF, &f));
 	}
 #else
@@ -471,7 +472,7 @@ static void stress_dev_video_linux(
 	{
 		v4l2_std_id id;
 
-		(void)memset(&id, 0, sizeof(id));
+		(void)shim_memset(&id, 0, sizeof(id));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_STD, &id));
 	}
 #else
@@ -482,7 +483,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_audio a;
 
-		(void)memset(&a, 0, sizeof(a));
+		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_AUDIO, &a));
 	}
 #else
@@ -511,7 +512,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_audioout a;
 
-		(void)memset(&a, 0, sizeof(a));
+		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_AUDOUT, &a));
 	}
 #else
@@ -522,7 +523,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_jpegcompression a;
 
-		(void)memset(&a, 0, sizeof(a));
+		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_JPEGCOMP, &a));
 	}
 #else
@@ -533,7 +534,7 @@ static void stress_dev_video_linux(
 	{
 		v4l2_std_id a;
 
-		(void)memset(&a, 0, sizeof(a));
+		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_QUERYSTD, &a));
 	}
 #else
@@ -553,7 +554,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_enc_idx a;
 
-		(void)memset(&a, 0, sizeof(a));
+		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_ENC_INDEX, &a));
 	}
 #else
@@ -564,7 +565,7 @@ static void stress_dev_video_linux(
 	{
 		struct v4l2_dv_timings a;
 
-		(void)memset(&a, 0, sizeof(a));
+		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_QUERY_DV_TIMINGS, &a));
 	}
 #else
@@ -1297,7 +1298,7 @@ static void stress_dev_scsi_blk(
 			int host_unique_id;
 		} lun;
 
-		(void)memset(&lun, 0, sizeof(lun));
+		(void)shim_memset(&lun, 0, sizeof(lun));
 		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun));
 	}
 #else
@@ -1552,7 +1553,7 @@ static void stress_dev_random_linux(
 
 			info.entropy_count = sz * 8;
 			info.buf_size = sz;
-			(void)memcpy(&info.buf, &rnd, sz);
+			(void)shim_memcpy(&info.buf, &rnd, sz);
 
 			ret = ioctl(fd_rdwr, RNDADDENTROPY, &info);
 			(void)ret;
@@ -1677,7 +1678,7 @@ static void cdrom_get_address_msf(
 {
 	struct cdrom_tocentry entry;
 
-	(void)memset(&entry, 0, sizeof(entry));
+	(void)shim_memset(&entry, 0, sizeof(entry));
 	entry.cdte_track = (uint8_t)track;
 	entry.cdte_format = CDROM_MSF;
 
@@ -1711,7 +1712,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 		struct cdrom_tochdr header;
 		/* Reading the number of tracks on disc */
 
-		(void)memset(&header, 0, sizeof(header));
+		(void)shim_memset(&header, 0, sizeof(header));
 		if (ioctl(fd, CDROMREADTOCHDR, &header) == 0) {
 			starttrk = header.cdth_trk0;
 			endtrk = header.cdth_trk1;
@@ -1734,7 +1735,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 		struct cdrom_ti ti;
 		int ret;
 
-		(void)memset(&ti, 0, sizeof(ti));
+		(void)shim_memset(&ti, 0, sizeof(ti));
 		ti.cdti_trk1 = endtrk;
 		if (ioctl(fd, CDROMPLAYTRKIND, &ti) == 0) {
 			ret = ioctl(fd, CDROMPAUSE, 0);
@@ -1753,7 +1754,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 		int ret;
 
 		/* Fetch address of start and end track in MSF format */
-		(void)memset(&msf, 0, sizeof(msf));
+		(void)shim_memset(&msf, 0, sizeof(msf));
 		cdrom_get_address_msf(fd, starttrk, &msf.cdmsf_min0,
 			&msf.cdmsf_sec0, &msf.cdmsf_frame0);
 		cdrom_get_address_msf(fd, endtrk, &msf.cdmsf_min1,
@@ -1845,7 +1846,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_mcn mcn;
 		int ret;
 
-		(void)memset(&mcn, 0, sizeof(mcn));
+		(void)shim_memset(&mcn, 0, sizeof(mcn));
 		ret = ioctl(fd, CDROM_GET_MCN, &mcn);
 		(void)ret;
 	}, return);
@@ -1858,7 +1859,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_tochdr header;
 		int ret;
 
-		(void)memset(&header, 0, sizeof(header));
+		(void)shim_memset(&header, 0, sizeof(header));
 		ret = ioctl(fd, CDROMREADTOCHDR, &header);
 		(void)ret;
 	}, return);
@@ -1871,7 +1872,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_tocentry entry;
 		int ret;
 
-		(void)memset(&entry, 0, sizeof(entry));
+		(void)shim_memset(&entry, 0, sizeof(entry));
 		ret = ioctl(fd, CDROMREADTOCENTRY, &entry);
 		(void)ret;
 	}, return);
@@ -1885,7 +1886,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_volctrl volume;
 		int ret;
 
-		(void)memset(&volume, 0, sizeof(volume));
+		(void)shim_memset(&volume, 0, sizeof(volume));
 		ret = ioctl(fd, CDROMVOLREAD, &volume);
 		if (ret == 0)
 			ret = ioctl(fd, CDROMVOLCTRL, &volume);
@@ -1900,7 +1901,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_subchnl q;
 		int ret;
 
-		(void)memset(&q, 0, sizeof(q));
+		(void)shim_memset(&q, 0, sizeof(q));
 		ret = ioctl(fd, CDROMSUBCHNL, &q);
 		(void)ret;
 	}, return);
@@ -1913,7 +1914,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_read_audio ra;
 		int ret;
 
-		(void)memset(&ra, 0, sizeof(ra));
+		(void)shim_memset(&ra, 0, sizeof(ra));
 		ret = ioctl(fd, CDROMREADAUDIO, &ra);
 		(void)ret;
 	}, return);
@@ -1926,7 +1927,7 @@ static void stress_dev_cdrom_linux(
 		uint8_t buffer[CD_FRAMESIZE];
 		int ret;
 
-		(void)memset(&buffer, 0, sizeof(buffer));
+		(void)shim_memset(&buffer, 0, sizeof(buffer));
 		ret = ioctl(fd, CDROMREADCOOKED, buffer);
 		(void)ret;
 	}, return);
@@ -1939,7 +1940,7 @@ static void stress_dev_cdrom_linux(
 		uint8_t buffer[CD_FRAMESIZE];
 		int ret;
 
-		(void)memset(&buffer, 0, sizeof(buffer));
+		(void)shim_memset(&buffer, 0, sizeof(buffer));
 		ret = ioctl(fd, CDROMREADALL, buffer);
 		(void)ret;
 	}, return);
@@ -1952,7 +1953,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_msf msf;
 		int ret;
 
-		(void)memset(&msf, 0, sizeof(msf));
+		(void)shim_memset(&msf, 0, sizeof(msf));
 		ret = ioctl(fd, CDROMSEEK, &msf);
 		(void)ret;
 	}, return);
@@ -2140,7 +2141,7 @@ static void stress_dev_cdrom_linux(
 		 *  Invalid DVD_READ_STRUCT ioctl syscall with
 		 *  invalid layer number resulting in EINVAL
 		 */
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_PHYSICAL;
 		s.physical.layer_num = UINT8_MAX;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
@@ -2150,33 +2151,33 @@ static void stress_dev_cdrom_linux(
 		 *  Exercise each DVD structure type to cover all the
 		 *  respective functions to increase kernel coverage
 		 */
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_PHYSICAL;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
 
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_COPYRIGHT;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
 
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_DISCKEY;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
 
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_BCA;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
 
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_MANUFACT;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
 
 		/* Invalid DVD_READ_STRUCT call with invalid type argument */
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.type = UINT8_MAX;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
@@ -2203,7 +2204,7 @@ static void stress_dev_cdrom_linux(
 		dvd_authinfo ai;
 
 		/* Invalid DVD_AUTH call with no credentials */
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
@@ -2211,58 +2212,58 @@ static void stress_dev_cdrom_linux(
 		 *  Exercise each DVD AUTH type to cover all the
 		 *  respective code to increase kernel coverage
 		 */
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_AGID;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_KEY1;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_CHALLENGE;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_TITLE_KEY;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_ASF;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_HOST_SEND_CHALLENGE;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_HOST_SEND_KEY2;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_INVALIDATE_AGID;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_RPC_STATE;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_HOST_SEND_RPC_STATE;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 
 		/* Invalid DVD_READ_STRUCT call with invalid type argument */
-		(void)memset(&ai, 0, sizeof(ai));
+		(void)shim_memset(&ai, 0, sizeof(ai));
 		ai.type = (uint8_t)~0;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
@@ -2379,7 +2380,7 @@ static void stress_dev_cdrom_linux(
 		struct cdrom_blk blk;
 		int ret;
 
-		(void)memset(&blk, 0, sizeof(blk));
+		(void)shim_memset(&blk, 0, sizeof(blk));
 		ret = ioctl(fd, CDROMPLAYBLK, &blk);
 		(void)ret;
 	}, return);
@@ -2529,7 +2530,7 @@ static void stress_dev_console_linux(
 		struct consolefontdesc font;
 		int ret;
 
-		(void)memset(&font, 0, sizeof(font));
+		(void)shim_memset(&font, 0, sizeof(font));
 		ret = ioctl(fd, GIO_FONTX, &font);
 #if defined(PIO_FONTX)
 		if (ret == 0) {
@@ -2551,7 +2552,7 @@ static void stress_dev_console_linux(
 		int ret;
 		struct kbkeycode argp;
 
-		(void)memset(&argp, 0, sizeof(argp));
+		(void)shim_memset(&argp, 0, sizeof(argp));
 		ret = ioctl(fd, KDGETKEYCODE, &argp);
 #if defined(KDSETKEYCODE)
 		if (ret == 0) {
@@ -2565,7 +2566,7 @@ static void stress_dev_console_linux(
 			 * with invalid keycode having different values
 			 * of scancode and keycode for scancode < 89
 			 */
-			(void)memset(&bad_arg, 0, sizeof(bad_arg));
+			(void)shim_memset(&bad_arg, 0, sizeof(bad_arg));
 			bad_arg.scancode = (unsigned int)-1;
 			bad_arg.keycode = 2;
 
@@ -2713,7 +2714,7 @@ static void stress_dev_console_linux(
 		int ret;
 		struct unimapdesc argp;
 
-		(void)memset(&argp, 0, sizeof(argp));
+		(void)shim_memset(&argp, 0, sizeof(argp));
 		ret = ioctl(fd, GIO_UNIMAP, &argp);
 #if defined(PIO_UNIMAP)
 		if (ret == 0) {
@@ -2736,7 +2737,7 @@ static void stress_dev_console_linux(
 		int ret;
 		struct kbdiacrs argp;
 
-		(void)memset(&argp, 0, sizeof(argp));
+		(void)shim_memset(&argp, 0, sizeof(argp));
 		ret = ioctl(fd, KDGKBDIACR, &argp);
 		(void)ret;
 	}
@@ -2755,7 +2756,7 @@ static void stress_dev_console_linux(
 
 		/* Exercise only if permission is not present */
 		if (!perm) {
-			(void)memset(&argp, 0, sizeof(argp));
+			(void)shim_memset(&argp, 0, sizeof(argp));
 			ret = ioctl(fd, VT_RESIZE, &argp);
 			(void)ret;
 		}
@@ -2775,7 +2776,7 @@ static void stress_dev_console_linux(
 
 		/* Exercise only if permission is not present */
 		if (!perm) {
-			(void)memset(&argp, 0, sizeof(argp));
+			(void)shim_memset(&argp, 0, sizeof(argp));
 			ret = ioctl(fd, VT_RESIZEX, &argp);
 			(void)ret;
 		}
@@ -2791,7 +2792,7 @@ static void stress_dev_console_linux(
 		int ret;
 		struct kbsentry argp;
 
-		(void)memset(&argp, 0, sizeof(argp));
+		(void)shim_memset(&argp, 0, sizeof(argp));
 		ret = ioctl(fd, KDGKBSENT, &argp);
 #if defined(KDSKBSENT)
 		if (ret == 0) {
@@ -2814,7 +2815,7 @@ static void stress_dev_console_linux(
 		int ret;
 		struct vt_mode mode;
 
-		(void)memset(&mode, 0, sizeof(mode));
+		(void)shim_memset(&mode, 0, sizeof(mode));
 		ret = ioctl(fd, VT_GETMODE, &mode);
 #if defined(VT_SETMODE)
 		if (ret == 0) {
@@ -2837,7 +2838,7 @@ static void stress_dev_console_linux(
 		int ret;
 		struct kbentry entry;
 
-		(void)memset(&entry, 0, sizeof(entry));
+		(void)shim_memset(&entry, 0, sizeof(entry));
 		ret = ioctl(fd, KDGKBENT, &entry);
 #if defined(KDSKBENT)
 		if (ret == 0) {
@@ -2931,18 +2932,18 @@ static void stress_dev_hpet_linux(
 		 *  Invalid CDROMMULTISESSION ioctl syscall with
 		 *  invalid format number resulting in EINVAL
 		 */
-		(void)memset(&ms_info, 0, sizeof(ms_info));
+		(void)shim_memset(&ms_info, 0, sizeof(ms_info));
 		ms_info.addr_format = UINT8_MAX;
 		ret = ioctl(fd, CDROMMULTISESSION, &ms_info);
 		(void)ret;
 
 		/* Valid CDROMMULTISESSION with address formats */
-		(void)memset(&ms_info, 0, sizeof(ms_info));
+		(void)shim_memset(&ms_info, 0, sizeof(ms_info));
 		ms_info.addr_format = CDROM_MSF;
 		ret = ioctl(fd, CDROMMULTISESSION, &ms_info);
 		(void)ret;
 
-		(void)memset(&ms_info, 0, sizeof(ms_info));
+		(void)shim_memset(&ms_info, 0, sizeof(ms_info));
 		ms_info.addr_format = CDROM_LBA;
 		ret = ioctl(fd, CDROMMULTISESSION, &ms_info);
 		(void)ret;
@@ -3141,7 +3142,7 @@ static void stress_dev_ptp_linux(
 		for (i = 0; i < pins; i++) {
 			struct ptp_pin_desc desc;
 
-			(void)memset(&desc, 0, sizeof(desc));
+			(void)shim_memset(&desc, 0, sizeof(desc));
 			desc.index = (unsigned int)i;
 			ret = ioctl(fd, PTP_PIN_GETFUNC, &desc);
 			(void)ret;
@@ -4396,7 +4397,7 @@ static int stress_dev(const stress_args_t *args)
 	pa.args = args;
 	pa.data = NULL;
 
-	(void)memset(ret, 0, sizeof(ret));
+	(void)shim_memset(ret, 0, sizeof(ret));
 
 	(void)stress_get_setting("dev-file", &dev_file);
 	if (dev_file) {

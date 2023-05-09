@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_LINUX_FUTEX_H)
@@ -470,7 +471,7 @@ int stress_lock_destroy(void *lock_handle)
 
 	if (stress_lock_valid(lock)) {
 		(void)lock->deinit(lock);
-		(void)memset(lock, 0, sizeof(*lock));
+		(void)shim_memset(lock, 0, sizeof(*lock));
 		(void)munmap((void *)lock, sizeof(*lock));
 		return 0;
 	}

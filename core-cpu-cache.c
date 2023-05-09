@@ -21,6 +21,7 @@
 #include "stress-ng.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 
 #if defined(HAVE_SYS_AUXV_H)
@@ -554,7 +555,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 	if (!fp)
 		return 0;
 
-	(void)memset(buffer, 0, sizeof(buffer));
+	(void)shim_memset(buffer, 0, sizeof(buffer));
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		if (strncmp("CPU:", buffer, 4) == 0) {
 			if (sscanf(buffer + 4, "%d", &cpu_id) == 1)
@@ -718,7 +719,7 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	char tmp[2048];
 	char path[PATH_MAX];
 
-	(void)memset(path, 0, sizeof(path));
+	(void)shim_memset(path, 0, sizeof(path));
 	if (!cache)
 		goto out;
 	if (!index_path)
@@ -815,7 +816,7 @@ static int stress_cpu_cache_get_index(
 		const char *name = namelist[i]->d_name;
 		char fullpath[PATH_MAX];
 
-		(void)memset(fullpath, 0, sizeof(fullpath));
+		(void)shim_memset(fullpath, 0, sizeof(fullpath));
 		(void)stress_mk_filename(fullpath, sizeof(fullpath), path, name);
 		if (stress_add_cpu_cache_detail(&cpu->caches[i], fullpath) != EXIT_SUCCESS) {
 			free(cpu->caches);
@@ -1039,7 +1040,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		char fullpath[PATH_MAX];
 		stress_cpu_cache_cpu_t *const cpu = &cpus->cpus[i];
 
-		(void)memset(fullpath, 0, sizeof(fullpath));
+		(void)shim_memset(fullpath, 0, sizeof(fullpath));
 		(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
 		cpu->num = (uint32_t)i;
 		if (cpu->num == 0) {
@@ -1049,7 +1050,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 			char onlinepath[PATH_MAX + 8];
 			char tmp[2048];
 
-			(void)memset(onlinepath, 0, sizeof(onlinepath));
+			(void)shim_memset(onlinepath, 0, sizeof(onlinepath));
 			(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
 			if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
 				/* Assume it is online, it is the best we can do */

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"lockf N",	  "start N workers locking a single file via lockf" },
@@ -246,7 +247,7 @@ static int stress_lockf(const stress_args_t *args)
 	off_t offset;
 	ssize_t rc;
 
-	(void)memset(buffer, 0, sizeof(buffer));
+	(void)shim_memset(buffer, 0, sizeof(buffer));
 
 	/*
 	 *  There will be a race to create the directory

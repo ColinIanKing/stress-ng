@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_CRYPT_H)
 #include <crypt.h>
@@ -68,10 +69,10 @@ static int stress_crypt_id(
 #if defined (HAVE_CRYPT_R)
 	static struct crypt_data data;
 
-	(void)memset(&data, 0, sizeof(data));
+	(void)shim_memset(&data, 0, sizeof(data));
 #endif
 	(void)shim_strlcpy(newsalt, salt, sizeof(newsalt));
-	(void)memcpy(newsalt, prefix, prefix_len);
+	(void)shim_memcpy(newsalt, prefix, prefix_len);
 	errno = 0;
 
 #if defined (HAVE_CRYPT_R)

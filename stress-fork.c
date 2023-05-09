@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 
 #define MIN_FORKS		(1)
@@ -113,7 +114,7 @@ static int stress_fork_fn(
 		NOCLOBBER uint32_t i, n;
 		NOCLOBBER char *fork_fn_name;
 
-		(void)memset(info, 0, sizeof(info));
+		(void)shim_memset(info, 0, sizeof(info));
 
 		for (n = 0; n < fork_max; n++) {
 			pid_t pid;

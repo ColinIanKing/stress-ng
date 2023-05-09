@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"resched N",		"start N workers that spawn renicing child processes" },
@@ -78,7 +79,7 @@ static void NORETURN stress_resched_child(
 				if (!keep_stressing(args))
 					break;
 
-				(void)memset(&param, 0, sizeof(param));
+				(void)shim_memset(&param, 0, sizeof(param));
 				param.sched_priority = 0;
 				VOID_RET(int, sched_setscheduler(pid, normal_policies[j], &param));
 				VOID_RET(int, shim_sched_yield());

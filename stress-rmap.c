@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 
 #define RMAP_CHILD_MAX		(16)
@@ -155,7 +156,7 @@ static int stress_rmap(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		mappings[i] = MAP_FAILED;

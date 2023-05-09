@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_ANDROID_BINDER_H)
@@ -171,7 +172,7 @@ static int stress_binderfs(const stress_args_t *args)
 		}
 #if defined(BINDER_CTL_ADD)
 		for (i = 0; i < 256; i++) {
-			(void)memset(&device, 0, sizeof(device));
+			(void)shim_memset(&device, 0, sizeof(device));
 			(void)snprintf(device.name, sizeof(device.name), "sng-%d\n", i);
 			ret = ioctl(fd, BINDER_CTL_ADD, &device);
 			if (ret < 0)

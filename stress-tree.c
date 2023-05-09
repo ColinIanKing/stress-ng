@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
@@ -308,7 +309,7 @@ PRAGMA_UNROLL_N(4)
 	for (node = SPLAY_MIN(stress_splay_tree, &splay_root); node; node = next) {
 		next = SPLAY_NEXT(stress_splay_tree, &splay_root, node);
 		SPLAY_REMOVE(stress_splay_tree, &splay_root, node);
-		(void)memset(&node->u.splay, 0, sizeof(node->u.splay));
+		(void)shim_memset(&node->u.splay, 0, sizeof(node->u.splay));
 	}
 	metrics->remove += stress_time_now() - t;
 	metrics->count += (double)n;

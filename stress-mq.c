@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
@@ -222,8 +223,7 @@ again:
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-
-		(void)memset(&values, 0, sizeof(values));
+		(void)shim_memset(&values, 0, sizeof(values));
 
 		while (keep_stressing_flag()) {
 			uint64_t i;
@@ -268,8 +268,7 @@ again:
 							args->name, errno, strerror(errno));
 					}
 #endif
-
-					(void)memset(&sigev, 0, sizeof sigev);
+					(void)shim_memset(&sigev, 0, sizeof sigev);
 					switch (stress_mwc8modn(5)) {
 					case 0:
 						/* Illegal signal */
@@ -411,9 +410,8 @@ again:
 		uint64_t i = 0;
 
 		/* Parent */
-		(void)memset(&msg, 0, sizeof(msg));
-
-		(void)memset(&values, 0, sizeof(values));
+		(void)shim_memset(&msg, 0, sizeof(msg));
+		(void)shim_memset(&values, 0, sizeof(values));
 
 		do {
 			int ret;

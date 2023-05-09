@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define STRESS_DATA_SIZE	(256 * KB)
 
@@ -97,7 +98,7 @@ static void stress_stack_alloc(
 		return;
 
 	if (stack_fill) {
-		(void)memset(data, 0, STRESS_DATA_SIZE);
+		(void)shim_memset(data, 0, STRESS_DATA_SIZE);
 	} else {
 		register size_t i;
 
@@ -228,7 +229,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		if (!keep_stressing(args))
 			break;
 
-		(void)memset(&new_action, 0, sizeof new_action);
+		(void)shim_memset(&new_action, 0, sizeof new_action);
 		new_action.sa_handler = stress_segvhandler;
 		(void)sigemptyset(&new_action.sa_mask);
 		new_action.sa_flags = SA_ONSTACK;

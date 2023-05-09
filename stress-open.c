@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_OPENAT2_H)
 #include <linux/openat2.h>
@@ -776,7 +777,7 @@ static int open_with_openat2_cwd(
 	for (i = 0; i < SIZEOF_ARRAY(resolve_flags); i++) {
 		double t;
 
-		(void)memset(&how, 0, sizeof(how));
+		(void)shim_memset(&how, 0, sizeof(how));
 		how.flags = O_CREAT | O_RDWR;
 		how.mode = S_IRUSR | S_IWUSR;
 		how.resolve = resolve_flags[j++];

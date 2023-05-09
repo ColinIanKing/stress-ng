@@ -686,7 +686,7 @@ static int stress_get_meminfo(
     defined(HAVE_SYSINFO)
 	struct sysinfo info;
 
-	(void)memset(&info, 0, sizeof(info));
+	(void)shim_memset(&info, 0, sizeof(info));
 
 	if (sysinfo(&info) == 0) {
 		*freemem = info.freeram * info.mem_unit;
@@ -743,7 +743,7 @@ static int stress_get_meminfo(
 		int ret;
 
 		/* zero vm_stat, keep cppcheck silent */
-		(void)memset(&vm_stat, 0, sizeof(vm_stat));
+		(void)shim_memset(&vm_stat, 0, sizeof(vm_stat));
 		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 		if (ret >= 0) {
 			*freemem = page_size * vm_stat.free_count;
@@ -934,7 +934,7 @@ uint64_t stress_get_filesystem_size(void)
 	if (!path)
 		return 0;
 
-	(void)memset(&buf, 0, sizeof(buf));
+	(void)shim_memset(&buf, 0, sizeof(buf));
 	rc = statvfs(path, &buf);
 	if (rc < 0)
 		return 0;
@@ -967,7 +967,7 @@ uint64_t stress_get_filesystem_available_inodes(void)
 	if (!path)
 		return 0;
 
-	(void)memset(&buf, 0, sizeof(buf));
+	(void)shim_memset(&buf, 0, sizeof(buf));
 	rc = statvfs(path, &buf);
 	if (rc < 0)
 		return 0;
@@ -1386,7 +1386,7 @@ static void stress_temp_hash_truncate(char *filename)
 #if defined(HAVE_SYS_STATVFS_H)
 	struct statvfs buf;
 
-	(void)memset(&buf, 0, sizeof(buf));
+	(void)shim_memset(&buf, 0, sizeof(buf));
 	if (statvfs(stress_get_temp_path(), &buf) == 0)
 		f_namemax = buf.f_namemax;
 #endif
@@ -1792,7 +1792,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
-	(void)memset(&info, 0, sizeof(info));
+	(void)shim_memset(&info, 0, sizeof(info));
 	if (sysinfo(&info) == 0) {
 		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
 		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);
@@ -1955,7 +1955,7 @@ ssize_t system_read(
 	int fd;
 	ssize_t ret;
 
-	(void)memset(buf, 0, buf_len);
+	(void)shim_memset(buf, 0, buf_len);
 
 	fd = open(path, O_RDONLY);
 	if (UNLIKELY(fd < 0))
@@ -2166,7 +2166,7 @@ int stress_get_bad_fd(void)
     defined(F_GETFL)
 	struct rlimit rlim;
 
-	(void)memset(&rlim, 0, sizeof(rlim));
+	(void)shim_memset(&rlim, 0, sizeof(rlim));
 
 	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
 		if (rlim.rlim_cur < INT_MAX - 1) {
@@ -2289,7 +2289,7 @@ int stress_sighandler(
 		}
 	}
 #endif
-	(void)memset(&new_action, 0, sizeof new_action);
+	(void)shim_memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
 	(void)sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = SA_ONSTACK;
@@ -2310,7 +2310,7 @@ int stress_sighandler_default(const int signum)
 {
 	struct sigaction new_action;
 
-	(void)memset(&new_action, 0, sizeof new_action);
+	(void)shim_memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = SIG_DFL;
 
 	return sigaction(signum, &new_action, NULL);
@@ -2661,8 +2661,8 @@ bool stress_check_capability(const int capability)
 	if (capability == SHIM_CAP_IS_ROOT)
 		return stress_check_root();
 
-	(void)memset(&uch, 0, sizeof uch);
-	(void)memset(ucd, 0, sizeof ucd);
+	(void)shim_memset(&uch, 0, sizeof uch);
+	(void)shim_memset(ucd, 0, sizeof ucd);
 
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = getpid();
@@ -2697,8 +2697,8 @@ int stress_drop_capabilities(const char *name)
 	struct __user_cap_header_struct uch;
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
 
-	(void)memset(&uch, 0, sizeof uch);
-	(void)memset(ucd, 0, sizeof ucd);
+	(void)shim_memset(&uch, 0, sizeof uch);
+	(void)shim_memset(ucd, 0, sizeof ucd);
 
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = getpid();
@@ -3163,7 +3163,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	pid_t pid;
 	uint32_t n;
 
-	(void)memset(buf, 0, sizeof(buf));
+	(void)shim_memset(buf, 0, sizeof(buf));
 	if (system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
 		max_pid = atoi(buf);
 	}
@@ -3424,7 +3424,7 @@ size_t stress_get_extents(const int fd)
     defined(HAVE_LINUX_FIEMAP_H)
 	struct fiemap fiemap;
 
-	(void)memset(&fiemap, 0, sizeof(fiemap));
+	(void)shim_memset(&fiemap, 0, sizeof(fiemap));
 	fiemap.fm_length = ~0UL;
 
 	/* Find out how many extents there are */
@@ -3677,11 +3677,11 @@ int stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 	if (!ptr)
 		return -1;
 
-	(void)memset(ptr, 0, size);
+	(void)shim_memset(ptr, 0, size);
 
 	ret = sysctlbyname(name, ptr, &nsize, NULL, 0);
 	if ((ret < 0) || (nsize != size)) {
-		(void)memset(ptr, 0, size);
+		(void)shim_memset(ptr, 0, size);
 		return -1;
 	}
 	return 0;

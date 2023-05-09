@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_SHM_POSIX_BYTES	(1 * MB)
 #define MAX_SHM_POSIX_BYTES	(1 * GB)
@@ -82,7 +83,7 @@ static int stress_shm_posix_check(
 	uint8_t *ptr, *end = buf + sz;
 	uint8_t val;
 
-	(void)memset(buf, 0xa5, sz);
+	(void)shim_memset(buf, 0xa5, sz);
 
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		*ptr = val;
@@ -137,8 +138,8 @@ static int stress_shm_posix_child(
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
 
-	(void)memset(&msg, 0, sizeof(msg));
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&msg, 0, sizeof(msg));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = SIG_IGN;
 #if defined(SA_NOCLDWAIT)
 	sa.sa_flags = SA_NOCLDWAIT;
@@ -179,7 +180,7 @@ static int stress_shm_posix_child(
 			}
 
 			/* Inform parent of the new shm name */
-			(void)memset(&msg, 0, sizeof(msg));
+			(void)shim_memset(&msg, 0, sizeof(msg));
 			msg.index = i;
 			shm_name[SHM_NAME_LEN - 1] = '\0';
 			(void)shim_strlcpy(msg.shm_name, shm_name, SHM_NAME_LEN);
@@ -431,7 +432,7 @@ again:
 				 *  on child death, or child tells us
 				 *  about its demise.
 				 */
-				(void)memset(&msg, 0, sizeof(msg));
+				(void)shim_memset(&msg, 0, sizeof(msg));
 				n = read(pipefds[0], &msg, sizeof(msg));
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))

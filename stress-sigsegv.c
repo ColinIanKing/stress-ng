@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
@@ -282,7 +283,7 @@ static int stress_sigsegv(const stress_args_t *args)
 		int ret;
 		struct sigaction action;
 
-		(void)memset(&action, 0, sizeof action);
+		(void)shim_memset(&action, 0, sizeof action);
 #if defined(SA_SIGINFO)
 		action.sa_sigaction = stress_segvhandler;
 #else

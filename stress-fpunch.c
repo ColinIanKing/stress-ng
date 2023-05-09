@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"fpunch N",	"start N workers punching holes in a 16MB file" },
@@ -240,8 +241,8 @@ static int stress_fpunch(const stress_args_t *args)
 
 	stress_file_rw_hint_short(fd);
 
-	(void)memset(buf_before, 0xff, (size_t)BUF_SIZE);
-	(void)memset(buf_after, 0xa5, (size_t)BUF_SIZE);
+	(void)shim_memset(buf_before, 0xff, (size_t)BUF_SIZE);
+	(void)shim_memset(buf_after, 0xa5, (size_t)BUF_SIZE);
 
 	/*
 	 *  Create file with lots of holes and extents by populating
@@ -271,7 +272,7 @@ static int stress_fpunch(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
 		pids[i] = fork();
 		if (pids[i] == 0) {

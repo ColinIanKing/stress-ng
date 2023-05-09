@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"pidfd N",	"start N workers exercising pidfd system call" },
@@ -86,7 +87,7 @@ static int stress_pidfd_supported(const char *name)
 	}
 
 	/* initialized info to be safe */
-	(void)memset(&info, 0, sizeof(info));
+	(void)shim_memset(&info, 0, sizeof(info));
 
 	/*
 	 * Exercise pidfd_send_signal with

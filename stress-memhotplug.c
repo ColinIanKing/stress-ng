@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(__linux__)
@@ -79,7 +80,7 @@ static void stress_memhotplug_set_timer(const unsigned int secs)
 {
 	struct itimerval timer;
 
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	timer.it_value.tv_sec = secs;
 	timer.it_value.tv_usec = 0;
 	timer.it_interval.tv_sec = secs;

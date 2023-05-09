@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfork N",	  "start N workers stressing many forked mmaps/munmaps" },
@@ -117,7 +118,7 @@ static int stress_mmapfork(const stress_args_t *args)
 	wipe_ptr = mmap(NULL, wipe_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (wipe_ptr != MAP_FAILED) {
-		(void)memset(wipe_ptr, 0xff, wipe_size);
+		(void)shim_memset(wipe_ptr, 0xff, wipe_size);
 		if (shim_madvise(wipe_ptr, wipe_size, MADV_WIPEONFORK) == 0)
 			wipe_ok = true;
 	}
@@ -148,7 +149,7 @@ static int stress_mmapfork(const stress_args_t *args)
 				if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 					_exit(MMAPFORK_FAILURE);
 
-				(void)memset(&info, 0, sizeof(info));
+				(void)shim_memset(&info, 0, sizeof(info));
 				if (sysinfo(&info) < 0) {
 					pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -177,7 +178,7 @@ static int stress_mmapfork(const stress_args_t *args)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = MMAPFORK_SEGV_MEMSET;
-					(void)memset(ptr, 0, len);
+					(void)shim_memset(ptr, 0, len);
 
 #if defined(MADV_DONTNEED)
 					if (should_terminate(args, ppid))

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_NETINET_TCP_H)
@@ -267,7 +268,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 #else
 			UNEXPECTED
 #endif
-			(void)memset(buf, stress_ascii64[msgs & 63], sizeof(buf));
+			(void)shim_memset(buf, stress_ascii64[msgs & 63], sizeof(buf));
 			sret = send(sfd, buf, sizeof(buf), 0);
 			if (UNLIKELY(sret < 0)) {
 				if ((errno != EINTR) && (errno != EPIPE))

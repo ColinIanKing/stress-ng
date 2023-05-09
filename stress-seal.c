@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"seal N",	"start N workers performing fcntl SEAL commands" },
@@ -73,7 +74,7 @@ static int stress_seal(const stress_args_t *args)
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(buf, 0xff, page_size);
+	(void)shim_memset(buf, 0xff, page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -160,7 +161,7 @@ static int stress_seal(const stress_args_t *args)
 			(void)close(fd);
 			goto err;
 		}
-		(void)memset(ptr, 0xea, page_size);
+		(void)shim_memset(ptr, 0xea, page_size);
 		ret = fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE);
 		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EBUSY)))) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_WRITE did not fail with EBUSY as expected, errno=%d (%s)\n",

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"hrtimers N",	  "start N workers that exercise high resolution timers" },
@@ -113,7 +114,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 cancel:
 	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
 	(void)kill(getpid(), SIGALRM);
 }
@@ -138,14 +139,14 @@ static int stress_hrtimer_process(const stress_args_t *args)
 
 	start = stress_time_now();
 
-	(void)memset(&action, 0, sizeof action);
+	(void)shim_memset(&action, 0, sizeof action);
 	action.sa_handler = stress_hrtimers_handler;
 	(void)sigemptyset(&action.sa_mask);
 
 	if (sigaction(SIGRTMIN, &action, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -196,7 +197,7 @@ static int stress_hrtimers(const stress_args_t *args)
 	ns_delay = hrtimers_adjust ? 10000 : -1;
 	max_ops = args->max_ops / PROCS_MAX;
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < PROCS_MAX; i++) {

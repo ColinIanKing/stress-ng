@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
@@ -183,7 +184,7 @@ static int stress_bind_mount(const stress_args_t *args)
 		static char stack[CLONE_STACK_SIZE];
 		char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 
-		(void)memset(stack, 0, sizeof stack);
+		(void)shim_memset(stack, 0, sizeof stack);
 
 		pid = (pid_t)clone(stress_bind_mount_child,
 			stress_align_stack(stack_top),

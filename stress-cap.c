@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_CAPABILITY_H)
 #include <sys/capability.h>
@@ -42,8 +43,8 @@ static int stress_capgetset_pid(
 	struct __user_cap_header_struct uch;
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
 
-	(void)memset(&uch, 0, sizeof uch);
-	(void)memset(ucd, 0, sizeof ucd);
+	(void)shim_memset(&uch, 0, sizeof uch);
+	(void)shim_memset(ucd, 0, sizeof ucd);
 
 #if defined(_LINUX_CAPABILITY_VERSION_3)
 	uch.version = _LINUX_CAPABILITY_VERSION_3;

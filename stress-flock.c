@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"flock N",	"start N workers locking a single file" },
@@ -279,7 +280,7 @@ static int stress_flock(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {

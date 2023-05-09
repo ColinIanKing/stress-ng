@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -197,7 +198,7 @@ static void stress_dentry_misc(const char *path)
 
 #if defined(HAVE_UTIME_H)
 	(void)utime(path, NULL);
-	(void)memset(&utim, 0, sizeof(utim));
+	(void)shim_memset(&utim, 0, sizeof(utim));
 	(void)utime(path, &utim);
 #endif
 

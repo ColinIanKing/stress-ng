@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-io-priority.h"
 
 #define SYSCALL_METHOD_ALL	(0)
@@ -593,8 +594,8 @@ static int syscall_socket_measure(const int measure)
 	struct mmsghdr msgvec[1];
 #endif
 
-	(void)memset(buffer, 0, sizeof(buffer));
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(buffer, 0, sizeof(buffer));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.sun_family = AF_UNIX;
 	(void)snprintf(addr.sun_path, sizeof(addr.sun_path), "/tmp/stress-ng-client-%" PRIdMAX, (intmax_t)getpid());
 
@@ -650,7 +651,7 @@ static int syscall_socket_measure(const int measure)
 			break;
 #if defined(HAVE_SENDMMSG)
 		case SOCK_MEASURE_SENDMMSG:
-			(void)memset(msgvec, 0, sizeof(msgvec));
+			(void)shim_memset(msgvec, 0, sizeof(msgvec));
 			vec[0].iov_base = buffer;
 			vec[0].iov_len = sizeof(buffer);
 			msgvec[0].msg_hdr.msg_iov = vec;
@@ -665,7 +666,7 @@ static int syscall_socket_measure(const int measure)
 		case SOCK_MEASURE_SENDMSG:
 			vec[0].iov_base = buffer;
 			vec[0].iov_len = sizeof(buffer);
-			(void)memset(&msg, 0, sizeof(msg));
+			(void)shim_memset(&msg, 0, sizeof(msg));
 			msg.msg_iov = vec;
 			msg.msg_iovlen = 1;
 			syscall_shared_info->t1 = syscall_time_now();
@@ -762,7 +763,7 @@ close_sfd_child:
 		case SOCK_MEASURE_RECVMSG:
 			vec[0].iov_base = buffer;
 			vec[0].iov_len = sizeof(buffer);
-			(void)memset(&msg, 0, sizeof(msg));
+			(void)shim_memset(&msg, 0, sizeof(msg));
 			msg.msg_iov = vec;
 			msg.msg_iovlen = 1;
 			syscall_shared_info->t1 = syscall_time_now();
@@ -773,7 +774,7 @@ close_sfd_child:
 			break;
 #if defined(HAVE_RECVMMSG)
 		case SOCK_MEASURE_RECVMMSG:
-			(void)memset(msgvec, 0, sizeof(msgvec));
+			(void)shim_memset(msgvec, 0, sizeof(msgvec));
 			vec[0].iov_base = buffer;
 			vec[0].iov_len = sizeof(buffer);
 			msgvec[0].msg_hdr.msg_iov = vec;
@@ -941,8 +942,8 @@ static int syscall_capget(void)
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
 	int ret;
 
-	(void)memset(&uch, 0, sizeof uch);
-	(void)memset(ucd, 0, sizeof ucd);
+	(void)shim_memset(&uch, 0, sizeof uch);
+	(void)shim_memset(ucd, 0, sizeof ucd);
 
         uch.version = _LINUX_CAPABILITY_VERSION_3;
         uch.pid = syscall_pid;
@@ -964,8 +965,8 @@ static int syscall_capset(void)
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
 	int ret;
 
-	(void)memset(&uch, 0, sizeof uch);
-	(void)memset(ucd, 0, sizeof ucd);
+	(void)shim_memset(&uch, 0, sizeof uch);
+	(void)shim_memset(ucd, 0, sizeof ucd);
 
         uch.version = _LINUX_CAPABILITY_VERSION_3;
         uch.pid = syscall_pid;
@@ -1068,7 +1069,7 @@ static int syscall_clock_adjtime(void)
 	int ret;
 	const int clock = clocks[i];
 
-	(void)memset(&t, 0, sizeof(t));
+	(void)shim_memset(&t, 0, sizeof(t));
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
@@ -1235,7 +1236,7 @@ static int syscall_clone3(void)
 	syscall_shared_info->t2 = ~0ULL;
 	syscall_shared_info->t_set = false;
 
-	(void)memset(&cl_args, 0, sizeof(cl_args));
+	(void)shim_memset(&cl_args, 0, sizeof(cl_args));
 	cl_args.flags = 0;
 	cl_args.pidfd = (uint64_t)(uintptr_t)&pidfd;
 	cl_args.child_tid = (uint64_t)(uintptr_t)&child_tid;
@@ -1411,7 +1412,7 @@ static int syscall_epoll_ctl(void)
 		return -1;
 	}
 
-	(void)memset(&event, 0, sizeof(event));
+	(void)shim_memset(&event, 0, sizeof(event));
 	event.data.fd = fds[1];
 	event.events = EPOLLIN;
 	t1 = syscall_time_now();
@@ -1443,7 +1444,7 @@ static int syscall_epoll_pwait(void)
 		return -1;
 	}
 
-	(void)memset(&event, 0, sizeof(event));
+	(void)shim_memset(&event, 0, sizeof(event));
 	event.data.fd = fds[1];
 	event.events = EPOLLIN;
 	ret = epoll_ctl(fd, EPOLL_CTL_ADD, fds[1], &event);
@@ -1483,7 +1484,7 @@ static int syscall_epoll_wait(void)
 		return -1;
 	}
 
-	(void)memset(&event, 0, sizeof(event));
+	(void)shim_memset(&event, 0, sizeof(event));
 	event.data.fd = fds[1];
 	event.events = EPOLLIN;
 	ret = epoll_ctl(fd, EPOLL_CTL_ADD, fds[1], &event);
@@ -2579,7 +2580,7 @@ static int syscall_io_cancel(void)
 		return -1;
 
 	stress_uint8rnd4((uint8_t *)buffer, sizeof(buffer));
-	(void)memset(&cb, 0, sizeof(cb));
+	(void)shim_memset(&cb, 0, sizeof(cb));
 	cb[0].aio_fildes = syscall_fd;
 	cb[0].aio_lio_opcode = IO_CMD_PWRITE;
 	cb[0].u.c.buf = buffer;
@@ -2751,7 +2752,7 @@ static int syscall_io_submit(void)
 		return -1;
 
 	stress_uint8rnd4((uint8_t *)buffer, sizeof(buffer));
-	(void)memset(&cb, 0, sizeof(cb));
+	(void)shim_memset(&cb, 0, sizeof(cb));
 	cb[0].aio_fildes = syscall_fd;
 	cb[0].aio_lio_opcode = IO_CMD_PWRITE;
 	cb[0].u.c.buf = buffer;
@@ -2794,7 +2795,7 @@ static int syscall_io_uring_setup(void)
 	int fd;
 	struct io_uring_params p[16];
 
-	(void)memset(&p, 0, sizeof(p));
+	(void)shim_memset(&p, 0, sizeof(p));
 	t1 = syscall_time_now();
 	fd = syscall(__NR_io_uring_setup, (unsigned long)SIZEOF_ARRAY(p), &p);
 	t2 = syscall_time_now();
@@ -3163,7 +3164,7 @@ static int syscall_mbind(void)
 	if (buf == MAP_FAILED)
 		return -1;
 
-	(void)memset(node_mask, 0, sizeof(node_mask));
+	(void)shim_memset(node_mask, 0, sizeof(node_mask));
 	STRESS_SETBIT(node_mask, 0);
 	t1 = syscall_time_now();
 	ret = shim_mbind(buf, syscall_2_pages_size, MPOL_BIND, node_mask, sizeof(node_mask) * 8, MPOL_DEFAULT);
@@ -3215,9 +3216,9 @@ static int syscall_migrate_pages(void)
 	unsigned long old_node_mask[NUMA_LONG_BITS];
 	unsigned long new_node_mask[NUMA_LONG_BITS];
 
-	(void)memset(old_node_mask, 0, sizeof(old_node_mask));
+	(void)shim_memset(old_node_mask, 0, sizeof(old_node_mask));
 	STRESS_SETBIT(old_node_mask, 0);
-	(void)memset(new_node_mask, 0, sizeof(new_node_mask));
+	(void)shim_memset(new_node_mask, 0, sizeof(new_node_mask));
 	STRESS_SETBIT(new_node_mask, 0);
 
 	t1 = syscall_time_now();
@@ -3286,7 +3287,7 @@ static int syscall_mknod(void)
 	i++;
 	if (i >= SIZEOF_ARRAY(modes))
 		i = 0;
-	(void)memset((void *)&dev, 0, sizeof(dev));
+	(void)shim_memset((void *)&dev, 0, sizeof(dev));
 	t1 = syscall_time_now();
 	ret = mknod(syscall_tmp_filename, modes[i], dev);
 	t2 = syscall_time_now();
@@ -3315,7 +3316,7 @@ static int syscall_mknodat(void)
 	i++;
 	if (i >= SIZEOF_ARRAY(modes))
 		i = 0;
-	(void)memset((void *)&dev, 0, sizeof(dev));
+	(void)shim_memset((void *)&dev, 0, sizeof(dev));
 	t1 = syscall_time_now();
 	ret = mknodat(syscall_dir_fd, syscall_tmp_filename, modes[i], dev);
 	t2 = syscall_time_now();
@@ -3498,7 +3499,7 @@ static int syscall_move_pages(void)
 	if (buf == MAP_FAILED)
 		return -1;
 
-	(void)memset(buf, 0xff, syscall_page_size);
+	(void)shim_memset(buf, 0xff, syscall_page_size);
 	pages[0] = buf;
 	dest_nodes[0] = 0;
 	status[0] = 0;
@@ -3640,7 +3641,7 @@ static int syscall_mq_notify(void)
 	if (mq >= 0) {
 		struct sigevent sev;
 
-		(void)memset(&sev, 0, sizeof(sev));
+		(void)shim_memset(&sev, 0, sizeof(sev));
 		sev.sigev_notify = SIGEV_SIGNAL;
 		sev.sigev_signo = SIGUSR1;
 
@@ -4053,7 +4054,7 @@ static int syscall_nanosleep(void)
 	struct timespec req, rem;
 	int ret;
 
-	(void)memset((void *)&rem, 0, sizeof(rem));
+	(void)shim_memset((void *)&rem, 0, sizeof(rem));
 	req.tv_sec = 0;
 	req.tv_nsec = 1;
 
@@ -4146,12 +4147,12 @@ static int syscall_open_by_handle_at(void)
 	if (!fp)
 		goto err_free_fhp;
 
-	(void)memset(path, 0, sizeof(path));
+	(void)shim_memset(path, 0, sizeof(path));
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		ssize_t n;
 		int id;
 
-		(void)memset(path, 0, sizeof(path));
+		(void)shim_memset(path, 0, sizeof(path));
 		n = sscanf(buffer, "%12d %*d %*s %*s %" XSTR(PATH_MAX) "s", &id, path);
 		if ((n == 2) && (id == mount_id))
 			break;
@@ -4534,7 +4535,7 @@ static int syscall_prctl(void)
 		{
 			char name[17];
 
-			(void)memset(name, 0, sizeof name);
+			(void)shim_memset(name, 0, sizeof name);
 			t1 = syscall_time_now();
 			ret = prctl(PR_GET_NAME, name);
 			t2 = syscall_time_now();
@@ -4683,7 +4684,7 @@ static int syscall_process_vm_readv(void)
 	local_buf = buf;
 	remote_buf = (void *)(((uintptr_t)buf) + syscall_page_size);
 
-	(void)memset(remote_buf, 0x5a, syscall_page_size);
+	(void)shim_memset(remote_buf, 0x5a, syscall_page_size);
 
 	local[0].iov_base = local_buf;
 	local[0].iov_len = syscall_page_size;
@@ -4714,7 +4715,7 @@ static int syscall_process_vm_writev(void)
 	local_buf = buf;
 	remote_buf = (void *)(((uintptr_t)buf) + syscall_page_size);
 
-	(void)memset(local_buf, 0xa5, syscall_page_size);
+	(void)shim_memset(local_buf, 0xa5, syscall_page_size);
 
 	local[0].iov_base = local_buf;
 	local[0].iov_len = syscall_page_size;
@@ -5176,7 +5177,7 @@ static int syscall_sched_getattr(void)
 	int ret;
 	struct shim_sched_attr attr;
 
-	(void)memset(&attr, 0, sizeof(attr));
+	(void)shim_memset(&attr, 0, sizeof(attr));
 	attr.size = sizeof(attr);
 	t1 = syscall_time_now();
 	ret = shim_sched_getattr(syscall_pid, &attr, sizeof(attr), 0);
@@ -5196,7 +5197,7 @@ static int syscall_sched_getparam(void)
 	int ret;
 	struct sched_param param;
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	t1 = syscall_time_now();
 	ret = sched_getparam(syscall_pid, &param);
 	t2 = syscall_time_now();
@@ -5311,7 +5312,7 @@ static int syscall_sched_setattr(void)
 	int ret;
 	struct shim_sched_attr attr;
 
-	(void)memset(&attr, 0, sizeof(attr));
+	(void)shim_memset(&attr, 0, sizeof(attr));
 	attr.size = sizeof(attr);
 	ret = shim_sched_getattr(syscall_pid, &attr, sizeof(attr), 0);
 	if (ret < 0)
@@ -5334,7 +5335,7 @@ static int syscall_sched_setparam(void)
 	int ret;
 	struct sched_param param;
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	ret = sched_getparam(syscall_pid, &param);
 	if (ret < 0)
 		return -1;
@@ -5356,7 +5357,7 @@ static int syscall_sched_setscheduler(void)
 	int policy, ret;
 	struct sched_param param;
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	policy = sched_getscheduler(syscall_pid);
 	if (policy < 0)
 		return -1;
@@ -5825,7 +5826,7 @@ static int syscall_setrlimit(void)
 	if (ret < 0)
 		return -1;
 
-	(void)memcpy(&new_rlim, &old_rlim, sizeof(new_rlim));
+	(void)shim_memcpy(&new_rlim, &old_rlim, sizeof(new_rlim));
 	new_rlim.rlim_cur = new_rlim.rlim_max;
 	t1 = syscall_time_now();
 	ret = setrlimit(limit, &new_rlim);
@@ -6062,7 +6063,7 @@ static int syscall_sigaction(void)
 	struct sigaction act, old_act;
 	int ret;
 
-	(void)memset(&act, 0, sizeof(act));
+	(void)shim_memset(&act, 0, sizeof(act));
 
 	act.sa_handler = stress_mwc1() ? SIG_DFL : SIG_IGN;
 	act.sa_sigaction = 0;
@@ -6083,7 +6084,7 @@ static int syscall_sigaltstack(void)
 	uint64_t stack[1024];
 	int ret;
 
-	(void)memset(stack, 0, sizeof(stack));
+	(void)shim_memset(stack, 0, sizeof(stack));
 
 	new_ss.ss_sp = (void *)stack;
 	new_ss.ss_size = sizeof(stack);
@@ -6545,7 +6546,7 @@ static int syscall_timer_create(void)
 	timer_t timerid;
 	int ret;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -6570,7 +6571,7 @@ static int syscall_timer_delete(void)
 	timer_t timerid;
 	int ret;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -6668,7 +6669,7 @@ static int syscall_timer_gettime(void)
 	timer_t timerid;
 	int ret;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -6698,7 +6699,7 @@ static int syscall_timer_getoverrun(void)
 	timer_t timerid;
 	int ret;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -6730,7 +6731,7 @@ static int syscall_timer_settime(void)
 	timer_t timerid;
 	int ret;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -7054,7 +7055,7 @@ static int syscall_vmsplice(void)
 	if (buf == MAP_FAILED)
 		return -1;
 
-	(void)memset(buf, 0xa5, syscall_page_size);
+	(void)shim_memset(buf, 0xa5, syscall_page_size);
 	if (pipe(fds) < 0) {
 		(void)munmap(buf, syscall_page_size);
 		return -1;

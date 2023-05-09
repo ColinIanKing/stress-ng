@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -113,7 +114,7 @@ static int stress_verity(const stress_args_t *args)
 			const off_t off = (off_t)i * 64 * 1024;
 			ssize_t n;
 
-			(void)memset(block, i, sizeof(block));
+			(void)shim_memset(block, i, sizeof(block));
 			VOID_RET(off_t, lseek(fd, off, SEEK_SET));
 
 			n = write(fd, block, sizeof(block));
@@ -140,7 +141,7 @@ static int stress_verity(const stress_args_t *args)
 			goto clean;
 		}
 
-		(void)memset(&enable, 0, sizeof(enable));
+		(void)shim_memset(&enable, 0, sizeof(enable));
 		enable.version = 1;
 		enable.hash_algorithm = hash_algorithms[hash];
 		enable.block_size = (uint32_t)args->page_size;
@@ -228,7 +229,7 @@ static int stress_verity(const stress_args_t *args)
 			const off_t off = (off_t)i * 64 * 1024;
 			ssize_t n;
 
-			(void)memset(block, i, sizeof(block));
+			(void)shim_memset(block, i, sizeof(block));
 			VOID_RET(off_t, lseek(fd, off, SEEK_SET));
 
 			n = read(fd, block, sizeof(block));
@@ -251,7 +252,7 @@ static int stress_verity(const stress_args_t *args)
 		(void)shim_fsync(fd);
 
 #if defined(FS_IOC_READ_VERITY_METADATA)
-		(void)memset(&md_arg, 0, sizeof(md_arg));
+		(void)shim_memset(&md_arg, 0, sizeof(md_arg));
 		md_arg.metadata_type = 0ULL;
 		md_arg.offset = 0ULL;
 		md_arg.buf_ptr = (uint64_t)(intptr_t)md_buf;

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigrt N",	"start N workers sending real time signals" },
@@ -80,7 +81,7 @@ again:
 			for (i = 0; i < MAX_RTPIDS; i++)
 				(void)sigaddset(&mask, i + SIGRTMIN);
 
-			(void)memset(&info, 0, sizeof info);
+			(void)shim_memset(&info, 0, sizeof info);
 
 			while (keep_stressing_flag()) {
 				if (UNLIKELY(sigwaitinfo(&mask, &info) < 0)) {
@@ -92,7 +93,7 @@ again:
 					break;
 
 				if (info.si_value.sival_int != -1) {
-					(void)memset(&s, 0, sizeof(s));
+					(void)shim_memset(&s, 0, sizeof(s));
 					s.sival_int = -1;
 					(void)sigqueue(info.si_value.sival_int, SIGRTMIN, s);
 				}
@@ -108,7 +109,7 @@ again:
 
 	/* Parent */
 	do {
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 
 		for (i = 0; i < MAX_RTPIDS; i++) {
 			const int pid = pids[(i + 1) % MAX_RTPIDS];
@@ -122,7 +123,7 @@ again:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)memset(&s, 0, sizeof(s));
+	(void)shim_memset(&s, 0, sizeof(s));
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {
 			s.sival_int = 0;

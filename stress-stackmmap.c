@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #if defined(HAVE_UCONTEXT_H)
@@ -149,7 +150,7 @@ static int stress_stackmmap(const stress_args_t *args)
 		pr_dbg("%s: madvise failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
-	(void)memset(stack_mmap, 0, MMAPSTACK_SIZE);
+	(void)shim_memset(stack_mmap, 0, MMAPSTACK_SIZE);
 
 #if defined(HAVE_MPROTECT)
 	/*
@@ -161,7 +162,7 @@ static int stress_stackmmap(const stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	(void)memset(&c_test, 0, sizeof(c_test));
+	(void)shim_memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
 		pr_fail("%s: getcontext failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -217,7 +218,7 @@ again:
 			 *  an alternative signal handling stack
 			 *  is required because we ran out of stack
 			 */
-			(void)memset(&new_action, 0, sizeof new_action);
+			(void)shim_memset(&new_action, 0, sizeof new_action);
 			new_action.sa_handler = stress_sig_handler_exit;
 			(void)sigemptyset(&new_action.sa_mask);
 			new_action.sa_flags = SA_ONSTACK;

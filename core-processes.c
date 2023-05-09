@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(__linux__)
 static int stress_dump_processes_filter(const struct dirent *d)
@@ -54,7 +55,7 @@ void stress_dump_processes(void)
 		pid_t pid, ppid;
 		ssize_t ret;
 
-		(void)memset(cmd, 0, sizeof(cmd));
+		(void)shim_memset(cmd, 0, sizeof(cmd));
 		(void)snprintf(path, sizeof(path), "/proc/%s/cmdline", namelist[i]->d_name);
 		ret = system_read(path, cmd, sizeof(cmd));
 		if (ret > 0) {

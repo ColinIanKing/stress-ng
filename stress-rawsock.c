@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-net.h"
 
@@ -124,12 +125,12 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = rawsock_port;
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-	(void)memset(&pkt, 0, sizeof(pkt));
+	(void)shim_memset(&pkt, 0, sizeof(pkt));
 	pkt.iph.version = 4;
 	pkt.iph.ihl = sizeof(struct iphdr) >> 2;
 	pkt.iph.tos = 0;
@@ -209,7 +210,7 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 		goto die;
 	}
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 
 	(void)stress_lock_acquire(rawsock_lock);
 	g_shared->rawsock.ready++;

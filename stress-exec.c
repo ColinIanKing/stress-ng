@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SPAWN_H)
 #include <spawn.h>
@@ -574,8 +575,8 @@ do_exec:
 	context.args = argp->args;
 	context.exec_method = method;
 	context.no_pthread = argp->no_pthread;
-	(void)memcpy(&context.argv, argp->argv, sizeof(context.argv));
-	(void)memcpy(&context.env, argp->env, sizeof(context.env));
+	(void)shim_memcpy(&context.argv, argp->argv, sizeof(context.argv));
+	(void)shim_memcpy(&context.env, argp->env, sizeof(context.env));
 	if (big_env)
 		argp->env[0] = argp->str;
 	if (big_arg)
@@ -746,7 +747,7 @@ static int stress_exec(const stress_args_t *args)
 	if (str == MAP_FAILED)
 		str = NULL;
 	else
-		(void)memset(str, 'X', arg_max - 1);
+		(void)shim_memset(str, 'X', arg_max - 1);
 
 #if !defined(HAVE_EXECVEAT)
 	if (args->instance == 0 &&

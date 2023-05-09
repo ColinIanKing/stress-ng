@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_POLL_H)
 #include <poll.h>
@@ -227,7 +228,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	(void)memset(buf, 0xa5, STRESS_RING_PIPE_SIZE_MAX);
+	(void)shim_memset(buf, 0xa5, STRESS_RING_PIPE_SIZE_MAX);
 
 	if (stress_pipe_write(args, pipe_fds[0].fds[1], buf, ring_pipe_size) < 0)
 		goto err_deinit;

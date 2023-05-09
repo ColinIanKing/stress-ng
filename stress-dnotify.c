@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -173,7 +174,7 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 		return -1;
 	}
 
-	(void)memset(buffer, 'x', BUF_SIZE);
+	(void)shim_memset(buffer, 'x', BUF_SIZE);
 	while (keep_stressing(args) && (sz > 0)) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;

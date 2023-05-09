@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
@@ -120,7 +121,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 	char *mnts[MAX_MOUNTS];
 	int i, n, fd = -1;
 
-	(void)memset(mnts, 0, sizeof(mnts));
+	(void)shim_memset(mnts, 0, sizeof(mnts));
 
 	*len = 0;
 	n = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
@@ -139,7 +140,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 			continue;
 		if (!strncmp(mnts[i], "/run/lock", 9))
 			continue;
-		(void)memset(&buf, 0, sizeof(buf));
+		(void)shim_memset(&buf, 0, sizeof(buf));
 		if (statfs(mnts[i], &buf) < 0)
 			continue;
 
@@ -304,7 +305,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 			continue;	/* Try again */
 		}
 		if (tmpfs_mmap_file) {
-			(void)memset(buf, 0xff, sz);
+			(void)shim_memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)stress_madvise_random(buf, sz);
@@ -376,7 +377,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (tmpfs_mmap_file) {
-							(void)memset(mappings[page].addr, (int)n, page_size);
+							(void)shim_memset(mappings[page].addr, (int)n, page_size);
 							(void)shim_msync((void *)mappings[page].addr, page_size, ms_flags);
 						}
 					}

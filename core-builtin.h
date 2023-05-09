@@ -23,6 +23,24 @@
 #include <x86intrin.h>
 #endif
 
+#if defined(HAVE_BUILTIN_MEMSET)
+#define shim_memset(s, c, n)		__builtin_memset(s, c, n)
+#else
+#define shim_memset(s, c, n)		memset(s, c, n)
+#endif
+
+#if defined(HAVE_BUILTIN_MEMCPY)
+#define	shim_memcpy(dst, src, n)	__builtin_memcpy(dst, src, n)
+#else
+#define	shim_memcpy(dst, src, n)	memcpy(dst, src, n)
+#endif
+
+#if defined(HAVE_BUILTIN_MEMMOVE)
+#define	shim_memmove(dst, src, n)	__builtin_memmove(dst, src, n)
+#else
+#define	shim_memmove(dst, src, n)	memmove(dst, src, n)
+#endif
+
 #if defined(HAVE_BUILTIN_CABSL)
 #define shim_cabsl(x)	__builtin_cabsl(x)
 #else

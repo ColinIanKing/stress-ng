@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_COPY_FILE_BYTES	(128 * MB)
 #define MAX_COPY_FILE_BYTES	(MAX_FILE_LIMIT)
@@ -64,7 +65,7 @@ static int stress_copy_file_fill(
 	char buf[COPY_FILE_MAX_BUF_SIZE];
 	ssize_t sz = size;
 
-	(void)memset(buf, stress_mwc8(), sizeof(buf));
+	(void)shim_memset(buf, stress_mwc8(), sizeof(buf));
 
 	if (lseek(fd, off, SEEK_SET) < 0)
 		return -1;

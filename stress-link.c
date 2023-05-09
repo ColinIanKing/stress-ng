@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
@@ -95,7 +96,7 @@ static int stress_link_generic(
 	bool symlink_func = (linkfunc == symlink);
 	char *mnts[MOUNTS_MAX];
 
-	(void)memset(tmp_newpath, 0, sizeof(tmp_newpath));
+	(void)shim_memset(tmp_newpath, 0, sizeof(tmp_newpath));
 	(void)snprintf(tmp_newpath, sizeof(tmp_newpath),
 		"/tmp/stress-ng-%s-%d-%" PRIu64 "-link",
 		args->name, (int)getpid(), stress_mwc64());

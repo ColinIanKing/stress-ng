@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_LOOP_H)
@@ -320,7 +321,7 @@ static int stress_loop(const stress_args_t *args)
 			/*
 			 *  Attempt to configure with illegal fd
 			 */
-			(void)memset(&config, 0, sizeof(config));
+			(void)shim_memset(&config, 0, sizeof(config));
 			config.fd = (uint32_t)bad_fd;
 
 			VOID_RET(int, ioctl(loop_dev, LOOP_CONFIGURE, &config));

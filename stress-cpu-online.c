@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"cpu-online N",		"start N workers offlining/onlining the CPUs" },
@@ -77,7 +78,7 @@ static int stress_cpu_online_get(const uint32_t cpu, int *setting)
 	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
-	(void)memset(data, 0, sizeof(data));
+	(void)shim_memset(data, 0, sizeof(data));
 	ret = system_read(filename, data, sizeof(data));
 	if (ret < 1) {
 		*setting = -1;

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_SYS_QUOTA_H)
@@ -188,13 +189,13 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	char buffer[1024];
 	quotactl_status_t status;
 
-	(void)memset(&status, 0, sizeof(status));
+	(void)shim_memset(&status, 0, sizeof(status));
 
 #if defined(Q_GETQUOTA)
 	if (keep_stressing_flag()) {
 		struct dqblk dqblk;
 
-		(void)memset(&dqblk, 0, sizeof(dqblk));
+		(void)shim_memset(&dqblk, 0, sizeof(dqblk));
 		err = do_quotactl(args, "Q_GETQUOTA", &status,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&dqblk);
@@ -206,7 +207,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct shim_nextdqblk nextdqblk;
 
-		(void)memset(&nextdqblk, 0, sizeof(nextdqblk));
+		(void)shim_memset(&nextdqblk, 0, sizeof(nextdqblk));
 		err = do_quotactl(args, "Q_GETNEXTQUOTA", &status,
 			QCMD(Q_GETNEXTQUOTA, USRQUOTA),
 			dev, 0, (caddr_t)&nextdqblk);
@@ -218,7 +219,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		uint32_t format;
 
-		(void)memset(&format, 0, sizeof(format));
+		(void)shim_memset(&format, 0, sizeof(format));
 		err = do_quotactl(args, "Q_GETFMT", &status,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev, 0, (caddr_t)&format);
@@ -230,7 +231,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqinfo dqinfo;
 
-		(void)memset(&dqinfo, 0, sizeof(dqinfo));
+		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
 		err = do_quotactl(args, "Q_GETINFO", &status,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev, 0, (caddr_t)&dqinfo);
@@ -243,7 +244,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	if (keep_stressing_flag()) {
 		struct dqstats dqstats;
 
-		(void)memset(&dqstats, 0, sizeof(dqstats));
+		(void)shim_memset(&dqstats, 0, sizeof(dqstats));
 		err = do_quotactl(args, "Q_GETSTATS", &status,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev, 0, (caddr_t)&dqstats);
@@ -268,7 +269,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	{
 		struct dqinfo dqinfo;
 
-		(void)memset(&dqinfo, 0, sizeof(dqinfo));
+		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
 		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, USRQUOTA), "", 0, (caddr_t)&dqinfo));
 		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo));
 		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, -1), dev->name, ~0, (caddr_t)&dqinfo));
@@ -333,8 +334,8 @@ static int stress_quota(const stress_args_t *args)
 	struct dirent *d;
 	struct stat buf;
 
-	(void)memset(mnts, 0, sizeof(mnts));
-	(void)memset(devs, 0, sizeof(devs));
+	(void)shim_memset(mnts, 0, sizeof(mnts));
+	(void)shim_memset(devs, 0, sizeof(devs));
 
 	n_mounts = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
 

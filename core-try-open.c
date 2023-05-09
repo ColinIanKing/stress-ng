@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 /*
  *  stress_try_kill()
@@ -152,7 +153,7 @@ int stress_open_timeout(
 	/*
 	 *  Enable a timer to interrupt log open waits
 	 */
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
@@ -84,7 +85,7 @@ static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
 	struct dirent *d;
 	int rc = -1;
 
-	(void)memset(dev, 0, sizeof(*dev));
+	(void)shim_memset(dev, 0, sizeof(*dev));
 
 	dir = opendir("/dev");
 	if (!dir)
@@ -100,7 +101,7 @@ static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
 
 		/* A match, cope it */
 		if ((statbuf.st_mode & S_IFMT) == mode) {
-			(void)memcpy(dev, &statbuf.st_dev, sizeof(*dev));
+			(void)shim_memcpy(dev, &statbuf.st_dev, sizeof(*dev));
 			rc = 0;
 			break;
 		}

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-pthread.h"
 
@@ -280,7 +281,7 @@ static inline void stress_bad_ioctl_rw(
 		if (ret != 0)
 			goto next;
 
-		(void)memset(buf, 0, page_size);
+		(void)shim_memset(buf, 0, page_size);
 
 		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint64_t), buf64));
 		if (stress_time_now() - t_start > threshold) {
@@ -408,7 +409,7 @@ static int stress_bad_ioctl(const stress_args_t *args)
 	pa.args = args;
 	pa.data = NULL;
 
-	(void)memset(ret, 0, sizeof(ret));
+	(void)shim_memset(ret, 0, sizeof(ret));
 
 	stress_bad_ioctl_dev_dir(args, "/dev", 0);
 	dev_ioctl_node = dev_ioctl_info_head;

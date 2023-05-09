@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_LEASE_BREAKERS	(1)
 #define MAX_LEASE_BREAKERS	(64)
@@ -195,7 +196,7 @@ static int stress_lease(const stress_args_t *args)
 			lease_breakers = MIN_LEASE_BREAKERS;
 	}
 
-	(void)memset(l_pids, 0, sizeof(l_pids));
+	(void)shim_memset(l_pids, 0, sizeof(l_pids));
 
 	if (stress_sighandler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;

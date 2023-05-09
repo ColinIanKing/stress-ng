@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define STRESS_PTHREAD_EXIT_GROUP_MAX	(16)
 
@@ -116,7 +117,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 	sigaddset(&set, SIGALRM);
 	sigprocmask(SIG_BLOCK, &set, NULL);
 
-	(void)memset(&pthreads, 0, sizeof(pthreads));
+	(void)shim_memset(&pthreads, 0, sizeof(pthreads));
 	ret = pthread_mutex_lock(&mutex);
 	if (ret) {
 		stop_running();

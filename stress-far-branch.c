@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
@@ -262,7 +263,7 @@ static void *stress_far_mmap(
 
 use_page:
 	for (i = 0; i < page_size; i += ret_opcode.stride) {
-		(void)memcpy((ptr + i), ret_opcode.opcodes, ret_opcode.len);
+		(void)shim_memcpy((ptr + i), ret_opcode.opcodes, ret_opcode.len);
 		funcs[*total_funcs] = (ret_func_t)(ptr + i);
 		(*total_funcs)++;
 	}
@@ -335,7 +336,7 @@ static int stress_far_branch(const stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using assembler opcode '%s' as function return code\n", args->name, ret_opcode.assembler);
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sig_handler;
 #if defined(SA_SIGINFO)
 	sa.sa_flags = SA_SIGINFO;

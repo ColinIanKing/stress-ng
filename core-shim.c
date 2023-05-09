@@ -22,6 +22,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-riscv.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-pragma.h"
 
@@ -233,7 +234,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 	if (n == (off_t)-1)
 		return -1;
 
-	(void)memset(buffer, 0, FALLOCATE_BUF_SIZE);
+	(void)shim_memset(buffer, 0, FALLOCATE_BUF_SIZE);
 	n = len;
 
 	while (keep_stressing_flag() && (n > 0)) {
@@ -1044,7 +1045,7 @@ int shim_statx(
 	unsigned int mask,
 	shim_statx_t *buffer)
 {
-	(void)memset(buffer, 0, sizeof(*buffer));
+	(void)shim_memset(buffer, 0, sizeof(*buffer));
 #if defined(HAVE_STATX)
 	return statx(dfd, filename, flags, mask, (struct statx *)buffer);
 #elif defined(__NR_statx) &&	\

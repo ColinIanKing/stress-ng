@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #define STRESS_EFI_UNKNOWN	(0)
@@ -218,7 +219,7 @@ static int efi_get_data(
 	}
 
 	(void)stress_read_fdinfo(pid, fd);
-	(void)memset(buf, 0, buf_len);
+	(void)shim_memset(buf, 0, buf_len);
 
 	if (metrics)
 		t = stress_time_now();

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "io-uring.h"
 
 #if defined(HAVE_LINUX_IO_URING_H)
@@ -191,7 +192,7 @@ static int stress_setup_io_uring(
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
 	struct io_uring_params p;
 
-	(void)memset(&p, 0, sizeof(p));
+	(void)shim_memset(&p, 0, sizeof(p));
 	/*
 	 *  16 is plenty, with too many we end up with lots of cache
 	 *  misses, with too few we end up with ring filling. This
@@ -391,7 +392,7 @@ static int stress_io_uring_submit(
 	shim_mb();
 	index = tail & *submit->sq_ring.ring_mask;
 	sqe = &submit->sqes_mmap[index];
-	(void)memset(sqe, 0, sizeof(*sqe));
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
 
 	setup_func(io_uring_file, sqe, extra_data);
 	/* Save opcode for later completion error reporting */
@@ -854,8 +855,8 @@ static int stress_io_uring(const stress_args_t *args)
 	const pid_t self = getpid();
 	stress_io_uring_user_data_t user_data[SIZEOF_ARRAY(stress_io_uring_setups)];
 
-	(void)memset(&submit, 0, sizeof(submit));
-	(void)memset(&io_uring_file, 0, sizeof(io_uring_file));
+	(void)shim_memset(&submit, 0, sizeof(submit));
+	(void)shim_memset(&io_uring_file, 0, sizeof(io_uring_file));
 
 	io_uring_file.fd_dup = fileno(stdin);
 	io_uring_file.file_size = file_size;
@@ -889,7 +890,7 @@ static int stress_io_uring(const stress_args_t *args)
 			stress_io_uring_unmap_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}
-		(void)memset(io_uring_file.iovecs[i].iov_base, stress_mwc8(), block_size);
+		(void)shim_memset(io_uring_file.iovecs[i].iov_base, stress_mwc8(), block_size);
 		file_size -= iov_length;
 	}
 

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_SYS_FANOTIFY_H)
@@ -481,7 +482,7 @@ static int stress_fanotify(const stress_args_t *args)
 	int ret, rc = EXIT_SUCCESS;
 	stress_fanotify_account_t account;
 
-	(void)memset(&account, 0, sizeof(account));
+	(void)shim_memset(&account, 0, sizeof(account));
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	(void)stress_mk_filename(filename, sizeof(filename), pathname, "fanotify_file");
@@ -495,7 +496,7 @@ static int stress_fanotify(const stress_args_t *args)
 	pid = fork();
 
 	/* do all mount points */
-	(void)memset(mnts, 0, sizeof(mnts));
+	(void)shim_memset(mnts, 0, sizeof(mnts));
 
 	n_mnts = stress_mount_get(mnts, MAX_MNTS);
 	if (n_mnts < 1) {

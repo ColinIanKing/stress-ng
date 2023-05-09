@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-put.h"
 
@@ -687,7 +688,7 @@ static void stress_cache_show_flags(const stress_args_t *args, const uint32_t fl
 	size_t i;
 	char buf[256];
 
-	(void)memset(buf, 0, sizeof(buf));
+	(void)shim_memset(buf, 0, sizeof(buf));
 	for (i = 0; i < SIZEOF_ARRAY(mask_flag_info); i++) {
 		if (flags & mask_flag_info[i].flag) {
 			shim_strlcat(buf, " ", sizeof(buf));
@@ -962,7 +963,7 @@ next:
 		char buf[1024], *ptr = buf;
 		size_t buf_len = sizeof(buf);
 
-		(void)memset(buf, 0, sizeof(buf));
+		(void)shim_memset(buf, 0, sizeof(buf));
 		for (j = 0; j < SIZEOF_ARRAY(mask_flag_info); j++) {
 			if (mask_flag_info[j].flag & disabled_flags) {
 				const size_t len = strlen(mask_flag_info[j].name);

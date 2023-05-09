@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
@@ -143,7 +144,7 @@ static int stress_switch_pipe(
 	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
 		return EXIT_FAILURE;
 
-	(void)memset(pipefds, 0, sizeof(pipefds));
+	(void)shim_memset(pipefds, 0, sizeof(pipefds));
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
@@ -237,7 +238,7 @@ again:
 
 		/* Parent */
 		(void)close(pipefds[0]);
-		(void)memset(buf, '_', buf_size);
+		(void)shim_memset(buf, '_', buf_size);
 
 		t_start = stress_time_now();
 		do {
@@ -422,7 +423,7 @@ static int stress_switch_mq(
                 return EXIT_FAILURE;
 	}
 
-	(void)memset(&msg, 0, sizeof(msg));
+	(void)shim_memset(&msg, 0, sizeof(msg));
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-net.h"
 
@@ -125,7 +126,7 @@ static int stress_tun(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
-		(void)memset(&ifr, 0, sizeof(ifr));
+		(void)shim_memset(&ifr, 0, sizeof(ifr));
 		ifr.ifr_flags = tun_tap ? IFF_TAP : IFF_TUN;
 
 		ret = ioctl(fd, TUNSETIFF, (void *)&ifr);
@@ -212,7 +213,7 @@ static int stress_tun(const stress_args_t *args)
 				goto child_cleanup_fd;
 			}
 
-			(void)memset(&addr, 0, sizeof(addr));
+			(void)shim_memset(&addr, 0, sizeof(addr));
 			addr.sin_family = AF_INET;
 			addr.sin_port = (in_port_t)port;
 			len = sizeof(addr);
@@ -356,7 +357,7 @@ child_cleanup_fd:
 				goto child_reap;
 			}
 
-			(void)memset(&addr, 0, sizeof(addr));
+			(void)shim_memset(&addr, 0, sizeof(addr));
 			addr.sin_family = AF_INET;
 			addr.sin_port = (in_port_t)port;
 			len = sizeof(addr);

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-bitops.h"
 
 #if defined(HAVE_LINUX_AUDIT_H)
@@ -319,7 +320,7 @@ static void stress_opcode_text(
 	}
 
 	offset = stress_mwc64modn(text_len - ops_len) & ~(0x7ULL);
-	(void)memcpy(ops_begin, text_start + offset, ops_len);
+	(void)shim_memcpy(ops_begin, text_start + offset, ops_len);
 	for (ops = (uint8_t *)ops_begin; ops < (const uint8_t *)ops_end; ops++) {
 		const uint8_t rnd = stress_mwc8();
 
@@ -407,7 +408,7 @@ static int stress_opcode(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	/* Force pages resident */
-	(void)memset(opcodes, 0x00, page_size * PAGES);
+	(void)shim_memset(opcodes, 0x00, page_size * PAGES);
 
 	(void)stress_get_setting("opcode-method", &opcode_method);
 

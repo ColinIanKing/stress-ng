@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-resources.h"
 
 #define MIN_MEM_FREE	(16 * MB)
@@ -68,7 +69,7 @@ static int stress_resources(const stress_args_t *args)
 	do {
 		unsigned int i;
 
-		(void)memset(pids, 0, sizeof(*pids));
+		(void)shim_memset(pids, 0, sizeof(*pids));
 		for (i = 0; i < num_pids; i++) {
 			pid_t pid;
 

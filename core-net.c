@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)
@@ -182,7 +183,7 @@ int stress_set_sockaddr_if(
 	case AF_INET: {
 		static struct sockaddr_in addr;
 
-		(void)memset(&addr, 0, sizeof(addr));
+		(void)shim_memset(&addr, 0, sizeof(addr));
 
 		if ((!ifname) || (!stress_net_interface_exists(ifname, domain, (struct sockaddr *)&addr))) {
 			switch (net_addr) {
@@ -209,7 +210,7 @@ int stress_set_sockaddr_if(
 		static const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 		static const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
 #endif
-		(void)memset(&addr, 0, sizeof(addr));
+		(void)shim_memset(&addr, 0, sizeof(addr));
 
 		if ((!ifname) || (!stress_net_interface_exists(ifname, domain, (struct sockaddr *)&addr))) {
 			switch (net_addr) {
@@ -234,7 +235,7 @@ int stress_set_sockaddr_if(
 	case AF_UNIX: {
 		static struct sockaddr_un addr;
 
-		(void)memset(&addr, 0, sizeof(addr));
+		(void)shim_memset(&addr, 0, sizeof(addr));
 		addr.sun_family = AF_UNIX;
 		(void)snprintf(addr.sun_path, sizeof(addr.sun_path),
 			"/tmp/stress-ng-%jd-%" PRIu32,

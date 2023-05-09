@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_LIBGEN_H)
@@ -259,7 +260,7 @@ static int stress_inode_flags(const stress_args_t *args)
 		goto tidy_dir_fd;
 	}
 
-	(void)memset(ret, 0, sizeof(ret));
+	(void)shim_memset(ret, 0, sizeof(ret));
 	keep_running = true;
 
 	for (i = 0; i < MAX_INODE_FLAG_THREADS; i++) {

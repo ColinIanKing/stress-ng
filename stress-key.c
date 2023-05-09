@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_KEYUTILS_H)
 #include <keyutils.h>
@@ -274,7 +275,7 @@ static int stress_key(const stress_args_t *args)
 #endif
 
 #if defined(KEYCTL_READ)
-			(void)memset(payload, 0, sizeof(payload));
+			(void)shim_memset(payload, 0, sizeof(payload));
 			if (shim_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0) {
 				if ((errno != ENOMEM) &&

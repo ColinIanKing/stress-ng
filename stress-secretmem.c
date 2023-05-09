@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MMAP_MAX	(256*1024)
 
@@ -142,7 +143,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 			 *  touch pages, this will trigger OOM SIGKILL
 			 *  when we run low on secretmem pages
 			 */
-			(void)memset((void *)mappings[n], 0xff, page_size3);
+			(void)shim_memset((void *)mappings[n], 0xff, page_size3);
 
 			/*
 			 *  Make an hole in the 3 page mapping on middle page

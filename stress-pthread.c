@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_MODIFY_LDT)
@@ -397,7 +398,7 @@ yield:
 		sigset_t mask;
 		struct timespec timeout;
 
-		(void)memset(&info, 0, sizeof(info));
+		(void)shim_memset(&info, 0, sizeof(info));
 		(void)sigemptyset(&mask);
 		(void)sigaddset(&mask, SIGUSR1);
 
@@ -506,7 +507,7 @@ static int stress_pthread(const stress_args_t *args)
 		keep_thread_running_flag = true;
 		pthread_count = 0;
 
-		(void)memset(&pthreads, 0, sizeof(pthreads));
+		(void)shim_memset(&pthreads, 0, sizeof(pthreads));
 		ret = pthread_mutex_lock(&mutex);
 		if (ret) {
 			stop_running();
@@ -630,7 +631,7 @@ static int stress_pthread(const stress_args_t *args)
 			if (pthreads[j].ret)
 				continue;
 
-			(void)memset(&value, 0, sizeof(value));
+			(void)shim_memset(&value, 0, sizeof(value));
 			VOID_RET(int, pthread_sigqueue(pthreads[j].pthread, SIGUSR1, value));
 		}
 #endif

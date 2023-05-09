@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_TIMER_FREQ		(1)
 #define MAX_TIMER_FREQ		(100000000)
@@ -162,7 +163,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 cancel:
 	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
 }
 
@@ -199,7 +200,7 @@ static int stress_timer(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
@@ -225,11 +226,11 @@ static int stress_timer(const stress_args_t *args)
 			n = 0;
 
 			/* Exercise nanosleep on non-permitted timespec object values */
-			(void)memset(&req, 0, sizeof(req));
+			(void)shim_memset(&req, 0, sizeof(req));
 			req.tv_sec = -1;
 			VOID_RET(int, nanosleep(&req, NULL));
 
-			(void)memset(&req, 0, sizeof(req));
+			(void)shim_memset(&req, 0, sizeof(req));
 			req.tv_nsec = STRESS_NANOSECOND;
 			VOID_RET(int, nanosleep(&req, NULL));
 		}

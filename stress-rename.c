@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_RENAMEAT) &&	\
     defined(O_DIRECTORY)
@@ -224,8 +225,8 @@ static int stress_rename(const stress_args_t *args)
 	int tmp_fd;
 #endif
 
-	(void)memset(name1, 0, sizeof(name1));
-	(void)memset(name2, 0, sizeof(name2));
+	(void)shim_memset(name1, 0, sizeof(name1));
+	(void)shim_memset(name2, 0, sizeof(name2));
 
 	if (stress_temp_dir_mk(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;

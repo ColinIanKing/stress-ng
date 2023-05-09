@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -56,7 +57,7 @@ static int stress_null(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(buffer, 0xff, sizeof(buffer));
+	(void)shim_memset(buffer, 0xff, sizeof(buffer));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -132,7 +133,7 @@ static int stress_null(const stress_args_t *args)
 			ptr = mmap(NULL, page_size, PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
 			if (ptr != MAP_FAILED) {
-				(void)memset(ptr, stress_mwc8(), page_size);
+				(void)shim_memset(ptr, stress_mwc8(), page_size);
 				(void)shim_msync(ptr, page_size, MS_SYNC);
 				(void)munmap(ptr, page_size);
 			}

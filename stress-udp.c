@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-net.h"
 
@@ -258,7 +259,7 @@ static int OPTIMIZE3 stress_udp_client(
 				const int c = patterns[index++ & 0x1f];
 				ssize_t ret;
 
-				(void)memset(buf, c, sizeof(buf));
+				(void)shim_memset(buf, c, sizeof(buf));
 				ret = sendto(fd, buf, i, 0, addr, len);
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))

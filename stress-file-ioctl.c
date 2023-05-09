@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -288,14 +289,14 @@ static int stress_file_ioctl(const stress_args_t *args)
 			const off_t sz = 4096 * (stress_mwc8() & 0x3);
 			const off_t offset = (stress_mwc8() * 4096) & (file_sz - 1);
 
-			(void)memset(&fcr, 0, sizeof(fcr));
+			(void)shim_memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
 			fcr.src_offset = (uint64_t)offset;
 			fcr.src_length = (uint64_t)sz;
 			fcr.dest_offset = (uint64_t)offset;
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
-			(void)memset(&fcr, 0, sizeof(fcr));
+			(void)shim_memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
 			fcr.src_offset = 0;
 			fcr.src_length = file_sz;
@@ -303,21 +304,21 @@ static int stress_file_ioctl(const stress_args_t *args)
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
 			/* Exercise invalid parameters */
-			(void)memset(&fcr, 0, sizeof(fcr));
+			(void)shim_memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
 			fcr.src_offset = 0ULL;
 			fcr.src_length = (uint64_t)~0ULL;	/* invalid length */
 			fcr.dest_offset = 0ULL;
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
-			(void)memset(&fcr, 0, sizeof(fcr));
+			(void)shim_memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = dfd;	/* invalid fd */
 			fcr.src_offset = 0;
 			fcr.src_length = 0;
 			fcr.dest_offset = 0;
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
-			(void)memset(&fcr, 0, sizeof(fcr));
+			(void)shim_memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = dfd;
 			fcr.src_offset = file_sz;	/* invalid offset */
 			fcr.src_length = 4096;
@@ -413,20 +414,20 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			struct shim_space_resv r;
 
-			(void)memset(&r, 0, sizeof(r));
+			(void)shim_memset(&r, 0, sizeof(r));
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz * 2;
 			VOID_RET(int, ioctl(fd, FS_IOC_RESVSP, &r));
 
 			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
-				(void)memset(&r, 0, sizeof(r));
+				(void)shim_memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_CUR;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)file_sz;
 				VOID_RET(int, ioctl(fd, FS_IOC_RESVSP, &r));
 
-				(void)memset(&r, 0, sizeof(r));
+				(void)shim_memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_END;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)1;
@@ -442,7 +443,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			struct shim_space_resv r;
 
-			(void)memset(&r, 0, sizeof(r));
+			(void)shim_memset(&r, 0, sizeof(r));
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz * 2;
@@ -450,13 +451,13 @@ static int stress_file_ioctl(const stress_args_t *args)
 			VOID_RET(int, ioctl(fd, FS_IOC_RESVSP64, &r));
 
 			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
-				(void)memset(&r, 0, sizeof(r));
+				(void)shim_memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_CUR;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)file_sz;
 				VOID_RET(int, ioctl(fd, FS_IOC_RESVSP64, &r));
 
-				(void)memset(&r, 0, sizeof(r));
+				(void)shim_memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_END;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)1;
@@ -472,7 +473,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			struct shim_space_resv r;
 
-			(void)memset(&r, 0, sizeof(r));
+			(void)shim_memset(&r, 0, sizeof(r));
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)file_sz;
 			r.l_len = (int64_t)file_sz * 2;
@@ -488,7 +489,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			struct shim_space_resv r;
 
-			(void)memset(&r, 0, sizeof(r));
+			(void)shim_memset(&r, 0, sizeof(r));
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)file_sz;
 			r.l_len = (int64_t)file_sz * 2;
@@ -504,7 +505,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			struct shim_space_resv r;
 
-			(void)memset(&r, 0, sizeof(r));
+			(void)shim_memset(&r, 0, sizeof(r));
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz / 2;

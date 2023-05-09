@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 
 static const stress_help_t help[] = {
@@ -59,7 +60,7 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 		sz = n_pages * page_size;
 		n -= n_pages;
 
-		(void)memset(vec, 0, PAGE_CHUNKS);
+		(void)shim_memset(vec, 0, PAGE_CHUNKS);
 		ret = shim_mincore(addr, sz, vec);
 		if (UNLIKELY(ret == ENOSYS))
 			return false;	/* Dodgy, assume not in memory */

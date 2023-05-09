@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-net.h"
 
@@ -110,7 +111,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	(void)memset(buf, 0, sizeof(buf));
+	(void)shim_memset(buf, 0, sizeof(buf));
 
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = (in_port_t)port;

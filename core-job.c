@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MAX_ARGS	(64)
 #define RUN_SEQUENTIAL	(0x01)
@@ -138,7 +139,7 @@ int stress_parse_jobfile(
 		char *ptr;
 		int new_argc = 1;
 
-		(void)memset(new_argv, 0, sizeof(new_argv));
+		(void)shim_memset(new_argv, 0, sizeof(new_argv));
 		new_argv[0] = argv[0];
 		lineno++;
 

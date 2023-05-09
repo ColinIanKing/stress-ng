@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-smart.h"
 
@@ -245,7 +246,7 @@ static stress_smart_data_t *stress_smart_data_read(const char *path)
 	if (fd < 0)
 		return NULL;
 
-	(void)memset(&sg_io_hdr, 0, sizeof(sg_io_hdr));
+	(void)shim_memset(&sg_io_hdr, 0, sizeof(sg_io_hdr));
 	sg_io_hdr.interface_id = 'S';
 	sg_io_hdr.cmd_len = sizeof(cdb);
 	sg_io_hdr.mx_sb_len = sizeof(sbuf);
@@ -255,7 +256,7 @@ static stress_smart_data_t *stress_smart_data_read(const char *path)
 	sg_io_hdr.cmdp = cdb;
 	sg_io_hdr.sbp = sbuf;
 	sg_io_hdr.timeout = 35000;
-	(void)memset(buf, 0, sizeof(buf));
+	(void)shim_memset(buf, 0, sizeof(buf));
 
 	if (ioctl(fd, SG_IO, &sg_io_hdr) < 0) {
 		(void)close(fd);
@@ -272,7 +273,7 @@ static stress_smart_data_t *stress_smart_data_read(const char *path)
 	if (!data)
 		return NULL;
 
-	(void)memcpy(data->values, rv_start, values_size);
+	(void)shim_memcpy(data->values, rv_start, values_size);
 	data->size = size;
 	data->count = i;
 	return data;

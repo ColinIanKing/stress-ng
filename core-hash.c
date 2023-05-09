@@ -174,7 +174,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_murmur3_32(
 	register size_t i;
 
 	for (i = len >> 2; i; i--) {
-		(void)memcpy(&k, key, sizeof(k));
+		(void)shim_memcpy(&k, key, sizeof(k));
 		key += sizeof(k);
 		h ^= stress_hash_murmur_32_scramble(k);
 		h = (h << 13) | (h >> 19);
@@ -552,7 +552,7 @@ PRAGMA_UNROLL_N(4)
 		uint64_t v;
 
 		/* memcpy optimizes down to a 64 bit load */
-		(void)memcpy(&v, str, sizeof(v));
+		(void)shim_memcpy(&v, str, sizeof(v));
 		str += sizeof(v);
 		hash *= v;
 		hash ^= shim_ror64n(hash, 40);
@@ -580,7 +580,7 @@ PRAGMA_UNROLL_N(4)
 		uint32_t v;
 
 		/* memcpy optimizes down to a 32 bit load */
-		(void)memcpy(&v, str, sizeof(v));
+		(void)shim_memcpy(&v, str, sizeof(v));
 		str += sizeof(v);
 		hash *= v;
 		hash ^= shim_ror32n(hash, 20);
@@ -606,7 +606,7 @@ PRAGMA_UNROLL_N(4)
 		uint64_t v64;
 
 		/* memcpy optimizes down to a 64 bit load */
-		(void)memcpy(&v64, str, sizeof(v64));
+		(void)shim_memcpy(&v64, str, sizeof(v64));
 		str += sizeof(v64);
 		i--;
 		hash = v64 ^ shim_ror64n(hash, 16);
@@ -633,7 +633,7 @@ PRAGMA_UNROLL_N(8)
 		uint32_t v32;
 
 		/* memcpy optimizes down to a 32 bit load */
-		(void)memcpy(&v32, str, sizeof(v32));
+		(void)shim_memcpy(&v32, str, sizeof(v32));
 		str += sizeof(v32);
 		i--;
 		hash = v32 ^ shim_ror32n(hash, 4);
@@ -765,7 +765,7 @@ stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 
 	hash->next = hash_table->table[h];
 	hash_table->table[h] = hash;
-	(void)memcpy(HASH_STR(hash), str, len);
+	(void)shim_memcpy(HASH_STR(hash), str, len);
 
 	return hash;
 }

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #define MIN_CHDIR_DIRS		(64)
@@ -98,7 +99,7 @@ static int stress_chdir(const stress_args_t *args)
 	longpath[0] = '/';
 
 	(void)stress_temp_filename_args(args, badpath, sizeof(badpath), ~0ULL);
-	(void)memset(&statbuf, 0, sizeof(statbuf));
+	(void)shim_memset(&statbuf, 0, sizeof(statbuf));
 	*path = '\0';	/* Keep static analysis tools happy */
 
 	/* Populate */

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -608,8 +609,8 @@ static int stress_shm_sysv_child(
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(addrs, 0, sizeof(addrs));
-	(void)memset(keys, 0, sizeof(keys));
+	(void)shim_memset(addrs, 0, sizeof(addrs));
+	(void)shim_memset(keys, 0, sizeof(keys));
 	for (i = 0; i < MAX_SHM_SYSV_SEGMENTS; i++)
 		shm_ids[i] = -1;
 

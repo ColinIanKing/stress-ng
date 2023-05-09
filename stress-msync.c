@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_MSYNC_BYTES		(1 * MB)  /* MUST NOT BE page size or less! */
 #define MAX_MSYNC_BYTES		(MAX_FILE_LIMIT)
@@ -204,7 +205,7 @@ static int stress_msync(const stress_args_t *args)
 		offset = (off_t)stress_mwc64modn(sz - page_size) & ~((off_t)page_size - 1);
 		val = stress_mwc8();
 
-		(void)memset(buf + offset, val, page_size);
+		(void)shim_memset(buf + offset, val, page_size);
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
 			pr_fail("%s: msync MS_SYNC on "
@@ -240,7 +241,7 @@ do_invalidate:
 		offset = (off_t)stress_mwc64modn(sz - page_size) & ~((off_t)page_size - 1);
 		val = stress_mwc8();
 
-		(void)memset(buf + offset, val, page_size);
+		(void)shim_memset(buf + offset, val, page_size);
 
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {

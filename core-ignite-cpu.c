@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 
 #define SETTING_SCALING_FREQ		(0x01)
 #define SETTING_CPUINFO_FREQ		(0x02)
@@ -168,7 +169,7 @@ void stress_ignite_cpu_start(void)
 			cpu_settings[cpu].setting_flag = 0;
 			cpu_settings[cpu].energy_perf_bias = -1;
 
-			(void)memset(buffer, 0, sizeof(buffer));
+			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/scaling_max_freq", cpu);
@@ -179,7 +180,7 @@ void stress_ignite_cpu_start(void)
 				if (ret == 1)
 					cpu_settings[cpu].setting_flag |= SETTING_SCALING_FREQ;
 			}
-			(void)memset(buffer, 0, sizeof(buffer));
+			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/scaling_min_freq", cpu);
@@ -191,7 +192,7 @@ void stress_ignite_cpu_start(void)
 					cpu_settings[cpu].setting_flag &= ~SETTING_SCALING_FREQ;
 			}
 
-			(void)memset(buffer, 0, sizeof(buffer));
+			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/cpuinfo_max_freq", cpu);
@@ -202,7 +203,7 @@ void stress_ignite_cpu_start(void)
 				if (ret == 1)
 					cpu_settings[cpu].setting_flag |= SETTING_CPUINFO_FREQ;
 			}
-			(void)memset(buffer, 0, sizeof(buffer));
+			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/cpuinfo_min_freq", cpu);
@@ -214,7 +215,7 @@ void stress_ignite_cpu_start(void)
 					cpu_settings[cpu].setting_flag &= ~SETTING_CPUINFO_FREQ;
 			}
 
-			(void)memset(cpu_settings[cpu].cur_governor, 0,
+			(void)shim_memset(cpu_settings[cpu].cur_governor, 0,
 				sizeof(cpu_settings[cpu].cur_governor));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
@@ -224,7 +225,7 @@ void stress_ignite_cpu_start(void)
 			if (ret > 0)
 				cpu_settings[cpu].setting_flag |= SETTING_GOVERNOR;
 
-			(void)memset(buffer, 0, sizeof(buffer));
+			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/power/energy_perf_bias", cpu);

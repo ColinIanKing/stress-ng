@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 
 #if defined(HAVE_INTEL_IPSEC_MB_H)
@@ -216,7 +217,7 @@ static inline struct JOB_AES_HMAC *stress_job_get_next(struct MB_MGR *mb_mgr)
 {
 	struct JOB_AES_HMAC *job = IMB_GET_NEXT_JOB(mb_mgr);
 
-	(void)memset(job, 0, sizeof(*job));
+	(void)shim_memset(job, 0, sizeof(*job));
 	return job;
 }
 
@@ -655,7 +656,7 @@ static void stress_ipsec_hmac_sha512(
 		return;
 
 	stress_rnd_fill(rndkey, sizeof(rndkey));
-	(void)memset(key, 0, sizeof(key));
+	(void)shim_memset(key, 0, sizeof(key));
 
 	IMB_SHA512(mb_mgr, rndkey, SHA_512_BLOCK_SIZE, key);
 

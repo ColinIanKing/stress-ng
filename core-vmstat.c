@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-thermal-zone.h"
 
@@ -366,7 +367,7 @@ static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 		(void)fclose(fp);
 
 		if (ret != 15)
-			(void)memset(iostat, 0, sizeof(*iostat));
+			(void)shim_memset(iostat, 0, sizeof(*iostat));
 	}
 }
 
@@ -383,7 +384,7 @@ static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	static stress_iostat_t iostat_prev;
 	stress_iostat_t iostat_current;
 
-	(void)memset(&iostat_current, 0, sizeof(iostat_current));
+	(void)shim_memset(&iostat_current, 0, sizeof(iostat_current));
 	stress_read_iostat(iostat_name, &iostat_current);
 	STRESS_IOSTAT_DELTA(read_io);
 	STRESS_IOSTAT_DELTA(read_merges);
@@ -400,7 +401,7 @@ static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	STRESS_IOSTAT_DELTA(discard_merges);
 	STRESS_IOSTAT_DELTA(discard_sectors);
 	STRESS_IOSTAT_DELTA(discard_ticks);
-	(void)memcpy(&iostat_prev, &iostat_current, sizeof(iostat_prev));
+	(void)shim_memcpy(&iostat_prev, &iostat_current, sizeof(iostat_prev));
 }
 #endif
 
@@ -697,7 +698,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	size_t page_size = stress_get_page_size();
 	int ret;
 
-	(void)memset(&vm_stat, 0, sizeof(vmstat));
+	(void)shim_memset(&vm_stat, 0, sizeof(vmstat));
 	ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
 	if (ret >= 0) {
 		vmstat->swap_in = vm_stat.pageins;
@@ -815,8 +816,8 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
 	static stress_vmstat_t vmstat_prev;
 	stress_vmstat_t vmstat_current;
 
-	(void)memset(&vmstat_current, 0, sizeof(vmstat_current));
-	(void)memset(vmstat, 0, sizeof(*vmstat));
+	(void)shim_memset(&vmstat_current, 0, sizeof(vmstat_current));
+	(void)shim_memset(vmstat, 0, sizeof(*vmstat));
 	stress_read_vmstat(&vmstat_current);
 	STRESS_VMSTAT_COPY(procs_running);
 	STRESS_VMSTAT_COPY(procs_blocked);
@@ -838,7 +839,7 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
 	STRESS_VMSTAT_DELTA(idle_time);
 	STRESS_VMSTAT_DELTA(wait_time);
 	STRESS_VMSTAT_DELTA(stolen_time);
-	(void)memcpy(&vmstat_prev, &vmstat_current, sizeof(vmstat_prev));
+	(void)shim_memcpy(&vmstat_prev, &vmstat_current, sizeof(vmstat_prev));
 }
 
 #if defined(__linux__)

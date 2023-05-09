@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #if defined(HAVE_LIB_DL)
@@ -119,7 +120,7 @@ static int stress_dynlib(const stress_args_t *args)
 {
 	void *handles[MAX_LIBNAMES];
 
-	(void)memset(handles, 0, sizeof(handles));
+	(void)shim_memset(handles, 0, sizeof(handles));
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;

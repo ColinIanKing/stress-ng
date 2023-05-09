@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_UCONTEXT_H)
 #include <ucontext.h>
@@ -131,7 +132,7 @@ static int stress_context_init(
 	ucontext_t *uctx_link,
 	context_data_t *context_data)
 {
-	(void)memset(context_data, 0, sizeof(*context_data));
+	(void)shim_memset(context_data, 0, sizeof(*context_data));
 
 	if (getcontext(&context_data->cu.uctx) < 0) {
 		pr_fail("%s: getcontext failed: %d (%s)\n",
@@ -172,7 +173,7 @@ static int stress_context(const stress_args_t *args)
 			args->name, STRESS_CONTEXTS, sizeof(context_data_t));
 		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(&uctx_main, 0, sizeof(uctx_main));
+	(void)shim_memset(&uctx_main, 0, sizeof(uctx_main));
 
 	context_counter = 0;
 	stress_max_ops = args->max_ops * 1000;

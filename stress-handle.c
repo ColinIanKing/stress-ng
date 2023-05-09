@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"handle N",	"start N workers exercising name_to_handle_at" },
@@ -69,7 +70,7 @@ static int get_mount_info(const stress_args_t *args)
 		return -1;
 	}
 
-	(void)memset(&mount_info, 0, sizeof(mount_info));
+	(void)shim_memset(&mount_info, 0, sizeof(mount_info));
 
 	while (mounts < MAX_MOUNT_IDS) {
 		char mount_path[PATH_MAX + 1];

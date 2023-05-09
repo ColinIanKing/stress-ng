@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)
@@ -439,7 +440,7 @@ retry:
 			goto retry;
 		}
 #if defined(HAVE_SCTP_EVENT_SUBSCRIBE)
-		(void)memset(&events, 0, sizeof(events));
+		(void)shim_memset(&events, 0, sizeof(events));
 		events.sctp_data_io_event = 1;
 		if (UNLIKELY(setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events, sizeof(events)) < 0)) {
 			(void)close(fd);
@@ -453,7 +454,7 @@ retry:
 		if (sctp_sched > -1) {
 			struct sctp_assoc_value val;
 
-			(void)memset(&val, 0, sizeof(val));
+			(void)shim_memset(&val, 0, sizeof(val));
 			val.assoc_value = (uint32_t)sctp_sched;
 			(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 		}
@@ -571,7 +572,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	if (sctp_sched > -1) {
 		struct sctp_assoc_value val;
 
-		(void)memset(&val, 0, sizeof(val));
+		(void)shim_memset(&val, 0, sizeof(val));
 		val.assoc_value = (uint32_t)sctp_sched;
 		(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 	}
@@ -589,7 +590,7 @@ static int OPTIMIZE3 stress_sctp_server(
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
 			const int c = patterns[index++ & 0x1f];
 
-			(void)memset(buf, c, sizeof(buf));
+			(void)shim_memset(buf, c, sizeof(buf));
 			for (i = 16; i < sizeof(buf); i += 16) {
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,

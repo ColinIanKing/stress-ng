@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_EVENTFD_H)
 #include <sys/eventfd.h>
@@ -145,7 +146,7 @@ again:
 				n = 0;
 
 				/* Exercise write using small buffer */
-				(void)memset(re, 0, sizeof(re));
+				(void)shim_memset(re, 0, sizeof(re));
 				VOID_RET(ssize_t, write(fd1, re, sizeof(re)));
 
 				/* Exercise write on buffer out of range */

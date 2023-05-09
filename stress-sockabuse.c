@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_XATTR_H)
@@ -76,7 +77,7 @@ static void stress_sockabuse_fd(const int fd)
 	struct timespec timespec[2];
 #endif
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	VOID_RET(int, connect(fd, &addr, sizeof(addr)));
 	VOID_RET(int, shim_fdatasync(fd));
 	VOID_RET(int, shim_fsync(fd));
@@ -165,7 +166,7 @@ static void stress_sockabuse_fd(const int fd)
 #endif
 	VOID_RET(int, shim_sync_file_range(fd, 0, 1, 0));
 #if defined(HAVE_FUTIMENS)
-	(void)memset(&timespec, 0, sizeof(timespec));
+	(void)shim_memset(&timespec, 0, sizeof(timespec));
 #endif
 }
 
@@ -326,7 +327,7 @@ static int stress_sockabuse_server(
 					(void)close(sfd);
 					break;
 				}
-				(void)memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
+				(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
 
 				n = send(sfd, buf, sizeof(buf), 0);
 				if (n < 0) {

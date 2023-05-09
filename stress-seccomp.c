@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
@@ -226,7 +227,7 @@ static int stress_seccomp_set_huge_filter(const stress_args_t *args)
 	const size_t n_max = ((size_t)1 << bits) - 1;
 	size_t i, j, n = 32, max = 1;
 
-	(void)memset(&huge_prog, 0, sizeof(huge_prog));
+	(void)shim_memset(&huge_prog, 0, sizeof(huge_prog));
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
 		pr_fail("%s: prctl PR_SET_NEW_PRIVS failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

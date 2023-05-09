@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"dup N",	"start N workers exercising dup/close" },
@@ -93,7 +94,7 @@ static int static_dup2_child(info_t *info)
 	info->fd_pipe = -1;
 	info->pid_clone = -1;
 
-	(void)memset(&action, 0, sizeof(action));
+	(void)shim_memset(&action, 0, sizeof(action));
 	action.sa_flags = 0;
 	action.sa_handler = stress_sighandler_nop;
 	if (UNLIKELY(sigaction(SIGALRM, &action, NULL) < 0))
@@ -137,7 +138,7 @@ static int static_dup2_child(info_t *info)
 	/*
 	 *  Cancel timer
 	 */
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 
 	/*

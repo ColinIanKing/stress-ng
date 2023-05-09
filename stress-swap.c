@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(__sun__)
@@ -166,7 +167,7 @@ static int stress_swap_set_size(
 	if (bad_flags & SWAP_HDR_BAD_SIGNATURE)
 		signature[0]++;	/* Invalid */
 
-	(void)memset(&swap_info, 0, sizeof(swap_info));
+	(void)shim_memset(&swap_info, 0, sizeof(swap_info));
 	for (i = 0; i < sizeof(swap_info.sws_uuid); i++)
 		swap_info.sws_uuid[i] = stress_mwc8();
 	(void)snprintf((char *)swap_info.sws_volume,
@@ -361,7 +362,7 @@ static int stress_swap(const stress_args_t *args)
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
 				uintptr_t *up = (uintptr_t *)(uintptr_t)p;
 
-				(void)memset(p, (int)i, page_size);
+				(void)shim_memset(p, (int)i, page_size);
 				*up = (uintptr_t)p;
 			}
 #if defined(MADV_PAGEOUT)

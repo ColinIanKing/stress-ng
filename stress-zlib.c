@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-target-clones.h"
 
@@ -565,7 +566,7 @@ static void OPTIMIZE3 OPTIMIZE_FAST_MATH stress_rand_data_double(
 	while (ptr < end) {
 		const double s = sin(theta);
 
-		(void)memcpy((void *)ptr, &s, sizeof(*ptr));
+		(void)shim_memcpy((void *)ptr, &s, sizeof(*ptr));
 
 		theta += dtheta;
 		dtheta += 0.001;
@@ -717,7 +718,7 @@ static void TARGET_CLONES stress_rand_data_pink(
 	const float scalar = 256.0F / (float)max;
 
 	(void)args;
-	(void)memset(rows, 0, sizeof(rows));
+	(void)shim_memset(rows, 0, sizeof(rows));
 
 	while (ptr < end) {
 		int64_t rnd;
@@ -1045,7 +1046,7 @@ static void stress_rand_data_morse(
 	(void)args;
 
 	if (!morse_table_init) {
-		(void)memset(morse_table, 0, sizeof(morse_table));
+		(void)shim_memset(morse_table, 0, sizeof(morse_table));
 		for (i = 0; i < (int)SIZEOF_ARRAY(morse); i++)
 			morse_table[tolower((int)morse[i].ch)] = morse[i].str;
 		morse_table_init = true;
@@ -1149,11 +1150,7 @@ static void stress_rand_data_zero(
 {
 	(void)args;
 
-#if defined(HAVE_BUILTIN_MEMSET)
-	(void)__builtin_memset((void *)data, 0, (uintptr_t)data_end - (uintptr_t)data);
-#else
-	(void)memset((void *)data, 0, (uintptr_t)data_end - (uintptr_t)data);
-#endif
+	shim_memset((void *)data, 0, (uintptr_t)data_end - (uintptr_t)data);
 }
 
 static void stress_zlib_random_test(const stress_args_t *args, uint64_t *RESTRICT data, uint64_t *RESTRICT data_end);
@@ -1403,7 +1400,7 @@ static int stress_zlib_inflate(
 	zlib_checksum->pipe_broken = false;
 	zlib_checksum->interrupted = false;
 
-	(void)memset(&stream_inf, 0, sizeof(stream_inf));
+	(void)shim_memset(&stream_inf, 0, sizeof(stream_inf));
 	stream_inf.zalloc = Z_NULL;
 	stream_inf.zfree = Z_NULL;
 	stream_inf.opaque = Z_NULL;
@@ -1539,7 +1536,7 @@ static int stress_zlib_deflate(
 	zlib_checksum->pipe_broken = false;
 	zlib_checksum->interrupted = false;
 
-	(void)memset(&stream_def, 0, sizeof(stream_def));
+	(void)shim_memset(&stream_def, 0, sizeof(stream_def));
 	stream_def.zalloc = Z_NULL;
 	stream_def.zfree = Z_NULL;
 	stream_def.opaque = Z_NULL;

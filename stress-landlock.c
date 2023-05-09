@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_LANDLOCK_H)
 #include <linux/landlock.h>
@@ -112,7 +113,7 @@ static int stress_landlock_supported(const char *name)
 	int ruleset_fd;
 	struct landlock_ruleset_attr ruleset_attr;
 
-	(void)memset(&ruleset_attr, 0, sizeof(ruleset_attr));
+	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_FS_READ_FILE;
 
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
@@ -152,7 +153,7 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 	if (!path)
 		return 0;
 
-	(void)memset(&ruleset_attr, 0, sizeof(ruleset_attr));
+	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	/* Exercise illegal ruleset sizes, EINVAL */
 	VOID_RET(int, shim_landlock_create_ruleset(&ruleset_attr, 0, 0));
 	/* Exercise illegal ruleset sizes, E2BIG */
@@ -160,7 +161,7 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 	/* Exercise fetch of ruleset API version, ignore return */
 	VOID_RET(int, shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION));
 
-	(void)memset(&ruleset_attr, 0, sizeof(ruleset_attr));
+	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = flag;
 
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);

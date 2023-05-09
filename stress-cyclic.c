@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #define DEFAULT_DELAY_NS	(100000)
@@ -331,14 +332,14 @@ static int stress_cyclic_itimer(
 	if (stress_sighandler(args->name, SIGRTMIN, stress_cyclic_itimer_handler, &old_action) < 0)
 		return ret;
 
-	(void)memset(&sev, 0, sizeof(sev));
+	(void)shim_memset(&sev, 0, sizeof(sev));
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0)
 		goto restore;
 
-	(void)memset(&itimer_time, 0, sizeof(itimer_time));
+	(void)shim_memset(&itimer_time, 0, sizeof(itimer_time));
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0)
 		goto restore;
@@ -363,7 +364,7 @@ static int stress_cyclic_itimer(
 	ret = 0;
 tidy:
 	/* And cancel timer */
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
 restore:
 	stress_sigrestore(args->name, SIGRTMIN, &old_action);

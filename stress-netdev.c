@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
@@ -94,7 +95,7 @@ static int stress_netdev(const stress_args_t *args)
 		struct ifconf ifc;
 
 		/* Get list of transport layer addresses */
-		(void)memset(&ifc, 0, sizeof(ifc));
+		(void)shim_memset(&ifc, 0, sizeof(ifc));
 		rc = ioctl(fd, SIOCGIFCONF, &ifc);
 		if (rc < 0) {
 			pr_fail("%s: ioctl SIOCGIFCONF failed, errno=%d (%s)\n",

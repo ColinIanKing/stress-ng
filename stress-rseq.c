@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 
 #if defined(HAVE_LINUX_RSEQ_H)
@@ -83,12 +84,12 @@ STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
 static inline void set_rseq_ptr64(uint64_t value)
 {
-	(void)memcpy((void *)&restartable_seq.rseq_cs, &value, sizeof(value));
+	(void)shim_memcpy((void *)&restartable_seq.rseq_cs, &value, sizeof(value));
 }
 
 static inline void set_rseq_zero(void)
 {
-	(void)memset((void *)&restartable_seq, 0, sizeof(restartable_seq));
+	(void)shim_memset((void *)&restartable_seq, 0, sizeof(restartable_seq));
 }
 
 STRESS_PRAGMA_POP
@@ -241,10 +242,10 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 	struct rseq *misaligned_seq = (struct rseq *)&misaligned_seq_buf[1];
 	struct rseq invalid_seq;
 
-	(void)memcpy((void *)misaligned_seq, (void *)&restartable_seq, sizeof(restartable_seq));
-	(void)memcpy((void *)&invalid_seq, (void *)&restartable_seq, sizeof(restartable_seq));
+	(void)shim_memcpy((void *)misaligned_seq, (void *)&restartable_seq, sizeof(restartable_seq));
+	(void)shim_memcpy((void *)&invalid_seq, (void *)&restartable_seq, sizeof(restartable_seq));
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigsegv_handler;
 	if (sigaction(SIGSEGV, &sa, NULL) < 0) {
 		pr_inf("%s: failed to set SIGSEGV handler\n", args->name);

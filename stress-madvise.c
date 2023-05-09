@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"madvise N",	 "start N workers exercising madvise on memory" },
@@ -504,7 +505,7 @@ static int stress_madvise(const stress_args_t *args)
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
 
-	(void)memset(page, 0xa5, page_size);
+	(void)shim_memset(page, 0xa5, page_size);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
@@ -572,7 +573,7 @@ static int stress_madvise(const stress_args_t *args)
 			continue;
 		}
 
-		(void)memset(buf, 0xff, sz);
+		(void)shim_memset(buf, 0xff, sz);
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
 		stress_process_madvise(pid, buf, sz);

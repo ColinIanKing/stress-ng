@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -156,7 +157,7 @@ again:
 		stress_set_oom_adjustment(args->name, true);
 
 		(void)close(fds[0]);
-		(void)memset(wr_buffer, 0, BUFFER_SIZE);
+		(void)shim_memset(wr_buffer, 0, BUFFER_SIZE);
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

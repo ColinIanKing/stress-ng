@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_ITIMER_FREQ		(1)
 #define MAX_ITIMER_FREQ		(100000000)
@@ -145,7 +146,7 @@ static void stress_itimer_handler(int sig)
 cancel:
 	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 }
 
@@ -212,7 +213,7 @@ static int stress_itimer(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)memset(&timer, 0, sizeof(timer));
+	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 	return EXIT_SUCCESS;
 }

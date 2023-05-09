@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
@@ -188,7 +189,7 @@ static void stress_fiemap_ioctl(
 		}
 		fiemap = tmp;
 
-		(void)memset(fiemap->fm_extents, 0, extents_size);
+		(void)shim_memset(fiemap->fm_extents, 0, extents_size);
 		fiemap->fm_extent_count = fiemap->fm_mapped_extents;
 		fiemap->fm_mapped_extents = 0;
 
@@ -284,7 +285,7 @@ static int stress_fiemap(const stress_args_t *args)
 	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
-	(void)memset(&fiemap, 0, sizeof(fiemap));
+	(void)shim_memset(&fiemap, 0, sizeof(fiemap));
 	fiemap.fm_length = ~0UL;
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
 		errno = EOPNOTSUPP;

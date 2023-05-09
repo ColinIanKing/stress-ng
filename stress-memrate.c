@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
 #include "core-target-clones.h"
@@ -319,7 +320,7 @@ static uint64_t stress_memrate_memset(
 {
 	const size_t size = context->memrate_bytes;
 
-	(void)memset(context->start, 0xaa, size);
+	(void)shim_memset(context->start, 0xaa, size);
 
 	*valid = true;
 	return (uint64_t)size / KB;
@@ -339,7 +340,7 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 
 	t1 = stress_time_now();
 	for (ptr = start; (ptr + chunk_size) < end; ptr += chunk_size) {
-		(void)memset(ptr, 0xaa, chunk_size);
+		(void)shim_memset(ptr, 0xaa, chunk_size);
 
 		t2 = stress_time_now();
 		total_dur += dur;
@@ -358,7 +359,7 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 	}
 
 	if (end - ptr > 0) {
-		(void)memset(ptr, 0xaa, end - ptr);
+		(void)shim_memset(ptr, 0xaa, end - ptr);
 		t2 = stress_time_now();
 		total_dur += dur;
 		dur_remainder = total_dur - (t2 - t1);
@@ -392,7 +393,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3	stress_memrate_write##size(	\
 	{							\
 		type vaa;					\
 								\
-		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		(void)shim_memset(&vaa, 0xaa, sizeof(vaa));	\
 		v = vaa;					\
 	}							\
 								\
@@ -662,7 +663,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 	{							\
 		type vaa;					\
 								\
-		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		(void)shim_memset(&vaa, 0xaa, sizeof(vaa));	\
 		v = vaa;					\
 	}							\
 								\
@@ -734,7 +735,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	{							\
 		type vaa;					\
 								\
-		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		(void)shim_memset(&vaa, 0xaa, sizeof(vaa));	\
 		v = vaa;					\
 	}							\
 								\
@@ -787,7 +788,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	{							\
 		type vaa;					\
 								\
-		(void)memset(&vaa, 0xaa, sizeof(vaa));		\
+		(void)shim_memset(&vaa, 0xaa, sizeof(vaa));	\
 		v = vaa;					\
 	}							\
 								\

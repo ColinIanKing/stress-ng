@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(__NR_sched_getattr)
@@ -119,7 +120,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			 *  Only have 1 RT deadline instance running
 			 */
 			if (args->instance == 0) {
-				(void)memset(&attr, 0, sizeof(attr));
+				(void)shim_memset(&attr, 0, sizeof(attr));
 				attr.size = sizeof(attr);
 				attr.sched_flags = 0;
 				attr.sched_nice = 0;
@@ -148,7 +149,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		case SCHED_OTHER:
 #endif
 			/* Exercise illegal policy */
-			(void)memset(&param, 0, sizeof(param));
+			(void)shim_memset(&param, 0, sizeof(param));
 			VOID_RET(int, sched_setscheduler(pid, -1, &param));
 
 			/* Exercise invalid PID */
@@ -236,21 +237,21 @@ static int stress_schedpolicy(const stress_args_t *args)
 			n = 0;
 
 			/* Exercise invalid sched_getparam syscall */
-			(void)memset(&param, 0, sizeof(param));
+			(void)shim_memset(&param, 0, sizeof(param));
 			VOID_RET(int, sched_getparam(-1, &param));
 
 #if defined(__linux__)
 			/* Linux allows NULL param, will return EFAULT */
-			(void)memset(&param, 0, sizeof(param));
+			(void)shim_memset(&param, 0, sizeof(param));
 			VOID_RET(int, sched_getparam(pid, NULL));
 #endif
 
 			/* Exercise bad pid, ESRCH error */
-			(void)memset(&param, 0, sizeof(param));
+			(void)shim_memset(&param, 0, sizeof(param));
 			VOID_RET(int, sched_getparam(stress_get_unused_pid_racy(false), &param));
 
 			/* Exercise invalid sched_setparam syscall */
-			(void)memset(&param, 0, sizeof(param));
+			(void)shim_memset(&param, 0, sizeof(param));
 			VOID_RET(int, sched_setparam(-1, &param));
 
 #if defined(__linux__)
@@ -273,7 +274,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		/* Exercise with bad pid, ESRCH error */
 		VOID_RET(int, sched_getscheduler(stress_get_unused_pid_racy(false)));
 
-		(void)memset(&param, 0, sizeof(param));
+		(void)shim_memset(&param, 0, sizeof(param));
 		ret = sched_getparam(pid, &param);
 		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM))))
 			pr_fail("%s: sched_getparam failed, errno=%d (%s)\n",
@@ -294,7 +295,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 			large_attr = calloc(large_attr_size, sizeof(*large_attr));
 			if (large_attr) {
-				(void)memset(large_attr, 0, large_attr_size);
+				(void)shim_memset(large_attr, 0, large_attr_size);
 
 				VOID_RET(int, shim_sched_getattr(pid,
 					(struct shim_sched_attr *)large_attr,
@@ -305,22 +306,22 @@ static int stress_schedpolicy(const stress_args_t *args)
 		}
 
 		/* Exercise invalid sched_getattr syscalls */
-		(void)memset(&attr, 0, sizeof(attr));
+		(void)shim_memset(&attr, 0, sizeof(attr));
 		VOID_RET(int, shim_sched_getattr(pid, &attr, sizeof(attr), ~0U));
 
 		/* Exercise -ve pid */
-		(void)memset(&attr, 0, sizeof(attr));
+		(void)shim_memset(&attr, 0, sizeof(attr));
 		VOID_RET(int, shim_sched_getattr(-1, &attr, sizeof(attr), 0));
 
 		/* Exercise bad pid, ESRCH error */
-		(void)memset(&attr, 0, sizeof(attr));
+		(void)shim_memset(&attr, 0, sizeof(attr));
 		VOID_RET(int, shim_sched_getattr(stress_get_unused_pid_racy(false),
 			&attr, sizeof(attr), 0));
 
 		/*
 		 *  Nothing too clever here, just get and set for now
 		 */
-		(void)memset(&attr, 0, sizeof(attr));
+		(void)shim_memset(&attr, 0, sizeof(attr));
 		attr.size = sizeof(attr);
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (UNLIKELY(ret < 0)) {

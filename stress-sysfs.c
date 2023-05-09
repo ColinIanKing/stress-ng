@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
 #include "core-pthread.h"
@@ -675,7 +676,7 @@ static int stress_sysfs(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(ctxt, 0, sizeof(*ctxt));
+	(void)shim_memset(ctxt, 0, sizeof(*ctxt));
 	shim_strlcpy(ctxt->sysfs_path, signum_path, sizeof(ctxt->sysfs_path));
 
 	ctxt->args = args;
@@ -695,7 +696,7 @@ static int stress_sysfs(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(pthreads_ret, 0, sizeof(pthreads_ret));
+	(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

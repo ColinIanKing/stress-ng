@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-pthread.h"
 
@@ -47,7 +48,7 @@ static int page_write_sync(const int fd, const size_t page_size)
 	char ALIGN64 buffer[256];
 	size_t n = 0;
 
-	(void)memset(buffer, 0, sizeof(buffer));
+	(void)shim_memset(buffer, 0, sizeof(buffer));
 
 	while (n < page_size) {
 		ssize_t rc;

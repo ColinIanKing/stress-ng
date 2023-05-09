@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define UNSET_MLOCK_PROCS		(0)
 #define DEFAULT_MLOCK_PROCS		(1024)
@@ -97,8 +98,7 @@ static int stress_mlockmany(const stress_args_t *args)
 		unsigned int n;
 		size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 
-		(void)memset(pids, 0, sizeof(*pids) * mlockmany_procs);
-
+		(void)shim_memset(pids, 0, sizeof(*pids) * mlockmany_procs);
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 		for (n = 0; n < mlockmany_procs; n++) {

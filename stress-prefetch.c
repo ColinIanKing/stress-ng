@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
 #include "core-put.h"
@@ -343,7 +344,7 @@ static int stress_prefetch(const stress_args_t *args)
 
 	l3_data_end = (uint64_t *)((uintptr_t)l3_data + l3_data_size);
 
-	(void)memset(l3_data, 0xa5, l3_data_mmap_size);
+	(void)shim_memset(l3_data, 0xa5, l3_data_mmap_size);
 
 	for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {
 		prefetch_info[i].offset = i * STRESS_CACHE_LINE_SIZE;

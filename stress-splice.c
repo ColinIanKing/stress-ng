@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_SPLICE_BYTES	(1 * KB)
 #define MAX_SPLICE_BYTES	(64 * MB)
@@ -122,7 +123,7 @@ static bool stress_splice_non_block_write_4K(const int fd)
 		return false;
 	if (UNLIKELY(fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0))
 		return false;
-	(void)memset(buffer, 0xa5, sizeof(buffer));
+	(void)shim_memset(buffer, 0xa5, sizeof(buffer));
         if (write(fd, buffer, sizeof(buffer)) < 0)
 		return false;
         if (fcntl(fd, F_SETFL, flags) < 0)

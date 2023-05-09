@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sysinval N",		"start N workers that pass invalid args to syscalls" },
@@ -2341,7 +2342,7 @@ static void hash_table_add(
 	h->hash = hash;
 	h->syscall = syscall_num;
 	h->type = type;
-	(void)memcpy(h->args, args, sizeof(h->args));
+	(void)shim_memcpy(h->args, args, sizeof(h->args));
 	h->next = hash_table->table[hash];
 	hash_table->table[hash] = h;
 	hash_table->index++;
@@ -2512,7 +2513,7 @@ timed_out:
 	}
 
 	if (arg_bitmask & ARG_PTR_WR)
-		(void)memset(page_ptr_wr, 0, args->page_size);
+		(void)shim_memset(page_ptr_wr, 0, args->page_size);
 	/*
 	 *  This should not fail!
 	 */
@@ -2606,7 +2607,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			for (i = 0; keep_stressing(args) && (i < SYSCALL_ARGS_SIZE); i++) {
 				const size_t j = reorder[i];
 
-				(void)memset(current_context->args, 0, sizeof(current_context->args));
+				(void)shim_memset(current_context->args, 0, sizeof(current_context->args));
 				current_context->syscall = stress_syscall_args[j].syscall;
 				current_context->idx = j;
 				current_context->name = stress_syscall_args[j].name;
@@ -2787,14 +2788,14 @@ static int stress_sysinval(const stress_args_t *args)
 	futex_ptrs[0] = (unsigned long)(small_ptr + page_size -1);
 	futex_ptrs[1] = (unsigned long)page_ptr;
 
-	memset(current_context->crash_count, 0, sizeof(current_context->crash_count));
+	(void)shim_memset(current_context->crash_count, 0, sizeof(current_context->crash_count));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
-	(void)memset(syscall_exercised, 0, sizeof(syscall_exercised));
-	(void)memset(syscall_unique, 0, sizeof(syscall_unique));
+	(void)shim_memset(syscall_exercised, 0, sizeof(syscall_exercised));
+	(void)shim_memset(syscall_unique, 0, sizeof(syscall_unique));
 	syscalls_exercised = 0;
 	syscalls_unique = 0;
 	syscalls_crashed = 0;

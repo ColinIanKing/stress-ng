@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_SYSCTL_H)
@@ -319,7 +320,7 @@ static int stress_get(const stress_args_t *args)
 		 *  system call if possible. Memset gids to zero to keep
 		 *  valgrind happy.
 		 */
-		(void)memset(gids, 0, sizeof(gids));
+		(void)shim_memset(gids, 0, sizeof(gids));
 		VOID_RET(long, syscall(__NR_getgroups, -1, gids));
 #endif
 		if (!keep_stressing_flag())
@@ -488,7 +489,7 @@ static int stress_get(const stress_args_t *args)
 			size_t kern_version_len = 0;
 			struct __sysctl_args sysctl_args;
 
-			(void)memset(&sysctl_args, 0, sizeof(sysctl_args));
+			(void)shim_memset(&sysctl_args, 0, sizeof(sysctl_args));
 			sysctl_args.name = name;
 			sysctl_args.nlen = SIZEOF_ARRAY(name);
 			sysctl_args.oldval = kern_version;
@@ -690,7 +691,7 @@ static int stress_get(const stress_args_t *args)
 
 #if defined(HAVE_SYS_TIMEX_H) &&	\
     defined(HAVE_ADJTIME)
-		(void)memset(&delta, 0, sizeof(delta));
+		(void)shim_memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))
 			pr_fail("%s: adjtime failed, errno=%d (%s)\n",

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-net.h"
 
@@ -177,7 +178,7 @@ static int stress_kcmp(const stress_args_t *args)
 		goto again;
 	}
 
-	(void)memset(&ev, 0, sizeof(ev));
+	(void)shim_memset(&ev, 0, sizeof(ev));
 	ev.data.fd = efd;
 	ev.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev) < 0) {

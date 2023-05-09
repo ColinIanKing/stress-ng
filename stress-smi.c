@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-capabilities.h"
 
@@ -221,8 +222,8 @@ static int stress_smi(const stress_args_t *args)
 	}
 
 #if defined(STRESS_ARCH_X86_64)
-	(void)memset(&r1, 0, sizeof(r1));
-	(void)memset(&r2, 0, sizeof(r2));
+	(void)shim_memset(&r1, 0, sizeof(r1));
+	(void)shim_memset(&r2, 0, sizeof(r2));
 #endif
 
 	do {

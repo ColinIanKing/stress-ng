@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_CN_PROC_H)
@@ -205,7 +206,7 @@ static int stress_netlink_proc(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.nl_pid = (uint32_t)getpid();
 	addr.nl_family = AF_NETLINK;
 	addr.nl_groups = CN_IDX_PROC;
@@ -217,14 +218,14 @@ static int stress_netlink_proc(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&nlmsghdr, 0, sizeof(nlmsghdr));
+	(void)shim_memset(&nlmsghdr, 0, sizeof(nlmsghdr));
 	nlmsghdr.nlmsg_len = NLMSG_LENGTH(sizeof(cn_msg) + sizeof(op));
 	nlmsghdr.nlmsg_pid = (uint32_t)getpid();
 	nlmsghdr.nlmsg_type = NLMSG_DONE;
 	iov[0].iov_base = &nlmsghdr;
 	iov[0].iov_len = sizeof(nlmsghdr);
 
-	(void)memset(&cn_msg, 0, sizeof(cn_msg));
+	(void)shim_memset(&cn_msg, 0, sizeof(cn_msg));
 	cn_msg.id.idx = CN_IDX_PROC;
 	cn_msg.id.val = CN_VAL_PROC;
 	cn_msg.len = sizeof(enum proc_cn_mcast_op);

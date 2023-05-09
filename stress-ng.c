@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
 #include "core-perf.h"
@@ -2449,7 +2450,7 @@ again:
 						.info = g_stressor_current->stressor->info
 					};
 
-					(void)memset(*checksum, 0, sizeof(**checksum));
+					(void)shim_memset(*checksum, 0, sizeof(**checksum));
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					pr_fail_check(&rc);
 
@@ -2457,7 +2458,7 @@ again:
 					stats->ci.run_ok = ok;
 					(*checksum)->data.ci.run_ok = ok;
 					/* Ensure reserved padding is zero to not confuse checksum */
-					(void)memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
+					(void)shim_memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
 
 					/*
 					 *  We're done, cancel SIGALRM
@@ -2498,7 +2499,7 @@ again:
 				stress_getrusage(RUSAGE_SELF, stats);
 				stress_getrusage(RUSAGE_CHILDREN, stats);
 #else
-				(void)memset(&stats->tms, 0, sizeof(stats->tms));
+				(void)shim_memset(&stats->tms, 0, sizeof(stats->tms));
 				if (times(&stats->tms) == (clock_t)-1) {
 					pr_dbg("times failed: errno=%d (%s)\n",
 						errno, strerror(errno));
@@ -2707,7 +2708,7 @@ static void stress_metrics_check(bool *success)
 				continue;
 			}
 
-			(void)memset(&stats_checksum, 0, sizeof(stats_checksum));
+			(void)shim_memset(&stats_checksum, 0, sizeof(stats_checksum));
 			stats_checksum.data.ci.counter = stats->ci.counter;
 			stats_checksum.data.ci.run_ok = stats->ci.run_ok;
 			stress_hash_checksum(&stats_checksum);
@@ -3127,7 +3128,7 @@ void stress_log_system_mem_info(void)
     defined(HAVE_SYSLOG_H)
 	struct sysinfo info;
 
-	(void)memset(&info, 0, sizeof(info));
+	(void)shim_memset(&info, 0, sizeof(info));
 	if (sysinfo(&info) == 0) {
 		shim_syslog(LOG_INFO, "memory (MB): total %.2f, "
 			"free %.2f, "
@@ -3206,7 +3207,7 @@ static inline void stress_shared_map(const int32_t num_procs)
 	}
 
 	/* Paraniod */
-	(void)memset(g_shared, 0, sz);
+	(void)shim_memset(g_shared, 0, sz);
 	g_shared->length = sz;
 
 	/*
@@ -3257,7 +3258,7 @@ STRESS_PRAGMA_POP
 			errno, strerror(errno));
 		goto err_unmap_shared;
 	}
-	(void)memset(g_shared->checksums, 0, sz);
+	(void)shim_memset(g_shared->checksums, 0, sz);
 	g_shared->checksums_length = sz;
 
 	/*

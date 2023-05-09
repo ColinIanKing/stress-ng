@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
@@ -270,7 +271,7 @@ timed_out:
 			size_t nsems;
 #endif
 
-			(void)memset(&ds, 0, sizeof(ds));
+			(void)shim_memset(&ds, 0, sizeof(ds));
 
 			s.buf = &ds;
 			if (UNLIKELY(semctl(sem_id, 2, IPC_STAT, &s) < 0)) {
@@ -573,7 +574,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
 		if (!keep_stressing_flag() || pids[i] < 0)

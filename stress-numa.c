@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -209,7 +210,7 @@ static inline void stress_set_numa_array(void *array, uint8_t val, size_t nmemb,
 {
 	const size_t n = nmemb * size;
 
-	(void)memset(array, val, n);
+	(void)shim_memset(array, val, n);
 }
 
 /*
@@ -348,7 +349,7 @@ static int stress_numa(const stress_args_t *args)
 			}
 		}
 
-		(void)memset(buf, 0xff, MMAP_SZ);
+		(void)shim_memset(buf, 0xff, MMAP_SZ);
 		if (!keep_stressing_flag())
 			break;
 
@@ -448,7 +449,7 @@ static int stress_numa(const stress_args_t *args)
 				goto err;
 			}
 		} else {
-			(void)memset(buf, 0xaa, MMAP_SZ);
+			(void)shim_memset(buf, 0xaa, MMAP_SZ);
 		}
 		if (!keep_stressing_flag())
 			break;
@@ -467,7 +468,7 @@ static int stress_numa(const stress_args_t *args)
 				goto err;
 			}
 		} else {
-			(void)memset(buf, 0x5c, MMAP_SZ);
+			(void)shim_memset(buf, 0x5c, MMAP_SZ);
 		}
 		if (!keep_stressing_flag())
 			break;
@@ -557,7 +558,7 @@ static int stress_numa(const stress_args_t *args)
 					goto err;
 				}
 			}
-			(void)memset(buf, j, MMAP_SZ);
+			(void)shim_memset(buf, j, MMAP_SZ);
 			if (!keep_stressing_flag())
 				break;
 		}

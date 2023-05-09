@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&					     \
     (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
@@ -179,7 +180,7 @@ static void stress_race_sched_setscheduling(const pid_t pid)
 	struct sched_param param;
 	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(normal_policies));
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 	param.sched_priority = 0;
 	VOID_RET(int, sched_setscheduler(pid, normal_policies[i], &param));
 }

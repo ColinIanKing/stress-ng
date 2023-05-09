@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_ASM_PRCTL_H)
 #include <asm/prctl.h>
@@ -296,7 +297,7 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 	struct sigaction action, oldaction;
 	const pid_t pid = getpid();
 
-	(void)memset(&action, 0, sizeof(action));
+	(void)shim_memset(&action, 0, sizeof(action));
 	(void)sigemptyset(&action.sa_mask);
 	action.sa_sigaction = stress_prctl_sigsys_handler;
 	action.sa_flags = SA_SIGINFO;
@@ -305,7 +306,7 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 	if (ret < 0)
 		return 0;
 
-	(void)memset(&prctl_sigsys_info, 0, sizeof(prctl_sigsys_info));
+	(void)shim_memset(&prctl_sigsys_info, 0, sizeof(prctl_sigsys_info));
 
 	/* syscall emulation off */
 	PRCTL_SYSCALL_OFF();
@@ -604,7 +605,7 @@ static int stress_prctl_child(
 		char name[17];
 		int ret;
 
-		(void)memset(name, 0, sizeof name);
+		(void)shim_memset(name, 0, sizeof name);
 
 		ret = prctl(PR_GET_NAME, name);
 		(void)ret;

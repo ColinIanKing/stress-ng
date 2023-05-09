@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_NETINET_IP_ICMP_H)
 #include <netinet/ip_icmp.h>
@@ -66,12 +67,12 @@ static int stress_ping_sock(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(&addr, 0, sizeof(addr));
+	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
 	icmp_hdr = (struct icmphdr *)buf;
-	(void)memset(icmp_hdr, 0, sizeof(*icmp_hdr));
+	(void)shim_memset(icmp_hdr, 0, sizeof(*icmp_hdr));
 	icmp_hdr->type = ICMP_ECHO;
 	icmp_hdr->un.echo.id = (uint16_t)getpid();	/* some unique ID */
 	icmp_hdr->un.echo.sequence = 1;
@@ -82,7 +83,7 @@ static int stress_ping_sock(const stress_args_t *args)
 
 	t = stress_time_now();
 	do {
-		(void)memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], PING_PAYLOAD_SIZE);
+		(void)shim_memset(buf + sizeof(*icmp_hdr), stress_ascii64[j++ & 63], PING_PAYLOAD_SIZE);
 		addr.sin_port = htons(rand_port);
 
 		if (LIKELY(sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0))

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)
@@ -318,7 +319,7 @@ static int stress_dccp_server(
 				break;
 			}
 
-			(void)memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
+			(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
 			switch (dccp_opts) {
 			case DCCP_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
@@ -341,7 +342,7 @@ again:
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
-				(void)memset(&msg, 0, sizeof(msg));
+				(void)shim_memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
@@ -353,7 +354,7 @@ again:
 				break;
 #if defined(HAVE_SENDMMSG)
 			case DCCP_OPT_SENDMMSG:
-				(void)memset(msgvec, 0, sizeof(msgvec));
+				(void)shim_memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;

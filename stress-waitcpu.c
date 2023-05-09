@@ -21,6 +21,7 @@
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 
 static const stress_help_t help[] = {
@@ -221,7 +222,7 @@ static int stress_waitcpu(const stress_args_t *args)
 	size_t i;
 	char str[16 * SIZEOF_ARRAY(stress_waitcpu_method)];
 
-	(void)memset(str, 0, sizeof(str));
+	(void)shim_memset(str, 0, sizeof(str));
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
 		stress_waitcpu_method[i].supported = stress_waitcpu_method[i].waitfunc_supported();

@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"usersyscall N",	"start N workers exercising a userspace system call handler" },
@@ -208,7 +209,7 @@ static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
 	double duration = 0.0, count = 0.0, rate;
 	int metrics_count = 0;
 
-	(void)memset(&action, 0, sizeof action);
+	(void)shim_memset(&action, 0, sizeof action);
 	action.sa_sigaction = stress_sigsys_handler;
 	(void)sigemptyset(&action.sa_mask);
 	/*
@@ -226,7 +227,7 @@ static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(&siginfo, 0, sizeof(siginfo));
+	(void)shim_memset(&siginfo, 0, sizeof(siginfo));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

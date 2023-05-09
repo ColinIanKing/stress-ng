@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_SIGNALFD_H)
 #include <sys/signalfd.h>
@@ -121,7 +122,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 
 		while (keep_stressing_flag()) {
 			int ret;

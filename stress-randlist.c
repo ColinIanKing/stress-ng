@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #define STRESS_RANDLIST_DEFAULT_ITEMS	(100000)
@@ -239,7 +240,7 @@ retry:
 
 	do {
 		for (ptr = head; ptr; ptr = ptr->next) {
-			(void)memset(ptr->data, stress_mwc8(), randlist_size);
+			(void)shim_memset(ptr->data, stress_mwc8(), randlist_size);
 			if (!keep_stressing_flag())
 				break;
 		}

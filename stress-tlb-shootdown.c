@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"tlb-shootdown N",	"start N workers that force TLB shootdowns" },
@@ -162,7 +163,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err_munmap_memfd;
 	}
-	(void)memset(mem, 0xff, mmap_size);
+	(void)shim_memset(mem, 0xff, mmap_size);
 
 	if (sched_getaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial) < 0) {
 		pr_fail("%s: sched_getaffinity could not get CPU affinity, errno=%d (%s)\n",

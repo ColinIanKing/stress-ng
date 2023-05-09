@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 /*
  *  Herd of pipe processes, simulates how GNU make passes tokens
@@ -179,11 +180,11 @@ static int stress_pipeherd(const stress_args_t *args)
     defined(RUSAGE_CHILDREN) &&	\
     defined(RUSAGE_SELF) &&	\
     defined(HAVE_RUSAGE_RU_NVCSW)
-	(void)memset(&usage, 0, sizeof(usage));
+	(void)shim_memset(&usage, 0, sizeof(usage));
 	if (shim_getrusage(RUSAGE_CHILDREN, &usage) == 0) {
 		long total = usage.ru_nvcsw + usage.ru_nivcsw;
 
-		(void)memset(&usage, 0, sizeof(usage));
+		(void)shim_memset(&usage, 0, sizeof(usage));
 		if (getrusage(RUSAGE_SELF, &usage) == 0) {
 			const uint64_t count = get_counter(args);
 			const double dt = t2 - t1;

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigchld N",	 "start N workers that handle SIGCHLD" },
@@ -75,7 +76,7 @@ static int stress_sigchld(const stress_args_t *args)
 	cld_stopped = 0;
 	cld_continued = 0;
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sigchld_handler;
 #if defined(SA_SIGINFO)
 	sa.sa_flags = SA_SIGINFO;

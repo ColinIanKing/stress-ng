@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
 #include "core-pthread.h"
@@ -121,11 +122,7 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
 		const size_t offset = chunk * chunk_size;
 		void *ptr = (void *)(((uint8_t *)mem) + offset);
 
-#if defined(HAVE_BUILTIN_MEMSET)
-		(void)__builtin_memset(ptr, stress_mwc8(), chunk_size);
-#else
-		(void)memset(ptr, stress_mwc8(), chunk_size);
-#endif
+		(void)shim_memset(ptr, stress_mwc8(), chunk_size);
 	}
 }
 
@@ -178,11 +175,7 @@ static void stress_memthrash_memset(
 {
 	(void)context;
 
-#if defined(__GNUC__)
-	(void)__builtin_memset((void *)mem, stress_mwc8(), mem_size);
-#else
-	(void)memset((void *)mem, stress_mwc8(), mem_size);
-#endif
+	(void)shim_memset((void *)mem, stress_mwc8(), mem_size);
 }
 
 #if defined(HAVE_ASM_X86_REP_STOSD) &&	\
@@ -215,11 +208,7 @@ static void stress_memthrash_memmove(
 	char *dst = ((char *)mem) + 1;
 
 	(void)context;
-#if defined(__GNUC__)
-	(void)shim_builtin_memmove((void *)dst, mem, mem_size - 1);
-#else
-	(void)memmove((void *)dst, mem, mem_size - 1);
-#endif
+	(void)shim_memmove((void *)dst, mem, mem_size - 1);
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_memset64(
@@ -620,7 +609,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 		return;
 
 	node = (unsigned long)stress_mwc32modn((uint32_t)context->numa_nodes);
-	(void)memset(context->numa_node_mask, 0, context->numa_node_mask_size);
+	(void)shim_memset(context->numa_node_mask, 0, context->numa_node_mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
 		STRESS_SETBIT(context->numa_node_mask, (unsigned long)node);

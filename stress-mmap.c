@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
@@ -519,7 +520,7 @@ retry:
 
 		no_mem_retries = 0;
 		if (mmap_file) {
-			(void)memset(buf, 0xff, sz);
+			(void)shim_memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)stress_madvise_random(buf, sz);
@@ -625,7 +626,7 @@ retry:
 						pr_fail("%s: mmap'd region of %zu bytes does "
 							"not contain expected data\n", args->name, page_size);
 					if (mmap_file) {
-						(void)memset(mappings[page], (int)n, page_size);
+						(void)shim_memset(mappings[page], (int)n, page_size);
 						(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 #if defined(FALLOC_FL_KEEP_SIZE) &&	\
     defined(FALLOC_FL_PUNCH_HOLE)

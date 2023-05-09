@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"wait N",	"start N workers waiting on child being stop/resumed" },
@@ -320,7 +321,7 @@ static int stress_wait(const stress_args_t *args)
 		if (options) {
 			siginfo_t info;
 
-			(void)memset(&info, 0, sizeof(info));
+			(void)shim_memset(&info, 0, sizeof(info));
 			wret = waitid(P_PID, (id_t)pid_r, &info, options);
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 				pr_fail("%s: waitid failed, errno=%d (%s)\n",

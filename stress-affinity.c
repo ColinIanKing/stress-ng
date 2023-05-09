@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define STRESS_AFFINITY_PROCS	(16)
 
@@ -254,7 +255,7 @@ static int stress_affinity(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 
 	info->affinity_delay = 0;
 	info->affinity_pin = false;

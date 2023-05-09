@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
@@ -128,7 +129,7 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 		port = reserved_port;
 
 		stress_set_sockaddr_port(udp_flood_domain, port, addr);
-		(void)memset(buf, stress_ascii64[j++ & 63], sz);
+		(void)shim_memset(buf, stress_ascii64[j++ & 63], sz);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
 		if (LIKELY(n > 0)) {
 			inc_counter(args);

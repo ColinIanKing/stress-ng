@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
@@ -387,7 +388,7 @@ static int clone_func(void *arg)
 	{
 		struct user_desc ud;
 
-		(void)memset(&ud, 0, sizeof(ud));
+		(void)shim_memset(&ud, 0, sizeof(ud));
 		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0) {
 			(void)shim_modify_ldt(1, &ud, sizeof(ud));
 			/* Exercise invalid size */
@@ -397,19 +398,19 @@ static int clone_func(void *arg)
 			(void)shim_modify_ldt(1, &ud, sizeof(ud));
 		}
 
-		(void)memset(&ud, 0, sizeof(ud));
+		(void)shim_memset(&ud, 0, sizeof(ud));
 		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0) {
 			/* Old mode style */
 			(void)shim_modify_ldt(0x11, &ud, sizeof(ud));
 		}
-		(void)memset(&ud, 0, sizeof(ud));
+		(void)shim_memset(&ud, 0, sizeof(ud));
 		(void)shim_modify_ldt(2, &ud, sizeof(ud));
 
 		/* Exercise invalid command */
 		(void)shim_modify_ldt(0xff, &ud, sizeof(ud));
 
 		/* Exercise invalid ldt size */
-		(void)memset(&ud, 0, sizeof(ud));
+		(void)shim_memset(&ud, 0, sizeof(ud));
 		(void)shim_modify_ldt(0, &ud, 0);
 	}
 #endif
@@ -479,7 +480,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				struct shim_clone_args cl_args;
 				int pidfd = -1;
 
-				(void)memset(&cl_args, 0, sizeof(cl_args));
+				(void)shim_memset(&cl_args, 0, sizeof(cl_args));
 
 				cl_args.flags = flag;
 				cl_args.pidfd = uint64_ptr(&pidfd);

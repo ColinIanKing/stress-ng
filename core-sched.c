@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #ifndef SCHED_FLAG_RESET_ON_FORK
 #define SCHED_FLAG_RESET_ON_FORK        (0x01)
@@ -94,7 +95,7 @@ int stress_set_deadline_sched(
 	int rc;
 	struct shim_sched_attr attr;
 
-	(void)memset(&attr, 0, sizeof(attr));
+	(void)shim_memset(&attr, 0, sizeof(attr));
 
 	attr.size = sizeof(attr);
 	attr.sched_policy = SCHED_DEADLINE;
@@ -154,7 +155,7 @@ int stress_set_sched(
 	uint64_t sched_deadline = 0;
 #endif
 
-	(void)memset(&param, 0, sizeof(param));
+	(void)shim_memset(&param, 0, sizeof(param));
 
 	switch (sched) {
 	case UNDEFINED:	/* No preference, don't set */
@@ -197,7 +198,7 @@ int stress_set_sched(
 	case SCHED_DEADLINE:
 		min = sched_get_priority_min(sched);
 		max = sched_get_priority_max(sched);
-		(void)memset(&attr, 0, sizeof(attr));
+		(void)shim_memset(&attr, 0, sizeof(attr));
 		attr.size = sizeof(attr);
 		attr.sched_policy = SCHED_DEADLINE;
 		attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;

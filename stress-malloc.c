@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
@@ -155,7 +156,7 @@ static void stress_malloc_free(void *ptr, size_t len)
 static void stress_malloc_zerofree(void *ptr, size_t len)
 {
 	if (len)
-		(void)memset(ptr, 0, len);
+		(void)shim_memset(ptr, 0, len);
 	free(ptr);
 }
 
@@ -358,7 +359,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	 */
 	stress_malloc_args_t malloc_args[MAX_MALLOC_PTHREADS + 1];
 
-	(void)memset(malloc_args, 0, sizeof(malloc_args));
+	(void)shim_memset(malloc_args, 0, sizeof(malloc_args));
 
 	malloc_args[0].args = args;
 	malloc_args[0].instance = 0;
@@ -369,7 +370,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 
 #if defined(HAVE_LIB_PTHREAD)
 	keep_thread_running_flag = true;
-	(void)memset(pthreads, 0, sizeof(pthreads));
+	(void)shim_memset(pthreads, 0, sizeof(pthreads));
 	for (j = 0; j < malloc_pthreads; j++) {
 		malloc_args[j + 1].args = args;
 		malloc_args[j + 1].instance = j + 1;

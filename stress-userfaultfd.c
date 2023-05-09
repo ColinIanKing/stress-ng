@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
@@ -304,7 +305,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		do_poll = false;
 
 	/* API sanity check */
-	(void)memset(&api, 0, sizeof(api));
+	(void)shim_memset(&api, 0, sizeof(api));
 	api.api = UFFD_API;
 	api.features = 0;
 	if (ioctl(fd, UFFDIO_API, &api) < 0) {
@@ -321,7 +322,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	}
 
 	/* Register fault handling mode */
-	(void)memset(&reg, 0, sizeof(reg));
+	(void)shim_memset(&reg, 0, sizeof(reg));
 	reg.range.start = (unsigned long)data;
 	reg.range.len = sz;
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
@@ -387,7 +388,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		if (do_poll) {
 			struct pollfd fds[1];
 
-			(void)memset(fds, 0, sizeof fds);
+			(void)shim_memset(fds, 0, sizeof fds);
 			fds[0].fd = fd;
 			fds[0].events = POLLIN;
 			/* wait for 1 second max */
@@ -453,7 +454,7 @@ do_read:
 		rate = (counter > 0.0) ? duration / counter : 0.0;
 		stress_metrics_set(args, 0, "nanosecs per page fault", rate * STRESS_DBL_NANOSECOND);
 
-		(void)memset(&wake, 0, sizeof(wake));
+		(void)shim_memset(&wake, 0, sizeof(wake));
 		wake.start = (uintptr_t)data;
 		wake.len = page_size;
 		VOID_RET(int, ioctl(fd, UFFDIO_WAKE, &wake));

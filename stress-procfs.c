@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-pthread.h"
 #include "core-put.h"
 
@@ -177,7 +178,7 @@ static void stress_proc_self_mem(const stress_args_t *args, const int fd)
 	}
 	offset = (off_t)(uintptr_t)page;
 
-	(void)memset(page, rnd, page_size);
+	(void)shim_memset(page, rnd, page_size);
 	if (lseek(fd, offset, SEEK_SET) == offset) {
 		ssize_t ret;
 		size_t mem_offset = stress_mwc32modn((uint32_t)page_size);
@@ -207,7 +208,7 @@ static void stress_proc_mtrr(const stress_args_t *args, const int fd)
 
 	(void)args;
 
-	(void)memset(&gentry, 0, sizeof(gentry));
+	(void)shim_memset(&gentry, 0, sizeof(gentry));
 	while (ioctl(fd, MTRRIOC_GET_ENTRY, &gentry) == 0) {
 		gentry.regnum++;
 	}
@@ -427,7 +428,7 @@ static inline void stress_proc_rw(
 		pos = lseek(fd, 0, SEEK_SET);
 		if (pos < 0)
 			goto mmap_test;
-		(void)memset(buffer, 0, sizeof(buffer));
+		(void)shim_memset(buffer, 0, sizeof(buffer));
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0)
 			goto mmap_test;
@@ -801,7 +802,7 @@ static int stress_procfs(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(ret, 0, sizeof(ret));
+	(void)shim_memset(ret, 0, sizeof(ret));
 
 	for (i = 0; i < MAX_PROCFS_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,

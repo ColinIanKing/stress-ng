@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)
@@ -276,7 +277,7 @@ static int epoll_ctl_add(const int efd, const int fd, const uint32_t events)
 {
 	struct epoll_event event;
 
-	(void)memset(&event, 0, sizeof(event));
+	(void)shim_memset(&event, 0, sizeof(event));
 	event.data.fd = fd;
 	event.events = events;
 	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_ADD, fd, &event) < 0))
@@ -294,7 +295,7 @@ static int epoll_ctl_mod(const int efd, const int fd, const uint32_t events)
 {
 	struct epoll_event event;
 
-	(void)memset(&event, 0, sizeof(event));
+	(void)shim_memset(&event, 0, sizeof(event));
 	event.events = events;
 	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event) < 0))
 		return -1;
@@ -311,7 +312,7 @@ static int epoll_ctl_del(const int efd, const int fd)
 {
 	struct epoll_event event;
 
-	(void)memset(&event, 0, sizeof(event));
+	(void)shim_memset(&event, 0, sizeof(event));
 	if (UNLIKELY(epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event) < 0))
 		return -1;
 
@@ -377,7 +378,7 @@ static int epoll_notification(
 		 *  Exercise invalid epoll_ctl syscall with EPOLL_CTL_DEL
 		 *  and EPOLL_CTL_MOD on fd not registered with efd
 		 */
-		(void)memset(&event, 0, sizeof(event));
+		(void)shim_memset(&event, 0, sizeof(event));
 		(void)epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
 		(void)epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event);
 #endif
@@ -395,7 +396,7 @@ static int epoll_notification(
 		(void)epoll_ctl_add(efd, bad_fd, EPOLLIN | EPOLLET);
 
 		/* Exercise epoll_ctl syscall with invalid operation */
-		(void)memset(&event, 0, sizeof(event));
+		(void)shim_memset(&event, 0, sizeof(event));
 		(void)epoll_ctl(efd, INT_MIN, fd, &event);
 
 		/*
@@ -588,7 +589,7 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		(void)memset(&sev, 0, sizeof(sev));
+		(void)shim_memset(&sev, 0, sizeof(sev));
 		sev.sigev_notify = SIGEV_SIGNAL;
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
@@ -666,7 +667,7 @@ retry:
 			goto retry;
 		}
 
-		(void)memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
+		(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
 		if (UNLIKELY(send(fd, buf, sizeof(buf), 0) < 0)) {
 			(void)close(fd);
 			pr_dbg("%s: send failed, errno=%d (%s)\n",
@@ -869,7 +870,7 @@ static void NORETURN epoll_server(
 		(void)sigemptyset(&sigmask);
 		(void)sigaddset(&sigmask, SIGALRM);
 
-		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(*events));
+		(void)shim_memset(events, 0, MAX_EPOLL_EVENTS * sizeof(*events));
 		errno = 0;
 
 		ret = sigsetjmp(jmp_env, 1);
@@ -1069,7 +1070,7 @@ static int stress_epoll(const stress_args_t *args)
 	 *  Typically, we are limited to ~500 connections per second
 	 *  on a default Linux configuration.
 	 */
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
 		pids[i] = epoll_spawn(args, epoll_server, i, mypid, epoll_port, epoll_domain, epoll_sockets);
 		if (pids[i] < 0) {

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)
@@ -76,11 +77,11 @@ static inline ssize_t stress_socket_fd_sendmsg(const int fd, const int fd_send)
 	iov.iov_base = msg_data;
 	iov.iov_len = 1;
 
-	(void)memset(&msg, 0, sizeof(msg));
+	(void)shim_memset(&msg, 0, sizeof(msg));
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 
-	(void)memset(ctrl, 0, sizeof(ctrl));
+	(void)shim_memset(ctrl, 0, sizeof(ctrl));
 	msg.msg_control = ctrl;
 	msg.msg_controllen = sizeof(ctrl);
 
@@ -109,11 +110,11 @@ static inline int stress_socket_fd_recv(const int fd)
 	iov.iov_base = msg_data;
 	iov.iov_len = 1;
 
-	(void)memset(&msg, 0, sizeof(msg));
+	(void)shim_memset(&msg, 0, sizeof(msg));
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 
-	(void)memset(ctrl, 0, sizeof(ctrl));
+	(void)shim_memset(ctrl, 0, sizeof(ctrl));
 	msg.msg_control = ctrl;
 	msg.msg_controllen = sizeof(ctrl);
 
@@ -159,7 +160,7 @@ static int OPTIMIZE3 stress_socket_client(
 		socklen_t addr_len = 0;
 		int so_reuseaddr = 1;
 
-		(void)memset(fds, 0, fds_size);
+		(void)shim_memset(fds, 0, fds_size);
 retry:
 		if (!keep_stressing_flag())
 			return EXIT_FAILURE;

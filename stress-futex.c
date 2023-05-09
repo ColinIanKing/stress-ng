@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>
@@ -50,7 +51,7 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long nsec)
 	if (try_futex_waitv && (try++ > 16)) {
 		struct shim_futex_waitv w;
 
-		(void)memset(&w, 0, sizeof(w));
+		(void)shim_memset(&w, 0, sizeof(w));
 
 		w.val = (uint64_t)val;
 		w.uaddr = (uintptr_t)futex;

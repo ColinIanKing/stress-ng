@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LINUX_IF_ALG_H)
 #include <linux/if_alg.h>
@@ -200,7 +201,7 @@ static int stress_af_alg_hash(
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strlcpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
@@ -322,7 +323,7 @@ static int stress_af_alg_cipher(
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strlcpy((char *)sa.salg_type, salg_type, sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
@@ -441,8 +442,8 @@ retry_bind:
 
 		if (!keep_stressing(args))
 			break;
-		(void)memset(&msg, 0, sizeof(msg));
-		(void)memset(cbuf, 0, cbuf_size);
+		(void)shim_memset(&msg, 0, sizeof(msg));
+		(void)shim_memset(cbuf, 0, cbuf_size);
 
 		msg.msg_control = cbuf;
 		msg.msg_controllen = cbuf_size;
@@ -591,7 +592,7 @@ static int stress_af_alg_rng(
 	if (!output)
 		return EXIT_NO_RESOURCE;
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strlcpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
@@ -1000,8 +1001,8 @@ static void stress_af_alg_init(void)
 	if (!fp)
 		return;
 
-	(void)memset(buffer, 0, sizeof(buffer));
-	(void)memset(&info, 0, sizeof(info));
+	(void)shim_memset(buffer, 0, sizeof(buffer));
+	(void)shim_memset(&info, 0, sizeof(info));
 
 	while (fgets(buffer, sizeof(buffer) - 1, fp)) {
 		if (!strncmp(buffer, "name", 4)) {
@@ -1039,7 +1040,7 @@ static void stress_af_alg_init(void)
 			} else {
 				stress_af_alg_info_free(&info);
 			}
-			(void)memset(&info, 0, sizeof(info));
+			(void)shim_memset(&info, 0, sizeof(info));
 		}
 	}
 	stress_af_alg_info_free(&info);

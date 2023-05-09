@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_DIRMANY_BYTES     (0)
 #define MAX_DIRMANY_BYTES     (MAX_FILE_LIMIT)
@@ -54,10 +55,10 @@ static void stress_dirmany_filename(
 	if (pathname_len + filename_len + 18 < filename_sz) {
 		char *ptr = filename;
 
-		(void)memcpy(ptr, pathname, pathname_len);
+		(void)shim_memcpy(ptr, pathname, pathname_len);
 		ptr += pathname_len;
 		*ptr++ = '/';
-		(void)memset(ptr, 'x', filename_len);
+		(void)shim_memset(ptr, 'x', filename_len);
 		ptr += filename_len;
 		(void)snprintf(ptr, sizeof(filename) + (size_t)(ptr - filename), "%16.16" PRIx64, n);
 	} else {

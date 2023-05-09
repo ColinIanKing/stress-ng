@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -244,7 +245,7 @@ static int stress_fifo(const stress_args_t *args)
 		goto tidy;
 	}
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < fifo_readers; i++) {
 		pids[i] = fifo_spawn(args, stress_fifo_reader, args->name, fifoname, fifo_data_size);
 		if (pids[i] < 0) {
@@ -270,7 +271,7 @@ static int stress_fifo(const stress_args_t *args)
 		goto reap;
 	}
 
-	(void)memset(buf, 0xaa, sizeof(buf));
+	(void)shim_memset(buf, 0xaa, sizeof(buf));
 	buf[0] = 0ULL;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigq N",	"start N workers sending sigqueue signals" },
@@ -61,7 +62,7 @@ static int stress_sigq(const stress_args_t *args)
 	const uid_t myuid = getuid();
 #endif
 
-	(void)memset(&sa, 0, sizeof(sa));
+	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sigqhandler;
 	sa.sa_flags = SA_SIGINFO;
 
@@ -101,7 +102,7 @@ again:
 			siginfo_t info;
 			int ret;
 
-			(void)memset(&info, 0, sizeof(info));
+			(void)shim_memset(&info, 0, sizeof(info));
 
 			if (i++ & 1) {
 				ret = sigwaitinfo(&mask, &info);
@@ -135,7 +136,7 @@ again:
 		int status;
 
 		do {
-			(void)memset(&s, 0, sizeof(s));
+			(void)shim_memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
 			(void)sigqueue(pid, SIGUSR1, s);
 
@@ -147,7 +148,7 @@ again:
 				 *  Invalid si_code, the kernel should return
 				 *  -EPERM on Linux.
 				 */
-				(void)memset(&info, 0, sizeof(info));
+				(void)shim_memset(&info, 0, sizeof(info));
 				info.si_signo = SIGUSR1;
 				info.si_code = SI_TKILL;
 				info.si_pid = mypid;
@@ -163,7 +164,7 @@ again:
 		} while (keep_stressing(args));
 
 		pr_dbg("%s: parent sent termination notice\n", args->name);
-		(void)memset(&s, 0, sizeof(s));
+		(void)shim_memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
 		(void)sigqueue(pid, SIGUSR1, s);
 		(void)shim_usleep(250);
