@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-pthread.h"
+#include "core-pragma.h"
 #include "core-put.h"
 
 #if defined(HAVE_LIBGEN_H)
@@ -3357,10 +3358,14 @@ static void stress_dev_snd_control_linux(
     defined(HAVE_SND_CTL_TLV)
 	{
 		int ret;
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
+		/* disable warning for -Wgnu-variable-sized-type-not-at-end */
 		struct tlv_buf {
 			struct snd_ctl_tlv tlv;
 			unsigned int data[4];
 		} buf;
+STRESS_PRAGMA_POP
 
 		/* intentionally will fail with -EINVAL */
 		buf.tlv.numid = 0;
