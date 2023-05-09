@@ -46,6 +46,33 @@ static bool stress_klog_err_no_exceptions(const char *str)
 }
 #endif
 
+/*
+ *  stress_klog_kernel_cmdline()
+ *	where possible log kernel command line, just once
+ */
+static void stress_klog_kernel_cmdline(void)
+{
+	static bool already_dumped = false;
+	char buffer[4096], *ptr;
+	ssize_t ret;
+
+	if (already_dumped)
+		return;
+	
+	ret = system_read("/proc/cmdline", buffer, sizeof(buffer));
+	if (ret < 0)
+		return;
+
+	for (ptr = buffer; *ptr && ptr < (buffer + ret); ptr++) {
+		if (*ptr == '\n') {
+			*ptr = '\0';
+			break;
+		}
+	}
+	pr_inf("klog-check: kernel cmdline: '%s'\n", buffer);
+	already_dumped = true;
+}
+
 void stress_klog_start(void)
 {
 #if defined(__linux__)
@@ -132,12 +159,14 @@ void stress_klog_start(void)
 
 log_err:
 			if (stress_klog_err_no_exceptions(buf)) {
+				stress_klog_kernel_cmdline();
 				stress_dump_processes();
 				pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 				g_shared->klog_error = true;
 				continue;
 			}
 log_info:
+			stress_klog_kernel_cmdline();
 			pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 		}
 		(void)fclose(klog_fp);
