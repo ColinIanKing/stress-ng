@@ -70,11 +70,22 @@ int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
-volatile bool g_caught_signal = false;		/* true if stopped by SIGINT */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */
+
+#if defined(SA_SIGINFO)
+typedef struct {
+	int	code;
+	pid_t	pid;
+	uid_t	uid;
+	struct timeval when;
+	bool 	triggered;
+} stress_sigalrm_info_t;
+
+stress_sigalrm_info_t g_sigalrm_info;
+#endif
 
 static void stress_kill_stressors(const int sig);
 /*
@@ -1446,7 +1457,8 @@ static int stress_exclude(void)
 static void MLOCKED_TEXT stress_sigint_handler(int signum)
 {
 	(void)signum;
-	g_caught_signal = true;
+	if (g_shared)
+		g_shared->caught_sigint = true;
 	keep_stressing_set_flag(false);
 	wait_flag = false;
 
@@ -1460,15 +1472,40 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
  */
 static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
+	if (g_shared)
+		g_shared->caught_sigint = true;
 	if (getpid() == main_pid) {
 		/* Parent */
 		wait_flag = false;
+		stress_kill_stressors(SIGALRM);
 	} else {
 		/* Child */
-		g_caught_signal = true;
 		stress_handle_stop_stressing(signum);
 	}
 }
+
+#if defined(SA_SIGINFO)
+static void MLOCKED_TEXT stress_sigalrm_action_handler(
+	int signum,
+	siginfo_t *info,
+	void *ucontext)
+{
+	(void)ucontext;
+
+	if (g_shared && 			/* shared mem initialized */
+	    !g_shared->caught_sigint &&		/* and SIGINT not already handled */
+	    info && 				/* and info is valid */
+	    (info->si_code == SI_USER) &&	/* and not from kernel SIGALRM */
+	    (!g_sigalrm_info.triggered)) {	/* and not already handled */
+		g_sigalrm_info.code = info->si_code;
+		g_sigalrm_info.pid = info->si_pid;
+		g_sigalrm_info.uid = info->si_uid;
+		(void)gettimeofday(&g_sigalrm_info.when, NULL);
+		g_sigalrm_info.triggered = true;
+	}
+	stress_sigalrm_handler(signum);
+}
+#endif
 
 #if defined(SIGUSR2)
 /*
@@ -1512,6 +1549,9 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
  */
 static int stress_set_handler(const char *stress, const bool child)
 {
+#if defined(SA_SIGINFO)
+	struct sigaction sa;
+#endif
 	if (stress_sighandler(stress, SIGINT, stress_sigint_handler, NULL) < 0)
 		return -1;
 	if (stress_sighandler(stress, SIGHUP, stress_sigint_handler, NULL) < 0)
@@ -1524,8 +1564,18 @@ static int stress_set_handler(const char *stress, const bool child)
 		}
 	}
 #endif
+#if defined(SA_SIGINFO)
+	(void)shim_memset(&sa, 0, sizeof(sa));
+	sa.sa_sigaction = stress_sigalrm_action_handler;
+	sa.sa_flags = SA_SIGINFO;
+	if (sigaction(SIGALRM, &sa, NULL) < 0) {
+		pr_fail("%s: sigaction SIGALRM: errno=%d (%s)\n",
+                        stress, errno, strerror(errno));
+	}
+#else
 	if (stress_sighandler(stress, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return -1;
+#endif
 	return 0;
 }
 
@@ -2454,6 +2504,29 @@ again:
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					pr_fail_check(&rc);
 
+#if defined(SA_SIGINFO) &&	\
+    defined(SI_USER)
+					/*
+					 *  Sanity check if process was killed by
+					 *  an external SIGALRM source
+					 */
+					if (g_sigalrm_info.triggered && (g_sigalrm_info.code == SI_USER)) {
+						time_t t = g_sigalrm_info.when.tv_sec;
+						const struct tm *tm = localtime(&t);
+
+						if (tm) {
+							pr_inf("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
+								name,
+								tm->tm_hour, tm->tm_min, tm->tm_sec,
+								(long)g_sigalrm_info.when.tv_usec / 10000,
+								g_sigalrm_info.uid);
+						} else {
+							pr_inf("%s: terminated by SIGALRM externally by user %d\n",
+								name, g_sigalrm_info.uid);
+						}
+					}
+#endif
+
 					ok = (rc == EXIT_SUCCESS);
 					stats->ci.run_ok = ok;
 					(*checksum)->data.ci.run_ok = ok;
@@ -2515,7 +2588,8 @@ again:
 				 * Apparently succeeded but terminated early?
 				 * Could be a bug, so report a warning
 				 */
-				if (stats->ci.run_ok && !g_caught_signal &&
+				if (stats->ci.run_ok &&
+				    (g_shared && !g_shared->caught_sigint) &&
 				    (run_duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->ci.counter >= g_stressor_current->bogo_ops))) {
 
