@@ -177,14 +177,23 @@ static void OPTIMIZE3 stress_pthread_tid_address(const stress_args_t *args)
 	uint64_t tid_addr = 0;
 
 	if (LIKELY(prctl(PR_GET_TID_ADDRESS, &tid_addr, 0, 0, 0) == 0)) {
-		if (tid_addr) {
+		unsigned long set_tid_addr;
+
+		if (sizeof(void *) == 4)  {
+			set_tid_addr = stress_little_endian() ?
+				(tid_addr & 0xffffffff) : (tid_addr >> 32);
+		} else {
+			set_tid_addr = (unsigned long)tid_addr;
+		}
+
+		if (set_tid_addr) {
 			pid_t tid1, tid2;
 
 			/* Nullify */
 			VOID_RET(pid_t, (pid_t)syscall(__NR_set_tid_address, NULL));
 
 			/* This always succeeds */
-			tid1 = (pid_t)syscall(__NR_set_tid_address, tid_addr);
+			tid1 = (pid_t)syscall(__NR_set_tid_address, set_tid_addr);
 
 			errno = 0;
 			tid2 = shim_gettid();
