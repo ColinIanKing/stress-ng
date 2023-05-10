@@ -322,13 +322,14 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_SMART		 STRESS_BIT_ULL(40)	/* --smart */
 #define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(41)	/* --no-oom-adjust */
 #define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(42)	/* --keep-files */
-#define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(43)	/* --stdout */
-#define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(44)	/* --klog-check */
-#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(45)	/* Don't actually run */
-#define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(46)	/* --oom-avoid */
-#define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(47)	/* Require thermal zone info */
-#define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(48)	/* --log-lockless */
-#define OPT_FLAGS_SN		 STRESS_BIT_ULL(49)	/* --sn scientific notation */
+#define OPT_FLAGS_STDERR	 STRESS_BIT_ULL(43)	/* --stderr */
+#define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(44)	/* --stdout */
+#define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(45)	/* --klog-check */
+#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(46)	/* Don't actually run */
+#define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(47)	/* --oom-avoid */
+#define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(48)	/* Require thermal zone info */
+#define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(49)	/* --log-lockless */
+#define OPT_FLAGS_SN		 STRESS_BIT_ULL(50)	/* --sn scientific notation */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -2065,6 +2066,7 @@ typedef enum {
 	OPT_stackmmap,
 	OPT_stackmmap_ops,
 
+	OPT_stderr,
 	OPT_stdout,
 
 	OPT_str,

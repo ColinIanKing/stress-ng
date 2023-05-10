@@ -121,6 +121,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_smart,		OPT_FLAGS_SMART },
 	{ OPT_sn,		OPT_FLAGS_SN },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
+	{ OPT_stderr,		OPT_FLAGS_STDERR },
 	{ OPT_stdout,		OPT_FLAGS_STDOUT },
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
@@ -1031,6 +1032,7 @@ static const struct option long_options[] = {
 	{ "stack-unmap",	0,	0,	OPT_stack_unmap },
 	{ "stackmmap",		1,	0,	OPT_stackmmap },
 	{ "stackmmap-ops",	1,	0,	OPT_stackmmap_ops },
+	{ "stderr",		0,	0,	OPT_stderr },
 	{ "stdout",		0,	0,	OPT_stdout },
 	{ "str",		1,	0,	OPT_str },
 	{ "str-method",		1,	0,	OPT_str_method },
@@ -4181,6 +4183,14 @@ int main(int argc, char **argv, char **envp)
 	ret = stress_parse_opts(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
 		goto exit_settings_free;
+
+	if ((g_opt_flags & (OPT_FLAGS_STDERR | OPT_FLAGS_STDOUT)) ==
+	    (OPT_FLAGS_STDERR | OPT_FLAGS_STDOUT)) {
+		(void)fprintf(stderr, "stderr and stdout cannot "
+			"be used together\n");
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
 
 	if (stress_check_temp_path() < 0) {
 		ret = EXIT_FAILURE;

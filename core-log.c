@@ -32,7 +32,7 @@ static FILE	*log_file = NULL;
 
 static inline FILE *pr_file(void)
 {
-	return (g_opt_flags & OPT_FLAGS_STDOUT) ? stdout : stderr;
+	return (g_opt_flags & OPT_FLAGS_STDERR) ? stderr : stdout;
 }
 
 /*

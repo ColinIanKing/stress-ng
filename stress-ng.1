@@ -453,10 +453,14 @@ inaccurate.
 .B \-\-sn
 use scientific notation (e.g. 2.412e+01) for metrics.
 .TP
+.B \-\-stderr
+write messages to stderr. With version 0.15.08 output is written to stdout,
+previously due to a historical oversight output went to stderr. This
+option allows one to revert to the pre-0.15.08 behaviour.
+.TP
 .B \-\-stdout
-all output goes to stdout. By default all output goes to stderr (which
-is a historical oversight that will cause breakage to users if it is
-now changed). This option allows the output to be written to stdout.
+all output goes to stdout. This is the new default for version 0.15.08. Use
+the \-\-stderr option for the original behaviour.
 .TP
 .B \-\-stressors
 output the names of the available stressors.
