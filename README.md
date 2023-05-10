@@ -435,6 +435,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [ipc/mqueue: use get_tree_nodev() in mqueue_get_tree()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d60c4d01a98bc1942dba6e3adc02031f5519f94b)
 * [mm/swapfile: add cond_resched() in get_swap_pages()](https://lore.kernel.org/lkml/20230129130320.7e2e4445ecc4b172c61c7b9c@linux-foundation.org/T/)
 * [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
+* [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
 
 ## Presentations
 
