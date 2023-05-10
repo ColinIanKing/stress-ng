@@ -363,7 +363,7 @@ static int stress_set_vecfp_method(const char *name)
 
 static int stress_vecfp(const stress_args_t *args)
 {
-	size_t i, max_elements = 0, mmap_size;
+	size_t i, j, max_elements = 0, mmap_size;
 	stress_vecfp_init *vecfp_init;
 	size_t vecfp_method = 0;	/* "all" */
 
@@ -419,25 +419,19 @@ static int stress_vecfp(const stress_args_t *args)
 		stress_vecfp_call_method(args, vecfp_init, vecfp_method);
 	} while (keep_stressing(args));
 
-	if (args->instance == 0) {
-		pr_lock();
-		pr_dbg("%s: compute throughput for just stressor instance 0:\n", args->name);
-		pr_dbg("%s: %14.14s %13.13s\n",
-			args->name, "Method", "Mfp-ops/sec");
-		for (i = 1; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
-			const double ops = stress_vecfp_funcs[i].ops;
-			const double duration = stress_vecfp_funcs[i].duration;
-			if ((duration > 0.0) && (ops > 0.0)) {
-				double rate = stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration;
+	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
+		const double rate = (stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration) / 1000000.0;
 
-				pr_dbg("%s: %14.14s %13.3f\n", args->name, stress_vecfp_funcs[i].name, rate / 1000000.0);
-			}
+		if (rate > 0.0) {
+			char buffer[64];
+
+			(void)snprintf(buffer, sizeof(buffer), "%s Mfp-ops/sec", stress_vecfp_funcs[i].name);
+			stress_metrics_set(args, j, buffer, rate);
+			j++;
 		}
-		pr_unlock();
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
 	(void)munmap((void *)vecfp_init, mmap_size);
 
 	return EXIT_SUCCESS;
