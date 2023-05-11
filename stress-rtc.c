@@ -53,26 +53,8 @@ static const char * const interfaces[] = {
 
 static inline int stress_rtc_dev(const stress_args_t *args)
 {
-#if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
-    defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
-	struct rtc_time rtc_tm;
-	struct rtc_wkalrm wake_alarm;
-	unsigned long tmp;
-#endif
-#if defined(HAVE_RTC_PARAM) &&		\
-    defined(RTC_PARAM_GET) &&		\
-    defined(RTC_PARAM_SET) &&		\
-    defined(RTC_PARAM_FEATURES)	&& 	\
-    defined(RTC_PARAM_CORRECTION)
-	struct rtc_param param;
-#endif
 	int fd, ret = 0;
 	static bool do_dev = true;
-#if defined(HAVE_SYS_SELECT_H) &&	\
-    defined(HAVE_SELECT)
-	struct timeval timeout;
-	fd_set rfds;
-#endif
 
 	if (!do_dev)
 		return -EACCES;
@@ -83,46 +65,57 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	}
 
 #if defined(RTC_RD_TIME)
-	if (ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0) {
-		if ((errno != EINTR) && (errno != ENOTTY)) {
-			pr_fail("%s: ioctl RTC_RD_TIME failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			ret = -errno;
-			goto err;
+	{
+		struct rtc_time rtc_tm;
+
+		if (ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0) {
+			if ((errno != EINTR) && (errno != ENOTTY)) {
+				pr_fail("%s: ioctl RTC_RD_TIME failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				ret = -errno;
+				goto err;
+			}
+		} else {
+			VOID_RET(int, ioctl(fd, RTC_SET_TIME, &rtc_tm));
 		}
-	} else {
-		VOID_RET(int, ioctl(fd, RTC_SET_TIME, &rtc_tm));
 	}
 #endif
 
 #if defined(RTC_ALM_READ)
-	if (ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0) {
-		if ((errno != EINTR) && (errno != ENOTTY)) {
-			pr_fail("%s: ioctl RTC_ALRM_READ failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			ret = -errno;
-			goto err;
-		}
+	{
+		struct rtc_time rtc_tm;
 
-	} else {
+		if (ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0) {
+			if ((errno != EINTR) && (errno != ENOTTY)) {
+				pr_fail("%s: ioctl RTC_ALRM_READ failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				ret = -errno;
+				goto err;
+			}
+		} else {
 #if defined(RTC_ALM_SET)
-		VOID_RET(int, ioctl(fd, RTC_ALM_SET, &rtc_tm));
+			VOID_RET(int, ioctl(fd, RTC_ALM_SET, &rtc_tm));
 #endif
+		}
 	}
 #endif
 
 #if defined(RTC_WKALM_RD)
-	if (ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0) {
-		if ((errno != EINTR) && (errno != ENOTTY)) {
-			pr_fail("%s: ioctl RTC_WKALRM_RD failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			ret = -errno;
-			goto err;
-		}
-	} else {
+	{
+		struct rtc_wkalrm wake_alarm;
+
+		if (ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0) {
+			if ((errno != EINTR) && (errno != ENOTTY)) {
+				pr_fail("%s: ioctl RTC_WKALRM_RD failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				ret = -errno;
+				goto err;
+			}
+		} else {
 #if defined(RTC_WKALM_SET)
-		VOID_RET(int, ioctl(fd, RTC_WKALM_SET, &wake_alarm));
+			VOID_RET(int, ioctl(fd, RTC_WKALM_SET, &wake_alarm));
 #endif
+		}
 	}
 #endif
 
@@ -148,54 +141,71 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 #endif
 
 #if defined(RTC_EPOCH_READ)
-	if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
-		if ((errno != EINTR) && (errno != ENOTTY)) {
-			pr_fail("%s: ioctl RTC_EPOCH_READ failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			ret = -errno;
-			goto err;
-		}
-	} else {
+	{
+		unsigned long tmp;
+
+		if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
+			if ((errno != EINTR) && (errno != ENOTTY)) {
+				pr_fail("%s: ioctl RTC_EPOCH_READ failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				ret = -errno;
+				goto err;
+			}
+		} else {
 #if defined(RTC_EPOCH_SET)
-		VOID_RET(int, ioctl(fd, RTC_EPOCH_SET, tmp));
+			VOID_RET(int, ioctl(fd, RTC_EPOCH_SET, tmp));
 #endif
+		}
 	}
 #endif
 
 #if defined(RTC_IRQP_READ)
-	if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
-		if ((errno != EINTR) && (errno != ENOTTY)) {
-			pr_fail("%s: ioctl RTC_IRQP_READ failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			ret = -errno;
-			goto err;
+	{
+		unsigned long tmp;
+
+		if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
+			if ((errno != EINTR) && (errno != ENOTTY)) {
+				pr_fail("%s: ioctl RTC_IRQP_READ failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				ret = -errno;
+				goto err;
+			}
+		} else {
+			VOID_RET(int, ioctl(fd, RTC_IRQP_SET, tmp));
 		}
-	} else {
-		VOID_RET(int, ioctl(fd, RTC_IRQP_SET, tmp));
 	}
 #endif
 
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
-	/*
-	 *  Very short delay select on the device
-	 *  that should normally always timeout because
-	 *  there are no RTC alarm interrupts pending
-	 */
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 1;
-	FD_ZERO(&rfds);
-	FD_SET(fd, &rfds);
-	(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
+	{
+		struct timeval timeout;
+		fd_set rfds;
+
+		/*
+		 *  Very short delay select on the device
+		 *  that should normally always timeout because
+		 *  there are no RTC alarm interrupts pending
+		 */
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 1;
+		FD_ZERO(&rfds);
+		FD_SET(fd, &rfds);
+		(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
+	}
 #endif
 
 #if defined(RTC_VL_READ)
-	if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
-		if ((errno != EINTR) && (errno != ENOTTY)) {
-			pr_fail("%s: ioctl RTC_VL_READ failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			ret = -errno;
-			goto err;
+	{
+		unsigned long tmp;
+
+		if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
+			if ((errno != EINTR) && (errno != ENOTTY)) {
+				pr_fail("%s: ioctl RTC_VL_READ failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				ret = -errno;
+				goto err;
+			}
 		}
 	}
 #endif
@@ -205,25 +215,28 @@ static inline int stress_rtc_dev(const stress_args_t *args)
     defined(RTC_PARAM_SET) &&		\
     defined(RTC_PARAM_FEATURES) &&	\
     defined(RTC_PARAM_CORRECTION)
+	{
+		struct rtc_param param;
 
-	(void)shim_memset(&param, 0, sizeof(param));
-	param.param = RTC_PARAM_FEATURES;
-	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
-		/* Should be EINVAL */
-		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
-	}
+		(void)shim_memset(&param, 0, sizeof(param));
+		param.param = RTC_PARAM_FEATURES;
+		if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
+			/* Should be EINVAL */
+			VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
+		}
 
-	(void)shim_memset(&param, 0, sizeof(param));
-	param.param = RTC_PARAM_CORRECTION;
-	param.index = 0;
-	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
-		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
-	}
+		(void)shim_memset(&param, 0, sizeof(param));
+		param.param = RTC_PARAM_CORRECTION;
+		param.index = 0;
+		if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
+			VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
+		}
 
-	(void)shim_memset(&param, 0, sizeof(param));
-	param.param = ~0U;
-	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
-		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
+		(void)shim_memset(&param, 0, sizeof(param));
+		param.param = ~0U;
+		if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
+			VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
+		}
 	}
 #endif
 
