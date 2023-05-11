@@ -847,7 +847,7 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
  *  stress_get_tz_info()
  *	get temperature in degrees C from a thermal zone
  */
-static double stress_get_tz_info(stress_tz_info_t *tz_info)
+static double stress_get_tz_info(const stress_tz_info_t *tz_info)
 {
 	double temp = 0.0;
 	FILE *fp;
