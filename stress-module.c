@@ -214,7 +214,7 @@ static int get_modpath_name(
         if (uname(&u) < 0)
 		return -1;
 	(void)snprintf(depmod, sizeof(depmod), "%s/%s/modules.dep",
-		 dirname_default_prefix, u.release);
+		dirname_default_prefix, u.release);
 
 	fp = fopen(depmod, "r");
 	if (!fp)
@@ -328,7 +328,7 @@ static int stress_module(const stress_args_t *args)
 
 	module_name = module_name_cli ? module_name_cli : default_module;
 	ret = get_modpath_name(args, module_name, global_module_path, sizeof(global_module_path));
-	if (ret) {
+	if (ret < 0) {
 		if (args->instance == 0) {
 			if (module_name_cli) {
 				pr_inf_skip("%s: could not find a module path for "
@@ -340,7 +340,8 @@ static int stress_module(const stress_args_t *args)
 				pr_inf_skip("%s: could not find a module path for "
 					"the default test_module '%s', perhaps "
 					"CONFIG_TEST_LKM is disabled in your "
-					"kernel, skipping stressor\n",
+					"kernel (or alternatively use --module-name "
+					"to specify module), skipping stressor\n",
 					args->name, module_name);
 			}
 		}
