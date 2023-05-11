@@ -76,7 +76,7 @@ typedef void (*stress_dnotify_func)(const stress_args_t *args, const char *path)
 
 typedef struct {
 	const stress_dnotify_func func;
-	const char*	description;
+	const char *description;
 } stress_dnotify_stress_t;
 
 /*
