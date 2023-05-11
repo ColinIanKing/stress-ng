@@ -330,7 +330,7 @@ static void OPTIMIZE3 TARGET_CLONES binary_insert(
 
 static struct tree_node * OPTIMIZE3 TARGET_CLONES binary_find(
 	struct tree_node *head,
-	struct tree_node *node)
+	const struct tree_node *node)
 {
 	while (head) {
 		if (UNLIKELY(node->value == head->value))
@@ -535,7 +535,7 @@ static void OPTIMIZE3 avl_insert(
 
 static struct tree_node OPTIMIZE3 TARGET_CLONES *avl_find(
 	struct tree_node *head,
-	struct tree_node *node)
+	const struct tree_node *node)
 {
 	while (LIKELY(head != NULL)) {
 		if (UNLIKELY(node->value == head->value))
