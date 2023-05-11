@@ -223,6 +223,7 @@ static void OPTIMIZE3 stress_list_list(
 	bool found = false;
 	double t;
 
+	(void)shim_memset(&head, 0, sizeof(head));
 	LIST_INIT(&head);
 
 	for (entry = entries; entry < entries_end; entry++) {
@@ -267,6 +268,7 @@ static void OPTIMIZE3 stress_list_slist(
 	bool found = false;
 	double t;
 
+	(void)shim_memset(&head, 0, sizeof(head));
 	SLIST_INIT(&head);
 
 	for (entry = entries; entry < entries_end; entry++) {
@@ -354,6 +356,7 @@ static void OPTIMIZE3 stress_list_stailq(
 	bool found = false;
 	double t;
 
+	(void)shim_memset(&head, 0, sizeof(head));
 	STAILQ_INIT(&head);
 
 	for (entry = entries; entry < entries_end; entry++) {
@@ -397,6 +400,7 @@ static void OPTIMIZE3 stress_list_tailq(
 	bool found = false;
 	double t;
 
+	(void)shim_memset(&head, 0, sizeof(head));
 	TAILQ_INIT(&head);
 
 	for (entry = entries; entry < entries_end; entry++) {
