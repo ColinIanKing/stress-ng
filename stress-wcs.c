@@ -702,6 +702,7 @@ static int stress_wcs(const stress_args_t *args)
 	info.strdst = strdst;
 	info.strdstlen = STRDSTLEN;
 	info.failed = false;
+	info.name = args->name;
 
 	stress_wcs_fill(info.str1, info.len1);
 
