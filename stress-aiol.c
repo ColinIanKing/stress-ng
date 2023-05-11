@@ -176,7 +176,7 @@ static inline void aio_linux_fill_buffer(
  */
 static inline bool aio_linux_check_buffer(
 	const int request,
-	uint8_t *const buffer,
+	const uint8_t *const buffer,
 	const size_t size)
 {
 	register size_t i;
