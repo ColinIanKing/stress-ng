@@ -117,7 +117,7 @@ typedef struct {
 	bool	supported;
 } stress_io_uring_user_data_t;
 
-typedef void (*stress_io_uring_setup)(stress_io_uring_file_t *io_uring_file, struct io_uring_sqe *sqe, void *extra);
+typedef void (*stress_io_uring_setup)(const stress_io_uring_file_t *io_uring_file, struct io_uring_sqe *sqe, const void *extra);
 
 /*
  *  opcode to human readable name lookup
@@ -376,11 +376,11 @@ next_head:
  */
 static int stress_io_uring_submit(
 	const stress_args_t *args,
-	stress_io_uring_setup setup_func,
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_setup setup_func,
+	const stress_io_uring_file_t *io_uring_file,
 	stress_io_uring_submit_t *submit,
 	stress_io_uring_user_data_t *user_data,
-	void *extra_data)
+	const void *extra_data)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
 	unsigned index = 0, tail = 0, next_tail = 0;
@@ -437,14 +437,14 @@ retry:
  *	setup cancel submit over io_uring
  */
 static void stress_io_uring_async_cancel_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)io_uring_file;
 
-	struct io_uring_sqe *sqe_to_cancel =
-		(struct io_uring_sqe *)extra_info;
+	const struct io_uring_sqe *sqe_to_cancel =
+		(const struct io_uring_sqe *)extra_info;
 
 	sqe->fd = sqe_to_cancel->fd;
 	sqe->flags = 2;
@@ -461,7 +461,7 @@ static void stress_io_uring_async_cancel_setup(
  */
 static void stress_io_uring_cancel_rdwr(
 	const stress_args_t *args,
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	stress_io_uring_submit_t *submit)
 {
 	size_t i;
@@ -499,9 +499,9 @@ static void stress_io_uring_cancel_rdwr(
  *	setup readv submit over io_uring
  */
 static void stress_io_uring_readv_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -520,9 +520,9 @@ static void stress_io_uring_readv_setup(
  *	setup writev submit over io_uring
  */
 static void stress_io_uring_writev_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -541,9 +541,9 @@ static void stress_io_uring_writev_setup(
  *	setup read submit over io_uring
  */
 static void stress_io_uring_read_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -562,9 +562,9 @@ static void stress_io_uring_read_setup(
  *	setup write submit over io_uring
  */
 static void stress_io_uring_write_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -583,9 +583,9 @@ static void stress_io_uring_write_setup(
  *	setup fsync submit over io_uring
  */
 static void stress_io_uring_fsync_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -605,9 +605,9 @@ static void stress_io_uring_fsync_setup(
  *	setup nop submit over io_uring
  */
 static void stress_io_uring_nop_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)io_uring_file;
 	(void)extra_info;
@@ -622,9 +622,9 @@ static void stress_io_uring_nop_setup(
  *	setup fallocate submit over io_uring
  */
 static void stress_io_uring_fallocate_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -645,9 +645,9 @@ static void stress_io_uring_fallocate_setup(
  *	setup fadvise submit over io_uring
  */
 static void stress_io_uring_fadvise_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -672,9 +672,9 @@ static void stress_io_uring_fadvise_setup(
  *	setup close submit over io_uring
  */
 static void stress_io_uring_close_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)io_uring_file;
 	(void)extra_info;
@@ -697,9 +697,9 @@ static void stress_io_uring_close_setup(
  *	setup madvise submit over io_uring
  */
 static void stress_io_uring_madvise_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
@@ -724,9 +724,9 @@ static void stress_io_uring_madvise_setup(
  *	setup statx submit over io_uring
  */
 static void stress_io_uring_statx_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)io_uring_file;
 	(void)sqe;
@@ -756,9 +756,9 @@ static void stress_io_uring_statx_setup(
  *	setup sync_file_range submit over io_uring
  */
 static void stress_io_uring_sync_file_range_setup(
-	stress_io_uring_file_t *io_uring_file,
+	const stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe,
-	void *extra_info)
+	const void *extra_info)
 {
 	(void)extra_info;
 
