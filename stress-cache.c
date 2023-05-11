@@ -613,7 +613,7 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 
 static void stress_cache_read(
 	const stress_args_t *args,
-	uint8_t *mem_cache,
+	const uint8_t *mem_cache,
 	const uint64_t mem_cache_size,
 	const uint64_t inc,
 	uint64_t *i_ptr,
