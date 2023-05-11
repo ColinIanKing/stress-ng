@@ -228,7 +228,7 @@ static inline struct JOB_AES_HMAC *stress_job_get_next(struct MB_MGR *mb_mgr)
 static void stress_job_check_status(
 	const stress_args_t *args,
 	const char *name,
-	struct JOB_AES_HMAC *job,
+	const struct JOB_AES_HMAC *job,
 	int *jobs_done)
 {
 	if (job->status != STS_COMPLETED) {
