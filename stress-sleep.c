@@ -88,7 +88,8 @@ static void *stress_pthread_func(void *c)
 	const stress_args_t *args = ctxt->args;
 	const uint64_t max_ops =
 		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
-#if defined(HAVE_ASM_X86_TPAUSE)
+#if defined(HAVE_ASM_X86_TPAUSE) &&	\
+    !defined(__PCC__)
 	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
 #endif
 
