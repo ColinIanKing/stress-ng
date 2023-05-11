@@ -451,7 +451,7 @@ static void *stress_exec_dummy_pthread(void *arg)
  *	to add extra work on the kernel to make it reap
  *	other pthreads.
  */
-static inline int stress_do_exec(stress_exec_context_t *context)
+static inline int stress_do_exec(const stress_exec_context_t *context)
 {
 #if defined(HAVE_LIB_PTHREAD)
 	int ret;
