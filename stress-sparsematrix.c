@@ -866,7 +866,7 @@ static void list_destroy(void *handle, size_t *objmem)
 
 	*objmem = 0;
 	while (!CIRCLEQ_EMPTY(y_head)) {
-		sparse_y_list_node_t *y_node = CIRCLEQ_FIRST(y_head);
+		sparse_y_list_node_t *y_node = (sparse_y_list_node_t *)CIRCLEQ_FIRST(y_head);
 
 		sparse_x_list_t *x_head = &y_node->x_head;
 
@@ -890,10 +890,10 @@ static void list_destroy(void *handle, size_t *objmem)
 static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	sparse_y_list_t *y_head = (sparse_y_list_t *)handle;
-	sparse_y_list_node_t *y_node, *new_y_node;
+	sparse_y_list_node_t *y_node = NULL, *new_y_node;
 
 	sparse_x_list_t *x_head;
-	sparse_x_list_node_t *x_node, *new_x_node;
+	sparse_x_list_node_t *x_node = NULL, *new_x_node;
 
 	CIRCLEQ_FOREACH(y_node, y_head, sparse_y_list) {
 		if (y_node->y == y) {
