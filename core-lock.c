@@ -379,7 +379,7 @@ static int stress_sem_sysv_release(stress_lock_t *lock)
 }
 #endif
 
-static bool stress_lock_valid(stress_lock_t *lock)
+static bool stress_lock_valid(const stress_lock_t *lock)
 {
 	return (lock && (lock->magic == STRESS_LOCK_MAGIC));
 }
