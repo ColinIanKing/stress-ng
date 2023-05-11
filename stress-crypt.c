@@ -60,7 +60,7 @@ static int stress_crypt_id(
 	const size_t prefix_len,
 	const char *method,
 	const char *passwd,
-	char *salt,
+	const char *salt,
 	stress_metrics_t *metrics)
 {
 	char *encrypted;
