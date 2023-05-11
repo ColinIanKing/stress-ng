@@ -634,6 +634,9 @@ static size_t stress_wcs_all(const stress_args_t *args, stress_wcs_args_t *info)
 	stress_wcs_args_t info_all = *info;
 	double t;
 
+	if (UNLIKELY(SIZEOF_ARRAY(wcs_methods) < 2))
+		return 0;
+
 	info_all.libc_func = wcs_methods[i].libc_func;
 
 	t = stress_time_now();
@@ -686,7 +689,7 @@ static int stress_wcs(const stress_args_t *args)
 	int metrics_count = 0;
 
 	/* No wcs* functions available on this system? */
-	if (SIZEOF_ARRAY(wcs_methods) <= 2)
+	if (SIZEOF_ARRAY(wcs_methods) < 2)
 		return stress_unimplemented(args);
 
 	(void)stress_get_setting("wcs-method", &wcs_method);
