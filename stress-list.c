@@ -310,6 +310,7 @@ static void OPTIMIZE3 stress_list_circleq(
 	bool found = false;
 	double t;
 
+	(void)shim_memset(&head, 0, sizeof(head));
 	CIRCLEQ_INIT(&head);
 
 	for (entry = entries; entry < entries_end; entry++) {
