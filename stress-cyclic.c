@@ -800,7 +800,7 @@ redo_policy:
 			if ((errno == E2BIG) &&
 			    (policies[cyclic_policy].policy == SCHED_DEADLINE)) {
 				cyclic_policy = 1;
-				if (cyclic_policy > SIZEOF_ARRAY(policies)) {
+				if (cyclic_policy >= SIZEOF_ARRAY(policies)) {
 					pr_inf("%s: DEADLINE not supported by kernel, no other policies "
 						"available. skipping stressor\n", args->name);
 					ncrc = EXIT_NO_RESOURCE;
