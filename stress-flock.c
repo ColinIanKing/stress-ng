@@ -45,7 +45,6 @@ static void stress_flock_child(
 	double rate;
 
 	for (i = 0; ; i++) {
-		int ret;
 		double t;
 
 #if defined(LOCK_EX)
@@ -98,11 +97,15 @@ static void stress_flock_child(
 		/*
 		 *  Exercise flock with invalid operation
 		 */
-		ret = flock(fd, LOCK_NB);
-		if (ret == 0) {
-			pr_fail("%s: flock failed expected EINVAL, instead got "
-				"errno=%d (%s)\n", args->name, errno, strerror(errno));
-			(void)flock(fd, LOCK_UN);
+		{
+			int ret;
+
+			ret = flock(fd, LOCK_NB);
+			if (ret == 0) {
+				pr_fail("%s: flock failed expected EINVAL, instead got "
+					"errno=%d (%s)\n", args->name, errno, strerror(errno));
+				(void)flock(fd, LOCK_UN);
+			}
 		}
 #else
 		UNEXPECTED
