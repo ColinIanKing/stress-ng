@@ -141,12 +141,11 @@ static int stress_fork_fn(
 			}
 
 			if (pid == 0) {
-#if defined(HAVE_GETPGID)
-				const pid_t my_pid = getpid();
-				const pid_t my_pgid = getpgid(my_pid);
-#else
-				UNEXPECTED
-#endif
+				/*
+				 *  50% of forks are short lived exiting processes
+				 */
+				if (n & 1)
+					goto fast_exit;
 
 				/*
 				 *  With new session and capabilities
@@ -210,7 +209,12 @@ static int stress_fork_fn(
 				/* exercise some setpgid calls before we die */
 				VOID_RET(int, setpgid(0, 0));
 #if defined(HAVE_GETPGID)
-				VOID_RET(int, setpgid(my_pid, my_pgid));
+				{
+					const pid_t my_pid = getpid();
+					const pid_t my_pgid = getpgid(my_pid);
+
+					VOID_RET(int, setpgid(my_pid, my_pgid));
+				}
 #else
 				UNEXPECTED
 #endif
@@ -219,7 +223,7 @@ static int stress_fork_fn(
 				VOID_RET(int, setpgid(0, -1));
 				/* -ve pid is EINVAL */
 				VOID_RET(int, setpgid(-1, 0));
-
+fast_exit:
 				(void)shim_sched_yield();
 				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				_exit(0);
@@ -234,7 +238,6 @@ static int stress_fork_fn(
 			if (info[i].pid > 0) {
 				int status;
 				/* Parent, kill and then wait for child */
-				/* (void)kill(info[i].pid, SIGKILL); no need to kill */
 				(void)shim_waitpid(info[i].pid, &status, 0);
 				inc_counter(args);
 			}
