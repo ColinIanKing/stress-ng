@@ -128,7 +128,7 @@ static void stress_affinity_reap(const stress_args_t *args, const pid_t *pids)
  */
 static inline void stress_affinity_spin_delay(
 	const uint64_t delay,
-	stress_affinity_info_t *info)
+	const stress_affinity_info_t *info)
 {
 	const uint32_t cpu = info->cpu;
 	const double end = stress_time_now() +
