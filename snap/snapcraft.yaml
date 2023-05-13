@@ -59,7 +59,6 @@ parts:
             - libattr1-dev
             - libxxhash-dev
             - libmd-dev
-            - libxxhash-dev
             - on amd64: [ libipsec-mb-dev ]
 
 apps:
