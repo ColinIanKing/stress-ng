@@ -3023,12 +3023,15 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	 */
 	bias = 0.0;
 	do {
-		double delay, t1, t2;
+		double delay_cpu_clock, t1_cpu_clock, t2_cpu_clock;
+		double delay_wall_clock, t1_wall_clock, t2_wall_clock;
+		double delay;
 #if defined(HAVE_SELECT)
 		struct timeval tv;
 #endif
 
-		t1 = stress_per_cpu_time();
+		t1_wall_clock = stress_time_now();
+		t1_cpu_clock = stress_per_cpu_time();
 		if (cpu_load_slice < 0) {
 			/* < 0 specifies number of iterations to do per slice */
 			int j;
@@ -3038,31 +3041,36 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 				if (!keep_stressing_flag())
 					break;
 			}
-			t2 = stress_per_cpu_time();
+			t2_wall_clock = stress_time_now();
+			t2_cpu_clock = stress_per_cpu_time();
 		} else if (cpu_load_slice == 0) {
 			/* == 0, random time slices */
 			const uint16_t r = stress_mwc16();
-			double slice_end = t1 + ((double)r / 131072.0);
+			double slice_end = t1_cpu_clock + ((double)r / 131072.0);
 			do {
 				stress_cpu_method(cpu_method, args, &counter);
-				t2 = stress_per_cpu_time();
+				t2_wall_clock = stress_time_now();
+				t2_cpu_clock = stress_per_cpu_time();
 				if (!keep_stressing_flag())
 					break;
-			} while (t2 < slice_end);
+			} while (t2_cpu_clock < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
-			const double slice_end = t1 + ((double)cpu_load_slice / STRESS_DBL_MILLISECOND);
+			const double slice_end = t1_cpu_clock + ((double)cpu_load_slice / STRESS_DBL_MILLISECOND);
 
 			do {
 				stress_cpu_method(cpu_method, args, &counter);
-				t2 = stress_per_cpu_time();
+				t2_wall_clock = stress_time_now();
+				t2_cpu_clock = stress_per_cpu_time();
 				if (!keep_stressing_flag())
 					break;
-			} while (t2 < slice_end);
+			} while (t2_cpu_clock < slice_end);
 		}
 
 		/* Must not calculate this with zero % load */
-		delay = (((100 - cpu_load) * (t2 - t1)) / (double)cpu_load);
+		delay_cpu_clock = t2_cpu_clock - t1_cpu_clock;
+		delay_wall_clock = t2_wall_clock - t1_wall_clock;
+		delay = (((100 - cpu_load) * delay_cpu_clock) / (double)cpu_load) + (delay_cpu_clock - delay_wall_clock);
 		delay -= bias;
 
 		/* We may have clock warping so don't sleep for -ve delays */
@@ -3074,9 +3082,9 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			 *  time, measurements need to be based on
 			 *  wall clock time and NOT on cpu time used.
 			 */
-			double t3;
+			double t3_wall_clock;
 
-			t2 = stress_time_now();
+			t2_wall_clock = stress_time_now();
 
 #if defined(HAVE_SELECT)
 			tv.tv_sec = (time_t)delay;
@@ -3086,9 +3094,9 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			shim_nanosleep_uint64((uint64_t)(delay * STRESS_DBL_NANOSECOND));
 #endif
 
-			t3 = stress_time_now();
+			t3_wall_clock = stress_time_now();
 			/* Bias takes account of the time to do the delay */
-			bias = (t3 - t2) - delay;
+			bias = (t3_wall_clock - t2_wall_clock) - delay;
 		}
 	} while (keep_stressing(args));
 
