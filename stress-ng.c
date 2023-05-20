@@ -2095,10 +2095,10 @@ redo:
 			if (stress_process_oomed(ret)) {
 				pr_dbg("process [%d] (%s) was killed by the OOM killer\n",
 					ret, stressor_name);
-			} else if (WTERMSIG(status) == SIGKILL) {
+			} else if (wterm_signal == SIGKILL) {
 				pr_dbg("process [%d] (%s) was possibly killed by the OOM killer\n",
 					ret, stressor_name);
-			} else {
+			} else if (wterm_signal != SIGALRM) {
 				*success = false;
 			}
 		}
