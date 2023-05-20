@@ -3649,6 +3649,8 @@ char *stress_proc_self_exe(char *path, const size_t path_len)
       defined(HAVE_GETEXECNAME)
 	const char *execname = getexecname();
 
+	(void)stress_proc_self_exe_path;
+
 	if (!execname)
 		return NULL;
 	/* Need to perform a string copy to deconstify execname */
