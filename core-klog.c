@@ -46,6 +46,7 @@ static bool stress_klog_err_no_exceptions(const char *str)
 }
 #endif
 
+#if defined(__linux__)
 /*
  *  stress_klog_kernel_cmdline()
  *	where possible log kernel command line, just once
@@ -72,6 +73,7 @@ static void stress_klog_kernel_cmdline(void)
 	pr_inf("klog-check: kernel cmdline: '%s'\n", buffer);
 	already_dumped = true;
 }
+#endif
 
 void stress_klog_start(void)
 {
