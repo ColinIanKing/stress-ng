@@ -235,6 +235,7 @@ static int stress_sleep(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 tidy:
+	(void)alarm(0);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	thread_terminate = true;
