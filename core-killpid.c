@@ -104,8 +104,8 @@ void stress_kill_and_wait(
 	const pid_t mypid = getpid();
 
 	if ((pid == 0) || (pid == 1) || (pid == mypid)) {
-		pr_inf("%s: warning, attempt to kill pid %d ignored\n",
-			args->name, pid);
+		pr_inf("%s: warning, attempt to kill pid %" PRIdMAX " ignored\n",
+			args->name, (intmax_t)pid);
 	}
 	if ((pid <= 1) || (pid == mypid))
 		return;
