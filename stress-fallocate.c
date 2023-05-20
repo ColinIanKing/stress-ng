@@ -162,8 +162,6 @@ static int stress_fallocate(const stress_args_t *args)
 
 	pipe_ret = pipe(pipe_fds);
 
-	stress_file_rw_hint_short(fd);
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
