@@ -87,7 +87,7 @@ typedef struct {
 stress_sigalrm_info_t g_sigalrm_info;
 #endif
 
-static void stress_kill_stressors(const int sig);
+static void stress_kill_stressors(const int sig, const bool force_sigkill);
 /*
  *  optarg option to global setting option flags
  */
@@ -1465,7 +1465,7 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 	wait_flag = false;
 
 	/* Send alarm to all stressors */
-	stress_kill_stressors(SIGALRM);
+	stress_kill_stressors(SIGALRM, true);
 }
 
 /*
@@ -1479,7 +1479,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 	if (getpid() == main_pid) {
 		/* Parent */
 		wait_flag = false;
-		stress_kill_stressors(SIGALRM);
+		stress_kill_stressors(SIGALRM, false);
 	} else {
 		/* Child */
 		stress_handle_stop_stressing(signum);
@@ -1764,17 +1764,19 @@ static inline void stress_stressor_finished(pid_t *pid)
  *  stress_kill_stressors()
  * 	kill stressor tasks using signal sig
  */
-static void stress_kill_stressors(const int sig)
+static void stress_kill_stressors(const int sig, const bool force_sigkill)
 {
 	static int count = 0;
 	int signum = sig;
 	stress_stressor_t *ss;
 
-	/* multiple calls will always fallback to SIGKILL */
-	count++;
-	if (count > 5) {
-		pr_dbg("killing processes with SIGKILL\n");
-		signum = SIGKILL;
+	if (force_sigkill) {
+		/* multiple calls will always fallback to SIGKILL */
+		count++;
+		if (count > 5) {
+			pr_dbg("killing processes with SIGKILL\n");
+			signum = SIGKILL;
+		}
 	}
 
 	for (ss = stressors_head; ss; ss = ss->next) {
@@ -2152,7 +2154,7 @@ redo:
 		if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
 			keep_stressing_set_flag(false);
 			wait_flag = false;
-			stress_kill_stressors(SIGALRM);
+			stress_kill_stressors(SIGALRM, true);
 		}
 
 		stress_stressor_finished(&stats->pid);
@@ -2232,13 +2234,13 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		(void)snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
 			g_app_name, (int)getpid(), stress_strsignal(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
-		stress_kill_stressors(SIGALRM);
+		stress_kill_stressors(SIGALRM, true);
 		_exit(EXIT_SIGNALED);
 	default:
 		/*
 		 *  Kill stressors
 		 */
-		stress_kill_stressors(SIGALRM);
+		stress_kill_stressors(SIGALRM, true);
 		break;
 	}
 }
@@ -2444,7 +2446,7 @@ again:
 				}
 				pr_err("Cannot fork: errno=%d (%s)\n",
 					errno, strerror(errno));
-				stress_kill_stressors(SIGALRM);
+				stress_kill_stressors(SIGALRM, false);
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
@@ -2628,7 +2630,7 @@ child_exit:
 				/* Forced early abort during startup? */
 				if (!keep_stressing_flag()) {
 					pr_dbg("abort signal during startup, cleaning up\n");
-					stress_kill_stressors(SIGALRM);
+					stress_kill_stressors(SIGALRM, true);
 					goto wait_for_stressors;
 				}
 				break;
