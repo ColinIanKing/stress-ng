@@ -958,7 +958,7 @@ static int stress_iomix(const stress_args_t *args)
 	off_t iomix_bytes = DEFAULT_IOMIX_BYTES;
 	const size_t page_size = args->page_size;
 	size_t i;
-	int pids[SIZEOF_ARRAY(iomix_funcs)];
+	pid_t pids[SIZEOF_ARRAY(iomix_funcs)];
 	const char *fs_type;
 	int oflags = O_CREAT | O_RDWR;
 	const pid_t parent = getpid();
