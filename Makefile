@@ -22,6 +22,9 @@ VERSION=0.15.07
 # Codename "speedy supercharged swordfish"
 #
 
+KERNEL=$(shell uname -s)
+NODENAME=$(shell uname -n)
+
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 #
 # Default -O2 if optimization level not defined
@@ -94,8 +97,9 @@ endif
 endif
 
 ifeq ($(findstring gcc,$(CC)),gcc)
-$(info $(CC))
+ifneq ($(KERNEL),SunOS)
 CFLAGS += -ftree-loop-vectorize
+endif
 endif
 
 #ifeq ($(findstring clang,$(CC)),clang)
@@ -106,8 +110,6 @@ GREP = grep
 #
 # SunOS requires special grep for -e support
 #
-KERNEL=$(shell uname -s)
-NODENAME=$(shell uname -n)
 ifeq ($(KERNEL),SunOS)
 ifneq ($(NODENAME),dilos)
 GREP = /usr/xpg4/bin/grep
