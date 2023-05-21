@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.15.07
+VERSION=0.15.08
 #
-# Codename "speedy supercharged swordfish"
+# Codename "sleepy sanguine sloth"
 #
 
 KERNEL=$(shell uname -s)
