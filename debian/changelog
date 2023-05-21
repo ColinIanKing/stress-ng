@@ -1,3 +1,204 @@
+stress-ng (0.15.08-1) unstable; urgency=medium
+
+  [Fernand Sieber]
+  * stress-cpu: Deduce waiting time in active cycle from idle time
+
+  [Hui Wang]
+  * snapcraft: remove a duplicated dependent package
+
+  [Thinh Tran]
+  * rawsock: locked up when parent sends SIGKILL to child
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * README.md: update contributors list
+  * Manual: update date
+  * stress-ng.h: rework OPTIMIZE_FAST_MATH to workaround cpp issue with pcc
+  * stress-iomix: use pid_t type for pid array
+  * core-killpid: use intmax_t to print format pid_t
+  * Makefile: don't enable gcc flag -ftree-loop-vectorize for Solaris
+  * core-helper: voidify stress_proc_self_exe_path for __sun__ builds
+  * stress-ng: don't flag SIGALRM terminations of stressors as a failure
+  * stress-sleep: cancel alarms on tidy up to avoid alarm cascade in
+    pthreads
+  * stress-fallocate: remove messy signal handler
+  * core-klog: only declare stress_klog_kernel_cmdline for linux builds
+  * stress-ng: add optional repeated SIGKILL force option to
+    stress_kill_stressors
+  * stress-fallocate: remove short file life hint
+  * stress-fork: make 50% of forked children do immediate exit
+  * core-lock: constify function argument lock
+  * stress-tree: constify pointer node
+  * stress-sleep: add missing __PCC__ ifdef constraint check
+  * stress-rtc: move variables to local scopes
+  * stress-module: improve module loading error message
+  * stress-io-uring: constify various function arguments
+  * stress-ipsec-mb: constify function argument job
+  * stress-ipsec-mb: constify function argument p_mgr
+  * stress-flock: move variable ret into local scope
+  * stress-dnotify: reformat description declaration
+  * core-vmstat: constify function argument tz_info
+  * stress-crypt: constify function argument salt
+  * stress-cache: constify function argument mem_cache
+  * stress-aiol: constify function argument buffer
+  * stress-affinity: constify info function argument
+  * stress-sparsematrix: initialize x_node, y_node to clean up cppcheck
+    warnings
+  * stress-list: zero head to clean up pedantic static analysis warning
+  * stress-wcs: set info name to the stressor name
+  * stress-wcs: add index bounds check, keeps static analyzers happy
+  * stress-cyclic: fix off-by-one comparison for cyclic_policy
+  * stress-af-alg: add in some missing configs from 6.3 kernel
+  * README.md: add another citation
+  * stress-pthread: fix big endian tid addr for 32 bit systems
+   (Closes #1036356)
+  * stress-vecfp: replace debug metrics with standard metrics data,
+    bump metrics to 40
+  * stress-vm-segv: use pipe for a synchronization mechanism
+  * core-klog: remove extraneous tab
+  * Add --stderr option, default output now to stdout
+  * README.md: add another kernel bug found with stress-ng
+  * stress-sock: handle corner-case where n is zero
+  * core-klog: dump kernel cmdline just once
+  * stress-ng: handle SIGALRM in stressor and parent more intelligently
+  * core-builtin: use builtin versions of memset, memcpy and memmove
+  * stress-dev: disable warning for -Wgnu-variable-sized-type-not-at-end
+  * stress-getdent: remove % operator with compare and subtract
+  * core-killpid: add helper stress_kill_and_wait_many to kill many pids
+  * core-thrash: constify pointer state
+  * stress-wcs: constify static array letters
+  * stress-vecwide: constify pointer vec_args
+  * stress-udp: constify static array patterns
+  * stress-rawpkt: constify pointer idx
+  * stress-pthread: move new_head to local scope, replace memcpy with
+    assignment
+  * stress-prefetch: constify addr pointer argument
+  * stress-prctl: move temp variables to lower scopes
+  * stress-opcode: constify function parameters page_size and op
+  * stress-mmapfork: constify function pointer ptr
+  * stress-madvise: initialization poison_count
+  * stress-list: constify pointer entries_end
+  * stress-inode-flags: constify pointer to data
+  * stress-ng.h: ensure unsigned 1 is being left shifted to avoid signed
+    warnings
+  * stress-af-alg: avoid adding potential NULL ptr to length of buffer
+  * stress-chdir: move paths, fds and mkdir_ok arrays into one array
+  * stress-affinity: force random cpu choice to never be same as previous
+  * stress-af-alg: add in some missing configs
+  * stress-io-uring: clean up 32 bit build warnings on addr to user_data
+    casts
+  * core-killpid: add sanity checks to pid being killed
+  * core-killpid: add signal number to stress_kill_and_wait
+  * stress-dccp: move kill out of server to parent patj
+  * stress-*: use stress_kill_and_wait for kill and wait
+  * core: add stress_kill_and_wait helper to kill and wait for children
+  * stress-resched: ensure pids are initialized to -1
+  * core-helper: stress_proc_self_exe_path: voidify unused args
+  * stress-ng: remove empty line
+  * stress-sctp: remove trailing space at end of line
+  * Makefile: add gcc optimization flag -ftree-loop-vectorize
+  * stress-{memthrash|zlib}: use memzero for zero data generation
+  * Add build time check for __builtin_memset
+  * stress-zlib: emit DEF/INF debug only for instance 0
+  * stress-atomic: workaround gcc 11 atomic nand builtin issues
+  * stress-exec: add FreeBSD rfork and get executable name using sysctl
+  * stress-signest: add signal ignoring and don't jmp on invalid jmpbuf
+  * stress-af-alg: silently handle EOPNOTSUPP recv errors
+  * README.md: add two more research paper citations
+  * README.md: add link to another kernel improvement that used stress-ng
+  * stress-af-alg: use recv on socket rather than read
+  * stress-vecshuf: make function pointer const
+  * stress-vecfp.c: make function pointer const
+  * stress-sparsematrix: move get/put stats into metrics output
+  * stress-xattr: handle fall-out when file system fills up
+  * README.md: add another kernel bug found with stress-ng
+  * stress-xattr: keep track of xsetattr calls that succeeded using a bitmap
+  * core-helper: remove need for static buffer in stress_proc_self_exe_path
+  * stress-dnotify: double timeout, ignore notifies that timeout
+  * stress-io-uring: remove redundant check of a non-null pointer
+  * core-helper: rework underscore mungification helper
+  * stress-cacheline: use global shared index to fix cache index issue
+  * stress-urandom: fix corruption of neighbouring mmap'd page
+  * stress-inotify: make inotify_init failure message into just a warning
+  * stress-unshare: replace %= with compare and reset
+  * stress-softlockup: replace %= with compare and reset
+  * stress-rawdev: replace %= with compare and reset
+  * stress-open: replace %= with compare and reset
+  * stress-inode-flags: replace %= with compare and reset
+  * stress-fcntl: replace %= with compare and reset
+  * stress-chmod: replace %= with compare and reset
+  * stress-chattr: replace %= with compare and reset
+  * stress-chroot: replace %= with compare and reset
+  * stress-io-uring: set the setup to just enough reqs
+  * stress-io-uring: fix completion error checks for cancellation
+  * stress-io-uring: cancel if HAVE_IORING_OP_ASYNC_CANCEL is defined
+  * stress-io-uring: silently ignore cancel errors
+  * stress-io-uring: add async cancellation
+  * stress-io-uring: increase ring size, force complete on ring submit EBUSY
+  * core-out-of-memory: report why oom_score_adj can't be set
+  * Add forced_killed_counter to indicate a child has been killed forcefully
+  * stress-io-uring: perform completion at the end of a round of submits
+  * stress-rotate: remove this from the cpu cache class
+  * stress-vm: add conditional parentheses
+  * stress-vecfp: add conditional parentheses
+  * stress-tsearch: add conditional parentheses
+  * stress-sysinval: add conditional parentheses
+  * stress-sysfs: add conditional parentheses
+  * stress-sync-file: add conditional parentheses
+  * stress-socklockup: add conditional parentheses
+  * stress-skiplist: add conditional parentheses
+  * stress-sigsegv: add conditional parentheses
+  * stress-shellsort: add conditional parentheses
+  * stress-session: add conditional parentheses
+  * stress-sem-sysv: add conditional parentheses
+  * stress-seek: add conditional parentheses
+  * stress-sctp: add conditional parentheses
+  * stress-rlimit: add conditional parentheses
+  * stress-rawdev: add conditional parentheses
+  * stress-procfs: add conditional parentheses
+  * stress-peterson: add conditional parentheses
+  * stress-mremap: add conditional parentheses
+  * stress-malloc: add conditional parentheses
+  * stress-lsearch: add conditional parentheses
+  * stress-inotify: add conditional parentheses
+  * stress-hsearch: add conditional parentheses
+  * stress-hdd: add conditional parentheses
+  * stress-hash: add conditional parentheses
+  * stress-futex: add conditional parentheses
+  * stress-fstat: re-order operands of && for minor optimization
+  * stress-fp: add conditional parentheses
+  * stress-exec: add conditional parentheses
+  * stress-dnotify: add conditional parentheses
+  * stress-dev: add conditional parentheses
+  * stress-cyclic: add conditional parentheses
+  * stress-bad-ioctl: add conditional parentheses
+  * stress-af-alg: add conditional parentheses, re-order && operators
+  * core-resources: ensure resources are marked as free as soon as possible
+  * stress-io-uring: throttle calls to stress_read_fdinfo
+  * stress-io-uring: keep a cached copy of fileno(stdin)
+  * stress-io-uring: defer unlinking file to end
+  * stress-io-uring: fix statx command, don't use path, use fd to path
+  * stress-sockmany: use 64 char ascii string as base for memset data,
+    remove expensive % operator
+  * stress-sockabuse: use 64 char ascii string as base for memset data,
+    remove expensive % operator
+  * stress-sock: use 64 char ascii string as base for memset data, remove
+    expensive % operator
+  * stress-epoll: replace % operators with compare + reset and memset
+    data from stress_ascii64
+  * stress-reboot: replace expensive % operation with compare and reset
+  * stress-dccp: use 64 char ascii string as base for memset data, remove
+    expensive % operator
+  * core-helper: add stress_ascii64[] for 64 bytes of ASCII data
+  * core-vmstat: replace % operator with compare and reset
+  * stress-pthread: use 64 bit tid_addr to fix stack clobbering on 32
+    bit platforms
+  * stress-fma: add fused-multiple-add stressor
+  * stress-cpu-online: classify some write failures as non-fatal
+  * README.md: add another kernel issue found with stress-ng
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 21 May 2023 15:27:37 +0100
+
 stress-ng (0.15.07-1) unstable; urgency=medium
 
   [Shoily Rahman]
