@@ -60,7 +60,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_bsearch()
  *	stress bsearch
  */
-static int stress_bsearch(const stress_args_t *args)
+static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 {
 	int32_t *data, *ptr;
 	size_t n, n8, i;

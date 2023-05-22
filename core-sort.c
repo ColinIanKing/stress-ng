@@ -20,7 +20,7 @@
 #include "core-sort.h"
 #include "core-pragma.h"
 
-static uint64_t stress_sort_compares ALIGN64;
+uint64_t stress_sort_compares ALIGN64;
 
 void stress_sort_compare_reset(void)
 {
@@ -91,70 +91,3 @@ PRAGMA_UNROLL_N(8)
 		data32[j] = tmp;
 	}
 }
-
-#if 1
-#define STRESS_SORT_CMP_FWD(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
-{								\
-	register const type v1 = *(const type *)p1;		\
-	register const type v2 = *(const type *)p2;		\
-								\
-	stress_sort_compares++;					\
-	if (v1 > v2)						\
-		return 1;					\
-	else if (v1 < v2)					\
-		return -1;					\
-	else							\
-		return 0;					\
-}
-#else
-#define STRESS_SORT_CMP_FWD(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \
-{								\
-	register const type v1 = *(const type *)p1;		\
-	register const type v2 = *(const type *)p2;		\
-								\
-	stress_sort_compares++;					\
-	return (v1 < v2) ? -(v1 != v2) : (v1 != v2);		\
-}
-#endif
-
-#if 1
-#define STRESS_SORT_CMP_REV(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
-{								\
-	register const type v1 = *(const type *)p1;		\
-	register const type v2 = *(const type *)p2;		\
-								\
-	stress_sort_compares++;					\
-	if (v1 < v2)						\
-		return 1;					\
-	else if (v1 > v2)					\
-		return -1;					\
-	else							\
-		return 0;					\
-}
-#else
-#define STRESS_SORT_CMP_REV(name, type)				\
-int OPTIMIZE3 stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
-{								\
-	register const type v1 = *(const type *)p1;		\
-	register const type v2 = *(const type *)p2;		\
-								\
-	stress_sort_compares++;					\
-	return (v1 > v2) ? -(v1 != v2) : (v1 != v2);		\
-}
-#endif
-
-STRESS_SORT_CMP_FWD(int8,  int8_t)
-STRESS_SORT_CMP_FWD(int16, int16_t)
-STRESS_SORT_CMP_FWD(int32, int32_t)
-STRESS_SORT_CMP_FWD(int64, int64_t)
-
-STRESS_SORT_CMP_REV(int8,  int8_t)
-STRESS_SORT_CMP_REV(int16, int16_t)
-STRESS_SORT_CMP_REV(int32, int32_t)
-STRESS_SORT_CMP_REV(int64, int64_t)
-
-STRESS_SORT_CMP_FWD(int, int)
-STRESS_SORT_CMP_REV(int, int)
