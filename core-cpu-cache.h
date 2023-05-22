@@ -148,6 +148,7 @@ static inline void ALWAYS_INLINE shim_mfence(void)
     defined(HAVE_ASM_RISCV_FENCE) &&	\
     !defined(HAVE_SHIM_MFENCE)
 	stress_asm_riscv_fence();
+#define HAVE_SHIM_MFENCE
 #endif
 
 #if defined(STRESS_ARCH_X86) &&		\
