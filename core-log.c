@@ -55,13 +55,27 @@ static void pr_log_file_flush(void)
     defined(HAVE_ATOMIC_STORE)
 
 /*
+ *  pr_lock_usable()
+ *	inline helper, return true if locking is usable
+ */
+static inline bool pr_lock_usable(void)
+{
+	/* lockless logging - not lockable */
+	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
+		return false;
+	/* something wrong with shared data? */
+	if (!g_shared)
+		return false;
+	/* locking is usable */
+	return true;
+}
+
+/*
  *  pr_lock_init()
  */
 void pr_lock_init(void)
 {
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
 	g_shared->pr_pid = -1;
@@ -71,22 +85,20 @@ void pr_lock_init(void)
 }
 
 /*
- *  pr_spin_lock()
- *	simple spin lock
+ *  pr_spin_lock_pid()
+ *	simple spin lock, if pid is -1, getpid
  */
-static void pr_spin_lock(void)
+static void pr_spin_lock_pid(pid_t pid)
 {
 	double timeout_time;
 	pid_t val, orig;
-	pid_t pid;
 
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
 	timeout_time = stress_time_now() + PR_TIMEOUT;
-	pid = getpid();
+	if (pid == (pid_t)-1)
+		pid = getpid();
 
 	for (;;) {
 		while (stress_time_now() < timeout_time) {
@@ -116,6 +128,15 @@ static void pr_spin_lock(void)
 }
 
 /*
+ *  pr_spin_lock()
+ *	simple spin lock
+ */
+static inline void pr_spin_lock(void)
+{
+	pr_spin_lock_pid((pid_t)-1);
+}
+
+/*
  *  pr_spin_unlock()
  *	spin unlock
  */
@@ -123,9 +144,7 @@ static void pr_spin_unlock(void)
 {
 	int zero;
 
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
 	zero = 0;
@@ -139,16 +158,14 @@ static void pr_spin_unlock(void)
  */
 static void pr_lock_acquire(const pid_t pid)
 {
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
 	for (;;) {
 		int32_t count;
 		double whence, now;
 
-		pr_spin_lock();
+		pr_spin_lock_pid(pid);
 		count = g_shared->pr_lock_count;
 		whence = g_shared->pr_whence;
 		now = stress_time_now();
@@ -170,26 +187,24 @@ static void pr_lock_acquire(const pid_t pid)
 }
 
 /*
- *  pr_lock()
+ *  pr_lock_pid()
  *	attempt to get a lock, it's just too bad
  *	if it fails, this is just to stop messages
  *	getting intermixed.
  *
- *  pr_lock can be called multiple times by a process, only
+ *  pr_lock_pid can be called multiple times by a process, only
  *  the first call acquires the lock
  */
-void pr_lock(void)
+static void pr_lock_pid(pid_t pid)
 {
-	pid_t pid;
 	double now;
 
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
-	pid = getpid();
-	pr_spin_lock();
+	if (pid == (pid_t)-1)
+		pid = getpid();
+	pr_spin_lock_pid(pid);
 	/* Already own lock? */
 	if (g_shared->pr_pid == pid) {
 		g_shared->pr_lock_count++;
@@ -225,21 +240,23 @@ void pr_lock(void)
 	pr_lock_acquire(pid);
 }
 
+void pr_lock(void)
+{
+	pr_lock_pid((pid_t)-1);
+}
+
 /*
- *  pr_unlock()
+ *  pr_unlock_pid()
  *	attempt to unlock
  */
-void pr_unlock(void)
+static void pr_unlock_pid(pid_t pid)
 {
-	pid_t pid;
-
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
-	pid = getpid();
-	pr_spin_lock();
+	if (pid == (pid_t)-1)
+		pid = getpid();
+	pr_spin_lock_pid(pid);
 	/* Do we own the lock? */
 	if (g_shared->pr_pid == pid) {
 		g_shared->pr_lock_count--;
@@ -251,18 +268,21 @@ void pr_unlock(void)
 	pr_spin_unlock();
 }
 
+void pr_unlock(void)
+{
+	pr_unlock_pid((pid_t)-1);
+}
+
 /*
  *  pr_lock_exited()
  *	process has terminated, ensure locks are cleared on it
  */
 void pr_lock_exited(const pid_t pid)
 {
-	if (g_opt_flags & OPT_FLAGS_LOG_LOCKLESS)
-		return;
-	if (!g_shared)
+	if (!pr_lock_usable())
 		return;
 
-	pr_spin_lock();
+	pr_spin_lock_pid(pid);
 	if (g_shared->pr_pid == pid) {
 		g_shared->pr_pid = -1;
 		g_shared->pr_lock_count = 0;
@@ -272,12 +292,27 @@ void pr_lock_exited(const pid_t pid)
 }
 #else
 
+static inline bool pr_lock_usable(void)
+{
+	return false;
+}
+
 void pr_lock_init(void)
 {
 }
 
+static void pr_lock_pid(pid_t pid)
+{
+	(void)pid;
+}
+
 void pr_lock(void)
 {
+}
+
+static void pr_unlock_pid(pid_t pid)
+{
+	(void)pid;
 }
 
 void pr_unlock(void)
@@ -370,8 +405,9 @@ static int pr_msg(
 {
 	int ret = 0;
 	char ts[32];
+	pid_t pid = getpid();
 
-	pr_lock();
+	pr_lock_pid(pid);
 
 	if (g_opt_flags & OPT_FLAGS_TIMESTAMP) {
 		struct timeval tv;
@@ -421,8 +457,8 @@ static int pr_msg(
 			}
 			VOID_RET(size_t, fwrite(buf, 1, n, fp));
 		} else {
-			size_t n = (size_t)snprintf(buf, sizeof(buf), "%s%s [%d] ",
-				ts, type, (int)getpid());
+			size_t n = (size_t)snprintf(buf, sizeof(buf), "%s%s [%" PRIdMAX "] ",
+				ts, type, (intmax_t)pid);
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			(void)fprintf(fp, "%s: %s", g_app_name, buf);
 			if (log_file) {
@@ -454,7 +490,7 @@ static int pr_msg(
 		}
 #endif
 	}
-	pr_unlock();
+	pr_unlock_pid(pid);
 	return ret;
 }
 
