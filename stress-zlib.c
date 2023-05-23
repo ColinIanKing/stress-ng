@@ -512,8 +512,6 @@ static void stress_rand_data_rdrand(
 }
 #endif
 
-#define ROR32(x, n) x = (((x) >> n) | ((x) << (32 - n)))
-
 static void TARGET_CLONES stress_rand_data_ror32(
 	const stress_args_t *args,
 	uint64_t *RESTRICT data,
@@ -528,19 +526,19 @@ static void TARGET_CLONES stress_rand_data_ror32(
 		register uint32_t val = stress_mwc32();
 
 		ptr[0x00] = (uint16_t)val;
-		ROR32(val, 1);
+		val = shim_ror32n(val, 1);
 		ptr[0x01] = (uint16_t)val;
-		ROR32(val, 2);
+		val = shim_ror32n(val, 2);
 		ptr[0x02] = (uint16_t)val;
-		ROR32(val, 3);
+		val = shim_ror32n(val, 3);
 		ptr[0x03] = (uint16_t)val;
-		ROR32(val, 4);
+		val = shim_ror32n(val, 4);
 		ptr[0x04] = (uint16_t)val;
-		ROR32(val, 5);
+		val = shim_ror32n(val, 5);
 		ptr[0x05] = (uint16_t)val;
-		ROR32(val, 6);
+		val = shim_ror32n(val, 6);
 		ptr[0x06] = (uint16_t)val;
-		ROR32(val, 7);
+		val = shim_ror32n(val, 7);
 		ptr[0x07] = (uint16_t)val;
 		ptr += 8;
 	}
