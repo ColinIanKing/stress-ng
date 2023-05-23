@@ -108,14 +108,10 @@ static const stress_help_t help[] = {
 /*
  *  rotate right for hashing
  */
-#define ROR(val)						\
+#define RORn(val, n)						\
 do {								\
-	unsigned long tmp = val;				\
-	const size_t bits = (sizeof(unsigned long) * 8) - 1;	\
-	const unsigned long bit0 = (tmp & 1) << bits;		\
-	tmp >>= 1;                              		\
-	tmp |= bit0;                            		\
-	val = tmp;                              		\
+	val = (sizeof(unsigned long) == sizeof(uint32_t)) ?	\
+		shim_ror32n(val, n) : shim_ror64n(val, n);	\
 } while (0)
 
 #define SHR_UL(v, shift) ((unsigned long)(((unsigned long long)v) << shift))
@@ -2301,23 +2297,17 @@ static unsigned long stress_syscall_hash(
 {
 	unsigned long hash = syscall_num;
 
-	ROR(hash);
-	ROR(hash);
+	RORn(hash, 2);
 	hash ^= (args[0]);
-	ROR(hash);
-	ROR(hash);
+	RORn(hash, 2);
 	hash ^= (args[1]);
-	ROR(hash);
-	ROR(hash);
+	RORn(hash, 2);
 	hash ^= (args[2]);
-	ROR(hash);
-	ROR(hash);
+	RORn(hash, 2);
 	hash ^= (args[3]);
-	ROR(hash);
-	ROR(hash);
+	RORn(hash, 2);
 	hash ^= (args[4]);
-	ROR(hash);
-	ROR(hash);
+	RORn(hash, 2);
 	hash ^= (args[5]);
 
 	return hash % SYSCALL_HASH_TABLE_SIZE;
