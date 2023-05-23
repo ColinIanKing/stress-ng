@@ -713,8 +713,11 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		uint64_t counter_totals[STRESS_PERF_MAX];
 		bool got_data = false;
 		char munged[64];
-		stress_perf_t *sp = &ss->stats[0]->sp;
+		stress_perf_t *sp;
 
+		if (!ss->stats)
+			continue;
+		sp = &ss->stats[0]->sp;
 		if (!sp)
 			continue;
 		if (!stress_perf_stat_succeeded(sp))
