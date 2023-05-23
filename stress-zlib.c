@@ -315,6 +315,22 @@ static void TARGET_CLONES stress_rand_data_01(
 	}
 }
 
+static inline uint32_t mul10(const uint32_t n)
+{
+	return (n << 3) + (n << 1);
+}
+
+static inline uint32_t div10(const uint32_t n)
+{
+#if 0
+	uint64_t n64 = (uint64_t)n * 28147497671066;
+
+	return (uint32_t)(n64 >> 48);
+#else
+	return n / 10;
+#endif
+}
+
 /*
  *  stress_rand_data_digits()
  *	fill buffer with random ASCII '0' .. '9'
@@ -330,15 +346,47 @@ static void stress_rand_data_digits(
 	(void)args;
 
 	while (ptr < end) {
-		register uint32_t v = stress_mwc32();
+		register uint32_t v10th, r, v, rnd = stress_mwc32();
 
-		*(ptr++) = '0' + ((v & 0xff) % 10);
-		v >>= 8;
-		*(ptr++) = '0' + ((v & 0xff) % 10);
-		v >>= 8;
-		*(ptr++) = '0' + ((v & 0xff) % 10);
-		v >>= 8;
-		*(ptr++) = '0' + ((v & 0xff) % 10);
+		v = rnd & 0xffff;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = v10th;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = v10th;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = v10th;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = rnd >> 16;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = v10th;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = v10th;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
+
+		v = v10th;
+		v10th = div10(v);
+		r = v - mul10(v10th);
+		*(ptr++) = r + '0';
 	}
 }
 
