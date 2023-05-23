@@ -27,6 +27,7 @@ static pid_t klog_pid = -1;
 static const char *err_exceptions[] = {
 	"audit: backlog",
 	"x86/split lock detection",
+	"detected capacity change from",
 };
 
 /*
