@@ -26,6 +26,7 @@ static pid_t klog_pid = -1;
  */
 static const char *err_exceptions[] = {
 	"audit: backlog",
+	"x86/split lock detection",
 };
 
 /*
@@ -168,8 +169,10 @@ log_err:
 				continue;
 			}
 log_info:
-			stress_klog_kernel_cmdline();
-			pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
+			if (stress_klog_err_no_exceptions(buf)) {
+				stress_klog_kernel_cmdline();
+				pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
+			}
 		}
 		(void)fclose(klog_fp);
 		_exit(EXIT_SUCCESS);
