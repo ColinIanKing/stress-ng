@@ -338,7 +338,7 @@ static inline size_t stress_perf_info_find(const unsigned int type, const unsign
 {
 	size_t i;
 
-	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+	for (i = 0; (i < STRESS_PERF_MAX) && perf_info[i].label; i++) {
 		if ((perf_info[i].type == type) && (perf_info[i].config == config))
 			return i;
 	}
@@ -451,7 +451,7 @@ int stress_perf_open(stress_perf_t *sp)
 		sp->perf_stat[i].counter = 0;
 	}
 
-	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+	for (i = 0; (i < STRESS_PERF_MAX) && perf_info[i].label; i++) {
 		if (perf_info[i].config != UNRESOLVED) {
 			struct perf_event_attr attr;
 
@@ -506,7 +506,7 @@ int stress_perf_enable(stress_perf_t *sp)
 	if (!sp->perf_opened)
 		return 0;
 
-	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+	for (i = 0; (i < STRESS_PERF_MAX) && perf_info[i].label; i++) {
 		const int fd = sp->perf_stat[i].fd;
 
 		if (fd > -1) {
@@ -539,7 +539,7 @@ int stress_perf_disable(stress_perf_t *sp)
 	if (!sp->perf_opened)
 		return 0;
 
-	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+	for (i = 0; (i < STRESS_PERF_MAX) && perf_info[i].label; i++) {
 		const int fd = sp->perf_stat[i].fd;
 
 		if (fd > -1) {
@@ -569,7 +569,7 @@ int stress_perf_close(stress_perf_t *sp)
 	if (!sp->perf_opened)
 		goto out_ok;
 
-	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+	for (i = 0; (i < STRESS_PERF_MAX) && perf_info[i].label; i++) {
 		const int fd = sp->perf_stat[i].fd;
 
 		if (fd < 0 ) {
@@ -713,16 +713,18 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		uint64_t counter_totals[STRESS_PERF_MAX];
 		bool got_data = false;
 		char munged[64];
+		stress_perf_t *sp = &ss->stats[0]->sp;
+
+		if (!sp)
+			continue;
+		if (!stress_perf_stat_succeeded(sp))
+			continue;
 
 		(void)shim_memset(counter_totals, 0, sizeof(counter_totals));
 
 		/* Sum totals across all instances of the stressor */
-		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
+		for (p = 0; (p < STRESS_PERF_MAX) && perf_info[p].label; p++) {
 			int32_t j;
-			stress_perf_t *sp = &ss->stats[0]->sp;
-
-			if (!stress_perf_stat_succeeded(sp))
-				continue;
 
 			for (j = 0; j < ss->started_instances; j++) {
 				const uint64_t counter = sp->perf_stat[p].counter;
@@ -744,7 +746,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);
 
-		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
+		for (p = 0; (p < STRESS_PERF_MAX) && perf_info[p].label; p++) {
 			const char *l = perf_info[p].label;
 			const uint64_t ct = counter_totals[p];
 
