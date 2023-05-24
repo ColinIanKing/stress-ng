@@ -2479,6 +2479,7 @@ again:
 					name, (int)child_pid, j);
 
 				stats->start = stats->finish = stress_time_now();
+				stress_interrupts_start(stats->interrupts);
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
@@ -2506,6 +2507,9 @@ again:
 
 					(void)shim_memset(*checksum, 0, sizeof(**checksum));
 					rc = g_stressor_current->stressor->info->stressor(&args);
+					stress_interrupts_stop(stats->interrupts);
+					stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
+
 					pr_fail_check(&rc);
 
 #if defined(SA_SIGINFO) &&	\
@@ -4469,7 +4473,9 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		stress_metrics_dump(yaml, ticks_per_sec);
 
+
 	stress_metrics_check(&success);
+	stress_interrupts_dump(yaml, stressors_head);
 
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)

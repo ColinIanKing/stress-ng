@@ -222,6 +222,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_STATE_WAIT		(6)
 #define STRESS_STATE_ZOMBIE		(7)
 
+#define	STRESS_INTERRUPTS_MAX		(5)	/* see core_interrupts.c */
+
 /*
  *  Timing units
  */
@@ -360,7 +362,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		STRESS_BIT_UL(12)	/* security APIs */
 #define CLASS_PATHOLOGICAL	STRESS_BIT_UL(13)	/* can hang a machine */
 #define CLASS_GPU		STRESS_BIT_UL(14)	/* GPU */
-
 
 /* Help information for options */
 typedef struct {
@@ -871,6 +872,11 @@ typedef struct {
 } stress_tz_t;
 #endif
 
+typedef struct {
+	uint64_t	count_start;
+	uint64_t	count_stop;
+} stress_interrupts_t;
+
 /* Per stressor statistics and accounting info */
 typedef struct {
 	stress_counter_info_t ci;	/* counter info */
@@ -885,6 +891,7 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
+	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
 	stress_metrics_data_t metrics[STRESS_MISC_METRICS_MAX];
 #if defined(HAVE_GETRUSAGE)
 	double rusage_utime;		/* rusage user time */
@@ -892,6 +899,7 @@ typedef struct {
 	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
 #else
 	struct tms tms;			/* run time stats of process */
+					/* count of interrupts at start and stop */
 #endif
 	uint8_t padding[6];		/* padding */
 } stress_stats_t;
@@ -2758,6 +2766,12 @@ extern WARN_UNUSED size_t stress_hostname_length(void);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
+extern void stress_interrupts_start(stress_interrupts_t *counters);
+extern void stress_interrupts_stop(stress_interrupts_t *counters);
+extern void stress_interrupts_check_failure(const char *name,
+	stress_interrupts_t *counters, uint32_t instance, int *rc);
+extern void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list);
+
 extern void stress_metrics_set_const_check(const stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value);
 #if defined(HAVE_BUILTIN_CONSTANT_P)

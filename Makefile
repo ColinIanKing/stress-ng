@@ -497,6 +497,7 @@ CORE_SRC = \
 	core-helper.c \
 	core-icache.c \
 	core-ignite-cpu.c \
+	core-interrupts.c \
 	core-io-uring.c \
 	core-io-priority.c \
 	core-job.c \
