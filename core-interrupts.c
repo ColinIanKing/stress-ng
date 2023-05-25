@@ -37,6 +37,7 @@ static const stress_interrupt_info_t info[] = {
 	{ "DFR:",	true,	pr_fail, "Deferred Error APIC interrupt" },
 	{ "ERR:",	true,	pr_fail, "IO-APIC Bus Error" },
 	{ "SMI:",	false,	pr_warn, "System Management Interrupt" },
+	{ "Err:",	true,	pr_fail, "Suprious Unhandled Interrupt" },	/* ARM */
 };
 
 STRESS_ASSERT(SIZEOF_ARRAY(info) == STRESS_INTERRUPTS_MAX)
@@ -211,7 +212,6 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 				}
 
 				if (!pr_name) {
-
 					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 					pr_inf("%s:\n", munged);
 					pr_yaml(yaml, "    - stressor: %s\n", munged);
