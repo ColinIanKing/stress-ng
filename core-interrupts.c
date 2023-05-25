@@ -17,6 +17,9 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
+
+#define MSR_SMI_COUNT		(0x34)
 
 typedef void (*pr_func_t)(const char *fmt, ...);
 
@@ -33,6 +36,7 @@ static const stress_interrupt_info_t info[] = {
 	{ "SPU:",	false,	pr_warn, "Spurious Interrupt" },
 	{ "DFR:",	true,	pr_fail, "Deferred Error APIC interrupt" },
 	{ "ERR:",	true,	pr_fail, "IO-APIC Bus Error" },
+	{ "SMI:",	false,	pr_warn, "System Management Interrupt" },
 };
 
 STRESS_ASSERT(SIZEOF_ARRAY(info) == STRESS_INTERRUPTS_MAX)
@@ -46,6 +50,20 @@ static uint64_t stress_interrupts_count_by_type(const char *type)
 	FILE *fp;
 	char buffer[4096];
 	uint64_t count = 0;
+
+	/*
+	 *  Get SMI count, x86 only AND when run as root AND smi driver is installed
+	 */
+	if (!strncmp("SMI:", type, 4)) {
+#if defined(STRESS_ARCH_X86)
+		unsigned int cpu;
+
+		if ((shim_getcpu(&cpu, NULL, NULL) == 0) &&
+		    (stress_x86_smi_readmsr64(cpu, MSR_SMI_COUNT, &count) == 0))
+			return count;
+#endif
+		return 0;
+	}
 
 	fp = fopen("/proc/interrupts", "r");
 	if (!fp)
