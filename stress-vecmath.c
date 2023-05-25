@@ -161,39 +161,25 @@ static int stress_vecmath(const stress_args_t *args)
 static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 #endif
 {
-	stress_vint8_t a8 = { A(INT16x8) };
-	stress_vint8_t b8 = { B(INT16x8) };
-	stress_vint8_t c8 = { C(INT16x8) };
-	stress_vint8_t s8 = { S(INT16x8) };
+	/* checksum values */
+	const uint8_t csum8_val =  (uint8_t)0x1b;
+	const uint16_t csum16_val = (uint16_t)0xe76b;
+	const uint32_t csum32_val = (uint32_t)0xd18aef8UL;
+	const uint64_t csum64_val = (uint64_t)0x14eb06da7b6dd9c3ULL;
+#if defined(HAVE_INT128_T)
+	const uint64_t csum128lo_val = (uint64_t)0x00000000a61974ccULL;
+	const uint64_t csum128hi_val = (uint64_t)0x0625922a4b5da4bbULL;
+#endif
+
 	const stress_vint8_t v23_8 = { V23(INT16x8) };
 	const stress_vint8_t v3_8 = { V3(INT16x8) };
-
-	stress_vint16_t a16 = { A(INT8x16) };
-	stress_vint16_t b16 = { B(INT8x16) };
-	stress_vint16_t c16 = { C(INT8x16) };
-	stress_vint16_t s16 = { S(INT8x16) };
 	const stress_vint16_t v23_16 = { V23(INT8x16) };
 	const stress_vint16_t v3_16 = { V3(INT8x16) };
-
-	stress_vint32_t a32 = { A(INT4x32) };
-	stress_vint32_t b32 = { B(INT4x32) };
-	stress_vint32_t c32 = { C(INT4x32) };
-	stress_vint32_t s32 = { S(INT4x32) };
 	const stress_vint32_t v23_32 = { V23(INT4x32) };
 	const stress_vint32_t v3_32 = { V3(INT4x32) };
-
-	stress_vint64_t a64 = { A(INT2x64) };
-	stress_vint64_t b64 = { B(INT2x64) };
-	stress_vint64_t c64 = { C(INT2x64) };
-	stress_vint64_t s64 = { S(INT2x64) };
 	const stress_vint64_t v23_64 = { V23(INT2x64) };
 	const stress_vint64_t v3_64 = { V3(INT2x64) };
-
 #if defined(HAVE_INT128_T)
-	stress_vint128_t a128 = { A(INT1x128) };
-	stress_vint128_t b128 = { B(INT1x128) };
-	stress_vint128_t c128 = { C(INT1x128) };
-	stress_vint128_t s128 = { S(INT1x128) };
 	const stress_vint128_t v23_128 = { V23(INT1x128) };
 	const stress_vint128_t v3_128 = { V3(INT1x128) };
 #endif
@@ -203,6 +189,37 @@ static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 	do {
 		int i;
 
+		uint8_t csum8;
+		stress_vint8_t a8 = { A(INT16x8) };
+		stress_vint8_t b8 = { B(INT16x8) };
+		stress_vint8_t c8 = { C(INT16x8) };
+		stress_vint8_t s8 = { S(INT16x8) };
+
+		uint16_t csum16;
+		stress_vint16_t a16 = { A(INT8x16) };
+		stress_vint16_t b16 = { B(INT8x16) };
+		stress_vint16_t c16 = { C(INT8x16) };
+		stress_vint16_t s16 = { S(INT8x16) };
+
+		uint32_t csum32;
+		stress_vint32_t a32 = { A(INT4x32) };
+		stress_vint32_t b32 = { B(INT4x32) };
+		stress_vint32_t c32 = { C(INT4x32) };
+		stress_vint32_t s32 = { S(INT4x32) };
+
+		uint64_t csum64;
+		stress_vint64_t a64 = { A(INT2x64) };
+		stress_vint64_t b64 = { B(INT2x64) };
+		stress_vint64_t c64 = { C(INT2x64) };
+		stress_vint64_t s64 = { S(INT2x64) };
+
+#if defined(HAVE_INT128_T)
+		uint64_t csum128lo, csum128hi;
+		stress_vint128_t a128 = { A(INT1x128) };
+		stress_vint128_t b128 = { B(INT1x128) };
+		stress_vint128_t c128 = { C(INT1x128) };
+		stress_vint128_t s128 = { S(INT1x128) };
+#endif
 		for (i = 1000; i; i--) {
 			/* Good mix of vector ops */
 			OPS(a8, b8, c8, s8, v23_8, v3_8);
@@ -248,21 +265,51 @@ static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 #endif
 		}
 		inc_counter(args);
-	} while (keep_stressing(args));
 
-	/* Forces the compiler to actually compute the terms */
-	stress_uint8_put((uint8_t)(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
-				   a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
-				   a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
-				   a8[12] ^ a8[13] ^ a8[14] ^ a8[15]));
-	stress_uint16_put((uint16_t)(a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
-				     a16[4] ^ a16[5] ^ a16[6] ^ a16[7]));
-	stress_uint32_put((uint32_t)(a32[0] ^ a32[1] ^ a32[2] ^ a32[3]));
-	stress_uint64_put((uint64_t)(a64[0] ^ a64[1]));
+		csum8 = a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
+			a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
+			a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
+			a8[12] ^ a8[13] ^ a8[14] ^ a8[15];
+		stress_uint8_put(csum8);
+		if (csum8 != csum8_val) {
+			pr_fail("%s: 16 x 8 bit vector checksum mismatch, got 0x%2.2" PRIx8
+				", expected 0x%" PRIx8 "\n", args->name, csum8, csum8_val);
+		}
+
+		csum16 = a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
+			 a16[4] ^ a16[5] ^ a16[6] ^ a16[7];
+		stress_uint16_put(csum16);
+		if (csum16 != csum16_val) {
+			pr_fail("%s: 8 x 16 bit vector checksum mismatch, got 0x%4.4" PRIx16
+				", expected 0x%" PRIx16 "\n", args->name, csum16, csum16_val);
+		}
+
+		csum32 = a32[0] ^ a32[1] ^ a32[2] ^ a32[3];
+		stress_uint32_put(csum32);
+		if (csum32 != csum32_val) {
+			pr_fail("%s: 4 x 32 bit vector checksum mismatch, got 0x%8.8" PRIx32
+				", expected 0x%" PRIx32 "\n", args->name, csum32, csum32_val);
+		}
+
+		csum64 = a64[0] ^ a64[1];
+		stress_uint64_put(csum64);
+		if (csum64 != csum64_val) {
+			pr_fail("%s: 2 x 64 bit vector checksum mismatch, got 0x%16.16" PRIx64
+				", expected 0x%" PRIx64 "\n", args->name, csum64, csum64_val);
+		}
 
 #if defined(HAVE_INT128_T)
-	stress_uint128_put(a128[0]);
+		csum128lo = (uint64_t)(a128[0] & 0xffffffffULL);
+		csum128hi = (uint64_t)(a128[0] >> 64);
+		stress_uint128_put(a128[0]);
+		if ((csum128lo != csum128lo_val) && (csum128hi != csum128hi_val)) {
+			pr_fail("%s: 1 x 128 bit vector checksum mismatch, got 0x%16.16" PRIx64 ":%16.16" PRIx64
+				", expected 0x%16.16" PRIx64 "%16.16" PRIx64 "\n", args->name,
+				csum128hi, csum128lo, csum128hi_val, csum128lo_val);
+		}
 #endif
+	} while (keep_stressing(args));
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
@@ -277,6 +324,7 @@ stressor_info_t stress_vecmath_info = {
 stressor_info_t stress_vecmath_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #endif
