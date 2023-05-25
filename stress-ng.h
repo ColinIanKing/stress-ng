@@ -2793,6 +2793,7 @@ extern void stress_kill_and_wait(const stress_args_t *args,
 extern void stress_kill_and_wait_many(const stress_args_t *args,
 	const pid_t *pids, const size_t n_pids, const int signum,
 	const bool set_force_killed_counter);
+extern WARN_UNUSED int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val);
 
 /* process information */
 extern void stress_dump_processes(void);

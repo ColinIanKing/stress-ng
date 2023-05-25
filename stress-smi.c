@@ -130,31 +130,6 @@ static int stress_smi_supported(const char *name)
 }
 
 /*
- *  stress_smi_readmsr()
- *	64 bit read an MSR on a specified CPU
- */
-static int stress_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
-{
-	char buffer[PATH_MAX];
-	uint64_t value = 0;
-	int fd;
-	ssize_t ret;
-
-	*val = ~0UL;
-	(void)snprintf(buffer, sizeof(buffer), "/dev/cpu/%d/msr", cpu);
-	if ((fd = open(buffer, O_RDONLY)) < 0)
-		return -1;
-
-	ret = pread(fd, &value, 8, reg);
-	(void)close(fd);
-	if (ret < 0)
-		return -1;
-
-	*val = value;
-	return 0;
-}
-
-/*
  *  stress_smi_count()
  *	read SMI count across all CPUs, return -1 if not readable
  */
@@ -168,7 +143,7 @@ static int stress_smi_count(const int cpus, uint64_t *count)
 		uint64_t val;
 		int ret;
 
-		ret = stress_smi_readmsr64(i, MSR_SMI_COUNT, &val);
+		ret = stress_x86_smi_readmsr64(i, MSR_SMI_COUNT, &val);
 		if (ret < 0)
 			return -1;
 		*count += val;
@@ -197,7 +172,7 @@ static int stress_smi(const stress_args_t *args)
 	 *  If MSR can't be read maybe we need to load
 	 *  the module to do so
 	 */
-	if (stress_smi_readmsr64(0, MSR_SMI_COUNT, &val) < 0)
+	if (stress_x86_smi_readmsr64(0, MSR_SMI_COUNT, &val) < 0)
 		load_module = true;
 
 	/*
