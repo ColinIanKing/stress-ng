@@ -96,6 +96,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_prod(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j] += a[i][k] * b[k][j];
 			}
@@ -375,6 +376,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_hadamard(
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] * b[i][j];
 		}
@@ -422,6 +424,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_frobenius(
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < n; j++) {
 			sum += a[i][j] * b[i][j];
 		}
@@ -472,6 +475,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_copy(
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
+		/* unrolling does not help, the following turns into a memcpy */
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j];
 		}
@@ -495,6 +499,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_copy(
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
+		/* unrolling does not help, the following turns into a memcpy */
 		for (i = 0; i < n; i++) {
 			r[i][j] = a[i][j];
 		}
@@ -562,6 +567,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_zero(
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
+		/* unrolling does not help, the following turns into a memset */
 		for (j = 0; j < n; j++) {
 			r[i][j] = 0.0;
 		}
@@ -586,6 +592,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_zero(
 	for (j = 0; j < n; j++) {
 		register size_t i;
 
+		/* unrolling does not help, the following turns into a memset */
 		for (i = 0; i < n; i++) {
 			r[i][j] = 0.0;
 		}
@@ -610,6 +617,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_negate(
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < n; j++) {
 			r[i][j] = -a[i][j];
 		}
@@ -691,7 +699,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_identity(
 
 /*
  *  stress_matrix_xy_square()
- *	matrix product, r = a x a
+ *	matrix square, r = a x a
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_square(
 	const size_t n,
@@ -719,7 +727,7 @@ PRAGMA_UNROLL_N(8)
 
 /*
  *  stress_matrix_yx_square()
- *	matrix product, r = a x a
+ *	matrix square, r = a x a
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
 	const size_t n,
