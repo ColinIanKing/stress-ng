@@ -37,6 +37,7 @@ static const stress_interrupt_info_t info[] = {
 	{ "DFR:",	true,	pr_fail, "Deferred Error APIC interrupt" },
 	{ "ERR:",	true,	pr_fail, "IO-APIC Bus Error" },
 	{ "SMI:",	false,	pr_warn, "System Management Interrupt" },
+	{ "MIS:",	true,	pr_fail, "IO-APIC Miscount" },
 	{ "Err:",	true,	pr_fail, "Suprious Unhandled Interrupt" },	/* ARM */
 };
 
