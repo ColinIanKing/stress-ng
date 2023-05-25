@@ -42,7 +42,7 @@ typedef float 	stress_matrix_3d_type_t;
 /*
  *  the matrix stress test has different classes of matrix stressor
  */
-typedef void (*stress_matrix_3d_func)(
+typedef void (*stress_matrix_3d_func_t)(
 	const size_t n,
 	stress_matrix_3d_type_t a[RESTRICT n][n][n],
 	stress_matrix_3d_type_t b[RESTRICT n][n][n],
@@ -50,8 +50,11 @@ typedef void (*stress_matrix_3d_func)(
 
 typedef struct {
 	const char			*name;		/* human readable form of stressor */
-	const stress_matrix_3d_func	func[2];	/* method functions, x by y by z, z by y by x */
+	const stress_matrix_3d_func_t	func[2];	/* method functions, x by y by z, z by y by x */
 } stress_matrix_3d_method_info_t;
+
+static const char *current_method = NULL;		/* current matrix method */
+static size_t method_all_index;				/* all method index */
 
 static const stress_matrix_3d_method_info_t matrix_3d_methods[];
 
@@ -816,16 +819,14 @@ static void OPTIMIZE3 stress_matrix_3d_xyz_all(
 	stress_matrix_3d_type_t b[RESTRICT n][n][n],
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
-	static size_t i = 1;	/* Skip over stress_matrix_3d_all */
 	double t;
 
+	current_method = matrix_3d_methods[method_all_index].name;
+
 	t = stress_time_now();
-	matrix_3d_methods[i].func[0](n, a, b, r);
-	matrix_3d_metrics[i].duration += stress_time_now() - t;
-	matrix_3d_metrics[i].count += 1.0;
-	i++;
-	if (i >= SIZEOF_ARRAY(matrix_3d_methods))
-		i = 1;
+	matrix_3d_methods[method_all_index].func[0](n, a, b, r);
+	matrix_3d_metrics[method_all_index].duration += stress_time_now() - t;
+	matrix_3d_metrics[method_all_index].count += 1.0;
 }
 
 /*
@@ -838,18 +839,15 @@ static void OPTIMIZE3 stress_matrix_3d_zyx_all(
 	stress_matrix_3d_type_t b[RESTRICT n][n][n],
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
-	static size_t i = 1;	/* Skip over stress_matrix_3d_all */
 	double t;
 
-	t = stress_time_now();
-	matrix_3d_methods[i].func[1](n, a, b, r);
-	matrix_3d_metrics[i].duration += stress_time_now() - t;
-	matrix_3d_metrics[i].count += 1.0;
-	i++;
-	if (i >= SIZEOF_ARRAY(matrix_3d_methods))
-		i = 1;
-}
+	current_method = matrix_3d_methods[method_all_index].name;
 
+	t = stress_time_now();
+	matrix_3d_methods[method_all_index].func[1](n, a, b, r);
+	matrix_3d_metrics[method_all_index].duration += stress_time_now() - t;
+	matrix_3d_metrics[method_all_index].count += 1.0;
+}
 
 /*
  *  stress_set_matrix_3d_method()
@@ -900,11 +898,13 @@ static inline int stress_matrix_3d_exercise(
 {
 	int ret = EXIT_NO_RESOURCE;
 	typedef stress_matrix_3d_type_t (*matrix_3d_ptr_t)[n][n];
-	size_t matrix_3d_size = round_up(args->page_size, (sizeof(stress_matrix_3d_type_t) * n * n * n));
+	size_t matrix_3d_size = sizeof(stress_matrix_3d_type_t) * n * n * n;
+	size_t matrix_3d_mmap_size = round_up(args->page_size, matrix_3d_size);
 	const size_t num_matrix_3d_methods = SIZEOF_ARRAY(matrix_3d_methods);
-	const stress_matrix_3d_func func = matrix_3d_methods[matrix_3d_method].func[matrix_3d_zyx];
+	const stress_matrix_3d_func_t func = matrix_3d_methods[matrix_3d_method].func[matrix_3d_zyx];
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	matrix_3d_ptr_t a, b = NULL, r = NULL;
+	matrix_3d_ptr_t a, b = NULL, r = NULL, s = NULL;
 	register size_t i, j;
 	const stress_matrix_3d_type_t v = 65535 / (stress_matrix_3d_type_t)((uint64_t)~0);
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -912,28 +912,39 @@ static inline int stress_matrix_3d_exercise(
 	flags |= MAP_POPULATE;
 #endif
 
+	method_all_index = 1;
+	current_method = matrix_3d_methods[matrix_3d_method].name;
+
 	for (i = 0; i < num_matrix_3d_methods; i++) {
 		matrix_3d_metrics[i].duration = 0.0;
 		matrix_3d_metrics[i].count = 0.0;
 	}
 
-	a = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
+	a = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (a == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_ret;
 	}
-	b = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
+	b = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_a;
 	}
-	r = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
+	r = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_b;
+	}
+	if (verify) {
+		s = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_mmap_size,
+			PROT_READ | PROT_WRITE, flags, -1, 0);
+		if (s == MAP_FAILED) {
+			pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
+			goto tidy_r;
+		}
 	}
 
 	/*
@@ -962,6 +973,24 @@ static inline int stress_matrix_3d_exercise(
 		matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
 		matrix_3d_metrics[matrix_3d_method].count += 1.0;
 		inc_counter(args);
+
+		if (verify) {
+			t = stress_time_now();
+			(void)func(n, a, b, s);
+			matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
+			matrix_3d_metrics[matrix_3d_method].count += 1.0;
+			inc_counter(args);
+
+			if (memcmp(r, s, matrix_3d_size)) {
+				pr_fail("%s: %s: data difference between identical matrix-3d computations\n",
+					args->name, current_method);
+			}
+		}
+		if (matrix_3d_method == 0) {
+			method_all_index++;
+			if (method_all_index >= SIZEOF_ARRAY(matrix_3d_methods))
+				method_all_index = 1;
+		}
 	} while (keep_stressing(args));
 
 	/* Dump metrics except for 'all' method */
@@ -977,11 +1006,14 @@ static inline int stress_matrix_3d_exercise(
 	}
 
 	ret = EXIT_SUCCESS;
-	(void)munmap((void *)r, matrix_3d_size);
+	if (verify)
+		(void)munmap((void *)s, matrix_3d_mmap_size);
+tidy_r:
+	(void)munmap((void *)r, matrix_3d_mmap_size);
 tidy_b:
-	(void)munmap((void *)b, matrix_3d_size);
+	(void)munmap((void *)b, matrix_3d_mmap_size);
 tidy_a:
-	(void)munmap((void *)a, matrix_3d_size);
+	(void)munmap((void *)a, matrix_3d_mmap_size);
 tidy_ret:
 	return ret;
 }
@@ -1037,6 +1069,7 @@ stressor_info_t stress_matrix_3d_info = {
 	.set_default = stress_matrix_3d_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
