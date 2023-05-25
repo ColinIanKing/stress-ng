@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 
 	/* Name + dest reg */			/* Input -> Output */
@@ -177,9 +178,9 @@ bool stress_cpu_is_x86(void)
 
 	/* Intel CPU? */
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-	if ((memcmp(&ebx, "Genu", 4) == 0) &&
-	    (memcmp(&edx, "ineI", 4) == 0) &&
-	    (memcmp(&ecx, "ntel", 4) == 0))
+	if ((shim_memcmp(&ebx, "Genu", 4) == 0) &&
+	    (shim_memcmp(&edx, "ineI", 4) == 0) &&
+	    (shim_memcmp(&ecx, "ntel", 4) == 0))
 		return true;
 	else
 		return false;

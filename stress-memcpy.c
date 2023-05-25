@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-target-clones.h"
 
 #define ALIGN_SIZE	(64)
@@ -55,7 +56,7 @@ static OPTIMIZE3 void *memcpy_check_func(memcpy_func_t func, void *dest, const v
 {
 	void *ptr = func(dest, src, n);
 
-	if (memcmp(dest, src, n)) {
+	if (shim_memcmp(dest, src, n)) {
 		pr_fail("%s: %s: memcpy content is different than expected\n", s_args_name, s_method_name);
 	}
 	if (ptr != dest) {
@@ -73,7 +74,7 @@ static OPTIMIZE3 void *memmove_check_func(memcpy_func_t func, void *dest, const 
 {
 	void *ptr = func(dest, src, n);
 
-	if (memcmp(dest, src, n)) {
+	if (shim_memcmp(dest, src, n)) {
 		pr_fail("%s: %s: memmove content is different than expected\n", s_args_name, s_method_name);
 	}
 	if (ptr != dest) {

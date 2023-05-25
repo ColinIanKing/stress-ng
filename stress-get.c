@@ -549,7 +549,7 @@ static int stress_get(const stress_args_t *args)
 		 *  with it to increase kernel test coverage
 		 */
 		t1 = time(&t2);
-		if (memcmp(&t1, &t2, sizeof(t1))) {
+		if (shim_memcmp(&t1, &t2, sizeof(t1))) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
@@ -565,7 +565,7 @@ static int stress_get(const stress_args_t *args)
 
 		t1 = shim_time(&t2);
 		if ((t == (time_t)-1) && (errno != ENOSYS)) {
-			if (memcmp(&t1, &t2, sizeof(t1))) {
+			if (shim_memcmp(&t1, &t2, sizeof(t1))) {
 				pr_fail("%s: time failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}

@@ -41,6 +41,12 @@
 #define	shim_memmove(dst, src, n)	memmove(dst, src, n)
 #endif
 
+#if defined(HAVE_BUILTIN_MEMCMP)
+#define	shim_memcmp(dst, src, n)	__builtin_memcmp(dst, src, n)
+#else
+#define	shim_memcmp(dst, src, n)	memcmp(dst, src, n)
+#endif
+
 #if defined(HAVE_BUILTIN_CABSL)
 #define shim_cabsl(x)	__builtin_cabsl(x)
 #else

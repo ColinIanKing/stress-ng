@@ -137,7 +137,7 @@ static int stress_copy_file_range_verify(
 #endif
 
 		n = STRESS_MINIMUM(bytes_in, bytes_out);
-		if (memcmp(buf_in, buf_out, (size_t)n) != 0)
+		if (shim_memcmp(buf_in, buf_out, (size_t)n) != 0)
 			return -1;
 		bytes_left -= n;
 		*off_in += n;

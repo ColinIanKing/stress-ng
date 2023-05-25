@@ -553,7 +553,7 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err_close;
 		} else {
-			if (memcmp(input, output, DATA_LEN)) {
+			if (shim_memcmp(input, output, DATA_LEN)) {
 				pr_fail("%s: decrypted data "
 					"different from original data "
 					"using kernel crypto engine %s "

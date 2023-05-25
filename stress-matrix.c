@@ -957,7 +957,7 @@ static inline int stress_matrix_exercise(
 			matrix_metrics[matrix_method].count += 1.0;
 			inc_counter(args);
 
-			if (memcmp(r, s, matrix_size)) {
+			if (shim_memcmp(r, s, matrix_size)) {
 				pr_fail("%s: %s: data difference between identical matrix computations\n",
 					args->name, current_method);
 			}

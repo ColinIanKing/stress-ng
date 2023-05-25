@@ -2382,7 +2382,7 @@ static void syscall_permute(
 		struct itimerval it;
 
 		while (h) {
-			if (!memcmp(h->args, current_context->args, sizeof(h->args))) {
+			if (!shim_memcmp(h->args, current_context->args, sizeof(h->args))) {
 				switch (h->type) {
 				case SYSCALL_CRASH:
 					current_context->skip_crashed++;
