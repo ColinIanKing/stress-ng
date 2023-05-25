@@ -18,6 +18,8 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 
@@ -95,12 +97,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_add(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -126,8 +127,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_add(
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -149,12 +148,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_sub(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] - b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -180,8 +178,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_sub(
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -209,8 +205,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_trans(
 				r[i][j][k] = a[k][j][i];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -238,8 +232,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_trans(
 				r[i][j][k] = a[k][j][i];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -264,12 +256,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mult(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = v * a[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -298,8 +289,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mult(
 				r[i][j][k] = v * a[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -324,12 +313,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_div(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] / v;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -358,8 +346,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_div(
 				r[i][j][k] = a[i][j][k] / v;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -382,12 +368,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_hadamard(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] * b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -414,8 +399,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_hadamard(
 				r[i][j][k] = a[i][j][k] * b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -441,12 +424,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_frobenius(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				sum += a[i][j][k] * b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 	stress_float_put((float)sum);
 }
@@ -477,8 +459,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 				sum += a[i][j][k] * b[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 	stress_float_put((float)sum);
 }
@@ -503,12 +483,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_copy(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+			/* unrolling does not help, the following turns into a memcpy */
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -532,12 +511,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_copy(
 		for (j = 0; j < n; j++) {
 			register size_t i;
 
+			/* unrolling does not help, the following turns into a memcpy */
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -559,12 +537,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mean(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / (stress_matrix_3d_type_t)2.0;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -590,8 +567,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mean(
 				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / (stress_matrix_3d_type_t)2.0;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -613,15 +588,15 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_zero(
 	for (i = 0; i < n; i++) {
 		register size_t j;
 
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+			/* unrolling does not help, the following turns into a memzero */
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = 0.0;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -650,8 +625,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_zero(
 				r[i][j][k] = 0.0;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -676,12 +649,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_negate(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+PRAGMA_UNROLL_N(8)
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = -a[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -710,8 +682,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_negate(
 				r[i][j][k] = -a[i][j][k];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -736,12 +706,11 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_identity(
 		for (j = 0; j < n; j++) {
 			register size_t k;
 
+			/* loop unrolling does not improve the loop */
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = ((i == j) && (j == k)) ? 1.0 : 0.0;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -770,8 +739,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_identity(
 				r[i][j][k] = ((i == j) && (j == k)) ? 1.0 : 0.0;
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -981,7 +948,7 @@ static inline int stress_matrix_3d_exercise(
 			matrix_3d_metrics[matrix_3d_method].count += 1.0;
 			inc_counter(args);
 
-			if (memcmp(r, s, matrix_3d_size)) {
+			if (shim_memcmp(r, s, matrix_3d_size)) {
 				pr_fail("%s: %s: data difference between identical matrix-3d computations\n",
 					args->name, current_method);
 			}
