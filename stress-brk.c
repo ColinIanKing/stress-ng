@@ -105,6 +105,16 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 #endif
 }
 
+/*
+ *  stress_brk_get_addr()
+ *	get current brk addr
+ */
+static void *stress_brk_get_addr(void)
+{
+	(void)shim_sbrk(0);	/* previous */
+	return shim_sbrk(0);	/* current */
+}
+
 static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 {
 	uint8_t *start_ptr, *unmap_ptr = NULL;
@@ -134,6 +144,8 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 		uint8_t *ptr;
 		double t;
 
+		ptr = stress_brk_get_addr();
+
 		/* Low memory avoidance, re-start */
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
 			VOID_RET(int, shim_brk(start_ptr));
@@ -142,32 +154,51 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 		if (LIKELY(i < 8)) {
 			/* Expand brk by 1 page */
 			t = stress_time_now();
-			ptr = shim_sbrk((intptr_t)page_size);
-			if (LIKELY(ptr != (void *)-1)) {
+			if (LIKELY(shim_sbrk((intptr_t)page_size) != (void *)-1)) {
+				uintptr_t *tmp;
+
 				sbrk_exp_duration += stress_time_now() - t;
 				sbrk_exp_count += 1.0;
+
+				/* now get current brk addr */
+				ptr = stress_brk_get_addr();
+
 				if (!unmap_ptr)
 					unmap_ptr = ptr;
 				stress_brk_page_resident(ptr, page_size, brk_touch);
+
+				/* stash a check value */
+				tmp = (uintptr_t *)((uintptr_t)ptr - sizeof(uintptr_t));
+				*tmp = (uintptr_t)tmp;
 			}
 		} else if (i < 9) {
 			/* brk to same brk position */
-			ptr = shim_sbrk(0);
+			ptr = stress_brk_get_addr();
 			if (UNLIKELY(shim_brk(ptr) < 0))
 				ptr = (void *)-1;
 		} else if (i < 10) {
 			/* Shrink brk by 1 page */
 			t = stress_time_now();
-			ptr = shim_sbrk(0);
-			if (LIKELY(ptr != (void *)-1)) {
+			if (LIKELY(shim_sbrk(-page_size) != (void *)-1)) {
 				sbrk_shr_duration += stress_time_now() - t;
 				sbrk_shr_count += 1.0;
 			}
-			ptr -= page_size;
-			if (UNLIKELY(shim_brk(ptr) < 0))
+			/* now get current brk addr */
+			ptr = stress_brk_get_addr();
+			if (UNLIKELY(shim_brk(ptr) < 0)) {
 				ptr = (void *)-1;
-			else
+			} else {
+				uintptr_t *tmp;
+
 				stress_brk_page_resident(ptr, page_size, brk_touch);
+				tmp = (uintptr_t *)((uintptr_t)ptr - sizeof(uintptr_t));
+				if (*tmp != (uintptr_t)tmp) {
+					pr_fail("%s: brk shrink page contains incorrect "
+						"check value 0x%" PRIxPTR ", expected "
+						"0x%" PRIxPTR "\n",
+						args->name, *tmp, (uintptr_t)tmp);
+				}
+			}
 		} else {
 			i = 0;
 			/* remove a page from brk region */
@@ -235,5 +266,6 @@ stressor_info_t stress_brk_info = {
 	.supported = stress_brk_supported,
 	.class = CLASS_OS | CLASS_VM,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
