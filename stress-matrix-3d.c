@@ -1019,10 +1019,10 @@ tidy_ret:
 }
 
 /*
- *  stress_matrix()
+ *  stress_matrix_3d()
  *	stress CPU by doing floating point math ops
  */
-static int stress_matrix(const stress_args_t *args)
+static int stress_matrix_3d(const stress_args_t *args)
 {
 	size_t matrix_3d_method = 0; 	/* All method */
 	size_t matrix_3d_size = DEFAULT_MATRIX3D_SIZE;
@@ -1065,7 +1065,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 stressor_info_t stress_matrix_3d_info = {
-	.stressor = stress_matrix,
+	.stressor = stress_matrix_3d,
 	.set_default = stress_matrix_3d_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
