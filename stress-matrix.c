@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -42,7 +43,7 @@ typedef float	stress_matrix_type_t;
 /*
  *  the matrix stress test has different classes of maxtrix stressor
  */
-typedef void (*stress_matrix_func)(
+typedef void (*stress_matrix_func_t)(
 	const size_t n,
 	stress_matrix_type_t a[RESTRICT n][n],
 	stress_matrix_type_t b[RESTRICT n][n],
@@ -50,8 +51,11 @@ typedef void (*stress_matrix_func)(
 
 typedef struct {
 	const char			*name;		/* human readable form of stressor */
-	const stress_matrix_func	func[2];	/* method functions, x by y, y by x */
+	const stress_matrix_func_t	func[2];	/* method functions, x by y, y by x */
 } stress_matrix_method_info_t;
+
+static const char *current_method = NULL;		/* current matrix method */
+static size_t method_all_index;				/* all method index */
 
 static const stress_matrix_method_info_t matrix_methods[];
 
@@ -96,8 +100,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_prod(
 				r[i][j] += a[i][k] * b[k][j];
 			}
 		}
-		if (!keep_stressing_flag())
-			return;
 	}
 }
 
@@ -123,8 +125,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_prod(
 				r[i][j] += a[i][k] * b[k][j];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -714,8 +714,6 @@ PRAGMA_UNROLL_N(8)
 				r[i][j] += a[i][k] * a[k][j];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -743,8 +741,6 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
 				r[i][j] += a[i][k] * a[k][j];
 			}
 		}
-		if (UNLIKELY(!keep_stressing_flag()))
-			return;
 	}
 }
 
@@ -802,16 +798,14 @@ static void OPTIMIZE3 stress_matrix_xy_all(
 	stress_matrix_type_t b[RESTRICT n][n],
 	stress_matrix_type_t r[RESTRICT n][n])
 {
-	static size_t i = 1;	/* Skip over stress_matrix_all */
 	double t;
 
+	current_method = matrix_methods[method_all_index].name;
+
 	t = stress_time_now();
-	matrix_methods[i].func[0](n, a, b, r);
-	matrix_metrics[i].duration += stress_time_now() - t;
-	matrix_metrics[i].count += 1.0;
-	i++;
-	if (i >= SIZEOF_ARRAY(matrix_methods))
-		i = 1;
+	matrix_methods[method_all_index].func[0](n, a, b, r);
+	matrix_metrics[method_all_index].duration += stress_time_now() - t;
+	matrix_metrics[method_all_index].count += 1.0;
 }
 
 /*
@@ -824,16 +818,14 @@ static void OPTIMIZE3 stress_matrix_yx_all(
 	stress_matrix_type_t b[RESTRICT n][n],
 	stress_matrix_type_t r[RESTRICT n][n])
 {
-	static size_t i = 1;	/* Skip over stress_matrix_all */
 	double t;
 
+	current_method = matrix_methods[method_all_index].name;
+
 	t = stress_time_now();
-	matrix_methods[i].func[1](n, a, b, r);
-	matrix_metrics[i].duration += stress_time_now() - t;
-	matrix_metrics[i].count += 1.0;
-	i++;
-	if (i >= SIZEOF_ARRAY(matrix_methods))
-		i = 1;
+	matrix_methods[method_all_index].func[1](n, a, b, r);
+	matrix_metrics[method_all_index].duration += stress_time_now() - t;
+	matrix_metrics[method_all_index].count += 1.0;
 }
 
 /*
@@ -883,42 +875,56 @@ static inline int stress_matrix_exercise(
 	const size_t matrix_yx,
 	const size_t n)
 {
-	int ret = EXIT_NO_RESOURCE;
 	typedef stress_matrix_type_t (*matrix_ptr_t)[n];
-	size_t matrix_size = round_up(args->page_size, (sizeof(stress_matrix_type_t) * n * n));
-	const size_t num_matrix_methods = SIZEOF_ARRAY(matrix_methods);
-	const stress_matrix_func func = matrix_methods[matrix_method].func[matrix_yx];
 
-	matrix_ptr_t a, b = NULL, r = NULL;
+	int ret = EXIT_NO_RESOURCE;
+	const size_t matrix_size = sizeof(stress_matrix_type_t) * n * n;
+	const size_t matrix_mmap_size = round_up(args->page_size, matrix_size);
+	const size_t num_matrix_methods = SIZEOF_ARRAY(matrix_methods);
+	const stress_matrix_func_t func = matrix_methods[matrix_method].func[matrix_yx];
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+
+	matrix_ptr_t a, b = NULL, r = NULL, s = NULL;
 	register size_t i, j;
 	const stress_matrix_type_t v = 65535 / (stress_matrix_type_t)((uint64_t)~0);
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
+	method_all_index = 1;
+
+	current_method = matrix_methods[matrix_method].name;
 
 	for (i = 0; i < num_matrix_methods; i++) {
 		matrix_metrics[i].duration = 0.0;
 		matrix_metrics[i].count = 0.0;
 	}
 
-	a = (matrix_ptr_t)mmap(NULL, matrix_size,
+	a = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (a == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_ret;
 	}
-	b = (matrix_ptr_t)mmap(NULL, matrix_size,
+	b = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_a;
 	}
-	r = (matrix_ptr_t)mmap(NULL, matrix_size,
+	r = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_b;
+	}
+	if (verify) {
+		s = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
+			PROT_READ | PROT_WRITE, flags, -1, 0);
+		if (s == MAP_FAILED) {
+			pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
+			goto tidy_r;
+		}
 	}
 
 	/*
@@ -943,6 +949,24 @@ static inline int stress_matrix_exercise(
 		matrix_metrics[matrix_method].duration += stress_time_now() - t;
 		matrix_metrics[matrix_method].count += 1.0;
 		inc_counter(args);
+
+		if (verify) {
+			t = stress_time_now();
+			(void)func(n, a, b, s);
+			matrix_metrics[matrix_method].duration += stress_time_now() - t;
+			matrix_metrics[matrix_method].count += 1.0;
+			inc_counter(args);
+
+			if (memcmp(r, s, matrix_size)) {
+				pr_fail("%s: %s: data difference between identical matrix computations\n",
+					args->name, current_method);
+			}
+		}
+		if (matrix_method == 0) {
+			method_all_index++;
+			if (method_all_index >= SIZEOF_ARRAY(matrix_methods))
+				method_all_index = 1;
+		}
 	} while (keep_stressing(args));
 
 	/* Dump metrics except for 'all' method */
@@ -959,11 +983,14 @@ static inline int stress_matrix_exercise(
 
 	ret = EXIT_SUCCESS;
 
-	(void)munmap((void *)r, matrix_size);
+	if (verify)
+		(void)munmap((void *)s, matrix_mmap_size);
+tidy_r:
+	(void)munmap((void *)r, matrix_mmap_size);
 tidy_b:
-	(void)munmap((void *)b, matrix_size);
+	(void)munmap((void *)b, matrix_mmap_size);
 tidy_a:
-	(void)munmap((void *)a, matrix_size);
+	(void)munmap((void *)a, matrix_mmap_size);
 tidy_ret:
 	return ret;
 }
@@ -1019,6 +1046,7 @@ stressor_info_t stress_matrix_info = {
 	.set_default = stress_matrix_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 
