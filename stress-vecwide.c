@@ -65,7 +65,9 @@ typedef struct {
 	uint8_t	s[VEC_MAX_SZ];
 	uint8_t v23[VEC_MAX_SZ];
 	uint8_t v3[VEC_MAX_SZ];
-	uint8_t	res[VEC_MAX_SZ];
+	uint8_t	res1[VEC_MAX_SZ];
+	uint8_t	res2[VEC_MAX_SZ];
+	uint8_t *res;	/* pointer to res1 and/or res2 */
 } vec_args_t;
 
 typedef void (*stress_vecwide_func_t)(const vec_args_t *vec_args);
@@ -154,6 +156,7 @@ static int stress_vecwide(const stress_args_t *args)
 	double total_duration = 0.0;
 	size_t total_bytes = 0;
 	const size_t vec_args_size = (sizeof(*vec_args) + args->page_size - 1) & ~(args->page_size - 1);
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	vec_args = (vec_args_t *)mmap(NULL, vec_args_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -184,6 +187,7 @@ static int stress_vecwide(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 			double t1, t2, dt;
 
+			vec_args->res = vec_args->res1;
 			t1 = stress_time_now();
 			stress_vecwide_funcs[i].vecwide_func(vec_args);
 			t2 = stress_time_now();
@@ -192,8 +196,24 @@ static int stress_vecwide(const stress_args_t *args)
 			total_duration += dt;
 			stress_vecwide_funcs[i].duration += dt;
 			stress_vecwide_funcs[i].count += 1.0;
-
 			inc_counter(args);
+
+			if (verify) {
+				vec_args->res = vec_args->res2;
+				t1 = stress_time_now();
+				stress_vecwide_funcs[i].vecwide_func(vec_args);
+				t2 = stress_time_now();
+				dt = (t2 - t1);
+
+				total_duration += dt;
+				stress_vecwide_funcs[i].duration += dt;
+				stress_vecwide_funcs[i].count += 1.0;
+				inc_counter(args);
+
+				if (shim_memcmp(vec_args->res1, vec_args->res2, sizeof(vec_args->res1))) {
+					pr_fail("%s: data difference between identical vector computations\n", args->name);
+				}
+			}
 		}
 	} while (keep_stressing(args));
 
@@ -239,6 +259,7 @@ static int stress_vecwide(const stress_args_t *args)
 stressor_info_t stress_vecwide_info = {
 	.stressor = stress_vecwide,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
