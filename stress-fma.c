@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-put.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
@@ -26,11 +27,15 @@
 #define FMA_UNROLL	(8)
 
 typedef struct {
+	double  *double_a;
 	double	double_init[FMA_ELEMENTS];
-	double	double_a[FMA_ELEMENTS];
+	double	double_a1[FMA_ELEMENTS];
+	double	double_a2[FMA_ELEMENTS];
 
+	float	*float_a;
 	float	float_init[FMA_ELEMENTS];
-	float	float_a[FMA_ELEMENTS];
+	float	float_a1[FMA_ELEMENTS];
+	float	float_a2[FMA_ELEMENTS];
 
 	double	double_b;
 	double	double_c;
@@ -149,19 +154,18 @@ static inline void stress_fma_init(stress_fma_t *fma)
 
 static inline  void stress_fma_reset_a(stress_fma_t *fma)
 {
-	register size_t i;
+	(void)shim_memcpy(fma->double_a1, fma->double_init, sizeof(fma->double_init));
+	(void)shim_memcpy(fma->double_a2, fma->double_init, sizeof(fma->double_init));
 
-	for (i = 0; i < FMA_ELEMENTS; i++)
-		fma->double_a[i] = fma->double_init[i];
-
-	for (i = 0; i < FMA_ELEMENTS; i++)
-		fma->float_a[i] = fma->float_init[i];
+	(void)shim_memcpy(fma->float_a1, fma->float_init, sizeof(fma->float_init));
+	(void)shim_memcpy(fma->float_a2, fma->float_init, sizeof(fma->float_init));
 }
 
 static int stress_fma(const stress_args_t *args)
 {
 	stress_fma_t *fma;
 	register size_t idx_b = 0, idx_c = 0;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	fma = (stress_fma_t *)mmap(NULL, sizeof(*fma), PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -186,15 +190,38 @@ static int stress_fma(const stress_args_t *args)
 		if (idx_c >= FMA_ELEMENTS)
 			idx_c = 0;
 
+		fma->double_a = fma->double_a1;
 		fma->double_b = fma->double_a[idx_b];
 		fma->double_c = fma->double_a[idx_c];
-
+		fma->float_a = fma->float_a1;
 		fma->float_b = fma->float_a[idx_b];
 		fma->float_c = fma->float_a[idx_c];
 
-		for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++)
+		for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++) {
 			stress_fma_funcs[i](fma);
+		}
 		inc_counter(args);
+
+		if (verify) {
+			fma->double_a = fma->double_a2;
+			fma->double_b = fma->double_a[idx_b];
+			fma->double_c = fma->double_a[idx_c];
+			fma->float_a = fma->float_a2;
+			fma->float_b = fma->float_a[idx_b];
+			fma->float_c = fma->float_a[idx_c];
+
+			for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++) {
+				stress_fma_funcs[i](fma);
+			}
+			inc_counter(args);
+
+			if (shim_memcmp(fma->double_a1, fma->double_a2, sizeof(fma->double_a1))) {
+				pr_fail("%s: data difference between identical double fma computations\n", args->name);
+			}
+			if (shim_memcmp(fma->float_a1, fma->float_a2, sizeof(fma->float_a1))) {
+				pr_fail("%s: data difference between identical float fma computations\n", args->name);
+			}
+		}
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -207,5 +234,6 @@ static int stress_fma(const stress_args_t *args)
 stressor_info_t stress_fma_info = {
 	.stressor = stress_fma,
 	.class = CLASS_CPU,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
