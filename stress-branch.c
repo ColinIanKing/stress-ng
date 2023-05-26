@@ -29,16 +29,19 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LABEL_AS_VALUE) &&		\
     !defined(__PCC__)
 
-#define RESEED_JMP					\
+#define RESEED_JMP(n)					\
 {							\
 	register const uint32_t idx = (seed >> 22);	\
 	register const void *label = labels[idx];	\
 							\
+	/* count every 64th branch label */		\
+	if ((n & 0x3f) == 0)				\
+		counters[n >> 6]++;			\
 	seed = (a * seed + c);				\
 	goto *label;					\
 }
 
-#define J(n) L ## n:	RESEED_JMP
+#define J(n) L ## n:	RESEED_JMP(n)
 
 /*
  *  stress_branch()
@@ -46,6 +49,11 @@ static const stress_help_t help[] = {
  */
 static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 {
+	/* 64 bit counters is good enough for runs for tens of thousands of years */
+	uint64_t lo, hi, bogo_counter, bogo_thresh;
+	int rc = EXIT_SUCCESS;
+
+	register size_t i;
 	register uint32_t const a = 16843009;
 	register uint32_t const c = 826366247;
 	register uint32_t seed = 123456789;
@@ -196,6 +204,11 @@ static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 		&&L0x3f8, &&L0x3f9, &&L0x3fa, &&L0x3fb, &&L0x3fc, &&L0x3fd, &&L0x3fe, &&L0x3ff,
 	};
 
+	static uint64_t counters[SIZEOF_ARRAY(labels) >> 6] ALIGNED(64);
+
+	for (i = 0; i < SIZEOF_ARRAY(counters); i++)
+		counters[i] = 0ULL;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (;;) {
@@ -207,7 +220,7 @@ L0x000:
 #endif
 		if (!keep_stressing(args))
 			break;
-		RESEED_JMP
+		RESEED_JMP(0x000)
 
 			 J(0x001) J(0x002) J(0x003) J(0x004) J(0x005) J(0x006) J(0x007)
 		J(0x008) J(0x009) J(0x00a) J(0x00b) J(0x00c) J(0x00d) J(0x00e) J(0x00f)
@@ -355,12 +368,35 @@ L0x000:
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	bogo_counter = get_counter(args);
+	bogo_thresh = bogo_counter / 10;
+	lo = bogo_counter - bogo_thresh;
+	hi = bogo_counter + bogo_thresh;
+
+	/*
+	 *  sanity check that every 64th branch got a correct proportion
+	 *  of execution hits. Only check when we have enough hits as
+	 *  we need to get a fairly large number of branches executed to
+	 *  get an even psuedo-random distribution
+	 */
+	if (bogo_counter > 10000) {
+		for (i = 0; i < SIZEOF_ARRAY(counters); i++) {
+			if ((counters[i] < lo) || (counters[i] > hi)) {
+				pr_fail("%s: branch label %zd execution count out by more than 10%%, "
+					"got %" PRIu64 ", expected between %" PRIu64 " and %" PRIu64 "\n",
+					args->name, i * 64, counters[i], lo, hi);
+				rc = EXIT_FAILURE;
+			}
+		}
+	}
+
+	return rc;
 }
 
 stressor_info_t stress_branch_info = {
 	.stressor = stress_branch,
 	.class = CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
