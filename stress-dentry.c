@@ -97,56 +97,86 @@ static int stress_set_dentry_order(const char *opt)
 }
 
 /*
+ *  stress_dentry_unlink_file()
+ *	unlink a file. if verify mode is enabled, read and check
+ *	contents to make sure it matches the expected gray code
+ */
+static void stress_dentry_unlink_file(
+	const stress_args_t *args,
+	const uint64_t gray_code,
+	const bool verify,
+	uint64_t *read_errors)
+{
+	char path[PATH_MAX];
+
+	stress_temp_filename_args(args, path, sizeof(path), gray_code * 2);
+	if (verify) {
+		int fd;
+		uint64_t val;
+		ssize_t rret;
+
+		fd = open(path, O_RDONLY);
+		if (fd >= 0) {
+			rret = read(fd, &val, sizeof(val));
+			if ((rret == sizeof(val)) && (val != gray_code)) {
+				pr_inf("err: %" PRIx64 " vs %" PRIx64 "\n",
+					val, gray_code);
+				(*read_errors)++;
+			}
+			(void)close(fd);
+		}
+	}
+	(void)shim_unlink(path);
+}
+
+/*
  *  stress_dentry_unlink()
  *	remove all dentries
  */
 static void stress_dentry_unlink(
 	const stress_args_t *args,
 	const uint64_t n,
-	const uint8_t dentry_order)
+	const uint8_t dentry_order,
+	const bool verify)
 {
 	uint64_t i, j;
 	uint64_t prime;
+	uint64_t read_errors = 0ULL;
 	const uint8_t ord = (dentry_order == ORDER_RANDOM) ?
 				stress_mwc8modn(3) : dentry_order;
 
 	switch (ord) {
 	case ORDER_REVERSE:
 		for (i = 0; i < n; i++) {
-			char path[PATH_MAX];
 			uint64_t gray_code;
 
 			j = (n - 1) - i;
 			gray_code = (j >> 1) ^ j;
-
-			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code * 2);
-			(void)shim_unlink(path);
+			stress_dentry_unlink_file(args, gray_code, verify, &read_errors);
 		}
 		break;
 	case ORDER_STRIDE:
 		prime = stress_get_next_prime64(n);
 		for (i = 0, j = prime; i < n; i++, j += prime) {
-			char path[PATH_MAX];
 			const uint64_t k = j % n;
 			const uint64_t gray_code = (k >> 1) ^ k;
 
-			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code * 2);
-			(void)shim_unlink(path);
+			stress_dentry_unlink_file(args, gray_code, verify, &read_errors);
 		}
 		break;
 	case ORDER_FORWARD:
 	default:
 		for (i = 0; i < n; i++) {
-			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
 
-			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code * 2);
-			(void)shim_unlink(path);
+			stress_dentry_unlink_file(args, gray_code, verify, &read_errors);
 		}
 		break;
+	}
+
+	if (read_errors > 0) {
+		pr_fail("%s: %" PRIu64 " files did not contain the expected graycode check data\n",
+			args->name, read_errors);
 	}
 }
 
@@ -320,6 +350,7 @@ static int stress_dentry(const stress_args_t *args)
 	double bogus_access_duration = 0.0, bogus_access_count = 0.0;
 	double bogus_unlink_duration = 0.0, bogus_unlink_count = 0.0;
 	double rate;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_get_setting("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -364,8 +395,17 @@ static int stress_dentry(const stress_args_t *args)
 			}
 			creat_duration += stress_time_now() - t;
 			creat_count += 1.0;
-			(void)close(fd);
 
+			if (verify) {
+				ssize_t wret;
+
+				wret = write(fd, &gray_code, sizeof(gray_code));
+				if (wret < 0) {
+					(void)close(fd);
+					break;
+				}
+			}
+			(void)close(fd);
 			inc_counter(args);
 		}
 
@@ -422,7 +462,7 @@ static int stress_dentry(const stress_args_t *args)
 		/*
 		 *  And remove
 		 */
-		stress_dentry_unlink(args, n, dentry_order);
+		stress_dentry_unlink(args, n, dentry_order, verify);
 		stress_dentry_misc(dir_path);
 
 		if (!keep_stressing_flag())
@@ -448,7 +488,7 @@ abort:
 	stress_metrics_set(args, 3, "nanosecs per bogus file unlink", rate * STRESS_DBL_NANOSECOND);
 
 	/* force unlink of all files */
-	stress_dentry_unlink(args, dentries, dentry_order);
+	stress_dentry_unlink(args, dentries, dentry_order, verify);
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
@@ -464,5 +504,6 @@ stressor_info_t stress_dentry_info = {
 	.stressor = stress_dentry,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
