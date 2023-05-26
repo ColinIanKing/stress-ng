@@ -1668,6 +1668,8 @@ static void stress_verifiable(void)
 	stress_verifiable_mode(VERIFY_ALWAYS);
 	(void)printf("\nVerification enabled by --verify option:\n");
 	stress_verifiable_mode(VERIFY_OPTIONAL);
+	(void)printf("\nVerification not implemented:\n");
+	stress_verifiable_mode(VERIFY_NONE);
 }
 
 /*
@@ -2509,7 +2511,6 @@ again:
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					stress_interrupts_stop(stats->interrupts);
 					stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
-
 					pr_fail_check(&rc);
 
 #if defined(SA_SIGINFO) &&	\
