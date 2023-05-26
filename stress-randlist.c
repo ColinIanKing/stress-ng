@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
 #include "core-put.h"
 
 #define STRESS_RANDLIST_DEFAULT_ITEMS	(100000)
@@ -38,6 +39,7 @@ static const stress_help_t help[] = {
 
 typedef struct stress_randlist_item {
 	struct stress_randlist_item *next;
+	uint8_t dataval;
 	uint8_t alloc_type:1;
 	uint8_t data[];
 } stress_randlist_item_t;
@@ -122,6 +124,48 @@ static void stress_randlist_enomem(const stress_args_t *args)
 		args->name);
 }
 
+static inline uint8_t OPTIMIZE3 stress_randlist_bad_data(
+	const stress_randlist_item_t *ptr,
+	const size_t randlist_size)
+{
+	register const uint8_t *data = ptr->data;
+	register const uint8_t *end = data + randlist_size;
+	register const uint8_t dataval = ptr->dataval;
+
+PRAGMA_UNROLL_N(8)
+	while (data < end) {
+		if (*(data++) != dataval)
+			return true;
+	}
+	return false;
+}
+
+static inline void OPTIMIZE3 stress_randlist_exercise(
+	const stress_args_t *args,
+	stress_randlist_item_t *head,
+	const size_t randlist_size,
+	const bool verify)
+{
+	register stress_randlist_item_t *ptr;
+	uint8_t dataval = stress_mwc8();
+
+	for (ptr = head; ptr; ptr = ptr->next) {
+		ptr->dataval = dataval;
+		(void)shim_memset(ptr->data, dataval, randlist_size);
+		dataval++;
+		if (!keep_stressing_flag())
+			break;
+	}
+
+	for (ptr = head; ptr; ptr = ptr->next) {
+		if (verify && stress_randlist_bad_data(ptr, randlist_size)) {
+			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
+		}
+		if (!keep_stressing_flag())
+			break;
+	}
+}
+
 /*
  *  stress_randlist()
  *	stress a list containing random values
@@ -134,6 +178,7 @@ static int stress_randlist(const stress_args_t *args)
 	stress_randlist_item_t *compact_ptr = NULL;
 	bool do_mmap = false;
 	bool randlist_compact = false;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	size_t randlist_items = STRESS_RANDLIST_DEFAULT_ITEMS;
 	size_t randlist_size = STRESS_RANDLIST_DEFAULT_SIZE;
 	size_t heap_allocs = 0;
@@ -239,21 +284,7 @@ retry:
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (ptr = head; ptr; ptr = ptr->next) {
-			(void)shim_memset(ptr->data, stress_mwc8(), randlist_size);
-			if (!keep_stressing_flag())
-				break;
-		}
-
-		for (ptr = head; ptr; ptr = ptr->next) {
-			uint32_t sum = 0;
-			for (i = 0; i < randlist_size; i++) {
-				sum += ptr->data[i];
-			}
-			stress_uint32_put(sum);
-			if (!keep_stressing_flag())
-				break;
-		}
+		stress_randlist_exercise(args, head, randlist_size, verify);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -285,5 +316,6 @@ stressor_info_t stress_randlist_info = {
 	.stressor = stress_randlist,
 	.class = CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
