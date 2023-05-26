@@ -211,6 +211,7 @@ static int stress_close(const stress_args_t *args)
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
+	bool close_failure = false;
 	double max_duration = 0.0, duration = 0.0, count = 0.0, rate;
 #if defined(HAVE_FACCESSAT)
 	int file_fd = -1;
@@ -422,8 +423,24 @@ static int stress_close(const stress_args_t *args)
 			if (LIKELY(close(fd) == 0)) {
 				duration += stress_time_now() - t;
 				count += 1.0;
-			}
 
+				/*
+				 *  A close on a successfully closed fd should fail
+				 */
+				if (close(fd) == 0) {
+					pr_fail("%s: unexpectedly able to close the same file %d twice\n",
+						args->name, fd);
+					close_failure = true;
+				} else {
+					if ((errno != EBADF) &&
+					    (errno != EINTR)) {
+						pr_fail("%s: expected error on close failure, error=%d (%s)\n",
+							args->name,  errno, strerror(errno));
+						close_failure = true;
+					}
+				}
+			
+			}
 			if (dupfd != -1)
 				(void)close(dupfd);
 		}
@@ -441,7 +458,7 @@ static int stress_close(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	rc = EXIT_SUCCESS;
+	rc = close_failure ? EXIT_FAILURE : EXIT_SUCCESS;
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -472,6 +489,7 @@ tidy:
 stressor_info_t stress_close_info = {
 	.stressor = stress_close,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
