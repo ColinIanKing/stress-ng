@@ -89,7 +89,6 @@ static void stress_stack_alloc(
 	const bool stack_unmap,
 	ssize_t last_size)
 {
-
 	const size_t page_size = args->page_size;
 	const size_t page_size4 = page_size << 2;
 	uint32_t data[STRESS_DATA_SIZE / sizeof(uint32_t)];
@@ -151,9 +150,6 @@ static void stress_stack_alloc(
 
 		(void)munmap((void *)unmap_ptr, page_size);
 	}
-
-	sleep(1);
-
 	inc_counter(args);
 
 	if (keep_stressing(args))
