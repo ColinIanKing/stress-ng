@@ -92,9 +92,17 @@ static void stress_munmap_range(
 
 		t = stress_time_now();
 		if (munmap(addr, page_size) == 0) {
+			unsigned char vec[1];
+
 			ctxt->duration += stress_time_now() - t;
 			ctxt->count += 1.0;
 			inc_counter(args);
+
+			if ((shim_mincore(addr, page_size, vec) == 0) &&
+			    (vec[0] != 0)) {
+				pr_fail("%s: unmapped page %p still resident in memory\n",
+					args->name, addr);
+			}
 		}
 		j += stride;
 		j %= n_pages;
@@ -258,6 +266,7 @@ static int stress_munmap(const stress_args_t *args)
 stressor_info_t stress_munmap_info = {
 	.stressor = stress_munmap,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
