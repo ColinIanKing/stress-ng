@@ -32,24 +32,39 @@ static const stress_help_t help[] = {
 
 #define MAX_FLOCK_STRESSORS	(3)
 
-static void stress_flock_child(
+static int stress_flock_child(
 	const stress_args_t *args,
-	const int fd,
+	const char *filename,
 	const int bad_fd,
 	const bool save_metrics)
 {
 	bool cont;
-	int i;
+	int i, rc = EXIT_SUCCESS;
+	int fd1, fd2;
 	double lock_duration = 0.0, lock_count = 0.0;
 	double unlock_duration = 0.0, unlock_count = 0.0;
 	double rate;
+
+	fd1 = open(filename, O_RDONLY);
+	if (fd1 < 0) {
+		pr_err("%s: failed to open %s: errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+	fd2 = open(filename, O_RDONLY);
+	if (fd2 < 0) {
+		pr_err("%s: failed to open %s: errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		(void)close(fd1);
+		return EXIT_FAILURE;
+	}
 
 	for (i = 0; ; i++) {
 		double t;
 
 #if defined(LOCK_EX)
 		t = stress_time_now();
-		if (flock(fd, LOCK_EX) == 0) {
+		if (flock(fd1, LOCK_EX) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -57,8 +72,20 @@ static void stress_flock_child(
 			if (cont)
 				inc_counter(args);
 
+			/*
+			 *  we have an exlusive lock on the fd, so re-doing
+			 *  the exclusive lock with LOCK_NB should not succeed
+			 */
+			if (flock(fd2, LOCK_EX | LOCK_NB) == 0) {
+				pr_fail("%s: unexpectedly able to double lock file using LOCK_EX, expecting error EAGAIN\n",
+					args->name);
+				rc = EXIT_FAILURE;
+				(void)flock(fd2, LOCK_UN);
+				break;
+			}
+
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -77,7 +104,7 @@ static void stress_flock_child(
 
 #if defined(LOCK_NB)
 		t = stress_time_now();
-		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+		if (flock(fd1, LOCK_EX | LOCK_NB) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -86,7 +113,7 @@ static void stress_flock_child(
 				inc_counter(args);
 
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -100,11 +127,11 @@ static void stress_flock_child(
 		{
 			int ret;
 
-			ret = flock(fd, LOCK_NB);
+			ret = flock(fd1, LOCK_NB);
 			if (ret == 0) {
 				pr_fail("%s: flock failed expected EINVAL, instead got "
 					"errno=%d (%s)\n", args->name, errno, strerror(errno));
-				(void)flock(fd, LOCK_UN);
+				(void)flock(fd1, LOCK_UN);
 			}
 		}
 #else
@@ -116,7 +143,7 @@ static void stress_flock_child(
 			break;
 
 		t = stress_time_now();
-		if (flock(fd, LOCK_SH) == 0) {
+		if (flock(fd1, LOCK_SH) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -125,7 +152,7 @@ static void stress_flock_child(
 				inc_counter(args);
 
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -142,7 +169,7 @@ static void stress_flock_child(
 			break;
 
 		t = stress_time_now();
-		if (flock(fd, LOCK_SH | LOCK_NB) == 0) {
+		if (flock(fd1, LOCK_SH | LOCK_NB) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -151,7 +178,7 @@ static void stress_flock_child(
 				inc_counter(args);
 
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -168,7 +195,7 @@ static void stress_flock_child(
 			break;
 
 		t = stress_time_now();
-		if (flock(fd, LOCK_MAND | LOCK_READ) == 0) {
+		if (flock(fd1, LOCK_MAND | LOCK_READ) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -177,7 +204,7 @@ static void stress_flock_child(
 				inc_counter(args);
 
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -194,7 +221,7 @@ static void stress_flock_child(
 			break;
 
 		t = stress_time_now();
-		if (flock(fd, LOCK_MAND | LOCK_WRITE) == 0) {
+		if (flock(fd1, LOCK_MAND | LOCK_WRITE) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -203,7 +230,7 @@ static void stress_flock_child(
 				inc_counter(args);
 
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -221,7 +248,7 @@ static void stress_flock_child(
 
 		/* Exercise invalid lock combination */
 		t = stress_time_now();
-		if (flock(fd, LOCK_EX | LOCK_SH) == 0) {
+		if (flock(fd1, LOCK_EX | LOCK_SH) == 0) {
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
@@ -230,7 +257,7 @@ static void stress_flock_child(
 				inc_counter(args);
 
 			t = stress_time_now();
-			if (flock(fd, LOCK_UN) == 0) {
+			if (flock(fd1, LOCK_UN) == 0) {
 				unlock_duration += stress_time_now() - t;
 				unlock_count += 1.0;
 			}
@@ -254,6 +281,10 @@ static void stress_flock_child(
 		rate = (unlock_count > 0.0) ? unlock_duration / unlock_count : 0.0;
 		stress_metrics_set(args, 1, "nanosecs per flock unlock call", rate * STRESS_DBL_NANOSECOND);
 	}
+	(void)close(fd2);
+	(void)close(fd1);
+
+	return rc;
 }
 
 /*
@@ -280,6 +311,7 @@ static int stress_flock(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto err;
 	}
+	(void)close(fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -292,17 +324,15 @@ static int stress_flock(const stress_args_t *args)
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			stress_flock_child(args, fd, bad_fd, false);
-			_exit(EXIT_SUCCESS);
+			_exit(stress_flock_child(args, filename, bad_fd, false));
 		}
 	}
 
-	stress_flock_child(args, fd, bad_fd, true);
+	stress_flock_child(args, filename, bad_fd, true);
 	rc = EXIT_SUCCESS;
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)close(fd);
 	stress_kill_and_wait_many(args, pids, MAX_FLOCK_STRESSORS, SIGALRM, true);
 	(void)shim_unlink(filename);
 err:
@@ -315,6 +345,7 @@ err:
 stressor_info_t stress_flock_info = {
 	.stressor = stress_flock,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
