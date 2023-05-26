@@ -103,15 +103,16 @@ static void *stress_pthread_func(void *c)
 			(void)clock_gettime(CLOCK_MONOTONIC, &t1);
 			if (LIKELY(nanosleep(&tv, NULL) == 0)) {
 				struct timespec t2;
-				long dt_nsec;
 
-				(void)clock_gettime(CLOCK_MONOTONIC, &t2);
+				if (clock_gettime(CLOCK_MONOTONIC, &t2) == 0) {
+					long dt_nsec;
 
-				dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
-				dt_nsec += t2.tv_nsec - t1.tv_nsec;
-				dt_nsec -= nsec;
-				ctxt->overrun_nsec += (double)dt_nsec;
-				ctxt->count += 1.0;
+					dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
+					dt_nsec += t2.tv_nsec - t1.tv_nsec;
+					dt_nsec -= nsec;
+					ctxt->overrun_nsec += (double)dt_nsec;
+					ctxt->count += 1.0;
+				}
 			} else {
 				break;
 			}
