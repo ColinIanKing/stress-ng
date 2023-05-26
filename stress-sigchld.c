@@ -120,13 +120,24 @@ again:
 	} while (keep_stressing(args));
 
 finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	pr_dbg("%s: exit: %" PRIu64 ", kill: %" PRIu64
 		", stop: %" PRIu64 ", continue: %" PRIu64 "\n",
 		args->name,
 		cld_exited, cld_killed,
 		cld_stopped, cld_continued);
 
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	/*
+	 *  No si_code codes recognised and we handled SIGCHLD signals, then
+	 *  something is not conformant
+	 */
+	if ((cld_exited + cld_killed + cld_stopped + cld_continued == 0) &&
+	    (counter > 0)) {
+		pr_fail("%s: no SIGCHLD siginfo si_code detected in signal handler\n",
+			args->name);
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -134,5 +145,6 @@ finish:
 stressor_info_t stress_sigchld_info = {
 	.stressor = stress_sigchld,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
