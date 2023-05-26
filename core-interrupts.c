@@ -79,7 +79,7 @@ static uint64_t stress_interrupts_count_by_type(const char *type)
 		if (ptr) {
 			ptr += strlen(type);
 			for (;;) {
-				uint64_t val;
+				uint64_t val = 0ULL;
 
 				/* skip spaces */
 				while (*ptr == ' ')
@@ -119,8 +119,10 @@ void stress_interrupts_start(stress_interrupts_t *counters)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(info); i++)
+	for (i = 0; i < SIZEOF_ARRAY(info); i++) {
 		counters[i].count_start = stress_interrupts_count_by_type(info[i].type);
+		counters[i].count_stop = counters[i].count_start;
+	}
 }
 
 /*
