@@ -79,7 +79,7 @@ static bool stress_fsize_reported(const off_t offset, const uint8_t type)
  *	set RLIMIT_FSIZE on offset, test file size up to
  *	offset -1  + size and equal to offset + size
  */
-static void stress_fsize_boundary(
+static int stress_fsize_boundary(
 	const stress_args_t *args,
 	const int fd,
 	const struct rlimit *old_rlim,
@@ -88,12 +88,12 @@ static void stress_fsize_boundary(
 {
 	struct rlimit new_rlim;
 	off_t off;
-	int ret;
+	int ret, rc = EXIT_SUCCESS;
 
 	if ((rlim_t)offset >= old_rlim->rlim_max)
-		return;
+		return rc;
 	if (offset < 1)
-		return;
+		return rc;
 
 	off = (off_t)old_rlim->rlim_max;
 	new_rlim.rlim_max = off;
@@ -113,12 +113,15 @@ static void stress_fsize_boundary(
 			pr_fail("%s: fallocate failed at offset %jd (0x%jx) with unexpected error: %d (%s)\n",
 				args->name, (intmax_t)off, (intmax_t)off,
 				errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
-		return;
+		return rc;
 	}
-	if (sigxfsz)
+	if (sigxfsz) {
 		pr_fail("%s: got an unexpected SIGXFSZ signal at offset %jd (0x%jx)\n",
 			args->name, (intmax_t)off, (intmax_t)off);
+		rc = EXIT_FAILURE;
+	}
 
 	sigxfsz = false;
 	off = (off_t)new_rlim.rlim_cur;
@@ -127,17 +130,21 @@ static void stress_fsize_boundary(
 		if (!stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
 			pr_inf("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
 				args->name, (intmax_t)off, (intmax_t)off);
+			rc = EXIT_FAILURE;
 		}
-		return;
+		return rc;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 		pr_fail("%s: fallocate failed at offset %jd (0x%jx) with unexpected error: %d (%s)\n",
 			args->name, (intmax_t)off, (intmax_t)off,
 			errno, strerror(errno));
-		return;
+		return EXIT_FAILURE;
 	}
-	if (!sigxfsz && !stress_fsize_reported(off, FSIZE_TYPE_SIGXFSZ))
+	if (!sigxfsz && !stress_fsize_reported(off, FSIZE_TYPE_SIGXFSZ)) {
 		pr_inf("%s: did not get expected SIGXFSZ signal at offset %jd (0x%jx)\n",
 			args->name, (intmax_t)off, (intmax_t)off);
+		return EXIT_FAILURE;
+	}
+	return rc;
 }
 
 /*
@@ -242,13 +249,17 @@ static int stress_fsize(const stress_args_t *args)
 		if (shim_fallocate(fd, 0, (off_t)max, 4096) == 0) {
 			pr_fail("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
 				args->name, (intmax_t)max, (intmax_t)max);
+			rc = EXIT_FAILURE;
 		} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
 			pr_fail("%s: failed at offset %jd (0x%jx) with unexpected error: %d (%s)\n",
 				args->name, (intmax_t)max, (intmax_t)max, errno, strerror(errno) );
+			rc = EXIT_FAILURE;
 		}
-		if (!sigxfsz)
+		if (!sigxfsz) {
 			pr_fail("%s: expected a SIGXFSZ signal at offset %jd (0x%jx), nothing happened\n",
 				args->name, (intmax_t)max, (intmax_t)max);
+			rc = EXIT_FAILURE;
+		}
 
 		/*
 		 *  Test #2, test for allocation 0..offset and file offset..max
@@ -262,7 +273,8 @@ static int stress_fsize(const stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-		stress_fsize_boundary(args, fd, &old_rlim, offset, max - offset);
+		if (stress_fsize_boundary(args, fd, &old_rlim, offset, max - offset) == EXIT_FAILURE)
+			rc = EXIT_FAILURE;
 
 		/* Should be able to set back to original size */
 		new_rlim = old_rlim;
@@ -270,6 +282,7 @@ static int stress_fsize(const stress_args_t *args)
 			pr_fail("%s: failed to set RLIMIT_FSIZE to %jd (0x%jx), errno=%d (%s)\n",
 				args->name, (intmax_t)new_rlim.rlim_cur, (intmax_t)new_rlim.rlim_cur,
 				errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 
 		/*
@@ -282,7 +295,8 @@ static int stress_fsize(const stress_args_t *args)
 			break;
 		}
 		for (offset = 1; offset < max_offset; offset = (offset << 1 | 1)) {
-			stress_fsize_boundary(args, fd, &old_rlim, offset, 1);
+			if (stress_fsize_boundary(args, fd, &old_rlim, offset, 1) == EXIT_FAILURE)
+				rc = EXIT_FAILURE;
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -302,6 +316,7 @@ static int stress_fsize(const stress_args_t *args)
 stressor_info_t stress_fsize_info = {
 	.stressor = stress_fsize,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
