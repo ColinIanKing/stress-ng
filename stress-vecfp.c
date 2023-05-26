@@ -35,7 +35,9 @@ static const stress_help_t help[] = {
 typedef struct {
 	struct {
 		double r_init;	/* initialization value for r */
-		double r;	/* result of computation */
+		double *r;	/* pointer to result of computation r1 or r2 */
+		double r1;	/* result of computation */
+		double r2;	/* result of computation for checking */
 		double add;	/* value to add */
 		double add_rev;	/* value to add to revert back */
 		double mul;	/* value to multiply */
@@ -43,7 +45,9 @@ typedef struct {
 	} d;
 	struct {
 		float r_init;	/* initialization value for r */
-		float r;	/* result of computation */
+		float *r;	/* pointer to result of computation r1 or r2 */
+		float r1;	/* result of computation */
+		float r2;	/* result of computation for checking */
 		float add;	/* value to add */
 		float add_rev;	/* value to add to revert back */
 		float mul;	/* value to multiply */
@@ -53,7 +57,8 @@ typedef struct {
 
 typedef double (*stress_vecfp_func_t)(
 	const stress_args_t *args,
-	stress_vecfp_init *vecfp_init);
+	stress_vecfp_init *vecfp_init,
+	bool *success);
 
 /*
  *  float vectors, named by vfloatwN where N = number of elements width
@@ -80,18 +85,22 @@ VEC_TYPE_T(double, 8)
 
 static double stress_vecfp_all(
 	const stress_args_t *args,
-	stress_vecfp_init *vecfp_init);
+	stress_vecfp_init *vecfp_init,
+	bool *success);
 
 #define STRESS_VEC_ADD(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
-	stress_vecfp_init *vecfp_init)				\
+	stress_vecfp_init *vecfp_init,				\
+	bool *success)						\
 {								\
 	type r, add, add_rev;					\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1, t2;						\
+								\
+	(void)success;						\
 								\
 	for (i = 0; i < n; i++) {				\
 		r.f[i] = vecfp_init[i].field.r_init;		\
@@ -107,7 +116,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	t2 = stress_time_now();					\
 								\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].field.r = r.f[i];			\
+		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
 	inc_counter(args);					\
 	return t2 - t1;						\
@@ -116,13 +125,16 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 #define STRESS_VEC_MUL(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
-	stress_vecfp_init *vecfp_init)				\
+	stress_vecfp_init *vecfp_init,				\
+	bool *success)						\
 {								\
 	type r, mul, mul_rev;					\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1, t2;						\
+								\
+	(void)success;						\
 								\
 	for (i = 0; i < n; i++) {				\
 		r.f[i] = vecfp_init[i].field.r_init;		\
@@ -138,7 +150,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	t2 = stress_time_now();					\
 								\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].field.r = r.f[i];			\
+		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
 	inc_counter(args);					\
 	return t2 - t1;						\
@@ -147,13 +159,16 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 #define STRESS_VEC_DIV(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
-	stress_vecfp_init *vecfp_init)				\
+	stress_vecfp_init *vecfp_init,				\
+	bool *success)						\
 {								\
 	type r, mul, mul_rev;					\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1, t2;						\
+								\
+	(void)success;						\
 								\
 	for (i = 0; i < n; i++) {				\
 		r.f[i] = vecfp_init[i].field.r_init;		\
@@ -168,7 +183,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 	t2 = stress_time_now();					\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].field.r = r.f[i];			\
+		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
 								\
 	inc_counter(args);					\
@@ -178,13 +193,16 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 #define STRESS_VEC_NEG(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
-	stress_vecfp_init *vecfp_init)				\
+	stress_vecfp_init *vecfp_init,				\
+	bool *success)						\
 {								\
 	type r;							\
 	register int i;						\
 	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
 	const int loops = LOOPS_PER_CALL >> 1;			\
 	double t1, t2;						\
+								\
+	(void)success;						\
 								\
 	for (i = 0; i < n; i++) {				\
 		r.f[i] = vecfp_init[i].field.r_init;		\
@@ -196,7 +214,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 	t2 = stress_time_now();					\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].field.r = r.f[i];			\
+		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
 								\
 	inc_counter(args);					\
@@ -311,28 +329,58 @@ static stress_vecfp_funcs_t stress_vecfp_funcs[] = {
 	{ "doublev8neg",	stress_vecfp_double_neg_8, 8, 0.0, 0.0 },
 };
 
-static void stress_vecfp_call_method(
+static void OPTIMIZE3 stress_vecfp_call_method(
 	const stress_args_t *args,
 	stress_vecfp_init *vecfp_init,
-	const size_t method)
+	const size_t method, 
+	bool *success)
 {
-	double dt, ops;
 	stress_vecfp_funcs_t *const func = &stress_vecfp_funcs[method];
+	const double ops = (double)(LOOPS_PER_CALL * func->elements);
+	size_t i;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	dt = func->vecfp_func(args, vecfp_init);
-	func->duration += dt;
-	ops = (double)(LOOPS_PER_CALL * func->elements);
+	for (i = 0; i < func->elements; i++) {
+		vecfp_init[i].d.r = &vecfp_init[i].d.r1;
+		vecfp_init[i].f.r = &vecfp_init[i].f.r1;
+	}
+	func->duration += func->vecfp_func(args, vecfp_init, success);
 	func->ops += ops;
+
+	if (verify) {
+		for (i = 0; i < func->elements; i++) {
+			vecfp_init[i].d.r = &vecfp_init[i].d.r2;
+			vecfp_init[i].f.r = &vecfp_init[i].f.r2;
+		}
+		func->duration += func->vecfp_func(args, vecfp_init, success);
+		func->ops += ops;
+
+		for (i = 0; i < func->elements; i++) {
+			if (vecfp_init[i].d.r1 != vecfp_init[i].d.r2) {
+				pr_fail("%s: %s double vector operation result mismatch, got %f, expected %f\n",
+					args->name, stress_vecfp_funcs[method].name,
+					vecfp_init[i].d.r2, vecfp_init[i].d.r1);
+				*success = false;
+			}
+			if (vecfp_init[i].f.r1 != vecfp_init[i].f.r2) {
+				pr_fail("%s: %s float vector operation result mismatch, got %f, expected %f\n",
+					args->name, stress_vecfp_funcs[method].name,
+					vecfp_init[i].f.r2, vecfp_init[i].f.r1);
+				*success = false;
+			}
+		}
+	}
 }
 
 static double stress_vecfp_all(
 	const stress_args_t *args,
-	stress_vecfp_init *vecfp_init)
+	stress_vecfp_init *vecfp_init,
+	bool *success)
 {
 	size_t i;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
-		stress_vecfp_call_method(args, vecfp_init, i);
+		stress_vecfp_call_method(args, vecfp_init, i, success);
 	}
 	return 0.0;
 }
@@ -366,6 +414,7 @@ static int stress_vecfp(const stress_args_t *args)
 	size_t i, j, max_elements = 0, mmap_size;
 	stress_vecfp_init *vecfp_init;
 	size_t vecfp_method = 0;	/* "all" */
+	bool success = true;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const size_t elements = stress_vecfp_funcs[i].elements;
@@ -416,7 +465,7 @@ static int stress_vecfp(const stress_args_t *args)
 	}
 
 	do {
-		stress_vecfp_call_method(args, vecfp_init, vecfp_method);
+		stress_vecfp_call_method(args, vecfp_init, vecfp_method, &success);
 	} while (keep_stressing(args));
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
@@ -434,7 +483,7 @@ static int stress_vecfp(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)vecfp_init, mmap_size);
 
-	return EXIT_SUCCESS;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -445,6 +494,7 @@ stressor_info_t stress_vecfp_info = {
 	.stressor = stress_vecfp,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
