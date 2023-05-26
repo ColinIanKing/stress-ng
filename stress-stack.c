@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-put.h"
 
 #define STRESS_DATA_SIZE	(256 * KB)
 
@@ -83,6 +84,7 @@ static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
 static void stress_stack_alloc(
 	const stress_args_t *args,
 	void *start,
+	void *prev_ptr,
 	const bool stack_fill,
 	bool stack_mlock,
 	const bool stack_pageout,
@@ -92,6 +94,7 @@ static void stress_stack_alloc(
 	const size_t page_size = args->page_size;
 	const size_t page_size4 = page_size << 2;
 	uint32_t data[STRESS_DATA_SIZE / sizeof(uint32_t)];
+	void *curr_ptr = prev_ptr, **scan_ptr;
 
 	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(STRESS_DATA_SIZE))
 		return;
@@ -150,10 +153,21 @@ static void stress_stack_alloc(
 
 		(void)munmap((void *)unmap_ptr, page_size);
 	}
+
+	/* traverse back down the stack to touch 128 pages on the stack */
+	{
+		register int i = 0;
+
+		for (scan_ptr = &curr_ptr; scan_ptr; scan_ptr = *scan_ptr)
+			if (i++ >= 128)
+				break;
+		stress_void_ptr_put(scan_ptr);
+	}
+
 	inc_counter(args);
 
 	if (keep_stressing(args))
-		stress_stack_alloc(args, start, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
+		stress_stack_alloc(args, start, &curr_ptr, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
 }
 
 static int stress_stack_child(const stress_args_t *args, void *context)
@@ -255,7 +269,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 			char start;
 
 			/* Expand the stack and cause a fault */
-			stress_stack_alloc(args, &start, stack_fill, stack_mlock, stack_pageout, stack_unmap, 0);
+			stress_stack_alloc(args, &start, NULL, stack_fill, stack_mlock, stack_pageout, stack_unmap, 0);
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
