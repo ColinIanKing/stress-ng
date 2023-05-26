@@ -439,7 +439,6 @@ static int stress_close(const stress_args_t *args)
 						close_failure = true;
 					}
 				}
-			
 			}
 			if (dupfd != -1)
 				(void)close(dupfd);
