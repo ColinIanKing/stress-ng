@@ -34,7 +34,9 @@ typedef struct {
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
 	double overrun_nsec;
-	double count;
+	double overrun_count;
+	double underrun_nsec;
+	double underrun_count;
 #endif
 } stress_ctxt_t;
 
@@ -110,8 +112,15 @@ static void *stress_pthread_func(void *c)
 					dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
 					dt_nsec += t2.tv_nsec - t1.tv_nsec;
 					dt_nsec -= nsec;
-					ctxt->overrun_nsec += (double)dt_nsec;
-					ctxt->count += 1.0;
+
+					if (dt_nsec < 0) {
+						pr_inf("%lu vs %lu\n", nsec, dt_nsec);
+						ctxt->underrun_nsec += (double)labs(dt_nsec);
+						ctxt->underrun_count += 1.0;
+					} else {
+						ctxt->overrun_nsec += (double)dt_nsec;
+						ctxt->overrun_count += 1.0;
+					}
 				}
 			} else {
 				break;
@@ -142,7 +151,9 @@ static int stress_nanosleep(const stress_args_t *args)
 	int ret = EXIT_SUCCESS;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
-	double overhead_nsec, overrun_nsec, count;
+	double overhead_nsec;
+	double overrun_nsec, overrun_count;
+	double underrun_nsec, underrun_count;
 	const uint64_t benchmark_loops = 10000;
 #endif
 
@@ -169,7 +180,9 @@ static int stress_nanosleep(const stress_args_t *args)
 #if defined(HAVE_CLOCK_GETTIME) && 	\
     defined(CLOCK_MONOTONIC)
 		ctxts[n].overrun_nsec = 0.0;
-		ctxts[n].count = 0.0;
+		ctxts[n].overrun_count = 0.0;
+		ctxts[n].underrun_nsec = 0.0;
+		ctxts[n].underrun_count = 0.0;
 #endif
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
@@ -201,7 +214,6 @@ static int stress_nanosleep(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 
-
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -227,15 +239,29 @@ tidy:
 	}
 	overhead_nsec /= (double)benchmark_loops;
 
-	count = 0.0;
+	overrun_count = 0.0;
 	overrun_nsec = 0.0;
+	underrun_count = 0.0;
+	underrun_nsec = 0.0;
 	for (i = 0; i < n; i++) {
 		overrun_nsec += ctxts[i].overrun_nsec;
-		count += (double)ctxts[i].count;
+		overrun_count += (double)ctxts[i].overrun_count;
+		underrun_nsec += ctxts[i].underrun_nsec;
+		underrun_count += (double)ctxts[i].underrun_count;
 	}
+
+	if (underrun_count > 0.0) {
+		pr_fail("%s: detected %.0f unexpected nanosleep underruns\n",
+			args->name, underrun_count);
+		ret = EXIT_FAILURE;
+	}
+
 	overrun_nsec -= overhead_nsec;
-	overrun_nsec = (count > 0.0) ? overrun_nsec / count : 0.0;
+	overrun_nsec = (overrun_count > 0.0) ? overrun_nsec / overrun_count : 0.0;
 	stress_metrics_set(args, 0, "nanosec sleep overrun", overrun_nsec);
+	underrun_nsec -= overhead_nsec;
+	underrun_nsec = (underrun_count > 0.0) ? underrun_nsec / underrun_count : 0.0;
+	stress_metrics_set(args, 1, "nanosec sleep underrun", underrun_nsec);
 #endif
 
 	if (limited) {
@@ -256,6 +282,7 @@ stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_nanosleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
