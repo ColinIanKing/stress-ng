@@ -280,13 +280,36 @@ static void OPTIMIZE3 stress_rgb_flat(
 	}
 }
 
+/*
+ *  stress_jpeg_checksum_data()
+ *	generate a 32 bit checksum on the jpeg compressed data
+ */
+static void stress_jpeg_checksum_data(char *data, const size_t size, uint32_t *checksum)
+{
+	register uint32_t sum = 0;
+	uint8_t *ptr = (uint8_t *)data;
+	uint8_t *end = ptr + size;
+
+	while (ptr < end) {
+		sum ^= (uint8_t)*ptr;
+		ptr++;
+		sum = shim_ror32(sum);
+	}
+	*checksum = sum;
+}
+
 static int stress_rgb_compress_to_jpeg(
 	uint8_t		*rgb,
 	JSAMPROW 	*row_pointer,
 	const int32_t	x_max,
 	const int32_t	y_max,
-	const int32_t	quality)
+	const int32_t	quality,
+	int32_t		*yy,
+	bool		verify,
+	uint32_t	*checksum,
+	double		*duration)
 {
+	double t1, t2;
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	FILE *fp;
@@ -295,8 +318,9 @@ static int stress_rgb_compress_to_jpeg(
 #endif
 	size_t size = 0;
 	int32_t y;
-	static int32_t yy = 0;
 	const int row_stride = x_max * 3;
+
+	*checksum = 0;
 
 	if (y_max < 1)
 		return 0;
@@ -309,6 +333,7 @@ static int stress_rgb_compress_to_jpeg(
 	if (!fp)
 		return -1;
 
+	t1 = stress_time_now();
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
 	jpeg_stdio_dest(&cinfo, fp);
@@ -323,20 +348,22 @@ static int stress_rgb_compress_to_jpeg(
 
 PRAGMA_UNROLL_N(8)
 	for (y = 0; y < y_max; y++, rgb += row_stride) {
-		yy %= y_max;
-		row_pointer[yy] = rgb;
-		yy++;
+		*yy %= y_max;
+		row_pointer[*yy] = rgb;
+		(*yy)++;
 	}
-	yy++;
 
 	(void)jpeg_write_scanlines(&cinfo, row_pointer, (JDIMENSION)y_max);
 	jpeg_finish_compress(&cinfo);
 	(void)fclose(fp);
 	jpeg_destroy_compress(&cinfo);
+	t2 = stress_time_now();
 #if defined(HAVE_OPEN_MEMSTREAM)
+	if (verify)
+		stress_jpeg_checksum_data(ptr, size, checksum);
 	free(ptr);
 #endif
-
+	*duration = t2 - t1;
 	return (int)size;
 }
 
@@ -355,9 +382,11 @@ static int stress_jpeg(const stress_args_t *args)
 	double size_uncompressed = 0.0;
 	double t_jpeg;
 	int32_t jpeg_quality = 95;
+	int32_t yy = 0;
 	size_t rgb_size, row_pointer_size;
 	int jpeg_image = JPEG_IMAGE_PLASMA;
 	double total_pixels = 0.0, t_start, duration, rate, ratio;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	(void)stress_get_setting("jpeg-width", &x_max);
 	(void)stress_get_setting("jpeg-height", &y_max);
@@ -381,7 +410,6 @@ static int stress_jpeg(const stress_args_t *args)
 		(void)munmap(rgb, rgb_size);
 		return EXIT_NO_RESOURCE;
 	}
-
 
 	stress_mwc_set_seed(0xf1379ab2, 0x679ce25d);
 
@@ -414,18 +442,30 @@ static int stress_jpeg(const stress_args_t *args)
 	pixels = (uint64_t)x_max * (uint64_t)y_max;
 	do {
 		int size;
-		double t1, t2;
+		uint32_t checksum;
 
-		t1 = stress_time_now();
-		size = stress_rgb_compress_to_jpeg(rgb, row_pointer, x_max, y_max, jpeg_quality);
-		t2 = stress_time_now();
-		t_jpeg += (t2 - t1);
+		size = stress_rgb_compress_to_jpeg(rgb, row_pointer, x_max, y_max, jpeg_quality, &yy, verify, &checksum, &duration);
+		t_jpeg += duration;
 		if (size > 0) {
 			size_uncompressed += (double)rgb_size;
 			size_compressed += (double)size;
 			total_pixels += (double)pixels;
 		}
 		inc_counter(args);
+
+		if (verify) {
+			uint32_t checksum_verify;
+
+			size = stress_rgb_compress_to_jpeg(rgb, row_pointer, x_max, y_max, jpeg_quality, &yy, verify, &checksum_verify, &duration);
+			t_jpeg += duration;
+			if (size > 0) {
+				size_uncompressed += (double)rgb_size;
+				size_compressed += (double)size;
+				total_pixels += (double)pixels;
+			}
+			inc_counter(args);
+		}
+		yy++;
 	} while (keep_stressing(args));
 	duration = stress_time_now() - t_start;
 
@@ -451,6 +491,7 @@ stressor_info_t stress_jpeg_info = {
 	.stressor = stress_jpeg,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
