@@ -148,7 +148,7 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
 			goto next;
 
-		buf = (uint8_t *)mmap((void *)addr, sz, PROT_READ, flags, -1, 0);
+		buf = (uint8_t *)mmap((void *)addr, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED)
 			goto next;
 
@@ -181,20 +181,31 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 
 			for (mask = ~(uintptr_t)0; mask > page_size; mask >>= 1) {
 				uintptr_t rndaddr = rndaddr_base & mask;
+				uint64_t *buf64 = (uint64_t *)buf;
+				uint64_t val64 = (uint64_t)(uintptr_t)buf64;
 
 				if (rndaddr == last_rndaddr)
 					continue;
 				last_rndaddr = rndaddr;
 
-
 				if (rndaddr <= page_size)
 					break;
 				if (stress_mmapfixed_is_mapped((void *)rndaddr, sz, page_size))
 					continue;
+
+				*buf64 = val64;
 				newbuf = mremap(buf, sz, sz,
 						MREMAP_FIXED | MREMAP_MAYMOVE,
 						(void *)rndaddr);
 				if (newbuf && (newbuf != MAP_FAILED)) {
+					uint64_t *buf64 = (uint64_t *)newbuf;
+
+					if (*buf64 != val64) {
+						pr_fail("%s: remap from %p to %p contains 0x%" PRIx64
+							" and not expected value 0x%" PRIx64 "\n",
+							args->name, buf, newbuf, *buf64, val64);
+					}
+
 					buf = newbuf;
 					(void)stress_madvise_random(buf, sz);
 				}
@@ -227,5 +238,6 @@ static int stress_mmapfixed(const stress_args_t *args)
 stressor_info_t stress_mmapfixed_info = {
 	.stressor = stress_mmapfixed,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
