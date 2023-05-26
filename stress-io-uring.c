@@ -842,7 +842,7 @@ static const char *stress_io_uring_opcode_name(const uint8_t opcode)
  *  stress_io_uring
  *	stress asynchronous I/O
  */
-static int stress_io_uring(const stress_args_t *args)
+static int stress_io_uring_child(const stress_args_t *args, void *context)
 {
 	int ret, rc;
 	char filename[PATH_MAX];
@@ -854,6 +854,8 @@ static int stress_io_uring(const stress_args_t *args)
 	stress_io_uring_submit_t submit;
 	const pid_t self = getpid();
 	stress_io_uring_user_data_t user_data[SIZEOF_ARRAY(stress_io_uring_setups)];
+
+	(void)context;
 
 	(void)shim_memset(&submit, 0, sizeof(submit));
 	(void)shim_memset(&io_uring_file, 0, sizeof(io_uring_file));
@@ -968,6 +970,15 @@ clean:
 	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
+}
+
+/*
+ *  stress_io_uring
+ *      stress asynchronous I/O
+ */
+static int stress_io_uring(const stress_args_t *args)
+{
+	return stress_oomable_child(args, NULL, stress_io_uring_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_io_uring_info = {
