@@ -270,12 +270,19 @@ static int stress_rdrand_sane(const stress_args_t *args)
  */
 static int stress_rdrand(const stress_args_t *args)
 {
+	double average;
+	uint64_t lo, hi;
+	int out_of_range;
 	int rc = EXIT_SUCCESS;
+	size_t j;
 #if defined(HAVE_SEED_CAPABILITY)
 	bool rdrand_seed = false;
 
 	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
 #endif
+	static uint64_t ALIGN64 counters[16];
+
+	(void)memset(counters, 0, sizeof(counters));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -292,6 +299,8 @@ static int stress_rdrand(const stress_args_t *args)
 		if (rdrand_seed) {
 			do {
 				for (i = 0; i < 64; i++) {
+					register uint64_t r;
+
 					SEED64x32()
 					SEED64x32()
 					SEED64x32()
@@ -300,6 +309,12 @@ static int stress_rdrand(const stress_args_t *args)
 					SEED64x32()
 					SEED64x32()
 					SEED64x32()
+
+					r = seed64();
+					counters[r & 0xf]++;
+					counters[(r >> 13) & 0xf]++;
+					counters[(r >> 29) & 0xf]++;
+					counters[(r >> 52) & 0xf]++;
 				}
 				add_counter(args, (uint64_t)i);
 			} while (keep_stressing(args));
@@ -307,7 +322,10 @@ static int stress_rdrand(const stress_args_t *args)
 #endif
 		{
 			do {
+				/* 64 rounds of (32 * 8) + 1 random reads */
 				for (i = 0; i < 64; i++) {
+					register uint64_t r;
+
 					RAND64x32()
 					RAND64x32()
 					RAND64x32()
@@ -316,6 +334,12 @@ static int stress_rdrand(const stress_args_t *args)
 					RAND64x32()
 					RAND64x32()
 					RAND64x32()
+
+					r = rand64();
+					counters[r & 0xf]++;
+					counters[(r >> 13) & 0xf]++;
+					counters[(r >> 29) & 0xf]++;
+					counters[(r >> 52) & 0xf]++;
 				}
 				add_counter(args, (uint64_t)i);
 			} while (keep_stressing(args));
@@ -323,12 +347,35 @@ static int stress_rdrand(const stress_args_t *args)
 
 		duration = stress_time_now() - time_start;
 		c = get_counter(args);
-		million_bits = ((double)c * 64.0 * 256.0) * ONE_MILLIONTH;
+		million_bits = ((double)c * 64.0 * 257.0) * ONE_MILLIONTH;
 		rate = (duration > 0.0) ? million_bits / duration : 0.0;
 		stress_metrics_set(args, 0, "million random bits read", million_bits);
 		stress_metrics_set(args, 1, "million random bits per sec", rate);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (average = 0.0, j = 0; j < SIZEOF_ARRAY(counters); j++)
+		average += (double)counters[j];
+
+	/*
+	 *  If we have a reasonable number of samples then check
+	 *  for a poor random distribution
+	 */
+	average /= (double)SIZEOF_ARRAY(counters);
+	if (average > 10000.0) {
+		lo = (uint64_t)average - (average * 0.05);
+		hi = (uint64_t)average + (average * 0.05);
+		out_of_range = 0;
+
+		for (j = 0; j < SIZEOF_ARRAY(counters); j++) {
+			if ((counters[j] < lo) || (counters[j] > hi)) {
+				out_of_range++;
+				rc = EXIT_FAILURE;
+			}
+		}
+		if (out_of_range)
+			pr_fail("%s: poor distribution of random values\n", args->name);
+	}
 
 	return rc;
 }
@@ -338,6 +385,7 @@ stressor_info_t stress_rdrand_info = {
 	.supported = stress_rdrand_supported,
 	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
