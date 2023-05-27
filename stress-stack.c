@@ -23,6 +23,14 @@
 
 #define STRESS_DATA_SIZE	(256 * KB)
 
+/*
+ *  stress_stack_check sanity check list
+ */
+typedef struct stress_stack_check {
+	struct stress_stack_check *prev;	/* Previous item on stack list */
+	struct stress_stack_check *self_addr;	/* Address of this struct to check */
+} stress_stack_check_t;
+
 static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
@@ -81,10 +89,10 @@ static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
  *	so we a large stack with lots of pages not physically
  *	resident.
  */
-static void stress_stack_alloc(
+static bool stress_stack_alloc(
 	const stress_args_t *args,
 	void *start,
-	void *prev_ptr,
+	stress_stack_check_t *check_prev,
 	const bool stack_fill,
 	bool stack_mlock,
 	const bool stack_pageout,
@@ -94,10 +102,11 @@ static void stress_stack_alloc(
 	const size_t page_size = args->page_size;
 	const size_t page_size4 = page_size << 2;
 	uint32_t data[STRESS_DATA_SIZE / sizeof(uint32_t)];
-	void *curr_ptr = prev_ptr, **scan_ptr;
+	stress_stack_check_t check, *check_ptr;
+	bool check_success = true;
 
 	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(STRESS_DATA_SIZE))
-		return;
+		return true;
 
 	if (stack_fill) {
 		(void)shim_memset(data, 0, STRESS_DATA_SIZE);
@@ -157,17 +166,30 @@ static void stress_stack_alloc(
 	/* traverse back down the stack to touch 128 pages on the stack */
 	{
 		register int i = 0;
+		check.self_addr = &check;
+		check.prev = check_prev;
 
-		for (scan_ptr = &curr_ptr; scan_ptr; scan_ptr = *scan_ptr)
+		for (check_ptr = &check; check_ptr; check_ptr = check_ptr->prev) {
 			if (i++ >= 128)
 				break;
-		stress_void_ptr_put(scan_ptr);
+			if (check_ptr->self_addr != check_ptr) {
+				pr_fail("%s: corrupt self check data on stack, got %p, expected %p\n",
+					args->name, check_ptr->self_addr, check_ptr);
+				check_success = false;
+				break;
+			}
+		}
+		stress_void_ptr_put(check_ptr);
 	}
 
 	inc_counter(args);
 
+	if (!check_success)
+		return false;
+
 	if (keep_stressing(args))
-		stress_stack_alloc(args, start, &curr_ptr, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
+		return stress_stack_alloc(args, start, &check, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
+	return true;
 }
 
 static int stress_stack_child(const stress_args_t *args, void *context)
@@ -178,6 +200,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	bool stack_mlock = false;
 	bool stack_pageout = false;
 	bool stack_unmap = false;
+	int rc = EXIT_SUCCESS;
 
 	(void)context;
 
@@ -269,14 +292,17 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 			char start;
 
 			/* Expand the stack and cause a fault */
-			stress_stack_alloc(args, &start, NULL, stack_fill, stack_mlock, stack_pageout, stack_unmap, 0);
+			if (!stress_stack_alloc(args, &start, NULL, stack_fill, stack_mlock, stack_pageout, stack_unmap, 0)) {
+				rc = EXIT_FAILURE;
+				break;
+			}
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)altstack, STRESS_SIGSTKSZ);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
@@ -294,5 +320,6 @@ stressor_info_t stress_stack_info = {
 	.stressor = stress_stack,
 	.class = CLASS_VM | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
