@@ -66,7 +66,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LABEL_AS_VALUE) &&	\
     !defined(__PCC__)
 
-#define G(n) L ## n:	goto *labels[n];
+#define G(n) L ## n:			\
+{					\
+	if ((n & 0x3f) == 0)		\
+		counters[n >> 6]++;	\
+	goto *labels[n];		\
+}
 
 /*
  *  Intel icx can take hours optimizating the code,
@@ -87,8 +92,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int OPTIMIZE_GOTO stress_goto(const stress_args_t *args)
 {
 	size_t i;
-	int goto_direction;
+	int rc = EXIT_SUCCESS, goto_direction;
 	double t1, t2, duration, rate;
+	uint64_t lo, hi, bogo_counter;
 
 	static const void ALIGN64 *default_labels[MAX_LABELS] = {
 		&&L0x000, &&L0x001, &&L0x002, &&L0x003, &&L0x004, &&L0x005, &&L0x006, &&L0x007,
@@ -236,6 +242,7 @@ static int OPTIMIZE_GOTO stress_goto(const stress_args_t *args)
 		&&L0x3f8, &&L0x3f9, &&L0x3fa, &&L0x3fb, &&L0x3fc, &&L0x3fd, &&L0x3fe, &&L0x3ff,
 	};
 
+	static uint64_t ALIGN64 counters[MAX_LABELS >> 6];
 	static const void ALIGN64 *labels_forward[MAX_LABELS];
 	static const void ALIGN64 *labels_backward[MAX_LABELS];
 	const void **labels = labels_forward;
@@ -270,6 +277,7 @@ L0x000:
 		if (goto_direction == STRESS_GOTO_RANDOM)
 			labels = stress_mwc1() ? labels_backward : labels_forward;
 		inc_counter(args);
+		counters[0]++;
 		goto *labels[0];
 
 			 G(0x001) G(0x002) G(0x003) G(0x004) G(0x005) G(0x006) G(0x007)
@@ -418,19 +426,37 @@ L0x000:
 	}
 	t2 = stress_time_now();
 
+	bogo_counter = get_counter(args);
+	lo = bogo_counter - 1;
+	hi = bogo_counter + 1;
+
+	/*
+	 *  sanity check that every 64th goto got a correct number
+	 *  of execution hits.
+	 */
+	for (i = 0; i < SIZEOF_ARRAY(counters); i++) {
+		if ((counters[i] < lo) || (counters[i] > hi)) {
+			pr_fail("%s: goto label %zd execution count out by more than +/-1, "
+				"got %" PRIu64 ", expected between %" PRIu64 " and %" PRIu64 "\n",
+				args->name, i * 64, counters[i], lo, hi);
+			rc = EXIT_FAILURE;
+		}
+	}
+
 	duration = t2 - t1;
 	rate = (duration > 0.0) ? (1024.0 * (double)get_counter(args)) / duration : 0.0;
 	stress_metrics_set(args, 0, "million gotos per sec", rate / 1000000.0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_goto_info = {
 	.stressor = stress_goto,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
