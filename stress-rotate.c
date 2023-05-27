@@ -29,9 +29,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-typedef double (*stress_rotate_func_t)(const stress_args_t *args);
+typedef double (*stress_rotate_func_t)(const stress_args_t *args, const bool verify, bool *success);
 
-static double stress_rotate_all(const stress_args_t *args);
+static double stress_rotate_all(const stress_args_t *args, const bool verify, bool *success);
 
 #if defined(HAVE_INT128_T)
 static __uint128_t stress_mwc128(void)
@@ -43,34 +43,77 @@ static __uint128_t stress_mwc128(void)
 }
 #endif
 
-#define STRESS_ROTATE(name, type, size, rotate_macro)	\
-static double 						\
-stress_ ## name ## size(const stress_args_t *args)	\
-{							\
-	type v0 = stress_mwc ## size();			\
-	type v1 = stress_mwc ## size();			\
-	type v2 = stress_mwc ## size();			\
-	type v3 = stress_mwc ## size();			\
-	double t1, t2;					\
-	register int i = 0;				\
-							\
-	t1 = stress_time_now();				\
-	for (i = 0; i < ROTATE_LOOPS; i++) {		\
-		v0 = rotate_macro ## size(v0);		\
-		v1 = rotate_macro ## size(v1);		\
-		v2 = rotate_macro ## size(v2);		\
-		v3 = rotate_macro ## size(v3);		\
-	}						\
-	t2 = stress_time_now();				\
-							\
-	stress_uint ## size ## _put(v0);		\
-	stress_uint ## size ## _put(v1);		\
-	stress_uint ## size ## _put(v2);		\
-	stress_uint ## size ## _put(v3);		\
-							\
-	inc_counter(args);				\
-	return t2 - t1;					\
+/*
+ *  stress_{ror|rol}{size}helper()
+ *	helper function to perform looped rotates, note that
+ *	the checksum puts are required to stop optimizer from
+ *	merging in the verify step into the same computation
+ *	as the non-verify step
+ */
+#define STRESS_ROTATE_HELPER(fname, type, size, rotate_macro)	\
+static inline double 						\
+stress_ ## fname ## size ## helper(const stress_args_t *args, type *checksum)\
+{								\
+	double t1, t2;						\
+	register type v0, v1, v2, v3;				\
+	register int i;						\
+								\
+	v0 = stress_mwc ## size();				\
+	v1 = stress_mwc ## size();				\
+	v2 = stress_mwc ## size();				\
+	v3 = stress_mwc ## size();				\
+	*checksum = v0 + v1 + v2 + v3;				\
+	stress_uint ## size ## _put(*checksum);			\
+								\
+	t1 = stress_time_now();					\
+	for (i = 0; i < ROTATE_LOOPS; i++) {			\
+		v0 = rotate_macro ## size(v0);			\
+		v1 = rotate_macro ## size(v1);			\
+		v2 = rotate_macro ## size(v2);			\
+		v3 = rotate_macro ## size(v3);			\
+	}							\
+	t2 = stress_time_now();					\
+	inc_counter(args);					\
+	*checksum = v0 + v1 + v2 + v3;				\
+	stress_uint ## size ## _put(*checksum);			\
+	return t2 - t1;						\
 }
+
+#define STRESS_ROTATE(fname, type, size, rotate_macro)		\
+static double OPTIMIZE3	\
+stress_ ## fname ## size(const stress_args_t *args, const bool verify, bool *success)\
+{								\
+	double duration;					\
+	uint32_t w, z;						\
+	type checksum0;						\
+								\
+	stress_mwc_get_seed(&w, &z);				\
+	duration = stress_ ## fname ## size ## helper		\
+			(args, &checksum0);			\
+								\
+	if (verify) {						\
+		type checksum1;					\
+								\
+		stress_mwc_set_seed(w, z);			\
+		duration += stress_ ## fname ## size ## helper	\
+				(args, &checksum1);		\
+		if (checksum0 != checksum1) {			\
+			pr_fail("%s: failed checksum with a "	\
+				"%s uint%d_t operation\n",	\
+				args->name, # fname, size);	\
+			*success = false;			\
+		}						\
+	}							\
+	return duration;					\
+}
+
+STRESS_ROTATE_HELPER(rol,     uint8_t,   8, shim_rol)
+STRESS_ROTATE_HELPER(rol,    uint16_t,  16, shim_rol)
+STRESS_ROTATE_HELPER(rol,    uint32_t,  32, shim_rol)
+STRESS_ROTATE_HELPER(rol,    uint64_t,  64, shim_rol)
+#if defined(HAVE_INT128_T)
+STRESS_ROTATE_HELPER(rol, __uint128_t, 128, shim_ror)
+#endif
 
 STRESS_ROTATE(rol,     uint8_t,   8, shim_rol)
 STRESS_ROTATE(rol,    uint16_t,  16, shim_rol)
@@ -78,6 +121,14 @@ STRESS_ROTATE(rol,    uint32_t,  32, shim_rol)
 STRESS_ROTATE(rol,    uint64_t,  64, shim_rol)
 #if defined(HAVE_INT128_T)
 STRESS_ROTATE(rol, __uint128_t, 128, shim_ror)
+#endif
+
+STRESS_ROTATE_HELPER(ror,     uint8_t,   8, shim_ror)
+STRESS_ROTATE_HELPER(ror,    uint16_t,  16, shim_ror)
+STRESS_ROTATE_HELPER(ror,    uint32_t,  32, shim_ror)
+STRESS_ROTATE_HELPER(ror,    uint64_t,  64, shim_ror)
+#if defined(HAVE_INT128_T)
+STRESS_ROTATE_HELPER(ror, __uint128_t, 128, shim_ror)
 #endif
 
 STRESS_ROTATE(ror,     uint8_t,   8, shim_ror)
@@ -115,20 +166,22 @@ static stress_metrics_t stress_rotate_metrics[SIZEOF_ARRAY(stress_rotate_funcs)]
 
 static void stress_rotate_call_method(
 	const stress_args_t *args,
-	const size_t method)
+	const size_t method,
+	const bool verify,
+	bool *success)
 {
-	const double dt = stress_rotate_funcs[method].rotate_func(args);
+	const double dt = stress_rotate_funcs[method].rotate_func(args, verify, success);
 
 	stress_rotate_metrics[method].duration += dt;
-	stress_rotate_metrics[method].count += (double)ROTATE_LOOPS * 4.0;
+	stress_rotate_metrics[method].count += (double)ROTATE_LOOPS * 4.0 * (verify ? 2.0 : 1.0);
 }
 
-static double stress_rotate_all(const stress_args_t *args)
+static double stress_rotate_all(const stress_args_t *args, const bool verify, bool *success)
 {
 	size_t i;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
-		stress_rotate_call_method(args, i);
+		stress_rotate_call_method(args, i, verify, success);
 	}
 	return 0.0;
 }
@@ -161,6 +214,8 @@ static int stress_rotate(const stress_args_t *args)
 {
 	size_t rotate_method = 0;	/* "all" */
 	size_t i, j;
+	bool success = true;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_rotate_metrics); i++) {
 		stress_rotate_metrics[i].duration = 0.0;
@@ -172,9 +227,8 @@ static int stress_rotate(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_rotate_call_method(args, rotate_method);
+		stress_rotate_call_method(args, rotate_method, verify, &success);
 	} while (keep_stressing(args));
-
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
 		if (stress_rotate_metrics[i].duration > 0.0) {
@@ -189,7 +243,7 @@ static int stress_rotate(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -200,5 +254,6 @@ stressor_info_t stress_rotate_info = {
 	.stressor = stress_rotate,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
