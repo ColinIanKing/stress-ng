@@ -191,33 +191,62 @@ static inline void stress_prefetch_none(const void *addr)
 	(void)addr;
 }
 
-#define STRESS_PREFETCH_LOOP(func)	\
-	while (ptr < l3_data_end) {	\
-		func(pre_ptr);		\
-		(void)(*(ptr + 0));	\
-		(void)(*(ptr + 1));	\
-		(void)(*(ptr + 2));	\
-		(void)(*(ptr + 3));	\
-		pre_ptr += 8;		\
-		(void)(*(ptr + 4));	\
-		(void)(*(ptr + 5));	\
-		(void)(*(ptr + 6));	\
-		(void)(*(ptr + 7));	\
-		ptr += 8;		\
+#define STRESS_PREFETCH_LOOP(func, type)				\
+	if (verify) {							\
+		checksum = 0;						\
+		while (ptr < l3_data_end) {				\
+			func(pre_ptr);					\
+			checksum += *(ptr + 0);				\
+			checksum += *(ptr + 1);				\
+			checksum += *(ptr + 2);				\
+			checksum += *(ptr + 3);				\
+			pre_ptr += 8;					\
+			checksum += *(ptr + 4);				\
+			checksum += *(ptr + 5);				\
+			checksum += *(ptr + 6);				\
+			checksum += *(ptr + 7);				\
+			ptr += 8;					\
+		}							\
+		if (checksum != checksum_sane) {			\
+			pr_fail("%s: %s method: checksum failure, got "	\
+				"0x%" PRIx64 ", expected 0x%" PRIx64 "\n",\
+				args->name, type,			\
+				checksum, checksum_sane);		\
+			*success = false;				\
+		}							\
+	} else {							\
+		while (ptr < l3_data_end) {				\
+			func(pre_ptr);					\
+			(void)(*(ptr + 0));				\
+			(void)(*(ptr + 1));				\
+			(void)(*(ptr + 2));				\
+			(void)(*(ptr + 3));				\
+			pre_ptr += 8;					\
+			(void)(*(ptr + 4));				\
+			(void)(*(ptr + 5));				\
+			(void)(*(ptr + 6));				\
+			(void)(*(ptr + 7));				\
+			ptr += 8;					\
+		}							\
 	}
 
 static inline void OPTIMIZE3 stress_prefetch_benchmark(
+	const stress_args_t *args,
 	stress_prefetch_info_t *prefetch_info,
 	const size_t prefetch_method,
 	const size_t i,
+	const uint64_t checksum_sane,
 	uint64_t *RESTRICT l3_data,
 	uint64_t *RESTRICT l3_data_end,
-	uint64_t *total_count)
+	uint64_t *total_count,
+	bool *success)
 {
 	double t1, t2, t3, t4;
 	const size_t l3_data_size = (uintptr_t)l3_data_end - (uintptr_t)l3_data;
 	volatile uint64_t *ptr;
 	uint64_t *pre_ptr;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	register uint64_t checksum;
 
 	shim_cacheflush((char *)l3_data, (int)l3_data_size, SHIM_DCACHE);
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
@@ -249,47 +278,47 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	/* Benchmark reads */
 	if (prefetch_info[i].offset == 0) {
 		/* Benchmark no prefetch */
-		STRESS_PREFETCH_LOOP(stress_prefetch_none);
+		STRESS_PREFETCH_LOOP(stress_prefetch_none, "no prefetch");
 	} else {
 		switch (prefetch_method) {
 		default:
 		case STRESS_PREFETCH_BUILTIN:
-			STRESS_PREFETCH_LOOP(stress_prefetch_builtin);
+			STRESS_PREFETCH_LOOP(stress_prefetch_builtin, "builtin_prefetch");
 			break;
 		case STRESS_PREFETCH_BUILTIN_L0:
-			STRESS_PREFETCH_LOOP(stress_prefetch_builtin_locality0);
+			STRESS_PREFETCH_LOOP(stress_prefetch_builtin_locality0, "builtin_prefetch locality 0");
 			break;
 		case STRESS_PREFETCH_BUILTIN_L3:
-			STRESS_PREFETCH_LOOP(stress_prefetch_builtin_locality3);
+			STRESS_PREFETCH_LOOP(stress_prefetch_builtin_locality3, "builtin_prefetch locality 3");
 			break;
 #if defined(HAVE_ASM_X86_PREFETCHT0)
 		case STRESS_PREFETCH_X86_PREFETCHT0:
-			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht0);
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht0, "x86 prefetcht0");
 			break;
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT1)
 		case STRESS_PREFETCH_X86_PREFETCHT1:
-			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht1);
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht1, "x86 prefetcht1");
 			break;
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT2)
 		case STRESS_PREFETCH_X86_PREFETCHT2:
-			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht2);
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetcht2, "x86 prefetcht2");
 			break;
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
 		case STRESS_PREFETCH_X86_PREFETCHNTA:
-			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetchnta);
+			STRESS_PREFETCH_LOOP(stress_asm_x86_prefetchnta, "x86 prefetchnta");
 			break;
 #endif
 #if defined(HAVE_ASM_PPC64_DCBT)
 		case STRESS_PREFETCH_PPC64_DCBT:
-			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbt);
+			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbt, "ppc64 dcbt");
 			break;
 #endif
 #if defined(HAVE_ASM_PPC64_DCBTST)
 		case STRESS_PREFETCH_PPC64_DCBTST:
-			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbtst);
+			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbtst, "ppc64 dcbtst");
 			break;
 #endif
 		}
@@ -304,18 +333,40 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	(*total_count)++;
 }
 
+static uint64_t stress_prefetch_data_set(uint64_t *l3_data, uint64_t *l3_data_end)
+{
+        register uint32_t const a = 16843009;
+        register uint32_t const c = 826366247;
+        register uint32_t seed = 123456789;
+	register uint64_t checksum = 0;
+
+	while (l3_data < l3_data_end) {
+		uint64_t val;
+
+		seed = (a * seed + c);
+		val = seed;
+		seed = (a * seed + c);
+		val |= (uint64_t)seed << 32;;
+
+		*(l3_data++) = val;
+		checksum += val;
+	}
+	return checksum;
+}
+
 /*
  *  stress_prefetch()
  *	stress cache/memory/CPU with stream stressors
  */
 static int stress_prefetch(const stress_args_t *args)
 {
-	uint64_t *l3_data, *l3_data_end, total_count = 0;
+	uint64_t *l3_data, *l3_data_end, total_count = 0, checksum_sane;
 	size_t l3_data_size = 0, l3_data_mmap_size;
 	stress_prefetch_info_t prefetch_info[STRESS_PREFETCH_OFFSETS];
 	size_t i, best;
 	size_t prefetch_method = STRESS_PREFETCH_BUILTIN;
 	double best_rate, ns, rate;
+	bool success = true;
 
 	(void)stress_get_setting("prefetch-method", &prefetch_method);
 
@@ -343,8 +394,7 @@ static int stress_prefetch(const stress_args_t *args)
 	}
 
 	l3_data_end = (uint64_t *)((uintptr_t)l3_data + l3_data_size);
-
-	(void)shim_memset(l3_data, 0xa5, l3_data_mmap_size);
+	checksum_sane = stress_prefetch_data_set(l3_data, l3_data_end);
 
 	for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {
 		prefetch_info[i].offset = i * STRESS_CACHE_LINE_SIZE;
@@ -362,12 +412,15 @@ static int stress_prefetch(const stress_args_t *args)
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {
-			stress_prefetch_benchmark(prefetch_info,
-				prefetch_method, i, l3_data,
-				l3_data_end, &total_count);
+			stress_prefetch_benchmark(args, prefetch_info,
+				prefetch_method, i, checksum_sane,
+				l3_data, l3_data_end, &total_count,
+				&success);
+			if (!success)
+				break;
 		}
 		inc_counter(args);
-	} while (keep_stressing(args));
+	} while (success && keep_stressing(args));
 
 	best = 0;
 	best_rate = 0.0;
@@ -402,7 +455,7 @@ static int stress_prefetch(const stress_args_t *args)
 
 	(void)munmap((void *)l3_data, l3_data_mmap_size);
 
-	return EXIT_SUCCESS;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -415,5 +468,6 @@ stressor_info_t stress_prefetch_info = {
 	.stressor = stress_prefetch,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
