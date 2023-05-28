@@ -44,7 +44,7 @@ static const stress_help_t help[] = {
 static sigjmp_buf jmp_env;
 static int handled_signum = -1;
 
-typedef void (*stress_misaligned_func)(uintptr_t buffer, const size_t page_size);
+typedef void (*stress_misaligned_func)(const stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
 
 typedef struct {
 	const char *name;
@@ -71,7 +71,11 @@ static bool NOINLINE keep_running_no_sse(void)
 #define keep_running_no_sse()	keep_stressing_flag()
 #endif
 
-static void stress_misaligned_int16rd(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int16rd(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint16_t *ptr1  = (uint16_t *)(buffer + 1);
@@ -91,6 +95,9 @@ static void stress_misaligned_int16rd(uintptr_t buffer, const size_t page_size)
 	volatile uint16_t *ptr15 = (uint16_t *)(buffer + page_size - 13);
 	volatile uint16_t *ptr16 = (uint16_t *)(buffer + page_size - 15);
 	volatile uint16_t *ptr17  = (uint16_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		(void)*ptr1;
@@ -132,7 +139,11 @@ static void stress_misaligned_int16rd(uintptr_t buffer, const size_t page_size)
 	}
 }
 
-static void stress_misaligned_int16wr(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int16wr(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint16_t *ptr1  = (uint16_t *)(buffer + 1);
@@ -154,46 +165,92 @@ static void stress_misaligned_int16wr(uintptr_t buffer, const size_t page_size)
 	volatile uint16_t *ptr17  = (uint16_t *)(buffer + 63);
 
 	while (keep_stressing_flag() && --i) {
-		*ptr1  = (uint16_t)i;
+		register uint16_t ui16 = (uint16_t)i;
+
+		*ptr1  = ui16;
 		shim_mb();
-		*ptr2  = (uint16_t)i;
+		*ptr2  = ui16;
 		shim_mb();
-		*ptr3  = (uint16_t)i;
+		*ptr3  = ui16;
 		shim_mb();
-		*ptr4  = (uint16_t)i;
+		*ptr4  = ui16;
 		shim_mb();
-		*ptr5  = (uint16_t)i;
+		*ptr5  = ui16;
 		shim_mb();
-		*ptr6  = (uint16_t)i;
+		*ptr6  = ui16;
 		shim_mb();
-		*ptr7  = (uint16_t)i;
+		*ptr7  = ui16;
 		shim_mb();
-		*ptr8  = (uint16_t)i;
+		*ptr8  = ui16;
 		shim_mb();
 
-		*ptr9  = (uint16_t)i;
+		*ptr9  = ui16;
 		shim_mb();
-		*ptr10 = (uint16_t)i;
+		*ptr10 = ui16;
 		shim_mb();
-		*ptr11 = (uint16_t)i;
+		*ptr11 = ui16;
 		shim_mb();
-		*ptr12 = (uint16_t)i;
+		*ptr12 = ui16;
 		shim_mb();
-		*ptr13 = (uint16_t)i;
+		*ptr13 = ui16;
 		shim_mb();
-		*ptr14 = (uint16_t)i;
+		*ptr14 = ui16;
 		shim_mb();
-		*ptr15 = (uint16_t)i;
+		*ptr15 = ui16;
 		shim_mb();
-		*ptr16 = (uint16_t)i;
+		*ptr16 = ui16;
 		shim_mb();
 
-		*ptr17 = (uint16_t)i;
+		*ptr17 = ui16;
 		shim_mb();
+
+		if (*ptr1 != ui16)
+			goto fail;
+		if (*ptr2 != ui16)
+			goto fail;
+		if (*ptr3 != ui16)
+			goto fail;
+		if (*ptr4 != ui16)
+			goto fail;
+		if (*ptr5 != ui16)
+			goto fail;
+		if (*ptr6 != ui16)
+			goto fail;
+		if (*ptr7 != ui16)
+			goto fail;
+		if (*ptr8 != ui16)
+			goto fail;
+		if (*ptr9 != ui16)
+			goto fail;
+		if (*ptr10 != ui16)
+			goto fail;
+		if (*ptr11 != ui16)
+			goto fail;
+		if (*ptr12 != ui16)
+			goto fail;
+		if (*ptr13 != ui16)
+			goto fail;
+		if (*ptr14 != ui16)
+			goto fail;
+		if (*ptr15 != ui16)
+			goto fail;
+		if (*ptr16 != ui16)
+			goto fail;
+		if (*ptr17 != ui16)
+			goto fail;
 	}
+	return;
+
+fail:	
+	pr_inf("%s: int16wr: difference between 16 bit value written and value read back\n", args->name);
+	*succeeded = false;
 }
 
-static void stress_misaligned_int16inc(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int16inc(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint16_t *ptr1  = (uint16_t *)(buffer + 1);
@@ -213,6 +270,9 @@ static void stress_misaligned_int16inc(uintptr_t buffer, const size_t page_size)
 	volatile uint16_t *ptr15 = (uint16_t *)(buffer + page_size - 13);
 	volatile uint16_t *ptr16 = (uint16_t *)(buffer + page_size - 15);
 	volatile uint16_t *ptr17  = (uint16_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		(*ptr1)++;
@@ -257,7 +317,11 @@ static void stress_misaligned_int16inc(uintptr_t buffer, const size_t page_size)
 #if defined(HAVE_ATOMIC_FETCH_ADD_2) &&	\
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
-static void stress_misaligned_int16atomic(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int16atomic(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint16_t *ptr1  = (uint16_t *)(buffer + 1);
@@ -277,6 +341,9 @@ static void stress_misaligned_int16atomic(uintptr_t buffer, const size_t page_si
 	volatile uint16_t *ptr15 = (uint16_t *)(buffer + page_size - 13);
 	volatile uint16_t *ptr16 = (uint16_t *)(buffer + page_size - 15);
 	volatile uint16_t *ptr17  = (uint16_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		__atomic_fetch_add_2(ptr1, 1, __ATOMIC_SEQ_CST);
@@ -319,7 +386,11 @@ static void stress_misaligned_int16atomic(uintptr_t buffer, const size_t page_si
 }
 #endif
 
-static void stress_misaligned_int32rd(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int32rd(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
@@ -331,6 +402,9 @@ static void stress_misaligned_int32rd(uintptr_t buffer, const size_t page_size)
 	volatile uint32_t *ptr7 = (uint32_t *)(buffer + page_size - 9);
 	volatile uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
 	volatile uint32_t *ptr9 = (uint32_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		(void)*ptr1;
@@ -356,7 +430,11 @@ static void stress_misaligned_int32rd(uintptr_t buffer, const size_t page_size)
 	}
 }
 
-static void stress_misaligned_int32wr(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int32wr(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
@@ -370,31 +448,61 @@ static void stress_misaligned_int32wr(uintptr_t buffer, const size_t page_size)
 	volatile uint32_t *ptr9 = (uint32_t *)(buffer + 63);
 
 	while (keep_stressing_flag() && --i) {
-		*ptr1 = (uint32_t)i;
+		register uint32_t ui32 = (uint32_t)i;
+
+		*ptr1 = ui32;
 		shim_mb();
-		*ptr2 = (uint32_t)i;
+		*ptr2 = ui32;
 		shim_mb();
-		*ptr3 = (uint32_t)i;
+		*ptr3 = ui32;
 		shim_mb();
-		*ptr4 = (uint32_t)i;
+		*ptr4 = ui32;
 		shim_mb();
 
-		*ptr5 = (uint32_t)i;
+		*ptr5 = ui32;
 		shim_mb();
-		*ptr6 = (uint32_t)i;
+		*ptr6 = ui32;
 		shim_mb();
-		*ptr7 = (uint32_t)i;
+		*ptr7 = ui32;
 		shim_mb();
-		*ptr8 = (uint32_t)i;
+		*ptr8 = ui32;
 		shim_mb();
 
-		*ptr9 = (uint32_t)i;
+		*ptr9 = ui32;
 		shim_mb();
+
+		if (*ptr1 != ui32)
+			goto fail;
+		if (*ptr2 != ui32)
+			goto fail;
+		if (*ptr3 != ui32)
+			goto fail;
+		if (*ptr4 != ui32)
+			goto fail;
+		if (*ptr5 != ui32)
+			goto fail;
+		if (*ptr6 != ui32)
+			goto fail;
+		if (*ptr7 != ui32)
+			goto fail;
+		if (*ptr8 != ui32)
+			goto fail;
+		if (*ptr9 != ui32)
+			goto fail;
 	}
+	return;
+
+fail:	
+	pr_inf("%s: int32wr: difference between 32 bit value written and value read back\n", args->name);
+	*succeeded = false;
 }
 
 #if defined(HAVE_NT_STORE32)
-static void stress_misaligned_int32wrnt(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int32wrnt(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	uint32_t *ptr1 = (uint32_t *)(buffer + 1);
@@ -408,21 +516,51 @@ static void stress_misaligned_int32wrnt(uintptr_t buffer, const size_t page_size
 	uint32_t *ptr9 = (uint32_t *)(buffer + 63);
 
 	while (keep_stressing_flag() && --i) {
-		stress_nt_store32(ptr1, (uint32_t)i);
-		stress_nt_store32(ptr2, (uint32_t)i);
-		stress_nt_store32(ptr3, (uint32_t)i);
-		stress_nt_store32(ptr4, (uint32_t)i);
-		stress_nt_store32(ptr5, (uint32_t)i);
-		stress_nt_store32(ptr6, (uint32_t)i);
-		stress_nt_store32(ptr7, (uint32_t)i);
-		stress_nt_store32(ptr8, (uint32_t)i);
-		stress_nt_store32(ptr9, (uint32_t)i);
+		register uint32_t ui32 = (uint32_t)i;
+
+		stress_nt_store32(ptr1, ui32);
+		stress_nt_store32(ptr2, ui32);
+		stress_nt_store32(ptr3, ui32);
+		stress_nt_store32(ptr4, ui32);
+		stress_nt_store32(ptr5, ui32);
+		stress_nt_store32(ptr6, ui32);
+		stress_nt_store32(ptr7, ui32);
+		stress_nt_store32(ptr8, ui32);
+		stress_nt_store32(ptr9, ui32);
+
+		if (*ptr1 != ui32)
+			goto fail;
+		if (*ptr2 != ui32)
+			goto fail;
+		if (*ptr3 != ui32)
+			goto fail;
+		if (*ptr4 != ui32)
+			goto fail;
+		if (*ptr5 != ui32)
+			goto fail;
+		if (*ptr6 != ui32)
+			goto fail;
+		if (*ptr7 != ui32)
+			goto fail;
+		if (*ptr8 != ui32)
+			goto fail;
+		if (*ptr9 != ui32)
+			goto fail;
 	}
+	return;
+
+fail:	
+	pr_inf("%s: int32wrnt: difference between 32 bit value written and value read back\n", args->name);
+	*succeeded = false;
 }
 
 #endif
 
-static void stress_misaligned_int32inc(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int32inc(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
@@ -434,6 +572,9 @@ static void stress_misaligned_int32inc(uintptr_t buffer, const size_t page_size)
 	volatile uint32_t *ptr7 = (uint32_t *)(buffer + page_size - 9);
 	volatile uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
 	volatile uint32_t *ptr9 = (uint32_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		(*ptr1)++;
@@ -462,7 +603,11 @@ static void stress_misaligned_int32inc(uintptr_t buffer, const size_t page_size)
 #if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
-static void stress_misaligned_int32atomic(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int32atomic(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
@@ -474,6 +619,9 @@ static void stress_misaligned_int32atomic(uintptr_t buffer, const size_t page_si
 	volatile uint32_t *ptr7 = (uint32_t *)(buffer + page_size - 9);
 	volatile uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
 	volatile uint32_t *ptr9 = (uint32_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		__atomic_fetch_add_4(ptr1, 1, __ATOMIC_SEQ_CST);
@@ -500,7 +648,11 @@ static void stress_misaligned_int32atomic(uintptr_t buffer, const size_t page_si
 }
 #endif
 
-static void stress_misaligned_int64rd(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int64rd(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
@@ -508,6 +660,9 @@ static void stress_misaligned_int64rd(uintptr_t buffer, const size_t page_size)
 	volatile uint64_t *ptr3 = (uint64_t *)(buffer + page_size - 1);
 	volatile uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
 	volatile uint64_t *ptr5 = (uint64_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		(void)*ptr1;
@@ -525,7 +680,11 @@ static void stress_misaligned_int64rd(uintptr_t buffer, const size_t page_size)
 	}
 }
 
-static void stress_misaligned_int64wr(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int64wr(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
@@ -535,23 +694,45 @@ static void stress_misaligned_int64wr(uintptr_t buffer, const size_t page_size)
 	volatile uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
 	while (keep_stressing_flag() && --i) {
-		*ptr1 = (uint64_t)i;
+		register uint64_t ui64 = (uint64_t)i;
+
+		*ptr1 = ui64;
 		shim_mb();
-		*ptr2 = (uint64_t)i;
+		*ptr2 = ui64;
 		shim_mb();
 
-		*ptr3 = (uint64_t)i;
+		*ptr3 = ui64;
 		shim_mb();
-		*ptr4 = (uint64_t)i;
+		*ptr4 = ui64;
 		shim_mb();
 
-		*ptr5 = (uint64_t)i;
+		*ptr5 = ui64;
 		shim_mb();
+
+		if (*ptr1 != ui64)
+			goto fail;
+		if (*ptr2 != ui64)
+			goto fail;
+		if (*ptr3 != ui64)
+			goto fail;
+		if (*ptr4 != ui64)
+			goto fail;
+		if (*ptr5 != ui64)
+			goto fail;
 	}
+	return;
+
+fail:	
+	pr_inf("%s: int64wr: difference between 64 bit value written and value read back\n", args->name);
+	*succeeded = false;
 }
 
 #if defined(HAVE_NT_STORE64)
-static void stress_misaligned_int64wrnt(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int64wrnt(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	uint64_t *ptr1 = (uint64_t *)(buffer + 1);
@@ -561,16 +742,38 @@ static void stress_misaligned_int64wrnt(uintptr_t buffer, const size_t page_size
 	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
 	while (keep_stressing_flag() && --i) {
-		stress_nt_store64(ptr1, (uint64_t)i);
-		stress_nt_store64(ptr2, (uint64_t)i);
-		stress_nt_store64(ptr3, (uint64_t)i);
-		stress_nt_store64(ptr4, (uint64_t)i);
-		stress_nt_store64(ptr5, (uint64_t)i);
+		register uint64_t ui64 = (uint64_t)i;
+		
+		stress_nt_store64(ptr1, ui64);
+		stress_nt_store64(ptr2, ui64);
+		stress_nt_store64(ptr3, ui64);
+		stress_nt_store64(ptr4, ui64);
+		stress_nt_store64(ptr5, ui64);
+
+		if (*ptr1 != ui64)
+			goto fail;
+		if (*ptr2 != ui64)
+			goto fail;
+		if (*ptr3 != ui64)
+			goto fail;
+		if (*ptr4 != ui64)
+			goto fail;
+		if (*ptr5 != ui64)
+			goto fail;
 	}
+	return;
+
+fail:	
+	pr_inf("%s: int64wrt: difference between 64 bit value written and value read back\n", args->name);
+	*succeeded = false;
 }
 #endif
 
-static void stress_misaligned_int64inc(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int64inc(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
@@ -578,6 +781,9 @@ static void stress_misaligned_int64inc(uintptr_t buffer, const size_t page_size)
 	volatile uint64_t *ptr3 = (uint64_t *)(buffer + page_size - 1);
 	volatile uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
 	volatile uint64_t *ptr5 = (uint64_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		(*ptr1)++;
@@ -598,7 +804,11 @@ static void stress_misaligned_int64inc(uintptr_t buffer, const size_t page_size)
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
-static void stress_misaligned_int64atomic(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int64atomic(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
@@ -606,6 +816,9 @@ static void stress_misaligned_int64atomic(uintptr_t buffer, const size_t page_si
 	volatile uint64_t *ptr3 = (uint64_t *)(buffer + page_size - 1);
 	volatile uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
 	volatile uint64_t *ptr5 = (uint64_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		__atomic_fetch_add_8(ptr1, 1, __ATOMIC_SEQ_CST);
@@ -639,12 +852,19 @@ static void stress_misaligned_int64atomic(uintptr_t buffer, const size_t page_si
 #else
 #define TARGET_CLONE_NO_SSE
 #endif
-static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(uintptr_t buffer, const size_t page_size)
+static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
 	volatile __uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
 	volatile __uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_running_no_sse() && --i) {
 		(void)*ptr1;
@@ -653,7 +873,11 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(uintptr_t buffer, con
 	}
 }
 
-static void stress_misaligned_int128wr(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int128wr(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
@@ -661,19 +885,37 @@ static void stress_misaligned_int128wr(uintptr_t buffer, const size_t page_size)
 	volatile __uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
 
 	while (keep_stressing_flag() && --i) {
-		*ptr1 = (__uint128_t)i;
+		__uint128_t ui128 = (__uint128_t)i;
+
+		*ptr1 = ui128;
 		shim_mb();
 
-		*ptr2 = (__uint128_t)i;
+		*ptr2 = ui128;
 		shim_mb();
 
-		*ptr3 = (__uint128_t)i;
+		*ptr3 = ui128;
 		shim_mb();
+
+		if (*ptr1 != ui128)
+			goto fail;
+		if (*ptr2 != ui128)
+			goto fail;
+		if (*ptr3 != ui128)
+			goto fail;
 	}
+	return;
+
+fail:	
+	pr_inf("%s: int128wr: difference between 128 bit value written and value read back\n", args->name);
+	*succeeded = false;
 }
 
 #if defined(HAVE_NT_STORE128) && 0
-static void stress_misaligned_int128wrnt(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int128wrnt(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	__uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
@@ -688,12 +930,19 @@ static void stress_misaligned_int128wrnt(uintptr_t buffer, const size_t page_siz
 }
 #endif
 
-static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uintptr_t buffer, const size_t page_size)
+static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
 	volatile __uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
 	volatile __uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_running_no_sse() && --i) {
 		(*ptr1)++;
@@ -705,12 +954,19 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uintptr_t buffer, co
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
-static void stress_misaligned_int128atomic(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_int128atomic(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
 	volatile __uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
 	volatile __uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
+
+	(void)args;
+	(void)succeeded;
 
 	while (keep_stressing_flag() && --i) {
 		/* No add 16 variant, so do 2 x 8 adds for now */
@@ -727,7 +983,8 @@ static void stress_misaligned_int128atomic(uintptr_t buffer, const size_t page_s
 #endif
 #endif
 
-static void stress_misaligned_all(uintptr_t buffer, const size_t page_size);
+static void stress_misaligned_all(
+	const stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
 
 static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "all",	stress_misaligned_all,		false,	false },
@@ -777,7 +1034,11 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ NULL,         NULL,				false,	false }
 };
 
-static void stress_misaligned_all(uintptr_t buffer, const size_t page_size)
+static void stress_misaligned_all(
+	const stress_args_t *args,
+	uintptr_t buffer,
+	const size_t page_size,
+	bool *succeeded)
 {
 	static bool exercised = false;
 	stress_misaligned_method_info_t *info;
@@ -786,7 +1047,7 @@ static void stress_misaligned_all(uintptr_t buffer, const size_t page_size)
 		if (info->disabled)
 			continue;
 		current_method = info;
-		info->func(buffer, page_size);
+		info->func(args, buffer, page_size, succeeded);
 		info->exercised = true;
 		exercised = true;
 	}
@@ -896,6 +1157,7 @@ static int stress_misaligned(const stress_args_t *args)
 	int ret, rc;
 	const size_t page_size = args->page_size;
 	const size_t buffer_size = page_size << 1;
+	bool succeeded = true;
 
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
 
@@ -934,7 +1196,7 @@ static int stress_misaligned(const stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		misaligned_method->func((uintptr_t)buffer, page_size);
+		misaligned_method->func(args, (uintptr_t)buffer, page_size, &succeeded);
 		misaligned_method->exercised = true;
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -949,6 +1211,9 @@ static int stress_misaligned(const stress_args_t *args)
 
 	(void)munmap((void *)buffer, buffer_size);
 
+	if (!succeeded && (rc == EXIT_SUCCESS))
+		rc = EXIT_FAILURE;
+
 	return rc;
 }
 
@@ -962,5 +1227,6 @@ stressor_info_t stress_misaligned_info = {
 	.set_default = stress_misaligned_set_default,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
