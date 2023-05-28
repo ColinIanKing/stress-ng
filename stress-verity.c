@@ -208,6 +208,8 @@ static int stress_verity(const stress_args_t *args)
 				pr_fail("%s: verity enabled but FS_VERITY_FL bit not "
 					"set on file flags from ioctl FS_IOC_GETFLAGS\n",
 					args->name);
+				ret = EXIT_FAILURE;
+				goto clean;
 			}
 		}
 #else
@@ -243,9 +245,10 @@ static int stress_verity(const stress_args_t *args)
 				goto clean;
 			}
 			if (block[0] != i) {
-				pr_err("%s: data in file block %d is incorrect\n",
+				pr_fail("%s: data in file block %d is incorrect\n",
 					args->name, i);
 				(void)close(fd);
+				ret = EXIT_FAILURE;
 				goto clean;
 			}
 		}
@@ -283,6 +286,7 @@ clean:
 stressor_info_t stress_verity_info = {
 	.stressor = stress_verity,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
