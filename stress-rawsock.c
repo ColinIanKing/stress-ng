@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-hash.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
@@ -67,6 +68,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 typedef struct {
 	struct iphdr	iph;
 	uint32_t	data;
+	uint32_t	hash;
 } stress_raw_packet_t;
 
 static void *rawsock_lock;
@@ -162,6 +164,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 	while (!stop_rawsock && keep_stressing(args)) {
 		ssize_t sret;
 
+		pkt.hash = stress_hash_mulxror32((const char * )&pkt.data, sizeof(pkt.data));
 		sret = sendto(fd, &pkt, sizeof(pkt), 0,
 			(const struct sockaddr *)&addr,
 			(socklen_t)sizeof(addr));
@@ -228,12 +231,26 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 			pr_inf("%s: recvfrom got zero bytes\n", args->name);
 			break;
 		} else if (UNLIKELY(n < 0)) {
-			if (errno != EINTR)
+			if (errno != EINTR) {
 				pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			break;
 		} else  {
+			register uint32_t hash;
+
 			bytes += n;
+			hash = stress_hash_mulxror32((const char * )&pkt.data, sizeof(pkt.data));
+			if (hash != pkt.hash) {
+				pr_fail("%s: recv data hash check fail on "
+					"data 0x%4.4" PRIx32 ", got "
+					"0x%4.4" PRIx32 ", expected "
+					"0x%4.4" PRIx32 "\n",
+					args->name, pkt.data, hash, pkt.hash);
+				rc = EXIT_FAILURE;
+				break;
+			}
 		}
 #if defined(SIOCINQ)
 		/* Occasionally exercise SIOCINQ */
@@ -333,6 +350,7 @@ stressor_info_t stress_rawsock_info = {
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawsock_supported,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.init = stress_rawsock_init,
 	.deinit = stress_rawsock_deinit,
 };
