@@ -241,7 +241,7 @@ static void stress_misaligned_int16wr(
 	}
 	return;
 
-fail:	
+fail:
 	pr_inf("%s: int16wr: difference between 16 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
@@ -492,7 +492,7 @@ static void stress_misaligned_int32wr(
 	}
 	return;
 
-fail:	
+fail:
 	pr_inf("%s: int32wr: difference between 32 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
@@ -549,7 +549,7 @@ static void stress_misaligned_int32wrnt(
 	}
 	return;
 
-fail:	
+fail:
 	pr_inf("%s: int32wrnt: difference between 32 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
@@ -722,7 +722,7 @@ static void stress_misaligned_int64wr(
 	}
 	return;
 
-fail:	
+fail:
 	pr_inf("%s: int64wr: difference between 64 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
@@ -743,7 +743,7 @@ static void stress_misaligned_int64wrnt(
 
 	while (keep_stressing_flag() && --i) {
 		register uint64_t ui64 = (uint64_t)i;
-		
+
 		stress_nt_store64(ptr1, ui64);
 		stress_nt_store64(ptr2, ui64);
 		stress_nt_store64(ptr3, ui64);
@@ -763,7 +763,7 @@ static void stress_misaligned_int64wrnt(
 	}
 	return;
 
-fail:	
+fail:
 	pr_inf("%s: int64wrt: difference between 64 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
@@ -905,7 +905,7 @@ static void stress_misaligned_int128wr(
 	}
 	return;
 
-fail:	
+fail:
 	pr_inf("%s: int128wr: difference between 128 bit value written and value read back\n", args->name);
 	*succeeded = false;
 }
