@@ -490,7 +490,7 @@ static int stress_madvise(const stress_args_t *args)
 	if (ret) {
 		pr_fail("%s: sigsetjmp failed\n", args->name);
 		(void)munmap((void *)page, page_size);
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0) {
