@@ -94,10 +94,26 @@ static inline int stress_dev_shm_child(
 
 				/* Touch all pages with data */
 				for (ptr = addr; ptr < end; ptr += words) {
-					*ptr = (uintptr_t)ptr ^ rnd;
+					register const uint32_t val = (uint32_t)((uintptr_t)ptr ^ rnd) & 0xffffffffU;
+
+					*ptr = val;
+				}
+				/* Verify contents */
+				for (ptr = addr; ptr < end; ptr += words) {
+					register const uint32_t val = (uint32_t)((uintptr_t)ptr ^ rnd) & 0xffffffffU;
+
+					if (*ptr != val) {
+						pr_fail("%s: address %p does not contain correct value, "
+							"got 0x%" PRIx32 ", expecting 0x%" PRIx32 "\n",
+							args->name, ptr, *ptr, val);
+						(void)munmap(addr, (size_t)sz);
+						VOID_RET(int, ftruncate(fd, 0));
+						return EXIT_FAILURE;
+					}
 				}
 				(void)msync(addr, (size_t)sz, MS_INVALIDATE);
 				(void)munmap(addr, (size_t)sz);
+
 			}
 			sz = (ssize_t)page_size;
 			ret = ftruncate(fd, 0);
@@ -142,6 +158,7 @@ again:
 				force_killed_counter(args);
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
+				status = 0;
 				(void)shim_waitpid(pid, &status, 0);
 			}
 			if (WIFSIGNALED(status)) {
@@ -153,6 +170,8 @@ again:
 						args->name, args->instance);
 				}
 			}
+			if (WEXITSTATUS(status) != EXIT_SUCCESS)
+				rc = WEXITSTATUS(status);
 		} else {
 			/* Child, stress memory */
 			stress_parent_died_alarm();
@@ -209,6 +228,7 @@ static int stress_dev_shm(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, &context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
+pr_inf("%d %d\n", __LINE__, rc);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -219,6 +239,7 @@ static int stress_dev_shm(const stress_args_t *args)
 stressor_info_t stress_dev_shm_info = {
 	.stressor = stress_dev_shm,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
