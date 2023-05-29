@@ -208,6 +208,7 @@ stressor_info_t stress_binderfs_info = {
 	.stressor = stress_binderfs,
 	.supported = stress_binderfs_supported,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
