@@ -91,6 +91,7 @@ Debian, Ubuntu:
   * libkeyutils-dev
   * libkmod-dev
   * libmd-dev
+  * libmpfr-dev
   * libsctp-dev
   * libxxhash-dev
   * zlib1g-dev
@@ -111,6 +112,7 @@ RHEL, Fedora, Centos:
   * libglvnd-devel
   * libjpeg-devel
   * libmd-devel
+  * mpfr-devel
   * libX11-devel
   * libXau-devel
   * libxcb-devel
@@ -139,6 +141,7 @@ RHEL, Fedora, Centos (static builds):
   * libXau-devel
   * libxcb-devel
   * lksctp-tools-devel
+  * mpfr-devel
   * xorg-x11-proto-devel
   * xxhash-devel
   * zlib-devel
@@ -158,6 +161,7 @@ SUSE:
   * libmd-devel
   * libseccomp-devel
   * lksctp-tools-devel
+  * mpfr-devel
   * xxhash-devel
   * zlib-devel
 
@@ -187,6 +191,7 @@ Alpine Linux:
   * libseccomp-dev
   * lksctp-tools-dev
   * mesa-dev
+  * mpfr-dev
   * xxhash-dev
   * zlib-dev
 

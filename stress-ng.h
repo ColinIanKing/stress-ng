@@ -1640,6 +1640,10 @@ typedef enum {
 	OPT_mprotect,
 	OPT_mprotect_ops,
 
+	OPT_mpfr,
+	OPT_mpfr_ops,
+	OPT_mpfr_precision,
+
 	OPT_mq,
 	OPT_mq_ops,
 	OPT_mq_size,

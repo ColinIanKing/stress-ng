@@ -169,6 +169,7 @@
 	MACRO(mmapmany)		\
 	MACRO(module)		\
 	MACRO(mprotect)		\
+	MACRO(mpfr)		\
 	MACRO(mq)		\
 	MACRO(mremap)		\
 	MACRO(msg)		\

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 May 2023"
+.TH STRESS-NG 1 "30 May 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3465,6 +3465,53 @@ do not unload the module right after loading it with finit_module().
 .TP
 .B \-\-module\-ops N
 stop after N module load/unload cycles
+.TP
+.B \-\-mpfr N
+start N workers that exercise multi-precision floating point operations using
+the GNU Multi-Precision Floating Point Reliable library (mpfr). Operations computed
+are as follows:
+.TS
+expand;
+lB2 lB lB
+l l s.
+Method	Description
+apery	T{
+calculate Apery's constant \[*z](3); the sum of 1/(n \[ua] 3).
+T}
+cosine	T{
+compute cos(\(*h) for \(*h = 0 to 2\(*p in 1000 steps.
+T}
+euler	T{
+compute e using n \[eq] (1 + (1 \[di] n)) \[ua] n.
+T}
+exp	T{
+compute 1000 exponentials.
+T}
+log	T{
+computer 1000 natural logarithms.
+T}
+omega	T{
+compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient
+iteration of \(*Wn+1 = (1 + \(*Wn) / (1 + e\[ua]\(*Wn).
+T}
+phi	T{
+compute the Golden Ratio \(*f using series.
+T}
+sine	T{
+compute sin(\(*h) for \(*h = 0 to 2\(*p in 1000 steps.
+T}
+nsqrt	T{
+compute square root using Newton-Raphson.
+T}
+.TE
+.TP
+.B \-\-mpfr\-ops N
+stop workers after N iterations of various multi-precision floating point
+operations.
+.TP
+.B \-\-mpfr\-precision N
+specify the precision in binary digits of the floating point operations. The
+default is 1000 bits, the allowed range is 32 to 1000000 (very slow).
 .TP
 .B \-\-mprotect N
 start N workers that exercise changing page protection settings and access

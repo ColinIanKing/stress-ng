@@ -326,6 +326,7 @@ STRESS_SRC = \
 	stress-mmapmany.c \
 	stress-module.c \
 	stress-mprotect.c \
+	stress-mpfr.c \
 	stress-mq.c \
 	stress-mremap.c \
 	stress-msg.c \
