@@ -120,6 +120,7 @@ static int OPTIMIZE3 stress_udp_client(
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_FAILURE;
 	int index = 0;
+	const pid_t pid = getpid();
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -250,7 +251,7 @@ static int OPTIMIZE3 stress_udp_client(
 		UNEXPECTED
 #endif
 		do {
-			char buf[UDP_BUF];
+			char ALIGN64 buf[UDP_BUF];
 			register size_t i;
 
 			for (i = 16; i < sizeof(buf); i += 16, j++) {
@@ -259,7 +260,8 @@ static int OPTIMIZE3 stress_udp_client(
 				const int c = patterns[index++ & 0x1f];
 				ssize_t ret;
 
-				(void)shim_memset(buf, c, sizeof(buf));
+				(void)shim_memset(buf, c, i);
+				*(pid_t *)buf = pid;
 				ret = sendto(fd, buf, i, 0, addr, len);
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))
@@ -299,13 +301,14 @@ child_die:
 static int OPTIMIZE3 stress_udp_server(
 	const stress_args_t *args,
 	const pid_t mypid,
+	const pid_t client_pid,
 	const int udp_domain,
 	const int udp_proto,
 	const int udp_port,
 	const bool udp_gro,
 	const char *udp_if)
 {
-	char buf[UDP_BUF];
+	char ALIGN64 buf[UDP_BUF];
 	int fd;
 #if !defined(__minix__)
 	int so_reuseaddr = 1;
@@ -382,12 +385,27 @@ static int OPTIMIZE3 stress_udp_server(
 		if (UNLIKELY(n <= 0)) {
 			if (n == 0)
 				break;
-			if (errno != EINTR)
+			if (errno != EINTR) {
 				pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto die_close;
+			}
 			break;
+		} else {
+			const pid_t pid = *(pid_t *)buf;
+
+			if (UNLIKELY(pid != client_pid)) {
+				pr_fail("%s: server received unexpected data "
+					"contents, got 0x%" PRIxMAX ", "
+					"expected 0x%" PRIxMAX "\n",
+					args->name, (intmax_t)pid,
+					(intmax_t)client_pid);
+				rc = EXIT_FAILURE;
+				goto die_close;
+			}
+			inc_counter(args);
 		}
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
@@ -486,7 +504,7 @@ again:
 	} else {
 		int status;
 
-		rc = stress_udp_server(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
+		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
@@ -506,5 +524,6 @@ stressor_info_t stress_udp_info = {
 	.stressor = stress_udp,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
