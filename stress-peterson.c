@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-cpu-cache.h"
 
 static const stress_help_t help[] = {
@@ -57,6 +58,9 @@ static void stress_peterson_p0(const stress_args_t *args)
 	peterson->m.turn = 1;
 	shim_mfence();
 	while (peterson->m.flag[1] && (peterson->m.turn == 1)) {
+#if defined(STRESS_ARCH_RISCV)
+		shim_sched_yield();
+#endif
 	}
 
 	/* Critical section */
@@ -85,6 +89,9 @@ static void stress_peterson_p1(const stress_args_t *args)
 	peterson->m.turn = 0;
 	shim_mfence();
 	while (peterson->m.flag[0] && (peterson->m.turn == 0)) {
+#if defined(STRESS_ARCH_RISCV)
+		shim_sched_yield();
+#endif
 	}
 
 	/* Critical section */
