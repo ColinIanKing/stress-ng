@@ -99,6 +99,8 @@ typedef struct {
 } stress_signest_info_t;
 
 static volatile stress_signest_info_t signal_info;
+static uint64_t raised;
+static uint64_t handled;
 
 static void stress_signest_ignore(void)
 {
@@ -125,6 +127,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	const intptr_t addr = (intptr_t)&i;
 	double run_time = stress_time_now() - signal_info.time_start;
 
+	handled++;
 	signal_info.depth++;
 	/* After a while this becomes more unlikely than likely */
 	if (UNLIKELY(signal_info.depth > signal_info.max_depth))
@@ -176,6 +179,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 				siglongjmp(jmp_env, 1);
 		}
 		(void)raise(signals[i]);
+		raised++;
 	}
 
 done:
@@ -191,12 +195,17 @@ done:
 static int stress_signest(const stress_args_t *args)
 {
 	size_t i, sz;
-	int n, ret;
+	int n, ret, rc;
 	uint8_t *altstack;
 	char *buf, *ptr;
 	const size_t altstack_size = stress_min_sig_stack_size() * SIZEOF_ARRAY(signals);
+	double rate;
+	NOCLOBBER double t, duration;
 
+	raised = 0;
+	handled = 0;
 	jmp_env_ok = false;
+
 	altstack = (uint8_t*)mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (altstack == MAP_FAILED) {
@@ -232,11 +241,14 @@ static int stress_signest(const stress_args_t *args)
 	jmp_env_ok = true;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t = stress_time_now();
 	do {
 		(void)raise(signals[0]);
+		raised++;
 	} while (keep_stressing(args));
 
 finish:
+	duration = stress_time_now() - t;
 	jmp_env_ok = false;
 	signal_info.stop = true;
 	stress_signest_ignore();
@@ -282,14 +294,24 @@ finish:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	rc = EXIT_SUCCESS;
+	if ((raised > 0) && (handled == 0)) {
+		pr_fail("%s: %" PRIu64 " signals raised and no signals handled\n",
+			args->name, raised);
+		rc = EXIT_FAILURE;
+	}
+	rate = handled > 0 ? duration / (double)handled : 0.0;
+	stress_metrics_set(args, 0, "nanosec to handle a signal", rate * 1000000000.0);
+
 	stress_sigaltstack_disable();
 	(void)munmap((void *)altstack, altstack_size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_signest_info = {
 	.stressor = stress_signest,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
