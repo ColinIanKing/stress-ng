@@ -64,27 +64,29 @@ typedef struct {
 static void stress_mpfr_euler(const mpfr_prec_t precision, mpfr_t *result)
 {
 	mpfr_t sum_prev, sum, t, u;
-	int i;
+	int i, j;
 
 	mpfr_init2(sum_prev, precision);
 	mpfr_init2(sum, precision);
 	mpfr_init2(t, precision);
 	mpfr_init2(u, precision);
 
-	mpfr_set_d(t, 1.0, MPFR_RNDD);
-	mpfr_set_d(sum, 1.0, MPFR_RNDD);
-	mpfr_set_d(sum_prev, 0.0, MPFR_RNDD);
+	for (j = 0; (j <= 10); j++) {
+		mpfr_set_d(t, 1.0, MPFR_RNDD);
+		mpfr_set_d(sum, 1.0, MPFR_RNDD);
+		mpfr_set_d(sum_prev, 0.0, MPFR_RNDD);
 
-	for (i = 1; i <= 1000; i++) {
-		mpfr_set(sum_prev, sum, MPFR_RNDD);
-		mpfr_mul_ui(t, t, i, MPFR_RNDU);
-		mpfr_set_d(u, 1.0, MPFR_RNDD);
-		mpfr_div(u, u, t, MPFR_RNDD);
-		mpfr_add(sum, sum, u, MPFR_RNDD);
-		if (mpfr_cmp(sum_prev, sum) == 0)
-			break;
+		for (i = 1; i <= 1000; i++) {
+			mpfr_set(sum_prev, sum, MPFR_RNDD);
+			mpfr_mul_ui(t, t, i, MPFR_RNDU);
+			mpfr_set_d(u, 1.0, MPFR_RNDD);
+			mpfr_div(u, u, t, MPFR_RNDD);
+			mpfr_add(sum, sum, u, MPFR_RNDD);
+			if (mpfr_cmp(sum_prev, sum) == 0)
+				break;
+		}
+		mpfr_set(*result, sum, MPFR_RNDD);
 	}
-	mpfr_set(*result, sum, MPFR_RNDD);
 
 	mpfr_clear(sum_prev);
 	mpfr_clear(sum);
@@ -152,7 +154,6 @@ static void stress_mpfr_phi(const mpfr_prec_t precision, mpfr_t *result)
 		mpfr_set(b, c, MPFR_RNDD);
 	}
 	mpfr_div(phi, b, a, MPFR_RNDD);
-
 	mpfr_set(*result, phi, MPFR_RNDD);
 
 	mpfr_clear(phi);
@@ -264,6 +265,7 @@ static void stress_mpfr_trigfunc(
 	mpfr_set_d(theta, 0.0, MPFR_RNDD);
 	/* dtheta = pi / 100 */
 	mpfr_const_pi(dtheta, MPFR_RNDD);
+	mpfr_mul_ui(dtheta, dtheta, 2.0, MPFR_RNDD);
 	mpfr_div_ui(dtheta, dtheta, 100UL, MPFR_RNDD);
 
 	for (i = 1; i <= 100; i++) {
@@ -358,7 +360,7 @@ static const stress_mpfr_method_t stress_mpfr_methods[] = {
 	{ "log",	stress_mpfr_log },
 	{ "nsqrt",	stress_mpfr_nsqrt },
 	{ "omega",	stress_mpfr_omega },
-	{ "phi const",	stress_mpfr_phi },
+	{ "phi",	stress_mpfr_phi },
 	{ "sine",	stress_mpfr_sine },
 };
 
@@ -388,7 +390,7 @@ static int stress_mpfr(const stress_args_t *args)
 
 		stress_mwc_get_seed(&w, &z);
 
-		for (i = 0; i < SIZEOF_ARRAY(stress_mpfr_methods); i++) {
+		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_mpfr_methods)); i++) {
 			double t1;
 
 			stress_mwc_set_seed(w, z);
