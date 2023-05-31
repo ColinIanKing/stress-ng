@@ -75,7 +75,8 @@ static uint64_t stress_dirmany_create(
 	const uint64_t i_start,
 	double *create_time,
 	size_t *max_len,
-	uint64_t *total_created)
+	uint64_t *total_created,
+	bool *failed)
 {
 	const double t_now = stress_time_now();
 	const double t_left = (t_start + (double)g_opt_timeout) - t_now;
@@ -87,6 +88,7 @@ static uint64_t stress_dirmany_create(
 	*max_len = 256;
 
 	while (keep_stressing(args)) {
+		struct stat statbuf;
 		char filename[PATH_MAX + 20];
 		int fd;
 
@@ -102,8 +104,6 @@ static uint64_t stress_dirmany_create(
 				continue;
 			}
 			break;
-		} else {
-			(*total_created)++;
 		}
 		if (filename_len < *max_len)
 			filename_len++;
@@ -118,6 +118,15 @@ static uint64_t stress_dirmany_create(
 		if ((i_end & 0xff) == 0xff)
 			shim_fsync(fd);
 		(void)close(fd);
+
+		/* File should really exist */
+		if ((stat(pathname, &statbuf) < 0) && (errno != ENOMEM)) {
+			pr_fail("%s: stat failed on file %s, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
+			*failed = true;
+			break;
+		}
+		(*total_created)++;
 
 		inc_counter(args);
 	}
@@ -185,10 +194,15 @@ static int stress_dirmany(const stress_args_t *args)
 	do {
 		uint64_t i_end;
 		size_t max_len;
+		bool failed = false;
 
 		i_end = stress_dirmany_create(args, pathname, pathname_len,
 				dirmany_bytes, t_start, i_start,
-				&create_time, &max_len, &total_created);
+				&create_time, &max_len, &total_created, &failed);
+		if (failed) {
+			ret = EXIT_FAILURE;
+			break;
+		}
 		stress_dirmany_remove(pathname, pathname_len,
 				i_start, i_end, &remove_time, max_len);
 		i_start = i_end;
@@ -202,8 +216,8 @@ static int stress_dirmany(const stress_args_t *args)
 	if ((total_created > 0) && (total_time > 0.0)) {
 		double rate;
 
-		stress_metrics_set(args, 0, "% of time creating directories", create_time / total_time * 100.0);
-		stress_metrics_set(args, 1, "% of time removing directories", remove_time / total_time * 100.0);
+		stress_metrics_set(args, 0, "% of time creating files", create_time / total_time * 100.0);
+		stress_metrics_set(args, 1, "% of time removing file", remove_time / total_time * 100.0);
 
 		rate = (create_time > 0.0) ? (double)total_created / create_time : 0.0;
 		stress_metrics_set(args, 2, "files created per sec", rate);
@@ -213,10 +227,8 @@ static int stress_dirmany(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (total_created == 0) {
-		pr_fail("%s: no files were created in %s\n", args->name, pathname);
-		ret = EXIT_FAILURE;
-	}
+	if (total_created == 0)
+		pr_warn("%s: no files were created in %s\n", args->name, pathname);
 
 	(void)stress_temp_dir_rm_args(args);
 
