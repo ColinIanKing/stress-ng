@@ -258,6 +258,7 @@ rewait:
 			/* Bus error death? retry */
 			if (WTERMSIG(status) == SIGBUS) {
 				buserrs++;
+				stress_clean_dir(args->name, args->pid, args->instance);
 				goto again;
 			}
 
@@ -286,6 +287,7 @@ rewait:
 							"(instance %d)\n",
 							args->name, args->instance);
 					ooms++;
+					stress_clean_dir(args->name, args->pid, args->instance);
 					goto again;
 				}
 			}
@@ -297,6 +299,7 @@ rewait:
 						"(instance %d)\n",
 						args->name, args->instance);
 				segvs++;
+				stress_clean_dir(args->name, args->pid, args->instance);
 				goto again;
 			}
 		}

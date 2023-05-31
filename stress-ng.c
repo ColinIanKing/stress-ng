@@ -1972,7 +1972,7 @@ static void stress_clean_dir_files(
  *	happens if a stressor was terminated before it could
  *	tidy itself up, e.g. OOM'd or KILL'd
  */
-static void stress_clean_dir(
+void stress_clean_dir(
 	const char *name,
 	const pid_t pid,
 	const uint32_t instance)
