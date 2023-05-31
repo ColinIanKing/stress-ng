@@ -32,12 +32,13 @@
 #define STRESS_BIGHEAP_LOWMEM_CHECK	(1)
 #define STRESS_BIGHEAP_MALLOC_TRIM	(2)
 #define STRESS_BIGHEAP_REALLOC		(3)
-#define STRESS_BIGHEAP_OUT_OF_MEMORY	(4)
-#define STRESS_BIGHEAP_WRITE_HEAP_END	(5)
-#define STRESS_BIGHEAP_WRITE_HEAP_FULL	(6)
-#define STRESS_BIGHEAP_READ_VERIFY_END	(7)
-#define STRESS_BIGHEAP_READ_VERIFY_FULL	(8)
-#define STRESS_BIGHEAP_FINISHED		(9)
+#define STRESS_BIGHEAP_MALLOC		(4)
+#define STRESS_BIGHEAP_OUT_OF_MEMORY	(5)
+#define STRESS_BIGHEAP_WRITE_HEAP_END	(6)
+#define STRESS_BIGHEAP_WRITE_HEAP_FULL	(7)
+#define STRESS_BIGHEAP_READ_VERIFY_END	(8)
+#define STRESS_BIGHEAP_READ_VERIFY_FULL	(9)
+#define STRESS_BIGHEAP_FINISHED		(10)
 
 static const stress_help_t help[] = {
 	{ "B N","bigheap N",		"start N workers that grow the heap using realloc()" },
@@ -66,7 +67,8 @@ static const char *stress_bigheap_phase(void)
 		"low memory check",
 		"malloc trim",
 		"realloc",
-		"realloc out of memory",
+		"malloc",
+		"alloc out of memory",
 		"write to end",
 		"write full",
 		"read verify end",
@@ -214,16 +216,22 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		}
 		size += (size_t)bigheap_growth;
 
-		phase = STRESS_BIGHEAP_REALLOC;
 		t = stress_time_now();
-		ptr = realloc(old_ptr, size);
+		if (old_ptr) {
+			phase = STRESS_BIGHEAP_REALLOC;
+			ptr = realloc(old_ptr, size);
+		} else {
+			phase = STRESS_BIGHEAP_MALLOC;
+			ptr = malloc(size);
+		}
 		if (ptr == NULL) {
 			phase = STRESS_BIGHEAP_OUT_OF_MEMORY;
 			pr_dbg("%s: out of memory at %" PRIu64
 				" MB (instance %d)\n",
 				args->name, (uint64_t)(4096ULL * size) >> 20,
 				args->instance);
-			free(old_ptr);
+			if (old_ptr)
+				free(old_ptr);
 			size = 0;
 		} else {
 			size_t i, n;
