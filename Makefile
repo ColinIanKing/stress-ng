@@ -59,7 +59,7 @@ CFLAGS += -Werror=format-security
 endif
 ifneq ($(findstring pcc,$(CC)),pcc)
 ifeq ($(shell $(CC) $(CFLAGS) -D_FORTIFY_SOURCE=2 -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-CFLAGS += -D_FORTIFY_SOURCE=2
+CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 endif
 endif
 endif
