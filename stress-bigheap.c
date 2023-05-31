@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
@@ -27,12 +28,56 @@
 #define MAX_BIGHEAP_GROWTH	(64 * MB)
 #define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
 
+#define STRESS_BIGHEAP_INIT		(0)
+#define STRESS_BIGHEAP_LOWMEM_CHECK	(1)
+#define STRESS_BIGHEAP_MALLOC_TRIM	(2)
+#define STRESS_BIGHEAP_REALLOC		(3)
+#define STRESS_BIGHEAP_OUT_OF_MEMORY	(4)
+#define STRESS_BIGHEAP_WRITE_HEAP_END	(5)
+#define STRESS_BIGHEAP_WRITE_HEAP_FULL	(6)
+#define STRESS_BIGHEAP_READ_VERIFY_END	(7)
+#define STRESS_BIGHEAP_READ_VERIFY_FULL	(8)
+#define STRESS_BIGHEAP_FINISHED		(9)
+
 static const stress_help_t help[] = {
 	{ "B N","bigheap N",		"start N workers that grow the heap using realloc()" },
 	{ NULL,	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ NULL,	"bigheap-ops N",	"stop after N bogo bigheap operations" },
 	{ NULL,	NULL,			NULL }
 };
+
+
+static sigjmp_buf jmp_env;
+#if defined(SA_SIGINFO)
+static volatile void *fault_addr;
+static volatile int signo;
+static volatile int si_code;
+static volatile int phase;
+#endif
+
+/*
+ *  stress_bigheap_phase()
+ *	map phase to human readable description
+ */
+static const char *stress_bigheap_phase(void)
+{
+	static const char *phases[] = {
+		"initialization",
+		"low memory check",
+		"malloc trim",
+		"realloc",
+		"realloc out of memory",
+		"write to end",
+		"write full",
+		"read verify end",
+		"read verify full",
+		"finished"
+	};
+
+	if ((phase < 0) || (phase >= (int)SIZEOF_ARRAY(phases)))
+		return "unknown";
+	return phases[phase];
+}
 
 /*
  *  stress_set_bigheap_growth()
@@ -48,17 +93,54 @@ static int stress_set_bigheap_growth(const char *opt)
 	return stress_set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
 }
 
+/*
+ *  stress_bigheap_segvhandler()
+ *	SEGV handler
+ */
+#if defined(SA_SIGINFO)
+static void NORETURN MLOCKED_TEXT stress_bigheap_segvhandler(
+	int num,
+	siginfo_t *info,
+	void *ucontext)
+{
+	(void)num;
+	(void)ucontext;
+
+	fault_addr = info->si_addr;
+	signo = info->si_signo;
+	si_code = info->si_code;
+
+	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
+#else
+static void NORETURN MLOCKED_TEXT stress_bigheap_segvhandler(int signum)
+{
+	(void)signum;
+
+	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
+#endif
+
 static int stress_bigheap_child(const stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
-	void *ptr = NULL, *last_ptr = NULL;
+	NOCLOBBER void *ptr = NULL, *last_ptr = NULL;
+	NOCLOBBER uint8_t *last_ptr_end = NULL;
+	NOCLOBBER size_t size = 0;
+	NOCLOBBER double duration = 0.0, count = 0.0;
+	NOCLOBBER bool segv_reported = false;
 	const size_t page_size = args->page_size;
 	const size_t stride = page_size;
-	size_t size = 0;
-	uint8_t *last_ptr_end = NULL;
-	double duration = 0.0, count = 0.0, rate;
+	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
+	struct sigaction action;
+	int ret;
+
+	fault_addr = NULL;
+	signo = -1;
+	si_code = -1;
+	phase = 0;
 
 	(void)context;
 
@@ -73,6 +155,35 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	/* Round growth size to nearest page size */
 	bigheap_growth &= ~(page_size - 1);
+
+	(void)shim_memset(&action, 0, sizeof action);
+	(void)sigemptyset(&action.sa_mask);
+#if defined(SA_SIGINFO)
+	action.sa_sigaction = stress_bigheap_segvhandler;
+	action.sa_flags = SA_SIGINFO;
+#else
+	action.sa_handler = stress_bigheap_segvhandler;
+#endif
+	VOID_RET(int, sigaction(SIGSEGV, &action, NULL));
+
+	ret = sigsetjmp(jmp_env, 1);
+	/*
+	 * We return here if we segfault, so
+	 * first check if we need to terminate
+	 */
+	if (ret) {
+		if (!segv_reported) {
+			const char *signame = stress_signal_name(signo);
+
+			segv_reported = true;
+			pr_inf("%s: caught signal %d (%s), si_code = %d, fault address %p, phase %d '%s', alloc = %p .. %p\n",
+				args->name, signo, signame ? signame : "unknown",
+				si_code, fault_addr, phase, stress_bigheap_phase(),
+				ptr, (uint8_t *)ptr + size);
+		}
+		/* just abort */
+		return EXIT_FAILURE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -90,10 +201,12 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		if (!keep_stressing(args))
 			goto finish;
 
+		phase = STRESS_BIGHEAP_LOWMEM_CHECK;
 		/* Low memory avoidance, re-start */
 		if (oom_avoid && stress_low_memory((size_t)bigheap_growth)) {
 			free(old_ptr);
 #if defined(HAVE_MALLOC_TRIM)
+			phase = STRESS_BIGHEAP_MALLOC_TRIM;
 			(void)malloc_trim(0);
 #endif
 			old_ptr = NULL;
@@ -101,9 +214,11 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		}
 		size += (size_t)bigheap_growth;
 
+		phase = STRESS_BIGHEAP_REALLOC;
 		t = stress_time_now();
 		ptr = realloc(old_ptr, size);
 		if (ptr == NULL) {
+			phase = STRESS_BIGHEAP_OUT_OF_MEMORY;
 			pr_dbg("%s: out of memory at %" PRIu64
 				" MB (instance %d)\n",
 				args->name, (uint64_t)(4096ULL * size) >> 20,
@@ -117,16 +232,18 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			duration += stress_time_now() - t;
 			count += 1.0;
 
-			if (last_ptr == ptr) {
-				tmp = u8ptr = last_ptr_end;
-				n = (size_t)bigheap_growth;
-			} else {
-				tmp = u8ptr = ptr;
-				n = size;
-			}
 			if (!keep_stressing(args))
 				goto finish;
 
+			if (last_ptr == ptr) {
+				phase = STRESS_BIGHEAP_WRITE_HEAP_END;
+				tmp = u8ptr = last_ptr_end;
+				n = (size_t)bigheap_growth;
+			} else {
+				phase = STRESS_BIGHEAP_WRITE_HEAP_FULL;
+				tmp = u8ptr = ptr;
+				n = size;
+			}
 			for (i = 0; i < n; i += stride, u8ptr += stride) {
 				if (!keep_stressing(args))
 					goto finish;
@@ -134,6 +251,15 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			}
 
 			if (verify) {
+				if (last_ptr == ptr) {
+					phase = STRESS_BIGHEAP_READ_VERIFY_END;
+					tmp = u8ptr = last_ptr_end;
+					n = (size_t)bigheap_growth;
+				} else {
+					phase = STRESS_BIGHEAP_READ_VERIFY_FULL;
+					tmp = u8ptr = ptr;
+					n = size;
+				}
 				for (i = 0; i < n; i += stride, tmp += stride) {
 					if (!keep_stressing(args))
 						goto finish;
@@ -150,6 +276,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	} while (keep_stressing(args));
 
 finish:
+	phase = STRESS_BIGHEAP_FINISHED;
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "realloc calls per sec", rate);
