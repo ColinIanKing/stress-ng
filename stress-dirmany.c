@@ -197,8 +197,14 @@ static int stress_dirmany(const stress_args_t *args)
 
 	total_time = create_time + remove_time;
 	if ((total_created > 0) && (total_time > 0.0)) {
+		double rate;
 		stress_metrics_set(args, 0, "% of time creating directories", create_time / total_time * 100.0);
 		stress_metrics_set(args, 1, "% of time removing directories", remove_time / total_time * 100.0);
+
+		rate = (create_time > 0.0) ? (double)total_created / create_time : 0.0;
+		stress_metrics_set(args, 2, "files created per sec", rate);
+		rate = (remove_time > 0.0) ? (double)total_created / remove_time : 0.0;
+		stress_metrics_set(args, 3, "files removed per sec", rate);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
