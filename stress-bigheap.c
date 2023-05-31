@@ -234,8 +234,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 				free(old_ptr);
 			size = 0;
 		} else {
-			size_t i, n;
-			uint8_t *u8ptr, *tmp;
+			uintptr_t *uintptr, *uintptr_end = (uintptr_t *)((uint8_t*)ptr + size);
 
 			duration += stress_time_now() - t;
 			count += 1.0;
@@ -245,40 +244,39 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 			if (last_ptr == ptr) {
 				phase = STRESS_BIGHEAP_WRITE_HEAP_END;
-				tmp = u8ptr = last_ptr_end;
-				n = (size_t)bigheap_growth;
+				uintptr = (uintptr_t *)last_ptr_end;
 			} else {
 				phase = STRESS_BIGHEAP_WRITE_HEAP_FULL;
-				tmp = u8ptr = ptr;
-				n = size;
+				uintptr = (uintptr_t *)ptr;
 			}
-			for (i = 0; i < n; i += stride, u8ptr += stride) {
+			while (uintptr < uintptr_end) {
 				if (!keep_stressing(args))
 					goto finish;
-				*u8ptr = (uint8_t)i;
+				*uintptr = (uintptr_t)uintptr;
+				uintptr += stride / sizeof(uintptr_t);
 			}
 
 			if (verify) {
 				if (last_ptr == ptr) {
-					phase = STRESS_BIGHEAP_READ_VERIFY_END;
-					tmp = u8ptr = last_ptr_end;
-					n = (size_t)bigheap_growth;
+					phase = STRESS_BIGHEAP_WRITE_HEAP_END;
+					uintptr = (uintptr_t *)last_ptr_end;
 				} else {
-					phase = STRESS_BIGHEAP_READ_VERIFY_FULL;
-					tmp = u8ptr = ptr;
-					n = size;
+					phase = STRESS_BIGHEAP_WRITE_HEAP_FULL;
+					uintptr = (uintptr_t *)ptr;
 				}
-				for (i = 0; i < n; i += stride, tmp += stride) {
+				while (uintptr < uintptr_end) {
 					if (!keep_stressing(args))
 						goto finish;
-					if (*tmp != (uint8_t)i)
-						pr_fail("%s: byte at location %p was 0x%" PRIx8
-							" instead of 0x%" PRIx8 "\n",
-							args->name, (void *)u8ptr, *tmp, (uint8_t)i);
+					if (*uintptr != (uintptr_t)uintptr)
+						pr_fail("%s: data at location %p was 0x%" PRIxPTR
+							" instead of 0x%" PRIxPTR "\n",
+							args->name, (void *)uintptr, *uintptr,
+							(uintptr_t)uintptr);
+					uintptr += stride / sizeof(uintptr_t);
 				}
 			}
 			last_ptr = ptr;
-			last_ptr_end = u8ptr;
+			last_ptr_end = (void *)uintptr_end;
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
