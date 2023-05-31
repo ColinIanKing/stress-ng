@@ -28,6 +28,8 @@ static const char *err_exceptions[] = {
 	"audit: backlog",
 	"x86/split lock detection",
 	"detected capacity change from",
+	"umip_printk",
+	"expecting 0xbadc0de (pid=",
 };
 
 /*
