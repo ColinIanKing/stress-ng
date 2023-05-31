@@ -59,7 +59,8 @@ static int stress_physpage_supported(const char *name)
 static void stress_physpage_mtrr(
 	const stress_args_t *args,
 	const uintptr_t phys_addr,
-	const size_t page_size)
+	const size_t page_size,
+	bool *success)
 {
 	int fd;
 	size_t i;
@@ -103,6 +104,7 @@ static void stress_physpage_mtrr(
 			if (!found) {
 				pr_fail("%s: cannot find mtrr entry at %p, size %zd, type %d\n",
 					args->name, (void *)phys_addr, page_size, mtrr_types[i]);
+				*success = false;
 			}
 		}
 err:
@@ -121,7 +123,8 @@ static int stress_virt_to_phys(
 	const int fd_pc,
 	const int fd_mem,
 	const uintptr_t virt_addr,
-	const bool writable)
+	const bool writable,
+	bool *success)
 {
 	off_t offset;
 	uint64_t pageinfo;
@@ -213,7 +216,7 @@ static int stress_virt_to_phys(
     defined(HAVE_MTRR_GENTRY) &&	\
     defined(HAVE_MTRR_SENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
-		stress_physpage_mtrr(args, phys_addr, page_size);
+		stress_physpage_mtrr(args, phys_addr, page_size, success);
 #endif
 		return 0;
 	} else {
@@ -236,6 +239,7 @@ static int stress_physpage(const stress_args_t *args)
 	int fd_pm, fd_pc, fd_mem;
 	const size_t page_size = args->page_size;
 	uint8_t *ptr = NULL;
+	bool success = true;
 
 	fd_pm = open("/proc/self/pagemap", O_RDONLY);
 	if (fd_pm < 0) {
@@ -270,14 +274,14 @@ static int stress_physpage(const stress_args_t *args)
 		nptr = mmap(ptr, page_size, PROT_READ | PROT_WRITE,
 			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (nptr != MAP_FAILED) {
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)nptr, true);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)nptr, true, &success);
 			(void)munmap(nptr, page_size);
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)g_shared->stats, false);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)g_shared->stats, false, &success);
 
 		}
 		ptr += page_size;
 		inc_counter(args);
-	} while (keep_stressing(args));
+	} while (success && keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -287,13 +291,14 @@ static int stress_physpage(const stress_args_t *args)
 		(void)close(fd_pc);
 	(void)close(fd_pm);
 
-	return EXIT_SUCCESS;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
 	.class = CLASS_VM,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
