@@ -86,9 +86,12 @@ static uint64_t stress_dirmany_create(
 
 	*max_len = 256;
 
-	while (keep_stressing(args) && (stress_time_now() <= t_end)) {
+	while (keep_stressing(args)) {
 		char filename[PATH_MAX + 20];
 		int fd;
+
+		if ((LIKELY(g_opt_timeout > 0)) && stress_time_now() > t_end)
+			break;
 
 		stress_dirmany_filename(pathname, pathname_len, filename, sizeof(filename), filename_len, i_end);
 		fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
@@ -198,6 +201,7 @@ static int stress_dirmany(const stress_args_t *args)
 	total_time = create_time + remove_time;
 	if ((total_created > 0) && (total_time > 0.0)) {
 		double rate;
+
 		stress_metrics_set(args, 0, "% of time creating directories", create_time / total_time * 100.0);
 		stress_metrics_set(args, 1, "% of time removing directories", remove_time / total_time * 100.0);
 
@@ -208,6 +212,11 @@ static int stress_dirmany(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (total_created == 0) {
+		pr_fail("%s: no files were created in %s\n", args->name, pathname);
+		ret = EXIT_FAILURE;
+	}
 
 	(void)stress_temp_dir_rm_args(args);
 
@@ -223,5 +232,6 @@ stressor_info_t stress_dirmany_info = {
 	.stressor = stress_dirmany,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
