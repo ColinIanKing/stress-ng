@@ -2024,8 +2024,8 @@ int shim_clock_settime(clockid_t clk_id, struct timespec *tp)
  *  shim_nice
  *	wrapper for nice.  Some C libraries may use setpriority
  *	and hence the nice system call is not being used. Directly
- *	call the nice system call if it's available, else use the
- *	libc version.
+ *	call the nice system call if it's available, else use
+ *	setpriority or fall back onto the libc version.
  *
  *	Some operating systems like Hiaku don't even support nice,
  *	so handle these cases too.
@@ -2041,6 +2041,33 @@ int shim_nice(int inc)
 		errno = 0;
 		return nice(inc);
 	}
+	return ret;
+#elif defined(HAVE_GETPRIORITY) &&	\
+      defined(HAVE_SETPRIORITY) &&	\
+      defined(PRIO_PROCESS)
+	int prio, ret, saved_err;
+
+	prio = getpriority(PRIO_PROCESS, 0);
+	if (prio == -1) {
+		if (errno != 0) {
+#if defined(HAVE_NICE)
+			/* fall back to nice */
+			return nice(inc);
+#else
+			/* ok, give up */
+			return -1;
+#endif
+		}
+	}
+	ret = setpriority(PRIO_PROCESS, 0, prio + inc);
+	if (ret == -1) {
+		if (errno == EACCES)
+			errno = EPERM;
+		return -1;
+	}
+	saved_err = errno;
+	ret = getpriority(PRIO_PROCESS, 0);
+	errno = saved_err;
 	return ret;
 #elif defined(HAVE_NICE)
 	return nice(inc);
