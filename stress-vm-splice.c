@@ -55,13 +55,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static int stress_vm_splice(const stress_args_t *args)
 {
-	int fd, fds[2];
+	int fd, fds[2], rc = EXIT_SUCCESS;
 	uint8_t *buf;
 	const size_t page_size = args->page_size;
 	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
 	char *data;
 	double duration = 0.0, bytes = 0.0, vm_splices = 0.0, rate;
 	int metrics_counter = 0;
+	uint64_t checkval = stress_mwc64();
+	uint64_t prime;
 
 	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -112,6 +114,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	}
 
 	stress_rndbuf(data, page_size);
+ 	prime = stress_get_prime64(vm_splice_bytes);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -149,6 +152,8 @@ static int stress_vm_splice(const stress_args_t *args)
 		/*
 		 *  vmsplice from pipe to memory
 		 */
+		checkval += prime;
+		*(uint64_t *)data = checkval;
 		n_bytes = write(fds[1], data, page_size);
 		if (LIKELY(n_bytes > 0)) {
 			iov.iov_base = buf;
@@ -164,6 +169,13 @@ static int stress_vm_splice(const stress_args_t *args)
 				if (UNLIKELY(n_bytes < 0))
 					break;
 				duration += stress_time_now() - t;
+			}
+			/* Sanity check the data */
+			if (LIKELY(n_bytes > (ssize_t)sizeof(checkval)) &&
+			    UNLIKELY(checkval != *(uint64_t *)buf)) {
+				pr_fail("%s: data check pattern failed, got %" PRIx64 ", expected %" PRIx64 "\n",
+					args->name, *(uint64_t *)buf, checkval);
+				rc = EXIT_FAILURE;
 			}
 			bytes += (double)n_bytes;
 			vm_splices += 1.0;
@@ -187,13 +199,14 @@ static int stress_vm_splice(const stress_args_t *args)
 	(void)close(fds[0]);
 	(void)close(fds[1]);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_vm_splice,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
