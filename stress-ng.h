@@ -1179,6 +1179,7 @@ typedef enum {
 
 	OPT_daemon,
 	OPT_daemon_ops,
+	OPT_daemon_wait,
 
 	OPT_dccp,
 	OPT_dccp_domain,

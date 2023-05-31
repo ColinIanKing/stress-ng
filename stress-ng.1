@@ -1466,6 +1466,11 @@ artificially mimics very heavy daemon system stress.
 .B \-\-daemon\-ops N
 stop daemon workers after N daemons have been created.
 .TP
+.B \-\-daemon\-wait
+wait for daemon child processes rather than let init handle the waiting. Enabling
+this option will reduce the daemon fork rate because of the synchronous wait
+delays.
+.TP
 .B \-\-dccp N
 start N workers that send and receive data using the Datagram Congestion
 Control Protocol (DCCP) (RFC4340). This involves a pair of client/server

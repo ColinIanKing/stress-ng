@@ -32,14 +32,39 @@
 static const stress_help_t help[] = {
 	{ NULL,	"daemon N",	"start N workers creating multiple daemons" },
 	{ NULL,	"daemon-ops N",	"stop when N daemons have been created" },
+	{ NULL, "daemon-wait",	"stressor wait for daemon to exit and not init" },
 	{ NULL,	NULL,		NULL }
 };
+
+static int stress_daemon_set_daemon_wait(const char *opt)
+{
+	bool daemon_wait = true;
+	(void)opt;
+
+	return stress_set_setting("daemon-wait", TYPE_ID_BOOL, &daemon_wait);
+}
+
+/*
+ *  stress_daemon_set_daemon_wait()
+ *	waits for child if daemon_wait is set, otherwise let init do it
+ */
+static void daemon_wait_pid(const pid_t pid, const bool daemon_wait)
+{
+	if (daemon_wait) {
+		int status;
+
+		VOID_RET(int, waitpid(pid, &status, 0));
+	}
+}
 
 /*
  *  daemons()
  *	fork off a child and let the parent die
  */
-static void daemons(const stress_args_t *args, const int fd)
+static void daemons(
+	const stress_args_t *args,
+	const int fd,
+	const bool daemon_wait)
 {
 	int fds[3];
 	int i;
@@ -100,7 +125,8 @@ static void daemons(const stress_args_t *args, const int fd)
 			if (sz != sizeof(buf))
 				goto err2;
 		} else {
-			/* Parent, will be reaped by init */
+			/* Parent, will be reaped by init unless daemon_wait is true */
+			daemon_wait_pid(pid, daemon_wait);
 			break;
 		}
 	}
@@ -125,6 +151,9 @@ static int stress_daemon(const stress_args_t *args)
 {
 	int fds[2];
 	pid_t pid;
+	bool daemon_wait = false;
+
+	(void)stress_get_setting("daemon-wait", &daemon_wait);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
@@ -151,7 +180,7 @@ again:
 	} else if (pid == 0) {
 		/* Children */
 		(void)close(fds[0]);
-		daemons(args, fds[1]);
+		daemons(args, fds[1], daemon_wait);
 		(void)close(fds[1]);
 		shim_exit_group(0);
 	} else {
@@ -174,6 +203,8 @@ again:
 			}
 			inc_counter(args);
 		} while (keep_stressing(args));
+
+		daemon_wait_pid(pid, daemon_wait);
 	}
 
 finish:
@@ -182,8 +213,14 @@ finish:
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+        { OPT_daemon_wait,	stress_daemon_set_daemon_wait },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_daemon_info = {
 	.stressor = stress_daemon,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };

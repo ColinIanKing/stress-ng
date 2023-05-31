@@ -359,6 +359,7 @@ static const struct option long_options[] = {
 	{ "cyclic-sleep",	1,	0,	OPT_cyclic_sleep },
 	{ "daemon",		1,	0,	OPT_daemon },
 	{ "daemon-ops",		1,	0,	OPT_daemon_ops },
+	{ "daemon-wait",	0,	0,	OPT_daemon_wait },
 	{ "dccp",		1,	0,	OPT_dccp },
 	{ "dccp-domain",	1,	0,	OPT_dccp_domain },
 	{ "dccp-if",		1,	0,	OPT_dccp_if },
