@@ -390,6 +390,7 @@ static int OPTIMIZE3 stress_sctp_client(
 	const char *sctp_if)
 {
 	struct sockaddr *addr;
+	int rc = EXIT_SUCCESS;
 
 	(void)sctp_sched;
 
@@ -464,11 +465,25 @@ retry:
 			int flags;
 			struct sctp_sndrcvinfo sndrcvinfo;
 			ssize_t n;
+			pid_t pid;
 
 			n = sctp_recvmsg(fd, buf, sizeof(buf),
 				NULL, 0, &sndrcvinfo, &flags);
 			if (UNLIKELY(n <= 0))
 				break;
+			if (n >= (ssize_t)sizeof(pid)) {
+				pid = *(pid_t *)buf;
+
+				if (UNLIKELY(pid != mypid)) {
+					pr_fail("%s: server received unexpected data "
+						"contents, got 0x%" PRIxMAX ", "
+						"expected 0x%" PRIxMAX "\n",
+						args->name, (intmax_t)pid,
+						(intmax_t)mypid);
+					rc = EXIT_FAILURE;
+					break;
+				}
+			}
 		} while (keep_stressing_flag());
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
@@ -484,7 +499,7 @@ retry:
 #else
 	UNEXPECTED
 #endif
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
@@ -591,6 +606,7 @@ static int OPTIMIZE3 stress_sctp_server(
 			const int c = patterns[index++ & 0x1f];
 
 			(void)shim_memset(buf, c, sizeof(buf));
+			*(pid_t *)buf = mypid;
 			for (i = 16; i < sizeof(buf); i += 16) {
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
@@ -695,6 +711,11 @@ again:
 		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
+		if (WIFEXITED(status)) {
+			if (WEXITSTATUS(status) != EXIT_SUCCESS) {
+				ret = WEXITSTATUS(status);
+			}
+		}
 	}
 
 finish:
@@ -711,6 +732,7 @@ stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
 	.class = CLASS_NETWORK,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
