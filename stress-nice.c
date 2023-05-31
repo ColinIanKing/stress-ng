@@ -26,6 +26,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#define BAD_PRIO	(-1000)
+
 #if defined(HAVE_NICE) || defined(HAVE_SETPRIORITY)
 
 static void stress_nice_delay(void)
@@ -47,7 +49,7 @@ static int stress_nice(const stress_args_t *args)
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 #if defined(HAVE_SETPRIORITY)
 	/* Make an assumption on priority range */
-	int max_prio = 20, min_prio = -20;
+	int max_prio = 20, min_prio = -20, rc = EXIT_SUCCESS;
 
 #if defined(RLIMIT_NICE)
 	{
@@ -101,12 +103,7 @@ static int stress_nice(const stress_args_t *args)
 				errno = 0;
 				ret = getpriority(prio_which[i], 0);
 				if ((errno == 0) && (!cap_sys_nice)) {
-					/*
-					 * Get priority returns a value that is in the
-					 * range 40..1 for -20..19, so negate and offset
-					 * by 20 to get back into setpriority prio level
-					 */
-					VOID_RET(int, setpriority(prio_which[i], 0, -ret + 20));
+					VOID_RET(int, setpriority(prio_which[i], 0, ret));
 				}
 			}
 #endif
@@ -136,15 +133,41 @@ static int stress_nice(const stress_args_t *args)
 			default:
 				for (i = -19; (i < 20) && keep_stressing(args); i++) {
 					int ret;
+#if defined(HAVE_GETPRIORITY)
+					int old_prio, new_prio;
+
+					errno = 0;
+					old_prio = getpriority(PRIO_PROCESS, 0);
+					if (errno < 0)
+						old_prio = BAD_PRIO;
+#endif
 
 					ret = shim_nice(1);
+#if defined(HAVE_GETPRIORITY)
+					errno = 0;
+					new_prio = getpriority(PRIO_PROCESS, 0);
+					if (errno < 0)
+						new_prio = BAD_PRIO;
+
+					/* Sanity check priority change of nice(1) */
+					if ((old_prio != BAD_PRIO) && (new_prio != BAD_PRIO)) {
+						const int delta = new_prio - old_prio;
+
+						if (delta > 1) {
+							pr_fail("%s: nice(1) changed priority by 1, "
+								"detected a priority change of %d "
+								"instead\n", args->name, delta);
+							rc = EXIT_FAILURE;
+						}
+					}
+#endif
 					if (ret == 0)
 						stress_nice_delay();
 					inc_counter(args);
 				}
 				break;
 			}
-			_exit(0);
+			_exit(rc);
 		}
 		if (pid > 0) {
 			int status;
@@ -154,18 +177,27 @@ static int stress_nice(const stress_args_t *args)
 				force_killed_counter(args);
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
+			} else {
+				if (WIFEXITED(status)) {
+					if (WEXITSTATUS(status) != EXIT_SUCCESS) {
+						rc = WEXITSTATUS(status);
+						break;
+					}
+				}
 			}
 		}
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
+;
 }
 
 stressor_info_t stress_nice_info = {
 	.stressor = stress_nice,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
