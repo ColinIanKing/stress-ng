@@ -222,5 +222,6 @@ stressor_info_t stress_daemon_info = {
 	.stressor = stress_daemon,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
