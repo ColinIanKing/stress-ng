@@ -254,6 +254,13 @@ static inline void stress_asm_x86_mfence(void)
 }
 #endif
 
+#if defined(HAVE_ASM_X86_SFENCE)
+static inline void stress_asm_x86_sfence(void)
+{
+	__asm__ __volatile__("sfence" : : : "memory");
+}
+#endif
+
 #if defined(HAVE_ASM_X86_PREFETCHT0)
 static inline void stress_asm_x86_prefetcht0(void *p)
 {
