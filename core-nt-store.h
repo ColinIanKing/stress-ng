@@ -152,9 +152,16 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 /* gcc x86 non-temporal stores */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, register double value)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, double value)
 {
-	__builtin_ia32_movnti64((long long int *)addr, value);
+	if (sizeof(double) == sizeof(uint64_t)) {
+		uint64_t v;
+
+		__builtin_memcpy(&v, &value, sizeof(v));
+		__builtin_ia32_movnti64((long long int *)addr, v);
+	} else {
+		*addr = value;
+	}
 }
 #define HAVE_NT_STORE_DOUBLE
 #endif
