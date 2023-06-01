@@ -43,9 +43,16 @@ static const stress_help_t help[] = {
 
 typedef int (*stress_apparmor_func)(const stress_args_t *args);
 
+typedef struct {
+	void *counter_lock;
+	void *failure_lock;
+	uint32_t failure_count;
+} stress_apparmor_shared_info_t;
+
+static stress_apparmor_shared_info_t *stress_apparmor_shared_info;
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
-static void *counter_lock;
+//static void *counter_lock;
 static char *data_copy, *data_prev;
 
 extern char g_apparmor_data[];
@@ -112,8 +119,20 @@ static bool stress_apparmor_keep_stressing_inc(const stress_args_t *args, bool i
 	/* fast check */
 	if (!apparmor_run)
 		return false;
+	if (!stress_apparmor_shared_info)
+		return false;
 
-	return inc_counter_lock(args, counter_lock, inc);
+	return inc_counter_lock(args, stress_apparmor_shared_info->counter_lock, inc);
+}
+
+static void stress_apparmor_failure_inc(void)
+{
+	if (!stress_apparmor_shared_info)
+		return;
+	if (stress_lock_acquire(stress_apparmor_shared_info->failure_lock) < 0)
+		return;
+	stress_apparmor_shared_info->failure_count++;
+	(void)stress_lock_release(stress_apparmor_shared_info->failure_lock);
 }
 
 /*
@@ -303,6 +322,7 @@ static int apparmor_stress_kernel_interface(const stress_args_t *args)
 		if (ret < 0) {
 			pr_fail("%s: aa_kernel_interface_new() failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			stress_apparmor_failure_inc();
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -317,6 +337,7 @@ static int apparmor_stress_kernel_interface(const stress_args_t *args)
 			if (errno != EEXIST) {
 				pr_fail("%s: aa_kernel_interface_load_policy() failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				stress_apparmor_failure_inc();
 				rc = EXIT_FAILURE;
 			}
 		}
@@ -343,6 +364,7 @@ static int apparmor_stress_kernel_interface(const stress_args_t *args)
 
 				pr_fail("%s: aa_kernel_interface_remove_policy() failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				stress_apparmor_failure_inc();
 				rc = EXIT_FAILURE;
 				break;
 			}
@@ -589,6 +611,7 @@ static int apparmor_stress_corruption(const stress_args_t *args)
 		if (ret < 0) {
 			pr_fail("%s: aa_kernel_interface_new() failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			stress_apparmor_failure_inc();
 			return EXIT_FAILURE;
 		}
 		/*
@@ -638,21 +661,32 @@ static int stress_apparmor(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
 
+	stress_apparmor_shared_info = (stress_apparmor_shared_info_t *)
+		mmap(NULL, sizeof(*stress_apparmor_shared_info), PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (stress_apparmor_shared_info == MAP_FAILED) {
+		pr_inf_skip("%s: failed to allocated shared memory, skipping stressor\n", args->name);
+		return rc;
+	}
 	data_copy = malloc(g_apparmor_data_len);
 	if (!data_copy) {
 		pr_inf_skip("%s: failed to allocate apparmor data copy buffer, skipping stressor\n", args->name);
-		return rc;
+		goto err_free_shared_info;
 	}
 	data_prev = malloc(g_apparmor_data_len);
 	if (!data_prev) {
 		pr_inf_skip("%s: failed to allocate apparmor data prev buffer, skipping stressor\n", args->name);
 		goto err_free_data_copy;
 	}
-
-	counter_lock = stress_lock_create();
-	if (!counter_lock) {
+	stress_apparmor_shared_info->counter_lock = stress_lock_create();
+	if (!stress_apparmor_shared_info->counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		goto err_free_data_prev;
+	}
+	stress_apparmor_shared_info->failure_lock = stress_lock_create();
+	if (!stress_apparmor_shared_info->counter_lock) {
+		pr_inf_skip("%s: failed to create failure counter lock. skipping stressor\n", args->name);
+		goto err_free_counter_lock;
 	}
 
 	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
@@ -676,14 +710,18 @@ static int stress_apparmor(const stress_args_t *args)
 
 	free(apparmor_path);
 	apparmor_path = NULL;
-	(void)stress_lock_destroy(counter_lock);
 
-	rc = EXIT_SUCCESS;
+	rc = (stress_apparmor_shared_info->failure_count > 0) ? EXIT_FAILURE : EXIT_SUCCESS;
 
+	(void)stress_lock_destroy(stress_apparmor_shared_info->failure_lock);
+err_free_counter_lock:
+	(void)stress_lock_destroy(stress_apparmor_shared_info->counter_lock);
 err_free_data_prev:
 	free(data_prev);
 err_free_data_copy:
 	free(data_copy);
+err_free_shared_info:
+	(void)munmap((void *)stress_apparmor_shared_info, sizeof(*stress_apparmor_shared_info));
 
 	return rc;
 }
