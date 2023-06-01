@@ -21,6 +21,8 @@
 #if defined(__linux__)
 static pid_t klog_pid = -1;
 
+static const char name[] = "klog-check";
+
 /*
  *  strings that are to be ignored as an error
  */
@@ -74,7 +76,7 @@ static void stress_klog_kernel_cmdline(void)
 			break;
 		}
 	}
-	pr_inf("klog-check: kernel cmdline: '%s'\n", buffer);
+	pr_inf("%s: kernel cmdline: '%s'\n", buffer, name);
 	already_dumped = true;
 }
 #endif
@@ -84,7 +86,7 @@ void stress_klog_start(void)
 #if defined(__linux__)
 	FILE *klog_fp;
 
-	g_shared->klog_error = false;
+	g_shared->klog_errors = 0;
 
 	if (!(g_opt_flags & OPT_FLAGS_KLOG_CHECK))
 		return;
@@ -167,14 +169,14 @@ log_err:
 			if (stress_klog_err_no_exceptions(buf)) {
 				stress_klog_kernel_cmdline();
 				stress_dump_processes();
-				pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
-				g_shared->klog_error = true;
+				pr_err("%s: %s: %s '%s'\n", name, msg, ts, ptr);
+				g_shared->klog_errors++;
 				continue;
 			}
 log_info:
 			if (stress_klog_err_no_exceptions(buf)) {
 				stress_klog_kernel_cmdline();
-				pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
+				pr_inf("%s: %s: %s '%s'\n", name, msg, ts, ptr);
 			}
 		}
 		(void)fclose(klog_fp);
@@ -188,8 +190,11 @@ void stress_klog_stop(bool *success)
 {
 #if defined(__linux__)
 	if (g_opt_flags & OPT_FLAGS_KLOG_CHECK) {
-		if (g_shared->klog_error)
+		if (g_shared->klog_errors) {
+			pr_inf("%s: detected %" PRIu64 " kernel error messages\n",
+				name, g_shared->klog_errors);
 			*success = false;
+		}
 
 		if (klog_pid > 1) {
 			int status;
@@ -198,7 +203,7 @@ void stress_klog_stop(bool *success)
 			(void)waitpid(klog_pid, &status, 0);
 		}
 		klog_pid = -1;
-		g_shared->klog_error = 0;
+		g_shared->klog_errors = 0;
 	}
 #else
 	(void)success;

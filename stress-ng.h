@@ -936,7 +936,7 @@ typedef struct {
 	int pr_lock_count;				/* pr_* lock count, release when zero */
 	pid_t pr_pid;					/* pid owning the lock */
 #endif
-	bool klog_error;				/* True if error detected in klog */
+	uint64_t klog_errors;				/* Number of errors detected in klog */
 	bool caught_sigint;				/* True if SIGINT caught */
 	pid_t (*vfork)(void);				/* vfork syscall */
 	stress_mapped_t mapped;				/* mmap'd pages to help testing */
