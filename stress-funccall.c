@@ -18,13 +18,14 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-put.h"
 
 #if defined(HAVE_COMPLEX_H)
 #include <complex.h>
 #endif
 
-typedef void (*stress_funccall_func)(const stress_args_t *argse);
+typedef bool (*stress_funccall_func)(const stress_args_t *argse);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
@@ -106,9 +107,9 @@ static inline double stress_mwcdouble(void)
 }
 
 #define stress_funccall_type(type, rndfunc)				\
-static void NOINLINE stress_funccall_ ## type(const stress_args_t *args);	\
+static bool NOINLINE stress_funccall_ ## type(const stress_args_t *args);	\
 									\
-static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
+static bool NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 {									\
 	register int ii;						\
 	type a, b, c, d, e, f, g, h, i;					\
@@ -124,8 +125,12 @@ static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 	i = rndfunc();							\
 									\
 	do {								\
+		type res_old;						\
+									\
+		(void)shim_memset(&res_old, 0, sizeof(res_old));	\
+									\
 		for (ii = 0; ii < 1000; ii++) {				\
-			type res = 					\
+			type res_new = 					\
 			(stress_funccall_ ## type ## _1(a) + 		\
 			 stress_funccall_ ## type ## _2(a, b) +		\
 			 stress_funccall_ ## type ## _3(a, b,		\
@@ -143,7 +148,7 @@ static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 			 stress_funccall_ ## type ## _9(a, b,		\
 				c, d, e, f, g, h, i));			\
 									\
-			res += 						\
+			res_new += 					\
 			(stress_funcdeep_ ## type ## _2(a, b) +		\
 			 stress_funcdeep_ ## type ## _3(a, b,		\
 				c) + 					\
@@ -159,10 +164,18 @@ static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 				c, d, e, f, g, h) +			\
 			 stress_funcdeep_ ## type ## _9(a, b,		\
 				c, d, e, f, g, h, i));			\
-			type ## _put(res);				\
+			type ## _put(res_new);				\
+			if (ii == 0) {					\
+				res_old = res_new;			\
+			} else {					\
+				if (res_old != res_new) {		\
+					return false;			\
+				}					\
 			}						\
+		}							\
 		inc_counter(args);					\
 	} while (keep_stressing(args));					\
+	return true;							\
 }
 
 #define stress_funccall_1(type)				\
@@ -1104,14 +1117,21 @@ static int stress_set_funccall_method(const char *name)
 static int stress_funccall(const stress_args_t *args)
 {
 	const stress_funccall_method_info_t *funccall_method = &funccall_methods[3];
+	bool success;
 
 	(void)stress_get_setting("funccall-method", &funccall_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	funccall_method->func(args);
+	success = funccall_method->func(args);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (!success) {
+		pr_fail("%s: verification failed with a nested %s function call return value\n",
+			args->name, funccall_method->name);
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -1131,5 +1151,6 @@ stressor_info_t stress_funccall_info = {
 	.set_default = stress_funccall_set_default,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
