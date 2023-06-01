@@ -266,8 +266,12 @@ static int OPTIMIZE3 stress_udp_client(
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))
 						break;
-					pr_fail("%s: sendto failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					if ((errno == ENOBUFS) || (errno == ENOMEM)) {
+						(void)shim_usleep(10000);
+						continue;
+					}
+					pr_fail("%s: sendto on port %d failed, errno=%d (%s)\n",
+						args->name, udp_port, errno, strerror(errno));
 					break;
 				}
 			}
