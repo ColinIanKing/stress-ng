@@ -2017,8 +2017,9 @@ stop the stress full workers after N bogo I/O operations.
 .TP
 .B \-\-funccall N
 start N workers that call functions of 1 through to 9 arguments. By default
-functions with uint64_t arguments are called, however, this can be changed
-using the \-\-funccall\-method option.
+all functions with a range of argument types are called, however, this can be changed
+using the \-\-funccall\-method option. This exercises stack function argument passing
+and re-ordering on the stack and in registers.
 .TP
 .B \-\-funccall\-ops N
 stop the funccall workers after N bogo function call operations. Each bogo
@@ -2027,7 +2028,7 @@ argument type.
 .TP
 .B \-\-funccall\-method method
 specify the method of funccall argument type to be used. The
-default is uint64_t but can be one of bool, uint8, uint16, uint32, uint64,
+default is all the types but can be one of bool, uint8, uint16, uint32, uint64,
 uint128, float, double, longdouble, cfloat (complex float),
 cdouble (complex double), clongdouble (complex long double), float16,
 float32, float64, float80, float128, decimal32, decimal64 and decimal128.
