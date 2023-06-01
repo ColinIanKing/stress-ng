@@ -141,6 +141,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		STORE(cv[i + 0], a[i + 0]);
 		STORE(cv[i + 1], a[i + 1]);
@@ -164,6 +165,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index0_nt(
 {
 	register uint64_t i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		NT_STORE(c[i + 0], a[i + 0]);
 		NT_STORE(c[i + 1], a[i + 1]);
@@ -189,6 +191,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index1(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		const size_t idx = idx1[i];
 
@@ -213,6 +216,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index2(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++)
 		STORE(cv[idx1[i]], a[idx2[i]]);
 
@@ -235,6 +239,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index3(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++)
 		STORE(cv[idx3[idx1[i]]], a[idx2[i]]);
 
@@ -255,6 +260,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		STORE(bv[i + 0], q * c[i + 0]);
 		STORE(bv[i + 1], q * c[i + 1]);
@@ -279,6 +285,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index0_nt(
 {
 	register uint64_t i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		NT_STORE(b[i + 0], q * c[i + 0]);
 		NT_STORE(b[i + 1], q * c[i + 1]);
@@ -305,6 +312,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index1(
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		const size_t idx = idx1[i];
 
@@ -330,6 +338,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index2(
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++)
 		STORE(bv[idx1[i]], q * c[idx2[i]]);
 
@@ -353,6 +362,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index3(
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++)
 		STORE(bv[idx3[idx1[i]]], q * c[idx2[i]]);
 
@@ -373,6 +383,7 @@ static inline void OPTIMIZE3 stress_stream_add_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		STORE(cv[i + 0], a[i + 0] + b[i + 0]);
 		STORE(cv[i + 1], a[i + 1] + b[i + 1]);
@@ -397,6 +408,7 @@ static inline void OPTIMIZE3 stress_stream_add_index0_nt(
 {
 	register uint64_t i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		NT_STORE(c[i + 0], a[i + 0] + b[i + 0]);
 		NT_STORE(c[i + 1], a[i + 1] + b[i + 1]);
@@ -423,6 +435,7 @@ static inline void OPTIMIZE3 stress_stream_add_index1(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		const size_t idx = idx1[i];
 
@@ -448,6 +461,7 @@ static inline void OPTIMIZE3 stress_stream_add_index2(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		const size_t idx = idx1[i];
 
@@ -474,6 +488,7 @@ static inline void OPTIMIZE3 stress_stream_add_index3(
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++)
 		STORE(cv[idx1[i]], a[idx2[i]] + b[idx3[i]]);
 
@@ -495,6 +510,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index0(
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		STORE(av[i + 0], b[i + 0] + (c[i + 0] * q));
 		STORE(av[i + 1], b[i + 1] + (c[i + 1] * q));
@@ -520,6 +536,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index0_nt(
 {
 	register uint64_t i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i += 4) {
 		NT_STORE(a[i + 0], b[i + 0] + (c[i + 0] * q));
 		NT_STORE(a[i + 1], b[i + 1] + (c[i + 1] * q));
@@ -547,6 +564,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index1(
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		size_t idx = idx1[i];
 
@@ -572,6 +590,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index2(
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++) {
 		const size_t idx = idx1[i];
 
@@ -599,6 +618,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index3(
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < n; i++)
 		STORE(av[idx1[i]], b[idx2[i]] + (c[idx3[i]] * q));
 
@@ -607,7 +627,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index3(
 	*fp_ops += (double)n * 2.0;
 }
 
-static TARGET_CLONES OPTIMIZE3 void stress_stream_init_data(
+static inline TARGET_CLONES OPTIMIZE3 void stress_stream_init_data(
 	double *RESTRICT a,
 	double *RESTRICT b,
 	double *RESTRICT c,
