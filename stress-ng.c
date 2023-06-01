@@ -2235,6 +2235,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 	case SIGSEGV:
 	case SIGFPE:
 	case SIGBUS:
+	case SIGABRT:
 		/*
 		 *  Critical failure, report and die ASAP
 		 */
