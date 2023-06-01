@@ -32,9 +32,15 @@
 
 #if defined(HAVE_CLONE)
 
+typedef struct {
+	stress_metrics_t metrics;
+	volatile bool clone_invoked_ok;		/* racy bool */
+	volatile bool clone_waited_ok;		/* racy bool */
+} stress_clone_shared_t;
+
 typedef struct stress_clone_args {
 	const stress_args_t *args;
-	stress_metrics_t *metrics;
+	stress_clone_shared_t *shared;
 } stress_clone_args_t;
 
 typedef struct clone {
@@ -290,14 +296,17 @@ static stress_clone_t *stress_clone_new(void)
  *	reap a clone and remove a clone from head of list, put it onto
  *	the free clone list
  */
-static void stress_clone_head_remove(void)
+static void stress_clone_head_remove(stress_clone_shared_t *shared)
 {
 	if (clones.head) {
 		int status;
 		stress_clone_t *head = clones.head;
 
-		(void)waitpid(clones.head->pid, &status, (int)__WCLONE);
-
+		if (clones.head->pid != -1) {
+			if (waitpid(clones.head->pid, &status, (int)__WCLONE) > 0) {
+				shared->clone_waited_ok = true;
+			}
+		}
 		if (clones.tail == clones.head) {
 			clones.tail = NULL;
 			clones.head = NULL;
@@ -341,7 +350,10 @@ static int clone_func(void *arg)
 {
 	size_t i;
 	stress_clone_args_t *clone_arg = arg;
-	stress_metrics_t *metrics = clone_arg->metrics;
+	stress_clone_shared_t *shared = clone_arg->shared;
+	stress_metrics_t *metrics = &shared->metrics;
+
+	shared->clone_invoked_ok = true;	/* Racy, but setting to true is OK */
 
 	if (metrics->lock && (stress_lock_acquire(metrics->lock) == 0)) {
 		double duration = stress_time_now() - metrics->t_start;
@@ -434,7 +446,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 #else
 	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
 #endif
-	stress_metrics_t *metrics = (stress_metrics_t *)context;
+	stress_clone_shared_t *shared = (stress_clone_shared_t *)context;
 
 	if (!stress_get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -458,7 +470,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		if (!low_mem_reap && (clones.length < clone_max)) {
 			static size_t index;
 			stress_clone_t *clone_info;
-			stress_clone_args_t clone_arg = { args, metrics };
+			stress_clone_args_t clone_arg = { args, shared };
 			const uint32_t rnd = stress_mwc32();
 			uint64_t flag;
 			const bool try_clone3 = rnd >> 31;
@@ -491,7 +503,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				cl_args.stack_size = 0;
 				cl_args.tls = uint64_ptr(NULL);
 
-				metrics->t_start = stress_time_now();
+				shared->metrics.t_start = stress_time_now();
 				clone_info->pid = shim_clone3(&cl_args, sizeof(cl_args));
 				if (clone_info->pid < 0) {
 					/* Not available, don't use it again */
@@ -505,11 +517,11 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				char *stack_top = (char *)stress_get_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
 #if defined(__FreeBSD_kernel__) || 	\
     defined(__NetBSD__)
-				metrics->t_start = stress_time_now();
+				shared->metrics.t_start = stress_time_now();
 				clone_info->pid = clone(clone_func,
 					stress_align_stack(stack_top), (int)flag, &clone_arg);
 #else
-				metrics->t_start = stress_time_now();
+				shared->metrics.t_start = stress_time_now();
 				clone_info->pid = clone(clone_func,
 					stress_align_stack(stack_top), (int)flag, &clone_arg, &parent_tid,
 					NULL, &child_tid);
@@ -520,14 +532,14 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				 * Reached max forks or error
 				 * (e.g. EPERM)? .. then reap
 				 */
-				stress_clone_head_remove();
+				stress_clone_head_remove(shared);
 				continue;
 			}
 			if (max_clones < clones.length)
 				max_clones = clones.length;
 			inc_counter(args);
 		} else {
-			stress_clone_head_remove();
+			stress_clone_head_remove(shared);
 		}
 	} while (keep_stressing(args));
 
@@ -535,7 +547,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		(void)munmap(ptr, mmap_size);
 	/* And reap */
 	while (clones.head) {
-		stress_clone_head_remove();
+		stress_clone_head_remove(shared);
 	}
 	/* And free */
 	stress_clone_free();
@@ -550,36 +562,46 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 static int stress_clone(const stress_args_t *args)
 {
 	int rc;
-	stress_metrics_t *metrics;
+	stress_clone_shared_t *shared;
 	double average;
 
-	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
+	shared = mmap(NULL, sizeof(*shared), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (metrics == MAP_FAILED) {
+	if (shared == MAP_FAILED) {
 		pr_inf_skip("%s: failed to memory map %zd bytes, skipping stressor\n",
-			args->name, sizeof(*metrics));
+			args->name, sizeof(*shared));
 		return EXIT_NO_RESOURCE;
 	}
-	metrics->lock = stress_lock_create();
-	metrics->duration = 0.0;
-	metrics->count = 0.0;
-	metrics->t_start = 0.0;
+	shared->metrics.lock = stress_lock_create();
+	shared->metrics.duration = 0.0;
+	shared->metrics.count = 0.0;
+	shared->metrics.t_start = 0.0;
 
 	flag_count = stress_flag_permutation((int)all_flags, &flag_perms);
 
 	stress_set_oom_adjustment(args->name, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	rc = stress_oomable_child(args, metrics, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
+	rc = stress_oomable_child(args, &shared->metrics, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (flag_perms)
 		free(flag_perms);
 
-	average = (metrics->count > 0.0) ? metrics->duration / metrics->count : 0.0;
+	/*
+	 *  Check if we got a clone termination (via a wait) but they did not
+	 *  successfully get to the invocation stage
+	 */
+	if ((shared->clone_waited_ok) && (!shared->clone_invoked_ok)) {
+		pr_fail("%s: no clone processes got fully invoked correctly "
+			"before they terminated\n", args->name);
+		rc = EXIT_FAILURE;
+	}
+
+	average = (shared->metrics.count > 0.0) ? shared->metrics.duration / shared->metrics.count : 0.0;
 	stress_metrics_set(args, 0, "microsecs per clone" , average * 1000000);
 
-	(void)munmap((void *)metrics, sizeof(*metrics));
+	(void)munmap((void *)shared, sizeof(*shared));
 
 	return rc;
 }
@@ -588,6 +610,7 @@ stressor_info_t stress_clone_info = {
 	.stressor = stress_clone,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
