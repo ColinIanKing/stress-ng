@@ -32,6 +32,8 @@
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
+#include "core-pragma.h"
+#include "core-target-clones.h"
 
 #define MIN_STREAM_L3_SIZE	(4 * KB)
 #define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
@@ -110,6 +112,22 @@ static int stress_set_stream_index(const char *opt)
 	stream_index = stress_get_uint32(opt);
 	stress_check_range("stream-index", (uint64_t)stream_index, 0, 3);
 	return stress_set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
+}
+
+/*
+ *  stress_stream_checksum_to_hexstr()
+ *	turn a double into a hexadecimal string making zero assumptions about
+ *	the size of a double since this maybe arch specific.
+ */
+static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const double checksum)
+{
+	const unsigned char *ptr = (unsigned char *)&checksum;
+	size_t i, j;
+
+	for (i = 0, j = 0; (i < sizeof(checksum)) && (j < len); i++, j += 2) {
+		(void)snprintf(str + j, 3, "%2.2x", ptr[i]);
+	}
+	str[i] = '\0';
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index0(
@@ -589,19 +607,61 @@ static inline void OPTIMIZE3 stress_stream_triad_index3(
 	*fp_ops += (double)n * 2.0;
 }
 
-static void stress_stream_init_data(
-	double *RESTRICT data,
+static TARGET_CLONES OPTIMIZE3 void stress_stream_init_data(
+	double *RESTRICT a,
+	double *RESTRICT b,
+	double *RESTRICT c,
 	const uint64_t n)
 {
-	uint64_t i;
-	const double divisor = 1.0 / (double)(4294967296ULL);
-	register double volatile *RESTRICT datav = data;
+	register const double divisor = 1.0 / (double)(4294967296ULL);
+	register const double delta = (double)stress_mwc32() * divisor;
 
-	for (i = 0; i < n; i++) {
-		register const uint32_t r1 = stress_mwc32();
+	register const uint32_t r = stress_mwc32();
+	register double v = (double)r * divisor;
+	register double *ptr, *ptr_end;
 
-		STORE(datav[i], (double)r1 * divisor);
+PRAGMA_UNROLL_N(4)
+	for (ptr = a, ptr_end = a + n; ptr < ptr_end; ptr += 4) {
+		STORE(ptr[0], v);
+		STORE(ptr[1], v);
+		STORE(ptr[2], v);
+		STORE(ptr[3], v);
+		v += delta;
 	}
+
+PRAGMA_UNROLL_N(4)
+	for (ptr = b, ptr_end = b + n; ptr < ptr_end; ptr += 4) {
+		STORE(ptr[0], v);
+		STORE(ptr[1], v);
+		STORE(ptr[2], v);
+		STORE(ptr[3], v);
+		v += delta;
+	}
+
+PRAGMA_UNROLL_N(4)
+	for (ptr = c, ptr_end = c + n; ptr < ptr_end; ptr += 4) {
+		STORE(ptr[0], v);
+		STORE(ptr[1], v);
+		STORE(ptr[2], v);
+		STORE(ptr[3], v);
+		v += delta;
+	}
+}
+
+double TARGET_CLONES OPTIMIZE3 stress_stream_checksum_data(
+	double *RESTRICT a,
+	double *RESTRICT b,
+	double *RESTRICT c,
+	const uint64_t n)
+{
+	double checksum = 0.0;
+	register uint64_t i;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < n; i++) {
+		checksum += a[i] + b[i] + c[i];
+	}
+	return checksum;
 }
 
 static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
@@ -711,15 +771,18 @@ static int stress_stream(const stress_args_t *args)
 	double *a, *b, *c;
 	size_t *idx1 = NULL, *idx2 = NULL, *idx3 = NULL;
 	const double q = 3.0;
+	double old_checksum = -1.0;
 	double fp_ops = 0.0, t1, t2, dt;
-	uint32_t stream_index = 0;
+	uint32_t w, z, stream_index = 0;
 	uint64_t L3, sz, n, sz_idx;
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
+	uint32_t init_counter, init_counter_max;
 	bool guess = false;
 #if defined(HAVE_NT_STORE_DOUBLE)
 	const bool has_sse2 = stress_cpu_x86_has_sse2();
 #endif
 	double rd_bytes = 0.0, wr_bytes = 0.0;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (stress_get_setting("stream-L3-size", &stream_L3_size))
 		L3 = stream_L3_size;
@@ -797,65 +860,101 @@ static int stress_stream(const stress_args_t *args)
 		break;
 	}
 
-	stress_stream_init_data(a, n);
-	stress_stream_init_data(b, n);
-	stress_stream_init_data(c, n);
+	stress_mwc_get_seed(&w, &z);
+
+	init_counter = 0;
+	init_counter_max = verify ? 1 : 64;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	t1 = stress_time_now();
+	dt = 0.0;
 	do {
+		if (init_counter == 0) {
+			stress_mwc_set_seed(w, z);
+			stress_stream_init_data(a, b, c, n);
+		}
+		init_counter++;
+		if (init_counter >= init_counter_max)
+			init_counter = 0;
+
 		switch (stream_index) {
 		case 3:
+			t1 = stress_time_now();
 			stress_stream_copy_index3(c, a, idx1, idx2, idx3, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_scale_index3(b, c, q, idx1, idx2, idx3, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_add_index3(c, b, a, idx1, idx2, idx3, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_triad_index3(a, b, c, q, idx1, idx2, idx3, n, &rd_bytes, &wr_bytes, &fp_ops);
+			t2 = stress_time_now();
 			break;
 		case 2:
+			t1 = stress_time_now();
 			stress_stream_copy_index2(c, a, idx1, idx2, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_scale_index2(b, c, q, idx1, idx2, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_add_index2(c, b, a, idx1, idx2, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_triad_index2(a, b, c, q, idx1, idx2, n, &rd_bytes, &wr_bytes, &fp_ops);
+			t2 = stress_time_now();
 			break;
 		case 1:
+			t1 = stress_time_now();
 			stress_stream_copy_index1(c, a, idx1, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_scale_index1(b, c, q, idx1, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_add_index1(c, b, a, idx1, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_triad_index1(a, b, c, q, idx1, n, &rd_bytes, &wr_bytes, &fp_ops);
+			t2 = stress_time_now();
 			break;
 		case 0:
 		default:
 #if defined(HAVE_NT_STORE_DOUBLE)
 			if (has_sse2) {
+				t1 = stress_time_now();
 				stress_stream_copy_index0_nt(c, a, n, &rd_bytes, &wr_bytes, &fp_ops);
 				stress_stream_scale_index0_nt(b, c, q, n, &rd_bytes, &wr_bytes, &fp_ops);
 				stress_stream_add_index0_nt(c, b, a, n,  &rd_bytes, &wr_bytes, &fp_ops);
 				stress_stream_triad_index0_nt(a, b, c, q, n, &rd_bytes, &wr_bytes, &fp_ops);
+				t2 = stress_time_now();
 				break;
 			}
 #endif
+			t1 = stress_time_now();
 			stress_stream_copy_index0(c, a, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_scale_index0(b, c, q, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_add_index0(c, b, a, n, &rd_bytes, &wr_bytes, &fp_ops);
 			stress_stream_triad_index0(a, b, c, q, n, &rd_bytes, &wr_bytes, &fp_ops);
+			t2 = stress_time_now();
 			break;
+		}
+		dt += (t2 - t1);
+
+		if (verify) {
+			double new_checksum;
+
+			new_checksum = stress_stream_checksum_data(a, b, c, n);
+			if ((old_checksum > 0.0) && (new_checksum != old_checksum)) {
+				char new_str[32], old_str[32];
+
+				stress_stream_checksum_to_hexstr(new_str, sizeof(new_str), new_checksum);
+				stress_stream_checksum_to_hexstr(old_str, sizeof(old_str), old_checksum);
+
+				pr_fail("%s: checksum failure, got 0x%s, expecting 0x%s\n",
+					args->name, new_str, old_str);
+			} else {
+				old_checksum = new_checksum;
+			}
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
-	t2 = stress_time_now();
 
-	dt = t2 - t1;
 	if (dt >= 4.5) {
 		const double mb_rd_rate = (rd_bytes / (double)MB) / dt;
 		const double mb_wr_rate = (wr_bytes / (double)MB) / dt;
 		const double fp_rate = (fp_ops / 1000000.0) / dt;
-		pr_inf("%s: memory rate: %.2f MB read/sec, %.2f MB write/sec, %.2f Mflop/sec"
+
+		pr_inf("%s: memory rate: %.2f MB read/sec, %.2f MB write/sec, %.2f double precision Mflop/sec"
 			" (instance %" PRIu32 ")\n",
 			args->name, mb_rd_rate, mb_wr_rate, fp_rate, args->instance);
 		stress_metrics_set(args, 0, "memory read rate (MB per sec)", mb_rd_rate);
 		stress_metrics_set(args, 1, "memory write rate (MB per sec)", mb_wr_rate);
-		stress_metrics_set(args, 2, "memory rate (Mflop per sec)", fp_rate);
+		stress_metrics_set(args, 2, "memory rate (double precision Mflop per sec)", fp_rate);
 	} else {
 		if (args->instance == 0)
 			pr_inf("%s: run duration too short to determine memory rate\n", args->name);
@@ -901,5 +1000,6 @@ stressor_info_t stress_stream_info = {
 	.stressor = stress_stream,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
