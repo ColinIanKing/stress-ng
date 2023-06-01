@@ -952,9 +952,9 @@ static int stress_stream(const stress_args_t *args)
 		pr_inf("%s: memory rate: %.2f MB read/sec, %.2f MB write/sec, %.2f double precision Mflop/sec"
 			" (instance %" PRIu32 ")\n",
 			args->name, mb_rd_rate, mb_wr_rate, fp_rate, args->instance);
-		stress_metrics_set(args, 0, "memory read rate (MB per sec)", mb_rd_rate);
-		stress_metrics_set(args, 1, "memory write rate (MB per sec)", mb_wr_rate);
-		stress_metrics_set(args, 2, "memory rate (double precision Mflop per sec)", fp_rate);
+		stress_metrics_set(args, 0, "MB per sec memory read rate", mb_rd_rate);
+		stress_metrics_set(args, 1, "MB ser sec memory write rate", mb_wr_rate);
+		stress_metrics_set(args, 2, "Mflop per sec (double precision) compute rate", fp_rate);
 	} else {
 		if (args->instance == 0)
 			pr_inf("%s: run duration too short to determine memory rate\n", args->name);
