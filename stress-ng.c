@@ -2164,7 +2164,8 @@ redo:
 		}
 
 		stress_stressor_finished(&stats->pid);
-		pr_dbg("process [%d] terminated\n", ret);
+		pr_dbg("process [%d] terminated (%s)\n", ret,
+			stress_exit_status_to_string(wexit_status));
 	} else if (ret == -1) {
 		/* Somebody interrupted the wait */
 		if (errno == EINTR)
