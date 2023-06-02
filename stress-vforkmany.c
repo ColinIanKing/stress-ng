@@ -21,6 +21,16 @@
 
 #define WASTE_SIZE	(64 * MB)
 
+typedef struct {
+	volatile uint64_t invoked;	/* count of vfork processes that started */
+	uint64_t	waited;		/* count of vfork processes waited for */
+	volatile bool 	terminate;	/* true to indicate it's time to stop */
+	double		t1;		/* time before vfork */
+	double		t2;		/* time once vfork process started */
+	double		duration;	/* total duration of vfork invocations */
+	uint64_t	counter;	/* number duration measurements made */
+} vforkmany_shared_t;
+
 static const stress_help_t help[] = {
 	{ NULL,	"vforkmany N",     "start N workers spawning many vfork children" },
 	{ NULL,	"vforkmany-ops N", "stop after spawning N vfork children" },
@@ -37,15 +47,17 @@ static int stress_set_vforkmany_vm(const char *opt)
  *  vforkmany_wait()
  *	wait and then kill
  */
-static void vforkmany_wait(const pid_t pid)
+static void vforkmany_wait(vforkmany_shared_t *vforkmany_shared, const pid_t pid)
 {
 	for (;;) {
 		int ret, status;
 
 		errno = 0;
 		ret = waitpid(pid, &status, 0);
-		if ((ret >= 0) || (errno != EINTR))
+		if ((ret >= 0) || (errno != EINTR)) {
+			vforkmany_shared->waited++;
 			break;
+		}
 
 		(void)kill(pid, SIGALRM);
 	}
@@ -62,11 +74,12 @@ static void vforkmany_wait(const pid_t pid)
  */
 static int stress_vforkmany(const stress_args_t *args)
 {
+	/* avoid variables on stack since we're using vfork */
 	static pid_t chpid;
 	static uint8_t *stack_sig;
-	static volatile bool *terminate;
-	static bool *terminate_mmap;
 	static bool vm = false;
+	static vforkmany_shared_t *vforkmany_shared;
+	static int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("vforkmany-vm", &vm);
 
@@ -84,16 +97,24 @@ static int stress_vforkmany(const stress_args_t *args)
 	if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
-	terminate = terminate_mmap =
-		(bool *)mmap(NULL, args->page_size,
-				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (terminate_mmap == MAP_FAILED) {
+	vforkmany_shared = (vforkmany_shared_t *)
+		mmap(NULL, sizeof(*vforkmany_shared),
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (vforkmany_shared == MAP_FAILED) {
 		pr_inf("%s: mmap failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
+		VOID_RET(int, stress_sigaltstack(NULL, 0));
+		(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 		return EXIT_NO_RESOURCE;
 	}
-	*terminate = false;
+	vforkmany_shared->terminate = false;
+	vforkmany_shared->invoked = false;
+	vforkmany_shared->waited = false;
+	vforkmany_shared->t1 = 0.0;
+	vforkmany_shared->t2 = 0.0;
+	vforkmany_shared->duration = 0.0;
+	vforkmany_shared->counter = 0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 fork_again:
@@ -105,7 +126,9 @@ fork_again:
 			goto finish;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)terminate_mmap, args->page_size);
+		(void)munmap((void *)vforkmany_shared, sizeof(*vforkmany_shared));
+		VOID_RET(int, stress_sigaltstack(NULL, 0));
+		(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
 		static uint8_t *waste;
@@ -175,7 +198,7 @@ vfork_again:
 			 * instead poll the run time and break out
 			 * of the loop if we've run out of run time
 			 */
-			if (*terminate) {
+			if (vforkmany_shared->terminate) {
 				keep_stressing_set_flag(false);
 				break;
 			}
@@ -184,6 +207,7 @@ vfork_again:
 				if (pid >= 0)
 					start_pid = getpid();
 			} else {
+				vforkmany_shared->t1 = stress_time_now();
 				pid = shim_vfork();
 				inc_counter(args);
 			}
@@ -192,6 +216,16 @@ vfork_again:
 				shim_sched_yield();
 				_exit(0);
 			} else if (pid == 0) {
+				vforkmany_shared->invoked++;
+				if (vforkmany_shared->t1 > 0.0) {
+					vforkmany_shared->t2 = stress_time_now();
+					if (vforkmany_shared->t2 > vforkmany_shared->t1) {
+						vforkmany_shared->counter++;
+						vforkmany_shared->duration +=
+							vforkmany_shared->t2 - vforkmany_shared->t1;
+					}
+				}
+
 				if (vm) {
 					int flags = 0;
 
@@ -220,7 +254,7 @@ vfork_again:
 			} else {
 				/* parent, wait for child, and exit if not first parent */
 				if (pid >= 1)
-					(void)vforkmany_wait(pid);
+					(void)vforkmany_wait(vforkmany_shared, pid);
 				shim_sched_yield();
 				if (getpid() != start_pid)
 					_exit(0);
@@ -242,16 +276,31 @@ vfork_again:
 		stress_set_oom_adjustment(args->name, false);
 
 		(void)sleep((unsigned int)g_opt_timeout);
-		*terminate = true;
+		vforkmany_shared->terminate = true;
+
 
 		stress_kill_and_wait(args, chpid, SIGALRM, false);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap((void *)terminate_mmap, args->page_size);
+
+	if (vforkmany_shared->counter) {
+		double rate = vforkmany_shared->duration / (double)vforkmany_shared->counter;
+
+		stress_metrics_set(args, 0, "nanosecs to start vfork'd a process", rate * 1000000000.0);
+	}
+	if ((vforkmany_shared->waited > 0) && (vforkmany_shared->invoked == 0)) {
+		pr_fail("%s: no vfork'd processes got fully invoked correctly "
+			"before they terminated\n", args->name);
+		rc = EXIT_FAILURE;
+	}
+
+	VOID_RET(int, stress_sigaltstack(NULL, 0));
 	(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
-	return EXIT_SUCCESS;
+	(void)munmap((void *)vforkmany_shared, sizeof(*vforkmany_shared));
+
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -263,5 +312,6 @@ stressor_info_t stress_vforkmany_info = {
 	.stressor = stress_vforkmany,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
