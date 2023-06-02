@@ -164,7 +164,7 @@ static int stress_mprotect(const stress_args_t *args)
 	size_t i;
 	uint8_t *mem;
 	pid_t pids[MPROTECT_MAX];
-	int prot_bits = 0, *prot_flags;
+	int prot_bits = 0, *prot_flags, rc = EXIT_SUCCESS;
 	size_t n_flags;
 
 #if defined(PROT_NONE)
@@ -221,14 +221,15 @@ static int stress_mprotect(const stress_args_t *args)
 	}
 
 	stress_mprotect_mem(args, page_size, mem, mem_pages, prot_flags, n_flags);
-	stress_kill_and_wait_many(args, pids, MPROTECT_MAX, SIGALRM, true);
+	if (stress_kill_and_wait_many(args, pids, MPROTECT_MAX, SIGALRM, true) == EXIT_FAILURE)
+		rc = EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)mem, mem_size);
 	free(prot_flags);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_mprotect_info = {
