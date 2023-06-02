@@ -1196,7 +1196,7 @@ static int stress_funccall(const stress_args_t *args)
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
