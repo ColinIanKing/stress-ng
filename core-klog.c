@@ -32,7 +32,8 @@ static const char *err_exceptions[] = {
 	"detected capacity change from",
 	"umip_printk",
 	"expecting 0xbadc0de (pid=",
-	"callbacks suppressed"
+	"callbacks suppressed",
+	"kmod_concurrent_max",
 };
 
 /*
