@@ -228,7 +228,6 @@ static int stress_dev_shm(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, &context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
-pr_inf("%d %d\n", __LINE__, rc);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
