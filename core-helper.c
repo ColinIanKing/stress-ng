@@ -2200,9 +2200,15 @@ int stress_sigaltstack_no_check(void *stack, const size_t size)
 #if defined(HAVE_SIGALTSTACK)
 	stack_t ss;
 
-	ss.ss_sp = (void *)stack;
-	ss.ss_size = size;
-	ss.ss_flags = 0;
+	if (stack == NULL) {
+		ss.ss_sp = NULL;
+		ss.ss_size = 0;
+		ss.ss_flags = SS_DISABLE;
+	} else {
+		ss.ss_sp = (void *)stack;
+		ss.ss_size = size;
+		ss.ss_flags = 0;
+	}
 	return sigaltstack(&ss, NULL);
 #else
 	UNEXPECTED
@@ -2221,7 +2227,7 @@ int stress_sigaltstack_no_check(void *stack, const size_t size)
 int stress_sigaltstack(void *stack, const size_t size)
 {
 #if defined(HAVE_SIGALTSTACK)
-	if (size < (size_t)STRESS_MINSIGSTKSZ) {
+	if (stack && (size < (size_t)STRESS_MINSIGSTKSZ)) {
 		pr_err("sigaltstack stack size %zu must be more than %zuK\n",
 			size, (size_t)STRESS_MINSIGSTKSZ / 1024);
 		return -1;
