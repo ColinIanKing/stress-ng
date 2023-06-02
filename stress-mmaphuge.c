@@ -94,6 +94,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 	const size_t page_size = args->page_size;
 	stress_mmaphuge_buf_t *bufs = (stress_mmaphuge_buf_t *)ctxt->bufs;
 	size_t idx = 0;
+	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -130,13 +131,27 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 					idx = 0;
 
 				if (buf != MAP_FAILED) {
-					register uint8_t val = stress_mwc8();
+					register uint64_t val = stress_mwc64();
 					register size_t k;
 
-					/* Touch every other 64 pages */
+					/* Touch every other 64 pages.. */
 					for (k = 0; k < sz; k += page_size * 64) {
-						buf[k] = val;
+						register uint64_t *ptr64 = (uint64_t *)&buf[k];
+
+						*ptr64 = val + k;
 					}
+					/* ..and sanity checl */
+					for (k = 0; keep_stressing(args) && (k < sz); k += page_size * 64) {
+						register uint64_t *ptr64 = (uint64_t *)&buf[k];
+
+						if (*ptr64 != val + k) {
+							pr_fail("%s: memory %p at offset 0x%zx check error, "
+								"got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
+								args->name, buf, k, *ptr64, val + k);
+							rc = EXIT_FAILURE;
+						}
+					}
+
 					inc_counter(args);
 					break;
 				}
@@ -190,7 +205,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
@@ -223,6 +238,7 @@ stressor_info_t stress_mmaphuge_info = {
 	.stressor = stress_mmaphuge,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
