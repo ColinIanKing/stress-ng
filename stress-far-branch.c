@@ -334,7 +334,7 @@ static int stress_far_branch(const stress_args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: using assembler opcode '%s' as function return code\n", args->name, ret_opcode.assembler);
+		pr_dbg("%s: using assembler '%s' as function return code\n", args->name, ret_opcode.assembler);
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sig_handler;
