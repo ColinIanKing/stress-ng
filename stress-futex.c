@@ -188,6 +188,7 @@ stressor_info_t stress_futex_info = {
 stressor_info_t stress_futex_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without linux/futex.h or futex() system call"
 };

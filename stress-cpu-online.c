@@ -282,6 +282,7 @@ stressor_info_t stress_cpu_online_info = {
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

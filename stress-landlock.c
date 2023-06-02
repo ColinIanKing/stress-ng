@@ -349,6 +349,7 @@ stressor_info_t stress_landlock_info = {
 stressor_info_t stress_landlock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "linux/landlock.h or __NR_landlock* syscall macros"
 };

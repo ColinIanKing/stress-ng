@@ -208,6 +208,7 @@ stressor_info_t stress_ptrace_info = {
 stressor_info_t stress_ptrace_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without ptrace() system call support"
 };

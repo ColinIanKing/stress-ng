@@ -443,5 +443,3 @@ stressor_info_t stress_plugin_info = {
 };
 
 #endif
-
-

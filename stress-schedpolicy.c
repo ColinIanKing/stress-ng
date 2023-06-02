@@ -402,6 +402,7 @@ stressor_info_t stress_schedpolicy_info = {
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"
 };

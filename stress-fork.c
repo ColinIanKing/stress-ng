@@ -346,5 +346,6 @@ stressor_info_t stress_vfork_info = {
 	.stressor = stress_vfork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = vfork_opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = vfork_help
 };

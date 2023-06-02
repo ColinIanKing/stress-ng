@@ -464,6 +464,7 @@ stressor_info_t stress_goto_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without compiler support gcc style 'labels as values' feature"
 };

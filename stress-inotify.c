@@ -970,6 +970,7 @@ stressor_info_t stress_inotify_info = {
 stressor_info_t stress_inotify_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without sys/epoll.h, sys/inotify.h, inotify(), inotify1() or select() support"
 };

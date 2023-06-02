@@ -407,6 +407,7 @@ stressor_info_t stress_tun_info = {
 stressor_info_t stress_tun_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/if_tun.h and various undefined TUN related macros"
 };

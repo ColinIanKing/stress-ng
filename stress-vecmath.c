@@ -325,6 +325,7 @@ stressor_info_t stress_vecmath_info = {
 stressor_info_t stress_vecmath_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #endif

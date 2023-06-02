@@ -220,6 +220,7 @@ stressor_info_t stress_seal_info = {
 stressor_info_t stress_seal_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux memfd_create() system call support"
 };

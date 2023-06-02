@@ -447,6 +447,7 @@ stressor_info_t stress_mpfr_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gmp.h, mpfr.h or libmpfr"
 };

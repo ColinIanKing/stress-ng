@@ -740,6 +740,7 @@ stressor_info_t stress_sctp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without netinet/sctp.h or libsctp support"
 };

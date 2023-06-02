@@ -991,6 +991,7 @@ stressor_info_t stress_io_uring_info = {
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/io_uring.h or syscall() support"
 };

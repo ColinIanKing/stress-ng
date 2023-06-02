@@ -194,6 +194,7 @@ stressor_info_t stress_cap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without sys/capability.h"
 };
 #endif

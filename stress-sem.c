@@ -268,6 +268,7 @@ stressor_info_t stress_sem_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without semaphore.h, pthread or POSIX semaphore support"
 };

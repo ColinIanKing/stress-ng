@@ -235,6 +235,7 @@ stressor_info_t stress_full_info = {
 stressor_info_t stress_full_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

@@ -446,6 +446,7 @@ stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without sys/vfs.h or statfs() system call"
 };

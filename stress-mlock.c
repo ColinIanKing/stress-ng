@@ -410,6 +410,7 @@ stressor_info_t stress_mlock_info = {
 stressor_info_t stress_mlock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without mlock() support or _POSIX_MEMLOCK_RANGE defined"
 };

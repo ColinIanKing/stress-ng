@@ -246,6 +246,7 @@ stressor_info_t stress_dev_shm_info = {
 stressor_info_t stress_dev_shm_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

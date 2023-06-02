@@ -311,6 +311,7 @@ stressor_info_t stress_affinity_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without sched_getaffinity() or sched_setaffinity()"
 };

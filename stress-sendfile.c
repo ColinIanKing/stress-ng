@@ -222,6 +222,7 @@ stressor_info_t stress_sendfile_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/sendfile.h or sendfile() system call support"
 };

@@ -485,6 +485,7 @@ stressor_info_t stress_ramfs_info = {
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_ramfs_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without clone() or only supported on Linux"
 };

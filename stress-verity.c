@@ -294,6 +294,7 @@ stressor_info_t stress_verity_info = {
 stressor_info_t stress_verity_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/fsverity.h or verity ioctl() commands"
 };

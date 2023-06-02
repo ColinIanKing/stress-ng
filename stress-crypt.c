@@ -198,6 +198,7 @@ stressor_info_t stress_crypt_info = {
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gcrypt library"
 };

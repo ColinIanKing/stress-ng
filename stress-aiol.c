@@ -793,6 +793,7 @@ stressor_info_t stress_aiol_info = {
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without libaio.h or poll.h"
 };
 #endif

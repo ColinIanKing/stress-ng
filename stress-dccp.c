@@ -500,6 +500,7 @@ stressor_info_t stress_dccp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without IPPROTO_DCCP or SOCK_DCCP defined"
 };

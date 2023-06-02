@@ -448,6 +448,7 @@ stressor_info_t stress_dnotify_info = {
 stressor_info_t stress_dnotify_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without dnotify support or sys/select.h"
 };

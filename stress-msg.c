@@ -469,6 +469,7 @@ stressor_info_t stress_msg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/ipc.h, sys/msg.h or System V message queues support"
 };

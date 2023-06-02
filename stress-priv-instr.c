@@ -540,7 +540,6 @@ finish:
 stressor_info_t stress_priv_instr_info = {
 	.stressor = stress_priv_instr,
 	.class = CLASS_CPU,
-	.verify = VERIFY_NONE,
 	.help = help
 };
 

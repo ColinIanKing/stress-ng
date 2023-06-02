@@ -242,6 +242,7 @@ stressor_info_t stress_mprotect_info = {
 stressor_info_t stress_mprotect_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without mprotect() system call"
 };

@@ -749,6 +749,7 @@ stressor_info_t stress_fanotify_info = {
 stressor_info_t stress_fanotify_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/fanotify.h"
 };

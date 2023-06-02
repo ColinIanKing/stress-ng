@@ -449,6 +449,7 @@ stressor_info_t stress_sockfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };
