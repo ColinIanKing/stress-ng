@@ -1115,7 +1115,7 @@ static bool stress_funccall_exercise(const stress_args_t *args, const size_t met
 	stress_funccall_metrics[method].duration += stress_time_now() - t;
 	stress_funccall_metrics[method].count += 1.0;
 
-	if (!success) {
+	if (!success && (method != 0)) {
 		pr_fail("%s: verification failed with a nested %s function call return value\n",
 			args->name, stress_funccall_methods[method].name);
 	}
@@ -1127,7 +1127,7 @@ static bool stress_funccall_all(const stress_args_t *args)
 	size_t i;
 	bool success = true;
 
-	for (i = 1; i < SIZEOF_ARRAY(stress_funccall_methods); i++) {
+	for (i = 1; success && (i < SIZEOF_ARRAY(stress_funccall_methods)); i++) {
 		success &= stress_funccall_exercise(args, i);
 	}
 	return success;
