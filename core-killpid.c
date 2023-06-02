@@ -52,7 +52,7 @@ int stress_killpid(const pid_t pid)
  *  stress_wait_until_reaped()
  *	wait until a process has been removed from process table
  */
-static void stress_wait_until_reaped(
+static int stress_wait_until_reaped(
 	const stress_args_t *args,
 	const pid_t pid,
 	const int signum,
@@ -66,11 +66,13 @@ static void stress_wait_until_reaped(
 
 		errno = 0;
 		ret = waitpid(pid, &wstatus, 0);
-		if ((ret >= 0) || (errno != EINTR))
-			break;
+		if ((ret >= 0) || (errno != EINTR)) {
+			if (WIFEXITED(wstatus))
+				return WEXITSTATUS(wstatus);
+		}
 
 		if ((kill(pid, 0) < 0) && (errno == ESRCH))
-			return;
+			return EXIT_SUCCESS;
 
 		count++;
 		/*
@@ -89,13 +91,14 @@ static void stress_wait_until_reaped(
 		if (count > 10)
 			(void)sleep(1);
 	}
+	/* should never get here */
+	return EXIT_FAILURE;
 }
 
 /*
  *  stress_kill_and_wait()
- *
  */
-void stress_kill_and_wait(
+int stress_kill_and_wait(
 	const stress_args_t *args,
 	const pid_t pid,
 	const int signum,
@@ -107,11 +110,15 @@ void stress_kill_and_wait(
 		pr_inf("%s: warning, attempt to kill pid %" PRIdMAX " ignored\n",
 			args->name, (intmax_t)pid);
 	}
+	/*
+	 *  bad pids, won't kill, but return success to avoid
+	 *  confusion of a kill that failed.
+	 */
 	if ((pid <= 1) || (pid == mypid))
-		return;
+		return EXIT_SUCCESS;
 
 	(void)kill(pid, signum);
-	stress_wait_until_reaped(args, pid, signum, set_force_killed_counter);
+	return stress_wait_until_reaped(args, pid, signum, set_force_killed_counter);
 }
 
 /*
@@ -119,8 +126,11 @@ void stress_kill_and_wait(
  *	kill and wait on an array of pids. Kill first, then reap.
  *	Avoid killing pids < init and oneself to catch any stupid
  *	breakage.
+ *
+ *	return EXIT_FAILURE if any of the child processes were
+ * 	waited for and definitely exited with EXIT_FAILURE.
  */
-void stress_kill_and_wait_many(
+int stress_kill_and_wait_many(
 	const stress_args_t *args,
 	const pid_t *pids,
 	const size_t n_pids,
@@ -129,6 +139,7 @@ void stress_kill_and_wait_many(
 {
 	size_t i;
 	const pid_t mypid = getpid();
+	int rc = EXIT_SUCCESS;
 
 	/* Kill first */
 	for (i = 0; i < n_pids; i++) {
@@ -137,7 +148,13 @@ void stress_kill_and_wait_many(
 	}
 	/* Then reap */
 	for (i = 0; i < n_pids; i++) {
-		if ((pids[i] > 1) && (pids[i] != mypid))
-			stress_kill_and_wait(args, pids[i], signum, set_force_killed_counter);
+		if ((pids[i] > 1) && (pids[i] != mypid)) {
+			int ret;
+
+			ret = stress_kill_and_wait(args, pids[i], signum, set_force_killed_counter);
+			if (ret == EXIT_FAILURE)
+				rc = ret;
+		}
 	}
+	return rc;
 }
