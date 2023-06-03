@@ -35,12 +35,19 @@ static const stress_help_t help[] = {
 #define HAVE_SCHEDULING
 #endif
 
+static void MLOCKED_TEXT stress_resched_usr1_handler(int sig)
+{
+	if (sig == SIGUSR1)
+		keep_stressing_set_flag(false);
+}
+
 static void NORETURN stress_resched_child(
 	const stress_args_t *args,
 	const int niceness,
 	const int max_niceness,
 	uint64_t *yields)
 {
+	int rc = EXIT_SUCCESS;
 	int i;
 #if defined(HAVE_SCHEDULING) &&		\
     defined(HAVE_SCHED_SETSCHEDULER)
@@ -81,7 +88,19 @@ static void NORETURN stress_resched_child(
 
 				(void)shim_memset(&param, 0, sizeof(param));
 				param.sched_priority = 0;
-				VOID_RET(int, sched_setscheduler(pid, normal_policies[j], &param));
+				if (sched_setscheduler(pid, normal_policies[j], &param) == 0) {
+					int ret;
+
+					/* Is the scheduler different from the one set? */
+					ret = sched_getscheduler(pid);
+					if ((ret >= 0) && (ret != normal_policies[j])) {
+						pr_fail("%s: current scheduler %d different from the set scheduler %d\n",
+							args->name, ret, normal_policies[j]);
+						/* tell parent it's time to stop */
+						(void)kill(args->pid, SIGUSR1);
+						_exit(EXIT_FAILURE);
+					}
+				}
 				VOID_RET(int, shim_sched_yield());
 				if (yields)
 					yields[i]++;
@@ -100,7 +119,7 @@ static void NORETURN stress_resched_child(
 		if (!keep_stressing(args))
 			break;
 	}
-	_exit(0);
+	_exit(rc);
 }
 
 /*
@@ -133,6 +152,7 @@ static void stress_resched_spawn(
 static int stress_resched(const stress_args_t *args)
 {
 	pid_t *pids;
+	int rc = EXIT_SUCCESS;
 
 #if defined(HAVE_SETPRIORITY)
 	int i, pids_max, max_prio = 19;
@@ -159,6 +179,11 @@ static int stress_resched(const stress_args_t *args)
 	for (i = 0; i < pids_max; i++)
 		pids[i] = -1;
 
+	if (stress_sighandler(args->name, SIGUSR1, stress_resched_usr1_handler, NULL) < 0) {
+		rc = EXIT_NO_RESOURCE;
+		goto free_pids;
+	}
+
 	yields_size = ((sizeof(*yields) * (size_t)pids_max) + args->page_size - 1) & ~(args->page_size - 1);
 	yields = (uint64_t *)mmap(NULL, yields_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -168,7 +193,7 @@ static int stress_resched(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Start off one child process per positive nice level */
-	for (i = 0; i < pids_max; i++)
+	for (i = 0; keep_stressing(args) && (i < pids_max); i++)
 		stress_resched_spawn(args, pids, i, max_prio, yields);
 
 	do {
@@ -178,8 +203,11 @@ static int stress_resched(const stress_args_t *args)
 		/* Wait for child processes to die */
 		pid = wait(&status);
 		if (pid >= 0) {
+			if (WIFEXITED(status) && (WEXITSTATUS(status) == EXIT_FAILURE)) {
+				break;
+			}
 			/*
-			 *  Find unstrated process or process that just terminated
+			 *  Find unstarted process or process that just terminated
 			 *  and respawn it at the nice level of the given slot
 			 */
 			for (i = 0; i < pids_max; i++) {
@@ -189,7 +217,8 @@ static int stress_resched(const stress_args_t *args)
 		}
 	} while (keep_stressing(args));
 
-	stress_kill_and_wait_many(args, pids, pids_max, SIGALRM, true);
+	if (stress_kill_and_wait_many(args, pids, pids_max, SIGALRM, true) == EXIT_FAILURE)
+		rc = EXIT_FAILURE;
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/*
@@ -223,14 +252,16 @@ static int stress_resched(const stress_args_t *args)
 
 	if (yields != NULL)
 		(void)munmap((void *)yields, yields_size);
+free_pids:
 	free(pids);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_resched_info = {
 	.stressor = stress_resched,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
@@ -238,6 +269,7 @@ stressor_info_t stress_resched_info = {
 stressor_info_t stress_resched_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"
 };
