@@ -37,6 +37,7 @@ typedef struct {
 	uint8_t	supported;
 	double count;
 	double duration;
+	double rate;
 } stress_waitcpu_method_t;
 
 static bool stress_waitcpu_nop_supported(void)
@@ -186,29 +187,29 @@ static void stress_waitcpu_ppc64_mdoom(void)
 #endif
 
 stress_waitcpu_method_t stress_waitcpu_method[] = {
-	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0 },
+	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0, 0.0 },
 #if defined(STRESS_ARCH_X86)
 #if defined(HAVE_ASM_X86_PAUSE)
-	{ "pause",	stress_waitcpu_x86_pause,	stress_waitcpu_x86_pause_supported,	false, 0.0, 0.0 },
+	{ "pause",	stress_waitcpu_x86_pause,	stress_waitcpu_x86_pause_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(__PCC__)
-	{ "tpause0",	stress_waitcpu_x86_tpause0,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0 },
-	{ "tpause1",	stress_waitcpu_x86_tpause1,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0 },
+	{ "tpause0",	stress_waitcpu_x86_tpause0,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0, 0.0 },
+	{ "tpause1",	stress_waitcpu_x86_tpause1,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #if !defined(__PCC__) &&	\
     defined(HAVE_ARCH_X86_64)
-	{ "umwait0",	stress_waitcpu_x86_umwait0,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0 },
-	{ "umwait0",	stress_waitcpu_x86_umwait1,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0 },
+	{ "umwait0",	stress_waitcpu_x86_umwait0,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0, 0.0 },
+	{ "umwait0",	stress_waitcpu_x86_umwait1,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
-	{ "yield",	stress_waitcpu_arm_yield,	stress_waitcpu_arm_yield_supported,	false, 0.0, 0.0 },
+	{ "yield",	stress_waitcpu_arm_yield,	stress_waitcpu_arm_yield_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #if defined(STRESS_ARCH_PPC64)
-	{ "mdoio",	stress_waitcpu_ppc64_mdoio,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0 },
-	{ "mdoom",	stress_waitcpu_ppc64_mdoom,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0 },
-	{ "yield",	stress_waitcpu_ppc64_yield,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0 },
+	{ "mdoio",	stress_waitcpu_ppc64_mdoio,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
+	{ "mdoom",	stress_waitcpu_ppc64_mdoom,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
+	{ "yield",	stress_waitcpu_ppc64_yield,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
 #endif
 };
 
@@ -219,8 +220,10 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 static int stress_waitcpu(const stress_args_t *args)
 {
 	bool supported = false;
-	size_t i;
+	size_t i, j;
 	char str[16 * SIZEOF_ARRAY(stress_waitcpu_method)];
+	double nop_rate = -1.0;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(str, 0, sizeof(str));
 
@@ -235,15 +238,15 @@ static int stress_waitcpu(const stress_args_t *args)
 		stress_waitcpu_method[i].count = 0.0;
 	}
 	if (!supported) {
-		if (args->instance == 0) {
+		if (args->instance == 0)
 			pr_inf("%s: no CPU wait/pause instructions available, skipping stressor\n",
 				args->name);
-		}
 		return EXIT_NO_RESOURCE;
 	}
-	if (args->instance == 0) {
-		pr_inf("%s: exercising:%s\n", args->name, str);
-	}
+	if (args->instance == 0)
+		pr_inf("%s: exercising instruction%s:%s\n", args->name,
+			SIZEOF_ARRAY(stress_waitcpu_method) > 1 ? "s" : "",
+			str);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
@@ -267,23 +270,47 @@ static int stress_waitcpu(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
-		if ((stress_waitcpu_method[i].duration > 0.0) &&
-		    (stress_waitcpu_method[i].count > 0.0)) {
-			char msg[64];
-			const double rate = stress_waitcpu_method[i].count / stress_waitcpu_method[i].duration;
+	for (i = 0, j = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
+		char msg[64];
+		double rate = 0.0;
 
+		if ((stress_waitcpu_method[i].duration > 0.0) &&
+		    (stress_waitcpu_method[i].count > 0.0))
+			rate = stress_waitcpu_method[i].count /
+			       stress_waitcpu_method[i].duration;;
+
+		if (!strcmp("nop", stress_waitcpu_method[i].name))
+			nop_rate = rate;
+
+		if (rate > 0.0) {
 			(void)snprintf(msg, sizeof(msg), "%s ops per sec", stress_waitcpu_method[i].name);
-			stress_metrics_set(args, i, msg, rate);
+			stress_metrics_set(args, j, msg, rate);
+			j++;
+		}
+		stress_waitcpu_method[i].rate = rate;
+	}
+
+	if (nop_rate > 0.0) {
+		for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
+			if (!strcmp("nop", stress_waitcpu_method[i].name))
+				continue;
+			if (stress_waitcpu_method[i].rate > nop_rate) {
+				pr_fail("%s: %s instruction rate (%.2f ops "
+					"per sec) is higher than nop "
+					"instruction rate (%.2f ops per sec)\n",
+					args->name, stress_waitcpu_method[i].name,
+					stress_waitcpu_method[i].rate, nop_rate);
+				rc = EXIT_FAILURE;
+			}
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_waitcpu_info = {
 	.stressor = stress_waitcpu,
 	.class = CLASS_CPU,
-	.verify = VERIFY_NONE,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
