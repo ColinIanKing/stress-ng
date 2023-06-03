@@ -30,6 +30,8 @@ static const stress_help_t help[] = {
     defined(HAVE_SIGWAITINFO) && \
     defined(SA_SIGINFO)
 
+volatile bool handled_sigchld;
+
 static void MLOCKED_TEXT stress_sigqhandler(
 	int sig,
 	siginfo_t *info,
@@ -38,6 +40,14 @@ static void MLOCKED_TEXT stress_sigqhandler(
 	(void)sig;
 	(void)info;
 	(void)ucontext;
+}
+
+static void MLOCKED_TEXT stress_sigq_chld_handler(int sig)
+{
+	if (sig == SIGCHLD) {
+		handled_sigchld = true;
+		keep_stressing_set_flag(false);
+	}
 }
 
 #if defined(__NR_rt_sigqueueinfo) &&	\
@@ -61,6 +71,16 @@ static int stress_sigq(const stress_args_t *args)
 	const pid_t mypid = getpid();
 	const uid_t myuid = getuid();
 #endif
+	int rc = EXIT_SUCCESS;
+	int val = stress_mwc32();
+
+	if (val == 0)
+		val++;
+
+	handled_sigchld = false;
+
+	if (stress_sighandler(args->name, SIGCHLD, stress_sigq_chld_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sigqhandler;
@@ -121,15 +141,21 @@ again:
 					break;
 				}
 			}
-			if (info.si_value.sival_int)
+			if (UNLIKELY(info.si_value.sival_int != val)) {
+				if (UNLIKELY(info.si_value.sival_int != 0)) {
+					pr_fail("%s: got unexpected sival_int value, got 0x%x, expecting 0x%x\n",
+						args->name, info.si_value.sival_int, val);
+					rc = EXIT_FAILURE;
+				}
 				break;
+			}
 			if (info.si_signo != SIGUSR1)
 				break;
 		}
 		pr_dbg("%s: child got termination notice\n", args->name);
 		pr_dbg("%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 			args->name, (int)getpid(), args->instance);
-		_exit(0);
+		_exit(rc);
 	} else {
 		/* Parent */
 		union sigval s;
@@ -137,7 +163,7 @@ again:
 
 		do {
 			(void)shim_memset(&s, 0, sizeof(s));
-			s.sival_int = 0;
+			s.sival_int = val;
 			(void)sigqueue(pid, SIGUSR1, s);
 
 #if defined(HAVE_RT_SIGQUEUEINFO)
@@ -163,31 +189,38 @@ again:
 			inc_counter(args);
 		} while (keep_stressing(args));
 
-		pr_dbg("%s: parent sent termination notice\n", args->name);
-		(void)shim_memset(&s, 0, sizeof(s));
-		s.sival_int = 1;
-		(void)sigqueue(pid, SIGUSR1, s);
-		(void)shim_usleep(250);
-		/* And ensure child is really dead */
+		if (!handled_sigchld) {
+			pr_dbg("%s: parent sent termination notice\n", args->name);
+			(void)shim_memset(&s, 0, sizeof(s));
+			s.sival_int = 0;
+			(void)sigqueue(pid, SIGUSR1, s);
+			(void)shim_usleep(250);
+			/* And ensure child is really dead */
+		}
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			if (WEXITSTATUS(status) == EXIT_FAILURE)
+				rc = EXIT_FAILURE;
 	}
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sigq_info = {
 	.stressor = stress_sigq,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_sigq_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sigqueue() or sigwaitinfo() or defined SA_SIGINFO"
 };
