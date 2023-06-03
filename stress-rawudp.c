@@ -39,7 +39,6 @@
 #if !defined(SOL_UDP)
 #define SOL_UDP 	(17)
 #endif
-#define PACKET_SIZE	(2048)
 
 static const stress_help_t help[] = {
 	{ NULL, "rawudp N",	"start N workers exercising raw UDP socket I/O" },
@@ -90,13 +89,14 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LINUX_UDP_H)
 
+#define PACKET_SIZE	sizeof(struct iphdr) + sizeof(struct udphdr) + sizeof(pid_t)
+
 /*
  *  stress_rawudp_client()
  *	client sender
  */
 static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	const stress_args_t *args,
-	const pid_t ppid,
 	in_addr_t addr,
 	const int port)
 {
@@ -105,6 +105,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	char buf[PACKET_SIZE];
 	struct iphdr *ip = (struct iphdr *)buf;
 	struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
+	uint8_t *data = (uint8_t *)(buf + sizeof(struct iphdr) + sizeof(struct udphdr));
 	struct sockaddr_in s_in;
 	int one = 1;
 
@@ -120,7 +121,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	ip->ihl      = 5;	/* Header length in 32 bit words */
 	ip->version  = 4;	/* IPv4 */
 	ip->tos      = stress_mwc8() & 0x1e;
-	ip->tot_len  = sizeof(struct iphdr) + sizeof(struct udphdr);
+	ip->tot_len  = PACKET_SIZE;
 	ip->ttl      = 16;  	/* Not too many hops! */
 	ip->protocol = SOL_UDP;	/* UDP protocol */
 	ip->saddr = (in_addr_t)addr;
@@ -149,7 +150,9 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 		ip->tos = stress_mwc8() & 0x1e;
 		ip->id = htons(id++);
-		ip->check = stress_ipv4_checksum((uint16_t *)buf, sizeof(struct iphdr) + sizeof(struct udphdr));
+		ip->check = stress_ipv4_checksum((uint16_t *)buf, PACKET_SIZE);
+
+		*(pid_t *)data = args->pid;
 
 		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&s_in, sizeof(s_in));
 		if (UNLIKELY(n < 0)) {
@@ -163,7 +166,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 err:
 	/* Inform parent we're all done */
-	(void)kill(ppid, SIGALRM);
+	(void)kill(args->pid, SIGALRM);
 	_exit(rc);
 }
 
@@ -183,7 +186,9 @@ static int OPTIMIZE3 stress_rawudp_server(
 	char buf[PACKET_SIZE];
 	const struct iphdr *ip = (struct iphdr *)buf;
 	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
+	const uint8_t *data = (uint8_t *)(buf + sizeof(struct iphdr) + sizeof(struct udphdr));
 	double t_start, duration = 0.0, bytes = 0.0, rate;
+	char msg[64];
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -217,6 +222,15 @@ static int OPTIMIZE3 stress_rawudp_server(
 			if ((ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
+				if (UNLIKELY(*(pid_t *)data != args->pid)) {
+					pr_fail("%s: data check failure, "
+						"got 0x%" PRIxMAX ", "
+						 "expected 0x%" PRIxMAX "\n",
+						args->name,
+						(intmax_t)*(pid_t *)data,
+						(intmax_t)args->pid);
+					rc = EXIT_FAILURE;
+				}
 				bytes += (double)n;
 				inc_counter(args);
 			}
@@ -226,6 +240,9 @@ static int OPTIMIZE3 stress_rawudp_server(
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
+	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
+	(void)snprintf(msg, sizeof(msg), "packets (%zu bytes) received per sec", PACKET_SIZE);
+	stress_metrics_set(args, 1, msg, rate);
 
 die_close:
 	(void)close(fd);
@@ -298,7 +315,7 @@ again:
 			args->name, errno, strerror(errno));
 		return rc;
 	} else if (pid == 0) {
-		stress_rawudp_client(args, args->pid, addr, rawudp_port);
+		stress_rawudp_client(args, addr, rawudp_port);
 	} else {
 		int status;
 
@@ -318,6 +335,7 @@ stressor_info_t stress_rawudp_info = {
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawudp_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -326,6 +344,7 @@ stressor_info_t stress_rawudp_info = {
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawudp_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/udp.h or only supported on Linux"
 };
