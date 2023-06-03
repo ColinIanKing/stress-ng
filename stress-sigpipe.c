@@ -40,8 +40,10 @@ static void stress_sigpipe_handler(int signum)
 #if defined(HAVE_CLONE)
 static int NORETURN pipe_child(void *ptr)
 {
-	(void)ptr;
+	int *pipefds = (int *)ptr;
 
+	(void)close(pipefds[0]);	/* causes SIGPIPE */
+	(void)close(pipefds[1]);
 	_exit(EXIT_SUCCESS);
 }
 #endif
@@ -49,7 +51,9 @@ static int NORETURN pipe_child(void *ptr)
 static inline int stress_sigpipe_write(
 	const stress_args_t *args,
 	const char *buf,
-	const size_t buf_len)
+	const size_t buf_len,
+	uint64_t *pipe_count,
+	uint64_t *epipe_count)
 {
 	pid_t pid;
 	int pipefds[2];
@@ -59,6 +63,7 @@ static inline int stress_sigpipe_write(
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+	(*pipe_count)++;
 
 #if defined(F_SETPIPE_SZ)
 	/*
@@ -82,7 +87,7 @@ again:
 			char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 
 			pid = clone(pipe_child, stress_align_stack(stack_top),
-				CLONE_VM | CLONE_FS | CLONE_SIGHAND | SIGCHLD, NULL);
+				CLONE_VM | CLONE_FS | CLONE_SIGHAND | SIGCHLD, pipefds);
 			/*
 			 *  May not have clone, so fall back to fork instead.
 			 */
@@ -108,6 +113,8 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, only for non-clone path */
+		(void)close(pipefds[0]);	/* causes SIGPIPE */
+		(void)close(pipefds[1]);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
@@ -118,9 +125,13 @@ again:
 		do {
 			ssize_t ret;
 
+			/* cause SIGPIPE if pipe closed */
 			ret = write(pipefds[1], buf, buf_len);
-			if (LIKELY(ret <= 0))
+			if (LIKELY(ret <= 0)) {
+				if (errno == EPIPE)
+					(*epipe_count)++;
 				break;
+			}
 		} while (keep_stressing(args));
 
 		(void)close(pipefds[1]);
@@ -139,6 +150,8 @@ static int stress_sigpipe(const stress_args_t *args)
 {
 	const size_t buf_size = args->page_size * 2;
 	char *buf;
+	uint64_t pipe_count = 0, epipe_count = 0;
+	int rc = EXIT_SUCCESS;
 
 	buf = (char *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -155,18 +168,27 @@ static int stress_sigpipe(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_sigpipe_write(args, buf, buf_size);
+		stress_sigpipe_write(args, buf, buf_size, &pipe_count, &epipe_count);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	/* simple sanity check */
+	if ((pipe_count + epipe_count > 0) && (get_counter(args) < 1)) {
+		pr_fail("%s: %" PRIu64 " pipes closed and %" PRIu64 " EPIPE "
+			"writes occurred but got 0 SIGPIPE signals\n",
+			args->name, pipe_count, epipe_count);
+		rc = EXIT_FAILURE;
+	}
+
 	(void)munmap((void *)buf, buf_size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sigpipe_info = {
 	.stressor = stress_sigpipe,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
