@@ -213,7 +213,7 @@ finish:
 stressor_info_t stress_sigq_info = {
 	.stressor = stress_sigq,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	verify = VERIFY_ALWAYS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
