@@ -80,7 +80,7 @@ static int stress_signal(const stress_args_t *args)
 
 		tmp = counter;
 		if (UNLIKELY(shim_signal(SIGCHLD, SIG_IGN) == SIG_ERR)) {
-			pr_err("%s: cannot install SIGCHLD SIG_IGN handler, errno=%d (%s)\n",
+			pr_fail("%s: cannot install SIGCHLD SIG_IGN handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -92,7 +92,7 @@ static int stress_signal(const stress_args_t *args)
 
 		tmp = counter;
 		if (UNLIKELY(shim_signal(SIGCHLD, stress_signal_handler) == SIG_ERR)) {
-			pr_err("%s: cannot install SIGCHLD signal handler, errno=%d (%s)\n",
+			pr_fail("%s: cannot install SIGCHLD signal handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -111,7 +111,7 @@ static int stress_signal(const stress_args_t *args)
 
 		tmp = counter;
 		if (UNLIKELY(shim_signal(SIGCHLD, SIG_DFL) == SIG_ERR)) {
-			pr_err("%s: cannot install SIGCHLD SIG_DFL handler, errno=%d (%s)\n",
+			pr_fail("%s: cannot install SIGCHLD SIG_DFL handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
@@ -119,6 +119,7 @@ static int stress_signal(const stress_args_t *args)
 		if (UNLIKELY(tmp != counter)) {
 			pr_fail("%s: setting of SIG_DFL unexpectedly triggered a SIGCHLD\n",
 				args->name);
+			rc = EXIT_FAILURE;
 		}
 
 		set_counter(args, counter);
@@ -132,5 +133,6 @@ static int stress_signal(const stress_args_t *args)
 stressor_info_t stress_signal_info = {
 	.stressor = stress_signal,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
