@@ -36,6 +36,31 @@ static const stress_help_t help[] = {
 #define MLOCK_ONFAULT 1
 #endif
 
+#if defined(__linux__)
+static uint64_t stress_mlock_pages(const size_t page_size)
+{
+	FILE *fp;
+	char buf[4096];
+	uint64_t mlocked = 0;
+	uint64_t kb_per_page = (uint64_t)page_size / 1024U;
+
+	fp = fopen("/proc/self/status", "r");
+	if (!fp)
+		return 0;
+	while ((fgets(buf, sizeof(buf), fp) != NULL)) {
+		if (strncmp(buf, "VmLck:", 6) == 0) {
+			if (sscanf(buf + 6, "%" SCNu64, &mlocked) == 1)
+				break;
+			mlocked = 0;
+			break;
+		}
+	}
+	(void)fclose(fp);
+	return mlocked / kb_per_page;
+	return 0;
+}
+#endif
+
 /*
  *  do_mlock()
  *	if mlock2 is available, randomly exercise this
@@ -254,6 +279,10 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	double mlock_duration = 0.0, mlock_count = 0.0;
 	double munlock_duration = 0.0, munlock_count = 0.0;
 	double rate;
+	int rc = EXIT_SUCCESS;
+#if defined(__linux__)
+	uint64_t max_mlocked_pages = 0;
+#endif
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
@@ -279,6 +308,9 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 
 	do {
 		int ret;
+#if defined(__linux__)
+		uint64_t mlocked_pages = 0, prev_mlocked_pages;
+#endif
 
 		for (n = 0; n < max; n++) {
 			if (!keep_stressing(args))
@@ -331,6 +363,18 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				 */
 				mappings[n] = (uint8_t *)
 					((intptr_t)mappings[n] | 1);
+
+#if defined(__linux__)
+				prev_mlocked_pages = mlocked_pages;
+				mlocked_pages = stress_mlock_pages(page_size);
+				if (mlocked_pages < prev_mlocked_pages) {
+					pr_fail("%s: mlocked pages shrunk, before mlock: %" PRIu64 " pages mlocked, after: %" PRIu64 " pages mlocked\n",
+						args->name, prev_mlocked_pages, mlocked_pages);
+					rc = EXIT_FAILURE;
+				}
+				if (mlocked_pages > max_mlocked_pages)
+					max_mlocked_pages = mlocked_pages;
+#endif
 				inc_counter(args);
 			}
 
@@ -381,6 +425,15 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(__linux__)
+	if (max_mlocked_pages > 0) {
+		uint64_t kb_per_page = (uint64_t)page_size / 1024U;
+
+		pr_dbg("%s: maximum of %" PRIu64 " pages (%" PRIu64 " MB)  mlocked\n",
+			args->name, max_mlocked_pages, (max_mlocked_pages / (kb_per_page * 1024)));
+	}
+#endif
+
 	rate = (mlock_count > 0.0) ? mlock_duration / mlock_count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per mlock call", rate * STRESS_DBL_NANOSECOND);
 	rate = (munlock_count > 0.0) ? munlock_duration / munlock_count : 0.0;
@@ -388,7 +441,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 
 	(void)munmap((void *)mappings, mappings_len);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
