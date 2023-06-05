@@ -501,7 +501,7 @@ d or y. Each stressor will be sent a SIGALRM signal at the timeout time, however
 if the stress test is swapped out, in a non-interritable system call or
 performing clean up (such as removing hundreds of test file) it may take a
 while to finally terminate.  A 0 timeout will run stress-ng for ever with
-no timeout.
+no timeout. The default timeout is 24 hours.
 .TP
 .B \--timestamp
 add a timestamp in hours, minutes, seconds and hundredths of a second to the
