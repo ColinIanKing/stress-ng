@@ -755,7 +755,7 @@ static void stress_matrix_3d_zyx_all(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n]);
 
 /*
- * Table of cpu stress methods, ordered x by y by z and z by y by x
+ * Table of matrix_3 stress methods, ordered x by y by z and z by y by x
  */
 static const stress_matrix_3d_method_info_t matrix_3d_methods[] = {
 	{ "all",		{ stress_matrix_3d_xyz_all,		stress_matrix_3d_zyx_all } },/* Special "all" test */
@@ -778,7 +778,7 @@ static stress_metrics_t matrix_3d_metrics[SIZEOF_ARRAY(matrix_3d_methods)];
 
 /*
  *  stress_matrix_3d_all()
- *	iterate over all cpu stressors
+ *	iterate over all matrix_3 stressors
  */
 static void OPTIMIZE3 stress_matrix_3d_xyz_all(
 	const size_t n,
@@ -798,7 +798,7 @@ static void OPTIMIZE3 stress_matrix_3d_xyz_all(
 
 /*
  *  stress_matrix_3d_all()
- *	iterate over all cpu stressors
+ *	iterate over all matrix_3d stressors
  */
 static void OPTIMIZE3 stress_matrix_3d_zyx_all(
 	const size_t n,
