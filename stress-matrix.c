@@ -754,7 +754,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
 
 /*
  *  stress_matrix_xy_all()
- *	iterate over all cpu stressors
+ *	iterate over all matrix stressors
  */
 static void stress_matrix_xy_all(
 	const size_t n,
@@ -764,7 +764,7 @@ static void stress_matrix_xy_all(
 
 /*
  *  stress_matrix_yx_all()
- *	iterate over all cpu stressors
+ *	iterate over all matrix stressors
  */
 static void OPTIMIZE3 stress_matrix_yx_all(
 	const size_t n,
@@ -773,7 +773,7 @@ static void OPTIMIZE3 stress_matrix_yx_all(
 	stress_matrix_type_t r[RESTRICT n][n]);
 
 /*
- * Table of cpu stress methods, ordered x by y and y by x
+ * Table of matrix stress methods, ordered x by y and y by x
  */
 static const stress_matrix_method_info_t matrix_methods[] = {
 	{ "all",		{ stress_matrix_xy_all,		stress_matrix_yx_all } },/* Special "all" test */
@@ -798,7 +798,7 @@ static stress_metrics_t matrix_metrics[SIZEOF_ARRAY(matrix_methods)];
 
 /*
  *  stress_matrix_xy_all()
- *	iterate over all cpu stressors
+ *	iterate over all matrix stressors
  */
 static void OPTIMIZE3 stress_matrix_xy_all(
 	const size_t n,
@@ -818,7 +818,7 @@ static void OPTIMIZE3 stress_matrix_xy_all(
 
 /*
  *  stress_matrix_yx_all()
- *	iterate over all cpu stressors
+ *	iterate over all matrix stressors
  */
 static void OPTIMIZE3 stress_matrix_yx_all(
 	const size_t n,
