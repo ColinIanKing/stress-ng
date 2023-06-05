@@ -498,7 +498,7 @@ thrashing of swap on an over-committed system.
 run each stress test for at least T seconds. One can also specify the units
 of time in seconds, minutes, hours, days or years with the suffix s, m, h,
 d or y. Each stressor will be sent a SIGALRM signal at the timeout time, however
-if the stress test is swapped out, in a non-interritable system call or
+if the stress test is swapped out, in an uninterruptible system call or
 performing clean up (such as removing hundreds of test file) it may take a
 while to finally terminate.  A 0 timeout will run stress-ng for ever with
 no timeout. The default timeout is 24 hours.
