@@ -34,6 +34,7 @@ static const char *err_exceptions[] = {
 	"expecting 0xbadc0de (pid=",
 	"callbacks suppressed",
 	"kmod_concurrent_max",
+	"hrtimer: interrupt took",
 };
 
 /*
