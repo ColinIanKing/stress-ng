@@ -39,9 +39,9 @@ static const stress_help_t help[] = {
 #define MAX_SYSCALL	(2048)		/* Guess */
 #endif
 
-#if defined(__linux__) &&       \
-    !defined(__TINYC__) &&	\
-    !defined(__PCC__) &&	\
+#if defined(__linux__) &&       	\
+    !defined(HAVE_COMPILER_TCC) &&	\
+    !defined(HAVE_COMPILER_PCC) &&	\
     defined(STRESS_ARCH_X86_64)
 #define STRESS_EXERCISE_X86_SYSCALL
 #endif

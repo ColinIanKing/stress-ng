@@ -43,7 +43,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(__linux__) &&		\
-    !defined(__PCC__) &&		\
+    !defined(HAVE_COMPILER_PCC) &&	\
     defined(STRESS_ARCH_X86_64)
 
 typedef int (*stress_wfunc_t)(void);

@@ -99,8 +99,8 @@ static int stress_tsc_supported(const char *name)
 #endif
 
 #if defined(STRESS_ARCH_X86) &&		\
-    !defined(__PCC__) &&		\
-    !defined(__TINYC__)
+    !defined(HAVE_COMPILER_PCC) &&	\
+    !defined(HAVE_COMPILER_TCC)
 
 #define HAVE_STRESS_TSC_CAPABILITY
 

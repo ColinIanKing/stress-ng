@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_VLA_ARG) &&	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 
 typedef float 	stress_matrix_3d_type_t;
 

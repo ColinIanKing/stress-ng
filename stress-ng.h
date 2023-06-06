@@ -20,7 +20,9 @@
 #ifndef STRESS_NG_H
 #define STRESS_NG_H
 
-#if defined (__PCC__)
+#include "config.h"
+
+#if defined (HAVE_COMPILER_PCC)
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
@@ -34,8 +36,8 @@
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
-#if !defined(__PCC__) && 	\
-    !defined(__TINYC__) &&	\
+#if !defined(HAVE_COMPILER_PCC) && 	\
+    !defined(HAVE_COMPILER_TCC) &&	\
     !defined(_FORTIFY_SOURCE)
 #define _FORTIFY_SOURCE 	(2)
 #endif
@@ -75,8 +77,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
-#include "config.h"
 
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
@@ -130,7 +130,7 @@
 
 #if defined(HAVE_SYS_SYSINFO_H)
 #include <sys/sysinfo.h>
-#if defined(__GNUC__) &&	\
+#if defined(HAVE_COMPILER_GCC) &&	\
     !defined(__GLIBC__)
 /* Suppress kernel sysinfo to avoid collision with musl */
 #define _LINUX_SYSINFO_H
@@ -148,7 +148,7 @@
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
-    defined(__GNUC__)
+    defined(HAVE_COMPILER_GCC)
 #define UNEXPECTED_PRAGMA(x) _Pragma (#x)
 #define UNEXPECTED_XSTR(x) UNEXPECTED_STR(x)
 #define UNEXPECTED_STR(x) # x
@@ -521,7 +521,7 @@ typedef struct stressor_info {
 
 
 /* gcc 4.7 and later support vector ops */
-#if defined(__GNUC__) &&	\
+#if defined(HAVE_COMPILER_GCC) &&	\
     NEED_GNUC(4, 7, 0)
 #define STRESS_VECTOR	(1)
 #endif
@@ -534,8 +534,8 @@ typedef struct stressor_info {
 #endif
 
 #if defined(HAVE_ATTRIBUTE_FAST_MATH) &&		\
-    !defined(__INTEL_COMPILER) &&			\
-    defined(__GNUC__) &&				\
+    !defined(HAVE_COMPILER_ICC) &&			\
+    defined(HAVE_COMPILER_GCC) &&			\
     NEED_GNUC(10, 0, 0)
 #define OPTIMIZE_FAST_MATH __attribute__((optimize("fast-math")))
 #else
@@ -543,16 +543,16 @@ typedef struct stressor_info {
 #endif
 
 /* no return hint */
-#if (defined(__GNUC__) && NEED_GNUC(2, 5, 0)) || 	\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0))
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(2, 5, 0)) || 	\
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define NORETURN 	__attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
 /* weak attribute */
-#if (defined(__GNUC__) && NEED_GNUC(4, 0, 0)) || 	\
-    (defined(__clang__) && NEED_CLANG(3, 4, 0))
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 0, 0)) || 	\
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0))
 #define WEAK		__attribute__ ((weak))
 #define HAVE_WEAK_ATTRIBUTE
 #else
@@ -563,26 +563,26 @@ typedef struct stressor_info {
 #undef ALWAYS_INLINE
 #endif
 /* force inlining hint */
-#if (defined(__GNUC__) && NEED_GNUC(3, 4, 0) 					\
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0) 				\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0))
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define ALWAYS_INLINE	__attribute__ ((always_inline))
 #else
 #define ALWAYS_INLINE
 #endif
 
 /* force no inlining hint */
-#if (defined(__GNUC__) && NEED_GNUC(3, 4, 0)) ||	\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0))
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0)) ||	\
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define NOINLINE	__attribute__ ((noinline))
 #else
 #define NOINLINE
 #endif
 
 /* -O3 attribute support */
-#if defined(__GNUC__) &&	\
-    !defined(__clang__) &&	\
-    !defined(__ICC) &&		\
+#if defined(HAVE_COMPILER_GCC) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&	\
+    !defined(HAVE_COMPILER_ICC) &&	\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
@@ -590,9 +590,9 @@ typedef struct stressor_info {
 #endif
 
 /* -O2 attribute support */
-#if defined(__GNUC__) &&	\
-    !defined(__clang__) &&	\
-    !defined(__ICC) &&		\
+#if defined(HAVE_COMPILER_GCC) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&	\
+    !defined(HAVE_COMPILER_ICC) &&	\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE2 	__attribute__((optimize("-O2")))
 #else
@@ -600,9 +600,9 @@ typedef struct stressor_info {
 #endif
 
 /* -O1 attribute support */
-#if defined(__GNUC__) &&	\
-    !defined(__clang__) &&	\
-    !defined(__ICC) &&		\
+#if defined(HAVE_COMPILER_GCC) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&	\
+    !defined(HAVE_COMPILER_ICC) &&	\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE1 	__attribute__((optimize("-O1")))
 #else
@@ -610,28 +610,28 @@ typedef struct stressor_info {
 #endif
 
 /* -O0 attribute support */
-#if defined(__GNUC__) &&	\
-    !defined(__ICC) &&		\
+#if defined(HAVE_COMPILER_GCC) &&	\
+    !defined(HAVE_COMPILER_ICC) &&	\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE0 	__attribute__((optimize("-O0")))
-#elif (defined(__clang__) && NEED_CLANG(10, 0, 0))
+#elif (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(10, 0, 0))
 #define OPTIMIZE0	__attribute__((optnone))
 #else
 #define OPTIMIZE0
 #endif
 
 /* warn unused attribute */
-#if (defined(__GNUC__) && NEED_GNUC(4, 2, 0)) ||	\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0))
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 2, 0)) ||	\
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define WARN_UNUSED	__attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED
 #endif
 
-#if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 0, 0)) ||	\
-     (defined(__ICC) && NEED_ICC(2021, 0, 0))) &&	\
-    !defined(__PCC__) &&				\
+#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 3, 0)) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)) ||	\
+     (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021, 0, 0))) &&	\
+    !defined(HAVE_COMPILER_PCC) &&				\
     !defined(__minix__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
@@ -645,8 +645,8 @@ typedef struct stressor_info {
 #define ALIGN64		ALIGNED(64)
 
 
-#if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0))
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #if (defined(__APPLE__) && defined(__MACH__))
 #define SECTION(s)	__attribute__((__section__(# s "," # s)))
 #else
@@ -659,18 +659,18 @@ typedef struct stressor_info {
 #define ALIGN_CACHELINE ALIGN64
 
 /* GCC hot attribute */
-#if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
-    (defined(__clang__) && NEED_CLANG(3, 3, 0))
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
+    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 3, 0))
 #define HOT		__attribute__ ((hot))
 #else
 #define HOT
 #endif
 
 /* GCC mlocked data and data section attribute */
-#if ((defined(__GNUC__) && NEED_GNUC(4, 6, 0) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 0, 0)))) &&	\
-    !defined(__sun__) &&				\
-    !defined(__APPLE__) &&				\
+#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))) &&	\
+    !defined(__sun__) &&					\
+    !defined(__APPLE__) &&					\
     !defined(BUILD_STATIC)
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
 #define MLOCKED_SECTION	(1)
@@ -679,8 +679,8 @@ typedef struct stressor_info {
 #endif
 
 /* print format attribute */
-#if ((defined(__GNUC__) && NEED_GNUC(3, 2, 0)) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 0, 0)))
+#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 2, 0)) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
 #define FORMAT(func, a, b) __attribute__((format(func, a, b)))
 #else
 #define FORMAT(func, a, b)
@@ -791,7 +791,7 @@ extern void pr_lock_exited(const pid_t pid);
 #define PAGE_MAPPED		(0x01)
 #define PAGE_MAPPED_FAIL	(0x02)
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(HAVE_COMPILER_GCC) || defined(HAVE_COMPILER_CLANG)
 #define TYPEOF_CAST(a)	(typeof(a))
 #else
 #define	TYPEOF_CAST(a)
@@ -3149,7 +3149,7 @@ extern int shim_futex_waitv(struct shim_futex_waitv *waiters, unsigned int nr_fu
 
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
-    (defined(__GNUC__) && defined(__clang__))
+    (defined(HAVE_COMPILER_GCC) && defined(HAVE_COMPILER_CLANG))
 int unlink(const char *pathname) __attribute__ ((deprecated("use shim_unlink")));
 int unlinkat(int dirfd, const char *pathname, int flags) __attribute__ ((deprecated("use shim_unlinkat")));
 int rmdir(const char *pathname) __attribute__ ((deprecated("use shim_rmdir")));

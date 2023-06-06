@@ -52,7 +52,7 @@ static inline void stress_fp_clear_error(void)
 	feclearexcept(FE_ALL_EXCEPT);
 }
 
-#if defined(__PCC__)
+#if defined(HAVE_COMPILER_PCC)
 #define shim_isinf(x)	(!isnan(x) && isnan(x - x))
 #else
 #define shim_isinf(x)	isinf(x)
@@ -87,7 +87,7 @@ static void stress_fp_check(
 {
 #if defined(__linux__) &&		\
     !defined(STRESS_ARCH_M68K) &&	\
-    !defined(__ICC) &&			\
+    !defined(HAVE_COMPILER_ICC) &&	\
     !defined(STRESS_ARCH_ARC64) &&	\
     NEED_GNUC(4,8,0)
 	if (stress_double_same(val, val_expected, is_nan, is_inf) &&

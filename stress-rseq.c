@@ -35,9 +35,10 @@ static const stress_help_t help[] = {
     defined(HAVE_ASM_NOP) &&		\
     defined(__NR_rseq) &&		\
     defined(HAVE_SYSCALL) &&		\
-    defined(__GNUC__) &&		\
-    !defined(__clang__) &&		\
-    !defined(__ICC)
+    defined(HAVE_COMPILER_GCC) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&	\
+    !defined(HAVE_COMPILER_ICC) &&	\
+    !defined(HAVE_COMPILER_ICX)
 
 #define STRESS_ACCESS_ONCE(x)     (*(__volatile__  __typeof__(x) *)&(x))
 

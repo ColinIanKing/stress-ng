@@ -186,7 +186,7 @@ static inline uint64_t stress_asm_x86_rdseed(void)
 #endif
 
 #if defined(HAVE_ASM_X86_TPAUSE) && 	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 static inline int stress_asm_x86_tpause__(int state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
@@ -289,7 +289,7 @@ static inline void stress_asm_x86_prefetchnta(void *p)
 }
 #endif
 
-#if !defined(__PCC__) && 	\
+#if !defined(HAVE_COMPILER_PCC) && 	\
     defined(HAVE_ARCH_X86_64)
 static inline int stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
 {

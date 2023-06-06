@@ -303,7 +303,7 @@
 #define shim_rol8n(x, bits)	 __builtin_rotateleft8(x, bits)
 #elif defined(HAVE_INTRINSIC_ROLB) &&	\
       defined(HAVE_X86INTRIN_H)  &&	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_rol8n(x, bits)	__rolb(x, bits)
 #else
 static inline uint8_t shim_rol8n(const uint8_t x, const unsigned int bits)
@@ -316,7 +316,7 @@ static inline uint8_t shim_rol8n(const uint8_t x, const unsigned int bits)
 #define shim_rol16n(x, bits)	__builtin_rotateleft16(x, bits)
 #elif defined(HAVE_INTRINSIC_ROLW) &&	\
       defined(HAVE_X86INTRIN_H) && 	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_rol16n(x, bits)	__rolw(x, bits)
 #else
 static inline uint16_t shim_rol16n(const uint16_t x, const unsigned int bits)
@@ -329,7 +329,7 @@ static inline uint16_t shim_rol16n(const uint16_t x, const unsigned int bits)
 #define shim_rol32n(x, bits)	__builtin_rotateleft32(x, bits)
 #elif defined(HAVE_INTRINSIC_ROLD) &&	\
       defined(HAVE_X86INTRIN_H) && 	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_rol32n(x, bits)	__rold(x, bits)
 #else
 static inline uint32_t shim_rol32n(const uint32_t x, const unsigned int bits)
@@ -342,7 +342,7 @@ static inline uint32_t shim_rol32n(const uint32_t x, const unsigned int bits)
 #define shim_rol64n(x, bits)	__builtin_rotateleft64(x, bits)
 #elif defined(HAVE_INTRINSIC_ROLQ) &&	\
       defined(HAVE_X86INTRIN_H) && 	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_rol64n(x, bits)	__rolq(x, bits)
 #else
 static inline uint64_t shim_rol64n(const uint64_t x, const unsigned int bits)
@@ -362,7 +362,7 @@ static inline __uint128_t shim_rol128n(const __uint128_t x, const unsigned int b
 #define shim_ror8n(x, bits)	__builtin_rotateright8(x, bits)
 #elif defined(HAVE_INTRINSIC_RORB) &&	\
       defined(HAVE_X86INTRIN_H) &&	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_ror8n(x, bits)	__rorb(x, bits)
 #else
 static inline uint8_t shim_ror8n(const uint8_t x, const unsigned int bits)
@@ -375,7 +375,7 @@ static inline uint8_t shim_ror8n(const uint8_t x, const unsigned int bits)
 #define shim_ror16n(x, bits)	__builtin_rotateright16(x, bits)
 #elif defined(HAVE_INTRINSIC_RORW) &&	\
       defined(HAVE_X86INTRIN_H) &&	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_ror16n(x, bits)	__rorw(x, bits)
 #else
 static inline uint16_t shim_ror16n(const uint16_t x, const unsigned int bits)
@@ -388,7 +388,7 @@ static inline uint16_t shim_ror16n(const uint16_t x, const unsigned int bits)
 #define shim_ror32n(x, bits)	__builtin_rotateright32(x, bits)
 #elif defined(HAVE_INTRINSIC_RORD) &&	\
       defined(HAVE_X86INTRIN_H) &&	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_ror32n(x, bits)	__rord(x, bits)
 #else
 static inline uint32_t shim_ror32n(const uint32_t x, const unsigned int bits)
@@ -401,7 +401,7 @@ static inline uint32_t shim_ror32n(const uint32_t x, const unsigned int bits)
 #define shim_ror64n(x, bits)	__builtin_rotateright64(x, bits)
 #elif defined(HAVE_INTRINSIC_RORQ) &&	\
       defined(HAVE_X86INTRIN_H) &&	\
-      !defined(__ICC)
+      !defined(HAVE_COMPILER_ICC)
 #define shim_ror64n(x, bits)	__rorq(x, bits)
 #else
 static inline uint64_t shim_ror64n(const uint64_t x, const unsigned int bits)

@@ -37,9 +37,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL },
 };
 
-#if (((defined(__GNUC__) || defined(__clang__)) && 	\
+#if (((defined(HAVE_COMPILER_GCC) || defined(HAVE_COMPILER_CLANG)) && 	\
        defined(STRESS_ARCH_X86)) ||			\
-     (defined(__GNUC__) && 				\
+     (defined(HAVE_COMPILER_GCC) && 			\
       (defined(HAVE_ATOMIC_ADD_FETCH) ||		\
        defined(HAVE_ATOMIC_FETCH_ADD)) &&		\
       defined(__ATOMIC_SEQ_CST) &&			\

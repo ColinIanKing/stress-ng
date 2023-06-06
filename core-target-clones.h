@@ -21,7 +21,7 @@
 
 #include "core-arch.h"
 
-#if defined(__ICC)
+#if defined(HAVE_COMPILER_ICC)
 #undef HAVE_TARGET_CLONES
 #endif
 

@@ -64,7 +64,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define MAX_LABELS	(0x400)
 
 #if defined(HAVE_LABEL_AS_VALUE) &&	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 
 #define G(n) L ## n:			\
 {					\
@@ -78,8 +78,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  so workaround this by defaulting it to -O0 until
  *  this is resolved
  */
-#if defined(__INTEL_CLANG_COMPILER) ||	\
-    defined(__INTEL_LLVM_COMPILER)
+#if defined(HAVE_COMPILER_ICX)
 #define OPTIMIZE_GOTO	OPTIMIZE0
 #else
 #define OPTIMIZE_GOTO	OPTIMIZE3

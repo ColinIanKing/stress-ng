@@ -813,13 +813,13 @@ stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble)
 /*
  *  The PCC compiler complains at ALWAYS_INLINE, so disable it
  */
-#if defined(__PCC__)
+#if defined(HAVE_COMPILER_PCC)
 #undef ALWAYS_INLINE
 #define ALWAYS_INLINE
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE _Decimal32_put(const _Decimal32 a)
 {
 	g_put_val.double_val = (double)a;
@@ -847,7 +847,7 @@ stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE _Decimal64_put(const _Decimal64 a)
 {
 	g_put_val.double_val = (double)a;
@@ -875,7 +875,7 @@ stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE _Decimal128_put(const _Decimal128 a)
 {
 	g_put_val.double_val = (double)a;
@@ -903,7 +903,7 @@ stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT16) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE __fp16_put(const __fp16 a)
 {
 	g_put_val.float_val = (float)a;
@@ -931,7 +931,7 @@ stress_funccall_type(__fp16, (__fp16)stress_mwc32)
 #endif
 
 #if defined(HAVE_FLOAT32) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE _Float32_put(const _Float32 a)
 {
 	g_put_val.float_val = (float)a;
@@ -959,7 +959,7 @@ stress_funccall_type(_Float32, (_Float32)stress_mwc32)
 #endif
 
 #if defined(HAVE_FLOAT64) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE _Float64_put(const _Float64 a)
 {
 	g_put_val.double_val = (double)a;
@@ -988,7 +988,7 @@ stress_funccall_type(_Float64, (_Float64)stress_mwc64)
 
 
 #if defined(HAVE_FLOAT80) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE __float80_put(const __float80 a)
 {
 	g_put_val.double_val = (double)a;
@@ -1016,7 +1016,7 @@ stress_funccall_type(__float80, (__float80)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT128) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 static inline void ALWAYS_INLINE __float128_put(const __float128 a)
 {
 	g_put_val.double_val = (double)a;
@@ -1060,23 +1060,23 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
 #endif
 	{ "float",	stress_funccall_float },
 #if defined(HAVE_FLOAT16) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "float16",	stress_funccall___fp16 },
 #endif
 #if defined(HAVE_FLOAT32) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "float32",	stress_funccall__Float32 },
 #endif
 #if defined(HAVE_FLOAT64) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "float64",	stress_funccall__Float64 },
 #endif
 #if defined(HAVE_FLOAT80) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "float80",	stress_funccall___float80 },
 #endif
 #if defined(HAVE_FLOAT128) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "float128",	stress_funccall___float128 },
 #endif
 	{ "double",	stress_funccall_double },
@@ -1090,15 +1090,15 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
 	{ "clongdouble",stress_funccall_stress_complex_long_double_t },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "decimal32",	stress_funccall__Decimal32 },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
-     !defined(__clang__)
+     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal64",	stress_funccall__Decimal64 },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
-    !defined(__clang__)
+    !defined(HAVE_COMPILER_CLANG)
 	{ "decimal128",	stress_funccall__Decimal128 },
 #endif
 };

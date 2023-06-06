@@ -27,7 +27,7 @@
  *  to spend forever optimizing this and causes the build
  *  to never complete)
  */
-#if defined(__clang__) && \
+#if defined(HAVE_COMPILER_CLANG) && \
     defined(__clang_major__) && \
     __clang_major__ < 5
 #undef HAVE_VECMATH
@@ -39,7 +39,7 @@
  *  so disable this test for now
  */
 #if defined(STRESS_ARCH_PPC64) && \
-    defined(__GNUC__) && \
+    defined(HAVE_COMPILER_GCC) && \
     __GNUC__ < 6
 #undef HAVE_VECMATH
 #endif

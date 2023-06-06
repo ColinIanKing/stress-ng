@@ -110,7 +110,7 @@ STRESS_PRAGMA_POP
 #define STRESS_NSIG	_NSIG
 #endif
 
-#if defined(__TINYC__) || defined(__PCC__)
+#if defined(HAVE_COMPILER_TCC) || defined(HAVE_COMPILER_PCC)
 int __dso_handle;
 #endif
 
@@ -2391,12 +2391,12 @@ unsigned int stress_get_cpu(void)
  */
 const char *stress_get_compiler(void)
 {
-#if   defined(__ICC) && 		\
+#if   defined(HAVE_COMPILER_ICC) &&	\
       defined(__INTEL_COMPILER) &&	\
       defined(__INTEL_COMPILER_UPDATE) && \
       defined(__INTEL_COMPILER_BUILD_DATE)
 	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) " Build " XSTRINGIFY(__INTEL_COMPILER_BUILD_DATE) "";
-#elif defined(__ICC) && 		\
+#elif defined(HAVE_COMPILER_ICC) && 		\
       defined(__INTEL_COMPILER) &&	\
       defined(__INTEL_COMPILER_UPDATE)
 	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) "";
@@ -2803,7 +2803,7 @@ size_t stress_text_addr(char **start, char **end)
 #elif defined(__OpenBSD__)
 	extern char _start[];
 	intptr_t text_start = (intptr_t)&_start[0];
-#elif defined(__TINYC__)
+#elif defined(HAVE_COMPILER_TCC)
 	extern char _start;
 	intptr_t text_start = (intptr_t)&_start;
 #else
@@ -2814,7 +2814,7 @@ size_t stress_text_addr(char **start, char **end)
 #if defined(__APPLE__)
 	extern void *get_etext(void);
 	intptr_t text_end = (intptr_t)get_etext();
-#elif defined(__TINYC__)
+#elif defined(HAVE_COMPILER_TCC)
 	extern char _etext;
 	intptr_t text_end = (intptr_t)&_etext;
 #else
@@ -3369,8 +3369,8 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
  *  __stack_chk_fail()
  *	override stack smashing callback
  */
-#if defined(__GNUC__) &&	\
-    !defined(__clang__) &&	\
+#if defined(HAVE_COMPILER_GCC) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&	\
     defined(HAVE_WEAK_ATTRIBUTE)
 extern void __stack_chk_fail(void);
 

@@ -96,7 +96,7 @@ STRESS_NOP_SPIN_OP(x86_pause, stress_asm_x86_pause)
 #endif
 
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 static inline void stress_op_x86_tpause(void)
 {
 	uint64_t tsc;
@@ -251,7 +251,7 @@ static stress_nop_instr_t nop_instr[] = {
 	{ "serialize",	stress_nop_spin_x86_serialize,	stress_cpu_x86_has_serialize,	false,	false },
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 	{ "tpause",	stress_nop_spin_x86_tpause,	stress_cpu_x86_has_waitpkg,	false,	false },
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)

@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
      defined(STRESS_ARCH_PPC64)) &&	\
-     defined(__GNUC__) && 		\
+     defined(HAVE_COMPILER_GCC) && 	\
      NEED_GNUC(4,6,0) &&		\
      defined(HAVE_MPROTECT)
 

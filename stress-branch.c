@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LABEL_AS_VALUE) &&		\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 
 #define RESEED_JMP(n)					\
 {							\

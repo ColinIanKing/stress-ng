@@ -51,8 +51,8 @@ static size_t malloc_bytes;		/* Maximum per-allocation size */
 static volatile bool keep_thread_running_flag;	/* False to stop pthreads */
 #endif
 static size_t malloc_pthreads;		/* Number of pthreads */
-#if defined(__GNUC__) &&	\
-    defined(HAVE_MALLOPT) &&	\
+#if defined(HAVE_COMPILER_GCC) &&	\
+    defined(HAVE_MALLOPT) &&		\
     defined(M_MMAP_THRESHOLD)
 static size_t malloc_threshold;		/* When to use mmap and not sbrk */
 #endif
@@ -436,8 +436,8 @@ static int stress_malloc(const stress_args_t *args)
 			malloc_max = MIN_MALLOC_MAX;
 	}
 
-#if defined(__GNUC__) && 	\
-    defined(HAVE_MALLOPT) &&	\
+#if defined(HAVE_COMPILER_GCC) && 	\
+    defined(HAVE_MALLOPT) &&		\
     defined(M_MMAP_THRESHOLD)
 	malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 	if (stress_get_setting("malloc-threshold", &malloc_threshold))

@@ -33,11 +33,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if (defined(__GNUC__) && NEED_GNUC(8, 0, 0)) &&	\
-    !defined(__clang__)	&&	\
-    !defined(__ICC) && 		\
-    !defined(__PCC__) &&	\
-    !defined(__TINYC__)
+#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(8, 0, 0)) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&				\
+    !defined(HAVE_COMPILER_ICC) &&				\
+    !defined(HAVE_COMPILER_PCC) &&				\
+    !defined(HAVE_COMPILER_TCC)
 
 static volatile uint32_t stash32;
 static volatile uint64_t stash64;

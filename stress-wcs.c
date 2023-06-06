@@ -185,9 +185,9 @@ static size_t stress_wcsncasecmp(const stress_args_t *args, stress_wcs_args_t *i
 }
 #endif
 
-#if defined(HAVE_WCSLCPY) &&	\
-    defined(HAVE_WCSLEN) &&	\
-    !defined(__PCC__) &&	\
+#if defined(HAVE_WCSLCPY) &&		\
+    defined(HAVE_WCSLEN) &&		\
+    !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 /*
  *  stress_wcslcpy()
@@ -239,9 +239,9 @@ static size_t stress_wcscpy(const stress_args_t *args, stress_wcs_args_t *info)
 }
 #endif
 
-#if defined(HAVE_WCSLCAT) &&	\
-    defined(HAVE_WCSLEN) &&	\
-    !defined(__PCC__) &&	\
+#if defined(HAVE_WCSLCAT) &&		\
+    defined(HAVE_WCSLEN) &&		\
+    !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 /*
  *  stress_wcslcat()
@@ -576,9 +576,9 @@ static const stress_wcs_method_info_t wcs_methods[] = {
 #if defined(HAVE_WCSCASECMP)
 	{ "wcscasecmp",		stress_wcscasecmp,	(void *)wcscasecmp },
 #endif
-#if defined(HAVE_WCSLCAT) &&	\
-    defined(HAVE_WCSLEN) &&	\
-    !defined(__PCC__) &&	\
+#if defined(HAVE_WCSLCAT) &&		\
+    defined(HAVE_WCSLEN) &&		\
+    !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 	{ "wcslcat",		stress_wcslcat,		(void *)wcslcat },
 #elif defined(HAVE_WCSCAT)
@@ -591,9 +591,9 @@ static const stress_wcs_method_info_t wcs_methods[] = {
     !defined(STRESS_ARCH_M68K)
 	{ "wcscmp",		stress_wcscmp,		(void *)wcscmp },
 #endif
-#if defined(HAVE_WCSLCPY) &&	\
-    defined(HAVE_WCSLEN) &&	\
-    !defined(__PCC__) &&	\
+#if defined(HAVE_WCSLCPY) &&		\
+    defined(HAVE_WCSLEN) &&		\
+    !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 	{ "wcslcpy",		stress_wcslcpy,		(void *)wcslcpy },
 #elif defined(HAVE_WCSCPY)

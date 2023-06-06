@@ -97,7 +97,7 @@ static void stress_waitcpu_x86_pause(void)
 #endif
 
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 static bool stress_waitcpu_x86_tpause_supported(void)
 {
 	if (!stress_cpu_is_x86())
@@ -128,7 +128,7 @@ static void stress_waitcpu_x86_tpause1(void)
 }
 #endif
 
-#if !defined(__PCC__) &&	\
+#if !defined(HAVE_COMPILER_PCC) &&	\
     defined(HAVE_ARCH_X86_64)
 static bool stress_waitcpu_x86_umwait_supported(void)
 {
@@ -193,11 +193,11 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "pause",	stress_waitcpu_x86_pause,	stress_waitcpu_x86_pause_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
-    !defined(__PCC__)
+    !defined(HAVE_COMPILER_PCC)
 	{ "tpause0",	stress_waitcpu_x86_tpause0,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0, 0.0 },
 	{ "tpause1",	stress_waitcpu_x86_tpause1,	stress_waitcpu_x86_tpause_supported,	false, 0.0, 0.0, 0.0 },
 #endif
-#if !defined(__PCC__) &&	\
+#if !defined(HAVE_COMPILER_PCC) &&	\
     defined(HAVE_ARCH_X86_64)
 	{ "umwait0",	stress_waitcpu_x86_umwait0,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0, 0.0 },
 	{ "umwait0",	stress_waitcpu_x86_umwait1,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0, 0.0 },
