@@ -57,7 +57,6 @@ static uint64_t stress_mlock_pages(const size_t page_size)
 	}
 	(void)fclose(fp);
 	return mlocked / kb_per_page;
-	return 0;
 }
 #endif
 
