@@ -255,10 +255,10 @@ static int stress_waitcpu(const stress_args_t *args)
 
 			if (stress_waitcpu_method[i].supported) {
 				double t;
-				register int j;
+				register int l;
 
 				t = stress_time_now();
-				for (j = 0; j < loops; j++) {
+				for (l = 0; l < loops; l++) {
 					stress_waitcpu_method[i].waitfunc();
 				}
 				stress_waitcpu_method[i].duration += stress_time_now() - t;
