@@ -30,12 +30,6 @@ static const stress_help_t help[] = {
 
 #define MLOCK_MAX	(256*1024)
 
-#if defined(HAVE_MLOCK2)
-
-#ifndef MLOCK_ONFAULT
-#define MLOCK_ONFAULT 1
-#endif
-
 #if defined(__linux__)
 static uint64_t stress_mlock_pages(const size_t page_size)
 {
@@ -58,6 +52,12 @@ static uint64_t stress_mlock_pages(const size_t page_size)
 	(void)fclose(fp);
 	return mlocked / kb_per_page;
 }
+#endif
+
+#if defined(HAVE_MLOCK2)
+
+#ifndef MLOCK_ONFAULT
+#define MLOCK_ONFAULT 1
 #endif
 
 /*
