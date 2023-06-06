@@ -128,15 +128,6 @@ static void pr_spin_lock_pid(pid_t pid)
 }
 
 /*
- *  pr_spin_lock()
- *	simple spin lock
- */
-static inline void pr_spin_lock(void)
-{
-	pr_spin_lock_pid((pid_t)-1);
-}
-
-/*
  *  pr_spin_unlock()
  *	spin unlock
  */
