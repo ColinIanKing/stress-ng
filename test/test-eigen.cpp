@@ -17,10 +17,7 @@
  *
  */
 
-#if defined(__x86_64__) || defined(__x86_64) || \
-    defined(__amd64__) || defined(__amd64)
 #define EIGEN_SUPPORTED
-#endif
 
 #if !defined(__GNUC__)
 #error "only g++ supported"
