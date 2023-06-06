@@ -217,6 +217,8 @@ static int stress_virt_to_phys(
     defined(HAVE_MTRR_SENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
 		stress_physpage_mtrr(args, phys_addr, page_size, success);
+#else
+		(void)success;
 #endif
 		return 0;
 	} else {
