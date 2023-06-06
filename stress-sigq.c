@@ -220,7 +220,7 @@ stressor_info_t stress_sigq_info = {
 stressor_info_t stress_sigq_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	verify = VERIFY_ALWAYS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sigqueue() or sigwaitinfo() or defined SA_SIGINFO"
 };
