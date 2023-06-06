@@ -76,12 +76,15 @@ build: (note libattr is not required for more recent disto releases).
 
 Debian, Ubuntu:
 
+  * gcc
+  * g++
   * libaio-dev
   * libapparmor-dev
   * libatomic1
   * libattr1-dev
   * libbsd-dev
   * libcap-dev
+  * libeigen3-dev
   * libgbm-dev
   * libgcrypt-dev
   * libglvnd-dev
@@ -98,6 +101,9 @@ Debian, Ubuntu:
 
 RHEL, Fedora, Centos:
 
+  * gcc
+  * g++
+  * eigen3-devel
   * Judy-devel
   * keyutils-libs-devel
   * kmod-devel
@@ -123,6 +129,9 @@ RHEL, Fedora, Centos:
 
 RHEL, Fedora, Centos (static builds):
 
+  * gcc
+  * g++
+  * eigen3-devel
   * glibc-static
   * Judy-devel
   * keyutils-libs-devel
@@ -147,6 +156,9 @@ RHEL, Fedora, Centos (static builds):
   * zlib-devel
 
 SUSE:
+  * gcc
+  * gcc-c++
+  * eigen3-devel
   * keyutils-devel
   * libaio-devel
   * libapparmor-devel
@@ -166,6 +178,7 @@ SUSE:
   * zlib-devel
 
 ClearLinux:
+  * devpkg-eigen
   * devpkg-Judy
   * devpkg-kmod
   * devpkg-libattr
@@ -177,8 +190,9 @@ ClearLinux:
 
 Alpine Linux:
   * build-base
+  * eigen-dev
   * jpeg-dev
-  * judy-dev (presently in testing, see [#13779](https://gitlab.alpinelinux.org/alpine/aports/-/issues/13779))
+  * judy-dev
   * keyutils-dev
   * kmod-dev
   * libaio-dev
