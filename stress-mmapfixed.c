@@ -198,7 +198,7 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 						MREMAP_FIXED | MREMAP_MAYMOVE,
 						(void *)rndaddr);
 				if (newbuf && (newbuf != MAP_FAILED)) {
-					uint64_t *buf64 = (uint64_t *)newbuf;
+					buf64 = (uint64_t *)newbuf;
 
 					if (*buf64 != val64) {
 						pr_fail("%s: remap from %p to %p contains 0x%" PRIx64
