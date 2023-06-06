@@ -227,6 +227,7 @@ STRESS_SRC = \
 	stress-dnotify.c \
 	stress-dup.c \
 	stress-dynlib.c \
+	stress-eigen.c \
 	stress-efivar.c \
 	stress-enosys.c \
 	stress-env.c \
@@ -537,13 +538,14 @@ CORE_SRC = \
 
 SRC = $(CORE_SRC) $(STRESS_SRC)
 OBJS = apparmor-data.o
+OBJS += stress-eigen-ops.o
 OBJS += $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
 
 all: config.h stress-ng
 
-.SUFFIXES: .c .o
+.SUFFIXES: .cpp .c .o
 
 .o: Makefile
 
@@ -551,10 +553,23 @@ all: config.h stress-ng
 	$(PRE_Q)echo "CC $<"
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
+#
+#  Use CC for linking if eigen is not being used, otherwise use CXX
+#
 stress-ng: config.h $(OBJS)
 	$(PRE_Q)echo "LD $@"
+	$(eval LINK_TOOL := $(shell if [ -n "$(shell grep '^#define HAVE_EIGEN' config.h)" ]; then echo $(CXX); else echo $(CC); fi))
 	$(eval LDFLAGS_EXTRA := $(shell cat config | grep CONFIG_LDFLAGS | sed 's/CONFIG_LDFLAGS += //' | tr '\n' ' '))
-	$(PRE_V)$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) -o $@
+	$(PRE_V)$(LINK_TOOL) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) -o $@
+
+stress-eigen-ops.o: config.h
+	@if grep -q '^#define HAVE_EIGEN' config.h; then \
+		echo "CXX stress-eigen-ops.cpp";	\
+		$(CXX) -c -o stress-eigen-ops.o stress-eigen-ops.cpp; \
+	else \
+		echo "CC stress-eigen-ops.c";	\
+		$(CC) -c -o stress-eigen-ops.o stress-eigen-ops.c; \
+	fi
 
 config.h config:
 	$(PRE_Q)echo "Generating config.."

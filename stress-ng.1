@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "30 May 2023"
+.TH STRESS-NG 1 "6 June 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1628,8 +1628,39 @@ dlopen(3) for more details of this mechanism.
 .B \-\-dynlib\-ops N
 stop workers after N bogo load/unload cycles.
 .TP
+.B \-\-eigen N
+start N workers that exercise the Eigen C++ matrix library for 2D
+matrix multiplication, matrix inverse and matrix determinant computations
+ on long double, double and float matrices. This currently is only available
+for gcc/g++ builds on x86-64.
+.TP
+.B \-\-eigen\-ops N
+stop after N Eigen matrix computations
+.TP
+.B \-\-eigen\-size N
+specify the 2D matrix size N \(mu N. The default is a 32 \(mu 32 matrix.
+.TP
+.B \-\-eigen\-method M
+select the floating point method to use, available methods are:
+.TS
+expand;
+lB2 lB lB lB
+l l s s.
+Method	Description
+all	iterate over all the Eigen 2D matrix operations
+multiply-longdouble	mutiplication of matrix of long double floating point values
+multiply-doublee	mutiplication of matrix of double floating point values
+multiply-float	mutiplication of matrix of floating point values
+inverse-longdouble	inverse of matrix of long double floating point values
+inverse-double	inverse of matrix of double floating point values
+inverse-float	inverse of floating point values
+determinant-longdouble	determinant of matrix of long double floating point values
+determinant-double	determinant of matrix of double floating point values
+determinant-float	determinant of matrix of floating point values
+.TE
+.TP
 .B \-\-efivar N
-start N works that exercise the Linux /sys/firmware/efi/efivars and
+start N workers that exercise the Linux /sys/firmware/efi/efivars and
 /sys/firmware/efi/vars interfaces by reading the EFI variables. This
 is a Linux only stress test for platforms that support the EFI vars
 interface and may require the CAP_SYS_ADMIN capability.

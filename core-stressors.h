@@ -70,6 +70,7 @@
 	MACRO(dnotify)		\
 	MACRO(dup)		\
 	MACRO(dynlib)		\
+	MACRO(eigen)		\
 	MACRO(efivar)		\
 	MACRO(enosys)		\
 	MACRO(env)		\

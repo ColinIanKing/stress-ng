@@ -1226,6 +1226,11 @@ typedef enum {
 	OPT_dynlib,
 	OPT_dynlib_ops,
 
+	OPT_eigen,
+	OPT_eigen_ops,
+	OPT_eigen_method,
+	OPT_eigen_size,
+
 	OPT_efivar,
 	OPT_efivar_ops,
 
