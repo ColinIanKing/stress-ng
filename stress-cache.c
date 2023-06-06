@@ -747,8 +747,10 @@ static int stress_cache(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+#if !defined(STRESS_ARCH_X86)
 	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+#endif
 	if (stress_sighandler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
