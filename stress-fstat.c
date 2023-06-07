@@ -52,13 +52,22 @@ typedef struct stat_info {
 	bool		access;		/* false if we can't access path */
 } stress_stat_info_t;
 
-/* Thread context information */
+#if defined(HAVE_LIB_PTHREAD)
+typedef struct stress_fstat_pthread_info {
+	pthread_t pthread;	/* pthread info */
+	int create_ret;		/* return from pthread_create */
+	int pthread_ret;	/* return from pthread */
+	struct ctxt *ctxt;	/* pointer to generic thread context */
+} stress_fstat_pthread_info_t;
+#endif
+
+/* Generic thread context information */
 typedef struct ctxt {
-	const stress_args_t *args;	/* Stressor args */
+	const stress_args_t *args;	/* stressor args */
 	stress_stat_info_t *si;		/* path stat information */
-	const uid_t euid;		/* euid of process */
-	const int bad_fd;		/* bad/invalid fd */
-} stress_ctxt_t;
+	uid_t euid;			/* euid of process */
+	int bad_fd;			/* bad/invalid fd */
+} stress_fstat_context_t;
 
 static int stress_set_fstat_dir(const char *opt)
 {
@@ -92,7 +101,26 @@ static bool do_not_stat(const char *filename)
 	return false;
 }
 
-static void stress_fstat_helper(const stress_ctxt_t *ctxt)
+/*
+ *  stress_fstat_check_buf()
+ *	check if some of the stat buf fields have been filled in
+ */
+static int stress_fstat_check_buf(const struct stat *buf)
+{
+	if ((buf->st_dev == ~(dev_t)0) &&
+	    (buf->st_ino == ~(ino_t)0) &&
+	    (buf->st_mode == ~(mode_t)0) &&
+	    (buf->st_uid == ~(uid_t)0) &&
+	    (buf->st_gid == ~(gid_t)0) &&
+	    (buf->st_rdev == ~(dev_t)0) &&
+	    (buf->st_size == ~(off_t)0) &&
+	    (buf->st_size == ~(off_t)0)) {
+		return -1;
+	}
+	return 0;
+}
+
+static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 {
 	struct stat buf;
 #if defined(AT_EMPTY_PATH) &&	\
@@ -100,13 +128,31 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	shim_statx_t bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
+	const stress_args_t *args = ctxt->args;
+	int ret, rc = EXIT_SUCCESS;
 
-	if ((stat(si->path, &buf) < 0) && (errno != ENOMEM)) {
+	(void)memset(&buf, 0xff, sizeof(buf));
+	ret = stat(si->path, &buf);
+	if (ret == 0) {
+		if (stress_fstat_check_buf(&buf) < 0) {
+			pr_fail("%s: stat failed to fill in statbuf structure\n", args->name);
+			rc = -1;
+		}
+	} else if ((ret < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_STAT;
 	}
-	if ((lstat(si->path, &buf) < 0) && (errno != ENOMEM)) {
+
+	(void)memset(&buf, 0xff, sizeof(buf));
+	ret =  lstat(si->path, &buf);
+	if (ret == 0) {
+		if (stress_fstat_check_buf(&buf) < 0) {
+			pr_fail("%s: lstat failed to fill in statbuf structure\n", args->name);
+			rc = -1;
+		}
+	} else if ((ret < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_LSTAT;
 	}
+
 #if defined(AT_EMPTY_PATH) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
 	/* Heavy weight statx */
@@ -140,11 +186,11 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 		fd = open(si->path, O_RDONLY | O_NONBLOCK);
 		if (fd < 0) {
 			si->access = false;
-			return;
+		} else {
+			if ((fstat(fd, &buf) < 0) && (errno != ENOMEM))
+				si->ignore |= IGNORE_FSTAT;
+			(void)close(fd);
 		}
-		if ((fstat(fd, &buf) < 0) && (errno != ENOMEM))
-			si->ignore |= IGNORE_FSTAT;
-		(void)close(fd);
 	}
 
 	/* Exercise stat on an invalid path, ENOENT */
@@ -155,6 +201,8 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 
 	/* Exercise fstat on an invalid fd, EBADF */
 	VOID_RET(int, fstat(ctxt->bad_fd, &buf));
+
+	return rc;
 }
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -163,10 +211,13 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
  *	keep exercising a file until
  *	controlling thread triggers an exit
  */
-static void *stress_fstat_thread(void *ctxt_ptr)
+static void *stress_fstat_thread(void *ptr)
 {
 	static void *nowt = NULL;
-	const stress_ctxt_t *ctxt = (const stress_ctxt_t *)ctxt_ptr;
+	stress_fstat_pthread_info_t *pthread_info = (stress_fstat_pthread_info_t *)ptr;
+	const stress_fstat_context_t *ctxt = pthread_info->ctxt;
+
+	pthread_info->pthread_ret = 0;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -175,14 +226,16 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 #if !defined(__APPLE__)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 #endif
-
 	while (keep_running && keep_stressing_flag()) {
 		size_t i;
 
 		for (i = 0; i < FSTAT_LOOPS; i++) {
 			if (!keep_stressing_flag())
 				break;
-			stress_fstat_helper(ctxt);
+			if (stress_fstat_helper(ctxt) < 0) {
+				pthread_info->pthread_ret = -1;
+				break;
+			}
 		}
 		(void)shim_sched_yield();
 	}
@@ -195,43 +248,52 @@ static void *stress_fstat_thread(void *ctxt_ptr)
  *  stress_fstat_threads()
  *	create a bunch of threads to thrash a file
  */
-static void stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *si, const uid_t euid)
+static int stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *si, const uid_t euid)
 {
 	size_t i;
-#if defined(HAVE_LIB_PTHREAD)
-	pthread_t pthreads[MAX_FSTAT_THREADS];
-	int ret[MAX_FSTAT_THREADS];
-#endif
-	stress_ctxt_t ctxt = {
-		.args 	= args,
-		.si 	= si,
-		.euid	= euid,
-		.bad_fd = stress_get_bad_fd()
+	int rc = 0;
+
+	stress_fstat_context_t ctxt = {
+		.args = args,
+		.si = si,
+		.euid = euid,
+		.bad_fd = stress_get_bad_fd(),
 	};
+#if defined(HAVE_LIB_PTHREAD)
+	stress_fstat_pthread_info_t pthreads[MAX_FSTAT_THREADS];
+#endif
 
 	keep_running = true;
 #if defined(HAVE_LIB_PTHREAD)
-	(void)shim_memset(ret, 0, sizeof(ret));
 	(void)shim_memset(pthreads, 0, sizeof(pthreads));
 
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_fstat_thread, &ctxt);
+		pthreads[i].ctxt = &ctxt;
+		pthreads[i].create_ret =
+			pthread_create(&pthreads[i].pthread,
+					NULL, stress_fstat_thread, &pthreads[i]);
 	}
 #endif
 	for (i = 0; i < FSTAT_LOOPS; i++) {
 		if (!keep_stressing_flag())
 			break;
-		stress_fstat_helper(&ctxt);
+		if (stress_fstat_helper(&ctxt) < 0) {
+			rc = -1;
+			break;
+		}
 	}
 	keep_running = false;
 
 #if defined(HAVE_LIB_PTHREAD)
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
-		if (ret[i] == 0)
-			(void)pthread_join(pthreads[i], NULL);
+		if (pthreads[i].create_ret == 0) {
+			(void)pthread_join(pthreads[i].pthread, NULL);
+			if (pthreads[i].pthread_ret < 0)
+				rc = EXIT_FAILURE;
+		}
 	}
 #endif
+	return rc;
 }
 
 /*
@@ -302,7 +364,8 @@ static int stress_fstat(const stress_args_t *args)
 				break;
 			if (si->ignore == IGNORE_ALL)
 				continue;
-			stress_fstat_threads(args, si, euid);
+			if (stress_fstat_threads(args, si, euid) < 0)
+				break;
 
 			stat_some = true;
 			inc_counter(args);
@@ -334,5 +397,6 @@ stressor_info_t stress_fstat_info = {
 	.stressor = stress_fstat,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
