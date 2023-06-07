@@ -38,41 +38,73 @@ static const stress_help_t help[] = {
 
 #define MMAPSTACK_SIZE		(256 * KB)
 
+/*
+ *  stress_stack_check sanity check list
+ */
+typedef struct stress_stack_check {
+	struct stress_stack_check *prev;	/* Previous item on stack list */
+	struct stress_stack_check *self_addr;	/* Address of this struct to check */
+	uint32_t waste[2];			/* Waste data on stack */
+} stress_stack_check_t;
+
 static ucontext_t c_main, c_test;
 static uint8_t *stack_mmap;		/* mmap'd stack */
 static uintptr_t page_mask;
 static size_t page_size;
+static int status;			/* sanity check status */
 
 /*
  *  push values onto file backed mmap'd stack and
  *  force msync on the map'd region if page boundary
  *  has changed
  */
-static void stress_stackmmap_push_msync(void)
+static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 {
 	void *addr = (void *)(((uintptr_t)&addr) & page_mask);
 	static void *laddr;
-	uint32_t waste[2];
+	stress_stack_check_t check;
+	register stress_stack_check_t *ptr;
+	register int i;
+	static char name[] = "stackmmap";
+
+	check.prev = prev_check;
+	check.self_addr = &check;
 
 	/*
 	 * Ensure something is written to the stack that
 	 * won't get optimized away
 	 */
-	waste[0] = stress_mwc32();
-	stress_uint32_put(waste[0]);
-	waste[1] = stress_mwc32();
-	stress_uint32_put(waste[1]);
-	stress_uint64_put((uint64_t)(intptr_t)&waste);
+	check.waste[0] = stress_mwc32();
+	stress_uint32_put(check.waste[0]);
+	check.waste[1] = ~check.waste[0];
+	stress_uint32_put(check.waste[1]);
+	stress_uint64_put((uint64_t)(intptr_t)&check);
 
 	if (addr != laddr) {
-		(void)shim_msync(addr, page_size,
-			(stress_mwc8() & 1) ? MS_ASYNC : MS_SYNC);
+		(void)shim_msync(addr, page_size, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 		laddr = addr;
 	}
-	if (keep_stressing_flag())
-		stress_stackmmap_push_msync();
 
-	stress_uint64_put((uint64_t)waste[1]);
+	for (i = 0, ptr = &check; (i < 256) && ptr; ptr = ptr->prev, i++) {
+		if (ptr->self_addr != ptr) {
+			pr_inf("%s: sanity check address mismatch, got 0x%p, "
+				"expecting 0x%p\n", name, ptr, ptr->self_addr);
+			status = EXIT_FAILURE;
+			return;
+		}
+		if (ptr->waste[0] != ~(ptr->waste[1])) {
+			pr_inf("%s: sanity check data mismatch, got 0x%" PRIx32
+				", expecting 0x%" PRIx32 "\n", name,
+				ptr->waste[0], ptr->waste[1]);
+			status = EXIT_FAILURE;
+			return;
+		}
+	}
+
+	if (keep_stressing_flag())
+		stress_stackmmap_push_msync(&check);
+
+	stress_uint32_put(check.waste[1]);
 }
 
 /*
@@ -80,7 +112,7 @@ static void stress_stackmmap_push_msync(void)
  */
 static void stress_stackmmap_push_start(void)
 {
-	stress_stackmmap_push_msync();
+	stress_stackmmap_push_msync(NULL);
 }
 
 /*
@@ -181,6 +213,8 @@ static int stress_stackmmap(const stress_args_t *args)
 	 */
 	do {
 		pid_t pid;
+
+		(void)stress_mwc32();
 again:
 		if (!keep_stressing_flag())
 			break;
@@ -202,6 +236,13 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				stress_kill_and_wait(args, pid, SIGTERM, false);
+			} else {
+				if (WIFEXITED(status)) {
+					if (WEXITSTATUS(status) != EXIT_SUCCESS) {
+						rc = status;
+						goto tidy_mmap;
+					}
+				}
 			}
 		} else {
 			/* Child */
@@ -233,10 +274,10 @@ again:
 			if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
 				_exit(EXIT_FAILURE);
 
+			status = EXIT_SUCCESS;
 			(void)makecontext(&c_test, stress_stackmmap_push_start, 0);
 			(void)swapcontext(&c_main, &c_test);
-
-			_exit(0);
+			_exit(status);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -258,12 +299,14 @@ tidy_dir:
 stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_stackmmap,
 	.class = CLASS_VM | CLASS_MEMORY,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_MEMORY,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without ucontext.h or swapcontext()"
 };
