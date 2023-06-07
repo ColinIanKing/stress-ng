@@ -41,18 +41,34 @@ static int stress_sigrt(const stress_args_t *args)
 {
 	pid_t *pids;
 	union sigval s ALIGN64;
-	int i, status;
+	int i, status, rc = EXIT_SUCCESS;
+	stress_metrics_t *stress_sigrt_metrics;
+	size_t stress_sigrt_metrics_size = sizeof(*stress_sigrt_metrics) * MAX_RTPIDS;
+	double count, duration, rate;
 
+	stress_sigrt_metrics = mmap(NULL, stress_sigrt_metrics_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (stress_sigrt_metrics == MAP_FAILED) {
+		pr_inf("%s: failed to mmap %zu bytes, skipping stressor\n",
+			args->name, stress_sigrt_metrics_size);
+		return EXIT_NO_RESOURCE;
+	}
 	pids = calloc((size_t)MAX_RTPIDS, sizeof(*pids));
 	if (!pids) {
 		pr_inf_skip("%s: cannot allocate array of %zd pids, skipping stressor\n",
 			args->name, (size_t)MAX_RTPIDS);
+		(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);
 		return EXIT_NO_RESOURCE;
 	}
 
 	for (i = 0; i < MAX_RTPIDS; i++) {
+		stress_sigrt_metrics[i].duration = 0.0;
+		stress_sigrt_metrics[i].count = 0.0;
+
 		if (stress_sighandler(args->name, i + SIGRTMIN, stress_sighandler_nop, NULL) < 0) {
 			free(pids);
+			(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);
 			return EXIT_FAILURE;
 		}
 	}
@@ -73,6 +89,7 @@ again:
 		} else if (pids[i] == 0) {
 			sigset_t mask;
 			siginfo_t info ALIGN64;
+			int index;
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
@@ -84,10 +101,20 @@ again:
 			(void)shim_memset(&info, 0, sizeof info);
 
 			while (keep_stressing_flag()) {
+
 				if (UNLIKELY(sigwaitinfo(&mask, &info) < 0)) {
 					if (errno == EINTR)
 						continue;
 					break;
+				}
+
+				index = info.si_signo - SIGRTMIN;
+				if ((index >= 0) && (index < SIGRTMIN)) {
+					const double delta = stress_time_now() - stress_sigrt_metrics[index].t_start;
+					if (delta > 0.0) {
+						stress_sigrt_metrics[index].duration += delta;
+						stress_sigrt_metrics[index].count += 1.0;
+					}
 				}
 				if (UNLIKELY(info.si_value.sival_int == 0))
 					break;
@@ -98,11 +125,6 @@ again:
 					(void)sigqueue(info.si_value.sival_int, SIGRTMIN, s);
 				}
 			}
-			/*
-			pr_dbg("%s: child got termination notice (%d)\n", args->name, info.si_value.sival_int);
-			pr_dbg("%s: exited on pid [%d] (instance %" PRIu32 ")\n",
-				args->name, getpid(), args->instance);
-			*/
 			_exit(0);
 		}
 	}
@@ -112,11 +134,22 @@ again:
 		(void)shim_memset(&s, 0, sizeof(s));
 
 		for (i = 0; i < MAX_RTPIDS; i++) {
-			const int pid = pids[(i + 1) % MAX_RTPIDS];
+			const int pid = pids[i];
 
 			/* Inform child which pid to queue a signal to */
 			s.sival_int = pid;
-			(void)sigqueue(pids[i], i + SIGRTMIN, s);
+			stress_sigrt_metrics[i].t_start = stress_time_now();
+
+			if (UNLIKELY(sigqueue(pids[i], i + SIGRTMIN, s) < 0)) {
+				if ((errno != EAGAIN) && (errno != EINTR)) {
+					pr_fail("%s: sigqueue on signal %d failed, "
+						"errno = %d (%s)\n",
+						args->name, i + SIGRTMIN,
+						errno, strerror(errno));
+					rc = EXIT_FAILURE;
+					break;
+				}
+			}
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
@@ -137,24 +170,37 @@ reap:
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {
 			/* And ensure child is really dead */
-			(void)kill(pids[i], SIGKILL);
+			(void)kill(pids[i], SIGALRM);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
-	free(pids);
 
-	return EXIT_SUCCESS;
+	duration = 0.0;
+	count = 0.0;
+	for (i = 0; i < MAX_RTPIDS; i++) {
+		duration += stress_sigrt_metrics[i].duration;
+		count += stress_sigrt_metrics[i].count;
+	}
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs between sigqueue and sigwaitinfo completion", rate * STRESS_DBL_NANOSECOND);
+
+	free(pids);
+	(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);
+
+	return rc;
 }
 
 stressor_info_t stress_sigrt_info = {
 	.stressor = stress_sigrt,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_sigrt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sigqueue() or sigwaitinfo() or defined SIGRTMIN or SIGRTMAX"
 };
