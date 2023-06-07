@@ -73,7 +73,6 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 					got_err = errno;
 				break;
 			}
-
 			if (sigio_args)
 				inc_counter(sigio_args);
 		}
@@ -86,7 +85,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
  */
 static int stress_sigio(const stress_args_t *args)
 {
-	int ret, rc = EXIT_FAILURE, fds[2], status, flags = -1;
+	int ret, rc = EXIT_SUCCESS, fds[2], status, flags = -1;
 	double t_start, t_delta, rate;
 	char *buffers, *wr_buffer;
 
@@ -110,13 +109,13 @@ static int stress_sigio(const stress_args_t *args)
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap(buffers, 2 * BUFFER_SIZE);
-		return rc;
+		return EXIT_NO_RESOURCE;
 	}
 	rd_fd = fds[0];
 
 #if defined(F_SETPIPE_SZ)
-	(void)fcntl(fds[0], F_SETPIPE_SZ, BUFFER_SIZE * 2);
-	(void)fcntl(fds[1], F_SETPIPE_SZ, BUFFER_SIZE * 2);
+	(void)fcntl(fds[0], F_SETPIPE_SZ, BUFFER_SIZE);
+	(void)fcntl(fds[1], F_SETPIPE_SZ, BUFFER_SIZE);
 #endif
 
 #if !defined(__minix__)
@@ -137,7 +136,6 @@ static int stress_sigio(const stress_args_t *args)
 	}
 
 	async_sigs = 0;
-
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -150,6 +148,7 @@ again:
 		goto err;
 	} else if (pid == 0) {
 		/* Child */
+
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -195,9 +194,11 @@ again:
 
 		(void)select(0, NULL, NULL, NULL, &timeout);
 		if (got_err) {
-			if (got_err != EINTR)
-				pr_inf("%s: read error, errno=%d (%s)\n",
+			if (got_err != EINTR) {
+				pr_fail("%s: read error, errno=%d (%s)\n",
 					args->name, got_err, strerror(got_err));
+				rc = EXIT_FAILURE;
+			}
 			break;
 		}
 	} while (keep_stressing(args));
@@ -210,7 +211,6 @@ finish:
 	/*  And ignore IO signals from now on */
 	VOID_RET(int, stress_sighandler(args->name, SIGIO, SIG_IGN, NULL));
 
-	rc = EXIT_SUCCESS;
 reap:
 	if (pid > 0) {
 		(void)kill(pid, SIGKILL);
@@ -237,12 +237,14 @@ err:
 stressor_info_t stress_sigio_info = {
 	.stressor = stress_sigio,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_sigio_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without fcntl() commands O_ASYNC, O_NONBLOCK, F_SETOWN, F_GETFL or F_SETFL"
 };
