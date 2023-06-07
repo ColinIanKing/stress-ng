@@ -225,6 +225,7 @@ static int stress_smi(const stress_args_t *args)
 				pr_fail("%s: register %s, before SMI: %" PRIx64 ", after SMI: %" PRIx64 "\n",
 					args->name, reg_names[i],
 					r1.regs[i], r2.regs[i]);
+				rc = EXIT_FAILURE;
 			}
 		}
 #endif
@@ -271,6 +272,7 @@ static int stress_smi(const stress_args_t *args)
 stressor_info_t stress_smi_info = {
 	.stressor = stress_smi,
 	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.supported = stress_smi_supported
 };
@@ -278,6 +280,7 @@ stressor_info_t stress_smi_info = {
 stressor_info_t stress_smi_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built for non-x86 target without sys/io.h or ioperm() or out op-code"
 };
