@@ -62,7 +62,7 @@ static int stress_sigtrap(const stress_args_t *args)
 		switch (stress_mwc1()) {
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
-		case 0:	
+		case 0:
 			t = stress_time_now();
 			__asm__ __volatile__("int $3");
 			raised++;
@@ -88,7 +88,7 @@ static int stress_sigtrap(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	rate = (counter > 0) ? duration / (double)counter : 0.0;
-	stress_metrics_set(args, 1, "nanosecs to handle SIGTRAP", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs to handle SIGTRAP", rate * STRESS_DBL_NANOSECOND);
 
 	return EXIT_SUCCESS;
 }
