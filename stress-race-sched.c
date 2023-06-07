@@ -166,29 +166,58 @@ again:
 	return new_cpu;
 }
 
-static void stress_race_sched_setaffinity(const pid_t pid, const int cpu)
+static int stress_race_sched_setaffinity(
+	const stress_args_t *args,
+	const pid_t pid,
+	const int cpu)
 {
 	cpu_set_t cpu_set;
+	int ret;
 
 	CPU_ZERO(&cpu_set);
 	CPU_SET(cpu, &cpu_set);
-	VOID_RET(int, sched_setaffinity(pid, sizeof(cpu_set), &cpu_set));
+	ret = sched_setaffinity(pid, sizeof(cpu_set), &cpu_set);
+	if (ret == 0) {
+		CPU_ZERO(&cpu_set);
+		ret = sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
+		if ((ret < 0) && (errno != ESRCH)) {
+			pr_fail("%s: sched_getaffinity failed on pid %jd, errno=%d (%s)\n",
+				args->name, (intmax_t)pid, errno, strerror(errno));
+			return ret;
+		}
+	}
+	return 0;
 }
 
-static void stress_race_sched_setscheduling(const pid_t pid)
+static int stress_race_sched_setscheduler(
+	const stress_args_t *args,
+	const pid_t pid)
 {
 	struct sched_param param;
 	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(normal_policies));
+	int ret;
 
 	(void)shim_memset(&param, 0, sizeof(param));
 	param.sched_priority = 0;
-	VOID_RET(int, sched_setscheduler(pid, normal_policies[i], &param));
+	ret = sched_setscheduler(pid, normal_policies[i], &param);
+	if (ret == 0) {
+		ret = sched_getscheduler(pid);
+		if ((ret < 0) && (errno != ESRCH)) {
+			pr_fail("%s: sched_getscheduler failed on pid %jd, errno=%d (%s)\n",
+				args->name, (intmax_t)pid, errno, strerror(errno));
+			return ret;
+		}
+	}
+	return 0;
 }
 
-static void stress_race_sched_exercise(const int cpus, const size_t method_index)
+static int stress_race_sched_exercise(
+	const stress_args_t *args,
+	const int cpus,
+	const size_t method_index)
 {
 	stress_race_sched_child_t *child;
-	int i;
+	int i, rc = 0;
 
 	for (i = 0; keep_stressing_flag() && (i < 20); i++)  {
 		for (child = children.head; child; child = child->next) {
@@ -196,11 +225,14 @@ static void stress_race_sched_exercise(const int cpus, const size_t method_index
 				const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
 
 				child->cpu = cpu;
-				stress_race_sched_setaffinity(child->pid, cpu);
-				stress_race_sched_setscheduling(child->pid);
+				if (stress_race_sched_setaffinity(args, child->pid, cpu) < 0)
+					rc = -1;
+				if (stress_race_sched_setscheduler(args, child->pid) < 0)
+					rc = -1;
 			}
 		}
 	}
+	return rc;
 }
 
 /*
@@ -285,7 +317,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 	/* Child */
 	uint32_t max_forks = 0;
 	uint32_t children_max = DEFAULT_CHILDREN;
-	int cpu = 0, cpus = (int)stress_get_processors_configured();
+	int cpu = 0, cpus = (int)stress_get_processors_configured(), rc = EXIT_SUCCESS;
 	size_t method_index = 0;
 	const pid_t mypid = getpid();
 
@@ -302,7 +334,10 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 		const uint8_t rnd = stress_mwc8();
 
 		cpu = stress_race_sched_method(cpu, cpus, method_index);
-		stress_race_sched_setaffinity(mypid, cpu);
+		if (stress_race_sched_setaffinity(args, mypid, cpu) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		if (!low_mem_reap && (children.length < children_max)) {
 			stress_race_sched_child_t *child_info;
@@ -318,7 +353,10 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				 * Reached max forks or error
 				 * (e.g. EPERM)? .. then reap
 				 */
-				stress_race_sched_exercise(cpus, method_index);
+				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+					rc = EXIT_FAILURE;
+					break;
+				}
 				stress_race_sched_head_remove(WNOHANG);
 				continue;
 			} else if (child_info->pid == 0) {
@@ -327,12 +365,24 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 
 				if (rnd & 0x01)
 					shim_sched_yield();
-				if (rnd & 0x02)
-					stress_race_sched_setaffinity(child_pid, cpu);
-				if (rnd & 0x04)
-					stress_race_sched_setscheduling(child_pid);
-				if (rnd & 0x08)
-					stress_race_sched_exercise(cpus, method_index);
+				if (rnd & 0x02) {
+					if (stress_race_sched_setaffinity(args, child_pid, cpu) < 0) {
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
+				if (rnd & 0x04) {
+					if (stress_race_sched_setscheduler(args, child_pid) < 0) {
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
+				if (rnd & 0x08) {
+					if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
 				if (rnd & 0x10)
 					shim_sched_yield();
 				_exit(0);
@@ -340,8 +390,12 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				/* parent */
 				if (rnd & 0x20)
 					shim_sched_yield();
-				if (rnd & 0x40)
-					stress_race_sched_exercise(cpus, method_index);
+				if (rnd & 0x40) {
+					if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
 				if (rnd & 0x80)
 					shim_sched_yield();
 			}
@@ -350,11 +404,19 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				max_forks = children.length;
 			inc_counter(args);
 		} else {
-			if (rnd & 0x01)
-				stress_race_sched_exercise(cpus, method_index);
+			if (rnd & 0x01) {
+				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+					rc = EXIT_FAILURE;
+					break;
+				}
+			}
 			stress_race_sched_head_remove(WNOHANG);
-			if (rnd & 0x02)
-				stress_race_sched_exercise(cpus, method_index);
+			if (rnd & 0x02) {
+				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+					rc = EXIT_FAILURE;
+					break;
+				}
+			}
 		}
 	} while (keep_stressing(args));
 
@@ -365,7 +427,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 	/* And free */
 	stress_race_sched_free();
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
@@ -389,6 +451,7 @@ stressor_info_t stress_race_sched_info = {
 	.stressor = stress_race_sched,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
@@ -399,6 +462,7 @@ stressor_info_t stress_race_sched_info = {
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without Linux scheduling or sched_setscheduler() system call"
 };
 #endif
