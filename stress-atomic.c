@@ -19,8 +19,12 @@
  */
 #include "stress-ng.h"
 
+#define STRESS_ATOMIC_STRINGIZE(x)	#x
+
 #define STRESS_ATOMIC_MAX_PROCS		(3)
 #define STRESS_ATOMIC_MAX_FUNCS		(SIZEOF_ARRAY(atomic_func_info))
+
+typedef int (*atomic_func_t)(const stress_args_t *args, double *duration, double *count);
 
 #define DO_NOTHING()	do { } while (0)
 
@@ -168,12 +172,18 @@
 
 #define STRESS_ATOMIC_OPS_COUNT		(60)
 
-#define DO_ATOMIC_OPS(type, var, duration, count)			\
+#define DO_ATOMIC_OPS(args, type, var, duration, count, rc)		\
 do {									\
 	double t;							\
 	type tmp = (type)stress_mwc64();				\
+	type unshared, check1 = tmp, check2;				\
 									\
 	t = stress_time_now();						\
+	SHIM_ATOMIC_STORE(&unshared, &check1, __ATOMIC_RELAXED);	\
+	SHIM_ATOMIC_ADD_FETCH(&unshared, (type)2, __ATOMIC_RELAXED);	\
+	SHIM_ATOMIC_SUB_FETCH(&unshared, (type)1, __ATOMIC_RELAXED);	\
+	SHIM_ATOMIC_LOAD(&unshared, &check2, __ATOMIC_RELAXED);		\
+									\
 	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);			\
 	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);			\
@@ -238,9 +248,19 @@ do {									\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)128, __ATOMIC_ACQUIRE);	\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
 	(*duration) += stress_time_now() - t;				\
-	(*count) += 60.0;						\
+	(*count) += 64.0;						\
 									\
 	(void)tmp;							\
+	check2--;							\
+	if (check2 != check1) {						\
+		pr_fail("%s atomic store/inc/dec/load on " 		\
+			STRESS_ATOMIC_STRINGIZE(type)			\
+			" failed, got 0x%" PRIx64 			\
+			", expecting 0x%" PRIx64 "\n",			\
+			args->name, (uint64_t)check2, (uint64_t)check1);\
+		rc = -1;						\
+		break;							\
+	}								\
 } while (0)
 
 static const stress_help_t help[] = {
@@ -262,45 +282,69 @@ static const stress_help_t help[] = {
 #define ATOMIC_OPTIMIZE
 #endif
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint64(double *duration, double *count)
+static int ATOMIC_OPTIMIZE stress_atomic_uint64(
+	const stress_args_t *args,
+	double *duration,
+	double *count)
 {
 	static int idx = 0;
+	int rc = 0;
 
 	if (sizeof(long int) == sizeof(uint64_t))
-		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64[idx], duration, count);
+		DO_ATOMIC_OPS(args, uint64_t, &g_shared->atomic.val64[idx], duration, count, rc);
 	idx++;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val64) - 1);
+
+	return rc;
 }
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint32(double *duration, double *count)
+static int ATOMIC_OPTIMIZE stress_atomic_uint32(
+	const stress_args_t *args,
+	double *duration,
+	double *count)
 {
 	static int idx = 0;
+	int rc = 0;
 
-	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32[idx], duration, count);
+	DO_ATOMIC_OPS(args, uint32_t, &g_shared->atomic.val32[idx], duration, count, rc);
 	idx++;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val32) - 1);
+
+	return rc;
 }
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint16(double *duration, double *count)
+static int ATOMIC_OPTIMIZE stress_atomic_uint16(
+	const stress_args_t *args,
+	double *duration,
+	double *count)
 {
 	static int idx = 0;
+	int rc = 0;
 
-	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16[idx], duration, count);
+	DO_ATOMIC_OPS(args, uint16_t, &g_shared->atomic.val16[idx], duration, count, rc);
 	idx++;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val16) - 1);
+
+	return rc;
 }
 
-static void ATOMIC_OPTIMIZE stress_atomic_uint8(double *duration, double *count)
+static int ATOMIC_OPTIMIZE stress_atomic_uint8(
+	const stress_args_t *args,
+	double *duration,
+	double *count)
 {
 	static int idx = 0;
+	int rc = 0;
 
-	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8[idx], duration, count);
+	DO_ATOMIC_OPS(args, uint8_t, &g_shared->atomic.val8[idx], duration, count, rc);
 	idx++;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val8) - 1);
+
+	return rc;
 }
 
 typedef struct {
-	void (*func)(double *duration, double *count);
+	atomic_func_t func;
 	char *name;
 } atomic_func_info_t;
 
@@ -316,7 +360,7 @@ typedef struct {
 	pid_t pid;
 } stress_atomic_info_t;
 
-static void stress_atomic_exercise(
+static int stress_atomic_exercise(
 	const stress_args_t *args,
 	stress_atomic_info_t *atomic_info)
 {
@@ -326,12 +370,18 @@ static void stress_atomic_exercise(
 
 		for (i = 0; i < STRESS_ATOMIC_MAX_FUNCS; i++) {
 			int j;
+			const atomic_func_t func = atomic_func_info[i].func;
 
-			for (j = 0; j < rounds; j++)
-				atomic_func_info[i].func(&atomic_info->metrics[i].duration, &atomic_info->metrics[i].count);
+			for (j = 0; j < rounds; j++) {
+				if (func(args, &atomic_info->metrics[i].duration,
+				     &atomic_info->metrics[i].count) < 0)
+					return -1;
+			}
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	return 0;
 }
 
 /*
@@ -343,6 +393,7 @@ static int stress_atomic(const stress_args_t *args)
 	size_t i, j, atomic_info_sz;
 	stress_atomic_info_t *atomic_info;
 	const size_t n_atomic_procs = STRESS_ATOMIC_MAX_PROCS + 1;
+	int rc = EXIT_SUCCESS;
 
 	atomic_info_sz = sizeof(*atomic_info) * n_atomic_procs;
 	atomic_info = (stress_atomic_info_t *)mmap(NULL, atomic_info_sz, PROT_READ | PROT_WRITE,
@@ -370,20 +421,29 @@ static int stress_atomic(const stress_args_t *args)
 		pid = fork();
 
 		if (pid == 0) {
-			stress_atomic_exercise(args, &atomic_info[i]);
-			_exit(0);
+			if (stress_atomic_exercise(args, &atomic_info[i]) < 0)
+				_exit(EXIT_FAILURE);
+			_exit(EXIT_SUCCESS);
 		}
 		atomic_info[i].pid = pid;
 	}
 
-	stress_atomic_exercise(args, &atomic_info[n_atomic_procs - 1]);
+	if (stress_atomic_exercise(args, &atomic_info[n_atomic_procs - 1]) < 0)
+		rc = EXIT_FAILURE;
 
 	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
 		if (atomic_info[i].pid > 0) {
 			int status;
 
-			if (kill(atomic_info[i].pid, 0) == 0) {
+			if (waitpid(atomic_info[i].pid, &status, WNOHANG) == atomic_info[i].pid) {
+				if (WIFEXITED(status)) {
+					if (WEXITSTATUS(status) == EXIT_FAILURE)
+						rc = EXIT_FAILURE;
+					continue;
+				}
+			}
 
+			if (kill(atomic_info[i].pid, 0) == 0) {
 				force_killed_counter(args);
 				(void)kill(atomic_info[i].pid, SIGKILL);
 			}
@@ -408,12 +468,13 @@ static int stress_atomic(const stress_args_t *args)
 
 	(void)munmap((void *)atomic_info, atomic_info_sz);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_atomic_info = {
 	.stressor = stress_atomic,
 	.class = CLASS_CPU | CLASS_MEMORY,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
@@ -421,6 +482,7 @@ stressor_info_t stress_atomic_info = {
 stressor_info_t stress_atomic_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_MEMORY,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gcc __atomic builtin functions"
 };
