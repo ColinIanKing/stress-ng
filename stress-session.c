@@ -140,7 +140,7 @@ static int stress_session_child(const stress_args_t *args, const int fd)
 	} else {
 		int status;
 
-		/* 25% of calls will be ophans */
+		/* 25% of calls will be orphans */
 		stress_mwc_reseed();
 		if (stress_mwc8() >= 64) {
 #if defined(HAVE_WAIT4)
