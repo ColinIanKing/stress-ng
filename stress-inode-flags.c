@@ -122,7 +122,10 @@ static void stress_inode_flags_ioctl(
 	if (ret != 0)
 		return;
 
-	attr |= flag;
+	if (flag)
+		attr |= flag;
+	else
+		attr = 0;
 	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &attr));
 
 	attr &= ~flag;
