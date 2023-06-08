@@ -39,6 +39,7 @@ typedef struct {
 	const stress_args_t *args;
 	uint64_t sleep_max;
 	pthread_t pthread;
+	uint64_t underruns;
 } stress_ctxt_t;
 
 static void *stress_sleep_counter_lock;
@@ -93,74 +94,187 @@ static void *stress_pthread_func(void *c)
 
 	while (keep_stressing(args) && !thread_terminate) {
 		struct timespec tv;
+		double t1, t2, delta, expected;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
 		struct timeval timeout;
 #endif
 
+		t1 = stress_time_now();
+		if (!keep_stressing_flag())
+			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
-		if (!keep_stressing_flag() && (nanosleep(&tv, NULL) < 0))
+		if (nanosleep(&tv, NULL) < 0)
+			break;
+
+		if (!keep_stressing_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
-		if (!keep_stressing_flag() && (nanosleep(&tv, NULL) < 0))
+		if (nanosleep(&tv, NULL) < 0)
+			break;
+
+		if (!keep_stressing_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 100;
-		if (!keep_stressing_flag() && (nanosleep(&tv, NULL) < 0))
+		if (nanosleep(&tv, NULL) < 0)
 			break;
-		if (!keep_stressing_flag() && (shim_usleep(1) < 0))
+
+		if (!keep_stressing_flag())
 			break;
-		if (!keep_stressing_flag() && (shim_usleep(10) < 0))
-			break;
-		if (!keep_stressing_flag() && (shim_usleep(100) < 0))
-			break;
-		if (!keep_stressing_flag() && (shim_usleep(1000) < 0))
-			break;
-		if (!keep_stressing_flag() && (shim_usleep(10000) < 0))
-			break;
-#if defined(HAVE_PSELECT)
-		tv.tv_sec = 0;
-		tv.tv_nsec = 1;
-		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
-			goto skip_pselect;
-		tv.tv_sec = 0;
-		tv.tv_nsec = 10;
-		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
-			goto skip_pselect;
-		tv.tv_sec = 0;
-		tv.tv_nsec = 100;
-		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
-			goto skip_pselect;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
-		if (!keep_stressing_flag() && (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0))
+		if (nanosleep(&tv, NULL) < 0)
+			break;
+
+		if (!keep_stressing_flag())
+			break;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 10000;
+		if (nanosleep(&tv, NULL) < 0)
+			break;
+
+		t2 = stress_time_now();
+		delta = t2 - t1;
+		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
+		if (delta < expected / STRESS_DBL_NANOSECOND) {
+			pr_fail("%s: nanosleeps for %.f nanosecs to less than %.2f nanosecs to complete\n",
+				args->name, expected, delta * STRESS_DBL_NANOSECOND);
+			ctxt->underruns++;
+		}
+
+		t1 = stress_time_now();
+		if (!keep_stressing_flag())
+			break;
+		if (shim_usleep(1) < 0)
+			break;
+
+		if (!keep_stressing_flag())
+			break;
+		if (shim_usleep(10) < 0)
+			break;
+
+		if (!keep_stressing_flag())
+			break;
+		if (shim_usleep(100) < 0)
+			break;
+
+		if (!keep_stressing_flag())
+			break;
+		if (shim_usleep(1000) < 0)
+			break;
+
+		if (!keep_stressing_flag())
+			break;
+		if (shim_usleep(10000) < 0)
+			break;
+
+		t2 = stress_time_now();
+		delta = t2 - t1;
+		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
+		if (delta < expected / STRESS_DBL_MICROSECOND) {
+			pr_fail("%s: nanosleeps for %.f microsecs to less than %.2f microsecs to complete\n",
+				args->name, expected, delta * STRESS_DBL_MICROSECOND);
+			ctxt->underruns++;
+		}
+
+#if defined(HAVE_PSELECT)
+		t1 = stress_time_now();
+		if (!keep_stressing_flag())
+			break;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 1;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
+
+		if (!keep_stressing_flag())
+			break;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 10;
+
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+
+		if (!keep_stressing_flag())
+			break;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 100;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+
+		if (!keep_stressing_flag())
+			break;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 1000;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+
+		if (!keep_stressing_flag())
+			break;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 10000;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+
+		t2 = stress_time_now();
+		delta = t2 - t1;
+		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
+		if (delta < expected / STRESS_DBL_NANOSECOND) {
+			pr_fail("%s: pselects for %.f nanosecs to less than %.2f nanosecs to complete\n",
+				args->name, expected, delta * STRESS_DBL_NANOSECOND);
+			ctxt->underruns++;
+		}
+
 skip_pselect:
 #endif
 
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
+		t1 = stress_time_now();
+		if (!keep_stressing_flag())
+			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
-		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
+		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+			break;
+
+		if (!keep_stressing_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 100;
-		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
+		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+			break;
+
+		if (!keep_stressing_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1000;
-		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
+		if (select(0, NULL, NULL, NULL, &timeout) < 0)
+			break;
+
+		if (!keep_stressing_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10000;
-		if (!keep_stressing_flag() && (select(0, NULL, NULL, NULL, &timeout) < 0))
+		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
+
+		t2 = stress_time_now();
+		delta = t2 - t1;
+		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
+		if (delta < expected / STRESS_DBL_MICROSECOND) {
+			pr_fail("%s: selectss for %.f microsecs to less than %.2f microsecs to complete\n",
+				args->name, expected, delta * STRESS_DBL_MICROSECOND);
+			ctxt->underruns++;
+		}
+
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(HAVE_COMPILER_PCC)
+		if (!keep_stressing_flag())
+			break;
 		if (x86_has_waitpkg) {
 			int i;
 
@@ -181,6 +295,7 @@ static int stress_sleep(const stress_args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP;
+	uint64_t underruns = 0;
 	static stress_ctxt_t ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 
@@ -208,6 +323,7 @@ static int stress_sleep(const stress_args_t *args)
 	for (n = 0; n < sleep_max; n++) {
 		ctxts[n].args = args;
 		ctxts[n].sleep_max = sleep_max;
+		ctxts[n].underruns = 0;
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
 		if (ret) {
@@ -239,6 +355,13 @@ tidy:
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
 		VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
+		underruns += ctxts[i].underruns;
+	}
+
+	if (underruns) {
+		pr_fail("%s: detected %" PRIu64 " sleep underruns\n", 
+			args->name, underruns);
+		ret = EXIT_FAILURE;
 	}
 
 	if (limited) {
@@ -259,6 +382,7 @@ stressor_info_t stress_sleep_info = {
 	.stressor = stress_sleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -266,6 +390,7 @@ stressor_info_t stress_sleep_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
 };
