@@ -667,6 +667,12 @@ do_exec:
 			rc = EXIT_NO_RESOURCE;
 			break;
 #endif
+#if defined(EINVAL)
+		case EINVAL:
+			/* Ignore error */
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
 		default:
 			rc = EXIT_FAILURE;
 			break;
