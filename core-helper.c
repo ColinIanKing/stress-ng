@@ -2371,12 +2371,19 @@ int stress_sigrestore(
  */
 unsigned int stress_get_cpu(void)
 {
-#if defined(HAVE_SCHED_GETCPU) &&	\
-    !defined(__PPC64__) &&		\
-    !defined(__s390x__)
+#if defined(HAVE_SCHED_GETCPU)
+#if defined(__PPC64__) ||	\
+    defined(__s390x__)
+	unsigned int cpu, node;
+
+	if (shim_getcpu(&cpu, &node, NULL) < 0)
+		return 0;
+	return cpu;
+#else
 	const int cpu = sched_getcpu();
 
 	return (unsigned int)((cpu < 0) ? 0 : cpu);
+#endif
 #else
 	return 0;
 #endif
