@@ -37,11 +37,11 @@ UNEXPECTED
 
 typedef struct {
 	const stress_args_t *args;
-	uint64_t counter;
 	uint64_t sleep_max;
 	pthread_t pthread;
 } stress_ctxt_t;
 
+static void *stress_sleep_counter_lock;
 static volatile bool thread_terminate;
 static sigset_t set;
 #endif
@@ -86,16 +86,12 @@ static void *stress_pthread_func(void *c)
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const stress_args_t *args = ctxt->args;
-	const uint64_t max_ops =
-		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(HAVE_COMPILER_PCC)
 	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
 #endif
 
-	while (keep_stressing(args) &&
-	       !thread_terminate &&
-	       (!max_ops || (ctxt->counter < max_ops))) {
+	while (keep_stressing(args) && !thread_terminate) {
 		struct timespec tv;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
@@ -172,8 +168,7 @@ skip_pselect:
 				stress_asm_x86_tpause(0, i);
 		}
 #endif
-
-		ctxt->counter++;
+		inc_counter_lock(args, stress_sleep_counter_lock, true);
 	}
 	return &nowt;
 }
@@ -194,6 +189,12 @@ static int stress_sleep(const stress_args_t *args)
 			sleep_max = MAX_SLEEP;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			sleep_max = MIN_SLEEP;
+	}
+
+	stress_sleep_counter_lock = stress_lock_create();
+	if (!stress_sleep_counter_lock) {
+		pr_inf("%s: cannot create counter lock, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
 	}
 
 	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
@@ -227,10 +228,7 @@ static int stress_sleep(const stress_args_t *args)
 	}
 
 	do {
-		set_counter(args, 0);
 		(void)shim_usleep_interruptible(10000);
-		for (i = 0; i < n; i++)
-			add_counter(args, ctxts[i].counter);
 	}  while (!thread_terminate && keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
@@ -251,6 +249,8 @@ tidy:
 			100.0 * (double)limited / (double)sleep_max,
 			sleep_max, args->instance);
 	}
+
+	stress_lock_destroy(stress_sleep_counter_lock);
 
 	return ret;
 }
