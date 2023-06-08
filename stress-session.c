@@ -84,13 +84,13 @@ static int stress_session_set_and_get(const stress_args_t *args, const int fd)
 	pid_t sid, gsid;
 
 	sid = setsid();
-
 	if (sid == (pid_t)-1) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_SETSID_FAILED);
 		pr_inf("%s: setsid failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_SETSID_FAILED;
 	}
+
 	gsid = getsid(getpid());
 	if (gsid == (pid_t)-1) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_GETSID_FAILED);
@@ -98,6 +98,7 @@ static int stress_session_set_and_get(const stress_args_t *args, const int fd)
 			args->name, errno, strerror(errno));
 		return STRESS_SESSION_GETSID_FAILED;
 	}
+
 	if (gsid != sid) {
 		stress_session_return_status(fd, errno, STRESS_SESSION_WRONGSID_FAILED);
 		pr_inf("%s getsid failed, got session ID %d, expected %d\n",
@@ -173,6 +174,7 @@ static int stress_session_child(const stress_args_t *args, const int fd)
 static int stress_session(const stress_args_t *args)
 {
 	int fds[2];
+	int rc = EXIT_SUCCESS;
 
 	if (pipe(fds) < 0) {
 		pr_inf("%s: pipe failed: errno=%d (%s)\n",
@@ -215,11 +217,13 @@ static int stress_session(const stress_args_t *args)
 				   ((n == (ssize_t)sizeof(error)) && (error.err == 0))) {
 					pr_fail("%s: failure in child, %s\n", args->name,
 						stress_session_error(WEXITSTATUS(status)));
+					rc = EXIT_FAILURE;
 				} else {
 					pr_fail("%s: failure in child, %s: errno=%d (%s)\n",
 						args->name,
 						stress_session_error(error.status),
 						error.err, strerror(error.err));
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
@@ -229,11 +233,12 @@ static int stress_session(const stress_args_t *args)
 	(void)close(fds[0]);
 	(void)close(fds[1]);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_session_info = {
 	.stressor = stress_session,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = session_help
 };
