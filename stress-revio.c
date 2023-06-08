@@ -49,9 +49,10 @@
 #define REVIO_OPT_SYNCFS	(0x00800000)
 
 static const stress_help_t help[] = {
-	{ NULL,	"revio N",	"start N workers performing reverse I/O" },
-	{ NULL,	"revio-ops N",	"stop after N revio bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"revio N",		"start N workers performing reverse I/O" },
+	{ NULL, "revio-bytes N",	"specify file size (default is 1GB)" },
+	{ NULL,	"revio-ops N",		"stop after N revio bogo operations" },
+	{ NULL,	NULL,			NULL }
 };
 
 typedef struct {
