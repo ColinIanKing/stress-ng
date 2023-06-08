@@ -19,6 +19,8 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"tlb-shootdown N",	"start N workers that force TLB shootdowns" },
@@ -39,15 +41,31 @@ static const stress_help_t help[] = {
  *  stress_tlb_shootdown_read_mem()
  *	read from every cache line in mem
  */
-static inline void stress_tlb_shootdown_read_mem(const uint8_t *mem, const size_t size, const size_t page_size)
+static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(const uint8_t *mem, const size_t size, const size_t page_size)
 {
 	const volatile uint8_t *vmem;
 
 	for (vmem = mem; vmem < mem + size; vmem += page_size) {
 		register size_t m;
 
-		for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
+		for (m = 0; m < page_size; ) {
 			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+			(void)vmem[m];
+			m += STRESS_CACHE_LINE_SIZE;
+		}
 	}
 }
 
@@ -55,7 +73,7 @@ static inline void stress_tlb_shootdown_read_mem(const uint8_t *mem, const size_
  *  stress_tlb_shootdown_read_mem()
  *	write to every cache line in mem
  */
-static inline void stress_tlb_shootdown_write_mem(uint8_t *mem, const size_t size, const size_t page_size)
+static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(uint8_t *mem, const size_t size, const size_t page_size)
 {
 	volatile uint8_t *vmem;
 	uint8_t rnd8 = stress_mwc8();
@@ -63,9 +81,26 @@ static inline void stress_tlb_shootdown_write_mem(uint8_t *mem, const size_t siz
 	for (vmem = mem; vmem < mem + size; vmem += page_size) {
 		register size_t m;
 
-		for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
+		for (m = 0; m < page_size; ) {
 			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+			vmem[m] = m + rnd8;
+			m += STRESS_CACHE_LINE_SIZE;
+		}
 	}
+	(void)shim_cacheflush((char *)mem, (int)size, SHIM_DCACHE);
 }
 
 /*
@@ -206,6 +241,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 			continue;
 		} else if (pids[i] == 0) {
 			cpu_set_t mask;
+			double t_start, t_next;
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
@@ -216,6 +252,9 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 			CPU_ZERO(&mask);
 			CPU_SET(cpu % max_cpus, &mask);
 			(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
+
+			t_start = stress_time_now();
+			t_next = t_start + 1.0;
 
 			do {
 				size_t l;
@@ -231,16 +270,30 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 
 				vmem = mem;
 				(void)mprotect(mem, mmap_size, PROT_READ);
+PRAGMA_UNROLL_N(8)
 				for (l = 0; l < cache_lines; l++) {
 					(void)vmem[k];
 					k = (k + stride) & mem_mask;
 				}
 				(void)mprotect(mem, mmap_size, PROT_WRITE);
+PRAGMA_UNROLL_N(8)
 				for (l = 0; l < cache_lines; l++) {
 					vmem[k] = (uint8_t)(k + rnd8);
 					k = (k + stride) & mem_mask;
 				}
 				inc_counter(args);
+
+				/*
+				 *  periodically change cpu affinity
+				 */
+				if (stress_time_now() >= t_next) {
+					cpu++;
+					cpu %= max_cpus;
+					CPU_ZERO(&mask);
+					CPU_SET(cpu, &mask);
+					(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
+					t_next += 1.0;
+				}
 			} while (keep_stressing(args));
 
 			(void)kill(pid, SIGALRM);
