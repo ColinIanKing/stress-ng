@@ -29,6 +29,13 @@ static const stress_help_t help[] = {
 
 static void *counter_lock;
 
+static void stress_sigsuspend_chld_handler(int sig)
+{
+	(void)sig;
+
+	keep_stressing_set_flag(false);
+}
+
 /*
  *  stress_sigsuspend
  *	stress sigsuspend
@@ -38,8 +45,11 @@ static int stress_sigsuspend(const stress_args_t *args)
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;
 	sigset_t mask, oldmask;
+	int rc = EXIT_SUCCESS;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
+		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGCHLD, stress_sigsuspend_chld_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	counter_lock = stress_lock_create();
@@ -69,7 +79,11 @@ again:
 			(void)sched_settings_apply(true);
 
 			do {
-				(void)sigsuspend(&mask);
+				int ret;
+
+				ret = sigsuspend(&mask);
+				if (UNLIKELY((ret < 0) && (errno != EINTR)))
+					_exit(EXIT_FAILURE);
 			} while (inc_counter_lock(args, counter_lock, true));
 			_exit(0);
 		}
@@ -85,23 +99,39 @@ again:
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (i = 0; i < n; i++) {
-		if (kill(pid[i], 0) == 0) {
-			int status;
+		int status;
 
+		if (waitpid(pid[i], &status, WNOHANG) == pid[i]) {
+			if (WIFEXITED(status)) {
+				if (WEXITSTATUS(status) != EXIT_SUCCESS) {
+					pr_fail("%s: sigsuspend() failed unexpectedly\n",
+						args->name);
+					rc = EXIT_FAILURE;
+				}
+				continue;
+			}
+		}
+
+		if (kill(pid[i], 0) == 0) {
 			/* terminate child */
 			force_killed_counter(args);
 			(void)kill(pid[i], SIGKILL);
 			(void)shim_waitpid(pid[i], &status, 0);
+		} else {
+			if (shim_waitpid(pid[i], &status, 0) == 0) {
+				pr_inf("%d died prematurely\n", pid[i]);
+			}
 		}
 	}
 
 	(void)stress_lock_destroy(counter_lock);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sigsuspend_info = {
 	.stressor = stress_sigsuspend,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
