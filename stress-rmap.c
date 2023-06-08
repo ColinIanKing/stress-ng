@@ -54,30 +54,50 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 	_exit(0);
 }
 
-static void OPTIMIZE3 stress_rmap_touch(uint32_t *addr, const size_t sz)
+static int OPTIMIZE3 stress_rmap_touch(
+	const stress_args_t *args,
+	const int child_index,
+	uint32_t *addr,
+	const size_t sz)
 {
-	static uint32_t val = ~0;
-	register const size_t inc = 64 >> 2; /* sizeof(*ptr) */
-	register uint32_t *ptr = addr;
-	register const uint32_t *end = (uint32_t *)((uintptr_t)ptr + sz);
-	register uint32_t v = val;
+	register uintptr_t *begin = ((uintptr_t *)addr) + child_index;
+	register uintptr_t *end = (uintptr_t *)((uintptr_t)addr + sz);
+	register uintptr_t *ptr;
+	register const size_t inc = RMAP_CHILD_MAX * sizeof(uintptr_t);
+	register uintptr_t mix = stress_mwc64();
 
-	while (LIKELY(keep_stressing_flag() && (ptr < end))) {
-		*ptr = v;
-		ptr += inc;
-		/* Bump val, never fill memory with zero val */
-		v++;
-		v = v ? v : 1;
+	/* fill and put check value in that always has lowest bit set */
+PRAGMA_UNROLL_N(8)
+	for (ptr = begin; ptr < end; ptr += inc) {
+		register uintptr_t val = (uintptr_t)ptr ^ mix;
+
+		*ptr = val;
 	}
-	val = v;
+
+	/* read back and check */
+PRAGMA_UNROLL_N(8)
+	for (ptr = begin; ptr < end; ptr += inc) {
+		register uintptr_t chk = (uintptr_t)ptr ^ mix;
+
+		if (*ptr != chk) {
+			pr_fail("%s: address 0x%p check failure, "
+				"got 0x%" PRIx64 ", "
+				"expected 0x%" PRIx64 "\n",
+				args->name, ptr, chk, *ptr);
+			return -1;
+		}
+	}
+	return 0;
 }
 
 static void NORETURN stress_rmap_child(
 	const stress_args_t *args,
 	const size_t page_size,
+	const int child_index,
 	uint32_t *mappings[MAPPINGS_MAX])
 {
 	const size_t sz = MAPPING_PAGES * page_size;
+	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -91,7 +111,10 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (!inc_counter_lock(args, counter_lock, false))
 						break;
-					stress_rmap_touch(mappings[i], sz);
+					if (stress_rmap_touch(args, child_index, mappings[i], sz) < 0) {
+						rc = EXIT_FAILURE;
+						goto fail;
+					}
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
@@ -100,7 +123,10 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (!inc_counter_lock(args, counter_lock, false))
 						break;
-					stress_rmap_touch(mappings[i], sz);
+					if (stress_rmap_touch(args, child_index, mappings[i], sz) < 0) {
+						rc = EXIT_FAILURE;
+						goto fail;
+					}
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
@@ -111,7 +137,10 @@ static void NORETURN stress_rmap_child(
 				if (mappings[j] != MAP_FAILED) {
 					if (!inc_counter_lock(args, counter_lock, false))
 						break;
-					stress_rmap_touch(mappings[j], sz);
+					if (stress_rmap_touch(args, child_index, mappings[j], sz) < 0) {
+						rc = EXIT_FAILURE;
+						goto fail;
+					}
 					(void)shim_msync(mappings[j], sz, sync_flag);
 				}
 			}
@@ -120,7 +149,10 @@ static void NORETURN stress_rmap_child(
 				if (mappings[i] != MAP_FAILED) {
 					if (!inc_counter_lock(args, counter_lock, false))
 						break;
-					stress_rmap_touch(mappings[i], sz);
+					if (stress_rmap_touch(args, child_index, mappings[i], sz) > 0) {
+						rc = EXIT_FAILURE;
+						goto fail;
+					}
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
@@ -128,10 +160,11 @@ static void NORETURN stress_rmap_child(
 		}
 	} while (inc_counter_lock(args, counter_lock, true));
 
+fail:
 	(void)kill(getppid(), SIGALRM);
 
 	stress_set_proc_state(args->name, STRESS_STATE_WAIT);
-	_exit(0);
+	_exit(rc);
 }
 
 /*
@@ -142,9 +175,8 @@ static int stress_rmap(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
-	int fd = -1;
+	int fd = -1, rc;
 	size_t i;
-	ssize_t rc;
 	pid_t pids[RMAP_CHILD_MAX];
 	uint32_t *mappings[MAPPINGS_MAX];
 	uint32_t *paddings[MAPPINGS_MAX];
@@ -233,7 +265,7 @@ static int stress_rmap(const stress_args_t *args)
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
 
-			stress_rmap_child(args, page_size, mappings);
+			stress_rmap_child(args, page_size, i, mappings);
 		}
 	}
 
@@ -249,7 +281,7 @@ static int stress_rmap(const stress_args_t *args)
 cleanup:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_kill_and_wait_many(args, pids, RMAP_CHILD_MAX, SIGALRM, true);
+	rc = stress_kill_and_wait_many(args, pids, RMAP_CHILD_MAX, SIGALRM, true);
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)
@@ -262,11 +294,12 @@ cleanup:
 	(void)stress_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(counter_lock);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_rmap_info = {
 	.stressor = stress_rmap,
 	.class = CLASS_OS | CLASS_MEMORY,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
