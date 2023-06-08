@@ -887,8 +887,10 @@ static int stress_exec(const stress_args_t *args)
 
 					switch (exec_fork_method) {
 					case EXEC_FORK_METHOD_FORK:
-						if (WEXITSTATUS(status) == EXIT_FAILURE)
+						if (WIFEXITED(status) &&
+						    (WEXITSTATUS(status) == EXIT_FAILURE))
 							exec_fails++;
+						break;
 #if defined(HAVE_VFORK)
 					case EXEC_FORK_METHOD_VFORK:
 						break;
