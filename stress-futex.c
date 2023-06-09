@@ -95,9 +95,11 @@ static int stress_futex(const stress_args_t *args)
 	uint64_t *timeout = &g_shared->futex.timeout[args->instance];
 	uint32_t *futex = &g_shared->futex.futex[args->instance];
 	pid_t pid;
+	int parent_cpu;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -137,6 +139,7 @@ again:
 	} else {
 		uint64_t threshold = THRESHOLD;
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

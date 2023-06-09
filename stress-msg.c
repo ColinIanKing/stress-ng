@@ -371,7 +371,7 @@ static void OPTIMIZE3 stress_msg_sender(
 static int stress_msg(const stress_args_t *args)
 {
 	pid_t pid;
-	int msgq_id, rc = EXIT_SUCCESS;
+	int msgq_id, rc = EXIT_SUCCESS, parent_cpu;
 	int32_t msg_types = 0;
 	const size_t max_ids = stress_max_ids(args);
 	int *msgq_ids;
@@ -418,6 +418,7 @@ static int stress_msg(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -429,6 +430,7 @@ again:
 		rc = EXIT_FAILURE;
 		goto cleanup;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_msg_receiver(args, msgq_id, msg_types, msg_bytes);
 		_exit(EXIT_SUCCESS);
 	} else {

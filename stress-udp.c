@@ -438,7 +438,7 @@ static int stress_udp(const stress_args_t *args)
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
 	pid_t pid, mypid = getpid();
-	int rc = EXIT_SUCCESS, reserved_port;
+	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	int udp_proto = 0;
 #if defined(IPPROTO_UDPLITE)
 	bool udp_lite = false;
@@ -492,6 +492,7 @@ static int stress_udp(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
@@ -500,6 +501,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		rc = stress_udp_client(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 
 		/* Inform parent we're all done */

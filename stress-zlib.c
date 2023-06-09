@@ -1735,7 +1735,7 @@ zlib_checksum_error:
  */
 static int stress_zlib(const stress_args_t *args)
 {
-	int ret = EXIT_SUCCESS, fds[2];
+	int ret = EXIT_SUCCESS, fds[2], parent_cpu;
 	const pid_t parent_pid = getpid();
 	pid_t pid;
 	bool error = false;
@@ -1764,6 +1764,7 @@ static int stress_zlib(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -1779,6 +1780,7 @@ again:
 
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

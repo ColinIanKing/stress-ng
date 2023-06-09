@@ -108,7 +108,7 @@ static void pipe_change_size(
 static int stress_pipe(const stress_args_t *args)
 {
 	pid_t pid;
-	int pipefds[2];
+	int pipefds[2], parent_cpu;
 	size_t pipe_data_size = 512;
 	char *buf;
 	uint32_t *buf32, val = stress_mwc32();
@@ -167,6 +167,7 @@ static int stress_pipe(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -189,6 +190,7 @@ again:
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+		(void)stress_change_cpu(args, parent_cpu);
 
 		(void)stress_read_fdinfo(my_pid, pipefds[0]);
 

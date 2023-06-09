@@ -71,7 +71,7 @@ static int stress_sigq(const stress_args_t *args)
 	const pid_t mypid = getpid();
 	const uid_t myuid = getuid();
 #endif
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, parent_cpu;
 	int val = stress_mwc32();
 
 	if (val == 0)
@@ -94,6 +94,7 @@ static int stress_sigq(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (!keep_stressing(args))
@@ -107,6 +108,7 @@ again:
 		sigset_t mask;
 		int i = 0;
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

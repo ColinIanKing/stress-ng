@@ -1195,7 +1195,7 @@ static int stress_sock(const stress_args_t *args)
 	int sock_protocol = 0;
 #endif
 	int sock_zerocopy = false;
-	int rc = EXIT_SUCCESS, reserved_port;
+	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	const bool rt = stress_sock_kernel_rt();
 	char *mmap_buffer;
 	char *sock_if = NULL;
@@ -1244,6 +1244,7 @@ static int stress_sock(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -1256,6 +1257,8 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
+
 		rc = stress_sock_client(args, mmap_buffer, mypid, sock_opts,
 			sock_domain, sock_type, sock_protocol,
 			sock_port, sock_if, rt, sock_zerocopy);

@@ -374,7 +374,7 @@ static int stress_sockabuse(const stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
 	int sockabuse_port = DEFAULT_SOCKABUSE_PORT;
-	int rc = EXIT_SUCCESS, reserved_port;
+	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 
 	(void)stress_get_setting("sockabuse-port", &sockabuse_port);
 
@@ -395,6 +395,7 @@ static int stress_sockabuse(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -407,6 +408,8 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
+
 		rc = stress_sockabuse_client(args, mypid, sockabuse_port);
 
 		/* Inform parent we're all done */

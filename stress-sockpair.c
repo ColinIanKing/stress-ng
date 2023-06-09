@@ -103,7 +103,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 	pid_t pid;
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
 	int socket_pair_fds_bad[2];
-	int i, max, ret;
+	int i, max, ret, parent_cpu;
 	double t, duration, rate, bytes = 0.0;
 	uint64_t low_memory_count = 0;
 	const size_t low_mem_size = args->page_size * 32 * args->num_instances;
@@ -191,6 +191,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 	}
 
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -207,6 +208,7 @@ again:
 	} else if (pid == 0) {
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_set_oom_adjustment(args->name, true);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);

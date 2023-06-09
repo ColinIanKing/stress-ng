@@ -654,7 +654,7 @@ static int stress_sctp(const stress_args_t *args)
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
 	int sctp_sched = -1;	/* Undefined */
-	int ret, reserved_port;
+	int ret, reserved_port, parent_cpu;
 	char *sctp_if = NULL;
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
@@ -691,6 +691,7 @@ static int stress_sctp(const stress_args_t *args)
 	ret = EXIT_FAILURE;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -701,6 +702,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		 (void)stress_change_cpu(args, parent_cpu);
 		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);

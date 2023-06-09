@@ -471,7 +471,7 @@ static int stress_rawpkt(const stress_args_t *args)
 {
 	pid_t pid;
 	int rawpkt_port = DEFAULT_RAWPKT_PORT;
-	int fd, rc = EXIT_FAILURE;
+	int fd, rc = EXIT_FAILURE, parent_cpu;
 	struct ifreq hwaddr, ifaddr, idx;
 	int rawpkt_rxring = 0;
 
@@ -521,6 +521,7 @@ static int stress_rawpkt(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -533,6 +534,7 @@ again:
 			args->name, errno, strerror(errno));
 		return rc;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, rawpkt_port);
 	} else {
 		int status;

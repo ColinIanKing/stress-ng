@@ -332,6 +332,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(48)	/* Require thermal zone info */
 #define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(49)	/* --log-lockless */
 #define OPT_FLAGS_SN		 STRESS_BIT_ULL(50)	/* --sn scientific notation */
+#define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(51)	/* --change-cpu */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1125,6 +1126,8 @@ typedef enum {
 
 	OPT_chattr,
 	OPT_chattr_ops,
+
+	OPT_change_cpu,
 
 	OPT_chdir,
 	OPT_chdir_dirs,
@@ -2647,6 +2650,7 @@ extern void stress_check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 extern void stress_check_range_bytes(const char *const opt,
 	const uint64_t val, const uint64_t lo, const uint64_t hi);
+extern int stress_change_cpu(const stress_args_t *args, const int old_cpu);
 extern WARN_UNUSED int stress_set_cpu_affinity(const char *arg);
 extern WARN_UNUSED int stress_set_mbind(const char *arg);
 extern int stress_numa_count_mem_nodes(unsigned long *max_node);

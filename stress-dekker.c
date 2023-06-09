@@ -130,6 +130,7 @@ static int stress_dekker(const stress_args_t *args)
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*dekker));
 	pid_t pid;
 	double rate, duration, count;
+	int parent_cpu;
 
 	dekker = (dekker_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -140,12 +141,15 @@ static int stress_dekker(const stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		pr_inf_skip("%s: cannot create child process, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		/* Child */
+		(void)stress_change_cpu(args, parent_cpu);
+
 		while (keep_stressing(args))
 			stress_dekker_p0(args);
 		_exit(0);

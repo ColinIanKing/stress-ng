@@ -98,7 +98,7 @@ static int stress_mq(const stress_args_t *args)
 {
 	pid_t pid;
 	mqd_t mq = -1;
-	int sz, max_sz, mq_size = DEFAULT_MQ_SIZE;
+	int sz, max_sz, mq_size = DEFAULT_MQ_SIZE, parent_cpu;
 	FILE *fp;
 	struct mq_attr attr;
 	char mq_name[64], mq_tmp_name[64];
@@ -205,6 +205,7 @@ static int stress_mq(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -221,6 +222,7 @@ again:
 		struct sigevent sigev;
 		uint64_t values[PRIOS_MAX];
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		(void)shim_memset(&values, 0, sizeof(values));

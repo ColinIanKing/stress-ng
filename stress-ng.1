@@ -78,6 +78,13 @@ then the number of configured CPUs in the system is used.
 wait N microseconds between the start of each stress worker process. This
 allows one to ramp up the stress tests over time.
 .TP
+.B \-\-change\-cpu
+this forces child processes of some stressors to change to a different CPU from the
+parent on startup. Note that during the execution of the stressor the scheduler
+may choose move the parent onto the same CPU as the child. The stressors affected
+by this option are client/server style stressors, such as the network stresors
+(sock, sockmany, udp, etc) or context switching stressors (switch, pipe, etc).
+.TP
 .B \-\-class name
 specify the class of stressors to run. Stressors are classified into one or
 more of the following classes: cpu, cpu-cache, device, gpu, io, interrupt,

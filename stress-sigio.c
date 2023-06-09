@@ -85,7 +85,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
  */
 static int stress_sigio(const stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS, fds[2], status, flags = -1;
+	int ret, rc = EXIT_SUCCESS, fds[2], status, flags = -1, parent_cpu;
 	double t_start, t_delta, rate;
 	char *buffers, *wr_buffer;
 
@@ -137,6 +137,7 @@ static int stress_sigio(const stress_args_t *args)
 
 	async_sigs = 0;
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -149,6 +150,7 @@ again:
 	} else if (pid == 0) {
 		/* Child */
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

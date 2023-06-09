@@ -100,7 +100,7 @@ static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, cons
 static int OPTIMIZE3 stress_poll(const stress_args_t *args)
 {
 	pid_t pid;
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, parent_cpu;
 	register size_t i;
 	size_t max_fds = MAX_PIPES, max_rnd_fds;
 	pipe_fds_t *pipe_fds;
@@ -168,6 +168,7 @@ static int OPTIMIZE3 stress_poll(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -181,6 +182,7 @@ again:
 	} else if (pid == 0) {
 		/* Child writer */
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

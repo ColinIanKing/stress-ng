@@ -265,7 +265,7 @@ static int stress_rawudp(const stress_args_t *args)
 {
 	pid_t pid;
 	int rawudp_port = DEFAULT_RAWUDP_PORT;
-	int rc = EXIT_FAILURE, reserved_port;
+	int rc = EXIT_FAILURE, reserved_port, parent_cpu;
 	in_addr_t addr = (in_addr_t)inet_addr("127.0.0.1");
 	char *rawudp_if = NULL;
 
@@ -303,6 +303,7 @@ static int stress_rawudp(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -315,6 +316,7 @@ again:
 			args->name, errno, strerror(errno));
 		return rc;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_rawudp_client(args, addr, rawudp_port);
 	} else {
 		int status;

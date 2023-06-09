@@ -45,7 +45,7 @@ static int stress_sigsuspend(const stress_args_t *args)
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;
 	sigset_t mask, oldmask;
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, parent_cpu;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
@@ -65,6 +65,7 @@ static int stress_sigsuspend(const stress_args_t *args)
 
 	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
 again:
+		parent_cpu = stress_get_cpu();
 		pid[n] = fork();
 		if (pid[n] < 0) {
 			if (stress_redo_fork(errno))
@@ -75,6 +76,7 @@ again:
 				args->name, errno, strerror(errno));
 			goto reap;
 		} else if (pid[n] == 0) {
+			(void)stress_change_cpu(args, parent_cpu);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

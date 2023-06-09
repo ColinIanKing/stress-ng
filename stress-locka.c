@@ -216,7 +216,7 @@ static int stress_locka_contention(
  */
 static int stress_locka(const stress_args_t *args)
 {
-	int fd, ret = EXIT_FAILURE;
+	int fd, ret = EXIT_FAILURE, parent_cpu;
 	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];
@@ -280,6 +280,7 @@ redo:
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	cpid = fork();
 	if (cpid < 0) {
 		if (stress_redo_fork(errno))
@@ -291,6 +292,7 @@ again:
 		goto tidy;
 	}
 	if (cpid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

@@ -306,7 +306,7 @@ static int stress_sockmany(const stress_args_t *args)
 	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;
 	int sockmany_port = DEFAULT_SOCKET_MANY_PORT;
-	int rc = EXIT_SUCCESS, reserved_port;
+	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	char *sockmany_if = NULL;
 
 	(void)stress_get_setting("sockmany-if", &sockmany_if);
@@ -349,6 +349,7 @@ static int stress_sockmany(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -361,6 +362,8 @@ again:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
+
 		rc = stress_sockmany_client(args, sockmany_port, ppid, sock_fds, sockmany_if);
 
 		/* Inform parent we're all done */

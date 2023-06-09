@@ -108,7 +108,7 @@ static int stress_tun(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int i, fd, sfd, ret, status;
+		int i, fd, sfd, ret, status, parent_cpu;
 		pid_t pid;
 		struct ifreq ifr;
 		struct sockaddr_in *tun_addr;
@@ -178,6 +178,7 @@ static int stress_tun(const stress_args_t *args)
 		if (ret < 0)
 			goto clean_up;
 
+		parent_cpu = stress_get_cpu();
 		pid = fork();
 		if (pid < 0) {
 			goto clean_up;
@@ -189,6 +190,7 @@ static int stress_tun(const stress_args_t *args)
 			ssize_t n;
 			char buffer[4];
 
+			(void)stress_change_cpu(args, parent_cpu);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

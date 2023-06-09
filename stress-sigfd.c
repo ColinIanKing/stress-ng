@@ -58,7 +58,7 @@ static inline int shim_signalfd4(
 static int stress_sigfd(const stress_args_t *args)
 {
 	pid_t pid, ppid = args->pid;
-	int sfd;
+	int sfd, parent_cpu;
 	const int bad_fd = stress_get_bad_fd();
 	sigset_t mask;
 
@@ -106,6 +106,7 @@ static int stress_sigfd(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -119,6 +120,7 @@ again:
 		int val = 0;
 		union sigval s ALIGN64;
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

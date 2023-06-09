@@ -94,6 +94,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill);
 static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_abort,		OPT_FLAGS_ABORT },
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
+	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU },
 	{ OPT_cpu_online_all,	OPT_FLAGS_CPU_ONLINE_ALL },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
@@ -317,6 +318,7 @@ static const struct option long_options[] = {
 	{ "cap-ops",		1,	0, 	OPT_cap_ops },
 	{ "chattr",		1,	0, 	OPT_chattr },
 	{ "chattr-ops",		1,	0,	OPT_chattr_ops },
+	{ "change-cpu",		0,	0,	OPT_change_cpu },
 	{ "chdir",		1,	0, 	OPT_chdir },
 	{ "chdir-dirs",		1,	0,	OPT_chdir_dirs },
 	{ "chdir-ops",		1,	0, 	OPT_chdir_ops },
@@ -2487,8 +2489,8 @@ again:
 				stress_set_iopriority(ionice_class, ionice_level);
 				(void)umask(0077);
 
-				pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
-					name, (int)child_pid, j);
+				pr_dbg("%s: started [%d] (instance %" PRIu32 " on CPU %u)\n",
+					name, (int)child_pid, j, stress_get_cpu());
 
 				stats->start = stats->finish = stress_time_now();
 				stress_interrupts_start(stats->interrupts);
@@ -2597,8 +2599,8 @@ again:
 						errno, strerror(errno));
 				}
 #endif
-				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
-					name, (int)child_pid, j);
+				pr_dbg("%s: exited [%d] (instance %" PRIu32 " on CPU %d)\n",
+					name, (int)child_pid, j, stress_get_cpu());
 
 				/* Allow for some slops of ~0.5 secs */
 				run_duration = (stats->finish - fork_time_start) + 0.5;

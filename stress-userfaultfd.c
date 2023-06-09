@@ -364,7 +364,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	pid = clone(stress_userfaultfd_clone, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
-		pr_err("%s: fork failed, errno = %d (%s)\n",
+		pr_err("%s: clone failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto unreg;
 	}

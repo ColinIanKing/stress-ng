@@ -281,11 +281,12 @@ die:
 
 static int stress_rawsock_child(const stress_args_t *args, void *context)
 {
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, parent_cpu;
 	pid_t pid;
 	const int rawsock_port = *(int *)context;
 
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno)) {
@@ -299,6 +300,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		rc = stress_rawsock_client(args, rawsock_port);
 		_exit(rc);
 	} else {

@@ -109,7 +109,7 @@ static void drop_niceness(void)
 static int stress_softlockup(const stress_args_t *args)
 {
 	size_t policy = 0;
-	int max_prio = 0;
+	int max_prio = 0, parent_cpu;
 	bool good_policy = false;
 	const bool first_instance = (args->instance == 0);
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
@@ -170,6 +170,7 @@ static int stress_softlockup(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -187,6 +188,7 @@ again:
 		int ret;
 		int rc = EXIT_FAILURE;
 
+		(void)stress_change_cpu(args, parent_cpu);
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_add(&g_shared->softlockup_count, 1);
 

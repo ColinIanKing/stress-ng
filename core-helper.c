@@ -2405,7 +2405,11 @@ unsigned int stress_get_cpu(void)
 	return (unsigned int)((cpu < 0) ? 0 : cpu);
 #endif
 #else
-	return 0;
+	unsigned int cpu, node;
+
+	if (shim_getcpu(&cpu, &node, NULL) < 0)
+		return 0;
+	return cpu;
 #endif
 }
 

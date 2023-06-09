@@ -18,10 +18,13 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 static const char option[] = "taskset";
 
 #if defined(HAVE_SCHED_SETAFFINITY)
+
+static cpu_set_t stress_affinity_cpu_set;
 
 /*
  * stress_check_cpu_affinity_range()
@@ -112,12 +115,62 @@ int stress_set_cpu_affinity(const char *arg)
 		free(str);
 		_exit(EXIT_FAILURE);
 	}
+	shim_memcpy(&stress_affinity_cpu_set, &set, sizeof(stress_affinity_cpu_set));
 
 	free(str);
 	return 0;
 }
 
+/*
+ *  stress_change_cpu()
+ *	try and change process to a different CPU.
+ *	old_cpu: the cpu to change from, -ve = current cpu (that we don't want to use)
+ *					 +ve = cpu don't want to ever use
+ */
+int stress_change_cpu(const stress_args_t *args, const int old_cpu)
+{
+	int from_cpu;
+
+	cpu_set_t mask;
+
+	/* only change cpu when --change-cpu is enabled */
+	if ((g_opt_flags & OPT_FLAGS_CHANGE_CPU) == 0)
+		return old_cpu;
+
+	if (CPU_COUNT(&stress_affinity_cpu_set) == 0) {
+		if (sched_getaffinity(0, sizeof(mask), &mask) < 0)
+			return old_cpu;		/* no dice */
+	} else {
+		shim_memcpy(&mask, &stress_affinity_cpu_set, sizeof(mask));
+	}
+
+	if (old_cpu < 0) {
+		from_cpu = (int)stress_get_cpu();
+	} else {
+		from_cpu = old_cpu;
+
+		/* Try hard not to use the CPU we came from */
+		if (CPU_COUNT(&mask) > 1)
+			CPU_CLR((int)from_cpu, &mask);
+	}
+
+	if (sched_setaffinity(0, sizeof(mask), &mask) >= 0) {
+		unsigned int moved_cpu;
+
+		moved_cpu = stress_get_cpu();
+		pr_dbg("%s: process [%jd] (child of instance %d on CPU %u moved to CPU %u)\n",
+			args->name, (intmax_t)getpid(), args->instance, from_cpu, moved_cpu);
+		return (int)moved_cpu;
+	}
+	return (int)from_cpu;
+}
+
 #else
+int stress_change_cpu(const int pid, const int inc)
+{
+	return -1;
+}
+
 int stress_set_cpu_affinity(const char *arg)
 {
 	(void)arg;

@@ -137,7 +137,7 @@ static int stress_switch_pipe(
 	const uint64_t threshold)
 {
 	pid_t pid;
-	int pipefds[2];
+	int pipefds[2], parent_cpu;
 	size_t buf_size;
 	char *buf;
 
@@ -192,6 +192,7 @@ static int stress_switch_pipe(
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -207,6 +208,7 @@ again:
 	} else if (pid == 0) {
 		register const int fd = pipefds[0];
 
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -293,8 +295,7 @@ static int stress_switch_sem_sysv(
 	const uint64_t threshold)
 {
 	pid_t pid;
-	int sem_id = -1;
-	int i;
+	int i, sem_id = -1, parent_cpu;
 
 	for (i = 0; i < 100; i++) {
 		key_t key_id = (key_t)stress_mwc16();
@@ -311,6 +312,7 @@ static int stress_switch_sem_sysv(
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -321,6 +323,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -409,6 +412,7 @@ static int stress_switch_mq(
 	char mq_name[64];
 	struct mq_attr attr;
 	stress_msg_t msg;
+	int parent_cpu;
 
 	(void)snprintf(mq_name, sizeof(mq_name), "/%s-%" PRIdMAX "-%" PRIu32,
 			args->name, (intmax_t)args->pid, args->instance);
@@ -426,6 +430,7 @@ static int stress_switch_mq(
 	(void)shim_memset(&msg, 0, sizeof(msg));
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
+	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
@@ -436,6 +441,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		(void)stress_change_cpu(args, parent_cpu);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
