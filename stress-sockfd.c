@@ -163,7 +163,7 @@ static int OPTIMIZE3 stress_socket_client(
 		(void)shim_memset(fds, 0, fds_size);
 retry:
 		if (!keep_stressing_flag())
-			return EXIT_FAILURE;
+			return EXIT_NO_RESOURCE;
 
 		if (UNLIKELY((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -185,14 +185,13 @@ retry:
 		}
 		if (UNLIKELY(connect(fd, addr, addr_len) < 0)) {
 			(void)close(fd);
-			(void)shim_usleep(10000);
-			retries++;
-			if (retries > 100) {
+			if (retries++ > 100) {
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				return EXIT_FAILURE;
+				return EXIT_NO_RESOURCE;
 			}
+			(void)shim_usleep(10000);
 			goto retry;
 		}
 
