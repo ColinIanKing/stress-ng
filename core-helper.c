@@ -1692,6 +1692,24 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 	}
 }
 
+static char *stress_get_libc_version(void)
+{
+	static char buf[64];
+
+#if defined(__GLIBC__) &&	\
+    defined(__GLIBC_MINOR__)
+	(void)snprintf(buf, sizeof(buf), "glibc %d.%d", __GLIBC__, __GLIBC_MINOR__);
+	return buf;
+#endif
+#if defined(__UCLIBC__) &&		\
+    defined(__UCLIBC_MAJOR__) &&	\
+    defined(__UCLIBC_MINOR__)
+	(void)snprintf(buf, sizeof(buf), "uclibc %d.%d", __UCLIBC_MAJOR__, __UCLIBC_MINOR__);
+	return buf;
+#endif
+	return "unknown libc version";
+}
+
 /*
  *  pr_run_info()
  *	short info about the system we are running stress-ng on
@@ -1721,9 +1739,10 @@ void pr_runinfo(void)
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	if (uname(&uts) >= 0) {
-		pr_dbg("system: %s %s %s %s %s\n",
+		pr_dbg("system: %s %s %s %s %s, %s\n",
 			uts.sysname, uts.nodename, uts.release,
-			uts.version, uts.machine);
+			uts.version, uts.machine,
+			stress_get_libc_version());
 	}
 #endif
 	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
