@@ -118,6 +118,7 @@ static int sigs[] = {
 static void *sig_addr = NULL;
 static int sig_num = -1;
 static sigjmp_buf jmp_env;
+static bool check_flag;
 
 static void MLOCKED_TEXT stress_sig_handler(
         int sig,
@@ -272,6 +273,11 @@ use_page:
 	return ptr;
 }
 
+static void stress_far_branch_check(void)
+{
+	check_flag = true;
+}
+
 /*
  *  stress_far_branch()
  *	exercise a broad randomized set of branches to functions
@@ -385,6 +391,7 @@ static int stress_far_branch(const stress_args_t *args)
 		pr_inf("%s: %zu functions over %zu pages\n", args->name, total_funcs, n_pages);
 
 
+	funcs[0] = stress_far_branch_check;
 	/*
 	 *  Shuffle function pointers to get a fairly good
 	 *  random spread of address ranges to branch to
@@ -401,6 +408,8 @@ static int stress_far_branch(const stress_args_t *args)
 			funcs[k] = tmp;
 		}
 	}
+
+	check_flag = false;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -429,6 +438,7 @@ static int stress_far_branch(const stress_args_t *args)
 	} while (keep_stressing(args));
 	duration = stress_time_now() - t_start;
 
+
 	rate = (duration > 0.0) ? calls / duration : 0.0;
 	stress_metrics_set(args, 0, "function calls per sec", rate);
 
@@ -444,18 +454,24 @@ cleanup:
 	}
 	free(funcs);
 
+	if (!check_flag) {
+		pr_fail("%s: failed to execute check function\n", args->name);
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 
 stressor_info_t stress_far_branch_info = {
 	.stressor = stress_far_branch,
 	.class = CLASS_CPU_CACHE,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_far_branch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without mprotect() support or architecture not supported"
 };
