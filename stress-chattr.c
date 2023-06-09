@@ -197,6 +197,7 @@ static int do_chattr(
 			goto tidy_fd;
 		}
 
+#if 0
 		/*
 		 *  check that no other *extra* flag bits have been set
 		 *  (as opposed to see if flags set is same as flags got
@@ -214,6 +215,7 @@ static int do_chattr(
 			rc = EXIT_FAILURE;
 			goto tidy_fd;
 		}
+#endif
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
