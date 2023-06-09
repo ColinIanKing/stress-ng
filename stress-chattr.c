@@ -46,23 +46,46 @@ static const stress_help_t help[] = {
 #define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
 #define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
 
-static const unsigned int flags[] = {
-	SHIM_EXT2_NOATIME_FL,		/* chattr 'A' */
-	SHIM_EXT2_SYNC_FL, 		/* chattr 'S' */
-	SHIM_EXT2_DIRSYNC_FL,		/* chattr 'D' */
-	SHIM_EXT2_APPEND_FL,		/* chattr 'a' */
-	SHIM_EXT2_COMPR_FL,		/* chattr 'c' */
-	SHIM_EXT2_NODUMP_FL,		/* chattr 'd' */
-	SHIM_EXT4_EXTENTS_FL, 		/* chattr 'e' */
-	SHIM_EXT2_IMMUTABLE_FL, 	/* chattr 'i' */
-	SHIM_EXT3_JOURNAL_DATA_FL, 	/* chattr 'j' */
-	SHIM_EXT4_PROJINHERIT_FL, 	/* chattr 'P' */
-	SHIM_EXT2_SECRM_FL, 		/* chattr 's' */
-	SHIM_EXT2_UNRM_FL, 		/* chattr 'u' */
-	SHIM_EXT2_NOTAIL_FL, 		/* chattr 't' */
-	SHIM_EXT2_TOPDIR_FL, 		/* chattr 'T' */
-	SHIM_FS_NOCOW_FL, 		/* chattr 'C' */
+typedef struct {
+	unsigned long flag;
+	char attr;
+} stress_chattr_flag_t;
+
+static const stress_chattr_flag_t stress_chattr_flags[] = {
+	{ SHIM_EXT2_NOATIME_FL,		'A' },
+	{ SHIM_EXT2_SYNC_FL, 		'S' },
+	{ SHIM_EXT2_DIRSYNC_FL,		'D' },
+	{ SHIM_EXT2_APPEND_FL,		'a' },
+	{ SHIM_EXT2_COMPR_FL,		'c' },
+	{ SHIM_EXT2_NODUMP_FL,		'd' },
+	{ SHIM_EXT4_EXTENTS_FL, 	'e' },
+	{ SHIM_EXT2_IMMUTABLE_FL, 	'i' },
+	{ SHIM_EXT3_JOURNAL_DATA_FL, 	'j' },
+	{ SHIM_EXT4_PROJINHERIT_FL, 	'P' },
+	{ SHIM_EXT2_SECRM_FL, 		's' },
+	{ SHIM_EXT2_UNRM_FL, 		'u' },
+	{ SHIM_EXT2_NOTAIL_FL, 		't' },
+	{ SHIM_EXT2_TOPDIR_FL, 		'T' },
+	{ SHIM_FS_NOCOW_FL, 		'C' },
 };
+
+static char *stress_chattr_flags_str(const unsigned long flags, char *str, const size_t str_len)
+{
+	unsigned int i;
+	size_t j = 0;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
+		if (flags & stress_chattr_flags[i].flag) {
+			if (j < str_len - 1) {
+				str[j] = stress_chattr_flags[i].attr;
+				j++;
+			}
+		}
+	}
+	str[j] = '\0';
+
+	return str;
+}
 
 /*
  *  do_chattr()
@@ -70,15 +93,16 @@ static const unsigned int flags[] = {
 static int do_chattr(
 	const stress_args_t *args,
 	const char *filename,
-	const unsigned long flag)
+	const unsigned long flags,
+	const unsigned long mask)
 {
 	int i;
-	int rc = 0;
+	int rc = EXIT_SUCCESS;
 
 	for (i = 0; (i < 128) && keep_stressing(args); i++) {
 		int fd, fdw, ret;
 		unsigned long zero = 0UL;
-		unsigned long orig, rnd;
+		unsigned long orig, rnd, check;
 
 		fd = open(filename, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0)
@@ -90,10 +114,16 @@ static int do_chattr(
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
 			    (errno != ENOTTY) &&
-			    (errno != EINVAL))
-				pr_inf("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)%s\n",
+			    (errno != EINVAL)) {
+				/* unexpected failure */
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_fs_type(filename));
+				rc = EXIT_FAILURE;
+				goto tidy_fd;
+			}
+			/* most probably not supported */
+			rc = EXIT_NO_RESOURCE;
 			goto tidy_fd;
 		}
 
@@ -101,13 +131,20 @@ static int do_chattr(
 			goto tidy_fd;
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		if (ret < 0) {
-			rc = -1;
 			if ((errno != EOPNOTSUPP) &&
 			    (errno != ENOTTY) &&
-			    (errno != EINVAL))
-				pr_inf("%s: ioctl SHIM_EXT2_IOC_SETFLAGS failed: errno=%d (%s)%s\n",
-					args->name, errno, strerror(errno),
+			    (errno != EPERM) &&
+			    (errno != EINVAL)) {
+				/* unexpected failure */
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed: errno=%d (%s)%s\n",
+					args->name,
+					errno, strerror(errno),
 					stress_fs_type(filename));
+				rc = EXIT_FAILURE;
+				goto tidy_fd;
+			}
+			/* most probably not supported */
+			rc = EXIT_NO_RESOURCE;
 			goto tidy_fd;
 		}
 
@@ -120,12 +157,63 @@ static int do_chattr(
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
-		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flag);
-		if ((ret < 0) &&
-                    ((errno == EOPNOTSUPP) ||
-                     (errno == ENOTTY) ||
-		     (errno == EINTR)))
-			rc = -1;
+		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
+		if (ret < 0) {
+			if ((errno != EOPNOTSUPP) &&
+			    (errno != ENOTTY) &&
+			    (errno != EPERM) &&
+			    (errno != EINVAL)) {
+				/* unexpected failure */
+				char flags_str[65];
+
+				stress_chattr_flags_str(flags, flags_str, sizeof(flags_str));
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS 0x%lx (chattr '%s') failed: errno=%d (%s)%s\n",
+					args->name, flags, flags_str,
+					errno, strerror(errno),
+					stress_fs_type(filename));
+				rc = EXIT_FAILURE;
+				goto tidy_fd;
+			}
+			/* most probably not supported */
+			rc = EXIT_NO_RESOURCE;
+			goto tidy_fd;
+		}
+
+		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &check);
+		if (ret < 0) {
+			if ((errno != EOPNOTSUPP) &&
+			    (errno != ENOTTY) &&
+			    (errno != EINVAL)) {
+				/* unexpected failure */
+				pr_fail("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)%s\n",
+					args->name,
+					errno, strerror(errno),
+					stress_fs_type(filename));
+				rc = EXIT_FAILURE;
+				goto tidy_fd;
+			}
+			/* most probably not supported */
+			rc = EXIT_NO_RESOURCE;
+			goto tidy_fd;
+		}
+
+		/*
+		 *  check that no other *extra* flag bits have been set
+		 *  (as opposed to see if flags set is same as flags got
+		 *  since some flag settings are not set if the filesystem
+		 *  cannot honor them).
+		 */
+		if (((flags & mask) | (check & mask)) != (flags & mask)) {
+			char flags_str[65], check_str[65];
+
+			stress_chattr_flags_str(flags & mask, flags_str, sizeof(flags_str));
+			stress_chattr_flags_str(check & mask, check_str, sizeof(check_str));
+
+			pr_fail("%s: EXT2_IOC_GETFLAGS returned different flags 0x%lx ('%s') from set flags 0x%lx ('%s')\n",
+				args->name, check & mask, check_str, flags & mask, flags_str);
+			rc = EXIT_FAILURE;
+			goto tidy_fd;
+		}
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
@@ -144,11 +232,18 @@ static int do_chattr(
 		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &rnd));
 
 		/*
-		 *  Restore original setting
+		 *  Restore original setting, this should work since
+		 *  the flags are the same as when we started
 		 */
 		if (!keep_stressing(args))
 			goto tidy_fdw;
-		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig));
+		if (ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig) < 0) {
+			char flags_str[65];
+
+			stress_chattr_flags_str(flags, flags_str, sizeof(flags_str));
+			pr_fail("%s: EXT2_IOC_SETFLAGS failed to restore flags 0x%lx ('%s')\n",
+				args->name, flags, flags_str);
+		}
 tidy_fdw:
 
 		(void)close(fdw);
@@ -170,13 +265,15 @@ static int stress_chattr(const stress_args_t *args)
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX], pathname[PATH_MAX];
-	int all_flags, *flag_perms = NULL;
+	unsigned long mask = 0;;
+	int *flag_perms = NULL;
 	size_t i, index, flag_count;
 
-	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(flags); i++)
-		all_flags |= flags[i];
+	for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
+		mask |= stress_chattr_flags[i].flag;
+	}
 
-	flag_count = stress_flag_permutation(all_flags, &flag_perms);
+	flag_count = stress_flag_permutation((int)mask, &flag_perms);
 
 	/*
 	 *  Allow for multiple workers to chattr the *same* file
@@ -200,9 +297,21 @@ static int stress_chattr(const stress_args_t *args)
 	do {
 		size_t fail = 0;
 
-		for (i = 0; i < SIZEOF_ARRAY(flags); i++) {
-			if (do_chattr(args, filename, (unsigned long)flags[i]) < 0)
+		for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
+			int ret;
+
+			ret = do_chattr(args, filename, stress_chattr_flags[i].flag, mask);
+			switch (ret) {
+			case EXIT_FAILURE:
 				fail++;
+				rc = ret;
+				break;
+			case EXIT_NO_RESOURCE:
+				fail++;
+				break;
+			default:
+				break;
+			}
 		}
 
 		if (fail == i) {
@@ -215,7 +324,7 @@ static int stress_chattr(const stress_args_t *args)
 
 		/* Try next flag permutation */
 		if ((flag_count > 0) && (flag_perms)) {
-			(void)do_chattr(args, filename, (unsigned long)flag_perms[index]);
+			(void)do_chattr(args, filename, (unsigned long)flag_perms[index], mask);
 			index++;
 			if (index >= flag_count)
 				index = 0;
@@ -235,6 +344,7 @@ static int stress_chattr(const stress_args_t *args)
 stressor_info_t stress_chattr_info = {
 	.stressor = stress_chattr,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
@@ -243,6 +353,7 @@ stressor_info_t stress_chattr_info = {
 stressor_info_t stress_chattr_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux chattr() support"
 };
