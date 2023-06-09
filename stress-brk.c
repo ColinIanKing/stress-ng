@@ -193,10 +193,10 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 				stress_brk_page_resident(ptr, page_size, brk_touch);
 				tmp = (uintptr_t *)((uintptr_t)ptr - sizeof(uintptr_t));
 				if (*tmp != (uintptr_t)tmp) {
-					pr_fail("%s: brk shrink page contains incorrect "
+					pr_fail("%s: brk shrink page at %p contains incorrect "
 						"check value 0x%" PRIxPTR ", expected "
 						"0x%" PRIxPTR "\n",
-						args->name, *tmp, (uintptr_t)tmp);
+						args->name, tmp, *tmp, (uintptr_t)tmp);
 				}
 			}
 		} else {
