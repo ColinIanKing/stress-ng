@@ -1819,7 +1819,7 @@ static const char *stress_exit_status_to_string(const int status)
 		{ EXIT_SUCCESS,			"success" },
 		{ EXIT_FAILURE,			"stress-ng core failure " },
 		{ EXIT_NOT_SUCCESS,		"stressor failed" },
-		{ EXIT_NO_RESOURCE,		"no resource(s)" },
+		{ EXIT_NO_RESOURCE,		"no resources" },
 		{ EXIT_NOT_IMPLEMENTED,		"not implemented" },
 		{ EXIT_SIGNALED,		"killed by signal" },
 		{ EXIT_BY_SYS_EXIT,		"stressor terminated using _exit()" },
