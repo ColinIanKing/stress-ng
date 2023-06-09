@@ -413,7 +413,7 @@ retry:
 				if (args->instance == 0)
 					pr_inf_skip("%s: SCTP protocol not supported, skipping stressor\n",
 						args->name);
-				return EXIT_FAILURE;
+				return EXIT_NO_RESOURCE;
 			}
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
