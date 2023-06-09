@@ -3571,11 +3571,12 @@ const char *stress_fs_type(const char *filename)
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
     defined(HAVE_SYS_STATFS_H)
 	struct statfs buf;
-	static char tmp[64];
+	static char tmp[80];
 
 	if (statfs(filename, &buf) != 0)
 		return "";
-	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s", stress_fs_magic_to_name((unsigned long)buf.f_type));
+	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
+		stress_fs_magic_to_name((unsigned long)buf.f_type), (intmax_t)buf.f_bavail);
 	return tmp;
 #elif (defined(__FreeBSD__) &&		\
        defined(HAVE_SYS_MOUNT_H) &&	\
@@ -3583,11 +3584,12 @@ const char *stress_fs_type(const char *filename)
       (defined(__OpenBSD__) &&		\
        defined(HAVE_SYS_MOUNT_H))
 	struct statfs buf;
-	static char tmp[64];
+	static char tmp[80];
 
 	if (statfs(filename, &buf) != 0)
 		return "";
-	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s", buf.f_fstypename);
+	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
+		buf.f_fstypename, (intmax_t)buf.f_bavail);
 	return tmp;
 #else
 	(void)filename;
