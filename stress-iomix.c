@@ -169,7 +169,7 @@ static void stress_iomix_wr_seq_bursts(
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				if (errno != EPERM) {
+				if ((errno != EPERM) && (errno != ENOSPC)) {
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
@@ -222,7 +222,7 @@ static void stress_iomix_wr_rnd_bursts(
 			stress_rndbuf(buffer, len);
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				if (errno != EPERM) {
+				if ((errno != EPERM) && (errno != ENOSPC)) {
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
@@ -271,7 +271,7 @@ static void stress_iomix_wr_seq_slow(
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				if (errno != EPERM) {
+				if ((errno != EPERM) && (errno != ENOSPC)) {
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
@@ -585,7 +585,7 @@ static void stress_iomix_wr_bytes(
 
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				if (errno != EPERM) {
+				if ((errno != EPERM) && (errno != ENOSPC)) {
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
@@ -624,7 +624,7 @@ static void stress_iomix_wr_rev_bytes(
 
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				if (errno != EPERM) {
+				if ((errno != EPERM) && (errno != ENOSPC)) {
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
@@ -667,7 +667,7 @@ static void stress_iomix_rd_bytes(
 
 			rc = read(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				if (errno != EPERM) {
+				if ((errno != EPERM) && (errno != ENOSPC)) {
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					return;
