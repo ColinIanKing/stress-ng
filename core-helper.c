@@ -1699,6 +1699,7 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
  */
 void pr_runinfo(void)
 {
+	char real_path[PATH_MAX], *real_path_ret;
 	const char *temp_path = stress_get_temp_path();
 	const char *fs_type = stress_fs_type(temp_path);
 	size_t freemem, totalmem, freeswap, totalswap;
@@ -1733,8 +1734,8 @@ void pr_runinfo(void)
 		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)freeswap);
 		pr_dbg("RAM total: %s, RAM free: %s, swap free: %s\n", ram_t, ram_f, ram_s);
 	}
-
-	pr_dbg("temporary file path: '%s'%s\n", temp_path, fs_type);
+	real_path_ret = realpath(temp_path, real_path);
+	pr_dbg("temporary file path: '%s'%s\n", real_path_ret ? real_path : temp_path, fs_type);
 }
 
 /*
