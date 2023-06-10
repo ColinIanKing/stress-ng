@@ -258,7 +258,6 @@ rewait:
 			/* Bus error death? retry */
 			if (WTERMSIG(status) == SIGBUS) {
 				buserrs++;
-				stress_clean_dir(args->name, args->pid, args->instance);
 				goto again;
 			}
 
@@ -278,6 +277,7 @@ rewait:
 							"killer, bailing out "
 							"(instance %d)\n",
 							args->name, args->instance);
+					stress_clean_dir(args->name, args->pid, args->instance);
 					return EXIT_SUCCESS;
 				} else {
 					stress_log_system_mem_info();
@@ -287,7 +287,6 @@ rewait:
 							"(instance %d)\n",
 							args->name, args->instance);
 					ooms++;
-					stress_clean_dir(args->name, args->pid, args->instance);
 					goto again;
 				}
 			}
@@ -299,7 +298,6 @@ rewait:
 						"(instance %d)\n",
 						args->name, args->instance);
 				segvs++;
-				stress_clean_dir(args->name, args->pid, args->instance);
 				goto again;
 			}
 		}
