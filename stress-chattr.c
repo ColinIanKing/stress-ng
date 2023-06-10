@@ -252,17 +252,16 @@ static int do_chattr(
 		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp));
 
 		/*
-		 *  Restore original setting, this should work since
-		 *  the flags are the same as when we started
+		 *  Restore original setting
 		 */
-		if (!keep_stressing(args))
-			goto tidy_fdw;
-		if (ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig) < 0) {
-			char flags_str[65];
+		tmp = 0;
+		for (j = 0; (j < sizeof(orig) * 8); j++) {
+			register unsigned long bitmask = 1U << j;
 
-			stress_chattr_flags_str(flags, flags_str, sizeof(flags_str));
-			pr_fail("%s: EXT2_IOC_SETFLAGS failed to restore flags 0x%lx ('%s')\n",
-				args->name, flags, flags_str);
+			tmp |= bitmask;
+			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
+			if (ret < 0)
+				tmp &= ~bitmask;
 		}
 tidy_fdw:
 
