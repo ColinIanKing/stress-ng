@@ -102,9 +102,11 @@ static int do_chattr(
 	for (i = 0; (i < 128) && keep_stressing(args); i++) {
 		int fd, fdw, ret;
 		unsigned long zero = 0UL;
-		unsigned long orig, rnd, check;
+		unsigned long orig, tmp, check;
+		bool verify;
+		unsigned int j;
 
-		fd = open(filename, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
+		fd = open(filename, O_RDWR | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0)
 			continue;
 
@@ -129,23 +131,33 @@ static int do_chattr(
 
 		if (!keep_stressing(args))
 			goto tidy_fd;
-		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
-		if (ret < 0) {
-			if ((errno != EOPNOTSUPP) &&
-			    (errno != ENOTTY) &&
-			    (errno != EPERM) &&
-			    (errno != EINVAL)) {
-				/* unexpected failure */
-				pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed: errno=%d (%s)%s\n",
-					args->name,
-					errno, strerror(errno),
-					stress_fs_type(filename));
-				rc = EXIT_FAILURE;
-				goto tidy_fd;
+
+		/* work through flags disabling them one by one */
+		tmp = orig;
+		for (j = 0; (j < sizeof(orig) * 8); j++) {
+			register unsigned long bitmask = 1U << j;
+
+			if (orig & bitmask) {
+				tmp &= ~bitmask;
+
+				ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
+				if (ret < 0) {
+					if ((errno != EOPNOTSUPP) &&
+					    (errno != ENOTTY) &&
+					    (errno != EPERM) &&
+					    (errno != EINVAL)) {
+						/* unexpected failure */
+						pr_fail("%s: ioctl SHIM_EXT2_IOC_SETFLAGS (chattr zero flags) failed: errno=%d (%s)%s\n",
+							args->name,
+							errno, strerror(errno),
+							stress_fs_type(filename));
+						rc = EXIT_FAILURE;
+						goto tidy_fd;
+					}
+					/* failed, so re-eable the bit */
+					tmp |= bitmask;
+				}
 			}
-			/* most probably not supported */
-			rc = EXIT_NO_RESOURCE;
-			goto tidy_fd;
 		}
 
 		if (!keep_stressing(args))
@@ -157,6 +169,8 @@ static int do_chattr(
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
+
+		verify = (args->num_instances == 1);
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
@@ -172,11 +186,11 @@ static int do_chattr(
 					errno, strerror(errno),
 					stress_fs_type(filename));
 				rc = EXIT_FAILURE;
-				goto tidy_fd;
+				goto tidy_fdw;
 			}
 			/* most probably not supported */
 			rc = EXIT_NO_RESOURCE;
-			goto tidy_fd;
+			goto tidy_fdw;
 		}
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &check);
@@ -190,32 +204,36 @@ static int do_chattr(
 					errno, strerror(errno),
 					stress_fs_type(filename));
 				rc = EXIT_FAILURE;
-				goto tidy_fd;
+				goto tidy_fdw;
 			}
 			/* most probably not supported */
 			rc = EXIT_NO_RESOURCE;
-			goto tidy_fd;
+			goto tidy_fdw;
 		}
 
-#if 0
 		/*
 		 *  check that no other *extra* flag bits have been set
 		 *  (as opposed to see if flags set is same as flags got
 		 *  since some flag settings are not set if the filesystem
 		 *  cannot honor them).
 		 */
-		if (((flags & mask) | (check & mask)) != (flags & mask)) {
-			char flags_str[65], check_str[65];
+		if (verify) {
+			tmp = mask & ~(SHIM_EXT3_JOURNAL_DATA_FL | SHIM_EXT4_EXTENTS_FL);
+			if (((flags & tmp) | (check & tmp)) != (flags & tmp)) {
+				char flags_str[65], check_str[65];
 
-			stress_chattr_flags_str(flags & mask, flags_str, sizeof(flags_str));
-			stress_chattr_flags_str(check & mask, check_str, sizeof(check_str));
+				stress_chattr_flags_str(flags & tmp, flags_str, sizeof(flags_str));
+				stress_chattr_flags_str(check & tmp, check_str, sizeof(check_str));
 
-			pr_fail("%s: EXT2_IOC_GETFLAGS returned different flags 0x%lx ('%s') from set flags 0x%lx ('%s')\n",
-				args->name, check & mask, check_str, flags & mask, flags_str);
-			rc = EXIT_FAILURE;
-			goto tidy_fd;
+				pr_fail("%s: EXT2_IOC_GETFLAGS returned different "
+					"flags 0x%lx ('%s') from set flags 0x%lx ('%s')\n",
+					args->name, check & tmp, check_str,
+					flags & tmp, flags_str);
+
+				rc = EXIT_FAILURE;
+				goto tidy_fdw;
+			}
 		}
-#endif
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
@@ -230,8 +248,8 @@ static int do_chattr(
 		 */
 		if (!keep_stressing(args))
 			goto tidy_fdw;
-		rnd = 1ULL << (stress_mwc8() & 0x1f);
-		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &rnd));
+		tmp = 1ULL << (stress_mwc8() & 0x1f);
+		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp));
 
 		/*
 		 *  Restore original setting, this should work since
