@@ -30,6 +30,8 @@ typedef void(* stress_syncload_op_t)(void);
 
 static bool stress_sysload_x86_has_rdrand;
 
+double fma_a[8];
+
 static const stress_help_t help[] = {
 	{ NULL,	"syncload N",		"start N workers that synchronize load spikes" },
 	{ NULL, "syncload-msbusy M",	"maximum busy duration in milliseconds" },
@@ -83,9 +85,28 @@ static void stress_syncload_nop(void)
 #endif
 }
 
+static void OPTIMIZE3 TARGET_CLONES stress_syncload_fma(void)
+{
+	const double scale = 2.32830643653870e-10;  /* 1.0 / 2^32 */
+	double b = stress_mwc32() * scale;
+	double c = stress_mwc32() * scale;
+
+	fma_a[0] = (fma_a[0]) * b + c;
+	fma_a[1] = (fma_a[1]) * b + c;
+	fma_a[2] = (fma_a[2]) * b + c;
+	fma_a[3] = (fma_a[3]) * b + c;
+	fma_a[4] = (fma_a[4]) * b + c;
+	fma_a[5] = (fma_a[5]) * b + c;
+	fma_a[6] = (fma_a[6]) * b + c;
+	fma_a[7] = (fma_a[7]) * b + c;
+}
+
 #if defined(HAVE_ASM_X86_PAUSE)
 static void stress_syncload_pause(void)
 {
+	stress_asm_x86_pause();
+	stress_asm_x86_pause();
+	stress_asm_x86_pause();
 	stress_asm_x86_pause();
 }
 #endif
@@ -93,6 +114,9 @@ static void stress_syncload_pause(void)
 #if defined(HAVE_ASM_ARM_YIELD)
 static void stress_syncload_yield(void)
 {
+	__asm__ __volatile__("yield;\n");
+	__asm__ __volatile__("yield;\n");
+	__asm__ __volatile__("yield;\n");
 	__asm__ __volatile__("yield;\n");
 }
 #endif
@@ -104,6 +128,9 @@ static void stress_syncload_rdrand(void)
 {
 	if (stress_sysload_x86_has_rdrand) {
 		(void)stress_asm_x86_rdrand();
+		(void)stress_asm_x86_rdrand();
+		(void)stress_asm_x86_rdrand();
+		(void)stress_asm_x86_rdrand();
 	} else {
 		stress_syncload_nop();
 	}
@@ -113,15 +140,24 @@ static void stress_syncload_rdrand(void)
 static void stress_syncload_sched_yield(void)
 {
 	shim_sched_yield();
+	shim_sched_yield();
+	shim_sched_yield();
+	shim_sched_yield();
 }
 
 static void stress_syncload_mfence(void)
 {
 	shim_mfence();
+	shim_mfence();
+	shim_mfence();
+	shim_mfence();
 }
 
 static void stress_syncload_mb(void)
 {
+	shim_mb();
+	shim_mb();
+	shim_mb();
 	shim_mb();
 }
 
@@ -216,6 +252,7 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
     defined(__ATOMIC_ACQUIRE)
 	stress_syncload_atomic,
 #endif
+	stress_syncload_fma,
 };
 
 static inline double stress_syncload_gettime(void)
@@ -238,6 +275,7 @@ static int stress_syncload(const stress_args_t *args)
 	uint64_t syncload_mssleep = STRESS_SYNCLOAD_MS_DEFAULT / 2;
 	double timeout, sec_busy, sec_sleep;
 	size_t delay_type = 0;
+	size_t i;
 
 	(void)stress_get_setting("syncload-msbusy", &syncload_msbusy);
 	(void)stress_get_setting("syncload-mssleep", &syncload_mssleep);
@@ -248,6 +286,9 @@ static int stress_syncload(const stress_args_t *args)
 	stress_sysload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 
 	timeout = stress_syncload_gettime();
+
+	for (i = 0; i < SIZEOF_ARRAY(fma_a); i++)
+		fma_a[i] = 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
