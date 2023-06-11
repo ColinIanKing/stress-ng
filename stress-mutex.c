@@ -242,7 +242,7 @@ static int stress_mutex(const stress_args_t *args)
 	}
 
 	if (!created) {
-		pr_info("%s: could not create any pthreads\n", args->name);
+		pr_inf("%s: could not create any pthreads\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
