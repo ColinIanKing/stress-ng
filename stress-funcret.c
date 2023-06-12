@@ -374,11 +374,12 @@ static int stress_funcret(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_funcret_metrics); i++) {
-		char msg[64];
 		double rate = (stress_funcret_metrics[i].duration > 0) ?
 			stress_funcret_metrics[i].count / stress_funcret_metrics[i].duration : 0.0;
 
 		if (rate > 0.0) {
+			char msg[64];
+
 			(void)snprintf(msg, sizeof(msg), "%s function invocations per sec",
 					stress_funcret_methods[i].name);
 			stress_metrics_set(args, j, msg, rate);
