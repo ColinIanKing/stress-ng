@@ -106,7 +106,16 @@ static inline double stress_mwcdouble(void)
 	return (double)r / (double)(0xffffffffffffffffULL);
 }
 
-#define stress_funccall_type(type, rndfunc)				\
+/*
+ *  comparison functions, simple integer types use direct comparison,
+ *  floating pointing use precision as equal values should never been
+ *  compared for floating point
+ */
+#define cmp_type(a, b, type)	(a != b)
+#define cmp_fp(a, b, type)	((a - b) > (type)0.0001)
+#define cmp_cmplx(a, b, type)	(cabs((double complex)(a - b)) > (double)0.0001)
+
+#define stress_funccall_type(type, rndfunc, cmpfunc)			\
 static bool NOINLINE 							\
 stress_funccall_ ## type(const stress_args_t *args);			\
 									\
@@ -154,7 +163,7 @@ stress_funccall_ ## type(const stress_args_t *args)			\
 		if (ii == 0) {						\
 			res_old = res_new;				\
 		} else {						\
-			if (res_old != res_new) {			\
+			if (cmpfunc(res_old, res_new, type)) {		\
 				return false;				\
 			}						\
 		}							\
@@ -580,7 +589,7 @@ stress_funcdeep_6(bool)
 stress_funcdeep_7(bool)
 stress_funcdeep_8(bool)
 stress_funcdeep_9(bool)
-stress_funccall_type(bool, stress_mwc1)
+stress_funccall_type(bool, stress_mwc1, cmp_type)
 
 stress_funccall_1(uint8_t)
 stress_funccall_2(uint8_t)
@@ -600,7 +609,7 @@ stress_funcdeep_6(uint8_t)
 stress_funcdeep_7(uint8_t)
 stress_funcdeep_8(uint8_t)
 stress_funcdeep_9(uint8_t)
-stress_funccall_type(uint8_t, stress_mwc8)
+stress_funccall_type(uint8_t, stress_mwc8, cmp_type)
 
 stress_funccall_1(uint16_t)
 stress_funccall_2(uint16_t)
@@ -620,7 +629,7 @@ stress_funcdeep_6(uint16_t)
 stress_funcdeep_7(uint16_t)
 stress_funcdeep_8(uint16_t)
 stress_funcdeep_9(uint16_t)
-stress_funccall_type(uint16_t, stress_mwc16)
+stress_funccall_type(uint16_t, stress_mwc16, cmp_type)
 
 stress_funccall_1(uint32_t)
 stress_funccall_2(uint32_t)
@@ -640,7 +649,7 @@ stress_funcdeep_6(uint32_t)
 stress_funcdeep_7(uint32_t)
 stress_funcdeep_8(uint32_t)
 stress_funcdeep_9(uint32_t)
-stress_funccall_type(uint32_t, stress_mwc32)
+stress_funccall_type(uint32_t, stress_mwc32, cmp_type)
 
 stress_funccall_1(uint64_t)
 stress_funccall_2(uint64_t)
@@ -660,7 +669,7 @@ stress_funcdeep_6(uint64_t)
 stress_funcdeep_7(uint64_t)
 stress_funcdeep_8(uint64_t)
 stress_funcdeep_9(uint64_t)
-stress_funccall_type(uint64_t, stress_mwc64)
+stress_funccall_type(uint64_t, stress_mwc64, cmp_type)
 
 #if defined(HAVE_INT128_T)
 stress_funccall_1(__uint128_t)
@@ -681,7 +690,7 @@ stress_funcdeep_6(__uint128_t)
 stress_funcdeep_7(__uint128_t)
 stress_funcdeep_8(__uint128_t)
 stress_funcdeep_9(__uint128_t)
-stress_funccall_type(__uint128_t, stress_mwc64)
+stress_funccall_type(__uint128_t, stress_mwc64, cmp_type)
 #endif
 
 stress_funccall_1(float)
@@ -702,7 +711,7 @@ stress_funcdeep_6(float)
 stress_funcdeep_7(float)
 stress_funcdeep_8(float)
 stress_funcdeep_9(float)
-stress_funccall_type(float, stress_mwcfloat)
+stress_funccall_type(float, stress_mwcfloat, cmp_fp)
 
 stress_funccall_1(double)
 stress_funccall_2(double)
@@ -722,7 +731,7 @@ stress_funcdeep_6(double)
 stress_funcdeep_7(double)
 stress_funcdeep_8(double)
 stress_funcdeep_9(double)
-stress_funccall_type(double, stress_mwcdouble)
+stress_funccall_type(double, stress_mwcdouble, cmp_fp)
 
 stress_funccall_1(stress_long_double_t)
 stress_funccall_2(stress_long_double_t)
@@ -742,7 +751,7 @@ stress_funcdeep_6(stress_long_double_t)
 stress_funcdeep_7(stress_long_double_t)
 stress_funcdeep_8(stress_long_double_t)
 stress_funcdeep_9(stress_long_double_t)
-stress_funccall_type(stress_long_double_t, stress_mwc64)
+stress_funccall_type(stress_long_double_t, stress_mwc64, cmp_fp)
 
 #if defined(HAVE_COMPLEX_H) &&			\
     defined(HAVE_COMPLEX) &&			\
@@ -767,7 +776,7 @@ stress_funcdeep_6(stress_complex_float_t)
 stress_funcdeep_7(stress_complex_float_t)
 stress_funcdeep_8(stress_complex_float_t)
 stress_funcdeep_9(stress_complex_float_t)
-stress_funccall_type(stress_complex_float_t, stress_mwcdouble)
+stress_funccall_type(stress_complex_float_t, stress_mwcdouble, cmp_cmplx)
 
 stress_funccall_1(stress_complex_double_t)
 stress_funccall_2(stress_complex_double_t)
@@ -787,7 +796,7 @@ stress_funcdeep_6(stress_complex_double_t)
 stress_funcdeep_7(stress_complex_double_t)
 stress_funcdeep_8(stress_complex_double_t)
 stress_funcdeep_9(stress_complex_double_t)
-stress_funccall_type(stress_complex_double_t, stress_mwcdouble)
+stress_funccall_type(stress_complex_double_t, stress_mwcdouble, cmp_cmplx)
 
 stress_funccall_1(stress_complex_long_double_t)
 stress_funccall_2(stress_complex_long_double_t)
@@ -807,7 +816,7 @@ stress_funcdeep_6(stress_complex_long_double_t)
 stress_funcdeep_7(stress_complex_long_double_t)
 stress_funcdeep_8(stress_complex_long_double_t)
 stress_funcdeep_9(stress_complex_long_double_t)
-stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble)
+stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble, cmp_cmplx)
 #endif
 
 /*
