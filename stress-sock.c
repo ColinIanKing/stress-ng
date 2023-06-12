@@ -888,6 +888,7 @@ static int OPTIMIZE3 stress_sock_server(
 	void *ptr = MAP_FAILED;
 	const pid_t self = getpid();
 	int sendflag = 0;
+	double t, duration, rate;
 
 #if defined(MSG_ZEROCOPY)
 	if (sock_zerocopy)
@@ -950,6 +951,7 @@ static int OPTIMIZE3 stress_sock_server(
 	 */
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
+	t = stress_time_now();
 	do {
 		int sfd;
 
@@ -1125,6 +1127,10 @@ static int OPTIMIZE3 stress_sock_server(
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	duration = stress_time_now() - t;
+	rate = duration > 0.0 ? (double)msgs / duration : 0;
+	stress_metrics_set(args, 0, "messages sent per sec", rate);
+
 die_close:
 	(void)close(fd);
 die:
@@ -1142,8 +1148,6 @@ die:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
-	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
-
 	return rc;
 }
 
