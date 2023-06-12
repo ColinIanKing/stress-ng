@@ -408,7 +408,8 @@ static int OPTIMIZE3 stress_sctp_client(
 retry:
 		if (!keep_stressing_flag())
 			return EXIT_FAILURE;
-		if (UNLIKELY((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0)) {
+		fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP);
+		if (UNLIKELY(fd < 0)) {
 			if (errno == EPROTONOSUPPORT) {
 				if (args->instance == 0)
 					pr_inf_skip("%s: SCTP protocol not supported, skipping stressor\n",
@@ -528,12 +529,13 @@ static int OPTIMIZE3 stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
+	fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP);
+	if (fd < 0) {
 		if (errno == EPROTONOSUPPORT) {
 			if (args->instance == 0)
 				pr_inf_skip("%s: SCTP protocol not supported, skipping stressor\n",
 					args->name);
-			rc = EXIT_NOT_IMPLEMENTED;
+			rc = EXIT_NO_RESOURCE;
 			goto die;
 		}
 		rc = stress_exit_status(errno);
