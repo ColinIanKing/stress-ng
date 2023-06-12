@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
     defined(BLKGETSIZE) && 		\
     defined(BLKSSZGET)
 
-typedef void (*stress_rawdev_func)(const stress_args_t *args, const int fd,
+typedef int (*stress_rawdev_func)(const stress_args_t *args, const int fd,
 				   char *buffer, const size_t blks,
 				   const size_t blksz,
 				   stress_metrics_t *metrics);
@@ -80,7 +80,7 @@ static inline unsigned long shift_ul(unsigned long v, unsigned int shift)
  *  stress_rawdev_sweep()
  *	sweep reads across raw block device
  */
-static void stress_rawdev_sweep(
+static int stress_rawdev_sweep(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -98,8 +98,11 @@ static void stress_rawdev_sweep(
 		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
-			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
+			if (errno != EINTR) {
+				pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				return -1;
+			}
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
@@ -112,21 +115,25 @@ static void stress_rawdev_sweep(
 		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
-			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
+			if (errno != EINTR) {
+				pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				return -1;
+			}
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
 			inc_counter(args);
 		}
 	}
+	return 0;
 }
 
 /*
  *  stress_rawdev_wiggle()
  *	sweep reads with non-linear wiggles across device
  */
-static void stress_rawdev_wiggle(
+static int stress_rawdev_wiggle(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -147,8 +154,11 @@ static void stress_rawdev_wiggle(
 			t = stress_time_now();
 			ret = pread(fd, buffer, blksz, offset);
 			if (UNLIKELY(ret < 0)) {
-				pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-					args->name, (intmax_t)offset, errno, strerror(errno));
+				if (errno != EINTR) {
+					pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+						args->name, (intmax_t)offset, errno, strerror(errno));
+					return -1;
+				}
 			} else {
 				metrics->duration += stress_time_now() - t;
 				metrics->count += ret;
@@ -156,6 +166,7 @@ static void stress_rawdev_wiggle(
 			}
 		}
 	}
+	return 0;
 }
 
 /*
@@ -163,7 +174,7 @@ static void stress_rawdev_wiggle(
  *	read start/end of raw device, will case excessive
  *	sweeping of heads on physical device
  */
-static void stress_rawdev_ends(
+static int stress_rawdev_ends(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -182,8 +193,11 @@ static void stress_rawdev_ends(
 		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
-			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
+			if (errno != EINTR) {
+				pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				return -1;
+			}
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
@@ -194,8 +208,11 @@ static void stress_rawdev_ends(
 		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
-			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
+			if (errno != EINTR) {
+				pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				return -1;
+			}
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
@@ -203,13 +220,14 @@ static void stress_rawdev_ends(
 		}
 		inc_counter(args);
 	}
+	return 0;
 }
 
 /*
  *  stress_rawdev_random()
  *	read at random locations across a device
  */
-static void stress_rawdev_random(
+static int stress_rawdev_random(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -227,21 +245,25 @@ static void stress_rawdev_random(
 		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
-			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
+			if (errno != EINTR) {
+				pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				return -1;
+			}
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
 			inc_counter(args);
 		}
 	}
+	return 0;
 }
 
 /*
  *  stress_rawdev_burst()
  *	bursts of reads from random places on a device
  */
-static void stress_rawdev_burst(
+static int stress_rawdev_burst(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -260,8 +282,11 @@ static void stress_rawdev_burst(
 		t = stress_time_now();
 		ret = pread(fd, buffer, blksz, offset);
 		if (UNLIKELY(ret < 0)) {
-			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
-				args->name, (intmax_t)offset, errno, strerror(errno));
+			if (errno != EINTR) {
+				pr_fail("%s: pread at %ju failed, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				return -1;
+			}
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
@@ -271,9 +296,10 @@ static void stress_rawdev_burst(
 		if (blk >= (off_t)blks)
 			blk = 0;
 	}
+	return 0;
 }
 
-static void stress_rawdev_all(
+static int stress_rawdev_all(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -297,7 +323,7 @@ static const stress_rawdev_method_info_t rawdev_methods[] = {
  *  stress_rawdev_all()
  *      iterate over all rawdev methods
  */
-static void stress_rawdev_all(
+static int stress_rawdev_all(
 	const stress_args_t *args,
 	const int fd,
 	char *buffer,
@@ -306,8 +332,9 @@ static void stress_rawdev_all(
 	stress_metrics_t *metrics)
 {
 	static size_t i = 1;       /* Skip over stress_rawdev_all */
+	int ret;
 
-	rawdev_methods[i].func(args, fd, buffer, blks, blksz, &metrics[i]);
+	ret = rawdev_methods[i].func(args, fd, buffer, blks, blksz, &metrics[i]);
 
 	metrics[0].duration += metrics[i].duration;
 	metrics[0].count += metrics[i].count;
@@ -315,6 +342,8 @@ static void stress_rawdev_all(
 	i++;
 	if (i >= SIZEOF_ARRAY(rawdev_methods))
 		i = 1;
+
+	return ret;
 }
 
 /*
@@ -459,7 +488,8 @@ static int stress_rawdev(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]);
+		if (func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]) < 0)
+			break;
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -489,6 +519,7 @@ stressor_info_t stress_rawdev_info = {
 	.supported = stress_rawdev_supported,
 	.class = CLASS_IO,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -496,6 +527,7 @@ stressor_info_t stress_rawdev_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/sysmacros.h or undefined BLKGETSIZE, BLKSSZGET"
 };
