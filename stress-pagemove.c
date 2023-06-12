@@ -122,7 +122,7 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 		(void)madvise((void *)buf, sz, PROT_READ);
 
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
-			page_info_t *p = (page_info_t *)ptr;
+			register const page_info_t *p = (page_info_t *)ptr;
 
 			if (UNLIKELY((p->page_num != page_num) ||
 				     (p->virt_addr != (void *)ptr))) {
@@ -205,7 +205,7 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 				metrics_count = 0;
 		}
 		for (page_num = 0, ptr = buf; ptr < buf_end; ptr += page_size, page_num++) {
-			page_info_t *p = (page_info_t *)ptr;
+			register const page_info_t *p = (page_info_t *)ptr;
 
 			if (UNLIKELY(((p->page_num + pages - 1) % pages) != page_num))
 				pr_fail("%s: page shuffle failed for page %zu, mismatch on contents\n", args->name, page_num);
