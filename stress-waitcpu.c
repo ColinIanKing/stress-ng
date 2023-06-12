@@ -295,7 +295,10 @@ static int stress_waitcpu(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
 			if (!strcmp("nop", stress_waitcpu_method[i].name))
 				continue;
-			if (stress_waitcpu_method[i].rate > nop_rate) {
+			/*
+			 *   compare with ~5% slop
+			 */
+			if (stress_waitcpu_method[i].rate > (nop_rate * 1.05)) {
 				pr_fail("%s: %s instruction rate (%.2f ops "
 					"per sec) is higher than nop "
 					"instruction rate (%.2f ops per sec)\n",
