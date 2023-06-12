@@ -8269,7 +8269,7 @@ static void stress_syscall_rank_calls_by_geomean(const double scale)
 	stress_syscall_reset_index();
 
 	for (n = 0, i = 0; i < STRESS_SYSCALLS_MAX; i++) {
-		syscall_stats_t *ss = &syscall_stats[i];
+		const syscall_stats_t *ss = &syscall_stats[i];
 		const uint64_t d = ss->max_test_duration;
 
 		if (ss->succeed && (d > 0)) {
@@ -8631,7 +8631,7 @@ static int stress_syscall(const stress_args_t *args)
 	} while (keep_stressing(args) && (stress_time_now() < time_end));
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
-		syscall_stats_t *ss = &syscall_stats[i];
+		const syscall_stats_t *ss = &syscall_stats[i];
 
 		if (ss->ignore)
 			continue;
