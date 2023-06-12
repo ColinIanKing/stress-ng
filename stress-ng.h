@@ -2436,7 +2436,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 inc_counter(const stress_args_t *args
  */
 static inline uint64_t ALWAYS_INLINE OPTIMIZE3 get_counter(const stress_args_t *args)
 {
-	register stress_counter_info_t * const ci = args->ci;
+	register const stress_counter_info_t * const ci = args->ci;
 
 	return ci->counter;
 }
