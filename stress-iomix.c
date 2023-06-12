@@ -540,7 +540,7 @@ static void stress_iomix_rd_wr_mmap(
 			if (mmaps[i] != MAP_FAILED) {
 				size_t j;
 				uint64_t sum = 0;
-				uint8_t *buffer = (uint8_t *)mmaps[i];
+				const uint8_t *buffer = (uint8_t *)mmaps[i];
 
 				/* Force page data to be read */
 				for (j = 0; j < page_size; j++)
