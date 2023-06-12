@@ -37,10 +37,11 @@ static const stress_help_t help[] = {
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
     defined(HAVE_TIMER_SETTIME)
-static volatile uint64_t timer_counter = 0;
+static volatile uint64_t timer_counter;
+static volatile uint64_t timer_settime_failure;
+static uint64_t timer_overruns;
 static uint64_t max_ops;
 static timer_t timerid;
-static uint64_t overruns = 0;
 static double rate_ns;
 static double start;
 static bool timer_rand;
@@ -154,9 +155,10 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 		const int ret = timer_getoverrun(timerid);
 
 		if (ret > 0)
-			overruns += (uint64_t)ret;
+			timer_overruns += (uint64_t)ret;
 		stress_timer_set(&timer);
-		(void)timer_settime(timerid, 0, &timer, NULL);
+		if (timer_settime(timerid, 0, &timer, NULL) < 0)
+			timer_settime_failure++;
 		return;
 	}
 
@@ -164,7 +166,8 @@ cancel:
 	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
-	(void)timer_settime(timerid, 0, &timer, NULL);
+	if (timer_settime(timerid, 0, &timer, NULL) < 0)
+		timer_settime_failure++;
 }
 
 /*
@@ -177,7 +180,11 @@ static int stress_timer(const stress_args_t *args)
 	struct itimerspec timer;
 	sigset_t mask;
 	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
-	int n = 0;
+	int n = 0, rc = EXIT_SUCCESS;
+
+	timer_counter = 0;
+	timer_settime_failure = 0;
+	timer_overruns = 0;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -226,7 +233,7 @@ static int stress_timer(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		struct timespec req ALIGN64;
+		struct timespec req;
 
 		if (UNLIKELY(n++ >= 1024)) {
 			n = 0;
@@ -250,10 +257,16 @@ static int stress_timer(const stress_args_t *args)
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
 	}
 	pr_dbg("%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
-		args->name, overruns, args->instance);
+		args->name, timer_overruns, args->instance);
+
+	if (timer_settime_failure) {
+		pr_fail("%s: %" PRIu64 " timer settime calls failed\n",
+			args->name, timer_settime_failure);
+		rc = EXIT_FAILURE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(__linux__)
@@ -273,13 +286,14 @@ static int stress_timer(const stress_args_t *args)
 	}
 #endif
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -287,6 +301,7 @@ stressor_info_t stress_timer_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt, timer_create(), timer_delete(), timer_getoverrun() or timer_settime()"
 };
