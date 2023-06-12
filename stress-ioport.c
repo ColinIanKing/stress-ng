@@ -243,6 +243,7 @@ static int stress_ioport(const stress_args_t *args)
 		VOID_RET(int, ioperm(~0UL, 1, 1));
 		VOID_RET(int, ioperm(IO_PORT, 1, 1));
 
+		/* iopl is deprecated, but exercise it anyhow */
 #if defined(HAVE_IOPL)
 		{
 			static const int levels[] = {
