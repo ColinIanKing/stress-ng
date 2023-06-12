@@ -142,8 +142,8 @@ static uint64_t stress_memrate_loops(
 
 static void OPTIMIZE3 stress_memrate_flush(const stress_memrate_context_t *context)
 {
-	uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
-	uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
+	register uint8_t *start ALIGNED(4096) = (uint8_t *)context->start;
+	register const uint8_t *end ALIGNED(4096) = (uint8_t *)context->end;
 
 	while (start < end) {
 		shim_clflush(start);
@@ -221,7 +221,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 	for (ptr = start; ptr < end;) {				\
 		double t2, dur_remainder;			\
 		const type *loop_end = ptr + loop_elements;	\
-		register type *read_end = (type *)		\
+		register const type *read_end = (type *)	\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		while (ptr < read_end) {			\
@@ -549,7 +549,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate64(
     !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosd(void *ptr, const uint32_t loops)
 {
-	register void *p = ptr;
+	register const void *p = ptr;
 	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
@@ -582,7 +582,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate32(
     !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosw(void *ptr, const uint32_t loops)
 {
-	register void *p = ptr;
+	register const void *p = ptr;
 	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
@@ -615,7 +615,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_write_stos_rate16(
     !defined(__ILP32__)
 static inline void OPTIMIZE3 stress_memrate_stosb(void *ptr, const uint32_t loops)
 {
-	register void *p = ptr;
+	register const void *p = ptr;
 	register const uint32_t l = loops;
 
 	__asm__ __volatile__(
@@ -796,7 +796,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	for (ptr = start; ptr < end;) {				\
 		double t2, dur_remainder;			\
 		const type *loop_end = ptr + loop_elements;	\
-		register type *write_end = (type *)		\
+		register const type *write_end = (type *)	\
 			STRESS_PTR_MINIMUM(loop_end, end);	\
 								\
 		while (ptr < write_end) {			\
@@ -1018,7 +1018,7 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 		for (i = 0; i < memrate_items; i++) {
 			double t1, t2;
 			uint64_t kbytes;
-			stress_memrate_info_t *info = &memrate_info[i];
+			const stress_memrate_info_t *info = &memrate_info[i];
 			bool valid = false;
 
 			if (context->memrate_flush)
