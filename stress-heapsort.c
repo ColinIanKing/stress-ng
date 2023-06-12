@@ -227,6 +227,6 @@ stressor_info_t stress_heapsort_info = {
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built without BSD library"
+	.unimplemented_reason = "built without the BSD library"
 };
 #endif

@@ -198,6 +198,6 @@ stressor_info_t stress_radixsort_info = {
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
-	.unimplemented_reason = "built with BSD library"
+	.unimplemented_reason = "built without the BSD library"
 };
 #endif
