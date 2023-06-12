@@ -365,7 +365,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	int fd;
 	int rc = EXIT_SUCCESS;
 	uint32_t buf[PACKET_SIZE / sizeof(uint32_t)];
-	struct ethhdr *eth = (struct ethhdr *)buf;
+	const struct ethhdr *eth = (struct ethhdr *)buf;
 	const struct iphdr *ip = (struct iphdr *)((uintptr_t)buf + sizeof(struct ethhdr));
 	const struct udphdr *udp = (struct udphdr *)((uintptr_t)buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
 	struct sockaddr saddr;
