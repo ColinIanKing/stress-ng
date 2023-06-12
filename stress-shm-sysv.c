@@ -174,8 +174,8 @@ static int stress_shm_sysv_check(
 	const size_t sz,
 	const size_t page_size)
 {
-	uint8_t *ptr, *end = buf + sz;
-	uint8_t val;
+	uint8_t *ptr, val;
+	const uint8_t *end = buf + sz;
 
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		*ptr = val;
