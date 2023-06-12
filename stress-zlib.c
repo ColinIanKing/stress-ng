@@ -1614,7 +1614,7 @@ static int stress_zlib_deflate(
 		do {
 			static uint64_t ALIGN64 in[DATA_SIZE / sizeof(uint64_t)];
 			uint64_t *in_end = (uint64_t *)((uintptr_t)&in + sizeof(in));
-			unsigned char *zlib_checksum_in = (unsigned char *)in;
+			const unsigned char *zlib_checksum_in = (unsigned char *)in;
 			const uint64_t diff = zlib_args.stream_bytes - stream_bytes_out;
 
 			int gen_sz = (int)((diff >= DATA_SIZE)
