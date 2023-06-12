@@ -1778,11 +1778,12 @@ static inline void stress_stressor_finished(pid_t *pid)
  */
 static void stress_kill_stressors(const int sig, const bool force_sigkill)
 {
-	static int count = 0;
 	int signum = sig;
 	stress_stressor_t *ss;
 
 	if (force_sigkill) {
+		static int count = 0;
+
 		/* multiple calls will always fallback to SIGKILL */
 		count++;
 		if (count > 5) {
