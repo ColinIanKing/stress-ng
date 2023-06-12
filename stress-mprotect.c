@@ -115,13 +115,13 @@ static int stress_mprotect_mem(
 			const int j = stress_mwc16modn(n_flags);
 
 			if (mprotect((void *)ptr, size, prot_flags[j]) == 0) {
-				char str[128];
-
 				inc_counter(args);
 
 #if defined(PROT_READ) &&	\
     defined(PROT_WRITE)
 				if ((prot_flags[j] & (PROT_READ | PROT_WRITE)) == 0) {
+					char str[128];
+
 					stress_uint8_put(*ptr);
 
 					/* not readable, should not get here */
@@ -135,6 +135,8 @@ static int stress_mprotect_mem(
 #if defined(PROT_WRITE)
 				/* not writeable, should not get here */
 				if ((prot_flags[j] & PROT_WRITE) == 0) {
+					char str[128];
+
 					*ptr = 1;
 
 					/* not writable, should not get here */
