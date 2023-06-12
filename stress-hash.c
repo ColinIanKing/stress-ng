@@ -676,7 +676,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	}
 	buffer = calloc(bucket.n_keys + 64, sizeof(*buffer));
 	if (!buffer) {
-		pr_inf_skip("%s: failed to allocate %" PRIu32 " byte bufffer, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate %" PRIu32 " byte buffer, skipping stressor\n",
 			args->name, bucket.n_keys);
 		free(bucket.buckets);
 		return EXIT_NO_RESOURCE;

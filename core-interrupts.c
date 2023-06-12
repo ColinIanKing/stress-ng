@@ -38,7 +38,7 @@ static const stress_interrupt_info_t info[] = {
 	{ "ERR:",	true,	pr_fail, "IO-APIC Bus Error" },
 	{ "SMI:",	false,	pr_warn, "System Management Interrupt" },
 	{ "MIS:",	true,	pr_fail, "IO-APIC Miscount" },
-	{ "Err:",	true,	pr_fail, "Suprious Unhandled Interrupt" },	/* ARM */
+	{ "Err:",	true,	pr_fail, "Spurious Unhandled Interrupt" },	/* ARM */
 };
 
 STRESS_ASSERT(SIZEOF_ARRAY(info) == STRESS_INTERRUPTS_MAX)

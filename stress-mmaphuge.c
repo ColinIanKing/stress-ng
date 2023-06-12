@@ -140,7 +140,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 
 						*ptr64 = val + k;
 					}
-					/* ..and sanity checl */
+					/* ..and sanity check */
 					for (k = 0; keep_stressing(args) && (k < sz); k += page_size * 64) {
 						register uint64_t *ptr64 = (uint64_t *)&buf[k];
 

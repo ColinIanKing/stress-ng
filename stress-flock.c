@@ -73,7 +73,7 @@ static int stress_flock_child(
 				inc_counter(args);
 
 			/*
-			 *  we have an exlusive lock on the fd, so re-doing
+			 *  we have an exclusive lock on the fd, so re-doing
 			 *  the exclusive lock with LOCK_NB should not succeed
 			 */
 			if (flock(fd2, LOCK_EX | LOCK_NB) == 0) {

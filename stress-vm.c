@@ -271,7 +271,7 @@ static inline void inject_random_bit_errors(uint8_t *buf, const size_t sz)
 
 /*
  *  compute a % b where b is normally just larger than b, so we
- *  need to do a - b once and occassionally just twice. Use repeated
+ *  need to do a - b once and occasionally just twice. Use repeated
  *  subtraction since this is faster than %
  */
 static inline OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)

@@ -866,7 +866,7 @@ atomically increment a specific byte in a cacheline and check for
 corruption every 7 increments.
 T}
 bits	T{
-write and read back shifted bit patterns into specifc byte in a cacheline
+write and read back shifted bit patterns into specific byte in a cacheline
 and check for corruption.
 T}
 copy	T{
@@ -877,7 +877,7 @@ increment and read back a specific byte in a cacheline and check for
 corruption every 7 increments.
 T}
 mix	T{
-perform a mix of increment, left and right rotates a specifc byte in a
+perform a mix of increment, left and right rotates a specific byte in a
 cacheline and check for corruption.
 T}
 rdfwd64	T{
@@ -1952,7 +1952,7 @@ reaped in a first-in first-out manner.
 .TP
 .B \-\-forkheavy\-allocs N
 attempt N resource allocation loops per stressor instance. Resources include
-pipes, file descriptors, memory mappings, pthreads, timers, ptys, semphores,
+pipes, file descriptors, memory mappings, pthreads, timers, ptys, semaphores,
 message queues and temporary files. These create heavyweight processes that
 are more time expensive to fork from. Default is 16384.
 .TP
@@ -4358,7 +4358,7 @@ stop the reboot stress workers after N bogo reboot cycles.
 .TP
 .B \-\-regs N
 start N workers that shuffle data around the CPU registers exercising register
-move instuctions.  Each bogo-op represents 1000 calls of a shuffling function
+move instructions.  Each bogo-op represents 1000 calls of a shuffling function
 that shuffles the registers 32 times. Only implemented for the GCC compiler
 since this requires register annotations and optimization level 0 to compile
 appropriately.
@@ -4470,7 +4470,7 @@ variables.  The default will rotate four 8, 16, 32, 64 (and if supported 128) bi
 values 10000 times in a loop per bogo-op.
 .TP
 .B \-\-rotate\-method M
-specify the method of rotation to use. The 'all' methJod uses all the methods
+specify the method of rotation to use. The 'all' method uses all the methods
 and is the default.
 .TS
 expand;
@@ -4498,7 +4498,7 @@ start N workers that exercise restartable sequences via the rseq(2) system
 call.  This loops over a long duration critical section that is likely to
 be interrupted.  A rseq abort handler keeps count of the number of
 interruptions and a SIGSEV handler also tracks any failed rseq aborts that
-can occur if there is a mistmatch in a rseq check signature. Linux only.
+can occur if there is a mismatch in a rseq check signature. Linux only.
 .TP
 .B \-\-rseq\-ops N
 stop after N bogo rseq operations. Each bogo rseq operation is equivalent
@@ -4883,7 +4883,7 @@ stop socket stress workers after N bogo operations.
 .B \-\-sock\-opts [ random | send | sendmsg | sendmmsg ]
 by default, messages are sent using send(2). This option allows one to specify
 the sending method using send(2), sendmsg(2), sendmmsg(2) or a random selection
-of one of thse 3 on each iteration.  Note that sendmmsg is only available for
+of one of these 3 on each iteration.  Note that sendmmsg is only available for
 Linux systems that support this system call.
 .TP
 .B \-\-sock\-type [ stream | seqpacket ]
@@ -4998,7 +4998,7 @@ use a hash table and allocate nodes on the heap for each unique value at a (x, y
 matrix position.
 T}
 hashjudy	T{
-use a hash table for x co-ordinates and a Judy array for y co-ordinates for values
+use a hash table for x coordinates and a Judy array for y coordinates for values
 at a (x, y) matrix position.
 T}
 judy	T{
@@ -5074,7 +5074,7 @@ force stack pages out to swap (available when madvise(2) supports MADV_PAGEOUT).
 .TP
 .B \-\-stack\-unmap
 unmap a single page in the middle of a large buffer allocated on the stack on each
-stack allocation. This forces the stack mapping into multiple seperate
+stack allocation. This forces the stack mapping into multiple separate
 allocation mappings.
 .TP
 .B \-\-stackmmap N

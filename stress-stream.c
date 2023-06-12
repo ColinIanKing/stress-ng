@@ -973,7 +973,7 @@ static int stress_stream(const stress_args_t *args)
 			" (instance %" PRIu32 ")\n",
 			args->name, mb_rd_rate, mb_wr_rate, fp_rate, args->instance);
 		stress_metrics_set(args, 0, "MB per sec memory read rate", mb_rd_rate);
-		stress_metrics_set(args, 1, "MB ser sec memory write rate", mb_wr_rate);
+		stress_metrics_set(args, 1, "MB per sec memory write rate", mb_wr_rate);
 		stress_metrics_set(args, 2, "Mflop per sec (double precision) compute rate", fp_rate);
 	} else {
 		if (args->instance == 0)

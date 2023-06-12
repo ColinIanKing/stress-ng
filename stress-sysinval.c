@@ -167,7 +167,7 @@ typedef struct {
 /*
  *  hash table - in the parent context this records system
  *  calls that crash the child. in the child context this
- *  contains the same crasher data that the parent has plus
+ *  contains the same crash data that the parent has plus
  *  a cache of the system calls that return 0 and we don't
  *  want to retest
  */
@@ -732,7 +732,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(getpid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getpmsg)
-	/* Unimplimented */
+	/* Unimplemented */
 	/* { SYS(getpmsg), 0, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(getppid)
@@ -956,7 +956,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(llseek), 5, { ARG_FD, ARG_UINT, ARG_UINT, ARG_PTR, ARG_UINT, 0 } },
 #endif
 #if DEFSYS(lock)
-	/* Unimplimented, deprecated */
+	/* Unimplemented, deprecated */
 #endif
 #if DEFSYS(lookup_dcookie)
 	{ SYS(lookup_dcookie), 3, { ARG_UINT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
@@ -990,7 +990,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(madvise1)
-	/* Unimplimented, deprecated */
+	/* Unimplemented, deprecated */
 #endif
 #if DEFSYS(mbind)
 	{ SYS(mbind), 6, { ARG_PTR, ARG_UINT, ARG_INT, ARG_PTR, ARG_UINT, ARG_UINT } },
@@ -1068,7 +1068,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(mprotect), 3, { ARG_PTR, ARG_LEN, ARG_UINT, 0, 0, 0 } },
 #endif
 #if DEFSYS(mpx)
-	/* Unimplimented, deprecated */
+	/* Unimplemented, deprecated */
 #endif
 #if DEFSYS(mq_close)
 	{ SYS(mq_close), 1, { ARG_INT, 0, 0, 0, 0, 0 } },

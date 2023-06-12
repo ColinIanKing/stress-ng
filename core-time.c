@@ -94,7 +94,7 @@ double OPTIMIZE3 stress_time_now(void)
 		return stress_time_now_timeval();
 	}
 
-	/* Unlikey, no time available! */
+	/* Unlikely, no time available! */
 	return -1.0;
 }
 

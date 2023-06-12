@@ -567,7 +567,7 @@ static void stress_rt_dist(
 
 	dist = (int64_t *)calloc(dist_size, sizeof(*dist));
 	if (!dist) {
-		pr_inf("%s: cannot allocat distribution stats buffer, cannot log distribution\n", name);
+		pr_inf("%s: cannot allocate distribution stats buffer, cannot log distribution\n", name);
 		return;
 	}
 

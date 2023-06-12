@@ -306,7 +306,7 @@ static void stress_exec_add_pid(stress_pid_hash_t *sph, const pid_t pid)
 	 *  Since pids are unique we never have
 	 *  a pid clash so we can just add
 	 *  the new pid hash to the table - this
-	 *  reall simplifies life
+	 *  really simplifies life
 	 */
 	sph->pid = pid;
 	sph->next = stress_pid_hash_table[hash];

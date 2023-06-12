@@ -322,7 +322,7 @@ static bool stress_net_port_range_ok(const int start_port, const int end_port)
 /*
  *   stress_net_reserve_ports()
  *	attempt to reserve ports, returns nearest available contiguous
- *	ports that are availble or -1 if none could be found
+ *	ports that are available or -1 if none could be found
  */
 int stress_net_reserve_ports(const int start_port, const int end_port)
 {

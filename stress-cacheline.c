@@ -580,7 +580,7 @@ static int stress_set_cacheline_affinity(const char *opt)
 
 /*
  *  stress_set_cacheline_method()
- *	set the default cachline stress method
+ *	set the default cacheline stress method
  */
 static int stress_set_cacheline_method(const char *name)
 {

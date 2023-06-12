@@ -149,7 +149,7 @@ static int stress_fsize_boundary(
 
 /*
  *  stress_fsize_max_off_t()
- *	detemine max off_t, we can't rely on a POSIXly defined
+ *	determine max off_t, we can't rely on a POSIXly defined
  *	macro for this, so determine it by the naive method
  */
 static off_t stress_fsize_max_off_t(void)

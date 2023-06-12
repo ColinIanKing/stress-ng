@@ -111,7 +111,7 @@ static const stress_perf_scale_t perf_scale[] = {
 /* perf counters to be read */
 static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	/*
-	 *  Hardware conters
+	 *  Hardware counters
 	 */
 #if STRESS_PERF_DEFINED(HW_CPU_CYCLES)
 	PERF_INFO_HW(HW_CPU_CYCLES,		"CPU Cycles"),

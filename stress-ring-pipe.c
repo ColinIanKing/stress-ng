@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"ring-pipe-num",	"number of pipes to use" },
 	{ NULL,	"ring-pipe-ops N",	"stop after N ring pipe I/O bogo operations" },
 	{ NULL,	"ring-pipe-size",	"size of data to be written and read" },
-	{ NULL, "ring-pipe-splice",	"use splice instread of read+write" },
+	{ NULL, "ring-pipe-splice",	"use splice instead of read+write" },
 	{ NULL,	NULL,			NULL }
 };
 

@@ -1083,7 +1083,7 @@ static int stress_memrate(const stress_args_t *args)
 			context.memrate_bytes >> 10,
 			context.memrate_flush ? "enabled" : "disabled");
 		if ((context.memrate_bytes > MB) && (context.memrate_bytes & MB)) {
-			pr_inf("%s: for optimial speed, use multiples of 1 MB for --memrate-bytes\n", args->name);
+			pr_inf("%s: for optimal speed, use multiples of 1 MB for --memrate-bytes\n", args->name);
 		}
 		if (!context.memrate_flush)
 			pr_inf("%s: cache flushing can be enabled with --memrate-flush option\n", args->name);

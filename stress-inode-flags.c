@@ -320,6 +320,6 @@ stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_FILESYSTEM,
 	.help = help,
-	.unimplemented_reason = "built without libgen.h, linux/fs.h or pthread sypport"
+	.unimplemented_reason = "built without libgen.h, linux/fs.h or pthread support"
 };
 #endif
