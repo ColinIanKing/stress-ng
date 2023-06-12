@@ -625,7 +625,7 @@ next:
 static void *stress_proc_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
-	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
+	const stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -816,7 +816,7 @@ static int stress_procfs(const stress_args_t *args)
 
 		for (i = 0; i < n; i++) {
 			char procfspath[PATH_MAX];
-			struct dirent *d = dlist[i];
+			const struct dirent *d = dlist[i];
 
 			if (!keep_stressing(args))
 				break;
