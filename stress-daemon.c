@@ -58,10 +58,10 @@ static void daemon_wait_pid(const pid_t pid, const bool daemon_wait)
 }
 
 /*
- *  daemons()
+ *  stress_make_daemon()
  *	fork off a child and let the parent die
  */
-static void daemons(
+static int stress_make_daemon(
 	const stress_args_t *args,
 	const int fd,
 	const bool daemon_wait)
@@ -70,11 +70,23 @@ static void daemons(
 	int i;
 	sigset_t set;
 	uint64_t backoff = 100;
+	ssize_t sz;
+	int rc = EXIT_SUCCESS;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		goto err;
-	if (setsid() < 0)
+	if (setsid() < 0) {
+		if (errno != ENOSYS) {
+			pr_fail("%s: setsid failed, errno=%d (%s)\n", args->name,
+				errno, strerror(errno));
+			rc = EXIT_FAILURE;
+
+			sz = write(fd, &rc, sizeof(rc));
+			if (sz != sizeof(rc))
+				goto err;
+		}
 		goto err;
+	}
 
 	(void)close(0);
 	(void)close(1);
@@ -89,8 +101,15 @@ static void daemons(
 	(void)clearenv();
 #endif
 
-	if ((fds[0] = open("/dev/null", O_RDWR)) < 0)
+	/*
+	 *  The following calls may fail if we are low on
+	 *  file descriptors or memory, silently ignore
+	 *  these so we can re-try. We can't report them
+	 *  as stdout/stderr are now closed
+	 */
+	if ((fds[0] = open("/dev/null", O_RDWR)) < 0) {
 		goto err;
+	}
 	if ((fds[1] = dup(0)) < 0)
 		goto err0;
 	if ((fds[2] = dup(0)) < 0)
@@ -113,16 +132,13 @@ static void daemons(
 			goto tidy;
 		} else if (pid == 0) {
 			/* Child */
-			uint8_t buf[1] = { 0xff };
-			ssize_t sz;
-
 			if (chdir("/") < 0)
 				goto err2;
 			(void)umask(0);
 			VOID_RET(int, stress_drop_capabilities(args->name));
 
-			sz = write(fd, buf, sizeof(buf));
-			if (sz != sizeof(buf))
+			sz = write(fd, &rc, sizeof(rc));
+			if (sz != sizeof(rc))
 				goto err2;
 		} else {
 			/* Parent, will be reaped by init unless daemon_wait is true */
@@ -135,12 +151,14 @@ tidy:
 	(void)close(fds[2]);
 	(void)close(fds[1]);
 	(void)close(fds[0]);
-	return;
+	return rc;
 
 err2:	(void)close(fds[2]);
 err1:	(void)close(fds[1]);
 err0: 	(void)close(fds[0]);
 err:	(void)close(fd);
+
+	return rc;
 }
 
 /*
@@ -149,7 +167,7 @@ err:	(void)close(fd);
  */
 static int stress_daemon(const stress_args_t *args)
 {
-	int fds[2];
+	int fds[2], rc = EXIT_SUCCESS;
 	pid_t pid;
 	bool daemon_wait = false;
 
@@ -178,20 +196,20 @@ again:
 		(void)close(fds[1]);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		int rc;
 		/* Children */
 		(void)close(fds[0]);
-		daemons(args, fds[1], daemon_wait);
+		rc = stress_make_daemon(args, fds[1], daemon_wait);
 		(void)close(fds[1]);
-		shim_exit_group(0);
+		shim_exit_group(rc);
 	} else {
 		/* Parent */
 		(void)close(fds[1]);
 		do {
 			ssize_t n;
-			char buf[1];
 
-			n = read(fds[0], buf, sizeof(buf));
-			if (n < 0) {
+			n = read(fds[0], &rc, sizeof(rc));
+			if (n < (ssize_t)sizeof(rc)) {
 				(void)close(fds[0]);
 				if (errno != EINTR) {
 					pr_dbg("%s: read failed: "
@@ -200,6 +218,9 @@ again:
 						errno, strerror(errno));
 				}
 				break;
+			} else {
+				if (rc != EXIT_SUCCESS)
+					break;
 			}
 			inc_counter(args);
 		} while (keep_stressing(args));
@@ -210,7 +231,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
