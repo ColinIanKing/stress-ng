@@ -724,4 +724,4 @@ uninstall:
 	rm -f ${DESTDIR}${MANDIR}/stress-ng.1
 	rm -f ${DESTDIR}${JOBDIR}/*.job
 	rm -f ${DESTDIR}${BASHDIR}/stress-ng
-	
+

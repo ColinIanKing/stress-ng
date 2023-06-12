@@ -31,7 +31,7 @@ int main(void)
 		return 1;
 	while ((mount = getmntent(mounts)) != NULL)
 		(void)printf("%s\n", mount->mnt_fsname);
-		
+
 	(void)endmntent(mounts);
 	return 0;
 }

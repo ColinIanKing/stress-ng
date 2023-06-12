@@ -332,7 +332,7 @@ static stress_vecfp_funcs_t stress_vecfp_funcs[] = {
 static void OPTIMIZE3 stress_vecfp_call_method(
 	const stress_args_t *args,
 	stress_vecfp_init *vecfp_init,
-	const size_t method, 
+	const size_t method,
 	bool *success)
 {
 	stress_vecfp_funcs_t *const func = &stress_vecfp_funcs[method];

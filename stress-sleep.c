@@ -359,7 +359,7 @@ tidy:
 	}
 
 	if (underruns) {
-		pr_fail("%s: detected %" PRIu64 " sleep underruns\n", 
+		pr_fail("%s: detected %" PRIu64 " sleep underruns\n",
 			args->name, underruns);
 		ret = EXIT_FAILURE;
 	}

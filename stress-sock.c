@@ -54,7 +54,7 @@ UNEXPECTED
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define MIN_SOCKET_PORT		(1024)
+#define MIN_SOCKET_PORT		(1025)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
 
@@ -919,7 +919,7 @@ static int OPTIMIZE3 stress_sock_server(
 
 	/* exercise invalid setsockopt fd */
 	(void)setsockopt(-1, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
-	
+
 	/* exercise invalid level */
 	(void)setsockopt(fd, -1, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
 

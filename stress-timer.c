@@ -261,7 +261,7 @@ static int stress_timer(const stress_args_t *args)
 	{
 		/* Re-delete already deleted timer */
 		VOID_RET(int, timer_delete(timerid));
-	
+
 		/*
 		 * The manual states that EINVAL is returned when
 		 * an invalid timerid is used, in practice this

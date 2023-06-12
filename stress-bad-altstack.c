@@ -283,7 +283,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 		}
 	}
 	/* No luck, well that's unexpected.. */
-	if (!keep_stressing(args)) 
+	if (!keep_stressing(args))
 		pr_fail("%s: child process with illegal stack unexpectedly worked, %d\n",
 			args->name, rnd);
 	_exit(EXIT_FAILURE);

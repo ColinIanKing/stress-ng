@@ -223,7 +223,7 @@ static int stress_link_generic(
 				if (mounts_max > 0) {
 					/* Try hard link on differet random mount point */
 					const size_t idx = random_mount(mounts_max);
-					
+
 					ret = linkfunc(mnts[idx], tmp_newpath);
 					if (ret == 0)
 						(void)shim_unlink(tmp_newpath);

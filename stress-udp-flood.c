@@ -174,7 +174,7 @@ next:
 	stress_metrics_set(args, 0, "MB per sec sendto rate", rate);
 	rate = (duration > 0.0) ? (get_counter(args) / duration) : 0.0;
 	stress_metrics_set(args, 1, "sendto calls per sec", rate);
-	
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);

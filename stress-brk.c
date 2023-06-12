@@ -83,7 +83,7 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 {
 #if defined(__APPLE__)
 	(void)addr;
-	(void)page_size;	
+	(void)page_size;
 	(void)brk_touch;
 #endif
 

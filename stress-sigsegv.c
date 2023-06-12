@@ -259,7 +259,7 @@ static int stress_sigsegv(const stress_args_t *args)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
 #if defined(STRESS_ARCH_X86) &&		\
-   defined(__linux__)	
+   defined(__linux__)
 	const bool has_msr = stress_cpu_x86_has_msr();
 #if defined(HAVE_NT_STORE128) &&	\
     defined(HAVE_INT128_T)

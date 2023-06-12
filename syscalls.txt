@@ -164,7 +164,7 @@ lchown				chown
 lgetxattr			xattr
 link				link
 linkat				dirdeep
-listen				sock	
+listen				sock
 listxattr			xattr
 llistxattr			xattr
 lookup_dcookie			get
@@ -225,7 +225,7 @@ openat2				open
 open_tree
 
 pause				kcmp, wait
-perf_event_open			--perf option	
+perf_event_open			--perf option
 personality			personality
 pidfd_getfd			pidfd
 pidfd_open			pidfd
@@ -266,12 +266,12 @@ readlinkat			symlink
 readv				hdd
 reboot				reboot
 recv				sock
-recvfrom			udp	
+recvfrom			udp
 recvmsg				socket-fd
 recvmmsg			sock
 remap_file_pages		remap
 removexattr			xattr
-rename				rename	
+rename				rename
 renameat			rename			as above
 renameat2			rename			as above
 request_key			key			callout info non-null case
@@ -299,7 +299,7 @@ sched_setattr			schedpolicy
 sched_setparam			schedpolicy
 sched_setscheduler		sched, schedpolicy
 sched_yield			yield
-seccomp				seccomp (prctl)	
+seccomp				seccomp (prctl)
 select				poll
 semctl				sem-sysv
 semget				sem-sysv
