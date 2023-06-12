@@ -540,7 +540,7 @@ static int stress_fp(const stress_args_t *args)
 #if defined(HAVE_FLOAT32)
 		fp_data[i].f32.r_init = (_Float32)ld;
 		fp_data[i].f32.r[0] = (_Float32)ld;
-		fp_data[i].f32.r[0] = (_Float32)ld;
+		fp_data[i].f32.r[1] = (_Float32)ld;
 #endif
 
 #if defined(HAVE_FLOAT64)
