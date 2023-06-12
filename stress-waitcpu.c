@@ -271,7 +271,6 @@ static int stress_waitcpu(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
-		char msg[64];
 		double rate = 0.0;
 
 		if ((stress_waitcpu_method[i].duration > 0.0) &&
@@ -283,6 +282,8 @@ static int stress_waitcpu(const stress_args_t *args)
 			nop_rate = rate;
 
 		if (rate > 0.0) {
+			char msg[64];
+
 			(void)snprintf(msg, sizeof(msg), "%s ops per sec", stress_waitcpu_method[i].name);
 			stress_metrics_set(args, j, msg, rate);
 			j++;
