@@ -196,7 +196,6 @@ again:
 		(void)close(fds[1]);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		int rc;
 		/* Children */
 		(void)close(fds[0]);
 		rc = stress_make_daemon(args, fds[1], daemon_wait);
