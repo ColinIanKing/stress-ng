@@ -1700,16 +1700,16 @@ static char *stress_get_libc_version(void)
 
 	(void)snprintf(buf, sizeof(buf), "glibc %d.%d", __GLIBC__, __GLIBC_MINOR__);
 	return buf;
-#endif
-#if defined(__UCLIBC__) &&		\
+#elif defined(__UCLIBC__) &&		\
     defined(__UCLIBC_MAJOR__) &&	\
     defined(__UCLIBC_MINOR__)
 	static char buf[64];
 
 	(void)snprintf(buf, sizeof(buf), "uclibc %d.%d", __UCLIBC_MAJOR__, __UCLIBC_MINOR__);
 	return buf;
-#endif
+#else
 	return "unknown libc version";
+#endif
 }
 
 /*
