@@ -169,7 +169,8 @@ static int stress_userfaultfd_clone(void *arg)
 		return EXIT_NO_RESOURCE;
 
 	do {
-		uint8_t *ptr, *end = c->data + c->sz;
+		register uint8_t *ptr;
+		register const uint8_t *end = c->data + c->sz;
 
 		/* hint we don't need these pages */
 		if (shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
@@ -260,6 +261,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	double t, duration = 0.0, rate;
 
 	(void)context;
+	(void)shim_memset(stack, 0, sizeof(stack));
 
 	if (!stress_get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
