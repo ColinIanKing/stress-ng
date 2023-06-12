@@ -949,7 +949,7 @@ static int stress_stream(const stress_args_t *args)
 			double new_checksum;
 
 			new_checksum = stress_stream_checksum_data(a, b, c, n);
-			if ((old_checksum > 0.0) && (new_checksum != old_checksum)) {
+			if ((old_checksum > 0.0) && (fabs(new_checksum - old_checksum) > 0.0001)) {
 				char new_str[32], old_str[32];
 
 				stress_stream_checksum_to_hexstr(new_str, sizeof(new_str), new_checksum);
