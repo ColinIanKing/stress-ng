@@ -295,7 +295,7 @@ static int dnotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (keep_stressing(args) && (write(fd, buffer, 1) < 9999999)) {
+	if (keep_stressing(args) && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		if (errno != ENOSPC) {
