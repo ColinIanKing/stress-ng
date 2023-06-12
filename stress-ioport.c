@@ -103,12 +103,30 @@ static int stress_ioport_supported(const char *name)
 }
 
 /*
+ *  stress_ioport_ioperm()
+ *	simple ioperm sanity check for invalid argument tests
+ */
+static int stress_ioport_ioperm(
+	const stress_args_t *args,
+	unsigned long from,
+	unsigned long num,
+	int turn_on)
+{
+	if (ioperm(from, num, turn_on) == 0) {
+		pr_fail("%s: ioperm(%lu, %lu, %d) unexpectedly succeeded, expected error EINVAL\n",
+			args->name, from, num, turn_on);
+		return -1;
+	}
+	return 0;
+}
+
+/*
  *  stress_ioport()
  *	stress performs I/O port I/O transactions
  */
 static int stress_ioport(const stress_args_t *args)
 {
-	int ret, fd;
+	int ret, fd, rc = EXIT_SUCCESS;
 	uint32_t flag = 0;
 	unsigned char v;
 	double duration_in = 0.0, count_in = 0.0;
@@ -239,9 +257,30 @@ static int stress_ioport(const stress_args_t *args)
 		/*
 		 *  Exercise invalid ioperm settings
 		 */
-		VOID_RET(int, ioperm(IO_PORT, 0, 1));
-		VOID_RET(int, ioperm(~0UL, 1, 1));
-		VOID_RET(int, ioperm(IO_PORT, 1, 1));
+		if (stress_ioport_ioperm(args, IO_PORT, 0, 1) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
+		if (stress_ioport_ioperm(args, ~0UL, 1, 1) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
+		if (stress_ioport_ioperm(args, IO_PORT, ~0UL, 1) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
+		if (stress_ioport_ioperm(args, 0, ~0UL, 0) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
+		if (stress_ioport_ioperm(args, 0, 0, 0) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
+		if (stress_ioport_ioperm(args, ~0, 0, 0) < 0) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		/* iopl is deprecated, but exercise it anyhow */
 #if defined(HAVE_IOPL)
@@ -280,7 +319,7 @@ static int stress_ioport(const stress_args_t *args)
 
 	(void)ioperm(IO_PORT, 1, 0);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_ioport_info = {
@@ -288,6 +327,7 @@ stressor_info_t stress_ioport_info = {
 	.supported = stress_ioport_supported,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -296,6 +336,7 @@ stressor_info_t stress_ioport_info = {
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "not x86 CPU and/or not built with ioport() support"
 };
 #endif
