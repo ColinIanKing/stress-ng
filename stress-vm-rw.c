@@ -202,7 +202,8 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 
 	do {
 		struct iovec local[1] ALIGN64, remote[1] ALIGN64;
-		uint8_t *ptr1, *ptr2, *end = localbuf + ctxt->sz;
+		uint8_t *ptr1, *ptr2;
+		const uint8_t *end = localbuf + ctxt->sz;
 		ssize_t rwret;
 		size_t i, len;
 
