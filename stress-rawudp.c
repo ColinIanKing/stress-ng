@@ -222,12 +222,12 @@ static int OPTIMIZE3 stress_rawudp_server(
 			if ((ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
-				if (UNLIKELY(*(pid_t *)data != args->pid)) {
+				if (UNLIKELY(*(const pid_t *)data != args->pid)) {
 					pr_fail("%s: data check failure, "
 						"got 0x%" PRIxMAX ", "
 						 "expected 0x%" PRIxMAX "\n",
 						args->name,
-						(intmax_t)*(pid_t *)data,
+						(intmax_t)*(const pid_t *)data,
 						(intmax_t)args->pid);
 					rc = EXIT_FAILURE;
 				}
