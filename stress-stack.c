@@ -194,7 +194,7 @@ static bool stress_stack_alloc(
 
 static int stress_stack_child(const stress_args_t *args, void *context)
 {
-	char *start_ptr = shim_sbrk(0);
+	const char *start_ptr = shim_sbrk(0);
 	void *altstack;
 	bool stack_fill = false;
 	bool stack_mlock = false;
