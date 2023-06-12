@@ -72,7 +72,7 @@ static void dnotify_handler(int sig, siginfo_t *si, void *data)
 }
 
 typedef int (*stress_dnotify_helper)(const stress_args_t *args, const char *path, const void *private);
-typedef void (*stress_dnotify_func)(const stress_args_t *args, const char *path);
+typedef int (*stress_dnotify_func)(const stress_args_t *args, const char *path);
 
 typedef struct {
 	const stress_dnotify_func func;
@@ -84,7 +84,7 @@ typedef struct {
  *	run a given test helper function 'func' and see if this triggers the
  *	required dnotify event flags 'flags'.
  */
-static void dnotify_exercise(
+static int dnotify_exercise(
 	const stress_args_t *args,	/* Stressor args */
 	const char *filename,		/* Filename in test */
 	const char *watchname,		/* File or directory to watch using dnotify */
@@ -92,7 +92,7 @@ static void dnotify_exercise(
 	const unsigned long flags,	/* DN_* flags to watch for */
 	void *private)			/* Helper func private data */
 {
-	int fd, i = 0;
+	int fd, i = 0, rc = 0;
 #if defined(DN_MULTISHOT)
 	unsigned long flags_ms = flags | DN_MULTISHOT;
 #else
@@ -102,22 +102,26 @@ static void dnotify_exercise(
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, watchname, errno, strerror(errno));
-		return;
+		return -1;
 	}
 	if (fcntl(fd, F_SETSIG, SIGRTMIN + 1) < 0) {
 		pr_fail("%s: fcntl F_SETSIG failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		rc = -1;
 		goto cleanup;
 	}
 	if (fcntl(fd, F_NOTIFY, flags_ms) < 0) {
 		pr_fail("%s: fcntl F_NOTIFY failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		rc = -1;
 		goto cleanup;
 	}
 
 	dnotify_fd = -1;
-	if (func(args, filename, private) < 0)
+	if (func(args, filename, private) < 0) {
+		rc = -1;
 		goto cleanup;
+	}
 
 	/* Wait for up to 2 seconds for event */
 	while ((i < 2000) && (dnotify_fd == -1)) {
@@ -134,11 +138,13 @@ static void dnotify_exercise(
 	if ((dnotify_fd != -1) && (dnotify_fd != fd)) {
 		pr_fail("%s: did not get expected dnotify file descriptor %d, got %d instead\n",
 			args->name, fd, dnotify_fd);
+		rc = -1;
 	}
 
 cleanup:
 	(void)close(fd);
 
+	return rc;
 }
 
 /*
@@ -213,17 +219,20 @@ static int dnotify_attrib_helper(
 	return 0;
 }
 
-static void dnotify_attrib_file(const stress_args_t *args, const char *path)
+static int dnotify_attrib_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
+	int rc;
 
 	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
-		return;
+		return 0;
 
-	dnotify_exercise(args, filepath, path,
+	rc = dnotify_exercise(args, filepath, path,
 		dnotify_attrib_helper, DN_ATTRIB, NULL);
 	(void)rm_file(args, filepath);
+
+	return rc;
 }
 
 static int dnotify_access_helper(
@@ -255,15 +264,15 @@ do_access:
 	return rc;
 }
 
-static void dnotify_access_file(const stress_args_t *args, const char *path)
+static int dnotify_access_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
-		return;
+		return 0;
 
-	dnotify_exercise(args, filepath, path,
+	return dnotify_exercise(args, filepath, path,
 		dnotify_access_helper, DN_ACCESS, NULL);
 	(void)rm_file(args, filepath);
 }
@@ -286,12 +295,14 @@ static int dnotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (keep_stressing(args) && (write(fd, buffer, 1) < 0)) {
+	if (keep_stressing(args) && (write(fd, buffer, 1) < 9999999)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
-		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
-			args->name, path, errno, strerror(errno));
-		rc = -1;
+		if (errno != ENOSPC) {
+			pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
+				args->name, path, errno, strerror(errno));
+			rc = -1;
+		}
 	}
 	(void)close(fd);
 remove:
@@ -299,13 +310,14 @@ remove:
 	return rc;
 }
 
-static void dnotify_modify_file(const stress_args_t *args, const char *path)
+static int dnotify_modify_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
-	dnotify_exercise(args, filepath, path,
-		dnotify_modify_helper, DN_MODIFY, NULL);
+	return dnotify_exercise(args, filepath, path, dnotify_modify_helper,
+				DN_MODIFY, NULL);
+
 }
 
 static int dnotify_creat_helper(
@@ -326,14 +338,16 @@ static int dnotify_creat_helper(
 	return 0;
 }
 
-static void dnotify_creat_file(const stress_args_t *args, const char *path)
+static int dnotify_creat_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
+	int rc;
 
 	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
-	dnotify_exercise(args, filepath, path,
+	rc = dnotify_exercise(args, filepath, path,
 		dnotify_creat_helper, DN_CREATE, NULL);
 	(void)rm_file(args, filepath);
+	return rc;
 }
 
 static int dnotify_delete_helper(
@@ -346,17 +360,19 @@ static int dnotify_delete_helper(
 	return rm_file(args, path);
 }
 
-static void dnotify_delete_file(const stress_args_t *args, const char *path)
+static int dnotify_delete_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
+	int rc;
 
 	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
-		return;
-	dnotify_exercise(args, filepath, path,
+		return 0;
+	rc = dnotify_exercise(args, filepath, path,
 		dnotify_delete_helper, DN_DELETE, NULL);
 	/* We remove (again) it just in case the test failed */
 	(void)rm_file(args, filepath);
+	return rc;
 }
 
 static int dnotify_rename_helper(
@@ -374,20 +390,22 @@ static int dnotify_rename_helper(
 	return 0;
 }
 
-static void dnotify_rename_file(const stress_args_t *args, const char *path)
+static int dnotify_rename_file(const stress_args_t *args, const char *path)
 {
 	char oldfile[PATH_MAX], newfile[PATH_MAX];
+	int rc;
 
 	stress_mk_filename(oldfile, sizeof(oldfile), path, "dnotify_file");
 	stress_mk_filename(newfile, sizeof(newfile), path, "dnotify_file_renamed");
 
 	if (mk_file(args, oldfile, 4096) < 0)
-		return;
+		return 0;
 
-	dnotify_exercise(args, oldfile, path,
+	rc = dnotify_exercise(args, oldfile, path,
 		dnotify_rename_helper, DN_RENAME, newfile);
 	(void)rm_file(args, oldfile);	/* In case rename failed */
 	(void)rm_file(args, newfile);
+	return rc;
 }
 
 static const stress_dnotify_stress_t dnotify_stressors[] = {
@@ -397,7 +415,6 @@ static const stress_dnotify_stress_t dnotify_stressors[] = {
 	{ dnotify_delete_file,		"DN_DELETE" },
 	{ dnotify_rename_file,		"DN_RENAME" },
 	{ dnotify_attrib_file,		"DN_ATTRIB" },
-	{ NULL,				NULL }
 };
 
 /*
@@ -407,8 +424,9 @@ static const stress_dnotify_stress_t dnotify_stressors[] = {
 static int stress_dnotify(const stress_args_t *args)
 {
 	char pathname[PATH_MAX];
-	int ret, i;
+	int ret, rc = EXIT_SUCCESS;
 	struct sigaction act;
+	size_t i;
 
 	act.sa_sigaction = dnotify_handler;
 	(void)sigemptyset(&act.sa_mask);
@@ -427,15 +445,21 @@ static int stress_dnotify(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing(args) && dnotify_stressors[i].func; i++)
-			dnotify_stressors[i].func(args, pathname);
+		for (i = 0; keep_stressing(args) && i < SIZEOF_ARRAY(dnotify_stressors); i++) {
+			ret = dnotify_stressors[i].func(args, pathname);
+			if (ret < 0) {
+				rc = EXIT_FAILURE;
+				goto tidy;
+			}
+		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 stressor_info_t stress_dnotify_info = {
 	.stressor = stress_dnotify,
