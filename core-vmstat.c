@@ -730,7 +730,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 			natural_t i;
 
 			for (i = 0; i < pi_array_count; i++) {
-				integer_t *cpu_ticks = &pi_array[i * CPU_STATE_MAX];
+				const integer_t *cpu_ticks = &pi_array[i * CPU_STATE_MAX];
 
 				vmstat->user_time += cpu_ticks[CPU_STATE_USER];
 				vmstat->system_time += cpu_ticks[CPU_STATE_SYSTEM];
