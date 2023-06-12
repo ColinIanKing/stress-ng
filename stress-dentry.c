@@ -113,10 +113,11 @@ static void stress_dentry_unlink_file(
 	if (verify) {
 		int fd;
 		uint64_t val;
-		ssize_t rret;
 
 		fd = open(path, O_RDONLY);
 		if (fd >= 0) {
+			ssize_t rret;
+
 			rret = read(fd, &val, sizeof(val));
 			if ((rret == sizeof(val)) && (val != gray_code)) {
 				pr_inf("err: %" PRIx64 " vs %" PRIx64 "\n",
