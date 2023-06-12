@@ -230,6 +230,9 @@ static ssize_t stress_hdd_write(
 		size_t i;
 		uint8_t *data = buf;
 		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
+#if defined(HAVE_PWRITEV2)
+		int pwitev2_flag = 0;
+#endif
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -242,7 +245,11 @@ static ssize_t stress_hdd_write(
 #if defined(HAVE_PWRITEV2)
 		case 0:
 			t = stress_time_now();
-			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
+#if defined(RWF_HIPRI)
+			if (hdd_flags & HDD_OPT_O_DIRECT)
+				pwitev2_flag |= RWF_HIPRI;
+#endif
+			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, offset, pwitev2_flag);
 			if (ret > 0) {
 				(*hdd_write_duration) += stress_time_now() - t;
 				(*hdd_write_bytes) += (double)ret;
