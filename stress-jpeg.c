@@ -284,11 +284,11 @@ static void OPTIMIZE3 stress_rgb_flat(
  *  stress_jpeg_checksum_data()
  *	generate a 32 bit checksum on the jpeg compressed data
  */
-static void stress_jpeg_checksum_data(char *data, const size_t size, uint32_t *checksum)
+static void OPTIMIZE3 stress_jpeg_checksum_data(char *data, const size_t size, uint32_t *checksum)
 {
 	register uint32_t sum = 0;
-	uint8_t *ptr = (uint8_t *)data;
-	uint8_t *end = ptr + size;
+	register uint8_t *ptr = (uint8_t *)data;
+	register const uint8_t *end = ptr + size;
 
 	while (ptr < end) {
 		sum ^= (uint8_t)*ptr;
