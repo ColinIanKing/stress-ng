@@ -1881,7 +1881,7 @@ static void stress_clean_dir_files(
 {
 	struct stat statbuf;
 	char *ptr = path + path_posn;
-	char *end = path + PATH_MAX;
+	const char *end = path + PATH_MAX;
 	int n;
 	struct dirent **names = NULL;
 
@@ -2848,8 +2848,8 @@ static void stress_metrics_check(bool *success)
 static char *stess_description_yamlify(const char *description)
 {
 	static char yamlified[40];
-	char *dst, *end = yamlified + sizeof(yamlified);
-	const char *src;
+	char *dst;
+	const char *src, *end = yamlified + sizeof(yamlified);
 
 	for (dst = yamlified, src = description; *src; src++) {
 		register int ch = (int)*src;
