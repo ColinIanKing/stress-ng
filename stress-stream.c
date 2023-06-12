@@ -669,9 +669,9 @@ PRAGMA_UNROLL_N(4)
 }
 
 double TARGET_CLONES OPTIMIZE3 stress_stream_checksum_data(
-	double *RESTRICT a,
-	double *RESTRICT b,
-	double *RESTRICT c,
+	const double *RESTRICT a,
+	const double *RESTRICT b,
+	const double *RESTRICT c,
 	const uint64_t n)
 {
 	double checksum = 0.0;
