@@ -19,4 +19,5 @@
 
 List of TODO items:
 
-1. Documentation/watch_queue.rst,
+usefaultfd UFFD_FEATURE_WP_UNPOPULATED
+riscv_hwprobe()
