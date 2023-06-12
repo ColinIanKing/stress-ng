@@ -497,7 +497,7 @@ static void stress_sys_dir(
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
-		struct dirent *d = dlist[i];
+		const struct dirent *d = dlist[i];
 		double time_start, time_end, time_out;
 
 		if (stress_is_dot_filename(d->d_name))
@@ -561,7 +561,7 @@ dt_reg_free:
 
 	/* Now directories.. */
 	for (i = 0; (i < n) && keep_stressing(args); i++) {
-		struct dirent *d = dlist[i];
+		const struct dirent *d = dlist[i];
 		struct stat buf;
 		int ret;
 		char tmp[PATH_MAX];
