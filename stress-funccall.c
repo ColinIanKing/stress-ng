@@ -852,7 +852,7 @@ stress_funcdeep_6(_Decimal32)
 stress_funcdeep_7(_Decimal32)
 stress_funcdeep_8(_Decimal32)
 stress_funcdeep_9(_Decimal32)
-stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64)
+stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64, cmp_fp)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
@@ -880,7 +880,7 @@ stress_funcdeep_6(_Decimal64)
 stress_funcdeep_7(_Decimal64)
 stress_funcdeep_8(_Decimal64)
 stress_funcdeep_9(_Decimal64)
-stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64)
+stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64, cmp_fp)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
@@ -908,7 +908,7 @@ stress_funcdeep_6(_Decimal128)
 stress_funcdeep_7(_Decimal128)
 stress_funcdeep_8(_Decimal128)
 stress_funcdeep_9(_Decimal128)
-stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64)
+stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64, cmp_fp)
 #endif
 
 #if defined(HAVE_FLOAT16) &&	\
@@ -936,7 +936,7 @@ stress_funcdeep_6(__fp16)
 stress_funcdeep_7(__fp16)
 stress_funcdeep_8(__fp16)
 stress_funcdeep_9(__fp16)
-stress_funccall_type(__fp16, (__fp16)stress_mwc32)
+stress_funccall_type(__fp16, (__fp16)stress_mwc32, cmp_fp)
 #endif
 
 #if defined(HAVE_FLOAT32) &&	\
@@ -964,7 +964,7 @@ stress_funcdeep_6(_Float32)
 stress_funcdeep_7(_Float32)
 stress_funcdeep_8(_Float32)
 stress_funcdeep_9(_Float32)
-stress_funccall_type(_Float32, (_Float32)stress_mwc32)
+stress_funccall_type(_Float32, (_Float32)stress_mwc32, cmp_fp)
 #endif
 
 #if defined(HAVE_FLOAT64) &&	\
@@ -992,7 +992,7 @@ stress_funcdeep_6(_Float64)
 stress_funcdeep_7(_Float64)
 stress_funcdeep_8(_Float64)
 stress_funcdeep_9(_Float64)
-stress_funccall_type(_Float64, (_Float64)stress_mwc64)
+stress_funccall_type(_Float64, (_Float64)stress_mwc64, cmp_fp)
 #endif
 
 
@@ -1021,7 +1021,7 @@ stress_funcdeep_6(__float80)
 stress_funcdeep_7(__float80)
 stress_funcdeep_8(__float80)
 stress_funcdeep_9(__float80)
-stress_funccall_type(__float80, (__float80)stress_mwc64)
+stress_funccall_type(__float80, (__float80)stress_mwc64, cmp_fp)
 #endif
 
 #if defined(HAVE_FLOAT128) &&	\
@@ -1049,7 +1049,7 @@ stress_funcdeep_6(__float128)
 stress_funcdeep_7(__float128)
 stress_funcdeep_8(__float128)
 stress_funcdeep_9(__float128)
-stress_funccall_type(__float128, (__float128)stress_mwc64)
+stress_funccall_type(__float128, (__float128)stress_mwc64, cmp_fp)
 #endif
 
 static bool stress_funccall_all(const stress_args_t *args);
