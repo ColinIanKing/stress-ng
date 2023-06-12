@@ -212,7 +212,7 @@ retry:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
 	if (dccp_domain == AF_UNIX) {
-		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -400,7 +400,7 @@ die:
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
 	if (addr && (dccp_domain == AF_UNIX)) {
-		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
