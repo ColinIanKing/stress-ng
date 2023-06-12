@@ -81,8 +81,8 @@ PRAGMA_UNROLL_N(8)
 
 		if (*ptr != chk) {
 			pr_fail("%s: address 0x%p check failure, "
-				"got 0x%" PRIx64 ", "
-				"expected 0x%" PRIx64 "\n",
+				"got 0x%" PRIxPTR ", "
+				"expected 0x%" PRIxPTR "\n",
 				args->name, ptr, chk, *ptr);
 			return -1;
 		}
