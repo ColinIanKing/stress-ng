@@ -241,7 +241,7 @@ static int stress_random_advise(
 		const size_t page_size = args->page_size;
 		const size_t vec_size = (size + page_size - 1) / page_size;
 		unsigned char *vec;
-		uint8_t *ptr = (uint8_t *)addr;
+		const uint8_t *ptr = (uint8_t *)addr;
 
 		/*
 		 * Try for another madvise option if
