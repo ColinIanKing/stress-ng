@@ -225,7 +225,8 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
 {
 	size_t errs = 0;
 	uint8_t rnd = stress_mwc8();
-	uint8_t *ptr, *ptr_end = buf + sz;
+	register uint8_t *ptr;
+	register const uint8_t *ptr_end = buf + sz;
 
 	for (ptr = buf; LIKELY(ptr < ptr_end); ptr++) {
 		*ptr = rnd;
