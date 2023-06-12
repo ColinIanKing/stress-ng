@@ -299,7 +299,7 @@ static int stress_netlink_task(const stress_args_t *args)
 	na = (struct nlattr *)(uintptr_t)GENL_MSG_DATA(&nlmsg);
 	na = (struct nlattr *)(uintptr_t)((char *) na + NLA_ALIGN(na->nla_len));
 	if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
-		uint16_t *id_ptr = (uint16_t *)NLA_DATA(na);
+		const uint16_t *id_ptr = (uint16_t *)NLA_DATA(na);
 
 		id = *id_ptr;
 	} else {
