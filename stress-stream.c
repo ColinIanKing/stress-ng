@@ -668,7 +668,7 @@ PRAGMA_UNROLL_N(4)
 	}
 }
 
-double TARGET_CLONES OPTIMIZE3 stress_stream_checksum_data(
+static double TARGET_CLONES OPTIMIZE3 stress_stream_checksum_data(
 	const double *RESTRICT a,
 	const double *RESTRICT b,
 	const double *RESTRICT c,
