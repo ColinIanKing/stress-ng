@@ -576,7 +576,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swapfwdrev(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
-	uint64_t *fwd, *rev, *end = (uint64_t *)((uintptr_t)mem + mem_size);
+	register uint64_t *fwd, *rev;
+	uint64_t *const end = (uint64_t *)((uintptr_t)mem + mem_size);
 
 	(void)context;
 	for (fwd = (uint64_t *)mem, rev = end - 1; fwd < end; rev--, fwd++) {
