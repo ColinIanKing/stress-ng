@@ -919,7 +919,7 @@ static bool bool_field(const char *buffer)
  *  stress_af_alg_add_crypto()
  *	add crypto algorithm to list if it is unique
  */
-static bool stress_af_alg_add_crypto(stress_crypto_info_t *info)
+static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 {
 	stress_crypto_info_t *ci;
 
