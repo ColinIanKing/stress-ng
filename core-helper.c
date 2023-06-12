@@ -123,6 +123,9 @@ const char ALIGN64 stress_ascii64[64] =
 	"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 	"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
+const char ALIGN64 stress_ascii32[32] =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
+
 static bool stress_stack_check_flag;
 
 typedef struct {

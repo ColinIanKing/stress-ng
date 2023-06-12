@@ -2601,6 +2601,7 @@ typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context
 /* Misc helpers */
 
 extern const char ALIGN64 stress_ascii64[64];
+extern const char ALIGN64 stress_ascii32[32];
 
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);

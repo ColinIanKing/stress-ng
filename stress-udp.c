@@ -255,9 +255,7 @@ static int OPTIMIZE3 stress_udp_client(
 			register size_t i;
 
 			for (i = 16; i < sizeof(buf); i += 16, j++) {
-				static const char patterns[] ALIGN64 =
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ_+@:#!";
-				const int c = patterns[index++ & 0x1f];
+				const int c = stress_ascii32[index++ & 0x1f];
 				ssize_t ret;
 
 				(void)shim_memset(buf, c, i);
