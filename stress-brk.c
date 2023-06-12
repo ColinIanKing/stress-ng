@@ -147,8 +147,10 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 		ptr = stress_brk_get_addr();
 
 		/* Low memory avoidance, re-start */
-		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size)) {
 			VOID_RET(int, shim_brk(start_ptr));
+			i = 0;
+		}
 
 		i++;
 		if (LIKELY(i < 8)) {
