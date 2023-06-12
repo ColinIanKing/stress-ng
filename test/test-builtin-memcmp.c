@@ -19,7 +19,6 @@
 
 int main(int argc, char **argv)
 {
-	void *ptr;
 	unsigned long dst;
 	unsigned long src = ~0;
 
