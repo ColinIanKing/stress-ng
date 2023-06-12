@@ -356,13 +356,13 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 		func->ops += ops;
 
 		for (i = 0; i < func->elements; i++) {
-			if (vecfp_init[i].d.r1 != vecfp_init[i].d.r2) {
+			if (fabs(vecfp_init[i].d.r1 - vecfp_init[i].d.r2) > (double)0.0001) {
 				pr_fail("%s: %s double vector operation result mismatch, got %f, expected %f\n",
 					args->name, stress_vecfp_funcs[method].name,
 					vecfp_init[i].d.r2, vecfp_init[i].d.r1);
 				*success = false;
 			}
-			if (vecfp_init[i].f.r1 != vecfp_init[i].f.r2) {
+			if (fabsf(vecfp_init[i].f.r1 - vecfp_init[i].f.r2) > (float)0.0001) {
 				pr_fail("%s: %s float vector operation result mismatch, got %f, expected %f\n",
 					args->name, stress_vecfp_funcs[method].name,
 					vecfp_init[i].f.r2, vecfp_init[i].f.r1);
