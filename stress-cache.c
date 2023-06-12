@@ -691,8 +691,8 @@ static void stress_cache_show_flags(const stress_args_t *args, const uint32_t fl
 	(void)shim_memset(buf, 0, sizeof(buf));
 	for (i = 0; i < SIZEOF_ARRAY(mask_flag_info); i++) {
 		if (flags & mask_flag_info[i].flag) {
-			shim_strlcat(buf, " ", sizeof(buf));
-			shim_strlcat(buf, mask_flag_info[i].name, sizeof(buf));
+			(void)shim_strlcat(buf, " ", sizeof(buf));
+			(void)shim_strlcat(buf, mask_flag_info[i].name, sizeof(buf));
 		}
 	}
 	pr_inf("%s: cache flags used:%s\n", args->name, buf);
@@ -970,11 +970,11 @@ next:
 			if (mask_flag_info[j].flag & disabled_flags) {
 				const size_t len = strlen(mask_flag_info[j].name);
 
-				shim_strlcpy(ptr, " ", buf_len);
+				(void)shim_strlcpy(ptr, " ", buf_len);
 				buf_len--;
 				ptr++;
 
-				shim_strlcpy(ptr, mask_flag_info[j].name, buf_len);
+				(void)shim_strlcpy(ptr, mask_flag_info[j].name, buf_len);
 				buf_len -= len;
 				ptr += len;
 			}

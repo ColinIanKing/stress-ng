@@ -89,7 +89,7 @@ static char *stress_ftrace_get_debugfs_path(void)
 		if (statfs(mnts[i], &buf) < 0)
 			continue;
 		if (buf.f_type == DEBUGFS_MAGIC) {
-			shim_strlcpy(debugfs_path, mnts[i], sizeof(debugfs_path));
+			(void)shim_strlcpy(debugfs_path, mnts[i], sizeof(debugfs_path));
 			stress_mount_free(mnts, n);
 			return debugfs_path;
 		}

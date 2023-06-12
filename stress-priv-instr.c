@@ -514,10 +514,10 @@ finish:
 				if (!op_info[i].trapped) {
 					unhandled++;
 					if (!*str)  {
-						shim_strlcpy(str, op_info[i].instr, len);
+						(void)shim_strlcpy(str, op_info[i].instr, len);
 					} else {
-						shim_strlcat(str, ", ", len);
-						shim_strlcat(str, op_info[i].instr, len);
+						(void)shim_strlcat(str, ", ", len);
+						(void)shim_strlcat(str, op_info[i].instr, len);
 					}
 				}
 			}

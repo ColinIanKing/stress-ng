@@ -790,7 +790,7 @@ static int stress_procfs(const stress_args_t *args)
 
 	(void)sigfillset(&set);
 
-	shim_strlcpy(proc_path, "/proc/self", sizeof(proc_path));
+	(void)shim_strlcpy(proc_path, "/proc/self", sizeof(proc_path));
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
@@ -850,7 +850,7 @@ static int stress_procfs(const stress_args_t *args)
 	if (rc) {
 		pr_dbg("%s: spin lock failed for %s\n", args->name, proc_path);
 	} else {
-		shim_strlcpy(proc_path, "", sizeof(proc_path));
+		(void)shim_strlcpy(proc_path, "", sizeof(proc_path));
 		VOID_RET(int, shim_pthread_spin_unlock(&lock));
 	}
 

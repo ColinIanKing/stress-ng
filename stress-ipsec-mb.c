@@ -165,8 +165,8 @@ static uint64_t stress_ipsec_mb_features(const stress_args_t *args, const MB_MGR
 
 		for (i = 0; i < SIZEOF_ARRAY(mb_features); i++) {
 			if ((features & mb_features[i].features) == mb_features[i].features) {
-				shim_strlcat(str, " ", sizeof(str));
-				shim_strlcat(str, mb_features[i].name, sizeof(str));
+				(void)shim_strlcat(str, " ", sizeof(str));
+				(void)shim_strlcat(str, mb_features[i].name, sizeof(str));
 			}
 		}
 

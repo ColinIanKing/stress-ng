@@ -2748,7 +2748,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
 			}
 			str = new_str;
 			str_len += buf_len;
-			shim_strlcat(str, buf, str_len);
+			(void)shim_strlcat(str, buf, str_len);
 			n += ss->status[type];
 		}
 	}

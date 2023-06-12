@@ -144,7 +144,7 @@ static int stress_set(const stress_args_t *args)
 	ret_hostname = gethostname(hostname, hostname_len - 1);
 	if (ret_hostname == 0) {
 		hostname[hostname_len - 1] = '\0';
-		shim_strlcpy(longname, hostname, longname_len);
+		(void)shim_strlcpy(longname, hostname, longname_len);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

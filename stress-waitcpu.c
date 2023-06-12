@@ -231,8 +231,8 @@ static int stress_waitcpu(const stress_args_t *args)
 		stress_waitcpu_method[i].supported = stress_waitcpu_method[i].waitfunc_supported();
 		if (stress_waitcpu_method[i].supported) {
 			supported |= true;
-			shim_strlcat(str, " ", sizeof(str));
-			shim_strlcat(str, stress_waitcpu_method[i].name, sizeof(str));
+			(void)shim_strlcat(str, " ", sizeof(str));
+			(void)shim_strlcat(str, stress_waitcpu_method[i].name, sizeof(str));
 		}
 		stress_waitcpu_method[i].duration = 0.0;
 		stress_waitcpu_method[i].count = 0.0;

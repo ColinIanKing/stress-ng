@@ -76,8 +76,7 @@ void stress_dump_processes(void)
 		pid = (pid_t)atoi(namelist[i]->d_name);
 		ppid = 0;
 		p_name = "?";
-		shim_strlcpy(state, "?", sizeof(state));
-
+		(void)shim_strlcpy(state, "?", sizeof(state));
 		(void)snprintf(path, sizeof(path), "/proc/%s", namelist[i]->d_name);
 		if (stat(path, &statbuf) == 0) {
 #if defined(BUILD_STATIC)
@@ -106,11 +105,11 @@ void stress_dump_processes(void)
 				if (sscanf(ptr, "\nPPid:%d", &ppid) != 1)
 					ppid = 0;
 			}
-			shim_strlcpy(state, "?", sizeof(state));
+			(void)shim_strlcpy(state, "?", sizeof(state));
 			ptr = strstr(buf, "\nState:");
 			if (ptr) {
 				if (sscanf(ptr, "\nState:%1s", state) != 1)
-					shim_strlcpy(state, "?", sizeof(state));
+					(void)shim_strlcpy(state, "?", sizeof(state));
 			}
 		}
 		pr_inf("proc: %-8.8s %*d %*d %c %s\n", p_name, pid_width, pid, pid_width, ppid, state[0], cmd);

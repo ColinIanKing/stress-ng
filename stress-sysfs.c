@@ -677,7 +677,7 @@ static int stress_sysfs(const stress_args_t *args)
 	}
 
 	(void)shim_memset(ctxt, 0, sizeof(*ctxt));
-	shim_strlcpy(ctxt->sysfs_path, signum_path, sizeof(ctxt->sysfs_path));
+	(void)shim_strlcpy(ctxt->sysfs_path, signum_path, sizeof(ctxt->sysfs_path));
 
 	ctxt->args = args;
 	ctxt->kmsgfd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
@@ -784,7 +784,7 @@ again:
 			if (ret) {
 				pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 			} else {
-				shim_strlcpy(ctxt->sysfs_path, "", sizeof(ctxt->sysfs_path));
+				(void)shim_strlcpy(ctxt->sysfs_path, "", sizeof(ctxt->sysfs_path));
 				VOID_RET(int, shim_pthread_spin_unlock(&lock));
 			}
 

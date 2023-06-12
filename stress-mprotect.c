@@ -77,8 +77,8 @@ static void stress_mprotect_flags(
 
 	for (i = 0; i < SIZEOF_ARRAY(mprotect_flags); i++) {
 		if (flag & mprotect_flags[i].flag) {
-			shim_strlcat(str, " PROT_", str_len);
-			shim_strlcat(str, mprotect_flags[i].name, str_len);
+			(void)shim_strlcat(str, " PROT_", str_len);
+			(void)shim_strlcat(str, mprotect_flags[i].name, str_len);
 		}
 	}
 }
