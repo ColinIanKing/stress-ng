@@ -221,7 +221,7 @@ retry:
 
 #if defined(HAVE_SOCKADDR_UN)
 	if (addr) {
-		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
@@ -341,7 +341,7 @@ die_close:
 die:
 #if defined(HAVE_SOCKADDR_UN)
 	if (addr) {
-		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		const struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
