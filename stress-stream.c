@@ -121,7 +121,7 @@ static int stress_set_stream_index(const char *opt)
  */
 static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const double checksum)
 {
-	const unsigned char *ptr = (unsigned char *)&checksum;
+	const unsigned char *ptr = (const unsigned char *)&checksum;
 	size_t i, j;
 
 	for (i = 0, j = 0; (i < sizeof(checksum)) && (j < len); i++, j += 2) {
