@@ -46,7 +46,7 @@ void OPTIMIZE3 stress_mmap_set(
 
 	while (ptr < end) {
 #if !defined(USE_ASM_X86_REP_STOSQ)
-		register uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
+		register const uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
 #endif
 
 		if (!keep_stressing_flag())
@@ -68,7 +68,7 @@ void OPTIMIZE3 stress_mmap_set(
                 : "ecx","rdi","rax");
 		ptr += loops;
 #else
-		page_end = STRESS_MINIMUM(end, page_end);
+		page_end = (const uint64_t *)STRESS_MINIMUM(end, page_end);
 
 		while (ptr < page_end) {
 			ptr[0x00] = val;
