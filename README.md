@@ -434,6 +434,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [rtmutex: Ensure that the top waiter is always woken up](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=db370a8b9f67ae5f17e3d5482493294467784504)
 * [mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6fe7d6b992113719e96744d974212df3fcddc76c)
 * [block, bfq: Fix division by zero error on zero wsum](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e53413f8deedf738a6782cc14cc00bd5852ccf18)
+* [riscv: mm: Ensure prot of VM_WRITE and VM_EXEC must be readable](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6569fc12e442ea973d96db39e542aa19a7bc3a79)
 
 ## Kernel improvements that used stress-ng
 
