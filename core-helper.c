@@ -1681,7 +1681,7 @@ static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
 void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)data;
-	register uint32_t *ptr32end = (uint32_t *)(data + len);
+	register const uint32_t *ptr32end = (uint32_t *)(data + len);
 
 	if (stress_little_endian()) {
 		while (ptr32 < ptr32end)
@@ -1694,16 +1694,18 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 
 static char *stress_get_libc_version(void)
 {
-	static char buf[64];
-
 #if defined(__GLIBC__) &&	\
     defined(__GLIBC_MINOR__)
+	static char buf[64];
+
 	(void)snprintf(buf, sizeof(buf), "glibc %d.%d", __GLIBC__, __GLIBC_MINOR__);
 	return buf;
 #endif
 #if defined(__UCLIBC__) &&		\
     defined(__UCLIBC_MAJOR__) &&	\
     defined(__UCLIBC_MINOR__)
+	static char buf[64];
+
 	(void)snprintf(buf, sizeof(buf), "uclibc %d.%d", __UCLIBC_MAJOR__, __UCLIBC_MINOR__);
 	return buf;
 #endif
