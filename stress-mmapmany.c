@@ -25,7 +25,24 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-#define MMAP_MAX	(256*1024)
+#define MMAP_MAX	(256 * 1024)
+
+#if defined(__linux__)
+static void stress_mmapmany_read_proc_file(const char *path)
+{
+	int fd;
+	char buf[4096];
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0)
+		return;
+	while (read(fd, buf, sizeof(buf)) > 0) {
+		if (!keep_stressing_flag())
+			break;
+	}
+	(void)close(fd);
+}
+#endif
 
 static int stress_mmapmany_child(const stress_args_t *args, void *context)
 {
@@ -68,6 +85,12 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 				break;
 			inc_counter(args);
 		}
+
+#if defined(__linux__)
+		/* Exercise map traversal */
+		stress_mmapmany_read_proc_file("/proc/self/smaps");
+		stress_mmapmany_read_proc_file("/proc/self/maps");
+#endif
 
 		for (i = 0; i < n; i++) {
 			uint64_t *ptr, val;
