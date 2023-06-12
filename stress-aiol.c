@@ -158,7 +158,7 @@ static int shim_io_getevents_random(
  *  aio_linux_fill_buffer()
  *	fill buffer with some known pattern
  */
-static inline void aio_linux_fill_buffer(
+static inline OPTIMIZE3 void aio_linux_fill_buffer(
 	const uint8_t pattern,
 	uint8_t *const buffer,
 	const size_t size)
@@ -174,7 +174,7 @@ static inline void aio_linux_fill_buffer(
  *  aio_linux_check_buffer()
  *	check buffer contains some known pattern
  */
-static inline bool aio_linux_check_buffer(
+static inline OPTIMIZE3 bool aio_linux_check_buffer(
 	const int request,
 	const uint8_t *const buffer,
 	const size_t size)
