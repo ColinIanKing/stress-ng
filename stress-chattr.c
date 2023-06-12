@@ -135,7 +135,7 @@ static int do_chattr(
 		/* work through flags disabling them one by one */
 		tmp = orig;
 		for (j = 0; (j < sizeof(orig) * 8); j++) {
-			register unsigned long bitmask = 1U << j;
+			register unsigned long bitmask = 1ULL << j;
 
 			if (orig & bitmask) {
 				tmp &= ~bitmask;
@@ -256,7 +256,7 @@ static int do_chattr(
 		 */
 		tmp = 0;
 		for (j = 0; (j < sizeof(orig) * 8); j++) {
-			register unsigned long bitmask = 1U << j;
+			register unsigned long bitmask = 1ULL << j;
 
 			tmp |= bitmask;
 			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
