@@ -51,7 +51,7 @@ static ucontext_t c_main, c_test;
 static uint8_t *stack_mmap;		/* mmap'd stack */
 static uintptr_t page_mask;
 static size_t page_size;
-static int status;			/* sanity check status */
+static int check_status;		/* sanity check status */
 
 /*
  *  push values onto file backed mmap'd stack and
@@ -89,14 +89,14 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 		if (ptr->self_addr != ptr) {
 			pr_inf("%s: sanity check address mismatch, got 0x%p, "
 				"expecting 0x%p\n", name, ptr, ptr->self_addr);
-			status = EXIT_FAILURE;
+			check_status = EXIT_FAILURE;
 			return;
 		}
 		if (ptr->waste[0] != ~(ptr->waste[1])) {
 			pr_inf("%s: sanity check data mismatch, got 0x%" PRIx32
 				", expecting 0x%" PRIx32 "\n", name,
 				ptr->waste[0], ptr->waste[1]);
-			status = EXIT_FAILURE;
+			check_status = EXIT_FAILURE;
 			return;
 		}
 	}
@@ -274,10 +274,10 @@ again:
 			if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
 				_exit(EXIT_FAILURE);
 
-			status = EXIT_SUCCESS;
+			check_status = EXIT_SUCCESS;
 			(void)makecontext(&c_test, stress_stackmmap_push_start, 0);
 			(void)swapcontext(&c_main, &c_test);
-			_exit(status);
+			_exit(check_status);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
