@@ -267,14 +267,16 @@ do_access:
 static int dnotify_access_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
+	int rc;
 
 	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return 0;
 
-	return dnotify_exercise(args, filepath, path,
+	rc = dnotify_exercise(args, filepath, path,
 		dnotify_access_helper, DN_ACCESS, NULL);
 	(void)rm_file(args, filepath);
+	return rc;
 }
 
 static int dnotify_modify_helper(
