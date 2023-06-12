@@ -53,6 +53,7 @@ typedef struct {
 	char *name;
 	int method;
 	bool (*available)(void);
+	bool check_prefetch_rate;
 } stress_prefetch_method_t;
 
 #define STRESS_PREFETCH_BUILTIN		(0)
@@ -71,26 +72,26 @@ static inline bool stress_prefetch_true(void)
 }
 
 stress_prefetch_method_t prefetch_methods[] = {
-	{ "builtin",		STRESS_PREFETCH_BUILTIN,	stress_prefetch_true },
-	{ "builtinl0",		STRESS_PREFETCH_BUILTIN_L0,	stress_prefetch_true },
-	{ "builtinl3",		STRESS_PREFETCH_BUILTIN_L3,	stress_prefetch_true },
+	{ "builtin",		STRESS_PREFETCH_BUILTIN,	stress_prefetch_true,	false },
+	{ "builtinl0",		STRESS_PREFETCH_BUILTIN_L0,	stress_prefetch_true,	false },
+	{ "builtinl3",		STRESS_PREFETCH_BUILTIN_L3,	stress_prefetch_true,	false },
 #if defined(HAVE_ASM_X86_PREFETCHT0)
-	{ "prefetcht0",		STRESS_PREFETCH_X86_PREFETCHT0,	stress_cpu_x86_has_sse },
+	{ "prefetcht0",		STRESS_PREFETCH_X86_PREFETCHT0,	stress_cpu_x86_has_sse,	true },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT1)
-	{ "prefetcht1",		STRESS_PREFETCH_X86_PREFETCHT1, stress_cpu_x86_has_sse },
+	{ "prefetcht1",		STRESS_PREFETCH_X86_PREFETCHT1, stress_cpu_x86_has_sse,	true },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHT2)
-	{ "prefetcht2",		STRESS_PREFETCH_X86_PREFETCHT2, stress_cpu_x86_has_sse },
+	{ "prefetcht2",		STRESS_PREFETCH_X86_PREFETCHT2, stress_cpu_x86_has_sse,	true },
 #endif
 #if defined(HAVE_ASM_X86_PREFETCHNTA)
-	{ "prefetchnta",	STRESS_PREFETCH_X86_PREFETCHNTA, stress_cpu_x86_has_sse },
+	{ "prefetchnta",	STRESS_PREFETCH_X86_PREFETCHNTA, stress_cpu_x86_has_sse, true },
 #endif
 #if defined(HAVE_ASM_PPC64_DCBT)
-	{ "dcbt",		STRESS_PREFETCH_PPC64_DCBT,	stress_prefetch_true },
+	{ "dcbt",		STRESS_PREFETCH_PPC64_DCBT,	stress_prefetch_true,	true },
 #endif
 #if defined(HAVE_ASM_PPC64_DCBTST)
-	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST,	stress_prefetch_true },
+	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST,	stress_prefetch_true,	true },
 #endif
 };
 
@@ -239,13 +240,13 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	uint64_t *RESTRICT l3_data,
 	uint64_t *RESTRICT l3_data_end,
 	uint64_t *total_count,
+	const bool verify,
 	bool *success)
 {
 	double t1, t2, t3, t4;
 	const size_t l3_data_size = (uintptr_t)l3_data_end - (uintptr_t)l3_data;
 	volatile uint64_t *ptr;
 	uint64_t *pre_ptr;
-	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	register uint64_t checksum;
 
 	shim_cacheflush((char *)l3_data, (int)l3_data_size, SHIM_DCACHE);
@@ -365,8 +366,10 @@ static int stress_prefetch(const stress_args_t *args)
 	stress_prefetch_info_t prefetch_info[STRESS_PREFETCH_OFFSETS];
 	size_t i, best;
 	size_t prefetch_method = STRESS_PREFETCH_BUILTIN;
-	double best_rate, ns, rate;
+	double best_rate, ns, non_prefetch_rate;
 	bool success = true;
+	bool check_prefetch_rate;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	(void)stress_get_setting("prefetch-method", &prefetch_method);
 
@@ -375,6 +378,12 @@ static int stress_prefetch(const stress_args_t *args)
 			args->name, prefetch_methods[prefetch_method].name);
 		return EXIT_NO_RESOURCE;
 	}
+#if defined(STRESS_ARCH_X86_64)
+	check_prefetch_rate = true;
+#else
+	check_prefetch_rate = prefetch_methods[prefetch_method].check_prefetch_rate;
+#endif
+
 	(void)stress_get_setting("prefetch-L3-size", &l3_data_size);
 	if (l3_data_size == 0)
 		l3_data_size = get_prefetch_L3_size(args);
@@ -415,7 +424,7 @@ static int stress_prefetch(const stress_args_t *args)
 			stress_prefetch_benchmark(args, prefetch_info,
 				prefetch_method, i, checksum_sane,
 				l3_data, l3_data_end, &total_count,
-				&success);
+				verify, &success);
 			if (!success)
 				break;
 		}
@@ -436,8 +445,8 @@ static int stress_prefetch(const stress_args_t *args)
 		}
 	}
 
-	rate = prefetch_info[0].rate / (double)GB;
-	stress_metrics_set(args, 0, "GB per sec non-prefetch read rate", rate);
+	non_prefetch_rate = prefetch_info[0].rate / (double)GB;
+	stress_metrics_set(args, 0, "GB per sec non-prefetch read rate", non_prefetch_rate);
 
 	if (best_rate > 0.0)
 		ns = STRESS_DBL_NANOSECOND * (double)prefetch_info[best].offset / best_rate;
@@ -448,8 +457,16 @@ static int stress_prefetch(const stress_args_t *args)
 		args->name, best_rate / (double)GB,
 		prefetch_info[best].offset, ns);
 
-	rate = best_rate / (double)GB;
-	stress_metrics_set(args, 1, "GB per sec best read rate", rate);
+	best_rate /= (double)GB;
+	stress_metrics_set(args, 1, "GB per sec best read rate", best_rate);
+
+	/* sanity check prefetch rates */
+	if (verify && check_prefetch_rate && (best_rate < non_prefetch_rate)) {
+		pr_fail("%s: non-prefetch rate %.2f GB per sec higher "
+			"than best prefetch rate %.2f GB per sec\n",
+			args->name, non_prefetch_rate, best_rate);
+		success = false;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
