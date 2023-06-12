@@ -197,7 +197,7 @@ static int stress_ipsec_mb_supported(const char *name)
 static void stress_rnd_fill(uint8_t *buf, const size_t n)
 {
 	register uint8_t *ptr = buf;
-	register uint8_t *end = buf + n;
+	register const uint8_t *end = buf + n;
 
 	while (ptr < end)
 		*(ptr++) = stress_mwc8();
