@@ -107,7 +107,8 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 	}
 
 	while (keep_stressing_flag()) {
-		uint8_t *ptr, *end = buf + ctxt->sz;
+		register uint8_t *ptr;
+		register const uint8_t *end = buf + ctxt->sz;
 		ssize_t rwret;
 
 		(void)shim_memset(&msg_wr, 0, sizeof(msg_wr));
