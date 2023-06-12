@@ -368,6 +368,8 @@ static int stress_prctl_child(
 	void *page_anon,
 	size_t page_anon_size)
 {
+	int rc = EXIT_SUCCESS;
+
 	(void)args;
 	(void)mypid;
 
@@ -468,14 +470,22 @@ static int stress_prctl_child(
 		int ctrl;
 
 		/* exercise invalid args */
-		VOID_RET(int, prctl(PR_GET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0));
+		if (prctl(PR_GET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0) == 0) {
+			pr_fail("%s: prctl(PR_GET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0) "
+				"unexpectedly succeeded\n", args->name);
+			rc = EXIT_FAILURE;
+		}
 		ctrl = prctl(PR_GET_TAGGED_ADDR_CTRL, 0, 0, 0, 0);
 		(void)ctrl;
 
 #if defined(PR_SET_TAGGED_ADDR_CTRL)
 		if (ctrl >= 0) {
 			/* exercise invalid args */
-			VOID_RET(int, prctl(PR_SET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0));
+			if (prctl(PR_SET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0) == 0) {
+				pr_fail("%s: prctl(PR_SET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0) "
+					"unexpectedly succeeded\n", args->name);
+				rc = EXIT_FAILURE;
+			}
 			VOID_RET(int, prctl(PR_SET_TAGGED_ADDR_CTRL, ctrl, 0, 0, 0));
 		}
 #endif
@@ -532,16 +542,32 @@ static int stress_prctl_child(
 
 #if defined(PR_MCE_KILL_GET)
 	/* exercise invalid args */
-	VOID_RET(int, prctl(PR_MCE_KILL_GET, ~0, ~0, ~0, ~0));
+	if (prctl(PR_MCE_KILL_GET, ~0, ~0, ~0, ~0) == 0) {
+		pr_fail("%s: prctl(PR_MCE_KILL_GET, ~0, ~0, ~0, ~0) "
+			"unexpectedly succeeded\n", args->name);
+		rc = EXIT_FAILURE;
+	}
 	/* now exercise what is expected */
 	VOID_RET(int, prctl(PR_MCE_KILL_GET, 0, 0, 0, 0));
 #endif
 
 #if defined(PR_MCE_KILL)
 	/* exercise invalid args */
-	VOID_RET(int, prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, ~0, ~0, ~0));
-	VOID_RET(int, prctl(PR_MCE_KILL, PR_MCE_KILL_SET, ~0, ~0, ~0));
-	VOID_RET(int, prctl(PR_MCE_KILL, ~0, ~0, ~0, ~0));
+	if (prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, ~0, ~0, ~0) == 0) {
+		pr_fail("%s: prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, ~0, ~0, ~0) "
+			"unexpectedly succeeded\n", args->name);
+		rc = EXIT_FAILURE;
+	}
+	if (prctl(PR_MCE_KILL, PR_MCE_KILL_SET, ~0, ~0, ~0) == 0) {
+		pr_fail("%s: prctl(PR_MCE_KILL, PR_MCE_KILL_SET, ~0, ~0, ~0) "
+			"unexpectedly succeeded\n", args->name);
+		rc = EXIT_FAILURE;
+	}
+	if (prctl(PR_MCE_KILL, ~0, ~0, ~0, ~0) == 0) {
+		pr_fail("%s: prctl(PR_MCE_KILL, ~0, ~0, ~0, ~0) "
+			"unexpectedly succeeded\n", args->name);
+		rc = EXIT_FAILURE;
+	}
 	/* now exercise what is expected */
 	VOID_RET(int, prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, 0, 0, 0));
 #endif
@@ -628,7 +654,11 @@ static int stress_prctl_child(
 #if defined(PR_SET_NO_NEW_PRIVS)
 		if (ret >= 0) {
 			/* exercise invalid args */
-			VOID_RET(int, prctl(PR_SET_NO_NEW_PRIVS, ret, ~0, ~0, ~0));
+			if (prctl(PR_SET_NO_NEW_PRIVS, ret, ~0, ~0, ~0) == 0) {
+				pr_fail("%s: prctl(PR_SET_NO_NEW_PRIVS, ~0, ~0, ~0, ~0) "
+					"unexpectedly succeeded\n", args->name);
+				rc = EXIT_FAILURE;
+			}
 			/* now exercise what is expected */
 			VOID_RET(int, prctl(PR_SET_NO_NEW_PRIVS, ret, 0, 0, 0));
 		}
@@ -646,7 +676,11 @@ static int stress_prctl_child(
 #if defined(PR_SET_PDEATHSIG)
 		if (ret == 0) {
 			/* Exercise invalid signal */
-			VOID_RET(int, prctl(PR_SET_PDEATHSIG, 0x10000));
+			if (prctl(PR_SET_PDEATHSIG, 0x10000) == 0) {
+				pr_fail("%s: prctl(PR_SET_PDEATHSIG, 0x10000) "
+					"unexpectedly succeeded\n", args->name);
+				rc = EXIT_FAILURE;
+			}
 			VOID_RET(int, prctl(PR_SET_PDEATHSIG, sig));
 		}
 #endif
@@ -702,7 +736,11 @@ static int stress_prctl_child(
 #if defined(PR_SET_THP_DISABLE)
 		if (ret >= 0) {
 			/* exercise invalid args */
-			VOID_RET(int, prctl(PR_SET_THP_DISABLE, 0, 0, ~0, ~0));
+			if (prctl(PR_SET_THP_DISABLE, 0, 0, ~0, ~0) == 0) {
+				pr_fail("%s: prctl(PR_SET_THP_DISABLE, 0, 0, ~0, ~0) "
+					"unexpectedly succeeded\n", args->name);
+				rc = EXIT_FAILURE;
+			}
 			/* now exercise what is expected */
 			VOID_RET(int, prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0));
 		}
@@ -993,11 +1031,18 @@ static int stress_prctl_child(
 
 	/* exercise bad ptrcl command */
 	{
-		VOID_RET(int, prctl(-1, ~0, ~0, ~0, ~0));
-		VOID_RET(int, prctl(0xf00000, ~0, ~0, ~0, ~0));
+		if (prctl(-1, ~0, ~0, ~0, ~0) == 0) {
+			pr_fail("%s: prctl(-1, ~0, ~0, ~0, ~0) "
+				"unexpectedly succeeded\n", args->name);
+			rc = EXIT_FAILURE;
+		}
+		if (prctl(0xf00000, ~0, ~0, ~0, ~0) == 0) {
+			pr_fail("%s: prctl(0xf00000, ~0, ~0, ~0, ~0) "
+				"unexpectedly succeeded\n", args->name);
+			rc = EXIT_FAILURE;
+		}
 	}
-
-	return 0;
+	return rc;
 }
 
 /*
@@ -1067,12 +1112,14 @@ finish:
 stressor_info_t stress_prctl_info = {
 	.stressor = stress_prctl,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_prctl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/prctl.h or prctl() system call"
 };
