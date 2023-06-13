@@ -813,6 +813,7 @@ void stress_ksm_memory_merge(const int flag)
 			VOID_RET(int, prctl(PR_SET_MEMORY_MERGE, flag));
 			prev_flag = flag;
 		}
+		(void)system_write("/sys/kernel/mm/ksm/run", "1\n", 2);
 	}
 #else
 	(void)flag;

@@ -333,6 +333,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(49)	/* --log-lockless */
 #define OPT_FLAGS_SN		 STRESS_BIT_ULL(50)	/* --sn scientific notation */
 #define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(51)	/* --change-cpu */
+#define OPT_FLAGS_KSM		 STRESS_BIT_ULL(52)	/* --ksm */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1466,6 +1467,8 @@ typedef enum {
 	OPT_klog_ops,
 
 	OPT_klog_check,
+
+	OPT_ksm,
 
 	OPT_kvm,
 	OPT_kvm_ops,

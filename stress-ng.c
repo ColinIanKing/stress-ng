@@ -102,6 +102,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES },
 	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME },
 	{ OPT_klog_check,	OPT_FLAGS_KLOG_CHECK },
+	{ OPT_ksm,		OPT_FLAGS_KSM },
 	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
 	{ OPT_log_lockless,	OPT_FLAGS_LOG_LOCKLESS },
 	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE },
@@ -578,6 +579,7 @@ static const struct option long_options[] = {
 	{ "klog",		1,	0,	OPT_klog },
 	{ "klog-check",		0,	0,	OPT_klog_check },
 	{ "klog-ops",		1,	0,	OPT_klog_ops },
+	{ "ksm",		0,	0,	OPT_ksm },
 	{ "kvm",		1,	0,	OPT_kvm },
 	{ "kvm-ops",		1,	0,	OPT_kvm_ops },
 	{ "l1cache",		1,	0, 	OPT_l1cache },
@@ -1257,6 +1259,7 @@ static const stress_help_t help_generic[] = {
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"keep-files",		"do not remove files or directories" },
 	{ NULL,		"klog-check",		"check kernel message log for errors" },
+	{ NULL,		"ksm",			"enable kernel samepage merging" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
@@ -2482,6 +2485,8 @@ again:
 
 				if (g_opt_timeout)
 					(void)alarm((unsigned int)g_opt_timeout);
+				if (g_opt_flags & OPT_FLAGS_KSM)
+					stress_ksm_memory_merge(1);
 
 				stress_set_proc_state(name, STRESS_STATE_INIT);
 				stress_mwc_reseed();
@@ -4216,6 +4221,9 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
+
+	if (g_opt_flags & OPT_FLAGS_KSM)
+		stress_ksm_memory_merge(1);
 
 	/*
 	 *  Load in job file options

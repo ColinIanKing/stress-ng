@@ -227,6 +227,10 @@ check the kernel log for kernel error and warning messages and report these
 as soon as they are detected. Linux only and requires root capability to read
 the kernel log.
 .TP
+.B \-\-ksm
+enable kernel samepage merging (Linux only). This is a memory-saving de-duplication
+feature for merging anonymous (private) pages.
+.TP
 .B \-\-log\-brief
 by default stress\-ng will report the name of the program, the message type
 and the process id as a prefix to all output. The \-\-log\-brief option will
