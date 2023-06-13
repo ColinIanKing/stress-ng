@@ -237,7 +237,7 @@ next:
 			void *ptr;
 
 			ptr = mmap(NULL, page_size, PROT_READ,
-				MAP_PRIVATE | MAP_ANONYMOUS, fd_urnd, 0);
+				MAP_PRIVATE, fd_urnd, 0);
 			if (ptr != MAP_FAILED)
 				(void)munmap(ptr, page_size);
 		}
