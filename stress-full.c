@@ -159,7 +159,7 @@ try_read:
 		 *  Try mmap'ing and msync on fd
 		 */
 		ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
-			MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
+			MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED) {
 			stress_uint8_put(*ptr);
 #if defined(MS_SYNC)
@@ -170,7 +170,7 @@ try_read:
 			(void)munmap((void *)ptr, args->page_size);
 		}
 		ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
+			MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED) {
 			*ptr = 0;
 			(void)munmap((void *)ptr, args->page_size);
