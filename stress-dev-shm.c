@@ -84,7 +84,7 @@ static inline int stress_dev_shm_child(
 			if (!keep_stressing(args))
 				break;
 			addr = mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
-				MAP_SHARED, fd, 0);
+				MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
 			if (addr != MAP_FAILED) {
 				register uint32_t *ptr;
 				register const uint32_t *end = addr + ((size_t)sz / sizeof(*end));
