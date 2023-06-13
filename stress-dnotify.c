@@ -444,6 +444,9 @@ static int stress_dnotify(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	/* Ignore stray SIGIOs */
+	if (stress_sighandler(args->name, SIGIO, stress_sighandler_nop, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);
