@@ -76,8 +76,10 @@ do {									\
 			pr_inf("%s: %s", capfail, args->name);		\
 			goto reap;					\
 		}							\
-		if ((errno != EINVAL) && (errno != ENOSYS))		\
-			pr_fail("%s kcmp " # type " failed, "		\
+		if ((errno != EINVAL) &&				\
+		    (errno != ENOSYS) &&				\
+		    (errno != EBADF))					\
+			pr_fail("%s: kcmp " # type " failed, "		\
 				"errno=%d (%s)\n", args->name,		\
 				errno, strerror(errno));		\
 	}								\
@@ -93,7 +95,9 @@ do {									\
 				pr_inf("%s: %s", capfail, args->name);	\
 				goto reap;				\
 			}						\
-			if ((errno != EINVAL) && (errno != ENOSYS))	\
+			if ((errno != EINVAL) &&			\
+			    (errno != ENOSYS) &&			\
+			    (errno != EBADF))				\
 				pr_fail("%s kcmp " # type " failed, "	\
 					"errno=%d (%s)\n", args->name,	\
 					errno, strerror(errno));	\
@@ -269,7 +273,7 @@ again:
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-			if (efd != -1) {
+			if ((sfd != -1) && (efd != -1)) {
 				struct shim_kcmp_epoll_slot slot;
 
 				slot.efd = (uint32_t)efd;
@@ -293,7 +297,7 @@ again:
 				KCMP_VERIFY(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0, 0);
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-				if (efd != -1) {
+				if ((sfd != -1) && (efd != -1)) {
 					struct shim_kcmp_epoll_slot slot;
 
 					slot.efd = (uint32_t)efd;
