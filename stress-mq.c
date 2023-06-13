@@ -363,7 +363,7 @@ again:
 				else
 					sret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
 				if (sret < 0) {
-					if (errno != EINTR) {
+					if ((errno != EINTR) && (errno != ETIMEDOUT)) {
 						pr_fail("%s: %s failed, errno=%d (%s)\n",
 							args->name,
 							timed ? "mq_timedreceive" : "mq_receive",
