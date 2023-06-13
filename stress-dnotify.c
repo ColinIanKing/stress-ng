@@ -142,6 +142,12 @@ static int dnotify_exercise(
 	}
 
 cleanup:
+	/* disable */
+	if (fcntl(fd, F_NOTIFY, 0) < 0) {
+		pr_fail("%s: fcntl F_NOTIFY failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = -1;
+	}
 	(void)close(fd);
 
 	return rc;
