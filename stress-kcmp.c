@@ -98,7 +98,7 @@ do {									\
 			if ((errno != EINVAL) &&			\
 			    (errno != ENOSYS) &&			\
 			    (errno != EBADF))				\
-				pr_fail("%s kcmp " # type " failed, "	\
+				pr_fail("%s: kcmp " # type " failed, "	\
 					"errno=%d (%s)\n", args->name,	\
 					errno, strerror(errno));	\
 		} else {						\
