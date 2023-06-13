@@ -2505,7 +2505,7 @@ again:
 				stress_set_iopriority(ionice_class, ionice_level);
 				(void)umask(0077);
 
-				pr_dbg("%s: started [%d] (instance %" PRIu32 " on CPU %u)\n",
+				pr_dbg("%s: [%d] started (instance %" PRIu32 " on CPU %u)\n",
 					name, (int)child_pid, j, stress_get_cpu());
 
 				stats->start = stats->finish = stress_time_now();
@@ -2615,7 +2615,7 @@ again:
 						errno, strerror(errno));
 				}
 #endif
-				pr_dbg("%s: exited [%d] (instance %" PRIu32 " on CPU %d)\n",
+				pr_dbg("%s: [%d] exited (instance %" PRIu32 " on CPU %d)\n",
 					name, (int)child_pid, j, stress_get_cpu());
 
 				/* Allow for some slops of ~0.5 secs */
