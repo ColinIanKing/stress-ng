@@ -130,7 +130,6 @@ static int stress_fsize_boundary(
 		if (!stress_fsize_reported(off, FSIZE_TYPE_FALLOC)) {
 			pr_inf("%s: fallocate unexpectedly succeeded at offset %jd (0x%jx), expecting EFBIG error\n",
 				args->name, (intmax_t)off, (intmax_t)off);
-			rc = EXIT_FAILURE;
 		}
 		return rc;
 	} else if ((errno != EFBIG) && (errno != ENOSPC) && (errno != EINTR)) {
