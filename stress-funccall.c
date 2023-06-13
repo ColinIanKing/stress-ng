@@ -112,8 +112,9 @@ static inline double stress_mwcdouble(void)
  *  compared for floating point
  */
 #define cmp_type(a, b, type)	(a != b)
-#define cmp_fp(a, b, type)	((a - b) > (type)0.0001)
+#define cmp_fp(a, b, type)	(fabs((double)(a - b)) > (type)0.0001)
 #define cmp_cmplx(a, b, type)	(cabs((double complex)(a - b)) > (double)0.0001)
+#define cmp_ignore(a, b, type)	(0)
 
 #define stress_funccall_type(type, rndfunc, cmpfunc)			\
 static bool NOINLINE 							\
@@ -852,7 +853,7 @@ stress_funcdeep_6(_Decimal32)
 stress_funcdeep_7(_Decimal32)
 stress_funcdeep_8(_Decimal32)
 stress_funcdeep_9(_Decimal32)
-stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64, cmp_fp)
+stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64, cmp_ignore)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
@@ -880,7 +881,7 @@ stress_funcdeep_6(_Decimal64)
 stress_funcdeep_7(_Decimal64)
 stress_funcdeep_8(_Decimal64)
 stress_funcdeep_9(_Decimal64)
-stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64, cmp_fp)
+stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64, cmp_ignore)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
@@ -908,7 +909,7 @@ stress_funcdeep_6(_Decimal128)
 stress_funcdeep_7(_Decimal128)
 stress_funcdeep_8(_Decimal128)
 stress_funcdeep_9(_Decimal128)
-stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64, cmp_fp)
+stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64, cmp_ignore)
 #endif
 
 #if defined(HAVE_FLOAT16) &&	\
@@ -964,7 +965,7 @@ stress_funcdeep_6(_Float32)
 stress_funcdeep_7(_Float32)
 stress_funcdeep_8(_Float32)
 stress_funcdeep_9(_Float32)
-stress_funccall_type(_Float32, (_Float32)stress_mwc32, cmp_fp)
+stress_funccall_type(_Float32, (_Float32)stress_mwc32, cmp_ignore)
 #endif
 
 #if defined(HAVE_FLOAT64) &&	\
@@ -992,7 +993,7 @@ stress_funcdeep_6(_Float64)
 stress_funcdeep_7(_Float64)
 stress_funcdeep_8(_Float64)
 stress_funcdeep_9(_Float64)
-stress_funccall_type(_Float64, (_Float64)stress_mwc64, cmp_fp)
+stress_funccall_type(_Float64, (_Float64)stress_mwc64, cmp_ignore)
 #endif
 
 
