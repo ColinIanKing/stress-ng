@@ -74,7 +74,7 @@ static void NORETURN runner(
 {
 	(void)pid;
 
-	pr_dbg("%s: wait: runner started [%d]\n", args->name, (int)getpid());
+	pr_dbg("%s: runner started [%d]\n", args->name, (int)getpid());
 
 	do {
 		(void)pause();
@@ -96,7 +96,7 @@ static void NORETURN killer(
 	uint64_t last_counter = get_counter(args);
 	pid_t ppid = getppid();
 
-	pr_dbg("%s: wait: killer started [%d]\n", args->name, (int)getpid());
+	pr_dbg("%s: killer started [%d]\n", args->name, (int)getpid());
 
 	do {
 		(void)kill(pid, SIGSTOP);
