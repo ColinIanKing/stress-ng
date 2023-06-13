@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 June 2023"
+.TH STRESS-NG 1 "13 June 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -514,6 +514,11 @@ performing clean up (such as removing hundreds of test file) it may take a
 while to finally terminate.  A 0 timeout will run stress-ng for ever with
 no timeout. The default timeout is 24 hours.
 .TP
+.B \-\-times
+show the cumulative user and system times of all the child processes at the
+end of the stress run.  The percentage of utilisation of available CPU time is
+also calculated from the number of on-line CPUs in the system.
+.TP
 .B \--timestamp
 add a timestamp in hours, minutes, seconds and hundredths of a second to the
 log output.
@@ -524,11 +529,6 @@ the timer slack allows the kernel to coalesce timer events by adding some
 fuzziness to timer expiration times and hence reduce wakeups.  Conversely,
 decreasing the timer slack will increase wakeups.  A value of 0 for the
 timer-slack will set the system default of 50,000 nanoseconds.
-.TP
-.B \-\-times
-show the cumulative user and system times of all the child processes at the
-end of the stress run.  The percentage of utilisation of available CPU time is
-also calculated from the number of on-line CPUs in the system.
 .TP
 .B \-\-tz
 collect temperatures from the available thermal zones on the machine (Linux
