@@ -269,9 +269,9 @@ static int stress_sigsegv(const stress_args_t *args)
 
 	/* Allocate read only page */
 	ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (ptr == MAP_FAILED) {
-		pr_inf_skip("%s: mmap of shared read only page failed: "
+		pr_inf_skip("%s: mmap of read only page failed: "
 			"errno = %d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
