@@ -1236,7 +1236,7 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	m.y = y;
 
 	m.mmap = mmap(NULL, m.mmap_size, PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (m.mmap == MAP_FAILED)
 		return NULL;
 	return (void *)&m;
