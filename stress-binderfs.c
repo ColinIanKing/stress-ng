@@ -58,7 +58,7 @@ static int stress_binderfs_supported(const char *name)
     defined(HAVE_LINUX_ANDROID_BINDER_H) &&	\
     defined(HAVE_LINUX_ANDROID_BINDERFS_H)
 
-#define UNMOUNT_TIMEOUT		(5.0)	/* In seconds */
+#define UNMOUNT_TIMEOUT		(15.0)	/* In seconds */
 
 static int stress_binderfs_umount(
 	const stress_args_t *args,
