@@ -392,9 +392,7 @@ size_t stress_resources_allocate(
 		if (!keep_stressing_flag())
 			break;
 		if (resources[i].fd_tmp != -1) {
-			const size_t sz = page_size * stress_mwc32();
-
-			(void)shim_fallocate(resources[i].fd_tmp, 0, 0, (off_t)sz);
+			(void)shim_fallocate(resources[i].fd_tmp, 0, 0, (off_t)page_size);
 #if defined(F_GETLK) &&		\
     defined(F_SETLK) &&		\
     defined(F_SETLKW) &&	\
@@ -406,7 +404,7 @@ size_t stress_resources_allocate(
 				f.l_type = F_WRLCK;
 				f.l_whence = SEEK_SET;
 				f.l_start = 0;
-				f.l_len = (off_t)sz;
+				f.l_len = (off_t)page_size;
 				f.l_pid = pid;
 
 				(void)fcntl(resources[i].fd_tmp, F_SETLK, &f);
