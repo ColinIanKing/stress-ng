@@ -78,10 +78,12 @@ do {									\
 		}							\
 		if ((errno != EINVAL) &&				\
 		    (errno != ENOSYS) &&				\
-		    (errno != EBADF))					\
+		    (errno != EBADF)) {					\
 			pr_fail("%s: kcmp " # type " failed, "		\
 				"errno=%d (%s)\n", args->name,		\
 				errno, strerror(errno));		\
+			ret = EXIT_FAILURE;				\
+		}							\
 	}								\
 } while (0)
 
@@ -97,10 +99,12 @@ do {									\
 			}						\
 			if ((errno != EINVAL) &&			\
 			    (errno != ENOSYS) &&			\
-			    (errno != EBADF))				\
+			    (errno != EBADF)) {				\
 				pr_fail("%s: kcmp " # type " failed, "	\
 					"errno=%d (%s)\n", args->name,	\
 					errno, strerror(errno));	\
+				ret = EXIT_FAILURE;			\
+			}						\
 		} else {						\
 			pr_fail( "%s: kcmp " # type			\
 			" returned %d, expected: %d\n",			\
