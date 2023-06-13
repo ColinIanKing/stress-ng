@@ -68,15 +68,21 @@ static int stress_eigen_all();
  */
 static const stress_eigen_method_info_t eigen_methods[] = {
 	{ "all",			stress_eigen_all },
-	{ "multiply-longdouble",	eigen_multiply_long_double, },
-	{ "multiply-double",		eigen_multiply_double, },
-	{ "multiply-float",		eigen_multiply_float, },
-	{ "inverse-longdouble",		eigen_inverse_long_double, },
-	{ "inverse-double",		eigen_inverse_double, },
-	{ "inverse-float",		eigen_inverse_float, },
+	{ "add-longdouble",		eigen_add_long_double, },
+	{ "add-double",			eigen_add_double, },
+	{ "add-float",			eigen_add_float, },
 	{ "determinant-longdouble",	eigen_determinant_long_double, },
 	{ "determinant-double",		eigen_determinant_double, },
 	{ "determinant-float",		eigen_determinant_float, },
+	{ "inverse-longdouble",		eigen_inverse_long_double, },
+	{ "inverse-double",		eigen_inverse_double, },
+	{ "inverse-float",		eigen_inverse_float, },
+	{ "multiply-longdouble",	eigen_multiply_long_double, },
+	{ "multiply-double",		eigen_multiply_double, },
+	{ "multiply-float",		eigen_multiply_float, },
+	{ "transpose-longdouble",	eigen_transpose_long_double, },
+	{ "transpose-double",		eigen_transpose_double, },
+	{ "transpose-float",		eigen_transpose_float, },
 };
 
 static stress_metrics_t eigen_metrics[SIZEOF_ARRAY(eigen_methods)];

@@ -28,6 +28,36 @@ double stress_time_now(void);
 #include <eigen3/Eigen/Dense>
 using namespace Eigen;
 
+template <typename T> static int eigen_add(const size_t size, double *duration, double *count)
+{
+	try {
+		typedef Matrix < T, Dynamic, Dynamic > matrix;
+		matrix a, b, result, result_check;
+		double t;
+		bool r;
+
+		a = matrix::Random(size, size);
+		b = matrix::Random(size, size);
+
+		t = stress_time_now();
+		result = a + b;
+		*duration += stress_time_now() - t;
+		*count += 1.0;
+
+		t = stress_time_now();
+		result_check = a + b;
+		*duration += stress_time_now() - t;
+		*count += 1.0;
+
+		r = ((result_check - result).norm() == 0);
+		if (!r)
+			return EXIT_FAILURE;
+	} catch (...) {
+		return -1;
+	}
+	return EXIT_SUCCESS;
+}
+
 template <typename T> static int eigen_multiply(const size_t size, double *duration, double *count)
 {
 	try {
@@ -58,9 +88,39 @@ template <typename T> static int eigen_multiply(const size_t size, double *durat
 	return EXIT_SUCCESS;
 }
 
+template <typename T> static int eigen_transpose(const size_t size, double *duration, double *count)
+{
+	try {
+		typedef Matrix < T, Dynamic, Dynamic > matrix;
+		matrix a, result, result_check;
+		double t;
+		bool r;
+
+		a = matrix::Random(size, size);
+
+		//cout<< b << "\n";
+
+		t = stress_time_now();
+		result = a.transpose();
+		*duration += stress_time_now() - t;
+		*count += 1.0;
+
+		t = stress_time_now();
+		result_check = a.transpose();
+		*duration += stress_time_now() - t;
+		*count += 1.0;
+
+		r = ((result_check - result).norm() == 0);
+		if (!r)
+			return EXIT_FAILURE;
+	} catch (...) {
+		return -1;
+	}
+	return EXIT_SUCCESS;
+}
+
 template <typename T> static int eigen_inverse(const size_t size, double *duration, double *count)
 {
-
 	try {
 		typedef Matrix < T, Dynamic, Dynamic > matrix;
 		matrix a, result, result_check;
@@ -119,6 +179,21 @@ template <typename T> static int eigen_determinant(const size_t size, double *du
 
 extern "C" {
 
+int eigen_add_long_double(const size_t size, double *duration, double *count)
+{
+	return eigen_add<long double>(size, duration, count);
+}
+
+int eigen_add_double(const size_t size, double *duration, double *count)
+{
+	return eigen_add<double>(size, duration, count);
+}
+
+int eigen_add_float(const size_t size, double *duration, double *count)
+{
+	return eigen_add<float>(size, duration, count);
+}
+
 int eigen_multiply_long_double(const size_t size, double *duration, double *count)
 {
 	return eigen_multiply<long double>(size, duration, count);
@@ -132,6 +207,21 @@ int eigen_multiply_double(const size_t size, double *duration, double *count)
 int eigen_multiply_float(const size_t size, double *duration, double *count)
 {
 	return eigen_multiply<float>(size, duration, count);
+}
+
+int eigen_transpose_long_double(const size_t size, double *duration, double *count)
+{
+	return eigen_transpose<long double>(size, duration, count);
+}
+
+int eigen_transpose_double(const size_t size, double *duration, double *count)
+{
+	return eigen_transpose<double>(size, duration, count);
+}
+
+int eigen_transpose_float(const size_t size, double *duration, double *count)
+{
+	return eigen_transpose<float>(size, duration, count);
 }
 
 int eigen_inverse_long_double(const size_t size, double *duration, double *count)

@@ -1640,10 +1640,10 @@ dlopen(3) for more details of this mechanism.
 stop workers after N bogo load/unload cycles.
 .TP
 .B \-\-eigen N
-start N workers that exercise the Eigen C++ matrix library for 2D
-matrix multiplication, matrix inverse and matrix determinant computations
- on long double, double and float matrices. This currently is only available
-for gcc/g++ builds on x86-64.
+start N workers that exercise the Eigen C++ matrix library for 2D matrix 
+addition, multiplication, determinant, inverse and transpose operations.
+on long double, double and float matrices. This currently is only available
+for gcc/g++ builds.
 .TP
 .B \-\-eigen\-ops N
 stop after N Eigen matrix computations
@@ -1659,15 +1659,21 @@ lB2 lB lB lB
 l l s s.
 Method	Description
 all	iterate over all the Eigen 2D matrix operations
-multiply-longdouble	mutiplication of matrix of long double floating point values
-multiply-doublee	mutiplication of matrix of double floating point values
-multiply-float	mutiplication of matrix of floating point values
-inverse-longdouble	inverse of matrix of long double floating point values
-inverse-double	inverse of matrix of double floating point values
-inverse-float	inverse of floating point values
+add-longdouble	addition of two matrices of long double floating point values
+add-doublee	addition of two matrices of double floating point values
+add-float	addition of two matrices of floating point values
 determinant-longdouble	determinant of matrix of long double floating point values
 determinant-double	determinant of matrix of double floating point values
 determinant-float	determinant of matrix of floating point values
+inverse-longdouble	inverse of matrix of long double floating point values
+inverse-double	inverse of matrix of double floating point values
+inverse-float	inverse of matrix of floating point values
+multiply-longdouble	mutiplication of two matrices of long double floating point values
+multiply-doublee	mutiplication of two matrices of double floating point values
+multiply-float	mutiplication of two matrices of floating point values
+transpose-longdouble	transpose of matrix of long double floating point values
+transpose-double	transpose of matrix of double floating point values
+transpose-float	transpose of matrix of floating point values
 .TE
 .TP
 .B \-\-efivar N
