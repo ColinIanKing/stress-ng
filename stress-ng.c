@@ -2100,16 +2100,16 @@ redo:
 #if NEED_GLIBC(2,1,0)
 				const char *signame = strsignal(wterm_signal);
 
-				pr_dbg("process [%d] (%s) terminated on signal: %d (%s)\n",
-					ret, stressor_name, wterm_signal, signame);
+				pr_dbg("%s: [%d] terminated on signal: %d (%s)\n",
+					stressor_name, ret, wterm_signal, signame);
 #else
-				pr_dbg("process [%d] (%s) terminated on signal: %d\n",
-					ret, stressor_name, wterm_signal);
+				pr_dbg("%s: [%d] terminated on signal: %d\n",
+					stressor_name, ret, wterm_signal);
 #endif
 			}
 #else
-			pr_dbg("process [%d] (%s) terminated on signal\n",
-				ret, stressor_name);
+			pr_dbg("%s [%d] terminated on signal\n",
+				stressor_name, ret);
 #endif
 			/*
 			 *  If the stressor got killed by OOM or SIGKILL
@@ -2118,11 +2118,11 @@ redo:
 			 *  failure.
 			 */
 			if (stress_process_oomed(ret)) {
-				pr_dbg("process [%d] (%s) was killed by the OOM killer\n",
-					ret, stressor_name);
+				pr_dbg("%s: [%d] killed by the OOM killer\n",
+					stressor_name, ret);
 			} else if (wterm_signal == SIGKILL) {
-				pr_dbg("process [%d] (%s) was possibly killed by the OOM killer\n",
-					ret, stressor_name);
+				pr_dbg("%s: [%d] possibly killed by the OOM killer\n",
+					stressor_name, ret);
 			} else if (wterm_signal != SIGALRM) {
 				*success = false;
 			}
@@ -2133,8 +2133,8 @@ redo:
 			break;
 		case EXIT_NO_RESOURCE:
 			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
-			pr_warn_skip("process [%d] (%s) aborted early, out of system resources\n",
-				ret, stressor_name);
+			pr_warn_skip("%s: [%d] aborted early, out of system resources\n",
+				stressor_name, ret);
 			*resource_success = false;
 			do_abort = true;
 			break;
@@ -2145,14 +2145,14 @@ redo:
 			case EXIT_SIGNALED:
 			do_abort = true;
 #if defined(STRESS_REPORT_EXIT_SIGNALED)
-			pr_dbg("process [%d] (%s) aborted via a termination signal\n",
-				ret, stressor_name);
+			pr_dbg("%s: [%d] aborted via a termination signal\n",
+				stressor_name, ret);
 #endif
 			break;
 		case EXIT_BY_SYS_EXIT:
 			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
-			pr_dbg("process [%d] (%s) aborted via exit() which was not expected\n",
-				ret, stressor_name);
+			pr_dbg("%s: [%d] aborted via exit() which was not expected\n",
+				stressor_name, ret);
 			do_abort = true;
 			break;
 		case EXIT_METRICS_UNTRUSTWORTHY:
@@ -2169,8 +2169,8 @@ redo:
 			wexit_status = EXIT_NOT_SUCCESS;
 		CASE_FALLTHROUGH;
 		default:
-			pr_err("process [%d] (%s) terminated with an error, exit status=%d (%s)\n",
-				ret, stressor_name, wexit_status,
+			pr_err("%s: [%d] terminated with an error, exit status=%d (%s)\n",
+				stressor_name, ret, wexit_status,
 				stress_exit_status_to_string(wexit_status));
 			*success = false;
 			do_abort = true;
@@ -2183,7 +2183,8 @@ redo:
 		}
 
 		stress_stressor_finished(&stats->pid);
-		pr_dbg("process [%d] terminated (%s)\n", ret,
+		pr_dbg("%s: [%d] terminated (%s)\n",
+			stressor_name, ret,
 			stress_exit_status_to_string(wexit_status));
 	} else if (ret == -1) {
 		/* Somebody interrupted the wait */
