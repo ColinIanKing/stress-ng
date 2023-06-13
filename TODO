@@ -21,4 +21,3 @@ List of TODO items:
 
 usefaultfd UFFD_FEATURE_WP_UNPOPULATED
 riscv_hwprobe()
-enable PR_SET_MEMORY_MERGE prctl --ksm-memmerge option?
