@@ -254,6 +254,10 @@ static int stress_timer(const stress_args_t *args)
 		set_counter(args, timer_counter);
 	} while (keep_stressing(args));
 
+	/* stop timer */
+	(void)shim_memset(&timer, 0, sizeof(timer));
+	VOID_RET(int, timer_settime(timerid, 0, &timer, NULL));
+
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
