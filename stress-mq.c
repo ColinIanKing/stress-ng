@@ -162,6 +162,11 @@ static int stress_mq(const stress_args_t *args)
 		mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
 		if (mq >= 0)
 			break;
+		if (errno == EMFILE) {
+			pr_inf_skip("%s: system ran out of file descriptors, skipping stressor\n",
+				args->name);
+			return EXIT_NO_RESOURCE;
+		}
 		if (errno == ENOSYS) {
 			if (args->instance == 0)
 				pr_inf_skip("%s: POSIX message queues not implemented, skipping stressor\n",
