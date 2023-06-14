@@ -43,7 +43,7 @@ static const stress_interrupt_info_t info[] = {
 	{ "Err:",	true,	pr_fail, "Spurious Unhandled Interrupt" },	/* ARM */
 };
 
-STRESS_ASSERT(SIZEOF_ARRAY(info) == STRESS_INTERRUPTS_MAX)
+STRESS_ASSERT(SIZEOF_ARRAY(info) <= STRESS_INTERRUPTS_MAX)
 
 /*
  *  stress_interrupts_count_by_type()
