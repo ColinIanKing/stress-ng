@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.15.08
+VERSION=0.15.09
 #
-# Codename "sleepy sanguine sloth"
+# Codename "mischievous motivated machinator"
 #
 
 KERNEL=$(shell uname -s)
