@@ -105,16 +105,15 @@ static bool do_not_stat(const char *filename)
  *  stress_fstat_check_buf()
  *	check if some of the stat buf fields have been filled in
  */
-static int stress_fstat_check_buf(const struct stat *buf)
+static int stress_fstat_check_buf(const struct stat *buf, const struct stat *buf_orig)
 {
-	if ((buf->st_dev == ~(dev_t)0) &&
-	    (buf->st_ino == ~(ino_t)0) &&
-	    (buf->st_mode == ~(mode_t)0) &&
-	    (buf->st_uid == ~(uid_t)0) &&
-	    (buf->st_gid == ~(gid_t)0) &&
-	    (buf->st_rdev == ~(dev_t)0) &&
-	    (buf->st_size == ~(off_t)0) &&
-	    (buf->st_size == ~(off_t)0)) {
+	if ((buf->st_dev == buf_orig->st_dev) &&
+	    (buf->st_ino == buf_orig->st_ino) &&
+	    (buf->st_mode == buf_orig->st_mode) &&
+	    (buf->st_uid == buf_orig->st_uid) &&
+	    (buf->st_gid == buf_orig->st_gid) &&
+	    (buf->st_rdev == buf_orig->st_rdev) &&
+	    (buf->st_size == buf_orig->st_size)) {
 		return -1;
 	}
 	return 0;
@@ -122,7 +121,7 @@ static int stress_fstat_check_buf(const struct stat *buf)
 
 static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 {
-	struct stat buf;
+	struct stat buf, buf_orig;
 #if defined(AT_EMPTY_PATH) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
 	shim_statx_t bufx;
@@ -131,10 +130,11 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 	const stress_args_t *args = ctxt->args;
 	int ret, rc = EXIT_SUCCESS;
 
-	(void)memset(&buf, 0xff, sizeof(buf));
+	(void)shim_memset(&buf_orig, 0xff, sizeof(buf_orig));
+	(void)shim_memset(&buf, 0xff, sizeof(buf));
 	ret = stat(si->path, &buf);
 	if (ret == 0) {
-		if (stress_fstat_check_buf(&buf) < 0) {
+		if (stress_fstat_check_buf(&buf, &buf_orig) < 0) {
 			pr_fail("%s: stat failed to fill in statbuf structure\n", args->name);
 			rc = -1;
 		}
@@ -142,10 +142,10 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 		si->ignore |= IGNORE_STAT;
 	}
 
-	(void)memset(&buf, 0xff, sizeof(buf));
+	(void)shim_memset(&buf, 0xff, sizeof(buf));
 	ret =  lstat(si->path, &buf);
 	if (ret == 0) {
-		if (stress_fstat_check_buf(&buf) < 0) {
+		if (stress_fstat_check_buf(&buf, &buf_orig) < 0) {
 			pr_fail("%s: lstat failed to fill in statbuf structure\n", args->name);
 			rc = -1;
 		}
