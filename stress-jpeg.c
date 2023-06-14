@@ -362,6 +362,8 @@ PRAGMA_UNROLL_N(8)
 	if (verify)
 		stress_jpeg_checksum_data(ptr, size, checksum);
 	free(ptr);
+#else
+	(void)verify;
 #endif
 	*duration = t2 - t1;
 	return (int)size;
