@@ -19,10 +19,11 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-target-clones.h"
 #include "core-nt-store.h"
 
-#define MISALIGN_LOOPS		(32768)
+#define MISALIGN_LOOPS		(64)
 
 /* Disable atomic ops for SH4 as this breaks gcc on Debian sid */
 #if defined(STRESS_ARCH_SH4)
@@ -34,6 +35,13 @@
 #undef HAVE_ATOMIC
 #endif
 
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
+#define HAVE_TIMER_FUNCTIONALITY
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
 	{ NULL,	"misaligned-method M",	"use misaligned memory read/write method" },
@@ -43,6 +51,11 @@ static const stress_help_t help[] = {
 
 static sigjmp_buf jmp_env;
 static int handled_signum = -1;
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+static bool use_timer = false;
+static timer_t timer_id;
+static struct itimerspec timer;
+#endif
 
 typedef void (*stress_misaligned_func)(const stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
 
@@ -1063,8 +1076,29 @@ static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 	if (current_method)
 		current_method->disabled = true;
 
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	siglongjmp(jmp_env, 1);
 }
+
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+static void stress_misaligned_reset_timer(void)
+{
+	timer.it_value.tv_sec = 0;
+	timer.it_interval.tv_nsec = 400000000;
+	timer.it_interval.tv_sec = 0;
+	timer.it_interval.tv_nsec = 400000000;
+	VOID_RET(int, timer_settime(timer_id, 0, &timer, NULL));
+}
+
+static MLOCKED_TEXT void stress_misaligned_timer_handler(int signum)
+{
+	(void)signum;
+
+	if (current_method)
+		current_method->disabled = true;
+
+	stress_misaligned_reset_timer();
+}
+#endif
 
 static void stress_misaligned_enable_all(void)
 {
@@ -1158,6 +1192,9 @@ static int stress_misaligned(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t buffer_size = page_size << 1;
 	bool succeeded = true;
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+	struct sigevent sev;
+#endif
 
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
 
@@ -1167,6 +1204,20 @@ static int stress_misaligned(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	if (stress_sighandler(args->name, SIGSEGV, stress_misaligned_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+	if (stress_sighandler(args->name, SIGRTMIN, stress_misaligned_timer_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
+	(void)shim_memset(&sev, 0, sizeof(sev));
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timer_id;
+	if (timer_create(CLOCK_REALTIME, &sev, &timer_id) == 0) {
+		use_timer = true;
+		stress_misaligned_reset_timer();
+	}
+#endif
 
 	stress_misaligned_enable_all();
 
@@ -1183,7 +1234,7 @@ static int stress_misaligned(const stress_args_t *args)
 
 	current_method = misaligned_method;
 	ret = sigsetjmp(jmp_env, 1);
-	if ((ret == 1) && (args->instance == 0)) {
+	if ((ret != 0) && (args->instance == 0)) {
 		pr_inf_skip("%s: skipping method %s, misaligned operations tripped %s\n",
 			args->name, current_method->name,
 			handled_signum == -1 ? "an error" :
@@ -1196,11 +1247,22 @@ static int stress_misaligned(const stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+		stress_misaligned_reset_timer();
+#endif
 		misaligned_method->func(args, (uintptr_t)buffer, page_size, &succeeded);
 		misaligned_method->exercised = true;
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+	if (use_timer) {
+		(void)shim_memset(&timer, 0, sizeof(timer));
+		VOID_RET(int, timer_settime(timer_id, 0, &timer, NULL));
+		VOID_RET(int, timer_delete(timer_id));
+	}
+	(void)stress_sighandler_default(SIGRTMIN);
+#endif
 	(void)stress_sighandler_default(SIGBUS);
 	(void)stress_sighandler_default(SIGILL);
 	(void)stress_sighandler_default(SIGSEGV);
