@@ -51,7 +51,7 @@ static sigjmp_buf jmp_env;
 static volatile int phase;
 static volatile void *fault_addr;
 static volatile int signo;
-static volatile int si_code;
+static volatile int sigcode;
 
 /*
  *  stress_bigheap_phase()
@@ -107,7 +107,7 @@ static void NORETURN MLOCKED_TEXT stress_bigheap_segvhandler(
 
 	fault_addr = info->si_addr;
 	signo = info->si_signo;
-	si_code = info->si_code;
+	sigcode = info->si_code;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
@@ -138,7 +138,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	fault_addr = NULL;
 	signo = -1;
-	si_code = -1;
+	sigcode = -1;
 	phase = 0;
 
 	(void)context;
@@ -177,7 +177,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			segv_reported = true;
 			pr_inf("%s: caught signal %d (%s), si_code = %d, fault address %p, phase %d '%s', alloc = %p .. %p\n",
 				args->name, signo, signame ? signame : "unknown",
-				si_code, fault_addr, phase, stress_bigheap_phase(),
+				sigcode, fault_addr, phase, stress_bigheap_phase(),
 				ptr, (uint8_t *)ptr + size);
 		}
 		/* just abort */
