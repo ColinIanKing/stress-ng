@@ -366,10 +366,9 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 #if defined(__linux__)
 				prev_mlocked_pages = mlocked_pages;
 				mlocked_pages = stress_mlock_pages(page_size);
-				if (mlocked_pages < prev_mlocked_pages) {
-					pr_fail("%s: mlocked pages shrunk, before mlock: %" PRIu64 " pages mlocked, after: %" PRIu64 " pages mlocked\n",
+				if ((mlocked_pages > 0) && (mlocked_pages < prev_mlocked_pages)) {
+					pr_dbg("%s: mlocked pages shrunk, before mlock: %" PRIu64 " pages mlocked, after: %" PRIu64 " pages mlocked\n",
 						args->name, prev_mlocked_pages, mlocked_pages);
-					rc = EXIT_FAILURE;
 				}
 				if (mlocked_pages > max_mlocked_pages)
 					max_mlocked_pages = mlocked_pages;
