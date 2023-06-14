@@ -46,9 +46,10 @@ static int stress_sigrt(const stress_args_t *args)
 	size_t stress_sigrt_metrics_size = sizeof(*stress_sigrt_metrics) * MAX_RTPIDS;
 	double count, duration, rate;
 
-	stress_sigrt_metrics = mmap(NULL, stress_sigrt_metrics_size,
-					PROT_READ | PROT_WRITE,
-					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	stress_sigrt_metrics = (stress_metrics_t *)
+		mmap(NULL, stress_sigrt_metrics_size,
+			PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_sigrt_metrics == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zu bytes, skipping stressor\n",
 			args->name, stress_sigrt_metrics_size);
