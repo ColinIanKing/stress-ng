@@ -195,6 +195,8 @@ static bool NOINLINE stress_funcret_ ## type(const stress_args_t *args)	\
 	type a, old_b;							\
 									\
 	stress_funcret_setvar(&a, sizeof(a));				\
+	/* taint old_b to keep old compilers happy */			\
+	(void)shim_memcpy(&old_b, &a, sizeof(old_b));			\
 									\
 	for (i = 0; i < 1000; i++) {					\
 		type b;							\
