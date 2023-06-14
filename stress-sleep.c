@@ -138,11 +138,14 @@ static void *stress_pthread_func(void *c)
 
 		t2 = stress_time_now();
 		delta = t2 - t1;
-		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
-		if (delta < expected / STRESS_DBL_NANOSECOND) {
-			pr_fail("%s: nanosleeps for %.f nanosecs to less than %.2f nanosecs to complete\n",
-				args->name, expected, delta * STRESS_DBL_NANOSECOND);
-			ctxt->underruns++;
+		/* don't check for clock warping */
+		if (delta > 0.0) {
+			expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
+			if (delta < expected / STRESS_DBL_NANOSECOND) {
+				pr_fail("%s: nanosleeps for %.f nanosecs to less than %.2f nanosecs to complete\n",
+					args->name, expected, delta * STRESS_DBL_NANOSECOND);
+				ctxt->underruns++;
+			}
 		}
 
 		t1 = stress_time_now();
