@@ -128,6 +128,7 @@ finish:
 		cld_exited, cld_killed,
 		cld_stopped, cld_continued);
 
+#if !defined(__OpenBSD__)
 	/*
 	 *  No si_code codes recognised and we handled SIGCHLD signals, then
 	 *  something is not conformant
@@ -138,6 +139,7 @@ finish:
 			args->name);
 		return EXIT_FAILURE;
 	}
+#endif
 
 	return EXIT_SUCCESS;
 }
