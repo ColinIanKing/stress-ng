@@ -35,13 +35,10 @@
 #define stress_asm_x86_cpuid(a, b, c, d)		\
 	do {						\
 		__asm__ __volatile__ (			\
-			"pushl %%ebx\n"			\
 			"cpuid\n"			\
-			"mov %%ebx,%1\n"		\
-			"popl %%ebx\n"			\
 			: "=a"(a),			\
-			  "=r"(b),			\
-			  "=r"(c),			\
+			  "=b"(b),			\
+			  "=c"(c),			\
 			  "=d"(d)			\
 			: "0"(a),"2"(c));		\
 	} while (0)
