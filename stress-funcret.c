@@ -18,7 +18,14 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-builtin.h"
+
+#if defined(STRESS_ARCH_S390)
+#undef HAVE_FLOAT_DECIMAL32
+#undef HAVE_FLOAT_DECIMAL64
+#undef HAVE_FLOAT_DECIMAL128
+#endif
 
 typedef bool (*stress_funcret_func)(const stress_args_t *args);
 
