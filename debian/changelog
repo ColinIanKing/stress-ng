@@ -1,3 +1,386 @@
+stress-ng (0.15.09-1) unstable; urgency=medium
+
+  [ Eder Zulian ]
+  * Manual: fix typo: non-interritable -> uninterruptible
+
+  [ Colin Ian King ]
+  * Makefile: bump version
+  * stress-funcret: disable Decimal float for s390x
+  * stress-funccall: disable Decimal float for s390x
+  * README.md: update contributor list
+  * stress-sctp: use pidptr to clean up gcc 5.5.0 type punning warnings
+  * stress-jpeg: only define stress_jpeg_checksum_data if
+    HAVE_OPEN_MEMSTREAM is defined
+  * stress-jpeg: voidify unused variable verify for non-verification
+    #ifdef paths
+  * stress-funcret: variable old_b needs tainting to keep old compilers
+    happy
+  * stress-sigsuspend: cast pid_t to intmax_t for portable width printing
+    of pid_t
+  * stress-sigchld: don't check for si_code on OpenBSD
+  * stress-sigrt: cast pointer from mmap to (stress_metrics_t *)
+  * stress-udp: add in a back-off delay on ENOBUFS
+  * stress-udp: handle ENOBUFS on recvfrom
+  * stress-udp: use pidptr to clean up gcc 5.5.0 type punning warnings
+  * stress-bigheap: rename si_code to sigcode to avoid macro name clash
+    in minix
+  * stress-bigheap: remove SA_SIGINFO #ifdef, fixed minix build failure
+  * core-interrupts: cast char to int for clean minix build
+  * stress-fstat: compare stat buf fields with known original
+  * core-asm-x86.h: fix cpuid for 32 bit x86
+  * core-affinity: fix stress_change_cpu helper for non-linux systems
+  * stress-stream: reduce the checksum floating point precision
+  * core-interrupts: assert that number of interrupts does not exceed max
+  * core-interrupts: only enable check on some specific x86 interrupts
+  * core-helper: check for failed sysconf stack size calls
+  * stress-misaligned: add timer to check for locked-up instructions
+  * stress-mlock: don't make mlocked pages check a failure, just a debug
+    message
+  * stress-sleep: discount severe clock warping
+  * stress-mq: add detection of system wide lack of file descriptors
+  * stress-inotify: increase back-off time, keep retrying
+  * stress-timer: cancel timer before deleting it
+  * stress-funccall: ignore comparing some Decimal and Float types
+  * stress-binderfs: bump timeout to 15 seconds
+  * stress-fsize: remove failure from unexpected size issue
+  * stress-hrtimers: skip stressor if low on resources on timer_create
+    call
+  * stress-mq: don't treat timeouts as hard failures
+  * stress-dnotify: ignore stray SIGIOs
+  * stress-eigen: add transpose and addition matrix operations
+  * stress-dnotify: set F_NOTIFY flags to zero before closing
+  * stress-waitcpu: add more slow
+  * stress-x86cpuid: add verification on cpuid return register values
+  * stress-ng: swap order of pid and started/exited messages
+  * stress-wait: remove extraneous wait: prefix in messages
+  * stress-kcmp: ensure EXIT_FAILURE is reported back to stress-ng
+  * stress-kcmp: fix missing : on pr_fail message
+  * stress-kmp: check bad file descriptors and silently ignore EBADF
+  * stress-ng: reformat process exiting message, replace "process" with
+    stressor name
+  * core-resources: make tmp files smaller
+  * TODO: remove --ksm option from TODO list
+  * stress-urandom: make failed mmaping on urandom fd
+  * stress-sparsematrix: use private mmapping rather than shared
+  * stress-sigsegv: make shared mmapping private
+  * stress-randlist: use private mmapping
+  * stress-prefetch: use private mmapping rather than shared
+  * stress-full: mmaps on /dev/full will fail, don't use MAP_ANONYMOUS
+  * stress-dev-shm: mapping should not be anonymous, it's bound to fd
+  * stress-dev-shm: make mapping anonymous private for better ksm
+    performance
+  * stress-ng: re-order --times option
+  * stress-ng: update short help with missing general options
+  * stress-ng: enable --ksm kernel samepage merging option
+  * TODO: add ksm PR_SET_MEMORY_MERGE
+  * TODO: add two more items to be implemented
+  * syscalls: add riscv_hwprobe - TODO
+  * stress-pthread: voidify snprintf return
+  * core-ftrace: voidify snprintf return
+  * stress-mmapmany: read /proc/self/smaps and /proc/self/maps
+  * stress-hdd: use RWF_HIPRI when using O_DIRECT on pwritev2 writes
+  * core-*/stress-*: fix a wide range of typos and spelling mistakes
+  * stress-aiol: use O3 for data filling and checking
+  * voidify returns from strlcpy and strlcat
+  * stress-*sort: correct the message why the stressor is not implemented
+  * stress-waitcpu: add a little slop in nop and wait cpu opcodes rate
+    comparisons
+  * stress-brk: reset index i on re-start on low memory, fixes random
+    check failures
+  * stress-stream: compare doubles using fabs and a small delta
+  * stress-stream: make helper function stress_stream_checksum_data static
+  * stress-stream: constify cast to clear up icc warning
+  * stress-memrate: register and ALIGNED do not mix well with icc, remove
+    ALIGNED hint
+  * stress-rmap: use PRIxPTR format specifier for uintptr_t type
+  * core-mmap: make page_end const
+  * stress-funccal: usr helper macros to compare more esoteric float types
+  * stress-vecfp: compare float and double with some slack
+  * stress-udp: constify cast of data to pid_t *
+  * stress-funccall: add helper macros to compare integer, float and
+    complex types
+  * stress-daemon: clear up name shadowing on variable rc
+  * stress-prctl: verify that illegal prctl calls are handled correctly.
+  * stress-sctp/udp: refactor: move 32 char string into core-helper
+  * stress-sock: report number of messages send per second as extra
+    metrics
+  * stress-sctp: return EXIT_NO_RESOURCE on protocol not found
+  * stress-timer: add timer_settime verification
+  * stress-prefetch: add prefetch vs non-prefetch rate verification
+  * stress-dnotify: dnotify_access_file: ensure file is removed
+  * README.md: add another kernel bug found with stress-ng
+  * stress-dnotify: remove error handling debug file size, return to 0
+  * stress-dnotify: check for ENOSPC, return errors down the call chain
+  * core-helper: turn #if/#endif chain into #if/#elif/#endif
+  * stress-vm-rw: make pointer end const
+  * stress-dev-shm: make pointer end const
+  * stress-dentry: reduce scope of rret
+  * stress-dccp: make pointer addr_un const
+  * stress-af-alg: make function parameter info const
+  * core-vmstat: make pointer cpu_ticks const
+  * stress-daemon: check for setsid failure, report and write status back
+    to parent
+  * core-helper: make pointer ptr32end const, declare buffer buf only
+    where required
+  * core-mmap: make pointers end and page_end const
+  * stress-ng.h: make pointer ci const
+  * test-libbsd.c: constify pointers
+  * test-builtin-memcmp: remove redundant pointer ptr
+  * stress-zlib: make pointer zlib_checksum_in const
+  * stress-waitcpu: reduce scope of array msg
+  * stress-vm-rw: make pointer end const, make pointers registers
+  * stress-vm-addr: make ptr_end const, make pointers registers
+  * stress-userfaultfd: constify pointer end, zero stack
+  * stress-udp: constify pointer addr_un
+  * stress-sysfs: constify pointer d
+  * stress-syscall: constify pointer ss
+  * stress-stream: constify pointer arguments in checksum function
+  * stress-stackmmap: rename status to check_status
+  * stress-stack: make pointer start_ptr const
+  * stress-sockfd: make pointer addr_un const
+  * stress-sock: make pointer addr_un const
+  * stress-shm-sysv: make pointer end const
+  * stress-shm: make pointer end const
+  * stress-scpt: make pointer addr_un const
+  * stress-rmap: make pointer end const
+  * stress-rawpkt: make pointer eth const
+  * stress-procfs: make pointers ctxt and d const
+  * stress-memrate: make pointer write_end const
+  * stress-netlink-task: make pointer id_ptr const
+  * stress-pagemove: make pointer p const
+  * stress-ng: constify a couple of pointers
+  * stress-ng: move scope of count to one level lower
+  * stress-mprotect: move array str to lower scope
+  * stress-madvise: constify pointer ptr
+  * stress-memrate: constify some pointers
+  * stress-memthrash: make pointers fwd, rev registers
+  * stress-l1cache: constify pointer cache_end
+  * stress-ipsec-mb: constify read-only pointer end
+  * stress-jpeg: minor optimization for stress_jpeg_checksum_data
+  * stress-iomix: constify read only pointer buffer
+  * stress-getdent: constify pointer d
+  * stress-funccall: reduce scope of array msg
+  * stress-funcret: reduce scope of array msg
+  * stress-fp: fix incorrect index on assignment, should be [1] and
+    not [0]
+  * stress-chattr: ensure 1ULL is being shifted for 64 bit shifts
+  * stress-ioport: add verification of invalid ioperm parameters
+  * stress-ioport: note the usage of iopl
+  * Remove end of line spaces and tabs
+  * stress-rawdev: add verify checking
+  * stress-rawdev: fix skip message, replace flood with rawdev
+  * stress-bad-altstack: move child to helper, retry faulting, add
+    verification
+  * stress-timerfd: various checks are performed, so enable verify
+  * stress-fma: add fused multiply and add syncload, repeat other
+    loads x 4
+  * stress-mutex: pr_info should be pr_inf
+  * stress-mutex: don't report pthread creation issues as a fail
+  * stress-timer: make ENOMEM or EAGAIN on timer_again a resource
+    skipping return
+  * core-out-of-memory: don't remove temp files if retry on oomable death
+  * stress-chattr: restore original chattr flags one by one
+  * stress-chattr: only verify settings when 1 instance is running
+  * stress-chattr: disable check for the moment
+  * stress-sockdiag: this already checks for failures, so enable
+    verification flag
+  * stress-ng: add --change-cpu option for force child processes onto
+    another CPU
+  * core-helper: add libc version
+  * stress-iomix: don't throw a write failure on ENOSPC
+  * core-helper: report blocks available
+  * core-helper: print the realpath of the temporary path
+  * stress-brk: print address of shrink page error
+  * stress-sctp: protocol not implemented should return EXIT_NO_RESOURCE
+  * stress-ng: "no resource(s)" should be "no resources"
+  * stress-sockfd: move sleep to after reporting error to avoid
+    clobbering errno
+  * core-vmstat: keep header and data togther using log locking
+  * stress-chattr: add verification and improve error messages
+  * stress-far-branch: add random located verification check function
+  * stress-inode-flags: using a 0 flag will reset all flag bits to zero
+  * stress-revio: add missing --revio-bytes in short help
+  * core-helper: enable stress_get_cpu for all arches
+  * stress-exec: silently ignore intentional EINVAL exec failures
+  * stress-exec: only check WEXITSTATUS if WIFEXITED is true
+  * stress-atomic: sanity check atomic ops on non-shared item work
+    correctly
+  * stress-tlb-shootdown: optimize mem writes and reads, periodically
+    change cpu affinity
+  * stress-session: add failure verification, return EXIT_FAILURE on
+    failures
+  * stress-session: fix typo in comment
+  * stress-sleep: add underrun sanity check verification
+  * stress-sleep: remove multiple counters, used shared counter with lock
+  * stress-sigsuspend: add sigsuspend failure verification check
+  * stress-rmap: add page data verification, store + check data per child
+  * stress-smi: verify that regs are restored on SMI return
+  * stress-fstat: re-work thread data to allow error return verification
+  * stress-sigio: add verification on reads
+  * stress-sigtrap: set metrics to index 0
+  * stress-sigrt: add verification and metrics
+  * stress-race-sched: add system call return verification checks
+  * stress-sigtrap: add verification of trap handler and measure trap
+    handling rate
+  * stress-eigen: set verify to always, sanity checking is always
+    performed
+  * stress-stackmmap: add stack data sanity verification on last 256 calls
+  * stress-eigen: enable for all arches
+  * stress-sigq: fix missing . in verify field
+  * stress-cache: don't enable SIGBUS handling for x86
+  * stress-mlock: move helper function stress_mlock_pages
+  * README: update build dependiency notes
+  * stress-eigen: add Eigen 2d matrix stress cases
+  * stress-physpage: voidify unused paramater success
+  * stress-mlock: remove redundant return statement
+  * stress-waitcpu: rename variable j to l to avoid shadowing
+  * stress-mmapfixed: remove re-declaration of pointer buf64
+  * core-log: remove unused helper function pr_spin_lock
+  * Makefile.config: Add compiler check and HAVE_COMPILER_* macros
+  * stress-matrix-3d: minor comment fixes
+  * stress-matrix: minor comment fixes
+  * core-klog: ignore "hrtimer: interrupt took" messages
+  * Manual: add note that the default timeout is 24 hours
+  * stress-mlock: add mlock growth verification for linux
+  * stress-signal: use pr_fail for failures, add verification
+  * stress-waitcpu: add verification that nop wait is shortest delay
+  * stress-resched: check if set policy is the current policy
+  * stress-sigq: fix missing . before struct field name
+  * stress-siqq: add verification of si_value.sival_int value
+  * stress-sigpipe: add verification of SIGPIPE signals
+  * stress-rawudp: add simple data verification check
+  * stress-far-branch: remove opcode from message, it is redundant
+  * stress-dev-shm: remove debug message of line and return value
+  * core-klog: ignore kmod concurrent module probes in klog checking
+  * stress-*: ensure verify flags are set in the unimplemented variants
+  * stress-mprotect: return failures back to to caller
+  * stress-ng.h: core-killpid api changes
+  * core-killpid: return EXIT_FAILURE if waited-for processes fail
+  * stress-mmaphuge: add memory contents verification check
+  * stress-vforkmany: add verificatin of vfork starting and invocation
+    metrics
+  * core-helper: make passing NULL stack disable alternative stack
+  * stress-funccall: abort early once a failure is detected
+  * stress-funcret: enable 'all' method by default. Add metrics and
+    verification
+  * stress-funccall: return EXIT_FAILURE if success is false
+  * stress-funccall: enable 'all' method by default. Add metrics
+  * stress-funccall: enable verification
+  * stress-udp: add low resource check and throttle check
+  * stress-steam: unroll loops for more throughput
+  * stress-stream: re-phrase metrics description
+  * stress-stream: enable verification with --verify option
+  * core-nt-store.h: fix double precision nt store
+  * core-asm-x86.h: add sfence x86 helper
+  * stress-clone: add sanity check to see if clone processes started OK
+  * stress-apparmor: move verifiable flag to correct struct
+  * stress-apparmor: add lock protected concurrent failure counter
+  * stress-ng: treat SIGABRT as a critical failure
+  * stress-ng: add exit status of stressor at termination to debug message
+  * core-klog: ignore callbacks suppressed kernel log messages
+  * core-klog: count number of klog messages and report these at end
+  * stress-pkey: move from CPU to OS class
+  * Makefile: always undefine _FORTIFY_SOURCE before defining it
+  * stress-vm-splice: remove whitespace in tab'd column
+  * stress-vm-splice: add 64 bit check pattern to verify vm-splice data
+  * stress-sctp: use pid as data check in sctp data for run time
+    verification
+  * stress-nice: add verification of nice(1) changing priority
+  * core-out-of-memory: clean temp directory and files on a OOM
+  * core-klog: add two more kernel messages to silently ignore
+  * stress-physpage: flag mtrr failure as a EXIT_FAILURE and enable verify
+  * core-shim: use libc nice as a final resort for shim_nice
+  * stress-deamon: add verify always option since the stressor checks if
+    fork fails
+  * stress-daemon: add --daemon-wait wait option
+  * stress-dirmany: verify if files are created with stat
+  * stress-dirmany: add verification count of files created
+  * stress-dirmany: add create/removal file rates
+  * stress-bigheap: use larger check values, use uintptr rather
+    than uint8_t
+  * stress-bigheap: use malloc for new allocations rather than realloc
+  * stress-verify: close fd on error exit path, clean fd leak
+  * stress-bigheap: add SEGV debugging feature
+  * stress-udp: use pid as data check in udp packet for run time
+    verification
+  * stress-signest: add signal handling rate metrics and check for
+    failures
+  * stress-peterson: add yield in busy loop for RISC-V
+  * stress-mpfr: minor corrections, add a yield point per method
+  * stress-mpfr: exercise the GNU multi-precision floating point
+    reliable library
+  * stress-fp: enable optional verification option
+  * stress-dev-shm: add memory contents verification
+  * stress-binderfs: add missing .verify setting
+  * stress-chroot: move .verify tag to appropriate struct
+  * stress-rawsock: add hash check to raw data for test verification
+  * stress-madvise: make setjmp failure a no resource failure
+  * stress-verify: add verify mode failure returns
+  * stress-misaliged: remove trailing tabs
+  * stress-misaligned: add verification of data written
+  * stress-rdrand: add more verification
+  * stress-stack: enable verification by sanity checking last 128 stack
+    frames
+  * stress-prefetch: enable --verify option, make data random too
+  * stress-rotate: enable --verify option
+  * stress-goto: add branch hit verification
+  * stress-sigchld: verify SIGCHLD siginfo si_code values
+  * stress-fsize: enable verification
+  * core-interrupts: ensure default start and stop counters are set at
+    start
+  * stress-close: remove an empty line
+  * stress-flock: enable verification for exclusive file lock
+  * stress-close: add close failure verification
+  * stress-branch: add branch hit verification
+  * stress-ng: make --verifiable option print out stressors without
+    verify modes
+  * stress-vecshuf: move .verify tag to appropriate struct
+  * stress-vecfp: enable --verify option
+  * stress-stack: add backwards traversal down stack frames to keep
+    pages busy
+  * stress-stack: remove accidentally added sleep call
+  * stress-randlist: enable --verify mode
+  * stress-io-uring: add OOMable child wrapper incase memory runs low
+  * stress-nanosleep: add underrun verification check
+  * stress-nanosleep: add check for clock_gettime failures
+  * stress-munmap: use mincore to verify that a page has been unmapped
+  * stress-mmap-fixed: add verification to see if remap'd page contains
+    expected data
+  * stress-jpeg: enable --verify on jpeg generated data
+  * stress-dirmany: fix missing ) on help information
+  * stress-dirmany: fix typo in help for --dirmany-filesize option
+  * stress-denty: enable --verify data checks in dentry files
+  * stress-brk: add verification of brk pages on shrink
+  * stress-vecmath: move verify flag into implemented struct
+  * stress-vecwide: enable verify, compare computations between two rounds
+  * core-interrupts: add x86 IO-APIC miscount interrupt
+  * core-interrupts: add check for ARM Err interrupt
+  * stress-vecmath: add per stress loop checksum checking
+  * core-interrupts: add SMI count check for x86
+  * core-helper: move smi reading function from stress-smi to core-helper
+  * stress-fma: enable verify, compare computations between two rounds
+  * stress-matrix-3d: unroll more loops for improved optimization
+  * stress-matrix: unroll more loops for improved optimization
+  * stress-matrix-3d: rename stressor name to match stressor source
+  * stress-matrix-3d: add verification
+  * core-builtin: add builtin shim for memcmp to use __builtin_memcmp
+  * stress-matrix: add verification
+  * core-interrupts: measure and report critical interrupts
+  * core-perf: check for null stats when using random selection of
+    stressors
+  * core-klog: ignore loop capacity changed messages
+  * core-perf: add extra pointer checks earlier in results dumping loop
+  * stress-zlib: optimize ascii digits generator
+  * core-klog: ignore x86 split log warnings
+  * core-log: add helpers to reduce the number of getpid calls
+  * stress-sysinval: use use shim_rorXXn builtin wrapper for rotate right
+  * stress-zlib: use shim_ror32n builtin wrapper for 32 bit rotate right
+  * core-sort: inline sort comparison functions + optimized bsearch to O3
+  * README.md: add another citation
+  * core-cpu-cache.h: define HAVE_SHIM_MFENCE for risc-v case
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 14 Jun 2023 21:49:19 +0100
+
 stress-ng (0.15.08-1) unstable; urgency=medium
 
   [Fernand Sieber]
