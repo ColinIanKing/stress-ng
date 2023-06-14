@@ -388,7 +388,11 @@ static int OPTIMIZE3 stress_udp_server(
 		if (UNLIKELY(n <= 0)) {
 			if (n == 0)
 				break;
-			if ((errno != EINTR) && (errno != ENOBUFS)) {
+			if (errno == ENOBUFS) {
+				(void)shim_usleep(10000);
+				continue;
+			}
+			if (errno != EINTR) {
 				pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
