@@ -215,13 +215,13 @@ retry:
 			return;
 
 		/* This is just so wrong... */
-		if ((n < 10000) && (errno == EMFILE)) {
+		if (errno == EMFILE) {
 			/*
 			 * inotify cleanup may be still running from a previous
 			 * iteration, in which case we've run out of resources
 			 * temporarily, so sleep a short while and retry.
 			 */
-			(void)shim_usleep(10000);
+			(void)shim_usleep(100000);
 			goto retry;
 		}
 		/* Nope, give up, not necessarily a test failure, we maybe low on fds */
