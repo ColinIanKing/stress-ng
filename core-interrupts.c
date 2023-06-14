@@ -172,7 +172,7 @@ void stress_interrupts_check_failure(const char *name, stress_interrupts_t *coun
 static inline void stress_interrupt_tolower(char *str)
 {
 	while (*str) {
-		*str = (*str == ' ') ? '_' : tolower(*str);
+		*str = (*str == ' ') ? '_' : tolower((int)*str);
 		str++;
 	}
 }
