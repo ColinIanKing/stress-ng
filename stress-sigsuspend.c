@@ -121,7 +121,7 @@ reap:
 			(void)shim_waitpid(pid[i], &status, 0);
 		} else {
 			if (shim_waitpid(pid[i], &status, 0) == 0) {
-				pr_inf("%d died prematurely\n", pid[i]);
+				pr_inf("%jd died prematurely\n", (intmax_t)pid[i]);
 			}
 		}
 	}
