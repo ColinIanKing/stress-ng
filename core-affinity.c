@@ -166,9 +166,12 @@ int stress_change_cpu(const stress_args_t *args, const int old_cpu)
 }
 
 #else
-int stress_change_cpu(const int pid, const int inc)
+int stress_change_cpu(const stress_args_t *args, const int old_cpu)
 {
-	return -1;
+	(void)args;
+
+	/* no change */
+	return old_cpu;
 }
 
 int stress_set_cpu_affinity(const char *arg)
