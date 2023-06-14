@@ -34,10 +34,12 @@ static const stress_interrupt_info_t info[] = {
 	{ "MCE:",	true,	pr_fail, "Machine Check Exception" },
 	{ "TRM:",	false,	pr_inf,  "Thermal Event Interrupt" },
 	{ "SPU:",	false,	pr_warn, "Spurious Interrupt" },
+#if defined(STRESS_ARCH_X86)
 	{ "DFR:",	true,	pr_fail, "Deferred Error APIC interrupt" },
 	{ "ERR:",	true,	pr_fail, "IO-APIC Bus Error" },
 	{ "SMI:",	false,	pr_warn, "System Management Interrupt" },
 	{ "MIS:",	true,	pr_fail, "IO-APIC Miscount" },
+#endif
 	{ "Err:",	true,	pr_fail, "Spurious Unhandled Interrupt" },	/* ARM */
 };
 
