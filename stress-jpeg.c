@@ -280,6 +280,7 @@ static void OPTIMIZE3 stress_rgb_flat(
 	}
 }
 
+#if defined(HAVE_OPEN_MEMSTREAM)
 /*
  *  stress_jpeg_checksum_data()
  *	generate a 32 bit checksum on the jpeg compressed data
@@ -297,6 +298,7 @@ static void OPTIMIZE3 stress_jpeg_checksum_data(char *data, const size_t size, u
 	}
 	*checksum = sum;
 }
+#endif
 
 static int stress_rgb_compress_to_jpeg(
 	uint8_t		*rgb,
