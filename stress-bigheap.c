@@ -47,14 +47,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-
 static sigjmp_buf jmp_env;
-#if defined(SA_SIGINFO)
+static volatile int phase;
 static volatile void *fault_addr;
 static volatile int signo;
 static volatile int si_code;
-static volatile int phase;
-#endif
 
 /*
  *  stress_bigheap_phase()
