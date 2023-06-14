@@ -257,9 +257,10 @@ static int OPTIMIZE3 stress_udp_client(
 			for (i = 16; i < sizeof(buf); i += 16, j++) {
 				const int c = stress_ascii32[index++ & 0x1f];
 				ssize_t ret;
+				pid_t *pidptr = (pid_t *)buf;
 
 				(void)shim_memset(buf, c, i);
-				*(pid_t *)buf = pid;
+				*pidptr = pid;
 				ret = sendto(fd, buf, i, 0, addr, len);
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))
@@ -395,7 +396,8 @@ static int OPTIMIZE3 stress_udp_server(
 			}
 			break;
 		} else {
-			const pid_t pid = *(pid_t *)buf;
+			const pid_t *pidptr = (const pid_t *)buf;
+			const pid_t pid = *pidptr;
 
 			if (UNLIKELY(pid != client_pid)) {
 				pr_fail("%s: server received unexpected data "
