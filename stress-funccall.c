@@ -22,11 +22,17 @@
 #include "core-builtin.h"
 #include "core-put.h"
 
+#if defined(STRESS_ARCH_SH4)
+#undef HAVE_COMPLEX_H
+#undef HAVE_COMPLEX
+#endif
+
 #if defined(HAVE_COMPLEX_H)
 #include <complex.h>
 #endif
 
-#if defined(STRESS_ARCH_S390)
+#if defined(STRESS_ARCH_S390) ||	\
+    defined(STRESS_ARCH_SH4)
 #undef HAVE_FLOAT_DECIMAL32
 #undef HAVE_FLOAT_DECIMAL64
 #undef HAVE_FLOAT_DECIMAL128
