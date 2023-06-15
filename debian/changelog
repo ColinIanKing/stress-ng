@@ -1,3 +1,12 @@
+stress-ng (0.15.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * core-shim: add shim_raise helper to workaround SH4 raise
+  * stress-funccall: disable Decimal and complex floats for SH4
+  * stress-ipsec-mb: use the newer API, 0.53 has been deprecated
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 15 Jun 2023 13:12:11 +0100
+
 stress-ng (0.15.09-1) unstable; urgency=medium
 
   [ Eder Zulian ]
