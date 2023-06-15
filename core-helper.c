@@ -3318,7 +3318,8 @@ static inline long stress_min_aux_sig_stack_size(void)
  */
 size_t stress_sig_stack_size(void)
 {
-	static long sz = -1, min;
+	static long sz = -1;
+	long min, tmp;
 
 	/* return cached copy */
 	if (sz > 0)
@@ -3326,12 +3327,14 @@ size_t stress_sig_stack_size(void)
 
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_SIGSTKSZ)
-	sz = sysconf(_SC_SIGSTKSZ);
-	if (sz > 0)
-		min = STRESS_MAXIMUM(sz, min);
+	tmp = sysconf(_SC_SIGSTKSZ);
+	if (tmp > 0)
+		min = STRESS_MAXIMUM(tmp, min);
 #endif
 #if defined(SIGSTKSZ)
-	min = STRESS_MAXIMUM(SIGSTKSZ, min);
+	tmp = SIGSTKSZ;
+	if (tmp > 0)
+		min = STRESS_MAXIMUM(tmp, min);
 #endif
 	sz = STRESS_MAXIMUM(STRESS_ABS_MIN_STACK_SIZE, min);
 	return (size_t)sz;
@@ -3343,7 +3346,8 @@ size_t stress_sig_stack_size(void)
  */
 size_t stress_min_sig_stack_size(void)
 {
-	static long sz = -1, min;
+	static long sz = -1;
+	long min, tmp;
 
 	/* return cached copy */
 	if (sz > 0)
@@ -3351,12 +3355,14 @@ size_t stress_min_sig_stack_size(void)
 
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_MINSIGSTKSZ)
-	sz = sysconf(_SC_MINSIGSTKSZ);
-	if (sz > 0)
-		min = STRESS_MAXIMUM(sz, min);
+	tmp = sysconf(_SC_MINSIGSTKSZ);
+	if (tmp > 0)
+		min = STRESS_MAXIMUM(tmp, min);
 #endif
 #if defined(SIGSTKSZ)
-	min = STRESS_MAXIMUM(SIGSTKSZ, min);
+	tmp = SIGSTKSZ;
+	if (tmp > 0)
+		min = STRESS_MAXIMUM(tmp, min);
 #endif
 	sz = STRESS_MAXIMUM(STRESS_ABS_MIN_STACK_SIZE, min);
 	return (size_t)sz;
@@ -3368,7 +3374,8 @@ size_t stress_min_sig_stack_size(void)
  */
 size_t stress_min_pthread_stack_size(void)
 {
-	static long sz = -1, min;
+	static long sz = -1;
+	long min, tmp;
 
 	/* return cached copy */
 	if (sz > 0)
@@ -3376,21 +3383,25 @@ size_t stress_min_pthread_stack_size(void)
 
 	min = stress_min_aux_sig_stack_size();
 #if defined(__SC_THREAD_STACK_MIN_VALUE)
-	sz = sysconf(__SC_THREAD_STACK_MIN_VALUE);
-	if (sz > 0)
-		min = STRESS_MAXIMUM(sz, min);
+	tmp = sysconf(__SC_THREAD_STACK_MIN_VALUE);
+	if (tmp > 0)
+		min = STRESS_MAXIMUM(tmp, min);
 #endif
 #if defined(_SC_THREAD_STACK_MIN_VALUE)
-	sz = sysconf(_SC_THREAD_STACK_MIN_VALUE);
-	if (sz > 0)
-		min = STRESS_MAXIMUM(sz, min);
+	tmp = sysconf(_SC_THREAD_STACK_MIN_VALUE);
+	if (tmp > 0)
+		min = STRESS_MAXIMUM(tmp, min);
 #endif
 #if defined(PTHREAD_STACK_MIN)
-	sz = STRESS_MAXIMUM(PTHREAD_STACK_MIN, 8192);
+	tmp = PTHREAD_STACK_MIN;
+	if (tmp > 0)
+		tmp = STRESS_MAXIMUM(tmp, 8192);
+	else
+		tmp = 8192;
 #else
-	sz = 8192;
+	tmp = 8192;
 #endif
-	sz = STRESS_MAXIMUM(sz, min);
+	sz = STRESS_MAXIMUM(tmp, min);
 	return (size_t)sz;
 }
 
