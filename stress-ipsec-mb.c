@@ -75,7 +75,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 typedef void (*ipsec_func_t)(
         const stress_args_t *args,
-        struct MB_MGR *mb_mgr,
+        struct IMB_MGR *mb_mgr,
         const uint8_t *data,
         const size_t data_len,
         const int jobs);
@@ -87,7 +87,7 @@ typedef struct {
 
 typedef struct {
 	uint64_t	features;
-	void 		(*init_func)(MB_MGR *p_mgr);
+	void 		(*init_func)(IMB_MGR *p_mgr);
 	char 		*name;
 	bool		supported;
 	ipsec_stats_t	stats;
@@ -155,7 +155,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
  *  stress_ipsec_mb_features()
  *	get list of CPU feature bits
  */
-static uint64_t stress_ipsec_mb_features(const stress_args_t *args, const MB_MGR *p_mgr)
+static uint64_t stress_ipsec_mb_features(const stress_args_t *args, const IMB_MGR *p_mgr)
 {
 	const uint64_t features = p_mgr->features;
 
@@ -207,15 +207,15 @@ static void stress_rnd_fill(uint8_t *buf, const size_t n)
  *  stress_job_empty()
  *	empty job queue
  */
-static inline void stress_job_empty(struct MB_MGR *mb_mgr)
+static inline void stress_job_empty(struct IMB_MGR *mb_mgr)
 {
 	while (IMB_FLUSH_JOB(mb_mgr))
 		;
 }
 
-static inline struct JOB_AES_HMAC *stress_job_get_next(struct MB_MGR *mb_mgr)
+static inline struct IMB_JOB *stress_job_get_next(struct IMB_MGR *mb_mgr)
 {
-	struct JOB_AES_HMAC *job = IMB_GET_NEXT_JOB(mb_mgr);
+	struct IMB_JOB *job = IMB_GET_NEXT_JOB(mb_mgr);
 
 	(void)shim_memset(job, 0, sizeof(*job));
 	return job;
@@ -228,10 +228,10 @@ static inline struct JOB_AES_HMAC *stress_job_get_next(struct MB_MGR *mb_mgr)
 static void stress_job_check_status(
 	const stress_args_t *args,
 	const char *name,
-	const struct JOB_AES_HMAC *job,
+	const struct IMB_JOB *job,
 	int *jobs_done)
 {
-	if (job->status != STS_COMPLETED) {
+	if (job->status != IMB_STATUS_COMPLETED) {
 		pr_err("%s: %s: job not completed\n",
 			args->name, name);
 	} else {
@@ -279,13 +279,13 @@ static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const s
 
 static void stress_ipsec_sha(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 	uint8_t padding[16];
 	const size_t alloc_len = SHA_DIGEST_SIZE + (sizeof(padding) * 2);
 	uint8_t *auth;
@@ -300,14 +300,14 @@ static void stress_ipsec_sha(
 
 	for (auth = auth_data, j = 0; j < jobs; j++, auth += alloc_len) {
 		job = stress_job_get_next(mb_mgr);
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = HASH_CIPHER;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_HASH_CIPHER;
 		job->auth_tag_output = auth + sizeof(padding);
 		job->auth_tag_output_len_in_bytes = SHA_DIGEST_SIZE;
 		job->src = data;
 		job->msg_len_to_hash_in_bytes = data_len;
-		job->cipher_mode = NULL_CIPHER;
-		job->hash_alg = PLAIN_SHA_512;
+		job->cipher_mode = IMB_CIPHER_NULL;
+		job->hash_alg = IMB_AUTH_SHA_512;
 		job->user_data = auth;
 		job = IMB_SUBMIT_JOB(mb_mgr);
 		if (job)
@@ -324,13 +324,13 @@ static void stress_ipsec_sha(
 
 static void stress_ipsec_des(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 
 	uint8_t *encoded;
 	uint8_t k[32] ALIGNED(16);
@@ -351,21 +351,21 @@ static void stress_ipsec_des(
 
 	for (dst = encoded, j = 0; j < jobs; j++, dst += data_len) {
 		job = stress_job_get_next(mb_mgr);
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = CIPHER_HASH;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_CIPHER_HASH;
 		job->src = data;
 		job->dst = dst;
-		job->cipher_mode = CBC;
-		job->aes_enc_key_expanded = enc_keys;
-		job->aes_dec_key_expanded = dec_keys;
-		job->aes_key_len_in_bytes = sizeof(k);
+		job->cipher_mode = IMB_CIPHER_CBC;
+		job->enc_keys = enc_keys;
+		job->dec_keys = dec_keys;
+		job->key_len_in_bytes = sizeof(k);
 		job->iv = iv;
 		job->iv_len_in_bytes = sizeof(iv);
 		job->cipher_start_src_offset_in_bytes = 0;
 		job->msg_len_to_cipher_in_bytes = data_len;
 		job->user_data = dst;
 		job->user_data2 = (void *)((uint64_t)j);
-		job->hash_alg = NULL_HASH;
+		job->hash_alg = IMB_AUTH_NULL;
 		job = IMB_SUBMIT_JOB(mb_mgr);
 		if (job)
 			stress_job_check_status(args, name, job, &jobs_done);
@@ -381,13 +381,13 @@ static void stress_ipsec_des(
 
 static void stress_ipsec_cmac(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 
 	uint8_t key[16] ALIGNED(16);
 	uint32_t expkey[4 * 15] ALIGNED(16);
@@ -408,10 +408,10 @@ static void stress_ipsec_cmac(
 
 	for (dst = output, j = 0; j < jobs; j++, dst += 16) {
 		job = stress_job_get_next(mb_mgr);
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = HASH_CIPHER;
-		job->cipher_mode = NULL_CIPHER;
-		job->hash_alg = AES_CMAC;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_HASH_CIPHER;
+		job->cipher_mode = IMB_CIPHER_NULL;
+		job->hash_alg = IMB_AUTH_AES_CMAC;
 		job->src = data;
 		job->hash_start_src_offset_in_bytes = 0;
 		job->msg_len_to_hash_in_bytes = data_len;
@@ -436,13 +436,13 @@ static void stress_ipsec_cmac(
 
 static void stress_ipsec_ctr(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 
 	uint8_t *encoded;
 	uint8_t key[32] ALIGNED(16);
@@ -463,15 +463,15 @@ static void stress_ipsec_ctr(
 
 	for (dst = encoded, j = 0; j < jobs; j++, dst += data_len) {
 		job = stress_job_get_next(mb_mgr);
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = CIPHER_HASH;
-		job->cipher_mode = CNTR;
-		job->hash_alg = NULL_HASH;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_CIPHER_HASH;
+		job->cipher_mode = IMB_CIPHER_CNTR;
+		job->hash_alg = IMB_AUTH_NULL;
 		job->src = data;
 		job->dst = dst;
-		job->aes_enc_key_expanded = expkey;
-		job->aes_dec_key_expanded = expkey;
-		job->aes_key_len_in_bytes = sizeof(key);
+		job->enc_keys = expkey;
+		job->dec_keys = expkey;
+		job->key_len_in_bytes = sizeof(key);
 		job->iv = iv;
 		job->iv_len_in_bytes = sizeof(iv);
 		job->cipher_start_src_offset_in_bytes = 0;
@@ -494,14 +494,14 @@ static void stress_ipsec_ctr(
 
 static void stress_ipsec_hmac_md5(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
 	size_t i;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 
 	uint8_t key[MMAC_MD5_BLOCK_SIZE] ALIGNED(16);
 	uint8_t buf[MMAC_MD5_BLOCK_SIZE] ALIGNED(16);
@@ -527,12 +527,12 @@ static void stress_ipsec_hmac_md5(
 
 	for (dst = output, j = 0; j < jobs; j++, dst += HMAC_MD5_DIGEST_SIZE) {
 		job = stress_job_get_next(mb_mgr);
-		job->aes_enc_key_expanded = NULL;
-		job->aes_dec_key_expanded = NULL;
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = HASH_CIPHER;
+		job->enc_keys = NULL;
+		job->dec_keys = NULL;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_HASH_CIPHER;
 		job->dst = NULL;
-		job->aes_key_len_in_bytes = 0;
+		job->key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
 		job->auth_tag_output_len_in_bytes = HMAC_MD5_DIGEST_SIZE;
 		job->iv = NULL;
@@ -544,8 +544,8 @@ static void stress_ipsec_hmac_md5(
 		job->msg_len_to_hash_in_bytes = data_len;
 		job->u.HMAC._hashed_auth_key_xor_ipad = ipad_hash;
 		job->u.HMAC._hashed_auth_key_xor_opad = opad_hash;
-		job->cipher_mode = NULL_CIPHER;
-		job->hash_alg = MD5;
+		job->cipher_mode = IMB_CIPHER_NULL;
+		job->hash_alg = IMB_AUTH_MD5;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
 		if (job)
@@ -565,14 +565,14 @@ static void stress_ipsec_hmac_md5(
 
 static void stress_ipsec_hmac_sha1(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
 	size_t i;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 
 	uint8_t key[HMAC_SHA1_BLOCK_SIZE] ALIGNED(16);
 	uint8_t buf[HMAC_SHA1_BLOCK_SIZE] ALIGNED(16);
@@ -598,12 +598,12 @@ static void stress_ipsec_hmac_sha1(
 
 	for (dst = output, j = 0; j < jobs; j++, dst += HMAC_SHA1_DIGEST_SIZE) {
 		job = stress_job_get_next(mb_mgr);
-		job->aes_enc_key_expanded = NULL;
-		job->aes_dec_key_expanded = NULL;
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = HASH_CIPHER;
+		job->enc_keys = NULL;
+		job->dec_keys = NULL;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_HASH_CIPHER;
 		job->dst = NULL;
-		job->aes_key_len_in_bytes = 0;
+		job->key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
 		job->auth_tag_output_len_in_bytes = HMAC_SHA1_DIGEST_SIZE;
 		job->iv = NULL;
@@ -615,8 +615,8 @@ static void stress_ipsec_hmac_sha1(
 		job->msg_len_to_hash_in_bytes = data_len;
 		job->u.HMAC._hashed_auth_key_xor_ipad = ipad_hash;
 		job->u.HMAC._hashed_auth_key_xor_opad = opad_hash;
-		job->cipher_mode = NULL_CIPHER;
-		job->hash_alg = SHA1;
+		job->cipher_mode = IMB_CIPHER_NULL;
+		job->hash_alg = IMB_AUTH_HMAC_SHA_1;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
 		if (job)
@@ -633,32 +633,32 @@ static void stress_ipsec_hmac_sha1(
 
 static void stress_ipsec_hmac_sha512(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
 {
 	int j, jobs_done = 0;
 	size_t i;
-	struct JOB_AES_HMAC *job;
+	struct IMB_JOB *job;
 
-	uint8_t rndkey[SHA_512_BLOCK_SIZE] ALIGNED(16);
-	uint8_t key[SHA_512_BLOCK_SIZE] ALIGNED(16);
-	uint8_t buf[SHA_512_BLOCK_SIZE] ALIGNED(16);
-	uint8_t ipad_hash[SHA512_DIGEST_SIZE_IN_BYTES] ALIGNED(16);
-	uint8_t opad_hash[SHA512_DIGEST_SIZE_IN_BYTES] ALIGNED(16);
+	uint8_t rndkey[IMB_SHA_512_BLOCK_SIZE] ALIGNED(16);
+	uint8_t key[IMB_SHA_512_BLOCK_SIZE] ALIGNED(16);
+	uint8_t buf[IMB_SHA_512_BLOCK_SIZE] ALIGNED(16);
+	uint8_t ipad_hash[IMB_SHA512_DIGEST_SIZE_IN_BYTES] ALIGNED(16);
+	uint8_t opad_hash[IMB_SHA512_DIGEST_SIZE_IN_BYTES] ALIGNED(16);
 	uint8_t *output;
 	uint8_t *dst;
 	static const char name[] = "hmac_sha512";
 
-	output = (uint8_t *)stress_alloc_aligned((size_t)jobs, SHA512_DIGEST_SIZE_IN_BYTES, 16);
+	output = (uint8_t *)stress_alloc_aligned((size_t)jobs, IMB_SHA512_DIGEST_SIZE_IN_BYTES, 16);
 	if (!output)
 		return;
 
 	stress_rnd_fill(rndkey, sizeof(rndkey));
 	(void)shim_memset(key, 0, sizeof(key));
 
-	IMB_SHA512(mb_mgr, rndkey, SHA_512_BLOCK_SIZE, key);
+	IMB_SHA512(mb_mgr, rndkey, IMB_SHA_512_BLOCK_SIZE, key);
 
 	for (i = 0; i < sizeof(key); i++)
 		buf[i] = key[i] ^ 0x36;
@@ -669,16 +669,16 @@ static void stress_ipsec_hmac_sha512(
 
 	stress_job_empty(mb_mgr);
 
-	for (dst = output, j = 0; j < jobs; j++, dst += SHA512_DIGEST_SIZE_IN_BYTES) {
+	for (dst = output, j = 0; j < jobs; j++, dst += IMB_SHA512_DIGEST_SIZE_IN_BYTES) {
 		job = stress_job_get_next(mb_mgr);
-		job->aes_enc_key_expanded = NULL;
-		job->aes_dec_key_expanded = NULL;
-		job->cipher_direction = ENCRYPT;
-		job->chain_order = HASH_CIPHER;
+		job->enc_keys = NULL;
+		job->dec_keys = NULL;
+		job->cipher_direction = IMB_DIR_ENCRYPT;
+		job->chain_order = IMB_ORDER_HASH_CIPHER;
 		job->dst = NULL;
-		job->aes_key_len_in_bytes = 0;
+		job->key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
-		job->auth_tag_output_len_in_bytes = SHA512_DIGEST_SIZE_IN_BYTES;
+		job->auth_tag_output_len_in_bytes = IMB_SHA512_DIGEST_SIZE_IN_BYTES;
 		job->iv = NULL;
 		job->iv_len_in_bytes = 0;
 		job->src = data;
@@ -688,8 +688,8 @@ static void stress_ipsec_hmac_sha512(
 		job->msg_len_to_hash_in_bytes = data_len;
 		job->u.HMAC._hashed_auth_key_xor_ipad = ipad_hash;
 		job->u.HMAC._hashed_auth_key_xor_opad = opad_hash;
-		job->cipher_mode = NULL_CIPHER;
-		job->hash_alg = SHA_512;
+		job->cipher_mode = IMB_CIPHER_NULL;
+		job->hash_alg = IMB_AUTH_HMAC_SHA_512;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
 		if (job)
@@ -706,7 +706,7 @@ static void stress_ipsec_hmac_sha512(
 
 static void stress_ipsec_all(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs);
@@ -724,7 +724,7 @@ static stress_ipsec_funcs_t stress_ipsec_funcs[] = {
 
 static void stress_ipsec_call_func(
         const stress_args_t *args,
-        struct MB_MGR *mb_mgr,
+        struct IMB_MGR *mb_mgr,
         const uint8_t *data,
         const size_t data_len,
         const int jobs,
@@ -755,7 +755,7 @@ static void stress_ipsec_call_func(
  */
 static void stress_ipsec_all(
 	const stress_args_t *args,
-	struct MB_MGR *mb_mgr,
+	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
 	const int jobs)
@@ -790,7 +790,7 @@ static int stress_set_ipsec_mb_method(const char *opt)
  */
 static int stress_ipsec_mb(const stress_args_t *args)
 {
-	MB_MGR *mb_mgr = NULL;
+	IMB_MGR *mb_mgr = NULL;
 	uint64_t features;
 	uint8_t data[8192] ALIGNED(64);
 	size_t i, j;
