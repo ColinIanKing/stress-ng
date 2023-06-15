@@ -2517,3 +2517,17 @@ int shim_delete_module(const char *name, unsigned int flags)
 	return shim_enosys(0, name, flags);
 #endif
 }
+
+/*
+ *  shim_raise
+ *	shim for raise(), workaround SH4 raise not working
+ *	with glibc 2.34-7
+ */
+int shim_raise(int sig)
+{
+#if defined(STRESS_ARCH_SH4)
+	return kill(getpid(), sig);
+#else
+	return raise(sig);
+#endif
+}

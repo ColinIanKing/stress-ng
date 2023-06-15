@@ -178,7 +178,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 			if (jmp_env_ok)
 				siglongjmp(jmp_env, 1);
 		}
-		(void)raise(signals[i]);
+		(void)shim_raise(signals[i]);
 		raised++;
 	}
 
@@ -243,7 +243,7 @@ static int stress_signest(const stress_args_t *args)
 
 	t = stress_time_now();
 	do {
-		(void)raise(signals[0]);
+		(void)shim_raise(signals[0]);
 		raised++;
 	} while (keep_stressing(args));
 

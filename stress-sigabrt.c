@@ -114,7 +114,7 @@ again:
 
 				/* Raising SIGABRT without an handler will abort */
 				sigabrt_info->t_start = stress_time_now();
-				raise(SIGABRT);
+				shim_raise(SIGABRT);
 			}
 
 			_exit(EXIT_FAILURE);

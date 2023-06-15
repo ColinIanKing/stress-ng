@@ -70,7 +70,7 @@ static int stress_sigtrap(const stress_args_t *args)
 #endif
 		default:
 			t = stress_time_now();
-			if (raise(SIGTRAP) < 0) {
+			if (shim_raise(SIGTRAP) < 0) {
 				pr_fail("%s: failed to raise SIGTRAP, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
