@@ -20,11 +20,30 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
+
+#if defined(HAVE_COMPLEX_H)
+#include <complex.h>
+#endif
 
 #if defined(STRESS_ARCH_S390)
+/*
+ *  Use decimal floating point for s390
+ *  as some cpus don't support hard decimal
+ *  floating point
+ */
+#if defined(STRESS_PRAGMA_NO_HARD_DFP)
+STRESS_PRAGMA_NO_HARD_DFP
+#else
+/*
+ *  Otheriwse for s390 assume no decimal
+ *  floating point is supported as the
+ *  least risky default
+ */
 #undef HAVE_FLOAT_DECIMAL32
 #undef HAVE_FLOAT_DECIMAL64
 #undef HAVE_FLOAT_DECIMAL128
+#endif
 #endif
 
 typedef bool (*stress_funcret_func)(const stress_args_t *args);

@@ -22,6 +22,12 @@
 #define STRESS_PRAGMA_(x) _Pragma (#x)
 #define STRESS_PRAGMA(x) STRESS_PRAGMA_(x)
 
+#if defined(HAVE_PRAGMA_NO_HARD_DFP) &&	\
+    defined(HAVE_COMPILER_GCC) &&	\
+    defined(HAVE_PRAGMA)
+#define STRESS_PRAGMA_NO_HARD_DFP	 _Pragma("GCC target (\"no-hard-dfp\")")
+#endif
+
 #if defined(HAVE_COMPILER_CLANG) &&	\
     NEED_CLANG(4, 0, 0) &&		\
     defined(HAVE_PRAGMA)

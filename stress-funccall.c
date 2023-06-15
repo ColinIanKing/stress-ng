@@ -17,9 +17,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
+
+#if defined(STRESS_ARCH_S390)
+#undef ALWAYS_INLINE
+#define ALWAYS_INLINE
+#endif
+
 #include "core-put.h"
 
 #if defined(STRESS_ARCH_SH4)
@@ -31,8 +39,27 @@
 #include <complex.h>
 #endif
 
-#if defined(STRESS_ARCH_S390) ||	\
-    defined(STRESS_ARCH_SH4)
+#if defined(STRESS_ARCH_S390)
+/*
+ *  Use decimal floating point for s390
+ *  as some cpus don't support hard decimal
+ *  floating point
+ */
+#if defined(STRESS_PRAGMA_NO_HARD_DFP)
+STRESS_PRAGMA_NO_HARD_DFP
+#else
+/*
+ *  Otheriwse for s390 assume no decimal
+ *  floating point is supported as the
+ *  least risky default
+ */
+#undef HAVE_FLOAT_DECIMAL32
+#undef HAVE_FLOAT_DECIMAL64
+#undef HAVE_FLOAT_DECIMAL128
+#endif
+#endif
+
+#if defined(STRESS_ARCH_SH4)
 #undef HAVE_FLOAT_DECIMAL32
 #undef HAVE_FLOAT_DECIMAL64
 #undef HAVE_FLOAT_DECIMAL128
@@ -83,7 +110,7 @@ static inline void stress_complex_float_t_put(stress_complex_float_t a)
 #endif
 }
 
-static inline void stress_complex_double_t_put(stress_complex_double_t a)
+static inline ALWAYS_INLINE void stress_complex_double_t_put(stress_complex_double_t a)
 {
 #if defined(HAVE_CREAL) &&	\
     defined(HAVE_CIMAG)
@@ -93,7 +120,7 @@ static inline void stress_complex_double_t_put(stress_complex_double_t a)
 #endif
 }
 
-static inline void stress_complex_long_double_t_put(stress_complex_long_double_t a)
+static inline ALWAYS_INLINE void stress_complex_long_double_t_put(stress_complex_long_double_t a)
 {
 #if defined(HAVE_CREALL) &&	\
     defined(HAVE_CIMAGL)
@@ -105,7 +132,7 @@ static inline void stress_complex_long_double_t_put(stress_complex_long_double_t
 
 #endif
 
-static inline float stress_mwcfloat(void)
+static inline ALWAYS_INLINE float stress_mwcfloat(void)
 {
 	const uint32_t r = stress_mwc32();
 
@@ -833,17 +860,9 @@ stress_funcdeep_9(stress_complex_long_double_t)
 stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble, cmp_cmplx)
 #endif
 
-/*
- *  The PCC compiler complains at ALWAYS_INLINE, so disable it
- */
-#if defined(HAVE_COMPILER_PCC)
-#undef ALWAYS_INLINE
-#define ALWAYS_INLINE
-#endif
-
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE _Decimal32_put(const _Decimal32 a)
+static inline void _Decimal32_put(const _Decimal32 a)
 {
 	g_put_val.double_val = (double)a;
 }
@@ -871,7 +890,7 @@ stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64, cmp_ignore)
 
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE _Decimal64_put(const _Decimal64 a)
+static inline void _Decimal64_put(const _Decimal64 a)
 {
 	g_put_val.double_val = (double)a;
 }
@@ -899,7 +918,7 @@ stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64, cmp_ignore)
 
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE _Decimal128_put(const _Decimal128 a)
+static inline void _Decimal128_put(const _Decimal128 a)
 {
 	g_put_val.double_val = (double)a;
 }
@@ -927,7 +946,7 @@ stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64, cmp_ignore)
 
 #if defined(HAVE_FLOAT16) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE __fp16_put(const __fp16 a)
+static inline void __fp16_put(const __fp16 a)
 {
 	g_put_val.float_val = (float)a;
 }
@@ -955,7 +974,7 @@ stress_funccall_type(__fp16, (__fp16)stress_mwc32, cmp_fp)
 
 #if defined(HAVE_FLOAT32) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE _Float32_put(const _Float32 a)
+static inline void _Float32_put(const _Float32 a)
 {
 	g_put_val.float_val = (float)a;
 }
@@ -983,7 +1002,7 @@ stress_funccall_type(_Float32, (_Float32)stress_mwc32, cmp_ignore)
 
 #if defined(HAVE_FLOAT64) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE _Float64_put(const _Float64 a)
+static inline void _Float64_put(const _Float64 a)
 {
 	g_put_val.double_val = (double)a;
 }
@@ -1012,7 +1031,7 @@ stress_funccall_type(_Float64, (_Float64)stress_mwc64, cmp_ignore)
 
 #if defined(HAVE_FLOAT80) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE __float80_put(const __float80 a)
+static inline void __float80_put(const __float80 a)
 {
 	g_put_val.double_val = (double)a;
 }
@@ -1040,7 +1059,7 @@ stress_funccall_type(__float80, (__float80)stress_mwc64, cmp_fp)
 
 #if defined(HAVE_FLOAT128) &&	\
     !defined(HAVE_COMPILER_CLANG)
-static inline void ALWAYS_INLINE __float128_put(const __float128 a)
+static inline void __float128_put(const __float128 a)
 {
 	g_put_val.double_val = (double)a;
 }
