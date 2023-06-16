@@ -133,6 +133,7 @@ static int OPTIMIZE3 stress_udp_client(
 		if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_NO_RESOURCE;
 			goto child_die;
 		}
 
@@ -140,6 +141,7 @@ static int OPTIMIZE3 stress_udp_client(
 				udp_domain, udp_port, udp_if,
 				&addr, &len, NET_ADDR_ANY) < 0) {
 			(void)close(fd);
+			rc = EXIT_NO_RESOURCE;
 			goto child_die;
 		}
 #if defined(IPPROTO_UDPLITE) &&	\
@@ -153,6 +155,7 @@ static int OPTIMIZE3 stress_udp_client(
 				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(fd);
+				rc = EXIT_NO_RESOURCE;
 				goto child_die;
 			}
 			slen = sizeof(val);
@@ -275,7 +278,9 @@ static int OPTIMIZE3 stress_udp_client(
 					}
 					pr_fail("%s: sendto on port %d failed, errno=%d (%s)\n",
 						args->name, udp_port, errno, strerror(errno));
-					break;
+					rc = EXIT_FAILURE;
+					(void)close(fd);
+					goto child_die;
 				}
 			}
 #if defined(SIOCOUTQ)
@@ -293,7 +298,6 @@ static int OPTIMIZE3 stress_udp_client(
 
 	rc = EXIT_SUCCESS;
 child_die:
-
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
 	if ((udp_domain == AF_UNIX) && addr) {
@@ -521,6 +525,9 @@ again:
 		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			if (WEXITSTATUS(status) != EXIT_SUCCESS)
+				rc = WEXITSTATUS(status);
 	}
 	return rc;
 }
