@@ -111,6 +111,7 @@ void stress_klog_start(void)
 			char *ptr;
 			char ts[32];
 			char *msg = "";
+			bool dump_procs = false;
 
 			ptr = strchr(buf, '\n');
 			if (ptr)
@@ -136,6 +137,12 @@ void stress_klog_start(void)
 			}
 			if (strstr(buf, "soft lockup") && strstr(buf, "stuck")) {
 				msg = "soft lockup";
+				dump_procs = true;
+				goto log_err;
+			}
+			if (strstr(buf, "watchdog") && strstr(buf, "hard LOCKUP")) {
+				msg = "hard lockup";
+				dump_procs = true;
 				goto log_err;
 			}
 			if (strstr(buf, "Out of memory")) {
@@ -169,7 +176,7 @@ void stress_klog_start(void)
 			continue;
 
 log_err:
-			if (stress_klog_err_no_exceptions(buf)) {
+			if (dump_procs || stress_klog_err_no_exceptions(buf)) {
 				stress_klog_kernel_cmdline();
 				stress_dump_processes();
 				pr_err("%s: %s: %s '%s'\n", name, msg, ts, ptr);
