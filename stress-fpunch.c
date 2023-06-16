@@ -29,6 +29,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_FALLOCATE)
 
 #define DEFAULT_FPUNCH_LENGTH		(16 * MB)
+#define PROC_FPUNCH_OFFSET		(2 * MB)
 #define BUF_SIZE			(4096)
 #define STRESS_PUNCH_PIDS		(4)
 
@@ -36,25 +37,32 @@ typedef struct {
 	int mode;			/* fallocate mode */
 	bool write_before;		/* write data before fallocate op */
 	bool write_after;		/* write data after fallocate op */
+	bool check_zero;		/* check for zero'd data */
 } stress_fallocate_modes_t;
 
+typedef struct {
+	char buf_before[BUF_SIZE];
+	char buf_after[BUF_SIZE];
+	char buf_read[BUF_SIZE];
+} stress_punch_buf_t;
+
 static const stress_fallocate_modes_t modes[] = {
-	{ 0,						false, true },
+	{ 0,						false, true, false },
 #if defined(FALLOC_FL_KEEP_SIZE)
-	{ FALLOC_FL_KEEP_SIZE,				true, false },
+	{ FALLOC_FL_KEEP_SIZE,				true, false, false },
 #endif
 #if defined(FALLOC_FL_KEEP_SIZE) &&     \
     defined(FALLOC_FL_PUNCH_HOLE)
-	{ FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE,	false, true },
+	{ FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE,	false, true, false },
 #endif
 #if defined(FALLOC_FL_ZERO_RANGE)
-	{ FALLOC_FL_ZERO_RANGE,				true, true },
+	{ FALLOC_FL_ZERO_RANGE,				true, true, true },
 #endif
 #if defined(FALLOC_FL_COLLAPSE_RANGE)
-        { FALLOC_FL_COLLAPSE_RANGE,			true, true },
+        { FALLOC_FL_COLLAPSE_RANGE,			true, true, false },
 #endif
 #if defined(FALLOC_FL_INSERT_RANGE)
-	{ FALLOC_FL_INSERT_RANGE,			false, true },
+	{ FALLOC_FL_INSERT_RANGE,			false, true, false },
 #endif
 };
 
@@ -72,15 +80,15 @@ static void NORETURN MLOCKED_TEXT stress_fpunch_child_handler(int signum)
  */
 static ssize_t stress_punch_pwrite(
 	const stress_args_t *args,
+	char *data,
 	const int fd,
-	const char *buf,
 	const size_t size,
 	const off_t offset)
 {
 #if defined(HAVE_PWRITEV)
 	if (!keep_stressing(args))
 		return 0;
-	return pwrite(fd, buf, size, offset);
+	return pwrite(fd, data, size, offset);
 #else
 	if (!keep_stressing(args))
 		return 0;
@@ -89,8 +97,45 @@ static ssize_t stress_punch_pwrite(
 
 	if (!keep_stressing(args))
 		return 0;
-	return write(fd, buf, size);
+	return write(fd, data, size);
 #endif
+}
+
+/*
+ *  stress_punch_check_zero()
+ *	verify data in file is zero'd
+ */
+static inline int stress_punch_check_zero(
+	const stress_args_t *args,
+	char *data,
+	const int fd,
+	const off_t offset,
+	const size_t size)
+{
+	ssize_t ret;
+	register char *ptr, *ptr_end;
+
+#if defined(HAVE_PREADV)
+	ret = pread(fd, data, size, offset);
+#else
+	if (lseek(fd, offset, SEEK_SET) < (off_t)-1)
+		return 0;
+	ret = read(fd, data, size);
+#endif
+	if (ret < 0)
+		return 0;
+
+	ptr = data;
+	ptr_end = data + ret;
+	while (ptr < ptr_end) {
+		if (*ptr) {
+			pr_inf("%s: data at file offset 0x%" PRIxMAX " was 0x%2.2x and not zero\n",
+				args->name, offset + (ptr_end - ptr), *ptr & 0xff);
+			return -1;
+		}
+		ptr++;
+	}
+	return 0;
 }
 
 /*
@@ -99,52 +144,63 @@ static ssize_t stress_punch_pwrite(
  *	pre-write data (if a hole is to be punched) or post-write
  *	data.
  */
-static void stress_punch_action(
+static int stress_punch_action(
 	const stress_args_t *args,
-	const int fd,
+	stress_punch_buf_t *buf,
 	const stress_fallocate_modes_t *mode,
+	const size_t instance,
+	const int fd,
 	const off_t offset,
-	const char buf_before[BUF_SIZE],
-	const char buf_after[BUF_SIZE],
 	const size_t size)
 {
 	static size_t prev_size = ~(size_t)0;
 	static off_t prev_offset = ~(off_t)0;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!keep_stressing(args))
-		return;
+		return 0;
 
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
 	    (prev_size == size) && (prev_offset == offset))
-		(void)stress_punch_pwrite(args, fd, buf_before, size, offset);
+		(void)stress_punch_pwrite(args, buf->buf_before, fd, size, offset);
 	if (!keep_stressing(args))
-		return;
+		return 0;
 	(void)shim_fallocate(fd, mode->mode, offset, (off_t)size);
+	if (verify &&
+	    (instance == 0) &&
+	    (offset < (off_t)(PROC_FPUNCH_OFFSET - size)) &&
+	    (mode->check_zero)) {
+		if (stress_punch_check_zero(args, buf->buf_read, fd, offset, size) < 0)
+			return -1;
+	}
 	if (!keep_stressing(args))
-		return;
+		return 0;
 
 	if (mode->write_after)
-		(void)stress_punch_pwrite(args, fd, buf_after, size, offset);
+		(void)stress_punch_pwrite(args, buf->buf_after, fd, size, offset);
 	if (!keep_stressing(args))
-		return;
+		return 0;
 
 	prev_size = size;
 	prev_offset = offset;
+
+	return 0;
 }
 
 /*
  *  stress_punch_file()
  *	exercise fallocate punching operations
  */
-static void stress_punch_file(
+static int stress_punch_file(
 	const stress_args_t *args,
-	const int fd,
-	const off_t punch_length,
-	const char buf_before[BUF_SIZE],
-	const char buf_after[BUF_SIZE])
+	stress_punch_buf_t *buf,
+	const size_t instance,
+	const int fd)
 {
-	off_t offset = 0;
+	const off_t offset_min = PROC_FPUNCH_OFFSET * instance;
+	off_t offset = offset_min;
+	int rc = 0;
 
 	do {
 		size_t i;
@@ -156,20 +212,36 @@ static void stress_punch_file(
 		 *  and we just ignore failures. Aim is to thrash
 		 *  the fallocate hole punching and filling.
 		 */
-		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(args, fd, &modes[i], offset + 511, buf_before, buf_after, 512);
+		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
+			if (stress_punch_action(args, buf, &modes[i], instance, fd, offset + 511, 512) < 0) {
+				rc = -1;
+				break;
+			}
+		}
 
-		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(args, fd, &modes[i], offset + 1, buf_before, buf_after, 512);
+		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
+			if (stress_punch_action(args, buf, &modes[i], instance, fd, offset + 1, 512) < 0) {
+				rc = -1;
+				break;
+			}
+		}
 
-		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(args, fd, &modes[i], offset, buf_before, buf_after, 512);
+		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
+			if (stress_punch_action(args, buf, &modes[i], instance, fd, offset, 512) < 0) {
+				rc = -1;
+				break;
+			}
+		}
 
 		/*
 		 * FALLOC_FL_COLLAPSE_RANGE may need 4K sized for ext4 to work
 		 */
-		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(args, fd, &modes[i], offset, buf_before, buf_after, 4096);
+		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
+			if (stress_punch_action(args, buf, &modes[i], instance, fd, offset, 4096) < 0) {
+				rc = -1;
+				break;
+			}
+		}
 
 #if defined(FALLOC_FL_PUNCH_HOLE)
 		/* Create some holes to make more extents */
@@ -180,16 +252,20 @@ static void stress_punch_file(
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset + 128, 16);
 		if (!keep_stressing(args))
 			break;
-		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32modn((uint32_t)punch_length), 16);
+		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32modn(DEFAULT_FPUNCH_LENGTH), 16);
 		if (!keep_stressing(args))
 			break;
 #endif
-		offset += 256;
-		if (offset + 4096 > punch_length)
-			offset = 0;
+		offset += (256 * (instance + 1));
+		if (offset + 4096 > (off_t)DEFAULT_FPUNCH_LENGTH)
+			offset = offset_min;
+
+		VOID_RET(int, ftruncate(fd, (off_t)DEFAULT_FPUNCH_LENGTH));
 
 		inc_counter(args);
-	} while (keep_stressing(args));
+	} while ((rc == 0) && keep_stressing(args));
+
+	return rc;
 }
 
 /*
@@ -200,33 +276,24 @@ static int stress_fpunch(const stress_args_t *args)
 {
 	int fd = -1, ret, rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
-	off_t offset, punch_length = DEFAULT_FPUNCH_LENGTH;
+	off_t offset;
 	pid_t pids[STRESS_PUNCH_PIDS];
 	size_t i, extents, n;
-	char *buf_before, *buf_after;
 	const size_t stride = (size_t)BUF_SIZE << 1;
-	const size_t max_punches = (size_t)(punch_length / (off_t)stride);
+	const size_t max_punches = (size_t)(DEFAULT_FPUNCH_LENGTH / (off_t)stride);
+	stress_punch_buf_t *buf;
 
-	buf_before = mmap(NULL, (size_t)BUF_SIZE, PROT_READ | PROT_WRITE,
+	buf = (stress_punch_buf_t *)mmap(NULL, sizeof(*buf), PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (buf_before == MAP_FAILED) {
+	if (buf == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)BUF_SIZE, errno, strerror(errno));
+			args->name, sizeof(*buf), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	buf_after = mmap(NULL, (size_t)BUF_SIZE, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (buf_after == MAP_FAILED) {
-		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",
-			args->name, (size_t)BUF_SIZE, errno, strerror(errno));
-		rc = EXIT_NO_RESOURCE;
-		goto tidy_buf_before;
-	}
-
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);
-		goto tidy_buf_after;
+		goto tidy_buf;
 	}
 
 	(void)stress_temp_filename_args(args,
@@ -241,21 +308,21 @@ static int stress_fpunch(const stress_args_t *args)
 
 	stress_file_rw_hint_short(fd);
 
-	(void)shim_memset(buf_before, 0xff, (size_t)BUF_SIZE);
-	(void)shim_memset(buf_after, 0xa5, (size_t)BUF_SIZE);
+	(void)shim_memset(&buf->buf_before, 0xff, sizeof(buf->buf_before));
+	(void)shim_memset(&buf->buf_after, 0xa5, sizeof(buf->buf_after));
 
 	/*
 	 *  Create file with lots of holes and extents by populating
 	 *  it with 50% data and 50% holes by writing it backwards
 	 *  and skipping over stride sized hunks.
 	 */
-	offset = punch_length;
+	offset = DEFAULT_FPUNCH_LENGTH;
 	n = 0;
 	for (i = 0; keep_stressing(args) && (i < max_punches); i++) {
 		ssize_t r;
 
 		offset -= stride;
-		r = stress_punch_pwrite(args, fd, buf_before, (size_t)BUF_SIZE, offset);
+		r = stress_punch_pwrite(args, buf->buf_before, fd, sizeof(buf->buf_before), offset);
 		n += (r > 0) ? (size_t)r : 0;
 	}
 
@@ -264,8 +331,8 @@ static int stress_fpunch(const stress_args_t *args)
 
 	/* Zero sized file is a bit concerning, so abort */
 	if (n == 0) {
-		pr_inf_skip("%s: cannot allocate file of %jd bytes, skipping stressor\n",
-			args->name, (intmax_t)punch_length);
+		pr_inf_skip("%s: cannot allocate file of %lu bytes, skipping stressor\n",
+			args->name, DEFAULT_FPUNCH_LENGTH);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}
@@ -277,7 +344,8 @@ static int stress_fpunch(const stress_args_t *args)
 		pids[i] = fork();
 		if (pids[i] == 0) {
 			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
-			stress_punch_file(args, fd, punch_length, buf_before, buf_after);
+			if (stress_punch_file(args, buf, i, fd) < 0)
+				_exit(EXIT_FAILURE);
 			_exit(EXIT_SUCCESS);
 		}
 	}
@@ -285,7 +353,8 @@ static int stress_fpunch(const stress_args_t *args)
 	/* Wait for test run duration to complete */
 	(void)sleep((unsigned int)g_opt_timeout);
 
-	stress_kill_and_wait_many(args, pids, STRESS_PUNCH_PIDS, SIGALRM, true);
+	if (stress_kill_and_wait_many(args, pids, STRESS_PUNCH_PIDS, SIGALRM, true) != EXIT_SUCCESS)
+		rc = EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -296,14 +365,10 @@ tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd != -1)
 		(void)close(fd);
-
 tidy_temp:
 	(void)stress_temp_dir_rm_args(args);
-
-tidy_buf_after:
-	(void)munmap((void *)buf_after, (size_t)BUF_SIZE);
-tidy_buf_before:
-	(void)munmap((void *)buf_before, (size_t)BUF_SIZE);
+tidy_buf:
+	(void)munmap((void *)buf, sizeof(*buf));
 
 	return rc;
 }
@@ -311,12 +376,14 @@ tidy_buf_before:
 stressor_info_t stress_fpunch_info = {
 	.stressor = stress_fpunch,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 stressor_info_t stress_fpunch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without fallocate() support"
 };
