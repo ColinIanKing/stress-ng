@@ -269,6 +269,10 @@ static int OPTIMIZE3 stress_udp_client(
 						(void)shim_usleep(10000);
 						continue;
 					}
+					if (errno == EPERM) {
+						(void)shim_usleep(250000);
+						continue;
+					}
 					pr_fail("%s: sendto on port %d failed, errno=%d (%s)\n",
 						args->name, udp_port, errno, strerror(errno));
 					break;
