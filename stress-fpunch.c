@@ -331,8 +331,8 @@ static int stress_fpunch(const stress_args_t *args)
 
 	/* Zero sized file is a bit concerning, so abort */
 	if (n == 0) {
-		pr_inf_skip("%s: cannot allocate file of %lu bytes, skipping stressor\n",
-			args->name, DEFAULT_FPUNCH_LENGTH);
+		pr_inf_skip("%s: cannot allocate file of %" PRIu64 " bytes, skipping stressor\n",
+			args->name, (uint64_t)DEFAULT_FPUNCH_LENGTH);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}
