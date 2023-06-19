@@ -1272,6 +1272,7 @@ typedef enum {
 
 	OPT_far_branch,
 	OPT_far_branch_ops,
+	OPT_far_branch_pages,
 
 	OPT_fault,
 	OPT_fault_ops,

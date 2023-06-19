@@ -433,6 +433,7 @@ static const struct option long_options[] = {
 	{ "fanotify-ops",	1,	0,	OPT_fanotify_ops },
 	{ "far-branch",		1,	0,	OPT_far_branch },
 	{ "far-branch-ops",	1,	0,	OPT_far_branch_ops },
+	{ "far-branch-pages",	1,	0,	OPT_far_branch_pages },
 	{ "fault",		1,	0,	OPT_fault },
 	{ "fault-ops",		1,	0,	OPT_fault_ops },
 	{ "fcntl",		1,	0,	OPT_fcntl},

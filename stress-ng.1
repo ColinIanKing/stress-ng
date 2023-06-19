@@ -1821,6 +1821,13 @@ instruction cache and any instruction TLBs.
 stop after N far branch bogo-ops. One full cycle of calling all
 the tens of thousands of functions equates to one bogo-op.
 .TP
+.B \-\-far\-branch\-pages N
+specify the number of pages to allocate for far branch functions. The
+number for functions per page depends on the processor architecture,
+for example, x86 will have 4096 x 1 byte return instructions per 4K
+page, where as SPARC64 will have only 512 x 8 byte return instructions
+per 4K page.
+.TP
 .B \-\-fault N
 start N workers that generates minor and major page faults.
 .TP

@@ -23,7 +23,22 @@
 static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
 	{ NULL,	"far-branch-ops N",	"stop after N far branching bogo operations" },
+	{ NULL, "far-branch-pages N",	"number of pages to populate with functions" },
 	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_far_branch_pages(const char *opt)
+{
+	size_t far_branch_pages;
+
+	far_branch_pages = (size_t)stress_get_uint64(opt);
+	stress_check_range("far-branch-pages", (uint64_t)far_branch_pages, 1, 65536);
+	return stress_set_setting("far-branch-pages", TYPE_ID_SIZE_T, &far_branch_pages);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_far_branch_pages,	stress_set_far_branch_pages },
+	{ 0,			NULL }
 };
 
 #define PAGE_MULTIPLES	(8)
@@ -292,7 +307,7 @@ static int stress_far_branch(const stress_args_t *args)
 	size_t n_pages = n * PAGE_MULTIPLES;
 	const size_t page_size = args->page_size;
 	uintptr_t base = 0;
-	const size_t max_funcs = (n_pages * page_size) / ret_opcode.stride;
+	size_t max_funcs;
 	double t_start, duration, rate;
 	struct sigaction sa;
 	int ret;
@@ -300,6 +315,9 @@ static int stress_far_branch(const stress_args_t *args)
 	NOCLOBBER void **pages = NULL;
 	NOCLOBBER size_t total_funcs = 0;
 	NOCLOBBER double calls = 0.0;
+
+	stress_get_setting("far-branch-pages", &n_pages);
+	max_funcs = (n_pages * page_size) / ret_opcode.stride;
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -376,7 +394,7 @@ static int stress_far_branch(const stress_args_t *args)
 	 *  functions spread across each page
 	 */
 	for (k = 0, i = 0; i < PAGE_MULTIPLES; i++) {
-		for (j = 0; j < n; j++, k++) {
+		for (j = 0; k < n_pages; j++, k++) {
 			const size_t shift = 16 + j;
 			size_t offset = ((uintptr_t)1 << shift) + (4 * page_size * i);
 
@@ -389,7 +407,6 @@ static int stress_far_branch(const stress_args_t *args)
 
 	if (args->instance == 0)
 		pr_inf("%s: %zu functions over %zu pages\n", args->name, total_funcs, n_pages);
-
 
 	funcs[0] = stress_far_branch_check;
 	/*
@@ -441,6 +458,8 @@ static int stress_far_branch(const stress_args_t *args)
 
 	rate = (duration > 0.0) ? calls / duration : 0.0;
 	stress_metrics_set(args, 0, "function calls per sec", rate);
+	rate = (calls > 0.0) ? duration / calls: 0.0;
+	stress_metrics_set(args, 1, "nanosecs per call/return", rate * STRESS_DBL_NANOSECOND);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -465,6 +484,7 @@ stressor_info_t stress_far_branch_info = {
 	.stressor = stress_far_branch,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
@@ -472,6 +492,7 @@ stressor_info_t stress_far_branch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_func,
 	.help = help,
 	.unimplemented_reason = "built without mprotect() support or architecture not supported"
 };
