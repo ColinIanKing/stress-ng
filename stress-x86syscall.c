@@ -76,14 +76,34 @@ static int stress_x86syscall_supported(const char *name)
 		return -1;
 	}
 
-#if defined(__NR_getcpu) ||		\
+#if defined(__NR_getpid) ||		\
+    defined(__NR_getcpu) ||		\
     defined(__NR_gettimeofday) ||	\
     defined(__NR_time)
 	return 0;
 #else
-	pr_inf_skip("%s: stressor will be skipped, no definitions for __NR_getcpu, __NR_gettimeofday or __NR_time\n", name);
+	pr_inf_skip("%s: stressor will be skipped, no definitions for __NR_getpid, __NR_getcpu, __NR_gettimeofday or __NR_time\n", name);
 	return -1;
 #endif
+}
+
+/*
+ *  x86_64_syscall0()
+ *	syscall 0 arg wrapper
+ */
+static inline long OPTIMIZE3 x86_64_syscall0(long number)
+{
+	long ret;
+
+	__asm__ __volatile__("syscall\n\t"
+			: "=a" (ret)
+			: "0" (number)
+			: "memory", "cc", "r11", "cx");
+	if (UNLIKELY(ret < 0)) {
+		errno = (int)ret;
+		ret = -1;
+	}
+	return ret;
 }
 
 /*
@@ -155,6 +175,17 @@ static inline long OPTIMIZE3 x86_64_syscall3(long number, long arg1, long arg2, 
 	return ret;
 }
 
+#if defined(__NR_getpid)
+/*
+ *  wrap_getpid()
+ *	invoke getpid()
+ */
+static int wrap_getpid(void)
+{
+	return (int)x86_64_syscall0(__NR_getpid);
+}
+#endif
+
 #if defined(__NR_getcpu)
 /*
  *  wrap_getcpu()
@@ -209,6 +240,9 @@ static int wrap_dummy(void)
  *  mapping of wrappers to function symbol name
  */
 static stress_x86syscall_t x86syscalls[] = {
+#if defined(__NR_getpid)
+	{ wrap_getpid,		"getpid",		true },
+#endif
 #if defined(__NR_getcpu)
 	{ wrap_getcpu,		"getcpu",		true },
 #endif
