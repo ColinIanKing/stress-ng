@@ -235,16 +235,16 @@ retry_bind:
 		}
 		if ((errno == ETIMEDOUT) && (retries-- > 0))
 			goto retry_bind;
-		pr_fail("%s: bind failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: %s: bind failed, errno=%d (%s)\n",
+			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail("%s: accept failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: %s: accept failed, errno=%d (%s)\n",
+			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -261,7 +261,7 @@ retry_bind:
 				stress_af_alg_ignore(args, info);
 				break;
 			}
-			pr_fail("%s: send using %s failed: errno=%d (%s)\n",
+			pr_fail("%s: %s: send failed: errno=%d (%s)\n",
 					args->name, info->name,
 					errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -270,7 +270,7 @@ retry_bind:
 		if (recv(fd, digest, (size_t)digest_size, MSG_WAITALL) != digest_size) {
 			if (errno == EOPNOTSUPP)
 				goto err_abort;
-			pr_fail("%s: recv using %s failed: errno=%d (%s)\n",
+			pr_fail("%s: %s: recv failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -333,7 +333,7 @@ retry_bind:
 		/* Perhaps the cipher does not exist with this kernel */
 		if (errno == ELIBBAD) {
 			if (info->selftest) {
-				pr_fail("%s: bind failed but %s self test passed, errno=%d (%s)\n",
+				pr_fail("%s: %s: bind failed but self test passed, errno=%d (%s)\n",
 					args->name, info->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err;
@@ -361,8 +361,8 @@ retry_bind:
 		}
 		if ((errno == ETIMEDOUT) && (retries-- > 0))
 			goto retry_bind;
-		pr_fail("%s: bind failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: %s: bind failed, errno=%d (%s)\n",
+			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -384,8 +384,8 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
-			pr_fail("%s: setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: %s: setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
+				args->name, info->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err;
 		}
@@ -412,8 +412,8 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
-			pr_fail("%s: setsockopt ALG_SET_AEAD_ASSOCLEN failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: %s: setsockopt ALG_SET_AEAD_ASSOCLEN failed, errno=%d (%s)\n",
+				args->name, info->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err;
 		}
@@ -427,8 +427,8 @@ retry_bind:
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail("%s: accept failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: %s: accept failed, errno=%d (%s)\n",
+			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -452,8 +452,8 @@ retry_bind:
 		cmsg = CMSG_FIRSTHDR(&msg);
 		/* Keep static analysis happy */
 		if (!cmsg) {
-			pr_fail("%s: unexpected null cmsg found\n",
-				args->name);
+			pr_fail("%s: %s: unexpected null cmsg found\n",
+				args->name, info->name);
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
@@ -490,7 +490,7 @@ retry_bind:
 				stress_af_alg_ignore(args, info);
 				break;
 			}
-			pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
+			pr_fail("%s: %s: sendmsg failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -499,7 +499,7 @@ retry_bind:
 		if (recv(fd, output, DATA_LEN, 0) != DATA_LEN) {
 			if (errno == EOPNOTSUPP)
 				goto err_abort;
-			pr_fail("%s: read using %s failed: errno=%d (%s)\n",
+			pr_fail("%s: %s: read failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -540,23 +540,22 @@ retry_bind:
 				stress_af_alg_ignore(args, info);
 				break;
 			}
-			pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
+			pr_fail("%s: %s: sendmsg failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
 		if (read(fd, output, DATA_LEN) != DATA_LEN) {
-			pr_fail("%s: read using %s failed: errno=%d (%s)\n",
+			pr_fail("%s: %s: read failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
 		} else {
 			if (shim_memcmp(input, output, DATA_LEN)) {
-				pr_fail("%s: decrypted data "
+				pr_fail("%s: %s: decrypted data "
 					"different from original data "
-					"using kernel crypto engine %s "
 					"(possible kernel bug)\n",
 					args->name, info->name);
 			}
@@ -932,6 +931,15 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	 * see commit 9ace6771831017ce75a2bdf03c284b686dd39dba
          */
 	if (strcmp(info->name, "ecb(arc4)") == 0)
+		return false;
+	/*
+	 * Don't support non-mainline tk transformations that some
+	 * kernels use, see
+	 * https://lore.kernel.org/lkml/1594591536-531-1-git-send-email-iuliana.prodan@nxp.com/t/#Z2e.:..:1594591536-531-3-git-send-email-iuliana.prodan::40nxp.com:1drivers:crypto:caam:caamalg.c
+	 */ 
+	if (strcmp(info->name, "tk(cbc(aes))") == 0)
+		return false;
+	if (strcmp(info->name, "tk(ecb(aes))") == 0)
 		return false;
 
 	/* Scan for duplications */
