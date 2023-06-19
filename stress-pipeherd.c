@@ -31,6 +31,11 @@
  */
 #define PIPE_HERD_MAX	(100)
 
+typedef struct {
+	uint64_t	counter;
+	uint32_t	check;
+} stress_pipeherd_data_t;
+
 static const stress_help_t help[] = {
 	{ "p N", "pipeherd N",		"start N multi-process workers exercising pipes I/O" },
 	{ NULL,	"pipeherd-ops N",	"stop after N pipeherd I/O bogo operations" },
@@ -46,17 +51,17 @@ static int stress_set_pipeherd_yield(const char *opt)
 static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2], const bool pipeherd_yield)
 {
 	while (keep_stressing(args)) {
-		int64_t counter;
+		stress_pipeherd_data_t data;
 		ssize_t sz;
 
-		sz = read(fd[0], &counter, sizeof(counter));
+		sz = read(fd[0], &data, sizeof(data));
 		if (UNLIKELY(sz < 0)) {
 			if ((errno == EINTR) || (errno == EPIPE))
 				break;
 			return EXIT_FAILURE;
 		}
-		counter++;
-		sz = write(fd[1], &counter, sizeof(counter));
+		data.counter++;
+		sz = write(fd[1], &data, sizeof(data));
 		if (UNLIKELY(sz < 0)) {
 			if ((errno == EINTR) || (errno == EPIPE))
 				break;
@@ -75,7 +80,8 @@ static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2]
 static int stress_pipeherd(const stress_args_t *args)
 {
 	int fd[2];
-	uint64_t counter;
+	stress_pipeherd_data_t data;
+	uint32_t check = stress_mwc32();
 	pid_t pids[PIPE_HERD_MAX];
 	int i, rc;
 	ssize_t sz;
@@ -111,8 +117,9 @@ static int stress_pipeherd(const stress_args_t *args)
 	}
 #endif
 
-	counter = 0;
-	sz = write(fd[1], &counter, sizeof(counter));
+	data.counter = 0;
+	data.check = check;
+	sz = write(fd[1], &data, sizeof(data));
 	if (sz < 0) {
 		pr_fail("%s: write to pipe failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -151,9 +158,9 @@ static int stress_pipeherd(const stress_args_t *args)
 	}
 
 	VOID_RET(int, stress_pipeherd_read_write(args, fd, pipeherd_yield));
-	sz = read(fd[0], &counter, sizeof(counter));
+	sz = read(fd[0], &data, sizeof(data));
 	if (sz > 0)
-		set_counter(args, counter);
+		set_counter(args, data.counter);
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
@@ -199,7 +206,12 @@ static int stress_pipeherd(const stress_args_t *args)
 		}
 	}
 #endif
-
+	if (data.check != check) {
+		pr_fail("%s: verification check failed, got 0x%" PRIx32 ", "
+			"expected 0x%" PRIx32 "\n",
+			args->name, data.check, check);
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -212,5 +224,6 @@ stressor_info_t stress_pipeherd_info = {
 	.stressor = stress_pipeherd,
 	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
