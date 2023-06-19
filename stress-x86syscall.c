@@ -218,8 +218,6 @@ static stress_x86syscall_t x86syscalls[] = {
 #if defined(__NR_time)
 	{ wrap_time,		"time",			true },
 #endif
-	/* Null entry is ignored */
-	{ NULL,			NULL,			false },
 };
 
 /*
@@ -240,7 +238,7 @@ static char *x86syscall_list_str(void)
 	char *str = NULL;
 	size_t i, len = 0;
 
-	for (i = 0; x86syscalls[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
 		if (x86syscalls[i].exercise) {
 			char *tmp;
 
@@ -276,7 +274,7 @@ static int x86syscall_check_x86syscall_func(void)
 	if (!stress_get_setting("x86syscall-func", &name))
 		return 0;
 
-	for (i = 0; x86syscalls[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
 		const bool match = !strcmp(x86syscalls[i].name, name);
 
 		exercise |= match;
@@ -285,7 +283,7 @@ static int x86syscall_check_x86syscall_func(void)
 
 	if (!exercise) {
 		(void)fprintf(stderr, "invalid x86syscall-func '%s', must be one of:", name);
-		for (i = 0; x86syscalls[i].name; i++)
+		for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++)
 			(void)fprintf(stderr, " %s", x86syscalls[i].name);
 		(void)fprintf(stderr, "\n");
 		return -1;
@@ -317,7 +315,7 @@ static int stress_x86syscall(const stress_args_t *args)
 		}
 	}
 
-	for (i = 0, n = 0; x86syscalls[i].name; i++) {
+	for (i = 0, n = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
 		if (x86syscalls[i].exercise)
 			x86syscall_funcs[n++] = x86syscalls[i].func;
 	}
