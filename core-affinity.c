@@ -95,7 +95,7 @@ int stress_set_cpu_affinity(const char *arg)
 				free(str);
 				_exit(EXIT_FAILURE);
 			}
-			if (hi <= lo) {
+			if (hi < lo) {
 				(void)fprintf(stderr, "%s: invalid range in '%s' "
 					"(end value must be larger than "
 					"start value\n", option, token);
