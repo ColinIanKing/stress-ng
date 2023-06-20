@@ -334,9 +334,17 @@ size_t stress_resources_allocate(
 		UNEXPECTED
 #endif
 #if defined(HAVE_MEMFD_CREATE)
+
+#if !defined(MFD_NOEXEC_SEAL)
+#define MFD_NOEXEC_SEAL		0x0008U
+#endif
 		(void)snprintf(name, sizeof(name), "memfd-%" PRIdMAX "-%zu",
 			(intmax_t)pid, i);
-		resources[i].fd_memfd = shim_memfd_create(name, 0);
+		/* Try with MFD_NOEXEC_SEAL */
+		resources[i].fd_memfd = shim_memfd_create(name, MFD_NOEXEC_SEAL);
+		/* ..and if failed, retry with no flags */
+		if (resources[i].fd_memfd == -1)
+			resources[i].fd_memfd = shim_memfd_create(name, 0);
 		if (resources[i].fd_memfd != -1) {
 			if (ftruncate(resources[i].fd_memfd, (off_t)page_size) == 0) {
 				resources[i].ptr_memfd = mmap(NULL, page_size,
