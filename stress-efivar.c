@@ -200,7 +200,7 @@ static int efi_get_data(
 	double *duration,
 	double *count)
 {
-	int fd;
+	int fd, rc = 0;
 	ssize_t n;
 	char filename[PATH_MAX];
 	struct stat statbuf;
@@ -210,11 +210,12 @@ static int efi_get_data(
 	(void)snprintf(filename, sizeof(filename),
 		"%s/%s/%s", sysfs_efi_vars, varname, field);
 	if ((fd = open(filename, O_RDONLY)) < 0)
-		return -1;
+		return 0;	/* silently fail for open-retry later on */
 
 	if (fstat(fd, &statbuf) < 0) {
 		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		rc = -1;
 		goto err_vars;
 	}
 
@@ -227,6 +228,7 @@ static int efi_get_data(
 	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
 		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		rc = -1;
 		goto err_vars;
 	}
 	if (metrics) {
@@ -234,10 +236,11 @@ static int efi_get_data(
 		(*count) += 1.0;
 	}
 	stress_efi_sysfs_fd(args, fd, n);
+
 err_vars:
 	(void)close(fd);
 
-	return 0;
+	return rc;
 }
 
 static int efi_read_variable(
@@ -262,7 +265,7 @@ static int efi_read_variable(
 
 	(void)stress_mk_filename(filename, sizeof(filename), efi_path, varname);
 	if ((fd = open(filename, O_RDONLY)) < 0)
-		return -1;
+		return 0;	/* silently fail for open-retry later on */
 
 	ret = fstat(fd, &statbuf);
 	if (ret < 0) {
@@ -385,7 +388,7 @@ static int efi_vars_get(
 	double *count)
 {
 	static char data[4096];
-	int i;
+	int i, rc = 0;
 
 	for (i = 0; keep_stressing(args) && (i < dir_count); i++) {
 		char *d_name = efi_dentries[i]->d_name;
@@ -410,17 +413,19 @@ static int efi_vars_get(
 			ret = get_variable_sysfs_efi_efivars(args, pid, data, sizeof(data), d_name, duration, count);
 			break;
 		default:
-			ret = -1;
+			efi_ignore[i] = true;
+			continue;
 		}
 		if (ret < 0) {
 			efi_ignore[i] = true;
+			rc = -1;
 			continue;
 		}
 
 		inc_counter(args);
 	}
 
-	return 0;
+	return rc;
 }
 
 /*
@@ -464,6 +469,7 @@ static int stress_efivar(const stress_args_t *args)
 	size_t sz;
 	double duration = 0.0, count = 0.0;
 	efi_mode = STRESS_EFI_UNKNOWN;
+	int rc = EXIT_SUCCESS;
 
 	efi_dentries = NULL;
 
@@ -518,6 +524,9 @@ again:
 				args->name, stress_strsignal(WTERMSIG(status)),
 				args->instance);
 			return EXIT_FAILURE;
+		} else if (WIFEXITED(status)) {
+			if (WEXITSTATUS(status) != EXIT_SUCCESS)
+				rc = WEXITSTATUS(status);
 		}
 	} else {
 		const pid_t mypid = getpid();
@@ -528,13 +537,16 @@ again:
 		(void)sched_settings_apply(true);
 
 		do {
-			efi_vars_get(args, mypid, &duration, &count);
+			if (efi_vars_get(args, mypid, &duration, &count) < 0) {
+				rc = EXIT_FAILURE;
+				break;
+			}
 		} while (keep_stressing(args));
 
 		rate = (duration > 0.0) ? count / duration : 0.0;
 		stress_metrics_set(args, 0, "efi raw data reads per sec", rate);
 
-		_exit(0);
+		_exit(rc);
 	}
 
 finish:
@@ -543,13 +555,14 @@ finish:
 	(void)munmap(efi_ignore, sz);
 	stress_dirent_list_free(efi_dentries, dir_count);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_efivar_info = {
 	.stressor = stress_efivar,
 	.supported = stress_efivar_supported,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
