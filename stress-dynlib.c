@@ -63,6 +63,8 @@ static const stress_lib_info_t libnames[] = {
 #endif
 #if defined(LIBM_SO)
 	{ LIBM_SO, "cos" },
+	{ LIBM_SO, "sin" },
+	{ LIBM_SO, "tan" },
 #endif
 #if defined(LIBNSL_SO)
 	{ LIBNSL_SO, "yp_match" },
@@ -90,6 +92,7 @@ static const stress_lib_info_t libnames[] = {
 #endif
 #if defined(LIBRT_SO)
 	{ LIBRT_SO, "timer_create" },
+	{ LIBRT_SO, "timer_delete" },
 #endif
 #if defined(LIBTHREAD_DB_SO)
 	{ LIBTHREAD_DB_SO, "td_thr_clear_event" },
@@ -119,6 +122,8 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 static int stress_dynlib(const stress_args_t *args)
 {
 	void *handles[MAX_LIBNAMES];
+	NOCLOBBER double count = 0.0, duration = 0.0;
+	double rate;
 
 	(void)shim_memset(handles, 0, sizeof(handles));
 
@@ -152,14 +157,18 @@ static int stress_dynlib(const stress_args_t *args)
 		for (i = 0; i < MAX_LIBNAMES; i++) {
 			if (handles[i]) {
 				uint8_t *ptr;
+				double t;
 
 				(void)dlerror();
+				t = stress_time_now();
 				ptr = dlsym(handles[i], libnames[i].symbol);
 				/*
 				 * The function pointer should be readable,
 				 * however, we have a SIGSEGV handler that
 				 * will perform tidy up if not
 				 */
+				duration += stress_time_now() - t;
+				count += 1.0;
 				if (ptr)
 					stress_uint8_put(*ptr);
 			}
@@ -172,6 +181,9 @@ tidy:
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per dlsym lookup", rate * STRESS_DBL_NANOSECOND);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
