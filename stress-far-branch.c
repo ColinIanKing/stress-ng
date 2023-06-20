@@ -395,7 +395,7 @@ static int stress_far_branch(const stress_args_t *args)
 	 */
 	for (k = 0, i = 0; i < PAGE_MULTIPLES; i++) {
 		for (j = 0; k < n_pages; j++, k++) {
-			const size_t shift = 16 + j;
+			const size_t shift = (16 + j) & 0x1f;
 			size_t offset = ((uintptr_t)1 << shift) + (4 * page_size * i);
 
 			pages[k] = stress_far_mmap(page_size, base, offset,
