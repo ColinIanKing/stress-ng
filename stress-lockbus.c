@@ -145,11 +145,11 @@ static int stress_lockbus(const stress_args_t *args)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
+	double t, rate;
+	NOCLOBBER double duration, count;
 #if defined(STRESS_ARCH_X86)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
 	bool lockbus_nosplit = false;
-	double t, rate;
-	NOCLOBBER double duration, count;
 
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
