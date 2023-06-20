@@ -739,25 +739,8 @@ again:
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
 		const pid_t mypid = getpid();
 #endif
-#if defined(HAVE_ATOMIC)
-		uint32_t count;
-#endif
 		int ret;
 		NOCLOBBER int ncrc = EXIT_FAILURE;
-
-#if defined(HAVE_ATOMIC)
-		__sync_fetch_and_add(&g_shared->softlockup_count, 1);
-
-		/*
-		 * Wait until all instances have reached this point
-		 */
-		do {
-			if ((stress_time_now() - start) > (double)timeout)
-				goto tidy_ok;
-			(void)usleep(50000);
-			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
-		} while (keep_stressing(args) && (count < num_instances));
-#endif
 
 		/*
 		 * We run the stressor as a child so that
@@ -853,10 +836,6 @@ tidy:
 		(void)pause();
 		force_killed_counter(args);
 		(void)kill(pid, SIGKILL);
-#if defined(HAVE_ATOMIC)
-		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
-#endif
-
 		(void)shim_waitpid(pid, &status, 0);
 	}
 
