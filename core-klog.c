@@ -79,7 +79,7 @@ static void stress_klog_kernel_cmdline(void)
 			break;
 		}
 	}
-	pr_inf("%s: kernel cmdline: '%s'\n", buffer, name);
+	pr_inf("%s: kernel cmdline: '%s'\n", name, buffer);
 	already_dumped = true;
 }
 #endif
