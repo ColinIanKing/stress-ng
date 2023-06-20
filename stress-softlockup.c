@@ -63,6 +63,44 @@ static stress_policy_t policies[] = {
 static sigjmp_buf jmp_env;
 static volatile bool softlockup_start;
 
+static NOINLINE void OPTIMIZE0 stress_softlockup_loop(const uint64_t loops)
+{
+	uint64_t i;
+
+	for (i = 0; i < loops; i++) {
+#if defined(HAVE_ASM_NOP)
+		__asm__ __volatile__("nop;\n");
+		shim_mb();
+#endif
+	}
+}
+
+/*
+ *  stress_softlockup_loop_count()
+ *	number of loops for 0.01 seconds busy wait delay
+ */
+static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
+{
+	double t, d;
+	uint64_t n = 1024 * 64, i;
+
+	do {
+		t = stress_time_now();
+		for (i = 0; i < n; i++) {
+#if defined(HAVE_ASM_NOP)
+			__asm__ __volatile__("nop;\n");
+#endif
+			shim_mb();
+		}
+		d = stress_time_now() - t;
+		if (d > 0.01)
+			break;
+		n = n + n;
+	}  while (keep_stressing_flag());
+
+	return n;
+}
+
 /*
  *  stress_rlimit_handler()
  *      rlimit generic handler
@@ -111,7 +149,8 @@ static void stress_softlockup_child(
 	const stress_args_t *args,
 	struct sched_param *param,
 	const double start,
-	const uint64_t timeout)
+	const uint64_t timeout,
+	const uint64_t loop_count)
 {
 	struct sigaction old_action_xcpu;
 	struct rlimit rlim;
@@ -171,6 +210,7 @@ static void stress_softlockup_child(
 			}
 		}
 		drop_niceness();
+		stress_softlockup_loop(loop_count);
 		policy++;
 		if (policy >= SIZEOF_ARRAY(policies))
 			policy = 0;
@@ -199,10 +239,13 @@ static int stress_softlockup(const stress_args_t *args)
 	const double start = stress_time_now();
 	pid_t *pids;
 	int rc = EXIT_SUCCESS;
+	uint64_t loop_count;
 
 	softlockup_start = false;
 	timeout = g_opt_timeout;
 	(void)shim_memset(&param, 0, sizeof(param));
+
+	loop_count = stress_softlockup_loop_count();
 
 	pids = malloc(sizeof(*pids) * (size_t)cpus_online);
 	if (!pids) {
@@ -269,7 +312,7 @@ again:
 			goto finish;
 		} else if (pids[i] == 0) {
 			(void)stress_change_cpu(args, parent_cpu);
-			stress_softlockup_child(args, &param, start, timeout);
+			stress_softlockup_child(args, &param, start, timeout, loop_count);
 		}
 	}
 	param.sched_priority = policies[0].max_prio;
