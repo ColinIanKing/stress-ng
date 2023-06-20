@@ -978,9 +978,6 @@ typedef struct {
 #if defined(STRESS_THERMAL_ZONES)
 	stress_tz_info_t *tz_info;			/* List of valid thermal zones */
 #endif
-#if defined(HAVE_ATOMIC)
-	uint32_t softlockup_count;			/* Atomic counter of softlock children */
-#endif
 	struct {
 		double start_time ALIGNED(8);		/* Time to complete operation */
 		uint32_t value;				/* Dummy value to operate on */

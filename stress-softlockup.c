@@ -61,6 +61,7 @@ static stress_policy_t policies[] = {
 };
 
 static sigjmp_buf jmp_env;
+static volatile bool softlockup_start;
 
 /*
  *  stress_rlimit_handler()
@@ -106,6 +107,85 @@ static void drop_niceness(void)
 	}
 }
 
+static void stress_softlockup_child(
+	const stress_args_t *args,
+	struct sched_param *param,
+	const double start,
+	const uint64_t timeout)
+{
+	struct sigaction old_action_xcpu;
+	struct rlimit rlim;
+	const pid_t mypid = getpid();
+	int ret;
+	int rc = EXIT_FAILURE;
+	size_t policy = 0;
+
+	/*
+	 *  Wait for all children to start before
+	 *  ramping up the scheduler priority
+	 */
+	while (softlockup_start && keep_stressing(args)) {
+		shim_usleep(100000);
+	}
+
+	/*
+	 * We run the stressor as a child so that
+	 * if we hit the hard time limits the child is
+	 * terminated with a SIGKILL and we can
+	 * catch that with the parent
+	 */
+	rlim.rlim_cur = timeout;
+	rlim.rlim_max = timeout;
+	(void)setrlimit(RLIMIT_CPU, &rlim);
+
+#if defined(RLIMIT_RTTIME)
+	rlim.rlim_cur = 1000000 * timeout;
+	rlim.rlim_max = 1000000 * timeout;
+	(void)setrlimit(RLIMIT_RTTIME, &rlim);
+#endif
+	if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+		goto tidy;
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret)
+		goto tidy_ok;
+
+	drop_niceness();
+
+	policy = 0;
+	do {
+		/*
+		 *  Note: Re-setting the scheduler policy on Linux
+		 *  puts the runnable process always onto the front
+		 *  of the scheduling list.
+		 */
+		param->sched_priority = policies[policy].max_prio;
+		ret = sched_setscheduler(mypid, policies[policy].policy, param);
+		if (ret < 0) {
+			if (errno != EPERM) {
+				pr_fail("%s: sched_setscheduler "
+					"failed: errno=%d (%s) "
+					"for scheduler policy %s\n",
+					args->name, errno, strerror(errno),
+					policies[policy].name);
+			}
+		}
+		drop_niceness();
+		policy++;
+		if (policy >= SIZEOF_ARRAY(policies))
+			policy = 0;
+		inc_counter(args);
+
+		/* Ensure we NEVER spin forever */
+		if ((stress_time_now() - start) > (double)timeout)
+			break;
+	} while (keep_stressing(args));
+tidy_ok:
+	rc = EXIT_SUCCESS;
+tidy:
+	_exit(rc);
+}
+
 static int stress_softlockup(const stress_args_t *args)
 {
 	size_t policy = 0;
@@ -113,23 +193,33 @@ static int stress_softlockup(const stress_args_t *args)
 	bool good_policy = false;
 	const bool first_instance = (args->instance == 0);
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
-	const uint32_t num_instances = args->num_instances;
-	struct sigaction old_action_xcpu;
+	uint32_t i;
 	struct sched_param param;
-	struct rlimit rlim;
-	pid_t pid;
 	NOCLOBBER uint64_t timeout;
 	const double start = stress_time_now();
+	pid_t *pids;
+	int rc = EXIT_SUCCESS;
 
+	softlockup_start = false;
 	timeout = g_opt_timeout;
 	(void)shim_memset(&param, 0, sizeof(param));
+
+	pids = malloc(sizeof(*pids) * (size_t)cpus_online);
+	if (!pids) {
+		pr_inf_skip("%s: cannot allocate %" PRIu32 " pids, skipping stressor\n",
+			args->name, cpus_online);
+		return EXIT_NO_RESOURCE;
+	}
+	for (i = 0; i < cpus_online; i++)
+		pids[i] = -1;
 
 	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (first_instance) {
 			pr_inf_skip("%s: no scheduling policies "
-					"available, skipping test\n",
+					"available, skipping stressor\n",
 					args->name);
 		}
+		free(pids);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -154,6 +244,7 @@ static int stress_softlockup(const stress_args_t *args)
 				"scheduling policies, skipping test\n",
 					args->name);
 		}
+		free(pids);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -162,131 +253,51 @@ static int stress_softlockup(const stress_args_t *args)
 			args->name, max_prio);
 	}
 
-	if ((num_instances < cpus_online) && (first_instance)) {
-		pr_inf("%s: for best results, run with at least %d instances "
-			"of this stressor\n", args->name, cpus_online);
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	for (i = 0; i < cpus_online; i++) {
 again:
-	parent_cpu = stress_get_cpu();
-	pid = fork();
-	if (pid < 0) {
-		if (stress_redo_fork(errno))
-			goto again;
-		if (!keep_stressing(args))
+		parent_cpu = stress_get_cpu();
+		pids[i] = fork();
+		if (pids[i] < 0) {
+			if (stress_redo_fork(errno))
+				goto again;
+			if (!keep_stressing(args))
+				goto finish;
+			pr_inf("%s: cannot fork, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto finish;
-		pr_inf("%s: cannot fork, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	} else if (pid == 0) {
-		const pid_t mypid = getpid();
-#if defined(HAVE_ATOMIC)
-		uint32_t count;
-#endif
-		int ret;
-		int rc = EXIT_FAILURE;
-
-		(void)stress_change_cpu(args, parent_cpu);
-#if defined(HAVE_ATOMIC)
-		__sync_fetch_and_add(&g_shared->softlockup_count, 1);
-
-		/*
-		 * Wait until all instances have reached this point
-		 */
-		do {
-			if ((stress_time_now() - start) > (double)timeout)
-				goto tidy_ok;
-			(void)usleep(50000);
-			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
-		} while (keep_stressing(args) && (count < num_instances));
-#endif
-
-		/*
-		 * We run the stressor as a child so that
-		 * if we hit the hard time limits the child is
-		 * terminated with a SIGKILL and we can
-		 * catch that with the parent
-		 */
-		rlim.rlim_cur = timeout;
-		rlim.rlim_max = timeout;
-		(void)setrlimit(RLIMIT_CPU, &rlim);
-
-#if defined(RLIMIT_RTTIME)
-		rlim.rlim_cur = 1000000 * timeout;
-		rlim.rlim_max = 1000000 * timeout;
-		(void)setrlimit(RLIMIT_RTTIME, &rlim);
-#endif
-
-		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
-			goto tidy;
-
-		ret = sigsetjmp(jmp_env, 1);
-		if (ret)
-			goto tidy_ok;
-
-		drop_niceness();
-
-		policy = 0;
-		do {
-			/*
-			 *  Note: Re-setting the scheduler policy on Linux
-			 *  puts the runnable process always onto the front
-			 *  of the scheduling list.
-			 */
-			param.sched_priority = policies[policy].max_prio;
-			ret = sched_setscheduler(mypid, policies[policy].policy, &param);
-			if (ret < 0) {
-				if (errno != EPERM) {
-					pr_fail("%s: sched_setscheduler "
-						"failed: errno=%d (%s) "
-						"for scheduler policy %s\n",
-						args->name, errno, strerror(errno),
-						policies[policy].name);
-				}
-			}
-			drop_niceness();
-			policy++;
-			if (policy >= SIZEOF_ARRAY(policies))
-				policy = 0;
-			inc_counter(args);
-
-			/* Ensure we NEVER spin forever */
-			if ((stress_time_now() - start) > (double)timeout)
-				break;
-		} while (keep_stressing(args));
-
-tidy_ok:
-		rc = EXIT_SUCCESS;
-tidy:
-		_exit(rc);
-	} else {
-		param.sched_priority = policies[0].max_prio;
-		(void)sched_setscheduler(args->pid, policies[0].policy, &param);
-
-		(void)pause();
-		stress_kill_and_wait(args, pid, SIGALRM, true);
-#if defined(HAVE_ATOMIC)
-		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
-#endif
+		} else if (pids[i] == 0) {
+			(void)stress_change_cpu(args, parent_cpu);
+			stress_softlockup_child(args, &param, start, timeout);
+		}
 	}
+	param.sched_priority = policies[0].max_prio;
+	(void)sched_setscheduler(args->pid, policies[0].policy, &param);
+
+	softlockup_start = true;
+
+	(void)pause();
+	rc = stress_kill_and_wait_many(args, pids, (size_t)cpus_online, SIGALRM, false);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	free(pids);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_softlockup,
 	.supported = stress_softlockup_supported,
 	.class = CLASS_SCHEDULER,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sched_get_priority_min() or sched_setscheduler()"
 };
