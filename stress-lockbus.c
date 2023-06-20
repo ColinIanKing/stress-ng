@@ -148,6 +148,8 @@ static int stress_lockbus(const stress_args_t *args)
 #if defined(STRESS_ARCH_X86)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
 	bool lockbus_nosplit = false;
+	double t, rate;
+	NOCLOBBER double duration, count;
 
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
@@ -180,6 +182,8 @@ static int stress_lockbus(const stress_args_t *args)
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	duration = 0;
+	count = 0;
 	do {
 		uint32_t *ptr0 = buffer + (stress_mwc32modn(BUFFER_SIZE - CHUNK_SIZE) >> 2);
 #if defined(STRESS_ARCH_X86)
@@ -191,6 +195,7 @@ static int stress_lockbus(const stress_args_t *args)
 #endif
 		const uint32_t inc = 1;
 
+		t = stress_time_now();
 		MEM_LOCK_AND_INCx8(ptr0, inc);
 		MEM_LOCKx8(ptr1);
 		MEM_LOCKx8(ptr2);
@@ -222,7 +227,12 @@ static int stress_lockbus(const stress_args_t *args)
 			SYNC_BOOL_COMPARE_AND_SWAP(ptr2, zero, val);
 		}
 #endif
-
+		duration += (stress_time_now() - t);
+#if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
+		count += (8.0 * 12.0) + 6.0;
+#else
+		count += (8.0 * 12.0);
+#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -230,6 +240,9 @@ static int stress_lockbus(const stress_args_t *args)
 done:
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (count > 0.0) ? duration / count : 0.0;
+	stress_metrics_set(args, 0, "nanosecs per memory lock operation", rate * STRESS_DBL_NANOSECOND);
 
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
