@@ -335,6 +335,7 @@ static int stress_x86syscall(const stress_args_t *args)
 	uint64_t counter;
 	stress_wfunc_t x86syscall_funcs[SIZEOF_ARRAY(x86syscalls)] ALIGN64;
 	register size_t i, n;
+	int rc = EXIT_SUCCESS;
 
 	if (x86syscall_check_x86syscall_func() < 0)
 		return EXIT_FAILURE;
@@ -396,9 +397,58 @@ static int stress_x86syscall(const stress_args_t *args)
 		stress_metrics_set(args, 1, "nanosecs for test overhead", overhead_ns);
 	}
 
+	/*
+	 *  And now some simple verification
+	 */
+#if defined(__NR_getpid)
+	{
+		const pid_t pid1 = getpid();
+		const pid_t pid2 = (pid_t)x86_64_syscall0(__NR_getpid);
+
+		if (pid1 != pid2) {
+			pr_fail("%s: getpid syscall returned PID %" PRIdMAX
+				", expected PID %" PRIdMAX "\n",
+				args->name, (intmax_t)pid2, (intmax_t)pid1);
+			rc = EXIT_FAILURE;
+		}
+	}
+#endif
+#if defined(__NR_time)
+	{
+		time_t t1, t2;
+
+		if ((time(&t1) != (time_t)-1) &&
+		    ((time_t)x86_64_syscall1(__NR_time, (long)&t2) != (time_t)-1)) {
+			if (t2 < t1) {
+				pr_fail("%s: time syscall returned %" PRIdMAX
+					" which was less than expected value %" PRIdMAX "\n",
+					args->name, (intmax_t)t2, (intmax_t)t1);
+				rc = EXIT_FAILURE;
+			}
+		}
+	}
+#endif
+#if defined(__NR_gettimeofday)
+	{
+		struct timeval tv1, tv2;
+
+		if ((gettimeofday(&tv1, NULL) != -1) &&
+		    ((int)x86_64_syscall2(__NR_gettimeofday, (long)&tv2, (long)NULL) != -1)) {
+			const double t1 = stress_timeval_to_double(&tv1);
+			const double t2 = stress_timeval_to_double(&tv2);
+
+			if (t2 < t1) {
+				pr_fail("%s: gettimeofday syscall returned %.6f"
+					" which was less than expected value %.6f\n",
+					args->name, t2, t1);
+				rc = EXIT_FAILURE;
+			}
+		}
+	}
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_x86syscall_info = {
@@ -406,6 +456,7 @@ stressor_info_t stress_x86syscall_info = {
 	.class = CLASS_OS,
 	.supported = stress_x86syscall_supported,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -414,6 +465,7 @@ stressor_info_t stress_x86syscall_info = {
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "only supported on Linux x86-64 and non-PCC compilers"
 };
 #endif
