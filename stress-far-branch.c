@@ -316,7 +316,7 @@ static int stress_far_branch(const stress_args_t *args)
 	NOCLOBBER size_t total_funcs = 0;
 	NOCLOBBER double calls = 0.0;
 
-	stress_get_setting("far-branch-pages", &n_pages);
+	(void)stress_get_setting("far-branch-pages", &n_pages);
 	max_funcs = (n_pages * page_size) / ret_opcode.stride;
 
 	ret = sigsetjmp(jmp_env, 1);
