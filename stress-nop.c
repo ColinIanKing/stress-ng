@@ -262,6 +262,7 @@ static stress_nop_instr_t nop_instr[] = {
 	{ "mdoom",	stress_nop_spin_ppc64_mdoom,	NULL,	false,	false },
 	{ "yield",	stress_nop_spin_ppc64_yield,	NULL,	false,	false },
 #endif
+	/* Must be last of the array */
 	{ "random",	stress_nop_random,		NULL,	false,	false },
 };
 
@@ -296,6 +297,7 @@ static void stress_nop_random(
 	(void)flag;
 
 	do {
+		/* the -1 stops us from calling random recursively */
 		const size_t n = stress_mwc8modn(SIZEOF_ARRAY(nop_instr) - 1);
 
 		current_instr = &nop_instr[n];
