@@ -460,7 +460,6 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (buf == MAP_FAILED) {
-				buf = NULL;
 				no_mem_retries++;
 				(void)shim_usleep(100000);
 				continue;
