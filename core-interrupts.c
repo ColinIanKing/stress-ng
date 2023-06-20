@@ -150,12 +150,12 @@ void stress_interrupts_check_failure(const char *name, stress_interrupts_t *coun
 
 	for (i = 0; i < SIZEOF_ARRAY(info); i++) {
 		if (info[i].check_failure) {
-			const uint64_t delta = counters[i].count_stop - counters[i].count_start;
+			const int64_t delta = counters[i].count_stop - counters[i].count_start;
 
 			if (delta > 0) {
 				if (instance == 0) {
 					const char *plural = delta > 1 ? "s" : "";
-					pr_fail("%s: detected at least %" PRIu64 " %s%s\n", name, delta, info[i].descr, plural);
+					pr_fail("%s: detected at least %" PRId64 " %s%s\n", name, delta, info[i].descr, plural);
 				}
 				*rc = EXIT_FAILURE;
 			}
@@ -197,7 +197,7 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			int32_t j;
 
 			for (j = 0; j < ss->started_instances; j++) {
-				const uint64_t delta =
+				const int64_t delta =
 					ss->stats[j]->interrupts[i].count_stop -
 					ss->stats[j]->interrupts[i].count_start;
 				if (delta > 0) {
