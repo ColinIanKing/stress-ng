@@ -101,8 +101,11 @@ void stress_klog_start(void)
 	klog_pid = fork();
 	if (klog_pid == 0) {
 		char buf[8192];
+		double last_logged = stress_time_now();
 
 		stress_set_proc_state_str("klog","monitoring");
+
+		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
 		(void)fseek(klog_fp, 0, SEEK_END);
 
 		while (fgets(buf, sizeof(buf), klog_fp)) {
@@ -178,8 +181,11 @@ void stress_klog_start(void)
 log_err:
 			if (dump_procs || stress_klog_err_no_exceptions(buf)) {
 				stress_klog_kernel_cmdline();
-				stress_dump_processes();
+				/* rate limit process dumping */
+				if ((stress_time_now() - last_logged) > 30.0)
+					stress_dump_processes();
 				pr_err("%s: %s: %s '%s'\n", name, msg, ts, ptr);
+				last_logged = stress_time_now();
 				g_shared->klog_errors++;
 				continue;
 			}
@@ -187,6 +193,7 @@ log_info:
 			if (stress_klog_err_no_exceptions(buf)) {
 				stress_klog_kernel_cmdline();
 				pr_inf("%s: %s: %s '%s'\n", name, msg, ts, ptr);
+				last_logged = stress_time_now();
 			}
 		}
 		(void)fclose(klog_fp);
