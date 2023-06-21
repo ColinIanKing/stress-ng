@@ -1457,6 +1457,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(riscv_flush_icache)
 	{ SYS(riscv_flush_icache), 3, { ARG_PTR, ARG_PTR, ARG_INT, 0, 0, 0 } },
 #endif
+#if DEFSYS(riscv_hwprobe)
+	{ SYS(riscv_hwprobe), 5, { ARG_PTR, ARG_UINT, ARG_UINT, ARG_PTR, ARG_INT, 0 } },
+#endif
 #if DEFSYS(rmdir)
 	/* { SYS(rmdir), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } }, */
 #endif
