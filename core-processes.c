@@ -59,13 +59,15 @@ void stress_dump_processes(void)
 		(void)snprintf(path, sizeof(path), "/proc/%s/cmdline", namelist[i]->d_name);
 		ret = system_read(path, cmd, sizeof(cmd));
 		if (ret > 0) {
-			for (i = 0; i < (int)ret; i++) {
-				if (cmd[i] == '\0')
-					cmd[i] = ' ';
+			int j;
+
+			for (j = 0; j < (int)ret; j++) {
+				if (cmd[j] == '\0')
+					cmd[j] = ' ';
 			}
-			for (i--; i > 0; i--) {
-				if (cmd[i] == ' ')
-					cmd[i] = '\0';
+			for (j--; j > 0; j--) {
+				if (cmd[j] == ' ')
+					cmd[j] = '\0';
 				else
 					break;
 			}
