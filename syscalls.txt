@@ -276,8 +276,8 @@ renameat			rename			as above
 renameat2			rename			as above
 request_key			key			callout info non-null case
 restart_syscall			[ ignore this ]
-riscv_flush_icache		icache
-riscv_hwprobe					TODO
+riscv_flush_icache		icache, syscall, sysinval
+riscv_hwprobe			syscall, sysinval
 rmdir				dir
 rseq				rseq
 rt_sigaction
