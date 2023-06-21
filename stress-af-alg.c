@@ -233,8 +233,12 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		if ((errno == ETIMEDOUT) && (retries-- > 0))
-			goto retry_bind;
+		if (errno == ETIMEDOUT) {
+			if (retries-- > 0)
+				goto retry_bind;
+			rc = EXIT_NO_RESOURCE;
+			goto err;
+		}
 		pr_fail("%s: %s: bind failed, errno=%d (%s)\n",
 			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
@@ -359,8 +363,12 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		if ((errno == ETIMEDOUT) && (retries-- > 0))
-			goto retry_bind;
+		if (errno == ETIMEDOUT) {
+			if (retries-- > 0)
+				goto retry_bind;
+			rc = EXIT_NO_RESOURCE;
+			goto err;
+		}
 		pr_fail("%s: %s: bind failed, errno=%d (%s)\n",
 			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
@@ -609,8 +617,12 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
-		if ((errno == ETIMEDOUT) && (retries-- > 0))
-			goto retry_bind;
+		if (errno == ETIMEDOUT) {
+			if (retries-- > 0)
+				goto retry_bind;
+			rc = EXIT_NO_RESOURCE;
+			goto err;
+		}
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
