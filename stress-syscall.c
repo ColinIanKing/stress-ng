@@ -5122,6 +5122,22 @@ static int syscall_restart_syscall(void)
 #endif
 
 #if defined(HAVE_SYSCALL) &&		\
+    defined(__NR_riscv_flush_icache)
+#define HAVE_SYSCALL_RISCV_FLUSH_ICACHE
+static int syscall_riscv_flush_icache(void)
+{
+	int ret;
+	char *start, *end;
+
+	(void)stress_text_addr(&start, &end);
+	t1 = syscall_time_now();
+        ret = (int)syscall(__NR_riscv_flush_icache, (uintptr_t)start, (uintptr_t)end, 1UL);
+	t2 = syscall_time_now();
+	return ret;
+}
+#endif
+
+#if defined(HAVE_SYSCALL) &&		\
     defined(__NR_riscv_hwprobe)
 #define HAVE_SYSCALL_RISCV_HWPROBE
 static int syscall_riscv_hwprobe(void)
@@ -7922,6 +7938,9 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_RESTART_SYSCALL)
 	SYSCALL(syscall_restart_syscall),
+#endif
+#if defined(HAVE_SYSCALL_RISCV_FLUSH_ICACHE)
+	SYSCALL(syscall_riscv_flush_icache),
 #endif
 #if defined(HAVE_SYSCALL_RISCV_HWPROBE)
 	SYSCALL(syscall_riscv_hwprobe),
