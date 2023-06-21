@@ -86,6 +86,8 @@ static int NOINLINE icache_mprotect(
  *
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
+ *	or:
+ *	sudo stress-ng --icache 0 -t 1 --perf | grep "Cache L1I Read Miss"
  */
 #define STRESS_ICACHE(func_name, size, icache_func)			\
 static int SECTION(icache_caller) ALIGNED(size) 			\
