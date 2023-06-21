@@ -138,6 +138,15 @@ void stress_klog_start(void)
 				msg = "CPU throttling";
 				goto log_info;
 			}
+			if (strstr(buf, "blocked for more than")) {
+				msg = "hung task";
+				goto log_info;
+			}
+			if (strstr(buf, "watchdog") && strstr(buf, "hard LOCKUP")) {
+				msg = "hard lockup";
+				dump_procs = true;
+				goto log_err;
+			}
 			if (strstr(buf, "soft lockup") && strstr(buf, "stuck")) {
 				msg = "soft lockup";
 				dump_procs = true;
