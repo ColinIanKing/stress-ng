@@ -569,6 +569,7 @@ static int stress_fanotify(const stress_args_t *args)
     defined(FAN_REPORT_DFID_NAME)
 		int fan_fd2;
 #endif
+		double t, duration;
 
 		fanotify_event_init_invalid();
 
@@ -621,7 +622,6 @@ static int stress_fanotify(const stress_args_t *args)
 		max_fd = fan_fd1;
 #endif
 #endif
-
 		ret = test_fanotify_mark(mnts);
 		if (ret < 0) {
 			free(buffer);
@@ -642,6 +642,7 @@ static int stress_fanotify(const stress_args_t *args)
 			goto tidy;
 		}
 
+		t = stress_time_now();
 		do {
 			fd_set rfds;
 			size_t i;
@@ -695,6 +696,8 @@ static int stress_fanotify(const stress_args_t *args)
 			}
 		} while (keep_stressing(args));
 
+		duration = stress_time_now() - t;
+
 		free(buffer);
 		fanotify_event_clear(fan_fd1);
 		(void)close(fan_fd1);
@@ -705,20 +708,14 @@ static int stress_fanotify(const stress_args_t *args)
 			(void)close(fan_fd2);
 		}
 #endif
-		pr_inf("%s: "
-			"%" PRIu64 " open, "
-			"%" PRIu64 " close write, "
-			"%" PRIu64 " close nowrite, "
-			"%" PRIu64 " access, "
-			"%" PRIu64 " modify, "
-			"%" PRIu64 " rename\n",
-			args->name,
-			account.open,
-			account.close_write,
-			account.close_nowrite,
-			account.access,
-			account.modify,
-			account.rename);
+		if (duration > 0.0) {
+			stress_metrics_set(args, 0, "opens/sec", (double)account.open / duration);
+			stress_metrics_set(args, 1, "close writes/sec", (double)account.close_write / duration);
+			stress_metrics_set(args, 2, "close no-writes/sec", (double)account.close_nowrite / duration);
+			stress_metrics_set(args, 3, "accesses/sec", (double)account.access / duration);
+			stress_metrics_set(args, 4, "modifies/sec", (double)account.modify / duration);
+			/* stress_metrics_set(args, 5, "renames/sec", (double)account.rename / duration); */
+		}
 	}
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
