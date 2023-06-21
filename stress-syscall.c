@@ -5121,6 +5121,32 @@ static int syscall_restart_syscall(void)
 }
 #endif
 
+#if defined(HAVE_SYSCALL) &&		\
+    defined(__NR_riscv_hwprobe)
+#define HAVE_SYSCALL_RISCV_HWPROBE
+static int syscall_riscv_hwprobe(void)
+{
+	/* should be from asm/hwprobe.h */
+	struct shim_riscv_hwprobe {
+		int64_t key;
+		uint64_t value;
+	};
+
+	int ret;
+	long i;
+	struct shim_riscv_hwprobe pairs[8];
+	unsigned long cpus;
+
+	for (i = 0; i < 8; i++)
+                pairs[i].key = i;
+
+	t1 = syscall_time_now();
+        ret = (int)syscall(__NR_riscv_hwprobe, pairs, 8, 1, &cpus, 0);
+	t2 = syscall_time_now();
+	return ret;
+}
+#endif
+
 #define HAVE_SYSCALL_RMDIR
 static int syscall_rmdir(void)
 {
@@ -7896,6 +7922,9 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_RESTART_SYSCALL)
 	SYSCALL(syscall_restart_syscall),
+#endif
+#if defined(HAVE_SYSCALL_RISCV_HWPROBE)
+	SYSCALL(syscall_riscv_hwprobe),
 #endif
 #if defined(HAVE_SYSCALL_RMDIR)
 	SYSCALL(syscall_rmdir),
