@@ -1084,7 +1084,7 @@ void stress_vmstat_start(void)
 
 			pr_lock();
 			if (vmstat_count == 0)
-				pr_inf("vmstat: %2s %2s %9s %9s %9s %9s "
+				pr_inf("vmstat: %3s %3s %9s %9s %9s %9s "
 					"%4s %4s %6s %6s %4s %4s %2s %2s "
 					"%2s %2s %2s\n",
 					"r", "b", "swpd", "free", "buff",
@@ -1092,7 +1092,7 @@ void stress_vmstat_start(void)
 					"in", "cs", "us", "sy", "id",
 					"wa", "st");
 
-			pr_inf("vmstat: %2" PRIu64 " %2" PRIu64 /* procs */
+			pr_inf("vmstat: %3" PRIu64 " %3" PRIu64 /* procs */
 			       " %9" PRIu64 " %9" PRIu64	/* vm used */
 			       " %9" PRIu64 " %9" PRIu64	/* memory_buff */
 			       " %4" PRIu64 " %4" PRIu64	/* si, so*/
