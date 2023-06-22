@@ -1796,7 +1796,7 @@ again:
 		ret = stress_zlib_deflate(args, fds[1], &shared_checksums->deflate);
 		(void)close(fds[1]);
 		(void)shim_kill(pid, SIGALRM);
-		(void)waitpid(pid, &retval, 0);
+		(void)shim_waitpid(pid, &retval, 0);
 	}
 
 	pipe_broken |= shared_checksums->deflate.pipe_broken;
