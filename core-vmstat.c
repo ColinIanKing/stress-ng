@@ -160,11 +160,13 @@ static int stress_set_generic_stat(
 	const char *name,
 	int32_t *delay)
 {
-	*delay = stress_get_int32(opt);
-        if ((*delay < 1) || (*delay > 3600)) {
-                (void)fprintf(stderr, "%s must in the range 1 to 3600.\n", name);
+	const uint64_t delay64 = stress_get_uint64_time(opt);
+
+        if ((delay64 < 1) || (delay64 > 3600)) {
+                (void)fprintf(stderr, "%s must in the range 1 to 3600 seconds.\n", name);
                 _exit(EXIT_FAILURE);
         }
+	*delay = (int32_t)(delay64 & 0x7fffffff);
 	return 0;
 }
 
