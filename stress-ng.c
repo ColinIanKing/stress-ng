@@ -283,6 +283,7 @@ static const struct option long_options[] = {
 	{ "bad-ioctl-ops",	1,	0,	OPT_bad_ioctl_ops },
 	{ "backoff",		1,	0,	OPT_backoff },
 	{ "bigheap",		1,	0,	OPT_bigheap },
+	{ "bigheap-bytes",	1,	0,	OPT_bigheap_bytes },
 	{ "bigheap-growth",	1,	0,	OPT_bigheap_growth },
 	{ "bigheap-ops",	1,	0,	OPT_bigheap_ops },
 	{ "bind-mount",		1,	0,	OPT_bind_mount },

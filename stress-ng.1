@@ -719,6 +719,11 @@ candidate processes to kill.
 .B \-\-bigheap\-ops N
 stop the big heap workers after N bogo allocation operations are completed.
 .TP
+.B \-\-bigheap\-bytes N
+maximum heap growth as N bytes per bigheap worker. One can specify the size
+as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
+.TP
 .B \-\-bigheap\-growth N
 specify amount of memory to grow heap by per iteration. Size can be from 4K to
 64MB. Default is 64K.

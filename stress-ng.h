@@ -1092,6 +1092,7 @@ typedef enum {
 
 	OPT_bigheap_ops,
 	OPT_bigheap_growth,
+	OPT_bigheap_bytes,
 
 	OPT_bind_mount,
 	OPT_bind_mount_ops,

@@ -24,6 +24,10 @@
 #include <malloc.h>
 #endif
 
+#define MIN_BIGHEAP_BYTES	(64 * KB)
+#define MAX_BIGHEAP_BYTES	(MAX_MEM_LIMIT)
+#define DEFAULT_BIGHEAP_BYTES	(MAX_MEM_LIMIT)
+
 #define MIN_BIGHEAP_GROWTH	(4 * KB)
 #define MAX_BIGHEAP_GROWTH	(64 * MB)
 #define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
@@ -42,6 +46,7 @@
 
 static const stress_help_t help[] = {
 	{ "B N","bigheap N",		"start N workers that grow the heap using realloc()" },
+	{ NULL,	"bigheap-bytes N",	"grow heap up to N bytes in total" },
 	{ NULL,	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ NULL,	"bigheap-ops N",	"stop after N bogo bigheap operations" },
 	{ NULL,	NULL,			NULL }
@@ -76,6 +81,20 @@ static const char *stress_bigheap_phase(void)
 	if ((phase < 0) || (phase >= (int)SIZEOF_ARRAY(phases)))
 		return "unknown";
 	return phases[phase];
+}
+
+/*
+ *  stress_set_bigheap_bytes()
+ *  	Set maximum allocation amount in bytes
+ */
+static int stress_set_bigheap_bytes(const char *opt)
+{
+	size_t bigheap_bytes;
+
+	bigheap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
+	stress_check_range_bytes("bigheap-bytes", (uint64_t)bigheap_bytes,
+		MIN_BIGHEAP_BYTES, MAX_BIGHEAP_BYTES);
+	return stress_set_setting("bigheap-bytes", TYPE_ID_SIZE_T, &bigheap_bytes);
 }
 
 /*
@@ -123,6 +142,7 @@ static void NORETURN MLOCKED_TEXT stress_bigheap_segvhandler(int signum)
 static int stress_bigheap_child(const stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
+	size_t bigheap_bytes = DEFAULT_BIGHEAP_BYTES;
 	NOCLOBBER void *ptr = NULL, *last_ptr = NULL;
 	NOCLOBBER uint8_t *last_ptr_end = NULL;
 	NOCLOBBER size_t size = 0;
@@ -143,6 +163,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
+	(void)stress_get_setting("bigheap-bytes", &bigheap_bytes);
 	if (!stress_get_setting("bigheap-growth", &bigheap_growth)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bigheap_growth = MAX_BIGHEAP_GROWTH;
@@ -202,7 +223,8 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 		phase = STRESS_BIGHEAP_LOWMEM_CHECK;
 		/* Low memory avoidance, re-start */
-		if (oom_avoid && stress_low_memory((size_t)bigheap_growth)) {
+		if ((size > bigheap_bytes) ||
+		    (oom_avoid && stress_low_memory((size_t)bigheap_growth))) {
 			free(old_ptr);
 #if defined(HAVE_MALLOC_TRIM)
 			phase = STRESS_BIGHEAP_MALLOC_TRIM;
@@ -299,6 +321,7 @@ static int stress_bigheap(const stress_args_t *args)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_bigheap_bytes,	stress_set_bigheap_bytes },
 	{ OPT_bigheap_growth,	stress_set_bigheap_growth },
 	{ 0,			NULL },
 };
