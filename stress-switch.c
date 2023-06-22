@@ -270,7 +270,7 @@ again:
 
 		(void)close(pipefds[1]);
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
@@ -378,7 +378,7 @@ again:
 
 		stress_switch_rate(args, "sem-sysv", t_start, stress_time_now(), 2 * get_counter(args));
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
@@ -471,7 +471,7 @@ again:
 
 		stress_switch_rate(args, "mq", t_start, stress_time_now(), get_counter(args));
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

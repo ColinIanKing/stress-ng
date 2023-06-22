@@ -73,7 +73,7 @@ static void notrunc_strlcat(char *dst, char *src, size_t *n)
  */
 static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
 {
-	if ((kill(ppid, 0) < 0) && (errno == ESRCH))
+	if ((shim_kill(ppid, 0) < 0) && (errno == ESRCH))
 		return true;
 	return !keep_stressing(args);
 }

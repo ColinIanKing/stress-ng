@@ -424,11 +424,11 @@ void stress_thrash_stop(void)
 	if (!thrash_pid)
 		return;
 
-	(void)kill(thrash_pid, SIGALRM);
+	(void)shim_kill(thrash_pid, SIGALRM);
 	(void)shim_waitpid(thrash_pid, &status, 0);
-	if (kill(thrash_pid, 0) == 0) {
+	if (shim_kill(thrash_pid, 0) == 0) {
 		(void)shim_usleep(250000);
-		(void)kill(thrash_pid, SIGKILL);
+		(void)shim_kill(thrash_pid, SIGKILL);
 		(void)shim_waitpid(thrash_pid, &status, 0);
 	}
 

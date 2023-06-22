@@ -1145,7 +1145,7 @@ die:
 	}
 #endif
 	if (pid) {
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	return rc;
@@ -1269,7 +1269,7 @@ again:
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
 		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
 		rc = stress_sock_server(args, mmap_buffer, pid, mypid, sock_opts,

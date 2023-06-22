@@ -1787,7 +1787,7 @@ again:
 		(void)close(fds[1]);
 		ret = stress_zlib_inflate(args, fds[0], &shared_checksums->inflate);
 		(void)close(fds[0]);
-		(void)kill(parent_pid, SIGALRM);
+		(void)shim_kill(parent_pid, SIGALRM);
 		_exit(ret);
 	} else {
 		int retval;
@@ -1795,7 +1795,7 @@ again:
 		(void)close(fds[0]);
 		ret = stress_zlib_deflate(args, fds[1], &shared_checksums->deflate);
 		(void)close(fds[1]);
-		(void)kill(pid, SIGALRM);
+		(void)shim_kill(pid, SIGALRM);
 		(void)waitpid(pid, &retval, 0);
 	}
 

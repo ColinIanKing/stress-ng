@@ -517,13 +517,13 @@ again:
 		rc = stress_udp_client(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 
 		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
 		int status;
 
 		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)

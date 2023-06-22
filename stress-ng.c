@@ -1813,7 +1813,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 			const pid_t pid = stats->pid;
 
 			if (pid && !stats->signalled) {
-				(void)kill(pid, signum);
+				(void)shim_kill(pid, signum);
 				stats->signalled = true;
 			}
 		}
@@ -2645,7 +2645,7 @@ child_exit:
 				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 					keep_stressing_set_flag(false);
 					wait_flag = false;
-					(void)kill(getppid(), SIGALRM);
+					(void)shim_kill(getppid(), SIGALRM);
 				}
 				stress_set_proc_state(name, STRESS_STATE_EXIT);
 				if (terminate_signum)

@@ -367,14 +367,14 @@ again:
 		rc = stress_sockmany_client(args, sockmany_port, ppid, sock_fds, sockmany_if);
 
 		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 
 		_exit(rc);
 	} else {
 		int status;
 
 		rc = stress_sockmany_server(args, sockmany_port, ppid, sockmany_if);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);

@@ -654,7 +654,7 @@ static int stress_cacheline_child(
 
 	/* Child tell parent it has finished */
 	if (!parent)
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 
 	return rc;
 }

@@ -1220,7 +1220,7 @@ void stress_vmstat_stop(void)
 	if (vmstat_pid > 0) {
 		int status;
 
-		(void)kill(vmstat_pid, SIGKILL);
+		(void)shim_kill(vmstat_pid, SIGKILL);
 		(void)waitpid(vmstat_pid, &status, 0);
 	}
 }

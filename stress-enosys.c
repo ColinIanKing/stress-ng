@@ -3583,8 +3583,8 @@ static inline int stress_do_syscall(
 		 */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
-			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_kill(pid, SIGKILL);
+			(void)shim_waitpid(pid, &status, 0);
 		}
 		rc = WEXITSTATUS(status);
 
@@ -3630,12 +3630,12 @@ again:
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGALRM);
+			(void)shim_kill(pid, SIGALRM);
 
 			/* Still alive, kill it */
-			if (kill(pid, 0) == 0) {
+			if (shim_kill(pid, 0) == 0) {
 				force_killed_counter(args);
-				(void)kill(pid, SIGKILL);
+				(void)shim_kill(pid, SIGKILL);
 			}
 			(void)shim_waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {

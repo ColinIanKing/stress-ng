@@ -3063,6 +3063,7 @@ extern int shim_ioprio_set(int which, int who, int ioprio);
 extern int shim_ioprio_get(int which, int who);
 extern long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1,
 	unsigned long idx2);
+extern int shim_kill(pid_t pid, int sig);
 extern int shim_klogctl(int type, char *bufp, int len);
 extern ssize_t shim_lgetxattr(const char *path, const char *name, void *value,
 	size_t size);

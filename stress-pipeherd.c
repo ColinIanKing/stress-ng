@@ -175,7 +175,7 @@ static int stress_pipeherd(const stress_args_t *args)
 		if (pids[i] >= 0) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
+			(void)shim_kill(pids[i], SIGKILL);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}

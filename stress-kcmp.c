@@ -327,7 +327,7 @@ again:
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);
-		(void)kill(pid1, SIGKILL);
+		(void)shim_kill(pid1, SIGKILL);
 		(void)shim_waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}

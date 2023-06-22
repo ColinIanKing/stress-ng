@@ -3227,7 +3227,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 
 			ret = waitpid(pid, &status, 0);
 			if ((ret == pid) &&
-			    ((kill(pid, 0) < 0) && (errno == ESRCH))) {
+			    ((shim_kill(pid, 0) < 0) && (errno == ESRCH))) {
 				return pid;
 			}
 		}
@@ -3240,7 +3240,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	for (i = 0; i < 20; i++) {
 		pid = (pid_t)stress_mwc32modn(n) + 1023;
 
-		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			return pid;
 	}
 

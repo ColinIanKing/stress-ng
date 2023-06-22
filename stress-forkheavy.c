@@ -125,8 +125,8 @@ static void stress_forkheavy_head_remove(const bool send_alarm)
 		int status;
 		stress_forkheavy_t *head = forkheavy_list.head;
 
-		if (send_alarm)
-			(void)kill(forkheavy_list.head->pid, SIGALRM);
+		if ((send_alarm) && (forkheavy_list.head->pid > 1))
+			(void)shim_kill(forkheavy_list.head->pid, SIGALRM);
 		if (forkheavy_list.head->pid > 1)
 			(void)waitpid(forkheavy_list.head->pid, &status, 0);
 		if (forkheavy_list.tail == forkheavy_list.head) {

@@ -171,7 +171,7 @@ reap:
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {
 			/* And ensure child is really dead */
-			(void)kill(pids[i], SIGALRM);
+			(void)shim_kill(pids[i], SIGALRM);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}

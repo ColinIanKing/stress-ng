@@ -1032,7 +1032,7 @@ static int stress_iomix(const stress_args_t *args)
 			/* Child */
 			(void)sched_settings_apply(true);
 			iomix_funcs[i](args, fd, fs_type, iomix_bytes);
-			(void)kill(parent, SIGALRM);
+			(void)shim_kill(parent, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}

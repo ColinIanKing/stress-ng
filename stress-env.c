@@ -108,7 +108,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 
 		/* Low memory avoidance, re-start */
 		if (stress_low_memory(arg_max * 2)) {
-			(void)kill(getpid(), SIGKILL);
+			(void)shim_kill(getpid(), SIGKILL);
 			_exit(EXIT_SUCCESS);
 		}
 

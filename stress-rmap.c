@@ -50,7 +50,7 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 {
 	(void)signum;
 
-	(void)kill(getppid(), SIGALRM);
+	(void)shim_kill(getppid(), SIGALRM);
 	_exit(0);
 }
 
@@ -161,7 +161,7 @@ static void NORETURN stress_rmap_child(
 	} while (inc_counter_lock(args, counter_lock, true));
 
 fail:
-	(void)kill(getppid(), SIGALRM);
+	(void)shim_kill(getppid(), SIGALRM);
 
 	stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 	_exit(rc);

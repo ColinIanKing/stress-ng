@@ -2626,7 +2626,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			 *  kill and reap of child to make sure
 			 *  it is really dead and buried
 			 */
-			(void)kill(pid, SIGKILL);
+			(void)shim_kill(pid, SIGKILL);
 			VOID_RET(int, waitpid(pid, &status, 0));
 		}
 		if (current_context->type == SYSCALL_CRASH) {

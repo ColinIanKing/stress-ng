@@ -1465,9 +1465,9 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		 *  consecutive EINTRs then give up.
 		 */
 		if (!keep_stressing_flag()) {
-			(void)kill(pid, SIGALRM);
+			(void)shim_kill(pid, SIGALRM);
 			if (count > 120)
-				(void)kill(pid, SIGKILL);
+				(void)shim_kill(pid, SIGKILL);
 		}
 		if (count > 10)
 			(void)sleep(1);
@@ -2526,8 +2526,30 @@ int shim_delete_module(const char *name, unsigned int flags)
 int shim_raise(int sig)
 {
 #if defined(STRESS_ARCH_SH4)
-	return kill(getpid(), sig);
+	return shim_kill(getpid(), sig);
 #else
 	return raise(sig);
 #endif
+}
+
+/*
+ *  shim_kill
+ *	shim for kill() and ignore kill on pid 0, 1
+ *	with glibc 2.34-7
+ */
+int shim_kill(pid_t pid, int sig)
+{
+	if (sig == 0)
+		return kill(pid, sig);
+	if (pid == 1) {
+		errno = EPERM;
+		return -1;
+	}
+	if (geteuid() != 0)
+		return kill(pid, sig);
+	if (pid <= 0) {
+		errno = EPERM;
+		return -1;
+	}
+	return kill(pid, sig);
 }

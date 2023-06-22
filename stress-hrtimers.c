@@ -116,7 +116,7 @@ cancel:
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
-	(void)kill(getpid(), SIGALRM);
+	(void)shim_kill(getpid(), SIGALRM);
 }
 
 
@@ -216,7 +216,7 @@ static int stress_hrtimers(const stress_args_t *args)
 			stress_set_oom_adjustment(args->name, true);
 			(void)sched_settings_apply(true);
 			stress_hrtimer_process(args);
-			(void)kill(parent, SIGALRM);
+			(void)shim_kill(parent, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}

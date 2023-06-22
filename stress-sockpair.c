@@ -316,7 +316,7 @@ tidy:
 						args->name, errno, strerror(errno));
 				}
 		}
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 	}

@@ -437,7 +437,7 @@ again:
 		int status;
 
 		stress_msg_sender(args, msgq_id, msg_types, msg_bytes);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)

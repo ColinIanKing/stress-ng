@@ -517,7 +517,7 @@ timed_out:
 	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
 	if (rc == EXIT_FAILURE)
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 
 	return rc;
 }

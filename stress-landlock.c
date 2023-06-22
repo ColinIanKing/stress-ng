@@ -267,7 +267,7 @@ again:
 					args->name, errno, strerror(errno));
 			} else {
 				/* Probably an SIGARLM, force reap */
-				(void)kill(pid, SIGKILL);
+				(void)shim_kill(pid, SIGKILL);
 				(void)shim_waitpid(pid, &status, 0);
 				return;
 			}

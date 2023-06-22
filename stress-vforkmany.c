@@ -59,7 +59,7 @@ static void vforkmany_wait(vforkmany_shared_t *vforkmany_shared, const pid_t pid
 			break;
 		}
 
-		(void)kill(pid, SIGALRM);
+		(void)shim_kill(pid, SIGALRM);
 	}
 }
 

@@ -1089,7 +1089,7 @@ static inline int stress_do_syscall(
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGKILL);
+			(void)shim_kill(pid, SIGKILL);
 			(void)shim_waitpid(pid, &status, 0);
 
 		}

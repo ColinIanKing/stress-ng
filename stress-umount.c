@@ -125,7 +125,7 @@ static void stress_umount_read_proc_mounts(const stress_args_t *args, const pid_
 		shim_nanosleep_uint64(stress_mwc64modn(1000000));
 	} while (keep_stressing(args));
 
-	(void)kill(parent, SIGALRM);
+	(void)shim_kill(parent, SIGALRM);
 	_exit(0);
 }
 
@@ -143,7 +143,7 @@ static void stress_umount_umounter(const stress_args_t *args, const pid_t parent
 		shim_nanosleep_uint64(stress_mwc64modn(10000));
 	} while (keep_stressing(args));
 
-	(void)kill(parent, SIGALRM);
+	(void)shim_kill(parent, SIGALRM);
 	_exit(0);
 }
 
@@ -182,7 +182,7 @@ static void stress_umount_mounter(const stress_args_t *args, const pid_t parent,
 		stress_umount_umount(args, path, 1000000);
 	} while (keep_stressing(args));
 
-	(void)kill(parent, SIGALRM);
+	(void)shim_kill(parent, SIGALRM);
 cleanup:
 	stress_umount_umount(args, path, 100000000);
 	_exit(0);

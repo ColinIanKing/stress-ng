@@ -80,7 +80,7 @@ static void NORETURN runner(
 		(void)pause();
 	} while (keep_stressing(args));
 
-	(void)kill(getppid(), SIGALRM);
+	(void)shim_kill(getppid(), SIGALRM);
 	_exit(EXIT_SUCCESS);
 }
 
@@ -99,9 +99,9 @@ static void NORETURN killer(
 	pr_dbg("%s: killer started [%d]\n", args->name, (int)getpid());
 
 	do {
-		(void)kill(pid, SIGSTOP);
+		(void)shim_kill(pid, SIGSTOP);
 		(void)shim_sched_yield();
-		(void)kill(pid, SIGCONT);
+		(void)shim_kill(pid, SIGCONT);
 
 		/*
 		 *  The waits may be blocked and
@@ -115,7 +115,7 @@ static void NORETURN killer(
 
 			if (now - start > ABORT_TIMEOUT) {
 				/* unblock waiting parent */
-				(void)kill(ppid, SIGUSR1);
+				(void)shim_kill(ppid, SIGUSR1);
 				start = now;
 			}
 		} else {
@@ -125,10 +125,10 @@ static void NORETURN killer(
 	} while (keep_stressing(args));
 
 	/* forcefully kill runner, wait is in parent */
-	(void)kill(pid, SIGKILL);
+	(void)shim_kill(pid, SIGKILL);
 
 	/* tell parent to wake up! */
-	(void)kill(getppid(), SIGALRM);
+	(void)shim_kill(getppid(), SIGALRM);
 	_exit(EXIT_SUCCESS);
 }
 
@@ -368,11 +368,11 @@ static int stress_wait(const stress_args_t *args)
 	} while (keep_stressing_flag() && (!args->max_ops || (get_counter(args) < args->max_ops)));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)kill(pid_k, SIGKILL);
+	(void)shim_kill(pid_k, SIGKILL);
 	(void)shim_waitpid(pid_k, &status, 0);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)kill(pid_r, SIGKILL);
+	(void)shim_kill(pid_r, SIGKILL);
 	(void)shim_waitpid(pid_r, &status, 0);
 
 	return ret;

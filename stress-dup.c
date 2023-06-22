@@ -153,7 +153,7 @@ static int static_dup2_child(info_t *info)
 	if (LIKELY(info->pid_clone >= 0)) {
 		int status;
 
-		(void)kill(info->pid_clone, SIGKILL);
+		(void)shim_kill(info->pid_clone, SIGKILL);
 		VOID_RET(int, waitpid(info->pid_clone, &status, (int)__WCLONE));
 	}
 

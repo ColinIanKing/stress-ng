@@ -225,7 +225,7 @@ void stress_klog_stop(bool *success)
 		if (klog_pid > 1) {
 			int status;
 
-			(void)kill(klog_pid, SIGKILL);
+			(void)shim_kill(klog_pid, SIGKILL);
 			(void)waitpid(klog_pid, &status, 0);
 		}
 		klog_pid = -1;

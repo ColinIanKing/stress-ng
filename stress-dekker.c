@@ -159,8 +159,8 @@ static int stress_dekker(const stress_args_t *args)
 		/* Parent */
 		while (keep_stressing(args))
 			stress_dekker_p1(args);
-		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 	duration = dekker->p0.duration + dekker->p1.duration;

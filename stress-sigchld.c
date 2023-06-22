@@ -109,11 +109,11 @@ again:
 			/* Parent wait and reap for child */
 			int wstatus, ret;
 
-			ret = kill(pid, SIGSTOP);
+			ret = shim_kill(pid, SIGSTOP);
 			if (ret == 0) {
-				VOID_RET(int, kill(pid, SIGCONT));
+				VOID_RET(int, shim_kill(pid, SIGCONT));
 			}
-			VOID_RET(int, kill(pid, SIGKILL));
+			VOID_RET(int, shim_kill(pid, SIGKILL));
 			VOID_RET(int, waitpid(pid, &wstatus, 0));
 		}
 		set_counter(args, counter);

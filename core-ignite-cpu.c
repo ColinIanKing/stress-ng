@@ -346,8 +346,8 @@ void stress_ignite_cpu_stop(void)
 		latency_fd = -1;
 	}
 	if (pid > -1) {
-		(void)kill(pid, SIGTERM);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGTERM);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

@@ -31,7 +31,7 @@ int stress_killpid(const pid_t pid)
 	int pidfd, ret;
 
 	pidfd = shim_pidfd_open(pid, 0);
-	ret = kill(pid, SIGKILL);
+	ret = shim_kill(pid, SIGKILL);
 
 	if (pidfd >= 0) {
 		int saved_errno = errno;
@@ -44,7 +44,7 @@ int stress_killpid(const pid_t pid)
 	}
 	return ret;
 #else
-	return kill(pid, SIGKILL);
+	return shim_kill(pid, SIGKILL);
 #endif
 }
 
@@ -71,7 +71,7 @@ static int stress_wait_until_reaped(
 				return WEXITSTATUS(wstatus);
 		}
 
-		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			return EXIT_SUCCESS;
 
 		count++;
@@ -80,7 +80,7 @@ static int stress_wait_until_reaped(
 		 *  consecutive EINTRs then give up.
 		 */
 		if (!keep_stressing_flag()) {
-			(void)kill(pid, signum);
+			(void)shim_kill(pid, signum);
 			if (count > 120) {
 				if (set_force_killed_counter)
 					force_killed_counter(args);
@@ -117,7 +117,7 @@ int stress_kill_and_wait(
 	if ((pid <= 1) || (pid == mypid))
 		return EXIT_SUCCESS;
 
-	(void)kill(pid, signum);
+	(void)shim_kill(pid, signum);
 	return stress_wait_until_reaped(args, pid, signum, set_force_killed_counter);
 }
 
@@ -144,7 +144,7 @@ int stress_kill_and_wait_many(
 	/* Kill first */
 	for (i = 0; i < n_pids; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid))
-			(void)kill(pids[i], signum);
+			(void)shim_kill(pids[i], signum);
 	}
 	/* Then reap */
 	for (i = 0; i < n_pids; i++) {

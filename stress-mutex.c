@@ -177,7 +177,7 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 		}
 	} while (keep_stressing(args));
 
-	(void)kill(args->pid, SIGALRM);
+	(void)shim_kill(args->pid, SIGALRM);
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	if (mutexattr_ret == 0) {
 		(void)pthread_mutexattr_destroy(&mutexattr);

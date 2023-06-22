@@ -4463,7 +4463,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				/* Ring ring, time to die */
-				(void)kill(pid, SIGALRM);
+				(void)shim_kill(pid, SIGALRM);
 				VOID_RET(int, shim_waitpid(pid, &status, 0));
 			} else {
 				if (WIFEXITED(status) &&

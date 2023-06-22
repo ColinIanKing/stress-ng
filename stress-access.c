@@ -217,8 +217,8 @@ static void stress_access_reap(pid_t *pid)
 
 	if (*pid == -1)
 		return;
-	(void)kill(*pid, SIGKILL);
-	(void)waitpid(*pid, &status, 0);
+	(void)shim_kill(*pid, SIGKILL);
+	(void)shim_waitpid(*pid, &status, 0);
 	*pid = -1;
 }
 

@@ -235,7 +235,7 @@ rewait:
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
-			(void)kill(pid, signals[signal_idx]);
+			(void)shim_kill(pid, signals[signal_idx]);
 			if (++signal_idx >= SIZEOF_ARRAY(signals))
 				goto report;
 

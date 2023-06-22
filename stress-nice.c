@@ -175,8 +175,8 @@ static int stress_nice(const stress_args_t *args)
 			/* Parent, wait for child */
 			if (shim_waitpid(pid, &status, 0) < 0) {
 				force_killed_counter(args);
-				(void)kill(pid, SIGTERM);
-				(void)kill(pid, SIGKILL);
+				(void)shim_kill(pid, SIGTERM);
+				(void)shim_kill(pid, SIGKILL);
 			} else {
 				if (WIFEXITED(status)) {
 					if (WEXITSTATUS(status) != EXIT_SUCCESS) {

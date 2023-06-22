@@ -154,7 +154,7 @@ static int stress_yield(const stress_args_t *args)
 		if (pids[i] > 0) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
+			(void)shim_kill(pids[i], SIGKILL);
 			(void)shim_waitpid(pids[i], &status, 0);
 			duration += metrics[i].duration;
 			count += metrics[i].count;

@@ -166,7 +166,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 
 err:
 	/* Inform parent we're all done */
-	(void)kill(args->pid, SIGALRM);
+	(void)shim_kill(args->pid, SIGALRM);
 	_exit(rc);
 }
 
@@ -322,7 +322,7 @@ again:
 		int status;
 
 		rc = stress_rawudp_server(args, addr, rawudp_port);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

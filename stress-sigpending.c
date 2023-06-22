@@ -47,7 +47,7 @@ static int stress_sigpending(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
-		(void)kill(args->pid, SIGUSR1);
+		(void)shim_kill(args->pid, SIGUSR1);
 		if (UNLIKELY(sigpending(&new_sigset) < 0)) {
 			pr_fail("%s: sigpending failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

@@ -326,13 +326,13 @@ do_splice:
 tidy_child2:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_out[1]);
-	(void)kill(pids[1], SIGKILL);
+	(void)shim_kill(pids[1], SIGKILL);
 	(void)shim_waitpid(pids[1], &status, 0);
 
 tidy_child1:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_in[0]);
-	(void)kill(pids[0], SIGKILL);
+	(void)shim_kill(pids[0], SIGKILL);
 	(void)shim_waitpid(pids[0], &status, 0);
 
 	(void)close(fd);

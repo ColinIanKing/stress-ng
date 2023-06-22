@@ -265,7 +265,7 @@ again:
 		ret = func(args);
 abort:
 		free(apparmor_path);
-		(void)kill(args->pid, SIGUSR1);
+		(void)shim_kill(args->pid, SIGUSR1);
 		_exit(ret);
 	}
 	return pid;

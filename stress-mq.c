@@ -491,7 +491,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing(args));
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)

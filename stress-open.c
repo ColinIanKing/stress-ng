@@ -1052,7 +1052,7 @@ static int stress_open(const stress_args_t *args)
 
 				if (!keep_stressing(args)) {
 					if (pid > 1)
-						(void)kill(pid, SIGKILL);
+						(void)shim_kill(pid, SIGKILL);
 					goto close_all;
 				}
 
@@ -1065,7 +1065,7 @@ static int stress_open(const stress_args_t *args)
 				/* Check if we hit the open file limit */
 				if ((errno == EMFILE) || (errno == ENFILE)) {
 					if (pid > 1)
-						(void)kill(pid, SIGKILL);
+						(void)shim_kill(pid, SIGKILL);
 					goto close_all;
 				}
 
@@ -1109,7 +1109,7 @@ close_all:
 	if (pid > 1) {
 		int status;
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}
 

@@ -97,7 +97,7 @@ static void NORETURN stress_resched_child(
 						pr_fail("%s: current scheduler %d different from the set scheduler %d\n",
 							args->name, ret, normal_policies[j]);
 						/* tell parent it's time to stop */
-						(void)kill(args->pid, SIGUSR1);
+						(void)shim_kill(args->pid, SIGUSR1);
 						_exit(EXIT_FAILURE);
 					}
 				}

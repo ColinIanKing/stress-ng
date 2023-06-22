@@ -199,7 +199,7 @@ again:
 			(void)shim_usleep(250);
 			/* And ensure child is really dead */
 		}
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) == EXIT_FAILURE)

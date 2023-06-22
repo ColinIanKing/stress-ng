@@ -126,14 +126,14 @@ again:
 		       (stress_time_now() < t_end)) {
 			const uint64_t delay_ns = 1000 + stress_mwc32modn(10000);
 
-			(void)kill(pid, SIGALRM);
+			(void)shim_kill(pid, SIGALRM);
 			shim_nanosleep_uint64(delay_ns);
 			shim_sched_yield();
-			(void)kill(pid, SIGALRM);
+			(void)shim_kill(pid, SIGALRM);
 			shim_sched_yield();
 		}
 
-		(void)kill(pid, SIGUSR1);
+		(void)shim_kill(pid, SIGUSR1);
 		(void)waitpid(pid, &status, 0);
 
 		if (verify && WIFEXITED(status)) {

@@ -770,7 +770,7 @@ static void *stress_memthrash_func(void *ctxt)
 	}
 
 	/* Wake parent up, all done! */
-	(void)kill(args->pid, SIGALRM);
+	(void)shim_kill(args->pid, SIGALRM);
 	return &nowt;
 }
 

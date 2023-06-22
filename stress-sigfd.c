@@ -179,7 +179,7 @@ again:
 		} while (keep_stressing(args));
 
 		/* terminal child */
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

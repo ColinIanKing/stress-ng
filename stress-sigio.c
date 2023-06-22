@@ -215,7 +215,7 @@ finish:
 
 reap:
 	if (pid > 0) {
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

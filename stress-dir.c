@@ -378,8 +378,8 @@ static int stress_dir(const stress_args_t *args)
 	if (pid >= 0) {
 		int status;
 
-		VOID_RET(int, kill(pid, SIGKILL));
-		VOID_RET(int, waitpid(pid, &status, 0));
+		VOID_RET(int, shim_kill(pid, SIGKILL));
+		VOID_RET(int, shim_waitpid(pid, &status, 0));
 	}
 
 	(void)stress_temp_dir_rm_args(args);

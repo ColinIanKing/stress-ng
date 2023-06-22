@@ -107,7 +107,7 @@ again:
 			_exit(EXIT_SUCCESS);
 		}
 		/* Wait for parent to start tracing me */
-		(void)kill(getpid(), SIGSTOP);
+		(void)shim_kill(getpid(), SIGSTOP);
 
 		/*
 		 *  A simple mix of system calls
@@ -144,7 +144,7 @@ again:
 				args->name, errno, strerror(errno));
 			if ((errno == ESRCH) || (errno == EPERM) || (errno == EACCES)) {
 				/* Ensure child is really dead and reap */
-				(void)kill(pid, SIGKILL);
+				(void)shim_kill(pid, SIGKILL);
 				if (shim_waitpid(pid, &status, 0) < 0) {
 					if ((errno != EINTR) && (errno != ECHILD)) {
 						pr_fail("%s: waitpid failed, errno=%d (%s)\n",
@@ -187,7 +187,7 @@ again:
 		} while (keep_stressing(args));
 
 		/* Terminate child */
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		if (shim_waitpid(pid, &status, 0) < 0)
 			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

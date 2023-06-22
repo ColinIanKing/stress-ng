@@ -413,14 +413,14 @@ again:
 		rc = stress_sockabuse_client(args, mypid, sockabuse_port);
 
 		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 
 		_exit(rc);
 	} else {
 		int status;
 
 		rc = stress_sockabuse_server(args, mypid, sockabuse_port);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

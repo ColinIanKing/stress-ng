@@ -241,7 +241,7 @@ exit_child:
 exit_parent:
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		(void)close(fd1);
 		(void)close(fd2);

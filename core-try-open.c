@@ -34,9 +34,9 @@ static void stress_try_kill(
 	for (i = 0; i < 10; i++) {
 		int status;
 
-		VOID_RET(int, kill(pid, SIGKILL));
+		VOID_RET(int, shim_kill(pid, SIGKILL));
 		VOID_RET(int, waitpid(pid, &status, WNOHANG));
-		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			return;
 		(void)shim_usleep(100000);
 	}
@@ -103,7 +103,7 @@ int stress_try_open(
 			return STRESS_TRY_OPEN_WAIT_FAIL;
 		}
 		/* Has pid gone? */
-		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			goto done;
 
 		/* Sleep and retry */

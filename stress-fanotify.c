@@ -524,7 +524,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fd < 0) {
 				pr_fail("%s: creat %s failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
-				(void)kill(ppid, SIGALRM);
+				(void)shim_kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			(void)close(fd);
@@ -534,7 +534,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fd < 0) {
 				pr_fail("%s: open %s O_WRONLY failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
-				(void)kill(ppid, SIGALRM);
+				(void)shim_kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			VOID_RET(ssize_t, write(fd, "test", 4));
@@ -545,7 +545,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fd < 0) {
 				pr_fail("%s: open %s O_RDONLY failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
-				(void)kill(ppid, SIGALRM);
+				(void)shim_kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
@@ -723,7 +723,7 @@ tidy:
 	if (pid > 0) {
 		int status;
 
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	(void)shim_unlink(filename);

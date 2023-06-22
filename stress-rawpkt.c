@@ -348,7 +348,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 
 err:
 	/* Inform parent we're all done */
-	(void)kill(ppid, SIGALRM);
+	(void)shim_kill(ppid, SIGALRM);
 	_exit(rc);
 }
 
@@ -540,7 +540,7 @@ again:
 		int status;
 
 		rc = stress_rawpkt_server(args, &ifaddr, rawpkt_port, rawpkt_rxring);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

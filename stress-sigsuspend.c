@@ -94,7 +94,7 @@ again:
 	/* Parent */
 	do {
 		for (i = 0; (i < n) && inc_counter_lock(args, counter_lock, false); i++) {
-			(void)kill(pid[i], SIGUSR1);
+			(void)shim_kill(pid[i], SIGUSR1);
 		}
 	} while (keep_stressing(args));
 
@@ -114,10 +114,10 @@ reap:
 			}
 		}
 
-		if (kill(pid[i], 0) == 0) {
+		if (shim_kill(pid[i], 0) == 0) {
 			/* terminate child */
 			force_killed_counter(args);
-			(void)kill(pid[i], SIGKILL);
+			(void)shim_kill(pid[i], SIGKILL);
 			(void)shim_waitpid(pid[i], &status, 0);
 		} else {
 			if (shim_waitpid(pid[i], &status, 0) == 0) {

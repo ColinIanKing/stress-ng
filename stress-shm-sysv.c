@@ -1043,7 +1043,7 @@ fork_again:
 					stress_shm_get_procinfo(&get_procinfo);
 #endif
 			}
-			(void)kill(pid, SIGALRM);
+			(void)shim_kill(pid, SIGALRM);
 			(void)shim_waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||

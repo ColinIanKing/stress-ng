@@ -269,7 +269,7 @@ again:
 		stress_metrics_set(args, 0, "MB per sec pipe write rate", rate);
 
 		(void)close(pipefds[1]);
-		(void)kill(pid, SIGPIPE);
+		(void)shim_kill(pid, SIGPIPE);
 		(void)shim_waitpid(pid, &status, 0);
 		(void)munmap((void *)buf, pipe_data_size);
 	}

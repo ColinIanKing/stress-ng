@@ -324,7 +324,7 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 
 	/* syscall emulation on */
 	PRCTL_SYSCALL_ON();
-	(void)kill(pid, 0);
+	(void)shim_kill(pid, 0);
 
 	/* Turn off */
 	ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,

@@ -516,8 +516,8 @@ again:
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			force_killed_counter(args);
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
+			(void)shim_kill(pid, SIGTERM);
+			(void)shim_kill(pid, SIGKILL);
 			(void)shim_waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",

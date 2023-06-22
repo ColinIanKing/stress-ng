@@ -108,7 +108,7 @@ static void pr_spin_lock_pid(pid_t pid)
 			    &val, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 				return;
 			/* Owner dead? force unlock and retry */
-			if ((kill(orig, 0) < 0) && (errno == ESRCH)) {
+			if ((shim_kill(orig, 0) < 0) && (errno == ESRCH)) {
 				val = 0;
 				__atomic_exchange(&g_shared->pr_atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
 				continue;
@@ -218,7 +218,7 @@ static void pr_lock_pid(pid_t pid)
 	 */
 	now = stress_time_now();
 	if (((now - g_shared->pr_whence) > PR_TIMEOUT) ||
-	    (kill(g_shared->pr_pid, 0) == ESRCH)) {
+	    (shim_kill(g_shared->pr_pid, 0) == ESRCH)) {
 		/* force acquire */
 		g_shared->pr_pid = pid;
 		g_shared->pr_lock_count = 0;

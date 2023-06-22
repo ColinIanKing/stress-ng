@@ -417,14 +417,14 @@ again:
 		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port, fds, fds_size);
 
 		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 
 		_exit(ret);
 	} else {
 		int status;
 
 		ret = stress_socket_server(args, mypid, max_fd, socket_fd_port);
-		(void)kill(pid, SIGALRM);
+		(void)shim_kill(pid, SIGALRM);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

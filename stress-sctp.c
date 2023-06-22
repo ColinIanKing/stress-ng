@@ -706,13 +706,13 @@ again:
 		 (void)stress_change_cpu(args, parent_cpu);
 		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
 		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		(void)shim_kill(getppid(), SIGALRM);
 		_exit(ret);
 	} else {
 		int status;
 
 		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
-		(void)kill(pid, SIGKILL);
+		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WIFEXITED(status)) {
 			if (WEXITSTATUS(status) != EXIT_SUCCESS) {

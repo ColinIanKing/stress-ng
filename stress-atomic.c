@@ -443,9 +443,9 @@ static int stress_atomic(const stress_args_t *args)
 				}
 			}
 
-			if (kill(atomic_info[i].pid, 0) == 0) {
+			if (shim_kill(atomic_info[i].pid, 0) == 0) {
 				force_killed_counter(args);
-				(void)kill(atomic_info[i].pid, SIGKILL);
+				(void)shim_kill(atomic_info[i].pid, SIGKILL);
 			}
 			(void)waitpid(atomic_info[i].pid, &status, 0);
 		}

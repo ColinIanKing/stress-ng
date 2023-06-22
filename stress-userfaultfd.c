@@ -176,7 +176,7 @@ static int stress_userfaultfd_clone(void *arg)
 		if (shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
 			pr_fail("%s: madvise failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)kill(c->parent, SIGALRM);
+			(void)shim_kill(c->parent, SIGALRM);
 			return -1;
 		}
 		/* and trigger some page faults */

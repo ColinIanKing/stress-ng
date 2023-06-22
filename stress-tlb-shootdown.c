@@ -296,7 +296,7 @@ PRAGMA_UNROLL_N(8)
 				}
 			} while (keep_stressing(args));
 
-			(void)kill(pid, SIGALRM);
+			(void)shim_kill(pid, SIGALRM);
 			_exit(0);
 		}
 	}
