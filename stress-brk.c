@@ -20,8 +20,13 @@
 #include "stress-ng.h"
 #include "core-nt-load.h"
 
+#define MIN_BRK_BYTES		(64 * KB)
+#define MAX_BRK_BYTES		(MAX_MEM_LIMIT)
+#define DEFAULT_BRK_BYTES	(MAX_MEM_LIMIT)
+
 static const stress_help_t help[] = {
 	{ NULL,	"brk N",	"start N workers performing rapid brk calls" },
+	{ NULL,	"brk-bytes N",	"grow brk region up to N bytes in total" },
 	{ NULL, "brk-mlock",	"attempt to mlock newly mapped brk pages" },
 	{ NULL,	"brk-notouch",	"don't touch (page in) new data segment page" },
 	{ NULL,	"brk-ops N",	"stop after N brk bogo operations" },
@@ -32,6 +37,20 @@ typedef struct {
 	bool brk_mlock;
 	bool brk_notouch;
 } brk_context_t;
+
+/*
+ *  stress_set_bigheap_bytes()
+ *     Set maximum allocation amount in bytes
+ */
+static int stress_set_brk_bytes(const char *opt)
+{
+	size_t brk_bytes;
+
+	brk_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
+	stress_check_range_bytes("brk-bytes", (uint64_t)brk_bytes,
+		MIN_BRK_BYTES, MAX_BRK_BYTES);
+	return stress_set_setting("brk-bytes", TYPE_ID_SIZE_T, &brk_bytes);
+}
 
 static int stress_set_brk_mlock(const char *opt)
 {
@@ -44,6 +63,7 @@ static int stress_set_brk_notouch(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_brk_bytes,	stress_set_brk_bytes },
 	{ OPT_brk_mlock,	stress_set_brk_mlock },
 	{ OPT_brk_notouch,	stress_set_brk_notouch },
 	{ 0,			NULL }
@@ -105,26 +125,25 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 #endif
 }
 
-/*
- *  stress_brk_get_addr()
- *	get current brk addr
- */
-static void *stress_brk_get_addr(void)
+static inline size_t stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr2)
 {
-	(void)shim_sbrk(0);	/* previous */
-	return shim_sbrk(0);	/* current */
+	return (size_t)((ptr1 > ptr2) ? ptr1 - ptr2 : ptr2 - ptr1);
 }
 
 static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 {
 	uint8_t *start_ptr, *unmap_ptr = NULL;
 	int i = 0;
+	size_t brk_bytes = DEFAULT_BRK_BYTES;
 	const size_t page_size = args->page_size;
 	const brk_context_t *brk_context = (brk_context_t *)context;
 	double sbrk_exp_duration = 0.0, sbrk_exp_count = 0.0;
 	double sbrk_shr_duration = 0.0, sbrk_shr_count = 0.0;
 	double rate;
 	const bool brk_touch = !brk_context->brk_notouch;
+	uint8_t *ptr;
+
+	(void)stress_get_setting("brk-bytes", &brk_bytes);
 
 	start_ptr = shim_sbrk(0);
 	if (start_ptr == (void *) -1) {
@@ -132,6 +151,7 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+	ptr = start_ptr;
 
 #if defined(MCL_FUTURE)
 	if (brk_context->brk_mlock)
@@ -141,10 +161,13 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 #endif
 
 	do {
-		uint8_t *ptr;
 		double t;
 
-		ptr = stress_brk_get_addr();
+		if (stress_brk_abs(ptr, start_ptr) > brk_bytes) {
+			ptr = start_ptr;
+			VOID_RET(int, shim_brk(ptr));
+			i = 0;
+		}
 
 		/* Low memory avoidance, re-start */
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size)) {
@@ -162,9 +185,7 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 				sbrk_exp_duration += stress_time_now() - t;
 				sbrk_exp_count += 1.0;
 
-				/* now get current brk addr */
-				ptr = stress_brk_get_addr();
-
+				ptr += page_size;
 				if (!unmap_ptr)
 					unmap_ptr = ptr;
 				stress_brk_page_resident(ptr, page_size, brk_touch);
@@ -175,20 +196,21 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 			}
 		} else if (i < 9) {
 			/* brk to same brk position */
-			ptr = stress_brk_get_addr();
-			if (UNLIKELY(shim_brk(ptr) < 0))
-				ptr = (void *)-1;
+			if (UNLIKELY(shim_brk(ptr) < 0)) {
+				ptr = start_ptr;
+				i = 0;
+			}
 		} else if (i < 10) {
 			/* Shrink brk by 1 page */
 			t = stress_time_now();
 			if (LIKELY(shim_sbrk(-page_size) != (void *)-1)) {
 				sbrk_shr_duration += stress_time_now() - t;
 				sbrk_shr_count += 1.0;
+				ptr -= page_size;
 			}
-			/* now get current brk addr */
-			ptr = stress_brk_get_addr();
 			if (UNLIKELY(shim_brk(ptr) < 0)) {
-				ptr = (void *)-1;
+				ptr = start_ptr;
+				i = 0;
 			} else {
 				uintptr_t *tmp;
 
@@ -214,6 +236,7 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 		if (UNLIKELY(ptr == (void *)-1)) {
 			if (LIKELY((errno == ENOMEM) || (errno == EAGAIN))) {
 				VOID_RET(int, shim_brk(start_ptr));
+				i = 0;
 			} else {
 				pr_fail("%s: sbrk(%d) failed: errno=%d (%s)\n",
 					args->name, (int)page_size, errno,

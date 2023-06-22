@@ -1082,9 +1082,10 @@ typedef enum {
 	OPT_branch_ops,
 
 	OPT_brk,
-	OPT_brk_ops,
+	OPT_brk_bytes,
 	OPT_brk_mlock,
 	OPT_brk_notouch,
+	OPT_brk_ops,
 
 	OPT_bsearch,
 	OPT_bsearch_ops,

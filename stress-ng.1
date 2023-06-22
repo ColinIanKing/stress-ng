@@ -763,6 +763,11 @@ a monitoring parent process.
 .B \-\-brk\-ops N
 stop the brk workers after N bogo brk operations.
 .TP
+.B \-\-brk\-bytes N
+maximum brk growth as N bytes per brk worker. One can specify the size
+as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
+.TP
 .B \-\-brk\-mlock
 attempt to mlock future brk pages into memory causing more memory pressure. If
 mlock(MCL_FUTURE) is implemented then this will stop new brk pages from being
