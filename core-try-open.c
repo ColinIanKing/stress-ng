@@ -31,14 +31,14 @@ static void stress_try_kill(
 {
 	int i;
 
-	for (i = 0; i < 10; i++) {
+	for (i = 1; keep_stressing(args) && (i <= 20); i++) {
 		int status;
 
 		VOID_RET(int, shim_kill(pid, SIGKILL));
 		VOID_RET(int, waitpid(pid, &status, WNOHANG));
 		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			return;
-		(void)shim_usleep(100000);
+		(void)shim_usleep(10000 * i);
 	}
 	pr_dbg("%s: can't kill pid %" PRIdMAX " opening %s\n",
 		args->name, (intmax_t)pid, path);
