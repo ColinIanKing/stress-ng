@@ -487,7 +487,7 @@ static int stress_madvise(const stress_args_t *args)
 #endif
 
 	(void)memset(&ctxt, 0, sizeof(ctxt));
-	stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
+	(void)stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
 
 	flags = MAP_PRIVATE;
 	num_mem_retries = 0;
