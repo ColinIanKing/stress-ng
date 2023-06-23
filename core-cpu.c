@@ -174,19 +174,56 @@
 bool stress_cpu_is_x86(void)
 {
 #if defined(STRESS_ARCH_X86)
+	/*
+	 *  Kudos to https://en.wikipedia.org/wiki/CPUID
+	 */
+	static const char * const x86_id_str[] = {
+		"GenuineIntel",		/* Intel */
+		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
+		"AuthenticAMD",		/* AMD */
+		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
+		"TransmetaCPU",		/* Transmeta */
+		"GenuineTMx86",		/* Transmeta */
+		"Geode by NSC",		/* National Semiconductor */
+		"NexGenDriven",		/* NexGen */
+		"RiseRiseRise",		/* Rise */
+		"SiS SiS SiS ",		/* SiS */
+		"UMC UMC UMC ",		/* UMC */
+		"Vortex86 SoC",		/* DM&P Vortex86 */
+		"  Shanghai  ",		/* Zhaoxin */
+		"HygonGenuine",		/* Hygon */
+		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
+		"E2K MACHINE\0",	/* MCST Elbrus */
+		"MiSTer AO486",		/* ao486 CPU */
+		"bhyve bhyve ",		/* bhyve VM */
+		"KVMKVMKVM\0\0\0",	/* KVM */
+		"TCGTCGTCGTCG",		/* QEMU */
+		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
+		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
+		" lrpepyh  vr",		/* Parallels */
+		"VMwareVMware",		/* VMWare */
+		"XenVMMXenVMM",		/* XEN HVM */
+		"ACRNACRNACRN",		/* Project ACRN */
+		" QNXQVMBSQG ",		/* QNX Hypervisor */
+		"VirtualApple",		/* Newer versions of Apple Rosetta 2 */
+	};
+
 	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+	size_t i;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	/* Intel CPU? */
-	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
-	if ((shim_memcmp(&ebx, "Genu", 4) == 0) &&
-	    (shim_memcmp(&edx, "ineI", 4) == 0) &&
-	    (shim_memcmp(&ecx, "ntel", 4) == 0))
+	for (i = 0; i < SIZEOF_ARRAY(x86_id_str); i++) {
+		const char *str = x86_id_str[i];
+
+		if ((shim_memcmp(&ebx, str + 0, 4) == 0) &&
+		    (shim_memcmp(&edx, str + 4, 4) == 0) &&
+		    (shim_memcmp(&ecx, str + 8, 4) == 0))
 		return true;
-	else
-		return false;
-#else
-	return false;
+	}
 #endif
+	return false;
 }
 
 /*
