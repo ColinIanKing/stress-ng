@@ -2874,6 +2874,11 @@ be from 1K to 4M.
 start N workers that apply random madvise(2) advise settings on pages of
 a 4MB file backed shared memory mapping.
 .TP
+.B \-\-madvise\-hwpoison
+enable MADV_HWPOISON page poisoning (if available, only when run as root). This
+will page poison a few pages and will cause kernel error messages to be
+reported.
+.TP
 .B \-\-madvise\-ops N
 stop madvise stressors after N bogo madvise operations.
 .TP

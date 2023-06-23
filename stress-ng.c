@@ -631,6 +631,7 @@ static const struct option long_options[] = {
 	{ "lsearch-size",	1,	0,	OPT_lsearch_size },
 	{ "madvise",		1,	0,	OPT_madvise },
 	{ "madvise-ops",	1,	0,	OPT_madvise_ops },
+	{ "madvise-hwpoison",	0,	0,	OPT_madvise_hwpoison },
 	{ "malloc",		1,	0,	OPT_malloc },
 	{ "malloc-bytes",	1,	0,	OPT_malloc_bytes },
 	{ "malloc-max",		1,	0,	OPT_malloc_max },

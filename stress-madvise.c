@@ -21,15 +21,26 @@
 #include "core-builtin.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"madvise N",	 "start N workers exercising madvise on memory" },
-	{ NULL,	"madvise-ops N", "stop after N bogo madvise operations" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	"madvise N",	 	"start N workers exercising madvise on memory" },
+	{ NULL,	"madvise-ops N",	"stop after N bogo madvise operations" },
+	{ NULL,	"madvise-hwpoison",	"enable hardware page poisoning (disabled by default)" },
+	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_madvise_hwpoison(const char *opt)
+{
+	return stress_set_setting_true("madvise-hwpoison", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_madvise_hwpoison,	stress_set_madvise_hwpoison },
+	{ 0,			NULL }
 };
 
 #if defined(HAVE_MADVISE)
 
 #define NUM_MEM_RETRIES_MAX	(256)
-#define NUM_POISON_MAX		(2)
+#define NUM_HWPOISON_MAX	(2)
 #define NUM_PTHREADS		(8)
 #if defined(MADV_SOFT_OFFLINE)
 #define NUM_SOFT_OFFLINE_MAX	(2)
@@ -41,6 +52,7 @@ typedef struct madvise_ctxt {
 	char *smaps;
 	size_t sz;
 	bool  is_thread;
+	bool  hwpoison;
 } madvise_ctxt_t;
 
 static sigjmp_buf jmp_env;
@@ -223,12 +235,13 @@ static void stress_read_proc_smaps(const char *smaps)
 static int stress_random_advise(
 	const stress_args_t *args,
 	void *addr,
-	const size_t size)
+	const size_t size,
+	const bool hwpoison)
 {
 	const int idx = stress_mwc32modn((size_t)SIZEOF_ARRAY(madvise_options));
 	const int advise = madvise_options[idx];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
-	static int poison_count = 0;
+	static int hwpoison_count = 0;
 #if defined(MADV_NORMAL)
 	const int madv_normal = MADV_NORMAL;
 #else
@@ -238,57 +251,62 @@ static int stress_random_advise(
 
 #if defined(MADV_HWPOISON)
 	if (advise == MADV_HWPOISON) {
-		const size_t page_size = args->page_size;
-		const size_t vec_size = (size + page_size - 1) / page_size;
-		unsigned char *vec;
-		const uint8_t *ptr = (uint8_t *)addr;
-
-		/*
-		 * Try for another madvise option if
-		 * we've poisoned too many pages.
-		 * We really need to use this sparingly
-		 * else we run out of free memory
-		 */
-		if ((args->instance > 0) ||
-		    (poison_count >= NUM_POISON_MAX)) {
-			return madv_normal;
-		}
-
-		vec = (unsigned char *)calloc(vec_size, sizeof(*vec));
-		if (vec) {
-			size_t i;
-			int ret;
+		if (hwpoison) {
+			const size_t page_size = args->page_size;
+			const size_t vec_size = (size + page_size - 1) / page_size;
+			unsigned char *vec;
+			const uint8_t *ptr = (uint8_t *)addr;
 
 			/*
-			 * Don't poison mapping if it's not physically backed
+			 * Try for another madvise option if
+			 * we've poisoned too many pages.
+			 * We really need to use this sparingly
+			 * else we run out of free memory
 			 */
-			ret = shim_mincore(addr, size, vec);
-			if (ret < 0) {
-				free(vec);
+			if ((args->instance > 0) ||
+			    (hwpoison_count >= NUM_HWPOISON_MAX)) {
 				return madv_normal;
 			}
-			for (i = 0; i < vec_size; i++) {
-				if (vec[i] == 0) {
+
+			vec = (unsigned char *)calloc(vec_size, sizeof(*vec));
+			if (vec) {
+				size_t i;
+				int ret;
+
+				/*
+				 * Don't poison mapping if it's not physically backed
+				 */
+				ret = shim_mincore(addr, size, vec);
+				if (ret < 0) {
 					free(vec);
 					return madv_normal;
 				}
-			}
-			/*
-			 * Don't poison page if it's all zero as it may
-			 * be mapped to the common zero page and poisoning
-			 * this shared page can cause issues.
-			 */
-			for (i = 0; i < size; i++) {
-				if (ptr[i])
-					break;
-			}
-			/* ..all zero? then don't madvise it */
-			if (i == size) {
+				for (i = 0; i < vec_size; i++) {
+					if (vec[i] == 0) {
+						free(vec);
+						return madv_normal;
+					}
+				}
+				/*
+				 * Don't poison page if it's all zero as it may
+				 * be mapped to the common zero page and poisoning
+				 * this shared page can cause issues.
+				 */
+				for (i = 0; i < size; i++) {
+					if (ptr[i])
+						break;
+				}
+				/* ..all zero? then don't madvise it */
+				if (i == size) {
+					free(vec);
+					return madv_normal;
+				}
+				hwpoison_count++;
 				free(vec);
-				return madv_normal;
 			}
-			poison_count++;
-			free(vec);
+		} else {
+			/* hwpoison disabled */
+			return madv_normal;
 		}
 	}
 #else
@@ -304,7 +322,7 @@ static int stress_random_advise(
 
 		/* ..and minimize number of soft offline pages */
 		if ((soft_offline_count >= NUM_SOFT_OFFLINE_MAX) ||
-		    (poison_count >= NUM_POISON_MAX))
+		    (hwpoison_count >= NUM_HWPOISON_MAX))
 			return madv_normal;
 		soft_offline_count++;
 	}
@@ -337,7 +355,7 @@ static void *stress_madvise_pages(void *arg)
 
 	for (n = 0; n < sz; n += page_size) {
 		void *ptr = (void *)(((uint8_t *)buf) + n);
-		const int advise = stress_random_advise(args, ptr, page_size);
+		const int advise = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
 		(void)shim_madvise(ptr, page_size, advise);
 #if defined(MADV_FREE)
@@ -349,7 +367,7 @@ static void *stress_madvise_pages(void *arg)
 	for (n = 0; n < sz; n += page_size) {
 		size_t m = (size_t)(stress_mwc64modn_maybe_pwr2((uint64_t)sz) & ~(page_size - 1));
 		void *ptr = (void *)(((uint8_t *)buf) + m);
-		const int advise = stress_random_advise(args, ptr, page_size);
+		const int advise = stress_random_advise(args, ptr, page_size, ctxt->hwpoison);
 
 		(void)shim_madvise(ptr, page_size, advise);
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
@@ -467,6 +485,9 @@ static int stress_madvise(const stress_args_t *args)
 	NOCLOBBER uint64_t madv_frees;
 	NOCLOBBER uint8_t madv_tries;
 #endif
+
+	(void)memset(&ctxt, 0, sizeof(ctxt));
+	stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
 
 	flags = MAP_PRIVATE;
 	num_mem_retries = 0;
@@ -689,12 +710,14 @@ madv_free_out:
 stressor_info_t stress_madvise_info = {
 	.stressor = stress_madvise,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_madvise_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 	.unimplemented_reason = "built without madvise() system call"
 };

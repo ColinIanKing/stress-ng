@@ -1534,6 +1534,7 @@ typedef enum {
 
 	OPT_madvise,
 	OPT_madvise_ops,
+	OPT_madvise_hwpoison,
 
 	OPT_mbind,
 
