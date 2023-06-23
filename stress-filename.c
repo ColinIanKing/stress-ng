@@ -104,7 +104,7 @@ static int stress_filename_probe_length(
 				break;
 			pr_err("%s: creat() failed when probing "
 				"for filename length, "
-				"errno = %d (%s)\n",
+				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			*sz_max = 0;
 			return -1;
@@ -165,7 +165,7 @@ static int stress_filename_probe(
 			    (errno != EILSEQ)) {
 				pr_err("%s: creat() failed when probing "
 					"for allowed filename characters, "
-					"errno = %d (%s)\n",
+					"errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				pr_inf("%s: perhaps retry and use "
 					"--filename-opts posix\n", args->name);

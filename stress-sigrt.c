@@ -144,7 +144,7 @@ again:
 			if (UNLIKELY(sigqueue(pids[i], i + SIGRTMIN, s) < 0)) {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
 					pr_fail("%s: sigqueue on signal %d failed, "
-						"errno = %d (%s)\n",
+						"errno=%d (%s)\n",
 						args->name, i + SIGRTMIN,
 						errno, strerror(errno));
 					rc = EXIT_FAILURE;

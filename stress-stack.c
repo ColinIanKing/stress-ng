@@ -226,7 +226,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (altstack == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate %zd byte signal stack: "
-			"errno = %d (%s), skipping stressor\n",
+			"errno=%d (%s), skipping stressor\n",
 			args->name, (size_t)STRESS_SIGSTKSZ, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

@@ -207,7 +207,7 @@ static int stress_tun(const stress_args_t *args)
 					rc = EXIT_SUCCESS;
 					break;
 				default:
-					pr_dbg("%s: child socket failed, errno = %d (%s)\n",
+					pr_dbg("%s: child socket failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 					break;
@@ -232,7 +232,7 @@ static int stress_tun(const stress_args_t *args)
 					rc = EXIT_SUCCESS;
 					break;
 				default:
-					pr_dbg("%s: child bind failed, errno = %d (%s)\n",
+					pr_dbg("%s: child bind failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 					break;
@@ -354,7 +354,7 @@ child_cleanup_fd:
 
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (sfd < 0) {
-				pr_fail("%s: parent socket failed, errno = %d (%s)\n",
+				pr_fail("%s: parent socket failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto child_reap;
 			}

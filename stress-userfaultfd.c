@@ -115,11 +115,11 @@ static int stress_userfaultfd_error(const char *name, const int err, const int m
 		rc = stress_exit_status(errno);
 		if (mode & STRESS_USERFAULT_REPORT_ALWAYS) {
 			if (mode & STRESS_USERFAULT_SUPPORTED_CHECK) {
-				pr_inf_skip("%s: %s, userfaultfd() failed, errno = %d (%s)\n",
+				pr_inf_skip("%s: %s, userfaultfd() failed, errno=%d (%s)\n",
 					name, skipped, errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;
 			} else {
-				pr_fail("%s: userfaultfd() failed, errno = %d (%s)\n",
+				pr_fail("%s: userfaultfd() failed, errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			}
 		}
@@ -311,7 +311,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	api.api = UFFD_API;
 	api.features = 0;
 	if (ioctl(fd, UFFDIO_API, &api) < 0) {
-		pr_fail("%s: ioctl UFFDIO_API failed, errno = %d (%s)\n",
+		pr_fail("%s: ioctl UFFDIO_API failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -329,7 +329,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	reg.range.len = sz;
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
 	if (ioctl(fd, UFFDIO_REGISTER, &reg) < 0) {
-		pr_fail("%s: ioctl UFFDIO_REGISTER failed, errno = %d (%s)\n",
+		pr_fail("%s: ioctl UFFDIO_REGISTER failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -366,7 +366,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	pid = clone(stress_userfaultfd_clone, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
-		pr_err("%s: clone failed, errno = %d (%s)\n",
+		pr_err("%s: clone failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto unreg;
 	}
@@ -469,7 +469,7 @@ do_read:
 unreg:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {
-		pr_fail("%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
+		pr_fail("%s: ioctl UFFDIO_UNREGISTER failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;

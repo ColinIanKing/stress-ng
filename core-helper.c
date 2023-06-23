@@ -2311,7 +2311,7 @@ int stress_sighandler(
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (stack == MAP_FAILED) {
 				pr_inf("%s: sigaction %s: cannot allocated signal stack, "
-					"errno = %d (%s)\n",
+					"errno=%d (%s)\n",
 					name, stress_strsignal(signum),
 					errno, strerror(errno));
 				return -1;

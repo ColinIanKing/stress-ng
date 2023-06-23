@@ -140,7 +140,7 @@ static int stress_ioport(const stress_args_t *args)
 
 	ret = ioperm(IO_PORT, 1, 1);
 	if (ret < 0) {
-		pr_err("%s: cannot access port 0x%x, errno = %d (%s)\n",
+		pr_err("%s: cannot access port 0x%x, errno=%d (%s)\n",
 			args->name, IO_PORT, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
