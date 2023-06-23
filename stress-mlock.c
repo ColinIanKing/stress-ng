@@ -273,7 +273,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
 	const size_t max = stress_mlock_max_lockable();
-	const size_t mappings_len = max * sizeof(*mappings);
+	size_t mappings_len = max * sizeof(*mappings);
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
 	double mlock_duration = 0.0, mlock_count = 0.0;
 	double munlock_duration = 0.0, munlock_count = 0.0;
@@ -282,6 +282,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 #if defined(__linux__)
 	uint64_t max_mlocked_pages = 0;
 #endif
+	const size_t mappings_per_page = page_size / sizeof(*mappings);
 
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
@@ -295,8 +296,26 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
 
-	mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
-		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	/*
+	 *  The physical total mem is the upper bound of the number
+	 *  pages mappable, so allocate page mappings pointers that
+	 *  wont't exceed this upper limit.
+	 */
+	if (mappings_len > totalmem / mappings_per_page)
+		mappings_len = totalmem / mappings_per_page;
+	mappings_len &= ~(page_size - 1);
+
+	/*
+	 *  Under memory pressure we may need to scale back our
+	 *  mappings array to the point where it can fit into memory.
+	 */
+	while (mappings_len > page_size) {
+		mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (mappings != MAP_FAILED)
+			break;
+		mappings_len = mappings_len >> 1;
+	}
 	if (mappings == MAP_FAILED) {
 		pr_fail("%s: cannot mmap mmapings table: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
