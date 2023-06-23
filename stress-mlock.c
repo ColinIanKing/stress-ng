@@ -298,7 +298,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mappings == MAP_FAILED) {
-		pr_fail("%s: cannot mmap mmapings table: %d (%s)\n",
+		pr_fail("%s: cannot mmap mmapings table: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
