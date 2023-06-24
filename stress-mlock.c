@@ -371,6 +371,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 					break;
 				pr_fail("%s: mlock failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				break;
 			} else {
 				/*
@@ -418,7 +419,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				/*
 				 *  Attempt a bogus munlock, ignore failure
 				 */
-				(void)shim_munlock((void *)((uint8_t *)addr + page_size), 0);
+				VOID_RET(int, shim_munlock((void *)((uint8_t *)addr + page_size), 0));
 			}
 			(void)munmap((void *)addr, page_size * 3);
 		}
