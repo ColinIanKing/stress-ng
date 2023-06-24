@@ -62,7 +62,7 @@ static const int sigs[] = {
 	SIGINT,
 #endif
 #if defined(SIGHUP)
-	SIGHUP
+	SIGHUP,
 #endif
 };
 
@@ -80,7 +80,7 @@ static void stress_watchdog_magic_close(void)
 	}
 }
 
-static void NORETURN MLOCKED_TEXT stress_watchdog_handler(int signum)
+static void /*NORETURN*/ MLOCKED_TEXT stress_watchdog_handler(int signum)
 {
 	(void)signum;
 
@@ -88,9 +88,6 @@ static void NORETURN MLOCKED_TEXT stress_watchdog_handler(int signum)
 
 	/* trigger early termination */
 	keep_stressing_set_flag(false);
-
-	/* jump back */
-	siglongjmp(jmp_env, 1);
 }
 
 /*
@@ -158,6 +155,8 @@ static int stress_watchdog(const stress_args_t *args)
 		stress_watchdog_magic_close();
 
 #if defined(WDIOC_KEEPALIVE)
+		if (!keep_stressing_flag())
+			goto watchdog_close;
 		VOID_RET(int, ioctl(fd, WDIOC_KEEPALIVE, 0));
 #else
 		UNEXPECTED
@@ -165,9 +164,16 @@ static int stress_watchdog(const stress_args_t *args)
 
 #if defined(WDIOC_GETTIMEOUT)
 		{
-			int timeout;
+			int timeout = 0;
 
-			VOID_RET(int, ioctl(fd, WDIOC_GETTIMEOUT, &timeout));
+			if (!keep_stressing_flag())
+				goto watchdog_close;
+			if ((ioctl(fd, WDIOC_GETTIMEOUT, &timeout) == 0) &&
+			    (timeout < 0)) {
+				pr_fail("%s: ioctl WDIOC_GETTIMEOUT returned unexpected timeout value %d\n",
+					args->name, timeout);
+				rc = EXIT_FAILURE;
+			}
 		}
 #else
 		UNEXPECTED
@@ -175,19 +181,33 @@ static int stress_watchdog(const stress_args_t *args)
 
 #if defined(WDIOC_GETPRETIMEOUT)
 		{
-			int timeout;
+			int timeout = 0;
 
-			VOID_RET(int, ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout));
+			if (!keep_stressing_flag())
+				goto watchdog_close;
+			if ((ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout) == 0) &&
+			    (timeout < 0)) {
+				pr_fail("%s: ioctl WDIOC_GETPRETIMEOUT returned unexpected timeout value %d\n",
+					args->name, timeout);
+				rc = EXIT_FAILURE;
+			}
 		}
 #else
 		UNEXPECTED
 #endif
 
-#if defined(WDIOC_GETPRETIMEOUT)
+#if defined(WDIOC_GETTIMELEFT)
 		{
-			int timeout;
+			int timeout = 0;
 
-			VOID_RET(int, ioctl(fd, WDIOC_GETTIMELEFT, &timeout));
+			if (!keep_stressing_flag())
+				goto watchdog_close;
+			if ((ioctl(fd, WDIOC_GETTIMELEFT, &timeout) == 0) && 
+			    (timeout < 0)) {
+				pr_fail("%s: ioctl WDIOC_GETTIMELEFT returned unexpected timeout value %d\n",
+					args->name, timeout);
+				rc = EXIT_FAILURE;
+			}
 		}
 #else
 		UNEXPECTED
@@ -197,6 +217,8 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			struct watchdog_info ident;
 
+			if (!keep_stressing_flag())
+				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETSUPPORT, &ident));
 		}
 #else
@@ -207,6 +229,8 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int flags;
 
+			if (!keep_stressing_flag())
+				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETSTATUS, &flags));
 		}
 #else
@@ -217,6 +241,8 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int flags;
 
+			if (!keep_stressing_flag())
+				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &flags));
 		}
 #else
@@ -225,13 +251,22 @@ static int stress_watchdog(const stress_args_t *args)
 
 #if defined(WDIOC_GETTEMP)
 		{
-			int temperature;
+			int temperature = 0;
 
-			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &temperature));
+			if (!keep_stressing_flag())
+				goto watchdog_close;
+			if ((ioctl(fd, WDIOC_GETTEMP, &temperature) == 0) &&
+			    (temperature < 0)) {
+				pr_fail("%s: ioctl WDIOC_GETTEMP returned unexpected temperature value %d\n",
+					args->name, temperature);
+				rc = EXIT_FAILURE;
+			}
 		}
 #else
 		UNEXPECTED
 #endif
+
+watchdog_close:
 		stress_watchdog_magic_close();
 		ret = close(fd);
 		fd = -1;
@@ -253,12 +288,14 @@ static int stress_watchdog(const stress_args_t *args)
 stressor_info_t stress_watchdog_info = {
 	.stressor = stress_watchdog,
 	.class = CLASS_OS | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_watchdog_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/watchdog.h"
 };
