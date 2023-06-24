@@ -32,7 +32,7 @@ static int stress_set_remap_pages(const char *opt)
         size_t remap_pages;
 
         remap_pages = (size_t)stress_get_uint64(opt);
-        stress_check_range_bytes("remap-pages", (uint64_t)remap_pages, 1, 0x80000000);
+        stress_check_range("remap-pages", (uint64_t)remap_pages, 1, 0x80000000);
 
 	if ((remap_pages & (remap_pages - 1)) != 0) {
 		(void)fprintf(stderr, "Value for option --remap-pages %zu must be a power of 2\n", remap_pages);
