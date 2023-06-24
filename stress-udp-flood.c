@@ -80,6 +80,7 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 	size_t sz = 1;
 	char *udp_flood_if = NULL;
 	double bytes = 0.0, duration, t, rate;
+	uint64_t sendto_failed = 0, total_count;
 
 	(void)stress_get_setting("udp-flood-domain", &udp_flood_domain);
 	(void)stress_get_setting("udp-flood-if", &udp_flood_if);
@@ -134,6 +135,8 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 		if (LIKELY(n > 0)) {
 			inc_counter(args);
 			bytes += (double)n;
+		} else {
+			sendto_failed++;
 		}
 
 #if defined(SIOCOUTQ)
@@ -160,6 +163,8 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 		if (LIKELY(n > 0)) {
 			inc_counter(args);
 			bytes += (double)n;
+		} else {
+			sendto_failed++;
 		}
 		stress_net_release_ports(rand_port, rand_port);
 		if (UNLIKELY(++sz >= sz_max))
@@ -172,6 +177,16 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 	stress_metrics_set(args, 0, "MB per sec sendto rate", rate);
 	rate = (duration > 0.0) ? (get_counter(args) / duration) : 0.0;
 	stress_metrics_set(args, 1, "sendto calls per sec", rate);
+	total_count = get_counter(args) + sendto_failed;
+	rate = (total_count > 0) ? ((total_count - sendto_failed) / total_count) * 100.0 : 0.0;
+	stress_metrics_set(args, 2, "% sendto calls succeeded", rate);
+
+	/* 100% sendto failure is not good */
+	if ((total_count > 0) && (sendto_failed == total_count)) {
+		pr_fail("%s: 100%% of %" PRIu64 " sendto calls failed\n",
+			args->name, total_count);
+		rc = EXIT_FAILURE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -184,6 +199,7 @@ stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
@@ -191,6 +207,7 @@ stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built with undefined AF_PACKET"
 };
