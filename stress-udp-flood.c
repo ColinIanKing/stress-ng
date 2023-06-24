@@ -115,7 +115,7 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t = stress_time_now();
-	for (;;) {
+	do {
 		char buf[MAX_UDP_SIZE];
 		int rand_port, reserved_port;
 		ssize_t n;
@@ -125,7 +125,7 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 
 		reserved_port = stress_net_reserve_ports(port, port);
 		if (UNLIKELY(reserved_port < 0))
-			goto next;	/* try again */
+			continue;
 		port = reserved_port;
 
 		stress_set_sockaddr_port(udp_flood_domain, port, addr);
@@ -153,7 +153,7 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 		rand_port = 1024 + stress_mwc16modn(65535 - 1024);
 		reserved_port = stress_net_reserve_ports(rand_port, rand_port);
 		if (UNLIKELY(reserved_port < 0))
-			goto next;	/* try again */
+			continue;
 		rand_port = reserved_port;
 		stress_set_sockaddr_port(udp_flood_domain, rand_port, addr);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
@@ -164,10 +164,8 @@ static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
 		stress_net_release_ports(rand_port, rand_port);
 		if (UNLIKELY(++sz >= sz_max))
 			sz = 1;
-next:
-		if (UNLIKELY(!keep_stressing(args)))
-			break;
-	}
+	} while (keep_stressing(args));
+
 	duration = stress_time_now() - t;
 
 	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
