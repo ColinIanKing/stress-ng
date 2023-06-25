@@ -278,7 +278,6 @@ vfork_again:
 		(void)sleep((unsigned int)g_opt_timeout);
 		vforkmany_shared->terminate = true;
 
-
 		stress_kill_and_wait(args, chpid, SIGALRM, false);
 	}
 finish:

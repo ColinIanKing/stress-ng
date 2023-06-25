@@ -50,7 +50,6 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 {
 	(void)signum;
 
-	(void)shim_kill(getppid(), SIGALRM);
 	_exit(0);
 }
 
@@ -161,8 +160,6 @@ static void NORETURN stress_rmap_child(
 	} while (inc_counter_lock(args, counter_lock, true));
 
 fail:
-	(void)shim_kill(getppid(), SIGALRM);
-
 	stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 	_exit(rc);
 }
@@ -181,6 +178,9 @@ static int stress_rmap(const stress_args_t *args)
 	uint32_t *mappings[MAPPINGS_MAX];
 	uint32_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {

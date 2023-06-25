@@ -961,7 +961,9 @@ static int stress_iomix(const stress_args_t *args)
 	pid_t pids[SIZEOF_ARRAY(iomix_funcs)];
 	const char *fs_type;
 	int oflags = O_CREAT | O_RDWR;
-	const pid_t parent = getpid();
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 #if defined(O_SYNC)
 	oflags |= O_SYNC;
@@ -1032,7 +1034,6 @@ static int stress_iomix(const stress_args_t *args)
 			/* Child */
 			(void)sched_settings_apply(true);
 			iomix_funcs[i](args, fd, fs_type, iomix_bytes);
-			(void)shim_kill(parent, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}

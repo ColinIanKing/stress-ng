@@ -516,9 +516,6 @@ timed_out:
 #endif
 	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
-	if (rc == EXIT_FAILURE)
-		(void)shim_kill(getppid(), SIGALRM);
-
 	return rc;
 }
 
@@ -556,6 +553,9 @@ static int stress_sem_sysv(const stress_args_t *args)
 	uint64_t i;
 	uint64_t semaphore_sysv_procs = DEFAULT_SEM_SYSV_PROCS;
 	int rc = EXIT_SUCCESS;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	if (!stress_get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

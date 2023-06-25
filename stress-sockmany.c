@@ -309,6 +309,9 @@ static int stress_sockmany(const stress_args_t *args)
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	char *sockmany_if = NULL;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("sockmany-if", &sockmany_if);
 	(void)stress_get_setting("sockmany-port", &sockmany_port);
 
@@ -365,10 +368,6 @@ again:
 		(void)stress_change_cpu(args, parent_cpu);
 
 		rc = stress_sockmany_client(args, sockmany_port, ppid, sock_fds, sockmany_if);
-
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
-
 		_exit(rc);
 	} else {
 		int status;

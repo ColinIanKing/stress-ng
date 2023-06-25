@@ -185,11 +185,13 @@ static int stress_hrtimer_process(const stress_args_t *args)
 static int stress_hrtimers(const stress_args_t *args)
 {
 	pid_t pids[PROCS_MAX];
-	const pid_t parent = getpid();
 	size_t i;
         bool hrtimers_adjust = false;
 	double start_time = -1.0, end_time;
 	sigset_t mask;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	lock = stress_lock_create();
 	if (!lock) {
@@ -216,7 +218,6 @@ static int stress_hrtimers(const stress_args_t *args)
 			stress_set_oom_adjustment(args->name, true);
 			(void)sched_settings_apply(true);
 			stress_hrtimer_process(args);
-			(void)shim_kill(parent, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}

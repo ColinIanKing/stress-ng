@@ -458,6 +458,9 @@ static int stress_udp(const stress_args_t *args)
 	bool udp_gro = false;
 	char *udp_if = NULL;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("udp-if", &udp_if);
 	(void)stress_get_setting("udp-port", &udp_port);
 	(void)stress_get_setting("udp-domain", &udp_domain);
@@ -515,9 +518,6 @@ again:
 	} else if (pid == 0) {
 		(void)stress_change_cpu(args, parent_cpu);
 		rc = stress_udp_client(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
-
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
 		int status;

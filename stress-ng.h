@@ -2569,6 +2569,7 @@ extern void stress_cwd_readwriteable(void);
 
 extern const char *stress_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
+extern WARN_UNUSED int stress_sigchld_set_handler(const stress_args_t *args);
 
 /* Fast random numbers */
 extern uint8_t stress_mwc1(void);

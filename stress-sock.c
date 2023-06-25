@@ -1204,6 +1204,9 @@ static int stress_sock(const stress_args_t *args)
 	char *mmap_buffer;
 	char *sock_if = NULL;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("sock-if", &sock_if);
 	(void)stress_get_setting("sock-domain", &sock_domain);
 	(void)stress_get_setting("sock-type", &sock_type);
@@ -1267,9 +1270,6 @@ again:
 			sock_domain, sock_type, sock_protocol,
 			sock_port, sock_if, rt, sock_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
-
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
 		rc = stress_sock_server(args, mmap_buffer, pid, mypid, sock_opts,

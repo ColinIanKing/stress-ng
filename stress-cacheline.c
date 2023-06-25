@@ -652,10 +652,6 @@ static int stress_cacheline_child(
 #endif
 	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
-	/* Child tell parent it has finished */
-	if (!parent)
-		(void)shim_kill(getppid(), SIGALRM);
-
 	return rc;
 }
 
@@ -711,6 +707,9 @@ static int stress_cacheline(const stress_args_t *args)
 	size_t cacheline_method = 0;
 	stress_cacheline_func func;
 	bool cacheline_affinity = false;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	if (!g_shared->cacheline_lock) {
 		pr_inf("%s: failed to initialized cacheline lock, skipping stressor\n", args->name);

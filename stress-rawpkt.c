@@ -275,7 +275,6 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	struct ifreq *hwaddr,
 	struct ifreq *ifaddr,
 	const struct ifreq *idx,
-	const pid_t ppid,
 	const int port)
 {
 	int rc = EXIT_FAILURE;
@@ -345,10 +344,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 	(void)close(fd);
 
 	rc = EXIT_SUCCESS;
-
 err:
-	/* Inform parent we're all done */
-	(void)shim_kill(ppid, SIGALRM);
 	_exit(rc);
 }
 
@@ -475,6 +471,9 @@ static int stress_rawpkt(const stress_args_t *args)
 	struct ifreq hwaddr, ifaddr, idx;
 	int rawpkt_rxring = 0;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
 	(void)stress_get_setting("rawpkt-rxring", &rawpkt_rxring);
 
@@ -535,7 +534,7 @@ again:
 		return rc;
 	} else if (pid == 0) {
 		(void)stress_change_cpu(args, parent_cpu);
-		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, rawpkt_port);
+		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, rawpkt_port);
 	} else {
 		int status;
 

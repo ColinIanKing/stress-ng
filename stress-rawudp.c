@@ -165,8 +165,6 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 	rc = EXIT_SUCCESS;
 
 err:
-	/* Inform parent we're all done */
-	(void)shim_kill(args->pid, SIGALRM);
 	_exit(rc);
 }
 
@@ -268,6 +266,9 @@ static int stress_rawudp(const stress_args_t *args)
 	int rc = EXIT_FAILURE, reserved_port, parent_cpu;
 	in_addr_t addr = (in_addr_t)inet_addr("127.0.0.1");
 	char *rawudp_if = NULL;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("rawudp-if", &rawudp_if);
 	(void)stress_get_setting("rawudp-port", &rawudp_port);

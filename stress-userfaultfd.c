@@ -176,7 +176,6 @@ static int stress_userfaultfd_clone(void *arg)
 		if (shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
 			pr_fail("%s: madvise failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)shim_kill(c->parent, SIGALRM);
 			return -1;
 		}
 		/* and trigger some page faults */
@@ -259,6 +258,9 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
 	size_t userfaultfd_bytes = DEFAULT_USERFAULT_BYTES;
 	double t, duration = 0.0, rate;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)context;
 	(void)shim_memset(stack, 0, sizeof(stack));

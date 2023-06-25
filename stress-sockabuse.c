@@ -376,6 +376,9 @@ static int stress_sockabuse(const stress_args_t *args)
 	int sockabuse_port = DEFAULT_SOCKABUSE_PORT;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("sockabuse-port", &sockabuse_port);
 
 	sockabuse_port += args->instance;
@@ -411,10 +414,6 @@ again:
 		(void)stress_change_cpu(args, parent_cpu);
 
 		rc = stress_sockabuse_client(args, mypid, sockabuse_port);
-
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
-
 		_exit(rc);
 	} else {
 		int status;

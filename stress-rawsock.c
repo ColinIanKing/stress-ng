@@ -123,7 +123,6 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		/* failed, kick parent to finish */
-		(void)shim_kill(getppid(), SIGALRM);
 		return EXIT_FAILURE;
 	}
 
@@ -150,7 +149,6 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		uint32_t ready;
 
 		if (stress_lock_acquire(rawsock_lock) < 0) {
-			(void)shim_kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 			}
 		ready = g_shared->rawsock.ready;
@@ -190,7 +188,6 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		}
 #endif
 	}
-	(void)shim_kill(getppid(), SIGALRM);
 	(void)close(fd);
 	return EXIT_SUCCESS;
 }
@@ -285,6 +282,8 @@ static int stress_rawsock_child(const stress_args_t *args, void *context)
 	pid_t pid;
 	const int rawsock_port = *(int *)context;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

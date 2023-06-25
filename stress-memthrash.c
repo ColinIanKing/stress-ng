@@ -768,9 +768,6 @@ static void *stress_memthrash_func(void *ctxt)
 			shim_sched_yield();
 		}
 	}
-
-	/* Wake parent up, all done! */
-	(void)shim_kill(args->pid, SIGALRM);
 	return &nowt;
 }
 
@@ -902,6 +899,9 @@ static int stress_memthrash(const stress_args_t *args)
 {
 	stress_memthrash_context_t context;
 	int rc;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	stress_memthrash_find_primes();
 

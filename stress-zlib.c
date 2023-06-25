@@ -1736,14 +1736,16 @@ zlib_checksum_error:
 static int stress_zlib(const stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS, fds[2], parent_cpu;
-	const pid_t parent_pid = getpid();
 	pid_t pid;
 	bool error = false;
 	bool interrupted = false;
 	stress_zlib_shared_checksums_t *shared_checksums;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 
 	shared_checksums = (stress_zlib_shared_checksums_t *)mmap(NULL,
 			sizeof(*shared_checksums),
@@ -1787,7 +1789,6 @@ again:
 		(void)close(fds[1]);
 		ret = stress_zlib_inflate(args, fds[0], &shared_checksums->inflate);
 		(void)close(fds[0]);
-		(void)shim_kill(parent_pid, SIGALRM);
 		_exit(ret);
 	} else {
 		int retval;
@@ -1796,7 +1797,7 @@ again:
 		ret = stress_zlib_deflate(args, fds[1], &shared_checksums->deflate);
 		(void)close(fds[1]);
 		(void)shim_kill(pid, SIGALRM);
-		(void)waitpid(pid, &retval, 0);
+		(void)shim_waitpid(pid, &retval, 0);
 	}
 
 	pipe_broken |= shared_checksums->deflate.pipe_broken;

@@ -658,6 +658,9 @@ static int stress_sctp(const stress_args_t *args)
 	int ret, reserved_port, parent_cpu;
 	char *sctp_if = NULL;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
 	(void)stress_get_setting("sctp-if", &sctp_if);
 	(void)stress_get_setting("sctp-port", &sctp_port);
@@ -705,8 +708,6 @@ again:
 	} else if (pid == 0) {
 		 (void)stress_change_cpu(args, parent_cpu);
 		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
 		_exit(ret);
 	} else {
 		int status;

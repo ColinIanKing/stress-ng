@@ -364,6 +364,9 @@ static int stress_sockfd(const stress_args_t *args)
 	int *fds;
 	size_t fds_size;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("sockfd-port", &socket_fd_port);
 
 	socket_fd_port += args->instance;
@@ -415,10 +418,6 @@ again:
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, false);
 		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port, fds, fds_size);
-
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
-
 		_exit(ret);
 	} else {
 		int status;

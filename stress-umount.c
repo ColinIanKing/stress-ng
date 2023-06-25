@@ -105,7 +105,7 @@ static void stress_umount_umount(const stress_args_t *args, const char *path, co
  *  stress_umount_read_proc_mounts()
  *	exercise reading of proc mounts
  */
-static void stress_umount_read_proc_mounts(const stress_args_t *args, const pid_t parent, const char *path)
+static void stress_umount_read_proc_mounts(const stress_args_t *args, const char *path)
 {
 	(void)path;
 
@@ -125,7 +125,6 @@ static void stress_umount_read_proc_mounts(const stress_args_t *args, const pid_
 		shim_nanosleep_uint64(stress_mwc64modn(1000000));
 	} while (keep_stressing(args));
 
-	(void)shim_kill(parent, SIGALRM);
 	_exit(0);
 }
 
@@ -133,7 +132,7 @@ static void stress_umount_read_proc_mounts(const stress_args_t *args, const pid_
  *  stress_umount_umounter()
  *	racy unmount, hammer time!
  */
-static void stress_umount_umounter(const stress_args_t *args, const pid_t parent, const char *path)
+static void stress_umount_umounter(const stress_args_t *args, const char *path)
 {
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -143,17 +142,15 @@ static void stress_umount_umounter(const stress_args_t *args, const pid_t parent
 		shim_nanosleep_uint64(stress_mwc64modn(10000));
 	} while (keep_stressing(args));
 
-	(void)shim_kill(parent, SIGALRM);
 	_exit(0);
 }
-
 
 /*
  *  stress_umount_mounter()
  *	aggressively perform ramfs mounts, this can force out of memory
  *	conditions
  */
-static void stress_umount_mounter(const stress_args_t *args, const pid_t parent, const char *path)
+static void stress_umount_mounter(const stress_args_t *args, const char *path)
 {
 	const uint64_t ramfs_size = 64 * KB;
 	int i = 0;
@@ -182,7 +179,6 @@ static void stress_umount_mounter(const stress_args_t *args, const pid_t parent,
 		stress_umount_umount(args, path, 1000000);
 	} while (keep_stressing(args));
 
-	(void)shim_kill(parent, SIGALRM);
 cleanup:
 	stress_umount_umount(args, path, 100000000);
 	_exit(0);
@@ -194,9 +190,8 @@ cleanup:
  */
 static pid_t stress_umount_spawn(
 	const stress_args_t *args,
-	const pid_t parent,
 	const char *path,
-	void (*func)(const stress_args_t *args, const pid_t parent, const char *path))
+	void (*func)(const stress_args_t *args, const char *path))
 {
 	pid_t pid;
 
@@ -216,7 +211,7 @@ again:
 		(void)sched_settings_apply(true);
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
-		func(args, parent, path);
+		func(args, path);
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 
 		_exit(EXIT_SUCCESS);
@@ -231,9 +226,11 @@ again:
 static int stress_umount(const stress_args_t *args)
 {
 	pid_t pids[3] = { -1, -1, -1 };
-	const pid_t mypid = getpid();
 	int ret = EXIT_NO_RESOURCE;
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
@@ -248,13 +245,13 @@ static int stress_umount(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	pids[0] = stress_umount_spawn(args, mypid, realpathname, stress_umount_mounter);
+	pids[0] = stress_umount_spawn(args, realpathname, stress_umount_mounter);
 	if (pids[0] < 1)
 		goto reap;
-	pids[1] = stress_umount_spawn(args, mypid, realpathname, stress_umount_umounter);
+	pids[1] = stress_umount_spawn(args, realpathname, stress_umount_umounter);
 	if (pids[1] < 1)
 		goto reap;
-	pids[2] = stress_umount_spawn(args, mypid, realpathname, stress_umount_read_proc_mounts);
+	pids[2] = stress_umount_spawn(args, realpathname, stress_umount_read_proc_mounts);
 	if (pids[2] < 1)
 		goto reap;
 

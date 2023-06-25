@@ -1479,6 +1479,25 @@ static int stress_exclude(void)
 	return 0;
 }
 
+/*  stress_sigchld_handler()
+ *	parent is informed child has terminated and
+ * 	it's time to stop
+ */
+static void MLOCKED_TEXT stress_sigchld_handler(int signum)
+{
+	if (signum == SIGCHLD)
+		keep_stressing_set_flag(false);
+}
+
+/*
+ *  stress_sigchld_set_handler()
+ *	set sigchld handler
+ */
+int stress_sigchld_set_handler(const stress_args_t *args)
+{
+	return stress_sighandler(args->name, SIGCHLD, stress_sigchld_handler, NULL);
+}
+
 /*
  *  stress_sigint_handler()
  *	catch signals and set flag to break out of stress loops

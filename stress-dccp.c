@@ -427,6 +427,9 @@ static int stress_dccp(const stress_args_t *args)
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	char *dccp_if = NULL;
 
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
+
 	(void)stress_get_setting("dcpp-if", &dccp_if);
 	(void)stress_get_setting("dccp-port", &dccp_port);
 	(void)stress_get_setting("dccp-domain", &dccp_domain);
@@ -472,8 +475,6 @@ again:
 		(void)stress_change_cpu(args, parent_cpu);
 		(void)sched_settings_apply(true);
 		rc = stress_dccp_client(args, mypid, dccp_port, dccp_domain, dccp_if);
-		/* Inform parent we're all done */
-		(void)shim_kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
 		int status;

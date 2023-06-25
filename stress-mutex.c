@@ -177,7 +177,6 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 		}
 	} while (keep_stressing(args));
 
-	(void)shim_kill(args->pid, SIGALRM);
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	if (mutexattr_ret == 0) {
 		(void)pthread_mutexattr_destroy(&mutexattr);
@@ -200,6 +199,9 @@ static int stress_mutex(const stress_args_t *args)
 	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
 	bool mutex_affinity = false;
 	double duration = 0.0, count = 0.0, rate;
+
+	if (stress_sigchld_set_handler(args) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("mutex-affinity", &mutex_affinity);
 	if (!stress_get_setting("mutex-procs", &mutex_procs)) {
