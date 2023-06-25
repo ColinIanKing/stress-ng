@@ -202,7 +202,7 @@ static int stress_watchdog(const stress_args_t *args)
 
 			if (!keep_stressing_flag())
 				goto watchdog_close;
-			if ((ioctl(fd, WDIOC_GETTIMELEFT, &timeout) == 0) && 
+			if ((ioctl(fd, WDIOC_GETTIMELEFT, &timeout) == 0) &&
 			    (timeout < 0)) {
 				pr_fail("%s: ioctl WDIOC_GETTIMELEFT returned unexpected timeout value %d\n",
 					args->name, timeout);

@@ -155,7 +155,7 @@ static int stress_hrtimer_process(const stress_args_t *args)
 			pr_inf_skip("%s: timer_create, errno=%d (%s), skipping stessor\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
-		} 
+		}
 		pr_fail("%s: timer_create failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;

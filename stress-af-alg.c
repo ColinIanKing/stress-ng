@@ -948,7 +948,7 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	 * Don't support non-mainline tk transformations that some
 	 * kernels use, see
 	 * https://lore.kernel.org/lkml/1594591536-531-1-git-send-email-iuliana.prodan@nxp.com/t/#Z2e.:..:1594591536-531-3-git-send-email-iuliana.prodan::40nxp.com:1drivers:crypto:caam:caamalg.c
-	 */ 
+	 */
 	if (strcmp(info->name, "tk(cbc(aes))") == 0)
 		return false;
 	if (strcmp(info->name, "tk(ecb(aes))") == 0)
