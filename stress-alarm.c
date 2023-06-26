@@ -44,6 +44,18 @@ static void stress_alarm_sigusr1_handler(int sig)
 	_exit(0);
 }
 
+static void stress_alarm_inc_counter(const stress_args_t *args)
+{
+	sigset_t set;
+
+	sigemptyset(&set);
+	sigaddset(&set, SIGUSR1);
+	if (sigprocmask(SIG_BLOCK, &set, NULL) == 0) {
+		inc_counter(args);
+		(void)sigprocmask(SIG_UNBLOCK, &set, NULL);
+	}
+}
+
 /*
  *  stress_alarm
  *	stress alarm()
@@ -89,7 +101,7 @@ again:
 			secs_left = sleep((unsigned int)INT_MAX);
 			if (secs_left == 0)
 				err_mask |= STRESS_SLEEP_INTMAX;
-			inc_counter(args);
+			stress_alarm_inc_counter(args);
 			if (!keep_stressing(args))
 				break;
 
@@ -102,7 +114,7 @@ again:
 			secs_left = sleep(0);
 			if (secs_left != 0)
 				err_mask |= STRESS_SLEEP_ZERO;
-			inc_counter(args);
+			stress_alarm_inc_counter(args);
 			if (!keep_stressing(args))
 				break;
 
@@ -115,7 +127,7 @@ again:
 			secs_left = sleep(secs_left);
 			if (secs_left > secs_sleep)
 				err_mask |= STRESS_SLEEP_RANDOM;
-			inc_counter(args);
+			stress_alarm_inc_counter(args);
 		} while (keep_stressing(args));
 		_exit(err_mask);
 	} else {
