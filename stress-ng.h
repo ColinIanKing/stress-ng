@@ -2345,6 +2345,11 @@ typedef struct {
 #define STRESS_STRESSOR_STATUS_SKIPPED	(2)
 #define STRESS_STRESSOR_STATUS_MAX	(3)
 
+/* stress_stressor_info ignore value */
+#define STRESS_STRESSOR_NOT_IGNORED	(0)
+#define STRESS_STRESSOR_UNSUPPORTED	(1)
+#define STRESS_STRESSOR_EXCLUDED	(2)
+
 /* Per stressor information */
 typedef struct stress_stressor_info {
 	struct stress_stressor_info *next;	/* next proc info struct in list */
@@ -2356,6 +2361,7 @@ typedef struct stress_stressor_info {
 	uint64_t bogo_ops;		/* number of bogo ops */
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
 					/* number of instances that passed/failed/skipped */
+	uint8_t ignore;			/* ignore stressor, unsupported or excluded */
 } stress_stressor_t;
 
 
