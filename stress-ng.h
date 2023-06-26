@@ -2340,10 +2340,11 @@ typedef struct {
 	const char *name;		/* name of stress test */
 } stress_t;
 
-#define STRESS_STRESSOR_STATUS_PASSED	(0)
-#define STRESS_STRESSOR_STATUS_FAILED	(1)
-#define STRESS_STRESSOR_STATUS_SKIPPED	(2)
-#define STRESS_STRESSOR_STATUS_MAX	(3)
+#define STRESS_STRESSOR_STATUS_PASSED		(0)
+#define STRESS_STRESSOR_STATUS_FAILED		(1)
+#define STRESS_STRESSOR_STATUS_SKIPPED		(2)
+#define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
+#define STRESS_STRESSOR_STATUS_MAX		(4)
 
 /* stress_stressor_info ignore value */
 #define STRESS_STRESSOR_NOT_IGNORED	(0)
