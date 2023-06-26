@@ -374,7 +374,7 @@ stress-ng: info:  [1171714]                604,703,327 Branch Instructions      
 stress-ng: info:  [1171714]                598,760,234 Branch Misses                  52.77 M/sec (99.02%)
 ```
 
-## Bugs found with stress-ng
+## Bugs and regressions found with stress-ng
 
 stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have been landed to address these issues:
 
@@ -435,6 +435,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6fe7d6b992113719e96744d974212df3fcddc76c)
 * [block, bfq: Fix division by zero error on zero wsum](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e53413f8deedf738a6782cc14cc00bd5852ccf18)
 * [riscv: mm: Ensure prot of VM_WRITE and VM_EXEC must be readable](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6569fc12e442ea973d96db39e542aa19a7bc3a79)
+* [Revert "mm: vmscan: make global slab shrink lockless"](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=71c3ad65fabec9620d3f548b2da948c79c7ad9d5)
 
 ## Kernel improvements that used stress-ng
 
