@@ -339,6 +339,7 @@ static int apparmor_stress_kernel_interface(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 				stress_apparmor_failure_inc();
 				rc = EXIT_FAILURE;
+				break;
 			}
 		}
 
