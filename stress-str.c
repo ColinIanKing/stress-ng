@@ -84,7 +84,7 @@ static size_t stress_strcasecmp(const stress_args_t *args, stress_str_args_t *in
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
+	for (i = 1; stress_continue_flag() && (i < len1); i++) {
 		STRCHK(info, 0 == test_strcasecmp(str1, str1));
 		STRCHK(info, 0 == test_strcasecmp(str2, str2));
 
@@ -98,7 +98,7 @@ static size_t stress_strcasecmp(const stress_args_t *args, stress_str_args_t *in
 		STRCHK(info, 0 != test_strcasecmp(str1 + i, str2));
 		STRCHK(info, 0 != test_strcasecmp(str2, str1 + i));
 	}
-	add_counter(args, 9);
+	stress_bogo_add(args, 9);
 	return i * 9;
 }
 #endif
@@ -119,7 +119,7 @@ static size_t stress_strncasecmp(const stress_args_t *args, stress_str_args_t *i
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
+	for (i = 1; stress_continue_flag() && (i < len1); i++) {
 		STRCHK(info, 0 == test_strncasecmp(str1, str1, len1));
 		STRCHK(info, 0 == test_strncasecmp(str2, str2, len2));
 
@@ -133,7 +133,7 @@ static size_t stress_strncasecmp(const stress_args_t *args, stress_str_args_t *i
 		STRCHK(info, 0 != test_strncasecmp(str1 + i, str2, len1));
 		STRCHK(info, 0 != test_strncasecmp(str2, str1 + i, len2));
 	}
-	add_counter(args, 9);
+	stress_bogo_add(args, 9);
 	return i * 9;
 }
 #endif
@@ -153,14 +153,14 @@ static size_t stress_index(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, NULL == test_index(str1, '+'));
 		STRCHK(info, NULL != test_index(str1, str1[0]));
 
 		STRCHK(info, NULL == test_index(str2, '+'));
 		STRCHK(info, NULL != test_index(str2, str2[0]));
 	}
-	add_counter(args, 4);
+	stress_bogo_add(args, 4);
 	return i * 4;
 }
 #endif
@@ -180,14 +180,14 @@ static size_t stress_rindex(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, NULL == test_rindex(str1, '+'));
 		STRCHK(info, NULL != test_rindex(str1, str1[0]));
 
 		STRCHK(info, NULL == test_rindex(str2, '+'));
 		STRCHK(info, NULL != test_rindex(str2, str2[0]));
 	}
-	add_counter(args, 4);
+	stress_bogo_add(args, 4);
 	return i * 4;
 }
 #endif
@@ -212,11 +212,11 @@ static size_t stress_strlcpy(const stress_args_t *args, stress_str_args_t *info)
 	const size_t strdstlen = info->strdstlen;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, str_len1 == test_strlcpy(strdst, str1, strdstlen));
 		STRCHK(info, str_len2 == test_strlcpy(strdst, str2, strdstlen));
 	}
-	add_counter(args, 2);
+	stress_bogo_add(args, 2);
 	return i * 2;
 }
 #else
@@ -235,11 +235,11 @@ static size_t stress_strcpy(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, strdst == test_strcpy(strdst, str1));
 		STRCHK(info, strdst == test_strcpy(strdst, str2));
 	}
-	add_counter(args, 2);
+	stress_bogo_add(args, 2);
 	return i * 2;
 }
 #endif
@@ -266,7 +266,7 @@ static size_t stress_strlcat(const stress_args_t *args, stress_str_args_t *info)
 	const size_t strdstlen = info->strdstlen;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		*strdst = '\0';
 		STRCHK(info, str_len1 == test_strlcat(strdst, str1, strdstlen));
 		*strdst = '\0';
@@ -278,7 +278,7 @@ static size_t stress_strlcat(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, str_len2 == test_strlcat(strdst, str2, strdstlen));
 		STRCHK(info, str_len  == test_strlcat(strdst, str1, strdstlen));
 	}
-	add_counter(args, 6);
+	stress_bogo_add(args, 6);
 	return i * 6;
 }
 #else
@@ -297,7 +297,7 @@ static size_t stress_strcat(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		*strdst = '\0';
 		STRCHK(info, strdst == test_strcat(strdst, str1));
 		*strdst = '\0';
@@ -309,7 +309,7 @@ static size_t stress_strcat(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, strdst == test_strcat(strdst, str2));
 		STRCHK(info, strdst == test_strcat(strdst, str1));
 	}
-	add_counter(args, 6);
+	stress_bogo_add(args, 6);
 	return i * 6;
 }
 #endif
@@ -330,7 +330,7 @@ static size_t stress_strncat(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		*strdst = '\0';
 		STRCHK(info, strdst == test_strncat(strdst, str1, len1));
 		*strdst = '\0';
@@ -342,7 +342,7 @@ static size_t stress_strncat(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, strdst == test_strncat(strdst, str2, i));
 		STRCHK(info, strdst == test_strncat(strdst, str1, i));
 	}
-	add_counter(args, 6);
+	stress_bogo_add(args, 6);
 	return i * 6;
 }
 
@@ -360,14 +360,14 @@ static size_t stress_strchr(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, NULL == test_strchr(str1, '+'));
 		STRCHK(info, NULL != test_strchr(str1, str1[0]));
 
 		STRCHK(info, NULL == test_strchr(str2, '+'));
 		STRCHK(info, NULL != test_strchr(str2, str2[0]));
 	}
-	add_counter(args, 4);
+	stress_bogo_add(args, 4);
 	return i * 4;
 }
 
@@ -385,14 +385,14 @@ static size_t stress_strrchr(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, NULL == test_strrchr(str1, '+'));
 		STRCHK(info, NULL != test_strrchr(str1, str1[0]));
 
 		STRCHK(info, NULL == test_strrchr(str2, '+'));
 		STRCHK(info, NULL != test_strrchr(str2, str2[0]));
 	}
-	add_counter(args, 4);
+	stress_bogo_add(args, 4);
 	return i * 4;
 }
 
@@ -410,7 +410,7 @@ static size_t stress_strcmp(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
+	for (i = 1; stress_continue_flag() && (i < len1); i++) {
 		STRCHK(info, 0 == test_strcmp(str1, str1));
 		STRCHK(info, 0 == test_strcmp(str2, str2));
 
@@ -424,7 +424,7 @@ static size_t stress_strcmp(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, 0 != test_strcmp(str1 + i, str2));
 		STRCHK(info, 0 != test_strcmp(str2, str1 + i));
 	}
-	add_counter(args, 9);
+	stress_bogo_add(args, 9);
 	return i * 9;
 }
 
@@ -443,7 +443,7 @@ static size_t stress_strncmp(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len2 = info->len2;
 	register size_t i;
 
-	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
+	for (i = 1; stress_continue_flag() && (i < len1); i++) {
 		STRCHK(info, 0 == test_strncmp(str1, str1, len1));
 		STRCHK(info, 0 == test_strncmp(str2, str2, len2));
 
@@ -457,7 +457,7 @@ static size_t stress_strncmp(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, 0 != test_strncmp(str1 + i, str2, len2));
 		STRCHK(info, 0 != test_strncmp(str2, str1 + i, len2));
 	}
-	add_counter(args, 9);
+	stress_bogo_add(args, 9);
 	return i * 9;
 }
 /*
@@ -474,7 +474,7 @@ static size_t stress_strcoll(const stress_args_t *args, stress_str_args_t *info)
 	const size_t len1 = info->len1;
 	register size_t i;
 
-	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
+	for (i = 1; stress_continue_flag() && (i < len1); i++) {
 		STRCHK(info, 0 == test_strcoll(str1, str1));
 		STRCHK(info, 0 == test_strcoll(str2, str2));
 
@@ -488,7 +488,7 @@ static size_t stress_strcoll(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, 0 != test_strcoll(str1 + i, str2));
 		STRCHK(info, 0 != test_strcoll(str2, str1 + i));
 	}
-	add_counter(args, 9);
+	stress_bogo_add(args, 9);
 	return i * 9;
 }
 
@@ -508,18 +508,18 @@ static size_t stress_strlen(const stress_args_t *args, stress_str_args_t *info)
 	register size_t i;
 	size_t n;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		STRCHK(info, len1 - 1 == test_strlen(str1));
 		STRCHK(info, len1 - 1 - i == test_strlen(str1 + i));
 	}
 	n = i * 2;
 
-	for (i = 0; keep_stressing_flag() && (i < len2 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len2 - 1); i++) {
 		STRCHK(info, len2 - 1 == test_strlen(str2));
 		STRCHK(info, len2 - 1 - i == test_strlen(str2 + i));
 	}
 	n += i * 2;
-	add_counter(args, 4);
+	stress_bogo_add(args, 4);
 	return n;
 }
 
@@ -539,7 +539,7 @@ static size_t stress_strxfrm(const stress_args_t *args, stress_str_args_t *info)
 	const size_t strdstlen = info->strdstlen;
 	register size_t i;
 
-	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
+	for (i = 0; stress_continue_flag() && (i < len1 - 1); i++) {
 		*strdst = '\0';
 		STRCHK(info, 0 != test_strxfrm(strdst, str1, strdstlen));
 		*strdst = '\0';
@@ -551,7 +551,7 @@ static size_t stress_strxfrm(const stress_args_t *args, stress_str_args_t *info)
 		STRCHK(info, 0 != test_strxfrm(strdst, str2, strdstlen));
 		STRCHK(info, 0 != test_strxfrm(strdst, str1, strdstlen));
 	}
-	add_counter(args, 6);
+	stress_bogo_add(args, 6);
 	return i * 6;
 }
 
@@ -693,7 +693,7 @@ static int stress_str(const stress_args_t *args)
 		tmplen = info.len1;
 		info.len1 = info.len2;
 		info.len2 = tmplen;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

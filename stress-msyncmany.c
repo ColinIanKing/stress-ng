@@ -52,10 +52,10 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
-	for (n = 0; keep_stressing_flag() && (n < (size_t)max); n++) {
+	for (n = 0; stress_continue_flag() && (n < (size_t)max); n++) {
 		uint64_t *ptr;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
 			break;
@@ -100,8 +100,8 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 					args->name, i, (const void *)ptr, *ptr, pattern);
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

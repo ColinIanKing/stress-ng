@@ -317,7 +317,7 @@ static int stress_sigsegv(const stress_args_t *args)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		if (ret) {
@@ -342,7 +342,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			}
 #endif
 #endif
-			inc_counter(args);
+			stress_bogo_inc(args);
 		} else {
 #if defined(SA_SIGINFO)
 			signo = -1;

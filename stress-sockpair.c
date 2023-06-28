@@ -140,7 +140,7 @@ static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 
 	t = stress_time_now();
 	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			socket_pair_close(socket_pair_fds, max, 0);
 			socket_pair_close(socket_pair_fds, max, 1);
 			return EXIT_SUCCESS;
@@ -200,7 +200,7 @@ again:
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -214,11 +214,11 @@ again:
 		(void)sched_settings_apply(true);
 
 		socket_pair_close(socket_pair_fds, max, 1);
-		while (keep_stressing(args)) {
+		while (stress_continue(args)) {
 			uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
 			ssize_t n;
 
-			for (i = 0; keep_stressing(args) && (i < max); i++) {
+			for (i = 0; stress_continue(args) && (i < max); i++) {
 				errno = 0;
 
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
@@ -264,14 +264,14 @@ abort:
 		socket_pair_close(socket_pair_fds, max, 0);
 
 		do {
-			for (i = 0; keep_stressing(args) && (i < max); i++) {
+			for (i = 0; stress_continue(args) && (i < max); i++) {
 				ssize_t wret;
 
 				/* Low memory avoidance, re-start */
 				if (UNLIKELY(oom_avoid)) {
 					while (stress_low_memory(low_mem_size)) {
 						low_memory_count++;
-						if (!keep_stressing_flag())
+						if (!stress_continue_flag())
 							goto tidy;
 						shim_usleep(100000);
 					}
@@ -296,9 +296,9 @@ abort:
 					continue;
 				}
 				shim_sched_yield();
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 tidy:
 		rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
@@ -306,7 +306,7 @@ tidy:
 
 		if (low_memory_count > 0) {
 			pr_dbg("%s: %.2f%% of writes backed off due to low memory\n",
-				args->name, 100.0 * (double)low_memory_count / (double)get_counter(args));
+				args->name, 100.0 * (double)low_memory_count / (double)stress_bogo_get(args));
 		}
 
 		for (i = 0; i < max; i++) {

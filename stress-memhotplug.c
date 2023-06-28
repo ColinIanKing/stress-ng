@@ -230,17 +230,17 @@ static int stress_memhotplug(const stress_args_t *args)
 
 	do {
 		bool ok = false;
-		for (i = 0; keep_stressing(args) && (i < max); i++) {
+		for (i = 0; stress_continue(args) && (i < max); i++) {
 			stress_memhotplug_mem_toggle(&mem_info[i], &metrics);
 			if (!mem_info[i].timeout)
 				ok = true;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		if (!ok) {
 			for (i = 0; i < max; i++)
 				stress_memhotplug_mem_online(&mem_info[i]);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

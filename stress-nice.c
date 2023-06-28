@@ -121,17 +121,17 @@ static int stress_nice(const stress_args_t *args)
 #if defined(HAVE_SETPRIORITY)
 			case 1:
 				pid = getpid();
-				for (i = min_prio; (i <= max_prio) && keep_stressing(args); i++) {
+				for (i = min_prio; (i <= max_prio) && stress_continue(args); i++) {
 					errno = 0;
 					(void)setpriority(PRIO_PROCESS, (id_t)pid, i);
 					if (!errno)
 						stress_nice_delay();
-					inc_counter(args);
+					stress_bogo_inc(args);
 				}
 				break;
 #endif
 			default:
-				for (i = -19; (i < 20) && keep_stressing(args); i++) {
+				for (i = -19; (i < 20) && stress_continue(args); i++) {
 					int ret;
 #if defined(HAVE_GETPRIORITY)
 					int old_prio, new_prio;
@@ -163,7 +163,7 @@ static int stress_nice(const stress_args_t *args)
 #endif
 					if (ret == 0)
 						stress_nice_delay();
-					inc_counter(args);
+					stress_bogo_inc(args);
 				}
 				break;
 			}
@@ -174,7 +174,7 @@ static int stress_nice(const stress_args_t *args)
 
 			/* Parent, wait for child */
 			if (shim_waitpid(pid, &status, 0) < 0) {
-				force_killed_counter(args);
+				stress_force_killed_bogo(args);
 				(void)shim_kill(pid, SIGTERM);
 				(void)shim_kill(pid, SIGKILL);
 			} else {
@@ -186,7 +186,7 @@ static int stress_nice(const stress_args_t *args)
 				}
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

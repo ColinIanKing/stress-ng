@@ -85,7 +85,7 @@ static void *stress_pthread_func(void *c)
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const stress_args_t *args = ctxt->args;
 
-	while (keep_stressing(args) &&
+	while (stress_continue(args) &&
 	       !thread_terminate &&
 	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
 		register unsigned long i;
@@ -199,18 +199,18 @@ static int stress_nanosleep(const stress_args_t *args)
 			goto tidy;
 		}
 		/* Timed out? abort! */
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto tidy;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		set_counter(args, 0);
+		stress_bogo_set(args, 0);
 		(void)shim_usleep_interruptible(10000);
 		for (i = 0; i < n; i++)
-			add_counter(args, ctxts[i].counter);
-	}  while (!thread_terminate && keep_stressing(args));
+			stress_bogo_add(args, ctxts[i].counter);
+	}  while (!thread_terminate && stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 

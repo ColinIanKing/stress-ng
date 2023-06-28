@@ -31,7 +31,7 @@ static void stress_try_kill(
 {
 	int i;
 
-	for (i = 1; keep_stressing(args) && (i <= 20); i++) {
+	for (i = 1; stress_continue(args) && (i <= 20); i++) {
 		int status;
 
 		VOID_RET(int, shim_kill(pid, SIGKILL));

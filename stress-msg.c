@@ -248,11 +248,11 @@ static void OPTIMIZE3 stress_msg_receiver(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		register uint32_t i;
 		register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
-		for (i = 0; keep_stressing(args); i++) {
+		for (i = 0; stress_continue(args); i++) {
 			ssize_t msgsz;
 
 #if defined(MSG_COPY) &&	\
@@ -335,7 +335,7 @@ static void OPTIMIZE3 stress_msg_sender(
 			break;
 		}
 		msg.u.value++;
-		inc_counter(args);
+		stress_bogo_inc(args);
 		if (UNLIKELY((msg.u.value & 0xff) == 0)) {
 			if (stress_msg_get_stats(args, msgq_id) < 0)
 				break;
@@ -358,7 +358,7 @@ static void OPTIMIZE3 stress_msg_sender(
 				stress_msg_get_procinfo(&get_procinfo);
 #endif
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_msgsnd(msgq_id, msg_bytes);
 
@@ -404,16 +404,16 @@ static int stress_msg(const stress_args_t *args)
 
 	stress_msgget();
 	for (n = 0; n < max_ids; n++) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		msgq_ids[n] = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 		if ((msgq_ids[n] < 0) &&
 		    ((errno == ENOMEM) || (errno == ENOSPC)))
 			break;
 	}
-	inc_counter(args);
+	stress_bogo_inc(args);
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		goto cleanup;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -423,7 +423,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto cleanup;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

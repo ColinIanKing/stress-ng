@@ -231,7 +231,7 @@ fast_exit:
 				info[n].err = errno;
 			}
 			info[n].pid  = pid;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 		}
 		for (i = 0; i < n; i++) {
@@ -239,7 +239,7 @@ fast_exit:
 				int status;
 				/* Parent, kill and then wait for child */
 				(void)shim_waitpid(info[i].pid, &status, 0);
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
 
@@ -265,7 +265,7 @@ fast_exit:
 		if ((which == STRESS_VFORK) && (stress_time_now() > time_end))
 			break;
 #endif
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
 }

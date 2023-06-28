@@ -218,7 +218,7 @@ again:
 		(void)mq_close(mq);
 		(void)mq_unlink(mq_name);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -232,7 +232,7 @@ again:
 		(void)sched_settings_apply(true);
 		(void)shim_memset(&values, 0, sizeof(values));
 
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			uint64_t i;
 
 			for (i = 0; ; i++) {
@@ -488,8 +488,8 @@ again:
 			}
 			i++;
 
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

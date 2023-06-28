@@ -129,7 +129,7 @@ PRAGMA_UNROLL_N(4)							\
 	}								\
 	t2 = stress_time_now();						\
 									\
-	inc_counter(args);						\
+	stress_bogo_inc(args);						\
 	return t2 - t1;							\
 }
 
@@ -340,7 +340,7 @@ static int stress_vecshuf(const stress_args_t *args)
 		stress_vecshuf_set_mask(data);
 		stress_vecshuf_call_method(args, data, vecshuf_method);
 		stress_vecshuf_check_data(args, data);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 
 	if (args->instance == 0) {

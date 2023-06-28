@@ -297,8 +297,8 @@ static int stress_fsize(const stress_args_t *args)
 			if (stress_fsize_boundary(args, fd, &old_rlim, offset, 1) == EXIT_FAILURE)
 				rc = EXIT_FAILURE;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	duration = stress_time_now() - t;
 	rate = (duration > 0.0) ? (double)sigxfsz_count / duration : 0.0;

@@ -210,8 +210,8 @@ static void stress_touch_loop(
 		ret = stress_lock_acquire(touch_lock);
 		if (ret)
 			break;
-		counter = get_counter(args);
-		inc_counter(args);
+		counter = stress_bogo_get(args);
+		stress_bogo_inc(args);
 		ret = stress_lock_release(touch_lock);
 		if (ret)
 			break;
@@ -289,7 +289,7 @@ static void stress_touch_loop(
 		}
 
 		(void)shim_unlink(filename);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 }
 
 /*
@@ -334,7 +334,7 @@ static int stress_touch(const stress_args_t *args)
 	}
 	stress_touch_loop(args, touch_method, open_flags);
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

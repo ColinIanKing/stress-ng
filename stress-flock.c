@@ -68,9 +68,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			/*
 			 *  we have an exclusive lock on the fd, so re-doing
@@ -108,9 +108,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			t = stress_time_now();
 			if (flock(fd1, LOCK_UN) == 0) {
@@ -139,7 +139,7 @@ static int stress_flock_child(
 #endif
 
 #if defined(LOCK_SH)
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		t = stress_time_now();
@@ -147,9 +147,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			t = stress_time_now();
 			if (flock(fd1, LOCK_UN) == 0) {
@@ -165,7 +165,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_SH) &&		\
     defined(LOCK_NB)
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		t = stress_time_now();
@@ -173,9 +173,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			t = stress_time_now();
 			if (flock(fd1, LOCK_UN) == 0) {
@@ -191,7 +191,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_MAND) &&	\
     defined(LOCK_READ)
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		t = stress_time_now();
@@ -199,9 +199,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			t = stress_time_now();
 			if (flock(fd1, LOCK_UN) == 0) {
@@ -217,7 +217,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_MAND) &&	\
     defined(LOCK_WRITE)
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		t = stress_time_now();
@@ -225,9 +225,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			t = stress_time_now();
 			if (flock(fd1, LOCK_UN) == 0) {
@@ -243,7 +243,7 @@ static int stress_flock_child(
 
 #if defined(LOCK_EX) &&		\
     defined(LOCK_SH)
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		/* Exercise invalid lock combination */
@@ -252,9 +252,9 @@ static int stress_flock_child(
 			lock_duration += stress_time_now() - t;
 			lock_count += 1.0;
 
-			cont = keep_stressing(args);
+			cont = stress_continue(args);
 			if (cont)
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 			t = stress_time_now();
 			if (flock(fd1, LOCK_UN) == 0) {

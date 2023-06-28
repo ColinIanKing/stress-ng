@@ -101,7 +101,7 @@ again:
 		(void)close(fd1);
 		(void)close(fd2);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return EXIT_SUCCESS;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -113,7 +113,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			uint64_t val = 0;
 			ssize_t ret;
 			char re[7];
@@ -122,7 +122,7 @@ again:
 			VOID_RET(ssize_t, read(fd1, re, sizeof(re)));
 
 			for (;;) {
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto exit_child;
 				ret = read(fd1, &val, sizeof(val));
 				if (UNLIKELY(ret < 0)) {
@@ -158,7 +158,7 @@ again:
 
 			val = 1;
 			for (;;) {
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto exit_child;
 				ret = write(fd2, &val, sizeof(val));
 				if (UNLIKELY(ret < 0)) {
@@ -196,7 +196,7 @@ exit_child:
 			(void)stress_read_fdinfo(self, stress_mwc1() ? fd1 : fd2);
 
 			for (;;) {
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto exit_parent;
 
 				ret = write(fd1, &val, sizeof(val));
@@ -217,7 +217,7 @@ exit_child:
 			}
 
 			for (;;) {
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto exit_parent;
 
 				ret = read(fd2, &val, sizeof(val));
@@ -236,8 +236,8 @@ exit_child:
 				}
 				break;
 			}
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 exit_parent:
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

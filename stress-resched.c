@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 static void MLOCKED_TEXT stress_resched_usr1_handler(int sig)
 {
 	if (sig == SIGUSR1)
-		keep_stressing_set_flag(false);
+		stress_continue_set_flag(false);
 }
 
 static void NORETURN stress_resched_child(
@@ -83,7 +83,7 @@ static void NORETURN stress_resched_child(
 			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
 				struct sched_param param;
 
-				if (!keep_stressing(args))
+				if (!stress_continue(args))
 					break;
 
 				(void)shim_memset(&param, 0, sizeof(param));
@@ -104,19 +104,19 @@ static void NORETURN stress_resched_child(
 				VOID_RET(int, shim_sched_yield());
 				if (yields)
 					yields[i]++;
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 #else
 			VOID_RET(int, shim_sched_yield());
 			if (yields)
 				yields[i]++;
-			inc_counter(args);
+			stress_bogo_inc(args);
 #endif
 		}
 
 		VOID_RET(int, nice(1));
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 	}
 	_exit(rc);
@@ -193,7 +193,7 @@ static int stress_resched(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Start off one child process per positive nice level */
-	for (i = 0; keep_stressing(args) && (i < pids_max); i++)
+	for (i = 0; stress_continue(args) && (i < pids_max); i++)
 		stress_resched_spawn(args, pids, i, max_prio, yields);
 
 	do {
@@ -215,7 +215,7 @@ static int stress_resched(const stress_args_t *args)
 					stress_resched_spawn(args, pids, i, max_prio, yields);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	if (stress_kill_and_wait_many(args, pids, pids_max, SIGALRM, true) == EXIT_FAILURE)
 		rc = EXIT_FAILURE;

@@ -1064,7 +1064,7 @@ again:
 		if (pid == -1) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -1097,8 +1097,8 @@ again:
 				}
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

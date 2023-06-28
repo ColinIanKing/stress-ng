@@ -379,7 +379,7 @@ static int stress_dentry(const stress_args_t *args)
 			int fd;
 			double t;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto abort;
 
 			stress_temp_filename_args(args,
@@ -407,7 +407,7 @@ static int stress_dentry(const stress_args_t *args)
 				}
 			}
 			(void)close(fd);
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 		stress_dentry_misc(dir_path);
@@ -421,7 +421,7 @@ static int stress_dentry(const stress_args_t *args)
 			const uint64_t gray_code = (i >> 1) ^ i;
 			double t;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto abort;
 
 			/* The following should succeed */
@@ -466,9 +466,9 @@ static int stress_dentry(const stress_args_t *args)
 		stress_dentry_unlink(args, n, dentry_order, verify);
 		stress_dentry_misc(dir_path);
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 abort:
 	stress_dentry_state(&nr_dentry2);

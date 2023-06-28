@@ -126,7 +126,7 @@ static int stress_getdents_dir(
 	unsigned int buf_sz;
 	const size_t page_size = args->page_size;
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -164,7 +164,7 @@ static int stress_getdents_dir(
 		if (nread == 0)
 			break;
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		if (!recurse || (depth < 1))
 			continue;
@@ -185,7 +185,7 @@ static int stress_getdents_dir(
 			}
 			ptr = (struct shim_linux_dirent *)stress_gendent_offset((void *)ptr, d->d_reclen);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 exit_free:
 	free(buf);
 exit_close:
@@ -214,7 +214,7 @@ static int stress_getdents64_dir(
 	unsigned int buf_sz;
 	const size_t page_size = args->page_size;
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -248,7 +248,7 @@ static int stress_getdents64_dir(
 		if (nread == 0)
 			break;
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		if (!recurse || (depth < 1))
 			continue;
@@ -268,7 +268,7 @@ static int stress_getdents64_dir(
 			}
 			ptr = (struct shim_linux_dirent64 *)stress_gendent_offset((void *)ptr, d->d_reclen);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 exit_free:
 	free(buf);
 exit_close:
@@ -307,7 +307,7 @@ static int stress_getdent(const stress_args_t *args)
 		ret = stress_getdents_rand(args, "/run", true, 2, bad_fd, &duration, &count);
 		if (ret == -ENOSYS)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per getdents call", rate * STRESS_DBL_NANOSECOND);

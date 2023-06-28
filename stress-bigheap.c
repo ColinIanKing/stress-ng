@@ -218,7 +218,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		 * some time and we should bail out before
 		 * exerting any more memory pressure
 		 */
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 
 		phase = STRESS_BIGHEAP_LOWMEM_CHECK;
@@ -258,7 +258,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			duration += stress_time_now() - t;
 			count += 1.0;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 
 			if (last_ptr == ptr) {
@@ -269,7 +269,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 				uintptr = (uintptr_t *)ptr;
 			}
 			while (uintptr < uintptr_end) {
-				if (!keep_stressing(args))
+				if (!stress_continue(args))
 					goto finish;
 				*uintptr = (uintptr_t)uintptr;
 				uintptr += stride / sizeof(uintptr_t);
@@ -284,7 +284,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 					uintptr = (uintptr_t *)ptr;
 				}
 				while (uintptr < uintptr_end) {
-					if (!keep_stressing(args))
+					if (!stress_continue(args))
 						goto finish;
 					if (*uintptr != (uintptr_t)uintptr)
 						pr_fail("%s: data at location %p was 0x%" PRIxPTR
@@ -297,8 +297,8 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			last_ptr = ptr;
 			last_ptr_end = (void *)uintptr_end;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 finish:
 	phase = STRESS_BIGHEAP_FINISHED;

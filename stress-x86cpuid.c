@@ -173,7 +173,7 @@ PRAGMA_UNROLL_N(8)
 
 				stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		duration += stress_time_now() - t;
 		count += (double)n * (double)j;
@@ -223,7 +223,7 @@ PRAGMA_UNROLL_N(8)
 				}
 			}
 		}
-	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

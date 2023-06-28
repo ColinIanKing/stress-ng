@@ -563,7 +563,7 @@ static int stress_cacheline_all(
 	size_t i;
 	const size_t n = SIZEOF_ARRAY(cacheline_methods);
 
-	for (i = 1; keep_stressing(args) && (i < n); i++) {
+	for (i = 1; stress_continue(args) && (i < n); i++) {
 		int rc;
 
 		rc = cacheline_methods[i].func(args, index, parent, l1_cacheline_size);
@@ -643,14 +643,14 @@ static int stress_cacheline_child(
 	do {
 		rc = func(args, index, parent, l1_cacheline_size);
 		if (parent)
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY)
 		if (cacheline_affinity)
 			stress_cacheline_change_affinity(args, cpus, parent);
 #endif
-	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	return rc;
 }
@@ -743,7 +743,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));

@@ -98,7 +98,7 @@ static void stress_peterson_p1(const stress_args_t *args)
 	check0 = peterson->m.check;
 	peterson->m.check--;
 	check1 = peterson->m.check;
-	inc_counter(args);
+	stress_bogo_inc(args);
 
 	peterson->m.flag[1] = false;
 	shim_mfence();
@@ -142,14 +142,14 @@ static int stress_peterson(const stress_args_t *args)
 	} else if (pid == 0) {
 		/* Child */
 		(void)stress_change_cpu(args, parent_cpu);
-		while (keep_stressing(args))
+		while (stress_continue(args))
 			stress_peterson_p0(args);
 		_exit(0);
 	} else {
 		int status;
 
 		/* Parent */
-		while (keep_stressing(args))
+		while (stress_continue(args))
 			stress_peterson_p1(args);
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

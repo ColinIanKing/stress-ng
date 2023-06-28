@@ -118,7 +118,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	for (i = 0; i < n; i++) {				\
 		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
-	inc_counter(args);					\
+	stress_bogo_inc(args);					\
 	return t2 - t1;						\
 }
 
@@ -152,7 +152,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	for (i = 0; i < n; i++) {				\
 		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
-	inc_counter(args);					\
+	stress_bogo_inc(args);					\
 	return t2 - t1;						\
 }
 
@@ -186,7 +186,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
 								\
-	inc_counter(args);					\
+	stress_bogo_inc(args);					\
 	return t2 - t1;						\
 }
 
@@ -217,7 +217,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 		*vecfp_init[i].field.r = r.f[i];		\
 	}							\
 								\
-	inc_counter(args);					\
+	stress_bogo_inc(args);					\
 	return t2 - t1;						\
 }
 
@@ -466,7 +466,7 @@ static int stress_vecfp(const stress_args_t *args)
 
 	do {
 		stress_vecfp_call_method(args, vecfp_init, vecfp_method, &success);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const double rate = (stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration) / 1000000.0;

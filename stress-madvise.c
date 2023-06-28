@@ -567,7 +567,7 @@ static int stress_madvise(const stress_args_t *args)
 			break;
 		}
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		file_mapped = stress_mwc1();
@@ -686,8 +686,8 @@ madv_free_out:
 			(void)madvise(bad_addr, page_size * 2, MADV_NORMAL);
 		}
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

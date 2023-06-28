@@ -317,7 +317,7 @@ static void *stress_memory_contend_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 #if defined(HAVE_SCHED_SETAFFINITY)
 		cpu_set_t mask;
 		const uint32_t cpu = stress_mwc32modn(cpus);
@@ -416,8 +416,8 @@ static int stress_mcontend(const stress_args_t *args)
 		(void)msync(data[0], args->page_size, MS_ASYNC);
 		(void)msync(data[1], args->page_size, MS_ASYNC);
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {

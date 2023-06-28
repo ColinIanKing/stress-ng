@@ -202,12 +202,12 @@ static int stress_get(const stress_args_t *args)
 
 		(void)mypid;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		VOID_RET(pid_t, getppid());
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 #if defined(HAVE_SWAPCONTEXT) &&        \
@@ -216,7 +216,7 @@ static int stress_get(const stress_args_t *args)
 			ucontext_t context;
 
 			VOID_RET(int, getcontext(&context));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 
@@ -226,7 +226,7 @@ static int stress_get(const stress_args_t *args)
 			ucontext_t context;
 
 			VOID_RET(int, getcontext(&context));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -241,7 +241,7 @@ static int stress_get(const stress_args_t *args)
 			char name[128];
 
 			VOID_RET(int, shim_getdomainname(name, sizeof(name)));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -251,7 +251,7 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_GETHOSTID)
 		{
 			VOID_RET(long, gethostid());
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -263,7 +263,7 @@ static int stress_get(const stress_args_t *args)
 			char name[128];
 
 			VOID_RET(int, gethostname(name, sizeof(name)));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -285,7 +285,7 @@ static int stress_get(const stress_args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		VOID_RET(gid_t, getgid());
@@ -293,7 +293,7 @@ static int stress_get(const stress_args_t *args)
 		VOID_RET(uid_t, getuid());
 		VOID_RET(uid_t, geteuid());
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -323,7 +323,7 @@ static int stress_get(const stress_args_t *args)
 		(void)shim_memset(gids, 0, sizeof(gids));
 		VOID_RET(long, syscall(__NR_getgroups, -1, gids));
 #endif
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 #if defined(HAVE_GETPGRP)
@@ -344,7 +344,7 @@ static int stress_get(const stress_args_t *args)
 			pid = stress_get_unused_pid_racy(false);
 			VOID_RET(pid_t, getpgid(pid));
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 #else
 		UNEXPECTED
@@ -369,7 +369,7 @@ static int stress_get(const stress_args_t *args)
 			if (verify && errno && (errno != EINVAL) && (ret < 0))
 				pr_fail("%s: getpriority failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 		/* Exercise getpriority calls using non-zero who argument */
@@ -388,7 +388,7 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0))
 				pr_fail("%s: getresgid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -403,7 +403,7 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0))
 				pr_fail("%s: getresuid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -417,7 +417,7 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0))
 				pr_fail("%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 
@@ -469,7 +469,7 @@ static int stress_get(const stress_args_t *args)
 				/* Exercise invalid pids */
 				(void)prlimit(pid, rlimits[i], NULL, &rlims[0]);
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #else
@@ -508,7 +508,7 @@ static int stress_get(const stress_args_t *args)
 			if (rusages[i].verify && verify && (ret < 0) && (errno != ENOSYS))
 				pr_fail("%s: getrusage(%s, ..) failed, errno=%d (%s)\n",
 					args->name, rusages[i].name, errno, strerror(errno));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 
@@ -523,7 +523,7 @@ static int stress_get(const stress_args_t *args)
 			pid = stress_get_unused_pid_racy(false);
 			VOID_RET(int, getsid(pid));
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 		break;
 #else
 		UNEXPECTED
@@ -535,7 +535,7 @@ static int stress_get(const stress_args_t *args)
 		(void)shim_getcpu(NULL, &node, NULL);
 		(void)shim_getcpu(&cpu, NULL, NULL);
 		(void)shim_getcpu(NULL, NULL, NULL);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		t = time(NULL);
@@ -628,7 +628,7 @@ static int stress_get(const stress_args_t *args)
 
 			if (!uname_segv) {
 				ret = sigsetjmp(jmp_env, 1);
-				if (!keep_stressing(args))
+				if (!stress_continue(args))
 					break;
 				if (ret != 0) {
 					uname_segv = true;
@@ -758,8 +758,8 @@ static int stress_get(const stress_args_t *args)
 		UNEXPECTED
 #endif
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

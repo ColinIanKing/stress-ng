@@ -83,7 +83,7 @@ static void MLOCKED_TEXT handle_fstat_sigalrm(int signum)
 	(void)signum;
 
 	keep_running = false;
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -226,11 +226,11 @@ static void *stress_fstat_thread(void *ptr)
 #if !defined(__APPLE__)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 #endif
-	while (keep_running && keep_stressing_flag()) {
+	while (keep_running && stress_continue_flag()) {
 		size_t i;
 
 		for (i = 0; i < FSTAT_LOOPS; i++) {
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			if (stress_fstat_helper(ctxt) < 0) {
 				pthread_info->pthread_ret = -1;
@@ -275,7 +275,7 @@ static int stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *s
 	}
 #endif
 	for (i = 0; i < FSTAT_LOOPS; i++) {
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (stress_fstat_helper(&ctxt) < 0) {
 			rc = -1;
@@ -326,7 +326,7 @@ static int stress_fstat(const stress_args_t *args)
 	while ((d = readdir(dp)) != NULL) {
 		char path[PATH_MAX];
 
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			ret = EXIT_SUCCESS;
 			(void)closedir(dp);
 			goto free_cache;
@@ -359,8 +359,8 @@ static int stress_fstat(const stress_args_t *args)
 	do {
 		stat_some = false;
 
-		for (si = stat_info; si && keep_stressing_flag(); si = si->next) {
-			if (!keep_stressing(args))
+		for (si = stat_info; si && stress_continue_flag(); si = si->next) {
+			if (!stress_continue(args))
 				break;
 			if (si->ignore == IGNORE_ALL)
 				continue;
@@ -368,9 +368,9 @@ static int stress_fstat(const stress_args_t *args)
 				break;
 
 			stat_some = true;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (stat_some && keep_stressing(args));
+	} while (stat_some && stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 free_cache:

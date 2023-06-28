@@ -108,7 +108,7 @@ static void NORETURN stress_rmap_child(
 		switch (rnd8 & 3) {
 		case 0: for (i = 0; i < MAPPINGS_MAX; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!inc_counter_lock(args, counter_lock, false))
+					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
 					if (stress_rmap_touch(args, child_index, mappings[i], sz) < 0) {
 						rc = EXIT_FAILURE;
@@ -120,7 +120,7 @@ static void NORETURN stress_rmap_child(
 			break;
 		case 1: for (i = MAPPINGS_MAX - 1; i >= 0; i--) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!inc_counter_lock(args, counter_lock, false))
+					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
 					if (stress_rmap_touch(args, child_index, mappings[i], sz) < 0) {
 						rc = EXIT_FAILURE;
@@ -134,7 +134,7 @@ static void NORETURN stress_rmap_child(
 				const size_t j = stress_mwc32modn(MAPPINGS_MAX);
 
 				if (mappings[j] != MAP_FAILED) {
-					if (!inc_counter_lock(args, counter_lock, false))
+					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
 					if (stress_rmap_touch(args, child_index, mappings[j], sz) < 0) {
 						rc = EXIT_FAILURE;
@@ -146,7 +146,7 @@ static void NORETURN stress_rmap_child(
 			break;
 		case 3: for (i = 0; i < MAPPINGS_MAX - 1; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!inc_counter_lock(args, counter_lock, false))
+					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
 					if (stress_rmap_touch(args, child_index, mappings[i], sz) > 0) {
 						rc = EXIT_FAILURE;
@@ -157,7 +157,7 @@ static void NORETURN stress_rmap_child(
 			}
 			break;
 		}
-	} while (inc_counter_lock(args, counter_lock, true));
+	} while (stress_bogo_inc_lock(args, counter_lock, true));
 
 fail:
 	stress_set_proc_state(args->name, STRESS_STATE_WAIT);
@@ -230,7 +230,7 @@ static int stress_rmap(const stress_args_t *args)
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		const off_t offset = (off_t)(i * page_size);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto cleanup;
 
 		mappings[i] =
@@ -246,7 +246,7 @@ static int stress_rmap(const stress_args_t *args)
 	 *  Spawn children workers
 	 */
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto cleanup;
 
 		pids[i] = fork();
@@ -274,7 +274,7 @@ static int stress_rmap(const stress_args_t *args)
 	/*
 	 *  Wait for SIGINT or SIGALRM
 	 */
-	while (inc_counter_lock(args, counter_lock, false)) {
+	while (stress_bogo_inc_lock(args, counter_lock, false)) {
 		pause();
 	}
 

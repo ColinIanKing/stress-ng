@@ -146,7 +146,7 @@ static int stress_dir_read(
 	if (!dp)
 		return -1;
 
-	while (keep_stressing(args) && ((de = readdir(dp)) != NULL)) {
+	while (stress_continue(args) && ((de = readdir(dp)) != NULL)) {
 		char filename[PATH_MAX];
 		struct stat statbuf;
 
@@ -283,7 +283,7 @@ static void stress_dir_read_concurrent(
 	do {
 		if (stress_dir_read(args, pathname) < 0)
 			return;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 }
 
 /*
@@ -324,7 +324,7 @@ static int stress_dir(const stress_args_t *args)
 		stress_dir_flock(dir_fd);
 		stress_dir_truncate(pathname, dir_fd);
 
-		for (i = 0; keep_stressing(args) && (i < n); i++) {
+		for (i = 0; stress_continue(args) && (i < n); i++) {
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
 
@@ -340,26 +340,26 @@ static int stress_dir(const stress_args_t *args)
 					break;
 				}
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		stress_invalid_mkdir(pathname);
 		stress_invalid_rmdir(pathname);
 		stress_invalid_mkdirat(bad_fd);
 
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			stress_dir_tidy(args, i);
 			break;
 		}
 		stress_dir_read(args, pathname);
 		stress_dir_tidy(args, i);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		stress_dir_sync(dir_fd);
 		(void)sync();
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	/* exercise invalid path */
 	{

@@ -138,7 +138,7 @@ static bool stress_dirdeep_make(
 	}
 	if (len + 2 >= path_len)
 		return true;
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return true;
 
 	errno = 0;
@@ -153,7 +153,7 @@ static bool stress_dirdeep_make(
 		printf("%s\n", path);
 		return true;
 	}
-	inc_counter(args);
+	stress_bogo_inc(args);
 	(*inodes_estimate)++;
 
 	/*
@@ -182,7 +182,7 @@ static bool stress_dirdeep_make(
 	path[len + 1] = 'h';	/* hardlink */
 	VOID_RET(int, link(linkpath, path));
 
-	for (i = 0; keep_stressing(args) && (i < dirdeep_dirs); i++) {
+	for (i = 0; stress_continue(args) && (i < dirdeep_dirs); i++) {
 		uint32_t j;
 		bool finish;
 
@@ -193,7 +193,7 @@ static bool stress_dirdeep_make(
 				dirdeep_bytes, inodes_start, inodes_estimate, inodes_min,
 				depth + 1);
 		if (len + 6 < path_len) {
-			for (j = 0; keep_stressing(args) && (j < dirdeep_files); j++) {
+			for (j = 0; stress_continue(args) && (j < dirdeep_files); j++) {
 				int fd;
 
 				(void)snprintf(path + len, path_len - len, "/%-4.4" PRIx32, j);
@@ -219,7 +219,7 @@ static bool stress_dirdeep_make(
 			break;
 	}
 	path[len] = '\0';
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return true;
 
 #if defined(HAVE_LINKAT) &&	\
@@ -312,7 +312,7 @@ static int stress_dir_exercise(
 		{ sec, nsec }
 	};
 #endif
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	if (len + 2 >= path_len)
@@ -322,7 +322,7 @@ static int stress_dir_exercise(
 	if (n < 0)
 		return -1;
 
-	for (i = 0; (i < n) && keep_stressing(args); i++) {
+	for (i = 0; (i < n) && stress_continue(args); i++) {
 		register int ch;
 
 		/* Sanity check */
@@ -361,7 +361,7 @@ static int stress_dir_exercise(
 				}
 				(void)close(fd);
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 	}
 	path[len] = '\0';
@@ -500,7 +500,7 @@ static int stress_dirdeep(const stress_args_t *args)
 		(void)shim_strlcpy(path, rootpath, sizeof(path));
 		if (stress_dir_exercise(args, path, path_len, sizeof(path)) < 0)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

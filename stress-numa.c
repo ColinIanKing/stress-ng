@@ -337,7 +337,7 @@ static int stress_numa(const stress_args_t *args)
 
 		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE));
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
@@ -350,7 +350,7 @@ static int stress_numa(const stress_args_t *args)
 		}
 
 		(void)shim_memset(buf, 0xff, MMAP_SZ);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/* Create a mix of _NONES options, invalid ones too */
@@ -451,7 +451,7 @@ static int stress_numa(const stress_args_t *args)
 		} else {
 			(void)shim_memset(buf, 0xaa, MMAP_SZ);
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -470,7 +470,7 @@ static int stress_numa(const stress_args_t *args)
 		} else {
 			(void)shim_memset(buf, 0x5c, MMAP_SZ);
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/* Exercise invalid start address */
@@ -536,7 +536,7 @@ static int stress_numa(const stress_args_t *args)
 		VOID_RET(long, shim_migrate_pages(args->pid, ~0UL, old_node_mask, node_mask));
 		VOID_RET(long, shim_migrate_pages(args->pid, 0, old_node_mask, node_mask));
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		n_tmp = n;
@@ -559,7 +559,7 @@ static int stress_numa(const stress_args_t *args)
 				}
 			}
 			(void)shim_memset(buf, j, MMAP_SZ);
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 
@@ -606,8 +606,8 @@ static int stress_numa(const stress_args_t *args)
 		pages[0] = buf;
 		VOID_RET(long, shim_move_pages(args->pid, 1, pages, NULL, status, MPOL_MF_MOVE));
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 err:

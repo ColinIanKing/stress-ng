@@ -329,8 +329,8 @@ static int stress_landlock(const stress_args_t *args)
 		if (failures >= 5)
 			goto err;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

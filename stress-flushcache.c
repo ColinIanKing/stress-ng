@@ -176,7 +176,7 @@ static inline int stress_flush_icache(
 	if (stress_flushcache_mprotect(args, page_addr, context->i_size, PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
 		return -1;
 
-	while ((ptr < ptr_end) && keep_stressing_flag()) {
+	while ((ptr < ptr_end) && stress_continue_flag()) {
 		volatile uint8_t *vptr = (volatile uint8_t *)ptr;
 		uint8_t val;
 
@@ -222,7 +222,7 @@ static inline int stress_flush_dcache(
 	register uint8_t *ptr = (uint8_t *)d_addr;
 	const uint8_t *ptr_end = ptr + d_size;
 
-	while ((ptr < ptr_end) && keep_stressing_flag()) {
+	while ((ptr < ptr_end) && stress_continue_flag()) {
 #if defined(HAVE_ASM_X86_CLFLUSH)
 		if (context->x86_clfsh)
 			clflush_page((void *)ptr, page_size, cl_size);
@@ -265,8 +265,8 @@ static int stress_flushcache_child(const stress_args_t *args, void *ctxt)
 		shim_cacheflush(context->i_addr, context->i_size, SHIM_ICACHE | SHIM_DCACHE);
 		shim_cacheflush(context->d_addr, context->d_size, SHIM_ICACHE | SHIM_DCACHE);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

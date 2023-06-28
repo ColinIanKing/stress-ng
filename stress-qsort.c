@@ -374,7 +374,7 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 		if (!stress_qsort_verify_forward(args, data, n))
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/* Reverse sort */
@@ -388,7 +388,7 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 		if (!stress_qsort_verify_reverse(args, data, n))
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		stress_sort_data_int32_mangle(data, n);
@@ -410,8 +410,8 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 		if (!stress_qsort_verify_reverse(args, data, n))
 			break;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

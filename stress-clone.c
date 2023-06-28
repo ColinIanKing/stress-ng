@@ -537,11 +537,11 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			}
 			if (max_clones < clones.length)
 				max_clones = clones.length;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		} else {
 			stress_clone_head_remove(shared);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, mmap_size);

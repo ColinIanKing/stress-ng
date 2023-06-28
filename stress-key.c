@@ -227,7 +227,7 @@ static int stress_key(const stress_args_t *args)
 #if defined(KEYCTL_SEARCH)
 			(void)shim_keyctl(KEYCTL_SEARCH, KEY_SPEC_PROCESS_KEYRING, "user", description, 0);
 #endif
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto tidy;
 		}
 
@@ -249,7 +249,7 @@ static int stress_key(const stress_args_t *args)
 					pr_fail("%s: keyctl KEYCTL_DESCRIBE failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto tidy;
 #endif
 
@@ -270,7 +270,7 @@ static int stress_key(const stress_args_t *args)
 						args->name, errno, strerror(errno));
 				}
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto tidy;
 #endif
 
@@ -290,7 +290,7 @@ static int stress_key(const stress_args_t *args)
 						args->name, errno, strerror(errno));
 				}
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto tidy;
 #endif
 
@@ -328,7 +328,7 @@ static int stress_key(const stress_args_t *args)
 			/* exercise invalid dest keyring id */
 			(void)shim_request_key("user", description, NULL, INT_MIN);
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto tidy;
 #endif
 
@@ -383,7 +383,7 @@ static int stress_key(const stress_args_t *args)
 		(void)shim_keyctl(~0, 0, 0, 0, 0);
 
 tidy:
-		inc_counter(args);
+		stress_bogo_inc(args);
 		/* If we hit too many errors and bailed out early, clean up */
 		for (i = 0; i < n; i++) {
 			if (keys[i] >= 0) {
@@ -395,7 +395,7 @@ tidy:
 #if defined(KEYCTL_CLEAR)
 		(void)shim_keyctl(KEYCTL_CLEAR, KEY_SPEC_PROCESS_KEYRING);
 #endif
-	} while (no_error && keep_stressing(args));
+	} while (no_error && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

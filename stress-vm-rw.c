@@ -106,7 +106,7 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 		goto cleanup;
 	}
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		register uint8_t *ptr;
 		register const uint8_t *end = buf + ctxt->sz;
 		ssize_t rwret;
@@ -209,7 +209,7 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 
 		/* Wait for address of child's buffer */
 redo_rd2:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		rwret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
 		if (UNLIKELY(rwret < 0)) {
@@ -306,7 +306,7 @@ redo_rd2:
 		msg_wr.val = val;
 		val++;
 redo_wr2:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		/* Inform child that memory has been changed */
 		rwret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
@@ -334,8 +334,8 @@ redo_wr2:
 		remote[0].iov_len = len;
 		(void)process_vm_writev(~0, local, 1, remote, 1, 0);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 fail:
 	/* Tell child we're done */
 	msg_wr.addr = NULL;
@@ -402,7 +402,7 @@ again:
 	ctxt.pid = clone(stress_vm_child, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);
 	if (ctxt.pid < 0) {
-		if (keep_stressing_flag() && (errno == EAGAIN))
+		if (stress_continue_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail("%s: clone failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

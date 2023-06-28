@@ -111,7 +111,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -126,7 +126,7 @@ again:
 
 		(void)shim_memset(&s, 0, sizeof(s));
 
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			int ret;
 
 			s.sival_int = val++;
@@ -175,8 +175,8 @@ again:
 			if (UNLIKELY((fdsi.ssi_int & 0xffff) == 0))
 				(void)stress_read_fdinfo(self, sfd);
 
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 
 		/* terminal child */
 		(void)shim_kill(pid, SIGKILL);

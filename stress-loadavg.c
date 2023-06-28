@@ -149,7 +149,7 @@ static void *stress_loadavg_func(void *arg)
 			VOID_RET(ssize_t, write(fd, buf, sizeof(buf)));
 		}
 #endif
-		inc_counter(pargs->args);
+		stress_bogo_inc(pargs->args);
 		(void)shim_sched_yield();
 	}
 
@@ -262,14 +262,14 @@ static int stress_loadavg(const stress_args_t *args)
 			stop_running();
 			break;
 		}
-		if (!(keep_running() && keep_stressing(args)))
+		if (!(keep_running() && stress_continue(args)))
 			break;
 	}
 
 	do {
 		(void)shim_sched_yield();
 		shim_usleep_interruptible(100000);
-	} while (keep_running() && keep_stressing(args));
+	} while (keep_running() && stress_continue(args));
 
 	keep_thread_running_flag = false;
 

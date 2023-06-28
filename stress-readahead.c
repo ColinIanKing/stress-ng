@@ -177,7 +177,7 @@ static int stress_readahead(const stress_args_t *args)
 		size_t j;
 		const off_t o = i / BUF_SIZE;
 seq_wr_retry:
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			pr_inf("%s: test expired during test setup "
 				"(writing of data file)\n", args->name);
 			rc = EXIT_SUCCESS;
@@ -222,7 +222,7 @@ seq_wr_retry:
 		for (i = 0; i < MAX_OFFSETS; i++) {
 			ssize_t pret;
 rnd_rd_retry:
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			pret = pread(fd, buf, BUF_SIZE, offsets[i]);
@@ -256,7 +256,7 @@ rnd_rd_retry:
 						(intmax_t)offsets[i] + BUF_SIZE - 1);
 				}
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
@@ -287,7 +287,7 @@ rnd_rd_retry:
 			generate_offsets = 0;
 		}
 
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 close_finish:

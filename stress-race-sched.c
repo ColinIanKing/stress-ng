@@ -219,7 +219,7 @@ static int stress_race_sched_exercise(
 	stress_race_sched_child_t *child;
 	int i, rc = 0;
 
-	for (i = 0; keep_stressing_flag() && (i < 20); i++)  {
+	for (i = 0; stress_continue_flag() && (i < 20); i++)  {
 		for (child = children.head; child; child = child->next) {
 			if (stress_mwc1()) {
 				const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
@@ -402,7 +402,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 
 			if (max_forks < children.length)
 				max_forks = children.length;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		} else {
 			if (rnd & 0x01) {
 				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
@@ -418,7 +418,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
 				}
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/* And reap */
 	while (children.head) {

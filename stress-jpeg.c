@@ -455,7 +455,7 @@ static int stress_jpeg(const stress_args_t *args)
 			size_compressed += (double)size;
 			total_pixels += (double)pixels;
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		if (verify) {
 			uint32_t checksum_verify;
@@ -467,10 +467,10 @@ static int stress_jpeg(const stress_args_t *args)
 				size_compressed += (double)size;
 				total_pixels += (double)pixels;
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		yy++;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
 	rate = (duration > 0) ? total_pixels / duration : 0.0;
@@ -482,7 +482,7 @@ static int stress_jpeg(const stress_args_t *args)
 
 	if ((size_compressed > 0) && (size_uncompressed > 0)) {
 		pr_dbg("%s: compressed to %.1f%% of original size, %.2f secs of jpeg compute, %.2f jpegs/sec\n",
-			args->name, ratio, t_jpeg, (double)get_counter(args) / t_jpeg);
+			args->name, ratio, t_jpeg, (double)stress_bogo_get(args) / t_jpeg);
 	}
 
 	(void)munmap((void *)row_pointer, row_pointer_size);

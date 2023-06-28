@@ -145,7 +145,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 	pkt.iph.daddr = addr.sin_addr.s_addr;
 
 	/* Wait for server to start */
-	while (!stop_rawsock && keep_stressing(args)) {
+	while (!stop_rawsock && stress_continue(args)) {
 		uint32_t ready;
 
 		if (stress_lock_acquire(rawsock_lock) < 0) {
@@ -159,7 +159,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		shim_usleep(20000);
 	}
 
-	while (!stop_rawsock && keep_stressing(args)) {
+	while (!stop_rawsock && stress_continue(args)) {
 		ssize_t sret;
 
 		pkt.hash = stress_hash_mulxror32((const char * )&pkt.data, sizeof(pkt.data));
@@ -181,7 +181,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 		if (UNLIKELY((pkt.data & 0xff) == 0)) {
 			int queued;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
@@ -199,7 +199,7 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 	struct sockaddr_in addr;
 	double t_start, duration = 0.0, bytes = 0.0, rate;
 
-	if (stop_rawsock || !keep_stressing(args))
+	if (stop_rawsock || !stress_continue(args))
 		goto die;
 
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
@@ -217,7 +217,7 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 	(void)stress_lock_release(rawsock_lock);
 
 	t_start = stress_time_now();
-	while (!stop_rawsock && keep_stressing(args)) {
+	while (!stop_rawsock && stress_continue(args)) {
 		stress_raw_packet_t ALIGN64 pkt;
 		socklen_t len = sizeof(addr);
 		ssize_t n;
@@ -254,13 +254,13 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 		if (UNLIKELY((pkt.data & 0xfff) == 0)) {
 			int queued;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
 		}
 #endif
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
@@ -292,7 +292,7 @@ again:
 			shim_usleep(100000);
 			goto again;
 		}
-		if (stop_rawsock || !keep_stressing(args)) {
+		if (stop_rawsock || !stress_continue(args)) {
 			return EXIT_SUCCESS;
 		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",

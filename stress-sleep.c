@@ -92,7 +92,7 @@ static void *stress_pthread_func(void *c)
 	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
 #endif
 
-	while (keep_stressing(args) && !thread_terminate) {
+	while (stress_continue(args) && !thread_terminate) {
 		struct timespec tv;
 		double t1, t2, delta, expected;
 #if defined(HAVE_SYS_SELECT_H) &&	\
@@ -101,35 +101,35 @@ static void *stress_pthread_func(void *c)
 #endif
 
 		t1 = stress_time_now();
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
 		if (nanosleep(&tv, NULL) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
 		if (nanosleep(&tv, NULL) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 100;
 		if (nanosleep(&tv, NULL) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
 		if (nanosleep(&tv, NULL) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10000;
@@ -149,27 +149,27 @@ static void *stress_pthread_func(void *c)
 		}
 
 		t1 = stress_time_now();
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (shim_usleep(1) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (shim_usleep(10) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (shim_usleep(100) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (shim_usleep(1000) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (shim_usleep(10000) < 0)
 			break;
@@ -185,14 +185,14 @@ static void *stress_pthread_func(void *c)
 
 #if defined(HAVE_PSELECT)
 		t1 = stress_time_now();
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
 		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10;
@@ -200,21 +200,21 @@ static void *stress_pthread_func(void *c)
 		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 100;
 		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1000;
 		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
 		tv.tv_nsec = 10000;
@@ -236,28 +236,28 @@ skip_pselect:
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
 		t1 = stress_time_now();
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 100;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 1000;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10000;
@@ -276,16 +276,16 @@ skip_pselect:
 #endif
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(HAVE_COMPILER_PCC)
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (x86_has_waitpkg) {
 			int i;
 
-			for (i = 1; keep_stressing_flag() && (i < 1024); i <<= 1)
+			for (i = 1; stress_continue_flag() && (i < 1024); i <<= 1)
 				stress_asm_x86_tpause(0, i);
 		}
 #endif
-		inc_counter_lock(args, stress_sleep_counter_lock, true);
+		stress_bogo_inc_lock(args, stress_sleep_counter_lock, true);
 	}
 	return &nowt;
 }
@@ -342,13 +342,13 @@ static int stress_sleep(const stress_args_t *args)
 			goto tidy;
 		}
 		/* Timed out? abort! */
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto tidy;
 	}
 
 	do {
 		(void)shim_usleep_interruptible(10000);
-	}  while (!thread_terminate && keep_stressing(args));
+	}  while (!thread_terminate && stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 tidy:

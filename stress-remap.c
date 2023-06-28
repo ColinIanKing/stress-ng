@@ -278,8 +278,8 @@ static int stress_remap(const stress_args_t *args)
 			/* Invalid prot */
 			VOID_RET(int, remap_file_pages((void *)(mapped + page_size), page_size, ~0, order[0], 0));
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

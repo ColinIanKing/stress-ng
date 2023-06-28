@@ -200,7 +200,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		if ((stress_time_now() - context->start) > (double)g_opt_timeout)
 			break;
 		/* Check for counter limit reached */
-		if (args->max_ops && (get_counter(args) >= args->max_ops))
+		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops))
 			break;
 
 		if (ret == 0) {
@@ -250,11 +250,11 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 				break;
 			}
 		} else if (ret == 1) {
-			inc_counter(args);	/* SIGSEGV/SIGILL occurred */
+			stress_bogo_inc(args);	/* SIGSEGV/SIGILL occurred */
 		} else {
 			break;		/* Something went wrong! */
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

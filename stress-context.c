@@ -69,12 +69,12 @@ static void OPTIMIZE3 stress_thread1(void)
 		do {
 			context_counter++;
 			(void)swapcontext(uctx0, uctx1);
-		} while (keep_stressing_flag() && (context_counter < max_ops));
+		} while (stress_continue_flag() && (context_counter < max_ops));
 	} else {
 		do {
 			context_counter++;
 			(void)swapcontext(uctx0, uctx1);
-		} while (keep_stressing_flag());
+		} while (stress_continue_flag());
 	}
 
 	(void)swapcontext(uctx0, &uctx_main);
@@ -90,12 +90,12 @@ static void OPTIMIZE3 stress_thread2(void)
 		do {
 			context_counter++;
 			(void)swapcontext(uctx1, uctx2);
-		} while (keep_stressing_flag() && (!max_ops || (context_counter < max_ops)));
+		} while (stress_continue_flag() && (!max_ops || (context_counter < max_ops)));
 	} else {
 		do {
 			context_counter++;
 			(void)swapcontext(uctx1, uctx2);
-		} while (keep_stressing_flag());
+		} while (stress_continue_flag());
 	}
 	(void)swapcontext(uctx1, &uctx_main);
 }
@@ -110,12 +110,12 @@ static void OPTIMIZE3 stress_thread3(void)
 		do {
 			context_counter++;
 			(void)swapcontext(uctx2, uctx0);
-		} while (keep_stressing_flag() && (!max_ops || (context_counter < max_ops)));
+		} while (stress_continue_flag() && (!max_ops || (context_counter < max_ops)));
 	} else {
 		do {
 			context_counter++;
 			(void)swapcontext(uctx2, uctx0);
-		} while (keep_stressing_flag());
+		} while (stress_continue_flag());
 	}
 	(void)swapcontext(uctx2, &uctx_main);
 }
@@ -195,7 +195,7 @@ static int stress_context(const stress_args_t *args)
 	}
 	duration = stress_time_now() - t;
 
-	set_counter(args, context_counter / 1000);
+	stress_bogo_set(args, context_counter / 1000);
 
 	for (i = 0; i < STRESS_CONTEXTS; i++) {
 		if (context[i].canary.check0 != context[i].cu.check0) {

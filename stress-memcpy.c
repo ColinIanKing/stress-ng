@@ -346,8 +346,8 @@ static int stress_memcpy(const stress_args_t *args)
 
 	do {
 		memcpy_method->func(str1, str2, str3);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

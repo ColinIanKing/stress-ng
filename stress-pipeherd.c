@@ -50,7 +50,7 @@ static int stress_set_pipeherd_yield(const char *opt)
 
 static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2], const bool pipeherd_yield)
 {
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		stress_pipeherd_data_t data;
 		ssize_t sz;
 
@@ -139,7 +139,7 @@ static int stress_pipeherd(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_NVCSW)
 	t1 = stress_time_now();
 #endif
-	for (i = 0; keep_stressing(args) && (i < PIPE_HERD_MAX); i++) {
+	for (i = 0; stress_continue(args) && (i < PIPE_HERD_MAX); i++) {
 		pid_t pid;
 
 		pid = fork();
@@ -160,7 +160,7 @@ static int stress_pipeherd(const stress_args_t *args)
 	VOID_RET(int, stress_pipeherd_read_write(args, fd, pipeherd_yield));
 	sz = read(fd[0], &data, sizeof(data));
 	if (sz > 0)
-		set_counter(args, data.counter);
+		stress_bogo_set(args, data.counter);
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
@@ -193,7 +193,7 @@ static int stress_pipeherd(const stress_args_t *args)
 
 		(void)shim_memset(&usage, 0, sizeof(usage));
 		if (getrusage(RUSAGE_SELF, &usage) == 0) {
-			const uint64_t count = get_counter(args);
+			const uint64_t count = stress_bogo_get(args);
 			const double dt = t2 - t1;
 
 			total += usage.ru_nvcsw + usage.ru_nivcsw;

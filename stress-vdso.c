@@ -494,11 +494,11 @@ static int stress_vdso(const stress_args_t *args)
 		for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 			vdso_sym->func(vdso_sym->addr);
 		}
-		add_counter(args, n_vdso);
-	} while (keep_stressing(args));
+		stress_bogo_add(args, n_vdso);
+	} while (stress_continue(args));
 	t2 = stress_time_now();
 
-	counter = get_counter(args);
+	counter = stress_bogo_get(args);
 
 	do {
 		int j;
@@ -507,13 +507,13 @@ static int stress_vdso(const stress_args_t *args)
 			for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 				vdso_sym->dummy_func(vdso_sym->addr);
 			}
-			add_counter(args, n_vdso);
+			stress_bogo_add(args, n_vdso);
 		}
 		t3 = stress_time_now();
 	} while ((t3 - t2) < 0.1);
 
-	overhead_ns = (double)STRESS_NANOSECOND * ((t3 - t2) / (double)(get_counter(args) - counter));
-	set_counter(args, counter);
+	overhead_ns = (double)STRESS_NANOSECOND * ((t3 - t2) / (double)(stress_bogo_get(args) - counter));
+	stress_bogo_set(args, counter);
 
 	dt = t2 - t1;
 	if (dt > 0.0) {

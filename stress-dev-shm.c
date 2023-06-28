@@ -49,7 +49,7 @@ static inline int stress_dev_shm_child(
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		size_t sz_delta = page_thresh;
 		int ret;
 
@@ -66,7 +66,7 @@ static inline int stress_dev_shm_child(
 		 *  shouldn't make this exact as mmap'ing this
 		 *  can trip a SIGBUS
 		 */
-		while (keep_stressing(args) && (sz_delta >= page_thresh)) {
+		while (stress_continue(args) && (sz_delta >= page_thresh)) {
 			ret = shim_fallocate(fd, 0, 0, (off_t)sz);
 			if (ret < 0) {
 				sz -= (sz_delta >> 1);
@@ -74,14 +74,14 @@ static inline int stress_dev_shm_child(
 			} else {
 				sz += sz_delta;
 				sz_delta <<= 1;
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
 		if (sz > 0) {
 			/*
 			 *  Now try to map this into our address space
 			 */
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			addr = mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE, fd, 0);
@@ -134,13 +134,13 @@ static int stress_dev_shm_oomable_child(const stress_args_t *args, void *ctxt)
 	int rc = EXIT_SUCCESS;
 	stress_dev_shm_context_t *context = (stress_dev_shm_context_t *)ctxt;
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 again:
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
@@ -156,7 +156,7 @@ again:
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-				force_killed_counter(args);
+				stress_force_killed_bogo(args);
 				(void)shim_kill(pid, SIGTERM);
 				(void)shim_kill(pid, SIGKILL);
 				status = 0;

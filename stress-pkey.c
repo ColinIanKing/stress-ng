@@ -140,8 +140,8 @@ static int stress_pkey(const stress_args_t *args)
 		 * failures for now.
 		 */
 		(void)shim_pkey_free(-1);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

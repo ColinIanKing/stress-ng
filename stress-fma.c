@@ -200,7 +200,7 @@ static int stress_fma(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++) {
 			stress_fma_funcs[i](fma);
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		if (verify) {
 			fma->double_a = fma->double_a2;
@@ -213,7 +213,7 @@ static int stress_fma(const stress_args_t *args)
 			for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++) {
 				stress_fma_funcs[i](fma);
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			if (shim_memcmp(fma->double_a1, fma->double_a2, sizeof(fma->double_a1))) {
 				pr_fail("%s: data difference between identical double fma computations\n", args->name);
@@ -222,7 +222,7 @@ static int stress_fma(const stress_args_t *args)
 				pr_fail("%s: data difference between identical float fma computations\n", args->name);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -116,7 +116,7 @@ again:
 			}
 			(void)stress_get_lease(fd);
 			(void)close(fd);
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		_exit(EXIT_SUCCESS);
@@ -150,19 +150,19 @@ static int stress_try_lease(
 	 *  attempt a lease lock
 	 */
 	while (fcntl(fd, F_SETLEASE, lock) < 0) {
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto tidy;
 	}
 	(void)stress_get_lease(fd);
 
-	inc_counter(args);
+	stress_bogo_inc(args);
 	(void)shim_sched_yield();
 
 	/*
 	 *  attempt a lease unlock
 	 */
 	while (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if (errno != EAGAIN) {
 			pr_fail("%s: fcntl failed: errno=%d: (%s)%s\n",
@@ -238,7 +238,7 @@ static int stress_lease(const stress_args_t *args)
 		ret = stress_try_lease(args, filename, O_RDONLY, F_RDLCK);
 		if (ret != EXIT_SUCCESS)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	t2 = stress_time_now();
 
 reap:

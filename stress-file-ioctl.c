@@ -542,8 +542,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 			goto tidy;
 		}
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 

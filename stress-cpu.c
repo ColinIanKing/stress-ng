@@ -147,7 +147,7 @@ static void TARGET_CLONES stress_cpu_sqrt(const char *name)
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
 			pr_fail("%s: sqrt error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 
@@ -156,7 +156,7 @@ static void TARGET_CLONES stress_cpu_sqrt(const char *name)
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
 			pr_fail("%s: sqrtf error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 	}
@@ -793,7 +793,7 @@ PRAGMA_UNROLL_N(8)
 						name, i, j, (int)idct[i][j]);
 				}
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				return;
 		}
 	}
@@ -2904,7 +2904,7 @@ static void stress_cpu_method(size_t method, const stress_args_t *args, double *
 	}
 	cpu_methods[method].func(args->name);
 	*counter += stress_cpu_counter_scale[method];
-	set_counter(args, (uint64_t)*counter);
+	stress_bogo_set(args, (uint64_t)*counter);
 }
 
 /*
@@ -3010,7 +3010,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	if (cpu_load == 100) {
 		do {
 			stress_cpu_method(cpu_method, args, &counter);
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		return EXIT_SUCCESS;
@@ -3038,7 +3038,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 
 			for (j = 0; j < -cpu_load_slice; j++) {
 				stress_cpu_method(cpu_method, args, &counter);
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					break;
 			}
 			t2_wall_clock = stress_time_now();
@@ -3051,7 +3051,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 				stress_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
 				t2_cpu_clock = stress_per_cpu_time();
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					break;
 			} while (t2_cpu_clock < slice_end);
 		} else {
@@ -3062,7 +3062,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 				stress_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
 				t2_cpu_clock = stress_per_cpu_time();
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					break;
 			} while (t2_cpu_clock < slice_end);
 		}
@@ -3098,7 +3098,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			/* Bias takes account of the time to do the delay */
 			bias = (t3_wall_clock - t2_wall_clock) - delay;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	if (stress_is_affinity_set() && (args->instance == 0)) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",

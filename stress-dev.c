@@ -3915,7 +3915,7 @@ static inline void stress_dev_rw(
 		dev_info = pthread_dev_info;
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!dev_info || !keep_stressing_flag())
+		if (!dev_info || !stress_continue_flag())
 			break;
 
 		/* state info no yet associated */
@@ -4134,7 +4134,7 @@ static void *stress_dev_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing_flag())
+	while (stress_continue_flag())
 		stress_dev_rw(args, -1);
 
 	return &nowt;
@@ -4150,10 +4150,10 @@ static void stress_dev_files(const stress_args_t *args, dev_info_t *dev_info_lis
 	static int try_failed = 0;
 	dev_info_t *di;
 
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return;
 
-	for (di = dev_info_list; di && keep_stressing(args); di = di->next) {
+	for (di = dev_info_list; di && stress_continue(args); di = di->next) {
 		int ret;
 
 		/* Should never happen */
@@ -4187,7 +4187,7 @@ static void stress_dev_files(const stress_args_t *args, dev_info_t *dev_info_lis
 			pthread_dev_info = di;
 			(void)shim_pthread_spin_unlock(&lock);
 			stress_dev_rw(args, loops);
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		di->state->open_succeeded = true;
 	}
@@ -4269,21 +4269,21 @@ static size_t stress_dev_infos_get(
 	size_t total = 0;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		return 0;
 
-	for (i = 0; keep_stressing(args) && (i < n); i++) {
+	for (i = 0; stress_continue(args) && (i < n); i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 		size_t len;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -4501,7 +4501,7 @@ again:
 
 			do {
 				stress_dev_files(args, dev_info_list);
-			} while (keep_stressing(args));
+			} while (stress_continue(args));
 
 			r = shim_pthread_spin_lock(&lock);
 			if (r) {
@@ -4517,7 +4517,7 @@ again:
 			}
 			_exit(EXIT_SUCCESS);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	if (args->instance == 0) {
 		const size_t opened = stress_dev_infos_opened(dev_info_list);

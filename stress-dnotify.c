@@ -125,7 +125,7 @@ static int dnotify_exercise(
 
 	/* Wait for up to 2 seconds for event */
 	while ((i < 2000) && (dnotify_fd == -1)) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto cleanup;
 		i++;
 		(void)shim_usleep(1000);
@@ -187,7 +187,7 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 	}
 
 	(void)shim_memset(buffer, 'x', BUF_SIZE);
-	while (keep_stressing(args) && (sz > 0)) {
+	while (stress_continue(args) && (sz > 0)) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
@@ -259,7 +259,7 @@ static int dnotify_access_helper(
 
 	/* Just want to force an access */
 do_access:
-	if (keep_stressing(args) && (read(fd, buffer, 1) < 0)) {
+	if (stress_continue(args) && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
@@ -303,7 +303,7 @@ static int dnotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (keep_stressing(args) && (write(fd, buffer, 1) < 0)) {
+	if (stress_continue(args) && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		if (errno != ENOSPC) {
@@ -456,15 +456,15 @@ static int stress_dnotify(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing(args) && i < SIZEOF_ARRAY(dnotify_stressors); i++) {
+		for (i = 0; stress_continue(args) && i < SIZEOF_ARRAY(dnotify_stressors); i++) {
 			ret = dnotify_stressors[i].func(args, pathname);
 			if (ret < 0) {
 				rc = EXIT_FAILURE;
 				goto tidy;
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

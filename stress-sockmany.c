@@ -110,7 +110,7 @@ static int OPTIMIZE3 stress_sockmany_client(
 			int retries = 0;
 			socklen_t addr_len = 0;
 retry:
-			if (UNLIKELY(!keep_stressing_flag())) {
+			if (UNLIKELY(!stress_continue_flag())) {
 				stress_sockmany_cleanup(fds, i);
 				break;
 			}
@@ -167,7 +167,7 @@ retry:
 				sock_fds->max_fd = i;
 		}
 		stress_sockmany_cleanup(fds, i);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
 }
@@ -230,7 +230,7 @@ static int OPTIMIZE3 stress_sockmany_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -281,8 +281,8 @@ static int OPTIMIZE3 stress_sockmany_server(
 			}
 			(void)close(sfd);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 die_close:
 	(void)close(fd);
@@ -294,7 +294,7 @@ static void stress_sockmany_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -357,7 +357,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto finish;
 		}

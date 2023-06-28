@@ -305,7 +305,7 @@ static int stress_timerfd(const stress_args_t *args)
 		}
 #endif
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 #if defined(USE_SELECT)
 		ret = select(max_timerfd + 1, &rdfs, NULL, NULL, &timeout);
@@ -364,7 +364,7 @@ static int stress_timerfd(const stress_args_t *args)
 					break;
 				}
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 		/* Exercise invalid timerfd_gettime syscalls on bad fd */
@@ -399,7 +399,7 @@ static int stress_timerfd(const stress_args_t *args)
 			(void)stress_read_fdinfo(self, timerfds[0]);
 			count = 0;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

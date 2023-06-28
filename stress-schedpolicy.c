@@ -105,7 +105,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		const pid_t pid = stress_mwc1() ? 0 : args->pid;
 		const char *new_policy_name = stress_get_sched_name(new_policy);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		shim_sched_yield();
@@ -384,8 +384,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		policy++;
 		if (policy >= (int)SIZEOF_ARRAY(policies))
 			policy = 0;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

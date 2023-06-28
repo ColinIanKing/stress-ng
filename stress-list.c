@@ -585,8 +585,8 @@ static int stress_list(const stress_args_t *args)
 			entry->value = shim_ror64(value);
 		}
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

@@ -382,8 +382,8 @@ next:
 		VOID_RET(int, ftruncate(backing_fd, (off_t)backing_size));
 #endif
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 

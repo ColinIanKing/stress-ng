@@ -752,11 +752,11 @@ static void *stress_memthrash_func(void *ctxt)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (!thread_terminate && keep_stressing(args)) {
+	while (!thread_terminate && stress_continue(args)) {
 		size_t j;
 
 		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT &&
-		     !thread_terminate && keep_stressing(args); j++) {
+		     !thread_terminate && stress_continue(args); j++) {
 			size_t mem_size = 1 << (2 * j);
 			size_t i;
 
@@ -764,7 +764,7 @@ static void *stress_memthrash_func(void *ctxt)
 				if (func == memthrash_methods[i].func)
 					break;
 			func(context, mem_size);
-			inc_counter(args);
+			stress_bogo_inc(args);
 			shim_sched_yield();
 		}
 	}
@@ -839,14 +839,14 @@ mmap_retry:
 #if defined(MAP_POPULATE)
 		flags &= ~MAP_POPULATE;	/* Less aggressive, more OOMable */
 #endif
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			pr_dbg("%s: mmap failed: %d %s\n",
 				args->name, errno, strerror(errno));
 			free(pthread_info);
 			return EXIT_NO_RESOURCE;
 		}
 		(void)shim_usleep(100000);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto reap_mem;
 		goto mmap_retry;
 	}
@@ -866,7 +866,7 @@ mmap_retry:
 				args->name, ret, strerror(ret));
 			goto reap;
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto reap;
 	}
 	/* Wait for SIGALRM or SIGINT/SIGHUP etc */

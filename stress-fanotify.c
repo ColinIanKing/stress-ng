@@ -436,7 +436,7 @@ static void stress_fanotify_read_events(
 	metadata = (struct fanotify_event_metadata *)buffer;
 
 	while (FAN_EVENT_OK(metadata, len)) {
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
 #if defined(FAN_OPEN)
@@ -463,7 +463,7 @@ static void stress_fanotify_read_events(
 			if (metadata->mask & FAN_RENAME)
 				account->rename++;
 #endif
-			inc_counter(args);
+			stress_bogo_inc(args);
 			(void)close(metadata->fd);
 		}
 		metadata = FAN_EVENT_NEXT(metadata, len);
@@ -555,7 +555,7 @@ static int stress_fanotify(const stress_args_t *args)
 			else
 				(void)shim_unlink(filename2);
 
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		_exit(EXIT_SUCCESS);
 	} else {
@@ -693,7 +693,7 @@ static int stress_fanotify(const stress_args_t *args)
 			for (i = 0; i < SIZEOF_ARRAY(init_flags); i++) {
 				stress_fanotify_init_exercise(init_flags[i]);
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		duration = stress_time_now() - t;
 

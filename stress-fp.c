@@ -161,7 +161,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	t2 = stress_time_now();						\
 									\
 	if (do_bogo_ops)						\
-		inc_counter(args);					\
+		stress_bogo_inc(args);					\
 	return t2 - t1;							\
 }
 
@@ -201,7 +201,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	t2 = stress_time_now();						\
 									\
 	if (do_bogo_ops)						\
-		inc_counter(args);					\
+		stress_bogo_inc(args);					\
 	return t2 - t1;							\
 }
 
@@ -220,7 +220,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	}								\
 									\
 	t1 = stress_time_now();						\
-	for (i = 0; keep_stressing_flag() && (i < loops); i++) {	\
+	for (i = 0; stress_continue_flag() && (i < loops); i++) {	\
 		fp_data[0].field.r[index] /= fp_data[0].field.mul;	\
 		fp_data[0].field.r[index] /= fp_data[0].field.mul_rev;	\
 		fp_data[1].field.r[index] /= fp_data[1].field.mul;	\
@@ -241,7 +241,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 	t2 = stress_time_now();						\
 									\
 	if (do_bogo_ops)						\
-		inc_counter(args);					\
+		stress_bogo_inc(args);					\
 	return t2 - t1;							\
 }
 
@@ -397,7 +397,7 @@ static void stress_fp_call_method(
 		 *  cause long doubles on some arches to abort early, so
 		 *  don't verify these results
 		 */
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return;
 
 		for (i = 0; i < FP_ELEMENTS; i++) {
@@ -634,7 +634,7 @@ static int stress_fp(const stress_args_t *args)
 
 	do {
 		stress_fp_call_method(args, fp_data, fp_method, verify);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
 		const double ops = stress_fp_funcs[i].ops;

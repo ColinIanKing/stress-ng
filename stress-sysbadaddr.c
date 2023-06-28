@@ -1032,7 +1032,7 @@ static inline int stress_do_syscall(
 	pid_t pid;
 	int rc = 0;
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 	pid = fork();
 	if (pid < 0) {
@@ -1095,7 +1095,7 @@ static inline int stress_do_syscall(
 		}
 		rc = WEXITSTATUS(status);
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 	return rc;
 }
@@ -1118,7 +1118,7 @@ static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
 				}
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
 }

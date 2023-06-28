@@ -133,7 +133,7 @@ static void *stress_membarrier_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_running && keep_stressing_flag()) {
+	while (keep_running && stress_continue_flag()) {
 		if (stress_membarrier_exercise(args, info) < 0)
 			break;
 	}
@@ -196,8 +196,8 @@ static int stress_membarrier(const stress_args_t *args)
 			pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	keep_running = false;
 

@@ -107,7 +107,7 @@ static int stress_tsearch(const stress_args_t *args)
 		/* Step #2, find */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		for (i = 0; keep_stressing_flag() && (i < n); i++) {
+		for (i = 0; stress_continue_flag() && (i < n); i++) {
 			const void **result = tfind(&data[i], &root, stress_sort_cmp_fwd_int32);
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -139,8 +139,8 @@ static int stress_tsearch(const stress_args_t *args)
 					args->name, i);
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 abort:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -148,8 +148,8 @@ func_name(const stress_args_t *args)					\
 			icache_func();					\
 			(void)shim_cacheflush((char *)addr, size, SHIM_ICACHE); \
 		}							\
-		inc_counter(args);					\
-	} while (keep_stressing(args));					\
+		stress_bogo_inc(args);					\
+	} while (stress_continue(args));					\
 									\
 	return EXIT_SUCCESS;						\
 }

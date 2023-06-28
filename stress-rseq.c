@@ -262,7 +262,7 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 		 *  every 2048 register with an invalid signature to
 		 *  exercise kernel invalid signature check
 		 */
-		if ((get_counter(args) & 0x1fff) == 1)
+		if ((stress_bogo_get(args) & 0x1fff) == 1)
 			valid_signature = 0xbadc0de;
 		else
 			valid_signature = rseq_info->valid_signature;
@@ -284,7 +284,7 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 
 unreg:
 		(void)rseq_unregister(&restartable_seq, valid_signature);
-		inc_counter(args);
+		stress_bogo_inc(args);
 		shim_sched_yield();
 
 		/* Exercise invalid rseq calls.. */
@@ -317,7 +317,7 @@ unreg:
 		(void)rseq_register(&restartable_seq, valid_signature);
 		(void)rseq_register(&restartable_seq, valid_signature);
 		(void)rseq_unregister(&restartable_seq, valid_signature);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
 }

@@ -406,7 +406,7 @@ static int OPTIMIZE3 stress_sctp_client(
 		struct sctp_event_subscribe events;
 #endif
 retry:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return EXIT_FAILURE;
 		fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP);
 		if (UNLIKELY(fd < 0)) {
@@ -485,10 +485,10 @@ retry:
 					break;
 				}
 			}
-		} while (keep_stressing_flag());
+		} while (stress_continue_flag());
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -597,7 +597,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	do {
 		int sfd;
 
-		if (UNLIKELY(!keep_stressing(args)))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -615,12 +615,12 @@ static int OPTIMIZE3 stress_sctp_server(
 				if (UNLIKELY(ret < 0))
 					break;
 
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 			stress_sctp_sockopts(sfd);
 			(void)close(sfd);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 die_close:
 	(void)close(fd);
@@ -700,7 +700,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

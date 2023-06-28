@@ -232,8 +232,8 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
 			if (na->nla_type == TASKSTATS_TYPE_AGGR_PID)
 				stress_parse_payload(args, na, pid, nivcsw);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	return 0;
 }
@@ -313,7 +313,7 @@ static int stress_netlink_task(const stress_args_t *args)
 	do {
 		if (stress_netlink_taskstats_monitor(args, sock, pid, id, &nivcsw) < 0)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if 0

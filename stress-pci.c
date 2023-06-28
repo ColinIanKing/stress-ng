@@ -228,7 +228,7 @@ static void stress_pci_exercise(const stress_args_t *args, stress_pci_info_t *pc
 	if (n == 0)
 		pci_info->ignore = true;
 
-	for (i = 0; keep_stressing(args) && (i < n); i++) {
+	for (i = 0; stress_continue(args) && (i < n); i++) {
 		const char *name = list[i]->d_name;
 		const bool config = !strcmp(name, "config");
 		const bool resource = !strncmp(name, "resource", 8);
@@ -293,7 +293,7 @@ static int stress_pci(const stress_args_t *args)
 
 	do {
 		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			ret = sigsetjmp(jmp_env, 1);
 
@@ -305,9 +305,9 @@ static int stress_pci(const stress_args_t *args)
 			if (pci_info->ignore)
 				continue;
 			stress_pci_exercise(args, pci_info);
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

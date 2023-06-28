@@ -85,7 +85,7 @@ static void stress_munmap_range(
 	const size_t stride = stress_munmap_stride(n_pages + stress_mwc8());
 	size_t i, j;
 
-	for (i = 0, j = 0; keep_stressing(args) && (i < n_pages); i++) {
+	for (i = 0, j = 0; stress_continue(args) && (i < n_pages); i++) {
 		const size_t offset = j << page_shift;
 		void *addr = ((uint8_t *)start) + offset;
 		double t;
@@ -96,7 +96,7 @@ static void stress_munmap_range(
 
 			ctxt->duration += stress_time_now() - t;
 			ctxt->count += 1.0;
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			if ((shim_mincore(addr, page_size, vec) == 0) &&
 			    (vec[0] != 0)) {
@@ -149,7 +149,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 	/*
 	 *  Vainly attempt to reduce any potential core dump size
 	 */
-	while (keep_stressing(args) && fgets(buf, sizeof(buf), fp)) {
+	while (stress_continue(args) && fgets(buf, sizeof(buf), fp)) {
 		size_t size;
 
 		*path = '\0';
@@ -165,7 +165,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 	}
 	(void)rewind(fp);
 #endif
-	while (keep_stressing(args) && fgets(buf, sizeof(buf), fp)) {
+	while (stress_continue(args) && fgets(buf, sizeof(buf), fp)) {
 		*path = '\0';
 		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %s\n",
 			&start, &end, prot, &offset, &major, &minor,
@@ -200,8 +200,8 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 	}
 	(void)fclose(fp);
 
-	if (keep_stressing(args))
-		inc_counter(args);	/* bump per stressor */
+	if (stress_continue(args))
+		stress_bogo_inc(args);	/* bump per stressor */
 
 	return EXIT_SUCCESS;
 }
@@ -250,7 +250,7 @@ static int stress_munmap(const stress_args_t *args)
 	stress_munmap_clean_path(ctxt->exec_path);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		VOID_RET(int, stress_oomable_child(args, (void *)ctxt, stress_munmap_child, STRESS_OOMABLE_QUIET));
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

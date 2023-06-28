@@ -78,7 +78,7 @@ static void NORETURN runner(
 
 	do {
 		(void)pause();
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	(void)shim_kill(getppid(), SIGALRM);
 	_exit(EXIT_SUCCESS);
@@ -93,7 +93,7 @@ static void NORETURN killer(
 	const pid_t pid)
 {
 	double start = stress_time_now();
-	uint64_t last_counter = get_counter(args);
+	uint64_t last_counter = stress_bogo_get(args);
 	pid_t ppid = getppid();
 
 	pr_dbg("%s: killer started [%d]\n", args->name, (int)getpid());
@@ -110,7 +110,7 @@ static void NORETURN killer(
 		 *  so we don't get stuck in the parent
 		 *  waiter indefinitely.
 		 */
-		if (last_counter == get_counter(args)) {
+		if (last_counter == stress_bogo_get(args)) {
 			const double now = stress_time_now();
 
 			if (now - start > ABORT_TIMEOUT) {
@@ -120,9 +120,9 @@ static void NORETURN killer(
 			}
 		} else {
 			start = stress_time_now();
-			last_counter = get_counter(args);
+			last_counter = stress_bogo_get(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/* forcefully kill runner, wait is in parent */
 	(void)shim_kill(pid, SIGKILL);
@@ -140,11 +140,11 @@ static void stress_wait_continued(const stress_args_t *args, int status)
 {
 #if defined(WIFCONTINUED)
 	if (WIFCONTINUED(status))
-		inc_counter(args);
+		stress_bogo_inc(args);
 #else
 	(void)status;
 
-	inc_counter(args);
+	stress_bogo_inc(args);
 #endif
 }
 
@@ -220,7 +220,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -233,7 +233,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 #if defined(HAVE_WAIT3)
 		/*
@@ -246,7 +246,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 #endif
 
@@ -261,7 +261,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -274,7 +274,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -287,7 +287,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -300,7 +300,7 @@ static int stress_wait(const stress_args_t *args)
 			break;
 		}
 		stress_wait_continued(args, status);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -361,11 +361,11 @@ static int stress_wait(const stress_args_t *args)
 			}
 #endif
 			stress_wait_continued(args, status);
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 		}
 #endif
-	} while (keep_stressing_flag() && (!args->max_ops || (get_counter(args) < args->max_ops)));
+	} while (stress_continue_flag() && (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_kill(pid_k, SIGKILL);

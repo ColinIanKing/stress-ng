@@ -182,12 +182,12 @@ static bool stress_stack_alloc(
 		stress_void_ptr_put(check_ptr);
 	}
 
-	inc_counter(args);
+	stress_bogo_inc(args);
 
 	if (!check_success)
 		return false;
 
-	if (keep_stressing(args))
+	if (stress_continue(args))
 		return stress_stack_alloc(args, start, &check, stack_fill, stack_mlock, stack_pageout, stack_unmap, last_size);
 	return true;
 }
@@ -259,7 +259,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		struct sigaction new_action;
 		int ret;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		(void)shim_memset(&new_action, 0, sizeof new_action);
@@ -282,12 +282,12 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		if (ret) {
 			/* We end up here after handling the fault */
-			inc_counter(args);
+			stress_bogo_inc(args);
 		} else {
 			char start;
 

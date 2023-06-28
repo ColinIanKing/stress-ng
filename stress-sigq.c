@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_sigq_chld_handler(int sig)
 {
 	if (sig == SIGCHLD) {
 		handled_sigchld = true;
-		keep_stressing_set_flag(false);
+		stress_continue_set_flag(false);
 	}
 }
 
@@ -97,7 +97,7 @@ again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		if (stress_redo_fork(errno))
 			goto again;
@@ -120,7 +120,7 @@ again:
 			_exit(EXIT_FAILURE);
 		}
 
-		while (keep_stressing(args)) {
+		while (stress_continue(args)) {
 			siginfo_t info;
 			int ret;
 
@@ -188,8 +188,8 @@ again:
 				(void)shim_rt_sigqueueinfo(pid, 0, &info);
 			}
 #endif
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 
 		if (!handled_sigchld) {
 			pr_dbg("%s: parent sent termination notice\n", args->name);

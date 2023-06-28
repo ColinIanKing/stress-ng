@@ -185,7 +185,7 @@ static int stress_unshare(const stress_args_t *args)
 			int clone_flag = 0;
 			const bool do_flag_perm = stress_mwc1();
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			if (!enough_memory()) {
 				/* memory too low, back off */
@@ -272,8 +272,8 @@ static int stress_unshare(const stress_args_t *args)
 			if (unshare_info[i].pid > 1)
 				stress_kill_and_wait(args, unshare_info[i].pid, SIGALRM, false);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	for (i = 0; i < MAX_PIDS; i++) {
 		total_duration += unshare_info[i].duration;

@@ -122,7 +122,7 @@ fork_again:
 	if (chpid < 0) {
 		if (stress_redo_fork(errno))
 			goto fork_again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -153,7 +153,7 @@ fork_again:
 			if (waste != MAP_FAILED)
 				break;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				_exit(0);
 
 			waste_size >>= 1;
@@ -161,7 +161,7 @@ fork_again:
 
 		if (waste != MAP_FAILED)
 			(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			_exit(0);
 
 		if (vm) {
@@ -199,7 +199,7 @@ vfork_again:
 			 * of the loop if we've run out of run time
 			 */
 			if (vforkmany_shared->terminate) {
-				keep_stressing_set_flag(false);
+				stress_continue_set_flag(false);
 				break;
 			}
 			if (start_pid == -1) {
@@ -209,7 +209,7 @@ vfork_again:
 			} else {
 				vforkmany_shared->t1 = stress_time_now();
 				pid = shim_vfork();
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 			if (pid < 0) {
 				/* failed */
@@ -248,7 +248,7 @@ vfork_again:
 					(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 
 				/* child, parent is blocked, spawn new child */
-				if (!args->max_ops || (get_counter(args) < args->max_ops))
+				if (!args->max_ops || (stress_bogo_get(args) < args->max_ops))
 					goto vfork_again;
 				_exit(0);
 			} else {
@@ -259,7 +259,7 @@ vfork_again:
 				if (getpid() != start_pid)
 					_exit(0);
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		if (waste != MAP_FAILED)
 			(void)munmap((void *)waste, WASTE_SIZE);

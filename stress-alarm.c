@@ -44,14 +44,14 @@ static void stress_alarm_sigusr1_handler(int sig)
 	_exit(0);
 }
 
-static void stress_alarm_inc_counter(const stress_args_t *args)
+static void stress_alarm_stress_bogo_inc(const stress_args_t *args)
 {
 	sigset_t set;
 
 	sigemptyset(&set);
 	sigaddset(&set, SIGUSR1);
 	if (sigprocmask(SIG_BLOCK, &set, NULL) == 0) {
-		inc_counter(args);
+		stress_bogo_inc(args);
 		(void)sigprocmask(SIG_UNBLOCK, &set, NULL);
 	}
 }
@@ -74,7 +74,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return EXIT_SUCCESS;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -101,8 +101,8 @@ again:
 			secs_left = sleep((unsigned int)INT_MAX);
 			if (secs_left == 0)
 				err_mask |= STRESS_SLEEP_INTMAX;
-			stress_alarm_inc_counter(args);
-			if (!keep_stressing(args))
+			stress_alarm_stress_bogo_inc(args);
+			if (!stress_continue(args))
 				break;
 
 			/* zeros second interrupted sleep */
@@ -114,8 +114,8 @@ again:
 			secs_left = sleep(0);
 			if (secs_left != 0)
 				err_mask |= STRESS_SLEEP_ZERO;
-			stress_alarm_inc_counter(args);
-			if (!keep_stressing(args))
+			stress_alarm_stress_bogo_inc(args);
+			if (!stress_continue(args))
 				break;
 
 			/* random duration interrupted sleep */
@@ -127,14 +127,14 @@ again:
 			secs_left = sleep(secs_left);
 			if (secs_left > secs_sleep)
 				err_mask |= STRESS_SLEEP_RANDOM;
-			stress_alarm_inc_counter(args);
-		} while (keep_stressing(args));
+			stress_alarm_stress_bogo_inc(args);
+		} while (stress_continue(args));
 		_exit(err_mask);
 	} else {
 		int status;
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-		while (keep_stressing(args) &&
+		while (stress_continue(args) &&
 		       (stress_time_now() < t_end)) {
 			const uint64_t delay_ns = 1000 + stress_mwc32modn(10000);
 

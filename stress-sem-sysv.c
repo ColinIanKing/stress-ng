@@ -259,8 +259,8 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(const stress_args_t *args)
 				break;
 			}
 timed_out:
-			inc_counter(args);
-			if (UNLIKELY(!keep_stressing(args)))
+			stress_bogo_inc(args);
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 #if defined(IPC_STAT)
@@ -390,7 +390,7 @@ timed_out:
 			VOID_RET(int, semctl(sem_id, ~0, IPC_INFO, &s));
 		}
 #endif
-		if (UNLIKELY(!keep_stressing(args)))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 #if defined(GETVAL)
 		VOID_RET(int, semctl(sem_id, 0, GETVAL, 0));
@@ -468,7 +468,7 @@ timed_out:
 			timeout.tv_sec = 0;
 			timeout.tv_nsec = 10000;
 			VOID_RET(int, semtimedop(sem_id, &semwait, (size_t)-1, &timeout));
-			if (UNLIKELY(!keep_stressing(args)))
+			if (UNLIKELY(!stress_continue(args)))
 				break;
 		}
 #else
@@ -514,7 +514,7 @@ timed_out:
     defined(HAVE_SYSCALL)
 		(void)syscall(__NR_semctl, sem_id, 0, INT_MAX, 0);
 #endif
-	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	return rc;
 }
@@ -577,12 +577,12 @@ static int stress_sem_sysv(const stress_args_t *args)
 	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
-		if (!keep_stressing_flag() || pids[i] < 0)
+		if (!stress_continue_flag() || pids[i] < 0)
 			goto reap;
 	}
 
 	/* Wait for termination */
-	while (keep_stressing(args))
+	while (stress_continue(args))
 		pause();
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

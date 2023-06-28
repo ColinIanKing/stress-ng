@@ -46,7 +46,7 @@ static int stress_kill(const stress_args_t *args)
 
 		VOID_RET(int, stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL));
 
-		while (keep_stressing(args)) {
+		while (stress_continue(args)) {
 			if (kill(ppid, 0) < 0)
 				break;
 			pause();
@@ -155,8 +155,8 @@ static int stress_kill(const stress_args_t *args)
 		bad_pid = stress_get_unused_pid_racy(false);
 		VOID_RET(int, kill(bad_pid, 0));
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -361,8 +361,8 @@ static int stress_x86syscall(const stress_args_t *args)
 	do {
 		for (i = 0; i < n; i++)
 			x86syscall_funcs[i]();
-		add_counter(args, n);
-	} while (keep_stressing(args));
+		stress_bogo_add(args, n);
+	} while (stress_continue(args));
 	t2 = stress_time_now();
 
 	/*
@@ -372,7 +372,7 @@ static int stress_x86syscall(const stress_args_t *args)
 	for (i = 0; i < n; i++) {
 		x86syscall_funcs[i] = wrap_dummy;
 	}
-	counter = get_counter(args);
+	counter = stress_bogo_get(args);
 	t3 = stress_time_now();
 	do {
 		register int j;
@@ -380,17 +380,17 @@ static int stress_x86syscall(const stress_args_t *args)
 		for (j = 0; j < 1000000; j++) {
 			for (i = 0; i < n; i++)
 				x86syscall_funcs[i]();
-			add_counter(args, n);
+			stress_bogo_add(args, n);
 		}
 		t4 = stress_time_now();
 	} while (t4 - t3 < 0.1);
 
-	overhead_ns = (double)STRESS_NANOSECOND * ((t4 - t3) / (double)(get_counter(args) - counter));
-	set_counter(args, counter);
+	overhead_ns = (double)STRESS_NANOSECOND * ((t4 - t3) / (double)(stress_bogo_get(args) - counter));
+	stress_bogo_set(args, counter);
 
 	dt = t2 - t1;
 	if (dt > 0.0) {
-		const uint64_t c = get_counter(args);
+		const uint64_t c = stress_bogo_get(args);
 		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)c) - overhead_ns;
 
 		stress_metrics_set(args, 0, "nanosecs per call (excluding test overhead", ns);

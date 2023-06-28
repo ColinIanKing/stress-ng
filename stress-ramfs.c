@@ -397,9 +397,9 @@ cleanup_fd:
 skip_fsopen:
 
 #endif
-		inc_counter(args);
-	} while (keep_mounting && keep_stressing(args) &&
-		 (!args->max_ops || (get_counter(args) < args->max_ops)));
+		stress_bogo_inc(args);
+	} while (keep_mounting && stress_continue(args) &&
+		 (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
 
 cleanup:
 	stress_ramfs_umount(args, realpathname);
@@ -420,14 +420,14 @@ static int stress_ramfs_mount(const stress_args_t *args)
 
 	do {
 again:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_err("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -463,7 +463,7 @@ again:
 		} else {
 			_exit(stress_ramfs_child(args));
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

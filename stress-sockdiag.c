@@ -171,7 +171,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 #endif
 	};
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		ssize_t ret;
 		unsigned int i;
 
@@ -215,9 +215,9 @@ static int stress_sockdiag_parse(
 
 	rta_len = len - NLMSG_LENGTH(sizeof(*diag));
 	for (attr = (struct rtattr *) (diag + 1);
-	     RTA_OK(attr, rta_len) && keep_stressing(args);
+	     RTA_OK(attr, rta_len) && stress_continue(args);
 	     attr = RTA_NEXT(attr, rta_len)) {
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 
 	return 0;
@@ -316,7 +316,7 @@ static int stress_sockdiag(const stress_args_t *args)
 		}
 		(void)sockdiag_recv(args, fd);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

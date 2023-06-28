@@ -132,9 +132,9 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 				stress_pageswap_unmap(args, &head, &count);
 				max = 0;
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	duration = stress_time_now() - t;
 
 	stress_pageswap_unmap(args, &head, &count);

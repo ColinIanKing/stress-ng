@@ -195,7 +195,7 @@ static int stress_uprobe(const stress_args_t *args)
 			getpid();
 		}
 
-		while (keep_stressing(args)) {
+		while (stress_continue(args)) {
 			char data[4096];
 			ssize_t n;
 			char *ptr;
@@ -230,12 +230,12 @@ static int stress_uprobe(const stress_args_t *args)
 				if (!ptr)
 					break;
 				ptr++;
-				inc_counter(args);
-				if (!keep_stressing(args))
+				stress_bogo_inc(args);
+				if (!stress_continue(args))
 					goto terminate;
 			} while (ptr < data + sizeof(data));
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB trace data per second", rate / (double)MB);

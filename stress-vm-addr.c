@@ -50,13 +50,13 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  keep_stressing(args)
+ *  stress_continue(args)
  *	returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
+static bool HOT OPTIMIZE3 stress_continue_vm(const stress_args_t *args)
 {
-	return (LIKELY(keep_stressing_flag()) &&
-	        LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
+	return (LIKELY(stress_continue_flag()) &&
+	        LIKELY(!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
 }
 
 /*
@@ -468,14 +468,14 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 			no_mem_retries = 0;
 			*(context->bit_error_count) += func(buf, buf_sz);
 			(void)munmap((void *)buf, buf_sz);
-			inc_counter(args);
-			if (!keep_stressing_vm(args))
+			stress_bogo_inc(args);
+			if (!stress_continue_vm(args))
 				break;
 		}
 		buf_sz <<= 1;
 		if (buf_sz > MAX_VM_ADDR_BYTES)
 			buf_sz = MIN_VM_ADDR_BYTES;
-	} while (keep_stressing_vm(args));
+	} while (stress_continue_vm(args));
 
 	return EXIT_SUCCESS;
 }
@@ -499,7 +499,7 @@ static int stress_vm_addr(const stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_addr_method->name);
 
-	for (retries = 0; (retries < 100) && keep_stressing_flag(); retries++) {
+	for (retries = 0; (retries < 100) && stress_continue_flag(); retries++) {
 		context.bit_error_count = (uint64_t *)
 			mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -511,7 +511,7 @@ static int stress_vm_addr(const stress_args_t *args)
 
 	/* Cannot allocate a single page for bit error counter */
 	if (context.bit_error_count == MAP_FAILED) {
-		if (keep_stressing_flag()) {
+		if (stress_continue_flag()) {
 			pr_err("%s: could not mmap bit error counter: "
 				"retry count=%zu, errno=%d (%s)\n",
 				args->name, retries, err, strerror(err));

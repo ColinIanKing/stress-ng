@@ -130,7 +130,7 @@ static int stress_pty(const stress_args_t *args)
 					}
 				}
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto clean;
 		}
 		/*
@@ -397,7 +397,7 @@ static int stress_pty(const stress_args_t *args)
 				(void)ret;
 			}
 #endif
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto clean;
 		}
 #if defined(TIOCSETD) &&	\
@@ -442,8 +442,8 @@ clean:
 			if (ptys[i].leader != -1)
 				(void)close(ptys[i].leader);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

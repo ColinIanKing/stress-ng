@@ -356,12 +356,12 @@ again:
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				goto tidy_all;
 
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		i++;
 		if (i >= SIZEOF_ARRAY(test_chroot_test_funcs))
 			i = 0;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	rate = (metrics->duration > 0.0) ? metrics->count / metrics->duration : 0.0;
 	stress_metrics_set(args, 0, "chroot calls per sec", rate);

@@ -122,7 +122,7 @@ static int try_remap(
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
 #endif
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			(void)munmap(*buf, old_sz);
 			*buf = 0;
 			return 0;
@@ -239,7 +239,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		uint8_t *buf = NULL, *ptr;
 		size_t old_sz;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto deinit;
 
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
@@ -274,7 +274,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto deinit;
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -299,7 +299,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto deinit;
 			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
@@ -321,8 +321,8 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 #endif
 		(void)munmap(buf, old_sz);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

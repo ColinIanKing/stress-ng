@@ -83,7 +83,7 @@ static void OPTIMIZE3 *semaphore_posix_thrash(void *arg)
 	do {
 		int i, j = -1;
 
-		for (i = 0; (i < 1000) && keep_stressing_flag(); i++) {
+		for (i = 0; (i < 1000) && stress_continue_flag(); i++) {
 			int value;
 			struct timespec ts;
 
@@ -150,7 +150,7 @@ do_semwait:
 			}
 
 			/* Locked at this point, bump counter */
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			if (UNLIKELY(sem_post(&sem) < 0)) {
 				pr_fail("%s: sem_post failed, errno=%d (%s)\n",
@@ -164,7 +164,7 @@ do_semwait:
 			 */
 			shim_sched_yield();
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 do_return:
 	return &nowt;
@@ -218,7 +218,7 @@ static int stress_sem(const stress_args_t *args)
 				args->name, sem_pthreads[i].ret, strerror(sem_pthreads[i].ret));
 			break;
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		created = true;
 	}
@@ -229,7 +229,7 @@ static int stress_sem(const stress_args_t *args)
 	}
 
 	/* Wait for termination */
-	while (keep_stressing(args))
+	while (stress_continue(args))
 		pause();
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -205,7 +205,7 @@ static pid_t stress_access_spawn(
 			if (j >= SIZEOF_ARRAY(modes))
 				j = 0;
 			shim_sched_yield();
-		} while(keep_stressing(args));
+		} while(stress_continue(args));
 		_exit(0);
 	}
 	return pid;
@@ -413,8 +413,8 @@ static int stress_access(const stress_args_t *args)
 #endif
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	metrics[2].duration = metrics[0].duration + metrics[1].duration;
 	metrics[2].count = metrics[0].count + metrics[1].count;

@@ -103,7 +103,7 @@ static int stress_chdir(const stress_args_t *args)
 	*path = '\0';	/* Keep static analysis tools happy */
 
 	/* Populate */
-	for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
+	for (i = 0; stress_continue(args) && (i < chdir_dirs); i++) {
 		const uint64_t rnd = (uint64_t)stress_mwc32() << 32;
 		const uint32_t gray_code = (i >> 1) ^ i;
 		int flags = O_RDONLY;
@@ -153,7 +153,7 @@ static int stress_chdir(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
+		for (i = 0; stress_continue(args) && (i < chdir_dirs); i++) {
 			const uint32_t j = stress_mwc32modn(chdir_dirs);
 			const int fd = chdir_info[j].fd >= 0 ? chdir_info[j].fd : chdir_info[0].fd;
 			double t;
@@ -212,7 +212,7 @@ static int stress_chdir(const stress_args_t *args)
 				VOID_RET(int, fchmod(fd, statbuf.st_mode & 0777));
 			}
 
-			while (keep_stressing(args)) {
+			while (stress_continue(args)) {
 				/* We need chdir to cwd to always succeed */
 				t = stress_time_now();
 				if (chdir(cwd) == 0) {
@@ -255,8 +255,8 @@ static int stress_chdir(const stress_args_t *args)
 		 */
 		VOID_RET(int, chdir(longpath));
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 abort:

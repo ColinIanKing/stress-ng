@@ -247,7 +247,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 
 			VOID_RET(ssize_t, read(fd, data, sizeof(data)));
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 #if (defined(HAVE_SYS_XATTR_H) ||       \
@@ -340,7 +340,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 					n--;
 					break;
 				}
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto cleanup;
 			}
 		}
@@ -384,7 +384,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 					n--;
 					break;
 				}
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto cleanup;
 			}
 		}
@@ -399,8 +399,8 @@ cleanup:
 				(void)munmap((void *)mappings[n].addr, page_size);
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	(void)close(fd);
 	free(mappings);

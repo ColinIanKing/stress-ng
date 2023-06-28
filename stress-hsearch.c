@@ -111,7 +111,7 @@ static int stress_hsearch(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing_flag() && (i < max); i++) {
+		for (i = 0; stress_continue_flag() && (i < max); i++) {
 			ENTRY e, *ep;
 
 			e.key = keys[i];
@@ -127,8 +127,8 @@ static int stress_hsearch(const stress_args_t *args)
 				}
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 

@@ -181,7 +181,7 @@ static int stress_userfaultfd_clone(void *arg)
 		/* and trigger some page faults */
 		for (ptr = c->data; ptr < end; ptr += c->page_size)
 			*ptr = 0xff;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return 0;
 }
@@ -381,7 +381,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		double counter;
 
 		/* check we should break out before we block on the read */
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		t = stress_time_now();
@@ -406,7 +406,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 				if (errno != ENOMEM) {
 					pr_fail("%s: poll failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					if (!keep_stressing_flag())
+					if (!stress_continue_flag())
 						break;
 				}
 				/*
@@ -433,7 +433,7 @@ do_read:
 				continue;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			continue;
 		}
@@ -452,8 +452,8 @@ do_read:
 				zero_page, data, data + sz, page_size) < 0)
 			break;
 		duration += stress_time_now() - t;
-		inc_counter(args);
-		counter = (double)get_counter(args);
+		stress_bogo_inc(args);
+		counter = (double)stress_bogo_get(args);
 
 		rate = (counter > 0.0) ? duration / counter : 0.0;
 		stress_metrics_set(args, 0, "nanosecs per page fault", rate * STRESS_DBL_NANOSECOND);
@@ -463,7 +463,7 @@ do_read:
 		wake.len = page_size;
 		VOID_RET(int, ioctl(fd, UFFDIO_WAKE, &wake));
 
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

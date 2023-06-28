@@ -438,7 +438,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -560,9 +560,9 @@ exercise:
 				(void)shim_kill(pid, SIGKILL);
 				(void)shim_waitpid(pid, &status, 0);
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	duration = stress_time_now() - t;

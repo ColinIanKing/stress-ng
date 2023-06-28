@@ -130,7 +130,7 @@ static int OPTIMIZE3 stress_judy(const stress_args_t *args)
 
 		/* Step #2, find */
 		t = stress_time_now();
-		for (i = 0; keep_stressing_flag() && (i < n); i++) {
+		for (i = 0; stress_continue_flag() && (i < n); i++) {
 			Word_t idx = gen_index(i);
 
 			JLG(pvalue, PJLArray, idx);
@@ -165,8 +165,8 @@ static int OPTIMIZE3 stress_judy(const stress_args_t *args)
 		duration[JUDY_OP_DELETE] += stress_time_now() - t;
 		count[JUDY_OP_DELETE] += n;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 abort:
 	for (k = 0; k < JUDY_OP_MAX; k++) {

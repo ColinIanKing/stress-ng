@@ -282,7 +282,7 @@ static inline void stress_proc_rw(
 		(void)shim_strlcpy(path, proc_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!*path || !keep_stressing_flag())
+		if (!*path || !stress_continue_flag())
 			break;
 
 		if (!strncmp(path, "/proc/self", 10))
@@ -361,7 +361,7 @@ static inline void stress_proc_rw(
 		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
 			const ssize_t sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			ret = read(fd, buffer, (size_t)sz);
 			if (ret < 0)
@@ -387,7 +387,7 @@ static inline void stress_proc_rw(
 			goto next;
 		}
 		for (i = 0; ; i++) {
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			ret = read(fd, buffer, 1);
 			if (ret < 1)
@@ -633,7 +633,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		stress_proc_rw(ctxt, -1);
 		if (!*proc_path)
 			break;
@@ -659,7 +659,7 @@ static void stress_proc_dir(
 	int i, n, ret;
 	char tmp[PATH_MAX];
 
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return;
 
 	/* Don't want to go too deep */
@@ -675,7 +675,7 @@ static void stress_proc_dir(
 	}
 
 	/* Non-directories files first */
-	for (i = 0; (i < n) && keep_stressing_flag(); i++) {
+	for (i = 0; (i < n) && stress_continue_flag(); i++) {
 		struct dirent *d = dlist[i];
 
 		if (stress_is_dot_filename(d->d_name)) {
@@ -692,7 +692,7 @@ static void stress_proc_dir(
 				(void)shim_pthread_spin_unlock(&lock);
 
 				stress_proc_rw(ctxt, loops);
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 			free(d);
 			dlist[i] = NULL;
@@ -705,7 +705,7 @@ static void stress_proc_dir(
 	}
 
 	/* Now recurse on directories */
-	for (i = 0; (i < n) && keep_stressing_flag(); i++) {
+	for (i = 0; (i < n) && stress_continue_flag(); i++) {
 		struct dirent *d = dlist[i];
 
 		if (d && (d->d_type == DT_DIR)) {
@@ -715,7 +715,7 @@ static void stress_proc_dir(
 			dlist[i] = NULL;
 
 			stress_proc_dir(ctxt, tmp, recurse, depth + 1);
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 	}
 	stress_dirent_list_free(dlist, n);
@@ -818,7 +818,7 @@ static int stress_procfs(const stress_args_t *args)
 			char procfspath[PATH_MAX];
 			const struct dirent *d = dlist[i];
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			stress_mk_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
@@ -828,23 +828,23 @@ static int stress_procfs(const stress_args_t *args)
 					(void)shim_pthread_spin_unlock(&lock);
 
 					stress_proc_rw(&ctxt, 8);
-					inc_counter(args);
+					stress_bogo_inc(args);
 				}
 			} else if (d->d_type == DT_DIR) {
 				stress_proc_dir(&ctxt, procfspath, true, 0);
 			}
 
 			j = (j + args->num_instances) % (size_t)n;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {

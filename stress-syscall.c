@@ -2778,7 +2778,7 @@ static int syscall_io_submit(void)
 		ret = syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
 		if (ret != 0)
 			break;
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 	}
 	VOID_RET(int, syscall(__NR_io_destroy, ctx));
@@ -6260,7 +6260,7 @@ static int syscall_sigsuspend(void)
 			if (ret == pid)
 				break;
 			shim_sched_yield();
-		} while (keep_stressing_flag());
+		} while (stress_continue_flag());
 
 		VOID_RET(int, kill(pid, SIGKILL));
 		VOID_RET(int, waitpid(pid, &status, WNOHANG));
@@ -8546,7 +8546,7 @@ static void stress_syscall_benchmark_calls(const stress_args_t *args)
 			ss->succeed = true;
 			ss->count++;
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 }
 
@@ -8676,7 +8676,7 @@ static int stress_syscall(const stress_args_t *args)
 	do {
 		stress_syscall_benchmark_calls(args);
 		stress_syscall_shuffle_calls();
-	} while (keep_stressing(args) && (stress_time_now() < time_end));
+	} while (stress_continue(args) && (stress_time_now() < time_end));
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		const syscall_stats_t *ss = &syscall_stats[i];

@@ -250,7 +250,7 @@ static int stress_waitcpu(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
-		for (i = 0; (i < SIZEOF_ARRAY(stress_waitcpu_method)) && keep_stressing(args); i++) {
+		for (i = 0; (i < SIZEOF_ARRAY(stress_waitcpu_method)) && stress_continue(args); i++) {
 			const int loops = 1000;
 
 			if (stress_waitcpu_method[i].supported) {
@@ -263,10 +263,10 @@ static int stress_waitcpu(const stress_args_t *args)
 				}
 				stress_waitcpu_method[i].duration += stress_time_now() - t;
 				stress_waitcpu_method[i].count += (double)loops;
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

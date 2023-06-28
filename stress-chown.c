@@ -210,7 +210,7 @@ static int stress_chown(const stress_args_t *args)
 			(void)shim_usleep(100000);
 #endif
 			/* Timed out, then give up */
-			if (!keep_stressing_flag()) {
+			if (!stress_continue_flag()) {
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
@@ -250,8 +250,8 @@ static int stress_chown(const stress_args_t *args)
 				stress_fs_type(filename));
 		}
 		(void)shim_fsync(fd);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 tidy:

@@ -2057,7 +2057,7 @@ uint64_t stress_get_next_prime64(const uint64_t n)
 		p = odd_n;
 
 	/* Search for next prime.. */
-	for (i = 0; keep_stressing_flag() && (i < 2000); i++) {
+	for (i = 0; stress_continue_flag() && (i < 2000); i++) {
 		p += 2;
 
 		if ((n % p) && stress_is_prime64(p))
@@ -2084,7 +2084,7 @@ uint64_t stress_get_prime64(const uint64_t n)
 		p = odd_n;
 
 	/* Search for next prime.. */
-	for (i = 0; keep_stressing_flag() && (i < 2000); i++) {
+	for (i = 0; stress_continue_flag() && (i < 2000); i++) {
 		p += 2;
 
 		if ((n % p) && stress_is_prime64(p))
@@ -2373,7 +2373,7 @@ void stress_handle_stop_stressing(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	/*
 	 * Trigger another SIGARLM until stressor gets the message
 	 * that it needs to terminate
@@ -3524,7 +3524,7 @@ size_t stress_get_extents(const int fd)
  */
 bool stress_redo_fork(const int err)
 {
-	if (keep_stressing_flag() &&
+	if (stress_continue_flag() &&
 	    ((err == EAGAIN) || (err == EINTR) || (err == ENOMEM))) {
 		(void)shim_sched_yield();
 		return true;

@@ -142,7 +142,7 @@ static int stress_link_generic(
 		char testpath[PATH_MAX];
 		ssize_t rret;
 
-		for (i = 0; keep_stressing(args) && (i < n); i++) {
+		for (i = 0; stress_continue(args) && (i < n); i++) {
 			char newpath[PATH_MAX];
 			struct stat stbuf;
 
@@ -273,8 +273,8 @@ err_unlink:
 			fsync(temp_dir_fd);
 #endif
 
-		inc_counter(args);
-	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
+		stress_bogo_inc(args);
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -109,8 +109,8 @@ static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 		duration += stress_time_now() - t;
 		count += (double)stress_sort_compare_get();
 		sorted += (double)i;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

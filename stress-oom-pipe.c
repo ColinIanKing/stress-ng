@@ -101,7 +101,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 	for (i = 0; i < max_pipes * 2; i++)
 		fds[i] = -1;
 
-	for (i = 0; keep_stressing(args) && (i < max_pipes); i++) {
+	for (i = 0; stress_continue(args) && (i < max_pipes); i++) {
 		int *pfd = fds + (2 * i);
 
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
@@ -134,7 +134,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		/* Set to maximum size */
-		for (i = 0, fd = fds; keep_stressing(args) && (i < max_pipes); i++, fd += 2) {
+		for (i = 0, fd = fds; stress_continue(args) && (i < max_pipes); i++, fd += 2) {
 			size_t max_size = context->max_pipe_size;
 
 			if ((fd[0] < 0) || (fd[1] < 0))
@@ -150,7 +150,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 				pipe_empty(fd[0], max_size, page_size, rd_buffer);
 		}
 		/* Set to invalid size */
-		for (i = 0, fd = fds; keep_stressing(args) && (i < max_pipes); i++, fd += 2) {
+		for (i = 0, fd = fds; stress_continue(args) && (i < max_pipes); i++, fd += 2) {
 			if ((fd[0] < 0) || (fd[1] < 0))
 				continue;
 			(void)fcntl(fd[0], F_SETPIPE_SZ, -1);
@@ -158,7 +158,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 		}
 
 		/* Set to minimum size */
-		for (i = 0, fd = fds; keep_stressing(args) && (i < max_pipes); i++, fd += 2) {
+		for (i = 0, fd = fds; stress_continue(args) && (i < max_pipes); i++, fd += 2) {
 			if ((fd[0] < 0) || (fd[1] < 0))
 				continue;
 			(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
@@ -167,8 +167,8 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 			if (!aggressive)
 				pipe_empty(fd[0], page_size, page_size, rd_buffer);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	/* And close the pipes */
 clean:

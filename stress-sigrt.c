@@ -82,7 +82,7 @@ again:
 		if (pids[i] < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto reap;
 			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -101,7 +101,7 @@ again:
 
 			(void)shim_memset(&info, 0, sizeof info);
 
-			while (keep_stressing_flag()) {
+			while (stress_continue_flag()) {
 
 				if (UNLIKELY(sigwaitinfo(&mask, &info) < 0)) {
 					if (errno == EINTR)
@@ -151,9 +151,9 @@ again:
 					break;
 				}
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

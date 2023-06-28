@@ -378,8 +378,8 @@ static int stress_atomic_exercise(
 					return -1;
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	return 0;
 }
@@ -444,7 +444,7 @@ static int stress_atomic(const stress_args_t *args)
 			}
 
 			if (shim_kill(atomic_info[i].pid, 0) == 0) {
-				force_killed_counter(args);
+				stress_force_killed_bogo(args);
 				(void)shim_kill(atomic_info[i].pid, SIGKILL);
 			}
 			(void)waitpid(atomic_info[i].pid, &status, 0);

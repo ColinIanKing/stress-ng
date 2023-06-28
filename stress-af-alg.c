@@ -256,7 +256,7 @@ retry_bind:
 	stress_rndbuf(input, DATA_LEN);
 
 	for (j = 32; j < DATA_LEN; j += 32) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (send(fd, input, j, 0) != (ssize_t)j) {
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
@@ -280,8 +280,8 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
-		inc_counter(args);
-		if (args->max_ops && (get_counter(args) >= args->max_ops)) {
+		stress_bogo_inc(args);
+		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops)) {
 			rc = EXIT_SUCCESS;
 			goto err_close;
 		}
@@ -448,7 +448,7 @@ retry_bind:
 		struct af_alg_iv *iv;	/* Initialisation Vector */
 		struct iovec iov;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		(void)shim_memset(&msg, 0, sizeof(msg));
 		(void)shim_memset(cbuf, 0, cbuf_size);
@@ -572,7 +572,7 @@ retry_bind:
 
 err_abort:
 	rc = EXIT_SUCCESS;
-	inc_counter(args);
+	stress_bogo_inc(args);
 err_close:
 	(void)close(fd);
 err:
@@ -638,7 +638,7 @@ retry_bind:
 	}
 
 	for (j = 0; j < 16; j++) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (read(fd, output, output_size) != output_size) {
 			if (errno != EINVAL) {
@@ -648,8 +648,8 @@ retry_bind:
 				goto err_close;
 			}
 		}
-		inc_counter(args);
-		if (args->max_ops && (get_counter(args) >= args->max_ops)) {
+		stress_bogo_inc(args);
+		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops)) {
 			rc = EXIT_SUCCESS;
 			goto err_close;
 		}
@@ -811,7 +811,7 @@ static int stress_af_alg(const stress_args_t *args)
 			break;
 
 		retries--;
-		if ((!keep_stressing_flag()) ||
+		if ((!stress_continue_flag()) ||
                     (retries < 0) ||
                     (errno != EAFNOSUPPORT)) {
 			if (errno == EAFNOSUPPORT) {
@@ -839,7 +839,7 @@ static int stress_af_alg(const stress_args_t *args)
 	do {
 		stress_crypto_info_t *info;
 
-		for (info = crypto_info_list; info && keep_stressing(args); info = info->next) {
+		for (info = crypto_info_list; info && stress_continue(args); info = info->next) {
 			if (info->internal || info->ignore)
 				continue;
 			switch (info->crypto_type) {
@@ -867,7 +867,7 @@ static int stress_af_alg(const stress_args_t *args)
 				break;
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

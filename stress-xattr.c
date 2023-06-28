@@ -138,7 +138,7 @@ static int stress_xattr(const stress_args_t *args)
 				/* set xattr OK, lets remember that for later */
 				STRESS_SETBIT(set_xattr_ok, i);
 			}
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto out_finished;
 		}
 
@@ -358,7 +358,7 @@ static int stress_xattr(const stress_args_t *args)
 				}
 			}
 #endif
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto out_finished;
 		}
 		for (j = 0; j < i; j++) {
@@ -413,7 +413,7 @@ static int stress_xattr(const stress_args_t *args)
 			(void)shim_memset(&bad_attrname, 0, sizeof(bad_attrname));
 			VOID_RET(ssize_t, shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp)));
 #endif
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto out_finished;
 		}
 
@@ -490,7 +490,7 @@ static int stress_xattr(const stress_args_t *args)
 					goto out_close;
 				}
 			}
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto out_finished;
 		}
 		/*
@@ -522,8 +522,8 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 out_finished:
 	rc = EXIT_SUCCESS;

@@ -110,14 +110,14 @@ static int stress_idle_page(const stress_args_t *args)
 		last_posn = posn;
 		posn += sizeof(bitmap_set);
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 next:
 		if (posn == last_posn) {
 			pr_inf("%s: aborting early, seek position not advancing\n",
 				args->name);
 			break;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

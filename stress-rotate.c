@@ -73,7 +73,7 @@ stress_ ## fname ## size ## helper(const stress_args_t *args, type *checksum)\
 		v3 = rotate_macro ## size(v3);			\
 	}							\
 	t2 = stress_time_now();					\
-	inc_counter(args);					\
+	stress_bogo_inc(args);					\
 	*checksum = v0 + v1 + v2 + v3;				\
 	stress_uint ## size ## _put(*checksum);			\
 	return t2 - t1;						\
@@ -228,7 +228,7 @@ static int stress_rotate(const stress_args_t *args)
 
 	do {
 		stress_rotate_call_method(args, rotate_method, verify, &success);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
 		if (stress_rotate_metrics[i].duration > 0.0) {

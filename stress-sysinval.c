@@ -2538,7 +2538,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 
 	(void)stress_mwc32();
 
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return 0;
 
 	if (stress_drop_capabilities(args->name) < 0)
@@ -2572,7 +2572,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		(void)sched_settings_apply(true);
 		stress_mwc_reseed();
 
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			const size_t sz = SIZEOF_ARRAY(reorder);
 
 			for (i = 0; i < SIZEOF_ARRAY(reorder); i++)
@@ -2597,7 +2597,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				}
 			}
 
-			for (i = 0; keep_stressing(args) && (i < SYSCALL_ARGS_SIZE); i++) {
+			for (i = 0; stress_continue(args) && (i < SYSCALL_ARGS_SIZE); i++) {
 				const size_t j = reorder[i];
 
 				(void)shim_memset(current_context->args, 0, sizeof(current_context->args));
@@ -2652,7 +2652,7 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
 	do {
 		(void)stress_mwc32();
 		stress_do_syscall(args);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
 }
@@ -2832,7 +2832,7 @@ static int stress_sysinval(const stress_args_t *args)
 		args->name, current_context->skip_errno_zero, current_context->skip_timed_out);
 	pr_unlock();
 
-	set_counter(args, current_context->counter);
+	stress_bogo_set(args, current_context->counter);
 
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

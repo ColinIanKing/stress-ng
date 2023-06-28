@@ -90,7 +90,7 @@ static int stress_fiemap_writer(
 		offset = stress_mwc64modn(len) & ~0x1fffUL;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
-		if (!inc_counter_lock(args, counter_lock, false))
+		if (!stress_bogo_inc_lock(args, counter_lock, false))
 			break;
 		if (write(fd, buf, sizeof(buf)) < 0) {
 			if (errno == ENOSPC)
@@ -101,7 +101,7 @@ static int stress_fiemap_writer(
 				goto tidy;
 			}
 		}
-		if (!inc_counter_lock(args, counter_lock, false))
+		if (!stress_bogo_inc_lock(args, counter_lock, false))
 			break;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
@@ -118,12 +118,12 @@ static int stress_fiemap_writer(
 				punch_hole = false;
 		}
 		(void)shim_usleep(1000);
-		if (!inc_counter_lock(args, counter_lock, false))
+		if (!stress_bogo_inc_lock(args, counter_lock, false))
 			break;
 #else
 		UNEXPECTED
 #endif
-	} while (inc_counter_lock(args, counter_lock, false));
+	} while (stress_bogo_inc_lock(args, counter_lock, false));
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(fd);
@@ -169,7 +169,7 @@ static void stress_fiemap_ioctl(
 			break;
 		}
 		shim_sched_yield();
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			free(fiemap);
 			break;
 		}
@@ -201,7 +201,7 @@ static void stress_fiemap_ioctl(
 		}
 		free(fiemap);
 		shim_sched_yield();
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 #if !defined(O_SYNC)
 		if (c++ > COUNT_MAX) {
@@ -209,7 +209,7 @@ static void stress_fiemap_ioctl(
 			fdatasync(fd);
 		}
 #endif
-	} while (inc_counter_lock(args, counter_lock, true));
+	} while (stress_bogo_inc_lock(args, counter_lock, true));
 }
 
 /*
@@ -301,7 +301,7 @@ static int stress_fiemap(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}

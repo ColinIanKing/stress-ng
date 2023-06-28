@@ -428,8 +428,8 @@ static int stress_prefetch(const stress_args_t *args)
 			if (!success)
 				break;
 		}
-		inc_counter(args);
-	} while (success && keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (success && stress_continue(args));
 
 	best = 0;
 	best_rate = 0.0;

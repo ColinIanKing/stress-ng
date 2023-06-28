@@ -307,7 +307,7 @@ static int get_bad_shmid(const stress_args_t *args)
 {
 	int id = ~0;
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		int ret;
 		struct shmid_ds ds;
 
@@ -639,7 +639,7 @@ static int stress_shm_sysv_child(
 				sz = shmall;
 			if ((freemem > page_size) && sz > freemem)
 				sz = freemem;
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
@@ -655,7 +655,7 @@ static int stress_shm_sysv_child(
 					size_t j;
 					unique = true;
 
-					if (!keep_stressing_flag())
+					if (!stress_continue_flag())
 						goto reap;
 
 					/* Get a unique random key */
@@ -666,7 +666,7 @@ static int stress_shm_sysv_child(
 							break;
 						}
 					}
-					if (!keep_stressing_flag())
+					if (!stress_continue_flag())
 						goto reap;
 				} while (!unique);
 
@@ -739,7 +739,7 @@ static int stress_shm_sysv_child(
 			shm_ids[i] = shm_id;
 			keys[i] = key;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto reap;
 			(void)stress_mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
@@ -752,11 +752,11 @@ static int stress_shm_sysv_child(
 			(void)shim_mlock(addr, 4096);
 #endif
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto reap;
 			(void)stress_madvise_random(addr, sz);
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto reap;
 			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -847,7 +847,7 @@ static int stress_shm_sysv_child(
 			stress_shm_sysv_linux_proc_map(addr, sz);
 #endif
 			exercise_shmat(shm_id, sz, buffer);
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 		pid = fork();
@@ -919,7 +919,7 @@ reap:
 
 			(void)waitpid(pid, &status, 0);
 		}
-	} while (ok && keep_stressing(args));
+	} while (ok && stress_continue(args));
 
 	/* Inform parent of end of run */
 	msg.index = -1;
@@ -978,7 +978,7 @@ static int stress_shm_sysv(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing_flag() && retry) {
+	while (stress_continue_flag() && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -1010,7 +1010,7 @@ fork_again:
 			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)
 				shm_ids[i] = -1;
 
-			while (keep_stressing_flag()) {
+			while (stress_continue_flag()) {
 				stress_shm_msg_t msg;
 				ssize_t n;
 

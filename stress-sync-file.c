@@ -164,7 +164,7 @@ static int stress_sync_file(const stress_args_t *args)
 				continue;
 			break;
 		}
-		for (offset = 0; keep_stressing_flag() &&
+		for (offset = 0; stress_continue_flag() &&
 		     (offset < (shim_off64_t)sync_file_bytes); ) {
 			const shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
 
@@ -181,7 +181,7 @@ static int stress_sync_file(const stress_args_t *args)
 			}
 			offset += sz;
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/*
@@ -204,7 +204,7 @@ static int stress_sync_file(const stress_args_t *args)
 				continue;
 			break;
 		}
-		for (offset = 0; keep_stressing_flag() &&
+		for (offset = 0; stress_continue_flag() &&
 		     (offset < (shim_off64_t)sync_file_bytes); ) {
 			const shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
 
@@ -221,7 +221,7 @@ static int stress_sync_file(const stress_args_t *args)
 			}
 			offset += sz;
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
@@ -230,7 +230,7 @@ static int stress_sync_file(const stress_args_t *args)
 				continue;
 			break;
 		}
-		for (i = 0; keep_stressing_flag() &&
+		for (i = 0; stress_continue_flag() &&
 		     (i < (shim_off64_t)sync_file_bytes / (shim_off64_t)(128 * KB)); i++) {
 			offset = (shim_off64_t)(stress_mwc64modn((uint64_t)sync_file_bytes) & ~((128 * KB) - 1));
 
@@ -246,8 +246,8 @@ static int stress_sync_file(const stress_args_t *args)
 				break;
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

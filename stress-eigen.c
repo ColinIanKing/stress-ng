@@ -170,13 +170,13 @@ static inline int stress_eigen_exercise(
 				break;
 			}
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
                 if (eigen_method == 0) {
                         method_all_index++;
                         if (method_all_index >= SIZEOF_ARRAY(eigen_methods))
                                 method_all_index = 1;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/* Dump metrics except for 'all' method */
 	for (i = 1, j = 0; i < num_eigen_methods; i++) {

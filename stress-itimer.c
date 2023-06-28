@@ -107,12 +107,12 @@ static void stress_itimer_set(struct itimerval *timer)
 }
 
 /*
- *  stress_itimer_keep_stressing(args)
+ *  stress_itimer_stress_continue(args)
  *      returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_itimer_keep_stressing(void)
+static bool HOT OPTIMIZE3 stress_itimer_stress_continue(void)
 {
-	return (LIKELY(keep_stressing_flag()) &&
+	return (LIKELY(stress_continue_flag()) &&
 		LIKELY(!max_ops || (itimer_counter < max_ops)));
 }
 
@@ -127,7 +127,7 @@ static void stress_itimer_handler(int sig)
 
 	(void)sig;
 
-	if (!stress_itimer_keep_stressing())
+	if (!stress_itimer_stress_continue())
 		goto cancel;
 	itimer_counter++;
 
@@ -138,13 +138,13 @@ static void stress_itimer_handler(int sig)
 	if ((itimer_counter & 65535) == 0)
 		if ((stress_time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		stress_itimer_set(&timer);
 		return;
 	}
 
 cancel:
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
@@ -203,8 +203,8 @@ static int stress_itimer(const stress_args_t *args)
 			(void)getitimer(stress_itimers[i], &t);
 		}
 
-		set_counter(args, itimer_counter);
-	} while (keep_stressing(args));
+		stress_bogo_set(args, itimer_counter);
+	} while (stress_continue(args));
 
 	if (itimer_counter == 0) {
 		pr_fail("%s: did not handle any itimer SIGPROF signals\n",

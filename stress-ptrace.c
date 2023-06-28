@@ -44,7 +44,7 @@ static inline bool OPTIMIZE3 stress_syscall_wait(
 	const stress_args_t *args,
 	const pid_t pid)
 {
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		int status;
 
 		if (UNLIKELY(ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0)) {
@@ -86,7 +86,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -112,7 +112,7 @@ again:
 		/*
 		 *  A simple mix of system calls
 		 */
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			VOID_RET(pid_t, getppid());
 #if defined(HAVE_GETPGRP)
 			VOID_RET(pid_t, getpgrp());
@@ -183,8 +183,8 @@ again:
 			}
 			i++;
 
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 
 		/* Terminate child */
 		(void)shim_kill(pid, SIGKILL);

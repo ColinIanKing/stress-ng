@@ -107,7 +107,7 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		(void)madvise((void *)buf, sz, PROT_WRITE);
@@ -212,8 +212,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 			if (UNLIKELY(p->virt_addr == ptr))
 				pr_fail("%s: page shuffle failed for page %zu, virtual address didn't change\n", args->name, page_num);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 fail:

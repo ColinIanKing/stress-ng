@@ -137,7 +137,7 @@ static int stress_dynlib(const stress_args_t *args)
 		int ret;
 
 		ret = sigsetjmp(jmp_env, 1);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (ret)
 			goto tidy;
@@ -179,8 +179,8 @@ tidy:
 				(void)dlclose(handles[i]);
 			handles[i] = NULL;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per dlsym lookup", rate * STRESS_DBL_NANOSECOND);

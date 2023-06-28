@@ -104,7 +104,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 		for (i = 0; i < ctxt->mmaphuge_mmaps; i++)
 			bufs[i].buf = MAP_FAILED;
 
-		for (i = 0; keep_stressing(args) && (i < ctxt->mmaphuge_mmaps); i++) {
+		for (i = 0; stress_continue(args) && (i < ctxt->mmaphuge_mmaps); i++) {
 			size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 			size_t j;
 
@@ -141,7 +141,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 						*ptr64 = val + k;
 					}
 					/* ..and sanity check */
-					for (k = 0; keep_stressing(args) && (k < sz); k += page_size * 64) {
+					for (k = 0; stress_continue(args) && (k < sz); k += page_size * 64) {
 						register uint64_t *ptr64 = (uint64_t *)&buf[k];
 
 						if (*ptr64 != val + k) {
@@ -152,7 +152,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 						}
 					}
 
-					inc_counter(args);
+					stress_bogo_inc(args);
 					break;
 				}
 			}
@@ -163,7 +163,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 				break;
 		}
 
-		for (i = 0; keep_stressing(args) && (i < ctxt->mmaphuge_mmaps); i++) {
+		for (i = 0; stress_continue(args) && (i < ctxt->mmaphuge_mmaps); i++) {
 			if (bufs[i].buf != MAP_FAILED)
 				continue;
 			/* Try Transparent Huge Pages THP */
@@ -201,7 +201,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 			}
 			bufs[i].buf = MAP_FAILED;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

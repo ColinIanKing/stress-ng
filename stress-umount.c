@@ -123,7 +123,7 @@ static void stress_umount_read_proc_mounts(const stress_args_t *args, const char
 		(void)close(fd);
 
 		shim_nanosleep_uint64(stress_mwc64modn(1000000));
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	_exit(0);
 }
@@ -140,7 +140,7 @@ static void stress_umount_umounter(const stress_args_t *args, const char *path)
 	do {
 		stress_umount_umount(args, path, 10000);
 		shim_nanosleep_uint64(stress_mwc64modn(10000));
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	_exit(0);
 }
@@ -174,10 +174,10 @@ static void stress_umount_mounter(const stress_args_t *args, const char *path)
 			/* Just in case, force umount */
 			goto cleanup;
 		} else {
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		stress_umount_umount(args, path, 1000000);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 cleanup:
 	stress_umount_umount(args, path, 100000000);
@@ -200,7 +200,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return 0;
 		pr_inf("%s: fork failed: %d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
@@ -260,7 +260,7 @@ static int stress_umount(const stress_args_t *args)
 	/* Wait for SIGALARMs */
 	do {
 		pause();
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 reap:

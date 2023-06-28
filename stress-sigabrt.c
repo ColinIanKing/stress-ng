@@ -91,7 +91,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_fail("%s: fork failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -143,14 +143,14 @@ rewait:
 								args->name);
 						}
 					}
-					inc_counter(args);
+					stress_bogo_inc(args);
 				} else if (WIFEXITED(status)) {
 					pr_fail("%s: child did not abort as expected\n",
 						args->name);
 				}
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

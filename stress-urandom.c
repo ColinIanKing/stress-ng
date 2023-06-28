@@ -311,8 +311,8 @@ next:
 		}
 #endif
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_metrics_set(args, 0, "million random bits read", bytes * 8.0 / 1000000.0);
 	rate = (duration > 0.0) ? bytes * 8.0 / duration : 0.0;

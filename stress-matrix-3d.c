@@ -939,14 +939,14 @@ static inline int stress_matrix_3d_exercise(
 		(void)func(n, a, b, r);
 		matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
 		matrix_3d_metrics[matrix_3d_method].count += 1.0;
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		if (verify) {
 			t = stress_time_now();
 			(void)func(n, a, b, s);
 			matrix_3d_metrics[matrix_3d_method].duration += stress_time_now() - t;
 			matrix_3d_metrics[matrix_3d_method].count += 1.0;
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			if (shim_memcmp(r, s, matrix_3d_size)) {
 				pr_fail("%s: %s: data difference between identical matrix-3d computations\n",
@@ -958,7 +958,7 @@ static inline int stress_matrix_3d_exercise(
 			if (method_all_index >= SIZEOF_ARRAY(matrix_3d_methods))
 				method_all_index = 1;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/* Dump metrics except for 'all' method */
 	for (i = 1, j = 0; i < num_matrix_3d_methods; i++) {

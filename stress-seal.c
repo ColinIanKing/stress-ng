@@ -199,8 +199,8 @@ static int stress_seal(const stress_args_t *args)
 next:
 		(void)close(fd);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 err:

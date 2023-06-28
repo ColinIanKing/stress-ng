@@ -840,7 +840,7 @@ static int stress_hdd(const stress_args_t *args)
 		}
 		(void)shim_unlink(filename);
 
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			(void)close(fd);
 			goto yielded;
 		}
@@ -867,7 +867,7 @@ static int stress_hdd(const stress_args_t *args)
 				uint64_t offset = (i == 0) ?
 					hdd_bytes : stress_mwc64modn(hdd_bytes) & ~511UL;
 rnd_wr_retry:
-				if (!keep_stressing(args)) {
+				if (!stress_continue(args)) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -890,7 +890,7 @@ rnd_wr_retry:
 					}
 					continue;
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 
 			stress_mwc_set_seed(w, z);
@@ -899,7 +899,7 @@ rnd_wr_retry:
 		if (hdd_flags & HDD_OPT_WR_SEQ) {
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 seq_wr_retry:
-				if (!keep_stressing(args)) {
+				if (!stress_continue(args)) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -922,7 +922,7 @@ seq_wr_retry:
 					}
 					continue;
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
 
@@ -943,7 +943,7 @@ seq_wr_retry:
 
 			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
 seq_rd_retry:
-				if (!keep_stressing(args)) {
+				if (!stress_continue(args)) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -988,7 +988,7 @@ seq_rd_retry:
 						}
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 			if (misreads)
 				pr_dbg("%s: %" PRIu64
@@ -1014,7 +1014,7 @@ seq_rd_retry:
 					goto finish;
 				}
 rnd_rd_retry:
-				if (!keep_stressing(args)) {
+				if (!stress_continue(args)) {
 					(void)close(fd);
 					goto yielded;
 				}
@@ -1054,7 +1054,7 @@ rnd_rd_retry:
 						}
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 			if (misreads)
 				pr_dbg("%s: %" PRIu64
@@ -1066,7 +1066,7 @@ rnd_rd_retry:
 		}
 
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 yielded:
 	rc = EXIT_SUCCESS;

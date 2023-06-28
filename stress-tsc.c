@@ -447,8 +447,8 @@ static int stress_tsc(const stress_args_t *args)
 					TSCx32_lfence_verify(args, tsc, old_tsc);
 
 					duration += stress_time_now() - t;
-					inc_counter(args);
-				} while (keep_stressing(args));
+					stress_bogo_inc(args);
+				} while (stress_continue(args));
 			} else {
 				do {
 					const double t = stress_time_now();
@@ -459,8 +459,8 @@ static int stress_tsc(const stress_args_t *args)
 					TSCx32_lfence();
 
 					duration += stress_time_now() - t;
-					inc_counter(args);
-				} while (keep_stressing(args));
+					stress_bogo_inc(args);
+				} while (stress_continue(args));
 			}
 #else
 			if (args->instance == 0)
@@ -481,8 +481,8 @@ static int stress_tsc(const stress_args_t *args)
 					TSCx32_verify(args, tsc, old_tsc);
 
 					duration += stress_time_now() - t;
-					inc_counter(args);
-				} while (keep_stressing(args));
+					stress_bogo_inc(args);
+				} while (stress_continue(args));
 			} else {
 				do {
 					const double t = stress_time_now();
@@ -493,11 +493,11 @@ static int stress_tsc(const stress_args_t *args)
 					TSCx32();
 
 					duration += stress_time_now() - t;
-					inc_counter(args);
-				} while (keep_stressing(args));
+					stress_bogo_inc(args);
+				} while (stress_continue(args));
 			}
 		}
-		count = 32.0 * 4.0 * (double)get_counter(args);
+		count = 32.0 * 4.0 * (double)stress_bogo_get(args);
 		duration = (count > 0.0) ? duration / count : 0.0;
 		stress_metrics_set(args, 0, "nanosecs per time counter read", duration * STRESS_DBL_NANOSECOND);
 	}

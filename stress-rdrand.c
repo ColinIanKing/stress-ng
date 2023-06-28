@@ -316,8 +316,8 @@ static int stress_rdrand(const stress_args_t *args)
 					counters[(r >> 29) & 0xf]++;
 					counters[(r >> 52) & 0xf]++;
 				}
-				add_counter(args, (uint64_t)i);
-			} while (keep_stressing(args));
+				stress_bogo_add(args, (uint64_t)i);
+			} while (stress_continue(args));
 		} else
 #endif
 		{
@@ -341,12 +341,12 @@ static int stress_rdrand(const stress_args_t *args)
 					counters[(r >> 29) & 0xf]++;
 					counters[(r >> 52) & 0xf]++;
 				}
-				add_counter(args, (uint64_t)i);
-			} while (keep_stressing(args));
+				stress_bogo_add(args, (uint64_t)i);
+			} while (stress_continue(args));
 		}
 
 		duration = stress_time_now() - time_start;
-		c = get_counter(args);
+		c = stress_bogo_get(args);
 		million_bits = ((double)c * 64.0 * 257.0) * ONE_MILLIONTH;
 		rate = (duration > 0.0) ? million_bits / duration : 0.0;
 		stress_metrics_set(args, 0, "million random bits read", million_bits);

@@ -967,11 +967,11 @@ static int stress_regs(const stress_args_t *args)
 	do {
 		int i;
 
-		for (i = 0; keep_stressing_flag() & (i < 1000); i++)
+		for (i = 0; stress_continue_flag() & (i < 1000); i++)
 			stress_regs_helper(args, v);
 		v++;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

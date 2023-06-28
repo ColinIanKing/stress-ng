@@ -115,7 +115,7 @@ static void stress_bad_ioctl_dev_dir(
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return;
 
 	/* Don't want to go too deep */
@@ -134,7 +134,7 @@ static void stress_bad_ioctl_dev_dir(
 		struct dirent *d = dlist[i];
 		size_t len;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -263,7 +263,7 @@ static inline void stress_bad_ioctl_rw(
 		node = dev_ioctl_node;
 		(void)stress_lock_release(lock);
 
-		if (!node || !keep_stressing_flag())
+		if (!node || !stress_continue_flag())
 			break;
 		type = (node->ioctl_state >> 8) & 0xff;
 		nr = (node->ioctl_state) & 0xff;
@@ -354,7 +354,7 @@ static void *stress_bad_ioctl_thread(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing_flag())
+	while (stress_continue_flag())
 		stress_bad_ioctl_rw(args, true);
 
 	return &nowt;
@@ -368,7 +368,7 @@ static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *no
 {
 	int ret;
 
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return;
 	if (!node)
 		return;
@@ -389,7 +389,7 @@ static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *no
 				stress_bad_ioctl_rw(args, false);
 			}
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 	stress_bad_ioctl_dir(args, node->right, offset);
 }
@@ -433,7 +433,7 @@ again:
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-				force_killed_counter(args);
+				stress_force_killed_bogo(args);
 				(void)shim_kill(pid, SIGTERM);
 				(void)shim_kill(pid, SIGKILL);
 				(void)shim_waitpid(pid, &status, 0);
@@ -479,7 +479,7 @@ again:
 			do {
 				stress_bad_ioctl_dir(args, dev_ioctl_info_head, offset);
 				offset = 0;
-			} while (keep_stressing(args));
+			} while (stress_continue(args));
 
 			r = stress_lock_acquire(lock);
 			if (r) {
@@ -495,7 +495,7 @@ again:
 			}
 			_exit(EXIT_SUCCESS);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

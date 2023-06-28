@@ -183,8 +183,8 @@ static int stress_vm_splice(const stress_args_t *args)
 		if (metrics_counter++ > 1000)
 			metrics_counter = 0;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB per sec vm-splice rate", rate / (double)MB);

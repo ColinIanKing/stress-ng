@@ -281,7 +281,7 @@ PRAGMA_UNROLL_N(8)
 					vmem[k] = (uint8_t)(k + rnd8);
 					k = (k + stride) & mem_mask;
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 				/*
 				 *  periodically change cpu affinity
@@ -294,7 +294,7 @@ PRAGMA_UNROLL_N(8)
 					(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
 					t_next += 1.0;
 				}
-			} while (keep_stressing(args));
+			} while (stress_continue(args));
 
 			(void)shim_kill(pid, SIGALRM);
 			_exit(0);
@@ -317,8 +317,8 @@ PRAGMA_UNROLL_N(8)
 		(void)madvise(mem, mmap_size, MADV_DONTNEED);
 		stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
 
-		inc_counter(args);
-	} while(keep_stressing(args));
+		stress_bogo_inc(args);
+	} while(stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

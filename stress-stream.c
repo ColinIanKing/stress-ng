@@ -961,8 +961,8 @@ static int stress_stream(const stress_args_t *args)
 				old_checksum = new_checksum;
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	if (dt >= 4.5) {
 		const double mb_rd_rate = (rd_bytes / (double)MB) / dt;

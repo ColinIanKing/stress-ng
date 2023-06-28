@@ -129,7 +129,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 		 *  We land here if we get a segfault
 		 *  but not a segfault in the sighandler
 		 */
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			_exit(0);
 	}
 
@@ -283,7 +283,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 		}
 	}
 	/* No luck, well that's unexpected.. */
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		pr_fail("%s: child process with illegal stack unexpectedly worked, %d\n",
 			args->name, rnd);
 	_exit(EXIT_FAILURE);
@@ -352,13 +352,13 @@ static int stress_bad_altstack(const stress_args_t *args)
 
 		(void)stress_mwc32();
 again:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return EXIT_SUCCESS;
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				return EXIT_SUCCESS;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
@@ -397,7 +397,7 @@ again:
 				}
 				/* expected: child killed itself with SIGSEGV */
 				if (WTERMSIG(status) == SIGSEGV)
-					inc_counter(args);
+					stress_bogo_inc(args);
 			} else if (WIFEXITED(status)) {
 				if (WEXITSTATUS(status) != EXIT_SUCCESS) {
 					rc = WEXITSTATUS(status);
@@ -407,7 +407,7 @@ again:
 		} else {
 			_exit(stress_bad_altstack_child(args));
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

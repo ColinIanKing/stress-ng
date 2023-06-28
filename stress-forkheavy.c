@@ -212,12 +212,12 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
 				stress_forkheavy_head_remove(false);
 				continue;
 			} else {
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		} else {
 			stress_forkheavy_head_remove(false);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/* And reap */
 	while (forkheavy_list.head) {

@@ -390,7 +390,7 @@ static int stress_mpfr(const stress_args_t *args)
 
 		stress_mwc_get_seed(&w, &z);
 
-		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_mpfr_methods)); i++) {
+		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(stress_mpfr_methods)); i++) {
 			double t1;
 
 			stress_mwc_set_seed(w, z);
@@ -398,21 +398,21 @@ static int stress_mpfr(const stress_args_t *args)
 			stress_mpfr_methods[i].mpfr_func(precision, &r0);
 			metrics[i].duration += stress_time_now() - t1;
 			metrics[i].count += 1.0;
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			stress_mwc_set_seed(w, z);
 			t1 = stress_time_now();
 			stress_mpfr_methods[i].mpfr_func(precision, &r1);
 			metrics[i].duration += stress_time_now() - t1;
 			metrics[i].count += 1.0;
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			if (mpfr_cmp(r0, r1) != 0) {
 				pr_fail("%s: %s computation with %d precision inconsistent\n",
 					args->name, stress_mpfr_methods[i].name, (int)precision);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

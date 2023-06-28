@@ -481,7 +481,7 @@ static int OPTIMIZE3 stress_sock_client(
 		static int count = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto free_controls;
 
 		/* Exercise illegal socket family  */
@@ -818,7 +818,7 @@ retry:
 				break;
 			}
 			count++;
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		stress_sock_ioctl(fd, sock_domain, rt);
 #if defined(AF_INET) && 	\
@@ -835,7 +835,7 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -955,7 +955,7 @@ static int OPTIMIZE3 stress_sock_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 #if defined(HAVE_ACCEPT4)
@@ -1039,7 +1039,7 @@ static int OPTIMIZE3 stress_sock_server(
 				}
 			}
 #endif
-			(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], MMAP_IO_SIZE);
+			(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], MMAP_IO_SIZE);
 
 			if (sock_opts == SOCKET_OPT_RANDOM)
 				opt = stress_mwc8modn(3);
@@ -1124,8 +1124,8 @@ static int OPTIMIZE3 stress_sock_server(
 		if (sfd >= 0)
 			(void)close(sfd);
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	duration = stress_time_now() - t;
 	rate = duration > 0.0 ? (double)msgs / duration : 0;
@@ -1155,7 +1155,7 @@ static void stress_sock_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -1256,7 +1256,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto finish;
 		}

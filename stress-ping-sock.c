@@ -87,17 +87,17 @@ static int stress_ping_sock(const stress_args_t *args)
 		addr.sin_port = htons(rand_port);
 
 		if (LIKELY(sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0))
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 		icmp_hdr->un.echo.sequence++;
 		rand_port++;
 		rand_port &= 0xffff;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	duration = stress_time_now() - t;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
+	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
 	stress_metrics_set(args, 0, "ping sendto calls per sec", rate);
 
 	(void)close(fd);

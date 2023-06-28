@@ -268,7 +268,7 @@ restart:
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
@@ -280,8 +280,8 @@ restart:
 		tmpname = oldname;
 		oldname = newname;
 		newname = tmpname;
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 
 		(void)stress_temp_filename(newname, PATH_MAX,
@@ -295,8 +295,8 @@ restart:
 		tmpname = oldname;
 		oldname = newname;
 		newname = tmpname;
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 
 #if defined(EXERCISE_RENAMEAT)
@@ -326,8 +326,8 @@ restart:
 			oldname = newname;
 			newname = tmpname;
 
-			inc_counter(args);
-			if (!keep_stressing(args))
+			stress_bogo_inc(args);
+			if (!stress_continue(args))
 				break;
 		}
 #endif
@@ -358,8 +358,8 @@ restart:
 			oldname = newname;
 			newname = tmpname;
 
-			inc_counter(args);
-			if (!keep_stressing(args))
+			stress_bogo_inc(args);
+			if (!stress_continue(args))
 				break;
 		}
 #endif

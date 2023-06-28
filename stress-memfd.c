@@ -318,11 +318,11 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				default:
 					pr_fail("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					keep_stressing_set_flag(false);
+					stress_continue_set_flag(false);
 					goto memfd_unmap;
 				}
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto memfd_unmap;
 		}
 
@@ -337,7 +337,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			if (fds[i] < 0)
 				continue;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 
 			/* Allocate space */
@@ -376,7 +376,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			 */
 			VOID_RET(ssize_t, shim_fallocate(fds[i], 0, (off_t)size, 0));
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto memfd_unmap;
 		}
 
@@ -418,7 +418,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 						args->name, errno, strerror(errno));
 			}
 #endif
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto memfd_unmap;
 		}
 
@@ -433,7 +433,7 @@ memfd_unmap:
 		 *  Check for zap_pte bug, see Linux commit
 		 *  5abfd71d936a8aefd9f9ccd299dea7a164a5d455
 		 */
-		for (i = 0; keep_stressing_flag() && (i < memfd_fds); i++) {
+		for (i = 0; stress_continue_flag() && (i < memfd_fds); i++) {
 			uint64_t *buf, *ptr;
 			const uint64_t *end_ptr;
 			uint64_t val = stress_mwc64();
@@ -523,8 +523,8 @@ buf_unmap:
 				(void)close(fd);
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

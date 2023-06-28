@@ -144,7 +144,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 			exit_group_failed++;
 			_exit(0);
 		}
-		if (!(keep_running() && keep_stressing(args)))
+		if (!(keep_running() && stress_continue(args)))
 			break;
 	}
 	ret = pthread_mutex_unlock(&mutex);
@@ -161,7 +161,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 	for (j = 0; j < 1000; j++) {
 		bool all_running = false;
 
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			stop_running();
 			shim_exit_group(0);
 			break;
@@ -187,7 +187,7 @@ static int stress_exit_group(const stress_args_t *args)
 {
         stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		pid_t pid;
 		int ret;
 
@@ -215,7 +215,7 @@ again:
 			if (ret < 0)
 				break;
 
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 	}
 

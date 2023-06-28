@@ -355,8 +355,8 @@ static int stress_splice(const stress_args_t *args)
 		stress_splice_looped_pipe(fds3, fds4, &use_splice_loop);
 		stress_splice_looped_pipe(fds3, fds4, &use_splice_loop);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 

@@ -192,7 +192,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	(void)shim_memset(&status, 0, sizeof(status));
 
 #if defined(Q_GETQUOTA)
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		struct dqblk dqblk;
 
 		(void)shim_memset(&dqblk, 0, sizeof(dqblk));
@@ -204,7 +204,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETNEXTQUOTA)
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		struct shim_nextdqblk nextdqblk;
 
 		(void)shim_memset(&nextdqblk, 0, sizeof(nextdqblk));
@@ -216,7 +216,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETFMT)
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		uint32_t format;
 
 		(void)shim_memset(&format, 0, sizeof(format));
@@ -228,7 +228,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETINFO)
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		struct dqinfo dqinfo;
 
 		(void)shim_memset(&dqinfo, 0, sizeof(dqinfo));
@@ -241,7 +241,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 #endif
 #if defined(Q_GETSTATS)
 	/* Obsolete in recent kernels */
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		struct dqstats dqstats;
 
 		(void)shim_memset(&dqstats, 0, sizeof(dqstats));
@@ -253,7 +253,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_SYNC)
-	if (keep_stressing_flag()) {
+	if (stress_continue_flag()) {
 		err = do_quotactl(args, "Q_SYNC", &status,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev, 0, 0);
@@ -410,7 +410,7 @@ static int stress_quota(const stress_args_t *args)
 		do {
 			int failed = 0, skipped = 0;
 
-			for (i = 0; keep_stressing_flag() && (i < n_devs); i++) {
+			for (i = 0; stress_continue_flag() && (i < n_devs); i++) {
 				int ret;
 
 				/* This failed before, so don't re-test */
@@ -435,7 +435,7 @@ static int stress_quota(const stress_args_t *args)
 					break;
 				}
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			/*
 			 * Accounting not on for all the devices?
@@ -451,7 +451,7 @@ static int stress_quota(const stress_args_t *args)
 			/* All failed, then give up */
 			if (failed == n_devs)
 				goto tidy;
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 	}
 abort:
 	rc = EXIT_SUCCESS;

@@ -100,7 +100,7 @@ static int stress_mprotect_mem(
 
 	VOID_RET(int, sigsetjmp(jmp_env, 1));
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		const uint32_t page = stress_mwc32modn(mem_pages);
 		uint8_t *ptr = mem + (page_size * page);
 		const size_t max_size = (size_t)(mem_end - ptr);
@@ -111,11 +111,11 @@ static int stress_mprotect_mem(
 		if ((max_size < page_size) || (size < page_size))
 			continue;
 
-		for (i = 0; (i < 10) && keep_stressing(args); i++) {
+		for (i = 0; (i < 10) && stress_continue(args); i++) {
 			const int j = stress_mwc16modn(n_flags);
 
 			if (mprotect((void *)ptr, size, prot_flags[j]) == 0) {
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 #if defined(PROT_READ) &&	\
     defined(PROT_WRITE)

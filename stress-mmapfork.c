@@ -75,7 +75,7 @@ static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
 {
 	if ((shim_kill(ppid, 0) < 0) && (errno == ESRCH))
 		return true;
-	return !keep_stressing(args);
+	return !stress_continue(args);
 }
 
 #if defined(MADV_WIPEONFORK)
@@ -132,7 +132,7 @@ static int stress_mmapfork(const stress_args_t *args)
 			pids[i] = -1;
 
 		for (i = 0; i < MAX_PIDS; i++) {
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto reap;
 
 			pids[i] = fork();
@@ -227,8 +227,8 @@ static int stress_mmapfork(const stress_args_t *args)
 		}
 reap:
 		stress_kill_and_wait_many(args, pids, MAX_PIDS, SIGALRM, false);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

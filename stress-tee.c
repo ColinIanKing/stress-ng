@@ -37,7 +37,7 @@ static void stress_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -64,7 +64,7 @@ again:
 			goto again;
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return -1;
 		pr_err("%s: fork failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -94,7 +94,7 @@ static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
 	(void)args;
 	(void)close(fds[0]);
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		ssize_t ret;
 
 		ret = write(fds[1], &data, sizeof(data));
@@ -129,7 +129,7 @@ static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 
 	(void)close(fds[1]);
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		register size_t n = 0;
 		ssize_t ret;
 
@@ -315,8 +315,8 @@ do_splice:
 		if (exercise_tee(args, release, pipe_in[0], pipe_out[1]) < 0)
 			goto tidy_child2;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 

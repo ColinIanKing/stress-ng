@@ -700,8 +700,8 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 
 	do {
 		(void)hm->func(args->name, hm, &bucket);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	if (args->instance == 0) {
 		pr_lock();

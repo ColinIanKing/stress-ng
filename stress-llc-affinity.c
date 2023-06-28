@@ -195,7 +195,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 	do {
 		int32_t i;
 
-		for (i = 0; keep_stressing_flag() && (i < max_cpus); i++) {
+		for (i = 0; stress_continue_flag() && (i < max_cpus); i++) {
 			const int32_t set_cpu = (cpu + i) % max_cpus;
 			cpu_set_t mask;
 
@@ -211,8 +211,8 @@ static int stress_llc_affinity(const stress_args_t *args)
 			write_func(buf, buf_end, &write_duration, cache_line_size);
 			writes += (double)mmap_sz;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	duration = stress_time_now() - t_start;
 

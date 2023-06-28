@@ -1030,11 +1030,11 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 			context->stats[i].duration += (t2 - t1);
 			context->stats[i].valid = valid;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 tidy:
 	(void)munmap((void *)buffer, context->memrate_bytes);

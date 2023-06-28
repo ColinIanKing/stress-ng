@@ -167,7 +167,7 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 			(void)pthread_setaffinity_np(pthread_info->pthread, sizeof(cpuset), &cpuset);
 		}
 #endif
-		inc_counter(args);
+		stress_bogo_inc(args);
 		shim_sched_yield();
 
 		if (UNLIKELY(pthread_mutex_unlock(&mutex) < 0)) {
@@ -175,7 +175,7 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 				args->name, errno, strerror(errno));
 			break;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	if (mutexattr_ret == 0) {
@@ -238,7 +238,7 @@ static int stress_mutex(const stress_args_t *args)
 				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
 			break;
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		created = true;
 	}
@@ -249,7 +249,7 @@ static int stress_mutex(const stress_args_t *args)
 	}
 
 	/* Wait for termination */
-	while (keep_stressing(args))
+	while (stress_continue(args))
 		pause();
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

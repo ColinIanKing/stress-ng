@@ -184,7 +184,7 @@ static int stress_session(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		pid_t pid;
 
 		pid = fork();
@@ -227,7 +227,7 @@ static int stress_session(const stress_args_t *args)
 				}
 			}
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);

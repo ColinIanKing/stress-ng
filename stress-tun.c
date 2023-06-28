@@ -365,7 +365,7 @@ child_cleanup_fd:
 			len = sizeof(addr);
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
-			for (i = 0; keep_stressing(args) && (i < PACKETS_TO_SEND); i++) {
+			for (i = 0; stress_continue(args) && (i < PACKETS_TO_SEND); i++) {
 				n = sendto(sfd, buffer, sizeof(buffer), 0,
 					(struct sockaddr *)&addr, len);
 				if (n < 0)
@@ -383,8 +383,8 @@ child_reap:
 clean_up:
 		(void)close(fd);
 		stress_net_release_ports(port, port);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -91,12 +91,12 @@ static int stress_resources(const stress_args_t *args)
 			}
 
 			pids[i] = pid;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		stress_kill_and_wait_many(args, pids, num_pids, SIGALRM, true);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(resources);

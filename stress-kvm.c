@@ -196,7 +196,7 @@ static int stress_kvm(const stress_args_t *args)
 			goto tidy_vcpu_fd;
 		}
 
-		for (i = 0; i < 1000 && keep_stressing(args); i++) {
+		for (i = 0; i < 1000 && stress_continue(args); i++) {
 			uint8_t *port;
 
 			ret = ioctl(vcpu_fd, KVM_RUN, 0);
@@ -270,8 +270,8 @@ tidy_vm_fd:
 tidy_kvm_fd:
 		(void)close(kvm_fd);
 		if (run_ok)
-			inc_counter(args);
-	} while (keep_stressing(args));
+			stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

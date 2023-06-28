@@ -84,7 +84,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
@@ -112,7 +112,7 @@ again:
 			if (ret < 0)
 				goto kill_child;
 			if (WTERMSIG(status) == SIGSEGV)
-				inc_counter(args);
+				stress_bogo_inc(args);
 kill_child:
 			(void)close(fd[0]);
 			stress_kill_and_wait(args, pid, SIGTERM, false);
@@ -150,12 +150,12 @@ kill_child:
 			(void)close(fd[1]);
 			_exit(EXIT_FAILURE);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (test_valid && (get_counter(args) == 0))
+	if (test_valid && (stress_bogo_get(args) == 0))
 		pr_fail("%s: no SIGSEGV signals detected\n", args->name);
 
 	return EXIT_SUCCESS;

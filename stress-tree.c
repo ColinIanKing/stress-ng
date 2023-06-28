@@ -984,8 +984,8 @@ static int stress_tree(const stress_args_t *args)
 		func(args, n, nodes, metrics);
 		stress_tree_shuffle(nodes, n);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

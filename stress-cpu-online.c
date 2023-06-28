@@ -248,9 +248,9 @@ static int stress_cpu_online(const stress_args_t *args)
 					online_count += 1.0;
 				}
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

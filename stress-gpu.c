@@ -337,7 +337,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 	if (texsize > 0) {
 		int i;
 
-		for (i = 0; keep_stressing_flag() && (i < uploads); i++) {
+		for (i = 0; stress_continue_flag() && (i < uploads); i++) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texsize,
 				     texsize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 				     teximage);
@@ -554,8 +554,8 @@ static int stress_gpu_child(const stress_args_t *args, void *context)
 		stress_gpu_run(texsize, uploads);
 		if (glGetError() != GL_NO_ERROR)
 			return EXIT_NO_RESOURCE;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 finish:
 	do_jmp = false;

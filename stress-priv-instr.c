@@ -477,7 +477,7 @@ static int stress_priv_instr(const stress_args_t *args)
 
 	do {
 		ret = sigsetjmp(jmp_env, 1);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 	} while (ret == 1);
 
@@ -485,13 +485,13 @@ static int stress_priv_instr(const stress_args_t *args)
 		if (idx >= SIZEOF_ARRAY(op_info))
 			idx = 0;
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 		if (op_info[idx].op_func) {
 			t_start = stress_time_now();
 			op_info[idx].op_func();
 		}
 		idx++;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
         stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -533,9 +533,9 @@ finish:
 	if (page != MAP_FAILED)
 		(void)munmap(page, args->page_size);
 #endif
-	if ((get_counter(args) > 1) && (count < 1.0)) {
+	if ((stress_bogo_get(args) > 1) && (count < 1.0)) {
 		pr_fail("%s: attempted to execute %" PRIu64 " privileged instructions, trapped none.\n",
-			args->name, get_counter(args));
+			args->name, stress_bogo_get(args));
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

@@ -270,8 +270,8 @@ static int stress_verity(const stress_args_t *args)
 		(void)close(fd);
 		(void)shim_unlink(filename);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	ret = EXIT_SUCCESS;
 

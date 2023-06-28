@@ -107,7 +107,7 @@ static void stress_dekker_p1(const stress_args_t *args)
 	check0 = dekker->m.check;
 	dekker->m.check--;
 	check1 = dekker->m.check;
-	inc_counter(args);
+	stress_bogo_inc(args);
 
 	dekker->m.turn = 0;
 	dekker->m.wants_to_enter[1] = false;
@@ -150,14 +150,14 @@ static int stress_dekker(const stress_args_t *args)
 		/* Child */
 		(void)stress_change_cpu(args, parent_cpu);
 
-		while (keep_stressing(args))
+		while (stress_continue(args))
 			stress_dekker_p0(args);
 		_exit(0);
 	} else {
 		int status;
 
 		/* Parent */
-		while (keep_stressing(args))
+		while (stress_continue(args))
 			stress_dekker_p1(args);
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

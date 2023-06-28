@@ -271,11 +271,11 @@ static int OPTIMIZE_GOTO stress_goto(const stress_args_t *args)
 	t1 = stress_time_now();
 	for (;;) {
 L0x000:
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (goto_direction == STRESS_GOTO_RANDOM)
 			labels = stress_mwc1() ? labels_backward : labels_forward;
-		inc_counter(args);
+		stress_bogo_inc(args);
 		counters[0]++;
 		goto *labels[0];
 
@@ -425,7 +425,7 @@ L0x000:
 	}
 	t2 = stress_time_now();
 
-	bogo_counter = get_counter(args);
+	bogo_counter = stress_bogo_get(args);
 	lo = bogo_counter - 1;
 	hi = bogo_counter + 1;
 
@@ -443,7 +443,7 @@ L0x000:
 	}
 
 	duration = t2 - t1;
-	rate = (duration > 0.0) ? (1024.0 * (double)get_counter(args)) / duration : 0.0;
+	rate = (duration > 0.0) ? (1024.0 * (double)stress_bogo_get(args)) / duration : 0.0;
 	stress_metrics_set(args, 0, "million gotos per sec", rate / 1000000.0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -390,7 +390,7 @@ static int efi_vars_get(
 	static char data[4096];
 	int i, rc = 0;
 
-	for (i = 0; keep_stressing(args) && (i < dir_count); i++) {
+	for (i = 0; stress_continue(args) && (i < dir_count); i++) {
 		char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
@@ -422,7 +422,7 @@ static int efi_vars_get(
 			continue;
 		}
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 
 	return rc;
@@ -502,7 +502,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -515,7 +515,7 @@ again:
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			force_killed_counter(args);
+			stress_force_killed_bogo(args);
 			(void)shim_kill(pid, SIGTERM);
 			(void)shim_kill(pid, SIGKILL);
 			(void)shim_waitpid(pid, &status, 0);
@@ -541,7 +541,7 @@ again:
 				rc = EXIT_FAILURE;
 				break;
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		rate = (duration > 0.0) ? count / duration : 0.0;
 		stress_metrics_set(args, 0, "efi raw data reads per sec", rate);

@@ -182,7 +182,7 @@ static void stress_malloc_page_touch(
 		register uint8_t *ptr;
 		const uint8_t *end = buffer + size;
 
-		for (ptr = buffer; keep_stressing_flag() && (ptr < end); ptr += page_size)
+		for (ptr = buffer; stress_continue_flag() && (ptr < end); ptr += page_size)
 			*ptr = 0xff;
 	} else {
 		(void)stress_mincore_touch_pages_interruptible(buffer, size);
@@ -224,7 +224,7 @@ static void *stress_malloc_loop(void *ptr)
 		if (!keep_thread_running_flag)
 			break;
 #endif
-		if (!inc_counter_lock(args, counter_lock, false))
+		if (!stress_bogo_inc_lock(args, counter_lock, false))
 			break;
 
 		if (info[i].addr) {
@@ -238,7 +238,7 @@ static void *stress_malloc_loop(void *ptr)
 				info[i].addr = NULL;
 				info[i].len = 0;
 
-				if (!inc_counter_lock(args, counter_lock, true))
+				if (!stress_bogo_inc_lock(args, counter_lock, true))
 					break;
 			} else {
 				void *tmp;
@@ -255,7 +255,7 @@ static void *stress_malloc_loop(void *ptr)
 						pr_fail("%s: allocation at %p does not contain correct value\n",
 							args->name, (void *)info[i].addr);
 					}
-					if (!inc_counter_lock(args, counter_lock, true))
+					if (!stress_bogo_inc_lock(args, counter_lock, true))
 						break;
 				}
 			}
@@ -301,7 +301,7 @@ static void *stress_malloc_loop(void *ptr)
 					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					info[i].len = len;
-					if (!inc_counter_lock(args, counter_lock, true))
+					if (!stress_bogo_inc_lock(args, counter_lock, true))
 						break;
 				} else {
 					info[i].len = 0;

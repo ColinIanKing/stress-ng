@@ -96,14 +96,14 @@ static int stress_sysinfo(const stress_args_t *args)
 			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 
 			/* Linux statfs variant */
 			for (i = 0; i < n_mounts; i++) {
 				int fd;
 
-				if (UNLIKELY(!keep_stressing_flag()))
+				if (UNLIKELY(!stress_continue_flag()))
 					break;
 
 				if (UNLIKELY(!mnts[i]))
@@ -176,7 +176,7 @@ static int stress_sysinfo(const stress_args_t *args)
 			struct stat sbuf;
 			struct shim_ustat ubuf;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 
 			for (i = 0; i < n_mounts; i++) {
@@ -210,7 +210,7 @@ static int stress_sysinfo(const stress_args_t *args)
 #endif
 		}
 
-		if (UNLIKELY(!keep_stressing_flag()))
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 
 #if defined(HAVE_SYS_STATVFS_H)
@@ -222,7 +222,7 @@ static int stress_sysinfo(const stress_args_t *args)
 			for (i = 0; i < n_mounts; i++) {
 				int ret;
 
-				if (UNLIKELY(!keep_stressing_flag()))
+				if (UNLIKELY(!stress_continue_flag()))
 					break;
 
 				if (UNLIKELY(!mnts[i]))
@@ -248,15 +248,15 @@ static int stress_sysinfo(const stress_args_t *args)
 		}
 #endif
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		clk = times(&tms_buf);
 		if ((clk == (clock_t)-1) && (verify)) {
 			 pr_fail("%s: times failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

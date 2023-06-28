@@ -175,7 +175,7 @@ again:
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
 		(void)munmap((void *)buf, pipe_data_size);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -195,7 +195,7 @@ again:
 		(void)stress_read_fdinfo(my_pid, pipefds[0]);
 
 		(void)close(pipefds[1]);
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			ssize_t n;
 
 			n = read(fd, buf, pipe_data_size);
@@ -262,8 +262,8 @@ again:
 			} else {
 				bytes += (double)ret;
 			}
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 		duration = stress_time_now() - t;
 		rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
 		stress_metrics_set(args, 0, "MB per sec pipe write rate", rate);

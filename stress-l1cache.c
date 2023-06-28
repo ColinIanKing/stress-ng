@@ -561,8 +561,8 @@ static int stress_l1cache(const stress_args_t *args)
 	do {
 		stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size);
 
-		add_counter(args, l1cache_sets);
-	} while (keep_stressing(args));
+		stress_bogo_add(args, l1cache_sets);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

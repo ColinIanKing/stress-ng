@@ -104,7 +104,7 @@ static void stress_switch_delay(
 	 */
 	if (++i >= threshold) {
 		double overrun, overrun_by, t;
-		const uint64_t counter = get_counter(args);
+		const uint64_t counter = stress_bogo_get(args);
 
 		i = 0;
 		t = t_start + ((double)(counter * switch_delay) / STRESS_NANOSECOND);
@@ -199,7 +199,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -214,7 +214,7 @@ again:
 
 		(void)close(pipefds[1]);
 
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			ssize_t ret;
 
 			ret = read(fd, buf, buf_size);
@@ -246,7 +246,7 @@ again:
 		do {
 			ssize_t ret;
 
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			ret = write(fd, buf, buf_size);
 			if (UNLIKELY(ret <= 0)) {
@@ -264,9 +264,9 @@ again:
 
 			if (UNLIKELY(switch_freq))
 				stress_switch_delay(args, switch_delay, threshold, t_start, &delay);
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
-		stress_switch_rate(args, "pipe", t_start, stress_time_now(), get_counter(args));
+		stress_switch_rate(args, "pipe", t_start, stress_time_now(), stress_bogo_get(args));
 
 		(void)close(pipefds[1]);
 
@@ -317,7 +317,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -327,7 +327,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		while (keep_stressing_flag()) {
+		while (stress_continue_flag()) {
 			struct sembuf sem ALIGN64;
 
 			sem.sem_num = 0;
@@ -354,7 +354,7 @@ again:
 		/* Parent */
 		t_start = stress_time_now();
 		do {
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			sem.sem_num = 0;
 			sem.sem_op = 1;
@@ -366,7 +366,7 @@ again:
 			if (UNLIKELY(switch_freq))
 				stress_switch_delay(args, switch_delay, threshold, t_start, &delay);
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			sem.sem_num = 0;
 			sem.sem_op = -1;
@@ -374,9 +374,9 @@ again:
 
 			if (UNLIKELY(semop(sem_id, &sem, 1) < 0))
 				break;
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
-		stress_switch_rate(args, "sem-sysv", t_start, stress_time_now(), 2 * get_counter(args));
+		stress_switch_rate(args, "sem-sysv", t_start, stress_time_now(), 2 * stress_bogo_get(args));
 
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
@@ -435,7 +435,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -445,7 +445,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		while (LIKELY(keep_stressing_flag())) {
+		while (LIKELY(stress_continue_flag())) {
 			msg.value++;
 			if (UNLIKELY(mq_send(mq, (char *)&msg, sizeof(msg), 0) < 0))
 				break;
@@ -461,15 +461,15 @@ again:
 		do {
 			unsigned int prio;
 
-			inc_counter(args);
+			stress_bogo_inc(args);
 			if (UNLIKELY(mq_receive(mq, (char *)&msg, sizeof(msg), &prio) < 0))
 				break;
 
 			if (UNLIKELY(switch_freq))
 				stress_switch_delay(args, switch_delay, threshold, t_start, &delay);
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
-		stress_switch_rate(args, "mq", t_start, stress_time_now(), get_counter(args));
+		stress_switch_rate(args, "mq", t_start, stress_time_now(), stress_bogo_get(args));
 
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

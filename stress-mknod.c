@@ -248,7 +248,7 @@ static int stress_mknod(const stress_args_t *args)
 		if (blk_dev_ret == 0)
 			stress_mknod_test_dev(args, dir_fd, bad_fd, S_IFBLK, "S_IFBLK", blk_dev);
 
-		for (i = 0; keep_stressing(args) && (i < n); i++) {
+		for (i = 0; stress_continue(args) && (i < n); i++) {
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
 			size_t j = stress_mwc32modn(num_nodes);
@@ -260,14 +260,14 @@ static int stress_mknod(const stress_args_t *args)
 					continue;	/* Try again */
 				break;
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 		stress_mknod_tidy(args, i);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		(void)sync();
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

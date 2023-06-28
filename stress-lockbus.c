@@ -177,7 +177,7 @@ static int stress_lockbus(const stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: splitlocks %s\n", args->name,
 			do_splitlock ? "enabled" : "disabled");
-	if (sigsetjmp(jmp_env, 1) && !keep_stressing(args))
+	if (sigsetjmp(jmp_env, 1) && !stress_continue(args))
 		goto done;
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -233,8 +233,8 @@ static int stress_lockbus(const stress_args_t *args)
 #else
 		count += (8.0 * 12.0);
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 #if defined(STRESS_ARCH_X86)
 done:

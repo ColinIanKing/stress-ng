@@ -190,8 +190,8 @@ sendfile_ok:
 			offset = (off_t)(sz - 1);
 			(void)sendfile(fdout, fdin, &offset, sz);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB per sec sent to /dev/null", rate / (double)MB);

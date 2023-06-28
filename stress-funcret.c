@@ -238,7 +238,7 @@ static bool NOINLINE stress_funcret_ ## type(const stress_args_t *args)	\
 				return false;				\
 		}							\
 	}								\
-	inc_counter(args);						\
+	stress_bogo_inc(args);						\
 									\
 	return true;							\
 }
@@ -397,7 +397,7 @@ static int stress_funcret(const stress_args_t *args)
 
 	do {
 		success = stress_funcret_exercise(args, funcret_method);
-	} while (success && keep_stressing(args));
+	} while (success && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

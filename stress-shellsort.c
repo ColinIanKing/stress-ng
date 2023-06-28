@@ -194,7 +194,7 @@ static int stress_shellsort(const stress_args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/* Reverse sort */
@@ -219,7 +219,7 @@ static int stress_shellsort(const stress_args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/* And re-order */
@@ -248,11 +248,11 @@ static int stress_shellsort(const stress_args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

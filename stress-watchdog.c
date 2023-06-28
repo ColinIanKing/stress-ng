@@ -87,7 +87,7 @@ static void /*NORETURN*/ MLOCKED_TEXT stress_watchdog_handler(int signum)
 	stress_watchdog_magic_close();
 
 	/* trigger early termination */
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -139,7 +139,7 @@ static int stress_watchdog(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		fd = open(dev_watchdog, O_RDWR);
 
 		/* Multiple stressors can lock the device, so retry */
@@ -155,7 +155,7 @@ static int stress_watchdog(const stress_args_t *args)
 		stress_watchdog_magic_close();
 
 #if defined(WDIOC_KEEPALIVE)
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			goto watchdog_close;
 		VOID_RET(int, ioctl(fd, WDIOC_KEEPALIVE, 0));
 #else
@@ -166,7 +166,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int timeout = 0;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETTIMEOUT, &timeout) == 0) &&
 			    (timeout < 0)) {
@@ -183,7 +183,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int timeout = 0;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout) == 0) &&
 			    (timeout < 0)) {
@@ -200,7 +200,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int timeout = 0;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETTIMELEFT, &timeout) == 0) &&
 			    (timeout < 0)) {
@@ -217,7 +217,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			struct watchdog_info ident;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETSUPPORT, &ident));
 		}
@@ -229,7 +229,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int flags;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETSTATUS, &flags));
 		}
@@ -241,7 +241,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int flags;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &flags));
 		}
@@ -253,7 +253,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int temperature = 0;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETTEMP, &temperature) == 0) &&
 			    (temperature < 0)) {
@@ -277,7 +277,7 @@ watchdog_close:
 			break;
 		}
 		(void)shim_sched_yield();
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

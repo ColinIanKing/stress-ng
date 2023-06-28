@@ -236,7 +236,7 @@ static void stress_job_check_status(
 			args->name, name);
 	} else {
 		(*jobs_done)++;
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 }
 
@@ -737,14 +737,14 @@ static void stress_ipsec_call_func(
 			double t;
 			uint64_t c;
 
-			c = get_counter(args);
+			c = stress_bogo_get(args);
 			t = stress_time_now();
 
 			mb_features[i].init_func(mb_mgr);
 			stress_ipsec_funcs[func_index].func(args, mb_mgr, data, data_len, jobs);
 
 			mb_features[i].stats.duration += (stress_time_now() - t);
-			mb_features[i].stats.ops += (double)(get_counter(args) - c);
+			mb_features[i].stats.ops += (double)(stress_bogo_get(args) - c);
 		}
 	}
 }
@@ -762,7 +762,7 @@ static void stress_ipsec_all(
 {
 	size_t i;
 
-	for (i = 1; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_ipsec_funcs)); i++)
+	for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(stress_ipsec_funcs)); i++)
 		stress_ipsec_call_func(args, mb_mgr, data, data_len, jobs, i);
 }
 
@@ -861,7 +861,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 				stress_ipsec_call_func(args, mb_mgr, data, sizeof(data), ipsec_mb_jobs, ipsec_mb_method);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	pr_lock();
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(mb_features); i++) {

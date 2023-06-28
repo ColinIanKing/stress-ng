@@ -142,8 +142,8 @@ static int stress_env_child(const stress_args_t *args, void *context)
 					pr_fail("%s: unsentenv on variable %s failed, errno=%d (%s)\n",
 						args->name, name, errno, strerror(errno));
 				}
-				inc_counter(args);
-				if (!keep_stressing(args))
+				stress_bogo_inc(args);
+				if (!stress_continue(args))
 					goto reap;
 			}
 			i = 0;
@@ -151,9 +151,9 @@ static int stress_env_child(const stress_args_t *args, void *context)
 			stress_mwc_get_seed(&seed_w, &seed_z);
 		} else {
 			i++;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

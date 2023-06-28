@@ -86,16 +86,16 @@ static ssize_t stress_punch_pwrite(
 	const off_t offset)
 {
 #if defined(HAVE_PWRITEV)
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 	return pwrite(fd, data, size, offset);
 #else
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 	if (lseek(fd, offset, SEEK_SET) < (off_t)-1)
 		return 0;
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 	return write(fd, data, size);
 #endif
@@ -157,14 +157,14 @@ static int stress_punch_action(
 	static off_t prev_offset = ~(off_t)0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
 	    (prev_size == size) && (prev_offset == offset))
 		(void)stress_punch_pwrite(args, buf->buf_before, fd, size, offset);
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 	(void)shim_fallocate(fd, mode->mode, offset, (off_t)size);
 	if (verify &&
@@ -174,12 +174,12 @@ static int stress_punch_action(
 		if (stress_punch_check_zero(args, buf->buf_read, fd, offset, size) < 0)
 			return -1;
 	}
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	if (mode->write_after)
 		(void)stress_punch_pwrite(args, buf->buf_after, fd, size, offset);
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return 0;
 
 	prev_size = size;
@@ -247,13 +247,13 @@ static int stress_punch_file(
 		/* Create some holes to make more extents */
 
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset, 16);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset + 128, 16);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32modn(DEFAULT_FPUNCH_LENGTH), 16);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 #endif
 		offset += (256 * (instance + 1));
@@ -262,8 +262,8 @@ static int stress_punch_file(
 
 		VOID_RET(int, ftruncate(fd, (off_t)DEFAULT_FPUNCH_LENGTH));
 
-		inc_counter(args);
-	} while ((rc == 0) && keep_stressing(args));
+		stress_bogo_inc(args);
+	} while ((rc == 0) && stress_continue(args));
 
 	return rc;
 }
@@ -318,7 +318,7 @@ static int stress_fpunch(const stress_args_t *args)
 	 */
 	offset = DEFAULT_FPUNCH_LENGTH;
 	n = 0;
-	for (i = 0; keep_stressing(args) && (i < max_punches); i++) {
+	for (i = 0; stress_continue(args) && (i < max_punches); i++) {
 		ssize_t r;
 
 		offset -= stride;
@@ -326,7 +326,7 @@ static int stress_fpunch(const stress_args_t *args)
 		n += (r > 0) ? (size_t)r : 0;
 	}
 
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		goto tidy;
 
 	/* Zero sized file is a bit concerning, so abort */

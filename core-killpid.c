@@ -56,7 +56,7 @@ static int stress_wait_until_reaped(
 	const stress_args_t *args,
 	const pid_t pid,
 	const int signum,
-	const bool set_force_killed_counter)
+	const bool set_stress_force_killed_bogo)
 {
 	int count = 0;
 
@@ -79,11 +79,11 @@ static int stress_wait_until_reaped(
 		 *  Retry if EINTR unless we've have 2 mins
 		 *  consecutive EINTRs then give up.
 		 */
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			(void)shim_kill(pid, signum);
 			if (count > 120) {
-				if (set_force_killed_counter)
-					force_killed_counter(args);
+				if (set_stress_force_killed_bogo)
+					stress_force_killed_bogo(args);
 				stress_killpid(pid);
 			}
 		}
@@ -102,7 +102,7 @@ int stress_kill_and_wait(
 	const stress_args_t *args,
 	const pid_t pid,
 	const int signum,
-	const bool set_force_killed_counter)
+	const bool set_stress_force_killed_bogo)
 {
 	const pid_t mypid = getpid();
 
@@ -118,7 +118,7 @@ int stress_kill_and_wait(
 		return EXIT_SUCCESS;
 
 	(void)shim_kill(pid, signum);
-	return stress_wait_until_reaped(args, pid, signum, set_force_killed_counter);
+	return stress_wait_until_reaped(args, pid, signum, set_stress_force_killed_bogo);
 }
 
 /*
@@ -135,7 +135,7 @@ int stress_kill_and_wait_many(
 	const pid_t *pids,
 	const size_t n_pids,
 	const int signum,
-	const bool set_force_killed_counter)
+	const bool set_stress_force_killed_bogo)
 {
 	size_t i;
 	const pid_t mypid = getpid();
@@ -151,7 +151,7 @@ int stress_kill_and_wait_many(
 		if ((pids[i] > 1) && (pids[i] != mypid)) {
 			int ret;
 
-			ret = stress_kill_and_wait(args, pids[i], signum, set_force_killed_counter);
+			ret = stress_kill_and_wait(args, pids[i], signum, set_stress_force_killed_bogo);
 			if (ret == EXIT_FAILURE)
 				rc = ret;
 		}

@@ -92,7 +92,7 @@ static int stress_rawdev_sweep(
 	ssize_t ret;
 	double t;
 
-	for (i = 0; (i < blks) && keep_stressing(args); i += shift_ul(blks, 8)) {
+	for (i = 0; (i < blks) && stress_continue(args); i += shift_ul(blks, 8)) {
 		const off_t offset = (off_t)i * (off_t)blksz;
 
 		t = stress_time_now();
@@ -106,10 +106,10 @@ static int stress_rawdev_sweep(
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 	}
-	for (; (i > 0) && keep_stressing(args); i -= shift_ul(blks, 8)) {
+	for (; (i > 0) && stress_continue(args); i -= shift_ul(blks, 8)) {
 		const off_t offset = (off_t)i * (off_t)blksz;
 
 		t = stress_time_now();
@@ -123,7 +123,7 @@ static int stress_rawdev_sweep(
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 	}
 	return 0;
@@ -144,10 +144,10 @@ static int stress_rawdev_wiggle(
 	size_t i;
 	ssize_t ret;
 
-	for (i = shift_ul(blks, 8); (i < blks) && keep_stressing(args); i += shift_ul(blks, 8)) {
+	for (i = shift_ul(blks, 8); (i < blks) && stress_continue(args); i += shift_ul(blks, 8)) {
 		unsigned long j;
 
-		for (j = 0; (j < shift_ul(blks, 8)) && keep_stressing(args); j += shift_ul(blks, 10)) {
+		for (j = 0; (j < shift_ul(blks, 8)) && stress_continue(args); j += shift_ul(blks, 10)) {
 			const off_t offset = (off_t)(i - j) * (off_t)blksz;
 			double t;
 
@@ -162,7 +162,7 @@ static int stress_rawdev_wiggle(
 			} else {
 				metrics->duration += stress_time_now() - t;
 				metrics->count += ret;
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
 	}
@@ -201,7 +201,7 @@ static int stress_rawdev_ends(
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 		offset = (off_t)(blks - (i + 1)) * (off_t)blksz;
@@ -216,9 +216,9 @@ static int stress_rawdev_ends(
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 	return 0;
 }
@@ -237,7 +237,7 @@ static int stress_rawdev_random(
 {
 	size_t i;
 
-	for (i = 0; (i < 256) && keep_stressing(args); i++) {
+	for (i = 0; (i < 256) && stress_continue(args); i++) {
 		ssize_t ret;
 		const off_t offset = (off_t)blksz * stress_mwc64modn(blks);
 		double t;
@@ -253,7 +253,7 @@ static int stress_rawdev_random(
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 	}
 	return 0;
@@ -274,7 +274,7 @@ static int stress_rawdev_burst(
 	int i;
 	off_t blk = (off_t)stress_mwc64modn(blks);
 
-	for (i = 0; (i < 256) && keep_stressing(args); i++) {
+	for (i = 0; (i < 256) && stress_continue(args); i++) {
 		ssize_t ret;
 		const off_t offset = blk * (off_t)blksz;
 		double t;
@@ -290,7 +290,7 @@ static int stress_rawdev_burst(
 		} else {
 			metrics->duration += stress_time_now() - t;
 			metrics->count += ret;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		blk++;
 		if (blk >= (off_t)blks)
@@ -490,7 +490,7 @@ static int stress_rawdev(const stress_args_t *args)
 	do {
 		if (func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]) < 0)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -69,7 +69,7 @@ static int stress_personality(const stress_args_t *args)
 			const unsigned long p = personalities[i];
 			int ret;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			if (UNLIKELY(failed[i])) {
 				fails++;
@@ -96,8 +96,8 @@ static int stress_personality(const stress_args_t *args)
 				"to be set\n", args->name, fails);
 			break;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

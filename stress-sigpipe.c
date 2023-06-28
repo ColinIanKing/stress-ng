@@ -34,7 +34,7 @@ static void stress_sigpipe_handler(int signum)
 	(void)signum;
 
 	if (LIKELY(s_args != NULL))
-		inc_counter(s_args);
+		stress_bogo_inc(s_args);
 }
 
 #if defined(HAVE_CLONE)
@@ -106,7 +106,7 @@ again:
 
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -132,7 +132,7 @@ again:
 					(*epipe_count)++;
 				break;
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		(void)close(pipefds[1]);
 		(void)shim_kill(pid, SIGKILL);
@@ -169,12 +169,12 @@ static int stress_sigpipe(const stress_args_t *args)
 
 	do {
 		stress_sigpipe_write(args, buf, buf_size, &pipe_count, &epipe_count);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* simple sanity check */
-	if ((pipe_count + epipe_count > 0) && (get_counter(args) < 1)) {
+	if ((pipe_count + epipe_count > 0) && (stress_bogo_get(args) < 1)) {
 		pr_fail("%s: %" PRIu64 " pipes closed and %" PRIu64 " EPIPE "
 			"writes occurred but got 0 SIGPIPE signals\n",
 			args->name, pipe_count, epipe_count);

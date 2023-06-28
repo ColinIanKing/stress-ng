@@ -150,7 +150,7 @@ static void stress_affinity_child(
 {
 	uint32_t cpu = args->instance, last_cpu = cpu;
 	cpu_set_t mask0;
-	bool keep_stressing_affinity = true;
+	bool stress_continue_affinity = true;
 
 	CPU_ZERO(&mask0);
 
@@ -220,15 +220,15 @@ static void stress_affinity_child(
 		VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask0));
 
 affinity_continue:
-		keep_stressing_affinity = inc_counter_lock(args, counter_lock, true);
-		if (!keep_stressing_affinity)
+		stress_continue_affinity = stress_bogo_inc_lock(args, counter_lock, true);
+		if (!stress_continue_affinity)
 			break;
 
 		if (info->affinity_delay > 0)
 			stress_affinity_spin_delay(info->affinity_delay, info);
 		if (info->affinity_sleep > 0)
 			shim_nanosleep_uint64(info->affinity_sleep);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_affinity_reap(args, pids);
 }

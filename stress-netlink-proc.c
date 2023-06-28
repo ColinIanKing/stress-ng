@@ -101,7 +101,7 @@ static int monitor(const stress_args_t *args, const int sock)
 		struct cn_msg *cn_msg;
 		struct proc_event *proc_ev;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return 0;
 
 		if ((nlmsghdr->nlmsg_type == NLMSG_ERROR) ||
@@ -137,7 +137,7 @@ static int monitor(const stress_args_t *args, const int sock)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0)
 		case PROC_EVENT_PTRACE:
 #endif
-			inc_counter(args);
+			stress_bogo_inc(args);
 			break;
 		default:
 			break;
@@ -255,7 +255,7 @@ static int stress_netlink_proc(const stress_args_t *args)
 		spawn_several(args->name, 0, 5);
 		if (monitor(args, sock) < 0)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

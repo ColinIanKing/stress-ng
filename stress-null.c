@@ -140,8 +140,8 @@ static int stress_null(const stress_args_t *args)
 		}
 #endif
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 	(void)close(fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

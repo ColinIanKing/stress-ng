@@ -301,7 +301,7 @@ static int stress_syncload(const stress_args_t *args)
 			delay_type = 0;
 
 		timeout += sec_busy;
-		while (keep_stressing_flag() && (stress_time_now() < timeout))
+		while (stress_continue_flag() && (stress_time_now() < timeout))
 			op();
 
 		timeout += sec_sleep;
@@ -312,8 +312,8 @@ static int stress_syncload(const stress_args_t *args)
 			shim_nanosleep_uint64(duration_us * 1000);
 		}
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;

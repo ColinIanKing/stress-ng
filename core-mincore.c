@@ -33,11 +33,11 @@ static void stress_mincore_touch_pages_slow(
 	volatile char *buffer;
 
 	if (interruptible) {
-		for (buffer = buf, i = 0; keep_stressing_flag() &&
+		for (buffer = buf, i = 0; stress_continue_flag() &&
 		     (i < n_pages); i++, buffer += page_size) {
 			(*buffer)++;
 		}
-		for (buffer = buf, i = 0; keep_stressing_flag() &&
+		for (buffer = buf, i = 0; stress_continue_flag() &&
 		     (i < n_pages); i++, buffer += page_size) {
 			(*buffer)--;
 		}
@@ -98,14 +98,14 @@ static int stress_mincore_touch_pages_generic(
 
 	if (interruptible) {
 		/* If page is not resident in memory, touch it */
-		for (buffer = buf, i = 0; keep_stressing_flag() &&
+		for (buffer = buf, i = 0; stress_continue_flag() &&
 		     (i < n_pages); i++, buffer += page_size) {
 			if (!(vec[i] & 1))
 				(*buffer)++;
 		}
 
 		/* And restore contents */
-		for (buffer = buf, i = 0; keep_stressing_flag() &&
+		for (buffer = buf, i = 0; stress_continue_flag() &&
 		     (i < n_pages); i++, buffer += page_size) {
 			if (!(vec[i] & 1))
 				(*buffer)--;

@@ -249,7 +249,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 		if ((flags) & CACHE_FLAGS_SFENCE) {			\
 			SHIM_SFENCE();					\
 		}							\
-		if (!keep_stressing_flag())				\
+		if (!stress_continue_flag())				\
 			break;						\
 	}
 
@@ -271,7 +271,7 @@ static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
 	CACHE_WRITE_MOD(x);						\
 	metrics->duration += stress_time_now() - t;			\
 	metrics->count += (double)mem_cache_size;			\
-	add_counter(args, j >> 10);					\
+	stress_bogo_add(args, j >> 10);					\
 									\
 	*pi = i;							\
 	*pk = k;							\
@@ -633,12 +633,12 @@ static void stress_cache_read(
 		k += 33;
 		k = (k >= mem_cache_size) ? k - mem_cache_size : k;
 		total += mem_cache[i] + mem_cache[k];
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 	}
 	metrics_read->duration += stress_time_now() - t;
 	metrics_read->count += (double)(j + j); /* two reads per loop */
-	add_counter(args, j >> 10);
+	stress_bogo_add(args, j >> 10);
 
 	*i_ptr = i;
 	*k_ptr = k;
@@ -670,12 +670,12 @@ static void stress_cache_write(
 		k = (k >= mem_cache_size) ? k - mem_cache_size : k;
 		mem_cache[i] = v;
 		mem_cache[k] = v;
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 	}
 	metrics_write->duration += stress_time_now() - t;
 	metrics_write->count += (double)(j + j); /* 2 writes per loop */
-	add_counter(args, j >> 10);
+	stress_bogo_add(args, j >> 10);
 
 	*i_ptr = i;
 	*k_ptr = k;
@@ -891,7 +891,7 @@ static int stress_cache(const stress_args_t *args)
 		 *  check if we need to terminate
 		 */
 		if (jmpret) {
-			if (keep_stressing(args))
+			if (stress_continue(args))
 				goto next;
 			break;
 		}
@@ -960,7 +960,7 @@ static int stress_cache(const stress_args_t *args)
 			 *  We return here if we segfault, so
 			 *  first check if we need to terminate
 			 */
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			if (!jmpret)
@@ -971,7 +971,7 @@ next:
 		i += inc;
 		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
 
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/*
 	 *  Hit an illegal instruction, report the disabled flags

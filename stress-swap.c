@@ -407,8 +407,8 @@ static int stress_swap(const stress_args_t *args)
 		if (ret == 0)
 			VOID_RET(int, stress_swapoff(filename));/* Should never happen */
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	swapped_percent = (swapped_total == 0) ?
 		0.0 : (100.0 * (double)swapped_out) / (double)swapped_total;

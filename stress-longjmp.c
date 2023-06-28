@@ -80,7 +80,7 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 		if (UNLIKELY(sample_counter == 0)) {
 			t_total += (stress_time_now() - bufchk.ts);
 			n++;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		/*
 		 *  Sanity check to see if setjmp clobbers regions
@@ -98,7 +98,7 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 		if (sample_counter >= 1000)
 			sample_counter = 0;
 	}
-	if (keep_stressing(args)) {
+	if (stress_continue(args)) {
 		if (LIKELY(sample_counter > 0)) {
 			stress_longjmp_func();
 		} else {

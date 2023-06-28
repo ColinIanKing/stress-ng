@@ -155,7 +155,7 @@ static int stress_crypt(const stress_args_t *args)
 			passwd[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
 		passwd[i] = '\0';
 
-		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++) {
+		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++) {
 			int ret;
 
 			ret = stress_crypt_id(args,
@@ -166,11 +166,11 @@ static int stress_crypt(const stress_args_t *args)
 			if (ret < 0)
 				failed++;
 			else
-				inc_counter(args);
+				stress_bogo_inc(args);
 		}
 		if (failed)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -211,7 +211,7 @@ static void inotify_exercise(
 retry:
 	n++;
 	if ((fd = inotify_init()) < 0) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return;
 
 		/* This is just so wrong... */
@@ -267,7 +267,7 @@ retry:
 		}
 
 redo:
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		/*
 		 *  Exercise FIOREAD to get inotify code coverage up
@@ -406,7 +406,7 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 	}
 
 	(void)shim_memset(buffer, 'x', BUF_SIZE);
-	while (keep_stressing(args) && (sz > 0)) {
+	while (stress_continue(args) && (sz > 0)) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
@@ -483,7 +483,7 @@ static int inotify_access_helper(
 
 	/* Just want to force an access */
 do_access:
-	if (keep_stressing(args) && (read(fd, buffer, 1) < 0)) {
+	if (stress_continue(args) && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
@@ -532,7 +532,7 @@ static int inotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (keep_stressing(args) && (write(fd, buffer, 1) < 0)) {
+	if (stress_continue(args) && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
@@ -949,10 +949,10 @@ static int stress_inotify(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing(args) && inotify_stressors[i].func; i++)
+		for (i = 0; stress_continue(args) && inotify_stressors[i].func; i++)
 			inotify_stressors[i].func(args, pathname, bad_fd);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);

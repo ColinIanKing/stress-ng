@@ -139,7 +139,7 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 		flags |= stress_mwc1() ? MAP_FIXED : MAP_FIXED_NOREPLACE;
 #endif
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		if (stress_mmapfixed_is_mapped((void *)addr, sz, page_size))
@@ -214,12 +214,12 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 unmap:
 #endif
 		(void)munmap((void *)buf, sz);
-		inc_counter(args);
+		stress_bogo_inc(args);
 next:
 		addr >>= 1;
 		if (addr < MMAP_BOTTOM)
 			addr = MMAP_TOP;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

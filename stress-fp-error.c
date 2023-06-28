@@ -198,8 +198,8 @@ static int stress_fp_error(const stress_args_t *args)
 		 */
 		if ((int)fegetround() == -1)
 			pr_fail("%s: fegetround() returned -1\n", args->name);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

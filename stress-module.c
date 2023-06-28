@@ -404,7 +404,7 @@ static int stress_module(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		if (shim_finit_module(fd, finit_args1, kernel_flags) == 0) {
@@ -412,8 +412,8 @@ static int stress_module(const stress_args_t *args)
 				(void)shim_delete_module(module_name, 0);
 		}
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

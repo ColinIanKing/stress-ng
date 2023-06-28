@@ -156,7 +156,7 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 #else
 			shim_sched_yield();
 #endif
-			if (((stress_time_now() - t) > 5.0) && !keep_stressing_flag()) {
+			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
 				errno = EAGAIN;
 				return -1;
 			}

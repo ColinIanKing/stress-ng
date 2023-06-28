@@ -162,7 +162,7 @@ static int stress_shm_posix_child(
 
 			shm_name[0] = '\0';
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto reap;
 
 			(void)snprintf(shm_name, SHM_NAME_LEN,
@@ -204,13 +204,13 @@ static int stress_shm_posix_child(
 			}
 			addrs[i] = addr;
 
-			if (UNLIKELY(!keep_stressing_flag())) {
+			if (UNLIKELY(!stress_continue_flag())) {
 				(void)close(shm_fd);
 				goto reap;
 			}
 			(void)stress_mincore_touch_pages(addr, sz);
 
-			if (UNLIKELY(!keep_stressing_flag())) {
+			if (UNLIKELY(!stress_continue_flag())) {
 				(void)close(shm_fd);
 				goto reap;
 			}
@@ -279,7 +279,7 @@ static int stress_shm_posix_child(
 				(void)shim_waitpid(newpid, &status, 0);
 			}
 
-			if (UNLIKELY(!keep_stressing(args)))
+			if (UNLIKELY(!stress_continue(args)))
 				goto reap;
 			if (UNLIKELY(stress_shm_posix_check(addr, sz, page_size) < 0)) {
 				ok = false;
@@ -288,7 +288,7 @@ static int stress_shm_posix_child(
 				goto reap;
 			}
 			id++;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 reap:
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
@@ -320,7 +320,7 @@ reap:
 			addrs[i] = NULL;
 			*shm_name = '\0';
 		}
-	} while (ok && keep_stressing(args));
+	} while (ok && stress_continue(args));
 
 	/* Inform parent of end of run */
 	msg.index = -1;
@@ -386,7 +386,7 @@ static int stress_shm(const stress_args_t *args)
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing_flag() && retry) {
+	while (stress_continue_flag() && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -397,7 +397,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args)) {
+			if (!stress_continue(args)) {
 				rc = EXIT_SUCCESS;
 				goto finish;
 			}
@@ -421,7 +421,7 @@ again:
 			}
 			(void)close(pipefds[1]);
 
-			while (keep_stressing_flag()) {
+			while (stress_continue_flag()) {
 				ssize_t n;
 				stress_shm_msg_t 	msg;
 				char *shm_name;

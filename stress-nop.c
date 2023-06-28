@@ -71,9 +71,9 @@ static void stress_nop_spin_ ## name(				\
 			(*duration) += stress_time_now() - t;	\
 			(*count) += (double)(64 * NOP_LOOPS);	\
 								\
-			inc_counter(args);			\
+			stress_bogo_inc(args);			\
 		}						\
-	} while (flag && keep_stressing(args));			\
+	} while (flag && stress_continue(args));			\
 }
 
 static inline void stress_op_nop(void)
@@ -302,7 +302,7 @@ static void stress_nop_random(
 
 		current_instr = &nop_instr[n];
 		stress_nop_callfunc(current_instr, args, false, duration, count);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 }
 
 static int stress_set_nop_instr(const char *opt)

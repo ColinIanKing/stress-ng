@@ -427,7 +427,7 @@ retry:
 			user_data->supported = false;
 		return EXIT_FAILURE;
 	}
-	inc_counter(args);
+	stress_bogo_inc(args);
 	return EXIT_SUCCESS;
 }
 
@@ -938,12 +938,12 @@ static int stress_io_uring_child(const stress_args_t *args, void *context)
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
-		for (j = 0; (j < SIZEOF_ARRAY(stress_io_uring_setups)) && keep_stressing_flag(); j++) {
+		for (j = 0; (j < SIZEOF_ARRAY(stress_io_uring_setups)) && stress_continue_flag(); j++) {
 			if (user_data[j].supported) {
 				rc = stress_io_uring_submit(args,
 					stress_io_uring_setups[j].setup_func,
 					&io_uring_file, &submit, &user_data[j], NULL);
-				if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
+				if ((rc != EXIT_SUCCESS) || !stress_continue(args))
 					break;
 			}
 		}
@@ -953,7 +953,7 @@ static int stress_io_uring_child(const stress_args_t *args, void *context)
 			i = 0;
 			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	pr_dbg("%s: submits completed, closing uring and unlinking file\n", args->name);

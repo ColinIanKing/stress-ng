@@ -338,7 +338,7 @@ static void NORETURN OPTIMIZE3 stress_rawpkt_client(
 			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
 		}
 #endif
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_rawpkt_sockopts(fd);
 	(void)close(fd);
@@ -421,7 +421,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 			    (ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
-				inc_counter(args);
+				stress_bogo_inc(args);
 				bytes += (double)n;
 			}
 		}
@@ -433,7 +433,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
 		}
 #endif
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
@@ -447,7 +447,7 @@ close_fd:
 #endif
 	(void)close(fd);
 die:
-	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, get_counter(args), all_pkts);
+	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, stress_bogo_get(args), all_pkts);
 
 	return rc;
 }
@@ -456,7 +456,7 @@ static void stress_sock_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -525,7 +525,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto finish;
 		}

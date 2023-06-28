@@ -111,7 +111,7 @@ do {									\
 			args->name, rc, ret);				\
 		}							\
 	}								\
-	if (!keep_stressing_flag())					\
+	if (!stress_continue_flag())					\
 		goto reap;						\
 } while (0)
 
@@ -204,7 +204,7 @@ again:
 		if (stress_redo_fork(errno))
 			goto again;
 		(void)close(fd1);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -219,7 +219,7 @@ again:
 		(void)sched_settings_apply(true);
 
 		/* Child */
-		while (keep_stressing_flag())
+		while (stress_continue_flag())
 			(void)pause();
 
 		/* will never get here */
@@ -322,8 +322,8 @@ again:
 			if (!is_root)
 				(void)SHIM_KCMP(1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
 
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);

@@ -62,7 +62,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 		/*
 		 *  Data is ready, so drain as much as possible
 		 */
-		while (keep_stressing_flag() && (stress_time_now() < time_end)) {
+		while (stress_continue_flag() && (stress_time_now() < time_end)) {
 			ssize_t ret;
 
 			got_err = 0;
@@ -74,7 +74,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 				break;
 			}
 			if (sigio_args)
-				inc_counter(sigio_args);
+				stress_bogo_inc(sigio_args);
 		}
 	}
 }
@@ -142,7 +142,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -162,7 +162,7 @@ again:
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-		while (keep_stressing(args)) {
+		while (stress_continue(args)) {
 			ssize_t n;
 
 			n = write(fds[1], wr_buffer, BUFFER_SIZE);
@@ -203,7 +203,7 @@ again:
 			}
 			break;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	t_delta = stress_time_now() - t_start;
 	rate = (t_delta > 0.0) ? (double)async_sigs / t_delta : 0.0;

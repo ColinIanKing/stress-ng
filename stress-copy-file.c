@@ -77,7 +77,7 @@ static int stress_copy_file_fill(
 		if (n < 0)
 			return -1;
 		sz -= n;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return 0;
 	}
 	return 0;
@@ -217,10 +217,10 @@ static int stress_copy_file(const stress_args_t *args)
 		off_out_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = off_out_orig;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		stress_copy_file_fill(args, fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		t = stress_time_now();
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
@@ -257,7 +257,7 @@ static int stress_copy_file(const stress_args_t *args)
 					args->name, (intmax_t)off_in_orig, (intmax_t)off_out_orig);
 			}
 		}
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		/*
@@ -275,11 +275,11 @@ static int stress_copy_file(const stress_args_t *args)
 		 */
 		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, ~0U));
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		(void)shim_fsync(fd_out);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 	rc = EXIT_SUCCESS;
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;

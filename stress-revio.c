@@ -156,25 +156,25 @@ static ssize_t stress_revio_write(
 #endif
 
 	ret = write(fd, buf, count);
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return ret;
 
 #if defined(HAVE_FSYNC)
 	if (revio_flags & REVIO_OPT_FSYNC)
 		(void)shim_fsync(fd);
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return ret;
 #endif
 #if defined(HAVE_FDATASYNC)
 	if (revio_flags & REVIO_OPT_FDATASYNC)
 		(void)shim_fdatasync(fd);
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return ret;
 #endif
 #if defined(HAVE_SYNCFS)
 	if (revio_flags & REVIO_OPT_SYNCFS)
 		(void)syncfs(fd);
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return ret;
 #endif
 
@@ -259,7 +259,7 @@ static int stress_revio_advise(const stress_args_t *args, const int fd, const in
 	if (!(flags & REVIO_OPT_FADV_MASK))
 		return 0;
 
-	for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(revio_opts)); i++) {
+	for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(revio_opts)); i++) {
 		if (revio_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, revio_opts[i].advice) < 0) {
 				pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
@@ -399,7 +399,7 @@ static int stress_revio(const stress_args_t *args)
 			size_t j;
 			off_t lseek_ret, offset = (off_t)(revio_bytes - i);
 seq_wr_retry:
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			lseek_ret = lseek(fd, offset, SEEK_SET);
@@ -426,13 +426,13 @@ seq_wr_retry:
 				}
 				continue;
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 		iterations++;
 		extents = stress_get_extents(fd);
 		avg_extents += (double)extents;
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	if ((iterations > 0) && (avg_extents > 0.0)) {
 		avg_extents /= (double)iterations;

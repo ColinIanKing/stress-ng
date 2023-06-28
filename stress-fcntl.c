@@ -782,7 +782,7 @@ static int stress_fcntl(const stress_args_t *args)
 		} else {
 			break;
 		}
-	} while (keep_stressing_flag() && ++retries < 100);
+	} while (stress_continue_flag() && ++retries < 100);
 
 	if ((fd < 0) || (retries >= 100)) {
 		pr_err("%s: creat: file %s took %d "
@@ -793,8 +793,8 @@ static int stress_fcntl(const stress_args_t *args)
 
 	do {
 		do_fcntl(args, fd, bad_fd, path_fd);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 tidy:

@@ -2382,37 +2382,37 @@ extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */
 extern int32_t g_opt_sequential;	/* Number of sequential stressors */
 extern int32_t g_opt_parallel;		/* Number of parallel stressors */
-extern volatile bool g_keep_stressing_flag; /* false to exit stressor */
+extern volatile bool g_stress_continue_flag; /* false to exit stressor */
 extern volatile bool g_caught_signal;	/* true if stopped by SIGINT/SIGALRM */
 extern jmp_buf g_error_env;		/* parsing error env */
 
 /*
- *  keep_stressing_flag()
- *	get keep_stressing_flag state
+ *  stress_continue_flag()
+ *	get stress_continue_flag state
  */
-static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing_flag(void)
+static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue_flag(void)
 {
-	return g_keep_stressing_flag;
+	return g_stress_continue_flag;
 }
 
 /*
- *  keep_stressing_set_flag()
- *	set keep_stressing_flag state
+ *  stress_continue_set_flag()
+ *	set stress_continue_flag state
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 keep_stressing_set_flag(const bool setting)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_continue_set_flag(const bool setting)
 {
-	g_keep_stressing_flag = setting;
+	g_stress_continue_flag = setting;
 }
 
 /*
- *  add_counter()
+ *  stress_bogo_add()
  *	add inc to the stessor bogo ops counter
  *	NOTE: try to only add to the counter inside a stressor
  *	and not a child process of a stressor. If one has to add to
  *	the counter in a child and the child is force KILL'd then indicate
- *	so with the force_killed_counter() call from the parent.
+ *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 add_counter(const stress_args_t *args, const uint64_t inc)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(const stress_args_t *args, const uint64_t inc)
 {
 	register stress_counter_info_t * const ci = args->ci;
 
@@ -2424,14 +2424,14 @@ static inline void ALWAYS_INLINE OPTIMIZE3 add_counter(const stress_args_t *args
 }
 
 /*
- *  inc_counter()
+ *  stress_bogo_inc()
  *	increment the stessor bogo ops counter
  *	NOTE: try to only increment the counter inside a stressor
  *	and not a child process of a stressor. If one has to increment
  *	the counter in a child and the child is force KILL'd then indicate
- *	so with the force_killed_counter() call from the parent.
+ *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 inc_counter(const stress_args_t *args)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(const stress_args_t *args)
 {
 	register stress_counter_info_t * const ci = args->ci;
 
@@ -2443,10 +2443,10 @@ static inline void ALWAYS_INLINE OPTIMIZE3 inc_counter(const stress_args_t *args
 }
 
 /*
- *  get_counter()
+ *  stress_bogo_get()
  *	get the stessor bogo ops counter
  */
-static inline uint64_t ALWAYS_INLINE OPTIMIZE3 get_counter(const stress_args_t *args)
+static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(const stress_args_t *args)
 {
 	register const stress_counter_info_t * const ci = args->ci;
 
@@ -2454,14 +2454,14 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 get_counter(const stress_args_t *
 }
 
 /*
- *  set_counter()
+ *  stress_bogo_set()
  *	set the stessor bogo ops counter
  *	NOTE: try to only set the counter inside a stressor
  *	and not a child process of a stressor. If one has to set
  *	the counter in a child and the child is force KILL'd then indicate
- *	so with the force_killed_counter() call from the parent.
+ *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 set_counter(const stress_args_t *args, const uint64_t val)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(const stress_args_t *args, const uint64_t val)
 {
 	register stress_counter_info_t * const ci = args->ci;
 
@@ -2473,66 +2473,66 @@ static inline void ALWAYS_INLINE OPTIMIZE3 set_counter(const stress_args_t *args
 }
 
 /*
- *  force_killed_counter()
+ *  stress_force_killed_bogo()
  *	note that the process is force killed and counter ready state can
  *	be ignored. Use only if the parent kills the child *and* the child
  *	was used to increment the bogo-op counter.
  */
-static inline void ALWAYS_INLINE force_killed_counter(const stress_args_t *args)
+static inline void ALWAYS_INLINE stress_force_killed_bogo(const stress_args_t *args)
 {
 	args->ci->force_killed = true;
 }
 
 /*
- *  keep_stressing()
+ *  stress_continue()
  *      returns true if we can keep on running a stressor
  */
-static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing(const stress_args_t *args)
+static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(const stress_args_t *args)
 {
-	if (UNLIKELY(!g_keep_stressing_flag))
+	if (UNLIKELY(!g_stress_continue_flag))
 		return false;
 	if (LIKELY(args->max_ops == 0))
 		return true;
-	return get_counter(args) < args->max_ops;
+	return stress_bogo_get(args) < args->max_ops;
 }
 
 /*
- *  add_counter_lock()
+ *  stress_bogo_add_lock()
  *	add val to the stessor bogo ops counter with lock, return true
- *	if keep_stressing is true
+ *	if stress_continue is true
  */
-static inline void add_counter_lock(const stress_args_t *args, void *lock, const int64_t val)
+static inline void stress_bogo_add_lock(const stress_args_t *args, void *lock, const int64_t val)
 {
 	/*
 	 *  Failure in lock acquire, don't bump counter
-	 *  and get racy keep_stressing state, that's
+	 *  and get racy stress_continue state, that's
 	 *  probably the best we can do in this failure mode
 	 */
 	if (stress_lock_acquire(lock) < 0)
 		return;
-	add_counter(args, val);
+	stress_bogo_add(args, val);
 	stress_lock_release(lock);
 }
 
 /*
- *  inc_counter_lock()
+ *  stress_bogo_inc_lock()
  *	increment the stessor bogo ops counter with lock, return true
- *	if keep_stressing is true
+ *	if stress_continue is true
  */
-static inline bool inc_counter_lock(const stress_args_t *args, void *lock, const bool inc)
+static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, const bool inc)
 {
 	bool ret;
 
 	/*
 	 *  Failure in lock acquire, don't bump counter
-	 *  and get racy keep_stressing state, that's
+	 *  and get racy stress_continue state, that's
 	 *  probably the best we can do in this failure mode
 	 */
 	if (stress_lock_acquire(lock) < 0)
-		return keep_stressing(args);
-	ret = keep_stressing(args);
+		return stress_continue(args);
+	ret = stress_continue(args);
 	if (inc && ret)
-		inc_counter(args);
+		stress_bogo_inc(args);
 	stress_lock_release(lock);
 
 	return ret;
@@ -2818,10 +2818,10 @@ extern int stress_killpid(const pid_t pid);
 extern WARN_UNUSED bool stress_low_memory(const size_t requested);
 extern void stress_ksm_memory_merge(const int flag);
 extern int stress_kill_and_wait(const stress_args_t *args,
-	const pid_t pid, const int signum, const bool set_force_killed_counter);
+	const pid_t pid, const int signum, const bool set_stress_force_killed_bogo);
 extern int stress_kill_and_wait_many(const stress_args_t *args,
 	const pid_t *pids, const size_t n_pids, const int signum,
-	const bool set_force_killed_counter);
+	const bool set_stress_force_killed_bogo);
 extern WARN_UNUSED int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val);
 extern void stress_unset_chattr_flags(const char *pathname);
 

@@ -87,7 +87,7 @@ static uint64_t stress_dirmany_create(
 
 	*max_len = 256;
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		struct stat statbuf;
 		char filename[PATH_MAX + 20];
 		int fd;
@@ -128,7 +128,7 @@ static uint64_t stress_dirmany_create(
 		}
 		(*total_created)++;
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 
 	*create_time += (stress_time_now() - t_now);
@@ -210,7 +210,7 @@ static int stress_dirmany(const stress_args_t *args)
 		/* Avoid i_start wraparound */
 		if (i_start > 1000000000)
 			i_start = 0;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	total_time = create_time + remove_time;
 	if ((total_created > 0) && (total_time > 0.0)) {

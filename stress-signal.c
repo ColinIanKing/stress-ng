@@ -104,7 +104,7 @@ static int stress_signal(const stress_args_t *args)
 
 		tmp = counter;
 		if (LIKELY(shim_kill(pid, SIGCHLD) == 0)) {
-			while ((tmp == counter) && keep_stressing_flag()) {
+			while ((tmp == counter) && stress_continue_flag()) {
 				shim_sched_yield();
 			}
 		}
@@ -122,8 +122,8 @@ static int stress_signal(const stress_args_t *args)
 			rc = EXIT_FAILURE;
 		}
 
-		set_counter(args, counter);
-	} while (keep_stressing(args));
+		stress_bogo_set(args, counter);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

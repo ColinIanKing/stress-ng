@@ -127,7 +127,7 @@ static int stress_fault(const stress_args_t *args)
 			char buffer[1];
 
 redo:
-			if (keep_stressing_flag() &&
+			if (stress_continue_flag() &&
 			    (write(fd, buffer, sizeof(buffer)) < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo;
@@ -144,7 +144,7 @@ redo:
 #endif
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				do_jmp = false;
 			if (fd != -1)
 				(void)close(fd);
@@ -232,8 +232,8 @@ next:
 			}
 		}
 		i++;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	(void)stress_sighandler_default(SIGBUS);
 	(void)stress_sighandler_default(SIGSEGV);

@@ -581,8 +581,8 @@ static int stress_pthread(const stress_args_t *args)
 			}
 			if (i + 1 > maximum)
 				maximum = i + 1;
-			inc_counter(args);
-			if (!(keep_running() && keep_stressing(args)))
+			stress_bogo_inc(args);
+			if (!(keep_running() && stress_continue(args)))
 				break;
 		}
 		attempted++;
@@ -599,7 +599,7 @@ static int stress_pthread(const stress_args_t *args)
 		for (j = 0; j < 1000; j++) {
 			bool all_running = false;
 
-			if (!keep_stressing(args)) {
+			if (!stress_continue(args)) {
 				stop_running();
 				goto reap;
 			}
@@ -676,7 +676,7 @@ reap:
 				free(pthreads[j].stack);
 #endif
 		}
-	} while (!locked && keep_running() && keep_stressing(args));
+	} while (!locked && keep_running() && stress_continue(args));
 
 	average = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs to start a pthread", average * STRESS_DBL_NANOSECOND);

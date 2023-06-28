@@ -69,7 +69,7 @@ int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
 int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
-volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
+volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
@@ -1469,7 +1469,7 @@ static int stress_exclude(void)
 static void MLOCKED_TEXT stress_sigchld_handler(int signum)
 {
 	if (signum == SIGCHLD)
-		keep_stressing_set_flag(false);
+		stress_continue_set_flag(false);
 }
 
 /*
@@ -1490,7 +1490,7 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 	(void)signum;
 	if (g_shared)
 		g_shared->caught_sigint = true;
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	wait_flag = false;
 
 	/* Send alarm to all stressors */
@@ -2191,7 +2191,7 @@ redo:
 			break;
 		}
 		if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
-			keep_stressing_set_flag(false);
+			stress_continue_set_flag(false);
 			wait_flag = false;
 			stress_kill_stressors(SIGALRM, true);
 		}
@@ -2262,7 +2262,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 	static char buf[128];
 	const int fd = fileno(stderr);
 	terminate_signum = signum;
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 
 	switch (signum) {
 	case SIGILL:
@@ -2482,7 +2482,7 @@ static void MLOCKED_TEXT stress_run(
 				stats->metrics[i].description = NULL;
 			}
 again:
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			fork_time_start = stress_time_now();
 			pid = fork();
@@ -2541,7 +2541,7 @@ again:
 				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 					(void)stress_perf_enable(&stats->sp);
 #endif
-				if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
+				if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 					const stress_args_t args = {
 						.ci = &stats->ci,
 						.name = name,
@@ -2662,7 +2662,7 @@ child_exit:
 				(void)stress_ftrace_free();
 
 				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
-					keep_stressing_set_flag(false);
+					stress_continue_set_flag(false);
 					wait_flag = false;
 					(void)shim_kill(getppid(), SIGALRM);
 				}
@@ -2681,7 +2681,7 @@ child_exit:
 				}
 
 				/* Forced early abort during startup? */
-				if (!keep_stressing_flag()) {
+				if (!stress_continue_flag()) {
 					pr_dbg("abort signal during startup, cleaning up\n");
 					stress_kill_stressors(SIGALRM, true);
 					goto wait_for_stressors;
@@ -4128,7 +4128,7 @@ static inline void stress_run_sequential(
 	/*
 	 *  Step through each stressor one by one
 	 */
-	for (ss = stressors_head; ss && keep_stressing_flag(); ss = ss->next) {
+	for (ss = stressors_head; ss && stress_continue_flag(); ss = ss->next) {
 		stress_stressor_t *next = ss->next;
 
 		if (ss->ignore)

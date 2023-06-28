@@ -1050,7 +1050,7 @@ static int stress_open(const stress_args_t *args)
 			for (;;) {
 				int idx;
 
-				if (!keep_stressing(args)) {
+				if (!stress_continue(args)) {
 					if (pid > 1)
 						(void)shim_kill(pid, SIGKILL);
 					goto close_all;
@@ -1082,7 +1082,7 @@ static int stress_open(const stress_args_t *args)
 			if ((i & 8191) == 8191)
 				sync();
 
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 close_all:
 		n = i;
@@ -1098,7 +1098,7 @@ close_all:
 			for (i = 0; i < n; i++)
 				(void)close(fds[i]);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

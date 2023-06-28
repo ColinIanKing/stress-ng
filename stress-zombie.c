@@ -245,11 +245,11 @@ static int stress_zombie(const stress_args_t *args)
 
 			if (max_zombies < zombies.length)
 				max_zombies = zombies.length;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		} else {
 			stress_zombie_head_remove(args, true);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_metrics_set(args, 0, "created zombies per stressor", (double)max_zombies);
 

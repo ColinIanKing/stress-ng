@@ -252,7 +252,7 @@ static int stress_sigfpe(const stress_args_t *args)
 		 * We return here if we get SIGFPE, so
 		 * first check if we need to terminate
 		 */
-		if (UNLIKELY(!keep_stressing(args)))
+		if (UNLIKELY(!stress_continue(args)))
 			break;
 		if (UNLIKELY(stress_time_now() > time_end))
 			break;
@@ -274,7 +274,7 @@ static int stress_sigfpe(const stress_args_t *args)
 					expected_err_code, stress_sigfpe_errstr(expected_err_code));
 			}
 #endif
-			inc_counter(args);
+			stress_bogo_inc(args);
 		} else {
 #if defined(STRESS_CHECK_SIGINFO)
 			siginfo.si_code = 0;

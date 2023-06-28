@@ -184,12 +184,12 @@ static int stress_lockofd_contention(
 		f.l_len = len;
 		f.l_pid = 0;
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		rc = fcntl(fd, F_OFD_GETLK, &f);
 		if (rc < 0)
 			continue;
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		/* Locked OK, add to lock list */
@@ -202,8 +202,8 @@ static int stress_lockofd_contention(
 		lockofd_info->offset = offset;
 		lockofd_info->len = len;
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	return 0;
 }
@@ -261,7 +261,7 @@ static int stress_lockofd(const stress_args_t *args)
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
 redo:
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
@@ -283,7 +283,7 @@ again:
 	if (cpid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

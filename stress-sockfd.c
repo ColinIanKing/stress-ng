@@ -162,7 +162,7 @@ static int OPTIMIZE3 stress_socket_client(
 
 		(void)shim_memset(fds, 0, fds_size);
 retry:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return EXIT_NO_RESOURCE;
 
 		if (UNLIKELY((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)) {
@@ -195,10 +195,10 @@ retry:
 			goto retry;
 		}
 
-		if (UNLIKELY(!keep_stressing_flag()))
+		if (UNLIKELY(!stress_continue_flag()))
 			return EXIT_SUCCESS;
 
-		for (n = 0; keep_stressing(args) && (n < max_fd); n++) {
+		for (n = 0; stress_continue(args) && (n < max_fd); n++) {
 			int rc, nbytes;
 
 			fds[n] = stress_socket_fd_recv(fd);
@@ -217,7 +217,7 @@ retry:
 		stress_close_fds(fds, n);
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 #if defined(HAVE_SOCKADDR_UN)
 	if (addr) {
@@ -296,14 +296,14 @@ static int OPTIMIZE3 stress_socket_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			ssize_t i;
 
-			for (i = 0; keep_stressing(args) && (i < max_fd); i++) {
+			for (i = 0; stress_continue(args) && (i < max_fd); i++) {
 				int new_fd;
 
 				new_fd = open("/dev/zero", O_RDWR);
@@ -329,12 +329,12 @@ static int OPTIMIZE3 stress_socket_server(
 					(void)close(new_fd);
 					VOID_RET(ssize_t, stress_socket_fd_sendmsg(sfd, bad_fd));
 					msgs++;
-					inc_counter(args);
+					stress_bogo_inc(args);
 				}
 			}
 			(void)close(sfd);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 die_close:
 	(void)close(fd);
@@ -407,7 +407,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			ret = EXIT_SUCCESS;
 			goto finish;
 		}

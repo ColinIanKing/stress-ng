@@ -153,7 +153,7 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 		ptr->dataval = dataval;
 		(void)shim_memset(ptr->data, dataval, randlist_size);
 		dataval++;
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 	}
 
@@ -161,7 +161,7 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 		if (verify && stress_randlist_bad_data(ptr, randlist_size)) {
 			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
 		}
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 	}
 }
@@ -210,7 +210,7 @@ static int stress_randlist(const stress_args_t *args)
 		}
 
 		for (ptr = compact_ptr, i = 0; i < randlist_items; i++) {
-			if (!keep_stressing_flag()) {
+			if (!stress_continue_flag()) {
 				stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 				stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 				stress_randlist_enomem(args);
@@ -224,7 +224,7 @@ static int stress_randlist(const stress_args_t *args)
 		for (i = 0; i < randlist_items; i++) {
 			const size_t size = sizeof(*ptr) + randlist_size;
 
-			if (!keep_stressing_flag()) {
+			if (!stress_continue_flag()) {
 				stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 				stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 				return EXIT_SUCCESS;
@@ -263,7 +263,7 @@ retry:
 		ptrs[i] = ptrs[n];
 		ptrs[n] = ptr;
 
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 			stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 			return EXIT_SUCCESS;
@@ -285,8 +285,8 @@ retry:
 
 	do {
 		stress_randlist_exercise(args, head, randlist_size, verify);
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

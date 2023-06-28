@@ -1623,10 +1623,10 @@ static int stress_zlib_deflate(
 
 			if (zlib_args.stream_bytes > 0) {
 				flush = (stream_bytes_out + (uint64_t)gen_sz < zlib_args.stream_bytes)
-					&& keep_stressing(args)
+					&& stress_continue(args)
 					? Z_NO_FLUSH : Z_FINISH;
 			} else {
-				flush = keep_stressing(args) ? Z_NO_FLUSH : Z_FINISH;
+				flush = stress_continue(args) ? Z_NO_FLUSH : Z_FINISH;
 			}
 
 			info->func(args, in, in_end);
@@ -1706,7 +1706,7 @@ static int stress_zlib_deflate(
 						goto finish;
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			} while (stream_def.avail_out == 0);
 		} while (ret != Z_STREAM_END);
 
@@ -1714,7 +1714,7 @@ static int stress_zlib_deflate(
 		stream_def.zalloc = Z_NULL;
 		stream_def.zfree = Z_NULL;
 		stream_def.opaque = Z_NULL;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	duration = stress_time_now() - t1;
@@ -1775,7 +1775,7 @@ again:
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return EXIT_SUCCESS;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

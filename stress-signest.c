@@ -160,8 +160,8 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	if (UNLIKELY(!signal_info.args))
 		goto done;
 
-	inc_counter(signal_info.args);
-	if (UNLIKELY(!keep_stressing(signal_info.args))) {
+	stress_bogo_inc(signal_info.args);
+	if (UNLIKELY(!stress_continue(signal_info.args))) {
 		stress_signest_ignore();
 		if (jmp_env_ok)
 			siglongjmp(jmp_env, 1);
@@ -174,7 +174,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	signal_info.signalled |= 1U << i;
 
 	for (; i < (ssize_t)SIZEOF_ARRAY(signals); i++) {
-		if (signal_info.stop || !keep_stressing(signal_info.args)) {
+		if (signal_info.stop || !stress_continue(signal_info.args)) {
 			if (jmp_env_ok)
 				siglongjmp(jmp_env, 1);
 		}
@@ -245,7 +245,7 @@ static int stress_signest(const stress_args_t *args)
 	do {
 		(void)shim_raise(signals[0]);
 		raised++;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	duration = stress_time_now() - t;

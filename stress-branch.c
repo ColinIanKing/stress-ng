@@ -213,12 +213,12 @@ static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 
 	for (;;) {
 L0x000:
-		inc_counter(args);
+		stress_bogo_inc(args);
 #if defined(STRESS_ARCH_SH4)
 		/* For some reason, can't interrupt SH4 in QEMU, add yield to do so */
 		shim_sched_yield();
 #endif
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		RESEED_JMP(0x000)
 
@@ -368,7 +368,7 @@ L0x000:
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	bogo_counter = get_counter(args);
+	bogo_counter = stress_bogo_get(args);
 	bogo_thresh = bogo_counter / 10;
 	lo = bogo_counter - bogo_thresh;
 	hi = bogo_counter + bogo_thresh;

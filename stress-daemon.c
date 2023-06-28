@@ -115,7 +115,7 @@ static int stress_make_daemon(
 	if ((fds[2] = dup(0)) < 0)
 		goto err1;
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		pid_t pid;
 
 		pid = fork();
@@ -188,7 +188,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -221,8 +221,8 @@ again:
 				if (rc != EXIT_SUCCESS)
 					break;
 			}
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 
 		daemon_wait_pid(pid, daemon_wait);
 	}

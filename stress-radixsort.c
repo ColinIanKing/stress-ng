@@ -138,7 +138,7 @@ static int stress_radixsort(const stress_args_t *args)
 	do {
 		/* Sort "random" data */
 		(void)radixsort(data, n, NULL, 0);
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -170,8 +170,8 @@ static int stress_radixsort(const stress_args_t *args)
 		for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE)
 			*ptr = 'a' + stress_mwc8modn(26);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

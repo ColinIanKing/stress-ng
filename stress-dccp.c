@@ -156,7 +156,7 @@ static int stress_dccp_client(
 		int retries = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return EXIT_FAILURE;
 		if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
 			if ((errno == ESOCKTNOSUPPORT) ||
@@ -204,10 +204,10 @@ retry:
 						args->name, errno, strerror(errno));
 				break;
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -290,7 +290,7 @@ static int stress_dccp_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -319,7 +319,7 @@ static int stress_dccp_server(
 				break;
 			}
 
-			(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
+			(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
 			switch (dccp_opts) {
 			case DCCP_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
@@ -390,8 +390,8 @@ again:
 #endif
 			(void)close(sfd);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 die_close:
 	(void)close(fd);
@@ -466,7 +466,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_dbg("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

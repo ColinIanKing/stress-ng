@@ -33,7 +33,7 @@ static void stress_sigsuspend_chld_handler(int sig)
 {
 	(void)sig;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -70,7 +70,7 @@ again:
 		if (pid[n] < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto reap;
 			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -86,17 +86,17 @@ again:
 				ret = sigsuspend(&mask);
 				if (UNLIKELY((ret < 0) && (errno != EINTR)))
 					_exit(EXIT_FAILURE);
-			} while (inc_counter_lock(args, counter_lock, true));
+			} while (stress_bogo_inc_lock(args, counter_lock, true));
 			_exit(0);
 		}
 	}
 
 	/* Parent */
 	do {
-		for (i = 0; (i < n) && inc_counter_lock(args, counter_lock, false); i++) {
+		for (i = 0; (i < n) && stress_bogo_inc_lock(args, counter_lock, false); i++) {
 			(void)shim_kill(pid[i], SIGUSR1);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -116,7 +116,7 @@ reap:
 
 		if (shim_kill(pid[i], 0) == 0) {
 			/* terminate child */
-			force_killed_counter(args);
+			stress_force_killed_bogo(args);
 			(void)shim_kill(pid[i], SIGKILL);
 			(void)shim_waitpid(pid[i], &status, 0);
 		} else {

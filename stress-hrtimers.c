@@ -64,12 +64,12 @@ static void stress_hrtimers_set(struct itimerspec *timer)
 }
 
 /*
- *  stress_hrtimers_keep_stressing(args)
+ *  stress_hrtimers_stress_continue(args)
  *      returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
+static bool HOT OPTIMIZE3 stress_hrtimers_stress_continue(void)
 {
-	return (LIKELY(keep_stressing_flag()) &&
+	return (LIKELY(stress_continue_flag()) &&
 		LIKELY(!max_ops || ((timer_counter) < max_ops)));
 }
 
@@ -85,7 +85,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 	(void)sig;
 
 	timer_counter++;
-	if (UNLIKELY(!stress_hrtimers_keep_stressing()))
+	if (UNLIKELY(!stress_hrtimers_stress_continue()))
 		goto cancel;
 
 	if (UNLIKELY((timer_counter & 4095) == 0)) {
@@ -112,7 +112,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 	return;
 
 cancel:
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
@@ -170,9 +170,9 @@ static int stress_hrtimer_process(const stress_args_t *args)
 
 	do {
 		shim_usleep(100000);
-	} while (stress_hrtimers_keep_stressing());
+	} while (stress_hrtimers_stress_continue());
 
-	add_counter_lock(args, lock, timer_counter);
+	stress_bogo_add_lock(args, lock, timer_counter);
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
@@ -208,7 +208,7 @@ static int stress_hrtimers(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < PROCS_MAX; i++) {
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto reap;
 
 		pids[i] = fork();
@@ -229,7 +229,7 @@ static int stress_hrtimers(const stress_args_t *args)
 	start_time = stress_time_now();
 	do {
 		shim_usleep(100000);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -241,7 +241,7 @@ reap:
 		const double dt = end_time - start_time;
 
 		if (dt > 0.0) {
-			const double rate = (double)get_counter(args) / dt;
+			const double rate = (double)stress_bogo_get(args) / dt;
 
 			pr_dbg("%s: hrtimer signals at %.3f MHz\n", args->name, rate / 1000000.0);
 			stress_metrics_set(args, 0, "hrtimer signals per sec", rate);

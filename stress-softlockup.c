@@ -96,7 +96,7 @@ static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
 		if (d > 0.01)
 			break;
 		n = n + n;
-	}  while (keep_stressing_flag());
+	}  while (stress_continue_flag());
 
 	return n;
 }
@@ -109,7 +109,7 @@ static void MLOCKED_TEXT NORETURN stress_rlimit_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	siglongjmp(jmp_env, 1);
 }
 
@@ -163,7 +163,7 @@ static void stress_softlockup_child(
 	 *  Wait for all children to start before
 	 *  ramping up the scheduler priority
 	 */
-	while (softlockup_start && keep_stressing(args)) {
+	while (softlockup_start && stress_continue(args)) {
 		shim_usleep(100000);
 	}
 
@@ -217,12 +217,12 @@ static void stress_softlockup_child(
 		policy++;
 		if (policy >= SIZEOF_ARRAY(policies))
 			policy = 0;
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		/* Ensure we NEVER spin forever */
 		if ((stress_time_now() - start) > (double)timeout)
 			break;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 tidy_ok:
 	rc = EXIT_SUCCESS;
 tidy:
@@ -308,7 +308,7 @@ again:
 		if (pids[i] < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_inf("%s: cannot fork, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

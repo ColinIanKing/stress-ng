@@ -187,8 +187,8 @@ close_control:
 		rc = stress_binderfs_umount(args, pathname, &umount_duration, &umount_count);
 		if (rc != EXIT_SUCCESS)
 			break;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 clean:

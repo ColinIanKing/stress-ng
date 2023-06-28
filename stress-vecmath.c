@@ -264,7 +264,7 @@ static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 
 		csum8 = a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
 			a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
@@ -308,7 +308,7 @@ static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 				csum128hi, csum128lo, csum128hi_val, csum128lo_val);
 		}
 #endif
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

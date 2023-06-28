@@ -101,7 +101,7 @@ static void stress_stackmmap_push_msync(stress_stack_check_t *prev_check)
 		}
 	}
 
-	if (keep_stressing_flag())
+	if (stress_continue_flag())
 		stress_stackmmap_push_msync(&check);
 
 	stress_uint32_put(check.waste[1]);
@@ -216,13 +216,13 @@ static int stress_stackmmap(const stress_args_t *args)
 
 		(void)stress_mwc32();
 again:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_err("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -279,8 +279,8 @@ again:
 			(void)swapcontext(&c_main, &c_test);
 			_exit(check_status);
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 finish:
 	rc = EXIT_SUCCESS;

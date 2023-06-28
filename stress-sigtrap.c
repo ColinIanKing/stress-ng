@@ -58,7 +58,7 @@ static int stress_sigtrap(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		switch (stress_mwc1()) {
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
@@ -78,7 +78,7 @@ static int stress_sigtrap(const stress_args_t *args)
 			raised++;
 			break;
 		}
-		set_counter(args, counter);
+		stress_bogo_set(args, counter);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -134,7 +134,7 @@ static int stress_capgetset_pid(
 	uch.pid = pid;
 	ret = capget(&uch, ucd);
 
-	inc_counter(args);
+	stress_bogo_inc(args);
 
 	return ret;
 }
@@ -151,13 +151,13 @@ static int stress_cap(const stress_args_t *args)
 		DIR *dir;
 
 		stress_capgetset_pid(args, 1, false, true);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		stress_capgetset_pid(args, args->pid, true, true);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		stress_capgetset_pid(args, getppid(), false, false);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 
 		dir = opendir("/proc");
@@ -172,12 +172,12 @@ static int stress_cap(const stress_args_t *args)
 				if (sscanf(d->d_name, "%" SCNdMAX, &p) != 1)
 					continue;
 				stress_capgetset_pid(args, (pid_t)p, false, false);
-				if (!keep_stressing(args))
+				if (!stress_continue(args))
 					break;
 			}
 			(void)closedir(dir);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return EXIT_SUCCESS;

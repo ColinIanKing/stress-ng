@@ -244,8 +244,8 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 				return EXIT_FAILURE;
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rate = (sbrk_exp_count > 0.0) ? (double)sbrk_exp_duration / sbrk_exp_count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per sbrk page expand", rate * STRESS_DBL_NANOSECOND);

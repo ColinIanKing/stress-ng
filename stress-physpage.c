@@ -282,8 +282,8 @@ static int stress_physpage(const stress_args_t *args)
 
 		}
 		ptr += page_size;
-		inc_counter(args);
-	} while (success && keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (success && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

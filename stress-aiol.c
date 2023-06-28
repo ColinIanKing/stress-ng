@@ -216,7 +216,7 @@ static int stress_aiol_submit(
 				return ret;
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return 0;
 }
@@ -251,7 +251,7 @@ static ssize_t stress_aiol_wait(
 		ret = shim_io_getevents_random(ctx, 1, (long)(n - i), events, timeout_ptr);
 		if (ret < 0) {
 			if (errno == EINTR) {
-				if (keep_stressing_flag()) {
+				if (stress_continue_flag()) {
 					continue;
 				} else {
 					return (ssize_t)i;
@@ -263,7 +263,7 @@ static ssize_t stress_aiol_wait(
 		} else {
 			i += (size_t)ret;
 		}
-	} while ((i < n) && keep_stressing_flag());
+	} while ((i < n) && stress_continue_flag());
 
 	return (ssize_t)i;
 }
@@ -524,8 +524,8 @@ retry_open:
 			break;
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 
 		/*
@@ -592,8 +592,8 @@ retry_open:
 			break;
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 
 		/*
@@ -619,8 +619,8 @@ retry_open:
 			break;
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 
 #if defined(__NR_io_cancel)
@@ -704,8 +704,8 @@ retry_open:
 #else
 		UNEXPECTED
 #endif
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 
 #if defined(HAVE_POLL_H)
@@ -726,8 +726,8 @@ retry_open:
 			break;
 		if (errno == 0)
 			(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 #else
 		UNEXPECTED
@@ -758,8 +758,8 @@ retry_open:
 				}
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 

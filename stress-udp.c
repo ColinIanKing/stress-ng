@@ -292,9 +292,9 @@ static int OPTIMIZE3 stress_udp_client(
 #else
 		UNEXPECTED
 #endif
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 child_die:
@@ -420,9 +420,9 @@ static int OPTIMIZE3 stress_udp_server(
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 die_close:
@@ -510,7 +510,7 @@ again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag() && (errno == EAGAIN))
+		if (stress_continue_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

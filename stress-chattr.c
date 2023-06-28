@@ -99,7 +99,7 @@ static int do_chattr(
 	int i;
 	int rc = EXIT_SUCCESS;
 
-	for (i = 0; (i < 128) && keep_stressing(args); i++) {
+	for (i = 0; (i < 128) && stress_continue(args); i++) {
 		int fd, fdw, ret;
 		unsigned long zero = 0UL;
 		unsigned long orig, tmp, check;
@@ -110,7 +110,7 @@ static int do_chattr(
 		if (fd < 0)
 			continue;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fd;
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig);
 		if (ret < 0) {
@@ -129,7 +129,7 @@ static int do_chattr(
 			goto tidy_fd;
 		}
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fd;
 
 		/* work through flags disabling them one by one */
@@ -160,14 +160,14 @@ static int do_chattr(
 			}
 		}
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fd;
 		fdw = open(filename, O_RDWR);
 		if (fdw < 0)
 			goto tidy_fd;
 		VOID_RET(ssize_t, write(fdw, &zero, sizeof(zero)));
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fdw;
 
 		verify = (args->num_instances == 1);
@@ -235,18 +235,18 @@ static int do_chattr(
 			}
 		}
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fdw;
 		VOID_RET(ssize_t, write(fdw, &zero, sizeof(zero)));
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fdw;
 		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero));
 
 		/*
 		 *  Try some random flag, exercises any illegal flags
 		 */
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy_fdw;
 		tmp = 1ULL << (stress_mwc8() & 0x1f);
 		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp));
@@ -348,8 +348,8 @@ static int stress_chattr(const stress_args_t *args)
 			if (index >= flag_count)
 				index = 0;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

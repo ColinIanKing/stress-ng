@@ -1041,7 +1041,7 @@ void stress_vmstat_start(void)
 
 	t1 = stress_time_now();
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		int32_t sleep_delay = INT_MAX;
 		long clk_tick;
 		double delta;

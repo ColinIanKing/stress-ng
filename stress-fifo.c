@@ -124,7 +124,7 @@ static void stress_fifo_reader(
 			name, errno, strerror(errno));
 		return;
 	}
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		ssize_t sz;
 #if defined(HAVE_SELECT)
 		int ret;
@@ -150,7 +150,7 @@ redo:
 			 * as this can happen on a highly
 			 * overloaded stressed system
 			 */
-			if (keep_stressing(args))
+			if (stress_continue(args))
 				goto redo;
 			break;
 		}
@@ -252,7 +252,7 @@ static int stress_fifo(const stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			goto reap;
 		}
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}
@@ -296,8 +296,8 @@ static int stress_fifo(const stress_args_t *args)
 		}
 		buf[0]++;
 		buf[0] &= ~wrap_mask;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 	fifo_duration = stress_time_now() - t;
 
 	rate = (fifo_duration > 0.0) ? (fifo_count / fifo_duration) : 0.0;

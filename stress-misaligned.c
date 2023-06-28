@@ -78,10 +78,10 @@ static stress_misaligned_method_info_t *current_method;
  */
 static bool NOINLINE keep_running_no_sse(void)
 {
-	return keep_stressing_flag();
+	return stress_continue_flag();
 }
 #else
-#define keep_running_no_sse()	keep_stressing_flag()
+#define keep_running_no_sse()	stress_continue_flag()
 #endif
 
 static void stress_misaligned_int16rd(
@@ -112,7 +112,7 @@ static void stress_misaligned_int16rd(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		(void)*ptr1;
 		shim_mb();
 		(void)*ptr2;
@@ -177,7 +177,7 @@ static void stress_misaligned_int16wr(
 	volatile uint16_t *ptr16 = (uint16_t *)(buffer + page_size - 15);
 	volatile uint16_t *ptr17  = (uint16_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		register uint16_t ui16 = (uint16_t)i;
 
 		*ptr1  = ui16;
@@ -287,7 +287,7 @@ static void stress_misaligned_int16inc(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		(*ptr1)++;
 		shim_mb();
 		(*ptr2)++;
@@ -358,7 +358,7 @@ static void stress_misaligned_int16atomic(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		__atomic_fetch_add_2(ptr1, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
 		__atomic_fetch_add_2(ptr2, 1, __ATOMIC_SEQ_CST);
@@ -419,7 +419,7 @@ static void stress_misaligned_int32rd(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		(void)*ptr1;
 		shim_mb();
 		(void)*ptr2;
@@ -460,7 +460,7 @@ static void stress_misaligned_int32wr(
 	volatile uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
 	volatile uint32_t *ptr9 = (uint32_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		register uint32_t ui32 = (uint32_t)i;
 
 		*ptr1 = ui32;
@@ -528,7 +528,7 @@ static void stress_misaligned_int32wrnt(
 	uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
 	uint32_t *ptr9 = (uint32_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		register uint32_t ui32 = (uint32_t)i;
 
 		stress_nt_store32(ptr1, ui32);
@@ -589,7 +589,7 @@ static void stress_misaligned_int32inc(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		(*ptr1)++;
 		shim_mb();
 		(*ptr2)++;
@@ -636,7 +636,7 @@ static void stress_misaligned_int32atomic(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		__atomic_fetch_add_4(ptr1, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
 		__atomic_fetch_add_4(ptr2, 1, __ATOMIC_SEQ_CST);
@@ -677,7 +677,7 @@ static void stress_misaligned_int64rd(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		(void)*ptr1;
 		shim_mb();
 		(void)*ptr2;
@@ -706,7 +706,7 @@ static void stress_misaligned_int64wr(
 	volatile uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
 	volatile uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		register uint64_t ui64 = (uint64_t)i;
 
 		*ptr1 = ui64;
@@ -754,7 +754,7 @@ static void stress_misaligned_int64wrnt(
 	uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
 	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		register uint64_t ui64 = (uint64_t)i;
 
 		stress_nt_store64(ptr1, ui64);
@@ -798,7 +798,7 @@ static void stress_misaligned_int64inc(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		(*ptr1)++;
 		shim_mb();
 		(*ptr2)++;
@@ -833,7 +833,7 @@ static void stress_misaligned_int64atomic(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		__atomic_fetch_add_8(ptr1, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
 		__atomic_fetch_add_8(ptr2, 1, __ATOMIC_SEQ_CST);
@@ -897,7 +897,7 @@ static void stress_misaligned_int128wr(
 	volatile __uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
 	volatile __uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		__uint128_t ui128 = (__uint128_t)i;
 
 		*ptr1 = ui128;
@@ -935,7 +935,7 @@ static void stress_misaligned_int128wrnt(
 	__uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
 	__uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		stress_nt_store128(ptr1, (__uint128_t)i);
 		stress_nt_store128(ptr2, (__uint128_t)i);
 		stress_nt_store128(ptr3, (__uint128_t)i);
@@ -981,7 +981,7 @@ static void stress_misaligned_int128atomic(
 	(void)args;
 	(void)succeeded;
 
-	while (keep_stressing_flag() && --i) {
+	while (stress_continue_flag() && --i) {
 		/* No add 16 variant, so do 2 x 8 adds for now */
 		__atomic_fetch_add_8(ptr1, 1, __ATOMIC_SEQ_CST);
 		__atomic_fetch_add_8(ptr1 + 1, 1, __ATOMIC_SEQ_CST);
@@ -1056,7 +1056,7 @@ static void stress_misaligned_all(
 	static bool exercised = false;
 	stress_misaligned_method_info_t *info;
 
-	for (info = &stress_misaligned_methods[1]; info->func && keep_stressing_flag(); info++) {
+	for (info = &stress_misaligned_methods[1]; info->func && stress_continue_flag(); info++) {
 		if (info->disabled)
 			continue;
 		current_method = info;
@@ -1252,8 +1252,8 @@ static int stress_misaligned(const stress_args_t *args)
 #endif
 		misaligned_method->func(args, (uintptr_t)buffer, page_size, &succeeded);
 		misaligned_method->exercised = true;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	if (use_timer) {

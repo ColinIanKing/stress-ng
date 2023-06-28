@@ -196,7 +196,7 @@ static int stress_vecwide(const stress_args_t *args)
 			total_duration += dt;
 			stress_vecwide_funcs[i].duration += dt;
 			stress_vecwide_funcs[i].count += 1.0;
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			if (verify) {
 				vec_args->res = vec_args->res2;
@@ -208,14 +208,14 @@ static int stress_vecwide(const stress_args_t *args)
 				total_duration += dt;
 				stress_vecwide_funcs[i].duration += dt;
 				stress_vecwide_funcs[i].count += 1.0;
-				inc_counter(args);
+				stress_bogo_inc(args);
 
 				if (shim_memcmp(vec_args->res1, vec_args->res2, sizeof(vec_args->res1))) {
 					pr_fail("%s: data difference between identical vector computations\n", args->name);
 				}
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 		total_bytes += stress_vecwide_funcs[i].byte_size;

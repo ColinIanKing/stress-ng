@@ -411,7 +411,7 @@ static void NORETURN MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	siglongjmp(jmp_env, 1);
 }
 
@@ -729,7 +729,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_inf("%s: cannot fork, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -816,12 +816,12 @@ redo_policy:
 #endif
 		do {
 			func(args, rt_stats, cyclic_sleep);
-			inc_counter(args);
+			stress_bogo_inc(args);
 
 			/* Ensure we NEVER spin forever */
 			if ((stress_time_now() - start) > (double)timeout)
 				break;
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 tidy_ok:
 		ncrc = EXIT_SUCCESS;
@@ -834,7 +834,7 @@ tidy:
 		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
 
 		(void)pause();
-		force_killed_counter(args);
+		stress_force_killed_bogo(args);
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}

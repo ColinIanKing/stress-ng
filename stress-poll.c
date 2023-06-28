@@ -67,7 +67,7 @@ static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, cons
 {
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		ssize_t ret;
 		uint16_t buf ALIGN64 = ~0;
 
@@ -173,7 +173,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto tidy;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -208,7 +208,7 @@ again:
 					args->name, errno, strerror(errno));
 				goto abort;
 			}
-		 } while (keep_stressing(args));
+		 } while (stress_continue(args));
 abort:
 		for (i = 0; i < max_fds; i++)
 			(void)close(pipe_fds[i].fd[1]);
@@ -241,7 +241,7 @@ abort:
 #endif
 			int ret;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* stress out poll */
@@ -258,10 +258,10 @@ abort:
 							break;
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 #if defined(HAVE_PPOLL)
@@ -286,16 +286,16 @@ abort:
 							break;
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* Exercise illegal poll timeout */
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1999999999;
 			VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 #if defined(RLIMIT_NOFILE)
@@ -316,7 +316,7 @@ abort:
 						VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
 
 						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
-						if (!keep_stressing(args))
+						if (!stress_continue(args))
 							break;
 					}
 				}
@@ -352,9 +352,9 @@ abort:
 							break;
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 #endif
 
@@ -388,7 +388,7 @@ abort:
 							break;
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 #endif
 			/*
@@ -396,7 +396,7 @@ abort:
 			 * a select zero timeout
 			 */
 			(void)sleep(0);
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		(void)shim_kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

@@ -449,7 +449,7 @@ retry:
 			break;
 		}
 
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
@@ -581,7 +581,7 @@ retry:
 					page_size, page_size, context->mmap_mprotect);
 				(void)munmap((void *)mappings[page], page_size);
 			}
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				goto cleanup;
 		}
 		(void)munmap((void *)buf, sz);
@@ -635,7 +635,7 @@ retry:
 #endif
 					}
 				}
-				if (!keep_stressing_flag())
+				if (!stress_continue_flag())
 					goto cleanup;
 			}
 		}
@@ -773,8 +773,8 @@ cleanup:
 			(void)munmap((void *)buf64, page_size);
 		}
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	jmp_env_set = false;
 

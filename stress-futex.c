@@ -104,7 +104,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			goto finish;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -119,7 +119,7 @@ again:
 			 * Break early in case wake gets stuck
 			 * (which it shouldn't)
 			 */
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			ret = shim_futex_wake(futex, 1);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -128,7 +128,7 @@ again:
 						args->name, errno, strerror(errno));
 				}
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 
 		/* send alarm to waiter process */
 		(void)shim_kill(pid, SIGALRM);
@@ -148,7 +148,7 @@ again:
 			int ret;
 
 			/* Break early before potential long wait */
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 
 			ret = stress_futex_wait(futex, 0, 5000);
@@ -171,9 +171,9 @@ again:
 							args->name, errno, strerror(errno));
 					}
 				}
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
-		} while (keep_stressing(args));
+		} while (stress_continue(args));
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

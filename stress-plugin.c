@@ -132,7 +132,7 @@ static int stress_plugin_method_all(void)
 	register size_t i;
 	register int ret = 0;
 
-	for (i = 1; keep_stressing_flag() && (i < stress_plugin_methods_num); i++) {
+	for (i = 1; stress_continue_flag() && (i < stress_plugin_methods_num); i++) {
 		ret = stress_plugin_methods[i].func();
 		if (ret)
 			break;
@@ -329,7 +329,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -357,8 +357,8 @@ again:
 			do {
 				if (func())
 					break;
-				inc_counter(args);
-			} while (keep_stressing(args));
+				stress_bogo_inc(args);
+			} while (stress_continue(args));
 			_exit(0);
 		}
 		if (pid > 0) {
@@ -369,13 +369,13 @@ again:
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-				force_killed_counter(args);
+				stress_force_killed_bogo(args);
 				(void)shim_kill(pid, SIGTERM);
 				(void)shim_kill(pid, SIGKILL);
 				(void)shim_waitpid(pid, &status, 0);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 finish:
 	rc = EXIT_SUCCESS;

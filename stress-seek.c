@@ -162,7 +162,7 @@ static int stress_seek(const stress_args_t *args)
 			goto close_finish;
 		}
 re_write:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 		rwret = write(fd, buf, sizeof(buf));
 		if (UNLIKELY(rwret <= 0)) {
@@ -185,7 +185,7 @@ do_read:
 			goto close_finish;
 		}
 re_read:
-		if (UNLIKELY(!keep_stressing_flag()))
+		if (UNLIKELY(!stress_continue_flag()))
 			break;
 		rwret = read(fd, tmp, sizeof(tmp));
 		if (UNLIKELY(rwret <= 0)) {
@@ -282,7 +282,7 @@ re_read:
 			int i;
 
 			offset = (off_t)stress_mwc64modn(seek_size);
-			for (i = 0; (i < 20) && keep_stressing(args); i++) {
+			for (i = 0; (i < 20) && stress_continue(args); i++) {
 				offset = stress_shim_lseek(fd, offset, SEEK_DATA);
 				if (UNLIKELY(offset < 0))
 					break;
@@ -337,8 +337,8 @@ re_read:
 #if defined(FALLOC_FL_PUNCH_HOLE)
 inc:
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 close_finish:

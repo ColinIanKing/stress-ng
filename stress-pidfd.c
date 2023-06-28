@@ -125,7 +125,7 @@ static int stress_pidfd(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
+	while (stress_continue(args)) {
 		pid_t pid;
 
 again:
@@ -133,7 +133,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				goto finish;
 			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -219,7 +219,7 @@ again:
 			}
 			stress_pidfd_reap(pid, pidfd);
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

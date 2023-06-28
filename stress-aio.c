@@ -159,7 +159,7 @@ static int issue_aio_request(
 	const uint32_t request,
 	int (*aio_func)(struct aiocb *aiocbp))
 {
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		int ret;
 
 		io_req->request = (int)request;
@@ -200,7 +200,7 @@ static int issue_aio_sync_request(
 	const int fd,
 	stress_io_req_t *const io_req)
 {
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		int ret;
 		const int op = stress_mwc1() ? O_SYNC : O_DSYNC;
 
@@ -303,7 +303,7 @@ static int stress_aio(const stress_args_t *args)
 	do {
 		(void)shim_usleep_interruptible(250000); /* wait until a signal occurs */
 
-		for (i = 0; keep_stressing(args) && (i < opt_aio_requests); i++) {
+		for (i = 0; stress_continue(args) && (i < opt_aio_requests); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
 				continue;
 
@@ -312,7 +312,7 @@ static int stress_aio(const stress_args_t *args)
 			case ECANCELED:
 			case 0:
 				/* Succeeded or cancelled, so redo another */
-				inc_counter(args);
+				stress_bogo_inc(args);
 #if defined(HAVE_AIO_FSYNC) &&	\
     defined(O_SYNC) &&		\
     defined(O_DSYNC)
@@ -349,7 +349,7 @@ static int stress_aio(const stress_args_t *args)
 				goto cancel;
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	t2 = stress_time_now();
 
 	rc = EXIT_SUCCESS;

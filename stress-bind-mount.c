@@ -44,7 +44,7 @@ static const stress_help_t help[] = {
 static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
 {
 	if (signum == SIGALRM) {
-		keep_stressing_set_flag(false);
+		stress_continue_set_flag(false);
 		return;
 	}
 	_exit(0);
@@ -144,9 +144,9 @@ bind_umount:
 			}
 #endif
 		}
-		inc_counter(args);
-	} while (keep_stressing_flag() &&
-		 (!args->max_ops || (get_counter(args) < args->max_ops)));
+		stress_bogo_inc(args);
+	} while (stress_continue_flag() &&
+		 (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
 
 	rate = (mount_count > 0.0) ? (double)mount_duration / mount_count : 0.0;
 	stress_metrics_set(args, 0, "microsecs per mount", rate * STRESS_DBL_MICROSECOND);
@@ -206,7 +206,7 @@ static int stress_bind_mount(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 		VOID_RET(int, shim_waitpid(pid, &status, 0));
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

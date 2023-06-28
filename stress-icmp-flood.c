@@ -134,7 +134,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 		/*
 		 * Generating random data is expensive so do it every 64 packets
 		 */
-		if ((get_counter(args) & 0x3f) == 0)
+		if ((stress_bogo_get(args) & 0x3f) == 0)
 			stress_rndbuf(payload, payload_len);
 		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
@@ -145,11 +145,11 @@ static int stress_icmp_flood(const stress_args_t *args)
 		} else {
 			bytes += (double)ret;
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
-	counter = get_counter(args);
+	counter = stress_bogo_get(args);
 	sendto_ok = counter - sendto_fails;
 
 	rate = (duration > 0.0) ? sendto_ok / duration : 0.0;

@@ -210,8 +210,8 @@ try_read:
 #endif
 		(void)close(fd);
 		fd = -1;
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 

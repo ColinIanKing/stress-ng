@@ -145,7 +145,7 @@ static void MLOCKED_TEXT stress_sig_handler(
 	sig_num = sig;
 	sig_addr = (info) ? info->si_addr : (void *)~(uintptr_t)0;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 
 	siglongjmp(jmp_env, 1);
 }
@@ -450,9 +450,9 @@ static int stress_far_branch(const stress_args_t *args)
 			funcs[i + 0xe]();
 			funcs[i + 0xf]();
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 		calls += (double)total_funcs;
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
 

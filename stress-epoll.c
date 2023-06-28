@@ -186,7 +186,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
 	(void)sig;
 
 	/* Cancel timer if we detect no more runs */
-	if (!keep_stressing_flag()) {
+	if (!stress_continue_flag()) {
 		struct itimerspec timer;
 
 		timer.it_value.tv_sec = 0;
@@ -250,7 +250,7 @@ static int epoll_set_fd_nonblock(const int fd)
  */
 static void epoll_recv_data(const int fd, int *fd_count)
 {
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		char buf[8192];
 		ssize_t n;
 
@@ -339,7 +339,7 @@ static int epoll_notification(
 		int fd;
 		struct epoll_event event;
 
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			return -1;
 		/* Try to limit too many open fds */
 		if (*fd_count > epoll_sockets)
@@ -575,7 +575,7 @@ static int epoll_client(
 		if (port_counter >= max_servers)
 			port_counter = 0;
 retry:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 
 		if (UNLIKELY((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0)) {
@@ -667,7 +667,7 @@ retry:
 			goto retry;
 		}
 
-		(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
+		(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
 		if (UNLIKELY(send(fd, buf, sizeof(buf), 0) < 0)) {
 			(void)close(fd);
 			pr_dbg("%s: send failed, errno=%d (%s)\n",
@@ -675,11 +675,11 @@ retry:
 			break;
 		}
 		(void)close(fd);
-		inc_counter(args);
-		if (!keep_stressing(args))
+		stress_bogo_inc(args);
+		if (!stress_continue(args))
 			break;
 		(void)shim_sched_yield();
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -874,14 +874,14 @@ static void NORETURN epoll_server(
 		errno = 0;
 
 		ret = sigsetjmp(jmp_env, 1);
-		if (!keep_stressing(args))
+		if (!stress_continue(args))
 			break;
 		if (UNLIKELY(ret != 0))
 			wait_segv = true;
 
 		/*
 		 * Wait for 100ms for an event, allowing us to
-		 * to break out if keep_stressing_flag has been changed.
+		 * to break out if stress_continue_flag has been changed.
 		 * Note: epoll_wait maps to epoll_pwait in glibc, ho hum.
 		 */
 		if (stress_mwc1()) {
@@ -976,7 +976,7 @@ static void NORETURN epoll_server(
 			n = stress_epoll_pwait(bad_fd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 			(void)n;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 die_close:
 	if (efd != -1)

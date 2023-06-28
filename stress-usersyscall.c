@@ -351,8 +351,8 @@ static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
 			}
 		}
 #endif
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 	rate = (count > 0.0) ? duration / count : 0.0;

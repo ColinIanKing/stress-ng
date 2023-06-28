@@ -794,7 +794,7 @@ static int stress_exec(const stress_args_t *args)
 #endif
 			NOCLOBBER stress_pid_hash_t *sph;
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 
 			sph = stress_exec_alloc_pid(alloc_stack);
@@ -872,7 +872,7 @@ static int stress_exec(const stress_args_t *args)
 			if ((ret > 0) && WIFEXITED(status)) {
 				stress_exec_remove_pid((pid_t)ret);
 				exec_calls++;
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
 
@@ -889,7 +889,7 @@ static int stress_exec(const stress_args_t *args)
 					(void)shim_waitpid(sph->pid, &status, 0);
 					stress_exec_remove_pid(sph->pid);
 					exec_calls++;
-					inc_counter(args);
+					stress_bogo_inc(args);
 
 					switch (exec_fork_method) {
 					case EXEC_FORK_METHOD_FORK:
@@ -917,7 +917,7 @@ static int stress_exec(const stress_args_t *args)
 				sph = next;
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

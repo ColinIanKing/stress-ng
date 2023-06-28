@@ -37,7 +37,7 @@ static void stress_mmapmany_read_proc_file(const char *path)
 	if (fd < 0)
 		return;
 	while (read(fd, buf, sizeof(buf)) > 0) {
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			break;
 	}
 	(void)close(fd);
@@ -66,10 +66,10 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 	do {
 		size_t i, n;
 
-		for (n = 0; keep_stressing_flag() && (n < (size_t)max); n++) {
+		for (n = 0; stress_continue_flag() && (n < (size_t)max); n++) {
 			uint64_t *ptr;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			ptr = (uint64_t *)mmap(NULL, page_size * 3, PROT_READ | PROT_WRITE,
@@ -83,7 +83,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 
 			if (munmap((void *)(((uintptr_t)mappings[n]) + page_size), page_size) < 0)
 				break;
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 #if defined(__linux__)
@@ -112,7 +112,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			(void)munmap((void *)(((uintptr_t)mappings[i]) + page_size), page_size);
 			(void)munmap((void *)(((uintptr_t)mappings[i]) + page_size + page_size), page_size);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -142,7 +142,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 	const double threshold = 0.2;
 	size_t page_size = ctxt->args->page_size;
 
-	while (keep_stressing_flag()) {
+	while (stress_continue_flag()) {
 		double t_start;
 		uint8_t *ptr;
 		fd_set rfds;
@@ -158,7 +158,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		if (counter > OPS_PER_SYSFS_FILE)
 			shim_sched_yield();
 
-		if (!*path || !keep_stressing_flag())
+		if (!*path || !stress_continue_flag())
 			break;
 
 		t_start = stress_time_now();
@@ -182,7 +182,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		while (i < (4096 * SYS_BUF_SZ)) {
 			const ssize_t sz = 1 + stress_mwc32modn(sizeof(buffer) - 1);
 
-			if (!keep_stressing_flag())
+			if (!stress_continue_flag())
 				break;
 			rret = read(fd, buffer, (size_t)sz);
 			if (rret < 0)
@@ -408,7 +408,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing(args))
+	while (stress_continue(args))
 		stress_sys_rw(ctxt);
 
 	return &nowt;
@@ -472,7 +472,7 @@ static void stress_sys_dir(
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
-	if (!keep_stressing_flag())
+	if (!stress_continue_flag())
 		return;
 
 	/* Don't want to go too deep */
@@ -493,7 +493,7 @@ static void stress_sys_dir(
 		flags |= S_IRUSR | S_IWUSR;
 
 	/* Non-directories first */
-	for (i = 0; (i < n) && keep_stressing(args); i++) {
+	for (i = 0; (i < n) && stress_continue(args); i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
@@ -546,9 +546,9 @@ static void stress_sys_dir(
 			/* Cater for slower delays */
 			if ((counter > 0) && (stress_time_now() > time_end))
 				break;
-		} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing(args));
+		} while ((counter < OPS_PER_SYSFS_FILE) && stress_continue(args));
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 dt_reg_free:
 		free(dlist[i]);
 		dlist[i] = NULL;
@@ -560,7 +560,7 @@ dt_reg_free:
 	}
 
 	/* Now directories.. */
-	for (i = 0; (i < n) && keep_stressing(args); i++) {
+	for (i = 0; (i < n) && stress_continue(args); i++) {
 		const struct dirent *d = dlist[i];
 		struct stat buf;
 		int ret;
@@ -578,7 +578,7 @@ dt_reg_free:
 		if ((buf.st_mode & flags) == 0)
 			goto dt_dir_free;
 
-		inc_counter(args);
+		stress_bogo_inc(args);
 		stress_sys_dir(ctxt, tmp, recurse, depth + 1);
 dt_dir_free:
 		free(dlist[i]);
@@ -720,7 +720,7 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
-			if (!keep_stressing(args)) {
+			if (!stress_continue(args)) {
 				rc = EXIT_SUCCESS;
 				goto finish;
 			}
@@ -766,7 +766,7 @@ again:
 				for (i = 0; i < n; i++) {
 					char sysfspath[PATH_MAX];
 
-					if (!keep_stressing(args))
+					if (!stress_continue(args))
 						break;
 
 					if (stress_is_dot_filename(dlist[j]->d_name))
@@ -778,7 +778,7 @@ again:
 					stress_sys_dir(ctxt, sysfspath, true, 0);
 					j = (j + inc) % n;
 				}
-			} while (keep_stressing(args));
+			} while (stress_continue(args));
 
 			ret = shim_pthread_spin_lock(&lock);
 			if (ret) {
@@ -791,7 +791,7 @@ again:
 			/* Forcefully kill threads */
 			for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 				if (pthreads_ret[i] == 0) {
-					force_killed_counter(args);
+					stress_force_killed_bogo(args);
 					(void)pthread_kill(pthreads[i], SIGKILL);
 				}
 			}
@@ -803,10 +803,10 @@ again:
 
 			_exit(EXIT_SUCCESS);
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	pr_dbg("%s: skipped %" PRIu64 " out of %" PRIu64 " sysfs files accessed\n",
-		args->name, hash_items, get_counter(args));
+		args->name, hash_items, stress_bogo_get(args));
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

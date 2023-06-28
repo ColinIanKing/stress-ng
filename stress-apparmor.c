@@ -114,7 +114,7 @@ static int stress_apparmor_supported(const char *name)
 	return 0;
 }
 
-static bool stress_apparmor_keep_stressing_inc(const stress_args_t *args, bool inc)
+static bool stress_apparmor_stress_continue_inc(const stress_args_t *args, bool inc)
 {
 	/* fast check */
 	if (!apparmor_run)
@@ -122,7 +122,7 @@ static bool stress_apparmor_keep_stressing_inc(const stress_args_t *args, bool i
 	if (!stress_apparmor_shared_info)
 		return false;
 
-	return inc_counter_lock(args, stress_apparmor_shared_info->counter_lock, inc);
+	return stress_bogo_inc_lock(args, stress_apparmor_shared_info->counter_lock, inc);
 }
 
 static void stress_apparmor_failure_inc(void)
@@ -166,7 +166,7 @@ static void stress_apparmor_read(
 	while (i < (4096 * APPARMOR_BUF_SZ)) {
 		ssize_t ret, sz = 1 + stress_mwc32modn((uint32_t)sizeof(buffer));
 redo:
-		if (!stress_apparmor_keep_stressing_inc(args, false))
+		if (!stress_apparmor_stress_continue_inc(args, false))
 			break;
 		ret = read(fd, buffer, (size_t)sz);
 		if (ret < 0) {
@@ -194,7 +194,7 @@ static void stress_apparmor_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!stress_apparmor_keep_stressing_inc(args, false))
+	if (!stress_apparmor_stress_continue_inc(args, false))
 		return;
 
 	/* Don't want to go too deep */
@@ -208,7 +208,7 @@ static void stress_apparmor_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!stress_apparmor_keep_stressing_inc(args, false))
+		if (!stress_apparmor_stress_continue_inc(args, false))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -250,7 +250,7 @@ again:
 	if (pid == 0) {
 		int ret = EXIT_SUCCESS;
 
-		if (!stress_apparmor_keep_stressing_inc(args, false))
+		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;
 
 		if (stress_sighandler(args->name, SIGALRM,
@@ -260,7 +260,7 @@ again:
 
 		(void)sched_settings_apply(true);
 		stress_parent_died_alarm();
-		if (!stress_apparmor_keep_stressing_inc(args, false))
+		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;
 		ret = func(args);
 abort:
@@ -283,7 +283,7 @@ static int apparmor_stress_profiles(const stress_args_t *args)
 
 	do {
 		stress_apparmor_read(args, path);
-	} while (stress_apparmor_keep_stressing_inc(args, true));
+	} while (stress_apparmor_stress_continue_inc(args, true));
 
 	return EXIT_SUCCESS;
 }
@@ -300,7 +300,7 @@ static int apparmor_stress_features(const stress_args_t *args)
 
 	do {
 		stress_apparmor_dir(args, path, true, 0);
-	} while (stress_apparmor_keep_stressing_inc(args, true));
+	} while (stress_apparmor_stress_continue_inc(args, true));
 
 	return EXIT_SUCCESS;
 }
@@ -372,7 +372,7 @@ static int apparmor_stress_kernel_interface(const stress_args_t *args)
 		}
 		aa_kernel_interface_unref(kern_if);
 
-	} while (stress_apparmor_keep_stressing_inc(args, true));
+	} while (stress_apparmor_stress_continue_inc(args, true));
 
 	return rc;
 }
@@ -635,7 +635,7 @@ static int apparmor_stress_corruption(const stress_args_t *args)
 		}
 		aa_kernel_interface_unref(kern_if);
 		i++;
-	} while (stress_apparmor_keep_stressing_inc(args, true));
+	} while (stress_apparmor_stress_continue_inc(args, true));
 
 	return rc;
 }
@@ -696,7 +696,7 @@ static int stress_apparmor(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (stress_apparmor_keep_stressing_inc(args, false)) {
+	while (stress_apparmor_stress_continue_inc(args, false)) {
 #if defined(HAVE_SELECT)
 		(void)select(0, NULL, NULL, NULL, NULL);
 #else

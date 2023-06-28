@@ -103,11 +103,11 @@ static int stress_spawn(const stress_args_t *args)
 			/* Parent, wait for child */
 
 			(void)shim_waitpid(pid, &status, 0);
-			inc_counter(args);
+			stress_bogo_inc(args);
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				spawn_fails++;
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	if ((spawn_fails > 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " spawns failed (%.2f%%)\n",

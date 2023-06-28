@@ -1129,7 +1129,7 @@ static int stress_sparse_method_test(
 	stress_mwc_set_seed(w, z);
 
 	t1 = stress_time_now();
-	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
+	for (i = 0; stress_continue_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32modn(sparsematrix_size);
 		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t gv, v = value_map(x, y);
@@ -1155,7 +1155,7 @@ static int stress_sparse_method_test(
 
 	stress_mwc_set_seed(w, z);
 	t1 = stress_time_now();
-	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
+	for (i = 0; stress_continue_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32modn(sparsematrix_size);
 		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t gv, v = value_map(x, y);
@@ -1176,7 +1176,7 @@ static int stress_sparse_method_test(
 
 	/* Random fetches, most probably all zero unset values */
 	t1 = stress_time_now();
-	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
+	for (i = 0; stress_continue_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32modn(sparsematrix_size);
 		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 
@@ -1187,7 +1187,7 @@ static int stress_sparse_method_test(
 	test_info->get_duration += (t2 - t1);
 
 	stress_mwc_set_seed(w, z);
-	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
+	for (i = 0; stress_continue_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32modn(sparsematrix_size);
 		const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t v = value_map(x, y);
@@ -1460,8 +1460,8 @@ static int stress_sparsematrix(const stress_args_t *args)
 			}
 		}
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	if (method == 0) {	/* All methods */
 		begin = 1;

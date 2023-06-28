@@ -241,7 +241,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 			pr_inf("%s: unexpected poll timeout\n", args->name);
 			break;
 		} else {
-			for (i = 0; keep_stressing(args) && (i < n_pipes); i++) {
+			for (i = 0; stress_continue(args) && (i < n_pipes); i++) {
 				if (poll_fds[i].revents & POLLIN) {
 					const size_t j = (i + 1) % n_pipes;
 					double t;
@@ -262,7 +262,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 						}
 						duration += stress_time_now() - t;
 						bytes += (double)sret;
-						inc_counter(args);
+						stress_bogo_inc(args);
 						continue;
 					}
 #endif
@@ -275,15 +275,15 @@ static int stress_ring_pipe(const stress_args_t *args)
 						goto finish;
 					duration += stress_time_now() - t;
 					bytes += (double)sret;
-					inc_counter(args);
+					stress_bogo_inc(args);
 				}
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	rc = EXIT_SUCCESS;
 
 finish:
-	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
+	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
 	stress_metrics_set(args, 0, "pipe read+write calls per sec", rate);
 	rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
 	stress_metrics_set(args, 1, "MB per sec data pipe write", rate / (double)MB);

@@ -421,7 +421,7 @@ static int stress_filename(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
-	if (!keep_stressing_flag()) {
+	if (!stress_continue_flag()) {
 		/* Time to die */
 		rc = EXIT_SUCCESS;
 		goto tidy_dir;
@@ -430,7 +430,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto tidy_dir;
 		}
@@ -445,7 +445,7 @@ again:
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			force_killed_counter(args);
+			stress_force_killed_bogo(args);
 			(void)shim_kill(pid, SIGTERM);
 			(void)shim_kill(pid, SIGKILL);
 			(void)shim_waitpid(pid, &status, 0);
@@ -495,68 +495,68 @@ again:
 			/* Should succeed */
 			stress_filename_generate(ptr, 1, ch);
 			stress_filename_test(args, filename, 1, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			stress_filename_generate_random(ptr, 1, chars_allowed);
 			stress_filename_test(args, filename, 1, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max, ch);
 			stress_filename_test(args, filename, sz_max, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			stress_filename_generate_random(ptr, sz_max, chars_allowed);
 			stress_filename_test(args, filename, sz_max, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max - 1, ch);
 			stress_filename_test(args, filename, sz_max - 1, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
 			stress_filename_test(args, filename, sz_max - 1, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* Should fail */
 			stress_filename_generate(ptr, sz_max + 1, ch);
 			stress_filename_test(args, filename, sz_max + 1, false, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
 			stress_filename_test(args, filename, sz_max + 1, false, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz, ch);
 			stress_filename_test(args, filename, sz, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			stress_filename_generate_random(ptr, sz, chars_allowed);
 			stress_filename_test(args, filename, sz, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, rnd_sz, ch);
 			stress_filename_test(args, filename, rnd_sz, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
 			stress_filename_test(args, filename, rnd_sz, true, mypid);
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			sz++;
 			if (sz > sz_max)
 				sz = 1;
-			inc_counter(args);
-		} while (keep_stressing(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
 		_exit(EXIT_SUCCESS);
 	}
 	rc = EXIT_SUCCESS;

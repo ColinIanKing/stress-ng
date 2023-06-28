@@ -160,7 +160,7 @@ static void NORETURN OPTIMIZE3 stress_rawudp_client(
 				args->name, port, errno, strerror(errno));
 		}
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	rc = EXIT_SUCCESS;
 
@@ -230,15 +230,15 @@ static int OPTIMIZE3 stress_rawudp_server(
 					rc = EXIT_FAILURE;
 				}
 				bytes += (double)n;
-				inc_counter(args);
+				stress_bogo_inc(args);
 			}
 		}
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB recv'd per sec", rate / (double)MB);
-	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
+	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
 	(void)snprintf(msg, sizeof(msg), "packets (%zu bytes) received per sec", PACKET_SIZE);
 	stress_metrics_set(args, 1, msg, rate);
 
@@ -252,7 +252,7 @@ static void stress_sock_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -309,7 +309,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto finish;
 		}

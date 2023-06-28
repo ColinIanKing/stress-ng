@@ -117,10 +117,10 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 		uint8_t *redo_unmapping = NULL;
 		off_t sz = 0;
 
-		for (n = 0; keep_stressing_flag() && (n < MMAP_MAX); n++) {
+		for (n = 0; stress_continue_flag() && (n < MMAP_MAX); n++) {
 			const off_t offset = sz;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			sz += page_size3;
@@ -153,7 +153,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 				redo_unmapping = mappings[n];
 				break;
 			}
-			inc_counter(args);
+			stress_bogo_inc(args);
 		}
 
 		if (stress_secretmem_unmap(mappings, n, page_size)) {
@@ -170,7 +170,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 		if (redo_unmapping)
 			(void)munmap(redo_unmapping, page_size3);
 
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

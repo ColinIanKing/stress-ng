@@ -192,7 +192,7 @@ static int stress_sockabuse_client(
 		uint64_t delay = 10000;
 
 retry:
-		if (!keep_stressing_flag())
+		if (!stress_continue_flag())
 			return EXIT_FAILURE;
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -228,7 +228,7 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
 }
@@ -303,7 +303,7 @@ static int stress_sockabuse_server(
 		for (i = 0; i < 16; i++) {
 			int sfd;
 
-			if (!keep_stressing(args))
+			if (!stress_continue(args))
 				break;
 
 			sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -327,7 +327,7 @@ static int stress_sockabuse_server(
 					(void)close(sfd);
 					break;
 				}
-				(void)shim_memset(buf, stress_ascii64[get_counter(args) & 63], sizeof(buf));
+				(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
 
 				n = send(sfd, buf, sizeof(buf), 0);
 				if (n < 0) {
@@ -344,10 +344,10 @@ static int stress_sockabuse_server(
 				(void)close(sfd);
 			}
 		}
-		inc_counter(args);
+		stress_bogo_inc(args);
 		stress_sockabuse_fd(fd);
 		(void)close(fd);
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 	t2 = stress_time_now();
 
 die:
@@ -363,7 +363,7 @@ static void stress_sockabuse_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 }
 
 /*
@@ -403,7 +403,7 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto finish;
 		}

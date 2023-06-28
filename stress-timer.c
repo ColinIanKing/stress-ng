@@ -105,12 +105,12 @@ static void OPTIMIZE3 stress_timer_set(struct itimerspec *timer)
 }
 
 /*
- *  stress_timer_keep_stressing(args)
+ *  stress_timer_stress_continue(args)
  *      returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
+static bool HOT OPTIMIZE3 stress_timer_stress_continue(void)
 {
-	return (LIKELY(keep_stressing_flag()) &&
+	return (LIKELY(stress_continue_flag()) &&
 		LIKELY(!max_ops || (timer_counter < max_ops)));
 }
 
@@ -138,7 +138,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 
 	(void)sig;
 
-	if (!stress_timer_keep_stressing())
+	if (!stress_timer_stress_continue())
 		goto cancel;
 	timer_counter++;
 
@@ -151,7 +151,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 			goto cancel;
 		stress_proc_self_timer_read();
 	}
-	if (LIKELY(keep_stressing_flag())) {
+	if (LIKELY(stress_continue_flag())) {
 		const int ret = timer_getoverrun(timerid);
 
 		if (ret > 0)
@@ -163,7 +163,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 	}
 
 cancel:
-	keep_stressing_set_flag(false);
+	stress_continue_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)shim_memset(&timer, 0, sizeof(timer));
 	if (timer_settime(timerid, 0, &timer, NULL) < 0)
@@ -251,8 +251,8 @@ static int stress_timer(const stress_args_t *args)
 		req.tv_sec = 0;
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
-		set_counter(args, timer_counter);
-	} while (keep_stressing(args));
+		stress_bogo_set(args, timer_counter);
+	} while (stress_continue(args));
 
 	/* stop timer */
 	(void)shim_memset(&timer, 0, sizeof(timer));

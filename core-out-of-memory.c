@@ -208,7 +208,7 @@ int stress_oomable_child(
 	};
 
 again:
-	if (!keep_stressing(args))
+	if (!stress_continue(args))
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -306,7 +306,7 @@ rewait:
 		/* Child */
 		int ret;
 
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
 		}
@@ -320,7 +320,7 @@ rewait:
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
 			VOID_RET(int, stress_drop_capabilities(args->name));
 		}
-		if (!keep_stressing(args)) {
+		if (!stress_continue(args)) {
 			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
 		}

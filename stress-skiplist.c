@@ -259,8 +259,8 @@ static int OPTIMIZE3 stress_skiplist(const stress_args_t *args)
 		}
 		skip_list_free(&list);
 
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

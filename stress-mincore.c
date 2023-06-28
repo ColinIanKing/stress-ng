@@ -137,7 +137,7 @@ static int stress_mincore(const stress_args_t *args)
 	do {
 		int i;
 
-		for (i = 0; (i < 100) && keep_stressing_flag(); i++) {
+		for (i = 0; (i < 100) && stress_continue_flag(); i++) {
 			int ret, redo = 0;
 			static unsigned char vec[1];
 			double t;
@@ -274,8 +274,8 @@ redo: 			errno = 0;
 			stress_mincore_expect(args, ret, 0, errno, EINVAL,
 				"NULL and zero arguments");
 		}
-		inc_counter(args);
-	} while (keep_stressing(args));
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per mincore call", rate * STRESS_DBL_NANOSECOND);

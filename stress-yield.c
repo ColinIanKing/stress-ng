@@ -111,7 +111,7 @@ static int stress_yield(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	for (i = 0; keep_stressing_flag() && (i < yielders); i++) {
+	for (i = 0; stress_continue_flag() && (i < yielders); i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_dbg("%s: fork failed (instance %" PRIu32
@@ -133,7 +133,7 @@ static int stress_yield(const stress_args_t *args)
 					pr_fail("%s: sched_yield failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
-			} while (keep_stressing_flag() && (!max_ops_per_yielder || (metrics[i].count < max_ops_per_yielder)));
+			} while (stress_continue_flag() && (!max_ops_per_yielder || (metrics[i].count < max_ops_per_yielder)));
 			_exit(EXIT_SUCCESS);
 		}
 	}
@@ -141,11 +141,11 @@ static int stress_yield(const stress_args_t *args)
 	do {
 #if defined(__FreeBSD__)
 		VOID_RET(int, shim_sched_yield());
-		inc_counter(args);
+		stress_bogo_inc(args);
 #else
 		VOID_RET(int, shim_usleep(100000));
 #endif
-	} while (keep_stressing(args));
+	} while (stress_continue(args));
 
 	/* Parent, wait for children */
 
@@ -160,7 +160,7 @@ static int stress_yield(const stress_args_t *args)
 			count += metrics[i].count;
 		}
 	}
-	add_counter(args, (uint64_t)count);
+	stress_bogo_add(args, (uint64_t)count);
 
 	ns = count > 0.0 ? (STRESS_DBL_NANOSECOND * duration) / count : 0.0;
 	stress_metrics_set(args, 0, "ns duration per sched_yield call", ns);

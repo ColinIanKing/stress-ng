@@ -237,7 +237,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 	(void)shim_memset(buffer, 0, FALLOCATE_BUF_SIZE);
 	n = len;
 
-	while (keep_stressing_flag() && (n > 0)) {
+	while (stress_continue_flag() && (n > 0)) {
 		ssize_t ret;
 		const size_t count = (size_t)STRESS_MINIMUM(n, FALLOCATE_BUF_SIZE);
 
@@ -801,7 +801,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
-				if (keep_stressing_flag())
+				if (stress_continue_flag())
 					continue;
 			} else {
 				return -1;
@@ -824,7 +824,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 				usec = (useconds_t)(t_left * STRESS_DBL_MICROSECOND);
 				if (usec == 0)
 					return 0;
-				if (keep_stressing_flag())
+				if (stress_continue_flag())
 					continue;
 			} else {
 				return -1;
@@ -1464,7 +1464,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		 *  Retry if EINTR unless we've have 2 mins
 		 *  consecutive EINTRs then give up.
 		 */
-		if (!keep_stressing_flag()) {
+		if (!stress_continue_flag()) {
 			(void)shim_kill(pid, SIGALRM);
 			if (count > 120)
 				(void)shim_kill(pid, SIGKILL);
