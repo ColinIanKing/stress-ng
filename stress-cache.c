@@ -23,14 +23,14 @@
 #include "core-cpu-cache.h"
 #include "core-put.h"
 
-#define FLAGS_CACHE_PREFETCH	(0x0001U)
-#define FLAGS_CACHE_CLFLUSH	(0x0002U)
-#define FLAGS_CACHE_FENCE	(0x0004U)
-#define FLAGS_CACHE_SFENCE	(0x0008U)
-#define FLAGS_CACHE_CLFLUSHOPT	(0x0010U)
-#define FLAGS_CACHE_CLDEMOTE	(0x0020U)
-#define FLAGS_CACHE_CLWB	(0x0040U)
-#define FLAGS_CACHE_NOAFF	(0x8000U)
+#define CACHE_FLAGS_PREFETCH	(0x0001U)
+#define CACHE_FLAGS_CLFLUSH	(0x0002U)
+#define CACHE_FLAGS_FENCE	(0x0004U)
+#define CACHE_FLAGS_SFENCE	(0x0008U)
+#define CACHE_FLAGS_CLFLUSHOPT	(0x0010U)
+#define CACHE_FLAGS_CLDEMOTE	(0x0020U)
+#define CACHE_FLAGS_CLWB	(0x0040U)
+#define CACHE_FLAGS_NOAFF	(0x8000U)
 
 #define STRESS_CACHE_MIXED_OPS	(0)
 #define STRESS_CACHE_READ	(1)
@@ -43,13 +43,13 @@ typedef void (*cache_mixed_ops_func_t)(const stress_args_t *args,
 	stress_metrics_t *metrics);
 typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
 
-#define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |		\
-				 FLAGS_CACHE_CLFLUSH |		\
-				 FLAGS_CACHE_FENCE |		\
-				 FLAGS_CACHE_SFENCE |		\
-				 FLAGS_CACHE_CLFLUSHOPT |	\
-				 FLAGS_CACHE_CLDEMOTE |		\
-				 FLAGS_CACHE_CLWB)
+#define CACHE_FLAGS_MASK	(CACHE_FLAGS_PREFETCH |		\
+				 CACHE_FLAGS_CLFLUSH |		\
+				 CACHE_FLAGS_FENCE |		\
+				 CACHE_FLAGS_SFENCE |		\
+				 CACHE_FLAGS_CLFLUSHOPT |	\
+				 CACHE_FLAGS_CLDEMOTE |		\
+				 CACHE_FLAGS_CLWB)
 
 typedef struct {
 	uint32_t flag;		/* cache mask flag */
@@ -57,13 +57,13 @@ typedef struct {
 } mask_flag_info_t;
 
 static mask_flag_info_t mask_flag_info[] = {
-	{ FLAGS_CACHE_PREFETCH,		"prefetch" },
-	{ FLAGS_CACHE_CLFLUSH,		"clflush" },
-	{ FLAGS_CACHE_FENCE,		"fence" },
-	{ FLAGS_CACHE_SFENCE,		"sfence" },
-	{ FLAGS_CACHE_CLFLUSHOPT,	"clflushopt" },
-	{ FLAGS_CACHE_CLDEMOTE,		"cldemote" },
-	{ FLAGS_CACHE_CLWB,		"clwb" }
+	{ CACHE_FLAGS_PREFETCH,		"prefetch" },
+	{ CACHE_FLAGS_CLFLUSH,		"clflush" },
+	{ CACHE_FLAGS_FENCE,		"fence" },
+	{ CACHE_FLAGS_SFENCE,		"sfence" },
+	{ CACHE_FLAGS_CLFLUSHOPT,	"clflushopt" },
+	{ CACHE_FLAGS_CLDEMOTE,		"cldemote" },
+	{ CACHE_FLAGS_CLWB,		"clwb" }
 };
 
 static sigjmp_buf jmp_env;
@@ -110,56 +110,56 @@ static int stress_cache_set_enable_all(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_MASK);
+	return stress_cache_set_flag(CACHE_FLAGS_MASK);
 }
 
 static int stress_cache_set_cldemote(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_CLDEMOTE);
+	return stress_cache_set_flag(CACHE_FLAGS_CLDEMOTE);
 }
 
 static int stress_cache_set_clflushopt(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_CLFLUSHOPT);
+	return stress_cache_set_flag(CACHE_FLAGS_CLFLUSHOPT);
 }
 
 static int stress_cache_set_clwb(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_CLWB);
+	return stress_cache_set_flag(CACHE_FLAGS_CLWB);
 }
 
 static int stress_cache_set_fence(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_FENCE);
+	return stress_cache_set_flag(CACHE_FLAGS_FENCE);
 }
 
 static int stress_cache_set_flush(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_CLFLUSH);
+	return stress_cache_set_flag(CACHE_FLAGS_CLFLUSH);
 }
 
 static int stress_cache_set_noaff(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_NOAFF);
+	return stress_cache_set_flag(CACHE_FLAGS_NOAFF);
 }
 
 static int stress_cache_set_prefetch(const char *opt)
 {
 	(void)opt;
 
-	return stress_cache_set_flag(FLAGS_CACHE_PREFETCH);
+	return stress_cache_set_flag(CACHE_FLAGS_PREFETCH);
 }
 
 static int stress_cache_set_sfence(const char *opt)
@@ -167,7 +167,7 @@ static int stress_cache_set_sfence(const char *opt)
 	(void)opt;
 
 #if defined(HAVE_BUILTIN_SFENCE)
-	return stress_cache_set_flag(FLAGS_CACHE_SFENCE);
+	return stress_cache_set_flag(CACHE_FLAGS_SFENCE);
 #else
 	pr_inf("sfence not available, ignoring option --cache-sfence\n");
 	return 0;
@@ -227,26 +227,26 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 		k += 33;						\
 		k = (k >= mem_cache_size) ? k - mem_cache_size : k;	\
 									\
-		if ((flags) & FLAGS_CACHE_PREFETCH) {			\
+		if ((flags) & CACHE_FLAGS_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
 		}							\
-		if ((flags) & FLAGS_CACHE_CLDEMOTE) {			\
+		if ((flags) & CACHE_FLAGS_CLDEMOTE) {			\
 			SHIM_CLDEMOTE(&mem_cache[i]);			\
 		}							\
-		if ((flags) & FLAGS_CACHE_CLFLUSHOPT) {			\
+		if ((flags) & CACHE_FLAGS_CLFLUSHOPT) {			\
 			SHIM_CLFLUSHOPT(&mem_cache[i]);			\
 		}							\
 		mem_cache[i] += mem_cache[k] + r;			\
-		if ((flags) & FLAGS_CACHE_CLWB) {			\
+		if ((flags) & CACHE_FLAGS_CLWB) {			\
 			SHIM_CLWB(&mem_cache[i]);			\
 		}							\
-		if ((flags) & FLAGS_CACHE_CLFLUSH) {			\
+		if ((flags) & CACHE_FLAGS_CLFLUSH) {			\
 			SHIM_CLFLUSH(&mem_cache[i]);			\
 		}							\
-		if ((flags) & FLAGS_CACHE_FENCE) {			\
+		if ((flags) & CACHE_FLAGS_FENCE) {			\
 			shim_mfence();					\
 		}							\
-		if ((flags) & FLAGS_CACHE_SFENCE) {			\
+		if ((flags) & CACHE_FLAGS_SFENCE) {			\
 			SHIM_SFENCE();					\
 		}							\
 		if (!keep_stressing_flag())				\
@@ -714,6 +714,7 @@ static int stress_cache(const stress_args_t *args)
 	NOCLOBBER bool pinned = false;
 #endif
 	uint32_t cache_flags = 0;
+	uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	NOCLOBBER uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
@@ -777,22 +778,27 @@ static int stress_cache(const stress_args_t *args)
 #endif
 
 #if !defined(HAVE_BUILTIN_SFENCE)
-	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_SFENCE)) {
+	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_SFENCE)) {
 		pr_inf("%s: sfence is not available, ignoring this option\n",
 			args->name);
 	}
+	cache_flags &= ~CACHE_FLAGS_SFENCE;
+	cache_flags_mask &= ~CACHE_FLAGS_SFENCE;
 #endif
 
 #if !defined(HAVE_ASM_X86_CLDEMOTE)
-	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLDEMOTE)) {
+	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLDEMOTE)) {
 		pr_inf("%s: cldemote is not available, ignoring this option\n",
 			args->name);
 	}
+	cache_flags &= ~CACHE_FLAGS_CLDEMOTE;
+	cache_flags_mask &= ~CACHE_FLAGS_CLDEMOTE;
 #endif
 
 #if defined(HAVE_ASM_X86_CLDEMOTE)
-	if (!stress_cpu_x86_has_cldemote() && (cache_flags & FLAGS_CACHE_CLDEMOTE)) {
-		cache_flags &= ~FLAGS_CACHE_CLDEMOTE;
+	if (!stress_cpu_x86_has_cldemote() && (cache_flags & CACHE_FLAGS_CLDEMOTE)) {
+		cache_flags &= ~CACHE_FLAGS_CLDEMOTE;
+		cache_flags_mask &= ~CACHE_FLAGS_CLDEMOTE;
 		if (args->instance == 0) {
 			pr_inf("%s: cldemote is not available, ignoring this option\n",
 				args->name);
@@ -801,15 +807,18 @@ static int stress_cache(const stress_args_t *args)
 #endif
 
 #if !defined(HAVE_ASM_X86_CLFLUSH)
-	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLFLUSH)) {
+	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLFLUSH)) {
 		pr_inf("%s: clflush is not available, ignoring this option\n",
 			args->name);
 	}
+	cache_flags &= ~CACHE_FLAGS_CLFLUSH;
+	cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
-	if (!stress_cpu_x86_has_clfsh() && (cache_flags & FLAGS_CACHE_CLFLUSH)) {
-		cache_flags &= (uint32_t)~FLAGS_CACHE_CLFLUSH;
+	if (!stress_cpu_x86_has_clfsh() && (cache_flags & CACHE_FLAGS_CLFLUSH)) {
+		cache_flags &= ~CACHE_FLAGS_CLFLUSH;
+		cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
 		if (args->instance == 0) {
 			pr_inf("%s: clflush is not available, ignoring this option\n",
 				args->name);
@@ -818,15 +827,18 @@ static int stress_cache(const stress_args_t *args)
 #endif
 
 #if !defined(HAVE_ASM_X86_CLFLUSHOPT)
-	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLFLUSHOPT)) {
+	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLFLUSHOPT)) {
 		pr_inf("%s: clflushopt is not available, ignoring this option\n",
 			args->name);
 	}
+	cache_flags &= ~CACHE_FLAGS_CLFLUSHOPT;
+	cache_flags_mask &= ~CACHE_FLAGS_CLFLUSHOPT;
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
-	if (!stress_cpu_x86_has_clflushopt() && (cache_flags & FLAGS_CACHE_CLFLUSHOPT)) {
-		cache_flags &= ~FLAGS_CACHE_CLFLUSHOPT;
+	if (!stress_cpu_x86_has_clflushopt() && (cache_flags & CACHE_FLAGS_CLFLUSHOPT)) {
+		cache_flags &= ~CACHE_FLAGS_CLFLUSHOPT;
+		cache_flags_mask &= ~CACHE_FLAGS_CLFLUSHOPT;
 		if (args->instance == 0) {
 			pr_inf("%s: clflushopt is not available, ignoring this option\n",
 				args->name);
@@ -835,15 +847,18 @@ static int stress_cache(const stress_args_t *args)
 #endif
 
 #if !defined(HAVE_ASM_X86_CLWB)
-	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLWB)) {
+	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLWB)) {
 		pr_inf("%s: clwb is not available, ignoring this option\n",
 			args->name);
 	}
+	cache_flags &= ~CACHE_FLAGS_CLWB;
+	cache_flags_mask &= ~CACHE_FLAGS_CLWB;
 #endif
 
 #if defined(HAVE_ASM_X86_CLWB)
-	if (!stress_cpu_x86_has_clwb() && (cache_flags & FLAGS_CACHE_CLWB)) {
-		cache_flags &= ~FLAGS_CACHE_CLWB;
+	if (!stress_cpu_x86_has_clwb() && (cache_flags & CACHE_FLAGS_CLWB)) {
+		cache_flags &= ~CACHE_FLAGS_CLWB;
+		cache_flags_mask &= ~CACHE_FLAGS_CLWB;
 		if (args->instance == 0) {
 			pr_inf("%s: clwb is not available, ignoring this option\n",
 				args->name);
@@ -861,9 +876,9 @@ static int stress_cache(const stress_args_t *args)
 	if (bad_addr != MAP_FAILED)
 		(void)munmap(bad_addr, args->page_size);
 
-	masked_flags = cache_flags & FLAGS_CACHE_MASK;
+	masked_flags = cache_flags & CACHE_FLAGS_MASK;
 	if (args->instance == 0)
-		stress_cache_show_flags(args, masked_flags ? masked_flags : FLAGS_CACHE_MASK);
+		stress_cache_show_flags(args, masked_flags ? masked_flags : cache_flags_mask);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -882,7 +897,7 @@ static int stress_cache(const stress_args_t *args)
 		}
 		switch (r) {
 		case STRESS_CACHE_MIXED_OPS:
-			flags = masked_flags ? masked_flags : ((stress_mwc32() & FLAGS_CACHE_MASK) & masked_flags);
+			flags = masked_flags ? masked_flags : ((stress_mwc32() & CACHE_FLAGS_MASK) & masked_flags);
 			cache_mixed_ops_funcs[flags](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
 			break;
 		case STRESS_CACHE_READ:
@@ -898,7 +913,7 @@ static int stress_cache(const stress_args_t *args)
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
-		if ((cache_flags & FLAGS_CACHE_NOAFF) && !pinned) {
+		if ((cache_flags & CACHE_FLAGS_NOAFF) && !pinned) {
 			int current;
 
 			/* Pin to the current CPU */
@@ -914,14 +929,14 @@ static int stress_cache(const stress_args_t *args)
 			} while (!(CPU_ISSET(cpu, &proc_mask)));
 		}
 
-		if (!(cache_flags & FLAGS_CACHE_NOAFF) || !pinned) {
+		if (!(cache_flags & CACHE_FLAGS_NOAFF) || !pinned) {
 			cpu_set_t mask;
 
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
 			(void)sched_setaffinity(0, sizeof(mask), &mask);
 
-			if ((cache_flags & FLAGS_CACHE_NOAFF)) {
+			if ((cache_flags & CACHE_FLAGS_NOAFF)) {
 				/* Don't continually set the affinity */
 				pinned = true;
 			}
