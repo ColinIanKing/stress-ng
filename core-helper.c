@@ -1844,7 +1844,8 @@ int stress_cache_alloc(const char *name)
 {
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
-	uint16_t max_cache_level = 0;
+	uint16_t max_cache_level = 0, level;
+	char cache_info[512];
 
 	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
@@ -1902,7 +1903,23 @@ int stress_cache_alloc(const char *name)
 				"unable to determine cache size\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
+
+	(void)memset(cache_info, 0, sizeof(cache_info));
+	for (level = 1; level <= max_cache_level; level++) {
+		size_t cache_size = 0, cache_line_size = 0;
+
+		stress_cpu_cache_get_level_size(level, &cache_size, &cache_line_size);
+		if ((cache_size > 0) && (cache_line_size > 0)) {
+			char tmp[32];
+
+			(void)snprintf(tmp, sizeof(tmp), "%sL%" PRIu16 ": %zdK",
+				(level > 1) ? ", " : "", level, cache_size >> 10);
+			shim_strlcat(cache_info, tmp, sizeof(cache_info));
+		}
+	}
+	pr_dbg("CPU data cache: %s\n", cache_info);
 init_done:
+
 	stress_free_cpu_caches(cpu_caches);
 	g_shared->mem_cache =
 		(uint8_t *)mmap(NULL, g_shared->mem_cache_size,

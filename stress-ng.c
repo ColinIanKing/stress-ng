@@ -4461,14 +4461,6 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	/*
-	 *  Show the stressors we're going to run
-	 */
-	if (stress_show_stressors() < 0) {
-		ret = EXIT_FAILURE;
-		goto exit_logging_close;
-	}
-
-	/*
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
@@ -4518,6 +4510,14 @@ int main(int argc, char **argv, char **envp)
 	g_shared->mem_cache_ways = 0;
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_shared_unmap;
+	}
+
+	/*
+	 *  Show the stressors we're going to run
+	 */
+	if (stress_show_stressors() < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
