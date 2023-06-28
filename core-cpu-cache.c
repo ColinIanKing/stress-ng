@@ -1217,7 +1217,7 @@ free_cpu_caches:
  *  stress_cpu_cache_get_level_size()
  *	get cpu cache size for a specific cache level
  */
-void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *llc_size, size_t *cache_line_size)
+void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *cache_size, size_t *cache_line_size)
 {
 #if defined(__linux__) ||	\
     defined(__APPLE__) ||	\
@@ -1225,7 +1225,7 @@ void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *llc_siz
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 
-	*llc_size = 0;
+	*cache_size = 0;
 	*cache_line_size = 0;
 
 	cpu_caches = stress_cpu_cache_get_all_details();
@@ -1236,13 +1236,13 @@ void stress_cpu_cache_get_level_size(const uint16_t cache_level, size_t *llc_siz
 	if (!cache)
 		goto free_cpu_caches;
 
-	*llc_size = cache->size;
+	*cache_size = cache->size;
 	*cache_line_size = cache->line_size ? cache->line_size : 64;
 
 free_cpu_caches:
 	stress_free_cpu_caches(cpu_caches);
 #else
-	*llc_size = 0;
+	*cache_size = 0;
 	*cache_line_size = 0;
 #endif
 }
