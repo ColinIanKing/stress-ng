@@ -3900,3 +3900,33 @@ int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
 	return -1;
 #endif
 }
+
+/*
+ *  stress_unset_chattr_flags()
+ *	disable all chattr flags including the immutable flas
+ */
+void stress_unset_chattr_flags(const char *pathname)
+{
+#if defined(__linux__) &&	\
+    defined(_IOW)
+
+#define SHIM_EXT2_IMMUTABLE_FL		0x00000010
+#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
+
+	int fd;
+	unsigned long flags = 0;
+
+	fd = open(pathname, O_RDONLY);
+	if (fd < 0)
+		return;
+
+	VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, flags));
+	(void)close(fd);
+
+#undef SHIM_EXT2_IMMUTABLE_FL
+#undef SHIM_EXT2_IOC_SETFLAGS
+
+#else
+	(void)pathname;
+#endif
+}

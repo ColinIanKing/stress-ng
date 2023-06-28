@@ -2376,6 +2376,22 @@ int shim_futex_waitv(
 }
 
 /*
+ *  shim_force_unlink(const char *pathname)
+ *	unlink always
+ */
+int shim_force_unlink(const char *pathname)
+{
+	int ret;
+
+	ret = unlink(pathname);
+	if (ret < 0) {
+		stress_unset_chattr_flags(pathname);
+		ret = unlink(pathname);
+	}
+	return ret;
+}
+
+/*
  *  shim_unlink()
  *	unlink, skip operation if --keep-files is enabled
  */
@@ -2383,16 +2399,7 @@ int shim_unlink(const char *pathname)
 {
 	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
 		return 0;
-	return unlink(pathname);
-}
-
-/*
- *  shim_force_unlink(const char *pathname)
- *	unlink always
- */
-int shim_force_unlink(const char *pathname)
-{
-	return unlink(pathname);
+	return shim_force_unlink(pathname);
 }
 
 /*
@@ -2414,6 +2421,22 @@ int shim_unlinkat(int dirfd, const char *pathname, int flags)
 }
 
 /*
+ *  shim_force_rmdir()
+ *	rmdir always
+ */
+int shim_force_rmdir(const char *pathname)
+{
+	int ret;
+
+	ret = rmdir(pathname);
+	if (ret < 0) {
+		stress_unset_chattr_flags(pathname);
+		ret = rmdir(pathname);
+	}
+	return ret;
+}
+
+/*
  *  shim_rmdir()
  *	rmdir, skip operation if --keep-files is enabled
  */
@@ -2421,16 +2444,7 @@ int shim_rmdir(const char *pathname)
 {
 	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
 		return 0;
-	return rmdir(pathname);
-}
-
-/*
- *  shim_force_rmdir()
- *	rmdir always
- */
-int shim_force_rmdir(const char *pathname)
-{
-	return rmdir(pathname);
+	return shim_force_rmdir(pathname);
 }
 
 /*

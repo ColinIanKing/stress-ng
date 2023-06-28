@@ -1957,6 +1957,7 @@ static void stress_clean_dir_files(
 #if defined(O_DIRECTORY)
 			stress_unset_inode_flags(temp_path, O_DIRECTORY);
 #endif
+			stress_unset_chattr_flags(path);
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 			break;
@@ -1964,6 +1965,7 @@ static void stress_clean_dir_files(
 		case DT_REG:
 			free(names[n]);
 			stress_unset_inode_flags(temp_path, 0);
+			stress_unset_chattr_flags(path);
 			(void)shim_unlink(path);
 			break;
 		default:
@@ -1981,11 +1983,13 @@ static void stress_clean_dir_files(
 #if defined(O_DIRECTORY)
 			stress_unset_inode_flags(temp_path, O_DIRECTORY);
 #endif
+			stress_unset_chattr_flags(temp_path);
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
 			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
 			stress_unset_inode_flags(temp_path, 0);
+			stress_unset_chattr_flags(temp_path);
 			(void)unlink(path);
 		}
 #endif
