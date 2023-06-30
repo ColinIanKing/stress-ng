@@ -1017,6 +1017,7 @@ void stress_vmstat_start(void)
 	if ((vmstat_pid < 0) || (vmstat_pid > 0))
 		return;
 
+	stress_parent_died_alarm();
 	stress_set_proc_name("stat [periodic]");
 
 	if (vmstat_delay)

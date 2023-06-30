@@ -103,6 +103,7 @@ void stress_klog_start(void)
 		char buf[8192];
 		double last_logged = stress_time_now();
 
+		stress_parent_died_alarm();
 		stress_set_proc_state_str("klog","monitoring");
 
 		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
