@@ -237,6 +237,9 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		stress_tz_info_t **tz_infos;
 		bool print_nl = false;
 
+		if (ss->ignore)
+			continue;
+
 		/* Find how many items in list */
 		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
 			;
