@@ -67,11 +67,11 @@ static void MLOCKED_TEXT stress_shellsort_handler(int signum)
 	}
 }
 
-static int shellsort32(void *base, size_t nmemb,
+static inline int OPTIMIZE3 shellsort32(void *base, size_t nmemb,
 	int (*compar)(const void *, const void *))
 {
 	register size_t gap;
-	uint32_t *array = (uint32_t *)base;
+	register uint32_t *const array = (uint32_t *)base;
 
 	for (gap = nmemb >> 1; gap > 0; gap >>= 1) {
 		register size_t i;
@@ -89,11 +89,11 @@ static int shellsort32(void *base, size_t nmemb,
 	return 0;
 }
 
-static int shellsort8(void *base, size_t nmemb,
+static inline int OPTIMIZE3 shellsort8(void *base, size_t nmemb,
 	int (*compar)(const void *, const void *))
 {
 	register size_t gap;
-	uint8_t *array = (uint8_t *)base;
+	register uint8_t *const array = (uint8_t *)base;
 
 	for (gap = nmemb >> 1; gap > 0; gap >>= 1) {
 		register size_t i;
@@ -111,7 +111,7 @@ static int shellsort8(void *base, size_t nmemb,
 	return 0;
 }
 
-static int shellsort(void *base, size_t nmemb, size_t size,
+static inline int OPTIMIZE3 shellsort(void *base, size_t nmemb, size_t size,
 	int (*compar)(const void *, const void *))
 {
 	if (size == sizeof(uint32_t))
@@ -125,15 +125,16 @@ static int shellsort(void *base, size_t nmemb, size_t size,
  *  stress_shellsort()
  *	stress shellsort
  */
-static int stress_shellsort(const stress_args_t *args)
+static int OPTIMIZE3 stress_shellsort(const stress_args_t *args)
 {
 	uint64_t shellsort_size = DEFAULT_SHELLSORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n, i;
+	size_t n;
 	struct sigaction old_action;
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_get_setting("shellsort-size", &shellsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -183,7 +184,9 @@ static int stress_shellsort(const stress_args_t *args)
 			count += (double)stress_sort_compare_get();
 			sorted += (double)n;
 
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (UNLIKELY(verify)) {
+				register size_t i;
+
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 					if (*ptr > *(ptr + 1)) {
 						pr_fail("%s: sort error "
@@ -208,7 +211,9 @@ static int stress_shellsort(const stress_args_t *args)
 			count += (double)stress_sort_compare_get();
 			sorted += (double)n;
 
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (UNLIKELY(verify)) {
+				register size_t i;
+
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 					if (*ptr < *(ptr + 1)) {
 						pr_fail("%s: reverse sort "
@@ -237,7 +242,9 @@ static int stress_shellsort(const stress_args_t *args)
 			count += (double)stress_sort_compare_get();
 			sorted += (double)n;
 
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (UNLIKELY(verify)) {
+				register size_t i;
+
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 					if (*ptr < *(ptr + 1)) {
 						pr_fail("%s: reverse sort "
