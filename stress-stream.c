@@ -131,12 +131,12 @@ static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const 
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index0(
-	double *RESTRICT c,
-	const double *RESTRICT a,
+	double *const RESTRICT c,
+	const double *const RESTRICT a,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -156,12 +156,12 @@ PRAGMA_UNROLL_N(8)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 static inline void OPTIMIZE3 stress_stream_copy_index0_nt(
-	double *RESTRICT c,
-	const double *RESTRICT a,
+	double *const RESTRICT c,
+	const double *const RESTRICT a,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 
@@ -180,13 +180,13 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 static inline void OPTIMIZE3 stress_stream_copy_index1(
-	double *RESTRICT c,
-	const double *RESTRICT a,
-	const size_t *RESTRICT idx1,
+	double *const RESTRICT c,
+	const double *const RESTRICT a,
+	const size_t *const RESTRICT idx1,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -204,10 +204,10 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index2(
-	double *RESTRICT c,
-	const double *RESTRICT a,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
+	double *const RESTRICT c,
+	const double *const RESTRICT a,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
 	const uint64_t n,
 	double *rd_bytes,
 	double *wr_bytes,
@@ -226,15 +226,15 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index3(
-	double *RESTRICT c,
-	const double *RESTRICT a,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
-	const size_t *RESTRICT idx3,
+	double *const RESTRICT c,
+	const double *const RESTRICT a,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
+	const size_t *const RESTRICT idx3,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -249,13 +249,13 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index0(
-	double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
@@ -275,13 +275,13 @@ PRAGMA_UNROLL_N(8)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 static inline void OPTIMIZE3 stress_stream_scale_index0_nt(
-	double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 
@@ -300,14 +300,14 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 static inline void OPTIMIZE3 stress_stream_scale_index1(
-	double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
-	const size_t *RESTRICT idx1,
+	const size_t *const RESTRICT idx1,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
@@ -325,15 +325,15 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index2(
-	double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
@@ -348,16 +348,16 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index3(
-	double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
-	const size_t *RESTRICT idx3,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
+	const size_t *const RESTRICT idx3,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT bv = b;
@@ -372,13 +372,13 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index0(
-	const double *RESTRICT a,
-	const double *RESTRICT b,
-	double *RESTRICT c,
+	const double *const RESTRICT a,
+	const double *const RESTRICT b,
+	double *const RESTRICT c,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -398,13 +398,13 @@ PRAGMA_UNROLL_N(8)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 static inline void OPTIMIZE3 stress_stream_add_index0_nt(
-	const double *RESTRICT a,
-	const double *RESTRICT b,
-	double *RESTRICT c,
+	const double *const RESTRICT a,
+	const double *const RESTRICT b,
+	double *const RESTRICT c,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 
@@ -423,14 +423,14 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 static inline void OPTIMIZE3 stress_stream_add_index1(
-	const double *RESTRICT a,
-	const double *RESTRICT b,
-	double *RESTRICT c,
-	const size_t *RESTRICT idx1,
+	const double *const RESTRICT a,
+	const double *const RESTRICT b,
+	double *const RESTRICT c,
+	const size_t *const RESTRICT idx1,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -448,15 +448,15 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index2(
-	const double *RESTRICT a,
-	const double *RESTRICT b,
-	double *RESTRICT c,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
+	const double *const RESTRICT a,
+	const double *const RESTRICT b,
+	double *const RESTRICT c,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -474,16 +474,16 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index3(
-	const double *RESTRICT a,
-	const double *RESTRICT b,
-	double *RESTRICT c,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
-	const size_t *RESTRICT idx3,
+	const double *const RESTRICT a,
+	const double *const RESTRICT b,
+	double *const RESTRICT c,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
+	const size_t *const RESTRICT idx3,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT cv = c;
@@ -498,14 +498,14 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index0(
-	double *RESTRICT a,
-	const double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT a,
+	const double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
@@ -525,14 +525,14 @@ PRAGMA_UNROLL_N(8)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 static inline void OPTIMIZE3 stress_stream_triad_index0_nt(
-	double *RESTRICT a,
-	const double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT a,
+	const double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 
@@ -551,15 +551,15 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 static inline void OPTIMIZE3 stress_stream_triad_index1(
-	double *RESTRICT a,
-	const double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT a,
+	const double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
-	const size_t *RESTRICT idx1,
+	const size_t *const RESTRICT idx1,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
@@ -576,16 +576,16 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index2(
-	double *RESTRICT a,
-	const double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT a,
+	const double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
@@ -603,17 +603,17 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index3(
-	double *RESTRICT a,
-	const double *RESTRICT b,
-	const double *RESTRICT c,
+	double *const RESTRICT a,
+	const double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const double q,
-	const size_t *RESTRICT idx1,
-	const size_t *RESTRICT idx2,
-	const size_t *RESTRICT idx3,
+	const size_t *const RESTRICT idx1,
+	const size_t *const RESTRICT idx2,
+	const size_t *const RESTRICT idx3,
 	const uint64_t n,
-	double *rd_bytes,
-	double *wr_bytes,
-	double *fp_ops)
+	double *const RESTRICT rd_bytes,
+	double *const RESTRICT wr_bytes,
+	double *const RESTRICT fp_ops)
 {
 	register uint64_t i;
 	register double volatile *RESTRICT av = a;
@@ -628,9 +628,9 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline TARGET_CLONES OPTIMIZE3 void stress_stream_init_data(
-	double *RESTRICT a,
-	double *RESTRICT b,
-	double *RESTRICT c,
+	double *const RESTRICT a,
+	double *const RESTRICT b,
+	double *const RESTRICT c,
 	const uint64_t n)
 {
 	register const double divisor = 1.0 / (double)(4294967296ULL);
@@ -669,9 +669,9 @@ PRAGMA_UNROLL_N(4)
 }
 
 static double TARGET_CLONES OPTIMIZE3 stress_stream_checksum_data(
-	const double *RESTRICT a,
-	const double *RESTRICT b,
-	const double *RESTRICT c,
+	const double *const RESTRICT a,
+	const double *const RESTRICT b,
+	const double *const RESTRICT c,
 	const uint64_t n)
 {
 	double checksum = 0.0;
