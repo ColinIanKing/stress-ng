@@ -93,13 +93,184 @@ static void pipe_change_size(
 	} else {
 		if ((size_t)sz != pipe_size) {
 			pr_err("%s: cannot set desired pipe size, "
-				"pipe size=%zd, errno=%d (%s)\n",
-				args->name, sz, errno, strerror(errno));
+				"pipe %zd, defaulting to size %zd\n",
+				args->name, pipe_size, sz);
 		}
 	}
 #endif
 }
 #endif
+
+static int stress_pipe_child_read(
+	const stress_args_t *args,
+	const int fd,
+	char *buf,
+	const size_t pipe_data_size)
+{
+	int rc = 0;
+#if defined(FIONREAD)
+	register int i = 0;
+#endif
+	while (stress_continue_flag()) {
+		register ssize_t n;
+
+		n = read(fd, buf, pipe_data_size);
+		if (UNLIKELY(n <= 0)) {
+			if (n == 0)
+				break;
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			if (errno == EPIPE)
+				break;
+			if (errno) {
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = -1;
+				break;
+			}
+			rc = -1;
+			pr_fail("%s: zero bytes read\n", args->name);
+			break;
+		}
+
+#if defined(FIONREAD)
+		/* Occasionally exercise FIONREAD on read end */
+		if (UNLIKELY((i++ & 0x1ff) == 0)) {
+			int readbytes;
+
+			VOID_RET(int, ioctl(fd, FIONREAD, &readbytes));
+		}
+#endif
+	}
+	return rc;
+}
+
+static int stress_pipe_child_read_verify(
+	const stress_args_t *args,
+	const int fd,
+	char *buf,
+	const size_t pipe_data_size,
+	uint32_t val)
+{
+	int rc = 0;
+#if defined(FIONREAD)
+	register int i = 0;
+#endif
+	register uint32_t *const buf32 = (uint32_t *)buf;
+
+	while (stress_continue_flag()) {
+		register ssize_t n;
+
+		n = read(fd, buf, pipe_data_size);
+		if (UNLIKELY(n <= 0)) {
+			if (n == 0)
+				break;
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			if (errno == EPIPE)
+				break;
+			if (errno) {
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = -1;
+				break;
+			}
+			rc = -1;
+			pr_fail("%s: zero bytes read\n", args->name);
+			break;
+		}
+
+#if defined(FIONREAD)
+		/* Occasionally exercise FIONREAD on read end */
+		if (UNLIKELY((i++ & 0x1ff) == 0)) {
+			int readbytes;
+
+			VOID_RET(int, ioctl(fd, FIONREAD, &readbytes));
+		}
+#endif
+		if (UNLIKELY(*buf32 != val)) {
+			pr_fail("%s: pipe read error detected, "
+				"failed to read expected data\n", args->name);
+			rc = -1;
+			break;
+		}
+		val++;
+	}
+	return rc;
+}
+
+static int stress_pipe_parent_write(
+	const stress_args_t *args,
+	const int fd,
+	char *buf,
+	const size_t pipe_data_size,
+	uint64_t *pbytes64)
+{
+	int rc = 0;
+	register uint64_t bytes = 0;
+
+	do {
+		register ssize_t ret;
+
+		ret = write(fd, buf, pipe_data_size);
+		if (UNLIKELY(ret <= 0)) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			if (errno == EPIPE)
+				break;
+			if (errno) {
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = -1;
+				break;
+			}
+			continue;
+		}
+		stress_bogo_inc(args);
+		bytes += ret;
+	} while (stress_continue(args));
+
+	*pbytes64 = bytes;
+	return rc;
+}
+
+static int stress_pipe_parent_write_verify(
+	const stress_args_t *args,
+	const int fd,
+	char *buf,
+	const size_t pipe_data_size,
+	uint64_t *pbytes64,
+	uint32_t val)
+{
+	int rc = 0;
+	register uint32_t *const buf32 = (uint32_t *)buf;
+	register uint64_t bytes = 0;
+
+	do {
+		register ssize_t ret;
+
+		*buf32 = val++;
+		ret = write(fd, buf, pipe_data_size);
+		if (UNLIKELY(ret <= 0)) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			if (errno == EPIPE)
+				break;
+			if (errno) {
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = -1;
+				break;
+			}
+			continue;
+		}
+		stress_bogo_inc(args);
+		bytes += ret;
+	} while (stress_continue(args));
+
+	*pbytes64 = bytes;
+	return rc;
+}
 
 /*
  *  stress_pipe
@@ -108,11 +279,12 @@ static void pipe_change_size(
 static int stress_pipe(const stress_args_t *args)
 {
 	pid_t pid;
-	int pipefds[2], parent_cpu;
+	int pipefds[2], parent_cpu, rc = EXIT_SUCCESS;
 	size_t pipe_data_size = 512;
 	char *buf;
-	uint32_t *buf32, val = stress_mwc32();
-	double duration = 0.0, bytes = 0.0, rate;
+	const uint32_t val = stress_mwc32();
+	double duration = 0.0, rate;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (stress_sig_stop_stressing(args->name, SIGPIPE) < 0)
 		return EXIT_FAILURE;
@@ -126,7 +298,6 @@ static int stress_pipe(const stress_args_t *args)
 			args->name, pipe_data_size);
 		return EXIT_NO_RESOURCE;
 	}
-	buf32 = (uint32_t *)buf;
 	stress_rndbuf(buf, pipe_data_size);
 
 	(void)shim_memset(pipefds, 0, sizeof(pipefds));
@@ -181,102 +352,49 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-#if defined(FIONREAD)
-		int i = 0;
-#endif
-		const pid_t my_pid = getpid();
-		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-		register const int fd = pipefds[0];
+		int ret;
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		(void)stress_change_cpu(args, parent_cpu);
 
-		(void)stress_read_fdinfo(my_pid, pipefds[0]);
-
 		(void)close(pipefds[1]);
-		while (stress_continue_flag()) {
-			ssize_t n;
-
-			n = read(fd, buf, pipe_data_size);
-			if (UNLIKELY(n <= 0)) {
-				if (n == 0)
-					break;
-				if ((errno == EAGAIN) || (errno == EINTR))
-					continue;
-				if (errno == EPIPE)
-					break;
-				if (errno) {
-					pr_fail("%s: read failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					break;
-				}
-				pr_fail("%s: zero bytes read\n", args->name);
-				break;
-			}
-
-#if defined(FIONREAD)
-			/* Occasionally exercise FIONREAD on read end */
-			if (UNLIKELY((i++ & 0x1ff) == 0)) {
-				int readbytes;
-
-				VOID_RET(int, ioctl(pipefds[0], FIONREAD, &readbytes));
-			}
-#endif
-			if (UNLIKELY(verify)) {
-				if (UNLIKELY(*buf32 != val)) {
-					pr_fail("%s: pipe read error detected, "
-						"failed to read expected data\n", args->name);
-				}
-				val++;
-			}
-		}
+		ret = verify ?
+			stress_pipe_child_read_verify(args, pipefds[0], buf, pipe_data_size, val) :
+			stress_pipe_child_read(args, pipefds[0], buf, pipe_data_size);
 		(void)close(pipefds[0]);
 		(void)munmap((void *)buf, pipe_data_size);
-		_exit(EXIT_SUCCESS);
+		_exit((ret < 0) ? EXIT_FAILURE : EXIT_SUCCESS);
 	} else {
-		int status;
+		int status, ret;
 		double t;
-		register const int fd = pipefds[1];
+		uint64_t bytes;
 
 		/* Parent */
 		(void)close(pipefds[0]);
-
 		t = stress_time_now();
-		do {
-			register ssize_t ret;
-
-			*buf32 = val++;
-			ret = write(fd, buf, pipe_data_size);
-			if (UNLIKELY(ret <= 0)) {
-				if ((errno == EAGAIN) || (errno == EINTR))
-					continue;
-				if (errno == EPIPE)
-					break;
-				if (errno) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					break;
-				}
-				continue;
-			} else {
-				bytes += (double)ret;
-			}
-			stress_bogo_inc(args);
-		} while (stress_continue(args));
+		ret = verify ?
+			stress_pipe_parent_write_verify(args, pipefds[1], buf, pipe_data_size, &bytes, val) :
+			stress_pipe_parent_write(args, pipefds[1], buf, pipe_data_size, &bytes);
 		duration = stress_time_now() - t;
-		rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+		rate = (duration > 0.0) ? ((double)bytes / duration) / (double)MB : 0.0;
 		stress_metrics_set(args, 0, "MB per sec pipe write rate", rate);
 
 		(void)close(pipefds[1]);
 		(void)shim_kill(pid, SIGPIPE);
-		(void)shim_waitpid(pid, &status, 0);
+		if (shim_waitpid(pid, &status, 0) == 0) {
+			if (WIFEXITED(status))
+				if (WEXITSTATUS(status) != EXIT_SUCCESS)
+					rc = WEXITSTATUS(status);
+		}
 		(void)munmap((void *)buf, pipe_data_size);
+		if (ret < 0)
+			rc = EXIT_FAILURE;
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
