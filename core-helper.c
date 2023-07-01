@@ -3937,7 +3937,7 @@ void stress_unset_chattr_flags(const char *pathname)
 	if (fd < 0)
 		return;
 
-	VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, flags));
+	VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags));
 	(void)close(fd);
 
 #undef SHIM_EXT2_IMMUTABLE_FL
