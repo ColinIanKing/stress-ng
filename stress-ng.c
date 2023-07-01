@@ -799,6 +799,7 @@ static const struct option long_options[] = {
 	{ "peterson",		1,	0,	OPT_peterson },
 	{ "peterson-ops",	1,	0,	OPT_peterson_ops },
 	{ "physpage",		1,	0,	OPT_physpage },
+	{ "physpage-mtrr",	0,	0,	OPT_physpage_mtrr },
 	{ "physpage-ops",	1,	0,	OPT_physpage_ops },
 	{ "pidfd",		1,	0,	OPT_pidfd },
 	{ "pidfd-ops",		1,	0,	OPT_pidfd_ops },

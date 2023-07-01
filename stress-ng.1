@@ -3905,6 +3905,10 @@ capabilities.
 .B \-\-physpage\-ops N
 stop physpage stress workers after N bogo physical address lookups.
 .TP
+.B \-\-physpage\-mtrr
+enable setting various memory type rage register (MTRR) types on physical
+pages (Linux and x86 only).
+.TP
 .B \-\-pidfd N
 start N workers that exercise signal sending via the pidfd_send_signal system call.
 This stressor creates child processes and checks if they exist and can be

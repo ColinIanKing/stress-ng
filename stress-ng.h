@@ -1754,6 +1754,7 @@ typedef enum {
 
 	OPT_physpage,
 	OPT_physpage_ops,
+	OPT_physpage_mtrr,
 
 	OPT_pidfd,
 	OPT_pidfd_ops,

@@ -28,7 +28,18 @@
 static const stress_help_t help[] = {
 	{ NULL,	"physpage N",	  "start N workers performing physical page lookup" },
 	{ NULL,	"physpage-ops N", "stop after N physical page bogo operations" },
+	{ NULL,	"physpage-mtrr",  "enable modification of MTRR types on physical page" },
 	{ NULL,	NULL,		  NULL }
+};
+
+static int stress_set_physpage_mtrr(const char *opt)
+{
+	return stress_set_setting_true("physpage-mtrr", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_physpage_mtrr,	stress_set_physpage_mtrr },
+	{ 0,			NULL }
 };
 
 #if defined(__linux__)
@@ -123,6 +134,7 @@ static int stress_virt_to_phys(
 	const int fd_pc,
 	const int fd_mem,
 	const uintptr_t virt_addr,
+	const bool physpage_mtrr,
 	const bool writable,
 	bool *success)
 {
@@ -216,7 +228,8 @@ static int stress_virt_to_phys(
     defined(HAVE_MTRR_GENTRY) &&	\
     defined(HAVE_MTRR_SENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
-		stress_physpage_mtrr(args, phys_addr, page_size, success);
+		if (UNLIKELY(physpage_mtrr))
+			stress_physpage_mtrr(args, phys_addr, page_size, success);
 #else
 		(void)success;
 #endif
@@ -242,6 +255,9 @@ static int stress_physpage(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	uint8_t *ptr = NULL;
 	bool success = true;
+	bool physpage_mtrr = false;
+
+	(void)stress_get_setting("physpage-mtrr", &physpage_mtrr);
 
 	fd_pm = open("/proc/self/pagemap", O_RDONLY);
 	if (fd_pm < 0) {
@@ -276,9 +292,11 @@ static int stress_physpage(const stress_args_t *args)
 		nptr = mmap(ptr, page_size, PROT_READ | PROT_WRITE,
 			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (nptr != MAP_FAILED) {
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)nptr, true, &success);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem,
+				(uintptr_t)nptr, physpage_mtrr, true, &success);
 			(void)munmap(nptr, page_size);
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)g_shared->stats, false, &success);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem,
+				(uintptr_t)g_shared->stats, physpage_mtrr, false, &success);
 
 		}
 		ptr += page_size;
@@ -299,6 +317,7 @@ static int stress_physpage(const stress_args_t *args)
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
+	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -306,6 +325,7 @@ stressor_info_t stress_physpage_info = {
 #else
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_unimplemented,
+	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
