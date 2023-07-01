@@ -62,7 +62,7 @@ static int stress_wait_until_reaped(
 
 	for (;;) {
 		pid_t ret;
-		int wstatus;
+		int wstatus = 0;
 
 		errno = 0;
 		ret = waitpid(pid, &wstatus, 0);
