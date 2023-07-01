@@ -965,8 +965,8 @@ stop the chroot workers after N bogo chroot(2) operations.
 .B \-\-clock N
 start N workers exercising clocks and POSIX timers. For all known clock types
 this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2).
-For all known timers it will create a 50000ns timer and busy poll this until
-it expires.  This stressor will cause frequent context switching.
+For all known timers it will create a random duration timer and busy poll this
+until it expires. This stressor will cause frequent context switching.
 .TP
 .B \-\-clock\-ops N
 stop clock stress workers after N bogo operations.
