@@ -280,7 +280,7 @@ static int stress_pipe(const stress_args_t *args)
 {
 	pid_t pid;
 	int pipefds[2], parent_cpu, rc = EXIT_SUCCESS;
-	size_t pipe_data_size = 512;
+	size_t pipe_data_size = 4096;
 	char *buf;
 	const uint32_t val = stress_mwc32();
 	double duration = 0.0, rate;

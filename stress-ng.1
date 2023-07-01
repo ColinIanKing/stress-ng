@@ -3940,8 +3940,8 @@ pipe writer and pipe reader processes. Default size is the page size.
 specifies the size of the pipe in bytes (for systems that support the
 F_SETPIPE_SZ fcntl() command). Setting a small pipe size will cause the pipe
 to fill and block more frequently, hence increasing the context switch rate
-between the pipe writer and the pipe reader processes. Default size is 512
-bytes.
+between the pipe writer and the pipe reader processes. As of version 0.15.11 the
+default size is 4096 bytes.
 .TP
 .B \-\-pipeherd N
 start N workers that pass a 64 bit token counter to/from 100 child processes
