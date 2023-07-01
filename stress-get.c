@@ -219,19 +219,6 @@ static int stress_get(const stress_args_t *args)
 			if (!stress_continue_flag())
 				break;
 		}
-
-#if defined(HAVE_SWAPCONTEXT) &&        \
-    defined(HAVE_UCONTEXT_H)
-		{
-			ucontext_t context;
-
-			VOID_RET(int, getcontext(&context));
-			if (!stress_continue_flag())
-				break;
-		}
-#else
-		UNEXPECTED
-#endif
 #else
 		UNEXPECTED
 #endif
