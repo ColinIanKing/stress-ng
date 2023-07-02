@@ -32,6 +32,7 @@ bpf
 brk				bigheap, brk
 
 cacheflush			cache
+cachestat			iomix
 capget				cap
 capset				cap
 chdir				chdir

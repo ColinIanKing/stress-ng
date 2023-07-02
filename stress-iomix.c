@@ -915,6 +915,82 @@ static void stress_iomix_sendfile(
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(__NR_cachestat)
+struct shim_cachestat_range {
+	uint64_t off;
+	uint64_t len;
+};
+
+struct shim_cachestat {
+	uint64_t nr_cache;
+	uint64_t nr_dirty;
+	uint64_t nr_writeback;
+	uint64_t nr_evicted;
+	uint64_t nr_recently_evicted;
+};
+
+/*
+ *  shim_cachestat
+ *	wrapper for cachestat system call
+ */
+static inline int shim_cachestat(
+	int fd,
+	struct shim_cachestat_range *cstat_range,
+	struct shim_cachestat *cstat,
+	unsigned int flags)
+{
+	return (int)syscall(__NR_cachestat, (unsigned long)fd,
+			(unsigned long)cstat_range,
+			(unsigned long)cstat,
+			(unsigned long)flags);
+}
+
+/*
+ *  stress_iomix_cachestat()
+ *	various periodic cache statistics calls (linux only)
+ */
+static void stress_iomix_cachestat(
+	const stress_args_t *args,
+	const int fd,
+	const char *fs_type,
+	const off_t iomix_bytes)
+{
+	(void)fs_type;
+	(void)iomix_bytes;
+
+	do {
+		struct stat buf;
+
+		if (fstat(fd, &buf) == 0) {
+			struct shim_cachestat_range cstat_range;
+			struct shim_cachestat cstat;
+
+			cstat_range.off = (uint64_t)0ULL;
+			cstat_range.len = (uint64_t)buf.st_size;
+			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, 0));
+
+			cstat_range.off = (uint64_t)0ULL;
+			cstat_range.len = (uint64_t)512;
+			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, 0));
+
+			cstat_range.off = (uint64_t)buf.st_size;
+			cstat_range.len = (uint64_t)512;
+			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, 0));
+
+			cstat_range.off = (uint64_t)0ULL;
+			cstat_range.len = (uint64_t)0ULL;
+			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, 0));
+
+			cstat_range.off = (uint64_t)0ULL;
+			cstat_range.len = (uint64_t)iomix_bytes;
+			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, 0));
+		}
+		(void)shim_usleep(50000);
+	} while (stress_bogo_inc_lock(args, counter_lock, true));
+}
+#endif
+
 static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_wr_seq_bursts,
 	stress_iomix_wr_rnd_bursts,
@@ -944,6 +1020,10 @@ static stress_iomix_func iomix_funcs[] = {
 #if defined(HAVE_SYS_SENDFILE_H) &&	\
     defined(HAVE_SENDFILE)
 	stress_iomix_sendfile,
+#endif
+#if defined(__linux__) &&	\
+    defined(__NR_cachestat)
+	stress_iomix_cachestat,
 #endif
 };
 
