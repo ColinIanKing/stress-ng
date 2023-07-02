@@ -3144,6 +3144,8 @@ extern int shim_sched_yield(void);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 	unsigned long maxnode);
+extern int shim_set_mempolicy_home_node(unsigned long start, unsigned long len,
+        unsigned long home_node, unsigned long flags);
 extern int shim_setgroups(int size, const gid_t *list);
 extern int shim_setxattr(const char *path, const char *name, const void *value,
 	size_t size, int flags);

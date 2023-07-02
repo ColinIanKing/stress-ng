@@ -2567,3 +2567,21 @@ int shim_kill(pid_t pid, int sig)
 	}
 	return kill(pid, sig);
 }
+
+/*
+ *  shim_set_mempolicy_home_node()
+ *	wrapper for NUMA system call set_mempolicy_home_node()
+ */
+int shim_set_mempolicy_home_node(
+        unsigned long start,
+        unsigned long len,
+        unsigned long home_node,
+        unsigned long flags)
+{
+#if defined(__NR_set_mempolicy_home_node)
+        return (int)syscall(__NR_set_mempolicy_home_node, start, len, home_node, flags);
+#else
+	return shim_enosys(0, start, len, home_node, flags);
+#endif
+}
+

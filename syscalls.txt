@@ -317,6 +317,7 @@ sendmmsg			sock
 sendmsg				sock
 sendto				udp
 set_mempolicy			numa
+set_mempolicy_home_node		numa
 set_robust_list			pthread
 set_thread_area			pthread
 set_tid_address			pthread

@@ -449,10 +449,24 @@ static int stress_numa(const stress_args_t *args)
 				goto err;
 			}
 		} else {
+			(void)shim_set_mempolicy_home_node((unsigned long)buf,
+				(unsigned long)MMAP_SZ, n->node_id, 0);
 			(void)shim_memset(buf, 0xaa, MMAP_SZ);
 		}
 		if (!stress_continue_flag())
 			break;
+
+		/*
+		 *  exericse set_mempolicy_home_node
+		 */
+		(void)shim_set_mempolicy_home_node((unsigned long)buf,
+				(unsigned long)MMAP_SZ, max_nodes - 1, 0);
+		(void)shim_set_mempolicy_home_node((unsigned long)buf,
+				(unsigned long)MMAP_SZ, 1, 0);
+		(void)shim_set_mempolicy_home_node((unsigned long)buf,
+				(unsigned long)0, n->node_id, 0);
+		(void)shim_set_mempolicy_home_node((unsigned long)buf,
+				(unsigned long)MMAP_SZ, n->node_id, 0);
 
 		/*
 		 *  mbind the buffer, now try MPOL_DEFAULT
@@ -468,6 +482,8 @@ static int stress_numa(const stress_args_t *args)
 				goto err;
 			}
 		} else {
+			(void)shim_set_mempolicy_home_node((unsigned long)buf,
+				(unsigned long)MMAP_SZ, n->node_id, 0);
 			(void)shim_memset(buf, 0x5c, MMAP_SZ);
 		}
 		if (!stress_continue_flag())
