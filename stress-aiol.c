@@ -644,6 +644,7 @@ retry_open:
 				VOID_RET(int, shim_io_cancel(bad_ctx, &cb[0], &event));
 
 				/* Exercise with io_invalid iocb */
+				(void)shim_memset(&bad_iocb, 0, sizeof(bad_iocb));
 				bad_iocb.aio_fildes = bad_fd;
 				bad_iocb.aio_lio_opcode = ~0;
 				bad_iocb.u.c.buf = NULL;
@@ -685,6 +686,7 @@ retry_open:
 					shim_io_destroy(bad_ctx);
 
 				/* Exercise io_submit with illegal context */
+				(void)shim_memset(&bad_iocb, 0, sizeof(bad_iocb));
 				bad_iocb.aio_fildes = bad_fd;
 				bad_iocb.aio_lio_opcode = ~0;
 				bad_iocb.u.c.buf = NULL;
