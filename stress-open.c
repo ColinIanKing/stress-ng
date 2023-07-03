@@ -28,7 +28,7 @@
 #include <utime.h>
 #endif
 
-typedef int (*stress_open_func_t)(const stress_args_t *args, const pid_t pid, double *duration, double *count);
+typedef int (*stress_open_func_t)(const stress_args_t *args, const char *temp_dir, const pid_t pid, double *duration, double *count);
 
 static const stress_help_t help[] = {
 	{ "o N", "open N",		"start N workers exercising open/close" },
@@ -340,6 +340,7 @@ static inline int open_arg3(
 #if defined(O_CREAT)
 static int open_flag_perm(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -352,8 +353,8 @@ static int open_flag_perm(
 
 	(void)args;
 
-	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
-		(intmax_t)pid, stress_mwc32());
+	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
+		temp_dir, (intmax_t)pid, stress_mwc32());
 
 	if (UNLIKELY((open_count == 0) || (!open_perms))) {
 		fd = open_arg3(filename, O_CREAT | O_RDWR, mode, duration, count);
@@ -392,6 +393,7 @@ static int open_flag_perm(
 
 static int open_dev_zero_rd(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -399,6 +401,7 @@ static int open_dev_zero_rd(
 	int flags = 0;
 
 	(void)args;
+	(void)temp_dir,
 	(void)pid;
 
 #if defined(O_ASYNC)
@@ -427,6 +430,7 @@ static int open_dev_zero_rd(
 
 static int open_dev_null_wr(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -434,6 +438,7 @@ static int open_dev_null_wr(
 	int flags = 0;
 
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 #if defined(O_ASYNC)
@@ -466,13 +471,15 @@ static int open_dev_null_wr(
 #if defined(O_TMPFILE)
 static int open_tmp_rdwr(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
 {
-	int flags = 0;
+	int flags = O_TMPFILE;
 
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 #if defined(O_TRUNC)
@@ -496,11 +503,13 @@ static int open_tmp_rdwr(
 #if defined(O_TMPFILE)
 static int open_tmpfile_no_rdwr(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
 {
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 	/* Force -EINVAL, need O_WRONLY or O_RDWR to succeed */
@@ -513,11 +522,13 @@ static int open_tmpfile_no_rdwr(
     defined(N_NOCTTY)
 static int open_pt(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
 {
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 	return posix_openpt(O_RDWR | O_NOCTTY);
@@ -528,11 +539,13 @@ static int open_pt(
     defined(O_EXCL)
 static int open_tmp_rdwr_excl(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
 {
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 	return open_arg3("/tmp", O_TMPFILE | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR, duration, count);
@@ -542,6 +555,7 @@ static int open_tmp_rdwr_excl(
 #if defined(O_DIRECTORY)
 static int open_dir(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -549,7 +563,7 @@ static int open_dir(
 	(void)args;
 	(void)pid;
 
-	return open_arg2(".", O_DIRECTORY | O_RDONLY, duration, count);
+	return open_arg2(temp_dir, O_DIRECTORY | O_RDONLY, duration, count);
 }
 #endif
 
@@ -557,11 +571,13 @@ static int open_dir(
     defined(__linux__)
 static int open_dir_proc_self_fd(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
 {
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 	return open_arg2("/proc/self/fd", O_DIRECTORY | O_RDONLY, duration, count);
@@ -571,6 +587,7 @@ static int open_dir_proc_self_fd(
 #if defined(O_PATH)
 static int open_path(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -578,13 +595,14 @@ static int open_path(
 	(void)args;
 	(void)pid;
 
-	return open_arg2(".", O_DIRECTORY | O_PATH, duration, count);
+	return open_arg2(temp_dir, O_DIRECTORY | O_PATH, duration, count);
 }
 #endif
 
 #if defined(O_CREAT)
 static int open_create_eisdir(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -592,7 +610,7 @@ static int open_create_eisdir(
 	(void)args;
 	(void)pid;
 
-	return open_arg3(".", O_CREAT, S_IRUSR | S_IWUSR, duration, count);
+	return open_arg3(temp_dir, O_CREAT, S_IRUSR | S_IWUSR, duration, count);
 }
 #endif
 
@@ -600,6 +618,7 @@ static int open_create_eisdir(
     defined(O_CREAT)
 static int open_direct(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -608,8 +627,8 @@ static int open_direct(
 	int fd;
 	double t;
 
-	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
-		(intmax_t)pid, stress_mwc32());
+	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
+		temp_dir, (intmax_t)pid, stress_mwc32());
 
 	t = stress_time_now();
 	fd = open(filename, O_RDWR | O_CREAT | O_TRUNC | O_DIRECT, S_IRUSR | S_IWUSR);
@@ -636,6 +655,7 @@ static int open_direct(
     defined(O_CREAT)
 static int open_with_openat_cwd(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -655,8 +675,8 @@ static int open_with_openat_cwd(
 	if (chdir(temp_path) < 0)
 		return -1;
 
-	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
-		(intmax_t)pid, stress_mwc32());
+	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
+		temp_dir, (intmax_t)pid, stress_mwc32());
 
 	t = stress_time_now();
 	fd = openat(AT_FDCWD, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
@@ -690,6 +710,7 @@ static int open_with_openat_cwd(
     defined(O_CREAT)
 static int open_with_openat_dir_fd(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -702,7 +723,7 @@ static int open_with_openat_dir_fd(
 	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
 		(intmax_t)pid, stress_mwc32());
 
-	dir_fd = open_arg2(".", O_DIRECTORY | O_PATH, duration, count);
+	dir_fd = open_arg2(temp_dir, O_DIRECTORY | O_PATH, duration, count);
 	if (dir_fd < 0)
 		return -1;
 
@@ -724,6 +745,7 @@ static int open_with_openat_dir_fd(
     defined(O_CREAT)
 static int open_with_openat2_cwd(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -753,7 +775,6 @@ static int open_with_openat2_cwd(
 
 	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
-	const char *temp_path = stress_get_temp_path();
 	int fd = -1;
 	size_t i = 0;
 	static size_t j;
@@ -761,11 +782,9 @@ static int open_with_openat2_cwd(
 
 	(void)args;
 
-	if (!temp_path)
-		return -1;
 	if (!getcwd(cwd, sizeof(cwd)))
 		return -1;
-	if (chdir(temp_path) < 0)
+	if (chdir(temp_dir) < 0)
 		return -1;
 	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
 		(intmax_t)pid, stress_mwc32());
@@ -811,6 +830,7 @@ static int open_with_openat2_cwd(
 #if defined(__linux__)
 static int open_with_open_proc_self_fd(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -819,6 +839,7 @@ static int open_with_open_proc_self_fd(
 	double t;
 
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 	t = stress_time_now();
@@ -833,6 +854,7 @@ static int open_with_open_proc_self_fd(
 
 static int open_dup(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -841,6 +863,7 @@ static int open_dup(
 	double t;
 
 	(void)args;
+	(void)temp_dir;
 	(void)pid;
 
 	t = stress_time_now();
@@ -856,6 +879,7 @@ static int open_dup(
     defined(O_TRUNC)
 static int open_rdonly_trunc(
 	const stress_args_t *args,
+	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -865,8 +889,8 @@ static int open_rdonly_trunc(
 
 	(void)args;
 
-	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
-		(intmax_t)pid, stress_mwc32());
+	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
+		temp_dir, (intmax_t)pid, stress_mwc32());
 
 	fd = open_arg3(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, duration, count);
 	if (fd < 0)
@@ -982,8 +1006,8 @@ static void stress_fd_dir(const char *path, double *duration, double *count)
  */
 static int stress_open(const stress_args_t *args)
 {
-	int *fds;
-	char path[PATH_MAX];
+	int *fds, ret;
+	char path[PATH_MAX], temp_dir[PATH_MAX];
 	const size_t max_size = (size_t)-1;
 	size_t open_max = stress_get_max_file_limit();
 	size_t i, sz;
@@ -1000,6 +1024,11 @@ static int stress_open(const stress_args_t *args)
 	 */
 	if (sizeof(void *) == 4)
 		open_max = STRESS_MINIMUM(open_max, 65536);
+
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return stress_exit_status(-ret);
+	(void)stress_temp_dir_args(args, temp_dir, sizeof(temp_dir));
 
 	(void)stress_get_setting("open-max", &open_max);
 	(void)stress_get_setting("open-fd", &open_fd);
@@ -1057,7 +1086,7 @@ static int stress_open(const stress_args_t *args)
 				}
 
 				idx = stress_mwc32modn(SIZEOF_ARRAY(open_funcs));
-				fds[i] = open_funcs[idx](args, mypid, &duration, &count);
+				fds[i] = open_funcs[idx](args, temp_dir, mypid, &duration, &count);
 
 				if (fds[i] >= 0)
 					break;
@@ -1102,6 +1131,7 @@ close_all:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)stress_temp_dir_rm_args(args);
 	(void)munmap((void *)fds, sz);
 	if (open_perms)
 		free(open_perms);
