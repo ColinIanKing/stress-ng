@@ -3336,7 +3336,11 @@ static inline long stress_min_aux_sig_stack_size(void)
 size_t stress_sig_stack_size(void)
 {
 	static long sz = -1;
-	long min, tmp;
+	long min;
+#if defined(_SC_SIGSTKSZ) ||	\
+    defined(SIGSTKSZ)
+	long tmp;
+#endif
 
 	/* return cached copy */
 	if (sz > 0)
@@ -3364,7 +3368,11 @@ size_t stress_sig_stack_size(void)
 size_t stress_min_sig_stack_size(void)
 {
 	static long sz = -1;
-	long min, tmp;
+	long min;
+#if defined(_SC_MINSIGSTKSZ) ||	\
+    defined(SIGSTKSZ)
+	long tmp;
+#endif
 
 	/* return cached copy */
 	if (sz > 0)
