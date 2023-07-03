@@ -704,12 +704,6 @@ typedef struct stressor_info {
 #define UNLIKELY(x)	(x)
 #endif
 
-#if defined(HAVE_BUILTIN_MEMMOVE)
-#define shim_builtin_memmove		__builtin_memmove
-#else
-#define shim_builtin_memmove		memmove
-#endif
-
 /* use syscall if we can, fallback to vfork otherwise */
 #define shim_vfork()		g_shared->vfork()
 
