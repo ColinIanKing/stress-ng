@@ -176,7 +176,7 @@ typedef int (*atomic_func_t)(const stress_args_t *args, double *duration, double
 do {									\
 	double t;							\
 	type tmp = (type)stress_mwc64();				\
-	type unshared, check1 = tmp, check2;				\
+	type unshared, check1 = tmp, check2 = ~tmp;			\
 									\
 	t = stress_time_now();						\
 	SHIM_ATOMIC_STORE(&unshared, &check1, __ATOMIC_RELAXED);	\
