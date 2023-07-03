@@ -958,8 +958,7 @@ static void stress_get_cpu_ghz(
 			(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
 			freq = (double)stress_bsd_getsysctl_uint(name) * ONE_THOUSANDTH;
 		}
-#endif
-#if defined(__APPLE__)
+#elif defined(__APPLE__)
 		freq = (double)stress_bsd_getsysctl_uint64("hw.cpufrequency") * ONE_BILLIONTH;
 #endif
 		if (freq >= 0.0) {
