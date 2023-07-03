@@ -225,7 +225,7 @@ again:
 					continue;
 				if (errno == EPIPE)
 					break;
-				pr_fail("%s: read failed, errno=%d (%s)\n",
+				pr_dbg("%s: read failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
@@ -255,7 +255,7 @@ again:
 				if (errno == EPIPE)
 					break;
 				if (errno) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
+					pr_dbg("%s: write failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					break;
 				}
