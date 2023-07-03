@@ -390,14 +390,13 @@ STRESS_PRAGMA_POP
 			/* Exercise huge filename, ENAMETOOLONG */
 			VOID_RET(int, shim_utime(hugename, &utbuf));
 		}
-#else
-		UNEXPECTED
-#endif
 		/* forces metadata writeback */
 		if (utime_fsync) {
 			VOID_RET(int, shim_fsync(fd));
 		}
-
+#else
+		UNEXPECTED
+#endif
 		if (metrics_count++ > 1000)
 			metrics_count = 0;
 		stress_bogo_inc(args);
