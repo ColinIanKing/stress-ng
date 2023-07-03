@@ -382,7 +382,7 @@ static void stress_fp_call_method(
 	func->duration += dt;
 	func->ops += (FP_ELEMENTS * LOOPS_PER_CALL);
 
-	if ((method > 0) && verify) {
+	if ((method > 0) && (method < SIZEOF_ARRAY(stress_fp_funcs)) && verify) {
 		register size_t i;
 		const int fp_type = stress_fp_funcs[method].fp_type;
 		const char *method_name = stress_fp_funcs[method].name;
