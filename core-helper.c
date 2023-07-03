@@ -3645,7 +3645,7 @@ const char *stress_fs_type(const char *filename)
 	if (statfs(filename, &buf) != 0)
 		return "";
 	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
-		stress_fs_magic_to_name((unsigned long)buf.f_type), (intmax_t)buf.f_bavail);
+		stress_fs_magic_to_name((unsigned long)buf.f_type), (uintmax_t)buf.f_bavail);
 	return tmp;
 #elif (defined(__FreeBSD__) &&		\
        defined(HAVE_SYS_MOUNT_H) &&	\
