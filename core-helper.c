@@ -3955,3 +3955,27 @@ void stress_unset_chattr_flags(const char *pathname)
 	(void)pathname;
 #endif
 }
+
+/*
+ *  stress_munmap_retry_enomem()
+ *	retry munmap on ENOMEM errors as these can be due
+ *	to low memory not allowing memory to be released
+ */
+int stress_munmap_retry_enomem(void *addr, size_t length)
+{
+	int ret, i;
+
+	for (i = 1; i <= 10; i++) {
+		int saved_errno;
+
+		ret = munmap(addr, length);
+		if (LIKELY(ret == 0))
+			break;
+		if (errno != ENOMEM)
+			break;
+		saved_errno = errno;
+		shim_usleep(10000 * i);
+		errno = saved_errno;
+	}
+	return ret;
+}

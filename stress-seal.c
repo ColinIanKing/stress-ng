@@ -166,12 +166,12 @@ static int stress_seal(const stress_args_t *args)
 		if (UNLIKELY((ret == 0) || ((ret < 0) && (errno != EBUSY)))) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_WRITE did not fail with EBUSY as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)munmap(ptr, (size_t)sz);
+			(void)stress_munmap_retry_enomem(ptr, (size_t)sz);
 			(void)close(fd);
 			goto err;
 		}
 		(void)shim_msync(ptr, page_size, MS_SYNC);
-		(void)munmap(ptr, (size_t)sz);
+		(void)stress_munmap_retry_enomem(ptr, (size_t)sz);
 
 		/*
 		 *  Now write seal the file, no more writes allowed

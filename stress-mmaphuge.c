@@ -190,14 +190,14 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 				*buf = stress_mwc8();
 				*end_page = stress_mwc8();
 				/* Unmapping small page may fail on huge pages */
-				ret = munmap((void *)end_page, page_size);
+				ret = stress_munmap_retry_enomem((void *)end_page, page_size);
 				if (ret == 0)
-					ret = munmap((void *)buf, sz - page_size);
+					ret = stress_munmap_retry_enomem((void *)buf, sz - page_size);
 				if (ret != 0)
-					(void)munmap((void *)buf, sz);
+					(void)stress_munmap_retry_enomem((void *)buf, sz);
 			} else {
 				*buf = stress_mwc8();
-				(void)munmap((void *)buf, sz);
+				(void)stress_munmap_retry_enomem((void *)buf, sz);
 			}
 			bufs[i].buf = MAP_FAILED;
 		}

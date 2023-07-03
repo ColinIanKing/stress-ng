@@ -341,7 +341,7 @@ static void stress_mmap_invalid(
 
 	ptr = mmap(addr, length, prot, flags, fd, offset);
 	if (ptr != MAP_FAILED)
-		(void)munmap(ptr, length);
+		(void)stress_munmap_retry_enomem(ptr, length);
 
 #if defined(__NR_mmap) &&	\
     defined(HAVE_SYSCALL)
@@ -351,12 +351,12 @@ static void stress_mmap_invalid(
 	 */
 	ptr = (void *)(uintptr_t)syscall(__NR_mmap, addr, length, prot, flags, fd, offset + 1);
 	if (ptr != MAP_FAILED)
-		(void)munmap(ptr, length);
+		(void)stress_munmap_retry_enomem(ptr, length);
 #endif
 	/* Do the above via libc */
 	ptr = mmap(addr, length, prot, flags, fd, offset + 1);
 	if (ptr != MAP_FAILED)
-		(void)munmap(ptr, length);
+		(void)stress_munmap_retry_enomem(ptr, length);
 }
 
 /*
@@ -579,12 +579,12 @@ retry:
 				(void)stress_madvise_random(mappings[page], page_size);
 				stress_mmap_mprotect(args->name, mappings[page],
 					page_size, page_size, context->mmap_mprotect);
-				(void)munmap((void *)mappings[page], page_size);
+				(void)stress_munmap_retry_enomem((void *)mappings[page], page_size);
 			}
 			if (!stress_continue_flag())
 				goto cleanup;
 		}
-		(void)munmap((void *)buf, sz);
+		(void)stress_munmap_retry_enomem((void *)buf, sz);
 #if defined(MAP_FIXED)
 
 		/*
@@ -649,7 +649,7 @@ cleanup:
 				(void)stress_madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(args->name, mappings[n],
 					page_size, page_size, context->mmap_mprotect);
-				(void)munmap((void *)mappings[n], page_size);
+				(void)stress_munmap_retry_enomem((void *)mappings[n], page_size);
 			}
 		}
 
@@ -660,8 +660,8 @@ cleanup:
 		 */
 		for (n = 0; n < pages; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
-				(void)munmap((void *)mappings[n], 0);
-				(void)munmap((void *)mappings[n], page_size);
+				(void)stress_munmap_retry_enomem((void *)mappings[n], 0);
+				(void)stress_munmap_retry_enomem((void *)mappings[n], page_size);
 				break;
 			}
 		}
@@ -702,7 +702,7 @@ cleanup:
 
 			buf = (uint8_t *)mmap(NULL, rnd_sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (buf != MAP_FAILED)
-				(void)munmap((void *)buf, rnd_sz);
+				(void)stress_munmap_retry_enomem((void *)buf, rnd_sz);
 		}
 
 		/*
@@ -721,7 +721,7 @@ cleanup:
 			buf = (uint8_t *)mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
 			if (buf != MAP_FAILED) {
 				stress_set_vma_anon_name((void *)buf, page_size, mmap_name);
-				(void)munmap((void *)buf, page_size);
+				(void)stress_munmap_retry_enomem((void *)buf, page_size);
 			}
 			if (tmpfd >= 0)
 				(void)close(tmpfd);
@@ -753,7 +753,7 @@ cleanup:
 						args->name, *buf64, val);
 				}
 			}
-			(void)munmap((void *)buf64, page_size);
+			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
 		}
 #endif
 #if defined(HAVE_MPROTECT)
@@ -770,7 +770,7 @@ cleanup:
 				pr_fail("%s: cannot set read-only page to write-only, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			(void)munmap((void *)buf64, page_size);
+			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
 		}
 #endif
 		stress_bogo_inc(args);

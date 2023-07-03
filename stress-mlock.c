@@ -421,7 +421,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				 */
 				VOID_RET(int, shim_munlock((void *)((uint8_t *)addr + page_size), 0));
 			}
-			(void)munmap((void *)addr, page_size * 3);
+			(void)stress_munmap_retry_enomem((void *)addr, page_size * 3);
 		}
 
 		for (n = 0; n < max; n++) {
@@ -438,7 +438,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		(void)shim_munlockall();
 #endif
 		for (i = 0; i < n; i++)
-			(void)munmap((void *)mappings[i], page_size);
+			(void)stress_munmap_retry_enomem((void *)mappings[i], page_size);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -3064,12 +3064,12 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 
 		if (!vm_keep) {
 			(void)stress_madvise_random(buf, buf_sz);
-			(void)munmap(buf, buf_sz);
+			(void)stress_munmap_retry_enomem(buf, buf_sz);
 		}
 	} while (stress_continue_vm(args));
 
 	if (vm_keep && (buf != NULL))
-		(void)munmap((void *)buf, buf_sz);
+		(void)stress_munmap_retry_enomem((void *)buf, buf_sz);
 
 	return rc;
 }

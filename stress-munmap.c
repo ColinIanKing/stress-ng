@@ -91,7 +91,7 @@ static void stress_munmap_range(
 		double t;
 
 		t = stress_time_now();
-		if (munmap(addr, page_size) == 0) {
+		if (stress_munmap_retry_enomem(addr, page_size) == 0) {
 			unsigned char vec[1];
 
 			ctxt->duration += stress_time_now() - t;

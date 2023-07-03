@@ -75,7 +75,7 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
 	if (addr == MAP_FAILED)
 		return NULL;
 
-	(void)munmap(addr, sz);
+	(void)stress_munmap_retry_enomem(addr, sz);
 
 	/*
 	 * At this point, we know that we can remap to this addr
@@ -123,7 +123,7 @@ static int try_remap(
 		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
 #endif
 		if (!stress_continue_flag()) {
-			(void)munmap(*buf, old_sz);
+			(void)stress_munmap_retry_enomem(*buf, old_sz);
 			*buf = 0;
 			return 0;
 		}
@@ -162,7 +162,7 @@ static int try_remap(
 				}
 
 				if (*buf)
-					(void)munmap(*buf, new_sz);
+					(void)stress_munmap_retry_enomem(*buf, new_sz);
 				*buf = newbuf;
 			}
 #endif
@@ -260,7 +260,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 				pr_fail("%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
 					args->name, sz);
-				(void)munmap(buf, new_sz);
+				(void)stress_munmap_retry_enomem(buf, new_sz);
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
@@ -270,7 +270,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		new_sz >>= 1;
 		while (new_sz > page_size) {
 			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0) {
-				(void)munmap(buf, old_sz);
+				(void)stress_munmap_retry_enomem(buf, old_sz);
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
@@ -283,7 +283,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 						"of %zu bytes does "
 						"not contain expected data\n",
 						args->name, sz);
-					(void)munmap(buf, new_sz);
+					(void)stress_munmap_retry_enomem(buf, new_sz);
 					ret = EXIT_FAILURE;
 					goto deinit;
 				}
@@ -295,7 +295,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		new_sz <<= 1;
 		while (new_sz < mremap_bytes) {
 			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock, &duration, &count) < 0) {
-				(void)munmap(buf, old_sz);
+				(void)stress_munmap_retry_enomem(buf, old_sz);
 				ret = EXIT_FAILURE;
 				goto deinit;
 			}
@@ -319,7 +319,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		if (ptr && (ptr != MAP_FAILED))
 			buf = ptr;
 #endif
-		(void)munmap(buf, old_sz);
+		(void)stress_munmap_retry_enomem(buf, old_sz);
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));

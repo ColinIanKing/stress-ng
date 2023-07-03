@@ -196,7 +196,7 @@ redo:
 			count += 1.0;
 		}
 #endif
-		if (munmap((void *)ptr, page_size) < 0) {
+		if (stress_munmap_retry_enomem((void *)ptr, page_size) < 0) {
 			pr_err("%s: munmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
@@ -227,7 +227,7 @@ next:
 						count += 1.0;
 					}
 #endif
-					(void)munmap((void *)ptr, page_size);
+					(void)stress_munmap_retry_enomem((void *)ptr, page_size);
 				}
 			}
 		}

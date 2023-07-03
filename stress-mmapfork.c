@@ -190,7 +190,7 @@ static int stress_mmapfork(const stress_args_t *args)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = MMAPFORK_SEGV_MUNMAP;
-					(void)munmap(ptr, len);
+					(void)stress_munmap_retry_enomem(ptr, len);
 				}
 				_exit(EXIT_SUCCESS);
 			}

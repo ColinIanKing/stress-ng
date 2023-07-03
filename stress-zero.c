@@ -195,7 +195,7 @@ static int stress_zero(const stress_args_t *args)
 				pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
 					args->name, mmap_flags[i].flag_str);
 			}
-			(void)munmap(ptr, page_size);
+			(void)stress_munmap_retry_enomem(ptr, page_size);
 		}
 #endif
 		/*

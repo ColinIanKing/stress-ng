@@ -336,7 +336,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 				if (mappings[page].state == PAGE_MAPPED) {
 					mappings[page].state = 0;
 					(void)stress_madvise_random(mappings[page].addr, page_size);
-					(void)munmap((void *)mappings[page].addr, page_size);
+					(void)stress_munmap_retry_enomem((void *)mappings[page].addr, page_size);
 					n--;
 					break;
 				}
@@ -344,7 +344,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 					goto cleanup;
 			}
 		}
-		(void)munmap((void *)buf, sz);
+		(void)stress_munmap_retry_enomem((void *)buf, sz);
 #if defined(MAP_FIXED)
 		/*
 		 *  Step #2, map them back in random order
@@ -396,7 +396,7 @@ cleanup:
 		for (n = 0; n < pages; n++) {
 			if (mappings[n].state & PAGE_MAPPED) {
 				(void)stress_madvise_random(mappings[n].addr, page_size);
-				(void)munmap((void *)mappings[n].addr, page_size);
+				(void)stress_munmap_retry_enomem((void *)mappings[n].addr, page_size);
 			}
 		}
 		stress_bogo_inc(args);

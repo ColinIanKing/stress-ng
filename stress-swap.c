@@ -381,7 +381,7 @@ static int stress_swap(const stress_args_t *args)
 						args->name, (void *)p, *up, (uintptr_t)p);
 				}
 			}
-			(void)munmap(ptr, mmap_size);
+			(void)stress_munmap_retry_enomem(ptr, mmap_size);
 		}
 
 		ret = stress_swapoff(filename);
