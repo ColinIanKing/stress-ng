@@ -717,11 +717,12 @@ static int open_with_openat_dir_fd(
 {
 	char filename[PATH_MAX];
 	int fd, dir_fd;
+	const uint32_t rnd32 = stress_mwc32();
 
 	(void)args;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%" PRIdMAX "-%" PRIu32,
-		(intmax_t)pid, stress_mwc32());
+		(intmax_t)pid, rnd32);
 
 	dir_fd = open_arg2(temp_dir, O_DIRECTORY | O_PATH, duration, count);
 	if (dir_fd < 0)
@@ -730,6 +731,8 @@ static int open_with_openat_dir_fd(
 	fd = openat(dir_fd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd >= 0) {
 		(void)obsolete_futimesat(dir_fd, filename, NULL);
+		(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
+			temp_dir, (intmax_t)pid, rnd32);
 		(void)shim_unlink(filename);
 	}
 	(void)close(dir_fd);
