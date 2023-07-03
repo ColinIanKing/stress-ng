@@ -189,7 +189,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 	/* Child */
 	stress_mwc_reseed();
 
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 	stress_process_dumpable(false);
 	(void)sched_settings_apply(true);
 
@@ -302,7 +302,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 	int tmp_fd;
 #endif
 	stress_minsigstksz = STRESS_MINSIGSTKSZ;
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	stack = mmap(NULL, stress_minsigstksz, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);

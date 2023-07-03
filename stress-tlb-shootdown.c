@@ -247,7 +247,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 			(void)sched_settings_apply(true);
 
 			/* Make sure this is killable by OOM killer */
-			stress_set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args, true);
 
 			CPU_ZERO(&mask);
 			CPU_SET(cpu % max_cpus, &mask);

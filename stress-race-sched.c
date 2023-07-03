@@ -438,8 +438,7 @@ static int stress_race_sched(const stress_args_t *args)
 {
 	int rc;
 
-	stress_set_oom_adjustment(args->name, false);
-
+	stress_set_oom_adjustment(args, false);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	rc = stress_oomable_child(args, NULL, stress_race_sched_child, STRESS_OOMABLE_DROP_CAP);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

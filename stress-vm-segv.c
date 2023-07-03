@@ -64,8 +64,8 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 static int stress_vm_segv(const stress_args_t *args)
 {
 	bool test_valid = false;
-	stress_set_oom_adjustment(args->name, true);
 
+	stress_set_oom_adjustment(args, true);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -123,7 +123,7 @@ kill_child:
 			const size_t page_size = args->page_size;
 			const int msg = MSG_CHILD_STARTED;
 
-			stress_set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args, true);
 			stress_process_dumpable(false);
 			(void)sched_settings_apply(true);
 

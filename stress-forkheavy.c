@@ -279,7 +279,7 @@ static int stress_forkheavy(const stress_args_t *args)
 	}
 	forkheavy_args.metrics = metrics;
 
-	stress_set_oom_adjustment(args->name, false);
+	stress_set_oom_adjustment(args, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	rc = stress_oomable_child(args, &forkheavy_args, stress_forkheavy_child, STRESS_OOMABLE_DROP_CAP);

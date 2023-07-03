@@ -4492,7 +4492,7 @@ again:
 			}
 
 			/* Make sure this is killable by OOM killer */
-			stress_set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args, true);
 
 			for (i = 0; i < STRESS_DEV_THREADS_MAX; i++) {
 				ret[i] = pthread_create(&pthreads[i], NULL,

@@ -334,7 +334,7 @@ again:
 			if (stress_redo_fork(errno))
 				goto again;
 		} else if (pid == 0) {
-			stress_set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args, true);
 			(void)sched_settings_apply(true);
 
 			ret = test_chroot_test_funcs[i](args, metrics);

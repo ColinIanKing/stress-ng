@@ -2613,7 +2613,7 @@ extern const char ALIGN64 stress_ascii32[32];
 
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);
-extern void stress_set_oom_adjustment(const char *name, const bool killable);
+extern void stress_set_oom_adjustment(const stress_args_t *args, const bool killable);
 extern WARN_UNUSED bool stress_process_oomed(const pid_t pid);
 extern WARN_UNUSED int stress_oomable_child(const stress_args_t *args,
 	void *context, stress_oomable_child_func_t func, const int flag);

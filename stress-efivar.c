@@ -533,7 +533,7 @@ again:
 		double rate;
 
 		stress_parent_died_alarm();
-		stress_set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args, true);
 		(void)sched_settings_apply(true);
 
 		do {

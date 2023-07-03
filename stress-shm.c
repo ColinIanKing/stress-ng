@@ -136,7 +136,7 @@ static int stress_shm_posix_child(
 	}
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	(void)shim_memset(&msg, 0, sizeof(msg));
 	(void)shim_memset(&sa, 0, sizeof(sa));

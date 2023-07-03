@@ -47,7 +47,7 @@ static inline int stress_dev_shm_child(
 	uint32_t *addr;
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	while (stress_continue(args)) {
 		size_t sz_delta = page_thresh;

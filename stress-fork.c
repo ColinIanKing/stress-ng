@@ -105,7 +105,7 @@ static int stress_fork_fn(
 	double time_end = stress_time_now() + (double)g_opt_timeout;
 #endif
 
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	VOID_RET(int, stress_drop_capabilities(args->name));

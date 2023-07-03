@@ -2521,7 +2521,6 @@ again:
 
 				stress_set_proc_state(name, STRESS_STATE_INIT);
 				stress_mwc_reseed();
-				stress_set_oom_adjustment(name, false);
 				stress_set_max_limits();
 				stress_set_iopriority(ionice_class, ionice_level);
 				(void)umask(0077);
@@ -2555,6 +2554,7 @@ again:
 						.metrics = stats->metrics,
 						.info = g_stressor_current->stressor->info
 					};
+					stress_set_oom_adjustment(&args, false);
 
 					(void)shim_memset(*checksum, 0, sizeof(**checksum));
 					rc = g_stressor_current->stressor->info->stressor(&args);
@@ -4401,7 +4401,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	stress_process_dumpable(false);
 	stress_cwd_readwriteable();
-	stress_set_oom_adjustment("main", false);
+	stress_set_oom_adjustment(NULL, false);
 
 	/*
 	 *  Get various user defined settings

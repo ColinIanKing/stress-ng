@@ -138,7 +138,7 @@ fork_again:
 		 *  We want the children to be OOM'd if we
 		 *  eat up too much memory
 		 */
-		stress_set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();
 
 		/*
@@ -273,7 +273,7 @@ vfork_again:
 		 * one spawned to unblock and exit
 		 */
 		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
-		stress_set_oom_adjustment(args->name, false);
+		stress_set_oom_adjustment(args, false);
 
 		(void)sleep((unsigned int)g_opt_timeout);
 		vforkmany_shared->terminate = true;

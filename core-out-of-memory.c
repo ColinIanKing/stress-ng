@@ -71,13 +71,23 @@ bool stress_process_oomed(const pid_t pid)
 	return oomed;
 }
 
+static const char *stress_args_name(const stress_args_t *args)
+{
+	if (!args)
+		return "main";
+	return args->name;
+}
+
 /*
  *    stress_set_adjustment()
  *	try to set OOM adjustment, retry if EAGAIN or EINTR, give up
  *	after multiple retries.  Returns 0 for success, -errno for
  *	on failure.
  */
-static int stress_set_adjustment(const char *procname, const char *name, const char *str)
+static int stress_set_adjustment(
+	const stress_args_t *args,
+	const char *procname,
+	const char *str)
 {
 	const size_t len = strlen(str);
 	int i, saved_errno = 0;
@@ -99,15 +109,17 @@ static int stress_set_adjustment(const char *procname, const char *name, const c
 		if (n < 0) {
 			if ((saved_errno != EAGAIN) &&
 			    (saved_errno != EINTR)) {
-				pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				if (args && args->instance == 0)
+					pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n",
+						stress_args_name(args), errno, strerror(errno));
 				return -saved_errno;
 			}
 		}
 	}
 	/* Unexpected failure, report why */
-	pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n", name,
-		saved_errno, strerror(saved_errno));
+	if (args && args->instance == 0)
+		pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n", stress_args_name(args),
+			saved_errno, strerror(saved_errno));
 	return -1;
 }
 
@@ -116,8 +128,9 @@ static int stress_set_adjustment(const char *procname, const char *name, const c
  *	attempt to stop oom killer
  *	if we have root privileges then try and make process
  *	unkillable by oom killer
+ *	NOTE: null args -> main stress-ng process, otherwise a stressor
  */
-void stress_set_oom_adjustment(const char *name, const bool killable)
+void stress_set_oom_adjustment(const stress_args_t *args, const bool killable)
 {
 	bool high_priv;
 	bool make_killable = killable;
@@ -136,7 +149,7 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 	 *  main cannot be killable; if OPT_FLAGS_OOMABLE set make
 	 *  all child procs easily OOMable
 	 */
-	if (strcmp(name, "main") && (g_opt_flags & OPT_FLAGS_OOMABLE))
+	if (args && (g_opt_flags & OPT_FLAGS_OOMABLE))
 		make_killable = true;
 
 	/*
@@ -146,7 +159,7 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 		str = OOM_SCORE_ADJ_MAX;
 	else
 		str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
-	ret = stress_set_adjustment("/proc/self/oom_score_adj", name, str);
+	ret = stress_set_adjustment(args, "/proc/self/oom_score_adj", str);
 	/*
 	 *  Success or some random failure that's not -ENOENT
 	 */
@@ -160,12 +173,12 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 	else
 		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 
-	(void)stress_set_adjustment("/proc/self/oom_adj", name, str);
+	(void)stress_set_adjustment(args, "/proc/self/oom_adj", str);
 }
 #else
-void stress_set_oom_adjustment(const char *name, const bool killable)
+void stress_set_oom_adjustment(const stress_args_t *args, const bool killable)
 {
-	(void)name;
+	(void)args;
 	(void)killable;
 }
 bool stress_process_oomed(const pid_t pid)
@@ -314,7 +327,7 @@ rewait:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		stress_set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args, true);
 
 		/* Explicitly drop capabilities, makes it more OOM-able */
 		if (flag & STRESS_OOMABLE_DROP_CAP) {

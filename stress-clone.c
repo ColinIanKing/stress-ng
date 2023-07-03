@@ -369,7 +369,7 @@ static int clone_func(void *arg)
 		return 0;
 	}
 
-	stress_set_oom_adjustment(clone_arg->args->name, true);
+	stress_set_oom_adjustment(clone_arg->args, true);
 #if defined(HAVE_SETNS)
 	{
 		int fd;
@@ -579,7 +579,7 @@ static int stress_clone(const stress_args_t *args)
 
 	flag_count = stress_flag_permutation((int)all_flags, &flag_perms);
 
-	stress_set_oom_adjustment(args->name, false);
+	stress_set_oom_adjustment(args, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	rc = stress_oomable_child(args, &shared->metrics, stress_clone_child, STRESS_OOMABLE_DROP_CAP);

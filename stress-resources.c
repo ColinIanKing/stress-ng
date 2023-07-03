@@ -80,7 +80,7 @@ static int stress_resources(const stress_args_t *args)
 			if (pid == 0) {
 				size_t n;
 
-				stress_set_oom_adjustment(args->name, true);
+				stress_set_oom_adjustment(args, true);
 				VOID_RET(int, stress_drop_capabilities(args->name));
 				(void)sched_settings_apply(true);
 

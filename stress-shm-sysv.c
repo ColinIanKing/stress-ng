@@ -615,7 +615,7 @@ static int stress_shm_sysv_child(
 		shm_ids[i] = -1;
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	do {
 		size_t sz = max_sz;
@@ -1004,7 +1004,7 @@ fork_again:
 			bool get_procinfo = true;
 #endif
 
-			stress_set_oom_adjustment(args->name, false);
+			stress_set_oom_adjustment(args, false);
 			(void)close(pipefds[1]);
 
 			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)

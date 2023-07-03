@@ -253,7 +253,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	}
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	for (;;) {
 		struct sigaction new_action;

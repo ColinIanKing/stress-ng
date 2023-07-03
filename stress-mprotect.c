@@ -208,7 +208,7 @@ static int stress_mprotect(const stress_args_t *args)
 	}
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

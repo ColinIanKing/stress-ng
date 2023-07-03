@@ -196,7 +196,7 @@ static int stress_rmap(const stress_args_t *args)
 	}
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
@@ -263,7 +263,7 @@ static int stress_rmap(const stress_args_t *args)
 			(void)sched_settings_apply(true);
 
 			/* Make sure this is killable by OOM killer */
-			stress_set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args, true);
 
 			stress_rmap_child(args, page_size, i, mappings);
 		}

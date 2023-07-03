@@ -209,7 +209,7 @@ again:
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		(void)stress_change_cpu(args, parent_cpu);
-		stress_set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -256,7 +256,7 @@ abort:
 		uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
 		int val = 0, status;
 
-		stress_set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

@@ -467,7 +467,7 @@ again:
 			}
 
 			/* Make sure this is killable by OOM killer */
-			stress_set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args, true);
 			mixup = stress_mwc32();
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {

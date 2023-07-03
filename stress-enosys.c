@@ -3673,7 +3673,7 @@ again:
 		(void)sched_settings_apply(true);
 
 		/* Make sure this is killable by OOM killer */
-		stress_set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args, true);
 
 		//limit_procs(2);
 

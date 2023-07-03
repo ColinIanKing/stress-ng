@@ -416,7 +416,7 @@ again:
 		free(fds);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_set_oom_adjustment(args->name, false);
+		stress_set_oom_adjustment(args, false);
 		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port, fds, fds_size);
 		_exit(ret);
 	} else {

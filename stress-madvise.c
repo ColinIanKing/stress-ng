@@ -524,7 +524,7 @@ static int stress_madvise(const stress_args_t *args)
 #endif
 
 	/* Make sure this is killable by OOM killer */
-	stress_set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args, true);
 
 	(void)shim_memset(page, 0xa5, page_size);
 
