@@ -720,8 +720,6 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		if (!ss->stats)
 			continue;
 		sp = &ss->stats[0]->sp;
-		if (!sp)
-			continue;
 		if (!stress_perf_stat_succeeded(sp))
 			continue;
 
