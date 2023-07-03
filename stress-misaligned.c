@@ -1083,7 +1083,7 @@ static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 static void stress_misaligned_reset_timer(void)
 {
 	timer.it_value.tv_sec = 0;
-	timer.it_interval.tv_nsec = 400000000;
+	timer.it_value.tv_nsec = 400000000;
 	timer.it_interval.tv_sec = 0;
 	timer.it_interval.tv_nsec = 400000000;
 	VOID_RET(int, timer_settime(timer_id, 0, &timer, NULL));
