@@ -2298,9 +2298,9 @@ static stress_stressor_t *stress_get_nth_stressor(const uint32_t n)
 	uint32_t i = 0;
 
 	while (ss && (i < n)) {
-		ss = ss->next;
 		if (!ss->ignore)
 			i++;
+		ss = ss->next;
 	}
 	return ss;
 }
