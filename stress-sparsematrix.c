@@ -747,7 +747,7 @@ SPLAY_GENERATE(sparse_splay_tree, sparse_splay, splay, sparse_splay_node_cmp);
  */
 static void *splay_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
-	sparse_splay_t *node;
+	sparse_splay_t *node = NULL;
 
 	(void)n;
 	(void)x;
@@ -782,7 +782,7 @@ static void splay_destroy(void *handle, size_t *objmem)
  */
 static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
-	sparse_splay_t node, *found;
+	sparse_splay_t node, *found = NULL;
 
 	node.xy = ((uint64_t)x << 32) | y;
 	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
@@ -809,7 +809,7 @@ static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y,
  */
 static void OPTIMIZE3 splay_del(void *handle, const uint32_t x, const uint32_t y)
 {
-	sparse_splay_t node, *found;
+	sparse_splay_t node, *found = NULL;
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = SPLAY_FIND(sparse_splay_tree, handle, &node);
@@ -826,7 +826,7 @@ static void OPTIMIZE3 splay_del(void *handle, const uint32_t x, const uint32_t y
  */
 static uint32_t OPTIMIZE3 splay_get(void *handle, const uint32_t x, const uint32_t y)
 {
-	sparse_splay_t node, *found;
+	sparse_splay_t node, *found = NULL;
 
 	(void)shim_memset(&node, 0xff, sizeof(node));
 	node.xy = ((uint64_t)x << 32) | y;
