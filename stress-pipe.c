@@ -156,7 +156,7 @@ static int stress_pipe_child_read_verify(
 #if defined(FIONREAD)
 	register int i = 0;
 #endif
-	register uint32_t *const buf32 = (uint32_t *)buf;
+	register const uint32_t *const buf32 = (uint32_t *)buf;
 
 	while (stress_continue_flag()) {
 		register ssize_t n;
