@@ -182,6 +182,7 @@ example is as follows:
 .PP
 .RS
 .nf
+\f[CR]
 run sequential   # run stressors sequentially
 verbose          # verbose output
 metrics-brief    # show metrics at end of run
@@ -197,6 +198,7 @@ vm-populate      # populate memory
 # memcpy stressor options:
 #
 memcpy 5         # 5 memcpy stressors
+\f[]
 .fi
 .RE
 .RS
@@ -6588,23 +6590,23 @@ system limit is less than N.
 .LP
 .SH EXAMPLES
 .LP
-stress\-ng \-\-vm 8 \-\-vm\-bytes 80% -t 1h
+\f[CR]stress\-ng \-\-vm 8 \-\-vm\-bytes 80% -t 1h\f[]
 .IP
 run 8 virtual memory stressors that combined use 80% of the available memory
 for 1 hour. Thus each stressor uses 10% of the available memory.
 .LP
-stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s
+\f[CR]stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s\f[]
 .IP
 runs for 60 seconds with 4 cpu stressors, 2 io stressors and 1 vm stressor
 using 1GB of virtual memory.
 .LP
-stress\-ng \-\-iomix 2 \-\-iomix\-bytes 10% -t 10m
+\f[CR]stress\-ng \-\-iomix 2 \-\-iomix\-bytes 10% -t 10m\f[]
 .IP
 runs 2 instances of the mixed I/O stressors using a total of 10% of the
 available file system space for 10 minutes. Each stressor will use 5% of the
 available file system space.
 .LP
-stress\-ng \-\-cyclic 1 \-\-cyclic\-dist 2500 \-\-cyclic\-method clock_ns \-\-cyclic\-prio 100 \-\-cyclic\-sleep 10000 \-\-hdd 0 -t 1m
+\f[CR]stress\-ng \-\-cyclic 1 \-\-cyclic\-dist 2500 \-\-cyclic\-method clock_ns \-\-cyclic\-prio 100 \-\-cyclic\-sleep 10000 \-\-hdd 0 -t 1m\f[]
 .IP
 measures real time scheduling latencies created by the hdd stressor. This
 uses the high resolution nanosecond clock to measure latencies during
@@ -6613,71 +6615,71 @@ latency distribution with 2500 ns intervals will be displayed. NOTE: this
 must be run with the CAP_SYS_NICE capability to enable the real time scheduling
 to get accurate measurements.
 .LP
-stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
+\f[CR]stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000\f[]
 .IP
 runs 8 cpu stressors and stops after 800000 bogo operations.
 .LP
-stress\-ng \-\-sequential 2 \-\-timeout 2m \-\-metrics
+\f[CR]stress\-ng \-\-sequential 2 \-\-timeout 2m \-\-metrics\f[]
 .IP
 run 2 simultaneous instances of all the stressors sequentially one by one,
 each for 2 minutes and summarise with performance metrics at the end.
 .LP
-stress\-ng \-\-cpu 4 \-\-cpu-method fft \-\-cpu-ops 10000 \-\-metrics\-brief
+\f[CR]stress\-ng \-\-cpu 4 \-\-cpu-method fft \-\-cpu-ops 10000 \-\-metrics\-brief\f[]
 .IP
 run 4 FFT cpu stressors, stop after 10000 bogo operations and produce a
 summary just for the FFT results.
 .LP
-stress\-ng \-\-cpu -1 \-\-cpu-method all \-t 1h \-\-cpu\-load 90
+\f[CR]stress\-ng \-\-cpu -1 \-\-cpu-method all \-t 1h \-\-cpu\-load 90\f[]
 .IP
 run cpu stressors on all online CPUs working through all the available CPU
 stressors for 1 hour, loading the CPUs at 90% load capacity.
 .LP
-stress\-ng \-\-cpu 0 \-\-cpu-method all \-t 20m
+\f[CR]stress\-ng \-\-cpu 0 \-\-cpu-method all \-t 20m\f[]
 .IP
 run cpu stressors on all configured CPUs working through all the available CPU
 stressors for 20 minutes
 .LP
-stress\-ng \-\-all 4 \-\-timeout 5m
+\f[CR]stress\-ng \-\-all 4 \-\-timeout 5m\f[]
 .IP
 run 4 instances of all the stressors for 5 minutes.
 .LP
-stress\-ng \-\-random 64
+\f[CR]stress\-ng \-\-random 64\f[]
 .IP
 run 64 stressors that are randomly chosen from all the available stressors.
 .LP
-stress\-ng \-\-cpu 64 \-\-cpu\-method all \-\-verify \-t 10m \-\-metrics\-brief
+\f[CR]stress\-ng \-\-cpu 64 \-\-cpu\-method all \-\-verify \-t 10m \-\-metrics\-brief\f[]
 .IP
 run 64 instances of all the different cpu stressors and verify that the
 computations are correct for 10 minutes with a bogo operations summary at the
 end.
 .LP
-stress\-ng \-\-sequential -1 \-t 10m
+\f[CR]stress\-ng \-\-sequential -1 \-t 10m\f[]
 .IP
 run all the stressors one by one for 10 minutes, with the number of instances
 of each stressor matching the number of online CPUs.
 .LP
-stress\-ng \-\-sequential 8 \-\-class io \-t 5m \-\-times
+\f[CR]stress\-ng \-\-sequential 8 \-\-class io \-t 5m \-\-times\f[]
 .IP
 run all the stressors in the io class one by one for 5 minutes each, with 8
 instances of each stressor running concurrently and show overall time
 utilisation statistics at the end of the run.
 .LP
-stress\-ng \-\-all -1 \-\-maximize \-\-aggressive
+\f[CR]stress\-ng \-\-all -1 \-\-maximize \-\-aggressive\f[]
 .IP
 run all the stressors (1 instance of each per online CPU) simultaneously, maximize
 the settings (memory sizes, file allocations, etc.) and select the most
 demanding/aggressive options.
 .LP
-stress\-ng \-\-random 32 \-x numa,hdd,key
+\f[CR]stress\-ng \-\-random 32 \-x numa,hdd,key\f[]
 .IP
 run 32 randomly selected stressors and exclude the numa, hdd and key stressors
 .LP
-stress\-ng \-\-sequential 4 \-\-class vm \-\-exclude bigheap,brk,stack
+\f[CR]stress\-ng \-\-sequential 4 \-\-class vm \-\-exclude bigheap,brk,stack\f[]
 .IP
 run 4 instances of the VM stressors one after each other, excluding the
 bigheap, brk and stack stressors
 .LP
-stress\-ng \-\-taskset 0,2-3 \-\-cpu 3
+\f[CR]stress\-ng \-\-taskset 0,2-3 \-\-cpu 3\f[]
 .IP
 run 3 instances of the CPU stressor and pin them to CPUs 0, 2 and 3.
 .SH EXIT STATUS
@@ -6719,8 +6721,7 @@ ready indicator has been corrupted.
 T}
 .TE
 .SH BUGS
-File bug reports at:
-  https://github.com/ColinIanKing/stress-ng/issues
+File bug reports at: https://github.com/ColinIanKing/stress-ng/issues
 .SH SEE ALSO
 .BR cpuburn (1),
 .BR perf (1),
