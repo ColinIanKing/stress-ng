@@ -190,7 +190,7 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		/* Now try to remap with a new fixed address */
 		remap_addr = mremap(map_addr, page_size, page_size, MREMAP_FIXED | MREMAP_MAYMOVE, addr);
 		if (remap_addr && (remap_addr != MAP_FAILED)) {
-			map_addr = remap_addr; 
+			map_addr = remap_addr;
 			if (mmapaddr_mlock)
 				(void)shim_mlock(remap_addr, page_size);
 		}
