@@ -39,15 +39,22 @@ typedef struct {
 typedef struct {
 	uint64_t *bit_error_count;
 	const stress_vm_addr_method_info_t *vm_addr_method;
+	bool vm_addr_mlock;
 } stress_vm_addr_context_t;
 
 static const stress_vm_addr_method_info_t vm_addr_methods[];
 
 static const stress_help_t help[] = {
 	{ NULL,	"vm-addr N",	 "start N vm address exercising workers" },
+	{ NULL,	"vm-addr-mlock", "attempt to mlock pages into memory" },
 	{ NULL,	"vm-addr-ops N", "stop after N vm address bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
+
+static int stress_set_vm_addr_mlock(const char *opt)
+{
+	return stress_set_setting_true("vm-addr-mlock", opt);
+}
 
 /*
  *  stress_continue(args)
@@ -464,6 +471,8 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 				(void)shim_usleep(100000);
 				continue;
 			}
+			if (context->vm_addr_mlock)
+				(void)shim_mlock(buf, buf_sz);
 
 			no_mem_retries = 0;
 			*(context->bit_error_count) += func(buf, buf_sz);
@@ -491,9 +500,11 @@ static int stress_vm_addr(const stress_args_t *args)
 	int err = 0, ret = EXIT_SUCCESS;
 	stress_vm_addr_context_t context;
 
+	context.vm_addr_mlock = false;
 	context.vm_addr_method = &vm_addr_methods[0];
 	context.bit_error_count = MAP_FAILED;
 
+	(void)stress_get_setting("vm-addr-mlock", &context.vm_addr_mlock);
 	(void)stress_get_setting("vm-addr-method", &context.vm_addr_method);
 
 	if (args->instance == 0)
@@ -540,6 +551,7 @@ static int stress_vm_addr(const stress_args_t *args)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_addr_method,	stress_set_vm_addr_method },
+	{ OPT_vm_addr_mlock,	stress_set_vm_addr_mlock },
 	{ 0,			NULL }
 };
 

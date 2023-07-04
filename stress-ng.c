@@ -1214,6 +1214,7 @@ static const struct option long_options[] = {
 #endif
 	{ "vm-addr",		1,	0,	OPT_vm_addr },
 	{ "vm-addr-method",	1,	0,	OPT_vm_addr_method },
+	{ "vm-addr-mlock",	0,	0,	OPT_vm_addr_mlock },
 	{ "vm-addr-ops",	1,	0,	OPT_vm_addr_ops },
 	{ "vm-rw",		1,	0,	OPT_vm_rw },
 	{ "vm-rw-bytes",	1,	0,	OPT_vm_rw_bytes },

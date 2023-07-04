@@ -6205,9 +6205,6 @@ cache and TLB inefficient addressing patterns. Each method will set the
 memory to a random pattern in a write phase and then sanity check this
 in a read phase.
 .TP
-.B \-\-vm\-addr\-ops N
-stop N workers after N bogo addressing passes.
-.TP
 .B \-\-vm\-addr\-method method
 specify a vm address stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
@@ -6271,6 +6268,13 @@ like rev, but with all the relevant address bits inverted.
 T}
 .TE
 .RE
+.TP
+.B \-\-vm\-addr\-mlock
+attempt to mlock pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
+.B \-\-vm\-addr\-ops N
+stop N workers after N bogo addressing passes.
 .TP
 .B \-\-vm\-rw N
 start N workers that transfer memory to/from a parent/child using
