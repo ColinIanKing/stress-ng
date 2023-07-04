@@ -38,6 +38,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap-async",	 "using asynchronous msyncs for file based mmap" },
 	{ NULL,	"mmap-bytes N",	 "mmap and munmap N bytes for each stress iteration" },
 	{ NULL,	"mmap-file",	 "mmap onto a file using synchronous msyncs" },
+	{ NULL,	"mmap-mlock",	 "attempt to mlock mmap'd pages" },
 	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
 	{ NULL, "mmap-odirect",	 "enable O_DIRECT on file" },
 	{ NULL,	"mmap-ops N",	 "stop after N mmap bogo operations" },
@@ -55,6 +56,7 @@ typedef struct {
 	bool mmap_mprotect;
 	bool mmap_file;
 	bool mmap_async;
+	bool mmap_mlock;
 	mmap_func_t mmap;
 	size_t mmap_prot_count;
 	int *mmap_prot_perms;
@@ -262,6 +264,11 @@ static int stress_set_mmap_odirect(const char *opt)
 	return stress_set_setting_true("mmap-odirect", opt);
 }
 
+static int stress_set_mmap_mlock(const char *opt)
+{
+	return stress_set_setting_true("mmap-mlock", opt);
+}
+
 static int stress_set_mmap_mmap2(const char *opt)
 {
 	return stress_set_setting_true("mmap-mmap2", opt);
@@ -415,6 +422,8 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	if (context->mmap_mlock)
+		(void)shim_mlock(mapped, pages * sizeof(*mapped));
 	mappings = (uint8_t **)mmap(NULL, pages * sizeof(*mappings),
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -424,6 +433,8 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 		(void)munmap((void *)mapped, pages * sizeof(*mapped));
 		return EXIT_NO_RESOURCE;
 	}
+	if (context->mmap_mlock)
+		(void)shim_mlock(mappings, pages * sizeof(*mappings));
 	index = (size_t *)mmap(NULL, pages * sizeof(*index),
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -434,6 +445,8 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 		(void)munmap((void *)mapped, pages * sizeof(*mapped));
 		return EXIT_NO_RESOURCE;
 	}
+	if (context->mmap_mlock)
+		(void)shim_mlock(index, pages * sizeof(*index));
 
 	do {
 		size_t n;
@@ -518,6 +531,8 @@ retry:
 			continue;	/* Try again */
 		}
 
+		if (context->mmap_mlock)
+			(void)shim_mlock(buf, sz);
 		no_mem_retries = 0;
 		if (mmap_file) {
 			(void)shim_memset(buf, 0xff, sz);
@@ -615,6 +630,8 @@ retry:
 					mapped[page] = PAGE_MAPPED_FAIL;
 					mappings[page] = NULL;
 				} else {
+					if (context->mmap_mlock)
+						(void)shim_mlock(mappings[page], page_size);
 					(void)stress_mincore_touch_pages(mappings[page], page_size);
 					(void)stress_madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
@@ -701,8 +718,11 @@ cleanup:
 			const int rnd_prot = context->mmap_prot_perms[rnd_sz];
 
 			buf = (uint8_t *)mmap(NULL, rnd_sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-			if (buf != MAP_FAILED)
+			if (buf != MAP_FAILED) {
+				if (context->mmap_mlock)
+					(void)shim_mlock(buf, rnd_sz);
 				(void)stress_munmap_retry_enomem((void *)buf, rnd_sz);
+			}
 		}
 
 		/*
@@ -720,6 +740,8 @@ cleanup:
 
 			buf = (uint8_t *)mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
 			if (buf != MAP_FAILED) {
+				if (context->mmap_mlock)
+					(void)shim_mlock(buf, page_size);
 				stress_set_vma_anon_name((void *)buf, page_size, mmap_name);
 				(void)stress_munmap_retry_enomem((void *)buf, page_size);
 			}
@@ -739,6 +761,8 @@ cleanup:
 		if (buf64 != MAP_FAILED) {
 			uint64_t val = stress_mwc64();
 
+			if (context->mmap_mlock)
+				(void)shim_mlock(buf64, page_size);
 			stress_set_vma_anon_name((void *)buf64, page_size, mmap_name);
 
 			*buf64 = val;
@@ -763,6 +787,8 @@ cleanup:
 		buf64 = (uint64_t *)mmap(NULL, page_size, PROT_READ,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (buf64 != MAP_FAILED) {
+			if (context->mmap_mlock)
+				(void)shim_mlock(buf64, page_size);
 			stress_set_vma_anon_name((void *)buf64, page_size, mmap_name);
 
 			ret = mprotect((void *)buf64, page_size, PROT_WRITE);
@@ -807,6 +833,7 @@ static int stress_mmap(const stress_args_t *args)
 	context.mmap_bytes = DEFAULT_MMAP_BYTES;
 	context.mmap_async = false;
 	context.mmap_file = false;
+	context.mmap_mlock = false;
 	context.mmap_mprotect = false;
 	context.flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
@@ -818,6 +845,7 @@ static int stress_mmap(const stress_args_t *args)
 	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
 	(void)stress_get_setting("mmap-osync", &mmap_osync);
 	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
+	(void)stress_get_setting("mmap-mlock", &context.mmap_mlock);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
@@ -954,6 +982,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
 	{ OPT_mmap_osync,	stress_set_mmap_osync },
 	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
+	{ OPT_mmap_mlock,	stress_set_mmap_mlock },
 	{ OPT_mmap_mmap2,	stress_set_mmap_mmap2 },
 	{ 0,			NULL }
 };

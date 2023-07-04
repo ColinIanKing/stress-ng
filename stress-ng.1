@@ -3452,6 +3452,10 @@ each page.
 use mmap2 for 4K page aligned offsets if mmap2 is available, otherwise fall back
 to mmap.
 .TP
+.B \-\-mmap\-mlock
+attempt to mlock mmap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-mmap\-mprotect
 change protection settings on each page of memory.  Each time a page or a
 group of pages are mapped or remapped then this option will make the pages
