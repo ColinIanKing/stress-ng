@@ -25,10 +25,11 @@
 static const stress_help_t help[] = {
 	{ NULL,	"l1cache N",	 	"start N CPU level 1 cache thrashing workers" },
 	{ NULL, "l1cache-line-size N",	"specify level 1 cache line size" },
+	{ NULL,	"l1cache-method M",	"l1 cache thrashing method: forward, reverse, random" },
+	{ NULL,	"l1cache-mlock",	"attempt to mlock memory" },
 	{ NULL, "l1cache-sets N",	"specify level 1 cache sets" },
 	{ NULL, "l1cache-size N",	"specify level 1 cache size" },
 	{ NULL,	"l1cache-ways N",	"only fill specified number of cache ways" },
-	{ NULL,	"l1cache-method M",	"l1 cache thrashing method: forward, reverse, random" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -61,6 +62,11 @@ static int stress_l1cache_set_line_size(const char *opt)
 static int stress_l1cache_set_sets(const char *opt)
 {
 	return stress_l1cache_set(opt, "l1cache-sets", 65536);
+}
+
+static int stress_l1cache_set_mlock(const char *opt)
+{
+	return stress_set_setting_true("l1cache-mlock", opt);
 }
 
 #if DEBUG_TAG_INFO
@@ -500,6 +506,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_l1cache_size,	 stress_l1cache_set_size },
 	{ OPT_l1cache_line_size, stress_l1cache_set_line_size },
 	{ OPT_l1cache_method,	 stress_l1cache_set_method },
+	{ OPT_l1cache_mlock,	 stress_l1cache_set_mlock },
 	{ OPT_l1cache_ways,	 stress_l1cache_set_ways },
 	{ 0,			NULL }
 };
@@ -518,12 +525,14 @@ static int stress_l1cache(const stress_args_t *args)
 	size_t l1cache_method = 0;	/* Default forward */
 	const size_t verify = (g_opt_flags & OPT_FLAGS_VERIFY) ? 1 : 0;
 	l1cache_func_t stress_l1cache_func;
+	bool l1cache_mlock = false;
 
 	(void)stress_get_setting("l1cache-ways", &l1cache_ways);
 	(void)stress_get_setting("l1cache-size", &l1cache_size);
 	(void)stress_get_setting("l1cache-sets", &l1cache_sets);
 	(void)stress_get_setting("l1cache-line-size", &l1cache_line_size);
 	(void)stress_get_setting("l1cache-method", &l1cache_method);
+	(void)stress_get_setting("l1cache-mlock", &l1cache_mlock);
 
 	stress_l1cache_func = stress_l1cache_methods[l1cache_method].func[verify];
 
@@ -540,6 +549,10 @@ static int stress_l1cache(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+
+	if (l1cache_mlock)
+		(void)shim_mlock(cache, l1cache_size << 2);
+
 	/* Get cache aligned buffer */
 	l1cache_set_size = l1cache_ways * l1cache_line_size;
 	if (l1cache_set_size == 0) {

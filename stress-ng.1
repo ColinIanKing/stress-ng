@@ -2724,6 +2724,10 @@ specify the number of cache read/write bogo-op loops to run
 select the method of exercising a l1cache sized buffer. The default is a
 forward scan, random picks random bytes to exercise, reverse scans in reverse.
 .TP
+.B \-\-l1cache\-mlock
+attempt to mlock the l1cache size buffer into memory to prevent it from being
+swapped out.
+.TP
 .B \-\-landlock N
 start N workers that exercise Linux 5.13 landlocking. A range of
 landlock_create_ruleset flags are exercised with a read only file rule
