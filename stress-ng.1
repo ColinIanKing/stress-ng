@@ -3663,8 +3663,8 @@ can specify the size in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
 .B \-\-mremap\-mlock
-attempt to mlock remapped pages into memory prohibiting them from being
-paged out.  This is a no-op if mlock(2) is not available.
+attempt to mlock remap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
 .TP
 .B \-\-msg N
 start N sender and receiver processes that continually send and receive
@@ -5152,8 +5152,8 @@ option touches all the pages by filling the new stack allocation with zeros
 which forces physical pages to be allocated and hence is more aggressive.
 .TP
 .B \-\-stack\-mlock
-attempt to mlock stack pages into memory prohibiting them from being
-paged out.  This is a no-op if mlock(2) is not available.
+attempt to mlock stack pages into memory causing more memory pressure by
+preventing pages from swapped out.
 .TP
 .B \-\-stack\-ops N
 stop stack stress workers after N bogo stack overflows.
