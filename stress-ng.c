@@ -285,6 +285,7 @@ static const struct option long_options[] = {
 	{ "bigheap",		1,	0,	OPT_bigheap },
 	{ "bigheap-bytes",	1,	0,	OPT_bigheap_bytes },
 	{ "bigheap-growth",	1,	0,	OPT_bigheap_growth },
+	{ "bigheap-mlock",	0,	0,	OPT_bigheap_mlock },
 	{ "bigheap-ops",	1,	0,	OPT_bigheap_ops },
 	{ "bind-mount",		1,	0,	OPT_bind_mount },
 	{ "bind-mount-ops",	1,	0,	OPT_bind_mount_ops },

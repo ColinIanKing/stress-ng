@@ -728,6 +728,11 @@ using the suffix b, k, m or g.
 specify amount of memory to grow heap by per iteration. Size can be from 4K to
 64MB. Default is 64K.
 .TP
+.B \-\-bigheap\-mlock
+attempt to mlock future allocated pages into memory causing more memory pressure. If
+mlock(MCL_FUTURE) is implemented then this will stop newly allocated  pages from being
+swapped out.
+.TP
 .B \-\-binderfs N
 start N workers that mount, exercise and unmount binderfs. The binder control
 device is exercised with 256 sequential BINDER_CTL_ADD ioctl calls per loop.

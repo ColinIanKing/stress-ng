@@ -48,6 +48,7 @@ static const stress_help_t help[] = {
 	{ "B N","bigheap N",		"start N workers that grow the heap using realloc()" },
 	{ NULL,	"bigheap-bytes N",	"grow heap up to N bytes in total" },
 	{ NULL,	"bigheap-growth N",	"grow heap by N bytes per iteration" },
+	{ NULL,	"bigheap-mlock",	"attempt to mlock newly mapped pages" },
 	{ NULL,	"bigheap-ops N",	"stop after N bogo bigheap operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -81,6 +82,15 @@ static const char *stress_bigheap_phase(void)
 	if ((phase < 0) || (phase >= (int)SIZEOF_ARRAY(phases)))
 		return "unknown";
 	return phases[phase];
+}
+
+/*
+ *  stress_set_bigheap_mlock
+ *	enable mlocking on allocated pages
+ */
+static int stress_set_bigheap_mlock(const char *opt)
+{
+	return stress_set_setting_true("bigheap-mlock", opt);
 }
 
 /*
@@ -153,6 +163,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	double rate;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool oom_avoid = !!(g_opt_flags & OPT_FLAGS_OOM_AVOID);
+	bool bigheap_mlock = false;
 	struct sigaction action;
 	int ret;
 
@@ -163,6 +174,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
+	(void)stress_get_setting("bigheap-mlock", &bigheap_mlock);
 	(void)stress_get_setting("bigheap-bytes", &bigheap_bytes);
 	if (!stress_get_setting("bigheap-growth", &bigheap_growth)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -206,6 +218,13 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+#if defined(MCL_FUTURE)
+	if (bigheap_mlock)
+		(void)shim_mlockall(MCL_FUTURE);
+#else
+	UNEXPECTED
+#endif
 
 	do {
 		void *old_ptr = ptr;
@@ -323,6 +342,7 @@ static int stress_bigheap(const stress_args_t *args)
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_bigheap_bytes,	stress_set_bigheap_bytes },
 	{ OPT_bigheap_growth,	stress_set_bigheap_growth },
+	{ OPT_bigheap_mlock,	stress_set_bigheap_mlock },
 	{ 0,			NULL },
 };
 
