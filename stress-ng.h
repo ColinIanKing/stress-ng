@@ -2107,10 +2107,11 @@ typedef enum {
 	OPT_str_method,
 
 	OPT_stream,
-	OPT_stream_ops,
 	OPT_stream_index,
 	OPT_stream_l3_size,
 	OPT_stream_madvise,
+	OPT_stream_mlock,
+	OPT_stream_ops,
 
 	OPT_stressors,
 

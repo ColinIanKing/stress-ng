@@ -55,6 +55,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"stream-index",		"specify number of indices into the data (0..3)" },
 	{ NULL,	"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL,	"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
+	{ NULL,	"stream-mlock",		"attempt to mlock pages into memory" },
 	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,	NULL,                   NULL }
 };
@@ -76,6 +77,11 @@ static const stress_stream_madvise_info_t stream_madvise_info[] = {
 #endif
 	{ NULL,         0 },
 };
+
+static int stress_set_stream_mlock(const char *opt)
+{
+	return stress_set_setting_true("stream-mlock", opt);
+}
 
 static int stress_set_stream_L3_size(const char *opt)
 {
@@ -684,7 +690,10 @@ PRAGMA_UNROLL_N(8)
 	return checksum;
 }
 
-static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
+static inline void *stress_stream_mmap(
+	const stress_args_t *args,
+	const uint64_t sz,
+	const bool stream_mlock)
 {
 	void *ptr;
 
@@ -704,12 +713,14 @@ static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
 			args->name, sz);
 		ptr = MAP_FAILED;
 	} else {
+		if (stream_mlock)
+			(void)shim_mlock(ptr, (size_t)sz);
 #if defined(HAVE_MADVISE)
 		int advice = MADV_NORMAL;
 
 		(void)stress_get_setting("stream-madvise", &advice);
 
-		VOID_RET(int, madvise(ptr, sz, advice));
+		VOID_RET(int, madvise(ptr, (size_t)sz, advice));
 #else
 		UNEXPECTED
 #endif
@@ -798,11 +809,14 @@ static int stress_stream(const stress_args_t *args)
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	uint32_t init_counter, init_counter_max;
 	bool guess = false;
+	bool stream_mlock = false;
 #if defined(HAVE_NT_STORE_DOUBLE)
 	const bool has_sse2 = stress_cpu_x86_has_sse2();
 #endif
 	double rd_bytes = 0.0, wr_bytes = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+
+	(void)stress_get_setting("stream-mlock", &stream_mlock);
 
 	if (stress_get_setting("stream-L3-size", &stream_L3_size))
 		L3 = stream_L3_size;
@@ -845,32 +859,32 @@ static int stress_stream(const stress_args_t *args)
 	n = sz / sizeof(*a);
 	sz &= ~(uint64_t)63;
 
-	a = stress_stream_mmap(args, sz);
+	a = stress_stream_mmap(args, sz, stream_mlock);
 	if (a == MAP_FAILED)
 		goto err_a;
-	b = stress_stream_mmap(args, sz);
+	b = stress_stream_mmap(args, sz, stream_mlock);
 	if (b == MAP_FAILED)
 		goto err_b;
-	c = stress_stream_mmap(args, sz);
+	c = stress_stream_mmap(args, sz, stream_mlock);
 	if (c == MAP_FAILED)
 		goto err_c;
 
 	sz_idx = n * sizeof(size_t);
 	switch (stream_index) {
 	case 3:
-		idx3 = stress_stream_mmap(args, sz_idx);
+		idx3 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx3 == MAP_FAILED)
 			goto err_idx3;
 		stress_stream_init_index(idx3, n);
 		CASE_FALLTHROUGH;
 	case 2:
-		idx2 = stress_stream_mmap(args, sz_idx);
+		idx2 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx2 == MAP_FAILED)
 			goto err_idx2;
 		stress_stream_init_index(idx2, n);
 		CASE_FALLTHROUGH;
 	case 1:
-		idx1 = stress_stream_mmap(args, sz_idx);
+		idx1 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx1 == MAP_FAILED)
 			goto err_idx1;
 		stress_stream_init_index(idx1, n);
@@ -1013,6 +1027,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_stream_index,	stress_set_stream_index },
 	{ OPT_stream_l3_size,	stress_set_stream_L3_size },
 	{ OPT_stream_madvise,	stress_set_stream_madvise },
+	{ OPT_stream_mlock,	stress_set_stream_mlock },
 	{ 0,			NULL }
 };
 

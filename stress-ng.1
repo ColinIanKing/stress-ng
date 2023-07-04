@@ -5226,10 +5226,6 @@ read/write/compute rates because of loop overheads and the use of volatile
 pointers to ensure the compiler does not optimize out stores.
 .RE
 .TP
-.B \-\-stream\-ops N
-stop after N stream bogo operations, where a bogo operation is one round
-of copy, scale, add and triad operations.
-.TP
 .B \-\-stream\-index N
 specify number of stream indices used to index into the data arrays a, b and
 c.  This adds indirection into the data lookup by using randomly shuffled
@@ -5244,10 +5240,18 @@ units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 If the L3 cache size is not provided, then stress-ng will attempt to
 determine the cache size, and failing this, will default the size to 4MB.
 .TP
+.B \-\-stream\-mlock
+attempt to mlock the stream buffers into memory to prevent them from being
+swapped out.
+.TP
 .B \-\-stream\-madvise [ hugepage | nohugepage | normal ]
 Specify the madvise options used on the memory mapped buffer used in the
 stream stressor. Non-linux systems will only have the 'normal' madvise
 advice. The default is 'normal'.
+.TP
+.B \-\-stream\-ops N
+stop after N stream bogo operations, where a bogo operation is one round
+of copy, scale, add and triad operations.
 .TP
 .B \-\-swap N
 start N workers that add and remove small randomly sizes swap partitions

@@ -1072,6 +1072,7 @@ static const struct option long_options[] = {
 	{ "stream-index",	1,	0,	OPT_stream_index },
 	{ "stream-l3-size",	1,	0,	OPT_stream_l3_size },
 	{ "stream-madvise",	1,	0,	OPT_stream_madvise },
+	{ "stream-mlock",	0,	0,	OPT_stream_mlock },
 	{ "stream-ops",		1,	0,	OPT_stream_ops },
 	{ "swap",		1,	0,	OPT_swap },
 	{ "swap-ops",		1,	0,	OPT_swap_ops },
