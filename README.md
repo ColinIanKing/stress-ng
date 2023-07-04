@@ -548,6 +548,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [An Empirical Study of Resource-Stressing Faults in Edge-Computing Applications](https://dl.acm.org/doi/pdf/10.1145/3578354.3592873)
 * [Finding flaky tests in JavaScript applications using stress and test suite reordering](https://repositories.lib.utexas.edu/handle/2152/120282)
 * [Scalability of Kubernetes Running Over AWS](https://www.diva-portal.org/smash/get/diva2:1367111/FULLTEXT02)
+* [The Power of Telemetry: Uncovering Software-Based Side-Channel Attacks on Apple M1/M2 Systems](https://arxiv.org/pdf/2306.16391.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
