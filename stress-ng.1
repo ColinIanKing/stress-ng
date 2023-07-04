@@ -3522,6 +3522,10 @@ of mappings or until swapping is detected.
 .B \-\-mmaphuge\-ops N
 stop after N mmaphuge bogo operations
 .TP
+.B \-\-mmaphuge\-mlock
+attempt to mlock mmap'd huge pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-mmaphuge\-mmaps N
 set the number of huge page mappings to attempt in each round of mappings. The
 default is 8192 mappings.

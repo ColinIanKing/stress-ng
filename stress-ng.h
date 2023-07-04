@@ -1637,8 +1637,9 @@ typedef enum {
 	OPT_mmapfork_ops,
 
 	OPT_mmaphuge,
-	OPT_mmaphuge_ops,
+	OPT_mmaphuge_mlock,
 	OPT_mmaphuge_mmaps,
+	OPT_mmaphuge_ops,
 
 	OPT_mmapmany,
 	OPT_mmapmany_ops,

@@ -716,6 +716,7 @@ static const struct option long_options[] = {
 	{ "mmapfork",		1,	0,	OPT_mmapfork },
 	{ "mmapfork-ops",	1,	0,	OPT_mmapfork_ops },
 	{ "mmaphuge",		1,	0,	OPT_mmaphuge },
+	{ "mmaphuge-mlock",	0,	0,	OPT_mmaphuge_mlock },
 	{ "mmaphuge-mmaps",	1,	0,	OPT_mmaphuge_mmaps },
 	{ "mmaphuge-ops",	1,	0,	OPT_mmaphuge_ops },
 	{ "mmapmany",		1,	0,	OPT_mmapmany },

@@ -21,10 +21,16 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaphuge N",		"start N workers stressing mmap with huge mappings" },
+	{ NULL,	"mmaphuge-mlock",	"attempt to mlock pages into memory" },
 	{ NULL, "mmaphuge-mmaps N",	"select number of memory mappings per iteration" },
 	{ NULL,	"mmaphuge-ops N",	"stop after N mmaphuge bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
+
+static int stress_set_mmaphuge_mlock(const char *opt)
+{
+	return stress_set_setting_true("mmaphuge-mlock", opt);
+}
 
 /*
  *  stress_set_mmaphuge_mmaps()
@@ -41,7 +47,8 @@ static int stress_set_mmaphuge_mmaps(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmaphuge_mmaps,  stress_set_mmaphuge_mmaps },
+	{ OPT_mmaphuge_mlock,	stress_set_mmaphuge_mlock },
+	{ OPT_mmaphuge_mmaps,	stress_set_mmaphuge_mmaps },
 	{ 0,                    NULL }
 };
 
@@ -95,6 +102,9 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 	stress_mmaphuge_buf_t *bufs = (stress_mmaphuge_buf_t *)ctxt->bufs;
 	size_t idx = 0;
 	int rc = EXIT_SUCCESS;
+	bool mmaphuge_mlock = false;
+
+	(void)stress_get_setting("mmaphuge-mlock", &mmaphuge_mlock);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -133,6 +143,9 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 				if (buf != MAP_FAILED) {
 					register uint64_t val = stress_mwc64();
 					register size_t k;
+
+					if (mmaphuge_mlock)
+						(void)shim_mlock(buf, sz);
 
 					/* Touch every other 64 pages.. */
 					for (k = 0; k < sz; k += page_size * 64) {
