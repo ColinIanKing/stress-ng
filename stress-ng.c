@@ -971,6 +971,7 @@ static const struct option long_options[] = {
 	{ "shellsort-size",	1,	0,	OPT_shellsort_size },
 	{ "shm",		1,	0,	OPT_shm },
 	{ "shm-bytes",		1,	0,	OPT_shm_bytes },
+	{ "shm-mlock",		0,	0,	OPT_shm_mlock },
 	{ "shm-objs",		1,	0,	OPT_shm_objects },
 	{ "shm-ops",		1,	0,	OPT_shm_ops },
 	{ "shm-sysv",		1,	0,	OPT_shm_sysv },

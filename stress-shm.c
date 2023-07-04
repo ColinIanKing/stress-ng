@@ -38,10 +38,16 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ NULL,	"shm N",	"start N workers that exercise POSIX shared memory" },
 	{ NULL,	"shm-bytes N",	"allocate/free N bytes of POSIX shared memory" },
+	{ NULL,	"shm-mlock",	"attempt to mlock pages into memory" },
+	{ NULL,	"shm-objs N",	"allocate N POSIX shared memory objects per iteration" },
 	{ NULL,	"shm-ops N",	"stop after N POSIX shared memory bogo operations" },
-	{ NULL,	"shm-segs N",	"allocate N POSIX shared memory segments per iteration" },
 	{ NULL,	NULL,		NULL }
 };
+
+static int stress_set_shm_mlock(const char *opt)
+{
+	return stress_set_setting_true("shm-mlock", opt);
+}
 
 static int stress_set_shm_posix_bytes(const char *opt)
 {
@@ -65,6 +71,7 @@ static int stress_set_shm_posix_objects(const char *opt)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_shm_bytes,	stress_set_shm_posix_bytes },
+	{ OPT_shm_mlock,	stress_set_shm_mlock },
 	{ OPT_shm_objects,	stress_set_shm_posix_objects },
 	{ 0,			NULL }
 };
@@ -107,8 +114,9 @@ static int stress_shm_posix_check(
 static int stress_shm_posix_child(
 	const stress_args_t *args,
 	const int fd,
-	size_t sz,
-	size_t shm_posix_objects)
+	const size_t sz,
+	const size_t shm_posix_objects,
+	const bool shm_mlock)
 {
 	void **addrs;
 	char *shm_names;
@@ -203,6 +211,8 @@ static int stress_shm_posix_child(
 				goto reap;
 			}
 			addrs[i] = addr;
+			if (shm_mlock)
+				(void)shim_mlock(addr, sz);
 
 			if (UNLIKELY(!stress_continue_flag())) {
 				(void)close(shm_fd);
@@ -214,14 +224,6 @@ static int stress_shm_posix_child(
 				(void)close(shm_fd);
 				goto reap;
 			}
-
-#if defined(_POSIX_MEMLOCK_RANGE) &&	\
-    defined(HAVE_MLOCK)
-			/*
-			 *  Exercise mlock on 1st page of shm
-			 */
-			VOID_RET(int, shim_mlock(addr, 4096));
-#endif
 
 			/*
 			 *  Exercise shm duplication and reaping
@@ -349,9 +351,12 @@ static int stress_shm(const stress_args_t *args)
 	ssize_t i;
 	pid_t pid;
 	bool retry = true;
+	bool shm_mlock = false;
 	uint32_t restarts = 0;
 	size_t shm_posix_bytes = DEFAULT_SHM_POSIX_BYTES;
 	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
+
+	(void)stress_get_setting("shm-mlock", &shm_mlock);
 
 	if (!stress_get_setting("shm-bytes", &shm_posix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -486,7 +491,7 @@ again:
 			stress_parent_died_alarm();
 
 			(void)close(pipefds[0]);
-			rc = stress_shm_posix_child(args, pipefds[1], sz, shm_posix_objects);
+			rc = stress_shm_posix_child(args, pipefds[1], sz, shm_posix_objects, shm_mlock);
 			(void)close(pipefds[1]);
 			_exit(rc);
 		}

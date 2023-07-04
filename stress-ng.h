@@ -1965,8 +1965,9 @@ typedef enum {
 	OPT_shellsort_size,
 
 	OPT_shm,
-	OPT_shm_ops,
 	OPT_shm_bytes,
+	OPT_shm_mlock,
+	OPT_shm_ops,
 	OPT_shm_objects,
 
 	OPT_shm_sysv,

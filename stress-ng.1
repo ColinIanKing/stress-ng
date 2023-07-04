@@ -4748,17 +4748,21 @@ start N workers that open and allocate shared memory objects using the POSIX
 shared memory interfaces.  By default, the test will repeatedly create and
 destroy 32 shared memory objects, each of which is 8MB in size.
 .TP
-.B \-\-shm\-ops N
-stop after N POSIX shared memory create and destroy bogo operations are
-complete.
-.TP
 .B \-\-shm\-bytes N
 specify the size of the POSIX shared memory objects to be created. One can
 specify the size as % of total available memory or in units of Bytes, KBytes,
 MBytes and GBytes using the suffix b, k, m or g.
 .TP
+.B \-\-shm\-mlock
+attempt to mlock shared memory pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-shm\-objs N
 specify the number of shared memory objects to be created.
+.TP
+.B \-\-shm\-ops N
+stop after N POSIX shared memory create and destroy bogo operations are
+complete.
 .TP
 .B \-\-shm\-sysv N
 start N workers that allocate shared memory using the System V shared memory
