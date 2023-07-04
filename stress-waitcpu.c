@@ -222,7 +222,9 @@ static int stress_waitcpu(const stress_args_t *args)
 	bool supported = false;
 	size_t i, j;
 	char str[16 * SIZEOF_ARRAY(stress_waitcpu_method)];
+#if defined(STRESS_ARCH_X86)
 	double nop_rate = -1.0;
+#endif
 	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(str, 0, sizeof(str));
@@ -278,8 +280,10 @@ static int stress_waitcpu(const stress_args_t *args)
 			rate = stress_waitcpu_method[i].count /
 			       stress_waitcpu_method[i].duration;;
 
+#if defined(STRESS_ARCH_X86)
 		if (!strcmp("nop", stress_waitcpu_method[i].name))
 			nop_rate = rate;
+#endif
 
 		if (rate > 0.0) {
 			char msg[64];
@@ -291,6 +295,7 @@ static int stress_waitcpu(const stress_args_t *args)
 		stress_waitcpu_method[i].rate = rate;
 	}
 
+#if defined(STRESS_ARCH_X86)
 	if (nop_rate > 0.0) {
 		for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
 			if (!strcmp("nop", stress_waitcpu_method[i].name))
@@ -308,6 +313,7 @@ static int stress_waitcpu(const stress_args_t *args)
 			}
 		}
 	}
+#endif
 
 	return rc;
 }
