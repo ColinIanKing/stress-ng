@@ -20,12 +20,18 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"mmapmany N",	  "start N workers stressing many mmaps and munmaps" },
-	{ NULL,	"mmapmany-ops N", "stop after N mmapmany bogo operations" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	"mmapmany N",		"start N workers stressing many mmaps and munmaps" },
+	{ NULL, "mmapmany-mlock",	"attempt to mlock pages into memory" },
+	{ NULL,	"mmapmany-ops N",	"stop after N mmapmany bogo operations" },
+	{ NULL,	NULL,		  	NULL }
 };
 
 #define MMAP_MAX	(256 * 1024)
+
+static int stress_set_mmapmany_mlock(const char *opt)
+{
+	return stress_set_setting_true("mmapmany-mlock", opt);
+}
 
 #if defined(__linux__)
 static void stress_mmapmany_read_proc_file(const char *path)
@@ -52,8 +58,11 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 	const uint64_t pattern0 = stress_mwc64();
 	const uint64_t pattern1 = stress_mwc64();
 	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
+	bool mmapmany_mlock = false;
 
 	(void)context;
+
+	(void)stress_get_setting("mmapmany-mlock", &mmapmany_mlock);
 
 	mappings = calloc((size_t)max, sizeof(*mappings));
 	if (!mappings) {
@@ -76,6 +85,8 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (ptr == MAP_FAILED)
 				break;
+			if (mmapmany_mlock)
+				(void)shim_mlock(ptr, page_size * 3);
 			mappings[n] = ptr;
 			*ptr = pattern0 ^ (uint64_t)n;
 			ptr += offset2pages;
@@ -129,9 +140,15 @@ static int stress_mmapmany(const stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mmapmany_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmapmany_mlock,	stress_set_mmapmany_mlock },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_mmapmany_info = {
 	.stressor = stress_mmapmany,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

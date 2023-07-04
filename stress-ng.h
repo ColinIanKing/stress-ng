@@ -1642,6 +1642,7 @@ typedef enum {
 	OPT_mmaphuge_ops,
 
 	OPT_mmapmany,
+	OPT_mmapmany_mlock,
 	OPT_mmapmany_ops,
 
 	OPT_module,

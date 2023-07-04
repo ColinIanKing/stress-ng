@@ -3519,9 +3519,6 @@ end of the mapping is made (these may fail on huge pages) before the set
 of pages are unmapped. By default 8192 mappings are attempted per round
 of mappings or until swapping is detected.
 .TP
-.B \-\-mmaphuge\-ops N
-stop after N mmaphuge bogo operations
-.TP
 .B \-\-mmaphuge\-mlock
 attempt to mlock mmap'd huge pages into memory causing more memory pressure by
 preventing pages from swapped out.
@@ -3530,11 +3527,18 @@ preventing pages from swapped out.
 set the number of huge page mappings to attempt in each round of mappings. The
 default is 8192 mappings.
 .TP
+.B \-\-mmaphuge\-ops N
+stop after N mmaphuge bogo operations
+.TP
 .B \-\-mmapmany N
 start N workers that attempt to create the maximum allowed per-process memory
 mappings. This is achieved by mapping 3 contiguous pages and then unmapping the
 middle page hence splitting the mapping into two. This is then repeated until
 the maximum allowed mappings or a maximum of 262144 mappings are made.
+.TP
+.B \-\-mmapmany\-mlock
+attempt to mlock mmap'd huge pages into memory causing more memory pressure by
+preventing pages from swapped out.
 .TP
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations
