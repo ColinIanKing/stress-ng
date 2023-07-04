@@ -1868,6 +1868,7 @@ typedef enum {
 	OPT_regs_ops,
 
 	OPT_remap,
+	OPT_remap_mlock,
 	OPT_remap_ops,
 	OPT_remap_pages,
 

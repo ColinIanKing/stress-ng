@@ -897,6 +897,7 @@ static const struct option long_options[] = {
 	{ "regs",		1,	0,	OPT_regs },
 	{ "regs-ops",		1,	0,	OPT_regs_ops },
 	{ "remap",		1,	0,	OPT_remap },
+	{ "remap-mlock",	0,	0,	OPT_remap_mlock },
 	{ "remap-ops",		1,	0,	OPT_remap_ops },
 	{ "remap-pages",	1,	0,	OPT_remap_pages },
 	{ "rename",		1,	0,	OPT_rename },

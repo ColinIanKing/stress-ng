@@ -4441,6 +4441,10 @@ start N workers that map 512 pages and re-order these pages using the
 deprecated system call remap_file_pages(2). Several page re-orderings are
 exercised: forward, reverse, random and many pages to 1 page.
 .TP
+.B \-\-remap\-mlock
+attempt to mlock mmap'd huge pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-remap\-ops N
 stop after N remapping bogo operations.
 .TP
