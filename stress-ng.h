@@ -1971,8 +1971,9 @@ typedef enum {
 	OPT_shm_objects,
 
 	OPT_shm_sysv,
-	OPT_shm_sysv_ops,
 	OPT_shm_sysv_bytes,
+	OPT_shm_sysv_mlock,
+	OPT_shm_sysv_ops,
 	OPT_shm_sysv_segments,
 
 	OPT_sequential,

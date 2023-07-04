@@ -61,6 +61,7 @@ UNEXPECTED
 static const stress_help_t help[] = {
 	{ NULL,	"shm-sysv N",		"start N workers that exercise System V shared memory" },
 	{ NULL,	"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
+	{ NULL,	"shm-sysv-mlock",	"attempt to mlock pages into memory" },
 	{ NULL,	"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
 	{ NULL,	"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
 	{ NULL,	NULL,			NULL }
@@ -123,6 +124,11 @@ static const int shm_flags[] = {
 };
 #endif
 
+static int stress_set_shm_sysv_mlock(const char *opt)
+{
+	return stress_set_setting_true("shm-sysv-mlock", opt);
+}
+
 static int stress_set_shm_sysv_bytes(const char *opt)
 {
 	size_t shm_sysv_bytes;
@@ -145,6 +151,7 @@ static int stress_set_shm_sysv_segments(const char *opt)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_shm_sysv_bytes,		stress_set_shm_sysv_bytes },
+	{ OPT_shm_sysv_mlock,		stress_set_shm_sysv_mlock },
 	{ OPT_shm_sysv_segments,	stress_set_shm_sysv_segments },
 	{ 0,				NULL }
 };
@@ -580,7 +587,8 @@ static int stress_shm_sysv_child(
 	const int fd,
 	const size_t max_sz,
 	const size_t page_size,
-	const size_t shm_sysv_segments)
+	const size_t shm_sysv_segments,
+	const bool shm_sysv_mlock)
 {
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
@@ -733,6 +741,8 @@ static int stress_shm_sysv_child(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
+			if (shm_sysv_mlock)
+				(void)shim_mlock(addr, sz);
 			shmat_duration += stress_time_now() - t;
 			shmat_count += 1.0;
 			addrs[i] = addr;
@@ -743,14 +753,6 @@ static int stress_shm_sysv_child(
 				goto reap;
 			(void)stress_mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
-
-#if defined(_POSIX_MEMLOCK_RANGE) &&   \
-    defined(HAVE_MLOCK)
-			/*
-			 *  Exercise mlock on 1st page of shm
-			 */
-			(void)shim_mlock(addr, 4096);
-#endif
 
 			if (!stress_continue(args))
 				goto reap;
@@ -879,10 +881,6 @@ reap:
 			if (addrs[i]) {
 				double t;
 
-#if defined(_POSIX_MEMLOCK_RANGE) &&   \
-    defined(HAVE_MLOCK)
-				(void)shim_munlock(addrs[i], 4096);
-#endif
 				t = stress_time_now();
 				if (shmdt(addrs[i]) < 0) {
 					pr_fail("%s: shmdt failed, errno=%d (%s)\n",
@@ -951,9 +949,12 @@ static int stress_shm_sysv(const stress_args_t *args)
 	ssize_t i;
 	pid_t pid;
 	bool retry = true;
+	bool shm_sysv_mlock = false;
 	uint32_t restarts = 0;
 	size_t shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
 	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
+
+	(void)stress_get_setting("shm-sysv-mlock", &shm_sysv_mlock);
 
 	if (!stress_get_setting("shm-sysv-bytes", &shm_sysv_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -1083,7 +1084,7 @@ fork_again:
 					"(instance %d)\n", args->name, args->instance);
 
 			(void)close(pipefds[0]);
-			rc = stress_shm_sysv_child(args, pipefds[1], sz, page_size, shm_sysv_segments);
+			rc = stress_shm_sysv_child(args, pipefds[1], sz, page_size, shm_sysv_segments, shm_sysv_mlock);
 			(void)close(pipefds[1]);
 			_exit(rc);
 		}

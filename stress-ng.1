@@ -4754,7 +4754,7 @@ specify the size as % of total available memory or in units of Bytes, KBytes,
 MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-shm\-mlock
-attempt to mlock shared memory pages into memory causing more memory pressure by
+attempt to mlock shared memory objects into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-shm\-objs N
@@ -4769,13 +4769,17 @@ start N workers that allocate shared memory using the System V shared memory
 interface.  By default, the test will repeatedly create and destroy 8 shared
 memory segments, each of which is 8MB in size.
 .TP
-.B \-\-shm\-sysv\-ops N
-stop after N shared memory create and destroy bogo operations are complete.
-.TP
 .B \-\-shm\-sysv\-bytes N
 specify the size of the shared memory segment to be created. One can specify
 the size as % of total available memory or in units of Bytes, KBytes, MBytes
 and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-shm\-sysv\-mlock
+attempt to mlock shared memory segment into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
+.B \-\-shm\-sysv\-ops N
+stop after N shared memory create and destroy bogo operations are complete.
 .TP
 .B \-\-shm\-sysv\-segs N
 specify the number of shared memory segments to be created. The default is
