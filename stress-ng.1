@@ -2501,7 +2501,8 @@ stop inotify stress workers after N inotify bogo operations.
 .TP
 .B \-i N, \-\-io N
 start N workers continuously calling sync(2) to commit buffer cache to disk.
-This can be used in conjunction with the \-\-hdd options.
+This can be used in conjunction with the \-\-hdd stressor. This is a legacy
+stressor that is compatible with the orignal stress tool.
 .TP
 .B \-\-io\-ops N
 stop io stress workers after N bogo operations.
