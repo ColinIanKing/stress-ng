@@ -708,6 +708,7 @@ static const struct option long_options[] = {
 	{ "mmap-mlock",		0,	0,	OPT_mmap_mlock },
 	{ "mmap-mmap2",		0,	0,	OPT_mmap_mmap2 },
 	{ "mmapaddr",		1,	0,	OPT_mmapaddr },
+	{ "mmapaddr-mlock",	0,	0,	OPT_mmapaddr_mlock },
 	{ "mmapaddr-ops",	1,	0,	OPT_mmapaddr_ops },
 	{ "mmapfixed",		1,	0,	OPT_mmapfixed},
 	{ "mmapfixed-ops",	1,	0,	OPT_mmapfixed_ops },

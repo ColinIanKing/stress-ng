@@ -3475,6 +3475,10 @@ chosen 32 bit or 64 bit address. If the mapping works a second page is
 memory mapped from the first mapped address. The stressor exercises
 mmap/munmap, mincore and segfault handling.
 .TP
+.B \-\-mmapaddr\-mlock
+attempt to mlock mmap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-mmapaddr\-ops N
 stop after N random address mmap bogo operations.
 .TP

@@ -23,9 +23,15 @@ static volatile bool page_fault = false;
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapaddr N",	  "start N workers stressing mmap with random addresses" },
+	{ NULL,	"mmapaddr-mlock", "attempt to mlock pages into memory" },
 	{ NULL,	"mmapaddr-ops N", "stop after N mmapaddr bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
+
+static int stress_set_mmapaddr_mlock(const char *opt)
+{
+	return stress_set_setting_true("mmapaddr-mlock", opt);
+}
 
 static void stress_fault_handler(int signum)
 {
@@ -110,8 +116,11 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 	const size_t page_size = args->page_size;
 	const uintptr_t page_mask = ~(page_size - 1);
 	const uintptr_t page_mask32 = page_mask & 0xffffffff;
+	bool mmapaddr_mlock = false;
 
 	(void)context;
+
+	(void)stress_get_setting("mmapaddr-mlock", &mmapaddr_mlock);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -147,6 +156,8 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		if (!map_addr || (map_addr == MAP_FAILED))
 			continue;
 
+		if (mmapaddr_mlock)
+			(void)shim_mlock(map_addr, page_size);
 		if (stress_mmapaddr_check(args, map_addr) < 0)
 			goto unmap;
 
@@ -163,6 +174,8 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		if (!remap_addr || (remap_addr == MAP_FAILED))
 			goto unmap;
 
+		if (mmapaddr_mlock)
+			(void)shim_mlock(remap_addr, page_size);
 		(void)stress_mmapaddr_check(args, remap_addr);
 		(void)stress_munmap_retry_enomem((void *)remap_addr, page_size);
 
@@ -176,8 +189,11 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 
 		/* Now try to remap with a new fixed address */
 		remap_addr = mremap(map_addr, page_size, page_size, MREMAP_FIXED | MREMAP_MAYMOVE, addr);
-		if (remap_addr && (remap_addr != MAP_FAILED))
-			map_addr = remap_addr;
+		if (remap_addr && (remap_addr != MAP_FAILED)) {
+			map_addr = remap_addr; 
+			if (mmapaddr_mlock)
+				(void)shim_mlock(remap_addr, page_size);
+		}
 #endif
 
 #if defined(MAP_FIXED_NOREPLACE)
@@ -220,9 +236,15 @@ static int stress_mmapaddr(const stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mmapaddr_child, STRESS_OOMABLE_NORMAL);
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmapaddr_mlock,	stress_set_mmapaddr_mlock },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_mmapaddr_info = {
 	.stressor = stress_mmapaddr,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

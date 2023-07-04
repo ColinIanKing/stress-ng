@@ -1626,6 +1626,7 @@ typedef enum {
 	OPT_mmap_mmap2,
 
 	OPT_mmapaddr,
+	OPT_mmapaddr_mlock,
 	OPT_mmapaddr_ops,
 
 	OPT_mmapfixed,
