@@ -3503,6 +3503,10 @@ and finally an address that is several pages higher in memory. Mappings
 and remappings are madvised with random madvise options to further exercise
 the mappings.
 .TP
+.B \-\-mmapfixed\-mlock
+attempt to mlock mmap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-mmapfixed\-ops N
 stop after N mmapfixed memory mapping bogo operations.
 .TP

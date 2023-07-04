@@ -23,9 +23,15 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmapfixed N",		"start N workers stressing mmap with fixed mappings" },
+	{ NULL,	"mmapfixed-mlock",	"attempt to mlock pages into memory" },
 	{ NULL,	"mmapfixed-ops N",	"stop after N mmapfixed bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
+
+static int stress_set_mmapfixed_mlock(const char *opt)
+{
+	return stress_set_setting_true("mmapfixed-mlock", opt);
+}
 
 #if UINTPTR_MAX == MAX_32
 #define MMAP_TOP	(0x80000000UL)
@@ -107,8 +113,11 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 	const uintptr_t page_mask = ~((uintptr_t)(page_size - 1));
 #endif
 	uintptr_t addr = MMAP_TOP;
+	bool mmapfixed_mlock = false;
 
 	(void)context;
+
+	(void)stress_get_setting("mmapfixed-mlock", &mmapfixed_mlock);
 
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV,
 				stress_sig_handler_exit, NULL));
@@ -152,6 +161,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 		if (buf == MAP_FAILED)
 			goto next;
 
+		if (mmapfixed_mlock)
+			(void)shim_mlock(buf, sz);
 		(void)stress_madvise_random(buf, sz);
 #if defined(HAVE_MREMAP) &&	\
     NEED_GLIBC(2,4,0) && 	\
@@ -177,6 +188,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 			if (newbuf && (newbuf != MAP_FAILED))
 				buf = newbuf;
 
+			if (mmapfixed_mlock)
+				(void)shim_mlock(buf, sz);
 			(void)stress_madvise_random(buf, sz);
 
 			for (mask = ~(uintptr_t)0; mask > page_size; mask >>= 1) {
@@ -207,6 +220,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 					}
 
 					buf = newbuf;
+					if (mmapfixed_mlock)
+						(void)shim_mlock(buf, sz);
 					(void)stress_madvise_random(buf, sz);
 				}
 			}
@@ -235,9 +250,15 @@ static int stress_mmapfixed(const stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmapfixed_mlock,	stress_set_mmapfixed_mlock },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_mmapfixed_info = {
 	.stressor = stress_mmapfixed,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
