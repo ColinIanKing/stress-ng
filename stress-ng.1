@@ -4472,6 +4472,10 @@ start N workers that consume various system resources. Each worker will spawn
 stack, temporary files and various file descriptors (eventfds, memoryfds,
 userfaultfds, pipes and sockets).
 .TP
+.B \-\-resources\-mlock
+attempt to mlock mmap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-resources\-ops N
 stop after N resource child forks.
 .TP

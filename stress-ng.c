@@ -904,6 +904,7 @@ static const struct option long_options[] = {
 	{ "resched",		1,	0,	OPT_resched },
 	{ "resched-ops",	1,	0,	OPT_resched_ops },
 	{ "resources",		1,	0,	OPT_resources },
+	{ "resources-mlock",	0,	0,	OPT_resources_mlock },
 	{ "resources-ops",	1,	0,	OPT_resources_ops },
 	{ "revio",		1,	0,	OPT_revio },
 	{ "revio-bytes",	1,	0,	OPT_revio_bytes },
