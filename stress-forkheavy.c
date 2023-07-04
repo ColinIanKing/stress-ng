@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-resources.h"
 
 #define MIN_MEM_FREE		((size_t)(16 * MB))
@@ -32,6 +33,9 @@
 typedef struct stress_forkheavy_args {
 	const stress_args_t *args;
 	stress_metrics_t *metrics;
+	stress_resources_t *resources;
+	size_t num_resources;
+	size_t pipe_size;
 } stress_forkheavy_args_t;
 
 typedef struct stress_forkheavy {
@@ -49,10 +53,20 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ NULL,	"forkheavy N",		"start N workers that rapidly fork and reap resource heavy processes" },
 	{ NULL,	"forkheavy-allocs N",	"attempt to allocate N x resources" },
+	{ NULL,	"forkheavy-mlock",	"attempt to mlock newly mapped pages" },
 	{ NULL,	"forkheavy-ops N",	"stop after N bogo fork operations" },
 	{ NULL, "forkheavy-procs N",	"attempt to fork N processes" },
 	{ NULL,	NULL,			NULL }
 };
+
+/*
+ *  stress_set_forkheavy_mlock
+ *     enable mlocking on allocated pages
+ */
+static int stress_set_forkheavy_mlock(const char *opt)
+{
+	return stress_set_setting_true("forkheavy-mlock", opt);
+}
 
 /*
  *  stress_set_forkeheavy_allocs()
@@ -170,9 +184,28 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
 	stress_metrics_t *metrics = forkheavy_args->metrics;
 	uint32_t forkheavy_allocs = DEFAULT_FORKHEAVY_ALLOCS;
 	uint32_t forkheavy_procs = DEFAULT_FORKHEAVY_PROCS;
+	bool forkheavy_mlock = false;
+	size_t num_resources, shmall, freemem, totalmem, freeswap, totalswap, min_mem_free;
+
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+	min_mem_free = (freemem / 100) * 2;
+	if (min_mem_free < MIN_MEM_FREE)
+		min_mem_free = MIN_MEM_FREE;
 
 	(void)stress_get_setting("forkheavy-allocs", &forkheavy_allocs);
 	(void)stress_get_setting("forkheavy-procs", &forkheavy_procs);
+	(void)stress_get_setting("forkheavy-mlock", &forkheavy_mlock);
+
+#if defined(MCL_FUTURE)
+	if (forkheavy_mlock)
+		(void)shim_mlockall(MCL_FUTURE);
+#else
+	UNEXPECTED
+#endif
+	num_resources = stress_resources_allocate(args,
+				forkheavy_args->resources,
+				forkheavy_args->num_resources,
+				forkheavy_args->pipe_size, min_mem_free, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	do {
@@ -225,6 +258,8 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
 	}
 	/* And free */
 	stress_forkheavy_free();
+	if (num_resources > 0)
+		stress_resources_free(args, forkheavy_args->resources, num_resources);
 
 	return EXIT_SUCCESS;
 }
@@ -237,17 +272,16 @@ static int stress_forkheavy(const stress_args_t *args)
 {
 	int rc;
 	double average;
-	stress_resources_t *resources;
-	size_t num_resources = DEFAULT_FORKHEAVY_ALLOCS;
-	const size_t pipe_size = stress_probe_max_pipe_size();
 	stress_metrics_t *metrics;
 	stress_forkheavy_args_t forkheavy_args;
-	size_t shmall, freemem, totalmem, freeswap, totalswap, min_mem_free;
 
-	resources = malloc(num_resources * sizeof(*resources));
-	if (!resources) {
+	(void)shim_memset(&forkheavy_args, 0, sizeof(forkheavy_args));
+	forkheavy_args.pipe_size = stress_probe_max_pipe_size();
+	forkheavy_args.num_resources = DEFAULT_FORKHEAVY_ALLOCS;
+	forkheavy_args.resources = malloc(forkheavy_args.num_resources * sizeof(*forkheavy_args.resources));
+	if (!forkheavy_args.resources) {
 		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",
-			args->name, num_resources);
+			args->name, forkheavy_args.num_resources);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -257,7 +291,7 @@ static int stress_forkheavy(const stress_args_t *args)
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: failed to memory map %zd bytes, skipping stressor\n",
 			args->name, sizeof(*metrics));
-		free(resources);
+		free(forkheavy_args.resources);
 		return EXIT_NO_RESOURCE;
 	}
 	metrics->lock = stress_lock_create();
@@ -265,18 +299,6 @@ static int stress_forkheavy(const stress_args_t *args)
 	metrics->count = 0.0;
 	metrics->t_start = 0.0;
 
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
-	min_mem_free = (freemem / 100) * 2;
-	if (min_mem_free < MIN_MEM_FREE)
-		min_mem_free = MIN_MEM_FREE;
-
-	num_resources = stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, false);
-	if (num_resources < 1) {
-		pr_inf("%s: failed to allocate resources, skipping stressor\n", args->name);
-		(void)munmap((void *)metrics, sizeof(*metrics));
-		free(resources);
-		return EXIT_NO_RESOURCE;
-	}
 	forkheavy_args.metrics = metrics;
 
 	stress_set_oom_adjustment(args, false);
@@ -289,14 +311,14 @@ static int stress_forkheavy(const stress_args_t *args)
 	stress_metrics_set(args, 0, "microsecs per fork" , average * 1000000);
 
 	(void)munmap((void *)metrics, sizeof(*metrics));
-	stress_resources_free(args, resources, num_resources);
-	free(resources);
+	free(forkheavy_args.resources);
 
 	return rc;
 }
 
 static const stress_opt_set_func_t forkheavy_opt_set_funcs[] = {
 	{ OPT_forkheavy_allocs,	stress_set_forkheavy_allocs },
+	{ OPT_forkheavy_mlock,	stress_set_forkheavy_mlock },
 	{ OPT_forkheavy_procs,	stress_set_forkheavy_procs },
 	{ 0,			NULL }
 };

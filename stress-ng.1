@@ -730,7 +730,7 @@ specify amount of memory to grow heap by per iteration. Size can be from 4K to
 .TP
 .B \-\-bigheap\-mlock
 attempt to mlock future allocated pages into memory causing more memory pressure. If
-mlock(MCL_FUTURE) is implemented then this will stop newly allocated  pages from being
+mlock(MCL_FUTURE) is implemented then this will stop newly allocated pages from being
 swapped out.
 .TP
 .B \-\-binderfs N
@@ -1987,6 +1987,11 @@ attempt N resource allocation loops per stressor instance. Resources include
 pipes, file descriptors, memory mappings, pthreads, timers, ptys, semaphores,
 message queues and temporary files. These create heavyweight processes that
 are more time expensive to fork from. Default is 16384.
+.TP
+.B \-\-forkheavy\-mlock
+attempt to mlock future allocated pages into memory causing more memory pressure. If
+mlock(MCL_FUTURE) is implemented then this will stop new brk pages from being
+swapped out.
 .TP
 .B \-\-forkheavy\-ops N
 stop after N fork calls.

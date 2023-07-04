@@ -1304,9 +1304,10 @@ typedef enum {
 	OPT_fork_vm,
 
 	OPT_forkheavy,
+	OPT_forkheavy_allocs,
+	OPT_forkheavy_mlock,
 	OPT_forkheavy_ops,
 	OPT_forkheavy_procs,
-	OPT_forkheavy_allocs,
 
 	OPT_fp,
 	OPT_fp_method,

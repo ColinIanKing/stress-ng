@@ -465,6 +465,7 @@ static const struct option long_options[] = {
 	{ "fork-vm",		0,	0,	OPT_fork_vm },
 	{ "forkheavy",		1,	0,	OPT_forkheavy },
 	{ "forkheavy-allocs",	1,	0,	OPT_forkheavy_allocs },
+	{ "forkheavy-mlock",	0,	0,	OPT_forkheavy_mlock },
 	{ "forkheavy-ops",	1,	0,	OPT_forkheavy_ops },
 	{ "forkheavy-procs",	1,	0,	OPT_forkheavy_procs },
 	{ "fp",			1,	0,	OPT_fp },
