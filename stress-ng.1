@@ -133,8 +133,8 @@ or the \-\-temp\-path specified path. Currently a Linux only option.
 The fields output are:
 .TS
 expand;
-lB lB lB
-l l s.
+lB lB
+l lx.
 Column Heading	Explanation
 T{
 Inflight
@@ -281,8 +281,8 @@ various kinds of load.
 The following columns of information are output:
 .TS
 expand;
-lB lB lB
-l l s.
+lB lB
+l lx.
 Column Heading	Explanation
 T{
 bogo ops
@@ -870,8 +870,8 @@ sequentially, however one can specify just one method to be used if required.
 Available cacheline stress methods are described as follows:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB 
+l lx.
 Method	Description
 all	T{
 iterate over all the below cpu stress methods.
@@ -1080,8 +1080,8 @@ sequentially, however one can specify just one method to be used if required.
 Available cpu stress methods are described as follows:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the below cpu stress methods
@@ -1441,8 +1441,8 @@ specify the cyclic method to be used, the default is clock_ns. The available
 cyclic methods are as follows:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 clock_ns	T{
 sleep for the specified time using the clock_nanosleep(2) high
@@ -1670,8 +1670,8 @@ specify the 2D matrix size N \(mu N. The default is a 32 \(mu 32 matrix.
 select the floating point method to use, available methods are:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	iterate over all the Eigen 2D matrix operations
 add-longdouble	addition of two matrices of long double floating point values
@@ -1908,8 +1908,8 @@ stop filename workers after N bogo filename tests.
 use characters in the filename based on option 'opt'. Valid options are:
 .TS
 expand;
-lB lB lB lB
-l l s s.
+lB lB
+l lx.
 Option	Description
 probe	T{
 default option, probe the file system for valid allowed characters in a file name
@@ -2012,8 +2012,8 @@ just standard float, double and long double floating point types.
 select the floating point method to use, available methods are:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	iterate over all the following floating point methods:
 float128add	128 bit floating point add
@@ -2220,8 +2220,8 @@ specify the hashing method to use, by default all the hashing methods are
 cycled through. Methods available are:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 cycle through all the hashing methods
@@ -2325,8 +2325,8 @@ specify various stress test options as a comma separated list. Options are as
 follows:
 .TS
 expand;
-lB lB lB lB
-l l s s.
+lB lB
+l lx.
 Option	Description
 direct	T{
 try to minimize cache effects of the I/O. File I/O writes are performed
@@ -2609,8 +2609,8 @@ use a RGB sample image height of H pixels. The default is 512 pixels.
 select the source image type to be compressed. Available image types are:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Type	Description
 brown	T{
 brown noise, red and green values vary by a 3 bit value, blue values
@@ -2965,8 +2965,8 @@ specify a matrix stress method. Available matrix stress methods are described
 as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the below matrix stress methods
@@ -3043,8 +3043,8 @@ specify a 3D matrix stress method. Available 3D matrix stress methods are descri
 as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the below matrix stress methods
@@ -3126,8 +3126,8 @@ specify a memcpy copying method. Available memcpy methods are described
 as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 use libc, builtin and na\[:i]ve methods
@@ -3233,8 +3233,8 @@ specify a memthrash stress method. Available memthrash stress methods are descri
 as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the below memthrash methods
@@ -3358,8 +3358,8 @@ to 65536 \(mu 128 bit reads or writes.
 Available misaligned stress methods are described as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	iterate over all the following misaligned methods
 int16rd	8 \(mu 16 bit integer reads
@@ -3582,8 +3582,8 @@ the GNU Multi-Precision Floating Point Reliable library (mpfr). Operations compu
 are as follows:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 apery	T{
 calculate Apery's constant \[*z](3); the sum of 1/(n \[ua] 3).
@@ -3844,8 +3844,8 @@ generate the executable code. This option allows one to select one of the
 three methods:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 inc	T{
 use incrementing 32 bit opcode patterns from 0x00000000 to 0xfffffff inclusive.
@@ -4104,8 +4104,8 @@ specify the size of the l3 cache
 select the prefetching method. Available methods are:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 builtin	T{
 Use the __builtin_prefetch(3) function for prefetching. This is the default.
@@ -4223,8 +4223,8 @@ Select the method moving a process to a specific CPU.  Available methods are
 described as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the race\-sched methods as listed below:
@@ -4300,8 +4300,8 @@ stop the rawdev stress workers after N raw device read bogo operations.
 Available rawdev stress methods are described as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the rawdev stress methods as listed below:
@@ -4555,8 +4555,8 @@ specify the method of rotation to use. The 'all' method uses all the methods
 and is the default.
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	exercise with all the rotate stressor methods (see below):
 rol8	8 bit unsigned rotate left by 1 bit
@@ -5076,8 +5076,8 @@ specify the type of sparse matrix implementation to use. The 'all' method
 uses all the methods and is the default.
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 exercise with all the sparsematrix stressor methods (see below):
@@ -5196,8 +5196,8 @@ least 4 times the size of the CPU L2 cache and continually performs rounds of
 following computations on large arrays of double precision floating point numbers:
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Operation	Description
 copy	T{
 c[i] = a[i]
@@ -5280,8 +5280,8 @@ select the preferred context switch block/run synchronization method, these
 are as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 mq	T{
 use posix message queue with a 1 item size. Messages are passed between
@@ -5360,8 +5360,8 @@ Note that this includes the time to setup, execute the system call and cleanup a
 The available methods are as follows:
 .TS
 expand;
-lB lB lB
-l l s.
+lB lB
+l lx.
 Method	Description
 all	select all the available system calls
 fast10	select the fastest 10% system call tests
@@ -5499,8 +5499,8 @@ specify various file open options as a comma separated list. Options are as
 follows:
 .TS
 expand;
-lB lB lB lB
-l l s s.
+lB lB
+l lx.
 Option	Description
 all	T{
 use all the open options, namely direct, dsync, excl, noatime and sync
@@ -5727,8 +5727,8 @@ specify a vecfp stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate through all of the following vector methods
@@ -5868,8 +5868,8 @@ methods are exercised sequentially, however one can specify just one
 method to be used if required.
 .TS
 expand;
-lB2 lB lB
-l l s.
+lB2 lb
+l lx.
 Method	Description
 all	T{
 iterate through all of the following vector methods
@@ -6009,8 +6009,8 @@ memory issues and to try to force thermal errors.
 Available vm stress methods are described as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
@@ -6213,8 +6213,8 @@ sequentially, however one can specify just one method to be used if required.
 Available vm address stress methods are described as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
@@ -6414,8 +6414,8 @@ generation processes.  However one can specify just one method to be used if req
 Available zlib data generation methods are described as follows:
 .TS
 expand;
-lB2 lB lB lB
-l l s s.
+lB2 lB
+l lx.
 Method	Description
 00ff	T{
 randomly distributed 0x00 and 0xFF values.
