@@ -1711,6 +1711,8 @@ static char *stress_get_libc_version(void)
 
 	(void)snprintf(buf, sizeof(buf), "uclibc %d.%d", __UCLIBC_MAJOR__, __UCLIBC_MINOR__);
 	return buf;
+#elif defined(__DARWIN_C_LEVEL)
+	return "Darwin libc";
 #else
 	return "unknown libc version";
 #endif
