@@ -22,7 +22,11 @@
 
 #include "config.h"
 
-#if defined (HAVE_COMPILER_PCC)
+#if defined(HAVE_COMPILER_TCC)
+#undef _FORTIFY_SOURCE
+#endif
+
+#if defined(HAVE_COMPILER_PCC)
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
