@@ -45,6 +45,7 @@
 { .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "crct10dif",	.block_size = 1,	.digest_size = 2 },
 { .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "digest_null",	.block_size = 1 },
 { .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "ghash",	.block_size = 16,	.digest_size = 16 },
+{ .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "hmac(md5)",	.block_size = 64,	.digest_size = 16 },
 { .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "hmac(sha1)",	.block_size = 64,	.digest_size = 20 },
 { .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "hmac(sha256)",	.block_size = 64,	.digest_size = 32 },
 { .crypto_type = CRYPTO_SHASH, .type = "shash", .name = "md4",	.block_size = 64,	.digest_size = 16 },
