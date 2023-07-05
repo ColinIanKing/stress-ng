@@ -74,8 +74,6 @@ static int NORETURN reboot_clone_func(void *arg)
 
 	/* Should never get here */
 	exit(errno);
-	/* Should definitely never get here */
-	return errno;
 }
 #endif
 
