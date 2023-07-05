@@ -232,6 +232,7 @@ static int stress_virt_to_phys(
 			stress_physpage_mtrr(args, phys_addr, page_size, success);
 #else
 		(void)success;
+		(void)physpage_mtrr;
 #endif
 		return 0;
 	} else {
