@@ -415,14 +415,14 @@ static int stress_x86syscall(const stress_args_t *args)
 #endif
 #if defined(__NR_time)
 	{
-		time_t t1, t2;
+		time_t time1, time2;
 
-		if ((time(&t1) != (time_t)-1) &&
-		    ((time_t)x86_64_syscall1(__NR_time, (long)&t2) != (time_t)-1)) {
-			if (t2 < t1) {
+		if ((time(&time1) != (time_t)-1) &&
+		    ((time_t)x86_64_syscall1(__NR_time, (long)&time2) != (time_t)-1)) {
+			if (time2 < time1) {
 				pr_fail("%s: time syscall returned %" PRIdMAX
 					" which was less than expected value %" PRIdMAX "\n",
-					args->name, (intmax_t)t2, (intmax_t)t1);
+					args->name, (intmax_t)time2, (intmax_t)time1);
 				rc = EXIT_FAILURE;
 			}
 		}
@@ -434,13 +434,13 @@ static int stress_x86syscall(const stress_args_t *args)
 
 		if ((gettimeofday(&tv1, NULL) != -1) &&
 		    ((int)x86_64_syscall2(__NR_gettimeofday, (long)&tv2, (long)NULL) != -1)) {
-			const double t1 = stress_timeval_to_double(&tv1);
-			const double t2 = stress_timeval_to_double(&tv2);
+			const double td1 = stress_timeval_to_double(&tv1);
+			const double td2 = stress_timeval_to_double(&tv2);
 
-			if (t2 < t1) {
+			if (td2 < td1) {
 				pr_fail("%s: gettimeofday syscall returned %.6f"
 					" which was less than expected value %.6f\n",
-					args->name, t2, t1);
+					args->name, td2, td1);
 				rc = EXIT_FAILURE;
 			}
 		}
