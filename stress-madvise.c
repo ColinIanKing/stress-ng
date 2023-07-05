@@ -311,6 +311,7 @@ static int stress_random_advise(
 	}
 #else
 	UNEXPECTED
+	(void)hwpoison;
 	(void)args;
 	(void)addr;
 	(void)size;
