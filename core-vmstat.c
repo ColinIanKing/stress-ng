@@ -748,7 +748,8 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
     defined(SRUN)
 	{
 		size_t length;
-		static const int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
+		/* name must not be const, sysctl does not take const name param */
+		static int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
 
 		vmstat->procs_running = 0;
 		vmstat->procs_blocked = 0;
