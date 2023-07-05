@@ -207,12 +207,12 @@ uint64_t stress_get_uint64_scale(
 	stress_ensure_positive(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
-		longjmp(g_error_env, 1);
+		goto err;
 	}
 
 	if (!len) {
 		(void)fprintf(stderr, "Value %s is an invalid size\n", str);
-		longjmp(g_error_env, 1);
+		goto err;
 	}
 	len--;
 	ch = str[len];
@@ -227,7 +227,10 @@ uint64_t stress_get_uint64_scale(
 	}
 
 	(void)fprintf(stderr, "Illegal %s specifier %c\n", msg, str[len]);
-	_exit(EXIT_FAILURE);
+err:
+	longjmp(g_error_env, 1);
+	/* should never get here */
+	return 0;
 }
 
 /*
