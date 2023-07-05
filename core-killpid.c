@@ -72,7 +72,7 @@ static int stress_wait_until_reaped(
 		}
 
 		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
-			return EXIT_SUCCESS;
+			break;
 
 		count++;
 		/*
@@ -91,8 +91,7 @@ static int stress_wait_until_reaped(
 		if (count > 10)
 			(void)sleep(1);
 	}
-	/* should never get here */
-	return EXIT_FAILURE;
+	return EXIT_SUCCESS;
 }
 
 /*
