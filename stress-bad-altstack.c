@@ -128,9 +128,10 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 		/*
 		 *  We land here if we get a segfault
 		 *  but not a segfault in the sighandler
+		 *  ..bail out fast as we can
 		 */
 		if (!stress_continue(args))
-			_exit(0);
+			_exit(EXIT_SUCCESS);
 	}
 
 	/* Exercise fetch of old ss, return 0 */
@@ -286,7 +287,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 	if (!stress_continue(args))
 		pr_fail("%s: child process with illegal stack unexpectedly worked, %d\n",
 			args->name, rnd);
-	_exit(EXIT_FAILURE);
+	return EXIT_FAILURE;
 }
 
 /*
