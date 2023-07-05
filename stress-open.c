@@ -1075,7 +1075,6 @@ static int stress_open(const stress_args_t *args)
 
 	do {
 		size_t n;
-		int ret;
 		unsigned int min_fd = UINT_MAX, max_fd = 0;
 
 		for (i = 0; i < open_max; i++) {
