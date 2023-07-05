@@ -132,7 +132,6 @@ temporary files. This is either the device of the current working directory
 or the \-\-temp\-path specified path. Currently a Linux only option.
 The fields output are:
 .TS
-expand;
 lB lB
 l lx.
 Column Heading	Explanation
@@ -282,7 +281,6 @@ various kinds of load.
 .PP
 The following columns of information are output:
 .TS
-expand;
 lB lB
 l lx.
 Column Heading	Explanation
@@ -871,7 +869,6 @@ specify a cacheline stress method. By default, all the stress methods are exerci
 sequentially, however one can specify just one method to be used if required.
 Available cacheline stress methods are described as follows:
 .TS
-expand;
 lB2 lB 
 l lx.
 Method	Description
@@ -1081,7 +1078,6 @@ specify a cpu stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
 Available cpu stress methods are described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -1442,7 +1438,6 @@ This is helpful to see where the latencies are clustering.
 specify the cyclic method to be used, the default is clock_ns. The available
 cyclic methods are as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -1671,7 +1666,6 @@ specify the 2D matrix size N \(mu N. The default is a 32 \(mu 32 matrix.
 .B \-\-eigen\-method M
 select the floating point method to use, available methods are:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -1909,7 +1903,6 @@ stop filename workers after N bogo filename tests.
 .B \-\-filename-opts opt
 use characters in the filename based on option 'opt'. Valid options are:
 .TS
-expand;
 lB lB
 l lx.
 Option	Description
@@ -2013,7 +2006,6 @@ just standard float, double and long double floating point types.
 .B \-\-fp\-method method
 select the floating point method to use, available methods are:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -2221,7 +2213,6 @@ stop after N hashing rounds
 specify the hashing method to use, by default all the hashing methods are
 cycled through. Methods available are:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -2326,7 +2317,6 @@ and GBytes using the suffix b, k, m or g.
 specify various stress test options as a comma separated list. Options are as
 follows:
 .TS
-expand;
 lB lB
 l lx.
 Option	Description
@@ -2610,7 +2600,6 @@ use a RGB sample image height of H pixels. The default is 512 pixels.
 .B \-\-jpeg\-image [ brown | flat | gradient | noise | plasma | xstripes ]
 select the source image type to be compressed. Available image types are:
 .TS
-expand;
 lB2 lB
 l lx.
 Type	Description
@@ -2966,7 +2955,6 @@ stop matrix stress workers after N bogo operations.
 specify a matrix stress method. Available matrix stress methods are described
 as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -3044,7 +3032,6 @@ stop the 3D matrix stress workers after N bogo operations.
 specify a 3D matrix stress method. Available 3D matrix stress methods are described
 as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -3127,7 +3114,6 @@ stop memcpy stress workers after N bogo memcpy operations.
 specify a memcpy copying method. Available memcpy methods are described
 as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -3234,7 +3220,6 @@ stop after N memthrash bogo operations.
 specify a memthrash stress method. Available memthrash stress methods are described
 as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -3359,7 +3344,6 @@ to 65536 \(mu 128 bit reads or writes.
 .B \-\-misaligned\-method method
 Available misaligned stress methods are described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -3583,7 +3567,6 @@ start N workers that exercise multi-precision floating point operations using
 the GNU Multi-Precision Floating Point Reliable library (mpfr). Operations computed
 are as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -3845,7 +3828,6 @@ select the opcode generation method.  By default, random bytes are used to
 generate the executable code. This option allows one to select one of the
 three methods:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -4105,7 +4087,6 @@ specify the size of the l3 cache
 .B \-\-prefetch\-method N
 select the prefetching method. Available methods are:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -4224,7 +4205,6 @@ race conditions where affinity changing occurs during process run states.
 Select the method moving a process to a specific CPU.  Available methods are
 described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -4301,7 +4281,6 @@ stop the rawdev stress workers after N raw device read bogo operations.
 .B \-\-rawdev\-method method
 Available rawdev stress methods are described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -4556,7 +4535,6 @@ values 10000 times in a loop per bogo-op.
 specify the method of rotation to use. The 'all' method uses all the methods
 and is the default.
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -5077,7 +5055,6 @@ use a N \(mu N sized sparse matrix
 specify the type of sparse matrix implementation to use. The 'all' method
 uses all the methods and is the default.
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -5197,7 +5174,6 @@ tool by John D. McCalpin, Ph.D. This stressor allocates buffers that are at
 least 4 times the size of the CPU L2 cache and continually performs rounds of
 following computations on large arrays of double precision floating point numbers:
 .TS
-expand;
 lB2 lB
 l lx.
 Operation	Description
@@ -5281,7 +5257,6 @@ because of CPU speed and memory bandwidth limitations.
 select the preferred context switch block/run synchronization method, these
 are as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -5361,7 +5336,6 @@ select the choice of system calls to executed based on the fasted test duration 
 Note that this includes the time to setup, execute the system call and cleanup afterwards.
 The available methods are as follows:
 .TS
-expand;
 lB lB
 l lx.
 Method	Description
@@ -5500,7 +5474,6 @@ rates for the very low CPU time used.
 specify various file open options as a comma separated list. Options are as
 follows:
 .TS
-expand;
 lB lB
 l lx.
 Option	Description
@@ -5728,7 +5701,6 @@ is equivalent to 65536 \(mu 2 \(mu 16 floating point operations.
 specify a vecfp stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -5869,7 +5841,6 @@ specify a vector shuffling stress method. By default, all the stress
 methods are exercised sequentially, however one can specify just one
 method to be used if required.
 .TS
-expand;
 lB2 lb
 l lx.
 Method	Description
@@ -6010,7 +5981,6 @@ memory issues and to try to force thermal errors.
 .PP
 Available vm stress methods are described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -6214,7 +6184,6 @@ sequentially, however one can specify just one method to be used if required.
 .PP
 Available vm address stress methods are described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
@@ -6415,7 +6384,6 @@ the data stream is created from a random selection of the different data
 generation processes.  However one can specify just one method to be used if required.
 Available zlib data generation methods are described as follows:
 .TS
-expand;
 lB2 lB
 l lx.
 Method	Description
