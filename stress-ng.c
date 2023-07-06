@@ -639,6 +639,7 @@ static const struct option long_options[] = {
 	{ "malloc",		1,	0,	OPT_malloc },
 	{ "malloc-bytes",	1,	0,	OPT_malloc_bytes },
 	{ "malloc-max",		1,	0,	OPT_malloc_max },
+	{ "malloc-mlock",	0,	0,	OPT_malloc_mlock },
 	{ "malloc-ops",		1,	0,	OPT_malloc_ops },
 	{ "malloc-pthreads",	1,	0,	OPT_malloc_pthreads },
 	{ "malloc-thresh",	1,	0,	OPT_malloc_threshold },

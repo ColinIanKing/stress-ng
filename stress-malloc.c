@@ -45,6 +45,7 @@ typedef struct {
 	size_t len;			/* Allocation length */
 } stress_malloc_info_t;
 
+static bool malloc_mlock;		/* True = mlock all future allocs */
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */
 #if defined(HAVE_LIB_PTHREAD)
@@ -80,6 +81,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"malloc N",		"start N workers exercising malloc/realloc/free" },
 	{ NULL,	"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,	"malloc-max N",		"keep up to N allocations at a time" },
+	{ NULL,	"malloc-mlock",		"attempt to mlock pages into memory" },
 	{ NULL,	"malloc-ops N",		"stop after N malloc bogo operations" },
 	{ NULL, "malloc-pthreads N",	"number of pthreads to run concurrently" },
 	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
@@ -87,6 +89,11 @@ static const stress_help_t help[] = {
 	{ NULL,	"malloc-zerofree",	"zero free'd memory" },
 	{ NULL,	NULL,			NULL }
 };
+
+static int stress_set_malloc_mlock(const char *opt)
+{
+	return stress_set_setting_true("malloc-mlock", opt);
+}
 
 static int stress_set_malloc_bytes(const char *opt)
 {
@@ -197,7 +204,13 @@ static void *stress_malloc_loop(void *ptr)
 	static void *nowt = NULL;
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	stress_malloc_info_t *info = (stress_malloc_info_t *)calloc(malloc_max, sizeof(*info));
+	stress_malloc_info_t *info;
+
+#if defined(MCL_FUTURE)
+	if (malloc_mlock)
+		(void)shim_mlockall(MCL_FUTURE);
+#endif
+	info = (stress_malloc_info_t *)calloc(malloc_max, sizeof(*info));
 	if (!info) {
 		pr_dbg("%s: cannot allocate address buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -353,6 +366,11 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	if (stress_sighandler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+#if defined(MCL_FUTURE)
+	if (malloc_mlock)
+		(void)shim_mlockall(MCL_FUTURE);
+#endif
+
 	/*
 	 *  pthread instance 0 is actually the main child process,
 	 *  insances 1..N are pthreads 0..N-1
@@ -410,12 +428,15 @@ static int stress_malloc(const stress_args_t *args)
 {
 	int ret;
 	bool malloc_zerofree = false;
+	malloc_mlock = false;
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+
+	(void)stress_get_setting("malloc-mlock", &malloc_mlock);
 
 	malloc_bytes = DEFAULT_MALLOC_BYTES;
 	if (!stress_get_setting("malloc-bytes", &malloc_bytes)) {
@@ -459,8 +480,9 @@ static int stress_malloc(const stress_args_t *args)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_malloc_max,	stress_set_malloc_max },
 	{ OPT_malloc_bytes,	stress_set_malloc_bytes },
+	{ OPT_malloc_max,	stress_set_malloc_max },
+	{ OPT_malloc_mlock,	stress_set_malloc_mlock },
 	{ OPT_malloc_pthreads,	stress_set_malloc_pthreads },
 	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
 	{ OPT_malloc_touch,	stress_set_malloc_touch },

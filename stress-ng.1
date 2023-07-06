@@ -2916,6 +2916,10 @@ and placed in an allocation slot. Because about 50%/50% split between
 allocation and freeing, typically half of the allocation slots are in use at
 any one time.
 .TP
+.B \-\-malloc\-mlock
+attempt to mlock the allocations into memory to prevent them from being
+swapped out.
+.TP
 .B \-\-malloc\-ops N
 stop after N malloc bogo operations. One bogo operations relates to a
 successful malloc(3), calloc(3) or realloc(3).
