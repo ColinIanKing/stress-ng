@@ -3888,6 +3888,10 @@ specify the size of the memory mapped region to be exercised. One can
 specify the size as % of total available memory or in units of Bytes, KBytes,
 MBytes and GBytes using the suffix b, k, m or g.
 .TP
+.B \-\-pagemove\-mlock
+attempt to mlock mmap'd and mremap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-pagemove\-ops N
 stop after N pagemove shuffling operations, where suffling all the pages in
 the mmap'd region is equivalent to 1 bogo-operation.

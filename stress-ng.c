@@ -794,6 +794,7 @@ static const struct option long_options[] = {
 	{ "page-in",		0,	0,	OPT_page_in },
 	{ "pagemove",		1,	0,	OPT_pagemove },
 	{ "pagemove-bytes",	1,	0,	OPT_pagemove_bytes },
+	{ "pagemove-mlock",	0,	0,	OPT_pagemove_mlock },
 	{ "pagemove-ops",	1,	0,	OPT_pagemove_ops },
 	{ "pageswap",		1,	0,	OPT_pageswap },
 	{ "pageswap-ops",	1,	0,	OPT_pageswap_ops },

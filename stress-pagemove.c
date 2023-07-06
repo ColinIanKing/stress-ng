@@ -25,6 +25,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"pagemove N",	  	"start N workers that shuffle move pages" },
 	{ NULL,	"pagemove-bytes N",	"size of mmap'd region to exercise page moving in bytes" },
+	{ NULL, "pagemove-mlock",	"attempt to mlock pages into memory" },
 	{ NULL,	"pagemove-ops N",	"stop after N page move bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -33,6 +34,11 @@ typedef struct {
 	void *	virt_addr;		/* original virtual address of page */
 	size_t	page_num;		/* original page number relative to start of entire mapping */
 } page_info_t;
+
+static int stress_set_pagemove_mlock(const char *opt)
+{
+	return stress_set_setting_true("pagemove-mlock", opt);
+}
 
 static int stress_set_pagemove_bytes(const char *opt)
 {
@@ -46,6 +52,7 @@ static int stress_set_pagemove_bytes(const char *opt)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_pagemove_bytes,	stress_set_pagemove_bytes },
+	{ OPT_pagemove_mlock,	stress_set_pagemove_mlock },
 	{ 0,			NULL }
 };
 
@@ -76,8 +83,11 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 	int rc = EXIT_FAILURE;
 	double duration = 0.0, count = 0.0, rate;
 	int metrics_count = 0;
+	bool pagemove_mlock = false;
 
 	(void)context;
+
+	(void)stress_get_setting("pagemove-mlock", &pagemove_mlock);
 
 	if (!stress_get_setting("pagemove-bytes", &pagemove_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -100,6 +110,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 			args->name, sz + page_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	if (pagemove_mlock)
+		(void)shim_mlock(buf, sz + page_size);
 	buf_end = buf + sz;
 	unmapped_page = buf_end;
 	(void)munmap((void *)unmapped_page, page_size);
@@ -150,6 +162,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 					stress_pagemove_remap_fail(args, ptr, unmapped_page);
 					goto fail;
 				}
+				if (pagemove_mlock)
+					(void)shim_mlock(remap_addr1, page_size);
 
 				remap_addr2 = mremap((void *)(ptr + page_size), page_size,
 					page_size, MREMAP_FIXED | MREMAP_MAYMOVE, ptr);
@@ -157,6 +171,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 					stress_pagemove_remap_fail(args, ptr + page_size, ptr);
 					goto fail;
 				}
+				if (pagemove_mlock)
+					(void)shim_mlock(remap_addr2, page_size);
 
 				remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
 					MREMAP_FIXED | MREMAP_MAYMOVE, (void *)(ptr + page_size));
@@ -164,6 +180,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 					stress_pagemove_remap_fail(args, remap_addr1, ptr + page_size);
 					goto fail;
 				}
+				if (pagemove_mlock)
+					(void)shim_mlock(remap_addr3, page_size);
 			} else {
 				/* slower metrics mremaps */
 				double t1, t2;
@@ -178,6 +196,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 					stress_pagemove_remap_fail(args, ptr, unmapped_page);
 					goto fail;
 				}
+				if (pagemove_mlock)
+					(void)shim_mlock(remap_addr1, page_size);
 
 				t1 = stress_time_now();
 				remap_addr2 = mremap((void *)(ptr + page_size), page_size,
@@ -189,6 +209,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 					stress_pagemove_remap_fail(args, ptr + page_size, ptr);
 					goto fail;
 				}
+				if (pagemove_mlock)
+					(void)shim_mlock(remap_addr2, page_size);
 
 				t1 = stress_time_now();
 				remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
@@ -200,6 +222,8 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 					stress_pagemove_remap_fail(args, remap_addr1, ptr + page_size);
 					goto fail;
 				}
+				if (pagemove_mlock)
+					(void)shim_mlock(remap_addr3, page_size);
 			}
 			if (metrics_count++ > 1000)
 				metrics_count = 0;
