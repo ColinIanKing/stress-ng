@@ -26,6 +26,29 @@
 #include <intel-ipsec-mb.h>
 #endif
 
+#if IMB_VERSION_NUM <= 0x3400
+#define IMB_MGR				MB_MGR
+#define IMB_JOB				JOB_AES_HMAC
+#define IMB_STATUS_COMPLETED		STS_COMPLETED
+#define IMB_ORDER_HASH_CIPHER		HASH_CIPHER
+#define IMB_ORDER_CIPHER_HASH		CIPHER_HASH
+#define IMB_DIR_ENCRYPT			ENCRYPT
+#define IMB_CIPHER_NULL			NULL_CIPHER
+#define IMB_CIPHER_CBC			CBC
+#define IMB_CIPHER_CNTR			CNTR
+#define IMB_AUTH_SHA_512		PLAIN_SHA_512
+#define IMB_AUTH_AES_CMAC		AES_CMAC
+#define IMB_AUTH_MD5			MD5
+#define IMB_AUTH_NULL			NULL_HASH
+#define IMB_AUTH_HMAC_SHA_1		SHA1
+#define IMB_AUTH_HMAC_SHA_512		SHA_512
+#define key_len_in_bytes		aes_key_len_in_bytes
+#define enc_keys			aes_enc_key_expanded
+#define dec_keys			aes_dec_key_expanded
+#define IMB_SHA_512_BLOCK_SIZE		SHA_512_BLOCK_SIZE
+#define IMB_SHA512_DIGEST_SIZE_IN_BYTES	SHA512_DIGEST_SIZE_IN_BYTES
+#endif
+
 typedef struct {
 	double	ops;
 	double	duration;
