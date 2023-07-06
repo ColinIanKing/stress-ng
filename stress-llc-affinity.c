@@ -23,8 +23,19 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"llc-affinity N",	"start N workers exercising low level cache over all CPUs" },
+	{ NULL,	"llc-affinity-mlock",	"attempt to mlock pages into memory" },
 	{ NULL,	"llc-affinity-ops N",	"stop after N low-level-cache bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_llc_affinity_mlock(const char *opt)
+{
+	return stress_set_setting_true("llc-affinity-mlock", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_llc_affinity_mlock,	stress_set_llc_affinity_mlock },
+	{ 0,				NULL }
 };
 
 #if defined(HAVE_SCHED_SETAFFINITY)
@@ -151,6 +162,9 @@ static int stress_llc_affinity(const stress_args_t *args)
 	uint64_t affinity_changes = 0;
 	double write_duration, read_duration, rate, writes, reads, t_start, duration;
 	cache_line_func_t write_func, read_func;
+	bool llc_affinity_mlock = false;
+
+	(void)stress_get_setting("llc-affinity-mlock", &llc_affinity_mlock);
 
 	stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);
 	if (llc_size == 0) {
@@ -174,6 +188,8 @@ static int stress_llc_affinity(const stress_args_t *args)
 		pr_fail("%s: mmap'd region of %zu bytes failed\n", args->name, mmap_sz);
 		return EXIT_NO_RESOURCE;
 	}
+	if (llc_affinity_mlock)
+		(void)shim_mlock(buf, mmap_sz);
 	buf_end = (uint64_t *)((uintptr_t)buf + mmap_sz);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -234,6 +250,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_llc_affinity,
 	.class = CLASS_CPU_CACHE,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -243,6 +260,7 @@ stressor_info_t stress_llc_affinity_info = {
 stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sched_setaffinity() support"

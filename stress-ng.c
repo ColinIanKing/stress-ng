@@ -608,6 +608,7 @@ static const struct option long_options[] = {
 	{ "list-ops",		1,	0,	OPT_list_ops },
 	{ "list-size",		1,	0,	OPT_list_size },
 	{ "llc-affinity",	1,	0,	OPT_llc_affinity },
+	{ "llc-affinity-mlock",	0,	0,	OPT_llc_affinity_mlock },
 	{ "llc-affinity-ops",	1,	0,	OPT_llc_affinity_ops },
 	{ "loadavg",		1,	0,	OPT_loadavg },
 	{ "loadavg-ops",	1,	0,	OPT_loadavg_ops },

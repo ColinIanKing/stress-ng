@@ -2781,6 +2781,10 @@ activity across a LLC sized buffer and then changing CPU affinity after
 each round of read/writes. This can cause non-local memory stalls and
 LLC read/write misses.
 .TP
+.B \-\-llc\-affinity\-mlock
+attempt to mlock the LLC sized buffer into memory to prevent it from being
+swapped out.
+.TP
 .B \-\-llc\-affinity\-ops N
 stop after N rounds of LLC read/writes.
 .TP
