@@ -309,6 +309,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	 *  Under memory pressure we may need to scale back our
 	 *  mappings array to the point where it can fit into memory.
 	 */
+	mappings = MAP_FAILED;
 	while (mappings_len > page_size) {
 		mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
