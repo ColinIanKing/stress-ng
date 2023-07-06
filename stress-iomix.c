@@ -1041,6 +1041,7 @@ static int stress_iomix(const stress_args_t *args)
 	pid_t pids[SIZEOF_ARRAY(iomix_funcs)];
 	const char *fs_type;
 	int oflags = O_CREAT | O_RDWR;
+	bool iomix_bytes_shrunk = false;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -1084,21 +1085,38 @@ static int stress_iomix(const stress_args_t *args)
 	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
+	do {
 #if defined(FALLOC_FL_ZERO_RANGE)
-	ret = shim_fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, iomix_bytes);
+		ret = shim_fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, iomix_bytes);
 #else
-	ret = shim_fallocate(fd, 0, 0, iomix_bytes);
+		ret = shim_fallocate(fd, 0, 0, iomix_bytes);
 #endif
-	if (ret < 0) {
-		if (errno == ENOSPC) {
-			ret = EXIT_NO_RESOURCE;
-		} else {
-			ret = EXIT_FAILURE;
-			pr_fail("%s: fallocate failed, errno=%d (%s)%s\n",
-				args->name, errno, strerror(errno), fs_type);
+		if (ret < 0) {
+			switch (errno) {
+			case EFBIG:
+			case ENOSPC:
+				if (iomix_bytes > (off_t)MIN_IOMIX_BYTES) {
+					iomix_bytes >>= 1;
+					iomix_bytes_shrunk = true;
+				} else {
+					pr_fail("%s: fallocate failed, no free space, errno=%d (%s)%s, skipping stressor\n",
+						args->name, errno, strerror(errno), fs_type);
+					ret = EXIT_NO_RESOURCE;
+					goto tidy;
+				}
+				break;
+			default:
+				pr_fail("%s: fallocate failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
+				ret = EXIT_FAILURE;
+				goto tidy;
+			}
 		}
-		goto tidy;
-	}
+	} while ((ret < 0) && stress_continue(args));
+
+	if (iomix_bytes_shrunk)
+		pr_inf("%s: file size too large for file system, reducing file size to %jd MB\n",
+			args->name, (intmax_t)iomix_bytes >> 20);
 
 	stress_file_rw_hint_short(fd);
 
