@@ -3169,6 +3169,10 @@ and GBytes using the suffix b, k, m or g.
 create N memfd file descriptors, the default is 256. One can select 8 to 4096
 memfd file descriptions with this option.
 .TP
+.B \-\-memfd\-mlock
+attempt to mlock mmap'd pages into memory causing more memory pressure by
+preventing pages from swapped out.
+.TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
 .TP

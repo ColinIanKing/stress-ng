@@ -1576,9 +1576,10 @@ typedef enum {
 	OPT_memcpy_method,
 
 	OPT_memfd,
-	OPT_memfd_ops,
 	OPT_memfd_bytes,
 	OPT_memfd_fds,
+	OPT_memfd_mlock,
+	OPT_memfd_ops,
 
 	OPT_memhotplug,
 	OPT_memhotplug_ops,

@@ -668,6 +668,7 @@ static const struct option long_options[] = {
 	{ "memfd",		1,	0,	OPT_memfd },
 	{ "memfd-bytes",	1,	0,	OPT_memfd_bytes },
 	{ "memfd-fds",		1,	0,	OPT_memfd_fds },
+	{ "memfd-mlock",	0,	0,	OPT_memfd_mlock },
 	{ "memfd-ops",		1,	0,	OPT_memfd_ops },
 	{ "memhotplug",		1,	0,	OPT_memhotplug },
 	{ "memhotplug-ops",	1,	0,	OPT_memhotplug_ops },

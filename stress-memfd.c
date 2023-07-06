@@ -19,7 +19,6 @@
  */
 #include "stress-ng.h"
 #include "core-cpu.h"
-//#include "core-nt-store.h"
 #include "core-target-clones.h"
 
 #define MIN_MEMFD_BYTES		(2 * MB)
@@ -33,9 +32,15 @@ static const stress_help_t help[] = {
 	{ NULL,	"memfd N",	 "start N workers allocating memory with memfd_create" },
 	{ NULL,	"memfd-bytes N", "allocate N bytes for each stress iteration" },
 	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },
+	{ NULL,	"memfd-mlock",	 "attempt to mlock pages into memory" },
 	{ NULL,	"memfd-ops N",	 "stop after N memfd bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
+
+static int stress_set_memfd_mlock(const char *opt)
+{
+	return stress_set_setting_true("memfd-mlock", opt);
+}
 
 /*
  *  stress_set_memfd_bytes
@@ -68,6 +73,7 @@ static int stress_set_memfd_fds(const char *opt)
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memfd_bytes,	stress_set_memfd_bytes },
 	{ OPT_memfd_fds,	stress_set_memfd_fds },
+	{ OPT_memfd_mlock,	stress_set_memfd_mlock },
 	{ 0,			NULL }
 };
 
@@ -238,6 +244,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	int mmap_flags = MAP_FILE | MAP_SHARED;
 	double duration = 0.0, count = 0.0, rate;
+	bool memfd_mlock = false;
 #if defined(HAVE_NT_STORE64)
 	void (*stress_memfd_fill_pages)(void *ptr, const size_t size) =
 		stress_cpu_x86_has_sse2() ? stress_memfd_fill_pages_nt_store : stress_memfd_fill_pages_generic;
@@ -250,6 +257,8 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 #endif
 
 	(void)context;
+
+	(void)stress_get_setting("memfd-mlock", &memfd_mlock);
 
 	if (!stress_get_setting("memfd-bytes", &memfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -357,6 +366,10 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			 * to force page it in
 			 */
 			maps[i] = mmap(NULL, size, PROT_WRITE, mmap_flags, fds[i], 0);
+			if (maps[i] == MAP_FAILED)
+				continue;
+			if (memfd_mlock)
+				(void)shim_mlock(maps[i], size);
 			stress_memfd_fill_pages(maps[i], size);
 			(void)stress_madvise_random(maps[i], size);
 
@@ -382,6 +395,8 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 
 		for (i = 0; i < memfd_fds; i++) {
 			if (fds[i] < 0)
+				continue;
+			if (maps[i] == MAP_FAILED)
 				continue;
 #if defined(SEEK_SET)
 			if (lseek(fds[i], (off_t)size >> 1, SEEK_SET) < 0) {
@@ -445,6 +460,8 @@ memfd_unmap:
 					MAP_PRIVATE, fds[i], 0);
 			if (buf == MAP_FAILED)
 				continue;
+			if (memfd_mlock)
+				(void)shim_mlock(buf, test_size);
 			end_ptr = uint64_ptr_offset(buf, test_size);
 			for (ptr = buf; ptr < end_ptr; ptr++)
 				*ptr = val;
