@@ -469,17 +469,21 @@ do_stress --link -1 --link-sync
 
 do_stress --lease -1 --lease-breakers 8
 
+do_stress --llc-affinity -1 --llc-affinity-mlock
+
 do_stress --lockf -1 --lockf-nonblock
 
 do_stress --lockbus -1 --lockbus-nosplit
 
 do_stress --madvise -1 --madvise-hwpoison
 
-do_stress --malloc -1 --malloc-touch
+do_stress --malloc -1 --malloc-mlock
 do_stress --malloc -1 --malloc-pthreads 4
+do_stress --malloc -1 --malloc-touch
 do_stress --malloc -1 --malloc-zerofree
 
 do_stress --memfd -1 --memfd-fds 4096
+do_stress --memfd -1 --memfd-mlock
 
 do_stress --mincore -1 --mincore-random
 
@@ -511,7 +515,9 @@ do_stress --mutex -1 --mutex-procs 64
 
 do_stress --nanosleep -1 --nanosleep-threads 128
 
-do_stress --open -1 --open-fd
+do_s-tress --open -1 --open-fd
+
+do_s-tress --pagemove -1 --pagemove-mlock
 
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
