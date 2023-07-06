@@ -26,7 +26,7 @@
 #include <intel-ipsec-mb.h>
 #endif
 
-#if IMB_VERSION_NUM <= 0x3400
+#if IMB_VERSION_NUM <= 0x3700
 #define IMB_MGR				MB_MGR
 #define IMB_JOB				JOB_AES_HMAC
 #define IMB_STATUS_COMPLETED		STS_COMPLETED
