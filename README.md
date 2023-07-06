@@ -181,7 +181,7 @@ ClearLinux:
   * devpkg-eigen
   * devpkg-Judy
   * devpkg-kmod
-  * devpkg-libattr
+  * devpkg-attr
   * devpkg-libbsd
   * devpkg-libgcrypt
   * devpkg-libjpeg-turbo
