@@ -42,6 +42,10 @@
 #define HAVE_TIMER_FUNCTIONALITY
 #endif
 
+#define STRESS_MISALIGNED_ERROR		(1)
+#define STRESS_MISALIGNED_TIMED_OUT	(2)
+#define STRESS_MISALIGNED_WAIT_TIME_NS	(400000000)
+
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
 	{ NULL,	"misaligned-method M",	"use misaligned memory read/write method" },
@@ -1076,16 +1080,16 @@ static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 	if (current_method)
 		current_method->disabled = true;
 
-	siglongjmp(jmp_env, 1);
+	siglongjmp(jmp_env, STRESS_MISALIGNED_ERROR);
 }
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 static void stress_misaligned_reset_timer(void)
 {
 	timer.it_value.tv_sec = 0;
-	timer.it_value.tv_nsec = 400000000;
+	timer.it_value.tv_nsec = STRESS_MISALIGNED_WAIT_TIME_NS;
 	timer.it_interval.tv_sec = 0;
-	timer.it_interval.tv_nsec = 400000000;
+	timer.it_interval.tv_nsec = STRESS_MISALIGNED_WAIT_TIME_NS;
 	VOID_RET(int, timer_settime(timer_id, 0, &timer, NULL));
 }
 
@@ -1097,6 +1101,7 @@ static MLOCKED_TEXT void stress_misaligned_timer_handler(int signum)
 		current_method->disabled = true;
 
 	stress_misaligned_reset_timer();
+	siglongjmp(jmp_env, STRESS_MISALIGNED_TIMED_OUT);
 }
 #endif
 
@@ -1234,11 +1239,22 @@ static int stress_misaligned(const stress_args_t *args)
 
 	current_method = misaligned_method;
 	ret = sigsetjmp(jmp_env, 1);
-	if ((ret != 0) && (args->instance == 0)) {
-		pr_inf_skip("%s: skipping method %s, misaligned operations tripped %s\n",
-			args->name, current_method->name,
-			handled_signum == -1 ? "an error" :
-			stress_strsignal(handled_signum));
+	if (args->instance == 0) {
+		switch (ret) {
+		case STRESS_MISALIGNED_ERROR:
+			pr_inf_skip("%s: skipping method %s, misaligned operations tripped %s\n",
+				args->name, current_method->name,
+				handled_signum == -1 ? "an error" :
+				stress_strsignal(handled_signum));
+			break;
+		case STRESS_MISALIGNED_TIMED_OUT:
+			pr_inf_skip("%s: skipping method %s, misaligned operations timed out after %.3f seconds (got stuck)\n",
+				args->name, current_method->name,
+				(double)STRESS_MISALIGNED_WAIT_TIME_NS / STRESS_DBL_NANOSECOND);
+			break;
+		default:
+			break;
+		}
 	}
 
 	rc = EXIT_SUCCESS;
