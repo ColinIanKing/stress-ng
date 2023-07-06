@@ -58,6 +58,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #endif
 
 #if defined(HAVE_MPROTECT) &&					\
+    !defined(__NetBSD__) &&					\
     ((defined(STRESS_ARCH_ARM) && defined(__aarch64__)) ||	\
      defined(STRESS_ARCH_ALPHA) ||				\
      defined(STRESS_ARCH_HPPA) ||				\
@@ -494,6 +495,10 @@ stressor_info_t stress_far_branch_info = {
 	.verify = VERIFY_ALWAYS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
+#if defined(__NetBSD__)
+	.unimplemented_reason = "denied by NetBSD exploit mitigation features"
+#else
 	.unimplemented_reason = "built without mprotect() support or architecture not supported"
+#endif
 };
 #endif
