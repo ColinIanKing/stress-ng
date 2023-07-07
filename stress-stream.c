@@ -857,7 +857,11 @@ static int stress_stream(const stress_args_t *args)
 	 */
 	sz = (L3 * 4);
 	n = sz / sizeof(*a);
-	sz &= ~(uint64_t)63;
+	/*
+	 *  n must be a multiple of the max unroll size (8)
+	 */
+	n = (n + 7) & ~(uint64_t)7;
+	sz = n * sizeof(*a);
 
 	a = stress_stream_mmap(args, sz, stream_mlock);
 	if (a == MAP_FAILED)
