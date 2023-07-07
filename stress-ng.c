@@ -2605,13 +2605,13 @@ again:
 						const struct tm *tm = localtime(&t);
 
 						if (tm) {
-							pr_inf("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
+							pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
 								name,
 								tm->tm_hour, tm->tm_min, tm->tm_sec,
 								(long)g_sigalrm_info.when.tv_usec / 10000,
 								g_sigalrm_info.uid);
 						} else {
-							pr_inf("%s: terminated by SIGALRM externally by user %d\n",
+							pr_dbg("%s: terminated by SIGALRM externally by user %d\n",
 								name, g_sigalrm_info.uid);
 						}
 					}
