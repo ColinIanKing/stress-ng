@@ -1534,6 +1534,18 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 	}
 }
 
+/*
+ *  stress_block_signals()
+ *	block signals
+ */
+static void stress_block_signals(void)
+{
+	sigset_t set;
+
+	(void)sigemptyset(&set);
+	(void)sigprocmask(SIG_SETMASK, &set, NULL);
+}
+
 #if defined(SA_SIGINFO)
 static void MLOCKED_TEXT stress_sigalrm_action_handler(
 	int signum,
@@ -2526,6 +2538,7 @@ again:
 				(void)atexit(stress_child_atexit);
 				if (stress_set_handler(name, true) < 0) {
 					rc = EXIT_FAILURE;
+					stress_block_signals();
 					goto child_exit;
 				}
 				stress_parent_died_alarm();
@@ -2576,6 +2589,7 @@ again:
 
 					(void)shim_memset(*checksum, 0, sizeof(**checksum));
 					rc = g_stressor_current->stressor->info->stressor(&args);
+					stress_block_signals();
 					stress_interrupts_stop(stats->interrupts);
 					stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
 					pr_fail_check(&rc);
@@ -2674,12 +2688,11 @@ again:
 				}
 
 child_exit:
-				stress_stressors_free();
-				stress_cache_free();
-				stress_settings_free();
-				stress_temp_path_free();
-				(void)stress_ftrace_free();
-
+				/*
+				 *  We used to free allocations on the heap, but
+				 *  the child is going to _exit() soon so it's
+				 *  faster to just free the heap objects on _exit()
+				 */
 				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 					stress_continue_set_flag(false);
 					wait_flag = false;
