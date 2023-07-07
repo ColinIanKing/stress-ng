@@ -1,3 +1,192 @@
+stress-ng (0.16.00-1) unstable; urgency=medium
+
+  * Makefile: bump version to 0.16.00
+  * core-helper: double size of temporary string buffer tmp
+  * stress-ipsec-mb: use reverse compat macros for versions 0.55.00
+  * stress-ipsec-mb: add reverse compat macros for version 0.52.0 or
+    earlier
+  * Manual: fix eigen table
+  * stress-mlock: clean up pedantic warning on uninitialized pointer
+    mappings
+  * stress-cache: clean up longjmp clobber warnings on openhipster 202104
+  * stress-mmap: check for NetBSD EPERM errors on page protection checks
+  * stress-far-branch: disabled for NetBSD
+  * stress-iomix: shrink file size if we hit EFBIG or ENOSPC
+  * stress-copyfile: handle ENOSYS by skipping stressor
+  * stress-misaligned: handle timeout by jmping back and restarting
+  * kernel-coverage.sh: add more mlock options
+  * README.md: fix ClearLinux libattr bundle name
+  * stress-pagemove: add new --pagemove-mlock option
+  * stress-memfd: add new --mefd-mlock option
+  * stress-malloc: add new --malloc-mlock option
+  * stress-llc-affinity: add new --llc-affinity-mlock option
+  * kernel-coverage: add some more stressor options for more coverage
+  * stress-physpage: voidify physpage_mtrr when not used
+  * stress-bad-altstack: return EXIT_FAILURE insted of
+    _exit(EXIT_FAILURE)
+  * core-parse-opts: return 0 on err, clean up pedantic tcc warnings
+  * stress-ng.h: undef _FORTIFY_SOURCE for TCC builds
+  * core-killpid: break out of infinite loop and return via return path
+  * stress-af-alg: add hmac(md5) to defconfigs
+  * core-helper: add detection for Darwin libc
+  * core-vmstat: clean up pedantic warning on const name array on OS X
+  * stress-madvise: voidify hwpoison
+  * stress-x86syscall: rename variables to avoid name shadowing
+  * stress-open: remove shadowing variable ret
+  * Manual: re-order options into alphabetical order, fix some hyphens
+  * Manual: remove expand from tables now that x is being used
+  * Manual: put code examples in courier font
+  * Manual: use lx expand description in tables
+  * Manual: add notes about the legacy io stressor
+  * README.md: add another citation
+  * Manual: remove x86 specific notes for icache stressor
+  * stress-mmapaddr: remove trailing space
+  * Manual: rephrase mlock options
+  * stress-vm-addr: add new --vm-addr-mlock option
+  * stress-waitcpu: only perform nop rate comparisons of x86
+  * stress-stream: add new --stream-mlock option
+  * stress-shm-sysv: add new --shm-sysv-mlock option
+  * stress-shm: add new --shm-mlock option
+  * stress-remap: add new --remap-mlock option
+  * stress-resources: add new --resources-mlock option
+  * stress-mmapmany: add new --mmapmany-mlock option
+  * stress-mmaphuge: add new --mmaphuge-mlock option
+  * stress-mmapfixed: add new --mmapfixed-mlock option
+  * stress-mmapaddr: add new --mmapaddr-mlock option
+  * stress-mmap: add new --mmap-mlock option
+  * stress-l1cache: add new --l1cache-mlock option
+  * stress-forkheavy: add new --forkheavy-mlock option
+  * stress-bigheap: add new --bigheap-mlock option
+  * stress-switch: report pipe read/write failures as debug message only
+  * core-out-of-memory: change stress_set_adjustment to pass args
+    instead of args->name
+  * core-helper: add stress_munmap_retry_enomem to retry munmaps on
+    ENOMEM errors
+  * stress-open: unlink correctly path'd temp file
+  * stress-sparsematrix: initialize some pointers to clean up cppcheck
+    errors
+  * stress-atomic: set check2 to non-check1 value to ensure value gets
+    overwritten
+  * core-perf: remove redundant null check on sp
+  * core-helper: cast to uintmax_t for %ju format specifier
+  * README.md: add two more citation links
+  * stress-fp: check for upper bounds of method index
+  * stress-ng: fix potential null deref in stress_get_nth_stressor
+  * stress-utime: force fsync in #ifdef block
+  * stress-pipe: add missing const from pointer buf32
+  * stress-misaligned: fix unassigned timer.it_value field
+  * stress-exec: add missing space in void * cast
+  * core-vmstat: don't check for __APPLE__ if __FreeBSD__ is defined
+  * core-helper: only declare tmp where it is required
+  * stress-ng.h: remove unused shim_builtin_memmove macro
+  * stress-open: use temporary directory for open+create files
+  * stress-numa: exercise new linux system call set_mempolicy_home_node
+  * stress-iomix: exercise new Linux cachestat system call
+  * stress-aiol: ensure all fields in bad_ioc are zero
+  * core-helper: fix SHIM_EXT2_IOC_SETFLAGS, pass &flags and not flags
+  * core-killpid: set wstatus to zero
+  * stress-vecfp: add some alignment hints
+  * stress-shellsort: add some optimization hints
+  * stress-steam: add more restrict and const pointer annotations
+  * stress-physpage: only enable mtrr settings with the new
+    --physpage-mtrr option
+  * stress-get: remove duplicated getcontext call
+  * Manual: correct the clock duration section
+  * stress-pipe: default the pipe read/write size to 4096
+  * stress-pipe: use verify/non-verify variants of read and write helpers
+  * core-*: send SIGALRM to child process if stress-ng parent dies
+  * core-*: check for ss->ignore and skip if set
+  * core-*, stress-*: rename bogo-op related functions and variables
+  * core-cache: remove unavailable cache options from cache flags mask
+  * stress-far-branch: fix typo in .opt_set_funcs
+  * core-helper: report cache sizes when -v is enabled
+  * core-cpu-cache: rename stress_cpu_cache_get_level_size cache size
+    argument
+  * core-helper: add stress_unset_chattr_flags to unset chattr flags
+  * stress-apparmor: break from loop on fatal policy load
+  * stress-alarm: disable SIGUSR1 during counter increment
+  * stress-ng: account for stressors that had untrustworthy metrics
+  * README.md: add a kernel regression found with stress-ng
+  * stress-ng: account for stressors that are skipped before they are run
+  * stress-*: remove trailing space at end of lines
+  * stress-*: add SIGCHLD handling to inform parent child has terminated
+  * stress-remap: use correct integer range checking function
+  * stress-remap: add --remap-pages option to specify number of pages to remap
+  * Manual: fix --regs-ops option, missing -ops
+  * stress-mlock: set error return on mlock failure from child
+  * stress-udp-flood: add sendto rate metrics and failure check
+    verification
+  * stress-udp-flood: replace main for loop with do-while
+  * stress-watchdog: add verification of watchdog ioctl return values
+  * stress-madvise: voidify return from stress_get_setting
+  * stress-mlock: allocate appropriately sized mappings table
+  * core-*, stress-*: replace errno = %d with errno=%d
+  * stress-mlock: prefix errno value with errno=
+  * stress-madvise: only enabled hardware page poisoning with
+    --madvise-hwpoison
+  * core-cpu: add more CPUID processor manufacturer ID strings
+  * stress-brk: add --brk-bytes option to specify maximum brk size
+  * stress-bigheap: add --bigheap-bytes option to specify maximum heap
+    size
+  * core-try-open: use increasing backoff delay and add keep_stressing
+    check
+  * core-shim: add kill wrapper shim_kill
+  * core-vmstat: allow --vmstat, --thermalstat and --iostat use s,m,h
+    time suffixes
+  * stress-close: remove scheduler class flag, it's the wrong
+    classification
+  * stress-fanotify: replace fanotify stats with generic metrics
+  * stress-af-alg: don't fail on ETIMEDOUT bind exit
+  * core-klog: log hung task information
+  * core-klog: raise priority of klog process, throttle process dumping
+    rate
+  * core-vmstat: increase running and block process count fields to 3
+    chars
+  * core-processes: use variable j for iterating, not i, fixes clobbering
+  * stress-icache: add more comment notes on how to check for icache
+    misses
+  * syscalls.txt: update for riscv specific system calls
+  * stress-syscall: exercise new syscall riscv_flush_icache
+  * stress-sysinval: exercise new syscall riscv_hwprobe
+  * stress-syscall: exercise new syscall riscv_hwprobe
+  * stress-nop: add comment about random being the last nop stressor
+  * core-klog: fix order of kernel cmdline strings
+  * core-resources: try memfd_create with MFD_NOEXEC_SEAL
+  * core-interrupts: use int64_t for delta of interrupts
+  * stress-far-branch: limit shift to avoid address request overflow
+  * stress-vm-addr: remove redundant assignment of buf to NULL
+  * stress-far-branch: voidify return from stress_get_setting
+  * stress-softlockup: add more randomness is busy loop delay
+  * stress-softlock: add busy loop to eat CPU for 1/100th second
+  * stress-cyclic: remove use of softlockup_count
+  * stress-softlock: spawn N children for N CPUs per stressor
+  * stress-efivar: enable verification of EFI variable reading
+  * stress-priv-instruction: add trapping count verification
+  * stress-dynlib: add dlsym lookup time metrics
+  * stress-x86syscall: add verification of getpid, time and
+    gettimeofday syscalls
+  * stress-lockbus: move metrics variables above x86 #ifdef
+  * stress-forkheavy: ensure waitpid is waiting on a valid child pid
+  * stress-lockbus: add bus lock duration metrics
+  * stress-fpunch: replace %lu with PRIu64 format specifier
+  * stress-far-branch: add --far-branch-pages option
+  * core-affinity: allow affinity ranges of N-N to be interpreted as N
+  * stress-af-alg: don't support tk transformations
+  * stress-pipeherd: add verification check value in data
+  * stress-x86syscall: exercise gitpid 0 arg syscall (stressor)
+  * stress-x86syscall: exercise gitpid 0 arg systcall
+  * stress-x86syscall: use size of array as for loop counter max
+  * stress-fpunch: enable zero hole punch verification on --verify
+  * core-klog: dump out processes on hard lockups
+  * stress-udp: pass child error return status back to stressor main if
+    failed
+  * stress-udp: silently ignore EPERM sendto failures
+  * core-interrupts: add FORMAT type hint
+  * stress-func*c: use soft decimal float for s390x
+  * core-helper: add extra paranoid checking for sysconf
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Fri, 7 Jul 2023 09:43:57 +0100
+
 stress-ng (0.15.10-1) unstable; urgency=medium
 
   * Makefile: bump version
