@@ -280,6 +280,7 @@ static const struct option long_options[] = {
 	{ "bad-altstack",	1,	0,	OPT_bad_altstack },
 	{ "bad-altstack-ops",	1,	0,	OPT_bad_altstack_ops },
 	{ "bad-ioctl",		1,	0,	OPT_bad_ioctl },
+	{ "bad-ioctl-method",	1,	0,	OPT_bad_ioctl_method },
 	{ "bad-ioctl-ops",	1,	0,	OPT_bad_ioctl_ops },
 	{ "backoff",		1,	0,	OPT_backoff },
 	{ "bigheap",		1,	0,	OPT_bigheap },

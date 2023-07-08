@@ -25,7 +25,54 @@
 static const stress_help_t help[] = {
 	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal read ioctls on devices" },
 	{ NULL,	"bad-ioctl-ops  N",	"stop after N bad ioctl bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"bad-ioctl-method M",	"method of selecting ioctl command [ random | inc | random-inc | stride ]" },
+	{ NULL,	NULL,			NULL }
+};
+
+#define STRESS_BAD_IOCTL_CMD_RANDOM	(0)
+#define STRESS_BAD_IOCTL_CMD_INC	(1)
+#define STRESS_BAD_IOCTL_CMD_RANDOM_INC	(2)
+#define STRESS_BAD_IOCTL_CMD_STRIDE	(3)
+
+typedef struct {
+	const char *name;
+	const int ioctl_cmd_method;
+} bad_ioct_method_t;
+
+static const bad_ioct_method_t stress_bad_ioctl_methods[] = {
+	{ "inc",	STRESS_BAD_IOCTL_CMD_INC },
+	{ "random",	STRESS_BAD_IOCTL_CMD_RANDOM },
+	{ "random-inc",	STRESS_BAD_IOCTL_CMD_RANDOM_INC },
+	{ "stride",	STRESS_BAD_IOCTL_CMD_STRIDE },
+};
+
+/*
+ *  stress_set_bad_ioctl_method()
+ *	set the default ioctl command selection method
+ */
+static int stress_set_bad_ioctl_method(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_bad_ioctl_methods); i++) {
+		if (!strcmp(stress_bad_ioctl_methods[i].name, name)) {
+			stress_set_setting("bad-ioctl-method", TYPE_ID_SIZE_T, &stress_bad_ioctl_methods[i].ioctl_cmd_method);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "bad-ioctl-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_bad_ioctl_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_bad_ioctl_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_bad_ioctl_method,	stress_set_bad_ioctl_method },
+	{ 0,			NULL },
 };
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
@@ -34,12 +81,20 @@ static const stress_help_t help[] = {
 
 #define MAX_DEV_THREADS		(4)
 
+typedef struct {
+	pthread_t	pthread;
+	stress_pthread_args_t pa;
+	int		ret;
+	int		thread_index;
+} stress_bad_ioctl_thread_t;
+
 typedef struct dev_ioctl_info {
 	char	*dev_path;
 	struct dev_ioctl_info *left;
 	struct dev_ioctl_info *right;
 	bool	ignore;
-	uint16_t	ioctl_state;
+	volatile uint16_t	ioctl_state;
+	bool	exercised[MAX_DEV_THREADS];
 } dev_ioctl_info_t;
 
 static sigset_t set;
@@ -82,7 +137,7 @@ static dev_ioctl_info_t *stress_bad_ioctl_dev_new(
 		return NULL;
 	}
 	node->ignore = false;
-	node->ioctl_state = (uint16_t)~0;
+	node->ioctl_state = stress_mwc16();
 
 	*head = node;
 	return node;
@@ -206,7 +261,8 @@ static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
  */
 static inline void stress_bad_ioctl_rw(
 	const stress_args_t *args,
-	const bool is_pthread)
+	const bool is_pthread,
+	const int thread_index)
 {
 	int ret;
 	const double threshold = 0.25;
@@ -330,6 +386,13 @@ static inline void stress_bad_ioctl_rw(
 			(void)close(fd);
 			break;
 		}
+		if ((thread_index >= 0) && (thread_index < MAX_DEV_THREADS)) {
+			ret = stress_lock_acquire(lock);
+			if (ret)
+				return;
+			node->exercised[thread_index] = true;
+			(void)stress_lock_release(lock);
+		}
 next:
 		(void)close(fd);
 	} while (is_pthread);
@@ -347,6 +410,7 @@ static void *stress_bad_ioctl_thread(void *arg)
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 	const stress_args_t *args = pa->args;
+	const stress_bad_ioctl_thread_t *thread = (const stress_bad_ioctl_thread_t *)pa->data;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -355,7 +419,7 @@ static void *stress_bad_ioctl_thread(void *arg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	while (stress_continue_flag())
-		stress_bad_ioctl_rw(args, true);
+		stress_bad_ioctl_rw(args, true, thread->thread_index);
 
 	return &nowt;
 }
@@ -364,7 +428,11 @@ static void *stress_bad_ioctl_thread(void *arg)
  *  stress_bad_ioctl_dir()
  *	read directory
  */
-static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *node, uint32_t offset)
+static void stress_bad_ioctl_dir(
+	const stress_args_t *args,
+	dev_ioctl_info_t *node,
+	uint32_t offset,
+	const int bad_ioctl_method)
 {
 	int ret;
 
@@ -373,7 +441,7 @@ static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *no
 	if (!node)
 		return;
 
-	stress_bad_ioctl_dir(args, node->left, offset);
+	stress_bad_ioctl_dir(args, node->left, offset, bad_ioctl_method);
 	ret = stress_try_open(args, node->dev_path, O_RDONLY | O_NONBLOCK, 15000000);
 	if (ret == STRESS_TRY_OPEN_FAIL) {
 		node->ignore = true;
@@ -383,18 +451,45 @@ static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *no
 		} else {
 			ret = stress_lock_acquire(lock);
 			if (!ret) {
-				node->ioctl_state += stress_mwc8();
+				size_t i;
+				bool all_exercised = true;
+				uint8_t type, nr;
+
+				for (i = 0; i < SIZEOF_ARRAY(node->exercised); i++) {
+					if (!node->exercised[i]) {
+						all_exercised = false;
+						break;
+					}
+				}
+				if (all_exercised) {
+					switch (bad_ioctl_method) {
+					case STRESS_BAD_IOCTL_CMD_RANDOM:
+						node->ioctl_state = stress_mwc16();
+						break;
+					case STRESS_BAD_IOCTL_CMD_INC:
+						node->ioctl_state++;
+						break;
+					default:
+					case STRESS_BAD_IOCTL_CMD_RANDOM_INC:
+						node->ioctl_state += stress_mwc8();
+						break;
+					case STRESS_BAD_IOCTL_CMD_STRIDE:
+						type = ((node->ioctl_state >> 8) & 0xff) - 3;
+						nr = ((node->ioctl_state) & 0xff) + 1;
+						node->ioctl_state = (((uint16_t)type) << 8) | nr;
+						break;
+					}
+				}
 				dev_ioctl_node = node;
+				(void)shim_memset(node->exercised, 0, sizeof(node->exercised));
 				(void)stress_lock_release(lock);
-				stress_bad_ioctl_rw(args, false);
+				stress_bad_ioctl_rw(args, false, -1);
 			}
 		}
 		stress_bogo_inc(args);
 	}
-	stress_bad_ioctl_dir(args, node->right, offset);
+	stress_bad_ioctl_dir(args, node->right, offset, bad_ioctl_method);
 }
-
-
 
 /*
  *  stress_bad_ioctl
@@ -402,14 +497,11 @@ static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *no
  */
 static int stress_bad_ioctl(const stress_args_t *args)
 {
-	pthread_t pthreads[MAX_DEV_THREADS];
-	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;
-	stress_pthread_args_t pa;
+	stress_bad_ioctl_thread_t threads[MAX_DEV_THREADS];
+	int rc = EXIT_SUCCESS;
+	int bad_ioctl_method = STRESS_BAD_IOCTL_CMD_RANDOM_INC;
 
-	pa.args = args;
-	pa.data = NULL;
-
-	(void)shim_memset(ret, 0, sizeof(ret));
+	(void)stress_get_setting("bad-ioctl-method", &bad_ioctl_method);
 
 	stress_bad_ioctl_dev_dir(args, "/dev", 0);
 	dev_ioctl_node = dev_ioctl_info_head;
@@ -471,13 +563,17 @@ again:
 			mixup = stress_mwc32();
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
-				ret[i] = pthread_create(&pthreads[i], NULL,
-						stress_bad_ioctl_thread, (void *)&pa);
+				threads[i].thread_index = i;
+				threads[i].pa.args = args;
+				threads[i].pa.data = &threads[i];
+				threads[i].ret = pthread_create(&threads[i].pthread, NULL,
+							stress_bad_ioctl_thread,
+							(void *)&threads[i].pa);
 			}
 
 			offset = args->instance;
 			do {
-				stress_bad_ioctl_dir(args, dev_ioctl_info_head, offset);
+				stress_bad_ioctl_dir(args, dev_ioctl_info_head, offset, bad_ioctl_method);
 				offset = 0;
 			} while (stress_continue(args));
 
@@ -490,8 +586,8 @@ again:
 			}
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
-				if (ret[i] == 0)
-					(void)pthread_join(pthreads[i], NULL);
+				if (threads[i].ret == 0)
+					(void)pthread_join(threads[i].pthread, NULL);
 			}
 			_exit(EXIT_SUCCESS);
 		}
@@ -508,12 +604,14 @@ stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_bad_ioctl,
 	.supported = stress_bad_ioctl_supported,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 	.unimplemented_reason = "built without pthread and/or ioctl() _IOR macro or is not Linux"
 };

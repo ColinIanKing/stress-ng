@@ -1074,6 +1074,7 @@ typedef enum {
 	OPT_bad_altstack_ops,
 
 	OPT_bad_ioctl,
+	OPT_bad_ioctl_method,
 	OPT_bad_ioctl_ops,
 
 	OPT_branch,

@@ -699,12 +699,32 @@ Using an alternative stack mapped to a zero sized temporary file to generate a S
 .B \-\-bad\-altstack\-ops N
 stop the bad alternative stack stressors after N SIGSEGV bogo operations.
 .TP
-.TP
 .B \-\-bad\-ioctl N
 start N workers that perform a range of illegal bad read ioctls (using _IOR) across the
 device drivers. This exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as
 well as NULL addresses, non-readable pages and PROT_NONE mapped pages. Currently only
 for Linux and requires the --pathological option.
+.TP
+.B \-\-bad\-ioctl\-method [ inc | random | random\-inc | stride ]
+select the method of changing the ioctl command (number, type) tuple per iteration, the
+default is random-inc.  Available bad-ioctl methods are described as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+inc	T{
+increment ioctl command by 1
+T}
+random	T{
+use a random ioctl command
+T}
+random\-inc	T{
+increment ioctl command by a random value
+T}
+random-stride	T{
+increment ioctl command number by 1 and decrement command type by 3
+T}
+.TE
 .TP
 .B \-\-bad\-ioctl\-ops N
 stop the bad ioctl stressors after N bogo ioctl operations.
@@ -869,7 +889,7 @@ specify a cacheline stress method. By default, all the stress methods are exerci
 sequentially, however one can specify just one method to be used if required.
 Available cacheline stress methods are described as follows:
 .TS
-lB2 lB 
+lB2 lB
 l lx.
 Method	Description
 all	T{
