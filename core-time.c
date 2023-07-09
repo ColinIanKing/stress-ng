@@ -104,6 +104,7 @@ double OPTIMIZE3 stress_time_now(void)
  */
 static inline void stress_format_time(
 	const bool last,		/* Last unit to format */
+	const bool int_val,		/* Last unit in integer form */
 	const double secs_in_units,	/* Seconds in the specific time unit */
 	const char *units,		/* Unit of time */
 	char **ptr,			/* Destination string ptr */
@@ -115,11 +116,16 @@ static inline void stress_format_time(
 	if (last || (val > 0)) {
 		int ret;
 
-		if (last)
-			ret = snprintf(*ptr, *len, "%.2f %ss", *duration, units);
-		else
+		if (last) {
+			if (int_val) {
+				ret = snprintf(*ptr, *len, "%.2f %ss", *duration, units);
+			} else {
+				ret = snprintf(*ptr, *len, "%lu %ss", val, units);
+			}
+		} else {
 			ret = snprintf(*ptr, *len, "%lu %s%s, ", val, units,
 				(val > 1) ? "s" : "");
+		}
 		if (ret > 0) {
 			*len -= (size_t)ret;
 			*ptr += ret;
@@ -132,7 +138,7 @@ static inline void stress_format_time(
  *  stress_duration_to_str
  *	duration in seconds to a human readable string
  */
-const char *stress_duration_to_str(const double duration)
+const char *stress_duration_to_str(const double duration, const bool int_secs)
 {
 	static char str[128];
 	char *ptr = str;
@@ -140,16 +146,10 @@ const char *stress_duration_to_str(const double duration)
 	double dur = duration;
 
 	*str = '\0';
-	if (duration > 60.0) {
-		(void)shim_strlcpy(ptr, " (", len);
-		ptr += 2;
-		len -= 2;
-		stress_format_time(false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
-		stress_format_time(false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
-		stress_format_time(false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
-		stress_format_time(false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
-		stress_format_time(true, 1, "sec", &ptr, &dur, &len);
-		(void)shim_strlcpy(ptr, ")", len);
-	}
+	stress_format_time(false, false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
+	stress_format_time(false, false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
+	stress_format_time(false, false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
+	stress_format_time(false, false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
+	stress_format_time(true, int_secs, 1, "sec", &ptr, &dur, &len);
 	return str;
 }

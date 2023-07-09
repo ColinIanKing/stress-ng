@@ -102,6 +102,7 @@ typedef struct {
 	uint64_t	discard_ticks;	/* total wait time for discard requests */
 } stress_iostat_t;
 
+static int32_t status_delay = 0;
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
@@ -168,6 +169,11 @@ static int stress_set_generic_stat(
         }
 	*delay = (int32_t)(delay64 & 0x7fffffff);
 	return 0;
+}
+
+int stress_set_status(const char *const opt)
+{
+	return stress_set_generic_stat(opt, "status", &status_delay);
 }
 
 int stress_set_vmstat(const char *const opt)
@@ -996,8 +1002,8 @@ void stress_vmstat_start(void)
 	stress_vmstat_t vmstat;
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info;
-	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep;
-	double t1, t2;
+	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep, status_sleep;
+	double t1, t2, t_start;
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 	char iostat_name[PATH_MAX];
@@ -1006,12 +1012,14 @@ void stress_vmstat_start(void)
 
 	if ((vmstat_delay == 0) &&
 	    (thermalstat_delay == 0) &&
-	    (iostat_delay == 0))
+	    (iostat_delay == 0) &&
+	    (status_delay == 0))
 		return;
 
 	vmstat_sleep = vmstat_delay;
 	thermalstat_sleep = thermalstat_delay;
 	iostat_sleep = iostat_delay;
+	status_sleep = status_delay;
 
 	vmstat_pid = fork();
 	if ((vmstat_pid < 0) || (vmstat_pid > 0))
@@ -1040,7 +1048,8 @@ void stress_vmstat_start(void)
 	VOID_RET(int, stress_set_sched(getpid(), SCHED_DEADLINE, 99, true));
 #endif
 
-	t1 = stress_time_now();
+	t_start = stress_time_now();
+	t1 = t_start;
 
 	while (stress_continue_flag()) {
 		int32_t sleep_delay = INT_MAX;
@@ -1055,13 +1064,16 @@ void stress_vmstat_start(void)
     defined(__linux__)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
-#endif
+#endif	
+		if (status_delay > 0)
+			sleep_delay = STRESS_MINIMUM(status_delay, sleep_delay);
 		t1 += sleep_delay;
 		t2 = stress_time_now();
 
 		delta = t1 - t2;
 		if (delta > 0) {
-			uint64_t nsec = (uint64_t)(delta * STRESS_DBL_NANOSECOND);
+			const uint64_t nsec = (uint64_t)(delta * STRESS_DBL_NANOSECOND);
+
 			(void)shim_nanosleep_uint64(nsec);
 		}
 
@@ -1071,6 +1083,7 @@ void stress_vmstat_start(void)
 		vmstat_sleep -= sleep_delay;
 		thermalstat_sleep -= sleep_delay;
 		iostat_sleep -= sleep_delay;
+		status_sleep -= sleep_delay;
 
 		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
 			vmstat_sleep = vmstat_delay;
@@ -1078,6 +1091,8 @@ void stress_vmstat_start(void)
 			thermalstat_sleep = thermalstat_delay;
 		if ((iostat_delay > 0) && (iostat_sleep <= 0))
 			iostat_sleep = iostat_delay;
+		if ((status_delay > 0) && (status_sleep <= 0))
+			status_sleep = status_delay;
 
 		if (vmstat_sleep == vmstat_delay) {
 			double clk_tick_vmstat_delay = (double)clk_tick * (double)vmstat_delay;
@@ -1208,6 +1223,16 @@ void stress_vmstat_start(void)
 				iostat_count = 0;
 		}
 #endif
+		if (status_sleep == status_delay) {
+			const double runtime = round(stress_time_now() - g_shared->time_started);
+
+			pr_inf("status: %" PRIu32 " run, %" PRIu32 " exit, %" PRIu32 " reap, %" PRIu32 " fail, %s\n",
+				g_shared->stressors_started,
+				g_shared->stressors_exited,
+				g_shared->stressors_reaped,
+				g_shared->stressors_failed,
+				stress_duration_to_str(runtime, false));
+		}
 	}
 	_exit(0);
 }

@@ -922,6 +922,11 @@ typedef struct {
 	int cacheline_index;				/* Cacheline stressor index */
 	uint8_t *cacheline;				/* Cacheline stressor buffer */
 	size_t cacheline_size;				/* Cacheline buffer size */
+	uint32_t stressors_started;			/* Number of stressors started */
+	uint32_t stressors_exited;			/* Number of stressors exited */
+	uint32_t stressors_reaped;			/* Number of stressors reaped */
+	uint32_t stressors_failed;			/* Number of stressors failed */
+	double time_started;				/* Time when stressing started */
 	uint8_t	*mem_cache;				/* Shared memory cache */
 	uint64_t mem_cache_size;			/* Bytes */
 	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
@@ -2109,6 +2114,8 @@ typedef enum {
 	OPT_stackmmap,
 	OPT_stackmmap_ops,
 
+	OPT_status,
+
 	OPT_stderr,
 	OPT_stdout,
 
@@ -2622,7 +2629,7 @@ extern void stress_mwc_reseed(void);
 extern WARN_UNUSED double stress_timeval_to_double(const struct timeval *tv);
 extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);
 extern WARN_UNUSED double stress_time_now(void);
-extern const char *stress_duration_to_str(const double duration);
+extern const char *stress_duration_to_str(const double duration, const bool int_secs);
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 
@@ -2811,6 +2818,7 @@ extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length(void);
+extern WARN_UNUSED int32_t stress_set_status(const char *const str);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);

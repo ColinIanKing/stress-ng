@@ -1068,6 +1068,7 @@ static const struct option long_options[] = {
 	{ "stack-unmap",	0,	0,	OPT_stack_unmap },
 	{ "stackmmap",		1,	0,	OPT_stackmmap },
 	{ "stackmmap-ops",	1,	0,	OPT_stackmmap_ops },
+	{ "status",		1,	0,	OPT_status },
 	{ "stderr",		0,	0,	OPT_stderr },
 	{ "stdout",		0,	0,	OPT_stdout },
 	{ "str",		1,	0,	OPT_str },
@@ -1323,6 +1324,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"skip-silent",		"silently skip unimplemented stressors" },
 	{ NULL,		"smart",		"show changes in S.M.A.R.T. data" },
 	{ NULL,		"sn",			"use scientific notation for metrics" },
+	{ NULL,		"status S",		"show stress-ng progress status every S seconds" },
 	{ NULL,		"stderr",		"all output to stderr" },
 	{ NULL,		"stdout",		"all output to stdout (now the default)" },
 	{ NULL,		"stressors",		"show available stress tests" },
@@ -1822,6 +1824,7 @@ static void stress_get_processors(int32_t *count)
 static inline void stress_stressor_finished(pid_t *pid)
 {
 	*pid = 0;
+	g_shared->stressors_reaped++;
 }
 
 /*
@@ -2535,6 +2538,7 @@ again:
 
 				(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
 				stress_set_proc_state(name, STRESS_STATE_START);
+				g_shared->stressors_started++;
 
 				(void)sched_settings_apply(true);
 				(void)atexit(stress_child_atexit);
@@ -2685,8 +2689,8 @@ again:
 				    (run_duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->ci.counter >= g_stressor_current->bogo_ops))) {
 
-					pr_warn("%s: WARNING: finished prematurely after just %.2fs%s\n",
-						name, run_duration, stress_duration_to_str(run_duration));
+					pr_warn("%s: WARNING: finished prematurely after just %s\n",
+						name, stress_duration_to_str(run_duration, true));
 				}
 
 child_exit:
@@ -2704,6 +2708,10 @@ child_exit:
 				if (terminate_signum)
 					rc = EXIT_SIGNALED;
 				pr_lock_exited(child_pid);
+				g_shared->stressors_exited++;
+				g_shared->stressors_started--;
+				if (rc == EXIT_FAILURE)
+					g_shared->stressors_failed++;
 				_exit(rc);
 			default:
 				if (pid > -1) {
@@ -3390,6 +3398,10 @@ static inline void stress_shared_map(const int32_t num_procs)
 	/* Paraniod */
 	(void)shim_memset(g_shared, 0, sz);
 	g_shared->length = sz;
+	g_shared->stressors_started = 0;
+	g_shared->stressors_exited = 0;
+	g_shared->stressors_reaped = 0;
+	g_shared->time_started = stress_time_now();
 
 	/*
 	 * libc on some systems warn that vfork is deprecated,
@@ -4000,6 +4012,10 @@ next_opt:
 			stress_check_range("sequential", (uint64_t)g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
+		case OPT_status:
+			if (stress_set_status(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
 		case OPT_stressors:
 			stress_show_stressor_names();
 			exit(EXIT_SUCCESS);
@@ -4096,9 +4112,8 @@ static void stress_set_default_timeout(const uint64_t timeout)
 		action = "setting";
 	}
 
-	pr_inf("%s to a %" PRIu64 " second%s run per stressor\n",
-		action, g_opt_timeout,
-		stress_duration_to_str((double)g_opt_timeout));
+	pr_inf("%s to a %s run per stressor\n",
+		action, stress_duration_to_str((double)g_opt_timeout, false));
 }
 
 /*
@@ -4630,9 +4645,9 @@ int main(int argc, char **argv, char **envp)
 	stress_ftrace_stop();
 	stress_ftrace_free();
 
-	pr_inf("%s run completed in %.2fs%s\n",
+	pr_inf("%s run completed in %s\n",
 		success ? "successful" : "unsuccessful",
-		duration, stress_duration_to_str(duration));
+		stress_duration_to_str(duration, true));
 
 	/*
 	 *  Tidy up
