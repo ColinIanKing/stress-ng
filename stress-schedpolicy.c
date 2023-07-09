@@ -32,7 +32,18 @@
 static const stress_help_t help[] = {
 	{ NULL,	"schedpolicy N",	"start N workers that exercise scheduling policy" },
 	{ NULL,	"schedpolicy-ops N",	"stop after N scheduling policy bogo operations" },
+	{ NULL, "schedpolicy-rand",	"select scheduling policy randomly" },
 	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_schedpolicy_rand(const char *opt)
+{
+	return stress_set_setting_true("schedpolicy-rand", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_schedpolicy_rand,	stress_set_schedpolicy_rand },
+	{ 0,			NULL },
 };
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
@@ -65,6 +76,8 @@ static const int policies[] = {
 static int stress_schedpolicy(const stress_args_t *args)
 {
 	int policy = args->instance % SIZEOF_ARRAY(policies);
+	int old_policy = -1;
+	bool schedpolicy_rand = false;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	const bool root_or_nice_capability = stress_check_capability(SHIM_CAP_SYS_NICE);
 #endif
@@ -79,6 +92,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	int n = 0;
 #endif
+
+	(void)stress_get_setting("schedpolicy-rand", &schedpolicy_rand);
 
 	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (args->instance == 0) {
@@ -100,10 +115,23 @@ static int stress_schedpolicy(const stress_args_t *args)
 #endif
 		struct sched_param param;
 		int ret = 0;
-		int max_prio, min_prio, rng_prio;
-		int new_policy = policies[policy];
+		int max_prio, min_prio, rng_prio, new_policy;
 		const pid_t pid = stress_mwc1() ? 0 : args->pid;
-		const char *new_policy_name = stress_get_sched_name(new_policy);
+		const char *new_policy_name;
+
+		/*
+		 *  find a new randomized policy that is not the same
+		 *  as the previous old policy
+		 */
+		if (schedpolicy_rand) {
+			do {
+				policy = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(policies));
+			} while (policy == old_policy);
+			old_policy = policy;
+		}
+
+		new_policy = policies[policy];
+		new_policy_name = stress_get_sched_name(new_policy);
 
 		if (!stress_continue(args))
 			break;
@@ -395,6 +423,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -402,6 +431,7 @@ stressor_info_t stress_schedpolicy_info = {
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"

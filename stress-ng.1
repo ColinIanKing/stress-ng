@@ -4642,7 +4642,7 @@ the RTC. This is a Linux only stressor.
 stop after N bogo RTC interface accesses.
 .TP
 .B \-\-schedpolicy N
-start N workers that work set the worker to various available scheduling
+start N workers that set the worker to various available scheduling
 policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO,
 SCHED_RR and SCHED_DEADLINE.  For the real time scheduling policies a
 random sched priority is selected between the minimum and maximum
@@ -4650,6 +4650,11 @@ scheduling priority settings.
 .TP
 .B \-\-schedpolicy\-ops N
 stop after N bogo scheduling policy changes.
+.TP
+.B \-\-schedpolicy\-rand
+Select scheduling policy randomly so that the new policy is always different
+to the previous policy. The default is to work through the scheduling policies
+sequentially.
 .TP
 .B \-\-sctp N
 start N workers that perform network sctp stress activity using the Stream

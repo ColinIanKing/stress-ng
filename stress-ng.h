@@ -1922,6 +1922,7 @@ typedef enum {
 
 	OPT_schedpolicy,
 	OPT_schedpolicy_ops,
+	OPT_schedpolicy_rand,
 
 	OPT_sched_period,
 	OPT_sched_runtime,
