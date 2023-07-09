@@ -2498,8 +2498,7 @@ be from 1K to 4M.
 .TP
 .B \-\-icache N
 start N workers that stress the instruction cache by forcing instruction cache
-reloads.  This is achieved by modifying an instruction cache line,  causing
-the processor to reload it when we call a function in inside it.
+reloads.
 .TP
 .B \-\-icache\-ops N
 stop the icache workers after N bogo icache operations are completed.
@@ -2998,9 +2997,9 @@ non-resident memory pages and try to force them into memory; this option
 aggressively forces pages to be memory resident.
 .TP
 .B \-\-malloc\-zerofree
-zero allocated memory before free'ing. If we have a bad allocator than this
-may be useful in touching broken allocations and triggering failures. Also useful
-for forcing extra cache/memory writes.
+zero allocated memory before free'ing. This can be useful in touching broken
+allocations and triggering failures. Also useful for forcing extra
+cache/memory writes.
 .TP
 .B \-\-matrix N
 start N workers that perform various matrix operations on floating point
@@ -3609,7 +3608,7 @@ in the end, and it has its own caps built-in to self protect the kernel from
 too many requests at the same time. The userspace modprobe call will also
 prevent calls if the same module exists already. The stress\-ng modules
 stressor is designed to help stress test the finit_module() system call
-even if the module is already loaded, letting us tests races which are
+even if the module is already loaded, testing races that are
 otherwise hard to reproduce.
 .TP
 .B \-\-module\-name NAME
