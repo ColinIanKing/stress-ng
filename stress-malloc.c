@@ -46,35 +46,29 @@ typedef struct {
 } stress_malloc_info_t;
 
 static bool malloc_mlock;		/* True = mlock all future allocs */
+static bool malloc_touch;		/* True will touch allocate pages */
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */
-#if defined(HAVE_LIB_PTHREAD)
-static volatile bool keep_thread_running_flag;	/* False to stop pthreads */
-#endif
-static size_t malloc_pthreads;		/* Number of pthreads */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    defined(HAVE_MALLOPT) &&		\
-    defined(M_MMAP_THRESHOLD)
-static size_t malloc_threshold;		/* When to use mmap and not sbrk */
-#endif
-static bool malloc_touch;		/* True will touch allocate pages */
 static void *counter_lock;		/* Counter lock */
 static volatile bool do_jmp = true;	/* SIGSEGV jmp handler, longjmp back if true */
 static sigjmp_buf jmp_env;		/* SIGSEGV jmp environment */
+#if defined(HAVE_LIB_PTHREAD)
+static volatile bool keep_thread_running_flag;	/* False to stop pthreads */
+#endif
 
 static void (*free_func)(void *ptr, size_t len);
 
 #if defined(HAVE_LIB_PTHREAD)
 /* per pthread data */
 typedef struct {
-        pthread_t pthread;      /* The pthread */
-        int       ret;          /* pthread create return */
+        pthread_t pthread;      	/* The pthread */
+        int       ret;          	/* pthread create return */
 } stress_pthread_info_t;
 #endif
 
 typedef struct {
-	const stress_args_t *args;			/* args info */
-	size_t instance;				/* per thread instance number */
+	const stress_args_t *args;	/* args info */
+	size_t instance;		/* per thread instance number */
 } stress_malloc_args_t;
 
 static const stress_help_t help[] = {
@@ -352,10 +346,19 @@ static void MLOCKED_TEXT stress_malloc_sigsegv_handler(int signum)
 static int stress_malloc_child(const stress_args_t *args, void *context)
 {
 	int ret;
+	/*
+	 *  pthread instance 0 is actually the main child process,
+	 *  insances 1..N are pthreads 0..N-1
+	 */
+	stress_malloc_args_t malloc_args[MAX_MALLOC_PTHREADS + 1];
+	size_t malloc_pthreads = 0;
 #if defined(HAVE_LIB_PTHREAD)
 	stress_pthread_info_t pthreads[MAX_MALLOC_PTHREADS];
 	size_t j;
 #endif
+
+	(void)shim_memset(malloc_args, 0, sizeof(malloc_args));
+
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret == 1) {
 		do_jmp = false;
@@ -366,18 +369,12 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	if (stress_sighandler(args->name, SIGSEGV, stress_malloc_sigsegv_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	(void)stress_get_setting("malloc-pthreads", &malloc_pthreads);
+
 #if defined(MCL_FUTURE)
 	if (malloc_mlock)
 		(void)shim_mlockall(MCL_FUTURE);
 #endif
-
-	/*
-	 *  pthread instance 0 is actually the main child process,
-	 *  insances 1..N are pthreads 0..N-1
-	 */
-	stress_malloc_args_t malloc_args[MAX_MALLOC_PTHREADS + 1];
-
-	(void)shim_memset(malloc_args, 0, sizeof(malloc_args));
 
 	malloc_args[0].args = args;
 	malloc_args[0].instance = 0;
@@ -428,15 +425,12 @@ static int stress_malloc(const stress_args_t *args)
 {
 	int ret;
 	bool malloc_zerofree = false;
-	malloc_mlock = false;
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-
-	(void)stress_get_setting("malloc-mlock", &malloc_mlock);
 
 	malloc_bytes = DEFAULT_MALLOC_BYTES;
 	if (!stress_get_setting("malloc-bytes", &malloc_bytes)) {
@@ -460,15 +454,18 @@ static int stress_malloc(const stress_args_t *args)
 #if defined(HAVE_COMPILER_GCC) && 	\
     defined(HAVE_MALLOPT) &&		\
     defined(M_MMAP_THRESHOLD)
-	malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
-	if (stress_get_setting("malloc-threshold", &malloc_threshold))
-		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
+	{
+		size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
+
+		if (stress_get_setting("malloc-threshold", &malloc_threshold))
+			(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
+	}
 #endif
-	malloc_pthreads = 0;
-	(void)stress_get_setting("malloc-pthreads", &malloc_pthreads);
 
 	malloc_touch = false;
 	(void)stress_get_setting("malloc-touch", &malloc_touch);
+	malloc_mlock = false;
+	(void)stress_get_setting("malloc-mlock", &malloc_mlock);
 	(void)stress_get_setting("malloc-zerofree", &malloc_zerofree);
 	free_func = malloc_zerofree ? stress_malloc_zerofree : stress_malloc_free;
 
