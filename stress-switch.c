@@ -494,7 +494,6 @@ static stress_switch_method_t stress_switch_methods[] = {
 #if defined(HAVE_SEM_SYSV)
 	{ "sem-sysv",	stress_switch_sem_sysv },
 #endif
-	{ NULL,		NULL },
 };
 
 /*
@@ -503,9 +502,11 @@ static stress_switch_method_t stress_switch_methods[] = {
  */
 static int stress_set_switch_method(const char *name)
 {
-	stress_switch_method_t *info;
+	size_t i;
 
-	for (info = stress_switch_methods; info->name; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
+		const stress_switch_method_t *info = &stress_switch_methods[i];
+
 		if (!strcmp(info->name, name)) {
 			stress_set_setting("switch-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
@@ -513,8 +514,8 @@ static int stress_set_switch_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "switch-method must be one of:");
-	for (info = stress_switch_methods; info->name; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_switch_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
