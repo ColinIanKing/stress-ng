@@ -99,7 +99,6 @@ static const stress_exec_method_t stress_exec_methods[] = {
 	{ "all",	EXEC_METHOD_ALL },
 	{ "execve",	EXEC_METHOD_EXECVE },
 	{ "execveat",	EXEC_METHOD_EXECVEAT },
-	{ NULL,		-1 },
 };
 
 static const stress_exec_method_t stress_exec_fork_methods[] = {
@@ -119,7 +118,6 @@ static const stress_exec_method_t stress_exec_fork_methods[] = {
 #if defined(HAVE_VFORK)
 	{ "vfork",	EXEC_FORK_METHOD_VFORK },
 #endif
-	{ NULL,		-1 },
 };
 
 static const stress_help_t help[] = {
@@ -170,17 +168,18 @@ static int stress_set_exec_max(const char *opt)
 static int stress_search_exec_method(
 	const char *name,
 	const stress_exec_method_t *methods,
+	const size_t n,
 	const char *opt)
 {
 	size_t i;
 
-	for (i = 0; methods[i].name; i++) {
+	for (i = 0; i < n; i++) {
 		if (!strcmp(opt, methods[i].name))
 			return stress_set_setting(name, TYPE_ID_INT, &methods[i].method);
 	}
 
 	(void)fprintf(stderr, "%s must be one of:", name);
-	for (i = 0; methods[i].name; i++) {
+	for (i = 0; i < n; i++) {
 		(void)fprintf(stderr, " %s", methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
@@ -193,7 +192,8 @@ static int stress_search_exec_method(
  */
 static int stress_set_exec_method(const char *opt)
 {
-	return stress_search_exec_method("exec-method", stress_exec_methods, opt);
+	return stress_search_exec_method("exec-method", stress_exec_methods,
+					SIZEOF_ARRAY(stress_exec_methods), opt);
 }
 
 /*
@@ -202,7 +202,8 @@ static int stress_set_exec_method(const char *opt)
  */
 static int stress_set_exec_fork_method(const char *opt)
 {
-	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods, opt);
+	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods,
+					SIZEOF_ARRAY(stress_exec_fork_methods), opt);
 }
 
 /*
