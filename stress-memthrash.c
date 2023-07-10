@@ -706,9 +706,8 @@ static int stress_set_memthrash_method(const char *name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++) {
-		const stress_memthrash_method_info_t *info = &memthrash_methods[i];
 		if (!strcmp(memthrash_methods[i].name, name)) {
-			stress_set_setting("memthrash-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("memthrash-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -898,6 +897,7 @@ reap_mem:
 static int stress_memthrash(const stress_args_t *args)
 {
 	stress_memthrash_context_t context;
+	size_t memthrash_method = 0;
 	int rc;
 
 	if (stress_sigchld_set_handler(args) < 0)
@@ -907,7 +907,6 @@ static int stress_memthrash(const stress_args_t *args)
 
 	context.args = args;
 	context.total_cpus = (uint32_t)stress_get_processors_online();
-	context.memthrash_method = &memthrash_methods[0];
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
 #if defined(HAVE_MEMTHRASH_NUMA)
 	{
@@ -938,7 +937,8 @@ static int stress_memthrash(const stress_args_t *args)
 	}
 #endif
 
-	(void)stress_get_setting("memthrash-method", &context.memthrash_method);
+	(void)stress_get_setting("memthrash-method", &memthrash_method);
+	context.memthrash_method = &memthrash_methods[memthrash_method];
 
 	if (args->instance == 0) {
 		pr_dbg("%s: using method '%s'\n", args->name, context.memthrash_method->name);

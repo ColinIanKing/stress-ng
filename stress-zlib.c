@@ -49,7 +49,7 @@ typedef void (*stress_zlib_rand_data_func)(const stress_args_t *args,
 typedef struct {
 	const char *name;			/* human readable form of random data generation selection */
 	const stress_zlib_rand_data_func func;	/* the random data generation function */
-} stress_zlib_rand_data_info_t;
+} stress_zlib_method_t;
 
 typedef struct {
 	uint64_t	checksum;
@@ -65,7 +65,7 @@ typedef struct {
 } stress_zlib_shared_checksums_t;
 
 typedef struct {
-	stress_zlib_rand_data_info_t	*info;	/* data generator info */
+	size_t		method;		/* data generator method */
 	int32_t		window_bits;	/* zlib window bits */
 	uint32_t	level;		/* zlib compression level */
 	uint32_t	mem_level;	/* zlib memory usage */
@@ -118,7 +118,7 @@ static const morse_t ALIGN64 morse[] = {
 	{ ' ', " " }
 };
 
-static const stress_zlib_rand_data_info_t zlib_rand_data_methods[];
+static const stress_zlib_method_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
 
@@ -1204,7 +1204,7 @@ static void stress_zlib_random_test(const stress_args_t *args, uint64_t *RESTRIC
 /*
  * Table of zlib data methods
  */
-static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
+static const stress_zlib_method_t zlib_rand_data_methods[] = {
 	{ "random",	stress_zlib_random_test }, /* Special "random" test */
 	{ "00ff",	stress_rand_data_00_ff },
 	{ "ascii01",	stress_rand_data_01 },
@@ -1296,10 +1296,8 @@ static int stress_set_zlib_method(const char *opt)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(zlib_rand_data_methods); i++) {
-		const stress_zlib_rand_data_info_t *info = &zlib_rand_data_methods[i];
-
-		if (!strcmp(info->name, opt)) {
-			stress_set_setting("zlib-method", TYPE_ID_UINTPTR_T, &info);
+		if (!strcmp(zlib_rand_data_methods[i].name, opt)) {
+			stress_set_setting("zlib-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -1416,7 +1414,7 @@ static const char *stress_zlib_err(const int zlib_err)
 static void stress_zlib_get_args(stress_zlib_args_t *params) {
 	(void)stress_get_setting("zlib-level", &params->level);
 	(void)stress_get_setting("zlib-mem-level", &params->mem_level);
-	(void)stress_get_setting("zlib-method", &params->info);
+	(void)stress_get_setting("zlib-method", &params->method);
 	(void)stress_get_setting("zlib-window-bits", &params->window_bits);
 	(void)stress_get_setting("zlib-stream-bytes", &params->stream_bytes);
 	(void)stress_get_setting("zlib-strategy", &params->strategy);
@@ -1572,10 +1570,10 @@ static int stress_zlib_deflate(
 	int flush;
 	stress_zlib_args_t zlib_args;
 	double t1, duration, rate, ratio;
-	stress_zlib_rand_data_info_t *info;
+	const stress_zlib_method_t *method;
 
 	(void)stress_zlib_get_args(&zlib_args);
-	info = (stress_zlib_rand_data_info_t *)zlib_args.info;
+	method = &zlib_rand_data_methods[zlib_args.method];
 
 	zlib_checksum->checksum = 0;
 	zlib_checksum->xchars = 0;
@@ -1630,7 +1628,7 @@ static int stress_zlib_deflate(
 				flush = stress_continue(args) ? Z_NO_FLUSH : Z_FINISH;
 			}
 
-			info->func(args, in, in_end);
+			method->func(args, in, in_end);
 
 			stream_def.avail_in = (unsigned int)gen_sz;
 			stream_def.next_in = (unsigned char *)in;

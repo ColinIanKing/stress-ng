@@ -288,9 +288,7 @@ static int stress_set_memcpy_method(const char *name)
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_memcpy_methods); i++) {
 		if (!strcmp(stress_memcpy_methods[i].name, name)) {
-			const stress_memcpy_method_info_t *info = &stress_memcpy_methods[i];
-
-			stress_set_setting("memcpy-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("memcpy-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -316,7 +314,8 @@ static void stress_memcpy_set_default(void)
 static int stress_memcpy(const stress_args_t *args)
 {
 	uint8_t *buf, *str1, *str2, *str3;
-	const stress_memcpy_method_info_t *memcpy_method = &stress_memcpy_methods[0];
+	size_t memcpy_method = 0;
+	stress_memcpy_func func;
 
 	buf = (uint8_t *)mmap(NULL, 3 * MEMCPY_MEMSIZE, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1 , 0);
@@ -340,13 +339,12 @@ static int stress_memcpy(const stress_args_t *args)
 	}
 
 	(void)stress_get_setting("memcpy-method", &memcpy_method);
-
+	func = stress_memcpy_methods[memcpy_method].func;
 	stress_rndbuf(str3, ALIGN_SIZE);
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		memcpy_method->func(str1, str2, str3);
+		func(str1, str2, str3);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 

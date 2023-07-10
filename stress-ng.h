@@ -396,7 +396,6 @@ typedef enum {
 	TYPE_ID_OFF_T,
 	TYPE_ID_STR,
 	TYPE_ID_BOOL,
-	TYPE_ID_UINTPTR_T
 } stress_type_id_t;
 
 typedef struct {

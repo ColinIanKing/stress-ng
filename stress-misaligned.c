@@ -1045,7 +1045,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
-	{ "int128tomic",stress_misaligned_int128atomic,	false,	false },
+	{ "int128atomic",stress_misaligned_int128atomic,false,	false },
 #endif
 #endif
 };
@@ -1168,10 +1168,8 @@ static int stress_set_misaligned_method(const char *name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_misaligned_methods); i++) {
-		const stress_misaligned_method_info_t *info = &stress_misaligned_methods[i];
-
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("misaligned-method", TYPE_ID_UINTPTR_T, &info);
+		if (!strcmp(stress_misaligned_methods[i].name, name)) {
+			stress_set_setting("misaligned-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -1197,7 +1195,8 @@ static void stress_misaligned_set_default(void)
 static int stress_misaligned(const stress_args_t *args)
 {
 	uint8_t *buffer;
-	stress_misaligned_method_info_t *misaligned_method = &stress_misaligned_methods[0];
+	size_t misaligned_method = 0;
+	stress_misaligned_method_info_t *method;
 	int ret, rc;
 	const size_t page_size = args->page_size;
 	const size_t buffer_size = page_size << 1;
@@ -1242,7 +1241,8 @@ static int stress_misaligned(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	current_method = misaligned_method;
+	method = &stress_misaligned_methods[misaligned_method];
+	current_method = method;
 	ret = sigsetjmp(jmp_env, 1);
 	if (args->instance == 0) {
 		switch (ret) {
@@ -1264,15 +1264,15 @@ static int stress_misaligned(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 	do {
-		if (misaligned_method->disabled) {
+		if (method->disabled) {
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 		stress_misaligned_reset_timer();
 #endif
-		misaligned_method->func(args, (uintptr_t)buffer, page_size, &succeeded);
-		misaligned_method->exercised = true;
+		method->func(args, (uintptr_t)buffer, page_size, &succeeded);
+		method->exercised = true;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 

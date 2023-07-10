@@ -530,9 +530,7 @@ static int stress_set_cyclic_method(const char *name)
 
 	for (i = 0; i < SIZEOF_ARRAY(cyclic_methods); i++) {
 		if (!strcmp(cyclic_methods[i].name, name)) {
-			const stress_cyclic_method_info_t *info = &cyclic_methods[i];
-
-			stress_set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("cyclic-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -627,7 +625,6 @@ static int stress_cyclic_supported(const char *name)
 
 static int stress_cyclic(const stress_args_t *args)
 {
-	const stress_cyclic_method_info_t *cyclic_method = &cyclic_methods[0];
 	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;
 	struct rlimit rlim;
@@ -639,6 +636,7 @@ static int stress_cyclic(const stress_args_t *args)
 	size_t cyclic_samples = DEFAULT_SAMPLES;
 	int policy, rc = EXIT_SUCCESS;
 	size_t cyclic_policy = 0;
+	size_t cyclic_method;
 	const double start = stress_time_now();
 	stress_rt_stats_t *rt_stats;
 	const size_t page_size = args->page_size;
@@ -658,7 +656,7 @@ static int stress_cyclic(const stress_args_t *args)
 	(void)stress_get_setting("cyclic-samples", &cyclic_samples);
 	(void)stress_get_setting("cyclic-sleep", &cyclic_sleep);
 
-	func = cyclic_method->func;
+	func = cyclic_methods[cyclic_method].func;
 	policy = policies[cyclic_policy].policy;
 
 	if (!args->instance) {
@@ -720,7 +718,7 @@ static int stress_cyclic(const stress_args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: using method '%s'\n", args->name, cyclic_method->name);
+		pr_dbg("%s: using method '%s'\n", args->name, cyclic_methods[cyclic_method].name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

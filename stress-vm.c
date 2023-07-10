@@ -2976,10 +2976,8 @@ static int stress_set_vm_method(const char *name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(vm_methods); i++) {
-		const stress_vm_method_info_t *info = &vm_methods[i];
-
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("vm-method", TYPE_ID_UINTPTR_T, &info);
+		if (!strcmp(vm_methods[i].name, name)) {
+			stress_set_setting("vm-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -3116,14 +3114,15 @@ static int stress_vm(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	size_t retries;
 	int err = 0, ret = EXIT_SUCCESS;
+	size_t vm_method = 0;
 	stress_vm_context_t context;
 
 	stress_vm_get_cache_line_size();
 
-	context.vm_method = &vm_methods[0];
 	context.bit_error_count = MAP_FAILED;
 
-	(void)stress_get_setting("vm-method", &context.vm_method);
+	(void)stress_get_setting("vm-method", &vm_method);
+	context.vm_method = &vm_methods[vm_method];
 
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);

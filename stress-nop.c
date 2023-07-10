@@ -223,7 +223,7 @@ STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
 static void stress_nop_random(const stress_args_t *args, const bool flag,
 			      double *duration, double *count);
 
-static stress_nop_instr_t nop_instr[] = {
+static stress_nop_instr_t nop_instrs[] = {
 	{ "nop",	stress_nop_spin_nop,		NULL,	false,	false },
 #if defined(STRESS_ARCH_X86)
 	{ "nop2",	stress_nop_spin_x86_nop2,	NULL,	false,	false },
@@ -298,32 +298,32 @@ static void stress_nop_random(
 
 	do {
 		/* the -1 stops us from calling random recursively */
-		const size_t n = stress_mwc8modn(SIZEOF_ARRAY(nop_instr) - 1);
+		const size_t n = stress_mwc8modn(SIZEOF_ARRAY(nop_instrs) - 1);
 
-		current_instr = &nop_instr[n];
+		current_instr = &nop_instrs[n];
 		stress_nop_callfunc(current_instr, args, false, duration, count);
 	} while (stress_continue(args));
 }
 
 static int stress_set_nop_instr(const char *opt)
 {
-	stress_nop_instr_t *instr;
 	size_t i;
 
-	current_instr = &nop_instr[0];
+	current_instr = &nop_instrs[0];
 
-	for (i = 0; i < SIZEOF_ARRAY(nop_instr); i++) {
-		instr = &nop_instr[i];
+	for (i = 0; i < SIZEOF_ARRAY(nop_instrs); i++) {
+		stress_nop_instr_t *instr = &nop_instrs[i];
+
 		if (!strcmp(instr->name, opt)) {
-			stress_set_setting("nop-instr", TYPE_ID_UINTPTR_T, &instr);
+			stress_set_setting("nop-instr", TYPE_ID_SIZE_T, &i);
 			current_instr = instr;
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "nop-instr must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(nop_instr); i++) {
-		(void)fprintf(stderr, " %s", nop_instr[i].name);
+	for (i = 0; i < SIZEOF_ARRAY(nop_instrs); i++) {
+		(void)fprintf(stderr, " %s", nop_instrs[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -345,11 +345,13 @@ static void NORETURN stress_sigill_nop_handler(int signum)
  */
 static int stress_nop(const stress_args_t *args)
 {
-	stress_nop_instr_t *instr = &nop_instr[0];
+	size_t nop_instr = 0;
+	stress_nop_instr_t *instr;
 	bool do_random;
 	double duration = 0.0, count = 0.0, rate;
 
-	(void)stress_get_setting("nop-instr", &instr);
+	(void)stress_get_setting("nop-instr", &nop_instr);
+	instr = &nop_instrs[nop_instr];
 
 	if (stress_sighandler(args->name, SIGILL, stress_sigill_nop_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -358,7 +360,7 @@ static int stress_nop(const stress_args_t *args)
 
 	if (sigsetjmp(jmpbuf, 1) != 0) {
 		/* We reach here on an SIGILL trap */
-		if (current_instr == &nop_instr[0]) {
+		if (current_instr == &nop_instrs[0]) {
 			/* Really should be able to do nop, skip */
 			pr_inf_skip("%s: 'nop' instruction was illegal, skipping stressor\n",
 				args->name);
@@ -366,7 +368,7 @@ static int stress_nop(const stress_args_t *args)
 		} else {
 			/* not random choice?, then default to nop */
 			if (!do_random)
-				instr = &nop_instr[0];
+				instr = &nop_instrs[0];
 			pr_inf("%s: '%s' instruction was illegal, ignoring, defaulting to nop\n",
 				args->name, current_instr->name);
 		}

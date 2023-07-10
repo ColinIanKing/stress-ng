@@ -348,10 +348,8 @@ static int stress_set_opcode_method(const char *name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_opcode_methods); i++) {
-		stress_opcode_method_info_t const *info = &stress_opcode_methods[i];
-
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("opcode-method", TYPE_ID_UINTPTR_T, &info);
+		if (!strcmp(stress_opcode_methods[i].name, name)) {
+			stress_set_setting("opcode-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -373,10 +371,10 @@ static int stress_opcode(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc;
-	size_t i;
+	size_t i, opcode_method = 0;
+	const stress_opcode_method_info_t *method;
 	const size_t opcode_bytes = STRESS_OPCODE_SIZE >> 3;
 	const size_t opcode_loops = page_size / opcode_bytes;
-	const stress_opcode_method_info_t *opcode_method = &stress_opcode_methods[0];
 	double op_start, rate, t, duration, percent;
 	const double num_opcodes = pow(2.0, STRESS_OPCODE_SIZE);
 	uint64_t forks = 0;
@@ -412,6 +410,7 @@ static int stress_opcode(const stress_args_t *args)
 	(void)shim_memset(opcodes, 0x00, page_size * PAGES);
 
 	(void)stress_get_setting("opcode-method", &opcode_method);
+	method = &stress_opcode_methods[opcode_method];
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -427,7 +426,7 @@ static int stress_opcode(const stress_args_t *args)
 		 *  gets a different random value on each fork
 		 */
 		(void)stress_mwc32();
-		if (opcode_method->func == stress_opcode_inc) {
+		if (method->func == stress_opcode_inc) {
 			char buf[32];
 
 			(void)snprintf(buf, sizeof(buf), "opcode-0x%*.*" PRIx64 " [run]",
@@ -474,7 +473,7 @@ again:
 			(void)mprotect((void *)ops_begin, page_size, PROT_WRITE);
 
 			/* Populate with opcodes */
-			opcode_method->func(page_size, ops_begin, ops_end, &vstate->opcode);
+			method->func(page_size, ops_begin, ops_end, &vstate->opcode);
 
 			/* Make read-only executable and force I$ flush */
 			(void)mprotect((void *)ops_begin, page_size, PROT_READ | PROT_EXEC);

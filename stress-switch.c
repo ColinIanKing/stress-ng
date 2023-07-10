@@ -505,10 +505,8 @@ static int stress_set_switch_method(const char *name)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
-		const stress_switch_method_t *info = &stress_switch_methods[i];
-
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("switch-method", TYPE_ID_UINTPTR_T, &info);
+		if (!strcmp(stress_switch_methods[i].name, name)) {
+			stress_set_setting("switch-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
@@ -529,16 +527,15 @@ static int stress_set_switch_method(const char *name)
 static int stress_switch(const stress_args_t *args)
 {
 	uint64_t switch_freq = 0, switch_delay, threshold;
-
-	stress_switch_method_t *switch_method;
+	size_t switch_method;
 
 	(void)stress_get_setting("switch-freq", &switch_freq);
-	(void)stress_get_setting("switch-method", (void *)&switch_method);
+	(void)stress_get_setting("switch-method", &switch_method);
 
 	switch_delay = (switch_freq == 0) ? 0 : STRESS_NANOSECOND / switch_freq;
 	threshold = switch_freq / THRESH_FREQ;
 
-	return switch_method->func(args, switch_freq, switch_delay, threshold);
+	return stress_switch_methods[switch_method].func(args, switch_freq, switch_delay, threshold);
 }
 
 static void stress_switch_set_default(void)

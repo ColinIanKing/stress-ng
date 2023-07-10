@@ -155,10 +155,6 @@ static int stress_set_setting_generic(
 		setting->u.boolean = *(const bool *)value;
 		DBG("%s: BOOL: %s -> %d\n", __func__, name, setting->u.boolean);
 		break;
-	case TYPE_ID_UINTPTR_T:
-		setting->u.uintptr = *(const uintptr_t *)value;
-		DBG("%s: UINTPTR_R: %s -> %p\n", __func__, name, (void *)setting->u.uintptr);
-		break;
 	case TYPE_ID_UNDEFINED:
 	default:
 		DBG("%s: UNDEF: %s -> ?\n", __func__, name);
@@ -308,11 +304,6 @@ bool stress_get_setting(const char *name, void *value)
 				set = true;
 				*(bool *)value = setting->u.boolean;
 				DBG("%s: BOOL: %s -> %d\n", __func__, name, setting->u.boolean);
-				break;
-			case TYPE_ID_UINTPTR_T:
-				set = true;
-				*(uintptr_t *)value = setting->u.uintptr;
-				DBG("%s: UINTPTR_T: %s -> %p\n", __func__, name, (void *)setting->u.uintptr);
 				break;
 			case TYPE_ID_UNDEFINED:
 			default:
