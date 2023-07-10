@@ -530,7 +530,9 @@ static int stress_set_cyclic_method(const char *name)
 
 	for (i = 0; i < SIZEOF_ARRAY(cyclic_methods); i++) {
 		if (!strcmp(cyclic_methods[i].name, name)) {
-			stress_set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &cyclic_methods[i]);
+			const stress_cyclic_method_info_t *info = &cyclic_methods[i];
+
+			stress_set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
