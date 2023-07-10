@@ -385,23 +385,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
 	return errs;
 }
 
-/*
- *  stress_vm_addr_all()
- *	work through all vm stressors sequentially
- */
-static size_t stress_vm_addr_all(
-	uint8_t *buf, const size_t sz)
-{
-	static int i = 1;
-	size_t bit_errors = 0;
-
-	bit_errors = vm_addr_methods[i].func(buf, sz);
-	i++;
-	if (vm_addr_methods[i].func == NULL)
-		i = 1;
-
-	return bit_errors;
-}
+static size_t stress_vm_addr_all(uint8_t *buf, const size_t sz);
 
 static const stress_vm_addr_method_info_t vm_addr_methods[] = {
 	{ "all",	stress_vm_addr_all },
@@ -417,8 +401,24 @@ static const stress_vm_addr_method_info_t vm_addr_methods[] = {
 	{ "incinv",	stress_vm_addr_incinv },
 	{ "dec",	stress_vm_addr_dec },
 	{ "decinv",	stress_vm_addr_decinv },
-	{ NULL,		NULL  }
 };
+
+/*
+ *  stress_vm_addr_all()
+ *	work through all vm stressors sequentially
+ */
+static size_t stress_vm_addr_all(uint8_t *buf, const size_t sz)
+{
+	static size_t i = 1;
+	size_t bit_errors = 0;
+
+	bit_errors = vm_addr_methods[i].func(buf, sz);
+	i++;
+	if (i >= SIZEOF_ARRAY(vm_addr_methods))
+		i = 1;
+
+	return bit_errors;
+}
 
 /*
  *  stress_set_vm_addr_method()
@@ -426,9 +426,11 @@ static const stress_vm_addr_method_info_t vm_addr_methods[] = {
  */
 static int stress_set_vm_addr_method(const char *name)
 {
-	stress_vm_addr_method_info_t const *info;
+	size_t i;
 
-	for (info = vm_addr_methods; info->func; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(vm_addr_methods); i++) {
+		const stress_vm_addr_method_info_t *info = &vm_addr_methods[i];
+
 		if (!strcmp(info->name, name)) {
 			stress_set_setting("vm-addr-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
@@ -436,8 +438,8 @@ static int stress_set_vm_addr_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "vm-addr-method must be one of:");
-	for (info = vm_addr_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(vm_addr_methods); i++) {
+		(void)fprintf(stderr, " %s", vm_addr_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
