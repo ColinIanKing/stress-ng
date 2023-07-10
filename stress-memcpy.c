@@ -276,7 +276,6 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
 	{ "naive_o1",	stress_memcpy_naive_o1 },
 	{ "naive_o2",	stress_memcpy_naive_o2 },
 	{ "naive_o3",	stress_memcpy_naive_o3 },
-	{ NULL,         NULL }
 };
 
 /*
@@ -285,18 +284,20 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
  */
 static int stress_set_memcpy_method(const char *name)
 {
-	stress_memcpy_method_info_t const *info;
+	size_t i;
 
-	for (info = stress_memcpy_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_memcpy_methods); i++) {
+		if (!strcmp(stress_memcpy_methods[i].name, name)) {
+			const stress_memcpy_method_info_t *info = &stress_memcpy_methods[i];
+
 			stress_set_setting("memcpy-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "memcpy-method must be one of:");
-	for (info = stress_memcpy_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(stress_memcpy_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_memcpy_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
