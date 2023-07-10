@@ -1241,7 +1241,6 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "text",	stress_rand_data_text },
 	{ "utf8",	stress_rand_data_utf8 },
 	{ "zero",	stress_rand_data_zero },
-	{ NULL,		NULL }
 };
 
 /*
@@ -1253,8 +1252,8 @@ static void stress_zlib_random_test(
 	uint64_t *RESTRICT data,
 	uint64_t *RESTRICT data_end)
 {
-	/* We ignore 1st method (random) and last (NULL) entry */
-	const int max = SIZEOF_ARRAY(zlib_rand_data_methods) - 2;
+	/* We ignore 1st method (random) */
+	const int max = SIZEOF_ARRAY(zlib_rand_data_methods) - 1;
 	const int idx = (stress_mwc32modn(max)) + 1;
 
 	zlib_rand_data_methods[idx].func(args, data, data_end);
@@ -1294,9 +1293,11 @@ static int stress_set_zlib_mem_level(const char *opt)
  */
 static int stress_set_zlib_method(const char *opt)
 {
-	const stress_zlib_rand_data_info_t *info;
+	size_t i;
 
-	for (info = zlib_rand_data_methods; info->func; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(zlib_rand_data_methods); i++) {
+		const stress_zlib_rand_data_info_t *info = &zlib_rand_data_methods[i];
+
 		if (!strcmp(info->name, opt)) {
 			stress_set_setting("zlib-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
@@ -1304,8 +1305,8 @@ static int stress_set_zlib_method(const char *opt)
 	}
 
 	(void)fprintf(stderr, "zlib-method must be one of:");
-	for (info = zlib_rand_data_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(zlib_rand_data_methods); i++) {
+		(void)fprintf(stderr, " %s", zlib_rand_data_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
