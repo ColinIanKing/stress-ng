@@ -1546,7 +1546,7 @@ static void stress_block_signals(void)
 {
 	sigset_t set;
 
-	(void)sigemptyset(&set);
+	(void)sigfillset(&set);
 	(void)sigprocmask(SIG_SETMASK, &set, NULL);
 }
 
