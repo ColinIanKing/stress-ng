@@ -1048,7 +1048,6 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int128tomic",stress_misaligned_int128atomic,	false,	false },
 #endif
 #endif
-	{ NULL,         NULL,				false,	false }
 };
 
 static void stress_misaligned_all(
@@ -1058,9 +1057,11 @@ static void stress_misaligned_all(
 	bool *succeeded)
 {
 	static bool exercised = false;
-	stress_misaligned_method_info_t *info;
+	size_t i;
 
-	for (info = &stress_misaligned_methods[1]; info->func && stress_continue_flag(); info++) {
+	for (i = 1; i < SIZEOF_ARRAY(stress_misaligned_methods) && stress_continue_flag(); i++) {
+		stress_misaligned_method_info_t *info = &stress_misaligned_methods[i];
+
 		if (info->disabled)
 			continue;
 		current_method = info;
@@ -1107,11 +1108,11 @@ static MLOCKED_TEXT void stress_misaligned_timer_handler(int signum)
 
 static void stress_misaligned_enable_all(void)
 {
-	stress_misaligned_method_info_t *info;
+	size_t i;
 
-	for (info = stress_misaligned_methods; info->func; info++) {
-		info->disabled = false;
-		info->exercised = false;
+	for (i = 0; i < SIZEOF_ARRAY(stress_misaligned_methods); i++) {
+		stress_misaligned_methods[i].disabled = false;
+		stress_misaligned_methods[i].exercised = false;
 	}
 }
 
@@ -1121,14 +1122,16 @@ static void stress_misaligned_enable_all(void)
  */
 static void stress_misaligned_exercised(const stress_args_t *args)
 {
-	stress_misaligned_method_info_t *info;
 	char *str = NULL;
 	ssize_t str_len = 0;
+	size_t i;
 
 	if (args->instance != 0)
 		return;
 
-	for (info = &stress_misaligned_methods[1]; info->func; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_misaligned_methods); i++) {
+		const stress_misaligned_method_info_t *info = &stress_misaligned_methods[i];
+
 		if (info->exercised) {
 			char *tmp;
 			const size_t name_len = strlen(info->name);
@@ -1162,9 +1165,11 @@ static void stress_misaligned_exercised(const stress_args_t *args)
  */
 static int stress_set_misaligned_method(const char *name)
 {
-	stress_misaligned_method_info_t const *info;
+	size_t i;
 
-	for (info = stress_misaligned_methods; info->func; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_misaligned_methods); i++) {
+		const stress_misaligned_method_info_t *info = &stress_misaligned_methods[i];
+
 		if (!strcmp(info->name, name)) {
 			stress_set_setting("misaligned-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
@@ -1172,8 +1177,8 @@ static int stress_set_misaligned_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "misaligned-method must be one of:");
-	for (info = stress_misaligned_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(stress_misaligned_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_misaligned_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
