@@ -1336,7 +1336,6 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 #if defined(HAVE_SPLAY_TREE)
 	{ "splay",	splay_create, splay_destroy, splay_put, splay_del, splay_get },
 #endif
-	{ NULL,		NULL, NULL, NULL, NULL, NULL },
 };
 
 /*
@@ -1347,7 +1346,7 @@ static int stress_set_sparsematrix_method(const char *name)
 {
 	size_t i;
 
-	for (i = 0; sparsematrix_methods[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(sparsematrix_methods); i++) {
 		if (!strcmp(sparsematrix_methods[i].name, name)) {
 			stress_set_setting("sparsematrix-method", TYPE_ID_SIZE_T, &i);
 			return 0;
@@ -1355,7 +1354,7 @@ static int stress_set_sparsematrix_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "sparsematrix-method must be one of:");
-	for (i = 0; sparsematrix_methods[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(sparsematrix_methods); i++) {
 		(void)fprintf(stderr, " %s", sparsematrix_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
@@ -1439,7 +1438,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 
 	do {
 		if (method == 0) {	/* All methods */
-			for (i = 1; sparsematrix_methods[i].name; i++) {
+			for (i = 1; i < SIZEOF_ARRAY(sparsematrix_methods); i++) {
 				if (stress_sparse_method_test(args,
 						(size_t)sparsematrix_items,
 						sparsematrix_size,
@@ -1470,8 +1469,10 @@ static int stress_sparsematrix(const stress_args_t *args)
 		begin = method;
 		end = method + 1;
 	}
+	if (end > SIZEOF_ARRAY(sparsematrix_methods))
+		end = SIZEOF_ARRAY(sparsematrix_methods);
 
-	for (i = begin; (i < end) && sparsematrix_methods[i].name; i++) {
+	for (i = begin; (i < end); i++) {
 		if (!test_info[i].skip_no_mem) {
 			char tmp[32];
 			double rate;
