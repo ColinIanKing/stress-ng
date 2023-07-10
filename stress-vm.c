@@ -64,8 +64,6 @@ typedef struct {
 	const stress_vm_method_info_t *vm_method;
 } stress_vm_context_t;
 
-static const stress_vm_method_info_t vm_methods[];
-
 static const stress_help_t help[] = {
 	{ "m N", "vm N",	 "start N workers spinning on anonymous mmap" },
 	{ NULL,	 "vm-bytes N",	 "allocate N bytes per vm worker (default 256MB)" },
@@ -2895,27 +2893,12 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 	return bit_errors;
 }
 
-/*
- *  stress_vm_all()
- *	work through all vm stressors sequentially
- */
 static size_t stress_vm_all(
 	void *buf,
 	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
-	const uint64_t max_ops)
-{
-	static int i = 1;
-	size_t bit_errors = 0;
-
-	bit_errors = vm_methods[i].func(buf, buf_end, sz, args, max_ops);
-	i++;
-	if (vm_methods[i].func == NULL)
-		i = 1;
-
-	return bit_errors;
-}
+	const uint64_t max_ops);
 
 static const stress_vm_method_info_t vm_methods[] = {
 	{ "all",		stress_vm_all },
@@ -2960,8 +2943,29 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "write1024v",		stress_vm_write1024v },
 #endif
 	{ "zero-one",		stress_vm_zero_one },
-	{ NULL,		NULL  }
 };
+
+/*
+ *  stress_vm_all()
+ *	work through all vm stressors sequentially
+ */
+static size_t stress_vm_all(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	static size_t i = 1;
+	size_t bit_errors = 0;
+
+	bit_errors = vm_methods[i].func(buf, buf_end, sz, args, max_ops);
+	i++;
+	if (i >= SIZEOF_ARRAY(vm_methods))
+		i = 1;
+
+	return bit_errors;
+}
 
 /*
  *  stress_set_vm_method()
@@ -2969,9 +2973,11 @@ static const stress_vm_method_info_t vm_methods[] = {
  */
 static int stress_set_vm_method(const char *name)
 {
-	stress_vm_method_info_t const *info;
+	size_t i;
 
-	for (info = vm_methods; info->func; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(vm_methods); i++) {
+		const stress_vm_method_info_t *info = &vm_methods[i];
+
 		if (!strcmp(info->name, name)) {
 			stress_set_setting("vm-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
@@ -2979,8 +2985,8 @@ static int stress_set_vm_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "vm-method must be one of:");
-	for (info = vm_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(vm_methods); i++) {
+		(void)fprintf(stderr, " %s", vm_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
