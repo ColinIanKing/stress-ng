@@ -337,7 +337,6 @@ static const stress_opcode_method_info_t stress_opcode_methods[] = {
 	{ "text",	stress_opcode_text },
 	{ "inc",	stress_opcode_inc },
 	{ "mixed",	stress_opcode_mixed },
-	{ NULL,		NULL }
 };
 
 /*
@@ -346,9 +345,11 @@ static const stress_opcode_method_info_t stress_opcode_methods[] = {
  */
 static int stress_set_opcode_method(const char *name)
 {
-	stress_opcode_method_info_t const *info;
+	size_t i;
 
-	for (info = stress_opcode_methods; info->func; info++) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_opcode_methods); i++) {
+		stress_opcode_method_info_t const *info = &stress_opcode_methods[i];
+
 		if (!strcmp(info->name, name)) {
 			stress_set_setting("opcode-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
@@ -356,8 +357,8 @@ static int stress_set_opcode_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "opcode-method must be one of:");
-	for (info = stress_opcode_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(stress_opcode_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_opcode_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
