@@ -624,7 +624,6 @@ static stress_hash_method_info_t hash_methods[] = {
     defined(HAVE_LIB_XXHASH)
 	{ "xxh64",		stress_hash_method_xxh64,	NULL },
 #endif
-	{ NULL,			NULL,				NULL }
 };
 
 static stress_hash_stats_t hash_stats[SIZEOF_ARRAY(hash_methods)];
@@ -637,7 +636,7 @@ static int stress_set_hash_method(const char *name)
 {
 	size_t i;
 
-	for (i = 0; hash_methods[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(hash_methods); i++) {
 		if (!strcmp(hash_methods[i].name, name)) {
 			stress_set_setting("hash-method", TYPE_ID_SIZE_T, &i);
 			return 0;
@@ -645,7 +644,7 @@ static int stress_set_hash_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "hash-method must be one of:");
-	for (i = 0; hash_methods[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(hash_methods); i++) {
 		(void)fprintf(stderr, " %s", hash_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
@@ -707,7 +706,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 		pr_lock();
 		pr_inf("%s: %12.12s %15s %10s\n",
 			args->name, "hash", "hashes/sec", "chi squared");
-		for (i = 1; hash_methods[i].name; i++) {
+		for (i = 1; i < SIZEOF_ARRAY(hash_methods); i++) {
 			stress_hash_stats_t *stats = hash_methods[i].stats;
 
 			if ((stats->duration > 0.0) && (stats->total > 0)) {
