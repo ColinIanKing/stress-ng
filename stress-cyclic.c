@@ -518,8 +518,6 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
 #if defined(HAVE_CLOCK_GETTIME)
 	{ "usleep",	stress_cyclic_usleep },
 #endif
-
-	{ NULL,		NULL }
 };
 
 /*
@@ -528,18 +526,18 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
  */
 static int stress_set_cyclic_method(const char *name)
 {
-	stress_cyclic_method_info_t const *info;
+	size_t i;
 
-	for (info = cyclic_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &info);
+	for (i = 0; i < SIZEOF_ARRAY(cyclic_methods); i++) {
+		if (!strcmp(cyclic_methods[i].name, name)) {
+			stress_set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &cyclic_methods[i]);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "cyclic-method must be one of:");
-	for (info = cyclic_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; i < SIZEOF_ARRAY(cyclic_methods); i++) {
+		(void)fprintf(stderr, " %s", cyclic_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
