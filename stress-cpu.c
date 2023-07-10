@@ -2887,7 +2887,6 @@ static const stress_cpu_method_info_t cpu_methods[] = {
     !defined(__UCLIBC__)
 	{ "zeta",		stress_cpu_zeta,		1339.96 },
 #endif
-	{ NULL,			NULL,				1.0 }
 };
 
 static double stress_cpu_counter_scale[SIZEOF_ARRAY(cpu_methods)];
@@ -2899,7 +2898,7 @@ static void stress_cpu_method(size_t method, const stress_args_t *args, double *
 
 		method = i;
 		i++;
-		if (!cpu_methods[i].func)
+		if (i >= SIZEOF_ARRAY(cpu_methods))
 			i = 1;
 	}
 	cpu_methods[method].func(args->name);
@@ -2915,7 +2914,7 @@ static int stress_set_cpu_method(const char *name)
 {
 	size_t i;
 
-	for (i = 0; cpu_methods[i].func; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(cpu_methods); i++) {
 		if (!strcmp(cpu_methods[i].name, name)) {
 			stress_set_setting("cpu-method", TYPE_ID_SIZE_T, &i);
 			return 0;
@@ -2923,7 +2922,7 @@ static int stress_set_cpu_method(const char *name)
 	}
 
 	(void)fprintf(stderr, "cpu-method must be one of:");
-	for (i = 0; cpu_methods[i].func; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(cpu_methods); i++) {
 		(void)fprintf(stderr, " %s", cpu_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
