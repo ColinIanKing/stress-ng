@@ -336,7 +336,7 @@ static inline void stress_bad_ioctl_rw(
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret != 0) {
 			(void)close(fd);
-			goto next;
+			continue;
 		}
 
 		(void)shim_memset(buf, 0, page_size);
@@ -396,7 +396,6 @@ static inline void stress_bad_ioctl_rw(
 			node->exercised[thread_index] = true;
 			(void)stress_lock_release(lock);
 		}
-next:
 	} while (is_pthread);
 
 	(void)munmap((void *)buf, page_size);
