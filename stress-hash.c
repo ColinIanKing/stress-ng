@@ -56,8 +56,6 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,			NULL }
 };
 
-static stress_hash_method_info_t hash_methods[];
-
 /*
  *  stress_hash_generic()
  *	stress test generic string hash function
@@ -570,25 +568,10 @@ static void stress_hash_method_sobel(
 	stress_hash_generic(name, hmi, bucket, stress_hash_sobel_wrapper, 0x2a7cdb61, 0x2a7cdb61);
 }
 
-/*
- *  stress_hash_all()
- *	iterate over all hash stressor methods
- */
 static HOT OPTIMIZE3 void stress_hash_all(
 	const char *name,
 	const struct stress_hash_method_info *hmi,
-	const stress_bucket_t *bucket)
-{
-	static int i = 1;	/* Skip over stress_hash_all */
-	const struct stress_hash_method_info *h = &hash_methods[i];
-
-	(void)hmi;
-
-	h->func(name, h, bucket);
-	i++;
-	if (!hash_methods[i].func)
-		i = 1;
-}
+	const stress_bucket_t *bucket);
 
 /*
  * Table of has stress methods
@@ -625,6 +608,26 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "xxh64",		stress_hash_method_xxh64,	NULL },
 #endif
 };
+
+/*
+ *  stress_hash_all()
+ *	iterate over all hash stressor methods
+ */
+static HOT OPTIMIZE3 void stress_hash_all(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	static size_t i = 1;	/* Skip over stress_hash_all */
+	const struct stress_hash_method_info *h = &hash_methods[i];
+
+	(void)hmi;
+
+	h->func(name, h, bucket);
+	i++;
+	if (i >= SIZEOF_ARRAY(hash_methods))
+		i = 1;
+}
 
 static stress_hash_stats_t hash_stats[SIZEOF_ARRAY(hash_methods)];
 
