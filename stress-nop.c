@@ -346,7 +346,7 @@ static void NORETURN stress_sigill_nop_handler(int signum)
 static int stress_nop(const stress_args_t *args)
 {
 	size_t nop_instr = 0;
-	stress_nop_instr_t *instr;
+	NOCLOBBER stress_nop_instr_t *instr;
 	bool do_random;
 	double duration = 0.0, count = 0.0, rate;
 
