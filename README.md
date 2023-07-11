@@ -1,5 +1,9 @@
 # stress-ng (stress next generation)
 
+<a href="https://repology.org/project/stress-ng/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/stress-ng.svg" alt="Packaging status" align="right">
+</a>
+
 stress-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well as
 the various operating system kernel interfaces. Stress-ng features:
