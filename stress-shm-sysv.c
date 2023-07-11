@@ -707,6 +707,7 @@ static int stress_shm_sysv_child(
 					pr_inf_skip("%s: shmget ran out of free space, "
 						"skipping stressor\n", args->name);
 					rc = EXIT_NO_RESOURCE;
+					ok = false;
 					goto reap;
 				}
 				/* Run out of shm space, or existing key, so reap, die, repawn */
