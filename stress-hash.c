@@ -688,7 +688,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	(void)stress_get_setting("hash-method", &hash_method);
 	hm = &hash_methods[hash_method];
 
-	for (i = 0; hash_methods[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(hash_methods); i++) {
 		hash_stats[i].duration = 0.0;
 		hash_stats[i].total = false;
 		hash_stats[i].chi_squared = 0.0;
