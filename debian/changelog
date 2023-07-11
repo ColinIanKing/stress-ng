@@ -1,3 +1,62 @@
+stress-ng (0.16.01-1) unstable; urgency=medium
+
+  [ Pino Toscano ]
+  * debian/control: Update/improve the build dependencies (Closes: #1040582)
+    - enable libkeyutils-dev also on ia64, as it is available there as well
+    - enable libjudy-dev, libxxhash-dev, and libglvnd-dev on all the
+      architectures, as they are not specific to a certain OS
+    - switch the build dependencies that exist only on Linux from
+      "!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64" to "linux-any":
+      libkeyutils-dev, libapparmor-dev, apparmor, libaio-dev, libcap-dev,
+      libsctp-dev, libatomic1, libkmod-dev, libgbm-dev
+
+  [ Colin Ian King ]
+  * Makefile: bump version
+  * Manual: update date
+  * stress-shm-sysv: abort early if we run out of shm resources
+  * stress-hash: fix index overrun during initialization
+  * stress-hash: fix index overrun in stress_hash_all
+  * stress-nop: add NOCLOBBER to pointer instr, clear Solaris gcc 4.8.2
+    warning
+  * stress-ng: fix sigprocmask, signals that need to be blocked are set,
+    not zero'd
+  * stress-bad-ioctl: replace next label with continue statement
+  * core-setting: remove TYPE_ID_UINTPTR_T type
+  * stress-zlib: replace null check in methods array with length check
+  * stress-vm: replace null check in methods array with length check
+  * stress-vm-addr: replace null check in methods array with length check
+  * stress-switch: replace null check in methods array with length check
+  * stress-sparsematrix: replace null check in methods array with length
+    check
+  * stress-opcode: replace null check in methods array with array length
+    check
+  * stress-misaligned: replace null check in methods array with length
+    check
+  * stress-cyclic: pass address of pointer rather than method address
+  * stress-memcpy: replace null check in methods array with length check
+  * stress-hash: replace null check in methods array with length check
+  * stress-exec: replace null check in methods array with length check
+  * stress-cyclic: replace null check in cyclic_methods with length check
+  * stress-cpu: replace null check in cpu_methods with length check
+  * Manual: fix typo in --cpu-offline-all option
+  * Manual: some minor grammar changes
+  * stress-ng: add --status N option to report stressor runs status every
+    N seconds
+  * stress-malloc: remove need for some global variables, clean up code
+  * stress-schedpolicy: add --schedpolicy-rand option to select policy
+    randomly
+  * stress-bad-ioctl: fix fd leak
+  * stress-chroot: add two standard methods of breaking out of a chroot
+    as tests
+  * stress-bad-ioctl: add --bad-ioctl-method to select how ioctl commands
+    are changed
+  * stress-stream: ensure number of elements is a multiple of unroll size
+  * stress-ng: make child termination SIGALRM messages debug only
+  * stress-ng: speed up child termination by blocking signals and skip
+    excessive free'ing
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 11 Jul 2023 11:24:12 +0100
+
 stress-ng (0.16.00-1) unstable; urgency=medium
 
   * Makefile: bump version to 0.16.00
