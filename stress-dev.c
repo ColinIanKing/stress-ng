@@ -2323,6 +2323,7 @@ static void stress_dev_cdrom_linux(
 		/* Read */
 		ret = ioctl(fd, CDROM_SET_OPTIONS, option);
 		if (ret >= 0) {
+			option = ret;
 			/* Set (with current options) */
 			ret = ioctl(fd, CDROM_SET_OPTIONS, option);
 			(void)ret;
