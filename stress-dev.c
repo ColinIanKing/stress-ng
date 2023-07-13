@@ -1834,9 +1834,28 @@ static void stress_dev_cdrom_linux(
 	const int fd,
 	const char *devpath)
 {
+	size_t i;
+
+	static const char *proc_files[] = {
+		"autoclose",
+		"autoeject",
+		"check_media",
+		"debug",
+		"info",
+		"lock",
+	};
+
 	(void)args;
 	(void)fd;
 	(void)devpath;
+
+	for (i = 0; i < SIZEOF_ARRAY(proc_files); i++) {
+		char path[PATH_MAX];
+		char buf[4096];
+
+		(void)snprintf(path, sizeof(path), "/proc/sys/dev/cdrom/%s", proc_files[i]);
+		VOID_RET(ssize_t, system_read(path, buf, sizeof(buf)));
+	}
 
 	stress_cdrom_ioctl_msf(fd);
 
