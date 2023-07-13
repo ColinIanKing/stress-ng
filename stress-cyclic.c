@@ -636,7 +636,7 @@ static int stress_cyclic(const stress_args_t *args)
 	size_t cyclic_samples = DEFAULT_SAMPLES;
 	int policy, rc = EXIT_SUCCESS;
 	size_t cyclic_policy = 0;
-	size_t cyclic_method;
+	size_t cyclic_method = 0;
 	const double start = stress_time_now();
 	stress_rt_stats_t *rt_stats;
 	const size_t page_size = args->page_size;
