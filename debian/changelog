@@ -1,3 +1,11 @@
+stress-ng (0.16.02-1) unstable; urgency=medium
+
+  * Makefile: bump version again
+  * stress-cyclic: Fix segv caused by uninitialized variable cyclic_method
+  * README.md: add repology information
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 13 Jul 2023 08:44:47 +0100
+
 stress-ng (0.16.01-1) unstable; urgency=medium
 
   [ Pino Toscano ]
