@@ -1902,6 +1902,11 @@ static void stress_dev_cdrom_linux(
 		int ret;
 
 		(void)shim_memset(&q, 0, sizeof(q));
+#if defined(CDROM_LBA)
+		q.cdsc_format = CDROM_LBA;
+#elif defined(CDROM_MSF)
+		q.cdsc_format = CDROM_MSF;
+#endif
 		ret = ioctl(fd, CDROMSUBCHNL, &q);
 		(void)ret;
 	}, return);
