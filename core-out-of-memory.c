@@ -226,8 +226,11 @@ again:
 	pid = fork();
 	if (pid < 0) {
 		/* Keep trying if we are out of resources */
-		if ((errno == EAGAIN) || (errno == ENOMEM))
+		if ((errno == EAGAIN) || (errno == ENOMEM)) {
+			/* don't retry for 1/10th sec */
+			(void)shim_usleep(100000);
 			goto again;
+		}
 		if (not_quiet)
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
