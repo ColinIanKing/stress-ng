@@ -311,14 +311,18 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	 */
 	mappings = MAP_FAILED;
 	while (mappings_len > page_size) {
+		if (!stress_continue(args))
+			break;
 		mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (mappings != MAP_FAILED)
 			break;
 		mappings_len = mappings_len >> 1;
+		/* mmap failed, yield a bit before retry */
+		shim_sched_yield();
 	}
 	if (mappings == MAP_FAILED) {
-		pr_fail("%s: cannot mmap mmapings table: errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot mmap mappings table: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
