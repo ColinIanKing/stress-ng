@@ -44,7 +44,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static uint64_t timer_counter;
 static uint64_t max_ops;
 static timer_t timerid;
-static double start;
+static double time_end;
 static long ns_delay;
 static int overrun;
 void *lock;
@@ -105,7 +105,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 		if ((timer_counter & 65535) == 0) {
 			if ((sigpending(&mask) == 0) && (sigismember(&mask, SIGINT)))
 				goto cancel;
-			if ((stress_time_now() - start) > (double)g_opt_timeout)
+			if (stress_time_now() > time_end)
 				goto cancel;
 		}
 	}
@@ -131,13 +131,13 @@ static int stress_hrtimer_process(const stress_args_t *args)
 	struct itimerspec timer;
 	sigset_t mask;
 
+	time_end = args->time_end;
+
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
-
-	start = stress_time_now();
 
 	(void)shim_memset(&action, 0, sizeof action);
 	action.sa_handler = stress_hrtimers_handler;

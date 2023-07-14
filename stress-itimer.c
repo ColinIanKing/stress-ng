@@ -63,7 +63,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static volatile uint64_t itimer_counter = 0;
 static uint64_t max_ops;
 static double rate_us;
-static double start;
+static double time_end;
 
 static const shim_itimer_which_t stress_itimers[] = {
 #if defined(ITIMER_REAL)
@@ -136,7 +136,7 @@ static void stress_itimer_handler(int sig)
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
 	if ((itimer_counter & 65535) == 0)
-		if ((stress_time_now() - start) > (double)g_opt_timeout)
+		if (stress_time_now() > time_end)
 			goto cancel;
 	if (stress_continue_flag()) {
 		stress_itimer_set(&timer);
@@ -160,12 +160,13 @@ static int stress_itimer(const stress_args_t *args)
 	sigset_t mask;
 	uint64_t itimer_freq = DEFAULT_ITIMER_FREQ;
 
+	time_end = args->time_end;
+
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	max_ops = args->max_ops;
-	start = stress_time_now();
 
 	if (!stress_get_setting("itimer-freq", &itimer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

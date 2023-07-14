@@ -71,7 +71,6 @@ static uint64_t stress_dirmany_create(
 	const char *pathname,
 	const size_t pathname_len,
 	const off_t dirmany_bytes,
-	const double t_start,
 	const uint64_t i_start,
 	double *create_time,
 	size_t *max_len,
@@ -79,7 +78,7 @@ static uint64_t stress_dirmany_create(
 	bool *failed)
 {
 	const double t_now = stress_time_now();
-	const double t_left = (t_start + (double)g_opt_timeout) - t_now;
+	const double t_left = args->time_end - t_now;
 	/* Assume create takes 60%, remove takes 40% of run time */
 	const double t_end = t_now + (t_left * 0.60);
 	uint64_t i_end = i_start;
@@ -168,7 +167,6 @@ static int stress_dirmany(const stress_args_t *args)
 	int ret;
 	uint64_t i_start = 0, total_created = 0;
 	char pathname[PATH_MAX];
-	const double t_start = stress_time_now();
 	double create_time = 0.0, remove_time = 0.0, total_time = 0.0;
 	off_t dirmany_bytes = 0;
 	size_t pathname_len;
@@ -197,7 +195,7 @@ static int stress_dirmany(const stress_args_t *args)
 		bool failed = false;
 
 		i_end = stress_dirmany_create(args, pathname, pathname_len,
-				dirmany_bytes, t_start, i_start,
+				dirmany_bytes, i_start,
 				&create_time, &max_len, &total_created, &failed);
 		if (failed) {
 			ret = EXIT_FAILURE;

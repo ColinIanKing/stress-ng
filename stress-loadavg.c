@@ -129,11 +129,11 @@ static void *stress_loadavg_func(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
+	const stress_args_t *args = pargs->args;
 #if defined(LOADAVG_IO)
 	const int fd = *(int *)pargs->data;
 	char buf[1];
 #endif
-	const double t_end = stress_time_now() + (double)g_opt_timeout;
 
 #if defined(LOADAVG_IO)
 	buf[0] = (char)stress_mwc8();
@@ -142,7 +142,7 @@ static void *stress_loadavg_func(void *arg)
 	(void)arg;
 	(void)shim_nice(19);	/* be very nice */
 
-	while ((stress_time_now() < t_end) && keep_thread_running()) {
+	while ((stress_time_now() < args->time_end) && keep_thread_running()) {
 #if defined(LOADAVG_IO)
 		if (fd >= 0) {
 			VOID_RET(off_t, lseek(fd, (off_t)stress_mwc16(), SEEK_SET));

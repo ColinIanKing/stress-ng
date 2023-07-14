@@ -101,9 +101,6 @@ static int stress_fork_fn(
 	const bool vm)
 {
 	static fork_info_t info[MAX_FORKS];
-#if defined(__APPLE__)
-	double time_end = stress_time_now() + (double)g_opt_timeout;
-#endif
 
 	stress_set_oom_adjustment(args, true);
 
@@ -262,7 +259,7 @@ fast_exit:
 		 *  vfork so check the time in case SIGARLM was not
 		 *  delivered.
 		 */
-		if ((which == STRESS_VFORK) && (stress_time_now() > time_end))
+		if ((which == STRESS_VFORK) && (stress_time_now() > args->time_end))
 			break;
 #endif
 	} while (stress_continue(args));

@@ -62,7 +62,6 @@ static void stress_alarm_stress_bogo_inc(const stress_args_t *args)
  */
 static int stress_alarm(const stress_args_t *args)
 {
-	const double t_end = stress_time_now() + (double)g_opt_timeout;
 	pid_t pid;
 
 	if (stress_sighandler(args->name, SIGALRM, stress_sighandler_nop, NULL) < 0)
@@ -135,7 +134,7 @@ again:
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		while (stress_continue(args) &&
-		       (stress_time_now() < t_end)) {
+		       (stress_time_now() < args->time_end)) {
 			const uint64_t delay_ns = 1000 + stress_mwc32modn(10000);
 
 			(void)shim_kill(pid, SIGALRM);

@@ -93,8 +93,7 @@ static int stress_sigio(const stress_args_t *args)
 	sigio_args = args;
 	pid = -1;
 
-	time_end = stress_time_now() + (double)g_opt_timeout;
-
+	time_end = args->time_end;
 	buffers = mmap(NULL, 2 * BUFFER_SIZE, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffers == MAP_FAILED) {

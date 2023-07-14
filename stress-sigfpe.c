@@ -155,7 +155,6 @@ static int stress_sigfpe(const stress_args_t *args)
 	struct sigaction action;
 	static int i = 0;
 	int ret;
-	double time_end;
 #if defined(STRESS_CHECK_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
@@ -231,7 +230,6 @@ static int stress_sigfpe(const stress_args_t *args)
 	}
 
 	(void)alarm(0);
-	time_end = stress_time_now() + g_opt_timeout;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (;;) {
@@ -254,7 +252,7 @@ static int stress_sigfpe(const stress_args_t *args)
 		 */
 		if (UNLIKELY(!stress_continue(args)))
 			break;
-		if (UNLIKELY(stress_time_now() > time_end))
+		if (UNLIKELY(stress_time_now() > args->time_end))
 			break;
 
 		if (ret) {

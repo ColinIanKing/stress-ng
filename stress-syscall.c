@@ -8562,7 +8562,6 @@ static int stress_syscall(const stress_args_t *args)
 	int syscall_method = SYSCALL_METHOD_FAST75;
 	char exec_path[PATH_MAX];
 	const uint32_t rnd_filenum = stress_mwc32();
-	const double time_end = stress_time_now() + (double)g_opt_timeout;
 
 	(void)stress_get_setting("syscall-method", &syscall_method);
 
@@ -8676,7 +8675,7 @@ static int stress_syscall(const stress_args_t *args)
 	do {
 		stress_syscall_benchmark_calls(args);
 		stress_syscall_shuffle_calls();
-	} while (stress_continue(args) && (stress_time_now() < time_end));
+	} while (stress_continue(args) && (stress_time_now() < args->time_end));
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		const syscall_stats_t *ss = &syscall_stats[i];

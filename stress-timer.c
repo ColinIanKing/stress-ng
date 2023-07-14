@@ -43,7 +43,7 @@ static uint64_t timer_overruns;
 static uint64_t max_ops;
 static timer_t timerid;
 static double rate_ns;
-static double start;
+static double time_end;
 static bool timer_rand;
 #endif
 
@@ -147,7 +147,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_timer_handler(int sig)
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
 	if (UNLIKELY((timer_counter & 65535) == 0)) {
-		if ((stress_time_now() - start) > (double)g_opt_timeout)
+		if (stress_time_now() > time_end)
 			goto cancel;
 		stress_proc_self_timer_read();
 	}
@@ -182,6 +182,7 @@ static int stress_timer(const stress_args_t *args)
 	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
 	int n = 0, rc = EXIT_SUCCESS;
 
+	time_end = args->time_end;
 	timer_counter = 0;
 	timer_settime_failure = 0;
 	timer_overruns = 0;
@@ -191,7 +192,6 @@ static int stress_timer(const stress_args_t *args)
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	max_ops = args->max_ops;
-	start = stress_time_now();
 
 	timer_rand = false;
 	(void)stress_get_setting("timer-rand", &timer_rand);

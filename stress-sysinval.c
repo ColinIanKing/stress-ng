@@ -174,7 +174,6 @@ typedef struct {
 static stress_syscall_hash_table_t *hash_table;
 
 static sigjmp_buf jmpbuf;
-static double time_end;
 
 static const int sigs[] = {
 #if defined(SIGILL)
@@ -2374,7 +2373,7 @@ static void syscall_permute(
 	unsigned long rnd_values[4];
 	size_t num_values = 0;
 
-	if (stress_time_now() > time_end)
+	if (stress_time_now() > args->time_end)
 		_exit(EXIT_SUCCESS);
 
 	if (arg_num >= stress_syscall_arg->num_args) {
@@ -2675,8 +2674,6 @@ static int stress_sysinval(const stress_args_t *args)
 	const size_t stress_syscall_exercised_sz = SYSCALL_ARGS_SIZE * sizeof(*stress_syscall_exercised);
 	bool syscall_exercised[SYSCALL_ARGS_SIZE];
 	bool syscall_unique[SYSCALL_ARGS_SIZE];
-
-	time_end = stress_time_now() + (double)g_opt_timeout;
 
 	/*
 	 *  Run-time sanity check of zero syscalls, maybe __NR or SYS_ is not
