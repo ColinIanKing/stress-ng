@@ -753,14 +753,18 @@ retry:
 			 *  performance.
 			 */
 			if ((count & 0x3ff) == 0) {
-				int bytes;
+				int val;
 
-				VOID_RET(int, ioctl(fd, FIONREAD, &bytes));
+				VOID_RET(int, ioctl(fd, FIONREAD, &val));
 #if defined(SIOCINQ)
-				if (LIKELY(ioctl(fd, SIOCINQ, &bytes) == 0)) {
-					inq_bytes += bytes;
+				if (LIKELY(ioctl(fd, SIOCINQ, &val) == 0)) {
+					inq_bytes += val;
 					inq_samples++;
 				}
+#endif
+#if defined(SIOCATMARK)
+				/* and exercise SIOCATMARK */
+				VOID_RET(int, ioctl(fd, SIOCATMARK, &val));
 #endif
 			}
 #endif
