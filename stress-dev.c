@@ -1859,6 +1859,22 @@ static void stress_dev_cdrom_linux(
 
 	stress_cdrom_ioctl_msf(fd);
 
+#if defined(CDROMVOLREAD) &&		\
+    defined(CDROMVOLCTRL) &&		\
+    defined(HAVE_CDROM_VOLCTRL)
+	IOCTL_TIMEOUT(0.10, {
+		struct cdrom_volctrl volume;
+		int ret;
+
+		(void)shim_memset(&volume, 0, sizeof(volume));
+		ret = ioctl(fd, CDROMVOLREAD, &volume);
+		if (ret == 0)
+			ret = ioctl(fd, CDROMVOLCTRL, &volume);
+		(void)ret;
+	}, return);
+#else
+	UNEXPECTED
+#endif
 #if defined(CDROM_GET_MCN) &&	\
     defined(HAVE_CDROM_MCN)
 	IOCTL_TIMEOUT(0.10, {
@@ -1893,22 +1909,6 @@ static void stress_dev_cdrom_linux(
 
 		(void)shim_memset(&entry, 0, sizeof(entry));
 		ret = ioctl(fd, CDROMREADTOCENTRY, &entry);
-		(void)ret;
-	}, return);
-#else
-	UNEXPECTED
-#endif
-#if defined(CDROMVOLREAD) &&		\
-    defined(CDROMVOLCTRL) &&		\
-    defined(HAVE_CDROM_VOLCTRL)
-	IOCTL_TIMEOUT(0.10, {
-		struct cdrom_volctrl volume;
-		int ret;
-
-		(void)shim_memset(&volume, 0, sizeof(volume));
-		ret = ioctl(fd, CDROMVOLREAD, &volume);
-		if (ret == 0)
-			ret = ioctl(fd, CDROMVOLCTRL, &volume);
 		(void)ret;
 	}, return);
 #else
@@ -2102,6 +2102,16 @@ static void stress_dev_cdrom_linux(
 #else
 	UNEXPECTED
 #endif
+#if defined(CDROMSTART)
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+
+		ret = ioctl(fd, CDROMSTART, 0);
+		(void)ret;
+	}, return);
+#else
+	UNEXPECTED
+#endif
 #if defined(CDROMPAUSE)
 	IOCTL_TIMEOUT(0.10, {
 		int ret;
@@ -2117,6 +2127,16 @@ static void stress_dev_cdrom_linux(
 		int ret;
 
 		ret = ioctl(fd, CDROMRESUME, 0);
+		(void)ret;
+	}, return);
+#else
+	UNEXPECTED
+#endif
+#if defined(CDROMSTOP)
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+
+		ret = ioctl(fd, CDROMSTOP, 0);
 		(void)ret;
 	}, return);
 #else
