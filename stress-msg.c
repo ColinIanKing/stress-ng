@@ -253,6 +253,11 @@ static void OPTIMIZE3 stress_msg_receiver(
 		register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
 		for (i = 0; stress_continue(args); i++) {
+#if defined(IPC_NOWAIT)
+		int msg_flag = (i & 0x7f) ? 0 : IPC_NOWAIT;
+#else
+		int msg_flag = 0;
+#endif
 			ssize_t msgsz;
 
 #if defined(MSG_COPY) &&	\
@@ -279,13 +284,16 @@ static void OPTIMIZE3 stress_msg_receiver(
 				(void)msgrcv(msgq_id, &msg, msg_bytes, mtype, ~0);
 			}
 
-			msgsz = msgrcv(msgq_id, &msg, msg_bytes, mtype, 0);
+redo:
+			msgsz = msgrcv(msgq_id, &msg, msg_bytes, mtype, msg_flag);
 			if (UNLIKELY(msgsz < 0)) {
 				/*
 				 * Check for errors that can occur
 				 * when the termination occurs and
 				 * retry
 				 */
+				if (errno == EAGAIN)
+					goto redo;
 				if ((errno == E2BIG) || (errno == EINTR))
 					continue;
 
@@ -327,8 +335,19 @@ static void OPTIMIZE3 stress_msg_sender(
 	msg.u.value = 0;
 
 	do {
+#if defined(IPC_NOWAIT)
+		int msg_flag = (msg.u.value & 0x3f) ? 0 : IPC_NOWAIT;
+#else
+		int msg_flag = 0;
+#endif
+
 		msg.mtype = (msg_types) ? stress_mwc8modn(msg_types) + 1 : 1;
-		if (UNLIKELY(msgsnd(msgq_id, &msg, msg_bytes, 0) < 0)) {
+resend:
+		if (UNLIKELY(msgsnd(msgq_id, &msg, msg_bytes, msg_flag) < 0)) {
+			if (errno == EAGAIN) {
+				msg_flag = 0;
+				goto resend;
+			}
 			if (errno != EINTR)
 				pr_fail("%s: msgsnd failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
