@@ -254,9 +254,9 @@ static void OPTIMIZE3 stress_msg_receiver(
 
 		for (i = 0; stress_continue(args); i++) {
 #if defined(IPC_NOWAIT)
-		int msg_flag = (i & 0x7f) ? 0 : IPC_NOWAIT;
+			int msg_flag = (i & 0x1ff) ? 0 : IPC_NOWAIT;
 #else
-		int msg_flag = 0;
+			int msg_flag = 0;
 #endif
 			ssize_t msgsz;
 
@@ -292,8 +292,10 @@ redo:
 				 * when the termination occurs and
 				 * retry
 				 */
-				if (errno == EAGAIN)
+				if (LIKELY((errno == ENOMSG) || (errno == EAGAIN))) {
+					msg_flag = 0;
 					goto redo;
+				}
 				if ((errno == E2BIG) || (errno == EINTR))
 					continue;
 
