@@ -95,7 +95,6 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_abort,		OPT_FLAGS_ABORT },
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
 	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU },
-	{ OPT_cpu_online_all,	OPT_FLAGS_CPU_ONLINE_ALL },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU },

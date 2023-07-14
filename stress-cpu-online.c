@@ -23,6 +23,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"cpu-online N",		"start N workers offlining/onlining the CPUs" },
 	{ NULL, "cpu-online-affinity",	"set CPU affinity to the CPU to be offlined" },
+	{ NULL, "cpu-online-all",	"attempt to exercise all CPUs include CPU 0" },
 	{ NULL,	"cpu-online-ops N",	"stop after N offline/online operations" },
 	{ NULL,	NULL,			NULL }
 };
@@ -34,8 +35,14 @@ static int stress_set_cpu_online_affinity(const char *opt)
 	return stress_set_setting_true("cpu-online-affinity", opt);
 }
 
+static int stress_set_cpu_online_all(const char *opt)
+{
+	return stress_set_setting_true("cpu-online-all", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cpu_online_affinity,	stress_set_cpu_online_affinity },
+	{ OPT_cpu_online_all,		stress_set_cpu_online_all },
 	{ 0,				NULL },
 };
 
@@ -163,13 +170,14 @@ static int stress_cpu_online(const stress_args_t *args)
 	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	bool cpu_online_affinity = false;
+	bool cpu_online_all = false;
 	int rc = EXIT_SUCCESS;
 	double offline_duration = 0.0, offline_count = 0.0;
 	double online_duration  = 0.0, online_count = 0.0;
 	double rate;
 
 	(void)stress_get_setting("cpu-online-affinity", &cpu_online_affinity);
-	pr_inf("%d\n", cpu_online_affinity);
+	(void)stress_get_setting("cpu-online-all", &cpu_online_all);
 
 	if (geteuid() != 0) {
 		if (args->instance == 0)
@@ -219,18 +227,16 @@ static int stress_cpu_online(const stress_args_t *args)
 		free(cpu_online);
 		return EXIT_FAILURE;
 	}
-	if ((args->num_instances > 1) &&
-	    (g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL)) {
+	if ((args->num_instances > 1) && cpu_online_all) {
 		if (args->instance == 0) {
 			pr_inf("%s: disabling --cpu-online-all option because "
 			       "more than 1 %s stressor is being invoked\n",
 				args->name, args->name);
 		}
-		g_opt_flags &= ~OPT_FLAGS_CPU_ONLINE_ALL;
+		cpu_online_all = false;
 	}
 
-	if ((args->instance == 0) &&
-	    (g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL)) {
+	if ((args->instance == 0) && cpu_online_all) {
 		pr_inf("%s: exercising all %" PRId32 " cpus\n",
 			args->name, cpu_online_count + 1);
 	}
@@ -244,10 +250,9 @@ static int stress_cpu_online(const stress_args_t *args)
 		const uint32_t cpu = stress_mwc32modn((uint32_t)cpus);
 
 		/*
-		 * Only allow CPU 0 to be offlined if OPT_FLAGS_CPU_ONLINE_ALL
-		 * --cpu-online-all has been enabled
+		 *  Only allow CPU 0 to be offlined if --cpu-online-all has been enabled
 		 */
-		if ((cpu == 0) && !(g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL))
+		if ((cpu == 0) && !cpu_online_all)
 			continue;
 		if (cpu_online[cpu]) {
 			double t;
