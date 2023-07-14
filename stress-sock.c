@@ -159,6 +159,9 @@ static int stress_set_sock_type(const char *opt)
 #if defined(SOCK_SEQPACKET)
 		{ "seqpacket",	SOCK_SEQPACKET },
 #endif
+#if defined(SOCK_DGRAM)
+		{ "dgram",	SOCK_DGRAM },
+#endif
 		{ NULL,		0 }
 	};
 
@@ -986,6 +989,18 @@ static int OPTIMIZE3 stress_sock_server(
 				(void)close(sfd);
 				break;
 			}
+
+#if defined(SIOCUNIXFILE)
+			/* exercise SIOCUNIXFILE */
+			if (sock_domain == AF_UNIX) {
+				int unix_fd;
+
+				unix_fd = ioctl(sfd, SIOCUNIXFILE, 0);
+				if (unix_fd >= 0)
+					(void)close(unix_fd);
+			}
+#endif
+
 			/*
 			 *  Exercise illegal sockname lengths
 			 */
@@ -1193,11 +1208,7 @@ static int stress_sock(const stress_args_t *args)
 	int sock_domain = AF_INET;
 	int sock_type = SOCK_STREAM;
 	int sock_port = DEFAULT_SOCKET_PORT;
-#if defined(IPPROTO_TCP)
-	int sock_protocol = IPPROTO_TCP;
-#else
 	int sock_protocol = 0;
-#endif
 	int sock_zerocopy = false;
 	int rc = EXIT_SUCCESS, reserved_port, parent_cpu;
 	const bool rt = stress_sock_kernel_rt();
