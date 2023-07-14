@@ -466,6 +466,8 @@ static int OPTIMIZE3 stress_sock_client(
 	size_t n_ctrls;
 	char **ctrls;
 	int recvflag = 0, rc = EXIT_FAILURE;
+	uint64_t inq_bytes = 0, inq_samples = 0;
+	uint32_t count = 0;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -481,8 +483,9 @@ static int OPTIMIZE3 stress_sock_client(
 	do {
 		int fd;
 		int retries = 0;
-		static int count = 0;
 		socklen_t addr_len = 0;
+		double metric;
+
 retry:
 		if (!stress_continue_flag())
 			goto free_controls;
@@ -750,26 +753,20 @@ retry:
 			 *  performance.
 			 */
 			if ((count & 0x3ff) == 0) {
-				size_t bytes = MMAP_IO_SIZE;
+				int bytes;
 
 				VOID_RET(int, ioctl(fd, FIONREAD, &bytes));
-				count = 0;
-
-				if (bytes > MMAP_IO_SIZE)
-					bytes = MMAP_IO_SIZE;
-
+#if defined(SIOCINQ)
+				if (LIKELY(ioctl(fd, SIOCINQ, &bytes) == 0)) {
+					inq_bytes += bytes;
+					inq_samples++;
+				}
+#endif
 			}
 #endif
 			/*  Periodically exercise invalid recv calls */
 			if ((count & 0x7ff) == 0)
 				stress_sock_invalid_recv(fd, opt);
-#if defined(SIOCINQ)
-			{
-				int pending;
-
-				VOID_RET(int, ioctl(fd, SIOCINQ, &pending));
-			}
-#endif
 
 			/*
 			 *  Receive using equivalent receive method
@@ -838,6 +835,8 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
+		metric = inq_samples > 0.0 ? (double)inq_bytes / (double)inq_samples : 0;
+		stress_metrics_set(args, 2, "byte average in queue length", metric);
 	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
@@ -891,7 +890,9 @@ static int OPTIMIZE3 stress_sock_server(
 	void *ptr = MAP_FAILED;
 	const pid_t self = getpid();
 	int sendflag = 0;
-	double t, duration, rate;
+	double t, duration, metric;
+	uint64_t outq_bytes = 0, outq_samples = 0;
+	uint32_t count = 0;
 
 #if defined(MSG_ZEROCOPY)
 	if (sock_zerocopy)
@@ -1020,13 +1021,13 @@ static int OPTIMIZE3 stress_sock_server(
 				break;
 			}
 #if defined(SO_RESERVE_MEM)
-		{
-			const int mem = 4 * 1024 * 1024;
-			socklen_t optlen = sizeof(mem);
+			{
+				const int mem = 4 * 1024 * 1024;
+				socklen_t optlen = sizeof(mem);
 
-			(void)setsockopt(fd, SOL_SOCKET, SO_RESERVE_MEM,
-				&mem, optlen);
-		}
+				(void)setsockopt(fd, SOL_SOCKET, SO_RESERVE_MEM,
+					&mem, optlen);
+			}
 #endif
 #if defined(SOL_TCP) &&	\
     defined(TCP_QUICKACK)
@@ -1119,11 +1120,15 @@ static int OPTIMIZE3 stress_sock_server(
 						args->name, errno, strerror(errno));
 			}
 #if defined(SIOCOUTQ)
-			{
-				int pending;
+			if ((count & 0x3ff) == 0) {
+				int outq_len;
 
-				VOID_RET(int, ioctl(sfd, SIOCOUTQ, &pending));
+				if (LIKELY(ioctl(sfd, SIOCOUTQ, &outq_len) == 0)) {
+					outq_bytes += outq_len;
+					outq_samples++;
+				}
 			}
+			count++;
 #endif
 			stress_sock_ioctl(fd, sock_domain, rt);
 			stress_read_fdinfo(self, sfd);
@@ -1143,8 +1148,10 @@ static int OPTIMIZE3 stress_sock_server(
 	} while (stress_continue(args));
 
 	duration = stress_time_now() - t;
-	rate = duration > 0.0 ? (double)msgs / duration : 0;
-	stress_metrics_set(args, 0, "messages sent per sec", rate);
+	metric = duration > 0.0 ? (double)msgs / duration : 0;
+	stress_metrics_set(args, 0, "messages sent per sec", metric);
+	metric = outq_samples > 0.0 ? (double)outq_bytes / (double)outq_samples : 0;
+	stress_metrics_set(args, 1, "byte average out queue length", metric);
 
 die_close:
 	(void)close(fd);
