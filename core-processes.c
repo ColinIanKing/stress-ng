@@ -57,7 +57,7 @@ void stress_dump_processes(void)
 
 		(void)shim_memset(cmd, 0, sizeof(cmd));
 		(void)snprintf(path, sizeof(path), "/proc/%s/cmdline", namelist[i]->d_name);
-		ret = system_read(path, cmd, sizeof(cmd));
+		ret = stress_system_read(path, cmd, sizeof(cmd));
 		if (ret > 0) {
 			int j;
 
@@ -98,7 +98,7 @@ void stress_dump_processes(void)
 		}
 
 		(void)snprintf(path, sizeof(path), "/proc/%s/status", namelist[i]->d_name);
-		ret = system_read(path, buf, sizeof(buf));
+		ret = stress_system_read(path, buf, sizeof(buf));
 		if (ret > 0) {
 			char *ptr;
 

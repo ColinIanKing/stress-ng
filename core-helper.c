@@ -813,7 +813,7 @@ void stress_ksm_memory_merge(const int flag)
 			VOID_RET(int, prctl(PR_SET_MEMORY_MERGE, flag));
 			prev_flag = flag;
 		}
-		(void)system_write("/sys/kernel/mm/ksm/run", "1\n", 2);
+		(void)stress_system_write("/sys/kernel/mm/ksm/run", "1\n", 2);
 	}
 #else
 	(void)flag;
@@ -1966,10 +1966,10 @@ void stress_cache_free(void)
 }
 
 /*
- *  system_write()
+ *  stress_system_write()
  *	write a buffer to a /sys or /proc entry
  */
-ssize_t system_write(
+ssize_t stress_system_write(
 	const char *path,
 	const char *buf,
 	const size_t buf_len)
@@ -1989,10 +1989,10 @@ ssize_t system_write(
 }
 
 /*
- *  system_read()
+ *  stress_system_read()
  *	read a buffer from a /sys or /proc entry
  */
-ssize_t system_read(
+ssize_t stress_system_read(
 	const char *path,
 	char *buf,
 	const size_t buf_len)
@@ -2599,7 +2599,7 @@ size_t stress_probe_max_pipe_size(void)
 	/*
 	 *  Try and find maximum pipe size directly
 	 */
-	ret = system_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
+	ret = stress_system_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
 	if (ret > 0) {
 		if (sscanf(buf, "%zu", &sz) == 1)
 			if (!stress_check_max_pipe_size(sz, page_size))
@@ -3226,7 +3226,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	uint32_t n;
 
 	(void)shim_memset(buf, 0, sizeof(buf));
-	if (system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
+	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
 		max_pid = atoi(buf);
 	}
 	if (max_pid < 1024)
@@ -3282,7 +3282,7 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
 		(int)pid, fd);
 
-	return (int)system_read(path, buf, sizeof(buf));
+	return (int)stress_system_read(path, buf, sizeof(buf));
 #else
 	(void)pid;
 	(void)fd;
@@ -3560,7 +3560,7 @@ void stress_clear_warn_once(void)
 {
 #if defined(__linux__)
 	if (stress_check_capability(SHIM_CAP_IS_ROOT))
-		(void)system_write("/sys/kernel/debug/clear_warn_once", "1", 1);
+		(void)stress_system_write("/sys/kernel/debug/clear_warn_once", "1", 1);
 #endif
 }
 

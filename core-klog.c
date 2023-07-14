@@ -69,7 +69,7 @@ static void stress_klog_kernel_cmdline(void)
 	if (already_dumped)
 		return;
 
-	ret = system_read("/proc/cmdline", buffer, sizeof(buffer));
+	ret = stress_system_read("/proc/cmdline", buffer, sizeof(buffer));
 	if (ret < 0)
 		return;
 

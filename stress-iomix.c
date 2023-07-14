@@ -829,19 +829,19 @@ static void stress_iomix_drop_caches(
 
 	do {
 		(void)sync();
-		if (system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
+		if (stress_system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 		if (!stress_continue(args))
 			return;
 		(void)sync();
-		if (system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
+		if (stress_system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 		if (!stress_continue(args))
 			return;
 		(void)sync();
-		if (system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
+		if (stress_system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 	} while (stress_bogo_inc_lock(args, counter_lock, true));

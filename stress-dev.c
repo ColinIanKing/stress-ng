@@ -1854,7 +1854,7 @@ static void stress_dev_cdrom_linux(
 		char buf[4096];
 
 		(void)snprintf(path, sizeof(path), "/proc/sys/dev/cdrom/%s", proc_files[i]);
-		VOID_RET(ssize_t, system_read(path, buf, sizeof(buf)));
+		VOID_RET(ssize_t, stress_system_read(path, buf, sizeof(buf)));
 	}
 
 	stress_cdrom_ioctl_msf(fd);

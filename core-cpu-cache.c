@@ -69,7 +69,7 @@ static int stress_get_string_from_file(
 	ssize_t ret;
 
 	/* system read will zero fill tmp */
-	ret = system_read(path, tmp, tmp_len);
+	ret = stress_system_read(path, tmp, tmp_len);
 	if (ret < 0)
 		return -1;
 

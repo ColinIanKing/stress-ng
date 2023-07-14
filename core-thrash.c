@@ -211,7 +211,7 @@ static inline void stress_compact_memory(void)
 		return;
 
 	stress_thrash_state("compact");
-	VOID_RET(ssize_t, system_write("/proc/sys/vm/compact_memory", "1", 1));
+	VOID_RET(ssize_t, stress_system_write("/proc/sys/vm/compact_memory", "1", 1));
 #endif
 }
 
@@ -231,7 +231,7 @@ static inline void stress_zone_reclaim(void)
 	mode[1] = '\0';
 
 	stress_thrash_state("reclaim");
-	VOID_RET(ssize_t, system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1));
+	VOID_RET(ssize_t, stress_system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1));
 #endif
 }
 
@@ -246,7 +246,7 @@ static inline void stress_kmemleak_scan(void)
 		return;
 
 	stress_thrash_state("scan");
-	VOID_RET(ssize_t, system_write("/sys/kernel/debug/kmemleak", "scan", 4));
+	VOID_RET(ssize_t, stress_system_write("/sys/kernel/debug/kmemleak", "scan", 4));
 #endif
 }
 
@@ -263,7 +263,7 @@ static inline void stress_slab_shrink(void)
 	/*
 	 *  older shrink interface, may fail
 	 */
-	VOID_RET(ssize_t, system_write("/sys/kernel/slab/cache/shrink", "1", 1));
+	VOID_RET(ssize_t, stress_system_write("/sys/kernel/slab/cache/shrink", "1", 1));
 
 	dir = opendir(slabpath);
 	if (!dir)
@@ -278,7 +278,7 @@ static inline void stress_slab_shrink(void)
 			char path[PATH_MAX];
 
 			(void)snprintf(path, sizeof(path), "%s/%s", slabpath, d->d_name);
-			VOID_RET(ssize_t, system_write(path, "1", 1));
+			VOID_RET(ssize_t, stress_system_write(path, "1", 1));
 		}
 	}
 	(void)closedir(dir);
@@ -298,7 +298,7 @@ static inline void stress_drop_caches(void)
 	str[1] = '\0';
 
 	stress_thrash_state("dropcache");
-	VOID_RET(ssize_t, system_write("/proc/sys/vm/drop_caches", str, 1));
+	VOID_RET(ssize_t, stress_system_write("/proc/sys/vm/drop_caches", str, 1));
 	if (method++ >= 2)
 		method = 0;
 #endif
@@ -315,7 +315,7 @@ static inline void stress_merge_memory(void)
 		return;
 
 	stress_thrash_state("merge");
-	VOID_RET(ssize_t, system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1));
+	VOID_RET(ssize_t, stress_system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1));
 #endif
 }
 

@@ -67,7 +67,7 @@ static bool stress_memhotplug_removable(char *name)
 
 	(void)snprintf(path, sizeof(path), "%s/%s/removable",
 		sys_memory_path, name);
-	if (system_read(path, buf, sizeof(buf)) < 0)
+	if (stress_system_read(path, buf, sizeof(buf)) < 0)
 		return false;
 	if (sscanf(buf, "%1d", &val) != 1)
 		return false;

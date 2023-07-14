@@ -83,7 +83,7 @@ static int stress_cpu_online_set(
 	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
-	ret = system_write(filename, data, sizeof(data));
+	ret = stress_system_write(filename, data, sizeof(data));
 	if (ret < 0) {
 		switch (ret) {
 		case -EAGAIN:
@@ -116,7 +116,7 @@ static int stress_cpu_online_get(const uint32_t cpu, int *setting)
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
 	(void)shim_memset(data, 0, sizeof(data));
-	ret = system_read(filename, data, sizeof(data));
+	ret = stress_system_read(filename, data, sizeof(data));
 	if (ret < 1) {
 		*setting = -1;
 		return EXIT_FAILURE;
@@ -150,7 +150,7 @@ static int stress_cpu_online_supported(const char *name)
 		return -1;
 	}
 
-	ret = system_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
+	ret = stress_system_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
 	if (ret < 0) {
 		pr_inf_skip("%s stressor will be skipped, "
 		       "cannot write to cpu1 online sysfs control file\n", name);

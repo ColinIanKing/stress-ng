@@ -373,8 +373,8 @@ static int stress_key(const stress_args_t *args)
 		{
 			char buf[4096];
 
-			VOID_RET(ssize_t, system_read("/proc/keys", buf, sizeof(buf)));
-			VOID_RET(ssize_t, system_read("/proc/key-users", buf, sizeof(buf)));
+			VOID_RET(ssize_t, stress_system_read("/proc/keys", buf, sizeof(buf)));
+			VOID_RET(ssize_t, stress_system_read("/proc/key-users", buf, sizeof(buf)));
 		}
 
 		/*

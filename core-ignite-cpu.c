@@ -92,7 +92,7 @@ static void stress_ignite_cpu_set(
 			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_max_freq", cpu);
 		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", max_freq);
-		if (system_write(path, buffer, strlen(buffer)) < 0)
+		if (stress_system_write(path, buffer, strlen(buffer)) < 0)
 			*setting_flag &= ~SETTING_SCALING_FREQ;
 
 		/* Try to set min to be 100% of max down to lowest, which ever works first*/
@@ -102,7 +102,7 @@ static void stress_ignite_cpu_set(
 		freq = (maximize_freq) ? max_freq : min_freq;
 		while ((freq_delta > 0) && (freq >= min_freq)) {
 			(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
-			if (system_write(path, buffer, strlen(buffer)) >= 0)
+			if (stress_system_write(path, buffer, strlen(buffer)) >= 0)
 				break;
 			freq -= freq_delta;
 		}
@@ -113,7 +113,7 @@ static void stress_ignite_cpu_set(
 			"/sys/devices/system/cpu/cpu%" PRIu32
 			"/power/energy_perf_bias", cpu);
 		(void)snprintf(buffer, sizeof(buffer), "%" PRIu8 "\n", energy_perf_bias);
-		if (system_write(path, buffer, strlen(buffer)) < 0)
+		if (stress_system_write(path, buffer, strlen(buffer)) < 0)
 			*setting_flag &= ~SETTING_ENERGY_PERF_BIAS;
 	}
 
@@ -121,7 +121,7 @@ static void stress_ignite_cpu_set(
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRIu32
 			"/cpufreq/scaling_governor", cpu);
-		if (system_write(path, governor, strlen(governor)) < 0)
+		if (stress_system_write(path, governor, strlen(governor)) < 0)
 			*setting_flag &= ~SETTING_GOVERNOR;
 	}
 }
@@ -173,7 +173,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/scaling_max_freq", cpu);
-			ret = system_read(path, buffer, sizeof(buffer));
+			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].scaling_max_freq);
@@ -184,7 +184,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/scaling_min_freq", cpu);
-			ret = system_read(path, buffer, sizeof(buffer));
+			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].scaling_min_freq);
@@ -196,7 +196,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/cpuinfo_max_freq", cpu);
-			ret = system_read(path, buffer, sizeof(buffer));
+			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].cpuinfo_max_freq);
@@ -207,7 +207,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/cpuinfo_min_freq", cpu);
-			ret = system_read(path, buffer, sizeof(buffer));
+			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].cpuinfo_min_freq);
@@ -220,7 +220,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/cpufreq/scaling_governor", cpu);
-			ret = system_read(path, cpu_settings[cpu].cur_governor,
+			ret = stress_system_read(path, cpu_settings[cpu].cur_governor,
 					  sizeof(cpu_settings[cpu].cur_governor));
 			if (ret > 0)
 				cpu_settings[cpu].setting_flag |= SETTING_GOVERNOR;
@@ -229,7 +229,7 @@ void stress_ignite_cpu_start(void)
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
 				"/power/energy_perf_bias", cpu);
-			ret = system_read(path, buffer, sizeof(buffer));
+			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				int8_t bias;
 
@@ -249,7 +249,7 @@ void stress_ignite_cpu_start(void)
 		size_t len;
 
 		settings[i].ignore = true;
-		ret = system_read(settings[i].path, buf, sizeof(buf) - 1);
+		ret = stress_system_read(settings[i].path, buf, sizeof(buf) - 1);
 		if (ret < 0)
 			continue;
 		buf[ret] = '\0';
@@ -260,7 +260,7 @@ void stress_ignite_cpu_start(void)
 		settings[i].default_setting_len =
 			strlen(settings[i].default_setting);
 		/* If we can't update the setting, skip it */
-		ret = system_write(settings[i].path,
+		ret = stress_system_write(settings[i].path,
 			settings[i].default_setting,
 			settings[i].default_setting_len);
 		if (ret < 0) {
@@ -301,7 +301,7 @@ void stress_ignite_cpu_start(void)
 			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
 					continue;
-				(void)system_write(settings[i].path,
+				(void)stress_system_write(settings[i].path,
 					settings[i].default_setting,
 					settings[i].default_setting_len);
 			}
@@ -369,7 +369,7 @@ void stress_ignite_cpu_stop(void)
 		if (settings[i].ignore)
 			continue;
 
-		(void)system_write(settings[i].path, settings[i].setting,
+		(void)stress_system_write(settings[i].path, settings[i].setting,
 			settings[i].setting_len);
 		free(settings[i].setting);
 		settings[i].setting = NULL;

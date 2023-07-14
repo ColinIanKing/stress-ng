@@ -271,7 +271,7 @@ static int stress_flock_child(
 		if ((i & 0xff) == 0) {
 			char buf[4096];
 
-			VOID_RET(ssize_t, system_read("/proc/locks", buf, sizeof(buf)));
+			VOID_RET(ssize_t, stress_system_read("/proc/locks", buf, sizeof(buf)));
 		}
 #endif
 	}

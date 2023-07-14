@@ -108,7 +108,7 @@ static uint64_t stress_loadavg_threads_max(void)
 	ssize_t ret;
 	uint64_t max;
 
-	ret = system_read("/proc/sys/kernel/threads-max", buf, sizeof(buf));
+	ret = stress_system_read("/proc/sys/kernel/threads-max", buf, sizeof(buf));
 	if (ret < 0)
 		return 0;
 
