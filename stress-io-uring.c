@@ -24,6 +24,12 @@
 #if defined(HAVE_LINUX_IO_URING_H)
 #include <linux/io_uring.h>
 #endif
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
 
 #if !defined(O_DSYNC)
 #define O_DSYNC		(0)
@@ -54,6 +60,7 @@ static const stress_help_t help[] = {
      defined(HAVE_IORING_OP_CLOSE) ||	\
      defined(HAVE_IORING_OP_MADVISE) ||	\
      defined(HAVE_IORING_OP_STATX) || 	\
+     defined(HAVE_IORING_OP_SETXATTR) || \
      defined(HAVE_IORING_OP_GETXATTR) || \
      defined(HAVE_IORING_OP_SYNC_FILE_RANGE))
 
@@ -350,6 +357,16 @@ static inline int stress_io_uring_complete(
 					if (user_data->opcode == IORING_OP_FALLOCATE)
 						goto next_head;
 					break;
+#if defined(XATTR_CREATE)
+				case ENODATA:
+					if (user_data->opcode == IORING_OP_GETXATTR)
+						goto next_head;
+					break;
+				case EEXIST:
+					if (user_data->opcode == IORING_OP_SETXATTR)
+						goto next_head;
+					break;
+#endif
 				default:
 					break;
 				}
@@ -762,7 +779,6 @@ static void stress_io_uring_sync_file_range_setup(
 {
 	(void)extra_info;
 
-	sqe->opcode = IORING_OP_SYNC_FILE_RANGE;
 	sqe->fd = io_uring_file->fd;
 	sqe->off = stress_mwc16() & ~511UL;
 	sqe->len = stress_mwc32() & ~511UL;
@@ -772,6 +788,68 @@ static void stress_io_uring_sync_file_range_setup(
 	sqe->buf_index = 0;
 }
 #endif
+
+#if defined(HAVE_IORING_OP_SETXATTR) &&	\
+    defined(XATTR_CREATE)
+/*
+ *  stress_io_uring_setxattr_setup()
+ *	setup setxattr submit over io_uring
+ */
+static void stress_io_uring_setxattr_setup(
+	const stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe,
+	const void *extra_info)
+{
+	(void)io_uring_file;
+	(void)extra_info;
+
+	static char attr_value[] = "ioring-xattr-data";
+
+	sqe->opcode = IORING_OP_SETXATTR;
+	sqe->fd = 0;
+	sqe->off = (uintptr_t)attr_value;
+	sqe->len = sizeof(attr_value);
+	sqe->flags = 0;
+	sqe->addr = (uintptr_t)"user.var_test";
+	sqe->ioprio = 0;
+	sqe->rw_flags = 0;
+	sqe->buf_index = 0;
+	sqe->addr3 = (uintptr_t)io_uring_file->filename;
+        sqe->xattr_flags = XATTR_CREATE;
+}
+#endif
+
+
+#if defined(HAVE_IORING_OP_GETXATTR) &&	\
+    defined(XATTR_CREATE)
+/*
+ *  stress_io_uring_getxattr_setup()
+ *	setup getxattr submit over io_uring
+ */
+static void stress_io_uring_getxattr_setup(
+	const stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe,
+	const void *extra_info)
+{
+	(void)io_uring_file;
+	(void)extra_info;
+
+	static char attr_value[128];
+
+	sqe->opcode = IORING_OP_GETXATTR;
+	sqe->fd = 0;
+	sqe->off = (uintptr_t)attr_value;
+	sqe->len = sizeof(attr_value);
+	sqe->flags = 0;
+	sqe->addr = (uintptr_t)"user.var_test";
+	sqe->ioprio = 0;
+	sqe->rw_flags = 0;
+	sqe->buf_index = 0;
+	sqe->addr3 = (uintptr_t)io_uring_file->filename;
+        sqe->xattr_flags = 0;
+}
+#endif
+
 
 /*
  *  We have some duplications here because we want to perform more than
@@ -820,6 +898,14 @@ static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_SYNC_FILE_RANGE)
 	{ IORING_OP_SYNC_FILE_RANGE, "IORING_OP_SYNC_FILE_RANGE", stress_io_uring_sync_file_range_setup },
+#endif
+#if defined(HAVE_IORING_OP_SETXATTR) &&	\
+    defined(XATTR_CREATE)
+	{ IORING_OP_SETXATTR,	"IORING_OP_SETXATTR",	stress_io_uring_setxattr_setup },
+#endif
+#if defined(HAVE_IORING_OP_GETXATTR) && \
+    defined(XATTR_CREATE)
+	{ IORING_OP_GETXATTR,	"IORING_OP_GETXATTR",	stress_io_uring_getxattr_setup },
 #endif
 };
 
