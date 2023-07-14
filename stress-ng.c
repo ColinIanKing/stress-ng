@@ -2587,6 +2587,7 @@ again:
 						.num_instances = (uint32_t)g_stressor_current->num_instances,
 						.pid = child_pid,
 						.page_size = page_size,
+						.time_end = stress_time_now() + (double)g_opt_timeout,
 						.mapped = &g_shared->mapped,
 						.metrics = stats->metrics,
 						.info = g_stressor_current->stressor->info
