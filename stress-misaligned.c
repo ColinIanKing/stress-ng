@@ -1260,6 +1260,13 @@ static int stress_misaligned(const stress_args_t *args)
 		default:
 			break;
 		}
+		/*
+		 *  This may be true if we siglongjmp back here
+		 *  and end up in this loop again, so check time and
+		 *  bail out rather than doing another cycle
+		 */
+		if (stress_time_now() > args->time_end)
+			goto terminate;
 	}
 
 	rc = EXIT_SUCCESS;
@@ -1276,6 +1283,7 @@ static int stress_misaligned(const stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+terminate:
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	if (use_timer) {
 		(void)shim_memset(&timer, 0, sizeof(timer));
