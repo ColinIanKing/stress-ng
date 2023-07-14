@@ -22,13 +22,43 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"cpu-online N",		"start N workers offlining/onlining the CPUs" },
+	{ NULL, "cpu-online-affinity",	"set CPU affinity to the CPU to be offlined" },
 	{ NULL,	"cpu-online-ops N",	"stop after N offline/online operations" },
 	{ NULL,	NULL,			NULL }
 };
 
 #define STRESS_CPU_ONLINE_MAX_CPUS	(65536)
 
+static int stress_set_cpu_online_affinity(const char *opt)
+{
+	return stress_set_setting_true("cpu-online-affinity", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_cpu_online_affinity,	stress_set_cpu_online_affinity },
+	{ 0,				NULL },
+};
+
 #if defined(__linux__)
+
+/*
+ *  stress_cpu_online_set_affinity(const uint32_t cpu)
+ *	try to set cpu affinity
+ */
+static inline void stress_cpu_online_set_affinity(const uint32_t cpu)
+{
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY)
+	cpu_set_t mask;
+
+	CPU_ZERO(&mask);
+	CPU_SET(cpu, &mask);
+
+	VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
+#else
+	(void)cpu
+#endif
+}
 
 /*
  *  stress_cpu_online_set()
@@ -132,10 +162,14 @@ static int stress_cpu_online(const stress_args_t *args)
 	int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
+	bool cpu_online_affinity = false;
 	int rc = EXIT_SUCCESS;
 	double offline_duration = 0.0, offline_count = 0.0;
 	double online_duration  = 0.0, online_count = 0.0;
 	double rate;
+
+	(void)stress_get_setting("cpu-online-affinity", &cpu_online_affinity);
+	pr_inf("%d\n", cpu_online_affinity);
 
 	if (geteuid() != 0) {
 		if (args->instance == 0)
@@ -219,6 +253,9 @@ static int stress_cpu_online(const stress_args_t *args)
 			double t;
 			int setting;
 
+			if (cpu_online_affinity)
+				stress_cpu_online_set_affinity(cpu);
+
 			t = stress_time_now();
 			rc = stress_cpu_online_set(args, cpu, 0);
 			if (rc == EXIT_FAILURE)
@@ -275,6 +312,7 @@ stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online,
 	.supported = stress_cpu_online_supported,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -282,6 +320,7 @@ stressor_info_t stress_cpu_online_info = {
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

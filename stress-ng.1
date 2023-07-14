@@ -1427,6 +1427,9 @@ only stressor requires root privilege to perform this action. By default the
 first CPU (CPU 0) is never offlined as this has been found to be problematic
 on some systems and can result in a shutdown.
 .TP
+.B \-\-cpu\-online\-affinity
+move the stressor worker to the CPU that will be next offlined.
+.TP
 .B \-\-cpu\-online\-all
 The default is to never offline the first CPU.  This option will offline and
 online all the CPUs including CPU 0. This may cause some systems to shutdown.

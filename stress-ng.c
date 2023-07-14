@@ -352,6 +352,7 @@ static const struct option long_options[] = {
 	{ "cpu-load-slice",	1,	0,	OPT_cpu_load_slice },
 	{ "cpu-method",		1,	0,	OPT_cpu_method },
 	{ "cpu-online",		1,	0,	OPT_cpu_online },
+	{ "cpu-online-affinity",0,	0,	OPT_cpu_online_affinity },
 	{ "cpu-online-all",	0,	0,	OPT_cpu_online_all },
 	{ "cpu-online-ops",	1,	0,	OPT_cpu_online_ops },
 	{ "crypt",		1,	0,	OPT_crypt },
