@@ -888,6 +888,7 @@ static int OPTIMIZE3 stress_sock_server(
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
+	struct ifreq ifaddr;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	const size_t page_size = args->page_size;
@@ -940,6 +941,11 @@ static int OPTIMIZE3 stress_sock_server(
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
 		goto die_close;
 	}
+
+	(void)shim_memset(&ifaddr, 0, sizeof(ifaddr));
+	(void)shim_strlcpy(ifaddr.ifr_name, sock_if ? sock_if : "lo", sizeof(ifaddr.ifr_name));
+	VOID_RET(int, ioctl(fd, SIOCGIFADDR, &ifaddr));
+
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed on port %d, errno=%d (%s)\n",
