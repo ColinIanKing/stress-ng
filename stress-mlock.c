@@ -79,7 +79,7 @@ static int do_mlock(
 	if (LIKELY(metrics_count++ < 1000)) {
 		/* faster non-metrics timed mlock operations */
 		if (use_mlock2) {
-			const uint32_t rnd = stress_mwc32() >> 5;
+			const uint8_t rnd = stress_mwc8() >> 5;
 
 			/* Randomly use mlock2 or mlock */
 			if (rnd & 1) {
@@ -104,7 +104,7 @@ static int do_mlock(
 
 		/* slower metrics timed mlock operations */
 		if (use_mlock2) {
-			const uint32_t rnd = stress_mwc32() >> 5;
+			const uint8_t rnd = stress_mwc8() >> 5;
 
 			/* Randomly use mlock2 or mlock */
 			if (rnd & 1) {
