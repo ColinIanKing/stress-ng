@@ -357,11 +357,15 @@ static inline int stress_io_uring_complete(
 					if (user_data->opcode == IORING_OP_FALLOCATE)
 						goto next_head;
 					break;
-#if defined(XATTR_CREATE)
+#if defined(HAVE_IORING_OP_GETXATTR) &&	\
+    defined(XATTR_CREATE)
 				case ENODATA:
 					if (user_data->opcode == IORING_OP_GETXATTR)
 						goto next_head;
 					break;
+#endif
+#if defined(HAVE_IORING_OP_SETXATTR) &&	\
+    defined(XATTR_CREATE)
 				case EEXIST:
 					if (user_data->opcode == IORING_OP_SETXATTR)
 						goto next_head;
