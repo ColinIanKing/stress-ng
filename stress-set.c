@@ -218,6 +218,12 @@ static int stress_set(const stress_args_t *args)
 						"set time, expected -EPERM, instead got errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
+				/*
+				 *  exercise bogus times west tz, possibly undefined behaviour but
+				 *  on Linux anything +/- 15*60 is -EINVAL
+				 */
+				tz.tz_minuteswest = 36 * 60;
+				VOID_RET(int, settimeofday(&tv, &tz));
 			}
 		}
 #else
