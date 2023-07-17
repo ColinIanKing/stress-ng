@@ -1947,6 +1947,9 @@ typedef enum {
 	OPT_sched,
 	OPT_sched_prio,
 
+	OPT_schedmix,
+	OPT_schedmix_ops,
+
 	OPT_schedpolicy,
 	OPT_schedpolicy_ops,
 	OPT_schedpolicy_rand,

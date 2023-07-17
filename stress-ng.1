@@ -4647,6 +4647,15 @@ the RTC. This is a Linux only stressor.
 .B \-\-rtc\-ops N
 stop after N bogo RTC interface accesses.
 .TP
+.B \-\-schedmix N
+start N workers that each start 16 child processes that repeatedly select random
+a scheduling policy and then executes a short duration randomly chosen time
+consuming activity. This exercises rapid re-scheduling of processes and
+generates a large amount of scheduling timer interrupts.
+.TP
+.B \-\-schedmix\-ops N
+stop after N scheduling mixed operations.
+.TP
 .B \-\-schedpolicy N
 start N workers that set the worker to various available scheduling
 policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO,

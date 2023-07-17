@@ -234,6 +234,7 @@
 	MACRO(rotate)		\
 	MACRO(rseq)		\
 	MACRO(rtc)		\
+	MACRO(schedmix)		\
 	MACRO(schedpolicy)	\
 	MACRO(sctp)		\
 	MACRO(seal)		\

@@ -393,6 +393,7 @@ STRESS_SRC = \
 	stress-rseq.c \
 	stress-rtc.c \
 	stress-sctp.c \
+	stress-schedmix.c \
 	stress-schedpolicy.c \
 	stress-seal.c \
 	stress-seccomp.c \
