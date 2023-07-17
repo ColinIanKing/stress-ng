@@ -45,7 +45,7 @@ if [ ! -x "$STRESS_NG" ]; then
 	echo "Cannot find executable $STRESS_NG"
 	exit 1
 fi
-STRESSORS=$($STRESS_NG --stressors)
+STRESSORS=$($STRESS_NG --stressors | sed 's/smi//')
 
 get_stress_ng_pids()
 {
