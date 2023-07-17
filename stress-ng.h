@@ -20,6 +20,28 @@
 #ifndef STRESS_NG_H
 #define STRESS_NG_H
 
+#if defined(__ICC) &&		\
+    defined(__INTEL_COMPILER)
+/* Intel ICC compiler */
+#define HAVE_COMPILER_ICC
+#elif defined(__PCC__)
+/* Portable C compiler */
+#define HAVE_COMPILER_PCC
+#elif defined(__TINYC__)
+/* Tiny C Compiler */
+#define HAVE_COMPILER_TCC
+#elif defined(__clang__) && 	\
+   (defined(__INTEL_CLANG_COMPILER) || defined(__INTEL_LLVM_COMPILER))
+/* Intel ICX compiler */
+#define HAVE_COMPILER_ICX
+#elif defined(__clang__)
+/* clang */
+#define HAVE_COMPILER_CLANG
+#elif defined(__GNUC__)
+/* GNU C compiler */
+#define HAVE_COMPILER_GCC
+#endif
+
 #include "config.h"
 
 #if defined(HAVE_COMPILER_TCC)
