@@ -1217,18 +1217,7 @@ static int stress_misaligned(const stress_args_t *args)
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	if (stress_sighandler(args->name, SIGRTMIN, stress_misaligned_timer_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-
-	(void)shim_memset(&sev, 0, sizeof(sev));
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIGRTMIN;
-	sev.sigev_value.sival_ptr = &timer_id;
-	if (timer_create(CLOCK_REALTIME, &sev, &timer_id) == 0) {
-		use_timer = true;
-		stress_misaligned_reset_timer();
-	}
 #endif
-
-	stress_misaligned_enable_all();
 
 	buffer = (uint8_t *)mmap(NULL, buffer_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -1238,6 +1227,18 @@ static int stress_misaligned(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+
+#if defined(HAVE_TIMER_FUNCTIONALITY)
+	(void)shim_memset(&sev, 0, sizeof(sev));
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timer_id;
+	if (timer_create(CLOCK_REALTIME, &sev, &timer_id) == 0) {
+		use_timer = true;
+		stress_misaligned_reset_timer();
+	}
+#endif
+	stress_misaligned_enable_all();
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -1260,17 +1261,12 @@ static int stress_misaligned(const stress_args_t *args)
 		default:
 			break;
 		}
-		/*
-		 *  This may be true if we siglongjmp back here
-		 *  and end up in this loop again, so check time and
-		 *  bail out rather than doing another cycle
-		 */
-		if (stress_time_now() > args->time_end)
-			goto terminate;
 	}
 
 	rc = EXIT_SUCCESS;
 	do {
+		if (stress_time_now() > args->time_end)
+			break;
 		if (method->disabled) {
 			rc = EXIT_NO_RESOURCE;
 			break;
@@ -1283,7 +1279,6 @@ static int stress_misaligned(const stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-terminate:
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	if (use_timer) {
 		(void)shim_memset(&timer, 0, sizeof(timer));
