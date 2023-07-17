@@ -401,6 +401,7 @@ do_stress --all 1
 #
 do_stress --affinity -1 --affinity-pin
 do_stress --affinity -1 --affinity-rand
+do_stress --affinity -1 --affinity-sleep
 
 do_stress --bigheap -1 --bigheap-mlock
 
@@ -416,6 +417,8 @@ do_stress --cpu -1 --taskset 1,2,3
 do_stress --cpu -1 --taskset 0
 do_stress --cpu -1 --cpu-load-slice 50
 do_stress --cpu -1 --thermalstat 1 --vmstat 1 --tz
+
+do_stress --cpu-online -1 --cpu-online-all --vmstat 1 --tz
 
 do_stress --cyclic -1 --cyclic-policy deadline
 do_stress --cyclic -1 --cyclic-policy fifo
@@ -438,6 +441,10 @@ do_stress --dccp -1 --dccp-domain ipv6
 do_stress --epoll -1 --epoll-domain ipv4
 do_stress --epoll -1 --epoll-domain ipv6
 do_stress --epoll -1 --epoll-domain unix
+do_stress --epoll -1 --epoll-sockets 10000
+
+do_stress --dentry -1 --dentry-order stride
+do_stress --dentry -1 --dentry-order random
 
 do_stress --eventfd -1 --eventfd-nonblock
 
@@ -485,6 +492,8 @@ do_stress --malloc -1 --malloc-zerofree
 do_stress --memfd -1 --memfd-fds 4096
 do_stress --memfd -1 --memfd-mlock
 
+do_stress --memrate -1 --memrate-flush
+
 do_stress --mincore -1 --mincore-random
 
 do_stress --mmap -1 --mmap-file
@@ -507,15 +516,19 @@ do_stress --mmapmany -1 --mmapmany-mlock
 
 do_stress --module -1 --module-name bfq
 
+do_stress --mpfr -1 --mpfr-precision 8192
+
 do_stress --mremap -1 --mremap-mlock
 
 do_stress --msg -1 --msg-types 100
+do_stress --msg -1 --msg-bytes 8192
 
 do_stress --mutex -1 --mutex-procs 64
 
 do_stress --nanosleep -1 --nanosleep-threads 128
 
 do_s-tress --open -1 --open-fd
+do_s-tress --open -1 --open-max 100000
 
 do_s-tress --pagemove -1 --pagemove-mlock
 
@@ -534,10 +547,19 @@ do_stress --pthread -1 --pthread-max 1024
 
 do_stress --physpage -1 --physpage-mtrr
 
+do_stress --pipeherd -1 --pipeherd-yield
+
+do_stress --race-sched -1 --race-sched-method next
+do_stress --race-sched -1 --race-sched-method prev
+do_stress --race-sched -1 --race-sched-method randinc
+do_stress --race-sched -1 --race-sched-method syncnext
+do_stress --race-sched -1 --race-sched-method syncprev
+
+do_stress --randlist -1 --randist-compact
+
 do_stress --ramfs -1 --ramfs-fill
 do_stress --ramfs -1 --ramfs-size 16M
 
-do_stress --randlist -1 --randist-compact
 
 do_stress --rawpkt -1 --rawpkt-rxring 2
 do_stress --rawpkt -1 --rawpkt-rxring 16
@@ -602,6 +624,7 @@ do_stress --switch -1 --switch-method sem-sysv
 do_stress --symlink -1 --symlink-sync
 
 do_stress --syncload -1 --syncload-msbusy 200 --syncload-mssleep 100
+do_stress --syncload -1 --syncload-msbusy 20 --syncload-mssleep 10
 
 do_stress --timer -1 --timer-rand
 do_stress --timer -1 --timer-freq 1000000
