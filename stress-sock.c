@@ -897,7 +897,9 @@ static int OPTIMIZE3 stress_sock_server(
 	int sendflag = 0;
 	double t, duration, metric;
 	uint64_t outq_bytes = 0, outq_samples = 0;
+#if defined(SIOCOUTQ)
 	uint32_t count = 0;
+#endif
 
 #if defined(MSG_ZEROCOPY)
 	if (sock_zerocopy)
