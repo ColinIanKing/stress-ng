@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 #include "stress-ng.h"
+#include "core-asm-generic.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-cpu-cache.h"
@@ -72,17 +73,14 @@ static void stress_syncload_none(void)
 
 static void stress_syncload_nop(void)
 {
-#if defined(HAVE_ASM_NOP)
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-	__asm__ __volatile__("nop;\n");
-#endif
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
 }
 
 static void OPTIMIZE3 TARGET_CLONES stress_syncload_fma(void)

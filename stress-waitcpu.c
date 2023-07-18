@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-generic.h"
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
@@ -51,18 +52,7 @@ static bool stress_waitcpu_nop_supported(void)
 
 static void stress_waitcpu_nop(void)
 {
-#if defined(HAVE_ASM_NOP)
-
-#if defined(STRESS_ARCH_KVX)
-	/*
-	 * Extra ;; required for KVX to indicate end of
-	 * a VLIW instruction bundle
-	 */
-	__asm__ __volatile__("nop\n;;\n");
-#else
-	__asm__ __volatile__("nop;\n");
-#endif
-#endif
+	stress_asm_nop();
 }
 
 #if defined(HAVE_ASM_ARM_YIELD)

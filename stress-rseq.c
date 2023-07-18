@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-pragma.h"
 
@@ -50,24 +51,11 @@ static const stress_help_t help[] = {
 #define OPTIMIZE0       __attribute__((optimize("-O0")))
 #endif
 
-static inline void stress_op_nop(void)
-{
-#if defined(STRESS_ARCH_KVX)
-	/*
-	 * Extra ;; required for KVX to indicate end of
-	 * a VLIW instruction bundle
-	 */
-	__asm__ __volatile__("nop\n;;\n");
-#else
-	__asm__ __volatile__("nop;\n");
-#endif
-}
-
 #define NOPS()	do {		\
-	stress_op_nop();	\
-	stress_op_nop();	\
-	stress_op_nop();	\
-	stress_op_nop();	\
+	stress_asm_nop();	\
+	stress_asm_nop();	\
+	stress_asm_nop();	\
+	stress_asm_nop();	\
 } while (0);
 
 typedef struct {

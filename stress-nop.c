@@ -22,6 +22,7 @@
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
+#include "core-asm-generic.h"
 #include "core-cpu.h"
 
 #define NOP_LOOPS	(1024)
@@ -76,20 +77,7 @@ static void stress_nop_spin_ ## name(				\
 	} while (flag && stress_continue(args));			\
 }
 
-static inline void stress_op_nop(void)
-{
-#if defined(STRESS_ARCH_KVX)
-	/*
-	 * Extra ;; required for KVX to indicate end of
-	 * a VLIW instruction bundle
-	 */
-	__asm__ __volatile__("nop\n;;\n");
-#else
-	__asm__ __volatile__("nop;\n");
-#endif
-}
-
-STRESS_NOP_SPIN_OP(nop, stress_op_nop)
+STRESS_NOP_SPIN_OP(nop, stress_asm_nop)
 
 #if defined(HAVE_ASM_X86_PAUSE)
 STRESS_NOP_SPIN_OP(x86_pause, stress_asm_x86_pause)

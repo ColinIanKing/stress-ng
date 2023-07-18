@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-generic.h"
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
@@ -59,7 +60,7 @@
 
 /* do nothing */
 #if defined(HAVE_ASM_NOP)
-#define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
+#define FORCE_DO_NOTHING() 	stress_asm_nop()
 #elif defined(HAVE_ASM_NOTHING)
 #define FORCE_DO_NOTHING() __asm__ __volatile__("")
 #else

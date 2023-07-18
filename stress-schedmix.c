@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
@@ -89,23 +90,6 @@ static const int policies[] = {
 #endif
 };
 
-static inline void stress_schedmix_nop(void)
-{
-#if defined(HAVE_ASM_NOP)
-#if defined(STRESS_ARCH_KVX)
-        /*
-         * Extra ;; required for KVX to indicate end of
-         * a VLIW instruction bundle
-         */
-        __asm__ __volatile__("nop\n;;\n");
-#else
-        __asm__ __volatile__("nop;\n");
-#endif
-#else
-	shim_mb();
-#endif
-}
-
 static inline void stress_schedmix_waste_time(const stress_args_t *args)
 {
 	int i, n, status;
@@ -134,12 +118,12 @@ redo:
 		break;
 	case 4:
 		for (i = 0; stress_continue(args) && (i < 1000000); i++)
-			stress_schedmix_nop();
+			stress_asm_nop();
 		break;
 	case 5:
 		n = stress_mwc32modn(1000000);
 		for (i = 0; stress_continue(args) && (i < n); i++)
-			stress_schedmix_nop();
+			stress_asm_nop();
 		break;
 	case 6:
 		for (i = 0; stress_continue(args) && (i < 10000); i++)
