@@ -167,10 +167,45 @@ static inline void stress_schedmix_waste_time(const stress_args_t *args)
 	}
 }
 
+#if defined(HAVE_SETITIMER) &&	\
+    defined(ITIMER_PROF)
+static inline void stress_schedmix_itimer_set(void)
+{
+	struct itimerval timer;
+
+	timer.it_value.tv_sec = 0;
+	timer.it_value.tv_usec = 10000 + stress_mwc32modn(10000);
+	timer.it_interval.tv_sec = 0;
+	timer.it_interval.tv_usec = timer.it_value.tv_usec;
+	VOID_RET(int, setitimer(ITIMER_PROF, &timer, NULL));
+}
+
+static inline void stress_schedmix_itimer_clear(void)
+{
+	struct itimerval timer;
+
+	(void)memset(&timer, 0, sizeof(timer));
+	VOID_RET(int, setitimer(ITIMER_PROF, &timer, NULL));
+}
+
+static void stress_schedmix_itimer_handler(int signum)
+{
+	(void)signum;
+
+	stress_schedmix_itimer_set();
+}
+#endif
+
 static int stress_schedmix_child(const stress_args_t *args)
 {
 	int policy = args->instance % SIZEOF_ARRAY(policies);
 	int old_policy = -1;
+
+#if defined(HAVE_SETITIMER) &&	\
+    defined(ITIMER_PROF)
+	if (stress_sighandler(args->name, SIGPROF, stress_schedmix_itimer_handler, NULL) == 0)
+		stress_schedmix_itimer_set();
+#endif
 
 	do {
 #if defined(HAVE_SCHED_GETATTR) &&	\
@@ -301,6 +336,11 @@ static int stress_schedmix_child(const stress_args_t *args)
 		stress_schedmix_waste_time(args);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
+
+#if defined(HAVE_SETITIMER) &&	\
+    defined(ITIMER_PROF)
+	stress_schedmix_itimer_clear();
+#endif
 
 	return EXIT_SUCCESS;
 }
