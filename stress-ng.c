@@ -1782,7 +1782,7 @@ static void NORETURN stress_usage(void)
 	stress_usage_help(help_generic);
 	(void)printf("\nStressor specific options:\n");
 	stress_usage_help_stressors();
-	(void)printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M "
+	(void)printf("\nExample: %s --cpu 8 --iomix 4 --vm 2 --vm-bytes 128M "
 		"--fork 4 --timeout 10s\n\n"
 		"Note: Sizes can be suffixed with B,K,M,G and times with "
 		"s,m,h,d,y\n", g_app_name);
