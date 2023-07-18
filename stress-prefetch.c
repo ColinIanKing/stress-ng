@@ -261,7 +261,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	while (ptr < l3_data_end) {
 		ptr += 8;
 		pre_ptr += 8;
-		shim_mb();
+		stress_asm_mb();
 	}
 	t2 = stress_time_now();
 	stress_void_ptr_put((volatile void *)ptr);

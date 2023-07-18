@@ -118,41 +118,41 @@ static void stress_misaligned_int16rd(
 
 	while (stress_continue_flag() && --i) {
 		(void)*ptr1;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr2;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr3;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr4;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr5;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr6;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr7;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr8;
-		shim_mb();
+		stress_asm_mb();
 
 		(void)*ptr9;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr10;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr11;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr12;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr13;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr14;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr15;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr16;
-		shim_mb();
+		stress_asm_mb();
 
 		(void)*ptr17;
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -185,41 +185,41 @@ static void stress_misaligned_int16wr(
 		register uint16_t ui16 = (uint16_t)i;
 
 		*ptr1  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr2  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr3  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr4  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr5  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr6  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr7  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr8  = ui16;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr9  = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr10 = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr11 = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr12 = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr13 = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr14 = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr15 = ui16;
-		shim_mb();
+		stress_asm_mb();
 		*ptr16 = ui16;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr17 = ui16;
-		shim_mb();
+		stress_asm_mb();
 
 		if (*ptr1 != ui16)
 			goto fail;
@@ -293,41 +293,41 @@ static void stress_misaligned_int16inc(
 
 	while (stress_continue_flag() && --i) {
 		(*ptr1)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr2)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr3)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr4)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr5)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr6)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr7)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr8)++;
-		shim_mb();
+		stress_asm_mb();
 
 		(*ptr9)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr10)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr11)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr12)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr13)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr14)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr15)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr16)++;
-		shim_mb();
+		stress_asm_mb();
 
 		(*ptr17)++;
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -364,41 +364,41 @@ static void stress_misaligned_int16atomic(
 
 	while (stress_continue_flag() && --i) {
 		__atomic_fetch_add_2(ptr1, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr2, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr3, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr4, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr5, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr6, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr7, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr8, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 
 		__atomic_fetch_add_2(ptr9, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr10, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr11, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr12, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr13, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr14, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr15, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_2(ptr16, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 
 		__atomic_fetch_add_2(ptr17, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 #endif
@@ -425,25 +425,25 @@ static void stress_misaligned_int32rd(
 
 	while (stress_continue_flag() && --i) {
 		(void)*ptr1;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr2;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr3;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr4;
-		shim_mb();
+		stress_asm_mb();
 
 		(void)*ptr5;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr6;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr7;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr8;
-		shim_mb();
+		stress_asm_mb();
 
 		(void)*ptr9;
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -468,25 +468,25 @@ static void stress_misaligned_int32wr(
 		register uint32_t ui32 = (uint32_t)i;
 
 		*ptr1 = ui32;
-		shim_mb();
+		stress_asm_mb();
 		*ptr2 = ui32;
-		shim_mb();
+		stress_asm_mb();
 		*ptr3 = ui32;
-		shim_mb();
+		stress_asm_mb();
 		*ptr4 = ui32;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr5 = ui32;
-		shim_mb();
+		stress_asm_mb();
 		*ptr6 = ui32;
-		shim_mb();
+		stress_asm_mb();
 		*ptr7 = ui32;
-		shim_mb();
+		stress_asm_mb();
 		*ptr8 = ui32;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr9 = ui32;
-		shim_mb();
+		stress_asm_mb();
 
 		if (*ptr1 != ui32)
 			goto fail;
@@ -595,25 +595,25 @@ static void stress_misaligned_int32inc(
 
 	while (stress_continue_flag() && --i) {
 		(*ptr1)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr2)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr3)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr4)++;
-		shim_mb();
+		stress_asm_mb();
 
 		(*ptr5)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr6)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr7)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr8)++;
-		shim_mb();
+		stress_asm_mb();
 
 		(*ptr9)++;
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -642,25 +642,25 @@ static void stress_misaligned_int32atomic(
 
 	while (stress_continue_flag() && --i) {
 		__atomic_fetch_add_4(ptr1, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_4(ptr2, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_4(ptr3, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_4(ptr4, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 
 		__atomic_fetch_add_4(ptr5, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_4(ptr6, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_4(ptr7, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_4(ptr8, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 
 		__atomic_fetch_add_4(ptr9, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 #endif
@@ -683,17 +683,17 @@ static void stress_misaligned_int64rd(
 
 	while (stress_continue_flag() && --i) {
 		(void)*ptr1;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr2;
-		shim_mb();
+		stress_asm_mb();
 
 		(void)*ptr3;
-		shim_mb();
+		stress_asm_mb();
 		(void)*ptr4;
-		shim_mb();
+		stress_asm_mb();
 
 		(void)*ptr5;
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -714,17 +714,17 @@ static void stress_misaligned_int64wr(
 		register uint64_t ui64 = (uint64_t)i;
 
 		*ptr1 = ui64;
-		shim_mb();
+		stress_asm_mb();
 		*ptr2 = ui64;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr3 = ui64;
-		shim_mb();
+		stress_asm_mb();
 		*ptr4 = ui64;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr5 = ui64;
-		shim_mb();
+		stress_asm_mb();
 
 		if (*ptr1 != ui64)
 			goto fail;
@@ -804,17 +804,17 @@ static void stress_misaligned_int64inc(
 
 	while (stress_continue_flag() && --i) {
 		(*ptr1)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr2)++;
-		shim_mb();
+		stress_asm_mb();
 
 		(*ptr3)++;
-		shim_mb();
+		stress_asm_mb();
 		(*ptr4)++;
-		shim_mb();
+		stress_asm_mb();
 
 		(*ptr5)++;
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -839,17 +839,17 @@ static void stress_misaligned_int64atomic(
 
 	while (stress_continue_flag() && --i) {
 		__atomic_fetch_add_8(ptr1, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_8(ptr2, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 
 		__atomic_fetch_add_8(ptr3, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 		__atomic_fetch_add_8(ptr4, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 
 		__atomic_fetch_add_8(ptr5, 1, __ATOMIC_SEQ_CST);
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 #endif
@@ -905,13 +905,13 @@ static void stress_misaligned_int128wr(
 		__uint128_t ui128 = (__uint128_t)i;
 
 		*ptr1 = ui128;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr2 = ui128;
-		shim_mb();
+		stress_asm_mb();
 
 		*ptr3 = ui128;
-		shim_mb();
+		stress_asm_mb();
 
 		if (*ptr1 != ui128)
 			goto fail;

@@ -18,7 +18,6 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
-#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-pragma.h"
 

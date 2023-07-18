@@ -18,7 +18,6 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
-#include "core-asm-generic.h"
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"

@@ -22,7 +22,6 @@
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
-#include "core-asm-generic.h"
 #include "core-cpu.h"
 
 #define NOP_LOOPS	(1024)

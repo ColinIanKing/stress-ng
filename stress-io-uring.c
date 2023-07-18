@@ -327,7 +327,7 @@ static inline int stress_io_uring_complete(
 	int ret = EXIT_SUCCESS;
 
 	for (;;) {
-		shim_mb();
+		stress_asm_mb();
 
 		/* Empty? */
 		if (head == *cring->tail)
@@ -386,7 +386,7 @@ next_head:
 	}
 
 	*cring->head = head;
-	shim_mb();
+	stress_asm_mb();
 
 	return ret;
 }
@@ -410,7 +410,7 @@ static int stress_io_uring_submit(
 
 	next_tail = tail = *sring->tail;
 	next_tail++;
-	shim_mb();
+	stress_asm_mb();
 	index = tail & *submit->sq_ring.ring_mask;
 	sqe = &submit->sqes_mmap[index];
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
@@ -422,9 +422,9 @@ static int stress_io_uring_submit(
 	sring->array[index] = index;
 	tail = next_tail;
 	if (*sring->tail != tail) {
-		shim_mb();
+		stress_asm_mb();
 		*sring->tail = tail;
-		shim_mb();
+		stress_asm_mb();
 	} else {
 		return EXIT_FAILURE;
 	}

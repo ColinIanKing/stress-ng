@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 #include "stress-ng.h"
-#include "core-asm-generic.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-cpu-cache.h"
@@ -153,10 +152,10 @@ static void stress_syncload_mfence(void)
 
 static void stress_syncload_mb(void)
 {
-	shim_mb();
-	shim_mb();
-	shim_mb();
-	shim_mb();
+	stress_asm_mb();
+	stress_asm_mb();
+	stress_asm_mb();
+	stress_asm_mb();
 }
 
 static void stress_syncload_loop(void)

@@ -32,4 +32,18 @@ static inline void stress_asm_nop(void)
 #endif
 }
 
+static inline void stress_asm_mb(void)
+{
+#if defined(HAVE_ASM_MB)
+        __asm__ __volatile__("" ::: "memory");
+#endif
+}
+
+static inline void stress_asm_nothing(void)
+{
+#if defined(HAVE_ASM_NOTHING)
+	__asm__ __volatile__("");
+#endif
+}
+
 #endif

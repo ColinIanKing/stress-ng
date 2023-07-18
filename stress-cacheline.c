@@ -31,11 +31,11 @@
 #define EXERCISE(data)		\
 do {				\
 	(data)++;		\
-	shim_mb();		\
+	stress_asm_mb();	\
 	data = shim_rol8(data);	\
-	shim_mb();		\
+	stress_asm_mb();	\
 	data = shim_ror8(data);	\
-	shim_mb();		\
+	stress_asm_mb();	\
 } while (0)
 
 static const stress_help_t help[] = {
@@ -117,25 +117,25 @@ static int stress_cacheline_adjacent(
 	for (i = 0; i < 1024; i++) {
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
 		(void)(*data8adjacent);
-		shim_mb();
+		stress_asm_mb();
 		val8 += 7;
 
 		if (UNLIKELY(*data8 != val8)) {
@@ -199,19 +199,19 @@ static int stress_cacheline_inc(
 
 	for (i = 0; i < 1024; i++) {
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		(*data8)++;
-		shim_mb();
+		stress_asm_mb();
 		val8 += 7;
 
 		if (UNLIKELY(*data8 != val8)) {
@@ -242,52 +242,52 @@ static int stress_cacheline_rdwr(
 
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 		tmp = *data8;
 		*data8 = tmp;
-		shim_mb();
+		stress_asm_mb();
 
 		if (UNLIKELY(*data8 != val8)) {
 			pr_fail("%s: rdwr method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
@@ -356,7 +356,7 @@ static int stress_cacheline_rdrev64(
 			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + (size_t)j);
 
 			(void)*data64;
-			shim_mb();
+			stress_asm_mb();
 		}
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: rdrev64 method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
@@ -394,7 +394,7 @@ static int stress_cacheline_rdfwd64(
 			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
 
 			(void)*data64;
-			shim_mb();
+			stress_asm_mb();
 		}
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: rdfwd64: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
@@ -430,24 +430,24 @@ static int stress_cacheline_rdints(
 		/* 1 byte increment and read */
 		(*data8)++;
 		val8 = *data8;
-		shim_mb();
+		stress_asm_mb();
 
 		/* 2 byte reads from same location */
 		(void)*(data16);
-		shim_mb();
+		stress_asm_mb();
 
 		/* 4 byte reads from same location */
 		(void)*(data32);
-		shim_mb();
+		stress_asm_mb();
 
 		/* 8 byte reads from same location */
 		(void)*(data64);
-		shim_mb();
+		stress_asm_mb();
 
 #if defined(HAVE_INT128_T)
 		/* 116 byte reads from same location */
 		(void)*(data128);
-		shim_mb();
+		stress_asm_mb();
 #endif
 		if (UNLIKELY(val8 != *data8)) {
 			pr_fail("%s: rdints method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
@@ -479,7 +479,7 @@ static int stress_cacheline_bits(
 
 		val8 = (uint8_t)(1U << (i & 7));
 		*data8 = val8;
-		shim_mb();
+		stress_asm_mb();
 		if (*data8 != val8) {
 			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
 				args->name, index, val8, *data8);
@@ -487,7 +487,7 @@ static int stress_cacheline_bits(
 		}
 		val8 ^= 0xff;
 		*data8 = val8;
-		shim_mb();
+		stress_asm_mb();
 		if (*data8 != val8) {
 			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
 				args->name, index, val8, *data8);

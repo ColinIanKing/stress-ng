@@ -18,7 +18,6 @@
  *
  */
 #include "stress-ng.h"
-#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
@@ -70,7 +69,7 @@ static NOINLINE void OPTIMIZE0 stress_softlockup_loop(const uint64_t loops)
 
 	for (i = 0; i < loops; i++) {
 		stress_asm_nop();
-		shim_mb();
+		stress_asm_mb();
 	}
 }
 
@@ -87,7 +86,7 @@ static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
 		t = stress_time_now();
 		for (i = 0; i < n; i++) {
 			stress_asm_nop();
-			shim_mb();
+			stress_asm_mb();
 		}
 		d = stress_time_now() - t;
 		if (d > 0.01)

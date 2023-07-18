@@ -171,6 +171,7 @@
 #endif
 
 #include "core-version.h"
+#include "core-asm-generic.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -828,13 +829,6 @@ extern void pr_lock_exited(const pid_t pid);
 				 (TYPEOF_CAST(a[0])1U << (i & (STRESS_NBITS(a)-1))))
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
-
-static inline void ALWAYS_INLINE shim_mb(void)
-{
-#if defined(HAVE_ASM_MB)
-	__asm__ __volatile__("" ::: "memory");
-#endif
-}
 
 /*
  *  abstracted untyped locking primitives
@@ -2469,9 +2463,9 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(const stress_args_t *
 	register stress_counter_info_t * const ci = args->ci;
 
 	ci->counter_ready = false;
-	shim_mb();
+	stress_asm_mb();
 	ci->counter += inc;
-	shim_mb();
+	stress_asm_mb();
 	ci->counter_ready = true;
 }
 
@@ -2488,9 +2482,9 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(const stress_args_t *
 	register stress_counter_info_t * const ci = args->ci;
 
 	ci->counter_ready = false;
-	shim_mb();
+	stress_asm_mb();
 	ci->counter++;
-	shim_mb();
+	stress_asm_mb();
 	ci->counter_ready = true;
 }
 
@@ -2518,9 +2512,9 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(const stress_args_t *
 	register stress_counter_info_t * const ci = args->ci;
 
 	ci->counter_ready = false;
-	shim_mb();
+	stress_asm_mb();
 	ci->counter = val;
-	shim_mb();
+	stress_asm_mb();
 	ci->counter_ready = true;
 }
 

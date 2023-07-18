@@ -271,7 +271,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 		r5 = ptr[5];
 		r6 = ptr[6];
 		r7 = ptr[7];
-		shim_mb();
+		stress_asm_mb();
 
 		ptr[0] = r4;
 		ptr[1] = r5;
@@ -281,7 +281,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 		ptr[5] = r1;
 		ptr[6] = r2;
 		ptr[7] = r3;
-		shim_mb();
+		stress_asm_mb();
 		ptr += 8;
 
 		r0 = ptr[0];
@@ -292,7 +292,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 		r5 = ptr[5];
 		r6 = ptr[6];
 		r7 = ptr[7];
-		shim_mb();
+		stress_asm_mb();
 
 		ptr[0] = r4;
 		ptr[1] = r5;
@@ -302,7 +302,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 		ptr[5] = r1;
 		ptr[6] = r2;
 		ptr[7] = r3;
-		shim_mb();
+		stress_asm_mb();
 		ptr += 8;
 	}
 }
@@ -337,7 +337,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 		ptr[5] = r5;
 		ptr[6] = r6;
 		ptr[7] = r7;
-		shim_mb();
+		stress_asm_mb();
 
 		ptr += 8;
 	}

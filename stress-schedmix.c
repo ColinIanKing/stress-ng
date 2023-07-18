@@ -17,7 +17,6 @@
  *
  */
 #include "stress-ng.h"
-#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 

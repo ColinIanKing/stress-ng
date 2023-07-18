@@ -176,9 +176,9 @@ static void stress_affinity_child(
 		if (info->affinity_pin) {
 			if (pin_controller) {
 				info->cpu = cpu;
-				shim_mb();
+				stress_asm_mb();
 			} else {
-				shim_mb();
+				stress_asm_mb();
 				cpu = info->cpu;
 			}
 		}

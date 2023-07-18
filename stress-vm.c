@@ -2510,40 +2510,40 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128 += 4) {
 		/* Write 128 bits x 4 times to hammer the memory */
 		stress_nt_store128(ptr128 + 0x00, val);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x01, val + 1);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x02, val + 2);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x03, val + 3);
-		shim_mb();
+		stress_asm_mb();
 
 		stress_nt_store128(ptr128 + 0x00, val);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x01, val + 1);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x02, val + 2);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x03, val + 3);
-		shim_mb();
+		stress_asm_mb();
 
 		stress_nt_store128(ptr128 + 0x00, val);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x01, val + 1);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x02, val + 2);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x03, val + 3);
-		shim_mb();
+		stress_asm_mb();
 
 		stress_nt_store128(ptr128 + 0x00, val);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x01, val + 1);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x02, val + 2);
-		shim_mb();
+		stress_asm_mb();
 		stress_nt_store128(ptr128 + 0x03, val + 3);
-		shim_mb();
+		stress_asm_mb();
 		val++;
 		c++;
 	}
@@ -2621,37 +2621,37 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 
 	for (fwdptr = (uint8_t *)buf, revptr = (uint8_t *)buf_end; fwdptr < (uint8_t *)buf_end; ) {
 		*(fwdptr + 0) = (rnd >> 0x00) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 1) = (rnd >> 0x08) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 2) = (rnd >> 0x10) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 3) = (rnd >> 0x18) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 4) = (rnd >> 0x00) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 5) = (rnd >> 0x08) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 6) = (rnd >> 0x10) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 7) = (rnd >> 0x18) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 8) = (rnd >> 0x00) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 9) = (rnd >> 0x08) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 10) = (rnd >> 0x10) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 11) = (rnd >> 0x18) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 12) = (rnd >> 0x00) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 13) = (rnd >> 0x08) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(fwdptr + 14) = (rnd >> 0x10) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		*(revptr - 15) = (rnd >> 0x18) & 0xff;
-		shim_mb();
+		stress_asm_mb();
 		fwdptr += 16;
 		revptr -= 16;
 		c++;
@@ -2663,37 +2663,37 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 
 	for (fwdptr = (uint8_t *)buf, revptr = (uint8_t *)buf_end; fwdptr < (uint8_t *)buf_end; ) {
 		bit_errors += (*(fwdptr + 0) != ((rnd >> 0x00) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 1) != ((rnd >> 0x08) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 2) != ((rnd >> 0x10) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 3) != ((rnd >> 0x18) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 4) != ((rnd >> 0x00) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 5) != ((rnd >> 0x08) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 6) != ((rnd >> 0x10) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 7) != ((rnd >> 0x18) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 8) != ((rnd >> 0x00) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 9) != ((rnd >> 0x08) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 10) != ((rnd >> 0x10) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 11) != ((rnd >> 0x18) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 12) != ((rnd >> 0x00) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 13) != ((rnd >> 0x08) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(fwdptr + 14) != ((rnd >> 0x10) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		bit_errors += (*(revptr - 15) != ((rnd >> 0x18) & 0xff));
-		shim_mb();
+		stress_asm_mb();
 		fwdptr += 16;
 		revptr -= 16;
 		c++;
@@ -2789,11 +2789,11 @@ do {						\
 		register uint64_t tmp;		\
 						\
 		tmp = *(p1);			\
-		shim_mb();			\
+		stress_asm_mb();			\
 		*(p1) = *(p2);			\
-		shim_mb();			\
+		stress_asm_mb();			\
 		*(p2) = tmp;			\
-		shim_mb();			\
+		stress_asm_mb();			\
 } while (0);
 
 /*
@@ -2824,38 +2824,38 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 		if (UNLIKELY(!stress_continue_flag()))
 			return 0;
 		*(ptr + 0) = v1;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 1) = v0;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 2) = v3;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 3) = v2;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 4) = v5;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 5) = v4;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 6) = v7;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 7) = v6;
-		shim_mb();
+		stress_asm_mb();
 
 		*(ptr + 0) = v0;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 1) = v1;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 2) = v2;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 3) = v3;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 4) = v4;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 5) = v5;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 6) = v6;
-		shim_mb();
+		stress_asm_mb();
 		*(ptr + 7) = v7;
-		shim_mb();
+		stress_asm_mb();
 	}
 
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
