@@ -298,6 +298,9 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(CGROUP2_SUPER_MAGIC)
 	{ CGROUP2_SUPER_MAGIC,	"cgroup2" },
 #endif
+#if defined(V9FS_MAGIC)
+	{ V9FS_MAGIC,		"v9fs" },
+#endif
 #if defined(RDTGROUP_SUPER_MAGIC)
 	{ RDTGROUP_SUPER_MAGIC,	"rdtgroup" },
 #endif
@@ -363,6 +366,15 @@ static const stress_fs_name_t stress_fs_names[] = {
 	{ JFS_SUPER_MAGIC,	"jfs" },
 #else
 	{ 0x3153464a,		"jfs" },
+#endif
+#if defined(USBDEVICE_SUPER_MAGIC)
+	{ USBDEVICE_SUPER_MAGIC, "usbdev" },
+#endif
+#if defined(MTD_INODE_FS_MAGIC)
+	{ MTD_INODE_FS_MAGIC,	"mtd" },
+#endif
+#if defined(ANON_INODE_FS_MAGIC)
+	{ ANON_INODE_FS_MAGIC,	"anon" },
 #endif
 };
 #endif
