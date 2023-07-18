@@ -32,12 +32,34 @@
 #define HAVE_SCHED_SETATTR
 #endif
 
-#define SCHED_PROCS_MAX	(16)
+#define MIN_SCHEDMIX_PROCS	(1)
+#define MAX_SCHEDMIX_PROCS	(64)
+#define DEFAULT_SCHEDMIX_PROCS	(16)
 
 static const stress_help_t help[] = {
 	{ NULL,	"schedmix N",		"start N workers that exercise a mix of scheduling loads" },
 	{ NULL,	"schedmix-ops N",	"stop after N schedmix bogo operations" },
+	{ NULL, "schedmix-procs N",	"select number of schedmix child processes 1..64" },
 	{ NULL,	NULL,			NULL }
+};
+
+/*
+ *  stress_set_schedmix_procs()
+ *	set maximum number of processes allowed
+ */
+static int stress_set_schedmix_procs(const char *opt)
+{
+	size_t schedmix_procs;
+
+	schedmix_procs = stress_get_uint32(opt);
+	stress_check_range("schedmix-procs", (uint64_t)schedmix_procs,
+		MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS);
+	return stress_set_setting("schedmix-procs", TYPE_ID_SIZE_T, &schedmix_procs);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+        { OPT_schedmix_procs,	stress_set_schedmix_procs },
+        { 0,			NULL }
 };
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
@@ -381,8 +403,9 @@ static int stress_schedmix_child(const stress_args_t *args)
 
 static int stress_schedmix(const stress_args_t *args)
 {
-	pid_t pids[SCHED_PROCS_MAX];
+	pid_t pids[MAX_SCHEDMIX_PROCS];
 	size_t i;
+	size_t schedmix_procs = DEFAULT_SCHEDMIX_PROCS;
 	const int parent_cpu = stress_get_cpu();
 
 	if (SIZEOF_ARRAY(policies) == (0)) {
@@ -394,9 +417,11 @@ static int stress_schedmix(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
+	(void)stress_get_setting("schedmix-procs", &schedmix_procs);
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	for (i = 0; i < SIZEOF_ARRAY(pids); i++) {
+	for (i = 0; i < schedmix_procs; i++) {
 		stress_mwc_reseed();
 
 		pids[i] = fork();
@@ -415,12 +440,13 @@ static int stress_schedmix(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return stress_kill_and_wait_many(args, pids, SIZEOF_ARRAY(pids), SIGALRM, true);
+	return stress_kill_and_wait_many(args, pids, schedmix_procs, SIGALRM, true);
 }
 
 stressor_info_t stress_schedmix_info = {
 	.stressor = stress_schedmix,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -428,6 +454,7 @@ stressor_info_t stress_schedmix_info = {
 stressor_info_t stress_schedmix_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"

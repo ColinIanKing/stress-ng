@@ -1949,6 +1949,7 @@ typedef enum {
 
 	OPT_schedmix,
 	OPT_schedmix_ops,
+	OPT_schedmix_procs,
 
 	OPT_schedpolicy,
 	OPT_schedpolicy_ops,

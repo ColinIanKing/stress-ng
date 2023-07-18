@@ -940,6 +940,7 @@ static const struct option long_options[] = {
 	{ "sched-runtime",	1,	0,	OPT_sched_runtime },
 	{ "schedmix",		1,	0,	OPT_schedmix },
 	{ "schedmix-ops",	1,	0,	OPT_schedmix_ops },
+	{ "schedmix-procs",	1,	0,	OPT_schedmix_procs },
 	{ "schedpolicy",	1,	0,	OPT_schedpolicy },
 	{ "schedpolicy-ops",	1,	0,	OPT_schedpolicy_ops },
 	{ "schedpolicy-rand",	0,	0,	OPT_schedpolicy_rand },
