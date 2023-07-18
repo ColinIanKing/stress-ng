@@ -20,6 +20,10 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_MEMBARRIER_H)
+#include <linux/membarrier.h>
+#endif
+
 #if defined(__NR_sched_getattr)
 #define HAVE_SCHED_GETATTR
 #endif
@@ -82,9 +86,13 @@ static inline void stress_schedmix_nop(void)
 
 static inline void stress_schedmix_waste_time(const stress_args_t *args)
 {
-	int i, n;
+	int i, n, status;
+	pid_t pid;
+	double min1, min5, min15;
+	char buf[256];
 
-	n = stress_mwc8modn(19);
+redo:
+	n = stress_mwc8modn(23);
 	switch (n) {
 	case 0:
 		shim_sched_yield();
@@ -160,10 +168,36 @@ static inline void stress_schedmix_waste_time(const stress_args_t *args)
 		getpid();
 		break;
 	case 17:
-		VOID_RET(int, shim_usleep_interruptible(10000));
+		VOID_RET(int, shim_usleep_interruptible(1000));
 		break;
 	case 18:
+#if defined(HAVE_LINUX_MEMBARRIER_H)
+		if (shim_membarrier(MEMBARRIER_CMD_GLOBAL, 0, 0) == 0)
+			break;
+#endif
+		getpid();
 		break;
+	case 19:
+		VOID_RET(int, stress_get_load_avg(&min1, &min5, &min15));
+		break;
+	case 20:
+		pid = fork();
+		if (pid == 0) {
+			_exit(0);
+		} else if (pid > 0) {
+			VOID_RET(int, shim_waitpid(pid, &status, 0));
+		}
+		break;
+#if defined(__linux__)
+	case 21:
+		VOID_RET(ssize_t, stress_system_read("/proc/pressure/cpu", buf, sizeof(buf)));
+		break;
+	case 22:
+		VOID_RET(ssize_t, stress_system_read("/proc/self/schedstat", buf, sizeof(buf)));
+		break;
+#endif
+	default:
+		goto redo;
 	}
 }
 
