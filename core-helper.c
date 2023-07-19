@@ -3504,10 +3504,10 @@ void stress_set_stack_smash_check_flag(const bool flag)
 }
 
 /*
- *  stress_tty_width()
+ *  stress_get_tty_width()
  *	get tty column width
  */
-int stress_tty_width(void)
+int stress_get_tty_width(void)
 {
 	const int max_width = 80;
 #if defined(HAVE_WINSIZE) &&	\

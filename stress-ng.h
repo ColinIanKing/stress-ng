@@ -2858,7 +2858,7 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 #define stress_metrics_set(args, idx, description, value)	\
 	stress_metrics_set_const_check(args, idx, description, false, value)
 #endif
-extern WARN_UNUSED int stress_tty_width(void);
+extern WARN_UNUSED int stress_get_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(const int err);
 extern void stress_sighandler_nop(int sig);
