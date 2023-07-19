@@ -1690,25 +1690,6 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 	}
 }
 
-static const char *stress_get_cc_version(void)
-{
-#if defined(HAVE_COMPILER_ICC)
-	return "icc";
-#elif defined(HAVE_COMPILER_PCC)
-	return "pcc";
-#elif defined(HAVE_COMPILER_TCC)
-	return "tcc";
-#elif defined(HAVE_COMPILER_ICX)
-	return "icx";
-#elif defined(HAVE_COMPILER_CLANG)
-	return "clang";
-#elif defined(HAVE_COMPILER_GCC)
-	return "gcc";
-#else
-	return "cc";
-#endif
-}
-
 static char *stress_get_libc_version(void)
 {
 #if defined(__GLIBC__) &&	\
@@ -1763,7 +1744,7 @@ void pr_runinfo(void)
 		pr_dbg("system: %s %s %s %s %s, %s, %s\n",
 			uts.sysname, uts.nodename, uts.release,
 			uts.version, uts.machine,
-			stress_get_cc_version(),
+			stress_get_compiler(),
 			stress_get_libc_version());
 	}
 #endif
