@@ -223,6 +223,8 @@ int stress_oomable_child(
 again:
 	if (!stress_continue(args))
 		return EXIT_SUCCESS;
+	if (stress_time_now() > args->time_end)
+		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
 		/* Keep trying if we are out of resources */
@@ -336,11 +338,18 @@ rewait:
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
 			VOID_RET(int, stress_drop_capabilities(args->name));
 		}
-		if (!stress_continue(args)) {
+		/*
+		 * Process may have exceeded run time by the time it was
+		 * fully runnable, so check for this before doing expensive
+		 * stressor invocation
+		 */
+		if (!stress_continue(args) ||
+		    (stress_time_now() > args->time_end)) {
 			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
 		}
 
+		/* ..and finally re-start the stressor */
 		ret = func(args, context);
 		pr_fail_check(&rc);
 		if (rc != EXIT_SUCCESS)
