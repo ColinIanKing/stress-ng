@@ -23,6 +23,9 @@
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif
+#if defined(HAVE_SEMAPHORE_H)
+#include <semaphore.h>
+#endif
 
 #if defined(__NR_sched_getattr)
 #define HAVE_SCHED_GETATTR
@@ -31,6 +34,24 @@
 #if defined(__NR_sched_setattr)
 #define HAVE_SCHED_SETATTR
 #endif
+
+#if defined(HAVE_SEMAPHORE_H) && \
+    defined(HAVE_LIB_PTHREAD) && \
+    defined(HAVE_SEM_POSIX) &&	 \
+    defined(CLOCK_REALTIME)
+#define HAVE_SCHEDMIX_SEM
+#endif
+
+
+#if defined(HAVE_SCHEDMIX_SEM)
+typedef struct {
+	sem_t sem;
+	pid_t owner;
+} stress_schedmix_sem_t;
+
+static stress_schedmix_sem_t *schedmix_sem;
+#endif
+
 
 #define MIN_SCHEDMIX_PROCS	(1)
 #define MAX_SCHEDMIX_PROCS	(64)
@@ -100,9 +121,12 @@ static inline void stress_schedmix_waste_time(const stress_args_t *args)
     (defined(RUSAGE_SELF) || defined(RUSAGE_CHILDREN))
 	struct rusage usage;
 #endif
+#if defined(HAVE_SCHEDMIX_SEM)
+	struct timespec timeout;
+#endif
 
 redo:
-	n = stress_mwc8modn(24);
+	n = stress_mwc8modn(25);
 	switch (n) {
 	case 0:
 		shim_sched_yield();
@@ -215,6 +239,39 @@ redo:
 		break;
 	case 23:
 		VOID_RET(ssize_t, stress_system_read("/proc/self/schedstat", buf, sizeof(buf)));
+		break;
+#endif
+#if defined(HAVE_SCHEDMIX_SEM)
+	case 24:
+		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0)
+			break;
+		timeout.tv_nsec += 1000000;
+		if (timeout.tv_nsec > 1000000000) {
+			timeout.tv_nsec -= 1000000000;
+			timeout.tv_sec++;
+		}
+		if (sem_timedwait(&schedmix_sem->sem, &timeout) < 0) {
+			/*
+			 *  can't get semaphore, then stop/continue process
+			 *  that currently holds it
+			 */
+			pid = schedmix_sem->owner;
+			if (pid > 1) {
+				(void)kill(pid, SIGSTOP);
+				shim_sched_yield();
+				(void)kill(pid, SIGCONT);
+			}
+		} else {
+			/*
+			 *  got semaphore, kill some cycles and release it
+			 */
+			schedmix_sem->owner = getpid();
+			n = stress_mwc16();
+			for (i = 0; stress_continue(args) && (i < n); i++)
+				shim_sched_yield();
+			schedmix_sem->owner = -1;
+			(void)sem_post(&schedmix_sem->sem);
+		}
 		break;
 #endif
 	default:
@@ -416,6 +473,18 @@ static int stress_schedmix(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
+#if defined(HAVE_SCHEDMIX_SEM)
+	schedmix_sem = (stress_schedmix_sem_t *)
+		mmap(NULL, sizeof(*schedmix_sem), PROT_READ | PROT_WRITE,
+		     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (schedmix_sem == MAP_FAILED)
+		schedmix_sem = NULL;
+	if (sem_init(&schedmix_sem->sem, 0, 1) < 0) {
+		(void)munmap((void *)schedmix_sem, sizeof(*schedmix_sem));
+		schedmix_sem = NULL;
+	}
+#endif
+
 	(void)stress_get_setting("schedmix-procs", &schedmix_procs);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -438,6 +507,13 @@ static int stress_schedmix(const stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+#if defined(HAVE_SCHEDMIX_SEM)
+	if (schedmix_sem) {
+		(void)sem_destroy(&schedmix_sem->sem);
+		(void)munmap((void *)schedmix_sem, sizeof(*schedmix_sem));
+	}
+#endif
 
 	return stress_kill_and_wait_many(args, pids, schedmix_procs, SIGALRM, true);
 }
