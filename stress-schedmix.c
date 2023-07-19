@@ -95,9 +95,14 @@ static inline void stress_schedmix_waste_time(const stress_args_t *args)
 	pid_t pid;
 	double min1, min5, min15;
 	char buf[256];
+	struct tms tms_buf;
+#if defined(HAVE_GETRUSAGE) &&	\
+    (defined(RUSAGE_SELF) || defined(RUSAGE_CHILDREN))
+	struct rusage usage;
+#endif
 
 redo:
-	n = stress_mwc8modn(23);
+	n = stress_mwc8modn(24);
 	switch (n) {
 	case 0:
 		shim_sched_yield();
@@ -193,11 +198,22 @@ redo:
 			VOID_RET(int, shim_waitpid(pid, &status, 0));
 		}
 		break;
-#if defined(__linux__)
 	case 21:
+#if defined(HAVE_GETRUSAGE)
+#if defined(RUSAGE_SELF)
+		VOID_RET(int, shim_getrusage(RUSAGE_SELF, &usage));
+#endif
+#if defined(RUSAGE_CHILDREN)
+		VOID_RET(int, shim_getrusage(RUSAGE_CHILDREN, &usage));
+#endif
+#endif
+		VOID_RET(int, times(&tms_buf));
+		break;
+#if defined(__linux__)
+	case 22:
 		VOID_RET(ssize_t, stress_system_read("/proc/pressure/cpu", buf, sizeof(buf)));
 		break;
-	case 22:
+	case 23:
 		VOID_RET(ssize_t, stress_system_read("/proc/self/schedstat", buf, sizeof(buf)));
 		break;
 #endif
