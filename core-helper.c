@@ -1134,7 +1134,7 @@ int stress_process_dumpable(const bool dumpable)
 }
 
 /*
- *  stress_set_timer_slackigned_longns()
+ *  stress_set_timer_slack_ns()
  *	set timer slack in nanoseconds
  */
 int stress_set_timer_slack_ns(const char *opt)
