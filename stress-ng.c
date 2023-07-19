@@ -1678,18 +1678,18 @@ static void stress_usage_help(const stress_help_t help_info[])
 		if (help_info[i].opt_s)
 			(void)snprintf(opt_s, sizeof(opt_s), "-%s,",
 					help_info[i].opt_s);
-		(void)printf("%-6s--%-20s", opt_s,
+		(void)printf("%-6s--%-22s", opt_s,
 			help_info[i].opt_l);
 
 		for (ptr = start; *ptr; ptr++) {
 			if (*ptr == ' ')
 				space = ptr;
 			wd++;
-			if (wd >= cols - 28) {
+			if (wd >= cols - 30) {
 				const size_t n = (size_t)(space - start);
 
 				if (!first)
-					(void)printf("%-28s", "");
+					(void)printf("%-30s", "");
 				first = false;
 				(void)printf("%*.*s\n", (int)n, (int)n, start);
 				start = space + 1;
@@ -1699,7 +1699,7 @@ static void stress_usage_help(const stress_help_t help_info[])
 		if (start != ptr) {
 			const int n = (int)(ptr - start);
 			if (!first)
-				(void)printf("%-28s", "");
+				(void)printf("%-30s", "");
 			(void)printf("%*.*s\n", n, n, start);
 		}
 	}
