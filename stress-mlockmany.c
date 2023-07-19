@@ -50,6 +50,49 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_MLOCK)
+
+static int stress_mlock_interruptible(
+	const stress_args_t *args,
+	void *addr,
+	size_t len)
+{
+	const size_t chunk_size = args->page_size << 4;
+	uintptr_t ptr = (uintptr_t)addr;
+
+	while ((len > 0) && (stress_continue(args))) {
+		size_t sz = (len > chunk_size) ? chunk_size : len;
+		int ret;
+
+		ret = shim_mlock((void *)ptr, sz);
+		if (ret < 0)
+			return ret;
+		ptr += sz;
+		len -= sz;
+	}
+	return 0;
+}
+
+static int stress_munlock_interruptible(
+	const stress_args_t *args,
+	void *addr,
+	size_t len)
+{
+	const size_t chunk_size = args->page_size << 4;
+	uintptr_t ptr = (uintptr_t)addr;
+
+	while ((len > 0) && (stress_continue(args))) {
+		size_t sz = (len > chunk_size) ? chunk_size : len;
+		int ret;
+
+		ret = shim_munlock((void *)ptr, sz);
+		if (ret < 0)
+			return ret;
+		ptr += sz;
+		len -= sz;
+	}
+	return 0;
+}
+
 /*
  *  stress_mlockmany()
  *	stress by forking and exiting
@@ -101,11 +144,14 @@ static int stress_mlockmany(const stress_args_t *args)
 		(void)shim_memset(pids, 0, sizeof(*pids) * mlockmany_procs);
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
-		for (n = 0; n < mlockmany_procs; n++) {
+		for (n = 0; stress_continue(args) && (n < mlockmany_procs); n++) {
 			pid_t pid;
 
-			if (!stress_continue(args))
+			/* In case we've missed SIGALRM */
+			if (stress_time_now() > args->time_end) {
+				stress_continue_set_flag(false);
 				break;
+			}
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
@@ -121,6 +167,10 @@ static int stress_mlockmany(const stress_args_t *args)
 			if (pid == 0) {
 				void *ptr = MAP_FAILED;
 				size_t mmap_size = mlock_size;
+
+				/* In case we've missed SIGALRM */
+				if (stress_time_now() > args->time_end)
+					_exit(0);
 
 				stress_parent_died_alarm();
 				stress_set_oom_adjustment(args, true);
@@ -150,44 +200,47 @@ static int stress_mlockmany(const stress_args_t *args)
 				while (mlock_size > args->page_size) {
 					if (!stress_continue(args))
 						_exit(0);
-					ret = shim_mlock(ptr, mlock_size);
+					ret = stress_mlock_interruptible(args, ptr, mlock_size);
 					if (ret == 0)
 						break;
 					mlock_size >>= 1;
 				}
 
-				for (;;) {
-					if (!stress_continue(args))
-						goto unlock;
-					(void)shim_munlock(ptr, mlock_size);
+				while (stress_continue(args)) {
+					(void)stress_munlock_interruptible(args, ptr, mlock_size);
 					if (!stress_continue(args))
 						goto unmap;
-					(void)shim_mlock(ptr, mlock_size);
+					(void)stress_mlock_interruptible(args, ptr, mlock_size);
 					if (!stress_continue(args))
 						goto unlock;
 					/* Try invalid sizes */
 					(void)shim_mlock(ptr, 0);
 					(void)shim_munlock(ptr, 0);
 
-					(void)shim_mlock(ptr, mlock_size << 1);
-					(void)shim_munlock(ptr, mlock_size << 1);
+					(void)stress_mlock_interruptible(args, ptr, mlock_size << 1);
+					if (!stress_continue(args))
+						goto unlock;
+					(void)stress_munlock_interruptible(args, ptr, mlock_size << 1);
+					if (!stress_continue(args))
+						goto unlock;
 
-					(void)shim_mlock(ptr, ~(size_t)0);
 					(void)shim_munlock(ptr, ~(size_t)0);
 					if (!stress_continue(args))
 						goto unlock;
 					(void)shim_usleep_interruptible(10000);
 				}
 unlock:
-				(void)shim_munlock(ptr, mlock_size);
+				(void)stress_munlock_interruptible(args, ptr, mlock_size);
 unmap:
 				(void)munmap(ptr, mmap_size);
 				_exit(0);
 			}
 			pids[n] = pid;
-			if (pid > 1)
+			if (pid > 1) {
 				stress_bogo_inc(args);
-			if (!stress_continue_flag())
+			} else if (pid < 0)
+				break;
+			if (!stress_continue(args))
 				break;
 		}
 		stress_kill_and_wait_many(args, pids, n, SIGALRM, false);
