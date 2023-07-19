@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "git-commit-id.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-cpu-cache.h"
@@ -1668,22 +1669,6 @@ bool stress_little_endian(void)
 	const uint8_t *y = (const uint8_t *)&x;
 
 	return *y == 0x78;
-}
-
-/*
- *  stress_swap32()
- *	swap order of bytes of a uint32_t value
- */
-static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
-{
-#if defined(HAVE_BUILTIN_BSWAP32)
-	return __builtin_bswap32(val);
-#else
-	return ((val >> 24) & 0x000000ff) |
-	       ((val << 8)  & 0x00ff0000) |
-	       ((val >> 8)  & 0x0000ff00) |
-	       ((val << 24) & 0xff000000);
-#endif
 }
 
 /*

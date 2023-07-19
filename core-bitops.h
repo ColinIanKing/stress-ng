@@ -88,4 +88,20 @@ static inline uint8_t stress_reverse8(register uint8_t x)
 #endif
 }
 
+/*
+ *  stress_swap32()
+ *	swap order of bytes of a uint32_t value
+ */
+static inline uint32_t stress_swap32(uint32_t val)
+{
+#if defined(HAVE_BUILTIN_BSWAP32)
+	return __builtin_bswap32(val);
+#else
+	return ((val >> 24) & 0x000000ff) |
+	       ((val << 8)  & 0x00ff0000) |
+	       ((val >> 8)  & 0x0000ff00) |
+	       ((val << 24) & 0xff000000);
+#endif
+}
+
 #endif
