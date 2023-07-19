@@ -2799,8 +2799,10 @@ extern WARN_UNUSED int stress_mmap_check(uint8_t *buf, const size_t sz,
 	const size_t page_size);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
-extern WARN_UNUSED ssize_t stress_read_buffer(int, void*, ssize_t, bool);
-extern WARN_UNUSED ssize_t stress_write_buffer(int, void*, ssize_t, bool);
+extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
+	const ssize_t size, const bool ignore_sig_eintr);
+extern WARN_UNUSED ssize_t stress_write_buffer(const int fd, const void* buffer,
+	const ssize_t size, const bool ignore_sig_eintr);
 extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
 extern WARN_UNUSED int stress_kernel_release(const int major,
 	const int minor, const int patchlevel);

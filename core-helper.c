@@ -3120,19 +3120,22 @@ int stress_get_unused_uid(uid_t *uid)
 /*
  *  stress_read_buffer()
  *	In addition to read() this function makes sure all bytes have been
- *	read. You're also able to ignore EINTR interrupts which could happen
+ *	read. You're also able to ignore EINTR signals which could happen
  *	on alarm() in the parent process.
  */
-ssize_t stress_read_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
+ssize_t stress_read_buffer(
+	const int fd,
+	void* buffer,
+	const ssize_t size,
+	const bool ignore_sig_eintr)
 {
 	ssize_t rbytes = 0, ret;
 
 	do {
 		char *ptr = ((char *)buffer) + rbytes;
 ignore_eintr:
-
 		ret = read(fd, (void *)ptr, (size_t)(size - rbytes));
-		if (ignore_int && (ret < 0) && (errno == EINTR))
+		if (ignore_sig_eintr && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
 		if (ret > 0)
 			rbytes += ret;
@@ -3147,7 +3150,11 @@ ignore_eintr:
  *	written. You're also able to ignore EINTR interrupts which could happen
  *	on alarm() in the parent process.
  */
-ssize_t stress_write_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
+ssize_t stress_write_buffer(
+	const int fd,
+	const void* buffer,
+	const ssize_t size,
+	const bool ignore_sig_eintr)
 {
 	ssize_t wbytes = 0, ret;
 
@@ -3156,7 +3163,7 @@ ssize_t stress_write_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
 ignore_eintr:
 		ret = write(fd, (void *)ptr, (size_t)(size - wbytes));
 		/* retry if interrupted */
-		if (ignore_int && (ret < 0) && (errno == EINTR))
+		if (ignore_sig_eintr && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
 		if (ret > 0)
 			wbytes += ret;
