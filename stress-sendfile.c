@@ -90,7 +90,7 @@ static int stress_sendfile(const stress_args_t *args)
 		goto dir_out;
 	}
 #if defined(HAVE_POSIX_FALLOCATE)
-	ret = posix_fallocate(fdin, (off_t)0, (off_t)sz);
+	ret = shim_posix_fallocate(fdin, (off_t)0, (off_t)sz);
 #else
 	ret = shim_fallocate(fdin, 0, (off_t)0, (off_t)sz);
 #endif

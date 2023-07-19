@@ -147,7 +147,7 @@ static int stress_fallocate(const stress_args_t *args)
 
 	do {
 #if defined(HAVE_POSIX_FALLOCATE)
-		ret = posix_fallocate(fd, (off_t)0, fallocate_bytes);
+		ret = shim_posix_fallocate(fd, (off_t)0, fallocate_bytes);
 #else
 		ret = shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 #endif
@@ -243,7 +243,7 @@ static int stress_fallocate(const stress_args_t *args)
 		 *  coverage
 		 */
 #if defined(HAVE_POSIX_FALLOCATE)
-		VOID_RET(int, posix_fallocate(bad_fd, (off_t)0, fallocate_bytes));
+		VOID_RET(int, shim_posix_fallocate(bad_fd, (off_t)0, fallocate_bytes));
 #else
 		VOID_RET(int, shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes));
 #endif
@@ -265,19 +265,19 @@ static int stress_fallocate(const stress_args_t *args)
 		 *  fallocate on a pipe is illegal
 		 */
 		if (pipe_ret == 0) {
-			VOID_RET(int, posix_fallocate(pipe_fds[0], (off_t)0, fallocate_bytes));
-			VOID_RET(int, posix_fallocate(pipe_fds[1], (off_t)0, fallocate_bytes));
+			VOID_RET(int, shim_posix_fallocate(pipe_fds[0], (off_t)0, fallocate_bytes));
+			VOID_RET(int, shim_posix_fallocate(pipe_fds[1], (off_t)0, fallocate_bytes));
 		}
 		/*
 		 *  exercise illegal negative offset and lengths
 		 */
-		VOID_RET(int, posix_fallocate(fd, (off_t)-1, (off_t)0));
+		VOID_RET(int, shim_posix_fallocate(fd, (off_t)-1, (off_t)0));
 		if (!stress_continue_flag())
 			break;
-		VOID_RET(int, posix_fallocate(fd, (off_t)0, (off_t)-1));
+		VOID_RET(int, shim_posix_fallocate(fd, (off_t)0, (off_t)-1));
 		if (!stress_continue_flag())
 			break;
-		VOID_RET(int, posix_fallocate(fd, (off_t)-1, (off_t)-1));
+		VOID_RET(int, shim_posix_fallocate(fd, (off_t)-1, (off_t)-1));
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));

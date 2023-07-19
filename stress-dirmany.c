@@ -109,7 +109,7 @@ static uint64_t stress_dirmany_create(
 		i_end++;
 		if (dirmany_bytes > 0) {
 #if defined(HAVE_POSIX_FALLOCATE)
-			VOID_RET(int, posix_fallocate(fd, (off_t)0, dirmany_bytes));
+			VOID_RET(int, shim_posix_fallocate(fd, (off_t)0, dirmany_bytes));
 #else
 			VOID_RET(int, shim_fallocate(fd, 0, (off_t)0, dirmany_bytes));
 #endif

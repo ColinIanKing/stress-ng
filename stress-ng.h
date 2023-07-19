@@ -3095,6 +3095,7 @@ extern int shim_execveat(int dir_fd, const char *pathname, char *const argv[],
 	char *const envp[], int flags);
 extern void shim_exit_group(int status);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
+extern int shim_posix_fallocate(int fd, off_t offset, off_t len);
 extern int shim_fdatasync(int fd);
 extern ssize_t shim_fgetxattr(int fd, const char *name, void *value, size_t size);
 extern int shim_finit_module(int fd, const char *uargs, int flags);

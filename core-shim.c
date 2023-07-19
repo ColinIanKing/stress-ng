@@ -252,6 +252,41 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 }
 
 /*
+ *  shim_posix_fallocate()
+ *	emulation of posix_fallocate using chunks of allocations
+ *	and add EINTR support (which is not POSIX, but this is
+ *	an emulation wrapper so too bad).
+ */
+int shim_posix_fallocate(int fd, off_t offset, off_t len)
+{
+	int ret;
+	const off_t chunk_len = (off_t)(1 * MB);
+
+	do {
+		const off_t sz = (len > chunk_len) ? chunk_len : len;
+
+		errno = 0;
+		ret = posix_fallocate(fd, offset, sz);
+		if (ret < 0)
+			return ret;
+
+		/*
+		 *  stressor has been signaled to finish, fake
+		 *  an EINTR return
+		 */
+		if (!stress_continue_flag()) {
+			errno = EINTR;
+			return -1;
+		}
+		offset += sz;
+		len -= sz;
+	} while (len > 0);
+
+	return 0;
+}
+
+
+/*
  * shim_fallocate()
  *	shim wrapper for fallocate system call
  *	- falls back to posix_fallocate w/o mode
@@ -329,7 +364,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	/*
 	 *  posix_fallocate returns 0 for success, > 0 as errno
 	 */
-	ret = posix_fallocate(fd, offset, len);
+	ret = shim_posix_fallocate(fd, offset, len);
 	errno = 0;
 	if (ret != 0) {
 		/* failed, so retry with slower emulated fallocate */

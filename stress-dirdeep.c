@@ -202,7 +202,7 @@ static bool stress_dirdeep_make(
 					break;
 				if (dirdeep_bytes > 0) {
 #if defined(HAVE_POSIX_FALLOCATE)
-					ret = posix_fallocate(fd, (off_t)0, dirdeep_bytes);
+					ret = shim_posix_fallocate(fd, (off_t)0, dirdeep_bytes);
 #else
 					ret = shim_fallocate(fd, 0, (off_t)0, dirdeep_bytes);
 #endif
