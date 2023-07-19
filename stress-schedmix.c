@@ -496,6 +496,7 @@ static int stress_schedmix(const stress_args_t *args)
 		if (pids[i] < 0) {
 			continue;
 		} else if (pids[i] == 0) {
+			VOID_RET(int, nice(stress_mwc8modn(7)));
 			stress_parent_died_alarm();
 			(void)stress_change_cpu(args, parent_cpu);
 			_exit(stress_schedmix_child(args));
