@@ -263,6 +263,9 @@ static int stress_link_generic(
 #endif
 
 err_unlink:
+		/* time to finish, indicate so while the slow unlink occurs */
+		if (!stress_continue(args))
+			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(O_DIRECTORY)
 		if (temp_dir_fd > 0)
 			fsync(temp_dir_fd);
@@ -272,7 +275,6 @@ err_unlink:
 		if (temp_dir_fd > 0)
 			fsync(temp_dir_fd);
 #endif
-
 		stress_bogo_inc(args);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
