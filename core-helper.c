@@ -3534,9 +3534,15 @@ size_t stress_get_extents(const int fd)
  *	error cases that are retryable. Also force a
  *	scheduling yield.
  */
-bool stress_redo_fork(const int err)
+bool stress_redo_fork(const stress_args_t *args, const int err)
 {
-	if (stress_continue_flag() &&
+	/* Timed out! */
+	if (stress_time_now() > args->time_end) {
+		stress_continue_set_flag(false);
+		return false;
+	}
+	/* More bogo-ops to go and errors indicate a fork retry? */
+	if (stress_continue(args) &&
 	    ((err == EAGAIN) || (err == EINTR) || (err == ENOMEM))) {
 		(void)shim_sched_yield();
 		return true;

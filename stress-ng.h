@@ -2862,7 +2862,7 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 #endif
 extern WARN_UNUSED int stress_get_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
-extern WARN_UNUSED bool stress_redo_fork(const int err);
+extern WARN_UNUSED bool stress_redo_fork(const stress_args_t *args, const int err);
 extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
 extern WARN_UNUSED bool stress_low_memory(const size_t requested);

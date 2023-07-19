@@ -447,7 +447,7 @@ static int stress_chroot(const stress_args_t *args)
 again:
 		pid = fork();
 		if (pid < 0) {
-			if (stress_redo_fork(errno))
+			if (stress_redo_fork(args, errno))
 				goto again;
 		} else if (pid == 0) {
 			stress_set_oom_adjustment(args, true);

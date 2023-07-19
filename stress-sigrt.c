@@ -80,7 +80,7 @@ static int stress_sigrt(const stress_args_t *args)
 again:
 		pids[i] = fork();
 		if (pids[i] < 0) {
-			if (stress_redo_fork(errno))
+			if (stress_redo_fork(args, errno))
 				goto again;
 			if (!stress_continue(args))
 				goto reap;

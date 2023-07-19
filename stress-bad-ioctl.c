@@ -515,7 +515,7 @@ static int stress_bad_ioctl(const stress_args_t *args)
 again:
 		pid = fork();
 		if (pid < 0) {
-			if (stress_redo_fork(errno))
+			if (stress_redo_fork(args, errno))
 				goto again;
 		} else if (pid > 0) {
 			int status, wret;

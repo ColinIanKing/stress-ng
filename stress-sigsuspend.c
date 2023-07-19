@@ -68,7 +68,7 @@ again:
 		parent_cpu = stress_get_cpu();
 		pid[n] = fork();
 		if (pid[n] < 0) {
-			if (stress_redo_fork(errno))
+			if (stress_redo_fork(args, errno))
 				goto again;
 			if (!stress_continue(args))
 				goto reap;

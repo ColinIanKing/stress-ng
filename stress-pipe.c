@@ -341,7 +341,7 @@ again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);

@@ -288,7 +288,7 @@ again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();
 	if (pid < 0) {
-		if (stress_redo_fork(errno)) {
+		if (stress_redo_fork(args, errno)) {
 			shim_usleep(100000);
 			goto again;
 		}

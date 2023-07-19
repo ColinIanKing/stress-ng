@@ -120,7 +120,7 @@ static int stress_vforkmany(const stress_args_t *args)
 fork_again:
 	chpid = fork();
 	if (chpid < 0) {
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto fork_again;
 		if (!stress_continue(args))
 			goto finish;

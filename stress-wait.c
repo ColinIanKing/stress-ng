@@ -50,7 +50,7 @@ static pid_t spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto again;
 		return -1;
 	}

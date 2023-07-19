@@ -60,7 +60,7 @@ static pid_t stress_tee_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto again;
 		(void)close(fds[0]);
 		(void)close(fds[1]);

@@ -99,7 +99,7 @@ again:
 	if (pid < 0) {
 		if (!stress_continue(args))
 			goto finish;
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto again;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

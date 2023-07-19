@@ -84,7 +84,7 @@ static int OPTIMIZE3 stress_ptrace(const stress_args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto again;
 		if (!stress_continue(args))
 			goto finish;

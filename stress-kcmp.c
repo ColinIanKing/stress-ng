@@ -201,7 +201,7 @@ static int stress_kcmp(const stress_args_t *args)
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
-		if (stress_redo_fork(errno))
+		if (stress_redo_fork(args, errno))
 			goto again;
 		(void)close(fd1);
 		if (!stress_continue(args))
