@@ -947,7 +947,7 @@ typedef struct {
 	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
 	uint16_t padding1;				/* alignment padding */
 	uint32_t mem_cache_ways;			/* cache ways size */
-	uint64_t zero;					/* zero'd data */
+	const uint64_t zero;				/* zero'd 64 bit data */
 	void *nullptr;					/* Null pointer */
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
     defined(HAVE_ATOMIC_STORE)
@@ -2600,7 +2600,7 @@ extern void stress_settings_free(void);
  *  to stop the optimiser optimising code away to zero. The
  *  *_put funcs are essentially no-op functions.
  */
-extern uint64_t stress_uint64_zero(void);
+extern WARN_UNUSED uint64_t stress_get_uint64_zero(void);
 
 /* Filenames and directories */
 extern int stress_temp_filename(char *path, const size_t len,

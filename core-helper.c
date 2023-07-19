@@ -1358,13 +1358,13 @@ void *stress_get_stack_top(void *start, size_t size)
 }
 
 /*
- *  stress_uint64_zero()
+ *  stress_get_uint64_zero()
  *	return uint64 zero in way that force less smart
  *	static analysers to realise we are doing this
  *	to force a division by zero. I'd like to have
  *	a better solution than this ghastly way.
  */
-uint64_t stress_uint64_zero(void)
+uint64_t stress_get_uint64_zero(void)
 {
 	return g_shared->zero;
 }
