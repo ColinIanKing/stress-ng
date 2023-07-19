@@ -347,14 +347,17 @@ static int stress_dir(const stress_args_t *args)
 		stress_invalid_mkdirat(bad_fd);
 
 		if (!stress_continue(args)) {
+			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 			stress_dir_tidy(args, i);
 			break;
 		}
 		stress_dir_read(args, pathname);
-		stress_dir_tidy(args, i);
-
-		if (!stress_continue(args))
+		if (!stress_continue(args)) {
+			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+			stress_dir_tidy(args, i);
 			break;
+		}
+		stress_dir_tidy(args, i);
 		stress_dir_sync(dir_fd);
 		(void)sync();
 
