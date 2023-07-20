@@ -538,6 +538,59 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 #endif
 
 #if defined(__linux__) &&	\
+    defined(STRESS_ARCH_SH4)
+static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
+{
+	FILE *fp;
+	char buffer[1024];
+
+	cpu->caches = NULL;
+	cpu->cache_count = 0;
+
+	/*
+	 * parse the following
+	 * icache size	:  4KiB (2-way)
+	 * dcache size	:  4KiB (2-way)
+	 */
+
+	fp = fopen("/proc/cpuinfo", "r");
+	if (!fp)
+		return 0;
+
+	cpu->caches = calloc(2, sizeof(*(cpu->caches)));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			2 * sizeof(*(cpu->caches)));
+		return 0;
+	}
+
+	(void)shim_memset(buffer, 0, sizeof(buffer));
+	while ((cpu->cache_count) < 2 && fgets(buffer, sizeof(buffer), fp) != NULL) {
+		const char *ptr = strchr(buffer, ':');
+
+		if (ptr &&
+		    (strncmp("cache size", buffer + 1, 10) == 0) &&
+		    ((buffer[0] == 'i') || (buffer[0] == 'd')))   {
+			size_t size;
+
+			if (sscanf(ptr + 1, "%zdKiB)", &size) == 1) {
+				cpu->caches[cpu->cache_count].type =
+					(buffer[0] == 'i') ? CACHE_TYPE_INSTRUCTION : CACHE_TYPE_DATA;
+				cpu->caches[cpu->cache_count].size = size * KB;
+				cpu->caches[cpu->cache_count].line_size = 64;	/* Assumption! */
+				cpu->caches[cpu->cache_count].ways = cpu->caches[cpu->cache_count].size / 64;
+				cpu->caches[cpu->cache_count].level = 1;
+				cpu->cache_count++;
+			}
+		}
+	}
+	(void)fclose(fp);
+
+	return cpu->cache_count;
+}
+#endif
+
+#if defined(__linux__) &&	\
     defined(STRESS_ARCH_M68K)
 static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 {
@@ -964,6 +1017,12 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_M68K)
 	if (stress_cpu_cache_get_m68k(cpu) > 0)
+		return;
+#endif
+
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_SH4)
+	if (stress_cpu_cache_get_sh4(cpu) > 0)
 		return;
 #endif
 
