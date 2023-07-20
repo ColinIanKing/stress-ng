@@ -253,16 +253,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 
 	for (i = 0; i < 16384; i++) {
 		i_sum += stress_bitreverse32(i);
-		{
-			/* parity check */
-			register uint32_t v = i;
-
-			v ^= v >> 16;
-			v ^= v >> 8;
-			v ^= v >> 4;
-			v &= 0xf;
-			i_sum += (0x6996 >> v) & 1;
-		}
+		i_sum += stress_parity32(i);
 		i_sum += stress_popcount32(i);
 		{
 			/* round up to nearest highest power of 2 */

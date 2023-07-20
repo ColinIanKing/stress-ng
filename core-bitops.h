@@ -126,6 +126,10 @@ static inline uint32_t stress_bitreverse32(const uint32_t val)
 #endif
 }
 
+/*
+ *  stress_popcount32()
+ *	population count (count number of 1 bits) in a uint32_t value
+ */
 static inline uint32_t stress_popcount32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_POPCOUNT)
@@ -137,6 +141,26 @@ static inline uint32_t stress_popcount32(const uint32_t val)
 	for (j = 0; v; j++)
 		v &= v - 1;
 	return j;
+#endif
+}
+
+/*
+ *  stress_parity32
+ *	parity check in a uint32_t value
+ */
+static inline uint32_t stress_parity32(const uint32_t val)
+{
+#if defined(HAVE_BUILTIN_PARITY)
+	return  __builtin_parity((unsigned int)val);
+#else
+	/* parity check */
+	register uint32_t v = val;
+
+	v ^= v >> 16;
+	v ^= v >> 8;
+	v ^= v >> 4;
+	v &= 0xf;
+	return (0x6996 >> v) & 1;
 #endif
 }
 
