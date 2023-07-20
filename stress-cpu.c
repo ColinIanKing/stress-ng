@@ -249,23 +249,13 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 {
 	uint32_t i, i_sum = 0;
-	const uint32_t sum = 0x8aac0aab;
+	const uint32_t sum = 0x8aac4aab;
 
 	for (i = 0; i < 16384; i++) {
 		i_sum += stress_bitreverse32(i);
 		i_sum += stress_parity32(i);
 		i_sum += stress_popcount32(i);
-		{
-			/* round up to nearest highest power of 2 */
-			register uint32_t v = i - 1;
-
-			v |= v >> 1;
-			v |= v >> 2;
-			v |= v >> 4;
-			v |= v >> 8;
-			v |= v >> 16;
-			i_sum += v;
-		}
+		i_sum += stress_nextpwr2(i);
 	}
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail("%s: bitops error detected, failed "
