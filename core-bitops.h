@@ -126,4 +126,18 @@ static inline uint32_t stress_bitreverse32(const uint32_t val)
 #endif
 }
 
+static inline uint32_t stress_popcount32(const uint32_t val)
+{
+#if defined(HAVE_BUILTIN_POPCOUNT)
+	return  __builtin_popcount((unsigned int)val);
+#else
+	/* Brian Kernighan's count bits */
+	register uint32_t j, v = val;
+
+	for (j = 0; v; j++)
+		v &= v - 1;
+	return j;
+#endif
+}
+
 #endif

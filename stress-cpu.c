@@ -263,18 +263,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 			v &= 0xf;
 			i_sum += (0x6996 >> v) & 1;
 		}
-		{
-#if defined(HAVE_BUILTIN_POPCOUNT)
-			i_sum += __builtin_popcount((unsigned int)i);
-#else
-			/* Brian Kernighan count bits */
-			register uint32_t j, v = i;
-
-			for (j = 0; v; j++)
-				v &= v - 1;
-			i_sum += j;
-#endif
-		}
+		i_sum += stress_popcount32(i);
 		{
 			/* round up to nearest highest power of 2 */
 			register uint32_t v = i - 1;
