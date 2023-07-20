@@ -104,4 +104,26 @@ static inline uint32_t stress_swap32(uint32_t val)
 #endif
 }
 
+/*
+ *  stress_bitreverse32()
+ *	reverse bits in a uint32_t value
+ */
+static inline uint32_t stress_bitreverse32(const uint32_t val)
+{
+#if defined(HAVE_BUILTIN_BITREVERSE)
+	return  __builtin_bitreverse32(i);
+#else
+	register uint32_t r, v, s = (sizeof(val) * 8) - 1;
+
+	r = v = val;
+	for (v >>= 1; v; v >>= 1, s--) {
+		r <<= 1;
+		r |= v & 1;
+	}
+	r <<= s;
+
+	return r;
+#endif
+}
+
 #endif

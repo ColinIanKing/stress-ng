@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-pragma.h"
@@ -251,23 +252,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 	const uint32_t sum = 0x8aac0aab;
 
 	for (i = 0; i < 16384; i++) {
-		{
-			register uint32_t r;
-#if defined(HAVE_BUILTIN_BITREVERSE)
-			r = __builtin_bitreverse32(i);
-#else
-			register uint32_t v, s = (sizeof(v) * 8) - 1;
-
-			/* Reverse bits */
-			r = v = i;
-			for (v >>= 1; v; v >>= 1, s--) {
-				r <<= 1;
-				r |= v & 1;
-			}
-			r <<= s;
-#endif
-			i_sum += r;
-		}
+		i_sum += stress_bitreverse32(i);
 		{
 			/* parity check */
 			register uint32_t v = i;
