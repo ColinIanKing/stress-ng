@@ -2600,6 +2600,7 @@ again:
 					(void)shim_memset(*checksum, 0, sizeof(**checksum));
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					stress_block_signals();
+					(void)alarm(0);
 					stress_interrupts_stop(stats->interrupts);
 					stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
 					pr_fail_check(&rc);
@@ -2626,17 +2627,11 @@ again:
 						}
 					}
 #endif
-
 					ok = (rc == EXIT_SUCCESS);
 					stats->ci.run_ok = ok;
 					(*checksum)->data.ci.run_ok = ok;
 					/* Ensure reserved padding is zero to not confuse checksum */
 					(void)shim_memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
-
-					/*
-					 *  We're done, cancel SIGALRM
-					 */
-					(void)alarm(0);
 
 					stress_set_proc_state(name, STRESS_STATE_STOP);
 					/*
@@ -2696,7 +2691,6 @@ again:
 					pr_warn("%s: WARNING: finished prematurely after just %s\n",
 						name, stress_duration_to_str(run_duration, true));
 				}
-
 child_exit:
 				/*
 				 *  We used to free allocations on the heap, but
