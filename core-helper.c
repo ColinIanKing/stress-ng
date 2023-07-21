@@ -806,7 +806,9 @@ void stress_get_memlimits(
 	(void)fclose(fp);
 }
 
-#define PR_SET_MEMORY_MERGE 67
+#if !defined(PR_SET_MEMORY_MERGE)
+#define PR_SET_MEMORY_MERGE	(67)
+#endif
 
 /*
  *  stress_ksm_memory_merge()
