@@ -98,7 +98,7 @@ static int stress_sendfile(const stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		goto dir_out;
+		goto close_in;
 	}
 	(void)close(fdin);
 	if ((fdin = open(filename, O_RDONLY)) < 0) {
