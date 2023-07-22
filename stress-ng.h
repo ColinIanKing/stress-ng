@@ -360,6 +360,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_SN		 STRESS_BIT_ULL(49)	/* --sn scientific notation */
 #define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(50)	/* --change-cpu */
 #define OPT_FLAGS_KSM		 STRESS_BIT_ULL(51)	/* --ksm */
+#define OPT_FLAGS_SETTINGS	 STRESS_BIT_ULL(52)	/* --settings */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1995,6 +1996,8 @@ typedef enum {
 	OPT_set,
 	OPT_set_ops,
 
+	OPT_settings,
+
 	OPT_shellsort,
 	OPT_shellsort_ops,
 	OPT_shellsort_size,
@@ -2594,6 +2597,7 @@ extern int stress_set_setting_global(const char *name, const stress_type_id_t ty
 	const void *value);
 extern bool stress_get_setting(const char *name, void *value);
 extern void stress_settings_free(void);
+extern void stress_settings_show(void);
 
 /*
  *  externs to force gcc to stash computed values and hence

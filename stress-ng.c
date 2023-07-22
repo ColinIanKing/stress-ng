@@ -118,6 +118,7 @@ static const stress_opt_flag_t opt_flags[] = {
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
+	{ OPT_settings,		OPT_FLAGS_SETTINGS },
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
 	{ OPT_smart,		OPT_FLAGS_SMART },
 	{ OPT_sn,		OPT_FLAGS_SN },
@@ -975,6 +976,7 @@ static const struct option long_options[] = {
 	{ "session-ops",	1,	0,	OPT_session_ops },
 	{ "set",		1,	0,	OPT_set },
 	{ "set-ops",		1,	0,	OPT_set_ops },
+	{ "settings",		0,	0,	OPT_settings },
 	{ "shellsort",		1,	0,	OPT_shellsort },
 	{ "shellsort-ops",	1,	0,	OPT_shellsort_ops },
 	{ "shellsort-size",	1,	0,	OPT_shellsort_size },
@@ -4647,6 +4649,8 @@ int main(int argc, char **argv, char **envp)
 		success ? "successful" : "unsuccessful",
 		stress_duration_to_str(duration, true));
 
+	if (g_opt_flags & OPT_FLAGS_SETTINGS)
+		stress_settings_show();
 	/*
 	 *  Tidy up
 	 */
