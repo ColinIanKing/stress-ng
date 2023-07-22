@@ -250,6 +250,7 @@
 	MACRO(shm)		\
 	MACRO(shm_sysv)		\
 	MACRO(sigabrt)		\
+	MACRO(sigbus)		\
 	MACRO(sigchld)		\
 	MACRO(sigfd)		\
 	MACRO(sigfpe)		\

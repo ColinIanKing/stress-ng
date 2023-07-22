@@ -2019,6 +2019,9 @@ typedef enum {
 	OPT_sigabrt,
 	OPT_sigabrt_ops,
 
+	OPT_sigbus,
+	OPT_sigbus_ops,
+
 	OPT_sigchld,
 	OPT_sigchld_ops,
 

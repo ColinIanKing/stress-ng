@@ -992,6 +992,8 @@ static const struct option long_options[] = {
 	{ "shm-sysv-segs",	1,	0,	OPT_shm_sysv_segments },
 	{ "sigabrt",		1,	0,	OPT_sigabrt },
 	{ "sigabrt-ops",	1,	0,	OPT_sigabrt_ops },
+	{ "sigbus",		1,	0,	OPT_sigbus },
+	{ "sigbus-ops",		1,	0,	OPT_sigbus_ops },
 	{ "sigchld",		1,	0,	OPT_sigchld },
 	{ "sigchld-ops",	1,	0,	OPT_sigchld_ops },
 	{ "sigfd",		1,	0,	OPT_sigfd },
