@@ -477,10 +477,12 @@ static int stress_schedmix(const stress_args_t *args)
 	schedmix_sem = (stress_schedmix_sem_t *)
 		mmap(NULL, sizeof(*schedmix_sem), PROT_READ | PROT_WRITE,
 		     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (schedmix_sem == MAP_FAILED)
-		schedmix_sem = NULL;
-	if (sem_init(&schedmix_sem->sem, 0, 1) < 0) {
-		(void)munmap((void *)schedmix_sem, sizeof(*schedmix_sem));
+	if (schedmix_sem != MAP_FAILED) {
+		if (sem_init(&schedmix_sem->sem, 0, 1) < 0) {
+			(void)munmap((void *)schedmix_sem, sizeof(*schedmix_sem));
+			schedmix_sem = NULL;
+		}
+	} else {
 		schedmix_sem = NULL;
 	}
 #endif
