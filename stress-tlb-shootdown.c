@@ -317,6 +317,18 @@ PRAGMA_UNROLL_N(8)
 		(void)madvise(mem, mmap_size, MADV_DONTNEED);
 		stress_tlb_shootdown_write_mem(mem, mmap_size, page_size);
 
+#if defined(__linux__)
+		{
+			static const char flush_ceiling[] = "/sys/kernel/debug/x86/tlb_single_page_flush_ceiling";
+			char buf[64];
+			ssize_t rd_ret;
+
+			rd_ret = stress_system_read(flush_ceiling, buf, sizeof(buf));
+			if (rd_ret > 0)
+				VOID_RET(ssize_t, stress_system_write(flush_ceiling, buf, rd_ret));
+		}
+#endif
+
 		stress_bogo_inc(args);
 	} while(stress_continue(args));
 
