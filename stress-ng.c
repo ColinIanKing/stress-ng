@@ -3870,7 +3870,6 @@ next_opt:
 
 		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
 			if (c == opt_flags[i].opt) {
-				stress_set_setting_true(long_options[option_index].name, NULL);
 				g_opt_flags |= opt_flags[i].opt_flag;
 				goto next_opt;
 			}
