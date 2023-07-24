@@ -3832,21 +3832,19 @@ next_opt:
 			if (stressors[i].short_getopt == c) {
 				const char *name = stress_opt_name(c);
 				stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
-				g_stressor_current = ss;
 
+				g_stressor_current = ss;
 				g_opt_flags |= OPT_FLAGS_SET;
 				ss->num_instances = stress_get_int32(optarg);
 				stress_get_processors(&ss->num_instances);
 				stress_check_max_stressors(name, ss->num_instances);
-
 				goto next_opt;
 			}
 			if (stressors[i].op == (stress_op_t)c) {
 				uint64_t bogo_ops;
 
 				bogo_ops = stress_get_uint64(optarg);
-				stress_check_range(stress_opt_name(c), bogo_ops,
-					MIN_OPS, MAX_OPS);
+				stress_check_range(stress_opt_name(c), bogo_ops, MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
 				stress_set_setting(stress_opt_name(c), TYPE_ID_UINT64, &bogo_ops);
 				if (g_stressor_current)
@@ -3966,9 +3964,8 @@ next_opt:
 			}
 			break;
 		case OPT_query:
-			if (!jobmode) {
+			if (!jobmode)
 				(void)printf("Try '%s --help' for more information.\n", g_app_name);
-			}
 			return EXIT_FAILURE;
 		case OPT_quiet:
 			g_opt_flags &= ~(PR_ALL);
