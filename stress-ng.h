@@ -1125,6 +1125,7 @@ typedef enum {
 	OPT_class,
 
 	OPT_cache_ops,
+	OPT_cache_size,
 	OPT_cache_clflushopt,
 	OPT_cache_cldemote,
 	OPT_cache_clwb,

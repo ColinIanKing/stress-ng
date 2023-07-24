@@ -1847,6 +1847,10 @@ int stress_cache_alloc(const char *name)
 	char cache_info[512];
 
 	cpu_caches = stress_cpu_cache_get_all_details();
+
+	if (g_shared->mem_cache_size > 0)
+		goto init_done;
+
 	if (!cpu_caches) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache details\n", name);

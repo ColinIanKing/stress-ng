@@ -303,6 +303,7 @@ static const struct option long_options[] = {
 	{ "bsearch-ops",	1,	0,	OPT_bsearch_ops },
 	{ "bsearch-size",	1,	0,	OPT_bsearch_size },
 	{ "cache",		1,	0, 	OPT_cache },
+	{ "cache-size",		1,	0, 	OPT_cache_size},
 	{ "cache-cldemote",	0,	0,	OPT_cache_cldemote },
 	{ "cache-clflushopt",	0,	0,	OPT_cache_clflushopt },
 	{ "cache-clwb",		0,	0,	OPT_cache_clwb },
@@ -3882,6 +3883,14 @@ next_opt:
 			stress_get_processors(&g_opt_parallel);
 			stress_check_max_stressors("all", g_opt_parallel);
 			break;
+		case OPT_cache_size:
+			/* 1K..4GB should be enough range  */
+			u64 = stress_get_uint64_byte(optarg);
+			stress_check_range_bytes("cache-size", u64, 1 * KB, 4 * GB);
+			/* round down to 64 byte boundary */
+			u64 &= ~(uint64_t)63;
+			stress_set_setting("cache-size", TYPE_ID_UINT64, &u64);
+			break;
 		case OPT_backoff:
 			i64 = (int64_t)stress_get_uint64(optarg);
 			stress_set_setting_global("backoff", TYPE_ID_INT64, &i64);
@@ -4556,6 +4565,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared cache memory
 	 */
 	g_shared->mem_cache_level = DEFAULT_CACHE_LEVEL;
+	(void)stress_get_setting("cache-size", &g_shared->mem_cache_size);
 	(void)stress_get_setting("cache-level", &g_shared->mem_cache_level);
 	g_shared->mem_cache_ways = 0;
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
