@@ -864,6 +864,10 @@ is in effect.
 force write serialization on each store operation using the sfence instruction
 (x86 only). This is a no-op for non-x86 architectures.
 .TP
+.B \-\-cache\-size N
+override the default cache size setting to N bytes. One can specify the
+in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-cache\-ops N
 stop cache thrash workers after N bogo cache thrash operations.
 .TP
