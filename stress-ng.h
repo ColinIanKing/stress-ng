@@ -1795,9 +1795,10 @@ typedef enum {
 	OPT_ping_sock,
 	OPT_ping_sock_ops,
 
+	OPT_pipe_data_size,
 	OPT_pipe_ops,
 	OPT_pipe_size,
-	OPT_pipe_data_size,
+	OPT_pipe_vmsplice,
 
 	OPT_pipeherd,
 	OPT_pipeherd_ops,

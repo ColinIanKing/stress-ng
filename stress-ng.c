@@ -825,6 +825,7 @@ static const struct option long_options[] = {
 #if defined(F_SETPIPE_SZ)
 	{ "pipe-size",		1,	0,	OPT_pipe_size },
 #endif
+	{ "pipe-vmsplice",	0,	0,	OPT_pipe_vmsplice },
 	{ "pipeherd",		1,	0,	OPT_pipeherd },
 	{ "pipeherd-ops",	1,	0,	OPT_pipeherd_ops },
 	{ "pipeherd-yield", 	0,	0,	OPT_pipeherd_yield },

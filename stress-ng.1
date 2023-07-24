@@ -4035,6 +4035,11 @@ pipe writer and pipe reader processes. Default size is the page size.
 .B \-\-pipe\-ops N
 stop pipe stress workers after N bogo pipe write operations.
 .TP
+.B \-\-pipe\-vmsplice
+use vmsplice(2) to splice data pages to/from pipe. Requires pipe packet
+mode using O_DIRECT and buffer twice the size of the pipe to ensure verification
+data sequences.
+.TP
 .B \-\-pipe\-size N
 specifies the size of the pipe in bytes (for systems that support the
 F_SETPIPE_SZ fcntl() command). Setting a small pipe size will cause the pipe
