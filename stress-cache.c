@@ -72,6 +72,7 @@ static uint64_t disabled_flags;
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
+	{ NULL,	"cache-size N",	"set cache-size = N [KB] and ignore --cache-level option"},
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 	{ NULL,	"cache-cldemote",	"cache line demote (x86 only)" },
 #endif
