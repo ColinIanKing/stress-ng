@@ -1807,7 +1807,7 @@ static const char *stress_opt_name(const int opt_val)
 		if (long_options[i].val == opt_val)
 			return long_options[i].name;
 
-	return "<unknown>";
+	return "unknown";
 }
 
 /*
@@ -3870,6 +3870,7 @@ next_opt:
 
 		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
 			if (c == opt_flags[i].opt) {
+				stress_set_setting_true(stress_opt_name(c), NULL);
 				g_opt_flags |= opt_flags[i].opt_flag;
 				goto next_opt;
 			}
