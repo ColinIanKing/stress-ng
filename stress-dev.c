@@ -3258,6 +3258,19 @@ static void stress_dev_floppy_linux(
 	UNEXPECTED
 #endif
 
+#if defined(FDWERRORGET) &&		\
+    defined(HAVE_FLOPPY_WRITE_ERRORS)
+	{
+		int ret;
+		struct floppy_write_errors errors;
+
+		ret = ioctl(fd, FDWERRORGET, &errors);
+		(void)ret;
+	}
+#else
+	UNEXPECTED
+#endif
+
 #if defined(FDWERRORCLR)
 	{
 		int ret;
