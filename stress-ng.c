@@ -3884,8 +3884,11 @@ next_opt:
 			stress_check_max_stressors("all", g_opt_parallel);
 			break;
 		case OPT_cache_size:
-			u64 = stress_get_uint64(optarg);
-			u64 = u64 * 1024;
+			/* 1K..4GB should be enough range  */
+			u64 = stress_get_uint64_byte(optarg);
+			stress_check_range_bytes("cache-size", u64, 1 * KB, 4 * GB);
+			/* round down to 64 byte boundary */
+			u64 &= ~(uint64_t)63;
 			stress_set_setting("cache-size", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_backoff:
