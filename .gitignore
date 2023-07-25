@@ -4,9 +4,3 @@ personality.h
 git-commit-id.h
 stress-ng
 *.o
-configs
-@rm
-io-uring.h
-stress-ng.1.gz
-core-perf-event.h
-config.h
