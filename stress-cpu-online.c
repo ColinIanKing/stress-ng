@@ -268,8 +268,8 @@ static int stress_cpu_online(const stress_args_t *args)
 			if (rc == EXIT_SUCCESS) {
 				rc = stress_cpu_online_get(cpu, &setting);
 				if ((rc == EXIT_SUCCESS) && (setting != 0)) {
-					pr_inf("%s: set cpu offline, expecting setting to be 0, got %d instead\n",
-						args->name, setting);
+					pr_inf("%s: set cpu %" PRIu32 " offline, expecting setting to be 0, got %d instead\n",
+						args->name, cpu, setting);
 				} else {
 					offline_duration += stress_time_now() - t;
 					offline_count += 1.0;
@@ -283,8 +283,8 @@ static int stress_cpu_online(const stress_args_t *args)
 			if (rc == EXIT_SUCCESS) {
 				rc = stress_cpu_online_get(cpu, &setting);
 				if ((rc == EXIT_SUCCESS) && (setting != 1)) {
-					pr_inf("%s: set cpu offline, expecting setting to be 1, got %d instead\n",
-						args->name, setting);
+					pr_inf("%s: set cpu %" PRIu32 " offline, expecting setting to be 1, got %d instead\n",
+						args->name, cpu, setting);
 				} else {
 					online_duration += stress_time_now() - t;
 					online_count += 1.0;
