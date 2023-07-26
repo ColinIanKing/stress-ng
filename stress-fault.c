@@ -113,7 +113,7 @@ static int stress_fault(const stress_args_t *args)
 		}
 #if defined(HAVE_POSIX_FALLOCATE)
 		if (shim_posix_fallocate(fd, 0, 1) < 0) {
-			if (errno == ENOSPC) {
+			if ((errno == ENOSPC) || (errno == EINTR)) {
 				(void)close(fd);
 				continue;	/* Try again */
 			}
