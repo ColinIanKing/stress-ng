@@ -85,6 +85,10 @@ void stress_log_cpuidle_info(void)
 		(void)shim_strlcat(buf, states[i], sizeof(buf));
 		free(states[i]);
 	}
-	pr_dbg("CPU%s %zu idle states:%s\n", max_cpus > 1 ? "s have" : " has", max_states, buf);
+	pr_dbg("CPU%s %zu idle state%s%s%s\n",
+		(max_cpus == 1) ? " has" : "s have",
+		max_states,
+		(max_states == 1) ? "" : "s",
+		(max_states > 0) ? ":" : "", buf);
 #endif
 }
