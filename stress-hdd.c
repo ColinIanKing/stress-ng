@@ -773,7 +773,7 @@ static int stress_hdd(const stress_args_t *args)
 	do {
 		int fd;
 		struct stat statbuf;
-		uint64_t hdd_read_size;
+		uint64_t hdd_bytes_max = 0;
 		const char *fs_type;
 
 		/*
@@ -891,8 +891,9 @@ rnd_wr_retry:
 					continue;
 				}
 				stress_bogo_inc(args);
+				if (offset > hdd_bytes_max)
+					hdd_bytes_max = offset;
 			}
-
 			stress_mwc_set_seed(w, z);
 		}
 		/* Sequential Write */
@@ -906,6 +907,7 @@ seq_wr_retry:
 
 				hdd_fill_buf(buf, hdd_write_size, i, instance);
 
+				errno = 0;
 				ret = stress_hdd_write(fd, buf, (off_t)i,
 					hdd_write_size, hdd_flags,
 					&hdd_write_bytes, &hdd_write_duration);
@@ -925,23 +927,19 @@ seq_wr_retry:
 				stress_bogo_inc(args);
 			}
 		}
-
 		if (fstat(fd, &statbuf) < 0) {
 			pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			(void)close(fd);
 			continue;
 		}
-		/* Round to write size to get no partial reads */
-		hdd_read_size = (uint64_t)statbuf.st_size -
-			((uint64_t)statbuf.st_size % hdd_write_size);
 
 		/* Sequential Read */
 		if (hdd_flags & HDD_OPT_RD_SEQ) {
 			uint64_t misreads = 0;
 			uint64_t baddata = 0;
 
-			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
+			for (i = 0; i < hdd_bytes_max; i += hdd_write_size) {
 seq_rd_retry:
 				if (!stress_continue(args)) {
 					(void)close(fd);
@@ -989,6 +987,8 @@ seq_rd_retry:
 					}
 				}
 				stress_bogo_inc(args);
+				if (i > hdd_bytes_max)
+					hdd_bytes_max = i;
 			}
 			if (misreads)
 				pr_dbg("%s: %" PRIu64
@@ -1003,7 +1003,7 @@ seq_rd_retry:
 			uint64_t misreads = 0;
 			uint64_t baddata = 0;
 
-			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
+			for (i = 0; i < hdd_bytes_max; i += hdd_write_size) {
 				size_t offset = (hdd_bytes > hdd_write_size) ?
 					stress_mwc64modn(hdd_bytes - hdd_write_size) & ~511UL : 0;
 
