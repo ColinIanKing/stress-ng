@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 #if defined(F_SETPIPE_SZ)
 	{ NULL,	"pipe-size N",		"set pipe size to N bytes" },
 #endif
-	{ NULL," pipe-vmsplice",	"use vmsplice for pipe data transfer" },
+	{ NULL, "pipe-vmsplice",	"use vmsplice for pipe data transfer" },
 	{ NULL,	NULL,			NULL }
 };
 
