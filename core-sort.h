@@ -28,6 +28,11 @@ extern void stress_sort_compare_reset(void);
 extern uint64_t stress_sort_compare_get(void);
 extern uint64_t stress_sort_compares ALIGN64;
 
+static inline int stress_sort_cmp_str(const void *p1, const void *p2)
+{
+	return strcmp(*(const char **)p1, *(const char **)p2);
+}
+
 #if 1
 #define STRESS_SORT_CMP_FWD(name, type)				\
 static inline int OPTIMIZE3 stress_sort_cmp_fwd_ ## name(const void *p1, const void *p2) \

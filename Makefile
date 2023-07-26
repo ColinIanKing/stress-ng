@@ -498,6 +498,7 @@ CORE_SRC = \
 	core-affinity.c \
 	core-cpu.c \
 	core-cpu-cache.c \
+	core-cpuidle.c \
 	core-hash.c \
 	core-helper.c \
 	core-icache.c \
