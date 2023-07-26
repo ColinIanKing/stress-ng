@@ -77,18 +77,19 @@ void stress_log_cpuidle_info(void)
 		(void)closedir(cpuidle_dir);
 	}
 	(void)closedir(cpu_dir);
-
-	qsort(states, max_states, sizeof(char *), stress_sort_cmp_str);
-	(void)memset(buf, 0, sizeof(buf));
-	for (i = 0; i < max_states; i++) {
-		(void)shim_strlcat(buf, " ", sizeof(buf));
-		(void)shim_strlcat(buf, states[i], sizeof(buf));
-		free(states[i]);
+	if (max_states > 0) {
+		qsort(states, max_states, sizeof(char *), stress_sort_cmp_str);
+		(void)memset(buf, 0, sizeof(buf));
+		for (i = 0; i < max_states; i++) {
+			(void)shim_strlcat(buf, " ", sizeof(buf));
+			(void)shim_strlcat(buf, states[i], sizeof(buf));
+			free(states[i]);
+		}
+		pr_dbg("CPU%s %zu idle state%s%s%s\n",
+			(max_cpus == 1) ? " has" : "s have",
+			max_states,
+			(max_states == 1) ? "" : "s",
+			(max_states > 0) ? ":" : "", buf);
 	}
-	pr_dbg("CPU%s %zu idle state%s%s%s\n",
-		(max_cpus == 1) ? " has" : "s have",
-		max_states,
-		(max_states == 1) ? "" : "s",
-		(max_states > 0) ? ":" : "", buf);
 #endif
 }
