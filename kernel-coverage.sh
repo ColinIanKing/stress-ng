@@ -273,7 +273,7 @@ clear_journal()
 
 do_stress()
 {
-	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --klog-check"
+	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --klog-check --status 5 -x smi"
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
@@ -385,10 +385,10 @@ for S in $STRESSORS
 do
 	case $S in
 		clone|fork|vfork)
-			do_stress --${S} 1
+			do_stress --${S} 1 --${S}-ops 10000
 			;;
 		*)
-			do_stress --${S} 8
+			do_stress --${S} 8 --${S}-ops 10000
 			;;
 	esac
 done
@@ -418,7 +418,8 @@ do_stress --cpu -1 --taskset 0
 do_stress --cpu -1 --cpu-load-slice 50
 do_stress --cpu -1 --thermalstat 1 --vmstat 1 --tz
 
-do_stress --cpu-online -1 --cpu-online-all --vmstat 1 --tz
+do_stress --cpu-online -1 --cpu-online-all --vmstat 1 --tz --pathological
+do_stress --cpu-online -1 --cpu-online-affinity --pathological
 
 do_stress --cyclic -1 --cyclic-policy deadline
 do_stress --cyclic -1 --cyclic-policy fifo
@@ -535,6 +536,7 @@ do_s-tress --pagemove -1 --pagemove-mlock
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
 do_stress --pipe -1 --pipe-data-size 64
+do_stress --pipe -1 --pipe-vmsplice
 
 do_stress --pipeherd 1 --pipeherd-yield
 
@@ -580,6 +582,8 @@ do_stress --sctp -1 --sctp-domain ipv6
 do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched fcfs
 do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched prio
 do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched rr
+
+do_stress --schedmix -1 --schedmix-procs 64
 
 do_stress --shm -1 --shm-objs 100000
 do_stress --shm -1 --shm-mlock
