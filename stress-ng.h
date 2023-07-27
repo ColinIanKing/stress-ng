@@ -899,6 +899,7 @@ typedef struct {
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
 	pid_t pid;			/* stressor pid */
+	bool sigalarmed;		/* set true if signalled with SIGALRM */
 	bool signalled;			/* set true if signalled with a kill */
 #if defined(STRESS_PERF_STATS)
 	stress_perf_t sp;		/* perf counters */
@@ -942,6 +943,7 @@ typedef struct {
 	uint32_t stressors_exited;			/* Number of stressors exited */
 	uint32_t stressors_reaped;			/* Number of stressors reaped */
 	uint32_t stressors_failed;			/* Number of stressors failed */
+	uint32_t stressors_alarmed;			/* Number of stressors got SIGALRM */
 	double time_started;				/* Time when stressing started */
 	uint8_t	*mem_cache;				/* Shared memory cache */
 	uint64_t mem_cache_size;			/* Bytes */

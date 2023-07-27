@@ -1226,11 +1226,12 @@ void stress_vmstat_start(void)
 		if (status_sleep == status_delay) {
 			const double runtime = round(stress_time_now() - g_shared->time_started);
 
-			pr_inf("status: %" PRIu32 " run, %" PRIu32 " exit, %" PRIu32 " reap, %" PRIu32 " fail, %s\n",
+			pr_inf("status: %" PRIu32 " run, %" PRIu32 " exit, %" PRIu32 " reap, %" PRIu32 " fail, %" PRIu32 " sigalarm, %s\n",
 				g_shared->stressors_started,
 				g_shared->stressors_exited,
 				g_shared->stressors_reaped,
 				g_shared->stressors_failed,
+				g_shared->stressors_alarmed,
 				stress_duration_to_str(runtime, false));
 		}
 	}

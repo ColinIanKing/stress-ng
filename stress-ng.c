@@ -70,6 +70,7 @@ int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
+bool *g_sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
@@ -1535,8 +1536,15 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
  */
 static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
-	if (g_shared)
+	if (g_shared) {
 		g_shared->caught_sigint = true;
+		if (g_sigalarmed) {
+			if (!*g_sigalarmed) {
+				g_shared->stressors_alarmed++;
+				*g_sigalarmed = true;
+			}
+		}
+	}
 	if (getpid() == main_pid) {
 		/* Parent */
 		wait_flag = false;
@@ -2543,6 +2551,7 @@ again:
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
+				g_sigalarmed = &stats->sigalarmed;
 				child_pid = getpid();
 
 				(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
