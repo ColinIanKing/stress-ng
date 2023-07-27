@@ -672,19 +672,24 @@ dist:
 pdf:
 	man -t ./stress-ng.1 | ps2pdf - > stress-ng.pdf
 
+.PHONY: cleanconfig
+cleanconfig:
+	$(PRE_V)rm -f config config.h
+	$(PRE_V)rm -rf configs
 
-.PHONY: clean
-clean:
-	$(PRE_V)rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
-	$(PRE_V)rm -f stress-ng-$(VERSION).tar.xz
+.PHONY: cleanobj
+cleanobj:
 	$(PRE_V)rm -f io-uring.h
 	$(PRE_V)rm -f git-commit-id.h
 	$(PRE_V)rm -f core-perf-event.h
 	$(PRE_V)rm -f personality.h
 	$(PRE_V)rm -f apparmor-data.bin
 	$(PRE_V)rm -f *.o
-	$(PRE_V)rm -f config config.h
-	$(PRE_V)rm -rf configs
+
+.PHONY: clean
+clean: cleanconfig cleanobj
+	$(PRE_V)rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
+	$(PRE_V)rm -f stress-ng-$(VERSION).tar.xz
 	$(PRE_V)rm -f tags
 
 .PHONY: fast-test-all
