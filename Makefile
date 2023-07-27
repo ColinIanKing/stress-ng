@@ -577,7 +577,7 @@ stress-eigen-ops.o: config.h
 
 config.h config:
 	$(PRE_Q)echo "Generating config.."
-	$(MAKE) CC="$(CC)" STATIC=$(STATIC) -f Makefile.config
+	$(MAKE) CC="$(CC)" CXX="$(CXX)" STATIC=$(STATIC) -f Makefile.config
 
 makeconfig: config.h
 
