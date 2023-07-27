@@ -348,10 +348,10 @@ do
 		do_stress --verity -1 --temp-path $MNT --iostat 1
 		do_stress --utime -1 --utime-fsync --temp-path $MNT --iostat 1
 		DURATION=10
-		sudo $STRESS_NG --class filesystem --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
-		sudo $STRESS_NG --class io --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
+		sudo $STRESS_NG --class filesystem --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
+		sudo $STRESS_NG --class io --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
 		DURATION=5
-		do_stress --sysinfo -1 --temp-path $MNT
+		do_stress --sysinfo -1 --temp-path $MNT --iostat 1
 		umount_filesystem $FS
 	fi
 done
@@ -363,8 +363,8 @@ DURATION=20
 scheds=$(${STRESS_NG} --sched which 2>&1 | tail -1 | cut -d':' -f2-)
 for s in ${scheds}
 do
-	sudo ${STRESS_NG} --sched $s --cpu -1 -t 5 --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
-	sudo ${STRESS_NG} --sched $s --cpu -1 -t 5 --sched-reclaim --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
+	sudo ${STRESS_NG} --sched $s --cpu -1 -t 5 --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --status 5
+	sudo ${STRESS_NG} --sched $s --cpu -1 -t 5 --sched-reclaim --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --status 5
 done
 
 #
@@ -700,8 +700,8 @@ do_stress --bad-ioctl -1 --pathological
 #  overhead.
 #
 DURATION=60
-sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION
-sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION
+sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --status 5
+sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --status 5
 
 if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.finish
