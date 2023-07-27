@@ -224,7 +224,8 @@ Solaris 11.3, OpenIndiana and Hiaku. Ports to other POSIX/UNIX like operating
 systems should be relatively easy.
 
 NOTE: ALWAYS run ```make clean``` after fetching changes from the git repository
-to force the build to regenerate the build configuration file.
+to force the build to regenerate the build configuration file. Parallel builds using
+make -j are supported.
 
 To build on BSD systems, one requires gcc and GNU make:
 ```
@@ -235,7 +236,7 @@ To build on BSD systems, one requires gcc and GNU make:
 To build on OS X systems, just use:
 ```
 	make clean
-	make
+	make -j
 ```
 
 To build on MINIX, gmake and clang are required:
@@ -289,7 +290,7 @@ To build  with the PCC portable C compiler use:
 To build with the musl C library:
 ```
 	make clean
-	CC=musl-gcc make
+	CC=musl-gcc
 ```
 
 To build with the Intel C compiler icc use:
@@ -302,6 +303,14 @@ To build with the Intel C compiler icx use:
 ```
 	make clean
 	CC=icx make
+```
+
+To perform a cross-compilation using gcc, use a static build, specify
+the toolchain (both CC and CXX). For example, a mips64 cross build:
+
+```
+	make clean
+	STATIC=1 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ make -j $(nproc)
 ```
 
 ## Contributing to stress-ng:
