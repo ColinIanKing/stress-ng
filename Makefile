@@ -25,19 +25,19 @@ VERSION=0.16.02
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
+override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 #
 # Default -O2 if optimization level not defined
 #
 ifeq "$(findstring -O,$(CFLAGS))" ""
-	CFLAGS += -O2
+	override CFLAGS += -O2
 endif
 
 #
 # Pedantic flags
 #
 ifeq ($(PEDANTIC),1)
-CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
+override CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
 	-Wredundant-decls -Wshadow -Wno-missing-field-initializers \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar \
@@ -51,15 +51,15 @@ MACHINE = $(shell uname -m)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
 ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-CFLAGS += -fstack-protector-strong
+override CFLAGS += -fstack-protector-strong
 endif
 endif
 ifeq ($(shell $(CC) $(CFLAGS) -Werror=format-security -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-CFLAGS += -Werror=format-security
+override CFLAGS += -Werror=format-security
 endif
 ifneq ($(findstring pcc,$(CC)),pcc)
 ifeq ($(shell $(CC) $(CFLAGS) -D_FORTIFY_SOURCE=2 -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+override CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 endif
 endif
 endif
@@ -68,7 +68,7 @@ endif
 # Expected build warnings
 #
 ifeq ($(UNEXPECTED),1)
-CFLAGS += -DCHECK_UNEXPECTED
+override CFLAGS += -DCHECK_UNEXPECTED
 endif
 
 #
@@ -90,20 +90,20 @@ endif
 
 ifneq ($(PRESERVE_CFLAGS),1)
 ifeq ($(findstring icc,$(CC)),icc)
-CFLAGS += -no-inline-max-size -no-inline-max-total-size
-CFLAGS += -axAVX,CORE-AVX2,CORE-AVX-I,CORE-AVX512,SSE2,SSE3,SSSE3,SSE4.1,SSE4.2,SANDYBRIDGE,SKYLAKE,SKYLAKE-AVX512,TIGERLAKE,SAPPHIRERAPIDS
-CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-limits
+override CFLAGS += -no-inline-max-size -no-inline-max-total-size
+override CFLAGS += -axAVX,CORE-AVX2,CORE-AVX-I,CORE-AVX512,SSE2,SSE3,SSSE3,SSE4.1,SSE4.2,SANDYBRIDGE,SKYLAKE,SKYLAKE-AVX512,TIGERLAKE,SAPPHIRERAPIDS
+override CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-limits
 endif
 endif
 
 ifeq ($(findstring gcc,$(CC)),gcc)
 ifneq ($(KERNEL),SunOS)
-CFLAGS += -ftree-loop-vectorize
+override CFLAGS += -ftree-loop-vectorize
 endif
 endif
 
 #ifeq ($(findstring clang,$(CC)),clang)
-#CFLAGS += -Weverything
+#override CFLAGS += -Weverything
 #endif
 
 GREP = grep
@@ -120,8 +120,8 @@ endif
 # Static flags, only to be used when using GCC
 #
 ifeq ($(STATIC),1)
-LDFLAGS += -static -z muldefs
-CFLAGS += -DBUILD_STATIC
+override LDFLAGS += -static -z muldefs
+override CFLAGS += -DBUILD_STATIC
 endif
 
 BINDIR=/usr/bin
