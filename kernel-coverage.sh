@@ -528,10 +528,10 @@ do_stress --mutex -1 --mutex-procs 64
 
 do_stress --nanosleep -1 --nanosleep-threads 128
 
-do_s-tress --open -1 --open-fd
-do_s-tress --open -1 --open-max 100000
+do_stress --open -1 --open-fd
+do_stress --open -1 --open-max 100000
 
-do_s-tress --pagemove -1 --pagemove-mlock
+do_stress --pagemove -1 --pagemove-mlock
 
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
