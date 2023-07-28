@@ -1009,8 +1009,10 @@ typedef struct {
 		double start_time ALIGNED(8);		/* Time to complete operation */
 		uint32_t value;				/* Dummy value to operate on */
 	} syncload;
-	stress_checksum_t *checksums;			/* per stressor counter checksum */
-	size_t	checksums_length;			/* size of checksums mapping */
+	struct {
+		stress_checksum_t *checksums;		/* per stressor counter checksum */
+		size_t	length;				/* size of checksums mapping */
+	} checksum;
 	struct {
 		uint8_t allocated[65536 / sizeof(uint8_t)];	/* allocation bitmap */
 		void *lock;				/* lock for allocator */

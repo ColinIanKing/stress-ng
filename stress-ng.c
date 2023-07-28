@@ -3459,15 +3459,15 @@ STRESS_PRAGMA_POP
 	 */
 	len = sizeof(stress_checksum_t) * (size_t)num_procs;
 	sz = (len + page_size) & ~(page_size - 1);
-	g_shared->checksums = (stress_checksum_t *)mmap(NULL, sz,
+	g_shared->checksum.checksums = (stress_checksum_t *)mmap(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
-	if (g_shared->checksums == MAP_FAILED) {
+	if (g_shared->checksum.checksums == MAP_FAILED) {
 		pr_err("cannot mmap checksums, errno=%d (%s)\n",
 			errno, strerror(errno));
 		goto err_unmap_shared;
 	}
-	(void)shim_memset(g_shared->checksums, 0, sz);
-	g_shared->checksums_length = sz;
+	(void)shim_memset(g_shared->checksum.checksums, 0, sz);
+	g_shared->checksum.length = sz;
 
 	/*
 	 *  mmap some pages for testing invalid arguments in
@@ -3491,7 +3491,7 @@ err_unmap_page_ro:
 err_unmap_page_none:
 	(void)munmap((void *)g_shared->mapped.page_none, page_size);
 err_unmap_checksums:
-	(void)munmap((void *)g_shared->checksums, g_shared->checksums_length);
+	(void)munmap((void *)g_shared->checksum.checksums, g_shared->checksum.length);
 err_unmap_shared:
 	(void)munmap((void *)g_shared, g_shared->length);
 	stress_stressors_free();
@@ -3510,7 +3510,7 @@ void stress_shared_unmap(void)
 	(void)munmap((void *)g_shared->mapped.page_wo, page_size);
 	(void)munmap((void *)g_shared->mapped.page_ro, page_size);
 	(void)munmap((void *)g_shared->mapped.page_none, page_size);
-	(void)munmap((void *)g_shared->checksums, g_shared->checksums_length);
+	(void)munmap((void *)g_shared->checksum.checksums, g_shared->checksum.length);
 	(void)munmap((void *)g_shared, g_shared->length);
 }
 
@@ -4193,7 +4193,7 @@ static inline void stress_run_sequential(
 	bool *metrics_success)
 {
 	stress_stressor_t *ss;
-	stress_checksum_t *checksum = g_shared->checksums;
+	stress_checksum_t *checksum = g_shared->checksum.checksums;
 
 	/*
 	 *  Step through each stressor one by one
@@ -4221,7 +4221,7 @@ static inline void stress_run_parallel(
 	bool *resource_success,
 	bool *metrics_success)
 {
-	stress_checksum_t *checksum = g_shared->checksums;
+	stress_checksum_t *checksum = g_shared->checksum.checksums;
 
 	/*
 	 *  Run all stressors in parallel
