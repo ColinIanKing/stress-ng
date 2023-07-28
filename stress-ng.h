@@ -689,8 +689,6 @@ typedef struct stressor_info {
 #define SECTION(s)
 #endif
 
-#define ALIGN_CACHELINE ALIGN64
-
 /* GCC hot attribute */
 #if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 3, 0))
