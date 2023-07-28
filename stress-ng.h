@@ -578,7 +578,7 @@ typedef struct stressor_info {
 /* no return hint */
 #if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(2, 5, 0)) || 	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define NORETURN 	__attribute__ ((noreturn))
+#define NORETURN 	__attribute__((noreturn))
 #else
 #define NORETURN
 #endif
@@ -586,7 +586,7 @@ typedef struct stressor_info {
 /* weak attribute */
 #if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 0, 0)) || 	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0))
-#define WEAK		__attribute__ ((weak))
+#define WEAK		__attribute__((weak))
 #define HAVE_WEAK_ATTRIBUTE
 #else
 #define WEAK
@@ -599,7 +599,7 @@ typedef struct stressor_info {
 #if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0) 				\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define ALWAYS_INLINE	__attribute__ ((always_inline))
+#define ALWAYS_INLINE	__attribute__((always_inline))
 #else
 #define ALWAYS_INLINE
 #endif
@@ -607,7 +607,7 @@ typedef struct stressor_info {
 /* force no inlining hint */
 #if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define NOINLINE	__attribute__ ((noinline))
+#define NOINLINE	__attribute__((noinline))
 #else
 #define NOINLINE
 #endif
@@ -692,7 +692,7 @@ typedef struct stressor_info {
 /* GCC hot attribute */
 #if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 3, 0))
-#define HOT		__attribute__ ((hot))
+#define HOT		__attribute__((hot))
 #else
 #define HOT
 #endif
@@ -3251,7 +3251,7 @@ extern int shim_futex_waitv(struct shim_futex_waitv *waiters, unsigned int nr_fu
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
     (defined(HAVE_COMPILER_GCC) && defined(HAVE_COMPILER_CLANG))
-int unlink(const char *pathname) __attribute__ ((deprecated("use shim_unlink")));
-int unlinkat(int dirfd, const char *pathname, int flags) __attribute__ ((deprecated("use shim_unlinkat")));
-int rmdir(const char *pathname) __attribute__ ((deprecated("use shim_rmdir")));
+int unlink(const char *pathname) __attribute__((deprecated("use shim_unlink")));
+int unlinkat(int dirfd, const char *pathname, int flags) __attribute__((deprecated("use shim_unlinkat")));
+int rmdir(const char *pathname) __attribute__((deprecated("use shim_rmdir")));
 #endif
