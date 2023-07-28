@@ -78,10 +78,10 @@ void pr_lock_init(void)
 	if (!pr_lock_usable())
 		return;
 
-	g_shared->pr_pid = -1;
-	g_shared->pr_lock_count = 0;
-	g_shared->pr_atomic_lock = 0;
-	g_shared->pr_whence = -1.0;
+	g_shared->pr.pid = -1;
+	g_shared->pr.lock_count = 0;
+	g_shared->pr.atomic_lock = 0;
+	g_shared->pr.whence = -1.0;
 }
 
 /*
@@ -104,13 +104,13 @@ static void pr_spin_lock_pid(pid_t pid)
 		while (stress_time_now() < timeout_time) {
 			orig = 0;
 			val = pid;
-			if (__atomic_compare_exchange(&g_shared->pr_atomic_lock, &orig,
+			if (__atomic_compare_exchange(&g_shared->pr.atomic_lock, &orig,
 			    &val, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
 				return;
 			/* Owner dead? force unlock and retry */
 			if ((shim_kill(orig, 0) < 0) && (errno == ESRCH)) {
 				val = 0;
-				__atomic_exchange(&g_shared->pr_atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
+				__atomic_exchange(&g_shared->pr.atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
 				continue;
 			}
 			shim_sched_yield();
@@ -121,7 +121,7 @@ static void pr_spin_lock_pid(pid_t pid)
 		 *  and re-try. Urgh.
 		 */
 		val = 0;
-		__atomic_exchange(&g_shared->pr_atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
+		__atomic_exchange(&g_shared->pr.atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
 		/* reset the timeout */
 		timeout_time = stress_time_now() + PR_TIMEOUT;
 	}
@@ -139,7 +139,7 @@ static void pr_spin_unlock(void)
 		return;
 
 	zero = 0;
-	__atomic_store(&g_shared->pr_atomic_lock, &zero, __ATOMIC_SEQ_CST);
+	__atomic_store(&g_shared->pr.atomic_lock, &zero, __ATOMIC_SEQ_CST);
 }
 
 /*
@@ -157,8 +157,8 @@ static void pr_lock_acquire(const pid_t pid)
 		double whence, now;
 
 		pr_spin_lock_pid(pid);
-		count = g_shared->pr_lock_count;
-		whence = g_shared->pr_whence;
+		count = g_shared->pr.lock_count;
+		whence = g_shared->pr.whence;
 		now = stress_time_now();
 
 		/*
@@ -166,9 +166,9 @@ static void pr_lock_acquire(const pid_t pid)
 		 * up, so pass ownership over
 		 */
 		if (((now - whence) > PR_TIMEOUT) || count == 0) {
-			g_shared->pr_pid = pid;	/* Indicate we now own lock */
-			g_shared->pr_lock_count++;
-			g_shared->pr_whence = now;
+			g_shared->pr.pid = pid;	/* Indicate we now own lock */
+			g_shared->pr.lock_count++;
+			g_shared->pr.whence = now;
 			pr_spin_unlock();
 			return;
 		}
@@ -197,15 +197,15 @@ static void pr_lock_pid(pid_t pid)
 		pid = getpid();
 	pr_spin_lock_pid(pid);
 	/* Already own lock? */
-	if (g_shared->pr_pid == pid) {
-		g_shared->pr_lock_count++;
+	if (g_shared->pr.pid == pid) {
+		g_shared->pr.lock_count++;
 		pr_spin_unlock();
 		return;
 	}
 
-	if (g_shared->pr_pid == -1) {
+	if (g_shared->pr.pid == -1) {
 		/* No owner, acquire lock */
-		g_shared->pr_pid = pid;
+		g_shared->pr.pid = pid;
 		pr_spin_unlock();
 		pr_lock_acquire(pid);
 		return;
@@ -217,12 +217,12 @@ static void pr_lock_pid(pid_t pid)
 	 *  take ownership.
 	 */
 	now = stress_time_now();
-	if (((now - g_shared->pr_whence) > PR_TIMEOUT) ||
-	    (shim_kill(g_shared->pr_pid, 0) == ESRCH)) {
+	if (((now - g_shared->pr.whence) > PR_TIMEOUT) ||
+	    (shim_kill(g_shared->pr.pid, 0) == ESRCH)) {
 		/* force acquire */
-		g_shared->pr_pid = pid;
-		g_shared->pr_lock_count = 0;
-		g_shared->pr_whence = now;
+		g_shared->pr.pid = pid;
+		g_shared->pr.lock_count = 0;
+		g_shared->pr.whence = now;
 		pr_spin_unlock();
 		return;
 	}
@@ -249,11 +249,11 @@ static void pr_unlock_pid(pid_t pid)
 		pid = getpid();
 	pr_spin_lock_pid(pid);
 	/* Do we own the lock? */
-	if (g_shared->pr_pid == pid) {
-		g_shared->pr_lock_count--;
-		if (g_shared->pr_lock_count == 0) {
-			g_shared->pr_pid = -1;
-			g_shared->pr_whence = -1.0;
+	if (g_shared->pr.pid == pid) {
+		g_shared->pr.lock_count--;
+		if (g_shared->pr.lock_count == 0) {
+			g_shared->pr.pid = -1;
+			g_shared->pr.whence = -1.0;
 		}
 	}
 	pr_spin_unlock();
@@ -274,10 +274,10 @@ void pr_lock_exited(const pid_t pid)
 		return;
 
 	pr_spin_lock_pid(pid);
-	if (g_shared->pr_pid == pid) {
-		g_shared->pr_pid = -1;
-		g_shared->pr_lock_count = 0;
-		g_shared->pr_whence = 0.0;
+	if (g_shared->pr.pid == pid) {
+		g_shared->pr.pid = -1;
+		g_shared->pr.lock_count = 0;
+		g_shared->pr.whence = 0.0;
 	}
 	pr_spin_unlock();
 }

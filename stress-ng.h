@@ -958,10 +958,12 @@ typedef struct {
 	void *nullptr;					/* Null pointer */
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
     defined(HAVE_ATOMIC_STORE)
-	double pr_whence;				/* pr_* lock time */
-	pid_t pr_atomic_lock;				/* pr_* atomic spinlock */
-	int pr_lock_count;				/* pr_* lock count, release when zero */
-	pid_t pr_pid;					/* pid owning the lock */
+	struct {
+		double whence;				/* pr_* lock time */
+		pid_t atomic_lock;			/* pr_* atomic spinlock */
+		int lock_count;				/* pr_* lock count, release when zero */
+		pid_t pid;				/* pid owning the lock */
+	} pr;
 #endif
 	uint64_t klog_errors;				/* Number of errors detected in klog */
 	bool caught_sigint;				/* True if SIGINT caught */
