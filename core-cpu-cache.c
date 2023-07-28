@@ -561,6 +561,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			2 * sizeof(*(cpu->caches)));
+		(void)close(fd);
 		return 0;
 	}
 
