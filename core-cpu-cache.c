@@ -573,7 +573,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 		    ((buffer[0] == 'i') || (buffer[0] == 'd')))   {
 			size_t size;
 
-			if (sscanf(ptr + 1, "%zdKiB)", &size) == 1) {
+			if (sscanf(ptr + 1, "%zuKiB)", &size) == 1) {
 				cpu->caches[cpu->cache_count].type =
 					(buffer[0] == 'i') ? CACHE_TYPE_INSTRUCTION : CACHE_TYPE_DATA;
 				cpu->caches[cpu->cache_count].size = size * KB;
