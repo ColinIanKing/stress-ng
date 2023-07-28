@@ -320,7 +320,8 @@ static int stress_schedmix_child(const stress_args_t *args)
 #endif
 
 	do {
-#if defined(HAVE_SCHED_GETATTR) &&	\
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
 		struct shim_sched_attr attr;
 #else
