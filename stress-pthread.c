@@ -442,7 +442,7 @@ static int stress_pthread(const stress_args_t *args)
 	sigset_t set;
 	double count = 0.0, duration = 0.0, average;
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, stress_min_pthread_stack_size());
+	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, stress_get_min_pthread_stack_size());
 #endif
 #if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
     defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\

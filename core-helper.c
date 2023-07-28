@@ -3403,10 +3403,10 @@ size_t stress_get_min_sig_stack_size(void)
 }
 
 /*
- *  stress_min_pthread_stack_size()
+ *  stress_get_min_pthread_stack_size()
  *	return the minimum size of stack for a pthread
  */
-size_t stress_min_pthread_stack_size(void)
+size_t stress_get_min_pthread_stack_size(void)
 {
 	static long sz = -1;
 	long min, tmp;
