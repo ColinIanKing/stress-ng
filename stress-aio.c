@@ -273,7 +273,7 @@ static int stress_aio(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
-	fs_type = stress_fs_type(filename);
+	fs_type = stress_get_fs_type(filename);
 	(void)shim_unlink(filename);
 
 	stress_file_rw_hint_short(fd);

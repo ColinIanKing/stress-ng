@@ -192,7 +192,7 @@ static int stress_copy_file(const stress_args_t *args)
 		rc = stress_exit_status(errno);
 		pr_fail("%s: ftruncated failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno),
-			stress_fs_type(tmp));
+			stress_get_fs_type(tmp));
 		goto tidy_in;
 	}
 

@@ -138,7 +138,7 @@ static int stress_fallocate(const stress_args_t *args)
 		free(mode_perms);
 		return ret;
 	}
-	fs_type = stress_fs_type(filename);
+	fs_type = stress_get_fs_type(filename);
 	(void)shim_unlink(filename);
 
 	pipe_ret = pipe(pipe_fds);

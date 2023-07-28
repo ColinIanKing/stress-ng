@@ -266,7 +266,7 @@ static int stress_access(const stress_args_t *args)
 			args->name, filename2, errno, strerror(errno));
 		goto tidy;
 	}
-	fs_type = stress_fs_type(filename1);
+	fs_type = stress_get_fs_type(filename1);
 
 	/* metrics in a shared page for child stats to be available to parent */
 	metrics = (stress_metrics_t *)mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,

@@ -127,7 +127,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(utimes(filename, timevals) < 0)) {
 				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 		} else {
@@ -135,7 +135,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(utimes(filename, timevals) < 0)) {
 				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 			duration += stress_time_now() - t;
@@ -146,7 +146,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(utimes(filename, NULL) < 0)) {
 				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 		} else {
@@ -154,7 +154,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(utimes(filename, NULL) < 0)) {
 				pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 			duration += stress_time_now() - t;
@@ -172,7 +172,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(futimens(fd, NULL) < 0)) {
 				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 		} else {
@@ -180,7 +180,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(futimens(fd, NULL) < 0)) {
 				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 			duration += stress_time_now() - t;
@@ -203,7 +203,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 		} else {
@@ -211,7 +211,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 			duration += stress_time_now() - t;
@@ -228,7 +228,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 		} else {
@@ -236,7 +236,7 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			if (UNLIKELY(futimens(fd, ts) < 0)) {
 				pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				break;
 			}
 			duration += stress_time_now() - t;
@@ -336,7 +336,7 @@ STRESS_PRAGMA_POP
 				if (UNLIKELY(shim_utime(filename, &utbuf) < 0)) {
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
-						stress_fs_type(filename));
+						stress_get_fs_type(filename));
 					break;
 				}
 			} else {
@@ -344,7 +344,7 @@ STRESS_PRAGMA_POP
 				if (UNLIKELY(shim_utime(filename, &utbuf) < 0)) {
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
-						stress_fs_type(filename));
+						stress_get_fs_type(filename));
 					break;
 				}
 				duration += stress_time_now() - t;
@@ -369,7 +369,7 @@ STRESS_PRAGMA_POP
 				if (UNLIKELY(shim_utime(filename, NULL) < 0)) {
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
-						stress_fs_type(filename));
+						stress_get_fs_type(filename));
 					break;
 				}
 			} else {
@@ -377,7 +377,7 @@ STRESS_PRAGMA_POP
 				if (UNLIKELY(shim_utime(filename, NULL) < 0)) {
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
-						stress_fs_type(filename));
+						stress_get_fs_type(filename));
 					break;
 				}
 				duration += stress_time_now() - t;

@@ -123,7 +123,7 @@ static int stress_verity(const stress_args_t *args)
 				pr_err("%s: cannot write %s, errno=%d (%s)%s\n",
 					args->name, filename,
 					errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				(void)close(fd);
 				goto clean;
 			}
@@ -137,7 +137,7 @@ static int stress_verity(const stress_args_t *args)
 			ret = stress_exit_status(errno);
 			pr_err("%s: cannot re-open %s, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
-				stress_fs_type(filename));
+				stress_get_fs_type(filename));
 			goto clean;
 		}
 
@@ -184,7 +184,7 @@ static int stress_verity(const stress_args_t *args)
 				pr_inf("%s: verity ioctl FS_IOC_ENABLE_VERITY "
 					"failed on file %s, errno=%d (%s)%s\n",
 					args->name, filename, errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				ret = EXIT_FAILURE;
 			}
 			(void)close(fd);
@@ -241,7 +241,7 @@ static int stress_verity(const stress_args_t *args)
 				pr_err("%s: cannot read %s, errno=%d (%s)%s\n",
 					args->name, filename,
 					errno, strerror(errno),
-					stress_fs_type(filename));
+					stress_get_fs_type(filename));
 				(void)close(fd);
 				goto clean;
 			}

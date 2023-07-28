@@ -146,7 +146,7 @@ static int stress_chdir(const stress_args_t *args)
 	if (!got_statbuf && *path) {
 		pr_fail("%s: fstat on %s failed, errno=%d (%s)%s\n",
 			args->name, path, errno, strerror(errno),
-			stress_fs_type(path));
+			stress_get_fs_type(path));
 		goto abort;
 	}
 
@@ -168,7 +168,7 @@ static int stress_chdir(const stress_args_t *args)
 						pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
 							args->name, chdir_info[i].path,
 							errno, strerror(errno),
-							stress_fs_type(path));
+							stress_get_fs_type(path));
 						goto abort;
 					}
 				}
@@ -179,7 +179,7 @@ static int stress_chdir(const stress_args_t *args)
 					pr_fail("%s: fchdir failed, errno=%d (%s)%s\n",
 						args->name,
 						errno, strerror(errno),
-						stress_fs_type(chdir_info[i].path));
+						stress_get_fs_type(chdir_info[i].path));
 					goto abort;
 				}
 			}
@@ -196,7 +196,7 @@ static int stress_chdir(const stress_args_t *args)
 					pr_fail("%s: chdir / failed, errno=%d (%s)%s\n",
 						args->name,
 						errno, strerror(errno),
-						stress_fs_type("/"));
+						stress_get_fs_type("/"));
 					goto abort;
 				}
 			}
@@ -225,7 +225,7 @@ static int stress_chdir(const stress_args_t *args)
 					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
 						args->name, cwd,
 						errno, strerror(errno),
-						stress_fs_type(cwd));
+						stress_get_fs_type(cwd));
 					goto tidy;
 				}
 			}
@@ -263,7 +263,7 @@ abort:
 	if (chdir(cwd) < 0)
 		pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
 			args->name, cwd, errno, strerror(errno),
-			stress_fs_type(cwd));
+			stress_get_fs_type(cwd));
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

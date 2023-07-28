@@ -1723,7 +1723,7 @@ void pr_runinfo(void)
 {
 	char real_path[PATH_MAX], *real_path_ret;
 	const char *temp_path = stress_get_temp_path();
-	const char *fs_type = stress_fs_type(temp_path);
+	const char *fs_type = stress_get_fs_type(temp_path);
 	size_t freemem, totalmem, freeswap, totalswap;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
@@ -3647,10 +3647,10 @@ const char *stress_fs_magic_to_name(const unsigned long fs_magic)
 }
 
 /*
- *  stress_fs_type()
+ *  stress_get_fs_type()
  *	return the file system type that the given filename is in
  */
-const char *stress_fs_type(const char *filename)
+const char *stress_get_fs_type(const char *filename)
 {
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
     defined(HAVE_SYS_STATFS_H)

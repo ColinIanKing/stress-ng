@@ -254,7 +254,7 @@ restart:
 
 		pr_err("%s: fopen failed: errno=%d: (%s)%s\n",
 			args->name, errno, strerror(errno),
-			stress_fs_type(oldname));
+			stress_get_fs_type(oldname));
 		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
 		(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 #if defined(EXERCISE_RENAMEAT) ||	\

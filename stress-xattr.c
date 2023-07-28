@@ -91,7 +91,7 @@ static int stress_xattr(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto out;
 	}
-	fs_type = stress_fs_type(filename);
+	fs_type = stress_get_fs_type(filename);
 	(void)snprintf(bad_filename, sizeof(bad_filename), "%s_bad", filename);
 
 	hugevalue = calloc(1, hugevalue_sz);

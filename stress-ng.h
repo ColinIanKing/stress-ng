@@ -2706,7 +2706,7 @@ extern void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum);
 extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
 extern WARN_UNUSED const char *stress_fs_magic_to_name(const unsigned long fs_magic);
-extern WARN_UNUSED const char *stress_fs_type(const char *filename);
+extern WARN_UNUSED const char *stress_get_fs_type(const char *filename);
 extern void stress_close_fds(int *fds, const size_t n);
 extern void stress_file_rw_hint_short(const int fd);
 extern void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name);

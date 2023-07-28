@@ -167,7 +167,7 @@ static int stress_link_generic(
 				rc = stress_exit_status(errno);
 				pr_fail("%s: %s failed, errno=%d (%s)%s\n",
 					args->name, funcname, errno, strerror(errno),
-					stress_fs_type(oldpath));
+					stress_get_fs_type(oldpath));
 				n = i;
 				break;
 			}
@@ -195,7 +195,7 @@ static int stress_link_generic(
 						if ((rret < 0) && (errno != ENOSYS)) {
 							pr_fail("%s: readlinkat failed, errno=%d (%s)%s\n",
 							args->name, errno, strerror(errno),
-							stress_fs_type(filename));
+							stress_get_fs_type(filename));
 						}
 						(void)close(dir_fd);
 					}
@@ -207,7 +207,7 @@ static int stress_link_generic(
 					rc = stress_exit_status(errno);
 					pr_fail("%s: readlink failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
-						stress_fs_type(newpath));
+						stress_get_fs_type(newpath));
 				} else {
 					buf[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
@@ -233,7 +233,7 @@ static int stress_link_generic(
 				rc = stress_exit_status(errno);
 				pr_fail("%s: lstat failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
-					stress_fs_type(newpath));
+					stress_get_fs_type(newpath));
 			}
 #if defined(O_DIRECTORY)
 			if (temp_dir_fd > 0)

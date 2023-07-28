@@ -89,7 +89,7 @@ static int stress_sigbus(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
         }
-	fs_type = stress_fs_type(filename);
+	fs_type = stress_get_fs_type(filename);
 	(void)shim_unlink(filename);
 
 	ret = shim_posix_fallocate(fd, 0, page_size * 2);

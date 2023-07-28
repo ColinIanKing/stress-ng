@@ -262,7 +262,7 @@ static int stress_get(const stress_args_t *args)
 			if (!ptr) {
 				pr_fail("%s: getcwd %s failed, errno=%d (%s)%s\n",
 					args->name, path, errno, strerror(errno),
-					stress_fs_type(path));
+					stress_get_fs_type(path));
 			} else {
 				/* getcwd returned a string: is it the same as path? */
 				if (strncmp(ptr, path, sizeof(path))) {
