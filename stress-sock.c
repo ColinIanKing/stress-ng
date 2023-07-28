@@ -888,7 +888,6 @@ static int OPTIMIZE3 stress_sock_server(
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
-	struct ifreq ifaddr;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	const size_t page_size = args->page_size;
@@ -944,9 +943,15 @@ static int OPTIMIZE3 stress_sock_server(
 		goto die_close;
 	}
 
-	(void)shim_memset(&ifaddr, 0, sizeof(ifaddr));
-	(void)shim_strlcpy(ifaddr.ifr_name, sock_if ? sock_if : "lo", sizeof(ifaddr.ifr_name));
-	VOID_RET(int, ioctl(fd, SIOCGIFADDR, &ifaddr));
+#if defined(SIOCGIFADDR)
+	{
+		struct ifreq ifaddr;
+
+		(void)shim_memset(&ifaddr, 0, sizeof(ifaddr));
+		(void)shim_strlcpy(ifaddr.ifr_name, sock_if ? sock_if : "lo", sizeof(ifaddr.ifr_name));
+		VOID_RET(int, ioctl(fd, SIOCGIFADDR, &ifaddr));
+	}
+#endif
 
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = stress_exit_status(errno);
