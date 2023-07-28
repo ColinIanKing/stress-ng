@@ -2371,7 +2371,7 @@ int stress_sighandler_default(const int signum)
  *  stress_handle_stop_stressing()
  *	set flag to indicate to stressor to stop stressing
  */
-void stress_handle_stop_stressing(int signum)
+void stress_handle_stop_stressing(const int signum)
 {
 	(void)signum;
 

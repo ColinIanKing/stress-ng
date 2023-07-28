@@ -2807,7 +2807,7 @@ extern void stress_sigaltstack_disable(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
 extern int stress_sighandler_default(const int signum);
-extern void stress_handle_stop_stressing(int dummy);
+extern void stress_handle_stop_stressing(const int signum);
 extern WARN_UNUSED int stress_sig_stop_stressing(const char *name,
 	const int sig);
 extern int stress_sigrestore(const char *name, const int signum,
