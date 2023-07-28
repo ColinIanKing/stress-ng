@@ -337,7 +337,7 @@ static int OPTIMIZE3 hash_put(void *handle, const uint32_t x, const uint32_t y, 
  */
 static sparse_hash_node_t OPTIMIZE3 *hash_get_node(void *handle, const uint32_t x, const uint32_t y)
 {
-	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
+	const sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
 	sparse_hash_node_t *node;
 	size_t hash;
 	const uint64_t xy = ((uint64_t)x << 32) | y;
@@ -481,7 +481,7 @@ static int OPTIMIZE3 qhash_put(void *handle, const uint32_t x, const uint32_t y,
  */
 static sparse_qhash_node_t OPTIMIZE3 *qhash_get_node(void *handle, const uint32_t x, const uint32_t y)
 {
-	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
+	const sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
 	sparse_qhash_node_t *node;
 	size_t hash;
 	const uint64_t xy = ((uint64_t)x << 32) | y;
