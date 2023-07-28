@@ -3716,10 +3716,10 @@ static char *stress_get_proc_self_exe_path(char *path, const char *proc_path, co
 }
 
 /*
- *  stress_proc_self_exe()
+ *  stress_get_proc_self_exe()
  *  	determine the path to the executable, return NULL if not possible/failed
  */
-char *stress_proc_self_exe(char *path, const size_t path_len)
+char *stress_get_proc_self_exe(char *path, const size_t path_len)
 {
 #if defined(__linux__)
 	return stress_get_proc_self_exe_path(path, "/proc/self/exe", path_len);

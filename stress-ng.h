@@ -2839,7 +2839,7 @@ extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED bool stress_little_endian(void);
-extern WARN_UNUSED char *stress_proc_self_exe(char *path, const size_t path_len);
+extern WARN_UNUSED char *stress_get_proc_self_exe(char *path, const size_t path_len);
 extern WARN_UNUSED void *stress_shared_heap_init(void);
 extern void stress_shared_heap_deinit(void);
 extern WARN_UNUSED void *stress_shared_heap_malloc(const size_t size);
