@@ -934,7 +934,15 @@ typedef struct shared_heap {
 
 /* The stress-ng global shared memory segment */
 typedef struct {
-	size_t length;					/* Size of segment */
+	size_t length;					/* Size of shared segment */
+	double time_started;				/* Time when stressing started */
+	const uint64_t zero;				/* zero'd 64 bit data */
+	void *nullptr;					/* Null pointer */
+	uint64_t klog_errors;				/* Number of errors detected in klog */
+	bool caught_sigint;				/* True if SIGINT caught */
+	pid_t (*vfork)(void);				/* vfork syscall */
+	stress_mapped_t mapped;				/* mmap'd pages to help testing */
+	shared_heap_t shared_heap;
 	struct {
 		void *lock;				/* Cacheline stressor lock */
 		int index;				/* Cacheline stressor index */
@@ -948,7 +956,6 @@ typedef struct {
 		uint32_t failed;			/* Number of stressors failed */
 		uint32_t alarmed;			/* Number of stressors got SIGALRM */
 	} instance_count;
-	double time_started;				/* Time when stressing started */
 	struct {
 		uint8_t	*buffer;			/* Shared memory cache buffer */
 		uint64_t size;				/* buffer size in bytes */
@@ -956,8 +963,6 @@ typedef struct {
 		uint16_t padding1;			/* alignment padding */
 		uint32_t ways;				/* cache ways size */
 	} mem_cache;
-	const uint64_t zero;				/* zero'd 64 bit data */
-	void *nullptr;					/* Null pointer */
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
     defined(HAVE_ATOMIC_STORE)
 	struct {
@@ -967,16 +972,10 @@ typedef struct {
 		pid_t pid;				/* pid owning the lock */
 	} pr;
 #endif
-	uint64_t klog_errors;				/* Number of errors detected in klog */
-	bool caught_sigint;				/* True if SIGINT caught */
-	pid_t (*vfork)(void);				/* vfork syscall */
-	stress_mapped_t mapped;				/* mmap'd pages to help testing */
-	shared_heap_t shared_heap;
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */
 		void *lock;				/* protection lock */
 	} warn_once;
-	uint32_t warn_once_flags;			/* Warn once flags */
 	union {
 		uint64_t val64[1] ALIGN64;
 		uint32_t val32[2] ALIGN64;
