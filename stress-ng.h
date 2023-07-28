@@ -941,11 +941,13 @@ typedef struct {
 		uint8_t *buffer;			/* Cacheline stressor buffer */
 		size_t size;				/* Cacheline buffer size */
 	} cacheline;
-	uint32_t stressors_started;			/* Number of stressors started */
-	uint32_t stressors_exited;			/* Number of stressors exited */
-	uint32_t stressors_reaped;			/* Number of stressors reaped */
-	uint32_t stressors_failed;			/* Number of stressors failed */
-	uint32_t stressors_alarmed;			/* Number of stressors got SIGALRM */
+	struct {
+		uint32_t started;			/* Number of stressors started */
+		uint32_t exited;			/* Number of stressors exited */
+		uint32_t reaped;			/* Number of stressors reaped */
+		uint32_t failed;			/* Number of stressors failed */
+		uint32_t alarmed;			/* Number of stressors got SIGALRM */
+	} instance_count;
 	double time_started;				/* Time when stressing started */
 	struct {
 		uint8_t	*buffer;			/* Shared memory cache buffer */

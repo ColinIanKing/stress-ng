@@ -1540,7 +1540,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 		g_shared->caught_sigint = true;
 		if (g_sigalarmed) {
 			if (!*g_sigalarmed) {
-				g_shared->stressors_alarmed++;
+				g_shared->instance_count.alarmed++;
 				*g_sigalarmed = true;
 			}
 		}
@@ -1841,7 +1841,7 @@ static void stress_get_processors(int32_t *count)
 static inline void stress_stressor_finished(pid_t *pid)
 {
 	*pid = 0;
-	g_shared->stressors_reaped++;
+	g_shared->instance_count.reaped++;
 }
 
 /*
@@ -2556,7 +2556,7 @@ again:
 
 				(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
 				stress_set_proc_state(name, STRESS_STATE_START);
-				g_shared->stressors_started++;
+				g_shared->instance_count.started++;
 
 				(void)sched_settings_apply(true);
 				(void)atexit(stress_child_atexit);
@@ -2721,10 +2721,10 @@ child_exit:
 				if (terminate_signum)
 					rc = EXIT_SIGNALED;
 				pr_lock_exited(child_pid);
-				g_shared->stressors_exited++;
-				g_shared->stressors_started--;
+				g_shared->instance_count.exited++;
+				g_shared->instance_count.started--;
 				if (rc == EXIT_FAILURE)
-					g_shared->stressors_failed++;
+					g_shared->instance_count.failed++;
 				_exit(rc);
 			default:
 				if (pid > -1) {
@@ -3411,9 +3411,11 @@ static inline void stress_shared_map(const int32_t num_procs)
 	/* Paraniod */
 	(void)shim_memset(g_shared, 0, sz);
 	g_shared->length = sz;
-	g_shared->stressors_started = 0;
-	g_shared->stressors_exited = 0;
-	g_shared->stressors_reaped = 0;
+	g_shared->instance_count.started = 0;
+	g_shared->instance_count.exited = 0;
+	g_shared->instance_count.reaped = 0;
+	g_shared->instance_count.failed = 0;
+	g_shared->instance_count.alarmed = 0;
 	g_shared->time_started = stress_time_now();
 
 	/*
