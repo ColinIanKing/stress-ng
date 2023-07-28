@@ -107,7 +107,7 @@ static int stress_set(const stress_args_t *args)
 {
 	size_t i;
 	int ret_hostname;
-	const size_t hostname_len = stress_hostname_length();
+	const size_t hostname_len = stress_get_hostname_length();
 	const size_t longname_len = hostname_len << 1;
 	char *hostname;
 	char *longname;
