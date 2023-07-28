@@ -203,6 +203,7 @@ static size_t stress_mlock_max_lockable(void)
 static void stress_mlock_misc(const stress_args_t *args, const size_t page_size, const bool oom_avoid)
 {
 	(void)args;
+	(void)oom_avoid;
 
 	/*
 	 *  mlock/munlock with invalid or unusual arguments
