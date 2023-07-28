@@ -259,6 +259,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
  */
 int shim_posix_fallocate(int fd, off_t offset, off_t len)
 {
+#if defined(HAVE_POSIX_FALLOCATE)
 	int ret;
 	const off_t chunk_len = (off_t)(1 * MB);
 
@@ -283,6 +284,9 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 	} while (len > 0);
 
 	return 0;
+#else
+	return shim_emulate_fallocate(fd, offset, len);
+#endif
 }
 
 
