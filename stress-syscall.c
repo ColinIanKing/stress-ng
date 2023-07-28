@@ -5129,7 +5129,7 @@ static int syscall_riscv_flush_icache(void)
 	int ret;
 	char *start, *end;
 
-	(void)stress_text_addr(&start, &end);
+	(void)stress_exec_text_addr(&start, &end);
 	t1 = syscall_time_now();
         ret = (int)syscall(__NR_riscv_flush_icache, (uintptr_t)start, (uintptr_t)end, 1UL);
 	t2 = syscall_time_now();

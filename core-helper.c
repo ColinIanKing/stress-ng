@@ -2845,10 +2845,10 @@ char *stress_const_optdup(const char *opt)
 }
 
 /*
- *  stress_text_addr()
+ *  stress_get_exec_text_addr()
  *	return length and start/end addresses of text segment
  */
-size_t stress_text_addr(char **start, char **end)
+size_t stress_exec_text_addr(char **start, char **end)
 {
 #if defined(HAVE_EXECUTABLE_START)
 	extern char __executable_start;

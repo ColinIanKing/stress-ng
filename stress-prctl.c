@@ -585,7 +585,7 @@ static int stress_prctl_child(
 		const intptr_t mask = ~((intptr_t)args->page_size - 1);
 		intptr_t addr;
 
-		(void)stress_text_addr(&start, &end);
+		(void)stress_exec_text_addr(&start, &end);
 
 		addr = ((intptr_t)start) & mask;
 		VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_START_CODE, addr, 0, 0));

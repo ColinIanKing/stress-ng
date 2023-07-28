@@ -310,7 +310,7 @@ static void stress_opcode_text(
 {
 	char *text_start, *text_end;
 	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
-	const size_t text_len = stress_text_addr(&text_start, &text_end) - 8;
+	const size_t text_len = stress_exec_text_addr(&text_start, &text_end) - 8;
 	uint8_t *ops;
 	size_t offset;
 

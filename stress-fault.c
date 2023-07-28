@@ -57,7 +57,7 @@ static int stress_fault(const stress_args_t *args)
 	int ret;
 	NOCLOBBER int i;
 	char *start, *end;
-	const size_t len = stress_text_addr(&start, &end);
+	const size_t len = stress_exec_text_addr(&start, &end);
 	const size_t page_size = args->page_size;
 	void *mapto;
 #if defined(HAVE_GETRUSAGE) &&		\

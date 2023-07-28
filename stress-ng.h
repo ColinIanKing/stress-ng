@@ -2834,7 +2834,7 @@ extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
 extern WARN_UNUSED int stress_drop_capabilities(const char *name);
 extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
 extern WARN_UNUSED char *stress_const_optdup(const char *opt);
-extern size_t stress_text_addr(char **start, char **end);
+extern size_t stress_exec_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
