@@ -3700,10 +3700,10 @@ int stress_exit_status(const int err)
 }
 
 /*
- *  stress_proc_self_exe_path()
+ *  stress_get_proc_self_exe_path()
  *	get process' executable path via readlink
  */
-static char *stress_proc_self_exe_path(char *path, const char *proc_path, const size_t path_len)
+static char *stress_get_proc_self_exe_path(char *path, const char *proc_path, const size_t path_len)
 {
 	ssize_t len;
 
@@ -3722,11 +3722,11 @@ static char *stress_proc_self_exe_path(char *path, const char *proc_path, const 
 char *stress_proc_self_exe(char *path, const size_t path_len)
 {
 #if defined(__linux__)
-	return stress_proc_self_exe_path(path, "/proc/self/exe", path_len);
+	return stress_get_proc_self_exe_path(path, "/proc/self/exe", path_len);
 #elif defined(__NetBSD__)
-	return stress_proc_self_exe_path(path, "/proc/curproc/exe", path_len);
+	return stress_get_proc_self_exe_path(path, "/proc/curproc/exe", path_len);
 #elif defined(__DragonFly__)
-	return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+	return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 #elif defined(__FreeBSD__)
 #if defined(CTL_KERN) &&	\
     defined(KERN_PROC) &&	\
@@ -3738,18 +3738,18 @@ char *stress_proc_self_exe(char *path, const size_t path_len)
 	ret = sysctl(mib, SIZEOF_ARRAY(mib), (void *)path, &tmp_path_len, NULL, 0);
 	if (ret < 0) {
 		/* fall back to procfs */
-		return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+		return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 	}
 	return path;
 #else
 	/* fall back to procfs */
-	return stress_proc_self_exe_path(path, "/proc/curproc/file", path_len);
+	return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 #endif
 #elif defined(__sun__) && 	\
       defined(HAVE_GETEXECNAME)
 	const char *execname = getexecname();
 
-	(void)stress_proc_self_exe_path;
+	(void)stress_get_proc_self_exe_path;
 
 	if (!execname)
 		return NULL;
@@ -3757,7 +3757,7 @@ char *stress_proc_self_exe(char *path, const size_t path_len)
 	(void)shim_strlcpy(path, execname, path_len);
 	return path;
 #else
-	(void)stress_proc_self_exe_path;
+	(void)stress_get_proc_self_exe_path;
 
 	(void)path;
 	(void)path_len;
