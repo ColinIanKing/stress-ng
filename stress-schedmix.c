@@ -42,17 +42,6 @@
 #define HAVE_SCHEDMIX_SEM
 #endif
 
-
-#if defined(HAVE_SCHEDMIX_SEM)
-typedef struct {
-	sem_t sem;
-	pid_t owner;
-} stress_schedmix_sem_t;
-
-static stress_schedmix_sem_t *schedmix_sem;
-#endif
-
-
 #define MIN_SCHEDMIX_PROCS	(1)
 #define MAX_SCHEDMIX_PROCS	(64)
 #define DEFAULT_SCHEDMIX_PROCS	(16)
@@ -88,6 +77,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
      !defined(__serenity__)
+
+#if defined(HAVE_SCHEDMIX_SEM)
+typedef struct {
+	sem_t sem;
+	pid_t owner;
+} stress_schedmix_sem_t;
+
+static stress_schedmix_sem_t *schedmix_sem;
+#endif
 
 static const int policies[] = {
 #if defined(SCHED_IDLE)
