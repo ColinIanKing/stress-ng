@@ -106,8 +106,8 @@ static int stress_cacheline_adjacent(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	register uint8_t val8 = *(data8);
 	volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
 
@@ -154,8 +154,8 @@ static int stress_cacheline_copy(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	const volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
 
 	(void)parent;
@@ -190,8 +190,8 @@ static int stress_cacheline_inc(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	register uint8_t val8 = *(data8);
 
 	(void)parent;
@@ -230,8 +230,8 @@ static int stress_cacheline_rdwr(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	register uint8_t val8 = *(data8);
 
 	(void)parent;
@@ -305,8 +305,8 @@ static int stress_cacheline_mix(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)(uintptr_t)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)(uintptr_t)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	static uint8_t tmp = 0xa5;
 
 	(void)parent;
@@ -336,10 +336,10 @@ static int stress_cacheline_rdrev64(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
-	const ssize_t cacheline_size = (ssize_t)g_shared->cacheline_size;
-	uintptr_t aligned_cacheline = (uintptr_t)cacheline & ~(l1_cacheline_size - 1);
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
+	const ssize_t cacheline_size = (ssize_t)g_shared->cacheline.size;
+	uintptr_t aligned_cacheline = (uintptr_t)buffer & ~(l1_cacheline_size - 1);
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -374,10 +374,10 @@ static int stress_cacheline_rdfwd64(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
-	const size_t cacheline_size = g_shared->cacheline_size;
-	uintptr_t aligned_cacheline = (uintptr_t)cacheline & ~(l1_cacheline_size - 1);
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
+	const size_t cacheline_size = g_shared->cacheline.size;
+	uintptr_t aligned_cacheline = (uintptr_t)buffer & ~(l1_cacheline_size - 1);
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -412,8 +412,8 @@ static int stress_cacheline_rdints(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	volatile uint16_t *data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
 	volatile uint32_t *data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
 	volatile uint64_t *data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
@@ -465,8 +465,8 @@ static int stress_cacheline_bits(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -505,8 +505,8 @@ static int stress_cacheline_atomicinc(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
-	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *buffer = (volatile uint8_t *)g_shared->cacheline.buffer;
+	volatile uint8_t *data8 = buffer + index;
 	register uint8_t val8 = *(data8);
 
 	(void)parent;
@@ -661,8 +661,8 @@ static int stress_cacheline_child(
  */
 static void stress_cacheline_init(void)
 {
-	g_shared->cacheline_index = 0;
-	g_shared->cacheline_lock = stress_lock_create();
+	g_shared->cacheline.index = 0;
+	g_shared->cacheline.lock = stress_lock_create();
 }
 
 /*
@@ -671,10 +671,10 @@ static void stress_cacheline_init(void)
  */
 static void stress_cacheline_deinit(void)
 {
-	if (g_shared->cacheline_lock) {
-		stress_lock_destroy(g_shared->cacheline_lock);
-		g_shared->cacheline_lock = NULL;
-		g_shared->cacheline_index = 0;
+	if (g_shared->cacheline.lock) {
+		stress_lock_destroy(g_shared->cacheline.lock);
+		g_shared->cacheline.lock = NULL;
+		g_shared->cacheline.index = 0;
 	}
 }
 
@@ -682,13 +682,13 @@ static int stress_cacheline_next_index(void)
 {
 	int ret;
 
-	if (stress_lock_acquire(g_shared->cacheline_lock) < 0)
+	if (stress_lock_acquire(g_shared->cacheline.lock) < 0)
 		return -1;
 
-	ret = g_shared->cacheline_index;
-	g_shared->cacheline_index++;
+	ret = g_shared->cacheline.index;
+	g_shared->cacheline.index++;
 
-	if (stress_lock_release(g_shared->cacheline_lock) < 0)
+	if (stress_lock_release(g_shared->cacheline.lock) < 0)
 		return -1;
 
 	return ret * 2;
@@ -711,7 +711,7 @@ static int stress_cacheline(const stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
-	if (!g_shared->cacheline_lock) {
+	if (!g_shared->cacheline.lock) {
 		pr_inf("%s: failed to initialized cacheline lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
