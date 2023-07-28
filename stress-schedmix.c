@@ -115,7 +115,9 @@ static inline void stress_schedmix_waste_time(const stress_args_t *args)
 	int i, n, status;
 	pid_t pid;
 	double min1, min5, min15;
+#if defined(__linux__)
 	char buf[256];
+#endif
 	struct tms tms_buf;
 #if defined(HAVE_GETRUSAGE) &&	\
     (defined(RUSAGE_SELF) || defined(RUSAGE_CHILDREN))
