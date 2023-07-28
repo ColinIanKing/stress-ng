@@ -1652,7 +1652,7 @@ void stress_rndstr(char *str, size_t len)
  *  stress_rndbuf()
  *	fill buffer with pseudorandom bytes
  */
-void stress_rndbuf(void *buf, size_t len)
+void stress_rndbuf(void *buf, const size_t len)
 {
 	register char *ptr = (char *)buf;
 	register const char *end = ptr + len;
