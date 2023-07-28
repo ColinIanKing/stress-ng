@@ -1848,13 +1848,13 @@ int stress_cache_alloc(const char *name)
 
 	cpu_caches = stress_cpu_cache_get_all_details();
 
-	if (g_shared->mem_cache_size > 0)
+	if (g_shared->mem_cache.size > 0)
 		goto init_done;
 
 	if (!cpu_caches) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache details\n", name);
-		g_shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
 
@@ -1862,49 +1862,49 @@ int stress_cache_alloc(const char *name)
 	if (max_cache_level == 0) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache level details\n", name);
-		g_shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
-	if (g_shared->mem_cache_level > max_cache_level) {
+	if (g_shared->mem_cache.level > max_cache_level) {
 		if (stress_warn_once())
 			pr_dbg("%s: using cache maximum level L%d\n", name,
 				max_cache_level);
-		g_shared->mem_cache_level = max_cache_level;
+		g_shared->mem_cache.level = max_cache_level;
 	}
 
-	cache = stress_cpu_cache_get(cpu_caches, g_shared->mem_cache_level);
+	cache = stress_cpu_cache_get(cpu_caches, g_shared->mem_cache.level);
 	if (!cache) {
 		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as no suitable "
 				"cache found\n", name);
-		g_shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
 
-	if (g_shared->mem_cache_ways > 0) {
+	if (g_shared->mem_cache.ways > 0) {
 		uint64_t way_size;
 
-		if (g_shared->mem_cache_ways > cache->ways) {
+		if (g_shared->mem_cache.ways > cache->ways) {
 			if (stress_warn_once())
 				pr_inf("%s: cache way value too high - "
 					"defaulting to %d (the maximum)\n",
 					name, cache->ways);
-			g_shared->mem_cache_ways = cache->ways;
+			g_shared->mem_cache.ways = cache->ways;
 		}
 		way_size = cache->size / cache->ways;
 
 		/* only fill the specified number of cache ways */
-		g_shared->mem_cache_size = way_size * g_shared->mem_cache_ways;
+		g_shared->mem_cache.size = way_size * g_shared->mem_cache.ways;
 	} else {
 		/* fill the entire cache */
-		g_shared->mem_cache_size = cache->size;
+		g_shared->mem_cache.size = cache->size;
 	}
 
-	if (!g_shared->mem_cache_size) {
+	if (!g_shared->mem_cache.size) {
 		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as "
 				"unable to determine cache size\n", name);
-		g_shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE;
 	}
 
 	(void)memset(cache_info, 0, sizeof(cache_info));
@@ -1924,12 +1924,12 @@ int stress_cache_alloc(const char *name)
 init_done:
 
 	stress_free_cpu_caches(cpu_caches);
-	g_shared->mem_cache =
-		(uint8_t *)mmap(NULL, g_shared->mem_cache_size,
+	g_shared->mem_cache.buffer =
+		(uint8_t *)mmap(NULL, g_shared->mem_cache.size,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (g_shared->mem_cache == MAP_FAILED) {
-		g_shared->mem_cache = NULL;
+	if (g_shared->mem_cache.buffer == MAP_FAILED) {
+		g_shared->mem_cache.buffer = NULL;
 		pr_err("%s: failed to mmap shared cache buffer, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
@@ -1948,7 +1948,7 @@ init_done:
 	}
 	if (stress_warn_once())
 		pr_dbg("%s: shared cache buffer size: %" PRIu64 "K\n",
-			name, g_shared->mem_cache_size / 1024);
+			name, g_shared->mem_cache.size / 1024);
 
 	return 0;
 }
@@ -1959,8 +1959,8 @@ init_done:
  */
 void stress_cache_free(void)
 {
-	if (g_shared->mem_cache)
-		(void)munmap((void *)g_shared->mem_cache, g_shared->mem_cache_size);
+	if (g_shared->mem_cache.buffer)
+		(void)munmap((void *)g_shared->mem_cache.buffer, g_shared->mem_cache.size);
 	if (g_shared->cacheline.buffer)
 		(void)munmap((void *)g_shared->cacheline.buffer, g_shared->cacheline.size);
 }

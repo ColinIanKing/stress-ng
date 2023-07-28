@@ -947,11 +947,13 @@ typedef struct {
 	uint32_t stressors_failed;			/* Number of stressors failed */
 	uint32_t stressors_alarmed;			/* Number of stressors got SIGALRM */
 	double time_started;				/* Time when stressing started */
-	uint8_t	*mem_cache;				/* Shared memory cache */
-	uint64_t mem_cache_size;			/* Bytes */
-	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
-	uint16_t padding1;				/* alignment padding */
-	uint32_t mem_cache_ways;			/* cache ways size */
+	struct {
+		uint8_t	*buffer;			/* Shared memory cache buffer */
+		uint64_t size;				/* buffer size in bytes */
+		uint16_t level;				/* 1=L1, 2=L2, 3=L3 */
+		uint16_t padding1;			/* alignment padding */
+		uint32_t ways;				/* cache ways size */
+	} mem_cache;
 	const uint64_t zero;				/* zero'd 64 bit data */
 	void *nullptr;					/* Null pointer */
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\

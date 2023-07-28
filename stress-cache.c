@@ -222,27 +222,27 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  * The compiler optimises out the unused cache flush and mfence calls
  */
 #define CACHE_WRITE_MOD(flags)						\
-	for (j = 0; LIKELY(j < mem_cache_size); j++) {			\
+	for (j = 0; LIKELY(j < buffer_size); j++) {			\
 		i += inc;						\
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;	\
+		i = (i >= buffer_size) ? i - buffer_size : i;		\
 		k += 33;						\
-		k = (k >= mem_cache_size) ? k - mem_cache_size : k;	\
+		k = (k >= buffer_size) ? k - buffer_size : k;		\
 									\
 		if ((flags) & CACHE_FLAGS_PREFETCH) {			\
-			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
+			shim_builtin_prefetch(&buffer[i + 1], 1, 1);	\
 		}							\
 		if ((flags) & CACHE_FLAGS_CLDEMOTE) {			\
-			SHIM_CLDEMOTE(&mem_cache[i]);			\
+			SHIM_CLDEMOTE(&buffer[i]);			\
 		}							\
 		if ((flags) & CACHE_FLAGS_CLFLUSHOPT) {			\
-			SHIM_CLFLUSHOPT(&mem_cache[i]);			\
+			SHIM_CLFLUSHOPT(&buffer[i]);			\
 		}							\
-		mem_cache[i] += mem_cache[k] + r;			\
+		buffer[i] += buffer[k] + r;				\
 		if ((flags) & CACHE_FLAGS_CLWB) {			\
-			SHIM_CLWB(&mem_cache[i]);			\
+			SHIM_CLWB(&buffer[i]);				\
 		}							\
 		if ((flags) & CACHE_FLAGS_CLFLUSH) {			\
-			SHIM_CLFLUSH(&mem_cache[i]);			\
+			SHIM_CLFLUSH(&buffer[i]);			\
 		}							\
 		if ((flags) & CACHE_FLAGS_FENCE) {			\
 			shim_mfence();					\
@@ -264,14 +264,14 @@ static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
 	stress_metrics_t *metrics)					\
 {									\
 	register uint64_t i = *pi, j, k = *pk;				\
-	uint8_t *const mem_cache = g_shared->mem_cache;			\
-	const uint64_t mem_cache_size = g_shared->mem_cache_size;	\
+	uint8_t *const buffer = g_shared->mem_cache.buffer;		\
+	const uint64_t buffer_size = g_shared->mem_cache.size;		\
 	double t;							\
 									\
 	t = stress_time_now();						\
 	CACHE_WRITE_MOD(x);						\
 	metrics->duration += stress_time_now() - t;			\
-	metrics->count += (double)mem_cache_size;			\
+	metrics->count += (double)buffer_size;				\
 	stress_bogo_add(args, j >> 10);					\
 									\
 	*pi = i;							\
@@ -614,8 +614,8 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 
 static void stress_cache_read(
 	const stress_args_t *args,
-	const uint8_t *mem_cache,
-	const uint64_t mem_cache_size,
+	const uint8_t *buffer,
+	const uint64_t buffer_size,
 	const uint64_t inc,
 	uint64_t *i_ptr,
 	uint64_t *k_ptr,
@@ -628,12 +628,12 @@ static void stress_cache_read(
 	double t;
 
 	t = stress_time_now();
-	for (j = 0; j < mem_cache_size; j++) {
+	for (j = 0; j < buffer_size; j++) {
 		i += inc;
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+		i = (i >= buffer_size) ? i - buffer_size : i;
 		k += 33;
-		k = (k >= mem_cache_size) ? k - mem_cache_size : k;
-		total += mem_cache[i] + mem_cache[k];
+		k = (k >= buffer_size) ? k - buffer_size : k;
+		total += buffer[i] + buffer[k];
 		if (!stress_continue_flag())
 			break;
 	}
@@ -649,8 +649,8 @@ static void stress_cache_read(
 
 static void stress_cache_write(
 	const stress_args_t *args,
-	uint8_t *mem_cache,
-	const uint64_t mem_cache_size,
+	uint8_t *buffer,
+	const uint64_t buffer_size,
 	const uint64_t inc,
 	uint64_t *i_ptr,
 	uint64_t *k_ptr,
@@ -663,14 +663,14 @@ static void stress_cache_write(
 	double t;
 
 	t = stress_time_now();
-	for (j = 0; j < mem_cache_size; j++) {
+	for (j = 0; j < buffer_size; j++) {
 		register uint8_t v = j & 0xff;
 		i += inc;
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+		i = (i >= buffer_size) ? i - buffer_size : i;
 		k += 33;
-		k = (k >= mem_cache_size) ? k - mem_cache_size : k;
-		mem_cache[i] = v;
-		mem_cache[k] = v;
+		k = (k >= buffer_size) ? k - buffer_size : k;
+		buffer[i] = v;
+		buffer[k] = v;
 		if (!stress_continue_flag())
 			break;
 	}
@@ -718,12 +718,12 @@ static int stress_cache(const stress_args_t *args)
 	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	NOCLOBBER uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
-	uint8_t *const mem_cache = g_shared->mem_cache;
-	const uint64_t mem_cache_size = g_shared->mem_cache_size;
-	uint64_t i = stress_mwc64modn(mem_cache_size);
-	uint64_t k = i + (mem_cache_size >> 1);
+	uint8_t *const buffer = g_shared->mem_cache.buffer;
+	const uint64_t buffer_size = g_shared->mem_cache.size;
+	uint64_t i = stress_mwc64modn(buffer_size);
+	uint64_t k = i + (buffer_size >> 1);
 	NOCLOBBER uint64_t r = 0;
-	uint64_t inc = (mem_cache_size >> 2) + 1;
+	uint64_t inc = (buffer_size >> 2) + 1;
 	void *bad_addr;
 	size_t j;
 	stress_metrics_t metrics[STRESS_CACHE_MAX];
@@ -759,7 +759,7 @@ static int stress_cache(const stress_args_t *args)
 	(void)stress_get_setting("cache-flags", &cache_flags);
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
-			args->name, mem_cache_size / 1024);
+			args->name, buffer_size / 1024);
 
 #if defined(HAVE_SCHED_GETAFFINITY) && 	\
     defined(HAVE_SCHED_GETCPU)
@@ -902,10 +902,10 @@ static int stress_cache(const stress_args_t *args)
 			cache_mixed_ops_funcs[flags](args, inc, r, &i, &k, &metrics[STRESS_CACHE_MIXED_OPS]);
 			break;
 		case STRESS_CACHE_READ:
-			stress_cache_read(args, mem_cache, mem_cache_size, inc, &i, &k, &metrics[STRESS_CACHE_READ]);
+			stress_cache_read(args, buffer, buffer_size, inc, &i, &k, &metrics[STRESS_CACHE_READ]);
 			break;
 		case STRESS_CACHE_WRITE:
-			stress_cache_write(args, mem_cache, mem_cache_size, inc, &i, &k, &metrics[STRESS_CACHE_WRITE]);
+			stress_cache_write(args, buffer, buffer_size, inc, &i, &k, &metrics[STRESS_CACHE_WRITE]);
 			break;
 		}
 		r++;
@@ -947,7 +947,7 @@ static int stress_cache(const stress_args_t *args)
 		UNEXPECTED
 #endif
 		(void)shim_cacheflush((char *)stress_cache, 8192, SHIM_ICACHE);
-		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, SHIM_DCACHE);
+		(void)shim_cacheflush((char *)buffer, (int)buffer_size, SHIM_DCACHE);
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 		__builtin___clear_cache((void *)stress_cache,
 					(void *)((char *)stress_cache + 64));
@@ -965,12 +965,12 @@ static int stress_cache(const stress_args_t *args)
 				break;
 
 			if (!jmpret)
-				stress_cache_flush(mem_cache, bad_addr, (int)args->page_size);
+				stress_cache_flush(buffer, bad_addr, (int)args->page_size);
 		}
 next:
 		/* Move forward a bit */
 		i += inc;
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+		i = (i >= buffer_size) ? i - buffer_size : i;
 
 	} while (stress_continue(args));
 

@@ -4573,11 +4573,12 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Allocate shared cache memory
 	 */
-	g_shared->mem_cache_level = DEFAULT_CACHE_LEVEL;
-	(void)stress_get_setting("cache-size", &g_shared->mem_cache_size);
-	(void)stress_get_setting("cache-level", &g_shared->mem_cache_level);
-	g_shared->mem_cache_ways = 0;
-	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
+	g_shared->mem_cache.size = 0;
+	(void)stress_get_setting("cache-size", &g_shared->mem_cache.size);
+	g_shared->mem_cache.level = DEFAULT_CACHE_LEVEL;
+	(void)stress_get_setting("cache-level", &g_shared->mem_cache.level);
+	g_shared->mem_cache.ways = 0;
+	(void)stress_get_setting("cache-ways", &g_shared->mem_cache.ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
