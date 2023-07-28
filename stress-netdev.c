@@ -36,7 +36,8 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__) &&	\
     defined(SIOCGIFCONF) &&	\
-    defined(HAVE_IFCONF)
+    defined(HAVE_IFCONF) &&	\
+    defined(HAVE_IFREQ)
 
 /*
  *  As per man 7 netdevice advise, workaround glibc 2.1 missing

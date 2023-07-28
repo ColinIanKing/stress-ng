@@ -52,6 +52,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LINUX_IF_TUN_H) &&	\
+    defined(HAVE_IFREQ) &&		\
     defined(IFF_TUN) &&			\
     defined(TUNSETIFF) && 		\
     defined(TUNSETOWNER) && 		\

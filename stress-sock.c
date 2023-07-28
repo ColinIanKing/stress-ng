@@ -943,7 +943,8 @@ static int OPTIMIZE3 stress_sock_server(
 		goto die_close;
 	}
 
-#if defined(SIOCGIFADDR)
+#if defined(SIOCGIFADDR) &&	\
+    defined(HAVE_IFREQ)
 	{
 		struct ifreq ifaddr;
 
