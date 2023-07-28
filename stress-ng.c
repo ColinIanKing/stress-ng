@@ -4618,6 +4618,9 @@ int main(int argc, char **argv, char **envp)
 			&success, &resource_success, &metrics_success);
 	}
 
+	/* Stop alarms */
+	(void)alarm(0);
+
 	/* Stop thasher process */
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_stop();
@@ -4629,7 +4632,6 @@ int main(int argc, char **argv, char **envp)
 	 */
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		stress_metrics_dump(yaml, ticks_per_sec);
-
 
 	stress_metrics_check(&success);
 	stress_interrupts_dump(yaml, stressors_head);
