@@ -373,7 +373,11 @@ static int stress_opcode(const stress_args_t *args)
 	int rc;
 	size_t i, opcode_method = 0;
 	const stress_opcode_method_info_t *method;
+#if STRESS_OPCODE_SIZE >= 8
 	const size_t opcode_bytes = STRESS_OPCODE_SIZE >> 3;
+#else
+	const size_t opcode_bytes = 1;
+#endif
 	const size_t opcode_loops = page_size / opcode_bytes;
 	double op_start, rate, t, duration, percent;
 	const double num_opcodes = pow(2.0, STRESS_OPCODE_SIZE);
