@@ -2744,11 +2744,11 @@ extern void stress_check_power_of_2(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 
 /* Misc helper funcs */
-extern WARN_UNUSED size_t stress_sig_stack_size(void);
+extern WARN_UNUSED size_t stress_get_sig_stack_size(void);
 extern WARN_UNUSED size_t stress_min_sig_stack_size(void);
 extern WARN_UNUSED size_t stress_min_pthread_stack_size(void);
 
-#define STRESS_SIGSTKSZ		(stress_sig_stack_size())
+#define STRESS_SIGSTKSZ		(stress_get_sig_stack_size())
 #define STRESS_MINSIGSTKSZ	(stress_min_sig_stack_size())
 
 extern void stress_shared_unmap(void);
