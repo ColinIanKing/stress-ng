@@ -3317,12 +3317,12 @@ size_t stress_get_hostname_length(void)
 }
 
 /*
- *  stress_min_aux_sig_stack_size()
+ *  stress_get_min_aux_sig_stack_size()
  *	For ARM we should check AT_MINSIGSTKSZ as this
  *	also includes SVE register saving overhead
  *	https://blog.linuxplumbersconf.org/2017/ocw/system/presentations/4671/original/plumbers-dm-2017.pdf
  */
-static inline long stress_min_aux_sig_stack_size(void)
+static inline long stress_get_min_aux_sig_stack_size(void)
 {
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_GETAUXVAL) &&	\
@@ -3355,7 +3355,7 @@ size_t stress_sig_stack_size(void)
 	if (sz > 0)
 		return (size_t)sz;
 
-	min = stress_min_aux_sig_stack_size();
+	min = stress_get_min_aux_sig_stack_size();
 #if defined(_SC_SIGSTKSZ)
 	tmp = sysconf(_SC_SIGSTKSZ);
 	if (tmp > 0)
@@ -3387,7 +3387,7 @@ size_t stress_min_sig_stack_size(void)
 	if (sz > 0)
 		return (size_t)sz;
 
-	min = stress_min_aux_sig_stack_size();
+	min = stress_get_min_aux_sig_stack_size();
 #if defined(_SC_MINSIGSTKSZ)
 	tmp = sysconf(_SC_MINSIGSTKSZ);
 	if (tmp > 0)
@@ -3415,7 +3415,7 @@ size_t stress_min_pthread_stack_size(void)
 	if (sz > 0)
 		return (size_t)sz;
 
-	min = stress_min_aux_sig_stack_size();
+	min = stress_get_min_aux_sig_stack_size();
 #if defined(__SC_THREAD_STACK_MIN_VALUE)
 	tmp = sysconf(__SC_THREAD_STACK_MIN_VALUE);
 	if (tmp > 0)
