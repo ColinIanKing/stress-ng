@@ -74,6 +74,7 @@ static size_t pipe_get_size(const int fd)
 		return PIPE_BUF;
 	return sz;
 #else
+	(void)fd;
 	return PIPE_BUF;
 #endif
 }
