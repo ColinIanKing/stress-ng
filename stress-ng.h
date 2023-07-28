@@ -283,7 +283,7 @@ typedef unsigned long int __kernel_ulong_t;
 
 /* GNU HURD and other systems that don't define PATH_MAX */
 #ifndef PATH_MAX
-#define PATH_MAX 		(4096)
+#define PATH_MAX (4096)
 #endif
 
 /*
@@ -401,24 +401,24 @@ typedef struct {
 
 /* native setting types */
 typedef enum {
-	TYPE_ID_UNDEFINED,
-	TYPE_ID_UINT8,
-	TYPE_ID_INT8,
-	TYPE_ID_UINT16,
-	TYPE_ID_INT16,
-	TYPE_ID_UINT32,
-	TYPE_ID_INT32,
-	TYPE_ID_UINT64,
-	TYPE_ID_INT64,
-	TYPE_ID_SIZE_T,
-	TYPE_ID_SSIZE_T,
-	TYPE_ID_UINT,
-	TYPE_ID_INT,
-	TYPE_ID_ULONG,
-	TYPE_ID_LONG,
-	TYPE_ID_OFF_T,
-	TYPE_ID_STR,
-	TYPE_ID_BOOL,
+	TYPE_ID_UNDEFINED,		/* no-id */
+	TYPE_ID_UINT8,			/* uint8_t */
+	TYPE_ID_INT8,			/* int8_t */
+	TYPE_ID_UINT16,			/* uint16_t */
+	TYPE_ID_INT16,			/* int16_t */
+	TYPE_ID_UINT32,			/* uint32_t */
+	TYPE_ID_INT32,			/* int32_t */
+	TYPE_ID_UINT64,			/* uint64_t */
+	TYPE_ID_INT64,			/* int64_t */
+	TYPE_ID_SIZE_T,			/* size_t */
+	TYPE_ID_SSIZE_T,		/* ssize_t */
+	TYPE_ID_UINT,			/* unsigned int */
+	TYPE_ID_INT,			/* signed int */
+	TYPE_ID_ULONG,			/* unsigned long */
+	TYPE_ID_LONG,			/* signed long */
+	TYPE_ID_OFF_T,			/* off_t */
+	TYPE_ID_STR,			/* char * */
+	TYPE_ID_BOOL,			/* bool */
 } stress_type_id_t;
 
 typedef struct {
@@ -450,27 +450,31 @@ typedef struct stress_setting {
 	stress_type_id_t type_id;	/* setting type */
 	bool		global;		/* true if global */
 	union {				/* setting value */
-		uint8_t		uint8;
-		int8_t		int8;
-		uint16_t	uint16;
-		int16_t		int16;
-		uint32_t	uint32;
-		int32_t		int32;
-		uint64_t	uint64;
-		int64_t		int64;
-		size_t		size;
-		ssize_t		ssize;
-		unsigned int	uint;
-		signed int	sint;
-		unsigned long	ulong;
-		signed long	slong;
-		off_t		off;
-		char 		*str;
-		bool		boolean;
+		uint8_t		uint8;	/* TYPE_ID_UINT8 */
+		int8_t		int8;	/* TYPE_ID_INT8 */
+		uint16_t	uint16;	/* TYPE_ID_UINT16 */
+		int16_t		int16;	/* TYPE_ID_INT16 */
+		uint32_t	uint32;	/* TYPE_ID_UINT32 */
+		int32_t		int32;	/* TYPE_ID_INT32 */
+		uint64_t	uint64;	/* TYPE_ID_UINT64 */
+		int64_t		int64;	/* TYPE_ID_INT64 */
+		size_t		size;	/* TYPE_ID_SIZE_T */
+		ssize_t		ssize;	/* TYPE_ID_SSIZE_T */
+		unsigned int	uint;	/* TYPE_ID_UINT */
+		signed int	sint;	/* TYPE_ID_INT */
+		unsigned long	ulong;	/* TYPE_ID_ULONG */
+		signed long	slong;	/* TYPE_ID_LONG */
+		off_t		off;	/* TYPE_ID_OFF_T */
+		char 		*str;	/* TYPE_ID_STR */
+		bool		boolean;/* TYPE_ID_BOOL */
 		uintptr_t	uintptr;/* for func pointers */
 	} u;
 } stress_setting_t;
 
+/*
+ *  Scratch space to store computed values to ensure
+ *  compiler does not compile away calculations
+ */
 typedef union {
 	volatile uint8_t	uint8_val;
 	volatile uint16_t	uint16_val;
@@ -528,9 +532,9 @@ typedef struct {
 } stress_opt_set_func_t;
 
 typedef enum {
-	VERIFY_NONE	= 0x00,
-	VERIFY_OPTIONAL = 0x01,
-	VERIFY_ALWAYS   = 0x02,
+	VERIFY_NONE	= 0x00,		/* no verification */
+	VERIFY_OPTIONAL = 0x01,		/* --verify can enable verification */
+	VERIFY_ALWAYS   = 0x02,		/* verification always enabled */
 } stress_verify_t;
 
 /* stressor information */
@@ -734,7 +738,7 @@ typedef struct stressor_info {
 /* use syscall if we can, fallback to vfork otherwise */
 #define shim_vfork()		g_shared->vfork()
 
-/* Logging helpers */
+/* Printing/Logging helpers */
 extern int  pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_runinfo(void);
@@ -934,54 +938,54 @@ typedef struct shared_heap {
 
 /* The stress-ng global shared memory segment */
 typedef struct {
-	size_t length;					/* Size of shared segment */
-	double time_started;				/* Time when stressing started */
-	const uint64_t zero;				/* zero'd 64 bit data */
-	void *nullptr;					/* Null pointer */
-	uint64_t klog_errors;				/* Number of errors detected in klog */
-	bool caught_sigint;				/* True if SIGINT caught */
-	pid_t (*vfork)(void);				/* vfork syscall */
-	stress_mapped_t mapped;				/* mmap'd pages to help testing */
+	size_t length;			/* Size of shared segment */
+	double time_started;		/* Time when stressing started */
+	const uint64_t zero;		/* zero'd 64 bit data */
+	void *nullptr;			/* Null pointer */
+	uint64_t klog_errors;		/* Number of errors detected in klog */
+	bool caught_sigint;		/* True if SIGINT caught */
+	pid_t (*vfork)(void);		/* vfork syscall */
+	stress_mapped_t mapped;		/* mmap'd pages to help testing */
 	shared_heap_t shared_heap;
 	struct {
-		void *lock;				/* Cacheline stressor lock */
-		int index;				/* Cacheline stressor index */
-		uint8_t *buffer;			/* Cacheline stressor buffer */
-		size_t size;				/* Cacheline buffer size */
+		void *lock;		/* Cacheline stressor lock */
+		int index;		/* Cacheline stressor index */
+		uint8_t *buffer;	/* Cacheline stressor buffer */
+		size_t size;		/* Cacheline buffer size */
 	} cacheline;
 	struct {
-		uint32_t started;			/* Number of stressors started */
-		uint32_t exited;			/* Number of stressors exited */
-		uint32_t reaped;			/* Number of stressors reaped */
-		uint32_t failed;			/* Number of stressors failed */
-		uint32_t alarmed;			/* Number of stressors got SIGALRM */
+		uint32_t started;	/* Number of stressors started */
+		uint32_t exited;	/* Number of stressors exited */
+		uint32_t reaped;	/* Number of stressors reaped */
+		uint32_t failed;	/* Number of stressors failed */
+		uint32_t alarmed;	/* Number of stressors got SIGALRM */
 	} instance_count;
 	struct {
-		uint8_t	*buffer;			/* Shared memory cache buffer */
-		uint64_t size;				/* buffer size in bytes */
-		uint16_t level;				/* 1=L1, 2=L2, 3=L3 */
-		uint16_t padding1;			/* alignment padding */
-		uint32_t ways;				/* cache ways size */
+		uint8_t	*buffer;	/* Shared memory cache buffer */
+		uint64_t size;		/* buffer size in bytes */
+		uint16_t level;		/* 1=L1, 2=L2, 3=L3 */
+		uint16_t padding1;	/* alignment padding */
+		uint32_t ways;		/* cache ways size */
 	} mem_cache;
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
     defined(HAVE_ATOMIC_STORE)
 	struct {
-		double whence;				/* pr_* lock time */
-		pid_t atomic_lock;			/* pr_* atomic spinlock */
-		int lock_count;				/* pr_* lock count, release when zero */
-		pid_t pid;				/* pid owning the lock */
+		double whence;		/* pr_* lock time */
+		pid_t atomic_lock;	/* pr_* atomic spinlock */
+		int lock_count;		/* pr_* lock count, release when zero */
+		pid_t pid;		/* pid owning the lock */
 	} pr;
 #endif
 	struct {
-		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */
-		void *lock;				/* protection lock */
+		uint32_t hash[STRESS_WARN_HASH_MAX]; /* hash patterns */
+		void *lock;		/* protection lock */
 	} warn_once;
 	union {
 		uint64_t val64[1] ALIGN64;
 		uint32_t val32[2] ALIGN64;
 		uint16_t val16[4] ALIGN64;
 		uint8_t	 val8[8] ALIGN64;
-	} atomic;					/* Shared atomic temp vars */
+	} atomic;			/* Shared atomic temp vars */
 	struct {
 		/* futexes must be aligned to avoid -EINVAL */
 		uint32_t futex[STRESS_PROCS_MAX] ALIGNED(4);/* Shared futexes */
@@ -990,36 +994,36 @@ typedef struct {
 #if defined(HAVE_SEM_SYSV) && 	\
     defined(HAVE_KEY_T)
 	struct {
-		key_t key_id;				/* System V semaphore key id */
-		int sem_id;				/* System V semaphore id */
-		bool init;				/* System V semaphore initialized */
+		key_t key_id;		/* System V semaphore key id */
+		int sem_id;		/* System V semaphore id */
+		bool init;		/* System V semaphore initialized */
 	} sem_sysv;
 #endif
 #if defined(STRESS_PERF_STATS)
 	struct {
-		bool no_perf;				/* true = Perf not available */
-		void *lock;				/* lock on no_perf updates */
+		bool no_perf;		/* true = Perf not available */
+		void *lock;		/* lock on no_perf updates */
 	} perf;
 #endif
 #if defined(STRESS_THERMAL_ZONES)
-	stress_tz_info_t *tz_info;			/* List of valid thermal zones */
+	stress_tz_info_t *tz_info;	/* List of valid thermal zones */
 #endif
 	struct {
-		double start_time ALIGNED(8);		/* Time to complete operation */
-		uint32_t value;				/* Dummy value to operate on */
+		double start_time ALIGNED(8);	/* Time to complete operation */
+		uint32_t value;		/* Dummy value to operate on */
 	} syncload;
 	struct {
-		stress_checksum_t *checksums;		/* per stressor counter checksum */
-		size_t	length;				/* size of checksums mapping */
+		stress_checksum_t *checksums;	/* per stressor counter checksum */
+		size_t	length;		/* size of checksums mapping */
 	} checksum;
 	struct {
 		uint8_t allocated[65536 / sizeof(uint8_t)];	/* allocation bitmap */
-		void *lock;				/* lock for allocator */
+		void *lock;		/* lock for allocator */
 	} net_port_map;
 	struct {
-		uint32_t ready;				/* incremented when rawsock stressor is ready */
+		uint32_t ready;		/* incremented when rawsock stressor is ready */
 	} rawsock;
-	stress_stats_t stats[];				/* Shared statistics */
+	stress_stats_t stats[];		/* Shared statistics */
 } stress_shared_t;
 
 /* Command line long options */
@@ -2416,8 +2420,8 @@ typedef struct {
 
 /* Per stressor information */
 typedef struct stress_stressor_info {
-	struct stress_stressor_info *next;	/* next proc info struct in list */
-	struct stress_stressor_info *prev;	/* prev proc info struct in list */
+	struct stress_stressor_info *next; /* next proc info struct in list */
+	struct stress_stressor_info *prev; /* prev proc info struct in list */
 	const stress_t *stressor;	/* stressor */
 	stress_stats_t **stats;		/* stressor stats info */
 	int32_t started_instances;	/* count of started instances */
