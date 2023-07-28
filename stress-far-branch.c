@@ -322,7 +322,7 @@ static int stress_far_branch(const stress_args_t *args)
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		const char *sig_name = stress_signal_name(sig_num);
+		const char *sig_name = stress_get_signal_name(sig_num);
 		static bool dumped = false;
 
 		if (dumped)

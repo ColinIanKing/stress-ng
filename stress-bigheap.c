@@ -205,7 +205,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	 */
 	if (ret) {
 		if (!segv_reported) {
-			const char *signame = stress_signal_name(signo);
+			const char *signame = stress_get_signal_name(signo);
 
 			segv_reported = true;
 			pr_inf("%s: caught signal %d (%s), si_code = %d, fault address %p, phase %d '%s', alloc = %p .. %p\n",

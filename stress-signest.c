@@ -255,7 +255,7 @@ finish:
 
 	for (sz = 1, n = 0, i = 0; i < SIZEOF_ARRAY(signals); i++) {
 		if (signal_info.signalled & (1U << i)) {
-			const char *name = stress_signal_name(signals[i]);
+			const char *name = stress_get_signal_name(signals[i]);
 
 			n++;
 			sz += name ? (strlen(name) + 1) : 32;
@@ -267,7 +267,7 @@ finish:
 		if (buf) {
 			for (ptr = buf, i = 0; i < SIZEOF_ARRAY(signals); i++) {
 				if (signal_info.signalled & (1U << i)) {
-					const char *name = stress_signal_name(signals[i]);
+					const char *name = stress_get_signal_name(signals[i]);
 
 					if (name) {
 						if (strncmp(name, "SIG", 3) == 0)

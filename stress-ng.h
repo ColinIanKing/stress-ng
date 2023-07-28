@@ -2642,7 +2642,7 @@ extern int stress_temp_dir_rm(const char *name, const pid_t pid,
 extern int stress_temp_dir_rm_args(const stress_args_t *args);
 extern void stress_cwd_readwriteable(void);
 
-extern const char *stress_signal_name(const int signum);
+extern const char *stress_get_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
 extern WARN_UNUSED int stress_sigchld_set_handler(const stress_args_t *args);
 

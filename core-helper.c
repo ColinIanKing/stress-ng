@@ -1581,10 +1581,10 @@ void stress_cwd_readwriteable(void)
 }
 
 /*
- *  stress_signal_name()
+ *  stress_get_signal_name()
  *	return string version of signal number, NULL if not found
  */
-const char *stress_signal_name(const int signum)
+const char *stress_get_signal_name(const int signum)
 {
 	size_t i;
 
@@ -1602,7 +1602,7 @@ const char *stress_signal_name(const int signum)
 const char *stress_strsignal(const int signum)
 {
 	static char buffer[40];
-	const char *str = stress_signal_name(signum);
+	const char *str = stress_get_signal_name(signum);
 
 	if (str)
 		(void)snprintf(buffer, sizeof(buffer), "signal %d '%s'",
