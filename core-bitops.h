@@ -111,7 +111,7 @@ static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
 static inline uint32_t OPTIMIZE3 stress_bitreverse32(const uint32_t val)
 {
 #if defined(HAVE_BUILTIN_BITREVERSE)
-	return  __builtin_bitreverse32(i);
+	return  __builtin_bitreverse32(val);
 #else
 	register uint32_t r, v, s = (sizeof(val) * 8) - 1;
 
