@@ -198,7 +198,7 @@ static int stress_signest(const stress_args_t *args)
 	int n, ret, rc;
 	uint8_t *altstack;
 	char *buf, *ptr;
-	const size_t altstack_size = stress_min_sig_stack_size() * SIZEOF_ARRAY(signals);
+	const size_t altstack_size = stress_get_min_sig_stack_size() * SIZEOF_ARRAY(signals);
 	double rate;
 	NOCLOBBER double t, duration;
 

@@ -3371,10 +3371,10 @@ size_t stress_get_sig_stack_size(void)
 }
 
 /*
- *  stress_min_sig_stack_size()
+ *  stress_get_min_sig_stack_size()
  *	wrapper for STRESS_MINSIGSTKSZ
  */
-size_t stress_min_sig_stack_size(void)
+size_t stress_get_min_sig_stack_size(void)
 {
 	static long sz = -1;
 	long min;
