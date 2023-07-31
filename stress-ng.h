@@ -2896,6 +2896,7 @@ extern int stress_kill_and_wait_many(const stress_args_t *args,
 extern WARN_UNUSED int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val);
 extern void stress_unset_chattr_flags(const char *pathname);
 extern int stress_munmap_retry_enomem(void *addr, size_t length);
+extern int stress_swapoff(const char *path);
 
 /* process information */
 extern void stress_dump_processes(void);

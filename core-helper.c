@@ -70,6 +70,10 @@
 #include <sys/statvfs.h>
 #endif
 
+#if defined(HAVE_SYS_SWAP_H)
+#include <sys/swap.h>
+#endif
+
 #if defined(HAVE_SYS_SYSCTL_H)
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_CPP_OFF
@@ -3993,4 +3997,32 @@ int stress_munmap_retry_enomem(void *addr, size_t length)
 		errno = saved_errno;
 	}
 	return ret;
+}
+
+/*
+ *  stress_swapoff()
+ *	swapoff and retry if EINTR occurs
+ */
+int stress_swapoff(const char *path)
+{
+#if defined(HAVE_SYS_SWAP_H) && \
+    defined(HAVE_SWAP)
+	int i;
+
+	for (i = 0; i < 25; i++) {
+		int ret;
+
+		errno = 0;
+		ret = swapoff(path);
+		if (ret == 0)
+			return ret;
+		if ((ret < 0) && (errno != EINTR))
+			break;
+	}
+	return -1;
+#else
+	(void)path;
+	errno = ENOSYS;
+	return -1;
+#endif
 }

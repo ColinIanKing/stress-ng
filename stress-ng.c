@@ -2019,6 +2019,8 @@ static void stress_clean_dir_files(
 			free(names[n]);
 			stress_unset_inode_flags(temp_path, 0);
 			stress_unset_chattr_flags(path);
+			if (strstr(path, "swap"))
+				(void)stress_swapoff(path);
 			(void)shim_unlink(path);
 			break;
 		default:

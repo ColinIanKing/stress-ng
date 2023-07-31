@@ -99,27 +99,6 @@ static int stress_swap_supported(const char *name)
 	return 0;
 }
 
-/*
- *  stress_swapoff()
- *	swapoff and retry if EINTR occurs
- */
-static int stress_swapoff(const char *path)
-{
-	int i;
-
-	for (i = 0; i < 25; i++) {
-		int ret;
-
-		errno = 0;
-		ret = swapoff(path);
-		if (ret == 0)
-			return ret;
-		if ((ret < 0) && (errno != EINTR))
-			break;
-	}
-	return -1;
-}
-
 static int stress_swap_zero(
 	const stress_args_t *args,
 	const int fd,
@@ -259,7 +238,7 @@ static void stress_swap_clean_dir(const stress_args_t *args)
 		}
 	}
 	(void)closedir(dir);
-	rmdir(path);
+	(void)rmdir(path);
 }
 
 /*
