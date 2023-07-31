@@ -3527,16 +3527,15 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			stress_stressor_t *ss = stressors_head;
 			unsigned int id = stressors[i].id;
 
-			while (ss) {
-				stress_stressor_t *next = ss->next;
-
+			for (ss = stressors_head; ss; ss = ss->next) {
+				if (ss->ignore)
+					continue;
 				if ((ss->stressor->id == id) &&
 				    ss->num_instances &&
 				    (stressors[i].info->supported(stressors[i].name) < 0)) {
 					stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 					*unsupported = true;
 				}
-				ss = next;
 			}
 		}
 	}
