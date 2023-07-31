@@ -235,6 +235,33 @@ static void stress_swap_check_swapped(
 	free(vec);
 }
 
+static void stress_swap_clean_dir(const stress_args_t *args)
+{
+	char path[PATH_MAX];
+	DIR *dir;
+	struct dirent *d;
+
+	stress_temp_dir(path, sizeof(path), args->name, args->pid, args->instance);
+	dir = opendir(path);
+	if (!dir)
+		return;
+
+	while ((d = readdir(dir)) != NULL) {
+		struct stat stat_buf;
+		char filename[PATH_MAX];
+
+		stress_mk_filename(filename, sizeof(filename), path, d->d_name);
+		if (stat(filename, &stat_buf) == 0) {
+			if (S_ISREG(stat_buf.st_mode)) {
+				(void)stress_swapoff(filename);
+				(void)unlink(filename);
+			}
+		}
+	}
+	(void)closedir(dir);
+	rmdir(path);
+}
+
 /*
  *  stress_swap_child()
  *	stress swap operations
@@ -260,6 +287,7 @@ static int stress_swap_child(const stress_args_t *args, void *context)
 		goto tidy_ret;
 	}
 
+	stress_swap_clean_dir(args);
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		ret = stress_exit_status(-ret);
@@ -430,12 +458,17 @@ tidy_free:
 	(void)munmap((void *)page, page_size);
 tidy_ret:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_swap_clean_dir(args);
 	return ret;
 }
 
 static int stress_swap(const stress_args_t *args)
 {
-	return stress_oomable_child(args, NULL, stress_swap_child, STRESS_OOMABLE_NORMAL);
+	int ret;
+
+	ret = stress_oomable_child(args, NULL, stress_swap_child, STRESS_OOMABLE_NORMAL);
+	stress_swap_clean_dir(args);
+	return ret;
 }
 
 stressor_info_t stress_swap_info = {
