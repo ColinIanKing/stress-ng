@@ -340,11 +340,20 @@ static int stress_swap_child(const stress_args_t *args, void *context)
 		if ((bad_flags == SWAP_HDR_SANE) && (ret < 0)) {
 			switch (errno) {
 			case EPERM:
-			case EINVAL:
 				/*
 				 * We may hit EPERM if we request
-				 * too many swap files
+				 * too many swap files, so delay, retry to
+				 * keep the pressure up.
 				 */
+				if (stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+					shim_usleep(100000);
+					continue;
+				}
+				pr_inf_skip("%s: cannot enable swap file on the filesystem, skipping test\n",
+					args->name);
+				ret = EXIT_NO_RESOURCE;
+				break;
+			case EINVAL:
 				pr_inf_skip("%s: cannot enable swap file on the filesystem, skipping test\n",
 					args->name);
 				ret = EXIT_NO_RESOURCE;
