@@ -236,10 +236,10 @@ static void stress_swap_check_swapped(
 }
 
 /*
- *  stress_swap()
+ *  stress_swap_child()
  *	stress swap operations
  */
-static int stress_swap(const stress_args_t *args)
+static int stress_swap_child(const stress_args_t *args, void *context)
 {
 	char filename[PATH_MAX];
 	int fd, ret;
@@ -248,6 +248,8 @@ static int stress_swap(const stress_args_t *args)
 	uint64_t swapped_total = 0;
 	const size_t page_size = args->page_size;
 	double swapped_percent;
+
+	(void)context;
 
 	page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -429,6 +431,11 @@ tidy_free:
 tidy_ret:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return ret;
+}
+
+static int stress_swap(const stress_args_t *args)
+{
+	return stress_oomable_child(args, NULL, stress_swap_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_swap_info = {
