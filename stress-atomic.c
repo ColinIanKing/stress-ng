@@ -344,8 +344,8 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint8(
 }
 
 typedef struct {
-	atomic_func_t func;
-	char *name;
+	const atomic_func_t func;
+	const char *name;
 } atomic_func_info_t;
 
 static atomic_func_info_t atomic_func_info[] = {
