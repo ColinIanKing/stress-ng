@@ -208,21 +208,21 @@ typedef unsigned long int __kernel_ulong_t;
 #endif
 
 #if defined(HAVE_RLIMIT_RESOURCE_T)
-#define shim_rlimit_resource_t __rlimit_resource_t
+typedef __rlimit_resource_t shim_rlimit_resource_t;
 #else
-#define shim_rlimit_resource_t int
+typedef int shim_rlimit_resource_t;
 #endif
 
 #if defined(HAVE_PRIORITY_WHICH_T)
-#define shim_priority_which_t	__priority_which_t
+typedef __priority_which_t shim_priority_which_t;
 #else
-#define shim_priority_which_t	int
+typedef int shim_priority_which_t;
 #endif
 
 #if defined(HAVE_ITIMER_WHICH_T)
-#define shim_itimer_which_t	__itimer_which_t
+typedef __itimer_which_t shim_itimer_which_t;
 #else
-#define shim_itimer_which_t	int
+typedef int shim_itimer_which_t;
 #endif
 
 #define STRESS_BIT_U(shift)		(1U << (shift))
