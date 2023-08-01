@@ -225,9 +225,9 @@ typedef unsigned long int __kernel_ulong_t;
 #define shim_itimer_which_t	int
 #endif
 
-#define STRESS_BIT_U(shift)	(1U << shift)
-#define STRESS_BIT_UL(shift)	(1UL << shift)
-#define STRESS_BIT_ULL(shift)	(1ULL << shift)
+#define STRESS_BIT_U(shift)		(1U << (shift))
+#define STRESS_BIT_UL(shift)		(1UL << (shift))
+#define STRESS_BIT_ULL(shift)		(1ULL << (shift))
 
 /* EXIT_SUCCESS, EXIT_FAILURE defined in stdlib.h */
 #define EXIT_NOT_SUCCESS		(2)
