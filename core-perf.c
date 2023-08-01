@@ -287,6 +287,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("sched/sched_switch",		"Sched Switch"),
 
 	PERF_INFO_TP("task/task_newtask",		"New Task"),
+	PERF_INFO_TP("context_tracking/user_enter",	"Context User Enter"),
 	PERF_INFO_TP("context_tracking/user_exit",	"Context User Exit"),
 
 	PERF_INFO_TP("signal/signal_generate",		"Signal Generate"),
@@ -297,6 +298,10 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("irq/softirq_entry",		"Soft IRQ Entry"),
 	PERF_INFO_TP("irq/softirq_exit",		"Soft IRQ Exit"),
 	PERF_INFO_TP("nmi/nmi_handler",			"NMI handler"),
+
+	PERF_INFO_TP("ipi/ipi_entry",			"IPI Entry"),
+	PERF_INFO_TP("ipi/ipi_send_cpu",		"IPI Send CPU"),
+	PERF_INFO_TP("ipi/ipi_exit",			"IPI Exit"),
 
 	PERF_INFO_TP("block/block_bio_complete",	"Block BIO Complete"),
 #if 0
@@ -309,6 +314,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("writeback/writeback_dirty_inode",	"Writeback Dirty Inode"),
 	PERF_INFO_TP("writeback/writeback_dirty_page",	"Writeback Dirty Page"),
+	PERF_INFO_TP("writeback/writeback_dirty_folio",	"Writeback Dirty Folio"),
 
 	PERF_INFO_TP("migrate/mm_migrate_pages",	"Migrate MM Pages"),
 
@@ -317,6 +323,12 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("lock/contention_begin",		"Lock Contention Begin"),
 	PERF_INFO_TP("lock/contention_end",		"Lock Contention End"),
+
+	PERF_INFO_TP("maple_tree/ma_read",		"Maple Tree Read"),
+	PERF_INFO_TP("maple_tree/ma_write",		"Maple Tree Write"),
+
+	PERF_INFO_TP("msr/read_msr",			"MSR read"),
+	PERF_INFO_TP("msr/write_msr",			"MSR write"),
 
 	PERF_INFO_TP("iommu/io_page_fault",		"IOMMU IO Page Fault"),
 	PERF_INFO_TP("iommu/map",			"IOMMU Map"),
