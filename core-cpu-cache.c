@@ -39,8 +39,8 @@ typedef enum {
 	STRESS_CACHE_WAYS
 } cache_size_type_t;
 
-#define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
-#define SYS_CPU_CACHE_DIR            "cache"
+static const char stress_sys_cpu_prefix[] = "/sys/devices/system/cpu";
+static const char stress_cpu_cache_dir[] = "cache";
 
 /*
  * stress_cpu_cache_get_cpu()
@@ -847,7 +847,7 @@ static int stress_cpu_cache_get_index(
 	uint32_t i;
 	char path[PATH_MAX];
 
-	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
+	(void)stress_mk_filename(path, sizeof(path), cpu_path, stress_cpu_cache_dir);
 	n = scandir(path, &namelist, index_filter, index_sort);
 	if (n <= 0) {
 		cpu->caches = NULL;
@@ -1078,9 +1078,9 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 	stress_cpu_cache_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
-	cpu_count = scandir(SYS_CPU_PREFIX, &namelist, stress_cpu_cache_filter, cpu_sort);
+	cpu_count = scandir(stress_sys_cpu_prefix, &namelist, stress_cpu_cache_filter, cpu_sort);
 	if (cpu_count < 1) {
-		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
+		pr_err("no CPUs found in %s\n", stress_sys_cpu_prefix);
 		goto out;
 	}
 	cpus = calloc(1, sizeof(*cpus));
@@ -1101,7 +1101,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		stress_cpu_cache_cpu_t *const cpu = &cpus->cpus[i];
 
 		(void)shim_memset(fullpath, 0, sizeof(fullpath));
-		(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
+		(void)stress_mk_filename(fullpath, sizeof(fullpath), stress_sys_cpu_prefix, name);
 		cpu->num = (uint32_t)i;
 		if (cpu->num == 0) {
 			/* 1st CPU cannot be taken offline */
@@ -1111,7 +1111,7 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 			char tmp[2048];
 
 			(void)shim_memset(onlinepath, 0, sizeof(onlinepath));
-			(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
+			(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", stress_sys_cpu_prefix, name);
 			if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
 				/* Assume it is online, it is the best we can do */
 				cpu->online = 1;
