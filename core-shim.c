@@ -91,9 +91,9 @@ UNEXPECTED
 #endif
 
 #if defined(HAVE_RUSAGE_WHO_T)
-#define shim_rusage_who_t	__rusage_who_t
+typedef __rusage_who_t	shim_rusage_who_t;
 #else
-#define shim_rusage_who_t	int
+typedef int		shim_rusage_who_t;
 #endif
 
 #if defined(HAVE_LINUX_MODULE_H)
