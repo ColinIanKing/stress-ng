@@ -183,13 +183,13 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_HW_C(DTLB, PREFETCH, MISS,	"Cache DTLB Prefetch Miss"),
 #endif
 
-#if STRESS_PERF_DEFINED(HW_CACHE_ITLB) && 0
+#if STRESS_PERF_DEFINED(HW_CACHE_ITLB)
 	PERF_INFO_HW_C(ITLB, READ, ACCESS,	"Cache ITLB Read"),
 	PERF_INFO_HW_C(ITLB, READ, MISS,	"Cache ITLB Read Miss"),
 	PERF_INFO_HW_C(ITLB, WRITE, ACCESS,	"Cache ITLB Write"),
 	PERF_INFO_HW_C(ITLB, WRITE, MISS,	"Cache ITLB Write Miss"),
 	PERF_INFO_HW_C(ITLB, PREFETCH, ACCESS,	"Cache ITLB Prefetch"),
-	PERF_INFO_HW_C(ITLB, PREFETCH, MISS,	"Cache DILB Prefetch Miss"),
+	PERF_INFO_HW_C(ITLB, PREFETCH, MISS,	"Cache IILB Prefetch Miss"),
 #endif
 
 #if STRESS_PERF_DEFINED(HW_CACHE_BPU)
@@ -243,7 +243,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 #if STRESS_PERF_DEFINED(SW_EMULATION_FAULTS)
 	PERF_INFO_SW(SW_EMULATION_FAULTS,	"Emulation Faults"),
 #endif
-
+#if STRESS_PERF_DEFINED(SW_CGROUP_SWITCHES)
+	PERF_INFO_SW(SW_CGROUP_SWITCHES,	"Cgroup Switches"),
+#endif
 	/*
 	 *  Tracepoint counters
  	 */
@@ -253,7 +255,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("raw_syscalls/sys_exit",		"System Call Exit"),
 
 	/* This perf metric causes 5.4+ kernel hangs, disable it for now */
-#if 0
+#if 1
 	PERF_INFO_TP("tlb/tlb_flush",			"TLB Flushes"),
 #endif
 	PERF_INFO_TP("kmem/kmalloc",			"Kmalloc"),
@@ -267,7 +269,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("mmap_lock/mmap_lock_start_locking","MMAP lock start"),
 	PERF_INFO_TP("mmap_lock/mmap_lock_released",	"MMAP lock release"),
-#if 0
+#if 1
 	PERF_INFO_TP("mmap_lock/mmap_lock_acquire_returned","MMAP lock acquire"),
 #endif
 
@@ -304,7 +306,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("ipi/ipi_exit",			"IPI Exit"),
 
 	PERF_INFO_TP("block/block_bio_complete",	"Block BIO Complete"),
-#if 0
+#if 1
 	PERF_INFO_TP("iomap/iomap_readpage",		"IOMAP Read Page"),
 	PERF_INFO_TP("iomap/iomap_writepage",		"IOMAP Write Page"),
 #endif

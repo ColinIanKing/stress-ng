@@ -850,7 +850,7 @@ typedef int (*stress_func_t)(const stress_args_t *args);
     defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
-#define STRESS_PERF_MAX		(128)
+#define STRESS_PERF_MAX		(128 + 16)
 
 /* per perf counter info */
 typedef struct {
