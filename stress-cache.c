@@ -52,11 +52,11 @@ typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size
 				 CACHE_FLAGS_CLWB)
 
 typedef struct {
-	uint32_t flag;		/* cache mask flag */
+	const uint32_t flag;	/* cache mask flag */
 	const char *name;	/* human readable form */
 } mask_flag_info_t;
 
-static mask_flag_info_t mask_flag_info[] = {
+static const mask_flag_info_t mask_flag_info[] = {
 	{ CACHE_FLAGS_PREFETCH,		"prefetch" },
 	{ CACHE_FLAGS_CLFLUSH,		"clflush" },
 	{ CACHE_FLAGS_FENCE,		"fence" },
