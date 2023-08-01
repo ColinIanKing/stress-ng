@@ -24,10 +24,10 @@
 typedef void (*pr_func_t)(const char *fmt, ...);
 
 typedef struct {
-	const char *type;	/* /proc/interrupts interrupt name */
-	bool check_failure;	/* check interrupt delta, flag as failure if > 0 */
-	pr_func_t pr_func FORMAT(printf, 1, 2); /* logging function to use */
-	const char *descr;	/* description of interrupt */
+	const char *type;		/* /proc/interrupts interrupt name */
+	const bool check_failure;	/* check interrupt delta, flag as failure if > 0 */
+	const pr_func_t pr_func FORMAT(printf, 1, 2); /* logging function to use */
+	const char *descr;		/* description of interrupt */
 } stress_interrupt_info_t;
 
 static const stress_interrupt_info_t info[] = {
