@@ -74,8 +74,8 @@ typedef struct {
 } stress_zlib_args_t;
 
 typedef struct morse {
-	char ch;
-	char *str;
+	const char ch;
+	const char *str;
 } morse_t;
 
 static const morse_t ALIGN64 morse[] = {
@@ -1085,7 +1085,7 @@ static void stress_rand_data_morse(
 	register size_t i;
 	static const char *ptr = NULL;
 	char *dataptr = (char *)data;
-	static char ALIGN64 *morse_table[256];
+	static const char ALIGN64 *morse_table[256];
 	static bool morse_table_init = false;
 	const size_t size = (size_t)((uintptr_t)data_end - (uintptr_t)data);
 
@@ -1101,7 +1101,7 @@ static void stress_rand_data_morse(
 	ptr = "";
 	for (i = 0; i < size; ) {
 		register int ch;
-		register char *mptr;
+		register const char *mptr;
 
 		if (!*ptr)
 			ptr = lorem_ipsum[stress_mwc32modn(SIZEOF_ARRAY(lorem_ipsum))];
