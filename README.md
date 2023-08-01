@@ -565,6 +565,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [The Power of Telemetry: Uncovering Software-Based Side-Channel Attacks on Apple M1/M2 Systems](https://arxiv.org/pdf/2306.16391.pdf)
 * [A Performance Evaluation of Embedded Multi-core Mixed-criticality System Based on PREEMPT RT Linux](https://www.jstage.jst.go.jp/article/ipsjjip/31/0/31_78/_pdf)
 * [Data Leakage in Isolated Virtualized Enterprise Computing SystemsSystems](https://scholar.smu.edu/cgi/viewcontent.cgi?article=1034&context=engineering_compsci_etds)
+* [Considerations for Benchmarking Network Performance in Containerized Infrastructures](https://datatracker.ietf.org/doc/draft-dcn-bmwg-containerized-infra/)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
