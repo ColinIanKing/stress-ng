@@ -47,8 +47,8 @@ static const stress_help_t help[] = {
 #define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
 
 typedef struct {
-	unsigned long flag;
-	char attr;
+	const unsigned long flag;
+	const char attr;
 } stress_chattr_flag_t;
 
 static const stress_chattr_flag_t stress_chattr_flags[] = {
