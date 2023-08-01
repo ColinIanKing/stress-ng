@@ -3002,13 +3002,15 @@ struct shim_linux_dirent {
 	char		d_name[];	/* Filename (null-terminated) */
 };
 
+#if defined(HAVE_INO64_T)
+typedef ino64_t	shim_ino64_t;
+#else
+typedef int64_t shim_ino64_t;
+#endif
+
 /* dirent64 porting shim */
 struct shim_linux_dirent64 {
-#if defined(HAVE_INO64_T)
-	ino64_t		d_ino;		/* 64-bit inode number */
-#else
-	int64_t		d_ino;		/* 64-bit inode number */
-#endif
+	shim_ino64_t	d_ino;		/* 64-bit inode number */
 	shim_off64_t	d_off;		/* 64-bit offset to next structure */
 	unsigned short	d_reclen;	/* Size of this dirent */
 	unsigned char	d_type;		/* File type */
