@@ -103,15 +103,17 @@ typedef void (*ipsec_func_t)(
         const size_t data_len,
         const int jobs);
 
+typedef void (*init_func_t)(IMB_MGR *p_mgr);
+
 typedef struct {
 	ipsec_func_t	func;
 	char 		*name;
 } stress_ipsec_funcs_t;
 
 typedef struct {
-	uint64_t	features;
-	void 		(*init_func)(IMB_MGR *p_mgr);
-	char 		*name;
+	const uint64_t	features;
+	const init_func_t init_func;
+	const char 	*name;
 	bool		supported;
 	ipsec_stats_t	stats;
 } stress_ipsec_features_t;
