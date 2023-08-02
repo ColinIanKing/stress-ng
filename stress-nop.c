@@ -37,10 +37,14 @@ static const stress_help_t help[] = {
 
 static sigjmp_buf jmpbuf;
 
+typedef void (*nop_func_t)(const stress_args_t *args,
+			   const bool flag,
+			   double *duration,
+			   double *count);
+
 typedef struct {
 	const char *name;
-	void (*func)(const stress_args_t *args, const bool flag,
-		     double *duratio, double *count);
+	const nop_func_t nop_func;
 	bool (*supported)(void);
 	bool ignore;
 	bool supported_check;
@@ -272,7 +276,7 @@ static inline void stress_nop_callfunc(
 	if (UNLIKELY(instr->ignore))
 		stress_nop_spin_nop(args, flag, duration, count);
 	else
-		instr->func(args, flag, duration, count);
+		instr->nop_func(args, flag, duration, count);
 }
 
 static void stress_nop_random(
@@ -343,7 +347,7 @@ static int stress_nop(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGILL, stress_sigill_nop_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	do_random = (instr->func == stress_nop_random);
+	do_random = (instr->nop_func == stress_nop_random);
 
 	if (sigsetjmp(jmpbuf, 1) != 0) {
 		/* We reach here on an SIGILL trap */
