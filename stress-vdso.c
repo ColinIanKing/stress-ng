@@ -63,8 +63,8 @@ typedef int (*stress_vdso_func_t)(void *);
  *  Symbol name to wrapper function lookup
  */
 typedef struct stress_wrap_func {
-	stress_vdso_func_t func;/* Wrapper function */
-	char *name;		/* Function name */
+	const stress_vdso_func_t func;	/* Wrapper function */
+	char *name;			/* Function name */
 } stress_wrap_func_t;
 
 /*
