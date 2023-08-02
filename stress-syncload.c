@@ -18,7 +18,9 @@
 #include "stress-ng.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 
@@ -30,7 +32,9 @@ typedef void(* stress_syncload_op_t)(void);
 
 static bool stress_sysload_x86_has_rdrand;
 
+/* Don't make these static otherwise O3 will optimize out the stores */
 double fma_a[8];
+double sqrt_r[4];
 
 static const stress_help_t help[] = {
 	{ NULL,	"syncload N",		"start N workers that synchronize load spikes" },
@@ -191,6 +195,18 @@ static void stress_syncload_spinwrite(void)
 		stress_uint32_put((uint32_t)i);
 }
 
+static void OPTIMIZE_FAST_MATH TARGET_CLONES stress_syncload_sqrt(void)
+{
+	static double val = 0.0;
+	size_t i;
+
+PRAGMA_UNROLL_N(SIZEOF_ARRAY(sqrt_r))
+	for (i = 0; i < SIZEOF_ARRAY(sqrt_r); i++) {
+		sqrt_r[i] = shim_sqrt(val);
+		val += 0.005;
+	}
+}
+
 #if defined(HAVE_VECMATH)
 
 typedef int8_t stress_vint8w1024_t       __attribute__ ((vector_size(1024 / 8)));
@@ -245,6 +261,7 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 #endif
 	stress_syncload_nice,
 	stress_syncload_spinwrite,
+	stress_syncload_sqrt,
 #if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
     defined(__ATOMIC_ACQUIRE)
 	stress_syncload_atomic,
