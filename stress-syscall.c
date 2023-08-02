@@ -208,13 +208,15 @@
 #endif
 
 typedef struct {
-	char *opt;		/* method option string */
-	int method;		/* SYSCALL_METHOD_* value */
+	const char *opt;	/* method option string */
+	const int method;	/* SYSCALL_METHOD_* value */
 } syscall_method_t;
 
+typedef int (*syscall_func_t)(void);
+
 typedef struct {
-	int (*syscall)(void);	/* syscall test function */
-	char *name;		/* name of system call */
+	const syscall_func_t syscall;	/* syscall test function */
+	const char *name;		/* name of system call */
 } syscall_t;
 
 /* mq message type */
