@@ -40,10 +40,13 @@ static const stress_help_t help[] = {
 	{ NULL, NULL, 			NULL }
 };
 
+typedef int (*switch_func_t)(const stress_args_t *args,
+			     const uint64_t switch_freq,
+			     const uint64_t switch_delay,
+			     const uint64_t threshold);
 typedef struct {
 	const char *name;
-	int (*func)(const stress_args_t *args, const uint64_t switch_freq,
-		    const uint64_t switch_delay, const uint64_t threshold);
+	const switch_func_t switch_func;
 } stress_switch_method_t;
 
 #define THRESH_FREQ	(100)		/* Delay adjustment rate in HZ */
@@ -535,7 +538,7 @@ static int stress_switch(const stress_args_t *args)
 	switch_delay = (switch_freq == 0) ? 0 : STRESS_NANOSECOND / switch_freq;
 	threshold = switch_freq / THRESH_FREQ;
 
-	return stress_switch_methods[switch_method].func(args, switch_freq, switch_delay, threshold);
+	return stress_switch_methods[switch_method].switch_func(args, switch_freq, switch_delay, threshold);
 }
 
 static void stress_switch_set_default(void)
