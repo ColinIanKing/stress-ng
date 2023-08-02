@@ -69,8 +69,8 @@ typedef struct {
 typedef void (*stress_memthrash_func_t)(const stress_memthrash_context_t *context, size_t mem_size);
 
 typedef struct stress_memthrash_method_info {
-	const char		*name;	/* human readable form of stressor */
-	stress_memthrash_func_t	func;	/* the method function */
+	const char		*name;		/* human readable form of stressor */
+	const stress_memthrash_func_t	func;	/* the method function */
 } stress_memthrash_method_info_t;
 
 /* Per-pthread information */
