@@ -271,8 +271,8 @@ STRESS_VEC_NEG(d, stress_vecfp_double_neg_8, stress_vecfp_double_8_t)
 
 typedef struct {
 	const char *name;
-	stress_vecfp_func_t	vecfp_func;
-	size_t elements;
+	const stress_vecfp_func_t vecfp_func;
+	const size_t elements;
 	double duration;
 	double ops;
 } stress_vecfp_funcs_t;
