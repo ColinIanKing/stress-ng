@@ -74,8 +74,8 @@ typedef uint64_t (*stress_memrate_func_t)(const stress_memrate_context_t *contex
 typedef struct {
 	const char 	*name;
 	const int	rdwr;
-	stress_memrate_func_t	func;
-	stress_memrate_func_t	func_rate;
+	const stress_memrate_func_t	func;
+	const stress_memrate_func_t	func_rate;
 } stress_memrate_info_t;
 
 static int stress_set_memrate_bytes(const char *opt)
