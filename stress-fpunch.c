@@ -34,10 +34,10 @@ static const stress_help_t help[] = {
 #define STRESS_PUNCH_PIDS		(4)
 
 typedef struct {
-	int mode;			/* fallocate mode */
-	bool write_before;		/* write data before fallocate op */
-	bool write_after;		/* write data after fallocate op */
-	bool check_zero;		/* check for zero'd data */
+	const int mode;			/* fallocate mode */
+	const bool write_before;	/* write data before fallocate op */
+	const bool write_after;		/* write data after fallocate op */
+	const bool check_zero;		/* check for zero'd data */
 } stress_fallocate_modes_t;
 
 typedef struct {
