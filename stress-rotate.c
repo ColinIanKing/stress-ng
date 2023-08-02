@@ -141,7 +141,7 @@ STRESS_ROTATE(ror, __uint128_t, 128, shim_ror)
 
 typedef struct {
 	const char *name;
-	stress_rotate_func_t	rotate_func;
+	const stress_rotate_func_t	rotate_func;
 } stress_rotate_funcs_t;
 
 static stress_rotate_funcs_t stress_rotate_funcs[] = {
