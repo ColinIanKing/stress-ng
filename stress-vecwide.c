@@ -73,8 +73,8 @@ typedef struct {
 typedef void (*stress_vecwide_func_t)(const vec_args_t *vec_args);
 
 typedef struct {
-	stress_vecwide_func_t	vecwide_func;
-	size_t byte_size;
+	const stress_vecwide_func_t vecwide_func;
+	const size_t byte_size;
 	double duration;
 	double count;
 } stress_vecwide_funcs_t;
