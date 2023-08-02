@@ -30,10 +30,13 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+typedef void (*waitfunc_t)(void);
+typedef bool (*waitfunc_supported_t)(void);
+
 typedef struct {
 	const char *name;
-	void (*waitfunc)(void);
-	bool (*waitfunc_supported)(void);
+	const waitfunc_t waitfunc;
+	const waitfunc_supported_t waitfunc_supported;
 	uint8_t	supported;
 	double count;
 	double duration;
