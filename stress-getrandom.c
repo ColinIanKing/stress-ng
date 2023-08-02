@@ -59,7 +59,7 @@ static int stress_getrandom_supported(const char *name)
 }
 
 typedef struct {
-	unsigned int flag;
+	const unsigned int flag;
 	const char *flag_str;
 } getrandom_flags_t ;
 
