@@ -143,8 +143,8 @@ STRESS_VEC_SHUFFLE(u128,  4)
 
 typedef struct {
 	const char *name;
-	stress_vecshuf_func_t	vecshuf_func;
-	size_t elements;
+	const stress_vecshuf_func_t vecshuf_func;
+	const size_t elements;
 	double duration;
 	double ops;
 	double bytes;
