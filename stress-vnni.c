@@ -67,6 +67,7 @@ static uint8_t b_init[VEC_SIZE_BYTES] ALIGNED(8);
 static uint8_t c_init[VEC_SIZE_BYTES] ALIGNED(8);
 static uint8_t result[VEC_SIZE_BYTES] ALIGNED(8);
 static bool avx_capable;
+static bool vnni_intrinsic;
 
 typedef void (*stress_vnni_func_t)(const stress_args_t *args);
 typedef bool (*stress_vnni_capable_func_t)(void);
@@ -437,22 +438,25 @@ static stress_vnni_method_t stress_vnni_methods[] = {
 static void stress_vnni_exercise(const stress_args_t *args, const size_t n)
 {
 	uint32_t checksum;
+	stress_vnni_method_t *method = &stress_vnni_methods[n];
 	register int j;
-	register stress_vnni_func_t func = stress_vnni_methods[n].vnni_func;
+	register stress_vnni_func_t func = method->vnni_func;
 	double t = stress_time_now();
+
+	if (vnni_intrinsic && !method->vnni_intrinsic)
+		return;
 
 	for (j = 0; j < 1024; j++) {
 		func(args);
 	}
 
-	stress_vnni_methods[n].duration += stress_time_now() - t;
-	stress_vnni_methods[n].count += (double)j;
+	method->duration += stress_time_now() - t;
+	method->count += (double)j;
 	/* and checksum the last computation */
 	checksum = stress_vnni_checksum();
-	if (checksum != stress_vnni_methods[n].vnni_checksum) {
+	if (checksum != method->vnni_checksum) {
 		pr_fail("%s: checksum mismatch for %s, got %" PRIx32 ", expected %" PRIx32 "\n",
-			args->name, stress_vnni_methods[n].name,
-			checksum, stress_vnni_methods[n].vnni_checksum);
+			args->name, method->name, checksum, method->vnni_checksum);
 	}
 	stress_bogo_inc(args);
 }
@@ -504,13 +508,13 @@ static int stress_set_vnni_method(const char *name)
 static int stress_vnni(const stress_args_t *args)
 {
 	size_t i, j, vnni_method = 0, intrinsic_count = 0;
-	bool vnni_intrinsic = false;
 
 	stress_mwc_set_seed(0x172fb3ea, 0xd9c02f73);
 	stress_uint8rnd4((uint8_t *)&a_init, sizeof(a_init));
 	stress_uint8rnd4((uint8_t *)&b_init, sizeof(b_init));
 	stress_uint8rnd4((uint8_t *)&c_init, sizeof(c_init));
 
+	vnni_intrinsic = false;
 	(void)stress_get_setting("vnni-method", &vnni_method);
 	(void)stress_get_setting("vnni-intrinsic", &vnni_intrinsic);
 
