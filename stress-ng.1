@@ -6499,6 +6499,18 @@ available on Linux.
 .B \-\-watchdog\-ops N
 stop after N bogo operations on the watchdog device.
 .TP
+.B \-\-with list
+specify stressors to run when using the \-\-all or \-\-seq options, for example to
+run 5 instances of the cpu, hash, nop and vm stressors one after another (sequentially) for
+1 minute per stressor use:
+.PP
+.in +10n
+.EX
+\f[CR]stress\-ng \-\-seq 5 \-\-with cpu,hash,nop,vm \-\-timeout 1m\f[]
+.EE
+.in -10n
+.PP
+.TP
 .B \-\-wcs N
 start N workers that exercise various libc wide character string functions on
 random strings.

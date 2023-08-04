@@ -361,6 +361,7 @@ typedef int shim_itimer_which_t;
 #define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(50)	/* --change-cpu */
 #define OPT_FLAGS_KSM		 STRESS_BIT_ULL(51)	/* --ksm */
 #define OPT_FLAGS_SETTINGS	 STRESS_BIT_ULL(52)	/* --settings */
+#define OPT_FLAGS_WITH		 STRESS_BIT_ULL(53)	/* --with list */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -2367,6 +2368,8 @@ typedef enum {
 
 	OPT_watchdog,
 	OPT_watchdog_ops,
+
+	OPT_with,
 
 	OPT_wcs,
 	OPT_wcs_ops,

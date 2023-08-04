@@ -1252,6 +1252,7 @@ static const struct option long_options[] = {
 	{ "waitcpu-ops",	1,	0,	OPT_waitcpu_ops },
 	{ "watchdog",		1,	0,	OPT_watchdog },
 	{ "watchdog-ops",	1,	0,	OPT_watchdog_ops },
+	{ "with",		1,	0,	OPT_with },
 	{ "wcs",		1,	0,	OPT_wcs},
 	{ "wcs-method",		1,	0,	OPT_wcs_method },
 	{ "wcs-ops",		1,	0,	OPT_wcs_ops },
@@ -1361,7 +1362,8 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"verifiable",		"show stressors that enable verification via --verify" },
 	{ "V",		"version",		"show version" },
 	{ NULL,		"vmstat S",		"show memory and process statistics every S seconds" },
-	{ "x",		"exclude",		"list of stressors to exclude (not run)" },
+	{ "x",		"exclude list",		"list of stressors to exclude (not run)" },
+	{ NULL,		"with list",		"list of stressors to invoke (use with --seq or --all)" },
 	{ "Y",		"yaml file",		"output results to YAML formatted file" },
 	{ NULL,		NULL,			NULL }
 };
@@ -3772,6 +3774,31 @@ static inline void stress_set_random_stressors(void)
 	}
 }
 
+static void stress_with(const int32_t instances)
+{
+	char *opt_with = NULL, *str, *token;
+
+	(void)stress_get_setting("with", &opt_with);
+
+	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
+		stress_stressor_t *ss;
+		const size_t i = stressor_name_find(token);
+
+		if (!stressors[i].name) {
+			(void)fprintf(stderr, "Unknown stressor: '%s', "
+				"invalid --with option\n", token);
+			exit(EXIT_FAILURE);
+		}
+		ss = stress_find_proc_info(&stressors[i]);
+		if (!ss) {
+			(void)fprintf(stderr, "Cannot allocate stressor state info\n");
+			exit(EXIT_FAILURE);
+		}
+		ss->num_instances = instances;
+	}
+	return;
+}
+
 /*
  *  stress_enable_all_stressors()
  *	enable all the stressors
@@ -3780,9 +3807,15 @@ static void stress_enable_all_stressors(const int32_t instances)
 {
 	size_t i;
 
+	if (g_opt_flags & OPT_FLAGS_WITH) {
+		stress_with(instances);
+		return;
+	}
+
 	/* Don't enable all if some stressors are set */
 	if (g_opt_flags & OPT_FLAGS_SET)
 		return;
+
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
@@ -4076,6 +4109,10 @@ next_opt:
 		case OPT_iostat:
 			if (stress_set_iostat(optarg) < 0)
 				exit(EXIT_FAILURE);
+			break;
+		case OPT_with:
+			g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
+			stress_set_setting_global("with", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_yaml:
 			stress_set_setting_global("yaml", TYPE_ID_STR, (void *)optarg);
@@ -4417,6 +4454,16 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	/*
+	 *  Sanity check --with optiob
+	 */
+	if ((g_opt_flags & OPT_FLAGS_WITH) &&
+	    ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) == 0)) {
+		(void)fprintf(stderr, "the --with option also requires --seq or --all options\n");
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
+
+	/*
 	 *  Setup logging
 	 */
 	if (stress_get_setting("log-file", &log_filename))
@@ -4432,6 +4479,7 @@ int main(int argc, char **argv, char **envp)
 		cpus_online, cpus_online == 1 ? "" : "s",
 		cpus_configured, cpus_configured == 1 ? "" : "s");
 
+
 	/*
 	 *  For random mode the stressors must be available
 	 */
@@ -4444,7 +4492,6 @@ int main(int argc, char **argv, char **envp)
 		stress_enable_all_stressors(g_opt_sequential);
 	if (g_opt_flags & OPT_FLAGS_ALL)
 		stress_enable_all_stressors(g_opt_parallel);
-
 	/*
 	 *  Discard stressors that we can't run
 	 */
