@@ -1243,6 +1243,7 @@ static const struct option long_options[] = {
 	{ "vm-splice-ops",	1,	0,	OPT_vm_splice_ops },
 	{ "vmstat",		1,	0,	OPT_vmstat },
 	{ "vnni",		1,	0,	OPT_vnni },
+	{ "vnni-intrinsic",	0,	0,	OPT_vnni_intrinsic },
 	{ "vnni-method",	1,	0,	OPT_vnni_method },
 	{ "vnni-ops",		1,	0,	OPT_vnni_ops },
 	{ "wait",		1,	0,	OPT_wait },

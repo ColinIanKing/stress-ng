@@ -30,8 +30,9 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"vnni N",	"start N workers performing vector neural network ops" },
-	{ NULL,	"vnni-ops N",	"stop after N vnni bogo operations" },
+	{ NULL,	"vnni N",		"start N workers performing vector neural network ops" },
+	{ NULL,	"vnni-ops N",		"stop after N vnni bogo operations" },
+	{ NULL,	"vnni-intrinsic",	"use just x86 intrinsic vnni methods, disable generic methods" },
 	{ NULL,	NULL,		 NULL }
 };
 
@@ -72,12 +73,13 @@ typedef bool (*stress_vnni_capable_func_t)(void);
 
 typedef struct {
 	char *name;
-	stress_vnni_func_t		vnni_func;
-	stress_vnni_capable_func_t	vnni_capable_func;
-	const uint32_t			vnni_checksum;
-	bool				vnni_capable;
-	double				count;
-	double				duration;
+	const stress_vnni_func_t	 vnni_func;
+	const stress_vnni_capable_func_t vnni_capable_func;
+	const uint32_t			 vnni_checksum;
+	const bool			 vnni_intrinsic;
+	bool				 vnni_capable;
+	double				 count;
+	double				 duration;
 } stress_vnni_method_t;
 
 static uint32_t stress_vnni_checksum(void)
@@ -399,37 +401,37 @@ static bool stress_always_capable(void)
 static void stress_vnni_all(const stress_args_t *args);
 
 static stress_vnni_method_t stress_vnni_methods[] = {
-	{ "all",	 stress_vnni_all,	  stress_always_capable,      0xffffffff, false, 0.0, 0.0 },
+	{ "all",	 stress_vnni_all,	  stress_always_capable,      0xffffffff, false, false, 0.0, 0.0 },
 #if defined(HAVE_STRESS_VNNI_VPADDB512)
-	{ "vpaddb512",	 stress_vnni_vpaddb512,   stress_avx512_bw_capable,   0xd93496ff, false, 0.0, 0.0 },
+	{ "vpaddb512",	 stress_vnni_vpaddb512,   stress_avx512_bw_capable,   0xd93496ff, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPADDB256)
-	{ "vpaddb256",	 stress_vnni_vpaddb256,   stress_avx_vnni_capable,    0xd93496ff, false, 0.0, 0.0 },
+	{ "vpaddb256",	 stress_vnni_vpaddb256,   stress_avx_vnni_capable,    0xd93496ff, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPADDB128)
-	{ "vpaddb128",	 stress_vnni_vpaddb128,   stress_avx_vnni_capable,    0xd93496ff, false, 0.0, 0.0 },
+	{ "vpaddb128",	 stress_vnni_vpaddb128,   stress_avx_vnni_capable,    0xd93496ff, true,  false, 0.0, 0.0 },
 #endif
-	{ "vpaddb",	 stress_vnni_vpaddb,      stress_always_capable,      0xd93496ff, false, 0.0, 0.0 },
+	{ "vpaddb",	 stress_vnni_vpaddb,      stress_always_capable,      0xd93496ff, false, false, 0.0, 0.0 },
 #if defined(HAVE_STRESS_VNNI_VPDPBUSD512)
-	{ "vpdpbusd512", stress_vnni_vpdpbusd512, stress_avx512_vnni_capable, 0xc10ef48a, false, 0.0, 0.0 },
+	{ "vpdpbusd512", stress_vnni_vpdpbusd512, stress_avx512_vnni_capable, 0xc10ef48a, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPBUSD256)
-	{ "vpdpbusd256", stress_vnni_vpdpbusd256, stress_avx_vnni_capable,    0xc10ef48a, false, 0.0, 0.0 },
+	{ "vpdpbusd256", stress_vnni_vpdpbusd256, stress_avx_vnni_capable,    0xc10ef48a, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPBUSD128)
-	{ "vpdpbusd128", stress_vnni_vpdpbusd128, stress_avx_vnni_capable,    0xc10ef48a, false, 0.0, 0.0 },
+	{ "vpdpbusd128", stress_vnni_vpdpbusd128, stress_avx_vnni_capable,    0xc10ef48a, true,  false, 0.0, 0.0 },
 #endif
-	{ "vpdpbusd",	 stress_vnni_vpdpbusd,    stress_always_capable,      0xc10ef48a, false, 0.0, 0.0 },
+	{ "vpdpbusd",	 stress_vnni_vpdpbusd,    stress_always_capable,      0xc10ef48a, false, false, 0.0, 0.0 },
 #if defined(HAVE_STRESS_VNNI_VPDPWSSD512)
-	{ "vpdpwssd512", stress_vnni_vpdpwssd512, stress_avx512_vnni_capable, 0x8e323fb8, false, 0.0, 0.0 },
+	{ "vpdpwssd512", stress_vnni_vpdpwssd512, stress_avx512_vnni_capable, 0x8e323fb8, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPWSSD256)
-	{ "vpdpwssd256", stress_vnni_vpdpwssd256, stress_avx_vnni_capable,    0x8e323fb8, false, 0.0, 0.0 },
+	{ "vpdpwssd256", stress_vnni_vpdpwssd256, stress_avx_vnni_capable,    0x8e323fb8, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPWSSD128)
-	{ "vpdpwssd128", stress_vnni_vpdpwssd128, stress_avx_vnni_capable,    0x8e323fb8, false, 0.0, 0.0 },
+	{ "vpdpwssd128", stress_vnni_vpdpwssd128, stress_avx_vnni_capable,    0x8e323fb8, true,  false, 0.0, 0.0 },
 #endif
-	{ "vpdpwssd",	 stress_vnni_vpdpwssd,    stress_always_capable,      0x8e323fb8, false, 0.0, 0.0 },
+	{ "vpdpwssd",	 stress_vnni_vpdpwssd,    stress_always_capable,      0x8e323fb8, false, false, 0.0, 0.0 },
 };
 
 static void stress_vnni_exercise(const stress_args_t *args, const size_t n)
@@ -466,6 +468,11 @@ static void stress_vnni_all(const stress_args_t *args)
 	}
 }
 
+static int stress_set_vnni_intrinsic(const char *opt)
+{
+	return stress_set_setting_true("vnni-intrinsic", opt);
+}
+
 /*
  *  stress_set_vnni_method()
  *	set the default vnni stress method
@@ -496,25 +503,39 @@ static int stress_set_vnni_method(const char *name)
  */
 static int stress_vnni(const stress_args_t *args)
 {
-	size_t i, j, stress_vnni_method = 0;
+	size_t i, j, vnni_method = 0, intrinsic_count = 0;
+	bool vnni_intrinsic = false;
 
 	stress_mwc_set_seed(0x172fb3ea, 0xd9c02f73);
 	stress_uint8rnd4((uint8_t *)&a_init, sizeof(a_init));
 	stress_uint8rnd4((uint8_t *)&b_init, sizeof(b_init));
 	stress_uint8rnd4((uint8_t *)&c_init, sizeof(c_init));
-	(void)stress_get_setting("vnni-method", &stress_vnni_method);
+
+	(void)stress_get_setting("vnni-method", &vnni_method);
+	(void)stress_get_setting("vnni-intrinsic", &vnni_intrinsic);
 
 	avx_capable = false;
 	for (i = 0; i < SIZEOF_ARRAY(stress_vnni_methods); i++) {
 		stress_vnni_methods[i].vnni_capable = stress_vnni_methods[i].vnni_capable_func();
+
+		/* Keep count of capable intrinsic functions */
+		if ((stress_vnni_methods[i].vnni_capable) && (stress_vnni_methods[i].vnni_intrinsic))
+			intrinsic_count++;
 	}
 
-	if (!stress_vnni_methods[stress_vnni_method].vnni_capable) {
+	if (!stress_vnni_methods[vnni_method].vnni_capable) {
 		if (args->instance == 0) {
 			pr_inf_skip("%s: vnni method '%s' not available for this processor model, "
 				"skipping stressor\n",
-				args->name, stress_vnni_methods[stress_vnni_method].name);
+				args->name, stress_vnni_methods[vnni_method].name);
 		}
+		return EXIT_NO_RESOURCE;
+	}
+
+	if (vnni_intrinsic && (intrinsic_count == 0)) {
+		pr_inf_skip("%s: no vector neural network instructions available "
+			"and --vmmi-intrinsic selected, skipping stressor\n",
+			args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -526,8 +547,8 @@ static int stress_vnni(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_vnni_method)
-			stress_vnni_exercise(args, stress_vnni_method);
+		if (vnni_method)
+			stress_vnni_exercise(args, vnni_method);
 		else
 			stress_vnni_all(args);
 	} while (stress_continue(args));
@@ -551,6 +572,7 @@ static int stress_vnni(const stress_args_t *args)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_vnni_intrinsic,	stress_set_vnni_intrinsic },
 	{ OPT_vnni_method,	stress_set_vnni_method },
 	{ 0,			NULL },
 };

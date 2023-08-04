@@ -6412,6 +6412,10 @@ these operations using 512, 256 and 128 bit vector operations. Generic
 non-vectorized code variants also provided (which may be vectorized by
 more advanced optimising compilers).
 .TP
+.B \-\-vnni\-intrinsic
+just use the vnni methods that use intrinsic VNNI instructions and ignore
+the generic non-vectorized methods.
+.TP
 .B \-\-vnni\-method N
 select the VNNI method to be exercised, may be one of:
 .TS
