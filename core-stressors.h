@@ -323,6 +323,7 @@
 	MACRO(vm_rw)		\
 	MACRO(vm_segv)		\
 	MACRO(vm_splice)	\
+	MACRO(vnni)		\
 	MACRO(wait)		\
 	MACRO(waitcpu)		\
 	MACRO(watchdog)		\

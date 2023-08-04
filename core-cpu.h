@@ -37,5 +37,9 @@ extern WARN_UNUSED bool stress_cpu_x86_has_mmx(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_sse(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_sse2(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_serialize(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_avx_vnni(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_avx512_vl(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_avx512_vnni(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_avx512_bw(void);
 
 #endif

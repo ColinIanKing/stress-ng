@@ -2354,6 +2354,10 @@ typedef enum {
 
 	OPT_vmstat,
 
+	OPT_vnni,
+	OPT_vnni_method,
+	OPT_vnni_ops,
+
 	OPT_wait,
 	OPT_wait_ops,
 

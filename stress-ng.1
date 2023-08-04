@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "11 July 2023"
+.TH STRESS-NG 1 "4 Aug 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6402,6 +6402,74 @@ start N workers that spawn off two children; one spins in a pause(2) loop, the
 other continually stops and continues the first. The controlling process waits
 on the first child to be resumed by the delivery of SIGCONT using waitpid(2)
 and waitid(2).
+.TP
+.B \-\-vnni N
+start N workers that exercise vector neural network instructions (VNNI) used in
+convolutional neural network loops. A 256 byte vector is operated upon
+using 8 bit multiply with 16 bit summation, 16 bit mulitply and
+32 bit summation, and 8 bit summation. When processor features allow,
+these operations using 512, 256 and 128 bit vector operations. Generic
+non-vectorized code variants also provided (which may be vectorized by
+more advanced optimising compilers).
+.TP
+.B \-\-vnni\-method N
+select the VNNI method to be exercised, may be one of:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+exercise all the following VNNI methods
+T}
+vpaddb512	T{
+8 bit vector addition using 512 bit vector operations on 64 \(mu 8 bit integers, (x86 vpaddb)
+T}
+vpaddb256	T{
+8 bit vector addition using 256 bit vector operations on 32 \(mu 8 bit integers, (x86 vpaddb)
+T}
+vpaddb128	T{
+8 bit vector addition using 128 bit vectors operations on 32 \(mu 8 bit integers, (x86 vpaddb)
+T}
+vpaddb	T{
+8 bit vector addition using 8 bit sequential addition (may be vectorized by the compiler)
+T}
+vpdpbusd512	T{
+8 bit vector multiplication of unsigned and signed 8 bit values followed by 16 bit summation using
+512 bit vector operations on 64 \(mu 8 bit integers, (x86 vpdpbusd)
+T}
+vpdpbusd256	T{
+8 bit vector multiplication of unsigned and signed 8 bit values followed by 16 bit summation using
+256 bit vector operations on 32 \(mu 8 bit integers, (x86 vpdpbusd)
+T}
+vpdpbusd128	T{
+8 bit vector multiplication of unsigned and signed 8 bit values followed by 16 bit summation using
+128 bit vector operations on 32 \(mu 8 bit integers, (x86 vpdpbusd)
+T}
+vpdpbusd	T{
+8 bit vector multiplication of unsigned and signed 8 bit values followed by 16 bit summation using
+sequential operations (may be vectorized by the compiler)
+T}
+vpdpwssd512	T{
+16 bit vector multiplication of unsigned and signed 16 bit values followed by 32 bit summation using
+512 bit vector operations on 64 \(mu 8 bit integers, (x86 vpdpwssd)
+T}
+vpdpwssd256	T{
+16 bit vector multiplication of unsigned and signed 16 bit values followed by 32 bit summation using
+256 bit vector operations on 64 \(mu 8 bit integers, (x86 vpdpwssd)
+T}
+vpdpwssd128	T{
+16 bit vector multiplication of unsigned and signed 16 bit values followed by 32 bit summation using
+128 bit vector operations on 64 \(mu 8 bit integers, (x86 vpdpwssd)
+T}
+vpdpwssd	T{
+16 bit vector multiplication of unsigned and signed 16 bit values followed by 32 bit summation using
+sequential operations (may be vectorized by the compiler)
+T}
+.TE
+.TP
+.B \-\-vnni\-ops N
+stop after N bogo VNNI computation operations. 1 bogo-op is equivalent to 1024
+convolution loops operating on 256 bytes of data.
 .TP
 .B \-\-wait\-ops N
 stop after N bogo wait operations.

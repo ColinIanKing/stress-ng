@@ -90,6 +90,10 @@
 #define CPUID_fsgsbase_EBX	(1U << 0)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_sgx_EBX 		(1U << 2)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_bmi1_EBX		(1U << 3)	/* EAX=0x7, EXC=0x0 -> EBX */
+
+#define CPUID_fsgsbase_EBX	(1U << 0)	/* EAX=0x7, EXC=0x0 -> EBX */
+#define CPUID_sgx_EBX 		(1U << 2)	/* EAX=0x7, EXC=0x0 -> EBX */
+#define CPUID_bmi1_EBX		(1U << 3)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_hle_EBX 		(1U << 4)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_avx2_EBX		(1U << 5)	/* EAX=0x7, EXC=0x0 -> EBX */
 #define CPUID_smep_EBX 		(1U << 7)	/* EAX=0x7, EXC=0x0 -> EBX */
@@ -165,7 +169,47 @@
 #define CPUID_ia32_core_cap_EDX	(1U << 30)	/* EAX=0x7, ECX=0x0, -> EDX */
 #define CPUID_ssbd_EDX		(1U << 31)	/* EAX=0x7, ECX=0x0, -> EDX */
 
-#define CPUID_syscall_EDX	(1U << 11)	/* EAX=0x80000001  -> EDX */
+#define CPUID_sh512_EAX		(1U << 0)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_sm3_EAX		(1U << 1)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_sm4_EAX		(1U << 2)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_raio_int_EAX	(1U << 3)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_avx_vnni_EAX	(1U << 4)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_avx512_bf16_EAX	(1U << 5)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_lass_EAX		(1U << 6)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_compccxadd_EAX	(1U << 7)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_archperfmonext_EAX (0U << 8)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_fast_zero_rep_movsb_EAX (1U << 10) /* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_fast_short_rep_stosb_EAX (1U << 11) /* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_fast_short_rep_cmpsb_scasb_EAX (1U << 12)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_fred_EAX		(1U << 17)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_lkgs_EAX		(1U << 18)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_wrmsrns_EAX	(1U << 19)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_amx_fp16_EAX	(1U << 21)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_hreset_EAX	(1U << 22)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_avx_ifma_EAX	(1U << 23)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_lam_EAX		(1U << 26)	/* EAX=0x7, ECX=0x1, -> EAX */
+#define CPUID_msrlist_EAX	(1U << 27)	/* EAX=0x7, ECX=0x1, -> EAX */
+
+#define CPUID_tse_EBX		(1U << 1)	/* EAX=0x7, ECX=0x1, -> EBX */
+
+#define CPUID_avx_vnni_int8_EDX	(1U << 4)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_avx_ne_convert_EDX (1U << 5)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_amx_complex_EDX	(1U << 8)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_amx_vnni_int16_EDX (1U << 10)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_prefetchi_EDX	(1U << 14)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_uiret_uiif_from_rflags_EDX (1U << 17) /* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_cet_sss_EDX	(1U << 18)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_avx10_EDX		(1U << 19)	/* EAX=0x7, ECX=0x1, -> EDX */
+#define CPUID_apx_f_EDX		(1U << 21)	/* EAX=0x7, ECX=0x1, -> EDX */
+
+#define CPUID_pfsd_EDX		(1U << 0)	/* EAX=0x7, ECX=0x2, -> EDX */
+#define CPUID_ipred_dis_EDX	(1U << 1)	/* EAX=0x7, ECX=0x2, -> EDX */
+#define CPUID_rrsba_ctrl_EDX	(1U << 2)	/* EAX=0x7, ECX=0x2, -> EDX */
+#define CPUID_dppd_u_EDX	(1U << 3)	/* EAX=0x7, ECX=0x2, -> EDX */
+#define CPUID_bhi_ctrl_EDX	(1U << 4)	/* EAX=0x7, ECX=0x2, -> EDX */
+#define CPUID_mcdt_no_EDX	(1U << 5)	/* EAX=0x7, ECX=0x2, -> EDX */
+
+#define CPUID_syscall_EDX	(1U << 11)	/* EAX=0x80000001 -> EDX */
 
 /*
  *  stress_cpu_is_x86()
@@ -519,3 +563,84 @@ bool stress_cpu_x86_has_serialize(void)
 	return false;
 #endif
 }
+
+/*
+ *  stress_cpu_x86_has_avx_vnni()
+ *	does x86 cpu support avx_vnni
+ */
+bool stress_cpu_x86_has_avx_vnni(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x7, ebx = 0, ecx = 1, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(eax & CPUID_avx_vnni_EAX);
+#else
+	return false;
+#endif
+}
+
+/*
+ *  stress_cpu_x86_has_avx512_vl()
+ *	does x86 cpu support avx512_vl
+ */
+bool stress_cpu_x86_has_avx512_vl(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(ebx & CPUID_avx512_vl_EBX);
+#else
+	return false;
+#endif
+}
+
+/*
+ *  stress_cpu_x86_has_avx512_vnni()
+ *	does x86 cpu support avx512_vnni
+ */
+bool stress_cpu_x86_has_avx512_vnni(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(ecx & CPUID_avx512_vnni_ECX);
+#else
+	return false;
+#endif
+}
+
+/*
+ *  stress_cpu_x86_has_avx512_bw()
+ *	does x86 cpu support avx512_bw
+ */
+bool stress_cpu_x86_has_avx512_bw(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x7, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(ebx & CPUID_avx512_bw_EBX);
+#else
+	return false;
+#endif
+}
+
