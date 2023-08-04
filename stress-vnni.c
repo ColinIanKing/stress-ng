@@ -83,7 +83,7 @@ typedef struct {
 	double				 duration;
 } stress_vnni_method_t;
 
-static uint32_t stress_vnni_checksum(void)
+static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
 {
 	uint32_t sum = 0;
 	uint8_t *ptr = result;
@@ -435,21 +435,21 @@ static stress_vnni_method_t stress_vnni_methods[] = {
 	{ "vpdpwssd",	 stress_vnni_vpdpwssd,    stress_always_capable,      0x8e323fb8, false, false, 0.0, 0.0 },
 };
 
-static void stress_vnni_exercise(const stress_args_t *args, const size_t n)
+static void OPTIMIZE3 stress_vnni_exercise(const stress_args_t *args, const size_t n)
 {
 	uint32_t checksum;
 	stress_vnni_method_t *method = &stress_vnni_methods[n];
 	register int j;
-	register stress_vnni_func_t func = method->vnni_func;
-	double t = stress_time_now();
+	register const stress_vnni_func_t func = method->vnni_func;
+	double t;
 
 	if (vnni_intrinsic && !method->vnni_intrinsic)
 		return;
 
+	t = stress_time_now();
 	for (j = 0; j < 1024; j++) {
 		func(args);
 	}
-
 	method->duration += stress_time_now() - t;
 	method->count += (double)j;
 	/* and checksum the last computation */
