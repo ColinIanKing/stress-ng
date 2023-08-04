@@ -68,19 +68,21 @@ static uint8_t c_init[VEC_SIZE_BYTES] ALIGNED(8);
 static uint8_t result[VEC_SIZE_BYTES] ALIGNED(8);
 static bool avx_capable;
 static bool vnni_intrinsic;
+static bool little_endian;
 
 typedef void (*stress_vnni_func_t)(const stress_args_t *args);
 typedef bool (*stress_vnni_capable_func_t)(void);
 
 typedef struct {
-	char *name;
-	const stress_vnni_func_t	 vnni_func;
-	const stress_vnni_capable_func_t vnni_capable_func;
-	const uint32_t			 vnni_checksum;
-	const bool			 vnni_intrinsic;
-	bool				 vnni_capable;
-	double				 count;
-	double				 duration;
+	char 				*name;			/* method name */
+	const stress_vnni_func_t	 vnni_func;		/* method function */
+	const stress_vnni_capable_func_t vnni_capable_func;	/* capability check */
+	const uint32_t			 vnni_checksum_le;	/* little endian */
+	const uint32_t			 vnni_checksum_be;	/* big endian */
+	const bool			 vnni_intrinsic;	/* uses intrinsics */
+	bool				 vnni_capable;		/* is capable */
+	double				 count;			/* usage count */
+	double				 duration;		/* usage duration */
 } stress_vnni_method_t;
 
 static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
@@ -402,42 +404,42 @@ static bool stress_always_capable(void)
 static void stress_vnni_all(const stress_args_t *args);
 
 static stress_vnni_method_t stress_vnni_methods[] = {
-	{ "all",	 stress_vnni_all,	  stress_always_capable,      0xffffffff, false, false, 0.0, 0.0 },
+	{ "all",	 stress_vnni_all,	  stress_always_capable,      0xffffffff, 0xffffffff, false, false, 0.0, 0.0 },
 #if defined(HAVE_STRESS_VNNI_VPADDB512)
-	{ "vpaddb512",	 stress_vnni_vpaddb512,   stress_avx512_bw_capable,   0xd93496ff, true,  false, 0.0, 0.0 },
+	{ "vpaddb512",	 stress_vnni_vpaddb512,   stress_avx512_bw_capable,   0xd93496ff, 0xd93496ff, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPADDB256)
-	{ "vpaddb256",	 stress_vnni_vpaddb256,   stress_avx_vnni_capable,    0xd93496ff, true,  false, 0.0, 0.0 },
+	{ "vpaddb256",	 stress_vnni_vpaddb256,   stress_avx_vnni_capable,    0xd93496ff, 0xd93496ff, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPADDB128)
-	{ "vpaddb128",	 stress_vnni_vpaddb128,   stress_avx_vnni_capable,    0xd93496ff, true,  false, 0.0, 0.0 },
+	{ "vpaddb128",	 stress_vnni_vpaddb128,   stress_avx_vnni_capable,    0xd93496ff, 0xd93496ff, true,  false, 0.0, 0.0 },
 #endif
-	{ "vpaddb",	 stress_vnni_vpaddb,      stress_always_capable,      0xd93496ff, false, false, 0.0, 0.0 },
+	{ "vpaddb",	 stress_vnni_vpaddb,      stress_always_capable,      0xd93496ff, 0xd93496ff, false, false, 0.0, 0.0 },
 #if defined(HAVE_STRESS_VNNI_VPDPBUSD512)
-	{ "vpdpbusd512", stress_vnni_vpdpbusd512, stress_avx512_vnni_capable, 0xc10ef48a, true,  false, 0.0, 0.0 },
+	{ "vpdpbusd512", stress_vnni_vpdpbusd512, stress_avx512_vnni_capable, 0xc10ef48a, 0x1b509895, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPBUSD256)
-	{ "vpdpbusd256", stress_vnni_vpdpbusd256, stress_avx_vnni_capable,    0xc10ef48a, true,  false, 0.0, 0.0 },
+	{ "vpdpbusd256", stress_vnni_vpdpbusd256, stress_avx_vnni_capable,    0xc10ef48a, 0x1b509895, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPBUSD128)
-	{ "vpdpbusd128", stress_vnni_vpdpbusd128, stress_avx_vnni_capable,    0xc10ef48a, true,  false, 0.0, 0.0 },
+	{ "vpdpbusd128", stress_vnni_vpdpbusd128, stress_avx_vnni_capable,    0xc10ef48a, 0x1b509895, true,  false, 0.0, 0.0 },
 #endif
-	{ "vpdpbusd",	 stress_vnni_vpdpbusd,    stress_always_capable,      0xc10ef48a, false, false, 0.0, 0.0 },
+	{ "vpdpbusd",	 stress_vnni_vpdpbusd,    stress_always_capable,      0xc10ef48a, 0x1b509895, false, false, 0.0, 0.0 },
 #if defined(HAVE_STRESS_VNNI_VPDPWSSD512)
-	{ "vpdpwssd512", stress_vnni_vpdpwssd512, stress_avx512_vnni_capable, 0x8e323fb8, true,  false, 0.0, 0.0 },
+	{ "vpdpwssd512", stress_vnni_vpdpwssd512, stress_avx512_vnni_capable, 0x8e323fb8, 0xeef5d2a3, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPWSSD256)
-	{ "vpdpwssd256", stress_vnni_vpdpwssd256, stress_avx_vnni_capable,    0x8e323fb8, true,  false, 0.0, 0.0 },
+	{ "vpdpwssd256", stress_vnni_vpdpwssd256, stress_avx_vnni_capable,    0x8e323fb8, 0xeef5d2a3, true,  false, 0.0, 0.0 },
 #endif
 #if defined(HAVE_STRESS_VNNI_VPDPWSSD128)
-	{ "vpdpwssd128", stress_vnni_vpdpwssd128, stress_avx_vnni_capable,    0x8e323fb8, true,  false, 0.0, 0.0 },
+	{ "vpdpwssd128", stress_vnni_vpdpwssd128, stress_avx_vnni_capable,    0x8e323fb8, 0xeef5d2a3, true,  false, 0.0, 0.0 },
 #endif
-	{ "vpdpwssd",	 stress_vnni_vpdpwssd,    stress_always_capable,      0x8e323fb8, false, false, 0.0, 0.0 },
+	{ "vpdpwssd",	 stress_vnni_vpdpwssd,    stress_always_capable,      0x8e323fb8, 0xeef5d2a3, false, false, 0.0, 0.0 },
 };
 
 static void OPTIMIZE3 stress_vnni_exercise(const stress_args_t *args, const size_t n)
 {
-	uint32_t checksum;
+	uint32_t checksum, expected_checksum;
 	stress_vnni_method_t *method = &stress_vnni_methods[n];
 	register int j;
 	register const stress_vnni_func_t func = method->vnni_func;
@@ -454,9 +456,10 @@ static void OPTIMIZE3 stress_vnni_exercise(const stress_args_t *args, const size
 	method->count += (double)j;
 	/* and checksum the last computation */
 	checksum = stress_vnni_checksum();
-	if (checksum != method->vnni_checksum) {
+	expected_checksum = little_endian ? method->vnni_checksum_le : method->vnni_checksum_be;
+	if (checksum != expected_checksum) {
 		pr_fail("%s: checksum mismatch for %s, got %" PRIx32 ", expected %" PRIx32 "\n",
-			args->name, method->name, checksum, method->vnni_checksum);
+			args->name, method->name, checksum, expected_checksum);
 	}
 	stress_bogo_inc(args);
 }
@@ -509,6 +512,8 @@ static int stress_vnni(const stress_args_t *args)
 {
 	size_t i, j, vnni_method = 0, intrinsic_count = 0;
 
+	little_endian = stress_little_endian();
+
 	stress_mwc_set_seed(0x172fb3ea, 0xd9c02f73);
 	stress_uint8rnd4((uint8_t *)&a_init, sizeof(a_init));
 	stress_uint8rnd4((uint8_t *)&b_init, sizeof(b_init));
@@ -551,10 +556,11 @@ static int stress_vnni(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (vnni_method)
+		if (vnni_method) {
 			stress_vnni_exercise(args, vnni_method);
-		else
+		} else {
 			stress_vnni_all(args);
+		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
