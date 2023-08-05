@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
@@ -67,6 +68,7 @@ static pid_t main_pid;				/* stress-ng main pid */
 /* Globals */
 int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
 int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
+int32_t g_opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
@@ -810,6 +812,7 @@ static const struct option long_options[] = {
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ "perf",		0,	0,	OPT_perf_stats },
 #endif
+	{ "permute",		1,	0,	OPT_permute },
 	{ "personality",	1,	0,	OPT_personality },
 	{ "personality-ops",	1,	0,	OPT_personality_ops },
 	{ "peterson",		1,	0,	OPT_peterson },
@@ -1326,6 +1329,7 @@ static const stress_help_t help_generic[] = {
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ NULL,		"perf",			"display perf statistics" },
 #endif
+	{ NULL,		"permute N",		"run permutations of stressors with N stressors per permutation" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
 	{ NULL,		"sched type",		"set scheduler type" },
@@ -2089,13 +2093,14 @@ void stress_clean_dir(
  *	while waiting for stressors to complete add some aggressive
  *	CPU affinity changing to exercise the scheduler placement
  */
-static void stress_wait_aggressive(stress_stressor_t *stressors_list)
+static void stress_wait_aggressive(
+	const int32_t ticks_per_sec,
+	stress_stressor_t *stressors_list)
 {
 	stress_stressor_t *ss;
 	cpu_set_t proc_mask;
-	const int32_t ticks_per_sec = stress_get_ticks_per_second() * 5;
 	const useconds_t usec_sleep =
-		ticks_per_sec ? 1000000 / (useconds_t)ticks_per_sec : 1000000 / 250;
+		ticks_per_sec ? 1000000 / ((useconds_t)5 * ticks_per_sec) : 1000000 / 250;
 
 	while (wait_flag) {
 		const int32_t cpus = stress_get_processors_configured();
@@ -2276,6 +2281,7 @@ redo:
  * 	wait for stressor child processes
  */
 static void stress_wait_stressors(
+	const int32_t ticks_per_sec,
 	stress_stressor_t *stressors_list,
 	bool *success,
 	bool *resource_success,
@@ -2292,7 +2298,7 @@ static void stress_wait_stressors(
 	 *  try to thrash the system when in aggressive mode
 	 */
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-		stress_wait_aggressive(stressors_list);
+		stress_wait_aggressive(ticks_per_sec, stressors_list);
 #endif
 	for (ss = stressors_list; ss; ss = ss->next) {
 		int32_t j;
@@ -2472,8 +2478,12 @@ static void stress_getrusage(const int who, stress_stats_t *stats)
 	struct rusage usage;
 
 	if (shim_getrusage(who, &usage) == 0) {
-		stats->rusage_utime += (double)usage.ru_utime.tv_sec + ((double)usage.ru_utime.tv_usec) / STRESS_DBL_MICROSECOND;
-		stats->rusage_stime += (double)usage.ru_stime.tv_sec + ((double)usage.ru_stime.tv_usec) / STRESS_DBL_MICROSECOND;
+		stats->rusage_utime +=
+			(double)usage.ru_utime.tv_sec +
+			((double)usage.ru_utime.tv_usec) / STRESS_DBL_MICROSECOND;
+		stats->rusage_stime +=
+			(double)usage.ru_stime.tv_sec +
+			((double)usage.ru_stime.tv_usec) / STRESS_DBL_MICROSECOND;
 #if defined(HAVE_RUSAGE_RU_MAXRSS)
 		if (stats->rusage_maxrss < usage.ru_maxrss)
 			stats->rusage_maxrss = usage.ru_maxrss;
@@ -2484,11 +2494,38 @@ static void stress_getrusage(const int who, stress_stats_t *stats)
 }
 #endif
 
+static void stress_get_usage_stats(const int32_t ticks_per_sec, stress_stats_t *stats)
+{
+#if defined(HAVE_GETRUSAGE)
+	(void)ticks_per_sec;
+
+	stats->rusage_utime = 0.0;
+	stats->rusage_stime = 0.0;
+	stress_getrusage(RUSAGE_SELF, stats);
+	stress_getrusage(RUSAGE_CHILDREN, stats);
+#else
+	struct tms t;
+
+	stats->rusage_utime = 0.0;
+	stats->rusage_stime = 0.0;
+	(void)shim_memset(&t, 0, sizeof(t));
+	if ((ticks_per_sec > 0) && (times(&t) != (clock_t)-1)) {
+		stats->rusage_utime =
+			(double)(t.tms_utime + t.tms_cutime) / (double)ticks_per_sec;
+		stats->rusage_stime =
+			(double)(t.tms_stime + t.tms_cstime) / (double)ticks_per_sec;
+	}
+#endif
+	stats->rusage_utime_total += stats->rusage_utime;
+	stats->rusage_stime_total += stats->rusage_stime;
+}
+
 /*
  *  stress_run()
  *	kick off and run stressors
  */
 static void MLOCKED_TEXT stress_run(
+	const int32_t ticks_per_sec,
 	stress_stressor_t *stressors_list,
 	double *duration,
 	bool *success,
@@ -2517,7 +2554,10 @@ static void MLOCKED_TEXT stress_run(
 	for (g_stressor_current = stressors_list; g_stressor_current; g_stressor_current = g_stressor_current->next) {
 		int32_t j;
 
+		g_stressor_current->started_instances = 0;
 		if (g_stressor_current->ignore)
+			continue;
+		if (g_stressor_current->permute_ignore)
 			continue;
 
 		/*
@@ -2525,11 +2565,10 @@ static void MLOCKED_TEXT stress_run(
 		 */
 		for (j = 0; j < g_stressor_current->num_instances; j++, (*checksum)++) {
 			int rc = EXIT_SUCCESS;
-			size_t i;
 			pid_t pid, child_pid;
 			char name[64];
 			stress_stats_t *const stats = g_stressor_current->stats[j];
-			double run_duration, fork_time_start;
+			double finish, run_duration, fork_time_start;
 			bool ok;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
@@ -2538,10 +2577,6 @@ static void MLOCKED_TEXT stress_run(
 			stats->ci.counter_ready = true;
 			stats->ci.counter = 0;
 			stats->checksum = *checksum;
-			for (i = 0; i < SIZEOF_ARRAY(stats->metrics); i++) {
-				stats->metrics[i].value = -1.0;
-				stats->metrics[i].description = NULL;
-			}
 again:
 			if (!stress_continue_flag())
 				break;
@@ -2591,7 +2626,7 @@ again:
 				pr_dbg("%s: [%d] started (instance %" PRIu32 " on CPU %u)\n",
 					name, (int)child_pid, j, stress_get_cpu());
 
-				stats->start = stats->finish = stress_time_now();
+				stats->start = stress_time_now();
 				stress_interrupts_start(stats->interrupts);
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
@@ -2683,24 +2718,17 @@ again:
 				if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
 					(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
-				stats->finish = stress_time_now();
-#if defined(HAVE_GETRUSAGE)
-				stats->rusage_utime = 0.0;
-				stats->rusage_stime = 0.0;
-				stress_getrusage(RUSAGE_SELF, stats);
-				stress_getrusage(RUSAGE_CHILDREN, stats);
-#else
-				(void)shim_memset(&stats->tms, 0, sizeof(stats->tms));
-				if (times(&stats->tms) == (clock_t)-1) {
-					pr_dbg("times failed: errno=%d (%s)\n",
-						errno, strerror(errno));
-				}
-#endif
+				finish = stress_time_now();
+				stats->duration = finish - stats->start;
+				stats->counter_total += stats->ci.counter;
+				stats->duration_total += stats->duration;
+
+				stress_get_usage_stats(ticks_per_sec, stats);
 				pr_dbg("%s: [%d] exited (instance %" PRIu32 " on CPU %d)\n",
 					name, (int)child_pid, j, stress_get_cpu());
 
 				/* Allow for some slops of ~0.5 secs */
-				run_duration = (stats->finish - fork_time_start) + 0.5;
+				run_duration = (finish - fork_time_start) + 0.5;
 
 				/*
 				 * Apparently succeeded but terminated early?
@@ -2765,7 +2793,7 @@ wait_for_stressors:
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_start();
 
-	stress_wait_stressors(stressors_list, success, resource_success, metrics_success);
+	stress_wait_stressors(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
 	*duration += time_finish - time_start;
@@ -2901,11 +2929,10 @@ static void stress_metrics_check(bool *success)
 			const stress_stats_t *const stats = ss->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
-			const double duration = stats->finish - stats->start;
 
 			counter_check |= stats->ci.counter;
-			if (duration < min_run_time)
-				min_run_time = duration;
+			if (stats->duration < min_run_time)
+				min_run_time = stats->duration;
 
 			if (checksum == NULL) {
 				pr_fail("%s instance %d unexpected null checksum data\n",
@@ -2983,9 +3010,7 @@ static char *stess_description_yamlify(const char *description)
  *  stress_metrics_dump()
  *	output metrics
  */
-static void stress_metrics_dump(
-	FILE *yaml,
-	const int32_t ticks_per_sec)
+static void stress_metrics_dump(FILE *yaml)
 {
 	stress_stressor_t *ss;
 	bool misc_metrics = false;
@@ -3019,7 +3044,7 @@ static void stress_metrics_dump(
 		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
 		bool run_ok = false;
 
-		if (ss->ignore)
+		if (ss->ignore || ss->permute_ignore)
 			continue;
 		if (!ss->stats)
 			continue;
@@ -3031,18 +3056,13 @@ static void stress_metrics_dump(
 
 			run_ok  |= stats->ci.run_ok;
 			c_total += stats->ci.counter;
-#if defined(HAVE_GETRUSAGE)
-			u_total += stats->rusage_utime;
-			s_total += stats->rusage_stime;
+			u_total += stats->rusage_utime_total;
+			s_total += stats->rusage_stime_total;
 #if defined(HAVE_RUSAGE_RU_MAXRSS)
 			if (maxrss < stats->rusage_maxrss)
 				maxrss = stats->rusage_maxrss;
 #endif
-#else
-			u_total += (double)(stats->tms.tms_utime + stats->tms.tms_cutime);
-			s_total += (double)(stats->tms.tms_stime + stats->tms.tms_cstime);
-#endif
-			r_total += stats->finish - stats->start;
+			r_total += stats->duration_total;
 		}
 		/* Real time in terms of average wall clock time of all procs */
 		r_total = ss->started_instances ?
@@ -3052,15 +3072,8 @@ static void stress_metrics_dump(
 		    (c_total == 0) && (!run_ok))
 			continue;
 
-#if defined(HAVE_GETRUSAGE)
-		(void)ticks_per_sec;
-
 		u_time = u_total;
 		s_time = s_total;
-#else
-		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
-		s_time = (ticks_per_sec > 0) ? (double)s_total / (double)ticks_per_sec : 0.0;
-#endif
 		t_time = u_time + s_time;
 
 		/* Total usr + sys time of all procs */
@@ -3582,6 +3595,20 @@ static void stress_set_proc_limits(void)
 #endif
 }
 
+static void stress_append_stressor(stress_stressor_t *ss)
+{
+	ss->prev = NULL;
+	ss->next = NULL;
+
+	/* Add to end of procs list */
+	if (stressors_tail)
+		stressors_tail->next = ss;
+	else
+		stressors_head = ss;
+	ss->prev = stressors_tail;
+	stressors_tail = ss;
+}
+
 /*
  *  stress_find_proc_info()
  *	find proc info that is associated with a specific
@@ -3608,14 +3635,7 @@ static stress_stressor_t *stress_find_proc_info(const stress_t *stressor)
 
 	ss->stressor = stressor;
 	ss->ignore = STRESS_STRESSOR_NOT_IGNORED;
-
-	/* Add to end of procs list */
-	if (stressors_tail)
-		stressors_tail->next = ss;
-	else
-		stressors_head = ss;
-	ss->prev = stressors_tail;
-	stressors_tail = ss;
+	stress_append_stressor(ss);
 
 	return ss;
 }
@@ -3723,13 +3743,20 @@ static inline void stress_setup_stats_buffers(void)
 	stress_stats_t *stats = g_shared->stats;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		int32_t j;
+		int32_t i;
 
 		if (ss->ignore)
 			continue;
 
-		for (j = 0; j < ss->num_instances; j++, stats++)
-			ss->stats[j] = stats;
+		for (i = 0; i < ss->num_instances; i++, stats++) {
+			size_t j;
+
+			ss->stats[i] = stats;
+			for (j = 0; j < SIZEOF_ARRAY(stats->metrics); j++) {
+				stats->metrics[j].value = -1.0;
+				stats->metrics[j].description = NULL;
+			}
+		}
 	}
 }
 
@@ -3848,8 +3875,10 @@ static void stress_enable_classes(const uint32_t class)
 
 			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
 				ss->num_instances = g_opt_sequential;
-			if (g_opt_flags & OPT_FLAGS_ALL)
+			else if (g_opt_flags & OPT_FLAGS_ALL)
 				ss->num_instances = g_opt_parallel;
+			else if (g_opt_flags & OPT_FLAGS_PERMUTE)
+				ss->num_instances = g_opt_permute;
 		}
 	}
 }
@@ -4071,6 +4100,12 @@ next_opt:
 			stress_check_range("sequential", (uint64_t)g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
+		case OPT_permute:
+			g_opt_flags |= OPT_FLAGS_PERMUTE;
+			g_opt_permute = stress_get_int32(optarg);
+			stress_get_processors(&g_opt_permute);
+			stress_check_max_stressors("permute", g_opt_permute);
+			break;
 		case OPT_status:
 			if (stress_set_status(optarg) < 0)
 				exit(EXIT_FAILURE);
@@ -4154,7 +4189,7 @@ static void stress_alloc_proc_resources(
 {
 	*stats = calloc((size_t)n, sizeof(stress_stats_t *));
 	if (!*stats) {
-		pr_err("cannot allocate stats list\n");
+		pr_err("cannot allocate stats array of %" PRIu32 " elements\n", n);
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
@@ -4183,7 +4218,7 @@ static void stress_set_default_timeout(const uint64_t timeout)
  *  stress_setup_sequential()
  *	setup for sequential --seq mode stressors
  */
-static void stress_setup_sequential(const uint32_t class)
+static void stress_setup_sequential(const uint32_t class, const int32_t instances)
 {
 	stress_stressor_t *ss;
 
@@ -4191,7 +4226,7 @@ static void stress_setup_sequential(const uint32_t class)
 
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
-			ss->num_instances = g_opt_sequential;
+			ss->num_instances = instances;
 		if (ss->ignore)
 			continue;
 		stress_alloc_proc_resources(&ss->stats, ss->num_instances);
@@ -4202,7 +4237,7 @@ static void stress_setup_sequential(const uint32_t class)
  *  stress_setup_parallel()
  *	setup for parallel mode stressors
  */
-static void stress_setup_parallel(const uint32_t class)
+static void stress_setup_parallel(const uint32_t class, const int32_t instances)
 {
 	stress_stressor_t *ss;
 
@@ -4210,7 +4245,7 @@ static void stress_setup_parallel(const uint32_t class)
 
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
-			ss->num_instances = g_opt_parallel;
+			ss->num_instances = instances;
 		if (ss->ignore)
 			continue;
 		/*
@@ -4229,6 +4264,7 @@ static void stress_setup_parallel(const uint32_t class)
  *	run stressors sequentially
  */
 static inline void stress_run_sequential(
+	const int32_t ticks_per_sec,
 	double *duration,
 	bool *success,
 	bool *resource_success,
@@ -4247,7 +4283,7 @@ static inline void stress_run_sequential(
 			continue;
 
 		ss->next = NULL;
-		stress_run(ss, duration, success, resource_success,
+		stress_run(ticks_per_sec, ss, duration, success, resource_success,
 			metrics_success, &checksum);
 		ss->next = next;
 	}
@@ -4258,6 +4294,7 @@ static inline void stress_run_sequential(
  *	run stressors in parallel
  */
 static inline void stress_run_parallel(
+	const int32_t ticks_per_sec,
 	double *duration,
 	bool *success,
 	bool *resource_success,
@@ -4268,8 +4305,63 @@ static inline void stress_run_parallel(
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(stressors_head, duration, success, resource_success,
+	stress_run(ticks_per_sec, stressors_head, duration, success, resource_success,
 			metrics_success, &checksum);
+}
+
+/*
+ *  stress_run_permute()
+ *	run stressors using permutations
+ */
+static inline void stress_run_permute(
+	const int32_t ticks_per_sec,
+	double *duration,
+	bool *success,
+	bool *resource_success,
+	bool *metrics_success)
+{
+	stress_stressor_t *ss;
+	size_t i, n, perms, num_perms;
+	const size_t max_perms = 16;
+	char str[4096];
+
+	for (n = 0, perms = 0, ss = stressors_head; ss; ss = ss->next) {
+		ss->permute_ignore = true;
+		if (!ss->ignore)
+			perms++;
+		n++;
+	}
+
+	if (perms > max_perms) {
+		pr_inf("permute: limiting to first %zu stressors\n", max_perms);
+		perms = max_perms;
+	}
+
+	num_perms = 1U << perms;
+
+	for (i = 1; stress_continue_flag() && (i < num_perms); i++) {
+		size_t j;
+
+		*str = '\0';
+		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
+			ss->permute_ignore = true;
+			if (ss->ignore)
+				continue;
+			ss->permute_ignore = ((i & (1U << j)) == 0);
+			if (!ss->permute_ignore) {
+				if (*str)
+					shim_strlcat(str, ", ", sizeof(str));
+				shim_strlcat(str, ss->stressor->name, sizeof(str));
+			}
+			j++;
+		}
+		pr_inf("permute: %s\n", str);
+		stress_run_parallel(ticks_per_sec, duration, success, resource_success, metrics_success);
+		pr_inf("permute: %.2f%% complete\n", (double)i / (double)(num_perms - 1) * 100.0);
+	}
+	for (ss = stressors_head; ss; ss = ss->next) {
+		ss->permute_ignore = false;
+	}
 }
 
 /*
@@ -4425,9 +4517,8 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Sanity check seq/all settings
 	 */
-	if ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
-	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
-		(void)fprintf(stderr, "cannot invoke --sequential and --all "
+	if (stress_popcount64(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) > 1) {
+		(void)fprintf(stderr, "cannot invoke --sequential, --all or --permute "
 			"options together\n");
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
@@ -4435,9 +4526,9 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_get_setting("class", &class);
 
 	if (class &&
-	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
+	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE))) {
 		(void)fprintf(stderr, "class option is only used with "
-			"--sequential or --all options\n");
+			"--sequential, --all or --permute options\n");
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
@@ -4457,8 +4548,8 @@ int main(int argc, char **argv, char **envp)
 	 *  Sanity check --with optiob
 	 */
 	if ((g_opt_flags & OPT_FLAGS_WITH) &&
-	    ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) == 0)) {
-		(void)fprintf(stderr, "the --with option also requires --seq or --all options\n");
+	    ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) == 0)) {
+		(void)fprintf(stderr, "the --with option also requires the --seq, --all or --permute options\n");
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
@@ -4492,6 +4583,8 @@ int main(int argc, char **argv, char **envp)
 		stress_enable_all_stressors(g_opt_sequential);
 	if (g_opt_flags & OPT_FLAGS_ALL)
 		stress_enable_all_stressors(g_opt_parallel);
+	if (g_opt_flags & OPT_FLAGS_PERMUTE)
+		stress_enable_all_stressors(g_opt_permute);
 	/*
 	 *  Discard stressors that we can't run
 	 */
@@ -4558,9 +4651,11 @@ int main(int argc, char **argv, char **envp)
 	 *  Setup stressor proc info
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_setup_sequential(class);
+		stress_setup_sequential(class, g_opt_sequential);
+	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
+		stress_setup_sequential(class, g_opt_permute);
 	} else {
-		stress_setup_parallel(class);
+		stress_setup_parallel(class, g_opt_parallel);
 	}
 	/*
 	 *  Seq/parallel modes may have added in
@@ -4666,11 +4761,11 @@ int main(int argc, char **argv, char **envp)
 	stress_klog_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_run_sequential(&duration,
-			&success, &resource_success, &metrics_success);
+		stress_run_sequential(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
+	} else if (g_opt_flags & OPT_FLAGS_PERMUTE) {
+		stress_run_permute(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
 	} else {
-		stress_run_parallel(&duration,
-			&success, &resource_success, &metrics_success);
+		stress_run_parallel(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
 	}
 
 	/* Stop alarms */
@@ -4686,7 +4781,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump metrics
 	 */
 	if (g_opt_flags & OPT_FLAGS_METRICS)
-		stress_metrics_dump(yaml, ticks_per_sec);
+		stress_metrics_dump(yaml);
 
 	stress_metrics_check(&success);
 	stress_interrupts_dump(yaml, stressors_head);
@@ -4713,7 +4808,6 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump run times
 	 */
 	stress_times_dump(yaml, ticks_per_sec, duration);
-
 	stress_exit_status_summary();
 
 	stress_klog_stop(&success);

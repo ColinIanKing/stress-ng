@@ -362,6 +362,7 @@ typedef int shim_itimer_which_t;
 #define OPT_FLAGS_KSM		 STRESS_BIT_ULL(51)	/* --ksm */
 #define OPT_FLAGS_SETTINGS	 STRESS_BIT_ULL(52)	/* --settings */
 #define OPT_FLAGS_WITH		 STRESS_BIT_ULL(53)	/* --with list */
+#define OPT_FLAGS_PERMUTE	 STRESS_BIT_ULL(54)	/* --permute N */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -900,7 +901,9 @@ typedef struct {
 typedef struct {
 	stress_counter_info_t ci;	/* counter info */
 	double start;			/* wall clock start time */
-	double finish;			/* wall clock stop time */
+	double duration;		/* finish - start */
+	uint64_t counter_total;		/* counter total */
+	double duration_total;		/* wall clock duration */
 	pid_t pid;			/* stressor pid */
 	bool sigalarmed;		/* set true if signalled with SIGALRM */
 	bool signalled;			/* set true if signalled with a kill */
@@ -913,14 +916,11 @@ typedef struct {
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
 	stress_metrics_data_t metrics[STRESS_MISC_METRICS_MAX];
-#if defined(HAVE_GETRUSAGE)
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
+	double rusage_utime_total;	/* rusage user time */
+	double rusage_stime_total;	/* rusage system time */
 	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
-#else
-	struct tms tms;			/* run time stats of process */
-					/* count of interrupts at start and stop */
-#endif
 	uint8_t padding[6];		/* padding */
 } stress_stats_t;
 
@@ -1792,6 +1792,8 @@ typedef enum {
 
 	OPT_perf_stats,
 
+	OPT_permute,
+
 	OPT_personality,
 	OPT_personality_ops,
 
@@ -2435,7 +2437,8 @@ typedef struct stress_stressor_info {
 	uint64_t bogo_ops;		/* number of bogo ops */
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
 					/* number of instances that passed/failed/skipped */
-	uint8_t ignore;			/* ignore stressor, unsupported or excluded */
+	bool ignore;			/* ignore stressor, unsupported or excluded */
+	bool permute_ignore;		/* ignore flag, saved for permute */
 } stress_stressor_t;
 
 

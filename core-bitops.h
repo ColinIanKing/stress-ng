@@ -127,6 +127,24 @@ static inline uint32_t OPTIMIZE3 stress_bitreverse32(const uint32_t val)
 }
 
 /*
+ *  stress_popcount64()
+ *	population count (count number of 1 bits) in a uint64_t value
+ */
+static inline uint32_t OPTIMIZE3 stress_popcount64(const uint64_t val)
+{
+#if defined(HAVE_BUILTIN_POPCOUNT)
+	return  (uint32_t)__builtin_popcountll(val);
+#else
+	/* Brian Kernighan's count bits */
+	register uint64_t j, v = val;
+
+	for (j = 0; v; j++)
+		v &= v - 1;
+	return j;
+#endif
+}
+
+/*
  *  stress_popcount32()
  *	population count (count number of 1 bits) in a uint32_t value
  */

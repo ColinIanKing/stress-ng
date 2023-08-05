@@ -407,6 +407,12 @@ with Linux 4.7 one needs to have CAP_SYS_ADMIN capabilities for this
 option to work, or adjust  /proc/sys/kernel/perf_event_paranoid to below
 2 to use this without CAP_SYS_ADMIN.
 .TP
+.B \-\-permute N
+run all permutations of the selected stressors with N instances of the
+permutated stressors per run.  If N is less than zero, then the number
+of CPUs online is used for the number of instances. If N is zero, then
+the number of configured CPUs in the system is used.
+.TP
 .B \-q, \-\-quiet
 do not show any output.
 .TP
