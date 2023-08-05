@@ -411,7 +411,10 @@ option to work, or adjust  /proc/sys/kernel/perf_event_paranoid to below
 run all permutations of the selected stressors with N instances of the
 permutated stressors per run.  If N is less than zero, then the number
 of CPUs online is used for the number of instances. If N is zero, then
-the number of configured CPUs in the system is used.
+the number of configured CPUs in the system is used.  This will perform
+multiple runs with all the permutations of the stressors. Use this in
+conjuction with the \-\-with or \-\-class option to specify the stressors
+to permute.
 .TP
 .B \-q, \-\-quiet
 do not show any output.
@@ -568,6 +571,18 @@ and system information.
 every S seconds show statistics about processes, memory, paging, block I/O,
 interrupts, context switches, disks and cpu activity.  The output is similar
 that to the output from the vmstat(8) utility. Currently a Linux only option.
+.TP
+.B \-\-with list
+specify stressors to run when using the \-\-all, \-\-seq or \-\-permute options.
+For example to run 5 instances of the cpu, hash, nop and vm stressors one after
+another (sequentially) for 1 minute per stressor use:
+.PP
+.in +10n
+.EX
+\f[CR]stress\-ng \-\-seq 5 \-\-with cpu,hash,nop,vm \-\-timeout 1m\f[]
+.EE
+.in -10n
+.PP
 .TP
 .B \-x, \-\-exclude list
 specify a list of one or more stressors to exclude (that is, do not run them).
@@ -6505,18 +6520,6 @@ available on Linux.
 .B \-\-watchdog\-ops N
 stop after N bogo operations on the watchdog device.
 .TP
-.B \-\-with list
-specify stressors to run when using the \-\-all or \-\-seq options, for example to
-run 5 instances of the cpu, hash, nop and vm stressors one after another (sequentially) for
-1 minute per stressor use:
-.PP
-.in +10n
-.EX
-\f[CR]stress\-ng \-\-seq 5 \-\-with cpu,hash,nop,vm \-\-timeout 1m\f[]
-.EE
-.in -10n
-.PP
-.TP
 .B \-\-wcs N
 start N workers that exercise various libc wide character string functions on
 random strings.
@@ -6779,6 +6782,16 @@ using 1GB of virtual memory.
 runs 2 instances of the mixed I/O stressors using a total of 10% of the
 available file system space for 10 minutes. Each stressor will use 5% of the
 available file system space.
+.LP
+\f[CR]stress\-ng --with cpu,matrix,vecmath,fp --seq 8 -t 1m
+.IP
+run 8 instances of cpu, matrix, vecmath and fp stressors sequentially one
+after another, for 1 minute per stressor.
+.LP
+\f[CR]stress\-ng --with cpu,matrix,vecmath,fp --permute 5 -t 10s
+.IP
+run permutations of 5 instances of cpu, matrix, vecmath and fp stressors sequentially one
+after another, for 10 seconds per permutation mix.
 .LP
 \f[CR]stress\-ng \-\-cyclic 1 \-\-cyclic\-dist 2500 \-\-cyclic\-method clock_ns \-\-cyclic\-prio 100 \-\-cyclic\-sleep 10000 \-\-hdd 0 -t 1m\f[]
 .IP
