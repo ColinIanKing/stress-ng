@@ -1162,12 +1162,6 @@ void stress_vmstat_start(void)
 				}
 #endif
 
-#if defined(__linux__)
-				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
-					(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
-					ptr += 7;
-				}
-#endif
 				stress_get_cpu_ghz(&avg_ghz, &min_ghz, &max_ghz);
 				if (avg_ghz > 0.0)
 					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f %5.2f %5.2f",
@@ -1178,7 +1172,14 @@ void stress_vmstat_start(void)
 
 				pr_lock();
 				if (thermalstat_count == 0)
-					pr_inf("therm: AvGHz MnGhz MxGHz  LdA1  LdA5 LdA15 %s\n", therms);
+					pr_inf("therm: AvGHz MnGHz MxGHz  LdA1  LdA5 LdA15 %s\n", therms);
+
+#if defined(__linux__)
+				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
+					(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
+					ptr += 7;
+				}
+#endif
 				if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
 					pr_inf("therm: %18s %5.5s %5.5s %5.5s %s\n",
 						cpuspeed, "n/a", "n/a", "n/a", therms);
