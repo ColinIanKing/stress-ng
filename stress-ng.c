@@ -1403,7 +1403,7 @@ static inline size_t stressor_name_find(const char *name)
  */
 static void stress_ignore_stressor(stress_stressor_t *ss, uint8_t reason)
 {
-	ss->ignore = reason;
+	ss->ignore.run = reason;
 }
 
 /*
@@ -1877,7 +1877,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		int32_t i;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (i = 0; i < ss->started_instances; i++) {
@@ -2364,7 +2364,7 @@ static stress_stressor_t *stress_get_nth_stressor(const uint32_t n)
 	uint32_t i = 0;
 
 	while (ss && (i < n)) {
-		if (!ss->ignore)
+		if (!ss->ignore.run)
 			i++;
 		ss = ss->next;
 	}
@@ -2381,7 +2381,7 @@ static uint32_t stress_get_num_stressors(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next)
-		if (!ss->ignore)
+		if (!ss->ignore.run)
 			n++;
 
 	return n;
@@ -2555,9 +2555,9 @@ static void MLOCKED_TEXT stress_run(
 		int32_t j;
 
 		g_stressor_current->started_instances = 0;
-		if (g_stressor_current->ignore)
+		if (g_stressor_current->ignore.run)
 			continue;
-		if (g_stressor_current->permute_ignore)
+		if (g_stressor_current->ignore.permute)
 			continue;
 
 		/*
@@ -2814,7 +2814,7 @@ static int stress_show_stressors(void)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		const int32_t n = ss->num_instances;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		if (n) {
@@ -2864,7 +2864,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		uint32_t count = ss->status[type];
 
-		if ((ss->ignore) && (type == STRESS_STRESSOR_STATUS_SKIPPED)) {
+		if ((ss->ignore.run) && (type == STRESS_STRESSOR_STATUS_SKIPPED)) {
 			count = ss->num_instances;
 		}
 		if (count > 0) {
@@ -2922,7 +2922,7 @@ static void stress_metrics_check(bool *success)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		int32_t j;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (j = 0; j < ss->started_instances; j++) {
@@ -3044,7 +3044,7 @@ static void stress_metrics_dump(FILE *yaml)
 		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
 		bool run_ok = false;
 
-		if (ss->ignore || ss->permute_ignore)
+		if (ss->ignore.run || ss->ignore.permute)
 			continue;
 		if (!ss->stats)
 			continue;
@@ -3187,7 +3187,7 @@ static void stress_metrics_dump(FILE *yaml)
 			int32_t j;
 			char munged[64];
 
-			if (ss->ignore)
+			if (ss->ignore.run)
 				continue;
 			if (!ss->stats)
 				continue;
@@ -3549,7 +3549,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			unsigned int id = stressors[i].id;
 
 			for (ss = stressors_head; ss; ss = ss->next) {
-				if (ss->ignore)
+				if (ss->ignore.run)
 					continue;
 				if ((ss->stressor->id == id) &&
 				    ss->num_instances &&
@@ -3578,7 +3578,7 @@ static void stress_set_proc_limits(void)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		size_t i;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
@@ -3634,7 +3634,7 @@ static stress_stressor_t *stress_find_proc_info(const stress_t *stressor)
 	}
 
 	ss->stressor = stressor;
-	ss->ignore = STRESS_STRESSOR_NOT_IGNORED;
+	ss->ignore.run = STRESS_STRESSOR_NOT_IGNORED;
 	stress_append_stressor(ss);
 
 	return ss;
@@ -3651,7 +3651,7 @@ static void stress_stressors_init(void)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		size_t i;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
@@ -3674,7 +3674,7 @@ static void stress_stressors_deinit(void)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		size_t i;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
@@ -3716,7 +3716,7 @@ static inline void stress_exclude_pathological(void)
 		while (ss) {
 			stress_stressor_t *next = ss->next;
 
-			if ((!ss->ignore) && (ss->stressor->info->class & CLASS_PATHOLOGICAL)) {
+			if ((!ss->ignore.run) && (ss->stressor->info->class & CLASS_PATHOLOGICAL)) {
 				if (ss->num_instances > 0) {
 					char munged[64];
 
@@ -3745,7 +3745,7 @@ static inline void stress_setup_stats_buffers(void)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		int32_t i;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (i = 0; i < ss->num_instances; i++, stats++) {
@@ -4227,7 +4227,7 @@ static void stress_setup_sequential(const uint32_t class, const int32_t instance
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->num_instances = instances;
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 		stress_alloc_proc_resources(&ss->stats, ss->num_instances);
 	}
@@ -4246,7 +4246,7 @@ static void stress_setup_parallel(const uint32_t class, const int32_t instances)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->num_instances = instances;
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 		/*
 		 * Share bogo ops between processes equally, rounding up
@@ -4279,7 +4279,7 @@ static inline void stress_run_sequential(
 	for (ss = stressors_head; ss && stress_continue_flag(); ss = ss->next) {
 		stress_stressor_t *next = ss->next;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		ss->next = NULL;
@@ -4326,8 +4326,8 @@ static inline void stress_run_permute(
 	char str[4096];
 
 	for (n = 0, perms = 0, ss = stressors_head; ss; ss = ss->next) {
-		ss->permute_ignore = true;
-		if (!ss->ignore)
+		ss->ignore.permute = true;
+		if (!ss->ignore.run)
 			perms++;
 		n++;
 	}
@@ -4344,11 +4344,11 @@ static inline void stress_run_permute(
 
 		*str = '\0';
 		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
-			ss->permute_ignore = true;
-			if (ss->ignore)
+			ss->ignore.permute = true;
+			if (ss->ignore.run)
 				continue;
-			ss->permute_ignore = ((i & (1U << j)) == 0);
-			if (!ss->permute_ignore) {
+			ss->ignore.permute = ((i & (1U << j)) == 0);
+			if (!ss->ignore.permute) {
 				if (*str)
 					shim_strlcat(str, ", ", sizeof(str));
 				shim_strlcat(str, ss->stressor->name, sizeof(str));
@@ -4360,7 +4360,7 @@ static inline void stress_run_permute(
 		pr_inf("permute: %.2f%% complete\n", (double)i / (double)(num_perms - 1) * 100.0);
 	}
 	for (ss = stressors_head; ss; ss = ss->next) {
-		ss->permute_ignore = false;
+		ss->ignore.permute = false;
 	}
 }
 

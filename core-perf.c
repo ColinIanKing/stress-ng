@@ -729,7 +729,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 		char munged[64];
 		stress_perf_t *sp;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 		if (!ss->stats)
 			continue;

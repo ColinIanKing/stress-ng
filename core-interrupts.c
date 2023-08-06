@@ -191,7 +191,7 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		bool pr_nl = false;
 		bool pr_name = false;
 
-		if (ss->ignore)
+		if (ss->ignore.run)
 			continue;
 
 		for (i = 0; i < SIZEOF_ARRAY(info); i++) {

@@ -2421,7 +2421,7 @@ typedef struct {
 #define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
 #define STRESS_STRESSOR_STATUS_MAX		(4)
 
-/* stress_stressor_info ignore value */
+/* stress_stressor_info ignore value. 2 bits */
 #define STRESS_STRESSOR_NOT_IGNORED	(0)
 #define STRESS_STRESSOR_UNSUPPORTED	(1)
 #define STRESS_STRESSOR_EXCLUDED	(2)
@@ -2437,8 +2437,10 @@ typedef struct stress_stressor_info {
 	uint64_t bogo_ops;		/* number of bogo ops */
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
 					/* number of instances that passed/failed/skipped */
-	bool ignore;			/* ignore stressor, unsupported or excluded */
-	bool permute_ignore;		/* ignore flag, saved for permute */
+	struct {
+		uint8_t run;		/* ignore running the stressor, unsupported or excluded */
+		bool	permute;	/* ignore flag, saved for permute */
+	} ignore;
 } stress_stressor_t;
 
 
