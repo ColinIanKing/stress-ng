@@ -738,6 +738,8 @@ typedef struct stressor_info {
 /* use syscall if we can, fallback to vfork otherwise */
 #define shim_vfork()		g_shared->vfork()
 
+extern const char stress_config[];
+
 /* Printing/Logging helpers */
 extern int  pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
 extern void pr_yaml_runinfo(FILE *fp);
@@ -1188,6 +1190,8 @@ typedef enum {
 
 	OPT_context,
 	OPT_context_ops,
+
+	OPT_config,
 
 	OPT_copy_file,
 	OPT_copy_file_ops,

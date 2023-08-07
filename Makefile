@@ -497,6 +497,7 @@ STRESS_SRC = \
 #
 CORE_SRC = \
 	core-affinity.c \
+	core-config.c \
 	core-cpu.c \
 	core-cpu-cache.c \
 	core-cpuidle.c \
@@ -579,6 +580,7 @@ stress-eigen-ops.o: config.h
 config.h config:
 	$(PRE_Q)echo "Generating config.."
 	$(MAKE) CC="$(CC)" CXX="$(CXX)" STATIC=$(STATIC) -f Makefile.config
+	$(PRE_Q)rm -f core-config.c
 
 makeconfig: config.h
 
@@ -635,6 +637,11 @@ core-perf.o: core-perf.c core-perf-event.c config.h
 	$(PRE_Q)echo CC $<
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
+core-config.c: config.h
+	$(PRE_V)echo "const char stress_config[] = " > core-config.c
+	$(PRE_V)sed 's/.*/"&\\n"/' config.h >> core-config.c
+	$(PRE_V)echo ";" >> core-config.c
+
 stress-vecmath.o: stress-vecmath.c config.h
 	$(PRE_Q)echo CC $<
 	$(PRE_V)$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
@@ -675,11 +682,12 @@ pdf:
 
 .PHONY: cleanconfig
 cleanconfig:
-	$(PRE_V)rm -f config config.h
+	$(PRE_V)rm -f config config.h core-config.c
 	$(PRE_V)rm -rf configs
 
 .PHONY: cleanobj
 cleanobj:
+	$(PRE_V)rm -f core-config.c
 	$(PRE_V)rm -f io-uring.h
 	$(PRE_V)rm -f git-commit-id.h
 	$(PRE_V)rm -f core-perf-event.h

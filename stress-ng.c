@@ -345,6 +345,7 @@ static const struct option long_options[] = {
 	{ "clone-ops",		1,	0,	OPT_clone_ops },
 	{ "close",		1,	0,	OPT_close },
 	{ "close-ops",		1,	0,	OPT_close_ops },
+	{ "config",		0,	0,	OPT_config },
 	{ "context",		1,	0,	OPT_context },
 	{ "context-ops",	1,	0,	OPT_context_ops },
 	{ "copy-file",		1,	0,	OPT_copy_file },
@@ -3999,6 +4000,9 @@ next_opt:
 				stress_enable_classes(u32);
 			}
 			break;
+		case OPT_config:
+			printf("config:\n%s", stress_config);
+			exit(EXIT_SUCCESS);
 		case OPT_exclude:
 			stress_set_setting_global("exclude", TYPE_ID_STR, (void *)optarg);
 			break;
