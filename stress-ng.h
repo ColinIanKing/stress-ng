@@ -444,35 +444,6 @@ typedef struct {
 	uint32_t	hash;		/* Hash of data */
 } stress_checksum_t;
 
-/* settings for storing opt arg parsed data */
-typedef struct stress_setting {
-	struct stress_setting *next;	/* next setting in list */
-	struct stress_stressor_info *proc;
-	char *name;			/* name of setting */
-	stress_type_id_t type_id;	/* setting type */
-	bool		global;		/* true if global */
-	union {				/* setting value */
-		uint8_t		uint8;	/* TYPE_ID_UINT8 */
-		int8_t		int8;	/* TYPE_ID_INT8 */
-		uint16_t	uint16;	/* TYPE_ID_UINT16 */
-		int16_t		int16;	/* TYPE_ID_INT16 */
-		uint32_t	uint32;	/* TYPE_ID_UINT32 */
-		int32_t		int32;	/* TYPE_ID_INT32 */
-		uint64_t	uint64;	/* TYPE_ID_UINT64 */
-		int64_t		int64;	/* TYPE_ID_INT64 */
-		size_t		size;	/* TYPE_ID_SIZE_T */
-		ssize_t		ssize;	/* TYPE_ID_SSIZE_T */
-		unsigned int	uint;	/* TYPE_ID_UINT */
-		signed int	sint;	/* TYPE_ID_INT */
-		unsigned long	ulong;	/* TYPE_ID_ULONG */
-		signed long	slong;	/* TYPE_ID_LONG */
-		off_t		off;	/* TYPE_ID_OFF_T */
-		char 		*str;	/* TYPE_ID_STR */
-		bool		boolean;/* TYPE_ID_BOOL */
-		uintptr_t	uintptr;/* for func pointers */
-	} u;
-} stress_setting_t;
-
 /*
  *  Scratch space to store computed values to ensure
  *  compiler does not compile away calculations
