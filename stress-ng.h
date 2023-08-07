@@ -904,7 +904,7 @@ typedef struct shared_heap {
 	void *lock;			/* heap global lock */
 	void *heap;			/* mmap'd heap */
 	size_t heap_size;		/* heap size */
-	size_t offset;			/* next free offset in current slap */
+	size_t offset;			/* next free offset in current slab */
 	bool out_of_memory;		/* true if allocation failed */
 } shared_heap_t;
 
