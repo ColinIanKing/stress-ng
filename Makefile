@@ -98,7 +98,7 @@ endif
 
 ifeq ($(findstring gcc,$(CC)),gcc)
 ifneq ($(KERNEL),SunOS)
-override CFLAGS += -ftree-loop-vectorize
+override CFLAGS += -ftree-loop-vectorize -fsplit-loops
 endif
 endif
 
