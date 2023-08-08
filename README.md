@@ -398,21 +398,32 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [SMP divide error](https://bugs.centos.org/view.php?id=14366)
 * [ext4_validate_inode_bitmap:99: comm stress-ng: Corrupt inode bitmap](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1780137)
 * [virtio/s390: fix race in ccw_io_helper()](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=78b1a52e05c9db11d293342e8d6d8a230a04b4e7)
-* [mm/page_idle.c: fix oops because end_pfn is larger than max_pfn](https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/mm/page_idle.c?id=d96d6145d9796d5f1eac242538d45559e9a23404)
-* [Illumos: ofdlock(): assertion failed: lckdat->l_start == 0](https://www.illumos.org/issues/9061)
-* [mm: compaction: avoid 100% CPU usage during compaction when a task is killed](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=670105a25608affe01cb0ccdc2a1f4bd2327172b)
-* [mm/vmalloc.c: preload a CPU with one object for split purpose](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=82dd23e84be3ead53b6d584d836f51852d1096e6)
-* [debugobjects: Use global free list in __debug_check_no_obj_freed()](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1ea9b98b007a662e402551a41a4413becad40a65)
+2015:
+* [KEYS: ensure we free the assoc array edit if edit is valid](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ca4da5dd1f99fe9c59f1709fb43e818b18ad20e0)
+* [proc: fix -ESRCH error when writing to /proc/$pid/coredump_filter](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41a0c249cb8706a2efa1ab3d59466b23a27d0c8b)
+
+2016:
+* [sched/core: Fix a race between try_to_wake_up() and a woken up task](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=135e8c9250dd5c8c9aae5984fde6f230d0cbfeaf)
+* [devpts: fix null pointer dereference on failed memory allocation](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5353ed8deedee9e5acb9f896e9032158f5d998de)
+* [arm64: do not enforce strict 16 byte alignment to stack pointer](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e6d9a52543338603e25e71e0e4942f05dae0dd8a)
+
+2017:
 * [ARM: dts: meson8b: add reserved memory zone to fix silent freezes](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=b9b4bf504c9e94fe38b93aa2784991c80cebcf2e)
 * [ARM64: dts: meson-gx: Add firmware reserved memory zones](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=bba8e3f42736cf7f974968a818e53b128286ad1d)
-* [sched/core: Fix a race between try_to_wake_up() and a woken up task](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=135e8c9250dd5c8c9aae5984fde6f230d0cbfeaf)
 * [ext4: lock the xattr block before checksuming it](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=dac7a4b4b1f664934e8b713f529b629f67db313c)
-* [devpts: fix null pointer dereference on failed memory allocation](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5353ed8deedee9e5acb9f896e9032158f5d998de)
-* [KEYS: ensure we free the assoc array edit if edit is valid](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ca4da5dd1f99fe9c59f1709fb43e818b18ad20e0)
-* [arm64: do not enforce strict 16 byte alignment to stack pointer](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e6d9a52543338603e25e71e0e4942f05dae0dd8a)
-* [proc: fix -ESRCH error when writing to /proc/$pid/coredump_filter](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41a0c249cb8706a2efa1ab3d59466b23a27d0c8b)
+
+2018:
+* [Illumos: ofdlock(): assertion failed: lckdat->l_start == 0](https://www.illumos.org/issues/9061)
+* [debugobjects: Use global free list in __debug_check_no_obj_freed()](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1ea9b98b007a662e402551a41a4413becad40a65)
+
+2019:
+* [mm/page_idle.c: fix oops because end_pfn is larger than max_pfn](https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/mm/page_idle.c?id=d96d6145d9796d5f1eac242538d45559e9a23404)
+* [mm: compaction: avoid 100% CPU usage during compaction when a task is killed](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=670105a25608affe01cb0ccdc2a1f4bd2327172b)
+* [mm/vmalloc.c: preload a CPU with one object for split purpose](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=82dd23e84be3ead53b6d584d836f51852d1096e6)
 * [perf evlist: Use unshare(CLONE_FS) in sb threads to let setns(CLONE_NEWNS) work](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b397f8468fa27f08b83b348ffa56a226f72453af)
 * [riscv: reject invalid syscalls below -1](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=556f47ac6083d778843e89aa21b1242eee2693ed)
+
+2020:
 * [RISC-V: Don't allow write+exec only page mapping request in mmap](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e0d17c842c0f824fd4df9f4688709fc6907201e1)
 * [riscv: set max_pfn to the PFN of the last page](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c749bb2d554825e007cbc43b791f54e124dadfce)
 * [crypto: hisilicon - update SEC driver module parameter](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=57b1aac1b426b7255afa195298ed691ffea204c6)
@@ -421,6 +432,9 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [ocfs2: ratelimit the 'max lookup times reached' notice](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=45680967ee29e67b62e6800a8780440b840a0b1f)
 * [using perf can crash kernel with a stack overflow](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1875941)
 * [stress-ng on gcov enabled focal kernel triggers OOPS](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1879470)
+* [kernel bug list_del corruption on s390x from stress-ng mknod and stress-ng symlink](https://bugzilla.redhat.com/show_bug.cgi?id=1849196)
+
+2021:
 * [sparc64: Fix opcode filtering in handling of no fault loads](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e5e8b80d352ec999d2bba3ea584f541c83f4ca3f)
 * [opening a file with O_DIRECT on a file system that does not support it will leave an empty file](https://bugzilla.kernel.org/show_bug.cgi?id=213041)
 * [locking/atomic: sparc: Fix arch_cmpxchg64_local()](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7e1088760cfe0bb1fdb1f0bd155bfd52f080683a)
@@ -431,9 +445,11 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [pipe: do FASYNC notifications for every pipe IO, not just state changes](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=fe67f4dd8daa252eb9aa7acb61555f3cc3c1ce4c)
 * [io-wq: remove GFP_ATOMIC allocation off schedule out path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d3e9f732c415cf22faa33d6f195e291ad82dc92e)
 * [mm/swap: consider max pages in iomap_swapfile_add_extent](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=36ca7943ac18aebf8aad4c50829eb2ea5ec847df)
+* [block: loop: fix deadlock between open and remove](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=990e78116d38059c9306cf0560c1c4ed1cf358d3)
+
+2022:
 * [copy_process(): Move fd_install() out of sighand->siglock critical section](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ddc204b517e60ae64db34f9832dc41dafa77c751)
 * [minix: fix bug when opening a file with O_DIRECT](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9ce3c0d26c42d279b6c378a03cd6a61d828f19ca)
-* [block: loop: fix deadlock between open and remove](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=990e78116d38059c9306cf0560c1c4ed1cf358d3)
 * [arch/arm64: Fix topology initialization for core scheduling](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5524cbb1bfcdff0cad0aaa9f94e6092002a07259)
 * [running stress-ng on Minux 3.4.0-RC6 on amd64 assert in vm/region.c:313](https://github.com/Stichting-MINIX-Research-Foundation/minix/issues/333)
 * [unshare test triggers unhandled page fault](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1959215)
@@ -441,9 +457,11 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [NUMA Benchmark Regression In Linux 5.18](https://lore.kernel.org/lkml/YmrWK%2FKoU1zrAxPI@fuller.cnet)
 * [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
 * [mm/huge_memory: do not clobber swp_entry_t during THP split](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=71e2d666ef85d51834d658830f823560c402b8b6)
-* [qemu-system-m68k segfaults on opcode 0x4848](https://gitlab.com/qemu-project/qemu/-/issues/1462)
 * [AppArmor: -42.5% regression of stress-ng.kill.ops_per_sec due to commit](https://lkml.org/lkml/2022/12/31/27)
 * [clocksource: Suspend the watchdog temporarily when high read lantency detected](https://lore.kernel.org/lkml/20221220082512.186283-1-feng.tang@intel.com/t/)
+
+2023:
+* [qemu-system-m68k segfaults on opcode 0x4848](https://gitlab.com/qemu-project/qemu/-/issues/1462)
 * [rtmutex: Ensure that the top waiter is always woken up](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=db370a8b9f67ae5f17e3d5482493294467784504)
 * [mm/swap: fix swap_info_struct race between swapoff and get_swap_pages()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=6fe7d6b992113719e96744d974212df3fcddc76c)
 * [block, bfq: Fix division by zero error on zero wsum](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e53413f8deedf738a6782cc14cc00bd5852ccf18)
@@ -471,6 +489,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [mm/swapfile: add cond_resched() in get_swap_pages()](https://lore.kernel.org/lkml/20230129130320.7e2e4445ecc4b172c61c7b9c@linux-foundation.org/T/)
 * [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
 * [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
+* [stress-ng close causes kernel oops(es) v5.6-rt and v5.4-rt](https://www.spinics.net/lists/linux-rt-users/msg22350.html)
 
 ## Presentations
 
