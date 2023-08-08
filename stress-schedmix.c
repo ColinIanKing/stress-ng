@@ -205,7 +205,8 @@ redo:
 		VOID_RET(int, shim_usleep_interruptible(1000));
 		break;
 	case 18:
-#if defined(HAVE_LINUX_MEMBARRIER_H)
+#if defined(HAVE_LINUX_MEMBARRIER_H) &&	\
+    defined(MEMBARRIER_CMD_GLOBAL)
 		if (shim_membarrier(MEMBARRIER_CMD_GLOBAL, 0, 0) == 0)
 			break;
 #endif
