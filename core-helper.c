@@ -1753,6 +1753,10 @@ void pr_runinfo(void)
 			stress_get_compiler(),
 			stress_get_libc_version());
 	}
+#else
+	pr_dbg("system: %s, %s\n",
+		stress_get_compiler(),
+		stress_get_libc_version());
 #endif
 	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
 		char ram_t[32], ram_f[32], ram_s[32];
