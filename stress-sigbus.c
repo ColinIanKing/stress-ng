@@ -142,6 +142,13 @@ static int stress_sigbus(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_mmap;
 		}
+		/* Some systems generate SIGSEGV rather than SIGBUS.. */
+		ret = sigaction(SIGSEGV, &action, NULL);
+		if (ret < 0) {
+			pr_fail("%s: sigaction SIGSEGV: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto tidy_mmap;
+		}
 
 		ret = sigsetjmp(jmp_env, 1);
 		/*
@@ -158,12 +165,15 @@ static int stress_sigbus(const stress_args_t *args)
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
 					args->name, (volatile void *)expected_addr, fault_addr);
 			}
+			/* We may also have SIGSEGV on some system as well as SIGBUS */
 			if (verify &&
 			    (signo != -1) &&
-			    (signo != SIGBUS)) {
+			    (signo != SIGBUS) &&
+			    (signo != SIGSEGV)) {
 				pr_fail("%s: expecting SIGBUS, got %s instead\n",
 					args->name, strsignal(signo));
 			}
+			/* Just verify SIGBUS signals */
 			if (verify && (signo == SIGBUS)) {
 				switch (code) {
 #if defined(BUS_ADRALN)
