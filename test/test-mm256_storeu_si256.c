@@ -36,5 +36,5 @@ int __attribute__ ((target("avxvnni"))) main(int argc, char **argv)
 	(void)rndset((unsigned char *)&r, sizeof(r));
 	_mm256_storeu_si256((void *)a, r);
 
-	return 0;
+	return *(int *)&r;
 }

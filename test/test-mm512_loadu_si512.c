@@ -36,5 +36,5 @@ int __attribute__ ((target("avx512bw"))) main(int argc, char **argv)
 	(void)rndset((unsigned char *)&a, sizeof(a));
 	r = _mm512_loadu_si512((void *)a);
 
-	return 0;
+	return *(int *)&r;
 }

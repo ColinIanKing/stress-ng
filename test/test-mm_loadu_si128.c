@@ -36,5 +36,5 @@ int __attribute__ ((target("avxvnni"))) main(int argc, char **argv)
 	(void)rndset((unsigned char *)&a, sizeof(a));
 	r = _mm_loadu_si128((void *)a);
 
-	return 0;
+	return *(int *)&r;
 }

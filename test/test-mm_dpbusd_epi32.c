@@ -37,5 +37,5 @@ int __attribute__ ((target("avxvnni"))) main(int argc, char **argv)
 	(void)rndset((unsigned char *)&c, sizeof(b));
 	r = _mm_dpbusd_epi32(c, a, b);
 
-	return 0;
+	return *(int *)&r;
 }

@@ -37,5 +37,5 @@ int __attribute__ ((target("avx512vnni"))) main(int argc, char **argv)
 	(void)rndset((unsigned char *)&c, sizeof(b));
 	r = _mm512_dpbusd_epi32(c, a, b);
 
-	return 0;
+	return *(int *)&r;
 }

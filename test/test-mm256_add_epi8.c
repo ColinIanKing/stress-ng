@@ -36,5 +36,5 @@ int __attribute__ ((target("avxvnni"))) main(int argc, char **argv)
 	(void)rndset((unsigned char *)&b, sizeof(b));
 	r = _mm256_add_epi8(a, b);
 
-	return 0;
+	return *(int *)&r;
 }
