@@ -880,6 +880,7 @@ typedef struct {
 	pid_t pid;			/* stressor pid */
 	bool sigalarmed;		/* set true if signalled with SIGALRM */
 	bool signalled;			/* set true if signalled with a kill */
+	bool completed;			/* true if stressor completed */
 #if defined(STRESS_PERF_STATS)
 	stress_perf_t sp;		/* perf counters */
 #endif
@@ -894,7 +895,6 @@ typedef struct {
 	double rusage_utime_total;	/* rusage user time */
 	double rusage_stime_total;	/* rusage system time */
 	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
-	uint8_t padding[6];		/* padding */
 } stress_stats_t;
 
 #define	STRESS_WARN_HASH_MAX		(128)
@@ -2407,7 +2407,7 @@ typedef struct stress_stressor_info {
 	struct stress_stressor_info *prev; /* prev proc info struct in list */
 	const stress_t *stressor;	/* stressor */
 	stress_stats_t **stats;		/* stressor stats info */
-	int32_t started_instances;	/* count of started instances */
+	int32_t completed_instances;	/* count of completed instances */
 	int32_t num_instances;		/* number of instances per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
 	uint32_t status[STRESS_STRESSOR_STATUS_MAX];

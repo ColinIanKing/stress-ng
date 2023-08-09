@@ -1881,7 +1881,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 		if (ss->ignore.run)
 			continue;
 
-		for (i = 0; i < ss->started_instances; i++) {
+		for (i = 0; i < ss->num_instances; i++) {
 			stress_stats_t *const stats = ss->stats[i];
 			const pid_t pid = stats->pid;
 
@@ -2121,7 +2121,7 @@ static void stress_wait_aggressive(
 		for (ss = stressors_list; ss; ss = ss->next) {
 			int32_t j;
 
-			for (j = 0; j < ss->started_instances; j++) {
+			for (j = 0; j < ss->num_instances; j++) {
 				const stress_stats_t *const stats = ss->stats[j];
 				const pid_t pid = stats->pid;
 
@@ -2306,7 +2306,7 @@ static void stress_wait_stressors(
 	for (ss = stressors_list; ss; ss = ss->next) {
 		int32_t j;
 
-		for (j = 0; j < ss->started_instances; j++) {
+		for (j = 0; j < ss->num_instances; j++) {
 			stress_stats_t *const stats = ss->stats[j];
 			const pid_t pid = stats->pid;
 
@@ -2557,7 +2557,6 @@ static void MLOCKED_TEXT stress_run(
 	for (g_stressor_current = stressors_list; g_stressor_current; g_stressor_current = g_stressor_current->next) {
 		int32_t j;
 
-		g_stressor_current->started_instances = 0;
 		if (g_stressor_current->ignore.run)
 			continue;
 		if (g_stressor_current->ignore.permute)
@@ -2577,6 +2576,7 @@ static void MLOCKED_TEXT stress_run(
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
 
+			stats->pid = -1;
 			stats->ci.counter_ready = true;
 			stats->ci.counter = 0;
 			stats->checksum = *checksum;
@@ -2688,6 +2688,7 @@ again:
 						}
 					}
 #endif
+					stats->completed = true;
 					ok = (rc == EXIT_SUCCESS);
 					stats->ci.run_ok = ok;
 					(*checksum)->data.ci.run_ok = ok;
@@ -2769,7 +2770,6 @@ child_exit:
 				if (pid > -1) {
 					stats->pid = pid;
 					stats->signalled = false;
-					g_stressor_current->started_instances++;
 					started_instances++;
 					stress_ftrace_add_pid(pid);
 				}
@@ -2928,7 +2928,7 @@ static void stress_metrics_check(bool *success)
 		if (ss->ignore.run)
 			continue;
 
-		for (j = 0; j < ss->started_instances; j++) {
+		for (j = 0; j < ss->num_instances; j++) {
 			const stress_stats_t *const stats = ss->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
@@ -3054,11 +3054,17 @@ static void stress_metrics_dump(FILE *yaml)
 
 		(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 
-		for (j = 0; j < ss->started_instances; j++) {
+		for (j = 0; j < ss->num_instances; j++)
+			ss->completed_instances = 0;
+
+		for (j = 0; j < ss->num_instances; j++) {
 			const stress_stats_t *const stats = ss->stats[j];
 
+			if (stats->completed)
+				ss->completed_instances++;
+
 			run_ok  |= stats->ci.run_ok;
-			c_total += stats->ci.counter;
+			c_total += stats->counter_total;
 			u_total += stats->rusage_utime_total;
 			s_total += stats->rusage_stime_total;
 #if defined(HAVE_RUSAGE_RU_MAXRSS)
@@ -3068,8 +3074,8 @@ static void stress_metrics_dump(FILE *yaml)
 			r_total += stats->duration_total;
 		}
 		/* Real time in terms of average wall clock time of all procs */
-		r_total = ss->started_instances ?
-			r_total / (double)ss->started_instances : 0.0;
+		r_total = ss->completed_instances ?
+			r_total / (double)ss->completed_instances : 0.0;
 
 		if ((g_opt_flags & OPT_FLAGS_METRICS_BRIEF) &&
 		    (c_total == 0) && (!run_ok))
@@ -3088,7 +3094,7 @@ static void stress_metrics_dump(FILE *yaml)
 		}
 
 		cpu_usage = (r_total > 0) ? 100.0 * t_time / r_total : 0.0;
-		cpu_usage = ss->started_instances ? cpu_usage / ss->started_instances : 0.0;
+		cpu_usage = ss->completed_instances ? cpu_usage / ss->completed_instances : 0.0;
 
 		if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
 			if (g_opt_flags & OPT_FLAGS_SN) {
@@ -3166,12 +3172,12 @@ static void stress_metrics_dump(FILE *yaml)
 				double metric, total = 0.0;
 
 				misc_metrics = true;
-				for (j = 0; j < ss->started_instances; j++) {
+				for (j = 0; j < ss->num_instances; j++) {
 					const stress_stats_t *const stats = ss->stats[j];
 
 					total += stats->metrics[i].value;
 				}
-				metric = ss->started_instances ? total / ss->started_instances : 0.0;
+				metric = ss->completed_instances ? total / ss->completed_instances : 0.0;
 				if (g_opt_flags & OPT_FLAGS_SN) {
 					pr_yaml(yaml, "      %s: %e\n", stess_description_yamlify(description), metric);
 				} else {
@@ -3205,7 +3211,7 @@ static void stress_metrics_dump(FILE *yaml)
 					double geomean, mantissa = 1.0;
 					double n = 0.0;
 
-					for (j = 0; j < ss->started_instances; j++) {
+					for (j = 0; j < ss->num_instances; j++) {
 						int e;
 						const stress_stats_t *const stats = ss->stats[j];
 
@@ -3226,10 +3232,10 @@ static void stress_metrics_dump(FILE *yaml)
 					}
 					if (g_opt_flags & OPT_FLAGS_SN) {
 						pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instances)\n",
-							   munged, geomean, description, ss->started_instances);
+							   munged, geomean, description, ss->completed_instances);
 					} else {
 						pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instances)\n",
-							   munged, geomean, description, ss->started_instances);
+							   munged, geomean, description, ss->completed_instances);
 					}
 				}
 			}
