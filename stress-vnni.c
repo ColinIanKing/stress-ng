@@ -385,8 +385,7 @@ static bool stress_avx_vnni_capable(void) {
 }
 #endif
 
-#if defined(HAVE_STRESS_VNNI_VPADDB512) ||	\
-    defined(HAVE_STRESS_VNNI_VPDPWSSD512)
+#if defined(HAVE_STRESS_VNNI_VPDPBUSD512)
 static bool stress_avx512_vnni_capable(void) {
 	if (stress_cpu_x86_has_avx512_vnni()) {
 		avx_capable = true;
