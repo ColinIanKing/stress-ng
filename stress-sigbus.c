@@ -145,7 +145,7 @@ static int stress_sigbus(const stress_args_t *args)
 
 		ret = sigsetjmp(jmp_env, 1);
 		/*
-		 * We return here if we segfault, so
+		 * We return here if we get a SIGBUS, so
 		 * first check if we need to terminate
 		 */
 		if (!stress_continue(args))
