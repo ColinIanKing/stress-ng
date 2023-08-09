@@ -2901,9 +2901,9 @@ static void stress_exit_status_type(const char *name, const size_t type)
  */
 static void stress_exit_status_summary(void)
 {
+	stress_exit_status_type("skipped", STRESS_STRESSOR_STATUS_SKIPPED);
 	stress_exit_status_type("passed", STRESS_STRESSOR_STATUS_PASSED);
 	stress_exit_status_type("failed", STRESS_STRESSOR_STATUS_FAILED);
-	stress_exit_status_type("skipped", STRESS_STRESSOR_STATUS_SKIPPED);
 	stress_exit_status_type("metrics untrustworthy", STRESS_STRESSOR_STATUS_BAD_METRICS);
 }
 
