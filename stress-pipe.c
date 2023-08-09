@@ -31,6 +31,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#if !defined(PIPE_BUF)
+#define PIPE_BUF	(4096)
+#endif
+
 static int stress_set_pipe_vmsplice(const char *opt)
 {
 	return stress_set_setting_true("pipe-vmsplice", opt);
