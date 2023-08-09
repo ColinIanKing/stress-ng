@@ -70,7 +70,8 @@
 #include <sys/statvfs.h>
 #endif
 
-#if defined(HAVE_SYS_SWAP_H)
+#if defined(HAVE_SYS_SWAP_H) &&	\
+    !defined(__sun__)
 #include <sys/swap.h>
 #endif
 
