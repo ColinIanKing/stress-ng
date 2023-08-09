@@ -2300,6 +2300,8 @@ static void stress_wait_stressors(
 	 */
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 		stress_wait_aggressive(ticks_per_sec, stressors_list);
+#else
+	(void)ticks_per_sec;
 #endif
 	for (ss = stressors_list; ss; ss = ss->next) {
 		int32_t j;
