@@ -18,13 +18,22 @@
  */
 #include <immintrin.h>
 #include <string.h>
+#include <stdlib.h>
+
+void rndset(unsigned char *ptr, const size_t len)
+{
+	size_t i;
+
+	for (i = 0; i < len; i++)
+		ptr[i] = random();
+}
 
 int __attribute__ ((target("avxvnni"))) main(int argc, char **argv)
 {
 	__m128i a, b, r;
 
-	(void)memset(&a, 0xa5, sizeof(a));
-	(void)memset(&b, 0x5a, sizeof(b));
+	(void)rndset((unsigned char *)&a, sizeof(a));
+	(void)rndset((unsigned char *)&b, sizeof(b));
 	r = _mm_add_epi8(a, b);
 
 	return 0;
