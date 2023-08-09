@@ -39,8 +39,10 @@ typedef enum {
 	STRESS_CACHE_WAYS
 } cache_size_type_t;
 
+#if defined(__linux__)
 static const char stress_sys_cpu_prefix[] = "/sys/devices/system/cpu";
 static const char stress_cpu_cache_dir[] = "cache";
+#endif
 
 /*
  * stress_cpu_cache_get_cpu()
