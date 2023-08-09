@@ -164,12 +164,26 @@ static int stress_sigbus(const stress_args_t *args)
 				pr_fail("%s: expecting SIGBUS, got %s instead\n",
 					args->name, strsignal(signo));
 			}
-#if defined(BUS_ADRERR)
-			if (verify && (signo == SIGBUS) && (code != BUS_ADRERR)) {
-				pr_fail("%s: expecting SIGBUS si_code BUS_ADRERR (%d), got %d instead\n",
-					args->name, BUS_ADRERR, code);
-			}
+			if (verify && (signo == SIGBUS)) {
+				switch (code) {
+#if defined(BUS_ADRALN)
+				case BUS_ADRALN:
+					break;
 #endif
+#if defined(BUS_ADRERR)
+				case BUS_ADRERR:
+					break;
+#endif
+#if defined(BUS_OBJERR)
+				case BUS_OBJERR:
+					break;
+#endif
+				default:
+					pr_fail("%s: unexpecting SIGBUS si_code %d\n",
+						args->name, code);
+					break;
+				}
+			}
 #endif
 			stress_bogo_inc(args);
 		} else {
