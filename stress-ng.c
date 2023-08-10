@@ -3558,7 +3558,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info && stressors[i].info->supported) {
-			stress_stressor_t *ss = stressors_head;
+			stress_stressor_t *ss;
 			unsigned int id = stressors[i].id;
 
 			for (ss = stressors_head; ss; ss = ss->next) {
