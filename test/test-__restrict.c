@@ -18,7 +18,7 @@
  *
  */
 
-void test(char * __restrict dst, char * __restrict src, int n)
+void test(char * __restrict dst, const char * __restrict src, int n)
 {
 	int i;
 
