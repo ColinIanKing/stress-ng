@@ -509,7 +509,6 @@ static int stress_pipe_write_splice_verify(
 	uint32_t val)
 {
 	int rc = 0;
-	uint32_t *buf32;
 	register uint64_t bytes = 0;
 	struct iovec iov;
 	size_t offset = 0;
@@ -520,6 +519,7 @@ static int stress_pipe_write_splice_verify(
 
 	do {
 		register ssize_t ret;
+		uint32_t *buf32;
 
 		iov.iov_base = buf + offset;
 		buf32 = (uint32_t *)iov.iov_base;
