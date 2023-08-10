@@ -2264,10 +2264,10 @@ static void stress_dev_cdrom_linux(
 
 #if defined(CDROM_SELECT_SPEED)
 	IOCTL_TIMEOUT(0.10, {
-		unsigned int i;
+		unsigned int j;
 
-		for (i = 8; i < 16; i++) {
-			unsigned int speed = 1 << i;
+		for (j = 8; j < 16; j++) {
+			unsigned int speed = 1 << j;
 
 			VOID_RET(int, ioctl(fd, CDROM_SELECT_SPEED, speed));
 		}
