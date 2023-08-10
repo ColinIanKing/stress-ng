@@ -4337,15 +4337,14 @@ static inline void stress_run_permute(
 	bool *metrics_success)
 {
 	stress_stressor_t *ss;
-	size_t i, n, perms, num_perms;
+	size_t i, perms, num_perms;
 	const size_t max_perms = 16;
 	char str[4096];
 
-	for (n = 0, perms = 0, ss = stressors_head; ss; ss = ss->next) {
+	for (perms = 0, ss = stressors_head; ss; ss = ss->next) {
 		ss->ignore.permute = true;
 		if (!ss->ignore.run)
 			perms++;
-		n++;
 	}
 
 	if (perms > max_perms) {
