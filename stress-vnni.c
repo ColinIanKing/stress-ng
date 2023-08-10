@@ -37,7 +37,8 @@ static const stress_help_t help[] = {
 };
 
 #if (defined(HAVE_COMPILER_GCC) ||	\
-     defined(HAVE_COMPILER_CLANG)) &&	\
+     defined(HAVE_COMPILER_CLANG) ||	\
+     defined(HAVE_COMPILER_ICX)) &&	\
     !defined(HAVE_COMPILER_ICC)
 #define	TARGET_AVXVNNI		__attribute__ ((target("avxvnni")))
 #define TARGET_AVX512BW		__attribute__ ((target("avx512bw")))
