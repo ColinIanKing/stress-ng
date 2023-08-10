@@ -525,7 +525,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Practical analysis of the Precision Time Protocol under different types of system load](http://www.diva-portal.org/smash/get/diva2:1106630/FULLTEXT01.pdf)
 * [Towards Virtual Machine Energy-Aware Cost Prediction in Clouds](http://eprints.whiterose.ac.uk/124309/1/paper_final.pdf)
 * [Algorithms and Architectures for Parallel Processing](https://books.google.co.uk/books?id=S4wwDwAAQBAJ&pg=PA7&lpg=PA7&dq=http://kernel.ubuntu.com/~cking/stress-ng/&source=bl&ots=bVZccBq2Io&sig=rIqKWyEhGmVPosAJiemKjGgEv0M&hl=en&sa=X&ved=0ahUKEwiFo6LO2fbXAhWBtxQKHRcnDY04HhDoAQguMAE#v=onepage&q=http%3A%2F%2Fkernel.ubuntu.com%2F~cking%2Fstress-ng%2F&f=false)
-* [Advanced concepts and tools for renewable energy supply of Data Centres](file:///home/cking/Downloads/RP_9788793519411.pdf)
+* [Advanced concepts and tools for renewable energy supply of Data Centres](https://www.riverpublishers.com/pdf/ebook/RP_9788793519411.pdf)
 * [Monitoring and Modelling Open Compute Servers](http://staff.www.ltu.se/~damvar/Publications/Eriksson%20et%20al.%20-%202017%20-%20Monitoring%20and%20Modelling%20Open%20Compute%20Servers.pdf)
 * [Experimental and numerical analysis for potential heat reuse in liquid cooled data centres](http://personals.ac.upc.edu/jguitart/HomepageFiles/ECM16.pdf)
 * [Modeling and Analysis of Performance under Interference in the Cloud](https://www3.cs.stonybrook.edu/~anshul/mascots17.pdf)
