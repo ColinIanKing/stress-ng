@@ -59,7 +59,7 @@ static int stress_memhotplug_supported(const char *name)
 	return 0;
 }
 
-static bool stress_memhotplug_removable(char *name)
+static bool stress_memhotplug_removable(const char *name)
 {
 	char path[PATH_MAX];
 	char buf[64];
