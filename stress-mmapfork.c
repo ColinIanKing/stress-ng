@@ -56,7 +56,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 	_exit(segv_ret);
 }
 
-static void notrunc_strlcat(char *dst, char *src, size_t *n)
+static void notrunc_strlcat(char *dst, const char *src, size_t *n)
 {
 	const size_t ln = strlen(src);
 
