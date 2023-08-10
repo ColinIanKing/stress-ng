@@ -1411,7 +1411,7 @@ static void stress_ignore_stressor(stress_stressor_t *ss, uint8_t reason)
  *  stress_get_class_id()
  *	find the class id of a given class name
  */
-static uint32_t stress_get_class_id(char *const str)
+static uint32_t stress_get_class_id(const char *const str)
 {
 	size_t i;
 
