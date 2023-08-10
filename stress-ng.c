@@ -2306,6 +2306,9 @@ static void stress_wait_stressors(
 	for (ss = stressors_list; ss; ss = ss->next) {
 		int32_t j;
 
+		if (ss->ignore.run || ss->ignore.permute)
+			continue;
+
 		for (j = 0; j < ss->num_instances; j++) {
 			stress_stats_t *const stats = ss->stats[j];
 			const pid_t pid = stats->pid;
@@ -2557,9 +2560,7 @@ static void MLOCKED_TEXT stress_run(
 	for (g_stressor_current = stressors_list; g_stressor_current; g_stressor_current = g_stressor_current->next) {
 		int32_t j;
 
-		if (g_stressor_current->ignore.run)
-			continue;
-		if (g_stressor_current->ignore.permute)
+		if (g_stressor_current->ignore.run || g_stressor_current->ignore.permute)
 			continue;
 
 		/*
@@ -2932,6 +2933,9 @@ static void stress_metrics_check(bool *success)
 			const stress_stats_t *const stats = ss->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
+
+			if (!stats->completed)
+				continue;
 
 			counter_check |= stats->ci.counter;
 			if (stats->duration < min_run_time)
