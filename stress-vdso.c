@@ -174,7 +174,7 @@ static const stress_wrap_func_t wrap_funcs[] = {
  *  func_find()
  *	find wrapper function by symbol name
  */
-static stress_vdso_func_t func_find(char *name)
+static stress_vdso_func_t func_find(const char *name)
 {
 	size_t i;
 
