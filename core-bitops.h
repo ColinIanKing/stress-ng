@@ -132,7 +132,8 @@ static inline uint32_t OPTIMIZE3 stress_bitreverse32(const uint32_t val)
  */
 static inline uint32_t OPTIMIZE3 stress_popcount64(const uint64_t val)
 {
-#if defined(HAVE_BUILTIN_POPCOUNT)
+#if defined(HAVE_BUILTIN_POPCOUNT) &&	\
+    !defined(HAVE_COMPILER_PCC)
 	return  (uint32_t)__builtin_popcountll(val);
 #else
 	/* Brian Kernighan's count bits */
