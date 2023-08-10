@@ -334,7 +334,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	(*total_count)++;
 }
 
-static uint64_t stress_prefetch_data_set(uint64_t *l3_data, uint64_t *l3_data_end)
+static uint64_t stress_prefetch_data_set(uint64_t *l3_data, const uint64_t *l3_data_end)
 {
         register uint32_t const a = 16843009;
         register uint32_t const c = 826366247;
