@@ -70,7 +70,7 @@ static int stress_set_switch_freq(const char *opt)
  */
 static void stress_switch_rate(
 	const stress_args_t *args,
-	char *method,
+	const char *method,
 	const double t_start,
 	const double t_end,
 	uint64_t counter)
