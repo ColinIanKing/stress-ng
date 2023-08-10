@@ -255,7 +255,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(const stress_args_t *ar
 {
 	register int i, j;
 	uint32_t *r32 = (uint32_t *)result;
-	uint32_t *c32 = (uint32_t *)c_init;
+	register const uint32_t *c32 = (uint32_t *)c_init;
 
 	(void)args;
 
@@ -347,7 +347,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpwssd(const stress_args_t *ar
 	int16_t *a16 = (int16_t *)a_init;
 	int16_t *b16 = (int16_t *)b_init;
 	int32_t *r32 = (int32_t *)result;
-	int32_t *c32 = (int32_t *)c_init;
+	register const int32_t *c32 = (int32_t *)c_init;
 
 	(void)args;
 
