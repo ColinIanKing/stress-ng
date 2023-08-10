@@ -472,6 +472,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 
 ## Kernel improvements that used stress-ng
 
+2020:
 * [selinux: complete the inlining of hashtab functions](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=54b27f9287a7b3dfc85549f01fc9d292c92c68b9)
 * [selinux: store role transitions in a hash table](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=e67b2ec9f6171895e774f6543626913960e019df)
 * [sched/rt: Optimize checking group RT scheduler constraints](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b4fb015eeff7f3e5518a7dbe8061169a3e2f2bc7)
@@ -479,18 +480,24 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [sched/deadline: Unthrottle PI boosted threads while enqueuing](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=feff2e65efd8d84cf831668e182b2ce73c604bbb)
 * [mm: fix madvise WILLNEED performance problem](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=66383800df9cbdbf3b0c34d5a51bf35bcdb72fd2)
 * [powerpc/dma: Fix dma_map_ops::get_required_mask](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=437ef802e0adc9f162a95213a3488e8646e5fc03)
+* [stress-ng close causes kernel oops(es) v5.6-rt and v5.4-rt](https://www.spinics.net/lists/linux-rt-users/msg22350.html)
+
+2021:
 * [Revert "mm, slub: consider rest of partial list if acquire_slab() fails](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=9b1ea29bc0d7b94d420f96a0f4121403efc3dd85)
 * [mm: memory: add orig_pmd to struct vm_fault](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5db4f15c4fd7ae74dd40c6f84bf56dfcf13d10cf)
 * [selftests/powerpc: Add test of mitigation patching](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=34f7f79827ec4db30cff9001dfba19f496473e8d)
 * [dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=528b16bfc3ae5f11638e71b3b63a81f9999df727)
 * [mm/migrate: optimize hotplug-time demotion order updates](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=295be91f7ef0027fca2f2e4788e99731aa931834)
 * [powerpc/rtas: rtas_busy_delay() improvements](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=38f7b7067dae0c101be573106018e8af22a90fdf)
+
+2022:
 * [sched/core: Accounting forceidle time for all tasks except idle task](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b171501f258063f5c56dd2c5fdf310802d8d7dc1)
 * [ipc/mqueue: use get_tree_nodev() in mqueue_get_tree()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d60c4d01a98bc1942dba6e3adc02031f5519f94b)
+
+2023:
 * [mm/swapfile: add cond_resched() in get_swap_pages()](https://lore.kernel.org/lkml/20230129130320.7e2e4445ecc4b172c61c7b9c@linux-foundation.org/T/)
 * [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
 * [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
-* [stress-ng close causes kernel oops(es) v5.6-rt and v5.4-rt](https://www.spinics.net/lists/linux-rt-users/msg22350.html)
 
 ## Presentations
 
