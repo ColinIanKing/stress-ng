@@ -492,12 +492,18 @@ STRESS_SRC = \
 	stress-zlib.c \
 	stress-zombie.c \
 
+
+#
+#  Build time core source files
+#
+CORE_SRC_GEN = \
+	core-config.c
+
 #
 # Stress core
 #
 CORE_SRC = \
 	core-affinity.c \
-	core-config.c \
 	core-cpu.c \
 	core-cpu-cache.c \
 	core-cpuidle.c \
@@ -542,7 +548,7 @@ CORE_SRC = \
 	core-vmstat.c \
 	stress-ng.c
 
-SRC = $(CORE_SRC) $(STRESS_SRC)
+SRC = $(CORE_SRC) $(CORE_SRC_GEN) $(STRESS_SRC)
 OBJS = apparmor-data.o
 OBJS += stress-eigen-ops.o
 OBJS += $(SRC:.c=.o)
@@ -666,13 +672,13 @@ stress-ng.1.gz: stress-ng.1
 dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
-	cp -rp Makefile Makefile.config $(SRC) $(HEADERS) stress-ng.1 \
-		COPYING syscalls.txt mascot README.md Dockerfile \
-		README.Android test snap presentations .github \
-		TODO core-perf-event.c usr.bin.pulseaudio.eg \
-		stress-eigen-ops.c stress-eigen-ops.cpp \
-		core-personality.c bash-completion example-jobs .travis.yml \
-		kernel-coverage.sh code-of-conduct.txt stress-ng-$(VERSION)
+	cp -rp Makefile Makefile.config $(CORE_SRC) $(STRESS_SRC) $(HEADERS) \
+		stress-ng.1 COPYING syscalls.txt mascot README.md Dockerfile \
+		README.Android test snap presentations .github TODO \
+		core-perf-event.c usr.bin.pulseaudio.eg stress-eigen-ops.c \
+		stress-eigen-ops.cpp core-personality.c bash-completion \
+		example-jobs .travis.yml kernel-coverage.sh \
+		code-of-conduct.txt stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
