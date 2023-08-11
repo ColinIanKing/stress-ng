@@ -29,14 +29,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if (defined(STRESS_ARCH_X86) ||	\
+#if (defined(STRESS_ARCH_X86) ||		\
      defined(STRESS_ARCH_ARM) ||	\
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
      defined(STRESS_ARCH_PPC64)) &&	\
-     defined(HAVE_COMPILER_GCC) &&	\
-     NEED_GNUC(4,6,0) &&		\
-     defined(HAVE_MPROTECT)
+     defined(HAVE_MPROTECT) &&		\
+     ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(4,6,0)) ||		\
+      (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(9,0,0)) || 		\
+      (defined(HAVE_COMPILER_ICX) && NEED_ICX(2023,2,0)) ||		\
+      (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021,0,0)))
 
 typedef void (*icache_func_ptr)(void);
 

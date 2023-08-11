@@ -68,4 +68,12 @@
 #define NEED_ICC(major, minor, patchlevel)	(0)
 #endif
 
+#if defined(__clang__) &&     \
+   (defined(__INTEL_CLANG_COMPILER) || defined(__INTEL_LLVM_COMPILER))
+#define NEED_ICX(major, minor, patchlevel)		\
+	STRESS_VERSION_NUMBER(major, minor, patchlevel) <= __INTEL_CLANG_COMPILER
+#else
+#define NEED_ICX(major, minor, patchlevel)	(0)
+#endif
+
 #endif
