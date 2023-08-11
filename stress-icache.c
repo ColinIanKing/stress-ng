@@ -158,6 +158,20 @@ STRESS_ICACHE(stress_icache_64K, SIZE_64K, stress_icache_func_64K)
 STRESS_ICACHE(stress_icache_16K, SIZE_16K, stress_icache_func_16K)
 STRESS_ICACHE(stress_icache_4K, SIZE_4K, stress_icache_func_4K)
 
+typedef int (*stress_icached_func_t)(const stress_args_t *args);
+
+static int stress_icache_exercise(const stress_args_t *args, stress_icached_func_t func)
+{
+	if ((uintptr_t)func & (4096 - 1)) {
+		if (args->instance == 0) {
+			pr_inf_skip("%s: test functions are not page aligned, "
+				"skipping stressor\n", args->name);
+		}
+		return EXIT_NOT_IMPLEMENTED;
+	}
+	return func(args);
+}
+
 /*
  *  stress_icache()
  *	entry point for stress instruction cache load misses
@@ -173,14 +187,14 @@ static int stress_icache(const stress_args_t *args)
 
 	switch (args->page_size) {
 	case SIZE_4K:
-		ret = stress_icache_4K(args);
+		ret = stress_icache_exercise(args, stress_icache_4K);
 		break;
 	case SIZE_16K:
-		ret = stress_icache_16K(args);
+		ret = stress_icache_exercise(args, stress_icache_16K);
 		break;
 #if defined(HAVE_ALIGNED_64K)
 	case SIZE_64K:
-		ret = stress_icache_64K(args);
+		ret = stress_icache_exercise(args, stress_icache_64K);
 		break;
 #endif
 	default:
