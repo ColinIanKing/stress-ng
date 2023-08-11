@@ -135,6 +135,7 @@ BASHDIR=/usr/share/bash-completion/completions
 HEADERS = \
 	core-arch.h \
 	core-asm-arm.h \
+	core-asm-generic.h \
 	core-asm-ppc64.h \
 	core-asm-riscv.h \
 	core-asm-s390.h \
