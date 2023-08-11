@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.16.02
+VERSION=0.16.03
 #
-# Codename "capable cache cruncher"
+# Codename "determinted data diddler"
 #
 
 KERNEL=$(shell uname -s)
