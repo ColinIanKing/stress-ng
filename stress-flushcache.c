@@ -255,16 +255,19 @@ static int stress_flushcache_child(const stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_flushcache_nohugepage(context->i_addr, context->i_size);
+	if (context->i_addr)
+		(void)stress_flushcache_nohugepage(context->i_addr, context->i_size);
 	(void)stress_flushcache_nohugepage(context->d_addr, context->d_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_flush_icache(args, context);
+		if (context->i_addr)
+			stress_flush_icache(args, context);
 		stress_flush_dcache(args, context);
 
-		shim_cacheflush(context->i_addr, context->i_size, SHIM_ICACHE | SHIM_DCACHE);
+		if (context->i_addr)
+			shim_cacheflush(context->i_addr, context->i_size, SHIM_ICACHE | SHIM_DCACHE);
 		shim_cacheflush(context->d_addr, context->d_size, SHIM_ICACHE | SHIM_DCACHE);
 
 		stress_bogo_inc(args);
@@ -304,15 +307,25 @@ static int stress_flushcache(const stress_args_t *args)
 #endif
 	default:
 #if defined(HAVE_ALIGNED_64K)
-		pr_inf_skip("%s: page size %zu is not %u or %u or %u, cannot test, skipping stressor\n",
-			args->name, args->page_size,
-			SIZE_4K, SIZE_16K, SIZE_64K);
+		if (args->instance == 0)
+			pr_inf_skip("%s: page size %zu is not %u or %u or %u, cannot test, skipping stressor\n",
+				args->name, args->page_size,
+				SIZE_4K, SIZE_16K, SIZE_64K);
 #else
-		pr_inf_skip("%s: page size %zu is not %u or %u, cannot test, skipping stressor\n",
-			args->name, args->page_size,
-			SIZE_4K, SIZE_16K);
+		if (args->instance == 0)
+			pr_inf_skip("%s: page size %zu is not %u or %u, cannot test, skipping stressor\n",
+				args->name, args->page_size,
+				SIZE_4K, SIZE_16K);
 #endif
 		return EXIT_NO_RESOURCE;
+	}
+
+	if (((uintptr_t)context.icache_func) & (4096 - 1)) {
+		if (args->instance == 0)
+			pr_inf("%s: test functions are not page aligned, "
+				"disabling instruction cache stressing\n",
+				args->name);
+		context.icache_func = NULL;
 	}
 
 	context.i_addr = (void *)context.icache_func;
