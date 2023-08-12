@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-ret.h"
 #include "core-builtin.h"
 
 static const stress_help_t help[] = {
@@ -43,81 +44,22 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define PAGE_MULTIPLES	(8)
 
-#if defined(__BYTE_ORDER__) &&		\
+#if defined(__BYTE_ORDER__) &&	\
     defined(__ORDER_LITTLE_ENDIAN__)
 #if __BYTE_ORDER__  == __ORDER_LITTLE_ENDIAN__
 #define STRESS_ARCH_LE
 #endif
 #endif
 
-#if defined(__BYTE_ORDER__) &&		\
+#if defined(__BYTE_ORDER__) &&	\
     defined(__ORDER_BIG_ENDIAN__)
 #if __BYTE_ORDER__  == __ORDER_BIG_ENDIAN__
 #define STRESS_ARCH_BE
 #endif
 #endif
 
-#if defined(HAVE_MPROTECT) &&					\
-    !defined(__NetBSD__) &&					\
-    ((defined(STRESS_ARCH_ARM) && defined(__aarch64__)) ||	\
-     defined(STRESS_ARCH_ALPHA) ||				\
-     defined(STRESS_ARCH_HPPA) ||				\
-     defined(STRESS_ARCH_M68K) ||				\
-     (defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_LE)) ||	\
-     (defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_BE)) ||	\
-     (defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)) ||	\
-     defined(STRESS_ARCH_RISCV) ||				\
-     defined(STRESS_ARCH_S390) ||				\
-     defined(STRESS_ARCH_SH4) ||				\
-     defined(STRESS_ARCH_SPARC) ||				\
-     defined(STRESS_ARCH_X86))
-
-typedef struct {
-	const size_t stride;		/* Bytes between each function */
-	const size_t len;		/* Length of return function */
-	const char *assembler;		/* Assembler */
-	const uint8_t opcodes[];	/* Opcodes of return function */
-} ret_opcode_t;
-
-static ret_opcode_t ret_opcode =
-#if defined(STRESS_ARCH_ALPHA)
-        { 4, 4, "ret", { 0x01, 0x80, 0xfa, 0x6b } };
-#endif
-#if defined(STRESS_ARCH_ARM) && defined(__aarch64__)
-	{ 4, 4, "ret", { 0xc0, 0x03, 0x5f, 0xd6 } };
-#endif
-#if defined(STRESS_ARCH_HPPA)
-	{ 8, 8, "bv,n r0(rp); nop", { 0xe8, 0x40, 0xc0, 0x02, 0x08, 0x00, 0x02, 0x40 } };
-#endif
-#if defined(STRESS_ARCH_M68K)
-	{ 2, 2, "rts", { 0x4e, 0x75 } };
-#endif
-#if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_LE)
-	{ 8, 8, "jr ra; nop", { 0x08, 0x00, 0xe0, 0x03, 0x00, 0x00, 0x00, 0x00 } };
-#endif
-#if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_BE)
-	{ 8, 8, "jr ra; nop", { 0x03, 0xe0, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00 } };
-#endif
-#if defined(STRESS_ARCH_PPC64) && defined(STRESS_ARCH_LE)
-	{ 8, 8, "blr; nop", { 0x20, 0x00, 0x80, 0x4e, 0x00, 0x00, 0x00, 0x60 } };
-#endif
-#if defined(STRESS_ARCH_RISCV)
-	{ 2, 2, "ret", { 0x82, 0x080 } };
-#endif
-#if defined(STRESS_ARCH_S390)
-	{ 2, 2, "br %r14", { 0x07, 0xfe } };
-#endif
-#if defined(STRESS_ARCH_SH4)
-	{ 4, 4, "rts; nop", { 0x0b, 0x00, 0x09, 0x00 } };
-#endif
-#if defined(STRESS_ARCH_SPARC)
-	{ 8, 8, "retl; add %o7, %l7, %l7", { 0x81, 0xc3, 0xe0, 0x08, 0xae, 0x03, 0xc0, 0x17 } };
-#endif
-#if defined(STRESS_ARCH_X86)
-	{ 1, 1, "ret", { 0xc3 } };
-#endif
-
-typedef void (*ret_func_t)(void);
+#if defined(HAVE_MPROTECT) &&	\
+    !defined(__NetBSD__)
 
 static int sigs[] = {
 #if defined(SIGILL)
@@ -224,7 +166,7 @@ static void *stress_far_mmap(
 	const size_t page_size,		/* Page size */
 	const uintptr_t base,		/* Base address (stress_far_branch) */
 	size_t offset, 			/* Desired offset from base */
-	ret_func_t *funcs,		/* Array of function pointers */
+	stress_ret_func_t *funcs,	/* Array of function pointers */
 	size_t *total_funcs)		/* Total number of functions */
 {
 	uint8_t *ptr;
@@ -279,9 +221,9 @@ static void *stress_far_mmap(
 	}
 
 use_page:
-	for (i = 0; i < page_size; i += ret_opcode.stride) {
-		(void)shim_memcpy((ptr + i), ret_opcode.opcodes, ret_opcode.len);
-		funcs[*total_funcs] = (ret_func_t)(ptr + i);
+	for (i = 0; i < page_size; i += stress_ret_opcode.stride) {
+		(void)shim_memcpy((ptr + i), stress_ret_opcode.opcodes, stress_ret_opcode.len);
+		funcs[*total_funcs] = (stress_ret_func_t)(ptr + i);
 		(*total_funcs)++;
 	}
 
@@ -312,13 +254,13 @@ static int stress_far_branch(const stress_args_t *args)
 	double t_start, duration, rate;
 	struct sigaction sa;
 	int ret;
-	NOCLOBBER ret_func_t *funcs = NULL;
+	NOCLOBBER stress_ret_func_t *funcs = NULL;
 	NOCLOBBER void **pages = NULL;
 	NOCLOBBER size_t total_funcs = 0;
 	NOCLOBBER double calls = 0.0;
 
 	(void)stress_get_setting("far-branch-pages", &n_pages);
-	max_funcs = (n_pages * page_size) / ret_opcode.stride;
+	max_funcs = (n_pages * page_size) / stress_ret_opcode.stride;
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -359,7 +301,7 @@ static int stress_far_branch(const stress_args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: using assembler '%s' as function return code\n", args->name, ret_opcode.assembler);
+		pr_dbg("%s: using assembler '%s' as function return code\n", args->name, stress_ret_opcode.assembler);
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sig_handler;
@@ -417,7 +359,7 @@ static int stress_far_branch(const stress_args_t *args)
 	 */
 	for (j = 0; j < 5; j++) {
 		for (i = 0; i < total_funcs; i++) {
-			register ret_func_t tmp;
+			register stress_ret_func_t tmp;
 
 			k = stress_mwc32modn(total_funcs);
 
@@ -485,6 +427,7 @@ stressor_info_t stress_far_branch_info = {
 	.stressor = stress_far_branch,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
+	.supported = stress_asm_ret_supported,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
@@ -493,6 +436,7 @@ stressor_info_t stress_far_branch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
+	.supported = stress_asm_ret_supported,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 #if defined(__NetBSD__)

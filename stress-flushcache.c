@@ -20,8 +20,9 @@
 #include "core-arch.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
+#include "core-asm-ret.h"
+#include "core-builtin.h"
 #include "core-cpu-cache.h"
-#include "core-icache.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"flushcache N",		"start N CPU instruction + data cache flush workers" },
@@ -40,10 +41,8 @@ static const stress_help_t help[] = {
       (defined(HAVE_COMPILER_ICX) && NEED_ICX(2023,2,0)) ||		\
       (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021,0,0)))
 
-typedef void (*icache_func_ptr)(void);
-
 typedef struct {
-	icache_func_ptr icache_func;	/* 4K/16K/64K sized i-cache function */
+	stress_ret_func_t icache_func;	/* 4K/16K/64K sized i-cache function */
 	void	*d_addr;		/* data cache address */
 	void	*i_addr;		/* instruction cache address */
 	size_t	d_size;			/* data cache size */
@@ -289,47 +288,21 @@ static int stress_flushcache(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	stress_flushcache_context_t context;
+	int ret;
 
 	context.x86_clfsh = stress_cpu_x86_has_clfsh();
 	context.x86_demote = stress_cpu_x86_has_cldemote();
-
-	switch (page_size) {
-	case SIZE_4K:
-		context.icache_func = stress_icache_func_4K;
-		break;
-	case SIZE_16K:
-		context.icache_func = stress_icache_func_16K;
-		break;
-#if defined(HAVE_ALIGNED_64K)
-	case SIZE_64K:
-		context.icache_func = stress_icache_func_64K;
-		break;
-#endif
-	default:
-#if defined(HAVE_ALIGNED_64K)
-		if (args->instance == 0)
-			pr_inf_skip("%s: page size %zu is not %u or %u or %u, cannot test, skipping stressor\n",
-				args->name, args->page_size,
-				SIZE_4K, SIZE_16K, SIZE_64K);
-#else
-		if (args->instance == 0)
-			pr_inf_skip("%s: page size %zu is not %u or %u, cannot test, skipping stressor\n",
-				args->name, args->page_size,
-				SIZE_4K, SIZE_16K);
-#endif
+	context.i_addr = mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC,
+				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (context.i_addr == MAP_FAILED) {
+		pr_inf_skip("%s: could not mmap %zd sized page, skipping stressor\n",
+			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}
-
-	if (((uintptr_t)context.icache_func) & (4096 - 1)) {
-		if (args->instance == 0)
-			pr_inf("%s: test functions are not page aligned, "
-				"disabling instruction cache stressing\n",
-				args->name);
-		context.icache_func = NULL;
-	}
-
-	context.i_addr = (void *)context.icache_func;
+	context.icache_func = (stress_ret_func_t)context.i_addr;
 	context.i_size = page_size;
+
+	(void)shim_memcpy(context.i_addr, &stress_ret_opcode.opcodes, stress_ret_opcode.len);
 
 	stress_cpu_cache_get_llc_size(&context.d_size, &context.cl_size);
 	if (context.d_size < page_size)
@@ -337,18 +310,23 @@ static int stress_flushcache(const stress_args_t *args)
 	if (context.cl_size == 0)
 		context.cl_size = 64;
 
-	return stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
+	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
+
+	(void)munmap(context.i_addr, page_size);
+	return ret;
 }
 
 stressor_info_t stress_flushcache_info = {
 	.stressor = stress_flushcache,
 	.class = CLASS_CPU_CACHE,
+	.supported = stress_asm_ret_supported,
 	.help = help
 };
 #else
 stressor_info_t stress_flushcache_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
+	.supported = stress_asm_ret_supported,
 	.help = help,
 	.unimplemented_reason = "built without cache flush support"
 };

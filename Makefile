@@ -141,6 +141,7 @@ HEADERS = \
 	core-asm-s390.h \
 	core-asm-sparc.h \
 	core-asm-x86.h \
+	core-asm-ret.h \
 	core-bitops.h \
 	core-builtin.h \
 	core-capabilities.h \
@@ -148,7 +149,6 @@ HEADERS = \
 	core-cpu-cache.h \
 	core-ftrace.h \
 	core-hash.h \
-	core-icache.h \
 	core-io-priority.h \
 	core-nt-load.h \
 	core-nt-store.h \
@@ -505,12 +505,12 @@ CORE_SRC_GEN = \
 #
 CORE_SRC = \
 	core-affinity.c \
+	core-asm-ret.c \
 	core-cpu.c \
 	core-cpu-cache.c \
 	core-cpuidle.c \
 	core-hash.c \
 	core-helper.c \
-	core-icache.c \
 	core-ignite-cpu.c \
 	core-interrupts.c \
 	core-io-uring.c \
