@@ -844,6 +844,7 @@ static int stress_cpu_cache_get_index(
 	stress_cpu_cache_cpu_t *cpu,
 	const char *cpu_path)
 {
+#if defined(__linux__)
 	struct dirent **namelist = NULL;
 	int n;
 	uint32_t i;
@@ -887,6 +888,9 @@ list_free:
 	stress_dirent_list_free(namelist, n);
 
 	return n;
+#else
+	return 0;
+#endif
 }
 
 /*
