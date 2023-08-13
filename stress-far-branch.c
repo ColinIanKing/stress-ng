@@ -44,20 +44,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define PAGE_MULTIPLES	(8)
 
-#if defined(__BYTE_ORDER__) &&	\
-    defined(__ORDER_LITTLE_ENDIAN__)
-#if __BYTE_ORDER__  == __ORDER_LITTLE_ENDIAN__
-#define STRESS_ARCH_LE
-#endif
-#endif
-
-#if defined(__BYTE_ORDER__) &&	\
-    defined(__ORDER_BIG_ENDIAN__)
-#if __BYTE_ORDER__  == __ORDER_BIG_ENDIAN__
-#define STRESS_ARCH_BE
-#endif
-#endif
-
 #if defined(HAVE_MPROTECT) &&	\
     !defined(__NetBSD__)
 
