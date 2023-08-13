@@ -160,7 +160,7 @@ static int stress_icache(const stress_args_t *args)
 	(void)shim_memcpy(page, &stress_ret_opcode.opcodes, stress_ret_opcode.len);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_icache_func(args, page, page_size);
+	ret = stress_icache_func(args, page, page_size);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(page, page_size);
