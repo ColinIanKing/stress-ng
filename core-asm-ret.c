@@ -51,8 +51,11 @@ stress_ret_opcode_t stress_ret_opcode =
 
 int stress_asm_ret_supported(const char *name)
 {
+	char tmp[64];
+
 	if (stress_ret_opcode.len > 0)
 		return 0;
-	pr_inf("%s: architecture not supported\n", name);
+	stress_munge_underscore(tmp, name, sizeof(tmp));
+	pr_inf("%s: architecture not supported\n", tmp);
 	return -1;
 }
