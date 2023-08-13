@@ -760,6 +760,7 @@ out:
 	return CACHE_TYPE_UNKNOWN;
 }
 
+#if defined(__linux__)
 /*
  * stress_add_cpu_cache_detail()
  * @cache: stress_cpu_cache_t pointer.
@@ -813,7 +814,9 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 out:
 	return ret;
 }
+#endif
 
+#if defined(__linux__)
 /*
  *  index_filter()
  *	return 1 when filename is index followed by a digit
@@ -822,7 +825,9 @@ static int index_filter(const struct dirent *d)
 {
 	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit(d->d_name[5]));
 }
+#endif
 
+#if defined(__linux__)
 /*
  *  index_sort()
  *	sort by index number (digits 5 onwards)
@@ -834,6 +839,7 @@ static int index_sort(const struct dirent **d1, const struct dirent **d2)
 
 	return i1 - i2;
 }
+#endif
 
 /*
  *  stress_cpu_cache_get_index()
