@@ -1,3 +1,27 @@
+stress-ng (0.16.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * core-asm-ret: move STRESS_ARCH_{LE|BE} macros from stress-far-branch
+    to core-asm-ret
+  * core-asm-ret: convert _ in name to -
+  * stress-icache: fix missing assignment to ret
+  * core-cpu-cache: #ifdef out more functions not required for non-linux
+    builds
+  * core-cpu-cache: #ifdef out functions not required for non-linux builds
+  * core-cpu-cache: stress_cpu_cache_get_index: voidify args for
+    non-linux build
+  * core-cpu-cache: stress_cpu_cache_get_index: return 0 for non-linux
+    systems
+  * core-asm-ret: Add asm return function and re-use it in 3 stressors
+  * stress-icache: don't exercise i-cache if not page aligned
+  * stress-flushcache: don't exercise i-cache if not page aligned
+  * stress-lockbus: add more compiler support checks
+  * stress-icache: remove gcc constraint, there are no compiler
+    constraints now
+  * stress-flushcache: enable for more compilers (clang, icx, icc)
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 13 Aug 2023 23:10:14 +0100
+
 stress-ng (0.16.03-1) unstable; urgency=medium
 
   [ mingkwind ]
