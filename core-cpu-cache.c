@@ -55,8 +55,7 @@ static inline unsigned int stress_cpu_cache_get_cpu(const stress_cpu_cache_cpus_
 	return (cpu >= cpus->count) ? 0 : cpu;
 }
 
-#if defined(__linux__) ||	\
-    defined(__APPLE__)
+#if defined(__linux__)
 /*
  * stress_get_string_from_file()
  * 	read data from file into a fixed size buffer
@@ -670,8 +669,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 }
 #endif
 
-#if defined(__linux__) ||	\
-    defined(__APPLE__)
+#if defined(__linux__)
 /*
  * stress_cpu_cache_size_to_bytes()
  * 	Convert human-readable integer sizes (such as "32K", "4M") into bytes.
@@ -727,7 +725,12 @@ static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
 	}
 	return bytes;
 }
+#endif
 
+#if defined(__linux__) ||	\
+    defined(__APPLE__)
+
+#if defined(__linux__)
 static const stress_generic_map_t stress_cpu_cache_type_map[] = {
 	{ "data",		CACHE_TYPE_DATA },
 	{ "instruction",	CACHE_TYPE_INSTRUCTION },
@@ -759,6 +762,7 @@ static stress_cpu_cache_type_t stress_cpu_cache_get_type(const char *name)
 out:
 	return CACHE_TYPE_UNKNOWN;
 }
+#endif
 
 #if defined(__linux__)
 /*
@@ -1051,8 +1055,6 @@ static void stress_cpu_cache_get_details(stress_cpu_cache_cpu_t *cpu, const char
 	if (stress_cpu_cache_get_apple(cpu) > 0)
 		return;
 #endif
-
-
 	return;
 }
 #endif
