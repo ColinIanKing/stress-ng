@@ -889,6 +889,8 @@ list_free:
 
 	return n;
 #else
+	(void)cpu;
+	(void)cpu_path;
 	return 0;
 #endif
 }
