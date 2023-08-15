@@ -611,6 +611,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Data Leakage in Isolated Virtualized Enterprise Computing SystemsSystems](https://scholar.smu.edu/cgi/viewcontent.cgi?article=1034&context=engineering_compsci_etds)
 * [Considerations for Benchmarking Network Performance in Containerized Infrastructures](https://datatracker.ietf.org/doc/draft-dcn-bmwg-containerized-infra/)
 * [EnergAt: Fine-Grained Energy Attribution for Multi-Tenancy](https://hotcarbon.org/2023/pdf/a4-he.pdf)
+* [Quantifying the Security Profile of Linux Applications](https://dl.acm.org/doi/10.1145/3609510.3609814)
+* [Gotham Testbed: a Reproducible IoT Testbed for Security Experiments and Dataset Generation](https://arxiv.org/pdf/2207.13981.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
