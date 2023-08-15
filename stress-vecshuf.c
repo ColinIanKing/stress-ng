@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -34,15 +35,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_VECMATH) &&		\
-    defined(HAVE_BUILTIN_SHUFFLE)
+#if defined(HAVE_VECMATH)
 
 /* define vector types with unions to arrays of base type */
-#define VEC_TYPE_T(type, tag, elements)	\
-typedef union {				\
+#define VEC_TYPE_T(type, tag, elements)							\
+typedef union {										\
 	type  v	 ALIGNED(256) __attribute__ ((vector_size(elements * sizeof(type))));	\
 	type  i[elements] ALIGNED(256);							\
-} stress_vec_ ## tag ## _ ## elements ## _t;
+} stress_vec_ ## tag ## _ ## elements ## _t;						\
+											\
+typedef type stress_scalar_ ## tag ## _t;
 
 VEC_TYPE_T(uint8_t,  u8,     64)
 VEC_TYPE_T(uint16_t, u16,    32)
@@ -104,6 +106,45 @@ static double stress_vecshuf_all(
 	const stress_args_t *args,
 	stress_vec_data_t *vec_data);
 
+#if defined(HAVE_BUILTIN_SHUFFLE)
+#define SHIM_SHUFFLE_u8_64(dst, src, mask)	dst = __builtin_shuffle(src, mask)
+#define SHIM_SHUFFLE_u16_32(dst, src, mask)	dst = __builtin_shuffle(src, mask)
+#define SHIM_SHUFFLE_u32_16(dst, src, mask)	dst = __builtin_shuffle(src, mask)
+#define SHIM_SHUFFLE_u64_8(dst, src, mask)	dst = __builtin_shuffle(src, mask)
+#if defined(HAVE_INT128_T)
+#define SHIM_SHUFFLE_u128_4(dst, src, mask)	dst = __builtin_shuffle(src, mask)
+#endif
+#else
+
+#define STRESS_VEC_BUILTIN_SHUFFLE(tag, elements)		\
+static inline void shim_builtin_shuffle_ ## tag ## _ ## elements(\
+	stress_scalar_ ## tag ## _t *dst,			\
+	stress_scalar_ ## tag ## _t *src,			\
+	stress_scalar_ ## tag ## _t *mask)			\
+{								\
+	register int i;						\
+								\
+	for (i = 0; i < elements; i++) 				\
+		dst[i] = src[mask[i]];				\
+}
+
+#define SHIM_SHUFFLE_u8_64(dst, src, mask)	shim_builtin_shuffle_u8_64((void *)&(dst), (void *)&(src), (void *)&(mask))
+STRESS_VEC_BUILTIN_SHUFFLE(u8, 64)
+
+#define SHIM_SHUFFLE_u16_32(dst, src, mask)	shim_builtin_shuffle_u16_32((void *)&(dst), (void *)&(src), (void *)&(mask))
+STRESS_VEC_BUILTIN_SHUFFLE(u16, 32)
+
+#define SHIM_SHUFFLE_u32_16(dst, src, mask)	shim_builtin_shuffle_u32_16((void *)&(dst), (void *)&(src), (void *)&(mask))
+STRESS_VEC_BUILTIN_SHUFFLE(u32, 16)
+
+#define SHIM_SHUFFLE_u64_8(dst, src, mask)	shim_builtin_shuffle_u64_8((void *)&(dst), (void *)&(src), (void *)&(mask))
+STRESS_VEC_BUILTIN_SHUFFLE(u64, 8)
+#if defined(HAVE_INT128_T)
+STRESS_VEC_BUILTIN_SHUFFLE(u128, 4)
+#define SHIM_SHUFFLE_u128_4(dst, src, mask)	shim_builtin_shuffle_u128_4((void *)&(dst), (void *)&(src), (void *)&(mask))
+#endif
+#endif
+
 #define STRESS_VEC_SHUFFLE(tag, elements)				\
 static double TARGET_CLONES OPTIMIZE3 stress_vecshuf_ ## tag ## _ ## elements (	\
 	const stress_args_t *args,					\
@@ -124,8 +165,8 @@ PRAGMA_UNROLL_N(4)							\
 	for (i = 0; i < LOOPS_PER_CALL; i++) {				\
 		stress_vec_ ## tag ## _ ## elements ## _t tmp;		\
 									\
-		tmp.v = __builtin_shuffle(s->v, mask1->v);		\
-		s->v = __builtin_shuffle(tmp.v, mask2->v);		\
+		SHIM_SHUFFLE_ ## tag ## _ ## elements (tmp.v, s->v, mask1->v);\
+		SHIM_SHUFFLE_ ## tag ## _ ## elements (s->v, tmp.v, mask2->v);\
 	}								\
 	t2 = stress_time_now();						\
 									\
