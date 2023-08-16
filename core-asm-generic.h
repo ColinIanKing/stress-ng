@@ -21,6 +21,7 @@
 
 static inline void stress_asm_nop(void)
 {
+#if defined(HAVE_ASM_NOP)
 #if defined(STRESS_ARCH_KVX)
 	/*
 	 * Extra ;; required for KVX to indicate end of
@@ -29,6 +30,7 @@ static inline void stress_asm_nop(void)
 	__asm__ __volatile__("nop\n;;\n");
 #else
 	__asm__ __volatile__("nop;\n");
+#endif
 #endif
 }
 
