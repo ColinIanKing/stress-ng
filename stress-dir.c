@@ -164,6 +164,57 @@ static int stress_dir_read(
 }
 
 /*
+ *  stress_dir_rename()
+ *	rename all directories. Try to reproduce fixed in linux
+ * 	commit 9b378f6ad48cfa195ed868db9123c09ee7ec5ea2
+ *	("btrfs: fix infinite directory reads")
+ */
+static int stress_dir_rename(
+	const stress_args_t *args,
+	const char *path)
+{
+	DIR *dp;
+	struct dirent *de;
+	char new_filename[PATH_MAX];
+	char tmp[32];
+
+	(void)snprintf(tmp, sizeof(tmp), "rename-%" PRIu32 "-%jd", stress_mwc32(), (intmax_t)getpid());
+	stress_mk_filename(new_filename, sizeof(new_filename), path, tmp);
+
+	dp = opendir(path);
+	if (!dp)
+		return -1;
+
+	while (stress_continue(args) && ((de = readdir(dp)) != NULL)) {
+		char old_filename[PATH_MAX];
+
+		if (de->d_reclen == 0) {
+			pr_fail("%s: read a zero sized directory entry\n", args->name);
+			break;
+		}
+		if (de->d_name[0] == '.')
+			continue;
+
+		stress_mk_filename(old_filename, sizeof(old_filename), path, de->d_name);
+		if (rename(old_filename, new_filename) < 0) {
+			pr_fail("%s: rename %s to %s failed, errno=%d (%s)\n",
+				args->name, old_filename, new_filename,
+				errno, strerror(errno));
+			break;
+		}
+		if (rename(new_filename, old_filename) < 0) {
+			pr_fail("%s: rename %s to %s failed, errno=%d (%s)\n",
+				args->name, new_filename, old_filename,
+				errno, strerror(errno));
+			break;
+		}
+	}
+	(void)closedir(dp);
+
+	return 0;
+}
+
+/*
  *  stress_dir_tidy()
  *	remove all dentries
  */
@@ -352,6 +403,12 @@ static int stress_dir(const stress_args_t *args)
 			break;
 		}
 		stress_dir_read(args, pathname);
+		if (!stress_continue(args)) {
+			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+			stress_dir_tidy(args, i);
+			break;
+		}
+		stress_dir_rename(args, pathname);
 		if (!stress_continue(args)) {
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 			stress_dir_tidy(args, i);
