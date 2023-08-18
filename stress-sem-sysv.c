@@ -115,16 +115,6 @@ static void stress_semaphore_sysv_init(void)
 		/* Clean up */
 		(void)semctl(g_shared->sem_sysv.sem_id, 0, IPC_RMID);
 	}
-
-	if (g_opt_sequential) {
-		pr_inf_skip("semaphore init (System V) failed: errno=%d: "
-			"(%s), skipping semaphore stressor\n",
-			errno, strerror(errno));
-	} else {
-		pr_fail("semaphore init (System V) failed: errno=%d: "
-			"(%s)\n", errno, strerror(errno));
-		_exit(EXIT_FAILURE);
-	}
 }
 
 /*
@@ -557,6 +547,11 @@ static int stress_sem_sysv(const stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
+	if (!g_shared->sem_sysv.init) {
+		pr_inf_skip("%s: skipping stressor, semaphore not initialised\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	if (!stress_get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			semaphore_sysv_procs = MAX_SEM_SYSV_PROCS;
@@ -564,10 +559,6 @@ static int stress_sem_sysv(const stress_args_t *args)
 			semaphore_sysv_procs = MIN_SEM_SYSV_PROCS;
 	}
 
-	if (!g_shared->sem_sysv.init) {
-		pr_err("%s: aborting, semaphore not initialised\n", args->name);
-		return EXIT_FAILURE;
-	}
 
 	if (stress_sighandler(args->name, SIGCHLD, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
