@@ -2434,7 +2434,6 @@ extern const char g_app_name[];		/* Name of application */
 extern stress_shared_t *g_shared;	/* shared memory */
 extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */
-extern int32_t g_opt_sequential;	/* Number of sequential stressors */
 extern int32_t g_opt_parallel;		/* Number of parallel stressors */
 extern volatile bool g_stress_continue_flag; /* false to exit stressor */
 extern volatile bool g_caught_signal;	/* true if stopped by SIGINT/SIGALRM */
