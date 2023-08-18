@@ -25,10 +25,16 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"zero N",	"start N workers reading /dev/zero" },
+	{ NULL,	"zero N",	"start N workers exercising /dev/zero with read, mmap, ioctl, lseek" },
+	{ NULL, "zero-read",	"just exercise /dev/zero with reading" },
 	{ NULL,	"zero-ops N",	"stop after N /dev/zero bogo read operations" },
 	{ NULL,	NULL,		NULL }
 };
+
+static int stress_set_zero_read(const char *opt)
+{
+        return stress_set_setting_true("zero-read", opt);
+}
 
 /*
  *  stress_is_not_zero()
@@ -87,15 +93,17 @@ static const mmap_flags_t mmap_flags[] = {
 static int stress_zero(const stress_args_t *args)
 {
 	int fd;
-	double bytes = 0.0, duration = 0.0, rate;
+	double duration = 0.0, rate;
+	uint64_t bytes = 0ULL;
 	const size_t page_size = args->page_size;
 	void *rd_buffer, *wr_buffer;
+	bool zero_read = false;
 #if defined(__minix__)
 	const int flags = O_RDONLY;
 #else
 	const int flags = O_RDWR;
 #endif
-	register int metrics_count = 0;
+	(void)stress_get_setting("zero-read", &zero_read);
 
 	rd_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -121,134 +129,155 @@ static int stress_zero(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	do {
-		ssize_t ret;
-		size_t i;
+	if (zero_read) {
+		double t;
+		ssize_t ret = 0;
 
-		for (i = 0; i < 64; i++) {
-			if (LIKELY(metrics_count++ < 1000)) {
-				ret = read(fd, rd_buffer, page_size);
-				if (UNLIKELY(ret < 0)) {
-					if ((errno == EAGAIN) || (errno == EINTR))
-						continue;
-					pr_fail("%s: read failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)close(fd);
-					return EXIT_FAILURE;
-				}
-			} else {
-				double t;
+		if (args->instance == 0)
+			pr_inf("%s: exercising /dev/zero with just reads\n", args->name);
 
-				metrics_count = 0;
-
-				t = stress_time_now();
-				ret = read(fd, rd_buffer, page_size);
-				if (UNLIKELY(ret < 0)) {
-					if ((errno == EAGAIN) || (errno == EINTR))
-						continue;
-					pr_fail("%s: read failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)close(fd);
-					return EXIT_FAILURE;
-				}
-				bytes += (double)ret;
-				duration += stress_time_now() - t;
-			}
-
-			if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
-				pr_fail("%s: non-zero value from a read of /dev/zero\n",
-					args->name);
-			}
-		}
-
-#if !defined(__minix__)
-		/* One can also write to /dev/zero w/o failure */
-		ret = write(fd, wr_buffer, page_size);
-		if (UNLIKELY(ret < 0)) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				continue;
-			pr_fail("%s: write failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
-		}
-#endif
-
-#if defined(__linux__)
-		for (i = 0; i < SIZEOF_ARRAY(mmap_flags); i++) {
-			int32_t *ptr;
-
-			/*
-			 *  check if we can mmap /dev/zero
-			 */
-			ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[i].flag,
-				fd, (off_t)(page_size * stress_mwc16()));
-			if (UNLIKELY(ptr == MAP_FAILED)) {
-				if ((errno == ENOMEM) || (errno == EAGAIN))
+		t = stress_time_now();
+		do {
+			ret = read(fd, rd_buffer, page_size);
+			if (UNLIKELY(ret < 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
-					args->name, mmap_flags[i].flag_str, errno, strerror(errno));
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
-			if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
-				pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
-					args->name, mmap_flags[i].flag_str);
-			}
-			(void)stress_munmap_retry_enomem(ptr, page_size);
+			stress_bogo_inc(args);
+			bytes += ret;
+		} while (stress_continue(args));
+		duration += stress_time_now() - t;
+
+		if ((ret > 0) && stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+			pr_fail("%s: non-zero value from a read of /dev/zero\n",
+				args->name);
 		}
+	} else {
+		if (args->instance == 0)
+			pr_inf("%s: exercising /dev/zero with reads, mmap, lseek, and ioctl; for just read benchmarking use --zero-read\n",
+				args->name);
+		do {
+			ssize_t ret = 0;
+			size_t i;
+			double t;
+
+			t = stress_time_now();
+			for (i = 0; (i < 1024) && stress_continue(args); i++) {
+				ret = read(fd, rd_buffer, page_size);
+				if (UNLIKELY(ret < 0)) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					pr_fail("%s: read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)close(fd);
+					return EXIT_FAILURE;
+				}
+				stress_bogo_inc(args);
+				bytes += ret;
+			}
+			duration += stress_time_now() - t;
+
+			if ((ret > 0) && stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+				pr_fail("%s: non-zero value from a read of /dev/zero\n",
+					args->name);
+			}
+#if !defined(__minix__)
+			/* One can also write to /dev/zero w/o failure */
+			ret = write(fd, wr_buffer, page_size);
+			if (UNLIKELY(ret < 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)close(fd);
+				return EXIT_FAILURE;
+			}
 #endif
-		/*
-		 *  lseek on /dev/zero just because we can
-		 */
-		(void)lseek(fd, SEEK_SET, 0);
-		(void)lseek(fd, SEEK_END, 0);
-		(void)lseek(fd, SEEK_CUR, 0);
+
+#if defined(__linux__)
+			for (i = 0; i < SIZEOF_ARRAY(mmap_flags); i++) {
+				int32_t *ptr;
+
+				/*
+				 *  check if we can mmap /dev/zero
+				 */
+				ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[i].flag,
+					fd, (off_t)(page_size * stress_mwc16()));
+				if (UNLIKELY(ptr == MAP_FAILED)) {
+					if ((errno == ENOMEM) || (errno == EAGAIN))
+						continue;
+					pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
+						args->name, mmap_flags[i].flag_str, errno, strerror(errno));
+					(void)close(fd);
+					return EXIT_FAILURE;
+				}
+				if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+					pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
+						args->name, mmap_flags[i].flag_str);
+				}
+				(void)stress_munmap_retry_enomem(ptr, page_size);
+			}
+#endif
+			/*
+			 *  lseek on /dev/zero just because we can
+			 */
+			(void)lseek(fd, SEEK_SET, 0);
+			(void)lseek(fd, SEEK_END, 0);
+			(void)lseek(fd, SEEK_CUR, 0);
 
 #if defined(FIONBIO)
-		{
-			int opt;
+			{
+				int opt;
 
-			opt = 1;
-			VOID_RET(int, ioctl(fd, FIONBIO, &opt));
-			opt = 0;
-			VOID_RET(int, ioctl(fd, FIONBIO, &opt));
-		}
+				opt = 1;
+				VOID_RET(int, ioctl(fd, FIONBIO, &opt));
+				opt = 0;
+				VOID_RET(int, ioctl(fd, FIONBIO, &opt));
+			}
 #endif
 #if defined(FIONREAD)
-		{
-			int isz = 0;
+			{
+				int isz = 0;
 
-			/* Should be inappropriate ioctl */
-			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
-		}
+				/* Should be inappropriate ioctl */
+				VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+			}
 #endif
 #if defined(FIGETBSZ)
-		{
-			int isz = 0;
+			{
+				int isz = 0;
 
-			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
-		}
+				VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
+			}
 #endif
-
-		stress_bogo_inc(args);
-	} while (stress_continue(args));
-
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 
 	(void)munmap(wr_buffer, page_size);
 	(void)munmap(rd_buffer, page_size);
 
-	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+	rate = (duration > 0.0) ? ((double)bytes / duration) / (double)MB : 0.0;
 	stress_metrics_set(args, 0, "MB per sec /dev/zero read rate", rate);
 
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+        { OPT_zero_read,	stress_set_zero_read },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_zero_info = {
 	.stressor = stress_zero,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };

@@ -2365,6 +2365,7 @@ typedef enum {
 	OPT_yield_ops,
 
 	OPT_zero,
+	OPT_zero_read,
 	OPT_zero_ops,
 
 	OPT_zlib,

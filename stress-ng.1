@@ -6572,10 +6572,14 @@ many workers are specified, thus always ensuring rapid context switching.
 stop yield stress workers after N sched_yield(2) bogo operations.
 .TP
 .B \-\-zero N
-start N workers reading /dev/zero.
+start N workers exercise /dev/zero with reads, lseeks, ioctls and mmaps. For
+just /dev/zero read benchmarking use the \-\-zero\-read option.
 .TP
 .B \-\-zero\-ops N
 stop zero stress workers after N /dev/zero bogo read operations.
+.TP
+.B \-\-zero\-read
+just read /dev/zero with 4K reads with no additional exercising on /dev/zero.
 .TP
 .B \-\-zlib N
 start N workers compressing and decompressing random data using zlib. Each

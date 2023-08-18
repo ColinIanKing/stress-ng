@@ -1272,6 +1272,7 @@ static const struct option long_options[] = {
 	{ "yield-ops",		1,	0,	OPT_yield_ops },
 	{ "zero",		1,	0,	OPT_zero },
 	{ "zero-ops",		1,	0,	OPT_zero_ops },
+	{ "zero-read",		0,	0,	OPT_zero_read },
 	{ "zlib",		1,	0,	OPT_zlib },
 	{ "zlib-level",		1,	0,	OPT_zlib_level },
 	{ "zlib-method",	1,	0,	OPT_zlib_method },
