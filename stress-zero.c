@@ -157,6 +157,9 @@ static int stress_zero(const stress_args_t *args)
 				args->name);
 		}
 	} else {
+		int mmap_counter = 0;
+		size_t mmap_index = 0;
+
 		if (args->instance == 0)
 			pr_inf("%s: exercising /dev/zero with reads, mmap, lseek, and ioctl; for just read benchmarking use --zero-read\n",
 				args->name);
@@ -199,13 +202,17 @@ static int stress_zero(const stress_args_t *args)
 #endif
 
 #if defined(__linux__)
-			for (i = 0; i < SIZEOF_ARRAY(mmap_flags); i++) {
+			/*
+			 *  Periodically exercise mmap
+			 */
+			if (mmap_counter++ > 500) {
+				mmap_counter = 0;
 				int32_t *ptr;
 
 				/*
 				 *  check if we can mmap /dev/zero
 				 */
-				ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[i].flag,
+				ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[mmap_index].flag,
 					fd, (off_t)(page_size * stress_mwc16()));
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					if ((errno == ENOMEM) || (errno == EAGAIN))
@@ -220,6 +227,9 @@ static int stress_zero(const stress_args_t *args)
 						args->name, mmap_flags[i].flag_str);
 				}
 				(void)stress_munmap_retry_enomem(ptr, page_size);
+				mmap_index++;
+				if (mmap_index >= SIZEOF_ARRAY(mmap_flags))
+					mmap_index = 0;
 			}
 #endif
 			/*
