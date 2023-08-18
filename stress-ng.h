@@ -313,23 +313,23 @@ typedef int shim_itimer_which_t;
 #define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL | PR_WARN | PR_METRICS)
 
 /* Option bit masks */
-#define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(5)	/* Dump metrics at end */
-#define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(6)	/* Randomize */
+#define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(5)	/* --metrics, Dump metrics at end */
+#define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(6)	/* --random, Randomize */
 #define OPT_FLAGS_SET		 STRESS_BIT_ULL(7)	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	 STRESS_BIT_ULL(8)	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_METRICS_BRIEF	 STRESS_BIT_ULL(9)	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	 STRESS_BIT_ULL(10)	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	 STRESS_BIT_ULL(11)	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	 STRESS_BIT_ULL(12)	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		 STRESS_BIT_ULL(13)	/* user/system time summary */
+#define OPT_FLAGS_KEEP_NAME	 STRESS_BIT_ULL(8)	/* --keep-name, Keep stress names to stress-ng */
+#define OPT_FLAGS_METRICS_BRIEF	 STRESS_BIT_ULL(9)	/* --metrics-brief, dump brief metrics */
+#define OPT_FLAGS_VERIFY	 STRESS_BIT_ULL(10)	/* --verify, verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	 STRESS_BIT_ULL(11)	/* --no-madvise, disable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	 STRESS_BIT_ULL(12)	/* --page-in, mincore force pages into mem */
+#define OPT_FLAGS_TIMES		 STRESS_BIT_ULL(13)	/* --times, user/system time summary */
 #define OPT_FLAGS_HDD_SYNC	 STRESS_BIT_ULL(14)	/* HDD O_SYNC */
 #define OPT_FLAGS_HDD_DSYNC	 STRESS_BIT_ULL(15)	/* HDD O_DYNC */
 #define OPT_FLAGS_HDD_DIRECT	 STRESS_BIT_ULL(16)	/* HDD O_DIRECT */
 #define OPT_FLAGS_HDD_NOATIME	 STRESS_BIT_ULL(17)	/* HDD O_NOATIME */
-#define OPT_FLAGS_MINIMIZE	 STRESS_BIT_ULL(18)	/* Minimize */
-#define OPT_FLAGS_MAXIMIZE	 STRESS_BIT_ULL(19)	/* Maximize */
-#define OPT_FLAGS_SYSLOG	 STRESS_BIT_ULL(20)	/* log test progress to syslog */
-#define OPT_FLAGS_AGGRESSIVE	 STRESS_BIT_ULL(21)	/* aggressive mode enabled */
+#define OPT_FLAGS_MINIMIZE	 STRESS_BIT_ULL(18)	/* --minimize, Minimize */
+#define OPT_FLAGS_MAXIMIZE	 STRESS_BIT_ULL(19)	/* --maximize Maximize */
+#define OPT_FLAGS_SYSLOG	 STRESS_BIT_ULL(20)	/* --syslog, log test progress to syslog */
+#define OPT_FLAGS_AGGRESSIVE	 STRESS_BIT_ULL(21)	/* --aggressive, aggressive mode enabled */
 #define OPT_FLAGS_ALL		 STRESS_BIT_ULL(22)	/* --all mode */
 #define OPT_FLAGS_SEQUENTIAL	 STRESS_BIT_ULL(23)	/* --sequential mode */
 #define OPT_FLAGS_PERF_STATS	 STRESS_BIT_ULL(24)	/* --perf stats mode */
@@ -353,9 +353,9 @@ typedef int shim_itimer_which_t;
 #define OPT_FLAGS_STDERR	 STRESS_BIT_ULL(42)	/* --stderr */
 #define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(43)	/* --stdout */
 #define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(44)	/* --klog-check */
-#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(45)	/* Don't actually run */
+#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(45)	/* --dry-run, don't actually run */
 #define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(46)	/* --oom-avoid */
-#define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(47)	/* Require thermal zone info */
+#define OPT_FLAGS_TZ_INFO	 STRESS_BIT_ULL(47)	/* --tz, enable thermal zone info */
 #define OPT_FLAGS_LOG_LOCKLESS	 STRESS_BIT_ULL(48)	/* --log-lockless */
 #define OPT_FLAGS_SN		 STRESS_BIT_ULL(49)	/* --sn scientific notation */
 #define OPT_FLAGS_CHANGE_CPU	 STRESS_BIT_ULL(50)	/* --change-cpu */
