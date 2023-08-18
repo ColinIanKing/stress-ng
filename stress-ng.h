@@ -3013,20 +3013,76 @@ struct shim_sched_attr {
 };
 
 /* shim'd STATX flags */
+#if defined(STATX_TYPE)
+#define SHIM_STATX_TYPE			(STATX_TYPE)
+#else
 #define SHIM_STATX_TYPE			(0x00000001U)
+#endif
+#if defined(STATX_MODE)
+#define SHIM_STATX_MODE			(STATX_MODE)
+#else
 #define SHIM_STATX_MODE			(0x00000002U)
+#endif
+#if defined(STATX_NLINK)
+#define SHIM_STATX_NLINK		(STATX_NLINK)
+#else
 #define SHIM_STATX_NLINK		(0x00000004U)
+#endif
+#if defined(STATX_UID)
+#define SHIM_STATX_UID			(STATX_UID)
+#else
 #define SHIM_STATX_UID			(0x00000008U)
+#endif
+#if defined(STATX_GID)
+#define SHIM_STATX_GID			(STATX_GID)
+#else
 #define SHIM_STATX_GID			(0x00000010U)
+#endif
+#if defined(STATX_ATIME)
+#define SHIM_STATX_ATIME		(STATX_ATIME)
+#else
 #define SHIM_STATX_ATIME		(0x00000020U)
+#endif
+#if defined(STATX_MTIME)
+#define SHIM_STATX_MTIME		(STATX_MTIME)
+#else
 #define SHIM_STATX_MTIME		(0x00000040U)
+#endif
+#if defined(STATX_CTIME)
+#define SHIM_STATX_CTIME		(STATX_CTIME)
+#else
 #define SHIM_STATX_CTIME		(0x00000080U)
+#endif
+#if defined(STATX_INO)
+#define SHIM_STATX_INO			(STATX_INO)
+#else
 #define SHIM_STATX_INO			(0x00000100U)
+#endif
+#if defined(STATX_SIZE)
+#define SHIM_STATX_SIZE			(STATX_SIZE)
+#else
 #define SHIM_STATX_SIZE			(0x00000200U)
+#endif
+#if defined(STATX_BLOCKS)
+#define SHIM_STATX_BLOCKS		(STATX_BLOCKS)
+#else
 #define SHIM_STATX_BLOCKS		(0x00000400U)
+#endif
+#if defined(STATX_BASIC_STATS)
+#define SHIM_STATX_BASIC_STATS		(STATX_BASIC_STATS)
+#else
 #define SHIM_STATX_BASIC_STATS		(0x000007ffU)
+#endif
+#if defined(STATX_BTIME)
+#define SHIM_STATX_BTIME		(STATX_BTIME)
+#else
 #define SHIM_STATX_BTIME		(0x00000800U)
+#endif
+#if defined(STATX_ALL)
+#define SHIM_STATX_ALL			(STATX_ALL)
+#else
 #define SHIM_STATX_ALL			(0x00000fffU)
+#endif
 
 #if defined(HAVE_STATX)
 typedef struct statx shim_statx_t;
