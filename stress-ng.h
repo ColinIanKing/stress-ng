@@ -2435,7 +2435,6 @@ extern stress_shared_t *g_shared;	/* shared memory */
 extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */
 extern volatile bool g_stress_continue_flag; /* false to exit stressor */
-extern volatile bool g_caught_signal;	/* true if stopped by SIGINT/SIGALRM */
 extern jmp_buf g_error_env;		/* parsing error env */
 
 /*
