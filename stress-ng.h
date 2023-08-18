@@ -251,6 +251,11 @@ typedef int shim_itimer_which_t;
 
 #define	STRESS_INTERRUPTS_MAX		(8)	/* see core_interrupts.c */
 
+/* oomable flags */
+#define	STRESS_OOMABLE_NORMAL		(0x00000000)	/* Normal oomability */
+#define STRESS_OOMABLE_DROP_CAP		(0x00000001)	/* Drop capabilities */
+#define STRESS_OOMABLE_QUIET		(0x00000002)	/* Don't report activity */
+
 /*
  *  Timing units
  */
@@ -287,9 +292,9 @@ typedef int shim_itimer_which_t;
 #endif
 
 /*
- * making local static fixes globbering warnings
+ * making local static fixes clobbering warnings
  */
-#define NOCLOBBER	static
+#define NOCLOBBER static
 
 #define STRESS_TRY_OPEN_OK	  (0)		/* File can be opened */
 #define STRESS_TRY_OPEN_FORK_FAIL (1)		/* Try failed, e.g. can't fork */
@@ -518,7 +523,6 @@ typedef struct stressor_info {
 	const char *unimplemented_reason;	/* unsupported reason message */
 } stressor_info_t;
 
-
 /* gcc 4.7 and later support vector ops */
 #if defined(HAVE_COMPILER_GCC) &&	\
     NEED_GNUC(4, 7, 0)
@@ -712,17 +716,17 @@ extern void pr_openlog(const char *filename);
 extern void pr_closelog(void);
 extern void pr_fail_check(int *rc);
 
-extern void pr_dbg(const char *fmt, ...)  FORMAT(printf, 1, 2);
-extern void pr_dbg_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
-extern void pr_inf(const char *fmt, ...)  FORMAT(printf, 1, 2);
-extern void pr_inf_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
-extern void pr_err(const char *fmt, ...)  FORMAT(printf, 1, 2);
-extern void pr_err_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
-extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
-extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
-extern void pr_warn(const char *fmt, ...) FORMAT(printf, 1, 2);
-extern void pr_warn_skip(const char *fmt, ...) FORMAT(printf, 1, 2);
-extern void pr_metrics(const char *fmt, ...) FORMAT(printf, 1, 2);
+extern void pr_dbg(const char *fmt, ...)  	FORMAT(printf, 1, 2);
+extern void pr_dbg_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_inf(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_inf_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_err(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_err_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_fail(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_tidy(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_warn(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_warn_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
+extern void pr_metrics(const char *fmt, ...)	FORMAT(printf, 1, 2);
 
 extern void pr_lock_init(void);
 extern void pr_lock(void);
@@ -829,9 +833,9 @@ typedef struct {
 
 /* per stressor perf info */
 typedef struct {
-	stress_perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
-	int			perf_opened;	/* count of opened counters */
-	uint8_t	 padding[4];		/* padding */
+	stress_perf_stat_t perf_stat[STRESS_PERF_MAX]; /* perf counters */
+	int perf_opened;		/* count of opened counters */
+	uint8_t	padding[4];		/* padding */
 } stress_perf_t;
 #endif
 
@@ -890,8 +894,6 @@ typedef struct {
 	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
 } stress_stats_t;
 
-#define	STRESS_WARN_HASH_MAX		(128)
-
 typedef struct shared_heap {
 	void *str_list_head;		/* list of heap strings */
 	void *lock;			/* heap global lock */
@@ -900,6 +902,8 @@ typedef struct shared_heap {
 	size_t offset;			/* next free offset in current slab */
 	bool out_of_memory;		/* true if allocation failed */
 } shared_heap_t;
+
+#define	STRESS_WARN_HASH_MAX		(128)
 
 /* The stress-ng global shared memory segment */
 typedef struct {
@@ -2391,9 +2395,9 @@ typedef struct {
 #define STRESS_STRESSOR_STATUS_MAX		(4)
 
 /* stress_stressor_info ignore value. 2 bits */
-#define STRESS_STRESSOR_NOT_IGNORED	(0)
-#define STRESS_STRESSOR_UNSUPPORTED	(1)
-#define STRESS_STRESSOR_EXCLUDED	(2)
+#define STRESS_STRESSOR_NOT_IGNORED		(0)
+#define STRESS_STRESSOR_UNSUPPORTED		(1)
+#define STRESS_STRESSOR_EXCLUDED		(2)
 
 /* Per stressor information */
 typedef struct stress_stressor_info {
@@ -2629,11 +2633,13 @@ extern uint8_t stress_mwc8(void);
 extern uint16_t stress_mwc16(void);
 extern uint32_t stress_mwc32(void);
 extern uint64_t stress_mwc64(void);
+
 /* Fast random numbers 1..max inclusive  */
 extern uint8_t stress_mwc8modn(const uint8_t max);
 extern uint16_t stress_mwc16modn(const uint16_t max);
 extern uint32_t stress_mwc32modn(const uint32_t max);
 extern uint64_t stress_mwc64modn(const uint64_t max);
+
 /* Fast random numbers 1..max inclusive, where max maybe power of 2  */
 extern uint8_t stress_mwc8modn_maybe_pwr2(const uint8_t max);
 extern uint16_t stress_mwc16modn_maybe_pwr2(const uint16_t max);
@@ -2652,15 +2658,11 @@ extern const char *stress_duration_to_str(const double duration, const bool int_
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 
-#define	STRESS_OOMABLE_NORMAL	(0x00000000)		/* Normal oomability */
-#define STRESS_OOMABLE_DROP_CAP	(0x00000001)		/* Drop capabilities */
-#define STRESS_OOMABLE_QUIET	(0x00000002)		/* Don't report activity */
-
-/* Misc helpers */
-
+/* 64 and 32 char ASCII patterns */
 extern const char ALIGN64 stress_ascii64[64];
 extern const char ALIGN64 stress_ascii32[32];
 
+/* Misc helpers */
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);
 extern void stress_set_oom_adjustment(const stress_args_t *args, const bool killable);
