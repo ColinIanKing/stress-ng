@@ -157,6 +157,7 @@
 #include "core-parse-opts.h"
 #include "core-setting.h"
 #include "core-log.h"
+#include "core-lock.h"
 #include "core-mwc.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
@@ -588,14 +589,6 @@ extern void pr_runinfo(void);
 				 (TYPEOF_CAST(a[0])1U << (i & (STRESS_NBITS(a)-1))))
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
-
-/*
- *  abstracted untyped locking primitives
- */
-extern WARN_UNUSED void *stress_lock_create(void);
-extern int stress_lock_destroy(void *lock_handle);
-extern int stress_lock_acquire(void *lock_handle);
-extern int stress_lock_release(void *lock_handle);
 
 /* stress process prototype */
 typedef int (*stress_func_t)(const stress_args_t *args);
