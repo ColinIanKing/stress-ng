@@ -27,6 +27,7 @@
 #include "core-ignite-cpu.h"
 #include "core-interrupts.h"
 #include "core-io-priority.h"
+#include "core-job.h"
 #include "core-klog.h"
 #include "core-mlock.h"
 #include "core-numa.h"

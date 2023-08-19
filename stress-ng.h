@@ -1457,8 +1457,6 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
 extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line);
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
-/* Jobfile parsing */
-extern WARN_UNUSED int stress_parse_jobfile(int argc, char **argv, const char *jobfile);
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
 /* Memory tweaking */

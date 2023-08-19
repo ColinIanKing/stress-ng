@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-job.h"
 
 #define MAX_ARGS	(64)
 #define RUN_SEQUENTIAL	(0x01)
