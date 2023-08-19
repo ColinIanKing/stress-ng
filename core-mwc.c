@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-target-clones.h"
+#include "core-mwc.h"
 
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
