@@ -1436,11 +1436,6 @@ extern WARN_UNUSED int32_t stress_set_status(const char *const str);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
-extern void stress_interrupts_start(stress_interrupts_t *counters);
-extern void stress_interrupts_stop(stress_interrupts_t *counters);
-extern void stress_interrupts_check_failure(const char *name,
-	stress_interrupts_t *counters, uint32_t instance, int *rc);
-extern void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list);
 
 extern void stress_metrics_set_const_check(const stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value);
