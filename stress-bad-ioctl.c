@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-pthread.h"
+#include "core-try-open.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal read ioctls on devices" },

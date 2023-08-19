@@ -1409,10 +1409,6 @@ extern WARN_UNUSED unsigned int stress_bsd_getsysctl_uint(const char *name);
 extern WARN_UNUSED int stress_bsd_getsysctl_int(const char *name);
 #endif
 
-extern WARN_UNUSED int stress_try_open(const stress_args_t *args,
-	const char *path, const int flags, const unsigned long timeout_ns);
-extern WARN_UNUSED int stress_open_timeout(const char *name,
-        const char *path, const int flags, const unsigned long timeout_ns);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
 extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);

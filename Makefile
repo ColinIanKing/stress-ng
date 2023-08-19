@@ -179,6 +179,7 @@ HEADERS = \
 	core-target-clones.h \
 	core-thermal-zone.h \
 	core-thrash.h \
+	core-try-open.h \
 	core-vecmath.h \
 	core-version.h \
 	stress-af-alg-defconfigs.h \

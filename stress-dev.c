@@ -23,6 +23,7 @@
 #include "core-pthread.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-try-open.h"
 
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>

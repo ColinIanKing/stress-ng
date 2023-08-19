@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-try-open.h"
 
 /*
  *  stress_try_kill()
