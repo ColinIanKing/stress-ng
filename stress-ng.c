@@ -28,6 +28,7 @@
 #include "core-interrupts.h"
 #include "core-io-priority.h"
 #include "core-klog.h"
+#include "core-mlock.h"
 #include "core-perf.h"
 #include "core-pragma.h"
 #include "core-put.h"

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mlock.h"
 
 /*
  *  stress_mlock_region

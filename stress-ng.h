@@ -1284,9 +1284,6 @@ extern void stress_file_rw_hint_short(const int fd);
 extern void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name);
 extern void stress_clean_dir(const char *name, const pid_t pid, const uint32_t instance);
 
-/* Memory locking */
-extern int stress_mlock_region(const void *addr_start, const void *addr_end);
-
 /* Argument parsing and range checking */
 extern WARN_UNUSED uint64_t stress_get_uint64(const char *const str);
 extern WARN_UNUSED uint64_t stress_get_uint64_scale(const char *const str,
