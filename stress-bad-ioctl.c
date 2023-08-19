@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-lock.h"
 #include "core-pthread.h"
 #include "core-try-open.h"
 

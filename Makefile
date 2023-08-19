@@ -157,6 +157,7 @@ HEADERS = \
 	core-job.h \
 	core-killpid.h \
 	core-klog.h \
+	core-lock.h \
 	core-madvise.h \
 	core-mlock.h \
 	core-mmap.h \

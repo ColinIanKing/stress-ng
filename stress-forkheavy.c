@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-lock.h"
 #include "core-resources.h"
 
 #define MIN_MEM_FREE		((size_t)(16 * MB))

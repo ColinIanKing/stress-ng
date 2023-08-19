@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-lock.h"
 
 #if defined(HAVE_SYS_APPARMOR_H)
 #include <sys/apparmor.h>

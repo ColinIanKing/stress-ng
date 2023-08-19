@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-lock.h"
 #include "core-perf.h"
 #include "core-perf-event.h"
 

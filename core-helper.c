@@ -24,6 +24,7 @@
 #include "core-capabilities.h"
 #include "core-cpu-cache.h"
 #include "core-hash.h"
+#include "core-lock.h"
 #include "core-pragma.h"
 #include "core-sort.h"
 

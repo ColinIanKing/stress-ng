@@ -20,6 +20,7 @@
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
+#include "core-lock.h"
 
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>

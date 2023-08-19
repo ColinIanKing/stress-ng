@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-lock.h"
 #include "core-stressors.h"
 
 /*
