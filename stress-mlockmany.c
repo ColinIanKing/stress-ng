@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #define UNSET_MLOCK_PROCS		(0)
 #define DEFAULT_MLOCK_PROCS		(1024)

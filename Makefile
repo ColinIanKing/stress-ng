@@ -154,6 +154,7 @@ HEADERS = \
 	core-ignite-cpu.h \
 	core-interrupts.h \
 	core-io-priority.h \
+	core-killpid.h \
 	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \

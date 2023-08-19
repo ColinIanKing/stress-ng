@@ -23,6 +23,7 @@
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-killpid.h"
 #include "core-target-clones.h"
 
 static const stress_help_t help[] = {

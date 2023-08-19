@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"resched N",		"start N workers that spawn renicing child processes" },

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"unshare N",	 "start N workers exercising resource unsharing" },

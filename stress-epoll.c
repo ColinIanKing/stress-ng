@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)

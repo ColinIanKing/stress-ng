@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 /*
  *  stress_killpid()

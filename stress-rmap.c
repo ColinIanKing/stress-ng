@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-pragma.h"
 
 #define RMAP_CHILD_MAX		(16)

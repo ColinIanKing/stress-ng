@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"softlockup N",     "start N workers that cause softlockups" },

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-put.h"
 
 #if defined(HAVE_LINUX_FS_H)

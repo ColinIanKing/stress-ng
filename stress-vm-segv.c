@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-cpu-cache.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"vm-segv N",	 "start N workers that unmap their address space" },
