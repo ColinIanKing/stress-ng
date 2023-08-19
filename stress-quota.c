@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-mounts.h"
 
 #if defined(HAVE_SYS_QUOTA_H)
 #include <sys/quota.h>

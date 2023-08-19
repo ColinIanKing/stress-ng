@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mounts.h"
 
 /* *BSD systems */
 #if defined(HAVE_SYS_UCRED_H)

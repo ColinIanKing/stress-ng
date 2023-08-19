@@ -1477,10 +1477,6 @@ extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmo
 /* Memory tweaking */
 extern int stress_pagein_self(const char *name);
 
-/* Mounts */
-extern void stress_mount_free(char *mnts[], const int n);
-extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
-
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);

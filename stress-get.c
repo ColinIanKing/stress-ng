@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-mounts.h"
 
 #if defined(HAVE_LINUX_SYSCTL_H)
 #include <linux/sysctl.h>

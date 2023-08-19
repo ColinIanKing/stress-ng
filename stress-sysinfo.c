@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mounts.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>

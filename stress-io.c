@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mounts.h"
 
 #define MAX_MNTS	(256)
 

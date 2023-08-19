@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-ftrace.h"
+#include "core-mounts.h"
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>

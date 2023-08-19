@@ -161,6 +161,7 @@ HEADERS = \
 	core-mmap.h \
 	core-mincore.h \
 	core-module.h \
+	core-mounts.h \
 	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \
