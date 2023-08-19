@@ -90,7 +90,6 @@ typedef struct {
 stress_sigalrm_info_t sigalrm_info;
 #endif
 
-static void stress_kill_stressors(const int sig, const bool force_sigkill);
 /*
  *  optarg option to global setting option flags
  */
@@ -1507,6 +1506,44 @@ static int stress_exclude(void)
 	return 0;
 }
 
+/*
+ *  stress_kill_stressors()
+ * 	kill stressor tasks using signal sig
+ */
+static void stress_kill_stressors(const int sig, const bool force_sigkill)
+{
+	int signum = sig;
+	stress_stressor_t *ss;
+
+	if (force_sigkill) {
+		static int count = 0;
+
+		/* multiple calls will always fallback to SIGKILL */
+		count++;
+		if (count > 5) {
+			pr_dbg("killing processes with SIGKILL\n");
+			signum = SIGKILL;
+		}
+	}
+
+	for (ss = stressors_head; ss; ss = ss->next) {
+		int32_t i;
+
+		if (ss->ignore.run)
+			continue;
+
+		for (i = 0; i < ss->num_instances; i++) {
+			stress_stats_t *const stats = ss->stats[i];
+			const pid_t pid = stats->pid;
+
+			if (pid && !stats->signalled) {
+				(void)shim_kill(pid, signum);
+				stats->signalled = true;
+			}
+		}
+	}
+}
+
 /*  stress_sigchld_handler()
  *	parent is informed child has terminated and
  * 	it's time to stop
@@ -1525,6 +1562,7 @@ int stress_sigchld_set_handler(const stress_args_t *args)
 {
 	return stress_sighandler(args->name, SIGCHLD, stress_sigchld_handler, NULL);
 }
+
 
 /*
  *  stress_sigint_handler()
@@ -1854,44 +1892,6 @@ static inline void stress_stressor_finished(pid_t *pid)
 {
 	*pid = 0;
 	g_shared->instance_count.reaped++;
-}
-
-/*
- *  stress_kill_stressors()
- * 	kill stressor tasks using signal sig
- */
-static void stress_kill_stressors(const int sig, const bool force_sigkill)
-{
-	int signum = sig;
-	stress_stressor_t *ss;
-
-	if (force_sigkill) {
-		static int count = 0;
-
-		/* multiple calls will always fallback to SIGKILL */
-		count++;
-		if (count > 5) {
-			pr_dbg("killing processes with SIGKILL\n");
-			signum = SIGKILL;
-		}
-	}
-
-	for (ss = stressors_head; ss; ss = ss->next) {
-		int32_t i;
-
-		if (ss->ignore.run)
-			continue;
-
-		for (i = 0; i < ss->num_instances; i++) {
-			stress_stats_t *const stats = ss->stats[i];
-			const pid_t pid = stats->pid;
-
-			if (pid && !stats->signalled) {
-				(void)shim_kill(pid, signum);
-				stats->signalled = true;
-			}
-		}
-	}
 }
 
 /*
