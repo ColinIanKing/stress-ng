@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-ignite-cpu.h"
 
 #define SETTING_SCALING_FREQ		(0x01)
 #define SETTING_CPUINFO_FREQ		(0x02)

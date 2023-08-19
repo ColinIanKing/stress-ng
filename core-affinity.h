@@ -19,7 +19,7 @@
 #ifndef CORE_AFFINITY_H
 #define CORE_AFFINITY_H
 
-int stress_set_cpu_affinity(const char *arg);
-int stress_change_cpu(const stress_args_t *args, const int old_cpu);
+extern int stress_set_cpu_affinity(const char *arg);
+extern int stress_change_cpu(const stress_args_t *args, const int old_cpu);
 
 #endif

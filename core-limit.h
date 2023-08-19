@@ -19,6 +19,6 @@
 #ifndef CORE_LIMIT_H
 #define CORE_LIMIT_H
 
-void stress_set_max_limits(void);
+extern void stress_set_max_limits(void);
 
 #endif

@@ -19,7 +19,7 @@
 #ifndef CORE_IGNITE_CPU_H
 #define CORE_IGNITE_CPU_H
 
-void stress_ignite_cpu_start(void);
-void stress_ignite_cpu_stop(void);
+extern void stress_ignite_cpu_start(void);
+extern void stress_ignite_cpu_stop(void);
 
 #endif

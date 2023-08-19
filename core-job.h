@@ -19,6 +19,6 @@
 #ifndef CORE_JOB_H
 #define CORE_JOB_H
 
-int stress_parse_jobfile(const int argc, char **argv, const char *jobfile);
+extern int stress_parse_jobfile(const int argc, char **argv, const char *jobfile);
 
 #endif

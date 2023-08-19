@@ -19,7 +19,7 @@
 #ifndef CORE_NUMA_H
 #define CORE_NUMA_H
 
-int stress_numa_count_mem_nodes(unsigned long *max_node);
-int stress_set_mbind(const char *arg);
+extern int stress_numa_count_mem_nodes(unsigned long *max_node);
+extern int stress_set_mbind(const char *arg);
 
 #endif

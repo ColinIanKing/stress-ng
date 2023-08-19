@@ -23,9 +23,9 @@
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 
-bool stress_process_oomed(const pid_t pid);
-void stress_set_oom_adjustment(const stress_args_t *args, const bool killable);
-int stress_oomable_child(const stress_args_t *args, void *context,
+extern bool stress_process_oomed(const pid_t pid);
+extern void stress_set_oom_adjustment(const stress_args_t *args, const bool killable);
+extern int stress_oomable_child(const stress_args_t *args, void *context,
 	stress_oomable_child_func_t func, const int flag);
 
 #endif

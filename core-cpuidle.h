@@ -19,6 +19,6 @@
 #ifndef CORE_CPUIDLE_H
 #define CORE_CPUIDLE_H
 
-void stress_log_cpuidle_info(void);
+extern void stress_log_cpuidle_info(void);
 
 #endif

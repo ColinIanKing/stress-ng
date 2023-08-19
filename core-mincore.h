@@ -19,7 +19,7 @@
 #ifndef CORE_MINCORE_H
 #define CORE_MINCORE_H
 
-int stress_mincore_touch_pages(void *buf, const size_t buf_len);
-int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len);
+extern int stress_mincore_touch_pages(void *buf, const size_t buf_len);
+extern int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len);
 
 #endif

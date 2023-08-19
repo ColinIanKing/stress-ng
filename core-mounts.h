@@ -19,7 +19,7 @@
 #ifndef CORE_MOUNTS_H
 #define CORE_MOUNTS_H
 
-void stress_mount_free(char *mnts[], const int n);
-int stress_mount_get(char *mnts[], const int max);
+extern void stress_mount_free(char *mnts[], const int n);
+extern int stress_mount_get(char *mnts[], const int max);
 
 #endif

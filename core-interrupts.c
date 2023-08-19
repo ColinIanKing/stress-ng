@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-interrupts.h"
 
 #define MSR_SMI_COUNT		(0x34)
 

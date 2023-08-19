@@ -263,5 +263,4 @@
 #define SHIM_CAP_BPF			SHIM_CAP_IS_ROOT
 #endif
 
-
 #endif

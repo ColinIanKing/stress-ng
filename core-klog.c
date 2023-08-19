@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-klog.h"
 
 #if defined(__linux__)
 static pid_t klog_pid = -1;

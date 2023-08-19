@@ -19,7 +19,7 @@
 #ifndef CORE_MMAP_H
 #define CORE_MMAP_H
 
-void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
-int stress_mmap_check( uint8_t *buf, const size_t sz, const size_t page_size);
+extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
+extern int stress_mmap_check( uint8_t *buf, const size_t sz, const size_t page_size);
 
 #endif

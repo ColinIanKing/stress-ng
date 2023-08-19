@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpuidle.h"
 #include "core-sort.h"
 
 #define MAX_STATES 	(64)

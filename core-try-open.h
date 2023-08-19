@@ -19,9 +19,9 @@
 #ifndef CORE_TRY_OPEN_H
 #define CORE_TRY_OPEN_H
 
-int stress_try_open(const stress_args_t *args, const char *path,
+extern int stress_try_open(const stress_args_t *args, const char *path,
 	const int flags, const unsigned long timeout_ns);
-int stress_open_timeout(const char *name, const char *path,
+extern int stress_open_timeout(const char *name, const char *path,
 	const int flags, const unsigned long timeout_ns);
 
 #endif

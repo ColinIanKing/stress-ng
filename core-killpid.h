@@ -19,10 +19,10 @@
 #ifndef CORE_KILLPID_H
 #define CORE_KILLPID_H
 
-int stress_killpid(const pid_t pid);
-int stress_kill_and_wait(const stress_args_t *args, const pid_t pid,
+extern int stress_killpid(const pid_t pid);
+extern int stress_kill_and_wait(const stress_args_t *args, const pid_t pid,
 	const int signum, const bool set_stress_force_killed_bogo);
-int stress_kill_and_wait_many(const stress_args_t *args, const pid_t *pids,
+extern int stress_kill_and_wait_many(const stress_args_t *args, const pid_t *pids,
 	const size_t n_pids, const int signum,
 	const bool set_stress_force_killed_bogo);
 

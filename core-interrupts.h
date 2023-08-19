@@ -19,10 +19,10 @@
 #ifndef CORE_INTERRUPTS_H
 #define CORE_INTERRUPTS_H
 
-void stress_interrupts_start(stress_interrupts_t *counters);
-void stress_interrupts_stop(stress_interrupts_t *counters);
-void stress_interrupts_check_failure(const char *name,
+extern void stress_interrupts_start(stress_interrupts_t *counters);
+extern void stress_interrupts_stop(stress_interrupts_t *counters);
+extern void stress_interrupts_check_failure(const char *name,
 	stress_interrupts_t *counters, uint32_t instance, int *rc);
-void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list);
+extern void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list);
 
 #endif

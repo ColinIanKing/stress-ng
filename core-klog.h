@@ -19,7 +19,7 @@
 #ifndef CORE_KLOG_H
 #define CORE_KLOH_H
 
-void stress_klog_start(void);
-void stress_klog_stop(bool *success);
+extern void stress_klog_start(void);
+extern void stress_klog_stop(bool *success);
 
 #endif

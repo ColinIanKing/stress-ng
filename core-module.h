@@ -19,9 +19,9 @@
 #ifndef CORE_MODULE_H
 #define CORE_MODULE_H
 
-int stress_module_load(const char *name, const char *alias,
+extern int stress_module_load(const char *name, const char *alias,
 	const char *options, bool *already_loaded);
-int stress_module_unload(const char *name, const char *alias,
+extern int stress_module_unload(const char *name, const char *alias,
 	const bool already_loaded);
 
 #endif

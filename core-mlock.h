@@ -19,6 +19,6 @@
 #ifndef CORE_MLOCK_H
 #define CORE_MLOCK_H
 
-int stress_mlock_region(const void *addr_start, const void *addr_end);
+extern int stress_mlock_region(const void *addr_start, const void *addr_end);
 
 #endif

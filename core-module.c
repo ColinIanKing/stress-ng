@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-module.h"
 
 #if defined(HAVE_LIBKMOD_H) &&	\
     defined(HAVE_LIB_KMOD) && 	\
