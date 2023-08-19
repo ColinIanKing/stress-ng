@@ -233,7 +233,7 @@ STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)
 /*
  *  Different stress classes
  */
-static const stress_class_info_t classes[] = {
+static const stress_class_info_t stress_classes[] = {
 	{ CLASS_CPU_CACHE,	"cpu-cache" },
 	{ CLASS_CPU,		"cpu" },
 	{ CLASS_DEV,		"device" },
@@ -1416,9 +1416,9 @@ static uint32_t stress_get_class_id(const char *const str)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(classes); i++) {
-		if (!strcmp(classes[i].name, str))
-			return classes[i].class;
+	for (i = 0; i < SIZEOF_ARRAY(stress_classes); i++) {
+		if (!strcmp(stress_classes[i].name, str))
+			return stress_classes[i].class;
 	}
 	return 0;
 }
@@ -1463,8 +1463,8 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 			}
 			(void)fprintf(stderr, "Unknown class: '%s', "
 				"available classes:", token);
-			for (i = 0; i < SIZEOF_ARRAY(classes); i++)
-				(void)fprintf(stderr, " %s", classes[i].name);
+			for (i = 0; i < SIZEOF_ARRAY(stress_classes); i++)
+				(void)fprintf(stderr, " %s", stress_classes[i].name);
 			(void)fprintf(stderr, "\n\n");
 			return -1;
 		}
