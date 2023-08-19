@@ -27,9 +27,11 @@
 #elif defined(__PCC__)
 /* Portable C compiler */
 #define HAVE_COMPILER_PCC
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #elif defined(__TINYC__)
 /* Tiny C Compiler */
 #define HAVE_COMPILER_TCC
+#undef _FORTIFY_SOURCE
 #elif defined(__clang__) && 	\
    (defined(__INTEL_CLANG_COMPILER) || defined(__INTEL_LLVM_COMPILER))
 /* Intel ICX compiler */
@@ -43,14 +45,6 @@
 #endif
 
 #include "config.h"
-
-#if defined(HAVE_COMPILER_TCC)
-#undef _FORTIFY_SOURCE
-#endif
-
-#if defined(HAVE_COMPILER_PCC)
-#pragma GCC diagnostic ignored "-Wunknown-pragmas"
-#endif
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
