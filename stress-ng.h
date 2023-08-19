@@ -1269,7 +1269,6 @@ extern WARN_UNUSED int stress_set_deadline_sched(const pid_t, const uint64_t per
 	const uint64_t runtime, const uint64_t deadline, const bool quiet);
 extern int sched_settings_apply(const bool quiet);
 extern const char *stress_get_sched_name(const int sched);
-extern void stress_set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
 extern void stress_set_proc_name(const char *name);
 extern void stress_set_proc_state_str(const char *name, const char *str);
@@ -1310,7 +1309,6 @@ extern int stress_numa_count_mem_nodes(unsigned long *max_node);
 extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_int32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
-extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
 extern void stress_check_power_of_2(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 

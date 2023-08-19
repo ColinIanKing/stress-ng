@@ -26,6 +26,7 @@
 #include "core-hash.h"
 #include "core-ignite-cpu.h"
 #include "core-interrupts.h"
+#include "core-io-priority.h"
 #include "core-perf.h"
 #include "core-pragma.h"
 #include "core-put.h"
