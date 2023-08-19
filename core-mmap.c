@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-pragma.h"
 #include "core-cpu-cache.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_ASM_X86_REP_STOSQ) &&  \
     !defined(__ILP32__)

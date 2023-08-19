@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-mmap.h"
 
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 #define MIN_MREMAP_BYTES	(4 * KB)

@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>

@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>

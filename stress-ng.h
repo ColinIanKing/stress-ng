@@ -1377,10 +1377,6 @@ extern WARN_UNUSED int stress_unimplemented(const stress_args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *stress_align_address(const void *addr,
 	const size_t alignment);
-extern void stress_mmap_set(uint8_t *buf, const size_t sz,
-	const size_t page_size);
-extern WARN_UNUSED int stress_mmap_check(uint8_t *buf, const size_t sz,
-	const size_t page_size);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
 extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
