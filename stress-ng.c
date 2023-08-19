@@ -1773,7 +1773,7 @@ static void stress_usage_help(const stress_help_t help_info[])
  *  stress_verfiable_mode()
  *	show the stressors that are verified by their verify mode
  */
-static void stress_verifiable_mode(stress_verify_t mode)
+static void stress_verifiable_mode(const stress_verify_t mode)
 {
 	size_t i;
 	bool space = false;
