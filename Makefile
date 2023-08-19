@@ -170,6 +170,7 @@ HEADERS = \
 	core-numa.h \
 	core-opts.h \
 	core-out-of-memory.h \
+	core-parse-opts.h \
 	core-perf.h \
 	core-pragma.h \
 	core-pthread.h \

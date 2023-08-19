@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-parse-opts.h"
 #include "core-cpu-cache.h"
 
 /*

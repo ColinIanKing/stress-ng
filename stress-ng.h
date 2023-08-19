@@ -151,8 +151,10 @@
 #endif
 
 #include "core-version.h"
+#include "core-attribute.h"
 #include "core-asm-generic.h"
 #include "core-opts.h"
+#include "core-parse-opts.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -509,162 +511,6 @@ typedef struct stressor_info {
 #define STRESS_VECTOR	(1)
 #endif
 
-/* gcc 7.0 and later support __attribute__((fallthrough)); */
-#if defined(HAVE_ATTRIBUTE_FALLTHROUGH)
-#define CASE_FALLTHROUGH __attribute__((fallthrough))
-#else
-#define CASE_FALLTHROUGH
-#endif
-
-#if defined(HAVE_ATTRIBUTE_FAST_MATH) &&		\
-    !defined(HAVE_COMPILER_ICC) &&			\
-    defined(HAVE_COMPILER_GCC) &&			\
-    NEED_GNUC(10, 0, 0)
-#define OPTIMIZE_FAST_MATH __attribute__((optimize("fast-math")))
-#else
-#define OPTIMIZE_FAST_MATH
-#endif
-
-/* no return hint */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(2, 5, 0)) || 	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define NORETURN 	__attribute__((noreturn))
-#else
-#define NORETURN
-#endif
-
-/* weak attribute */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 0, 0)) || 	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0))
-#define WEAK		__attribute__((weak))
-#define HAVE_WEAK_ATTRIBUTE
-#else
-#define WEAK
-#endif
-
-#if defined(ALWAYS_INLINE)
-#undef ALWAYS_INLINE
-#endif
-/* force inlining hint */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0) 				\
-     && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define ALWAYS_INLINE	__attribute__((always_inline))
-#else
-#define ALWAYS_INLINE
-#endif
-
-/* force no inlining hint */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0)) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define NOINLINE	__attribute__((noinline))
-#else
-#define NOINLINE
-#endif
-
-/* -O3 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
-    NEED_GNUC(4, 6, 0)
-#define OPTIMIZE3 	__attribute__((optimize("-O3")))
-#else
-#define OPTIMIZE3
-#endif
-
-/* -O2 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
-    NEED_GNUC(4, 6, 0)
-#define OPTIMIZE2 	__attribute__((optimize("-O2")))
-#else
-#define OPTIMIZE2
-#endif
-
-/* -O1 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
-    NEED_GNUC(4, 6, 0)
-#define OPTIMIZE1 	__attribute__((optimize("-O1")))
-#else
-#define OPTIMIZE1
-#endif
-
-/* -O0 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
-    NEED_GNUC(4, 6, 0)
-#define OPTIMIZE0 	__attribute__((optimize("-O0")))
-#elif (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(10, 0, 0))
-#define OPTIMIZE0	__attribute__((optnone))
-#else
-#define OPTIMIZE0
-#endif
-
-/* warn unused attribute */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 2, 0)) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#define WARN_UNUSED	__attribute__((warn_unused_result))
-#else
-#define WARN_UNUSED
-#endif
-
-#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 3, 0)) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)) ||	\
-     (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021, 0, 0))) &&	\
-    !defined(HAVE_COMPILER_PCC) &&				\
-    !defined(__minix__)
-#define ALIGNED(a)	__attribute__((aligned(a)))
-#else
-#define ALIGNED(a)
-#endif
-
-/* Force alignment macros */
-#define ALIGN128	ALIGNED(128)
-#define ALIGN64		ALIGNED(64)
-
-
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
-#if (defined(__APPLE__) && defined(__MACH__))
-#define SECTION(s)	__attribute__((__section__(# s "," # s)))
-#else
-#define SECTION(s)	__attribute__((__section__(# s)))
-#endif
-#else
-#define SECTION(s)
-#endif
-
-/* GCC hot attribute */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 3, 0))
-#define HOT		__attribute__((hot))
-#else
-#define HOT
-#endif
-
-/* GCC mlocked data and data section attribute */
-#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))) &&	\
-    !defined(__sun__) &&					\
-    !defined(__APPLE__) &&					\
-    !defined(BUILD_STATIC)
-#define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
-#define MLOCKED_SECTION	(1)
-#else
-#define MLOCKED_TEXT
-#endif
-
-/* print format attribute */
-#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 2, 0)) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
-#define FORMAT(func, a, b) __attribute__((format(func, a, b)))
-#else
-#define FORMAT(func, a, b)
-#endif
-
 /* restrict keyword */
 #if defined(HAVE___RESTRICT)
 #define RESTRICT __restrict
@@ -1014,12 +860,6 @@ typedef struct stress_stressor_info {
 /* Pointer to current running stressor proc info */
 extern stress_stressor_t *g_stressor_current;
 
-/* Scale lookup mapping, suffix -> scale by */
-typedef struct {
-	const char	ch;		/* Scaling suffix */
-	const uint64_t	scale;		/* Amount to scale by */
-} stress_scale_t;
-
 /* Various global option settings and flags */
 extern const char g_app_name[];		/* Name of application */
 extern stress_shared_t *g_shared;	/* shared memory */
@@ -1277,29 +1117,7 @@ extern void stress_close_fds(int *fds, const size_t n);
 extern void stress_file_rw_hint_short(const int fd);
 extern void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name);
 extern void stress_clean_dir(const char *name, const pid_t pid, const uint32_t instance);
-
-/* Argument parsing and range checking */
-extern WARN_UNUSED uint64_t stress_get_uint64(const char *const str);
-extern WARN_UNUSED uint64_t stress_get_uint64_scale(const char *const str,
-	const stress_scale_t scales[], const char *const msg);
-extern WARN_UNUSED uint64_t stress_get_uint64_percent(const char *const str,
-	const uint32_t instances, const uint64_t max, const char *const errmsg);
-extern WARN_UNUSED uint64_t stress_get_uint64_byte(const char *const str);
-extern WARN_UNUSED uint64_t stress_get_uint64_byte_memory(
-	const char *const str, const uint32_t instances);
-extern WARN_UNUSED uint64_t stress_get_uint64_byte_filesystem(
-	const char *const str, const uint32_t instances);
-extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str);
-extern void stress_check_max_stressors(const char *const msg, const int val);
-extern void stress_check_range(const char *const opt, const uint64_t val,
-	const uint64_t lo, const uint64_t hi);
-extern void stress_check_range_bytes(const char *const opt,
-	const uint64_t val, const uint64_t lo, const uint64_t hi);
-extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
-extern WARN_UNUSED int32_t  stress_get_int32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
-extern void stress_check_power_of_2(const char *const opt, const uint64_t val,
-	const uint64_t lo, const uint64_t hi);
 
 /* Misc helper funcs */
 extern WARN_UNUSED size_t stress_get_sig_stack_size(void);
