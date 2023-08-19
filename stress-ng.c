@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-bitops.h"
 #include "core-builtin.h"
+#include "core-cpuidle.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
 #include "core-perf.h"

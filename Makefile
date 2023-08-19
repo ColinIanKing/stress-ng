@@ -148,6 +148,7 @@ HEADERS = \
 	core-capabilities.h \
 	core-cpu.h \
 	core-cpu-cache.h \
+	core-cpuidle.h \
 	core-ftrace.h \
 	core-hash.h \
 	core-io-priority.h \
