@@ -1321,7 +1321,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
 	{ NULL,		"no-oom-adjust",	"disable all forms of out-of-memory score adjustments" },
 	{ NULL,		"no-rand-seed",		"seed random numbers with the same constant" },
-	{ NULL,		"oom-avoid",		"Try to avoid stressors from being OOM'" },
+	{ NULL,		"oom-avoid",		"Try to avoid stressors from being OOM'd" },
 	{ NULL,		"oom-avoid-bytes N",	"Number of bytes free to stop futher memory allocations" },
 	{ NULL,		"oomable",		"Do not respawn a stressor if it gets OOM'd" },
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
