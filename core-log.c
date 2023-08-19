@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-log.h"
 #include "core-syslog.h"
 
 #define PR_TIMEOUT	(0.5)	/* pr_lock timeout in seconds */

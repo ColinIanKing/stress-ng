@@ -156,6 +156,7 @@
 #include "core-opts.h"
 #include "core-parse-opts.h"
 #include "core-setting.h"
+#include "core-log.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -512,29 +513,8 @@ typedef struct stressor_info {
 extern const char stress_config[];
 
 /* Printing/Logging helpers */
-extern int  pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_runinfo(void);
-extern void pr_openlog(const char *filename);
-extern void pr_closelog(void);
-extern void pr_fail_check(int *rc);
-
-extern void pr_dbg(const char *fmt, ...)  	FORMAT(printf, 1, 2);
-extern void pr_dbg_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_inf(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_inf_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_err(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_err_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_fail(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_tidy(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_warn(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_warn_skip(const char *fmt, ...)	FORMAT(printf, 1, 2);
-extern void pr_metrics(const char *fmt, ...)	FORMAT(printf, 1, 2);
-
-extern void pr_lock_init(void);
-extern void pr_lock(void);
-extern void pr_unlock(void);
-extern void pr_lock_exited(const pid_t pid);
 
 /* Memory size constants */
 #define KB			(1ULL << 10)

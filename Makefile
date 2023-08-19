@@ -143,6 +143,7 @@ HEADERS = \
 	core-asm-sparc.h \
 	core-asm-x86.h \
 	core-asm-ret.h \
+	core-attribute.h \
 	core-bitops.h \
 	core-builtin.h \
 	core-capabilities.h \
@@ -158,6 +159,7 @@ HEADERS = \
 	core-killpid.h \
 	core-klog.h \
 	core-lock.h \
+	core-log.h \
 	core-madvise.h \
 	core-mlock.h \
 	core-mmap.h \
