@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-mincore.h"
 
 /*
  * stress_mincore_touch_pages_slow()

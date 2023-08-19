@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
+#include "core-mincore.h"
 
 #define WASTE_SIZE	(64 * MB)
 

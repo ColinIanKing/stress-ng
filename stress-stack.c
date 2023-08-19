@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mincore.h"
 #include "core-put.h"
 
 #define STRESS_DATA_SIZE	(256 * KB)

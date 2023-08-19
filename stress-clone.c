@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-mincore.h"
 
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>

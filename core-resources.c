@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-mincore.h"
 #include "core-resources.h"
 
 #if defined(HAVE_LIB_PTHREAD)

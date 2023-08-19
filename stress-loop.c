@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-mincore.h"
 
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
