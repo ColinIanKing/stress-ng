@@ -182,6 +182,7 @@ HEADERS = \
 	core-try-open.h \
 	core-vecmath.h \
 	core-version.h \
+	core-vmstat.h \
 	stress-af-alg-defconfigs.h \
 	stress-eigen-ops.h \
 	stress-ng.h

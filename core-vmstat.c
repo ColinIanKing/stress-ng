@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-thermal-zone.h"
+#include "core-vmstat.h"
 
 #if defined(HAVE_MACH_MACH_H)
 #include <mach/mach.h>

@@ -38,6 +38,7 @@
 #include "core-syslog.h"
 #include "core-thermal-zone.h"
 #include "core-thrash.h"
+#include "core-vmstat.h"
 
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>

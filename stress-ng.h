@@ -1357,9 +1357,6 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED size_t stress_get_max_file_limit(void);
 extern WARN_UNUSED int stress_get_bad_fd(void);
-extern void stress_vmstat_start(void);
-extern void stress_vmstat_stop(void);
-extern WARN_UNUSED char *stress_find_mount_dev(const char *name);
 extern WARN_UNUSED int stress_sigaltstack_no_check(void *stack, const size_t size);
 extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
 extern void stress_sigaltstack_disable(void);
@@ -1415,10 +1412,6 @@ extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_get_hostname_length(void);
-extern WARN_UNUSED int32_t stress_set_status(const char *const str);
-extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
-extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
-extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
 
 extern void stress_metrics_set_const_check(const stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value);

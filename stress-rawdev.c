@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-vmstat.h"
 
 #if defined(HAVE_SYS_SYSMACROS_H)
 #include <sys/sysmacros.h>
