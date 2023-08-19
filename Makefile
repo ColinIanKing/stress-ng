@@ -134,6 +134,7 @@ BASHDIR=/usr/share/bash-completion/completions
 #
 HEADERS = \
 	core-arch.h \
+	core-affinity.h \
 	core-asm-arm.h \
 	core-asm-generic.h \
 	core-asm-ppc64.h \

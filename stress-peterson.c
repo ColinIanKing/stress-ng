@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-arch.h"
 #include "core-cpu-cache.h"
 

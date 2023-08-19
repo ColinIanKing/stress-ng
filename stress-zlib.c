@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"

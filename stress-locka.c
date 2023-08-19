@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 
 static const stress_help_t help[] = {

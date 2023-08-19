@@ -1305,8 +1305,6 @@ extern void stress_check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 extern void stress_check_range_bytes(const char *const opt,
 	const uint64_t val, const uint64_t lo, const uint64_t hi);
-extern int stress_change_cpu(const stress_args_t *args, const int old_cpu);
-extern WARN_UNUSED int stress_set_cpu_affinity(const char *arg);
 extern WARN_UNUSED int stress_set_mbind(const char *arg);
 extern int stress_numa_count_mem_nodes(unsigned long *max_node);
 extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);

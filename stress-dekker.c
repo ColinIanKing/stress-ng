@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-cpu-cache.h"
 
 static const stress_help_t help[] = {

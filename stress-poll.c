@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 
 #define MIN_POLL_FDS	(1)
 #define MAX_POLL_FDS	(8192)	/* Must be never larger than 65535 */

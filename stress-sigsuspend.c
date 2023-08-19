@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 
 #define MAX_SIGSUSPEND_PIDS	(4)
 

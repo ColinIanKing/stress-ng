@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-ftrace.h"
