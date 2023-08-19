@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-module.h"
 
 #if defined(HAVE_LINUX_MODULE_H)
 #include <linux/module.h>

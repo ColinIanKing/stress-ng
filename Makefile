@@ -157,7 +157,10 @@ HEADERS = \
 	core-killpid.h \
 	core-klog.h \
 	core-madvise.h \
+	core-mlock.h \
+	core-mmap.h \
 	core-mincore.h \
+	core-module.h \
 	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \

@@ -1450,12 +1450,6 @@ extern int stress_swapoff(const char *path);
 /* process information */
 extern void stress_dump_processes(void);
 
-/* kernel module helpers */
-extern int stress_module_load(const char *name, const char *alias,
-	const char *options, bool *already_loaded);
-extern int stress_module_unload(const char *name, const char *alias,
-	const bool already_loaded);
-
 extern WARN_UNUSED int stress_exit_status(const int err);
 
 /*

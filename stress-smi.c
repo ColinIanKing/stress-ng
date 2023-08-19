@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-capabilities.h"
+#include "core-module.h"
 
 #if defined(HAVE_SYS_IO_H)
 #include <sys/io.h>
