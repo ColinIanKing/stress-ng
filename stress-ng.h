@@ -1329,7 +1329,6 @@ extern void stress_get_memlimits(size_t *shmall, size_t *freemem,
 	size_t *totalmem, size_t *freeswap, size_t *totalswap);
 extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5,
 	double *min15);
-extern void stress_set_max_limits(void);
 extern void stress_parent_died_alarm(void);
 extern int stress_process_dumpable(const bool dumpable);
 extern int stress_set_timer_slack_ns(const char *opt);

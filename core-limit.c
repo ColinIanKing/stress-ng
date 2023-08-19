@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-limit.h"
 
 static const shim_rlimit_resource_t limits[] = {
 #if defined(RLIMIT_AS)

@@ -29,6 +29,7 @@
 #include "core-io-priority.h"
 #include "core-job.h"
 #include "core-klog.h"
+#include "core-limit.h"
 #include "core-mlock.h"
 #include "core-numa.h"
 #include "core-perf.h"
