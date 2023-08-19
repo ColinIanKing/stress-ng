@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-setting.h"
 
 /* settings for storing opt arg parsed data */
 typedef struct stress_setting {
@@ -72,7 +73,7 @@ void stress_settings_free(void)
 	setting_tail = NULL;
 }
 
-void stress_settings_show_setting(const stress_setting_t *setting)
+static void stress_settings_show_setting(const stress_setting_t *setting)
 {
 	switch (setting->type_id) {
 	case TYPE_ID_UINT8:
@@ -133,7 +134,7 @@ void stress_settings_show_setting(const stress_setting_t *setting)
 	}
 }
 
-int setting_cmp(const void *p1, const void *p2)
+static int stress_setting_cmp(const void *p1, const void *p2)
 {
 	const stress_setting_t *s1 = *(stress_setting_t **)p1;
 	const stress_setting_t *s2 = *(stress_setting_t **)p2;
@@ -158,7 +159,7 @@ void stress_settings_show(void)
 	for (i = 0, setting = setting_head; setting; setting = setting->next, i++)
 		settings[i] = setting;
 
-	qsort(settings, n, sizeof(*settings), setting_cmp);
+	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
 
 	for (i = 0; i < n; i++)
 		stress_settings_show_setting(settings[i]);
