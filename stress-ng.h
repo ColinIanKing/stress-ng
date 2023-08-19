@@ -20,6 +20,8 @@
 #ifndef STRESS_NG_H
 #define STRESS_NG_H
 
+#include "config.h"
+
 #if defined(__ICC) &&		\
     defined(__INTEL_COMPILER)
 /* Intel ICC compiler */
@@ -43,8 +45,6 @@
 /* GNU C compiler */
 #define HAVE_COMPILER_GCC
 #endif
-
-#include "config.h"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
@@ -97,31 +97,24 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif
-
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
-
 #if defined(HAVE_STRINGS_H)
 #include <strings.h>
 #endif
-
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>
 #endif
-
 #if defined(HAVE_BSD_STDLIB_H)
 #include <bsd/stdlib.h>
 #endif
-
 #if defined(HAVE_BSD_STRING_H)
 #include <bsd/string.h>
 #endif
-
 #if defined(HAVE_BSD_UNISTD_H)
 #include <bsd/unistd.h>
 #endif
@@ -139,15 +132,12 @@
 #include <sys/times.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
 #if defined(HAVE_SYS_PARAM_H)
 #include <sys/param.h>
 #endif
-
 #if defined(HAVE_SYSCALL_H)
 #include <sys/syscall.h>
 #endif
-
 #if defined(HAVE_SYS_SYSINFO_H)
 #include <sys/sysinfo.h>
 #if defined(HAVE_COMPILER_GCC) &&	\
@@ -156,10 +146,6 @@
 #define _LINUX_SYSINFO_H
 #endif
 #endif
-
-/*
- *  Linux specific includes
- */
 #if defined(HAVE_LINUX_POSIX_TYPES_H)
 #include <linux/posix_types.h>
 #endif
@@ -276,8 +262,7 @@ typedef int shim_itimer_which_t;
 #define STRESS_MAXIMUM(a,b) (((a) > (b)) ? (a) : (b))
 
 /* NetBSD does not define MAP_ANONYMOUS */
-#if defined(MAP_ANON) &&	\
-    !defined(MAP_ANONYMOUS)
+#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
@@ -417,10 +402,10 @@ typedef enum {
 } stress_type_id_t;
 
 typedef struct {
-	uint64_t	counter;	/* bogo-op counter */
-	bool		counter_ready;	/* ready flag */
-	bool	 	run_ok;		/* stressor run w/o issues */
-	bool		force_killed;	/* true if sent SIGKILL */
+	uint64_t counter;		/* bogo-op counter */
+	bool counter_ready;		/* ready flag */
+	bool run_ok;			/* stressor run w/o issues */
+	bool force_killed;		/* true if sent SIGKILL */
 } stress_counter_info_t;
 
 /*
@@ -432,9 +417,9 @@ typedef struct {
 typedef struct {
 	struct {
 		stress_counter_info_t ci; /* Copy of stats counter info ci */
-		uint8_t	 reserved[7];	/* Padding */
+		uint8_t	reserved[7];	/* Padding */
 	} data;
-	uint32_t	hash;		/* Hash of data */
+	uint32_t hash;			/* Hash of data */
 } stress_checksum_t;
 
 /*
@@ -636,10 +621,8 @@ typedef struct stressor_info {
 #define ALIGNED(a)
 #endif
 
-/* Force alignment to nearest 128 bytes */
+/* Force alignment macros */
 #define ALIGN128	ALIGNED(128)
-
-/* Force alignment to nearest 64 bytes */
 #define ALIGN64		ALIGNED(64)
 
 
@@ -858,8 +841,8 @@ typedef struct {
 #endif
 
 typedef struct {
-	uint64_t	count_start;
-	uint64_t	count_stop;
+	uint64_t count_start;
+	uint64_t count_stop;
 } stress_interrupts_t;
 
 /* Per stressor statistics and accounting info */
@@ -1167,7 +1150,7 @@ static inline void stress_bogo_add_lock(const stress_args_t *args, void *lock, c
 	 *  and get racy stress_continue state, that's
 	 *  probably the best we can do in this failure mode
 	 */
-	if (stress_lock_acquire(lock) < 0)
+	if (UNLIKELY(stress_lock_acquire(lock) < 0))
 		return;
 	stress_bogo_add(args, val);
 	stress_lock_release(lock);
@@ -1187,7 +1170,7 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 	 *  and get racy stress_continue state, that's
 	 *  probably the best we can do in this failure mode
 	 */
-	if (stress_lock_acquire(lock) < 0)
+	if (UNLIKELY(stress_lock_acquire(lock) < 0))
 		return stress_continue(args);
 	ret = stress_continue(args);
 	if (inc && ret)
@@ -1520,17 +1503,14 @@ extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int li
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
 /* Jobfile parsing */
-extern WARN_UNUSED int stress_parse_jobfile(int argc, char **argv,
-	const char *jobfile);
-extern WARN_UNUSED int stress_parse_opts(int argc, char **argv,
-	const bool jobmode);
+extern WARN_UNUSED int stress_parse_jobfile(int argc, char **argv, const char *jobfile);
+extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
 /* Memory tweaking */
 extern int stress_madvise_random(void *addr, const size_t length);
 extern void stress_madvise_pid_all_pages(const pid_t pid, const int advise);
 extern int stress_mincore_touch_pages(void *buf, const size_t buf_len);
-extern int stress_mincore_touch_pages_interruptible(void *buf,
-	const size_t buf_len);
+extern int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len);
 extern int stress_pagein_self(const char *name);
 
 /* Mounts */
