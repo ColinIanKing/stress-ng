@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-target-clones.h"
+#include "core-madvise.h"
 #include "core-nt-load.h"
 #include "core-nt-store.h"
 #include "core-vecmath.h"

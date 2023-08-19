@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 
 #if defined(HAVE_MADVISE)
 static const int madvise_options[] = {

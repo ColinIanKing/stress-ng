@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 
 #define MIN_SHM_POSIX_BYTES	(1 * MB)
 #define MAX_SHM_POSIX_BYTES	(1 * GB)

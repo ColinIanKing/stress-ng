@@ -156,6 +156,7 @@ HEADERS = \
 	core-io-priority.h \
 	core-killpid.h \
 	core-klog.h \
+	core-madvise.h \
 	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \

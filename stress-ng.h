@@ -1488,8 +1488,6 @@ extern WARN_UNUSED int stress_parse_jobfile(int argc, char **argv, const char *j
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
 /* Memory tweaking */
-extern int stress_madvise_random(void *addr, const size_t length);
-extern void stress_madvise_pid_all_pages(const pid_t pid, const int advise);
 extern int stress_mincore_touch_pages(void *buf, const size_t buf_len);
 extern int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len);
 extern int stress_pagein_self(const char *name);
