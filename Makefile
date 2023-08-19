@@ -165,6 +165,7 @@ HEADERS = \
 	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \
+	core-numa.h \
 	core-opts.h \
 	core-perf.h \
 	core-pragma.h \

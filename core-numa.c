@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-numa.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>

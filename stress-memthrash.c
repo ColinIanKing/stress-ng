@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
+#include "core-numa.h"
 #include "core-pthread.h"
 #include "core-target-clones.h"
 
