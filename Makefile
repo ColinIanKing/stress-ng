@@ -151,6 +151,7 @@ HEADERS = \
 	core-cpuidle.h \
 	core-ftrace.h \
 	core-hash.h \
+	core-ignite-cpu.h \
 	core-io-priority.h \
 	core-nt-load.h \
 	core-nt-store.h \

@@ -1355,8 +1355,6 @@ extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
 extern void stress_klog_start(void);
 extern void stress_klog_stop(bool *success);
-extern void stress_ignite_cpu_start(void);
-extern void stress_ignite_cpu_stop(void);
 extern WARN_UNUSED int stress_set_nonblock(const int fd);
 extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,
 	const size_t buf_len);

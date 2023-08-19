@@ -24,6 +24,7 @@
 #include "core-cpuidle.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
+#include "core-ignite-cpu.h"
 #include "core-perf.h"
 #include "core-pragma.h"
 #include "core-put.h"
