@@ -58,21 +58,21 @@ typedef struct {
 
 /* Per stressor information */
 static stress_stressor_t *stressors_head, *stressors_tail;
-stress_stressor_t *g_stressor_current;
 
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
 static int terminate_signum;			/* signal sent to process */
 static pid_t main_pid;				/* stress-ng main pid */
+static bool *sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
 
 /* Globals */
+stress_stressor_t *g_stressor_current;		/* current stressor being invoked */
 int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
 int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 int32_t g_opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
-bool *g_sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
@@ -87,7 +87,7 @@ typedef struct {
 	bool 	triggered;
 } stress_sigalrm_info_t;
 
-stress_sigalrm_info_t g_sigalrm_info;
+stress_sigalrm_info_t sigalrm_info;
 #endif
 
 static void stress_kill_stressors(const int sig, const bool force_sigkill);
@@ -144,7 +144,7 @@ static const stress_opt_flag_t opt_flags[] = {
  *  we can clean up rather than leave
  *  cruft everywhere.
  */
-static const int terminate_signals[] = {
+static const int stress_terminate_signals[] = {
 	/* POSIX.1-1990 */
 #if defined(SIGHUP)
 	SIGHUP,
@@ -191,7 +191,7 @@ static const int terminate_signals[] = {
 #endif
 };
 
-static const int ignore_signals[] = {
+static const int stress_ignore_signals[] = {
 #if defined(SIGUSR1)
 	SIGUSR1,
 #endif
@@ -253,7 +253,7 @@ static const stress_class_info_t stress_classes[] = {
 /*
  *  GNU "long options" command line options
  */
-static const struct option long_options[] = {
+static const struct option stress_long_options[] = {
 	{ "abort",		0,	0,	OPT_abort },
 	{ "access",		1,	0,	OPT_access },
 	{ "access-ops",		1,	0,	OPT_access_ops },
@@ -1403,7 +1403,7 @@ static inline size_t stressor_name_find(const char *name)
  *  stress_ignore_stressor()
  *	remove stressor from stressor list
  */
-static void stress_ignore_stressor(stress_stressor_t *ss, uint8_t reason)
+static inline void stress_ignore_stressor(stress_stressor_t *ss, uint8_t reason)
 {
 	ss->ignore.run = reason;
 }
@@ -1550,10 +1550,10 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
 	if (g_shared) {
 		g_shared->caught_sigint = true;
-		if (g_sigalarmed) {
-			if (!*g_sigalarmed) {
+		if (sigalarmed) {
+			if (!*sigalarmed) {
 				g_shared->instance_count.alarmed++;
-				*g_sigalarmed = true;
+				*sigalarmed = true;
 			}
 		}
 	}
@@ -1591,12 +1591,12 @@ static void MLOCKED_TEXT stress_sigalrm_action_handler(
 	    !g_shared->caught_sigint &&		/* and SIGINT not already handled */
 	    info && 				/* and info is valid */
 	    (info->si_code == SI_USER) &&	/* and not from kernel SIGALRM */
-	    (!g_sigalrm_info.triggered)) {	/* and not already handled */
-		g_sigalrm_info.code = info->si_code;
-		g_sigalrm_info.pid = info->si_pid;
-		g_sigalrm_info.uid = info->si_uid;
-		(void)gettimeofday(&g_sigalrm_info.when, NULL);
-		g_sigalrm_info.triggered = true;
+	    (!sigalrm_info.triggered)) {	/* and not already handled */
+		sigalrm_info.code = info->si_code;
+		sigalrm_info.pid = info->si_pid;
+		sigalrm_info.uid = info->si_uid;
+		(void)gettimeofday(&sigalrm_info.when, NULL);
+		sigalrm_info.triggered = true;
 	}
 	stress_sigalrm_handler(signum);
 }
@@ -1825,9 +1825,9 @@ static const char *stress_opt_name(const int opt_val)
 {
 	size_t i;
 
-	for (i = 0; long_options[i].name; i++)
-		if (long_options[i].val == opt_val)
-			return long_options[i].name;
+	for (i = 0; stress_long_options[i].name; i++)
+		if (stress_long_options[i].val == opt_val)
+			return stress_long_options[i].name;
 
 	return "unknown";
 }
@@ -2599,7 +2599,7 @@ again:
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
-				g_sigalarmed = &stats->sigalarmed;
+				sigalarmed = &stats->sigalarmed;
 				child_pid = getpid();
 
 				(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
@@ -2674,19 +2674,19 @@ again:
 					 *  Sanity check if process was killed by
 					 *  an external SIGALRM source
 					 */
-					if (g_sigalrm_info.triggered && (g_sigalrm_info.code == SI_USER)) {
-						time_t t = g_sigalrm_info.when.tv_sec;
+					if (sigalrm_info.triggered && (sigalrm_info.code == SI_USER)) {
+						time_t t = sigalrm_info.when.tv_sec;
 						const struct tm *tm = localtime(&t);
 
 						if (tm) {
 							pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
 								name,
 								tm->tm_hour, tm->tm_min, tm->tm_sec,
-								(long)g_sigalrm_info.when.tv_usec / 10000,
-								g_sigalrm_info.uid);
+								(long)sigalrm_info.when.tv_usec / 10000,
+								sigalrm_info.uid);
 						} else {
 							pr_dbg("%s: terminated by SIGALRM externally by user %d\n",
-								name, g_sigalrm_info.uid);
+								name, sigalrm_info.uid);
 						}
 					}
 #endif
@@ -3918,7 +3918,7 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 		opterr = (!jobmode) ? opterr : 0;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
-			long_options, &option_index)) == -1) {
+			stress_long_options, &option_index)) == -1) {
 			break;
 		}
 
@@ -4650,8 +4650,9 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Enable signal handers
 	 */
-	for (i = 0; i < SIZEOF_ARRAY(terminate_signals); i++) {
-		if (stress_sighandler("stress-ng", terminate_signals[i], stress_handle_terminate, NULL) < 0) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_terminate_signals); i++) {
+		if (stress_sighandler("stress-ng", stress_terminate_signals[i],
+					stress_handle_terminate, NULL) < 0) {
 			ret = EXIT_FAILURE;
 			goto exit_logging_close;
 		}
@@ -4659,8 +4660,9 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Ignore other signals
 	 */
-	for (i = 0; i < SIZEOF_ARRAY(ignore_signals); i++) {
-		VOID_RET(int, stress_sighandler("stress-ng", ignore_signals[i], SIG_IGN, NULL));
+	for (i = 0; i < SIZEOF_ARRAY(stress_ignore_signals); i++) {
+		VOID_RET(int, stress_sighandler("stress-ng", stress_ignore_signals[i],
+						SIG_IGN, NULL));
 	}
 
 	/*
