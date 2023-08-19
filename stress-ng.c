@@ -47,7 +47,7 @@
 
 /* Stress test classes */
 typedef struct {
-	stress_class_t class;		/* Class type bit mask */
+	const stress_class_t class;	/* Class type bit mask */
 	const char *name;		/* Name of class */
 } stress_class_info_t;
 
