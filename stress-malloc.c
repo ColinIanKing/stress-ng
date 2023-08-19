@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-mincore.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>

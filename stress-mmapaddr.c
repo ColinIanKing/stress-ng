@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 static volatile bool page_fault = false;
 

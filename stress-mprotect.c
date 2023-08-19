@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-put.h"
 #include "core-killpid.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mprotect N",	 "start N workers exercising mprotect on memory" },

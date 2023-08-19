@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 #define DEFAULT_PAGE_MOVE_BYTES		(4 * MB)
 #define MIN_PAGE_MOVE_BYTES		(64 * KB)

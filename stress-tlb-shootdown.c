@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
+#include "core-out-of-memory.h"
 #include "core-pragma.h"
 
 static const stress_help_t help[] = {

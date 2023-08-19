@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-madvise.h"
+#include "core-out-of-memory.h"
 
 #define STRESS_EFI_UNKNOWN	(0)
 #define STRESS_EFI_VARS		(1)

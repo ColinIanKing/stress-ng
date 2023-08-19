@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-net.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>

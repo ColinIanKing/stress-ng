@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-out-of-memory.h"
 
 #define MAX_SOCKET_PAIRS	(32768)
 #define SOCKET_PAIR_BUF         (4096)	/* Socket pair I/O buffer size */

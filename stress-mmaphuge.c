@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-mmap.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaphuge N",		"start N workers stressing mmap with huge mappings" },

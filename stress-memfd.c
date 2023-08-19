@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-cpu.h"
 #include "core-madvise.h"
+#include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
 #define MIN_MEMFD_BYTES		(2 * MB)

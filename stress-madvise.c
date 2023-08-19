@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"madvise N",	 	"start N workers exercising madvise on memory" },

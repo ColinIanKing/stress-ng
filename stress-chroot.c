@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"chroot N",	"start N workers thrashing chroot" },

@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>

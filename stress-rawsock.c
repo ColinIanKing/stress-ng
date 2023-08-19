@@ -23,6 +23,7 @@
 #include "core-capabilities.h"
 #include "core-hash.h"
 #include "core-lock.h"
+#include "core-out-of-memory.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)

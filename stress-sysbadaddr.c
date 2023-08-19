@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>

@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-lock.h"
+#include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-try-open.h"
 

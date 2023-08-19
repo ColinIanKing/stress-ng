@@ -1250,8 +1250,6 @@ extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);
 extern WARN_UNUSED double stress_time_now(void);
 extern const char *stress_duration_to_str(const double duration, const bool int_secs);
 
-typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
-
 /* 64 and 32 char ASCII patterns */
 extern const char ALIGN64 stress_ascii64[64];
 extern const char ALIGN64 stress_ascii32[32];
@@ -1259,10 +1257,6 @@ extern const char ALIGN64 stress_ascii32[32];
 /* Misc helpers */
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);
-extern void stress_set_oom_adjustment(const stress_args_t *args, const bool killable);
-extern WARN_UNUSED bool stress_process_oomed(const pid_t pid);
-extern WARN_UNUSED int stress_oomable_child(const stress_args_t *args,
-	void *context, stress_oomable_child_func_t func, const int flag);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int sched,
 	const int sched_priority, const bool quiet);
 extern WARN_UNUSED int stress_set_deadline_sched(const pid_t, const uint64_t period,

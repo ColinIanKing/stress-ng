@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-madvise.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"dev-shm N",	"start N /dev/shm file and mmap stressors" },

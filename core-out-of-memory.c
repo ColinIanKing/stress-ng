@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 #if defined(__linux__)
 

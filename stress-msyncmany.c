@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"msyncmany N",		"start N workers stressing msync on many mapped pages" },

@@ -23,6 +23,7 @@
 #include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-mmap.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>

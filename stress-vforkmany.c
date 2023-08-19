@@ -21,6 +21,7 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-out-of-memory.h"
 
 #define WASTE_SIZE	(64 * MB)
 

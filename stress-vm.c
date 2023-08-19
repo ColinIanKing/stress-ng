@@ -25,6 +25,7 @@
 #include "core-mincore.h"
 #include "core-nt-load.h"
 #include "core-nt-store.h"
+#include "core-out-of-memory.h"
 #include "core-vecmath.h"
 
 #define MIN_VM_BYTES		(4 * KB)

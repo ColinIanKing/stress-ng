@@ -23,6 +23,7 @@
 #include "core-asm-ret.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"flushcache N",		"start N CPU instruction + data cache flush workers" },

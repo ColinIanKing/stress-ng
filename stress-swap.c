@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-out-of-memory.h"
 
 #if defined(__sun__)
 /* Disable for SunOs/Solaris because */

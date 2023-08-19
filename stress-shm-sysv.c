@@ -23,6 +23,7 @@
 #include "core-capabilities.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>

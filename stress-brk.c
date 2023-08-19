@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-nt-load.h"
+#include "core-out-of-memory.h"
 
 #define MIN_BRK_BYTES		(64 * KB)
 #define MAX_BRK_BYTES		(MAX_MEM_LIMIT)

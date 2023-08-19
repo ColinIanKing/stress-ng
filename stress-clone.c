@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-lock.h"
 #include "core-mincore.h"
+#include "core-out-of-memory.h"
 
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>

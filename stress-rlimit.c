@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-mincore.h"
+#include "core-out-of-memory.h"
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;

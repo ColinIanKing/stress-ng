@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-bitops.h"
+#include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
 #define MIN_VM_ADDR_BYTES	(8 * MB)

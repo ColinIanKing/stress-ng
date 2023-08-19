@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"env N",	"start N workers setting environment vars" },

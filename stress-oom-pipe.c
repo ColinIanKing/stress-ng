@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"oom-pipe N",	  "start N workers exercising large pipes" },

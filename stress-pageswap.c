@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"pageswap N",		"start N workers that swap pages out and in" },
