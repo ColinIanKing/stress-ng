@@ -1157,9 +1157,6 @@ extern void stress_unset_chattr_flags(const char *pathname);
 extern int stress_munmap_retry_enomem(void *addr, size_t length);
 extern int stress_swapoff(const char *path);
 
-/* process information */
-extern void stress_dump_processes(void);
-
 extern WARN_UNUSED int stress_exit_status(const int err);
 
 /*

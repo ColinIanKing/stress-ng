@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-processes.h"
 
 #if defined(__linux__)
 static int stress_dump_processes_filter(const struct dirent *d)

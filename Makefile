@@ -177,6 +177,7 @@ HEADERS = \
 	core-parse-opts.h \
 	core-perf.h \
 	core-pragma.h \
+	core-processes.h \
 	core-pthread.h \
 	core-put.h \
 	core-resources.h \
