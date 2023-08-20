@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-sched.h"
 
 #ifndef SCHED_FLAG_RESET_ON_FORK
 #define SCHED_FLAG_RESET_ON_FORK        (0x01)

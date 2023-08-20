@@ -181,6 +181,7 @@ HEADERS = \
 	core-put.h \
 	core-resources.h \
 	core-setting.h \
+	core-sched.h \
 	core-smart.h \
 	core-sort.h \
 	core-stressors.h \

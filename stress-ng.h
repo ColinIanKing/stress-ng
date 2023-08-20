@@ -159,6 +159,7 @@
 #include "core-log.h"
 #include "core-lock.h"
 #include "core-mwc.h"
+#include "core-sched.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -1015,12 +1016,6 @@ extern const char ALIGN64 stress_ascii32[32];
 /* Misc helpers */
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
 	const char *pathname, const char *filename);
-extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int sched,
-	const int sched_priority, const bool quiet);
-extern WARN_UNUSED int stress_set_deadline_sched(const pid_t, const uint64_t period,
-	const uint64_t runtime, const uint64_t deadline, const bool quiet);
-extern int sched_settings_apply(const bool quiet);
-extern const char *stress_get_sched_name(const int sched);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
 extern void stress_set_proc_name(const char *name);
 extern void stress_set_proc_state_str(const char *name, const char *str);
@@ -1035,7 +1030,6 @@ extern void stress_close_fds(int *fds, const size_t n);
 extern void stress_file_rw_hint_short(const int fd);
 extern void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name);
 extern void stress_clean_dir(const char *name, const pid_t pid, const uint32_t instance);
-extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
 
 /* Misc helper funcs */
 extern WARN_UNUSED size_t stress_get_sig_stack_size(void);
