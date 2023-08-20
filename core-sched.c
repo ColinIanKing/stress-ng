@@ -85,46 +85,6 @@ static const char prefix[] = "sched";
 #if defined(SCHED_DEADLINE) &&	\
     defined(__linux__)
 #define HAVE_STRESS_SET_DEADLINE_SCHED	(1)
-
-int stress_set_deadline_sched(
-	const pid_t pid,
-	const uint64_t period,
-	const uint64_t runtime,
-	const uint64_t deadline,
-	const bool quiet)
-{
-	int rc;
-	struct shim_sched_attr attr;
-
-	(void)shim_memset(&attr, 0, sizeof(attr));
-
-	attr.size = sizeof(attr);
-	attr.sched_policy = SCHED_DEADLINE;
-	/* make sched_deadline task be able to fork*/
-	attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;
-	if (g_opt_flags & OPT_FLAGS_DEADLINE_GRUB)
-		attr.sched_flags |= SCHED_FLAG_RECLAIM;
-
-	attr.sched_nice = 0;
-	attr.sched_priority = 0;
-	if (!quiet)
-		pr_dbg("%s: setting scheduler class '%s' (period=%" PRIu64
-			", runtime=%" PRIu64 ", deadline=%" PRIu64 ")\n",
-			prefix, "deadline", period, runtime, deadline);
-	attr.sched_runtime = runtime;
-	attr.sched_deadline = deadline;
-	attr.sched_period = period;
-
-	rc = shim_sched_setattr(pid, &attr, 0);
-	if (rc < 0) {
-		rc = -errno;
-		if (!quiet)
-			pr_inf("%s: cannot set scheduler: errno=%d (%s)\n",
-				prefix, errno, strerror(errno));
-		return rc;
-	}
-	return 0;
-}
 #endif
 
 #define HAVE_STRESS_SET_SCHED	(1)

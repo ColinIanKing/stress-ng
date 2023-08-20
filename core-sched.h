@@ -20,9 +20,6 @@
 #define CORE_SCHED_H
 
 extern const char *stress_get_sched_name(const int sched);
-extern WARN_UNUSED int stress_set_deadline_sched(const pid_t pid,
-	const uint64_t period, const uint64_t runtime,
-	const uint64_t deadline, const bool quiet);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int sched,
 	const int sched_priority, const bool quiet);
 extern WARN_UNUSED int32_t stress_get_opt_sched(const char *const str);
