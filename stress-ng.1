@@ -623,13 +623,13 @@ start N workers that run 16 processes that rapidly change CPU affinity
 (only on Linux). Rapidly switching CPU affinity can contribute to
 poor cache behaviour and high context switch rate.
 .TP
-.B \-\-affinity\-ops N
-stop affinity workers after N bogo affinity operations.
-.TP
 .B \-\-affinity\-delay N
 delay for N nanoseconds before changing affinity to the next CPU.
 The delay will spin on CPU scheduling yield operations for N nanoseconds
 before the process is moved to another CPU. The default is 0 nanosconds.
+.TP
+.B \-\-affinity\-ops N
+stop affinity workers after N bogo affinity operations.
 .TP
 .B \-\-affinity\-pin
 pin all the 16 per stressor processes to a CPU. All 16 processes follow the
@@ -650,12 +650,12 @@ start N workers that exercise the AF_ALG socket domain by hashing and encrypting
 various sized random messages. This exercises the available hashes, ciphers,
 rng and aead crypto engines in the Linux kernel.
 .TP
-.B \-\-af\-alg\-ops N
-stop af\-alg workers after N AF_ALG messages are hashed.
-.TP
 .B \-\-af\-alg\-dump
 dump the internal list representing cryptographic algorithms
 parsed from the /proc/crypto file to standard output (stdout).
+.TP
+.B \-\-af\-alg\-ops N
+stop af\-alg workers after N AF_ALG messages are hashed.
 .RE
 .TP
 .B AIO stressor
@@ -811,9 +811,6 @@ allocating process starts all over again.  Note that the OOM adjustment for the
 worker is set so that the OOM killer will treat these workers as the first
 candidate processes to kill.
 .TP
-.B \-\-bigheap\-ops N
-stop the big heap workers after N bogo allocation operations are completed.
-.TP
 .B \-\-bigheap\-bytes N
 maximum heap growth as N bytes per bigheap worker. One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
@@ -827,6 +824,9 @@ specify amount of memory to grow heap by per iteration. Size can be from 4K to
 attempt to mlock future allocated pages into memory causing more memory pressure. If
 mlock(MCL_FUTURE) is implemented then this will stop newly allocated pages from being
 swapped out.
+.TP
+.B \-\-bigheap\-ops N
+stop the big heap workers after N bogo allocation operations are completed.
 .RE
 .TP
 .B Binderfs stressor
@@ -876,9 +876,6 @@ that it may be killed by the out of memory (OOM) killer before other processes.
 If it is killed by the OOM killer then it will be automatically re-started by
 a monitoring parent process.
 .TP
-.B \-\-brk\-ops N
-stop the brk workers after N bogo brk operations.
-.TP
 .B \-\-brk\-bytes N
 maximum brk growth as N bytes per brk worker. One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
@@ -893,6 +890,9 @@ swapped out.
 do not touch each newly allocated data segment page. This disables the default
 of touching each newly allocated page and hence avoids the kernel from
 necessarily backing the page with physical memory.
+.TP
+.B \-\-brk\-ops N
+stop the brk workers after N bogo brk operations.
 .RE
 .TP
 .B Binary search stressor
@@ -952,6 +952,13 @@ do not change processor affinity when
 .B \-\-cache
 is in effect.
 .TP
+.B \-\-cache\-ops N
+stop cache thrash workers after N bogo cache thrash operations.
+.TP
+.B \-\-cache\-prefetch
+force read prefetch on next read address on architectures that support
+prefetching.
+.TP
 .B \-\-cache\-sfence
 force write serialization on each store operation using the sfence instruction
 (x86 only). This is a no-op for non-x86 architectures.
@@ -959,13 +966,6 @@ force write serialization on each store operation using the sfence instruction
 .B \-\-cache\-size N
 override the default cache size setting to N bytes. One can specify the
 in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
-.TP
-.B \-\-cache\-ops N
-stop cache thrash workers after N bogo cache thrash operations.
-.TP
-.B \-\-cache\-prefetch
-force read prefetch on next read address on architectures that support
-prefetching.
 .TP
 .B \-\-cache\-ways N
 specify the number of cache ways to exercise. This allows a subset of
@@ -982,9 +982,6 @@ in a shared buffer that is the size of a cache line. Each stressor has
 The intent is to try and trigger cacheline corruption, stalls and misses
 with shared memory accesses. For an N byte sized cacheline, it is recommended
 to run N / 2 stressor instances.
-.TP
-.B \-\-cacheline\-ops N
-stop cacheline workers after N loops of the byte exercising in a cacheline.
 .TP
 .B \-\-cacheline\-affinity
 frequently change CPU affinity, spread cacheline processes evenly across all
@@ -1043,6 +1040,9 @@ read and write the same 8 bit value into a specific byte in a cacheline and
 check for corruption.
 T}
 .TE
+.TP
+.B \-\-cacheline\-ops N
+stop cacheline workers after N loops of the byte exercising in a cacheline.
 .RE
 .TP
 .B Process capabilities stressor
@@ -1075,12 +1075,12 @@ stop after N chattr bogo operations.
 .B \-\-chdir N
 start N workers that change directory between directories using chdir(2).
 .TP
-.B \-\-chdir\-ops N
-stop after N chdir bogo operations.
-.TP
 .B \-\-chdir\-dirs N
 exercise chdir on N directories. The default is 8192 directories, this allows
 64 to 65536 directories to be used instead.
+.TP
+.B \-\-chdir\-ops N
+stop after N chdir bogo operations.
 .RE
 .TP
 .B Chmod stressor
@@ -1144,12 +1144,12 @@ first-out manner, and then repeated.  A random clone flag is selected for each
 clone to try to exercise different clone operations.  The clone stressor is a Linux
 only option.
 .TP
-.B \-\-clone\-ops N
-stop clone stress workers after N bogo clone operations.
-.TP
 .B \-\-clone\-max N
 try to create as many as N clone threads. This may not be reached if the system
 limit is less than N.
+.TP
+.B \-\-clone\-ops N
+stop clone stress workers after N bogo clone operations.
 .RE
 .TP
 .B Close stressor
@@ -1187,13 +1187,13 @@ call. 128 KB chunks of data are copied from random locations from one file to
 random locations to a destination file.  By default, the files are 256 MB in
 size. Data is sync'd to the filesystem after each copy_file_range(2) call.
 .TP
-.B \-\-copy\-file\-ops N
-stop after N copy_file_range() calls.
-.TP
 .B \-\-copy\-file\-bytes N
 copy file size, the default is 256 MB. One can specify the size as % of free
 space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
 the suffix b, k, m or g.
+.TP
+.B \-\-copy\-file\-ops N
+stop after N copy_file_range() calls.
 .RE
 .TP
 .B CPU stressor
@@ -1203,9 +1203,6 @@ the suffix b, k, m or g.
 start N workers exercising the CPU by sequentially working through all the
 different CPU stress methods. Instead of exercising all the CPU stress methods,
 one can specify a specific CPU stress method with the \-\-cpu\-method option.
-.TP
-.B \-\-cpu\-ops N
-stop cpu stress workers after N bogo operations.
 .TP
 .B \-l P, \-\-cpu\-load P
 load CPU with P percent loading for the CPU stress workers. 0 is effectively a
@@ -1237,16 +1234,6 @@ frequency scaling and passive/active thermal cooling mechanisms.
 
 Note: This option only applies to the \-\-cpu stressor option and not to
 all of the cpu class of stressors.
-.TP
-.B \-\-cpu\-old\-metrics
-as of version V0.14.02 the cpu stressor now normalizes each of the cpu
-stressor method bogo-op counters to try and ensure a similar bogo-op rate
-for all the methods to avoid the shorter running (and faster) methods from
-skewing the bogo-op rates when using the default "all" method.
-This is based on a reference Intel i5-8350U processor and hence the bogo-ops
-normalizing factors will be skew somewhat on different CPUs, but so
-significantly as the original bogo-op counter rates. To disable the normalization
-and fall back to the original metrics, use this option.
 .TP
 .B \-\-cpu\-method method
 specify a cpu stress method. By default, all the stress methods are exercised
@@ -1572,6 +1559,23 @@ used in some applications.  They do try to represent the typical instruction
 mixes found in these use cases.
 .RE
 .TP
+.B \-\-cpu\-old\-metrics
+as of version V0.14.02 the cpu stressor now normalizes each of the cpu
+stressor method bogo-op counters to try and ensure a similar bogo-op rate
+for all the methods to avoid the shorter running (and faster) methods from
+skewing the bogo-op rates when using the default "all" method.
+This is based on a reference Intel i5-8350U processor and hence the bogo-ops
+normalizing factors will be skew somewhat on different CPUs, but so
+significantly as the original bogo-op counter rates. To disable the normalization
+and fall back to the original metrics, use this option.
+.TP
+.B \-\-cpu\-ops N
+stop cpu stress workers after N bogo operations.
+.RE
+.TP
+.B CPU onlining stressor
+.RS 5
+.TQ
 .B \-\-cpu\-online N
 start N workers that put randomly selected CPUs offline and online. This Linux
 only stressor requires root privilege to perform this action. By default the
@@ -1613,9 +1617,6 @@ cyclic stressor instance. One has to run this stressor with CAP_SYS_NICE
 capability to enable the real time scheduling policies. The FIFO scheduling
 policy is the default.
 .TP
-.B \-\-cyclic\-ops N
-stop after N sleeps.
-.TP
 .B \-\-cyclic\-dist N
 calculate and print a latency distribution with the interval of N nanoseconds.
 This is helpful to see where the latencies are clustering.
@@ -1649,6 +1650,9 @@ usleep	T{
 sleep to the nearest microsecond using usleep(2).
 T}
 .TE
+.TP
+.B \-\-cyclic\-ops N
+stop after N sleeps.
 .TP
 .B \-\-cyclic\-policy [ fifo | rr ]
 specify the desired real time scheduling policy, ff (first-in, first-out)
@@ -1761,13 +1765,13 @@ concurrent threads that perform open(2), fstat(2), lseek(2), poll(2),
 fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on each device.
 Note that watchdog devices are not exercised.
 .TP
-.B \-\-dev\-ops N
-stop dev workers after N bogo device exercising operations.
-.TP
 .B \-\-dev\-file filename
 specify the device file to exercise, for example, /dev/null. By default
 the stressor will work through all the device files it can fine, however,
 this option allows a single device file to be exercised.
+.TP
+.B \-\-dev\-ops N
+stop dev workers after N bogo device exercising operations.
 .RE
 .TP
 .B /dev/shm stressor
@@ -1789,12 +1793,12 @@ stop after N bogo allocation and mmap /dev/shm operations.
 start N workers that create, rename and remove directories using mkdir,
 rename and rmdir.
 .TP
-.B \-\-dir\-ops N
-stop directory thrash workers after N bogo directory operations.
-.TP
 .B \-\-dir\-dirs N
 exercise dir on N directories. The default is 8192 directories, this allows
 64 to 65536 directories to be used instead.
+.TP
+.B \-\-dir\-ops N
+stop directory thrash workers after N bogo directory operations.
 .RE
 .TP
 .B Deep directories stressor
@@ -1807,9 +1811,6 @@ By default, each level of the tree contains one directory, but this can
 be increased to a maximum of 10 sub-trees using the \-\-dirdeep\-dir option.
 To stress inode creation, a symlink and a hardlink to a file at the root
 of the tree is created in each level.
-.TP
-.B \-\-dirdeep\-ops N
-stop directory depth workers after N bogo directory operations.
 .TP
 .B \-\-dirdeep\-bytes N
 allocated file size, the default is 0. One can specify the size as % of free
@@ -1829,6 +1830,9 @@ by the \-\-dirdeep\-bytes option.
 consume up to N inodes per dirdeep stressor while creating directories and
 links. The value N can be the number of inodes or a percentage of the total
 available free inodes on the filesystem being used.
+.TP
+.B \-\-dirdeep\-ops N
+stop directory depth workers after N bogo directory operations.
 .RE
 .TP
 .B Maximum files creation in a directory stressor
@@ -1842,13 +1846,13 @@ the files are removed. This cycles until the run time is reached or the
 file creation count bogo-ops metric is reached. This is a much faster and
 light weight directory exercising stressor compared to the dentry stressor.
 .TP
-.B \-\-dirmany\-ops N
-stop dirmany stressors after N empty files have been created.
-.TP
 .B \-\-dirmany\-bytes N
 allocated file size, the default is 0. One can specify the size as % of free
 space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
 the suffix b, k, m or g.
+.TP
+.B \-\-dirmany\-ops N
+stop dirmany stressors after N empty files have been created.
 .RE
 .TP
 .B Dnotify stressor
@@ -1895,12 +1899,6 @@ start N workers that exercise the Eigen C++ matrix library for 2D matrix
 addition, multiplication, determinant, inverse and transpose operations.
 on long double, double and float matrices. This currently is only available
 for gcc/g++ builds.
-.TP
-.B \-\-eigen\-ops N
-stop after N Eigen matrix computations
-.TP
-.B \-\-eigen\-size N
-specify the 2D matrix size N \(mu N. The default is a 32 \(mu 32 matrix.
 .TP
 .B \-\-eigen\-method M
 select the floating point method to use, available methods are:
@@ -1957,6 +1955,12 @@ transpose-float	T{
 transpose of matrix of floating point values
 T}
 .TE
+.TP
+.B \-\-eigen\-ops N
+stop after N Eigen matrix computations
+.TP
+.B \-\-eigen\-size N
+specify the 2D matrix size N \(mu N. The default is a 32 \(mu 32 matrix.
 .RE
 .TP
 .B EFI variables stressor
@@ -2021,13 +2025,13 @@ ports. The epoll stressor is for Linux only.
 specify the domain to use, the default is unix (aka local). Currently ipv4,
 ipv6 and unix are supported.
 .TP
+.B \-\-epoll\-ops N
+stop epoll workers after N bogo operations.
+.TP
 .B \-\-epoll\-port P
 start at socket port P. For N epoll worker processes, ports P to (P * 4) - 1
 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix
 domain.
-.TP
-.B \-\-epoll\-ops N
-stop epoll workers after N bogo operations.
 .TP
 .B \-\-epoll\-sockets N
 specify the maximum number of concurrently open sockets allowed in server.
@@ -2042,13 +2046,13 @@ conditions.
 start N parent and child worker processes that read and write 8 byte event
 messages between them via the eventfd mechanism (Linux only).
 .TP
-.B \-\-eventfd\-ops N
-stop eventfd workers after N bogo operations.
-.TP
 .B \-\-eventfd\-nonblock
 enable EFD_NONBLOCK to allow non-blocking on the event file descriptor. This
 will cause reads and writes to return with EAGAIN rather the blocking and hence
 causing a high rate of polling I/O.
+.TP
+.B \-\-eventfd\-ops N
+stop eventfd workers after N bogo operations.
 .RE
 .TP
 .B Exec processes stressor
@@ -2059,9 +2063,6 @@ start N workers continually forking children that exec stress\-ng and then exit
 almost immediately. If a system has pthread support then 1 in 4 of the exec's
 will be from inside a pthread to exercise exec'ing from inside a pthread
 context.
-.TP
-.B \-\-exec\-ops N
-stop exec stress workers after N bogo operations.
 .TP
 .B \-\-exec\-fork\-method [ clone | fork | rfork | spawn | vfork ]
 select the process creation method using clone(2), fork(2), BSD rfork(2),
@@ -2082,6 +2083,9 @@ execveat(2) if it is available.
 .TP
 .B \-\-exec\-no\-pthread
 do not use pthread_create(3).
+.TP
+.B \-\-exec\-ops N
+stop exec stress workers after N bogo operations.
 .RE
 .TP
 .B Exiting pthread groups stressor
@@ -2127,7 +2131,7 @@ with CAP_SYS_ADMIN capability.
 stop fanotify stress workers after N bogo fanotify events.
 .RE
 .TP
-.B CPU instruction cache stressor
+.B CPU branching instruction cache stressor
 .RS 5
 .TQ
 .B \-\-far\-branch N
@@ -2183,17 +2187,17 @@ start N workers that each create a file with many randomly changing extents
 and has 4 child processes per worker that gather the extent information using
 the FS_IOC_FIEMAP ioctl(2).
 .TP
-.B \-\-fiemap\-ops N
-stop after N fiemap bogo operations.
-.TP
 .B \-\-fiemap\-bytes N
 specify the size of the fiemap'd file in bytes.  One can specify the size
 as % of free space on the file system or in units of Bytes, KBytes, MBytes
 and GBytes using the suffix b, k, m or g.  Larger files will contain more
 extents, causing more stress when gathering extent information.
+.TP
+.B \-\-fiemap\-ops N
+stop after N fiemap bogo operations.
 .RE
 .TP
-.B Named pipe stressor
+.B FIFO named pipe stressor
 .RS 5
 .TQ
 .B \-\-fifo N
@@ -2210,7 +2214,7 @@ for each worker, create N fifo reader workers that read
 the named pipe using simple blocking reads. Default is 4, range 1..64.
 .RE
 .TP
-.B Special file operations (ioctl) stressor
+.B File I/O control (ioctl) stressor
 .RS 5
 .TQ
 .B \-\-file\-ioctl N
@@ -2306,14 +2310,14 @@ precision floating point numbers.
 .B \-f N, \-\-fork N
 start N workers continually forking children that immediately exit.
 .TP
-.B \-\-fork\-ops N
-stop fork stress workers after N bogo operations.
-.TP
 .B \-\-fork\-max P
 create P child processes and then wait for them to exit per iteration. The
 default is just 1; higher values will create many temporary zombie processes
 that are waiting to be reaped. One can potentially fill up the process
 table using high values for \-\-fork\-max and \-\-fork.
+.TP
+.B \-\-fork\-ops N
+stop fork stress workers after N bogo operations.
 .TP
 .B \-\-fork\-vm
 enable detrimental performance virtual memory advice using madvise on
@@ -2358,10 +2362,6 @@ start N workers that exercise addition, multiplication and division
 operations on a range of floating point types. For each type, 8 floating
 point values are operated upon 65536 times in a loop per bogo op.
 .TP
-.B \-\-fp\-ops N
-stop after N floating point bogo ops. Note that bogo-ops are counted for
-just standard float, double and long double floating point types.
-.TP
 .B \-\-fp\-method method
 select the floating point method to use, available methods are:
 .TS
@@ -2395,6 +2395,10 @@ ldoublediv	long double precision floating point divide
 .PP
 Note that some of these floating point methods may not be available on some systems.
 .RE
+.TP
+.B \-\-fp\-ops N
+stop after N floating point bogo ops. Note that bogo-ops are counted for
+just standard float, double and long double floating point types.
 .RE
 .TP
 .B Floating point exception stressor
@@ -2410,7 +2414,7 @@ checked.
 stop after N bogo floating point exceptions.
 .RE
 .TP
-.B File punch and fill holes stressor
+.B File punch and hole filling stressor
 .RS 5
 .TQ
 .B \-\-fpunch N
@@ -2443,12 +2447,12 @@ stop after N bogo file size test iterations.
 .B \-\-fstat N
 start N workers fstat'ing files in a directory (default is /dev).
 .TP
-.B \-\-fstat\-ops N
-stop fstat stress workers after N bogo fstat operations.
-.TP
 .B \-\-fstat\-dir directory
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
+.TP
+.B \-\-fstat\-ops N
+stop fstat stress workers after N bogo fstat operations.
 .RE
 .TP
 .B /dev/full stressor
@@ -2464,7 +2468,7 @@ device (which should always succeed).  (Linux only).
 stop the stress full workers after N bogo I/O operations.
 .RE
 .TP
-.B Function argument passing (--funccall-method) stressor
+.B Function argument passing stressor
 .RS 5
 .TQ
 .B \-\-funccall N
@@ -2505,7 +2509,7 @@ float double longdouble float80 float128 decimal32 decimal64 decimal128
 uint8x32 uint8x128 uint64x128.
 .RE
 .TP
-.B Futex stressor
+.B Fast mutex (futex) stressor
 .RS 5
 .TQ
 .B \-\-futex N
@@ -2543,7 +2547,7 @@ and /run using getdents and getdents64 (Linux only).
 stop getdent workers after N bogo getdent bogo operations.
 .RE
 .TP
-.B Random generation (getrandom) stressor
+.B Random data (getrandom) stressor
 .RS 5
 .TQ
 .B \-\-getrandom N
@@ -2918,7 +2922,7 @@ capability.
 stop after N bogo idle page operations.
 .RE
 .TP
-.B Inode flags stressor
+.B Inode ioctl flags stressor
 .RS 5
 .TQ
 .B \-\-inode\-flags N
@@ -3015,7 +3019,7 @@ Linux io-uring interface. On each bogo-loop 1024 \(mu 512 byte writes and
 stop after N rounds of write and reads.
 .RE
 .TP
-.B Ipsec cryptographic stressor
+.B Ipsec multi-buffer cryptographic stressor
 .RS 5
 .TQ
 .B \-\-ipsec\-mb N
@@ -7973,6 +7977,10 @@ Value
 24-31	gzip format.
 40-47	inflate auto format detection using zlib deflate format.
 .TE
+.RE
+.TP
+.B Zombie processes stressor
+.RS 5
 .TP
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create
@@ -7981,11 +7989,7 @@ state until they are reaped.  Once the maximum number of processes is reached
 (or fork fails because one has reached the maximum allowed number of children)
 the oldest child is reaped and a new process is then created in a first-in
 first-out manner, and then repeated.
-.RE
 .TP
-.B Zombie processes stressor
-.RS 5
-.TQ
 .B \-\-zombie\-max N
 try to create as many as N zombie processes. This may not be reached if the
 system limit is less than N.
