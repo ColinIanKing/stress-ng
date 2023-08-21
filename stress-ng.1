@@ -4355,10 +4355,15 @@ equivalent to 256 loops of 256 no-op instructions.
 .B /dev/null stressor
 .RS 5
 .B \-\-null N
-start N workers writing to /dev/null.
+start N workers that exercise /dev/null with writes, lseek, ioctl, fcntl,
+fallocate and fdatasync. For just /dev/null write benchmarking use the
+\-\-null\-write option.
 .TP
 .B \-\-null\-ops N
-stop null stress workers after N /dev/null bogo write operations.
+stop null stress workers after N /dev/null bogo operations.
+.TP
+.B \-\-null\-write
+just write to /dev/null with 4K writes with no additional exercising on /dev/null.
 .RE
 .TP
 .B Migrate memory pages over NUMA nodes stressor
@@ -7477,7 +7482,7 @@ stop yield stress workers after N sched_yield(2) bogo operations.
 .B /dev/zero stressor
 .RS 5
 .B \-\-zero N
-start N workers exercise /dev/zero with reads, lseeks, ioctls and mmaps. For
+start N workers that exercise /dev/zero with reads, lseeks, ioctls and mmaps. For
 just /dev/zero read benchmarking use the \-\-zero\-read option.
 .TP
 .B \-\-zero\-ops N

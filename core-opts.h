@@ -753,6 +753,7 @@ typedef enum {
 
 	OPT_null,
 	OPT_null_ops,
+	OPT_null_write,
 
 	OPT_numa,
 	OPT_numa_ops,

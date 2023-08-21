@@ -25,10 +25,17 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"null N",	"start N workers writing to /dev/null" },
-	{ NULL,	"null-ops N",	"stop after N /dev/null bogo write operations" },
+	{ NULL,	"null N",	"exercising /dev/null with write, ioctl, lseek, fcntl, fallocate and fdatasync" },
+	{ NULL,	"null-ops N",	"stop after N /dev/null bogo operations" },
+	{ NULL,	"null-write",	"just exercise /dev/null with writing" },
 	{ NULL,	NULL,		NULL }
 };
+
+static int stress_set_null_write(const char *opt)
+{
+	return stress_set_setting_true("null-write", opt);
+}
+
 
 /*
  *  stress_null
@@ -39,8 +46,13 @@ static int stress_null(const stress_args_t *args)
 	int fd;
 	char ALIGN64 buffer[4096];
 	int fcntl_mask = 0;
-	double duration = 0.0, bytes = 0.0, rate;
+	uint64_t bytes = 0;
+	double t, duration = 0.0, rate;
 	int metrics_count = 0;
+	bool null_write = false;
+	ssize_t ret;
+
+	(void)stress_get_setting("null-write", &null_write);
 
 #if defined(O_APPEND)
 	fcntl_mask |= O_APPEND;
@@ -61,87 +73,114 @@ static int stress_null(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	do {
-		double t;
-		ssize_t ret;
-		int flag;
+	if (null_write) {
+		if (args->instance == 0)
+			pr_inf("%s: exercising /dev/null with just writes\n", args->name);
+
+		t = stress_time_now();
+		do {
+			ret = write(fd, buffer, sizeof(buffer));
+			if (UNLIKELY(ret <= 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				if (errno) {
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)close(fd);
+					return EXIT_FAILURE;
+				}
+				continue;
+			} else {
+				bytes += ret;
+			}
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
+		duration += stress_time_now() - t;
+	} else {
+		if (args->instance == 0)
+                        pr_inf("%s: exercising /dev/null with writes, lseek, "
+				"ioctl, fcntl, fallocate and fdatasync; for "
+				"just write benchmarking use --null-write\n",
+				args->name);
+		do {
+			int flag;
 #if defined(__linux__)
-		void *ptr;
-		const size_t page_size = args->page_size;
+			void *ptr;
+			const size_t page_size = args->page_size;
 #endif
 
-		if (UNLIKELY(metrics_count == 0))
-			t = stress_time_now();
-		ret = write(fd, buffer, sizeof(buffer));
-		if (UNLIKELY(ret <= 0)) {
-			if ((errno == EAGAIN) || (errno == EINTR))
+			if (UNLIKELY(metrics_count == 0))
+				t = stress_time_now();
+			ret = write(fd, buffer, sizeof(buffer));
+			if (UNLIKELY(ret <= 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				if (errno) {
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)close(fd);
+					return EXIT_FAILURE;
+				}
 				continue;
-			if (errno) {
-				pr_fail("%s: write failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				(void)close(fd);
-				return EXIT_FAILURE;
+			} else {
+				if (UNLIKELY(metrics_count == 0)) {
+					duration += stress_time_now() - t;
+					bytes += ret;
+				}
 			}
-			continue;
-		} else {
-			if (UNLIKELY(metrics_count == 0)) {
-				duration += stress_time_now() - t;
-				bytes += (double)ret;
+			if (metrics_count++ > 100)
+				metrics_count = 0;
+
+			VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
+			VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_END));
+			VOID_RET(off_t, lseek(fd, (off_t)stress_mwc64(), SEEK_CUR));
+
+			/* Illegal fallocate, should return ENODEV */
+			VOID_RET(int, shim_fallocate(fd, 0, 0, 4096));
+
+			/* Fdatasync, EINVAL? */
+			VOID_RET(int, shim_fdatasync(fd));
+
+			flag = fcntl(fd, F_GETFL, 0);
+			if (flag >= 0) {
+				const int newflag = O_RDWR | ((int)stress_mwc32() & fcntl_mask);
+
+				VOID_RET(int, fcntl(fd, F_SETFL, newflag));
+				VOID_RET(int, fcntl(fd, F_SETFL, flag));
 			}
-		}
-		if (metrics_count++ > 100)
-			metrics_count = 0;
-
-		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
-		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_END));
-		VOID_RET(off_t, lseek(fd, (off_t)stress_mwc64(), SEEK_CUR));
-
-		/* Illegal fallocate, should return ENODEV */
-		VOID_RET(int, shim_fallocate(fd, 0, 0, 4096));
-
-		/* Fdatasync, EINVAL? */
-		VOID_RET(int, shim_fdatasync(fd));
-
-		flag = fcntl(fd, F_GETFL, 0);
-		if (flag >= 0) {
-			const int newflag = O_RDWR | ((int)stress_mwc32() & fcntl_mask);
-
-			VOID_RET(int, fcntl(fd, F_SETFL, newflag));
-			VOID_RET(int, fcntl(fd, F_SETFL, flag));
-		}
 
 #if defined(FIGETBSZ)
-		{
-			int isz;
+			{
+				int isz;
 
-			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
-		}
+				VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
+			}
 #endif
 
 #if defined(FIONREAD)
-		{
-			int isz = 0;
+			{
+				int isz = 0;
 
-			/* Should return -ENOTTY for /dev/null */
-			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
-		}
+				/* Should return -ENOTTY for /dev/null */
+				VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+			}
 #endif
 
 #if defined(__linux__)
-		{
-			const off_t off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
-			ptr = mmap(NULL, page_size, PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
-			if (ptr != MAP_FAILED) {
-				(void)shim_memset(ptr, stress_mwc8(), page_size);
-				(void)shim_msync(ptr, page_size, MS_SYNC);
-				(void)munmap(ptr, page_size);
+			{
+				const off_t off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
+				ptr = mmap(NULL, page_size, PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
+				if (ptr != MAP_FAILED) {
+					(void)shim_memset(ptr, stress_mwc8(), page_size);
+					(void)shim_msync(ptr, page_size, MS_SYNC);
+					(void)munmap(ptr, page_size);
+				}
 			}
-		}
 #endif
-
-		stress_bogo_inc(args);
-	} while (stress_continue(args));
+			stress_bogo_inc(args);
+		} while (stress_continue(args));
+	}
 	(void)close(fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -152,9 +191,15 @@ static int stress_null(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_null_write,	stress_set_null_write },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_null_info = {
 	.stressor = stress_null,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

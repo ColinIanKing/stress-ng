@@ -36,6 +36,7 @@
 #include "core-perf.h"
 #include "core-pragma.h"
 #include "core-put.h"
+#include "core-shared-heap.h"
 #include "core-smart.h"
 #include "core-stressors.h"
 #include "core-syslog.h"
@@ -795,6 +796,7 @@ static const struct option stress_long_options[] = {
 	{ "nop-ops",		1,	0,	OPT_nop_ops },
 	{ "null",		1,	0,	OPT_null },
 	{ "null-ops",		1,	0,	OPT_null_ops },
+	{ "null-write",		0,	0,	OPT_null_write },
 	{ "numa",		1,	0,	OPT_numa },
 	{ "numa-ops",		1,	0,	OPT_numa_ops },
 	{ "oomable",		0,	0,	OPT_oomable },
