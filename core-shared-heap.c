@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-lock.h"
 #include "core-stressors.h"
+#include "core-shared-heap.h"
 
 /*
  *   The max heap size needs to be larger if we can't determine if strings
