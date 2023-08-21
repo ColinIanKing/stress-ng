@@ -658,7 +658,7 @@ parsed from the /proc/crypto file to standard output (stdout).
 stop af\-alg workers after N AF_ALG messages are hashed.
 .RE
 .TP
-.B AIO stressor
+.B Asynchronous I/O stressor (POSIX AIO)
 .RS 5
 .TQ
 .B \-\-aio N
@@ -676,7 +676,7 @@ specify the number of POSIX asynchronous I/O requests each worker should issue,
 the default is 16; 1 to 4096 are allowed.
 .RE
 .TP
-.B AIOL stressor
+.B Asynchronous I/O stressor (Linux AIO)
 .RS 5
 .TQ
 .B \-\-aiol N
@@ -730,7 +730,7 @@ forces many front end cache stalls and cache references.
 stop the atomic workers after N bogo atomic operations.
 .RE
 .TP
-.B Bad Altstack stressor
+.B Bad alternative stack stressor
 .RS 5
 .TQ
 .B \-\-bad\-altstack N
@@ -767,7 +767,7 @@ Using an alternative stack mapped to a zero sized temporary file to generate a S
 stop the bad alternative stack stressors after N SIGSEGV bogo operations.
 .RE
 .TP
-.B Bad Ioctl stressor
+.B Bad ioctl stressor
 .RS 5
 .TQ
 .B \-\-bad\-ioctl N
@@ -801,7 +801,7 @@ T}
 stop the bad ioctl stressors after N bogo ioctl operations.
 .RE
 .TP
-.B Big Heap stressor
+.B Big heap stressor
 .RS 5
 .TQ
 .B \-B N, \-\-bigheap N
@@ -1719,7 +1719,7 @@ the sending method using send(2), sendmsg(2) or sendmmsg(2).  Note that
 sendmmsg is only available for Linux systems that support this system call.
 .RE
 .TP
-.B Mutex exclusion with Dekker algorithm stressor
+.B Mutex using Dekker algorithm stressor
 .RS 5
 .TQ
 .B \-\-dekker N
@@ -1976,7 +1976,7 @@ interface and may require the CAP_SYS_ADMIN capability.
 stop the efivar stressors after N EFI variable read operations.
 .RE
 .TP
-.B Non-functional system (ENOSYS) call stressor
+.B Non-functional system call (ENOSYS) stressor
 .RS 5
 .TQ
 .B \-\-enosys N
@@ -2282,7 +2282,7 @@ which case these become no-ops.
 stop after N cache flush iterations.
 .RE
 .TP
-.B Floating point operations (fma) stressor
+.B Fused Multiply/Add floating point operations (fma) stressor
 .RS 5
 .TQ
 .B \-\-fma N
@@ -2568,13 +2568,13 @@ By default, every 1024 branches the direction is randomly chosen to be
 forward or backward.  This stressor exercises suboptimal pipelined execution
 and branch prediction logic.
 .TP
-.B \-\-goto\-ops N
-stop goto workers after N bogo loops of 1024 branch instructions.
-.TP
 .B \-\-goto\-direction [ forward | backward | random ]
 select the branching direction in the stressor loop, forward for forward only
 branching, backward for a backward only branching, random for a random choice
 of forward or random branching every 1024 branches.
+.TP
+.B \-\-goto\-ops N
+stop goto workers after N bogo loops of 1024 branch instructions.
 .RE
 .TP
 .B 2D GPU stressor
@@ -3114,12 +3114,12 @@ T}
 .B \-\-jpeg\-ops N
 stop after N jpeg compression operations.
 .TP
-.B \-\-jpeg\-width H
-use a RGB sample image width of H pixels. The default is 512 pixels.
-.TP
 .B \-\-jpeg\-quality Q
 use the compression quality Q. The range is 1..100 (1 lowest, 100 highest), with a
 default of 95
+.TP
+.B \-\-jpeg\-width H
+use a RGB sample image width of H pixels. The default is 512 pixels.
 .RE
 .TP
 .B Judy array stressor
@@ -3384,14 +3384,14 @@ attempts to hold a maximum of 1024 concurrent locks with a child process
 that also tries to hold 1024 concurrent locks. Old locks are unlocked in
 a first-in, first-out basis.
 .TP
-.B \-\-lockf\-ops N
-stop lockf workers after N bogo lockf operations.
-.TP
 .B \-\-lockf\-nonblock
 instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK
 commands and re-try if the lock failed.  This creates extra system call
 overhead and CPU utilisation as the number of lockf workers increases and
 should increase locking contention.
+.TP
+.B \-\-lockf\-ops N
+stop lockf workers after N bogo lockf operations.
 .RE
 .TP
 .B POSIX lock (F_OFD_SETLK/F_OFD_GETLK) stressor
@@ -3524,7 +3524,7 @@ allocations and triggering failures. Also useful for forcing extra
 cache/memory writes.
 .RE
 .TP
-.B Matrix operations stressor
+.B 2D Matrix stressor
 .RS 5
 .TQ
 .B \-\-matrix N
@@ -3603,7 +3603,11 @@ in a cache and/or memory bandwidth bound stressor.
 perform matrix operations in order y by x rather than the default x by y. This
 is suboptimal ordering compared to the default and will perform more data
 cache stalls.
+.RE
 .TP
+.B 3D Matrix stressor
+.RS 5
+.TQ
 .B \-\-matrix\-3d N
 start N workers that perform various 3D matrix operations on floating point
 values. Testing on 64 bit x86 hardware shows that this provides a good
@@ -4232,7 +4236,7 @@ do not unload the module right after loading it with finit_module().
 stop after N module load/unload cycles
 .RE
 .TP
-.B Multi precision floating operations (mpfr) stressor
+.B Multi-precision floating operations (mpfr) stressor
 .RS 5
 .TQ
 .B \-\-mpfr N
@@ -4541,7 +4545,7 @@ than 1 NUMA node.
 stop NUMA stress workers after N bogo NUMA operations.
 .RE
 .TP
-.B Pipe stressor
+.B Large Pipe stressor
 .RS 5
 .TQ
 .B \-\-oom\-pipe N
@@ -4676,7 +4680,7 @@ system call. (Linux only).
 stop personality stress workers after N bogo personality operations.
 .RE
 .TP
-.B Mutex exclusion with Peterson algorithm stressor
+.B Mutex using Peterson algorithm stressor
 .RS 5
 .TQ
 .B \-\-peterson N
@@ -7734,7 +7738,7 @@ The 'all' method is the default and will exercise all the string methods.
 stop after N bogo wide character string operations.
 .RE
 .TP
-.B X86 CPUID stressor
+.B x86 cpuid stressor
 .RS 5
 .TQ
 .B \-\-x86cpuid N
@@ -7981,7 +7985,7 @@ Value
 .TP
 .B Zombie processes stressor
 .RS 5
-.TP
+.TQ
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create
 a default of 8192 child processes that immediately die and wait in a zombie
