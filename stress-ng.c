@@ -120,8 +120,8 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
 	{ OPT_log_lockless,	OPT_FLAGS_LOG_LOCKLESS },
 	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE },
-	{ OPT_metrics,		OPT_FLAGS_METRICS },
-	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS },
+	{ OPT_metrics,		OPT_FLAGS_METRICS | PR_METRICS },
+	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS | PR_METRICS },
 	{ OPT_minimize,		OPT_FLAGS_MINIMIZE },
 	{ OPT_no_oom_adjust,	OPT_FLAGS_NO_OOM_ADJUST },
 	{ OPT_no_rand_seed,	OPT_FLAGS_NO_RAND_SEED },
@@ -3208,7 +3208,7 @@ static void stress_metrics_dump(FILE *yaml)
 		pr_yaml(yaml, "\n");
 	}
 
-	if (misc_metrics) {
+	if (misc_metrics && !(g_opt_flags & OPT_FLAGS_METRICS_BRIEF)) {
 		pr_metrics("miscellaneous metrics:\n");
 		for (ss = stressors_head; ss; ss = ss->next) {
 			size_t i;
@@ -4816,7 +4816,8 @@ int main(int argc, char **argv, char **envp)
 		stress_metrics_dump(yaml);
 
 	stress_metrics_check(&success);
-	stress_interrupts_dump(yaml, stressors_head);
+	if ((g_opt_flags & (OPT_FLAGS_METRICS | OPT_FLAGS_METRICS_BRIEF)) == OPT_FLAGS_METRICS)
+		stress_interrupts_dump(yaml, stressors_head);
 
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
