@@ -605,6 +605,7 @@ output gathered statistics to a YAML formatted file named 'filename'.
 .TP
 .B Access stressor
 .RS 5
+.TQ
 .B \-\-access N
 start N workers that work through various settings of file mode bits
 (read, write, execute) for the file owner and checks if the user permissions
@@ -616,6 +617,7 @@ stop access workers after N bogo access sanity checks.
 .TP
 .B Affinity stressor
 .RS 5
+.TQ
 .B \-\-affinity N
 start N workers that run 16 processes that rapidly change CPU affinity
 (only on Linux). Rapidly switching CPU affinity can contribute to
@@ -642,6 +644,7 @@ sleep for N nanoseconds before changing affinity to the next CPU.
 .TP
 .B AF_ALG stressor
 .RS 5
+.TQ
 .B \-\-af\-alg N
 start N workers that exercise the AF_ALG socket domain by hashing and encrypting
 various sized random messages. This exercises the available hashes, ciphers,
@@ -657,6 +660,7 @@ parsed from the /proc/crypto file to standard output (stdout).
 .TP
 .B AIO stressor
 .RS 5
+.TQ
 .B \-\-aio N
 start N workers that issue multiple small asynchronous I/O writes and reads on
 a relatively small temporary file using the POSIX aio interface.  This will
@@ -674,6 +678,7 @@ the default is 16; 1 to 4096 are allowed.
 .TP
 .B AIOL stressor
 .RS 5
+.TQ
 .B \-\-aiol N
 start N workers that issue multiple 4K random asynchronous I/O writes using
 the Linux aio system calls io_setup(2), io_submit(2), io_getevents(2) and
@@ -690,6 +695,7 @@ the default is 16; 1 to 4096 are allowed.
 .TP
 .B Alarm stressor
 .RS 5
+.TQ
 .B \-\-alarm N
 start N workers that exercise alarm(2) with MAXINT, 0 and random alarm and
 sleep delays that get prematurely interrupted. Before each alarm is scheduled
@@ -701,6 +707,7 @@ stop after N alarm bogo operations.
 .TP
 .B AppArmor stressor
 .RS 5
+.TQ
 .B \-\-apparmor N
 start N workers that exercise various parts of the AppArmor interface. Currently
 one needs root permission to run this particular test. Only available
@@ -712,6 +719,7 @@ stop the AppArmor workers after N bogo operations.
 .TP
 .B Atomic stressor
 .RS 5
+.TQ
 .B \-\-atomic N
 start N workers that exercise various GCC __atomic_*() built in operations
 on 8, 16, 32 and 64 bit integers that are shared among the N workers. This
@@ -724,6 +732,7 @@ stop the atomic workers after N bogo atomic operations.
 .TP
 .B Bad Altstack stressor
 .RS 5
+.TQ
 .B \-\-bad\-altstack N
 start N workers that create broken alternative signal stacks for SIGSEGV
 and SIGBUS handling that in turn create secondary SIGSEGV/SIGBUS errors.
@@ -760,6 +769,7 @@ stop the bad alternative stack stressors after N SIGSEGV bogo operations.
 .TP
 .B Bad Ioctl stressor
 .RS 5
+.TQ
 .B \-\-bad\-ioctl N
 start N workers that perform a range of illegal bad read ioctls (using _IOR) across the
 device drivers. This exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as
@@ -793,6 +803,7 @@ stop the bad ioctl stressors after N bogo ioctl operations.
 .TP
 .B Big Heap stressor
 .RS 5
+.TQ
 .B \-B N, \-\-bigheap N
 start N workers that grow their heaps by reallocating memory. If the out of
 memory killer (OOM) on Linux kills the worker or the allocation fails then the
@@ -820,6 +831,7 @@ swapped out.
 .TP
 .B Binderfs stressor
 .RS 5
+.TQ
 .B \-\-binderfs N
 start N workers that mount, exercise and unmount binderfs. The binder control
 device is exercised with 256 sequential BINDER_CTL_ADD ioctl calls per loop.
@@ -830,6 +842,7 @@ stop after N binderfs cycles.
 .TP
 .B Bind mount stressor
 .RS 5
+.TQ
 .B \-\-bind\-mount N
 start N workers that repeatedly bind mount / to / inside a user namespace. This
 can consume resources rapidly, forcing out of memory situations. Do not use this
@@ -841,6 +854,7 @@ stop after N bind mount bogo operations.
 .TP
 .B Branch stressor
 .RS 5
+.TQ
 .B \-\-branch N
 start N workers that randomly branch to 1024 randomly selected locations and
 hence exercise the CPU branch prediction logic.
@@ -851,6 +865,7 @@ stop the branch stressors after N \(mu 1024 branches
 .TP
 .B Brk stressor
 .RS 5
+.TQ
 .B \-\-brk N
 start N workers that grow the data segment by one page at a time using multiple
 brk(2) calls. Each successfully allocated new page is touched to ensure it is
@@ -882,6 +897,7 @@ necessarily backing the page with physical memory.
 .TP
 .B Binary search stressor
 .RS 5
+.TQ
 .B \-\-bsearch N
 start N workers that binary search a sorted array of 32 bit integers using
 bsearch(3). By default, there are 65536 elements in the array.  This is a
@@ -897,6 +913,7 @@ be from 1K to 4M.
 .TP
 .B Cache stressor
 .RS 5
+.TQ
 .B \-C N, \-\-cache N
 start N workers that perform random wide spread memory read and writes to
 thrash the CPU cache.  The code does not intelligently determine the CPU cache
@@ -957,6 +974,7 @@ the overall cache size to be exercised.
 .TP
 .B Cache line stressor
 .RS 5
+.TQ
 .B \-\-cacheline N
 start N workers that exercise reading and writing individual bytes
 in a shared buffer that is the size of a cache line. Each stressor has
@@ -1029,6 +1047,7 @@ T}
 .TP
 .B Process capabilities stressor
 .RS 5
+.TQ
 .B \-\-cap N
 start N workers that read per process capabilities via calls to capget(2)
 (Linux only).
@@ -1039,6 +1058,7 @@ stop after N cap bogo operations.
 .TP
 .B Chattr stressor
 .RS 5
+.TQ
 .B \-\-chattr N
 start N workers that attempt to exercise file attributes via the
 EXT2_IOC_SETFLAGS ioctl. This is intended to be intentionally racy and
@@ -1051,6 +1071,7 @@ stop after N chattr bogo operations.
 .TP
 .B Chdir stressor
 .RS 5
+.TQ
 .B \-\-chdir N
 start N workers that change directory between directories using chdir(2).
 .TP
@@ -1064,6 +1085,7 @@ exercise chdir on N directories. The default is 8192 directories, this allows
 .TP
 .B Chmod stressor
 .RS 5
+.TQ
 .B \-\-chmod N
 start N workers that change the file mode bits via chmod(2) and fchmod(2) on
 the same file. The greater the value for N then the more contention on the
@@ -1075,6 +1097,7 @@ stop after N chmod bogo operations.
 .TP
 .B Chown stressor
 .RS 5
+.TQ
 .B \-\-chown N
 start N workers that exercise chown(2) on the same file. The greater the
 value for N then the more contention on the single file.
@@ -1085,6 +1108,7 @@ stop the chown workers after N bogo chown(2) operations.
 .TP
 .B Chroot stressor
 .RS 5
+.TQ
 .B \-\-chroot N
 start N workers that exercise chroot(2) on various valid and invalid
 chroot paths. Only available on Linux systems and requires the CAP_SYS_ADMIN
@@ -1096,6 +1120,7 @@ stop the chroot workers after N bogo chroot(2) operations.
 .TP
 .B Clock stressor
 .RS 5
+.TQ
 .B \-\-clock N
 start N workers exercising clocks and POSIX timers. For all known clock types
 this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2).
@@ -1108,6 +1133,7 @@ stop clock stress workers after N bogo operations.
 .TP
 .B Clone stressor
 .RS 5
+.TQ
 .B \-\-clone N
 start N workers that create clones (via the clone(2) and clone3() system calls).
 This will rapidly try to create a default of 8192 clones that immediately die
@@ -1128,6 +1154,7 @@ limit is less than N.
 .TP
 .B Close stressor
 .RS 5
+.TQ
 .B \-\-close N
 start N workers that try to force race conditions on closing opened file
 descriptors.  These file descriptors have been opened in various ways to try
@@ -1139,6 +1166,7 @@ stop close workers after N bogo close operations.
 .TP
 .B Swapcontext stressor
 .RS 5
+.TQ
 .B \-\-context N
 start N workers that run three threads that use swapcontext(3) to implement the
 thread-to-thread context switching. This exercises rapid process context saving
@@ -1152,6 +1180,7 @@ op is equivalent to 1000 swapcontext calls.
 .TP
 .B Copy file stressor
 .RS 5
+.TQ
 .B \-\-copy\-file N
 start N stressors that copy a file using the Linux copy_file_range(2) system
 call. 128 KB chunks of data are copied from random locations from one file to
@@ -1169,6 +1198,7 @@ the suffix b, k, m or g.
 .TP
 .B CPU stressor
 .RS 5
+.TQ
 .B \-c N, \-\-cpu N
 start N workers exercising the CPU by sequentially working through all the
 different CPU stress methods. Instead of exercising all the CPU stress methods,
@@ -1561,6 +1591,7 @@ stop after offline/online operations.
 .TP
 .B Crypt stressor
 .RS 5
+.TQ
 .B \-\-crypt N
 start N workers that encrypt a 16 character random password using crypt(3).
 The password is encrypted using MD5, SHA-256 and SHA-512 encryption methods.
@@ -1571,6 +1602,7 @@ stop after N bogo encryption operations.
 .TP
 .B Cyclic stressor
 .RS 5
+.TQ
 .B \-\-cyclic N
 start N workers that exercise the real time FIFO or Round Robin schedulers
 with cyclic nanosecond sleeps. Normally one would just use 1 worker instance
@@ -1635,6 +1667,7 @@ CLOCK_REALTIME timer. Range from 1 to 1000000000 nanoseconds.
 .TP
 .B Daemon stressor
 .RS 5
+.TQ
 .B \-\-daemon N
 start N workers that each create a daemon that dies immediately after creating
 another daemon and so on. This effectively works through the process table with
@@ -1654,6 +1687,7 @@ delays.
 .TP
 .B Datagram congestion control protocol (DCCP) stressor
 .RS 5
+.TQ
 .B \-\-dccp N
 start N workers that send and receive data using the Datagram Congestion
 Control Protocol (DCCP) (RFC4340). This involves a pair of client/server
@@ -1683,6 +1717,7 @@ sendmmsg is only available for Linux systems that support this system call.
 .TP
 .B Mutex exclusion with Dekker algorithm stressor
 .RS 5
+.TQ
 .B \-\-dekker N
 start N workers that exercises mutex exclusion between two processes using
 shared memory with the Dekker Algorithm. Where possible this uses memory fencing
@@ -1695,6 +1730,7 @@ stop dekker workers after N mutex operations.
 .TP
 .B Dentry stressor
 .RS 5
+.TQ
 .B \-D N, \-\-dentry N
 start N workers that create and remove directory entries.  This should create
 file system meta data activity. The directory entry names are suffixed by a
@@ -1718,6 +1754,7 @@ create N dentries per dentry thrashing loop, default is 2048.
 .TP
 .B /dev stressor
 .RS 5
+.TQ
 .B \-\-dev N
 start N workers that exercise the /dev devices. Each worker runs 5
 concurrent threads that perform open(2), fstat(2), lseek(2), poll(2),
@@ -1735,6 +1772,7 @@ this option allows a single device file to be exercised.
 .TP
 .B /dev/shm stressor
 .RS 5
+.TQ
 .B \-\-dev\-shm N
 start N workers that fallocate large files in /dev/shm and then mmap
 these into memory and touch all the pages. This exercises pages being
@@ -1746,6 +1784,7 @@ stop after N bogo allocation and mmap /dev/shm operations.
 .TP
 .B Directories stressor
 .RS 5
+.TQ
 .B \-\-dir N
 start N workers that create, rename and remove directories using mkdir,
 rename and rmdir.
@@ -1760,6 +1799,7 @@ exercise dir on N directories. The default is 8192 directories, this allows
 .TP
 .B Deep directories stressor
 .RS 5
+.TQ
 .B \-\-dirdeep N
 start N workers that create a depth-first tree of directories to a maximum
 depth as limited by PATH_MAX or ENAMETOOLONG (which ever occurs first).
@@ -1793,6 +1833,7 @@ available free inodes on the filesystem being used.
 .TP
 .B Maximum files creation in a directory stressor
 .RS 5
+.TQ
 .B \-\-dirmany N
 start N stressors that create as many files in a directory as possible
 and then remove them. The file creation phase stops when an error occurs
@@ -1812,6 +1853,7 @@ the suffix b, k, m or g.
 .TP
 .B Dnotify stressor
 .RS 5
+.TQ
 .B \-\-dnotify N
 start N workers performing file system activities such as making/deleting
 files/directories, renaming files, etc. to stress exercise the various dnotify
@@ -1823,6 +1865,7 @@ stop inotify stress workers after N dnotify bogo operations.
 .TP
 .B Dup stressor
 .RS 5
+.TQ
 .B \-\-dup N
 start N workers that perform dup(2) and then close(2) operations on /dev/zero.
 The maximum opens at one time is system defined, so the test will run up to
@@ -1834,6 +1877,7 @@ stop the dup stress workers after N bogo open operations.
 .TP
 .B Dynamic libraries loading stressor
 .RS 5
+.TQ
 .B \-\-dynlib N
 start N workers that dynamically load and unload various shared libraries. This
 exercises memory mapping and dynamic code loading and symbol lookups. See
@@ -1845,6 +1889,7 @@ stop workers after N bogo load/unload cycles.
 .TP
 .B Eigen C++ matrix library stressor
 .RS 5
+.TQ
 .B \-\-eigen N
 start N workers that exercise the Eigen C++ matrix library for 2D matrix
 addition, multiplication, determinant, inverse and transpose operations.
@@ -1916,6 +1961,7 @@ T}
 .TP
 .B EFI variables stressor
 .RS 5
+.TQ
 .B \-\-efivar N
 start N workers that exercise the Linux /sys/firmware/efi/efivars and
 /sys/firmware/efi/vars interfaces by reading the EFI variables. This
@@ -1928,6 +1974,7 @@ stop the efivar stressors after N EFI variable read operations.
 .TP
 .B Non-functional system (ENOSYS) call stressor
 .RS 5
+.TQ
 .B \-\-enosys N
 start N workers that exercise non-functional system call numbers. This calls
 a wide range of system call numbers to see if it can break a system where these
@@ -1946,6 +1993,7 @@ stop after N bogo enosys system call attempts
 .TP
 .B Environment variables stressor
 .RS 5
+.TQ
 .B \-\-env N
 start N workers that creates numerous large environment variables to try to
 trigger out of memory conditions using setenv(3).  If ENOMEM occurs then the
@@ -1958,6 +2006,7 @@ stop after N bogo setenv/unsetenv attempts.
 .TP
 .B Epoll stressor
 .RS 5
+.TQ
 .B \-\-epoll N
 start N workers that perform various related socket stress activity using
 epoll_wait(2) to monitor and handle new connections. This involves
@@ -1988,6 +2037,7 @@ conditions.
 .TP
 .B Event file descriptor (eventfd) stressor
 .RS 5
+.TQ
 .B \-\-eventfd N
 start N parent and child worker processes that read and write 8 byte event
 messages between them via the eventfd mechanism (Linux only).
@@ -2003,6 +2053,7 @@ causing a high rate of polling I/O.
 .TP
 .B Exec processes stressor
 .RS 5
+.TQ
 .B \-\-exec N
 start N workers continually forking children that exec stress\-ng and then exit
 almost immediately. If a system has pthread support then 1 in 4 of the exec's
@@ -2035,6 +2086,7 @@ do not use pthread_create(3).
 .TP
 .B Exiting pthread groups stressor
 .RS 5
+.TQ
 .B \-\-exit\-group N
 start N workers that create 16 pthreads and terminate the pthreads and
 the controlling child process using exit_group(2). (Linux only stressor).
@@ -2045,6 +2097,7 @@ stop after N iterations of pthread creation and deletion loops.
 .TP
 .B File space allocation (fallocate) stressor
 .RS 5
+.TQ
 .B \-F N, \-\-fallocate N
 start N workers continually fallocating (preallocating file space) and
 ftruncating (file truncating) temporary files.  If the file is larger than the
@@ -2062,6 +2115,7 @@ stop fallocate stress workers after N bogo fallocate operations.
 .TP
 .B Filesystem notification (fanotify) stressor
 .RS 5
+.TQ
 .B \-\-fanotify N
 start N workers performing file system activities such as creating, opening,
 writing, reading and unlinking files to exercise the fanotify event monitoring
@@ -2075,6 +2129,7 @@ stop fanotify stress workers after N bogo fanotify events.
 .TP
 .B CPU instruction cache stressor
 .RS 5
+.TQ
 .B \-\-far\-branch N
 start N workers that exercise calls to tens of thousands of
 functions that are relatively far from the caller. All functions
@@ -2098,6 +2153,7 @@ per 4K page.
 .TP
 .B Page fault stressor
 .RS 5
+.TQ
 .B \-\-fault N
 start N workers that generates minor and major page faults.
 .TP
@@ -2107,6 +2163,7 @@ stop the page fault workers after N bogo page fault operations.
 .TP
 .B Fcntl stressor
 .RS 5
+.TQ
 .B \-\-fcntl N
 start N workers that perform fcntl(2) calls with various commands.  The
 exercised commands (if available) are: F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD,
@@ -2120,6 +2177,7 @@ stop the fcntl workers after N bogo fcntl operations.
 .TP
 .B File extent (fiemap) stressor
 .RS 5
+.TQ
 .B \-\-fiemap N
 start N workers that each create a file with many randomly changing extents
 and has 4 child processes per worker that gather the extent information using
@@ -2137,6 +2195,7 @@ extents, causing more stress when gathering extent information.
 .TP
 .B Named pipe stressor
 .RS 5
+.TQ
 .B \-\-fifo N
 start N workers that exercise a named pipe by transmitting 64 bit integers.
 .TP
@@ -2153,6 +2212,7 @@ the named pipe using simple blocking reads. Default is 4, range 1..64.
 .TP
 .B Special file operations (ioctl) stressor
 .RS 5
+.TQ
 .B \-\-file\-ioctl N
 start N workers that exercise various file specific ioctl(2) calls. This will
 attempt to use the FIONBIO, FIOQSIZE, FIGETBSZ, FIOCLEX, FIONCLEX, FIONBIO,
@@ -2165,6 +2225,7 @@ stop file\-ioctl workers after N file ioctl bogo operations.
 .TP
 .B Filename stressor
 .RS 5
+.TQ
 .B \-\-filename N
 start N workers that exercise file creation using various length filenames
 containing a range of allowed filename characters.  This will try to see if
@@ -2197,6 +2258,7 @@ T}
 .TP
 .B File locking (flock) stressor
 .RS 5
+.TQ
 .B \-\-flock N
 start N workers locking on a single file.
 .TP
@@ -2206,6 +2268,7 @@ stop flock stress workers after N bogo flock operations.
 .TP
 .B Cache flushing stressor
 .RS 5
+.TQ
 .B \-\-flush\-cache N
 start N workers that flush the data and instruction cache (where possible).
 Some architectures may not support cache flushing on either cache, in
@@ -2217,6 +2280,7 @@ stop after N cache flush iterations.
 .TP
 .B Floating point operations (fma) stressor
 .RS 5
+.TQ
 .B \-\-fma N
 start N workers that exercise single and double precision floating point
 multiplication and add operations on arrays of 512 floating point values.
@@ -2238,6 +2302,7 @@ precision floating point numbers.
 .TP
 .B Process forking stressor
 .RS 5
+.TQ
 .B \-f N, \-\-fork N
 start N workers continually forking children that immediately exit.
 .TP
@@ -2259,6 +2324,7 @@ MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .TP
 .B Heavy process forking stressor
 .RS 5
+.TQ
 .B \-\-forkheavy N
 start N workers that fork child processes from a parent that has thousands
 of allocated system resources. The fork becomes a heavyweight operations as
@@ -2286,6 +2352,7 @@ attempt to fork N processes per stressor. The default is 4096 processes.
 .TP
 .B Floating point operations stressor
 .RS 5
+.TQ
 .B \-\-fp N
 start N workers that exercise addition, multiplication and division
 operations on a range of floating point types. For each type, 8 floating
@@ -2332,6 +2399,7 @@ Note that some of these floating point methods may not be available on some syst
 .TP
 .B Floating point exception stressor
 .RS 5
+.TQ
 .B \-\-fp\-error N
 start N workers that generate floating point exceptions. Computations are
 performed to force and check for the FE_DIVBYZERO, FE_INEXACT, FE_INVALID,
@@ -2344,6 +2412,7 @@ stop after N bogo floating point exceptions.
 .TP
 .B File punch and fill holes stressor
 .RS 5
+.TQ
 .B \-\-fpunch N
 start N workers that punch and fill holes in a 16 MB file using five
 concurrent processes per stressor exercising on the same file. Where
@@ -2358,6 +2427,7 @@ stop fpunch workers after N punch and fill bogo operations.
 .TP
 .B File size limit stressor
 .RS 5
+.TQ
 .B \-\-fsize N
 start N workers that exercise file size limits (via setrlimit RLIMIT_FSIZE)
 with file sizes that are fixed, random and powers of 2. The files are
@@ -2369,6 +2439,7 @@ stop after N bogo file size test iterations.
 .TP
 .B File stats (fstat) stressor
 .RS 5
+.TQ
 .B \-\-fstat N
 start N workers fstat'ing files in a directory (default is /dev).
 .TP
@@ -2382,6 +2453,7 @@ All the files in the directory will be fstat'd repeatedly.
 .TP
 .B /dev/full stressor
 .RS 5
+.TQ
 .B \-\-full N
 start N workers that exercise /dev/full.  This attempts to write to
 the device (which should always get error ENOSPC), to read from the device
@@ -2394,6 +2466,7 @@ stop the stress full workers after N bogo I/O operations.
 .TP
 .B Function argument passing (--funccall-method) stressor
 .RS 5
+.TQ
 .B \-\-funccall N
 start N workers that call functions of 1 through to 9 arguments. By default
 all functions with a range of argument types are called, however, this can be changed
@@ -2417,6 +2490,7 @@ and compiler versions.
 .TP
 .B Function return stressor
 .RS 5
+.TQ
 .B \-\-funcret N
 start N workers that pass and return by value various small to large data
 types.
@@ -2433,6 +2507,7 @@ uint8x32 uint8x128 uint64x128.
 .TP
 .B Futex stressor
 .RS 5
+.TQ
 .B \-\-futex N
 start N workers that rapidly exercise the futex system call. Each worker has
 two processes, a futex waiter and a futex waker. The waiter waits with a very
@@ -2445,6 +2520,7 @@ stop futex workers after N bogo successful futex wait operations.
 .TP
 .B Fetching data from kernel stressor
 .RS 5
+.TQ
 .B \-\-get N
 start N workers that call system calls that fetch data from the kernel,
 currently these are: getpid, getppid, getcwd, getgid, getegid, getuid,
@@ -2458,6 +2534,7 @@ stop get workers after N bogo get operations.
 .TP
 .B Virtual filesystem directories stressor (Linux)
 .RS 5
+.TQ
 .B \-\-getdent N
 start N workers that recursively read directories /proc, /dev/, /tmp, /sys
 and /run using getdents and getdents64 (Linux only).
@@ -2468,6 +2545,7 @@ stop getdent workers after N bogo getdent bogo operations.
 .TP
 .B Random generation (getrandom) stressor
 .RS 5
+.TQ
 .B \-\-getrandom N
 start N workers that get 8192 random bytes from the /dev/urandom pool using
 the getrandom(2) system call (Linux) or getentropy(2) (OpenBSD).
@@ -2478,6 +2556,7 @@ stop getrandom workers after N bogo get operations.
 .TP
 .B CPU pipeline and branch prediction stressor
 .RS 5
+.TQ
 .B \-\-goto N
 start N workers that perform 1024 forward branches (to next instruction) or
 backward branches (to previous instruction) for each bogo operation loop.
@@ -2496,6 +2575,7 @@ of forward or random branching every 1024 branches.
 .TP
 .B 2D GPU stressor
 .RS 5
+.TQ
 .B \-\-gpu N
 start N worker that exercise the GPU. This specifies a 2-D texture image
 that allows the elements of an image array to be read by shaders,
@@ -2525,6 +2605,7 @@ specify upload texture N times per frame, the default value is 1.
 .TP
 .B Handle stressor
 .RS 5
+.TQ
 .B \-\-handle N
 start N workers that exercise the name_to_handle_at(2) and open_by_handle_at(2)
 system calls. (Linux only).
@@ -2535,6 +2616,7 @@ stop after N handle bogo operations.
 .TP
 .B String hashing stressor
 .RS 5
+.TQ
 .B \-\-hash N
 start N workers that exercise various hashing functions. Random strings from
 1 to 128 bytes are hashed and the hashing rate and chi squared is calculated
@@ -2641,6 +2723,7 @@ stop after N hashing rounds
 .TP
 .B File-system stressor
 .RS 5
+.TQ
 .B \-d N, \-\-hdd N
 start N workers continually writing, reading and removing temporary files. The
 default mode is to stress test sequential writes and reads.  With
@@ -2747,6 +2830,7 @@ specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
 .B BSD heapsort stressor
 .RS 5
+.TQ
 .B \-\-heapsort N
 start N workers that sort 32 bit integers using the BSD heapsort.
 .TP
@@ -2759,6 +2843,7 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B High resolution timer stressor
 .RS 5
+.TQ
 .B \-\-hrtimers N
 start N workers that exercise high resolution times at a high frequency. Each
 stressor starts 32 processes that run with random timer intervals of 0..499999
@@ -2776,6 +2861,7 @@ stop hrtimers stressors after N timer event bogo operations
 .TP
 .B Hashtable searching (hsearch) stressor
 .RS 5
+.TQ
 .B \-\-hsearch N
 start N workers that search a 80% full hash table using hsearch(3). By default,
 there are 8192 elements inserted into the hash table.  This is a useful method
@@ -2791,6 +2877,7 @@ be from 1K to 4M.
 .TP
 .B CPU instruction cache load stressor
 .RS 5
+.TQ
 .B \-\-icache N
 start N workers that stress the instruction cache by forcing instruction cache
 reloads.
@@ -2801,6 +2888,7 @@ stop the icache workers after N bogo icache operations are completed.
 .TP
 .B ICMP flooding stressor
 .RS 5
+.TQ
 .B \-\-icmp\-flood N
 start N workers that flood localhost with randonly sized ICMP ping packets.
 This stressor requires the CAP_NET_RAW capbility.
@@ -2811,6 +2899,7 @@ stop icmp flood workers after N ICMP ping packets have been sent.
 .TP
 .B Idle pages stressor (Linux)
 .RS 5
+.TQ
 .B \-\-idle\-scan N
 start N workers that scan the idle page bitmap across a range of physical
 pages. This sets and checks for idle pages via the idle page tracking
@@ -2831,6 +2920,7 @@ stop after N bogo idle page operations.
 .TP
 .B Inode flags stressor
 .RS 5
+.TQ
 .B \-\-inode\-flags N
 start N workers that exercise inode flags using the FS_IOC_GETFLAGS and
 FS_IOC_SETFLAGS ioctl(2). This attempts to apply all the available inode
@@ -2845,6 +2935,7 @@ stop the inode-flags workers after N ioctl flag setting attempts.
 .TP
 .B Inotify stressor
 .RS 5
+.TQ
 .B \-\-inotify N
 start N workers performing file system activities such as making/deleting
 files/directories, moving files, etc. to stress exercise the various inotify
@@ -2856,6 +2947,7 @@ stop inotify stress workers after N inotify bogo operations.
 .TP
 .B Data synchronization (sync) stressor
 .RS 5
+.TQ
 .B \-i N, \-\-io N
 start N workers continuously calling sync(2) to commit buffer cache to disk.
 This can be used in conjunction with the \-\-hdd stressor. This is a legacy
@@ -2867,6 +2959,7 @@ stop io stress workers after N bogo operations.
 .TP
 .B IO mixing stressor
 .RS 5
+.TQ
 .B \-\-iomix N
 start N workers that perform a mix of sequential, random and memory mapped
 read/write operations as well as random copy file read/writes, forced
@@ -2885,6 +2978,7 @@ stop iomix stress workers after N bogo iomix I/O operations.
 .TP
 .B Ioport stressor (x86 Linux)
 .RS 5
+.TQ
 .B \-\-ioport N
 start N workers than perform bursts of 16 reads and 16 writes of ioport 0x80
 (x86 Linux systems only).  I/O performed on x86 platforms on port 0x80 will
@@ -2900,6 +2994,7 @@ specify if port reads in, port read writes out or reads and writes are
 .TP
 .B IO scheduling class and priority stressor
 .RS 5
+.TQ
 .B \-\-ioprio N
 start N workers that exercise the ioprio_get(2) and ioprio_set(2) system calls
 (Linux only).
@@ -2910,6 +3005,7 @@ stop after N io priority bogo operations.
 .TP
 .B Io-uring stressor
 .RS 5
+.TQ
 .B \-\-io\-uring N
 start N workers that perform iovec write and read I/O operations using the
 Linux io-uring interface. On each bogo-loop 1024 \(mu 512 byte writes and
@@ -2921,6 +3017,7 @@ stop after N rounds of write and reads.
 .TP
 .B Ipsec cryptographic stressor
 .RS 5
+.TQ
 .B \-\-ipsec\-mb N
 start N workers that perform cryptographic processing using the highly
 optimized Intel Multi-Buffer Crypto for IPsec library. Depending on the
@@ -2947,6 +3044,7 @@ routines.
 .TP
 .B System interval timer stressor
 .RS 5
+.TQ
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for
@@ -2971,6 +3069,7 @@ the timer interval to make the scheduling less predictable.
 .TP
 .B Jpeg compression stressor
 .RS 5
+.TQ
 .B \-\-jpeg N
 start N workers that use jpeg compression on a machine generated plasma
 field image. The default image is a plasma field, however different image
@@ -3021,6 +3120,7 @@ default of 95
 .TP
 .B Judy array stressor
 .RS 5
+.TQ
 .B \-\-judy N
 start N workers that insert, search and delete 32 bit integers in a Judy
 array using a predictable yet sparse array index. By default,
@@ -3037,6 +3137,7 @@ Size can be from 1K to 4M 32 bit integers.
 .TP
 .B Kcmp stressor (Linux)
 .RS 5
+.TQ
 .B \-\-kcmp N
 start N workers that use kcmp(2) to compare parent and child processes to
 determine if they share kernel resources. Supported only for Linux and
@@ -3048,6 +3149,7 @@ stop kcmp workers after N bogo kcmp operations.
 .TP
 .B Kernel key management stressor
 .RS 5
+.TQ
 .B \-\-key N
 start N workers that create and manipulate keys using add_key(2) and
 ketctl(2). As many keys are created as the per user limit allows and then the
@@ -3061,6 +3163,7 @@ stop key workers after N bogo key operations.
 .TP
 .B Process signals stressor
 .RS 5
+.TQ
 .B \-\-kill N
 start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler
 in the stressor and SIGUSR1 kill signal to a child stressor with a SIGUSR1
@@ -3072,6 +3175,7 @@ stop kill workers after N bogo kill operations.
 .TP
 .B Syslog stressor (Linux)
 .RS 5
+.TQ
 .B \-\-klog N
 start N workers exercising the kernel syslog(2) system call.  This will
 attempt to read the kernel log with various sized read buffers. Linux only.
@@ -3082,6 +3186,7 @@ stop klog workers after N syslog operations.
 .TP
 .B KVM stressor
 .RS 5
+.TQ
 .B \-\-kvm N
 start N workers that create, run and destroy a minimal virtual machine. The
 virtual machine reads, increments and writes to port 0x80 in a spin loop
@@ -3093,6 +3198,7 @@ stop kvm stressors after N virtual machines have been created, run and destroyed
 .TP
 .B CPU L1 cache stressor
 .RS 5
+.TQ
 .B \-\-l1cache N
 start N workers that exercise the CPU level 1 cache with reads and writes. A cache
 aligned buffer that is twice the level 1 cache size is read and then written
@@ -3129,6 +3235,7 @@ specify the number of level 1 cache ways
 .TP
 .B Landlock stressor (Linux >= 5.13)
 .RS 5
+.TQ
 .B \-\-landlock N
 start N workers that exercise Linux 5.13 landlocking. A range of
 landlock_create_ruleset flags are exercised with a read only file rule
@@ -3142,6 +3249,7 @@ stop the landlock stressors after N landlock ruleset bogo operations.
 .TP
 .B File lease stressor
 .RS 5
+.TQ
 .B \-\-lease N
 start N workers locking, unlocking and breaking leases via the fcntl(2)
 F_SETLEASE operation. The parent processes continually lock and unlock a lease
@@ -3161,6 +3269,7 @@ stop lease workers after N bogo operations.
 .TP
 .B Hardlink stressor
 .RS 5
+.TQ
 .B \-\-link N
 start N workers creating and removing hardlinks.
 .TP
@@ -3173,6 +3282,7 @@ sync dirty data and metadata to disk.
 .TP
 .B List data structures stressor
 .RS 5
+.TQ
 .B \-\-list N
 start N workers that exercise list data structures. The default is
 to add, find and remove 5,000 64 bit integers into circleq (doubly
@@ -3197,6 +3307,7 @@ to be added into the list.
 .TP
 .B Last level of cache stressor
 .RS 5
+.TQ
 .B \-\-llc\-affinity N
 start N workers that exercise the last level of cache (LLC) by read/write
 activity across a LLC sized buffer and then changing CPU affinity after
@@ -3213,6 +3324,7 @@ stop after N rounds of LLC read/writes.
 .TP
 .B Load average (loadavg) stressor
 .RS 5
+.TQ
 .B \-\-loadavg N
 start N workers that attempt to create thousands of pthreads that run
 at the lowest nice priority to force very high load averages. Linux
@@ -3231,6 +3343,7 @@ have been reached.
 .TP
 .B Lock and increment memory stressor (x86 and ARM)
 .RS 5
+.TQ
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
 memory from a 16MB mmap'd region (Intel x86 and ARM CPUs only).  This will
@@ -3245,6 +3358,7 @@ stop lockbus workers after N bogo operations.
 .TP
 .B POSIX lock (F_SETLK/F_GETLK) stressor
 .RS 5
+.TQ
 .B \-\-locka N
 start N workers that randomly lock and unlock regions of a file using the
 POSIX advisory locking mechanism (see fcntl(2), F_SETLK, F_GETLK). Each
@@ -3258,6 +3372,7 @@ stop locka workers after N bogo locka operations.
 .TP
 .B POSIX lock (lockf) stressor
 .RS 5
+.TQ
 .B \-\-lockf N
 start N workers that randomly lock and unlock regions of a file using the
 POSIX lockf(3) locking mechanism. Each worker creates a 64 KB file and
@@ -3277,6 +3392,7 @@ should increase locking contention.
 .TP
 .B POSIX lock (F_OFD_SETLK/F_OFD_GETLK) stressor
 .RS 5
+.TQ
 .B \-\-lockofd N
 start N workers that randomly lock and unlock regions of a file using the
 Linux open file description locks (see fcntl(2), F_OFD_SETLK, F_OFD_GETLK).
@@ -3290,6 +3406,7 @@ stop lockofd workers after N bogo lockofd operations.
 .TP
 .B Long jump (longjmp) stressor
 .RS 5
+.TQ
 .B \-\-longjmp N
 start N workers that exercise setjmp(3)/longjmp(3) by rapid looping on
 longjmp calls.
@@ -3301,6 +3418,7 @@ longjmp calls).
 .TP
 .B Loopback stressor (Linux)
 .RS 5
+.TQ
 .B \-\-loop N
 start N workers that exercise the loopback control device. This creates 2MB
 loopback devices, expands them to 4MB, performs some loopback status information
@@ -3313,6 +3431,7 @@ stop after N bogo loopback creation/deletion operations.
 .TP
 .B Linear search stressor
 .RS 5
+.TQ
 .B \-\-lsearch N
 start N workers that linear search a unsorted array of 32 bit integers using
 lsearch(3). By default, there are 8192 elements in the array.  This is a
@@ -3328,6 +3447,7 @@ be from 1K to 4M.
 .TP
 .B Madvise stressor
 .RS 5
+.TQ
 .B \-\-madvise N
 start N workers that apply random madvise(2) advise settings on pages of
 a 4MB file backed shared memory mapping.
@@ -3343,6 +3463,7 @@ stop madvise stressors after N bogo madvise operations.
 .TP
 .B Memory allocation stressor
 .RS 5
+.TQ
 .B \-\-malloc N
 start N workers continuously calling malloc(3), calloc(3), realloc(3),
 posix_memalign(3), aligned_alloc(3), memalign(3) and free(3). By
@@ -3401,6 +3522,7 @@ cache/memory writes.
 .TP
 .B Matrix operations stressor
 .RS 5
+.TQ
 .B \-\-matrix N
 start N workers that perform various matrix operations on floating point
 values. Testing on 64 bit x86 hardware shows that this provides a good
@@ -3552,6 +3674,7 @@ perform more data cache stalls.
 .TP
 .B Memory contention stressor
 .RS 5
+.TQ
 .B \-\-mcontend N
 start N workers that produce memory contention read/write patterns. Each
 stressor runs with 5 threads that read and write to two different mappings
@@ -3565,6 +3688,7 @@ stop mcontend stressors after N bogo read/write operations.
 .TP
 .B Memory barrier stressor (Linux)
 .RS 5
+.TQ
 .B \-\-membarrier N
 start N workers that exercise the membarrier system call (Linux only).
 .TP
@@ -3574,6 +3698,7 @@ stop membarrier stress workers after N bogo membarrier operations.
 .TP
 .B Memory copy (memcpy) stressor
 .RS 5
+.TQ
 .B \-\-memcpy N
 start N workers that copies data to and from a buffer using
 memcpy(3) and then move the data in the buffer with memmove(3) with 3
@@ -3622,6 +3747,7 @@ stop memcpy stress workers after N bogo memcpy operations.
 .TP
 .B Anonymous file (memfd) stressor
 .RS 5
+.TQ
 .B \-\-memfd N
 start N workers that create allocations of 1024 pages using memfd_create(2)
 and ftruncate(2) for allocation and mmap(2) to map the allocation into the
@@ -3646,6 +3772,7 @@ stop after N memfd-create(2) bogo operations.
 .TP
 .B Memory hotplug stressor (Linux)
 .RS 5
+.TQ
 .B \-\-memhotplug N
 start N workers that offline and online memory hotplug regions. Linux only
 and requires CAP_SYS_ADMIN capabilities.
@@ -3656,6 +3783,7 @@ stop memhotplug stressors after N memory offline and online bogo operations.
 .TP
 .B Memory read/write stressor
 .RS 5
+.TQ
 .B \-\-memrate N
 start N workers that exercise a buffer with 1024, 512, 256, 128, 64, 32, 16 and
 8 bit reads and writes. 1024, 512 and 256 reads and writes are available with
@@ -3694,6 +3822,7 @@ processes.
 .TP
 .B Memory trash stressor
 .RS 5
+.TQ
 .B \-\-memthrash N
 start N workers that thrash and exercise a 16MB buffer in various ways to
 try and trip thermal overrun.  Each stressor will start 1 or more threads.
@@ -3796,6 +3925,7 @@ stop after N memthrash bogo operations.
 .TP
 .B BSD mergesort stressor
 .RS 5
+.TQ
 .B -\-mergesort N
 start N workers that sort 32 bit integers using the BSD mergesort.
 .TP
@@ -3808,6 +3938,7 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B Resident memory (mincore) stressor
 .RS 5
+.TQ
 .B \-\-mincore N
 start N workers that walk through all of memory 1 page at a time checking if
 the page mapped and also is resident in memory using mincore(2). It also
@@ -3825,6 +3956,7 @@ mincore until the address is less or equal to the page size.
 .TP
 .B Misaligned read/write stressor
 .RS 5
+.TQ
 .B \-\-misaligned N
 start N workers that perform misaligned read and writes. By default, this
 will exercise 128 bit misaligned read and writes in 8 \(mu 16 bits, 4 \(mu 32 bits,
@@ -3871,6 +4003,7 @@ to 65536 \(mu 128 bit reads or writes.
 .TP
 .B Mknod/unlink stressor
 .RS 5
+.TQ
 .B \-\-mknod N
 start N workers that create and remove fifos, empty files and named sockets
 using mknod and unlink.
@@ -3881,6 +4014,7 @@ stop directory thrash workers after N bogo mknod operations.
 .TP
 .B Mapped memory pages lock/unlock stressor
 .RS 5
+.TQ
 .B \-\-mlock N
 start N workers that lock and unlock memory mapped pages using mlock(2),
 munlock(2), mlockall(2) and munlockall(2). This is achieved by the mapping of
@@ -3913,6 +4047,7 @@ option allows the setting of N child processes per stressor.
 .TP
 .B Memory mapping (mmap/munmap) stressor
 .RS 5
+.TQ
 .B \-\-mmap N
 start N workers continuously calling mmap(2)/munmap(2).  The initial mapping
 is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random
@@ -3963,6 +4098,7 @@ integrity completion.
 .TP
 .B Random memory map/unmap stressor
 .RS 5
+.TQ
 .B \-\-mmapaddr N
 start N workers that memory map pages at a random memory location that is
 not already mapped.  On 64 bit machines the random address is randomly
@@ -3980,6 +4116,7 @@ stop after N random address mmap bogo operations.
 .TP
 .B Forked memory map stressor
 .RS 5
+.TQ
 .B \-\-mmapfork N
 start N workers that each fork off 32 child processes, each of which tries to
 allocate some of the free memory left in the system (and trying to avoid
@@ -3994,6 +4131,7 @@ stop after N mmapfork bogo operations.
 .TP
 .B Fixed address memory map stressor
 .RS 5
+.TQ
 .B \-\-mmapfixed N
 start N workers that perform fixed address allocations from the top virtual
 address down to 128K.  The allocated sizes are from 1 page to 8 pages and
@@ -4014,6 +4152,7 @@ stop after N mmapfixed memory mapping bogo operations.
 .TP
 .B Huge page memory mapping stressor
 .RS 5
+.TQ
 .B \-\-mmaphuge N
 start N workers that attempt to mmap a set of huge pages and large huge
 page sized mappings. Successful mappings are madvised with MADV_NOHUGEPAGE
@@ -4037,6 +4176,7 @@ stop after N mmaphuge bogo operations
 .TP
 .B Maximum memory mapping per process stressor
 .RS 5
+.TQ
 .B \-\-mmapmany N
 start N workers that attempt to create the maximum allowed per-process memory
 mappings. This is achieved by mapping 3 contiguous pages and then unmapping the
@@ -4053,6 +4193,7 @@ stop after N mmapmany bogo operations
 .TP
 .B Kernel module loading stressor (Linux)
 .RS 5
+.TQ
 .B \-\-module N
 start N workers that use finit_module() to load the module specified
 or the hello test module, if is available. There are different ways
@@ -4089,6 +4230,7 @@ stop after N module load/unload cycles
 .TP
 .B Multi precision floating operations (mpfr) stressor
 .RS 5
+.TQ
 .B \-\-mpfr N
 start N workers that exercise multi-precision floating point operations using
 the GNU Multi-Precision Floating Point Reliable library (mpfr). Operations computed
@@ -4138,6 +4280,7 @@ default is 1000 bits, the allowed range is 32 to 1000000 (very slow).
 .TP
 .B Memory protection stressor
 .RS 5
+.TQ
 .B \-\-mprotect N
 start N workers that exercise changing page protection settings and access
 memory after each change. 8 processes per worker contend with each other
@@ -4152,6 +4295,7 @@ stop after N mprotect calls.
 .TP
 .B POSIX message queue stressor (Linux)
 .RS 5
+.TQ
 .B \-\-mq N
 start N sender and receiver processes that continually send and receive
 messages using POSIX message queues. (Linux only).
@@ -4168,6 +4312,7 @@ and the maximum allowed size is used instead.
 .TP
 .B Memory remap stressor (Linux)
 .RS 5
+.TQ
 .B \-\-mremap N
 start N workers continuously calling mmap(2), mremap(2) and munmap(2).  The
 initial anonymous mapping is a large chunk (size specified by
@@ -4190,6 +4335,7 @@ stop mremap stress workers after N bogo operations.
 .TP
 .B System V message IPC stressor
 .RS 5
+.TQ
 .B \-\-msg N
 start N sender and receiver processes that continually send and receive
 messages using System V message IPC.
@@ -4210,6 +4356,7 @@ also impact throughput performance.
 .TP
 .B Synchronize file with memory map (msync) stressor
 .RS 5
+.TQ
 .B \-\-msync N
 start N stressors that msync data from a file backed memory mapping from
 memory back to the file and msync modified data from the file back to the
@@ -4227,6 +4374,7 @@ stop after N msync bogo operations completed.
 .TP
 .B Synchronize file with memory map (msync) coherency stressor
 .RS 5
+.TQ
 .B \-\-msyncmany N
 start N stressors that memory map up to 32768 pages on the same page of
 a temporary file, change the first 32 bits in a page and msync the data back
@@ -4239,6 +4387,7 @@ stop after N msync calls in the msyncmany stressors are completed.
 .TP
 .B Unmapping shared non-executable memory stressor (Linux)
 .RS 5
+.TQ
 .B \-\-munmap N
 start N stressors that exercise unmapping of shared non-executable mapped
 regions of child processes (Linux only). The unmappings map shared memory regions page
@@ -4253,6 +4402,7 @@ stop after N page unmappings.
 .TP
 .B Pthread mutex stressor
 .RS 5
+.TQ
 .B \-\-mutex N
 start N stressors that exercise pthread mutex locking and unlocking. If run
 with enough privilege then the FIFO scheduler is used and a random priority between
@@ -4273,6 +4423,7 @@ allows the default to be changed to 2 to 64 concurrent threads.
 .TP
 .B High resolution and scheduler stressor via nanosleep calls
 .RS 5
+.TQ
 .B \-\-nanosleep N
 start N workers that each run pthreads that call nanosleep with random
 delays from 1 to 2\[ua]18 nanoseconds. This should exercise the high resolution
@@ -4288,6 +4439,7 @@ and the allowed range is 1 to 1024.
 .TP
 .B Network device ioctl stressor
 .RS 5
+.TQ
 .B \-\-netdev N
 start N workers that exercise various netdevice ioctl commands across
 all the available network devices. The ioctls exercised by this stressor
@@ -4302,6 +4454,7 @@ stop after N netdev bogo operations completed.
 .TP
 .B Netlink stressor (Linux)
 .RS 5
+.TQ
 .B \-\-netlink\-proc N
 start N workers that spawn child processes and monitor fork/exec/exit
 process events via the proc netlink connector. Each event received is counted
@@ -4322,6 +4475,7 @@ stop the taskstats netlink connector stressors after N bogo ops.
 .TP
 .B Nice stressor
 .RS 5
+.TQ
 .B \-\-nice N
 start N cpu consuming workers that exercise the available nice levels. Each
 iteration forks off a child process that runs through the all the nice levels
@@ -4333,6 +4487,7 @@ stop after N nice bogo nice loops
 .TP
 .B NO-OP CPU instruction stressor
 .RS 5
+.TQ
 .B \-\-nop N
 start N workers that consume cpu cycles issuing no-op instructions. This
 stressor is available if the assembler supports the "nop" instruction.
@@ -4354,6 +4509,7 @@ equivalent to 256 loops of 256 no-op instructions.
 .TP
 .B /dev/null stressor
 .RS 5
+.TQ
 .B \-\-null N
 start N workers that exercise /dev/null with writes, lseek, ioctl, fcntl,
 fallocate and fdatasync. For just /dev/null write benchmarking use the
@@ -4368,6 +4524,7 @@ just write to /dev/null with 4K writes with no additional exercising on /dev/nul
 .TP
 .B Migrate memory pages over NUMA nodes stressor
 .RS 5
+.TQ
 .B \-\-numa N
 start N workers that migrate stressors and a 4MB memory mapped buffer around
 all the available NUMA nodes.  This uses migrate_pages(2) to move the stressors
@@ -4382,6 +4539,7 @@ stop NUMA stress workers after N bogo NUMA operations.
 .TP
 .B Pipe stressor
 .RS 5
+.TQ
 .B \-\-oom\-pipe N
 start N workers that create as many pipes as allowed and exercise expanding
 and shrinking the pipes from the largest pipe size down to a page size. Data
@@ -4397,6 +4555,7 @@ stop after N bogo pipe expand/shrink operations.
 .TP
 .B Illegal instructions stressors
 .RS 5
+.TQ
 .B \-\-opcode N
 start N workers that fork off children that execute randomly generated
 executable code.  This will generate issues such as illegal instructions,
@@ -4433,6 +4592,7 @@ stop after N attempts to execute illegal code.
 .TP
 .B Opening file (open) stressor
 .RS 5
+.TQ
 .B \-o N, \-\-open N
 start N workers that perform open(2) and then close(2) operations on
 /dev/zero. The maximum opens at one time is system defined, so the test will
@@ -4454,6 +4614,7 @@ stop the open stress workers after N bogo open operations.
 .TP
 .B Page table and TLB stressor
 .RS 5
+.TQ
 .B \-\-pagemove N
 start N workers that mmap a memory region (default 4 MB) and then shuffle pages
 to the virtual address of the previous page. Each page shuffle uses 3 mremap operations
@@ -4476,6 +4637,7 @@ the mmap'd region is equivalent to 1 bogo-operation.
 .TP
 .B Memory page swapping stressor
 .RS 5
+.TQ
 .B \-\-pageswap N
 start N workers that exercise page swap in and swap out. Pages are allocated
 and paged out using madvise MADV_PAGEOUT. One the maximum per process number
@@ -4488,6 +4650,7 @@ stop after N page allocation bogo operations.
 .TP
 .B PCI sysfs stressor (Linux)
 .RS 5
+.TQ
 .B \-\-pci N
 exercise PCI sysfs by running N workers that read data (and mmap/unmap
 PCI config or PCI resource files). Linux only. Running as root will allow
@@ -4499,6 +4662,7 @@ stop pci stress workers after N PCI subdirectory exercising operations.
 .TP
 .B Personality stressor
 .RS 5
+.TQ
 .B \-\-personality N
 start N workers that attempt to set personality and get all the available
 personality types (process execution domain types) via the personality(2)
@@ -4510,6 +4674,7 @@ stop personality stress workers after N bogo personality operations.
 .TP
 .B Mutex exclusion with Peterson algorithm stressor
 .RS 5
+.TQ
 .B \-\-peterson N
 start N workers that exercises mutex exclusion between two processes using
 shared memory with the Peterson Algorithm. Where possible this uses memory fencing
@@ -4522,6 +4687,7 @@ stop peterson workers after N mutex operations.
 .TP
 .B Page map stressor
 .RS 5
+.TQ
 .B \-\-physpage N
 start N workers that use /proc/self/pagemap and /proc/kpagecount to determine
 the physical page and page count of a virtual mapped page and a page that is
@@ -4538,6 +4704,7 @@ stop physpage stress workers after N bogo physical address lookups.
 .TP
 .B Process signals (pidfd_send_signal) stressor
 .RS 5
+.TQ
 .B \-\-pidfd N
 start N workers that exercise signal sending via the pidfd_send_signal system call.
 This stressor creates child processes and checks if they exist and can be
@@ -4550,6 +4717,7 @@ and killed with pidfd_send_signal.
 .TP
 .B Localhost ICMP (ping) stressor
 .RS 5
+.TQ
 .B \-\-ping\-sock N
 start N workers that send small randomized ICMP messages to the localhost
 across a range of ports (1024..65535) using a "ping" socket with an AF_INET
@@ -4561,6 +4729,7 @@ stop the ping\-sock stress workers after N ICMP messages are sent.
 .TP
 .B Large pipe stressor
 .RS 5
+.TQ
 .B \-p N, \-\-pipe N
 start N workers that perform large pipe writes and reads to exercise pipe I/O.
 This exercises memory write and reads as well as context switching.  Each
@@ -4590,6 +4759,7 @@ default size is 4096 bytes.
 .TP
 .B Shared pipe stressor
 .RS 5
+.TQ
 .B \-\-pipeherd N
 start N workers that pass a 64 bit token counter to/from 100 child processes
 over a shared pipe. This forces a high context switch rate and can trigger
@@ -4605,6 +4775,7 @@ switch rate.
 .TP
 .B Memory protection key mechanism stressor (Linux)
 .RS 5
+.TQ
 .B \-\-pkey N
 start N workers that change memory protection using a protection key (pkey) and
 the pkey_mprotect call (Linux only). This will try to allocate a pkey and
@@ -4619,6 +4790,7 @@ stop after N pkey_mprotect page protection cycles.
 .TP
 .B Stress-ng plugin stressor
 .RS 5
+.TQ
 .B \-\-plugin N
 start N workers that run user provided stressor functions loaded from a shared
 library. The shared library can contain one or more stressor functions prefixed
@@ -4677,6 +4849,7 @@ specify the shared library containing the user provided stressor function(s).
 .TP
 .B Polling stressor
 .RS 5
+.TQ
 .B \-P N, \-\-poll N
 start N workers that perform zero timeout polling via the poll(2), ppoll(2),
 select(2), pselect(2) and sleep(3) calls. This wastes system and user time
@@ -4694,6 +4867,7 @@ stop poll stress workers after N bogo poll operations.
 .TP
 .B Prctl stressor
 .RS 5
+.TQ
 .B \-\-prctl N
 start N workers that exercise the majority of the prctl(2) system call
 options. Each batch of prctl calls is performed inside a new child process
@@ -4707,6 +4881,7 @@ stop prctl workers after N batches of prctl calls
 .TP
 .B L3 cache prefetching stressor
 .RS 5
+.TQ
 .B \-\-prefetch N
 start N workers that benchmark prefetch and non-prefetch reads of a L3
 cache sized buffer. The buffer is read with loops of 8 \(mu 64 bit reads
@@ -4767,6 +4942,7 @@ stop prefetch stressors after N benchmark operations
 .TP
 .B Privileged CPU instructions stressor
 .RS 5
+.TQ
 .B \-\-priv\-instr N
 start N workers that exercise various architecture specific privileged
 instructions that cannot be executed by userspace programs. These
@@ -4779,6 +4955,7 @@ stop priv\-instr stressors after N rounds of executing privileged instructions.
 .TP
 .B /proc stressor
 .RS 5
+.TQ
 .B \-\-procfs N
 start N workers that read files from /proc and recursively read files from
 /proc/self (Linux only).
@@ -4791,6 +4968,7 @@ misleading.
 .TP
 .B Pthread stressor
 .RS 5
+.TQ
 .B \-\-pthread N
 start N workers that iteratively creates and terminates multiple pthreads
 (the default is 1024 pthreads per worker). In each iteration, each newly
@@ -4808,6 +4986,7 @@ stop pthread workers after N bogo pthread create operations.
 .TP
 .B Ptrace stressor
 .RS 5
+.TQ
 .B \-\-ptrace N
 start N workers that fork and trace system calls of a child process using
 ptrace(2).
@@ -4818,6 +4997,7 @@ stop ptracer workers after N bogo system calls are traced.
 .TP
 .B Pseudo-terminals (pty) stressor
 .RS 5
+.TQ
 .B \-\-pty N
 start N workers that repeatedly attempt to open pseudoterminals and
 perform various pty ioctls upon the ptys before closing them.
@@ -4832,6 +5012,7 @@ stop pty workers after N pty bogo operations.
 .TP
 .B Qsort stressor
 .RS 5
+.TQ
 .B \-Q, \-\-qsort N
 start N workers that sort 32 bit integers using qsort.
 .TP
@@ -4848,6 +5029,7 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B Quota stressor
 .RS 5
+.TQ
 .B \-\-quota N
 start N workers that exercise the Q_GETQUOTA, Q_GETFMT, Q_GETINFO, Q_GETSTATS
 and Q_SYNC quotactl(2) commands on all the available mounted block based file
@@ -4859,6 +5041,7 @@ stop quota stress workers after N bogo quotactl operations.
 .TP
 .B Process scheduler stressor
 .RS 5
+.TQ
 .B \-\-race\-sched N
 start N workers that exercise rapid changing CPU affinity child processes
 both from the controlling stressor and by the child processes. Child
@@ -4906,6 +5089,7 @@ stop after N process creation bogo-operations.
 .TP
 .B Radixsort stressor
 .RS 5
+.TQ
 .B \-\-radixsort N
 start N workers that sort random 8 byte strings using radixsort.
 .TP
@@ -4918,6 +5102,7 @@ specify number of strings to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B Memory filesystem stressor
 .RS 5
+.TQ
 .B \-\-ramfs N
 start N workers mounting a memory based file system using ramfs and
 tmpfs (Linux only). This alternates between mounting and umounting a
@@ -4939,6 +5124,7 @@ set the ramfs size (must be multiples of the page size).
 .TP
 .B Raw device stressor
 .RS 5
+.TQ
 .B \-\-rawdev N
 start N workers that read the underlying raw drive device using direct
 IO reads. The device (with minor number 0) that stores the current working
@@ -4983,6 +5169,7 @@ stop the rawdev stress workers after N raw device read bogo operations.
 .TP
 .B Random list stressor
 .RS 5
+.TQ
 .B \-\-randlist N
 start N workers that creates a list of objects in randomized memory order and traverses
 the list setting and reading the objects. This is designed to exerise memory and cache
@@ -5009,6 +5196,7 @@ data payload plus the list handling pointer overhead.
 .TP
 .B Localhost raw socket stressor
 .RS 5
+.TQ
 .B \-\-rawsock N
 start N workers that send and receive packet data using raw sockets on the
 localhost. Requires CAP_NET_RAW to run.
@@ -5023,6 +5211,7 @@ used.
 .TP
 .B Localhost ethernet raw packets stressor
 .RS 5
+.TQ
 .B \-\-rawpkt N
 start N workers that sends and receives ethernet packets
 using raw packets on the localhost via the loopback device. Requires
@@ -5042,6 +5231,7 @@ be one of 1, 2, 4, 8 or 16.
 .TP
 .B Localhost raw UDP packet stressor
 .RS 5
+.TQ
 .B \-\-rawudp N
 start N workers that send and receive UDP packets using raw sockets on the
 localhost. Requires CAP_NET_RAW to run.
@@ -5060,6 +5250,7 @@ are used. The default starting port is port 13000.
 .TP
 .B Random number generator stressor
 .RS 5
+.TQ
 .B \-\-rdrand N
 start N workers that read a random number from an on-chip random number generator
 This uses the rdrand instruction on Intel x86 processors or the darn instruction
@@ -5075,6 +5266,7 @@ use rdseed instead of rdrand (x86 only).
 .TP
 .B Read-ahead stressor
 .RS 5
+.TQ
 .B \-\-readahead N
 start N workers that randomly seek and perform 4096 byte read/write I/O
 operations on a file with readahead. The default file size is 64 MB.  Readaheads
@@ -5091,6 +5283,7 @@ stop readahead stress workers after N bogo read operations.
 .TP
 .B Reboot stressor
 .RS 5
+.TQ
 .B \-\-reboot N
 start N workers that exercise the reboot(2) system call. When possible, it
 will create a process in a PID namespace and perform a reboot power off command
@@ -5104,6 +5297,7 @@ stop the reboot stress workers after N bogo reboot cycles.
 .TP
 .B CPU registers stressor
 .RS 5
+.TQ
 .B \-\-regs N
 start N workers that shuffle data around the CPU registers exercising register
 move instructions.  Each bogo-op represents 1000 calls of a shuffling function
@@ -5117,6 +5311,7 @@ stop regs stressors after N bogo operations.
 .TP
 .B Memory page reordering stressor
 .RS 5
+.TQ
 .B \-\-remap N
 start N workers that map 512 pages and re-order these pages using the
 deprecated system call remap_file_pages(2). Several page re-orderings are
@@ -5135,6 +5330,7 @@ specify number of pages to remap, must be a power of 2, default is 512 pages.
 .TP
 .B Renaming file stressor
 .RS 5
+.TQ
 .B \-R N, \-\-rename N
 start N workers that each create a file and then repeatedly rename it.
 .TP
@@ -5144,6 +5340,7 @@ stop rename stress workers after N bogo rename operations.
 .TP
 .B Process rescheduling stressor
 .RS 5
+.TQ
 .B \-\-resched N
 start N workers that exercise process rescheduling. Each stressor spawns
 a child process for each of the positive nice levels and iterates over the
@@ -5160,6 +5357,7 @@ stop after N rescheduling sched_yield calls.
 .TP
 .B System resources stressor
 .RS 5
+.TQ
 .B \-\-resources N
 start N workers that consume various system resources. Each worker will spawn
 1024 child processes that iterate 1024 times consuming shared memory, heap,
@@ -5176,6 +5374,7 @@ stop after N resource child forks.
 .TP
 .B Writing temporary files in reverse position stressor
 .RS 5
+.TQ
 .B \-\-revio N
 start N workers continually writing in reverse position order to temporary
 files. The default mode is to stress test reverse position ordered writes
@@ -5202,6 +5401,7 @@ specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
 .B Ring pipes stressor
 .RS 5
+.TQ
 .B \-\-ring\-pipe N
 start N workers that move data around a ring of pipes using poll to detect
 when data is ready to copy. By default, 256 pipes are used with two
@@ -5226,6 +5426,7 @@ enable splice to move data between pipes (only if splice() is available).
 .TP
 .B Rlimit stressor
 .RS 5
+.TQ
 .B \-\-rlimit N
 start N workers that exceed CPU and file size resource imits, generating
 SIGXCPU and SIGXFSZ signals.
@@ -5236,6 +5437,7 @@ stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
 .TP
 .B VM reverse-mapping stressor
 .RS 5
+.TQ
 .B \-\-rmap N
 start N workers that exercise the VM reverse-mapping. This creates 16 processes
 per worker that write/read multiple file-backed memory mappings. There are 64
@@ -5250,6 +5452,7 @@ stop after N bogo rmap memory writes/reads.
 .TP
 .B 1 bit rotation stressor
 .RS 5
+.TQ
 .B \-\-rotate N
 start N workers that exercise 1 bit rotates left and right of unsigned integer
 variables.  The default will rotate four 8, 16, 32, 64 (and if supported 128) bit
@@ -5281,6 +5484,7 @@ stop after N bogo rotate operations.
 .TP
 .B Restartable sequences (rseq) stressor (Linux)
 .RS 5
+.TQ
 .B \-\-rseq N
 start N workers that exercise restartable sequences via the rseq(2) system
 call.  This loops over a long duration critical section that is likely to
@@ -5295,6 +5499,7 @@ to 10000 iterations over a long duration rseq handled critical section.
 .TP
 .B Real-time clock stressor
 .RS 5
+.TQ
 .B \-\-rtc N
 start N workers that exercise the real time clock (RTC) interfaces via /dev/rtc
 and /sys/class/rtc/rtc0. No destructive writes (modifications) are performed on
@@ -5306,6 +5511,7 @@ stop after N bogo RTC interface accesses.
 .TP
 .B Fast process rescheduling stressor
 .RS 5
+.TQ
 .B \-\-schedmix N
 start N workers that each start child processes that repeatedly select random
 a scheduling policy and then executes a short duration randomly chosen time
@@ -5322,6 +5528,7 @@ from 1 to 64, default is 16.
 .TP
 .B Scheduling policy stressor
 .RS 5
+.TQ
 .B \-\-schedpolicy N
 start N workers that set the worker to various available scheduling
 policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO,
@@ -5340,6 +5547,7 @@ sequentially.
 .TP
 .B Stream control transmission protocol (SCTP) stressor
 .RS 5
+.TQ
 .B \-\-sctp N
 start N workers that perform network sctp stress activity using the Stream
 Control Transmission Protocol (SCTP).  This involves client/server processes
@@ -5367,6 +5575,7 @@ specify SCTP scheduler, one of fcfs (default), prio (priority) or rr (round\-rob
 .TP
 .B File sealing (SEAL) stressor (Linux)
 .RS 5
+.TQ
 .B \-\-seal N
 start N workers that exercise the fcntl(2) SEAL commands on a small anonymous
 file created using memfd_create(2).  After each SEAL command is issued the
@@ -5379,6 +5588,7 @@ stop after N bogo seal operations.
 .TP
 .B Secure computing stressor
 .RS 5
+.TQ
 .B \-\-seccomp N
 start N workers that exercise Secure Computing system call filtering. Each
 worker creates child processes that write a short message to /dev/null and then
@@ -5393,6 +5603,7 @@ stop seccomp stress workers after N seccomp filter tests.
 .TP
 .B Secret memory stressor (Linux >= 5.11)
 .RS 5
+.TQ
 .B \-\-secretmem N
 start N workers that mmap pages using file mapping off a memfd_secret file
 descriptor. Each stress loop iteration will expand the mappable region by 3
@@ -5409,6 +5620,7 @@ stop secretmem stress workers after N stress loop iterations.
 .TP
 .B IO seek stressor
 .RS 5
+.TQ
 .B \-\-seek N
 start N workers that randomly seeks and performs 512 byte read/write I/O
 operations on a file. The default file size is 16 GB.
@@ -5430,6 +5642,7 @@ b, k, m or g.
 .TP
 .B POSIX semaphore stressor
 .RS 5
+.TQ
 .B \-\-sem N
 start N workers that perform POSIX semaphore wait and post operations. By
 default, a parent and 4 children are started per worker to provide some
@@ -5459,6 +5672,7 @@ semaphore, the default is 4 and a maximum of 64 are allowed.
 .TP
 .B Sendfile stressor
 .RS 5
+.TQ
 .B \-\-sendfile N
 start N workers that send an empty file to /dev/null. This operation spends
 nearly all the time in the kernel.  The default sendfile size is 4MB.  The
@@ -5475,6 +5689,7 @@ using the suffix b, k, m or g.
 .TP
 .B Sessions stressor
 .RS 5
+.TQ
 .B \-\-session N
 start N workers that create child and grandchild processes that set and
 get their session ids. 25% of the grandchild processes are not waited for
@@ -5486,6 +5701,7 @@ stop session workers after N child processes are spawned and reaped.
 .TP
 .B Setting data in the Kernel stressor
 .RS 5
+.TQ
 .B \-\-set N
 start N workers that call system calls that try to set data in the kernel,
 currently these are: setgid, sethostname, setpgid, setpgrp, setuid,
@@ -5498,6 +5714,7 @@ stop set workers after N bogo set operations.
 .TP
 .B Shellsort stressor
 .RS 5
+.TQ
 .B \-\-shellsort N
 start N workers that sort 32 bit integers using shellsort.
 .TP
@@ -5510,6 +5727,7 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B POSIX shared memory stressor
 .RS 5
+.TQ
 .B \-\-shm N
 start N workers that open and allocate shared memory objects using the POSIX
 shared memory interfaces.  By default, the test will repeatedly create and
@@ -5555,6 +5773,7 @@ specify the number of shared memory segments to be created. The default is
 .TP
 .B SIGABRT stressor
 .RS 5
+.TQ
 .B \-\-sigabrt N
 start N workers that create children that are killed by SIGABRT signals or
 by calling abort(3).
@@ -5565,6 +5784,7 @@ stop the sigabrt workers after N SIGABRT signals are successfully handled.
 .TP
 .B SIGBUS stressor
 .RS 5
+.TQ
 .B \-\-sigbus N
 start N workers that rapidly create and catch bus errors generated
 via misaligned access and accessing a file backed memory mapping that
@@ -5576,6 +5796,7 @@ stop sigbus stress workers after N bogo bus errors.
 .TP
 .B SIGCHLD stressor
 .RS 5
+.TQ
 .B \-\-sigchld N
 start N workers that create children to generate SIGCHLD signals. This exercises
 children that exit (CLD_EXITED), get killed (CLD_KILLED), get stopped
@@ -5587,6 +5808,7 @@ stop the sigchld workers after N SIGCHLD signals are successfully handled.
 .TP
 .B SIGFD stressor (Linux)
 .RS 5
+.TQ
 .B \-\-sigfd N
 start N workers that generate SIGRT signals and are handled by reads by a child
 process using a file descriptor set up using signalfd(2).  (Linux only). This
@@ -5598,6 +5820,7 @@ stop sigfd workers after N bogo SIGUSR1 signals are sent.
 .TP
 .B SIGFPE stressor
 .RS 5
+.TQ
 .B \-\-sigfpe N
 start N workers that rapidly cause division by zero SIGFPE faults.
 .TP
@@ -5607,6 +5830,7 @@ stop sigfpe stress workers after N bogo SIGFPE faults.
 .TP
 .B SIGIO stressor
 .RS 5
+.TQ
 .B \-\-sigio N
 start N workers that read data from a child process via a pipe and generate
 SIGIO signals. This exercises asynchronous I/O via SIGIO.
@@ -5617,6 +5841,7 @@ stop sigio stress workers after handling N SIGIO signals.
 .TP
 .B System signals stressor
 .RS 5
+.TQ
 .B \-\-signal N
 start N workers that exercise the signal system call three different signal
 handlers, SIG_IGN (ignore), a SIGCHLD handler and SIG_DFL (default action).
@@ -5632,6 +5857,7 @@ stop signal stress workers after N rounds of signal handler setting.
 .TP
 .B Nested signal handling stressor
 .RS 5
+.TQ
 .B \-\-signest N
 start N workers that exercise nested signal handling. A signal is raised and
 inside the signal handler a different signal is raised, working through a
@@ -5646,6 +5872,7 @@ stop after handling N nested signals.
 .TP
 .B Pending signals stressor
 .RS 5
+.TQ
 .B \-\-sigpending N
 start N workers that check if SIGUSR1 signals are pending. This stressor masks
 SIGUSR1, generates a SIGUSR1 signal and uses sigpending(2) to see if the signal
@@ -5658,6 +5885,7 @@ stop sigpending stress workers after N bogo sigpending pending/unpending checks.
 .TP
 .B SIGPIPE stressor
 .RS 5
+.TQ
 .B \-\-sigpipe N
 start N workers that repeatedly spawn off child process that exits before a
 parent can complete a pipe write, causing a SIGPIPE signal.  The child
@@ -5670,6 +5898,7 @@ stop N workers after N SIGPIPE signals have been caught and handled.
 .TP
 .B Signal queueing stressor
 .RS 5
+.TQ
 .B \-\-sigq N
 start N workers that rapidly send SIGUSR1 signals using sigqueue(3) to child
 processes that wait for the signal via sigwaitinfo(2).
@@ -5680,6 +5909,7 @@ stop sigq stress workers after N bogo signal send operations.
 .TP
 .B Real-time signals stressor
 .RS 5
+.TQ
 .B \-\-sigrt N
 start N workers that each create child processes to handle SIGRTMIN to
 SIGRMAX real time signals. The parent sends each child process a RT signal
@@ -5693,6 +5923,7 @@ stop sigrt stress workers after N bogo sigqueue signal send operations.
 .TP
 .B SIGSEV stressor
 .RS 5
+.TQ
 .B \-\-sigsegv N
 start N workers that rapidly create and catch segmentation faults generated
 via illegal memory access, illegal vdso system calls, illegal port reads,
@@ -5704,6 +5935,7 @@ stop sigsegv stress workers after N bogo segmentation faults.
 .TP
 .B Waiting for process signals stressor
 .RS 5
+.TQ
 .B \-\-sigsuspend N
 start N workers that each spawn off 4 child processes that wait for a SIGUSR1
 signal from the parent using sigsuspend(2). The parent sends SIGUSR1 signals
@@ -5716,6 +5948,7 @@ stop sigsuspend stress workers after N bogo sigsuspend wakeups.
 .TP
 .B SIGTRAP stressor
 .RS 5
+.TQ
 .B \-\-sigtrap N
 start N workers that exercise the SIGTRAP signal. For systems that support
 SIGTRAP, the signal is generated using raise(SIGTRAP). Only x86 Linux systems
@@ -5727,6 +5960,7 @@ stop sigtrap stress workers after N SIGTRAPs have been handled.
 .TP
 .B Random memory and processor cache line stressor via a skiplist
 .RS 5
+.TQ
 .B \-\-skiplist N
 start N workers that store and then search for integers using a skiplist.
 By default, 65536 integers are added and searched.  This is a useful method
@@ -5742,6 +5976,7 @@ be from 1K to 4M.
 .TP
 .B Time interrupts and context switches stressor
 .RS 5
+.TQ
 .B \-\-sleep N
 start N workers that spawn off multiple threads that each perform multiple
 sleeps of ranges 1us to 0.1s.  This creates multiple context switches and
@@ -5757,6 +5992,7 @@ stop after N sleep bogo operations.
 .TP
 .B System management interrupts (SMI) stressor
 .RS 5
+.TQ
 .B \-\-smi N
 start N workers that attempt to generate system management interrupts (SMIs)
 into the x86 ring -2 system management mode (SMM) by exercising the advanced
@@ -5771,6 +6007,7 @@ stop after N attempts to trigger the SMI.
 .TP
 .B Network socket stressor
 .RS 5
+.TQ
 .B \-S N, \-\-sock N
 start N workers that perform various socket stress activity. This involves a
 pair of client/server processes performing rapid connect, send and receives
@@ -5817,6 +6054,7 @@ enable zerocopy for send and recv calls if the MSG_ZEROCOPY is supported.
 .TP
 .B Socket abusing stressor
 .RS 5
+.TQ
 .B \-\-sockabuse N
 start N workers that abuse a socket file descriptor with various file based
 system that don't normally act on sockets. The kernel should handle these
@@ -5832,6 +6070,7 @@ used.
 .TP
 .B Socket diagnostic stressor (Linux)
 .RS 5
+.TQ
 .B \-\-sockdiag N
 start N workers that exercise the Linux sock_diag netlink socket diagnostics
 (Linux only).  This currently requests diagnostics using UDIAG_SHOW_NAME,
@@ -5844,6 +6083,7 @@ stop after receiving N sock_diag diagnostic messages.
 .TP
 .B Socket file descriptor stressor
 .RS 5
+.TQ
 .B \-\-sockfd N
 start N workers that pass file descriptors over a UNIX domain socket using the
 CMSG(3) ancillary data mechanism. For each worker, pair of client/server
@@ -5861,6 +6101,7 @@ used.
 .TP
 .B Opening network socket stressor
 .RS 5
+.TQ
 .B \-\-sockmany N
 start N workers that use a client process to attempt to open as many as 100000
 TCP/IP socket connections to a server on port 10000.
@@ -5879,6 +6120,7 @@ used.
 .TP
 .B Socket I/O stressor
 .RS 5
+.TQ
 .B \-\-sockpair N
 start N workers that perform socket pair I/O read/writes. This involves a pair
 of client/server processes performing randomly sized socket I/O operations.
@@ -5889,6 +6131,7 @@ stop socket pair stress workers after N bogo operations.
 .TP
 .B Softlockup stressor
 .RS 5
+.TQ
 .B \-\-softlockup N
 start N workers that flip between with the "real-time" SCHED_FIO and SCHED_RR
 scheduling policies at the highest priority to force softlockups. This can
@@ -5903,6 +6146,7 @@ stop softlockup stress workers after N bogo scheduler policy changes.
 .TP
 .B Sparse matrix stressor
 .RS 5
+.TQ
 .B \-\-sparsematrix N
 start N workers that exercise 3 different sparse matrix implementations
 based on hashing, Judy array (for 64 bit systems), 2-d circular linked-lists,
@@ -5974,6 +6218,7 @@ use a N \(mu N sized sparse matrix
 .TP
 .B POSIX process spawn (posix_spawn) stressor (Linux)
 .RS 5
+.TQ
 .B \-\-spawn N
 start N workers continually spawn children using posix_spawn(3) that exec
 stress\-ng and then exit almost immediately. Currently Linux only.
@@ -5984,6 +6229,7 @@ stop spawn stress workers after N bogo spawns.
 .TP
 .B Splice stressor (Linux)
 .RS 5
+.TQ
 .B \-\-splice N
 move data from /dev/zero to /dev/null through a pipe without any copying
 between kernel address space and user address space using splice(2). This is
@@ -6000,6 +6246,7 @@ stop after N bogo splice operations.
 .TP
 .B Stack stressor
 .RS 5
+.TQ
 .B \-\-stack N
 start N workers that rapidly cause and catch stack overflows by use of
 large recursive stack allocations.  Much like the brk stressor, this can eat
@@ -6030,6 +6277,7 @@ allocation mappings.
 .TP
 .B Dirty page and stack exception stressor
 .RS 5
+.TQ
 .B \-\-stackmmap N
 start N workers that use a 2MB stack that is memory mapped onto a temporary
 file. A recursive function works down the stack and flushes dirty stack pages
@@ -6042,6 +6290,7 @@ stop workers after N stack overflows have occurred.
 .TP
 .B Libc string functions stressor
 .RS 5
+.TQ
 .B \-\-str N
 start N workers that exercise various libc string functions on random strings.
 .TP
@@ -6058,6 +6307,7 @@ stop after N bogo string operations.
 .TP
 .B STREAM memory stressor
 .RS 5
+.TQ
 .B \-\-stream N
 start N workers exercising a memory bandwidth stressor very loosely based on the
 STREAM "Sustainable Memory Bandwidth in High Performance Computers" benchmarking
@@ -6125,6 +6375,7 @@ of copy, scale, add and triad operations.
 .TP
 .B Swap partitions stressor (Linux)
 .RS 5
+.TQ
 .B \-\-swap N
 start N workers that add and remove small randomly sizes swap partitions
 (Linux only).  Note that if too many swap partitions are added then the
@@ -6137,6 +6388,7 @@ stop the swap workers after N swapon/swapoff iterations.
 .TP
 .B Context switching between mutually tied processes stressor
 .RS 5
+.TQ
 .B \-s N, \-\-switch N
 start N workers that force context switching between two mutually
 blocking/unblocking tied processes. By default message passing over
@@ -6173,6 +6425,7 @@ stop context switching workers after N bogo operations.
 .TP
 .B Symlink stressor
 .RS 5
+.TQ
 .B \-\-symlink N
 start N workers creating and removing symbolic links.
 .TP
@@ -6185,6 +6438,7 @@ sync dirty data and metadata to disk.
 .TP
 .B Partial file syncing (sync_file_range) stressor
 .RS 5
+.TQ
 .B \-\-sync\-file N
 start N workers that perform a range of data syncs across a file using
 sync_file_range(2).  Three mixes of syncs are performed, from start to the end
@@ -6203,6 +6457,7 @@ stop sync\-file workers after N bogo sync operations.
 .TP
 .B CPU synchronized loads stressor
 .RS 5
+.TQ
 .B \-\-syncload N
 start N workers that produce sporadic short lived loads synchronized across N
 stressor processes. By default repeated cycles of 125ms busy load followed by 62.5ms sleep
@@ -6222,6 +6477,7 @@ stop syncload workers after N load/sleep cycles.
 .TP
 .B System calls bad address and fault handling stressor
 .RS 5
+.TQ
 .B \-\-sysbadaddr N
 start N workers that pass bad addresses to system calls to exercise bad address
 and fault handling. The addresses used are null pointers, read only pages,
@@ -6234,6 +6490,7 @@ stop the sysbadaddr stressors after N bogo system calls.
 .TP
 .B System calls stressor
 .RS 5
+.TQ
 .B \-\-syscall N
 start N workers that exercise a range of available system calls. System calls
 that fail due to lack of capabilities or errors are ignored. The stressor will
@@ -6274,6 +6531,7 @@ stop after N system calls
 .TP
 .B System information stressor
 .RS 5
+.TQ
 .B \-\-sysinfo N
 start N workers that continually read system and process specific information.
 This reads the process user and system times using the times(2) system call.
@@ -6287,6 +6545,7 @@ stop the sysinfo workers after N bogo operations.
 .TP
 .B System calls with invalid arguments stressor (Linux)
 .RS 5
+.TQ
 .B \-\-sysinval N
 start N workers that exercise system calls in random order with permutations
 of invalid arguments to force kernel error handling checks. The stress test
@@ -6301,6 +6560,7 @@ stop sysinval workers after N system call attempts.
 .TP
 .B /sys stressor (Linux)
 .RS 5
+.TQ
 .B \-\-sysfs N
 start N workers that recursively read files from /sys (Linux only).  This may
 cause specific kernel drivers to emit messages into the kernel log.
@@ -6313,6 +6573,7 @@ misleading.
 .TP
 .B Tee stressor (Linux)
 .RS 5
+.TQ
 .B \-\-tee N
 move data from a writer process to a reader process through pipes and to
 /dev/null without any copying between kernel address space and user address
@@ -6324,6 +6585,7 @@ stop after N bogo tee operations.
 .TP
 .B Timer event stressor (Linux)
 .RS 5
+.TQ
 .B \-T N, \-\-timer N
 start N workers creating timer events at a default rate of 1 MHz (Linux only);
 this can create a many thousands of timer clock interrupts. Each timer event
@@ -6346,6 +6608,7 @@ scheduling less predictable.
 .TP
 .B Timerfd stressor (Linux)
 .RS 5
+.TQ
 .B \-\-timerfd N
 start N workers creating timerfd events at a default rate of 1 MHz (Linux
 only); this can create a many thousands of timer clock events. Timer events
@@ -6371,6 +6634,7 @@ scheduling less predictable.
 .TP
 .B Translation lookaside buffer shootdowns stressor
 .RS 5
+.TQ
 .B \-\-tlb\-shootdown N
 start N workers that force Translation Lookaside Buffer (TLB) shootdowns.
 This is achieved by creating up to 16 child processes that all share a
@@ -6384,6 +6648,7 @@ stop after N bogo TLB shootdown operations are completed.
 .TP
 .B Tmpfs stressor
 .RS 5
+.TQ
 .B \-\-tmpfs N
 start N workers that create a temporary file on an available tmpfs
 file system and perform various file based mmap operations upon it.
@@ -6402,6 +6667,7 @@ stop tmpfs stressors after N bogo mmap operations.
 .TP
 .B Touching files stressor
 .RS 5
+.TQ
 .B \-\-touch N
 touch files by using open(2) or creat(2) and then closing and unlinking them. The
 filename contains the bogo-op number and is incremented on each touch operation,
@@ -6447,6 +6713,7 @@ T}
 .TP
 .B Tree data structures stressor
 .RS 5
+.TQ
 .B \-\-tree N
 start N workers that exercise tree data structures. The default is
 to add, find and remove 250,000 64 bit integers into AVL (avl),
@@ -6469,6 +6736,7 @@ to be added into the tree.
 .TP
 .B Time stamp counter (TSC) stressor
 .RS 5
+.TQ
 .B \-\-tsc N
 start N workers that read the Time Stamp Counter (TSC) 256 times per loop
 iteration (bogo operation).  This exercises the tsc instruction for x86,
@@ -6484,6 +6752,7 @@ stop the tsc workers after N bogo operations are completed.
 .TP
 .B Binary tree stressor
 .RS 5
+.TQ
 .B \-\-tsearch N
 start N workers that insert, search and delete 32 bit integers on a binary
 tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536
@@ -6500,6 +6769,7 @@ can be from 1K to 4M.
 .TP
 .B Network tunnel stressor
 .RS 5
+.TQ
 .B \-\-tun N
 start N workers that create a network tunnel device and sends and receives
 packets over the tunnel using UDP and then destroys it. A new random
@@ -6515,6 +6785,7 @@ for level 3 raw packets (tunnelling).
 .TP
 .B UDP network stressor
 .RS 5
+.TQ
 .B \-\-udp N
 start N workers that transmit data using UDP. This involves a pair of
 client/server processes performing rapid connect, send and receives and
@@ -6544,6 +6815,7 @@ default, ports 7000 upwards are used.
 .TP
 .B UDP flooding stressor
 .RS 5
+.TQ
 .B \-\-udp\-flood N
 start N workers that attempt to flood the host with UDP packets to random
 ports. The IP address of the packets are currently not spoofed. This is only
@@ -6563,6 +6835,7 @@ stop udp-flood stress workers after N bogo operations.
 .TP
 .B Umount stressor
 .RS 5
+.TQ
 .B \-\-umount N
 start N workers that exercise mounting and racying unmounting of small tmpfs and ramfs
 file systems. Three child processes are invoked, one to mount, another to force umount
@@ -6575,6 +6848,7 @@ stop umount workers after N successful bogo mount/umount operations.
 .TP
 .B Unshare stressor (Linux)
 .RS 5
+.TQ
 .B \-\-unshare N
 start N workers that each fork off 32 child processes, each of which exercises
 the unshare(2) system call by disassociating parts of the process execution
@@ -6586,6 +6860,7 @@ stop after N bogo unshare operations.
 .TP
 .B Uprobe stressor (Linux)
 .RS 5
+.TQ
 .B \-\-uprobe N
 start N workers that trace the entry to libc function getpid() using the
 Linux uprobe kernel tracing mechanism. This requires CAP_SYS_ADMIN
@@ -6597,6 +6872,7 @@ stop uprobe tracing after N trace events of the function that is being traced.
 .TP
 .B /dev/urandom stressor (Linux)
 .RS 5
+.TQ
 .B \-u N, \-\-urandom N
 start N workers reading /dev/urandom (Linux only). This will load the kernel
 random number source.
@@ -6607,6 +6883,7 @@ stop urandom stress workers after N urandom bogo read operations (Linux only).
 .TP
 .B Page faults stressor (Linux)
 .RS 5
+.TQ
 .B \-\-userfaultfd N
 start N workers that generate write page faults on a small anonymously mapped
 memory region and handle these faults using the user space fault handling via
@@ -6625,6 +6902,7 @@ stop userfaultfd stress workers after N page faults.
 .TP
 .B SYGSYS stressor
 .RS 5
+.TQ
 .B \-\-usersyscall N
 start N workers that exercise the Linux prctl userspace system call
 mechanism. A userspace system call is handled by a SIGSYS signal handler
@@ -6637,6 +6915,7 @@ stop after N successful userspace syscalls via a SIGSYS signal handler.
 .TP
 .B File timestamp stressor
 .RS 5
+.TQ
 .B \-\-utime N
 start N workers updating file timestamps. This is mainly CPU bound when the
 default is used as the system flushes metadata changes only periodically.
@@ -6652,6 +6931,7 @@ stop utime stress workers after N utime bogo operations.
 .TP
 .B Virtual dynamic shared object stressor
 .RS 5
+.TQ
 .B \-\-vdso N
 start N workers that repeatedly call each of the system call functions in the
 vDSO (virtual dynamic shared object).  The vDSO is a shared library that the
@@ -6670,6 +6950,7 @@ stop after N vDSO functions calls.
 .TP
 .B Vector floating point operations stressor
 .RS 5
+.TQ
 .B \-\-vecfp N
 start N workers that exericise floating point (single and double precision)
 addition, multiplication, division and negation on vectors of 128, 64, 32,
@@ -6804,6 +7085,7 @@ is equivalent to 65536 \(mu 2 \(mu 16 floating point operations.
 .TP
 .B Vector math operations stressor
 .RS 5
+.TQ
 .B \-\-vecmath N
 start N workers that perform various unsigned integer math operations on
 various 128 bit vectors. A mix of vector math operations are performed on the
@@ -6817,6 +7099,7 @@ stop after N bogo vector integer math operations.
 .TP
 .B Shuffled vector math operations stressor
 .RS 5
+.TQ
 .B \-\-vecshuf N
 start N workers that shuffle data on various 64 byte vectors comprised of
 8, 16, 32, 64 and 128 bit unsigned integers. The integers are shuffled
@@ -6860,6 +7143,7 @@ stop after N bogo vector shuffle ops. One bogo-op is equavlent of 4 \(mu
 .TP
 .B Wide vector math operations stressor
 .RS 5
+.TQ
 .B \-\-vecwide N
 start N workers that perform various 8 bit math operations on vectors
 of 4, 8, 16, 32, 64, 128, 256, 512, 1024 and 2048 bytes. With the -v option
@@ -6875,6 +7159,7 @@ instruction operations).
 .TP
 .B File based authenticy protection (verity) stressor
 .RS 5
+.TQ
 .B \-\-verity N
 start N workers that exercise read-only file based authenticy protection
 using the verity ioctls FS_IOC_ENABLE_VERITY and FS_IOC_MEASURE_VERITY.
@@ -6891,6 +7176,7 @@ and unlink cycles.
 .TP
 .B vfork stressor
 .RS 5
+.TQ
 .B \-\-vfork N
 start N workers continually vforking children that immediately exit.
 .TP
@@ -6909,6 +7195,7 @@ deprecated since stress\-ng V0.14.03
 .TP
 .B vfork processes as much as possible stressor
 .RS 5
+.TQ
 .B \-\-vforkmany N
 start N workers that spawn off a chain of vfork children until the process
 table fills up and/or vfork fails.  vfork can rapidly create child processes
@@ -6927,6 +7214,7 @@ MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .TP
 .B Memory allocate and write stressor
 .RS 5
+.TQ
 .B \-m N, \-\-vm N
 start N workers continuously calling mmap(2)/munmap(2) and writing to the
 allocated memory. Note that this can cause systems to trip the kernel OOM
@@ -7180,6 +7468,7 @@ swapping. Only available on systems that support MAP_POPULATE (since Linux
 .TP
 .B Virtual memory adressing stressor
 .RS 5
+.TQ
 .B \-\-vm\-addr N
 start N workers that exercise virtual memory addressing using various
 methods to walk through a memory mapped address range. This will exercise
@@ -7259,8 +7548,9 @@ preventing pages from swapped out.
 stop N workers after N bogo addressing passes.
 .RE
 .TP
-.B Memory transfert between parent and child processes stressor (Linux)
+.B Memory transfer between parent and child processes stressor (Linux)
 .RS 5
+.TQ
 .B \-\-vm\-rw N
 start N workers that transfer memory to/from a parent/child using
 process_vm_writev(2) and process_vm_readv(2). This is feature is only
@@ -7278,6 +7568,7 @@ stop vm\-rw workers after N memory read/writes.
 .TP
 .B Memory unmap from a child process stressor
 .RS 5
+.TQ
 .B \-\-vm\-segv N
 start N workers that create a child process that unmaps its address space
 causing a SIGSEGV on return from the unmap.
@@ -7288,6 +7579,7 @@ stop after N bogo vm\-segv SIGSEGV faults.
 .TP
 .B Vmsplice stressor (Linux)
 .RS 5
+.TQ
 .B \-\-vm\-splice N
 move data from memory to /dev/null through a pipe without any copying between
 kernel address space and user address space using vmsplice(2) and splice(2).
@@ -7304,6 +7596,7 @@ stop after N bogo vm\-splice operations.
 .TP
 .B Vector neural network instructions stressor
 .RS 5
+.TQ
 .B \-\-vnni N
 start N workers that exercise vector neural network instructions (VNNI) used in
 convolutional neural network loops. A 256 byte vector is operated upon
@@ -7379,6 +7672,7 @@ convolution loops operating on 256 bytes of data.
 .TP
 .B Pausing and resuming threads stressor
 .RS 5
+.TQ
 .B \-\-wait N
 start N workers that spawn off two children; one spins in a pause(2) loop, the
 other continually stops and continues the first. The controlling process waits
@@ -7392,6 +7686,7 @@ stop after N bogo wait operations.
 .TP
 .B CPU wait instruction stressor
 .RS 5
+.TQ
 .B \-\-waitcpu N
 start N workers that exercise processor wait instructions. For x86 these
 are pause, tpause and umwait (when available) and nop. For ARM the yield
@@ -7404,6 +7699,7 @@ stop after N bogo processor wait operations.
 .TP
 .B Watchdog stressor
 .RS 5
+.TQ
 .B \-\-watchdog N
 start N workers that exercising the /dev/watchdog watchdog interface by
 opening it, perform various watchdog specific ioctl(2) commands on the
@@ -7419,6 +7715,7 @@ stop after N bogo operations on the watchdog device.
 .TP
 .B Libc wide characterstring function stressor
 .RS 5
+.TQ
 .B \-\-wcs N
 start N workers that exercise various libc wide character string functions on
 random strings.
@@ -7435,6 +7732,7 @@ stop after N bogo wide character string operations.
 .TP
 .B X86 CPUID stressor
 .RS 5
+.TQ
 .B \-\-x86cpuid N
 start N workers that exercise the x86 cpuid instruction with 18 different leaf
 types.
@@ -7445,6 +7743,7 @@ stop after N iterations that exercise the different cpuid leaf types.
 .TP
 .B x86-64 syscall stressor (Linux)
 .RS 5
+.TQ
 .B \-\-x86syscall N
 start N workers that repeatedly exercise the x86-64 syscall instruction to
 call the getpid(2), getcpu(2), gettimeofday(2) and time(2) system using the Linux
@@ -7460,6 +7759,7 @@ stop after N x86syscall system calls.
 .TP
 .B Extended file attributes stressor
 .RS 5
+.TQ
 .B \-\-xattr N
 start N workers that create, update and delete batches of extended attributes
 on a file.
@@ -7470,6 +7770,7 @@ stop after N bogo extended attribute operations.
 .TP
 .B Yield scheduling stressor
 .RS 5
+.TQ
 .B \-y N, \-\-yield N
 start N workers that call sched_yield(2). This stressor ensures that at
 least 2 child processes per CPU exercise shield_yield(2) no matter how
@@ -7481,6 +7782,7 @@ stop yield stress workers after N sched_yield(2) bogo operations.
 .TP
 .B /dev/zero stressor
 .RS 5
+.TQ
 .B \-\-zero N
 start N workers that exercise /dev/zero with reads, lseeks, ioctls and mmaps. For
 just /dev/zero read benchmarking use the \-\-zero\-read option.
@@ -7494,6 +7796,7 @@ just read /dev/zero with 4K reads with no additional exercising on /dev/zero.
 .TP
 .B Zlib stressor
 .RS 5
+.TQ
 .B \-\-zlib N
 start N workers compressing and decompressing random data using zlib. Each
 worker has two processes, one that compresses random data and pipes it to
@@ -7682,6 +7985,7 @@ first-out manner, and then repeated.
 .TP
 .B Zombie processes stressor
 .RS 5
+.TQ
 .B \-\-zombie\-max N
 try to create as many as N zombie processes. This may not be reached if the
 system limit is less than N.
