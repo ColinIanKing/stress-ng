@@ -571,6 +571,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Real-Time Detection for Cache Side Channel Attack using Performance Counter Monitor](https://www.proquest.com/docview/2533920884)
 * [Subverting Linux’ Integrity Measurement Architecture](https://svs.informatik.uni-hamburg.de/publications/2020/2020-08-27-Bohling-IMA.pdf)
 * [Real-time performance assessment using fast interrupt request on a standard Linux kernel](https://onlinelibrary.wiley.com/doi/full/10.1002/eng2.12114)
+* [Low Energy Consumption on Post-Moore Platforms for HPC Research](https://revistas.usfq.edu.ec/index.php/avances/article/download/2108/2919/18081)
+* [Managing Latency in Edge-Cloud Environment](https://s2group.cs.vu.nl/files/pubs/2020-JSS-IG-Edge_Cloud.pdf)
 
 2021:
 * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
@@ -585,6 +587,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [An Empirical Study of Thermal Attacks on Edge Platforms](https://digitalcommons.kennesaw.edu/cgi/viewcontent.cgi?article=1590&context=undergradsymposiumksu)
 * [Sage: Practical & Scalable ML-Driven Performance Debugging in Microservices](https://people.csail.mit.edu/delimitrou/papers/2021.asplos.sage.pdf)
 * [A Generalized Approach For Practical Task Allocation Using A MAPE-K Control Loop](https://www.marquez-barja.com/images/papers/A_Generalized_Approach_For_Software_Placement_In_The_Fog_Using_A_MAPE_K_Control_Loop-AuthorVersion.pdf)]
+* [Towards Independent Run-time Cloud Monitoring](https://research.spec.org/icpe_proceedings/2021/companion/p21.pdf)
 
 2022:
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
@@ -613,6 +616,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [EnergAt: Fine-Grained Energy Attribution for Multi-Tenancy](https://hotcarbon.org/2023/pdf/a4-he.pdf)
 * [Quantifying the Security Profile of Linux Applications](https://dl.acm.org/doi/10.1145/3609510.3609814)
 * [Gotham Testbed: a Reproducible IoT Testbed for Security Experiments and Dataset Generation](https://arxiv.org/pdf/2207.13981.pdf)
+* [Profiling with Trust: System Monitoring from Trusted Execution Environments](https://assets.researchsquare.com/files/rs-3169665/v1_covered_63751076-8387-429e-8296-3f3cc4c3ed34.pdf?c=1689832627)
+* [Thermal-Aware on-Device Inference Using Single-Layer Parallelization with Heterogeneous Processors](https://www.sciopen.com/article/pdf/10.26599/TST.2021.9010075.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
