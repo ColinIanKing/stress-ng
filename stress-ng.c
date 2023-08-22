@@ -388,6 +388,7 @@ static const struct option stress_long_options[] = {
 	{ "dccp",		1,	0,	OPT_dccp },
 	{ "dccp-domain",	1,	0,	OPT_dccp_domain },
 	{ "dccp-if",		1,	0,	OPT_dccp_if },
+	{ "dccp-msgs",		1,	0,	OPT_dccp_msgs },
 	{ "dccp-ops",		1,	0,	OPT_dccp_ops },
 	{ "dccp-opts",		1,	0,	OPT_dccp_opts },
 	{ "dccp-port",		1,	0,	OPT_dccp_port },

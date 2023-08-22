@@ -1706,6 +1706,11 @@ are supported.
 use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
 .TP
+.B \-\-dccp\-msgs N
+send N messages per connect, send/receive, disconnect iteration. The default is 10000
+messages. If N is too small then the rate is throttled back by the overhead of dccp
+socket connect and disconnects.
+.TP
 .B \-\-dccp\-port P
 start DCCP at port P. For N dccp worker processes, ports P to P - 1 are
 used.

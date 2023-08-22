@@ -32,15 +32,20 @@
 
 #include <netinet/in.h>
 
+#define DCCP_BUF		(1024)	/* DCCP I/O buffer size */
+
 #define MIN_DCCP_PORT		(1024)
 #define MAX_DCCP_PORT		(65535)
 #define DEFAULT_DCCP_PORT	(10000)
+
+#define MIN_DCCP_MSGS		(1)
+#define MAX_DCCP_MSGS		(10000000)
+#define DEFAULT_DCCP_MSGS	(10000)
 
 #define DCCP_OPT_SEND		(0x01)
 #define DCCP_OPT_SENDMSG	(0x02)
 #define DCCP_OPT_SENDMMSG	(0x03)
 
-#define DCCP_BUF		(1024)	/* DCCP I/O buffer size */
 
 #define MSGVEC_SIZE		(4)
 
@@ -56,6 +61,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"dccp-ops N",		"stop after N DCCP  bogo operations" },
 	{ NULL,	"dccp-opts option",	"DCCP data send options [send|sendmsg|sendmmsg]" },
 	{ NULL,	"dccp-port P",		"use DCCP ports P to P + number of workers - 1" },
+	{ NULL,	"dccp-msgs N",		"number of DCCP messages to send per connection" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -94,6 +100,20 @@ static int stress_set_dccp_opts(const char *opt)
 }
 
 /*
+ *  stress_set_dccp_msgs()
+ *	set number of messages to send per connection
+ */
+static int stress_set_dccp_msgs(const char *opt)
+{
+	size_t dccp_msgs;
+
+	dccp_msgs = (size_t)stress_get_uint64(opt);
+	stress_check_range("dccp-msgs", (uint64_t)dccp_msgs,
+                MIN_DCCP_MSGS, MAX_DCCP_MSGS);
+	return stress_set_setting("dccp-msgs", TYPE_ID_SIZE_T, &dccp_msgs);
+}
+
+/*
  *  stress_set_dccp_port()
  *	set port to use
  */
@@ -128,6 +148,7 @@ static int stress_set_dccp_if(const char *name)
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_dccp_domain,	stress_set_dccp_domain },
 	{ OPT_dccp_if,		stress_set_dccp_if },
+	{ OPT_dccp_msgs,	stress_set_dccp_msgs },
 	{ OPT_dccp_opts,	stress_set_dccp_opts },
 	{ OPT_dccp_port,	stress_set_dccp_port },
 	{ 0,			NULL },
@@ -239,6 +260,9 @@ static int stress_dccp_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	double t1 = 0.0, t2 = 0.0, dt;
+	size_t dccp_msgs = DEFAULT_DCCP_MSGS;
+
+	(void)stress_get_setting("dccp-msgs", &dccp_msgs);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -296,7 +320,7 @@ static int stress_dccp_server(
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
-			size_t i, j;
+			size_t i, j, k;
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
@@ -321,55 +345,67 @@ static int stress_dccp_server(
 			}
 
 			(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
+			k = 0;
 			switch (dccp_opts) {
 			case DCCP_OPT_SEND:
-				for (i = 16; i < sizeof(buf); i += 16) {
-					ssize_t ret;
+				do {
+					for (i = 16; i < sizeof(buf); i += 16, k++) {
+						ssize_t ret;
 again:
-					ret = send(sfd, buf, i, 0);
-					if (ret < 0) {
-						if (errno == EAGAIN)
-							goto again;
-						if (errno != EINTR)
-							pr_dbg("%s: send failed, errno=%d (%s)\n",
-								args->name, errno, strerror(errno));
-						break;
-					} else
-						msgs++;
-				}
+						ret = send(sfd, buf, i, 0);
+						if (ret < 0) {
+							if (errno == EAGAIN)
+								goto again;
+							if (errno != EINTR)
+								pr_dbg("%s: send failed, errno=%d (%s)\n",
+									args->name, errno, strerror(errno));
+							break;
+						} else
+							msgs++;
+					}
+					stress_bogo_inc(args);
+				} while (stress_continue(args) && (k < dccp_msgs));
 				break;
 			case DCCP_OPT_SENDMSG:
-				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
-					vec[j].iov_base = buf;
-					vec[j].iov_len = i;
-				}
-				(void)shim_memset(&msg, 0, sizeof(msg));
-				msg.msg_iov = vec;
-				msg.msg_iovlen = j;
-				if (sendmsg(sfd, &msg, 0) < 0) {
-					if (errno != EINTR)
-						pr_dbg("%s: sendmsg failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-				} else
-					msgs += j;
+				do {
+					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++, k++) {
+						vec[j].iov_base = buf;
+						vec[j].iov_len = i;
+					}
+					(void)shim_memset(&msg, 0, sizeof(msg));
+					msg.msg_iov = vec;
+					msg.msg_iovlen = j;
+					if (sendmsg(sfd, &msg, 0) < 0) {
+						if (errno != EINTR)
+							pr_dbg("%s: sendmsg failed, errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
+					} else {
+						msgs += j;
+					}
+					stress_bogo_inc(args);
+				} while (stress_continue(args) && (k < dccp_msgs));
 				break;
 #if defined(HAVE_SENDMMSG)
 			case DCCP_OPT_SENDMMSG:
-				(void)shim_memset(msgvec, 0, sizeof(msgvec));
-				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
-					vec[j].iov_base = buf;
-					vec[j].iov_len = i;
-				}
-				for (i = 0; i < MSGVEC_SIZE; i++) {
-					msgvec[i].msg_hdr.msg_iov = vec;
-					msgvec[i].msg_hdr.msg_iovlen = j;
-				}
-				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
-					if (errno != EINTR)
-						pr_dbg("%s: sendmmsg failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-				} else
-					msgs += (MSGVEC_SIZE * j);
+				do {
+					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++, k++) {
+						vec[j].iov_base = buf;
+						vec[j].iov_len = i;
+					}
+					(void)shim_memset(msgvec, 0, sizeof(msgvec));
+					for (i = 0; i < MSGVEC_SIZE; i++) {
+						msgvec[i].msg_hdr.msg_iov = vec;
+						msgvec[i].msg_hdr.msg_iovlen = j;
+					}
+					if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
+						if (errno != EINTR)
+							pr_dbg("%s: sendmmsg failed, errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
+					} else {
+						msgs += (MSGVEC_SIZE * j);
+					}
+					stress_bogo_inc(args);
+				} while (stress_continue(args) && (k < dccp_msgs));
 				break;
 #endif
 			default:
@@ -391,7 +427,6 @@ again:
 #endif
 			(void)close(sfd);
 		}
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 die_close:
