@@ -1115,15 +1115,11 @@ extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED bool stress_little_endian(void);
 extern WARN_UNUSED char *stress_get_proc_self_exe(char *path, const size_t path_len);
-#if defined(__FreeBSD__) ||	\
-    defined(__NetBSD__) ||	\
-    defined(__APPLE__)
 extern WARN_UNUSED int stress_bsd_getsysctl(const char *name, void *ptr, size_t size);
 extern WARN_UNUSED uint64_t stress_bsd_getsysctl_uint64(const char *name);
 extern WARN_UNUSED uint32_t stress_bsd_getsysctl_uint32(const char *name);
 extern WARN_UNUSED unsigned int stress_bsd_getsysctl_uint(const char *name);
 extern WARN_UNUSED int stress_bsd_getsysctl_int(const char *name);
-#endif
 
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
