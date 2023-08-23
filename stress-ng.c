@@ -1055,6 +1055,7 @@ static const struct option stress_long_options[] = {
 	{ "sock",		1,	0,	OPT_sock },
 	{ "sock-domain",	1,	0,	OPT_sock_domain },
 	{ "sock-if",		1,	0,	OPT_sock_if },
+	{ "sock-msgs",		1,	0,	OPT_sock_msgs },
 	{ "sock-nodelay",	0,	0,	OPT_sock_nodelay },
 	{ "sock-ops",		1,	0,	OPT_sock_ops },
 	{ "sock-opts",		1,	0,	OPT_sock_opts },

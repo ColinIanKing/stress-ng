@@ -1095,6 +1095,7 @@ typedef enum {
 	OPT_sock_ops,
 	OPT_sock_domain,
 	OPT_sock_if,
+	OPT_sock_msgs,
 	OPT_sock_nodelay,
 	OPT_sock_opts,
 	OPT_sock_port,

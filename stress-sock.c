@@ -57,7 +57,11 @@ UNEXPECTED
 
 #define MIN_SOCKET_PORT		(1025)
 #define MAX_SOCKET_PORT		(65535)
-#define DEFAULT_SOCKET_PORT	(5000)
+#define DEFAULT_SOCKET_PORT	(1000)
+
+#define MIN_SOCKET_MSGS		(1)
+#define MAX_SOCKET_MSGS		(10000000)
+#define DEFAULT_SOCKET_MSGS	(5000)
 
 #define MMAP_BUF_SIZE		(65536)
 #define MMAP_IO_SIZE		(8192)	/* Must be less or equal to 8192 */
@@ -88,6 +92,7 @@ static const stress_help_t help[] = {
 	{ "S N", "sock N",		"start N workers exercising socket I/O" },
 	{ NULL,	"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,	"sock-if I",		"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"sock-msgs N",		"number of messages to send per connection" },
 	{ NULL,	"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
 	{ NULL,	"sock-ops N",		"stop after N socket bogo operations" },
 	{ NULL,	"sock-opts option", 	"socket options [send|sendmsg|sendmmsg]" },
@@ -180,6 +185,20 @@ static int stress_set_sock_type(const char *opt)
 	};
 
 	return stress_set_sock_option("sock-type", sock_types, opt);
+}
+
+/*
+ *  stress_set_sock_msgs()
+ *	set number of messages to send per connection
+ */
+static int stress_set_sock_msgs(const char *opt)
+{
+	size_t sock_msgs;
+
+	sock_msgs = (size_t)stress_get_uint64(opt);
+	stress_check_range("sock-msgs", (uint64_t)sock_msgs,
+                MIN_SOCKET_MSGS, MAX_SOCKET_MSGS);
+	return stress_set_setting("sock-msgs", TYPE_ID_SIZE_T, &sock_msgs);
 }
 
 /*
@@ -906,9 +925,12 @@ static int OPTIMIZE3 stress_sock_server(
 	int sendflag = 0;
 	double t, duration, metric;
 	uint64_t outq_bytes = 0, outq_samples = 0;
+	size_t sock_msgs = DEFAULT_SOCKET_MSGS;
 #if defined(SIOCOUTQ)
 	uint32_t count = 0;
 #endif
+
+	(void)stress_get_setting("sock-msgs", &sock_msgs);
 
 #if defined(MSG_ZEROCOPY)
 	if (sock_zerocopy)
@@ -1001,7 +1023,7 @@ static int OPTIMIZE3 stress_sock_server(
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 #endif
 		if (sfd >= 0) {
-			size_t i, j;
+			size_t i, j, k;
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf, opt;
@@ -1085,62 +1107,65 @@ static int OPTIMIZE3 stress_sock_server(
 #endif
 			(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], MMAP_IO_SIZE);
 
-			if (sock_opts == SOCKET_OPT_RANDOM)
-				opt = stress_mwc8modn(3);
-			else
-				opt = sock_opts;
+			opt = sock_opts;
 
-			switch (opt) {
-			case SOCKET_OPT_SEND:
-				for (i = 16; i < MMAP_IO_SIZE; i += 16) {
-					if (UNLIKELY(send(sfd, buf, i, sendflag) < 0)) {
-						if (stress_send_error(errno))
-							pr_fail("%s: send failed, errno=%d (%s)\n",
-								args->name, errno, strerror(errno));
-						break;
-					} else
-						msgs++;
-				}
-				break;
-			case SOCKET_OPT_SENDMSG:
-				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
-					vec[j].iov_base = buf;
-					vec[j].iov_len = i;
-				}
-				(void)shim_memset(&msg, 0, sizeof(msg));
-				msg.msg_iov = vec;
-				msg.msg_iovlen = j;
-				if (UNLIKELY(sendmsg(sfd, &msg, 0) < 0)) {
+			for (k = 0; (k < sock_msgs) && stress_continue(args); k++) {
+				if (UNLIKELY(sock_opts == SOCKET_OPT_RANDOM))
+					opt = stress_mwc8modn(3);
+
+				switch (opt) {
+				case SOCKET_OPT_SEND:
+					for (i = 16; i < MMAP_IO_SIZE; i += 16) {
+						if (UNLIKELY(send(sfd, buf, i, sendflag) < 0)) {
+							if (stress_send_error(errno))
+								pr_fail("%s: send failed, errno=%d (%s)\n",
+									args->name, errno, strerror(errno));
+							break;
+						} else
+							msgs++;
+					}
+					break;
+				case SOCKET_OPT_SENDMSG:
+					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
+						vec[j].iov_base = buf;
+						vec[j].iov_len = i;
+					}
+					(void)shim_memset(&msg, 0, sizeof(msg));
+					msg.msg_iov = vec;
+					msg.msg_iovlen = j;
+					if (UNLIKELY(sendmsg(sfd, &msg, 0) < 0)) {
 					if (stress_send_error(errno))
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
-				} else
-					msgs += j;
-				break;
+					} else
+						msgs += j;
+					break;
 #if defined(HAVE_SENDMMSG)
-			case SOCKET_OPT_SENDMMSG:
-				(void)shim_memset(msgvec, 0, sizeof(msgvec));
-				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
-					vec[j].iov_base = buf;
-					vec[j].iov_len = i;
-				}
-				for (i = 0; i < MSGVEC_SIZE; i++) {
-					msgvec[i].msg_hdr.msg_iov = vec;
-					msgvec[i].msg_hdr.msg_iovlen = j;
-				}
-				if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0)) {
-					if (stress_send_error(errno))
-						pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-				} else
-					msgs += (MSGVEC_SIZE * j);
-				break;
+				case SOCKET_OPT_SENDMMSG:
+					(void)shim_memset(msgvec, 0, sizeof(msgvec));
+					for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
+						vec[j].iov_base = buf;
+						vec[j].iov_len = i;
+					}
+					for (i = 0; i < MSGVEC_SIZE; i++) {
+						msgvec[i].msg_hdr.msg_iov = vec;
+						msgvec[i].msg_hdr.msg_iovlen = j;
+					}
+					if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0)) {
+						if (stress_send_error(errno))
+							pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
+					} else
+						msgs += (MSGVEC_SIZE * j);
+					break;
 #endif
-			default:
-				/* Should never happen */
-				pr_err("%s: bad option %d\n", args->name, sock_opts);
-				(void)close(sfd);
-				goto die_close;
+				default:
+					/* Should never happen */
+					pr_err("%s: bad option %d\n", args->name, sock_opts);
+					(void)close(sfd);
+					goto die_close;
+				}
+				stress_bogo_inc(args);
 			}
 			if (UNLIKELY(getpeername(sfd, &saddr, &len) < 0)) {
 				if (errno != ENOTCONN)
@@ -1172,7 +1197,6 @@ static int OPTIMIZE3 stress_sock_server(
 		if (sfd >= 0)
 			(void)close(sfd);
 #endif
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	duration = stress_time_now() - t;
@@ -1334,6 +1358,7 @@ finish:
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sock_domain,	stress_set_sock_domain },
 	{ OPT_sock_if,		stress_set_sock_if },
+	{ OPT_sock_msgs,	stress_set_sock_msgs },
 	{ OPT_sock_opts,	stress_set_sock_opts },
 	{ OPT_sock_type,	stress_set_sock_type },
 	{ OPT_sock_port,	stress_set_sock_port },

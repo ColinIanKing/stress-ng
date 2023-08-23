@@ -6040,6 +6040,12 @@ are supported.
 use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
 .TP
+.B \-\-sock\-msgs N
+send N messages per connect, send/receive, disconnect iteration. The default is 1000
+messages. If N is too small then the rate is throttled back by the overhead of
+socket connect and disconnect (on Linux, one needs to increase /proc/sys/net/netfilter/nf_conntrack_max
+to allow more connections).
+.TP
 .B \-\-sock\-nodelay
 This disables the TCP Nagle algorithm, so data segments are always sent
 as soon as possible.  This stops data from being buffered before being
