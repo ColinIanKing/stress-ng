@@ -147,6 +147,19 @@ static int stress_set_sock_opts(const char *opt)
 	return stress_set_sock_option("sock-opts", sock_opts, opt);
 }
 
+static const char *stress_recv_func_str(const int sock_opts)
+{
+	switch (sock_opts) {
+	case SOCKET_OPT_SEND:
+		return "recv";
+	case SOCKET_OPT_SENDMSG:
+		return "recvmsg";
+	case SOCKET_OPT_SENDMMSG:
+		return "recvmmsg";
+	}
+	return "unknown";
+}
+
 /*
  *  stress_set_sock_type()
  *	parse --sock-type
@@ -732,7 +745,6 @@ retry:
 		do {
 			ssize_t n = 0;
 			size_t i, j;
-			char *recvfunc = "recv";
 			struct msghdr ALIGN64 msg;
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_RECVMMSG)
@@ -779,11 +791,9 @@ retry:
 			 */
 			switch (opt) {
 			case SOCKET_OPT_RECV:
-				recvfunc = "recv";
 				n = recv(fd, buf, MMAP_IO_SIZE, recvflag);
 				break;
 			case SOCKET_OPT_RECVMSG:
-				recvfunc = "recvmsg";
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
@@ -795,7 +805,6 @@ retry:
 				break;
 #if defined(HAVE_RECVMMSG)
 			case SOCKET_OPT_RECVMMSG:
-				recvfunc = "recvmmsg";
 				(void)shim_memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
@@ -818,7 +827,7 @@ retry:
 					break;
 				if ((errno != EINTR) && (errno != ECONNRESET))
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
-						recvfunc, args->name,
+						args->name, stress_recv_func_str(opt),
 						errno, strerror(errno));
 				break;
 			}
