@@ -541,7 +541,9 @@ static int stress_vnni(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (vnni_intrinsic && (intrinsic_count == 0)) {
+	if (vnni_intrinsic &&
+	    ((intrinsic_count == 0) ||
+	    ((vnni_method != 0) /* all */ && !stress_vnni_methods[vnni_method].vnni_intrinsic))) {
 		pr_inf_skip("%s: no vector neural network instructions available "
 			"and --vmmi-intrinsic selected, skipping stressor\n",
 			args->name);
