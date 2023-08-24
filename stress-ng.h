@@ -983,10 +983,6 @@ extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmo
 /* Memory tweaking */
 extern int stress_pagein_self(const char *name);
 
-/* Used to set options for specific stressors */
-extern void stress_adjust_pthread_max(const uint64_t max);
-extern void stress_adjust_sleep_max(const uint64_t max);
-
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
     (defined(HAVE_COMPILER_GCC) && defined(HAVE_COMPILER_CLANG))
