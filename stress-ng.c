@@ -4425,7 +4425,7 @@ static FILE *stress_yaml_open(const char *yaml_filename)
 			pr_err("Cannot output YAML data to %s\n", yaml_filename);
 
 		pr_yaml(yaml, "---\n");
-		pr_yaml_runinfo(yaml);
+		stress_yaml_runinfo(yaml);
 	}
 	return yaml;
 }
@@ -4595,7 +4595,7 @@ int main(int argc, char **argv, char **envp)
 	stress_log_args(argc, argv);
 	stress_log_system_info();
 	stress_log_system_mem_info();
-	pr_runinfo();
+	stress_runinfo();
 	stress_log_cpuidle_info();
 	pr_dbg("%" PRId32 " processor%s online, %" PRId32
 		" processor%s configured\n",

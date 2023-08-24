@@ -1721,11 +1721,11 @@ static char *stress_get_libc_version(void)
 }
 
 /*
- *  pr_run_info()
+ *  stress_run_info()
  *	short info about the system we are running stress-ng on
  *	for the -v option
  */
-void pr_runinfo(void)
+void stress_runinfo(void)
 {
 	char real_path[PATH_MAX], *real_path_ret;
 	const char *temp_path = stress_get_temp_path();
@@ -1773,10 +1773,10 @@ void pr_runinfo(void)
 }
 
 /*
- *  pr_yaml_runinfo()
+ *  stress_yaml_runinfo()
  *	log info about the system we are running stress-ng on
  */
-void pr_yaml_runinfo(FILE *yaml)
+void stress_yaml_runinfo(FILE *yaml)
 {
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)

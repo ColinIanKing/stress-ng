@@ -80,8 +80,8 @@ extern void stress_rndstr(char *str, size_t len);
 extern void stress_rndbuf(void *buf, const size_t len);
 extern WARN_UNUSED bool stress_little_endian(void);
 extern void stress_uint8rnd4(uint8_t *data, const size_t len);
-extern void pr_runinfo(void);
-extern void pr_yaml_runinfo(FILE *yaml);
+extern void stress_runinfo(void);
+extern void stress_yaml_runinfo(FILE *yaml);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
 extern ssize_t stress_system_write(const char *path, const char *buf,
