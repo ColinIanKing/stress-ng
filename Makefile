@@ -185,6 +185,7 @@ HEADERS = \
 	core-sched.h \
 	core-setting.h \
 	core-shared-heap.h \
+	core-shim.h \
 	core-smart.h \
 	core-sort.h \
 	core-stressors.h \
