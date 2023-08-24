@@ -962,7 +962,6 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 #define stress_metrics_set(args, idx, description, value)	\
 	stress_metrics_set_const_check(args, idx, description, false, value)
 #endif
-extern int stress_killpid(const pid_t pid);
 
 /*
  *  Stack aligning for clone() system calls
