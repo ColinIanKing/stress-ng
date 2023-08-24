@@ -20,6 +20,8 @@
 #ifndef CORE_RESOURCES_H
 #define CORE_RESOURCES_H
 
+#include "core-killpid.h"
+
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
 #endif
