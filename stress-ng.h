@@ -942,8 +942,6 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 
 #include "core-helper.h"
 
-extern WARN_UNUSED int stress_sigchld_set_handler(const stress_args_t *args);
-
 /* Time handling */
 extern WARN_UNUSED double stress_timeval_to_double(const struct timeval *tv);
 extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);

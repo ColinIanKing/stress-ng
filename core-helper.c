@@ -2363,6 +2363,25 @@ int stress_sighandler(
 	return 0;
 }
 
+/*  stress_sigchld_helper_handler()
+ *	parent is informed child has terminated and
+ * 	it's time to stop
+ */
+static void MLOCKED_TEXT stress_sigchld_helper_handler(int signum)
+{
+	if (signum == SIGCHLD)
+		stress_continue_set_flag(false);
+}
+
+/*
+ *  stress_sigchld_set_handler()
+ *	set sigchld handler
+ */
+int stress_sigchld_set_handler(const stress_args_t *args)
+{
+	return stress_sighandler(args->name, SIGCHLD, stress_sigchld_helper_handler, NULL);
+}
+
 /*
  *  stress_sighandler_default
  *	restore signal handler to default handler

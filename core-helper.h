@@ -99,6 +99,7 @@ extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
 extern void stress_sigaltstack_disable(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
+extern WARN_UNUSED int stress_sigchld_set_handler(const stress_args_t *args);
 extern int stress_sighandler_default(const int signum);
 extern void stress_handle_stop_stressing(const int signum);
 extern WARN_UNUSED int stress_sig_stop_stressing(const char *name, const int sig);
