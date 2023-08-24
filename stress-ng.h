@@ -973,9 +973,6 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
-/* Memory tweaking */
-extern int stress_pagein_self(const char *name);
-
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
     (defined(HAVE_COMPILER_GCC) && defined(HAVE_COMPILER_CLANG))

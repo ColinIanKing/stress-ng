@@ -22,6 +22,7 @@
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
+#include "core-thrash.h"
 
 #define MIN_FORKS		(1)
 #define MAX_FORKS		(16000)
