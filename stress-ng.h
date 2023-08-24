@@ -943,9 +943,9 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 
 #include "core-helper.h"
 
+extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
-
 extern void stress_metrics_set_const_check(const stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value);
 #if defined(HAVE_BUILTIN_CONSTANT_P)
@@ -956,17 +956,6 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 	stress_metrics_set_const_check(args, idx, description, false, value)
 #endif
 
-/*
- *  Stack aligning for clone() system calls
- *	align to nearest 16 bytes for aarch64 et al,
- *	assumes we have enough slop to do this
- */
-static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top)
-{
-	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
-}
-
-extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\

@@ -31,6 +31,16 @@
  */
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
+/*
+ *  Stack aligning for clone() system calls
+ *	align to nearest 16 bytes for aarch64 et al,
+ *	assumes we have enough slop to do this
+ */
+static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top)
+{
+	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
+}
+
 extern const char ALIGN64 stress_ascii64[64];
 extern const char ALIGN64 stress_ascii32[32];
 
