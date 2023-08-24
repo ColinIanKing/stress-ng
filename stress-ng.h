@@ -971,13 +971,6 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 }
 
-/*
- *  stress_warn_once hashes the current filename and line where
- *  the macro is used and returns true if it's never been called
- *  there before across all threads and child processes
- */
-#define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
-
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
 /* Memory tweaking */

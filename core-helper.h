@@ -24,6 +24,13 @@
 #define STRESS_SIGSTKSZ		(stress_get_sig_stack_size())
 #define STRESS_MINSIGSTKSZ	(stress_get_min_sig_stack_size())
 
+/*
+ *  stress_warn_once hashes the current filename and line where
+ *  the macro is used and returns true if it's never been called
+ *  there before across all threads and child processes
+ */
+#define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
+
 extern const char ALIGN64 stress_ascii64[64];
 extern const char ALIGN64 stress_ascii32[32];
 
