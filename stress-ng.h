@@ -161,6 +161,7 @@
 #include "core-mwc.h"
 #include "core-sched.h"
 #include "core-shim.h"
+#include "core-time.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -941,12 +942,6 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 }
 
 #include "core-helper.h"
-
-/* Time handling */
-extern WARN_UNUSED double stress_timeval_to_double(const struct timeval *tv);
-extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);
-extern WARN_UNUSED double stress_time_now(void);
-extern const char *stress_duration_to_str(const double duration, const bool int_secs);
 
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
