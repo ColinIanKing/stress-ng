@@ -4070,3 +4070,167 @@ int stress_swapoff(const char *path)
 	return -1;
 #endif
 }
+
+/*
+ *  Filter out dot files . and ..
+ */
+static int stress_dot_filter(const struct dirent *d)
+{
+	if (d->d_name[0] == '.') {
+		if (d->d_name[1] == '\0')
+			return 0;
+		if ((d->d_name[1] == '.') && (d->d_name[2] == '\0'))
+			return 0;
+	}
+	return 1;
+}
+
+static void stress_unset_inode_flags(const char *filename, const int flag)
+{
+#if defined(FS_IOC_SETFLAGS)
+	int fd;
+        const long int new_flag = 0;
+
+	fd = open(filename, O_RDWR | flag);
+	if (fd < 0)
+		return;
+
+        VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &new_flag));
+	(void)close(fd);
+#else
+	(void)filename;
+	(void)flag;
+#endif
+}
+
+/*
+ *  stress_clean_dir_files()
+ *  	recursively delete files in directories
+ */
+static void stress_clean_dir_files(
+	const char *temp_path,
+	const size_t temp_path_len,
+	char *path,
+	const size_t path_posn)
+{
+	struct stat statbuf;
+	char *ptr = path + path_posn;
+	const char *end = path + PATH_MAX;
+	int n;
+	struct dirent **names = NULL;
+
+	if (stat(path, &statbuf) < 0) {
+		pr_dbg("stress-ng: failed to stat %s, errno=%d (%s)\n", path, errno, strerror(errno));
+		return;
+	}
+
+	/* We don't follow symlinks */
+	if (S_ISLNK(statbuf.st_mode))
+		return;
+
+	/* We don't remove paths with .. in */
+	if (strstr(path, ".."))
+		return;
+
+	/* We don't remove paths that our out of the scope */
+	if (strncmp(path, temp_path, temp_path_len))
+		return;
+
+	n = scandir(path, &names, stress_dot_filter, alphasort);
+	if (n < 0) {
+		(void)shim_rmdir(path);
+		return;
+	}
+
+	while (n--) {
+		size_t name_len = strlen(names[n]->d_name) + 1;
+#if !defined(DT_DIR) ||	\
+    !defined(DT_LNK) ||	\
+    !defined(DT_REG)
+		int ret;
+#endif
+
+		/* No more space */
+		if (ptr + name_len > end) {
+			free(names[n]);
+			continue;
+		}
+
+		(void)snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
+		name_len = strlen(ptr);
+
+#if defined(DT_DIR) &&	\
+    defined(DT_LNK) &&	\
+    defined(DT_REG)
+		/* Modern fast d_type method */
+		switch (names[n]->d_type) {
+		case DT_DIR:
+			free(names[n]);
+#if defined(O_DIRECTORY)
+			stress_unset_inode_flags(temp_path, O_DIRECTORY);
+#endif
+			stress_unset_chattr_flags(path);
+			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
+			(void)shim_rmdir(path);
+			break;
+		case DT_LNK:
+		case DT_REG:
+			free(names[n]);
+			stress_unset_inode_flags(temp_path, 0);
+			stress_unset_chattr_flags(path);
+			if (strstr(path, "swap"))
+				(void)stress_swapoff(path);
+			(void)shim_unlink(path);
+			break;
+		default:
+			free(names[n]);
+			break;
+		}
+#else
+		/* Slower stat method */
+		free(names[n]);
+		ret = stat(path, &statbuf);
+		if (ret < 0)
+			continue;
+
+		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
+#if defined(O_DIRECTORY)
+			stress_unset_inode_flags(temp_path, O_DIRECTORY);
+#endif
+			stress_unset_chattr_flags(temp_path);
+			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
+			(void)shim_rmdir(path);
+		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
+			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
+			stress_unset_inode_flags(temp_path, 0);
+			stress_unset_chattr_flags(temp_path);
+			(void)unlink(path);
+		}
+#endif
+	}
+	*ptr = '\0';
+	free(names);
+	(void)shim_rmdir(path);
+}
+
+/*
+ *  stress_clean_dir()
+ *	perform tidy up of any residual temp files; this
+ *	happens if a stressor was terminated before it could
+ *	tidy itself up, e.g. OOM'd or KILL'd
+ */
+void stress_clean_dir(
+	const char *name,
+	const pid_t pid,
+	const uint32_t instance)
+{
+	char path[PATH_MAX];
+	const char *temp_path = stress_get_temp_path();
+	const size_t temp_path_len = strlen(temp_path);
+
+	(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
+	if (access(path, F_OK) == 0) {
+		pr_dbg("%s: removing temporary files in %s\n", name, path);
+		stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
+	}
+}

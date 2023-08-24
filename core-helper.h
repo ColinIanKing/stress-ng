@@ -162,5 +162,7 @@ extern WARN_UNUSED int stress_x86_smi_readmsr64(const int cpu, const uint32_t re
 extern void stress_unset_chattr_flags(const char *pathname);
 extern int stress_munmap_retry_enomem(void *addr, size_t length);
 extern int stress_swapoff(const char *path);
+extern void stress_clean_dir(const char *name, const pid_t pid,
+	const uint32_t instance);
 
 #endif
