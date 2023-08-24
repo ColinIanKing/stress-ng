@@ -232,7 +232,23 @@ static int stress_netdev(const stress_args_t *args)
 			/* Get if link, not implemented */
 			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFLINK);
 #endif
+#if defined(SIOCGIFNAME)
+			/* Get name with illegal index */
+			ifr->ifr_ifindex = (int)stress_mwc32();
+			if (ioctl(fd, SIOCGIFNAME, ifr) < 0)
+				continue;
+#endif
 		}
+
+		/* Use invalid ifc_len */
+		if (n > 1) {
+			ifc.ifc_len = (int)(sizeof(struct ifreq) - 1);
+			VOID_RET(int, ioctl(fd, SIOCGIFCONF, &ifc));
+		}
+
+		ifc.ifc_len = -1;
+		VOID_RET(int, ioctl(fd, SIOCGIFCONF, &ifc));
+
 		free(ifc.ifc_buf);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
