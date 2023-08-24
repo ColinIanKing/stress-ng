@@ -950,8 +950,6 @@ extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);
 extern WARN_UNUSED double stress_time_now(void);
 extern const char *stress_duration_to_str(const double duration, const bool int_secs);
 
-extern void stress_clean_dir(const char *name, const pid_t pid, const uint32_t instance);
-
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
 
