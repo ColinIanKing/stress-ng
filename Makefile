@@ -156,6 +156,7 @@ HEADERS = \
 	core-interrupts.h \
 	core-io-priority.h \
 	core-job.h \
+	core-helper.h \
 	core-killpid.h \
 	core-klog.h \
 	core-limit.h \

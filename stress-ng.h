@@ -485,10 +485,6 @@ typedef struct stressor_info {
 
 extern const char stress_config[];
 
-/* Printing/Logging helpers */
-extern void pr_yaml_runinfo(FILE *fp);
-extern void pr_runinfo(void);
-
 /* Memory size constants */
 #define KB			(1ULL << 10)
 #define	MB			(1ULL << 20)
@@ -944,33 +940,8 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 	return ret;
 }
 
-/*
- *  externs to force gcc to stash computed values and hence
- *  to stop the optimiser optimising code away to zero. The
- *  *_put funcs are essentially no-op functions.
- */
-extern WARN_UNUSED uint64_t stress_get_uint64_zero(void);
+#include "core-helper.h"
 
-/* Filenames and directories */
-extern int stress_temp_filename(char *path, const size_t len,
-	const char *name, const pid_t pid, const uint32_t instance,
-	const uint64_t magic);
-extern int stress_temp_filename_args(const stress_args_t *args, char *path,
-	const size_t len, const uint64_t magic);
-extern int stress_temp_dir(char *path, const size_t len,
-	const char *name, const pid_t pid, const uint32_t instance);
-extern int stress_temp_dir_args(const stress_args_t *args, char *path,
-	const size_t len);
-extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid,
-	const uint32_t instance);
-extern WARN_UNUSED int stress_temp_dir_mk_args(const stress_args_t *args);
-extern int stress_temp_dir_rm(const char *name, const pid_t pid,
-	const uint32_t instance);
-extern int stress_temp_dir_rm_args(const stress_args_t *args);
-extern void stress_cwd_readwriteable(void);
-
-extern const char *stress_get_signal_name(const int signum);
-extern const char *stress_strsignal(const int signum);
 extern WARN_UNUSED int stress_sigchld_set_handler(const stress_args_t *args);
 
 /* Time handling */
@@ -979,124 +950,10 @@ extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);
 extern WARN_UNUSED double stress_time_now(void);
 extern const char *stress_duration_to_str(const double duration, const bool int_secs);
 
-/* 64 and 32 char ASCII patterns */
-extern const char ALIGN64 stress_ascii64[64];
-extern const char ALIGN64 stress_ascii32[32];
-
-/* Misc helpers */
-extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
-	const char *pathname, const char *filename);
-extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
-extern void stress_set_proc_name(const char *name);
-extern void stress_set_proc_state_str(const char *name, const char *str);
-extern void stress_set_proc_state(const char *name, const int state);
-extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
-extern void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum);
-extern void stress_clear_warn_once(void);
-extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
-extern WARN_UNUSED const char *stress_fs_magic_to_name(const unsigned long fs_magic);
-extern WARN_UNUSED const char *stress_get_fs_type(const char *filename);
-extern void stress_close_fds(int *fds, const size_t n);
-extern void stress_file_rw_hint_short(const int fd);
-extern void stress_set_vma_anon_name(const void *addr, const size_t size, const char *name);
 extern void stress_clean_dir(const char *name, const pid_t pid, const uint32_t instance);
-
-/* Misc helper funcs */
-extern WARN_UNUSED size_t stress_get_sig_stack_size(void);
-extern WARN_UNUSED size_t stress_get_min_sig_stack_size(void);
-extern WARN_UNUSED size_t stress_get_min_pthread_stack_size(void);
-
-#define STRESS_SIGSTKSZ		(stress_get_sig_stack_size())
-#define STRESS_MINSIGSTKSZ	(stress_get_min_sig_stack_size())
 
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
-extern size_t stress_munge_underscore(char *dst, const char *src, size_t len);
-extern WARN_UNUSED int stress_strcmp_munged(const char *s1, const char *s2);
-extern size_t stress_get_page_size(void);
-extern WARN_UNUSED int32_t stress_get_processors_online(void);
-extern WARN_UNUSED int32_t stress_get_processors_configured(void);
-extern WARN_UNUSED int32_t stress_get_ticks_per_second(void);
-extern WARN_UNUSED ssize_t stress_get_stack_direction(void);
-extern WARN_UNUSED void *stress_get_stack_top(void *start, size_t size);
-extern void stress_get_memlimits(size_t *shmall, size_t *freemem,
-	size_t *totalmem, size_t *freeswap, size_t *totalswap);
-extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5,
-	double *min15);
-extern void stress_parent_died_alarm(void);
-extern int stress_process_dumpable(const bool dumpable);
-extern int stress_set_timer_slack_ns(const char *opt);
-extern void stress_set_timer_slack(void);
-extern WARN_UNUSED int stress_set_temp_path(const char *path);
-extern WARN_UNUSED const char *stress_get_temp_path(void);
-extern WARN_UNUSED int stress_check_temp_path(void);
-extern void stress_temp_path_free(void);
-extern void stress_rndstr(char *str, size_t len);
-extern void stress_rndbuf(void *str, const size_t len);
-extern void stress_uint8rnd4(uint8_t *data, const size_t len);
-extern WARN_UNUSED unsigned int stress_get_cpu(void);
-extern WARN_UNUSED const char *stress_get_compiler(void);
-extern WARN_UNUSED const char *stress_get_uname_info(void);
-extern WARN_UNUSED int stress_cache_alloc(const char *name);
-extern void stress_cache_free(void);
-extern WARN_UNUSED int stress_set_nonblock(const int fd);
-extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,
-	const size_t buf_len);
-extern ssize_t stress_system_write(const char *path, const char *buf,
-	const size_t buf_len);
-extern WARN_UNUSED bool stress_is_prime64(const uint64_t n);
-extern WARN_UNUSED uint64_t stress_get_next_prime64(const uint64_t n);
-extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
-extern WARN_UNUSED size_t stress_get_file_limit(void);
-extern WARN_UNUSED size_t stress_get_max_file_limit(void);
-extern WARN_UNUSED int stress_get_bad_fd(void);
-extern WARN_UNUSED int stress_sigaltstack_no_check(void *stack, const size_t size);
-extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
-extern void stress_sigaltstack_disable(void);
-extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
-	void (*handler)(int), struct sigaction *orig_action);
-extern int stress_sighandler_default(const int signum);
-extern void stress_handle_stop_stressing(const int signum);
-extern WARN_UNUSED int stress_sig_stop_stressing(const char *name,
-	const int sig);
-extern int stress_sigrestore(const char *name, const int signum,
-	struct sigaction *orig_action);
-extern WARN_UNUSED int stress_unimplemented(const stress_args_t *args);
-extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
-extern WARN_UNUSED void *stress_align_address(const void *addr,
-	const size_t alignment);
-extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
-extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
-extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
-	const ssize_t size, const bool ignore_sig_eintr);
-extern WARN_UNUSED ssize_t stress_write_buffer(const int fd, const void* buffer,
-	const ssize_t size, const bool ignore_sig_eintr);
-extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
-extern WARN_UNUSED int stress_kernel_release(const int major,
-	const int minor, const int patchlevel);
-extern WARN_UNUSED int stress_get_kernel_release(void);
-extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
-extern WARN_UNUSED int stress_drop_capabilities(const char *name);
-extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
-extern WARN_UNUSED char *stress_const_optdup(const char *opt);
-extern size_t stress_exec_text_addr(char **start, char **end);
-extern WARN_UNUSED bool stress_check_capability(const int capability);
-extern WARN_UNUSED bool stress_sigalrm_pending(void);
-extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
-extern WARN_UNUSED bool stress_little_endian(void);
-extern WARN_UNUSED char *stress_get_proc_self_exe(char *path, const size_t path_len);
-extern WARN_UNUSED int stress_bsd_getsysctl(const char *name, void *ptr, size_t size);
-extern WARN_UNUSED uint64_t stress_bsd_getsysctl_uint64(const char *name);
-extern WARN_UNUSED uint32_t stress_bsd_getsysctl_uint32(const char *name);
-extern WARN_UNUSED unsigned int stress_bsd_getsysctl_uint(const char *name);
-extern WARN_UNUSED int stress_bsd_getsysctl_int(const char *name);
-
-extern void stress_dirent_list_free(struct dirent **dlist, const int n);
-extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
-extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
-extern int stress_read_fdinfo(const pid_t pid, const int fd);
-extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
-extern WARN_UNUSED size_t stress_get_hostname_length(void);
 
 extern void stress_metrics_set_const_check(const stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value);
@@ -1107,19 +964,7 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 #define stress_metrics_set(args, idx, description, value)	\
 	stress_metrics_set_const_check(args, idx, description, false, value)
 #endif
-extern WARN_UNUSED int stress_get_tty_width(void);
-extern WARN_UNUSED size_t stress_get_extents(const int fd);
-extern WARN_UNUSED bool stress_redo_fork(const stress_args_t *args, const int err);
-extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
-extern WARN_UNUSED bool stress_low_memory(const size_t requested);
-extern void stress_ksm_memory_merge(const int flag);
-extern WARN_UNUSED int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val);
-extern void stress_unset_chattr_flags(const char *pathname);
-extern int stress_munmap_retry_enomem(void *addr, size_t length);
-extern int stress_swapoff(const char *path);
-
-extern WARN_UNUSED int stress_exit_status(const int err);
 
 /*
  *  Stack aligning for clone() system calls
@@ -1136,7 +981,6 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
  *  the macro is used and returns true if it's never been called
  *  there before across all threads and child processes
  */
-extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line);
 #define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
@@ -1147,9 +991,6 @@ extern int stress_pagein_self(const char *name);
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);
-
-/* Enable/disable stack smashing error message */
-extern void stress_set_stack_smash_check_flag(const bool flag);
 
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
