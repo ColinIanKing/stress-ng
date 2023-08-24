@@ -25,6 +25,7 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-pragma.h"
+#include "core-shim.h"
 
 #if defined(__NR_pkey_get)
 #define HAVE_PKEY_GET
