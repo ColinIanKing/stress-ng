@@ -84,7 +84,9 @@ int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
 int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 int32_t g_opt_permute = DEFAULT_PARALLEL;	/* # of permuted stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
-uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
+uint64_t g_opt_flags = OPT_FLAGS_PR_ERROR |	/* default option flags */
+		       OPT_FLAGS_PR_INFO |
+		       OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
@@ -120,8 +122,8 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
 	{ OPT_log_lockless,	OPT_FLAGS_LOG_LOCKLESS },
 	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE },
-	{ OPT_metrics,		OPT_FLAGS_METRICS | PR_METRICS },
-	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS | PR_METRICS },
+	{ OPT_metrics,		OPT_FLAGS_METRICS | OPT_FLAGS_PR_METRICS },
+	{ OPT_metrics_brief,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS | OPT_FLAGS_PR_METRICS },
 	{ OPT_minimize,		OPT_FLAGS_MINIMIZE },
 	{ OPT_no_oom_adjust,	OPT_FLAGS_NO_OOM_ADJUST },
 	{ OPT_no_rand_seed,	OPT_FLAGS_NO_RAND_SEED },
@@ -147,8 +149,8 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_times,		OPT_FLAGS_TIMES },
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
 	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES | OPT_FLAGS_TZ_INFO },
-	{ OPT_verbose,		PR_ALL },
-	{ OPT_verify,		OPT_FLAGS_VERIFY | PR_FAIL },
+	{ OPT_verbose,		OPT_FLAGS_PR_ALL },
+	{ OPT_verify,		OPT_FLAGS_VERIFY | OPT_FLAGS_PR_FAIL },
 };
 
 /*
@@ -3905,7 +3907,7 @@ next_opt:
 				(void)printf("Try '%s --help' for more information.\n", g_app_name);
 			return EXIT_FAILURE;
 		case OPT_quiet:
-			g_opt_flags &= ~(PR_ALL);
+			g_opt_flags &= ~(OPT_FLAGS_PR_ALL);
 			break;
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;

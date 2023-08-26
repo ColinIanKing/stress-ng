@@ -216,7 +216,6 @@ typedef struct stress_stressor_info {
 	} ignore;
 } stress_stressor_t;
 
-
 #include "core-version.h"
 #include "core-attribute.h"
 #include "core-asm-generic.h"
@@ -336,13 +335,15 @@ do {				\
 #define ABORT_FAILURES		(5)		/* Number of failures before we abort */
 
 /* debug output bitmasks */
-#define PR_ERROR		 STRESS_BIT_ULL(0)	/* Print errors */
-#define PR_INFO			 STRESS_BIT_ULL(1)	/* Print info */
-#define PR_DEBUG		 STRESS_BIT_ULL(2) 	/* Print debug */
-#define PR_FAIL			 STRESS_BIT_ULL(3) 	/* Print test failure message */
-#define PR_WARN			 STRESS_BIT_ULL(4)	/* Print warning */
-#define PR_METRICS		 STRESS_BIT_ULL(5)	/* Print metrics */
-#define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL | PR_WARN | PR_METRICS)
+#define OPT_FLAGS_PR_ERROR	 STRESS_BIT_ULL(0)	/* Print errors */
+#define OPT_FLAGS_PR_INFO	 STRESS_BIT_ULL(1)	/* Print info */
+#define OPT_FLAGS_PR_DEBUG	 STRESS_BIT_ULL(2) 	/* Print debug */
+#define OPT_FLAGS_PR_FAIL	 STRESS_BIT_ULL(3) 	/* Print test failure message */
+#define OPT_FLAGS_PR_WARN	 STRESS_BIT_ULL(4)	/* Print warning */
+#define OPT_FLAGS_PR_METRICS	 STRESS_BIT_ULL(5)	/* Print metrics */
+#define OPT_FLAGS_PR_ALL	 (OPT_FLAGS_PR_ERROR | OPT_FLAGS_PR_INFO | \
+				  OPT_FLAGS_PR_DEBUG | OPT_FLAGS_PR_FAIL | \
+				  OPT_FLAGS_PR_WARN  | OPT_FLAGS_PR_METRICS)
 
 /* Option bit masks, stats from the next PR_ option onwards */
 #define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(6)	/* --metrics, Dump metrics at end */
