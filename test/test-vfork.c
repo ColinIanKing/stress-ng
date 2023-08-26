@@ -25,5 +25,5 @@ int main(void)
 	pid_t pid = 0;
 
 	pid = vfork();
-	exit((int)pid);
+	_exit((int)pid);
 }
