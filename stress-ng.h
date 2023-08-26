@@ -558,9 +558,6 @@ extern const char stress_config[];
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
-/* stress process prototype */
-typedef int (*stress_func_t)(const stress_args_t *args);
-
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H) &&	\
