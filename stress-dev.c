@@ -2744,6 +2744,63 @@ UNEXPECTED
 #endif
 
 #if defined(__linux__)
+
+#define ACPI_THERMAL_GET_TRT_LEN	_IOR('s', 1, unsigned long)
+#define ACPI_THERMAL_GET_ART_LEN	_IOR('s', 2, unsigned long)
+#define ACPI_THERMAL_GET_TRT_COUNT	_IOR('s', 3, unsigned long)
+#define ACPI_THERMAL_GET_ART_COUNT	_IOR('s', 4, unsigned long)
+
+#define ACPI_THERMAL_GET_TRT		_IOR('s', 5, unsigned long)
+#define ACPI_THERMAL_GET_ART		_IOR('s', 6, unsigned long)
+
+#define ACPI_THERMAL_GET_PSVT_LEN	_IOR('s', 7, unsigned long)
+#define ACPI_THERMAL_GET_PSVT_COUNT	_IOR('s', 8, unsigned long)
+#define ACPI_THERMAL_GET_PSVT		_IOR('s', 9, unsigned long)
+
+static void stress_dev_acpi_thermal_rel_get(
+	const int fd,
+	unsigned long cmd,
+	unsigned long length)
+{
+	char *buf;
+
+	if ((length < 1) || (length > 64 * KB))
+		return;
+	buf = malloc((size_t)length);
+	if (!buf)
+		return;
+	VOID_RET(int, ioctl(fd, cmd, buf));
+	free(buf);
+}
+
+static void stress_dev_acpi_thermal_rel_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	int count;
+	unsigned long length;
+
+	(void)args;
+	(void)devpath;
+
+pr_inf("%s\n", __func__);
+
+	VOID_RET(int, ioctl(fd, ACPI_THERMAL_GET_TRT_COUNT, &count));
+	if (ioctl(fd, ACPI_THERMAL_GET_TRT_LEN, &length) == 0)
+		stress_dev_acpi_thermal_rel_get(fd, ACPI_THERMAL_GET_TRT, length);
+
+	VOID_RET(int, ioctl(fd, ACPI_THERMAL_GET_ART_COUNT, &count));
+	if (ioctl(fd, ACPI_THERMAL_GET_ART_LEN, &length) == 0)
+		stress_dev_acpi_thermal_rel_get(fd, ACPI_THERMAL_GET_ART, length);
+
+	VOID_RET(int, ioctl(fd, ACPI_THERMAL_GET_PSVT_COUNT, &count));
+	if (ioctl(fd, ACPI_THERMAL_GET_PSVT_LEN, &length) == 0)
+		stress_dev_acpi_thermal_rel_get(fd, ACPI_THERMAL_GET_PSVT, length);
+}
+#endif
+
+#if defined(__linux__)
 static void stress_dev_kmsg_linux(
 	const stress_args_t *args,
 	const int fd,
@@ -3519,6 +3576,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/sr0",    stress_dev_cdrom_linux),
 	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
+	DEV_FUNC("/dev/acpi_thermal_rel", stress_dev_acpi_thermal_rel_linux),
 #else
 	UNEXPECTED
 #endif
