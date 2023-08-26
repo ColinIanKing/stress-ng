@@ -19,8 +19,28 @@
 #ifndef CORE_PERF_H
 #define CORE_PERF_H
 
-/* Perf statistics */
-#if defined(STRESS_PERF_STATS)
+/* perf related constants */
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H) &&	\
+    defined(__NR_perf_event_open)
+#define STRESS_PERF_STATS	(1)
+#define STRESS_PERF_INVALID	(~0ULL)
+#define STRESS_PERF_MAX		(128 + 16)
+
+/* per perf counter info */
+typedef struct {
+	uint64_t counter;		/* perf counter */
+	int	 fd;			/* perf per counter fd */
+	uint8_t	 padding[4];		/* padding */
+} stress_perf_stat_t;
+
+/* per stressor perf info */
+typedef struct {
+	stress_perf_stat_t perf_stat[STRESS_PERF_MAX]; /* perf counters */
+	int perf_opened;		/* count of opened counters */
+	uint8_t	padding[4];		/* padding */
+} stress_perf_t;
+
 extern int stress_perf_open(stress_perf_t *sp);
 extern int stress_perf_enable(stress_perf_t *sp);
 extern int stress_perf_disable(stress_perf_t *sp);

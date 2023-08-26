@@ -150,11 +150,79 @@
 #include <linux/posix_types.h>
 #endif
 
+#define STRESS_STRESSOR_STATUS_PASSED		(0)
+#define STRESS_STRESSOR_STATUS_FAILED		(1)
+#define STRESS_STRESSOR_STATUS_SKIPPED		(2)
+#define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
+#define STRESS_STRESSOR_STATUS_MAX		(4)
+
+/* stress_stressor_info ignore value. 2 bits */
+#define STRESS_STRESSOR_NOT_IGNORED		(0)
+#define STRESS_STRESSOR_UNSUPPORTED		(1)
+#define STRESS_STRESSOR_EXCLUDED		(2)
+
+typedef struct {
+	uint64_t counter;		/* bogo-op counter */
+	bool counter_ready;		/* ready flag */
+	bool run_ok;			/* stressor run w/o issues */
+	bool force_killed;		/* true if sent SIGKILL */
+} stress_counter_info_t;
+
+typedef struct {
+	void *page_none;		/* mmap'd PROT_NONE page */
+	void *page_ro;			/* mmap'd PROT_RO page */
+	void *page_wo;			/* mmap'd PROT_WO page */
+} stress_mapped_t;
+
+typedef struct {
+	char *description;		/* description of metric */
+	double value;			/* value of metric */
+} stress_metrics_data_t;
+
+/* stressor args */
+typedef struct {
+	stress_counter_info_t *ci;	/* counter info struct */
+	const char *name;		/* stressor name */
+	uint64_t max_ops;		/* max number of bogo ops */
+	const uint32_t instance;	/* stressor instance # */
+	const uint32_t num_instances;	/* number of instances */
+	pid_t pid;			/* stressor pid */
+	size_t page_size;		/* page size */
+	double time_end;		/* when to end */
+	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
+	stress_metrics_data_t *metrics;	/* misc per stressor metrics */
+	const struct stressor_info *info; /* stressor info */
+} stress_args_t;
+
+typedef struct {
+	const int opt;			/* optarg option*/
+	int (*opt_set_func)(const char *opt); /* function to set it */
+} stress_opt_set_func_t;
+
+/* Per stressor information */
+typedef struct stress_stressor_info {
+	struct stress_stressor_info *next; /* next proc info struct in list */
+	struct stress_stressor_info *prev; /* prev proc info struct in list */
+	const struct stress *stressor;	/* stressor */
+	struct stress_stats **stats;	/* stressor stats info */
+	int32_t completed_instances;	/* count of completed instances */
+	int32_t num_instances;		/* number of instances per stressor */
+	uint64_t bogo_ops;		/* number of bogo ops */
+	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
+					/* number of instances that passed/failed/skipped */
+	struct {
+		uint8_t run;		/* ignore running the stressor, unsupported or excluded */
+		bool	permute;	/* ignore flag, saved for permute */
+	} ignore;
+} stress_stressor_t;
+
+
 #include "core-version.h"
 #include "core-attribute.h"
 #include "core-asm-generic.h"
 #include "core-opts.h"
 #include "core-parse-opts.h"
+#include "core-perf.h"
 #include "core-setting.h"
 #include "core-log.h"
 #include "core-lock.h"
@@ -357,13 +425,6 @@ typedef struct {
 	const char *description;	/* description */
 } stress_help_t;
 
-typedef struct {
-	uint64_t counter;		/* bogo-op counter */
-	bool counter_ready;		/* ready flag */
-	bool run_ok;			/* stressor run w/o issues */
-	bool force_killed;		/* true if sent SIGKILL */
-} stress_counter_info_t;
-
 /*
  *  Per ELISA request, we have a duplicated counter
  *  and run_ok flag in a different shared memory region
@@ -398,12 +459,6 @@ typedef union {
 
 typedef uint32_t stress_class_t;
 
-typedef struct {
-	void *page_none;		/* mmap'd PROT_NONE page */
-	void *page_ro;			/* mmap'd PROT_RO page */
-	void *page_wo;			/* mmap'd PROT_WO page */
-} stress_mapped_t;
-
 #define STRESS_MISC_METRICS_MAX	(40)
 
 typedef struct {
@@ -412,31 +467,6 @@ typedef struct {
 	double	count;			/* number of ops */
 	volatile double	t_start;	/* optional start time */
 } stress_metrics_t;
-
-typedef struct {
-	char *description;		/* description of metric */
-	double value;			/* value of metric */
-} stress_metrics_data_t;
-
-/* stressor args */
-typedef struct {
-	stress_counter_info_t *ci;	/* counter info struct */
-	const char *name;		/* stressor name */
-	uint64_t max_ops;		/* max number of bogo ops */
-	const uint32_t instance;	/* stressor instance # */
-	const uint32_t num_instances;	/* number of instances */
-	pid_t pid;			/* stressor pid */
-	size_t page_size;		/* page size */
-	double time_end;		/* when to end */
-	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
-	stress_metrics_data_t *metrics;	/* misc per stressor metrics */
-	const struct stressor_info *info; /* stressor info */
-} stress_args_t;
-
-typedef struct {
-	const int opt;			/* optarg option*/
-	int (*opt_set_func)(const char *opt); /* function to set it */
-} stress_opt_set_func_t;
 
 typedef enum {
 	VERIFY_NONE	= 0x00,		/* no verification */
@@ -558,29 +588,6 @@ extern const char stress_config[];
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
-/* perf related constants */
-#if defined(HAVE_LIB_PTHREAD) &&	\
-    defined(HAVE_LINUX_PERF_EVENT_H) &&	\
-    defined(__NR_perf_event_open)
-#define STRESS_PERF_STATS	(1)
-#define STRESS_PERF_INVALID	(~0ULL)
-#define STRESS_PERF_MAX		(128 + 16)
-
-/* per perf counter info */
-typedef struct {
-	uint64_t counter;		/* perf counter */
-	int	 fd;			/* perf per counter fd */
-	uint8_t	 padding[4];		/* padding */
-} stress_perf_stat_t;
-
-/* per stressor perf info */
-typedef struct {
-	stress_perf_stat_t perf_stat[STRESS_PERF_MAX]; /* perf counters */
-	int perf_opened;		/* count of opened counters */
-	uint8_t	padding[4];		/* padding */
-} stress_perf_t;
-#endif
-
 /* linux thermal zones */
 #define	STRESS_THERMAL_ZONES	 (1)
 #define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
@@ -610,7 +617,7 @@ typedef struct {
 } stress_interrupts_t;
 
 /* Per stressor statistics and accounting info */
-typedef struct {
+typedef struct stress_stats {
 	stress_counter_info_t ci;	/* counter info */
 	double start;			/* wall clock start time */
 	double duration;		/* finish - start */
@@ -738,42 +745,13 @@ typedef struct {
 } stress_shared_t;
 
 /* stress test metadata */
-typedef struct {
+typedef struct stress {
 	const stressor_info_t *info;	/* stress test info */
 	const unsigned int id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op_t op;		/* ops option */
 	const char *name;		/* name of stress test */
 } stress_t;
-
-#define STRESS_STRESSOR_STATUS_PASSED		(0)
-#define STRESS_STRESSOR_STATUS_FAILED		(1)
-#define STRESS_STRESSOR_STATUS_SKIPPED		(2)
-#define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
-#define STRESS_STRESSOR_STATUS_MAX		(4)
-
-/* stress_stressor_info ignore value. 2 bits */
-#define STRESS_STRESSOR_NOT_IGNORED		(0)
-#define STRESS_STRESSOR_UNSUPPORTED		(1)
-#define STRESS_STRESSOR_EXCLUDED		(2)
-
-/* Per stressor information */
-typedef struct stress_stressor_info {
-	struct stress_stressor_info *next; /* next proc info struct in list */
-	struct stress_stressor_info *prev; /* prev proc info struct in list */
-	const stress_t *stressor;	/* stressor */
-	stress_stats_t **stats;		/* stressor stats info */
-	int32_t completed_instances;	/* count of completed instances */
-	int32_t num_instances;		/* number of instances per stressor */
-	uint64_t bogo_ops;		/* number of bogo ops */
-	uint32_t status[STRESS_STRESSOR_STATUS_MAX];
-					/* number of instances that passed/failed/skipped */
-	struct {
-		uint8_t run;		/* ignore running the stressor, unsupported or excluded */
-		bool	permute;	/* ignore flag, saved for permute */
-	} ignore;
-} stress_stressor_t;
-
 
 /* Pointer to current running stressor proc info */
 extern stress_stressor_t *g_stressor_current;
