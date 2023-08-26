@@ -323,6 +323,7 @@ static int stress_rgb_compress_to_jpeg(
 	const int row_stride = x_max * 3;
 
 	*checksum = 0;
+	*duration = 0.0;
 
 	if (y_max < 1)
 		return 0;
