@@ -2811,6 +2811,8 @@ static void stress_dev_hid_linux(
 {
 	int size = -1;
 
+	(void)args;
+	(void)devpath;
 	(void)size;
 
 #if defined(HIDIOCGRDESCSIZE)
@@ -2887,10 +2889,14 @@ static void stress_dev_nvram_linux(
 	const int fd,
 	const char *devpath)
 {
+	char buffer[114];
 	(void)args;
 	(void)devpath;
 
 	stress_dev_mem_mmap_linux(fd, devpath, true, false);
+
+	VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
+	VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
 }
 #endif
 
