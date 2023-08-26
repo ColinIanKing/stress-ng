@@ -54,6 +54,10 @@
 #include <linux/hdreg.h>
 #endif
 
+#if defined(HAVE_LINUX_HIDRAW_H)
+#include <linux/hidraw.h>
+#endif
+
 #if defined(HAVE_LINUX_HPET_H)
 #include <linux/hpet.h>
 #endif
@@ -2784,8 +2788,6 @@ static void stress_dev_acpi_thermal_rel_linux(
 	(void)args;
 	(void)devpath;
 
-pr_inf("%s\n", __func__);
-
 	VOID_RET(int, ioctl(fd, ACPI_THERMAL_GET_TRT_COUNT, &count));
 	if (ioctl(fd, ACPI_THERMAL_GET_TRT_LEN, &length) == 0)
 		stress_dev_acpi_thermal_rel_get(fd, ACPI_THERMAL_GET_TRT, length);
@@ -2797,6 +2799,72 @@ pr_inf("%s\n", __func__);
 	VOID_RET(int, ioctl(fd, ACPI_THERMAL_GET_PSVT_COUNT, &count));
 	if (ioctl(fd, ACPI_THERMAL_GET_PSVT_LEN, &length) == 0)
 		stress_dev_acpi_thermal_rel_get(fd, ACPI_THERMAL_GET_PSVT, length);
+}
+#endif
+
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_HIDRAW_H)
+static void stress_dev_hid_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	int size = -1;
+
+	(void)size;
+
+#if defined(HIDIOCGRDESCSIZE)
+	{
+		if (ioctl(fd, HIDIOCGRDESCSIZE, &size) < 0)
+			size = -1;
+	}
+#endif
+#if defined(HIDIOCGRDESC)
+	if (size > 0) {
+		struct hidraw_report_descriptor rpt_desc;
+
+		(void)shim_memset(&rpt_desc, 0, sizeof(rpt_desc));
+		rpt_desc.size = size;
+
+		VOID_RET(int, ioctl(fd, HIDIOCGRDESC, &rpt_desc));
+	}
+#endif
+#if defined(HIDIOCGRAWINFO)
+	{
+		struct hidraw_devinfo info;
+
+		VOID_RET(int, ioctl(fd, HIDIOCGRAWINFO, &info));
+	}
+#endif
+#if defined(HIDIOCGRAWNAME)
+	{
+		char buf[256];
+
+		VOID_RET(int, ioctl(fd, HIDIOCGRAWNAME(sizeof(buf)), buf));
+	}
+#endif
+#if defined(HIDIOCGRAWPHYS)
+	{
+		char buf[256];
+
+		VOID_RET(int, ioctl(fd, HIDIOCGRAWPHYS(sizeof(buf)), buf));
+	}
+#endif
+#if defined(HIDIOCGFEATURE)
+	{
+		char buf[256];
+
+		(void)shim_memset(buf, 0, sizeof(buf));
+		buf[0] = 0x9;	/* Report Number */
+		VOID_RET(int, ioctl(fd, HIDIOCGFEATURE(sizeof(buf)), buf));
+	}
+#endif
+#if defined(HIDIOCGINPUT)
+	/* No-op for now */
+#endif
+#if defined(HIDIOCGOUTPUT)
+	/* No-op for now */
+#endif
 }
 #endif
 
@@ -3577,6 +3645,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
 	DEV_FUNC("/dev/acpi_thermal_rel", stress_dev_acpi_thermal_rel_linux),
+	DEV_FUNC("/dev/hid",	stress_dev_hid_linux),
 #else
 	UNEXPECTED
 #endif
