@@ -313,7 +313,6 @@ static void stress_schedmix_itimer_handler(int signum)
 
 static int stress_schedmix_child(const stress_args_t *args)
 {
-	int policy = args->instance % SIZEOF_ARRAY(policies);
 	int old_policy = -1;
 
 #if defined(HAVE_SETITIMER) &&	\
@@ -331,7 +330,7 @@ static int stress_schedmix_child(const stress_args_t *args)
 		UNEXPECTED
 #endif
 		struct sched_param param;
-		int ret = 0;
+		int ret = 0, policy;
 		int max_prio, min_prio, rng_prio, new_policy;
 		const pid_t pid = stress_mwc1() ? 0 : args->pid;
 		const char *new_policy_name;
