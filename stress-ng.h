@@ -230,6 +230,7 @@ typedef struct stress_stressor_info {
 #include "core-sched.h"
 #include "core-shim.h"
 #include "core-time.h"
+#include "core-thermal-zone.h"
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -587,29 +588,6 @@ extern const char stress_config[];
 				 (TYPEOF_CAST(a[0])1U << (i & (STRESS_NBITS(a)-1))))
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
-
-/* linux thermal zones */
-#define	STRESS_THERMAL_ZONES	 (1)
-#define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
-
-#if defined(STRESS_THERMAL_ZONES)
-/* per stressor thermal zone info */
-typedef struct stress_tz_info {
-	char	*path;			/* thermal zone path */
-	char 	*type;			/* thermal zone type */
-	uint32_t type_instance;		/* thermal zone instance # */
-	size_t	index;			/* thermal zone # index */
-	struct stress_tz_info *next;	/* next thermal zone in list */
-} stress_tz_info_t;
-
-typedef struct {
-	uint64_t temperature;		/* temperature in Celsius * 1000 */
-} stress_tz_stat_t;
-
-typedef struct {
-	stress_tz_stat_t tz_stat[STRESS_THERMAL_ZONES_MAX];
-} stress_tz_t;
-#endif
 
 typedef struct {
 	uint64_t count_start;
