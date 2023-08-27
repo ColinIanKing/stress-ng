@@ -469,6 +469,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Revert "mm: vmscan: make global slab shrink lockless"](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=71c3ad65fabec9620d3f548b2da948c79c7ad9d5)
 * [crash/hang in mm/swapfile.c:718 add_to_avail_list when exercising stress-ng](https://bugzilla.kernel.org/show_bug.cgi?id=217738)
 * [mm: fix zswap writeback race condition](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=04fc7816089c5a32c29a04ec94b998e219dfb946)
+* [x86/fpu: Set X86_FEATURE_OSXSAVE feature after enabling OSXSAVE in CR4](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2c66ca3949dc701da7f4c9407f2140ae425683a5)
 
 ## Kernel improvements that used stress-ng
 
