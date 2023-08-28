@@ -32,6 +32,7 @@
 #include "core-limit.h"
 #include "core-mlock.h"
 #include "core-numa.h"
+#include "core-opts.h"
 #include "core-out-of-memory.h"
 #include "core-perf.h"
 #include "core-pragma.h"
