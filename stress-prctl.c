@@ -123,6 +123,9 @@ static const stress_help_t help[] = {
     defined(PR_GET_MDWE) ||			/* 66 */ \
     defined(PR_SET_MEMORY_MERGE) ||		/* 67 */ \
     defined(PR_GET_MEMORY_MERGE) ||		/* 68 */ \
+    defined(PR_RISCV_V_SET_CONTROL) ||		/* 69 */ \
+    defined(PR_RISCV_V_GET_CONTROL) ||		/* 70 */ \
+    defined(PR_GET_AUXV) ||			/* 0x41555856 */ \
     defined(PR_SET_VMA) ||			/* 0x53564d41 */ \
     defined(PR_SET_PTRACER)			/* 0x59616d61 */
 #define HAVE_PR_OPTIONS
