@@ -1025,6 +1025,16 @@ static int stress_prctl_child(
 	(void)page_anon_size;
 #endif
 
+#if defined(PR_GET_AUXV)
+	{
+		unsigned long aux_vec[1];
+		/*
+		 *  exercise PR_GET_AUXV introduced in Linux 6.4
+		 */
+		VOID_RET(int, prctl(PR_GET_AUXV, aux_vec, sizeof(aux_vec), 0, 0));
+	}
+#endif
+
 	stress_arch_prctl();
 
 	stress_prctl_syscall_user_dispatch(args);
