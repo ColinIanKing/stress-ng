@@ -164,23 +164,55 @@ static int do_chmod(
 	stress_chmod_check(chmod(filename, modes[i] ^ all_mask) < 0);
 	stress_chmod_check(chmod(filename, mask ^ all_mask) < 0);
 
-#if defined(HAVE_FCHMODAT)
 	if (dfd >= 0) {
+#if defined(HAVE_FCHMODAT)
+		/*
+		 *  If we have fchmodat libc wrapper to system call then
+		 *  perform the call and also check
+		 */
 		stress_chmod_check(fchmodat(dfd, filebase, modes[i], 0) < 0);
 		stress_chmod_check(fchmodat(dfd, filebase, mask, 0) < 0);
 		stress_chmod_check(fchmodat(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
 		stress_chmod_check(fchmodat(dfd, filebase, mask ^ all_mask, 0) < 0);
-
 		/*
 		 *  Exercise bad fchmodat, ignore failure
 		 */
 		VOID_RET(int, fchmodat(bad_fd, filebase, modes[i], 0));
-	}
 #else
-	(void)dfd;
-	(void)bad_fd;
-	(void)filebase;
+		shim_fchmodat(dfd, filebase, modes[i], 0);
+		shim_fchmodat(dfd, filebase, mask, 0);
+		shim_fchmodat(dfd, filebase, modes[i] ^ all_mask, 0);
+		shim_fchmodat(dfd, filebase, mask ^ all_mask, 0);
+		/*
+		 *  Exercise bad fchmodat, ignore failure
+		 */
+		VOID_RET(int, shim_fchmodat(bad_fd, filebase, modes[i], 0));
 #endif
+
+#if defined(HAVE_FCHMODAT2)
+		/*
+		 *  If we have fchmodat2 libc wrapper to system call then
+		 *  perform the call and also check
+		 */
+		stress_chmod_check(fchmodat2(dfd, filebase, modes[i], 0) < 0);
+		stress_chmod_check(fchmodat2(dfd, filebase, mask, 0) < 0);
+		stress_chmod_check(fchmodat2(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
+		stress_chmod_check(fchmodat2(dfd, filebase, mask ^ all_mask, 0) < 0);
+		/*
+		 *  Exercise bad fchmodat2, ignore failure
+		 */
+		VOID_RET(int, fchmodat2(bad_fd, filebase, modes[i], 0));
+#else
+		shim_fchmodat2(dfd, filebase, modes[i], 0);
+		shim_fchmodat2(dfd, filebase, mask, 0);
+		shim_fchmodat2(dfd, filebase, modes[i] ^ all_mask, 0);
+		shim_fchmodat2(dfd, filebase, mask ^ all_mask, 0);
+		/*
+		 *  Exercise bad fchmodat2, ignore failure
+		 */
+		VOID_RET(int, shim_fchmodat2(bad_fd, filebase, modes[i], 0));
+#endif
+	}
 
 	/*
 	 *  Exercise illegal filename

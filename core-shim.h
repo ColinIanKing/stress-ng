@@ -406,5 +406,8 @@ extern int shim_raise(int sig);
 extern int shim_kill(pid_t pid, int sig);
 extern int shim_set_mempolicy_home_node(unsigned long start, unsigned long len,
         unsigned long home_node, unsigned long flags);
-
+extern int shim_fchmodat(int dfd, const char *filename, mode_t mode,
+	unsigned int flags);
+extern int shim_fchmodat2(int dfd, const char *filename, mode_t mode,
+	unsigned int flags);
 #endif

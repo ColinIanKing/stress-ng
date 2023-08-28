@@ -2625,3 +2625,35 @@ int shim_set_mempolicy_home_node(
 #endif
 }
 
+/*
+ *  shim_fchmodat
+ *	shim for Linux fchmodat
+ */
+int shim_fchmodat(int dfd, const char *filename, mode_t mode, unsigned int flags)
+{
+#if defined(HAVE_FCHMODAT)
+	return fchmodat(dfd, filename, mode, flags);
+#elif defined(__NR_fchmodat)
+	/* No flags field in system call */
+	(void)flags;
+	return (int)syscall(__NR_fchmodat, dfd, filename, mode);
+#else
+	return shim_enosys(0, dfd, filename, mode, flags);
+#endif
+}
+
+/*
+ *  shim_fchmodat2
+ *	shim for Linux 6.6 fchmodat2
+ */
+int shim_fchmodat2(int dfd, const char *filename, mode_t mode, unsigned int flags)
+{
+#if defined(HAVE_FCHMODAT2)
+	return fchmodat2(dfd, filename, mode, flags);
+#elif defined(__NR_fchmodat2)
+	return (int)syscall(__NR_fchmodat2, dfd, filename, mode, flags);
+#else
+	return shim_enosys(0, dfd, filename, mode, flags);
+#endif
+}
+
