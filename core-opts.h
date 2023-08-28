@@ -19,6 +19,11 @@
 #ifndef CORE_OPTS_H
 #define CORE_OPTS_H
 
+#include <unistd.h>
+#include <getopt.h>
+
+extern const struct option stress_long_options[];
+
 /* Command line long options */
 typedef enum {
 	OPT_undefined = 0,

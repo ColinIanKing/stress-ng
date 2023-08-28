@@ -560,6 +560,7 @@ CORE_SRC = \
 	core-mwc.c \
 	core-net.c \
 	core-numa.c \
+	core-opts.c \
 	core-out-of-memory.c \
 	core-parse-opts.c \
 	core-perf.c \
