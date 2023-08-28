@@ -1035,6 +1035,22 @@ static int stress_prctl_child(
 	}
 #endif
 
+#if defined(PR_RISCV_V_GET_CONTROL)
+	/* RISC-V only, but try it on all arches */
+	{
+		signed long ctrl;
+
+		ctrl = prctl(PR_RISCV_V_GET_CONTROL, 0, 0, 0);
+#if defined(PR_RISCV_V_SET_CONTROL)
+		if (ctrl >= 0) {
+			VOID_RET(int, prctl(PR_RISCV_V_SET_CONTROL, ctrl, 0, 0));
+		}
+#else
+		(void)ctrl;
+#endif
+	}
+#endif
+
 	stress_arch_prctl();
 
 	stress_prctl_syscall_user_dispatch(args);
