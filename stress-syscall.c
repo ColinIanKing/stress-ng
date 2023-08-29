@@ -1796,6 +1796,25 @@ static int syscall_fchmodat(void)
 }
 #endif
 
+#if defined(HAVE_FCHMODAT2)
+#define HAVE_SYSCALL_FCHMODAT2
+static int syscall_fchmodat2(void)
+{
+	static size_t i = 0;
+	int ret;
+	const int chmod_mode = chmod_modes[i];
+
+	i++;
+	if (i >= SIZEOF_ARRAY(chmod_modes))
+		i = 0;
+	t1 = syscall_time_now();
+	ret = fchmodat2(syscall_dir_fd, syscall_filename, chmod_mode, 0);
+	t2 = syscall_time_now();
+	VOID_RET(int, fchmodat2(syscall_dir_fd, syscall_filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP, 0));
+	return ret;
+}
+#endif
+
 #define HAVE_SYSCALL_FCHOWN
 static int syscall_fchown(void)
 {
@@ -7443,6 +7462,9 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_FCHMODAT)
 	SYSCALL(syscall_fchmodat),
+#endif
+#if defined(HAVE_SYSCALL_FCHMODAT2)
+	SYSCALL(syscall_fchmodat2),
 #endif
 #if defined(HAVE_SYSCALL_FCHOWN)
 	SYSCALL(syscall_fchown),
