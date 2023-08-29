@@ -597,6 +597,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_fchmodat)
 	SYS_fchmodat,
 #endif
+#if defined(SYS_fchmodat2)
+	SYS_fchmodat2,
+#endif
 #if defined(SYS_fchown)
 	SYS_fchown,
 #endif
@@ -1975,6 +1978,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_fchmodat)
 	__NR_fchmodat,
+#endif
+#if defined(__NR_fchmodat2)
+	__NR_fchmodat2,
 #endif
 #if defined(__NR_fchown)
 	__NR_fchown,
