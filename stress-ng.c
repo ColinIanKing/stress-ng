@@ -116,6 +116,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU },
+	{ OPT_interrupts,	OPT_FLAGS_INTERRUPTS },
 	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES },
 	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME },
 	{ OPT_klog_check,	OPT_FLAGS_KLOG_CHECK },
@@ -279,6 +280,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"ftrace",		"enable kernel function call tracing" },
 	{ "h",		"help",			"show help" },
 	{ NULL,		"ignite-cpu",		"alter kernel controls to make CPU run hot" },
+	{ NULL,		"interrupts",		"check for error interrupts" },
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 	{ NULL,		"iostate S",		"show I/O statistics every S seconds" },
@@ -1427,7 +1429,8 @@ again:
 					name, (int)child_pid, j, stress_get_cpu());
 
 				stats->start = stress_time_now();
-				stress_interrupts_start(stats->interrupts);
+				if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
+					stress_interrupts_start(stats->interrupts);
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
@@ -1459,8 +1462,10 @@ again:
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					stress_block_signals();
 					(void)alarm(0);
-					stress_interrupts_stop(stats->interrupts);
-					stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
+					if (g_opt_flags & OPT_FLAGS_INTERRUPTS) {
+						stress_interrupts_stop(stats->interrupts);
+						stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
+					}
 					pr_fail_check(&rc);
 
 #if defined(SA_SIGINFO) &&	\
@@ -3597,7 +3602,7 @@ int main(int argc, char **argv, char **envp)
 		stress_metrics_dump(yaml);
 
 	stress_metrics_check(&success);
-	if ((g_opt_flags & (OPT_FLAGS_METRICS | OPT_FLAGS_METRICS_BRIEF)) == OPT_FLAGS_METRICS)
+	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
 		stress_interrupts_dump(yaml, stressors_head);
 
 #if defined(STRESS_PERF_STATS) &&	\

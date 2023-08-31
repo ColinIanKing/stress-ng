@@ -80,6 +80,7 @@
 #define OPT_FLAGS_SETTINGS	 STRESS_BIT_ULL(49)	/* --settings */
 #define OPT_FLAGS_WITH		 STRESS_BIT_ULL(50)	/* --with list */
 #define OPT_FLAGS_PERMUTE	 STRESS_BIT_ULL(51)	/* --permute N */
+#define OPT_FLAGS_INTERRUPTS	 STRESS_BIT_ULL(52)	/* --interrupts */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -509,6 +510,8 @@ typedef enum {
 	OPT_idle_page_ops,
 
 	OPT_ignite_cpu,
+
+	OPT_interrupts,
 
 	OPT_inode_flags,
 	OPT_inode_flags_ops,

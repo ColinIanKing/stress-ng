@@ -311,6 +311,7 @@ const struct option stress_long_options[] = {
 	{ "idle-page",		1,	0,	OPT_idle_page },
 	{ "idle-page-ops",	1,	0,	OPT_idle_page_ops },
 	{ "ignite-cpu",		0,	0, 	OPT_ignite_cpu },
+	{ "interrupts",		0,	0,	OPT_interrupts },
 	{ "inode-flags",	1,	0,	OPT_inode_flags },
 	{ "inode-flags-ops",	1,	0,	OPT_inode_flags_ops },
 	{ "inotify",		1,	0,	OPT_inotify },

@@ -120,6 +120,12 @@ alter kernel controls to try and maximize the CPU. This requires root
 privilege to alter various /sys interface controls.  Currently this only
 works for Intel P-State enabled x86 systems on Linux.
 .TP
+.B \-\-interrupts
+check for any system management interrupts or error interrupts that occur,
+for example thermal overruns, machine check exceptions, etc. Note that the
+interrupts are accounted to all the concurrently running stressors, so total
+count for all stressors is over accounted.
+.TP
 .B \-\-ionice\-class class
 specify ionice class (only on Linux). Can be idle (default), besteffort, be,
 realtime, rt.
