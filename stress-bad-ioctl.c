@@ -267,7 +267,6 @@ static inline void stress_bad_ioctl_rw(
 	const bool is_pthread,
 	const int thread_index)
 {
-	int ret;
 	const double threshold = 0.25;
 	const size_t page_size = args->page_size;
 	uint64_t *buf, *buf_page1;
@@ -310,7 +309,7 @@ static inline void stress_bad_ioctl_rw(
 	}
 
 	do {
-		int fd;
+		int fd, ret;
 		double t_start;
 		uint8_t type, nr;
 		uint64_t rnd = stress_mwc32();
@@ -457,7 +456,6 @@ static void stress_bad_ioctl_dir(
 			if (!ret) {
 				size_t i;
 				bool all_exercised = true;
-				uint8_t type, nr;
 
 				for (i = 0; i < SIZEOF_ARRAY(node->exercised); i++) {
 					if (!node->exercised[i]) {
@@ -466,6 +464,8 @@ static void stress_bad_ioctl_dir(
 					}
 				}
 				if (all_exercised) {
+					uint8_t type, nr;
+
 					switch (bad_ioctl_method) {
 					case STRESS_BAD_IOCTL_CMD_RANDOM:
 						node->ioctl_state = stress_mwc16();
