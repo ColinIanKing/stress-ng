@@ -502,7 +502,7 @@ retry_open:
 	do {
 		uint8_t *bufptr;
 		ssize_t n;
-		int64_t off, offset = stress_mwc16() * BUFFER_SZ;
+		int64_t off, offset = (int64_t)(stress_mwc16() * BUFFER_SZ);
 
 		/*
 		 *  async writes
