@@ -124,7 +124,7 @@ int stress_numa_count_mem_nodes(unsigned long *max_node)
  *
  * Returns: NUMA node number, or exits the program on invalid number in str
  */
-static unsigned long stress_parse_node(char *const str)
+static unsigned long stress_parse_node(const char *const str)
 {
 	unsigned long val;
 
