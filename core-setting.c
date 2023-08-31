@@ -45,7 +45,6 @@ typedef struct stress_setting {
 		off_t		off;	/* TYPE_ID_OFF_T */
 		char 		*str;	/* TYPE_ID_STR */
 		bool		boolean;/* TYPE_ID_BOOL */
-		uintptr_t	uintptr;/* for func pointers */
 	} u;
 } stress_setting_t;
 
