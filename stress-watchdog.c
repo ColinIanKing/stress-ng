@@ -155,19 +155,17 @@ static int stress_watchdog(const stress_args_t *args)
 		stress_watchdog_magic_close();
 
 #if defined(WDIOC_KEEPALIVE)
-		if (!stress_continue_flag())
-			goto watchdog_close;
-		VOID_RET(int, ioctl(fd, WDIOC_KEEPALIVE, 0));
+		if (stress_continue_flag()) {
+			VOID_RET(int, ioctl(fd, WDIOC_KEEPALIVE, 0));
+		}
 #else
 		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETTIMEOUT)
-		{
+		if (stress_continue_flag()) {
 			int timeout = 0;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETTIMEOUT, &timeout) == 0) &&
 			    (timeout < 0)) {
 				pr_fail("%s: ioctl WDIOC_GETTIMEOUT returned unexpected timeout value %d\n",
@@ -180,11 +178,9 @@ static int stress_watchdog(const stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETPRETIMEOUT)
-		{
+		if (stress_continue_flag()) {
 			int timeout = 0;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout) == 0) &&
 			    (timeout < 0)) {
 				pr_fail("%s: ioctl WDIOC_GETPRETIMEOUT returned unexpected timeout value %d\n",
@@ -197,11 +193,9 @@ static int stress_watchdog(const stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETTIMELEFT)
-		{
+		if (stress_continue_flag()) {
 			int timeout = 0;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETTIMELEFT, &timeout) == 0) &&
 			    (timeout < 0)) {
 				pr_fail("%s: ioctl WDIOC_GETTIMELEFT returned unexpected timeout value %d\n",
@@ -214,11 +208,9 @@ static int stress_watchdog(const stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETSUPPORT)
-		{
+		if (stress_continue_flag()) {
 			struct watchdog_info ident;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETSUPPORT, &ident));
 		}
 #else
@@ -226,11 +218,9 @@ static int stress_watchdog(const stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETSTATUS)
-		{
+		if (stress_continue_flag()) {
 			int flags;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETSTATUS, &flags));
 		}
 #else
@@ -238,11 +228,9 @@ static int stress_watchdog(const stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETBOOTSTATUS)
-		{
+		if (stress_continue_flag()) {
 			int flags;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &flags));
 		}
 #else
@@ -250,11 +238,9 @@ static int stress_watchdog(const stress_args_t *args)
 #endif
 
 #if defined(WDIOC_GETTEMP)
-		{
+		if (stress_continue_flag()) {
 			int temperature = 0;
 
-			if (!stress_continue_flag())
-				goto watchdog_close;
 			if ((ioctl(fd, WDIOC_GETTEMP, &temperature) == 0) &&
 			    (temperature < 0)) {
 				pr_fail("%s: ioctl WDIOC_GETTEMP returned unexpected temperature value %d\n",
@@ -266,7 +252,6 @@ static int stress_watchdog(const stress_args_t *args)
 		UNEXPECTED
 #endif
 
-watchdog_close:
 		stress_watchdog_magic_close();
 		ret = close(fd);
 		fd = -1;
