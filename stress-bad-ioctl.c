@@ -189,7 +189,7 @@ static void stress_bad_ioctl_dev_dir(
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
-		struct dirent *d = dlist[i];
+		const struct dirent *d = dlist[i];
 		size_t len;
 
 		if (!stress_continue(args))
@@ -205,7 +205,7 @@ static void stress_bad_ioctl_dev_dir(
 		 */
 		if (len > 1) {
 			int dev_n;
-			char *ptr = d->d_name + len - 1;
+			const char *ptr = d->d_name + len - 1;
 
 			while ((ptr > d->d_name) && isdigit((int)*ptr))
 				ptr--;
