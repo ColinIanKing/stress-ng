@@ -91,10 +91,9 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 		return;
 
 	while (fgets(buffer, sizeof(buffer), fp)) {
-		char *ptr;
-
 		for (i = 0; i < SIZEOF_ARRAY(info); i++) {
 			const char *type = info[i].type;
+			char *ptr;
 
 			/* Find a match */
 			ptr = strstr(buffer, type);
