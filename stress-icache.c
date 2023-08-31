@@ -86,10 +86,11 @@ int stress_icache_func(const stress_args_t *args, void *page, const size_t page_
 	if (icache_madvise_nohugepage(args, page, page_size) < 0)
 		return EXIT_NO_RESOURCE;
 	do {
-		register uint32_t val;
 		register int i = 1024;
 
 		while (--i) {
+			register uint32_t val;
+
 			/*
 			 *  Change protection to make page modifiable.
 			 *  It may be that some architectures don't
