@@ -157,8 +157,10 @@ static int stress_zero(const stress_args_t *args)
 				args->name);
 		}
 	} else {
+#if defined(__linux__)
 		int mmap_counter = 0;
 		size_t mmap_index = 0;
+#endif
 
 		if (args->instance == 0)
 			pr_inf("%s: exercising /dev/zero with reads, mmap, lseek, and ioctl; for just read benchmarking use --zero-read\n",
