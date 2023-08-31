@@ -81,10 +81,11 @@ static NOINLINE void OPTIMIZE0 stress_softlockup_loop(const uint64_t loops)
  */
 static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
 {
-	double t, d;
 	uint64_t n = 1024 * 64, i;
 
 	do {
+		double t, d;
+
 		t = stress_time_now();
 		for (i = 0; i < n; i++) {
 			stress_asm_nop();
