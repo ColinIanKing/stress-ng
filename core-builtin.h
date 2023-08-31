@@ -271,7 +271,7 @@
 #if defined(HAVE_SQRTL)
 #define shim_sqrtl(x)	sqrtl(x)
 #else
-#define shim_sqrtl(x)	shim_sqrt(x)
+#define shim_sqrtl(x)	((long double)shim_sqrt(x))
 #endif
 #endif
 
