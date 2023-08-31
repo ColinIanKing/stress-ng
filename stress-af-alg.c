@@ -900,7 +900,7 @@ static char *dup_field(const char *buffer)
  */
 static int int_field(const char *buffer)
 {
-	char *ptr = strchr(buffer, ':');
+	const char *ptr = strchr(buffer, ':');
 
 	if (!ptr)
 		return -1;
@@ -914,7 +914,7 @@ static int int_field(const char *buffer)
  */
 static bool bool_field(const char *buffer)
 {
-	char *ptr = strchr(buffer, ':');
+	const char *ptr = strchr(buffer, ':');
 
 	if (!ptr)
 		return false;
@@ -922,7 +922,6 @@ static bool bool_field(const char *buffer)
 		return true;
 	if (!strncmp("no", ptr + 2, 2))
 		return false;
-
 	return false;
 }
 
