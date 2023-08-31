@@ -230,7 +230,8 @@ static int stress_cpu_cache_get_alpha(
 			stress_cpu_cache_type_t cache_type = CACHE_TYPE_UNKNOWN;
 			uint16_t cache_level = 0;
 			char *ptr;
-			int cache_size, cache_ways, cache_line_size, n;
+			uint64_t cache_size;
+			int cache_ways, cache_line_size, n;
 
 			if (!strncmp("L1 Icache", buffer, 9)) {
 				cache_type = CACHE_TYPE_INSTRUCTION;
@@ -254,7 +255,7 @@ static int stress_cpu_cache_get_alpha(
 			cache_size = 0;
 			cache_ways = 0;
 			cache_line_size = 0;
-			n = sscanf(ptr, "%dK, %d-way, %db line",
+			n = sscanf(ptr, "%" SCNu64 "K, %d-way, %db line",
 				&cache_size, &cache_ways, &cache_line_size);
 			if (n != 3)
 				continue;
@@ -525,10 +526,10 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 			cpu->caches[i].level = (eax >> 5) & 0x7;
 			cpu->caches[i].line_size = ((ebx >> 0) & 0x7ff) + 1;
 			cpu->caches[i].ways = ((ebx >> 22) & 0x3ff) + 1;
-			cpu->caches[i].size = (((ebx >> 12) & 0x3ff) + 1) *
+			cpu->caches[i].size = (uint64_t)((((ebx >> 12) & 0x3ff) + 1) *
 					cpu->caches[i].line_size *
 					cpu->caches[i].ways *
-					(ecx + 1);
+					(ecx + 1));
 			i++;
 		}
 		cpu->cache_count = i;
