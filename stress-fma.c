@@ -52,7 +52,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static inline double stress_fma_rnd_float(void)
+static inline float stress_fma_rnd_float(void)
 {
 	register const float fhalfpwr32 = (float)1.0 / (float)(0x80000000);
 
