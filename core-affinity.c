@@ -50,7 +50,7 @@ static void stress_check_cpu_affinity_range(
  *
  * Returns: cpu number, or exits the program on invalid number in str
  */
-static int stress_parse_cpu(char *const str)
+static int stress_parse_cpu(const char *const str)
 {
 	int val;
 
