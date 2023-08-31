@@ -108,13 +108,14 @@ static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
 #define HAVE_STRESS_VNNI_VPADDB512
 static void TARGET_AVX512BW OPTIMIZE3 stress_vnni_vpaddb512(const stress_args_t *args)
 {
-	__m512i a, b, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI512_BYTES) {
+		__m512i a, b, r;
+
 		a = _mm512_loadu_si512((void *)&a_init[i]);
 		b = _mm512_loadu_si512((void *)&b_init[i]);
 		r = _mm512_add_epi8(a, b);
@@ -131,13 +132,14 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 #define HAVE_STRESS_VNNI_VPADDB256
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb256(const stress_args_t *args)
 {
-	__m256i a, b, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
+		__m256i a, b, r;
+
 		a = _mm256_loadu_si256((void *)&a_init[i]);
 		b = _mm256_loadu_si256((void *)&b_init[i]);
 		r = _mm256_add_epi8(a, b);
@@ -154,13 +156,14 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 #define HAVE_STRESS_VNNI_VPADDB128
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb128(const stress_args_t *args)
 {
-	__m128i a, b, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
+		__m128i a, b, r;
+
 		a = _mm_loadu_si128((void *)&a_init[i]);
 		b = _mm_loadu_si128((void *)&b_init[i]);
 		r = _mm_add_epi8(a, b);
@@ -188,13 +191,14 @@ PRAGMA_UNROLL_N(8)
 #define HAVE_STRESS_VNNI_VPDPBUSD512
 static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpbusd512(const stress_args_t *args)
 {
-	__m512i a, b, c, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI512_BYTES) {
+		__m512i a, b, c, r;
+
 		a = _mm512_loadu_si512((void *)&a_init[i]);
 		b = _mm512_loadu_si512((void *)&b_init[i]);
 		c = _mm512_loadu_si512((void *)&c_init[i]);
@@ -212,13 +216,14 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 #define HAVE_STRESS_VNNI_VPDPBUSD256
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd256(const stress_args_t *args)
 {
-	__m256i a, b, c, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
+		__m256i a, b, c, r;
+
 		a = _mm256_loadu_si256((void *)&a_init[i]);
 		b = _mm256_loadu_si256((void *)&b_init[i]);
 		c = _mm256_loadu_si256((void *)&c_init[i]);
@@ -236,13 +241,14 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 #define HAVE_STRESS_VNNI_VPDPBUSD128
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd128(const stress_args_t *args)
 {
-	__m128i a, b, c, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
+		__m128i a, b, c, r;
+
 		a = _mm_loadu_si128((void *)&a_init[i]);
 		b = _mm_loadu_si128((void *)&b_init[i]);
 		c = _mm_loadu_si128((void *)&c_init[i]);
@@ -278,13 +284,14 @@ static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(const stress_args_t *ar
 #define HAVE_STRESS_VNNI_VPDPWSSD512
 static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpwssd512(const stress_args_t *args)
 {
-	__m512i a, b, c, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI512_BYTES) {
+		__m512i a, b, c, r;
+
 		a = _mm512_loadu_si512((void *)&a_init[i]);
 		b = _mm512_loadu_si512((void *)&b_init[i]);
 		c = _mm512_loadu_si512((void *)&c_init[i]);
@@ -302,13 +309,14 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
 #define HAVE_STRESS_VNNI_VPDPWSSD256
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd256(const stress_args_t *args)
 {
-	__m256i a, b, c, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI256_BYTES) {
+		__m256i a, b, c, r;
+
 		a = _mm256_loadu_si256((void *)&a_init[i]);
 		b = _mm256_loadu_si256((void *)&b_init[i]);
 		c = _mm256_loadu_si256((void *)&c_init[i]);
@@ -326,13 +334,14 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
 #define HAVE_STRESS_VNNI_VPDPWSSD128
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd128(const stress_args_t *args)
 {
-	__m128i a, b, c, r;
 	register int i;
 
 	(void)args;
 
 PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 	for (i = 0; i < VEC_SIZE_BYTES; i += VEC_VNNI128_BYTES) {
+		__m128i a, b, c, r;
+
 		a = _mm_loadu_si128((void *)&a_init[i]);
 		b = _mm_loadu_si128((void *)&b_init[i]);
 		c = _mm_loadu_si128((void *)&c_init[i]);
