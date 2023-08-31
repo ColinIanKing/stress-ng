@@ -22,6 +22,9 @@
 
 #define MSR_SMI_COUNT		(0x34)
 
+#define COUNTERS_START		(0x00)
+#define COUNTERS_STOP		(0x01)
+
 typedef void (*pr_func_t)(const char *fmt, ...);
 
 typedef struct {
@@ -46,72 +49,89 @@ static const stress_interrupt_info_t info[] = {
 
 STRESS_ASSERT(SIZEOF_ARRAY(info) <= STRESS_INTERRUPTS_MAX)
 
+static void stress_interrupts_counter_set(stress_interrupts_t *counters, const size_t i, const uint64_t value, const int which)
+{
+	if (i >= SIZEOF_ARRAY(info))
+		return;
+	if (which == COUNTERS_START)
+		counters[i].count_start = value;
+
+	counters[i].count_stop = value;
+}
+
 /*
- *  stress_interrupts_count_by_type()
- *	count up all interrupts of given named type
+ *  stress_interrupts_count()
+ *	count up all interrupts for all types
  */
-static uint64_t stress_interrupts_count_by_type(const char *type)
+static void stress_interrupts_count(stress_interrupts_t *counters, const int which)
 {
 	FILE *fp;
 	char buffer[4096];
-	uint64_t count = 0;
+	uint64_t count;
+	size_t i;
 
+#if defined(STRESS_ARCH_X86)
 	/*
 	 *  Get SMI count, x86 only AND when run as root AND smi driver is installed
 	 */
-	if (!strncmp("SMI:", type, 4)) {
-#if defined(STRESS_ARCH_X86)
-		unsigned int cpu;
+	for (i = 0; i < SIZEOF_ARRAY(info); i++) {
+		if (!strncmp("SMI:", info[i].type, 4)) {
+			unsigned int cpu;
 
-		if ((shim_getcpu(&cpu, NULL, NULL) == 0) &&
-		    (stress_x86_smi_readmsr64(cpu, MSR_SMI_COUNT, &count) == 0))
-			return count;
-#endif
-		return 0;
+			if ((shim_getcpu(&cpu, NULL, NULL) == 0) &&
+			    (stress_x86_smi_readmsr64(cpu, MSR_SMI_COUNT, &count) == 0))
+				stress_interrupts_counter_set(counters, i, count, which);
+			break;
+		}
 	}
+#endif
 
 	fp = fopen("/proc/interrupts", "r");
 	if (!fp)
-		return 0;
+		return;
 
 	while (fgets(buffer, sizeof(buffer), fp)) {
 		char *ptr;
 
-		/* Find a match */
-		ptr = strstr(buffer, type);
-		if (ptr) {
-			ptr += strlen(type);
-			for (;;) {
-				uint64_t val = 0ULL;
+		for (i = 0; i < SIZEOF_ARRAY(info); i++) {
+			const char *type = info[i].type;
 
-				/* skip spaces */
-				while (*ptr == ' ')
-					ptr++;
-				if (!*ptr)
-					break;
+			/* Find a match */
+			ptr = strstr(buffer, type);
+			if (ptr) {
+				count = 0;
+				ptr += strlen(type);
+				for (;;) {
+					uint64_t val = 0ULL;
 
-				/* expecting number, bail otherwise */
-				if (!isdigit((int)*ptr))
-					break;
+					/* skip spaces */
+					while (*ptr == ' ')
+						ptr++;
+					if (!*ptr)
+						break;
 
-				/* get count, sum it */
-				if (sscanf(ptr, "%" SCNu64, &val) == 1)
-					count += val;
+					/* expecting number, bail otherwise */
+					if (!isdigit((int)*ptr))
+						break;
 
-				/* scan over digits */
-				while (isdigit((int)*ptr))
-					ptr++;
+					/* get count, sum it */
+					if (sscanf(ptr, "%" SCNu64, &val) == 1)
+						count += val;
 
-				/* bail if end of string */
-				if (!*ptr)
-					break;
+					/* scan over digits */
+					while (isdigit((int)*ptr))
+						ptr++;
+
+					/* bail if end of string */
+					if (!*ptr)
+						break;
+				}
+				stress_interrupts_counter_set(counters, i, count, which);
+				break;
 			}
-			break;
 		}
 	}
 	(void)fclose(fp);
-
-	return count;
 }
 
 /*
@@ -120,12 +140,7 @@ static uint64_t stress_interrupts_count_by_type(const char *type)
  */
 void stress_interrupts_start(stress_interrupts_t *counters)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(info); i++) {
-		counters[i].count_start = stress_interrupts_count_by_type(info[i].type);
-		counters[i].count_stop = counters[i].count_start;
-	}
+	stress_interrupts_count(counters, COUNTERS_START);
 }
 
 /*
@@ -134,10 +149,7 @@ void stress_interrupts_start(stress_interrupts_t *counters)
  */
 void stress_interrupts_stop(stress_interrupts_t *counters)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(info); i++)
-		counters[i].count_stop = stress_interrupts_count_by_type(info[i].type);
+	stress_interrupts_count(counters, COUNTERS_STOP);
 }
 
 /*
