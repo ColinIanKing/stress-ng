@@ -470,6 +470,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [crash/hang in mm/swapfile.c:718 add_to_avail_list when exercising stress-ng](https://bugzilla.kernel.org/show_bug.cgi?id=217738)
 * [mm: fix zswap writeback race condition](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=04fc7816089c5a32c29a04ec94b998e219dfb946)
 * [x86/fpu: Set X86_FEATURE_OSXSAVE feature after enabling OSXSAVE in CR4](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2c66ca3949dc701da7f4c9407f2140ae425683a5)
+* [kernel/fork: beware of __put_task_struct() calling context](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d243b34459cea30cfe5f3a9b2feb44e7daff9938)
+* [arm64: dts: ls1028a: add l1 and l2 cache info](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fcf7ff67a2aa6d8055b9b815ad8a28a5231afa1e)
 
 ## Kernel improvements that used stress-ng
 
