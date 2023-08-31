@@ -621,6 +621,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Gotham Testbed: a Reproducible IoT Testbed for Security Experiments and Dataset Generation](https://arxiv.org/pdf/2207.13981.pdf)
 * [Profiling with Trust: System Monitoring from Trusted Execution Environments](https://assets.researchsquare.com/files/rs-3169665/v1_covered_63751076-8387-429e-8296-3f3cc4c3ed34.pdf?c=1689832627)
 * [Thermal-Aware on-Device Inference Using Single-Layer Parallelization with Heterogeneous Processors](https://www.sciopen.com/article/pdf/10.26599/TST.2021.9010075.pdf)
+* [Towards Fast, Adaptive, and Hardware-Assisted User-Space Scheduling](https://arxiv.org/pdf/2308.02896.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
