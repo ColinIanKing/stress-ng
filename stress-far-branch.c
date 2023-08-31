@@ -155,7 +155,7 @@ static void *stress_far_mmap(
 	stress_ret_func_t *funcs,	/* Array of function pointers */
 	size_t *total_funcs)		/* Total number of functions */
 {
-	uint8_t *ptr;
+	uint8_t *ptr = MAP_FAILED;
 	size_t i;
 
 	/*
