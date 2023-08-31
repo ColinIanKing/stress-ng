@@ -26,11 +26,23 @@ KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
 override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
+
+#
+#  Building stress-vnni with less than -O2 causes breakage with
+#  gcc-13.2, so remove then and ensure at least -O2 is used or
+#  honour flags > -O2 if they are provided
+#
+VNNI_OFLAGS_REMOVE=-O0 -O1 -Og
+VNNI_CFLAGS += $(filter-out $(VNNI_OFLAGS_REMOVE),$(CFLAGS))
+
 #
 # Default -O2 if optimization level not defined
 #
 ifeq "$(findstring -O,$(CFLAGS))" ""
 	override CFLAGS += -O2
+endif
+ifeq "$(findstring -O,$(VNNI_CFLAGS))" ""
+	override VNNI_CFLAGS += -O2
 endif
 
 #
@@ -128,6 +140,7 @@ BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 JOBDIR=/usr/share/stress-ng/example-jobs
 BASHDIR=/usr/share/bash-completion/completions
+
 
 #
 # Header files
@@ -596,6 +609,10 @@ all: config.h stress-ng
 %.o: %.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
+
+stress-vnni.o: stress-vnni.c $(HEADERS) $(HEADERS_GEN)
+	$(PRE_Q)echo "CC $<"
+	$(PRE_V)$(CC) $(VNNI_CFLAGS) -c -o $@ $<
 
 #
 #  Use CC for linking if eigen is not being used, otherwise use CXX
