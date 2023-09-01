@@ -78,7 +78,7 @@ static int NOINLINE icache_mprotect(
 	return ret;
 }
 
-int stress_icache_func(const stress_args_t *args, void *page, const size_t page_size)
+static int stress_icache_func(const stress_args_t *args, void *page, const size_t page_size)
 {
 	volatile uint32_t *vaddr = (volatile uint32_t *)page;
 	stress_ret_func_t icache_func = (stress_ret_func_t)page;
