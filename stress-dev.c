@@ -3651,7 +3651,9 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
 	DEV_FUNC("/dev/acpi_thermal_rel", stress_dev_acpi_thermal_rel_linux),
+#if defined(HAVE_LINUX_HIDRAW_H)
 	DEV_FUNC("/dev/hid",	stress_dev_hid_linux),
+#endif
 #else
 	UNEXPECTED
 #endif
