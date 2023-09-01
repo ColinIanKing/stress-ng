@@ -18,14 +18,15 @@
  */
 #include <immintrin.h>
 #include <string.h>
-#include <stdlib.h>
+#include <stdint.h>
 
 void rndset(unsigned char *ptr, const size_t len)
 {
 	size_t i;
+	uintptr_t addr = (uintptr_t)rndset;
 
-	for (i = 0; i < len; i++)
-		ptr[i] = random();
+	for (i = 0; i < len; i++, addr += 37)
+		ptr[i] = (unsigned char)((addr >> 3) & 0xff);
 }
 
 int __attribute__ ((target("avx512vnni"))) main(int argc, char **argv)
