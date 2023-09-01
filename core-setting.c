@@ -135,8 +135,8 @@ static void stress_settings_show_setting(const stress_setting_t *setting)
 
 static int stress_setting_cmp(const void *p1, const void *p2)
 {
-	const stress_setting_t *s1 = *(stress_setting_t **)p1;
-	const stress_setting_t *s2 = *(stress_setting_t **)p2;
+	const stress_setting_t *s1 = *(stress_setting_t * const *)p1;
+	const stress_setting_t *s2 = *(stress_setting_t * const *)p2;
 
 	return strcmp(s1->name, s2->name);
 }
