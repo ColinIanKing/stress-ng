@@ -30,7 +30,7 @@ extern uint64_t stress_sort_compares ALIGN64;
 
 static inline int stress_sort_cmp_str(const void *p1, const void *p2)
 {
-	return strcmp(*(const char **)p1, *(const char **)p2);
+	return strcmp(*(const char * const *)p1, *(const char * const *)p2);
 }
 
 #if 1
