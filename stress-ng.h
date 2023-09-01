@@ -71,6 +71,10 @@
     !defined(__sun__)
 #define __sun__
 #endif
+/* Enable re-entrant code for threading, e.g. per thread errno */
+#if defined(__sun__)
+#define _REENTRANT
+#endif
 
 /*
  *  Standard includes, assume we have this as the
