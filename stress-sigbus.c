@@ -211,7 +211,7 @@ static int stress_sigbus(const stress_args_t *args)
 			 */
 			if (stress_mwc1()) {
 				static uint64_t data[2];
-				const uint8_t *ptr8 = (uint8_t *)data;
+				uint8_t *ptr8 = (uint8_t *)data;
 				uint64_t *ptr64 = (uint64_t *)(ptr8 + 1);
 				uint32_t *ptr32 = (uint32_t *)(ptr8 + 1);
 				uint16_t *ptr16 = (uint16_t *)(ptr8 + 1);
