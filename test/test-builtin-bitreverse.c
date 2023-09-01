@@ -18,11 +18,13 @@
  */
 
 #include <stdint.h>
-#include <stdlib.h>
+#include <stdint.h>
 
 int main(int argc, char **argv)
 {
-	const uint64_t r = (uint64_t)random() ^ ((uint64_t)random() << 32);
+	uintptr_t addr = (uintptr_t)main;
+
+	const uint64_t r = (uint64_t)addr;
 	uint8_t u8 = __builtin_bitreverse8(r & 0xff);
 	uint16_t u16 = __builtin_bitreverse16(r & 0xffff);
 	uint32_t u32 = __builtin_bitreverse32(r & 0xffffffffUL);
