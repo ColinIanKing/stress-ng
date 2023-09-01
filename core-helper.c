@@ -3193,9 +3193,9 @@ ssize_t stress_write_buffer(
 	ssize_t wbytes = 0, ret;
 
 	do {
-		char *ptr = ((char *)buffer) + wbytes;
+		const void *ptr = (void *)((uintptr_t)buffer + wbytes);
 ignore_eintr:
-		ret = write(fd, (void *)ptr, (size_t)(size - wbytes));
+		ret = write(fd, ptr, (size_t)(size - wbytes));
 		/* retry if interrupted */
 		if (ignore_sig_eintr && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
