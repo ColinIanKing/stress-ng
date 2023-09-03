@@ -409,7 +409,6 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				 */
 				mappings[n] = (uint8_t *)
 					((intptr_t)mappings[n] | 1);
-
 #if defined(__linux__)
 				prev_mlocked_pages = mlocked_pages;
 				mlocked_pages = stress_mlock_pages(page_size);
@@ -487,8 +486,10 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 
 	rate = (mlock_count > 0.0) ? mlock_duration / mlock_count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per mlock call", rate * STRESS_DBL_NANOSECOND);
-	rate = (munlock_count > 0.0) ? munlock_duration / munlock_count : 0.0;
-	stress_metrics_set(args, 1, "nanosecs per munlock call", rate * STRESS_DBL_NANOSECOND);
+	if (munlock_count > 0.0) {
+		rate =  munlock_duration / munlock_count;
+		stress_metrics_set(args, 1, "nanosecs per munlock call", rate * STRESS_DBL_NANOSECOND);
+	}
 
 	(void)munmap((void *)mappings, mappings_len);
 
