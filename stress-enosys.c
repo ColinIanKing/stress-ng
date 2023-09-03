@@ -933,6 +933,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_madvise)
 	SYS_madvise,
 #endif
+#if defined(SYS_map_shadow_stack)
+	SYS_map_shadow_stack,
+#endif
 #if defined(SYS_mbind)
 	SYS_mbind,
 #endif
@@ -2383,6 +2386,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_madvise1)
 	__NR_madvise1,
+#endif
+#if defined(__NR_map_shadow_stack)
+	__NR_map_shadow_stack,
 #endif
 #if defined(__NR_mbind)
 	__NR_mbind,
