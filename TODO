@@ -20,4 +20,4 @@
 List of TODO items:
 
 usefaultfd UFFD_FEATURE_WP_UNPOPULATED
-riscv_hwprobe()
+map_shadow_stack()
