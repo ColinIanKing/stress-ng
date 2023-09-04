@@ -106,6 +106,11 @@ static int stress_kvm(const stress_args_t *args)
 		if (vm_fd < 0) {
 			if (errno == EINTR)
 				goto tidy_kvm_fd;
+			if (errno == EBUSY) {
+				pr_inf_skip("%s: KVM device busy, skipping stressor\n", args->name);
+				(void)close(kvm_fd);
+				return EXIT_NO_RESOURCE;
+			}
 			pr_fail("%s: ioctl KVM_CREATE_VM failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_kvm_fd;
