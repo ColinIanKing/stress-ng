@@ -44,7 +44,7 @@
 
 #define STRESS_MISALIGNED_ERROR		(1)
 #define STRESS_MISALIGNED_TIMED_OUT	(2)
-#define STRESS_MISALIGNED_WAIT_TIME_NS	(400000000)
+#define STRESS_MISALIGNED_WAIT_TIME_NS	(800000000)
 
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
