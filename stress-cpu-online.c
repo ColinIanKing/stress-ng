@@ -63,7 +63,7 @@ static inline void stress_cpu_online_set_affinity(const uint32_t cpu)
 
 	VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
 #else
-	(void)cpu
+	(void)cpu;
 #endif
 }
 
