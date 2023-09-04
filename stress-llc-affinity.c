@@ -237,7 +237,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 	stress_metrics_set(args, 0, "MB pec sec memory write rate", rate);
 	reads /= (double)MB;
 	rate = read_duration > 0.0 ? (double)reads / read_duration : 0.0;
-	stress_metrics_set(args, 1, "MB per sec memiry read rate", rate);
+	stress_metrics_set(args, 1, "MB per sec memory read rate", rate);
 	rate = duration > 0.0 ? (double)affinity_changes / duration : 0.0;
 	stress_metrics_set(args, 2, "CPU affinity changes per sec", rate);
 
