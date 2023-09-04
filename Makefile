@@ -770,7 +770,7 @@ slow-test-all: all
 
 .PHONY: verify-test-all
 verify-test-all: all
-	./stress-ng --seq 0 -t 1 --pathological --verbose --times --tz --metrics --verify || true
+	./stress-ng --seq 0 -t 5 --pathological --verbose --times --tz --metrics --verify || true
 
 .PHONY: tags
 tags:
