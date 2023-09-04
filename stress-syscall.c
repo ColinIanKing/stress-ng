@@ -5014,6 +5014,30 @@ static int syscall_readlinkat(void)
 }
 #endif
 
+#if defined(HAVE_RFORK) &&	\
+    defined(RFFDG) &&		\
+    defined(RFPROC)
+#define HAVE_SYSCALL_RFORK
+static int syscall_rfork(void)
+{
+	pid_t pid;
+
+	t1 = syscall_time_now();
+	pid = rfork(RFFDG | RFPROC);
+	if (pid < 0) {
+		return -1;
+	} else if (pid == 0) {
+		_exit(0);
+	} else {
+		int status;
+
+		t2 = syscall_time_now();
+		VOID_RET(int, waitpid(pid, &status, 0));
+	}
+	return 0;
+}
+#endif
+
 #if defined(HAVE_REMAP_FILE_PAGES) &&	\
     !defined(STRESS_ARCH_SPARC)
 #define HAVE_SYSCALL_REMAP_FILE_PAGES
@@ -7941,6 +7965,9 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_RECVMSG)
 	SYSCALL(syscall_recvmsg),
+#endif
+#if defined(HAVE_SYSCALL_RFORK)
+	SYSCALL(syscall_rfork),
 #endif
 #if defined(HAVE_SYSCALL_REMAP_FILE_PAGES)
 	SYSCALL(syscall_remap_file_pages),
