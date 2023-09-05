@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"affinity-ops N",	"stop after N affinity bogo operations" },
 	{ NULL, "affinity-pin",		"keep per stressor threads pinned to same CPU" },
 	{ NULL,	"affinity-rand",	"change affinity randomly rather than sequentially" },
-	{ NULL,	"affinity-sleep",	"sleep in nanoseconds between affinity changes" },
+	{ NULL,	"affinity-sleep N",	"sleep in nanoseconds between affinity changes" },
 	{ NULL,	NULL,			NULL }
 };
 
