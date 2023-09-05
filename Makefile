@@ -723,7 +723,7 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(CORE_SRC) $(STRESS_SRC) $(HEADERS) \
 		stress-ng.1 COPYING syscalls.txt mascot README.md Dockerfile \
-		README.Android test snap presentations .github TODO \
+		README.Android test presentations .github TODO \
 		core-perf-event.c usr.bin.pulseaudio.eg stress-eigen-ops.c \
 		stress-eigen-ops.cpp core-personality.c bash-completion \
 		example-jobs .travis.yml kernel-coverage.sh \
