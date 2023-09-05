@@ -293,7 +293,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"log-lockless",		"log messages without message locking" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
-	{ NULL,		"max-fd",		"set maximum file descriptor limit" },
+	{ NULL,		"max-fd N",		"set maximum file descriptor limit" },
 	{ NULL,		"mbind",		"set NUMA memory binding to specific nodes" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
