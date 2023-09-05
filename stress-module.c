@@ -68,17 +68,17 @@ static int stress_module_supported(const char *name)
 
 static int stress_set_module_no_unload(const char *opt)
 {
-	return stress_set_setting_true("module-nounload", opt);
+	return stress_set_setting_true("module-no-unload", opt);
 }
 
 static int stress_set_module_no_modver(const char *opt)
 {
-	return stress_set_setting_true("module-nomodver", opt);
+	return stress_set_setting_true("module-no-modver", opt);
 }
 
 static int stress_set_module_no_vermag(const char *opt)
 {
-	return stress_set_setting_true("module-novermag", opt);
+	return stress_set_setting_true("module-no-vermag", opt);
 }
 
 static int stress_set_module_name(const char *name)
@@ -306,9 +306,9 @@ out_close:
  */
 static int stress_module(const stress_args_t *args)
 {
-	bool module_nounload = false;
-	bool ignore_vermagic = false;
-	bool ignore_modversions = false;
+	bool module_no_unload = false;
+	bool module_no_vermag = false;
+	bool module_no_modver = false;
 	char *module_name_cli = NULL;
 	char *module_name;
 	static char default_module[] = "test_module";
@@ -318,13 +318,13 @@ static int stress_module(const stress_args_t *args)
 	int fd, ret = EXIT_SUCCESS;
 
 	(void)stress_get_setting("module-name", &module_name_cli);
-	(void)stress_get_setting("module-novermag", &ignore_vermagic);
-	(void)stress_get_setting("module-nomodver", &ignore_modversions);
-	(void)stress_get_setting("module-nounload", &module_nounload);
+	(void)stress_get_setting("module-no-vermag", &module_no_vermag);
+	(void)stress_get_setting("module-no-modver", &module_no_modver);
+	(void)stress_get_setting("module-no-unload", &module_no_unload);
 
-	if (ignore_vermagic)
+	if (module_no_vermag)
 		kernel_flags |= MODULE_INIT_IGNORE_VERMAGIC;
-	if (ignore_modversions)
+	if (module_no_modver)
 		kernel_flags |= MODULE_INIT_IGNORE_MODVERSIONS;
 
 	module_name = module_name_cli ? module_name_cli : default_module;
@@ -399,7 +399,7 @@ static int stress_module(const stress_args_t *args)
 	 * As a sanity we try to unload it prior to loading it for
 	 * the first time.
 	 */
-	if (!module_nounload)
+	if (!module_no_unload)
 		(void)shim_delete_module(module_name, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -409,7 +409,7 @@ static int stress_module(const stress_args_t *args)
 			break;
 
 		if (shim_finit_module(fd, finit_args1, kernel_flags) == 0) {
-			if (!module_nounload)
+			if (!module_no_unload)
 				(void)shim_delete_module(module_name, 0);
 		}
 
