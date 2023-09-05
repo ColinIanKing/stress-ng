@@ -337,7 +337,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"thermalstat S",	"show CPU and thermal load stats every S seconds" },
 	{ NULL,		"thrash",		"force all pages in causing swap thrashing" },
 	{ "t N",	"timeout T",		"timeout after T seconds" },
-	{ NULL,		"timer-slack",		"enable timer slack mode" },
+	{ NULL,		"timer-slack N",	"set slack slack to N nanoseconds, 0 for default" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
 	{ NULL,		"timestamp",		"timestamp log output " },
 #if defined(STRESS_THERMAL_ZONES)
