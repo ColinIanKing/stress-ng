@@ -25,7 +25,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"dirmany N",		"start N directory file populating stressors" },
-	{ NULL, "dirmany-filesize" ,	"specify size of files (default 0)" },
+	{ NULL, "dirmany-bytes" ,	"specify size of files (default 0)" },
 	{ NULL,	"dirmany-ops N",	"stop after N directory file bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
