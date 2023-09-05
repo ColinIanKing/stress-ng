@@ -206,6 +206,7 @@ HEADERS = \
 	core-target-clones.h \
 	core-thermal-zone.h \
 	core-thrash.h \
+	core-time.h \
 	core-try-open.h \
 	core-vecmath.h \
 	core-version.h \
