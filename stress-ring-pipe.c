@@ -35,9 +35,9 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL, "ring-pipe N",		"start N workers exercising a ring of pipes" },
-	{ NULL,	"ring-pipe-num",	"number of pipes to use" },
+	{ NULL,	"ring-pipe-num N",	"number of pipes to use" },
 	{ NULL,	"ring-pipe-ops N",	"stop after N ring pipe I/O bogo operations" },
-	{ NULL,	"ring-pipe-size",	"size of data to be written and read" },
+	{ NULL,	"ring-pipe-size N",	"size of data to be written and read in bytes" },
 	{ NULL, "ring-pipe-splice",	"use splice instead of read+write" },
 	{ NULL,	NULL,			NULL }
 };
