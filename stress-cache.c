@@ -92,7 +92,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
 	{ NULL,	"cache-ways N",		"only fill specified number of cache ways" },
-	{ NULL, "cache-wb",		"cache line writeback (x86 only)" },
+	{ NULL, "cache-clwb",		"cache line writeback (x86 only)" },
 	{ NULL,	NULL,			NULL }
 };
 
