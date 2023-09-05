@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.16.04
+VERSION=0.16.05
 #
-# Codename "determinted data diddler"
+# Codename "Knarly Kernel Killer"
 #
 
 KERNEL=$(shell uname -s)
