@@ -549,6 +549,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Time-Aware Dynamic Binary Instrumentation](https://uwspace.uwaterloo.ca/bitstream/handle/10012/12182/Arafa_Pansy.pdf?sequence=3)
 * [Experience Report: Log Mining using Natural Language Processing and Application to Anomaly Detection](https://hal.laas.fr/hal-01576291/document)
 * [Mixed time-criticality process interferences characterization on a multicore Linux system](https://re.public.polimi.it/retrieve/handle/11311/1033069/292404/paper-accepted-version.pdf)
+* [Cloud Orchestration at the Level of Application](https://ec.europa.eu/research/participants/documents/downloadPublic/RFpPOGljenYrclUyK3N5eFN4NnVVZEJpVEl3TTAxcFhXRzRGaXdzN2dmSjBycjNIbXB6dlJ3PT0=/attachment/VFEyQTQ4M3ptUWQ4VDN5UWNDYVZ0UEVSWSt2REhrV1Q=)
 
 2018:
 * [Multicore Emulation on Virtualised Environment](https://indico.esa.int/event/165/contributions/1230/attachments/1195/1412/04b_-_Multicore_-_Presentation.pdf)
@@ -599,6 +600,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Achieving Isolation in Mixed-Criticality Industrial Edge Systems with Real-Time Containers](https://drops.dagstuhl.de/opus/volltexte/2022/16332/pdf/LIPIcs-ECRTS-2022-15.pdf)
 * [Design and Implementation of Machine Learning-Based Fault Prediction System in Cloud Infrastructure](https://www.mdpi.com/2079-9292/11/22/3765)
 * [The TSN Building Blocks in Linux](https://arxiv.org/pdf/2211.14138.pdf)
+* [uKharon: A Membership Service for Microsecond Applications](https://www.usenix.org/system/files/atc22-guerraoui.pdf)
+* [Evaluating Secure Enclave Firmware Development for Contemporary RISC-V WorkstationsContemporary RISC-V Workstation](https://scholar.afit.edu/cgi/viewcontent.cgi?article=6319&context=etd)
 
 2023:
 * [Fight Hardware with Hardware: System-wide Detection and Mitigation of Side-Channel Attacks using Performance Counters](https://dl.acm.org/doi/10.1145/3519601)
@@ -623,6 +626,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Profiling with Trust: System Monitoring from Trusted Execution Environments](https://assets.researchsquare.com/files/rs-3169665/v1_covered_63751076-8387-429e-8296-3f3cc4c3ed34.pdf?c=1689832627)
 * [Thermal-Aware on-Device Inference Using Single-Layer Parallelization with Heterogeneous Processors](https://www.sciopen.com/article/pdf/10.26599/TST.2021.9010075.pdf)
 * [Towards Fast, Adaptive, and Hardware-Assisted User-Space Scheduling](https://arxiv.org/pdf/2308.02896.pdf)
+* [Heterogeneous Anomaly Detection for Software Systems via Semi-supervised Cross-modal Attention](https://arxiv.org/pdf/2302.06914.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
