@@ -565,6 +565,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Analysis and Detection of Cache-Based Exploits](https://ssg.lancs.ac.uk/wp-content/uploads/2020/07/analysis_and_detection_vateva.pdf)
 * [kMVX: Detecting Kernel Information Leaks with Multi-variant Execution](https://research.vu.nl/ws/files/122357910/KMVX.pdf)
 * [Scalability of Kubernetes Running Over AWS](https://www.diva-portal.org/smash/get/diva2:1367111/FULLTEXT02)
+* [A study on performance measures for auto-scaling CPU-intensive containerized applications](https://link.springer.com/article/10.1007/s10586-018-02890-1)
 
 2020:
 * [Performance and Energy Trade-Offs for Parallel Applications on Heterogeneous Multi-Processing Systems](https://www.mdpi.com/1996-1073/13/9/2409/htm)
@@ -602,6 +603,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [The TSN Building Blocks in Linux](https://arxiv.org/pdf/2211.14138.pdf)
 * [uKharon: A Membership Service for Microsecond Applications](https://www.usenix.org/system/files/atc22-guerraoui.pdf)
 * [Evaluating Secure Enclave Firmware Development for Contemporary RISC-V WorkstationsContemporary RISC-V Workstation](https://scholar.afit.edu/cgi/viewcontent.cgi?article=6319&context=etd)
+* [Evaluation of Real-Time Linux on RISC-V processor architecture](https://trepo.tuni.fi/bitstream/handle/10024/138547/J%C3%A4mb%C3%A4ckMarkus.pdf)
 
 2023:
 * [Fight Hardware with Hardware: System-wide Detection and Mitigation of Side-Channel Attacks using Performance Counters](https://dl.acm.org/doi/10.1145/3519601)
