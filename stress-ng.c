@@ -1343,6 +1343,7 @@ static void MLOCKED_TEXT stress_run(
 	int64_t backoff = DEFAULT_BACKOFF;
 	int32_t ionice_class = UNDEFINED;
 	int32_t ionice_level = UNDEFINED;
+	bool handler_set = false;
 
 	wait_flag = true;
 	time_start = stress_time_now();
@@ -1414,8 +1415,6 @@ again:
 				stress_process_dumpable(false);
 				stress_set_timer_slack();
 
-				if (g_opt_timeout)
-					(void)alarm((unsigned int)g_opt_timeout);
 				if (g_opt_flags & OPT_FLAGS_KSM)
 					stress_ksm_memory_merge(1);
 
@@ -1428,7 +1427,6 @@ again:
 				pr_dbg("%s: [%d] started (instance %" PRIu32 " on CPU %u)\n",
 					name, (int)child_pid, j, stress_get_cpu());
 
-				stats->start = stress_time_now();
 				if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
 					stress_interrupts_start(stats->interrupts);
 #if defined(STRESS_PERF_STATS) &&	\
@@ -1442,6 +1440,10 @@ again:
 				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 					(void)stress_perf_enable(&stats->sp);
 #endif
+				stress_yield_sleep_ms();
+				stats->start = stress_time_now();
+				if (g_opt_timeout)
+					(void)alarm((unsigned int)g_opt_timeout);
 				if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 					const stress_args_t args = {
 						.ci = &stats->ci,
@@ -1457,8 +1459,8 @@ again:
 						.info = g_stressor_current->stressor->info
 					};
 					stress_set_oom_adjustment(&args, false);
-
 					(void)shim_memset(*checksum, 0, sizeof(**checksum));
+					stats->start = stress_time_now();
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					stress_block_signals();
 					(void)alarm(0);
@@ -1467,7 +1469,6 @@ again:
 						stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
 					}
 					pr_fail_check(&rc);
-
 #if defined(SA_SIGINFO) &&	\
     defined(SI_USER)
 					/*
@@ -1586,18 +1587,25 @@ child_exit:
 			}
 		}
 	}
-	(void)stress_set_handler("stress-ng", false);
-	if (g_opt_timeout)
-		(void)alarm((unsigned int)g_opt_timeout);
-
+	if (!handler_set) {
+		(void)stress_set_handler("stress-ng", false);
+		handler_set = true;
+	}
 abort:
 	pr_dbg("%d stressor%s started\n", started_instances,
 		 started_instances == 1 ? "" : "s");
 
 wait_for_stressors:
+	if (!handler_set) {
+		(void)stress_set_handler("stress-ng", false);
+		handler_set = true;
+	}
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_start();
-
+#if STRESS_FORCE_TIMEOUT_ALL
+	if (g_opt_timeout)
+		(void)alarm((unsigned int)g_opt_timeout);
+#endif
 	stress_wait_stressors(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 

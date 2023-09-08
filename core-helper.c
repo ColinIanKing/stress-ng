@@ -4253,3 +4253,22 @@ void stress_clean_dir(
 		stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
 	}
 }
+
+/*
+ *  stress_yield_sleep_ms()
+ *	force a yield, sleep if the yield was less than 1ms,
+ *      and repeat if sleep was less than 1ms
+ */
+void stress_yield_sleep_ms(void)
+{
+	double t, duration;
+
+	t = stress_time_now();
+	do {
+		shim_sched_yield();
+		duration = stress_time_now() - t;
+		if (duration > 0.001)
+			break;
+		shim_usleep(1000);
+	} while (stress_continue_flag());
+}

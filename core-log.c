@@ -114,7 +114,7 @@ static void pr_spin_lock_pid(pid_t pid)
 				__atomic_exchange(&g_shared->pr.atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
 				continue;
 			}
-			shim_sched_yield();
+			stress_yield_sleep_ms();
 		}
 
 		/*
