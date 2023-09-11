@@ -45,6 +45,27 @@ static inline int pr_fd(void)
 }
 
 /*
+ *  pr_log_write_buf_fd()
+ *	try to write buf out in as large a chunk as possible, the hope is to
+ *	be able to write most data in one go, but fall back to iterative writes
+ *	if that's not possible
+ */
+static void pr_log_write_buf_fd(const int fd, const char *buf, const size_t buf_len)
+{
+	ssize_t n = (ssize_t)buf_len;
+
+	while (n > 0) {
+		ssize_t ret;
+
+		ret = write(fd, buf, buf_len);
+		if (ret < 0)
+			break;
+		n -= ret;
+	}
+	shim_fsync(fd);
+}
+
+/*
  *  pr_log_write_buf()
  *  	write buf message to log file and tty
  *
@@ -53,12 +74,10 @@ static void pr_log_write_buf(const char *buf, const size_t buf_len)
 {
 	const int fd = pr_fd();
 
-	if (log_fd) {
-		VOID_RET(ssize_t, write(log_fd, buf, buf_len));
-		shim_fsync(log_fd);
-	}
-	VOID_RET(ssize_t, write(fd, buf, buf_len));
-	shim_fsync(fd);
+	if (log_fd)
+		pr_log_write_buf_fd(log_fd, buf, buf_len);
+
+	pr_log_write_buf_fd(fd, buf, buf_len);
 }
 
 /*
