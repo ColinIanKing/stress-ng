@@ -229,8 +229,6 @@ static const int stress_ignore_signals[] = {
 enum {
 	STRESS_START = -1,
 	STRESSORS(STRESSOR_ENUM)
-	/* STRESS_MAX must be last one */
-	STRESS_MAX
 };
 
 /* Stressor extern info structs */
@@ -241,10 +239,7 @@ STRESSORS(STRESSOR_INFO)
  */
 static const stress_t stressors[] = {
 	STRESSORS(STRESSOR_ELEM)
-	{ NULL, STRESS_MAX, 0, OPT_undefined, NULL }
 };
-
-STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)
 
 /*
  *  Different stress classes
@@ -365,18 +360,33 @@ static inline void stress_hash_checksum(stress_checksum_t *checksum)
 }
 
 /*
- *  stressor_name_find()
+ *  stressor_find_by_name()
  *  	Find index into stressors by name
  */
-static inline size_t stressor_name_find(const char *name)
+static size_t stressor_find_by_name(const char *name)
 {
 	size_t i;
 
-	for (i = 0; stressors[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (!stress_strcmp_munged(name, stressors[i].name))
 			break;
 	}
-	return i;	/* End of array is a special "NULL" entry */
+	return i;
+}
+
+/*
+ *  stressor_find_by_id()
+ *	Find stressor by id, return index
+ */
+static size_t stressor_find_by_id(const unsigned int id)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+		if (id == stressors[i].id)
+			break;
+	}
+	return i;
 }
 
 /*
@@ -429,7 +439,7 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 
 					(void)printf("class '%s' stressors:",
 						token);
-					for (j = 0; stressors[j].name; j++) {
+					for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
 						if (stressors[j].info->class & cl) {
 							char munged[64];
 
@@ -467,9 +477,9 @@ static int stress_exclude(void)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		unsigned int id;
 		stress_stressor_t *ss = stressors_head;
-		const size_t i = stressor_name_find(token);
+		const size_t i = stressor_find_by_name(token);
 
-		if (!stressors[i].name) {
+		if (i >= SIZEOF_ARRAY(stressors)) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
 				"invalid exclude option\n", token);
 			return -1;
@@ -739,7 +749,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
 	size_t i;
 	bool space = false;
 
-	for (i = 0; stressors[i].name; i++)
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++)
 		if (stressors[i].info->verify == mode) {
 			char munged[64];
 
@@ -772,7 +782,7 @@ static void stress_usage_help_stressors(void)
 {
 	size_t i;
 
-	for (i = 0; stressors[i].id != STRESS_MAX; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info->help)
 			stress_usage_help(stressors[i].info->help);
 	}
@@ -786,7 +796,7 @@ static inline void stress_show_stressor_names(void)
 {
 	size_t i;
 
-	for (i = 0; stressors[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		char munged[64];
 
 		(void)stress_munge_underscore(munged, stressors[i].name, sizeof(munged));
@@ -2402,15 +2412,13 @@ static void stress_set_proc_limits(void)
 		if (ss->ignore.run)
 			continue;
 
-		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-			if (stressors[i].info &&
-			    stressors[i].info->set_limit &&
-			    (stressors[i].id == ss->stressor->id) &&
-			    ss->num_instances) {
-				const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
-
-				stressors[i].info->set_limit(max);
-			}
+		i = stressor_find_by_id(ss->stressor->id);
+		if ((i < SIZEOF_ARRAY(stressors)) &&
+		    stressors[i].info &&
+		    stressors[i].info->set_limit &&
+		    ss->num_instances) {
+			const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
+			stressors[i].info->set_limit(max);
 		}
 	}
 #endif
@@ -2475,11 +2483,11 @@ static void stress_stressors_init(void)
 		if (ss->ignore.run)
 			continue;
 
-		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-			if (stressors[i].info &&
-			    stressors[i].info->init &&
-			    stressors[i].id == ss->stressor->id)
-				stressors[i].info->init();
+		i = stressor_find_by_id(ss->stressor->id);
+		if ((i < SIZEOF_ARRAY(stressors)) &&
+		    stressors[i].info &&
+		    stressors[i].info->init) {
+			stressors[i].info->init();
 		}
 	}
 }
@@ -2518,9 +2526,8 @@ static inline void stressor_set_defaults(void)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (stressors[i].info && stressors[i].info->set_default) {
+		if (stressors[i].info && stressors[i].info->set_default)
 			stressors[i].info->set_default();
-		}
 	}
 }
 
@@ -2630,9 +2637,9 @@ static void stress_with(const int32_t instances)
 
 	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
-		const size_t i = stressor_name_find(token);
+		const size_t i = stressor_find_by_name(token);
 
-		if (!stressors[i].name) {
+		if (i >= SIZEOF_ARRAY(stressors)) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
 				"invalid --with option\n", token);
 			exit(EXIT_FAILURE);
@@ -2665,7 +2672,7 @@ static void stress_enable_all_stressors(const int32_t instances)
 		return;
 
 
-	for (i = 0; i < STRESS_MAX; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
 
 		if (!ss) {
@@ -2690,7 +2697,7 @@ static void stress_enable_classes(const uint32_t class)
 	/* This indicates some stressors are set */
 	g_opt_flags |= OPT_FLAGS_SET;
 
-	for (i = 0; stressors[i].id != STRESS_MAX; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info->class & class) {
 			stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
 
@@ -2729,7 +2736,7 @@ next_opt:
 			break;
 		}
 
-		for (i = 0; stressors[i].id != STRESS_MAX; i++) {
+		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 			if (stressors[i].short_getopt == c) {
 				const char *name = stress_opt_name(c);
 				stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
