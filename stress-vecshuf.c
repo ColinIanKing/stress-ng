@@ -389,7 +389,7 @@ static int stress_vecshuf(const stress_args_t *args)
 		double total_ops = 0.0;
 		double total_bytes = 0.0;
 
-		pr_lock();
+		pr_block_begin();
 		pr_dbg("%s: shuffle throughput for just stressor instance 0:\n", args->name);
 		pr_dbg("%s: %14.14s %13.13s %13.13s %13.13s\n",
 			args->name, "Method", "MB/sec", "Mshuffles/sec", "% exec time");
@@ -424,7 +424,7 @@ static int stress_vecshuf(const stress_args_t *args)
 			pr_dbg("%s: %14.14s %13.3f %13.3f\n", args->name,
 				"Mean:", bytes_rate, ops_rate);
 		}
-		pr_unlock();
+		pr_block_end();
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -599,15 +599,6 @@ typedef struct {
 		uint16_t padding1;	/* alignment padding */
 		uint32_t ways;		/* cache ways size */
 	} mem_cache;
-#if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
-    defined(HAVE_ATOMIC_STORE)
-	struct {
-		double whence;		/* pr_* lock time */
-		pid_t atomic_lock;	/* pr_* atomic spinlock */
-		int lock_count;		/* pr_* lock count, release when zero */
-		pid_t pid;		/* pid owning the lock */
-	} pr;
-#endif
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX]; /* hash patterns */
 		void *lock;		/* protection lock */

@@ -231,7 +231,7 @@ static int stress_resched(const stress_args_t *args)
 		for (i = 0; i < pids_max; i++)
 			total_yields += yields[i];
 
-		pr_lock();
+		pr_block_begin();
 		for (i = 0; i < pids_max; i++) {
 			if (yields[i] > 0) {
 				double percent = 100.0 * ((double)yields[i] / (double)total_yields);
@@ -248,7 +248,7 @@ static int stress_resched(const stress_args_t *args)
 				}
 			}
 		}
-		pr_unlock();
+		pr_block_end();
 	}
 
 	if (yields != NULL)

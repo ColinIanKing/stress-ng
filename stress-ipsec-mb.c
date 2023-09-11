@@ -888,7 +888,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
-	pr_lock();
+	pr_block_begin();
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(mb_features); i++) {
 		const ipsec_stats_t *stats = &mb_features[i].stats;
 
@@ -905,7 +905,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 			j++;
 		}
 	}
-	pr_unlock();
+	pr_block_end();
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -222,7 +222,7 @@ static int stress_vecwide(const stress_args_t *args)
 	}
 
 	if (args->instance == 0) {
-		pr_lock();
+		pr_block_begin();
 		pr_dbg("%s: Bits  %% Dur  %% Exp (x Win) (> 1.0 is better than expected)\n", args->name);
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 			double dur_pc, exp_pc, win;
@@ -237,7 +237,7 @@ static int stress_vecwide(const stress_args_t *args)
 		}
 		pr_dbg("%s: Key: Bits = vector width in bits, Dur = %% total run time,\n", args->name);
 		pr_dbg("%s       Exp = %% expected run time, Win = performance gain\n", args->name);
-		pr_unlock();
+		pr_block_end();
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {

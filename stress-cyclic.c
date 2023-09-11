@@ -855,6 +855,7 @@ tidy:
 				99.99,
 			};
 
+			pr_block_begin();
 			pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
 				args->name,
 				policies[cyclic_policy].name,
@@ -883,7 +884,7 @@ tidy:
 			if (rt_stats->index < rt_stats->index_reqd)
 				pr_inf("%s: Note: --cyclic-samples needed to be %zd to capture all the data for this run\n",
 					args->name, rt_stats->index_reqd);
-			pr_unlock();
+			pr_block_end();
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
 				args->name,

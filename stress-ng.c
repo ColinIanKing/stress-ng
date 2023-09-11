@@ -1563,7 +1563,6 @@ child_exit:
 				stress_set_proc_state(name, STRESS_STATE_EXIT);
 				if (terminate_signum)
 					rc = EXIT_SIGNALED;
-				pr_lock_exited(child_pid);
 				g_shared->instance_count.exited++;
 				g_shared->instance_count.started--;
 				if (rc == EXIT_FAILURE)
@@ -1831,7 +1830,7 @@ static void stress_metrics_dump(FILE *yaml)
 	stress_stressor_t *ss;
 	bool misc_metrics = false;
 
-	pr_lock();
+	pr_block_begin();
 	if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
 		pr_metrics("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
 			   "stressor", "bogo ops", "real time", "usr time",
@@ -2054,7 +2053,7 @@ static void stress_metrics_dump(FILE *yaml)
 			}
 		}
 	}
-	pr_unlock();
+	pr_block_end();
 }
 
 /*
@@ -3512,7 +3511,6 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  And now shared memory is created, initialize pr_* lock mechanism
 	 */
-	pr_lock_init();
 	if (!stress_shared_heap_init()) {
 		pr_err("failed to create shared heap \n");
 		goto exit_shared_unmap;

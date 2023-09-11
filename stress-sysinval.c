@@ -2820,7 +2820,7 @@ static int stress_sysinval(const stress_args_t *args)
 		if (current_context->crash_count[i] > 0)
 			syscalls_crashed += current_context->crash_count[i];
 	}
-	pr_lock();
+	pr_block_begin();
 	pr_dbg("%s: %" PRIu64 " of %" PRIu64 " (%.2f%%) unique system calls exercised\n",
 		args->name, syscalls_exercised, syscalls_unique,
 		100.0 * ((double)syscalls_exercised) / (double)syscalls_unique);
@@ -2828,7 +2828,7 @@ static int stress_sysinval(const stress_args_t *args)
 		args->name, syscalls_crashed);
 	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
 		args->name, current_context->skip_errno_zero, current_context->skip_timed_out);
-	pr_unlock();
+	pr_block_end();
 
 	stress_bogo_set(args, current_context->counter);
 

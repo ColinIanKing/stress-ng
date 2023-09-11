@@ -8435,7 +8435,7 @@ static void stress_syscall_report_syscall_top10(const stress_args_t *args)
 	}
 	syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_syscall_time);
 
-	pr_lock();
+	pr_block_begin();
 	pr_inf("%s: Top 10 fastest system calls (timings in nanosecs):\n", args->name);
 	pr_inf("%s: %25s %10s %10s\n", args->name, "System Call", "Avg (ns)", "Min (ns)");
 	for (n = 0, i = 0; (i < STRESS_SYSCALLS_MAX) && (n < max); i++) {
@@ -8451,7 +8451,7 @@ static void stress_syscall_report_syscall_top10(const stress_args_t *args)
 			n++;
 		}
 	}
-	pr_unlock();
+	pr_block_end();
 }
 
 static int cmp_test_duration(const void *p1, const void *p2)

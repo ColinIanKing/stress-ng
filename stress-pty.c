@@ -413,7 +413,7 @@ static int stress_pty(const stress_args_t *args)
 			int ldisc, orig_ldisc;
 
 			if (ioctl(ptys[i].follower, TIOCGETD, &orig_ldisc) == 0) {
-				pr_lock();
+				pr_block_begin();
 				for (ldisc = 0; ldisc < max_ldisc; ldisc++) {
 					int j;
 
@@ -428,7 +428,7 @@ static int stress_pty(const stress_args_t *args)
 					}
 				}
 				VOID_RET(int, ioctl(ptys[i].follower, TIOCSETD, &orig_ldisc));
-				pr_unlock();
+				pr_block_end();
 				shim_sched_yield();
 			}
 		}

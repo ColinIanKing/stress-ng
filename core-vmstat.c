@@ -1101,7 +1101,7 @@ void stress_vmstat_start(void)
 
 			stress_get_vmstat(&vmstat);
 
-			pr_lock();
+			pr_block_begin();
 			if (vmstat_count == 0)
 				pr_inf("vmstat: %3s %3s %9s %9s %9s %9s "
 					"%4s %4s %6s %6s %4s %4s %2s %2s "
@@ -1137,7 +1137,7 @@ void stress_vmstat_start(void)
 				100.0 * (double)vmstat.idle_time / clk_tick_vmstat_delay,
 				100.0 * (double)vmstat.wait_time / clk_tick_vmstat_delay,
 				100.0 * (double)vmstat.stolen_time / clk_tick_vmstat_delay);
-			pr_unlock();
+			pr_block_end();
 
 			vmstat_count++;
 			if (vmstat_count >= 25)
@@ -1171,7 +1171,7 @@ void stress_vmstat_start(void)
 					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.5s %5.5s %5.5s",
 						" n/a ", " n/a ", " n/a ");
 
-				pr_lock();
+				pr_block_begin();
 				if (thermalstat_count == 0)
 					pr_inf("therm: AvGHz MnGHz MxGHz  LdA1  LdA5 LdA15 %s\n", therms);
 
@@ -1188,7 +1188,7 @@ void stress_vmstat_start(void)
 					pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
 						cpuspeed, min1, min5, min15, therms);
 				}
-				pr_unlock();
+				pr_block_end();
 				free(therms);
 
 				thermalstat_count++;
@@ -1205,7 +1205,7 @@ void stress_vmstat_start(void)
 
 			stress_get_iostat(iostat_name, &iostat);
 
-			pr_lock();
+			pr_block_begin();
 			if (iostat_count == 0)
 				pr_inf("iostat: Inflght   Rd K/s   Wr K/s Dscd K/s     Rd/s     Wr/s   Dscd/s\n");
 
@@ -1218,7 +1218,7 @@ void stress_vmstat_start(void)
 				(double)iostat.read_io * clk_scale,
 				(double)iostat.write_io * clk_scale,
 				(double)iostat.discard_io * clk_scale);
-			pr_unlock();
+			pr_block_end();
 
 			iostat_count++;
 			if (iostat_count >= 25)

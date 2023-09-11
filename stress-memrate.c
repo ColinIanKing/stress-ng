@@ -1096,7 +1096,7 @@ static int stress_memrate(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_lock();
+	pr_block_begin();
 	for (i = 0; i < memrate_items; i++) {
 		if (!context.stats[i].valid)
 			continue;
@@ -1111,7 +1111,7 @@ static int stress_memrate(const stress_args_t *args)
 				args->name, memrate_info[i].name);
 		}
 	}
-	pr_unlock();
+	pr_block_end();
 
 	(void)munmap((void *)context.stats, stats_size);
 

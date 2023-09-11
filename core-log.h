@@ -21,10 +21,8 @@
 
 #include "core-attribute.h"
 
-extern void pr_lock_init(void);
-extern void pr_lock(void);
-extern void pr_unlock(void);
-extern void pr_lock_exited(const pid_t pid);
+extern void pr_block_begin(void);
+extern void pr_block_end(void);
 extern void pr_fail_check(int *const rc);
 extern int pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
 extern void pr_closelog(void);
