@@ -1335,6 +1335,202 @@ static void stress_get_usage_stats(const int32_t ticks_per_sec, stress_stats_t *
 }
 
 /*
+ *  stress_run_child()
+ *	invoke a stressor in a child process
+ */
+static int MLOCKED_TEXT stress_run_child(
+	stress_checksum_t **checksum,
+	stress_stats_t *const stats,
+	const double fork_time_start,
+	const int64_t backoff,
+	const int32_t ticks_per_sec,
+	const int32_t ionice_class,
+	const int32_t ionice_level,
+	const int32_t instance,
+	const int32_t started_instances,
+	const size_t page_size)
+{
+	pid_t child_pid;
+	char name[64];
+	int rc = EXIT_SUCCESS;
+	bool ok;
+	double finish, run_duration;
+
+	sigalarmed = &stats->sigalarmed;
+	child_pid = getpid();
+
+	(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
+	stress_set_proc_state(name, STRESS_STATE_START);
+	g_shared->instance_count.started++;
+
+	(void)sched_settings_apply(true);
+	(void)atexit(stress_child_atexit);
+	if (stress_set_handler(name, true) < 0) {
+		rc = EXIT_FAILURE;
+		stress_block_signals();
+		goto child_exit;
+	}
+	stress_parent_died_alarm();
+	stress_process_dumpable(false);
+	stress_set_timer_slack();
+
+	if (g_opt_flags & OPT_FLAGS_KSM)
+		stress_ksm_memory_merge(1);
+
+	stress_set_proc_state(name, STRESS_STATE_INIT);
+	stress_mwc_reseed();
+	stress_set_max_limits();
+	stress_set_iopriority(ionice_class, ionice_level);
+	(void)umask(0077);
+
+	pr_dbg("%s: [%d] started (instance %" PRIu32 " on CPU %u)\n",
+		name, (int)child_pid, instance, stress_get_cpu());
+
+	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
+		stress_interrupts_start(stats->interrupts);
+#if defined(STRESS_PERF_STATS) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
+	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
+		(void)stress_perf_open(&stats->sp);
+#endif
+	(void)shim_usleep((useconds_t)(backoff * started_instances));
+#if defined(STRESS_PERF_STATS) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
+	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
+		(void)stress_perf_enable(&stats->sp);
+#endif
+	stress_yield_sleep_ms();
+	stats->start = stress_time_now();
+	if (g_opt_timeout)
+		(void)alarm((unsigned int)g_opt_timeout);
+	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
+		const stress_args_t args = {
+			.ci = &stats->ci,
+			.name = name,
+			.max_ops = g_stressor_current->bogo_ops,
+			.instance = (uint32_t)instance,
+			.num_instances = (uint32_t)g_stressor_current->num_instances,
+			.pid = child_pid,
+			.page_size = page_size,
+			.time_end = stress_time_now() + (double)g_opt_timeout,
+			.mapped = &g_shared->mapped,
+			.metrics = stats->metrics,
+			.info = g_stressor_current->stressor->info
+		};
+		stress_set_oom_adjustment(&args, false);
+		(void)shim_memset(*checksum, 0, sizeof(**checksum));
+		stats->start = stress_time_now();
+		rc = g_stressor_current->stressor->info->stressor(&args);
+		stress_block_signals();
+		(void)alarm(0);
+		if (g_opt_flags & OPT_FLAGS_INTERRUPTS) {
+			stress_interrupts_stop(stats->interrupts);
+			stress_interrupts_check_failure(name, stats->interrupts, instance, &rc);
+		}
+		pr_fail_check(&rc);
+#if defined(SA_SIGINFO) &&	\
+    defined(SI_USER)
+		/*
+		 *  Sanity check if process was killed by
+		 *  an external SIGALRM source
+		 */
+		if (sigalrm_info.triggered && (sigalrm_info.code == SI_USER)) {
+			time_t t = sigalrm_info.when.tv_sec;
+			const struct tm *tm = localtime(&t);
+
+			if (tm) {
+				pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
+					name,
+					tm->tm_hour, tm->tm_min, tm->tm_sec,
+					(long)sigalrm_info.when.tv_usec / 10000,
+					sigalrm_info.uid);
+			} else {
+				pr_dbg("%s: terminated by SIGALRM externally by user %d\n",
+					name, sigalrm_info.uid);
+			}
+		}
+#endif
+		stats->completed = true;
+		ok = (rc == EXIT_SUCCESS);
+		stats->ci.run_ok = ok;
+		(*checksum)->data.ci.run_ok = ok;
+		/* Ensure reserved padding is zero to not confuse checksum */
+		(void)shim_memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
+
+		stress_set_proc_state(name, STRESS_STATE_STOP);
+		/*
+		 *  Bogo ops counter should be OK for reading,
+		 *  if not then flag up that the counter may
+		 *  be untrustyworthy
+		 */
+		if ((!stats->ci.counter_ready) && (!stats->ci.force_killed)) {
+			pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
+				"metrics are untrustworthy (process may have been "
+				"terminated prematurely)\n",
+				name);
+			rc = EXIT_METRICS_UNTRUSTWORTHY;
+		}
+		(*checksum)->data.ci.counter = args.ci->counter;
+		stress_hash_checksum(*checksum);
+	}
+#if defined(STRESS_PERF_STATS) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
+	if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
+		(void)stress_perf_disable(&stats->sp);
+		(void)stress_perf_close(&stats->sp);
+	}
+#endif
+#if defined(STRESS_THERMAL_ZONES)
+	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
+		(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
+#endif
+	finish = stress_time_now();
+	stats->duration = finish - stats->start;
+	stats->counter_total += stats->ci.counter;
+	stats->duration_total += stats->duration;
+
+	stress_get_usage_stats(ticks_per_sec, stats);
+	pr_dbg("%s: [%d] exited (instance %" PRIu32 " on CPU %d)\n",
+		name, (int)child_pid, instance, stress_get_cpu());
+
+	/* Allow for some slops of ~0.5 secs */
+	run_duration = (finish - fork_time_start) + 0.5;
+
+	/*
+	 * Apparently succeeded but terminated early?
+	 * Could be a bug, so report a warning
+	 */
+	if (stats->ci.run_ok &&
+	    (g_shared && !g_shared->caught_sigint) &&
+	    (run_duration < (double)g_opt_timeout) &&
+	    (!(g_stressor_current->bogo_ops && stats->ci.counter >= g_stressor_current->bogo_ops))) {
+
+		pr_warn("%s: WARNING: finished prematurely after just %s\n",
+			name, stress_duration_to_str(run_duration, true));
+	}
+child_exit:
+	/*
+	 *  We used to free allocations on the heap, but
+	 *  the child is going to _exit() soon so it's
+	 *  faster to just free the heap objects on _exit()
+	 */
+	if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
+		stress_continue_set_flag(false);
+		wait_flag = false;
+		(void)shim_kill(getppid(), SIGALRM);
+	}
+	stress_set_proc_state(name, STRESS_STATE_EXIT);
+	if (terminate_signum)
+		rc = EXIT_SIGNALED;
+	g_shared->instance_count.exited++;
+	g_shared->instance_count.started--;
+	if (rc == EXIT_FAILURE)
+		g_shared->instance_count.failed++;
+
+	return rc;
+}
+
+/*
  *  stress_run()
  *	kick off and run stressors
  */
@@ -1376,12 +1572,10 @@ static void MLOCKED_TEXT stress_run(
 		 *  Each stressor has 1 or more instances to run
 		 */
 		for (j = 0; j < g_stressor_current->num_instances; j++, (*checksum)++) {
-			int rc = EXIT_SUCCESS;
-			pid_t pid, child_pid;
-			char name[64];
+			double fork_time_start;
+			pid_t pid;
+			int rc;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
-			double finish, run_duration, fork_time_start;
-			bool ok;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -1407,176 +1601,12 @@ again:
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
-				sigalarmed = &stats->sigalarmed;
-				child_pid = getpid();
-
-				(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
-				stress_set_proc_state(name, STRESS_STATE_START);
-				g_shared->instance_count.started++;
-
-				(void)sched_settings_apply(true);
-				(void)atexit(stress_child_atexit);
-				if (stress_set_handler(name, true) < 0) {
-					rc = EXIT_FAILURE;
-					stress_block_signals();
-					goto child_exit;
-				}
-				stress_parent_died_alarm();
-				stress_process_dumpable(false);
-				stress_set_timer_slack();
-
-				if (g_opt_flags & OPT_FLAGS_KSM)
-					stress_ksm_memory_merge(1);
-
-				stress_set_proc_state(name, STRESS_STATE_INIT);
-				stress_mwc_reseed();
-				stress_set_max_limits();
-				stress_set_iopriority(ionice_class, ionice_level);
-				(void)umask(0077);
-
-				pr_dbg("%s: [%d] started (instance %" PRIu32 " on CPU %u)\n",
-					name, (int)child_pid, j, stress_get_cpu());
-
-				if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
-					stress_interrupts_start(stats->interrupts);
-#if defined(STRESS_PERF_STATS) &&	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
-				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-					(void)stress_perf_open(&stats->sp);
-#endif
-				(void)shim_usleep((useconds_t)(backoff * started_instances));
-#if defined(STRESS_PERF_STATS) &&	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
-				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-					(void)stress_perf_enable(&stats->sp);
-#endif
-				stress_yield_sleep_ms();
-				stats->start = stress_time_now();
-				if (g_opt_timeout)
-					(void)alarm((unsigned int)g_opt_timeout);
-				if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
-					const stress_args_t args = {
-						.ci = &stats->ci,
-						.name = name,
-						.max_ops = g_stressor_current->bogo_ops,
-						.instance = (uint32_t)j,
-						.num_instances = (uint32_t)g_stressor_current->num_instances,
-						.pid = child_pid,
-						.page_size = page_size,
-						.time_end = stress_time_now() + (double)g_opt_timeout,
-						.mapped = &g_shared->mapped,
-						.metrics = stats->metrics,
-						.info = g_stressor_current->stressor->info
-					};
-					stress_set_oom_adjustment(&args, false);
-					(void)shim_memset(*checksum, 0, sizeof(**checksum));
-					stats->start = stress_time_now();
-					rc = g_stressor_current->stressor->info->stressor(&args);
-					stress_block_signals();
-					(void)alarm(0);
-					if (g_opt_flags & OPT_FLAGS_INTERRUPTS) {
-						stress_interrupts_stop(stats->interrupts);
-						stress_interrupts_check_failure(name, stats->interrupts, j, &rc);
-					}
-					pr_fail_check(&rc);
-#if defined(SA_SIGINFO) &&	\
-    defined(SI_USER)
-					/*
-					 *  Sanity check if process was killed by
-					 *  an external SIGALRM source
-					 */
-					if (sigalrm_info.triggered && (sigalrm_info.code == SI_USER)) {
-						time_t t = sigalrm_info.when.tv_sec;
-						const struct tm *tm = localtime(&t);
-
-						if (tm) {
-							pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
-								name,
-								tm->tm_hour, tm->tm_min, tm->tm_sec,
-								(long)sigalrm_info.when.tv_usec / 10000,
-								sigalrm_info.uid);
-						} else {
-							pr_dbg("%s: terminated by SIGALRM externally by user %d\n",
-								name, sigalrm_info.uid);
-						}
-					}
-#endif
-					stats->completed = true;
-					ok = (rc == EXIT_SUCCESS);
-					stats->ci.run_ok = ok;
-					(*checksum)->data.ci.run_ok = ok;
-					/* Ensure reserved padding is zero to not confuse checksum */
-					(void)shim_memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
-
-					stress_set_proc_state(name, STRESS_STATE_STOP);
-					/*
-					 *  Bogo ops counter should be OK for reading,
-					 *  if not then flag up that the counter may
-					 *  be untrustyworthy
-					 */
-					if ((!stats->ci.counter_ready) && (!stats->ci.force_killed)) {
-						pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
-							"metrics are untrustworthy (process may have been "
-							"terminated prematurely)\n",
-							name);
-						rc = EXIT_METRICS_UNTRUSTWORTHY;
-					}
-					(*checksum)->data.ci.counter = args.ci->counter;
-					stress_hash_checksum(*checksum);
-				}
-#if defined(STRESS_PERF_STATS) &&	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
-				if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
-					(void)stress_perf_disable(&stats->sp);
-					(void)stress_perf_close(&stats->sp);
-				}
-#endif
-#if defined(STRESS_THERMAL_ZONES)
-				if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-					(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
-#endif
-				finish = stress_time_now();
-				stats->duration = finish - stats->start;
-				stats->counter_total += stats->ci.counter;
-				stats->duration_total += stats->duration;
-
-				stress_get_usage_stats(ticks_per_sec, stats);
-				pr_dbg("%s: [%d] exited (instance %" PRIu32 " on CPU %d)\n",
-					name, (int)child_pid, j, stress_get_cpu());
-
-				/* Allow for some slops of ~0.5 secs */
-				run_duration = (finish - fork_time_start) + 0.5;
-
-				/*
-				 * Apparently succeeded but terminated early?
-				 * Could be a bug, so report a warning
-				 */
-				if (stats->ci.run_ok &&
-				    (g_shared && !g_shared->caught_sigint) &&
-				    (run_duration < (double)g_opt_timeout) &&
-				    (!(g_stressor_current->bogo_ops && stats->ci.counter >= g_stressor_current->bogo_ops))) {
-
-					pr_warn("%s: WARNING: finished prematurely after just %s\n",
-						name, stress_duration_to_str(run_duration, true));
-				}
-child_exit:
-				/*
-				 *  We used to free allocations on the heap, but
-				 *  the child is going to _exit() soon so it's
-				 *  faster to just free the heap objects on _exit()
-				 */
-				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
-					stress_continue_set_flag(false);
-					wait_flag = false;
-					(void)shim_kill(getppid(), SIGALRM);
-				}
-				stress_set_proc_state(name, STRESS_STATE_EXIT);
-				if (terminate_signum)
-					rc = EXIT_SIGNALED;
-				g_shared->instance_count.exited++;
-				g_shared->instance_count.started--;
-				if (rc == EXIT_FAILURE)
-					g_shared->instance_count.failed++;
+				rc = stress_run_child(checksum,
+						stats, fork_time_start,
+						backoff, ticks_per_sec,
+						ionice_class, ionice_level,
+						j, started_instances,
+						page_size);
 				_exit(rc);
 			default:
 				if (pid > -1) {
