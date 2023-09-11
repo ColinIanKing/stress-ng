@@ -53,14 +53,16 @@ static inline int pr_fd(void)
 static void pr_log_write_buf_fd(const int fd, const char *buf, const size_t buf_len)
 {
 	ssize_t n = (ssize_t)buf_len;
+	const char *ptr = buf;
 
 	while (n > 0) {
 		ssize_t ret;
 
-		ret = write(fd, buf, buf_len);
-		if (ret < 0)
+		ret = write(fd, ptr, n);
+		if (ret <= 0)
 			break;
 		n -= ret;
+		ptr += ret;
 	}
 	shim_fsync(fd);
 }
