@@ -157,6 +157,7 @@
 	MACRO(memrate)		\
 	MACRO(memthrash)	\
 	MACRO(mergesort)	\
+	MACRO(metamix)		\
 	MACRO(mincore)		\
 	MACRO(misaligned)	\
 	MACRO(mknod)		\

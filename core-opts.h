@@ -709,6 +709,10 @@ typedef enum {
 	OPT_mergesort_ops,
 	OPT_mergesort_integers,
 
+	OPT_metamix,
+	OPT_metamix_ops,
+	OPT_metamix_bytes,
+
 	OPT_metrics_brief,
 
 	OPT_mincore,

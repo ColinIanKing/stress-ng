@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "10 Aug 2023"
+.TH STRESS-NG 1 "13 Sept 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3961,6 +3961,24 @@ stop mergesort stress workers after N bogo mergesorts.
 .TP
 .B \-\-mergesort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
+.RE
+.TP
+.B File metadata mix
+.RS 5
+.TQ
+.B \-\-metamix N
+start N workers that generate a file metadata mix of operations. Each stressor
+runs 16 concurrent processes that each exercise a file's metadata with sequences
+of open, 256 lseeks and writes, fdatasync, close, fsync and then stat, open,
+256 lseeks, reads, occasional file memory mapping, close, unlink and lstat.
+.TP
+.B \-\-metamix\-bytes N
+set the size of metamix files, the default is 1 MB. One can specify the size
+as % of free space on the file system or in units of Bytes, KBytes, MBytes and
+GBytes using the suffix b, k, m or g.
+.TP
+.B -\-metamix\-ops N
+stop the metamix stressor after N bogo metafile operations.
 .RE
 .TP
 .B Resident memory (mincore) stressor

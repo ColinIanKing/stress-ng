@@ -360,6 +360,7 @@ STRESS_SRC = \
 	stress-memrate.c \
 	stress-memthrash.c \
 	stress-mergesort.c \
+	stress-metamix.c \
 	stress-mincore.c \
 	stress-misaligned.c \
 	stress-mknod.c \
