@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-net.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
@@ -168,7 +169,10 @@ static int stress_epoll_pwait(
 			return ret;
 	}
 #endif
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 	return epoll_pwait(epfd, events, maxevents, timeout, sigmask);
+STRESS_PRAGMA_POP
 }
 
 static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
