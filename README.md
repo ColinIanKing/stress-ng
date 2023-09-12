@@ -594,6 +594,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Sage: Practical & Scalable ML-Driven Performance Debugging in Microservices](https://people.csail.mit.edu/delimitrou/papers/2021.asplos.sage.pdf)
 * [A Generalized Approach For Practical Task Allocation Using A MAPE-K Control Loop](https://www.marquez-barja.com/images/papers/A_Generalized_Approach_For_Software_Placement_In_The_Fog_Using_A_MAPE_K_Control_Loop-AuthorVersion.pdf)]
 * [Towards Independent Run-time Cloud Monitoring](https://research.spec.org/icpe_proceedings/2021/companion/p21.pdf)
+* [FIRESTARTER 2: Dynamic Code Generation for Processor Stress Tests](https://tu-dresden.de/zih/forschung/ressourcen/dateien/projekte/firestarter/FIRESTARTER-2-Dynamic-Code-Generation-for-Processor-Stress-Tests.pdf?lang=en)
 
 2022:
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
