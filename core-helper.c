@@ -1632,7 +1632,7 @@ void stress_rndstr(char *str, size_t len)
 	static const char alphabet[64] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
-		"0123456789" "-_";
+		"0123456789-_";
 	size_t i;
 	uint32_t r = 0;		/* Silence a gcc warning */
 	if (len == 0)
