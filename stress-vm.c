@@ -3010,6 +3010,8 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
 	const stress_vm_func func = context->vm_method->func;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("vm-hang", &vm_hang);
 	(void)stress_get_setting("vm-keep", &vm_keep);
 	(void)stress_get_setting("vm-flags", &vm_flags);

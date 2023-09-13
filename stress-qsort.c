@@ -314,6 +314,8 @@ static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
 	int mmap_flags = MAP_ANONYMOUS | MAP_PRIVATE;
 	qsort_func_t qsort_func;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("qsort-method", &qsort_method);
 	if (!stress_get_setting("qsort-size", &qsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

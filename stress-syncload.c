@@ -291,6 +291,8 @@ static int stress_syncload(const stress_args_t *args)
 	size_t delay_type = 0;
 	size_t i;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("syncload-msbusy", &syncload_msbusy);
 	(void)stress_get_setting("syncload-mssleep", &syncload_mssleep);
 

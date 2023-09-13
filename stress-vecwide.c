@@ -158,6 +158,8 @@ static int stress_vecwide(const stress_args_t *args)
 	const size_t vec_args_size = (sizeof(*vec_args) + args->page_size - 1) & ~(args->page_size - 1);
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
+	stress_catch_sigill();
+
 	vec_args = (vec_args_t *)mmap(NULL, vec_args_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (vec_args == MAP_FAILED) {

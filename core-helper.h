@@ -183,5 +183,6 @@ extern int stress_swapoff(const char *path);
 extern void stress_clean_dir(const char *name, const pid_t pid,
 	const uint32_t instance);
 extern void stress_yield_sleep_ms(void);
+extern void stress_catch_sigill(void);
 
 #endif

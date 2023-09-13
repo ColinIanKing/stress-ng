@@ -506,6 +506,8 @@ static int stress_fp(const stress_args_t *args)
 	size_t fp_method = 0;	/* "all" */
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
+	stress_catch_sigill();
+
 	mmap_size = FP_ELEMENTS * sizeof(*fp_data);
 	fp_data = (fp_data_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);

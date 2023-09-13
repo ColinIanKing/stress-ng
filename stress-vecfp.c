@@ -416,6 +416,8 @@ static int stress_vecfp(const stress_args_t *args)
 	size_t vecfp_method = 0;	/* "all" */
 	bool success = true;
 
+	stress_catch_sigill();
+
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const size_t elements = stress_vecfp_funcs[i].elements;
 

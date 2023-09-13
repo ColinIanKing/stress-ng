@@ -164,6 +164,8 @@ static int stress_llc_affinity(const stress_args_t *args)
 	cache_line_func_t write_func, read_func;
 	bool llc_affinity_mlock = false;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("llc-affinity-mlock", &llc_affinity_mlock);
 
 	stress_cpu_cache_get_llc_size(&llc_size, &cache_line_size);

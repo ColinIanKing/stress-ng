@@ -258,6 +258,8 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	mmap_flags |= MAP_POPULATE;
 #endif
 
+	stress_catch_sigill();
+
 	(void)context;
 
 	(void)stress_get_setting("memfd-mlock", &memfd_mlock);

@@ -4272,3 +4272,127 @@ void stress_yield_sleep_ms(void)
 		shim_usleep(1000);
 	} while (stress_continue_flag());
 }
+
+static void stress_dbg(const char *fmt, ...) FORMAT(printf, 1, 2);
+
+/*
+ *  stress_dbg()
+ *	simple debug, messages must be less than 128 bytes
+ */
+static void stress_dbg(const char *fmt, ...)
+{
+	va_list ap;
+	int n;
+	static char buf[128];
+
+	va_start(ap, fmt);
+	n = vsnprintf(buf, sizeof(buf), fmt, ap);
+	va_end(ap);
+
+	VOID_RET(ssize_t, write(fileno(stdout), buf, n));
+}
+
+/*
+ *  stress_addr_readable()
+ *	portable way to check if memory addr[0]..addr[len - 1] is readable,
+ *	create pipe, see if write of the memory range works, failure (with
+ *	EFAULT) will be used to indicate address range is not readable.
+ */
+static inline bool stress_addr_readable(const void *addr, const size_t len)
+{
+	int fds[2];
+	bool ret = false;
+
+	if (pipe(fds) < 0)
+		return ret;
+
+	if (write(fds[1], addr, len) == (ssize_t)len)
+		ret = true;
+
+	(void)close(fds[0]);
+	(void)close(fds[1]);
+
+	return ret;
+}
+
+/*
+ *  stress_dump_objcode()
+ *	dump to stdout 16 bytes object code if it is readable. SIGILL address
+ *	data is indicated with < > around it.
+ */
+static void stress_dump_objcode(
+	const uint8_t *addr,
+	const uint8_t *sigill_addr,
+	const size_t len)
+{
+	if (stress_addr_readable(addr, len)) {
+		size_t i;
+		bool show_opcode = false;
+
+		stress_dbg("0x%p:", addr);
+		for (i = 0; i < len; i++) {
+			if (&addr[i] == sigill_addr) {
+				stress_dbg("<%-2.2x>", addr[i]);
+				show_opcode = true;
+			} else {
+				stress_dbg("%s%-2.2x",
+					show_opcode ? "" : " ", addr[i]);
+				show_opcode = false;
+			}
+		}
+		stress_dbg("\n");
+	}
+}
+
+/*
+ *  stress_catch_sigill_handler()
+ *	handle SIGILL, dump 16 bytes before and after the illegal opcode
+ *	and terminate immediately to avoid any recursive SIGILL.
+ */
+static void stress_catch_sigill_handler(
+	int sig,
+	siginfo_t *info,
+	void *ucontext)
+{
+	static bool handled = false;
+
+	(void)sig;
+	(void)ucontext;
+
+	if (handled)
+		_exit(EXIT_FAILURE);
+
+	handled = true;
+	if (sig == SIGILL) {
+		uint8_t *addr = info->si_addr;
+		size_t i;
+
+
+		stress_dbg("caught SIGILL at address 0x%p\n", addr);
+		addr -= 16;
+		for (i = 0; i < 3; i++, addr += 16)
+			stress_dump_objcode(addr, info->si_addr, 16);
+	}
+	/* Big fat abort */
+	_exit(EXIT_FAILURE);
+}
+
+/*
+ *  stress_catch_sigill()
+ *	add signal handler to catch and dump illegal instructions,
+ *	this is mainly to be used by any code using target clones
+ *	just in case the compiler emits code that the target cannot
+ *	actually execute.
+ */
+void stress_catch_sigill(void)
+{
+	struct sigaction sa;
+
+	(void)shim_memset(&sa, 0, sizeof(sa));
+
+	sa.sa_sigaction = stress_catch_sigill_handler;
+#if defined(SA_SIGINFO)
+	sa.sa_flags = SA_SIGINFO;
+#endif
+	(void)sigaction(SIGILL, &sa, NULL);
+}

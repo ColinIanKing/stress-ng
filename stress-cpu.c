@@ -2929,6 +2929,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	bool cpu_old_metrics = false;
 	size_t i;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("cpu-load", &cpu_load);
 	(void)stress_get_setting("cpu-load-slice", &cpu_load_slice);
 	(void)stress_get_setting("cpu-method", &cpu_method);

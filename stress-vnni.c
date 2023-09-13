@@ -521,6 +521,8 @@ static int stress_vnni(const stress_args_t *args)
 {
 	size_t i, j, vnni_method = 0, intrinsic_count = 0;
 
+	stress_catch_sigill();
+
 	little_endian = stress_little_endian();
 
 	stress_mwc_set_seed(0x172fb3ea, 0xd9c02f73);

@@ -1742,6 +1742,8 @@ static int stress_zlib(const stress_args_t *args)
 	bool interrupted = false;
 	stress_zlib_shared_checksums_t *shared_checksums;
 
+	stress_catch_sigill();
+
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 

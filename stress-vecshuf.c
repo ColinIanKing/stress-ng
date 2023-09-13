@@ -358,6 +358,8 @@ static int stress_vecshuf(const stress_args_t *args)
 	size_t vecshuf_method = 0;	/* "all" */
 	size_t i;
 
+	stress_catch_sigill();
+
 	data = (stress_vec_data_t *)mmap(NULL, sizeof(*data), PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {

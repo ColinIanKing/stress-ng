@@ -934,6 +934,8 @@ static int stress_tree(const stress_args_t *args)
 	stress_tree_func func;
 	stress_tree_metrics_t *metrics;
 
+	stress_catch_sigill();
+
 	for (i = 0; i < SIZEOF_ARRAY(stress_tree_metrics); i++) {
 		stress_tree_metrics[i].insert = 0.0;
 		stress_tree_metrics[i].find = 0.0;

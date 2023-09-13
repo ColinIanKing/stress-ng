@@ -1014,6 +1014,8 @@ static int stress_matrix(const stress_args_t *args)
 	size_t matrix_yx = 0;
 	int rc;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("matrix-method", &matrix_method);
 	(void)stress_get_setting("matrix-yx", &matrix_yx);
 

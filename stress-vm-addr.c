@@ -454,6 +454,8 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 	stress_vm_addr_context_t *context = (stress_vm_addr_context_t *)ctxt;
 	const stress_vm_addr_func func = context->vm_addr_method->func;
 
+	stress_catch_sigill();
+
 	do {
 		for (buf_addr = args->page_size; buf_addr && (buf_addr < max_addr); buf_addr <<= 1) {
 			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
@@ -500,7 +502,6 @@ static int stress_vm_addr(const stress_args_t *args)
 	size_t retries, vm_addr_method = 0;
 	int err = 0, ret = EXIT_SUCCESS;
 	stress_vm_addr_context_t context;
-
 
 	(void)stress_get_setting("vm-addr-mlock", &context.vm_addr_mlock);
 	(void)stress_get_setting("vm-addr-method", &vm_addr_method);

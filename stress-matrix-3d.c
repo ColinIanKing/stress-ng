@@ -996,6 +996,8 @@ static int stress_matrix_3d(const stress_args_t *args)
 	size_t matrix_3d_zyx = 0;
 	int rc;
 
+	stress_catch_sigill();
+
 	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method);
 	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_zyx);
 

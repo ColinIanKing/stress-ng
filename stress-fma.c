@@ -167,6 +167,8 @@ static int stress_fma(const stress_args_t *args)
 	register size_t idx_b = 0, idx_c = 0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
+	stress_catch_sigill();
+
 	fma = (stress_fma_t *)mmap(NULL, sizeof(*fma), PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fma == MAP_FAILED) {
