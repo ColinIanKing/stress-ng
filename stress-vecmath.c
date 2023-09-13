@@ -184,8 +184,7 @@ static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 	const stress_vint128_t v3_128 = { V3(INT1x128) };
 #endif
 
-	if (stress_catch_sigill()) 
-		return EXIT_FAILURE;
+	stress_catch_sigill();
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
