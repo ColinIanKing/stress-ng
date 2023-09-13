@@ -713,8 +713,7 @@ static void stress_usage_help(const stress_help_t help_info[])
 		if (help_info[i].opt_s)
 			(void)snprintf(opt_s, sizeof(opt_s), "-%s,",
 					help_info[i].opt_s);
-		(void)printf("%-6s--%-22s", opt_s,
-			help_info[i].opt_l);
+		(void)printf("%-6s--%-22s", opt_s, help_info[i].opt_l);
 
 		for (ptr = start; *ptr; ptr++) {
 			if (*ptr == ' ')
@@ -749,7 +748,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
 	size_t i;
 	bool space = false;
 
-	for (i = 0; i < SIZEOF_ARRAY(stressors); i++)
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info->verify == mode) {
 			char munged[64];
 
@@ -757,6 +756,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
 			(void)printf("%s%s", space ? " " : "", munged);
 			space = true;
 		}
+	}
 	(void)putchar('\n');
 }
 
@@ -1214,7 +1214,6 @@ static void stress_stressors_free(void)
 
 		free(ss->stats);
 		free(ss);
-
 		ss = next;
 	}
 
@@ -2037,7 +2036,6 @@ static void stress_metrics_dump(FILE *yaml)
 				}
 			}
 		}
-
 		pr_yaml(yaml, "\n");
 	}
 
@@ -2134,7 +2132,6 @@ static void stress_times_dump(
 	pr_inf("  %8.2fs user time   (%6.2f%%)\n", u_time, u_pc);
 	pr_inf("  %8.2fs system time (%6.2f%%)\n", s_time, s_pc);
 	pr_inf("  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
-
 	if (!rc) {
 		pr_inf("load average: %.2f %.2f %.2f\n",
 			min1, min5, min15);
@@ -2485,13 +2482,11 @@ static stress_stressor_t *stress_find_proc_info(const stress_t *stressor)
 			return ss;
 	}
 #endif
-
 	ss = calloc(1, sizeof(*ss));
 	if (!ss) {
 		(void)fprintf(stderr, "Cannot allocate stressor state info\n");
 		exit(EXIT_FAILURE);
 	}
-
 	ss->stressor = stressor;
 	ss->ignore.run = STRESS_STRESSOR_NOT_IGNORED;
 	stress_append_stressor(ss);
@@ -2700,7 +2695,6 @@ static void stress_enable_all_stressors(const int32_t instances)
 	/* Don't enable all if some stressors are set */
 	if (g_opt_flags & OPT_FLAGS_SET)
 		return;
-
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		stress_stressor_t *ss = stress_find_proc_info(&stressors[i]);
@@ -3070,7 +3064,6 @@ static void stress_set_default_timeout(const uint64_t timeout)
 	} else {
 		action = "setting";
 	}
-
 	pr_inf("%s to a %s run per stressor\n",
 		action, stress_duration_to_str((double)g_opt_timeout, false));
 }
@@ -3429,7 +3422,6 @@ int main(int argc, char **argv, char **envp)
 		" processor%s configured\n",
 		cpus_online, cpus_online == 1 ? "" : "s",
 		cpus_configured, cpus_configured == 1 ? "" : "s");
-
 
 	/*
 	 *  For random mode the stressors must be available
