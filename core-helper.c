@@ -4305,10 +4305,8 @@ static inline bool stress_addr_readable(const void *addr, const size_t len)
 
 	if (pipe(fds) < 0)
 		return ret;
-
 	if (write(fds[1], addr, len) == (ssize_t)len)
 		ret = true;
-
 	(void)close(fds[0]);
 	(void)close(fds[1]);
 
@@ -4361,12 +4359,10 @@ static void stress_catch_sigill_handler(
 
 	if (handled)
 		_exit(EXIT_FAILURE);
-
 	handled = true;
 	if (sig == SIGILL) {
 		uint8_t *addr = info->si_addr;
 		size_t i;
-
 
 		stress_dbg("caught SIGILL at address 0x%p\n", addr);
 		addr -= 16;
