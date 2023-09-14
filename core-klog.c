@@ -226,12 +226,8 @@ void stress_klog_stop(bool *success)
 			*success = false;
 		}
 
-		if (klog_pid > 1) {
-			int status;
-
-			(void)stress_kill_pid(klog_pid);
-			(void)waitpid(klog_pid, &status, 0);
-		}
+		if (klog_pid > 1)
+			(void)stress_kill_pid_wait(klog_pid, NULL);
 		klog_pid = -1;
 		g_shared->klog_errors = 0;
 	}

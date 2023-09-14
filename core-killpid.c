@@ -50,6 +50,19 @@ int stress_kill_pid(const pid_t pid)
 }
 
 /*
+ *  stress_kill_pid_wait()
+ *	kill and wait for a pid. If status is non-null copy waitpid
+ *	status to it.
+ */
+int stress_kill_pid_wait(const pid_t pid, int *status)
+{
+	int tmp_status = 0;
+
+	(void)stress_kill_pid(pid);
+	return shim_waitpid(pid, status ? status : &tmp_status, 0);
+}
+
+/*
  *  stress_kill_sig()
  *	use process memory releasing if using SIGKILL, otherwise
  *	use vanilla kill

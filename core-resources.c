@@ -814,10 +814,7 @@ void stress_resources_free(
 		}
 #endif
 		if (resources[i].pid > 0) {
-			int status;
-
-			(void)stress_kill_pid(resources[i].pid);
-			(void)shim_waitpid(resources[i].pid, &status, 0);
+			(void)stress_kill_pid_wait(resources[i].pid, NULL);
 			resources[i].pid = 0;
 		}
 	}

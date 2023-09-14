@@ -341,16 +341,13 @@ void stress_ignite_cpu_start(void)
 void stress_ignite_cpu_stop(void)
 {
 	size_t i;
-	int status;
 
 	if (latency_fd != -1) {
 		(void)close(latency_fd);
 		latency_fd = -1;
 	}
-	if (pid > -1) {
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	if (pid > -1)
+		(void)stress_kill_pid_wait(pid, NULL);
 
 	if (cpu_settings) {
 		int32_t cpu;

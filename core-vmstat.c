@@ -1247,10 +1247,6 @@ void stress_vmstat_start(void)
  */
 void stress_vmstat_stop(void)
 {
-	if (vmstat_pid > 0) {
-		int status;
-
-		(void)stress_kill_pid(vmstat_pid);
-		(void)waitpid(vmstat_pid, &status, 0);
-	}
+	if (vmstat_pid > 0)
+		(void)stress_kill_pid_wait(vmstat_pid, NULL);
 }
