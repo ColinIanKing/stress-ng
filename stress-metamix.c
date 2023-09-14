@@ -21,7 +21,7 @@
 #include "core-hash.h"
 #include "core-killpid.h"
 
-#define MIN_METAMIX_BYTES		(1 * MB)
+#define MIN_METAMIX_BYTES		(512)
 #define MAX_METAMIX_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_METAMIX_BYTES		(1 * MB)
 
@@ -85,11 +85,14 @@ static int stress_metamix_file(
 	char filename[PATH_MAX];
 	file_info_t file_info[METAMIX_WRITES];
 	size_t i, n;
-	off_t offset = (off_t)stress_mwc16();
+	off_t offset = (metamix_bytes > (off_t)args->page_size) ?
+		(off_t)stress_mwc16modn(metamix_bytes >> 2) : 0;
 	off_t end = (off_t)0;
 	const size_t min_data_len = sizeof(uint32_t);
 	const size_t checksum_len = sizeof(file_info[0].checksum);
 	const size_t buf_len = 256 + min_data_len + checksum_len;
+	const size_t max_seek = metamix_bytes / METAMIX_WRITES;
+	const off_t page_mask = ~(off_t)(args->page_size - 1);
 	int ret, fd, rc = EXIT_SUCCESS;
 	uint8_t buf[buf_len];
 	struct stat statbuf;
@@ -108,7 +111,7 @@ static int stress_metamix_file(
 	(void)shim_memset(file_info, 0, sizeof(file_info));
 
 	for (n = 0; n < METAMIX_WRITES; n++) {
-		size_t data_len = stress_mwc8() + min_data_len;
+		size_t data_len = stress_mwc8modn(max_seek) + min_data_len;
 		off_t bytes_left;
 
 		file_info[n].offset = offset;
@@ -134,8 +137,14 @@ static int stress_metamix_file(
 
 		if (offset > metamix_bytes)
 			break;
-		offset += bytes_left;
 
+		/* Occasionally force offset to be page aligned */
+		if (((n % (METAMIX_WRITES >> 2)) == 0) && ((metamix_bytes - offset) > (off_t)args->page_size)) {
+			offset += bytes_left;
+			offset = (offset & page_mask) + args->page_size;
+		} else {
+			offset += bytes_left;
+		}
 	}
 	if (stress_mwc8() > 240) {
 		if ((shim_fdatasync(fd) < 0) && (errno != ENOSYS)) {
@@ -248,14 +257,26 @@ static int stress_metamix_file(
 			goto err_close;
 		}
 
-		/* Occasionally try to map in a page on the file */
-		if (stress_mwc8() > 200) {
+		/* Page aligned data means we can mmap it and check it */
+		if ((file_info[i].offset & page_mask) == file_info[i].offset) {
 			void *ptr;
-			off_t moff = offset & ~(args->page_size - 1);
 
-			ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, moff);
-			if (ptr != MAP_FAILED)
-				(void)munmap(ptr, args->page_size);
+			ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, file_info[i].offset);
+			if (ptr != MAP_FAILED) {
+				if (data_len < args->page_size) {
+					checksum = stress_hash_jenkin(ptr, data_len);
+					(void)munmap(ptr, args->page_size);
+
+					if (checksum != file_info[i].checksum) {
+						pr_fail("%s: read failure, expected checksum 0x%" PRIx32 ", got 0x%" PRIx32 "\n",
+							args->name, file_info[i].checksum, checksum);
+						rc = EXIT_FAILURE;
+						goto err_close;
+					}
+				} else {
+					(void)munmap(ptr, args->page_size);
+				}
+			}
 		}
 	}
 	if (lstat(filename, &statbuf) < 0) {
