@@ -2389,9 +2389,9 @@ int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
  */
 int shim_process_mrelease(int pidfd, unsigned int flags)
 {
-#if defined(__NR_process_release) &&	\
+#if defined(__NR_process_mrelease) &&	\
     defined(HAVE_SYSCALL)
-	return (int)syscall(__NR_process_release, pidfd, flags);
+	return (int)syscall(__NR_process_mrelease, pidfd, flags);
 #else
 	return (int)shim_enosys(0, pidfd, flags);
 #endif
