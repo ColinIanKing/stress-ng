@@ -76,7 +76,7 @@ static void pr_log_write_buf(const char *buf, const size_t buf_len)
 {
 	const int fd = pr_fd();
 
-	if (log_fd)
+	if (log_fd != -1)
 		pr_log_write_buf_fd(log_fd, buf, buf_len);
 
 	pr_log_write_buf_fd(fd, buf, buf_len);
