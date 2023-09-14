@@ -531,7 +531,6 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				stress_force_killed_bogo(args);
-				(void)shim_kill(pid, SIGTERM);
 				(void)stress_kill_pid_wait(pid, NULL);
 			} else {
 				if (WIFEXITED(status) &&
