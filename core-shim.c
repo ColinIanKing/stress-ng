@@ -24,6 +24,7 @@
 #include "core-asm-riscv.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-killpid.h"
 #include "core-pragma.h"
 #include "core-shim.h"
 
@@ -1507,7 +1508,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		if (!stress_continue_flag()) {
 			(void)shim_kill(pid, SIGALRM);
 			if (count > 120)
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 		}
 		if (count > 10)
 			(void)sleep(1);

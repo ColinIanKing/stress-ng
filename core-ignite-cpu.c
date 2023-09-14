@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-ignite-cpu.h"
+#include "core-killpid.h"
 
 #define SETTING_SCALING_FREQ		(0x01)
 #define SETTING_CPUINFO_FREQ		(0x02)
@@ -347,8 +348,7 @@ void stress_ignite_cpu_stop(void)
 		latency_fd = -1;
 	}
 	if (pid > -1) {
-		(void)shim_kill(pid, SIGTERM);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

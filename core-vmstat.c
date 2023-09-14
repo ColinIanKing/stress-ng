@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-pragma.h"
 #include "core-thermal-zone.h"
 #include "core-vmstat.h"
@@ -1249,7 +1250,7 @@ void stress_vmstat_stop(void)
 	if (vmstat_pid > 0) {
 		int status;
 
-		(void)shim_kill(vmstat_pid, SIGKILL);
+		(void)stress_kill_pid(vmstat_pid);
 		(void)waitpid(vmstat_pid, &status, 0);
 	}
 }

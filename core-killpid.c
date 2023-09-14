@@ -20,12 +20,12 @@
 #include "core-killpid.h"
 
 /*
- *  stress_killpid()
+ *  stress_kill_pid()
  *	kill a process with SIGKILL. Try and release memory
  *	as soon as possible using process_mrelease for the
  *	Linux case.
  */
-int stress_killpid(const pid_t pid)
+int stress_kill_pid(const pid_t pid)
 {
 #if defined(__linux__) && 		\
     defined(__NR_process_release)
@@ -54,10 +54,10 @@ int stress_killpid(const pid_t pid)
  *	use process memory releasing if using SIGKILL, otherwise
  *	use vanilla kill
  */
-static inline int stress_kill_sig(const pid_t pid, const int signum)
+int stress_kill_sig(const pid_t pid, const int signum)
 {
 	if (signum == SIGKILL)
-		return stress_killpid(pid);
+		return stress_kill_pid(pid);
 	else
 		return shim_kill(pid, signum);
 }
@@ -98,7 +98,7 @@ static int stress_wait_until_reaped(
 			if (count > 120) {
 				if (set_stress_force_killed_bogo)
 					stress_force_killed_bogo(args);
-				stress_killpid(pid);
+				stress_kill_pid(pid);
 			}
 		}
 		shim_sched_yield();

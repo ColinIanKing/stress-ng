@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 #include "core-thrash.h"
 
 #if defined(__linux__) &&	\
@@ -428,7 +429,7 @@ void stress_thrash_stop(void)
 	(void)shim_waitpid(thrash_pid, &status, 0);
 	if (shim_kill(thrash_pid, 0) == 0) {
 		(void)shim_usleep(250000);
-		(void)shim_kill(thrash_pid, SIGKILL);
+		(void)stress_kill_pid(thrash_pid);
 		(void)shim_waitpid(thrash_pid, &status, 0);
 	}
 

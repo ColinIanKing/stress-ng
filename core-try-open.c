@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-try-open.h"
 
 /*
@@ -35,7 +36,7 @@ static void stress_try_kill(
 	for (i = 1; stress_continue(args) && (i <= 20); i++) {
 		int status;
 
-		VOID_RET(int, shim_kill(pid, SIGKILL));
+		VOID_RET(int, stress_kill_pid(pid));
 		VOID_RET(int, waitpid(pid, &status, WNOHANG));
 		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
 			return;

@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 #include "core-klog.h"
 #include "core-processes.h"
 
@@ -228,7 +229,7 @@ void stress_klog_stop(bool *success)
 		if (klog_pid > 1) {
 			int status;
 
-			(void)shim_kill(klog_pid, SIGKILL);
+			(void)stress_kill_pid(klog_pid);
 			(void)waitpid(klog_pid, &status, 0);
 		}
 		klog_pid = -1;

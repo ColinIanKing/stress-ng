@@ -464,7 +464,7 @@ again:
 				msg.shm_name[SHM_NAME_LEN - 1] = '\0';
 				(void)shim_strlcpy(shm_name, msg.shm_name, SHM_NAME_LEN);
 			}
-			(void)stress_killpid(pid);
+			(void)stress_kill_pid(pid);
 			(void)shim_waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
 				if (WTERMSIG(status) == SIGKILL) {
