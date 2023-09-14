@@ -93,6 +93,7 @@ static int stress_metamix_file(
 	const size_t buf_len = 256 + min_data_len + checksum_len;
 	const size_t max_seek = metamix_bytes / METAMIX_WRITES;
 	const off_t page_mask = ~(off_t)(args->page_size - 1);
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int ret, fd, rc = EXIT_SUCCESS;
 	uint8_t buf[buf_len];
 	struct stat statbuf;
@@ -124,7 +125,16 @@ static int stress_metamix_file(
 			goto err_close;
 		}
 		stress_rndbuf(buf, data_len);
-		file_info[n].checksum = stress_hash_jenkin(buf, data_len);
+
+		/*
+		 *  In verify mode we hash for a checksum and use that for read
+		 *  sort ordering, in non-verify mode we use a 32 bit random
+		 *  number in the checksum for read sort ordering
+		 */
+		if (verify)
+			file_info[n].checksum = stress_hash_jenkin(buf, data_len);
+		else
+			file_info[n].checksum = stress_mwc32();
 
 		if (write(fd, buf, data_len) != (ssize_t)data_len)
 			break;
@@ -249,12 +259,14 @@ static int stress_metamix_file(
 			goto err_close;
 		}
 
-		checksum = stress_hash_jenkin(buf, data_len);
-		if (checksum != file_info[i].checksum) {
-			pr_fail("%s: read failure, expected checksum 0x%" PRIx32 ", got 0x%" PRIx32 "\n",
-				args->name, file_info[i].checksum, checksum);
-			rc = EXIT_FAILURE;
-			goto err_close;
+		if (verify) {
+			checksum = stress_hash_jenkin(buf, data_len);
+			if (checksum != file_info[i].checksum) {
+				pr_fail("%s: read failure, expected checksum 0x%" PRIx32 ", got 0x%" PRIx32 "\n",
+					args->name, file_info[i].checksum, checksum);
+				rc = EXIT_FAILURE;
+				goto err_close;
+			}
 		}
 
 		/* Page aligned data means we can mmap it and check it */
@@ -263,7 +275,7 @@ static int stress_metamix_file(
 
 			ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, file_info[i].offset);
 			if (ptr != MAP_FAILED) {
-				if (data_len < args->page_size) {
+				if (verify && (data_len < args->page_size)) {
 					checksum = stress_hash_jenkin(ptr, data_len);
 					(void)munmap(ptr, args->page_size);
 
@@ -384,6 +396,6 @@ stressor_info_t stress_metamix_info = {
 	.stressor = stress_metamix,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
