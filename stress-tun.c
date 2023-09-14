@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_IF_TUN_H)
@@ -377,7 +378,7 @@ child_cleanup_fd:
 			(void)close(sfd);
 		}
 child_reap:
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WEXITSTATUS(status) == EXIT_FAILURE)
 			pr_fail("%s: child reading process failed\n", args->name);

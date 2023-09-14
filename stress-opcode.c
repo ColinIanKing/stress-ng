@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-builtin.h"
 #include "core-bitops.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
@@ -561,7 +562,7 @@ exercise:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)shim_kill(pid, SIGTERM);
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 				(void)shim_waitpid(pid, &status, 0);
 			}
 			stress_bogo_inc(args);

@@ -20,6 +20,7 @@
 #include "core-affinity.h"
 #include "core-arch.h"
 #include "core-cpu-cache.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"peterson N",		"start N workers that exercise Peterson's algorithm" },
@@ -152,7 +153,7 @@ static int stress_peterson(const stress_args_t *args)
 		/* Parent */
 		while (stress_continue(args))
 			stress_peterson_p1(args);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

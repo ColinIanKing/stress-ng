@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"wait N",	"start N workers waiting on child being stop/resumed" },
@@ -125,7 +126,7 @@ static void NORETURN killer(
 	} while (stress_continue(args));
 
 	/* forcefully kill runner, wait is in parent */
-	(void)shim_kill(pid, SIGKILL);
+	(void)stress_kill_pid(pid);
 
 	/* tell parent to wake up! */
 	(void)shim_kill(getppid(), SIGALRM);
@@ -368,11 +369,11 @@ static int stress_wait(const stress_args_t *args)
 	} while (stress_continue_flag() && (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)shim_kill(pid_k, SIGKILL);
+	(void)stress_kill_pid(pid_k);
 	(void)shim_waitpid(pid_k, &status, 0);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)shim_kill(pid_r, SIGKILL);
+	(void)stress_kill_pid(pid_r);
 	(void)shim_waitpid(pid_r, &status, 0);
 
 	return ret;

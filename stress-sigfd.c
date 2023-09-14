@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_SYS_SIGNALFD_H)
 #include <sys/signalfd.h>
@@ -179,8 +180,8 @@ again:
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
 
-		/* terminal child */
-		(void)shim_kill(pid, SIGKILL);
+		/* terminate child */
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

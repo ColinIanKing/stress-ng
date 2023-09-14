@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_SELECT_H)
@@ -216,7 +217,7 @@ finish:
 
 reap:
 	if (pid > 0) {
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

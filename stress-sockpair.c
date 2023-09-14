@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 
 #define MAX_SOCKET_PAIRS	(32768)
@@ -318,7 +319,7 @@ tidy:
 						args->name, errno, strerror(errno));
 				}
 		}
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 	}

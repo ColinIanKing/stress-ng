@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigchld N",	 "start N workers that handle SIGCHLD" },
@@ -113,7 +114,7 @@ again:
 			if (ret == 0) {
 				VOID_RET(int, shim_kill(pid, SIGCONT));
 			}
-			VOID_RET(int, shim_kill(pid, SIGKILL));
+			VOID_RET(int, stress_kill_pid(pid));
 			VOID_RET(int, waitpid(pid, &wstatus, 0));
 		}
 		stress_bogo_set(args, counter);

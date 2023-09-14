@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigq N",	"start N workers sending sigqueue signals" },
@@ -200,7 +201,7 @@ again:
 			(void)shim_usleep(250);
 			/* And ensure child is really dead */
 		}
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) == EXIT_FAILURE)

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 
 typedef struct {
 	const mode_t	chmod_mode;
@@ -217,7 +218,7 @@ static void stress_access_reap(pid_t *pid)
 
 	if (*pid == -1)
 		return;
-	(void)shim_kill(*pid, SIGKILL);
+	(void)stress_kill_pid(*pid);
 	(void)shim_waitpid(*pid, &status, 0);
 	*pid = -1;
 }

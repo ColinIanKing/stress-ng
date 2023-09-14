@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 #define MIN_DIR_DIRS		(64)
 #define MAX_DIR_DIRS		(65536)
@@ -438,7 +439,7 @@ static int stress_dir(const stress_args_t *args)
 	if (pid >= 0) {
 		int status;
 
-		VOID_RET(int, shim_kill(pid, SIGKILL));
+		VOID_RET(int, stress_kill_pid(pid));
 		VOID_RET(int, shim_waitpid(pid, &status, 0));
 	}
 

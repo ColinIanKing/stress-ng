@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 #define MIN_ZOMBIES		(1)
 #define MAX_ZOMBIES		(1000000)
@@ -135,7 +136,7 @@ static void stress_zombie_head_remove(const stress_args_t *args, const bool chec
 
 		if (verify && check) {
 			if (pid > 1) {
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 				if (stress_pid_not_a_zombie(pid))
 					pr_fail("%s: pid %" PRIdMAX " is not in the expected zombie state\n",
 						args->name, (intmax_t)pid);

@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_SYS_IPC_H)
 #include <sys/ipc.h>
@@ -459,7 +460,7 @@ again:
 		int status;
 
 		stress_msg_sender(args, msgq_id, msg_types, msg_bytes);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)

@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_UN_H)
@@ -714,7 +715,7 @@ again:
 		int status;
 
 		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WIFEXITED(status)) {
 			if (WEXITSTATUS(status) != EXIT_SUCCESS) {

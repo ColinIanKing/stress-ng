@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(100000000)
@@ -833,7 +834,7 @@ tidy:
 
 		(void)pause();
 		stress_force_killed_bogo(args);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

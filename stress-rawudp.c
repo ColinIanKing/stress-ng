@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_UDP_H)
@@ -324,7 +325,7 @@ again:
 		int status;
 
 		rc = stress_rawudp_server(args, addr, rawudp_port);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

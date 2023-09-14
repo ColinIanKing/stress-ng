@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
@@ -274,7 +275,7 @@ again:
 
 		(void)close(pipefds[1]);
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
@@ -382,7 +383,7 @@ again:
 
 		stress_switch_rate(args, "sem-sysv", t_start, stress_time_now(), 2 * stress_bogo_get(args));
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:
@@ -475,7 +476,7 @@ again:
 
 		stress_switch_rate(args, "mq", t_start, stress_time_now(), stress_bogo_get(args));
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

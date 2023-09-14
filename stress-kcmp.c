@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_EPOLL_H)
@@ -327,7 +328,7 @@ again:
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);
-		(void)shim_kill(pid1, SIGKILL);
+		(void)stress_kill_pid(pid1);
 		(void)shim_waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}

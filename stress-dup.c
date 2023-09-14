@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"dup N",	"start N workers exercising dup/close" },
@@ -153,7 +154,7 @@ static int static_dup2_child(info_t *info)
 	if (LIKELY(info->pid_clone >= 0)) {
 		int status;
 
-		(void)shim_kill(info->pid_clone, SIGKILL);
+		(void)stress_kill_pid(info->pid_clone);
 		VOID_RET(int, waitpid(info->pid_clone, &status, (int)__WCLONE));
 	}
 

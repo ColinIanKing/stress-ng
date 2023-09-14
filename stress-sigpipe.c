@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 static const stress_args_t *s_args;
 
@@ -135,7 +136,7 @@ again:
 		} while (stress_continue(args));
 
 		(void)close(pipefds[1]);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

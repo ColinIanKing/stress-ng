@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
@@ -441,7 +442,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)shim_kill(pid, SIGTERM);
-					(void)shim_kill(pid, SIGKILL);
+					(void)stress_kill_pid(pid);
 				}
 				(void)shim_waitpid(pid, &status, 0);
 			} else if (WIFSIGNALED(status)) {

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -2626,7 +2627,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			 *  kill and reap of child to make sure
 			 *  it is really dead and buried
 			 */
-			(void)shim_kill(pid, SIGKILL);
+			(void)stress_kill_pid(pid);
 			VOID_RET(int, waitpid(pid, &status, 0));
 		}
 		if (current_context->type == SYSCALL_CRASH) {

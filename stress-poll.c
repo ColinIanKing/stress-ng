@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-affinity.h"
+#include "core-killpid.h"
 
 #define MIN_POLL_FDS	(1)
 #define MAX_POLL_FDS	(8192)	/* Must be never larger than 65535 */
@@ -399,7 +400,7 @@ abort:
 			(void)sleep(0);
 		} while (stress_continue(args));
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

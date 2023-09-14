@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_LINUX_LANDLOCK_H)
 #include <linux/landlock.h>
@@ -267,7 +268,7 @@ again:
 					args->name, errno, strerror(errno));
 			} else {
 				/* Probably an SIGARLM, force reap */
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 				(void)shim_waitpid(pid, &status, 0);
 				return;
 			}

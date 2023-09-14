@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-put.h"
 #include "core-pragma.h"
@@ -375,7 +376,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)shim_kill(pid, SIGTERM);
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 				(void)shim_waitpid(pid, &status, 0);
 			} else if (WIFSIGNALED(status)) {
 				/* If we got killed by OOM killer, re-start */

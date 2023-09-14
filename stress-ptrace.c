@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_PTRACE)
 #include <sys/ptrace.h>
@@ -144,7 +145,7 @@ again:
 				args->name, errno, strerror(errno));
 			if ((errno == ESRCH) || (errno == EPERM) || (errno == EACCES)) {
 				/* Ensure child is really dead and reap */
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 				if (shim_waitpid(pid, &status, 0) < 0) {
 					if ((errno != EINTR) && (errno != ECHILD)) {
 						pr_fail("%s: waitpid failed, errno=%d (%s)\n",
@@ -187,7 +188,7 @@ again:
 		} while (stress_continue(args));
 
 		/* Terminate child */
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		if (shim_waitpid(pid, &status, 0) < 0)
 			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

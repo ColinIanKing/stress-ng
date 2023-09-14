@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -109,7 +110,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 
 		/* Low memory avoidance, re-start */
 		if (stress_low_memory(arg_max * 2)) {
-			(void)shim_kill(getpid(), SIGKILL);
+			(void)stress_kill_pid(getpid());
 			_exit(EXIT_SUCCESS);
 		}
 

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"tee N",	"start N workers exercising the tee system call" },
@@ -326,13 +327,13 @@ do_splice:
 tidy_child2:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_out[1]);
-	(void)shim_kill(pids[1], SIGKILL);
+	(void)stress_kill_pid(pids[1]);
 	(void)shim_waitpid(pids[1], &status, 0);
 
 tidy_child1:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_in[0]);
-	(void)shim_kill(pids[0], SIGKILL);
+	(void)stress_kill_pid(pids[0]);
 	(void)shim_waitpid(pids[0], &status, 0);
 
 	(void)close(fd);

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #define MIN_LEASE_BREAKERS	(1)
 #define MAX_LEASE_BREAKERS	(64)
@@ -246,7 +247,7 @@ reap:
 
 	for (i = 0; i < lease_breakers; i++) {
 		if (l_pids[i]) {
-			(void)shim_kill(l_pids[i], SIGKILL);
+			(void)stress_kill_pid(l_pids[i]);
 			(void)shim_waitpid(l_pids[i], &status, 0);
 		}
 	}

@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
@@ -524,7 +525,7 @@ again:
 		int status;
 
 		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)

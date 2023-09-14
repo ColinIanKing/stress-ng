@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ "y N", "yield N",	"start N workers doing sched_yield() calls" },
@@ -154,7 +155,7 @@ static int stress_yield(const stress_args_t *args)
 		if (pids[i] > 0) {
 			int status;
 
-			(void)shim_kill(pids[i], SIGKILL);
+			(void)stress_kill_pid(pids[i]);
 			(void)shim_waitpid(pids[i], &status, 0);
 			duration += metrics[i].duration;
 			count += metrics[i].count;

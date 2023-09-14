@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_LINUX_OPENAT2_H)
 #include <linux/openat2.h>
@@ -1083,7 +1084,7 @@ static int stress_open(const stress_args_t *args)
 
 				if (!stress_continue(args)) {
 					if (pid > 1)
-						(void)shim_kill(pid, SIGKILL);
+						(void)stress_kill_pid(pid);
 					goto close_all;
 				}
 
@@ -1096,7 +1097,7 @@ static int stress_open(const stress_args_t *args)
 				/* Check if we hit the open file limit */
 				if ((errno == EMFILE) || (errno == ENFILE)) {
 					if (pid > 1)
-						(void)shim_kill(pid, SIGKILL);
+						(void)stress_kill_pid(pid);
 					goto close_all;
 				}
 
@@ -1141,7 +1142,7 @@ close_all:
 	if (pid > 1) {
 		int status;
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)waitpid(pid, &status, 0);
 	}
 

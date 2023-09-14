@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-cpu-cache.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"dekker N",		"start N workers that exercise the Dekker algorithm" },
@@ -160,7 +161,7 @@ static int stress_dekker(const stress_args_t *args)
 		/* Parent */
 		while (stress_continue(args))
 			stress_dekker_p1(args);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 

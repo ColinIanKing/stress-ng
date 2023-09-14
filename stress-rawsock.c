@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-killpid.h"
 #include "core-lock.h"
 #include "core-out-of-memory.h"
 #include "core-net.h"
@@ -209,7 +210,7 @@ static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		goto die;
 	}
 

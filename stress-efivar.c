@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
 
@@ -519,7 +520,7 @@ again:
 					args->name, errno, strerror(errno));
 			stress_force_killed_bogo(args);
 			(void)shim_kill(pid, SIGTERM);
-			(void)shim_kill(pid, SIGKILL);
+			(void)stress_kill_pid(pid);
 			(void)shim_waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",

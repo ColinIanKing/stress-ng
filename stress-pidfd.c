@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"pidfd N",	"start N workers exercising pidfd system call" },
@@ -107,8 +108,7 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
 	int status;
 
 	if (pid) {
-		(void)shim_kill(pid, SIGKILL);
-		(void)shim_process_mrelease(pidfd, 0);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	if (pidfd >= 0)

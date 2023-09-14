@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 /*
  *  Herd of pipe processes, simulates how GNU make passes tokens
@@ -175,7 +176,7 @@ static int stress_pipeherd(const stress_args_t *args)
 		if (pids[i] >= 0) {
 			int status;
 
-			(void)shim_kill(pids[i], SIGKILL);
+			(void)stress_kill_pid(pids[i]);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}

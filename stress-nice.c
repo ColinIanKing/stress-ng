@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"nice N",	"start N workers that randomly re-adjust nice levels" },
@@ -176,7 +177,7 @@ static int stress_nice(const stress_args_t *args)
 			if (shim_waitpid(pid, &status, 0) < 0) {
 				stress_force_killed_bogo(args);
 				(void)shim_kill(pid, SIGTERM);
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 			} else {
 				if (WIFEXITED(status)) {
 					if (WEXITSTATUS(status) != EXIT_SUCCESS) {

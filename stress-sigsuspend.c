@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-affinity.h"
+#include "core-killpid.h"
 
 #define MAX_SIGSUSPEND_PIDS	(4)
 
@@ -118,7 +119,7 @@ reap:
 		if (shim_kill(pid[i], 0) == 0) {
 			/* terminate child */
 			stress_force_killed_bogo(args);
-			(void)shim_kill(pid[i], SIGKILL);
+			(void)stress_kill_pid(pid[i]);
 			(void)shim_waitpid(pid[i], &status, 0);
 		} else {
 			if (shim_waitpid(pid[i], &status, 0) == 0) {

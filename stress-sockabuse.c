@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-net.h"
 
 #if defined(HAVE_SYS_XATTR_H)
@@ -420,7 +421,7 @@ again:
 		int status;
 
 		rc = stress_sockabuse_server(args, mypid, sockabuse_port);
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 finish:

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_STATFS_H)
@@ -1090,7 +1091,7 @@ static inline int stress_do_syscall(
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)shim_kill(pid, SIGKILL);
+			(void)stress_kill_pid(pid);
 			(void)shim_waitpid(pid, &status, 0);
 
 		}

@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
@@ -492,7 +493,7 @@ again:
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)

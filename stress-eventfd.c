@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-affinity.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #if defined(HAVE_SYS_EVENTFD_H)
 #include <sys/eventfd.h>
@@ -242,7 +243,7 @@ exit_child:
 exit_parent:
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 		(void)close(fd1);
 		(void)close(fd2);

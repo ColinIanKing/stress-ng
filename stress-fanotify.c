@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-killpid.h"
 #include "core-mounts.h"
 
 #if defined(HAVE_SYS_FANOTIFY_H)
@@ -723,7 +724,7 @@ tidy:
 	if (pid > 0) {
 		int status;
 
-		(void)shim_kill(pid, SIGKILL);
+		(void)stress_kill_pid(pid);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	(void)shim_unlink(filename);

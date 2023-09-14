@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-cpu.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 
@@ -3596,7 +3597,7 @@ static inline int stress_do_syscall(
 		 */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
-			(void)shim_kill(pid, SIGKILL);
+			(void)stress_kill_pid(pid);
 			(void)shim_waitpid(pid, &status, 0);
 		}
 		rc = WEXITSTATUS(status);
@@ -3648,7 +3649,7 @@ again:
 			/* Still alive, kill it */
 			if (shim_kill(pid, 0) == 0) {
 				stress_force_killed_bogo(args);
-				(void)shim_kill(pid, SIGKILL);
+				(void)stress_kill_pid(pid);
 			}
 			(void)shim_waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {

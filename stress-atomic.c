@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-killpid.h"
 
 #define STRESS_ATOMIC_STRINGIZE(x)	#x
 
@@ -445,7 +446,7 @@ static int stress_atomic(const stress_args_t *args)
 
 			if (shim_kill(atomic_info[i].pid, 0) == 0) {
 				stress_force_killed_bogo(args);
-				(void)shim_kill(atomic_info[i].pid, SIGKILL);
+				(void)stress_kill_pid(atomic_info[i].pid);
 			}
 			(void)waitpid(atomic_info[i].pid, &status, 0);
 		}
