@@ -64,7 +64,9 @@ static void pr_log_write_buf_fd(const int fd, const char *buf, const size_t buf_
 		n -= ret;
 		ptr += ret;
 	}
-	shim_fsync(fd);
+	/* Only sync if writing to log file */
+	if (fd == log_fd)
+		shim_fsync(fd);
 }
 
 /*
