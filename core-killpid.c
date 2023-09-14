@@ -50,6 +50,19 @@ int stress_killpid(const pid_t pid)
 }
 
 /*
+ *  stress_kill_sig()
+ *	use process memory releasing if using SIGKILL, otherwise
+ *	use vanilla kill
+ */
+static inline int stress_kill_sig(const pid_t pid, const int signum)
+{
+	if (signum == SIGKILL)
+		return stress_killpid(pid);
+	else
+		return shim_kill(pid, signum);
+}
+
+/*
  *  stress_wait_until_reaped()
  *	wait until a process has been removed from process table
  */
@@ -81,7 +94,7 @@ static int stress_wait_until_reaped(
 		 *  consecutive EINTRs then give up.
 		 */
 		if (!stress_continue_flag()) {
-			(void)shim_kill(pid, signum);
+			(void)stress_kill_sig(pid, signum);
 			if (count > 120) {
 				if (set_stress_force_killed_bogo)
 					stress_force_killed_bogo(args);
@@ -117,7 +130,7 @@ int stress_kill_and_wait(
 	if ((pid <= 1) || (pid == mypid))
 		return EXIT_SUCCESS;
 
-	(void)shim_kill(pid, signum);
+	stress_kill_sig(pid, signum);
 	return stress_wait_until_reaped(args, pid, signum, set_stress_force_killed_bogo);
 }
 
@@ -144,7 +157,7 @@ int stress_kill_and_wait_many(
 	/* Kill first */
 	for (i = 0; i < n_pids; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid))
-			(void)shim_kill(pids[i], signum);
+			stress_kill_sig(pids[i], signum);
 	}
 	/* Then reap */
 	for (i = 0; i < n_pids; i++) {
