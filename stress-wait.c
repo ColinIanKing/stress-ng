@@ -170,7 +170,7 @@ static pid_t syscall_shim_waitpid(pid_t pid, int *wstatus, int options)
  */
 static int stress_wait(const stress_args_t *args)
 {
-	int status, ret = EXIT_SUCCESS;
+	int ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;
 	int options = 0;
 #if defined(HAVE_WAIT4)
@@ -208,6 +208,7 @@ static int stress_wait(const stress_args_t *args)
 	}
 
 	do {
+		int status;
 #if defined(HAVE_WAIT4) || defined(HAVE_WAIT3)
 		struct rusage usage;
 #endif
@@ -369,12 +370,10 @@ static int stress_wait(const stress_args_t *args)
 	} while (stress_continue_flag() && (!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_kill_pid(pid_k);
-	(void)shim_waitpid(pid_k, &status, 0);
+	(void)stress_kill_pid_wait(pid_k, NULL);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)stress_kill_pid(pid_r);
-	(void)shim_waitpid(pid_r, &status, 0);
+	(void)stress_kill_pid_wait(pid_r, NULL);
 
 	return ret;
 }

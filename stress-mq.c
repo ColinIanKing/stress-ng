@@ -412,7 +412,6 @@ again:
 			_exit(EXIT_SUCCESS);
 		}
 	} else {
-		int status;
 		int attr_count = 0;
 		stress_msg_t ALIGN64 msg;
 		uint64_t values[PRIOS_MAX];
@@ -493,9 +492,7 @@ again:
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
 
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
-
+		(void)stress_kill_pid_wait(pid, NULL);
 		if (mq_close(mq) < 0)
 			pr_fail("%s: mq_close failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

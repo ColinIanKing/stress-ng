@@ -914,7 +914,7 @@ static int OPTIMIZE3 stress_sock_server(
 	const bool rt,
 	const bool sock_zerocopy)
 {
-	int fd, status;
+	int fd;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
@@ -1219,10 +1219,8 @@ die:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
-	if (pid) {
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	if (pid)
+		(void)stress_kill_pid_wait(pid, NULL);
 	return rc;
 }
 

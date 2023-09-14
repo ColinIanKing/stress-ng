@@ -88,7 +88,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
  */
 static int stress_sigio(const stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS, fds[2], status, flags = -1, parent_cpu;
+	int ret, rc = EXIT_SUCCESS, fds[2], flags = -1, parent_cpu;
 	double t_start, t_delta, rate;
 	char *buffers, *wr_buffer;
 
@@ -216,10 +216,8 @@ finish:
 	VOID_RET(int, stress_sighandler(args->name, SIGIO, SIG_IGN, NULL));
 
 reap:
-	if (pid > 0) {
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	if (pid > 0)
+		(void)stress_kill_pid_wait(pid, NULL);
 
 err:
 	if (flags != -1) {

@@ -229,7 +229,7 @@ static int stress_tee(const stress_args_t *args)
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];
 	pid_t pids[2];
-	int ret = EXIT_FAILURE, status;
+	int ret = EXIT_FAILURE;
 	const int release = stress_get_kernel_release();
 	int metrics_count = 0;
 	double duration = 0.0, bytes = 0.0, rate;
@@ -327,14 +327,12 @@ do_splice:
 tidy_child2:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_out[1]);
-	(void)stress_kill_pid(pids[1]);
-	(void)shim_waitpid(pids[1], &status, 0);
+	(void)stress_kill_pid_wait(pids[1], NULL);
 
 tidy_child1:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_in[0]);
-	(void)stress_kill_pid(pids[0]);
-	(void)shim_waitpid(pids[0], &status, 0);
+	(void)stress_kill_pid_wait(pids[0], NULL);
 
 	(void)close(fd);
 

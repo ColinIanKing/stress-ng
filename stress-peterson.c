@@ -148,13 +148,10 @@ static int stress_peterson(const stress_args_t *args)
 			stress_peterson_p0(args);
 		_exit(0);
 	} else {
-		int status;
-
 		/* Parent */
 		while (stress_continue(args))
 			stress_peterson_p1(args);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -436,13 +436,8 @@ static int stress_dir(const stress_args_t *args)
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (pid >= 0) {
-		int status;
-
-		VOID_RET(int, stress_kill_pid(pid));
-		VOID_RET(int, shim_waitpid(pid, &status, 0));
-	}
-
+	if (pid >= 0)
+		(void)stress_kill_pid_wait(pid, NULL);
 	(void)stress_temp_dir_rm_args(args);
 
 	return ret;

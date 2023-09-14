@@ -418,11 +418,8 @@ again:
 		rc = stress_sockabuse_client(args, mypid, sockabuse_port);
 		_exit(rc);
 	} else {
-		int status;
-
 		rc = stress_sockabuse_server(args, mypid, sockabuse_port);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

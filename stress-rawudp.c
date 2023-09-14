@@ -322,11 +322,8 @@ again:
 		(void)stress_change_cpu(args, parent_cpu);
 		stress_rawudp_client(args, addr, rawudp_port);
 	} else {
-		int status;
-
 		rc = stress_rawudp_server(args, addr, rawudp_port);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

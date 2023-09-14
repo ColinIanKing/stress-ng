@@ -108,14 +108,9 @@ again:
 			_exit(EXIT_FAILURE);
 		} else {
 			/* Parent wait and reap for child */
-			int wstatus, ret;
-
-			ret = shim_kill(pid, SIGSTOP);
-			if (ret == 0) {
-				VOID_RET(int, shim_kill(pid, SIGCONT));
-			}
-			VOID_RET(int, stress_kill_pid(pid));
-			VOID_RET(int, waitpid(pid, &wstatus, 0));
+			if (shim_kill(pid, SIGSTOP) == 0) 
+				(void)shim_kill(pid, SIGCONT);
+			(void)stress_kill_pid_wait(pid, NULL);
 		}
 		stress_bogo_set(args, counter);
 	} while (stress_continue(args));

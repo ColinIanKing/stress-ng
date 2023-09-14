@@ -218,7 +218,6 @@ abort:
 	} else {
 		/* Parent read */
 
-		int status;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
 		int maxfd = 0;
@@ -400,8 +399,7 @@ abort:
 			(void)sleep(0);
 		} while (stress_continue(args));
 
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 
 tidy:

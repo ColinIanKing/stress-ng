@@ -715,8 +715,7 @@ again:
 		int status;
 
 		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, &status);
 		if (WIFEXITED(status)) {
 			if (WEXITSTATUS(status) != EXIT_SUCCESS) {
 				ret = WEXITSTATUS(status);

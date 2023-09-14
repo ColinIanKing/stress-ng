@@ -119,8 +119,7 @@ reap:
 		if (shim_kill(pid[i], 0) == 0) {
 			/* terminate child */
 			stress_force_killed_bogo(args);
-			(void)stress_kill_pid(pid[i]);
-			(void)shim_waitpid(pid[i], &status, 0);
+			(void)stress_kill_pid_wait(pid[i], NULL);
 		} else {
 			if (shim_waitpid(pid[i], &status, 0) == 0) {
 				pr_inf("%jd died prematurely\n", (intmax_t)pid[i]);

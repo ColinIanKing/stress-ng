@@ -118,8 +118,6 @@ again:
 		(void)close(pipefds[1]);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int status;
-
 		/* Parent */
 		(void)close(pipefds[0]);
 
@@ -136,8 +134,7 @@ again:
 		} while (stress_continue(args));
 
 		(void)close(pipefds[1]);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	return EXIT_SUCCESS;

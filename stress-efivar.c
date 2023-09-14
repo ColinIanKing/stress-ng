@@ -520,8 +520,7 @@ again:
 					args->name, errno, strerror(errno));
 			stress_force_killed_bogo(args);
 			(void)shim_kill(pid, SIGTERM);
-			(void)stress_kill_pid(pid);
-			(void)shim_waitpid(pid, &status, 0);
+			(void)stress_kill_pid_wait(pid, NULL);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),

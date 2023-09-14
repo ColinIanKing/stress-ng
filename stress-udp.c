@@ -525,8 +525,7 @@ again:
 		int status;
 
 		rc = stress_udp_server(args, mypid, pid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, &status);
 		if (WIFEXITED(status))
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				rc = WEXITSTATUS(status);

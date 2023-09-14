@@ -721,12 +721,8 @@ static int stress_fanotify(const stress_args_t *args)
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (pid > 0) {
-		int status;
-
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	if (pid > 0)
+		(void)stress_kill_pid_wait(pid, NULL);
 	(void)shim_unlink(filename);
 	(void)shim_unlink(filename2);
 	(void)sync();

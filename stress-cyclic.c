@@ -828,14 +828,11 @@ tidy:
 		(void)fflush(stdout);
 		_exit(ncrc);
 	} else {
-		int status;
-
 		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
 
 		(void)pause();
 		stress_force_killed_bogo(args);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 
 	stress_rt_stats(rt_stats);

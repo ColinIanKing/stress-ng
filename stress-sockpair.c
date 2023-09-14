@@ -257,7 +257,7 @@ abort:
 		_exit(EXIT_SUCCESS);
 	} else {
 		uint8_t buf[SOCKET_PAIR_BUF] ALIGN64;
-		int val = 0, status;
+		int val = 0;
 
 		stress_set_oom_adjustment(args, true);
 		stress_parent_died_alarm();
@@ -319,8 +319,7 @@ tidy:
 						args->name, errno, strerror(errno));
 				}
 		}
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 		socket_pair_close(socket_pair_fds, max, 1);
 	}
 finish:

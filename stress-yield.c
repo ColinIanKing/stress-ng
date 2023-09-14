@@ -153,10 +153,7 @@ static int stress_yield(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (duration = 0.0, count = 0.0, i = 0; i < yielders; i++) {
 		if (pids[i] > 0) {
-			int status;
-
-			(void)stress_kill_pid(pids[i]);
-			(void)shim_waitpid(pids[i], &status, 0);
+			(void)stress_kill_pid_wait(pids[i], NULL);
 			duration += metrics[i].duration;
 			count += metrics[i].count;
 		}

@@ -267,9 +267,8 @@ again:
 				pr_err("%s: waitpid errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			} else {
-				/* Probably an SIGARLM, force reap */
-				(void)stress_kill_pid(pid);
-				(void)shim_waitpid(pid, &status, 0);
+				/* Probably an SIGARLM, force kill & reap */
+				(void)stress_kill_pid_wait(pid, NULL);
 				return;
 			}
 		}

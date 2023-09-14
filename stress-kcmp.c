@@ -235,7 +235,7 @@ again:
 		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent */
-		int fd2, status, pid2;
+		int fd2, pid2;
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		pid2 = getpid();
@@ -328,8 +328,7 @@ again:
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);
-		(void)stress_kill_pid(pid1);
-		(void)shim_waitpid(pid1, &status, 0);
+		(void)stress_kill_pid_wait(pid1, NULL);
 		(void)close(fd1);
 	}
 finish:

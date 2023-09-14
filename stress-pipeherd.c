@@ -173,12 +173,8 @@ static int stress_pipeherd(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < PIPE_HERD_MAX; i++) {
-		if (pids[i] >= 0) {
-			int status;
-
-			(void)stress_kill_pid(pids[i]);
-			(void)shim_waitpid(pids[i], &status, 0);
-		}
+		if (pids[i] >= 0)
+			(void)stress_kill_pid_wait(pids[i], NULL);
 	}
 
 	(void)close(fd[0]);

@@ -140,7 +140,6 @@ again:
 		_exit(0);
 	} else {
 		/* Parent */
-		int status;
 		const pid_t self = getpid();
 		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
@@ -181,8 +180,7 @@ again:
 		} while (stress_continue(args));
 
 		/* terminate child */
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 
 finish:

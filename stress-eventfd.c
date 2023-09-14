@@ -184,7 +184,6 @@ exit_child:
 		(void)close(fd2);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int status;
 		const pid_t self = getpid();
 
 		do {
@@ -243,8 +242,7 @@ exit_child:
 exit_parent:
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 		(void)close(fd1);
 		(void)close(fd2);
 	}

@@ -1091,9 +1091,7 @@ static inline int stress_do_syscall(
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)stress_kill_pid(pid);
-			(void)shim_waitpid(pid, &status, 0);
-
+			(void)stress_kill_pid_wait(pid, &status);
 		}
 		rc = WEXITSTATUS(status);
 

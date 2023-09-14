@@ -105,12 +105,8 @@ static int stress_pidfd_supported(const char *name)
 
 static void stress_pidfd_reap(pid_t pid, int pidfd)
 {
-	int status;
-
-	if (pid) {
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
-	}
+	if (pid)
+		(void)stress_kill_pid_wait(pid, NULL);
 	if (pidfd >= 0)
 		(void)close(pidfd);
 }

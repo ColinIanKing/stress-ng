@@ -187,11 +187,7 @@ again:
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
 
-		/* Terminate child */
-		(void)stress_kill_pid(pid);
-		if (shim_waitpid(pid, &status, 0) < 0)
-			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -372,8 +372,7 @@ again:
 						args->name, errno, strerror(errno));
 				stress_force_killed_bogo(args);
 				(void)shim_kill(pid, SIGTERM);
-				(void)stress_kill_pid(pid);
-				(void)shim_waitpid(pid, &status, 0);
+				(void)stress_kill_pid_wait(pid, NULL);
 			}
 		}
 	} while (stress_continue(args));

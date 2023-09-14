@@ -214,12 +214,9 @@ static pid_t stress_access_spawn(
 
 static void stress_access_reap(pid_t *pid)
 {
-	int status;
-
 	if (*pid == -1)
 		return;
-	(void)stress_kill_pid(*pid);
-	(void)shim_waitpid(*pid, &status, 0);
+	(void)stress_kill_pid_wait(*pid, NULL);
 	*pid = -1;
 }
 

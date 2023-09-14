@@ -238,7 +238,6 @@ again:
 		(void)close(pipefds[0]);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int status;
 		double t_start;
 		uint64_t delay = switch_delay;
 		register const int fd = pipefds[1];
@@ -274,9 +273,7 @@ again:
 		stress_switch_rate(args, "pipe", t_start, stress_time_now(), stress_bogo_get(args));
 
 		(void)close(pipefds[1]);
-
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -351,7 +348,6 @@ again:
 		}
 		_exit(EXIT_SUCCESS);
 	} else {
-		int status;
 		double t_start;
 		uint64_t delay = switch_delay;
 		struct sembuf sem ALIGN64;
@@ -383,8 +379,7 @@ again:
 
 		stress_switch_rate(args, "sem-sysv", t_start, stress_time_now(), 2 * stress_bogo_get(args));
 
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -457,7 +452,6 @@ again:
 		}
 		_exit(EXIT_SUCCESS);
 	} else {
-		int status;
 		double t_start;
 		uint64_t delay = switch_delay;
 
@@ -476,8 +470,7 @@ again:
 
 		stress_switch_rate(args, "mq", t_start, stress_time_now(), stress_bogo_get(args));
 
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -1139,12 +1139,8 @@ close_all:
 	if (open_perms)
 		free(open_perms);
 
-	if (pid > 1) {
-		int status;
-
-		(void)stress_kill_pid(pid);
-		(void)waitpid(pid, &status, 0);
-	}
+	if (pid > 1)
+		(void)stress_kill_pid_wait(pid, NULL);
 
 	rate = (count > 0.0) ? duration / count: 0.0;
 	stress_metrics_set(args, 0, "nanosecs per open", rate * 1000000000);

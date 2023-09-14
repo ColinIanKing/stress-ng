@@ -562,8 +562,7 @@ exercise:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)shim_kill(pid, SIGTERM);
-				(void)stress_kill_pid(pid);
-				(void)shim_waitpid(pid, &status, 0);
+				(void)stress_kill_pid_wait(pid, NULL);
 			}
 			stress_bogo_inc(args);
 		}

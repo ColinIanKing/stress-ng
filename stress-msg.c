@@ -457,11 +457,8 @@ again:
 		stress_msg_receiver(args, msgq_id, msg_types, msg_bytes);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int status;
-
 		stress_msg_sender(args, msgq_id, msg_types, msg_bytes);
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, NULL);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
 			pr_fail("%s: msgctl failed, errno=%d (%s)\n",

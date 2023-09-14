@@ -185,7 +185,7 @@ tidy:
 static int stress_lease(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int ret, fd, status;
+	int ret, fd;
 	pid_t l_pids[MAX_LEASE_BREAKERS];
 	uint64_t i, lease_breakers = DEFAULT_LEASE_BREAKERS;
 	double t1 = 0.0, t2 = 0.0, dt;
@@ -246,10 +246,8 @@ reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < lease_breakers; i++) {
-		if (l_pids[i]) {
-			(void)stress_kill_pid(l_pids[i]);
-			(void)shim_waitpid(l_pids[i], &status, 0);
-		}
+		if (l_pids[i])
+			(void)stress_kill_pid_wait(l_pids[i], NULL);
 	}
 
 	(void)shim_unlink(filename);

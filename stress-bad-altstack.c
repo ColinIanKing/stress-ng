@@ -376,8 +376,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)shim_kill(pid, SIGTERM);
-				(void)stress_kill_pid(pid);
-				(void)shim_waitpid(pid, &status, 0);
+				(void)stress_kill_pid_wait(pid, NULL);
 			} else if (WIFSIGNALED(status)) {
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {

@@ -378,8 +378,7 @@ child_cleanup_fd:
 			(void)close(sfd);
 		}
 child_reap:
-		(void)stress_kill_pid(pid);
-		(void)shim_waitpid(pid, &status, 0);
+		(void)stress_kill_pid_wait(pid, &status);
 		if (WEXITSTATUS(status) == EXIT_FAILURE)
 			pr_fail("%s: child reading process failed\n", args->name);
 
