@@ -412,10 +412,9 @@ static int stress_dir_readdir(
 	rewinddir(dir);
 	got_mask = 0;
 	while ((entry = readdir(dir))) {
-		int d;
-
 		if (isdigit(entry->d_name[0])) {
-			d = atoi(entry->d_name);
+			const int d = atoi(entry->d_name);
+
 			got_mask |= (1U << d);
 		}
 	}
