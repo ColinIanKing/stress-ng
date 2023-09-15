@@ -4261,10 +4261,11 @@ void stress_clean_dir(
  */
 void stress_yield_sleep_ms(void)
 {
-	double t, duration;
+	const double t = stress_time_now();
 
-	t = stress_time_now();
 	do {
+		double duration;
+
 		shim_sched_yield();
 		duration = stress_time_now() - t;
 		if (duration > 0.001)
