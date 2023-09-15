@@ -101,9 +101,8 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 				return;
 			}
 		} else  {
-			char *new_buf = pr_msg_buf.buf;
-			size_t len = strlen(pr_msg_buf.buf);
-
+			char *new_buf;
+			const size_t len = strlen(pr_msg_buf.buf);
 
 			new_buf = realloc(pr_msg_buf.buf, len + buf_len + 1);
 			if (!new_buf) {
