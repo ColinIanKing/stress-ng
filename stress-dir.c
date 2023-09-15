@@ -339,6 +339,106 @@ static void stress_dir_read_concurrent(
 }
 
 /*
+ *  stress_dir_touch()
+ *	create a small file
+ */
+static int stress_dir_touch(
+	const stress_args_t *args,
+	const char *filename)
+{
+	int fd;
+
+	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		pr_fail("%s: cannot create file %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		return -1;
+	}
+	if (write(fd, "data", 4) < 0) {
+		pr_inf("%s: failed to write to file %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		(void)close(fd);
+		return -1;
+	}
+	(void)close(fd);
+	return 0;
+}
+
+/*
+ *  stress_dir_readdir()
+ *	exercise populating a new directory and checking to see if
+ *	rewinddir and readdir pick up all the new entries.
+ */
+static int stress_dir_readdir(
+	const stress_args_t *args,
+	const char *pathname)
+{
+	DIR *dir;
+	char dirname[PATH_MAX + 64];
+	char filename[PATH_MAX + 70];
+	int rc = 0, i, got_mask, all_mask;
+	struct dirent *entry;
+
+	(void)snprintf(dirname, sizeof(dirname), "%s/test-%jd-%" PRIu32, pathname,
+		(intmax_t)getpid(), stress_mwc32());
+	if (mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
+		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
+			args->name, dirname, errno, strerror(errno));
+		rc = -1;
+		goto err_rmdir;
+	}
+
+	/*
+	 *  Check if readdir + rewinddir will pick up new files
+	 */
+	dir = opendir(dirname);
+	if (!dir) {
+		pr_fail("%s: cannot opendir %s, errno=%d (%s)\n",
+			args->name, dirname, errno, strerror(errno));
+		rc = -1;
+		goto err_rmdir;
+	}
+	all_mask = 0;
+	for (i = 0; i < 10; i++) {
+		all_mask |= (1U << i);
+		(void)snprintf(filename, sizeof(filename), "%s/%d", dirname, i);
+		if (stress_dir_touch(args, filename) < 0) {
+			(void)closedir(dir);
+			rc = -1;
+			goto err_rm_files;
+		}
+	}
+
+	rewinddir(dir);
+	got_mask = 0;
+	while ((entry = readdir(dir))) {
+		int d;
+
+		if (isdigit(entry->d_name[0])) {
+			d = atoi(entry->d_name);
+			got_mask |= (1U << d);
+		}
+	}
+	(void)closedir(dir);
+
+	if (got_mask != all_mask) {
+		pr_fail("%s: rewinddir and readdir did not find all the files in directory %s\n",
+			args->name, dirname);
+		rc = -1;
+	}
+
+err_rm_files:
+	for (i = 0; i < 10; i++) {
+		(void)snprintf(filename, sizeof(filename), "%s/%d", dirname, i);
+		(void)unlink(filename);
+	}
+err_rmdir:
+	(void)rmdir(dirname);
+
+	return rc;
+}
+
+/*
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
@@ -415,6 +515,8 @@ static int stress_dir(const stress_args_t *args)
 			stress_dir_tidy(args, i);
 			break;
 		}
+		if (stress_dir_readdir(args, pathname) < 0)
+			ret = EXIT_FAILURE;
 		stress_dir_tidy(args, i);
 		stress_dir_sync(dir_fd);
 		(void)sync();
