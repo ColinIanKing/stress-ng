@@ -160,6 +160,7 @@ HEADERS = \
 	core-bitops.h \
 	core-builtin.h \
 	core-capabilities.h \
+	core-clocksource.h \
 	core-cpu.h \
 	core-cpu-cache.h \
 	core-cpuidle.h \
@@ -554,6 +555,7 @@ CORE_SRC = \
 	core-cpu.c \
 	core-cpu-cache.c \
 	core-cpuidle.c \
+	core-clocksource.c \
 	core-hash.c \
 	core-helper.c \
 	core-ignite-cpu.c \

@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-bitops.h"
 #include "core-builtin.h"
+#include "core-clocksource.h"
 #include "core-cpuidle.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
@@ -3612,6 +3613,7 @@ int main(int argc, char **argv, char **envp)
 	stress_vmstat_start();
 	stress_smart_start();
 	stress_klog_start();
+	stress_clocksource_check();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
@@ -3620,6 +3622,8 @@ int main(int argc, char **argv, char **envp)
 	} else {
 		stress_run_parallel(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
 	}
+
+	stress_clocksource_check();
 
 	/* Stop alarms */
 	(void)alarm(0);
