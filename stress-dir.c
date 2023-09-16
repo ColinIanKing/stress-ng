@@ -150,6 +150,7 @@ static int stress_dir_read(
 	while (stress_continue(args) && ((de = readdir(dp)) != NULL)) {
 		char filename[PATH_MAX];
 		struct stat statbuf;
+		int fd;
 
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
@@ -157,6 +158,9 @@ static int stress_dir_read(
 		}
 		stress_mk_filename(filename, sizeof(filename), path, de->d_name);
 		(void)stat(filename, &statbuf);
+		fd = open(filename, O_RDONLY);
+		if (fd >= 0)
+			(void)close(fd);
 	}
 
 	(void)closedir(dp);
