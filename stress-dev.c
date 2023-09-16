@@ -126,6 +126,10 @@
 #include <termio.h>
 #endif
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 #if !defined(O_NDELAY)
 #define O_NDELAY	(0)
 #endif
@@ -437,6 +441,32 @@ static void stress_dev_dm_linux(
 	}
 #else
 	UNEXPECTED
+#endif
+#if defined(RWF_NOWAIT) &&	\
+    defined(O_DIRECT) &&	\
+    defined(HAVE_PREADV2)
+	{
+		/*
+		 *  exercise kernel fix to dm:
+		 * "dm: don't attempt to queue IO under RCU protection"
+		 * commit a9ce385344f916cd1c36a33905e564f5581beae9
+		 */
+		struct iovec iov;
+		int fd2;
+
+		fd2 = open(devpath, O_RDONLY | O_DIRECT);
+		if (fd2 >= 0) {
+			const size_t size = args->page_size;
+
+			iov.iov_base = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			if (iov.iov_base != MAP_FAILED) {
+				iov.iov_len = size;
+				VOID_RET(ssize_t, preadv2(fd, &iov, 1, 0, RWF_NOWAIT));
+				(void)munmap(iov.iov_base, size);
+			}
+			(void)close(fd2);
+		}
+	}
 #endif
 }
 #endif
