@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpuidle.h"
 
 #define MIN_NANOSLEEP_THREADS		(1)
 #define MAX_NANOSLEEP_THREADS		(1024)
@@ -76,62 +77,79 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 }
 
 /*
- *  stress_pthread_func()
+ *  stress_nanosleep_ns()
+ *	nanosleep for a given number of nanoseconds
+ */
+static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
+{
+	struct timespec tv;
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(CLOCK_MONOTONIC)
+	struct timespec t1;
+
+	tv.tv_sec = 0;
+	tv.tv_nsec = nsec;
+
+	(void)clock_gettime(CLOCK_MONOTONIC, &t1);
+	if (LIKELY(nanosleep(&tv, NULL) == 0)) {
+		struct timespec t2;
+
+		if (clock_gettime(CLOCK_MONOTONIC, &t2) == 0) {
+			long dt_nsec;
+
+			dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
+			dt_nsec += t2.tv_nsec - t1.tv_nsec;
+			dt_nsec -= nsec;
+
+			if (dt_nsec < 0) {
+				ctxt->underrun_nsec += (double)labs(dt_nsec);
+				ctxt->underrun_count += 1.0;
+			} else {
+				ctxt->overrun_nsec += (double)dt_nsec;
+				ctxt->overrun_count += 1.0;
+			}
+		}
+	} else {
+		return -1;
+	}
+#else
+	tv.tv_sec = 0;
+	tv.tv_nsec = nsec;
+
+	if (UNLIKELY(nanosleep(&tv, NULL) < 0))
+		rerurn -1;
+#endif
+	return 0;
+}
+
+/*
+ *  stress_nanosleep_pthread()
  *	pthread that performs different ranges of sleeps
  */
-static void *stress_pthread_func(void *c)
+static void *stress_nanosleep_pthread(void *c)
 {
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const stress_args_t *args = ctxt->args;
+	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
 
 	while (stress_continue(args) &&
 	       !thread_terminate &&
 	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
 		register unsigned long i;
+		cpu_cstate_t *cc;
+
+		for (cc = cstate_list; cc; cc = cc->next) {
+			if (cc->residency > 0)
+				stress_nanosleep_ns(ctxt, 1000 * (long)(cc->residency + 1));
+		}
 
 		for (i = 1 << 18; i > 0; i >>=1) {
-			struct timespec tv;
 			register const unsigned long mask = (i - 1);
-
 			long nsec = (long)(stress_mwc32() & mask) + 8;
-#if defined(HAVE_CLOCK_GETTIME) &&	\
-    defined(CLOCK_MONOTONIC)
-			struct timespec t1;
 
-			tv.tv_sec = 0;
-			tv.tv_nsec = nsec;
-
-			(void)clock_gettime(CLOCK_MONOTONIC, &t1);
-			if (LIKELY(nanosleep(&tv, NULL) == 0)) {
-				struct timespec t2;
-
-				if (clock_gettime(CLOCK_MONOTONIC, &t2) == 0) {
-					long dt_nsec;
-
-					dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
-					dt_nsec += t2.tv_nsec - t1.tv_nsec;
-					dt_nsec -= nsec;
-
-					if (dt_nsec < 0) {
-						pr_inf("%lu vs %lu\n", nsec, dt_nsec);
-						ctxt->underrun_nsec += (double)labs(dt_nsec);
-						ctxt->underrun_count += 1.0;
-					} else {
-						ctxt->overrun_nsec += (double)dt_nsec;
-						ctxt->overrun_count += 1.0;
-					}
-				}
-			} else {
+			if (stress_nanosleep_ns(ctxt, nsec) < 0)
 				break;
-			}
-#else
-			tv.tv_sec = 0;
-			tv.tv_nsec = nsec;
-
-			if (UNLIKELY(nanosleep(&tv, NULL) < 0))
-				break;
-#endif
 		}
 		ctxt->counter++;
 	}
@@ -185,7 +203,7 @@ static int stress_nanosleep(const stress_args_t *args)
 		ctxts[n].underrun_count = 0.0;
 #endif
 		ret = pthread_create(&ctxts[n].pthread, NULL,
-			stress_pthread_func, &ctxts[n]);
+			stress_nanosleep_pthread, &ctxts[n]);
 		if (ret) {
 			/* Out of resources, don't try any more */
 			if (ret == EAGAIN) {
