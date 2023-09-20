@@ -175,6 +175,7 @@ typedef struct {
 typedef struct dev_info {
 	char *path;		/* Full path of device, e.g. /dev/null */
 	char *name;		/* basename of path, e.g. null */
+	uint32_t rnd_id;	/* randomized id for sorting */
 	dev_state_t *state;	/* Pointer to shared memory state */
 	struct dev_info *next;	/* Next device in device list */
 } dev_info_t;
@@ -4205,52 +4206,53 @@ static void stress_dev_infos_free(dev_info_t **list)
 
 /*
  *  stress_dev_info_add()
- *	add new device path to device info list
+ *	add new device path to device info list, silently drop devs
+ *	that can't be added
  */
-static dev_info_t *stress_dev_info_add(const char *path, dev_info_t **list)
+static void stress_dev_info_add(const char *path, dev_info_t **list, size_t *list_len)
 {
 	dev_info_t *new_dev;
 
 	new_dev = calloc(1, sizeof(*new_dev));
 	if (!new_dev)
-		return NULL;
+		return;
 
 	new_dev->path = strdup(path);
 	if (!new_dev->path) {
 		free(new_dev);
-		return NULL;
+		return;
 	}
 
 	new_dev->name = stress_dev_basename(new_dev->path);
+	new_dev->rnd_id = stress_mwc32();
 	new_dev->next = *list;
 	new_dev->state = NULL;
 
 	*list = new_dev;
-
-	return new_dev;
+	(*list_len)++;
 }
 
 /*
  *  stress_dev_infos_get()
  *	traverse device directories adding device info to list
  */
-static size_t stress_dev_infos_get(
+static void stress_dev_infos_get(
 	const stress_args_t *args,
 	const char *path,
 	const char *tty_name,
-	dev_info_t **list)
+	dev_info_t **list,
+	size_t *list_len)
 {
 	struct dirent **dlist;
 	int i, n;
-	size_t total = 0;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
 	if (!stress_continue(args))
-		return 0;
+		return;
 
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
-		return 0;
+		return;
 
 	for (i = 0; stress_continue(args) && (i < n); i++) {
 		int ret;
@@ -4303,22 +4305,19 @@ static size_t stress_dev_infos_get(
 				continue;
 			if ((buf.st_mode & flags) == 0)
 				continue;
-			total += stress_dev_infos_get(args, tmp, tty_name, list);
+			stress_dev_infos_get(args, tmp, tty_name, list, list_len);
 			break;
 		case DT_BLK:
 		case DT_CHR:
 			if (strstr(tmp, "watchdog"))
 				continue;
-			stress_dev_info_add(tmp, list);
-			total++;
+			stress_dev_info_add(tmp, list, list_len);
 			break;
 		default:
 			break;
 		}
 	}
 	stress_dirent_list_free(dlist, n);
-
-	return total;
 }
 
 /*
@@ -4350,6 +4349,53 @@ static void stress_dev_info_list_state_init(dev_info_t *list, dev_state_t *dev_s
 }
 
 /*
+ *  dev_info_rnd_id_cmp()
+ *	sort order comparison based on randomized id
+ */
+static int dev_info_rnd_id_cmp(const void *p1, const void *p2)
+{
+	const dev_info_t * const *d1 = (const dev_info_t * const *)p1;
+	const dev_info_t * const *d2 = (const dev_info_t * const *)p2;
+
+	if ((*d1)->rnd_id  < (*d2)->rnd_id)
+		return 1;
+	else if ((*d1)->rnd_id > (*d2)->rnd_id)
+		return -1;
+	else
+		return 0;
+}
+
+/*
+ *  stress_dev_infos_mixup()
+ *	mix up device list based on randomized id
+ */
+static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_info_list_len)
+{
+	dev_info_t **dev_info_sorted, *dev;
+	size_t i;
+
+	dev_info_sorted = calloc(sizeof(*dev_info_sorted), dev_info_list_len);
+	if (!dev_info_sorted)
+		return;
+
+	for (i = 0, dev = *dev_info_list; i < dev_info_list_len; i++) {
+		dev_info_sorted[i] = dev;
+		dev = dev->next;
+	}
+	qsort(dev_info_sorted, dev_info_list_len, sizeof(dev_info_t *), dev_info_rnd_id_cmp);
+
+	/* rebuild list based on randomized sorted rnd_id */
+	*dev_info_list = NULL;
+	for (i = 0; i < dev_info_list_len; i++) {
+		dev_info_t *dev = dev_info_sorted[i];
+
+		dev->next = *dev_info_list;
+		*dev_info_list = dev;
+	}
+	free(dev_info_sorted);
+}
+
+/*
  *  stress_dev
  *	stress reading all of /dev
  */
@@ -4362,10 +4408,11 @@ static int stress_dev(const stress_args_t *args)
 	const int stdout_fd = fileno(stdout);
 	const char *tty_name = (stdout_fd >= 0) ? ttyname(stdout_fd) : NULL;
 	dev_state_t dev_state_null, *mmap_dev_states;
-	dev_info_t dev_null = { "/dev/null", "null", &dev_state_null, NULL };
-	size_t n_devs = 0, mmap_dev_states_size;
+	dev_info_t dev_null = { "/dev/null", "null", 0, &dev_state_null, NULL };
+	size_t mmap_dev_states_size;
 	const size_t page_size = args->page_size;
 	dev_info_t *dev_info_list = NULL;
+	size_t dev_info_list_len = 0;
 
 	stress_dev_state_init(&dev_state_null);
 
@@ -4392,20 +4439,21 @@ static int stress_dev(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
-		if (stress_dev_info_add(dev_file, &dev_info_list))
-			n_devs = 1;
+		stress_dev_info_add(dev_file, &dev_info_list, &dev_info_list_len);
 	} else {
-		n_devs = stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list);
+		stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list, &dev_info_list_len);
 	}
 
 	/* This should be rare */
-	if (n_devs == 0) {
+	if (dev_info_list_len == 0) {
 		pr_inf_skip("%s: cannot allocate device information or find any "
 			"testable devices, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
-	mmap_dev_states_size = sizeof(*mmap_dev_states) * n_devs;
+	stress_dev_infos_mixup(&dev_info_list, dev_info_list_len);
+
+	mmap_dev_states_size = sizeof(*mmap_dev_states) * dev_info_list_len;
 	mmap_dev_states_size = (mmap_dev_states_size + page_size - 1) & ~(page_size - 1);
 	mmap_dev_states = mmap(NULL, mmap_dev_states_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -4499,7 +4547,7 @@ again:
 		const size_t opened = stress_dev_infos_opened(dev_info_list);
 
 		pr_inf("%s: %zd of %zd devices opened and exercised\n",
-			args->name, opened, n_devs);
+			args->name, opened, dev_info_list_len);
 	}
 
 	(void)munmap((void *)mmap_dev_states, mmap_dev_states_size);
