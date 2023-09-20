@@ -20,18 +20,53 @@
 #include "core-cpuidle.h"
 #include "core-sort.h"
 
-#define MAX_STATES 	(64)
+static cpu_cstate_t *cpu_cstate_list;
+static size_t cpu_cstate_list_len;
 
-void stress_log_cpuidle_info(void)
+cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
+{
+	return cpu_cstate_list;
+}
+
+static void stress_cpuidle_cstate_add_unique(
+	const char *cstate,
+	const uint32_t residency)
+{
+	cpu_cstate_t **cc = &cpu_cstate_list;
+	cpu_cstate_t *new_cc;
+
+	for (cc = &cpu_cstate_list; *cc; cc = &(*cc)->next) {
+		const int cmp = strcmp(cstate, (*cc)->cstate);
+
+		if (cmp == 0)
+			return;
+		if (cmp < 0)
+			break;
+	}
+	new_cc = malloc(sizeof(*new_cc));
+	if (!new_cc)
+		return;
+	new_cc->cstate = strdup(cstate);
+	if (!new_cc->cstate) {
+		free(new_cc);
+		return;
+	}
+	new_cc->residency = residency;
+	new_cc->next = *cc;
+	*cc = new_cc;
+	cpu_cstate_list_len++;
+}
+
+void stress_cpuidle_init(void)
 {
 #if defined(__linux__)
 	DIR *cpu_dir;
 	struct dirent *cpu_d;
-	char *states[MAX_STATES];
-	char buf[MAX_STATES * 32];
-	size_t i, max_states = 0, max_cpus = 0;
+	size_t max_cpus = 0;
 
-	(void)memset(states, 0, sizeof(states));
+	cpu_cstate_list = NULL;
+	cpu_cstate_list_len = 0;
+
 	cpu_dir = opendir("/sys/devices/system/cpu");
 	if (!cpu_dir)
 		return;
@@ -55,40 +90,69 @@ void stress_log_cpuidle_info(void)
 
 		max_cpus++;
 		while ((cpuidle_d = readdir(cpuidle_dir)) != NULL) {
-			char path[PATH_MAX], state[64], *ptr;
+			char path[PATH_MAX], data[64], *ptr;
+			uint32_t residency = 0;
 
 			if (strncmp(cpuidle_d->d_name, "state", 5))
 				continue;
+			(void)snprintf(path, sizeof(path), "%s/%s/residency", cpuidle_path, cpuidle_d->d_name);
+			if (stress_system_read(path, data, sizeof(data)) > 0)
+				residency = (uint32_t)atoi(data);
 			(void)snprintf(path, sizeof(path), "%s/%s/name", cpuidle_path, cpuidle_d->d_name);
-			if (stress_system_read(path, state, sizeof(state)) < 1)
+			if (stress_system_read(path, data, sizeof(data)) < 1)
 				continue;
-			ptr = strchr(state, '\n');
+			ptr = strchr(data, '\n');
 			if (ptr)
 				*ptr = '\0';
-			for (i = 0; i < max_states; i++) {
-				if (strcmp(states[i], state) == 0)
-					break;
-			}
-			if ((i == max_states) && (i < SIZEOF_ARRAY(states))) {
-				states[i] = strdup(state);
-				if (states[i])
-					max_states++;
-			}
+
+			stress_cpuidle_cstate_add_unique(data, residency);
 		}
 		(void)closedir(cpuidle_dir);
 	}
 	(void)closedir(cpu_dir);
-	if (max_states > 0) {
-		qsort(states, max_states, sizeof(char *), stress_sort_cmp_str);
-		(void)memset(buf, 0, sizeof(buf));
-		for (i = 0; i < max_states; i++) {
-			(void)shim_strlcat(buf, " ", sizeof(buf));
-			(void)shim_strlcat(buf, states[i], sizeof(buf));
-			free(states[i]);
-		}
-		pr_dbg("CPU%s %zu idle state%s:%s\n",
-			(max_cpus == 1) ? " has" : "s have",
-			max_states, (max_states == 1) ? "" : "s", buf);
-	}
+#else
+	cpu_cstate_list = NULL;
+	cpu_cstate_list_len = 0;
 #endif
+}
+
+void stress_cpuidle_free(void)
+{
+	cpu_cstate_t *cc = cpu_cstate_list;
+
+	while (cc) {
+		cpu_cstate_t *next = cc->next;
+
+		free(cc->cstate);
+		free(cc);
+		cc = next;
+	}
+	cpu_cstate_list = NULL;
+	cpu_cstate_list_len = 0;
+}
+
+void stress_cpuidle_log_info(void)
+{
+	char *buf;
+	cpu_cstate_t *cc;
+	size_t len = 1;
+
+	if (cpu_cstate_list_len < 1)
+		return;
+
+	for (cc = cpu_cstate_list; cc; cc = cc->next) {
+		len += strlen(cc->cstate) + 1;
+	}
+	buf = calloc(len, sizeof(*buf));
+	if (!buf)
+		return;
+
+	for (cc = cpu_cstate_list; cc; cc = cc->next) {
+		(void)shim_strlcat(buf, " ", len);
+		(void)shim_strlcat(buf, cc->cstate, len);
+	}
+	pr_dbg("CPU%s %zu idle state%s:%s\n",
+		(cpu_cstate_list_len == 1) ? " has" : "s have",
+		cpu_cstate_list_len, (cpu_cstate_list_len == 1) ? "" : "s", buf);
+	free(buf);
 }

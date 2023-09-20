@@ -3399,7 +3399,7 @@ int main(int argc, char **argv, char **envp)
 	}
 
 	/*
-	 *  Sanity check --with optiob
+	 *  Sanity check --with option
 	 */
 	if ((g_opt_flags & OPT_FLAGS_WITH) &&
 	    ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL | OPT_FLAGS_PERMUTE)) == 0)) {
@@ -3407,6 +3407,8 @@ int main(int argc, char **argv, char **envp)
 		ret = EXIT_FAILURE;
 		goto exit_stressors_free;
 	}
+
+	stress_cpuidle_init();
 
 	/*
 	 *  Setup logging
@@ -3418,7 +3420,7 @@ int main(int argc, char **argv, char **envp)
 	stress_log_system_info();
 	stress_log_system_mem_info();
 	stress_runinfo();
-	stress_log_cpuidle_info();
+	stress_cpuidle_log_info();
 	pr_dbg("%" PRId32 " processor%s online, %" PRId32
 		" processor%s configured\n",
 		cpus_online, cpus_online == 1 ? "" : "s",
@@ -3693,6 +3695,7 @@ int main(int argc, char **argv, char **envp)
 	stress_shared_heap_deinit();
 	stress_stressors_deinit();
 	stress_stressors_free();
+	stress_cpuidle_free();
 	stress_cache_free();
 	stress_shared_unmap();
 	stress_settings_free();
