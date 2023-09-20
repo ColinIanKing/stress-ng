@@ -157,10 +157,13 @@ static int stress_dir_read(
 			break;
 		}
 		stress_mk_filename(filename, sizeof(filename), path, de->d_name);
-		(void)stat(filename, &statbuf);
 		fd = open(filename, O_RDONLY);
-		if (fd >= 0)
+		if (fd >= 0) {
+			(void)fstat(fd, &statbuf);
 			(void)close(fd);
+		} else {
+			(void)stat(filename, &statbuf);
+		}
 	}
 
 	(void)closedir(dp);
