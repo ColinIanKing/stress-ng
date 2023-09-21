@@ -21,6 +21,7 @@
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
+#include "core-cpuidle.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
@@ -90,14 +91,47 @@ static void *stress_pthread_func(void *c)
     !defined(HAVE_COMPILER_PCC)
 	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
 #endif
+	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
 
 	while (stress_continue(args) && !thread_terminate) {
+		cpu_cstate_t *cc;
 		struct timespec tv;
 		double t1, t2, delta, expected;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
 		struct timeval timeout;
 #endif
+
+		if (!stress_continue_flag())
+			break;
+		/*
+		 *  exercise C state residency duration sleeps
+		 *  to try and get CPU into deeper C states
+		 */
+		expected = 0.0;
+		t1 = stress_time_now();
+		for (cc = cstate_list; cc; cc = cc->next) {
+			if (cc->residency > 0) {
+				const unsigned long residency_ns = (cc->residency + 1) * 1000;
+
+				expected += cc->residency;
+				tv.tv_nsec = residency_ns % 1000000000;
+				tv.tv_sec = residency_ns / 1000000000;
+				if (nanosleep(&tv, NULL) < 0)
+					break;
+			}
+		}
+		t2 = stress_time_now();
+		delta = t2 - t1;
+		/* don't check for clock warping */
+		if ((expected > 0.0) && (delta > 0.0)) {
+			expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
+			if (delta < expected / STRESS_DBL_NANOSECOND) {
+				pr_fail("%s: nanosleeps for %.f nanosecs to less than %.2f nanosecs to complete\n",
+					args->name, expected, delta * STRESS_DBL_NANOSECOND);
+				ctxt->underruns++;
+			}
+		}
 
 		t1 = stress_time_now();
 		if (!stress_continue_flag())
