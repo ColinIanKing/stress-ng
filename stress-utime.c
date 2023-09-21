@@ -167,6 +167,36 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 		/* Exercise huge filename, ENAMETOOLONG */
 		VOID_RET(int, utimes(hugename, timevals));
 
+		/* Exercise with time outside FAT time range */
+		timevals[0].tv_sec = 283996800;	/* Monday, 1 January 1979 00:00:00 */
+		timevals[0].tv_usec = 0;
+		timevals[1].tv_sec = 283996800;
+		timevals[1].tv_usec = 0;
+		VOID_RET(int, utimes(filename, timevals));
+
+		/* Exercise with time outside FAT time range */
+		timevals[0].tv_sec = 4354819200; /* Monday, 1 January 2108 00:00:00 */
+		timevals[0].tv_usec = 0;
+		timevals[1].tv_sec = 4354819200;
+		timevals[1].tv_usec = 0;
+		VOID_RET(int, utimes(filename, timevals));
+
+		/* Exercise with time outside of UNIX EPOCH  */
+		timevals[0].tv_sec = 2147558400; /* Wednesday 20 January 2038 */
+		timevals[0].tv_usec = 0;
+		timevals[1].tv_sec = 2147558400;
+		timevals[1].tv_usec = 0;
+		VOID_RET(int, utimes(filename, timevals));
+
+		/* Exercise with time before of UNIX EPOCH  */
+		timevals[0].tv_sec = 0x7fffffff;
+		timevals[0].tv_usec = 0;
+		timevals[1].tv_sec = 0x7fffffff;
+		timevals[1].tv_usec = 0;
+		VOID_RET(int, utimes(filename, timevals));
+
+		VOID_RET(int, utimes(filename, NULL));
+
 #if defined(HAVE_FUTIMENS)
 		if (LIKELY(metrics_count > 0)) {
 			if (UNLIKELY(futimens(fd, NULL) < 0)) {
@@ -217,6 +247,34 @@ static int OPTIMIZE3 stress_utime(const stress_args_t *args)
 			duration += stress_time_now() - t;
 			count += 1.0;
 		}
+
+		/* Exercise with time outside FAT time range */
+		ts[0].tv_sec = 283996800;	/* Monday, 1 January 1979 00:00:00 */
+		ts[0].tv_nsec = 0;
+		ts[1].tv_sec = 283996800;
+		ts[1].tv_nsec = 0;
+		VOID_RET(int, futimens(fd, ts));
+
+		/* Exercise with time outside FAT time range */
+		ts[0].tv_sec = 4354819200; /* Monday, 1 January 2108 00:00:00 */
+		ts[0].tv_nsec = 0;
+		ts[1].tv_sec = 4354819200;
+		ts[1].tv_nsec = 0;
+		VOID_RET(int, futimens(fd, ts));
+
+		/* Exercise with time outside of UNIX EPOCH  */
+		ts[0].tv_sec = 2147558400; /* Wednesday 20 January 2038 */
+		ts[0].tv_nsec = 0;
+		ts[1].tv_sec = 2147558400;
+		ts[1].tv_nsec = 0;
+		VOID_RET(int, futimens(fd, ts));
+
+		/* Exercise with time before of UNIX EPOCH  */
+		ts[0].tv_sec = 0x7fffffff;
+		ts[0].tv_nsec = 0;
+		ts[1].tv_sec = 0x7fffffff;
+		ts[1].tv_nsec = 0;
+		VOID_RET(int, futimens(fd, ts));
 #else
 		UNEXPECTED
 #endif
