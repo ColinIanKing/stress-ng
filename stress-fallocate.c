@@ -99,7 +99,10 @@ static const int illegal_modes[] = {
  */
 static int stress_fallocate(const stress_args_t *args)
 {
-	int fd = -1, ret, pipe_ret = -1, pipe_fds[2] = { -1, -1 };
+	int fd_async = -1, ret, pipe_ret = -1, pipe_fds[2] = { -1, -1 };
+#if defined(O_SYNC)
+	int fd_sync = -1;
+#endif
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
@@ -107,6 +110,7 @@ static int stress_fallocate(const stress_args_t *args)
 	int *mode_perms = NULL, all_modes;
 	size_t i, mode_count;
 	const char *fs_type;
+	int count = 0;
 
 	for (all_modes = 0, i = 0; i < SIZEOF_ARRAY(modes); i++)
 		all_modes |= modes[i];
@@ -130,7 +134,7 @@ static int stress_fallocate(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+	if ((fd_async = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
@@ -138,6 +142,10 @@ static int stress_fallocate(const stress_args_t *args)
 		free(mode_perms);
 		return ret;
 	}
+#if defined(O_SYNC)
+	/* don't worry if this fails, we won't use it fails */
+	fd_sync = open(filename, O_RDWR | O_SYNC, S_IRUSR | S_IWUSR);
+#endif
 	fs_type = stress_get_fs_type(filename);
 	(void)shim_unlink(filename);
 
@@ -146,10 +154,17 @@ static int stress_fallocate(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-#if defined(HAVE_POSIX_FALLOCATE)
-		ret = shim_posix_fallocate(fd, (off_t)0, fallocate_bytes);
+		const bool use_sync = (fd_sync != -1) && ((count++ & 15) == 15);
+#if defined(O_SYNC)
+		const int fd = use_sync ? fd_sync : fd_async;
 #else
-		ret = shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
+		const int fd = fd_async;
+#endif
+
+#if defined(HAVE_POSIX_FALLOCATE)
+		ret = shim_posix_fallocate(fd_async, (off_t)0, fallocate_bytes);
+#else
+		ret = shim_fallocate(fd_async, 0, (off_t)0, fallocate_bytes);
 #endif
 		if (!stress_continue_flag())
 			break;
@@ -224,7 +239,7 @@ static int stress_fallocate(const stress_args_t *args)
 			for (i = 0; i < mode_count; i++) {
 				const off_t offset = (off_t)stress_mwc64modn((uint64_t)fallocate_bytes) & ~0xfff;
 
-				if (shim_fallocate(fd, mode_perms[i], offset, 64 * KB) == 0)
+				if (shim_fallocate(fd, mode_perms[i], offset, 4 * KB) == 0)
 					(void)shim_fsync(fd);
 				if (!stress_continue_flag())
 					break;
@@ -291,8 +306,12 @@ static int stress_fallocate(const stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (fd != -1)
-		(void)close(fd);
+#if defined(O_SYNC)
+	if (fd_sync != -1)
+		(void)close(fd_sync);
+#endif
+	if (fd_async != -1)
+		(void)close(fd_async);
 
 	(void)stress_temp_dir_rm_args(args);
 	free(mode_perms);
