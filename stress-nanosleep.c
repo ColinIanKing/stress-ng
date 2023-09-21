@@ -29,6 +29,7 @@
 
 typedef struct {
 	const stress_args_t *args;
+	cpu_cstate_t *cstate_list;
 	uint64_t counter;
 	uint64_t max_ops;
 	pthread_t pthread;
@@ -39,7 +40,23 @@ typedef struct {
 	double underrun_nsec;
 	double underrun_count;
 #endif
+	int mask;
 } stress_ctxt_t;
+
+#define STRESS_NANOSLEEP_CSTATE		(0x01)
+#define STRESS_NANOSLEEP_RANDOM		(0x02)
+#define STRESS_NANOSLEEP_NS		(0x04)
+#define STRESS_NANOSLEEP_US		(0x08)
+#define STRESS_NANOSLEEP_MS		(0x10)
+#define STRESS_NANOSLEEP_ALL		(STRESS_NANOSLEEP_CSTATE |	\
+					 STRESS_NANOSLEEP_RANDOM |	\
+					 STRESS_NANOSLEEP_NS | 		\
+					 STRESS_NANOSLEEP_US |		\
+					 STRESS_NANOSLEEP_MS)
+typedef struct {
+	const char *name;
+	int mask;
+} stress_nanosleep_method_t;
 
 static volatile bool thread_terminate;
 static sigset_t set;
@@ -49,6 +66,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"nanosleep N",		"start N workers performing short sleeps" },
 	{ NULL,	"nanosleep-ops N",	"stop after N bogo sleep operations" },
 	{ NULL,	"nanosleep-threads N",	"number of threads to run concurrently (default 8)" },
+	{ NULL,	"nanosleep-method M",	"select nanosleep sleep time method [ all | cstate | random ]" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -62,8 +80,42 @@ static int stress_set_nanosleep_threads(const char *opt)
 	return stress_set_setting("nanosleep-threads", TYPE_ID_UINT32, &nanosleep_threads);
 }
 
+static const stress_nanosleep_method_t stress_nanosleep_methods[] = {
+	{ "all",	STRESS_NANOSLEEP_ALL },
+	{ "cstate",	STRESS_NANOSLEEP_CSTATE },
+	{ "random",	STRESS_NANOSLEEP_RANDOM },
+	{ "ns",		STRESS_NANOSLEEP_NS },
+	{ "us",		STRESS_NANOSLEEP_US },
+	{ "ms",		STRESS_NANOSLEEP_MS },
+};
+
+/*
+ *  stress_set_nanosleep_method()
+ *	set the default nanosleep time method
+ */
+static int stress_set_nanosleep_method(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_nanosleep_methods); i++) {
+		if (!strcmp(stress_nanosleep_methods[i].name, name)) {
+			stress_set_setting("stress-nanosleep-method", TYPE_ID_INT, &stress_nanosleep_methods[i].mask);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "nanosleep-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_nanosleep_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_nanosleep_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_nanosleep_threads,	stress_set_nanosleep_threads },
+	{ OPT_nanosleep_method,		stress_set_nanosleep_method },
 	{ 0,				NULL }
 };
 
@@ -131,7 +183,6 @@ static void *stress_nanosleep_pthread(void *c)
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const stress_args_t *args = ctxt->args;
-	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
 
 	while (stress_continue(args) &&
 	       !thread_terminate &&
@@ -139,18 +190,28 @@ static void *stress_nanosleep_pthread(void *c)
 		register unsigned long i;
 		cpu_cstate_t *cc;
 
-		for (cc = cstate_list; cc; cc = cc->next) {
-			if (cc->residency > 0)
-				stress_nanosleep_ns(ctxt, 1000 * (long)(cc->residency + 1));
+		if (ctxt->mask & STRESS_NANOSLEEP_CSTATE) {
+			for (cc = ctxt->cstate_list; cc; cc = cc->next) {
+				if (cc->residency > 0)
+					stress_nanosleep_ns(ctxt, 1000 * (long)(cc->residency + 1));
+			}
 		}
+		if (ctxt->mask & STRESS_NANOSLEEP_RANDOM) {
+			for (i = 1 << 18; i > 0; i >>=1) {
+				register const unsigned long mask = (i - 1);
+				long nsec = (long)(stress_mwc32() & mask) + 8;
 
-		for (i = 1 << 18; i > 0; i >>=1) {
-			register const unsigned long mask = (i - 1);
-			long nsec = (long)(stress_mwc32() & mask) + 8;
-
-			if (stress_nanosleep_ns(ctxt, nsec) < 0)
-				break;
+				if (stress_nanosleep_ns(ctxt, nsec) < 0)
+					break;
+			}
 		}
+		if (ctxt->mask & STRESS_NANOSLEEP_NS)
+			stress_nanosleep_ns(ctxt, 1);
+		if (ctxt->mask & STRESS_NANOSLEEP_US)
+			stress_nanosleep_ns(ctxt, 1000);
+		if (ctxt->mask & STRESS_NANOSLEEP_MS)
+			stress_nanosleep_ns(ctxt, 1000000);
+
 		ctxt->counter++;
 	}
 	return &nowt;
@@ -167,6 +228,7 @@ static int stress_nanosleep(const stress_args_t *args)
 	uint32_t nanosleep_threads = DEFAULT_NANOSLEEP_THREADS;
 	stress_ctxt_t *ctxts;
 	int ret = EXIT_SUCCESS;
+	int mask = STRESS_NANOSLEEP_ALL;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
 	double overhead_nsec;
@@ -174,9 +236,27 @@ static int stress_nanosleep(const stress_args_t *args)
 	double underrun_nsec, underrun_count;
 	const uint64_t benchmark_loops = 10000;
 #endif
+	cpu_cstate_t *cstate_list = stress_cpuidle_cstate_list_head();
 
 	(void)stress_get_setting("nanosleep-threads", &nanosleep_threads);
 	max_ops = args->max_ops ? (args->max_ops / nanosleep_threads) + 1 : 0;
+
+	(void)stress_get_setting("stress-nanosleep-method", &mask);
+	if (mask & STRESS_NANOSLEEP_CSTATE) {
+		if (cstate_list == NULL) {
+			if (args->instance == 0)
+				pr_inf("%s: no C states found, using just random nanosleeps instead\n", args->name);
+			mask = STRESS_NANOSLEEP_RANDOM;
+		} else {
+			if ((args->instance == 0) &&
+			    ((mask & ~STRESS_NANOSLEEP_CSTATE) == 0) &&
+			    (nanosleep_threads > 1)) {
+				pr_inf("%s: nanosleep-method cstate exercises C "
+					"state sleeps optimally when nanosleep-threads "
+					"is set to 1\n", args->name);
+			}
+		}
+	}
 
 	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -202,6 +282,9 @@ static int stress_nanosleep(const stress_args_t *args)
 		ctxts[n].underrun_nsec = 0.0;
 		ctxts[n].underrun_count = 0.0;
 #endif
+		ctxts[n].mask = mask;
+		ctxts[n].cstate_list = cstate_list;
+
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_nanosleep_pthread, &ctxts[n]);
 		if (ret) {

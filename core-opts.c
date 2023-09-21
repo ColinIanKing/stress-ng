@@ -539,6 +539,7 @@ const struct option stress_long_options[] = {
 	{ "mutex-ops",		1,	0,	OPT_mutex_ops },
 	{ "mutex-procs",	1,	0,	OPT_mutex_procs },
 	{ "nanosleep",		1,	0,	OPT_nanosleep },
+	{ "nanosleep-method",	1,	0,	OPT_nanosleep_method },
 	{ "nanosleep-ops",	1,	0,	OPT_nanosleep_ops },
 	{ "nanosleep-threads",	1,	0,	OPT_nanosleep_threads },
 	{ "netdev",		1,	0,	OPT_netdev },

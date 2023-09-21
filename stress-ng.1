@@ -4474,6 +4474,35 @@ start N workers that each run pthreads that call nanosleep with random
 delays from 1 to 2\[ua]18 nanoseconds. This should exercise the high resolution
 timers and scheduler.
 .TP
+.B \-\-nanosleep\-method [ all | cstate | random | ns | us | ms ]
+select the nanosleep sleep duration method.  By default, cstate residency durations
+(if they exist) and random durations are used.  This option allows one to select one of the
+three methods:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+use cstate and random nanosecond durations.
+T}
+cstate	T{
+use cstate nanosecond durations. It is recommended to also use \-\-nanosleep\-threads 1
+to exercise less conconcurrent nanosleeps to allow CPUs to drop into deep C states.
+T}
+random	T{
+use random nanosecond durations between 1 and 2^18 nanoseconds.
+T}
+ns	T{
+use 1ns (nanosecond) nanosleeps
+T}
+us	T{
+use 1us (microsecond) nanosleeps
+T}
+ms	T{
+use 1ms (millisecond) nanosleeps
+T}
+.TE
+.TP
 .B \-\-nanosleep\-ops N
 stop the nanosleep stressor after N bogo nanosleep operations.
 .TP

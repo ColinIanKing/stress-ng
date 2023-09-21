@@ -810,6 +810,7 @@ typedef enum {
 	OPT_mutex_procs,
 
 	OPT_nanosleep,
+	OPT_nanosleep_method,
 	OPT_nanosleep_ops,
 	OPT_nanosleep_threads,
 
