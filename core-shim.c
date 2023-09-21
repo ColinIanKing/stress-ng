@@ -270,8 +270,10 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 
 		errno = 0;
 		ret = posix_fallocate(fd, offset, sz);
-		if (ret < 0)
-			return ret;
+		if (ret != 0) {
+			errno = ret;
+			return -1;
+		}
 
 		/*
 		 *  stressor has been signaled to finish, fake
