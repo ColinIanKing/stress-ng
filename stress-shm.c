@@ -247,6 +247,23 @@ static int stress_shm_posix_child(
 			(void)shim_fsync(shm_fd);
 			VOID_RET(off_t, lseek(shm_fd, (off_t)0, SEEK_SET));
 
+#if defined(FALLOC_FL_UNSHARE_RANGE)
+			/* Exercise range unsharing */
+			(void)shim_fallocate(shm_fd, FALLOC_FL_UNSHARE_RANGE, 0, (off_t)page_size);
+#endif
+#if defined(FALLOC_FL_COLLAPSE_RANGE)
+			/* Exercise range collapsing */
+			(void)shim_fallocate(shm_fd, FALLOC_FL_COLLAPSE_RANGE, 0, (off_t)page_size);
+#endif
+#if defined(FALLOC_FL_PUNCH_HOLE) &&	\
+    defined(FALLOC_FL_KEEP_SIZE)
+			/* Exercise hole punching */
+			(void)shim_fallocate(shm_fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE, 0, (off_t)sz);
+#endif
+#if defined(FALLOC_FL_ZERO_RANGE)
+			/* Exercise unsupported zero'ing */
+			(void)shim_fallocate(shm_fd, FALLOC_FL_ZERO_RANGE, 0, (off_t)sz);
+#endif
 			/* Shrink the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, (off_t)sz);
 
