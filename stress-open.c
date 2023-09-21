@@ -692,6 +692,11 @@ static int open_with_openat_cwd(
 		/* Exercise illegal times */
 		tv[0].tv_usec = 1000001;
 		tv[0].tv_sec = 0;
+		tv[1].tv_usec = 0;
+		tv[1].tv_sec = 1;
+		(void)obsolete_futimesat(AT_FDCWD, filename, tv);
+		tv[0].tv_usec = 0;
+		tv[0].tv_sec = 1;
 		tv[1].tv_usec = 1000001;
 		tv[1].tv_sec = 0;
 		(void)obsolete_futimesat(AT_FDCWD, filename, tv);
