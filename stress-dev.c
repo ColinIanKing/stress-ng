@@ -3714,6 +3714,36 @@ static void stress_dev_bus_usb_linux(
 UNEXPECTED
 #endif
 
+#if defined(__linux__) &&	\
+    defined(_IO)
+#if !defined(IOCTL_VMCI_VERSION)
+#define IOCTL_VMCI_VERSION	_IO(7, 0x9f)
+#endif
+#if !defined(IOCTL_VMCI_VERSION2)
+#define IOCTL_VMCI_VERSION2	_IO(7, 0xa7)
+#endif
+
+/*
+ *   stress_dev_vmci_linux()
+ *   	Exercise Linux vmci device
+ */
+static void stress_dev_vmci_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	int val;
+
+	(void)args;
+	(void)devpath;
+
+	val = 0;
+	VOID_RET(int, ioctl(fd, IOCTL_VMCI_VERSION, &val));
+	val = 0;
+	VOID_RET(int, ioctl(fd, IOCTL_VMCI_VERSION2, &val));
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3799,6 +3829,12 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(HAVE_LINUX_LIRC_H)
 	DEV_FUNC("/dev/lirc",stress_dev_lirc_linux),
+#else
+	UNEXPECTED
+#endif
+#if defined(__linux__) &&	\
+    defined(_IO)
+	DEV_FUNC("/dev/vmci",stress_dev_vmci_linux),
 #else
 	UNEXPECTED
 #endif
