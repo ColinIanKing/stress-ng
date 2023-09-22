@@ -66,6 +66,10 @@
 #include <linux/kd.h>
 #endif
 
+#if defined(HAVE_LINUX_LIRC_H)
+#include <linux/lirc.h>
+#endif
+
 #if defined(HAVE_LINUX_MEDIA_H)
 #include <linux/media.h>
 #endif
@@ -3023,6 +3027,75 @@ static void stress_dev_port_linux(
 }
 #endif
 
+#if defined(HAVE_LINUX_LIRC_H)
+static void stress_dev_lirc_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(LIRC_GET_FEATURES)
+	{
+		uint32_t features;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_FEATURES, &features));
+	}
+#endif
+#if defined(LIRC_GET_REC_MODE)
+	{
+		uint32_t mode;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_REC_MODE, &mode));
+	}
+#endif
+#if defined(LIRC_GET_SEND_MODE)
+	{
+		uint32_t mode;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_SEND_MODE, &mode));
+	}
+#endif
+#if defined(LIRC_GET_REC_RESOLUTION)
+	{
+		uint32_t res;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_REC_RESOLUTION, &res));
+	}
+#endif
+#if defined(LIRC_GET_MIN_TIMEOUT)
+	{
+		uint32_t timeout;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_MIN_TIMEOUT, &timeout));
+	}
+#endif
+#if defined(LIRC_GET_MAX_TIMEOUT)
+	{
+		uint32_t timeout;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_MAX_TIMEOUT, &timeout));
+	}
+#endif
+#if defined(LIRC_GET_REC_TIMEOUT)
+	{
+		uint32_t timeout;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_REC_TIMEOUT, &timeout));
+	}
+#endif
+#if defined(LIRC_GET_LENGTH)
+	{
+		uint32_t len;
+
+		VOID_RET(int, ioctl(fd, LIRC_GET_LENGTH, &len));
+	}
+#endif
+}
+#endif
+
 #if defined(HAVE_LINUX_HDREG_H)
 static void stress_dev_hd_linux_ioctl_long(int fd, unsigned long cmd)
 {
@@ -3720,6 +3793,11 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/bus/usb",stress_dev_bus_usb_linux),
+#else
+	UNEXPECTED
+#endif
+#if defined(HAVE_LINUX_LIRC_H)
+	DEV_FUNC("/dev/lirc",stress_dev_lirc_linux),
 #else
 	UNEXPECTED
 #endif
