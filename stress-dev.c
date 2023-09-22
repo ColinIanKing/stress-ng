@@ -3737,6 +3737,7 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 	DEV_FUNC("/dev/video",	stress_dev_video_linux),
+	DEV_FUNC("/dev/radio",	stress_dev_video_linux),
 #else
 	UNEXPECTED
 #endif
