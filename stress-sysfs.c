@@ -60,6 +60,8 @@ static const stress_help_t help[] = {
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
+static shim_pthread_spinlock_t open_lock;
+static shim_pthread_spinlock_t hash_lock;
 static volatile bool drain_kmsg = false;
 static volatile uint32_t counter = 0;
 static const char signum_path[] = "/sys/kernel/notes";
@@ -72,6 +74,7 @@ typedef struct {
 	int kmsgfd;			/* /dev/kmsg file descriptor */
 	bool sys_admin;			/* true if sys admin capable */
 	char sysfs_path[PATH_MAX];	/* path to exercise */
+	uint64_t sysfs_files_opened;	/* count of sysfs files opened */
 } stress_ctxt_t;
 
 static inline uint32_t path_sum(const char *path)
@@ -119,14 +122,29 @@ static bool stress_kmsg_drain(const int fd)
  *  stress_sys_add_bad()
  *	add a path onto the bad (omit) hash table
  */
-static void stress_sys_add_bad(const char *path)
+static inline void stress_sys_add_bad(const char *path)
 {
-	if (shim_pthread_spin_lock(&lock))
+	if (shim_pthread_spin_lock(&hash_lock))
 		return;	/* Can't lock! */
-
 	if (!stress_hash_add(sysfs_hash_table, path))
 		hash_items++;
-	(void)shim_pthread_spin_unlock(&lock);
+	(void)shim_pthread_spin_unlock(&hash_lock);
+}
+
+/*
+ *  stress_sys_bad()
+ *	find str in hash table, if non-null it's bad
+ */
+static inline stress_hash_t *stress_sys_bad(stress_hash_table_t *hash_table, const char *str)
+{
+	stress_hash_t *hash;
+
+	if (shim_pthread_spin_lock(&hash_lock))
+		return NULL;	/* Can't lock! */
+	hash = stress_hash_get(hash_table, str);
+	(void)shim_pthread_spin_unlock(&hash_lock);
+
+	return hash;
 }
 
 /*
@@ -172,6 +190,14 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			stress_sys_add_bad(path);
 			goto next;
 		}
+		ret = shim_pthread_spin_lock(&open_lock);
+		if (ret) {
+			(void)close(fd);
+			return false;
+		}
+		ctxt->sysfs_files_opened++;
+		(void)shim_pthread_spin_unlock(&open_lock);
+
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			goto next;
@@ -506,7 +532,7 @@ static void stress_sys_dir(
 
 		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 		/* Is it in the hash of bad paths? */
-		if (stress_hash_get(sysfs_hash_table, tmp))
+		if (stress_sys_bad(sysfs_hash_table, tmp))
 			goto dt_reg_free;
 
 		if (stress_sys_skip(tmp))
@@ -635,6 +661,7 @@ static int stress_sysfs(const stress_args_t *args)
 	int ret, pthreads_ret[MAX_SYSFS_THREADS];
 	stress_ctxt_t *ctxt;
 	struct dirent **dlist = NULL;
+	double t, duration, rate;
 
 	ctxt = (stress_ctxt_t *)mmap(NULL, sizeof(*ctxt),
 				     PROT_READ | PROT_WRITE,
@@ -672,9 +699,8 @@ static int stress_sysfs(const stress_args_t *args)
 	if (!sysfs_hash_table) {
 		pr_err("%s: cannot create sysfs hash table: %d (%s))\n",
 			args->name, errno, strerror(errno));
-		stress_dirent_list_free(dlist, n);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto exit_free;
 	}
 
 	(void)shim_memset(ctxt, 0, sizeof(*ctxt));
@@ -687,14 +713,24 @@ static int stress_sysfs(const stress_args_t *args)
 
 	ret = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
 	if (ret) {
-		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+		pr_inf("%s: pthread_spin_init on lock failed, errno=%d (%s)\n",
 			args->name, ret, strerror(ret));
-		if (ctxt->kmsgfd != -1)
-			(void)close(ctxt->kmsgfd);
-		stress_hash_delete(sysfs_hash_table);
-		stress_dirent_list_free(dlist, n);
-		(void)munmap((void *)ctxt, sizeof(*ctxt));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto exit_delete_hash;
+	}
+	ret = shim_pthread_spin_init(&open_lock, PTHREAD_PROCESS_PRIVATE);
+	if (ret) {
+		pr_inf("%s: pthread_spin_init on open_lock failed, errno=%d (%s)\n",
+			args->name, ret, strerror(ret));
+		rc = EXIT_NO_RESOURCE;
+		goto exit_destroy_lock;
+	}
+	ret = shim_pthread_spin_init(&hash_lock, PTHREAD_PROCESS_PRIVATE);
+	if (ret) {
+		pr_inf("%s: pthread_spin_init on hash_lock failed, errno=%d (%s)\n",
+			args->name, ret, strerror(ret));
+		rc = EXIT_NO_RESOURCE;
+		goto exit_destroy_open_lock;
 	}
 
 	(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
@@ -713,6 +749,7 @@ static int stress_sysfs(const stress_args_t *args)
 	 *  if the child was terminated prematurely by an unexpected
 	 *  signal from the kernel.
 	 */
+	t = stress_time_now();
 	do {
 		pid_t pid;
 
@@ -805,16 +842,26 @@ again:
 			_exit(EXIT_SUCCESS);
 		}
 	} while (stress_continue(args));
+	duration = stress_time_now() - t;
 
 	pr_dbg("%s: skipped %" PRIu64 " out of %" PRIu64 " sysfs files accessed\n",
 		args->name, hash_items, stress_bogo_get(args));
+
+	rate = (duration > 0.0) ? (double)ctxt->sysfs_files_opened / duration : 0.0;
+	stress_metrics_set(args, 0, "sysfs files exercised per sec", rate);
+
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)shim_pthread_spin_destroy(&hash_lock);
+exit_destroy_open_lock:
+	(void)shim_pthread_spin_destroy(&open_lock);
+exit_destroy_lock:
+	(void)shim_pthread_spin_destroy(&lock);
+exit_delete_hash:
 	stress_hash_delete(sysfs_hash_table);
 	if (ctxt->kmsgfd != -1)
 		(void)close(ctxt->kmsgfd);
-	(void)shim_pthread_spin_destroy(&lock);
 
 exit_free:
 	stress_dirent_list_free(dlist, n);
