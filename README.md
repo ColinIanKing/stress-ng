@@ -502,6 +502,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [module: add debug stats to help identify memory pressure](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=df3e764d8e5cd416efee29e0de3c93917dff5d33)
 * [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
 * [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
+* [filemap: add filemap_map_order0_folio() to handle order0 folio](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c8be03806738c86521dbf1e0503bc90855fb99a3)
 
 ## Presentations
 
