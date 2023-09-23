@@ -347,6 +347,7 @@ do
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT --iostat 1
 		do_stress --verity -1 --temp-path $MNT --iostat 1
 		do_stress --utime -1 --utime-fsync --temp-path $MNT --iostat 1
+		sudo $STRESS_NG --swap 4 --temp-path $MNT -t $DURATION --iostat 1 --status 5 --timestamp -v
 		DURATION=10
 		sudo $STRESS_NG --class filesystem --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
 		sudo $STRESS_NG --class io --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
@@ -371,7 +372,7 @@ done
 #  Exercise ionice classes
 #
 ionices=$(${STRESS_NG} --ionice-class which 2>&1 | tail -1 | cut -d':' -f2-)
-for i in ${innices}
+for i in ${iinices}
 do
 	do_stress --ionice-class $i --iomix -1 -t 30 --smart --iostat 1
 done
