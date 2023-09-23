@@ -372,7 +372,7 @@ done
 #  Exercise ionice classes
 #
 ionices=$(${STRESS_NG} --ionice-class which 2>&1 | tail -1 | cut -d':' -f2-)
-for i in ${iinices}
+for i in ${ionices}
 do
 	do_stress --ionice-class $i --iomix -1 -t 30 --smart --iostat 1
 done
