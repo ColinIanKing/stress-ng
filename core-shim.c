@@ -1500,7 +1500,14 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 
 	for (;;) {
 		errno = 0;
+#if defined(HAVE_WAITPID)
 		ret = waitpid(pid, wstatus, options);
+#elif defined(__NR_waitpid) &&	\
+    defined(HAVE_SYSCALL)
+		ret = (pid_t)syscall(__NR_waitpid, pid, wstatus, options);
+#else
+		ret = (pid_t)shim_enosys(0, pid, wstatus, options);
+#endif
 		if ((ret >= 0) || (errno != EINTR))
 			break;
 
@@ -1526,7 +1533,9 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
  */
 pid_t shim_wait(int *wstatus)
 {
-#if defined(__NR_waitpid) &&	\
+#if defined(HAVE_WAITPID)
+	return waitpid(-1, wstatus, 0);
+#elif defined(__NR_waitpid) &&	\
     defined(HAVE_SYSCALL)
 	return (pid_t)syscall(__NR_waitpid, -1, wstatus, 0);
 #else
