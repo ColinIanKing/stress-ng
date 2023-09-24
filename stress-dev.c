@@ -94,6 +94,10 @@
 #include <linux/usbdevice_fs.h>
 #endif
 
+#if defined(HAVE_LINUX_USB_CDC_WDM_H)
+#include <linux/usb/cdc-wdm.h>
+#endif
+
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 #include <linux/videodev2.h>
 #endif
@@ -3744,6 +3748,22 @@ static void stress_dev_vmci_linux(
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_USB_CDC_WDM_H)
+static void stress_dev_cdc_wdm_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	uint16_t val;
+
+	(void)args;
+	(void)devpath;
+
+	VOID_RET(int, ioctl(fd, IOCTL_WDM_MAX_COMMAND, &val));
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3828,13 +3848,19 @@ static const stress_dev_func_t dev_funcs[] = {
 	UNEXPECTED
 #endif
 #if defined(HAVE_LINUX_LIRC_H)
-	DEV_FUNC("/dev/lirc",stress_dev_lirc_linux),
+	DEV_FUNC("/dev/lirc",	stress_dev_lirc_linux),
 #else
 	UNEXPECTED
 #endif
 #if defined(__linux__) &&	\
     defined(_IO)
-	DEV_FUNC("/dev/vmci",stress_dev_vmci_linux),
+	DEV_FUNC("/dev/vmci",	stress_dev_vmci_linux),
+#else
+	UNEXPECTED
+#endif
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_USB_CDC_WDM_H)
+	DEV_FUNC("/dev/cdc-wdm",stress_dev_cdc_wdm_linux),
 #else
 	UNEXPECTED
 #endif
