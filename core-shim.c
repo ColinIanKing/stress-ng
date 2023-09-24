@@ -542,7 +542,9 @@ int shim_klogctl(int type, char *bufp, int len)
  */
 int shim_membarrier(int cmd, int flags, int cpu_id)
 {
-#if defined(__NR_membarrier) &&	\
+#if defined(HAVE_MEMBARRIER)
+	return membarrier(cmd, flags, cpu_id)
+#elif defined(__NR_membarrier) &&	\
     defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_membarrier, cmd, flags, cpu_id);
 #else
