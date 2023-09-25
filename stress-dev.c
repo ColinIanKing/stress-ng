@@ -4528,8 +4528,7 @@ static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_
 	/* rebuild list based on randomized sorted rnd_id */
 	*dev_info_list = NULL;
 	for (i = 0; i < dev_info_list_len; i++) {
-		dev_info_t *dev = dev_info_sorted[i];
-
+		dev = dev_info_sorted[i];
 		dev->next = *dev_info_list;
 		*dev_info_list = dev;
 	}
