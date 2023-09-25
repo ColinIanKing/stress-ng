@@ -62,7 +62,6 @@ void stress_cpuidle_init(void)
 #if defined(__linux__)
 	DIR *cpu_dir;
 	struct dirent *cpu_d;
-	size_t max_cpus = 0;
 
 	cpu_cstate_list = NULL;
 	cpu_cstate_list_len = 0;
@@ -88,7 +87,6 @@ void stress_cpuidle_init(void)
 		if (!cpuidle_dir)
 			continue;
 
-		max_cpus++;
 		while ((cpuidle_d = readdir(cpuidle_dir)) != NULL) {
 			char path[PATH_MAX], data[64], *ptr;
 			uint32_t residency = 0;
