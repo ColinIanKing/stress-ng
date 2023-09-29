@@ -526,6 +526,7 @@ STRESS_SRC = \
 	stress-vm-rw.c \
 	stress-vm-segv.c \
 	stress-vm-splice.c \
+	stress-vma.c \
 	stress-vnni.c \
 	stress-wait.c \
 	stress-waitcpu.c \

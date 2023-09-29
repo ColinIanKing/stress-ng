@@ -324,6 +324,7 @@
 	MACRO(vm_rw)		\
 	MACRO(vm_segv)		\
 	MACRO(vm_splice)	\
+	MACRO(vma)		\
 	MACRO(vnni)		\
 	MACRO(wait)		\
 	MACRO(waitcpu)		\

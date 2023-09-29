@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "13 Sept 2023"
+.TH STRESS-NG 1 "29 Sept 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7672,6 +7672,19 @@ GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-vm\-splice\-ops N
 stop after N bogo vm\-splice operations.
+.RE
+.TP
+.B Virtual Memory Area (VMA) stressor
+.RS 5
+.TQ
+.B \-\-vma N
+start M workers that create pthreads to mmap, munmap, mlock, munlock and
+access 8 pages in a randomly selected virtual memory address space. This
+is designed to trip races on VMA page modifications. Every 15 seconds a
+different virtual address space is randonly chosen.
+.TP
+.B \-\-vma\-ops N
+stop the vma stressors after N successful memory mappings.
 .RE
 .TP
 .B Vector neural network instructions stressor

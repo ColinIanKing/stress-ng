@@ -1021,6 +1021,8 @@ const struct option stress_long_options[] = {
 	{ "vm-splice",		1,	0,	OPT_vm_splice },
 	{ "vm-splice-bytes",	1,	0,	OPT_vm_splice_bytes },
 	{ "vm-splice-ops",	1,	0,	OPT_vm_splice_ops },
+	{ "vma",		1,	0,	OPT_vma },
+	{ "vma-ops",		1,	0,	OPT_vma_ops },
 	{ "vmstat",		1,	0,	OPT_vmstat },
 	{ "vnni",		1,	0,	OPT_vnni },
 	{ "vnni-intrinsic",	0,	0,	OPT_vnni_intrinsic },

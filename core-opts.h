@@ -1436,6 +1436,9 @@ typedef enum {
 	OPT_vm_splice_ops,
 	OPT_vm_splice_bytes,
 
+	OPT_vma,
+	OPT_vma_ops,
+
 	OPT_vmstat,
 
 	OPT_vnni,
