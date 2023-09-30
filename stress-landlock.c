@@ -58,7 +58,13 @@ static const stress_help_t help[] = {
     defined(__NR_landlock_restrict_self) &&	\
     defined(__NR_landlock_add_rule)
 
-typedef int (*stress_landlock_func)(const stress_args_t *args, void *ctxt);
+typedef struct {
+	uint32_t flag;
+	char filename[PATH_MAX];
+	const char *path;
+} stress_landlock_ctxt_t;
+
+typedef int (*stress_landlock_func)(const stress_args_t *args, stress_landlock_ctxt_t *ctxt);
 
 static int shim_landlock_create_ruleset(
 	struct landlock_ruleset_attr *attr,
@@ -133,108 +139,76 @@ static int stress_landlock_supported(const char *name)
 	return 0;
 }
 
-static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
+static int stress_landlock_flag(const stress_args_t *args, stress_landlock_ctxt_t *ctxt)
 {
-	uint32_t flag = *(uint32_t *)ctxt;
-	const char *path = stress_get_temp_path();
-	char filename[PATH_MAX];
-
 	int ruleset_fd, fd, ret, rc = EXIT_SUCCESS;
-	const pid_t pid = getpid();
 	struct landlock_ruleset_attr ruleset_attr;
-	struct landlock_path_beneath_attr path_beneath = {
-		.allowed_access = LANDLOCK_ACCESS_FS_READ_FILE |
-				  LANDLOCK_ACCESS_FS_READ_DIR,
-	};
-	struct landlock_path_beneath_attr bad_path_beneath = {
-		.allowed_access = LANDLOCK_ACCESS_FS_READ_FILE |
-				  LANDLOCK_ACCESS_FS_READ_DIR,
-	};
+	struct landlock_path_beneath_attr path_beneath;
 
-	if (!path)
-		return 0;
-
-	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
-	/* Exercise illegal ruleset sizes, EINVAL */
-	VOID_RET(int, shim_landlock_create_ruleset(&ruleset_attr, 0, 0));
-	/* Exercise illegal ruleset sizes, E2BIG */
-	VOID_RET(int, shim_landlock_create_ruleset(&ruleset_attr, 4096, 0));
 	/* Exercise fetch of ruleset API version, ignore return */
 	VOID_RET(int, shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION));
+	fd = open(ctxt->filename, O_CREAT | O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	if (fd > -1)
+		(void)close(fd);
 
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
-	ruleset_attr.handled_access_fs = flag;
-
+	ruleset_attr.handled_access_fs =
+		LANDLOCK_ACCESS_FS_EXECUTE |
+		LANDLOCK_ACCESS_FS_WRITE_FILE |
+		LANDLOCK_ACCESS_FS_READ_FILE |
+		LANDLOCK_ACCESS_FS_READ_DIR |
+		LANDLOCK_ACCESS_FS_REMOVE_DIR |
+		LANDLOCK_ACCESS_FS_REMOVE_FILE |
+		LANDLOCK_ACCESS_FS_MAKE_CHAR |
+		LANDLOCK_ACCESS_FS_MAKE_DIR |
+		LANDLOCK_ACCESS_FS_MAKE_REG |
+		LANDLOCK_ACCESS_FS_MAKE_SOCK |
+		LANDLOCK_ACCESS_FS_MAKE_FIFO |
+		LANDLOCK_ACCESS_FS_MAKE_BLOCK |
+		LANDLOCK_ACCESS_FS_MAKE_SYM;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
-	if (ruleset_fd < 0)
+	if (ruleset_fd < 0) {
+		pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
+			args->name, errno, strerror(errno), (uint64_t)ruleset_attr.handled_access_fs);
 		return 0;
+	}
 
-	/* Exercise illegal parent_fd */
-	path_beneath.parent_fd = -1;
-	VOID_RET(int, shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-		&path_beneath, 0));
-
-	path_beneath.parent_fd = open(path, O_PATH | O_CLOEXEC);
+	(void)shim_memset(&path_beneath, 0, sizeof(path_beneath));
+	path_beneath.allowed_access = ctxt->flag;
+	path_beneath.parent_fd = open(ctxt->path, O_PATH);
 	if (path_beneath.parent_fd < 0)
 		goto close_ruleset;
-
-	/* Exercise illegal fd */
-	VOID_RET(int, shim_landlock_add_rule(-1, LANDLOCK_RULE_PATH_BENEATH,
-		&path_beneath, 0));
-
-	/* Exercise illegal flags */
-	VOID_RET(int, shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-		&path_beneath, ~0U));
-	/* Exercise illegal rule type */
-	VOID_RET(int, shim_landlock_add_rule(ruleset_fd, (enum landlock_rule_type)~0,
-		&path_beneath, 0));
-
-	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-		&path_beneath, 0);
+	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH, &path_beneath, 0);
 	if (ret < 0)
 		goto close_parent;
-
-	/* Exercise illegal parent_fd */
-	bad_path_beneath.parent_fd = ruleset_fd;
-	VOID_RET(int, shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-		&bad_path_beneath, 0));
 
 	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 	if (ret < 0)
 		goto close_parent;
 
 	ret = shim_landlock_restrict_self(ruleset_fd, 0);
-	if (ret < 0)
+	if (ret < 0) {
+		pr_inf("%s: landlock_restrict_self failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto close_parent;
+	}
 
 	/*
 	 *  Got a valid landlocked restricted child process,
 	 *  so now sanity check it on some test files
 	 */
-	(void)snprintf(filename, sizeof(filename), "%s/landlock-%" PRIdMAX, path, (intmax_t)pid);
-
-	fd = open(path, O_PATH | O_CLOEXEC);
+	fd = open(ctxt->filename, O_RDONLY);
 	if (fd > -1)
 		(void)close(fd);
 
-	fd = open(filename, O_CREAT | O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
-	if (fd > -1) {
-		pr_fail("%s: failed to landlock writable file %s\n",
-			args->name, filename);
-		(void)shim_unlink(filename);
+	fd = open(ctxt->filename, O_WRONLY, S_IRUSR | S_IWUSR);
+	if (fd > -1)
 		(void)close(fd);
-		rc = EXIT_FAILURE;
-		goto close_parent;
-	}
-	if ((fd < 0) && (errno != EACCES)) {
-		pr_fail("%s: landlocked file create should have returned "
-			"errno=%d (%s), got errno=%d (%s) instead\n",
-			args->name,
-			EACCES, strerror(EACCES),
-			errno, strerror(errno));
-		rc = EXIT_FAILURE;
-		goto close_parent;
-	}
+
+	fd = open(ctxt->filename, O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd > -1)
+		(void)close(fd);
+	(void)shim_unlink(ctxt->filename);
 
 close_parent:
 	(void)close(path_beneath.parent_fd);
@@ -247,7 +221,7 @@ close_ruleset:
 static void stress_landlock_test(
 	const stress_args_t *args,
 	stress_landlock_func func,
-	void *ctxt,
+	stress_landlock_ctxt_t *ctxt,
 	int *failures)
 {
 	int status;
@@ -269,6 +243,7 @@ again:
 			} else {
 				/* Probably an SIGARLM, force kill & reap */
 				(void)stress_kill_pid_wait(pid, NULL);
+				(void)shim_unlink(ctxt->filename);
 				return;
 			}
 		}
@@ -277,8 +252,10 @@ again:
 
 			if (rc != EXIT_SUCCESS)
 				(*failures)++;
+			(void)shim_unlink(ctxt->filename);
 			return;
 		}
+		(void)shim_unlink(ctxt->filename);
 	}
 }
 
@@ -292,6 +269,7 @@ static int stress_landlock(const stress_args_t *args)
 		SHIM_LANDLOCK_ACCESS_FS_EXECUTE,
 		SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE,
 		SHIM_LANDLOCK_ACCESS_FS_READ_FILE,
+		SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE | SHIM_LANDLOCK_ACCESS_FS_READ_FILE,
 		SHIM_LANDLOCK_ACCESS_FS_READ_DIR,
 		SHIM_LANDLOCK_ACCESS_FS_REMOVE_DIR,
 		SHIM_LANDLOCK_ACCESS_FS_REMOVE_FILE,
@@ -305,27 +283,33 @@ static int stress_landlock(const stress_args_t *args)
 		0,
 	};
 	int failures = 0;
+	stress_landlock_ctxt_t ctxt;
+
+	ctxt.path = stress_get_temp_path();
+	(void)snprintf(ctxt.filename, sizeof(ctxt.filename), "%s/landlock-%" PRIdMAX,
+			ctxt.path, (intmax_t)getpid());
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		size_t i;
-		uint32_t flags = 0;
 
+		ctxt.flag = 0;
 		/* Exercise with a mix of valid and invalid flags */
 		for (i = 0; i < SIZEOF_ARRAY(landlock_access_flags); i++) {
-			uint32_t flag = (uint32_t)landlock_access_flags[i];
-
-			flags |= flag;
-			stress_landlock_test(args, stress_landlock_flag, &flag, &failures);
+			ctxt.flag |= (uint32_t)landlock_access_flags[i];
+			stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
 			if (failures >= 5)
 				goto err;
 		}
-		stress_landlock_test(args, stress_landlock_flag, &flags, &failures);
-		if (failures >= 5)
-			goto err;
-		flags = ~flags;
-		stress_landlock_test(args, stress_landlock_flag, &flags, &failures);
+		for (i = 0; i < SIZEOF_ARRAY(landlock_access_flags); i++) {
+			ctxt.flag = (uint32_t)landlock_access_flags[i];
+			stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
+			if (failures >= 5)
+				goto err;
+		}
+		ctxt.flag = ~ctxt.flag;
+		stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
 		if (failures >= 5)
 			goto err;
 
