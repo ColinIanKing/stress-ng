@@ -339,15 +339,16 @@ static int stress_vma(const stress_args_t *args)
 	stress_vma_context_t ctxt;
 
 	stress_vma_page = mmap(NULL, sizeof(args->page_size), PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_vma_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap 1 page (%zd bytes) , errno=%d (%s), skipping stressor\n",
 			args->name, args->page_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_vma_metrics = mmap(NULL, sizeof(*stress_vma_metrics), PROT_READ | PROT_WRITE,
-				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	stress_vma_metrics = (stress_vma_metrics_t *)
+		mmap(NULL, sizeof(*stress_vma_metrics), PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_vma_metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap vma shared statistics data, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
