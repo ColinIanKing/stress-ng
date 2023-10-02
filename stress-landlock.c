@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2013-2021 Canonical, Ltd.
  * Copyright (C) 2022-2023 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
@@ -49,6 +48,21 @@ static const stress_help_t help[] = {
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO	(1ULL << 10)
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK	(1ULL << 11)
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM	(1ULL << 12)
+
+#define SHIM_LANDLOCK_ACCESS_ALL		\
+	SHIM_LANDLOCK_ACCESS_FS_EXECUTE |	\
+	SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE |	\
+	SHIM_LANDLOCK_ACCESS_FS_READ_FILE |	\
+	SHIM_LANDLOCK_ACCESS_FS_READ_DIR |	\
+	SHIM_LANDLOCK_ACCESS_FS_REMOVE_DIR |	\
+	SHIM_LANDLOCK_ACCESS_FS_REMOVE_FILE |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_CHAR |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_DIR |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_REG |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_SOCK |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK |	\
+	SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM;	\
 
 #if defined(HAVE_LINUX_LANDLOCK_H) &&		\
     defined(HAVE_LANDLOCK_RULE_TYPE) &&		\
@@ -120,6 +134,8 @@ static int stress_landlock_supported(const char *name)
 	int ruleset_fd;
 	struct landlock_ruleset_attr ruleset_attr;
 
+return 0;
+
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_FS_READ_FILE;
 
@@ -139,33 +155,96 @@ static int stress_landlock_supported(const char *name)
 	return 0;
 }
 
+static int stress_landlock_filter(const struct dirent *d)
+{
+	return !stress_is_dot_filename(d->d_name);
+}
+
+/*
+ *  stress_landlock_many()
+ *   	recursively apply landlock to as many files as possible to consume
+ *   	landlock resources.
+ */
+static void stress_landlock_many(const stress_args_t *args, const char *path, const int depth)
+{
+	struct dirent **namelist = NULL;
+	int i, n;
+	int ruleset_fd, ret;
+
+	struct landlock_ruleset_attr ruleset_attr;
+
+	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
+	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_ALL;
+	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+	if (ruleset_fd < 0) {
+		pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
+			args->name, errno, strerror(errno), (uint64_t)ruleset_attr.handled_access_fs);
+		return;
+	}
+
+	n = scandir(path, &namelist, stress_landlock_filter, alphasort);
+	for (i = 0; i < n; i++) {
+		char newpath[PATH_MAX], resolved[PATH_MAX];
+
+		if (strcmp(path, "/"))
+			(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, namelist[i]->d_name);
+		else
+			(void)snprintf(newpath, sizeof(newpath), "/%s", namelist[i]->d_name);
+
+		if (realpath(newpath, resolved) == NULL)
+			goto next;
+
+		if (strcmp(newpath, resolved) == 0) {
+			struct landlock_path_beneath_attr path_beneath;
+
+			switch (namelist[i]->d_type) {
+			case DT_REG:
+			case DT_LNK:
+				(void)shim_memset(&path_beneath, 0, sizeof(path_beneath));
+				path_beneath.allowed_access = SHIM_LANDLOCK_ACCESS_FS_READ_FILE;
+				path_beneath.parent_fd = open(resolved, O_PATH | O_NONBLOCK);
+				if (path_beneath.parent_fd < 0)
+					goto close_ruleset;
+				ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH, &path_beneath, 0);
+				(void)close(path_beneath.parent_fd);
+				if (ret < 0) {
+					goto close_ruleset;
+				}
+				break;
+			case DT_DIR:
+				if (depth < 30)
+					stress_landlock_many(args, resolved, depth + 1);
+				break;
+			default:
+				break;
+			}
+		}
+next:
+		free(namelist[i]);
+	}
+	if (namelist)
+		free(namelist);
+
+close_ruleset:
+	(void)close(ruleset_fd);
+}
+
 static int stress_landlock_flag(const stress_args_t *args, stress_landlock_ctxt_t *ctxt)
 {
 	int ruleset_fd, fd, ret, rc = EXIT_SUCCESS;
 	struct landlock_ruleset_attr ruleset_attr;
 	struct landlock_path_beneath_attr path_beneath;
 
-	/* Exercise fetch of ruleset API version, ignore return */
-	VOID_RET(int, shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION));
+	/* Create empty test file */
 	fd = open(ctxt->filename, O_CREAT | O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
 	if (fd > -1)
 		(void)close(fd);
 
+	/* Exercise fetch of ruleset API version, ignore return */
+	VOID_RET(int, shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION));
+
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
-	ruleset_attr.handled_access_fs =
-		LANDLOCK_ACCESS_FS_EXECUTE |
-		LANDLOCK_ACCESS_FS_WRITE_FILE |
-		LANDLOCK_ACCESS_FS_READ_FILE |
-		LANDLOCK_ACCESS_FS_READ_DIR |
-		LANDLOCK_ACCESS_FS_REMOVE_DIR |
-		LANDLOCK_ACCESS_FS_REMOVE_FILE |
-		LANDLOCK_ACCESS_FS_MAKE_CHAR |
-		LANDLOCK_ACCESS_FS_MAKE_DIR |
-		LANDLOCK_ACCESS_FS_MAKE_REG |
-		LANDLOCK_ACCESS_FS_MAKE_SOCK |
-		LANDLOCK_ACCESS_FS_MAKE_FIFO |
-		LANDLOCK_ACCESS_FS_MAKE_BLOCK |
-		LANDLOCK_ACCESS_FS_MAKE_SYM;
+	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_ALL;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
 		pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
@@ -282,12 +361,25 @@ static int stress_landlock(const stress_args_t *args)
 		SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM,
 		0,
 	};
-	int failures = 0;
 	stress_landlock_ctxt_t ctxt;
+	int failures = 0;
+	pid_t pid_many;
 
 	ctxt.path = stress_get_temp_path();
 	(void)snprintf(ctxt.filename, sizeof(ctxt.filename), "%s/landlock-%" PRIdMAX,
 			ctxt.path, (intmax_t)getpid());
+
+again:
+	pid_many = fork();
+	if (pid_many < 0) {
+		if (stress_redo_fork(args, errno))
+			goto again;
+	} else if (pid_many == 0) {
+		do {
+			stress_landlock_many(args, "/", 0);
+		} while (stress_continue(args));
+		_exit(0);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -295,6 +387,7 @@ static int stress_landlock(const stress_args_t *args)
 		size_t i;
 
 		ctxt.flag = 0;
+
 		/* Exercise with a mix of valid and invalid flags */
 		for (i = 0; i < SIZEOF_ARRAY(landlock_access_flags); i++) {
 			ctxt.flag |= (uint32_t)landlock_access_flags[i];
@@ -317,6 +410,9 @@ static int stress_landlock(const stress_args_t *args)
 	} while (stress_continue(args));
 
 err:
+	if (pid_many != -1)
+		(void)stress_kill_pid_wait(pid_many, NULL);
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
