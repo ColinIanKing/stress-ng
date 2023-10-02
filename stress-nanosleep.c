@@ -24,6 +24,22 @@
 #define MAX_NANOSLEEP_THREADS		(1024)
 #define DEFAULT_NANOSLEEP_THREADS	(8)
 
+#define STRESS_NANOSLEEP_CSTATE		(0x01)
+#define STRESS_NANOSLEEP_RANDOM		(0x02)
+#define STRESS_NANOSLEEP_NS		(0x04)
+#define STRESS_NANOSLEEP_US		(0x08)
+#define STRESS_NANOSLEEP_MS		(0x10)
+#define STRESS_NANOSLEEP_ALL		(STRESS_NANOSLEEP_CSTATE |	\
+					 STRESS_NANOSLEEP_RANDOM |	\
+					 STRESS_NANOSLEEP_NS | 		\
+					 STRESS_NANOSLEEP_US |		\
+					 STRESS_NANOSLEEP_MS)
+
+typedef struct {
+	const char *name;
+	int mask;
+} stress_nanosleep_method_t;
+
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_NANOSLEEP)
 
@@ -42,21 +58,6 @@ typedef struct {
 #endif
 	int mask;
 } stress_ctxt_t;
-
-#define STRESS_NANOSLEEP_CSTATE		(0x01)
-#define STRESS_NANOSLEEP_RANDOM		(0x02)
-#define STRESS_NANOSLEEP_NS		(0x04)
-#define STRESS_NANOSLEEP_US		(0x08)
-#define STRESS_NANOSLEEP_MS		(0x10)
-#define STRESS_NANOSLEEP_ALL		(STRESS_NANOSLEEP_CSTATE |	\
-					 STRESS_NANOSLEEP_RANDOM |	\
-					 STRESS_NANOSLEEP_NS | 		\
-					 STRESS_NANOSLEEP_US |		\
-					 STRESS_NANOSLEEP_MS)
-typedef struct {
-	const char *name;
-	int mask;
-} stress_nanosleep_method_t;
 
 static volatile bool thread_terminate;
 static sigset_t set;
