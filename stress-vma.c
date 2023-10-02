@@ -137,7 +137,9 @@ static void *stress_vma_mmap(void *ptr)
 		void *mapped;
 
 		flags |= (stress_mwc1() ? MAP_SHARED : MAP_PRIVATE);
+#if defined(MAP_GROWSDOWN)
 		flags |= (stress_mwc1() ? MAP_GROWSDOWN : 0);
+#endif
 
 		/* Map and grow */
 		errno = 0;
