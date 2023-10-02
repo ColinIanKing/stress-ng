@@ -177,7 +177,11 @@ static void *stress_vma_mlock(void *ptr)
 	while (stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(8);
 		const size_t len = page_size * stress_mwc8modn(8);
+#if defined(MLOCK_ONFAULT)
 		const int flags = stress_mwc1() ? MLOCK_ONFAULT : 0;
+#else
+		const int flags = 0;
+#endif
 
 		if (shim_mlock2((void *)(data + offset), len, flags) == 0) {
 			stress_vma_metrics->metrics[STRESS_VMA_MLOCK]++;
