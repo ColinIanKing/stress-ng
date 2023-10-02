@@ -62,6 +62,28 @@ static stress_policy_t policies[] = {
 #endif
 };
 
+#if defined(HAVE_ASM_X86_REP_STOSB) &&	\
+    !defined(__ILP32__)
+#define HAVE_X86_REP_STOSB
+static ALWAYS_INLINE inline void OPTIMIZE3 stress_softlockup_stosb(void *ptr, const uint32_t loops)
+{
+	register const void *p = ptr;
+	register const uint32_t l = loops;
+
+	__asm__ __volatile__(
+		"mov $0xaa,%%al\n;"
+		"mov %0,%%rdi\n;"
+		"mov %1,%%ecx\n;"
+		"rep stosb %%al,%%es:(%%rdi);\n"
+		:
+		: "r" (p),
+		  "r" (l)
+		: "ecx","rdi","al");
+}
+
+static uint8_t *softlockup_buffer;
+#endif
+
 static sigjmp_buf jmp_env;
 static volatile bool softlockup_start;
 
@@ -99,6 +121,20 @@ static uint64_t OPTIMIZE0 stress_softlockup_loop_count(void)
 
 	return n;
 }
+
+#if defined(HAVE_X86_REP_STOSB)
+static void OPTIMIZE3 stress_softlockup_rep_stosb(void)
+{
+	if (softlockup_buffer == MAP_FAILED)
+		return;
+
+	stress_softlockup_stosb(softlockup_buffer, MB);
+}
+#else
+static void stress_softlockup_rep_stosb(void)
+{
+}
+#endif
 
 /*
  *  stress_rlimit_handler()
@@ -216,6 +252,9 @@ static void stress_softlockup_child(
 		policy++;
 		if (policy >= SIZEOF_ARRAY(policies))
 			policy = 0;
+
+		stress_softlockup_rep_stosb();
+
 		stress_bogo_inc(args);
 
 		/* Ensure we NEVER spin forever */
@@ -248,6 +287,11 @@ static int stress_softlockup(const stress_args_t *args)
 	(void)shim_memset(&param, 0, sizeof(param));
 
 	loop_count = stress_softlockup_loop_count();
+
+#if defined(HAVE_X86_REP_STOSB)
+	softlockup_buffer = mmap(NULL, MB, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+#endif
 
 	pids = malloc(sizeof(*pids) * (size_t)cpus_online);
 	if (!pids) {
@@ -326,6 +370,12 @@ again:
 	rc = stress_kill_and_wait_many(args, pids, (size_t)cpus_online, SIGALRM, false);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+#if defined(HAVE_X86_REP_STOSB)
+	if (softlockup_buffer != MAP_FAILED)
+		(void)munmap((void *)softlockup_buffer, MB);
+#endif
+
 	free(pids);
 
 	return rc;
