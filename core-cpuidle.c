@@ -28,6 +28,7 @@ cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
 	return cpu_cstate_list;
 }
 
+#if defined(__linux__)
 static void stress_cpuidle_cstate_add_unique(
 	const char *cstate,
 	const uint32_t residency)
@@ -56,6 +57,7 @@ static void stress_cpuidle_cstate_add_unique(
 	*cc = new_cc;
 	cpu_cstate_list_len++;
 }
+#endif
 
 void stress_cpuidle_init(void)
 {
