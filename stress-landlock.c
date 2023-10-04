@@ -134,8 +134,6 @@ static int stress_landlock_supported(const char *name)
 	int ruleset_fd;
 	struct landlock_ruleset_attr ruleset_attr;
 
-return 0;
-
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_FS_READ_FILE;
 
