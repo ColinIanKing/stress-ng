@@ -45,7 +45,8 @@ static int stress_cgroup_supported(const char *name)
 	return 0;
 }
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SYS_MOUNT_H)
 
 typedef struct {
 	const char *name;
@@ -412,6 +413,6 @@ stressor_info_t stress_cgroup_info = {
 	.supported = stress_cgroup_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without clone() or only supported on Linux"
+	.unimplemented_reason = "only supported on Linux"
 };
 #endif
