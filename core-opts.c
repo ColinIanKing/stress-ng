@@ -105,6 +105,8 @@ const struct option stress_long_options[] = {
 	{ "chown-ops",		1,	0,	OPT_chown_ops },
 	{ "chroot",		1,	0, 	OPT_chroot},
 	{ "chroot-ops",		1,	0,	OPT_chroot_ops },
+	{ "cgroup",		1,	0,	OPT_cgroup },
+	{ "cgroup-ops",		1,	0,	OPT_cgroup_ops },
 	{ "class",		1,	0,	OPT_class },
 	{ "clock",		1,	0,	OPT_clock },
 	{ "clock-ops",		1,	0,	OPT_clock_ops },

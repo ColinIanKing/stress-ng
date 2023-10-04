@@ -248,6 +248,7 @@ STRESS_SRC = \
 	stress-cache.c \
 	stress-cacheline.c \
 	stress-cap.c \
+	stress-cgroup.c \
 	stress-chattr.c \
 	stress-chdir.c \
 	stress-chmod.c \

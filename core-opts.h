@@ -227,6 +227,9 @@ typedef enum {
 	OPT_cap,
 	OPT_cap_ops,
 
+	OPT_cgroup,
+	OPT_cgroup_ops,
+
 	OPT_chattr,
 	OPT_chattr_ops,
 

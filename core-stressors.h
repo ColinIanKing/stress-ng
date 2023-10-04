@@ -44,6 +44,7 @@
 	MACRO(cache)		\
 	MACRO(cacheline)	\
 	MACRO(cap)		\
+	MACRO(cgroup)		\
 	MACRO(chattr)		\
 	MACRO(chdir)		\
 	MACRO(chmod)		\

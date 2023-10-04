@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "29 Sept 2023"
+.TH STRESS-NG 1 "4 Oct 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1068,6 +1068,18 @@ start N workers that read per process capabilities via calls to capget(2)
 .TP
 .B \-\-cap\-ops N
 stop after N cap bogo operations.
+.RE
+.TP
+.B Cgroup stressor
+.RS 5
+.TQ
+.B \-\-cgroup N
+start N workers that mount a cgroup, move a child to the cgroup, read, write and
+remove the child from the cgroup and umount the cgroup per bogo-op iteration.
+This uses cgroup v2 and is only available for Linux systems.
+.TP
+.B \-\-cgroup\-ops N
+stop after N cgroup bogo operations.
 .RE
 .TP
 .B Chattr stressor
