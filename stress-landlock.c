@@ -175,8 +175,9 @@ static void stress_landlock_many(const stress_args_t *args, const char *path, co
 	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_ALL;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
-		pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
-			args->name, errno, strerror(errno), (uint64_t)ruleset_attr.handled_access_fs);
+		if (errno != ENOSYS)
+			pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
+				args->name, errno, strerror(errno), (uint64_t)ruleset_attr.handled_access_fs);
 		return;
 	}
 
