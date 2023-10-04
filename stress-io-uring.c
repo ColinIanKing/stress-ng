@@ -349,13 +349,10 @@ static inline int stress_io_uring_complete(
 				/* Silently ignore some errors */
 				case ENOSPC:
 				case EFBIG:
+				case EINVAL:
 					goto next_head;
 				case ENOENT:
 					if (user_data->opcode == IORING_OP_ASYNC_CANCEL)
-						goto next_head;
-					break;
-				case EINVAL:
-					if (user_data->opcode == IORING_OP_FALLOCATE)
 						goto next_head;
 					break;
 #if defined(HAVE_IORING_OP_GETXATTR) &&	\
