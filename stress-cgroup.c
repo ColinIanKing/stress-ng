@@ -201,27 +201,47 @@ static void stress_cgroup_read_files(const char *realpathname)
 	}
 }
 
-static void stress_cgroup_new_group(const char *realpathname, const pid_t pid)
+static void stress_cgroup_add_pid(const char *realpathname, const pid_t pid)
 {
-	char path[PATH_MAX + 64], filename[PATH_MAX + 64], cmd[64];
+	char filename[PATH_MAX + 64], cmd[64];
 	ssize_t len;
+
+	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%jd\n", (intmax_t)pid);
+	(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/cgroup.procs", realpathname, (intmax_t)pid);
+	stress_system_write(filename, cmd, len);
+}
+
+static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
+{
+	char filename[PATH_MAX + 64], cmd[64];
+	ssize_t len;
+
+	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%jd\n", (intmax_t)pid);
+	(void)snprintf(filename, sizeof(filename), "%s/cgroup.procs", realpathname);
+	stress_system_write(filename, cmd, len);
+}
+
+static void stress_cgroup_new_group(const char *realpathname)
+{
+	char path[PATH_MAX + 64], filename[PATH_MAX + 64];
 	size_t i;
+	pid_t pid;
 
 	stress_cgroup_values_t values[] = {
 		{ "cpu.stat",			NULL },
 		{ "cpu.weight",			"90" },
-		{ "cpu.weight.nice",		"-1" },
+		{ "cpu.weight.nice",		"-4" },
 		{ "cpu.max",			NULL },
-		{ "cpu.max.burst",		"0" },
+		{ "cpu.max.burst",		"50" },
 		{ "cpu.pressure",		NULL },
 		{ "cpu.uclamp.min",		"10.0" },
-		{ "cpu.uclamp.max",		"90.0" },
+		{ "cpu.uclamp.max",		"95.0" },
 		{ "memory.current",		NULL },
-		{ "memory.min",			"0" },
-		{ "memory.low",			"0" },
-		{ "memory.high",		NULL },
-		{ "memory.max",			NULL },
-		{ "memory.reclaim",		"1M" },
+		{ "memory.min",			"1M" },
+		{ "memory.low",			"2M" },
+		{ "memory.high",		"32M" },
+		{ "memory.max",			"128M" },
+		{ "memory.reclaim",		"2M" },
 		{ "memory.peak",		NULL },
 		{ "memory.oom.group",		NULL },
 		{ "memory.events",		NULL },
@@ -245,9 +265,9 @@ static void stress_cgroup_new_group(const char *realpathname, const pid_t pid)
 		{ "io.stat",			NULL },
 		{ "pids.max",			"10000" },
 		{ "pids.current",		NULL },
-		{ "cpuset.cpus",		NULL },
+		{ "cpuset.cpus",		"0" },	/* force child to cpu 0 */
 		{ "cpuset.cpus.effective",	NULL },
-		{ "cpuset.mems",		NULL },
+		{ "cpuset.mems",		"0" },	/* force child to mem 0 */
 		{ "cpuset.mems.effective",	NULL },
 		{ "cpuset.cpus.partition",	NULL },
 		{ "rdma.max",			NULL },
@@ -272,30 +292,46 @@ static void stress_cgroup_new_group(const char *realpathname, const pid_t pid)
 		{ "misc.events",		NULL },
 	};
 
-	(void)snprintf(path, sizeof(path), "%s/stress-ng-%jd", realpathname, (intmax_t)pid);
-	if (mkdir(path, S_IRUSR | S_IWUSR | S_IRUSR | S_IWUSR) < 0) {
-		(void)rmdir(path);	/* just in case */
-		return;
-	}
-	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%jd\n", (intmax_t)pid);
-	(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/cgroup.procs", realpathname, (intmax_t)pid);
-	stress_system_write(filename, cmd, len);
+	pid = fork();
+	if (pid == 0) {
+		/* Child, perform some activity */
+		do {
+			void *ptr;
+			const size_t sz = MB;
 
-	for (i = 0; i < SIZEOF_ARRAY(values); i++) {
-		(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/%s", realpathname, (intmax_t)pid, values[i].name);
-		stress_cgroup_read(filename);
-
-		if (values[i].value) {
-			stress_system_write(filename, values[i].value, strlen(values[i].value));
-			stress_cgroup_read(filename);
+			ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+			shim_sched_yield();
+			if (ptr != MAP_FAILED)
+				(void)munmap(ptr, sz);
+			shim_sched_yield();
+		} while (stress_continue_flag());
+		_exit(0);
+	} else {
+		/* Parent, exercise child in the cgroup */
+		(void)snprintf(path, sizeof(path), "%s/stress-ng-%jd", realpathname, (intmax_t)pid);
+		if (mkdir(path, S_IRUSR | S_IWUSR | S_IRUSR | S_IWUSR) < 0) {
+			(void)rmdir(path);	/* just in case */
+			return;
 		}
+
+		/*
+		 *  Keep moving pid to/from cgroup while read and adjusting cgroup values
+		 */
+		for (i = 0; i < SIZEOF_ARRAY(values); i++) {
+			stress_cgroup_add_pid(realpathname, pid);
+			(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/%s", realpathname, (intmax_t)pid, values[i].name);
+			stress_cgroup_read(filename);
+
+			if (values[i].value) {
+				stress_system_write(filename, values[i].value, strlen(values[i].value));
+				stress_cgroup_read(filename);
+			}
+			stress_cgroup_del_pid(realpathname, pid);
+		}
+		stress_kill_pid(pid);
+		(void)rmdir(path);
 	}
-
-	len = (ssize_t)snprintf(cmd, sizeof(cmd), "%jd\n", (intmax_t)pid);
-	(void)snprintf(filename, sizeof(filename), "%s/cgroup.procs", realpathname);
-	stress_system_write(filename, cmd, len);
-
-	(void)rmdir(path);
 }
 
 /*
@@ -307,7 +343,6 @@ static int stress_cgroup_child(const stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
-	pid_t pid = getpid();
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -341,7 +376,7 @@ static int stress_cgroup_child(const stress_args_t *args)
 
 		stress_cgroup_controllers(realpathname);
 		stress_cgroup_read_files(realpathname);
-		stress_cgroup_new_group(realpathname, pid);
+		stress_cgroup_new_group(realpathname);
 		stress_cgroup_umount(args, realpathname);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
