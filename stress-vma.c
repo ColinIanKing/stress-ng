@@ -279,7 +279,6 @@ static void stress_vma_loop(
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			pid = getpid();
 			for (i = 0, j = 0; stress_vma_continue(args) && (i < SIZEOF_ARRAY(vma_funcs)); i++) {
 				size_t k;
 
