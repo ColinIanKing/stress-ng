@@ -194,7 +194,6 @@ static int stress_metamix_file(
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0) {
-		ret = stress_exit_status(errno);
 		pr_fail("%s: open for read %s failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
@@ -227,7 +226,6 @@ static int stress_metamix_file(
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0) {
-		ret = stress_exit_status(errno);
 		pr_fail("%s: open for read %s failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;
