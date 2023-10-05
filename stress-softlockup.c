@@ -289,8 +289,8 @@ static int stress_softlockup(const stress_args_t *args)
 	loop_count = stress_softlockup_loop_count();
 
 #if defined(HAVE_X86_REP_STOSB)
-	softlockup_buffer = mmap(NULL, MB, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	softlockup_buffer = (uint8_t *)mmap(NULL, MB, PROT_READ | PROT_WRITE,
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 #endif
 
 	pids = malloc(sizeof(*pids) * (size_t)cpus_online);
