@@ -120,16 +120,32 @@ static void stress_cgroup_umount(const stress_args_t *args, const char *path)
 
 static void stress_cgroup_read(const char *path)
 {
-	int fd;
+	int fd, i;
 	char buf[1024];
 	ssize_t ret;
+	off_t len = 0, offset;
+	struct stat statbuf;
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
 		return;
-	do {
+
+	fstat(fd, &statbuf);
+
+	for (;;) {
 		ret = read(fd, buf, sizeof(buf));
-	} while (ret > 0);
+		if (ret > 0)
+			len += (off_t)ret;
+		else
+			break;
+	}
+	/* Add in a couple of random seek/reads for good measure */
+	for (i = 0; (i < 2) && (i < len); i++) {
+		offset = (off_t)stress_mwc32modn((uint32_t)len);
+		if (lseek(fd, offset, SEEK_SET) >= 0)
+			VOID_RET(int, read(fd, buf, sizeof(buf)));
+	}
+
 	(void)close(fd);
 }
 
