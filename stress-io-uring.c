@@ -1044,7 +1044,6 @@ static int stress_io_uring_child(const stress_args_t *args, void *context)
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	pr_dbg("%s: submits completed, closing uring and unlinking file\n", args->name);
 #if defined(HAVE_IORING_OP_ASYNC_CANCEL)
 	stress_io_uring_cancel_rdwr(args, &io_uring_file, &submit);
 #endif
