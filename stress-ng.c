@@ -1635,10 +1635,8 @@ abort:
 		 started_instances == 1 ? "" : "s");
 
 wait_for_stressors:
-	if (!handler_set) {
+	if (!handler_set)
 		(void)stress_set_handler("stress-ng", false);
-		handler_set = true;
-	}
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_start();
 #if STRESS_FORCE_TIMEOUT_ALL
