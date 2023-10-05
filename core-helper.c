@@ -734,6 +734,8 @@ static int stress_get_meminfo(
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_laundry_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_wire_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count"));
+		*freeswap = 0;
+		*totalswap = 0;
 		return 0;
 	}
 #endif
