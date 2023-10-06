@@ -36,7 +36,7 @@ int main(void)
 	return -1;
 
 	kmod_list_foreach(l, list) {
-		struct kmod_module *mod = kmod_module_get_module(l);
+		const struct kmod_module *mod = kmod_module_get_module(l);
 		const char *module_name = kmod_module_get_name(mod);
 
 		(void)module_name;
