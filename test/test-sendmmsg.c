@@ -59,10 +59,10 @@ int main(void)
 
 	msg_iov2[0].iov_base = "3";
 	msg_iov2[0].iov_len = 1;
-	msg_iov2[0].iov_base = "4";
-	msg_iov2[0].iov_len = 1;
-	msg_iov2[0].iov_base = "5";
-	msg_iov2[0].iov_len = 1;
+	msg_iov2[1].iov_base = "4";
+	msg_iov2[1].iov_len = 1;
+	msg_iov2[2].iov_base = "5";
+	msg_iov2[2].iov_len = 1;
 
 	msg_hdr[0].msg_hdr.msg_iov = msg_iov1;
 	msg_hdr[0].msg_hdr.msg_iovlen = 2;
