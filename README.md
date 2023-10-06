@@ -508,7 +508,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 
 * [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
 * [Video of the above presentation](https://www.youtube.com/watch?v=8QaXStKfq3A)
-* [Stress-ng: How to Stress Test Your Computer (and Possibly Break It)](https://www.youtube.com/watch?v=gD3Hn02VSHA)
+* [Linux Foundation Mentoring Session, May 2022](https://www.youtube.com/watch?v=gD3Hn02VSHA)
+* [Kernel Recipes presentation, Sept 2023](https://www.youtube.com/watch?v=PD0NOZCTIVQ)
 
 ## Citations
 
