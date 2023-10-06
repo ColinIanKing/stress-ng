@@ -25,11 +25,12 @@
 
 int main(void)
 {
-	off64_t offset = 0, ret;
 	int fd;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd >= 0) {
+		off64_t offset = 0, ret;
+
 		ret = lseek64(fd, offset, SEEK_SET);
 		(void)ret;
 		(void)close(fd);
