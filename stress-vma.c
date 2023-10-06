@@ -49,10 +49,11 @@ typedef struct {
 #define STRESS_VMA_MUNMAP	(1)
 #define STRESS_VMA_MLOCK	(2)
 #define STRESS_VMA_MUNLOCK	(3)
-#define STRESS_VMA_ACCESS	(4)
-#define STRESS_VMA_SIGSEGV	(5)
-#define STRESS_VMA_SIGBUS	(6)
-#define STRESS_VMA_MAX		(7)
+#define STRESS_VMA_MADVISE	(4)
+#define STRESS_VMA_ACCESS	(5)
+#define STRESS_VMA_SIGSEGV	(6)
+#define STRESS_VMA_SIGBUS	(7)
+#define STRESS_VMA_MAX		(8)
 
 typedef struct {
 	volatile uint64_t metrics[STRESS_VMA_MAX];	/* racy metrics */
@@ -63,6 +64,7 @@ static const char *stress_vma_metrics_name[] = {
 	"munmaps",	/* STRESS_VMA_MUNMAP */
 	"mlocks",	/* STRESS_VMA_MLOCK */
 	"munlocks",	/* STRESS_VMA_MUNLOCK */
+	"madvices",	/* STRESS_VMA_MADVISE */
 	"accesses",	/* STRESS_VMA_ACCESS */
 	"SIGSEGVs",	/* STRESS_VMA_SIGSEGV */
 	"SIGBUSes",	/* STRESS_VMA_SIGBUS */
@@ -214,6 +216,64 @@ static void *stress_vma_munlock(void *ptr)
 	return NULL;
 }
 
+static void *stress_vma_madvise(void *ptr)
+{
+	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
+	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	const uintptr_t data = (uintptr_t)ctxt->data;
+	const size_t page_size = args->page_size;
+
+	static const int advice[] = {
+#if defined(MADV_NORMAL)
+		MADV_NORMAL,
+#endif
+#if defined(MADV_RANDOM)
+		MADV_RANDOM,
+#endif
+#if defined(MADV_SEQUENTIAL)
+		MADV_SEQUENTIAL,
+#endif
+#if defined(MADV_WILLNEED)
+		MADV_WILLNEED,
+#endif
+#if defined(MADV_DONTNEED)
+		MADV_DONTNEED,
+#endif
+#if defined(MADV_MERGEABLE)
+		MADV_MERGEABLE,
+#endif
+#if defined(MADV_UNMERGEABLE)
+		MADV_UNMERGEABLE,
+#endif
+#if defined(MADV_DONTDUMP)
+		MADV_DONTDUMP,
+#endif
+#if defined(MADV_DODUMP)
+		MADV_DODUMP,
+#endif
+#if defined(MADV_PAGEOUT)
+		MADV_PAGEOUT,
+#endif
+#if defined(MADV_POPULATE_READ)
+		MADV_POPULATE_READ,
+#endif
+#if defined(MADV_POPULATE_WRITE)
+		MADV_POPULATE_WRITE,
+#endif
+	};
+
+	while (stress_vma_continue(args)) {
+		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(advice));
+		const size_t offset = page_size * stress_mwc8modn(8);
+		const size_t len = page_size * stress_mwc8modn(8);
+
+		(void)madvise((void *)(data + offset), len, advice[i]);
+		stress_vma_metrics->metrics[STRESS_VMA_MADVISE]++;
+	}
+	(void)kill(ctxt->pid, SIGALRM);
+	return NULL;
+}
+
 static void *stress_vma_access(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -237,6 +297,7 @@ static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_munmap,	1 },
 	{ stress_vma_mlock,	1 },
 	{ stress_vma_munlock,	1 },
+	{ stress_vma_madvise,	1 },
 	{ stress_vma_access,	20 }
 };
 
