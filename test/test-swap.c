@@ -23,7 +23,7 @@
 
 int main(void)
 {
-	static char swapfile[] = "test.swap";
+	static const char swapfile[] = "test.swap";
 	int ret;
 
 	ret = swapon(swapfile, 0);
