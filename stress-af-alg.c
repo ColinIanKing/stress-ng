@@ -209,16 +209,15 @@ static int stress_af_alg_hash(
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the hash does not exist with this kernel */
-		if (errno == ENOENT) {
+		switch (errno) {
+		case ENOENT:
 			rc = EXIT_SUCCESS;
 			goto err;
-		}
-		if (errno == ELIBBAD) {
+		case ELIBBAD:
 			if (info->selftest) {
 				pr_fail("%s: bind failed but %s self test passed, errno=%d (%s)\n",
 					args->name, info->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
-				goto err;
 			} else {
 				/*
 				 *  self test was not marked as passed, this
@@ -226,14 +225,13 @@ retry_bind:
 				 *  FIPS enabled, so silently ignore bind failure
 				 */
 				rc = EXIT_SUCCESS;
-				goto err;
 			}
-		}
-		if (errno == EBUSY) {
+			goto err;
+		case EBUSY:
+		case EINTR:
 			rc = EXIT_SUCCESS;
 			goto err;
-		}
-		if (errno == ETIMEDOUT) {
+		case ETIMEDOUT:
 			if (retries-- > 0)
 				goto retry_bind;
 			rc = EXIT_NO_RESOURCE;
@@ -247,6 +245,10 @@ retry_bind:
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
+		if (errno == EINTR) {
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
 		pr_fail("%s: %s: accept failed, errno=%d (%s)\n",
 			args->name, info->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
