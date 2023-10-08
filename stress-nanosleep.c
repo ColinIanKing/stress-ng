@@ -170,7 +170,7 @@ static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
 	tv.tv_nsec = nsec;
 
 	if (UNLIKELY(nanosleep(&tv, NULL) < 0))
-		rerurn -1;
+		return -1;
 #endif
 	return 0;
 }
