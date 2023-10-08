@@ -210,6 +210,7 @@ int stress_oomable_child(
 	int rc = EXIT_SUCCESS;
 	size_t signal_idx = 0;
 	const bool not_quiet = !(flag & STRESS_OOMABLE_QUIET);
+	const bool valid_timeout = (g_opt_timeout > 0);
 
 	/*
 	 *  Kill child multiple times, start with SIGALRM and work up
@@ -226,8 +227,9 @@ int stress_oomable_child(
 again:
 	if (!stress_continue(args))
 		return EXIT_SUCCESS;
-	if (stress_time_now() > args->time_end)
+	if (valid_timeout && (stress_time_now() > args->time_end)) {
 		return EXIT_SUCCESS;
+	}
 	pid = fork();
 	if (pid < 0) {
 		/* Keep trying if we are out of resources */
@@ -347,7 +349,7 @@ rewait:
 		 * stressor invocation
 		 */
 		if (!stress_continue(args) ||
-		    (stress_time_now() > args->time_end)) {
+		    (valid_timeout && (stress_time_now() > args->time_end))) {
 			stress_set_proc_state(args->name, STRESS_STATE_EXIT);
 			_exit(EXIT_SUCCESS);
 		}
