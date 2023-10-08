@@ -1,3 +1,124 @@
+stress-ng (0.17.00-1) unstable; urgency=medium
+
+  [ Colin Ian King ]
+  * Makefile: bump version to 0.17.00
+  * core-out-of-memory: treat zero timeout as ignore timeout check
+  * stress-nanosleep: voidify function parameter ctxt
+  * stress-nanosleep: fix build issue on Oracle Linux 6.1
+  * README.md: add another research paper citation
+  * test/test-swap.c: make array swapfile const
+  * test/test-sendmmsg: fix incorrect indexes in msg_iov2
+  * test/test-recvmmsg: fix incorrect indexes in msg_iov2
+  * test/test-lseek: reduce scope of variables offset and ret
+  * test/test-libkmod: constify pointer mod
+  * test/test-inotify: constify pointer
+  * README.md: update number of stressors
+  * stress-af-alg: treat EINTR as non-fatal in error reporting
+  * stress-vma: add madvise() calls to pages for extra contention
+  * README.md: Add another presentation link
+  * sreess-io-uring: remove verbose debug
+  * stress-ng: remove redundant assignment to variable handler_set
+  * stress-vma: remove redundant call to getpid
+  * stress-metamix: remove unused calls to stress_exit_status
+  * stress-cgroup: voidify return from fstat
+  * stress-softlockup: cast mmap return to uint8_t * to clear up build
+    warning
+  * core-helper: fix uninitialized totalswap and freeswap for BSD
+    stress_get_meminfo
+  * stress-cgroup: exercise a child process in cgroup
+  * stress-cgroup: exercise seek+read on cgroup files for more exercising
+  * stress-landlock: silently ignore ENOSYS when EINVAL is intended
+  * stress-cgroup: improve linux only build checks
+  * stress-cgroup: minimal linux cgroup v2 stressor
+  * stress-landlock: remove debug return 0 in landlock supported check
+  * stress-io-uring: silently ignore EINVAL for unimplemented ops
+  * core-shim: fix FTBFS, missing ; on membarrier call
+  * README.md: Add citation link to another academic paper
+  * stress-vma: cast mmap'd void pointer to stress_vma_metrics_t *
+  * stress-nanosleep: re-order #defines and typedef for non-pthread builds
+  * stress-dir: cast isdigit arg to int to clear up minix build warning
+  * core-cpuidle: only define stress_cpuidle_cstate_add_unique for linux
+    builds
+  * stress-vma: use MAP_GROWSDOWN only if it is defined
+  * stress-utime: only exercise VFAT utime bounds for 64 bit systems
+  * core-pragma.h: remove -Wstringop-overflow for older toolchains
+  * core-pragma: use -Wstringop-overflow on toolchains that support it
+  * stress-vma: fix build issues with systems without MLOCK_ONFAULT
+  * stress-softlockup: add rep sto on 1MB buffer for x86
+  * stress-landlock: traverse file system adding as many files as possible
+  * stress-landlock: fix non-working flags, re-work stressor
+  * stress-vma: Add a new virtual memory address stressor
+  * presentations: Add kernel recipes 2023 presentation
+  * stress-dev: remove shadowed pointer dev
+  * core-cpuidle: remove unused variable max_cpus
+  * core-shim: add waitpid build check and use waitpid if it is defined
+  * core-shim: use membarrier if it is defined
+  * stress-dev: exercise /dev/cdc-wdm*
+  * README.md: add another performance issue found with stress-ng
+  * stress-swap: add filesystem type when swapon fails
+  * kernel-coverage: fix typo in ionice loop
+  * kernel-coverage: add swap on file systems for more exercising
+  * stress-getrandom: add invalid GRND_INSECURE | GRND_RANDOM |
+    GRND_NONBLOCK flags
+  * stress-dev: add Linux /dev/vmci version ioctls
+  * stress-dev: exercise /dev/radio with v4l ioctls
+  * stress-dev: add /dev/lirc ioctl get commands
+  * stress-sysfs: add finer grained locking, add sysfs exercise metrics
+  * stress-utime: exercise some more times outside specific ranges
+  * stress-fallocate: use O_SYNC'd fallocate every 16 bogo-loops
+  * core-shim: handle posix_fallocate error returns correctly
+  * stress-open: exercise two different invalid futimesat times
+  * stress-shm: exercise a range of fallocate modes on shm
+  * stress-sleep: add C state residency sleep durations to exercise deep
+    C state sleeps
+  * stress-nanosleep: add --nanosleep-method to specify different
+    nanosleep methods
+  * stress-nanosleep: also use C state residency durations for nanosleeps
+  * core-cpuidle: allocate cpu C states and residency info in linked list
+  * stress-dir: use stat or fstat depending if open fails or not
+  * stress-dev: randomize the order of devices
+  * stress-apparmor: remove unused commented out variable counter_lock
+  * stress-dir: add file open/close on concurrent directory accesses
+  * stress-dev: exercise /dev/dm with queued IO under RCU protection
+  * stress-dir: reduce scope of variable d and make it const
+  * core-helper: reduce scope of variable duration, make t const
+  * core-log: clean up redundant variable initialization and
+    constifications
+  * core-clocksource: add check to see if HPET clocksource is being used
+  * stress-dir: exercise readdir and rewinddir after populating a directory
+  * stress-metamix: make verification optional with --verify option
+  * stress-metamix: allow small 512 byte sizes, and mmap + check pages
+  * stress-*: remove SIGTERM kills before SIGKILL kills
+  * stress-*: use stress_kill_pid_wait() for kill/wait combos
+  * core-*: use stress_kill_pid_wait() for kill/wait combos
+  * stress-*: use stress_kill_pid() for kill SIGKILLs
+  * core-log: only sync writes to log file and not stderr, stdout
+  * core-log: don't write to logfile if it is not opened
+  * core-*: fix syscall typo process_release -> process_mrelease
+  * core-out-of-memory: include core-killpid.h
+  * core: use stress_kill_pid for SIGKILLs
+  * core-killpid: use process memory relasing if signal is SIGKILL
+  * core-helper: remove some empty lines
+  * core-helper: join broken literal strings
+  * stress-vecmath: fix call to stress_catch_sigill
+  * stress-ng: remove some empty lines
+  * core-helper: add SIGILL handler for code that uses target clones
+  * stress-metamix: add a new stressor that exercises a mix of file
+    metadata operations
+  * stress-epoll: silently ignore -ve parameter passed to epoll_wait
+  * README.md: Add citation link to FIRESTARTER 2
+  * stress-ng: move child stressor invoking code into stress_run_child
+  * stress-ng: use stressor array size as limit for stressor loops
+  * core-log: fix ptr and size changes per write
+  * core-log: add pr_log_write_buf_fd helper for writes of buffer to a fd
+  * core-log: change semantics of pr_lock/unlock
+  * Manual: add more explanation why --log-lockess is useful
+  * core-helper: Add 1 ms yielding in logging and fork child startup
+  * README.md: add three more research paper links
+  * README.md: add four more research paper links
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 8 Sep 2023 20:30:11 +0100
+
 stress-ng (0.16.05-1) unstable; urgency=medium
 
   [Anisse Astier]
