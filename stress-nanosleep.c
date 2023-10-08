@@ -166,6 +166,7 @@ static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
 		return -1;
 	}
 #else
+	(void)ctxt;
 	tv.tv_sec = 0;
 	tv.tv_nsec = nsec;
 
