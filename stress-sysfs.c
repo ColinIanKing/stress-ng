@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-killpid.h"
 #include "core-pthread.h"
 #include "core-put.h"
 #include "core-try-open.h"
@@ -772,8 +773,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				/* Ring ring, time to die */
-				(void)shim_kill(pid, SIGALRM);
-				VOID_RET(int, shim_waitpid(pid, &status, 0));
+				stress_kill_and_wait(args, pid, SIGALRM, true);
 			} else {
 				if (stress_sysfs_bad_signal(status)) {
 					pr_inf("%s: killed by %s exercising '%s'\n",
@@ -791,6 +791,8 @@ again:
 			}
 		} else {
 			/* Child, spawn threads for sysfs stressing */
+
+			stress_parent_died_alarm();
 
 			for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 				pthreads_ret[i] = pthread_create(&pthreads[i], NULL,
