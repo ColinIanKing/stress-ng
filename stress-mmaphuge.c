@@ -23,6 +23,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaphuge N",		"start N workers stressing mmap with huge mappings" },
+	{ NULL, "mmaphuge-file",	"perform mappings on a temporary file" },
 	{ NULL,	"mmaphuge-mlock",	"attempt to mlock pages into memory" },
 	{ NULL, "mmaphuge-mmaps N",	"select number of memory mappings per iteration" },
 	{ NULL,	"mmaphuge-ops N",	"stop after N mmaphuge bogo operations" },
@@ -48,7 +49,13 @@ static int stress_set_mmaphuge_mmaps(const char *opt)
 	return stress_set_setting("mmaphuge-mmaps", TYPE_ID_SIZE_T, &mmaphuge_mmaps);
 }
 
+static int stress_set_mmaphuge_file(const char *opt)
+{
+	return stress_set_setting_true("mmaphuge-file", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmaphuge_file,	stress_set_mmaphuge_file },
 	{ OPT_mmaphuge_mlock,	stress_set_mmaphuge_mlock },
 	{ OPT_mmaphuge_mmaps,	stress_set_mmaphuge_mmaps },
 	{ 0,                    NULL }
@@ -79,6 +86,9 @@ typedef struct {
 typedef struct {
 	stress_mmaphuge_buf_t	*bufs;	/* mmap'd buffers */
 	size_t mmaphuge_mmaps;	/* number of mmap'd buffers */
+	size_t sz;		/* size of mmap'd file */
+	bool mmaphuge_file;	/* true if using mmap'd file */
+	int fd;
 } stress_mmaphuge_context_t;
 
 static const stress_mmaphuge_setting_t stress_mmap_settings[] =
@@ -123,7 +133,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 			for (j = 0; j < SIZEOF_ARRAY(stress_mmap_settings); j++) {
-				uint8_t *buf;
+				uint8_t *buf = MAP_FAILED;
 				const size_t sz = stress_mmap_settings[idx].sz;
 				int flags = MAP_ANONYMOUS;
 
@@ -134,9 +144,26 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 					break;
 
 				bufs[i].sz = sz;
-				buf = (uint8_t *)mmap(NULL, sz,
+				/* If we're mapping onto a file, try it first */
+				if (ctxt->mmaphuge_file) {
+					off_t offset = 4096 * stress_mwc8modn(16);
+
+					if (sz + offset < ctxt->sz) {
+						buf = (uint8_t *)mmap(NULL, sz,
+								PROT_READ | PROT_WRITE,
+								flags & ~MAP_ANONYMOUS, ctxt->fd, offset);
+						if (buf == MAP_FAILED)
+							buf = (uint8_t *)mmap(NULL, sz,
+								PROT_READ | PROT_WRITE,
+								flags & ~MAP_ANONYMOUS, ctxt->fd, 0);
+					}
+				}
+				/* file mapping failed or not mapped yet, try anonymous map */
+				if (buf == MAP_FAILED) {
+					buf = (uint8_t *)mmap(NULL, sz,
 							PROT_READ | PROT_WRITE,
 							flags, -1, 0);
+				}
 				bufs[i].buf = buf;
 				idx++;
 				if (idx >= SIZEOF_ARRAY(stress_mmap_settings))
@@ -230,11 +257,15 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 static int stress_mmaphuge(const stress_args_t *args)
 {
 	stress_mmaphuge_context_t ctxt;
+	char filename[PATH_MAX];
 
 	int ret;
 
+	ctxt.sz = 16 * MB;
 	ctxt.mmaphuge_mmaps = MAX_MMAP_BUFS;
 	(void)stress_get_setting("mmaphuge-mmaps", &ctxt.mmaphuge_mmaps);
+	ctxt.mmaphuge_file = false;
+	(void)stress_get_setting("mmaphuge-file", &ctxt.mmaphuge_file);
 
 	ctxt.bufs = calloc(ctxt.mmaphuge_mmaps, sizeof(*ctxt.bufs));
 	if (!ctxt.bufs) {
@@ -243,8 +274,60 @@ static int stress_mmaphuge(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	if (ctxt.mmaphuge_file) {
+		int file_flags = O_CREAT | O_RDWR;
+		ssize_t rc;
+
+		rc = stress_temp_dir_mk_args(args);
+		if (rc < 0) {
+			free(ctxt.bufs);
+			return stress_exit_status((int)-rc);
+		}
+
+		(void)stress_temp_filename_args(args,
+			filename, sizeof(filename), stress_mwc32());
+		ctxt.fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
+		if (ctxt.fd < 0) {
+			rc = stress_exit_status(errno);
+			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
+			(void)shim_unlink(filename);
+			(void)stress_temp_dir_rm_args(args);
+			free(ctxt.bufs);
+
+			return (int)rc;
+		}
+		(void)shim_unlink(filename);
+		if (lseek(ctxt.fd, (off_t)(ctxt.sz - args->page_size), SEEK_SET) < 0) {
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(ctxt.fd);
+			(void)stress_temp_dir_rm_args(args);
+			free(ctxt.bufs);
+
+			return EXIT_FAILURE;
+		}
+		/*
+		 *  Allocate a 16 MB aligned chunk of data.
+		 */
+		if (shim_fallocate(ctxt.fd, 0, 0, (off_t)ctxt.sz) < 0) {
+			rc = stress_exit_status(errno);
+			pr_fail("%s: fallocate of %zu MB failed, errno=%d (%s)\n",
+				args->name, (size_t)(ctxt.fd / MB), errno, strerror(errno));
+			(void)close(ctxt.fd);
+			(void)stress_temp_dir_rm_args(args);
+			free(ctxt.bufs);
+			return (int)rc;
+		}
+	}
+
 	ret = stress_oomable_child(args, (void *)&ctxt, stress_mmaphuge_child, STRESS_OOMABLE_QUIET);
 	free(ctxt.bufs);
+
+	if (ctxt.mmaphuge_file) {
+		(void)close(ctxt.fd);
+		(void)stress_temp_dir_rm_args(args);
+	}
 
 	return ret;
 }

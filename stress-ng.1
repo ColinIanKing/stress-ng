@@ -4219,6 +4219,10 @@ end of the mapping is made (these may fail on huge pages) before the set
 of pages are unmapped. By default 8192 mappings are attempted per round
 of mappings or until swapping is detected.
 .TP
+.B \-\-mmaphuge\-file
+attempt to mmap on a 16MB temporary file and random 4K offsets. If this fails,
+anonymous mappings are used instead.
+.TP
 .B \-\-mmaphuge\-mlock
 attempt to mlock mmap'd huge pages into memory causing more memory pressure by
 preventing pages from swapped out.
