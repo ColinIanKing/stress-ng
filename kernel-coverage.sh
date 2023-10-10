@@ -512,6 +512,7 @@ do_stress --mmapaddr -1 --mmapaddr-mlock
 
 do_stress --mmapfixed -1 --mmapfixed-mlock
 
+do_stress --mmaphuge -1 --mmaphuge-file
 do_stress --mmaphuge -1 --mmaphuge-mlock
 do_stress --mmaphuge -1 --mmaphuge-mmaps 32768
 
