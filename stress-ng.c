@@ -23,6 +23,7 @@
 #include "core-builtin.h"
 #include "core-clocksource.h"
 #include "core-cpuidle.h"
+#include "core-config-check.h"
 #include "core-ftrace.h"
 #include "core-hash.h"
 #include "core-ignite-cpu.h"
@@ -3614,6 +3615,9 @@ int main(int argc, char **argv, char **envp)
 	stress_smart_start();
 	stress_klog_start();
 	stress_clocksource_check();
+
+	if (g_opt_flags & OPT_FLAGS_METRICS)
+		stress_config_check();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
