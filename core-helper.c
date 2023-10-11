@@ -2798,7 +2798,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capget(&uch, ucd);
 	if (ret < 0) {
-		pr_fail("%s: capget on pid %d failed: errno=%d (%s)\n",
+		pr_fail("%s: capget on PID %d failed: errno=%d (%s)\n",
 			name, uch.pid, errno, strerror(errno));
 		return -1;
 	}
@@ -2819,7 +2819,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capset(&uch, ucd);
 	if (ret < 0) {
-		pr_fail("%s: capset on pid %d failed: errno=%d (%s)\n",
+		pr_fail("%s: capset on PID %d failed: errno=%d (%s)\n",
 			name, uch.pid, errno, strerror(errno));
 		return -1;
 	}
@@ -2830,7 +2830,7 @@ int stress_drop_capabilities(const char *name)
 	if (ret < 0) {
 		/* Older kernels that don't support this prctl throw EINVAL */
 		if (errno != EINVAL) {
-			pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on pid %d failed: "
+			pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on PID %d failed: "
 				"errno=%d (%s)\n",
 				name, uch.pid, errno, strerror(errno));
 		}

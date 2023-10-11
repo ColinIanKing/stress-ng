@@ -138,7 +138,7 @@ static void stress_zombie_head_remove(const stress_args_t *args, const bool chec
 			if (pid > 1) {
 				(void)stress_kill_pid(pid);
 				if (stress_pid_not_a_zombie(pid))
-					pr_fail("%s: pid %" PRIdMAX " is not in the expected zombie state\n",
+					pr_fail("%s: PID %" PRIdMAX " is not in the expected zombie state\n",
 						args->name, (intmax_t)pid);
 			}
 		}

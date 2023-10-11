@@ -271,7 +271,7 @@ static int stress_wait(const stress_args_t *args)
 		 */
 		wret = shim_wait4(-1, &status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail("%s: wait4 on pid -1 failed, errno=%d (%s)\n",
+			pr_fail("%s: wait4 on PID -1 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -284,7 +284,7 @@ static int stress_wait(const stress_args_t *args)
 		 */
 		wret = shim_wait4(0, &status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail("%s: wait4 on pid 0 failed, errno=%d (%s)\n",
+			pr_fail("%s: wait4 on PID 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

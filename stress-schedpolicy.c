@@ -255,7 +255,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 			} else if (ret != policies[policy]) {
 				pr_fail("%s: sched_getscheduler "
-					"failed: pid %d has policy %d (%s) "
+					"failed: PID %d has policy %d (%s) "
 					"but function returned %d instead\n",
 					args->name, (int)pid, new_policy,
 					new_policy_name, ret);

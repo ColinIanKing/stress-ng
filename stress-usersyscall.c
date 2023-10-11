@@ -337,7 +337,7 @@ static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
 				    PR_SYS_DISPATCH_OFF, 0, 0, 0));
 
 			if (UNLIKELY(ret_libc != pid)) {
-				pr_fail("%s: didn't get pid on libc getpid syscall, "
+				pr_fail("%s: didn't get PID on libc getpid syscall, "
 					"got %d instead, errno=%d (%s)\n",
 					args->name, ret_libc,
 					saved_errno, strerror(saved_errno));

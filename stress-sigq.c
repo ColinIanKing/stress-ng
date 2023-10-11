@@ -157,7 +157,7 @@ again:
 				break;
 		}
 		pr_dbg("%s: child got termination notice\n", args->name);
-		pr_dbg("%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		pr_dbg("%s: exited on PID %d (instance %" PRIu32 ")\n",
 			args->name, (int)getpid(), args->instance);
 		_exit(rc);
 	} else {
