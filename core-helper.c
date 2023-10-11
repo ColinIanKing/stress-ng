@@ -4395,3 +4395,73 @@ void stress_catch_sigill(void)
 #endif
 	(void)sigaction(SIGILL, &sa, NULL);
 }
+
+#if defined(__linux__)
+/*
+ *  stress_process_info_dump()
+ *	dump out /proc/$PID/filename data in human readable format
+ */
+static void stress_process_info_dump(
+	const stress_args_t *args,
+	const pid_t pid,
+	const char *filename)
+{
+	char path[4096];
+	char buf[8192];
+	char *ptr, *end, *begin, *emit;
+	ssize_t ret;
+
+	(void)snprintf(path, sizeof(path), "/proc/%jd/%s", (intmax_t)pid, filename);
+	ret = stress_system_read(path, buf, sizeof(buf));
+	if (ret < 0)
+		return;
+
+	end = buf + ret;
+	/* data like /proc/$PID/cmdline has '\0' chars - replace with spaces */
+	for (ptr = buf; ptr < end; ptr++)
+		if (*ptr == '\0')
+			*ptr = ' ';
+
+	ptr = buf;
+	begin = ptr;
+	emit = NULL;
+	while (ptr < end) {
+		while (ptr < end) {
+			/* new line or eos, flush */
+			if (*ptr == '\n' || *ptr == '\0') {
+				*ptr = '\0';
+				emit = begin;
+				ptr++;
+				begin = ptr;
+			}
+			ptr++;
+			/* reached end, flush residual data out */
+			if (ptr == end)
+				emit = begin;
+			if (emit) {
+				pr_dbg("%s: [%jd] %s: %s\n", args ? args->name : "main", (intmax_t)pid, filename, emit);
+				emit = NULL;
+			}
+		}
+	}
+}
+#endif
+
+/*
+ *  stress_process_info()
+ *	dump out process specific debug from /proc
+ */
+void stress_process_info(const stress_args_t *args, const pid_t pid)
+{
+#if defined(__linux__)
+	pr_block_begin();
+	stress_process_info_dump(args, pid, "cmdline");
+	stress_process_info_dump(args, pid, "syscall");
+	stress_process_info_dump(args, pid, "stack");
+	stress_process_info_dump(args, pid, "wchan");
+	pr_block_end();
+#else
+	(void)args;
+	(void)pid;
+#endif
+}

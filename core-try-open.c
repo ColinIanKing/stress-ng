@@ -44,6 +44,7 @@ static void stress_try_kill(
 	}
 	pr_dbg("%s: can't kill PID %jd opening %s\n",
 		args->name, (intmax_t)pid, path);
+	stress_process_info(args, pid);
 }
 
 /*

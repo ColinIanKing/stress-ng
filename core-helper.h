@@ -184,5 +184,7 @@ extern void stress_clean_dir(const char *name, const pid_t pid,
 	const uint32_t instance);
 extern void stress_yield_sleep_ms(void);
 extern void stress_catch_sigill(void);
+extern void stress_process_info(const stress_args_t *args, const pid_t pid);
+
 
 #endif

@@ -119,6 +119,7 @@ static int stress_wait_until_reaped(
 			if (count > 180) {
 				pr_dbg("%s: cannot kill PID %jd after 3 minutes, giving up\n",
 					args->name, (intmax_t)pid);
+				stress_process_info(args, pid);
 				break;
 			}
 		}
