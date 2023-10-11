@@ -90,8 +90,8 @@ static int stress_kill(const stress_args_t *args)
 			errno = saved_errno;
 		}
 		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail("%s: kill PID %d with SIGUSR1 failed, errno=%d (%s)\n",
-				args->name, (int)args->pid, errno, strerror(errno));
+			pr_fail("%s: kill PID %jd with SIGUSR1 failed, errno=%d (%s)\n",
+				args->name, (intmax_t)args->pid, errno, strerror(errno));
 
 		/* Zero signal can be used to see if process exists */
 		t = stress_time_now();
@@ -104,8 +104,8 @@ static int stress_kill(const stress_args_t *args)
 			errno = saved_errno;
 		}
 		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail("%s: kill PID %d with signal 0 failed, errno=%d (%s)\n",
-				args->name, (int)args->pid, errno, strerror(errno));
+			pr_fail("%s: kill PID %jd with signal 0 failed, errno=%d (%s)\n",
+				args->name, (intmax_t)args->pid, errno, strerror(errno));
 
 		/*
 		 * Zero signal can be used to see if process exists,
