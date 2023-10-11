@@ -113,6 +113,14 @@ static int stress_wait_until_reaped(
 					stress_force_killed_bogo(args);
 				stress_kill_pid(pid);
 			}
+			/*
+			 *  Process seems unkillable, report and bail out
+			 */
+			if (count > 180) {
+				pr_dbg("%s: cannot kill PID %jd after 3 minutes, giving up\n",
+					args->name, pid);
+				break;
+			}
 		}
 		shim_sched_yield();
 		if (count > 10)
