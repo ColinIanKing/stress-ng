@@ -310,7 +310,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 	} else {
 		/* Parent, exercise child in the cgroup */
 		(void)snprintf(path, sizeof(path), "%s/stress-ng-%jd", realpathname, (intmax_t)pid);
-		if (mkdir(path, S_IRUSR | S_IWUSR | S_IRUSR | S_IWUSR) < 0) {
+		if (mkdir(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
 			(void)rmdir(path);	/* just in case */
 			return;
 		}
