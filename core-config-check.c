@@ -19,6 +19,19 @@
 #include "stress-ng.h"
 
 #if defined(__linux__)
+static int stress_config_check_cpu_filter(const struct dirent *d)
+{
+        if (!d)
+                return 0;
+	if (strlen(d->d_name) < 4)
+		return 0;
+        if (strncmp(d->d_name, "cpu", 3))
+		return 0;
+	if (isdigit((int)d->d_name[3]))
+		return 1;
+	return 0;
+}
+
 static int stress_config_read(const char *path, uint64_t *value)
 {
 	char buffer[256];
@@ -43,8 +56,36 @@ void stress_config_check(void)
 		if ((stress_config_read(path, &value) != -1) && (value > 0)) {
 			pr_inf("note: %s is %" PRIu64 " and this can impact "
 				"scheduling throughput for processes attached "
-				"to a tty. Setting this to 0 will improve "
+				"to a tty. Setting this to 0 may improve "
 				"performance metrics\n", path, value);
+		}
+	}
+
+	{
+        	struct dirent **namelist;
+		static char path[] = "/sys/devices/system/cpu";
+		int n, i;
+		int powersave = 0;
+
+        	n = scandir(path, &namelist, stress_config_check_cpu_filter, alphasort);
+		for (i = 0; i < n; i++) {
+			char filename[PATH_MAX];
+			char buffer[64];
+	
+			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", path, namelist[i]->d_name);
+			if (stress_system_read(filename, buffer, sizeof(buffer)) < 0)
+				continue;
+			if (strncmp(buffer, "powersave", 9) == 0)
+				powersave++;
+			
+		}
+		stress_dirent_list_free(namelist, n);
+		if (powersave > 0) {
+			pr_inf("note: %d cpus have scaling governors set to "
+				"powersave and this can impact on performance; "
+				"setting %s/cpu*/cpufreq/scaling_governor to "
+				"'performance' will improve performance\n",
+				powersave, path);
 		}
 	}
 #endif
