@@ -1521,6 +1521,15 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 			if (count > 120)
 				(void)stress_kill_pid(pid);
 		}
+		/*
+		 *  Process seems unkillable, report and bail out
+		 */
+		if (count > 180) {
+			pr_dbg("waitpid: SIGALRM on PID %jd has not resulted in "
+				"process termination after 3 minutes, giving up\n",
+				(intmax_t)pid);
+			break;
+		}
 		if (count > 10)
 			(void)sleep(1);
 	}
@@ -2607,6 +2616,8 @@ int shim_raise(int sig)
  */
 int shim_kill(pid_t pid, int sig)
 {
+stress_process_info(NULL, pid);
+
 	if (sig == 0)
 		return kill(pid, sig);
 	if (pid == 1) {
