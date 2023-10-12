@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 #include "core-pragma.h"
@@ -4627,8 +4628,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				/* Ring ring, time to die */
-				(void)shim_kill(pid, SIGALRM);
-				VOID_RET(int, shim_waitpid(pid, &status, 0));
+				(void)stress_kill_and_wait(args, pid, SIGALRM, false);
 			} else {
 				if (WIFEXITED(status) &&
 				    WEXITSTATUS(status) != 0) {
