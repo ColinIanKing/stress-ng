@@ -2616,8 +2616,6 @@ int shim_raise(int sig)
  */
 int shim_kill(pid_t pid, int sig)
 {
-stress_process_info(NULL, pid);
-
 	if (sig == 0)
 		return kill(pid, sig);
 	if (pid == 1) {
