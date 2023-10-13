@@ -632,6 +632,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 *  handle these
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
 	while (stress_continue_flag()) {
 		stress_proc_rw(ctxt, -1);
@@ -857,8 +858,10 @@ static int stress_procfs(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < MAX_PROCFS_THREADS; i++) {
-		if (ret[i] == 0)
+		if (ret[i] == 0) {
+			(void)pthread_cancel(pthreads[i]);
 			(void)pthread_join(pthreads[i], NULL);
+		}
 	}
 	(void)shim_pthread_spin_destroy(&lock);
 
