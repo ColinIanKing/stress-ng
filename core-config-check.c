@@ -55,9 +55,9 @@ void stress_config_check(void)
 
 		if ((stress_config_read(path, &value) != -1) && (value > 0)) {
 			pr_inf("note: %s is %" PRIu64 " and this can impact "
-				"scheduling throughput for processes attached "
-				"to a tty. Setting this to 0 may improve "
-				"performance metrics\n", path, value);
+				"scheduling throughput for processes not "
+				"attached to a tty. Setting this to 0 may "
+				"improve performance metrics\n", path, value);
 		}
 	}
 
