@@ -55,9 +55,10 @@ typedef struct {
 #define STRESS_VMA_MPROTECT	(6)
 #define STRESS_VMA_MSYNC	(7)
 #define STRESS_VMA_ACCESS	(8)
-#define STRESS_VMA_SIGSEGV	(9)
-#define STRESS_VMA_SIGBUS	(10)
-#define STRESS_VMA_MAX		(11)
+#define STRESS_VMA_PROC_MAPS	(9)
+#define STRESS_VMA_SIGSEGV	(10)
+#define STRESS_VMA_SIGBUS	(11)
+#define STRESS_VMA_MAX		(12)
 
 typedef struct {
 	volatile uint64_t metrics[STRESS_VMA_MAX];	/* racy metrics */
@@ -72,6 +73,7 @@ static const char *stress_vma_metrics_name[] = {
 	"mincore",	/* STRESS_VMA_MINCORE */
 	"mprotect",	/* STRESS_VMA_MPROTECT */
 	"msync",	/* STRESS_VMA_MSYNC */
+	"proc-maps",	/* STRESS_VMA_PROC_MAPS */
 	"accesses",	/* STRESS_VMA_ACCESS */
 	"SIGSEGVs",	/* STRESS_VMA_SIGSEGV */
 	"SIGBUSes",	/* STRESS_VMA_SIGBUS */
@@ -369,6 +371,28 @@ static void *stress_vma_msync(void *ptr)
 	return NULL;
 }
 
+#if defined(__linux__)
+static void *stress_vma_maps(void *ptr)
+{
+	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
+	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	int fd;
+
+	fd = open("/proc/self/maps", O_RDONLY);
+	if (fd != -1) {
+		while (stress_vma_continue(args)) {
+			char buf[4096];
+
+			if (lseek(fd, 0, SEEK_SET) < 0)
+				break;
+			while (read(fd, buf, sizeof(buf)) > 1)
+				;
+		}
+		(void)close(fd);
+	}
+	return NULL;
+}
+#endif
 
 static void *stress_vma_access(void *ptr)
 {
@@ -399,6 +423,9 @@ static const stress_thread_info_t vma_funcs[] = {
 #endif
 	{ stress_vma_mprotect,	1 },
 	{ stress_vma_msync,	1 },
+#if defined(__linux__)
+	{ stress_vma_maps,	1 },
+#endif
 	{ stress_vma_access,	20 }
 };
 
