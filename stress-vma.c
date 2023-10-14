@@ -23,6 +23,7 @@
 #include "core-out-of-memory.h"
 
 #define STRESS_VMA_PROCS	(8)
+#define STRESS_VMA_PAGES	(16)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vma N",	"start N workers that exercise kernel VMA structures" },
@@ -51,10 +52,12 @@ typedef struct {
 #define STRESS_VMA_MUNLOCK	(3)
 #define STRESS_VMA_MADVISE	(4)
 #define STRESS_VMA_MINCORE	(5)
-#define STRESS_VMA_ACCESS	(6)
-#define STRESS_VMA_SIGSEGV	(7)
-#define STRESS_VMA_SIGBUS	(8)
-#define STRESS_VMA_MAX		(9)
+#define STRESS_VMA_MPROTECT	(6)
+#define STRESS_VMA_MSYNC	(7)
+#define STRESS_VMA_ACCESS	(8)
+#define STRESS_VMA_SIGSEGV	(9)
+#define STRESS_VMA_SIGBUS	(10)
+#define STRESS_VMA_MAX		(11)
 
 typedef struct {
 	volatile uint64_t metrics[STRESS_VMA_MAX];	/* racy metrics */
@@ -67,6 +70,8 @@ static const char *stress_vma_metrics_name[] = {
 	"munlocks",	/* STRESS_VMA_MUNLOCK */
 	"madvices",	/* STRESS_VMA_MADVISE */
 	"mincore",	/* STRESS_VMA_MINCORE */
+	"mprotect",	/* STRESS_VMA_MPROTECT */
+	"msync",	/* STRESS_VMA_MSYNC */
 	"accesses",	/* STRESS_VMA_ACCESS */
 	"SIGSEGVs",	/* STRESS_VMA_SIGSEGV */
 	"SIGBUSes",	/* STRESS_VMA_SIGBUS */
@@ -134,8 +139,8 @@ static void *stress_vma_mmap(void *ptr)
 			PROT_READ | PROT_WRITE,
 		};
 
-		const size_t offset = page_size * stress_mwc8modn(8);
-		const size_t size = page_size * stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t size = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const int prot = prots[stress_mwc8modn(SIZEOF_ARRAY(prots))];
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
 		void *mapped;
@@ -163,8 +168,8 @@ static void *stress_vma_munmap(void *ptr)
 	const size_t page_size = args->page_size;
 
 	while (stress_vma_continue(args)) {
-		const size_t offset = page_size * stress_mwc8modn(8);
-		const size_t size = page_size * stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t size = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (munmap((void *)(data + offset), size) == 0)
 			stress_vma_metrics->metrics[STRESS_VMA_MUNMAP]++;
@@ -181,8 +186,8 @@ static void *stress_vma_mlock(void *ptr)
 	const size_t page_size = args->page_size;
 
 	while (stress_vma_continue(args)) {
-		const size_t offset = page_size * stress_mwc8modn(8);
-		const size_t len = page_size * stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 #if defined(MLOCK_ONFAULT)
 		const int flags = stress_mwc1() ? MLOCK_ONFAULT : 0;
 #else
@@ -208,8 +213,8 @@ static void *stress_vma_munlock(void *ptr)
 	const size_t page_size = args->page_size;
 
 	while (stress_vma_continue(args)) {
-		const size_t offset = page_size * stress_mwc8modn(8);
-		const size_t len = page_size * stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (munlock((void *)(data + offset), len) == 0)
 			stress_vma_metrics->metrics[STRESS_VMA_MUNLOCK]++;
@@ -266,11 +271,11 @@ static void *stress_vma_madvise(void *ptr)
 
 	while (stress_vma_continue(args)) {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(advice));
-		const size_t offset = page_size * stress_mwc8modn(8);
-		const size_t len = page_size * stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		(void)madvise((void *)(data + offset), len, advice[i]);
-		stress_vma_metrics->metrics[STRESS_VMA_MADVISE]++;
+		if (madvise((void *)(data + offset), len, advice[i]) == 0)
+			stress_vma_metrics->metrics[STRESS_VMA_MADVISE]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -285,10 +290,10 @@ static void *stress_vma_mincore(void *ptr)
 	const size_t page_size = args->page_size;
 
 	while (stress_vma_continue(args)) {
-		const size_t offset = page_size * stress_mwc8modn(8);
-		const size_t pages = stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t pages = stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * pages;
-		unsigned char vec[8];
+		unsigned char vec[STRESS_VMA_PAGES];
 
 		if (mincore((void *)(data + offset), len, vec) == 0)
 			stress_vma_metrics->metrics[STRESS_VMA_MINCORE]++;
@@ -297,6 +302,72 @@ static void *stress_vma_mincore(void *ptr)
 	return NULL;
 }
 #endif
+
+static void *stress_vma_mprotect(void *ptr)
+{
+	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
+	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	const uintptr_t data = (uintptr_t)ctxt->data;
+	const size_t page_size = args->page_size;
+
+	static const int prot[] = {
+#if defined(PROT_NONE)
+		PROT_NONE,
+#endif
+#if defined(PROT_READ)
+		PROT_READ,
+#endif
+#if defined(PROT_WRITE)
+		PROT_WRITE,
+#endif
+#if defined(PROT_READ) &&	\
+    defined(PROT_WRITE)
+		PROT_READ | PROT_WRITE,
+#endif
+	};
+
+	while (stress_vma_continue(args)) {
+		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(prot));
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+
+		if (mprotect((void *)(data + offset), len, prot[i]) == 0)
+			stress_vma_metrics->metrics[STRESS_VMA_MPROTECT]++;
+	}
+	(void)kill(ctxt->pid, SIGALRM);
+	return NULL;
+}
+
+static void *stress_vma_msync(void *ptr)
+{
+	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
+	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	const uintptr_t data = (uintptr_t)ctxt->data;
+	const size_t page_size = args->page_size;
+
+	static const int flags[] = {
+#if defined(MS_ASYNC)
+	MS_ASYNC,
+#endif
+#if defined(MS_SYNC)
+	MS_SYNC,
+#endif
+#if defined(MS_INVALIDATE)
+       MS_INVALIDATE,
+#endif
+	};
+
+	while (stress_vma_continue(args)) {
+		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(flags));
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
+
+		if (msync((void *)(data + offset), len, flags[i]) == 0)
+			stress_vma_metrics->metrics[STRESS_VMA_MSYNC]++;
+	}
+	(void)kill(ctxt->pid, SIGALRM);
+	return NULL;
+}
 
 
 static void *stress_vma_access(void *ptr)
@@ -307,7 +378,7 @@ static void *stress_vma_access(void *ptr)
 	const size_t page_size = args->page_size;
 
 	while (stress_vma_continue(args)) {
-		const size_t offset = page_size * stress_mwc8modn(8);
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		uint8_t *ptr8 = (uint8_t *)(data + offset);
 
 		stress_vma_metrics->metrics[STRESS_VMA_ACCESS]++;
@@ -318,7 +389,7 @@ static void *stress_vma_access(void *ptr)
 }
 
 static const stress_thread_info_t vma_funcs[] = {
-	{ stress_vma_mmap,	1 },
+	{ stress_vma_mmap,	2 },
 	{ stress_vma_munmap,	1 },
 	{ stress_vma_mlock,	1 },
 	{ stress_vma_munlock,	1 },
@@ -326,6 +397,8 @@ static const stress_thread_info_t vma_funcs[] = {
 #if defined(HAVE_MINCORE)
 	{ stress_vma_mincore,	1 },
 #endif
+	{ stress_vma_mprotect,	1 },
+	{ stress_vma_msync,	1 },
 	{ stress_vma_access,	20 }
 };
 
