@@ -50,10 +50,11 @@ typedef struct {
 #define STRESS_VMA_MLOCK	(2)
 #define STRESS_VMA_MUNLOCK	(3)
 #define STRESS_VMA_MADVISE	(4)
-#define STRESS_VMA_ACCESS	(5)
-#define STRESS_VMA_SIGSEGV	(6)
-#define STRESS_VMA_SIGBUS	(7)
-#define STRESS_VMA_MAX		(8)
+#define STRESS_VMA_MINCORE	(5)
+#define STRESS_VMA_ACCESS	(6)
+#define STRESS_VMA_SIGSEGV	(7)
+#define STRESS_VMA_SIGBUS	(8)
+#define STRESS_VMA_MAX		(9)
 
 typedef struct {
 	volatile uint64_t metrics[STRESS_VMA_MAX];	/* racy metrics */
@@ -65,6 +66,7 @@ static const char *stress_vma_metrics_name[] = {
 	"mlocks",	/* STRESS_VMA_MLOCK */
 	"munlocks",	/* STRESS_VMA_MUNLOCK */
 	"madvices",	/* STRESS_VMA_MADVISE */
+	"mincore",	/* STRESS_VMA_MINCORE */
 	"accesses",	/* STRESS_VMA_ACCESS */
 	"SIGSEGVs",	/* STRESS_VMA_SIGSEGV */
 	"SIGBUSes",	/* STRESS_VMA_SIGBUS */
@@ -274,6 +276,29 @@ static void *stress_vma_madvise(void *ptr)
 	return NULL;
 }
 
+#if defined(HAVE_MINCORE)
+static void *stress_vma_mincore(void *ptr)
+{
+	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
+	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	const uintptr_t data = (uintptr_t)ctxt->data;
+	const size_t page_size = args->page_size;
+
+	while (stress_vma_continue(args)) {
+		const size_t offset = page_size * stress_mwc8modn(8);
+		const size_t pages = stress_mwc8modn(8);
+		const size_t len = page_size * pages;
+		unsigned char vec[8];
+
+		if (mincore((void *)(data + offset), len, vec) == 0)
+			stress_vma_metrics->metrics[STRESS_VMA_MINCORE]++;
+	}
+	(void)kill(ctxt->pid, SIGALRM);
+	return NULL;
+}
+#endif
+
+
 static void *stress_vma_access(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -298,6 +323,9 @@ static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_mlock,	1 },
 	{ stress_vma_munlock,	1 },
 	{ stress_vma_madvise,	1 },
+#if defined(HAVE_MINCORE)
+	{ stress_vma_mincore,	1 },
+#endif
 	{ stress_vma_access,	20 }
 };
 
