@@ -25,6 +25,10 @@
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
+#if defined(HAVE_COMPILER_MUSL)
+#undef HAVE_IMMINTRIN_H
+#endif
+
 #if defined(HAVE_IMMINTRIN_H)
 #include <immintrin.h>
 #endif

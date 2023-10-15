@@ -20,7 +20,7 @@
 #define CORE_ATTRIBUTE_H
 
 /* warn unused attribute */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 2, 0)) ||	\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 2, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define WARN_UNUSED	__attribute__((warn_unused_result))
 #else
@@ -36,7 +36,7 @@
 
 #if defined(HAVE_ATTRIBUTE_FAST_MATH) &&		\
     !defined(HAVE_COMPILER_ICC) &&			\
-    defined(HAVE_COMPILER_GCC) &&			\
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&		\
     NEED_GNUC(10, 0, 0)
 #define OPTIMIZE_FAST_MATH __attribute__((optimize("fast-math")))
 #else
@@ -44,7 +44,7 @@
 #endif
 
 /* no return hint */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(2, 5, 0)) || 	\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(2, 5, 0)) || 	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define NORETURN 	__attribute__((noreturn))
 #else
@@ -52,7 +52,7 @@
 #endif
 
 /* weak attribute */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 0, 0)) || 	\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 0, 0)) || 	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0))
 #define WEAK		__attribute__((weak))
 #define HAVE_WEAK_ATTRIBUTE
@@ -64,7 +64,7 @@
 #undef ALWAYS_INLINE
 #endif
 /* force inlining hint */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0) 				\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0) 			\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define ALWAYS_INLINE	__attribute__((always_inline))
@@ -73,7 +73,7 @@
 #endif
 
 /* force no inlining hint */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 4, 0)) ||	\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #define NOINLINE	__attribute__((noinline))
 #else
@@ -81,9 +81,9 @@
 #endif
 
 /* -O3 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&		\
+    !defined(HAVE_COMPILER_ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
@@ -91,9 +91,9 @@
 #endif
 
 /* -O2 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&		\
+    !defined(HAVE_COMPILER_ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE2 	__attribute__((optimize("-O2")))
 #else
@@ -101,9 +101,9 @@
 #endif
 
 /* -O1 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&		\
+    !defined(HAVE_COMPILER_ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE1 	__attribute__((optimize("-O1")))
 #else
@@ -111,8 +111,8 @@
 #endif
 
 /* -O0 attribute support */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(HAVE_COMPILER_ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE0 	__attribute__((optimize("-O0")))
 #elif (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(10, 0, 0))
@@ -121,10 +121,10 @@
 #define OPTIMIZE0
 #endif
 
-#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 3, 0)) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)) ||	\
-     (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021, 0, 0))) &&	\
-    !defined(HAVE_COMPILER_PCC) &&				\
+#if ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 3, 0)) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)) ||		\
+     (defined(HAVE_COMPILER_ICC) && NEED_ICC(2021, 0, 0))) &&		\
+    !defined(HAVE_COMPILER_PCC) &&					\
     !defined(__minix__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
@@ -136,7 +136,7 @@
 #define ALIGN64		ALIGNED(64)
 
 
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
 #if (defined(__APPLE__) && defined(__MACH__))
 #define SECTION(s)	__attribute__((__section__(# s "," # s)))
@@ -148,7 +148,7 @@
 #endif
 
 /* GCC hot attribute */
-#if (defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0)) ||	\
+#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 3, 0))
 #define HOT		__attribute__((hot))
 #else
@@ -156,10 +156,10 @@
 #endif
 
 /* GCC mlocked data and data section attribute */
-#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(4, 6, 0) ||	\
-     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))) &&	\
-    !defined(__sun__) &&					\
-    !defined(__APPLE__) &&					\
+#if ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 6, 0) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))) &&		\
+    !defined(__sun__) &&						\
+    !defined(__APPLE__) &&						\
     !defined(BUILD_STATIC)
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
 #define MLOCKED_SECTION	(1)
@@ -168,7 +168,7 @@
 #endif
 
 /* print format attribute */
-#if ((defined(HAVE_COMPILER_GCC) && NEED_GNUC(3, 2, 0)) ||	\
+#if ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 2, 0)) ||	\
      (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
 #define FORMAT(func, a, b) __attribute__((format(func, a, b)))
 #else

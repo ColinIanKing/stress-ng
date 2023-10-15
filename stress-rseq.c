@@ -32,13 +32,13 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LINUX_RSEQ_H) &&	\
-    defined(HAVE_ASM_NOP) &&		\
-    defined(__NR_rseq) &&		\
-    defined(HAVE_SYSCALL) &&		\
-    defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
-    !defined(HAVE_COMPILER_ICC) &&	\
+#if defined(HAVE_LINUX_RSEQ_H) &&		\
+    defined(HAVE_ASM_NOP) &&			\
+    defined(__NR_rseq) &&			\
+    defined(HAVE_SYSCALL) &&			\
+    defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&		\
+    !defined(HAVE_COMPILER_ICC) &&		\
     !defined(HAVE_COMPILER_ICX)
 
 #define STRESS_ACCESS_ONCE(x)     (*(__volatile__  __typeof__(x) *)&(x))

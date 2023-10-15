@@ -494,7 +494,7 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
  */
 void shim_flush_icache(void *begin, void *end)
 {
-#if defined(HAVE_COMPILER_GCC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     defined(STRESS_ARCH_ARM)
 	__clear_cache(begin, end);
 #elif defined(STRESS_ARCH_RISCV) &&		\

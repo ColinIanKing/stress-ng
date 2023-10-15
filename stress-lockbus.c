@@ -37,14 +37,14 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL },
 };
 
-#if (((defined(HAVE_COMPILER_GCC) ||			\
+#if (((defined(HAVE_COMPILER_GCC_OR_MUSL) ||		\
        defined(HAVE_COMPILER_CLANG) ||			\
        defined(HAVE_COMPILER_ICC) ||			\
        defined(HAVE_COMPILER_ICX) ||			\
        defined(HAVE_COMPILER_TCC) ||			\
        defined(HAVE_COMPILER_PCC)) &&			\
        defined(STRESS_ARCH_X86)) ||			\
-     (defined(HAVE_COMPILER_GCC) && 			\
+     (defined(HAVE_COMPILER_GCC_OR_MUSL) && 		\
       (defined(HAVE_ATOMIC_ADD_FETCH) ||		\
        defined(HAVE_ATOMIC_FETCH_ADD)) &&		\
       defined(__ATOMIC_SEQ_CST) &&			\

@@ -71,7 +71,7 @@ typedef int (*atomic_func_t)(const stress_args_t *args, double *duration, double
 
 #if defined(HAVE_ATOMIC_FETCH_NAND)
 #define HAVE_ATOMIC_OPS
-#if defined(HAVE_COMPILER_GCC) && __GNUC__ != 11
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) && __GNUC__ != 11
 #define	SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	\
 	do { __atomic_fetch_nand(ptr, val, memorder); } while (0)
 #else
@@ -121,7 +121,7 @@ typedef int (*atomic_func_t)(const stress_args_t *args, double *duration, double
 
 #if defined(HAVE_ATOMIC_NAND_FETCH)
 #define HAVE_ATOMIC_OPS
-#if defined(HAVE_COMPILER_GCC) && __GNUC__ != 11
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) && __GNUC__ != 11
 #define	SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	\
 	do { __atomic_nand_fetch(ptr, val, memorder); } while (0)
 #else

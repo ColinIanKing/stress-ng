@@ -22,6 +22,14 @@
 
 #include "config.h"
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#if defined(HAVE_FEATURES_H)
+#include <features.h>
+#endif
+
 #if defined(__ICC) &&		\
     defined(__INTEL_COMPILER)
 /* Intel ICC compiler */
@@ -41,15 +49,20 @@
 #elif defined(__clang__)
 /* clang */
 #define HAVE_COMPILER_CLANG
+#elif defined(__GNUC__) && 	\
+      !defined(__USE_GNU)
+/* musl gcc */
+#define HAVE_COMPILER_MUSL
+#define HAVE_COMPILER_GCC_OR_MUSL
 #elif defined(__GNUC__)
 /* GNU C compiler */
 #define HAVE_COMPILER_GCC
+#define HAVE_COMPILER_GCC_OR_MUSL
 #endif
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
+#ifndef _ATFILE_SOURCE
 #define _ATFILE_SOURCE
+#endif
 #ifndef _LARGEFILE_SOURCE
 #define _LARGEFILE_SOURCE
 #endif
@@ -101,9 +114,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#if defined(HAVE_FEATURES_H)
-#include <features.h>
-#endif
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
@@ -144,7 +154,7 @@
 #endif
 #if defined(HAVE_SYS_SYSINFO_H)
 #include <sys/sysinfo.h>
-#if defined(HAVE_COMPILER_GCC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     !defined(__GLIBC__)
 /* Suppress kernel sysinfo to avoid collision with musl */
 #define _LINUX_SYSINFO_H
@@ -237,7 +247,7 @@ typedef struct stress_stressor_info {
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
-    defined(HAVE_COMPILER_GCC)
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
 #define UNEXPECTED_PRAGMA(x) _Pragma (#x)
 #define UNEXPECTED_XSTR(x) UNEXPECTED_STR(x)
 #define UNEXPECTED_STR(x) # x
@@ -427,7 +437,7 @@ typedef struct stressor_info {
 } stressor_info_t;
 
 /* gcc 4.7 and later support vector ops */
-#if defined(HAVE_COMPILER_GCC) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     NEED_GNUC(4, 7, 0)
 #define STRESS_VECTOR	(1)
 #endif
@@ -508,7 +518,7 @@ extern const char stress_config[];
 #define PAGE_MAPPED		(0x01)
 #define PAGE_MAPPED_FAIL	(0x02)
 
-#if defined(HAVE_COMPILER_GCC) || defined(HAVE_COMPILER_CLANG)
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) || defined(HAVE_COMPILER_CLANG)
 #define TYPEOF_CAST(a)	(typeof(a))
 #else
 #define	TYPEOF_CAST(a)
@@ -839,7 +849,7 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
-    (defined(HAVE_COMPILER_GCC) && defined(HAVE_COMPILER_CLANG))
+    (defined(HAVE_COMPILER_GCC_OR_MUSL) && defined(HAVE_COMPILER_CLANG))
 int unlink(const char *pathname) __attribute__((deprecated("use shim_unlink")));
 int unlinkat(int dirfd, const char *pathname, int flags) __attribute__((deprecated("use shim_unlinkat")));
 int rmdir(const char *pathname) __attribute__((deprecated("use shim_rmdir")));

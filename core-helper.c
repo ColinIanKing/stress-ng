@@ -3486,8 +3486,8 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
  *  __stack_chk_fail()
  *	override stack smashing callback
  */
-#if defined(HAVE_COMPILER_GCC) &&	\
-    !defined(HAVE_COMPILER_CLANG) &&	\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    !defined(HAVE_COMPILER_CLANG) &&		\
     defined(HAVE_WEAK_ATTRIBUTE)
 extern void __stack_chk_fail(void);
 

@@ -138,7 +138,7 @@
 #endif
 
 #if defined(HAVE_TARGET_CLONES_GRANITERAPIDS) &&	\
-    defined(HAVE_COMPILER_GCC)
+    defined(HAVE_COMPILER_GCC_OR_MUSL)
 #define TARGET_CLONE_GRANITERAPIDS "arch=graniterapids",
 #define TARGET_CLONE_USE
 #else

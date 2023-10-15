@@ -94,12 +94,12 @@ static sigset_t set;
 
 static stress_memthrash_primes_t stress_memthrash_primes[MEM_SIZE_PRIMES];
 
-#if (((defined(HAVE_COMPILER_GCC) || defined(HAVE_COMPILER_CLANG)) && 	\
-       defined(STRESS_ARCH_X86)) ||					\
-     (defined(HAVE_COMPILER_GCC) && 					\
-      defined(HAVE_ATOMIC_ADD_FETCH) &&					\
-      defined(__ATOMIC_SEQ_CST) &&					\
-      NEED_GNUC(4,7,0) && 						\
+#if (((defined(HAVE_COMPILER_GCC_OR_MUSL) || defined(HAVE_COMPILER_CLANG)) &&	\
+       defined(STRESS_ARCH_X86)) ||						\
+     (defined(HAVE_COMPILER_GCC_OR_MUSL) && 					\
+      defined(HAVE_ATOMIC_ADD_FETCH) &&						\
+      defined(__ATOMIC_SEQ_CST) &&						\
+      NEED_GNUC(4,7,0) && 							\
       defined(STRESS_ARCH_ARM)))
 #if defined(HAVE_ATOMIC_ADD_FETCH)
 #define MEM_LOCK(ptr, inc)	__atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST)

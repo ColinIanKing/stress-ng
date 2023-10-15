@@ -453,8 +453,8 @@ static int stress_malloc(const stress_args_t *args)
 			malloc_max = MIN_MALLOC_MAX;
 	}
 
-#if defined(HAVE_COMPILER_GCC) && 	\
-    defined(HAVE_MALLOPT) &&		\
+#if defined(HAVE_COMPILER_GCC_OR_MUSL) && 	\
+    defined(HAVE_MALLOPT) &&			\
     defined(M_MMAP_THRESHOLD)
 	{
 		size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
