@@ -2505,10 +2505,21 @@ const char *stress_get_compiler(void)
 	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
 #elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__) &&	\
-      defined(__GNUC_PATCHLEVEL__)
+      defined(__GNUC_PATCHLEVEL__) &&	\
+      defined(HAVE_COMPILER_MUSL)
+	static const char cc[] = "musl-gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "." XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
+#elif defined(__GNUC__) &&		\
+      defined(__GNUC_MINOR__) &&	\
+      defined(HAVE_COMPILER_MUSC)
+	static const char cc[] = "musl-gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
+#elif defined(__GNUC__) &&		\
+      defined(__GNUC_MINOR__) &&	\
+      defined(__GNUC_PATCHLEVEL__) &&	\
+      defined(HAVE_COMPILER_GCC)
 	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "." XSTRINGIFY(__GNUC_PATCHLEVEL__) "";
 #elif defined(__GNUC__) &&		\
-      defined(__GNUC_MINOR__)
+      defined(__GNUC_MINOR__) &&	\
+      defined(HAVE_COMPILER_GCC)
 	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
 #else
 	static const char cc[] = "cc unknown";
