@@ -1624,7 +1624,7 @@ const char *stress_strsignal(const int signum)
  *  stress_rndstr()
  *	generate pseudorandom string
  */
-void stress_rndstr(char *str, size_t len)
+HOT OPTIMIZE3 void stress_rndstr(char *str, size_t len)
 {
 	/*
 	 * base64url alphabet.
@@ -1660,7 +1660,7 @@ void stress_rndstr(char *str, size_t len)
  *  stress_rndbuf()
  *	fill buffer with pseudorandom bytes
  */
-void stress_rndbuf(void *buf, const size_t len)
+HOT OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
 {
 	register char *ptr = (char *)buf;
 	register const char *end = ptr + len;
@@ -1686,7 +1686,7 @@ bool stress_little_endian(void)
  *	fill a uint8_t buffer full of random data
  *	buffer *must* be multiple of 4 bytes in size
  */
-void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
+HOT OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)data;
 	register const uint32_t *ptr32end = (uint32_t *)(data + len);
@@ -3031,7 +3031,7 @@ unlock:
  *  stress_ipv4_checksum()
  *	ipv4 data checksum
  */
-uint16_t HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
+HOT OPTIMIZE3 uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 {
 	register uint32_t sum = 0;
 	register size_t n = sz;
