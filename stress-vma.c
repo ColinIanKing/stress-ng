@@ -99,16 +99,32 @@ static void *stress_mmapaddr_get_addr(const stress_args_t *args)
 {
 	const uintptr_t mask = ~(((uintptr_t)args->page_size) - 1);
 	void *addr = NULL;
+	uintptr_t ui_addr;
 
 	while (stress_vma_continue(args)) {
 		int fd[2], err;
 		ssize_t ret;
 
-		if (sizeof(uintptr_t) >= 32) {
-			addr = (void *)(((uintptr_t)stress_mwc64modn(1ULL << 38)) & mask);
+		if (sizeof(uintptr_t) > 4) {
+			uint64_t page_63 = (stress_mwc64() << 12) & 0x7fffffffffffffffULL;
+
+			if (stress_mwc1()) {
+				ui_addr = stress_mwc64modn((1ULL << 38) - 1) | page_63;
+			} else {
+				ui_addr = (1ULL << 36) | page_63;
+			}
+			/* occassionally use 32 bit addr in 64 bit addr space */
+			if (stress_mwc8modn(5) == 0)
+				ui_addr &= 0x7fffffffUL;
 		} else {
-			addr = (void *)(((uintptr_t)stress_mwc32modn(1UL << 28)) & mask);
+			uint32_t page_31 = (stress_mwc32() << 12) & 0x7fffffffUL;
+
+			if (stress_mwc1())
+				ui_addr = stress_mwc32modn((1UL << 28) - 1) | page_31;
+			else
+				ui_addr = (1ULL << 20) | page_31;
 		}
+		addr = (void *)(ui_addr & mask);
 
 		if (pipe(fd) < 0)
 			return NULL;
@@ -383,8 +399,10 @@ static void *stress_vma_maps(void *ptr)
 		while (stress_vma_continue(args)) {
 			char buf[4096];
 
-			if (lseek(fd, 0, SEEK_SET) < 0)
+			if (lseek(fd, 0, SEEK_SET) < 0) {
+				pr_inf("lseek fail\n");
 				break;
+			}
 			while (read(fd, buf, sizeof(buf)) > 1)
 				;
 		}
@@ -455,6 +473,8 @@ static void stress_vma_loop(
 
 	do {
 		pid_t pid;
+
+		stress_mwc_reseed();
 		ctxt->data = stress_mmapaddr_get_addr(args);
 
 		pid = fork();
@@ -476,7 +496,7 @@ static void stress_vma_loop(
 							vma_funcs[i].vma_func, (void *)ctxt);
 				}
 			}
-			(void)sleep(15);
+			pause();
 			_exit(0);
 		}
 
