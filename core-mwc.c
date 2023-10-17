@@ -338,7 +338,7 @@ HOT OPTIMIZE3 uint8_t stress_mwc1(void)
  *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-static uint8_t OPTIMIZE3 stress_mwc8modn_nonzero(const uint8_t max)
+HOT OPTIMIZE3 static uint8_t stress_mwc8modn_nonzero(const uint8_t max)
 {
 	register uint8_t threshold = max;
 	register uint8_t val;
@@ -358,7 +358,7 @@ static uint8_t OPTIMIZE3 stress_mwc8modn_nonzero(const uint8_t max)
  *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
+HOT OPTIMIZE3 uint8_t stress_mwc8modn(const uint8_t max)
 {
 	return (LIKELY(max > 0)) ? stress_mwc8modn_nonzero(max) : 0;
 }
@@ -368,7 +368,7 @@ uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
  *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	where max is potentially a power of 2
  */
-uint8_t OPTIMIZE3 stress_mwc8modn_maybe_pwr2(const uint8_t max)
+HOT OPTIMIZE3 uint8_t stress_mwc8modn_maybe_pwr2(const uint8_t max)
 {
 	register const uint8_t mask = max - 1;
 
@@ -383,7 +383,7 @@ uint8_t OPTIMIZE3 stress_mwc8modn_maybe_pwr2(const uint8_t max)
  *	return 16 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-static uint16_t OPTIMIZE3 stress_mwc16modn_nonzero(const uint16_t max)
+HOT OPTIMIZE3 static uint16_t stress_mwc16modn_nonzero(const uint16_t max)
 {
 	register uint16_t threshold = max;
 	register uint16_t val;
@@ -403,7 +403,7 @@ static uint16_t OPTIMIZE3 stress_mwc16modn_nonzero(const uint16_t max)
  *	return 16 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
+HOT OPTIMIZE3 uint16_t stress_mwc16modn(const uint16_t max)
 {
 	return (LIKELY(max > 0)) ? stress_mwc16modn_nonzero(max) : 0;
 }
@@ -413,7 +413,7 @@ uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
  *	return 16 bit non-modulo biased value 1..max (inclusive)
  *	where max is potentially a power of 2
  */
-uint16_t OPTIMIZE3 stress_mwc16modn_maybe_pwr2(const uint16_t max)
+HOT OPTIMIZE3 uint16_t stress_mwc16modn_maybe_pwr2(const uint16_t max)
 {
 	register const uint16_t mask = max - 1;
 
@@ -428,7 +428,7 @@ uint16_t OPTIMIZE3 stress_mwc16modn_maybe_pwr2(const uint16_t max)
  *	return 32 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-static uint32_t OPTIMIZE3 stress_mwc32modn_nonzero(const uint32_t max)
+HOT OPTIMIZE3 static uint32_t stress_mwc32modn_nonzero(const uint32_t max)
 {
 	register uint32_t threshold = max;
 	register uint32_t val;
@@ -448,7 +448,7 @@ static uint32_t OPTIMIZE3 stress_mwc32modn_nonzero(const uint32_t max)
  *	return 32 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
+HOT OPTIMIZE3 uint32_t stress_mwc32modn(const uint32_t max)
 {
 	return (LIKELY(max > 0)) ? stress_mwc32modn_nonzero(max) : 0;
 }
@@ -458,7 +458,7 @@ uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
  *	return 32 bit non-modulo biased value 1..max (inclusive)
  *	where max is potentially a power of 2
  */
-uint32_t OPTIMIZE3 stress_mwc32modn_maybe_pwr2(const uint32_t max)
+HOT OPTIMIZE3 uint32_t stress_mwc32modn_maybe_pwr2(const uint32_t max)
 {
 	register const uint32_t mask = max - 1;
 
@@ -473,7 +473,7 @@ uint32_t OPTIMIZE3 stress_mwc32modn_maybe_pwr2(const uint32_t max)
  *	return 64 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
+HOT OPTIMIZE3 static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
 {
 	register uint64_t threshold = max;
 	register uint64_t val;
@@ -496,7 +496,7 @@ static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
  *	return 64 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
+HOT OPTIMIZE3 uint64_t stress_mwc64modn(const uint64_t max)
 {
 	return (LIKELY(max > 0)) ? stress_mwc64modn_nonzero(max) : 0;
 }
@@ -506,7 +506,7 @@ uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
  *	return 64 bit non-modulo biased value 1..max (inclusive)
  *	where max is potentially a power of 2
  */
-uint64_t OPTIMIZE3 stress_mwc64modn_maybe_pwr2(const uint64_t max)
+HOT OPTIMIZE3 uint64_t stress_mwc64modn_maybe_pwr2(const uint64_t max)
 {
 	register const uint64_t mask = max - 1;
 
