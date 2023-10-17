@@ -569,6 +569,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [kMVX: Detecting Kernel Information Leaks with Multi-variant Execution](https://research.vu.nl/ws/files/122357910/KMVX.pdf)
 * [Scalability of Kubernetes Running Over AWS](https://www.diva-portal.org/smash/get/diva2:1367111/FULLTEXT02)
 * [A study on performance measures for auto-scaling CPU-intensive containerized applications](https://link.springer.com/article/10.1007/s10586-018-02890-1)
+* [Scavenger: A Black-Box Batch Workload Resource Manager for Improving Utilization in Cloud Environments](https://www3.cs.stonybrook.edu/~sjavadi/files/javadi_socc2019.pdf)
 
 2020:
 * [Performance and Energy Trade-Offs for Parallel Applications on Heterogeneous Multi-Processing Systems](https://www.mdpi.com/1996-1073/13/9/2409/htm)
@@ -634,6 +635,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Thermal-Aware on-Device Inference Using Single-Layer Parallelization with Heterogeneous Processors](https://www.sciopen.com/article/pdf/10.26599/TST.2021.9010075.pdf)
 * [Towards Fast, Adaptive, and Hardware-Assisted User-Space Scheduling](https://arxiv.org/pdf/2308.02896.pdf)
 * [Heterogeneous Anomaly Detection for Software Systems via Semi-supervised Cross-modal Attention](https://arxiv.org/pdf/2302.06914.pdf)
+* [Green coding : an empirical approach to harness the energy consumption ofsoftware services](https://theses.hal.science/tel-04074973/document)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
