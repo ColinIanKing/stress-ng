@@ -22,7 +22,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
-#define STRESS_VMA_PROCS	(8)
+#define STRESS_VMA_PROCS	(2)
 #define STRESS_VMA_PAGES	(16)
 
 static const stress_help_t help[] = {
