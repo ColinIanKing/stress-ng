@@ -602,6 +602,9 @@ typedef enum {
 	OPT_lease_ops,
 	OPT_lease_breakers,
 
+	OPT_led,
+	OPT_led_ops,
+
 	OPT_link,
 	OPT_link_ops,
 	OPT_link_sync,

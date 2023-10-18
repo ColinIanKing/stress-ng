@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 Oct 2023"
+.TH STRESS-NG 1 "18 Oct 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3300,6 +3300,19 @@ however, this option allows one to specify more child processes if required.
 .TP
 .B \-\-lease\-ops N
 stop lease workers after N bogo operations.
+.RE
+.TP
+.B LED stressor (Linux)
+.RS 5
+.TQ
+.B \-\-led N
+start N workers that exercise the /sys/class/leds interfaces to
+set LED brightness levels and the various trigger settings. This
+needs to be run with root privilege to be able to write to these
+settings successfully. Non-root privilege will ignore failed writes.
+.TP
+.B \-\-led\-ops N
+stop after N interfaces are exercised.
 .RE
 .TP
 .B Hardlink stressor

@@ -376,6 +376,8 @@ const struct option stress_long_options[] = {
 	{ "l1cache-ways",	1,	0,	OPT_l1cache_ways},
 	{ "landlock",		1,	0,	OPT_landlock },
 	{ "landlock-ops",	1,	0,	OPT_landlock_ops },
+	{ "led",		1,	0,	OPT_led },
+	{ "led-ops",		1,	0,	OPT_led_ops },
 	{ "lease",		1,	0,	OPT_lease },
 	{ "lease-breakers",	1,	0,	OPT_lease_breakers },
 	{ "lease-ops",		1,	0,	OPT_lease_ops },

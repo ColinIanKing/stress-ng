@@ -135,6 +135,7 @@
 	MACRO(l1cache)		\
 	MACRO(landlock)		\
 	MACRO(lease)		\
+	MACRO(led)		\
 	MACRO(link)		\
 	MACRO(list)		\
 	MACRO(llc_affinity)	\

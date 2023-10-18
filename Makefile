@@ -340,6 +340,7 @@ STRESS_SRC = \
 	stress-l1cache.c \
 	stress-landlock.c \
 	stress-lease.c \
+	stress-led.c \
 	stress-link.c \
 	stress-list.c \
 	stress-llc-affinity.c \
