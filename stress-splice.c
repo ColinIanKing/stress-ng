@@ -341,10 +341,6 @@ static int stress_splice(const stress_args_t *args)
 		VOID_RET(ssize_t, splice(fd_in, NULL, fds1[1], NULL,
 			1, ~0U));
 
-		/* Exercise 1 byte splice, zero flags */
-		VOID_RET(ssize_t, splice(fd_in, NULL, fds1[1], NULL,
-			1, 0));
-
 		/* Exercise splicing to oneself */
 		off_in = 0;
 		off_out = 0;
