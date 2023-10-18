@@ -116,8 +116,8 @@ static int stress_wait_until_reaped(
 			/*
 			 *  Process seems unkillable, report and bail out
 			 */
-			if (count > 180) {
-				pr_dbg("%s: cannot kill PID %jd after 3 minutes, giving up\n",
+			if (count > 600) {
+				pr_dbg("%s: cannot kill PID %jd after 10 minutes, giving up\n",
 					args->name, (intmax_t)pid);
 				stress_process_info(args, pid);
 				break;
