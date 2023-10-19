@@ -100,7 +100,7 @@ static int stress_swap_supported(const char *name)
 	return 0;
 }
 
-static int stress_swap_zero(
+static int32_t stress_swap_zero(
 	const stress_args_t *args,
 	const int fd,
 	const uint32_t npages,
@@ -116,12 +116,17 @@ static int stress_swap_zero(
 
 	for (i = 0; i < npages; i++) {
 		if (write(fd, page, args->page_size) < 0) {
+			if (errno == ENOSPC) {
+				pr_inf("%s: out of free space creating swap "
+					"file, skipping stressor\n", args->name);
+				return (int32_t)i;
+			}
 			pr_fail("%s: write failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		}
 	}
-	return 0;
+	return (int32_t)i;
 }
 
 static int stress_swap_set_size(
@@ -253,6 +258,7 @@ static int stress_swap_child(const stress_args_t *args, void *context)
 	uint8_t *page;
 	uint64_t swapped_out = 0;
 	uint64_t swapped_total = 0;
+	int32_t max_swap_pages;
 	const size_t page_size = args->page_size;
 	double swapped_percent;
 
@@ -300,8 +306,12 @@ static int stress_swap_child(const stress_args_t *args, void *context)
 	}
 #endif
 
-	if (stress_swap_zero(args, fd, MAX_SWAP_PAGES, page) < 0) {
+	max_swap_pages = stress_swap_zero(args, fd, MAX_SWAP_PAGES, page);
+	if (max_swap_pages < 0) {
 		ret = EXIT_FAILURE;
+		goto tidy_close;
+	} else if (max_swap_pages < MAX_SWAP_PAGES) {
+		ret = EXIT_NO_RESOURCE;
 		goto tidy_close;
 	}
 
