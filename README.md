@@ -649,7 +649,7 @@ Many thanks to the following contributors to stress-ng (in alphabetical order):
 
 Abdul Haleem, Aboorva Devarajan, Adriand Martin, Adrian Ratiu,
 Aleksandar N. Kostadinov, Alexander Kanavin, Alexandru Ardelean,
-Alfonso Sánchez-Beato, Allen H, André Wild, Anisse Astier,
+Alfonso Sánchez-Beato, Allen H, Andrey Gelman, André Wild, Anisse Astier,
 Anton Eliasson, Arjan van de Ven, Baruch Siach, Bryan W. Lewis,
 Camille Constans, Carlos Santos, Christian Ehrhardt, Christopher Brown,
 Chunyu Hu, Danilo Krummrich, Davidson Francis, David Turner,
