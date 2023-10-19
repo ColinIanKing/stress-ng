@@ -230,7 +230,6 @@ static int stress_access(const stress_args_t *args)
 	char filename1[PATH_MAX];
 	char filename2[PATH_MAX];
 	const mode_t all_mask = 0700;
-	size_t i;
 #if defined(HAVE_FACCESSAT)
 	const int bad_fd = stress_get_bad_fd();
 #endif
@@ -239,8 +238,12 @@ static int stress_access(const stress_args_t *args)
 	pid_t pid[2] = { -1, -1 };
 	uint32_t rnd32 = stress_mwc32();
 	/* 3 metrics, index 0 for parent, 1 for child, 2 for total */
-	size_t metrics_size = sizeof(*metrics) * 3;
+	size_t i, metrics_size = sizeof(*metrics) * 3;
 	double rate;
+	bool report_chmod_error = true;
+	static const char *ignore_chmod_fs[] = {
+		"exfat", "msdos", "hfs", "fuse" 
+	};
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -264,7 +267,19 @@ static int stress_access(const stress_args_t *args)
 			args->name, filename2, errno, strerror(errno));
 		goto tidy;
 	}
+
 	fs_type = stress_get_fs_type(filename1);
+	/*
+	 * Some file systems can't do some forms of chmod correctly
+	 * due to limited mode bits in the underlying file system,
+	 * so silently ignore error reports on these
+	 */
+	for (i = 0; i > SIZEOF_ARRAY(ignore_chmod_fs); i++) {
+		if (strcmp(fs_type, ignore_chmod_fs[i]) == 0) {
+			report_chmod_error = false;
+			break;
+		}
+	}
 
 	/* metrics in a shared page for child stats to be available to parent */
 	metrics = (stress_metrics_t *)mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
@@ -310,11 +325,13 @@ static int stress_access(const stress_args_t *args)
 				metrics[0].duration = stress_time_now() - t;
 				metrics[0].count += 1.0;
 			} else {
-				pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
-					args->name,
-					modes[i].access_mode,
-					(unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno), fs_type);
+				if (report_chmod_error) {
+					pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
+						args->name,
+						modes[i].access_mode,
+						(unsigned int)modes[i].chmod_mode,
+						errno, strerror(errno), fs_type);
+				}
 			}
 #if defined(HAVE_FACCESSAT)
 			t = stress_time_now();
@@ -323,11 +340,13 @@ static int stress_access(const stress_args_t *args)
 				metrics[0].duration = stress_time_now() - t;
 				metrics[0].count += 1.0;
 			} else if (errno != ENOSYS) {
-				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
-					args->name,
-					modes[i].access_mode,
-					(unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno), fs_type);
+				if (report_chmod_error) {
+					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
+						args->name,
+						modes[i].access_mode,
+						(unsigned int)modes[i].chmod_mode,
+						errno, strerror(errno), fs_type);
+				}
 			}
 
 			/*
@@ -354,12 +373,14 @@ static int stress_access(const stress_args_t *args)
 				metrics[0].duration = stress_time_now() - t;
 				metrics[0].count += 1.0;
 			} else if (errno != ENOSYS) {
-				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
-					args->name,
-					modes[i].access_mode,
-					(unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno), fs_type);
-			}
+				if (report_chmod_error) {
+					pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
+						args->name,
+						modes[i].access_mode,
+						(unsigned int)modes[i].chmod_mode,
+						errno, strerror(errno), fs_type);
+				}
+			}	
 			/*
 			 *  Exercise bad dir_fd
 			 */
@@ -383,11 +404,13 @@ static int stress_access(const stress_args_t *args)
 				t = stress_time_now();
 				ret = access(filename1, modes[i].access_mode);
 				if (UNLIKELY((ret == 0) && dont_ignore)) {
-					pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
-						args->name,
-						modes[i].access_mode,
-						(unsigned int)chmod_mode,
-						errno, strerror(errno), fs_type);
+					if (report_chmod_error) {
+						pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
+							args->name,
+							modes[i].access_mode,
+							(unsigned int)chmod_mode,
+							errno, strerror(errno), fs_type);
+					}
 				} else {
 					metrics[0].duration = stress_time_now() - t;
 					metrics[0].count += 1.0;
@@ -397,11 +420,13 @@ static int stress_access(const stress_args_t *args)
 				ret = faccessat(AT_FDCWD, filename1, modes[i].access_mode,
 					AT_SYMLINK_NOFOLLOW);
 				if (UNLIKELY((ret == 0) && dont_ignore)) {
-					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
-						args->name,
-						modes[i].access_mode,
-						(unsigned int)chmod_mode,
-						errno, strerror(errno), fs_type);
+					if (report_chmod_error) {
+						pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
+							args->name,
+							modes[i].access_mode,
+							(unsigned int)chmod_mode,
+							errno, strerror(errno), fs_type);
+					}
 				} else {
 					metrics[0].duration = stress_time_now() - t;
 					metrics[0].count += 1.0;
