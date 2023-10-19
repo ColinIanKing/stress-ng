@@ -83,69 +83,70 @@ kill_stress_ng()
 mount_filesystem()
 {
 	rm -f ${FSIMAGE}
+	COUNT=4096
 	case $1 in
 		ext2)	MKFS_CMD="mkfs.ext2"
 			MKFS_ARGS="-F ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		ext3)	MKFS_CMD="mkfs.ext3"
 			MKFS_ARGS="-F ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		ext4)	MKFS_CMD="mkfs.ext4"
 			MKFS_ARGS="-F ${FSIMAGE} -O inline_data,dir_index,metadata_csum,64bit,ea_inode,ext_attr,quota,verity,extent,filetype,huge_file,mmp"
 			MNT_CMD="sudo mount -o journal_checksum,loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		xfs)
 			MKFS_CMD="mkfs.xfs"
 			MKFS_ARGS="-m crc=1,bigtime=1,finobt=1,rmapbt=1 -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		hfs)
 			MKFS_CMD="mkfs.hfs"
 			MKFS_ARGS="${FSIMAGE}"
-			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			MNT_CMD="sudo mount -o loop -o rw ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		hfsplus)
 			MKFS_CMD="mkfs.hfsplus"
 			MKFS_ARGS="-s ${FSIMAGE}"
-			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			MNT_CMD="sudo mount -o loop -o rw ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		jfs)	MKFS_CMD="mkfs.jfs"
 			MKFS_ARGS="-q ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		minix)	MKFS_CMD="mkfs.minix"
 			MKFS_ARGS="-3 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		nilfs)	MKFS_CMD="mkfs.nilfs2"
 			MKFS_ARGS="-f -O block_count ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		fat)	MKFS_CMD="mkfs.fat"
 			MKFS_ARGS="${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		vfat)	MKFS_CMD="mkfs.vfat"
 			MKFS_ARGS="${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		exfat)	MKFS_CMD="mkfs.exfat"
 			MKFS_ARGS="${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		ubifs)	sudo modprobe nandsim first_id_byte=0x20 \
 			second_id_byte=0xaa third_id_byte=0x00 \
@@ -153,33 +154,33 @@ mount_filesystem()
 			sudo modprobe ubi mtd=0
 			sleep 5
 			MKFS_CMD="ubimkvol"
-			MKFS_ARGS="/dev/ubi0 -N ubifs-vol -s 200MiB"
+			MKFS_ARGS="/dev/ubi0 -N ubifs-vol -s ${COUNT}MiB"
 			MNT_CMD="sudo mount -t ubifs /dev/ubi0_0 ${MNT}"
 			;;
 		udf)	MKFS_CMD="mkfs.udf"
 			MKFS_ARGS="${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		ntfs)	MKFS_CMD="mkfs.ntfs"
 			MKFS_ARGS="-F -C -s 1024 -v ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		f2fs)	MKFS_CMD="mkfs.f2fs"
 			MKFS_ARGS="-f ${FSIMAGE} -i -O encrypt,extra_attr,inode_checksum,quota,verity,sb_checksum,compression,lost_found"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		bfs)	MKFS_CMD="mkfs.bfs"
 			MKFS_ARGS="${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		btrfs)	MKFS_CMD="mkfs.btrfs"
 			MKFS_ARGS="-O extref -R quota,free-space-tree -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o compress,autodefrag,datasum -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		tmpfs)	MKFS_CMD="true"
 			MKFS_ARGS=""
@@ -193,7 +194,7 @@ mount_filesystem()
 			MKFS_CMD="mkfs.reiserfs"
 			MKFS_ARGS="-q -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
-			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		overlay)
 			MKFS_CMD="true"
@@ -330,29 +331,47 @@ do_stress --dev 32
 
 for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
-	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
 		DURATION=10
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts dsync --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts iovec,noatime --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fsync,syncfs --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fdatasync --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-seq,wr-seq --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-normal --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-noreuse --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-rnd --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-seq --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --verity -1 --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		do_stress --utime -1 --utime-fsync --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
 		sudo $STRESS_NG --swap 4 --temp-path $MNT -t $DURATION --iostat 1 --status 5 --timestamp -v
 		DURATION=10
+		echo "Filesystem: $FS"
 		sudo $STRESS_NG --class filesystem --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
+		echo "Filesystem: $FS"
 		sudo $STRESS_NG --class io --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
 		DURATION=5
+		echo "Filesystem: $FS"
 		do_stress --sysinfo -1 --temp-path $MNT --iostat 1
 		umount_filesystem $FS
 	fi
