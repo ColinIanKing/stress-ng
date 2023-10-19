@@ -570,6 +570,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Scalability of Kubernetes Running Over AWS](https://www.diva-portal.org/smash/get/diva2:1367111/FULLTEXT02)
 * [A study on performance measures for auto-scaling CPU-intensive containerized applications](https://link.springer.com/article/10.1007/s10586-018-02890-1)
 * [Scavenger: A Black-Box Batch Workload Resource Manager for Improving Utilization in Cloud Environments](https://www3.cs.stonybrook.edu/~sjavadi/files/javadi_socc2019.pdf)
+* [Estimating Cloud Application Performance Based on Micro-Benchmark Profiling](https://core.ac.uk/download/pdf/198051426.pdf)
 
 2020:
 * [Performance and Energy Trade-Offs for Parallel Applications on Heterogeneous Multi-Processing Systems](https://www.mdpi.com/1996-1073/13/9/2409/htm)
@@ -583,6 +584,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Real-time performance assessment using fast interrupt request on a standard Linux kernel](https://onlinelibrary.wiley.com/doi/full/10.1002/eng2.12114)
 * [Low Energy Consumption on Post-Moore Platforms for HPC Research](https://revistas.usfq.edu.ec/index.php/avances/article/download/2108/2919/18081)
 * [Managing Latency in Edge-Cloud Environment](https://s2group.cs.vu.nl/files/pubs/2020-JSS-IG-Edge_Cloud.pdf)
+* [Demystifying the Real-Time Linux Scheduling Latency](https://bristot.me/files/research/papers/ecrts2020/deOliveira2020Demystifying.pdf)
 
 2021:
 * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
