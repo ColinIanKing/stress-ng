@@ -740,8 +740,8 @@ static int stress_shm_sysv_child(
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
 				ok = false;
-				pr_fail("%s: shmat failed on id %d, errno=%d (%s)\n",
-					args->name, shm_id, errno, strerror(errno));
+				pr_fail("%s: shmat on NULL address failed on id %d, (key=%d, size=%zd), errno=%d (%s)\n",
+					args->name, shm_id, (int)key, sz, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
 			}

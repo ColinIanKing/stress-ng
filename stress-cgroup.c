@@ -48,6 +48,10 @@ static int stress_cgroup_supported(const char *name)
 #if defined(__linux__) &&	\
     defined(HAVE_SYS_MOUNT_H)
 
+#define STRESS_CGROUP_MOUNTED	(1)
+#define STRESS_CGROUP_UNMOUNTED	(2)
+#define STRESS_CGROUP_UNKNOWN	(3)
+
 typedef struct {
 	const char *name;
 	const char *value;
@@ -60,6 +64,54 @@ static void stress_cgroup_remove_nl(char *str)
 	ptr = strchr(str, '\n');
 	if (ptr)
 		*ptr = '\0';
+}
+
+/*
+ *  stress_cgroup_mounted_state()
+ *	quick sanity check to see if path is mounted
+ */
+static int stress_cgroup_mounted_state(const char *path)
+{
+	FILE *fp;
+	char buf[4096];
+	int ret = STRESS_CGROUP_UNMOUNTED;
+
+	fp = fopen("/proc/mounts", "r");
+	if (!fp)
+		return STRESS_CGROUP_UNKNOWN;
+
+	while (fgets(buf, sizeof(buf), fp)) {
+		char *mnt, *type, *ptr;
+		ptr = buf;
+		while (*ptr && *ptr != ' ')
+			ptr++;
+		if (*ptr == '\0')
+			break;
+		*ptr = '\0';
+		ptr++;
+		mnt = ptr;
+
+		while (*ptr && *ptr != ' ')
+			ptr++;
+		if (*ptr == '\0')
+			break;
+		*ptr = '\0';
+		ptr++;
+		type = ptr;
+		while (*ptr && *ptr != ' ')
+			ptr++;
+		if (*ptr == '\0')
+			break;
+		*ptr = '\0';
+
+		if ((strcmp(type, "cgroup2") == 0) &&
+		    (strcmp(mnt, path) == 0)) {
+			ret = STRESS_CGROUP_MOUNTED;
+			break;
+		}
+	}
+	(void)fclose(fp);
+	return ret;
 }
 
 /*
@@ -79,6 +131,9 @@ static void stress_cgroup_umount(const stress_args_t *args, const char *path)
 	 *  know that umount been successful and can then return.
 	 */
 	for (i = 0; i < 100; i++) {
+		if (stress_cgroup_mounted_state(path) == STRESS_CGROUP_UNMOUNTED)
+			return;
+
 #if defined(HAVE_UMOUNT2) &&	\
     defined(MNT_FORCE)
 		if (stress_mwc1()) {
@@ -90,11 +145,11 @@ static void stress_cgroup_umount(const stress_args_t *args, const char *path)
 		ret = umount(path);
 #endif
 		if (ret == 0) {
-			if (i > 1) {
+			if (i > 1)
 				shim_nanosleep_uint64(ns);
-			}
 			continue;
 		}
+
 		switch (errno) {
 		case EAGAIN:
 		case EBUSY:
@@ -383,6 +438,8 @@ static int stress_cgroup_child(const stress_args_t *args)
 
 cleanup:
 	stress_cgroup_umount(args, realpathname);
+	if (stress_cgroup_mounted_state(realpathname) == STRESS_CGROUP_MOUNTED)
+		pr_dbg("%s: could not unmount of %s\n", args->name, realpathname);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
