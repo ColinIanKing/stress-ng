@@ -70,7 +70,7 @@ static char *stress_led_orig_trigger(const char *str)
 	orig = calloc(len, sizeof(*orig));
 	if (!orig)
 		return NULL;
-	strlcpy(orig, start, len);
+	shim_strlcpy(orig, start, len);
 	return orig;
 }
 
