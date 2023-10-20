@@ -1468,6 +1468,13 @@ typedef enum {
 	OPT_wcs_ops,
 	OPT_wcs_method,
 
+	OPT_workload,
+	OPT_workload_dist,
+	OPT_workload_load,
+	OPT_workload_ops,
+	OPT_workload_quanta_us,
+	OPT_workload_slice_us,
+
 	OPT_x86cpuid,
 	OPT_x86cpuid_ops,
 

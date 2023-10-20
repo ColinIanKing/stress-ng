@@ -332,6 +332,7 @@
 	MACRO(waitcpu)		\
 	MACRO(watchdog)		\
 	MACRO(wcs)		\
+	MACRO(workload)		\
 	MACRO(x86cpuid)		\
 	MACRO(x86syscall)	\
 	MACRO(xattr)		\
