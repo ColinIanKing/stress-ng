@@ -218,7 +218,7 @@ static void stress_workload_bucket_report(stress_workload_bucket_t *bucket)
 		(width1 * 2) + 4, "start time (us)",
 		width2, "count", "%");
 	for (i = 0; i < SIZEOF_ARRAY(bucket->bucket); i++) {
-		pr_inf("%*" PRIu64 " .. %*" PRIu64 " %*" PRIu64 " %4.1f\n",
+		pr_dbg("%*" PRIu64 " .. %*" PRIu64 " %*" PRIu64 " %4.1f\n",
 			width1, (uint64_t)(i * bucket->width),
 			width1, (uint64_t)((i + 1) * bucket->width) - 1,
 			width2, bucket->bucket[i],
