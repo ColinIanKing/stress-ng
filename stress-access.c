@@ -242,7 +242,7 @@ static int stress_access(const stress_args_t *args)
 	double rate;
 	bool report_chmod_error = true;
 	static const char *ignore_chmod_fs[] = {
-		"exfat", "msdos", "hfs", "fuse" 
+		"exfat", "msdos", "hfs", "fuse"
 	};
 
 	ret = stress_temp_dir_mk_args(args);
