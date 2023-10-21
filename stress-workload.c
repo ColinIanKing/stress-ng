@@ -342,7 +342,7 @@ static inline void stress_workload_waste_time(
 	double t;
 	static volatile uint64_t val = 0;
 
-	switch (stress_mwc8modn(8)) {
+	switch (stress_mwc8modn(9)) {
 	case 0:
 		while (stress_time_now() < t_end)
 			;
@@ -371,9 +371,13 @@ static inline void stress_workload_waste_time(
 			(void)stress_mwc64();
 		break;
 	case 7:
+		while (stress_time_now() < t_end)
+			(void)getpid();
+		break;
+	case 8:
 	default:
 		while ((t = stress_time_now()) < t_end) {
-			switch (stress_mwc8modn(7)) {
+			switch (stress_mwc8modn(8)) {
 			case 0:
 				break;
 			case 1:
@@ -393,6 +397,9 @@ static inline void stress_workload_waste_time(
 				(void)stress_mwc64();
 				break;
 			case 6:
+				(void)getpid();
+				break;
+			case 7:
 			default:
 				stress_workload_math(t, t_end);
 				break;
