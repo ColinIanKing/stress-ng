@@ -125,6 +125,41 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
+static void stress_workload_nop(void)
+{
+	register int i;
+
+	for (i = 0; i < 16; i++) {
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+		stress_asm_nop();
+	}
+}
+
+static void stress_workload_math(const double v1, const double v2)
+{
+	double r;
+
+	r = sqrt(v1) + hypot(v1, v1 + v2);
+	r += sqrt(v2) + hypot(v2, v1 + v2);
+	r += sqrt(v1 + v2);
+
+	stress_double_put(r);
+}
+
 static inline void stress_workload_waste_time(
 	const double run_duration_sec,
 	void *buffer,
@@ -132,24 +167,16 @@ static inline void stress_workload_waste_time(
 {
 	const double t_end = stress_time_now() + run_duration_sec;
 	double t;
+	static volatile uint64_t val = 0;
 
-	switch (stress_mwc8modn(4)) {
+	switch (stress_mwc8modn(8)) {
 	case 0:
 		while (stress_time_now() < t_end)
-			shim_sched_yield();
+			;
 		break;
-	default:
 	case 1:
-		while (stress_time_now() < t_end) {
-			stress_asm_nop();
-			stress_asm_nop();
-			stress_asm_nop();
-			stress_asm_nop();
-			stress_asm_nop();
-			stress_asm_nop();
-			stress_asm_nop();
-			stress_asm_nop();
-		}
+		while (stress_time_now() < t_end)
+			stress_workload_nop();
 		break;
 	case 2:
 		while (stress_time_now() < t_end)
@@ -160,9 +187,43 @@ static inline void stress_workload_waste_time(
 			shim_memmove(buffer, buffer + 1, buffer_len - 1);
 		break;
 	case 4:
+		while ((t = stress_time_now()) < t_end)
+			stress_workload_math(t, t_end);
+	case 5:
+		while ((t = stress_time_now()) < t_end)
+			val++;
+		break;
+	case 6:
+		while (stress_time_now() < t_end)
+			(void)stress_mwc64();
+		break;
+	case 7:
+	default:
 		while ((t = stress_time_now()) < t_end) {
-			double r = sqrt(t) + hypot(t, t_end + t);
-			stress_double_put(r);
+			switch (stress_mwc8modn(7)) {
+			case 0:
+				break;
+			case 1:
+				stress_workload_nop();
+				break;
+			case 2:
+				shim_memset(buffer, stress_mwc8(), buffer_len);
+				break;
+			case 3:
+				shim_memmove(buffer, buffer + 1, buffer_len - 1);
+				break;
+			case 4:
+				while ((t = stress_time_now()) < t_end)
+					val++;
+				break;
+			case 5:
+				(void)stress_mwc64();
+				break;
+			case 6:
+			default:
+				stress_workload_math(t, t_end);
+				break;
+			}
 		}
 		break;
 	}
