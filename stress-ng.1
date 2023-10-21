@@ -7876,6 +7876,9 @@ specify the percentage run time load of each work item with respect to the
 run quanta duration. Essentially the run duration of each work item is the
 quanta duration Q \(mu L / 100.
 .TP
+.B \-\-workload\-sched [ batch | deadline | idle | fifo | other | rr ]
+select scheduling policy. Note tha fifo and rr require root privilege to set.
+.TP
 .B \-\-workload\-slice\-us S
 specify the duration of each scheduling slice in microseconds. The default is
 100,000 microseconds (0.1 seconds).

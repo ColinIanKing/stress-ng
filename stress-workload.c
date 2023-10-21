@@ -27,6 +27,8 @@
 #define STRESS_WORKLOAD_DIST_RANDOM3	(3)
 #define STRESS_WORKLOAD_DIST_CLUSTER	(4)
 
+#define SCHED_UNDEFINED	(-1)
+
 typedef struct {
 	uint32_t when_us;
 } stress_workload_t;
@@ -35,6 +37,11 @@ typedef struct {
 	const char *name;
 	const int type;
 } stress_workload_dist_t;
+
+typedef struct {
+	const char *name;
+	const int policy;
+} stress_workload_sched_t;
 
 typedef struct {
 	double width;
@@ -49,18 +56,18 @@ static const stress_help_t help[] = {
 	{ NULL,	"workload-quanta-us N",	"max duration of each quanta work item in microseconds" },
 	{ NULL, "workload-slice-us N",	"duration of workload time load in microseconds" },
 	{ NULL,	"workload-dist type",	"workload distribution type [random1, random2, random3, cluster]" },
+	{ NULL, "workload-sched P",	"select scheduler policy [idle, fifo, rr, other, batch, deadline]" },
 	{ NULL,	NULL,			NULL }
-};
-
-static const stress_workload_dist_t workload_dist[] = {
-	{ "random1",	STRESS_WORKLOAD_DIST_RANDOM1 },
-	{ "random2",	STRESS_WORKLOAD_DIST_RANDOM2 },
-	{ "random3",	STRESS_WORKLOAD_DIST_RANDOM3 },
-	{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
 };
 
 static int stress_set_workload_dist(const char *opt)
 {
+	static const stress_workload_dist_t workload_dist[] = {
+		{ "random1",	STRESS_WORKLOAD_DIST_RANDOM1 },
+		{ "random2",	STRESS_WORKLOAD_DIST_RANDOM2 },
+		{ "random3",	STRESS_WORKLOAD_DIST_RANDOM3 },
+		{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
+	};
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(workload_dist); i++) {
@@ -71,6 +78,45 @@ static int stress_set_workload_dist(const char *opt)
 	(void)fprintf(stderr, "workload-dist must be one of:");
 	for (i = 0; i < SIZEOF_ARRAY(workload_dist); i++) {
 		(void)fprintf(stderr, " %s", workload_dist[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
+static const stress_workload_sched_t workload_scheds[] = {
+	{ "none",	SCHED_UNDEFINED },	/* Must be first */
+#if defined(SCHED_IDLE)
+	{ "idle",	SCHED_IDLE },
+#endif
+#if defined(SCHED_FIFO)
+	{ "fifo",	SCHED_FIFO },
+#endif
+#if defined(SCHED_RR)
+	{ "rr",		SCHED_RR },
+#endif
+#if defined(SCHED_OTHER)
+	{ "other",	SCHED_OTHER },
+#endif
+#if defined(SCHED_BATCH)
+	{ "batch",	SCHED_BATCH },
+#endif
+#if defined(SCHED_DEADLINE)
+	{ "deadline",	SCHED_DEADLINE },
+#endif
+};
+
+static int stress_set_workload_sched(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(workload_scheds); i++) {
+		if (strcmp(opt, workload_scheds[i].name) == 0)
+			return stress_set_setting("workload-sched", TYPE_ID_SIZE_T, &i);
+	}
+
+	(void)fprintf(stderr, "workload-sched must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(workload_scheds); i++) {
+		(void)fprintf(stderr, " %s", workload_scheds[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 	return -1;
@@ -118,12 +164,139 @@ static int stress_set_workload_slice_us(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_workload_dist,		stress_set_workload_dist },
 	{ OPT_workload_load,		stress_set_workload_load },
 	{ OPT_workload_quanta_us,	stress_set_workload_quanta_us },
+	{ OPT_workload_sched,		stress_set_workload_sched },
 	{ OPT_workload_slice_us,	stress_set_workload_slice_us },
-	{ OPT_workload_dist,		stress_set_workload_dist },
 	{ 0,				NULL }
 };
+
+static int stress_workload_set_sched(
+	const stress_args_t *args,
+	const size_t workload_sched)
+{
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
+    defined(HAVE_SCHED_SETATTR)
+	struct shim_sched_attr attr;
+#else
+	UNEXPECTED
+#endif
+	struct sched_param param;
+	int ret = 0;
+	int max_prio, min_prio, rng_prio;
+	const pid_t pid = getpid();
+	const char *policy_name;
+	int policy;
+
+	if ((workload_sched < 1) || (workload_sched >= SIZEOF_ARRAY(workload_scheds)))
+		return 0;
+
+	policy_name = workload_scheds[workload_sched].name;
+	policy = workload_scheds[workload_sched].policy;
+
+	errno = 0;
+	switch (policy) {
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
+    defined(HAVE_SCHED_SETATTR)
+	case SCHED_DEADLINE:
+		(void)shim_memset(&attr, 0, sizeof(attr));
+		attr.size = sizeof(attr);
+		attr.sched_flags = 0;
+		attr.sched_nice = 0;
+		attr.sched_priority = 0;
+		attr.sched_policy = SCHED_DEADLINE;
+		/* runtime <= deadline <= period */
+		attr.sched_runtime = 64 * 1000000;
+		attr.sched_deadline = 128 * 1000000;
+		attr.sched_period = 256 * 1000000;
+
+		ret = shim_sched_setattr(0, &attr, 0);
+		break;
+	CASE_FALLTHROUGH;
+#endif
+#if defined(SCHED_IDLE)
+	case SCHED_IDLE:
+		CASE_FALLTHROUGH;
+#endif
+#if defined(SCHED_BATCH)
+	case SCHED_BATCH:
+		CASE_FALLTHROUGH;
+#endif
+#if defined(SCHED_OTHER)
+	case SCHED_OTHER:
+#endif
+		param.sched_priority = 0;
+		ret = sched_setscheduler(pid, policy, &param);
+
+		break;
+#if defined(SCHED_RR)
+	case SCHED_RR:
+#if defined(HAVE_SCHED_RR_GET_INTERVAL)
+		{
+			struct timespec t;
+
+			VOID_RET(int, sched_rr_get_interval(pid, &t));
+		}
+#endif
+		CASE_FALLTHROUGH;
+#endif
+#if defined(SCHED_FIFO)
+		case SCHED_FIFO:
+#endif
+		min_prio = sched_get_priority_min(policy);
+		max_prio = sched_get_priority_max(policy);
+
+		/* Check if min/max is supported or not */
+		if ((min_prio == -1) || (max_prio == -1)) {
+			pr_inf("%s: cannot get min/max priority levels, not setting scheduler policy\n",
+				args->name);
+		}
+
+		rng_prio = max_prio - min_prio;
+		if (UNLIKELY(rng_prio == 0)) {
+			pr_err("%s: invalid min/max priority "
+				"range for scheduling policy %s "
+				"(min=%d, max=%d)\n",
+				args->name,
+				policy_name,
+				min_prio, max_prio);
+			break;
+		}
+		param.sched_priority = (int)stress_mwc32modn(rng_prio) + min_prio;
+		ret = sched_setscheduler(pid, policy, &param);
+		break;
+	default:
+		/* Should never get here */
+		break;
+	}
+
+	if (ret < 0) {
+		if (errno == EPERM) {
+			if (args->instance == 0)
+				pr_inf("%s: insufficient privilege to set scheduler to '%s'\n",
+					args->name, policy_name);
+			return 0;
+		}
+		/*
+		 *  Some systems return EINVAL for non-POSIX
+		 *  scheduling policies, silently ignore these
+		 *  failures.
+		 */
+		pr_inf("%s: sched_setscheduler "
+			"failed: errno=%d (%s) "
+			"for scheduler policy %s\n",
+			args->name, errno, strerror(errno),
+			policy_name);
+	} else {
+		if (args->instance == 0)
+			pr_inf("%s: using '%s' scheduler\n",
+				args->name, policy_name);
+	}
+	return ret;
+}
 
 static void stress_workload_nop(void)
 {
@@ -386,16 +559,18 @@ static int stress_workload(const stress_args_t *args)
 	uint32_t workload_slice_us = 100000;	/* 1/10th second */
 	uint32_t workload_quanta_us = 1000;	/* 1/1000th second */
 	uint32_t max_quanta;
+	size_t workload_sched = 0;		/* undefined */
 	int workload_dist = STRESS_WORKLOAD_DIST_CLUSTER;
 	stress_workload_t *workload;
 	void *buffer;
 	const size_t buffer_len = MB;
 	stress_workload_bucket_t slice_offset_bucket;
 
-	(void)stress_get_setting("workload-load", &workload_load);
-	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
-	(void)stress_get_setting("workload-quanta-us", &workload_quanta_us);
 	(void)stress_get_setting("workload-dist", &workload_dist);
+	(void)stress_get_setting("workload-load", &workload_load);
+	(void)stress_get_setting("workload-quanta-us", &workload_quanta_us);
+	(void)stress_get_setting("workload-sched", &workload_sched);
+	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
 
 	if (workload_quanta_us > workload_slice_us) {
 		pr_err("%s: workload-quanta-us %" PRIu32 " must be less "
@@ -424,6 +599,8 @@ static int stress_workload(const stress_args_t *args)
 	}
 
 	stress_workload_bucket_init(&slice_offset_bucket, (double)workload_slice_us);
+
+	stress_workload_set_sched(args, workload_sched);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
