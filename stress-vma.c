@@ -73,8 +73,8 @@ static const char *stress_vma_metrics_name[] = {
 	"mincore",	/* STRESS_VMA_MINCORE */
 	"mprotect",	/* STRESS_VMA_MPROTECT */
 	"msync",	/* STRESS_VMA_MSYNC */
-	"proc-maps",	/* STRESS_VMA_PROC_MAPS */
 	"accesses",	/* STRESS_VMA_ACCESS */
+	"proc-maps",	/* STRESS_VMA_PROC_MAPS */
 	"SIGSEGVs",	/* STRESS_VMA_SIGSEGV */
 	"SIGBUSes",	/* STRESS_VMA_SIGBUS */
 };
@@ -406,6 +406,7 @@ static void *stress_vma_maps(void *ptr)
 			while (read(fd, buf, sizeof(buf)) > 1)
 				;
 		}
+		stress_vma_metrics->metrics[STRESS_VMA_PROC_MAPS]++;
 		(void)close(fd);
 	}
 	return NULL;
