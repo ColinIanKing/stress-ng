@@ -700,6 +700,13 @@ do_stress --vm -1 --vm-madvise willneed --page-in
 
 do_stress --vm-addr -1 --vm-addr-mlock
 
+do_stress --workload -1 --workload-sched idle --workload-load 90
+do_stress --workload -1 --workload-sched other --workload-load 90
+do_stress --workload -1 --workload-sched batch --workload-load 90
+do_stress --workload -1 --workload-sched deadline --workload-load 90
+
+none idle fifo rr other batch deadline
+
 do_stress --zombie 1 --zombie-max 1000000
 
 #
