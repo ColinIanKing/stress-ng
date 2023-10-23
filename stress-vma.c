@@ -313,7 +313,7 @@ static void *stress_vma_mincore(void *ptr)
 		const size_t len = page_size * pages;
 		unsigned char vec[STRESS_VMA_PAGES];
 
-		if (mincore((void *)(data + offset), len, vec) == 0)
+		if (shim_mincore((void *)(data + offset), len, vec) == 0)
 			stress_vma_metrics->metrics[STRESS_VMA_MINCORE]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
