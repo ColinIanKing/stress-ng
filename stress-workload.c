@@ -17,8 +17,11 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpu-cache.h"
 #include "core-builtin.h"
 #include "core-put.h"
+#include "core-target-clones.h"
+#include "core-vecmath.h"
 
 #define NUM_BUCKETS	(20)
 
@@ -333,6 +336,50 @@ static void stress_workload_math(const double v1, const double v2)
 	stress_double_put(r);
 }
 
+static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const size_t buffer_len)
+{
+#if defined(HAVE_VECMATH)
+	typedef int64_t stress_vint64_t __attribute__ ((vector_size (128)));
+
+	register stress_vint64_t *ptr = (stress_vint64_t *)buffer;
+	register stress_vint64_t *end = (stress_vint64_t *)(((uintptr_t)buffer) + buffer_len);
+
+	while (ptr < end) {
+		stress_vint64_t v;
+
+		v = *(volatile stress_vint64_t *)&ptr[0];
+		(void)v;
+		ptr += 2;
+	}
+
+	shim_cacheflush(buffer, (int)buffer_len, SHIM_DCACHE);
+#else
+	register uint64_t *ptr = (uint64_t *)buffer;
+	register uint64_t *end = (uint64_t *)(((uintptr_t)buffer) + buffer_len);
+
+	shim_cacheflush(buffer, (int)buffer_len, SHIM_DCACHE);
+	while (ptr < end) {
+		(void)*(volatile uint64_t *)&ptr[0x00];
+		(void)*(volatile uint64_t *)&ptr[0x01];
+		(void)*(volatile uint64_t *)&ptr[0x02];
+		(void)*(volatile uint64_t *)&ptr[0x03];
+		(void)*(volatile uint64_t *)&ptr[0x04];
+		(void)*(volatile uint64_t *)&ptr[0x05];
+		(void)*(volatile uint64_t *)&ptr[0x06];
+		(void)*(volatile uint64_t *)&ptr[0x07];
+		(void)*(volatile uint64_t *)&ptr[0x08];
+		(void)*(volatile uint64_t *)&ptr[0x09];
+		(void)*(volatile uint64_t *)&ptr[0x0a];
+		(void)*(volatile uint64_t *)&ptr[0x0b];
+		(void)*(volatile uint64_t *)&ptr[0x0c];
+		(void)*(volatile uint64_t *)&ptr[0x0d];
+		(void)*(volatile uint64_t *)&ptr[0x0e];
+		(void)*(volatile uint64_t *)&ptr[0x0f];
+		ptr += 16;
+	}
+#endif
+}
+
 static inline void stress_workload_waste_time(
 	const double run_duration_sec,
 	void *buffer,
@@ -342,7 +389,7 @@ static inline void stress_workload_waste_time(
 	double t;
 	static volatile uint64_t val = 0;
 
-	switch (stress_mwc8modn(9)) {
+	switch (stress_mwc8modn(10)) {
 	case 0:
 		while (stress_time_now() < t_end)
 			;
@@ -376,9 +423,13 @@ static inline void stress_workload_waste_time(
 			(void)getpid();
 		break;
 	case 8:
+		while (stress_time_now() < t_end)
+			stress_workload_read(buffer, buffer_len);
+		break;
+	case 9:
 	default:
 		while ((t = stress_time_now()) < t_end) {
-			switch (stress_mwc8modn(8)) {
+			switch (stress_mwc8modn(9)) {
 			case 0:
 				break;
 			case 1:
@@ -401,9 +452,11 @@ static inline void stress_workload_waste_time(
 				(void)getpid();
 				break;
 			case 7:
-			default:
 				stress_workload_math(t, t_end);
 				break;
+			case 8:
+			default:
+				stress_workload_read(buffer, buffer_len);
 			}
 		}
 		break;
