@@ -65,14 +65,20 @@ static void stress_link_unlink(
 	const stress_args_t *args,
 	const uint64_t n)
 {
-	uint64_t i;
+	register uint64_t i;
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
 
-		(void)stress_temp_filename_args(args,
-			path, sizeof(path), i);
+		(void)stress_temp_filename_args(args, path, sizeof(path), i);
 		(void)shim_force_unlink(path);
+		/*
+		 *  Some file systems, such as minix 3 suffer from
+		 *  contention when multiple stressors hammer unlink
+		 *  so add a yield to try and help a little
+		 */
+		if ((i & 255) == 0)
+			shim_sched_yield();
 	}
 }
 
