@@ -362,6 +362,7 @@ static inline void stress_workload_waste_time(
 	case 4:
 		while ((t = stress_time_now()) < t_end)
 			stress_workload_math(t, t_end);
+		break;
 	case 5:
 		while ((t = stress_time_now()) < t_end)
 			val++;
