@@ -23,6 +23,14 @@
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
+#if defined(__NR_sched_getattr)
+#define HAVE_SCHED_GETATTR
+#endif
+
+#if defined(__NR_sched_setattr)
+#define HAVE_SCHED_SETATTR
+#endif
+
 #define NUM_BUCKETS	(20)
 
 #define STRESS_WORKLOAD_DIST_RANDOM1	(1)
@@ -175,6 +183,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
+     !defined(__OpenBSD__) &&						\
+     !defined(__minix__) &&						\
+     !defined(__APPLE__) &&						\
+     !defined(__serenity__)
 static int stress_workload_set_sched(
 	const stress_args_t *args,
 	const size_t workload_sched)
@@ -300,6 +313,17 @@ static int stress_workload_set_sched(
 	}
 	return ret;
 }
+#else
+static int stress_workload_set_sched(
+	const stress_args_t *args,
+	const size_t workload_sched)
+{
+	(void)args;
+	(void)workload_sched;
+
+	return 0;
+}
+#endif
 
 static void stress_workload_nop(void)
 {
@@ -663,7 +687,7 @@ static int stress_workload(const stress_args_t *args)
 
 	stress_workload_bucket_init(&slice_offset_bucket, (double)workload_slice_us);
 
-	stress_workload_set_sched(args, workload_sched);
+	(void)stress_workload_set_sched(args, workload_sched);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
