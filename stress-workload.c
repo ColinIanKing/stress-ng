@@ -714,7 +714,7 @@ static int stress_workload(const stress_args_t *args)
 
 stressor_info_t stress_workload_info = {
 	.stressor = stress_workload,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
