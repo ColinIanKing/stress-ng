@@ -916,7 +916,7 @@ stress_cpu_fp(_Decimal128, decimal128, shim_sinl, shim_cosl)
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_fp(__fp16, float16, shim_sin, shim_cos)
 #endif
-#if defined(HAVE_FLOAT32) &&	\
+#if defined(HAVE_Float32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_fp(_Float32, float32, shim_sin, shim_cos)
 #endif
@@ -2753,7 +2753,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
     !defined(HAVE_COMPILER_CLANG)
 	{ "float16",		stress_cpu_float16,		8885.55 },
 #endif
-#if defined(HAVE_FLOAT32) &&	\
+#if defined(HAVE_Float32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float32",		stress_cpu_float32,		8885.55 },
 #endif
