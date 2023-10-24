@@ -812,6 +812,7 @@ static int stress_workload(const stress_args_t *args)
 			"system does not have pthread or POSIX message queue "
 			"support, dropping back to single process workload "
 			"worker\n", args->name, workload_threads);
+		workload_threads = 0;
 #endif
 	}
 	if (args->instance == 0)
