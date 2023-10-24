@@ -1000,7 +1000,7 @@ stress_funcdeep_9(_Float32)
 stress_funccall_type(_Float32, (_Float32)stress_mwc32, cmp_ignore)
 #endif
 
-#if defined(HAVE_FLOAT64) &&	\
+#if defined(HAVE_Float64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 static inline void _Float64_put(const _Float64 a)
 {
@@ -1109,7 +1109,7 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
     !defined(HAVE_COMPILER_CLANG)
 	{ "float32",	stress_funccall__Float32 },
 #endif
-#if defined(HAVE_FLOAT64) &&	\
+#if defined(HAVE_Float64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float64",	stress_funccall__Float64 },
 #endif
