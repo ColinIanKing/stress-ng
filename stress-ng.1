@@ -7863,13 +7863,16 @@ that start at random times during the slice. The work items by default run
 for a quanta of 1000 microseconds scaled by the percentage work load (default of 30%).
 For a slice of S microseconds and a work item quanta duration of Q microseconds,
 S / Q work items are executed per slice. For a work load of L percent, the run time
-per item is the quanta Q \(mu L / 100 microseconds.
+per item is the quanta Q \(mu L / 100 microseconds.  The \-\-workload-\threads option
+allows work items to be taken from a queue and run concurrently if the scheduling
+run times overlap.
 .br
 If a work item is already running when a new work item is scheduled to run then
 the new work item is delayed and starts directly after the completion of the
-currently running work item. This emulates bursty scheduled compute, such as 
-handling input packets where one may have lots of work items bunched together
-or with random unpredictable delays between work items.
+currently running work item when running with the default of zero worker threads.
+This emulates bursty scheduled compute, such as handling input packets where
+one may have lots of work items bunched together or with random unpredictable
+delays between work items.
 .TP
 .B \-\-workload\-load L
 specify the percentage run time load of each work item with respect to the
@@ -7886,6 +7889,13 @@ specify the duration of each scheduling slice in microseconds. The default is
 .B \-\-workload\-quanta\-us Q
 specify the duration of each work item in microseconds. The defaut is 1000
 microseconds (1 millisecond).
+.TP
+.B \-\-workload\-threads N
+use N process threads to take scheduler work items of a workqueue and run the
+work item. When N is 0 (default), no threads are used and the work items are
+run back-to-back sequentially without using work queue. Using more than 2
+threads allows work items to be handled concurrently if enough idle processors
+are available.
 .TP
 .B \-\-workload\-dist [ random1 | random2 | random3 | cluster ]
 specify the scheduling distribution of work items, the defualt is cluster.

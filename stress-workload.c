@@ -23,6 +23,30 @@
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
+#if defined(HAVE_MQUEUE_H)
+#include <mqueue.h>
+#endif
+
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_MQUEUE_H)
+#define WORKLOAD_THREADED	(1)
+#endif
+
+typedef struct {
+#if defined(WORKLOAD_THREADED)
+	pthread_t pthread;
+#endif
+	int ret;
+} workload_thread_t;
+
+#if defined(WORKLOAD_THREADED)
+typedef struct {
+	mqd_t	mq;
+	void *buffer;
+	size_t buffer_len;
+} stress_workload_ctxt_t;
+#endif
+
 #if defined(__NR_sched_getattr)
 #define HAVE_SCHED_GETATTR
 #endif
@@ -38,10 +62,13 @@
 #define STRESS_WORKLOAD_DIST_RANDOM3	(3)
 #define STRESS_WORKLOAD_DIST_CLUSTER	(4)
 
+#define STRESS_WORKLOAD_THREADS		(4)
+
 #define SCHED_UNDEFINED	(-1)
 
 typedef struct {
 	uint32_t when_us;
+	double run_duration_sec;
 } stress_workload_t;
 
 typedef struct {
@@ -62,12 +89,13 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"workload N",		"start N workers that exercise a mix of scheduling loads" },
-	{ NULL,	"workload-ops N",	"stop after N workload bogo operations" },
-	{ NULL, "workload-load P",	"percentage load P per workload time slice" },
-	{ NULL,	"workload-quanta-us N",	"max duration of each quanta work item in microseconds" },
-	{ NULL, "workload-slice-us N",	"duration of workload time load in microseconds" },
 	{ NULL,	"workload-dist type",	"workload distribution type [random1, random2, random3, cluster]" },
+	{ NULL, "workload-load P",	"percentage load P per workload time slice" },
+	{ NULL,	"workload-ops N",	"stop after N workload bogo operations" },
+	{ NULL,	"workload-quanta-us N",	"max duration of each quanta work item in microseconds" },
 	{ NULL, "workload-sched P",	"select scheduler policy [idle, fifo, rr, other, batch, deadline]" },
+	{ NULL, "workload-slice-us N",	"duration of workload time load in microseconds" },
+	{ NULL,	"workload-threads N",	"number of workload threads workers to use, default is 0 (disabled)" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -174,12 +202,26 @@ static int stress_set_workload_slice_us(const char *opt)
 	return stress_set_setting("workload-slice-us", TYPE_ID_UINT32, &workload_slice_us);
 }
 
+/*
+ *  stress_set_workload_threads()
+ *	set number of concurrent workload threads
+ */
+static int stress_set_workload_threads(const char *opt)
+{
+	uint32_t workload_threads;
+
+	workload_threads = stress_get_uint32(opt);
+	stress_check_range("workload-threads", (uint64_t)workload_threads, 0, 1024);
+	return stress_set_setting("workload-threads", TYPE_ID_UINT32, &workload_threads);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_workload_dist,		stress_set_workload_dist },
 	{ OPT_workload_load,		stress_set_workload_load },
 	{ OPT_workload_quanta_us,	stress_set_workload_quanta_us },
 	{ OPT_workload_sched,		stress_set_workload_sched },
 	{ OPT_workload_slice_us,	stress_set_workload_slice_us },
+	{ OPT_workload_threads,		stress_set_workload_threads },
 	{ 0,				NULL }
 };
 
@@ -231,7 +273,6 @@ static int stress_workload_set_sched(
 
 		ret = shim_sched_setattr(0, &attr, 0);
 		break;
-	CASE_FALLTHROUGH;
 #endif
 #if defined(SCHED_IDLE)
 	case SCHED_IDLE:
@@ -435,7 +476,7 @@ static inline void stress_workload_waste_time(
 			stress_workload_math(t, t_end);
 		break;
 	case 5:
-		while ((t = stress_time_now()) < t_end)
+		while (stress_time_now() < t_end)
 			val++;
 		break;
 	case 6:
@@ -569,9 +610,13 @@ static int stress_workload_cmp(const void *p1, const void *p2)
 
 static int stress_workload_exercise(
 	const stress_args_t *args,
+#if defined(WORKLOAD_THREADED)
+	const mqd_t mq,
+#endif
 	const uint32_t workload_load,
 	const uint32_t workload_slice_us,
 	const uint32_t workload_quanta_us,
+	const uint32_t workload_threads,
 	const uint32_t max_quanta,
 	const int workload_dist,
 	stress_workload_t *workload,
@@ -581,8 +626,7 @@ static int stress_workload_exercise(
 {
 	size_t i;
 	const double scale_us_to_sec = 1.0 / STRESS_DBL_MICROSECOND;
-	double t_begin = stress_time_now();
-	double t_end = t_begin + ((double)workload_slice_us * scale_us_to_sec);
+	double t_begin = stress_time_now(), t_end;
 	double sleep_duration_ns, run_duration_sec;
 	uint32_t offset;
 
@@ -590,27 +634,36 @@ static int stress_workload_exercise(
 
 	switch (workload_dist) {
 	case STRESS_WORKLOAD_DIST_RANDOM1:
-		for (i = 0; i < max_quanta; i++)
+		for (i = 0; i < max_quanta; i++) {
 			workload[i].when_us = stress_mwc32modn(workload_slice_us - workload_quanta_us);
+			workload[i].run_duration_sec = run_duration_sec;
+		}
 		break;
 	case STRESS_WORKLOAD_DIST_RANDOM2:
-		for (i = 0; i < max_quanta; i++)
+		for (i = 0; i < max_quanta; i++) {
 			workload[i].when_us = (stress_mwc32modn(workload_slice_us - workload_quanta_us) +
 					       stress_mwc32modn(workload_slice_us - workload_quanta_us)) / 2;
+			workload[i].run_duration_sec = run_duration_sec;
+		}
 		break;
 	case STRESS_WORKLOAD_DIST_RANDOM3:
 		for (i = 0; i < max_quanta; i++) {
 			workload[i].when_us = (stress_mwc32modn(workload_slice_us - workload_quanta_us) +
 					       stress_mwc32modn(workload_slice_us - workload_quanta_us) +
 					       stress_mwc32modn(workload_slice_us - workload_quanta_us)) / 3;
+			workload[i].run_duration_sec = run_duration_sec;
 		}
 		break;
 	case STRESS_WORKLOAD_DIST_CLUSTER:
 		offset = stress_mwc32modn(workload_slice_us / 2);
-		for (i = 0; i < (max_quanta * 2) / 3; i++)
+		for (i = 0; i < (max_quanta * 2) / 3; i++) {
 			workload[i].when_us = stress_mwc32modn(workload_quanta_us) + offset;
-		for (; i < max_quanta; i++)
+			workload[i].run_duration_sec = run_duration_sec;
+		}
+		for (; i < max_quanta; i++) {
 			workload[i].when_us = stress_mwc32modn(workload_slice_us - workload_quanta_us);
+			workload[i].run_duration_sec = run_duration_sec;
+		}
 		break;
 	}
 
@@ -629,8 +682,18 @@ static int stress_workload_exercise(
 			shim_sched_yield();
 		}
 		stress_workload_bucket_account(slice_offset_bucket, STRESS_DBL_MICROSECOND * (stress_time_now() - t_begin));
-		if (run_duration_sec > 0.0)
-			stress_workload_waste_time(run_duration_sec, buffer, buffer_len);
+		if (run_duration_sec > 0.0) {
+			if (workload_threads) {
+#if defined(WORKLOAD_THREADED)
+				(void)mq_send(mq, (const char *)&workload[i], sizeof(workload[i]), 0);
+				shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
+#else
+				stress_workload_waste_time(run_duration_sec, buffer, buffer_len);
+#endif
+			} else {
+				stress_workload_waste_time(run_duration_sec, buffer, buffer_len);
+			}
+		}
 		stress_bogo_inc(args);
 	}
 	sleep_duration_ns = (t_end - stress_time_now()) * STRESS_DBL_NANOSECOND;
@@ -640,11 +703,36 @@ static int stress_workload_exercise(
 	return EXIT_SUCCESS;
 }
 
+#if defined(WORKLOAD_THREADED)
+static void *stress_workload_thread(void *ctxt)
+{
+	stress_workload_ctxt_t *c = (stress_workload_ctxt_t *)ctxt;
+
+	for (;;) {
+		unsigned int prio;
+		ssize_t ret;
+		stress_workload_t wl;
+
+		ret = mq_receive(c->mq, (char *)&wl, sizeof(wl), &prio);
+		if (ret == sizeof(wl))
+			stress_workload_waste_time(wl.run_duration_sec, c->buffer, c->buffer_len);
+		else {
+			if ((errno == EINTR) || (errno == ETIMEDOUT)) {
+				continue;
+			}
+			break;
+		}
+	}
+	return NULL;
+}
+#endif
+
 static int stress_workload(const stress_args_t *args)
 {
 	uint32_t workload_load = 30;
 	uint32_t workload_slice_us = 100000;	/* 1/10th second */
 	uint32_t workload_quanta_us = 1000;	/* 1/1000th second */
+	uint32_t workload_threads = 0;		/* 0 = disabled */
 	uint32_t max_quanta;
 	size_t workload_sched = 0;		/* undefined */
 	int workload_dist = STRESS_WORKLOAD_DIST_CLUSTER;
@@ -652,18 +740,94 @@ static int stress_workload(const stress_args_t *args)
 	void *buffer;
 	const size_t buffer_len = MB;
 	stress_workload_bucket_t slice_offset_bucket;
+	int rc = EXIT_SUCCESS;
+#if defined(WORKLOAD_THREADED)
+	workload_thread_t *threads = NULL;
+	char mq_name[64];
+	mqd_t mq = (mqd_t)-1;
+	uint32_t i;
+#endif
 
 	(void)stress_get_setting("workload-dist", &workload_dist);
 	(void)stress_get_setting("workload-load", &workload_load);
 	(void)stress_get_setting("workload-quanta-us", &workload_quanta_us);
 	(void)stress_get_setting("workload-sched", &workload_sched);
 	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
+	(void)stress_get_setting("workload-threads", &workload_threads);
+
+	buffer = mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (buffer == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap %zd sized buffer, "
+			"skipping stressor\n", args->name, buffer_len);
+		return EXIT_NO_RESOURCE;
+	}
+
+	if (workload_threads > 0) {
+#if defined(WORKLOAD_THREADED)
+		struct mq_attr attr;
+		stress_workload_ctxt_t c;
+		uint32_t threads_started = 0;
+
+		(void)snprintf(mq_name, sizeof(mq_name), "/%s-%jd-%" PRIu32,
+			args->name, (intmax_t)args->pid, args->instance);
+		attr.mq_flags = 0;
+		attr.mq_maxmsg = 10;
+		attr.mq_msgsize = sizeof(stress_workload_t);
+                attr.mq_curmsgs = 0;
+		mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+		if (mq < 0) {
+			pr_inf_skip("%s: cannot create message queue, errno=%d (%s), "
+				"skipping stressor\n", args->name,
+				errno, strerror(errno));
+			rc = EXIT_NO_RESOURCE;
+			goto exit_free_buffer;
+		}
+		threads = calloc((size_t)workload_threads, sizeof(*threads));
+		if (!threads) {
+			pr_inf_skip("%s: failed to allocate %" PRIu32 " thread "
+				"descriptors, skipping stressor\n",
+				args->name, workload_threads);
+			rc = EXIT_NO_RESOURCE;
+			goto exit_close_mq;
+		}
+
+		c.buffer = buffer;
+		c.buffer_len = buffer_len;
+		c.mq = mq;
+		for (i = 0; i < workload_threads; i++) {
+			threads[i].ret = pthread_create(&threads[i].pthread, NULL,
+                                stress_workload_thread, (void *)&c);
+			if (threads[i].ret == 0)
+				threads_started++;
+		}
+		if (threads_started == 0) {
+			pr_inf_skip("%s: no threads started, skipping stressor\n",
+				args->name);
+			rc = EXIT_NO_RESOURCE;
+			goto exit_close_mq;
+		}
+#else
+		pr_inf("%s: %" PRIu32 " workload threads were requested but "
+			"system does not have pthread or POSIX message queue "
+			"support, dropping back to single process workload "
+			"worker\n", args->name, workload_threads);
+#endif
+	}
+	if (args->instance == 0)
+		pr_inf("%s: running with %" PRIu32 " threads per stressor instance\n",
+			args->name, workload_threads);
 
 	if (workload_quanta_us > workload_slice_us) {
 		pr_err("%s: workload-quanta-us %" PRIu32 " must be less "
 			"than workload-slice-us %" PRIu32 "\n",
 			args->name, workload_quanta_us, workload_slice_us);
-		return EXIT_FAILURE;
+		rc =  EXIT_FAILURE;
+#if defined(WORKLOAD_THREADED)
+		goto exit_close_mq;
+#else
+		goto exit_free_buffer;
+#endif
 	}
 
 	max_quanta = workload_slice_us / workload_quanta_us;
@@ -674,15 +838,12 @@ static int stress_workload(const stress_args_t *args)
 	if (!workload) {
 		pr_inf_skip("%s: cannot allocate %" PRIu32 " scheduler workload timings, "
 			"skipping stressor\n", args->name, max_quanta);
-		return EXIT_NO_RESOURCE;
-	}
-	buffer = mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (buffer == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd sized buffer, "
-			"skipping stressor\n", args->name, buffer_len);
-		free(workload);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+#if defined(WORKLOAD_THREADED)
+		goto exit_close_mq;
+#else
+		goto exit_free_buffer;
+#endif
 	}
 
 	stress_workload_bucket_init(&slice_offset_bucket, (double)workload_slice_us);
@@ -692,9 +853,14 @@ static int stress_workload(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_workload_exercise(args, workload_load,
+		stress_workload_exercise(args,
+#if defined(WORKLOAD_THREADED)
+					mq,
+#endif
+					workload_load,
 					workload_slice_us,
 					workload_quanta_us,
+					workload_threads,
 					max_quanta, workload_dist,
 					workload,
 					&slice_offset_bucket,
@@ -706,10 +872,25 @@ static int stress_workload(const stress_args_t *args)
 	if (args->instance == 0)
 		stress_workload_bucket_report(&slice_offset_bucket);
 
-	(void)munmap(buffer, buffer_len);
 	free(workload);
 
-	return EXIT_SUCCESS;
+#if defined(WORKLOAD_THREADED)
+exit_close_mq:
+	if (mq >= 0) {
+		(void)mq_close(mq);
+		(void)mq_unlink(mq_name);
+	}
+	for (i = 0; i < workload_threads; i++) {
+		if (threads[i].ret == 0) {
+			VOID_RET(int, pthread_cancel(threads[i].pthread));
+			VOID_RET(int, pthread_join(threads[i].pthread, NULL));
+		}
+	}
+	free(threads);
+#endif
+exit_free_buffer:
+	(void)munmap(buffer, buffer_len);
+	return rc;
 }
 
 stressor_info_t stress_workload_info = {
