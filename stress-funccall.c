@@ -1029,7 +1029,7 @@ stress_funccall_type(_Float64, (_Float64)stress_mwc64, cmp_ignore)
 #endif
 
 
-#if defined(HAVE_FLOAT80) &&	\
+#if defined(HAVE__float80) &&	\
     !defined(HAVE_COMPILER_CLANG)
 static inline void __float80_put(const __float80 a)
 {
@@ -1113,7 +1113,7 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
     !defined(HAVE_COMPILER_CLANG)
 	{ "float64",	stress_funccall__Float64 },
 #endif
-#if defined(HAVE_FLOAT80) &&	\
+#if defined(HAVE__float80) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float80",	stress_funccall___float80 },
 #endif

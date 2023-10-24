@@ -26,7 +26,7 @@
 
 /* Currently division with float 80 on ICC trips SIGFPEs, so disable */
 #if defined(__ICC)
-#undef HAVE_FLOAT80
+#undef HAVE__float80
 #endif
 #if defined(__OpenBSD__)
 #undef HAVE_FLOAT128
@@ -93,7 +93,7 @@ typedef struct {
 		_Float64 mul_rev;	/* value to multiply to revert back */
 	} f64;
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 	struct {
 		__float80 r_init;	/* initialization value for r */
 		__float80 r[2];		/* result of computation */
@@ -269,7 +269,7 @@ STRESS_FP_MUL(f64, stress_fp_float64_mul, false)
 STRESS_FP_DIV(f64, stress_fp_float64_div, false)
 #endif
 
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 STRESS_FP_ADD(f80, stress_fp_float80_add, false)
 STRESS_FP_MUL(f80, stress_fp_float80_mul, false)
 STRESS_FP_DIV(f80, stress_fp_float80_div, false)
@@ -296,7 +296,7 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE_FLOAT128)
 	{ "float128add",	"float128 add",		stress_fp_float128_add,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 	{ "float80add",		"float80 add",		stress_fp_float80_add,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
 #endif
 #if defined(HAVE_Float64)
@@ -312,7 +312,7 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE_FLOAT128)
 	{ "float128mul",	"float128 multiply",	stress_fp_float128_mul,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 	{ "float80mul",		"float80 multiply",	stress_fp_float80_mul,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
 #endif
 #if defined(HAVE_Float64)
@@ -328,7 +328,7 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE_FLOAT128)
 	{ "float128div",	"float128 divide",	stress_fp_float128_div,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 	{ "float80div",		"float80 divide",	stress_fp_float80_div,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
 #endif
 #if defined(HAVE_Float64)
@@ -434,7 +434,7 @@ static void stress_fp_call_method(
 				r1 = (long double)fp_data[i].f64.r[1];
 				break;
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 			case STRESS_FP_TYPE_FLOAT80:
 				ret = memcmp(&fp_data[i].f80.r[0], &fp_data[i].f80.r[1], sizeof(fp_data[i].f80.r[0]));
 				r0 = (long double)fp_data[i].f80.r[0];
@@ -551,7 +551,7 @@ static int stress_fp(const stress_args_t *args)
 		fp_data[i].f64.r[1] = (_Float64)ld;
 #endif
 
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 		fp_data[i].f80.r_init = (__float80)ld;
 		fp_data[i].f80.r[0] = (__float80)ld;
 		fp_data[i].f80.r[1] = (__float80)ld;
@@ -574,7 +574,7 @@ static int stress_fp(const stress_args_t *args)
 #if defined(HAVE_Float64)
 		fp_data[i].f64.add = (_Float64)ld;
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 		fp_data[i].f80.add = (__float80)ld;
 #endif
 #if defined(HAVE_FLOAT128)
@@ -591,7 +591,7 @@ static int stress_fp(const stress_args_t *args)
 #if defined(HAVE_Float64)
 		fp_data[i].f64.add_rev = (_Float64)ld;
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 		fp_data[i].f80.add_rev = (__float80)ld;
 #endif
 #if defined(HAVE_FLOAT128)
@@ -609,7 +609,7 @@ static int stress_fp(const stress_args_t *args)
 #if defined(HAVE_Float64)
 		fp_data[i].f64.mul = (_Float64)ld;
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 		fp_data[i].f80.mul = (__float80)ld;
 #endif
 #if defined(HAVE_FLOAT128)
@@ -626,7 +626,7 @@ static int stress_fp(const stress_args_t *args)
 #if defined(HAVE_Float64)
 		fp_data[i].f64.mul_rev = (_Float64)ld;
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE__float80)
 		fp_data[i].f80.mul_rev = (__float80)ld;
 #endif
 #if defined(HAVE_FLOAT128)

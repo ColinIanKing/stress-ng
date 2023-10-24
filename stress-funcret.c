@@ -168,7 +168,7 @@ stress_funcret_deep1(_Decimal128)
 stress_funcret_deeper1(_Decimal128)
 #endif
 
-#if defined(HAVE_FLOAT80) &&		\
+#if defined(HAVE__float80) &&		\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret1(__float80)
 stress_funcret_deep1(__float80)
@@ -267,7 +267,7 @@ stress_funcret_type(_Decimal64, cmp_fp)
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(_Decimal128, cmp_fp)
 #endif
-#if defined(HAVE_FLOAT80) &&		\
+#if defined(HAVE__float80) &&		\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(__float80, cmp_fp)
 #endif
@@ -297,7 +297,7 @@ static const stress_funcret_method_info_t stress_funcret_methods[] = {
 	{ "float",	stress_funcret_float },
 	{ "double",	stress_funcret_double },
 	{ "longdouble",	stress_funcret_stress_long_double_t },
-#if defined(HAVE_FLOAT80) &&	\
+#if defined(HAVE__float80) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float80",	stress_funcret___float80 },
 #endif
