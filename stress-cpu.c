@@ -931,6 +931,9 @@ stress_cpu_fp(__float80, float80, shim_sinl, shim_cosl)
 #if defined(HAVE__float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_fp(__float128, float128, shim_sinl, shim_cosl)
+#elif defined(HAVE_Float128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+stress_cpu_fp(_Float128, float128, shim_sinl, shim_cosl)
 #endif
 
 /* Append floating point literal specifier to literal value */
@@ -2766,6 +2769,9 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "float80",		stress_cpu_float80,		1699.80 },
 #endif
 #if defined(HAVE__float128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float128",		stress_cpu_float128,		725.41 },
+#elif defined(HAVE_Float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float128",		stress_cpu_float128,		725.41 },
 #endif

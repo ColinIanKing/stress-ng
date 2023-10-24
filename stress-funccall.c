@@ -1083,6 +1083,32 @@ stress_funcdeep_7(__float128)
 stress_funcdeep_8(__float128)
 stress_funcdeep_9(__float128)
 stress_funccall_type(__float128, (__float128)stress_mwc64, cmp_fp)
+#elif defined(HAVE_Float128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline void _Float128_put(const _Float128 a)
+{
+	g_put_val.double_val = (double)a;
+}
+
+stress_funccall_1(_Float128)
+stress_funccall_2(_Float128)
+stress_funccall_3(_Float128)
+stress_funccall_4(_Float128)
+stress_funccall_5(_Float128)
+stress_funccall_6(_Float128)
+stress_funccall_7(_Float128)
+stress_funccall_8(_Float128)
+stress_funccall_9(_Float128)
+stress_funcdeep_1(_Float128)
+stress_funcdeep_2(_Float128)
+stress_funcdeep_3(_Float128)
+stress_funcdeep_4(_Float128)
+stress_funcdeep_5(_Float128)
+stress_funcdeep_6(_Float128)
+stress_funcdeep_7(_Float128)
+stress_funcdeep_8(_Float128)
+stress_funcdeep_9(_Float128)
+stress_funccall_type(_Float128, (_Float128)stress_mwc64, cmp_fp)
 #endif
 
 static bool stress_funccall_all(const stress_args_t *args);
@@ -1120,6 +1146,9 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
 #if defined(HAVE__float128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float128",	stress_funccall___float128 },
+#elif defined(HAVE_Float128) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float128",	stress_funccall__Float128 },
 #endif
 	{ "double",	stress_funccall_double },
 	{ "longdouble",	stress_funccall_stress_long_double_t },
