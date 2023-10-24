@@ -39,9 +39,9 @@
  *  math with some compilers, so disable this for now
  */
 #if defined(STRESS_ARCH_S390)
-#undef HAVE_FLOAT_DECIMAL32
-#undef HAVE_FLOAT_DECIMAL64
-#undef HAVE_FLOAT_DECIMAL128
+#undef HAVE_Decimal32
+#undef HAVE_Decimal64
+#undef HAVE_Decimal128
 #endif
 
 #define GAMMA 		(0.57721566490153286060651209008240243104215933593992L)
@@ -900,15 +900,15 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 stress_cpu_fp(float, float, shim_sinf, shim_cosf)
 stress_cpu_fp(double, double, shim_sin, shim_cos)
 stress_cpu_fp(long double, longdouble, shim_sinl, shim_cosl)
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_fp(_Decimal32, decimal32, shim_sinf, shim_cosf)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_fp(_Decimal64, decimal64, shim_sin, shim_cos)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_fp(_Decimal128, decimal128, shim_sinl, shim_cosl)
 #endif
@@ -1112,7 +1112,7 @@ stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
 	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sinl, shim_cosl)
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
@@ -1120,7 +1120,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	(_Decimal32)shim_sinf, (_Decimal32)shim_cosf)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
@@ -1128,7 +1128,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
 	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	(_Decimal64)shim_sin, (_Decimal64)shim_cos)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
 	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
@@ -2716,15 +2716,15 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "collatz",		stress_cpu_collatz,		860193.45 },
 	{ "correlate",		stress_cpu_correlate,		216.02 },
 	{ "crc16",		stress_cpu_crc16,		249.93 },
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal32",		stress_cpu_decimal32,		724.47 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal64",		stress_cpu_decimal64,		916.39 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal128",		stress_cpu_decimal128,		330.52 },
 #endif
@@ -2788,15 +2788,15 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "int128float",	stress_cpu_int128_float,	18312.51 },
 	{ "int128double",	stress_cpu_int128_double,	9798.38 },
 	{ "int128longdouble",	stress_cpu_int128_longdouble,	1397.33 },
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "int128decimal32",	stress_cpu_int128_decimal32,	1696.86 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "int128decimal64",	stress_cpu_int128_decimal64,	2242.01 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "int128decimal128",	stress_cpu_int128_decimal128,	347.19 },
 #endif

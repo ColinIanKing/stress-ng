@@ -53,16 +53,16 @@ STRESS_PRAGMA_NO_HARD_DFP
  *  floating point is supported as the
  *  least risky default
  */
-#undef HAVE_FLOAT_DECIMAL32
-#undef HAVE_FLOAT_DECIMAL64
-#undef HAVE_FLOAT_DECIMAL128
+#undef HAVE_Decimal32
+#undef HAVE_Decimal64
+#undef HAVE_Decimal128
 #endif
 #endif
 
 #if defined(STRESS_ARCH_SH4)
-#undef HAVE_FLOAT_DECIMAL32
-#undef HAVE_FLOAT_DECIMAL64
-#undef HAVE_FLOAT_DECIMAL128
+#undef HAVE_Decimal32
+#undef HAVE_Decimal64
+#undef HAVE_Decimal128
 #endif
 
 typedef bool (*stress_funccall_func)(const stress_args_t *args);
@@ -860,7 +860,7 @@ stress_funcdeep_9(stress_complex_long_double_t)
 stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble, cmp_cmplx)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 static inline void _Decimal32_put(const _Decimal32 a)
 {
@@ -888,7 +888,7 @@ stress_funcdeep_9(_Decimal32)
 stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64, cmp_ignore)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 static inline void _Decimal64_put(const _Decimal64 a)
 {
@@ -916,7 +916,7 @@ stress_funcdeep_9(_Decimal64)
 stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64, cmp_ignore)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 static inline void _Decimal128_put(const _Decimal128 a)
 {
@@ -1131,15 +1131,15 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
 	{ "cdouble",	stress_funccall_stress_complex_double_t },
 	{ "clongdouble",stress_funccall_stress_complex_long_double_t },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal32",	stress_funccall__Decimal32 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
      !defined(HAVE_COMPILER_CLANG)
 	{ "decimal64",	stress_funccall__Decimal64 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal128",	stress_funccall__Decimal128 },
 #endif

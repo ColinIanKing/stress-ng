@@ -40,9 +40,9 @@ STRESS_PRAGMA_NO_HARD_DFP
  *  floating point is supported as the
  *  least risky default
  */
-#undef HAVE_FLOAT_DECIMAL32
-#undef HAVE_FLOAT_DECIMAL64
-#undef HAVE_FLOAT_DECIMAL128
+#undef HAVE_Decimal32
+#undef HAVE_Decimal64
+#undef HAVE_Decimal128
 #endif
 #endif
 
@@ -147,21 +147,21 @@ stress_funcret1(stress_long_double_t)
 stress_funcret_deep1(stress_long_double_t)
 stress_funcret_deeper1(stress_long_double_t)
 
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret1(_Decimal32)
 stress_funcret_deep1(_Decimal32)
 stress_funcret_deeper1(_Decimal32)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret1(_Decimal64)
 stress_funcret_deep1(_Decimal64)
 stress_funcret_deeper1(_Decimal64)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret1(_Decimal128)
 stress_funcret_deep1(_Decimal128)
@@ -255,15 +255,15 @@ stress_funcret_type(double, cmp_fp)
 
 stress_funcret_type(stress_long_double_t, cmp_fp)
 
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(_Decimal32, cmp_fp)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(_Decimal64, cmp_fp)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(_Decimal128, cmp_fp)
 #endif
@@ -305,15 +305,15 @@ static const stress_funcret_method_info_t stress_funcret_methods[] = {
     !defined(HAVE_COMPILER_CLANG)
 	{ "float128",	stress_funcret___float128 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+#if defined(HAVE_Decimal32) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal32",	stress_funcret__Decimal32 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+#if defined(HAVE_Decimal64) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal64",	stress_funcret__Decimal64 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+#if defined(HAVE_Decimal128) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "decimal128",	stress_funcret__Decimal128 },
 #endif
