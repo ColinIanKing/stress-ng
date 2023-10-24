@@ -776,7 +776,7 @@ static int stress_workload(const stress_args_t *args)
 		attr.mq_msgsize = sizeof(stress_workload_t);
                 attr.mq_curmsgs = 0;
 		mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
-		if (mq < 0) {
+		if (mq == (mqd_t)-1) {
 			pr_inf_skip("%s: cannot create message queue, errno=%d (%s), "
 				"skipping stressor\n", args->name,
 				errno, strerror(errno));
@@ -876,7 +876,7 @@ static int stress_workload(const stress_args_t *args)
 
 #if defined(WORKLOAD_THREADED)
 exit_close_mq:
-	if (mq >= 0) {
+	if (mq != (mqd_t)-1) {
 		(void)mq_close(mq);
 		(void)mq_unlink(mq_name);
 	}
