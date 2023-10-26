@@ -713,8 +713,16 @@ static int stress_workload_exercise(
 		if (run_duration_sec > 0.0) {
 			if (workload_threads) {
 #if defined(WORKLOAD_THREADED)
+				double sleep_secs;
+
+				if (i == (max_quanta - 1)) {
+					sleep_secs = t_end - stress_time_now();
+				} else {
+					sleep_secs = (workload[i + 1].when_us - workload[i].when_us) / STRESS_DBL_MICROSECOND;
+				}
 				(void)mq_send(mq, (const char *)&workload[i], sizeof(workload[i]), 0);
-				shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
+				if (sleep_secs > 0.0)
+					shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
 #else
 				stress_workload_waste_time(run_duration_sec, buffer, buffer_len);
 #endif
