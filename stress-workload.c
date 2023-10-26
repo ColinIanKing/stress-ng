@@ -773,6 +773,20 @@ static int stress_workload(const stress_args_t *args)
 	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
 	(void)stress_get_setting("workload-threads", &workload_threads);
 
+	if (args->instance == 0) {
+		uint32_t timer_slack_ns;
+
+		if (!stress_get_setting("timer-slack", &timer_slack_ns))
+			timer_slack_ns = 50000;
+
+		if (workload_quanta_us < timer_slack_ns / 1000) {
+			pr_inf("%s: workload-quanta-us %" PRIu32 " is less than the "
+				"timer_slack duration, use --timer-slack %" PRIu32
+				" for best results\n", args->name,
+				workload_quanta_us, workload_quanta_us * 1000);
+		}
+	}
+
 	buffer = mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buffer == MAP_FAILED) {
