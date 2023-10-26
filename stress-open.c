@@ -477,7 +477,7 @@ static int open_tmp_rdwr(
 	double *duration,
 	double *count)
 {
-	int flags = O_TMPFILE;
+	int fd, flags = O_TMPFILE;
 
 	(void)args;
 	(void)temp_dir;
@@ -497,7 +497,13 @@ static int open_tmp_rdwr(
 #endif
 	flags &= stress_mwc32();
 	flags |= O_TMPFILE | O_RDWR;
-	return open_arg3("/tmp", flags, S_IRUSR | S_IWUSR, duration, count);
+
+	/* try temp_dir first, some filesystems do not support this */
+	fd = open_arg3(temp_dir, flags, S_IRUSR | S_IWUSR, duration, count);
+	if (fd == -1)
+		fd = open_arg3("/tmp", flags, S_IRUSR | S_IWUSR, duration, count);
+
+	return fd;
 }
 #endif
 
