@@ -57,17 +57,18 @@ typedef struct {
 
 #define NUM_BUCKETS	(20)
 
-#define STRESS_WORKLOAD_DIST_RANDOM1	(1)
-#define STRESS_WORKLOAD_DIST_RANDOM2	(2)
-#define STRESS_WORKLOAD_DIST_RANDOM3	(3)
-#define STRESS_WORKLOAD_DIST_CLUSTER	(4)
+#define STRESS_WORKLOAD_DIST_CLUSTER	(0)
+#define STRESS_WORKLOAD_DIST_POISSON	(1)
+#define STRESS_WORKLOAD_DIST_RANDOM1	(2)
+#define STRESS_WORKLOAD_DIST_RANDOM2	(3)
+#define STRESS_WORKLOAD_DIST_RANDOM3	(4)
 
 #define STRESS_WORKLOAD_THREADS		(4)
 
 #define SCHED_UNDEFINED	(-1)
 
 typedef struct {
-	uint32_t when_us;
+	double when_us;
 	double run_duration_sec;
 } stress_workload_t;
 
@@ -102,10 +103,11 @@ static const stress_help_t help[] = {
 static int stress_set_workload_dist(const char *opt)
 {
 	static const stress_workload_dist_t workload_dist[] = {
+		{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
+		{ "poisson",	STRESS_WORKLOAD_DIST_POISSON },
 		{ "random1",	STRESS_WORKLOAD_DIST_RANDOM1 },
 		{ "random2",	STRESS_WORKLOAD_DIST_RANDOM2 },
 		{ "random3",	STRESS_WORKLOAD_DIST_RANDOM3 },
-		{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
 	};
 	size_t i;
 
@@ -597,8 +599,8 @@ static int stress_workload_cmp(const void *p1, const void *p2)
 	stress_workload_t *w1 = (stress_workload_t *)p1;
 	stress_workload_t *w2 = (stress_workload_t *)p2;
 
-	register uint32_t when1 = w1->when_us;
-	register uint32_t when2 = w2->when_us;
+	register double when1 = w1->when_us;
+	register double when2 = w2->when_us;
 
 	if (when1 < when2)
 		return -1;
@@ -628,6 +630,8 @@ static int stress_workload_exercise(
 	const double scale_us_to_sec = 1.0 / STRESS_DBL_MICROSECOND;
 	double t_begin = stress_time_now(), t_end;
 	double sleep_duration_ns, run_duration_sec;
+	double scale32bit = 1.0 / (double)4294967296.0;
+	double sum, scale;
 	uint32_t offset;
 
 	run_duration_sec = (double)workload_quanta_us * scale_us_to_sec * ((double)workload_load / 100.0);
@@ -635,36 +639,50 @@ static int stress_workload_exercise(
 	switch (workload_dist) {
 	case STRESS_WORKLOAD_DIST_RANDOM1:
 		for (i = 0; i < max_quanta; i++) {
-			workload[i].when_us = stress_mwc32modn(workload_slice_us - workload_quanta_us);
+			workload[i].when_us = (double)stress_mwc32modn(workload_slice_us - workload_quanta_us);
 			workload[i].run_duration_sec = run_duration_sec;
 		}
 		break;
 	case STRESS_WORKLOAD_DIST_RANDOM2:
 		for (i = 0; i < max_quanta; i++) {
-			workload[i].when_us = (stress_mwc32modn(workload_slice_us - workload_quanta_us) +
-					       stress_mwc32modn(workload_slice_us - workload_quanta_us)) / 2;
+			workload[i].when_us = (double)(stress_mwc32modn(workload_slice_us - workload_quanta_us) +
+					       stress_mwc32modn(workload_slice_us - workload_quanta_us)) / 2.0;
 			workload[i].run_duration_sec = run_duration_sec;
 		}
 		break;
 	case STRESS_WORKLOAD_DIST_RANDOM3:
 		for (i = 0; i < max_quanta; i++) {
-			workload[i].when_us = (stress_mwc32modn(workload_slice_us - workload_quanta_us) +
+			workload[i].when_us = (double)(stress_mwc32modn(workload_slice_us - workload_quanta_us) +
 					       stress_mwc32modn(workload_slice_us - workload_quanta_us) +
-					       stress_mwc32modn(workload_slice_us - workload_quanta_us)) / 3;
+					       stress_mwc32modn(workload_slice_us - workload_quanta_us)) / 3.0;
 			workload[i].run_duration_sec = run_duration_sec;
 		}
 		break;
 	case STRESS_WORKLOAD_DIST_CLUSTER:
 		offset = stress_mwc32modn(workload_slice_us / 2);
 		for (i = 0; i < (max_quanta * 2) / 3; i++) {
-			workload[i].when_us = stress_mwc32modn(workload_quanta_us) + offset;
+			workload[i].when_us = (double)(stress_mwc32modn(workload_quanta_us) + offset);
 			workload[i].run_duration_sec = run_duration_sec;
 		}
 		for (; i < max_quanta; i++) {
-			workload[i].when_us = stress_mwc32modn(workload_slice_us - workload_quanta_us);
+			workload[i].when_us = (double)stress_mwc32modn(workload_slice_us - workload_quanta_us);
 			workload[i].run_duration_sec = run_duration_sec;
 		}
 		break;
+	case STRESS_WORKLOAD_DIST_POISSON:
+		sum = 0.0;
+		for (i = 0; i < max_quanta; i++) {
+			double rnd = (double)stress_mwc32() * scale32bit;
+			double val = -log(1.0 - rnd);
+
+			sum += val;
+			workload[i].when_us = sum;
+		}
+		scale = (workload_slice_us - workload_quanta_us) / sum;
+		for (i = 0; i < max_quanta; i++) {
+			workload[i].when_us *= scale;
+			pr_inf("%f\n", workload[i].when_us);
+		}
 	}
 
 	qsort(workload, max_quanta, sizeof(*workload), stress_workload_cmp);
