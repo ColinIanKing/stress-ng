@@ -681,7 +681,7 @@ static int stress_workload_exercise(
 		scale = (workload_slice_us - workload_quanta_us) / sum;
 		for (i = 0; i < max_quanta; i++) {
 			workload[i].when_us *= scale;
-			pr_inf("%f\n", workload[i].when_us);
+			workload[i].run_duration_sec = run_duration_sec;
 		}
 	}
 
