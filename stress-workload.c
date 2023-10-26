@@ -884,6 +884,9 @@ static int stress_workload(const stress_args_t *args)
 	max_quanta = workload_slice_us / workload_quanta_us;
 	if (max_quanta < 1)
 		max_quanta = 1;
+	/* Scale workload by number of worker threads */
+	if (workload_threads > 0)
+		max_quanta *= workload_threads;
 
 	workload = calloc(max_quanta, sizeof(*workload));
 	if (!workload) {
