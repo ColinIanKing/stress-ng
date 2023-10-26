@@ -168,6 +168,42 @@ stress_funcret_deep1(_Decimal128)
 stress_funcret_deeper1(_Decimal128)
 #endif
 
+#if defined(HAVE_fp16) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret1(__fp16)
+stress_funcret_deep1(__fp16)
+stress_funcret_deeper1(__fp16)
+#elif defined(HAVE_Float16) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret1(_Float16)
+stress_funcret_deep1(_Float16)
+stress_funcret_deeper1(_Float16)
+#endif
+
+#if defined(HAVE__float32) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret1(__float32)
+stress_funcret_deep1(__float32)
+stress_funcret_deeper1(__float32)
+#elif defined(HAVE_Float32) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret1(_Float32)
+stress_funcret_deep1(_Float32)
+stress_funcret_deeper1(_Float32)
+#endif
+
+#if defined(HAVE__float64) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret1(__float64)
+stress_funcret_deep1(__float64)
+stress_funcret_deeper1(__float64)
+#elif defined(HAVE_Float64) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret1(_Float64)
+stress_funcret_deep1(_Float64)
+stress_funcret_deeper1(_Float64)
+#endif
+
 #if defined(HAVE__float80) &&		\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret1(__float80)
@@ -272,6 +308,27 @@ stress_funcret_type(_Decimal64, cmp_fp)
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(_Decimal128, cmp_fp)
 #endif
+#if defined(HAVE_fp16) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret_type(__fp16, cmp_fp)
+#elif defined(HAVE_Float16) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret_type(_Float16, cmp_fp)
+#endif
+#if defined(HAVE__float32) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret_type(__float32, cmp_fp)
+#elif defined(HAVE_Float32) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret_type(_Float32, cmp_fp)
+#endif
+#if defined(HAVE__float64) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret_type(__float64, cmp_fp)
+#elif defined(HAVE_Float64) &&		\
+    !defined(HAVE_COMPILER_CLANG)
+stress_funcret_type(_Float64, cmp_fp)
+#endif
 #if defined(HAVE__float80) &&		\
     !defined(HAVE_COMPILER_CLANG)
 stress_funcret_type(__float80, cmp_fp)
@@ -305,6 +362,27 @@ static const stress_funcret_method_info_t stress_funcret_methods[] = {
 	{ "float",	stress_funcret_float },
 	{ "double",	stress_funcret_double },
 	{ "longdouble",	stress_funcret_stress_long_double_t },
+#if defined(HAVE_fp16) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float16",	stress_funcret___fp16 },
+#elif defined(HAVE_Float16) && \
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float16",	stress_funcret__Float16 },
+#endif
+#if defined(HAVE__float32) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float32",	stress_funcret___float32 },
+#elif defined(HAVE_Float32) && \
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float32",	stress_funcret__Float32 },
+#endif
+#if defined(HAVE__float64) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float64",	stress_funcret___float64 },
+#elif defined(HAVE_Float64) && \
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float64",	stress_funcret__Float64 },
+#endif
 #if defined(HAVE__float80) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float80",	stress_funcret___float80 },

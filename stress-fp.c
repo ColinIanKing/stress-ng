@@ -35,11 +35,12 @@
 #define STRESS_FP_TYPE_LONG_DOUBLE	(0)
 #define STRESS_FP_TYPE_DOUBLE		(1)
 #define STRESS_FP_TYPE_FLOAT		(2)
-#define STRESS_FP_TYPE_FLOAT32		(3)
-#define STRESS_FP_TYPE_FLOAT64		(4)
-#define STRESS_FP_TYPE_FLOAT80		(5)
-#define STRESS_FP_TYPE_FLOAT128		(6)
-#define STRESS_FP_TYPE_ALL		(7)
+#define STRESS_FP_TYPE_FLOAT16		(4)
+#define STRESS_FP_TYPE_FLOAT32		(5)
+#define STRESS_FP_TYPE_FLOAT64		(6)
+#define STRESS_FP_TYPE_FLOAT80		(7)
+#define STRESS_FP_TYPE_FLOAT128		(8)
+#define STRESS_FP_TYPE_ALL		(9)
 
 static const stress_help_t help[] = {
 	{ NULL,	"fp N",	 	"start N workers performing floating point math ops" },
@@ -73,6 +74,16 @@ typedef struct {
 		float mul;		/* value to multiply */
 		float mul_rev;		/* value to multiply to revert back */
 	} f;
+#if defined(HAVE_Float16)
+	struct {
+		_Float16 r_init;	/* initialization value for r */
+		_Float16 r[2];		/* result of computation */
+		_Float16 add;		/* value to add */
+		_Float16 add_rev;	/* value to add to revert back */
+		_Float16 mul;		/* value to multiply */
+		_Float16 mul_rev;	/* value to multiply to revert back */
+	} f16;
+#endif
 #if defined(HAVE_Float32)
 	struct {
 		_Float32 r_init;	/* initialization value for r */
@@ -267,6 +278,12 @@ STRESS_FP_ADD(f, stress_fp_float_add, true)
 STRESS_FP_MUL(f, stress_fp_float_mul, true)
 STRESS_FP_DIV(f, stress_fp_float_div, true)
 
+#if defined(HAVE_Float16)
+STRESS_FP_ADD(f16, stress_fp_float16_add, false)
+STRESS_FP_MUL(f16, stress_fp_float16_mul, false)
+STRESS_FP_DIV(f16, stress_fp_float16_div, false)
+#endif
+
 #if defined(HAVE_Float32)
 STRESS_FP_ADD(f32, stress_fp_float32_add, false)
 STRESS_FP_MUL(f32, stress_fp_float32_mul, false)
@@ -317,6 +334,9 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE_Float32)
 	{ "float32add",		"float32 add",		stress_fp_float32_add,	STRESS_FP_TYPE_FLOAT32,		0.0, 0.0 },
 #endif
+#if defined(HAVE_Float16)
+	{ "float16add",		"float16 add",		stress_fp_float16_add,	STRESS_FP_TYPE_FLOAT16,		0.0, 0.0 },
+#endif
 	{ "floatadd",		"float add",		stress_fp_float_add,	STRESS_FP_TYPE_FLOAT,		0.0, 0.0 },
 	{ "doubleadd",		"double add",		stress_fp_double_add,	STRESS_FP_TYPE_DOUBLE,		0.0, 0.0 },
 	{ "ldoubleadd",		"long double add",	stress_fp_ldouble_add,	STRESS_FP_TYPE_LONG_DOUBLE,	0.0, 0.0 },
@@ -333,6 +353,9 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #endif
 #if defined(HAVE_Float32)
 	{ "float32mul",		"float32 multiply",	stress_fp_float32_mul,	STRESS_FP_TYPE_FLOAT32,		0.0, 0.0 },
+#endif
+#if defined(HAVE_Float16)
+	{ "float16mul",		"float16 multiply",	stress_fp_float16_mul,	STRESS_FP_TYPE_FLOAT16,		0.0, 0.0 },
 #endif
 	{ "floatmul",		"float multiply",	stress_fp_float_mul,	STRESS_FP_TYPE_FLOAT,		0.0, 0.0 },
 	{ "doublemul",		"double multiply",	stress_fp_double_mul,	STRESS_FP_TYPE_DOUBLE,		0.0, 0.0 },
@@ -351,6 +374,9 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE_Float32)
 	{ "float32div",		"float32 divide",	stress_fp_float32_div,	STRESS_FP_TYPE_FLOAT32,		0.0, 0.0 },
 #endif
+#if defined(HAVE_Float16)
+	{ "float16div",		"float16 divide",	stress_fp_float16_div,	STRESS_FP_TYPE_FLOAT16,		0.0, 0.0 },
+#endif
 	{ "floatdiv",		"float divide",		stress_fp_float_div,	STRESS_FP_TYPE_FLOAT,		0.0, 0.0 },
 	{ "doublediv",		"double divide",	stress_fp_double_div,	STRESS_FP_TYPE_DOUBLE,		0.0, 0.0 },
 	{ "ldoublediv",		"long double divide",	stress_fp_ldouble_div,	STRESS_FP_TYPE_LONG_DOUBLE,	0.0, 0.0 },
@@ -365,6 +391,7 @@ static const fp_type_map_t fp_type_map[] = {
 	{ STRESS_FP_TYPE_LONG_DOUBLE,	"long double" },
 	{ STRESS_FP_TYPE_DOUBLE,	"double" },
 	{ STRESS_FP_TYPE_FLOAT,		"float" },
+	{ STRESS_FP_TYPE_FLOAT16,	"float16" },
 	{ STRESS_FP_TYPE_FLOAT32,	"float32" },
 	{ STRESS_FP_TYPE_FLOAT64,	"float64" },
 	{ STRESS_FP_TYPE_FLOAT80,	"float80" },
@@ -554,6 +581,12 @@ static int stress_fp(const stress_args_t *args)
 		fp_data[i].f.r[0] = (float)ld;
 		fp_data[i].f.r[1] = (float)ld;
 
+#if defined(HAVE_Float16)
+		fp_data[i].f16.r_init = (_Float16)ld;
+		fp_data[i].f16.r[0] = (_Float16)ld;
+		fp_data[i].f16.r[1] = (_Float16)ld;
+#endif
+
 #if defined(HAVE_Float32)
 		fp_data[i].f32.r_init = (_Float32)ld;
 		fp_data[i].f32.r[0] = (_Float32)ld;
@@ -587,6 +620,9 @@ static int stress_fp(const stress_args_t *args)
 		fp_data[i].ld.add = ld;
 		fp_data[i].d.add = (double)ld;
 		fp_data[i].f.add = (float)ld;
+#if defined(HAVE_Float16)
+		fp_data[i].f16.add = (_Float16)ld;
+#endif
 #if defined(HAVE_Float32)
 		fp_data[i].f32.add = (_Float32)ld;
 #endif
@@ -606,6 +642,9 @@ static int stress_fp(const stress_args_t *args)
 		fp_data[i].ld.add_rev = ld;
 		fp_data[i].d.add_rev = (double)ld;
 		fp_data[i].f.add_rev = (float)ld;
+#if defined(HAVE_Float16)
+		fp_data[i].f16.add_rev = (_Float16)ld;
+#endif
 #if defined(HAVE_Float32)
 		fp_data[i].f32.add_rev = (_Float32)ld;
 #endif
@@ -626,6 +665,9 @@ static int stress_fp(const stress_args_t *args)
 		fp_data[i].ld.mul = ld;
 		fp_data[i].d.mul = (double)ld;
 		fp_data[i].f.mul = (float)ld;
+#if defined(HAVE_Float16)
+		fp_data[i].f16.mul = (_Float16)ld;
+#endif
 #if defined(HAVE_Float32)
 		fp_data[i].f32.mul = (_Float32)ld;
 #endif

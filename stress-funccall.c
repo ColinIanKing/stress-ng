@@ -944,7 +944,34 @@ stress_funcdeep_9(_Decimal128)
 stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64, cmp_ignore)
 #endif
 
-#if defined(HAVE_fp16) &&	\
+#if defined(HAVE_Float16) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+static inline void _Float16_put(const _Float16 a)
+{
+	g_put_val.float_val = (float)a;
+}
+
+stress_funccall_1(_Float16)
+stress_funccall_2(_Float16)
+stress_funccall_3(_Float16)
+stress_funccall_4(_Float16)
+stress_funccall_5(_Float16)
+stress_funccall_6(_Float16)
+stress_funccall_7(_Float16)
+stress_funccall_8(_Float16)
+stress_funccall_9(_Float16)
+stress_funcdeep_1(_Float16)
+stress_funcdeep_2(_Float16)
+stress_funcdeep_3(_Float16)
+stress_funcdeep_4(_Float16)
+stress_funcdeep_5(_Float16)
+stress_funcdeep_6(_Float16)
+stress_funcdeep_7(_Float16)
+stress_funcdeep_8(_Float16)
+stress_funcdeep_9(_Float16)
+stress_funccall_type(_Float16, (_Float16)stress_mwc32, cmp_fp)
+
+#elif defined(HAVE_fp16) &&	\
     !defined(HAVE_COMPILER_CLANG)
 static inline void __fp16_put(const __fp16 a)
 {
@@ -1127,7 +1154,10 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
 	{ "uint128",	stress_funccall___uint128_t },
 #endif
 	{ "float",	stress_funccall_float },
-#if defined(HAVE_fp16) &&	\
+#if defined(HAVE_Float16) &&	\
+    !defined(HAVE_COMPILER_CLANG)
+	{ "float16",	stress_funccall__Float16 },
+#elif defined(HAVE_fp16) &&	\
     !defined(HAVE_COMPILER_CLANG)
 	{ "float16",	stress_funccall___fp16 },
 #endif
