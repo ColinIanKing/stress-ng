@@ -58,10 +58,11 @@ typedef struct {
 #define NUM_BUCKETS	(20)
 
 #define STRESS_WORKLOAD_DIST_CLUSTER	(0)
-#define STRESS_WORKLOAD_DIST_POISSON	(1)
-#define STRESS_WORKLOAD_DIST_RANDOM1	(2)
-#define STRESS_WORKLOAD_DIST_RANDOM2	(3)
-#define STRESS_WORKLOAD_DIST_RANDOM3	(4)
+#define STRESS_WORKLOAD_DIST_EVEN	(1)
+#define STRESS_WORKLOAD_DIST_POISSON	(2)
+#define STRESS_WORKLOAD_DIST_RANDOM1	(3)
+#define STRESS_WORKLOAD_DIST_RANDOM2	(4)
+#define STRESS_WORKLOAD_DIST_RANDOM3	(5)
 
 #define STRESS_WORKLOAD_THREADS		(4)
 
@@ -104,6 +105,7 @@ static int stress_set_workload_dist(const char *opt)
 {
 	static const stress_workload_dist_t workload_dist[] = {
 		{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
+		{ "even",	STRESS_WORKLOAD_DIST_EVEN },
 		{ "poisson",	STRESS_WORKLOAD_DIST_POISSON },
 		{ "random1",	STRESS_WORKLOAD_DIST_RANDOM1 },
 		{ "random2",	STRESS_WORKLOAD_DIST_RANDOM2 },
@@ -683,6 +685,14 @@ static int stress_workload_exercise(
 			workload[i].when_us *= scale;
 			workload[i].run_duration_sec = run_duration_sec;
 		}
+		break;
+	case STRESS_WORKLOAD_DIST_EVEN:
+		scale = (double)workload_slice_us / (double)max_quanta;
+		for (i = 0; i < max_quanta; i++) {
+			workload[i].when_us = (double)i * scale;
+			workload[i].run_duration_sec = run_duration_sec;
+		}
+		break;
 	}
 
 	qsort(workload, max_quanta, sizeof(*workload), stress_workload_cmp);

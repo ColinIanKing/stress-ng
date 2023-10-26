@@ -7897,7 +7897,7 @@ run back-to-back sequentially without using work queue. Using more than 2
 threads allows work items to be handled concurrently if enough idle processors
 are available.
 .TP
-.B \-\-workload\-dist [ cluster | poisson | random1 | random2 | random3 ]
+.B \-\-workload\-dist [ cluster | even | poisson | random1 | random2 | random3 ]
 specify the scheduling distribution of work items, the defualt is cluster.
 The distribution methods are described as follows:
 .TS
@@ -7909,6 +7909,9 @@ cluster 2/3 of the start times to try to start at the random time during the tim
 with the other 1/3 of start times evenly randomly distributed using a single random
 variable. The clustered start times causes a burst of items to be scheduled in a bunch
 with no delays between each clustered work item.
+T}
+even	T{
+evenly distribute scheduling start times across the workload slice
 T}
 poisson	T{
 generate scheduling events that occur individually at random moments, but which
