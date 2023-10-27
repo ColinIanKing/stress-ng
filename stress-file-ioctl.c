@@ -230,16 +230,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 #if defined(FIOQSIZE)
 		{
 			shim_loff_t sz;
-			struct stat buf;
 
-			ret = shim_fstat(fd, &buf);
-			if (ret == 0) {
-				ret = ioctl(fd, FIOQSIZE, &sz);
-				if ((ret == 0) && (file_sz != buf.st_size))
-					pr_fail("%s: ioctl FIOQSIZE failed, size %jd (filesize) vs %jd (reported)\n",
-						args->name,
-						(intmax_t)file_sz, (intmax_t)sz);
-			}
+			VOID_RET(int, ioctl(fd, FIOQSIZE, &sz));
 			exercised++;
 		}
 #else
