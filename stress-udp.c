@@ -353,11 +353,6 @@ static int OPTIMIZE3 stress_udp_server(
 		}
 	}
 #endif
-	if (bind(fd, addr, addr_len) < 0) {
-		pr_fail("%s: bind failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		goto die_close;
-	}
 #if !defined(__minix__)
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 		/*
@@ -370,6 +365,11 @@ static int OPTIMIZE3 stress_udp_server(
 		}
 	}
 #endif
+	if (bind(fd, addr, addr_len) < 0) {
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto die_close;
+	}
 
 #if defined(UDP_GRO)
 	if (udp_gro) {
