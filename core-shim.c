@@ -2696,3 +2696,20 @@ int shim_fstat(int fd, struct stat *statbuf)
 	return shim_enosys(0, fd, statbuf);
 #endif
 }
+
+/*
+ *  shim_lstat()
+ *	shim for lstat, use system call in preference to
+ *	libc as glibc calls the fstatat which is slower
+ *	and does not exercise the lstat system call path.
+ */
+int shim_lstat(const char *pathname, struct stat *statbuf)
+{
+#if defined(__NR_lstat)
+	return (int)syscall(__NR_lstat, pathname, statbuf);
+#elif defined(HAVE_LSTAT)
+	return lstat(pathname, statbuf)
+#else
+	return shim_enosys(0, pathname, statbuf);
+#endif
+}

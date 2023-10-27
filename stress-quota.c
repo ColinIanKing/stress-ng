@@ -348,7 +348,7 @@ static int stress_quota(const stress_args_t *args)
 	}
 
 	for (i = 0; i < n_mounts; i++) {
-		if (lstat(mnts[i], &buf) == 0) {
+		if (shim_lstat(mnts[i], &buf) == 0) {
 			devs[i].st_dev = buf.st_dev;
 			devs[i].valid = true;
 		}
@@ -358,7 +358,7 @@ static int stress_quota(const stress_args_t *args)
 		char path[PATH_MAX];
 
 		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
-		if (lstat(path, &buf) < 0)
+		if (shim_lstat(path, &buf) < 0)
 			continue;
 		if ((buf.st_mode & S_IFBLK) == 0)
 			continue;

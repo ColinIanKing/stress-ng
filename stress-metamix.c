@@ -177,7 +177,7 @@ static int stress_metamix_file(
 			goto err_unlink;
 		}
 	} else {
-		if (lstat(filename, &statbuf) < 0) {
+		if (shim_lstat(filename, &statbuf) < 0) {
 			pr_fail("%s: lstat on %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;
@@ -289,7 +289,7 @@ static int stress_metamix_file(
 			}
 		}
 	}
-	if (lstat(filename, &statbuf) < 0) {
+	if (shim_lstat(filename, &statbuf) < 0) {
 		pr_fail("%s: lstat on %s failed, errno=%d (%s)%s\n",
 			args->name, filename, errno, strerror(errno), fs_type);
 		rc = EXIT_FAILURE;

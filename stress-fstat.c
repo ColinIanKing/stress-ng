@@ -143,7 +143,7 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 	}
 
 	(void)shim_memset(&buf, 0xff, sizeof(buf));
-	ret =  lstat(si->path, &buf);
+	ret = shim_lstat(si->path, &buf);
 	if (ret == 0) {
 		if (stress_fstat_check_buf(&buf, &buf_orig) < 0) {
 			pr_fail("%s: lstat failed to fill in statbuf structure\n", args->name);
@@ -197,7 +197,7 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 	VOID_RET(int, stat("", &buf));
 
 	/* Exercise lstat on an invalid path, ENOENT */
-	VOID_RET(int, lstat("", &buf));
+	VOID_RET(int, shim_lstat("", &buf));
 
 	/* Exercise fstat on an invalid fd, EBADF */
 	VOID_RET(int, shim_fstat(ctxt->bad_fd, &buf));

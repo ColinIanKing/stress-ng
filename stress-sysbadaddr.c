@@ -481,7 +481,7 @@ static int bad_link(void *addr)
 
 static int bad_lstat(void *addr)
 {
-	return lstat((const char *)addr, (struct stat *)inc_addr(addr, 1));
+	return shim_lstat((const char *)addr, (struct stat *)inc_addr(addr, 1));
 }
 
 #if defined(HAVE_MADVISE)

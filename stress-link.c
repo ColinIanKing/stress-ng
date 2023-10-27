@@ -236,7 +236,7 @@ static int stress_link_generic(
 						(void)shim_unlink(tmp_newpath);
 				}
 			}
-			if (lstat(newpath, &stbuf) < 0) {
+			if (shim_lstat(newpath, &stbuf) < 0) {
 				rc = stress_exit_status(errno);
 				pr_fail("%s: lstat failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),

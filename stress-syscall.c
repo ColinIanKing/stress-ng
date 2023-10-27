@@ -3148,7 +3148,7 @@ static int syscall_lstat(void)
 		struct stat statbuf;
 
 		t1 = syscall_time_now();
-		ret = lstat(syscall_symlink_filename, &statbuf);
+		ret = shim_lstat(syscall_symlink_filename, &statbuf);
 		t2 = syscall_time_now();
 	}
 	return ret;

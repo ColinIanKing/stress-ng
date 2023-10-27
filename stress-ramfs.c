@@ -218,7 +218,7 @@ static int stress_ramfs_fs_ops(
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
-		if (lstat(symlinkname, &statbuf) < 0) {
+		if (shim_lstat(symlinkname, &statbuf) < 0) {
 			pr_fail("%s: cannot lstat symbolic link on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -241,7 +241,7 @@ static int stress_ramfs_fs_ops(
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	} else {
-		if (lstat(filename, &statbuf) < 0) {
+		if (shim_lstat(filename, &statbuf) < 0) {
 			pr_fail("%s: cannot lstat directory on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
