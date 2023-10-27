@@ -236,7 +236,7 @@ static void stress_swap_clean_dir(const stress_args_t *args)
 		char filename[PATH_MAX];
 
 		stress_mk_filename(filename, sizeof(filename), path, d->d_name);
-		if (stat(filename, &stat_buf) == 0) {
+		if (shim_stat(filename, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				(void)stress_swapoff(filename);
 				(void)unlink(filename);

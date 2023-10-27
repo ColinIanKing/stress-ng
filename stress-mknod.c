@@ -96,7 +96,7 @@ static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
 		struct stat statbuf;
 
 		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
-		if (stat(path, &statbuf) < 0)
+		if (shim_stat(path, &statbuf) < 0)
 			continue;
 
 		/* A match, cope it */

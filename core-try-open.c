@@ -67,7 +67,7 @@ int stress_try_open(
 	(void)args;
 
 	/* Don't try to open if file can't be stat'd */
-	if (stat(path, &statbuf) < 0)
+	if (shim_stat(path, &statbuf) < 0)
 		return -1;
 
 	pid = fork();

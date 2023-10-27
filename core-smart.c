@@ -410,7 +410,7 @@ static void stress_smart_read_devs(void)
 		const struct dirent *d = devs[i];
 
 		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
-		ret = stat(path, &buf);
+		ret = shim_stat(path, &buf);
 		if ((ret == 0) && (S_ISBLK(buf.st_mode))) {
 			stress_smart_dev_t *dev;
 			stress_smart_data_t *data;

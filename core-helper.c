@@ -4153,7 +4153,7 @@ static void stress_clean_dir_files(
 	int n;
 	struct dirent **names = NULL;
 
-	if (stat(path, &statbuf) < 0) {
+	if (shim_stat(path, &statbuf) < 0) {
 		pr_dbg("stress-ng: failed to stat %s, errno=%d (%s)\n", path, errno, strerror(errno));
 		return;
 	}
@@ -4223,7 +4223,7 @@ static void stress_clean_dir_files(
 #else
 		/* Slower stat method */
 		free(names[n]);
-		ret = stat(path, &statbuf);
+		ret = shim_stat(path, &statbuf);
 		if (ret < 0)
 			continue;
 

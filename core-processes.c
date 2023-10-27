@@ -81,7 +81,7 @@ void stress_dump_processes(void)
 		p_name = "?";
 		(void)shim_strlcpy(state, "?", sizeof(state));
 		(void)snprintf(path, sizeof(path), "/proc/%s", namelist[i]->d_name);
-		if (stat(path, &statbuf) == 0) {
+		if (shim_stat(path, &statbuf) == 0) {
 #if defined(BUILD_STATIC)
 			(void)snprintf(name, sizeof(name), "%u", (unsigned int)statbuf.st_uid);
 			p_name = name;

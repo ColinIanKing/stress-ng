@@ -110,7 +110,7 @@ static int stress_bind_mount_child(void *parg)
 				continue;
 
 			(void)snprintf(bindpath, sizeof(bindpath), "%s/%s", path, name);
-			rc = stat(bindpath, &statbuf);
+			rc = shim_stat(bindpath, &statbuf);
 			if (rc < 0) {
 				pr_fail("%s: failed to stat bind mounted file %s, errno=%d (%s)\n",
 					args->name, bindpath, errno, strerror(errno));

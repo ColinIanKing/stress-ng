@@ -246,7 +246,7 @@ static bool linux_xen_guest(void)
 	/*
 	 *  The features file is a good indicator for a Xen guest
 	 */
-	ret = stat("/sys/hypervisor/properties/features", &statbuf);
+	ret = shim_stat("/sys/hypervisor/properties/features", &statbuf);
 	if (ret == 0) {
 		xen_guest = true;
 		goto done;
@@ -4442,7 +4442,7 @@ static void stress_dev_infos_get(
 
 		switch (d->d_type) {
 		case DT_DIR:
-			ret = stat(tmp, &buf);
+			ret = shim_stat(tmp, &buf);
 			if (ret < 0)
 				continue;
 			if ((buf.st_mode & flags) == 0)
@@ -4568,7 +4568,7 @@ static int stress_dev(const stress_args_t *args)
 		mode_t mode;
 		struct stat statbuf;
 
-		if (stat(dev_file, &statbuf) < 0) {
+		if (shim_stat(dev_file, &statbuf) < 0) {
 			pr_fail("%s: cannot access file %s\n",
 				args->name, dev_file);
 			return EXIT_FAILURE;

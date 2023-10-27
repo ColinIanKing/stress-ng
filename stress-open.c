@@ -646,7 +646,7 @@ static int open_direct(
 		int ret;
 		struct stat statbuf;
 
-		ret = stat(filename, &statbuf);
+		ret = shim_stat(filename, &statbuf);
 		if (ret == 0) {
 			pr_inf("%s: open with O_DIRECT failed but file '%s' was created%s\n",
 				args->name, filename, stress_get_fs_type(filename));
@@ -1068,7 +1068,7 @@ static int stress_open(const stress_args_t *args)
 
 	if (open_fd) {
 		(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/fd", (intmax_t)mypid);
-		if ((stat(path, &statbuf) == 0) &&
+		if ((shim_stat(path, &statbuf) == 0) &&
 		    ((statbuf.st_mode & S_IFMT) == S_IFDIR)) {
 			pid = fork();
 

@@ -210,7 +210,7 @@ char *stress_find_mount_dev(const char *name)
 	FILE *mtab_fp;
 	struct mntent *mnt;
 
-	if (stat(name, &statbuf) < 0)
+	if (shim_stat(name, &statbuf) < 0)
 		return NULL;
 
 	/* Cater for UBI char mounts */
@@ -233,11 +233,11 @@ char *stress_find_mount_dev(const char *name)
 			break;
 
 		if ((mnt->mnt_fsname[0] == '/') &&
-		    (stat(mnt->mnt_fsname, &statbuf) == 0) &&
+		    (shim_stat(mnt->mnt_fsname, &statbuf) == 0) &&
 		    (statbuf.st_rdev == dev))
 			break;
 
-		if ((stat(mnt->mnt_dir, &statbuf) == 0) &&
+		if ((shim_stat(mnt->mnt_dir, &statbuf) == 0) &&
 		    (statbuf.st_dev == dev))
 			break;
 	}
@@ -256,7 +256,7 @@ char *stress_find_mount_dev(const char *name)
 	struct dirent *d;
 	dev_t majdev;
 
-	if (stat(name, &statbuf) < 0)
+	if (shim_stat(name, &statbuf) < 0)
 		return NULL;
 
 	/* Cater for UBI char mounts */
@@ -276,7 +276,7 @@ char *stress_find_mount_dev(const char *name)
 		struct stat stat_buf;
 
 		stress_mk_filename(dev_path, sizeof(dev_path), "/dev", d->d_name);
-		ret = stat(dev_path, &stat_buf);
+		ret = shim_stat(dev_path, &stat_buf);
 		if ((ret == 0) &&
 		    (S_ISBLK(stat_buf.st_mode)) &&
 		    (stat_buf.st_rdev == majdev)) {
@@ -334,7 +334,7 @@ static char *stress_iostat_iostat_name(
 	 */
 	while (ptr >= dev) {
 		(void)snprintf(iostat_name, iostat_name_len, "/sys/block/%s/stat", dev);
-		if (stat(iostat_name, &statbuf) == 0)
+		if (shim_stat(iostat_name, &statbuf) == 0)
 			return iostat_name;
 		if (!isdigit(*ptr))
 			break;

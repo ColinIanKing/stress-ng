@@ -162,7 +162,7 @@ static int stress_dir_read(
 			(void)shim_fstat(fd, &statbuf);
 			(void)close(fd);
 		} else {
-			(void)stat(filename, &statbuf);
+			(void)shim_stat(filename, &statbuf);
 		}
 	}
 

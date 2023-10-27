@@ -288,7 +288,7 @@ static void stress_filename_test(
 	struct stat buf;
 
 	/* exercise dcache lookup of non-existent filename */
-	ret = stat(filename, &buf);
+	ret = shim_stat(filename, &buf);
 	if (ret == 0)
 		pr_fail("%s: stat succeeded on non-existent file\n",
 			args->name);
@@ -305,13 +305,13 @@ static void stress_filename_test(
 		(void)close(fd);
 
 		/* exercise dcache lookup of existent filename */
-		VOID_RET(int, stat(filename, &buf));
+		VOID_RET(int, shim_stat(filename, &buf));
 
 		(void)shim_unlink(filename);
 	}
 
 	/* exercise dcache lookup of non-existent filename */
-	ret = stat(filename, &buf);
+	ret = shim_stat(filename, &buf);
 	if (ret == 0)
 		pr_fail("%s: stat succeeded on non-existent unlinked file\n",
 			args->name);

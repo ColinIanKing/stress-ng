@@ -219,7 +219,7 @@ static void stress_bad_ioctl_dev_dir(
 		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 		switch (d->d_type) {
 		case DT_DIR:
-			ret = stat(tmp, &buf);
+			ret = shim_stat(tmp, &buf);
 			if (ret < 0)
 				continue;
 			if ((buf.st_mode & flags) == 0)

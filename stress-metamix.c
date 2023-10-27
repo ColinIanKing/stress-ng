@@ -170,7 +170,7 @@ static int stress_metamix_file(
 	 *  stat/lstat 50/50% random choice
 	 */
 	if (stress_mwc1()) {
-		if (stat(filename, &statbuf) < 0) {
+		if (shim_stat(filename, &statbuf) < 0) {
 			pr_fail("%s: stat on %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno), fs_type);
 			rc = EXIT_FAILURE;

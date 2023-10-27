@@ -77,7 +77,7 @@ static ino_t chroot_inode(const char *path)
 {
 	struct stat statbuf;
 
-	if (stat(path, &statbuf) < 0)
+	if (shim_stat(path, &statbuf) < 0)
 		return (ino_t)-1;
 	return statbuf.st_ino;
 }

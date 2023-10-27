@@ -419,7 +419,7 @@ STRESS_PRAGMA_POP
 			if (verify) {
 				struct stat statbuf;
 
-				if (stat(filename, &statbuf) == 0) {
+				if (shim_stat(filename, &statbuf) == 0) {
 					if (statbuf.st_atime < tv.tv_sec) {
 						pr_fail("%s: utime failed: access time is less than expected time\n",
 							args->name);

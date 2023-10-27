@@ -715,7 +715,7 @@ static int bad_setrlimit(void *addr)
 
 static int bad_stat(void *addr)
 {
-	return stat((char *)addr, (struct stat *)inc_addr(addr, 1));
+	return shim_stat((char *)addr, (struct stat *)inc_addr(addr, 1));
 }
 
 #if defined(HAVE_STATFS)

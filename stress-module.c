@@ -370,12 +370,12 @@ static int stress_module(const stress_args_t *args)
 	if (shim_fstat(fd, &statbuf) < 0) {
 		if (args->instance == 0) {
 			if (module_name_cli) {
-				pr_inf_skip("%s: could not get stat() on "
+				pr_inf_skip("%s: could not get fstat() on "
 					"the specified module '%s', "
 					"skipping stressor\n",
 					args->name, global_module_path);
 			} else {
-				pr_inf_skip("%s: could not get stat() on "
+				pr_inf_skip("%s: could not get fstat() on "
 					"the default module '%s', "
 					"skipping stressor\n",
 					args->name, global_module_path);

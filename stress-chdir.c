@@ -137,7 +137,7 @@ static int stress_chdir(const stress_args_t *args)
 		chdir_info[i].fd = open(chdir_info[i].path, flags);
 
 		if (!got_statbuf) {
-			if (stat(path, &statbuf) == 0)
+			if (shim_stat(path, &statbuf) == 0)
 				got_statbuf = true;
 
 		}

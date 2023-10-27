@@ -184,7 +184,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				if (!mnts[i])
 					continue;
 
-				ret = stat(mnts[i], &sbuf);
+				ret = shim_stat(mnts[i], &sbuf);
 				if (UNLIKELY(ret < 0))
 					continue;
 

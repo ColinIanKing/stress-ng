@@ -412,5 +412,6 @@ extern int shim_fchmodat2(int dfd, const char *filename, mode_t mode,
 	unsigned int flags);
 extern int shim_fstat(int fd, struct stat *statbuf);
 extern int shim_lstat(const char *pathname, struct stat *statbuf);
+extern int shim_stat(const char *pathname, struct stat *statbuf);
 
 #endif

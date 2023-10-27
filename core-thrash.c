@@ -342,7 +342,7 @@ static int stress_pagein_all_procs(void)
 			struct stat statbuf;
 
 			(void)snprintf(procpath, sizeof(procpath), "/proc/%" PRIdMAX, pid);
-			if (stat(procpath, &statbuf) < 0)
+			if (shim_stat(procpath, &statbuf) < 0)
 				continue;
 
 			if (statbuf.st_uid == 0)

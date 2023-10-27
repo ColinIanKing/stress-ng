@@ -6401,7 +6401,7 @@ static int syscall_stat(void)
 	int ret;
 
 	t1 = syscall_time_now();
-	ret = stat(syscall_filename, &statbuf);
+	ret = shim_stat(syscall_filename, &statbuf);
 	t2 = syscall_time_now();
 	return ret;
 }
