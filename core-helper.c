@@ -3699,7 +3699,7 @@ const char *stress_get_fs_type(const char *filename)
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
     defined(HAVE_SYS_STATFS_H)
 	struct statfs buf;
-	static char tmp[80];
+	static char tmp[256];
 
 	if (statfs(filename, &buf) != 0)
 		return "";
