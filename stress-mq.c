@@ -255,7 +255,7 @@ again:
 					VOID_RET(off_t, lseek(mq, 0, SEEK_SET));
 
 					/* Attempt a fstat too */
-					VOID_RET(int, fstat(mq, &statbuf));
+					VOID_RET(int, shim_fstat(mq, &statbuf));
 
 					/* illegal mmap, should be ENODEV */
 					ptr = mmap(NULL, 16, PROT_READ, MAP_SHARED, mq, 0);

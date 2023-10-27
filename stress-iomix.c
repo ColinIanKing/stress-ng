@@ -963,7 +963,7 @@ static void stress_iomix_cachestat(
 	do {
 		struct stat buf;
 
-		if (fstat(fd, &buf) == 0) {
+		if (shim_fstat(fd, &buf) == 0) {
 			struct shim_cachestat_range cstat_range;
 			struct shim_cachestat cstat;
 

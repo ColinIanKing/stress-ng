@@ -314,7 +314,7 @@ static inline void stress_proc_rw(
 		/*
 		 *  fstat the file
 		 */
-		ret = fstat(fd, &statbuf);
+		ret = shim_fstat(fd, &statbuf);
 		if (ret == 0) {
 #if defined(S_IFMT) &&	\
     defined(S_IFIFO)

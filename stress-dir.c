@@ -159,7 +159,7 @@ static int stress_dir_read(
 		stress_mk_filename(filename, sizeof(filename), path, de->d_name);
 		fd = open(filename, O_RDONLY);
 		if (fd >= 0) {
-			(void)fstat(fd, &statbuf);
+			(void)shim_fstat(fd, &statbuf);
 			(void)close(fd);
 		} else {
 			(void)stat(filename, &statbuf);

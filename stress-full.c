@@ -149,7 +149,7 @@ try_read:
 		/*
 		 *  Try fstat
 		 */
-		ret = fstat(fd, &statbuf);
+		ret = shim_fstat(fd, &statbuf);
 		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: fstat failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

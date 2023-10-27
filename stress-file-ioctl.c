@@ -232,7 +232,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 			shim_loff_t sz;
 			struct stat buf;
 
-			ret = fstat(fd, &buf);
+			ret = shim_fstat(fd, &buf);
 			if (ret == 0) {
 				ret = ioctl(fd, FIOQSIZE, &sz);
 				if ((ret == 0) && (file_sz != buf.st_size))

@@ -185,7 +185,7 @@ static void stress_cgroup_read(const char *path)
 	if (fd < 0)
 		return;
 
-	VOID_RET(int, fstat(fd, &statbuf));
+	VOID_RET(int, shim_fstat(fd, &statbuf));
 
 	for (;;) {
 		ret = read(fd, buf, sizeof(buf));

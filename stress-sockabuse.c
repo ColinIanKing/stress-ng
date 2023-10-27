@@ -106,7 +106,7 @@ static void stress_sockabuse_fd(const int fd)
 #else
 	UNEXPECTED
 #endif
-	VOID_RET(int, fstat(fd, &statbuf));
+	VOID_RET(int, shim_fstat(fd, &statbuf));
 	VOID_RET(int, ftruncate(fd, 0));
 #if (defined(HAVE_SYS_XATTR_H) ||       \
      defined(HAVE_ATTR_XATTR_H)) &&     \

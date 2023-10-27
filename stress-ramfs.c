@@ -196,7 +196,7 @@ static int stress_ramfs_fs_ops(
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	} else {
-		if (fstat(fd, &statbuf) < 0) {
+		if (shim_fstat(fd, &statbuf) < 0) {
 			pr_fail("%s: cannot fstat file on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;

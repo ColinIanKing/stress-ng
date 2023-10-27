@@ -415,7 +415,7 @@ static int stress_close(const stress_args_t *args)
 #else
 			UNEXPECTED
 #endif
-			VOID_RET(int, fstat(fd, &statbuf));
+			VOID_RET(int, shim_fstat(fd, &statbuf));
 
 			VOID_RET(int, close(dup(STDOUT_FILENO)));
 

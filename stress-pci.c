@@ -163,7 +163,7 @@ static void stress_pci_exercise_file(
 		size_t n_left, n_read;
 		double t;
 
-		if (fstat(fd, &statbuf) < 0)
+		if (shim_fstat(fd, &statbuf) < 0)
 			goto err;
 		if (!S_ISREG(statbuf.st_mode))
 			goto err;

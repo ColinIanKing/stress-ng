@@ -215,7 +215,7 @@ static int efi_get_data(
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return 0;	/* silently fail for open-retry later on */
 
-	if (fstat(fd, &statbuf) < 0) {
+	if (shim_fstat(fd, &statbuf) < 0) {
 		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
@@ -270,7 +270,7 @@ static int efi_read_variable(
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return 0;	/* silently fail for open-retry later on */
 
-	ret = fstat(fd, &statbuf);
+	ret = shim_fstat(fd, &statbuf);
 	if (ret < 0) {
 		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));

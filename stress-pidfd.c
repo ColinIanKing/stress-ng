@@ -166,7 +166,7 @@ again:
 			}
 
 			/* Exercise fstat'ing the pidfd */
-			VOID_RET(int, fstat(pidfd, &statbuf));
+			VOID_RET(int, shim_fstat(pidfd, &statbuf));
 
 			/* Exercise illegal mmap'ing the pidfd */
 			ptr = mmap(NULL, args->page_size, PROT_READ,

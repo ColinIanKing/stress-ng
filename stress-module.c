@@ -367,7 +367,7 @@ static int stress_module(const stress_args_t *args)
 	 *  Use fstat rather than stat to avoid TOCTOU (time-of-check,
 	 *  time-of-use) race
 	 */
-	if (fstat(fd, &statbuf) < 0) {
+	if (shim_fstat(fd, &statbuf) < 0) {
 		if (args->instance == 0) {
 			if (module_name_cli) {
 				pr_inf_skip("%s: could not get stat() on "

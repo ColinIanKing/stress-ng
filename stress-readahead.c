@@ -201,7 +201,7 @@ seq_wr_retry:
 		}
 	}
 
-	if (fstat(fd, &statbuf) < 0) {
+	if (shim_fstat(fd, &statbuf) < 0) {
 		pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;

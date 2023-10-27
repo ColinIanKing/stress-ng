@@ -2680,3 +2680,19 @@ int shim_fchmodat2(int dfd, const char *filename, mode_t mode, unsigned int flag
 #endif
 }
 
+/*
+ *  shim_fstat()
+ *	shim for fstat, use system call in preference to
+ *	libc as glibc calls the fstatat which is slower
+ *	and does not exercise the fstat system call path.
+ */
+int shim_fstat(int fd, struct stat *statbuf)
+{
+#if defined(__NR_fstat)
+	return (int)syscall(__NR_fstat, fd, statbuf);
+#elif defined(HAVE_FSTAT)
+	return fstat(fd, statbuf)
+#else
+	return shim_enosys(0, fd, statbuf);
+#endif
+}

@@ -927,7 +927,7 @@ seq_wr_retry:
 				stress_bogo_inc(args);
 			}
 		}
-		if (fstat(fd, &statbuf) < 0) {
+		if (shim_fstat(fd, &statbuf) < 0) {
 			pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			(void)close(fd);

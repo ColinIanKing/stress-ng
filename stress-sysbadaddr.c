@@ -351,7 +351,7 @@ static int bad_faccessat(void *addr)
 
 static int bad_fstat(void *addr)
 {
-	return fstat(0, (struct stat *)addr);
+	return shim_fstat(0, (struct stat *)addr);
 }
 
 static int bad_getcpu(void *addr)

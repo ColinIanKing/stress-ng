@@ -2007,7 +2007,7 @@ static int syscall_fstat(void)
 	int ret;
 
 	t1 = syscall_time_now();
-	ret = fstat(syscall_fd, &statbuf);
+	ret = shim_fstat(syscall_fd, &statbuf);
 	t2 = syscall_time_now();
 	return ret;
 }

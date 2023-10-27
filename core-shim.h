@@ -410,4 +410,6 @@ extern int shim_fchmodat(int dfd, const char *filename, mode_t mode,
 	unsigned int flags);
 extern int shim_fchmodat2(int dfd, const char *filename, mode_t mode,
 	unsigned int flags);
+extern int shim_fstat(int fd, struct stat *statbuf);
+
 #endif

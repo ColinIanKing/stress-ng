@@ -234,7 +234,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat statbuf;
 
-			if (fstat(fd, &statbuf) < 0)
+			if (shim_fstat(fd, &statbuf) < 0)
 				pr_fail("%s: stat failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}

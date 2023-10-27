@@ -187,7 +187,7 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 		if (fd < 0) {
 			si->access = false;
 		} else {
-			if ((fstat(fd, &buf) < 0) && (errno != ENOMEM))
+			if ((shim_fstat(fd, &buf) < 0) && (errno != ENOMEM))
 				si->ignore |= IGNORE_FSTAT;
 			(void)close(fd);
 		}
@@ -200,7 +200,7 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 	VOID_RET(int, lstat("", &buf));
 
 	/* Exercise fstat on an invalid fd, EBADF */
-	VOID_RET(int, fstat(ctxt->bad_fd, &buf));
+	VOID_RET(int, shim_fstat(ctxt->bad_fd, &buf));
 
 	return rc;
 }

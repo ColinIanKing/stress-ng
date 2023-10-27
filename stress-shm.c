@@ -274,7 +274,7 @@ static int stress_shm_posix_child(
 			(void)shim_fsync(shm_fd);
 
 			/* fstat shared memory */
-			ret = fstat(shm_fd, &statbuf);
+			ret = shim_fstat(shm_fd, &statbuf);
 			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: fstat failed on shared memory\n", args->name);
 			} else {

@@ -172,7 +172,7 @@ static int stress_fallocate(const stress_args_t *args)
 		if ((ret == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			struct stat buf;
 
-			if (fstat(fd, &buf) < 0)
+			if (shim_fstat(fd, &buf) < 0)
 				pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 			else if (buf.st_size != fallocate_bytes)
@@ -192,7 +192,7 @@ static int stress_fallocate(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
 
-			if (fstat(fd, &buf) < 0)
+			if (shim_fstat(fd, &buf) < 0)
 				pr_fail("%s: fstat failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			else if (buf.st_size != (off_t)0)
