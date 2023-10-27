@@ -863,12 +863,12 @@ static void stress_iomix_copy_file_range(
 	(void)fs_type;
 
 	do {
-		off_t from = stress_iomix_rnd_offset(iomix_bytes);
-		off_t to = stress_iomix_rnd_offset(iomix_bytes);
+		shim_off64_t from = (shim_off64_t)stress_iomix_rnd_offset(iomix_bytes);
+		shim_off64_t to = (shim_off64_t)stress_iomix_rnd_offset(iomix_bytes);
 		const size_t size = stress_mwc16();
 
-		VOID_RET(ssize_t, copy_file_range(fd, &from, fd, &to, size, 0));
-		VOID_RET(ssize_t, copy_file_range(fd, &to, fd, &from, size, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd, &from, fd, &to, size, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd, &to, fd, &from, size, 0));
 
 		if (!stress_continue(args))
 			return;
