@@ -2691,7 +2691,7 @@ int shim_fstat(int fd, struct stat *statbuf)
 #if defined(__NR_fstat)
 	return (int)syscall(__NR_fstat, fd, statbuf);
 #elif defined(HAVE_FSTAT)
-	return fstat(fd, statbuf)
+	return fstat(fd, statbuf);
 #else
 	return shim_enosys(0, fd, statbuf);
 #endif
@@ -2707,7 +2707,7 @@ int shim_lstat(const char *pathname, struct stat *statbuf)
 #if defined(__NR_lstat)
 	return (int)syscall(__NR_lstat, pathname, statbuf);
 #elif defined(HAVE_LSTAT)
-	return lstat(pathname, statbuf)
+	return lstat(pathname, statbuf);
 #else
 	return shim_enosys(0, pathname, statbuf);
 #endif
@@ -2723,7 +2723,7 @@ int shim_stat(const char *pathname, struct stat *statbuf)
 #if defined(__NR_stat)
 	return (int)syscall(__NR_stat, pathname, statbuf);
 #elif defined(HAVE_STAT)
-	return stat(pathname, statbuf)
+	return stat(pathname, statbuf);
 #else
 	return shim_enosys(0, pathname, statbuf);
 #endif
