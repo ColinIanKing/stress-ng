@@ -1290,8 +1290,8 @@ static int syscall_connect(void)
 static int syscall_copy_file_range(void)
 {
 	int ret;
-	shim_loff_t off_in = 0;
-	shim_loff_t off_out = 8192;
+	shim_off64_t off_in = 0;
+	shim_off64_t off_out = 8192;
 
 	t1 = syscall_time_now();
 	ret = shim_copy_file_range(syscall_fd, &off_in, syscall_fd, &off_out, 4096, 0);

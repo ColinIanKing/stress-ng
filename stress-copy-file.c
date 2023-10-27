@@ -53,13 +53,32 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define COPY_FILE_MAX_BUF_SIZE	(4096)
 
 /*
+ *  stress_copy_file_seek64()
+ *	seek with off64_t
+ */
+shim_off64_t stress_copy_file_seek64(int fd, shim_off64_t off64, int whence)
+{
+#if defined(HAVE_LSEEK64)
+	return lseek64(fd, off64, whence);
+#else
+	const off_t max_off64 = ~(off_t)0;
+
+	if (off64 > max_off64) {
+		errno = EINVAL;
+		return -1;
+	}
+	return (shim_off64_t)lseek(fd, (off_t)off64, whence);
+#endif
+}
+
+/*
  *  stress_copy_file_fill()
  *	fill chunk of file with random value
  */
 static int stress_copy_file_fill(
 	const stress_args_t *args,
 	const int fd,
-	const off_t off,
+	const shim_off64_t off64,
 	const ssize_t size)
 {
 	char buf[COPY_FILE_MAX_BUF_SIZE];
@@ -67,7 +86,7 @@ static int stress_copy_file_fill(
 
 	(void)shim_memset(buf, stress_mwc8(), sizeof(buf));
 
-	if (lseek(fd, off, SEEK_SET) < 0)
+	if (stress_copy_file_seek64(fd, off64, SEEK_SET) < 0)
 		return -1;
 
 	while (sz > 0) {
@@ -90,9 +109,9 @@ static int stress_copy_file_fill(
  */
 static int stress_copy_file_range_verify(
 	const int fd_in,
-	off_t *off_in,
+	shim_off64_t *off64_in,
 	const int fd_out,
-	off_t *off_out,
+	shim_off64_t *off64_out,
 	const ssize_t bytes)
 {
 	size_t bytes_left = (size_t)bytes;
@@ -100,29 +119,15 @@ static int stress_copy_file_range_verify(
 	while (bytes_left > 0) {
 		ssize_t n, bytes_in, bytes_out;
 		size_t sz = STRESS_MINIMUM(bytes_left, COPY_FILE_MAX_BUF_SIZE);
-
 		char buf_in[COPY_FILE_MAX_BUF_SIZE];
 		char buf_out[COPY_FILE_MAX_BUF_SIZE];
+		shim_off64_t off_ret;
 
-#if defined(HAVE_PREAD)
-		bytes_in = pread(fd_in, buf_in, sz, *off_in);
-		if (bytes_in == 0)
-			return 0;
-		if (bytes_in < 0)
-			break;
-		bytes_out = pread(fd_out, buf_out, sz, *off_out);
-		if (bytes_out == 0)
-			return 0;
-		if (bytes_out <= 0)
-			break;
-#else
-		off_t off_ret;
-
-		off_ret = lseek(fd_in, *off_in, SEEK_SET);
-		if (off_ret != *off_in)
+		off_ret = stress_copy_file_seek64(fd_in, *off64_in, SEEK_SET);
+		if (off_ret != *off64_in)
 			return -1;
-		off_ret = lseek(fd_out, *off_out, SEEK_SET);
-		if (off_ret != *off_out)
+		off_ret = stress_copy_file_seek64(fd_out, *off64_out, SEEK_SET);
+		if (off_ret != *off64_out)
 			return -1;
 		bytes_in = read(fd_in, buf_in, sz);
 		if (bytes_in == 0)
@@ -134,14 +139,13 @@ static int stress_copy_file_range_verify(
 			return 0;
 		if (bytes_out <= 0)
 			break;
-#endif
 
 		n = STRESS_MINIMUM(bytes_in, bytes_out);
 		if (shim_memcmp(buf_in, buf_out, (size_t)n) != 0)
 			return -1;
 		bytes_left -= n;
-		*off_in += n;
-		*off_out += n;
+		*off64_in += n;
+		*off64_out += n;
 	}
 	if (bytes_left > 0)
 		return -1;
@@ -209,22 +213,22 @@ static int stress_copy_file(const stress_args_t *args)
 
 	do {
 		ssize_t copy_ret;
-		shim_loff_t off_in, off_out, off_in_orig, off_out_orig;
+		shim_off64_t off64_in, off64_out, off64_in_orig, off64_out_orig;
 		double t;
 
-		off_in_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
-		off_in = off_in_orig;
-		off_out_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
-		off_out = off_out_orig;
+		off64_in_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off64_in = off64_in_orig;
+		off64_out_orig = (shim_loff_t)stress_mwc64modn(copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off64_out = off64_out_orig;
 
 		if (!stress_continue(args))
 			break;
-		stress_copy_file_fill(args, fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
+		stress_copy_file_fill(args, fd_in, off64_in, DEFAULT_COPY_FILE_SIZE);
 		if (!stress_continue(args))
 			break;
 		t = stress_time_now();
-		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		copy_ret = shim_copy_file_range(fd_in, &off64_in, fd_out,
+						&off64_out, DEFAULT_COPY_FILE_SIZE, 0);
 		if (LIKELY(copy_ret >= 0)) {
 			duration += stress_time_now() - t;
 			bytes += (double)copy_ret;
@@ -254,14 +258,14 @@ static int stress_copy_file(const stress_args_t *args)
 		}
 		if (verify) {
 			int verify_ret;
-			off_in = off_in_orig;
-			off_out = off_out_orig;
+			off64_in = off64_in_orig;
+			off64_out = off64_out_orig;
 
-			verify_ret = stress_copy_file_range_verify(fd_in, &off_in,
-					fd_out, &off_out, copy_ret);
+			verify_ret = stress_copy_file_range_verify(fd_in, &off64_in,
+					fd_out, &off64_out, copy_ret);
 			if (verify_ret < 0) {
 				pr_fail("%s: copy_file_range verify failed, input offset=%jd, output offset=%jd\n",
-					args->name, (intmax_t)off_in_orig, (intmax_t)off_out_orig);
+					args->name, (intmax_t)off64_in_orig, (intmax_t)off64_out_orig);
 			}
 		}
 		if (!stress_continue(args))
@@ -270,18 +274,18 @@ static int stress_copy_file(const stress_args_t *args)
 		/*
 		 *  Exercise with bad fds
 		 */
-		VOID_RET(ssize_t, shim_copy_file_range(fd_bad, &off_in, fd_out,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0));
-		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd_bad,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0));
-		VOID_RET(ssize_t, shim_copy_file_range(fd_out, &off_in, fd_in,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd_bad, &off64_in, fd_out,
+						&off64_out, DEFAULT_COPY_FILE_SIZE, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off64_in, fd_bad,
+						&off64_out, DEFAULT_COPY_FILE_SIZE, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd_out, &off64_in, fd_in,
+						&off64_out, DEFAULT_COPY_FILE_SIZE, 0));
 		(void)copy_ret;
 		/*
 		 *  Exercise with bad flags
 		 */
-		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd_out,
-						&off_out, DEFAULT_COPY_FILE_SIZE, ~0U));
+		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off64_in, fd_out,
+						&off64_out, DEFAULT_COPY_FILE_SIZE, ~0U));
 		if (!stress_continue(args))
 			break;
 		(void)shim_fsync(fd_out);
