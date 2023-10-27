@@ -446,6 +446,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [io-wq: remove GFP_ATOMIC allocation off schedule out path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d3e9f732c415cf22faa33d6f195e291ad82dc92e)
 * [mm/swap: consider max pages in iomap_swapfile_add_extent](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=36ca7943ac18aebf8aad4c50829eb2ea5ec847df)
 * [block: loop: fix deadlock between open and remove](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=990e78116d38059c9306cf0560c1c4ed1cf358d3)
+* [tmpfs: O_DIRECT | O_CREATE open reports open failure but actually creates a file](https://bugzilla.kernel.org/show_bug.cgi?id=218049)
 
 2022:
 * [copy_process(): Move fd_install() out of sighand->siglock critical section](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ddc204b517e60ae64db34f9832dc41dafa77c751)
