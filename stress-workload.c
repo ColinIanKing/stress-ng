@@ -17,6 +17,11 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-arm.h"
+#include "core-asm-ppc64.h"
+#include "core-asm-riscv.h"
+#include "core-asm-x86.h"
+#include "core-asm-generic.h"
 #include "core-cpu-cache.h"
 #include "core-builtin.h"
 #include "core-put.h"
@@ -370,7 +375,7 @@ static int stress_workload_set_sched(
 }
 #endif
 
-static void stress_workload_nop(void)
+static NOINLINE void stress_workload_nop(void)
 {
 	register int i;
 
@@ -394,7 +399,7 @@ static void stress_workload_nop(void)
 	}
 }
 
-static void stress_workload_math(const double v1, const double v2)
+static NOINLINE void stress_workload_math(const double v1, const double v2)
 {
 	double r;
 
@@ -405,7 +410,41 @@ static void stress_workload_math(const double v1, const double v2)
 	stress_double_put(r);
 }
 
-static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const size_t buffer_len)
+static NOINLINE void stress_workload_pause(void)
+{
+#if defined(HAVE_ASM_X86_PAUSE)
+	stress_asm_x86_pause();
+	stress_asm_x86_pause();
+	stress_asm_x86_pause();
+	stress_asm_x86_pause();
+#elif defined(HAVE_ASM_ARM_YIELD)
+	stress_asm_arm_yield();
+	stress_asm_arm_yield();
+	stress_asm_arm_yield();
+	stress_asm_arm_yield();
+#elif defined(STRESS_ARCH_PPC64)
+	stress_asm_ppc64_yield();
+	stress_asm_ppc64_yield();
+	stress_asm_ppc64_yield();
+	stress_asm_ppc64_yield();
+#elif defined(HAVE_ASM_RISCV_FENCE)
+	stress_asm_riscv_fence();
+	stress_asm_riscv_fence();
+	stress_asm_riscv_fence();
+	stress_asm_riscv_fence();
+#else
+	stress_asm_mb();
+	stress_asm_nop();
+	stress_asm_mb();
+	stress_asm_nop();
+	stress_asm_mb();
+	stress_asm_nop();
+	stress_asm_mb();
+	stress_asm_nop();
+#endif
+}
+
+static NOINLINE void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const size_t buffer_len)
 {
 #if defined(HAVE_VECMATH)
 	typedef int64_t stress_vint64_t __attribute__ ((vector_size (128)));
@@ -458,7 +497,7 @@ static inline void stress_workload_waste_time(
 	double t;
 	static volatile uint64_t val = 0;
 
-	switch (stress_mwc8modn(10)) {
+	switch (stress_mwc8modn(11)) {
 	case 0:
 		while (stress_time_now() < t_end)
 			;
@@ -496,9 +535,12 @@ static inline void stress_workload_waste_time(
 			stress_workload_read(buffer, buffer_len);
 		break;
 	case 9:
+		while (stress_time_now() < t_end)
+			stress_workload_pause();
+		break;
 	default:
 		while ((t = stress_time_now()) < t_end) {
-			switch (stress_mwc8modn(9)) {
+			switch (stress_mwc8modn(10)) {
 			case 0:
 				break;
 			case 1:
@@ -524,6 +566,9 @@ static inline void stress_workload_waste_time(
 				stress_workload_math(t, t_end);
 				break;
 			case 8:
+				stress_workload_pause();
+				break;
+			case 9:
 			default:
 				stress_workload_read(buffer, buffer_len);
 			}
