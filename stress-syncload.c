@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 #include "stress-ng.h"
+#include "core-asm-arm.h"
 #include "core-asm-x86.h"
 #include "core-arch.h"
 #include "core-builtin.h"
@@ -115,10 +116,10 @@ static void stress_syncload_pause(void)
 #if defined(HAVE_ASM_ARM_YIELD)
 static void stress_syncload_yield(void)
 {
-	__asm__ __volatile__("yield;\n");
-	__asm__ __volatile__("yield;\n");
-	__asm__ __volatile__("yield;\n");
-	__asm__ __volatile__("yield;\n");
+	stress_asm_arm_yield();
+	stress_asm_arm_yield();
+	stress_asm_arm_yield();
+	stress_asm_arm_yield();
 }
 #endif
 
