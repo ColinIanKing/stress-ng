@@ -1046,6 +1046,7 @@ const struct option stress_long_options[] = {
 	{ "workload",		1,	0,	OPT_workload },
 	{ "workload-dist",	1,	0,	OPT_workload_dist },
 	{ "workload-load",	1,	0,	OPT_workload_load },
+	{ "workload-method",	1,	0,	OPT_workload_method },
 	{ "workload-ops",	1,	0,	OPT_workload_ops },
 	{ "workload-quanta-us",	1,	0,	OPT_workload_quanta_us },
 	{ "workload-sched",	1,	0,	OPT_workload_sched },

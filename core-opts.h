@@ -1471,6 +1471,7 @@ typedef enum {
 	OPT_workload,
 	OPT_workload_dist,
 	OPT_workload_load,
+	OPT_workload_method,
 	OPT_workload_ops,
 	OPT_workload_quanta_us,
 	OPT_workload_sched,

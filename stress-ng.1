@@ -1931,7 +1931,7 @@ addition, multiplication, determinant, inverse and transpose operations.
 on long double, double and float matrices. This currently is only available
 for gcc/g++ builds.
 .TP
-.B \-\-eigen\-method M
+.B \-\-eigen\-method method
 select the floating point method to use, available methods are:
 .TS
 lB lB
@@ -5561,7 +5561,7 @@ start N workers that exercise 1 bit rotates left and right of unsigned integer
 variables.  The default will rotate four 8, 16, 32, 64 (and if supported 128) bit
 values 10000 times in a loop per bogo-op.
 .TP
-.B \-\-rotate\-method M
+.B \-\-rotate\-method method
 specify the method of rotation to use. The 'all' method uses all the methods
 and is the default.
 .TS
@@ -7878,6 +7878,53 @@ delays between work items.
 specify the percentage run time load of each work item with respect to the
 run quanta duration. Essentially the run duration of each work item is the
 quanta duration Q \(mu L / 100.
+.TP
+.B \-\-workload\-method method
+all getpid time inc64 memmove memread memset mwc64 nop pause random sqrt
+select the workload method. Each quanta of execution time is consumed using
+a tight spin-loop executing a workload method. The available methods are
+described as follows:
+.TS
+lB2 lB
+l lx.
+Method  Description
+all	T{
+randomly select any one of all the following methods:
+T}
+getpid	T{
+get the stressor's PID via getpid(2).
+T}
+time	T{
+get the current time via time(2).
+T}
+inc64	T{
+increment a 64 bit integer.
+T}
+memmove	T{
+copy (move) a 1MB buffer using memmove(3).
+T}
+memread	T{
+read from a 1MB buffer using fast memory reads.
+T}
+memset	T{
+write to a 1MB buffer usin memset(3).
+T}
+mcw64	T{
+compute 64 bit random numbers using a mwc random generator.
+T}
+nop	T{
+waste cycles using no-op instructions.
+T}
+pause	T{
+stop execution using CPU pause/yield or memory barrier instructions where available.
+T}
+random	T{
+a random mix of all the workload methods, changing the workload method on every spin-loop.
+T}
+sqrt	T{
+perform double precision floating point sqrt(3) and hypot(3) math operations.
+T}
+.TE
 .TP
 .B \-\-workload\-sched [ batch | deadline | idle | fifo | other | rr ]
 select scheduling policy. Note tha fifo and rr require root privilege to set.

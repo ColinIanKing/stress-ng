@@ -49,6 +49,7 @@ typedef struct {
 	mqd_t	mq;
 	void *buffer;
 	size_t buffer_len;
+	int workload_method;
 } stress_workload_ctxt_t;
 #endif
 
@@ -71,6 +72,20 @@ typedef struct {
 
 #define STRESS_WORKLOAD_THREADS		(4)
 
+#define STRESS_WORKLOAD_METHOD_ALL	(0)
+#define STRESS_WORKLOAD_METHOD_TIME	(1)
+#define STRESS_WORKLOAD_METHOD_NOP	(2)
+#define STRESS_WORKLOAD_METHOD_MEMSET	(3)
+#define STRESS_WORKLOAD_METHOD_MEMMOVE	(4)
+#define STRESS_WORKLOAD_METHOD_SQRT	(5)
+#define STRESS_WORKLOAD_METHOD_INC64	(6)
+#define STRESS_WORKLOAD_METHOD_MWC64	(7)
+#define STRESS_WORKLOAD_METHOD_GETPID	(8)
+#define STRESS_WORKLOAD_METHOD_MEMREAD	(9)
+#define STRESS_WORKLOAD_METHOD_PAUSE	(10)
+#define STRESS_WORKLOAD_METHOD_RANDOM	(11)
+#define STRESS_WORKLOAD_METHOD_MAX	STRESS_WORKLOAD_METHOD_RANDOM
+
 #define SCHED_UNDEFINED	(-1)
 
 typedef struct {
@@ -89,6 +104,11 @@ typedef struct {
 } stress_workload_sched_t;
 
 typedef struct {
+	const char *name;
+	const int method;
+} stress_workload_method_t;
+
+typedef struct {
 	double width;
 	uint64_t bucket[NUM_BUCKETS];
 	uint64_t overflow;
@@ -103,6 +123,7 @@ static const stress_help_t help[] = {
 	{ NULL, "workload-sched P",	"select scheduler policy [idle, fifo, rr, other, batch, deadline]" },
 	{ NULL, "workload-slice-us N",	"duration of workload time load in microseconds" },
 	{ NULL,	"workload-threads N",	"number of workload threads workers to use, default is 0 (disabled)" },
+	{ NULL, "workload-method M",	"select a workload method, default is all" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -211,6 +232,39 @@ static int stress_set_workload_slice_us(const char *opt)
 	return stress_set_setting("workload-slice-us", TYPE_ID_UINT32, &workload_slice_us);
 }
 
+
+static int stress_set_workload_method(const char *opt)
+{
+	static const stress_workload_method_t workload_methods[] = {
+		{ "all",	STRESS_WORKLOAD_METHOD_ALL },
+		{ "getpid",	STRESS_WORKLOAD_METHOD_GETPID },
+		{ "time",	STRESS_WORKLOAD_METHOD_TIME },
+		{ "inc64",	STRESS_WORKLOAD_METHOD_INC64 },
+		{ "memmove",	STRESS_WORKLOAD_METHOD_MEMMOVE },
+		{ "memread",	STRESS_WORKLOAD_METHOD_MEMREAD },
+		{ "memset",	STRESS_WORKLOAD_METHOD_MEMSET },
+		{ "mwc64",	STRESS_WORKLOAD_METHOD_MWC64 },
+		{ "nop",	STRESS_WORKLOAD_METHOD_NOP },
+		{ "pause",	STRESS_WORKLOAD_METHOD_PAUSE },
+		{ "random",	STRESS_WORKLOAD_METHOD_RANDOM },
+		{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
+	};
+
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(workload_methods); i++) {
+		if (strcmp(opt, workload_methods[i].name) == 0)
+			return stress_set_setting("workload-method", TYPE_ID_INT, &workload_methods[i].method);
+	}
+
+	(void)fprintf(stderr, "workload-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(workload_methods); i++) {
+		(void)fprintf(stderr, " %s", workload_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
 /*
  *  stress_set_workload_threads()
  *	set number of concurrent workload threads
@@ -227,6 +281,7 @@ static int stress_set_workload_threads(const char *opt)
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_workload_dist,		stress_set_workload_dist },
 	{ OPT_workload_load,		stress_set_workload_load },
+	{ OPT_workload_method,		stress_set_workload_method },
 	{ OPT_workload_quanta_us,	stress_set_workload_quanta_us },
 	{ OPT_workload_sched,		stress_set_workload_sched },
 	{ OPT_workload_slice_us,	stress_set_workload_slice_us },
@@ -489,6 +544,7 @@ static NOINLINE void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, 
 }
 
 static inline void stress_workload_waste_time(
+	const int workload_method,
 	const double run_duration_sec,
 	void *buffer,
 	const size_t buffer_len)
@@ -496,81 +552,86 @@ static inline void stress_workload_waste_time(
 	const double t_end = stress_time_now() + run_duration_sec;
 	double t;
 	static volatile uint64_t val = 0;
+	int which = (workload_method == STRESS_WORKLOAD_METHOD_ALL) ?
+		stress_mwc8modn(STRESS_WORKLOAD_METHOD_MAX) + 1 : workload_method;
 
-	switch (stress_mwc8modn(11)) {
-	case 0:
+	switch (which) {
+	case STRESS_WORKLOAD_METHOD_TIME:
 		while (stress_time_now() < t_end)
-			;
+			(void)time(NULL);
 		break;
-	case 1:
+	case STRESS_WORKLOAD_METHOD_NOP:
 		while (stress_time_now() < t_end)
 			stress_workload_nop();
 		break;
-	case 2:
+	case STRESS_WORKLOAD_METHOD_MEMSET:
 		while (stress_time_now() < t_end)
 			shim_memset(buffer, stress_mwc8(), buffer_len);
 		break;
-	case 3:
+	case STRESS_WORKLOAD_METHOD_MEMMOVE:
 		while (stress_time_now() < t_end)
 			shim_memmove(buffer, buffer + 1, buffer_len - 1);
 		break;
-	case 4:
+	case STRESS_WORKLOAD_METHOD_SQRT:
 		while ((t = stress_time_now()) < t_end)
 			stress_workload_math(t, t_end);
 		break;
-	case 5:
+	case STRESS_WORKLOAD_METHOD_INC64:
 		while (stress_time_now() < t_end)
 			val++;
 		break;
-	case 6:
+	case STRESS_WORKLOAD_METHOD_MWC64:
 		while (stress_time_now() < t_end)
 			(void)stress_mwc64();
 		break;
-	case 7:
+	case STRESS_WORKLOAD_METHOD_GETPID:
 		while (stress_time_now() < t_end)
 			(void)getpid();
 		break;
-	case 8:
+	case STRESS_WORKLOAD_METHOD_MEMREAD:
 		while (stress_time_now() < t_end)
 			stress_workload_read(buffer, buffer_len);
 		break;
-	case 9:
+	case STRESS_WORKLOAD_METHOD_PAUSE:
 		while (stress_time_now() < t_end)
 			stress_workload_pause();
 		break;
+	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
 		while ((t = stress_time_now()) < t_end) {
-			switch (stress_mwc8modn(10)) {
-			case 0:
+			switch (stress_mwc8modn(STRESS_WORKLOAD_METHOD_MAX - 1) + 1) {
+			case STRESS_WORKLOAD_METHOD_TIME:
+				(void)time(NULL);
 				break;
-			case 1:
+			case STRESS_WORKLOAD_METHOD_NOP:
 				stress_workload_nop();
 				break;
-			case 2:
+			case STRESS_WORKLOAD_METHOD_MEMSET:
 				shim_memset(buffer, stress_mwc8(), buffer_len);
 				break;
-			case 3:
+			case STRESS_WORKLOAD_METHOD_MEMMOVE:
 				shim_memmove(buffer, buffer + 1, buffer_len - 1);
 				break;
-			case 4:
+			case STRESS_WORKLOAD_METHOD_INC64:
 				while ((t = stress_time_now()) < t_end)
 					val++;
 				break;
-			case 5:
+			case STRESS_WORKLOAD_METHOD_MWC64:
 				(void)stress_mwc64();
 				break;
-			case 6:
+			case STRESS_WORKLOAD_METHOD_GETPID:
 				(void)getpid();
 				break;
-			case 7:
+			case STRESS_WORKLOAD_METHOD_SQRT:
 				stress_workload_math(t, t_end);
 				break;
-			case 8:
+			case STRESS_WORKLOAD_METHOD_MEMREAD:
+				stress_workload_read(buffer, buffer_len);
+				break;
+			case STRESS_WORKLOAD_METHOD_PAUSE:
+			default:
 				stress_workload_pause();
 				break;
-			case 9:
-			default:
-				stress_workload_read(buffer, buffer_len);
 			}
 		}
 		break;
@@ -662,6 +723,7 @@ static int stress_workload_exercise(
 #if defined(WORKLOAD_THREADED)
 	const mqd_t mq,
 #endif
+	const uint32_t workload_method,
 	const uint32_t workload_load,
 	const uint32_t workload_slice_us,
 	const uint32_t workload_quanta_us,
@@ -769,10 +831,10 @@ static int stress_workload_exercise(
 				if (sleep_secs > 0.0)
 					shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
 #else
-				stress_workload_waste_time(run_duration_sec, buffer, buffer_len);
+				stress_workload_waste_time(workload_method, run_duration_sec, buffer, buffer_len);
 #endif
 			} else {
-				stress_workload_waste_time(run_duration_sec, buffer, buffer_len);
+				stress_workload_waste_time(workload_method, run_duration_sec, buffer, buffer_len);
 			}
 		}
 		stress_bogo_inc(args);
@@ -796,7 +858,7 @@ static void *stress_workload_thread(void *ctxt)
 
 		ret = mq_receive(c->mq, (char *)&wl, sizeof(wl), &prio);
 		if (ret == sizeof(wl))
-			stress_workload_waste_time(wl.run_duration_sec, c->buffer, c->buffer_len);
+			stress_workload_waste_time(c->workload_method, wl.run_duration_sec, c->buffer, c->buffer_len);
 		else {
 			if ((errno == EINTR) || (errno == ETIMEDOUT)) {
 				continue;
@@ -817,6 +879,7 @@ static int stress_workload(const stress_args_t *args)
 	uint32_t max_quanta;
 	size_t workload_sched = 0;		/* undefined */
 	int workload_dist = STRESS_WORKLOAD_DIST_CLUSTER;
+	int workload_method = STRESS_WORKLOAD_METHOD_ALL;
 	stress_workload_t *workload;
 	void *buffer;
 	const size_t buffer_len = MB;
@@ -831,6 +894,7 @@ static int stress_workload(const stress_args_t *args)
 
 	(void)stress_get_setting("workload-dist", &workload_dist);
 	(void)stress_get_setting("workload-load", &workload_load);
+	(void)stress_get_setting("workload-method", &workload_method);
 	(void)stress_get_setting("workload-quanta-us", &workload_quanta_us);
 	(void)stress_get_setting("workload-sched", &workload_sched);
 	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
@@ -889,6 +953,7 @@ static int stress_workload(const stress_args_t *args)
 
 		c.buffer = buffer;
 		c.buffer_len = buffer_len;
+		c.workload_method = workload_method;
 		c.mq = mq;
 		for (i = 0; i < workload_threads; i++) {
 			threads[i].ret = pthread_create(&threads[i].pthread, NULL,
@@ -956,6 +1021,7 @@ static int stress_workload(const stress_args_t *args)
 #if defined(WORKLOAD_THREADED)
 					mq,
 #endif
+					workload_method,
 					workload_load,
 					workload_slice_us,
 					workload_quanta_us,
