@@ -7880,7 +7880,6 @@ run quanta duration. Essentially the run duration of each work item is the
 quanta duration Q \(mu L / 100.
 .TP
 .B \-\-workload\-method method
-all getpid time inc64 memmove memread memset mwc64 nop pause random sqrt
 select the workload method. Each quanta of execution time is consumed using
 a tight spin-loop executing a workload method. The available methods are
 described as follows:
@@ -7890,6 +7889,10 @@ l lx.
 Method  Description
 all	T{
 randomly select any one of all the following methods:
+T}
+fma	T{
+perform multiply-add operations, on modern processors these may be compiled
+into fused-multiply-add instructions.
 T}
 getpid	T{
 get the stressor's PID via getpid(2).

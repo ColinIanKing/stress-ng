@@ -83,7 +83,8 @@ typedef struct {
 #define STRESS_WORKLOAD_METHOD_GETPID	(8)
 #define STRESS_WORKLOAD_METHOD_MEMREAD	(9)
 #define STRESS_WORKLOAD_METHOD_PAUSE	(10)
-#define STRESS_WORKLOAD_METHOD_RANDOM	(11)
+#define STRESS_WORKLOAD_METHOD_FMA	(11)
+#define STRESS_WORKLOAD_METHOD_RANDOM	(12)
 #define STRESS_WORKLOAD_METHOD_MAX	STRESS_WORKLOAD_METHOD_RANDOM
 
 #define SCHED_UNDEFINED	(-1)
@@ -237,6 +238,7 @@ static int stress_set_workload_method(const char *opt)
 {
 	static const stress_workload_method_t workload_methods[] = {
 		{ "all",	STRESS_WORKLOAD_METHOD_ALL },
+		{ "fma",	STRESS_WORKLOAD_METHOD_FMA },
 		{ "getpid",	STRESS_WORKLOAD_METHOD_GETPID },
 		{ "time",	STRESS_WORKLOAD_METHOD_TIME },
 		{ "inc64",	STRESS_WORKLOAD_METHOD_INC64 },
@@ -454,6 +456,17 @@ static NOINLINE void stress_workload_nop(void)
 	}
 }
 
+static NOINLINE TARGET_CLONES void stress_workload_fma(void)
+{
+	const uint32_t r = stress_mwc32();
+	const double a = (double)r;
+	const double b = (double)(r >> 4);
+	const double c = (double)(r ^ 0xa5a55a5a);
+
+	stress_double_put((a * b) + c);
+	stress_double_put(a + (b * c));
+}
+
 static NOINLINE void stress_workload_math(const double v1, const double v2)
 {
 	double r;
@@ -596,6 +609,10 @@ static inline void stress_workload_waste_time(
 		while (stress_time_now() < t_end)
 			stress_workload_pause();
 		break;
+	case STRESS_WORKLOAD_METHOD_FMA:
+		while (stress_time_now() < t_end)
+			stress_workload_fma();
+		break;
 	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
 		while ((t = stress_time_now()) < t_end) {
@@ -629,8 +646,11 @@ static inline void stress_workload_waste_time(
 				stress_workload_read(buffer, buffer_len);
 				break;
 			case STRESS_WORKLOAD_METHOD_PAUSE:
-			default:
 				stress_workload_pause();
+				break;
+			case STRESS_WORKLOAD_METHOD_FMA:
+			default:
+				stress_workload_fma();
 				break;
 			}
 		}
