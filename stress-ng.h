@@ -500,18 +500,10 @@ extern const char stress_config[];
 
 /* Stressor defaults */
 
-#define MIN_SEQUENTIAL		(0)
-#define MAX_SEQUENTIAL		(1000000)
-#define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
-#define DEFAULT_PARALLEL	(0)	/* Disabled */
-
 #define TIMEOUT_NOT_SET		(~0ULL)
-#define DEFAULT_TIMEOUT		(60 * 60 * 24)
-#define DEFAULT_BACKOFF		(0)
 #define DEFAULT_DIRS		(8192)
 
 #define MEM_CACHE_SIZE		(65536 * 32)
-#define DEFAULT_CACHE_LEVEL     (3)
 #define UNDEFINED		(-1)
 
 #define PAGE_MAPPED		(0x01)

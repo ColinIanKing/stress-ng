@@ -61,6 +61,14 @@
 
 #include <float.h>
 
+#define MIN_SEQUENTIAL		(0)
+#define MAX_SEQUENTIAL		(1000000)
+#define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
+#define DEFAULT_PARALLEL	(0)	/* Disabled */
+#define DEFAULT_TIMEOUT		(60 * 60 * 24)
+#define DEFAULT_BACKOFF		(0)
+#define DEFAULT_CACHE_LEVEL     (3)
+
 /* Stress test classes */
 typedef struct {
 	const stress_class_t class;	/* Class type bit mask */
