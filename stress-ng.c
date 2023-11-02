@@ -3569,17 +3569,20 @@ int main(int argc, char **argv, char **envp)
 	g_shared->perf.lock = stress_lock_create();
 	if (!g_shared->perf.lock) {
 		pr_err("failed to create perf lock\n");
+		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
 #endif
 	g_shared->warn_once.lock = stress_lock_create();
 	if (!g_shared->warn_once.lock) {
 		pr_err("failed to create warn_once lock\n");
+		ret = EXIT_FAILURE;
 		goto exit_destroy_perf_lock;
 	}
 	g_shared->net_port_map.lock = stress_lock_create();
 	if (!g_shared->warn_once.lock) {
 		pr_err("failed to create net_port_map lock\n");
+		ret = EXIT_FAILURE;
 		goto exit_destroy_warn_once_lock;
 	}
 
