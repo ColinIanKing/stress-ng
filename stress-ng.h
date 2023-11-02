@@ -170,11 +170,6 @@
 #define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
 #define STRESS_STRESSOR_STATUS_MAX		(4)
 
-/* stress_stressor_info ignore value. 2 bits */
-#define STRESS_STRESSOR_NOT_IGNORED		(0)
-#define STRESS_STRESSOR_UNSUPPORTED		(1)
-#define STRESS_STRESSOR_EXCLUDED		(2)
-
 typedef struct {
 	uint64_t counter;		/* bogo-op counter */
 	bool counter_ready;		/* ready flag */

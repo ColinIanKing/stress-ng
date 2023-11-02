@@ -69,6 +69,11 @@
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_CACHE_LEVEL     (3)
 
+/* stress_stressor_info ignore value. 2 bits */
+#define STRESS_STRESSOR_NOT_IGNORED		(0)
+#define STRESS_STRESSOR_UNSUPPORTED		(1)
+#define STRESS_STRESSOR_EXCLUDED		(2)
+
 /* Stress test classes */
 typedef struct {
 	const stress_class_t class;	/* Class type bit mask */
