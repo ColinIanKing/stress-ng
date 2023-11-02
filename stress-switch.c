@@ -489,7 +489,8 @@ static stress_switch_method_t stress_switch_methods[] = {
 	{ "mq",		stress_switch_mq },
 #endif
 	{ "pipe",	stress_switch_pipe },
-#if defined(HAVE_SEM_SYSV)
+#if defined(HAVE_SEM_SYSV) &&	\
+    defined(HAVE_KEY_T)
 	{ "sem-sysv",	stress_switch_sem_sysv },
 #endif
 };
