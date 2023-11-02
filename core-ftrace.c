@@ -35,7 +35,8 @@
 #include <bsd/sys/tree.h>
 #endif
 
-#if defined(HAVE_LIB_BSD) &&	\
+#if defined(HAVE_LIB_BSD) &&		\
+    defined(HAVE_BSD_SYS_TREE_H) &&	\
     defined(__linux__)
 
 #define MAX_MOUNTS	(256)
