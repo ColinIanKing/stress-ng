@@ -37,6 +37,7 @@
 
 #if defined(HAVE_LIB_BSD) &&		\
     defined(HAVE_BSD_SYS_TREE_H) &&	\
+    defined(RB_ENTRY) &&		\
     defined(__linux__)
 
 #define MAX_MOUNTS	(256)
