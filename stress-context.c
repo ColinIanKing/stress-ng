@@ -173,6 +173,9 @@ static int stress_context(const stress_args_t *args)
 			args->name, STRESS_CONTEXTS, sizeof(context_data_t));
 		return EXIT_NO_RESOURCE;
 	}
+	pr_dbg("%s: context mapped at %p..%p\n", args->name,
+		(void *)context,
+		(void *)((uintptr_t)context + context_size));
 	(void)shim_memset(&uctx_main, 0, sizeof(uctx_main));
 
 	context_counter = 0;
@@ -185,6 +188,8 @@ static int stress_context(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_catch_sigsegv();
 
 	/* And start.. */
 	t = stress_time_now();
