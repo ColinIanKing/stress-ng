@@ -140,6 +140,8 @@ static int OPTIMIZE3 remap_order(
 			ret = remap_file_pages(data + (i * stride), page_size,
 				0, order[i], 0);
 		}
+#else
+		(void)remap_mlock;
 #endif
 		if (UNLIKELY(ret < 0)) {
 			pr_inf_skip("%s: remap_file_pages failed, errno=%d (%s), skipping stressor\n",
