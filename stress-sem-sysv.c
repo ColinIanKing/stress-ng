@@ -40,7 +40,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_SEM_SYSV)
+#if defined(HAVE_SEM_SYSV) &&	\
+    defined(HAVE_KEY_T)
 typedef union stress_semun {
 	int              val;	/* Value for SETVAL */
 	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */		/* cppcheck-suppress unusedStructMember */
@@ -64,7 +65,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_SEM_SYSV)
+#if defined(HAVE_SEM_SYSV) &&	\
+    defined(HAVE_KEY_T)
 /*
  *  stress_semaphore_sysv_init()
  *	initialise a System V semaphore
