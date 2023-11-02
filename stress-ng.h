@@ -313,8 +313,8 @@ do {				\
 	enum { STRESS_CONCAT_EXPAND(STRESS_ASSERT_AT_LINE_, __LINE__) = \
 		1 / !!(expr) };
 
-#define STRESS_MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
-#define STRESS_MAXIMUM(a,b) (((a) > (b)) ? (a) : (b))
+#define STRESS_MINIMUM(a, b) (((a) < (b)) ? (a) : (b))
+#define STRESS_MAXIMUM(a, b) (((a) > (b)) ? (a) : (b))
 
 /* NetBSD does not define MAP_ANONYMOUS */
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
@@ -436,8 +436,8 @@ typedef struct stressor_info {
 
 /* optimisation on branching */
 #if defined(HAVE_BUILTIN_EXPECT)
-#define LIKELY(x)	__builtin_expect((x),1)
-#define UNLIKELY(x)	__builtin_expect((x),0)
+#define LIKELY(x)	__builtin_expect((x), 1)
+#define UNLIKELY(x)	__builtin_expect((x), 0)
 #else
 #define LIKELY(x)	(x)
 #define UNLIKELY(x)	(x)
