@@ -448,7 +448,8 @@ static char *syscall_exec_prog;			/* stress-ng exec path */
     (defined(HAVE_FGETXATTR) ||		\
      defined(HAVE_FSETXATTR) ||		\
      defined(HAVE_FREMOVEXATTR) ||	\
-     defined(HAVE_GETXATTR))
+     defined(HAVE_GETXATTR) ||		\
+     defined(HAVE_REMOVEXATTR))
 static const char *syscall_xattr_name = "user.val";	/* xattr name */
 #endif
 #if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
