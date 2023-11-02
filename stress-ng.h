@@ -331,13 +331,6 @@ do {				\
  */
 #define NOCLOBBER static
 
-#define STRESS_TRY_OPEN_OK	  (0)		/* File can be opened */
-#define STRESS_TRY_OPEN_FORK_FAIL (1)		/* Try failed, e.g. can't fork */
-#define STRESS_TRY_OPEN_WAIT_FAIL (2)		/* Wait on child open failed */
-#define STRESS_TRY_OPEN_EXIT_FAIL (3)		/* Can't get _exit() status */
-#define STRESS_TRY_OPEN_FAIL	  (4)		/* Can't open file */
-#define STRESS_TRY_AGAIN	  (5)		/* Device busy, try again */
-
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */
 
 #define ABORT_FAILURES		(5)		/* Number of failures before we abort */
