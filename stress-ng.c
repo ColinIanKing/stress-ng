@@ -1469,7 +1469,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->ci.run_ok = ok;
 		(*checksum)->data.ci.run_ok = ok;
 		/* Ensure reserved padding is zero to not confuse checksum */
-		(void)shim_memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
+		(void)shim_memset((*checksum)->data.pad, 0, sizeof((*checksum)->data.pad));
 
 		stress_set_proc_state(name, STRESS_STATE_STOP);
 		/*

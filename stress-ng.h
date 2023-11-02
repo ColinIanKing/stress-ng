@@ -366,7 +366,7 @@ typedef struct {
 typedef struct {
 	struct {
 		stress_counter_info_t ci; /* Copy of stats counter info ci */
-		uint8_t	reserved[7];	/* Padding */
+		uint8_t	pad[32 - sizeof(stress_counter_info_t)]; /* Padding */
 	} data;
 	uint32_t hash;			/* Hash of data */
 } stress_checksum_t;
