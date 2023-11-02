@@ -380,7 +380,7 @@ static int stress_access(const stress_args_t *args)
 						(unsigned int)modes[i].chmod_mode,
 						errno, strerror(errno), fs_type);
 				}
-			}	
+			}
 			/*
 			 *  Exercise bad dir_fd
 			 */
