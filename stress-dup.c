@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
+
 static const stress_help_t help[] = {
 	{ NULL,	"dup N",	"start N workers exercising dup/close" },
 	{ NULL,	"dup-ops N",	"stop after N dup/close bogo operations" },

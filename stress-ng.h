@@ -338,7 +338,6 @@ do {				\
 #define STRESS_TRY_OPEN_FAIL	  (4)		/* Can't open file */
 #define STRESS_TRY_AGAIN	  (5)		/* Device busy, try again */
 
-#define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */
 
 #define ABORT_FAILURES		(5)		/* Number of failures before we abort */
