@@ -25,6 +25,8 @@
 #include <syslog.h>
 #endif
 
+#define ABORT_FAILURES	(5)	/* Number of failures before we abort */
+
 static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;
 static int 	log_fd = -1;

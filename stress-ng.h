@@ -333,8 +333,6 @@ do {				\
 
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */
 
-#define ABORT_FAILURES		(5)		/* Number of failures before we abort */
-
 /* Stressor classes */
 #define CLASS_CPU		STRESS_BIT_UL(0)	/* CPU only */
 #define CLASS_MEMORY		STRESS_BIT_UL(1)	/* Memory thrashers */
@@ -822,7 +820,6 @@ extern void stress_metrics_set_const_check(const stress_args_t *args,
 #define stress_metrics_set(args, idx, description, value)	\
 	stress_metrics_set_const_check(args, idx, description, false, value)
 #endif
-
 
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
