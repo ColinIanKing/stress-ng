@@ -42,7 +42,7 @@ static int stress_set_mpfr_precision(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_mpfr_precision,	stress_set_mpfr_precision },
+	{ OPT_mpfr_precision,	stress_set_mpfr_precision },
 	{ 0,			NULL },
 };
 
