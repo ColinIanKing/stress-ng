@@ -501,7 +501,6 @@ extern const char stress_config[];
 /* Stressor defaults */
 
 #define TIMEOUT_NOT_SET		(~0ULL)
-#define DEFAULT_DIRS		(8192)
 
 #define MEM_CACHE_SIZE		(65536 * 32)
 #define UNDEFINED		(-1)

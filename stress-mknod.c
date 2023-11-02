@@ -24,6 +24,8 @@
 #include <libgen.h>
 #endif
 
+#define DEFAULT_DIRS		(8192)
+
 static const stress_help_t help[] = {
 	{ NULL,	"mknod N",	"start N workers that exercise mknod" },
 	{ NULL,	"mknod-ops N",	"stop after N mknod bogo operations" },
