@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-mounts.h"
 
+#define DEFAULT_LINKS	(8192)
+
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
 #endif

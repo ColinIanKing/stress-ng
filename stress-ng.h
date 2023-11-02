@@ -508,7 +508,6 @@ extern const char stress_config[];
 #define TIMEOUT_NOT_SET		(~0ULL)
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
-#define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
 #define MEM_CACHE_SIZE		(65536 * 32)
