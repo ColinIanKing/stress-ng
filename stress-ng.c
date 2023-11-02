@@ -3557,6 +3557,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	if (!stress_shared_heap_init()) {
 		pr_err("failed to create shared heap \n");
+		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
 
