@@ -4298,14 +4298,18 @@ static void stress_dbg(const char *fmt, ...) FORMAT(printf, 1, 2);
 static void stress_dbg(const char *fmt, ...)
 {
 	va_list ap;
-	int n;
+	int n, sz;
 	static char buf[128];
-
+	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%jd] ", (intmax_t)getpid());
+	if (n < 0)
+		return;
+	sz = n;
 	va_start(ap, fmt);
-	n = vsnprintf(buf, sizeof(buf), fmt, ap);
+	n = vsnprintf(buf + sz, sizeof(buf) - sz, fmt, ap);
 	va_end(ap);
+	sz += n;
 
-	VOID_RET(ssize_t, write(fileno(stdout), buf, n));
+	VOID_RET(ssize_t, write(fileno(stdout), buf, (size_t)sz));
 }
 
 /*
@@ -4343,7 +4347,7 @@ static void stress_dump_objcode(
 		size_t i;
 		bool show_opcode = false;
 
-		stress_dbg("0x%p:", addr);
+		stress_dbg("stress-ng: info: 0x%p:", addr);
 		for (i = 0; i < len; i++) {
 			if (&addr[i] == sigill_addr) {
 				stress_dbg("<%-2.2x>", addr[i]);
@@ -4358,15 +4362,86 @@ static void stress_dump_objcode(
 	}
 }
 
+static const char *stress_catch_sig_si_code(const int sig, const int si_code)
+{
+	static const char unknown[] = "UNKNOWN";
+
+	switch (sig) {
+	case SIGILL:
+		switch (si_code) {
+#if defined(ILL_ILLOPC)
+		case ILL_ILLOPC:
+			return "ILL_ILLOPC";
+#endif
+#if defined(ILL_ILLOPN)
+		case ILL_ILLOPN:
+			return "ILL_ILLOPN";
+#endif
+#if defined(ILL_ILLADR)
+		case ILL_ILLADR:
+			return "ILL_ILLADR";
+#endif
+#if defined(ILL_ILLTRP)
+		case ILL_ILLTRP:
+			return "ILL_ILLTRP";
+#endif
+#if defined(ILL_PRVOPC)
+		case ILL_PRVOPC:
+			return "ILL_PRVOPC";
+#endif
+#if defined(ILL_PRVREG)
+		case ILL_PRVREG:
+			return "ILL_PRVREG";
+#endif
+#if defined(ILL_COPROC)
+		case ILL_COPROC:
+			return "ILL_COPROC";
+#endif
+#if defined(ILL_BADSTK)
+		case ILL_BADSTK:
+			return "ILL_BADSTK";
+#endif
+		default:
+			return unknown;
+		}
+		break;
+	case SIGSEGV:
+		switch (si_code) {
+#if defined(SEGV_MAPERR)
+		case SEGV_MAPERR:
+			return "SEGV_MAPERR";
+#endif
+#if defined(SEGV_ACCERR)
+		case SEGV_ACCERR:
+			return "SEGV_ACCERR";
+#endif
+#if defined(SEGV_BNDERR)
+		case SEGV_BNDERR:
+			return "SEGV_BNDERR";
+#endif
+#if defined(SEGV_PKUERR)
+		case SEGV_PKUERR:
+			return "SEGV_PKUERR";
+#endif
+		default:
+			return unknown;
+		}
+		break;
+	}
+	return unknown;
+}
+
 /*
- *  stress_catch_sigill_handler()
- *	handle SIGILL, dump 16 bytes before and after the illegal opcode
- *	and terminate immediately to avoid any recursive SIGILL.
+ *  stress_catch_sig_handler()
+ *	handle signal, dump 16 bytes before and after the illegal opcode
+ *	and terminate immediately to avoid any recursive signal handling
  */
-static void stress_catch_sigill_handler(
+static void stress_catch_sig_handler(
 	int sig,
 	siginfo_t *info,
-	void *ucontext)
+	void *ucontext,
+	const int sig_expected,
+	const char *sig_expected_name)
 {
 	static bool handled = false;
 
@@ -4376,37 +4451,94 @@ static void stress_catch_sigill_handler(
 	if (handled)
 		_exit(EXIT_FAILURE);
 	handled = true;
-	if (sig == SIGILL) {
-		uint8_t *addr = info->si_addr;
-		size_t i;
+	if (sig == sig_expected) {
+		if (info) {
+			const uint8_t *addr = info->si_addr;
+			size_t i;
 
-		stress_dbg("caught SIGILL at address 0x%p\n", addr);
-		addr -= 16;
-		for (i = 0; i < 3; i++, addr += 16)
-			stress_dump_objcode(addr, info->si_addr, 16);
+			stress_dbg("caught %s, address 0x%p (%s)\n",
+				sig_expected_name, addr,
+				stress_catch_sig_si_code(sig, info->si_code));
+			addr -= 16;
+			for (i = 0; i < 3; i++, addr += 16)
+				stress_dump_objcode(addr, info->si_addr, 16);
+		} else {
+			stress_dbg("caught %s, unknown address\n", sig_expected_name);
+		}
+	} else {
+		if (info) {
+			stress_dbg("caught unexpected SIGNAL %d, address 0x%p\n", sig, info->si_addr);
+		} else {
+			stress_dbg("caught unexpected SIGNAL %d, unknown address\n", sig);
+		}
 	}
 	/* Big fat abort */
 	_exit(EXIT_FAILURE);
 }
 
 /*
- *  stress_catch_sigill()
+ *  stress_catch_sigill_handler()
+ *	handler for SIGILL
+ */
+static void stress_catch_sigill_handler(
+	int sig,
+	siginfo_t *info,
+	void *ucontext)
+{
+	stress_catch_sig_handler(sig, info, ucontext, SIGILL, "SIGILL");
+}
+
+/*
+ *  stress_catch_sigsegv_handler()
+ *	handler for SIGSEGV
+ */
+static void stress_catch_sigsegv_handler(
+	int sig,
+	siginfo_t *info,
+	void *ucontext)
+{
+	stress_catch_sig_handler(sig, info, ucontext, SIGSEGV, "SIGSEGV");
+}
+
+/*
+ *  stress_catch_sig()
  *	add signal handler to catch and dump illegal instructions,
  *	this is mainly to be used by any code using target clones
  *	just in case the compiler emits code that the target cannot
  *	actually execute.
  */
-void stress_catch_sigill(void)
+static void stress_catch_sig(
+	const int sig,
+	void (*handler)(int sig, siginfo_t *info, void *ucontext)
+)
 {
 	struct sigaction sa;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 
-	sa.sa_sigaction = stress_catch_sigill_handler;
+	sa.sa_sigaction = handler;
 #if defined(SA_SIGINFO)
 	sa.sa_flags = SA_SIGINFO;
 #endif
-	(void)sigaction(SIGILL, &sa, NULL);
+	(void)sigaction(sig, &sa, NULL);
+}
+
+/*
+ *  stress_catch_sigill()
+ *	catch and dump SIGILL signals
+ */
+void stress_catch_sigill(void)
+{
+	stress_catch_sig(SIGILL, stress_catch_sigill_handler);
+}
+
+/*
+ *  stress_catch_sigsegv()
+ *	catch and dump SIGSEGV signals
+ */
+void stress_catch_sigsegv(void)
+{
+	stress_catch_sig(SIGSEGV, stress_catch_sigsegv_handler);
 }
 
 #if defined(__linux__)
