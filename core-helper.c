@@ -4459,9 +4459,11 @@ static void stress_catch_sig_handler(
 			stress_dbg("caught %s, address 0x%p (%s)\n",
 				sig_expected_name, addr,
 				stress_catch_sig_si_code(sig, info->si_code));
-			addr -= 16;
-			for (i = 0; i < 3; i++, addr += 16)
-				stress_dump_objcode(addr, info->si_addr, 16);
+			if (sig == SIGILL) {
+				addr -= 16;
+				for (i = 0; i < 3; i++, addr += 16)
+					stress_dump_objcode(addr, info->si_addr, 16);
+			}
 		} else {
 			stress_dbg("caught %s, unknown address\n", sig_expected_name);
 		}
