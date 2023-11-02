@@ -3237,7 +3237,8 @@ int stress_kernel_release(const int major, const int minor, const int patchlevel
  */
 int stress_get_kernel_release(void)
 {
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
 	int major = 0, minor = 0, patchlevel = 0;
 
