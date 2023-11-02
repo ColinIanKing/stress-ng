@@ -95,7 +95,10 @@ static int stress_set_sctp_port(const char *opt)
 static int stress_set_sctp_sched(const char *opt)
 {
 #if defined(HAVE_SCTP_SCHED_TYPE) && 	\
-    defined(HAVE_SCTP_ASSOC_VALUE)
+    defined(HAVE_SCTP_ASSOC_VALUE) &&	\
+    (defined(SCTP_SS_FCFS) ||		\
+     defined(SCTP_SS_PRIO) ||		\
+     defined(SCTP_SS_RR))
 	size_t i;
 
 	static const stress_sctp_sched_t stress_sctp_scheds[] = {
