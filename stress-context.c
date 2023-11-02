@@ -165,6 +165,15 @@ static int stress_context(const stress_args_t *args)
 	double duration, rate, t;
 	int rc = EXIT_FAILURE;
 
+	/*
+	 *  alternative stacks in swapcontext maybe problematic on
+	 *  some systems, some Linux architectures need SS_AUTODISARM
+	 *  and even this may not work, for example:
+	 * 	https://github.com/ColinIanKing/stress-ng/issues/331
+ 	 *  so for now, disable the alternative stack
+	 */
+	stress_sigaltstack_disable();
+
 	context = (context_data_t *)mmap(NULL, context_size,
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
