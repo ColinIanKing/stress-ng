@@ -111,7 +111,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	 NULL }
 };
 
-#if defined(HAVE_RB_TREE)
+#if defined(HAVE_RB_TREE) &&	\
+    defined(RB_ENTRY)
 typedef struct sparse_rb {
 	uint64_t xy;		/* x,y matrix position */
 	uint32_t value;		/* value in matrix x,y */
@@ -121,7 +122,8 @@ typedef struct sparse_rb {
 UNEXPECTED
 #endif
 
-#if defined(HAVE_SPLAY_TREE)
+#if defined(HAVE_SPLAY_TREE) &&	\
+    defined(SPLAY_ENTRY)
 typedef struct sparse_splay {
 	uint64_t xy;		/* x,y matrix position */
 	uint32_t value;		/* value in matrix x,y */
@@ -163,8 +165,8 @@ typedef struct sparse_qhash_table {
 	size_t idx;
 } sparse_qhash_table_t;
 
-#if defined(HAVE_SYS_QUEUE_CIRCLEQ)
-
+#if defined(HAVE_SYS_QUEUE_CIRCLEQ) &&	\
+    defined(CIRCLEQ_ENTRY)
 typedef struct sparse_x_list_node {
 	CIRCLEQ_ENTRY(sparse_x_list_node) sparse_x_list;
 	uint32_t value;		/* value in matrix x,y */
@@ -603,7 +605,8 @@ static void judy_del(void *handle, const uint32_t x, const uint32_t y)
 UNEXPECTED
 #endif
 
-#if defined(HAVE_RB_TREE)
+#if defined(HAVE_RB_TREE) &&	\
+    defined(RB_ENTRY)
 
 static size_t rb_objmem;
 
@@ -716,7 +719,8 @@ static uint32_t OPTIMIZE3 rb_get(void *handle, const uint32_t x, const uint32_t 
 UNEXPECTED
 #endif
 
-#if defined(HAVE_SPLAY_TREE)
+#if defined(HAVE_SPLAY_TREE) &&	\
+    defined(SPLAY_ENTRY)
 
 static size_t splay_objmem;
 
@@ -838,8 +842,8 @@ static uint32_t OPTIMIZE3 splay_get(void *handle, const uint32_t x, const uint32
 UNEXPECTED
 #endif
 
-#if defined(HAVE_SYS_QUEUE_CIRCLEQ)
-
+#if defined(HAVE_SYS_QUEUE_CIRCLEQ) &&	\
+    defined(CIRCLEQ_ENTRY)
 /*
  *  list_create()
  *	create a circular list based sparse matrix
@@ -1325,15 +1329,18 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 	{ "hashjudy",	hashjudy_create, hashjudy_destroy, hashjudy_put, hashjudy_del, hashjudy_get },
 	{ "judy",	judy_create, judy_destroy, judy_put, judy_del, judy_get },
 #endif
-#if defined(HAVE_SYS_QUEUE_CIRCLEQ)
+#if defined(HAVE_SYS_QUEUE_CIRCLEQ) &&	\
+    defined(CIRCLEQ_ENTRY)
 	{ "list",	list_create, list_destroy, list_put, list_del, list_get },
 #endif
 	{ "mmap",	mmap_create, mmap_destroy, mmap_put, mmap_del, mmap_get },
 	{ "qhash",	qhash_create, qhash_destroy, qhash_put, qhash_del, qhash_get },
-#if defined(HAVE_RB_TREE)
+#if defined(HAVE_RB_TREE) &&	\
+    defined(RB_ENTRY)
 	{ "rb",		rb_create, rb_destroy, rb_put, rb_del, rb_get },
 #endif
-#if defined(HAVE_SPLAY_TREE)
+#if defined(HAVE_SPLAY_TREE) &&	\
+    defined(SPLAY_ENTRY)
 	{ "splay",	splay_create, splay_destroy, splay_put, splay_del, splay_get },
 #endif
 };
