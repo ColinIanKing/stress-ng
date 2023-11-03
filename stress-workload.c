@@ -723,8 +723,8 @@ static void stress_workload_bucket_report(stress_workload_bucket_t *bucket)
 
 static int stress_workload_cmp(const void *p1, const void *p2)
 {
-	stress_workload_t *w1 = (stress_workload_t *)p1;
-	stress_workload_t *w2 = (stress_workload_t *)p2;
+	const stress_workload_t *w1 = (const stress_workload_t *)p1;
+	const stress_workload_t *w2 = (const stress_workload_t *)p2;
 
 	register double when1 = w1->when_us;
 	register double when2 = w2->when_us;
