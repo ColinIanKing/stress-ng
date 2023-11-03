@@ -47,7 +47,7 @@ typedef struct {
 #if defined(WORKLOAD_THREADED)
 typedef struct {
 	mqd_t	mq;
-	void *buffer;
+	uint8_t *buffer;
 	size_t buffer_len;
 	int workload_method;
 } stress_workload_ctxt_t;
@@ -558,7 +558,7 @@ static NOINLINE void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, 
 static inline void stress_workload_waste_time(
 	const int workload_method,
 	const double run_duration_sec,
-	void *buffer,
+	uint8_t *buffer,
 	const size_t buffer_len)
 {
 	const double t_end = stress_time_now() + run_duration_sec;
@@ -751,7 +751,7 @@ static int stress_workload_exercise(
 	const int workload_dist,
 	stress_workload_t *workload,
 	stress_workload_bucket_t *slice_offset_bucket,
-	void *buffer,
+	uint8_t *buffer,
 	const size_t buffer_len)
 {
 	size_t i;
@@ -900,7 +900,7 @@ static int stress_workload(const stress_args_t *args)
 	int workload_dist = STRESS_WORKLOAD_DIST_CLUSTER;
 	int workload_method = STRESS_WORKLOAD_METHOD_ALL;
 	stress_workload_t *workload;
-	void *buffer;
+	uint8_t *buffer;
 	const size_t buffer_len = MB;
 	stress_workload_bucket_t slice_offset_bucket;
 	int rc = EXIT_SUCCESS;
@@ -933,7 +933,7 @@ static int stress_workload(const stress_args_t *args)
 		}
 	}
 
-	buffer = mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
+	buffer = (uint8_t *)mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd sized buffer, "
@@ -1073,7 +1073,7 @@ exit_close_mq:
 	free(threads);
 #endif
 exit_free_buffer:
-	(void)munmap(buffer, buffer_len);
+	(void)munmap((void *)buffer, buffer_len);
 	return rc;
 }
 
