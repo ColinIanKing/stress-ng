@@ -27,13 +27,6 @@
 #define WARN_UNUSED
 #endif
 
-/* gcc 7.0 and later support __attribute__((fallthrough)); */
-#if defined(HAVE_ATTRIBUTE_FALLTHROUGH)
-#define CASE_FALLTHROUGH __attribute__((fallthrough))
-#else
-#define CASE_FALLTHROUGH
-#endif
-
 #if defined(HAVE_ATTRIBUTE_FAST_MATH) &&		\
     !defined(HAVE_COMPILER_ICC) &&			\
     defined(HAVE_COMPILER_GCC_OR_MUSL) &&		\

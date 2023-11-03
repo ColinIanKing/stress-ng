@@ -350,41 +350,44 @@ static int stress_sigsegv(const stress_args_t *args)
 			fault_addr = NULL;
 			expected_addr = NULL;
 #endif
+retry:
+			if (!stress_continue(args))
+				break;
 			switch (stress_mwc8() & 7) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
 			case 0:
 				/* Trip a SIGSEGV/SIGILL/SIGBUS */
 				stress_sigsegv_x86_trap();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_X86_INT88)
 			case 1:
 				/* Illegal int $88 */
 				stress_sigsegv_x86_int88();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_RDMSR)
 			case 2:
 				/* Privileged instruction -> SIGSEGV */
 				if (has_msr)
 					stress_sigsegv_rdmsr();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_MISALIGNED128NT)
 			case 3:
 				if (has_sse2)
 					stress_sigsegv_misaligned128nt();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_READ_TSC)
 			case 4:
 				stress_sigsegv_readtsc();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_READ_IO)
 			case 5:
 				stress_sigsegv_read_io();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_VDSO)
 			case 6:
@@ -393,7 +396,7 @@ static int stress_sigsegv(const stress_args_t *args)
 				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
 				stress_sigsegv_vdso();
-				CASE_FALLTHROUGH;
+				goto retry;
 #endif
 			default:
 #if defined(SA_SIGINFO)

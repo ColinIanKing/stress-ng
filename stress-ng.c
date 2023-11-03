@@ -1071,8 +1071,9 @@ redo:
 			 *  problem.
 			 */
 			wexit_status = EXIT_NOT_SUCCESS;
-		CASE_FALLTHROUGH;
+			goto wexit_status_default;
 		default:
+wexit_status_default:
 			pr_err("%s: [%d] terminated with an error, exit status=%d (%s)\n",
 				stressor_name, ret, wexit_status,
 				stress_exit_status_to_string(wexit_status));

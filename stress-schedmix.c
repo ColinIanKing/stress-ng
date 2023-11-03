@@ -374,20 +374,21 @@ static int stress_schedmix_child(const stress_args_t *args)
 				ret = shim_sched_setattr(0, &attr, 0);
 				break;
 			}
-			CASE_FALLTHROUGH;
+			goto case_sched_other;
 #endif
 
 #if defined(SCHED_IDLE)
 		case SCHED_IDLE:
-			CASE_FALLTHROUGH;
+			goto case_sched_other;
 #endif
 #if defined(SCHED_BATCH)
 		case SCHED_BATCH:
-			CASE_FALLTHROUGH;
+			goto case_sched_other;
 #endif
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
 #endif
+case_sched_other:
 			param.sched_priority = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
 
@@ -401,11 +402,12 @@ static int stress_schedmix_child(const stress_args_t *args)
 				VOID_RET(int, sched_rr_get_interval(pid, &t));
 			}
 #endif
-			CASE_FALLTHROUGH;
+			goto case_sched_fifo;
 #endif
 #if defined(SCHED_FIFO)
 		case SCHED_FIFO:
 #endif
+case_sched_fifo:
 			min_prio = sched_get_priority_min(new_policy);
 			max_prio = sched_get_priority_max(new_policy);
 

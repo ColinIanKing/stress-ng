@@ -342,11 +342,9 @@ static int stress_workload_set_sched(
 #endif
 #if defined(SCHED_IDLE)
 	case SCHED_IDLE:
-		CASE_FALLTHROUGH;
 #endif
 #if defined(SCHED_BATCH)
 	case SCHED_BATCH:
-		CASE_FALLTHROUGH;
 #endif
 #if defined(SCHED_OTHER)
 	case SCHED_OTHER:
@@ -364,11 +362,12 @@ static int stress_workload_set_sched(
 			VOID_RET(int, sched_rr_get_interval(pid, &t));
 		}
 #endif
-		CASE_FALLTHROUGH;
+		goto case_sched_fifo;
 #endif
 #if defined(SCHED_FIFO)
 		case SCHED_FIFO:
 #endif
+case_sched_fifo:
 		min_prio = sched_get_priority_min(policy);
 		max_prio = sched_get_priority_max(policy);
 

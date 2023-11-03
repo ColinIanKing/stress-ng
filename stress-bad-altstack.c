@@ -197,6 +197,9 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 	(void)sched_settings_apply(true);
 
 	for (i = 0; i < 10; i++) {
+retry:
+		if (!stress_continue(args))
+			return EXIT_SUCCESS;
 		rnd = stress_mwc32modn(11);
 		switch (rnd) {
 #if defined(HAVE_MPROTECT)
@@ -205,38 +208,41 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 			ret = mprotect(stack, stress_minsigstksz, PROT_NONE);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 2:
 			/* Illegal read-only stack */
 			ret = mprotect(stack, stress_minsigstksz, PROT_READ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 3:
 			/* Illegal exec-only stack */
 			ret = mprotect(stack, stress_minsigstksz, PROT_EXEC);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 4:
 			/* Illegal write-only stack */
 			ret = mprotect(stack, stress_minsigstksz, PROT_WRITE);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			CASE_FALLTHROUGH;
+			goto retry;
+#else
+		case 1..4:
+			goto retry;
 #endif
 		case 5:
 			/* Illegal NULL stack */
 			ret = stress_sigaltstack(NULL, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 6:
 			/* Illegal text segment stack */
 			ret = stress_sigaltstack(stress_signal_handler, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 7:
 			/* Small stack */
 			for (ret = -1, sz = 0; sz <= STRESS_SIGSTKSZ; sz += 256) {
@@ -247,7 +253,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			stress_bad_altstack_force_fault(g_shared->nullptr);
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 8:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 			/* Illegal stack on VDSO, otherwises NULL stack */
@@ -257,7 +263,7 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 					stress_bad_altstack_force_fault(stack);
 			}
 #endif
-			CASE_FALLTHROUGH;
+			goto retry;
 		case 9:
 			/* Illegal /dev/zero mapped stack */
 			if (zero_stack != MAP_FAILED) {
@@ -265,19 +271,18 @@ static int stress_bad_altstack_child(const stress_args_t *args)
 				if (ret == 0)
 					stress_bad_altstack_force_fault(zero_stack);
 			}
-			CASE_FALLTHROUGH;
-#if defined(O_TMPFILE)
+			goto retry;
 		case 10:
+#if defined(O_TMPFILE)
 			/* Illegal mapped stack to empty file, causes BUS error */
 			if (bus_stack != MAP_FAILED) {
 				ret = stress_sigaltstack(bus_stack, stress_minsigstksz);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(bus_stack);
 			}
-			CASE_FALLTHROUGH;
 #endif
+			goto retry;
 		default:
-			CASE_FALLTHROUGH;
 		case 0:
 			/* Illegal unmapped stack */
 			(void)munmap(stack, stress_minsigstksz);

@@ -864,7 +864,6 @@ static int stress_af_alg(const stress_args_t *args)
 				(void)rc;
 				break;
 			case CRYPTO_UNKNOWN:
-				CASE_FALLTHROUGH;
 			default:
 				break;
 			}

@@ -882,19 +882,21 @@ static int stress_stream(const stress_args_t *args)
 		if (idx3 == MAP_FAILED)
 			goto err_idx3;
 		stress_stream_init_index(idx3, n);
-		CASE_FALLTHROUGH;
+		goto case_stream_index_2;
 	case 2:
+case_stream_index_2:
 		idx2 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx2 == MAP_FAILED)
 			goto err_idx2;
 		stress_stream_init_index(idx2, n);
-		CASE_FALLTHROUGH;
+		goto case_stream_index_1;
 	case 1:
+case_stream_index_1:
 		idx1 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx1 == MAP_FAILED)
 			goto err_idx1;
 		stress_stream_init_index(idx1, n);
-		CASE_FALLTHROUGH;
+		break;
 	case 0:
 	default:
 		break;
