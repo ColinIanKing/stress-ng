@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-config-check.h"
 
 #if defined(__linux__)
 static int stress_config_check_cpu_filter(const struct dirent *d)
