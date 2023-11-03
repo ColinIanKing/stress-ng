@@ -56,7 +56,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_copy_file_seek64()
  *	seek with off64_t
  */
-shim_off64_t stress_copy_file_seek64(int fd, shim_off64_t off64, int whence)
+static inline shim_off64_t stress_copy_file_seek64(int fd, shim_off64_t off64, int whence)
 {
 #if defined(HAVE_LSEEK64)
 	return lseek64(fd, off64, whence);
