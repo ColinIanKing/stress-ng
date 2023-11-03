@@ -431,7 +431,7 @@ static int stress_workload_set_sched(
 }
 #endif
 
-static NOINLINE void stress_workload_nop(void)
+static void stress_workload_nop(void)
 {
 	register int i;
 
@@ -455,7 +455,7 @@ static NOINLINE void stress_workload_nop(void)
 	}
 }
 
-static NOINLINE TARGET_CLONES void stress_workload_fma(void)
+static TARGET_CLONES void stress_workload_fma(void)
 {
 	const uint32_t r = stress_mwc32();
 	const double a = (double)r;
@@ -466,7 +466,7 @@ static NOINLINE TARGET_CLONES void stress_workload_fma(void)
 	stress_double_put(a + (b * c));
 }
 
-static NOINLINE void stress_workload_math(const double v1, const double v2)
+static void stress_workload_math(const double v1, const double v2)
 {
 	double r;
 
@@ -477,7 +477,7 @@ static NOINLINE void stress_workload_math(const double v1, const double v2)
 	stress_double_put(r);
 }
 
-static NOINLINE void stress_workload_pause(void)
+static void stress_workload_pause(void)
 {
 #if defined(HAVE_ASM_X86_PAUSE)
 	stress_asm_x86_pause();
@@ -511,7 +511,7 @@ static NOINLINE void stress_workload_pause(void)
 #endif
 }
 
-static NOINLINE void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const size_t buffer_len)
+static void OPTIMIZE3 TARGET_CLONES stress_workload_read(void *buffer, const size_t buffer_len)
 {
 #if defined(HAVE_VECMATH)
 	typedef int64_t stress_vint64_t __attribute__ ((vector_size (128)));
