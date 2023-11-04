@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 #define PI			(3.14159265358979323846264338327950288419716939937511L)
 #define TANSUM			(-710.4128636743199902703338466380955651402473L)
@@ -36,7 +37,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static bool OPTIMIZE3 stress_trig_cos(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_cos(const stress_args_t *args, const int iterations)
 {
 	double sumcos = 0.0;
 	double theta = 0.0;
@@ -52,7 +53,7 @@ static bool OPTIMIZE3 stress_trig_cos(const stress_args_t *args, const int itera
 	return shim_fabs(sumcos - (double)0.0) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_cosf(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosf(const stress_args_t *args, const int iterations)
 {
 	double sumcos = 0.0;
 	double theta = 0.0;
@@ -68,7 +69,7 @@ static bool OPTIMIZE3 stress_trig_cosf(const stress_args_t *args, const int iter
 	return shim_fabs(sumcos - (float)0.0) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_cosl(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(const stress_args_t *args, const int iterations)
 {
 	long double sumcos = 0.0L;
 	long double theta = 0.0L;
@@ -84,7 +85,7 @@ static bool OPTIMIZE3 stress_trig_cosl(const stress_args_t *args, const int iter
 	return shim_fabsl(sumcos - (long double)0.0) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_sin(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sin(const stress_args_t *args, const int iterations)
 {
 	double sumsin = 0.0;
 	double theta = 0.0;
@@ -100,7 +101,7 @@ static bool OPTIMIZE3 stress_trig_sin(const stress_args_t *args, const int itera
 	return shim_fabs(sumsin - (double)0.0) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_sinf(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinf(const stress_args_t *args, const int iterations)
 {
 	double sumsin = 0.0;
 	double theta = 0.0;
@@ -116,7 +117,7 @@ static bool OPTIMIZE3 stress_trig_sinf(const stress_args_t *args, const int iter
 	return shim_fabs(sumsin - (float)0.0) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_sinl(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(const stress_args_t *args, const int iterations)
 {
 	long double sumsin = 0.0L;
 	long double theta = 0.0L;
@@ -133,7 +134,7 @@ static bool OPTIMIZE3 stress_trig_sinl(const stress_args_t *args, const int iter
 }
 
 #if defined(HAVE_SINCOS)
-static bool OPTIMIZE3 stress_trig_sincos(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(const stress_args_t *args, const int iterations)
 {
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
@@ -156,7 +157,7 @@ static bool OPTIMIZE3 stress_trig_sincos(const stress_args_t *args, const int it
 #endif
 
 #if defined(HAVE_SINCOSF)
-static bool OPTIMIZE3 stress_trig_sincosf(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(const stress_args_t *args, const int iterations)
 {
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
@@ -179,7 +180,7 @@ static bool OPTIMIZE3 stress_trig_sincosf(const stress_args_t *args, const int i
 #endif
 
 #if defined(HAVE_SINCOSL)
-static bool OPTIMIZE3 stress_trig_sincosl(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(const stress_args_t *args, const int iterations)
 {
 	long double sumsin = 0.0, sumcos = 0.0;
 	long double theta = 0.0L;
@@ -201,7 +202,7 @@ static bool OPTIMIZE3 stress_trig_sincosl(const stress_args_t *args, const int i
 }
 #endif
 
-static bool OPTIMIZE3 stress_trig_tan(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_tan(const stress_args_t *args, const int iterations)
 {
 	double sumtan = 0.0;
 	double theta = 3.0;
@@ -217,7 +218,7 @@ static bool OPTIMIZE3 stress_trig_tan(const stress_args_t *args, const int itera
 	return shim_fabs(sumtan - (double)TANSUM) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_tanf(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanf(const stress_args_t *args, const int iterations)
 {
 	double sumtan = 0.0;
 	double theta = 3.0;
@@ -233,7 +234,7 @@ static bool OPTIMIZE3 stress_trig_tanf(const stress_args_t *args, const int iter
 	return shim_fabs(sumtan - (double)TANSUM) > precision;
 }
 
-static bool OPTIMIZE3 stress_trig_tanl(const stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanl(const stress_args_t *args, const int iterations)
 {
 	long double sumtan = 0.0;
 	long double theta = 3.0;
