@@ -505,6 +505,7 @@ STRESS_SRC = \
 	stress-tmpfs.c \
 	stress-touch.c \
 	stress-tree.c \
+	stress-trig.c \
 	stress-tsc.c \
 	stress-tsearch.c \
 	stress-tun.c \

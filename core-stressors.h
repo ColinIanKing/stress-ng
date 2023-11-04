@@ -301,6 +301,7 @@
 	MACRO(tmpfs)		\
 	MACRO(touch)		\
 	MACRO(tree)		\
+	MACRO(trig)		\
 	MACRO(tsc)		\
 	MACRO(tsearch)		\
 	MACRO(tun)		\

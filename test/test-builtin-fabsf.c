@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C) 2022-2023 Colin Ian King
+ * Copyright (C) 2023      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,17 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#define _GNU_SOURCE
-
 #include <math.h>
-#include <complex.h>
-#include <stddef.h>
 
-static void *funcs[] = {
-	MATHFUNC,
-};
-
-int main(void)
+int main(int argc, char **argv)
 {
-	return (ptrdiff_t)&MATHFUNC + (funcs[0] == 0);
+	float x = 1.48734 + (float)argc;
+
+	return (int)__builtin_fabsf(x);
 }
+

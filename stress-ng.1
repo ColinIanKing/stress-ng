@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 Oct 2023"
+.TH STRESS-NG 1 "4 November 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6841,6 +6841,67 @@ finding and removing all the items into the tree(s).
 .B \-\-tree\-size N
 specify the size of the tree, where N is the number of 64 bit integers
 to be added into the tree.
+.RE
+.TP
+.B Trigonometric functions stressor
+.RS 5
+.TQ
+.B \-\-trig N
+start N workers that exercise sin, cos, sincos (where available) and tan
+trigonometric functions using float, double and long double floating point
+variants. Each function is exercised 10,000 times per bogo-operation.
+.TP
+.B \-\-trig\-method function
+specify a trigonometric stress function. By default, all the functions are exercised
+sequentially, however one can specify just one function to be used if required.
+Available options are as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate through all of the following trigonometric functions
+T}
+cos	T{
+cosine (double precision)
+T}
+cosf	T{
+cosine (float precision)
+T}
+cosl	T{
+cosine (long double precision)
+T}
+sin	T{
+sine (double precision)
+T}
+sinf	T{
+sine (float precision)
+T}
+sinl	T{
+sine (long double precision)
+T}
+sincos	T{
+sine and cosine (double precision)
+T}
+sincosf	T{
+sine and cosine (float precision)
+T}
+sincosl	T{
+sine and cosine (long double precision)
+T}
+tan	T{
+tangent (double precision)
+T}
+tanf	T{
+tangent (float precision)
+T}
+tanl 	T{
+tangent (long double precision)
+T}
+.TE
+.TP
+.B \-\-trig\-ops N
+stop after N bogo-operations.
 .RE
 .TP
 .B Time stamp counter (TSC) stressor

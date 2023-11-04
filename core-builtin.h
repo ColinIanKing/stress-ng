@@ -198,7 +198,7 @@
 #endif
 
 #if defined(HAVE_BUILTIN_SINF)
-#define shim_sinf(x)	__builtin_sin(x)
+#define shim_sinf(x)	__builtin_sinf(x)
 #else
 #define shim_sinf(x)	sinf(x)
 #endif
@@ -217,6 +217,24 @@
 #else
 #define shim_sinl(x)	((long double)shim_sin((double)(x)))
 #endif
+#endif
+
+#if defined(HAVE_BUILTIN_SINCOSF)
+#define shim_sincosf(x, s, c)	__builtin_sincosf(x, s, c)
+#else
+#define shim_sincosf(x, s, c)	sincosf(x, s, c)
+#endif
+
+#if defined(HAVE_BUILTIN_SINCOS)
+#define shim_sincos(x, s, c)	__builtin_sincos(x, s, c)
+#else
+#define shim_sincos(x, s, c)	sincos(x, s, c)
+#endif
+
+#if defined(HAVE_BUILTIN_SINCOSL)
+#define shim_sincosl(x, s, c)	__builtin_sincosl(x, s, c)
+#else
+#define shim_sincosl(x, s, c)	sincosl(x, s, c)
 #endif
 
 #if defined(HAVE_BUILTIN_SINHL)
@@ -259,6 +277,24 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_TANF)
+#define shim_tanf(x)	__builtin_tanf(x)
+#else
+#define shim_tanf(x)	tanf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_TAN)
+#define shim_tan(x)	__builtin_tan(x)
+#else
+#define shim_tan(x)	tan(x)
+#endif
+
+#if defined(HAVE_BUILTIN_TANL)
+#define shim_tanl(x)	__builtin_tanl(x)
+#else
+#define shim_tanl(x)	tanl(x)
+#endif
+
 #if defined(HAVE_BUILTIN_SQRT)
 #define shim_sqrt(x)	__builtin_sqrt(x)
 #else
@@ -279,6 +315,12 @@
 #define shim_fabs(x)	__builtin_fabs(x)
 #else
 #define shim_fabs(x)	fabs(x)
+#endif
+
+#if defined(HAVE_BUILTIN_FABSF)
+#define shim_fabsf(x)	__builtin_fabsf(x)
+#else
+#define shim_fabsf(x)	fabsf(x)
 #endif
 
 #if defined(HAVE_BUILTIN_FABSL)

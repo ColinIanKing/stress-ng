@@ -1339,6 +1339,10 @@ typedef enum {
 	OPT_tree_method,
 	OPT_tree_size,
 
+	OPT_trig,
+	OPT_trig_method,
+	OPT_trig_ops,
+
 	OPT_tsc,
 	OPT_tsc_ops,
 	OPT_tsc_lfence,
