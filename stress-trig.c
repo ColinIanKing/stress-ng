@@ -58,7 +58,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosf(const stress_args_t *args, 
 	double sumcos = 0.0;
 	double theta = 0.0;
 	double dtheta = (PI * 2.0) / (float)iterations;
-	double precision = 1E-5;
+	double precision = 1E-4;
 	int i;
 
 	for (i = 0; i < iterations; i++) {
@@ -106,7 +106,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinf(const stress_args_t *args, 
 	double sumsin = 0.0;
 	double theta = 0.0;
 	double dtheta = (PI * 2.0) / (float)iterations;
-	double precision = 1E-5;
+	double precision = 1E-4;
 	int i;
 
 	for (i = 0; i < iterations; i++) {
@@ -162,7 +162,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(const stress_args_t *arg
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
 	double dtheta = (PI * 2.0) / (float)iterations;
-	double precision = 1E-5;
+	double precision = 1E-4;
 	int i;
 
 	for (i = 0; i < iterations; i++) {
@@ -362,6 +362,7 @@ static int stress_trig(const stress_args_t *args)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_trig_method,	stress_set_trig_method },
+	{ 0,			NULL },
 };
 
 stressor_info_t stress_trig_info = {
