@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -338,8 +339,10 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	while (stress_continue(args) && (mappings_len >= page_size)) {
 		mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (mappings != MAP_FAILED)
+		if (mappings != MAP_FAILED) {
+			(void)stress_madvise_mergeable(mappings, mappings_len);
 			break;
+		}
 		mappings_len = mappings_len >> 1;
 		/* mmap failed, yield a bit before retry */
 		shim_sched_yield();

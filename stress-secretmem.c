@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 
 #define MMAP_MAX	(256*1024)
@@ -140,6 +141,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 				break;
 			}
 
+			(void)stress_madvise_mergeable(mappings[n], page_size3);
 			/*
 			 *  touch pages, this will trigger OOM SIGKILL
 			 *  when we run low on secretmem pages

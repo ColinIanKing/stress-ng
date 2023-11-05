@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-lock.h"
+#include "core-madvise.h"
 #include "core-stressors.h"
 #include "core-shared-heap.h"
 
@@ -61,6 +62,7 @@ void *stress_shared_heap_init(void)
 		g_shared->shared_heap.lock = NULL;
 		return NULL;
 	}
+	(void)stress_madvise_mergeable(g_shared->shared_heap.heap, size);
 	g_shared->shared_heap.lock = stress_lock_create();
 	if (!g_shared->shared_heap.lock) {
 		(void)munmap((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);

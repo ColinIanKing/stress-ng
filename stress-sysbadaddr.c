@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-killpid.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 
 #if defined(HAVE_SYS_STATFS_H)
@@ -1147,6 +1148,8 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	(void)stress_madvise_mergeable(ro_page, page_size);
+
 	rw_page = mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rw_page == MAP_FAILED) {
@@ -1156,6 +1159,8 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	(void)stress_madvise_mergeable(rw_page, page_size << 1);
+
 	rx_page = mmap(NULL, page_size, PROT_EXEC | PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rx_page == MAP_FAILED) {
@@ -1165,6 +1170,8 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	(void)stress_madvise_mergeable(rx_page, page_size);
+
 	no_page = mmap(NULL, page_size, PROT_NONE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (no_page == MAP_FAILED) {
@@ -1174,6 +1181,7 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+
 	wo_page = mmap(NULL, page_size, PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wo_page == MAP_FAILED) {
@@ -1183,6 +1191,8 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	(void)stress_madvise_mergeable(wo_page, page_size);
+
 	/*
 	 * write-execute pages are not supported by some kernels
 	 * so make this failure non-fatal to the stress testing

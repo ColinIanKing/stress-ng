@@ -116,6 +116,22 @@ int stress_madvise_random(void *addr, const size_t length)
 }
 
 /*
+ *  stress_madvise_mergeable()
+ *	apply MADV_MERGEABLE for kernel same page merging
+ */
+int stress_madvise_mergeable(void *addr, const size_t length)
+{
+#if defined(MADV_MERGEABLE) && \
+    defined(HAVE_MADVISE)
+	return madvise(addr, length, MADV_MERGEABLE);
+#else
+	(void)addr;
+	(void)length;
+	return 0;
+#endif
+}
+
+/*
  *  stress_madvise_pid_all_pages()
  *	apply madvise advise to all pages in a progress
  */

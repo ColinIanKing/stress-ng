@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 
 #if defined(HAVE_LINUX_KVM_H)
 #include <linux/kvm.h>
@@ -120,6 +121,7 @@ static int stress_kvm(const stress_args_t *args)
 			-1, 0);
 		if (vm_mem == MAP_FAILED)
 			goto tidy_vm_fd;
+		(void)stress_madvise_mergeable(vm_mem, vm_mem_size);
 
 		(void)shim_memset(&kvm_mem, 0, sizeof(kvm_mem));
 		kvm_mem.slot = 0;

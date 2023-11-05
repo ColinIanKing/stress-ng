@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-bitops.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
@@ -474,6 +475,7 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 				(void)shim_usleep(100000);
 				continue;
 			}
+			(void)stress_madvise_mergeable(buf, buf_sz);
 			if (context->vm_addr_mlock)
 				(void)shim_mlock(buf, buf_sz);
 

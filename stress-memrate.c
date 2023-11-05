@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-madvise.h"
 #include "core-nt-store.h"
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
@@ -976,6 +977,7 @@ static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)
 
 		VOID_RET(int, madvise(ptr, sz, MADV_HUGEPAGE));
 #endif
+		(void)stress_madvise_mergeable(ptr, sz);
 	}
 	return ptr;
 }

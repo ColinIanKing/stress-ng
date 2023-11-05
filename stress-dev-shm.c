@@ -95,6 +95,7 @@ static inline int stress_dev_shm_child(
 				uint32_t rnd = stress_mwc32();
 
 				(void)stress_madvise_random(addr, (size_t)sz);
+				(void)stress_madvise_mergeable(addr, (size_t)sz);
 
 				/* Touch all pages with data */
 				for (ptr = addr; ptr < end; ptr += words) {

@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-madvise.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 
@@ -558,6 +559,7 @@ static int stress_fp(const stress_args_t *args)
 			args->name, FP_ELEMENTS);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(fp_data, mmap_size);
 
 	(void)stress_get_setting("fp-method", &fp_method);
 

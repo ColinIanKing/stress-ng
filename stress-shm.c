@@ -215,6 +215,7 @@ static int stress_shm_posix_child(
 				goto reap;
 			}
 			addrs[i] = addr;
+			(void)stress_madvise_mergeable(addr, sz);
 			if (shm_mlock)
 				(void)shim_mlock(addr, sz);
 

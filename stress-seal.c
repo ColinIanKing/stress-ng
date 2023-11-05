@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"seal N",	"start N workers performing fcntl SEAL commands" },
@@ -75,6 +76,7 @@ static int stress_seal(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	(void)shim_memset(buf, 0xff, page_size);
+	(void)stress_madvise_mergeable(buf, page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

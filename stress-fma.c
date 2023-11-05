@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 #include "core-put.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
@@ -176,6 +177,7 @@ static int stress_fma(const stress_args_t *args)
 			args->name, sizeof(*fma));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_madvise_mergeable(fma, sizeof(*fma));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_fma_init(fma);

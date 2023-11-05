@@ -21,6 +21,7 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-madvise.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
@@ -1005,6 +1006,8 @@ static int OPTIMIZE3 stress_sock_server(
 	 * so try and do this just because we can
 	 */
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (ptr != MAP_FAILED)
+		(void)stress_madvise_mergeable(ptr, page_size);
 
 	t = stress_time_now();
 	do {

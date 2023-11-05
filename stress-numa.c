@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-madvise.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -294,6 +295,7 @@ static int stress_numa(const stress_args_t *args)
 			args->name, (size_t)MMAP_SZ);
 		goto pages_free;
 	}
+	(void)stress_madvise_mergeable(buf, MMAP_SZ);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

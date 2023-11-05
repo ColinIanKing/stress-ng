@@ -255,6 +255,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 			continue;	/* Try again */
 		}
 		(void)stress_madvise_random(buf, new_sz);
+		(void)stress_madvise_mergeable(buf, new_sz);
 		(void)stress_mincore_touch_pages(buf, mremap_bytes);
 
 		/* Ensure we can write to the mapped pages */

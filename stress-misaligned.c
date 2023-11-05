@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 #include "core-target-clones.h"
 #include "core-nt-store.h"
 
@@ -1227,6 +1228,7 @@ static int stress_misaligned(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(buffer, buffer_size);
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	(void)shim_memset(&sev, 0, sizeof(sev));

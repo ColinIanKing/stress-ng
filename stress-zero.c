@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-pragma.h"
 
 #if defined(HAVE_LINUX_FS_H)
@@ -112,6 +113,8 @@ static int stress_zero(const stress_args_t *args)
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(rd_buffer, page_size);
+
 	wr_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wr_buffer == MAP_FAILED) {
@@ -120,6 +123,17 @@ static int stress_zero(const stress_args_t *args)
 		(void)munmap(rd_buffer, page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(wr_buffer, page_size);
+
+	wr_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (wr_buffer == MAP_FAILED) {
+		pr_inf_skip("%s: cannot allocate page sized write buffer, skipping test\n",
+			args->name);
+		(void)munmap(rd_buffer, page_size);
+		return EXIT_NO_RESOURCE;
+	}
+
 
 	if ((fd = open("/dev/zero", flags)) < 0) {
 		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",

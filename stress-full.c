@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-put.h"
 #include "core-pragma.h"
 
@@ -82,6 +83,7 @@ static int stress_full(const stress_args_t *args)
 			args->name, buffer_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(buffer, buffer_size);
 
 	do {
 		ssize_t ret;

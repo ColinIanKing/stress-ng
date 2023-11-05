@@ -22,6 +22,7 @@
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-madvise.h"
 #include "core-nt-store.h"
 #include "core-numa.h"
 #include "core-out-of-memory.h"
@@ -851,6 +852,7 @@ mmap_retry:
 			goto reap_mem;
 		goto mmap_retry;
 	}
+	(void)stress_madvise_mergeable(mem, MEM_SIZE);
 
 	for (i = 0; i < max_threads; i++) {
 		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread,

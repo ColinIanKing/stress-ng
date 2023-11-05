@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-madvise.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
@@ -198,6 +199,7 @@ static int stress_mlockmany(const stress_args_t *args)
 					_exit(0);
 
 				(void)stress_mincore_touch_pages(ptr, mmap_size);
+				(void)stress_madvise_mergeable(ptr, mmap_size);
 
 				mlock_size = mmap_size;
 				while (mlock_size > args->page_size) {

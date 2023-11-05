@@ -376,6 +376,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				(void)shim_mlock(maps[i], size);
 			stress_memfd_fill_pages(maps[i], size);
 			(void)stress_madvise_random(maps[i], size);
+			(void)stress_madvise_mergeable(maps[i], size);
 
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)

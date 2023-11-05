@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 
 #if defined(__sun__)
@@ -272,6 +273,7 @@ static int stress_swap_child(const stress_args_t *args, void *context)
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_ret;
 	}
+	(void)stress_madvise_mergeable(page, page_size);
 
 	stress_swap_clean_dir(args);
 	ret = stress_temp_dir_mk_args(args);

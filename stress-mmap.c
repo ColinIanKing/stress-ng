@@ -543,6 +543,7 @@ retry:
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)stress_madvise_random(buf, sz);
+		(void)stress_madvise_mergeable(buf, sz);
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz, page_size, context->mmap_mprotect);
 		for (n = 0; n < pages; n++) {
@@ -638,6 +639,7 @@ retry:
 						(void)shim_mlock(mappings[page], page_size);
 					(void)stress_mincore_touch_pages(mappings[page], page_size);
 					(void)stress_madvise_random(mappings[page], page_size);
+					(void)stress_madvise_mergeable(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
 						page_size, page_size, context->mmap_mprotect);
 					mapped[page] = PAGE_MAPPED;

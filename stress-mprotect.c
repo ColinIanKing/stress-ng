@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-put.h"
 #include "core-killpid.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -208,6 +209,7 @@ static int stress_mprotect(const stress_args_t *args)
 		free(prot_flags);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(mem, mem_size);
 
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);

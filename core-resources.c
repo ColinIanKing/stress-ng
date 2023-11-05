@@ -309,6 +309,7 @@ size_t stress_resources_allocate(
 					shim_mlock(resources[i].m_mmap, locked);
 					mlock_size -= locked;
 				}
+				(void)stress_madvise_mergeable(resources[i].m_mmap, resources[i].m_mmap_size);
 			}
 		}
 		if (resources[i].m_mmap)
@@ -354,6 +355,8 @@ size_t stress_resources_allocate(
 					resources[i].fd_memfd, 0);
 				if (resources[i].ptr_memfd == MAP_FAILED)
 					resources[i].ptr_memfd = NULL;
+				else
+					(void)stress_madvise_mergeable(resources[i].ptr_memfd, page_size);
 			}
 			shim_fallocate(resources[i].fd_memfd, 0, 0, (off_t)stress_mwc16());
 		}
@@ -372,6 +375,8 @@ size_t stress_resources_allocate(
 					resources[i].fd_memfd_secret, 0);
 				if (resources[i].ptr_memfd_secret == MAP_FAILED)
 					resources[i].ptr_memfd_secret = NULL;
+				else
+					(void)stress_madvise_mergeable(resources[i].ptr_memfd_secret, page_size);
 			}
 		}
 		if (!stress_continue_flag())

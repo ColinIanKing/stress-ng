@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-asm-ret.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
@@ -121,8 +122,10 @@ static void *stress_far_try_mmap(void *addr, size_t length)
 
 		ptr = (uint8_t *)stress_far_mmap_try32(addr, length, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED_NOREPLACE, -1, 0);
-		if (ptr != MAP_FAILED)
+		if (ptr != MAP_FAILED) {
+			(void)stress_madvise_mergeable(ptr, length);
 			return ptr;
+		}
 	}
 #endif
 #if defined(HAVE_MSYNC) &&	\
@@ -133,8 +136,10 @@ static void *stress_far_try_mmap(void *addr, size_t length)
 
 		ptr = (uint8_t *)stress_far_mmap_try32(addr, length, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
-		if (ptr != MAP_FAILED)
+		if (ptr != MAP_FAILED) {
+			(void)stress_madvise_mergeable(ptr, length);
 			return ptr;
+		}
 	}
 #endif
 	(void)addr;
@@ -204,6 +209,7 @@ static void *stress_far_mmap(
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (ptr == MAP_FAILED)
 			return NULL;	/* Give up */
+		(void)stress_madvise_mergeable(ptr, page_size);
 	}
 
 use_page:

@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-madvise.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"fpunch N",	"start N workers punching holes in a 16MB file" },
@@ -291,6 +292,8 @@ static int stress_fpunch(const stress_args_t *args)
 			args->name, sizeof(*buf), errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(buf, sizeof(*buf));
+
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = stress_exit_status(-ret);

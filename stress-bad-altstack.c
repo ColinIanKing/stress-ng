@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 #include "core-put.h"
 #include "core-pragma.h"
@@ -320,6 +321,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 			args->name, (size_t)stress_minsigstksz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(stack, stress_minsigstksz);
 
 #if defined(O_TMPFILE)
 	tmp_fd = open(stress_get_temp_path(), O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);

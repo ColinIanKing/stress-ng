@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-cpu-cache.h"
+#include "core-madvise.h"
 
 #define DEBUG_TAG_INFO		(0)
 
@@ -549,6 +550,7 @@ static int stress_l1cache(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_madvise_mergeable(cache, l1cache_size << 2);
 
 	if (l1cache_mlock)
 		(void)shim_mlock(cache, l1cache_size << 2);

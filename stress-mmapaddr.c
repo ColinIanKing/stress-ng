@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-madvise.h"
 #include "core-out-of-memory.h"
 
 static volatile bool page_fault = false;
@@ -157,6 +158,7 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		if (!map_addr || (map_addr == MAP_FAILED))
 			continue;
 
+		(void)stress_madvise_mergeable(map_addr, page_size);
 		if (mmapaddr_mlock)
 			(void)shim_mlock(map_addr, page_size);
 		if (stress_mmapaddr_check(args, map_addr) < 0)
@@ -175,6 +177,7 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		if (!remap_addr || (remap_addr == MAP_FAILED))
 			goto unmap;
 
+		(void)stress_madvise_mergeable(remap_addr, page_size);
 		if (mmapaddr_mlock)
 			(void)shim_mlock(remap_addr, page_size);
 		(void)stress_mmapaddr_check(args, remap_addr);

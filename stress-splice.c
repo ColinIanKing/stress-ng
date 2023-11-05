@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-madvise.h"
 
 #define MIN_SPLICE_BYTES	(1 * KB)
 #define MAX_SPLICE_BYTES	(64 * MB)
@@ -193,6 +194,7 @@ static int stress_splice(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto close_done;
 	}
+	(void)stress_madvise_mergeable(buffer, buffer_len);
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
