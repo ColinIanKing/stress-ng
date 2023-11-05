@@ -2937,10 +2937,16 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 
 	stress_catch_sigill();
 
-	(void)stress_get_setting("cpu-load", &cpu_load);
 	(void)stress_get_setting("cpu-load-slice", &cpu_load_slice);
-	(void)stress_get_setting("cpu-method", &cpu_method);
 	(void)stress_get_setting("cpu-old-metrics", &cpu_old_metrics);
+	(void)stress_get_setting("cpu-method", &cpu_method);
+	if (stress_get_setting("cpu-load", &cpu_load)) {
+		if (cpu_method == 0)
+			pr_inf("%s: for stable load results, select a "
+				"specific cpu stress method with "
+				"--cpu-method other than 'all'\n",
+				args->name);
+	}
 
 	if (cpu_old_metrics) {
 		for (i = 0; i < SIZEOF_ARRAY(stress_cpu_counter_scale); i++)
