@@ -238,7 +238,7 @@ static inline size_t stress_max_ids(const stress_args_t *args)
 	return max_ids;
 }
 
-static void OPTIMIZE3 stress_msg_receiver(
+static int OPTIMIZE3 stress_msg_receiver(
 	const stress_args_t *args,
 	const int msgq_id,
 	const int32_t msg_types,
@@ -246,6 +246,7 @@ static void OPTIMIZE3 stress_msg_receiver(
 {
 	stress_msg_t ALIGN64 msg;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	int rc = EXIT_SUCCESS;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -314,13 +315,16 @@ redo:
 			 *  ordering.
 			 */
 			if (UNLIKELY(verify && (msg_types == 0))) {
-				if (UNLIKELY(msg.u.value != i))
+				if (UNLIKELY(msg.u.value != i)) {
 					pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx32
 						" but received 0x%" PRIx32 " instead (data length %zd)\n",
 						 args->name, i, msg.u.value, msgsz);
+					rc = EXIT_FAILURE;
+				}
 			}
 		}
 	}
+	return rc;
 }
 
 static void OPTIMIZE3 stress_msg_sender(
@@ -454,15 +458,17 @@ again:
 		goto cleanup;
 	} else if (pid == 0) {
 		(void)stress_change_cpu(args, parent_cpu);
-		stress_msg_receiver(args, msgq_id, msg_types, msg_bytes);
-		_exit(EXIT_SUCCESS);
+		rc = stress_msg_receiver(args, msgq_id, msg_types, msg_bytes);
+		_exit(rc);
 	} else {
 		stress_msg_sender(args, msgq_id, msg_types, msg_bytes);
-		(void)stress_kill_pid_wait(pid, NULL);
+		rc = stress_kill_and_wait(args, pid, SIGKILL, false);
 
-		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
+		if (msgctl(msgq_id, IPC_RMID, NULL) < 0) {
 			pr_fail("%s: msgctl failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 		else
 			pr_dbg("%s: System V message queue deleted, id: %d\n", args->name, msgq_id);
 	}
