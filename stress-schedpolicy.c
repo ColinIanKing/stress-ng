@@ -175,7 +175,11 @@ static int stress_schedpolicy(const stress_args_t *args)
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
 #endif
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
+    defined(HAVE_SCHED_SETATTR)
 case_sched_other:
+#endif
 			/* Exercise illegal policy */
 			(void)shim_memset(&param, 0, sizeof(param));
 			VOID_RET(int, sched_setscheduler(pid, -1, &param));
