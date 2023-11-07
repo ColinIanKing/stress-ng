@@ -24,6 +24,7 @@
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
+#include "core-put.h"
 
 #if defined(HAVE_SYS_IO_H)
 #include <sys/io.h>
@@ -253,7 +254,7 @@ static void stress_sigsegv_vdso(void)
  */
 static int stress_sigsegv(const stress_args_t *args)
 {
-	uint8_t *ptr;
+	uint8_t *ro_ptr, *none_ptr;
 	NOCLOBBER int rc = EXIT_FAILURE;
 #if defined(SA_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -268,12 +269,22 @@ static int stress_sigsegv(const stress_args_t *args)
 #endif
 
 	/* Allocate read only page */
-	ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
+	ro_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (ptr == MAP_FAILED) {
+	if (ro_ptr == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of read only page failed: "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	/* Allocate write only page */
+	none_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_NONE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (none_ptr == MAP_FAILED) {
+		pr_inf_skip("%s: mmap of write only page failed: "
+			"errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
+		(void)munmap((void *)ro_ptr, args->page_size);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -353,7 +364,7 @@ static int stress_sigsegv(const stress_args_t *args)
 retry:
 			if (!stress_continue(args))
 				break;
-			switch (stress_mwc8() & 7) {
+			switch (stress_mwc8modn(9)) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
 			case 0:
 				/* Trip a SIGSEGV/SIGILL/SIGBUS */
@@ -398,13 +409,19 @@ retry:
 				stress_sigsegv_vdso();
 				goto retry;
 #endif
-			default:
+			case 7:
 #if defined(SA_SIGINFO)
-				expected_addr = ptr;
+				expected_addr = ro_ptr;
 				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
-				*ptr = 0;
+				*ro_ptr = 0;
+				goto retry;
+			case 8:
+				expected_addr = none_ptr;
+				stress_uint8_put(*none_ptr);
 				break;
+			default:
+				goto retry;
 			}
 		}
 	}
@@ -414,7 +431,8 @@ tidy:
 	stress_enable_readtsc();
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)ptr, args->page_size);
+	(void)munmap((void *)none_ptr, args->page_size);
+	(void)munmap((void *)ro_ptr, args->page_size);
 
 	return rc;
 
