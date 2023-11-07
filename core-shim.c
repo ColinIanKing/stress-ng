@@ -2682,15 +2682,11 @@ int shim_fchmodat2(int dfd, const char *filename, mode_t mode, unsigned int flag
 
 /*
  *  shim_fstat()
- *	shim for fstat, use system call in preference to
- *	libc as glibc calls the fstatat which is slower
- *	and does not exercise the fstat system call path.
+ *	shim for fstat
  */
 int shim_fstat(int fd, struct stat *statbuf)
 {
-#if defined(__NR_fstat)
-	return (int)syscall(__NR_fstat, fd, statbuf);
-#elif defined(HAVE_FSTAT)
+#if defined(HAVE_FSTAT)
 	return fstat(fd, statbuf);
 #else
 	return shim_enosys(0, fd, statbuf);
@@ -2699,14 +2695,11 @@ int shim_fstat(int fd, struct stat *statbuf)
 
 /*
  *  shim_lstat()
- *	shim for lstat, use system call in preference to
- *	libc as glibc calls the fstatat.
+ *	shim for lstat
  */
 int shim_lstat(const char *pathname, struct stat *statbuf)
 {
-#if defined(__NR_lstat)
-	return (int)syscall(__NR_lstat, pathname, statbuf);
-#elif defined(HAVE_LSTAT)
+#if defined(HAVE_LSTAT)
 	return lstat(pathname, statbuf);
 #else
 	return shim_enosys(0, pathname, statbuf);
@@ -2715,14 +2708,11 @@ int shim_lstat(const char *pathname, struct stat *statbuf)
 
 /*
  *  shim_stat()
- *	shim for stat, use system call in preference to
- *	libc as glibc calls fstatat.
+ *	shim for stat
  */
 int shim_stat(const char *pathname, struct stat *statbuf)
 {
-#if defined(__NR_stat)
-	return (int)syscall(__NR_stat, pathname, statbuf);
-#elif defined(HAVE_STAT)
+#if defined(HAVE_STAT)
 	return stat(pathname, statbuf);
 #else
 	return shim_enosys(0, pathname, statbuf);
