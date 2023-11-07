@@ -74,7 +74,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(const stress_args_t *args, 
 	long double sumcos = 0.0L;
 	long double theta = 0.0L;
 	long double dtheta = (PI * 2.0L) / (long double)iterations;
-	long double precision = 1E-12;
+	long double precision = sizeof(precision) == sizeof(double) ? 1E-7 : 1E-12;
 	int i;
 
 	for (i = 0; i < iterations; i++) {
@@ -122,7 +122,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(const stress_args_t *args, 
 	long double sumsin = 0.0L;
 	long double theta = 0.0L;
 	long double dtheta = (PI * 2.0L) / (long double)iterations;
-	long double precision = 1E-12;
+	long double precision = sizeof(precision) == sizeof(double) ? 1E-7 : 1E-12;
 	int i;
 
 	for (i = 0; i < iterations; i++) {
@@ -185,7 +185,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(const stress_args_t *arg
 	long double sumsin = 0.0, sumcos = 0.0;
 	long double theta = 0.0L;
 	long double dtheta = (PI * 2.0L) / (long double)iterations;
-	long double precision = 1E-12;
+	long double precision = sizeof(precision) == sizeof(double) ? 1E-7 : 1E-12;
 	int i;
 
 	for (i = 0; i < iterations; i++) {
