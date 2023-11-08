@@ -140,58 +140,72 @@ static int stress_uprobe(const stress_args_t *args)
 	(void)snprintf(event, sizeof(event), "stressngprobe%d%" PRIu32,
 		getpid(), args->instance);
 
-	VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/current_tracer",
-		O_WRONLY | O_CREAT | O_TRUNC, "nop\n"));
-	(void)snprintf(buf, sizeof(buf), "p:%s %s:%p\n", event, libc_path, (void *)offset);
-	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
-		O_WRONLY | O_CREAT | O_APPEND, buf);
-	if (ret < 0) {
-		pr_inf_skip("%s: cannot set uprobe_event: errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-
-	/* Enable tracing */
-	(void)snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/uprobes/%s/enable", event);
-	ret = stress_uprobe_write(buf, O_WRONLY | O_CREAT | O_TRUNC, "1\n");
-	if (ret < 0) {
-		pr_inf_skip("%s: cannot enable uprobe_event: errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
-		rc = EXIT_NO_RESOURCE;
-		goto clear_events;
-	}
-	ret = stress_uprobe_write("/sys/kernel/debug/tracing/trace",
-		O_WRONLY | O_CREAT | O_TRUNC, "\n");
-	if (ret < 0) {
-		pr_inf_skip("%s: cannot clear trace file, errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
-		rc = EXIT_NO_RESOURCE;
-		goto clear_events;
-	}
-
-	fd = open("/sys/kernel/debug/tracing/trace_pipe", O_RDONLY);
-	if (fd < 0) {
-		pr_inf_skip("%s: cannot open trace file: errno=%d (%s), skipping stressor\n",
-			args->name, errno, strerror(errno));
-		rc = EXIT_NO_RESOURCE;
-		goto clear_events;
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t_start = stress_time_now();
 	do {
-		/*
-		 *  Generate trace events on each stress_get_cpu call
-		 */
 		int i;
 		fd_set rfds;
 #if defined(HAVE_SELECT)
 		struct timeval tv;
 #endif
+		fd = open("/sys/kernel/debug/tracing/trace_pipe", O_RDONLY);
+		if (fd < 0) {
+			if (errno == EBUSY) {
+				if (stress_continue(args)) {
+					shim_usleep((stress_mwc8() + 10) * 1000);
+					continue;
+				} else {
+					rc = EXIT_SUCCESS;
+					goto terminate;
+				}
+			}
+			pr_inf_skip("%s: cannot open trace file: errno=%d (%s), skipping stressor\n",
+				args->name, errno, strerror(errno));
+			stress_continue_set_flag(false);
+			rc = EXIT_NO_RESOURCE;
+			goto terminate;
+		}
 
-		/* Generate some events */
-		for (i = 0; i < 64; i++) {
+		VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/current_tracer",
+			O_WRONLY | O_CREAT | O_TRUNC, "nop\n"));
+		(void)snprintf(buf, sizeof(buf), "p:%s %s:%p\n", event, libc_path, (void *)offset);
+		ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
+			O_WRONLY | O_CREAT | O_APPEND, buf);
+		if (ret < 0) {
+			pr_inf_skip("%s: cannot set uprobe_event: errno=%d (%s), skipping stressor\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_NO_RESOURCE;
+			goto terminate;
+		}
+
+		/* Enable tracing */
+		(void)snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/uprobes/%s/enable", event);
+		ret = stress_uprobe_write(buf, O_WRONLY | O_CREAT | O_TRUNC, "1\n");
+		if (ret < 0) {
+			pr_inf_skip("%s: cannot enable uprobe_event: errno=%d (%s), skipping stressor\n",
+				args->name, errno, strerror(errno));
+			stress_continue_set_flag(false);
+			rc = EXIT_NO_RESOURCE;
+			goto terminate;
+		}
+
+		ret = stress_uprobe_write("/sys/kernel/debug/tracing/trace",
+			O_WRONLY | O_CREAT | O_TRUNC, "\n");
+		if (ret < 0) {
+			pr_inf_skip("%s: cannot clear trace file, errno=%d (%s), skipping stressor\n",
+				args->name, errno, strerror(errno));
+			stress_continue_set_flag(false);
+			rc = EXIT_NO_RESOURCE;
+			goto terminate;
+		}
+
+		/*
+		 *  Generate trace events on each stress_get_cpu call
+		 */
+
+		/* Generate events */
+		for (i = 0; i < 1024; i++) {
 			getpid();
 		}
 
@@ -235,26 +249,27 @@ static int stress_uprobe(const stress_args_t *args)
 					goto terminate;
 			} while (ptr < data + sizeof(data));
 		}
+
+terminate:
+		if (fd != -1)
+			(void)close(fd);
+		shim_sched_yield();
+		/* Stop events */
+		VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
+			O_WRONLY, "0\n"));
+		shim_sched_yield();
+
+		/* Remove uprobe */
+		(void)snprintf(buf, sizeof(buf), "-:%s\n", event);
+		VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
+			O_WRONLY | O_APPEND, buf));
 	} while (stress_continue(args));
+
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB trace data per second", rate / (double)MB);
 
-terminate:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
-	(void)close(fd);
-	/* Stop events */
-	VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
-		O_WRONLY, "0\n"));
-
-clear_events:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
-	/* Remove uprobe */
-	(void)snprintf(buf, sizeof(buf), "-:%s\n", event);
-	VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
-		O_WRONLY | O_APPEND, buf));
 
 	return rc;
 }
