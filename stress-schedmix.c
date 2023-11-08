@@ -376,7 +376,6 @@ static int stress_schedmix_child(const stress_args_t *args)
 			}
 			goto case_sched_other;
 #endif
-
 #if defined(SCHED_IDLE)
 		case SCHED_IDLE:
 			goto case_sched_other;
@@ -388,7 +387,14 @@ static int stress_schedmix_child(const stress_args_t *args)
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
 #endif
+#if (defined(SCHED_DEADLINE) &&		\
+     defined(HAVE_SCHED_GETATTR) &&	\
+     defined(HAVE_SCHED_SETATTR)) ||	\
+     defined(SCHED_IDLE) ||		\
+     defined(SCHED_BATCH) ||		\
+     defined(SCHED_OTHER)
 case_sched_other:
+#endif
 			param.sched_priority = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
 
