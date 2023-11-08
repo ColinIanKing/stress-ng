@@ -417,7 +417,9 @@ retry:
 				*ro_ptr = 0;
 				goto retry;
 			case 8:
+#if defined(SA_SIGINFO)
 				expected_addr = none_ptr;
+#endif
 				stress_uint8_put(*none_ptr);
 				break;
 			default:
