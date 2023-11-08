@@ -33,7 +33,7 @@ static void stress_cpuidle_cstate_add_unique(
 	const char *cstate,
 	const uint32_t residency)
 {
-	cpu_cstate_t **cc = &cpu_cstate_list;
+	cpu_cstate_t **cc;
 	cpu_cstate_t *new_cc;
 
 	for (cc = &cpu_cstate_list; *cc; cc = &(*cc)->next) {
