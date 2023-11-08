@@ -4364,13 +4364,13 @@ static void stress_dump_objcode(
 	}
 }
 
-static const char *stress_catch_sig_si_code(const int sig, const int si_code)
+static const char *stress_catch_sig_si_code(const int sig, const int sig_code)
 {
 	static const char unknown[] = "UNKNOWN";
 
 	switch (sig) {
 	case SIGILL:
-		switch (si_code) {
+		switch (sig_code) {
 #if defined(ILL_ILLOPC)
 		case ILL_ILLOPC:
 			return "ILL_ILLOPC";
@@ -4408,7 +4408,7 @@ static const char *stress_catch_sig_si_code(const int sig, const int si_code)
 		}
 		break;
 	case SIGSEGV:
-		switch (si_code) {
+		switch (sig_code) {
 #if defined(SEGV_MAPERR)
 		case SEGV_MAPERR:
 			return "SEGV_MAPERR";
