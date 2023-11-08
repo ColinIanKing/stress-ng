@@ -331,7 +331,7 @@ static int stress_trig(const stress_args_t *args)
 	size_t i, j;
 	size_t trig_method = 0;
 
-	stress_get_setting("trig-method", &trig_method);
+	(void)stress_get_setting("trig-method", &trig_method);
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_trig_metrics); i++) {
 		stress_trig_metrics[i].duration = 0.0;
