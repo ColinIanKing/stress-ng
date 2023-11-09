@@ -602,6 +602,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [A Generalized Approach For Practical Task Allocation Using A MAPE-K Control Loop](https://www.marquez-barja.com/images/papers/A_Generalized_Approach_For_Software_Placement_In_The_Fog_Using_A_MAPE_K_Control_Loop-AuthorVersion.pdf)]
 * [Towards Independent Run-time Cloud Monitoring](https://research.spec.org/icpe_proceedings/2021/companion/p21.pdf)
 * [FIRESTARTER 2: Dynamic Code Generation for Processor Stress Tests](https://tu-dresden.de/zih/forschung/ressourcen/dateien/projekte/firestarter/FIRESTARTER-2-Dynamic-Code-Generation-for-Processor-Stress-Tests.pdf?lang=en)
+* [Performance comparison between a Kubernetes cluster and an embedded system](http://www.diva-portal.se/smash/get/diva2:1569829/FULLTEXT01.pdf)
 
 2022:
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
@@ -639,6 +640,9 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Towards Fast, Adaptive, and Hardware-Assisted User-Space Scheduling](https://arxiv.org/pdf/2308.02896.pdf)
 * [Heterogeneous Anomaly Detection for Software Systems via Semi-supervised Cross-modal Attention](https://arxiv.org/pdf/2302.06914.pdf)
 * [Green coding : an empirical approach to harness the energy consumption ofsoftware services](https://theses.hal.science/tel-04074973/document)
+* [Enhancing Empirical Software Performance Engineering Research with Kernel-Level Events: A Comprehensive System Tracing Approach](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4556983)
+* [Cloud White: Detecting and Estimating QoS Degradation of Latency-Critical Workloads in the Public Cloud](https://www.sciencedirect.com/science/article/pii/S0167739X22002734)
+* [Dynamic Resource Management for Cloud-native Bulk Synchronous Parallel Applications](http://www.dre.vanderbilt.edu/~gokhale/WWW/papers/ISORC23_BSP.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
