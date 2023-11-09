@@ -25,8 +25,8 @@ Build-Depends: debhelper (>= 13),
                libxxhash-dev,
                libglvnd-dev,
                libgbm-dev [linux-any]
-
 Homepage: https://github.com/ColinIanKing/stress-ng
+
 Package: stress-ng
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
