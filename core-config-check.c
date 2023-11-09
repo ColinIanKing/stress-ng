@@ -19,6 +19,10 @@
 #include "stress-ng.h"
 #include "core-config-check.h"
 
+#if defined(HAVE_TERMIO_H)
+#include <termio.h>
+#endif
+
 #if defined(__linux__)
 static int stress_config_check_cpu_filter(const struct dirent *d)
 {
@@ -55,10 +59,19 @@ void stress_config_check(void)
 		uint64_t value;
 
 		if ((stress_config_read(path, &value) != -1) && (value > 0)) {
-			pr_inf("note: %s is %" PRIu64 " and this can impact "
-				"scheduling throughput for processes not "
-				"attached to a tty. Setting this to 0 may "
-				"improve performance metrics\n", path, value);
+#if defined(HAVE_TERMIO_H) &&	\
+    defined(TCGETS)
+			struct termios t;
+			int ret;
+
+			ret = ioctl(fileno(stdout), TCGETS, &t);
+			if ((ret < 0) && (errno == ENOTTY)) {
+				pr_inf("note: %s is %" PRIu64 " and this can impact "
+					"scheduling throughput for processes not "
+					"attached to a tty. Setting this to 0 may "
+					"improve performance metrics\n", path, value);
+			}
+#endif
 		}
 	}
 
