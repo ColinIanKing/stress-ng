@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.17.00
+VERSION=0.17.01
 #
-# Codename "10 years of stress"
+# Codename "cranky code crush"
 #
 
 KERNEL=$(shell uname -s)
