@@ -36,7 +36,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"vnni N",		"start N workers performing vector neural network ops" },
 	{ NULL,	"vnni-ops N",		"stop after N vnni bogo operations" },
-	{ NULL,	"vnni-intrinsic",	"use just x86 intrinsic vnni methods, disable generic methods" },
+	{ NULL,	"vnni-intrinsic",	"use x86 intrinsic vnni methods, disable generic methods" },
 	{ NULL,	NULL,		 NULL }
 };
 
@@ -566,7 +566,7 @@ static int stress_vnni(const stress_args_t *args)
 	}
 
 	if ((!avx_capable) && (args->instance == 0)) {
-		pr_inf("%s: no vector neural network instructions available, using just generic optimized versions\n",
+		pr_inf("%s: no vector neural network instructions available, using generic optimized versions\n",
 			args->name);
 	}
 
