@@ -1,3 +1,186 @@
+stress-ng (0.17.01-1) unstable; urgency=medium
+
+  [Andrey Gelman]
+  * stress-led: use shim_strlcpy instead of strlcpy
+
+  [Max Kellermann]
+  * stress-splice: remove "Exercise 1 byte splice, zero flags" call
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * debian/control: move homepage URL
+  * README.md: add a few more links to research papers
+  * Manual: update date with release
+  * stress-vnni: remove extraneous word just in some messages
+  * core-config-check: only report non-tty attached message when not
+    using a tty
+  * core-cpuidle: remove redundant initialization of cc
+  * stress-sigsegv: only reference expected_addr if SA_SIGINFO is defined
+  * core-helper: rename si_code to sig_code to fix macro clash with Minix
+  * stress-trig: cater for 16, 12 and other sized long doubles
+  * stress-utime: cast integer constants to time_t for time_t struct
+    values
+  * stress-schedmix: fix build warning for SCHED_OTHER case
+  * stress-schedmix: only declare case_sched_other when required
+  * stress-trig: voidify return from call to stress_get_setting
+  * stress-uprobe: check for concurrent access to
+    /sys/kernel/debug/tracing/trace_pipe
+  * stress-schedpolicy: only declare case_sched_other when is required
+  * stress-sigsegv: add PROT_NONE read to force SIGSEGV
+  * core-shim: just call stat libc funcs for stat/lstat/fstat
+  * stress-trig: lower precision if long double is same size as double
+  * stress-msg: pass down error from receiver to parent
+  * stress-cpu: advise not to use --cpu-method all when specifying
+    --cpu-load
+  * stress-ng: remove need to include core-put.h
+  * core-madvise: add mergeable madvise helper, use it on some mmap calls
+  * stress-trig: drop precision for float trig functions, add NULL on
+    opt_set_funcs
+  * stress-trig: Add TARGET_CLONES to use optimial float instructions
+  * stress-trig: add a new trigonometric function stressor
+  * stress-workload: remove NOINLINE to fix clang builds
+  * stress-workload: make buffer uint8_t * rather than void *
+  * stress-workload: constify pointers w1 and w2 in stress_workload_cmp
+  * stress-copy-file: make stress_copy_file_seek64 an inlined static
+    helper
+  * core-config-check: include core_config_check.h to check
+    stress_config_check prototype
+  * stress-ng: remove CASE_FALLTHROUGH macro
+  * stress-ng: exit with EXIT_FAILURE if locks fail to create
+  * stress-ng: exit with EXIT_FAILURE if shared heap cannot be allocated
+  * core-helper: add missing check for HAVE_SYS_PRCTL_H when using prctl
+  * core-helper: add extra macro check for HAVE_SYS_UTSNAME_H when using
+    utsname
+  * stress-sctp: add extra macro checks for SCTP_SS_* macros
+  * stress-remap: voidify unused function parameter remap_mlock
+  * stress-switch: add extra check for HAVE_KEY_T
+  * stress-sem-sysv: add extra check for HAVE_KEY_T
+  * stress-syscall: need to check for HAVE_REMOVEXATTR for
+    syscall_xattr_name
+  * stress-syscall: need to check for HAVE_GETXATTR for syscall_xattr_name
+  * stress-wcs: add some extra macro sanity checking for wcs* functions
+  * core-ftrace: add extra macro check for RB tree functionality
+  * stress-sparsematrix: add extra macro checks for tree types
+  * core-ftrace: check if HAVE_BSD_SYS_TREE_H is defined for trees
+  * stress-ng.h: clean up some spacing in macros
+  * stress-context: only report context address mapping for instance 0
+  * stress-context: avoid using alternative stacks in a swapcontext
+  * stress-ng: add aligned padding for counter metrics, rename it to pad
+  * core-log: move ABORT_FAILURES from stress-ng.h to core-log
+  * core-try-open: move STRESS_TRY_* macros to core-try-open.h
+  * stress-dup: move STRESS_FD_MAX from stress-ng.h to stress-dup
+  * stress-ng: move a few more macros from stress-ng.h to stress-ng.c
+  * stress-mknod: move DEFAULT_DIRS macro to stress-mknod
+  * stress-ng: move macros from stress-ng.h to stress-ng.c
+  * stress-link: move DEFAULT_LINKS macro to stress-link
+  * stress-access: remove trailing tab
+  * stress-context: add SIGSEGV debug handling
+  * core-helper: only dump object code for SIGILL
+  * core-helper: add sigsegv handler and more debug to handlers
+  * stress-mpfr: clean up indentation
+  * stress-workload: add fused-multiply-add workload method
+  * stress-workload: add --workload method option to specify work
+    exercising method
+  * stress-workload: add pause/yield workload
+  * stress-syncload: use arm asm built-in for yield
+  * syscalls.txt: update Copyright dates
+  * stress-udp: use SO_REUSEADDR before bind
+  * README.md: add another kernel bug found by using stress-ng
+  * stress-file-ioctl: remove size check on FIOQSIZE
+  * core-shim: fix missing ; on stat calls
+  * core-shim: add shim wrapper for stat
+  * core-shim: add shim wrapper for lstat
+  * stress-iomix: use shim_copy_filerange and 64 bit offsets
+  * stress-fpunch: cast offset to intmax_t to match print format specifier
+  * core-shim: shim_copy_file_range: use shim_off64_t instead of
+    shim_loff_t
+  * core-helper: make buffer tmp larger to avoid gcc-12.2.0 m68k warning
+  * core-shim: add shim wrapper for fstat
+  * stress-open: try O_TMPFILE on temp_dir first, then fall back to /tmp
+  * stress-workload: scale workload by number of threads
+  * stress-workload: use correct delay time between next work item for
+    threaded workloads
+  * stress-workload: add an evenly spaced scheduling distribution option
+  * stress-workload: add in missing workload duration for poisson dist
+  * core-helper: provide warning when using the 0 reset timer-slack
+    setting
+  * stress-workload: provide --timer-slack advice when quanta is low
+  * stress-workload: add a poisson process method of scheduled time
+    generation
+  * stress-*: add support for more floating point types
+  * Makefile.config: use actual _Decimal* type names
+  * stress-*: use _Float128 or __float128 depending on what is available
+  * stress-*: replace HAVE_FLOAT128 with HAVE__float128
+  * stress-*: replace HAVE_FLOAT80 with HAVE__float80
+  * stress-*: replace HAVE_FLOAT64 with HAVE_Float64
+  * stress-*: replace HAVE_FLOAT32 with HAVE_Float32
+  * stress-*: replace HAVE_FLOAT16 with HAVE_fp16
+  * stress-*: replace HAVE_FLOAT_DECIMAL* with HAVE_Decimal*
+  * stress-workload: set workload_threads to zero if mq or pthreads not
+    available
+  * stress-workload: compare failed wq with cast value of -1
+  * stress-workload: add --workload-threads option to use threads
+  * stress-workload: remove CLASS_INTERRUPT from class
+  * stress-link: minor speedup for mass file unlinking for minix 3 fs
+  * stress-workload: fix scheduler build issues for non-linux builds
+  * stress-vma: use shim_mincore instead of mincore
+  * stress-workload: add memory flush/read work item
+  * stress-workload: fix missing break in switch
+  * stress-workload: add yield instead of very small sleeps
+  * stress-workload: add a getpid() workload
+  * stress-vma: fix missing proc-maps metrics
+  * kernel-coverage: add workload sched workers
+  * stress-workload: add --workload-sched option
+  * stress-workload: add more randomly selected workloads
+  * stress-workload: print histograph in debug verbose mode only
+  * stress-workload: add a new scheduling workload stressor
+  * stress-access: remove trailing space
+  * README.md: update contributors list
+  * stress-shm-sysv: add more information on shmat failure
+  * README.md: add two more research citations
+  * kerne-coverage: mount hfs, hfsplus with -o rw, increase loopback to
+    4GB
+  * stress-swap: handle ENOSPC more gracefully as a skipped stressor
+  * stress-access: don't report chmod errors for some filesystems
+  * stress-led: add LED /sysfs exercising stressor (Linux)
+  * README.md: update contributors list
+  * core-killpid: make killable timeout 10 minutes instead of 3
+  * core-helper: add musl gcc detection
+  * Add HOT OPTIMIZE3 attributes to random data filling helper funcs
+  * core-mwc: replace just OPTIMIZE3 with HOT OPTIMIZE3 on highly used
+    mwc funcs
+  * test/test-libxxhash.c: include string.h and make buffer static
+  * Manual: update vma manual description to reflect recent vma changes
+  * stress-vma: reduce number of concurrent vma processes per instances
+    to 2
+  * stress-vma: fix 32/64 bit address generation
+  * README.md: add two more research paper citations
+  * core-*, stress-*: Add musl-gcc detection and HAVE_COMPILER_MUSL
+  * stress-vma: add reading /proc/self/maps
+  * stress-mva: add mprotect and msync
+  * stress-vma: add mincore calls on pages
+  * stress-procfs: use pthread_cancel to cancel pthreads before join
+  * core-config-check: fix inverted tty message
+  * stress-cgroup: fix duplicated open flags, use S_IRGRP | S_IWGRP
+  * core-config-check: check for powersave cpu governor
+  * core-shim: remove debug stress_process_info call
+  * stress-open: report filesystem type on O_DIRECT open/create issue
+  * stress-dev: use stress_kill_and_wait instead of kill and wait combo
+  * core-shim: shim_wait: bail out after 3 minutes of waiting
+  * core-helper: add stress_process_info to dump process state
+  * core-*, stress-*: use %jd and (intmax_t) cast for all pid_t formatting
+  * core-*/stress-*: rename pid to PID across system
+  * core-killpid: give up killing PID and debug report this after 3
+    minutes
+  * kernel-coverage.sh: add --mmaphuge-file option to text mix
+  * stress-mmaphuge: add --mmaphuge-file option to attempt to mmap onto
+    a 16GB file
+  * core-config-check: add system configuration sanity checks
+  * kernel-coverage.sh: add /usr/sbin to path for gcov tools
+  * stress-sysfs: terminate child process and pthreads using helper
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 9 Nov 2023 17:32:18 +0000
+
 stress-ng (0.17.00-1) unstable; urgency=medium
 
   [ Colin Ian King ]
