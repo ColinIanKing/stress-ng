@@ -152,10 +152,6 @@ static int stress_crypt(const stress_args_t *args)
 		seed[0] = stress_mwc64();
 		seed[1] = stress_mwc64();
 
-		setting[0] = '$';
-		setting[1] = 'x';
-		setting[2] = '$';
-
 		for (i = 0; i < 8; i++)
 			orig_setting[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
 		for (i = 0; i < sizeof(phrase) - 1; i++)
