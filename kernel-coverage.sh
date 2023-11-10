@@ -711,8 +711,6 @@ do_stress --workload -1 --workload-sched other --workload-load 90
 do_stress --workload -1 --workload-sched batch --workload-load 90
 do_stress --workload -1 --workload-sched deadline --workload-load 90
 
-none idle fifo rr other batch deadline
-
 do_stress --zombie 1 --zombie-max 1000000
 
 #
