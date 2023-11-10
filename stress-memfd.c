@@ -30,6 +30,8 @@
 #define MAX_MEMFD_FDS		(4096)
 #define DEFAULT_MEMFD_FDS	(256)
 
+#define MEMFD_STRIDE		(8)	/* 16 * sizeof(uint64_t) = 64 bytes */
+
 static const stress_help_t help[] = {
 	{ NULL,	"memfd N",	 "start N workers allocating memory with memfd_create" },
 	{ NULL,	"memfd-bytes N", "allocate N bytes for each stress iteration" },
@@ -118,45 +120,29 @@ static inline const uint64_t *uint64_ptr_offset(const uint64_t *ptr, const size_
  *  stress_memfd_fill_pages()
  *	fill pages with random uin64_t values
  */
-static void TARGET_CLONES stress_memfd_fill_pages_generic(void *ptr, const size_t size)
+static void stress_memfd_fill_pages_generic(const uint64_t val, void *ptr, const size_t size)
 {
 	register uint64_t *u64ptr = (uint64_t *)ptr;
 	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
-	register uint64_t v = stress_mwc64();
+	register uint64_t v = val;
 
 	while (u64ptr < u64end) {
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
-		*u64ptr++ = v;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
+		*u64ptr = v;
+		u64ptr += MEMFD_STRIDE;
 		v++;
 	}
 }
@@ -166,45 +152,29 @@ static void TARGET_CLONES stress_memfd_fill_pages_generic(void *ptr, const size_
  *  stress_memfd_fill_pages_nt_store()
  *	fill pages with random uin64_t values using nt_store
  */
-static void OPTIMIZE3 stress_memfd_fill_pages_nt_store(void *ptr, const size_t size)
+static void stress_memfd_fill_pages_nt_store(const uint64_t val, void *ptr, const size_t size)
 {
 	register uint64_t *u64ptr = (uint64_t *)ptr;
 	register const uint64_t *u64end = uint64_ptr_offset(ptr, size);
-	register uint64_t v = stress_mwc64();
+	register uint64_t v = val;
 
 	while (u64ptr < u64end) {
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
-		stress_nt_store64(u64ptr++, v);
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
+		stress_nt_store64(u64ptr, v);
+		u64ptr += MEMFD_STRIDE;
 		v++;
 	}
 }
@@ -216,18 +186,36 @@ static void OPTIMIZE3 stress_memfd_fill_pages_nt_store(void *ptr, const size_t s
  *  stress_memfd_check()
  *	check if buffer buf contains uint64_t values val, return true if OK, false if not
  */
-static bool stress_memfd_check(
+static inline bool stress_memfd_check(
 	const uint64_t val,
-	const uint64_t *buf,
-	const size_t size)
+	const uint64_t *ptr,
+	const size_t size,
+	const uint64_t inc)
 {
-	const uint64_t *ptr, *end_ptr = uint64_ptr_offset(buf, size);
+	register const uint64_t *u64ptr = ptr, *u64_end = uint64_ptr_offset(ptr, size);
+	register uint64_t v = val;
+	bool passed = true;
 
-	for (ptr = buf; ptr < end_ptr; ptr++) {
-		if (*ptr != val)
-			return false;
+	while (u64ptr < u64_end) {
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		passed &= (*u64ptr == v);
+		u64ptr += MEMFD_STRIDE;
+		v += inc;
 	}
-	return true;
+	return passed;
 }
 #endif
 
@@ -248,10 +236,10 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	double duration = 0.0, count = 0.0, rate;
 	bool memfd_mlock = false;
 #if defined(HAVE_NT_STORE64)
-	void (*stress_memfd_fill_pages)(void *ptr, const size_t size) =
+	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) =
 		stress_cpu_x86_has_sse2() ? stress_memfd_fill_pages_nt_store : stress_memfd_fill_pages_generic;
 #else
-	void (*stress_memfd_fill_pages)(void *ptr, const size_t size) = stress_memfd_fill_pages_generic;
+	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) = stress_memfd_fill_pages_generic;
 #endif
 
 #if defined(MAP_POPULATE)
@@ -374,7 +362,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				continue;
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
-			stress_memfd_fill_pages(maps[i], size);
+			stress_memfd_fill_pages(stress_mwc64(), maps[i], size);
 			(void)stress_madvise_random(maps[i], size);
 			(void)stress_madvise_mergeable(maps[i], size);
 
@@ -454,9 +442,8 @@ memfd_unmap:
 		 *  5abfd71d936a8aefd9f9ccd299dea7a164a5d455
 		 */
 		for (i = 0; stress_continue_flag() && (i < memfd_fds); i++) {
-			uint64_t *buf, *ptr;
-			const uint64_t *end_ptr;
-			uint64_t val = stress_mwc64();
+			uint64_t *buf;
+			uint64_t val;
 			const ssize_t test_size = page_size << 1;
 
 			if (ftruncate(fds[i], (off_t)test_size) < 0)
@@ -467,9 +454,8 @@ memfd_unmap:
 				continue;
 			if (memfd_mlock)
 				(void)shim_mlock(buf, test_size);
-			end_ptr = uint64_ptr_offset(buf, test_size);
-			for (ptr = buf; ptr < end_ptr; ptr++)
-				*ptr = val;
+			val = stress_mwc64();
+			stress_memfd_fill_pages(val, buf, test_size);
 
 			if (madvise(buf, test_size, MADV_PAGEOUT) < 0)
 				goto buf_unmap;
@@ -477,10 +463,10 @@ memfd_unmap:
 				goto buf_unmap;
 			if (ftruncate(fds[i], (off_t)test_size) < 0)
 				goto buf_unmap;
-			if (!stress_memfd_check(val, buf, page_size))
+			if (!stress_memfd_check(val, buf, page_size, 1))
 				pr_fail("%s: unexpected memfd %d data mismatch in first page\n",
 					args->name, fds[i]);
-			if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size))
+			if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0))
 				pr_fail("%s: unexpected memfd %d data mismatch in zero'd second page\n",
 					args->name, fds[i]);
 buf_unmap:
