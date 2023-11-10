@@ -383,6 +383,11 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(ANON_INODE_FS_MAGIC)
 	{ ANON_INODE_FS_MAGIC,	"anon" },
 #endif
+#if defined(BCACHEFS_STATFS_MAGIC)
+	{ BCACHEFS_STATFS_MAGIC, "bcachefs" },
+#else
+	{ 0xca451a4e,		"bacachefs" },
+#endif
 };
 #endif
 
