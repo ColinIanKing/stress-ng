@@ -165,7 +165,6 @@ static int stress_metamix_file(
 				goto err_close;
 			}
 		}
-	
 	}
 	(void)close(fd);
 
