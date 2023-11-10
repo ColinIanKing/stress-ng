@@ -56,32 +56,26 @@ static const crypt_method_t crypt_methods[] = {
  */
 static int stress_crypt_id(
 	const stress_args_t *args,
-	const char *prefix,
-	const size_t prefix_len,
 	const char *method,
-	const char *passwd,
-	const char *salt,
+#if defined(HAVE_CRYPT_R)
+	struct crypt_data *data,
+#else
+	const char *phrase,
+	const char *setting,
+#endif
 	stress_metrics_t *metrics)
 {
 	char *encrypted;
 	double t1, t2;
-	char newsalt[12];
-#if defined (HAVE_CRYPT_R)
-	static struct crypt_data data;
-
-	(void)shim_memset(&data, 0, sizeof(data));
-#endif
-	(void)shim_strlcpy(newsalt, salt, sizeof(newsalt));
-	(void)shim_memcpy(newsalt, prefix, prefix_len);
 	errno = 0;
 
-#if defined (HAVE_CRYPT_R)
+#if defined(HAVE_CRYPT_R)
 	t1 = stress_time_now();
-	encrypted = crypt_r(passwd, newsalt, &data);
+	encrypted = crypt_r(data->input, data->setting, data);
 	t2 = stress_time_now();
 #else
 	t1 = stress_time_now();
-	encrypted = crypt(passwd, newsalt);
+	encrypted = crypt(phrase, setting);
 	t2 = stress_time_now();
 #endif
 	if (UNLIKELY(!encrypted)) {
@@ -138,11 +132,18 @@ static int stress_crypt(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		static const char seedchars[] =
+		static const char seedchars[] ALIGN64 =
 			"./0123456789ABCDEFGHIJKLMNOPQRST"
 			"UVWXYZabcdefghijklmnopqrstuvwxyz";
-		char passwd[16];
-		char salt[] = "$x$........";
+#if defined(HAVE_CRYPT_R)
+		static struct crypt_data data;
+		char *const phrase = data.input;
+		char *const setting = data.setting;
+#else
+		char phrase[16];
+		char setting[12];
+#endif
+		char orig_setting[] = "$x$........";
 		uint64_t seed[2];
 		size_t failed = 0;
 
@@ -150,19 +151,27 @@ static int stress_crypt(const stress_args_t *args)
 		seed[1] = stress_mwc64();
 
 		for (i = 0; i < 8; i++)
-			salt[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
-		for (i = 0; i < sizeof(passwd) - 1; i++)
-			passwd[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
-		passwd[i] = '\0';
+			orig_setting[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
+		for (i = 0; i < sizeof(phrase) - 1; i++)
+			phrase[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
+		phrase[i] = '\0';
 
 		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++) {
 			int ret;
 
-			ret = stress_crypt_id(args,
-					      crypt_methods[i].prefix,
-					      crypt_methods[i].prefix_len,
-					      crypt_methods[i].method,
-					      passwd, salt, &crypt_metrics[i]);
+			(void)shim_strlcpy(setting, orig_setting, sizeof(setting));
+			(void)shim_memcpy(setting, crypt_methods[i].prefix, crypt_methods[i].prefix_len);
+#if defined (HAVE_CRYPT_R)
+			data.initialized = 0;
+#endif
+
+			ret = stress_crypt_id(args, crypt_methods[i].method,
+#if defined (HAVE_CRYPT_R)
+					      &data,
+#else
+					      phrase, setting,
+#endif
+					      &crypt_metrics[i]);
 			if (ret < 0)
 				failed++;
 			else
