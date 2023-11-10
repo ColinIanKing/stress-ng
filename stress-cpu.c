@@ -2272,23 +2272,25 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 	for (y = 0; y < STRESS_CPU_DITHER_Y; y += 8) {
 PRAGMA_UNROLL_N(8)
 		for (x = 0; x < STRESS_CPU_DITHER_X; x ++) {
-			uint64_t v = stress_mwc64();
+			register uint32_t v1, v2;
 
-			pixels[x][y + 0] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 1] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 2] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 3] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 4] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 5] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 6] = (uint8_t)v;
-			v >>= 8;
-			pixels[x][y + 7] = (uint8_t)v;
+			v1 = stress_mwc32();
+			pixels[x][y + 0] = (uint8_t)v1;
+			v1 >>= 8;
+			pixels[x][y + 1] = (uint8_t)v1;
+			v1 >>= 8;
+			pixels[x][y + 2] = (uint8_t)v1;
+			v1 >>= 8;
+			pixels[x][y + 3] = (uint8_t)v1;
+
+			v2 = stress_mwc32();
+			pixels[x][y + 4] = (uint8_t)v2;
+			v2 >>= 8;
+			pixels[x][y + 5] = (uint8_t)v2;
+			v2 >>= 8;
+			pixels[x][y + 6] = (uint8_t)v2;
+			v2 >>= 8;
+			pixels[x][y + 7] = (uint8_t)v2;
 		}
 	}
 
