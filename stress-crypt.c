@@ -50,20 +50,22 @@ static const crypt_method_t crypt_methods[] = {
 	{ "$y$",	3,	"yescrypt" },
 };
 
+static stress_metrics_t *crypt_metrics;
+
 /*
  *  stress_crypt_id()
  *	crypt a password with given seed and id
  */
 static int stress_crypt_id(
 	const stress_args_t *args,
-	const char *method,
+	const size_t i,
 #if defined(HAVE_CRYPT_R)
-	struct crypt_data *data,
+	struct crypt_data *data
 #else
 	const char *phrase,
-	const char *setting,
+	const char *setting
 #endif
-	stress_metrics_t *metrics)
+	)
 {
 	char *encrypted;
 	double t1, t2;
@@ -98,12 +100,12 @@ static int stress_crypt_id(
 			break;
 		default:
 			pr_fail("%s: cannot encrypt with %s, errno=%d (%s)\n",
-				args->name, method, errno, strerror(errno));
+				args->name, crypt_methods[i].method, errno, strerror(errno));
 			return -1;
 		}
 	} else {
-		metrics->duration += (t2 - t1);
-		metrics->count += 1.0;
+		crypt_metrics[i].duration += (t2 - t1);
+		crypt_metrics[i].count += 1.0;
 	}
 	return 0;
 }
@@ -114,8 +116,7 @@ static int stress_crypt_id(
  */
 static int stress_crypt(const stress_args_t *args)
 {
-	stress_metrics_t *crypt_metrics;
-	size_t i;
+	register size_t i;
 
 	crypt_metrics = calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));
 	if (!crypt_metrics) {
@@ -143,12 +144,17 @@ static int stress_crypt(const stress_args_t *args)
 		char phrase[16];
 		char setting[12];
 #endif
-		char orig_setting[] = "$x$........";
+		char orig_setting[12];
 		uint64_t seed[2];
+		const crypt_method_t *cm = crypt_methods;
 		size_t failed = 0;
 
 		seed[0] = stress_mwc64();
 		seed[1] = stress_mwc64();
+
+		setting[0] = '$';
+		setting[1] = 'x';
+		setting[2] = '$';
 
 		for (i = 0; i < 8; i++)
 			orig_setting[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
@@ -156,23 +162,22 @@ static int stress_crypt(const stress_args_t *args)
 			phrase[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
 		phrase[i] = '\0';
 
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++) {
+		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
 			int ret;
 
 			(void)shim_strlcpy(setting, orig_setting, sizeof(setting));
-			(void)shim_memcpy(setting, crypt_methods[i].prefix, crypt_methods[i].prefix_len);
+			(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
 #if defined (HAVE_CRYPT_R)
 			data.initialized = 0;
 #endif
 
-			ret = stress_crypt_id(args, crypt_methods[i].method,
+			ret = stress_crypt_id(args, i,
 #if defined (HAVE_CRYPT_R)
-					      &data,
+					      &data);
 #else
-					      phrase, setting,
+					      phrase, setting);
 #endif
-					      &crypt_metrics[i]);
-			if (ret < 0)
+			if (UNLIKELY(ret < 0))
 				failed++;
 			else
 				stress_bogo_inc(args);
