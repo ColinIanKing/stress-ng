@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Copyright (C) 2016-2021 Canonical
-# Copyright (C)      2022 Colin Ian King
+# Copyright (C) 2022-2023 Colin Ian King
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -202,6 +202,12 @@ mount_filesystem()
 			MNT_CMD="sudo mount -t overlay overlay -o lowerdir=/tmp/lower,upperdir=/tmp/upper,workdir=/tmp/work ${MNT}"
 			mkdir /tmp/lower /tmp/upper /tmp/work
 			;;
+		bcachefs)
+			MKFS_CMD="bcachefs"
+			MKFS_ARGS="format ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
+			;;
 		*)
 			echo "unsupported file system $1"
 			return 1
@@ -329,7 +335,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in bcachefs bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	if mount_filesystem $FS; then
 		DURATION=10
