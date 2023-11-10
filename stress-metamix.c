@@ -157,12 +157,15 @@ static int stress_metamix_file(
 		}
 	}
 	if (stress_mwc8() > 240) {
-		if ((shim_fdatasync(fd) < 0) && (errno != ENOSYS)) {
-			pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
-				args->name, filename, errno, strerror(errno), fs_type);
-			rc = EXIT_FAILURE;
-			goto err_close;
+		if (shim_fdatasync(fd) < 0) {
+			if ((errno != EINTR) && (errno != ENOSYS)) {
+				pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
+					args->name, filename, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto err_close;
+			}
 		}
+	
 	}
 	(void)close(fd);
 
@@ -199,23 +202,27 @@ static int stress_metamix_file(
 		rc = EXIT_FAILURE;
 		goto err_unlink;
 	}
-	if ((shim_fdatasync(fd) < 0) && (errno != ENOSYS)) {
-		pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
-			args->name, filename, errno, strerror(errno), fs_type);
-		rc = EXIT_FAILURE;
-		goto err_close;
+	if (shim_fdatasync(fd) < 0) {
+		if ((errno != EINTR) && (errno != ENOSYS)) {
+			pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
+				args->name, filename, errno, strerror(errno), fs_type);
+			rc = EXIT_FAILURE;
+			goto err_close;
+		}
 	}
 	(void)close(fd);
 
 #if defined(O_DIRECTORY)
 	fd = open(temp_dir, O_RDONLY | O_DIRECTORY);
 	if (fd != -1) {
-		if ((shim_fsync(fd) < 0) && (errno != ENOSYS)) {
-			pr_inf("%s: fsync on directory %s failed, errno=%d (%s)%s\n",
-				args->name, temp_dir, errno, strerror(errno), fs_type);
-			rc = EXIT_FAILURE;
-			(void)close(fd);
-			goto err_unlink;
+		if (shim_fsync(fd) < 0) {
+			if ((errno != EINTR) && (errno != ENOSYS)) {
+				pr_inf("%s: fsync on directory %s failed, errno=%d (%s)%s\n",
+					args->name, temp_dir, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				(void)close(fd);
+				goto err_unlink;
+			}
 		}
 		(void)close(fd);
 	}
