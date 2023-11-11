@@ -266,7 +266,8 @@ static int stress_mutex(const stress_args_t *args)
 	(void)pthread_mutex_destroy(&mutex);
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per mutex", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs per mutex",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;
 }

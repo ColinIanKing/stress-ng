@@ -1109,7 +1109,8 @@ static int stress_memrate(const stress_args_t *args)
 			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB per sec", memrate_info[i].name);
-			stress_metrics_set(args, i, tmp, rate);
+			stress_metrics_set(args, i, tmp,
+				rate, STRESS_HARMONIC_MEAN);
 		} else {
 			pr_inf("%s: %10.10s: interrupted early\n",
 				args->name, memrate_info[i].name);

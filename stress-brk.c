@@ -249,9 +249,11 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
 	} while (stress_continue(args));
 
 	rate = (sbrk_exp_count > 0.0) ? (double)sbrk_exp_duration / sbrk_exp_count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per sbrk page expand", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs per sbrk page expand",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 	rate = (sbrk_shr_count > 0.0) ? (double)sbrk_shr_duration / sbrk_shr_count : 0.0;
-	stress_metrics_set(args, 1, "nanosecs per sbrk page shrink", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 1, "nanosecs per sbrk page shrink",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;
 }

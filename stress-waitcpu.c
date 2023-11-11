@@ -281,7 +281,8 @@ static int stress_waitcpu(const stress_args_t *args)
 			char msg[64];
 
 			(void)snprintf(msg, sizeof(msg), "%s ops per sec", stress_waitcpu_method[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 		stress_waitcpu_method[i].rate = rate;

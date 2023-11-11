@@ -389,7 +389,8 @@ static int stress_trig(const stress_args_t *args)
 				stress_trig_metrics[i].count / stress_trig_metrics[i].duration;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per second", stress_trig_methods[i].name);
-			stress_metrics_set(args, j, buf, rate);
+			stress_metrics_set(args, j, buf,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

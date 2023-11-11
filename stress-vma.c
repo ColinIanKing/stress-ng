@@ -576,7 +576,8 @@ static int stress_vma(const stress_args_t *args)
 		const double rate = duration > 0.0 ? (double)stress_vma_metrics->metrics[i] / duration : 0.0;
 
 		(void)snprintf(msg, sizeof(msg), "%s per second", stress_vma_metrics_name[i]);
-		stress_metrics_set(args, i, msg, rate);
+		stress_metrics_set(args, i, msg,
+			rate, STRESS_HARMONIC_MEAN);
 	}
 
 	(void)munmap((void *)stress_vma_metrics, sizeof(*stress_vma_metrics));

@@ -901,7 +901,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 				args->name, name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s bogo ops per sec", name);
-			stress_metrics_set(args, j, tmp, rate);
+			stress_metrics_set(args, j, tmp, rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

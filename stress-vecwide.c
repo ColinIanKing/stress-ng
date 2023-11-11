@@ -248,7 +248,8 @@ static int stress_vecwide(const stress_args_t *args)
 				stress_vecwide_funcs[i].count / stress_vecwide_funcs[i].duration : 0.0;
 
 		(void)snprintf(str, sizeof(str), "vecwide%zd ops per sec", stress_vecwide_funcs[i].byte_size * 8);
-		stress_metrics_set(args, i, str, rate);
+		stress_metrics_set(args, i, str,
+			rate, STRESS_HARMONIC_MEAN);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

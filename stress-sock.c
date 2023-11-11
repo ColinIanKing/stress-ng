@@ -871,7 +871,8 @@ retry:
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 		metric = (inq_samples > 0) ? (double)inq_bytes / (double)inq_samples : 0.0;
-		stress_metrics_set(args, 2, "byte average in queue length", metric);
+		stress_metrics_set(args, 2, "byte average in queue length",
+			metric, STRESS_GEOMETRIC_MEAN);
 	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
@@ -1205,9 +1206,11 @@ static int OPTIMIZE3 stress_sock_server(
 
 	duration = stress_time_now() - t;
 	metric = (duration > 0.0) ? (double)msgs / duration : 0.0;
-	stress_metrics_set(args, 0, "messages sent per sec", metric);
+	stress_metrics_set(args, 0, "messages sent per sec",
+		metric, STRESS_HARMONIC_MEAN);
 	metric = (outq_samples > 0) ? (double)outq_bytes / (double)outq_samples : 0.0;
-	stress_metrics_set(args, 1, "byte average out queue length", metric);
+	stress_metrics_set(args, 1, "byte average out queue length",
+		metric, STRESS_HARMONIC_MEAN);
 
 die_close:
 	(void)close(fd);

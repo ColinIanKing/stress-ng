@@ -186,6 +186,7 @@ typedef struct {
 typedef struct {
 	char *description;		/* description of metric */
 	double value;			/* value of metric */
+	int mean_type;			/* type of metric, geometric or harmonic mean */
 } stress_metrics_data_t;
 
 /* stressor args */
@@ -808,17 +809,20 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 
 #include "core-helper.h"
 
+#define STRESS_GEOMETRIC_MEAN	(1)
+#define STRESS_HARMONIC_MEAN	(2)
+
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
 extern void stress_metrics_set_const_check(const stress_args_t *args,
-	const size_t idx, char *description, const bool const_description, const double value);
+	const size_t idx, char *description, const bool const_description, const double value, const int mean_type);
 #if defined(HAVE_BUILTIN_CONSTANT_P)
-#define stress_metrics_set(args, idx, description, value)	\
-	stress_metrics_set_const_check(args, idx, description, __builtin_constant_p(description), value)
+#define stress_metrics_set(args, idx, description, value, mean_type)	\
+	stress_metrics_set_const_check(args, idx, description, __builtin_constant_p(description), value, mean_type)
 #else
-#define stress_metrics_set(args, idx, description, value)	\
-	stress_metrics_set_const_check(args, idx, description, false, value)
+#define stress_metrics_set(args, idx, description, value, mean_type)	\
+	stress_metrics_set_const_check(args, idx, description, false, value, mean_type)
 #endif
 
 #if !defined(STRESS_CORE_SHIM) &&	\

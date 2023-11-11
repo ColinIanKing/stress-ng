@@ -302,8 +302,9 @@ static int stress_fifo(const stress_args_t *args)
 	fifo_duration = stress_time_now() - t;
 
 	rate = (fifo_duration > 0.0) ? (fifo_count / fifo_duration) : 0.0;
-	(void)snprintf(msg, sizeof(msg), "fifo %zu byte writes per sec", fifo_data_size);
-	stress_metrics_set(args, 0, msg, rate);
+	(void)snprintf(msg, sizeof(msg), "fifo %zu byte writes per sec",
+		fifo_data_size);
+	stress_metrics_set(args, 0, msg, rate, STRESS_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);

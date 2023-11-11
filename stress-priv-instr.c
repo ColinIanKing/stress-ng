@@ -527,7 +527,8 @@ finish:
 	}
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per privileged op trap", STRESS_DBL_NANOSECOND * rate);
+	stress_metrics_set(args, 0, "nanosecs per privileged op trap",
+		STRESS_DBL_NANOSECOND * rate, STRESS_HARMONIC_MEAN);
 
 #if defined(HAVE_PRIV_PAGE)
 	if (page != MAP_FAILED)

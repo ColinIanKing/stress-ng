@@ -393,8 +393,10 @@ static int stress_x86syscall(const stress_args_t *args)
 		const uint64_t c = stress_bogo_get(args);
 		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)c) - overhead_ns;
 
-		stress_metrics_set(args, 0, "nanosecs per call (excluding test overhead", ns);
-		stress_metrics_set(args, 1, "nanosecs for test overhead", overhead_ns);
+		stress_metrics_set(args, 0, "nanosecs per call (excluding test overhead",
+			ns, STRESS_HARMONIC_MEAN);
+		stress_metrics_set(args, 1, "nanosecs for test overhead",
+			overhead_ns, STRESS_HARMONIC_MEAN);
 	}
 
 	/*

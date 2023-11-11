@@ -142,7 +142,8 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	if (rate > 0.0)
-		stress_metrics_set(args, 0, "millisecs per page swapout", rate * 1000000);
+		stress_metrics_set(args, 0, "millisecs per page swapout",
+			rate * 1000000, STRESS_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;
 }

@@ -704,7 +704,8 @@ static int stress_str(const stress_args_t *args)
 			const double rate = metrics[i].count / metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s calls per sec", str_methods[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,	
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

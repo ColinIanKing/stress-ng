@@ -161,7 +161,8 @@ static int stress_yield(const stress_args_t *args)
 	stress_bogo_add(args, (uint64_t)count);
 
 	ns = count > 0.0 ? (STRESS_DBL_NANOSECOND * duration) / count : 0.0;
-	stress_metrics_set(args, 0, "ns duration per sched_yield call", ns);
+	stress_metrics_set(args, 0, "ns duration per sched_yield call",
+		ns, STRESS_HARMONIC_MEAN);
 
 	(void)munmap((void *)metrics, metrics_size);
 	free(pids);

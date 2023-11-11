@@ -590,7 +590,8 @@ static int stress_vnni(const stress_args_t *args)
 				stress_vnni_methods[i].count / stress_vnni_methods[i].duration : 0.0;
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per sec", stress_vnni_methods[i].name);
-			stress_metrics_set(args, j, buf, rate);
+			stress_metrics_set(args, j, buf,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

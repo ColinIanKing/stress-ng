@@ -153,9 +153,11 @@ static int stress_icmp_flood(const stress_args_t *args)
 	sendto_ok = counter - sendto_fails;
 
 	rate = (duration > 0.0) ? sendto_ok / duration : 0.0;
-	stress_metrics_set(args, 0, "sendto calls per sec" , rate);
+	stress_metrics_set(args, 0, "sendto calls per sec",
+		rate, STRESS_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 1, "MB written per sec" , rate / (double)MB);
+	stress_metrics_set(args, 1, "MB written per sec",
+		rate / (double)MB, STRESS_HARMONIC_MEAN);
 
 	pr_dbg("%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
 		args->name,

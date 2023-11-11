@@ -168,7 +168,8 @@ static int stress_kill(const stress_args_t *args)
 	}
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "kill calls per sec", rate);
+	stress_metrics_set(args, 0, "kill calls per sec",
+		rate, STRESS_HARMONIC_MEAN);
 
 	return EXIT_SUCCESS;
 }

@@ -984,7 +984,8 @@ static inline int stress_matrix_exercise(
 			const double rate = matrix_metrics[i].count / matrix_metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s matrix ops per sec", matrix_methods[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

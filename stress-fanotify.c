@@ -710,12 +710,18 @@ static int stress_fanotify(const stress_args_t *args)
 		}
 #endif
 		if (duration > 0.0) {
-			stress_metrics_set(args, 0, "opens/sec", (double)account.open / duration);
-			stress_metrics_set(args, 1, "close writes/sec", (double)account.close_write / duration);
-			stress_metrics_set(args, 2, "close no-writes/sec", (double)account.close_nowrite / duration);
-			stress_metrics_set(args, 3, "accesses/sec", (double)account.access / duration);
-			stress_metrics_set(args, 4, "modifies/sec", (double)account.modify / duration);
-			/* stress_metrics_set(args, 5, "renames/sec", (double)account.rename / duration); */
+			stress_metrics_set(args, 0, "opens/sec",
+				(double)account.open / duration, STRESS_GEOMETRIC_MEAN);
+			stress_metrics_set(args, 1, "close writes/sec",
+				(double)account.close_write / duration, STRESS_GEOMETRIC_MEAN);
+			stress_metrics_set(args, 2, "close no-writes/sec",
+				(double)account.close_nowrite / duration, STRESS_GEOMETRIC_MEAN);
+			stress_metrics_set(args, 3, "accesses/sec",
+				(double)account.access / duration, STRESS_GEOMETRIC_MEAN);
+			stress_metrics_set(args, 4, "modifies/sec",
+				(double)account.modify / duration, STRESS_GEOMETRIC_MEAN);
+			/* stress_metrics_set(args, 5, "renames/sec",
+				(double)account.rename / duration, STRESS_GEOMETRIC_MEAN); */
 		}
 	}
 tidy:

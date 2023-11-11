@@ -208,7 +208,8 @@ static int stress_membarrier(const stress_args_t *args)
 		count += info[i].count;
 	}
 	rate = (duration > 0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "membarrier calls per sec", rate);
+	stress_metrics_set(args, 0, "membarrier calls per sec",
+		rate, STRESS_HARMONIC_MEAN);
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		if (info[i].pthread_ret == 0)

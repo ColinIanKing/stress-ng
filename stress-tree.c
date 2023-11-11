@@ -1003,7 +1003,8 @@ tidy:
 			char msg[64];
 
 			(void)snprintf(msg, sizeof(msg), "%s tree operations per sec", stress_tree_methods[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

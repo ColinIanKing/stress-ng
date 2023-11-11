@@ -546,7 +546,8 @@ again:
 		} while (stress_continue(args));
 
 		rate = (duration > 0.0) ? count / duration : 0.0;
-		stress_metrics_set(args, 0, "efi raw data reads per sec", rate);
+		stress_metrics_set(args, 0, "efi raw data reads per sec",
+			rate, STRESS_HARMONIC_MEAN);
 
 		_exit(rc);
 	}

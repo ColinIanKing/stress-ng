@@ -503,7 +503,8 @@ static int stress_rawdev(const stress_args_t *args)
 			const double rate = (metrics[i].count / duration) / (double)MB;
 
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
-			stress_metrics_set(args, j, str, rate);
+			stress_metrics_set(args, j, str,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

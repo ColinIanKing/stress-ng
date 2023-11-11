@@ -356,7 +356,8 @@ static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per syscall", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs per syscall",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

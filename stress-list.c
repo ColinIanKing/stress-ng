@@ -597,7 +597,8 @@ tidy:
 			const double rate = list_metrics[i].count / list_metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s searches per second", list_methods[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

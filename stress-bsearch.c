@@ -115,8 +115,10 @@ static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-	stress_metrics_set(args, 0, "bsearch comparisons per sec", rate);
-	stress_metrics_set(args, 1, "bsearch comparisons per item", count / sorted);
+	stress_metrics_set(args, 0, "bsearch comparisons per sec",
+		rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "bsearch comparisons per item",
+		count / sorted, STRESS_HARMONIC_MEAN);
 
 	free(data);
 	return EXIT_SUCCESS;

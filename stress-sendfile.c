@@ -194,7 +194,8 @@ sendfile_ok:
 	} while (stress_continue(args));
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
-	stress_metrics_set(args, 0, "MB per sec sent to /dev/null", rate / (double)MB);
+	stress_metrics_set(args, 0, "MB per sec sent to /dev/null",
+		rate / (double)MB, STRESS_HARMONIC_MEAN);
 
 close_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

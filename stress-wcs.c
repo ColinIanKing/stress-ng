@@ -780,7 +780,8 @@ static int stress_wcs(const stress_args_t *args)
 			const double rate = metrics[i].count / metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s calls per sec", wcs_methods[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

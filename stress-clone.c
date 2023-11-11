@@ -602,7 +602,8 @@ static int stress_clone(const stress_args_t *args)
 	}
 
 	average = (shared->metrics.count > 0.0) ? shared->metrics.duration / shared->metrics.count : 0.0;
-	stress_metrics_set(args, 0, "microsecs per clone" , average * 1000000);
+	stress_metrics_set(args, 0, "microsecs per clone",
+		average * 1000000, STRESS_HARMONIC_MEAN);
 
 	(void)munmap((void *)shared, sizeof(*shared));
 

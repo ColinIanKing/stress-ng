@@ -399,7 +399,8 @@ tidy_mmap:
 	}
 #endif
 	rate = (dup_count > 0.0) ? (double)dup_duration / dup_count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per dup call", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs per dup call",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 
 	return rc;
 }

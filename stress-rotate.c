@@ -236,7 +236,8 @@ static int stress_rotate(const stress_args_t *args)
 			const double rate = stress_rotate_metrics[i].count / stress_rotate_metrics[i].duration;
 
 			(void)snprintf(msg, sizeof(msg), "%s rotate ops per sec", stress_rotate_funcs[i].name);
-			stress_metrics_set(args, j, msg, rate);
+			stress_metrics_set(args, j, msg,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

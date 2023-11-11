@@ -346,7 +346,8 @@ close_finish:
 	(void)close(fd);
 finish:
 	duration = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per seek", duration * 1000000000);
+	stress_metrics_set(args, 0, "nanosecs per seek",
+		duration * 1000000000, STRESS_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);

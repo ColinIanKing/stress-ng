@@ -374,7 +374,8 @@ finish:
 
 	dt = t2 - t1;
 	if (dt > 0.0)
-		stress_metrics_set(args, 0, "async I/O signals per sec", (double)total / dt);
+		stress_metrics_set(args, 0, "async I/O signals per sec",
+			(double)total / dt, STRESS_HARMONIC_MEAN);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }

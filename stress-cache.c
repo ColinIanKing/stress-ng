@@ -1007,7 +1007,8 @@ next:
 		const double rate = metrics[j].duration > 0.0 ?
 			metrics[j].count / metrics[j].duration : 0.0;
 
-		stress_metrics_set(args, j, metrics_description[j], rate);
+		stress_metrics_set(args, j, metrics_description[j],
+			rate, STRESS_HARMONIC_MEAN);
 	}
 
 	return ret;

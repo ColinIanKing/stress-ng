@@ -436,7 +436,8 @@ seq_wr_retry:
 
 	if ((iterations > 0) && (avg_extents > 0.0)) {
 		avg_extents /= (double)iterations;
-		stress_metrics_set(args, 0, "extents", (double)avg_extents);
+		stress_metrics_set(args, 0, "extents",
+			(double)avg_extents, STRESS_GEOMETRIC_MEAN);
 	}
 
 	rc = EXIT_SUCCESS;

@@ -446,7 +446,8 @@ static int stress_prefetch(const stress_args_t *args)
 	}
 
 	non_prefetch_rate = prefetch_info[0].rate / (double)GB;
-	stress_metrics_set(args, 0, "GB per sec non-prefetch read rate", non_prefetch_rate);
+	stress_metrics_set(args, 0, "GB per sec non-prefetch read rate",
+		non_prefetch_rate, STRESS_HARMONIC_MEAN);
 
 	if (best_rate > 0.0)
 		ns = STRESS_DBL_NANOSECOND * (double)prefetch_info[best].offset / best_rate;
@@ -458,7 +459,8 @@ static int stress_prefetch(const stress_args_t *args)
 		prefetch_info[best].offset, ns);
 
 	best_rate /= (double)GB;
-	stress_metrics_set(args, 1, "GB per sec best read rate", best_rate);
+	stress_metrics_set(args, 1, "GB per sec best read rate",
+		best_rate, STRESS_HARMONIC_MEAN);
 
 	/* sanity check prefetch rates */
 	if (verify && check_prefetch_rate && (best_rate < non_prefetch_rate)) {

@@ -994,9 +994,12 @@ case_stream_index_1:
 		pr_inf("%s: memory rate: %.2f MB read/sec, %.2f MB write/sec, %.2f double precision Mflop/sec"
 			" (instance %" PRIu32 ")\n",
 			args->name, mb_rd_rate, mb_wr_rate, fp_rate, args->instance);
-		stress_metrics_set(args, 0, "MB per sec memory read rate", mb_rd_rate);
-		stress_metrics_set(args, 1, "MB per sec memory write rate", mb_wr_rate);
-		stress_metrics_set(args, 2, "Mflop per sec (double precision) compute rate", fp_rate);
+		stress_metrics_set(args, 0, "MB per sec memory read rate",
+			mb_rd_rate, STRESS_HARMONIC_MEAN);
+		stress_metrics_set(args, 1, "MB per sec memory write rate",
+			mb_wr_rate, STRESS_HARMONIC_MEAN);
+		stress_metrics_set(args, 2, "Mflop per sec (double precision) compute rate",
+			fp_rate, STRESS_HARMONIC_MEAN);
 	} else {
 		if (args->instance == 0)
 			pr_inf("%s: run duration too short to determine memory rate\n", args->name);

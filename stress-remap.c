@@ -301,7 +301,8 @@ static int stress_remap(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per page remap", rate * 1000000000);
+	stress_metrics_set(args, 0, "nanosecs per page remap",
+		rate * 1000000000, STRESS_HARMONIC_MEAN);
 
 	(void)munmap((void *)order, order_size);
 	(void)munmap((void *)data, data_size);

@@ -159,7 +159,8 @@ static int stress_peterson(const stress_args_t *args)
 	duration = peterson->p0.duration + peterson->p1.duration;
 	count = peterson->p0.count + peterson->p1.count;
 	rate = (count > 0.0) ? (duration / count) : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per mutex", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs per mutex",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 
 	(void)munmap((void *)peterson, sz);
 

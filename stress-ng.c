@@ -1277,7 +1277,8 @@ void stress_metrics_set_const_check(
 	const size_t idx,
 	char *description,
 	const bool const_description,
-	const double value)
+	const double value,
+	const int mean_type)
 {
 	stress_metrics_data_t *metrics;
 
@@ -1294,6 +1295,7 @@ void stress_metrics_set_const_check(
 		stress_shared_heap_dup_const(description);
 	if (metrics[idx].description)
 		metrics[idx].value = value;
+	metrics[idx].mean_type = mean_type;
 }
 
 #if defined(HAVE_GETRUSAGE)
@@ -2070,35 +2072,75 @@ static void stress_metrics_dump(FILE *yaml)
 				const char *description = ss->stats[0]->metrics[i].description;
 
 				if (description) {
-					int64_t exponent = 0;
-					double geomean, mantissa = 1.0;
-					double n = 0.0;
+					int64_t exponent;
+					double geometric_mean, harmonic_mean, mantissa;
+					double n, sum;
 
-					for (j = 0; j < ss->num_instances; j++) {
-						int e;
-						const stress_stats_t *const stats = ss->stats[j];
+					switch (ss->stats[0]->metrics[i].mean_type) {
+					case STRESS_GEOMETRIC_MEAN:
+						exponent = 0;
+						mantissa = 1.0;
+						n = 0.0;
 
-						if (stats->metrics[i].value > 0.0) {
-							const double f = frexp(stats->metrics[i].value, &e);
+						for (j = 0; j < ss->num_instances; j++) {
+							int e;
+							const stress_stats_t *const stats = ss->stats[j];
 
-							mantissa *= f;
-							exponent += e;
-							n += 1.0;
+							if ((stats->metrics[i].value > 0.0) || (stats->metrics[i].value < 0.0)) {
+								const double f = frexp(stats->metrics[i].value, &e);
+
+								mantissa *= f;
+								exponent += e;
+								n += 1.0;
+							}
 						}
-					}
-					if (n > 0.0) {
-						const double inverse_n = 1.0 / (double)n;
+						if (n > 0.0) {
+							const double inverse_n = 1.0 / (double)n;
 
-						geomean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
-					} else {
-						geomean = 0.0;
-					}
-					if (g_opt_flags & OPT_FLAGS_SN) {
-						pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instances)\n",
-							   munged, geomean, description, ss->completed_instances);
-					} else {
-						pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instances)\n",
-							   munged, geomean, description, ss->completed_instances);
+							geometric_mean = pow(mantissa, inverse_n) * pow(2.0, (double)exponent * inverse_n);
+						} else {
+							geometric_mean = 0.0;
+						}
+						if (g_opt_flags & OPT_FLAGS_SN) {
+							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instances)\n",
+							   	munged, geometric_mean, description, ss->completed_instances);
+						} else {
+							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instances)\n",
+							   	munged, geometric_mean, description, ss->completed_instances);
+						}
+						break;
+					case STRESS_HARMONIC_MEAN:
+						sum = 0.0;
+						n = 0.0;
+
+						for (j = 0; j < ss->num_instances; j++) {
+							const stress_stats_t *const stats = ss->stats[j];
+
+							if ((stats->metrics[i].value > 0.0) || (stats->metrics[i].value < 0.0)) {
+								const double reciprocal = 1.0 / stats->metrics[i].value;
+
+								sum += reciprocal;
+								n += 1.0;
+							}
+						}
+						if (n > 0.0) {
+							harmonic_mean = sum / n;
+							if ((harmonic_mean > 0.0) || (harmonic_mean < 0.0)) {
+								harmonic_mean = 1.0 / harmonic_mean;
+							} else {
+								harmonic_mean = 0.0; {
+							}
+						} else {
+							harmonic_mean = 0.0;
+					 	}
+						if (g_opt_flags & OPT_FLAGS_SN) {
+							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRIu32 " instances)\n",
+							   	munged, harmonic_mean, description, ss->completed_instances);
+						} else {
+							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instances)\n",
+							   	munged, harmonic_mean, description, ss->completed_instances);
+						}
+						break;
 					}
 				}
 			}

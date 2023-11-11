@@ -477,7 +477,8 @@ static int stress_vecfp(const stress_args_t *args)
 			char buffer[64];
 
 			(void)snprintf(buffer, sizeof(buffer), "%s Mfp-ops/sec", stress_vecfp_funcs[i].name);
-			stress_metrics_set(args, j, buffer, rate);
+			stress_metrics_set(args, j, buffer,
+				rate, STRESS_HARMONIC_MEAN);
 			j++;
 		}
 	}

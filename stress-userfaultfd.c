@@ -458,7 +458,8 @@ do_read:
 		counter = (double)stress_bogo_get(args);
 
 		rate = (counter > 0.0) ? duration / counter : 0.0;
-		stress_metrics_set(args, 0, "nanosecs per page fault", rate * STRESS_DBL_NANOSECOND);
+		stress_metrics_set(args, 0, "nanosecs per page fault",
+			rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 
 		(void)shim_memset(&wake, 0, sizeof(wake));
 		wake.start = (uintptr_t)data;

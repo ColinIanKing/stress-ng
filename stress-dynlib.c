@@ -183,7 +183,8 @@ tidy:
 	} while (stress_continue(args));
 
 	rate = (count > 0.0) ? duration / count : 0.0;
-	stress_metrics_set(args, 0, "nanosecs per dlsym lookup", rate * STRESS_DBL_NANOSECOND);
+	stress_metrics_set(args, 0, "nanosecs per dlsym lookup",
+		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
