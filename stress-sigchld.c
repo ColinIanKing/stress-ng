@@ -108,7 +108,7 @@ again:
 			_exit(EXIT_FAILURE);
 		} else {
 			/* Parent wait and reap for child */
-			if (shim_kill(pid, SIGSTOP) == 0) 
+			if (shim_kill(pid, SIGSTOP) == 0)
 				(void)shim_kill(pid, SIGCONT);
 			(void)stress_kill_pid_wait(pid, NULL);
 		}

@@ -391,7 +391,7 @@ static int stress_schedmix_child(const stress_args_t *args)
      defined(HAVE_SCHED_GETATTR) &&	\
      defined(HAVE_SCHED_SETATTR)) ||	\
      defined(SCHED_IDLE) ||		\
-     defined(SCHED_BATCH) 
+     defined(SCHED_BATCH)
 case_sched_other:
 #endif
 			param.sched_priority = 0;

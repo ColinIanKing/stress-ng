@@ -408,7 +408,7 @@ static int stress_x86syscall(const stress_args_t *args)
 		const pid_t pid2 = (pid_t)x86_64_syscall0(__NR_getpid);
 
 		if (pid1 != pid2) {
-			pr_fail("%s: getpid syscall returned PID %jd, " 
+			pr_fail("%s: getpid syscall returned PID %jd, "
 				"expected PID %jd\n",
 				args->name, (intmax_t)pid2, (intmax_t)pid1);
 			rc = EXIT_FAILURE;

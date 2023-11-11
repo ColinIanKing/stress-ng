@@ -2128,7 +2128,7 @@ static void stress_metrics_dump(FILE *yaml)
 							if ((harmonic_mean > 0.0) || (harmonic_mean < 0.0)) {
 								harmonic_mean = 1.0 / harmonic_mean;
 							} else {
-								harmonic_mean = 0.0; {
+								harmonic_mean = 0.0;
 							}
 						} else {
 							harmonic_mean = 0.0;
