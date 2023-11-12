@@ -30,6 +30,11 @@ int main(void)
 	static const char salt[] = "saltstring";
 	static struct crypt_data data;
 
+	/* GNUC crypt_r has the following fields that stress-crypt uses */
+	data.input[0] = '\0';
+	data.setting[0] = '\0';
+	data.initialized = 0;
+
 	ptr = crypt_r(key, salt, &data);
 
 	return ptr != (void *)0;
