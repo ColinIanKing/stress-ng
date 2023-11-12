@@ -31,12 +31,15 @@ static const stress_help_t help[] = {
 
 #define RESEED_JMP(n)					\
 {							\
-	register const void *label = labels[idx];	\
+	register const void *label;			\
+							\
 	/* count every 64th branch label */		\
 	if ((n & 0x3f) == 0)				\
 		counters[n >> 6]++;			\
 	seed = (a * seed + c);				\
 	idx = (seed >> 22);				\
+	label = label_next;				\
+	label_next = labels[idx];			\
 	goto *label;					\
 }
 
@@ -51,12 +54,6 @@ static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 	/* 64 bit counters is good enough for runs for tens of thousands of years */
 	uint64_t lo, hi, bogo_counter, bogo_thresh;
 	int rc = EXIT_SUCCESS;
-
-	register size_t i;
-	register uint32_t const a = 16843009;
-	register uint32_t const c = 826366247;
-	register uint32_t seed = 123456789;
-	register uint32_t idx = (seed >> 22);
 
 	static const void ALIGN64 *labels[] = {
 		&&L0x000, &&L0x001, &&L0x002, &&L0x003, &&L0x004, &&L0x005, &&L0x006, &&L0x007,
@@ -205,6 +202,12 @@ static int OPTIMIZE3 stress_branch(const stress_args_t *args)
 	};
 
 	static uint64_t counters[SIZEOF_ARRAY(labels) >> 6] ALIGNED(64);
+	register size_t i;
+	register uint32_t const a = 16843009;
+	register uint32_t const c = 826366247;
+	register uint32_t seed = 123456789;
+	register uint32_t idx = (seed >> 22);
+	register const void *label_next = labels[idx];
 
 	for (i = 0; i < SIZEOF_ARRAY(counters); i++)
 		counters[i] = 0ULL;
