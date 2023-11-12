@@ -76,11 +76,8 @@ static void stress_hash_generic(
 	double t1, t2;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	if (verify) {
+	if (verify)
 		stress_mwc_seed();
-	} else {
-		stress_mwc_reseed();
-	}
 
 	(void)shim_memset(bucket->buckets, 0, bucket->size);
 
