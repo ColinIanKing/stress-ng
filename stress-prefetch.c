@@ -34,11 +34,11 @@
 
 
 static const stress_help_t help[] = {
-	{ NULL,	"prefetch N" ,		"start N workers exercising memory prefetching " },
+	{ NULL,	"prefetch N",		"start N workers exercising memory prefetching " },
 	{ NULL,	"prefetch-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL, "prefetch-method M",	"specify the prefetch method" },
 	{ NULL,	"prefetch-ops N",	"stop after N bogo prefetching operations" },
-	{ NULL,	NULL,                   NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 typedef struct {
