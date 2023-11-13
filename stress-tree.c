@@ -333,7 +333,7 @@ static struct tree_node * OPTIMIZE3 binary_find(
 	const struct tree_node *node)
 {
 	while (head) {
-		if (UNLIKELY(node->value == head->value))
+		if (node->value == head->value)
 			return head;
 		head = (node->value <= head->value) ?
 				head->u.binary.left :
