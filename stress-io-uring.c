@@ -964,10 +964,21 @@ static int stress_io_uring_child(const stress_args_t *args, void *context)
 	off_t file_size = (off_t)blocks * block_size;
 	stress_io_uring_submit_t submit;
 	const pid_t self = getpid();
-	uint32_t io_uring_entries = 16;
+	uint32_t io_uring_entries;
 	stress_io_uring_user_data_t user_data[SIZEOF_ARRAY(stress_io_uring_setups)];
+	const int32_t cpus = stress_get_processors_online();
 
 	(void)context;
+
+	/* Minor tweaking based on empirical testing */
+	if (cpus > 128)
+		io_uring_entries = 22;
+	else if (cpus > 32)
+		io_uring_entries = 20;
+	else if (cpus > 16)
+		io_uring_entries = 18;
+	else
+		io_uring_entries = 14;
 
 	(void)stress_get_setting("io-uring-entries", &io_uring_entries);
 
