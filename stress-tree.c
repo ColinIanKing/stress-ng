@@ -538,7 +538,7 @@ static struct tree_node OPTIMIZE3 TARGET_CLONES *avl_find(
 	const struct tree_node *node)
 {
 	while (LIKELY(head != NULL)) {
-		if (UNLIKELY(node->value == head->value))
+		if (node->value == head->value)
 			return head;
 		head = (node->value <= head->value) ?
 				head->u.avl.left :
