@@ -136,7 +136,7 @@ static void stress_stream_checksum_to_hexstr(char *str, const size_t len, const 
 	str[i] = '\0';
 }
 
-static inline void OPTIMIZE3 stress_stream_copy_index0(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_copy_index0(
 	double *const RESTRICT c,
 	const double *const RESTRICT a,
 	const uint64_t n,
@@ -161,7 +161,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 #if defined(HAVE_NT_STORE_DOUBLE)
-static inline void OPTIMIZE3 stress_stream_copy_index0_nt(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_copy_index0_nt(
 	double *const RESTRICT c,
 	const double *const RESTRICT a,
 	const uint64_t n,
@@ -254,7 +254,7 @@ PRAGMA_UNROLL_N(8)
 	*fp_ops += 0.0;
 }
 
-static inline void OPTIMIZE3 stress_stream_scale_index0(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_scale_index0(
 	double *const RESTRICT b,
 	const double *const RESTRICT c,
 	const double q,
@@ -280,7 +280,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 #if defined(HAVE_NT_STORE_DOUBLE)
-static inline void OPTIMIZE3 stress_stream_scale_index0_nt(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_scale_index0_nt(
 	double *const RESTRICT b,
 	const double *const RESTRICT c,
 	const double q,
@@ -305,7 +305,7 @@ PRAGMA_UNROLL_N(8)
 }
 #endif
 
-static inline void OPTIMIZE3 stress_stream_scale_index1(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_scale_index1(
 	double *const RESTRICT b,
 	const double *const RESTRICT c,
 	const double q,
@@ -377,7 +377,7 @@ PRAGMA_UNROLL_N(8)
 	*fp_ops += (double)n;
 }
 
-static inline void OPTIMIZE3 stress_stream_add_index0(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_add_index0(
 	const double *const RESTRICT a,
 	const double *const RESTRICT b,
 	double *const RESTRICT c,
@@ -403,7 +403,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 #if defined(HAVE_NT_STORE_DOUBLE)
-static inline void OPTIMIZE3 stress_stream_add_index0_nt(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_add_index0_nt(
 	const double *const RESTRICT a,
 	const double *const RESTRICT b,
 	double *const RESTRICT c,
@@ -503,7 +503,7 @@ PRAGMA_UNROLL_N(8)
 	*fp_ops += (double)n;
 }
 
-static inline void OPTIMIZE3 stress_stream_triad_index0(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_triad_index0(
 	double *const RESTRICT a,
 	const double *const RESTRICT b,
 	const double *const RESTRICT c,
@@ -530,7 +530,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 #if defined(HAVE_NT_STORE_DOUBLE)
-static inline void OPTIMIZE3 stress_stream_triad_index0_nt(
+static inline void OPTIMIZE3 TARGET_CLONES stress_stream_triad_index0_nt(
 	double *const RESTRICT a,
 	const double *const RESTRICT b,
 	const double *const RESTRICT c,
