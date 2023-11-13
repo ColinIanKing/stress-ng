@@ -316,7 +316,7 @@ PRAGMA_UNROLL_N(4)
 }
 #endif
 
-static void OPTIMIZE3 TARGET_CLONES binary_insert(
+static void OPTIMIZE3 binary_insert(
 	struct tree_node **head,
 	struct tree_node *node)
 {
@@ -328,7 +328,7 @@ static void OPTIMIZE3 TARGET_CLONES binary_insert(
 	*head = node;
 }
 
-static struct tree_node * OPTIMIZE3 TARGET_CLONES binary_find(
+static struct tree_node * OPTIMIZE3 binary_find(
 	struct tree_node *head,
 	const struct tree_node *node)
 {
