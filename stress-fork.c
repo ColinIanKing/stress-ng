@@ -104,21 +104,22 @@ static int stress_fork_fn(
 	const bool vm)
 {
 	static fork_info_t info[MAX_FORKS];
+	NOCLOBBER uint32_t j;
 
 	stress_set_oom_adjustment(args, true);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	VOID_RET(int, stress_drop_capabilities(args->name));
 
+	j = args->instance;
 	do {
 		NOCLOBBER uint32_t i, n;
 		NOCLOBBER char *fork_fn_name;
 
 		(void)shim_memset(info, 0, sizeof(info));
 
-		for (n = 0; n < fork_max; n++) {
+		for (n = 0; n < fork_max; n++, j++) {
 			pid_t pid;
-			const uint8_t rnd = stress_mwc8();
 
 			switch (which) {
 			case STRESS_FORK:
@@ -158,7 +159,7 @@ static int stress_fork_fn(
 				if (vm) {
 					int flags = 0;
 
-					switch (rnd & 7) {
+					switch (j++ & 7) {
 					case 0:
 #if defined(MADV_MERGEABLE)
 						flags |= MADV_MERGEABLE;
