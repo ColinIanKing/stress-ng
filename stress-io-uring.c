@@ -38,8 +38,23 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
+	{ NULL, "io-uring-entries N",	"specify number if io-uring ring entries" },
 	{ NULL,	"io-uring-ops N",	"stop after N bogo io-uring I/O requests" },
 	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_io_uring_entries(const char *opt)
+{
+        uint32_t io_uring_entries;
+
+        io_uring_entries = stress_get_uint32(opt);
+        stress_check_range("io-uring-entries", (uint64_t)io_uring_entries, 1, 16384);
+        return stress_set_setting("io-uring-entries", TYPE_ID_UINT32, &io_uring_entries);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_io_uring_entries,	stress_set_io_uring_entries },
+	{ 0,			NULL },
 };
 
 #if defined(HAVE_LINUX_IO_URING_H) &&	\
@@ -194,6 +209,7 @@ static void stress_io_uring_unmap_iovecs(stress_io_uring_file_t *io_uring_file)
  */
 static int stress_setup_io_uring(
 	const stress_args_t *args,
+	const uint32_t io_uring_entries,
 	stress_io_uring_submit_t *submit)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
@@ -207,7 +223,7 @@ static int stress_setup_io_uring(
 	 *  seems to be a good fit with the set of requests being
 	 *  issue by this stressor
 	 */
-	submit->io_uring_fd = shim_io_uring_setup(16, &p);
+	submit->io_uring_fd = shim_io_uring_setup(io_uring_entries, &p);
 	if (submit->io_uring_fd < 0) {
 		if (errno == ENOSYS) {
 			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n",
@@ -217,6 +233,13 @@ static int stress_setup_io_uring(
 		if (errno == ENOMEM) {
 			pr_inf_skip("%s: io-uring setup failed, out of memory, skipping stressor\n",
 				args->name);
+			return EXIT_NO_RESOURCE;
+		}
+		if (errno == EINVAL) {
+			pr_inf_skip("%s: io-uring failed, EINVAL, possibly %"
+				PRIu32 " io-uring-entries too large, "
+				"skipping stressor\n",
+				args->name, io_uring_entries);
 			return EXIT_NO_RESOURCE;
 		}
 		pr_fail("%s: io-uring setup failed, errno=%d (%s)\n",
@@ -941,9 +964,12 @@ static int stress_io_uring_child(const stress_args_t *args, void *context)
 	off_t file_size = (off_t)blocks * block_size;
 	stress_io_uring_submit_t submit;
 	const pid_t self = getpid();
+	uint32_t io_uring_entries = 16;
 	stress_io_uring_user_data_t user_data[SIZEOF_ARRAY(stress_io_uring_setups)];
 
 	(void)context;
+
+	(void)stress_get_setting("io-uring-entries", &io_uring_entries);
 
 	(void)shim_memset(&submit, 0, sizeof(submit));
 	(void)shim_memset(&io_uring_file, 0, sizeof(io_uring_file));
@@ -995,7 +1021,7 @@ static int stress_io_uring_child(const stress_args_t *args, void *context)
 
 	io_uring_file.filename = filename;
 
-	rc = stress_setup_io_uring(args, &submit);
+	rc = stress_setup_io_uring(args, io_uring_entries, &submit);
 	if (rc != EXIT_SUCCESS)
 		goto clean;
 
@@ -1071,6 +1097,7 @@ static int stress_io_uring(const stress_args_t *args)
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_io_uring,
 	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -1078,6 +1105,7 @@ stressor_info_t stress_io_uring_info = {
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/io_uring.h or syscall() support"

@@ -541,6 +541,7 @@ typedef enum {
 	OPT_io_ops,
 
 	OPT_io_uring,
+	OPT_io_uring_entries,
 	OPT_io_uring_ops,
 
 	OPT_ipsec_mb,
