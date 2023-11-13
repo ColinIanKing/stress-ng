@@ -155,10 +155,12 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
 static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, double value)
 {
 	if (sizeof(double) == sizeof(uint64_t)) {
-		uint64_t v;
+		union alias {
+			uint64_t u;
+			double d;
+		};
 
-		__builtin_memcpy(&v, &value, sizeof(v));
-		__builtin_ia32_movnti64((long long int *)addr, v);
+		__builtin_ia32_movnti64((long long int *)addr, ((union alias)value).u);
 	} else {
 		*addr = value;
 	}
