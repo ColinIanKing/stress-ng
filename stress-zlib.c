@@ -546,10 +546,28 @@ static void stress_rand_data_rdrand(
 
 	if (stress_cpu_x86_has_rdrand()) {
 		while (ptr < end) {
-			*(ptr++) = stress_asm_x86_rdrand();
-			*(ptr++) = stress_asm_x86_rdrand();
-			*(ptr++) = stress_asm_x86_rdrand();
-			*(ptr++) = stress_asm_x86_rdrand();
+			register uint64_t a, b, c, d;
+
+			a = stress_asm_x86_rdrand();
+			*(ptr++) = a;
+			b = stress_asm_x86_rdrand();
+			*(ptr++) = b;
+			*(ptr++) = a ^ b;
+			*(ptr++) = a + b;
+			c = stress_asm_x86_rdrand();
+			*(ptr++) = c;
+			*(ptr++) = b ^ c;
+			*(ptr++) = b + c;
+			*(ptr++) = a ^ c;
+			*(ptr++) = c + a;
+			d = stress_asm_x86_rdrand();
+			*(ptr++) = d;
+			*(ptr++) = c ^ d;
+			*(ptr++) = d ^ a;
+			*(ptr++) = c + d;
+			*(ptr++) = d + a;
+			*(ptr++) = b ^ d;
+			*(ptr++) = d + b;
 		}
 	} else {
 		while (ptr < end) {
