@@ -529,10 +529,10 @@ static void TARGET_CLONES stress_rand_data_fixed(
 	}
 }
 
-#if defined(HAVE_ASM_X86_RDRAND)
 /*
  *  stress_rand_data_rdrand()
- *	fill buffer with data from x86 rdrand instruction
+ *	fill buffer with data from x86 rdrand instruction, or
+ *	fall back to mwc64
  */
 static void stress_rand_data_rdrand(
 	const stress_args_t *args,
@@ -544,6 +544,7 @@ static void stress_rand_data_rdrand(
 
 	(void)args;
 
+#if defined(HAVE_ASM_X86_RDRAND)
 	if (stress_cpu_x86_has_rdrand()) {
 		while (ptr < end) {
 			register uint64_t a, b, c, d;
@@ -569,16 +570,34 @@ static void stress_rand_data_rdrand(
 			*(ptr++) = b ^ d;
 			*(ptr++) = d + b;
 		}
-	} else {
-		while (ptr < end) {
-			*(ptr++) = stress_mwc64();
-			*(ptr++) = stress_mwc64();
-			*(ptr++) = stress_mwc64();
-			*(ptr++) = stress_mwc64();
-		}
+		return;
+	}
+#endif
+	while (ptr < end) {
+		register uint64_t a, b, c, d;
+
+		a = stress_mwc64();
+		*(ptr++) = a;
+		b = stress_mwc64();
+		*(ptr++) = b;
+		*(ptr++) = a ^ b;
+		*(ptr++) = a + b;
+		c = stress_mwc64();
+		*(ptr++) = c;
+		*(ptr++) = b ^ c;
+		*(ptr++) = b + c;
+		*(ptr++) = a ^ c;
+		*(ptr++) = c + a;
+		d = stress_mwc64();
+		*(ptr++) = d;
+		*(ptr++) = c ^ d;
+		*(ptr++) = d ^ a;
+		*(ptr++) = c + d;
+		*(ptr++) = d + a;
+		*(ptr++) = b ^ d;
+		*(ptr++) = d + b;
 	}
 }
-#endif
 
 static void TARGET_CLONES stress_rand_data_ror32(
 	const stress_args_t *args,
@@ -1254,9 +1273,7 @@ static const stress_zlib_method_t zlib_rand_data_methods[] = {
 	{ "pink",	stress_rand_data_pink },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
-#if defined(HAVE_ASM_X86_RDRAND)
 	{ "rdrand",	stress_rand_data_rdrand },
-#endif
 	{ "ror32",	stress_rand_data_ror32 },
 	{ "text",	stress_rand_data_text },
 	{ "utf8",	stress_rand_data_utf8 },
