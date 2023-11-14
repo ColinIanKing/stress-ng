@@ -65,6 +65,7 @@ static int stress_hsearch(const stress_args_t *args)
 	size_t i, max;
 	int ret = EXIT_FAILURE;
 	char **keys;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_get_setting("hsearch-size", &hsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -117,7 +118,7 @@ static int stress_hsearch(const stress_args_t *args)
 			e.key = keys[i];
 			e.data = NULL;	/* Keep Coverity quiet */
 			ep = hsearch(e, FIND);
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (verify) {
 				if (ep == NULL) {
 					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
 				} else {
