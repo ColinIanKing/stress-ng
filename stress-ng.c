@@ -2132,13 +2132,13 @@ static void stress_metrics_dump(FILE *yaml)
 							}
 						} else {
 							harmonic_mean = 0.0;
-					 	}
+						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
 							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRIu32 " instances)\n",
-							   	munged, harmonic_mean, description, ss->completed_instances);
+								munged, harmonic_mean, description, ss->completed_instances);
 						} else {
 							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instances)\n",
-							   	munged, harmonic_mean, description, ss->completed_instances);
+								munged, harmonic_mean, description, ss->completed_instances);
 						}
 						break;
 					}
