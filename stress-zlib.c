@@ -474,10 +474,17 @@ static void TARGET_CLONES stress_rand_data_rarely_1(
 	(void)args;
 
 	while (ptr < end) {
-		*(ptr++) = 1 << (stress_mwc32() & 0x1f);
-		*(ptr++) = 1 << (stress_mwc32() & 0x1f);
-		*(ptr++) = 1 << (stress_mwc32() & 0x1f);
-		*(ptr++) = 1 << (stress_mwc32() & 0x1f);
+		register uint32_t v;
+
+		v = stress_mwc32();
+		*(ptr++) = 1 << (v & 0x1f);
+		v >>= 16;
+		*(ptr++) = 1 << (v & 0x1f);
+
+		v = stress_mwc32();
+		*(ptr++) = 1 << (v & 0x1f);
+		v >>= 16;
+		*(ptr++) = 1 << (v & 0x1f);
 	}
 }
 
@@ -496,10 +503,17 @@ static void TARGET_CLONES stress_rand_data_rarely_0(
 	(void)args;
 
 	while (ptr < end) {
-		*(ptr++) = ~(1 << (stress_mwc32() & 0x1f));
-		*(ptr++) = ~(1 << (stress_mwc32() & 0x1f));
-		*(ptr++) = ~(1 << (stress_mwc32() & 0x1f));
-		*(ptr++) = ~(1 << (stress_mwc32() & 0x1f));
+		register uint32_t v;
+
+		v = stress_mwc32();
+		*(ptr++) = ~(1 << (v & 0x1f));
+		v >>= 16;
+		*(ptr++) = ~(1 << (v & 0x1f));
+		v = stress_mwc32();
+
+		*(ptr++) = ~(1 << (v & 0x1f));
+		v >>= 16;
+		*(ptr++) = ~(1 << (v & 0x1f));
 	}
 }
 
