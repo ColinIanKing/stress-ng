@@ -47,13 +47,13 @@ PRAGMA_UNROLL_N(8)
  */
 #define SORT_SETDATA(d, i, v, prev)	\
 do {					\
-	d[i] = 1 + prev + (v & 0x7);	\
+	prev = 1 + prev + (v & 0x7);	\
+	d[i] = prev;			\
 	v >>= 2;			\
-	prev = d[i];			\
 	i++;				\
 } while (0)
 
-void stress_sort_data_int32_init(int32_t *data, const size_t n)
+void OPTIMIZE3 stress_sort_data_int32_init(int32_t *data, const size_t n)
 {
 	register int32_t prev = 0;
 	register size_t i;
