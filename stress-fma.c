@@ -141,10 +141,11 @@ stress_fma_func stress_fma_funcs[] = {
 	stress_fma_add231_float,
 };
 
-static inline void stress_fma_init(stress_fma_t *fma)
+static inline void OPTIMIZE3 TARGET_CLONES stress_fma_init(stress_fma_t *fma)
 {
 	register size_t i;
 
+PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
 		register const float rnd = stress_fma_rnd_float();
 
@@ -153,7 +154,7 @@ static inline void stress_fma_init(stress_fma_t *fma)
 	}
 }
 
-static inline  void stress_fma_reset_a(stress_fma_t *fma)
+static inline void OPTIMIZE3 TARGET_CLONES stress_fma_reset_a(stress_fma_t *fma)
 {
 	(void)shim_memcpy(fma->double_a1, fma->double_init, sizeof(fma->double_init));
 	(void)shim_memcpy(fma->double_a2, fma->double_init, sizeof(fma->double_init));
