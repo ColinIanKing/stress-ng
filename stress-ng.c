@@ -2103,10 +2103,10 @@ static void stress_metrics_dump(FILE *yaml)
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
 							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instances)\n",
-							   	munged, geometric_mean, description, ss->completed_instances);
+								munged, geometric_mean, description, ss->completed_instances);
 						} else {
 							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instances)\n",
-							   	munged, geometric_mean, description, ss->completed_instances);
+								munged, geometric_mean, description, ss->completed_instances);
 						}
 						break;
 					case STRESS_HARMONIC_MEAN:
