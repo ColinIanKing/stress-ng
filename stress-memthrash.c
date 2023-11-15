@@ -599,6 +599,23 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swapfwdrev(
 	}
 }
 
+static void OPTIMIZE3 TARGET_CLONES stress_memthrash_reverse(
+	const stress_memthrash_context_t *context,
+	const size_t mem_size)
+{
+	register uint8_t *fwd = (uint8_t *)mem;
+	register uint8_t *end = (uint8_t *)mem + mem_size;
+	register uint8_t *rev = end;
+
+	(void)context;
+	while (fwd < end) {
+		register uint8_t tmp;
+		tmp = *fwd;
+		*(fwd++) = *(--rev);
+		*rev = tmp;
+	}
+}
+
 #if defined(HAVE_MEMTHRASH_NUMA)
 static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	const stress_memthrash_context_t *context,
@@ -662,6 +679,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 #endif
 	{ "prefetch",	stress_memthrash_prefetch },
 	{ "random",	stress_memthrash_random },
+	{ "reverse",	stress_memthrash_reverse },
 	{ "spinread",	stress_memthrash_spinread },
 	{ "spinwrite",	stress_memthrash_spinwrite },
 	{ "swap",	stress_memthrash_swap },
