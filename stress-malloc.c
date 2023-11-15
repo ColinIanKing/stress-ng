@@ -302,7 +302,8 @@ static void *stress_malloc_loop(void *ptr)
 					info[i].addr = memalign(MK_ALIGN(i), len);
 					break;
 #endif
-#if defined(HAVE_VALLOC)
+#if defined(HAVE_VALLOC) &&	\
+    !defined(HAVE_LIB_PTHREAD)
 				case 4:
 					info[i].addr = valloc(len);
 					break;
