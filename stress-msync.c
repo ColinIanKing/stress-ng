@@ -115,8 +115,7 @@ static int stress_msync(const stress_args_t *args)
 	NOCLOBBER size_t sz;
 	ssize_t ret;
 	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
-
-	int fd = -1;
+	NOCLOBBER int fd = -1;
 	char filename[PATH_MAX];
 
 	ret = sigsetjmp(jmp_env, 1);
