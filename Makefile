@@ -108,7 +108,7 @@ override CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-
 endif
 endif
 
-ifeq ($(findstring gcc,$(CC)),gcc)
+ifeq ($(findstring gcc,$(shell $(CC) -v 2>&1 | grep version)),gcc)
 ifneq ($(KERNEL),SunOS)
 override CFLAGS += -ftree-loop-vectorize -fsplit-loops
 endif
