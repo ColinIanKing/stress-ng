@@ -23,6 +23,7 @@
 #include "core-asm-ret.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
@@ -288,6 +289,7 @@ static int stress_flushcache_child(const stress_args_t *args, void *ctxt)
 static int stress_flushcache(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
+	const int numa_nodes = stress_numa_nodes();
 	stress_flushcache_context_t context;
 	int ret;
 
@@ -311,6 +313,10 @@ static int stress_flushcache(const stress_args_t *args)
 	if (context.cl_size == 0)
 		context.cl_size = 64;
 
+	context.d_size *= numa_nodes;
+	if ((args->instance == 0) && (numa_nodes > 1))
+		pr_inf("%s: scaling cache size by number of numa nodes %d to %zdK\n",
+			args->name, numa_nodes, context.d_size / 1024);
 	ret = stress_oomable_child(args, (void *)&context, stress_flushcache_child, STRESS_OOMABLE_NORMAL);
 
 	(void)munmap(context.i_addr, page_size);

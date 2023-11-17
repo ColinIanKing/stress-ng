@@ -25,6 +25,7 @@
 #include "core-cpu-cache.h"
 #include "core-hash.h"
 #include "core-lock.h"
+#include "core-numa.h"
 #include "core-pragma.h"
 #include "core-sort.h"
 
@@ -1865,6 +1866,7 @@ int stress_cache_alloc(const char *name)
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level = 0, level;
 	char cache_info[512];
+	const int numa_nodes = stress_numa_nodes();
 
 	cpu_caches = stress_cpu_cache_get_all_details();
 
@@ -1874,7 +1876,7 @@ int stress_cache_alloc(const char *name)
 	if (!cpu_caches) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache details\n", name);
-		g_shared->mem_cache.size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE * numa_nodes;
 		goto init_done;
 	}
 
@@ -1882,7 +1884,7 @@ int stress_cache_alloc(const char *name)
 	if (max_cache_level == 0) {
 		if (stress_warn_once())
 			pr_dbg("%s: using defaults, cannot determine cache level details\n", name);
-		g_shared->mem_cache.size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE * numa_nodes;
 		goto init_done;
 	}
 	if (g_shared->mem_cache.level > max_cache_level) {
@@ -1897,7 +1899,7 @@ int stress_cache_alloc(const char *name)
 		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as no suitable "
 				"cache found\n", name);
-		g_shared->mem_cache.size = MEM_CACHE_SIZE;
+		g_shared->mem_cache.size = MEM_CACHE_SIZE * numa_nodes;
 		goto init_done;
 	}
 
@@ -1914,10 +1916,10 @@ int stress_cache_alloc(const char *name)
 		way_size = cache->size / cache->ways;
 
 		/* only fill the specified number of cache ways */
-		g_shared->mem_cache.size = way_size * g_shared->mem_cache.ways;
+		g_shared->mem_cache.size = way_size * g_shared->mem_cache.ways * numa_nodes;
 	} else {
 		/* fill the entire cache */
-		g_shared->mem_cache.size = cache->size;
+		g_shared->mem_cache.size = cache->size * numa_nodes;
 	}
 
 	if (!g_shared->mem_cache.size) {
@@ -1966,9 +1968,15 @@ init_done:
 			name, errno, strerror(errno));
 		return -1;
 	}
-	if (stress_warn_once())
-		pr_dbg("%s: shared cache buffer size: %" PRIu64 "K\n",
-			name, g_shared->mem_cache.size / 1024);
+	if (stress_warn_once()) {
+		if (numa_nodes > 1) {
+			pr_dbg("%s: shared cache buffer size: %" PRIu64 "K (LLC size x %d NUMA nodes)\n",
+				name, g_shared->mem_cache.size / 1024, numa_nodes);
+		} else {
+			pr_dbg("%s: shared cache buffer size: %" PRIu64 "K\n",
+				name, g_shared->mem_cache.size / 1024);
+		}
+	}
 
 	return 0;
 }

@@ -119,6 +119,25 @@ int stress_numa_count_mem_nodes(unsigned long *max_node)
 }
 
 /*
+ *  stress_numa_nodes()
+ *	determine the number of NUMA memory nodes,
+ *	always returns at least 1 if no nodes found,
+ *	useful for cache size scaling by node count
+ */
+int stress_numa_nodes(void)
+{
+	unsigned long max_node = 0;
+	static int nodes = -1;	/* used as a cached copy */
+
+	if (nodes == -1) {
+		nodes = stress_numa_count_mem_nodes(&max_node);
+		if (nodes < 1)
+			nodes = 1;
+	}
+	return nodes;
+}
+
+/*
  * stress_parse_node()
  * @str: parse string containing decimal NUMA node number
  *

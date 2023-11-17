@@ -32,6 +32,7 @@
 #include "core-cpu.h"
 #include "core-cpu-cache.h"
 #include "core-nt-store.h"
+#include "core-numa.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
@@ -735,13 +736,14 @@ static inline uint64_t get_stream_L3_size(const stress_args_t *args)
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
+	const int numa_nodes = stress_numa_nodes();
 
 	cpu_caches = stress_cpu_cache_get_all_details();
 	if (!cpu_caches) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache details\n", args->name);
-		return cache_size;
+		goto report_size;
 	}
 	max_cache_level = stress_cpu_cache_get_max_level(cpu_caches);
 	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance))
@@ -754,14 +756,14 @@ static inline uint64_t get_stream_L3_size(const stress_args_t *args)
 			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", args->name);
 		stress_free_cpu_caches(cpu_caches);
-		return cache_size;
+		goto report_size;
 	}
 	if (!cache->size) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache size\n", args->name);
 		stress_free_cpu_caches(cpu_caches);
-		return cache_size;
+		goto report_size;
 	}
 	cache_size = cache->size;
 
@@ -771,6 +773,12 @@ static inline uint64_t get_stream_L3_size(const stress_args_t *args)
 		pr_inf("%s: using built-in defaults as unable to "
 			"determine cache details\n", args->name);
 #endif
+
+report_size:
+	cache_size *= numa_nodes;
+	if ((args->instance == 0) && (numa_nodes > 1))
+		pr_inf("%s: scaling L3 cache size by number of numa nodes %d to %" PRIu64 "K\n",
+			args->name, numa_nodes, cache_size / 1024);
 	return cache_size;
 }
 
@@ -843,7 +851,7 @@ static int stress_stream(const stress_args_t *args)
 				"defaulting to %" PRIu64 "K\n",
 				args->name, L3 / 1024);
 		} else {
-			pr_inf("%s: Using CPU cache size of %" PRIu64 "K\n",
+			pr_inf("%s: Using cache size of %" PRIu64 "K\n",
 				args->name, L3 / 1024);
 		}
 	}

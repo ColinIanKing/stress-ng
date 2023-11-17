@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 #include "core-cpu-cache.h"
+#include "core-numa.h"
 #include "core-target-clones.h"
 
 static const stress_help_t help[] = {
@@ -163,6 +164,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 	double write_duration, read_duration, rate, writes, reads, t_start, duration;
 	cache_line_func_t write_func, read_func;
 	bool llc_affinity_mlock = false;
+	const int numa_nodes = stress_numa_nodes();
 
 	stress_catch_sigill();
 
@@ -174,9 +176,15 @@ static int stress_llc_affinity(const stress_args_t *args)
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	if (!args->instance) {
-		pr_inf("%s: system has %zu KB LLC cache\n",
-			args->name, llc_size / 1024);
+        llc_size *= numa_nodes;
+        if (!args->instance) {
+		if (numa_nodes > 1)  {
+			pr_inf("%s: scaling LLC cache size by number of numa nodes %d to %zdK\n",
+				args->name, numa_nodes, llc_size / 1024);
+		} else  {
+			pr_inf("%s: using LLC cache size of %zuK\n",
+				args->name, llc_size / 1024);
+		}
 	}
 
 	mmap_sz = STRESS_MAXIMUM(max_cpus * page_size, llc_size);
