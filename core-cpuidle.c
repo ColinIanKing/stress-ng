@@ -141,17 +141,18 @@ void stress_cpuidle_log_info(void)
 		return;
 
 	for (cc = cpu_cstate_list; cc; cc = cc->next) {
-		len += strlen(cc->cstate) + 1;
+		len += strlen(cc->cstate) + 2;
 	}
 	buf = calloc(len, sizeof(*buf));
 	if (!buf)
 		return;
 
 	for (cc = cpu_cstate_list; cc; cc = cc->next) {
-		(void)shim_strlcat(buf, " ", len);
 		(void)shim_strlcat(buf, cc->cstate, len);
+		if (cc->next)
+			(void)shim_strlcat(buf, ", ", len);
 	}
-	pr_dbg("CPU%s %zu idle state%s:%s\n",
+	pr_dbg("CPU%s %zu idle state%s: %s\n",
 		(cpu_cstate_list_len == 1) ? " has" : "s have",
 		cpu_cstate_list_len, (cpu_cstate_list_len == 1) ? "" : "s", buf);
 	free(buf);
