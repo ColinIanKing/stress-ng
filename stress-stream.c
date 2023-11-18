@@ -731,7 +731,7 @@ static inline void *stress_stream_mmap(
 
 static inline uint64_t get_stream_L3_size(const stress_args_t *args)
 {
-	uint64_t cache_size = MEM_CACHE_SIZE;
+	uint64_t cache_size = 2 * MB;
 #if defined(__linux__)
 	stress_cpu_cache_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
