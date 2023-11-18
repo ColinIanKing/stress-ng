@@ -21,6 +21,8 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 
+#include <sys/socket.h>
+
 #if defined(HAVE_LINUX_IF_ALG_H)
 #include <linux/if_alg.h>
 #endif
