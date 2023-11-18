@@ -17,6 +17,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#endif
+
 #if defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif

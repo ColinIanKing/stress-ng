@@ -118,9 +118,6 @@
 #if defined(HAVE_STRINGS_H)
 #include <strings.h>
 #endif
-#if defined(HAVE_TERMIOS_H)
-#include <termios.h>
-#endif
 #if defined(HAVE_BSD_STDLIB_H)
 #include <bsd/stdlib.h>
 #endif

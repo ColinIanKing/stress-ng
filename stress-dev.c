@@ -27,6 +27,10 @@
 #include "core-put.h"
 #include "core-try-open.h"
 
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#endif
+
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
 #endif
