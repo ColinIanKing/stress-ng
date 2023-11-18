@@ -47,8 +47,9 @@
 #endif
 
 /* weak attribute */
-#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 0, 0)) || 	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0))
+#if defined(HAVE_ATTRIBUTE_WEAK) &&					\
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 0, 0)) || 	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0)))
 #define WEAK		__attribute__((weak))
 #define HAVE_WEAK_ATTRIBUTE
 #else
