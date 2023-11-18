@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-lock.h"
 #include "core-mincore.h"
@@ -258,7 +259,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_CLONE)
 
-static inline uint64_t uint64_ptr(const void *ptr)
+static inline PURE uint64_t uint64_ptr(const void *ptr)
 {
 	return (uint64_t)(uintptr_t)ptr;
 }

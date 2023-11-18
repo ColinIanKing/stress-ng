@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-lock.h"
 #include "core-net.h"
@@ -113,7 +114,7 @@ void stress_set_net_port(
  *  stress_net_domain()
  *	return human readable domain name from domain number
  */
-const char *stress_net_domain(const int domain)
+const char PURE *stress_net_domain(const int domain)
 {
 	size_t i;
 
@@ -309,7 +310,7 @@ void HOT stress_set_sockaddr_port(
  *  stress_net_port_range_ok()
  *	port range sanity check, returns true if OK
  */
-static bool stress_net_port_range_ok(const int start_port, const int end_port)
+static bool PURE stress_net_port_range_ok(const int start_port, const int end_port)
 {
 	if ((start_port > end_port))
 		return false;

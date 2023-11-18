@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-nt-load.h"
 #include "core-out-of-memory.h"
 
@@ -126,7 +127,7 @@ static inline void OPTIMIZE3 stress_brk_page_resident(
 #endif
 }
 
-static inline size_t stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr2)
+static inline size_t PURE stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr2)
 {
 	return (size_t)((ptr1 > ptr2) ? ptr1 - ptr2 : ptr2 - ptr1);
 }

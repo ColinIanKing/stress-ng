@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 
 #if defined(HAVE_LINUX_IF_ALG_H)
@@ -153,7 +154,7 @@ static stress_crypto_type_t name_to_type(const char *buffer)
  *   type_to_type_string()
  *	map type to stringified type
  */
-static const char *type_to_type_string(const stress_crypto_type_t type)
+static const char * PURE type_to_type_string(const stress_crypto_type_t type)
 {
 	size_t i;
 
@@ -684,7 +685,7 @@ static void stress_af_alg_count_crypto(size_t *count, size_t *internal)
  *  stress_af_alg_cmp_crypto()
  *	qsort comparison on type then name
  */
-static int stress_af_alg_cmp_crypto(const void *p1, const void *p2)
+static int PURE stress_af_alg_cmp_crypto(const void *p1, const void *p2)
 {
 	int n;
 	const stress_crypto_info_t * const *ci1 = (const stress_crypto_info_t * const *)p1;
@@ -899,7 +900,7 @@ static char *dup_field(const char *buffer)
  *  int_field()
  *	parse an integer from a numeric field
  */
-static int int_field(const char *buffer)
+static int PURE int_field(const char *buffer)
 {
 	const char *ptr = strchr(buffer, ':');
 
@@ -913,7 +914,7 @@ static int int_field(const char *buffer)
  *	parse a boolean from a string field
  *	error/default is false.
  */
-static bool bool_field(const char *buffer)
+static bool PURE bool_field(const char *buffer)
 {
 	const char *ptr = strchr(buffer, ':');
 

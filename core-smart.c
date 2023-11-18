@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-smart.h"
@@ -94,7 +95,6 @@ typedef struct stress_smart_dev_t {
 typedef struct {
 	stress_smart_dev_t *dev;
 } stress_smart_devs_t;
-
 
 #if defined(HAVE_SMART)
 
@@ -360,7 +360,7 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
  *  stress_smart_dev_filter()
  * 	discard entries that don't look like device names
  */
-static int stress_smart_dev_filter(const struct dirent *d)
+static int PURE stress_smart_dev_filter(const struct dirent *d)
 {
 	size_t len;
 
@@ -375,7 +375,7 @@ static int stress_smart_dev_filter(const struct dirent *d)
 	return 1;
 }
 
-static int stress_smart_dev_sort(const struct dirent **d1, const struct dirent **d2)
+static int PURE stress_smart_dev_sort(const struct dirent **d1, const struct dirent **d2)
 {
 	int cmp;
 

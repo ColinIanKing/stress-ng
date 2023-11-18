@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 
 #if defined(HAVE_LIBAIO_H)
@@ -174,7 +175,7 @@ static inline OPTIMIZE3 void aio_linux_fill_buffer(
  *  aio_linux_check_buffer()
  *	check buffer contains some known pattern
  */
-static inline OPTIMIZE3 bool aio_linux_check_buffer(
+static inline PURE OPTIMIZE3 bool aio_linux_check_buffer(
 	const int request,
 	const uint8_t *const buffer,
 	const size_t size)

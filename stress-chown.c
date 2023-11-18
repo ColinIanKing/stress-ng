@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"chown N",	"start N workers thrashing chown file ownership" },
@@ -25,7 +26,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int OPTIMIZE3 stress_chown_check(const int ret)
+static int PURE OPTIMIZE3 stress_chown_check(const int ret)
 {
 	static const int ignore_errors[] = {
 #if defined(ENOENT)

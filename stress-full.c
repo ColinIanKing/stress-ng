@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-madvise.h"
 #include "core-put.h"
 #include "core-pragma.h"
@@ -49,7 +50,7 @@ static const stress_whences_t whences[] = {
  *  stress_data_is_not_zero()
  *	checks if buffer is zero, buffer expected to be page aligned
  */
-static bool OPTIMIZE3 stress_data_is_not_zero(void *buffer, const size_t len)
+static bool PURE OPTIMIZE3 stress_data_is_not_zero(void *buffer, const size_t len)
 {
 	register const uint64_t *end64 = (uint64_t *)((uintptr_t)buffer + (len / sizeof(uint64_t)));
 	register uint64_t *ptr64;

@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-attribute.h"
 #include "core-madvise.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -400,7 +401,7 @@ static const fp_type_map_t fp_type_map[] = {
 	{ STRESS_FP_TYPE_ALL,		"all" },
 };
 
-static const char *stress_fp_type(const int fp_type)
+static const char * PURE stress_fp_type(const int fp_type)
 {
 	size_t i;
 

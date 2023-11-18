@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-madvise.h"
@@ -120,7 +121,7 @@ static void stress_numa_free_nodes(stress_node_t *nodes)
  *  hex_to_int()
  *	convert ASCII hex digit to integer
  */
-static int hex_to_int(const char ch)
+static inline int PURE hex_to_int(const char ch)
 {
 	if ((ch >= '0') && (ch <= '9'))
 		return ch - '0';

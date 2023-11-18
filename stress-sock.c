@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-affinity.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
@@ -154,7 +155,7 @@ static int stress_set_sock_opts(const char *opt)
 	return stress_set_sock_option("sock-opts", sock_opts, opt);
 }
 
-static const char *stress_recv_func_str(const int sock_opts)
+static const char * PURE stress_recv_func_str(const int sock_opts)
 {
 	switch (sock_opts) {
 	case SOCKET_OPT_SEND:

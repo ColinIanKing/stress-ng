@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-pragma.h"
 
@@ -633,7 +634,7 @@ static int stress_hdd_advise(const stress_args_t *args, const int fd, const int 
  *  data_value()
  *	generate 8 bit data value for offsets and instance # into a test file
  */
-static inline uint8_t OPTIMIZE3 data_value(const uint64_t i, uint64_t j, const uint32_t instance)
+static inline uint8_t PURE OPTIMIZE3 data_value(const uint64_t i, uint64_t j, const uint32_t instance)
 {
 	register uint8_t v = (uint8_t)(((i + j) >> 9) + i + j + instance);
 

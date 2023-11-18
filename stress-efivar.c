@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
@@ -61,7 +62,7 @@ static int efi_mode = STRESS_EFI_UNKNOWN;
  *  efi_var_ignore()
  *	check for filenames that are not efi vars
  */
-static inline bool efi_var_ignore(char *d_name)
+static inline bool PURE efi_var_ignore(char *d_name)
 {
 	static const char * const ignore[] = {
 		".",

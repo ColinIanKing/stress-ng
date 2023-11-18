@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-killpid.h"
 #include "core-klog.h"
 #include "core-processes.h"
@@ -46,7 +47,7 @@ static const char *err_exceptions[] = {
  *	false if a match is found, and hence can be ignored
  *	as an error.
  */
-static bool stress_klog_err_no_exceptions(const char *str)
+static bool PURE stress_klog_err_no_exceptions(const char *str)
 {
 	size_t i;
 

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 
 #define MAX_FSTAT_THREADS	(4)
@@ -90,7 +91,7 @@ static void MLOCKED_TEXT handle_fstat_sigalrm(int signum)
  *  do_not_stat()
  *	Check if file should not be stat'd
  */
-static bool do_not_stat(const char *filename)
+static bool PURE do_not_stat(const char *filename)
 {
 	size_t i;
 

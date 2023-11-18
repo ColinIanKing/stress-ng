@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-sched.h"
 
@@ -63,7 +64,7 @@ static const stress_sched_types_t sched_types[] = {
  *  get_sched_name()
  *	convert sched class to human readable string
  */
-const char *stress_get_sched_name(const int sched)
+const char * PURE stress_get_sched_name(const int sched)
 {
 	size_t i;
 

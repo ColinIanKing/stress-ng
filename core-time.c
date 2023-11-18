@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 
 #define SECONDS_IN_MINUTE	(60.0)
 #define SECONDS_IN_HOUR		(60.0 * SECONDS_IN_MINUTE)
@@ -39,7 +40,7 @@ double OPTIMIZE3 stress_timeval_to_double(const struct timeval *tv)
  *  stress_timespec_to_double()
  *      convert timespec to seconds as a double
  */
-double OPTIMIZE3 stress_timespec_to_double(const struct timespec *ts)
+double PURE OPTIMIZE3 stress_timespec_to_double(const struct timespec *ts)
 {
 	return (double)ts->tv_sec + ((double)ts->tv_nsec * ONE_BILLIONTH);
 }

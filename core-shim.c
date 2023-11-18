@@ -21,6 +21,7 @@
 
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-attribute.h"
 #include "core-asm-riscv.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
@@ -125,7 +126,7 @@ extern int setdomainname(const char *name, size_t len);
  *	the sysnr argument and all following 1..N syscall
  *	arguments.  Returns -1 and sets errno to ENOSYS
  */
-static inline long shim_enosys(long sysnr, ...)
+static inline long PURE shim_enosys(long sysnr, ...)
 {
 	(void)sysnr;
 	errno = ENOSYS;

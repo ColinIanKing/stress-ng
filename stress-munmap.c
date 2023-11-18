@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-out-of-memory.h"
 
 typedef struct {
@@ -39,7 +40,7 @@ static const stress_help_t help[] = {
  *  stress_munmap_log2()
  *	slow but simple log to the base 2 of n
  */
-static inline size_t stress_munmap_log2(size_t n)
+static inline size_t PURE stress_munmap_log2(size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZL)
 	return (8 * sizeof(n)) - __builtin_clzl(n) - 1;

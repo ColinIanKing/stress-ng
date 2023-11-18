@@ -21,6 +21,7 @@
 #include "git-commit-id.h"
 #include "core-bitops.h"
 #include "core-builtin.h"
+#include "core-attribute.h"
 #include "core-capabilities.h"
 #include "core-cpu-cache.h"
 #include "core-hash.h"
@@ -1601,7 +1602,7 @@ void stress_cwd_readwriteable(void)
  *  stress_get_signal_name()
  *	return string version of signal number, NULL if not found
  */
-const char *stress_get_signal_name(const int signum)
+const char PURE *stress_get_signal_name(const int signum)
 {
 	size_t i;
 
@@ -1682,7 +1683,7 @@ HOT OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
  *  stress_little_endian()
  *	returns true if CPU is little endian
  */
-bool stress_little_endian(void)
+bool PURE stress_little_endian(void)
 {
 	const uint32_t x = 0x12345678;
 	const uint8_t *y = (const uint8_t *)&x;
@@ -2492,7 +2493,7 @@ unsigned int stress_get_cpu(void)
  *  stress_get_compiler()
  *	return compiler info
  */
-const char *stress_get_compiler(void)
+const char PURE *stress_get_compiler(void)
 {
 #if   defined(HAVE_COMPILER_ICC) &&	\
       defined(__INTEL_COMPILER) &&	\
@@ -2694,7 +2695,7 @@ ret:
  *  stress_align_address
  *	align address to alignment, alignment MUST be a power of 2
  */
-void *stress_align_address(const void *addr, const size_t alignment)
+void PURE *stress_align_address(const void *addr, const size_t alignment)
 {
 	const uintptr_t uintptr =
 		((uintptr_t)addr + alignment) & ~(alignment - 1);
@@ -2879,7 +2880,7 @@ int stress_drop_capabilities(const char *name)
  *  stress_is_dot_filename()
  *	is filename "." or ".."
  */
-bool stress_is_dot_filename(const char *name)
+bool PURE stress_is_dot_filename(const char *name)
 {
 	if (!strcmp(name, "."))
 		return true;
@@ -3058,7 +3059,7 @@ unlock:
  *  stress_ipv4_checksum()
  *	ipv4 data checksum
  */
-HOT OPTIMIZE3 uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
+uint16_t PURE HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 {
 	register uint32_t sum = 0;
 	register size_t n = sz;
@@ -3084,7 +3085,7 @@ HOT OPTIMIZE3 uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
     defined(HAVE_GETPWENT) &&	\
     defined(HAVE_ENDPWENT) &&	\
     !defined(BUILD_STATIC)
-static int stress_uid_comp(const void *p1, const void *p2)
+static PURE int stress_uid_comp(const void *p1, const void *p2)
 {
 	const uid_t *uid1 = (const uid_t *)p1;
 	const uid_t *uid2 = (const uid_t *)p2;
@@ -3239,7 +3240,7 @@ ignore_eintr:
  *  stress_kernel_release()
  *	turn release major.minor.patchlevel triplet into base 100 value
  */
-int stress_kernel_release(const int major, const int minor, const int patchlevel)
+int PURE stress_kernel_release(const int major, const int minor, const int patchlevel)
 {
 	return (major * 10000) + (minor * 100) + patchlevel;
 }
@@ -3746,7 +3747,7 @@ const char *stress_get_fs_type(const char *filename)
  *  rather than a failure of the tests during execution.
  *  err is the errno of the failure.
  */
-int stress_exit_status(const int err)
+int PURE stress_exit_status(const int err)
 {
 	switch (err) {
 	case ENOMEM:
@@ -3901,7 +3902,7 @@ int stress_bsd_getsysctl_int(const char *name)
 }
 #else
 
-int stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
+int PURE stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 {
 	(void)name;
 	(void)ptr;
@@ -3910,28 +3911,28 @@ int stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 	return 0;
 }
 
-uint64_t stress_bsd_getsysctl_uint64(const char *name)
+uint64_t PURE stress_bsd_getsysctl_uint64(const char *name)
 {
 	(void)name;
 
 	return 0ULL;
 }
 
-uint32_t stress_bsd_getsysctl_uint32(const char *name)
+uint32_t PURE stress_bsd_getsysctl_uint32(const char *name)
 {
 	(void)name;
 
 	return 0UL;
 }
 
-unsigned int stress_bsd_getsysctl_uint(const char *name)
+unsigned int PURE stress_bsd_getsysctl_uint(const char *name)
 {
 	(void)name;
 
 	return 0;
 }
 
-int stress_bsd_getsysctl_int(const char *name)
+int PURE stress_bsd_getsysctl_int(const char *name)
 {
 	(void)name;
 
@@ -4123,7 +4124,7 @@ int stress_swapoff(const char *path)
 /*
  *  Filter out dot files . and ..
  */
-static int stress_dot_filter(const struct dirent *d)
+static int PURE stress_dot_filter(const struct dirent *d)
 {
 	if (d->d_name[0] == '.') {
 		if (d->d_name[1] == '\0')

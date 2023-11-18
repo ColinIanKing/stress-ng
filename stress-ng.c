@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-affinity.h"
+#include "core-attribute.h"
 #include "core-bitops.h"
 #include "core-builtin.h"
 #include "core-clocksource.h"
@@ -377,7 +378,7 @@ static inline void stress_hash_checksum(stress_checksum_t *checksum)
  *  stressor_find_by_name()
  *  	Find index into stressors by name
  */
-static size_t stressor_find_by_name(const char *name)
+static size_t PURE stressor_find_by_name(const char *name)
 {
 	size_t i;
 
@@ -392,7 +393,7 @@ static size_t stressor_find_by_name(const char *name)
  *  stressor_find_by_id()
  *	Find stressor by id, return index
  */
-static size_t stressor_find_by_id(const unsigned int id)
+static size_t PURE stressor_find_by_id(const unsigned int id)
 {
 	size_t i;
 
@@ -416,7 +417,7 @@ static inline void stress_ignore_stressor(stress_stressor_t *ss, uint8_t reason)
  *  stress_get_class_id()
  *	find the class id of a given class name
  */
-static uint32_t stress_get_class_id(const char *const str)
+static uint32_t PURE stress_get_class_id(const char *const str)
 {
 	size_t i;
 
@@ -844,7 +845,7 @@ static void NORETURN stress_usage(void)
  *  stress_opt_name()
  *	find name associated with an option value
  */
-static const char *stress_opt_name(const int opt_val)
+static const char PURE *stress_opt_name(const int opt_val)
 {
 	size_t i;
 
@@ -883,7 +884,7 @@ static inline void stress_stressor_finished(pid_t *pid)
  *  stress_exit_status_to_string()
  *	map stress-ng exit status returns into text
  */
-static const char *stress_exit_status_to_string(const int status)
+static const char * PURE stress_exit_status_to_string(const int status)
 {
 	typedef struct {
 		const int status;

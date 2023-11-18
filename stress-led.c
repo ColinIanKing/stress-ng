@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
@@ -45,7 +46,7 @@ typedef struct stress_led_info {
  *  stress_led_dot_filter()
  *	scandir filter out dot filenames
  */
-static int stress_led_dot_filter(const struct dirent *d)
+static int PURE stress_led_dot_filter(const struct dirent *d)
 {
 	if (d->d_name[0] == '.')
 		return 0;

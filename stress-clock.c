@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
@@ -123,7 +124,7 @@ static const int timers[] = {
  *  stress_clock_name()
  *	clock id to name
  */
-static const char *stress_clock_name(int id)
+static const char * PURE stress_clock_name(int id)
 {
 	size_t i;
 

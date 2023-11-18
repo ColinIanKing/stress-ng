@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 
 #define STRESS_SESSION_SUCCESS		(0x00)
@@ -38,7 +39,7 @@ typedef struct {
 	int	err;		/* copy of errno */
 } session_error_t;
 
-static char *stress_session_error(int err)
+static char * PURE stress_session_error(int err)
 {
 	switch (err) {
 	case STRESS_SESSION_SUCCESS:

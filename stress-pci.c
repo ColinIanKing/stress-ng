@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"pci N",	"start N workers that read and mmap PCI regions" },
@@ -45,7 +46,7 @@ typedef struct stress_pci_info {
  *  stress_pci_dev_filter()
  *	scandir filter on /sys/devicex/pci[0-9]/xxxx:xx:xx.x where x is a hex
  */
-static int stress_pci_dev_filter(const struct dirent *d)
+static int PURE stress_pci_dev_filter(const struct dirent *d)
 {
 	unsigned int dummy[4];
 
@@ -60,7 +61,7 @@ static int stress_pci_dev_filter(const struct dirent *d)
  *  stress_pci_dot_filter()
  *	scandir filter out dot filenames
  */
-static int stress_pci_dot_filter(const struct dirent *d)
+static int PURE stress_pci_dot_filter(const struct dirent *d)
 {
 	if (d->d_name[0] == '.')
 		return 0;

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-capabilities.h"
 #include "core-module.h"
 
@@ -109,7 +110,7 @@ static char global_module_path[PATH_MAX];
 
 #if defined(HAVE_UNAME) &&      \
     defined(HAVE_SYS_UTSNAME_H)
-static bool isempty(const char *line, const size_t line_len)
+static bool PURE isempty(const char *line, const size_t line_len)
 {
 	size_t i = 0;
 
@@ -124,7 +125,7 @@ static bool isempty(const char *line, const size_t line_len)
 	return true;
 }
 
-static bool iscomment(const char *line, const size_t line_len)
+static bool PURE iscomment(const char *line, const size_t line_len)
 {
 	size_t i = 0;
 

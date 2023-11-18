@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-target-clones.h"
 #include "core-mwc.h"
 
@@ -100,7 +101,7 @@ static uint64_t stress_aux_random_seed(void)
 	return val;
 }
 #else
-static uint64_t stress_aux_random_seed(void)
+static uint64_t PURE stress_aux_random_seed(void)
 {
 	return 0ULL;
 }

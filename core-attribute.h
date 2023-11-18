@@ -143,9 +143,15 @@
 /* GCC hot attribute */
 #if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 3, 0))
-#define HOT		__attribute__((hot))
+#define HOT	__attribute__((hot))
 #else
 #define HOT
+#endif
+
+#if defined(HAVE_ATTRIBUTE_PURE)
+#define PURE	__attribute__((pure))
+#else
+#define PURE
 #endif
 
 /* GCC mlocked data and data section attribute */
