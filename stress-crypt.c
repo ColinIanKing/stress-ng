@@ -140,9 +140,11 @@ static int stress_crypt(const stress_args_t *args)
 		static struct crypt_data data;
 		char *const phrase = data.input;
 		char *const setting = data.setting;
+		const size_t setting_len = sizeof(data.setting);
 #else
 		char phrase[16];
 		char setting[12];
+		const size_t setting_len = sizeof(setting);
 #endif
 		char orig_setting[12];
 		uint64_t seed[2];
@@ -161,7 +163,7 @@ static int stress_crypt(const stress_args_t *args)
 		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
 			int ret;
 
-			(void)shim_strlcpy(setting, orig_setting, sizeof(setting));
+			(void)shim_strlcpy(setting, orig_setting, setting_len);
 			(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
 #if defined (HAVE_CRYPT_R)
 			data.initialized = 0;
