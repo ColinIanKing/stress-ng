@@ -22,6 +22,8 @@
 #include "core-klog.h"
 #include "core-processes.h"
 
+#include <sched.h>
+
 #if defined(__linux__)
 static pid_t klog_pid = -1;
 

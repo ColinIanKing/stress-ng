@@ -22,6 +22,8 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
+#include <sched.h>
+
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
 #endif

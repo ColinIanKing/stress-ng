@@ -22,6 +22,7 @@
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
 #include <sys/socket.h>
+#include <sched.h>
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>

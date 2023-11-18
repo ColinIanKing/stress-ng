@@ -22,6 +22,8 @@
 #include "core-builtin.h"
 #include "core-sched.h"
 
+#include <sched.h>
+
 #ifndef SCHED_FLAG_RESET_ON_FORK
 #define SCHED_FLAG_RESET_ON_FORK        (0x01)
 #endif

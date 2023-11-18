@@ -100,7 +100,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
-#include <sched.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdarg.h>

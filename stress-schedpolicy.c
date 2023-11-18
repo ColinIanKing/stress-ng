@@ -22,6 +22,8 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
+#include <sched.h>
+
 #if defined(__NR_sched_getattr)
 #define HAVE_SCHED_GETATTR
 #endif

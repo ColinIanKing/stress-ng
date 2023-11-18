@@ -23,6 +23,8 @@
 #include "core-cpu-cache.h"
 #include "core-put.h"
 
+#include <sched.h>
+
 #define CACHE_FLAGS_PREFETCH	(0x0001U)
 #define CACHE_FLAGS_CLFLUSH	(0x0002U)
 #define CACHE_FLAGS_FENCE	(0x0004U)

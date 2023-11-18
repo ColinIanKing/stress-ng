@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"reboot N",	"start N workers that exercise bad reboot calls" },
 	{ NULL,	"reboot-ops N",	"stop after N bogo reboot operations" },

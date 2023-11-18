@@ -22,6 +22,8 @@
 #include "core-numa.h"
 #include "core-target-clones.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"llc-affinity N",	"start N workers exercising low level cache over all CPUs" },
 	{ NULL,	"llc-affinity-mlock",	"attempt to mlock pages into memory" },

@@ -21,6 +21,8 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 
+#include <sched.h>
+
 static const char option[] = "taskset";
 
 #if defined(HAVE_SCHED_SETAFFINITY)

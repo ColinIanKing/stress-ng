@@ -22,6 +22,8 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"hrtimers N",	  "start N workers that exercise high resolution timers" },
 	{ NULL, "hrtimers-adjust","adjust rate to try and maximum timer rate" },

@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ "y N", "yield N",	"start N workers doing sched_yield() calls" },
 	{ NULL,	 "yield-ops N",	"stop after N bogo yield operations" },

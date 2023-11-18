@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 static const stress_args_t *s_args;
 
 static const stress_help_t help[] = {

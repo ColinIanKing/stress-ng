@@ -22,6 +22,8 @@
 #include "core-killpid.h"
 #include "core-lock.h"
 
+#include <sched.h>
+
 #define DEFAULT_L1_SIZE		(64)
 
 #if defined(HAVE_ATOMIC_FETCH_ADD) &&	\

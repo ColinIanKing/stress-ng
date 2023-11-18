@@ -23,6 +23,8 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"softlockup N",     "start N workers that cause softlockups" },
 	{ NULL,	"softlockup-ops N", "stop after N softlockup bogo operations" },

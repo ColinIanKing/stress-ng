@@ -24,6 +24,8 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
+#include <sched.h>
+
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif

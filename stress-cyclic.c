@@ -22,6 +22,8 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(100000000)
 #define DEFAULT_SAMPLES		(10000)

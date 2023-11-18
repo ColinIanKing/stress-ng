@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"cpu-online N",		"start N workers offlining/onlining the CPUs" },
 	{ NULL, "cpu-online-affinity",	"set CPU affinity to the CPU to be offlined" },

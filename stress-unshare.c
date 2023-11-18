@@ -21,6 +21,8 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"unshare N",	 "start N workers exercising resource unsharing" },
 	{ NULL,	"unshare-ops N", "stop after N bogo unshare operations" },
