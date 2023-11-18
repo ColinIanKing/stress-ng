@@ -24,6 +24,10 @@
 #include <sys/socket.h>
 #include <sched.h>
 
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#endif
+
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
 #else
