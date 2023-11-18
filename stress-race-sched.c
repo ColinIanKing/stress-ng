@@ -20,6 +20,8 @@
 #include "core-builtin.h"
 #include "core-out-of-memory.h"
 
+#include <sched.h>
+
 #if defined(HAVE_SCHED_SETAFFINITY) &&					     \
     (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
     (defined(SCHED_OTHER) || defined(SCHED_BATCH) || defined(SCHED_IDLE)) && \

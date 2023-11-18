@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #else

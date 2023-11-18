@@ -21,6 +21,8 @@
 #include "core-killpid.h"
 #include "core-thrash.h"
 
+#include <sched.h>
+
 #if defined(__linux__) &&	\
     defined(HAVE_PTRACE)
 

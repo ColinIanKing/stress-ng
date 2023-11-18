@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 
 static const stress_help_t help[] = {

@@ -20,6 +20,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"resched N",		"start N workers that spawn renicing child processes" },
 	{ NULL,	"resched-ops N",	"stop after N nice bogo nice'd yield operations" },
