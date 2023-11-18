@@ -29,6 +29,7 @@
 #include "core-pragma.h"
 #include "core-shim.h"
 
+#include <sched.h>
 #include <pwd.h>
 
 #if defined(__NR_pkey_get)

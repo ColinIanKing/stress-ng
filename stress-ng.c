@@ -47,6 +47,8 @@
 #include "core-thrash.h"
 #include "core-vmstat.h"
 
+#include <sched.h>
+
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif

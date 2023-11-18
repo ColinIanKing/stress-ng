@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 #define STRESS_AFFINITY_PROCS	(16)
 
 typedef struct {

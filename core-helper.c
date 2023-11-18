@@ -30,6 +30,7 @@
 #include "core-pragma.h"
 #include "core-sort.h"
 
+#include <sched.h>
 #include <pwd.h>
 
 #if defined(HAVE_LINUX_FIEMAP_H)
