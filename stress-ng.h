@@ -100,7 +100,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
-#include <pwd.h>
 #include <sched.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -139,7 +138,6 @@
 #include <sys/file.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
-//#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/times.h>

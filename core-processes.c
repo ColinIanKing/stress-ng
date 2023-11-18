@@ -20,6 +20,8 @@
 #include "core-builtin.h"
 #include "core-processes.h"
 
+#include <pwd.h>
+
 #if defined(__linux__)
 static int stress_dump_processes_filter(const struct dirent *d)
 {
