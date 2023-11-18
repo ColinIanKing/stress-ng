@@ -20,8 +20,9 @@
 #define CORE_ATTRIBUTE_H
 
 /* warn unused attribute */
-#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 2, 0)) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
+#if defined(HAVE_ATTRIBUTE_WARN_UNUSED_RESULT) &&			\
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 2, 0)) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
 #define WARN_UNUSED	__attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED
