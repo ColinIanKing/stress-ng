@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-mincore.h"
+#include "core-pthread.h"
 #include "core-resources.h"
 
 #if defined(HAVE_LIB_PTHREAD)

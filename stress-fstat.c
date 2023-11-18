@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
+#include "core-pthread.h"
 
 #define MAX_FSTAT_THREADS	(4)
 #define FSTAT_LOOPS		(16)

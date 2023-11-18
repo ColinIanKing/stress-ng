@@ -24,6 +24,7 @@
 #include "core-asm-generic.h"
 #include "core-cpu-cache.h"
 #include "core-builtin.h"
+#include "core-pthread.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"

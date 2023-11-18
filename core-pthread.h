@@ -19,6 +19,10 @@
 #ifndef CORE_PTHREAD_H
 #define CORE_PTHREAD_H
 
+#if defined(HAVE_LIB_PTHREAD)
+#include <pthread.h>
+#endif
+
 /* pthread wrapped stress_args_t */
 typedef struct {
 	const stress_args_t *args;	/* Stress test args */

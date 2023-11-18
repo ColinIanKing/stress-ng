@@ -21,6 +21,7 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-pthread.h"
 
 #define STRESS_VMA_PROCS	(2)
 #define STRESS_VMA_PAGES	(16)

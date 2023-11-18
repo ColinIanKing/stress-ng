@@ -112,9 +112,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#if defined(HAVE_LIB_PTHREAD)
-#include <pthread.h>
-#endif
 #if defined(HAVE_STRINGS_H)
 #include <strings.h>
 #endif

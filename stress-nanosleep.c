@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-cpuidle.h"
+#include "core-pthread.h"
 
 #define MIN_NANOSLEEP_THREADS		(1)
 #define MAX_NANOSLEEP_THREADS		(1024)

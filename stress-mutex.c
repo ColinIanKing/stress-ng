@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-pthread.h"
 
 #if defined(HAVE_PTHREAD_NP_H)
 #include <pthread_np.h>

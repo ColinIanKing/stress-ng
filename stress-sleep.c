@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-cpuidle.h"
+#include "core-pthread.h"
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
