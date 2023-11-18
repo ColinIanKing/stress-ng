@@ -60,9 +60,10 @@
 #undef ALWAYS_INLINE
 #endif
 /* force inlining hint */
-#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0) 			\
+#if defined(HAVE_ATTRIBUTE_ALWAYS_INLINE) &&					\
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0) 			\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
 #define ALWAYS_INLINE	__attribute__((always_inline))
 #else
 #define ALWAYS_INLINE
