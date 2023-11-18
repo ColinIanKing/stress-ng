@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C) 2022-2023 Colin Ian King
+ * Copyright (C) 2023      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,18 +16,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include <unistd.h>
 #include <stdlib.h>
 
-#define NORETURN	__attribute__ ((noreturnx))
+#define NORETURN	__attribute__((noreturn))
 
-void NORETURN do_exit(void)
+static void NORETURN noreturn_func(void)
 {
-	exit(0);
+	_exit(0);
 }
 
 int main(int argc, char **argv)
 {
-	do_exit();
+	noreturn_func();
 
 	return 0;
 }

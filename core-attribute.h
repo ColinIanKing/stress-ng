@@ -38,8 +38,9 @@
 #endif
 
 /* no return hint */
-#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(2, 5, 0)) || 	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
+#if defined(HAVE_ATTRIBUTE_NORETURN) && 				\
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(2, 5, 0)) || 	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
 #define NORETURN 	__attribute__((noreturn))
 #else
 #define NORETURN
