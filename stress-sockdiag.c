@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include <sys/socket.h>
 
 #if defined(HAVE_LINUX_NETLINK_H)
 #include <linux/netlink.h>

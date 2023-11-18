@@ -20,6 +20,7 @@
 #ifndef CORE_RESOURCES_H
 #define CORE_RESOURCES_H
 
+#include <sys/socket.h>
 #include "core-killpid.h"
 
 #if defined(__NR_userfaultfd)

@@ -19,6 +19,8 @@
 #ifndef CORE_NET_H
 #define CORE_NET_H
 
+#include <sys/socket.h>
+
 /* Network domains flags */
 #define DOMAIN_INET		(0x00000001)	/* AF_INET */
 #define DOMAIN_INET6		(0x00000002)	/* AF_INET6 */

@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include <sys/socket.h>
 
 #define MAX_SOCKET_PAIRS	(32768)
 #define SOCKET_PAIR_BUF         (4096)	/* Socket pair I/O buffer size */

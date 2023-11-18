@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include <sys/socket.h>
 
 #if defined(HAVE_LINUX_CN_PROC_H)
 #include <linux/cn_proc.h>

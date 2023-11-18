@@ -21,6 +21,7 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
+#include <sys/socket.h>
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>

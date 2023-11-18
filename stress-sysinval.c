@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include <sys/socket.h>
 
 static const stress_help_t help[] = {
 	{ NULL,	"sysinval N",		"start N workers that pass invalid args to syscalls" },
