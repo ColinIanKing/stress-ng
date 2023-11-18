@@ -70,8 +70,9 @@
 #endif
 
 /* force no inlining hint */
-#if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0)) ||	\
-    (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
+#if defined(HAVE_ATTRIBUTE_NOINLINE) &&					\
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(3, 4, 0)) ||	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0)))
 #define NOINLINE	__attribute__((noinline))
 #else
 #define NOINLINE
