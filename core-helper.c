@@ -123,6 +123,7 @@ STRESS_PRAGMA_POP
 int __dso_handle;
 #endif
 
+#define MEM_CACHE_SIZE			(2 * MB)
 #define PAGE_4K_SHIFT			(12)
 #define PAGE_4K				(1 << PAGE_4K_SHIFT)
 

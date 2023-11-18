@@ -487,10 +487,7 @@ extern const char stress_config[];
 /* Stressor defaults */
 
 #define TIMEOUT_NOT_SET		(~0ULL)
-
-#define MEM_CACHE_SIZE		(65536 * 32)
 #define UNDEFINED		(-1)
-
 #define PAGE_MAPPED		(0x01)
 #define PAGE_MAPPED_FAIL	(0x02)
 
