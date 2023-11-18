@@ -473,6 +473,10 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [x86/fpu: Set X86_FEATURE_OSXSAVE feature after enabling OSXSAVE in CR4](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=2c66ca3949dc701da7f4c9407f2140ae425683a5)
 * [kernel/fork: beware of __put_task_struct() calling context](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d243b34459cea30cfe5f3a9b2feb44e7daff9938)
 * [arm64: dts: ls1028a: add l1 and l2 cache info](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fcf7ff67a2aa6d8055b9b815ad8a28a5231afa1e)
+* [filemap: add filemap_map_order0_folio() to handle order0 folio](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c8be03806738c86521dbf1e0503bc90855fb99a3)
+* [mm: shrinker: add infrastructure for dynamically allocating shrinker](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c42d50aefd17a6bad3ed617769edbbb579137545)
+* [mm: shrinker: make global slab shrink lockless](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ca1d36b823944f24b5755311e95883fb5fdb807b)
+* [bcachefs: Clear btree_node_just_written() when node reused or evicted](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0b438c5bfaebda3fdf6edc35d9572d4e2f66aef1)
 
 ## Kernel improvements that used stress-ng
 
@@ -503,7 +507,6 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [module: add debug stats to help identify memory pressure](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=df3e764d8e5cd416efee29e0de3c93917dff5d33)
 * [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
 * [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
-* [filemap: add filemap_map_order0_folio() to handle order0 folio](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c8be03806738c86521dbf1e0503bc90855fb99a3)
 
 ## Presentations
 
