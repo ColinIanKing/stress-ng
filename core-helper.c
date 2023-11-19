@@ -3282,7 +3282,6 @@ int stress_get_kernel_release(void)
  */
 pid_t stress_get_unused_pid_racy(const bool fork_test)
 {
-	char buf[64];
 #if defined(PID_MAX_LIMIT)
 	pid_t max_pid = PID_MAX_LIMIT;
 #elif defined(PID_MAX)
@@ -3296,10 +3295,6 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	pid_t pid;
 	uint32_t n;
 
-	(void)shim_memset(buf, 0, sizeof(buf));
-	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
-		max_pid = atoi(buf);
-	}
 	if (max_pid < 1024)
 		max_pid = 1024;
 
@@ -3327,7 +3322,24 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	 *  Make a random PID guess.
 	 */
 	n = (uint32_t)max_pid - 1023;
-	for (i = 0; i < 20; i++) {
+	for (i = 0; i < 10; i++) {
+		pid = (pid_t)stress_mwc32modn(n) + 1023;
+
+		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
+			return pid;
+	}
+	
+	char buf[64];
+	(void)shim_memset(buf, 0, sizeof(buf));
+	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
+		max_pid = atoi(buf);
+	}
+
+	if (max_pid < 1024)
+		max_pid = 1024;
+
+	n = (uint32_t)max_pid - 1023;
+	for (i = 0; i < 10; i++) {
 		pid = (pid_t)stress_mwc32modn(n) + 1023;
 
 		if ((shim_kill(pid, 0) < 0) && (errno == ESRCH))
