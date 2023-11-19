@@ -216,7 +216,7 @@ static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
-        double t_run = stress_time_now();
+	const double t_run = stress_time_now();
 	pid_t tgid_unused;
 	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
