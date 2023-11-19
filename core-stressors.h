@@ -267,6 +267,7 @@
 	MACRO(sigsegv)		\
 	MACRO(sigsuspend)	\
 	MACRO(sigtrap)		\
+	MACRO(sigxfsz)		\
 	MACRO(skiplist)		\
 	MACRO(sleep)		\
 	MACRO(smi)		\

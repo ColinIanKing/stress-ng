@@ -1165,6 +1165,9 @@ typedef enum {
 	OPT_sigtrap,
 	OPT_sigtrap_ops,
 
+	OPT_sigxfsz,
+	OPT_sigxfsz_ops,
+
 	OPT_skiplist,
 	OPT_skiplist_ops,
 	OPT_skiplist_size,
