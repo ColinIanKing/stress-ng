@@ -670,7 +670,7 @@ Jules Maselbas, Julien Olivain, Kenny Gong, Khalid Elmously, Khem Raj,
 Luca Pizzamiglio, Luis Chamberlain, Luis Henriques, Matthew Tippett,
 Mauricio Faria de Oliveira, Maxime Chevallier, Max Kellermann, Maya Rashish,
 Mayuresh Chitale, Meysam Azad, Mike Koreneff, Nick Hanley,
-Paul Menzel, Piyush Goyal, Ralf Ramsauer, Rosen Penev,
+Paul Menzel, Piyush Goyal, Ralf Ramsauer, Rosen Penev, Rulin Huang,
 Siddhesh Poyarekar, Shoily Rahman, Thadeu Lima de Souza Cascardo,
 Thia Wyrod, Thinh Tran, Tim Gardner, Tim Gates, Tim Orling,
 Tommi Rantala, Witold Baryluk, Yong-Xuan Wang, Zhiyi Sun.
