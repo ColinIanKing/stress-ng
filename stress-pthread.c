@@ -217,6 +217,7 @@ static void *stress_pthread_func(void *parg)
 	static void *nowt = NULL;
 	int ret;
         double t_run = stress_time_now();
+	pid_t tgid_unused;
 	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
@@ -285,8 +286,6 @@ static void *stress_pthread_func(void *parg)
 	VOID_RET(int, shim_tgkill(-1, tid, 0));
 	VOID_RET(int, shim_tgkill(tgid, -1, 0));
 	VOID_RET(int, shim_tgkill(tgid, tid, -1));
-	VOID_RET(int, shim_tgkill(stress_get_unused_pid_racy(false), tid, 0));
-	VOID_RET(int, shim_tgkill(tgid, stress_get_unused_pid_racy(false), 0));
 
 	/*
 	 *  Exercise tkill, this is either supported directly, emulated
@@ -295,7 +294,14 @@ static void *stress_pthread_func(void *parg)
 	VOID_RET(int, shim_tkill(tid, 0));
 	VOID_RET(int, shim_tkill(-1, 0));
 	VOID_RET(int, shim_tkill(tid, -1));
-	VOID_RET(int, ret = shim_tkill(stress_get_unused_pid_racy(false), 0));
+
+	/*
+	 *  Exercise with invalid tgid
+	 */
+	tgid_unused = stress_get_unused_pid_racy(false);
+	VOID_RET(int, shim_tgkill(tgid_unused, tid, 0));
+	VOID_RET(int, shim_tgkill(tgid, tgid_unused, 0));
+	VOID_RET(int, shim_tkill(tgid_unused, 0));
 
 #if defined(HAVE_ASM_LDT_H) && 		\
     defined(STRESS_ARCH_X86) &&		\
