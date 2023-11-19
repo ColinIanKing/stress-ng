@@ -1292,7 +1292,7 @@ void stress_set_proc_state(const char *name, const int state)
  *  stress_chr_munge()
  *	convert ch _ to -, otherwise don't change it
  */
-static inline char stress_chr_munge(const char ch)
+static inline char PURE stress_chr_munge(const char ch)
 {
 	return (ch == '_') ? '-' : ch;
 }
