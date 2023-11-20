@@ -85,7 +85,7 @@ static int stress_cpu_online_set(
 	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
-	ret = stress_system_write(filename, data, sizeof(data));
+	ret = stress_system_write(filename, data, 2);
 	if (ret < 0) {
 		switch (ret) {
 		case -EAGAIN:
