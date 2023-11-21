@@ -340,6 +340,7 @@ do {				\
 #define CLASS_SECURITY		STRESS_BIT_UL(12)	/* security APIs */
 #define CLASS_PATHOLOGICAL	STRESS_BIT_UL(13)	/* can hang a machine */
 #define CLASS_GPU		STRESS_BIT_UL(14)	/* GPU */
+#define CLASS_SIGNAL		STRESS_BIT_UL(15)	/* software signals */
 
 /* Help information for options */
 typedef struct {

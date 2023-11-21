@@ -240,7 +240,7 @@ tidy_dir:
 
 stressor_info_t stress_sigbus_info = {
 	.stressor = stress_sigbus,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)
 	.verify = VERIFY_OPTIONAL,
 #endif
