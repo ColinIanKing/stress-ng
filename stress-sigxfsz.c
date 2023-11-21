@@ -17,10 +17,7 @@
  *
  */
 #include "stress-ng.h"
-#include "core-affinity.h"
 #include "core-builtin.h"
-#include "core-killpid.h"
-#include "core-out-of-memory.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigxfsz N",		"start N workers that exercise SIGXFSZ signals" },
