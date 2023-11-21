@@ -808,6 +808,8 @@ const struct option stress_long_options[] = {
 	{ "sigsuspend-ops",	1,	0,	OPT_sigsuspend_ops },
 	{ "sigtrap",		1,	0,	OPT_sigtrap },
 	{ "sigtrap-ops",	1,	0,	OPT_sigtrap_ops},
+	{ "sigxcpu",		1,	0,	OPT_sigxcpu },
+	{ "sigxcpu-ops",	1,	0,	OPT_sigxcpu_ops },
 	{ "sigxfsz",		1,	0,	OPT_sigxfsz },
 	{ "sigxfsz-ops",	1,	0,	OPT_sigxfsz_ops },
 	{ "skiplist",		1,	0,	OPT_skiplist },
