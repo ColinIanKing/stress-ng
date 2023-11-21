@@ -909,8 +909,8 @@ bool stress_low_memory(const size_t requested)
 			low_memory = true;
 			goto update;
 		}
-		/* Any swap enabled and is it running low? */
-		if ((totalswap > 0) && (freeswap < (2 * MB) + requested)) {
+		/* Any swap enabled with free memory we are too low? */
+		if ((totalswap > 0) && (freeswap + freemem < (requested + (2 * MB)))) {
 			low_memory = true;
 			goto update;
 		}
