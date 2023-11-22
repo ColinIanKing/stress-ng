@@ -381,13 +381,12 @@ static int stress_clock(const stress_args_t *args)
 				VOID_RET(int, shim_clock_adjtime(INT_MAX, &tx));
 			}
 
+			(void)shim_memset(&tx, 0, sizeof(tx));
 			/*
 			 *  Exercise clock_adjtime
 			 */
 			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
 				int ret;
-
-				(void)shim_memset(&tx, 0, sizeof(tx));
 
 				tx.modes = ADJ_SETOFFSET;
 				tx.time.tv_sec = 0;
@@ -417,18 +416,17 @@ static int stress_clock(const stress_args_t *args)
 			bool timer_fail[MAX_TIMERS];
 			timer_t timer_id[MAX_TIMERS];
 			struct itimerspec its;
+			struct sigevent sevp;
 			int ret;
 
+			(void)shim_memset(&sevp, 0, sizeof(sevp));
 			/*
 			 *  Stress the timers
 			 */
 			for (i = 0; i < MAX_TIMERS; i++) {
-				struct sigevent sevp;
-
 				timer_fail[i] = false;
 				timer_id[i] = (timer_t)-1;
 
-				(void)shim_memset(&sevp, 0, sizeof(sevp));
 				sevp.sigev_notify = SIGEV_NONE;
 				ret = timer_create(timers[i], &sevp, &timer_id[i]);
 				if (ret < 0) {
