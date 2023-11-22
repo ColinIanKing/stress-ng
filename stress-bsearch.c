@@ -18,11 +18,20 @@
  *
  */
 #include "stress-ng.h"
+#include "core-shim.h"
 #include "core-sort.h"
 
 #if defined(HAVE_SEARCH_H)
 #include <search.h>
 #endif
+
+typedef void * (*bsearch_func_t)(const void *key, const void *base, size_t nmemb, size_t size,
+			       int (*compare)(const void *p1, const void *p2));
+
+typedef struct {
+	const char *name;
+	const bsearch_func_t bsearch_func;
+} stress_bsearch_method_t;
 
 #define MIN_BSEARCH_SIZE	(1 * KB)
 #define MAX_BSEARCH_SIZE	(4 * MB)
@@ -49,12 +58,57 @@ static int stress_set_bsearch_size(const char *opt)
 	return stress_set_setting("bsearch-size", TYPE_ID_UINT64, &bsearch_size);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_bsearch_size,	stress_set_bsearch_size },
-	{ 0,			NULL },
+static void * bsearch_nonlibc(
+	const void *key,
+	const void *base,
+	size_t nmemb,
+	size_t size,
+	int (*compare)(const void *p1, const void *p2))
+{
+	register size_t lower = 0;
+	register size_t upper = nmemb;
+
+	while (LIKELY(lower < upper)) {
+		register size_t index = (lower + upper) >> 1;
+		register const void *ptr = base + (index * size);
+		register int cmp = compare(key, ptr);
+
+		if (cmp < 0) {
+			upper = index;
+		} else if (cmp > 0) {
+			lower = index + 1;
+		} else {
+			return shim_unconstify_ptr(ptr);
+		}
+	}
+	return NULL;
+}
+
+static const stress_bsearch_method_t stress_bsearch_methods[] = {
+#if defined(HAVE_BSEARCH)
+	{ "bsearch-libc",	bsearch },
+#endif
+	{ "bsearch-nonlibc",	bsearch_nonlibc },
 };
 
-#if defined(HAVE_BSEARCH)
+static int stress_set_bsearch_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_bsearch_methods); i++) {
+		if (strcmp(opt, stress_bsearch_methods[i].name) == 0) {
+			stress_set_setting("bsearch-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "bsearch-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_bsearch_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_bsearch_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
 
 /*
  *  stress_bsearch()
@@ -63,9 +117,13 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 {
 	int32_t *data, *ptr;
-	size_t n, n8, i;
+	size_t n, n8, i, bsearch_method = 0;
 	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	bsearch_func_t bsearch_func;
+
+	(void)stress_get_setting("bsearch-method", &bsearch_method);
+	bsearch_func = stress_bsearch_methods[bsearch_method].bsearch_func;
 
 	if (!stress_get_setting("bsearch-size", &bsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -94,7 +152,7 @@ static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
 
-			result = bsearch(ptr, data, n, sizeof(*ptr), stress_sort_cmp_fwd_int32);
+			result = bsearch_func(ptr, data, n, sizeof(*ptr), stress_sort_cmp_fwd_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n",
@@ -124,6 +182,12 @@ static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_bsearch_size,	stress_set_bsearch_size },
+	{ OPT_bsearch_method,	stress_set_bsearch_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_bsearch_info = {
 	.stressor = stress_bsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
@@ -131,16 +195,3 @@ stressor_info_t stress_bsearch_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-
-#else
-
-stressor_info_t stress_bsearch_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without stdlib bsearch() support"
-};
-
-#endif

@@ -189,6 +189,7 @@ typedef enum {
 	OPT_brk_ops,
 
 	OPT_bsearch,
+	OPT_bsearch_method,
 	OPT_bsearch_ops,
 	OPT_bsearch_size,
 

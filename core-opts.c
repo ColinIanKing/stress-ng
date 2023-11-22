@@ -71,6 +71,7 @@ const struct option stress_long_options[] = {
 	{ "brk-notouch",	0,	0,	OPT_brk_notouch },
 	{ "brk-ops",		1,	0,	OPT_brk_ops },
 	{ "bsearch",		1,	0,	OPT_bsearch },
+	{ "bsearch-method",	1,	0,	OPT_bsearch_method },
 	{ "bsearch-ops",	1,	0,	OPT_bsearch_ops },
 	{ "bsearch-size",	1,	0,	OPT_bsearch_size },
 	{ "cache",		1,	0, 	OPT_cache },
