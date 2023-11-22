@@ -35,9 +35,10 @@ typedef int (*comp_func_t)(const void *v1, const void *v2);
 typedef void (*qsort_func_t)(void *base, size_t nmemb, size_t size, comp_func_t cmp);
 
 static const stress_help_t help[] = {
-	{ "Q N", "qsort N",	"start N workers qsorting 32 bit random integers" },
-	{ NULL,	"qsort-ops N",	"stop after N qsort bogo operations" },
-	{ NULL,	"qsort-size N",	"number of 32 bit integers to sort" },
+	{ "Q N", "qsort N",		"start N workers qsorting 32 bit random integers" },
+	{ NULL,	"qsort-method M",	"select qsort method [ qsort-libc | qsort_bm ]" },
+	{ NULL,	"qsort-ops N",		"stop after N qsort bogo operations" },
+	{ NULL,	"qsort-size N",		"number of 32 bit integers to sort" },
 	{ NULL,	NULL,		NULL }
 };
 
