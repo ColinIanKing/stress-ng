@@ -287,7 +287,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"aggressive",		"enable all aggressive options" },
 	{ "a N",	"all N",		"start N workers of each stress test" },
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
-	{ NULL,		"change cpu",		"force child processes to use different CPU to that of parent" },
+	{ NULL,		"change-cpu",		"force child processes to use different CPU to that of parent" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ "n",		"dry-run",		"do not run" },
 	{ NULL,		"ftrace",		"enable kernel function call tracing" },
