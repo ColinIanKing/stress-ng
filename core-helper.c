@@ -1649,25 +1649,27 @@ HOT OPTIMIZE3 void stress_rndstr(char *str, size_t len)
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		"abcdefghijklmnopqrstuvwxyz"
 		"0123456789-_";
-	size_t i;
-	uint32_t r = 0;		/* Silence a gcc warning */
+	register uint32_t r, mask;
+	register char *ptr = str, *ptr_end = str + len - 1;
+
 	if (len == 0)
 		return;
 
+	mask = 0xc0000000;
 	len--; /* Leave one byte for the terminator. */
-	for (i = 0; i < len; i++) {
-		/* If we don't have any random bits in r, get some more. */
-		if (i % (sizeof(r) * CHAR_BIT / 6) == 0)
-			r = stress_mwc32();
-
+	r = stress_mwc32() | mask;
+	while (LIKELY(ptr < ptr_end)) {
+		/* If we don't have enough random bits in r, get more. */
 		/*
 		 * Use 6 bits from the 32-bit integer at a time.
 		 * This means 2 bits from each 32-bit integer are wasted.
 		 */
-		str[i] = alphabet[r & 0x3F];
+		*(ptr++) = alphabet[r & 0x3F];
 		r >>= 6;
+		if (r == 0x3)
+			r = stress_mwc32() | mask;
 	}
-	str[i] = '\0';
+	*ptr = '\0';
 }
 
 /*
