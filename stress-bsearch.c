@@ -117,7 +117,7 @@ static int stress_set_bsearch_method(const char *opt)
 static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 {
 	int32_t *data, *ptr;
-	size_t n, n8, i, bsearch_method = 0;
+	size_t n, n8, i, bsearch_method = 0, data_size;
 	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
 	bsearch_func_t bsearch_func;
@@ -133,11 +133,14 @@ static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 	}
 	n = (size_t)bsearch_size;
 	n8 = (n + 7) & ~7UL;
+	data_size = n8 * sizeof(*data);
 
 	/* allocate in multiples of 8 */
-	if ((data = calloc(n8, sizeof(*data))) == NULL) {
-		pr_inf_skip("%s: malloc of %zu bytes failed, out of memory\n",
-			args->name, n8 * sizeof(*data));
+	data = (int32_t *)mmap(NULL, data_size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s), skipping stressor\n",
+			args->name, data_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -178,7 +181,7 @@ static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
 	stress_metrics_set(args, 1, "bsearch comparisons per item",
 		count / sorted, STRESS_HARMONIC_MEAN);
 
-	free(data);
+	(void)munmap((void *)data, data_size);
 	return EXIT_SUCCESS;
 }
 
