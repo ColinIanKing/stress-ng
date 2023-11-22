@@ -2059,7 +2059,7 @@ ssize_t stress_system_read(
  *      return true if 64 bit value n is prime
  *      http://en.wikipedia.org/wiki/Primality_test
  */
-bool stress_is_prime64(const uint64_t n)
+bool PURE stress_is_prime64(const uint64_t n)
 {
 	register uint64_t i, max;
 	double max_d;
@@ -4396,7 +4396,7 @@ static void stress_dump_objcode(
 	}
 }
 
-static const char *stress_catch_sig_si_code(const int sig, const int sig_code)
+static const PURE char *stress_catch_sig_si_code(const int sig, const int sig_code)
 {
 	static const char unknown[] = "UNKNOWN";
 
