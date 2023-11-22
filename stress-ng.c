@@ -1597,9 +1597,10 @@ static void MLOCKED_TEXT stress_run(
 			int rc;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
 
+#if defined(STRESS_TERMINATE_PREMATURELY)
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
-
+#endif
 			stats->pid = -1;
 			stats->ci.counter_ready = true;
 			stats->ci.counter = 0;
@@ -1650,7 +1651,9 @@ again:
 		(void)stress_set_handler("stress-ng", false);
 		handler_set = true;
 	}
+#if defined(STRESS_TERMINATE_PREMATURELY)
 abort:
+#endif
 	pr_dbg("%d stressor%s started\n", started_instances,
 		 started_instances == 1 ? "" : "s");
 
