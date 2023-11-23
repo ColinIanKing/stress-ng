@@ -560,12 +560,14 @@ static int epoll_client(
 	struct sigevent sev;
 	struct itimerspec timer;
 	struct sockaddr *addr = NULL;
+	uint64_t buf[4096 / sizeof(uint64_t)];
 
 	if (stress_sighandler(args->name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	stress_rndbuf((void *)buf, sizeof(buf));
+
 	do {
-		char buf[4096];
 		int fd, saved_errno;
 #if defined(STRESS_EPOLL_RETRY_COUNT)
 		int retries = 0;
@@ -672,8 +674,8 @@ retry:
 			goto retry;
 		}
 
-		(void)shim_memset(buf, stress_ascii64[stress_bogo_get(args) & 63], sizeof(buf));
-		if (UNLIKELY(send(fd, buf, sizeof(buf), 0) < 0)) {
+		buf[0]++;
+		if (UNLIKELY(send(fd, (void *)buf, sizeof(buf), 0) < 0)) {
 			(void)close(fd);
 			pr_dbg("%s: send failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
