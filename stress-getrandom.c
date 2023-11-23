@@ -123,12 +123,12 @@ static int stress_getrandom(const stress_args_t *args)
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];
 		size_t i;
+		double t;
 
+		t = stress_time_now();
 		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
 			ssize_t ret;
-			double t;
 
-			t = stress_time_now();
 			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
 			if (UNLIKELY(ret < 0)) {
 				if ((errno == EAGAIN) ||
@@ -148,7 +148,6 @@ static int stress_getrandom(const stress_args_t *args)
 					errno, strerror(errno));
 				return EXIT_FAILURE;
 			} else {
-				duration += stress_time_now() - t;
 				bytes += (double)ret;
 			}
 #if defined(HAVE_GETENTROPY)
@@ -158,10 +157,13 @@ static int stress_getrandom(const stress_args_t *args)
 			 *  completeness sake and it's also available on
 			 *  other systems such as OpenBSD.
 			 */
-			VOID_RET(int, getentropy(buffer, 1));
+			ret = getentropy(buffer, 1);
+			if (ret > 0)
+				bytes += (double)1.0;
 #endif
 			stress_bogo_inc(args);
 		}
+		duration += stress_time_now() - t;
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
