@@ -98,7 +98,7 @@ void stress_config_check(void)
 			pr_inf("note: %d cpus have scaling governors set to "
 				"powersave and this can impact on performance; "
 				"setting %s/cpu*/cpufreq/scaling_governor to "
-				"'performance' will improve performance\n",
+				"'performance' may improve performance\n",
 				powersave, path);
 		}
 	}
