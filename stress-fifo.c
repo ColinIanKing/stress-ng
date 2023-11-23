@@ -24,6 +24,9 @@
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
 
 #define MIN_FIFO_READERS	(1)
 #define MAX_FIFO_READERS	(64)
@@ -127,14 +130,38 @@ static void stress_fifo_reader(
 	}
 	while (stress_continue_flag()) {
 		ssize_t sz;
-#if defined(HAVE_SELECT)
+#if defined(HAVE_POLL_H) && 0
+		int ret;
+		struct pollfd fds;
+
+		fds.fd = fd;
+		fds.events = POLLIN;
+redo_poll:
+		ret = poll(&fds, 1, 1000);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			pr_err("%s: poll failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		} else if (ret == 0) {
+			/*
+			 * nothing to read, timed-out, retry
+			 * as this can happen on a highly
+			 * overloaded stressed system
+			 */
+			if (stress_continue(args))
+				goto redo_poll;
+			break;
+		}
+#elif defined(HAVE_SELECT)
 		int ret;
 		struct timeval timeout;
 		fd_set rdfds;
 
 		FD_ZERO(&rdfds);
 		FD_SET(fd, &rdfds);
-redo:
+redo_select:
 		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 
@@ -152,7 +179,7 @@ redo:
 			 * overloaded stressed system
 			 */
 			if (stress_continue(args))
-				goto redo;
+				goto redo_select;
 			break;
 		}
 #endif
