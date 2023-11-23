@@ -431,12 +431,17 @@ HOT OPTIMIZE3 uint16_t stress_mwc16modn_maybe_pwr2(const uint16_t max)
  */
 HOT OPTIMIZE3 static uint32_t stress_mwc32modn_nonzero(const uint32_t max)
 {
-	register uint32_t threshold = max;
+	register uint32_t threshold;
 	register uint32_t val;
 
+#if defined(HAVE_BUILTIN_CLZ)
+	threshold = max << __builtin_clz(max);
+#else
+	threshold = max;
 	while (threshold < 0x80000000UL) {
 		threshold <<= 1;
 	}
+#endif
 	do {
 		val = stress_mwc32();
 	} while (val >= threshold);
@@ -476,15 +481,17 @@ HOT OPTIMIZE3 uint32_t stress_mwc32modn_maybe_pwr2(const uint32_t max)
  */
 HOT OPTIMIZE3 static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
 {
-	register uint64_t threshold = max;
+	register uint64_t threshold;
 	register uint64_t val;
 
-	if ((max & (max - 1)) == 0)
-		return stress_mwc64() & (max - 1);
-
+#if defined(HAVE_BUILTIN_CLZLL)
+	threshold = max << __builtin_clzll(max);
+#else
+	threshold = max;
 	while (threshold < 0x8000000000000000ULL) {
 		threshold <<= 1;
 	}
+#endif
 	do {
 		val = stress_mwc64();
 	} while (val >= threshold);
