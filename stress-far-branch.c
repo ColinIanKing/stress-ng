@@ -21,6 +21,7 @@
 #include "core-asm-ret.h"
 #include "core-builtin.h"
 #include "core-madvise.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
@@ -229,6 +230,26 @@ static void stress_far_branch_check(void)
 }
 
 /*
+ *  stress_far_branch_shuffle()
+ *	Shuffle function pointers to get a fairly good
+ *	random spread of address ranges to branch to
+ *	on function call/returns
+ */
+static inline void stress_far_branch_shuffle(stress_ret_func_t *funcs, const size_t total_funcs)
+{
+	register size_t i;
+
+	for (i = 0; i < total_funcs; i += 2) {
+		register const size_t k = stress_mwc32modn(total_funcs);
+		register stress_ret_func_t tmp;
+
+		tmp = funcs[i];
+		funcs[i] = funcs[k];
+		funcs[k] = tmp;
+	}
+}
+
+/*
  *  stress_far_branch()
  *	exercise a broad randomized set of branches to functions
  *	that are spread around the entire address space; try to
@@ -344,22 +365,8 @@ static int stress_far_branch(const stress_args_t *args)
 		pr_inf("%s: %zu functions over %zu pages\n", args->name, total_funcs, n_pages);
 
 	funcs[0] = stress_far_branch_check;
-	/*
-	 *  Shuffle function pointers to get a fairly good
-	 *  random spread of address ranges to branch to
-	 *  on function call/returns
-	 */
-	for (j = 0; j < 5; j++) {
-		for (i = 0; i < total_funcs; i++) {
-			register stress_ret_func_t tmp;
 
-			k = stress_mwc32modn(total_funcs);
-
-			tmp = funcs[i];
-			funcs[i] = funcs[k];
-			funcs[k] = tmp;
-		}
-	}
+	stress_far_branch_shuffle(funcs, total_funcs);
 
 	check_flag = false;
 
