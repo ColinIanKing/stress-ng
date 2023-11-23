@@ -19,9 +19,10 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-put.h"
-#include "core-pragma.h"
+#include "core-target-clones.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
@@ -50,14 +51,25 @@ static const stress_whences_t whences[] = {
  *  stress_data_is_not_zero()
  *	checks if buffer is zero, buffer expected to be page aligned
  */
-static bool PURE OPTIMIZE3 stress_data_is_not_zero(void *buffer, const size_t len)
+static inline ALWAYS_INLINE bool PURE OPTIMIZE3 stress_data_is_not_zero(void *buffer, const size_t len)
 {
-	register const uint64_t *end64 = (uint64_t *)((uintptr_t)buffer + (len / sizeof(uint64_t)));
-	register uint64_t *ptr64;
+#if defined(HAVE_INT128_T)
+	typedef __uint128_t cmptype_t;
+#else
+	typedef uint64_t cmptype_t;
+#endif
+	register const cmptype_t *ptr_end = (cmptype_t *)((uintptr_t)buffer + len);
+	register cmptype_t *ptr = (cmptype_t *)buffer;
 
-PRAGMA_UNROLL_N(8)
-	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
-		if (UNLIKELY(*ptr64))
+	while (ptr < ptr_end) {
+		register cmptype_t v;
+
+		v = ptr[0];
+		v |= ptr[1];
+		v |= ptr[2];
+		v |= ptr[3];
+		ptr += 4;
+		if (v)
 			return true;
 	}
 	return false;
