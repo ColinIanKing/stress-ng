@@ -2082,6 +2082,7 @@ static void stress_metrics_dump(FILE *yaml)
 					int64_t exponent;
 					double geometric_mean, harmonic_mean, mantissa;
 					double n, sum;
+					const char *plural = (ss->completed_instances > 1) ? "s" : "";
 
 					switch (ss->stats[0]->metrics[i].mean_type) {
 					case STRESS_GEOMETRIC_MEAN:
@@ -2109,11 +2110,13 @@ static void stress_metrics_dump(FILE *yaml)
 							geometric_mean = 0.0;
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instances)\n",
-								munged, geometric_mean, description, ss->completed_instances);
+							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instance%s)\n",
+								munged, geometric_mean, description,
+								ss->completed_instances, plural);
 						} else {
-							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instances)\n",
-								munged, geometric_mean, description, ss->completed_instances);
+							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instance%s)\n",
+								munged, geometric_mean, description,
+								ss->completed_instances, plural);
 						}
 						break;
 					case STRESS_HARMONIC_MEAN:
@@ -2141,11 +2144,13 @@ static void stress_metrics_dump(FILE *yaml)
 							harmonic_mean = 0.0;
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
-							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRIu32 " instances)\n",
-								munged, harmonic_mean, description, ss->completed_instances);
+							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRIu32 " instance%s)\n",
+								munged, harmonic_mean, description,
+								ss->completed_instances, plural);
 						} else {
-							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instances)\n",
-								munged, harmonic_mean, description, ss->completed_instances);
+							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instance%s)\n",
+								munged, harmonic_mean, description,
+								ss->completed_instances, plural);
 						}
 						break;
 					}
