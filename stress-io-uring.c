@@ -453,7 +453,7 @@ static int stress_io_uring_submit(
 retry:
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
-	if (ret < 0) {
+	if (UNLIKELY(ret < 0)) {
 		if (errno == EBUSY){
 			stress_io_uring_complete(args, submit);
 			goto retry;
