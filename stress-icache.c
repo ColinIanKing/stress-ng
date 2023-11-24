@@ -119,7 +119,7 @@ static int stress_icache_func(const stress_args_t *args, void *page, const size_
 			 * as the default code assumes smart x86 style
 			 * I$ behaviour.
 			 */
-			shim_flush_icache((char *)page, (char *)page+ 64);
+			shim_flush_icache((char *)page, (char *)page + 64);
 			*vaddr = val;
 			shim_flush_icache((char *)page, (char *)page + 64);
 			/*
