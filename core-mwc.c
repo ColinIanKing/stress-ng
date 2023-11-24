@@ -523,3 +523,16 @@ HOT OPTIMIZE3 uint64_t stress_mwc64modn_maybe_pwr2(const uint64_t max)
 	return ((max & mask) == 0) ?
 		(stress_mwc64() & mask) : stress_mwc64modn_nonzero(max);
 }
+
+/*
+ *  stress_rndbuf()
+ *	fill buffer with pseudorandom bytes
+ */
+HOT OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
+{
+	register char *ptr = (char *)buf;
+	register const char *end = ptr + len;
+
+	while (ptr < end)
+		*ptr++ = stress_mwc8();
+}

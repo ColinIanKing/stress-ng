@@ -95,7 +95,6 @@ extern void stress_cwd_readwriteable(void);
 extern const char *stress_get_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
 extern void stress_rndstr(char *str, size_t len);
-extern void stress_rndbuf(void *buf, const size_t len);
 extern WARN_UNUSED bool stress_little_endian(void);
 extern void stress_uint8rnd4(uint8_t *data, const size_t len);
 extern void stress_runinfo(void);
