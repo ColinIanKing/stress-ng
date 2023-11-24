@@ -551,14 +551,10 @@ static void stress_iomix_rd_wr_mmap(
 		}
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			if (mmaps[i] != MAP_FAILED) {
-				size_t j;
-				uint64_t sum = 0;
 				const uint8_t *buffer = (uint8_t *)mmaps[i];
 
 				/* Force page data to be read */
-				for (j = 0; j < page_size; j++)
-					sum += buffer[j];
-				stress_uint64_put(sum);
+				stress_uint8_put(buffer[0]);
 
 				stress_rndbuf(mmaps[i], page_size);
 				(void)shim_msync(mmaps[i], page_size,
