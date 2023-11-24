@@ -42,5 +42,6 @@ extern uint64_t stress_mwc64modn(const uint64_t max);
 extern uint64_t stress_mwc64modn_maybe_pwr2(const uint64_t max);
 
 extern void stress_rndbuf(void *buf, const size_t len);
+extern void stress_rndstr(char *str, size_t len);
 
 #endif

@@ -19,7 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
-#include "core-target-clones.h"
+#include "core-cpu-cache.h"
 #include "core-mwc.h"
 
 #if defined(HAVE_SYS_AUXV_H)
@@ -535,4 +535,46 @@ HOT OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
 
 	while (ptr < end)
 		*ptr++ = stress_mwc8();
+}
+
+/*
+ *  stress_rndstr()
+ *	generate pseudorandom string
+ */
+HOT OPTIMIZE3 void stress_rndstr(char *str, size_t len)
+{
+	/*
+	 * base64url alphabet.
+	 * Be careful if expanding this alphabet, some of this function's users
+	 * use it to generate random filenames.
+	 */
+	static const char alphabet[64] =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789-_";
+	register uint32_t r, mask;
+	register char *ptr, *ptr_end;
+
+	if (len == 0)
+		return;
+
+	shim_builtin_prefetch(alphabet);
+	ptr = str;
+	ptr_end = str + len - 1;
+	mask = 0xc0000000;
+
+	len--; /* Leave one byte for the terminator. */
+	r = stress_mwc32() | mask;
+	while (LIKELY(ptr < ptr_end)) {
+		/* If we don't have enough random bits in r, get more. */
+		/*
+		 * Use 6 bits from the 32-bit integer at a time.
+		 * This means 2 bits from each 32-bit integer are wasted.
+		 */
+		*(ptr++) = alphabet[r & 0x3F];
+		r >>= 6;
+		if (r == 0x3)
+			r = stress_mwc32() | mask;
+	}
+	*ptr = '\0';
 }
