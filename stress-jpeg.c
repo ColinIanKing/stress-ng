@@ -126,7 +126,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LIB_JPEG) &&	\
     defined(HAVE_LIBJPEG_H)
 
-static inline double OPTIMIZE3 plasma(const double x, const double y, const double time)
+static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(const double x, const double y, const double time)
 {
 	const double tau = 2 * M_PI;
 	double cx, cy;
@@ -163,9 +163,9 @@ static void OPTIMIZE3 stress_rgb_plasma(
 		double x;
 
 		for (x = 0.0, sx = 0; sx < x_max; x += dx, sx++) {
-			*ptr++ = (uint8_t)(127.0 * plasma(x, y, tx) + 127.0);
-			*ptr++ = (uint8_t)(127.0 * plasma(x, y, ty + x) + 127.0);
-			*ptr++ = (uint8_t)(127.0 * plasma(x, y, tz + y) + 127.0);
+			*ptr++ = (uint8_t)(127.0 * stress_plasma(x, y, tx) + 127.0);
+			*ptr++ = (uint8_t)(127.0 * stress_plasma(x, y, ty + x) + 127.0);
+			*ptr++ = (uint8_t)(127.0 * stress_plasma(x, y, tz + y) + 127.0);
 		}
 	}
 }
@@ -221,11 +221,11 @@ static void OPTIMIZE3 stress_rgb_gradient(
 	const int32_t	x_max,
 	const int32_t	y_max)
 {
-	double y = 0.0, dy = 256.0 / y_max;
+	float y = 0.0, dy = 256.0 / y_max;
 	register int sy;
 
 	for (sy = 0; sy < y_max; sy++, y += dy) {
-		double x = 0.0, dx = 256.0 / x_max;
+		float x = 0.0, dx = 256.0 / x_max;
 		register int sx;
 
 		for (sx = 0; sx < x_max; sx++, x += dx) {
