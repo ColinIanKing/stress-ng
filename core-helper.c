@@ -825,6 +825,28 @@ void stress_get_memlimits(
 	(void)fclose(fp);
 }
 
+/*
+ *  stress_get_gpu_freq_mhz()
+ *	get GPU frequency in MHz, set to 0.0 if not readable
+ */
+void stress_get_gpu_freq_mhz(double *gpu_freq)
+{
+	char buf[64];
+
+	*gpu_freq = 0.0;
+#if defined(__linux__)
+	if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
+		if (sscanf(buf, "%lf", gpu_freq) == 1)
+			return;
+	} else if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
+		if (sscanf(buf, "%lf", gpu_freq) == 1)
+			return;
+	} else {
+		*gpu_freq = 0.0;
+	}
+#endif
+}
+
 #if !defined(PR_SET_MEMORY_MERGE)
 #define PR_SET_MEMORY_MERGE	(67)
 #endif

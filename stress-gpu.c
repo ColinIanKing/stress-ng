@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-out-of-memory.h"
+#include "core-pthread.h"
 
 #if defined(HAVE_EGL_H)
 #include <EGL/egl.h>
@@ -45,6 +46,11 @@ static const stress_help_t help[] = {
 	{ NULL,	"gpu-ysize Y",		"specify framebuffer size y" },
 	{ NULL,	NULL,			NULL }
 };
+
+#if defined(HAVE_LIB_PTHREAD)
+static volatile double gpu_freq_sum;
+static volatile uint64_t gpu_freq_count;
+#endif
 
 static int stress_set_gpu_devnode(const char *opt)
 {
@@ -337,7 +343,6 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 {
 	if (texsize > 0) {
 		int i;
-
 		for (i = 0; stress_continue_flag() && (i < uploads); i++) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texsize,
 				     texsize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -508,6 +513,35 @@ static void stress_gpu_alarm_handler(int sig)
         }
 }
 
+#if defined(HAVE_LIB_PTHREAD)
+/*
+ *  stress_gpu_pthread()
+ *	sample gpu frequency every 1/10th second, scaled by
+ *	number of instances, so sample rate is always ~1/10th second
+ *	across all instances.
+ */
+static void *stress_gpu_pthread(void *arg)
+{
+	const stress_args_t *args = (const stress_args_t *)arg;
+	uint64_t sleep_usecs = 100000 * args->num_instances;
+	uint64_t start_sleep_usecs = 100000 * args->instance;
+
+	shim_usleep(start_sleep_usecs);
+	while (stress_continue(args)) {
+		double freq_mhz;
+
+		/* Do wait first, allow GPU to crank up load */
+		stress_get_gpu_freq_mhz(&freq_mhz);
+		if (freq_mhz > 0.0) {
+			gpu_freq_sum += freq_mhz;
+			gpu_freq_count++;
+		}
+		shim_usleep(sleep_usecs);
+	}
+	return NULL;
+}
+#endif
+
 static int stress_gpu_child(const stress_args_t *args, void *context)
 {
 	int frag_n = 0;
@@ -518,6 +552,24 @@ static int stress_gpu_child(const stress_args_t *args, void *context)
 	GLsizei uploads = 1;
 	const char *gpu_devnode = default_gpu_devnode;
 	struct sigaction old_action;
+	sigset_t set;
+#if defined(HAVE_LIB_PTHREAD)
+	pthread_t pthread;
+	int pret;
+	double rate;
+
+	gpu_freq_sum = 0.0;
+	gpu_freq_count = 0;
+#endif
+
+	/*
+	 *  Block SIGALRM, instead use sigpending
+	 *  in pthread or this process to check if
+	 *  SIGALRM has been sent.
+	 */
+	sigemptyset(&set);
+	sigaddset(&set, SIGALRM);
+	sigprocmask(SIG_BLOCK, &set, NULL);
 
 	(void)context;
 
@@ -541,6 +593,10 @@ static int stress_gpu_child(const stress_args_t *args, void *context)
 	if (ret != EXIT_SUCCESS)
 		goto deinit;
 
+#if defined(HAVE_LIB_PTHREAD)
+	pret = pthread_create(&pthread, NULL, stress_gpu_pthread, (void *)args);
+#endif
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	ret = sigsetjmp(jmp_env, 1);
@@ -556,9 +612,19 @@ static int stress_gpu_child(const stress_args_t *args, void *context)
 		if (glGetError() != GL_NO_ERROR)
 			return EXIT_NO_RESOURCE;
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while (!stress_sigalrm_pending() && stress_continue(args));
 
 finish:
+#if defined(HAVE_LIB_PTHREAD)
+	if (pret == 0) {
+		(void)pthread_cancel(pthread);
+		(void)pthread_join(pthread, NULL);
+
+		rate = (gpu_freq_count > 0) ? gpu_freq_sum / (double)gpu_freq_count : 0.0;
+		stress_metrics_set(args, 0, "MHz GPU frequency", rate, STRESS_HARMONIC_MEAN);
+	}
+#endif
+
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 
