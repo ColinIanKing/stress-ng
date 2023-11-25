@@ -192,8 +192,6 @@ static int stress_locka_contention(
 		rc = fcntl(fd, F_GETLK, &f);
 		if (rc < 0)
 			continue;
-		if (!stress_continue_flag())
-			break;
 
 		/* Locked OK, add to lock list */
 
