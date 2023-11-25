@@ -204,8 +204,6 @@ static int stress_lockf_contention(
 				return -1;
 			continue;
 		}
-		if (!stress_continue_flag())
-			break;
 
 		/* Locked OK, add to lock list */
 		lockf_info = stress_lockf_info_new();
