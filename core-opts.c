@@ -414,6 +414,7 @@ const struct option stress_long_options[] = {
 	{ "loop",		1,	0,	OPT_loop },
 	{ "loop-ops",		1,	0,	OPT_loop_ops },
 	{ "lsearch",		1,	0,	OPT_lsearch },
+	{ "lsearch-method",	1,	0,	OPT_lsearch_method },
 	{ "lsearch-ops",	1,	0,	OPT_lsearch_ops },
 	{ "lsearch-size",	1,	0,	OPT_lsearch_size },
 	{ "madvise",		1,	0,	OPT_madvise },

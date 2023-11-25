@@ -649,6 +649,7 @@ typedef enum {
 	OPT_loop_ops,
 
 	OPT_lsearch,
+	OPT_lsearch_method,
 	OPT_lsearch_ops,
 	OPT_lsearch_size,
 

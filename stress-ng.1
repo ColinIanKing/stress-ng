@@ -3493,6 +3493,11 @@ start N workers that linear search a unsorted array of 32 bit integers using
 lsearch(3). By default, there are 8192 elements in the array.  This is a
 useful method to exercise sequential access of memory and processor cache.
 .TP
+.B \-\-lsearch\-method [ lsearch\-libc | lsearch\-nonlibc ]
+select either the libc implementation of lsearch or a slightly optimized non-libc
+implementation of lsearch. The default is the libc implementation if it exists,
+otherwise the non-libc version.
+.TP
 .B \-\-lsearch\-ops N
 stop the lsearch workers after N bogo lsearch operations are completed.
 .TP

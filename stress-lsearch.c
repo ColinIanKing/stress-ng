@@ -19,10 +19,22 @@
  */
 #include "stress-ng.h"
 #include "core-sort.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SEARCH_H)
 #include <search.h>
 #endif
+
+typedef void * (*lfind_func_t)(const void *key, const void *base, size_t *nmemb, size_t size,
+				int (*compare)(const void *p1, const void *p2));
+typedef void * (*lsearch_func_t)(const void *key, void *base, size_t *nmemb, size_t size,
+				int (*compare)(const void *p1, const void *p2));
+
+typedef struct {
+	const char *name;
+	const lfind_func_t lfind_func;
+	const lsearch_func_t lsearch_func;
+} stress_lsearch_method_t;
 
 #define LSEARCH_SIZE_SHIFT	(20)
 #define MIN_LSEARCH_SIZE	(1 * KB)
@@ -30,11 +42,45 @@
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 static const stress_help_t help[] = {
-	{ NULL,	"lsearch N",	  "start N workers that exercise a linear search" },
-	{ NULL,	"lsearch-ops N",  "stop after N linear search bogo operations" },
-	{ NULL,	"lsearch-size N", "number of 32 bit integers to lsearch" },
-	{ NULL, NULL,		  NULL }
+	{ NULL,	"lsearch N",		"start N workers that exercise a linear search" },
+	{ NULL,	"lsearch-method M",	"select lsearch method [ lsearch-libc | lsearch-nonlibc ]" },
+	{ NULL,	"lsearch-ops N",	"stop after N linear search bogo operations" },
+	{ NULL,	"lsearch-size N",	"number of 32 bit integers to lsearch" },
+	{ NULL, NULL,			NULL }
 };
+
+static inline void OPTIMIZE3 * lfind_nonlibc(
+	const void *key,
+	const void *base,
+	size_t *nmemb,
+	size_t size,
+	int (*compare)(const void *p1, const void *p2))
+{
+	register size_t i = 0;
+	register const void *found = base;
+
+	while ((i < *nmemb) && ((*compare)(key, found) != 0)) {
+		i++;
+		found += size;
+	}
+	return (i < *nmemb) ? (void *)shim_unconstify_ptr(found) : NULL;
+}
+
+static void * OPTIMIZE3 lsearch_nonlibc(
+	const void *key,
+	void *base,
+	size_t *nmemb,
+	size_t size,
+	int (*compare)(const void *p1, const void *p2))
+{
+	register void *result = lfind(key, base, nmemb, size, compare);
+
+	if (!result) {
+		result = shim_memcpy(base + ((*nmemb) * size), key, size);
+		++(*nmemb);
+	}
+	return result;
+}
 
 /*
  *  stress_set_lsearch_size()
@@ -50,12 +96,37 @@ static int stress_set_lsearch_size(const char *opt)
 	return stress_set_setting("lsearch-size", TYPE_ID_UINT64, &lsearch_size);
 }
 
+static const stress_lsearch_method_t stress_lsearch_methods[] = {
+#if defined(HAVE_LSEARCH)
+	{ "lsearch-libc",	lfind,		lsearch },
+#endif
+	{ "lsearch-nonlibc",	lfind_nonlibc,	lsearch_nonlibc },
+};
+
+static int stress_set_lsearch_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_lsearch_methods); i++) {
+		if (strcmp(opt, stress_lsearch_methods[i].name) == 0) {
+			stress_set_setting("lsearch-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "lsearch-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_lsearch_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_lsearch_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_lsearch_method,	stress_set_lsearch_method },
 	{ OPT_lsearch_size,	stress_set_lsearch_size },
 	{ 0,			NULL }
 };
-
-#if defined(HAVE_LSEARCH)
 
 /*
  *  stress_lsearch()
@@ -64,9 +135,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_lsearch(const stress_args_t *args)
 {
 	int32_t *data, *root;
-	size_t i, max;
+	size_t i, max, lsearch_method = 0;
 	uint64_t lsearch_size = DEFAULT_LSEARCH_SIZE;
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	lsearch_func_t lsearch_func;
+	lfind_func_t lfind_func;
+
+	(void)stress_get_setting("lsearch-method", &lsearch_method);
+	lfind_func = stress_lsearch_methods[lsearch_method].lfind_func;
+	lsearch_func = stress_lsearch_methods[lsearch_method].lsearch_func;
 
 	if (!stress_get_setting("lsearch-size", &lsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -100,7 +177,7 @@ static int stress_lsearch(const stress_args_t *args)
 
 		/* Step #1, populate with data */
 		for (i = 0; stress_continue_flag() && (i < max); i++) {
-			VOID_RET(void *, lsearch(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32));
+			VOID_RET(void *, lsearch_func(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32));
 		}
 		/* Step #2, find */
 		stress_sort_compare_reset();
@@ -108,7 +185,7 @@ static int stress_lsearch(const stress_args_t *args)
 		for (i = 0; stress_continue_flag() && (i < n); i++) {
 			int32_t *result;
 
-			result = lfind(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32);
+			result = lfind_func(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n", args->name, i);
@@ -143,16 +220,3 @@ stressor_info_t stress_lsearch_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-
-#else
-
-stressor_info_t stress_lsearch_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without libc lsearch() support"
-};
-
-#endif
