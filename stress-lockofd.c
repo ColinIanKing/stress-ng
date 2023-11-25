@@ -191,8 +191,6 @@ static int stress_lockofd_contention(
 		rc = fcntl(fd, F_OFD_GETLK, &f);
 		if (rc < 0)
 			continue;
-		if (!stress_continue_flag())
-			break;
 
 		/* Locked OK, add to lock list */
 
