@@ -38,10 +38,11 @@ typedef struct {
 #define DEFAULT_BSEARCH_SIZE	(64 * KB)
 
 static const stress_help_t help[] = {
-	{ NULL,	"bsearch N",	  "start N workers that exercise a binary search" },
-	{ NULL,	"bsearch-ops N",  "stop after N binary search bogo operations" },
-	{ NULL,	"bsearch-size N", "number of 32 bit integers to bsearch" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	"bsearch N",	  	"start N workers that exercise a binary search" },
+	{ NULL,	"bsearch-method M",	"select bsearch method [ bsearch-libc | bsearch-nonlibc ]" },
+	{ NULL,	"bsearch-ops N",  	"stop after N binary search bogo operations" },
+	{ NULL,	"bsearch-size N", 	"number of 32 bit integers to bsearch" },
+	{ NULL,	NULL,			NULL }
 };
 
 /*
