@@ -170,26 +170,24 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 					idx = 0;
 
 				if (buf != MAP_FAILED) {
-					register uint64_t val = stress_mwc64();
-					register size_t k;
+					uint64_t rndval = stress_mwc64();
+					register const size_t stride = (page_size * 64) / sizeof(uint64_t);
+					register uint64_t *ptr, val;
+					const uint64_t *buf_end = (uint64_t *)(buf + sz);
 
 					if (mmaphuge_mlock)
 						(void)shim_mlock(buf, sz);
 
 					/* Touch every other 64 pages.. */
-					for (k = 0; k < sz; k += page_size * 64) {
-						register uint64_t *ptr64 = (uint64_t *)&buf[k];
-
-						*ptr64 = val + k;
+					for (val = rndval, ptr = (uint64_t *)buf; ptr < buf_end; ptr += stride, val++) {
+						*ptr = val;
 					}
 					/* ..and sanity check */
-					for (k = 0; stress_continue(args) && (k < sz); k += page_size * 64) {
-						register uint64_t *ptr64 = (uint64_t *)&buf[k];
-
-						if (*ptr64 != val + k) {
+					for (val = rndval, ptr = (uint64_t *)buf; ptr < buf_end; ptr += stride, val++) {
+						if (*ptr != val) {
 							pr_fail("%s: memory %p at offset 0x%zx check error, "
 								"got 0x%" PRIx64 ", expecting 0x%" PRIx64 "\n",
-								args->name, buf, k, *ptr64, val + k);
+								args->name, buf, (uint8_t *)ptr - buf, *ptr, val);
 							rc = EXIT_FAILURE;
 						}
 					}
