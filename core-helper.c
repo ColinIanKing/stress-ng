@@ -1120,7 +1120,7 @@ void stress_parent_died_alarm(void)
  */
 int stress_process_dumpable(const bool dumpable)
 {
-	int fd, rc = 0;
+	int rc = 0;
 
 #if defined(RLIMIT_CORE)
 	{
@@ -1161,14 +1161,15 @@ int stress_process_dumpable(const bool dumpable)
 	(void)prctl(PR_SET_DUMPABLE,
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
-	if ((fd = open("/proc/self/coredump_filter", O_WRONLY)) >= 0) {
-		char const *str =
-			dumpable ? "0x33" : "0x00";
 
-		if (write(fd, str, strlen(str)) < 0)
+#if defined(__linux__)
+	{
+		char const *str = dumpable ? "0x33" : "0x00";
+
+		if (stress_system_write("/proc/self/coredump_filter", str, strlen(str)) < 0)
 			rc = -1;
-		(void)close(fd);
 	}
+#endif
 	return rc;
 }
 
