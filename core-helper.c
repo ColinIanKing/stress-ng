@@ -809,20 +809,16 @@ void stress_get_memlimits(
 	size_t *freeswap,
 	size_t *totalswap)
 {
-	FILE *fp;
+	char buf[64];
 
 	(void)stress_get_meminfo(freemem, totalmem, freeswap, totalswap);
-
-	*shmall = 0;
-	fp = fopen("/proc/sys/kernel/shmall", "r");
-	if (!fp)
-		return;
-
-	if (fscanf(fp, "%zu", shmall) != 1) {
-		(void)fclose(fp);
-		return;
+#if defined(__linux__)
+	if (stress_system_read("/proc/sys/kernel/shmall", buf, sizeof(buf)) > 0) {
+		if (sscanf(buf, "%zu", shmall) == 1)
+			return;
 	}
-	(void)fclose(fp);
+#endif
+	*shmall = 0;
 }
 
 /*
@@ -833,7 +829,6 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 {
 	char buf[64];
 
-	*gpu_freq = 0.0;
 #if defined(__linux__)
 	if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
 		if (sscanf(buf, "%lf", gpu_freq) == 1)
@@ -841,10 +836,9 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 	} else if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
 		if (sscanf(buf, "%lf", gpu_freq) == 1)
 			return;
-	} else {
-		*gpu_freq = 0.0;
 	}
 #endif
+	*gpu_freq = 0.0;
 }
 
 #if !defined(PR_SET_MEMORY_MERGE)
