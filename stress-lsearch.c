@@ -21,7 +21,8 @@
 #include "core-sort.h"
 #include "core-builtin.h"
 
-#if defined(HAVE_SEARCH_H)
+#if defined(HAVE_SEARCH_H) &&	\
+    defined(HAVE_LSEARCH)
 #include <search.h>
 #endif
 
@@ -73,7 +74,7 @@ static void * OPTIMIZE3 lsearch_nonlibc(
 	size_t size,
 	int (*compare)(const void *p1, const void *p2))
 {
-	register void *result = lfind(key, base, nmemb, size, compare);
+	register void *result = lfind_nonlibc(key, base, nmemb, size, compare);
 
 	if (!result) {
 		result = shim_memcpy(base + ((*nmemb) * size), key, size);
@@ -97,7 +98,8 @@ static int stress_set_lsearch_size(const char *opt)
 }
 
 static const stress_lsearch_method_t stress_lsearch_methods[] = {
-#if defined(HAVE_LSEARCH)
+#if defined(HAVE_SEARCH_H) &&	\
+    defined(HAVE_LSEARCH)
 	{ "lsearch-libc",	lfind,		lsearch },
 #endif
 	{ "lsearch-nonlibc",	lfind_nonlibc,	lsearch_nonlibc },
