@@ -857,7 +857,7 @@ void stress_ksm_memory_merge(const int flag)
 	if ((flag >= 0) && (flag <= 1)) {
 		static int prev_flag = -1;
 
-		if (flag != prev_flag){
+		if (flag != prev_flag) {
 			VOID_RET(int, prctl(PR_SET_MEMORY_MERGE, flag));
 			prev_flag = flag;
 		}
