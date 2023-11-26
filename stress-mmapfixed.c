@@ -60,15 +60,13 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 	if (n_pages > PAGE_CHUNKS)
 		n_pages = PAGE_CHUNKS;
 
+	(void)shim_memset(vec, 0, PAGE_CHUNKS);
 	while (n > 0) {
 		int ret;
-		register size_t sz, j;
+		register const size_t sz = n_pages * page_size;
+		register size_t j;
 
-
-		sz = n_pages * page_size;
 		n -= n_pages;
-
-		(void)shim_memset(vec, 0, PAGE_CHUNKS);
 		ret = shim_mincore(addr, sz, vec);
 		if (UNLIKELY(ret == ENOSYS))
 			return false;	/* Dodgy, assume not in memory */
