@@ -2907,6 +2907,11 @@ start N workers that search a 80% full hash table using hsearch(3). By default,
 there are 8192 elements inserted into the hash table.  This is a useful method
 to exercise access of memory and processor cache.
 .TP
+.B \-\-hsearch\-method [ hsearch\-libc | hsearch\-nonlibc ]
+select either the libc implementation of hsearch or a slightly optimized non-libc
+implementation of hsearch. The default is the libc implementation if it exists,
+otherwise the non-libc version.
+.TP
 .B \-\-hsearch\-ops N
 stop the hsearch workers after N bogo hsearch operations are completed.
 .TP

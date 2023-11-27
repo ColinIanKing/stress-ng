@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_SEARCH_H)
 #include <search.h>
@@ -27,12 +28,117 @@
 #define MAX_HSEARCH_SIZE	(4 * MB)
 #define DEFAULT_HSEARCH_SIZE	(8 * KB)
 
+typedef int (*hcreate_func_t)(size_t nel);
+typedef ENTRY *(*hsearch_func_t)(ENTRY item, ACTION action);
+typedef void (*hdestroy_func_t)(void);
+
+typedef struct {
+	const char *name;
+	hcreate_func_t hcreate;
+	hsearch_func_t hsearch;
+	hdestroy_func_t hdestroy;
+} stress_hsearch_method_t;
+
 static const stress_help_t help[] = {
 	{ NULL,	"hsearch N",	  "start N workers that exercise a hash table search" },
 	{ NULL,	"hsearch-ops N",  "stop after N hash search bogo operations" },
 	{ NULL,	"hsearch-size N", "number of integers to insert into hash table" },
 	{ NULL,	NULL,		  NULL }
 };
+
+#if !(defined(HAVE_SEARCH_H) ||	\
+     defined(HAVE_HSEARCH))
+typedef struct {
+	char *key;
+	void *data;
+} ENTRY;
+#endif
+
+typedef struct {
+	uint32_t hash;
+	ENTRY entry;
+} hash_table_t;
+
+static hash_table_t *htable;
+static size_t htable_size;
+
+static int hcreate_nonlibc(size_t nel)
+{
+	if (nel < 3)
+		nel = 3;
+	for (nel |= 1; ; nel += 2) {
+		if (stress_is_prime64((uint64_t)nel))
+			break;
+	}
+	htable = calloc(nel, sizeof(*htable));
+	if (!htable) {
+		htable_size = 0;
+		errno = ENOMEM;
+		return 0;
+	}
+	htable_size = nel;
+	return 1;
+}
+
+static void hdestroy_nonlibc(void)
+{
+	free(htable);
+	htable = NULL;
+	htable_size = 0;
+}
+
+static ENTRY OPTIMIZE3 *hsearch_nonlibc(ENTRY entry, ACTION action)
+{
+	register uint32_t idx, idx_start;
+	register char *ptr = entry.key;
+
+	for (idx = 0; *ptr; ) {
+		idx += *(ptr++);
+		idx = shim_ror32n(idx, 5);
+	}
+	idx %= (uint32_t)htable_size;
+	if (idx == 0)
+		idx = 1;
+	idx_start = idx;
+
+	if (action == FIND) {
+		do {
+			if ((htable[idx].hash == idx) && (strcmp(htable[idx].entry.key, entry.key) == 0))
+				return &htable[idx].entry;
+			idx++;
+			if (idx >= htable_size)
+				idx = 1;
+		} while (idx != idx_start);
+		return NULL;
+	}
+	do {
+		register uint32_t hash = htable[idx].hash;
+
+		if (hash == 0) {
+			htable[idx].hash = idx;
+			htable[idx].entry = entry;
+			return &htable[idx].entry;
+		} else if ((hash == idx) && (strcmp(htable[idx].entry.key, entry.key) == 0)) {
+			htable[idx].hash = idx;
+			htable[idx].entry = entry;
+			return &htable[idx].entry;
+		}
+		idx++;
+		if (idx >= htable_size)
+			idx = 1;
+	} while (idx != idx_start);
+
+	return NULL;
+}
+
+static const stress_hsearch_method_t stress_hsearch_methods[] = {
+#if defined(HAVE_SEARCH_H) &&	\
+    defined(HAVE_HSEARCH)
+	{ "hsearch-libc",	hcreate,	 hsearch,	hdestroy },
+#endif
+	{ "hsearch-nonlibc",	hcreate_nonlibc, hsearch_nonlibc, hdestroy_nonlibc },
+};
+
 
 /*
  *  stress_set_hsearch_size()
@@ -48,12 +154,30 @@ static int stress_set_hsearch_size(const char *opt)
 	return stress_set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
 }
 
+static int stress_set_hsearch_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_hsearch_methods); i++) {
+		if (strcmp(opt, stress_hsearch_methods[i].name) == 0) {
+			stress_set_setting("hsearch-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "ssearch-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_hsearch_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_hsearch_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_hsearch_method,	stress_set_hsearch_method },
 	{ OPT_hsearch_size,	stress_set_hsearch_size },
 	{ 0,			NULL }
 };
-
-#if defined(HAVE_HSEARCH)
 
 /*
  *  stress_hsearch()
@@ -66,7 +190,15 @@ static int OPTIMIZE3 stress_hsearch(const stress_args_t *args)
 	int ret = EXIT_FAILURE;
 	char **keys;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	hsearch_func_t hsearch_func;
+	hcreate_func_t hcreate_func;
+	hdestroy_func_t hdestroy_func;
+	size_t hsearch_method = 0;
 
+	stress_get_setting("hsearch-method", &hsearch_method);
+	hcreate_func = stress_hsearch_methods[hsearch_method].hcreate;
+	hsearch_func = stress_hsearch_methods[hsearch_method].hsearch;
+	hdestroy_func = stress_hsearch_methods[hsearch_method].hdestroy;
 	if (!stress_get_setting("hsearch-size", &hsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hsearch_size = MAX_HSEARCH_SIZE;
@@ -77,7 +209,7 @@ static int OPTIMIZE3 stress_hsearch(const stress_args_t *args)
 	max = (size_t)hsearch_size;
 
 	/* Make hash table with 25% slack */
-	if (!hcreate(max + (max / 4))) {
+	if (!hcreate_func(max + (max / 4))) {
 		pr_fail("%s: hcreate of size %zd failed\n", args->name, max + (max / 4));
 		return EXIT_FAILURE;
 	}
@@ -103,7 +235,7 @@ static int OPTIMIZE3 stress_hsearch(const stress_args_t *args)
 		e.key = keys[i];
 		e.data = (void *)i;
 
-		if (hsearch(e, ENTER) == NULL) {
+		if (hsearch_func(e, ENTER) == NULL) {
 			pr_err("%s: cannot allocate new hash item\n", args->name);
 			goto free_all;
 		}
@@ -117,7 +249,7 @@ static int OPTIMIZE3 stress_hsearch(const stress_args_t *args)
 
 			e.key = keys[i];
 			e.data = NULL;	/* Keep Coverity quiet */
-			ep = hsearch(e, FIND);
+			ep = hsearch_func(e, FIND);
 			if (verify) {
 				if (ep == NULL) {
 					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
@@ -154,7 +286,7 @@ free_all:
 	free(keys);
 free_hash:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	hdestroy();
+	hdestroy_func();
 
 	return ret;
 }
@@ -166,16 +298,3 @@ stressor_info_t stress_hsearch_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-
-#else
-
-stressor_info_t stress_hsearch_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without libc hsearch() support"
-};
-
-#endif
