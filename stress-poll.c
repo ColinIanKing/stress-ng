@@ -75,19 +75,19 @@ static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, cons
 
 		ret = read(fd, &buf, sizeof(buf));
 		if (UNLIKELY(verify)) {
-			if (UNLIKELY(ret < 0)) {
-				if ((errno == EAGAIN) || (errno == EINTR))
-					continue;
-				pr_fail("%s: pipe read error detected, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				return ret;
-			} else if (LIKELY(ret > 0)) {
+			if (LIKELY(ret > 0)) {
 				if (UNLIKELY(buf != (uint16_t)n)) {
 					pr_fail("%s: pipe read error, "
 						"expecting different data on "
 						"pipe\n", args->name);
 					return ret;
 				}
+			} else if (UNLIKELY(ret < 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				pr_fail("%s: pipe read error detected, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				return ret;
 			}
 		}
 		return ret;
