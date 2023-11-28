@@ -501,6 +501,7 @@ typedef enum {
 	OPT_hrtimers_adjust,
 
 	OPT_hsearch,
+	OPT_hsearch_method,
 	OPT_hsearch_ops,
 	OPT_hsearch_size,
 

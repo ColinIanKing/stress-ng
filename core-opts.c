@@ -305,6 +305,7 @@ const struct option stress_long_options[] = {
 	{ "hrtimers-ops",	1,	0,	OPT_hrtimers_ops },
 	{ "help",		0,	0,	OPT_help },
 	{ "hsearch",		1,	0,	OPT_hsearch },
+	{ "hsearch-method",	1,	0,	OPT_hsearch_method },
 	{ "hsearch-ops",	1,	0,	OPT_hsearch_ops },
 	{ "hsearch-size",	1,	0,	OPT_hsearch_size },
 	{ "icache",		1,	0,	OPT_icache },
