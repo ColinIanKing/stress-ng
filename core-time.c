@@ -45,32 +45,34 @@ double PURE OPTIMIZE3 stress_timespec_to_double(const struct timespec *ts)
 	return (double)ts->tv_sec + ((double)ts->tv_nsec * ONE_BILLIONTH);
 }
 
-static OPTIMIZE3 double stress_time_now_timeval(void)
+static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 {
 	struct timeval now;
 
 	if (gettimeofday(&now, NULL) < 0)
-		return -1.0;
+		return -1;
 
-	return stress_timeval_to_double(&now);
+	*dnow = stress_timeval_to_double(&now);
+	return 0;
 }
 
-static OPTIMIZE3 double stress_time_now_timespec(void)
+static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
 {
 #if defined(HAVE_CLOCK_GETTIME) &&     \
     defined(CLOCK_MONOTONIC)
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
-		return -1.0;
+		return -1;
 
-	return stress_timespec_to_double(&ts);
+	*dnow = stress_timespec_to_double(&ts);
+	return 0;
 #else
-	return -1.0;
+	return 0;
 #endif
 }
 
-static double (*stress_time_now_func)(void) = stress_time_now_timespec;
+static int (*stress_time_now_func)(double *now) = stress_time_now_timespec;
 
 /*
  *  stress_time_now()
@@ -78,9 +80,9 @@ static double (*stress_time_now_func)(void) = stress_time_now_timespec;
  */
 double OPTIMIZE3 stress_time_now(void)
 {
-	const double now = stress_time_now_func();
+	double now;
 
-	if (LIKELY(now) >= 0.0)
+	if (LIKELY(stress_time_now_func(&now) == 0))
 		return now;
 
 	/*
@@ -92,10 +94,9 @@ double OPTIMIZE3 stress_time_now(void)
 		 *  Drop to older 1/1000000th second resolution clock
 		 */
 		stress_time_now_func = stress_time_now_timeval;
-		return stress_time_now_timeval();
+		if (LIKELY(stress_time_now_timeval(&now) == 0))
+			return now;
 	}
-
-	/* Unlikely, no time available! */
 	return -1.0;
 }
 
