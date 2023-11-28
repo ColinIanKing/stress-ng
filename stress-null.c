@@ -51,6 +51,9 @@ static int stress_null(const stress_args_t *args)
 	int metrics_count = 0;
 	bool null_write = false;
 	ssize_t ret;
+#if defined(__linux__)
+	int mmap_count = 0;
+#endif
 
 	(void)stress_get_setting("null-write", &null_write);
 
@@ -99,7 +102,7 @@ static int stress_null(const stress_args_t *args)
 	} else {
 		if (args->instance == 0)
                         pr_inf("%s: exercising /dev/null with writes, lseek, "
-				"ioctl, fcntl, fallocate and fdatasync; for "
+				"ioctl, fcntl, fallocate, fdatasync and mmap; for "
 				"just write benchmarking use --null-write\n",
 				args->name);
 		do {
@@ -167,7 +170,9 @@ static int stress_null(const stress_args_t *args)
 #endif
 
 #if defined(__linux__)
-			{
+			if (mmap_count++ > 500) {
+				mmap_count = 0;
+
 				const off_t off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
 				ptr = mmap(NULL, page_size, PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
