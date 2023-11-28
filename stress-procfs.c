@@ -295,12 +295,8 @@ static inline void stress_proc_rw(
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
 
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
-
+		if ((stress_time_now() - t_start) > threshold)
+			goto timeout_close;
 		/*
 		 *  Check if there any special features to exercise
 		 */
@@ -370,55 +366,35 @@ static inline void stress_proc_rw(
 				break;
 			i += sz;
 
-			if (stress_time_now() - t_start > threshold) {
-				timeout = true;
-				(void)close(fd);
-				goto next;
-			}
+			if ((stress_time_now() - t_start) > threshold)
+				goto timeout_close;
 		}
 		(void)close(fd);
 
 		/* Multiple 1 char sized reads */
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
 		for (i = 0; ; i++) {
 			if (!stress_continue_flag())
 				break;
+			if (((i & 0x0f) == 0) && ((stress_time_now() - t_start) > threshold))
+				goto timeout_close;
 			ret = read(fd, buffer, 1);
 			if (ret < 1)
 				break;
-			if (stress_time_now() - t_start > threshold) {
-				timeout = true;
-				(void)close(fd);
-				goto next;
-			}
 		}
 		(void)close(fd);
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
+		if ((stress_time_now() - t_start) > threshold)
+			goto timeout_close;
 		/*
 		 *  Zero sized reads
 		 */
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
-
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
 		/*
 		 *  Broken offset reads, see Linux commit
 		 *  3bfa7e141b0bbb818b25e0daafb65aee92e49ac4
@@ -486,11 +462,8 @@ mmap_test:
 			(void)munmap(ptr, page_size);
 		}
 
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
+		if ((stress_time_now() - t_start) > threshold)
+			goto timeout_close;
 
 #if defined(FIONREAD)
 		{
@@ -501,11 +474,8 @@ mmap_test:
 			 */
 			VOID_RET(int, ioctl(fd, FIONREAD, &nbytes));
 		}
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
+		if ((stress_time_now() - t_start) > threshold)
+			goto timeout_close;
 #endif
 
 #if defined(HAVE_POLL_H)
@@ -558,19 +528,15 @@ mmap_test:
 		if (pos == (off_t)-1)
 			goto err;
 
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
+		if ((stress_time_now() - t_start) > threshold)
+			goto timeout_close;
 
 		VOID_RET(ssize_t, read(fd, buffer, 1));
 err:
+		if ((stress_time_now() - t_start) > threshold)
+			goto timeout_close;
+
 		(void)close(fd);
-		if (stress_time_now() - t_start > threshold) {
-			timeout = true;
-			goto next;
-		}
 
 		if (writeable && ctxt->writeable) {
 			/*
@@ -614,6 +580,12 @@ next:
 				break;
 			loops--;
 		}
+		continue;
+
+timeout_close:
+		(void)close(fd);
+		timeout = true;
+		goto next;
 	}
 }
 
