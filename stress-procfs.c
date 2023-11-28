@@ -456,7 +456,11 @@ mmap_test:
 		 *  mmap it
 		 */
 		ptr = mmap(NULL, page_size, PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, fd, 0);
+#if defined(MAP_POPULATE)
+			MAP_POPULATE |
+#endif
+			MAP_SHARED | MAP_ANONYMOUS,
+			fd, 0);
 		if (ptr != MAP_FAILED) {
 			stress_uint8_put(*ptr);
 			(void)munmap(ptr, page_size);
