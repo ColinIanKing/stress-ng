@@ -123,6 +123,16 @@ static void stress_syncload_yield(void)
 }
 #endif
 
+#if defined(STRESS_ARCH_PPC64)
+static void stress_syncload_yield(void)
+{
+        __asm__ __volatile__("or 27,27,27;\n");
+        __asm__ __volatile__("or 27,27,27;\n");
+        __asm__ __volatile__("or 27,27,27;\n");
+        __asm__ __volatile__("or 27,27,27;\n");
+}
+#endif
+
 #if !defined(HAVE_COMPILER_TCC) &&	\
     defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_ASM_X86_RDRAND)
@@ -246,6 +256,9 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_pause,
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
+	stress_syncload_yield,
+#endif
+#if defined(STRESS_ARCH_PPC64)
 	stress_syncload_yield,
 #endif
 	stress_syncload_sched_yield,
