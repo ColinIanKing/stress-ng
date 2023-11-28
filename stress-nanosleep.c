@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-cpuidle.h"
 #include "core-pthread.h"
 
@@ -156,7 +157,7 @@ static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
 			dt_nsec -= nsec;
 
 			if (dt_nsec < 0) {
-				ctxt->underrun_nsec += (double)llabs(dt_nsec);
+				ctxt->underrun_nsec += (double)shim_llabs(dt_nsec);
 				ctxt->underrun_count += 1.0;
 			} else {
 				ctxt->overrun_nsec += (double)dt_nsec;

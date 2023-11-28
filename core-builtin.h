@@ -329,6 +329,12 @@
 #define shim_fabsl(x)	fabsl(x)
 #endif
 
+#if defined(HAVE_BUILTIN_LLABS)
+#define shim_llabs(x)	__builtin_llabs(x)
+#else
+#define shim_llabs(x)	llabs(x)
+#endif
+
 #if defined(HAVE_BUILTIN_RINT)
 #define shim_rint(x)	__builtin_rint(x)
 #else
