@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-bitops.h"
 #include "core-killpid.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
@@ -187,7 +188,7 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 #endif
 }
 
-static void OPTIMIZE3 stress_opcode_random(
+static inline void OPTIMIZE3 stress_opcode_random(
 	const size_t page_size,
 	void *ops_begin,
 	const void *ops_end,
@@ -198,6 +199,7 @@ static void OPTIMIZE3 stress_opcode_random(
 	(void)op;
 	(void)page_size;
 
+PRAGMA_UNROLL_N(8)
 	while (ops < (const uint32_t *)ops_end)
 		*(ops++) = stress_mwc32();
 }
