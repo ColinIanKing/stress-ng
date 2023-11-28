@@ -149,14 +149,14 @@ static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
 		struct timespec t2;
 
 		if (clock_gettime(CLOCK_MONOTONIC, &t2) == 0) {
-			long dt_nsec;
+			long long dt_nsec;
 
 			dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
 			dt_nsec += t2.tv_nsec - t1.tv_nsec;
 			dt_nsec -= nsec;
 
 			if (dt_nsec < 0) {
-				ctxt->underrun_nsec += (double)labs(dt_nsec);
+				ctxt->underrun_nsec += (double)llabs(dt_nsec);
 				ctxt->underrun_count += 1.0;
 			} else {
 				ctxt->overrun_nsec += (double)dt_nsec;
@@ -331,7 +331,7 @@ tidy:
 	overhead_nsec = 0.0;
 	for (i = 0; i < benchmark_loops; i++) {
 		struct timespec t1, t2;
-		long dt_nsec;
+		long long dt_nsec;
 
 		(void)clock_gettime(CLOCK_MONOTONIC, &t1);
 		(void)clock_gettime(CLOCK_MONOTONIC, &t2);
@@ -339,7 +339,7 @@ tidy:
 		dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
 		dt_nsec += t2.tv_nsec - t1.tv_nsec;
 
-		overhead_nsec += dt_nsec;
+		overhead_nsec += (double)dt_nsec;
 	}
 	overhead_nsec /= (double)benchmark_loops;
 
