@@ -243,8 +243,10 @@ static int stress_ring_pipe(const stress_args_t *args)
 		} else {
 			for (i = 0; stress_continue(args) && (i < n_pipes); i++) {
 				if (poll_fds[i].revents & POLLIN) {
-					const size_t j = (i + 1) % n_pipes;
 					double t;
+					register size_t j = (i + 1);
+
+					j = (j >= n_pipes) ? 0 : j;
 #if defined(HAVE_SPLICE)
 					if (ring_pipe_splice) {
 #if defined(SPLICE_F_MOVE)
@@ -261,8 +263,8 @@ static int stress_ring_pipe(const stress_args_t *args)
 							goto finish;
 						}
 						duration += stress_time_now() - t;
-						bytes += (double)sret;
 						stress_bogo_inc(args);
+						bytes += (double)sret;
 						continue;
 					}
 #endif
@@ -274,8 +276,8 @@ static int stress_ring_pipe(const stress_args_t *args)
 					if (UNLIKELY(sret < 0))
 						goto finish;
 					duration += stress_time_now() - t;
-					bytes += (double)sret;
 					stress_bogo_inc(args);
+					bytes += (double)sret;
 				}
 			}
 		}
