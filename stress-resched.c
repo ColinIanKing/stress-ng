@@ -44,7 +44,7 @@ static void MLOCKED_TEXT stress_resched_usr1_handler(int sig)
 		stress_continue_set_flag(false);
 }
 
-static void NORETURN stress_resched_child(
+static void OPTIMIZE3 NORETURN stress_resched_child(
 	const stress_args_t *args,
 	const int niceness,
 	const int max_niceness,
@@ -77,19 +77,16 @@ static void NORETURN stress_resched_child(
 
 	for (i = niceness; i < max_niceness; i++) {
 		int k;
+		register uint64_t *const yield_ptr = &yields[i];
 
 		for (k = 0; k < 1024; k++) {
 #if defined(HAVE_SCHEDULING) && 	\
     defined(HAVE_SCHED_SETSCHEDULER)
+			struct sched_param param;
 			size_t j;
 
+			(void)shim_memset(&param, 0, sizeof(param));
 			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
-				struct sched_param param;
-
-				if (!stress_continue(args))
-					break;
-
-				(void)shim_memset(&param, 0, sizeof(param));
 				param.sched_priority = 0;
 				if (sched_setscheduler(pid, normal_policies[j], &param) == 0) {
 					int ret;
@@ -105,15 +102,13 @@ static void NORETURN stress_resched_child(
 					}
 				}
 				VOID_RET(int, shim_sched_yield());
-				if (yields)
-					yields[i]++;
 				stress_bogo_inc(args);
+				(*yield_ptr)++;
 			}
 #else
 			VOID_RET(int, shim_sched_yield());
-			if (yields)
-				yields[i]++;
 			stress_bogo_inc(args);
+			(*yield_ptr)++;
 #endif
 		}
 
@@ -189,9 +184,16 @@ static int stress_resched(const stress_args_t *args)
 
 	yields_size = ((sizeof(*yields) * (size_t)pids_max) + args->page_size - 1) & ~(args->page_size - 1);
 	yields = (uint64_t *)mmap(NULL, yields_size, PROT_READ | PROT_WRITE,
+#if defined(MAP_POPULATE)
+				MAP_POPULATE |
+#endif
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (yields == MAP_FAILED)
-		yields = NULL;
+	if (yields == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap yield counter array, skipping stressor, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto free_pids;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -227,7 +229,7 @@ static int stress_resched(const stress_args_t *args)
 	/*
 	 *  Dump stats for just instance 0 to reduce output
 	 */
-	if ((yields != NULL) && (args->instance == 0)) {
+	if (args->instance == 0) {
 		uint64_t total_yields = 0;
 
 		for (i = 0; i < pids_max; i++)
@@ -236,7 +238,7 @@ static int stress_resched(const stress_args_t *args)
 		pr_block_begin();
 		for (i = 0; i < pids_max; i++) {
 			if (yields[i] > 0) {
-				double percent = 100.0 * ((double)yields[i] / (double)total_yields);
+				double percent = 100.0 * ((double)yields[i]/ (double)total_yields);
 
 				if (i == 0) {
 					pr_dbg("%s: prio %2d: %5.2f%% yields\n",
@@ -253,8 +255,7 @@ static int stress_resched(const stress_args_t *args)
 		pr_block_end();
 	}
 
-	if (yields != NULL)
-		(void)munmap((void *)yields, yields_size);
+	(void)munmap((void *)yields, yields_size);
 free_pids:
 	free(pids);
 
