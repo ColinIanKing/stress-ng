@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
 #include "core-pragma.h"
 #include "core-put.h"
 
@@ -150,6 +151,7 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 	uint8_t dataval = stress_mwc8();
 
 	for (ptr = head; ptr; ptr = ptr->next) {
+		shim_builtin_prefetch(ptr->next);
 		ptr->dataval = dataval;
 		(void)shim_memset(ptr->data, dataval, randlist_size);
 		dataval++;
@@ -158,11 +160,11 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 	}
 
 	for (ptr = head; ptr; ptr = ptr->next) {
-		if (verify && stress_randlist_bad_data(ptr, randlist_size)) {
-			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
-		}
+		shim_builtin_prefetch(ptr->next);
 		if (!stress_continue_flag())
 			break;
+		if (verify && stress_randlist_bad_data(ptr, randlist_size))
+			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
 	}
 }
 
