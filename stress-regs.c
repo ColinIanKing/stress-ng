@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-cpu.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_INT128_T)
@@ -141,10 +142,10 @@ static void OPTIMIZE0 stress_regs_helper_mmx(const stress_args_t *args, register
 {
 	__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
 	register __uint128_t xmm0 __asm__("xmm0") = v128;
-	register __uint128_t xmm1 __asm__("xmm1") = v128 >> 1;
-	register __uint128_t xmm2 __asm__("xmm2") = v128 << 1;
-	register __uint128_t xmm3 __asm__("xmm3") = v128 >> 2;
-	register __uint128_t xmm4 __asm__("xmm4") = v128 << 2;
+	register __uint128_t xmm1 __asm__("xmm1") = xmm0 >> 1;
+	register __uint128_t xmm2 __asm__("xmm2") = xmm0 << 1;
+	register __uint128_t xmm3 __asm__("xmm3") = xmm0 >> 2;
+	register __uint128_t xmm4 __asm__("xmm4") = xmm0 << 2;
 	register __uint128_t xmm5 __asm__("xmm5") = ~xmm0;
 	register __uint128_t xmm6 __asm__("xmm6") = ~xmm1;
 	register __uint128_t xmm7 __asm__("xmm7") = ~xmm2;
@@ -178,10 +179,10 @@ static void OPTIMIZE0 stress_regs_helper_sse(const stress_args_t *args, register
 {
 	__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
 	register __uint128_t xmm0  __asm__("xmm0")  = v128;
-	register __uint128_t xmm1  __asm__("xmm1")  = v128 >> 1;
-	register __uint128_t xmm2  __asm__("xmm2")  = v128 << 1;
-	register __uint128_t xmm3  __asm__("xmm3")  = v128 >> 2;
-	register __uint128_t xmm4  __asm__("xmm4")  = v128 << 2;
+	register __uint128_t xmm1  __asm__("xmm1")  = xmm0 >> 1;
+	register __uint128_t xmm2  __asm__("xmm2")  = xmm0 << 1;
+	register __uint128_t xmm3  __asm__("xmm3")  = xmm0 >> 2;
+	register __uint128_t xmm4  __asm__("xmm4")  = xmm0 << 2;
 	register __uint128_t xmm5  __asm__("xmm5")  = ~xmm0;
 	register __uint128_t xmm6  __asm__("xmm6")  = ~xmm1;
 	register __uint128_t xmm7  __asm__("xmm7")  = ~xmm2;
@@ -235,10 +236,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t rax __asm__("rax") = v;
-	register uint64_t rbx __asm__("rbx") = v >> 1;
-	register uint64_t rcx __asm__("rcx") = v << 1;
-	register uint64_t rdx __asm__("rdx") = v >> 2;
-	register uint64_t rsi __asm__("rsi") = v << 2;
+	register uint64_t rbx __asm__("rbx") = rax >> 1;
+	register uint64_t rcx __asm__("rcx") = rax << 1;
+	register uint64_t rdx __asm__("rdx") = rax >> 2;
+	register uint64_t rsi __asm__("rsi") = rax << 2;
 	register uint64_t rdi __asm__("rdi") = ~rax;
 	register uint64_t r8  __asm__("r8")  = ~rbx;
 	register uint64_t r9  __asm__("r9")  = ~rcx;
@@ -299,11 +300,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
-
 	register uint32_t eax __asm__("eax") = v32;
-	register uint32_t ecx __asm__("ecx") = v32 >> 1;
-	register uint32_t ebx __asm__("ebx") = v32 << 1;
-	register uint32_t edx __asm__("edx") = v32 >> 2;
+	register uint32_t ecx __asm__("ecx") = eax >> 1;
+	register uint32_t ebx __asm__("ebx") = eax << 1;
+	register uint32_t edx __asm__("edx") = eax >> 2;
 
 #define SHUFFLE_REGS()	\
 do {			\
@@ -332,12 +332,11 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
-
 	register uint32_t r4  __asm__("r4")  = v32;
-	register uint32_t r5  __asm__("r5")  = v32 >> 1;
-	register uint32_t r6  __asm__("r6")  = v32 << 1;
-	register uint32_t r7  __asm__("r7")  = v32 >> 2;
-	register uint32_t r8  __asm__("r8")  = v32 << 2;
+	register uint32_t r5  __asm__("r5")  = r4 >> 1;
+	register uint32_t r6  __asm__("r6")  = r4 << 1;
+	register uint32_t r7  __asm__("r7")  = r4 >> 2;
+	register uint32_t r8  __asm__("r8")  = r4 << 2;
 	register uint32_t r9  __asm__("r9")  = ~r4;
 	register uint32_t r10 __asm__("r10") = ~r5;
 	register uint32_t r11 __asm__("r11") = ~r6;
@@ -393,13 +392,12 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
-
 	register uint32_t d1 __asm__("d1") = v32;
-	register uint32_t d2 __asm__("d2") = v32 >> 1;
-	register uint32_t d3 __asm__("d3") = v32 << 1;
-	register uint32_t d4 __asm__("d4") = v32 >> 2;
-	register uint32_t d5 __asm__("d5") = v32 << 2;
-	register uint32_t d6 __asm__("d6") = v32 << 2;
+	register uint32_t d2 __asm__("d2") = d1 >> 1;
+	register uint32_t d3 __asm__("d3") = d1 << 1;
+	register uint32_t d4 __asm__("d4") = d1 >> 2;
+	register uint32_t d5 __asm__("d5") = d1 << 2;
+	register uint32_t d6 __asm__("d6") = d1 << 2;
 
 #define SHUFFLE_REGS()	\
 do {			\
@@ -432,12 +430,11 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
-
 	register uint32_t r2 __asm__("r2") = v32;
-	register uint32_t r3 __asm__("r3") = v32 >> 1;
-	register uint32_t r4 __asm__("r4") = v32 << 1;
-	register uint32_t r5 __asm__("r5") = v32 >> 2;
-	register uint32_t r6 __asm__("r6") = v32 << 2;
+	register uint32_t r3 __asm__("r3") = r2 >> 1;
+	register uint32_t r4 __asm__("r4") = r2 << 1;
+	register uint32_t r5 __asm__("r5") = r2 >> 2;
+	register uint32_t r6 __asm__("r6") = r2 << 2;
 	register uint32_t r7 __asm__("r7") = ~r2;
 	register uint32_t r8 __asm__("r8") = ~r3;
 	register uint32_t r9 __asm__("r9") = ~r4;
@@ -483,10 +480,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t s1  __asm__("s1")  = v;
-	register uint64_t s2  __asm__("s2")  = v >> 1;
-	register uint64_t s3  __asm__("s3")  = v << 1;
-	register uint64_t s4  __asm__("s4")  = v >> 2;
-	register uint64_t s5  __asm__("s5")  = v << 2;
+	register uint64_t s2  __asm__("s2")  = s1 >> 1;
+	register uint64_t s3  __asm__("s3")  = s1 << 1;
+	register uint64_t s4  __asm__("s4")  = s1 >> 2;
+	register uint64_t s5  __asm__("s5")  = s1 << 2;
 	register uint64_t s6  __asm__("s6")  = ~s1;
 	register uint64_t s7  __asm__("s7")  = ~s2;
 	register uint64_t s8  __asm__("s8")  = ~s3;
@@ -530,10 +527,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t t0  __asm__("$1")  = v;
-	register uint64_t t1  __asm__("$2")  = v >> 1;
-	register uint64_t t2  __asm__("$3")  = v << 1;
-	register uint64_t t3  __asm__("$4")  = v >> 2;
-	register uint64_t t4  __asm__("$5")  = v << 2;
+	register uint64_t t1  __asm__("$2")  = t0 >> 1;
+	register uint64_t t2  __asm__("$3")  = t0 << 1;
+	register uint64_t t3  __asm__("$4")  = t0 >> 2;
+	register uint64_t t4  __asm__("$5")  = t0 << 2;
 	register uint64_t t5  __asm__("$6")  = ~t0;
 	register uint64_t t6  __asm__("$7")  = ~t1;
 	register uint64_t t7  __asm__("$8")  = ~t2;
@@ -579,10 +576,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t r14 __asm__("r14") = v;
-	register uint64_t r15 __asm__("r15") = v >> 1;
-	register uint64_t r16 __asm__("r16") = v << 1;
-	register uint64_t r17 __asm__("r17") = v >> 2;
-	register uint64_t r18 __asm__("r18") = v << 2;
+	register uint64_t r15 __asm__("r15") = r14 >> 1;
+	register uint64_t r16 __asm__("r16") = r14 << 1;
+	register uint64_t r17 __asm__("r17") = r14 >> 2;
+	register uint64_t r18 __asm__("r18") = r14 << 2;
 	register uint64_t r19 __asm__("r19") = ~r14;
 	register uint64_t r20 __asm__("r20") = ~r15;
 	register uint64_t r21 __asm__("r21") = ~r16;
@@ -642,10 +639,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t l0 __asm__("l0") = v;
-	register uint64_t l1 __asm__("l1") = v >> 1;
-	register uint64_t l2 __asm__("l2") = v << 1;
-	register uint64_t l3 __asm__("l3") = v >> 2;
-	register uint64_t l4 __asm__("l4") = v << 2;
+	register uint64_t l1 __asm__("l1") = l0 >> 1;
+	register uint64_t l2 __asm__("l2") = l0 << 1;
+	register uint64_t l3 __asm__("l3") = l0 >> 2;
+	register uint64_t l4 __asm__("l4") = l0 << 2;
 	register uint64_t l5 __asm__("l5") = ~l0;
 	register uint64_t l6 __asm__("l6") = ~l1;
 	register uint64_t l7 __asm__("l7") = ~l2;
@@ -685,10 +682,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t s0 __asm__("s0") = v;
-	register uint64_t s1 __asm__("s1") = v >> 1;
-	register uint64_t s2 __asm__("s2") = v << 1;
-	register uint64_t s3 __asm__("s3") = v >> 2;
-	register uint64_t s4 __asm__("s4") = v << 2;
+	register uint64_t s1 __asm__("s1") = s0 >> 1;
+	register uint64_t s2 __asm__("s2") = s0 << 1;
+	register uint64_t s3 __asm__("s3") = s0 >> 2;
+	register uint64_t s4 __asm__("s4") = s0 << 2;
 	register uint64_t s5 __asm__("s5") = ~s0;
 	register uint64_t s6 __asm__("s6") = ~s1;
 	register uint64_t s7 __asm__("s7") = ~s2;
@@ -730,10 +727,10 @@ static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, reg
 	uint32_t v32 = (uint32_t)v;
 
 	register uint32_t s0 __asm__("s0") = v32;
-	register uint32_t s1 __asm__("s1") = v32 >> 1;
-	register uint32_t s2 __asm__("s2") = v32 << 1;
-	register uint32_t s3 __asm__("s3") = v32 >> 2;
-	register uint32_t s4 __asm__("s4") = v32 << 2;
+	register uint32_t s1 __asm__("s1") = s0 >> 1;
+	register uint32_t s2 __asm__("s2") = s0 << 1;
+	register uint32_t s3 __asm__("s3") = s0 >> 2;
+	register uint32_t s4 __asm__("s4") = s0 << 2;
 	register uint32_t s5 __asm__("s5") = ~s0;
 	register uint32_t s6 __asm__("s6") = ~s1;
 	register uint32_t s7 __asm__("s7") = ~s2;
@@ -773,10 +770,10 @@ do {			\
 static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t x0  __asm__("x0")  = v;
-	register uint64_t x1  __asm__("x1")  = v >> 1;
-	register uint64_t x2  __asm__("x2")  = v << 1;
-	register uint64_t x3  __asm__("x3")  = v >> 2;
-	register uint64_t x4  __asm__("x4")  = v << 2;
+	register uint64_t x1  __asm__("x1")  = x0 >> 1;
+	register uint64_t x2  __asm__("x2")  = x0 << 1;
+	register uint64_t x3  __asm__("x3")  = x0 >> 2;
+	register uint64_t x4  __asm__("x4")  = x0 << 2;
 	register uint64_t x5  __asm__("x5")  = ~x0;
 	register uint64_t x6  __asm__("x6")  = ~x1;
 	register uint64_t x7  __asm__("x7")  = ~x2;
@@ -868,10 +865,10 @@ static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, reg
 	uint32_t v32 = (uint32_t)v;
 
 	register uint32_t r0  __asm__("r0")  = v32;
-	register uint32_t r1  __asm__("r1")  = v32 >> 1;
-	register uint32_t r2  __asm__("r2")  = v32 << 1;
-	register uint32_t r3  __asm__("r3")  = v32 >> 2;
-	register uint32_t r4  __asm__("r4")  = v32 << 2;
+	register uint32_t r1  __asm__("r1")  = r0 >> 1;
+	register uint32_t r2  __asm__("r2")  = r0 << 1;
+	register uint32_t r3  __asm__("r3")  = r0 >> 2;
+	register uint32_t r4  __asm__("r4")  = r0 << 2;
 	register uint32_t r5  __asm__("r5")  = ~r0;
 	register uint32_t r6  __asm__("r6")  = ~r1;
 	register uint32_t r8  __asm__("r8")  = ~r2;
@@ -911,10 +908,10 @@ do {			\
 static void OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t r1  = v;
-	register uint64_t r2  = v >> 1;
-	register uint64_t r3  = v << 1;
-	register uint64_t r4  = v >> 2;
-	register uint64_t r5  = v << 2;
+	register uint64_t r2  = r1 >> 1;
+	register uint64_t r3  = r1 << 1;
+	register uint64_t r4  = r1 >> 2;
+	register uint64_t r5  = r1 << 2;
 	register uint64_t r6  = ~r1;
 	register uint64_t r7  = ~r2;
 	register uint64_t r8  = ~r3;
