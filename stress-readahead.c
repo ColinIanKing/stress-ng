@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 #define MIN_READAHEAD_BYTES	(1 * MB)
 #define MAX_READAHEAD_BYTES	(MAX_FILE_LIMIT)
@@ -184,6 +185,7 @@ seq_wr_retry:
 			goto close_finish;
 		}
 
+PRAGMA_UNROLL_N(8)
 		for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++)
 			buf[j] = (buffer_t)o + j;
 
@@ -243,6 +245,7 @@ rnd_rd_retry:
 				size_t j;
 				const off_t o = offsets[i] / BUF_SIZE;
 
+PRAGMA_UNROLL_N(8)
 				for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++) {
 					const buffer_t v = (buffer_t)o + j;
 
