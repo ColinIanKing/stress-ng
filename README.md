@@ -606,6 +606,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Towards Independent Run-time Cloud Monitoring](https://research.spec.org/icpe_proceedings/2021/companion/p21.pdf)
 * [FIRESTARTER 2: Dynamic Code Generation for Processor Stress Tests](https://tu-dresden.de/zih/forschung/ressourcen/dateien/projekte/firestarter/FIRESTARTER-2-Dynamic-Code-Generation-for-Processor-Stress-Tests.pdf?lang=en)
 * [Performance comparison between a Kubernetes cluster and an embedded system](http://www.diva-portal.se/smash/get/diva2:1569829/FULLTEXT01.pdf)
+* [Performance Exploration of Virtualization Systems](https://www.researchgate.net/publication/350061536_Performance_Exploration_of_Virtualization_Systems)
 
 2022:
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
@@ -647,6 +648,9 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Cloud White: Detecting and Estimating QoS Degradation of Latency-Critical Workloads in the Public Cloud](https://www.sciencedirect.com/science/article/pii/S0167739X22002734)
 * [Dynamic Resource Management for Cloud-native Bulk Synchronous Parallel Applications](http://www.dre.vanderbilt.edu/~gokhale/WWW/papers/ISORC23_BSP.pdf)
 * [Towards Serverless Optimization with In-place Scaling](https://arxiv.org/pdf/2311.09526.pdf)
+* [A Modular Approach to Design an Experimental Framework for Resource Management Research](https://assets.researchsquare.com/files/rs-3400308/v1_covered_90a108f8-065c-4e38-9c56-990424f66afd.pdf?c=1697164725)
+* [Targeted Deanonymization via the Cache Side Channel: Attacks and Defenses](https://leakuidatorplusteam.github.io/preprint.pdf)
+* [Validating Full-System RISC-V Simulator: A Systematic Approach](https://infoscience.epfl.ch/record/302433)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
