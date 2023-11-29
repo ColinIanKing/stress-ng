@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"remap N",		"start N workers exercising page remappings" },
@@ -240,8 +241,10 @@ static int stress_remap(const stress_args_t *args)
 		check_order(args, stride, data, remap_pages, order, "reverse");
 
 		/* random order pages */
+PRAGMA_UNROLL_N(4)
 		for (i = 0; i < remap_pages; i++)
 			order[i] = i;
+PRAGMA_UNROLL_N(4)
 		for (i = 0; i < remap_pages; i++) {
 			size_t tmp, j = stress_mwc16() & (remap_pages - 1);
 
@@ -257,6 +260,7 @@ static int stress_remap(const stress_args_t *args)
 		check_order(args, stride, data, remap_pages, order, "random");
 
 		/* all mapped to 1 page */
+PRAGMA_UNROLL_N(4)
 		for (i = 0; i < remap_pages; i++)
 			order[i] = 0;
 		if (UNLIKELY(remap_order(args, stride, data, remap_pages, order, page_size, remap_mlock, &duration, &count) < 0)) {
@@ -266,6 +270,7 @@ static int stress_remap(const stress_args_t *args)
 		check_order(args, stride, data, remap_pages, order, "all-to-1");
 
 		/* reorder pages back again */
+PRAGMA_UNROLL_N(4)
 		for (i = 0; i < remap_pages; i++)
 			order[i] = i;
 		if (UNLIKELY(remap_order(args, stride, data, remap_pages, order, page_size, remap_mlock, &duration, &count) < 0)) {
