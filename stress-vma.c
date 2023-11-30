@@ -137,8 +137,17 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		(void)close(fd[1]);
 
 		/* Not mapped or readable */
-		if ((ret < 0) && (err == EFAULT))
-			break;
+		if ((ret < 0) && (err == EFAULT)) {
+			void *mapped;
+
+			/* Is it actually mappable? */
+			mapped = mmap(addr, args->page_size * 16, PROT_READ | PROT_WRITE,
+					MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			if (mapped != MAP_FAILED) {
+				(void)munmap(mapped, args->page_size);
+				break;
+			}
+		}
 	}
 	return addr;
 }
@@ -152,14 +161,11 @@ static void *stress_vma_mmap(void *ptr)
 
 	while (stress_vma_continue(args)) {
 		static const int prots[] = {
-			PROT_NONE,
 			PROT_READ,
 			PROT_WRITE,
 			PROT_READ | PROT_WRITE,
 		};
 
-		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
-		const size_t size = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const int prot = prots[stress_mwc8modn(SIZEOF_ARRAY(prots))];
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
 		void *mapped;
@@ -171,7 +177,7 @@ static void *stress_vma_mmap(void *ptr)
 
 		/* Map and grow */
 		errno = 0;
-		mapped = mmap((void *)(data + offset), size, prot, flags, -1, 0);
+		mapped = mmap((void *)data, page_size, prot, flags, -1, 0);
 		if (mapped != MAP_FAILED)
 			stress_vma_metrics->metrics[STRESS_VMA_MMAP]++;
 	}
