@@ -161,6 +161,7 @@ static void *stress_vma_mmap(void *ptr)
 
 	while (stress_vma_continue(args)) {
 		static const int prots[] = {
+			PROT_NONE,
 			PROT_READ,
 			PROT_WRITE,
 			PROT_READ | PROT_WRITE,
