@@ -165,6 +165,7 @@ static void *stress_vma_mmap(void *ptr)
 			PROT_READ,
 			PROT_WRITE,
 			PROT_READ | PROT_WRITE,
+			PROT_READ | PROT_EXEC,
 		};
 
 		const int prot = prots[stress_mwc8modn(SIZEOF_ARRAY(prots))];
@@ -175,7 +176,17 @@ static void *stress_vma_mmap(void *ptr)
 #if defined(MAP_GROWSDOWN)
 		flags |= (stress_mwc1() ? MAP_GROWSDOWN : 0);
 #endif
-
+#if defined(MAP_LOCKED)
+		flags |= (stress_mwc1() ? MAP_LOCKED : 0);
+#endif
+#if defined(MAP_POPULATE)
+		flags |= (stress_mwc1() ? MAP_POPULATE : 0);
+#endif
+#if defined(MAP_NONBLOCK) &&	\
+    defined(MAP_POPULATE)
+		if (flags & MAP_POPULATE)
+			flags |= (stress_mwc1() ? MAP_NONBLOCK : 0);
+#endif
 		/* Map and grow */
 		errno = 0;
 		mapped = mmap((void *)data, page_size, prot, flags, -1, 0);
