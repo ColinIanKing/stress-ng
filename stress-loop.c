@@ -97,7 +97,7 @@ static int stress_loop_supported(const char *name)
  *  stress_loop()
  *	stress loopback device
  */
-static int stress_loop(const stress_args_t *args)
+static int stress_loop(stress_args_t *args)
 {
 	int ret, backing_fd, rc = EXIT_FAILURE;
 	char backing_file[PATH_MAX];

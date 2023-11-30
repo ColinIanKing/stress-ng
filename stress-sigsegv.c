@@ -252,7 +252,7 @@ static void stress_sigsegv_vdso(void)
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-static int stress_sigsegv(const stress_args_t *args)
+static int stress_sigsegv(stress_args_t *args)
 {
 	uint8_t *ro_ptr, *none_ptr;
 	NOCLOBBER int rc = EXIT_FAILURE;

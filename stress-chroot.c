@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_CHROOT)
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	stress_metrics_t metrics;
 	uint32_t	escape_flags;
 	ino_t 		rootpath_inode;
@@ -383,7 +383,7 @@ static const stress_chroot_test_func test_chroot_test_funcs[] = {
 };
 
 static void stress_chroot_report_escapes(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const chroot_shared_data_t *data)
 {
 	size_t i, j;
@@ -407,7 +407,7 @@ static void stress_chroot_report_escapes(
  *  stress_chroot()
  *	stress chroot system call
  */
-static int stress_chroot(const stress_args_t *args)
+static int stress_chroot(stress_args_t *args)
 {
 	size_t i = 0;
 	int fd, ret = EXIT_FAILURE;

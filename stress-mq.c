@@ -96,7 +96,7 @@ static void stress_mq_invalid_open(
  *  stress_mq
  *	stress POSIX message queues
  */
-static int stress_mq(const stress_args_t *args)
+static int stress_mq(stress_args_t *args)
 {
 	pid_t pid;
 	mqd_t mq = -1;

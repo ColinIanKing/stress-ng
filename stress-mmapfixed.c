@@ -103,7 +103,7 @@ static bool stress_mmapfixed_is_mapped(
 	return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
 }
 
-static int stress_mmapfixed_child(const stress_args_t *args, void *context)
+static int stress_mmapfixed_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 #if defined(HAVE_MREMAP) &&	\
@@ -245,7 +245,7 @@ next:
  *  stress_mmapfixed()
  *	stress mmap at fixed hinted addresses
  */
-static int stress_mmapfixed(const stress_args_t *args)
+static int stress_mmapfixed(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
 }

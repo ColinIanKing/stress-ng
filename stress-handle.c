@@ -61,7 +61,7 @@ static void free_mount_info(const int mounts)
  *  get_mount_info()
  *	parse mount information from /proc/self/mountinfo
  */
-static int get_mount_info(const stress_args_t *args)
+static int get_mount_info(stress_args_t *args)
 {
 	FILE *fp;
 	int mounts = 0;
@@ -112,7 +112,7 @@ static int get_mount_info(const stress_args_t *args)
  *	wrapper because the allocations may cause memory
  *	failures on high memory pressure environments.
  */
-static int stress_handle_child(const stress_args_t *args, void *context)
+static int stress_handle_child(stress_args_t *args, void *context)
 {
 	const int mounts = *((int *)context);
 	const int bad_fd = stress_get_bad_fd();
@@ -240,7 +240,7 @@ static int stress_handle_child(const stress_args_t *args, void *context)
  *	stress system by rapid open/close calls via
  *	name_to_handle_at and open_by_handle_at
  */
-static int stress_handle(const stress_args_t *args)
+static int stress_handle(stress_args_t *args)
 {
 	int mounts, ret;
 

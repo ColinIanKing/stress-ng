@@ -141,7 +141,7 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 }
 
 
-static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
+static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 {
 	stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
 	uint8_t *stack;
@@ -270,7 +270,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
  *  stress_rlimit
  *	stress by generating rlimit signals
  */
-static int stress_rlimit(const stress_args_t *args)
+static int stress_rlimit(stress_args_t *args)
 {
 	struct sigaction old_action_xcpu, old_action_xfsz, old_action_segv;
 	size_t i;

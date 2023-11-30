@@ -29,7 +29,7 @@
 #include <utime.h>
 #endif
 
-typedef int (*stress_open_func_t)(const stress_args_t *args, const char *temp_dir, const pid_t pid, double *duration, double *count);
+typedef int (*stress_open_func_t)(stress_args_t *args, const char *temp_dir, const pid_t pid, double *duration, double *count);
 
 static const stress_help_t help[] = {
 	{ "o N", "open N",		"start N workers exercising open/close" },
@@ -340,7 +340,7 @@ static inline int open_arg3(
 
 #if defined(O_CREAT)
 static int open_flag_perm(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -393,7 +393,7 @@ static int open_flag_perm(
 #endif
 
 static int open_dev_zero_rd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -430,7 +430,7 @@ static int open_dev_zero_rd(
 }
 
 static int open_dev_null_wr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -471,7 +471,7 @@ static int open_dev_null_wr(
 
 #if defined(O_TMPFILE)
 static int open_tmp_rdwr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -509,7 +509,7 @@ static int open_tmp_rdwr(
 
 #if defined(O_TMPFILE)
 static int open_tmpfile_no_rdwr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -528,7 +528,7 @@ static int open_tmpfile_no_rdwr(
     defined(O_RDWR) &&			\
     defined(N_NOCTTY)
 static int open_pt(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -545,7 +545,7 @@ static int open_pt(
 #if defined(O_TMPFILE) &&	\
     defined(O_EXCL)
 static int open_tmp_rdwr_excl(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -561,7 +561,7 @@ static int open_tmp_rdwr_excl(
 
 #if defined(O_DIRECTORY)
 static int open_dir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -577,7 +577,7 @@ static int open_dir(
 #if defined(O_DIRECTORY) &&	\
     defined(__linux__)
 static int open_dir_proc_self_fd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -593,7 +593,7 @@ static int open_dir_proc_self_fd(
 
 #if defined(O_PATH)
 static int open_path(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -608,7 +608,7 @@ static int open_path(
 
 #if defined(O_CREAT)
 static int open_create_eisdir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -624,7 +624,7 @@ static int open_create_eisdir(
 #if defined(O_DIRECT) &&	\
     defined(O_CREAT)
 static int open_direct(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -661,7 +661,7 @@ static int open_direct(
     defined(AT_FDCWD) &&	\
     defined(O_CREAT)
 static int open_with_openat_cwd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -721,7 +721,7 @@ static int open_with_openat_cwd(
     defined(O_DIRECTORY) &&	\
     defined(O_CREAT)
 static int open_with_openat_dir_fd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -759,7 +759,7 @@ static int open_with_openat_dir_fd(
     defined(HAVE_SYSCALL) &&		\
     defined(O_CREAT)
 static int open_with_openat2_cwd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -844,7 +844,7 @@ static int open_with_openat2_cwd(
 
 #if defined(__linux__)
 static int open_with_open_proc_self_fd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -868,7 +868,7 @@ static int open_with_open_proc_self_fd(
 #endif
 
 static int open_dup(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -893,7 +893,7 @@ static int open_dup(
 #if defined(O_CREAT) &&	\
     defined(O_TRUNC)
 static int open_rdonly_trunc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const pid_t pid,
 	double *duration,
@@ -1019,7 +1019,7 @@ static void stress_fd_dir(const char *path, double *duration, double *count)
  *  stress_open()
  *	stress system by rapid open/close calls
  */
-static int stress_open(const stress_args_t *args)
+static int stress_open(stress_args_t *args)
 {
 	int *fds, ret;
 	char path[PATH_MAX], temp_dir[PATH_MAX];

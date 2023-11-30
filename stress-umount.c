@@ -50,7 +50,7 @@ static int stress_umount_supported(const char *name)
  *  stress_umount_umount()
  *	umount a path with retries.
  */
-static void stress_umount_umount(const stress_args_t *args, const char *path, const uint64_t ns_delay)
+static void stress_umount_umount(stress_args_t *args, const char *path, const uint64_t ns_delay)
 {
 	int i;
 	int ret;
@@ -106,7 +106,7 @@ static void stress_umount_umount(const stress_args_t *args, const char *path, co
  *  stress_umount_read_proc_mounts()
  *	exercise reading of proc mounts
  */
-static void stress_umount_read_proc_mounts(const stress_args_t *args, const char *path)
+static void stress_umount_read_proc_mounts(stress_args_t *args, const char *path)
 {
 	(void)path;
 
@@ -133,7 +133,7 @@ static void stress_umount_read_proc_mounts(const stress_args_t *args, const char
  *  stress_umount_umounter()
  *	racy unmount, hammer time!
  */
-static void stress_umount_umounter(const stress_args_t *args, const char *path)
+static void stress_umount_umounter(stress_args_t *args, const char *path)
 {
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -151,7 +151,7 @@ static void stress_umount_umounter(const stress_args_t *args, const char *path)
  *	aggressively perform ramfs mounts, this can force out of memory
  *	conditions
  */
-static void stress_umount_mounter(const stress_args_t *args, const char *path)
+static void stress_umount_mounter(stress_args_t *args, const char *path)
 {
 	const uint64_t ramfs_size = 64 * KB;
 	int i = 0;
@@ -190,9 +190,9 @@ cleanup:
  *	spawn off child processes
  */
 static pid_t stress_umount_spawn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
-	void (*func)(const stress_args_t *args, const char *path))
+	void (*func)(stress_args_t *args, const char *path))
 {
 	pid_t pid;
 
@@ -224,7 +224,7 @@ again:
  *  stress_umount()
  *      stress unmounting
  */
-static int stress_umount(const stress_args_t *args)
+static int stress_umount(stress_args_t *args)
 {
 	pid_t pids[3] = { -1, -1, -1 };
 	int ret = EXIT_NO_RESOURCE;

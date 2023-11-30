@@ -111,7 +111,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 	siglongjmp(jmpbuf, 1);
 }
 
-static int stress_bad_altstack_child(const stress_args_t *args)
+static int stress_bad_altstack_child(stress_args_t *args)
 {
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
@@ -304,7 +304,7 @@ retry:
  *	a SIGSEGV when handling SIGSEGVs. The kernel
  *	should kill these.
  */
-static int stress_bad_altstack(const stress_args_t *args)
+static int stress_bad_altstack(stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS;
 #if defined(O_TMPFILE)

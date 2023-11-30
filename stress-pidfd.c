@@ -115,7 +115,7 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
  *  stress_pidfd
  *	stress signalfd reads
  */
-static int stress_pidfd(const stress_args_t *args)
+static int stress_pidfd(stress_args_t *args)
 {
 	const int bad_fd = stress_get_bad_fd();
 

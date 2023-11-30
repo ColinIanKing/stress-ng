@@ -88,7 +88,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_goto()
  *	stress instruction goto prediction
  */
-static int OPTIMIZE_GOTO stress_goto(const stress_args_t *args)
+static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 {
 	size_t i;
 	int rc = EXIT_SUCCESS, goto_direction;

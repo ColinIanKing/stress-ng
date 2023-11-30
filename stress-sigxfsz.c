@@ -45,7 +45,7 @@ static void MLOCKED_TEXT stress_sigxfsz_handler(int signum)
  *  stress_sigxfsz
  *	stress reading of /dev/zero using SIGXFSZ
  */
-static int stress_sigxfsz(const stress_args_t *args)
+static int stress_sigxfsz(stress_args_t *args)
 {
 	int ret, rc = EXIT_SUCCESS, fd;
 	double t_start, t_delta, rate;

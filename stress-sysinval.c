@@ -2365,7 +2365,7 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
  *	  crashes
  */
 static void syscall_permute(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int arg_num,
 	const stress_syscall_arg_t *stress_syscall_arg,
 	volatile bool *syscall_exercised)
@@ -2533,7 +2533,7 @@ timed_out:
  *  Call a system call in a child context so we don't clobber
  *  the parent
  */
-static inline int stress_do_syscall(const stress_args_t *args)
+static inline int stress_do_syscall(stress_args_t *args)
 {
 	pid_t pid;
 	int rc = 0;
@@ -2647,7 +2647,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 	return rc;
 }
 
-static int stress_sysinval_child(const stress_args_t *args, void *context)
+static int stress_sysinval_child(stress_args_t *args, void *context)
 {
 	(void)context;
 
@@ -2663,7 +2663,7 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
  *  stress_sysinval
  *	stress system calls with bad addresses
  */
-static int stress_sysinval(const stress_args_t *args)
+static int stress_sysinval(stress_args_t *args)
 {
 	int ret, rc = EXIT_NO_RESOURCE;
 	size_t i;

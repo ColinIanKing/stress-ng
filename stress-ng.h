@@ -165,6 +165,7 @@ typedef struct {
 	bool counter_ready;		/* ready flag */
 	bool run_ok;			/* stressor run w/o issues */
 	bool force_killed;		/* true if sent SIGKILL */
+	bool padding;			/* padding */
 } stress_counter_info_t;
 
 typedef struct {
@@ -181,11 +182,11 @@ typedef struct {
 
 /* stressor args */
 typedef struct {
-	stress_counter_info_t *ci;	/* counter info struct */
 	const char *name;		/* stressor name */
 	uint64_t max_ops;		/* max number of bogo ops */
-	const uint32_t instance;	/* stressor instance # */
-	const uint32_t num_instances;	/* number of instances */
+	stress_counter_info_t ci;	/* counter info struct */
+	uint32_t instance;		/* stressor instance # */
+	uint32_t num_instances;		/* number of instances */
 	pid_t pid;			/* stressor pid */
 	size_t page_size;		/* page size */
 	double time_end;		/* when to end */
@@ -400,7 +401,7 @@ typedef enum {
 
 /* stressor information */
 typedef struct stressor_info {
-	int (*stressor)(const stress_args_t *args);	/* stressor function */
+	int (*stressor)(stress_args_t *args);	/* stressor function */
 	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
 	void (*init)(void);		/* stressor init, NULL = ignore */
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
@@ -506,7 +507,7 @@ typedef struct {
 
 /* Per stressor statistics and accounting info */
 typedef struct stress_stats {
-	stress_counter_info_t ci;	/* counter info */
+	stress_args_t args;		/* stressor args */
 	double start;			/* wall clock start time */
 	double duration;		/* finish - start */
 	uint64_t counter_total;		/* counter total */
@@ -669,15 +670,13 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_continue_set_flag(const bool s
  *	the counter in a child and the child is force KILL'd then indicate
  *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(const stress_args_t *args, const uint64_t inc)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(stress_args_t *args, const uint64_t inc)
 {
-	register stress_counter_info_t * const ci = args->ci;
-
-	ci->counter_ready = false;
+	args->ci.counter_ready = false;
 	stress_asm_mb();
-	ci->counter += inc;
+	args->ci.counter += inc;
 	stress_asm_mb();
-	ci->counter_ready = true;
+	args->ci.counter_ready = true;
 }
 
 /*
@@ -688,26 +687,22 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(const stress_args_t *
  *	the counter in a child and the child is force KILL'd then indicate
  *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(const stress_args_t *args)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(stress_args_t *args)
 {
-	register stress_counter_info_t * const ci = args->ci;
-
-	ci->counter_ready = false;
+	args->ci.counter_ready = false;
 	stress_asm_mb();
-	ci->counter++;
+	args->ci.counter++;
 	stress_asm_mb();
-	ci->counter_ready = true;
+	args->ci.counter_ready = true;
 }
 
 /*
  *  stress_bogo_get()
  *	get the stessor bogo ops counter
  */
-static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(const stress_args_t *args)
+static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *args)
 {
-	register const stress_counter_info_t * const ci = args->ci;
-
-	return ci->counter;
+	return args->ci.counter;
 }
 
 /*
@@ -718,15 +713,13 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(const stress_args
  *	the counter in a child and the child is force KILL'd then indicate
  *	so with the stress_force_killed_bogo() call from the parent.
  */
-static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(const stress_args_t *args, const uint64_t val)
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(stress_args_t *args, const uint64_t val)
 {
-	register stress_counter_info_t * const ci = args->ci;
-
-	ci->counter_ready = false;
+	args->ci.counter_ready = false;
 	stress_asm_mb();
-	ci->counter = val;
+	args->ci.counter = val;
 	stress_asm_mb();
-	ci->counter_ready = true;
+	args->ci.counter_ready = true;
 }
 
 /*
@@ -735,16 +728,16 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_set(const stress_args_t *
  *	be ignored. Use only if the parent kills the child *and* the child
  *	was used to increment the bogo-op counter.
  */
-static inline void ALWAYS_INLINE stress_force_killed_bogo(const stress_args_t *args)
+static inline void ALWAYS_INLINE stress_force_killed_bogo(stress_args_t *args)
 {
-	args->ci->force_killed = true;
+	args->ci.force_killed = true;
 }
 
 /*
  *  stress_continue()
  *      returns true if we can keep on running a stressor
  */
-static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(const stress_args_t *args)
+static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(stress_args_t *args)
 {
 	if (UNLIKELY(!g_stress_continue_flag))
 		return false;
@@ -758,7 +751,7 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(const stress_args_t *
  *	add val to the stessor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
-static inline void stress_bogo_add_lock(const stress_args_t *args, void *lock, const int64_t val)
+static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const int64_t val)
 {
 	/*
 	 *  Failure in lock acquire, don't bump counter
@@ -776,7 +769,7 @@ static inline void stress_bogo_add_lock(const stress_args_t *args, void *lock, c
  *	increment the stessor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
-static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, const bool inc)
+static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const bool inc)
 {
 	bool ret;
 
@@ -803,7 +796,7 @@ static inline bool stress_bogo_inc_lock(const stress_args_t *args, void *lock, c
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
-extern void stress_metrics_set_const_check(const stress_args_t *args,
+extern void stress_metrics_set_const_check(stress_args_t *args,
 	const size_t idx, char *description, const bool const_description, const double value, const int mean_type);
 #if defined(HAVE_BUILTIN_CONSTANT_P)
 #define stress_metrics_set(args, idx, description, value, mean_type)	\

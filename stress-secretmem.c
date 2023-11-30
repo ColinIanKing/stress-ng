@@ -89,7 +89,7 @@ static bool stress_secretmem_unmap(
  *  stress_secretmem_child()
  *     OOMable secretmem stressor
  */
-static int stress_secretmem_child(const stress_args_t *args, void *context)
+static int stress_secretmem_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const size_t page_size3 = page_size * 3;
@@ -187,7 +187,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
  *  stress_secretmem()
  *	stress linux secretmem mappings
  */
-static int stress_secretmem(const stress_args_t *args)
+static int stress_secretmem(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_secretmem_child, STRESS_OOMABLE_QUIET);
 }

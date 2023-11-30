@@ -97,7 +97,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(IMB_FEATURE_AVX512_SKX)
 
 typedef void (*ipsec_func_t)(
-        const stress_args_t *args,
+        stress_args_t *args,
         struct IMB_MGR *mb_mgr,
         const uint8_t *data,
         const size_t data_len,
@@ -180,7 +180,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
  *  stress_ipsec_mb_features()
  *	get list of CPU feature bits
  */
-static uint64_t stress_ipsec_mb_features(const stress_args_t *args, const IMB_MGR *p_mgr)
+static uint64_t stress_ipsec_mb_features(stress_args_t *args, const IMB_MGR *p_mgr)
 {
 	const uint64_t features = p_mgr->features;
 
@@ -251,7 +251,7 @@ static inline struct IMB_JOB *stress_job_get_next(struct IMB_MGR *mb_mgr)
  *	check if jobs has completed, report error if not
  */
 static void stress_job_check_status(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *name,
 	const struct IMB_JOB *job,
 	int *jobs_done)
@@ -270,7 +270,7 @@ static void stress_job_check_status(
  *  	check if all the jobs have completed
  */
 static void stress_jobs_done(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *name,
 	const int jobs,
 	const int jobs_done)
@@ -303,7 +303,7 @@ static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const s
 #define SHA_DIGEST_SIZE		(64)
 
 static void stress_ipsec_sha(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -348,7 +348,7 @@ static void stress_ipsec_sha(
 }
 
 static void stress_ipsec_des(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -405,7 +405,7 @@ static void stress_ipsec_des(
 }
 
 static void stress_ipsec_cmac(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -460,7 +460,7 @@ static void stress_ipsec_cmac(
 }
 
 static void stress_ipsec_ctr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -518,7 +518,7 @@ static void stress_ipsec_ctr(
 #define MMAC_MD5_BLOCK_SIZE	(64)
 
 static void stress_ipsec_hmac_md5(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -589,7 +589,7 @@ static void stress_ipsec_hmac_md5(
 #define HMAC_SHA1_BLOCK_SIZE	(64)
 
 static void stress_ipsec_hmac_sha1(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -657,7 +657,7 @@ static void stress_ipsec_hmac_sha1(
 }
 
 static void stress_ipsec_hmac_sha512(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -730,7 +730,7 @@ static void stress_ipsec_hmac_sha512(
 }
 
 static void stress_ipsec_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -748,7 +748,7 @@ static stress_ipsec_funcs_t stress_ipsec_funcs[] = {
 };
 
 static void stress_ipsec_call_func(
-        const stress_args_t *args,
+        stress_args_t *args,
         struct IMB_MGR *mb_mgr,
         const uint8_t *data,
         const size_t data_len,
@@ -779,7 +779,7 @@ static void stress_ipsec_call_func(
  *	exercise all
  */
 static void stress_ipsec_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct IMB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -813,7 +813,7 @@ static int stress_set_ipsec_mb_method(const char *opt)
  *  stress_ipsec_mb()
  *      stress Intel ipsec_mb instruction
  */
-static int stress_ipsec_mb(const stress_args_t *args)
+static int stress_ipsec_mb(stress_args_t *args)
 {
 	IMB_MGR *mb_mgr = NULL;
 	uint64_t features;

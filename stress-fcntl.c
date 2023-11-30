@@ -83,7 +83,7 @@ static const int all_setfl_flags =
  *  check_return()
  *	sanity check fcntl() return for errors
  */
-static void check_return(const stress_args_t *args, const int ret, const char *cmd)
+static void check_return(stress_args_t *args, const int ret, const char *cmd)
 {
 	if (ret < 0) {
 		if ((errno != EINVAL) &&
@@ -100,7 +100,7 @@ static void check_return(const stress_args_t *args, const int ret, const char *c
  *  do_fcntl()
  */
 static int do_fcntl(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const int bad_fd,
 	const int path_fd)
@@ -731,7 +731,7 @@ ofd_lock_abort:	{ /* Nowt */ }
  *  stress_fcntl
  *	stress various fcntl calls
  */
-static int stress_fcntl(const stress_args_t *args)
+static int stress_fcntl(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd, rc = EXIT_FAILURE, retries = 0, path_fd;

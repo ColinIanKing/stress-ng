@@ -164,7 +164,7 @@ static void stress_memhotplug_mem_online(stress_mem_info_t *mem_info)
  *  stress_memhotplug()
  *	stress the linux memory hotplug subsystem
  */
-static int stress_memhotplug(const stress_args_t *args)
+static int stress_memhotplug(stress_args_t *args)
 {
 	DIR *dir;
 	struct dirent *d;

@@ -141,7 +141,7 @@ static void efi_lseek_read(const int fd, const off_t offset, const int whence)
 }
 
 static void stress_efi_sysfs_fd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const ssize_t n)
 {
@@ -196,7 +196,7 @@ static void stress_efi_sysfs_fd(
  *	read data from a raw efi sysfs entry
  */
 static int efi_get_data(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const char *varname,
 	const char *field,
@@ -249,7 +249,7 @@ err_vars:
 }
 
 static int efi_read_variable(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *data,
 	const size_t data_len,
 	const pid_t pid,
@@ -318,7 +318,7 @@ err_efi_vars:
  *	fetch a UEFI variable given its name via /sys/firmware/efi/vars
  */
 static int get_variable_sysfs_efi_vars(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	char *data,
 	const size_t data_len,
@@ -369,7 +369,7 @@ static int get_variable_sysfs_efi_vars(
  *	fetch a UEFI variable given its name via /sys/firmware/efi/efivars
  */
 static int get_variable_sysfs_efi_efivars(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	char *data,
 	const size_t data_len,
@@ -387,7 +387,7 @@ static int get_variable_sysfs_efi_efivars(
  *	read EFI variables
  */
 static int efi_vars_get(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	double *duration,
 	double *count)
@@ -468,7 +468,7 @@ static int stress_efivar_supported(const char *name)
  *  stress_efivar()
  *	stress that exercises the efi variables
  */
-static int stress_efivar(const stress_args_t *args)
+static int stress_efivar(stress_args_t *args)
 {
 	pid_t pid;
 	size_t sz;

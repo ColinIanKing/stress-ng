@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 
 static sigjmp_buf jmpbuf;
 
-typedef void (*nop_func_t)(const stress_args_t *args,
+typedef void (*nop_func_t)(stress_args_t *args,
 			   const bool flag,
 			   double *duration,
 			   double *count);
@@ -59,7 +59,7 @@ static stress_nop_instr_t *current_instr = NULL;
 
 #define STRESS_NOP_SPIN_OP(name, op)				\
 static void stress_nop_spin_ ## name(				\
-	const stress_args_t *args,				\
+	stress_args_t *args,				\
 	const bool flag,					\
 	double *duration,					\
 	double *count)						\
@@ -211,7 +211,7 @@ static inline void stress_op_s390_nopr(void)
 STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
 #endif
 
-static void stress_nop_random(const stress_args_t *args, const bool flag,
+static void stress_nop_random(stress_args_t *args, const bool flag,
 			      double *duration, double *count);
 
 static stress_nop_instr_t nop_instrs[] = {
@@ -259,7 +259,7 @@ static stress_nop_instr_t nop_instrs[] = {
 
 static inline void stress_nop_callfunc(
 	stress_nop_instr_t *instr,
-	const stress_args_t *args,
+	stress_args_t *args,
 	const bool flag,
 	double *duration,
 	double *count)
@@ -280,7 +280,7 @@ static inline void stress_nop_callfunc(
 }
 
 static void stress_nop_random(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const bool flag,
 	double *duration,
 	double *count)
@@ -334,7 +334,7 @@ static void NORETURN stress_sigill_nop_handler(int signum)
  *  stress_nop()
  *	stress that does lots of not a lot
  */
-static int stress_nop(const stress_args_t *args)
+static int stress_nop(stress_args_t *args)
 {
 	size_t nop_instr = 0;
 	NOCLOBBER stress_nop_instr_t *instr;

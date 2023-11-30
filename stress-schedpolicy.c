@@ -76,7 +76,7 @@ static const int policies[] = {
 #endif
 };
 
-static int stress_schedpolicy(const stress_args_t *args)
+static int stress_schedpolicy(stress_args_t *args)
 {
 	int policy = args->instance % SIZEOF_ARRAY(policies);
 	int old_policy = -1;

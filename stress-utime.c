@@ -65,7 +65,7 @@ static inline int shim_utime(const char *filename, const struct utimbuf *times)
  *  stress_utime()
  *	stress system by setting file utime
  */
-static int OPTIMIZE3 stress_utime(const stress_args_t *args)
+static int OPTIMIZE3 stress_utime(stress_args_t *args)
 {
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\

@@ -64,7 +64,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	remove all links
  */
 static void stress_link_unlink(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -94,7 +94,7 @@ static inline size_t random_mount(const int mounts_max)
  *	stress links, generic case
  */
 static int stress_link_generic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	int (*linkfunc)(const char *oldpath, const char *newpath),
 	const char *funcname,
 	const bool do_sync)
@@ -306,7 +306,7 @@ err_unlink:
  *  stress_link
  *	stress hard links
  */
-static int stress_link(const stress_args_t *args)
+static int stress_link(stress_args_t *args)
 {
 	bool link_sync = false;
 
@@ -319,7 +319,7 @@ static int stress_link(const stress_args_t *args)
  *  stress_symlink
  *	stress symbolic links
  */
-static int stress_symlink(const stress_args_t *args)
+static int stress_symlink(stress_args_t *args)
 {
 	bool symlink_sync = false;
 

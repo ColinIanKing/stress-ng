@@ -65,7 +65,7 @@ typedef struct {
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, const size_t n)
+static ssize_t OPTIMIZE3 pipe_read(stress_args_t *args, const int fd, const size_t n)
 {
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
@@ -99,7 +99,7 @@ static ssize_t OPTIMIZE3 pipe_read(const stress_args_t *args, const int fd, cons
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-static int OPTIMIZE3 stress_poll(const stress_args_t *args)
+static int OPTIMIZE3 stress_poll(stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS, parent_cpu;

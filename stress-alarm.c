@@ -44,7 +44,7 @@ static void stress_alarm_sigusr1_handler(int sig)
 	_exit(0);
 }
 
-static void stress_alarm_stress_bogo_inc(const stress_args_t *args)
+static void stress_alarm_stress_bogo_inc(stress_args_t *args)
 {
 	sigset_t set;
 
@@ -60,7 +60,7 @@ static void stress_alarm_stress_bogo_inc(const stress_args_t *args)
  *  stress_alarm
  *	stress alarm()
  */
-static int stress_alarm(const stress_args_t *args)
+static int stress_alarm(stress_args_t *args)
 {
 	pid_t pid;
 

@@ -376,7 +376,7 @@ PRAGMA_UNROLL_N(8)
  *  stress_jpeg()
  *	stress jpeg compression
  */
-static int stress_jpeg(const stress_args_t *args)
+static int stress_jpeg(stress_args_t *args)
 {
 	int32_t x_max = 512;
 	int32_t y_max = 512;

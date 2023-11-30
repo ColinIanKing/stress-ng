@@ -163,7 +163,7 @@ static inline void OPTIMIZE3 TARGET_CLONES stress_fma_reset_a(stress_fma_t *fma)
 	(void)shim_memcpy(fma->float_a2, fma->float_init, sizeof(fma->float_init));
 }
 
-static int stress_fma(const stress_args_t *args)
+static int stress_fma(stress_args_t *args)
 {
 	stress_fma_t *fma;
 	register size_t idx_b = 0, idx_c = 0;

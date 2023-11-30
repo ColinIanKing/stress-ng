@@ -91,7 +91,7 @@ static char *stress_chattr_flags_str(const unsigned long flags, char *str, const
  *  do_chattr()
  */
 static int do_chattr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *filename,
 	const unsigned long flags,
 	const unsigned long mask)
@@ -279,7 +279,7 @@ tidy_fd:
  *  stress_chattr
  *	stress chattr
  */
-static int stress_chattr(const stress_args_t *args)
+static int stress_chattr(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;

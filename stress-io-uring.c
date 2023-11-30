@@ -208,7 +208,7 @@ static void stress_io_uring_unmap_iovecs(stress_io_uring_file_t *io_uring_file)
  *	setup the io uring
  */
 static int stress_setup_io_uring(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint32_t io_uring_entries,
 	stress_io_uring_submit_t *submit)
 {
@@ -342,7 +342,7 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
  *	handle pending I/Os to complete
  */
 static inline int stress_io_uring_complete(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_io_uring_submit_t *submit)
 {
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
@@ -417,7 +417,7 @@ next_head:
  *	submit an io-uring opcode
  */
 static int stress_io_uring_submit(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const stress_io_uring_setup setup_func,
 	const stress_io_uring_file_t *io_uring_file,
 	stress_io_uring_submit_t *submit,
@@ -502,7 +502,7 @@ static void stress_io_uring_async_cancel_setup(
  *	try to cancel pending read/writes
  */
 static void stress_io_uring_cancel_rdwr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const stress_io_uring_file_t *io_uring_file,
 	stress_io_uring_submit_t *submit)
 {
@@ -953,7 +953,7 @@ static const char *stress_io_uring_opcode_name(const uint8_t opcode)
  *  stress_io_uring
  *	stress asynchronous I/O
  */
-static int stress_io_uring_child(const stress_args_t *args, void *context)
+static int stress_io_uring_child(stress_args_t *args, void *context)
 {
 	int ret, rc;
 	char filename[PATH_MAX];
@@ -1100,7 +1100,7 @@ clean:
  *  stress_io_uring
  *      stress asynchronous I/O
  */
-static int stress_io_uring(const stress_args_t *args)
+static int stress_io_uring(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_io_uring_child, STRESS_OOMABLE_NORMAL);
 }

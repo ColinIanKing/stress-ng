@@ -67,7 +67,7 @@ static void MLOCKED_TEXT stress_sigchld_handler(
  *	stress by generating SIGCHLD signals on exiting
  *	child processes.
  */
-static int stress_sigchld(const stress_args_t *args)
+static int stress_sigchld(stress_args_t *args)
 {
 	struct sigaction sa;
 

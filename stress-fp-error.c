@@ -76,7 +76,7 @@ static inline bool stress_double_same(
 }
 
 static void stress_fp_check(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *expr,
 	const double val,
 	const double val_expected,
@@ -119,7 +119,7 @@ static void stress_fp_check(
  *  stress_fp_error()
  *	stress floating point error handling
  */
-static int stress_fp_error(const stress_args_t *args)
+static int stress_fp_error(stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

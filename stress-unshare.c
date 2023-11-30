@@ -99,7 +99,7 @@ static const int clone_flags[] = {
  *  unshare with some error checking
  */
 static void check_unshare(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int flags,
 	const char *flags_name,
 	double *duration,
@@ -146,7 +146,7 @@ static inline bool enough_memory(void)
  *  stress_unshare()
  *	stress resource unsharing
  */
-static int stress_unshare(const stress_args_t *args)
+static int stress_unshare(stress_args_t *args)
 {
 #if defined(CLONE_NEWNET)
 	const uid_t euid = geteuid();

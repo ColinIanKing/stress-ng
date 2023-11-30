@@ -83,7 +83,7 @@ static int NORETURN reboot_clone_func(void *arg)
  *  stress_reboot()
  *	stress reboot system call
  */
-static int stress_reboot(const stress_args_t *args)
+static int stress_reboot(stress_args_t *args)
 {
 	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
 #if defined(HAVE_CLONE)

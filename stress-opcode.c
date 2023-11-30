@@ -370,7 +370,7 @@ static int stress_set_opcode_method(const char *name)
  *  stress_opcode
  *	stress with random opcodes
  */
-static int stress_opcode(const stress_args_t *args)
+static int stress_opcode(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc;

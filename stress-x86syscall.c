@@ -329,7 +329,7 @@ static int x86syscall_check_x86syscall_func(void)
  *  stress_x86syscall()
  *	stress x86 syscall instruction
  */
-static int stress_x86syscall(const stress_args_t *args)
+static int stress_x86syscall(stress_args_t *args)
 {
 	double t1, t2, t3, t4, dt, overhead_ns;
 	uint64_t counter;

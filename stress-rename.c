@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
  *	exercise renameat with various illegal argument combinations
  */
 static int exercise_renameat(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *old_name,
 	const int old_fd,
 	const char *new_name,
@@ -94,7 +94,7 @@ static int exercise_renameat(
  *	exercise renameat2 with various illegal argument combinations
  */
 static int exercise_renameat2(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *old_name,
 	const int oldfd,
 	const char *new_name,
@@ -211,7 +211,7 @@ static char *stress_basename(char *filename)
  *  stress_rename()
  *	stress system by renames
  */
-static int stress_rename(const stress_args_t *args)
+static int stress_rename(stress_args_t *args)
 {
 	char name1[PATH_MAX], name2[PATH_MAX];
 	char *oldname = name1, *newname = name2, *tmpname;

@@ -40,7 +40,7 @@ static const unsigned long personalities[] ALIGN64 = {
  *  stress_personality()
  *	stress system by rapid open/close calls
  */
-static int stress_personality(const stress_args_t *args)
+static int stress_personality(stress_args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(personalities);
 	bool *failed;

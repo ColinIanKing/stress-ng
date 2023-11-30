@@ -51,7 +51,7 @@ static void stress_mmapmany_read_proc_file(const char *path)
 }
 #endif
 
-static int stress_mmapmany_child(const stress_args_t *args, void *context)
+static int stress_mmapmany_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	long max = STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
@@ -136,7 +136,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
  *  stress_mmapmany()
  *	stress mmap with many pages being mapped
  */
-static int stress_mmapmany(const stress_args_t *args)
+static int stress_mmapmany(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_mmapmany_child, STRESS_OOMABLE_NORMAL);
 }

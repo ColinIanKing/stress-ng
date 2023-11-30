@@ -150,7 +150,7 @@ static void NORETURN MLOCKED_TEXT stress_bigheap_segvhandler(int signum)
 }
 #endif
 
-static int stress_bigheap_child(const stress_args_t *args, void *context)
+static int stress_bigheap_child(stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 	size_t bigheap_bytes = DEFAULT_BIGHEAP_BYTES;
@@ -335,7 +335,7 @@ finish:
  *  stress_bigheap()
  *	stress heap allocation
  */
-static int stress_bigheap(const stress_args_t *args)
+static int stress_bigheap(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }

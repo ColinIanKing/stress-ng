@@ -107,7 +107,7 @@ static const stress_mmaphuge_setting_t stress_mmap_settings[] =
 	{ 0, 2 * MB },			/* for THP */
 };
 
-static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
+static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 {
 	stress_mmaphuge_context_t *ctxt = (stress_mmaphuge_context_t *)v_ctxt;
 	const size_t page_size = args->page_size;
@@ -252,7 +252,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
  *  stress_mmaphuge()
  *	stress huge page mmappings and unmappings
  */
-static int stress_mmaphuge(const stress_args_t *args)
+static int stress_mmaphuge(stress_args_t *args)
 {
 	stress_mmaphuge_context_t ctxt;
 	char filename[PATH_MAX];

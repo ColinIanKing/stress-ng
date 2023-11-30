@@ -97,7 +97,7 @@ static const int illegal_modes[] = {
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
-static int stress_fallocate(const stress_args_t *args)
+static int stress_fallocate(stress_args_t *args)
 {
 	int fd_async = -1, ret, pipe_ret = -1, pipe_fds[2] = { -1, -1 };
 #if defined(O_SYNC)

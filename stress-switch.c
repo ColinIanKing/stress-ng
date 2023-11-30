@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
 	{ NULL, NULL, 			NULL }
 };
 
-typedef int (*switch_func_t)(const stress_args_t *args,
+typedef int (*switch_func_t)(stress_args_t *args,
 			     const uint64_t switch_freq,
 			     const uint64_t switch_delay,
 			     const uint64_t threshold);
@@ -71,7 +71,7 @@ static int stress_set_switch_freq(const char *opt)
  *	report context switch duration
  */
 static void stress_switch_rate(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *method,
 	const double t_start,
 	const double t_end,
@@ -91,7 +91,7 @@ static void stress_switch_rate(
  *	a specified frequency
  */
 static void stress_switch_delay(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t switch_delay,
 	const uint64_t threshold,
 	const double t_start,
@@ -138,7 +138,7 @@ static void stress_switch_delay(
  *	synchronization method
  */
 static int stress_switch_pipe(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t switch_freq,
 	const uint64_t switch_delay,
 	const uint64_t threshold)
@@ -293,7 +293,7 @@ finish:
  *	synchronization method
  */
 static int stress_switch_sem_sysv(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t switch_freq,
 	const uint64_t switch_delay,
 	const uint64_t threshold)
@@ -400,7 +400,7 @@ finish:
  *	stress by heavy context switching using message queue
  */
 static int stress_switch_mq(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t switch_freq,
 	const uint64_t switch_delay,
 	const uint64_t threshold)
@@ -525,7 +525,7 @@ static int stress_set_switch_method(const char *name)
  *  stress_switch
  *	stress by heavy context switching
  */
-static int stress_switch(const stress_args_t *args)
+static int stress_switch(stress_args_t *args)
 {
 	uint64_t switch_freq = 0, switch_delay, threshold;
 	size_t switch_method;

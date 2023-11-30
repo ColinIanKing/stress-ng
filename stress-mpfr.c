@@ -364,7 +364,7 @@ static const stress_mpfr_method_t stress_mpfr_methods[] = {
 	{ "sine",	stress_mpfr_sine },
 };
 
-static int stress_mpfr(const stress_args_t *args)
+static int stress_mpfr(stress_args_t *args)
 {
 	mpfr_prec_t precision;
 	uint32_t mpfr_precision = 1000;

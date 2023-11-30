@@ -163,7 +163,7 @@ static inline bool check_invalid_clock_id(const clockid_t id) {
  *  stress_clock()
  *	stress system by rapid clocking system calls
  */
-static int stress_clock(const stress_args_t *args)
+static int stress_clock(stress_args_t *args)
 {
 	bool test_invalid_timespec = true;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);

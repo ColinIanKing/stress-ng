@@ -68,7 +68,7 @@ static int stress_physpage_supported(const char *name)
     defined(HAVE_MTRR_SENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
 static void stress_physpage_mtrr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uintptr_t phys_addr,
 	const size_t page_size,
 	bool *success)
@@ -128,7 +128,7 @@ err:
 #endif
 
 static int stress_virt_to_phys(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t page_size,
 	const int fd_pm,
 	const int fd_pc,
@@ -250,7 +250,7 @@ err:
  *  stress_physpage()
  *	stress physical page lookups
  */
-static int stress_physpage(const stress_args_t *args)
+static int stress_physpage(stress_args_t *args)
 {
 	int fd_pm, fd_pc, fd_mem;
 	const size_t page_size = args->page_size;

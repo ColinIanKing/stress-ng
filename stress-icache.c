@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
      defined(HAVE_MPROTECT)
 
 static int icache_madvise_nohugepage(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	size_t size)
 {
@@ -63,7 +63,7 @@ static int icache_madvise_nohugepage(
 }
 
 static int NOINLINE icache_mprotect(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	size_t size,
 	int prot)
@@ -78,7 +78,7 @@ static int NOINLINE icache_mprotect(
 	return ret;
 }
 
-static int stress_icache_func(const stress_args_t *args, void *page, const size_t page_size)
+static int stress_icache_func(stress_args_t *args, void *page, const size_t page_size)
 {
 	volatile uint32_t *vaddr = (volatile uint32_t *)page;
 	stress_ret_func_t icache_func = (stress_ret_func_t)page;
@@ -145,7 +145,7 @@ static int stress_icache_func(const stress_args_t *args, void *page, const size_
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-static int stress_icache(const stress_args_t *args)
+static int stress_icache(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	void *page;

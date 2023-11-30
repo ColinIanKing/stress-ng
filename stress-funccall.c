@@ -65,7 +65,7 @@ STRESS_PRAGMA_NO_HARD_DFP
 #undef HAVE_Decimal128
 #endif
 
-typedef bool (*stress_funccall_func)(const stress_args_t *args);
+typedef bool (*stress_funccall_func)(stress_args_t *args);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
@@ -158,10 +158,10 @@ static inline double stress_mwcdouble(void)
 
 #define stress_funccall_type(type, rndfunc, cmpfunc)			\
 static bool NOINLINE 							\
-stress_funccall_ ## type(const stress_args_t *args);			\
+stress_funccall_ ## type(stress_args_t *args);			\
 									\
 static bool NOINLINE							\
-stress_funccall_ ## type(const stress_args_t *args)			\
+stress_funccall_ ## type(stress_args_t *args)			\
 {									\
 	register int ii;						\
 	type res_old;							\
@@ -1138,7 +1138,7 @@ stress_funcdeep_9(_Float128)
 stress_funccall_type(_Float128, (_Float128)stress_mwc64, cmp_fp)
 #endif
 
-static bool stress_funccall_all(const stress_args_t *args);
+static bool stress_funccall_all(stress_args_t *args);
 
 /*
  * Table of func call stress methods
@@ -1206,7 +1206,7 @@ static const stress_funccall_method_info_t stress_funccall_methods[] = {
 
 static stress_metrics_t stress_funccall_metrics[SIZEOF_ARRAY(stress_funccall_methods)];
 
-static bool stress_funccall_exercise(const stress_args_t *args, const size_t method)
+static bool stress_funccall_exercise(stress_args_t *args, const size_t method)
 {
 	bool success;
 	double t;
@@ -1223,7 +1223,7 @@ static bool stress_funccall_exercise(const stress_args_t *args, const size_t met
 	return success;
 }
 
-static bool stress_funccall_all(const stress_args_t *args)
+static bool stress_funccall_all(stress_args_t *args)
 {
 	size_t i;
 	bool success = true;
@@ -1262,7 +1262,7 @@ static int stress_set_funccall_method(const char *name)
  *  stress_funccall()
  *	stress various argument sized function calls
  */
-static int stress_funccall(const stress_args_t *args)
+static int stress_funccall(stress_args_t *args)
 {
 	size_t funccall_method = 0;
 	bool success;

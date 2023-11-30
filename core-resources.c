@@ -134,7 +134,7 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
  *	resource allocations
  */
 size_t stress_resources_allocate(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_resources_t *resources,
         const size_t num_resources,
 	const size_t pipe_size,
@@ -631,7 +631,7 @@ size_t stress_resources_allocate(
  *	resource frees
  */
 void stress_resources_free(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_resources_t *resources,
         const size_t num_resources)
 {

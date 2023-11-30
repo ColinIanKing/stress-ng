@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
  *  stress on sync()
  *	stress system by IO sync calls
  */
-static int stress_io(const stress_args_t *args)
+static int stress_io(stress_args_t *args)
 {
 #if defined(HAVE_SYNCFS)
 	int i, fd, n_mnts;

@@ -74,7 +74,7 @@ typedef struct {
 	double count;		/* total nodes exercised */
 } stress_tree_metrics_t;
 
-typedef void (*stress_tree_func)(const stress_args_t *args,
+typedef void (*stress_tree_func)(stress_args_t *args,
 				 const size_t n,
 				 struct tree_node *data,
 				 stress_tree_metrics_t *metrics);
@@ -183,7 +183,7 @@ RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 
 static void OPTIMIZE3 stress_tree_rb(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics)
@@ -253,7 +253,7 @@ SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void OPTIMIZE3 stress_tree_splay(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics)
@@ -353,7 +353,7 @@ static void OPTIMIZE3 TARGET_CLONES binary_remove_tree(struct tree_node *node)
 }
 
 static void OPTIMIZE3 stress_tree_binary(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics)
@@ -558,7 +558,7 @@ static void OPTIMIZE3 avl_remove_tree(struct tree_node *node)
 }
 
 static void OPTIMIZE3 stress_tree_avl(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics)
@@ -778,7 +778,7 @@ static inline bool OPTIMIZE3 btree_find(btree_node_t *root, const uint32_t value
 }
 
 static void stress_tree_btree(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics)
@@ -831,7 +831,7 @@ PRAGMA_UNROLL_N(4)
 }
 
 static void stress_tree_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics);
@@ -855,7 +855,7 @@ static const stress_tree_method_info_t stress_tree_methods[] = {
 static stress_tree_metrics_t stress_tree_metrics[SIZEOF_ARRAY(stress_tree_methods)];
 
 static void stress_tree_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
 	stress_tree_metrics_t *metrics)
@@ -924,7 +924,7 @@ PRAGMA_UNROLL_N(4)
  *  stress_tree()
  *	stress tree
  */
-static int stress_tree(const stress_args_t *args)
+static int stress_tree(stress_args_t *args)
 {
 	uint64_t tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *nodes;

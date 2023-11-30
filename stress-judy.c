@@ -73,7 +73,7 @@ static inline OPTIMIZE3 Word_t gen_index(const Word_t idx)
  *  stress_judy()
  *	stress a judy array, exercises cache/memory
  */
-static int OPTIMIZE3 stress_judy(const stress_args_t *args)
+static int OPTIMIZE3 stress_judy(stress_args_t *args)
 {
 	uint64_t judy_size = DEFAULT_JUDY_SIZE;
 	size_t n;

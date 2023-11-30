@@ -111,7 +111,7 @@ static int stress_set_udp_if(const char *name)
 }
 
 static int OPTIMIZE3 stress_udp_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const int udp_domain,
 	const int udp_proto,
@@ -312,7 +312,7 @@ child_die:
 }
 
 static int OPTIMIZE3 stress_udp_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const pid_t client_pid,
 	const int udp_domain,
@@ -447,7 +447,7 @@ die:
  *  stress_udp
  *	stress by heavy udp ops
  */
-static int stress_udp(const stress_args_t *args)
+static int stress_udp(stress_args_t *args)
 {
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;

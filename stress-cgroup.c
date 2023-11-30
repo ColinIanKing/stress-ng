@@ -118,7 +118,7 @@ static int stress_cgroup_mounted_state(const char *path)
  *  stress_cgroup_umount()
  *	umount a path with retries.
  */
-static void stress_cgroup_umount(const stress_args_t *args, const char *path)
+static void stress_cgroup_umount(stress_args_t *args, const char *path)
 {
 	int i;
 	int ret;
@@ -394,7 +394,7 @@ static void stress_cgroup_new_group(const char *realpathname)
  *	aggressively perform cgroup mounts, this can force out of memory
  *	situations
  */
-static int stress_cgroup_child(const stress_args_t *args)
+static int stress_cgroup_child(stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
@@ -449,7 +449,7 @@ cleanup:
  *  stress_cgroup_mount()
  *      stress cgroup mounting
  */
-static int stress_cgroup_mount(const stress_args_t *args)
+static int stress_cgroup_mount(stress_args_t *args)
 {
 	int pid;
 

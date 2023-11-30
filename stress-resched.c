@@ -45,7 +45,7 @@ static void MLOCKED_TEXT stress_resched_usr1_handler(int sig)
 }
 
 static void OPTIMIZE3 NORETURN stress_resched_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int niceness,
 	const int max_niceness,
 	uint64_t *yields)
@@ -125,7 +125,7 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
  *	start a child process that will re-nice itself
  */
 static void stress_resched_spawn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	pid_t *pids,
 	const int index,
 	const int max_prio,
@@ -147,7 +147,7 @@ static void stress_resched_spawn(
  *  stress on sched_resched()
  *	stress system by sched_resched
  */
-static int stress_resched(const stress_args_t *args)
+static int stress_resched(stress_args_t *args)
 {
 	pid_t *pids;
 	int rc = EXIT_SUCCESS;

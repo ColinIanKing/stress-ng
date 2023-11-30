@@ -29,7 +29,7 @@ static const stress_help_t help[] = {
 
 #define MMAP_MAX	(32768)
 
-static int stress_msyncmany_child(const stress_args_t *args, void *context)
+static int stress_msyncmany_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	long max = sysconf(_SC_MAPPED_FILES);
@@ -119,7 +119,7 @@ finish:
  *  stress_msyncmany()
  *	stress mmap with many pages being mapped
  */
-static int stress_msyncmany(const stress_args_t *args)
+static int stress_msyncmany(stress_args_t *args)
 {
 	int ret, fd;
 	char filename[PATH_MAX];

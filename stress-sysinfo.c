@@ -55,7 +55,7 @@ static const stress_help_t help[] = {
  *  stress on system information
  *	stress system by rapid fetches of system information
  */
-static int stress_sysinfo(const stress_args_t *args)
+static int stress_sysinfo(stress_args_t *args)
 {
 	int n_mounts;
 	const int verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);

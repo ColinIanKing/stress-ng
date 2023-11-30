@@ -183,7 +183,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_hsearch()
  *	stress hsearch
  */
-static int OPTIMIZE3 stress_hsearch(const stress_args_t *args)
+static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 {
 	uint64_t hsearch_size = DEFAULT_HSEARCH_SIZE;
 	size_t i, max;

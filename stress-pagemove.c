@@ -66,7 +66,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	report remap failure message
  */
 static void stress_pagemove_remap_fail(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint8_t *from,
 	const uint8_t *to)
 {
@@ -74,7 +74,7 @@ static void stress_pagemove_remap_fail(
 		args->name, from, to, errno, strerror(errno));
 }
 
-static int stress_pagemove_child(const stress_args_t *args, void *context)
+static int stress_pagemove_child(stress_args_t *args, void *context)
 {
 	size_t sz, pages, pagemove_bytes = DEFAULT_PAGE_MOVE_BYTES;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -256,7 +256,7 @@ fail:
  *  stress_pagemove()
  *	stress mmap
  */
-static int stress_pagemove(const stress_args_t *args)
+static int stress_pagemove(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_pagemove_child, STRESS_OOMABLE_NORMAL);
 }

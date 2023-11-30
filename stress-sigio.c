@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 static volatile int got_err;
 static volatile uint64_t async_sigs;
 static int rd_fd;
-static const stress_args_t *sigio_args;
+static stress_args_t *sigio_args;
 static pid_t pid;
 static double time_end;
 static char *rd_buffer;
@@ -86,7 +86,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
  *  stress_sigio
  *	stress reading of /dev/zero using SIGIO
  */
-static int stress_sigio(const stress_args_t *args)
+static int stress_sigio(stress_args_t *args)
 {
 	int ret, rc = EXIT_SUCCESS, fds[2], flags = -1, parent_cpu;
 	double t_start, t_delta, rate;

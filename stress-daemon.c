@@ -62,7 +62,7 @@ static void daemon_wait_pid(const pid_t pid, const bool daemon_wait)
  *	fork off a child and let the parent die
  */
 static int stress_make_daemon(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const bool daemon_wait)
 {
@@ -165,7 +165,7 @@ err:	(void)close(fd);
  *  stress_daemon()
  *	stress by multiple daemonizing forks
  */
-static int stress_daemon(const stress_args_t *args)
+static int stress_daemon(stress_args_t *args)
 {
 	int fds[2], rc = EXIT_SUCCESS;
 	pid_t pid;

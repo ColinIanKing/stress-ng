@@ -112,7 +112,7 @@ static const int policies[] = {
 #endif
 };
 
-static inline void stress_schedmix_waste_time(const stress_args_t *args)
+static inline void stress_schedmix_waste_time(stress_args_t *args)
 {
 	int i, n, status;
 	pid_t pid;
@@ -313,7 +313,7 @@ static void stress_schedmix_itimer_handler(int signum)
 }
 #endif
 
-static int stress_schedmix_child(const stress_args_t *args)
+static int stress_schedmix_child(stress_args_t *args)
 {
 	int old_policy = -1;
 
@@ -469,7 +469,7 @@ case_sched_fifo:
 	return EXIT_SUCCESS;
 }
 
-static int stress_schedmix(const stress_args_t *args)
+static int stress_schedmix(stress_args_t *args)
 {
 	pid_t pids[MAX_SCHEDMIX_PROCS];
 	size_t i;

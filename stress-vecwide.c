@@ -149,7 +149,7 @@ static stress_vecwide_funcs_t stress_vecwide_funcs[] = {
 #endif
 };
 
-static int stress_vecwide(const stress_args_t *args)
+static int stress_vecwide(stress_args_t *args)
 {
 	static vec_args_t *vec_args;
 	size_t i;

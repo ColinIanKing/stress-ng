@@ -71,7 +71,7 @@ static stress_hash_table_t *sysfs_hash_table;
 static uint64_t hash_items = 0;
 
 typedef struct {
-	const stress_args_t *args;	/* stressor args */
+	stress_args_t *args;	/* stressor args */
 	int kmsgfd;			/* /dev/kmsg file descriptor */
 	bool sys_admin;			/* true if sys admin capable */
 	char sysfs_path[PATH_MAX];	/* path to exercise */
@@ -158,7 +158,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 	ssize_t i = 0, ret;
 	char buffer[SYS_BUF_SZ];
 	char path[PATH_MAX];
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	const double threshold = 0.2;
 	size_t page_size = ctxt->args->page_size;
 
@@ -428,7 +428,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -496,7 +496,7 @@ static void stress_sys_dir(
 	const int depth)
 {
 	struct dirent **dlist = NULL;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
@@ -655,7 +655,7 @@ static bool stress_sysfs_bad_signal(const int status)
  *  stress_sysfs
  *	stress reading all of /sys
  */
-static int stress_sysfs(const stress_args_t *args)
+static int stress_sysfs(stress_args_t *args)
 {
 	int i, n, rc = EXIT_SUCCESS;
 	pthread_t pthreads[MAX_SYSFS_THREADS];

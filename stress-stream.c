@@ -692,7 +692,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void *stress_stream_mmap(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t sz,
 	const bool stream_mlock)
 {
@@ -729,7 +729,7 @@ static inline void *stress_stream_mmap(
 	return ptr;
 }
 
-static inline uint64_t get_stream_L3_size(const stress_args_t *args)
+static inline uint64_t get_stream_L3_size(stress_args_t *args)
 {
 	uint64_t cache_size = 2 * MB;
 #if defined(__linux__)
@@ -804,7 +804,7 @@ static void stress_stream_init_index(
  *  stress_stream()
  *	stress cache/memory/CPU with stream stressors
  */
-static int stress_stream(const stress_args_t *args)
+static int stress_stream(stress_args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	double *a, *b, *c;

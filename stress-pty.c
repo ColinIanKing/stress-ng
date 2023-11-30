@@ -75,7 +75,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_pty
  *	stress pty handling
  */
-static int stress_pty(const stress_args_t *args)
+static int stress_pty(stress_args_t *args)
 {
 	uint64_t pty_max = DEFAULT_PTYS;
 	stress_pty_info_t *ptys;

@@ -70,7 +70,7 @@ enum membarrier_cmd_flag {
 };
 #endif
 
-static int stress_membarrier_exercise(const stress_args_t *args, membarrier_info_t *info)
+static int stress_membarrier_exercise(stress_args_t *args, membarrier_info_t *info)
 {
 	int ret;
 	unsigned int i, mask;
@@ -124,7 +124,7 @@ static void *stress_membarrier_thread(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
-	const stress_args_t *args = pargs->args;
+	stress_args_t *args = pargs->args;
 	membarrier_info_t *info = (membarrier_info_t *)pargs->data;
 
 	/*
@@ -145,7 +145,7 @@ static void *stress_membarrier_thread(void *arg)
  *  stress on membarrier()
  *	stress system by IO sync calls
  */
-static int stress_membarrier(const stress_args_t *args)
+static int stress_membarrier(stress_args_t *args)
 {
 	int ret;
 	/* We have MAX_MEMBARRIER_THREADS plus the stressor process */

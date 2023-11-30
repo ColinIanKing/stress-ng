@@ -45,7 +45,7 @@ typedef struct {
 } stress_clone_shared_t;
 
 typedef struct stress_clone_args {
-	const stress_args_t *args;
+	stress_args_t *args;
 	stress_clone_shared_t *shared;
 } stress_clone_args_t;
 
@@ -439,7 +439,7 @@ static int clone_func(void *arg)
 	return 0;
 }
 
-static int stress_clone_child(const stress_args_t *args, void *context)
+static int stress_clone_child(stress_args_t *args, void *context)
 {
 	/* Child */
 	uint32_t max_clones = 0;
@@ -565,7 +565,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
  *  stress_clone()
  *	stress by cloning and exiting
  */
-static int stress_clone(const stress_args_t *args)
+static int stress_clone(stress_args_t *args)
 {
 	int rc;
 	stress_clone_shared_t *shared;

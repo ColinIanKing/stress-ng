@@ -221,7 +221,7 @@ static inline uint64_t rand64(void)
 }
 #endif
 
-static int stress_rdrand_sane(const stress_args_t *args)
+static int stress_rdrand_sane(stress_args_t *args)
 {
 	const uint64_t r1 = rand64();
 	int i, changed, same;
@@ -268,7 +268,7 @@ static int stress_rdrand_sane(const stress_args_t *args)
  *  stress_rdrand()
  *      stress Intel rdrand instruction
  */
-static int stress_rdrand(const stress_args_t *args)
+static int stress_rdrand(stress_args_t *args)
 {
 	double average;
 	uint64_t lo, hi;

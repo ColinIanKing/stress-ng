@@ -56,7 +56,7 @@ typedef struct {
 } stress_vecfp_init;
 
 typedef double (*stress_vecfp_func_t)(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vecfp_init *vecfp_init,
 	bool *success);
 
@@ -84,13 +84,13 @@ VEC_TYPE_T(double, 16)
 VEC_TYPE_T(double, 8)
 
 static double stress_vecfp_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vecfp_init *vecfp_init,
 	bool *success);
 
 #define STRESS_VEC_ADD(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	const stress_args_t *args,				\
+	stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -124,7 +124,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 
 #define STRESS_VEC_MUL(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	const stress_args_t *args,				\
+	stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -158,7 +158,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 
 #define STRESS_VEC_DIV(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	const stress_args_t *args,				\
+	stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -192,7 +192,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 
 #define STRESS_VEC_NEG(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	const stress_args_t *args,				\
+	stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -330,7 +330,7 @@ static stress_vecfp_funcs_t stress_vecfp_funcs[] = {
 };
 
 static void OPTIMIZE3 stress_vecfp_call_method(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vecfp_init *vecfp_init,
 	const size_t method,
 	bool *success)
@@ -373,7 +373,7 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 }
 
 static double stress_vecfp_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vecfp_init *vecfp_init,
 	bool *success)
 {
@@ -409,7 +409,7 @@ static int stress_set_vecfp_method(const char *name)
 	return -1;
 }
 
-static int stress_vecfp(const stress_args_t *args)
+static int stress_vecfp(stress_args_t *args)
 {
 	size_t i, j, max_elements = 0, mmap_size;
 	stress_vecfp_init *vecfp_init;

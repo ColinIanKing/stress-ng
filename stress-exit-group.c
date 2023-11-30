@@ -101,7 +101,7 @@ static void *stress_exit_group_func(void *arg)
  *  stress_exit_group()
  *	stress by creating pthreads
  */
-static void NORETURN stress_exit_group_child(const stress_args_t *args)
+static void NORETURN stress_exit_group_child(stress_args_t *args)
 {
 	int ret;
 	sigset_t set;
@@ -184,7 +184,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
  *  stress_exit_group()
  *	stress by creating pthreads
  */
-static int stress_exit_group(const stress_args_t *args)
+static int stress_exit_group(stress_args_t *args)
 {
         stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

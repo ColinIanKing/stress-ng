@@ -72,7 +72,7 @@ static void notrunc_strlcat(char *dst, const char *src, size_t *n)
  *  should_terminate()
  *	check that parent hasn't been OOM'd or it is time to die
  */
-static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
+static inline bool should_terminate(stress_args_t *args, const pid_t ppid)
 {
 	if ((shim_kill(ppid, 0) < 0) && (errno == ESRCH))
 		return true;
@@ -99,7 +99,7 @@ static bool stress_memory_is_not_zero(const uint8_t *ptr, const size_t size)
  *  stress_mmapfork()
  *	stress mappings + fork VM subsystem
  */
-static int stress_mmapfork(const stress_args_t *args)
+static int stress_mmapfork(stress_args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 	struct sysinfo info;

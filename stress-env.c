@@ -37,7 +37,7 @@ static uint64_t stress_env_max(void)
 	return stress_mwc1() ? ~(uint64_t)0 : (uint64_t)(stress_mwc16());
 }
 
-static int stress_env_child(const stress_args_t *args, void *context)
+static int stress_env_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	uint64_t i = 0;
@@ -169,7 +169,7 @@ reap:
  *  stress_env()
  *	stress environment variables
  */
-static int stress_env(const stress_args_t *args)
+static int stress_env(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_env_child, STRESS_OOMABLE_DROP_CAP | STRESS_OOMABLE_QUIET);
 }

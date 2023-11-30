@@ -61,7 +61,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_tsearch()
  *	stress tsearch
  */
-static int stress_tsearch(const stress_args_t *args)
+static int stress_tsearch(stress_args_t *args)
 {
 	uint64_t tsearch_size = DEFAULT_TSEARCH_SIZE;
 	int32_t *data;

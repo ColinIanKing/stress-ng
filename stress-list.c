@@ -30,7 +30,7 @@
 
 struct list_entry;
 
-typedef void (*stress_list_func)(const stress_args_t *args,
+typedef void (*stress_list_func)(stress_args_t *args,
 				 struct list_entry *entries,
 				 const struct list_entry *entries_end,
 				 stress_metrics_t *metrics);
@@ -169,7 +169,7 @@ static void MLOCKED_TEXT stress_list_handler(int signum)
 }
 
 static void OPTIMIZE3 stress_list_slistt(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -213,7 +213,7 @@ static void OPTIMIZE3 stress_list_slistt(
 
 #if defined(HAVE_SYS_QUEUE_LIST)
 static void OPTIMIZE3 stress_list_list(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -258,7 +258,7 @@ static void OPTIMIZE3 stress_list_list(
 
 #if defined(HAVE_SYS_QUEUE_SLIST)
 static void OPTIMIZE3 stress_list_slist(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -302,7 +302,7 @@ static void OPTIMIZE3 stress_list_slist(
 
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
 static void OPTIMIZE3 stress_list_circleq(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -346,7 +346,7 @@ static void OPTIMIZE3 stress_list_circleq(
 
 #if defined(HAVE_SYS_QUEUE_STAILQ)
 static void OPTIMIZE3 stress_list_stailq(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -390,7 +390,7 @@ static void OPTIMIZE3 stress_list_stailq(
 
 #if defined(HAVE_SYS_QUEUE_TAILQ)
 static void OPTIMIZE3 stress_list_tailq(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -433,7 +433,7 @@ static void OPTIMIZE3 stress_list_tailq(
 #endif
 
 static void stress_list_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics);
@@ -463,7 +463,7 @@ static const stress_list_method_info_t list_methods[] = {
 };
 
 static void stress_list_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
@@ -510,7 +510,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_list()
  *	stress list
  */
-static int stress_list(const stress_args_t *args)
+static int stress_list(stress_args_t *args)
 {
 	uint64_t v, list_size = DEFAULT_LIST_SIZE;
 	struct list_entry *entries, *entry, *entries_end;

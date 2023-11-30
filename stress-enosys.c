@@ -174,7 +174,7 @@ static void exit_if_child(const pid_t pid)
 	}
 }
 
-static void itimer_set(const stress_args_t *args)
+static void itimer_set(stress_args_t *args)
 {
 	struct itimerval it;
 
@@ -193,7 +193,7 @@ static void itimer_set(const stress_args_t *args)
 }
 
 static void exercise_syscall(
-	const stress_args_t *args,
+	stress_args_t *args,
 	long number, long arg1, long arg2,
 	long arg3, long arg4, long arg5,
 	long arg6, long arg7)
@@ -3518,7 +3518,7 @@ static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
  *  the parent
  */
 static inline int stress_do_syscall(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const long number,
 	const bool random)
 {
@@ -3616,7 +3616,7 @@ static inline int stress_do_syscall(
  *  stress_enosys
  *	stress system calls
  */
-static int stress_enosys(const stress_args_t *args)
+static int stress_enosys(stress_args_t *args)
 {
 	pid_t pid;
 

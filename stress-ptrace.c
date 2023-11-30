@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
  *  main syscall ptrace loop
  */
 static inline bool OPTIMIZE3 stress_syscall_wait(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid)
 {
 	while (stress_continue_flag()) {
@@ -76,7 +76,7 @@ static inline bool OPTIMIZE3 stress_syscall_wait(
  *  stress_ptrace()
  *	stress ptracing
  */
-static int OPTIMIZE3 stress_ptrace(const stress_args_t *args)
+static int OPTIMIZE3 stress_ptrace(stress_args_t *args)
 {
 	pid_t pid;
 

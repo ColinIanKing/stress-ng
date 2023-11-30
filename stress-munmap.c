@@ -22,7 +22,7 @@
 #include "core-out-of-memory.h"
 
 typedef struct {
-	const stress_args_t *args;	/* stress-ng arguments */
+	stress_args_t *args;	/* stress-ng arguments */
 	size_t page_shift;		/* log2(page_size) */
 	char *exec_path;		/* path of executable */
 	double duration;		/* mmap run time duration */
@@ -75,7 +75,7 @@ static size_t stress_munmap_stride(const size_t n)
  *	mmap'd region to create lots of temporary mapping holes.
  */
 static void stress_munmap_range(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *start,
 	void *end,
 	munmap_context_t *ctxt)
@@ -128,7 +128,7 @@ static void NORETURN MLOCKED_TEXT stress_munmap_sig_handler(int num)
  *	pages mapped into stress-ng without killing itself with
  *	a bus error or segmentation fault.
  */
-static int stress_munmap_child(const stress_args_t *args, void *context)
+static int stress_munmap_child(stress_args_t *args, void *context)
 {
 	FILE *fp;
 	char path[PATH_MAX];
@@ -225,7 +225,7 @@ static inline void stress_munmap_clean_path(char *path)
  *  stress_munmap()
  *	stress munmap
  */
-static int stress_munmap(const stress_args_t *args)
+static int stress_munmap(stress_args_t *args)
 {
 	munmap_context_t *ctxt;
 	double rate;

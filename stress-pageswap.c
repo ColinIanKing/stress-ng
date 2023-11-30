@@ -64,7 +64,7 @@ static void stress_pageswap_count_paged_out(void *page, const size_t page_size, 
 }
 
 static void stress_pageswap_unmap(
-	const stress_args_t *args,
+	stress_args_t *args,
 	page_info_t **head,
 	double *count)
 {
@@ -94,7 +94,7 @@ static void stress_pageswap_unmap(
  *	the pages are unmapped - the walking of the list pages them back
  *	in before they are unmapped.
  */
-static int stress_pageswap_child(const stress_args_t *args, void *context)
+static int stress_pageswap_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = STRESS_MAXIMUM(args->page_size, sizeof(page_info_t));
 	size_t max = 0;
@@ -152,7 +152,7 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
  *  stress_pageswap()
  *	stress page swap in and swap out
  */
-static int stress_pageswap(const stress_args_t *args)
+static int stress_pageswap(stress_args_t *args)
 {
 	int rc;
 

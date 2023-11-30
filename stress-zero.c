@@ -91,7 +91,7 @@ static const mmap_flags_t mmap_flags[] = {
  *  stress_zero
  *	stress reading of /dev/zero
  */
-static int stress_zero(const stress_args_t *args)
+static int stress_zero(stress_args_t *args)
 {
 	int fd;
 	double duration = 0.0, rate;

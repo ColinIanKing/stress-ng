@@ -129,7 +129,7 @@ static void *stress_loadavg_func(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
-	const stress_args_t *args = pargs->args;
+	stress_args_t *args = pargs->args;
 #if defined(LOADAVG_IO)
 	const int fd = *(int *)pargs->data;
 	char buf[1];
@@ -162,7 +162,7 @@ static void *stress_loadavg_func(void *arg)
  *  stress_loadavg()
  *	stress by creating pthreads
  */
-static int stress_loadavg(const stress_args_t *args)
+static int stress_loadavg(stress_args_t *args)
 {
 	static stress_loadavg_info_t *pthreads;
 	uint64_t i, j, pthread_max;

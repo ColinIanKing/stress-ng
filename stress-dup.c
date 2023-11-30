@@ -199,7 +199,7 @@ static int stress_dup2_race(info_t *info)
  *  stress_dup()
  *	stress system by rapid dup/close calls
  */
-static int stress_dup(const stress_args_t *args)
+static int stress_dup(stress_args_t *args)
 {
 	static int fds[STRESS_FD_MAX];
 	int rc = EXIT_SUCCESS;

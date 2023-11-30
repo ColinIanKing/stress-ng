@@ -33,7 +33,7 @@
 #define MAX_FORKHEAVY_ALLOCS		(1024 * 1024)
 
 typedef struct stress_forkheavy_args {
-	const stress_args_t *args;
+	stress_args_t *args;
 	stress_metrics_t *metrics;
 	stress_resources_t *resources;
 	size_t num_resources;
@@ -180,7 +180,7 @@ static void stress_forkheavy_free(void)
 	}
 }
 
-static int stress_forkheavy_child(const stress_args_t *args, void *context)
+static int stress_forkheavy_child(stress_args_t *args, void *context)
 {
 	const stress_forkheavy_args_t *forkheavy_args = (stress_forkheavy_args_t *)context;
 	stress_metrics_t *metrics = forkheavy_args->metrics;
@@ -270,7 +270,7 @@ static int stress_forkheavy_child(const stress_args_t *args, void *context)
  *  stress_forkheavy()
  *	stress by forking with many resources allocated and exiting
  */
-static int stress_forkheavy(const stress_args_t *args)
+static int stress_forkheavy(stress_args_t *args)
 {
 	int rc;
 	double average;

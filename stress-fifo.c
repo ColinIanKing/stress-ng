@@ -84,8 +84,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	spawn a process
  */
 static pid_t fifo_spawn(
-	const stress_args_t *args,
-	void (*func)(const stress_args_t *args, const char *name,
+	stress_args_t *args,
+	void (*func)(stress_args_t *args, const char *name,
 		     const char *fifoname, const size_t fifo_data_size),
 	const char *name,
 	const char *fifoname,
@@ -113,7 +113,7 @@ static pid_t fifo_spawn(
  *	read fifo
  */
 static void stress_fifo_reader(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *name,
 	const char *fifoname,
 	const size_t fifo_data_size)
@@ -237,7 +237,7 @@ redo_select:
  *  stress_fifo
  *	stress by heavy fifo I/O
  */
-static int stress_fifo(const stress_args_t *args)
+static int stress_fifo(stress_args_t *args)
 {
 	pid_t pids[MAX_FIFO_READERS];
 	int fd;

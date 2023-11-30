@@ -119,7 +119,7 @@ static int stress_affinity_supported(const char *name)
  *  stress_affinity_reap()
  *	kill and wait on child processes
  */
-static void stress_affinity_reap(const stress_args_t *args, const pid_t *pids)
+static void stress_affinity_reap(stress_args_t *args, const pid_t *pids)
 {
 	stress_kill_and_wait_many(args, pids, STRESS_AFFINITY_PROCS,  SIGALRM, true);
 }
@@ -146,7 +146,7 @@ static inline void stress_affinity_spin_delay(
  *	affinity stressor child process
  */
 static void stress_affinity_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_affinity_info_t *info,
 	const pid_t *pids,
 	const bool pin_controller)
@@ -236,7 +236,7 @@ affinity_continue:
 	stress_affinity_reap(args, pids);
 }
 
-static int stress_affinity(const stress_args_t *args)
+static int stress_affinity(stress_args_t *args)
 {
 	pid_t pids[STRESS_AFFINITY_PROCS];
 	size_t i;

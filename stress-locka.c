@@ -133,7 +133,7 @@ static void stress_locka_info_free(void)
  *  stress_locka_unlock()
  *	pop oldest lock record off list and unlock it
  */
-static int stress_locka_unlock(const stress_args_t *args, const int fd)
+static int stress_locka_unlock(stress_args_t *args, const int fd)
 {
 	struct flock f;
 
@@ -162,7 +162,7 @@ static int stress_locka_unlock(const stress_args_t *args, const int fd)
  *	hammer advisory lock/unlock to create some file lock contention
  */
 static int stress_locka_contention(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd)
 {
 	stress_mwc_reseed();
@@ -214,7 +214,7 @@ static int stress_locka_contention(
  *  stress_locka
  *	stress file locking via advisory locking
  */
-static int stress_locka(const stress_args_t *args)
+static int stress_locka(stress_args_t *args)
 {
 	int fd, ret = EXIT_FAILURE, parent_cpu;
 	pid_t cpid = -1;

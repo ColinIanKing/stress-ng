@@ -274,7 +274,7 @@ static void stress_rawpkt_sockopts(const int fd)
  *	client sender
  */
 static void NORETURN OPTIMIZE3 stress_rawpkt_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct ifreq *hwaddr,
 	struct ifreq *ifaddr,
 	const struct ifreq *idx,
@@ -356,7 +356,7 @@ err:
  *	server reader
  */
 static int OPTIMIZE3 stress_rawpkt_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct ifreq *ifaddr,
 	const int port,
 	const int blocknr)
@@ -467,7 +467,7 @@ static void stress_sock_sigpipe_handler(int signum)
  *  stress_rawpkt
  *	stress raw socket I/O UDP packet send/receive
  */
-static int stress_rawpkt(const stress_args_t *args)
+static int stress_rawpkt(stress_args_t *args)
 {
 	pid_t pid;
 	int rawpkt_port = DEFAULT_RAWPKT_PORT;

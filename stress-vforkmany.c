@@ -76,7 +76,7 @@ static void vforkmany_wait(vforkmany_shared_t *vforkmany_shared, const pid_t pid
  *	careful not to overwrite shared variables across
  *	all the processes.
  */
-static int stress_vforkmany(const stress_args_t *args)
+static int stress_vforkmany(stress_args_t *args)
 {
 	/* avoid variables on stack since we're using vfork */
 	static pid_t chpid;

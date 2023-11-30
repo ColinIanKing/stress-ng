@@ -56,7 +56,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_MLOCK)
 
 static int stress_mlock_interruptible(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	size_t len)
 {
@@ -77,7 +77,7 @@ static int stress_mlock_interruptible(
 }
 
 static int stress_munlock_interruptible(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	size_t len)
 {
@@ -101,7 +101,7 @@ static int stress_munlock_interruptible(
  *  stress_mlockmany()
  *	stress by forking and exiting
  */
-static int stress_mlockmany(const stress_args_t *args)
+static int stress_mlockmany(stress_args_t *args)
 {
 	pid_t *pids;
 	int ret;

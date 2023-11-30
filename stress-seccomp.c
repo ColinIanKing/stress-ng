@@ -218,7 +218,7 @@ static void MLOCKED_TEXT NORETURN stress_sigsys(int signum)
  *  stress_seccomp_set_huge_filter()
  *	set up a huge seccomp filter, see how large we can go
  */
-static int stress_seccomp_set_huge_filter(const stress_args_t *args)
+static int stress_seccomp_set_huge_filter(stress_args_t *args)
 {
 	static struct sock_filter bpf_stmt =
 		BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_ALLOW);
@@ -276,7 +276,7 @@ next:
  * 	if allow_write is true.
  */
 static int stress_seccomp_set_filter(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const bool allow_write,
 	bool do_random)
 {
@@ -381,7 +381,7 @@ redo_prctl:
  *  stress_seccomp()
  *	stress seccomp
  */
-static int stress_seccomp(const stress_args_t *args)
+static int stress_seccomp(stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

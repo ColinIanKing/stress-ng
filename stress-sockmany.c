@@ -89,7 +89,7 @@ static void OPTIMIZE3 stress_sockmany_cleanup(int fds[], const int n)
  *	client reader
  */
 static int OPTIMIZE3 stress_sockmany_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sockmany_port,
 	const pid_t mypid,
 	stress_sock_fds_t *sock_fds,
@@ -179,7 +179,7 @@ retry:
  *	server writer
  */
 static int OPTIMIZE3 stress_sockmany_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sockmany_port,
 	const pid_t mypid,
 	const char *sockmany_if)
@@ -303,7 +303,7 @@ static void stress_sockmany_sigpipe_handler(int signum)
  *  stress_sockmany
  *	stress many sockets
  */
-static int stress_sockmany(const stress_args_t *args)
+static int stress_sockmany(stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;

@@ -87,7 +87,7 @@ static int stress_netlink_task_supported(const char *name)
  *	send a netlink cmd
  */
 static int OPTIMIZE3 stress_netlink_sendcmd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sock,
 	const uint16_t nlmsg_type,
 	const uint32_t nlmsg_pid,
@@ -147,7 +147,7 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
  *	switches are incrementing over time.
  */
 static void OPTIMIZE3 stress_parse_payload(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct nlattr *na,
 	const pid_t pid,
 	uint64_t *nivcsw)
@@ -192,7 +192,7 @@ static void OPTIMIZE3 stress_parse_payload(
  *	monitor parent's activity using taskstats info
  */
 static int OPTIMIZE3 stress_netlink_taskstats_monitor(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sock,
 	const pid_t pid,
 	const uint16_t id,
@@ -243,7 +243,7 @@ static int OPTIMIZE3 stress_netlink_taskstats_monitor(
  *  stress_netlink_task()
  *	stress netlink task events
  */
-static int stress_netlink_task(const stress_args_t *args)
+static int stress_netlink_task(stress_args_t *args)
 {
 	int ret, sock = -1;
 	ssize_t len;

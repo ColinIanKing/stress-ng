@@ -57,7 +57,7 @@ static int stress_set_chdir_dirs(const char *opt)
  *  stress_chdir
  *	stress chdir calls
  */
-static int stress_chdir(const stress_args_t *args)
+static int stress_chdir(stress_args_t *args)
 {
 	uint32_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
 	stress_chdir_info_t *chdir_info;

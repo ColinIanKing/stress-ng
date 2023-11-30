@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
 
 #define APPARMOR_BUF_SZ	(4096)
 
-typedef int (*stress_apparmor_func)(const stress_args_t *args);
+typedef int (*stress_apparmor_func)(stress_args_t *args);
 
 typedef struct {
 	void *counter_lock;
@@ -115,7 +115,7 @@ static int stress_apparmor_supported(const char *name)
 	return 0;
 }
 
-static bool stress_apparmor_stress_continue_inc(const stress_args_t *args, bool inc)
+static bool stress_apparmor_stress_continue_inc(stress_args_t *args, bool inc)
 {
 	/* fast check */
 	if (!apparmor_run)
@@ -152,7 +152,7 @@ static void MLOCKED_TEXT stress_apparmor_alrm_handler(int signum)
  *	read a proc file
  */
 static void stress_apparmor_read(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path)
 {
 	int fd;
@@ -187,7 +187,7 @@ redo:
  *	read directory
  */
 static void stress_apparmor_dir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth)
@@ -236,7 +236,7 @@ static void stress_apparmor_dir(
  *	spawn a process
  */
 static pid_t apparmor_spawn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_apparmor_func func)
 {
 	pid_t pid;
@@ -276,7 +276,7 @@ abort:
  *  apparmor_stress_profiles()
  *	hammer profile reading
  */
-static int apparmor_stress_profiles(const stress_args_t *args)
+static int apparmor_stress_profiles(stress_args_t *args)
 {
 	char path[PATH_MAX];
 
@@ -293,7 +293,7 @@ static int apparmor_stress_profiles(const stress_args_t *args)
  *  apparmor_stress_features()
  *	hammer features reading
  */
-static int apparmor_stress_features(const stress_args_t *args)
+static int apparmor_stress_features(stress_args_t *args)
 {
 	char path[PATH_MAX];
 
@@ -310,7 +310,7 @@ static int apparmor_stress_features(const stress_args_t *args)
  *  apparmor_stress_kernel_interface()
  *	load/replace/unload stressing
  */
-static int apparmor_stress_kernel_interface(const stress_args_t *args)
+static int apparmor_stress_kernel_interface(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	aa_kernel_interface *kern_if;
@@ -543,7 +543,7 @@ static inline void apparmor_corrupt_flip_one_bit_random(
  *	corrupt data and see if we can oops the loader
  *	parser.
  */
-static int apparmor_stress_corruption(const stress_args_t *args)
+static int apparmor_stress_corruption(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS, i = (int)args->instance, ret = -1;
 	int j = 0;
@@ -654,7 +654,7 @@ static const stress_apparmor_func apparmor_funcs[] = {
  *  stress_apparmor()
  *	stress AppArmor
  */
-static int stress_apparmor(const stress_args_t *args)
+static int stress_apparmor(stress_args_t *args)
 {
 	pid_t pids[MAX_APPARMOR_FUNCS];
 	size_t i;

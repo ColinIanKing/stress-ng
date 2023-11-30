@@ -95,7 +95,7 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
  *	try and remap old size to new size
  */
 static int try_remap(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t **buf,
 	const size_t old_sz,
 	const size_t new_sz,
@@ -208,7 +208,7 @@ static int try_remap(
 	return -1;
 }
 
-static int stress_mremap_child(const stress_args_t *args, void *context)
+static int stress_mremap_child(stress_args_t *args, void *context)
 {
 	size_t new_sz, sz, mremap_bytes = DEFAULT_MREMAP_BYTES;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -343,7 +343,7 @@ deinit:
  *  stress_mremap()
  *	stress mmap
  */
-static int stress_mremap(const stress_args_t *args)
+static int stress_mremap(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_mremap_child, STRESS_OOMABLE_NORMAL);
 }

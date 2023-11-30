@@ -57,7 +57,7 @@ static inline int shim_signalfd4(
  *  stress_sigfd
  *	stress signalfd reads
  */
-static int stress_sigfd(const stress_args_t *args)
+static int stress_sigfd(stress_args_t *args)
 {
 	pid_t pid, ppid = args->pid;
 	int sfd, parent_cpu;

@@ -110,7 +110,7 @@ static int stress_rawsock_supported(const char *name)
 	return 0;
 }
 
-static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int rawsock_port)
+static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsock_port)
 {
 	/* Child, client */
 	int fd;
@@ -196,7 +196,7 @@ static int OPTIMIZE3 stress_rawsock_client(const stress_args_t *args, const int 
 	return EXIT_SUCCESS;
 }
 
-static int OPTIMIZE3 stress_rawsock_server(const stress_args_t *args, const pid_t pid)
+static int OPTIMIZE3 stress_rawsock_server(stress_args_t *args, const pid_t pid)
 {
 	/* Parent, server */
 	int rc = EXIT_SUCCESS, fd = -1, status;
@@ -281,7 +281,7 @@ die:
 }
 
 
-static int stress_rawsock_child(const stress_args_t *args, void *context)
+static int stress_rawsock_child(stress_args_t *args, void *context)
 {
 	int rc = EXIT_SUCCESS, parent_cpu;
 	pid_t pid;
@@ -317,7 +317,7 @@ again:
  *  stress_rawsock
  *	stress by heavy raw udp ops
  */
-static int stress_rawsock(const stress_args_t *args)
+static int stress_rawsock(stress_args_t *args)
 {
 	int rc, reserved_port;
 	int rawsock_port = DEFAULT_RAWSOCK_PORT;

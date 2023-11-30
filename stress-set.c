@@ -103,7 +103,7 @@ static const stress_help_t help[] = {
  *  stress on set*() calls
  *	stress system by rapid get*() system calls
  */
-static int stress_set(const stress_args_t *args)
+static int stress_set(stress_args_t *args)
 {
 	size_t i;
 	int ret_hostname;

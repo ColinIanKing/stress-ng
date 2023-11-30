@@ -66,7 +66,7 @@ static int stress_flushcache_nohugepage(void *addr, size_t size)
 }
 
 static int stress_flushcache_mprotect(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	size_t size,
 	int prot)
@@ -166,7 +166,7 @@ static inline void clflush_page(
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
 static inline int stress_flush_icache(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const stress_flushcache_context_t *context)
 {
 	void *i_addr = context->i_addr;
@@ -210,7 +210,7 @@ static inline int stress_flush_icache(
 }
 
 static inline int stress_flush_dcache(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const stress_flushcache_context_t *context)
 {
 	void *d_addr = context->d_addr;
@@ -244,7 +244,7 @@ static inline int stress_flush_dcache(
 	return 0;
 }
 
-static int stress_flushcache_child(const stress_args_t *args, void *ctxt)
+static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 {
 	stress_flushcache_context_t *context = (stress_flushcache_context_t *)ctxt;
 
@@ -286,7 +286,7 @@ static int stress_flushcache_child(const stress_args_t *args, void *ctxt)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-static int stress_flushcache(const stress_args_t *args)
+static int stress_flushcache(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const int numa_nodes = stress_numa_nodes();

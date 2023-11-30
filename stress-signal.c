@@ -27,15 +27,6 @@ static const stress_help_t help[] = {
 
 static uint64_t counter;
 
-#if defined(HAVE_ATOMIC_ADD_FETCH)
-#define HAVE_ATOMIC_OPS         
-#define SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)       \
-        do { __atomic_add_fetch(ptr, val, memorder); } while (0)
-#else
-#define SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)      	\
-	do { *ptr += val; } while (0)
-#endif
-
 static void MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	(void)signum;
@@ -75,7 +66,7 @@ static inline shim_sighandler_t shim_signal(int signum, shim_sighandler_t handle
  *	stress by generating SIGCHLD signals on exiting
  *	child processes.
  */
-static int stress_signal(const stress_args_t *args)
+static int stress_signal(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	const pid_t pid = getpid();

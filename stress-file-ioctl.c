@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
 #if (defined(FIONBIO) && defined(O_NONBLOCK)) || \
     (defined(FIOASYNC) && defined(O_ASYNC))
 static void check_flag(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *ioctl_name,
 	const int fd,
 	const int flag,
@@ -110,7 +110,7 @@ struct shim_space_resv {
  *  stress_file_ioctl
  *	stress file ioctls
  */
-static int stress_file_ioctl(const stress_args_t *args)
+static int stress_file_ioctl(stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;

@@ -59,7 +59,7 @@ static const stress_help_t help[] = {
     NEED_GLIBC(2,3,2)
 
 typedef void (stress_epoll_func_t)(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int child,
 	const pid_t mypid,
 	const int epoll_port,
@@ -208,7 +208,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
  *	spawn a process
  */
 static pid_t epoll_spawn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_epoll_func_t func,
 	const int child,
 	const pid_t mypid,
@@ -330,7 +330,7 @@ static int epoll_ctl_del(const int efd, const int fd)
  *	fd's to epoll event list
  */
 static int epoll_notification(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int efd,
 	const int sfd,
 	const int epoll_sockets,
@@ -450,7 +450,7 @@ static int epoll_notification(
  *	one another could not succeed.
  */
 static int test_eloop(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int efd,
 	const int efd2)
 {
@@ -482,7 +482,7 @@ static int test_eloop(
  *      an error due to the EPOLL_EXCLUSIVE event type
  */
 static int test_epoll_exclusive(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int efd,
 	const int efd2,
 	const int sfd)
@@ -550,7 +550,7 @@ err:
  *	send a relatively short message
  */
 static int epoll_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain)
@@ -709,7 +709,7 @@ retry:
  *	wait on connections and read data
  */
 static void NORETURN epoll_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int child,
 	const pid_t mypid,
 	const int epoll_port,
@@ -1010,7 +1010,7 @@ die:
  *  stress_epoll
  *	stress by heavy socket I/O
  */
-static int stress_epoll(const stress_args_t *args)
+static int stress_epoll(stress_args_t *args)
 {
 	pid_t pids[MAX_SERVERS], mypid = getpid();
 	int i, rc = EXIT_SUCCESS;

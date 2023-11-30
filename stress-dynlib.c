@@ -119,7 +119,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
  *  stress_dynlib()
  *	stress that does lots of not a lot
  */
-static int stress_dynlib(const stress_args_t *args)
+static int stress_dynlib(stress_args_t *args)
 {
 	void *handles[MAX_LIBNAMES];
 	NOCLOBBER double count = 0.0, duration = 0.0;

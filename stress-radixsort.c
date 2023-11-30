@@ -76,7 +76,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_radixsort()
  *	stress radixsort
  */
-static int stress_radixsort(const stress_args_t *args)
+static int stress_radixsort(stress_args_t *args)
 {
 	uint64_t radixsort_size = DEFAULT_RADIXSORT_SIZE;
 	const unsigned char **data;

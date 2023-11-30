@@ -79,7 +79,7 @@ static inline void *stress_get_umapped_addr(const size_t sz)
  *	check page order
  */
 static void OPTIMIZE3 check_order(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t stride,
 	const stress_mapdata_t *data,
 	const size_t remap_pages,
@@ -105,7 +105,7 @@ static void OPTIMIZE3 check_order(
  *	remap based on given order
  */
 static int OPTIMIZE3 remap_order(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t stride,
 	stress_mapdata_t *data,
 	const size_t remap_pages,
@@ -158,7 +158,7 @@ static int OPTIMIZE3 remap_order(
  *  stress_remap
  *	stress page remapping
  */
-static int stress_remap(const stress_args_t *args)
+static int stress_remap(stress_args_t *args)
 {
 	stress_mapdata_t *data;
 	size_t *order;

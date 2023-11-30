@@ -25,7 +25,7 @@
 #define STRESS_ATOMIC_MAX_PROCS		(3)
 #define STRESS_ATOMIC_MAX_FUNCS		(SIZEOF_ARRAY(atomic_func_info))
 
-typedef int (*atomic_func_t)(const stress_args_t *args, double *duration, double *count);
+typedef int (*atomic_func_t)(stress_args_t *args, double *duration, double *count);
 
 #define DO_NOTHING()	do { } while (0)
 
@@ -284,7 +284,7 @@ static const stress_help_t help[] = {
 #endif
 
 static int ATOMIC_OPTIMIZE stress_atomic_uint64(
-	const stress_args_t *args,
+	stress_args_t *args,
 	double *duration,
 	double *count)
 {
@@ -300,7 +300,7 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint64(
 }
 
 static int ATOMIC_OPTIMIZE stress_atomic_uint32(
-	const stress_args_t *args,
+	stress_args_t *args,
 	double *duration,
 	double *count)
 {
@@ -315,7 +315,7 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint32(
 }
 
 static int ATOMIC_OPTIMIZE stress_atomic_uint16(
-	const stress_args_t *args,
+	stress_args_t *args,
 	double *duration,
 	double *count)
 {
@@ -330,7 +330,7 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint16(
 }
 
 static int ATOMIC_OPTIMIZE stress_atomic_uint8(
-	const stress_args_t *args,
+	stress_args_t *args,
 	double *duration,
 	double *count)
 {
@@ -362,7 +362,7 @@ typedef struct {
 } stress_atomic_info_t;
 
 static int stress_atomic_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_atomic_info_t *atomic_info)
 {
 	const int rounds = 1000;
@@ -389,7 +389,7 @@ static int stress_atomic_exercise(
  *  stress_atomic()
  *      stress gcc atomic memory ops
  */
-static int stress_atomic(const stress_args_t *args)
+static int stress_atomic(stress_args_t *args)
 {
 	size_t i, j, atomic_info_sz;
 	stress_atomic_info_t *atomic_info;

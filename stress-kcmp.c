@@ -120,7 +120,7 @@ do {									\
  *  stress_kcmp
  *	stress sys_kcmp
  */
-static int stress_kcmp(const stress_args_t *args)
+static int stress_kcmp(stress_args_t *args)
 {
 	pid_t pid1;
 	int fd1;

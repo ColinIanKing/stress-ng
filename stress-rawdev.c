@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
     defined(BLKGETSIZE) && 		\
     defined(BLKSSZGET)
 
-typedef int (*stress_rawdev_func)(const stress_args_t *args, const int fd,
+typedef int (*stress_rawdev_func)(stress_args_t *args, const int fd,
 				   char *buffer, const size_t blks,
 				   const size_t blksz,
 				   stress_metrics_t *metrics);
@@ -82,7 +82,7 @@ static inline unsigned long shift_ul(unsigned long v, unsigned int shift)
  *	sweep reads across raw block device
  */
 static int stress_rawdev_sweep(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -135,7 +135,7 @@ static int stress_rawdev_sweep(
  *	sweep reads with non-linear wiggles across device
  */
 static int stress_rawdev_wiggle(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -176,7 +176,7 @@ static int stress_rawdev_wiggle(
  *	sweeping of heads on physical device
  */
 static int stress_rawdev_ends(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -229,7 +229,7 @@ static int stress_rawdev_ends(
  *	read at random locations across a device
  */
 static int stress_rawdev_random(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -265,7 +265,7 @@ static int stress_rawdev_random(
  *	bursts of reads from random places on a device
  */
 static int stress_rawdev_burst(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -301,7 +301,7 @@ static int stress_rawdev_burst(
 }
 
 static int stress_rawdev_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -325,7 +325,7 @@ static const stress_rawdev_method_info_t rawdev_methods[] = {
  *      iterate over all rawdev methods
  */
 static int stress_rawdev_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buffer,
 	const size_t blks,
@@ -393,7 +393,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(BLKGETSIZE) && 		\
     defined(BLKSSZGET)
 
-static int stress_rawdev(const stress_args_t *args)
+static int stress_rawdev(stress_args_t *args)
 {
 	int ret, fd;
 	char *devpath, *buffer;

@@ -41,7 +41,7 @@ static int stress_set_null_write(const char *opt)
  *  stress_null
  *	stress writing to /dev/null
  */
-static int stress_null(const stress_args_t *args)
+static int stress_null(stress_args_t *args)
 {
 	int fd;
 	char ALIGN64 buffer[4096];

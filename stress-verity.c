@@ -69,7 +69,7 @@ struct shim_fsverity_read_metadata_arg {
  *  stress_verity
  *	stress file verity
  */
-static int stress_verity(const stress_args_t *args)
+static int stress_verity(stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;

@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
  *  stress_pkey()
  *	stress pkeys
  */
-static int stress_pkey(const stress_args_t *args)
+static int stress_pkey(stress_args_t *args)
 {
 	uint8_t *pages;
 	int rc = EXIT_SUCCESS;

@@ -65,7 +65,7 @@ static const uint8_t kvm_x86_kernel[] = {
  *  stress_kvm
  *	stress /dev/kvm
  */
-static int stress_kvm(const stress_args_t *args)
+static int stress_kvm(stress_args_t *args)
 {
 	bool pr_version = false;
 

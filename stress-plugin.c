@@ -276,7 +276,7 @@ static int stress_set_plugin_method(const char *name)
  *  stress_plugin
  *	stress with random plugins
  */
-static int stress_plugin(const stress_args_t *args)
+static int stress_plugin(stress_args_t *args)
 {
 	int rc;
 	size_t i;

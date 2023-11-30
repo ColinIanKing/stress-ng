@@ -67,7 +67,7 @@ static void NORETURN MLOCKED_TEXT stress_bushandler(int signum)
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-static int stress_sigbus(const stress_args_t *args)
+static int stress_sigbus(stress_args_t *args)
 {
 	int ret, fd;
 	char filename[PATH_MAX];

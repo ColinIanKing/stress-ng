@@ -161,7 +161,7 @@ static const char frag_shader[] =
     "}\n";
 
 static GLuint compile_shader(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *text,
 	const int size,
 	const GLenum type)
@@ -197,7 +197,7 @@ static GLuint compile_shader(
 	return shader;
 }
 
-static int load_shaders(const stress_args_t *args)
+static int load_shaders(stress_args_t *args)
 {
 	GLint linked;
 	GLuint vertexShader;
@@ -275,7 +275,7 @@ static const GLfloat color[] = {
 };
 
 static int gles2_init(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint32_t width,
 	const uint32_t height,
 	const int frag_n,
@@ -354,7 +354,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 	glFinish();
 }
 
-static int get_config(const stress_args_t *args, EGLConfig *config)
+static int get_config(stress_args_t *args, EGLConfig *config)
 {
 	static const EGLint egl_config_attribs[] = {
 		EGL_BUFFER_SIZE, 32,
@@ -411,7 +411,7 @@ static int get_config(const stress_args_t *args, EGLConfig *config)
 }
 
 static int egl_init(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *gpu_devnode,
 	const uint32_t size_x,
 	const uint32_t size_y)
@@ -522,7 +522,7 @@ static void stress_gpu_alarm_handler(int sig)
  */
 static void *stress_gpu_pthread(void *arg)
 {
-	const stress_args_t *args = (const stress_args_t *)arg;
+	stress_args_t *args = (stress_args_t *)arg;
 	uint64_t sleep_usecs = 100000 * args->num_instances;
 	uint64_t start_sleep_usecs = 100000 * args->instance;
 
@@ -542,7 +542,7 @@ static void *stress_gpu_pthread(void *arg)
 }
 #endif
 
-static int stress_gpu_child(const stress_args_t *args, void *context)
+static int stress_gpu_child(stress_args_t *args, void *context)
 {
 	int frag_n = 0;
 	int ret;
@@ -639,7 +639,7 @@ deinit:
 	return ret;
 }
 
-static int stress_gpu(const stress_args_t *args)
+static int stress_gpu(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_gpu_child, STRESS_OOMABLE_NORMAL);
 }

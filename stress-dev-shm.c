@@ -40,7 +40,7 @@ typedef struct {
  *	to it once we hit the largest file size allowed.
  */
 static inline int stress_dev_shm_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd)
 {
 	int rc = EXIT_SUCCESS;
@@ -132,7 +132,7 @@ static inline int stress_dev_shm_child(
 	return rc;
 }
 
-static int stress_dev_shm_oomable_child(const stress_args_t *args, void *ctxt)
+static int stress_dev_shm_oomable_child(stress_args_t *args, void *ctxt)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
@@ -191,7 +191,7 @@ finish:
  *  stress_dev_shm()
  *	stress /dev/shm
  */
-static int stress_dev_shm(const stress_args_t *args)
+static int stress_dev_shm(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	char path[PATH_MAX];

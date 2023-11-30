@@ -79,7 +79,7 @@ typedef struct {
 	} u;
 } stress_msg_t;
 
-static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
+static int stress_msg_get_stats(stress_args_t *args, const int msgq_id)
 {
 #if defined(IPC_STAT)
 	{
@@ -224,7 +224,7 @@ static void stress_msg_get_procinfo(bool *get_procinfo)
 /*
  *  Set upper/lower limits on maximum msgq ids to be allocated
  */
-static inline size_t stress_max_ids(const stress_args_t *args)
+static inline size_t stress_max_ids(stress_args_t *args)
 {
 	size_t max_ids;
 
@@ -239,7 +239,7 @@ static inline size_t stress_max_ids(const stress_args_t *args)
 }
 
 static int OPTIMIZE3 stress_msg_receiver(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int msgq_id,
 	const int32_t msg_types,
 	const size_t msg_bytes)
@@ -328,7 +328,7 @@ redo:
 }
 
 static void OPTIMIZE3 stress_msg_sender(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int msgq_id,
 	const int32_t msg_types,
 	const size_t msg_bytes)
@@ -395,7 +395,7 @@ resend:
  *  stress_msg
  *	stress by message queues
  */
-static int stress_msg(const stress_args_t *args)
+static int stress_msg(stress_args_t *args)
 {
 	pid_t pid;
 	int msgq_id, rc = EXIT_SUCCESS, parent_cpu;

@@ -294,7 +294,7 @@ static void stress_prctl_sigsys_handler(int sig, siginfo_t *info, void *ucontext
  *  stress_prctl_syscall_user_dispatch()
  * 	exercise syscall emulation by trapping a kill() system call
  */
-static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
+static int stress_prctl_syscall_user_dispatch(stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	struct sigaction action, oldaction;
@@ -357,7 +357,7 @@ err:
 	return rc;
 }
 #else
-static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
+static int stress_prctl_syscall_user_dispatch(stress_args_t *args)
 {
 	(void)args;
 
@@ -366,7 +366,7 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 #endif
 
 static int stress_prctl_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	void *page_anon,
 	size_t page_anon_size)
@@ -1078,7 +1078,7 @@ static int stress_prctl_child(
  *  stress_prctl()
  *	stress seccomp
  */
-static int stress_prctl(const stress_args_t *args)
+static int stress_prctl(stress_args_t *args)
 {
 	void *page_anon;
 

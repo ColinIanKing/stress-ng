@@ -61,7 +61,7 @@ UNEXPECTED
  *   exec* family of args to pass
  */
 typedef struct {
-	const stress_args_t *args;	/* stress-ng args */
+	stress_args_t *args;	/* stress-ng args */
 	const char *exec_prog;		/* path to program to execute */
 	const char *garbage_prog;	/* path of garbage program */
 	char *str;			/* huge argv and env string */
@@ -693,7 +693,7 @@ do_exec:
  *  stress_exec()
  *	stress by forking and exec'ing
  */
-static int stress_exec(const stress_args_t *args)
+static int stress_exec(stress_args_t *args)
 {
 	char *exec_prog;
 	char exec_path[PATH_MAX];

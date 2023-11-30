@@ -219,7 +219,7 @@ static inline void stress_set_numa_array(void *array, uint8_t val, size_t nmemb,
  *  stress_numa()
  *	stress the Linux NUMA interfaces
  */
-static int stress_numa(const stress_args_t *args)
+static int stress_numa(stress_args_t *args)
 {
 	long numa_nodes;
 	unsigned long max_nodes;

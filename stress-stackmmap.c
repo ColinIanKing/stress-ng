@@ -121,7 +121,7 @@ static void stress_stackmmap_push_start(void)
  *  stress_stackmmap
  *	stress a file memory map'd stack
  */
-static int stress_stackmmap(const stress_args_t *args)
+static int stress_stackmmap(stress_args_t *args)
 {
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */

@@ -43,7 +43,7 @@ static int stress_set_resources_mlock(const char *opt)
  *  stress_resources()
  *	stress by forking and exiting
  */
-static int stress_resources(const stress_args_t *args)
+static int stress_resources(stress_args_t *args)
 {
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	size_t min_mem_free, shmall, freemem, totalmem, freeswap, totalswap;

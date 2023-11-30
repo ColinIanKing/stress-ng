@@ -46,7 +46,7 @@ typedef struct {
     defined(HAVE_NANOSLEEP)
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	cpu_cstate_t *cstate_list;
 	uint64_t counter;
 	uint64_t max_ops;
@@ -186,7 +186,7 @@ static void *stress_nanosleep_pthread(void *c)
 {
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 
 	while (stress_continue(args) &&
 	       !thread_terminate &&
@@ -225,7 +225,7 @@ static void *stress_nanosleep_pthread(void *c)
  *  stress_nanosleep()
  *	stress nanosleep by many sleeping threads
  */
-static int stress_nanosleep(const stress_args_t *args)
+static int stress_nanosleep(stress_args_t *args)
 {
 	uint64_t max_ops;
 	uint32_t i, n, limited = 0;

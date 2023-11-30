@@ -59,7 +59,7 @@ static const stress_mknod_modes_t modes[] = {
  *	remove all files
  */
 static void stress_mknod_tidy(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -119,7 +119,7 @@ static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
  *	and not the fault of the underlying mknod for failing.
  */
 static int stress_mknod_check_errno(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *mode_str,
 	const char *path,
 	const int err)
@@ -186,7 +186,7 @@ static int stress_do_mknod(
  *	test char or block mknod special nodes
  */
 static void stress_mknod_test_dev(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int dir_fd,
 	const int bad_fd,
 	const mode_t mode,
@@ -209,7 +209,7 @@ static void stress_mknod_test_dev(
  *  stress_mknod
  *	stress mknod creates
  */
-static int stress_mknod(const stress_args_t *args)
+static int stress_mknod(stress_args_t *args)
 {
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
 	int ret;

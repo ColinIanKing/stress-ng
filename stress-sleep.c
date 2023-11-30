@@ -37,7 +37,7 @@ UNEXPECTED
 #if defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	uint64_t sleep_max;
 	pthread_t pthread;
 	uint64_t underruns;
@@ -87,7 +87,7 @@ static void *stress_pthread_func(void *c)
 {
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
     !defined(HAVE_COMPILER_PCC)
 	const bool x86_has_waitpkg = stress_cpu_x86_has_waitpkg();
@@ -328,7 +328,7 @@ skip_pselect:
  *  stress_sleep()
  *	stress by many sleeping threads
  */
-static int stress_sleep(const stress_args_t *args)
+static int stress_sleep(stress_args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP;

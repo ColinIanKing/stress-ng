@@ -116,7 +116,7 @@ static key_serial_t shim_request_key(
  *  stress_key
  *	stress key operations
  */
-static int stress_key(const stress_args_t *args)
+static int stress_key(stress_args_t *args)
 {
 	key_serial_t ALIGN64 keys[MAX_KEYS];
 	pid_t ppid = getppid();

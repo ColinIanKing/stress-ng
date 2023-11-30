@@ -297,7 +297,7 @@ static void stress_syncload_init(void)
  *  stress_syncload()
  *	stress that does lots of not a lot
  */
-static int stress_syncload(const stress_args_t *args)
+static int stress_syncload(stress_args_t *args)
 {
 	uint64_t syncload_msbusy = STRESS_SYNCLOAD_MS_DEFAULT;
 	uint64_t syncload_mssleep = STRESS_SYNCLOAD_MS_DEFAULT / 2;

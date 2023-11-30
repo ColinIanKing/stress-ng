@@ -76,7 +76,7 @@ static inline shim_off64_t stress_copy_file_seek64(int fd, shim_off64_t off64, i
  *	fill chunk of file with random value
  */
 static int stress_copy_file_fill(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const shim_off64_t off64,
 	const ssize_t size)
@@ -156,7 +156,7 @@ static int stress_copy_file_range_verify(
  *  stress_copy_file
  *	stress reading chunks of file using copy_file_range()
  */
-static int stress_copy_file(const stress_args_t *args)
+static int stress_copy_file(stress_args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE, ret;
 	const int fd_bad = stress_get_bad_fd();

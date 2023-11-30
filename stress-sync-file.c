@@ -65,7 +65,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *
  */
 static int stress_sync_allocate(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *fs_type,
 	const off_t sync_file_bytes)
@@ -109,7 +109,7 @@ static int stress_sync_allocate(
  *  stress_sync_file
  *	stress the sync_file_range system call
  */
-static int stress_sync_file(const stress_args_t *args)
+static int stress_sync_file(stress_args_t *args)
 {
 	int fd, ret;
 	const int bad_fd = stress_get_bad_fd();

@@ -223,7 +223,7 @@ static int stress_rseq_supported(const char *name)
  *  stress_rseq()
  *	exercise restartable sequences rseq
  */
-static int stress_rseq_oomable(const stress_args_t *args, void *context)
+static int stress_rseq_oomable(stress_args_t *args, void *context)
 {
 	struct sigaction sa;
 	(void)context;
@@ -310,7 +310,7 @@ unreg:
 	return EXIT_SUCCESS;
 }
 
-static int stress_rseq(const stress_args_t *args)
+static int stress_rseq(stress_args_t *args)
 {
 	int ret;
 

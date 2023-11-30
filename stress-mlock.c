@@ -202,7 +202,7 @@ static size_t stress_mlock_max_lockable(void)
  *	perform various invalid or unusual calls to
  *	exercise kernel a little more.
  */
-static void stress_mlock_misc(const stress_args_t *args, const size_t page_size, const bool oom_avoid)
+static void stress_mlock_misc(stress_args_t *args, const size_t page_size, const bool oom_avoid)
 {
 	(void)args;
 	(void)oom_avoid;
@@ -290,7 +290,7 @@ static void stress_mlock_misc(const stress_args_t *args, const size_t page_size,
 #endif
 }
 
-static int stress_mlock_child(const stress_args_t *args, void *context)
+static int stress_mlock_child(stress_args_t *args, void *context)
 {
 	size_t i, n;
 	uint8_t **mappings;
@@ -505,7 +505,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
  *  stress_mlock()
  *	stress mlock with pages being locked/unlocked
  */
-static int stress_mlock(const stress_args_t *args)
+static int stress_mlock(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_mlock_child, STRESS_OOMABLE_NORMAL);
 }

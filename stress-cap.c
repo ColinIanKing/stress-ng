@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
     defined(_LINUX_CAPABILITY_U32S_3)
 
 static int stress_capgetset_pid(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const bool do_set,
 	const bool exists)
@@ -143,7 +143,7 @@ static int stress_capgetset_pid(
  *  stress_cap
  *	stress capabilities (trivial)
  */
-static int stress_cap(const stress_args_t *args)
+static int stress_cap(stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

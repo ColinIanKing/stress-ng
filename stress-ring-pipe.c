@@ -87,7 +87,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_POLL_H)
-static int stress_pipe_non_block(const stress_args_t *args, const int fd)
+static int stress_pipe_non_block(stress_args_t *args, const int fd)
 {
 	int flags, ret;
 
@@ -107,7 +107,7 @@ static int stress_pipe_non_block(const stress_args_t *args, const int fd)
  *	read data from a pipe, return bytes read, -1 for failure
  */
 static ssize_t stress_pipe_read(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t buf_len)
@@ -128,7 +128,7 @@ static ssize_t stress_pipe_read(
  *	write data to a pipe, return bytes written, -1 for failure
  */
 static ssize_t stress_pipe_write(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t buf_len)
@@ -148,7 +148,7 @@ static ssize_t stress_pipe_write(
  *  stress_ring_pipe
  *	stress by heavy pipe I/O in a ring of pipes
  */
-static int stress_ring_pipe(const stress_args_t *args)
+static int stress_ring_pipe(stress_args_t *args)
 {
 	double duration = 0.0, bytes = 0.0, rate;
 	size_t i, n_pipes, ring_pipe_num = 256, ring_pipe_size = 4096;

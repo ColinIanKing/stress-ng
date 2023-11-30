@@ -87,7 +87,7 @@ static void stress_mprotect_flags(
 }
 
 static int stress_mprotect_mem(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t page_size,
 	uint8_t *mem,
 	const size_t mem_pages,
@@ -161,7 +161,7 @@ static int stress_mprotect_mem(
  *  stress_mprotect()
  *	stress mprotect
  */
-static int stress_mprotect(const stress_args_t *args)
+static int stress_mprotect(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t mem_pages = (MPROTECT_MAX >> 1) + 1;

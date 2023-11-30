@@ -52,7 +52,7 @@ static const stress_help_t help[] = {
  *	helper to perform netdevice ioctl and check for failure
  */
 static void stress_netdev_check(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct ifreq *ifr,
 	const int fd,
 	const unsigned long cmd,
@@ -78,7 +78,7 @@ static void stress_netdev_check(
  *  stress_netdev
  *	stress netdev
  */
-static int stress_netdev(const stress_args_t *args)
+static int stress_netdev(stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS;
 

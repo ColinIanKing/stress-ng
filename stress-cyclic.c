@@ -51,7 +51,7 @@ typedef struct {
 	double		std_dev;	/* standard deviation */
 } stress_rt_stats_t;
 
-typedef int (*stress_cyclic_func)(const stress_args_t *args, stress_rt_stats_t *rt_stats, uint64_t cyclic_sleep);
+typedef int (*stress_cyclic_func)(stress_args_t *args, stress_rt_stats_t *rt_stats, uint64_t cyclic_sleep);
 
 typedef struct {
 	const char 		 *name;
@@ -172,7 +172,7 @@ static void stress_cyclic_stats(
  *	measure latencies with clock_nanosleep
  */
 static int stress_cyclic_clock_nanosleep(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
@@ -201,7 +201,7 @@ static int stress_cyclic_clock_nanosleep(
  *	measure latencies with posix nanosleep
  */
 static int stress_cyclic_posix_nanosleep(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
@@ -229,7 +229,7 @@ static int stress_cyclic_posix_nanosleep(
  *	measure latencies of heavy polling the clock
  */
 static int stress_cyclic_poll(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
@@ -277,7 +277,7 @@ static int stress_cyclic_poll(
  *	measure latencies with pselect sleep
  */
 static int stress_cyclic_pselect(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
@@ -317,7 +317,7 @@ static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
  *	measure latencies with itimers
  */
 static int stress_cyclic_itimer(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
@@ -383,7 +383,7 @@ restore:
  *	measure latencies with usleep
  */
 static int stress_cyclic_usleep(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
@@ -626,7 +626,7 @@ static int stress_cyclic_supported(const char *name)
 	return 0;
 }
 
-static int stress_cyclic(const stress_args_t *args)
+static int stress_cyclic(stress_args_t *args)
 {
 	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;

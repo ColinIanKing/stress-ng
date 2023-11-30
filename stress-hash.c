@@ -656,7 +656,7 @@ static int stress_set_hash_method(const char *name)
  *  stress_hash()
  *	stress CPU by doing floating point math ops
  */
-static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
+static int HOT OPTIMIZE3 stress_hash(stress_args_t *args)
 {
 	size_t i;
 	const stress_hash_method_info_t *hm;

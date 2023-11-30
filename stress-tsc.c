@@ -212,7 +212,7 @@ static inline uint64_t rdtsc(void)
 #endif
 
 static inline void stress_tsc_check(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t tsc,
 	const uint64_t old_tsc)
 {
@@ -415,7 +415,7 @@ do {			\
  *  stress_tsc()
  *      stress Intel tsc instruction
  */
-static int stress_tsc(const stress_args_t *args)
+static int stress_tsc(stress_args_t *args)
 {
 	bool tsc_lfence = false;
 	int ret = EXIT_SUCCESS;

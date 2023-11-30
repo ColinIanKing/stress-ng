@@ -29,9 +29,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-typedef double (*stress_rotate_func_t)(const stress_args_t *args, const bool verify, bool *success);
+typedef double (*stress_rotate_func_t)(stress_args_t *args, const bool verify, bool *success);
 
-static double stress_rotate_all(const stress_args_t *args, const bool verify, bool *success);
+static double stress_rotate_all(stress_args_t *args, const bool verify, bool *success);
 
 #if defined(HAVE_INT128_T)
 static __uint128_t stress_mwc128(void)
@@ -52,7 +52,7 @@ static __uint128_t stress_mwc128(void)
  */
 #define STRESS_ROTATE_HELPER(fname, type, size, rotate_macro)	\
 static inline double 						\
-stress_ ## fname ## size ## helper(const stress_args_t *args, type *checksum)\
+stress_ ## fname ## size ## helper(stress_args_t *args, type *checksum)\
 {								\
 	double t1, t2;						\
 	register type v0, v1, v2, v3;				\
@@ -81,7 +81,7 @@ stress_ ## fname ## size ## helper(const stress_args_t *args, type *checksum)\
 
 #define STRESS_ROTATE(fname, type, size, rotate_macro)		\
 static double OPTIMIZE3	\
-stress_ ## fname ## size(const stress_args_t *args, const bool verify, bool *success)\
+stress_ ## fname ## size(stress_args_t *args, const bool verify, bool *success)\
 {								\
 	double duration;					\
 	uint32_t w, z;						\
@@ -165,7 +165,7 @@ static stress_rotate_funcs_t stress_rotate_funcs[] = {
 static stress_metrics_t stress_rotate_metrics[SIZEOF_ARRAY(stress_rotate_funcs)];
 
 static void stress_rotate_call_method(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t method,
 	const bool verify,
 	bool *success)
@@ -176,7 +176,7 @@ static void stress_rotate_call_method(
 	stress_rotate_metrics[method].count += (double)ROTATE_LOOPS * 4.0 * (verify ? 2.0 : 1.0);
 }
 
-static double stress_rotate_all(const stress_args_t *args, const bool verify, bool *success)
+static double stress_rotate_all(stress_args_t *args, const bool verify, bool *success)
 {
 	size_t i;
 
@@ -210,7 +210,7 @@ static int stress_set_rotate_method(const char *name)
 	return -1;
 }
 
-static int stress_rotate(const stress_args_t *args)
+static int stress_rotate(stress_args_t *args)
 {
 	size_t rotate_method = 0;	/* "all" */
 	size_t i, j;

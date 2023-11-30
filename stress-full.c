@@ -79,7 +79,7 @@ static inline ALWAYS_INLINE bool PURE OPTIMIZE3 stress_data_is_not_zero(void *bu
  *  stress_full
  *	stress /dev/full
  */
-static int stress_full(const stress_args_t *args)
+static int stress_full(stress_args_t *args)
 {
 	void *buffer;
 	const size_t buffer_size = 4096;

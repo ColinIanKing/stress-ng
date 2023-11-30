@@ -109,7 +109,7 @@ static const int inode_flags[] = {
  *	try and toggle an inode flag on/off
  */
 static void stress_inode_flags_ioctl(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const int flag)
 {
@@ -153,7 +153,7 @@ static inline void stress_inode_flags_ioctl_sane(const int fd)
  *	than fail.
  */
 static int stress_inode_flags_stressor(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const stress_data_t *data)
 {
 	size_t index = 0;
@@ -210,7 +210,7 @@ static void *stress_inode_flags_thread(void *arg)
  *  stress_inode_flags
  *	stress reading all of /dev
  */
-static int stress_inode_flags(const stress_args_t *args)
+static int stress_inode_flags(stress_args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_INODE_FLAG_THREADS];

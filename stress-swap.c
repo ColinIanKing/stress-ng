@@ -102,7 +102,7 @@ static int stress_swap_supported(const char *name)
 }
 
 static int32_t stress_swap_zero(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const uint32_t npages,
 	const uint8_t *page)
@@ -131,7 +131,7 @@ static int32_t stress_swap_zero(
 }
 
 static int stress_swap_set_size(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const uint32_t npages,
 	const int bad_flags)
@@ -221,7 +221,7 @@ static void stress_swap_check_swapped(
 	free(vec);
 }
 
-static void stress_swap_clean_dir(const stress_args_t *args)
+static void stress_swap_clean_dir(stress_args_t *args)
 {
 	char path[PATH_MAX];
 	DIR *dir;
@@ -252,7 +252,7 @@ static void stress_swap_clean_dir(const stress_args_t *args)
  *  stress_swap_child()
  *	stress swap operations
  */
-static int stress_swap_child(const stress_args_t *args, void *context)
+static int stress_swap_child(stress_args_t *args, void *context)
 {
 	char filename[PATH_MAX];
 	int fd, ret;
@@ -465,7 +465,7 @@ tidy_ret:
 	return ret;
 }
 
-static int stress_swap(const stress_args_t *args)
+static int stress_swap(stress_args_t *args)
 {
 	int ret;
 

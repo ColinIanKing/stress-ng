@@ -57,7 +57,7 @@ static const stress_help_t help[] = {
 
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	const struct stress_memthrash_method_info *memthrash_method;
 	uint32_t total_cpus;
 	uint32_t max_threads;
@@ -764,7 +764,7 @@ static void *stress_memthrash_func(void *ctxt)
 	static void *nowt = NULL;
 	const stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const stress_memthrash_func_t func = context->memthrash_method->func;
-	const stress_args_t *args = context->args;
+	stress_args_t *args = context->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -830,7 +830,7 @@ static void stress_memthrash_sigalrm_handler(int signum)
 	thread_terminate = true;
 }
 
-static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
+static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 {
 	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const uint32_t max_threads = context->max_threads;
@@ -916,7 +916,7 @@ reap_mem:
  *  stress_memthrash()
  *	stress by creating pthreads
  */
-static int stress_memthrash(const stress_args_t *args)
+static int stress_memthrash(stress_args_t *args)
 {
 	stress_memthrash_context_t context;
 	size_t memthrash_method = 0;

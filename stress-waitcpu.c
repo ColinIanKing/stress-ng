@@ -209,7 +209,7 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
  *  stress_waitcpu()
  *     spin loop with cpu waiting
  */
-static int stress_waitcpu(const stress_args_t *args)
+static int stress_waitcpu(stress_args_t *args)
 {
 	bool supported = false;
 	size_t i, j;

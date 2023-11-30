@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
 #define CHUNK_SIZE	(1 * GB)
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	size_t sz;
 	size_t iov_count;
 	pid_t pid;
@@ -87,7 +87,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int OPTIMIZE3 stress_vm_child(void *arg)
 {
 	const stress_context_t *ctxt = (stress_context_t *)arg;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	uint8_t *buf;
@@ -183,7 +183,7 @@ static int OPTIMIZE3 stress_vm_parent(stress_context_t *ctxt)
 	uint8_t val = 0x10;
 	uint8_t *localbuf;
 	stress_addr_msg_t msg_rd, msg_wr;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	size_t sz;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
@@ -363,7 +363,7 @@ fail:
  *  stress_vm_rw
  *	stress vm_read_v/vm_write_v
  */
-static int stress_vm_rw(const stress_args_t *args)
+static int stress_vm_rw(stress_args_t *args)
 {
 	stress_context_t ctxt;
 	uint8_t stack[64*1024];

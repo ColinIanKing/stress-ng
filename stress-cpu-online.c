@@ -74,7 +74,7 @@ static inline void stress_cpu_online_set_affinity(const uint32_t cpu)
  *	set a specified CPUs online or offline
  */
 static int stress_cpu_online_set(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint32_t cpu,
 	const int setting)
 {
@@ -166,7 +166,7 @@ static int stress_cpu_online_supported(const char *name)
  *  stress_cpu_online
  *	stress twiddling CPUs online/offline
  */
-static int stress_cpu_online(const stress_args_t *args)
+static int stress_cpu_online(stress_args_t *args)
 {
 	int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;

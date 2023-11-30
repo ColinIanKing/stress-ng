@@ -1277,7 +1277,7 @@ static void NORETURN stress_child_atexit(void)
  *	copy of another dup by another stressor process (to save memory).
  */
 void stress_metrics_set_const_check(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t idx,
 	char *description,
 	const bool const_description,
@@ -1424,23 +1424,22 @@ static int MLOCKED_TEXT stress_run_child(
 	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
 	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
-		const stress_args_t args = {
-			.ci = &stats->ci,
-			.name = name,
-			.max_ops = g_stressor_current->bogo_ops,
-			.instance = (uint32_t)instance,
-			.num_instances = (uint32_t)g_stressor_current->num_instances,
-			.pid = child_pid,
-			.page_size = page_size,
-			.time_end = stress_time_now() + (double)g_opt_timeout,
-			.mapped = &g_shared->mapped,
-			.metrics = stats->metrics,
-			.info = g_stressor_current->stressor->info
-		};
-		stress_set_oom_adjustment(&args, false);
+		stats->args.name = name,
+		stats->args.max_ops = g_stressor_current->bogo_ops,
+		stats->args.instance = (uint32_t)instance,
+		stats->args.num_instances = (uint32_t)g_stressor_current->num_instances,
+		stats->args.pid = child_pid,
+		stats->args.page_size = page_size,
+		stats->args.time_end = stress_time_now() + (double)g_opt_timeout,
+		stats->args.mapped = &g_shared->mapped,
+		stats->args.metrics = stats->metrics,
+		stats->args.info = g_stressor_current->stressor->info;
+
+		stress_set_oom_adjustment(&stats->args, false);
+
 		(void)shim_memset(*checksum, 0, sizeof(**checksum));
 		stats->start = stress_time_now();
-		rc = g_stressor_current->stressor->info->stressor(&args);
+		rc = g_stressor_current->stressor->info->stressor(&stats->args);
 		stress_block_signals();
 		(void)alarm(0);
 		if (g_opt_flags & OPT_FLAGS_INTERRUPTS) {
@@ -1472,7 +1471,7 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 		stats->completed = true;
 		ok = (rc == EXIT_SUCCESS);
-		stats->ci.run_ok = ok;
+		stats->args.ci.run_ok = ok;
 		(*checksum)->data.ci.run_ok = ok;
 		/* Ensure reserved padding is zero to not confuse checksum */
 		(void)shim_memset((*checksum)->data.pad, 0, sizeof((*checksum)->data.pad));
@@ -1483,14 +1482,14 @@ static int MLOCKED_TEXT stress_run_child(
 		 *  if not then flag up that the counter may
 		 *  be untrustyworthy
 		 */
-		if ((!stats->ci.counter_ready) && (!stats->ci.force_killed)) {
+		if ((!stats->args.ci.counter_ready) && (!stats->args.ci.force_killed)) {
 			pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
 				"metrics are untrustworthy (process may have been "
 				"terminated prematurely)\n",
 				name);
 			rc = EXIT_METRICS_UNTRUSTWORTHY;
 		}
-		(*checksum)->data.ci.counter = args.ci->counter;
+		(*checksum)->data.ci.counter = stats->args.ci.counter;
 		stress_hash_checksum(*checksum);
 	}
 #if defined(STRESS_PERF_STATS) &&	\
@@ -1506,7 +1505,7 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 	finish = stress_time_now();
 	stats->duration = finish - stats->start;
-	stats->counter_total += stats->ci.counter;
+	stats->counter_total += stats->args.ci.counter;
 	stats->duration_total += stats->duration;
 
 	stress_get_usage_stats(ticks_per_sec, stats);
@@ -1520,10 +1519,10 @@ static int MLOCKED_TEXT stress_run_child(
 	 * Apparently succeeded but terminated early?
 	 * Could be a bug, so report a warning
 	 */
-	if (stats->ci.run_ok &&
+	if (stats->args.ci.run_ok &&
 	    (g_shared && !g_shared->caught_sigint) &&
 	    (run_duration < (double)g_opt_timeout) &&
-	    (!(g_stressor_current->bogo_ops && stats->ci.counter >= g_stressor_current->bogo_ops))) {
+	    (!(g_stressor_current->bogo_ops && stats->args.ci.counter >= g_stressor_current->bogo_ops))) {
 
 		pr_warn("%s: WARNING: finished prematurely after just %s\n",
 			name, stress_duration_to_str(run_duration, true));
@@ -1602,8 +1601,8 @@ static void MLOCKED_TEXT stress_run(
 				goto abort;
 #endif
 			stats->pid = -1;
-			stats->ci.counter_ready = true;
-			stats->ci.counter = 0;
+			stats->args.ci.counter_ready = true;
+			stats->args.ci.counter = 0;
 			stats->checksum = *checksum;
 again:
 			if (!stress_continue_flag())
@@ -1806,7 +1805,7 @@ static void stress_metrics_check(bool *success)
 			if (!stats->completed)
 				continue;
 
-			counter_check |= stats->ci.counter;
+			counter_check |= stats->args.ci.counter;
 			if (stats->duration < min_run_time)
 				min_run_time = stats->duration;
 
@@ -1818,20 +1817,20 @@ static void stress_metrics_check(bool *success)
 			}
 
 			(void)shim_memset(&stats_checksum, 0, sizeof(stats_checksum));
-			stats_checksum.data.ci.counter = stats->ci.counter;
-			stats_checksum.data.ci.run_ok = stats->ci.run_ok;
+			stats_checksum.data.ci.counter = stats->args.ci.counter;
+			stats_checksum.data.ci.run_ok = stats->args.ci.run_ok;
 			stress_hash_checksum(&stats_checksum);
 
-			if (stats->ci.counter != checksum->data.ci.counter) {
+			if (stats->args.ci.counter != checksum->data.ci.counter) {
 				pr_fail("%s instance %d corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "\n",
 					ss->stressor->name, j,
-					stats->ci.counter, checksum->data.ci.counter);
+					stats->args.ci.counter, checksum->data.ci.counter);
 				ok = false;
 			}
-			if (stats->ci.run_ok != checksum->data.ci.run_ok) {
+			if (stats->args.ci.run_ok != checksum->data.ci.run_ok) {
 				pr_fail("%s instance %d corrupted run flag, %d vs %d\n",
 					ss->stressor->name, j,
-					stats->ci.run_ok, checksum->data.ci.run_ok);
+					stats->args.ci.run_ok, checksum->data.ci.run_ok);
 				ok = false;
 			}
 			if (stats_checksum.hash != checksum->hash) {
@@ -1936,7 +1935,7 @@ static void stress_metrics_dump(FILE *yaml)
 			if (stats->completed)
 				ss->completed_instances++;
 
-			run_ok  |= stats->ci.run_ok;
+			run_ok  |= stats->args.ci.run_ok;
 			c_total += stats->counter_total;
 			u_total += stats->rusage_utime_total;
 			s_total += stats->rusage_stime_total;

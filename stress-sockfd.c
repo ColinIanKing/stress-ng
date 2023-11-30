@@ -143,7 +143,7 @@ static inline int stress_socket_fd_recv(const int fd)
  *	client reader
  */
 static int OPTIMIZE3 stress_socket_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const ssize_t max_fd,
 	const int socket_fd_port,
@@ -238,7 +238,7 @@ retry:
  *	server writer
  */
 static int OPTIMIZE3 stress_socket_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t ppid,
 	const ssize_t max_fd,
 	const int socket_fd_port)
@@ -356,7 +356,7 @@ die:
  *  stress_sockfd
  *	stress socket fd passing
  */
-static int stress_sockfd(const stress_args_t *args)
+static int stress_sockfd(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
 	ssize_t max_fd = (ssize_t)stress_get_file_limit();

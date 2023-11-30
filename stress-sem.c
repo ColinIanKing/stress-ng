@@ -76,7 +76,7 @@ static stress_sem_pthread_t sem_pthreads[MAX_SEM_POSIX_PROCS] ALIGN64;
 static void OPTIMIZE3 *semaphore_posix_thrash(void *arg)
 {
 	const stress_pthread_args_t *p_args = arg;
-	const stress_args_t *args = p_args->args;
+	stress_args_t *args = p_args->args;
 	stress_sem_pthread_t *pthread = (stress_sem_pthread_t *)p_args->data;
 	static void *nowt = NULL;
 
@@ -174,7 +174,7 @@ do_return:
  *  stress_sem()
  *	stress system by POSIX sem ops
  */
-static int stress_sem(const stress_args_t *args)
+static int stress_sem(stress_args_t *args)
 {
 	uint64_t semaphore_posix_procs = DEFAULT_SEM_POSIX_PROCS;
 	uint64_t i;

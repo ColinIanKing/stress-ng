@@ -57,7 +57,7 @@ static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
  *  stress_jmp()
  *	stress system by setjmp/longjmp calls
  */
-static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
+static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 {
 	int ret;
 	static uint32_t check0, check1;

@@ -42,7 +42,7 @@ static void stress_sigsuspend_chld_handler(int sig)
  *  stress_sigsuspend
  *	stress sigsuspend
  */
-static int stress_sigsuspend(const stress_args_t *args)
+static int stress_sigsuspend(stress_args_t *args)
 {
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;

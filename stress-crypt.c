@@ -57,7 +57,7 @@ static stress_metrics_t *crypt_metrics;
  *	crypt a password with given seed and id
  */
 static int stress_crypt_id(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t i,
 #if defined(HAVE_CRYPT_R)
 	struct crypt_data *data
@@ -114,7 +114,7 @@ static int stress_crypt_id(
  *  stress_crypt()
  *	stress libc crypt
  */
-static int stress_crypt(const stress_args_t *args)
+static int stress_crypt(stress_args_t *args)
 {
 	register size_t i;
 

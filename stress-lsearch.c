@@ -134,7 +134,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_lsearch()
  *	stress lsearch
  */
-static int stress_lsearch(const stress_args_t *args)
+static int stress_lsearch(stress_args_t *args)
 {
 	int32_t *data, *root;
 	size_t i, max, lsearch_method = 0;

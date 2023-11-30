@@ -69,7 +69,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_udp_flood
  *	UDP flood
  */
-static int OPTIMIZE3 stress_udp_flood(const stress_args_t *args)
+static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	int udp_flood_domain = AF_INET;

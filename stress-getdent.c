@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 #define BUF_SIZE	(256 * 1024)
 
 typedef int (stress_getdents_func)(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -63,7 +63,7 @@ static stress_getdents_func * getdents_funcs[] = {
 };
 
 static inline int stress_getdents_rand(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -113,7 +113,7 @@ static inline void *stress_gendent_offset(void *ptr, const int offset)
  *	read directory via the old 32 bit interface
  */
 static int stress_getdents_dir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -201,7 +201,7 @@ exit_close:
  *	read directory via the 64 bit interface
  */
 static int stress_getdents64_dir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -282,7 +282,7 @@ exit_close:
  *  stress_getdent
  *	stress reading directories
  */
-static int stress_getdent(const stress_args_t *args)
+static int stress_getdent(stress_args_t *args)
 {
 	const int bad_fd = stress_get_bad_fd();
 	double duration = 0.0, count = 0.0, rate;

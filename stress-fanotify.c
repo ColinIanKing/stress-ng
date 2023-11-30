@@ -422,7 +422,7 @@ static void stress_fanotify_init_exercise(const unsigned int flags)
 }
 
 static void stress_fanotify_read_events(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fan_fd,
 	void *buffer,
 	const size_t buffer_size,
@@ -476,7 +476,7 @@ static void stress_fanotify_read_events(
  *  stress_fanotify()
  *	stress fanotify
  */
-static int stress_fanotify(const stress_args_t *args)
+static int stress_fanotify(stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16], filename[PATH_MAX], filename2[PATH_MAX];
 	pid_t pid;

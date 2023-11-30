@@ -125,7 +125,7 @@ static stress_zombie_t *stress_zombie_new(void)
  *	reap a zombie and remove a zombie from head of list, put it onto
  *	the free zombie list
  */
-static void stress_zombie_head_remove(const stress_args_t *args, const bool check)
+static void stress_zombie_head_remove(stress_args_t *args, const bool check)
 {
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
@@ -199,7 +199,7 @@ static int stress_set_zombie_max(const char *opt)
  *  stress_zombie()
  *	stress by zombieing and exiting
  */
-static int stress_zombie(const stress_args_t *args)
+static int stress_zombie(stress_args_t *args)
 {
 	uint32_t max_zombies = 0;
 	uint32_t zombie_max = DEFAULT_ZOMBIES;

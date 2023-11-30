@@ -81,7 +81,7 @@ static void NORETURN MLOCKED_TEXT stress_fpunch_child_handler(int signum)
  *	as this does not need an lseek overhead call
  */
 static ssize_t stress_punch_pwrite(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *data,
 	const int fd,
 	const size_t size,
@@ -108,7 +108,7 @@ static ssize_t stress_punch_pwrite(
  *	verify data in file is zero'd
  */
 static inline int stress_punch_check_zero(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *data,
 	const int fd,
 	const off_t offset,
@@ -147,7 +147,7 @@ static inline int stress_punch_check_zero(
  *	data.
  */
 static int stress_punch_action(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_punch_buf_t *buf,
 	const stress_fallocate_modes_t *mode,
 	const size_t instance,
@@ -195,7 +195,7 @@ static int stress_punch_action(
  *	exercise fallocate punching operations
  */
 static int stress_punch_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_punch_buf_t *buf,
 	const size_t instance,
 	const int fd)
@@ -274,7 +274,7 @@ static int stress_punch_file(
  *  stress_fpunch
  *	stress punching holes in files
  */
-static int stress_fpunch(const stress_args_t *args)
+static int stress_fpunch(stress_args_t *args)
 {
 	int fd = -1, ret, rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];

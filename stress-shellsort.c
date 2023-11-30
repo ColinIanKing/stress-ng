@@ -125,7 +125,7 @@ static inline int OPTIMIZE3 shellsort(void *base, size_t nmemb, size_t size,
  *  stress_shellsort()
  *	stress shellsort
  */
-static int OPTIMIZE3 stress_shellsort(const stress_args_t *args)
+static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 {
 	uint64_t shellsort_size = DEFAULT_SHELLSORT_SIZE;
 	int32_t *data, *ptr;

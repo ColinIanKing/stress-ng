@@ -86,7 +86,7 @@ static const int signals[] = {
 };
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	uint32_t signalled;	/* bitmap of index into signals[] handled */
 	bool stop;		/* true to stop further nested signalling */
 	intptr_t altstack;	/* alternative stack push start */
@@ -192,7 +192,7 @@ done:
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-static int stress_signest(const stress_args_t *args)
+static int stress_signest(stress_args_t *args)
 {
 	size_t i, sz;
 	int n, ret, rc;

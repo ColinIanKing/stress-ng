@@ -44,7 +44,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	create a temp file for file-back mmap'd page, return
  *	fd if successful, -1 if failed.
  */
-static int stress_mincore_file(const stress_args_t *args)
+static int stress_mincore_file(stress_args_t *args)
 {
 	int ret, fd;
 	char filename[PATH_MAX];
@@ -74,7 +74,7 @@ static int stress_mincore_file(const stress_args_t *args)
  *	check for expected return code/errors
  */
 static void stress_mincore_expect(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int ret,		/* return value */
 	const int ret_expected,	/* expected return value */
 	const int err,		/* returned errno */
@@ -99,7 +99,7 @@ static void stress_mincore_expect(
  *  stress_mincore()
  *	stress mincore system call
  */
-static int stress_mincore(const stress_args_t *args)
+static int stress_mincore(stress_args_t *args)
 {
 	uint8_t *addr = 0, *prev_addr = 0;
 	const size_t page_size = args->page_size;

@@ -46,7 +46,7 @@ static void stress_fault_handler(int signum)
  *  stress_mmapaddr_check()
  *	perform some quick sanity checks to see if page is mapped OK
  */
-static int stress_mmapaddr_check(const stress_args_t *args, uint8_t *map_addr)
+static int stress_mmapaddr_check(stress_args_t *args, uint8_t *map_addr)
 {
 	unsigned char vec[1];
 	volatile uint8_t val;
@@ -83,7 +83,7 @@ static int stress_mmapaddr_check(const stress_args_t *args, uint8_t *map_addr)
  *	try to find an unmapp'd address
  */
 static void *stress_mmapaddr_get_addr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uintptr_t mask,
 	const size_t page_size)
 {
@@ -113,7 +113,7 @@ static void *stress_mmapaddr_get_addr(
 	return addr;
 }
 
-static int stress_mmapaddr_child(const stress_args_t *args, void *context)
+static int stress_mmapaddr_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const uintptr_t page_mask = ~(page_size - 1);
@@ -232,7 +232,7 @@ unmap:
  *  stress_mmapaddr()
  *	stress mmap with randomly chosen addresses
  */
-static int stress_mmapaddr(const stress_args_t *args)
+static int stress_mmapaddr(stress_args_t *args)
 {
 	if (stress_sighandler(args->name, SIGSEGV, stress_fault_handler, NULL) < 0)
 		return EXIT_FAILURE;

@@ -298,7 +298,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
      !defined(__APPLE__) &&						\
      !defined(__serenity__)
 static int stress_workload_set_sched(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t workload_sched)
 {
 #if defined(SCHED_DEADLINE) &&		\
@@ -422,7 +422,7 @@ case_sched_fifo:
 }
 #else
 static int stress_workload_set_sched(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t workload_sched)
 {
 	(void)args;
@@ -739,7 +739,7 @@ static int stress_workload_cmp(const void *p1, const void *p2)
 }
 
 static int stress_workload_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 #if defined(WORKLOAD_THREADED)
 	const mqd_t mq,
 #endif
@@ -890,7 +890,7 @@ static void *stress_workload_thread(void *ctxt)
 }
 #endif
 
-static int stress_workload(const stress_args_t *args)
+static int stress_workload(stress_args_t *args)
 {
 	uint32_t workload_load = 30;
 	uint32_t workload_slice_us = 100000;	/* 1/10th second */

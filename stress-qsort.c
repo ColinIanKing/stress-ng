@@ -242,7 +242,7 @@ static int stress_set_qsort_method(const char *opt)
 }
 
 static inline bool OPTIMIZE3 stress_qsort_verify_forward(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int32_t *data,
 	const size_t n)
 {
@@ -271,7 +271,7 @@ fail:
 }
 
 static inline bool OPTIMIZE3 stress_qsort_verify_reverse(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int32_t *data,
 	const size_t n)
 {
@@ -303,7 +303,7 @@ fail:
  *  stress_qsort()
  *	stress qsort
  */
-static int OPTIMIZE3 stress_qsort(const stress_args_t *args)
+static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 {
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data;

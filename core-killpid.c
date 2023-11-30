@@ -80,7 +80,7 @@ int stress_kill_sig(const pid_t pid, const int signum)
  *	wait until a process has been removed from process table
  */
 static int stress_wait_until_reaped(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const int signum,
 	const bool set_stress_force_killed_bogo)
@@ -134,7 +134,7 @@ static int stress_wait_until_reaped(
  *  stress_kill_and_wait()
  */
 int stress_kill_and_wait(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const int signum,
 	const bool set_stress_force_killed_bogo)
@@ -166,7 +166,7 @@ int stress_kill_and_wait(
  * 	waited for and definitely exited with EXIT_FAILURE.
  */
 int stress_kill_and_wait_many(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t *pids,
 	const size_t n_pids,
 	const int signum,

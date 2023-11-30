@@ -231,7 +231,7 @@ static int do_chmod(
  *  stress_chmod
  *	stress chmod
  */
-static int stress_chmod(const stress_args_t *args)
+static int stress_chmod(stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;

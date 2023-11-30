@@ -78,7 +78,7 @@ typedef struct {
 	const char *path;
 } stress_landlock_ctxt_t;
 
-typedef int (*stress_landlock_func)(const stress_args_t *args, stress_landlock_ctxt_t *ctxt);
+typedef int (*stress_landlock_func)(stress_args_t *args, stress_landlock_ctxt_t *ctxt);
 
 static int shim_landlock_create_ruleset(
 	struct landlock_ruleset_attr *attr,
@@ -163,7 +163,7 @@ static int stress_landlock_filter(const struct dirent *d)
  *   	recursively apply landlock to as many files as possible to consume
  *   	landlock resources.
  */
-static void stress_landlock_many(const stress_args_t *args, const char *path, const int depth)
+static void stress_landlock_many(stress_args_t *args, const char *path, const int depth)
 {
 	struct dirent **namelist = NULL;
 	int i, n;
@@ -228,7 +228,7 @@ close_ruleset:
 	(void)close(ruleset_fd);
 }
 
-static int stress_landlock_flag(const stress_args_t *args, stress_landlock_ctxt_t *ctxt)
+static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctxt)
 {
 	int ruleset_fd, fd, ret, rc = EXIT_SUCCESS;
 	struct landlock_ruleset_attr ruleset_attr;
@@ -297,7 +297,7 @@ close_ruleset:
 }
 
 static void stress_landlock_test(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_landlock_func func,
 	stress_landlock_ctxt_t *ctxt,
 	int *failures)
@@ -341,7 +341,7 @@ again:
  *  stress_landlock()
  *	stress landlock API
  */
-static int stress_landlock(const stress_args_t *args)
+static int stress_landlock(stress_args_t *args)
 {
 	static const int landlock_access_flags[] = {
 		SHIM_LANDLOCK_ACCESS_FS_EXECUTE,

@@ -98,7 +98,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	client sender
  */
 static void NORETURN OPTIMIZE3 stress_rawudp_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	in_addr_t addr,
 	const int port)
 {
@@ -175,7 +175,7 @@ err:
  *	server reader
  */
 static int OPTIMIZE3 stress_rawudp_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	in_addr_t addr,
 	const int port)
 {
@@ -263,7 +263,7 @@ static void stress_sock_sigpipe_handler(int signum)
  *  stress_rawudp
  *	stress raw socket I/O UDP packet send/receive
  */
-static int stress_rawudp(const stress_args_t *args)
+static int stress_rawudp(stress_args_t *args)
 {
 	pid_t pid;
 	int rawudp_port = DEFAULT_RAWUDP_PORT;

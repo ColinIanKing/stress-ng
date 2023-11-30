@@ -486,7 +486,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
  *	client reader
  */
 static int OPTIMIZE3 stress_sock_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *buf,
 	const pid_t mypid,
 	const int sock_opts,
@@ -904,7 +904,7 @@ static bool stress_send_error(const int err)
  *	server writer
  */
 static int OPTIMIZE3 stress_sock_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *buf,
 	const pid_t pid,
 	const pid_t ppid,
@@ -1266,7 +1266,7 @@ static bool stress_sock_kernel_rt(void)
  *  stress_sock
  *	stress by heavy socket I/O
  */
-static int stress_sock(const stress_args_t *args)
+static int stress_sock(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
 	int sock_opts = SOCKET_OPT_SEND;

@@ -51,7 +51,7 @@ static const char * const interfaces[] = {
 	"offset"
 };
 
-static inline int stress_rtc_dev(const stress_args_t *args)
+static inline int stress_rtc_dev(stress_args_t *args)
 {
 	int fd, ret = 0;
 	static bool do_dev = true;
@@ -257,7 +257,7 @@ err:
 	return ret;
 }
 
-static inline int stress_rtc_sys(const stress_args_t *args)
+static inline int stress_rtc_sys(stress_args_t *args)
 {
 	size_t i;
 	int rc = 0;
@@ -291,7 +291,7 @@ static inline int stress_rtc_sys(const stress_args_t *args)
 	return rc;
 }
 
-static inline int stress_rtc_proc(const stress_args_t *args)
+static inline int stress_rtc_proc(stress_args_t *args)
 {
 	ssize_t ret;
 	char buf[4096];
@@ -311,7 +311,7 @@ static inline int stress_rtc_proc(const stress_args_t *args)
  *  stress_rtc
  *	stress some Linux RTC ioctls and /sys/class/rtc interface
  */
-static int stress_rtc(const stress_args_t *args)
+static int stress_rtc(stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

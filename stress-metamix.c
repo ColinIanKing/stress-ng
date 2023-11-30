@@ -76,7 +76,7 @@ static int stress_metamix_cmp(const void *p1, const void *p2)
  *	try to mimic Lucene's access patterns
  */
 static int stress_metamix_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *temp_dir,
 	const char *fs_type,
 	const uint32_t instance,
@@ -322,7 +322,7 @@ err_unlink:
  *	Lucern's file access method, cf:
  *	https://github.com/ColinIanKing/stress-ng/issues/316
  */
-static int stress_metamix(const stress_args_t *args)
+static int stress_metamix(stress_args_t *args)
 {
 	int ret;
 	off_t metamix_bytes = DEFAULT_METAMIX_BYTES;

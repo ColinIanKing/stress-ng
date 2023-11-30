@@ -8421,7 +8421,7 @@ static inline int cmp_syscall_time(const void *p1, const void *p2)
  *	report the top 10 fastest system calls sorted by average syscall
  *	duration in nanoseconds.
  */
-static void stress_syscall_report_syscall_top10(const stress_args_t *args)
+static void stress_syscall_report_syscall_top10(stress_args_t *args)
 {
 	size_t i, n, sort_index[STRESS_SYSCALLS_MAX];
 	size_t max = STRESS_MINIMUM(10, STRESS_SYSCALLS_MAX);
@@ -8558,7 +8558,7 @@ static void stress_syscall_rank_calls(const int syscall_method)
  *  stress_syscall_benchmark_calls()
  *	benchmark the system calls that are not marked to be ignored
  */
-static void stress_syscall_benchmark_calls(const stress_args_t *args)
+static void stress_syscall_benchmark_calls(stress_args_t *args)
 {
 	size_t i;
 
@@ -8609,7 +8609,7 @@ static void stress_syscall_benchmark_calls(const stress_args_t *args)
  *  stress_syscall
  *	stress system calls
  */
-static int stress_syscall(const stress_args_t *args)
+static int stress_syscall(stress_args_t *args)
 {
 	int ret, rc = EXIT_NO_RESOURCE;
 	size_t exercised = 0;

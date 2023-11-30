@@ -76,7 +76,7 @@ static int stress_netlink_proc_supported(const char *name)
  *   monitor()
  *	monitor system activity
  */
-static int monitor(const stress_args_t *args, const int sock)
+static int monitor(stress_args_t *args, const int sock)
 {
 	struct nlmsghdr *nlmsghdr;
 	ssize_t len;
@@ -187,7 +187,7 @@ static void spawn_several(const char *name, const int n, const int max)
  *  stress_netlink_proc()
  *	stress netlink proc events
  */
-static int stress_netlink_proc(const stress_args_t *args)
+static int stress_netlink_proc(stress_args_t *args)
 {
 	int sock = -1;
 	struct sockaddr_nl addr;

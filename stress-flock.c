@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 #define MAX_FLOCK_STRESSORS	(3)
 
 static int stress_flock_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *filename,
 	const int bad_fd,
 	const bool save_metrics)
@@ -294,7 +294,7 @@ static int stress_flock_child(
  *  stress_flock
  *	stress file locking
  */
-static int stress_flock(const stress_args_t *args)
+static int stress_flock(stress_args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
 	const int bad_fd = stress_get_bad_fd();

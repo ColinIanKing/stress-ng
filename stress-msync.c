@@ -105,7 +105,7 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
  *  stress_msync()
  *	stress msync
  */
-static int stress_msync(const stress_args_t *args)
+static int stress_msync(stress_args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint8_t *data = NULL;

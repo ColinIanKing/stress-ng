@@ -45,7 +45,7 @@ static void MLOCKED_TEXT stress_sigtrap_handler(int num)
  *  stress_sigtrap
  *	stress by generating traps (x86 only)
  */
-static int stress_sigtrap(const stress_args_t *args)
+static int stress_sigtrap(stress_args_t *args)
 {
 	uint64_t raised = 0;
 	double rate = 0.0;

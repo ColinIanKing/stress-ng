@@ -858,7 +858,7 @@ static inline stress_matrix_3d_type_t stress_matrix_data(const stress_matrix_3d_
 }
 
 static inline int stress_matrix_3d_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t matrix_3d_method,
 	const size_t matrix_3d_zyx,
 	const size_t n)
@@ -990,7 +990,7 @@ tidy_ret:
  *  stress_matrix_3d()
  *	stress CPU by doing floating point math ops
  */
-static int stress_matrix_3d(const stress_args_t *args)
+static int stress_matrix_3d(stress_args_t *args)
 {
 	size_t matrix_3d_method = 0; 	/* All method */
 	size_t matrix_3d_size = DEFAULT_MATRIX3D_SIZE;

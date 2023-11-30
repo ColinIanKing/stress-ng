@@ -67,7 +67,7 @@ static void stress_dirmany_filename(
 }
 
 static uint64_t stress_dirmany_create(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *pathname,
 	const size_t pathname_len,
 	const off_t dirmany_bytes,
@@ -162,7 +162,7 @@ static void stress_dirmany_remove(
  *  stress_dirmany
  *	stress directory with many empty files
  */
-static int stress_dirmany(const stress_args_t *args)
+static int stress_dirmany(stress_args_t *args)
 {
 	int ret;
 	uint64_t i_start = 0, total_created = 0;

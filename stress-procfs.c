@@ -48,14 +48,14 @@ static const stress_help_t help[] = {
 #define MAX_PROCFS_THREADS	(4)
 
 typedef struct stress_ctxt {
-	const stress_args_t *args;
+	stress_args_t *args;
 	const char *path;
 	bool writeable;
 } stress_ctxt_t;
 
 typedef struct {
 	const char *filename;
-	void (*stress_func)(const stress_args_t *args, const int fd);
+	void (*stress_func)(stress_args_t *args, const int fd);
 } stress_proc_info_t;
 
 #if !defined(NSIO)
@@ -160,7 +160,7 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
  *	check if /proc/self/mem can be mmap'd and read and values
  *	match that of mmap'd page and page read via the fd
  */
-static void stress_proc_self_mem(const stress_args_t *args, const int fd)
+static void stress_proc_self_mem(stress_args_t *args, const int fd)
 {
 	uint8_t *page, *buf, rnd = stress_mwc8();
 	const size_t page_size = stress_get_page_size();
@@ -202,7 +202,7 @@ static void stress_proc_self_mem(const stress_args_t *args, const int fd)
  *  stress_proc_mtrr()
  *	exercise /proc/mtrr ioctl MTRRIOC_GET_ENTRY
  */
-static void stress_proc_mtrr(const stress_args_t *args, const int fd)
+static void stress_proc_mtrr(stress_args_t *args, const int fd)
 {
 	struct mtrr_gentry gentry;
 
@@ -222,7 +222,7 @@ static void stress_proc_mtrr(const stress_args_t *args, const int fd)
 #if defined(HAVE_LINUX_PCI_H) &&	\
     defined(PCIIOC_CONTROLLER) &&	\
     !defined(STRESS_ARCH_SH4)
-static void stress_proc_pci(const stress_args_t *args, const int fd)
+static void stress_proc_pci(stress_args_t *args, const int fd)
 {
 	(void)args;
 
@@ -630,7 +630,7 @@ static void stress_proc_dir(
 	const int depth)
 {
 	struct dirent **dlist;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	int32_t loops = args->instance < 8 ?
 			(int32_t)(args->instance + 1) : 8;
 	int i, n, ret;
@@ -742,7 +742,7 @@ static char *stress_random_pid(void)
  *  stress_procfs_no_entries()
  *	report when no /proc entries are found
  */
-static int stress_procfs_no_entries(const stress_args_t *args)
+static int stress_procfs_no_entries(stress_args_t *args)
 {
 	if (args->instance == 0)
 		pr_inf_skip("%s: no /proc entries found, skipping stressor\n", args->name);
@@ -753,7 +753,7 @@ static int stress_procfs_no_entries(const stress_args_t *args)
  *  stress_procfs
  *	stress reading all of /proc
  */
-static int stress_procfs(const stress_args_t *args)
+static int stress_procfs(stress_args_t *args)
 {
 	int i, n;
 	pthread_t pthreads[MAX_PROCFS_THREADS];

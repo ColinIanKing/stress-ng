@@ -22,7 +22,7 @@
 
 #include <sched.h>
 
-static const stress_args_t *s_args;
+static stress_args_t *s_args;
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigpipe N",	 "start N workers exercising SIGPIPE" },
@@ -52,7 +52,7 @@ static int NORETURN pipe_child(void *ptr)
 #endif
 
 static inline int stress_sigpipe_write(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *buf,
 	const size_t buf_len,
 	uint64_t *pipe_count,
@@ -146,7 +146,7 @@ finish:
  *  stress_sigpipe
  *	stress by generating SIGPIPE signals on pipe I/O
  */
-static int stress_sigpipe(const stress_args_t *args)
+static int stress_sigpipe(stress_args_t *args)
 {
 	const size_t buf_size = args->page_size * 2;
 	char *buf;

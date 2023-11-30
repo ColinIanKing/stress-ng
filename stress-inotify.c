@@ -47,8 +47,8 @@ static const stress_help_t help[] = {
 #define TIME_OUT	(10)	/* Secs for inotify to report back */
 #define BUF_SIZE	(4096)
 
-typedef int (*stress_inotify_helper)(const stress_args_t *args, const char *path, const void *private);
-typedef void (*stress_inotify_func)(const stress_args_t *args, const char *path, const int bad_fd);
+typedef int (*stress_inotify_helper)(stress_args_t *args, const char *path, const void *private);
+typedef void (*stress_inotify_func)(stress_args_t *args, const char *path, const int bad_fd);
 
 typedef struct {
 	const stress_inotify_func func;
@@ -191,7 +191,7 @@ static void exercise_inotify_rm_watch(const int bad_fd)
  *	required inotify event flags 'flags'.
  */
 static void inotify_exercise(
-	const stress_args_t *args,	/* Stressor args */
+	stress_args_t *args,	/* Stressor args */
 	const char *filename,		/* Filename in test */
 	const char *watchname,		/* File/directory to watch using inotify */
 	const char *matchname,		/* Filename for inotify event to report */
@@ -328,7 +328,7 @@ cleanup:
  *  rm_file()
  *	remove a file
  */
-static int rm_file(const stress_args_t *args, const char *path)
+static int rm_file(stress_args_t *args, const char *path)
 {
 	if ((shim_unlink(path) < 0) && (errno != ENOENT)) {
 		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
@@ -342,7 +342,7 @@ static int rm_file(const stress_args_t *args, const char *path)
  *  rm_dir()
  *	clean files in directory and directory
  */
-static int rm_dir(const stress_args_t *args, const char *path)
+static int rm_dir(stress_args_t *args, const char *path)
 {
 	DIR *dp;
 	int ret;
@@ -373,7 +373,7 @@ static int rm_dir(const stress_args_t *args, const char *path)
  *  mk_dir()
  *	make a directory
  */
-static int mk_dir(const stress_args_t *args, const char *path)
+static int mk_dir(stress_args_t *args, const char *path)
 {
 	if (mkdir(path, DIR_FLAGS) < 0) {
 		if ((errno == ENOMEM) || (errno == ENOSPC))
@@ -389,7 +389,7 @@ static int mk_dir(const stress_args_t *args, const char *path)
  *  mk_file()
  *	create file of length len bytes
  */
-static int mk_file(const stress_args_t *args, const char *filename, const size_t len)
+static int mk_file(stress_args_t *args, const char *filename, const size_t len)
 {
 	int fd;
 	size_t sz = len;
@@ -432,7 +432,7 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 
 #if defined(IN_ATTRIB)
 static int inotify_attrib_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -446,7 +446,7 @@ static int inotify_attrib_helper(
 }
 
 static void inotify_attrib_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -466,7 +466,7 @@ static void inotify_attrib_file(
 
 #if defined(IN_ACCESS)
 static int inotify_access_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -495,7 +495,7 @@ do_access:
 }
 
 static void inotify_access_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -515,7 +515,7 @@ static void inotify_access_file(
 
 #if defined(IN_MODIFY)
 static int inotify_modify_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -546,7 +546,7 @@ remove:
 }
 
 static void inotify_modify_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -562,7 +562,7 @@ static void inotify_modify_file(
 
 #if defined(IN_CREATE)
 static int inotify_creat_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -580,7 +580,7 @@ static int inotify_creat_helper(
 }
 
 static void inotify_creat_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -597,7 +597,7 @@ static void inotify_creat_file(
 
 #if defined(IN_OPEN)
 static int inotify_open_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -614,7 +614,7 @@ static int inotify_open_helper(
 }
 
 static void inotify_open_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -633,7 +633,7 @@ static void inotify_open_file(
 
 #if defined(IN_DELETE)
 static int inotify_delete_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -643,7 +643,7 @@ static int inotify_delete_helper(
 }
 
 static void inotify_delete_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -663,7 +663,7 @@ static void inotify_delete_file(
 
 #if defined(IN_DELETE_SELF)
 static int inotify_delete_self_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -673,7 +673,7 @@ static int inotify_delete_self_helper(
 }
 
 static void inotify_delete_self(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -693,7 +693,7 @@ static void inotify_delete_self(
 
 #if defined(IN_MOVE_SELF)
 static int inotify_move_self_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *oldpath,
 	const void *private)
 {
@@ -711,7 +711,7 @@ static int inotify_move_self_helper(
 #endif
 
 static void inotify_move_self(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -730,7 +730,7 @@ static void inotify_move_self(
 
 #if defined(IN_MOVED_TO)
 static int inotify_moved_to_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *newpath,
 	const void *private)
 {
@@ -745,7 +745,7 @@ static int inotify_moved_to_helper(
 }
 
 static void inotify_moved_to(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -771,7 +771,7 @@ static void inotify_moved_to(
 
 #if defined(IN_MOVED_FROM)
 static int inotify_moved_from_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *oldpath,
 	const void *private)
 {
@@ -786,7 +786,7 @@ static int inotify_moved_from_helper(
 }
 
 static void inotify_moved_from(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -812,7 +812,7 @@ static void inotify_moved_from(
 
 #if defined(IN_CLOSE_WRITE)
 static int inotify_close_write_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *fdptr)
 {
@@ -824,7 +824,7 @@ static int inotify_close_write_helper(
 }
 
 static void inotify_close_write_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -852,7 +852,7 @@ static void inotify_close_write_file(
 
 #if defined(IN_CLOSE_NOWRITE)
 static int inotify_close_nowrite_helper(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const void *fdptr)
 {
@@ -864,7 +864,7 @@ static int inotify_close_nowrite_helper(
 }
 
 static void inotify_close_nowrite_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int bad_fd)
 {
@@ -935,7 +935,7 @@ static const stress_inotify_t inotify_stressors[] = {
  *  stress_inotify()
  *	stress inotify
  */
-static int stress_inotify(const stress_args_t *args)
+static int stress_inotify(stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16];
 	int ret, i;

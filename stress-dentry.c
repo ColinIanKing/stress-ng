@@ -102,7 +102,7 @@ static int stress_set_dentry_order(const char *opt)
  *	contents to make sure it matches the expected gray code
  */
 static void stress_dentry_unlink_file(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t gray_code,
 	const bool verify,
 	uint64_t *read_errors)
@@ -135,7 +135,7 @@ static void stress_dentry_unlink_file(
  *	remove all dentries
  */
 static void stress_dentry_unlink(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t n,
 	const uint8_t dentry_order,
 	const bool verify)
@@ -338,7 +338,7 @@ static void stress_dentry_misc(const char *path)
  *	on a gray-coded value multiplied by two.
  *	Even numbered files exist, odd don't exist.
  */
-static int stress_dentry(const stress_args_t *args)
+static int stress_dentry(stress_args_t *args)
 {
 	int ret;
 	uint64_t dentries = DEFAULT_DENTRIES;

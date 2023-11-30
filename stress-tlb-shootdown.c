@@ -112,7 +112,7 @@ static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(uint8_t *mem, const 
  *	mmap with retries
  */
 static void *stress_tlb_shootdown_mmap(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	size_t length,
 	int prot,
@@ -145,7 +145,7 @@ static void *stress_tlb_shootdown_mmap(
  *  stress_tlb_shootdown()
  *	stress out TLB shootdowns
  */
-static int stress_tlb_shootdown(const stress_args_t *args)
+static int stress_tlb_shootdown(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;

@@ -173,7 +173,7 @@ static const char * PURE type_to_type_string(const stress_crypto_type_t type)
  *	debug and ignore them for the next iteration
  */
 static void stress_af_alg_ignore(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_crypto_info_t *info)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
@@ -184,7 +184,7 @@ static void stress_af_alg_ignore(
 }
 
 static int stress_af_alg_hash(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
@@ -303,7 +303,7 @@ err:
 }
 
 static int stress_af_alg_cipher(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
@@ -589,7 +589,7 @@ err:
 }
 
 static int stress_af_alg_rng(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
@@ -776,7 +776,7 @@ static void stress_af_alg_dump_crypto_list(void)
  *  stress_af_alg()
  *	stress socket AF_ALG domain
  */
-static int stress_af_alg(const stress_args_t *args)
+static int stress_af_alg(stress_args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;

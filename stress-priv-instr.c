@@ -443,7 +443,7 @@ static void stress_sigill_handler(int signum)
  *  stress_priv_instr()
  *      stress privileged instructions
  */
-static int stress_priv_instr(const stress_args_t *args)
+static int stress_priv_instr(stress_args_t *args)
 {
 	size_t i, len;
 	int ret;

@@ -62,7 +62,7 @@ static int stress_set_vm_addr_mlock(const char *opt)
  *  stress_continue(args)
  *	returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_continue_vm(const stress_args_t *args)
+static bool HOT OPTIMIZE3 stress_continue_vm(stress_args_t *args)
 {
 	return (LIKELY(stress_continue_flag()) &&
 	        LIKELY(!args->max_ops || (stress_bogo_get(args) < args->max_ops)));
@@ -446,7 +446,7 @@ static int stress_set_vm_addr_method(const char *name)
 	return -1;
 }
 
-static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
+static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
 	size_t buf_sz = MIN_VM_ADDR_BYTES;
@@ -498,7 +498,7 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
  *  stress_vm_addr()
  *	stress virtual memory addressing
  */
-static int stress_vm_addr(const stress_args_t *args)
+static int stress_vm_addr(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t retries, vm_addr_method = 0;

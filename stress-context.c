@@ -127,7 +127,7 @@ static void (*stress_threads[STRESS_CONTEXTS])(void) = {
 };
 
 static int stress_context_init(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void (*func)(void),
 	ucontext_t *uctx_link,
 	context_data_t *context_data)
@@ -158,7 +158,7 @@ static int stress_context_init(
  *  stress_context()
  *	stress that exercises CPU context save/restore
  */
-static int stress_context(const stress_args_t *args)
+static int stress_context(stress_args_t *args)
 {
 	size_t i;
 	const size_t context_size = 3 * sizeof(*context);

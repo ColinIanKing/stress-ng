@@ -192,7 +192,7 @@ static enum parse_line_type parse_get_line_type(
  * module you should load with finit_module.
  */
 static int get_modpath_name(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *name,
 	char *module_path,
 	const size_t module_path_size)
@@ -305,7 +305,7 @@ out_close:
  *  stress_module
  *	stress by heavy module ops
  */
-static int stress_module(const stress_args_t *args)
+static int stress_module(stress_args_t *args)
 {
 	bool module_no_unload = false;
 	bool module_no_vermag = false;

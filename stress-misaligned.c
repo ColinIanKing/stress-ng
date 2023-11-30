@@ -62,7 +62,7 @@ static timer_t timer_id;
 static struct itimerspec timer;
 #endif
 
-typedef void (*stress_misaligned_func)(const stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
+typedef void (*stress_misaligned_func)(stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
 
 typedef struct {
 	const char *name;
@@ -90,7 +90,7 @@ static bool NOINLINE keep_running_no_sse(void)
 #endif
 
 static void stress_misaligned_int16rd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -158,7 +158,7 @@ static void stress_misaligned_int16rd(
 }
 
 static void stress_misaligned_int16wr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -265,7 +265,7 @@ fail:
 }
 
 static void stress_misaligned_int16inc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -336,7 +336,7 @@ static void stress_misaligned_int16inc(
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int16atomic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -405,7 +405,7 @@ static void stress_misaligned_int16atomic(
 #endif
 
 static void stress_misaligned_int32rd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -449,7 +449,7 @@ static void stress_misaligned_int32rd(
 }
 
 static void stress_misaligned_int32wr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -517,7 +517,7 @@ fail:
 
 #if defined(HAVE_NT_STORE32)
 static void stress_misaligned_int32wrnt(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -575,7 +575,7 @@ fail:
 #endif
 
 static void stress_misaligned_int32inc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -622,7 +622,7 @@ static void stress_misaligned_int32inc(
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int32atomic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -667,7 +667,7 @@ static void stress_misaligned_int32atomic(
 #endif
 
 static void stress_misaligned_int64rd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -699,7 +699,7 @@ static void stress_misaligned_int64rd(
 }
 
 static void stress_misaligned_int64wr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -747,7 +747,7 @@ fail:
 
 #if defined(HAVE_NT_STORE64)
 static void stress_misaligned_int64wrnt(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -788,7 +788,7 @@ fail:
 #endif
 
 static void stress_misaligned_int64inc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -823,7 +823,7 @@ static void stress_misaligned_int64inc(
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int64atomic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -871,7 +871,7 @@ static void stress_misaligned_int64atomic(
 #define TARGET_CLONE_NO_SSE
 #endif
 static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -892,7 +892,7 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(
 }
 
 static void stress_misaligned_int128wr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -930,7 +930,7 @@ fail:
 
 #if defined(HAVE_NT_STORE128) && 0
 static void stress_misaligned_int128wrnt(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -949,7 +949,7 @@ static void stress_misaligned_int128wrnt(
 #endif
 
 static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -973,7 +973,7 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(
     defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int128atomic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -1002,7 +1002,7 @@ static void stress_misaligned_int128atomic(
 #endif
 
 static void stress_misaligned_all(
-	const stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
+	stress_args_t *args, uintptr_t buffer, const size_t page_size, bool *succeeded);
 
 static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "all",	stress_misaligned_all,		false,	false },
@@ -1052,7 +1052,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 };
 
 static void stress_misaligned_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uintptr_t buffer,
 	const size_t page_size,
 	bool *succeeded)
@@ -1121,7 +1121,7 @@ static void stress_misaligned_enable_all(void)
  *  stress_misaligned_exercised()
  *	report the methods that were successfully exercised
  */
-static void stress_misaligned_exercised(const stress_args_t *args)
+static void stress_misaligned_exercised(stress_args_t *args)
 {
 	char *str = NULL;
 	ssize_t str_len = 0;
@@ -1193,7 +1193,7 @@ static void stress_misaligned_set_default(void)
  *  stress_misaligned()
  *	stress memory copies
  */
-static int stress_misaligned(const stress_args_t *args)
+static int stress_misaligned(stress_args_t *args)
 {
 	uint8_t *buffer;
 	size_t misaligned_method = 0;

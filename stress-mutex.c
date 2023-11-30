@@ -78,7 +78,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static pthread_mutex_t ALIGN64 mutex;
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	int prio_min;
 	int prio_max;
 	bool mutex_affinity;
@@ -95,7 +95,7 @@ typedef struct {
 static void OPTIMIZE3 *mutex_exercise(void *arg)
 {
 	pthread_info_t *pthread_info = (pthread_info_t *)arg;
-	const stress_args_t *args = pthread_info->args;
+	stress_args_t *args = pthread_info->args;
 	static void *nowt = NULL;
 	int max = (pthread_info->prio_max * 7) / 8;
 	int metrics_count = 0;
@@ -191,7 +191,7 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
  *  stress_mutex()
  *	stress system with priority changing mutex lock/unlocks
  */
-static int stress_mutex(const stress_args_t *args)
+static int stress_mutex(stress_args_t *args)
 {
 	size_t i;
 	bool created = false;

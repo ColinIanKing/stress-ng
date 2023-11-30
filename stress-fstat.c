@@ -65,7 +65,7 @@ typedef struct stress_fstat_pthread_info {
 
 /* Generic thread context information */
 typedef struct ctxt {
-	const stress_args_t *args;	/* stressor args */
+	stress_args_t *args;	/* stressor args */
 	stress_stat_info_t *si;		/* path stat information */
 	uid_t euid;			/* euid of process */
 	int bad_fd;			/* bad/invalid fd */
@@ -129,7 +129,7 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
 	shim_statx_t bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	int ret, rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&buf_orig, 0xff, sizeof(buf_orig));
@@ -250,7 +250,7 @@ static void *stress_fstat_thread(void *ptr)
  *  stress_fstat_threads()
  *	create a bunch of threads to thrash a file
  */
-static int stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *si, const uid_t euid)
+static int stress_fstat_threads(stress_args_t *args, stress_stat_info_t *si, const uid_t euid)
 {
 	size_t i;
 	int rc = 0;
@@ -302,7 +302,7 @@ static int stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *s
  *  stress_fstat()
  *	stress system with fstat
  */
-static int stress_fstat(const stress_args_t *args)
+static int stress_fstat(stress_args_t *args)
 {
 	stress_stat_info_t *si;
 	static stress_stat_info_t *stat_info;

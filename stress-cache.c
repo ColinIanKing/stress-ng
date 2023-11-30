@@ -39,7 +39,7 @@
 #define STRESS_CACHE_WRITE	(2)
 #define STRESS_CACHE_MAX	(3)
 
-typedef void (*cache_mixed_ops_func_t)(const stress_args_t *args,
+typedef void (*cache_mixed_ops_func_t)(stress_args_t *args,
 	uint64_t inc, const uint64_t r,
 	uint64_t *pi, uint64_t *pk,
 	stress_metrics_t *metrics);
@@ -258,7 +258,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define CACHE_WRITE_USE_MOD(x)						\
 static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
-	const stress_args_t *args,					\
+	stress_args_t *args,					\
 	const uint64_t inc,						\
 	const uint64_t r, 						\
 	uint64_t *pi,							\
@@ -615,7 +615,7 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 }
 
 static void stress_cache_read(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint8_t *buffer,
 	const uint64_t buffer_size,
 	const uint64_t inc,
@@ -650,7 +650,7 @@ static void stress_cache_read(
 }
 
 static void stress_cache_write(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *buffer,
 	const uint64_t buffer_size,
 	const uint64_t inc,
@@ -686,7 +686,7 @@ static void stress_cache_write(
 	stress_uint32_put(total);
 }
 
-static void stress_cache_show_flags(const stress_args_t *args, const uint32_t flags)
+static void stress_cache_show_flags(stress_args_t *args, const uint32_t flags)
 {
 	size_t i;
 	char buf[256];
@@ -707,7 +707,7 @@ static void stress_cache_show_flags(const stress_args_t *args, const uint32_t fl
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */
-static int stress_cache(const stress_args_t *args)
+static int stress_cache(stress_args_t *args)
 {
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)

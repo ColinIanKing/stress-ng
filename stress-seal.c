@@ -60,7 +60,7 @@ static const stress_help_t help[] = {
  *  stress_seal
  *	stress file sealing
  */
-static int stress_seal(const stress_args_t *args)
+static int stress_seal(stress_args_t *args)
 {
 	int fd, ret;
 	int rc = EXIT_FAILURE;

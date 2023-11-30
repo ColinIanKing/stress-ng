@@ -74,7 +74,7 @@ static void OPTIMIZE3 stress_readahead_modify_offsets(off_t *offsets)
 }
 
 static int do_readahead(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *fs_type,
 	off_t *offsets)
@@ -95,7 +95,7 @@ static int do_readahead(
  *  stress_readahead
  *	stress file system cache via readahead calls
  */
-static int stress_readahead(const stress_args_t *args)
+static int stress_readahead(stress_args_t *args)
 {
 	buffer_t *buf = NULL;
 	uint64_t rounded_readahead_bytes, i;

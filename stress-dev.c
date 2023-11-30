@@ -221,7 +221,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 typedef struct stress_dev_func {
 	const char *devpath;
 	const size_t devpath_len;
-	void (*func)(const stress_args_t *args, const int fd, const char *devpath);
+	void (*func)(stress_args_t *args, const int fd, const char *devpath);
 } stress_dev_func_t;
 
 static sigset_t set;
@@ -359,7 +359,7 @@ do {							\
     defined(HAVE_LINUX_MEDIA_H) && 	\
     defined(MEDIA_IOC_DEVICE_INFO)
 static void stress_dev_media_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -395,7 +395,7 @@ static void stress_dev_media_linux(
 
 #if defined(HAVE_LINUX_VT_H)
 static void stress_dev_vcs_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -428,7 +428,7 @@ static void stress_dev_vcs_linux(
 
 #if defined(HAVE_LINUX_DM_IOCTL_H)
 static void stress_dev_dm_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -487,7 +487,7 @@ static void stress_dev_dm_linux(
 
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 static void stress_dev_video_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -628,7 +628,7 @@ static void stress_dev_video_linux(
     defined(HAVE_TERMIOS) &&	\
     defined(TCGETS)
 static void stress_dev_tty(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -1032,7 +1032,7 @@ UNEXPECTED
  *	block device specific ioctls
  */
 static void stress_dev_blk(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -1320,7 +1320,7 @@ static inline bool is_scsi_dev(dev_info_t *dev_info)
  *	SCSI block device specific ioctls
  */
 static void stress_dev_scsi_blk(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	dev_info_t *dev_info)
 {
@@ -1395,7 +1395,7 @@ static void stress_dev_scsi_blk(
  *	SCSI generic device specific ioctls for linux
  */
 static void stress_dev_scsi_generic_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -1539,7 +1539,7 @@ UNEXPECTED
  *	Linux /dev/random ioctls
  */
 static void stress_dev_random_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -1664,7 +1664,7 @@ static void stress_dev_mem_mmap_linux(
 }
 
 static void stress_dev_mem_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -1677,7 +1677,7 @@ static void stress_dev_mem_linux(
 
 #if defined(__linux__)
 static void stress_dev_kmem_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -1849,7 +1849,7 @@ UNEXPECTED
 
 #if defined(__linux__)
 static void stress_dev_cdrom_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2344,7 +2344,7 @@ UNEXPECTED
 
 #if defined(__linux__)
 static void stress_dev_console_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2822,7 +2822,7 @@ static void stress_dev_acpi_thermal_rel_get(
 }
 
 static void stress_dev_acpi_thermal_rel_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2849,7 +2849,7 @@ static void stress_dev_acpi_thermal_rel_linux(
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_HIDRAW_H)
 static void stress_dev_hid_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2916,7 +2916,7 @@ static void stress_dev_hid_linux(
 
 #if defined(__linux__)
 static void stress_dev_kmsg_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2929,7 +2929,7 @@ static void stress_dev_kmsg_linux(
 
 #if defined(__linux__)
 static void stress_dev_nvram_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2946,7 +2946,7 @@ static void stress_dev_nvram_linux(
 
 #if defined(HAVE_LINUX_HPET_H)
 static void stress_dev_hpet_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3010,7 +3010,7 @@ UNEXPECTED
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
 static void stress_dev_port_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3038,7 +3038,7 @@ static void stress_dev_port_linux(
 
 #if defined(HAVE_LINUX_LIRC_H)
 static void stress_dev_lirc_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3118,7 +3118,7 @@ static void stress_dev_hd_linux_ioctl_long(int fd, unsigned long cmd)
  *	Linux HDIO ioctls
  */
 static void stress_dev_hd_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3218,7 +3218,7 @@ static void stress_dev_hd_linux(
 #endif
 
 static void stress_dev_null_nop(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3232,7 +3232,7 @@ static void stress_dev_null_nop(
  *	minor exercising of the PTP device
  */
 static void stress_dev_ptp_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3271,7 +3271,7 @@ static void stress_dev_ptp_linux(
  *	minor exercising of the floppy device
  */
 static void stress_dev_floppy_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3396,7 +3396,7 @@ UNEXPECTED
  * 	exercise Linux sound devices
  */
 static void stress_dev_snd_control_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3475,7 +3475,7 @@ STRESS_PRAGMA_POP
  *   	Exercise Linux Hardware Random Number Generator
  */
 static void stress_dev_hwrng_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3505,7 +3505,7 @@ static void stress_dev_hwrng_linux(
  *   	Exercise Linux parallel port
  */
 static void stress_dev_parport_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3678,7 +3678,7 @@ UNEXPECTED
  *   	Exercise Linux usb devices
  */
 static void stress_dev_bus_usb_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3737,7 +3737,7 @@ UNEXPECTED
  *   	Exercise Linux vmci device
  */
 static void stress_dev_vmci_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3756,7 +3756,7 @@ static void stress_dev_vmci_linux(
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_USB_CDC_WDM_H)
 static void stress_dev_cdc_wdm_linux(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -3947,7 +3947,7 @@ static inline void stress_dev_unlock(const char *path, const int fd)
 }
 
 static int stress_dev_open_lock(
-	const stress_args_t *args,
+	stress_args_t *args,
 	dev_info_t *dev_info,
 	const int mode)
 {
@@ -4010,7 +4010,7 @@ static const int open_flags[] = {
  *	exercise a dev entry
  */
 static inline void stress_dev_rw(
-	const stress_args_t *args,
+	stress_args_t *args,
 	int32_t loops)
 {
 	int fd, ret;
@@ -4249,7 +4249,7 @@ static void *stress_dev_thread(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
-	const stress_args_t *args = pa->args;
+	stress_args_t *args = pa->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -4267,7 +4267,7 @@ static void *stress_dev_thread(void *arg)
  *  stress_dev_files()
  *	stress all device files
  */
-static void stress_dev_files(const stress_args_t *args, dev_info_t *dev_info_list)
+static void stress_dev_files(stress_args_t *args, dev_info_t *dev_info_list)
 {
 	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
 	static int try_failed = 0;
@@ -4383,7 +4383,7 @@ static void stress_dev_info_add(const char *path, dev_info_t **list, size_t *lis
  *	traverse device directories adding device info to list
  */
 static void stress_dev_infos_get(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const char *tty_name,
 	dev_info_t **list,
@@ -4544,7 +4544,7 @@ static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_
  *  stress_dev
  *	stress reading all of /dev
  */
-static int stress_dev(const stress_args_t *args)
+static int stress_dev(stress_args_t *args)
 {
 	pthread_t pthreads[STRESS_DEV_THREADS_MAX];
 	int ret[STRESS_DEV_THREADS_MAX], rc = EXIT_SUCCESS;

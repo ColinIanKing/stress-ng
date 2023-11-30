@@ -92,7 +92,7 @@ static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
  *	resident.
  */
 static bool stress_stack_alloc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *start,
 	stress_stack_check_t *check_prev,
 	const bool stack_fill,
@@ -194,7 +194,7 @@ static bool stress_stack_alloc(
 	return true;
 }
 
-static int stress_stack_child(const stress_args_t *args, void *context)
+static int stress_stack_child(stress_args_t *args, void *context)
 {
 	const char *start_ptr = shim_sbrk(0);
 	void *altstack;
@@ -311,7 +311,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
  *  stress_stack
  *	stress by forcing stack overflows
  */
-static int stress_stack(const stress_args_t *args)
+static int stress_stack(stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

@@ -50,7 +50,7 @@ typedef struct peterson {
 
 static peterson_t *peterson;
 
-static void stress_peterson_p0(const stress_args_t *args)
+static void stress_peterson_p0(stress_args_t *args)
 {
 	int check0, check1;
 	double t;
@@ -81,7 +81,7 @@ static void stress_peterson_p0(const stress_args_t *args)
 	}
 }
 
-static void stress_peterson_p1(const stress_args_t *args)
+static void stress_peterson_p1(stress_args_t *args)
 {
 	int check0, check1;
 	double t;
@@ -117,7 +117,7 @@ static void stress_peterson_p1(const stress_args_t *args)
  *  stress_peterson()
  *	stress peterson algorithm
  */
-static int stress_peterson(const stress_args_t *args)
+static int stress_peterson(stress_args_t *args)
 {
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*peterson));
 	pid_t pid;

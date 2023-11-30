@@ -155,7 +155,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_n(
  *  stress_llc_affinity()
  *	stress the Lower Level Cache (LLC) while changing CPU affinity
  */
-static int stress_llc_affinity(const stress_args_t *args)
+static int stress_llc_affinity(stress_args_t *args)
 {
 	const int32_t max_cpus = stress_get_processors_configured();
 	const size_t page_size = args->page_size;

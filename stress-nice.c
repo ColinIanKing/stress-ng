@@ -45,7 +45,7 @@ static void stress_nice_delay(void)
  *  stress on sched_nice()
  *	stress system by sched_nice
  */
-static int stress_nice(const stress_args_t *args)
+static int stress_nice(stress_args_t *args)
 {
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 #if defined(HAVE_SETPRIORITY)

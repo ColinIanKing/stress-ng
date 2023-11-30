@@ -105,7 +105,7 @@ static int stress_set_dirdeep_files(const char *opt)
  *	dirdeep_dir number of subtress per level.
  */
 static bool stress_dirdeep_make(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *linkpath,
 	char *const path,
 	const size_t len,
@@ -296,7 +296,7 @@ static bool stress_dirdeep_make(
  *	exercise files and directories in the tree
  */
 static int stress_dir_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *const path,
 	const size_t len,
 	const size_t path_len)
@@ -376,7 +376,7 @@ static int stress_dir_exercise(
  *	clean up all files and directories in the tree
  */
 static void stress_dir_tidy(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *const path,
 	const size_t len,
 	const size_t path_len,
@@ -432,7 +432,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress deep recursive directory mkdir and rmdir
  */
-static int stress_dirdeep(const stress_args_t *args)
+static int stress_dirdeep(stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 	char path[PATH_MAX + 16];

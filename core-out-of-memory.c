@@ -73,7 +73,7 @@ bool stress_process_oomed(const pid_t pid)
 	return oomed;
 }
 
-static const char *stress_args_name(const stress_args_t *args)
+static const char *stress_args_name(stress_args_t *args)
 {
 	if (!args)
 		return "main";
@@ -87,7 +87,7 @@ static const char *stress_args_name(const stress_args_t *args)
  *	on failure.
  */
 static int stress_set_adjustment(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *procname,
 	const char *str)
 {
@@ -133,7 +133,7 @@ static int stress_set_adjustment(
  *	unkillable by oom killer
  *	NOTE: null args -> main stress-ng process, otherwise a stressor
  */
-void stress_set_oom_adjustment(const stress_args_t *args, const bool killable)
+void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 {
 	bool high_priv;
 	bool make_killable = killable;
@@ -179,7 +179,7 @@ void stress_set_oom_adjustment(const stress_args_t *args, const bool killable)
 	(void)stress_set_adjustment(args, "/proc/self/oom_adj", str);
 }
 #else
-void stress_set_oom_adjustment(const stress_args_t *args, const bool killable)
+void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 {
 	(void)args;
 	(void)killable;
@@ -198,7 +198,7 @@ bool stress_process_oomed(const pid_t pid)
  *	OOM'd and we retry if it gets killed.
  */
 int stress_oomable_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *context,
 	stress_oomable_child_func_t func,
 	const int flag)

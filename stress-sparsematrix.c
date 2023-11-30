@@ -1109,7 +1109,7 @@ static uint32_t OPTIMIZE3 hashjudy_get(void *handle, const uint32_t x, const uin
 #endif
 
 static int stress_sparse_method_test(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t sparsematrix_items,
 	const uint32_t sparsematrix_size,
 	const stress_sparsematrix_method_info_t *info,
@@ -1376,7 +1376,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
-static void stress_sparsematrix_create_failed(const stress_args_t *args, const char *name)
+static void stress_sparsematrix_create_failed(stress_args_t *args, const char *name)
 {
 	pr_inf("%s: failed to create sparse matrix with '%s' method, out of memory\n",
 		args->name, name);
@@ -1386,7 +1386,7 @@ static void stress_sparsematrix_create_failed(const stress_args_t *args, const c
  *  stress_sparsematrix()
  *	stress sparsematrix
  */
-static int stress_sparsematrix(const stress_args_t *args)
+static int stress_sparsematrix(stress_args_t *args)
 {
 	uint32_t sparsematrix_size = DEFAULT_SPARSEMATRIX_SIZE;
 	uint64_t sparsematrix_items = DEFAULT_SPARSEMATRIX_ITEMS;

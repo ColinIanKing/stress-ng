@@ -27,7 +27,7 @@
  *	hammer away and try to kill a process
  */
 static void stress_try_kill(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const char *path)
 {
@@ -52,7 +52,7 @@ static void stress_try_kill(
  *  if it cannot be opened within timeout nanoseconds.
  */
 int stress_try_open(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int flags,
 	const unsigned long timeout_ns)

@@ -29,7 +29,7 @@ static const stress_help_t help[] = {
  *  stress_sigpending
  *	stress sigpending system call
  */
-static int stress_sigpending(const stress_args_t *args)
+static int stress_sigpending(stress_args_t *args)
 {
 	sigset_t new_sigset ALIGN64, old_sigset ALIGN64;
 

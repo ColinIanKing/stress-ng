@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	void *data;
 	pid_t pid;
 } stress_vma_context_t;
@@ -83,7 +83,7 @@ static const char *stress_vma_metrics_name[] = {
 static stress_vma_metrics_t *stress_vma_metrics;
 static void *stress_vma_page;
 
-static bool stress_vma_continue(const stress_args_t *args)
+static bool stress_vma_continue(stress_args_t *args)
 {
 	if (UNLIKELY(!g_stress_continue_flag))
 		return false;
@@ -96,7 +96,7 @@ static bool stress_vma_continue(const stress_args_t *args)
  *  stress_vma_get_addr()
  *	try to find an unmapp'd address
  */
-static void *stress_mmapaddr_get_addr(const stress_args_t *args)
+static void *stress_mmapaddr_get_addr(stress_args_t *args)
 {
 	const uintptr_t mask = ~(((uintptr_t)args->page_size) - 1);
 	void *addr = NULL;
@@ -146,7 +146,7 @@ static void *stress_mmapaddr_get_addr(const stress_args_t *args)
 static void *stress_vma_mmap(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -182,7 +182,7 @@ static void *stress_vma_mmap(void *ptr)
 static void *stress_vma_munmap(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -200,7 +200,7 @@ static void *stress_vma_munmap(void *ptr)
 static void *stress_vma_mlock(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -227,7 +227,7 @@ static void *stress_vma_mlock(void *ptr)
 static void *stress_vma_munlock(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -245,7 +245,7 @@ static void *stress_vma_munlock(void *ptr)
 static void *stress_vma_madvise(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -304,7 +304,7 @@ static void *stress_vma_madvise(void *ptr)
 static void *stress_vma_mincore(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -325,7 +325,7 @@ static void *stress_vma_mincore(void *ptr)
 static void *stress_vma_mprotect(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -360,7 +360,7 @@ static void *stress_vma_mprotect(void *ptr)
 static void *stress_vma_msync(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -392,7 +392,7 @@ static void *stress_vma_msync(void *ptr)
 static void *stress_vma_maps(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	int fd;
 
 	fd = open("/proc/self/maps", O_RDONLY);
@@ -417,7 +417,7 @@ static void *stress_vma_maps(void *ptr)
 static void *stress_vma_access(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
-	const stress_args_t *args = (const stress_args_t *)ctxt->args;
+	stress_args_t *args = (stress_args_t *)ctxt->args;
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
@@ -460,7 +460,7 @@ static void stress_vm_handle_sig(int signo)
 }
 
 static void stress_vma_loop(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vma_context_t *ctxt)
 {
 	size_t i, n;
@@ -508,7 +508,7 @@ static void stress_vma_loop(
 	} while (stress_vma_continue(args));
 }
 
-static int stress_vma_child(const stress_args_t *args, void *void_ctxt)
+static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 {
 	size_t i;
 	pid_t pids[STRESS_VMA_PROCS];
@@ -541,7 +541,7 @@ static int stress_vma_child(const stress_args_t *args, void *void_ctxt)
  *  stress_vma()
  *	stress vma operations
  */
-static int stress_vma(const stress_args_t *args)
+static int stress_vma(stress_args_t *args)
 {
 	int ret;
 	size_t i;

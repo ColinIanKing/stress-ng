@@ -94,7 +94,7 @@ static void /*NORETURN*/ MLOCKED_TEXT stress_watchdog_handler(int signum)
  *  stress_watchdog()
  *	stress /dev/watchdog
  */
-static int stress_watchdog(const stress_args_t *args)
+static int stress_watchdog(stress_args_t *args)
 {
 	int ret;
 	size_t i;

@@ -107,7 +107,7 @@ static int stress_ioport_supported(const char *name)
  *	simple ioperm sanity check for invalid argument tests
  */
 static int stress_ioport_ioperm(
-	const stress_args_t *args,
+	stress_args_t *args,
 	unsigned long from,
 	unsigned long num,
 	int turn_on)
@@ -124,7 +124,7 @@ static int stress_ioport_ioperm(
  *  stress_ioport()
  *	stress performs I/O port I/O transactions
  */
-static int stress_ioport(const stress_args_t *args)
+static int stress_ioport(stress_args_t *args)
 {
 	int ret, fd, rc = EXIT_SUCCESS;
 	uint32_t flag = 0;

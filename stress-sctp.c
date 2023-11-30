@@ -387,7 +387,7 @@ static void stress_sctp_sockopts(const int fd)
  *	client reader
  */
 static int OPTIMIZE3 stress_sctp_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
@@ -513,7 +513,7 @@ retry:
  *	server writer
  */
 static int OPTIMIZE3 stress_sctp_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
@@ -654,7 +654,7 @@ static void stress_sctp_sigpipe(int signum)
  *  stress_sctp
  *	stress SCTP by heavy SCTP network I/O
  */
-static int stress_sctp(const stress_args_t *args)
+static int stress_sctp(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
 	int sctp_port = DEFAULT_SCTP_PORT;

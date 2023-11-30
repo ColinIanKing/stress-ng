@@ -156,7 +156,7 @@ static int stress_smi_count(const int cpus, uint64_t *count)
  *  stress_smi()
  *	stress x86 systems by triggering SMIs
  */
-static int stress_smi(const stress_args_t *args)
+static int stress_smi(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	bool already_loaded = false;

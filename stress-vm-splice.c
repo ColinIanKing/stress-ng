@@ -53,7 +53,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
-static int stress_vm_splice(const stress_args_t *args)
+static int stress_vm_splice(stress_args_t *args)
 {
 	int fd, fds[2], rc = EXIT_SUCCESS;
 	uint8_t *buf;

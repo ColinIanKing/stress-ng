@@ -166,7 +166,7 @@ static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
  *  stress on get*() calls
  *	stress system by rapid get*() system calls
  */
-static int stress_get(const stress_args_t *args)
+static int stress_get(stress_args_t *args)
 {
 	char *mnts[MOUNTS_MAX];
 	int mounts_max;

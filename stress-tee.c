@@ -46,8 +46,8 @@ static void stress_sigpipe_handler(int signum)
  *	spawn off tee I/O processes
  */
 static pid_t stress_tee_spawn(
-	const stress_args_t *args,
-	void (*func)(const stress_args_t *args, int fds[2]),
+	stress_args_t *args,
+	void (*func)(stress_args_t *args, int fds[2]),
 	int fds[2])
 {
 	pid_t pid;
@@ -85,7 +85,7 @@ again:
  *  stress_tee_pipe_write()
  *	write data down a pipe
  */
-static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
+static void stress_tee_pipe_write(stress_args_t *args, int fds[2])
 {
 	static stress_tee_t ALIGN64 data;
 
@@ -121,7 +121,7 @@ static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
  *  stress_tee_pipe_read()
  *	read data from a pipe
  */
-static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
+static void stress_tee_pipe_read(stress_args_t *args, int fds[2])
 {
 	static stress_tee_t ALIGN64 data;
 	register uint64_t counter = 0;
@@ -171,7 +171,7 @@ finish:
  *	exercise the tee syscall in most possible ways
  */
 static int exercise_tee(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int release,
 	const int fd_in,
 	const int fd_out)
@@ -224,7 +224,7 @@ static int exercise_tee(
  *  stress_tee()
  *	stress the Linux tee syscall
  */
-static int stress_tee(const stress_args_t *args)
+static int stress_tee(stress_args_t *args)
 {
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];

@@ -136,7 +136,7 @@ static void *stress_close_func(void *arg)
 {
 	static void *nowt = NULL;
 	stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
-	const stress_args_t *args = pargs->args;
+	stress_args_t *args = pargs->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -201,7 +201,7 @@ static void *stress_close_func(void *arg)
  *  stress_close()
  *	stress by creating pthreads
  */
-static int stress_close(const stress_args_t *args)
+static int stress_close(stress_args_t *args)
 {
 	stress_pthread_args_t pargs;
 	pthread_t pthread[MAX_PTHREADS];

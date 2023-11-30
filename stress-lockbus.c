@@ -146,7 +146,7 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
  *  stress_lockbus()
  *      stress memory with lock and increment
  */
-static int stress_lockbus(const stress_args_t *args)
+static int stress_lockbus(stress_args_t *args)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;

@@ -92,7 +92,7 @@ static uint32_t PURE stress_l1cache_ln2(const uint32_t val)
  *	sanity check cache information
  */
 static int stress_l1cache_info_check(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint32_t ways,
 	const uint32_t size,
 	const uint32_t sets,
@@ -143,7 +143,7 @@ static int stress_l1cache_info_check(
 }
 
 static int stress_l1cache_info_ok(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint32_t *ways,
 	uint32_t *size,
 	uint32_t *sets,
@@ -222,7 +222,7 @@ bad_cache:
 }
 
 static void OPTIMIZE3 stress_l1cache_forward(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -258,7 +258,7 @@ static void OPTIMIZE3 stress_l1cache_forward(
 }
 
 static void OPTIMIZE3 stress_l1cache_forward_and_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -296,7 +296,7 @@ static void OPTIMIZE3 stress_l1cache_forward_and_verify(
 }
 
 static void OPTIMIZE3 stress_l1cache_reverse(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -332,7 +332,7 @@ static void OPTIMIZE3 stress_l1cache_reverse(
 }
 
 static void OPTIMIZE3 stress_l1cache_reverse_and_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -374,7 +374,7 @@ static void OPTIMIZE3 stress_l1cache_reverse_and_verify(
 
 
 static void OPTIMIZE3 stress_l1cache_random(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -417,7 +417,7 @@ static void OPTIMIZE3 stress_l1cache_random(
 }
 
 static void OPTIMIZE3 stress_l1cache_random_and_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -469,7 +469,7 @@ static void OPTIMIZE3 stress_l1cache_random_and_verify(
 
 
 typedef void (*l1cache_func_t)(
-	const stress_args_t *args,
+	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
 	const uint32_t l1cache_sets,
@@ -513,7 +513,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-static int stress_l1cache(const stress_args_t *args)
+static int stress_l1cache(stress_args_t *args)
 {
 	int ret;
 	uint32_t l1cache_ways = 0;

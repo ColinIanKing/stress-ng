@@ -218,7 +218,7 @@ led_free_info:
  *  stress_led_exercise()
  *	exercise all LED files in a given LED path
  */
-static void stress_led_exercise(const stress_args_t *args, stress_led_info_t *led_info)
+static void stress_led_exercise(stress_args_t *args, stress_led_info_t *led_info)
 {
 	char buf[MAX_BUF_SIZE];
 	char *ptr, *token;
@@ -252,7 +252,7 @@ static void stress_led_exercise(const stress_args_t *args, stress_led_info_t *le
  *  stress_led()
  *	stress /sysfs LED files with open/read/close and mmap where possible
  */
-static int stress_led(const stress_args_t *args)
+static int stress_led(stress_args_t *args)
 {
 	stress_led_info_t *led_info_list;
 	stress_led_info_t *led_info;

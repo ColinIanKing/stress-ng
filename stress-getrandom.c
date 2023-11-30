@@ -114,7 +114,7 @@ static const getrandom_flags_t getrandom_flags[] = {
  *  stress_getrandom
  *	stress reading random values using getrandom()
  */
-static int stress_getrandom(const stress_args_t *args)
+static int stress_getrandom(stress_args_t *args)
 {
 	double duration = 0.0, bytes = 0.0, rate;
 

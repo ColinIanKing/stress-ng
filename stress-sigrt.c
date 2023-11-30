@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
  *  stress_sigrt
  *	stress by heavy real time sigqueue message sending
  */
-static int stress_sigrt(const stress_args_t *args)
+static int stress_sigrt(stress_args_t *args)
 {
 	pid_t *pids;
 	union sigval s ALIGN64;

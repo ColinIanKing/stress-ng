@@ -311,7 +311,7 @@ static void stress_memcpy_set_default(void)
  *  stress_memcpy()
  *	stress memory copies
  */
-static int stress_memcpy(const stress_args_t *args)
+static int stress_memcpy(stress_args_t *args)
 {
 	uint8_t *buf, *str1, *str2, *str3;
 	size_t memcpy_method = 0;

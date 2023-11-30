@@ -78,7 +78,7 @@ static void MLOCKED_TEXT stress_mergesort_handler(int signum)
  *  stress_mergesort()
  *	stress mergesort
  */
-static int stress_mergesort(const stress_args_t *args)
+static int stress_mergesort(stress_args_t *args)
 {
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data, *ptr;

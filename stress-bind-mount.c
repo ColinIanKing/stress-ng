@@ -58,7 +58,7 @@ static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
 static int stress_bind_mount_child(void *parg)
 {
 	stress_pthread_args_t *pargs = (stress_pthread_args_t *)parg;
-	const stress_args_t *args = pargs->args;
+	stress_args_t *args = pargs->args;
 	const char *path = (const char *)pargs->data;
 	double mount_duration = 0.0, umount_duration = 0.0;
 	double mount_count = 0.0, umount_count = 0.0;
@@ -164,7 +164,7 @@ bind_umount:
  *  stress_bind_mount()
  *      stress bind mounting
  */
-static int stress_bind_mount(const stress_args_t *args)
+static int stress_bind_mount(stress_args_t *args)
 {
 	int status, ret;
 	char path[PATH_MAX];

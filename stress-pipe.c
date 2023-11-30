@@ -90,7 +90,7 @@ static size_t pipe_get_size(const int fd)
  *	see if we can change the pipe size
  */
 static void pipe_change_size(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const size_t pipe_size)
 {
@@ -131,7 +131,7 @@ static void pipe_change_size(
  *	generic pipe read, no verify
  */
 static int stress_pipe_read_generic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size)
@@ -179,7 +179,7 @@ static int stress_pipe_read_generic(
  *	generic pipe read, with verify
  */
 static int stress_pipe_read_generic_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -238,7 +238,7 @@ static int stress_pipe_read_generic_verify(
  *	pipe read using vmsplice
  */
 static int stress_pipe_read_splice(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -298,7 +298,7 @@ static int stress_pipe_read_splice(
  *	pipe read using vmsplice with verify
  */
 static int stress_pipe_read_splice_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -369,7 +369,7 @@ static int stress_pipe_read_splice_verify(
  *	generic pipe write, no verify
  */
 static int stress_pipe_write_generic(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -408,7 +408,7 @@ static int stress_pipe_write_generic(
  *	generic pipe write with verify data
  */
 static int stress_pipe_write_generic_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -451,7 +451,7 @@ static int stress_pipe_write_generic_verify(
  *	vmsplice pipe write, no verify
  */
 static int stress_pipe_write_splice(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -501,7 +501,7 @@ static int stress_pipe_write_splice(
  *	vmsplice pipe write with verify data
  */
 static int stress_pipe_write_splice_verify(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	char *buf,
 	const size_t pipe_data_size,
@@ -555,7 +555,7 @@ static int stress_pipe_write_splice_verify(
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
-static int stress_pipe(const stress_args_t *args)
+static int stress_pipe(stress_args_t *args)
 {
 	pid_t pid;
 	int pipefds[2], parent_cpu, rc = EXIT_SUCCESS;

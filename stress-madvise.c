@@ -51,7 +51,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #endif
 
 typedef struct madvise_ctxt {
-	const stress_args_t *args;
+	stress_args_t *args;
 	void *buf;
 	char *smaps;
 	size_t sz;
@@ -237,7 +237,7 @@ static void stress_read_proc_smaps(const char *smaps)
  *	get a random advise option
  */
 static int stress_random_advise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	void *addr,
 	const size_t size,
 	const bool hwpoison)
@@ -343,7 +343,7 @@ static void *stress_madvise_pages(void *arg)
 {
 	size_t n;
 	const madvise_ctxt_t *ctxt = (const madvise_ctxt_t *)arg;
-	const stress_args_t *args = ctxt->args;
+	stress_args_t *args = ctxt->args;
 	void *buf = ctxt->buf;
 	const size_t sz = ctxt->sz;
 	const size_t page_size = args->page_size;
@@ -471,7 +471,7 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
  *  stress_madvise()
  *	stress madvise
  */
-static int stress_madvise(const stress_args_t *args)
+static int stress_madvise(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t sz = (4 *  MB) & ~(page_size - 1);

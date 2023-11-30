@@ -220,7 +220,7 @@ err:
  *  stress_pci_exercise()
  *	exercise all PCI files in a given PCI info path
  */
-static void stress_pci_exercise(const stress_args_t *args, stress_pci_info_t *pci_info)
+static void stress_pci_exercise(stress_args_t *args, stress_pci_info_t *pci_info)
 {
 	int i, n;
 	struct dirent **list = NULL;
@@ -266,7 +266,7 @@ static double stress_pci_rate(const stress_metrics_t *metrics)
  *  stress_pci()
  *	stress /sysfs PCI files with open/read/close and mmap where possible
  */
-static int stress_pci(const stress_args_t *args)
+static int stress_pci(stress_args_t *args)
 {
 	NOCLOBBER stress_pci_info_t *pci_info_list;
 	NOCLOBBER stress_pci_info_t *pci_info;

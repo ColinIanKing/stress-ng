@@ -137,7 +137,7 @@ static inline void stress_dir_mmap(const int dir_fd, const size_t page_size)
  *	read and stat all dentries
  */
 static int stress_dir_read(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path)
 {
 	DIR *dp;
@@ -178,7 +178,7 @@ static int stress_dir_read(
  *	("btrfs: fix infinite directory reads")
  */
 static int stress_dir_rename(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path)
 {
 	DIR *dp;
@@ -227,7 +227,7 @@ static int stress_dir_rename(
  *	remove all dentries
  */
 static void stress_dir_tidy(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -332,7 +332,7 @@ static void stress_invalid_rmdir(const char *path)
  *	the directory
  */
 static void stress_dir_read_concurrent(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *pathname)
 {
 	shim_nice(1);
@@ -350,7 +350,7 @@ static void stress_dir_read_concurrent(
  *	create a small file
  */
 static int stress_dir_touch(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *filename)
 {
 	int fd;
@@ -377,7 +377,7 @@ static int stress_dir_touch(
  *	rewinddir and readdir pick up all the new entries.
  */
 static int stress_dir_readdir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *pathname)
 {
 	DIR *dir;
@@ -448,7 +448,7 @@ err_rmdir:
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
-static int stress_dir(const stress_args_t *args)
+static int stress_dir(stress_args_t *args)
 {
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;

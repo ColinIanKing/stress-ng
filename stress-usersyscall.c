@@ -197,7 +197,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_sigsys_handler(
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-static int OPTIMIZE3 stress_usersyscall(const stress_args_t *args)
+static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 {
 	int ret, rc;
 	struct sigaction action;

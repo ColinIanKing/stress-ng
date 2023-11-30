@@ -63,7 +63,7 @@ static int stress_klog_supported(const char *name)
  *  stress_klog
  *	stress kernel logging interface
  */
-static int stress_klog(const stress_args_t *args)
+static int stress_klog(stress_args_t *args)
 {
 	char *buffer;
 	ssize_t len;

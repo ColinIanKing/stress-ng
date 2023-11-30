@@ -64,7 +64,7 @@ static int stress_icmp_flood_supported(const char *name)
  *  stress_icmp_flood
  *	stress local host with ICMP flood
  */
-static int stress_icmp_flood(const stress_args_t *args)
+static int stress_icmp_flood(stress_args_t *args)
 {
 	int fd, rc = EXIT_FAILURE;
 	const int set_on = 1;

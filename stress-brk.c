@@ -132,7 +132,7 @@ static inline size_t PURE stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr
 	return (size_t)((ptr1 > ptr2) ? ptr1 - ptr2 : ptr2 - ptr1);
 }
 
-static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
+static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 {
 	uint8_t *start_ptr, *unmap_ptr = NULL;
 	int i = 0;
@@ -263,7 +263,7 @@ static int OPTIMIZE3 stress_brk_child(const stress_args_t *args, void *context)
  *  stress_brk()
  *	stress brk and sbrk
  */
-static int stress_brk(const stress_args_t *args)
+static int stress_brk(stress_args_t *args)
 {
 	int rc;
 	brk_context_t brk_context;

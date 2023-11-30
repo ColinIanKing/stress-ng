@@ -80,7 +80,7 @@ static bool stress_fsize_reported(const off_t offset, const uint8_t type)
  *	offset -1  + size and equal to offset + size
  */
 static int stress_fsize_boundary(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const struct rlimit *old_rlim,
 	const off_t offset,
@@ -166,7 +166,7 @@ static off_t stress_fsize_max_off_t(void)
  *  stress_fsize
  *	stress file size limits
  */
-static int stress_fsize(const stress_args_t *args)
+static int stress_fsize(stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int fd, ret, rc = EXIT_SUCCESS;

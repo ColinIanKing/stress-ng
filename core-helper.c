@@ -1489,7 +1489,7 @@ int stress_temp_filename(
  *      construct a temp filename using info from args
  */
 int stress_temp_filename_args(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *path,
 	const size_t len,
 	const uint64_t magic)
@@ -1527,7 +1527,7 @@ int stress_temp_dir(
  *	create a temporary directory name using info from args
  */
 int stress_temp_dir_args(
-	const stress_args_t *args,
+	stress_args_t *args,
 	char *path,
 	const size_t len)
 {
@@ -1563,7 +1563,7 @@ int stress_temp_dir_mk(
  *   stress_temp_dir_mk_args()
  *	create a temporary director using info from args
  */
-int stress_temp_dir_mk_args(const stress_args_t *args)
+int stress_temp_dir_mk_args(stress_args_t *args)
 {
 	return stress_temp_dir_mk(args->name, args->pid, args->instance);
 }
@@ -1595,7 +1595,7 @@ int stress_temp_dir_rm(
  *  stress_temp_dir_rm_args()
  *	remove a temporary directory using info from args
  */
-int stress_temp_dir_rm_args(const stress_args_t *args)
+int stress_temp_dir_rm_args(stress_args_t *args)
 {
 	return stress_temp_dir_rm(args->name, args->pid, args->instance);
 }
@@ -2368,7 +2368,7 @@ static void MLOCKED_TEXT stress_sigchld_helper_handler(int signum)
  *  stress_sigchld_set_handler()
  *	set sigchld handler
  */
-int stress_sigchld_set_handler(const stress_args_t *args)
+int stress_sigchld_set_handler(stress_args_t *args)
 {
 	return stress_sighandler(args->name, SIGCHLD, stress_sigchld_helper_handler, NULL);
 }
@@ -2545,7 +2545,7 @@ const char *stress_get_uname_info(void)
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int stress_unimplemented(const stress_args_t *args)
+int stress_unimplemented(stress_args_t *args)
 {
 	static const char msg[] = "this stressor is not implemented on "
 				  "this system";
@@ -3583,7 +3583,7 @@ size_t stress_get_extents(const int fd)
  *	error cases that are retryable. Also force a
  *	scheduling yield.
  */
-bool stress_redo_fork(const stress_args_t *args, const int err)
+bool stress_redo_fork(stress_args_t *args, const int err)
 {
 	/* Timed out! */
 	if (stress_time_now() > args->time_end) {
@@ -4549,7 +4549,7 @@ void stress_catch_sigsegv(void)
  *	dump out /proc/$PID/filename data in human readable format
  */
 static void stress_process_info_dump(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const char *filename)
 {
@@ -4598,7 +4598,7 @@ static void stress_process_info_dump(
  *  stress_process_info()
  *	dump out process specific debug from /proc
  */
-void stress_process_info(const stress_args_t *args, const pid_t pid)
+void stress_process_info(stress_args_t *args, const pid_t pid)
 {
 #if defined(__linux__)
 	pr_block_begin();

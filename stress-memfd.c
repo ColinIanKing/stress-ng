@@ -222,7 +222,7 @@ static inline bool stress_memfd_check(
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
-static int stress_memfd_child(const stress_args_t *args, void *context)
+static int stress_memfd_child(stress_args_t *args, void *context)
 {
 	int *fds, fd;
 	void **maps;
@@ -550,7 +550,7 @@ buf_unmap:
  *  stress_memfd()
  *	stress memfd
  */
-static int stress_memfd(const stress_args_t *args)
+static int stress_memfd(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_memfd_child, STRESS_OOMABLE_NORMAL);
 }

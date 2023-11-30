@@ -38,7 +38,7 @@ typedef struct stress_str_args {
 /*
  *  the STR stress test has different classes of string stressors
  */
-typedef size_t (*stress_str_func)(const stress_args_t *args, stress_str_args_t *info);
+typedef size_t (*stress_str_func)(stress_args_t *args, stress_str_args_t *info);
 
 typedef struct {
 	const char 		*name;	/* human readable form of stressor */
@@ -74,7 +74,7 @@ static inline void strchk(
  *  stress_strcasecmp()
  *	stress on strcasecmp
  */
-static size_t stress_strcasecmp(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strcasecmp(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strcasecmp_t)(const char *s1, const char *s2);
 
@@ -108,7 +108,7 @@ static size_t stress_strcasecmp(const stress_args_t *args, stress_str_args_t *in
  *  stress_strncasecmp()
  *	stress on strncasecmp
  */
-static size_t stress_strncasecmp(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strncasecmp(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strncasecmp_t)(const char *s1, const char *s2, size_t n);
 
@@ -143,7 +143,7 @@ static size_t stress_strncasecmp(const stress_args_t *args, stress_str_args_t *i
  *  stress_index()
  *	stress on index
  */
-static size_t stress_index(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_index(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_index_t)(const char *s, int c);
 
@@ -170,7 +170,7 @@ static size_t stress_index(const stress_args_t *args, stress_str_args_t *info)
  *  stress_rindex()
  *	stress on rindex
  */
-static size_t stress_rindex(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_rindex(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_rindex_t)(const char *s, int c);
 
@@ -198,7 +198,7 @@ static size_t stress_rindex(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strlcpy()
  *	stress on strlcpy
  */
-static size_t stress_strlcpy(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strlcpy(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strlcpy_t)(char *dest, const char *src, size_t len);
 
@@ -224,7 +224,7 @@ static size_t stress_strlcpy(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strcpy()
  *	stress on strcpy
  */
-static size_t stress_strcpy(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strcpy(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strcpy_t)(char *dest, const char *src);
 
@@ -251,7 +251,7 @@ static size_t stress_strcpy(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strlcat()
  *	stress on strlcat
  */
-static size_t stress_strlcat(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strlcat(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strlcat_t)(char *dest, const char *src, size_t len);
 
@@ -286,7 +286,7 @@ static size_t stress_strlcat(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strcat()
  *	stress on strcat
  */
-static size_t stress_strcat(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strcat(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strcat_t)(char *dest, const char *src);
 
@@ -318,7 +318,7 @@ static size_t stress_strcat(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strncat()
  *	stress on strncat
  */
-static size_t stress_strncat(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strncat(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strncat_t)(char *dest, const char *src, size_t n);
 
@@ -350,7 +350,7 @@ static size_t stress_strncat(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strchr()
  *	stress on strchr
  */
-static size_t stress_strchr(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strchr(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strchr_t)(const char *s, int c);
 
@@ -375,7 +375,7 @@ static size_t stress_strchr(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strrchr()
  *	stress on strrchr
  */
-static size_t stress_strrchr(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strrchr(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef char * (*test_strrchr_t)(const char *s, int c);
 
@@ -400,7 +400,7 @@ static size_t stress_strrchr(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strcmp()
  *	stress on strcmp
  */
-static size_t stress_strcmp(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strcmp(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strcmp_t)(const char *s1, const char *s2);
 
@@ -432,7 +432,7 @@ static size_t stress_strcmp(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strncmp()
  *	stress on strncmp
  */
-static size_t stress_strncmp(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strncmp(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strncmp_t)(const char *s1, const char *s2, size_t n);
 
@@ -464,7 +464,7 @@ static size_t stress_strncmp(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strcoll()
  *	stress on strcoll
  */
-static size_t stress_strcoll(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strcoll(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef int (*test_strcoll_t)(const char *s1, const char *s2);
 
@@ -496,7 +496,7 @@ static size_t stress_strcoll(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strlen()
  *	stress on strlen
  */
-static size_t stress_strlen(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strlen(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strlen_t)(const char *s);
 
@@ -527,7 +527,7 @@ static size_t stress_strlen(const stress_args_t *args, stress_str_args_t *info)
  *  stress_strxfrm()
  *	stress on strxfrm
  */
-static size_t stress_strxfrm(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_strxfrm(stress_args_t *args, stress_str_args_t *info)
 {
 	typedef size_t (*test_strxfrm_t)(char *dest, const char *src, size_t n);
 
@@ -555,7 +555,7 @@ static size_t stress_strxfrm(const stress_args_t *args, stress_str_args_t *info)
 	return i * 6;
 }
 
-static size_t stress_str_all(const stress_args_t *args, stress_str_args_t *info);
+static size_t stress_str_all(stress_args_t *args, stress_str_args_t *info);
 
 /*
  * Table of string stress methods
@@ -599,7 +599,7 @@ static stress_metrics_t metrics[SIZEOF_ARRAY(str_methods)];
  *  stress_str_all()
  *	iterate over all string stressors
  */
-static size_t stress_str_all(const stress_args_t *args, stress_str_args_t *info)
+static size_t stress_str_all(stress_args_t *args, stress_str_args_t *info)
 {
 	static size_t i = 1;	/* Skip over stress_str_all */
 	stress_str_args_t info_all = *info;
@@ -645,7 +645,7 @@ static int stress_set_str_method(const char *name)
  *  stress_str()
  *	stress CPU by doing various string operations
  */
-static int stress_str(const stress_args_t *args)
+static int stress_str(stress_args_t *args)
 {
 	char ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	char ALIGN64 strdst[STRDSTLEN];

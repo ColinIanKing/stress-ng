@@ -134,7 +134,7 @@ static int stress_set_eigen_method(const char *name)
 }
 
 static inline int stress_eigen_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t eigen_method,
 	const size_t eigen_size)
 {
@@ -198,7 +198,7 @@ static inline int stress_eigen_exercise(
  *  stress_eigen()
  *	stress CPU by doing floating point math ops
  */
-static int stress_eigen(const stress_args_t *args)
+static int stress_eigen(stress_args_t *args)
 {
 	size_t eigen_method = 0;	/* All method */
 	size_t eigen_size = DEFAULT_MATRIX_SIZE;

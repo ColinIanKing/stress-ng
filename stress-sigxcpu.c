@@ -28,7 +28,7 @@ static const stress_help_t help[] = {
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_FSIZE)
 
-const stress_args_t *sigxcpu_args;
+stress_args_t *sigxcpu_args;
 
 /*
  *  stress_sigxcpu_handler()
@@ -44,7 +44,7 @@ static void MLOCKED_TEXT stress_sigxcpu_handler(int signum)
  *  stress_sigxcpu
  *	stress reading of /dev/zero using SIGXCPU
  */
-static int stress_sigxcpu(const stress_args_t *args)
+static int stress_sigxcpu(stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	struct rlimit limit;

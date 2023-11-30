@@ -119,7 +119,7 @@ typedef struct {
  *	will enforce and automatic space reap if the child process
  *	exits prematurely.
  */
-static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
+static int stress_tmpfs_open(stress_args_t *args, off_t *len)
 {
 	const uint32_t rnd = stress_mwc32();
 	char path[PATH_MAX];
@@ -200,7 +200,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 	return fd;
 }
 
-static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
+static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 {
 	stress_tmpfs_context_t *context = (stress_tmpfs_context_t *)ctxt;
 	const size_t page_size = args->page_size;
@@ -417,7 +417,7 @@ cleanup:
  *  stress_tmpfs()
  *	stress tmpfs
  */
-static int stress_tmpfs(const stress_args_t *args)
+static int stress_tmpfs(stress_args_t *args)
 {
 	stress_tmpfs_context_t context;
 	int ret;

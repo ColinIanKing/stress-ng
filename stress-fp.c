@@ -139,18 +139,18 @@ typedef struct {
 } fp_data_t;
 
 typedef double (*stress_fp_func_t)(
-	const stress_args_t *args,
+	stress_args_t *args,
 	fp_data_t *fp_data,
 	const int index);
 
 static double stress_fp_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	fp_data_t *fp_data,
 	const int index);
 
 #define STRESS_FP_ADD(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
-	const stress_args_t *args,					\
+	stress_args_t *args,					\
 	fp_data_t *fp_data,						\
 	const int index)						\
 {									\
@@ -190,7 +190,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 
 #define STRESS_FP_MUL(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
-	const stress_args_t *args,					\
+	stress_args_t *args,					\
 	fp_data_t *fp_data,						\
 	const int index)						\
 {									\
@@ -230,7 +230,7 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 
 #define STRESS_FP_DIV(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
-	const stress_args_t *args,					\
+	stress_args_t *args,					\
 	fp_data_t *fp_data,						\
 	const int index)						\
 {									\
@@ -413,7 +413,7 @@ static const char * PURE stress_fp_type(const int fp_type)
 }
 
 static void stress_fp_call_method(
-	const stress_args_t *args,
+	stress_args_t *args,
 	fp_data_t *fp_data,
 	const size_t method,
 	const bool verify)
@@ -505,7 +505,7 @@ static void stress_fp_call_method(
 }
 
 static double stress_fp_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	fp_data_t *fp_data,
 	const int index)
 {
@@ -543,7 +543,7 @@ static int stress_set_fp_method(const char *name)
 	return -1;
 }
 
-static int stress_fp(const stress_args_t *args)
+static int stress_fp(stress_args_t *args)
 {
 	size_t i, mmap_size;
 	fp_data_t *fp_data;

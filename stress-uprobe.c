@@ -115,7 +115,7 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
  *  stress_uprobe()
  *	stress uprobe events
  */
-static int stress_uprobe(const stress_args_t *args)
+static int stress_uprobe(stress_args_t *args)
 {
 	char buf[PATH_MAX + 256], libc_path[PATH_MAX];
 	int ret;

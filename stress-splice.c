@@ -163,7 +163,7 @@ static void stress_splice_looped_pipe(
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
-static int stress_splice(const stress_args_t *args)
+static int stress_splice(stress_args_t *args)
 {
 	int fd_in, fd_out, fds1[2], fds2[2], fds3[2], fds4[2];
 	size_t splice_bytes = DEFAULT_SPLICE_BYTES;

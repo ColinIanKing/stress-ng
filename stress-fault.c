@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
  *  stress_fault()
  *	stress min and max page faulting
  */
-static int stress_fault(const stress_args_t *args)
+static int stress_fault(stress_args_t *args)
 {
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\

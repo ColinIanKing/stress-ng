@@ -170,7 +170,7 @@ again:
 }
 
 static int stress_race_sched_setaffinity(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid,
 	const int cpu)
 {
@@ -193,7 +193,7 @@ static int stress_race_sched_setaffinity(
 }
 
 static int stress_race_sched_setscheduler(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid)
 {
 	struct sched_param param;
@@ -215,7 +215,7 @@ static int stress_race_sched_setscheduler(
 }
 
 static int stress_race_sched_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int cpus,
 	const size_t method_index)
 {
@@ -315,7 +315,7 @@ static void stress_race_sched_free(void)
 	}
 }
 
-static int stress_race_sched_child(const stress_args_t *args, void *context)
+static int stress_race_sched_child(stress_args_t *args, void *context)
 {
 	/* Child */
 	uint32_t max_forks = 0;
@@ -437,7 +437,7 @@ static int stress_race_sched_child(const stress_args_t *args, void *context)
  *  stress_race_sched()
  *	stress by cloning and exiting
  */
-static int stress_race_sched(const stress_args_t *args)
+static int stress_race_sched(stress_args_t *args)
 {
 	int rc;
 

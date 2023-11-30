@@ -51,7 +51,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_eventfd
  *	stress eventfd read/writes
  */
-static int stress_eventfd(const stress_args_t *args)
+static int stress_eventfd(stress_args_t *args)
 {
 	pid_t pid;
 	int fd1, fd2, test_fd, rc;

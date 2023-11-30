@@ -51,7 +51,7 @@ static const stress_help_t help[] = {
 };
 
 typedef int (*stress_cacheline_func)(
-        const stress_args_t *args,
+        stress_args_t *args,
         const int index,
         const bool parent,
         const size_t l1_cacheline_size);
@@ -61,7 +61,7 @@ typedef struct {
 	const stress_cacheline_func	func;
 } stress_cacheline_method_t;
 
-static uint64_t get_L1_line_size(const stress_args_t *args)
+static uint64_t get_L1_line_size(stress_args_t *args)
 {
 	uint64_t cache_size = DEFAULT_L1_SIZE;
 #if defined(__linux__) ||	\
@@ -104,7 +104,7 @@ static uint64_t get_L1_line_size(const stress_args_t *args)
 }
 
 static int stress_cacheline_adjacent(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -152,7 +152,7 @@ static int stress_cacheline_adjacent(
 }
 
 static int stress_cacheline_copy(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -188,7 +188,7 @@ static int stress_cacheline_copy(
 }
 
 static int stress_cacheline_inc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -228,7 +228,7 @@ static int stress_cacheline_inc(
 }
 
 static int stress_cacheline_rdwr(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -303,7 +303,7 @@ static int stress_cacheline_rdwr(
 }
 
 static int stress_cacheline_mix(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -334,7 +334,7 @@ static int stress_cacheline_mix(
 }
 
 static int stress_cacheline_rdrev64(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -372,7 +372,7 @@ static int stress_cacheline_rdrev64(
 }
 
 static int stress_cacheline_rdfwd64(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -410,7 +410,7 @@ static int stress_cacheline_rdfwd64(
 }
 
 static int stress_cacheline_rdints(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -463,7 +463,7 @@ static int stress_cacheline_rdints(
 }
 
 static int stress_cacheline_bits(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -503,7 +503,7 @@ static int stress_cacheline_bits(
 
 #if defined(SHIM_ATOMIC_INC)
 static int stress_cacheline_atomicinc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -537,7 +537,7 @@ static int stress_cacheline_atomicinc(
 #endif
 
 static int stress_cacheline_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size);
@@ -559,7 +559,7 @@ static const stress_cacheline_method_t cacheline_methods[] = {
 };
 
 static int stress_cacheline_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
@@ -614,7 +614,7 @@ static int stress_set_cacheline_method(const char *name)
  *	and parent/child offset modulo number of CPUs
  */
 static inline void stress_cacheline_change_affinity(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const uint32_t cpus,
 	bool parent)
 {
@@ -629,7 +629,7 @@ static inline void stress_cacheline_change_affinity(
 #endif
 
 static int stress_cacheline_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size,
@@ -702,7 +702,7 @@ static int stress_cacheline_next_index(void)
  *  stress_cacheline()
  *	execise a cacheline by multiple processes
  */
-static int stress_cacheline(const stress_args_t *args)
+static int stress_cacheline(stress_args_t *args)
 {
 	size_t l1_cacheline_size = (size_t)get_L1_line_size(args);
 	int index;

@@ -162,7 +162,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_SHM_SYSV)
 
 static void stress_shm_metrics(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const double duration,
 	const double count,
 	const char *syscall,
@@ -314,7 +314,7 @@ static void exercise_shmat(
  *  get_bad_shmid()
  *	find invalid shared memory segment id
  */
-static int get_bad_shmid(const stress_args_t *args)
+static int get_bad_shmid(stress_args_t *args)
 {
 	int id = ~0;
 
@@ -338,7 +338,7 @@ static int get_bad_shmid(const stress_args_t *args)
  *  exercise_shmctl()
  *	exercise shmctl syscall with all possible values of arguments
  */
-static void exercise_shmctl(const size_t sz, const stress_args_t *args)
+static void exercise_shmctl(const size_t sz, stress_args_t *args)
 {
 	key_t key;
 	int shm_id;
@@ -587,7 +587,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
  *	be reaped cleanly if this process gets prematurely killed.
  */
 static int stress_shm_sysv_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const size_t max_sz,
 	const size_t page_size,
@@ -945,7 +945,7 @@ reap:
  *  stress_shm_sysv()
  *	stress SYSTEM V shared memory
  */
-static int stress_shm_sysv(const stress_args_t *args)
+static int stress_shm_sysv(stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t orig_sz, sz;

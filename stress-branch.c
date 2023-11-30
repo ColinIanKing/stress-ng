@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
  *  stress_branch()
  *	stress instruction branch prediction
  */
-static int OPTIMIZE3 stress_branch(const stress_args_t *args)
+static int OPTIMIZE3 stress_branch(stress_args_t *args)
 {
 	/* 64 bit counters is good enough for runs for tens of thousands of years */
 	uint64_t lo, hi, bogo_counter, bogo_thresh;

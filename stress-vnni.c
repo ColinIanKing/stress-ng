@@ -75,7 +75,7 @@ static bool avx_capable;
 static bool vnni_intrinsic;
 static bool little_endian;
 
-typedef void (*stress_vnni_func_t)(const stress_args_t *args);
+typedef void (*stress_vnni_func_t)(stress_args_t *args);
 typedef bool (*stress_vnni_capable_func_t)(void);
 
 typedef struct {
@@ -110,7 +110,7 @@ static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
     defined(HAVE_MM512_ADD_EPI8) &&	\
     defined(HAVE_MM512_STOREU_SI512)
 #define HAVE_STRESS_VNNI_VPADDB512
-static void TARGET_AVX512BW OPTIMIZE3 stress_vnni_vpaddb512(const stress_args_t *args)
+static void TARGET_AVX512BW OPTIMIZE3 stress_vnni_vpaddb512(stress_args_t *args)
 {
 	register int i;
 
@@ -134,7 +134,7 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
     defined(HAVE_MM256_ADD_EPI8) &&	\
     defined(HAVE_MM256_STOREU_SI256)
 #define HAVE_STRESS_VNNI_VPADDB256
-static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb256(const stress_args_t *args)
+static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb256(stress_args_t *args)
 {
 	register int i;
 
@@ -158,7 +158,7 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
     defined(HAVE_MM_ADD_EPI8) &&	\
     defined(HAVE_MM_STOREU_SI128)
 #define HAVE_STRESS_VNNI_VPADDB128
-static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb128(const stress_args_t *args)
+static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb128(stress_args_t *args)
 {
 	register int i;
 
@@ -176,7 +176,7 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 }
 #endif
 
-static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpaddb(const stress_args_t *args)
+static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpaddb(stress_args_t *args)
 {
 	register int i;
 
@@ -193,7 +193,7 @@ PRAGMA_UNROLL_N(8)
     defined(HAVE_MM512_DPBUSD_EPI32) &&	\
     defined(HAVE_MM512_STOREU_SI512)
 #define HAVE_STRESS_VNNI_VPDPBUSD512
-static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpbusd512(const stress_args_t *args)
+static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpbusd512(stress_args_t *args)
 {
 	register int i;
 
@@ -218,7 +218,7 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
     defined(HAVE_MM256_DPBUSD_EPI32) &&	\
     defined(HAVE_MM256_STOREU_SI256)
 #define HAVE_STRESS_VNNI_VPDPBUSD256
-static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd256(const stress_args_t *args)
+static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd256(stress_args_t *args)
 {
 	register int i;
 
@@ -243,7 +243,7 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
     defined(HAVE_MM_DPBUSD_EPI32) &&	\
     defined(HAVE_MM_STOREU_SI128)
 #define HAVE_STRESS_VNNI_VPDPBUSD128
-static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd128(const stress_args_t *args)
+static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd128(stress_args_t *args)
 {
 	register int i;
 
@@ -262,7 +262,7 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 }
 #endif
 
-static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(const stress_args_t *args)
+static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(stress_args_t *args)
 {
 	register int i, j;
 	uint32_t *r32 = (uint32_t *)result;
@@ -286,7 +286,7 @@ static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpbusd(const stress_args_t *ar
     defined(HAVE_MM512_DPWSSD_EPI32) &&	\
     defined(HAVE_MM512_STOREU_SI512)
 #define HAVE_STRESS_VNNI_VPDPWSSD512
-static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpwssd512(const stress_args_t *args)
+static void TARGET_AVX512VNNI OPTIMIZE3 stress_vnni_vpdpwssd512(stress_args_t *args)
 {
 	register int i;
 
@@ -311,7 +311,7 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
     defined(HAVE_MM256_DPWSSD_EPI32) &&	\
     defined(HAVE_MM256_STOREU_SI256)
 #define HAVE_STRESS_VNNI_VPDPWSSD256
-static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd256(const stress_args_t *args)
+static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd256(stress_args_t *args)
 {
 	register int i;
 
@@ -336,7 +336,7 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
     defined(HAVE_MM_DPWSSD_EPI32) &&	\
     defined(HAVE_MM_STOREU_SI128)
 #define HAVE_STRESS_VNNI_VPDPWSSD128
-static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd128(const stress_args_t *args)
+static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd128(stress_args_t *args)
 {
 	register int i;
 
@@ -355,7 +355,7 @@ PRAGMA_UNROLL_N(VEC_VNNI128_LOOPS)
 }
 #endif
 
-static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpwssd(const stress_args_t *args)
+static void TARGET_CLONES OPTIMIZE3 stress_vnni_vpdpwssd(stress_args_t *args)
 {
 	register int i, j;
 	int16_t *a16 = (int16_t *)a_init;
@@ -414,7 +414,7 @@ static bool stress_always_capable(void)
 	return true;
 }
 
-static void stress_vnni_all(const stress_args_t *args);
+static void stress_vnni_all(stress_args_t *args);
 
 static stress_vnni_method_t stress_vnni_methods[] = {
 	{ "all",	 stress_vnni_all,	  stress_always_capable,      0xffffffff, 0xffffffff, false, false, 0.0, 0.0 },
@@ -450,7 +450,7 @@ static stress_vnni_method_t stress_vnni_methods[] = {
 	{ "vpdpwssd",	 stress_vnni_vpdpwssd,    stress_always_capable,      0x8e323fb8, 0xeef5d2a3, false, false, 0.0, 0.0 },
 };
 
-static void OPTIMIZE3 stress_vnni_exercise(const stress_args_t *args, const size_t n)
+static void OPTIMIZE3 stress_vnni_exercise(stress_args_t *args, const size_t n)
 {
 	uint32_t checksum, expected_checksum;
 	stress_vnni_method_t *method = &stress_vnni_methods[n];
@@ -477,7 +477,7 @@ static void OPTIMIZE3 stress_vnni_exercise(const stress_args_t *args, const size
 	stress_bogo_inc(args);
 }
 
-static void stress_vnni_all(const stress_args_t *args)
+static void stress_vnni_all(stress_args_t *args)
 {
 	size_t i;
 
@@ -521,7 +521,7 @@ static int stress_set_vnni_method(const char *name)
  *  stress_vnni()
  *	stress intel VNNI ops
  */
-static int stress_vnni(const stress_args_t *args)
+static int stress_vnni(stress_args_t *args)
 {
 	size_t i, j, vnni_method = 0, intrinsic_count = 0;
 

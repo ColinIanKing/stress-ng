@@ -115,7 +115,7 @@ static int stress_set_bsearch_method(const char *opt)
  *  stress_bsearch()
  *	stress bsearch
  */
-static int OPTIMIZE3 stress_bsearch(const stress_args_t *args)
+static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 {
 	int32_t *data, *ptr;
 	size_t n, n8, i, bsearch_method = 0, data_size;

@@ -166,7 +166,7 @@ static void stress_bad_ioctl_dev_free(dev_ioctl_info_t *node)
  *	read dev directory, add device information to tree
  */
 static void stress_bad_ioctl_dev_dir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *path,
 	const int depth)
 {
@@ -264,7 +264,7 @@ static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
  *	exercise a dev entry
  */
 static inline void stress_bad_ioctl_rw(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const bool is_pthread,
 	const int thread_index)
 {
@@ -413,7 +413,7 @@ static void *stress_bad_ioctl_thread(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
-	const stress_args_t *args = pa->args;
+	stress_args_t *args = pa->args;
 	const stress_bad_ioctl_thread_t *thread = (const stress_bad_ioctl_thread_t *)pa->data;
 
 	/*
@@ -433,7 +433,7 @@ static void *stress_bad_ioctl_thread(void *arg)
  *	read directory
  */
 static void stress_bad_ioctl_dir(
-	const stress_args_t *args,
+	stress_args_t *args,
 	dev_ioctl_info_t *node,
 	uint32_t offset,
 	const int bad_ioctl_method)
@@ -500,7 +500,7 @@ static void stress_bad_ioctl_dir(
  *  stress_bad_ioctl
  *	stress read-only ioctls on all of /dev
  */
-static int stress_bad_ioctl(const stress_args_t *args)
+static int stress_bad_ioctl(stress_args_t *args)
 {
 	stress_bad_ioctl_thread_t threads[MAX_DEV_THREADS];
 	int rc = EXIT_SUCCESS;

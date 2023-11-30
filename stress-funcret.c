@@ -46,7 +46,7 @@ STRESS_PRAGMA_NO_HARD_DFP
 #endif
 #endif
 
-typedef bool (*stress_funcret_func)(const stress_args_t *args);
+typedef bool (*stress_funcret_func)(stress_args_t *args);
 
 typedef struct {
 	const char *name;		/* human readable form of stressor */
@@ -254,9 +254,9 @@ static void stress_funcret_setvar(void *ptr, const size_t size)
 #define cmp_fp(a, b, type)	((a - b) > (type)0.0001)
 
 #define stress_funcret_type(type, cmp)					\
-static bool NOINLINE stress_funcret_ ## type(const stress_args_t *args);\
+static bool NOINLINE stress_funcret_ ## type(stress_args_t *args);\
 									\
-static bool NOINLINE stress_funcret_ ## type(const stress_args_t *args)	\
+static bool NOINLINE stress_funcret_ ## type(stress_args_t *args)	\
 {									\
 	register size_t i;						\
 	type a, old_b;							\
@@ -345,7 +345,7 @@ stress_funcret_type(stress_uint8x32_t, cmp_mem)
 stress_funcret_type(stress_uint8x128_t, cmp_mem)
 stress_funcret_type(stress_uint64x128_t, cmp_mem)
 
-static bool stress_funcret_all(const stress_args_t *args);
+static bool stress_funcret_all(stress_args_t *args);
 
 /*
  * Table of func call stress methods
@@ -413,7 +413,7 @@ static const stress_funcret_method_info_t stress_funcret_methods[] = {
 
 static stress_metrics_t stress_funcret_metrics[SIZEOF_ARRAY(stress_funcret_methods)];
 
-static bool stress_funcret_exercise(const stress_args_t *args, const size_t method)
+static bool stress_funcret_exercise(stress_args_t *args, const size_t method)
 {
 	bool success;
 	double t;
@@ -430,7 +430,7 @@ static bool stress_funcret_exercise(const stress_args_t *args, const size_t meth
 	return success;
 }
 
-static bool stress_funcret_all(const stress_args_t *args)
+static bool stress_funcret_all(stress_args_t *args)
 {
 	size_t i;
 	bool success = true;
@@ -469,7 +469,7 @@ static int stress_set_funcret_method(const char *name)
  *  stress_funcret()
  *	stress various argument sized function calls
  */
-static int stress_funcret(const stress_args_t *args)
+static int stress_funcret(stress_args_t *args)
 {
 	bool success = true;
 	size_t funcret_method = 0;

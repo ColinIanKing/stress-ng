@@ -156,7 +156,7 @@ static bool keep_thread_running(void)
  *	Sanity check the current pthread tid is the same as the
  *	one returned by set_tid_address.
  */
-static void OPTIMIZE3 stress_pthread_tid_address(const stress_args_t *args)
+static void OPTIMIZE3 stress_pthread_tid_address(stress_args_t *args)
 {
 #if defined(HAVE_SYS_PRCTL_H) &&	\
     defined(HAVE_PRCTL) &&		\
@@ -230,7 +230,7 @@ static void *stress_pthread_func(void *parg)
 	size_t len;
 #endif
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
-	const stress_args_t *args = spa->args;
+	stress_args_t *args = spa->args;
 	stress_pthread_info_t *pthread_info = (stress_pthread_info_t *)spa->data;
 
 	pthread_info->t_run = t_run;
@@ -437,7 +437,7 @@ die:
  *  stress_pthread()
  *	stress by creating pthreads
  */
-static int stress_pthread(const stress_args_t *args)
+static int stress_pthread(stress_args_t *args)
 {
 	char msg[64];
 	bool locked = false;

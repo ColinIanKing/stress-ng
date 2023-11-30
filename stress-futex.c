@@ -91,7 +91,7 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long nsec)
  * 	efficiently use futex, but to stress the futex system call
  *	by rapidly calling it on wait and wakes
  */
-static int stress_futex(const stress_args_t *args)
+static int stress_futex(stress_args_t *args)
 {
 	uint64_t *timeout = &g_shared->futex.timeout[args->instance];
 	uint32_t *futex = &g_shared->futex.futex[args->instance];

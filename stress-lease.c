@@ -82,7 +82,7 @@ static int stress_get_lease(const int fd)
  *	spawn a process
  */
 static pid_t stress_lease_spawn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *filename)
 {
 	pid_t pid;
@@ -130,7 +130,7 @@ again:
  *	try and get a lease with lock type 'lock'
  */
 static int stress_try_lease(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *filename,
 	const int flags,
 	const int lock)
@@ -182,7 +182,7 @@ tidy:
  *  stress_lease
  *	stress fcntl lease activity
  */
-static int stress_lease(const stress_args_t *args)
+static int stress_lease(stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;

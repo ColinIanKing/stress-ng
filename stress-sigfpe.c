@@ -150,7 +150,7 @@ static void NOINLINE OPTIMIZE0 stress_float_div_by_zero(void)
  *  stress_sigfpe
  *	stress by generating floating point errors
  */
-static int stress_sigfpe(const stress_args_t *args)
+static int stress_sigfpe(stress_args_t *args)
 {
 	struct sigaction action;
 	static int i = 0;

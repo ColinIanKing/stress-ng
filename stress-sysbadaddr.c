@@ -74,7 +74,7 @@ UNEXPECTED
 #include <sys/ptrace.h>
 #endif
 
-typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
+typedef void *(*stress_bad_addr_t)(stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 
 static void *no_page;	/* no protect page */
@@ -152,7 +152,7 @@ static inline void *inc_addr(void *ptr, const size_t inc)
 	return (void *)((char *)ptr + inc);
 }
 
-static void *unaligned_addr(const stress_args_t *args)
+static void *unaligned_addr(stress_args_t *args)
 {
 	static uint64_t data[8] = {
 		~0ULL, ~0ULL, ~0ULL, ~0ULL,
@@ -165,66 +165,66 @@ static void *unaligned_addr(const stress_args_t *args)
 	return ptr + 1;
 }
 
-static void *readonly_addr(const stress_args_t *args)
+static void *readonly_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return ro_page;
 }
 
-static void *null_addr(const stress_args_t *args)
+static void *null_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return NULL;
 }
 
-static void *text_addr(const stress_args_t *args)
+static void *text_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return (void *)&write;
 }
 
-static void *bad_end_addr(const stress_args_t *args)
+static void *bad_end_addr(stress_args_t *args)
 {
 	return ((uint8_t *)rw_page) + args->page_size - 1;
 }
 
-static void *bad_max_addr(const stress_args_t *args)
+static void *bad_max_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return (void *)~(uintptr_t)0;
 }
 
-static void *unmapped_addr(const stress_args_t *args)
+static void *unmapped_addr(stress_args_t *args)
 {
 	return ((uint8_t *)rw_page) + args->page_size;
 }
 
-static void *exec_addr(const stress_args_t *args)
+static void *exec_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return rx_page;
 }
 
-static void *none_addr(const stress_args_t *args)
+static void *none_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return no_page;
 }
 
-static void *write_addr(const stress_args_t *args)
+static void *write_addr(stress_args_t *args)
 {
 	(void)args;
 
 	return wo_page;
 }
 
-static void *write_exec_addr(const stress_args_t *args)
+static void *write_exec_addr(stress_args_t *args)
 {
 	(void)args;
 
@@ -1034,7 +1034,7 @@ static stress_bad_syscall_t bad_syscalls[] = {
  *  the parent
  */
 static inline int stress_do_syscall(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_bad_syscall_t bad_syscall,
 	void *addr)
 {
@@ -1107,7 +1107,7 @@ static inline int stress_do_syscall(
 	return rc;
 }
 
-static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
+static int stress_sysbadaddr_child(stress_args_t *args, void *context)
 {
 	(void)context;
 
@@ -1140,7 +1140,7 @@ static void stress_munmap(void *addr, size_t sz)
  *  stress_sysbadaddr
  *	stress system calls with bad addresses
  */
-static int stress_sysbadaddr(const stress_args_t *args)
+static int stress_sysbadaddr(stress_args_t *args)
 {
 	size_t page_size = args->page_size;
 	int ret;

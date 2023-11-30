@@ -70,7 +70,7 @@ typedef struct {
 #endif
 
 typedef struct {
-	const stress_args_t *args;	/* args info */
+	stress_args_t *args;	/* args info */
 	size_t instance;		/* per thread instance number */
 } stress_malloc_args_t;
 
@@ -196,7 +196,7 @@ static void stress_malloc_page_touch(
 static void *stress_malloc_loop(void *ptr)
 {
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
-	const stress_args_t *args = malloc_args->args;
+	stress_args_t *args = malloc_args->args;
 	const size_t page_size = args->page_size;
 	static void *nowt = NULL;
 	size_t j;
@@ -356,7 +356,7 @@ static void MLOCKED_TEXT stress_malloc_sigsegv_handler(int signum)
 	}
 }
 
-static int stress_malloc_child(const stress_args_t *args, void *context)
+static int stress_malloc_child(stress_args_t *args, void *context)
 {
 	int ret;
 	/*
@@ -434,7 +434,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
  *	stress malloc by performing a mix of
  *	allocation and frees
  */
-static int stress_malloc(const stress_args_t *args)
+static int stress_malloc(stress_args_t *args)
 {
 	int ret;
 	bool malloc_zerofree = false;

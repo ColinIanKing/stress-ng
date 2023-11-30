@@ -214,7 +214,7 @@ static void skip_list_free(skip_list_t *list)
  *  stress_skiplist()
  *	stress skiplist
  */
-static int OPTIMIZE3 stress_skiplist(const stress_args_t *args)
+static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 {
 	unsigned long n, i, ln2n;
 	uint64_t skiplist_size = DEFAULT_SKIPLIST_SIZE;

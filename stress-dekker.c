@@ -49,7 +49,7 @@ typedef struct dekker {
 
 dekker_t *dekker;
 
-static void stress_dekker_p0(const stress_args_t *args)
+static void stress_dekker_p0(stress_args_t *args)
 {
 	int check0, check1;
 	double t;
@@ -85,7 +85,7 @@ static void stress_dekker_p0(const stress_args_t *args)
 	}
 }
 
-static void stress_dekker_p1(const stress_args_t *args)
+static void stress_dekker_p1(stress_args_t *args)
 {
 	int check0, check1;
 	double t;
@@ -127,7 +127,7 @@ static void stress_dekker_p1(const stress_args_t *args)
  *  stress_dekker()
  *	stress dekker algorithm
  */
-static int stress_dekker(const stress_args_t *args)
+static int stress_dekker(stress_args_t *args)
 {
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*dekker));
 	pid_t pid;

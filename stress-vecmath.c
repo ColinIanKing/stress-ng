@@ -156,9 +156,9 @@ do {				\
  *	stress GCC vector maths
  */
 #if defined(STRESS_ARCH_PPC64)
-static int stress_vecmath(const stress_args_t *args)
+static int stress_vecmath(stress_args_t *args)
 #else
-static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
+static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 #endif
 {
 	/* checksum values */

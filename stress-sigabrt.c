@@ -55,7 +55,7 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-static int stress_sigabrt(const stress_args_t *args)
+static int stress_sigabrt(stress_args_t *args)
 {
 	void *sigabrt_mapping;
 	double rate;

@@ -98,7 +98,7 @@ typedef struct {
  *	fork function fork_fn (fork or vfork)
  */
 static int stress_fork_fn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int which,
 	const uint32_t fork_max,
 	const bool vm)
@@ -275,7 +275,7 @@ fast_exit:
  *  stress_fork()
  *	stress by forking and exiting
  */
-static int stress_fork(const stress_args_t *args)
+static int stress_fork(stress_args_t *args)
 {
 	uint32_t fork_max = DEFAULT_FORKS;
 	int rc;
@@ -304,7 +304,7 @@ static int stress_fork(const stress_args_t *args)
  */
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
-static int stress_vfork(const stress_args_t *args)
+static int stress_vfork(stress_args_t *args)
 {
 	uint32_t vfork_max = DEFAULT_VFORKS;
 	int rc;

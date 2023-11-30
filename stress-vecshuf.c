@@ -99,11 +99,11 @@ typedef struct {
 } stress_vec_data_t;
 
 typedef double (*stress_vecshuf_func_t)(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vec_data_t *vec_data);
 
 static double stress_vecshuf_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vec_data_t *vec_data);
 
 #if defined(HAVE_BUILTIN_SHUFFLE)
@@ -147,7 +147,7 @@ STRESS_VEC_BUILTIN_SHUFFLE(u128, 4)
 
 #define STRESS_VEC_SHUFFLE(tag, elements)				\
 static double TARGET_CLONES OPTIMIZE3 stress_vecshuf_ ## tag ## _ ## elements (	\
-	const stress_args_t *args,					\
+	stress_args_t *args,					\
 	stress_vec_data_t *data)					\
 {									\
 	stress_vec_ ## tag ## _ ## elements ## _t *RESTRICT s;		\
@@ -203,7 +203,7 @@ static stress_vecshuf_funcs_t stress_vecshuf_funcs[] = {
 };
 
 static void stress_vecshuf_call_method(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vec_data_t *data,
 	const size_t method)
 {
@@ -221,7 +221,7 @@ static void stress_vecshuf_call_method(
 }
 
 static double stress_vecshuf_all(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_vec_data_t *data)
 {
 	size_t i;
@@ -335,7 +335,7 @@ do {								\
 } while (0)
 
 static bool stress_vecshuf_check_data(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const stress_vec_data_t *data)
 {
 	register size_t i;
@@ -352,7 +352,7 @@ static bool stress_vecshuf_check_data(
 	return fail;
 }
 
-static int stress_vecshuf(const stress_args_t *args)
+static int stress_vecshuf(stress_args_t *args)
 {
 	stress_vec_data_t *data;
 	size_t vecshuf_method = 0;	/* "all" */

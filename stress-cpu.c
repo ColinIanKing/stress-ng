@@ -2857,7 +2857,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 
 static double stress_cpu_counter_scale[SIZEOF_ARRAY(cpu_methods)];
 
-static void stress_cpu_method(size_t method, const stress_args_t *args, double *counter)
+static void stress_cpu_method(size_t method, stress_args_t *args, double *counter)
 {
 	if (method == 0) {
 		static size_t i = 1;	/* Skip over stress_cpu_all */
@@ -2930,7 +2930,7 @@ static double stress_per_cpu_time(void)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
+static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 {
 	double bias;
 	size_t cpu_method = 0;

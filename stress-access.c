@@ -152,7 +152,7 @@ static int shim_faccessat(int dir_fd, const char *pathname, int mode, int flags)
  *	single file
  */
 static pid_t stress_access_spawn(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const char *filename)
 {
 	pid_t pid;
@@ -224,7 +224,7 @@ static void stress_access_reap(pid_t *pid)
  *  stress_access
  *	stress access family of system calls
  */
-static int stress_access(const stress_args_t *args)
+static int stress_access(stress_args_t *args)
 {
 	int fd1 = -1, fd2 = -1, ret, rc = EXIT_FAILURE;
 	char filename1[PATH_MAX];

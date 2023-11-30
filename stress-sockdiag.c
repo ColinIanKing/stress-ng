@@ -61,7 +61,7 @@ typedef struct {
 	struct unix_diag_req udr;
 } stress_sockdiag_request_t;
 
-static int sockdiag_send(const stress_args_t *args, const int fd)
+static int sockdiag_send(stress_args_t *args, const int fd)
 {
 	static size_t family = 0;
 
@@ -202,7 +202,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 }
 
 static int stress_sockdiag_parse(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct unix_diag_msg *diag,
 	unsigned int len)
 {
@@ -224,7 +224,7 @@ static int stress_sockdiag_parse(
 	return 0;
 }
 
-static int sockdiag_recv(const stress_args_t *args, const int fd)
+static int sockdiag_recv(stress_args_t *args, const int fd)
 {
 	static uint32_t buf[4096] ALIGN64;
 	int flags = 0;
@@ -280,7 +280,7 @@ static int sockdiag_recv(const stress_args_t *args, const int fd)
  *  stress_sockdiag
  *	stress by heavy socket I/O
  */
-static int stress_sockdiag(const stress_args_t *args)
+static int stress_sockdiag(stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 

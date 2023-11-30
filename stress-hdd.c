@@ -603,7 +603,7 @@ static int stress_set_hdd_opts(const char *opts)
  *  stress_hdd_advise()
  *	set posix_fadvise options
  */
-static int stress_hdd_advise(const stress_args_t *args, const int fd, const int flags)
+static int stress_hdd_advise(stress_args_t *args, const int fd, const int flags)
 {
 #if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) ||		\
      defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) ||	\
@@ -657,7 +657,7 @@ static void OPTIMIZE3 TARGET_CLONES hdd_fill_buf(
  *  stress_hdd
  *	stress I/O via writes
  */
-static int stress_hdd(const stress_args_t *args)
+static int stress_hdd(stress_args_t *args)
 {
 	uint8_t *buf = NULL;
 	void *alloc_buf;

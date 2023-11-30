@@ -128,7 +128,7 @@ cancel:
  *  stress_hrtimer_process
  *	stress timer child process
  */
-static int stress_hrtimer_process(const stress_args_t *args)
+static int stress_hrtimer_process(stress_args_t *args)
 {
 	struct sigaction action;
 	struct sigevent sev;
@@ -186,7 +186,7 @@ static int stress_hrtimer_process(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static int stress_hrtimers(const stress_args_t *args)
+static int stress_hrtimers(stress_args_t *args)
 {
 	pid_t pids[PROCS_MAX];
 	size_t i;

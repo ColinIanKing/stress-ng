@@ -119,7 +119,7 @@ static void stress_randlist_free_ptrs(
 	free(ptrs);
 }
 
-static void stress_randlist_enomem(const stress_args_t *args)
+static void stress_randlist_enomem(stress_args_t *args)
 {
 	pr_inf_skip("%s: cannot allocate the list, skipping stressor\n",
 		args->name);
@@ -142,7 +142,7 @@ PRAGMA_UNROLL_N(8)
 }
 
 static inline void OPTIMIZE3 stress_randlist_exercise(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_randlist_item_t *head,
 	const size_t randlist_size,
 	const bool verify)
@@ -172,7 +172,7 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
  *  stress_randlist()
  *	stress a list containing random values
  */
-static int stress_randlist(const stress_args_t *args)
+static int stress_randlist(stress_args_t *args)
 {
 	register size_t i;
 	stress_randlist_item_t **ptrs;

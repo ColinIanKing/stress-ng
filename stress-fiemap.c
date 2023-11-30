@@ -71,7 +71,7 @@ static void *counter_lock;	/* Counter lock */
  *	extents in the file
  */
 static int stress_fiemap_writer(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	const uint64_t fiemap_bytes)
 {
@@ -137,7 +137,7 @@ tidy:
  *	exercise the FIEMAP ioctl
  */
 static void stress_fiemap_ioctl(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd)
 {
 #if !defined(O_SYNC)
@@ -217,7 +217,7 @@ static void stress_fiemap_ioctl(
  *  stress_fiemap_spawn()
  *	helper to spawn off fiemap stressor
  */
-static inline pid_t stress_fiemap_spawn(const stress_args_t *args, const int fd)
+static inline pid_t stress_fiemap_spawn(stress_args_t *args, const int fd)
 {
 	pid_t pid;
 
@@ -238,7 +238,7 @@ static inline pid_t stress_fiemap_spawn(const stress_args_t *args, const int fd)
  *  stress_fiemap
  *	stress fiemap IOCTL
  */
-static int stress_fiemap(const stress_args_t *args)
+static int stress_fiemap(stress_args_t *args)
 {
 	pid_t pids[MAX_FIEMAP_PROCS];
 	int ret, fd, rc = EXIT_FAILURE;

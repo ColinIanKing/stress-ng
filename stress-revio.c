@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 #define MIN_REVIO_BYTES		(1 * MB)
 #define MAX_REVIO_BYTES		(MAX_FILE_LIMIT)
@@ -248,7 +249,7 @@ static int stress_set_revio_opts(const char *opts)
  *  stress_revio_advise()
  *	set posix_fadvise options
  */
-static int stress_revio_advise(const stress_args_t *args, const int fd, const int flags)
+static int stress_revio_advise(stress_args_t *args, const int fd, const int flags)
 {
 #if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) ||		\
      defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) ||	\
@@ -280,7 +281,7 @@ static int stress_revio_advise(const stress_args_t *args, const int fd, const in
  *  stress_revio
  *	stress I/O via writes in reverse
  */
-static int stress_revio(const stress_args_t *args)
+static int stress_revio(stress_args_t *args)
 {
 	uint8_t *buf = NULL;
 	void *alloc_buf;
@@ -410,6 +411,7 @@ seq_wr_retry:
 				goto finish;
 			}
 
+PRAGMA_UNROLL_N(4)
 			for (j = 0; j < DEFAULT_REVIO_WRITE_SIZE; j += 512)
 				buf[j] = (i * j) & 0xff;
 			ret = stress_revio_write(fd, buf, (size_t)DEFAULT_REVIO_WRITE_SIZE, revio_flags);

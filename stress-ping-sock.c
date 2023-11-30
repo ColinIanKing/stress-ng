@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
  *  stress_ping_sock
  *	UDP flood
  */
-static int stress_ping_sock(const stress_args_t *args)
+static int stress_ping_sock(stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	struct sockaddr_in addr;

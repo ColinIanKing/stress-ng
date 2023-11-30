@@ -177,7 +177,7 @@ static void stress_sockabuse_fd(const int fd)
  *	client reader
  */
 static int stress_sockabuse_client(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const int sockabuse_port)
 {
@@ -240,7 +240,7 @@ retry:
  *	server writer
  */
 static int stress_sockabuse_server(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t mypid,
 	const int sockabuse_port)
 {
@@ -373,7 +373,7 @@ static void stress_sockabuse_sigpipe_handler(int signum)
  *  stress_sockabuse
  *	stress by heavy socket I/O
  */
-static int stress_sockabuse(const stress_args_t *args)
+static int stress_sockabuse(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
 	int sockabuse_port = DEFAULT_SOCKABUSE_PORT;

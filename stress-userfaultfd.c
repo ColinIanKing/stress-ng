@@ -58,7 +58,7 @@ static const stress_help_t help[] = {
 
 /* Context for clone */
 typedef struct {
-	const stress_args_t *args;
+	stress_args_t *args;
 	uint8_t *data;
 	size_t page_size;
 	size_t sz;
@@ -164,7 +164,7 @@ static void MLOCKED_TEXT NORETURN stress_child_alarm_handler(int signum)
 static int stress_userfaultfd_clone(void *arg)
 {
 	stress_context_t *c = (stress_context_t *)arg;
-	const stress_args_t *args = c->args;
+	stress_args_t *args = c->args;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -195,7 +195,7 @@ static int stress_userfaultfd_clone(void *arg)
  *	handle a write page fault caused by child
  */
 static inline int handle_page_fault(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int fd,
 	uint8_t *addr,
 	void *zero_page,
@@ -243,7 +243,7 @@ static inline int handle_page_fault(
  *	is an OOM-able child process that the
  *	parent can restart
  */
-static int stress_userfaultfd_child(const stress_args_t *args, void *context)
+static int stress_userfaultfd_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	size_t sz;
@@ -497,7 +497,7 @@ free_zeropage:
  *  stress_userfaultfd()
  *	stress userfaultfd
  */
-static int stress_userfaultfd(const stress_args_t *args)
+static int stress_userfaultfd(stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_userfaultfd_child, STRESS_OOMABLE_NORMAL);
 }

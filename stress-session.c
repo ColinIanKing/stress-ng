@@ -80,7 +80,7 @@ static ssize_t stress_session_return_status(const int fd, const int err, const i
  *  stress_session_set_and_get()
  *	set and get session id, simple sanity check
  */
-static int stress_session_set_and_get(const stress_args_t *args, const int fd)
+static int stress_session_set_and_get(stress_args_t *args, const int fd)
 {
 	pid_t sid, gsid;
 
@@ -114,7 +114,7 @@ static int stress_session_set_and_get(const stress_args_t *args, const int fd)
  *	make grand child processes, 25% of which are
  *	orphaned for init to reap
  */
-static int stress_session_child(const stress_args_t *args, const int fd)
+static int stress_session_child(stress_args_t *args, const int fd)
 {
 	pid_t pid;
 	int ret;
@@ -172,7 +172,7 @@ static int stress_session_child(const stress_args_t *args, const int fd)
  *  stress_session()
  *	stress by process sessions
  */
-static int stress_session(const stress_args_t *args)
+static int stress_session(stress_args_t *args)
 {
 	int fds[2];
 	int rc = EXIT_SUCCESS;

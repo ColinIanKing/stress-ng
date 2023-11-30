@@ -174,7 +174,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL },
 };
 
-static void stress_touch_dir_clean(const stress_args_t *args)
+static void stress_touch_dir_clean(stress_args_t *args)
 {
 	char tmp[PATH_MAX];
 	DIR *dir;
@@ -200,7 +200,7 @@ static void stress_touch_dir_clean(const stress_args_t *args)
 }
 
 static void stress_touch_loop(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const int touch_method,
 	const int open_flags)
 {
@@ -298,7 +298,7 @@ static void stress_touch_loop(
  *  stress_touch
  *	stress file creation and removal
  */
-static int stress_touch(const stress_args_t *args)
+static int stress_touch(stress_args_t *args)
 {
 	int ret;
 	int open_flags = 0;

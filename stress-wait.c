@@ -42,8 +42,8 @@ static const stress_help_t help[] = {
  *	spawn a process
  */
 static pid_t spawn(
-	const stress_args_t *args,
-	void (*func)(const stress_args_t *args, const pid_t pid),
+	stress_args_t *args,
+	void (*func)(stress_args_t *args, const pid_t pid),
 	const pid_t pid_arg)
 {
 	pid_t pid;
@@ -70,7 +70,7 @@ again:
  *	stopped and continued by the killer process
  */
 static void NORETURN runner(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid)
 {
 	(void)pid;
@@ -90,7 +90,7 @@ static void NORETURN runner(
  *	this continually stops and continues the runner process
  */
 static void NORETURN killer(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const pid_t pid)
 {
 	double start = stress_time_now();
@@ -137,7 +137,7 @@ static void NORETURN killer(
  *  stress_wait_continued()
  *	check WIFCONTINUED
  */
-static void stress_wait_continued(const stress_args_t *args, int status)
+static void stress_wait_continued(stress_args_t *args, int status)
 {
 #if defined(WIFCONTINUED)
 	if (WIFCONTINUED(status))
@@ -168,7 +168,7 @@ static pid_t syscall_shim_waitpid(pid_t pid, int *wstatus, int options)
  *  stress_wait
  *	stress wait*() family of calls
  */
-static int stress_wait(const stress_args_t *args)
+static int stress_wait(stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;

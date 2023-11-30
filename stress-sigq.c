@@ -65,7 +65,7 @@ static int shim_rt_sigqueueinfo(pid_t tgid, int sig, siginfo_t *info)
  *  stress_sigq
  *	stress by heavy sigqueue message sending
  */
-static int stress_sigq(const stress_args_t *args)
+static int stress_sigq(stress_args_t *args)
 {
 	pid_t pid;
 	struct sigaction sa;

@@ -183,7 +183,7 @@ static void drop_niceness(void)
 }
 
 static void stress_softlockup_child(
-	const stress_args_t *args,
+	stress_args_t *args,
 	struct sched_param *param,
 	const double start,
 	const uint64_t timeout,
@@ -269,7 +269,7 @@ tidy:
 	_exit(rc);
 }
 
-static int stress_softlockup(const stress_args_t *args)
+static int stress_softlockup(stress_args_t *args)
 {
 	size_t policy = 0;
 	int max_prio = 0, parent_cpu;

@@ -84,7 +84,7 @@ static off_t stress_shim_lseek(int fd, off_t offset, int whence)
  *  stress_seek
  *	stress I/O via random seeks and read/writes
  */
-static int stress_seek(const stress_args_t *args)
+static int stress_seek(stress_args_t *args)
 {
 	uint64_t len;
 	uint64_t seek_size = DEFAULT_SEEK_SIZE;

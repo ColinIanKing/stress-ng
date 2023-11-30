@@ -195,7 +195,7 @@ static inline PURE OPTIMIZE3 bool aio_linux_check_buffer(
  *	submit async I/O requests
  */
 static int stress_aiol_submit(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const io_context_t ctx,
 	struct iocb *cbs[],
 	const size_t n,
@@ -227,7 +227,7 @@ static int stress_aiol_submit(
  *	wait for async I/O requests to complete
  */
 static ssize_t stress_aiol_wait(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const io_context_t ctx,
 	struct io_event events[],
 	const size_t n)
@@ -275,7 +275,7 @@ static ssize_t stress_aiol_wait(
  *	and error reporting on out of memory errors.
  */
 static int stress_aiol_alloc(
-	const stress_args_t *args,
+	stress_args_t *args,
 	const size_t n,
 	uint8_t **buffer,
 	struct iocb **cb,
@@ -354,7 +354,7 @@ static void stress_aiol_free(
  *  stress_aiol
  *	stress asynchronous I/O using the linux specific aio ABI
  */
-static int stress_aiol(const stress_args_t *args)
+static int stress_aiol(stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	int flags = O_DIRECT;

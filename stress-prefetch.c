@@ -126,7 +126,7 @@ static int stress_set_prefetch_method(const char *opt)
 	return -1;
 }
 
-static inline uint64_t get_prefetch_L3_size(const stress_args_t *args)
+static inline uint64_t get_prefetch_L3_size(stress_args_t *args)
 {
 	uint64_t cache_size = DEFAULT_PREFETCH_L3_SIZE;
 #if defined(__linux__)
@@ -232,7 +232,7 @@ static inline void stress_prefetch_none(const void *addr)
 	}
 
 static inline void OPTIMIZE3 stress_prefetch_benchmark(
-	const stress_args_t *args,
+	stress_args_t *args,
 	stress_prefetch_info_t *prefetch_info,
 	const size_t prefetch_method,
 	const size_t i,
@@ -359,7 +359,7 @@ static uint64_t stress_prefetch_data_set(uint64_t *l3_data, const uint64_t *l3_d
  *  stress_prefetch()
  *	stress cache/memory/CPU with stream stressors
  */
-static int stress_prefetch(const stress_args_t *args)
+static int stress_prefetch(stress_args_t *args)
 {
 	uint64_t *l3_data, *l3_data_end, total_count = 0, checksum_sane;
 	size_t l3_data_size = 0, l3_data_mmap_size;

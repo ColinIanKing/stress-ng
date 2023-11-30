@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
  *  stress on sched_yield()
  *	stress system by sched_yield
  */
-static int stress_yield(const stress_args_t *args)
+static int stress_yield(stress_args_t *args)
 {
 	stress_metrics_t *metrics;
 	size_t metrics_size;

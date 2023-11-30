@@ -126,7 +126,7 @@ static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_
  *	see https://en.wikipedia.org/wiki/CPUID
  *	and https://www.sandpile.org/x86/cpuid.htm
  */
-static int stress_x86cpuid(const stress_args_t *args)
+static int stress_x86cpuid(stress_args_t *args)
 {
 	double count = 0.0, duration = 0.0, rate;
 	const size_t n = SIZEOF_ARRAY(stress_cpuid_regs);

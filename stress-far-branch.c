@@ -255,7 +255,7 @@ static inline void stress_far_branch_shuffle(stress_ret_func_t *funcs, const siz
  *	that are spread around the entire address space; try to
  *	exercise branches that are relatively far from the stressor
  */
-static int stress_far_branch(const stress_args_t *args)
+static int stress_far_branch(stress_args_t *args)
 {
 	size_t i, j, k;
 	size_t bits = sizeof(void *) * 8;
