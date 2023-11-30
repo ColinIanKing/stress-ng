@@ -25,7 +25,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static volatile uint64_t counter;
+static uint64_t counter;
+
+#if defined(HAVE_ATOMIC_ADD_FETCH)
+#define HAVE_ATOMIC_OPS         
+#define SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)       \
+        do { __atomic_add_fetch(ptr, val, memorder); } while (0)
+#else
+#define SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)      	\
+	do { *ptr += val; } while (0)
+#endif
 
 static void MLOCKED_TEXT stress_signal_handler(int signum)
 {
@@ -70,6 +79,7 @@ static int stress_signal(const stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	const pid_t pid = getpid();
+	uint64_t *pcounter = (uint64_t *)&counter;
 
 	counter = 0;
 
@@ -78,51 +88,51 @@ static int stress_signal(const stress_args_t *args)
 	do {
 		uint64_t tmp;
 
-		tmp = counter;
+		tmp = *pcounter;
 		if (UNLIKELY(shim_signal(SIGCHLD, SIG_IGN) == SIG_ERR)) {
 			pr_fail("%s: cannot install SIGCHLD SIG_IGN handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
-		if (UNLIKELY(tmp != counter)) {
+		if (UNLIKELY(tmp != *pcounter)) {
 			pr_err("%s: setting of SIG_IGN unexpectedly triggered a SIGCHLD\n",
 				args->name);
 		}
 
-		tmp = counter;
+		tmp = *pcounter;
 		if (UNLIKELY(shim_signal(SIGCHLD, stress_signal_handler) == SIG_ERR)) {
 			pr_fail("%s: cannot install SIGCHLD signal handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
-		if (UNLIKELY(tmp != counter)) {
+		if (UNLIKELY(tmp != *pcounter)) {
 			pr_err("%s: setting of SIGIGN unexpectedly triggered a SIGCHLD\n",
 				args->name);
 		}
 
-		tmp = counter;
+		tmp = *pcounter;
 		if (LIKELY(shim_kill(pid, SIGCHLD) == 0)) {
-			while ((tmp == counter) && stress_continue_flag()) {
+			while ((tmp == *pcounter) && stress_continue_flag()) {
 				shim_sched_yield();
 			}
 		}
 
-		tmp = counter;
+		tmp = *pcounter;
 		if (UNLIKELY(shim_signal(SIGCHLD, SIG_DFL) == SIG_ERR)) {
 			pr_fail("%s: cannot install SIGCHLD SIG_DFL handler, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
-		if (UNLIKELY(tmp != counter)) {
+		if (UNLIKELY(tmp != *pcounter)) {
 			pr_fail("%s: setting of SIG_DFL unexpectedly triggered a SIGCHLD\n",
 				args->name);
 			rc = EXIT_FAILURE;
 		}
 
-		stress_bogo_set(args, counter);
+		stress_bogo_set(args, *pcounter);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
