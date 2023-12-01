@@ -27,6 +27,7 @@
 #include "core-hash.h"
 #include "core-lock.h"
 #include "core-numa.h"
+#include "core-pthread.h"
 #include "core-pragma.h"
 #include "core-sort.h"
 
@@ -3251,11 +3252,11 @@ int stress_get_kernel_release(void)
 pid_t stress_get_unused_pid_racy(const bool fork_test)
 {
 #if defined(PID_MAX_LIMIT)
-	pid_t max_pid = PID_MAX_LIMIT;
+	pid_t max_pid = STRESS_MAXIMUM(PID_MAX_LIMIT, 1024);
 #elif defined(PID_MAX)
-	pid_t max_pid = PID_MAX;
+	pid_t max_pid = STRESS_MAXIMUM(PID_MAX, 1024);
 #elif defined(PID_MAX_DEFAULT)
-	pid_t max_pid = PID_MAX_DEFAULT;
+	pid_t max_pid = STRESS_MAXIMUM(PID_MAX_DEFAULT, 1024);
 #else
 	pid_t max_pid = 32767;
 #endif
@@ -3263,9 +3264,6 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	pid_t pid;
 	uint32_t n;
 	char buf[64];
-
-	if (max_pid < 1024)
-		max_pid = 1024;
 
 	/*
 	 *  Create a child, terminate it, use this pid as an unused
@@ -3299,12 +3297,8 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	}
 
 	(void)shim_memset(buf, 0, sizeof(buf));
-	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
-		max_pid = atoi(buf);
-	}
-
-	if (max_pid < 1024)
-		max_pid = 1024;
+	if (stress_system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0)
+		max_pid = STRESS_MAXIMUM(atoi(buf), 1024);
 
 	n = (uint32_t)max_pid - 1023;
 	for (i = 0; i < 10; i++) {
