@@ -940,7 +940,9 @@ static int stress_memthrash(stress_args_t *args)
 
 		/* Some sanity checks are required */
 		if ((context.numa_nodes < 1) || (context.max_numa_nodes < 1)) {
-			pr_inf("%s: no NUMA nodes or maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
+			if (args->instance == 0) {
+				pr_inf("%s: no NUMA nodes or maximum NUMA nodes, ignoring numa memthrash method\n", args->name);
+			}
 			context.numa_node_mask = NULL;
 			context.numa_node_mask_size = 0;
 			context.numa_nodes = 0;
@@ -949,8 +951,10 @@ static int stress_memthrash(stress_args_t *args)
 			context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
 
 			if (!context.numa_node_mask) {
-				pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, ignoring numa memthrash stressor\n",
-					args->name, numa_elements);
+				if (args->instance == 0) {
+					pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, ignoring numa memthrash stressor\n",
+						args->name, numa_elements);	
+				}
 				context.numa_node_mask = NULL;
 				context.numa_node_mask_size = 0;
 				context.numa_nodes = 0;
