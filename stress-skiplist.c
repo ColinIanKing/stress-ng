@@ -71,7 +71,6 @@ static inline size_t OPTIMIZE3 skip_list_random_level(const size_t max_level)
 	return level;
 }
 
-
 /*
  *  skip_node_alloc()
  *	allocate a skip list node
@@ -180,8 +179,12 @@ static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned
  *  skip_list_ln2()
  *	compute maximum skiplist level
  */
-static inline unsigned long skip_list_ln2(register unsigned long n)
+static inline unsigned long OPTIMIZE3 skip_list_ln2(register unsigned long n)
 {
+#if defined(HAVE_BUILTIN_CLZL)
+	/* this is fine as long as n > 0 */
+	return (sizeof(n) * 8) - __builtin_clzl(n);
+#else
 	register unsigned long i = 0;
 
 	while (n) {
@@ -189,6 +192,7 @@ static inline unsigned long skip_list_ln2(register unsigned long n)
 		n >>= 1;
 	}
 	return i;
+#endif
 }
 
 /*
