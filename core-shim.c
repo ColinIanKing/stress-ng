@@ -83,6 +83,10 @@ UNEXPECTED
 #include <sys/random.h>
 #endif
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
 #undef HAVE_ATTR_XATTR_H
