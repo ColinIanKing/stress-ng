@@ -33,12 +33,11 @@ static uint64_t async_sigs;
  *  stress_sigxfsz_handler()
  *      SIGXFSZ handler
  */
-static void MLOCKED_TEXT stress_sigxfsz_handler(int signum)
+static void MLOCKED_TEXT OPTIMIZE3 stress_sigxfsz_handler(int signum)
 {
 	(void)signum;
 
-	if (signum == SIGXFSZ)
-		async_sigs++;
+	async_sigs += (signum == SIGXFSZ);
 }
 
 /*
