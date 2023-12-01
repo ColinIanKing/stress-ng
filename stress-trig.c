@@ -28,7 +28,7 @@
 
 typedef struct {
 	const char *name;
-	bool (*trig_func)(stress_args_t *args, const int iterations);
+	bool (*trig_func)(stress_args_t *args);
 } stress_trig_method_t;
 
 static const stress_help_t help[] = {
@@ -38,16 +38,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_cos(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_cos(stress_args_t *args)
 {
 	double sumcos = 0.0;
 	double theta = 0.0;
-	double dtheta = (PI * 2.0) / (double)iterations;
+	double dtheta = (PI * 2.0) / (double)STRESS_TRIG_LOOPS;
 	double precision = 1E-7;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumcos += shim_cos(theta);
 		theta += dtheta;
 	}
@@ -55,16 +55,16 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabs(sumcos - (double)0.0) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosf(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosf(stress_args_t *args)
 {
 	double sumcos = 0.0;
 	double theta = 0.0;
-	double dtheta = (PI * 2.0) / (float)iterations;
+	double dtheta = (PI * 2.0) / (float)STRESS_TRIG_LOOPS;
 	double precision = 1E-4;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumcos += (double)shim_cosf((float)theta);
 		theta += dtheta;
 	}
@@ -72,11 +72,11 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabs(sumcos - (float)0.0) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args)
 {
 	long double sumcos = 0.0L;
 	long double theta = 0.0L;
-	long double dtheta = (PI * 2.0L) / (long double)iterations;
+	long double dtheta = (PI * 2.0L) / (long double)STRESS_TRIG_LOOPS;
 	long double precision;
 	int i;
 
@@ -93,7 +93,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args, const 
 	}
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumcos += shim_cosl(theta);
 		theta += dtheta;
 	}
@@ -101,16 +101,16 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabsl(sumcos - (long double)0.0) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_sin(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sin(stress_args_t *args)
 {
 	double sumsin = 0.0;
 	double theta = 0.0;
-	double dtheta = (PI * 2.0) / (double)iterations;
+	double dtheta = (PI * 2.0) / (double)STRESS_TRIG_LOOPS;
 	double precision = 1E-7;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumsin += shim_sin(theta);
 		theta += dtheta;
 	}
@@ -118,16 +118,16 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabs(sumsin - (double)0.0) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinf(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinf(stress_args_t *args)
 {
 	double sumsin = 0.0;
 	double theta = 0.0;
-	double dtheta = (PI * 2.0) / (float)iterations;
+	double dtheta = (PI * 2.0) / (float)STRESS_TRIG_LOOPS;
 	double precision = 1E-4;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumsin += (double)shim_sinf((float)theta);
 		theta += dtheta;
 	}
@@ -135,11 +135,11 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabs(sumsin - (float)0.0) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args)
 {
 	long double sumsin = 0.0L;
 	long double theta = 0.0L;
-	long double dtheta = (PI * 2.0L) / (long double)iterations;
+	long double dtheta = (PI * 2.0L) / (long double)STRESS_TRIG_LOOPS;
 	long double precision;
 	int i;
 
@@ -156,7 +156,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args, const 
 	}
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumsin += shim_sinl(theta);
 		theta += dtheta;
 	}
@@ -165,16 +165,16 @@ PRAGMA_UNROLL_N(8)
 }
 
 #if defined(HAVE_SINCOS)
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(stress_args_t *args)
 {
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
-	double dtheta = (PI * 2.0) / (double)iterations;
+	double dtheta = (PI * 2.0) / (double)STRESS_TRIG_LOOPS;
 	double precision = 1E-7;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		double c, s;
 
 		shim_sincos(theta, &s, &c);
@@ -189,16 +189,16 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 #if defined(HAVE_SINCOSF)
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(stress_args_t *args)
 {
 	double sumsin = 0.0, sumcos = 0.0;
 	double theta = 0.0;
-	double dtheta = (PI * 2.0) / (float)iterations;
+	double dtheta = (PI * 2.0) / (float)STRESS_TRIG_LOOPS;
 	double precision = 1E-4;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		float c, s;
 
 		shim_sincosf((float)theta, &s, &c);
@@ -213,11 +213,11 @@ PRAGMA_UNROLL_N(8)
 #endif
 
 #if defined(HAVE_SINCOSL)
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args)
 {
 	long double sumsin = 0.0, sumcos = 0.0;
 	long double theta = 0.0L;
-	long double dtheta = (PI * 2.0L) / (long double)iterations;
+	long double dtheta = (PI * 2.0L) / (long double)STRESS_TRIG_LOOPS;
 	long double precision;
 	int i;
 
@@ -234,7 +234,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args, con
 	}
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		long double s, c;
 
 		shim_sincosl(theta, &s, &c);
@@ -248,16 +248,16 @@ PRAGMA_UNROLL_N(8)
 }
 #endif
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_tan(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_tan(stress_args_t *args)
 {
 	double sumtan = 0.0;
 	double theta = 3.0;
-	double dtheta = ((double)PI - theta) / (double)iterations;
+	double dtheta = ((double)PI - theta) / (double)STRESS_TRIG_LOOPS;
 	double precision = 1E-7;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumtan += shim_tan(theta);
 		theta += dtheta;
 	}
@@ -265,16 +265,16 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabs(sumtan - (double)TANSUM) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanf(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanf(stress_args_t *args)
 {
 	double sumtan = 0.0;
 	double theta = 3.0;
-	double dtheta = ((double)PI - theta) / (double)iterations;
+	double dtheta = ((double)PI - theta) / (double)STRESS_TRIG_LOOPS;
 	double precision = 1E-5;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumtan += shim_tanf((float)theta);
 		theta += dtheta;
 	}
@@ -282,16 +282,16 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabs(sumtan - (double)TANSUM) > precision;
 }
 
-static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanl(stress_args_t *args, const int iterations)
+static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanl(stress_args_t *args)
 {
 	long double sumtan = 0.0;
 	long double theta = 3.0;
-	long double dtheta = ((long double)PI - theta) / (long double)iterations;
+	long double dtheta = ((long double)PI - theta) / (long double)STRESS_TRIG_LOOPS;
 	long double precision = 1E-7;
 	int i;
 
 PRAGMA_UNROLL_N(8)
-	for (i = 0; i < iterations; i++) {
+	for (i = 0; i < STRESS_TRIG_LOOPS; i++) {
 		sumtan += shim_tanl(theta);
 		theta += dtheta;
 	}
@@ -299,7 +299,7 @@ PRAGMA_UNROLL_N(8)
 	return shim_fabsl(sumtan - (long double)TANSUM) > precision;
 }
 
-static bool stress_trig_all(stress_args_t *args, const int iterations);
+static bool stress_trig_all(stress_args_t *args);
 
 static const stress_trig_method_t stress_trig_methods[] = {
 	{ "all",	stress_trig_all },
@@ -342,15 +342,12 @@ static int stress_set_trig_method(const char *opt)
 	return -1;
 }
 
-static bool stess_trig_exercise(
-	stress_args_t *args,
-	const size_t index,
-	const int iterations)
+static bool stess_trig_exercise(stress_args_t *args, const size_t index)
 {
 	bool ret;
 	const double t = stress_time_now();
 
-	ret = stress_trig_methods[index].trig_func(args, iterations);
+	ret = stress_trig_methods[index].trig_func(args);
 	stress_trig_metrics[index].duration += (stress_time_now() - t);
 	stress_trig_metrics[index].count += 1.0;
 	if (ret) {
@@ -360,13 +357,13 @@ static bool stess_trig_exercise(
 	return ret;
 }
 
-static bool stress_trig_all(stress_args_t *args, const int iterations)
+static bool stress_trig_all(stress_args_t *args)
 {
 	size_t i;
 	bool ret = false;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_trig_methods); i++) {
-		ret |= stess_trig_exercise(args, i, iterations);
+		ret |= stess_trig_exercise(args, i);
 	}
 	return ret;
 }
@@ -390,7 +387,7 @@ static int stress_trig(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stess_trig_exercise(args, trig_method, STRESS_TRIG_LOOPS);
+		stess_trig_exercise(args, trig_method);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
