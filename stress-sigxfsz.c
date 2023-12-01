@@ -28,7 +28,7 @@ static const stress_help_t help[] = {
 #if defined(SIGXFSZ) &&	\
     defined(RLIMIT_FSIZE)
 
-static volatile uint64_t async_sigs;
+static uint64_t async_sigs;
 /*
  *  stress_sigxfsz_handler()
  *      SIGXFSZ handler
