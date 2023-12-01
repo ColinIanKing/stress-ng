@@ -774,11 +774,13 @@ static inline uint64_t get_stream_L3_size(stress_args_t *args)
 			"determine cache details\n", args->name);
 #endif
 
+#if defined(__linux__)
 report_size:
 	cache_size *= numa_nodes;
 	if ((args->instance == 0) && (numa_nodes > 1))
 		pr_inf("%s: scaling L3 cache size by number of numa nodes %d to %" PRIu64 "K\n",
 			args->name, numa_nodes, cache_size / 1024);
+#endif
 	return cache_size;
 }
 
