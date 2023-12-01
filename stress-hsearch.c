@@ -195,7 +195,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 	hdestroy_func_t hdestroy_func;
 	size_t hsearch_method = 0;
 
-	stress_get_setting("hsearch-method", &hsearch_method);
+	(void)stress_get_setting("hsearch-method", &hsearch_method);
 	hcreate_func = stress_hsearch_methods[hsearch_method].hcreate;
 	hsearch_func = stress_hsearch_methods[hsearch_method].hsearch;
 	hdestroy_func = stress_hsearch_methods[hsearch_method].hdestroy;
