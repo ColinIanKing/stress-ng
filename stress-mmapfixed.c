@@ -72,7 +72,7 @@ static bool OPTIMIZE3 stress_mmapfixed_is_mapped_slow(
 			return false;	/* Dodgy, assume not in memory */
 
 PRAGMA_UNROLL_N(4)
-		for (j = 0; j < n_pages; j++) {
+		for (j = 0; j < SIZEOF_ARRAY(vec); j++) {
 			if (vec[j])
 				return true;
 		}
