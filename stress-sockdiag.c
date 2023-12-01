@@ -208,6 +208,7 @@ static int stress_sockdiag_parse(
 {
 	struct rtattr *attr;
 	unsigned int rta_len;
+	uint32_t count = 0;
 
 	if (len < NLMSG_LENGTH(sizeof(*diag))) {
 		/* short response, ignore for now */
@@ -215,11 +216,11 @@ static int stress_sockdiag_parse(
 	}
 
 	rta_len = len - NLMSG_LENGTH(sizeof(*diag));
-	for (attr = (struct rtattr *) (diag + 1);
-	     RTA_OK(attr, rta_len) && stress_continue(args);
+	for (attr = (struct rtattr *) (diag + 1); RTA_OK(attr, rta_len);
 	     attr = RTA_NEXT(attr, rta_len)) {
-		stress_bogo_inc(args);
+		count++;
 	}
+	stress_bogo_add(args, (uint64_t)count);
 
 	return 0;
 }
