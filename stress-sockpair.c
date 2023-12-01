@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 #include <sys/socket.h>
 
 #define MAX_SOCKET_PAIRS	(32768)
@@ -37,15 +38,16 @@ static const stress_help_t help[] = {
  *  socket_pair_memset()
  *	set data to be incrementing chars from val upwards
  */
-static inline void socket_pair_memset(
+static inline void OPTIMIZE3 socket_pair_memset(
 	uint8_t *buf,
 	uint8_t val,
 	const size_t sz)
 {
-	register uint8_t *ptr;
+	register uint8_t *ptr, *buf_end = buf + sz;
 	register uint8_t checksum = 0;
 
-	for (ptr = buf + 1 ; ptr < buf + sz; *ptr++ = val++)
+PRAGMA_UNROLL_N(4)
+	for (ptr = buf + 1 ; ptr < buf_end; *ptr++ = val++)
 		checksum += val;
 	*buf = checksum;
 }
@@ -58,10 +60,11 @@ static inline int OPTIMIZE3 socket_pair_memchk(
 	uint8_t *buf,
 	const size_t sz)
 {
-	register uint8_t *ptr;
+	register uint8_t *ptr, *buf_end = buf + sz;
 	register uint8_t checksum = 0;
 
-	for (ptr = buf + 1; ptr < buf + sz; checksum += *ptr++)
+PRAGMA_UNROLL_N(4)
+	for (ptr = buf + 1; ptr < buf_end; checksum += *ptr++)
 		;
 
 	return !(checksum == *buf);
