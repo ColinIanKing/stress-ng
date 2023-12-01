@@ -19,6 +19,10 @@
 #ifndef CORE_SHIM_H
 #define CORE_SHIM_H
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
  *  define the following, these should be defined
