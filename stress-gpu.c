@@ -47,11 +47,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_LIB_PTHREAD)
-static volatile double gpu_freq_sum;
-static volatile uint64_t gpu_freq_count;
-#endif
-
 static int stress_set_gpu_devnode(const char *opt)
 {
 	return stress_set_setting("gpu-devnode", TYPE_ID_STR, opt);
@@ -119,6 +114,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	defined(HAVE_GLES2_H) &&	\
 	defined(HAVE_LIB_GBM) &&	\
 	defined(HAVE_GBM_H)
+
+#if defined(HAVE_LIB_PTHREAD)
+static volatile double gpu_freq_sum;
+static volatile uint64_t gpu_freq_count;
+#endif
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
