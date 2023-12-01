@@ -62,7 +62,7 @@ static int stress_set_skiplist_size(const char *opt)
 static inline size_t OPTIMIZE3 skip_list_random_level(const size_t max_level)
 {
 	register size_t level = 1;
-	register size_t r = stress_mwc32();
+	register size_t r = stress_mwc8(); /* 8 bits -> 2^256 is more than enough */
 
 	while ((r & 1) && (level < max_level)) {
 		r >>= 1;
