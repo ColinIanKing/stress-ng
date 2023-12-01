@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 #include "core-put.h"
 
 #define STRESS_DATA_SIZE	(256 * KB)
@@ -91,7 +92,7 @@ static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
  *	so we a large stack with lots of pages not physically
  *	resident.
  */
-static bool stress_stack_alloc(
+static bool OPTIMIZE3 stress_stack_alloc(
 	stress_args_t *args,
 	void *start,
 	stress_stack_check_t *check_prev,
@@ -171,6 +172,7 @@ static bool stress_stack_alloc(
 		check.self_addr = &check;
 		check.prev = check_prev;
 
+PRAGMA_UNROLL_N(4)
 		for (check_ptr = &check; check_ptr; check_ptr = check_ptr->prev) {
 			if (i++ >= 128)
 				break;
