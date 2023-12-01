@@ -810,7 +810,9 @@ void stress_get_memlimits(
 	size_t *freeswap,
 	size_t *totalswap)
 {
+#if defined(__linux__)
 	char buf[64];
+#endif
 
 	(void)stress_get_meminfo(freemem, totalmem, freeswap, totalswap);
 #if defined(__linux__)
