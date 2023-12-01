@@ -121,7 +121,6 @@ static int OPTIMIZE3 stress_udp_client(
 {
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_FAILURE;
-	int index = 0;
 	const pid_t pid = getpid();
 
 	stress_parent_died_alarm();
@@ -129,8 +128,9 @@ static int OPTIMIZE3 stress_udp_client(
 
 	do {
 		socklen_t len;
-		int fd;
-		int j = 0;
+		int fd, j = 0;
+		char ALIGN64 buf[UDP_BUF];
+		pid_t *pidptr = (pid_t *)buf;
 
 		if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -255,17 +255,15 @@ static int OPTIMIZE3 stress_udp_client(
 #else
 		UNEXPECTED
 #endif
+		(void)shim_memset(buf, stress_mwc8(), sizeof(buf));
+		*pidptr = pid;
+
 		do {
-			char ALIGN64 buf[UDP_BUF];
 			register size_t i;
 
 			for (i = 16; i < sizeof(buf); i += 16, j++) {
-				const int c = stress_ascii32[index++ & 0x1f];
 				ssize_t ret;
-				pid_t *pidptr = (pid_t *)buf;
 
-				(void)shim_memset(buf, c, i);
-				*pidptr = pid;
 				ret = sendto(fd, buf, i, 0, addr, len);
 				if (UNLIKELY(ret < 0)) {
 					if ((errno == EINTR) || (errno == ENETUNREACH))
