@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 
@@ -45,6 +46,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cos(stress_args_t *args, const i
 	double precision = 1E-7;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumcos += shim_cos(theta);
 		theta += dtheta;
@@ -61,6 +63,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosf(stress_args_t *args, const 
 	double precision = 1E-4;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumcos += (double)shim_cosf((float)theta);
 		theta += dtheta;
@@ -89,6 +92,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_cosl(stress_args_t *args, const 
 		break;
 	}
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumcos += shim_cosl(theta);
 		theta += dtheta;
@@ -105,6 +109,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sin(stress_args_t *args, const i
 	double precision = 1E-7;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumsin += shim_sin(theta);
 		theta += dtheta;
@@ -121,6 +126,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinf(stress_args_t *args, const 
 	double precision = 1E-4;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumsin += (double)shim_sinf((float)theta);
 		theta += dtheta;
@@ -149,6 +155,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sinl(stress_args_t *args, const 
 		break;
 	}
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumsin += shim_sinl(theta);
 		theta += dtheta;
@@ -166,6 +173,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincos(stress_args_t *args, cons
 	double precision = 1E-7;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		double c, s;
 
@@ -189,6 +197,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosf(stress_args_t *args, con
 	double precision = 1E-4;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		float c, s;
 
@@ -224,6 +233,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_sincosl(stress_args_t *args, con
 		break;
 	}
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		long double s, c;
 
@@ -246,6 +256,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_tan(stress_args_t *args, const i
 	double precision = 1E-7;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumtan += shim_tan(theta);
 		theta += dtheta;
@@ -262,6 +273,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanf(stress_args_t *args, const 
 	double precision = 1E-5;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumtan += shim_tanf((float)theta);
 		theta += dtheta;
@@ -278,6 +290,7 @@ static bool OPTIMIZE3 TARGET_CLONES stress_trig_tanl(stress_args_t *args, const 
 	long double precision = 1E-7;
 	int i;
 
+PRAGMA_UNROLL_N(8)
 	for (i = 0; i < iterations; i++) {
 		sumtan += shim_tanl(theta);
 		theta += dtheta;
