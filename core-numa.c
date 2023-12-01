@@ -31,8 +31,6 @@ static const char option[] = "option --mbind";
     defined(__NR_move_pages) &&         \
     defined(__NR_set_mempolicy) &&	\
     defined(HAVE_LINUX_MEMPOLICY_H)
-
-
 /*
  * stress_check_numa_range()
  * @max_node: maximum NUMA node allowed, 0..N
@@ -229,6 +227,11 @@ int stress_set_mbind(const char *arg)
 }
 
 #else
+int stress_numa_nodes(void)
+{
+	return 1;
+}
+
 int stress_numa_count_mem_nodes(unsigned long *max_node)
 {
 	*max_node = 0;
