@@ -138,16 +138,25 @@ static int OPTIMIZE3 wrap_clock_gettime(void *vdso_func)
 #endif
 
 /*
+ *  stress_dummy()
+ *	no-op dummy func
+ */
+static int OPTIMIZE3 stress_dummy(void)
+{
+	return 0;
+}
+
+/*
  *  wrap_dummy()
  *      dummy empty function for baseline
  */
 static int OPTIMIZE3 wrap_dummy(void *vdso_func)
 {
-	int (*vdso_dummy)(void *ptr);
+	int (*vdso_dummy)(void);
 
 	*(void **)(&vdso_dummy) = vdso_func;
 
-	return (int)(intptr_t)vdso_dummy;
+	return (int)stress_dummy();
 }
 
 /*
