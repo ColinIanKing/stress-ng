@@ -62,7 +62,10 @@ typedef struct {
 #define STRESS_VMA_MAX		(12)
 
 typedef struct {
-	volatile uint64_t metrics[STRESS_VMA_MAX];	/* racy metrics */
+	struct {
+		uint64_t metrics[STRESS_VMA_MAX];	/* racy metrics */
+		uint64_t pad[7];			/* cache line pad */
+	} s;
 } stress_vma_metrics_t;
 
 static const char *stress_vma_metrics_name[] = {
@@ -89,7 +92,7 @@ static bool stress_vma_continue(stress_args_t *args)
 		return false;
 	if (LIKELY(args->max_ops == 0))
 		return true;
-        return stress_vma_metrics->metrics[STRESS_VMA_MMAP] < args->max_ops;
+        return stress_vma_metrics->s.metrics[STRESS_VMA_MMAP] < args->max_ops;
 }
 
 /*
@@ -191,7 +194,7 @@ static void *stress_vma_mmap(void *ptr)
 		errno = 0;
 		mapped = mmap((void *)data, page_size, prot, flags, -1, 0);
 		if (mapped != MAP_FAILED)
-			stress_vma_metrics->metrics[STRESS_VMA_MMAP]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -209,7 +212,7 @@ static void *stress_vma_munmap(void *ptr)
 		const size_t size = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (munmap((void *)(data + offset), size) == 0)
-			stress_vma_metrics->metrics[STRESS_VMA_MUNMAP]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MUNMAP]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -232,10 +235,10 @@ static void *stress_vma_mlock(void *ptr)
 #endif
 
 		if (shim_mlock2((void *)(data + offset), len, flags) == 0) {
-			stress_vma_metrics->metrics[STRESS_VMA_MLOCK]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MLOCK]++;
 		} else {
 			if (shim_mlock((void *)(data + offset), len) == 0)
-				stress_vma_metrics->metrics[STRESS_VMA_MLOCK]++;
+				stress_vma_metrics->s.metrics[STRESS_VMA_MLOCK]++;
 		}
 	}
 	(void)kill(ctxt->pid, SIGALRM);
@@ -254,7 +257,7 @@ static void *stress_vma_munlock(void *ptr)
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (munlock((void *)(data + offset), len) == 0)
-			stress_vma_metrics->metrics[STRESS_VMA_MUNLOCK]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MUNLOCK]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -312,7 +315,7 @@ static void *stress_vma_madvise(void *ptr)
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (madvise((void *)(data + offset), len, advice[i]) == 0)
-			stress_vma_metrics->metrics[STRESS_VMA_MADVISE]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MADVISE]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -333,7 +336,7 @@ static void *stress_vma_mincore(void *ptr)
 		unsigned char vec[STRESS_VMA_PAGES];
 
 		if (shim_mincore((void *)(data + offset), len, vec) == 0)
-			stress_vma_metrics->metrics[STRESS_VMA_MINCORE]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MINCORE]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -369,7 +372,7 @@ static void *stress_vma_mprotect(void *ptr)
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (mprotect((void *)(data + offset), len, prot[i]) == 0)
-			stress_vma_metrics->metrics[STRESS_VMA_MPROTECT]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MPROTECT]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -400,7 +403,7 @@ static void *stress_vma_msync(void *ptr)
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (msync((void *)(data + offset), len, flags[i]) == 0)
-			stress_vma_metrics->metrics[STRESS_VMA_MSYNC]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_MSYNC]++;
 	}
 	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
@@ -425,7 +428,7 @@ static void *stress_vma_maps(void *ptr)
 			while (read(fd, buf, sizeof(buf)) > 1)
 				;
 		}
-		stress_vma_metrics->metrics[STRESS_VMA_PROC_MAPS]++;
+		stress_vma_metrics->s.metrics[STRESS_VMA_PROC_MAPS]++;
 		(void)close(fd);
 	}
 	return NULL;
@@ -443,7 +446,7 @@ static void *stress_vma_access(void *ptr)
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		uint8_t *ptr8 = (uint8_t *)(data + offset);
 
-		stress_vma_metrics->metrics[STRESS_VMA_ACCESS]++;
+		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
 		++(*ptr8);
 	}
 	(void)kill(ctxt->pid, SIGALRM);
@@ -471,9 +474,9 @@ static void stress_vm_handle_sig(int signo)
 {
 	if (stress_vma_metrics) {
 		if (signo == SIGSEGV)
-			stress_vma_metrics->metrics[STRESS_VMA_SIGSEGV]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_SIGSEGV]++;
 		else if (signo == SIGBUS)
-			stress_vma_metrics->metrics[STRESS_VMA_SIGBUS]++;
+			stress_vma_metrics->s.metrics[STRESS_VMA_SIGBUS]++;
 	}
 }
 
@@ -549,7 +552,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 
 	do {
 		sleep(1);
-		stress_bogo_set(args, stress_vma_metrics->metrics[STRESS_VMA_MMAP]);
+		stress_bogo_set(args, stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]);
 	} while (stress_continue(args));
 
 	return stress_kill_and_wait_many(args, pids, i, SIGKILL, false);
@@ -590,9 +593,9 @@ static int stress_vma(stress_args_t *args)
 	duration = stress_time_now() - t1;
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_vma_metrics->metrics); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_vma_metrics->s.metrics); i++) {
 		char msg[64];
-		const double rate = duration > 0.0 ? (double)stress_vma_metrics->metrics[i] / duration : 0.0;
+		const double rate = duration > 0.0 ? (volatile double)stress_vma_metrics->s.metrics[i] / duration : 0.0;
 
 		(void)snprintf(msg, sizeof(msg), "%s per second", stress_vma_metrics_name[i]);
 		stress_metrics_set(args, i, msg,
