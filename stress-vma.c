@@ -470,14 +470,18 @@ static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_access,	20 }
 };
 
-static void stress_vm_handle_sig(int signo)
+static void stress_vm_handle_sigsegv(int signo)
 {
-	if (stress_vma_metrics) {
-		if (signo == SIGSEGV)
-			stress_vma_metrics->s.metrics[STRESS_VMA_SIGSEGV]++;
-		else if (signo == SIGBUS)
-			stress_vma_metrics->s.metrics[STRESS_VMA_SIGBUS]++;
-	}
+	(void)signo;
+
+	stress_vma_metrics->s.metrics[STRESS_VMA_SIGSEGV]++;
+}
+
+static void stress_vm_handle_sigbus(int signo)
+{
+	(void)signo;
+
+	stress_vma_metrics->s.metrics[STRESS_VMA_SIGBUS]++;
 }
 
 static void stress_vma_loop(
@@ -486,8 +490,8 @@ static void stress_vma_loop(
 {
 	size_t i, n;
 
-	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_vm_handle_sig, NULL));
-	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_vm_handle_sig, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_vm_handle_sigsegv, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_vm_handle_sigbus, NULL));
 
 	ctxt->args = args;
 
