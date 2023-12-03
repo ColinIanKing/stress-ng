@@ -276,7 +276,7 @@ static inline void inject_random_bit_errors(uint8_t *buf, const size_t sz)
  *  need to do a - b once and occasionally just twice. Use repeated
  *  subtraction since this is faster than %
  */
-static inline PURE OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)
+static inline ALWAYS_INLINE PURE OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)
 {
 	while (LIKELY(a >= b))
 		a -= b;
@@ -864,7 +864,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	volatile uint8_t *ptr = buf;
+	uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = stress_get_prime64(sz + 4096);
 	uint64_t j, c = stress_bogo_get(args);
@@ -1614,51 +1614,52 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	size_t i;
-	volatile uint8_t *ptr = buf;
-	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = stress_get_prime64(sz + 4096);
-	uint64_t k, c = stress_bogo_get(args);
+	uint64_t c = stress_bogo_get(args);
+	register uint8_t i = 0;
+	register size_t prime = 61; /* prime less than cache line size */
+	static size_t offset = 0;
+	register uint8_t *ptr = (uint8_t *)buf + offset;
+	uint8_t mask;
 
 	(void)buf_end;
+
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
 #endif
-	(void)shim_memset(buf, 0xff, sz);
+	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
+		*ptr = 0xff;
 
-	for (j = 0; j < 8; j++) {
-		const uint8_t mask = (uint8_t)~(1 << j);
-
-		/*
-		 *  Step through memory in prime sized steps
-		 *  in a totally sub-optimal way to exercise
-		 *  memory and cache stalls
-		 */
-		for (i = 0, k = prime; i < sz; i++, k += prime) {
-			k = stress_vm_mod(k, sz);
-			ptr[k] &= mask;
+	/*
+	 *  Step through memory in prime sized steps
+	 *  in a totally sub-optimal way to exercise
+	 *  memory and cache stalls
+	 */
+	for (i = 0; i < 8; i++) {
+		mask = (uint8_t)~(1 << i);
+		for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime) {
+			*ptr &= mask;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
-			if (UNLIKELY(!stress_continue_flag()))
-				goto abort;
 		}
+		if (UNLIKELY(!stress_continue_flag()))
+			goto abort;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	ptr8 = (uint8_t *)buf;
-	for (i = 0; i < sz; i++) {
-		bit_errors += stress_vm_count_bits8(ptr8[i]);
-	}
+	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
+		bit_errors += stress_vm_count_bits8(*ptr);
 
 	stress_vm_check("prime-zero", bit_errors);
 abort:
+	offset++;
+	if (offset >= prime)
+		offset = 0;
 	stress_bogo_set(args, c);
-
 	return bit_errors;
 }
 
@@ -1675,53 +1676,52 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	size_t i;
-	volatile uint8_t *ptr = buf;
-	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
-	const uint64_t prime = stress_get_prime64(sz + 4096);
-	uint64_t k, c = stress_bogo_get(args);
+	uint64_t c = stress_bogo_get(args);
+	register uint8_t i = 0;
+	register size_t prime = 61; /* prime less than cache line size */
+	static size_t offset = 0;
+	register uint8_t *ptr = (uint8_t *)buf + offset;
+	uint8_t mask;
 
 	(void)buf_end;
+
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
 #endif
+	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
+		*ptr = 0x00;
 
-	(void)shim_memset(buf, 0x00, sz);
-
-	for (j = 0; j < 8; j++) {
-		const uint8_t mask = (uint8_t)(1 << j);
-
-		/*
-		 *  Step through memory in prime sized steps
-		 *  in a totally sub-optimal way to exercise
-		 *  memory and cache stalls
-		 */
-		for (i = 0, k = prime; i < sz; i++, k += prime) {
-			k = stress_vm_mod(k, sz);
-			ptr[k] |= mask;
+	/*
+	 *  Step through memory in prime sized steps
+	 *  in a totally sub-optimal way to exercise
+	 *  memory and cache stalls
+	 */
+	for (i = 0; i < 8; i++) {
+		mask = (uint8_t)(1 << i);
+		for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime) {
+			*ptr |= mask;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
-			if (UNLIKELY(!stress_continue_flag()))
-				goto abort;
 		}
+		if (UNLIKELY(!stress_continue_flag()))
+			goto abort;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	ptr8 = (uint8_t *)buf;
-	for (i = 0; i < sz; i++) {
-		bit_errors += 8 - stress_vm_count_bits8(ptr8[i]);
-		if (UNLIKELY(!stress_continue_flag()))
-			break;
-	}
-	stress_vm_check("prime-one", bit_errors);
-abort:
-	stress_bogo_set(args, c);
+	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
+		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 
+	stress_vm_check("prime-zero", bit_errors);
+abort:
+	offset++;
+	if (offset >= prime)
+		offset = 0;
+	stress_bogo_set(args, c);
 	return bit_errors;
 }
 
