@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"qsort-method M",	"select qsort method [ qsort-libc | qsort_bm ]" },
 	{ NULL,	"qsort-ops N",		"stop after N qsort bogo operations" },
 	{ NULL,	"qsort-size N",		"number of 32 bit integers to sort" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 typedef struct {
