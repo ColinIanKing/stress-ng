@@ -59,7 +59,7 @@ static int stress_set_bsearch_size(const char *opt)
 	return stress_set_setting("bsearch-size", TYPE_ID_UINT64, &bsearch_size);
 }
 
-static void * bsearch_nonlibc(
+static void OPTIMIZE3 * bsearch_nonlibc(
 	const void *key,
 	const void *base,
 	size_t nmemb,
