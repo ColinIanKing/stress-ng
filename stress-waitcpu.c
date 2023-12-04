@@ -55,6 +55,13 @@ static bool stress_waitcpu_nop_supported(void)
 static void stress_waitcpu_nop(void)
 {
 	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
+	stress_asm_nop();
 }
 
 #if defined(HAVE_ASM_ARM_YIELD)
