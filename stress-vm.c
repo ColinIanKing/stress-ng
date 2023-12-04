@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-generic.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
@@ -27,6 +28,7 @@
 #include "core-nt-load.h"
 #include "core-nt-store.h"
 #include "core-out-of-memory.h"
+#include "core-pragma.h"
 #include "core-vecmath.h"
 
 #define MIN_VM_BYTES		(4 * KB)
@@ -370,7 +372,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 {
 	uint64_t c = stress_bogo_get(args);
 	uint32_t w, z;
-	volatile uint64_t *ptr;
+	register uint64_t *ptr;
 	size_t bit_errors;
 
 	stress_mwc_reseed();
@@ -389,8 +391,9 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		if (UNLIKELY(*ptr != val))
 			bit_errors++;
 		*(ptr++) = ~val;
-		c++;
+		stress_asm_mb();
 	}
+	c += sz / sizeof(*ptr);
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!stress_continue_flag()))
@@ -406,8 +409,8 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 		if (UNLIKELY(*(ptr++) != ~val))
 			bit_errors++;
-		c++;
 	}
+	c += sz / sizeof(*ptr);
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!stress_continue_flag()))
@@ -430,8 +433,9 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		if (UNLIKELY(*--ptr != val))
 			bit_errors++;
 		*ptr = ~val;
-		c++;
+		stress_asm_mb();
 	}
+	c += sz / sizeof(*ptr);
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!stress_continue_flag()))
@@ -443,8 +447,8 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 		if (UNLIKELY(*--ptr != ~val))
 			bit_errors++;
-		c++;
 	}
+	c += sz / sizeof(*ptr);
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!stress_continue_flag()))
@@ -474,8 +478,8 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 {
 	uint32_t i, j;
 	const uint32_t stride = 23;	/* Small prime to hit cache */
-	uint8_t pattern, compliment;
-	volatile uint8_t *ptr;
+	register uint8_t pattern, compliment;
+	register uint8_t *ptr;
 	size_t bit_errors = 0;
 	uint64_t c = stress_bogo_get(args);
 
@@ -490,16 +494,16 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 		if (UNLIKELY(!stress_continue_flag()))
 			goto ret;
 		for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += stride) {
-			for (j = 0; (j < i) && (ptr < (uint8_t *)buf_end); j++) {
+			for (j = 0; (j < i) && (ptr < (uint8_t *)buf_end); j++, c++) {
 				*ptr++ = compliment;
-				c++;
+				stress_asm_mb();
 			}
 			if (UNLIKELY(!stress_continue_flag()))
 				goto ret;
 			ptr++;
-			for (j = i + 1; (j < stride) && (ptr < (uint8_t *)buf_end); j++) {
+			for (j = i + 1; (j < stride) && (ptr < (uint8_t *)buf_end); j++, c++) {
 				*ptr++ = compliment;
-				c++;
+				stress_asm_mb();
 			}
 			if (UNLIKELY(!stress_continue_flag()))
 				goto ret;
@@ -538,19 +542,26 @@ static size_t TARGET_CLONES stress_vm_walking_one_data(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	volatile uint8_t *ptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint8_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)sz;
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		SET_AND_TEST(ptr, 0x01, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x02, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x04, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x08, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x10, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x20, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x40, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x80, bit_errors);
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -577,19 +588,26 @@ static size_t TARGET_CLONES stress_vm_walking_zero_data(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	volatile uint8_t *ptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint8_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)sz;
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		SET_AND_TEST(ptr, 0xfe, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0xfd, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0xfb, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0xf7, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0xef, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0xdf, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0xbf, bit_errors);
+		stress_asm_mb();
 		SET_AND_TEST(ptr, 0x7f, bit_errors);
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -616,10 +634,10 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	uint8_t d1 = 0, d2 = ~d1;
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)shim_memset(buf, d1, sz);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 256) {
@@ -633,6 +651,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 			if ((addr < (uint8_t *)buf) || (addr >= (uint8_t *)buf_end) || (addr == ptr))
 				continue;
 			*addr = d2;
+			stress_asm_mb();
 			if (UNLIKELY(*ptr != d1)) /* cppcheck-suppress knownConditionTrueFalse */
 				bit_errors++;
 			mask <<= 1;
@@ -662,11 +681,11 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	uint8_t d1 = 0, d2 = ~d1;
 	size_t bit_errors = 0;
 	uint64_t sz_mask;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	for (sz_mask = 1; sz_mask < sz; sz_mask <<= 1)
 		;
@@ -685,6 +704,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 			if ((addr < (uint8_t *)buf) || (addr >= (uint8_t *)buf_end) || (addr == ptr))
 				continue;
 			*addr = d2;
+			stress_asm_mb();
 			if (UNLIKELY(*ptr != d1)) /* cppcheck-suppress knownConditionTrueFalse */
 				bit_errors++;
 			mask <<= 1;
@@ -707,7 +727,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
  *	all the bits are set correctly. gray codes just change
  *	one bit at a time.
  */
-static size_t TARGET_CLONES stress_vm_gray(
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_gray(
 	void *buf,
 	void *buf_end,
 	const size_t sz,
@@ -715,26 +735,65 @@ static size_t TARGET_CLONES stress_vm_gray(
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	uint8_t v;
-	volatile uint8_t *ptr;
-	size_t bit_errors = 0;
-	const uint64_t c_orig = stress_bogo_get(args);
-	uint64_t c;
+	register uint8_t v;
+	register uint8_t *ptr;
+	register size_t bit_errors = 0;
+	register uint64_t c = stress_bogo_get(args);
 
-	for (c = c_orig, v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, v++) {
+	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ) {
+		register uint8_t mask;
+
+		mask = (v >> 1) ^ v;
+		v++;
+		*(ptr++) = mask;
+		stress_asm_mb();
+
+		mask = (v >> 1) ^ v;
+		v++;
+		*(ptr++) = mask;
+		stress_asm_mb();
+
+		mask = (v >> 1) ^ v;
+		v++;
+		*(ptr++) = mask;
+		stress_asm_mb();
+
+		mask = (v >> 1) ^ v;
+		v++;
+		*(ptr++) = mask;
+
 		if (UNLIKELY(!stress_continue_flag()))
 			return 0;
-		*ptr = (v >> 1) ^ v;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, v++) {
+	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ) {
+		register uint8_t mask;
+
+		mask = (v >> 1) ^ v;
+		v++;
+		if (UNLIKELY(*(ptr++) != mask))
+			bit_errors++;
+
+		mask = (v >> 1) ^ v;
+		v++;
+		if (UNLIKELY(*(ptr++) != mask))
+			bit_errors++;
+
+		mask = (v >> 1) ^ v;
+		v++;
+		if (UNLIKELY(*(ptr++) != mask))
+			bit_errors++;
+
+		mask = (v >> 1) ^ v;
+		v++;
+		if (UNLIKELY(*(ptr++) != mask))
+			bit_errors++;
+
+		c += 4;
 		if (UNLIKELY(!stress_continue_flag()))
 			break;
-		if (UNLIKELY(*ptr != ((v >> 1) ^ v)))
-			bit_errors++;
-		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 	}
@@ -760,10 +819,10 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 {
 	static uint8_t val = 0;
 	uint8_t v;
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	size_t bit_errors = 0;
 	const uint64_t c_orig = stress_bogo_get(args);
-	uint64_t c;
+	register uint64_t c;
 
 	for (c = c_orig, v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; v++) {
 		register uint8_t gray;
@@ -773,6 +832,16 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 
 		gray = (v >> 1) ^ v;
 		*ptr++ = gray;
+		stress_asm_mb();
+
+		gray = ~gray;
+		*ptr++ = gray;
+		stress_asm_mb();
+
+		gray = (v >> 1) ^ v;
+		*ptr++ = gray;
+		stress_asm_mb();
+
 		gray = ~gray;
 		*ptr++ = gray;
 	}
@@ -788,11 +857,17 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 		gray = (v >> 1) ^ v;
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
-		c++;
 		gray = ~gray;
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
-		c++;
+		gray = (v >> 1) ^ v;
+		if (UNLIKELY(*(ptr++) != gray))
+			bit_errors++;
+		gray = ~gray;
+		if (UNLIKELY(*(ptr++) != gray))
+			bit_errors++;
+		c += 4;
+
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 	}
@@ -820,20 +895,22 @@ static size_t TARGET_CLONES stress_vm_incdec(
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	val++;
 	(void)shim_memset(buf, 0x00, sz);
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		*ptr += val;
+		stress_asm_mb();
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		*ptr -= val;
+		stress_asm_mb();
 	}
 	c += sz;
 	if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -864,10 +941,10 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	uint8_t *ptr = buf;
+	register uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = stress_get_prime64(sz + 4096);
-	uint64_t j, c = stress_bogo_get(args);
+	register uint64_t j, c = stress_bogo_get(args);
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -879,6 +956,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 
 	for (i = 0; i < sz; i++) {
 		ptr[i] += val;
+		stress_asm_mb();
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			return 0;
@@ -893,6 +971,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		j = stress_vm_mod(j, sz);
 		ptr[j] -= val;
+		stress_asm_mb();
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			return 0;
@@ -922,9 +1001,9 @@ static size_t TARGET_CLONES stress_vm_swap(
 	const uint64_t max_ops)
 {
 	const size_t chunk_sz = 64, chunks = sz / chunk_sz;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	uint32_t w1, z1;
-	uint8_t *ptr;
+	register uint8_t *ptr;
 	size_t bit_errors = 0, i;
 	size_t *swaps;
 
@@ -952,14 +1031,15 @@ static size_t TARGET_CLONES stress_vm_swap(
 	for (i = 0, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz, i++) {
 		size_t offset = swaps[i];
 
-		volatile uint8_t *dst = (volatile uint8_t *)buf + offset;
-		volatile uint8_t *src = (volatile uint8_t *)ptr;
-		const volatile uint8_t *src_end = src + chunk_sz;
+		uint8_t *dst = (uint8_t *)buf + offset;
+		uint8_t *src = (uint8_t *)ptr;
+		const uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
 			const uint8_t tmp = *src;
 
 			*src++ = *dst;
+			stress_asm_mb();
 			*dst++ = tmp;
 		}
 		c++;
@@ -972,14 +1052,15 @@ static size_t TARGET_CLONES stress_vm_swap(
 	for (i = chunks - 1, ptr = (uint8_t *)buf_end - chunk_sz; ptr >= (uint8_t *)buf; ptr -= chunk_sz, i--) {
 		size_t offset = swaps[i];
 
-		volatile uint8_t *dst = (volatile uint8_t *)buf + offset;
-		volatile uint8_t *src = (volatile uint8_t *)ptr;
-		const volatile uint8_t *src_end = src + chunk_sz;
+		uint8_t *dst = (uint8_t *)buf + offset;
+		uint8_t *src = (uint8_t *)ptr;
+		const uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
 			const uint8_t tmp = *src;
 
 			*src++ = *dst;
+			stress_asm_mb();
 			*dst++ = tmp;
 		}
 		c++;
@@ -994,8 +1075,8 @@ static size_t TARGET_CLONES stress_vm_swap(
 
 	stress_mwc_set_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		volatile uint8_t *p = (volatile uint8_t *)ptr;
-		const volatile uint8_t *p_end = (volatile uint8_t *)ptr + chunk_sz;
+		uint8_t *p = (uint8_t *)ptr;
+		const uint8_t *p_end = (uint8_t *)ptr + chunk_sz;
 		uint8_t val = stress_mwc8();
 
 		while (p < p_end) {
@@ -1026,9 +1107,9 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	uint32_t w, z;
 	size_t bit_errors = 0;
 
@@ -1041,12 +1122,19 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 		const uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
+		stress_asm_mb();
 		*(ptr + 1) = val;
+		stress_asm_mb();
 		*(ptr + 2) = val;
+		stress_asm_mb();
 		*(ptr + 3) = val;
+		stress_asm_mb();
 		*(ptr + 4) = val;
+		stress_asm_mb();
 		*(ptr + 5) = val;
+		stress_asm_mb();
 		*(ptr + 6) = val;
+		stress_asm_mb();
 		*(ptr + 7) = val;
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1094,8 +1182,8 @@ static size_t TARGET_CLONES stress_vm_ror(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint8_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
 	uint32_t w, z;
 	size_t bit_errors = 0;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
@@ -1109,12 +1197,19 @@ static size_t TARGET_CLONES stress_vm_ror(
 		const uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
+		stress_asm_mb();
 		*(ptr + 1) = val;
+		stress_asm_mb();
 		*(ptr + 2) = val;
+		stress_asm_mb();
 		*(ptr + 3) = val;
+		stress_asm_mb();
 		*(ptr + 4) = val;
+		stress_asm_mb();
 		*(ptr + 5) = val;
+		stress_asm_mb();
 		*(ptr + 6) = val;
+		stress_asm_mb();
 		*(ptr + 7) = val;
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1126,14 +1221,20 @@ static size_t TARGET_CLONES stress_vm_ror(
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		*(ptr + 0) = shim_ror8(*(ptr + 0));
+		stress_asm_mb();
 		*(ptr + 1) = shim_ror8(*(ptr + 1));
+		stress_asm_mb();
 		*(ptr + 2) = shim_ror8(*(ptr + 2));
+		stress_asm_mb();
 		*(ptr + 3) = shim_ror8(*(ptr + 3));
+		stress_asm_mb();
 		*(ptr + 4) = shim_ror8(*(ptr + 4));
+		stress_asm_mb();
 		*(ptr + 5) = shim_ror8(*(ptr + 5));
+		stress_asm_mb();
 		*(ptr + 6) = shim_ror8(*(ptr + 6));
+		stress_asm_mb();
 		*(ptr + 7) = shim_ror8(*(ptr + 7));
-
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
@@ -1181,9 +1282,9 @@ static size_t TARGET_CLONES stress_vm_flip(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
-	uint8_t bit = 0x03;
-	uint64_t c = stress_bogo_get(args);
+	register uint8_t *ptr;
+	register uint8_t bit = 0x03;
+	register uint64_t c = stress_bogo_get(args);
 	uint32_t w, z;
 	size_t bit_errors = 0, i;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
@@ -1194,21 +1295,28 @@ static size_t TARGET_CLONES stress_vm_flip(
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t val = stress_mwc8();
+		register uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 1) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 2) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 3) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 4) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 5) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 6) = val;
+		stress_asm_mb();
 		val = shim_ror8(val);
 		*(ptr + 7) = val;
 		c++;
@@ -1221,14 +1329,22 @@ static size_t TARGET_CLONES stress_vm_flip(
 
 	for (i = 0; i < 8; i++) {
 		bit = shim_ror8(bit);
+
 		for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 			*(ptr + 0) ^= bit;
+			stress_asm_mb();
 			*(ptr + 1) ^= bit;
+			stress_asm_mb();
 			*(ptr + 2) ^= bit;
+			stress_asm_mb();
 			*(ptr + 3) ^= bit;
+			stress_asm_mb();
 			*(ptr + 4) ^= bit;
+			stress_asm_mb();
 			*(ptr + 5) ^= bit;
+			stress_asm_mb();
 			*(ptr + 6) ^= bit;
+			stress_asm_mb();
 			*(ptr + 7) ^= bit;
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1243,7 +1359,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t val = stress_mwc8();
+		register uint8_t val = stress_mwc8();
 
 		bit_errors += (*(ptr + 0) != val);
 		val = shim_ror8(val);
@@ -1283,8 +1399,8 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint64_t *ptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
 	size_t bit_errors = 0;
 
 	(void)max_ops;
@@ -1346,10 +1462,10 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint64_t *ptr;
+	register uint64_t *ptr;
 	size_t i, bit_errors = 0, bits_set = 0;
 	size_t bits_bad = sz / 4096;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)shim_memset(buf, 0x00, sz);
 
@@ -1363,6 +1479,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 
 			if (!*ptr8) {
 				*ptr8 |= (1 << bit);
+				stress_asm_mb();
 				break;
 			}
 		}
@@ -1379,7 +1496,6 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 		bits_set += stress_vm_count_bits(*(ptr + 5));
 		bits_set += stress_vm_count_bits(*(ptr + 6));
 		bits_set += stress_vm_count_bits(*(ptr + 7));
-
 		c++;
 		if (UNLIKELY(!stress_continue_flag()))
 			goto ret;
@@ -1410,10 +1526,10 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint64_t *ptr;
+	register uint64_t *ptr;
 	size_t i, bit_errors = 0, bits_set = 0;
 	size_t bits_bad = sz / 4096;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)shim_memset(buf, 0xff, sz);
 
@@ -1427,6 +1543,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 
 			if (*ptr8 == 0xff) {
 				*ptr8 &= ~(1 << bit);
+				stress_asm_mb();
 				break;
 			}
 		}
@@ -1443,7 +1560,6 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 		bits_set += stress_vm_count_bits(~(*(ptr + 5)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 6)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 7)));
-
 		c++;
 		if (UNLIKELY(!stress_continue_flag()))
 			goto ret;
@@ -1474,9 +1590,9 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)shim_memset(buf, val, sz);
 	INC_LO_NYBBLE(val);
@@ -1485,12 +1601,19 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 	stress_mwc_reseed();
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 8) {
 		INC_LO_NYBBLE(*(ptr + 0));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 1));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 2));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 3));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 4));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 5));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 6));
+		stress_asm_mb();
 		INC_LO_NYBBLE(*(ptr + 7));
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1501,12 +1624,19 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 8) {
 		INC_HI_NYBBLE(*(ptr + 0));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 1));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 2));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 3));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 4));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 5));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 6));
+		stress_asm_mb();
 		INC_HI_NYBBLE(*(ptr + 7));
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1549,8 +1679,8 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint64_t *ptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
 	uint32_t w, z;
 	size_t bit_errors = 0;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
@@ -1564,12 +1694,19 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += chunk_sz) {
 		*(ptr + 0) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 1) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 2) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 3) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 4) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 5) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 6) = stress_mwc64();
+		stress_asm_mb();
 		*(ptr + 7) = stress_mwc64();
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -1615,7 +1752,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
 	register size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
@@ -1638,6 +1775,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 
 		for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime) {
 			*ptr &= mask;
+			stress_asm_mb();
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
@@ -1697,6 +1835,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 
 		for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime) {
 			*ptr |= mask;
+			stress_asm_mb();
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
@@ -1733,7 +1872,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
 	register size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
@@ -1756,6 +1895,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 
 		for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime) {
 			*ptr &= mask;
+			stress_asm_mb();
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
@@ -1792,7 +1932,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
 	register size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
@@ -1815,6 +1955,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 
 		for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime) {
 			*ptr |= mask;
+			stress_asm_mb();
 			c++;
 			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
@@ -1849,7 +1990,7 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 	const uint64_t max_ops)
 {
 	static uint64_t val;
-	uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t *ptr = (uint64_t *)buf;
 	register const uint64_t v = val;
 	register size_t i = 0;
 	register const size_t n = sz / (sizeof(*ptr) * 32);
@@ -1858,39 +1999,70 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 
 	while (i < n) {
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
+		stress_asm_mb();
 		*ptr++ = v;
 		i++;
 		if (UNLIKELY(!stress_continue_flag() || (max_ops && (i >= max_ops))))
@@ -1916,7 +2088,7 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 {
 	if (stress_cpu_x86_has_sse2()) {
 		static uint64_t val;
-		uint64_t *ptr = (uint64_t *)buf;
+		register uint64_t *ptr = (uint64_t *)buf;
 		register const uint64_t v = val;
 		register size_t i = 0;
 		register const size_t n = sz / (sizeof(*ptr) * 32);
@@ -1984,7 +2156,7 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_read64(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t *ptr = (uint64_t *)buf;
 	register size_t i = 0;
 	register const size_t n = sz / (sizeof(*ptr) * 32);
 
@@ -2139,25 +2311,45 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	/* Hammer the rows */
 	for (j = VM_ROWHAMMER_LOOPS / 4; j; j--) {
 		*addr0;
+		stress_asm_mb();
 		*addr1;
+		stress_asm_mb();
 		shim_clflush(addr0);
+		stress_asm_mb();
 		shim_clflush(addr1);
+		stress_asm_mb();
 		shim_mfence();
+		stress_asm_mb();
 		*addr0;
+		stress_asm_mb();
 		*addr1;
+		stress_asm_mb();
 		shim_clflush(addr0);
+		stress_asm_mb();
 		shim_clflush(addr1);
+		stress_asm_mb();
 		shim_mfence();
+		stress_asm_mb();
 		*addr0;
+		stress_asm_mb();
 		*addr1;
+		stress_asm_mb();
 		shim_clflush(addr0);
+		stress_asm_mb();
 		shim_clflush(addr1);
+		stress_asm_mb();
 		shim_mfence();
+		stress_asm_mb();
 		*addr0;
+		stress_asm_mb();
 		*addr1;
+		stress_asm_mb();
 		shim_clflush(addr0);
+		stress_asm_mb();
 		shim_clflush(addr1);
+		stress_asm_mb();
 		shim_mfence();
+		stress_asm_mb();
 	}
 	for (j = 0; j < n; j++)
 		if (UNLIKELY(buf32[j] != val))
@@ -2187,50 +2379,64 @@ static size_t TARGET_CLONES stress_vm_mscan(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	volatile uint8_t *ptr = (volatile uint8_t *)buf, *end;
-	uint64_t c = stress_bogo_get(args);
+	register uint8_t *ptr = (uint8_t *)buf, *end;
+	register uint64_t c = stress_bogo_get(args);
 
 	(void)sz;
 
-	for (ptr = (volatile uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
 		*ptr |= 0x01;
+		stress_asm_mb();
 		*ptr |= 0x02;
+		stress_asm_mb();
 		*ptr |= 0x04;
+		stress_asm_mb();
 		*ptr |= 0x08;
+		stress_asm_mb();
 		*ptr |= 0x10;
+		stress_asm_mb();
 		*ptr |= 0x20;
+		stress_asm_mb();
 		*ptr |= 0x40;
+		stress_asm_mb();
 		*ptr |= 0x80;
 
 		if (UNLIKELY(!stress_continue_flag() || (max_ops && (c >= max_ops))))
 			break;
 	}
-	end = (volatile uint8_t *)ptr;
+	end = (uint8_t *)ptr;
 
 	stress_bogo_add(args, c);
 
-	for (ptr = (volatile uint8_t *)buf; ptr < end; ptr++) {
+	for (ptr = (uint8_t *)buf; ptr < end; ptr++) {
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 	}
 
-	for (ptr = (volatile uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
 		*ptr &= 0xfe;
+		stress_asm_mb();
 		*ptr &= 0xfd;
+		stress_asm_mb();
 		*ptr &= 0xfb;
+		stress_asm_mb();
 		*ptr &= 0xf7;
+		stress_asm_mb();
 		*ptr &= 0xef;
+		stress_asm_mb();
 		*ptr &= 0xdf;
+		stress_asm_mb();
 		*ptr &= 0xbf;
+		stress_asm_mb();
 		*ptr &= 0x7f;
 
 		if (UNLIKELY(!stress_continue_flag() || (max_ops && (c >= max_ops))))
 			goto abort;
 	}
-	end = (volatile uint8_t *)ptr;
 
 	stress_bogo_add(args, c);
 
-	for (ptr = (volatile uint8_t *)buf; ptr < end; ptr++) {
+	end = (uint8_t *)buf_end;
+	for (ptr = (uint8_t *)buf; ptr < end; ptr++) {
 		bit_errors += stress_vm_count_bits8(*ptr);
 	}
 
@@ -2253,76 +2459,139 @@ static size_t TARGET_CLONES stress_vm_cache_stripe(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 64) {
 		ptr[0x00] = 0xa0;
+		stress_asm_mb();
 		ptr[0x3f] = 0xcf;
+		stress_asm_mb();
 		ptr[0x01] = 0xa1;
+		stress_asm_mb();
 		ptr[0x3e] = 0xce;
+		stress_asm_mb();
 		ptr[0x02] = 0xa2;
+		stress_asm_mb();
 		ptr[0x3d] = 0xcd;
+		stress_asm_mb();
 		ptr[0x03] = 0xa3;
+		stress_asm_mb();
 		ptr[0x3c] = 0xcc;
+		stress_asm_mb();
 		ptr[0x04] = 0xa4;
+		stress_asm_mb();
 		ptr[0x3b] = 0xcb;
+		stress_asm_mb();
 		ptr[0x05] = 0xa5;
+		stress_asm_mb();
 		ptr[0x3a] = 0xca;
+		stress_asm_mb();
 		ptr[0x06] = 0xa6;
+		stress_asm_mb();
 		ptr[0x39] = 0xc9;
+		stress_asm_mb();
 		ptr[0x07] = 0xa7;
+		stress_asm_mb();
 		ptr[0x38] = 0xc8;
+		stress_asm_mb();
 		ptr[0x08] = 0xa8;
+		stress_asm_mb();
 		ptr[0x37] = 0xc7;
+		stress_asm_mb();
 		ptr[0x09] = 0xa9;
+		stress_asm_mb();
 		ptr[0x36] = 0xc6;
+		stress_asm_mb();
 		ptr[0x0a] = 0xaa;
+		stress_asm_mb();
 		ptr[0x35] = 0xc5;
+		stress_asm_mb();
 		ptr[0x0b] = 0xab;
+		stress_asm_mb();
 		ptr[0x34] = 0xc4;
+		stress_asm_mb();
 		ptr[0x0c] = 0xac;
+		stress_asm_mb();
 		ptr[0x33] = 0xc3;
+		stress_asm_mb();
 		ptr[0x0d] = 0xad;
+		stress_asm_mb();
 		ptr[0x32] = 0xc2;
+		stress_asm_mb();
 		ptr[0x0e] = 0xae;
+		stress_asm_mb();
 		ptr[0x31] = 0xc1;
+		stress_asm_mb();
 		ptr[0x0f] = 0xaf;
+		stress_asm_mb();
 		ptr[0x30] = 0xc0;
+		stress_asm_mb();
 		ptr[0x10] = 0x50;
+		stress_asm_mb();
 		ptr[0x2f] = 0x3f;
+		stress_asm_mb();
 		ptr[0x11] = 0x51;
+		stress_asm_mb();
 		ptr[0x2e] = 0x3e;
+		stress_asm_mb();
 		ptr[0x12] = 0x52;
+		stress_asm_mb();
 		ptr[0x2d] = 0x3d;
+		stress_asm_mb();
 		ptr[0x13] = 0x53;
+		stress_asm_mb();
 		ptr[0x2c] = 0x3c;
+		stress_asm_mb();
 		ptr[0x14] = 0x54;
+		stress_asm_mb();
 		ptr[0x2b] = 0x3b;
+		stress_asm_mb();
 		ptr[0x15] = 0x55;
+		stress_asm_mb();
 		ptr[0x2a] = 0x3a;
+		stress_asm_mb();
 		ptr[0x16] = 0x56;
+		stress_asm_mb();
 		ptr[0x29] = 0x39;
+		stress_asm_mb();
 		ptr[0x17] = 0x57;
+		stress_asm_mb();
 		ptr[0x28] = 0x38;
+		stress_asm_mb();
 		ptr[0x18] = 0x58;
+		stress_asm_mb();
 		ptr[0x27] = 0x37;
+		stress_asm_mb();
 		ptr[0x19] = 0x59;
+		stress_asm_mb();
 		ptr[0x25] = 0x35;
+		stress_asm_mb();
 		ptr[0x1a] = 0x5a;
+		stress_asm_mb();
 		ptr[0x26] = 0x36;
+		stress_asm_mb();
 		ptr[0x1b] = 0x5b;
+		stress_asm_mb();
 		ptr[0x24] = 0x34;
+		stress_asm_mb();
 		ptr[0x1c] = 0x5c;
+		stress_asm_mb();
 		ptr[0x23] = 0x33;
+		stress_asm_mb();
 		ptr[0x1d] = 0x5d;
+		stress_asm_mb();
 		ptr[0x22] = 0x32;
+		stress_asm_mb();
 		ptr[0x1e] = 0x5e;
+		stress_asm_mb();
 		ptr[0x21] = 0x31;
+		stress_asm_mb();
 		ptr[0x1f] = 0x5f;
+		stress_asm_mb();
 		ptr[0x20] = 0x30;
-
+		stress_asm_mb();
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
@@ -2418,16 +2687,17 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint8_t *ptr;
+	register uint8_t *ptr;
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	uint8_t i;
 	static size_t offset = 0;
 
 	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += stress_vm_cache_line_size) {
 		*ptr = i++;
+		stress_asm_mb();
 	}
-	c++;
+	c += sz / stress_vm_cache_line_size;
 	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto abort;
 	if (UNLIKELY(!stress_continue_flag()))
@@ -2469,8 +2739,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
-
+	register uint64_t c = stress_bogo_get(args);
 	register __uint128_t val;
 	register __uint128_t *ptr128;
 	register __uint128_t *buf128 = (__uint128_t *)buf;
@@ -2583,7 +2852,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 {
 	size_t bit_errors = 0;
 	register uint8_t *fwdptr, *revptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 	register const uint32_t rnd = stress_mwc32();
 
 	(void)sz;
@@ -2691,8 +2960,8 @@ static size_t stress_vm_lfsr32(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint32_t *ptr;
-	uint64_t c = stress_bogo_get(args);
+	register uint32_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
 	size_t bit_errors = 0;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
 	register uint32_t lfsr = 0xf63acb01;
@@ -2701,20 +2970,28 @@ static size_t stress_vm_lfsr32(
 
 	for (lfsr = 0xf63acb01, ptr = (uint32_t *)buf; ptr < (uint32_t *)buf_end; ptr += chunk_sz) {
 		*(ptr + 0) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 1) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 2) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 3) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 4) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 5) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 6) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr + 7) = lfsr;
+		stress_asm_mb();
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
@@ -2776,9 +3053,9 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 	stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint64_t *ptr;
+	register uint64_t *ptr;
 	size_t bit_errors = 0;
-	uint64_t c = stress_bogo_get(args);
+	register uint64_t c = stress_bogo_get(args);
 
 	const uint64_t v0 = 0x5555aaaa5555aaaaULL;
 	const uint64_t v1 = 0xaaaa5555aaaa5555ULL;
@@ -2832,8 +3109,11 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 			break;
 
 		STRESS_VM_CHECKERBOARD_SWAP(ptr + 0, ptr + 1);
+		stress_asm_mb();
 		STRESS_VM_CHECKERBOARD_SWAP(ptr + 2, ptr + 3);
+		stress_asm_mb();
 		STRESS_VM_CHECKERBOARD_SWAP(ptr + 4, ptr + 5);
+		stress_asm_mb();
 		STRESS_VM_CHECKERBOARD_SWAP(ptr + 6, ptr + 7);
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -2850,7 +3130,6 @@ static size_t TARGET_CLONES stress_vm_checkerboard(
 		bit_errors += (*(ptr + 5) != v4);
 		bit_errors += (*(ptr + 6) != v7);
 		bit_errors += (*(ptr + 7) != v6);
-
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
