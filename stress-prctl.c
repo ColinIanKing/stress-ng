@@ -1123,6 +1123,8 @@ again:
 				    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
 					pr_fail("%s: aborting because of unexpected "
 						"failure in child process\n", args->name);
+					if (page_anon != MAP_FAILED)
+						(void)munmap(page_anon, args->page_size);
 					return EXIT_FAILURE;
 				}
 			}
