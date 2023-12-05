@@ -72,7 +72,7 @@ static int stress_sigbus(stress_args_t *args)
 	int ret, fd;
 	char filename[PATH_MAX];
 	const char *fs_type;
-	uint8_t *ptr;
+	NOCLOBBER uint8_t *ptr;
 	NOCLOBBER int rc = EXIT_FAILURE;
 	const size_t page_size = args->page_size;
 #if defined(SA_SIGINFO)
