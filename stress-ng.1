@@ -429,7 +429,7 @@ permutated stressors per run.  If N is less than zero, then the number
 of CPUs online is used for the number of instances. If N is zero, then
 the number of configured CPUs in the system is used.  This will perform
 multiple runs with all the permutations of the stressors. Use this in
-conjuction with the \-\-with or \-\-class option to specify the stressors
+conjunction with the \-\-with or \-\-class option to specify the stressors
 to permute.
 .TP
 .B \-q, \-\-quiet
@@ -2996,7 +2996,7 @@ stop inotify stress workers after N inotify bogo operations.
 .B \-i N, \-\-io N
 start N workers continuously calling sync(2) to commit buffer cache to disk.
 This can be used in conjunction with the \-\-hdd stressor. This is a legacy
-stressor that is compatible with the orignal stress tool.
+stressor that is compatible with the original stress tool.
 .TP
 .B \-\-io\-ops N
 stop io stress workers after N bogo operations.
@@ -7681,7 +7681,7 @@ swapping. Only available on systems that support MAP_POPULATE (since Linux
 2.5.46).
 .RE
 .TP
-.B Virtual memory adressing stressor
+.B Virtual memory addressing stressor
 .RS 5
 .TQ
 .B \-\-vm\-addr N
@@ -7828,7 +7828,7 @@ stop the vma stressors after N successful memory mappings.
 .B \-\-vnni N
 start N workers that exercise vector neural network instructions (VNNI) used in
 convolutional neural network loops. A 256 byte vector is operated upon
-using 8 bit multiply with 16 bit summation, 16 bit mulitply and
+using 8 bit multiply with 16 bit summation, 16 bit multiply and
 32 bit summation, and 8 bit summation. When processor features allow,
 these operations using 512, 256 and 128 bit vector operations. Generic
 non-vectorized code variants also provided (which may be vectorized by
@@ -8016,7 +8016,7 @@ memread	T{
 read from a 1MB buffer using fast memory reads.
 T}
 memset	T{
-write to a 1MB buffer usin memset(3).
+write to a 1MB buffer using memset(3).
 T}
 mcw64	T{
 compute 64 bit random numbers using a mwc random generator.
@@ -8036,14 +8036,14 @@ T}
 .TE
 .TP
 .B \-\-workload\-sched [ batch | deadline | idle | fifo | other | rr ]
-select scheduling policy. Note tha fifo and rr require root privilege to set.
+select scheduling policy. Note that fifo and rr require root privilege to set.
 .TP
 .B \-\-workload\-slice\-us S
 specify the duration of each scheduling slice in microseconds. The default is
 100,000 microseconds (0.1 seconds).
 .TP
 .B \-\-workload\-quanta\-us Q
-specify the duration of each work item in microseconds. The defaut is 1000
+specify the duration of each work item in microseconds. The default is 1000
 microseconds (1 millisecond).
 .TP
 .B \-\-workload\-threads N
@@ -8054,7 +8054,7 @@ threads allows work items to be handled concurrently if enough idle processors
 are available.
 .TP
 .B \-\-workload\-dist [ cluster | even | poisson | random1 | random2 | random3 ]
-specify the scheduling distribution of work items, the defualt is cluster.
+specify the scheduling distribution of work items, the default is cluster.
 The distribution methods are described as follows:
 .TS
 lB2 lB

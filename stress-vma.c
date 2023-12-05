@@ -117,7 +117,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 			} else {
 				ui_addr = (1ULL << 36) | page_63;
 			}
-			/* occassionally use 32 bit addr in 64 bit addr space */
+			/* occasionally use 32 bit addr in 64 bit addr space */
 			if (stress_mwc8modn(5) == 0)
 				ui_addr &= 0x7fffffffUL;
 		} else {

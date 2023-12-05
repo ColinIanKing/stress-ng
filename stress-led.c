@@ -38,7 +38,7 @@ typedef struct stress_led_info {
 	char *orig_trigger;			/* LED original default trigger setting */
 	char *trigger;				/* LED trigger settings */
 	int orig_brightness;			/* LED original brightness setting */
-	int max_brightness;			/* LED maximim brightness setting */
+	int max_brightness;			/* LED maximum brightness setting */
 	struct stress_led_info	*next;		/* next in list */
 } stress_led_info_t;
 

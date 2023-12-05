@@ -323,7 +323,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	/*
 	 *  The physical total mem is the upper bound of the number
 	 *  pages mappable, so allocate page mappings pointers that
-	 *  wont't exceed this upper limit.
+	 *  won't exceed this upper limit.
 	 */
 	if (mappings_len > totalmem / mappings_per_page)
 		mappings_len = totalmem / mappings_per_page;

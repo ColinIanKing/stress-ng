@@ -49,7 +49,7 @@
 STRESS_PRAGMA_NO_HARD_DFP
 #else
 /*
- *  Otheriwse for s390 assume no decimal
+ *  Otherwise for s390 assume no decimal
  *  floating point is supported as the
  *  least risky default
  */
