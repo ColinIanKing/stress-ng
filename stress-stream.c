@@ -1018,9 +1018,9 @@ err_unmap:
 	if (idx3 != MAP_FAILED)
 		(void)munmap((void *)idx3, sz_idx);
 	if (idx2 != MAP_FAILED)
-		(void)munmap((void *)idx1, sz_idx);
-	if (idx1 != MAP_FAILED)
 		(void)munmap((void *)idx2, sz_idx);
+	if (idx1 != MAP_FAILED)
+		(void)munmap((void *)idx1, sz_idx);
 	if (c != MAP_FAILED)
 		(void)munmap((void *)c, sz);
 	if (b != MAP_FAILED)
