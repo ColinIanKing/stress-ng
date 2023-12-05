@@ -126,7 +126,7 @@ static int stress_stackmmap(stress_args_t *args)
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
 	char filename[PATH_MAX];
-	uint8_t *stack_sig;
+	NOCLOBBER uint8_t *stack_sig;
 	struct sigaction new_action;
 
 	page_size = args->page_size;
