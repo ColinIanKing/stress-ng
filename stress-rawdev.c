@@ -479,6 +479,7 @@ static int stress_rawdev(stress_args_t *args)
 	if (fd < 0) {
 		pr_inf("%s: cannot open raw block device: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)munmap((void *)buffer, mmapsz);
 		free(metrics);
 		return EXIT_NO_RESOURCE;
 	}
