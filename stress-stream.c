@@ -806,8 +806,8 @@ static void stress_stream_init_index(
 static int stress_stream(stress_args_t *args)
 {
 	int rc = EXIT_FAILURE;
-	double *a, *b, *c;
-	size_t *idx1 = NULL, *idx2 = NULL, *idx3 = NULL;
+	double *a = MAP_FAILED, *b = MAP_FAILED, *c = MAP_FAILED;
+	size_t *idx1 = MAP_FAILED, *idx2 = MAP_FAILED, *idx3 = MAP_FAILED;
 	const double q = 3.0;
 	double old_checksum = -1.0;
 	double fp_ops = 0.0, t1, t2, dt;
@@ -874,34 +874,34 @@ static int stress_stream(stress_args_t *args)
 
 	a = stress_stream_mmap(args, sz, stream_mlock);
 	if (a == MAP_FAILED)
-		goto err_a;
+		goto err_unmap;
 	b = stress_stream_mmap(args, sz, stream_mlock);
 	if (b == MAP_FAILED)
-		goto err_b;
+		goto err_unmap;
 	c = stress_stream_mmap(args, sz, stream_mlock);
 	if (c == MAP_FAILED)
-		goto err_c;
+		goto err_unmap;
 
 	sz_idx = n * sizeof(size_t);
 	switch (stream_index) {
 	case 3:
 		idx3 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx3 == MAP_FAILED)
-			goto err_idx3;
+			goto err_unmap;
 		stress_stream_init_index(idx3, n);
 		goto case_stream_index_2;
 	case 2:
 case_stream_index_2:
 		idx2 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx2 == MAP_FAILED)
-			goto err_idx2;
+			goto err_unmap;
 		stress_stream_init_index(idx2, n);
 		goto case_stream_index_1;
 	case 1:
 case_stream_index_1:
 		idx1 = stress_stream_mmap(args, sz_idx, stream_mlock);
 		if (idx1 == MAP_FAILED)
-			goto err_idx1;
+			goto err_unmap;
 		stress_stream_init_index(idx1, n);
 		break;
 	case 0:
@@ -1013,31 +1013,20 @@ case_stream_index_1:
 	}
 
 	rc = EXIT_SUCCESS;
-
+err_unmap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
-	if (idx3)
+	if (idx3 != MAP_FAILED)
 		(void)munmap((void *)idx3, sz_idx);
-err_idx3:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	if (idx2)
-		(void)munmap((void *)idx2, sz_idx);
-err_idx2:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	if (idx1)
+	if (idx2 != MAP_FAILED)
 		(void)munmap((void *)idx1, sz_idx);
-err_idx1:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)c, sz);
-err_c:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)b, sz);
-err_b:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)a, sz);
-err_a:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
+	if (idx1 != MAP_FAILED)
+		(void)munmap((void *)idx2, sz_idx);
+	if (c != MAP_FAILED)
+		(void)munmap((void *)c, sz);
+	if (b != MAP_FAILED)
+		(void)munmap((void *)b, sz);
+	if (a != MAP_FAILED)
+		(void)munmap((void *)a, sz);
 	return rc;
 }
 
