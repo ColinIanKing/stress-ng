@@ -1339,6 +1339,7 @@ again:
 		}
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)stress_change_cpu(args, parent_cpu);
