@@ -110,7 +110,8 @@ static int stress_full(stress_args_t *args)
 				if (args->instance == 0)
 					pr_inf_skip("%s: /dev/full not available, skipping stress test\n",
 						args->name);
-				return EXIT_NOT_IMPLEMENTED;
+				rc = EXIT_NOT_IMPLEMENTED;
+				goto fail;
 			}
 			pr_fail("%s: open /dev/full failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
