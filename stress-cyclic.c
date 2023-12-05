@@ -732,6 +732,8 @@ again:
 			goto finish;
 		pr_inf("%s: cannot fork, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)munmap((void *)rt_stats->latencies, rt_stats->latencies_size);
+		(void)munmap((void *)rt_stats, size);
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
@@ -826,6 +828,8 @@ tidy_ok:
 		ncrc = EXIT_SUCCESS;
 tidy:
 		(void)fflush(stdout);
+		(void)munmap((void *)rt_stats->latencies, rt_stats->latencies_size);
+		(void)munmap((void *)rt_stats, size);
 		_exit(ncrc);
 	} else {
 		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
