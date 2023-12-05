@@ -127,20 +127,11 @@ static int stress_zero(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(wr_buffer, page_size);
 
-	wr_buffer = stress_mmap_populate(NULL, page_size,
-			PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (wr_buffer == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate page sized write buffer, skipping test\n",
-			args->name);
-		(void)munmap(rd_buffer, page_size);
-		return EXIT_NO_RESOURCE;
-	}
-
-
 	if ((fd = open("/dev/zero", flags)) < 0) {
 		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)munmap(wr_buffer, page_size);
+		(void)munmap(rd_buffer, page_size);
 		return EXIT_FAILURE;
 	}
 
@@ -162,6 +153,8 @@ static int stress_zero(stress_args_t *args)
 				pr_fail("%s: read failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(fd);
+				(void)munmap(wr_buffer, page_size);
+				(void)munmap(rd_buffer, page_size);
 				return EXIT_FAILURE;
 			}
 			stress_bogo_inc(args);
@@ -196,6 +189,8 @@ static int stress_zero(stress_args_t *args)
 					pr_fail("%s: read failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(fd);
+					(void)munmap(wr_buffer, page_size);
+					(void)munmap(rd_buffer, page_size);
 					return EXIT_FAILURE;
 				}
 				stress_bogo_inc(args);
@@ -216,6 +211,8 @@ static int stress_zero(stress_args_t *args)
 				pr_fail("%s: write failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(fd);
+				(void)munmap(wr_buffer, page_size);
+				(void)munmap(rd_buffer, page_size);
 				return EXIT_FAILURE;
 			}
 #endif
@@ -239,6 +236,8 @@ static int stress_zero(stress_args_t *args)
 					pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
 						args->name, mmap_flags[i].flag_str, errno, strerror(errno));
 					(void)close(fd);
+					(void)munmap(wr_buffer, page_size);
+					(void)munmap(rd_buffer, page_size);
 					return EXIT_FAILURE;
 				}
 				if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
