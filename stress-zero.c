@@ -106,7 +106,8 @@ static int stress_zero(stress_args_t *args)
 #endif
 	(void)stress_get_setting("zero-read", &zero_read);
 
-	rd_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	rd_buffer = stress_mmap_populate(NULL, page_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rd_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate page sized read buffer, skipping test\n",
@@ -115,7 +116,8 @@ static int stress_zero(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(rd_buffer, page_size);
 
-	wr_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	wr_buffer = stress_mmap_populate(NULL, page_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wr_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate page sized write buffer, skipping test\n",
@@ -125,7 +127,8 @@ static int stress_zero(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(wr_buffer, page_size);
 
-	wr_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	wr_buffer = stress_mmap_populate(NULL, page_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wr_buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate page sized write buffer, skipping test\n",

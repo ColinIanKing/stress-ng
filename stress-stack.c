@@ -226,7 +226,8 @@ static int stress_stack_child(stress_args_t *args, void *context)
 	 *  if there is no memory to back it later. Stack
 	 *  must be privately mapped.
 	 */
-	altstack = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+	altstack = stress_mmap_populate(NULL, STRESS_SIGSTKSZ,
+		PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (altstack == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate %zd byte signal stack: "

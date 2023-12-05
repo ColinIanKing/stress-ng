@@ -233,7 +233,8 @@ static int stress_randlist(stress_args_t *args)
 			}
 retry:
 			if (do_mmap && (stress_mwc8() < 16)) {
-				ptr = (stress_randlist_item_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
+				ptr = (stress_randlist_item_t *)stress_mmap_populate(NULL, size,
+					PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				if (ptr == MAP_FAILED) {
 					do_mmap = false;

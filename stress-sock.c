@@ -1317,7 +1317,8 @@ static int stress_sock(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	mmap_buffer = (char *)mmap(NULL, MMAP_BUF_SIZE, PROT_READ | PROT_WRITE,
+	mmap_buffer = (char *)stress_mmap_populate(NULL, MMAP_BUF_SIZE,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (mmap_buffer == MAP_FAILED) {
 		pr_inf("%s: cannot mmap I/O buffer, errno=%d (%s)\n",

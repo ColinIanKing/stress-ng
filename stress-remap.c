@@ -175,7 +175,8 @@ static int stress_remap(stress_args_t *args)
 	(void)stress_get_setting("remap-pages", &remap_pages);
 
 	data_size = remap_pages * page_size;
-	data = (stress_mapdata_t *)mmap(NULL, data_size, PROT_READ | PROT_WRITE,
+	data = (stress_mapdata_t *)stress_mmap_populate(NULL, data_size,
+			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: mmap failed to allocate %zu bytes "
@@ -188,7 +189,8 @@ static int stress_remap(stress_args_t *args)
 		(void)shim_mlock(data, data_size);
 
 	order_size = remap_pages * sizeof(*order);
-	order = (size_t *)mmap(NULL, order_size, PROT_READ | PROT_WRITE,
+	order = (size_t *)stress_mmap_populate(NULL, order_size,
+			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (order == MAP_FAILED) {
 		pr_inf_skip("%s: mmap failed to allocate %zu bytes, errno=%d (%s), "
@@ -204,7 +206,8 @@ static int stress_remap(stress_args_t *args)
 		data[i * stride] = (stress_mapdata_t)i;
 
 	unmapped = stress_get_umapped_addr(page_size);
-	mapped = (uint8_t *)mmap(NULL, mapped_size, PROT_READ | PROT_WRITE,
+	mapped = (uint8_t *)stress_mmap_populate(NULL, mapped_size,
+			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mapped != MAP_FAILED) {
 		if (remap_mlock)

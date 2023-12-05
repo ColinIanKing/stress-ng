@@ -250,7 +250,7 @@ static void stress_dentry_misc(const char *path)
 	VOID_RET(int, shim_fallocate(fd, 0, (off_t)0, statbuf.st_size));
 
 	/* mmap */
-	ptr = mmap(NULL, 4096, PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
+	ptr = stress_mmap_populate(NULL, 4096, PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
 

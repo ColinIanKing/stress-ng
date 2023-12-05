@@ -77,7 +77,6 @@ static void stress_pagemove_remap_fail(
 static int stress_pagemove_child(stress_args_t *args, void *context)
 {
 	size_t sz, pages, pagemove_bytes = DEFAULT_PAGE_MOVE_BYTES;
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	const size_t page_size = args->page_size;
 	size_t page_num;
 	uint8_t *buf, *buf_end, *unmapped_page = NULL, *ptr;
@@ -105,7 +104,10 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	sz = pagemove_bytes & ~(page_size - 1);
 	pages = sz / page_size;
 
-	buf = (uint8_t *)mmap(NULL, sz + page_size, PROT_READ | PROT_WRITE, flags, -1, 0);
+	buf = (uint8_t *)stress_mmap_populate(NULL, sz + page_size,
+		PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS,
+		-1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu bytes (errno=%d) %s, skipping stressor\n",
 			args->name, sz + page_size, errno, strerror(errno));

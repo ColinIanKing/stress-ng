@@ -206,7 +206,8 @@ static int stress_signest(stress_args_t *args)
 	handled = 0;
 	jmp_env_ok = false;
 
-	altstack = (uint8_t*)mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
+	altstack = (uint8_t*)stress_mmap_populate(NULL, altstack_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (altstack == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate alternative signal stack, "

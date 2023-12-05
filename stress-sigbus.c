@@ -103,7 +103,8 @@ static int stress_sigbus(stress_args_t *args)
 	}
 
 	/* Allocate 2 pages */
-	ptr = (uint8_t *)mmap(NULL, page_size * 2, PROT_READ | PROT_WRITE,
+	ptr = (uint8_t *)stress_mmap_populate(NULL, page_size * 2,
+		PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (ptr == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of read only page failed: "

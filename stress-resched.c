@@ -183,10 +183,8 @@ static int stress_resched(stress_args_t *args)
 	}
 
 	yields_size = ((sizeof(*yields) * (size_t)pids_max) + args->page_size - 1) & ~(args->page_size - 1);
-	yields = (uint64_t *)mmap(NULL, yields_size, PROT_READ | PROT_WRITE,
-#if defined(MAP_POPULATE)
-				MAP_POPULATE |
-#endif
+	yields = (uint64_t *)stress_mmap_populate(NULL, yields_size,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (yields == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap yield counter array, skipping stressor, errno=%d (%s)\n",

@@ -414,7 +414,8 @@ static int stress_chroot(stress_args_t *args)
 	double rate;
 	chroot_shared_data_t *data;
 
-	data = (chroot_shared_data_t*)mmap(NULL, sizeof(*data), PROT_READ | PROT_WRITE,
+	data = (chroot_shared_data_t*)stress_mmap_populate(NULL,
+			sizeof(*data), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap metrics shared data, skipping stressor\n",

@@ -287,7 +287,8 @@ static int stress_forkheavy(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	metrics = (stress_metrics_t *)mmap(NULL, sizeof(*metrics),
+	metrics = (stress_metrics_t *)stress_mmap_populate(
+			NULL, sizeof(*metrics),
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {

@@ -319,7 +319,8 @@ static int stress_rseq(stress_args_t *args)
 	 *  stats when the child gets SEGV'd by rseq when we use
 	 *  in invalid signature
 	 */
-	rseq_info = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+	rseq_info = stress_mmap_populate(NULL, args->page_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rseq_info == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate shared page, "

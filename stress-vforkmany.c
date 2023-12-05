@@ -90,7 +90,8 @@ static int stress_vforkmany(stress_args_t *args)
 	stress_ksm_memory_merge(1);
 
 	/* We should use an alternative signal stack */
-	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+	stack_sig = (uint8_t *)stress_mmap_populate(NULL, STRESS_SIGSTKSZ,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stack_sig == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot allocate signal stack,"
@@ -102,7 +103,7 @@ static int stress_vforkmany(stress_args_t *args)
 		return EXIT_FAILURE;
 
 	vforkmany_shared = (vforkmany_shared_t *)
-		mmap(NULL, sizeof(*vforkmany_shared),
+		stress_mmap_populate(NULL, sizeof(*vforkmany_shared),
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (vforkmany_shared == MAP_FAILED) {

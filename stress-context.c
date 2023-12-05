@@ -165,7 +165,8 @@ static int stress_context(stress_args_t *args)
 	double duration, rate, t;
 	int rc = EXIT_FAILURE;
 
-	context = (context_data_t *)mmap(NULL, context_size,
+	context = (context_data_t *)stress_mmap_populate(NULL,
+					context_size,
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (context == MAP_FAILED) {

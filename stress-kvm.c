@@ -116,7 +116,8 @@ static int stress_kvm(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_kvm_fd;
 		}
-		vm_mem = mmap(NULL, vm_mem_size, PROT_READ | PROT_WRITE,
+		vm_mem = stress_mmap_populate(NULL, vm_mem_size,
+			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE,
 			-1, 0);
 		if (vm_mem == MAP_FAILED)
@@ -195,7 +196,7 @@ static int stress_kvm(stress_args_t *args)
 			goto tidy_vcpu_fd;
 		}
 
-		run = (struct kvm_run *)mmap(NULL, (size_t)run_size,
+		run = (struct kvm_run *)stress_mmap_populate(NULL, (size_t)run_size,
 			PROT_READ | PROT_WRITE, MAP_SHARED, vcpu_fd, 0);
 		if (run == MAP_FAILED) {
 			pr_fail("%s: mmap on vcpu_fd failed, errno=%d (%s)\n",

@@ -645,11 +645,6 @@ static int stress_cyclic(stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t size = (sizeof(*rt_stats) + page_size - 1) & (~(page_size - 1));
 	stress_cyclic_func func;
-#if defined(MAP_POPULATE)
-	const int mmap_flags = MAP_SHARED | MAP_ANONYMOUS | MAP_POPULATE;
-#else
-	const int mmap_flags = MAP_SHARED | MAP_ANONYMOUS;
-#endif
 
 	timeout  = g_opt_timeout;
 	(void)stress_get_setting("cyclic-dist", &cyclic_dist);
@@ -682,8 +677,9 @@ static int stress_cyclic(stress_args_t *args)
 			"this stressor\n", args->name);
 	}
 
-	rt_stats = (stress_rt_stats_t *)mmap(NULL, size,
-						PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
+	rt_stats = (stress_rt_stats_t *)stress_mmap_populate(NULL, size,
+						PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of shared statistics data failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -691,8 +687,10 @@ static int stress_cyclic(stress_args_t *args)
 	}
 	rt_stats->cyclic_samples = cyclic_samples;
 	rt_stats->latencies_size = cyclic_samples * sizeof(*rt_stats->latencies);
-	rt_stats->latencies = (int64_t *)mmap(NULL, rt_stats->latencies_size,
-						PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
+	rt_stats->latencies = (int64_t *)stress_mmap_populate(NULL,
+						rt_stats->latencies_size,
+						PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats->latencies == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zd samples failed: %d (%s)\n",
 			args->name, cyclic_samples, errno, strerror(errno));

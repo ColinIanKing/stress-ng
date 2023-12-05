@@ -313,7 +313,8 @@ static int stress_bad_altstack(stress_args_t *args)
 	stress_minsigstksz = STRESS_MINSIGSTKSZ;
 	stress_set_oom_adjustment(args, true);
 
-	stack = mmap(NULL, stress_minsigstksz, PROT_READ | PROT_WRITE,
+	stack = stress_mmap_populate(NULL, stress_minsigstksz,
+			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu byte signal handler stack, "
@@ -328,7 +329,8 @@ static int stress_bad_altstack(stress_args_t *args)
 	if (tmp_fd < 0) {
 		bus_stack = MAP_FAILED;
 	} else {
-		bus_stack = mmap(NULL, stress_minsigstksz,
+		bus_stack = stress_mmap_populate(NULL,
+				stress_minsigstksz,
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE, tmp_fd, 0);
 		(void)close(tmp_fd);
@@ -339,7 +341,8 @@ static int stress_bad_altstack(stress_args_t *args)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd >= 0) {
-		zero_stack = mmap(NULL, stress_minsigstksz, PROT_READ,
+		zero_stack = stress_mmap_populate(NULL,
+			stress_minsigstksz, PROT_READ,
 			MAP_PRIVATE, fd, 0);
 		(void)close(fd);
 	} else {

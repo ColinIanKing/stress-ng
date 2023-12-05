@@ -232,7 +232,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	size_t size;
 	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
 	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
-	int mmap_flags = MAP_FILE | MAP_SHARED;
 	double duration = 0.0, count = 0.0, rate;
 	bool memfd_mlock = false;
 #if defined(HAVE_NT_STORE64)
@@ -240,10 +239,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 		stress_cpu_x86_has_sse2() ? stress_memfd_fill_pages_nt_store : stress_memfd_fill_pages_generic;
 #else
 	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) = stress_memfd_fill_pages_generic;
-#endif
-
-#if defined(MAP_POPULATE)
-	mmap_flags |= MAP_POPULATE;
 #endif
 
 	stress_catch_sigill();
@@ -354,10 +349,11 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				}
 			}
 			/*
-			 * ..and map it in, using MAP_POPULATE
-			 * to force page it in
+			 *  ..and map it in, using MAP_POPULATE
+			 *  to force page it in
 			 */
-			maps[i] = mmap(NULL, size, PROT_WRITE, mmap_flags, fds[i], 0);
+			maps[i] = stress_mmap_populate(NULL, size, PROT_WRITE,
+					MAP_FILE | MAP_SHARED, fds[i], 0);
 			if (maps[i] == MAP_FAILED)
 				continue;
 			if (memfd_mlock)

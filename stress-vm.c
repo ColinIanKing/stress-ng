@@ -3379,7 +3379,8 @@ static int stress_vm(stress_args_t *args)
 
 	for (retries = 0; (retries < 100) && stress_continue_flag(); retries++) {
 		context.bit_error_count = (uint64_t *)
-			mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			stress_mmap_populate(NULL, page_size,
+				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		err = errno;
 		if (context.bit_error_count != MAP_FAILED)

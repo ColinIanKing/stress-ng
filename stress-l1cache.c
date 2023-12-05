@@ -543,7 +543,7 @@ static int stress_l1cache(stress_args_t *args)
 	if (ret != EXIT_SUCCESS)
 		return ret;
 
-	cache = (uint8_t *)mmap(NULL, l1cache_size << 2,
+	cache = (uint8_t *)stress_mmap_populate(NULL, l1cache_size << 2,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (cache == MAP_FAILED) {

@@ -194,8 +194,8 @@ static int stress_llc_affinity(stress_args_t *args)
 	/*
 	 *  Allocate a LLC sized buffer to exercise
 	 */
-	buf = (uint64_t *)mmap(NULL, mmap_sz, PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
+	buf = (uint64_t *)stress_mmap_populate(NULL, mmap_sz, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_fail("%s: mmap'd region of %zu bytes failed\n", args->name, mmap_sz);
 		return EXIT_NO_RESOURCE;

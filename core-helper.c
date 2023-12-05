@@ -1925,7 +1925,7 @@ init_done:
 
 	stress_free_cpu_caches(cpu_caches);
 	g_shared->mem_cache.buffer =
-		(uint8_t *)mmap(NULL, g_shared->mem_cache.size,
+		(uint8_t *)stress_mmap_populate(NULL, g_shared->mem_cache.size,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (g_shared->mem_cache.buffer == MAP_FAILED) {
@@ -1937,7 +1937,7 @@ init_done:
 
 	g_shared->cacheline.size = (size_t)STRESS_PROCS_MAX * sizeof(uint8_t) * 2;
 	g_shared->cacheline.buffer =
-		(uint8_t *)mmap(NULL, g_shared->cacheline.size,
+		(uint8_t *)stress_mmap_populate(NULL, g_shared->cacheline.size,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (g_shared->cacheline.buffer == MAP_FAILED) {
@@ -2332,7 +2332,8 @@ int stress_sighandler(
 
 		if (stack == NULL) {
 			/* Allocate stack, we currently leak this */
-			stack = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+			stack = (uint8_t *)stress_mmap_populate(NULL, STRESS_SIGSTKSZ,
+					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (stack == MAP_FAILED) {
 				pr_inf("%s: sigaction %s: cannot allocated signal stack, "
@@ -4610,3 +4611,24 @@ void stress_process_info(stress_args_t *args, const pid_t pid)
 	(void)pid;
 #endif
 }
+
+void *stress_mmap_populate(
+	void *addr,
+	size_t length,
+	int prot,
+	int flags,
+	int fd,
+	off_t offset)
+{
+	void *ret;
+
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+	ret = mmap(addr, length, prot, flags, fd, offset);
+	if (ret != MAP_FAILED)
+		return ret;
+	flags &= ~MAP_POPULATE;
+#endif
+	return mmap(addr, length, prot, flags, fd, offset);
+}
+

@@ -487,8 +487,9 @@ static int stress_schedmix(stress_args_t *args)
 
 #if defined(HAVE_SCHEDMIX_SEM)
 	schedmix_sem = (stress_schedmix_sem_t *)
-		mmap(NULL, sizeof(*schedmix_sem), PROT_READ | PROT_WRITE,
-		     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		stress_mmap_populate(NULL, sizeof(*schedmix_sem),
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (schedmix_sem != MAP_FAILED) {
 		if (sem_init(&schedmix_sem->sem, 0, 1) < 0) {
 			(void)munmap((void *)schedmix_sem, sizeof(*schedmix_sem));

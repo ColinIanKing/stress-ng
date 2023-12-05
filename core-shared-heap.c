@@ -56,8 +56,9 @@ void *stress_shared_heap_init(void)
 	g_shared->shared_heap.out_of_memory = false;
 	g_shared->shared_heap.heap_size = (size + page_size - 1) & ~(page_size - 1);
 	g_shared->shared_heap.str_list_head = NULL;
-	g_shared->shared_heap.heap = mmap(NULL, size, PROT_READ | PROT_WRITE,
-					  MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	g_shared->shared_heap.heap = stress_mmap_populate(NULL, size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (g_shared->shared_heap.heap == MAP_FAILED) {
 		g_shared->shared_heap.lock = NULL;
 		return NULL;

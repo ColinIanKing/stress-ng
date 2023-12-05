@@ -210,7 +210,8 @@ static int stress_dup(stress_args_t *args)
 #if defined(STRESS_DUP2_RACE)
 	info_t *info;
 
-	info = mmap(NULL, sizeof(*info), PROT_READ | PROT_WRITE,
+	info = stress_mmap_populate(NULL, sizeof(*info),
+		PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info != MAP_FAILED) {
 		if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0) {

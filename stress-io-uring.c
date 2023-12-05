@@ -254,7 +254,8 @@ static int stress_setup_io_uring(
 		submit->cq_size = submit->sq_size;
 	}
 
-	submit->sq_mmap = mmap(NULL, submit->sq_size, PROT_READ | PROT_WRITE,
+	submit->sq_mmap = stress_mmap_populate(NULL, submit->sq_size,
+		PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_POPULATE,
 		submit->io_uring_fd, IORING_OFF_SQ_RING);
 	if (submit->sq_mmap == MAP_FAILED) {
@@ -267,7 +268,8 @@ static int stress_setup_io_uring(
 	if (p.features & IORING_FEAT_SINGLE_MMAP) {
 		submit->cq_mmap = submit->sq_mmap;
 	} else {
-		submit->cq_mmap = mmap(NULL, submit->cq_size, PROT_READ | PROT_WRITE,
+		submit->cq_mmap = stress_mmap_populate(NULL, submit->cq_size,
+				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_POPULATE,
 				submit->io_uring_fd, IORING_OFF_CQ_RING);
 		if (submit->cq_mmap == MAP_FAILED) {
@@ -288,7 +290,7 @@ static int stress_setup_io_uring(
 
 	submit->sqes_entries = p.sq_entries;
 	submit->sqes_size = p.sq_entries * sizeof(struct io_uring_sqe);
-	submit->sqes_mmap = mmap(NULL, submit->sqes_size,
+	submit->sqes_mmap = stress_mmap_populate(NULL, submit->sqes_size,
 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE,
 			submit->io_uring_fd, IORING_OFF_SQES);
 	if (submit->sqes_mmap == MAP_FAILED) {

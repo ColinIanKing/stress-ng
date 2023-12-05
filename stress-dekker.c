@@ -134,7 +134,8 @@ static int stress_dekker(stress_args_t *args)
 	double rate, duration, count;
 	int parent_cpu;
 
-	dekker = (dekker_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	dekker = (dekker_t *)stress_mmap_populate(NULL, sz,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (dekker == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for bekker shared struct, skipping stressor\n",

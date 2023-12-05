@@ -426,7 +426,8 @@ static int stress_vecfp(stress_args_t *args)
 	}
 
 	mmap_size = max_elements * sizeof(*vecfp_init);
-	vecfp_init = (stress_vecfp_init *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+	vecfp_init = (stress_vecfp_init *)stress_mmap_populate(NULL,
+			mmap_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (vecfp_init == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %zd initializing elements, skipping stressor\n",

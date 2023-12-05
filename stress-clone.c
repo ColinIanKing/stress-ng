@@ -280,7 +280,8 @@ static stress_clone_t *stress_clone_new(void)
 		clones.free = new->next;
 		new->next = NULL;
 	} else {
-		new = mmap(NULL, sizeof(*new), PROT_READ | PROT_WRITE,
+		new = stress_mmap_populate(NULL,
+			sizeof(*new), PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (new == MAP_FAILED)
 			return NULL;

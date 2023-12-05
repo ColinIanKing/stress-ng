@@ -248,7 +248,8 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 {
 	stress_flushcache_context_t *context = (stress_flushcache_context_t *)ctxt;
 
-	context->d_addr = mmap(NULL, context->d_size, PROT_READ | PROT_WRITE,
+	context->d_addr = stress_mmap_populate(NULL, context->d_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (context->d_addr == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zd bytes, skipping stressor\n",
@@ -295,7 +296,8 @@ static int stress_flushcache(stress_args_t *args)
 
 	context.x86_clfsh = stress_cpu_x86_has_clfsh();
 	context.x86_demote = stress_cpu_x86_has_cldemote();
-	context.i_addr = mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC,
+	context.i_addr = stress_mmap_populate(NULL, page_size,
+				PROT_READ | PROT_WRITE | PROT_EXEC,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (context.i_addr == MAP_FAILED) {
 		pr_inf_skip("%s: could not mmap %zd sized page, skipping stressor\n",

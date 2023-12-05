@@ -664,7 +664,8 @@ static int stress_apparmor(stress_args_t *args)
 		return EXIT_FAILURE;
 
 	stress_apparmor_shared_info = (stress_apparmor_shared_info_t *)
-		mmap(NULL, sizeof(*stress_apparmor_shared_info), PROT_READ | PROT_WRITE,
+		stress_mmap_populate(NULL, sizeof(*stress_apparmor_shared_info),
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_apparmor_shared_info == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocated shared memory, skipping stressor\n", args->name);

@@ -185,6 +185,7 @@ extern void stress_yield_sleep_ms(void);
 extern void stress_catch_sigill(void);
 extern void stress_catch_sigsegv(void);
 extern void stress_process_info(stress_args_t *args, const pid_t pid);
-
+extern void *stress_mmap_populate(void *addr, size_t length, int prot,
+	int flags, int fd, off_t offset);
 
 #endif

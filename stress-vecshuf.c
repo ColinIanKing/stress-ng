@@ -360,7 +360,8 @@ static int stress_vecshuf(stress_args_t *args)
 
 	stress_catch_sigill();
 
-	data = (stress_vec_data_t *)mmap(NULL, sizeof(*data), PROT_READ | PROT_WRITE,
+	data = (stress_vec_data_t *)stress_mmap_populate(NULL, sizeof(*data),
+			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %zd bytes for vectors, skipping stressor\n",

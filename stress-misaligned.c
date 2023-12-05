@@ -1220,7 +1220,8 @@ static int stress_misaligned(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 #endif
 
-	buffer = (uint8_t *)mmap(NULL, buffer_size, PROT_READ | PROT_WRITE,
+	buffer = (uint8_t *)stress_mmap_populate(NULL, buffer_size,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate 1 page buffer, "

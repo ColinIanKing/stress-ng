@@ -341,7 +341,8 @@ static int stress_sockmany(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, sockmany_port);
 
-	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(*sock_fds), PROT_READ | PROT_WRITE,
+	sock_fds = (stress_sock_fds_t *)stress_mmap_populate(NULL, sizeof(*sock_fds),
+		PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (sock_fds == MAP_FAILED) {
 		pr_inf("%s: could not allocate share memory, errno=%d (%s)\n",

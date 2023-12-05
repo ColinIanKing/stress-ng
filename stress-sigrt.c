@@ -47,7 +47,7 @@ static int stress_sigrt(stress_args_t *args)
 	double count, duration, rate;
 
 	stress_sigrt_metrics = (stress_metrics_t *)
-		mmap(NULL, stress_sigrt_metrics_size,
+		stress_mmap_populate(NULL, stress_sigrt_metrics_size,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_sigrt_metrics == MAP_FAILED) {

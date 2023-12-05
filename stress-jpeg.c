@@ -399,7 +399,8 @@ static int stress_jpeg(stress_args_t *args)
 	(void)stress_get_setting("jpeg-image", &jpeg_image);
 
 	rgb_size = (size_t)x_max * (size_t)y_max * 3;
-	rgb = mmap(NULL, rgb_size, PROT_READ | PROT_WRITE,
+	rgb = stress_mmap_populate(NULL, rgb_size,
+		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rgb == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate RGB buffer of size %" PRId32 " x %" PRId32 " x %d, skipping stressor\n",
@@ -407,7 +408,8 @@ static int stress_jpeg(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	row_pointer_size = (size_t)y_max * sizeof(*row_pointer);
-	row_pointer = (JSAMPROW *)mmap(NULL, row_pointer_size, PROT_READ | PROT_WRITE,
+	row_pointer = (JSAMPROW *)stress_mmap_populate(NULL, row_pointer_size,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (row_pointer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate row pointer array of size %" PRId32 " x %zu, skipping stressor\n",

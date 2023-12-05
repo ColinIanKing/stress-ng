@@ -397,7 +397,8 @@ static int stress_atomic(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 	atomic_info_sz = sizeof(*atomic_info) * n_atomic_procs;
-	atomic_info = (stress_atomic_info_t *)mmap(NULL, atomic_info_sz, PROT_READ | PROT_WRITE,
+	atomic_info = (stress_atomic_info_t *)stress_mmap_populate(NULL,
+			atomic_info_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (atomic_info == MAP_FAILED) {
 		pr_inf_skip("%s: could not mmap share metrics of "

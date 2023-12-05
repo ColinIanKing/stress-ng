@@ -908,26 +908,26 @@ static inline int stress_matrix_exercise(
 		matrix_metrics[i].count = 0.0;
 	}
 
-	a = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
+	a = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (a == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_ret;
 	}
-	b = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
+	b = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_a;
 	}
-	r = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
+	r = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_b;
 	}
 	if (verify) {
-		s = (matrix_ptr_t)mmap(NULL, matrix_mmap_size,
+		s = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
 			PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (s == MAP_FAILED) {
 			pr_fail("%s: matrix allocation failed, out of memory\n", args->name);

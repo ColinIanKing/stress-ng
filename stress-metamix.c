@@ -277,7 +277,7 @@ static int stress_metamix_file(
 		if ((file_info[i].offset & page_mask) == file_info[i].offset) {
 			void *ptr;
 
-			ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, file_info[i].offset);
+			ptr = stress_mmap_populate(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, file_info[i].offset);
 			if (ptr != MAP_FAILED) {
 				if (verify && (data_len < args->page_size)) {
 					checksum = stress_hash_jenkin(ptr, data_len);

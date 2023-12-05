@@ -157,7 +157,8 @@ static int stress_unshare(stress_args_t *args)
 	stress_unshare_info_t *unshare_info;
 	double total_duration = 0.0, total_count = 0.0, rate;
 
-	unshare_info = (stress_unshare_info_t *)mmap(NULL, unshare_info_size,
+	unshare_info = (stress_unshare_info_t *)stress_mmap_populate(NULL,
+				unshare_info_size,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (unshare_info == MAP_FAILED) {

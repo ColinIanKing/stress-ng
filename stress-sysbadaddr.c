@@ -1145,8 +1145,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	size_t page_size = args->page_size;
 	int ret;
 
-	ro_page = mmap(NULL, page_size, PROT_READ,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	ro_page = stress_mmap_populate(NULL, page_size,
+		PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (ro_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous read-only page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1156,7 +1156,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(ro_page, page_size);
 
-	rw_page = mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
+	rw_page = stress_mmap_populate(NULL, page_size << 1,
+		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rw_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous read-write page: "
@@ -1167,7 +1168,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(rw_page, page_size << 1);
 
-	rx_page = mmap(NULL, page_size, PROT_EXEC | PROT_READ,
+	rx_page = stress_mmap_populate(NULL, page_size,
+		PROT_EXEC | PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rx_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous execute-only page: "
@@ -1178,8 +1180,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(rx_page, page_size);
 
-	no_page = mmap(NULL, page_size, PROT_NONE,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	no_page = stress_mmap_populate(NULL, page_size,
+		PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (no_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous prot-none page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1188,8 +1190,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 		goto cleanup;
 	}
 
-	wo_page = mmap(NULL, page_size, PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	wo_page = stress_mmap_populate(NULL, page_size,
+		PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wo_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous write-only page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1204,8 +1206,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	 * so make this failure non-fatal to the stress testing
 	 * and skip MAP_FAILED addresses in the main stressor
 	 */
-	wx_page = mmap(NULL, page_size, PROT_WRITE | PROT_EXEC,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	wx_page = stress_mmap_populate(NULL, page_size,
+		PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	/*
 	 * Unmap last page, so we know we have an unmapped
 	 * page following the r/w page

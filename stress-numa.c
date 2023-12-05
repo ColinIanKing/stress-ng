@@ -288,7 +288,8 @@ static int stress_numa(stress_args_t *args)
 	/*
 	 *  We need a buffer to migrate around NUMA nodes
 	 */
-	buf = mmap(NULL, MMAP_SZ, PROT_READ | PROT_WRITE,
+	buf = stress_mmap_populate(NULL, MMAP_SZ,
+		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	if (buf == MAP_FAILED) {
 		rc = stress_exit_status(errno);

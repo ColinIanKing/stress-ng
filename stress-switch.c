@@ -174,7 +174,8 @@ static int stress_switch_pipe(
 	buf_size = args->page_size;
 #endif
 
-	buf = (char *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
+	buf = (char *)stress_mmap_populate(NULL, buf_size,
+			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_fail("%s: pipe read/write buffer allocation failed\n",

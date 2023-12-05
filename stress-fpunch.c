@@ -285,7 +285,8 @@ static int stress_fpunch(stress_args_t *args)
 	const size_t max_punches = (size_t)(DEFAULT_FPUNCH_LENGTH / (off_t)stride);
 	stress_punch_buf_t *buf;
 
-	buf = (stress_punch_buf_t *)mmap(NULL, sizeof(*buf), PROT_READ | PROT_WRITE,
+	buf = (stress_punch_buf_t *)stress_mmap_populate(NULL, sizeof(*buf),
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",

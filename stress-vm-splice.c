@@ -78,14 +78,14 @@ static int stress_vm_splice(stress_args_t *args)
 		vm_splice_bytes = page_size;
 	sz = vm_splice_bytes & ~(page_size - 1);
 
-	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	buf = stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
 			args->name, sz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	data = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	data = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",

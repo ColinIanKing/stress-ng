@@ -312,7 +312,6 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
-	int mmap_flags = MAP_ANONYMOUS | MAP_PRIVATE;
 	qsort_func_t qsort_func;
 
 	stress_catch_sigill();
@@ -326,11 +325,9 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	}
 	n = (size_t)qsort_size;
 	data_size = n * sizeof(*data);
-
-#if defined(MAP_POPULATE)
-	mmap_flags |= MAP_POPULATE;
-#endif
-	data = (int32_t *)mmap(NULL, data_size, PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
+	data = (int32_t *)stress_mmap_populate(NULL, data_size,
+			PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: mmap failed allocating %zd 32 bit integers, errno=%d (%s), "
 			"skipping stressor\n", args->name, n, errno, strerror(errno));

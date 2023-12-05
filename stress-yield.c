@@ -99,7 +99,8 @@ static int stress_yield(stress_args_t *args)
 
 	metrics_size = yielders * sizeof(*metrics);
 	metrics = (stress_metrics_t *)
-		mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
+		stress_mmap_populate(NULL, metrics_size,
+			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_err("%s: mmap failed, count not allocate %zd bytes, errno=%d (%s)\n",

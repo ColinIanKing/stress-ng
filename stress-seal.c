@@ -68,7 +68,8 @@ static int stress_seal(stress_args_t *args)
 	char filename[PATH_MAX];
 	char *buf;
 
-	buf = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	buf = stress_mmap_populate(NULL, page_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %zd sized buffer, skipping stressor\n",

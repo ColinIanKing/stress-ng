@@ -934,7 +934,8 @@ static int stress_workload(stress_args_t *args)
 		}
 	}
 
-	buffer = (uint8_t *)mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
+	buffer = (uint8_t *)stress_mmap_populate(NULL, buffer_len,
+				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd sized buffer, "

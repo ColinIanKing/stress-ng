@@ -553,7 +553,8 @@ static int stress_fp(stress_args_t *args)
 	stress_catch_sigill();
 
 	mmap_size = FP_ELEMENTS * sizeof(*fp_data);
-	fp_data = (fp_data_t *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+	fp_data = (fp_data_t *)stress_mmap_populate(NULL, mmap_size,
+			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (fp_data == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocate %d floating point elements, skipping stressor\n",

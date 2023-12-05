@@ -380,7 +380,7 @@ static int stress_mcontend(stress_args_t *args)
 	 *  Get two different mappings of the same physical page
 	 *  just to make things more interesting
 	 */
-	data[0] = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+	data[0] = stress_mmap_populate(NULL, args->page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[0] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
@@ -389,7 +389,7 @@ static int stress_mcontend(stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
-	data[1] = mmap(NULL, args->page_size , PROT_READ | PROT_WRITE,
+	data[1] = stress_mmap_populate(NULL, args->page_size , PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
 	if (data[1] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",

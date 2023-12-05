@@ -395,7 +395,8 @@ static int stress_opcode(stress_args_t *args)
 	volatile stress_opcode_state_t *vstate;
 
 	state = (stress_opcode_state_t *)
-		mmap(NULL, sizeof(*state), PROT_READ | PROT_WRITE,
+		stress_mmap_populate(NULL, sizeof(*state),
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (state == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zu bytes failed, errno=%d (%s) "
@@ -405,7 +406,8 @@ static int stress_opcode(stress_args_t *args)
 	}
 	vstate = (volatile stress_opcode_state_t *)state;
 
-	opcodes = (void *)mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
+	opcodes = (void *)stress_mmap_populate(NULL, page_size * PAGES,
+				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (opcodes == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",

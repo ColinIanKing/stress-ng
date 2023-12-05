@@ -317,7 +317,8 @@ static int stress_memcpy(stress_args_t *args)
 	size_t memcpy_method = 0;
 	stress_memcpy_func func;
 
-	buf = (uint8_t *)mmap(NULL, 3 * MEMCPY_MEMSIZE, PROT_READ | PROT_WRITE,
+	buf = (uint8_t *)stress_mmap_populate(NULL, 3 * MEMCPY_MEMSIZE,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1 , 0);
 
 	if (buf == MAP_FAILED) {

@@ -478,7 +478,6 @@ static int stress_madvise(stress_args_t *args)
 	const pid_t pid = getpid();
 	int fd = -1;
 	NOCLOBBER int ret;
-	NOCLOBBER int flags;
 	NOCLOBBER int num_mem_retries;
 	char filename[PATH_MAX];
 	char smaps[PATH_MAX];
@@ -494,7 +493,6 @@ static int stress_madvise(stress_args_t *args)
 	(void)memset(&ctxt, 0, sizeof(ctxt));
 	(void)stress_get_setting("madvise-hwpoison", &ctxt.hwpoison);
 
-	flags = MAP_PRIVATE;
 	num_mem_retries = 0;
 #if defined(MADV_FREE)
 	madv_frees_raced = 0;
@@ -502,7 +500,7 @@ static int stress_madvise(stress_args_t *args)
 	madv_tries = 0;
 #endif
 
-	page = (char *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	page = (char *)stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate %zd byte page, skipping stressor\n",
@@ -523,10 +521,6 @@ static int stress_madvise(stress_args_t *args)
 		(void)munmap((void *)page, page_size);
 		return EXIT_FAILURE;
 	}
-
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
 
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args, true);
@@ -577,16 +571,14 @@ static int stress_madvise(stress_args_t *args)
 
 		file_mapped = stress_mwc1();
 		if (file_mapped) {
-			buf = (uint8_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
+			buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
+								MAP_PRIVATE, fd, 0);
 		} else {
-			buf = (uint8_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
-				flags | MAP_ANONYMOUS, 0, 0);
+			buf = (uint8_t *)stress_mmap_populate(NULL, sz, PROT_READ | PROT_WRITE,
+								MAP_ANONYMOUS, -1, 0);
 		}
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
-#if defined(MAP_POPULATE)
-			flags &= ~MAP_POPULATE;
-#endif
 			num_mem_retries++;
 			if (num_mem_retries > 1)
 				(void)shim_usleep(100000);

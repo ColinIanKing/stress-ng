@@ -89,7 +89,8 @@ static int stress_full(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	buffer = mmap(NULL, buffer_size, PROT_READ | PROT_WRITE,
+	buffer = stress_mmap_populate(NULL, buffer_size,
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd bytes, errno=%d (%s), skipping stressor\n",

@@ -956,10 +956,7 @@ static inline void *stress_memrate_mmap(stress_args_t *args, uint64_t sz)
 {
 	void *ptr;
 
-	ptr = mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
-#if defined(MAP_POPULATE)
-		MAP_POPULATE |
-#endif
+	ptr = stress_mmap_populate(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
 #if defined(HAVE_MADVISE)
 		MAP_PRIVATE |
 #else
@@ -1069,7 +1066,7 @@ static int stress_memrate(stress_args_t *args)
 	stats_size = memrate_items * sizeof(*context.stats);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
 
-	context.stats = (stress_memrate_stats_t *)mmap(NULL, stats_size,
+	context.stats = (stress_memrate_stats_t *)stress_mmap_populate(NULL, stats_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (context.stats == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zd byte statistics buffer, skipping stressor\n",

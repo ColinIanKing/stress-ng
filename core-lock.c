@@ -397,7 +397,8 @@ void *stress_lock_create(void)
 	if (LOCK_METHOD_ALL == (0))
 		goto no_locks;
 
-	lock = (stress_lock_t *)mmap(NULL, sizeof(*lock), PROT_READ | PROT_WRITE,
+	lock = (stress_lock_t *)stress_mmap_populate(NULL, sizeof(*lock),
+		PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (lock == MAP_FAILED)
 		return NULL;

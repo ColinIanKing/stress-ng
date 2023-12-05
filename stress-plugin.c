@@ -307,7 +307,8 @@ static int stress_plugin(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
+	sig_count = (uint64_t *)stress_mmap_populate(NULL, sig_count_size,
+		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",

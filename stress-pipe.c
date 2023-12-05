@@ -618,7 +618,8 @@ static int stress_pipe(stress_args_t *args)
 
 	/* round to nearest whole page */
 	buf_rd_size = ((pipe_rd_size + page_size - 1) & ~(page_size - 1)) * 2;
-	buf_rd = (char *)mmap(NULL, buf_rd_size, PROT_READ | PROT_WRITE,
+	buf_rd = (char *)stress_mmap_populate(NULL, buf_rd_size,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf_rd == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte read buffer, skipping stressor\n",
@@ -629,7 +630,8 @@ static int stress_pipe(stress_args_t *args)
 	}
 	/* round to nearest whole page */
 	buf_wr_size = ((pipe_wr_size + page_size - 1) & ~(page_size - 1)) * 2;
-	buf_wr = (char *)mmap(NULL, buf_wr_size, PROT_READ | PROT_WRITE,
+	buf_wr = (char *)stress_mmap_populate(NULL, buf_wr_size,
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf_wr == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %zu byte write buffer, skipping stressor\n",

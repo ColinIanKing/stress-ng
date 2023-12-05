@@ -106,12 +106,12 @@ static void *stress_far_mmap_try32(
 		if (((uintptr_t)addr >> 32U) == 0) {
 			void *ptr;
 
-			ptr = mmap(addr, length, prot, flags | MAP_32BIT, fd, offset);
+			ptr = stress_mmap_populate(addr, length, prot, flags | MAP_32BIT, fd, offset);
 			if (ptr != MAP_FAILED)
 				return ptr;
 		}
 #endif
-	return mmap(addr, length, prot, flags, fd, offset);
+	return stress_mmap_populate(addr, length, prot, flags, fd, offset);
 }
 #endif
 

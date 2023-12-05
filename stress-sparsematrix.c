@@ -1239,7 +1239,8 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 	m.x = x;
 	m.y = y;
 
-	m.mmap = mmap(NULL, m.mmap_size, PROT_READ | PROT_WRITE,
+	m.mmap = stress_mmap_populate(NULL, m.mmap_size,
+		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (m.mmap == MAP_FAILED)
 		return NULL;

@@ -160,7 +160,8 @@ static int stress_vecwide(stress_args_t *args)
 
 	stress_catch_sigill();
 
-	vec_args = (vec_args_t *)mmap(NULL, vec_args_size, PROT_READ | PROT_WRITE,
+	vec_args = (vec_args_t *)stress_mmap_populate(NULL, vec_args_size,
+					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (vec_args == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, failed to allocate vectors, errno=%d (%s)\n",

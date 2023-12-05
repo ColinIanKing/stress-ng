@@ -664,7 +664,7 @@ static int stress_sysfs(stress_args_t *args)
 	struct dirent **dlist = NULL;
 	double t, duration, rate;
 
-	ctxt = (stress_ctxt_t *)mmap(NULL, sizeof(*ctxt),
+	ctxt = (stress_ctxt_t *)stress_mmap_populate(NULL, sizeof(*ctxt),
 				     PROT_READ | PROT_WRITE,
 				     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt == MAP_FAILED) {

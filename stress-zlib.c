@@ -1801,7 +1801,8 @@ static int stress_zlib(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	shared_checksums = (stress_zlib_shared_checksums_t *)mmap(NULL,
+	shared_checksums = (stress_zlib_shared_checksums_t *)
+		stress_mmap_populate(NULL,
 			sizeof(*shared_checksums),
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);

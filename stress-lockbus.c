@@ -149,7 +149,6 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 static int stress_lockbus(stress_args_t *args)
 {
 	uint32_t *buffer;
-	int flags = MAP_ANONYMOUS | MAP_SHARED;
 	double t, rate;
 	NOCLOBBER double duration, count;
 #if defined(STRESS_ARCH_X86)
@@ -162,10 +161,8 @@ static int stress_lockbus(stress_args_t *args)
 		return EXIT_FAILURE;
 #endif
 
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
-	buffer = (uint32_t*)mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
+	buffer = (uint32_t*)stress_mmap_populate(NULL, BUFFER_SIZE,
+			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (buffer == MAP_FAILED) {
 		int rc = stress_exit_status(errno);
 

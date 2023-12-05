@@ -282,7 +282,8 @@ static int stress_access(stress_args_t *args)
 	}
 
 	/* metrics in a shared page for child stats to be available to parent */
-	metrics = (stress_metrics_t *)mmap(NULL, metrics_size, PROT_READ | PROT_WRITE,
+	metrics = (stress_metrics_t *)stress_mmap_populate(NULL,
+			metrics_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for metrics, skipping stressor\n",

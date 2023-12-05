@@ -152,7 +152,7 @@ static int stress_stackmmap(stress_args_t *args)
 		(void)close(fd);
 		goto tidy_dir;
 	}
-	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ,
+	stack_sig = (uint8_t *)stress_mmap_populate(NULL, STRESS_SIGSTKSZ,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (stack_sig == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap signal stack, "

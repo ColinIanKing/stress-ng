@@ -582,7 +582,8 @@ static int stress_vma(stress_args_t *args)
 	}
 
 	stress_vma_metrics = (stress_vma_metrics_t *)
-		mmap(NULL, sizeof(*stress_vma_metrics), PROT_READ | PROT_WRITE,
+		stress_mmap_populate(NULL, sizeof(*stress_vma_metrics),
+			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_vma_metrics == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap vma shared statistics data, errno=%d (%s), skipping stressor\n",

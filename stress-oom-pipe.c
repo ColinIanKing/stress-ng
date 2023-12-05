@@ -192,7 +192,7 @@ static int stress_oom_pipe(stress_args_t *args)
 	stress_oom_pipe_context_t context;
 	void *buffer;
 
-	buffer = mmap(NULL, buffer_size, PROT_READ | PROT_WRITE,
+	buffer = stress_mmap_populate(NULL, buffer_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate pipe write buffer, skipping stressor\n", args->name);

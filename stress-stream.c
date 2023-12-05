@@ -698,10 +698,7 @@ static inline void *stress_stream_mmap(
 {
 	void *ptr;
 
-	ptr = mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
-#if defined(MAP_POPULATE)
-		MAP_POPULATE |
-#endif
+	ptr = stress_mmap_populate(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
 #if defined(HAVE_MADVISE)
 		MAP_PRIVATE |
 #else

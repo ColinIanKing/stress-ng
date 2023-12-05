@@ -249,7 +249,8 @@ static int stress_affinity(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	info = (stress_affinity_info_t *)mmap(NULL, info_sz, PROT_READ | PROT_WRITE,
+	info = (stress_affinity_info_t *)stress_mmap_populate(NULL,
+			info_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",

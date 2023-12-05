@@ -171,7 +171,8 @@ static int stress_fma(stress_args_t *args)
 
 	stress_catch_sigill();
 
-	fma = (stress_fma_t *)mmap(NULL, sizeof(*fma), PROT_READ | PROT_WRITE,
+	fma = (stress_fma_t *)stress_mmap_populate(NULL, sizeof(*fma),
+				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fma == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd bytes for FMA data\n",

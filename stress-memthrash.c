@@ -838,11 +838,6 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 	int ret;
 	stress_pthread_info_t *pthread_info;
 
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
-
 	pthread_info = calloc(max_threads, sizeof(*pthread_info));
 	if (!pthread_info) {
 		pr_inf_skip("%s: failed to allocate pthread information array, skipping stressor\n",
@@ -854,11 +849,9 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 
 
 mmap_retry:
-	mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
+	mem = stress_mmap_populate(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, 
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mem == MAP_FAILED) {
-#if defined(MAP_POPULATE)
-		flags &= ~MAP_POPULATE;	/* Less aggressive, more OOMable */
-#endif
 		if (!stress_continue_flag()) {
 			pr_dbg("%s: mmap failed: %d %s\n",
 				args->name, errno, strerror(errno));

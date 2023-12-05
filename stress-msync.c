@@ -171,7 +171,7 @@ static int stress_msync(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	buf = (uint8_t *)mmap(NULL, sz,
+	buf = (uint8_t *)stress_mmap_populate(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
 		pr_err("%s: failed to mmap memory of size %zu, errno=%d (%s)\n",
@@ -179,7 +179,7 @@ static int stress_msync(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err;
 	}
-	data = (uint8_t *)mmap(NULL, page_size,
+	data = (uint8_t *)stress_mmap_populate(NULL, page_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_err("%s: failed to mmap memory of size %zu, errno=%d (%s)\n",
