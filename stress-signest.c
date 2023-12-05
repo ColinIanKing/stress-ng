@@ -216,8 +216,10 @@ static int stress_signest(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sigaltstack(altstack, altstack_size) < 0)
+	if (stress_sigaltstack(altstack, altstack_size) < 0) {
+		(void)munmap((void *)altstack, altstack_size);
 		return EXIT_FAILURE;
+	}
 
 	signal_info.args = args;
 	signal_info.stop = false;
