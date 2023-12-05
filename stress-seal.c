@@ -95,10 +95,12 @@ static int stress_seal(stress_args_t *args)
 			if (errno == ENOSYS) {
 				pr_inf("%s: aborting, unimplemented "
 					"system call memfd_created\n", args->name);
+				(void)munmap((void *)buf, page_size);
 				return EXIT_NO_RESOURCE;
 			}
 			pr_fail("%s: memfd_create %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
+			(void)munmap((void *)buf, page_size);
 			return EXIT_FAILURE;
 		}
 
