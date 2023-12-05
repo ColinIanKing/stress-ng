@@ -163,8 +163,10 @@ static int stress_sigpipe(stress_args_t *args)
 	}
 
 	s_args = args;
-	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0) {
+		(void)munmap((void *)buf, buf_size);
 		return EXIT_FAILURE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
