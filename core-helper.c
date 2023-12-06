@@ -4620,9 +4620,9 @@ void *stress_mmap_populate(
 	int fd,
 	off_t offset)
 {
+#if defined(MAP_POPULATE)
 	void *ret;
 
-#if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 	ret = mmap(addr, length, prot, flags, fd, offset);
 	if (ret != MAP_FAILED)
