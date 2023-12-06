@@ -526,13 +526,11 @@ static int stress_get(stress_args_t *args)
 		if (!stress_continue_flag())
 			break;
 
-#if defined(__linux__)
 		t1 = time(NULL);
 		if (t1 == (time_t)-1) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-#endif
 		/*
 		 *  Exercise time calls with a pointer to time_t
 		 *  variable and check equality with returned value
@@ -548,12 +546,10 @@ static int stress_get(stress_args_t *args)
 		 *  Exercise the time system call using the syscall()
 		 *  function to increase kernel test coverage
 		 */
-#if defined(__linux__)
 		t1 = shim_time(NULL);
 		if ((t1 == (time_t)-1) && (errno != ENOSYS))
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-#endif
 		t1 = shim_time(&t2);
 		if ((t1 == (time_t)-1) && (errno != ENOSYS)) {
 			if (shim_memcmp(&t1, &t2, sizeof(t1))) {
@@ -562,18 +558,15 @@ static int stress_get(stress_args_t *args)
 			}
 		}
 
-
 		/*
 		 *  The following gettimeofday calls probably use the VDSO
 		 *  on Linux
 		 */
-#if defined(__linux__)
 		ret = gettimeofday(&tv, NULL);
 		if (ret < 0) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-#endif
 		ret = gettimeofday(&tv, &tz);
 		if (ret < 0) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
