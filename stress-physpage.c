@@ -162,7 +162,7 @@ static int stress_virt_to_phys(
 	if (pageinfo & PAGE_PRESENT) {
 		uint64_t page_count;
 		const uint64_t pfn = pageinfo & PFN_MASK;
-		uintptr_t phys_addr = pfn * page_size;
+		uint64_t phys_addr = pfn * page_size;
 
 		phys_addr |= (virt_addr & (page_size - 1));
 		offset = (off_t)(pfn * sizeof(uint64_t));
@@ -183,8 +183,8 @@ static int stress_virt_to_phys(
 			goto err;
 		}
 		if (page_count < 1) {
-			pr_fail("%s: got zero page count for physical address %p\n",
-				args->name, (void *)phys_addr);
+			pr_fail("%s: got zero page count for physical address 0x%" PRIx64 "\n",
+				args->name, phys_addr);
 			goto err;
 		}
 
