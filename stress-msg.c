@@ -278,9 +278,6 @@ static int OPTIMIZE3 stress_msg_receiver(
 			if (UNLIKELY((i & 0x1ff) == 0)) {
 				/* Exercise invalid msgrcv queue ID */
 				(void)msgrcv(-1, &msg, msg_bytes, mtype, 0);
-
-				/* Exercise invalid msgrcv message size */
-				(void)msgrcv(msgq_id, &msg, 0, mtype, 0);
 			}
 
 redo:
