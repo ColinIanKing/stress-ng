@@ -600,11 +600,13 @@ static int stress_get(stress_args_t *args)
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+#if 0
 		ret = shim_gettimeofday(NULL, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+#endif
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
