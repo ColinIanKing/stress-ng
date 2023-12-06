@@ -2176,8 +2176,11 @@ time_t shim_time(time_t *tloc)
 int shim_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 #if defined(__NR_gettimeofday) &&	\
-    defined(HAVE_SYSCALL)
+    defined(HAVE_SYSCALL) &&		\
+    defined(__linux__)
 	return (int)syscall(__NR_gettimeofday, tv, tz);
+#elif defined(HAVE_GETTIMEOFDAY)
+	return gettimeofday(tv, tz);
 #else
 	return (int)shim_enosys(0, tv, tz);
 #endif
