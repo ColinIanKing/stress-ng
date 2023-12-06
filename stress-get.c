@@ -199,7 +199,7 @@ static int stress_get(stress_args_t *args)
 		struct timeval tv;
 		struct timezone tz;
 		struct rlimit rlim;
-		time_t t, t1, t2;
+		time_t t1, t2;
 
 		(void)mypid;
 
@@ -526,11 +526,13 @@ static int stress_get(stress_args_t *args)
 		if (!stress_continue_flag())
 			break;
 
-		t = time(NULL);
-		if (t == (time_t)-1) {
+#if defined(__linux__)
+		t1 = time(NULL);
+		if (t1 == (time_t)-1) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+#endif
 		/*
 		 *  Exercise time calls with a pointer to time_t
 		 *  variable and check equality with returned value
@@ -546,13 +548,14 @@ static int stress_get(stress_args_t *args)
 		 *  Exercise the time system call using the syscall()
 		 *  function to increase kernel test coverage
 		 */
-		t = shim_time(NULL);
-		if ((t == (time_t)-1) && (errno != ENOSYS))
+#if defined(__linux__)
+		t1 = shim_time(NULL);
+		if ((t1 == (time_t)-1) && (errno != ENOSYS))
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-
+#endif
 		t1 = shim_time(&t2);
-		if ((t == (time_t)-1) && (errno != ENOSYS)) {
+		if ((t1 == (time_t)-1) && (errno != ENOSYS)) {
 			if (shim_memcmp(&t1, &t2, sizeof(t1))) {
 				pr_fail("%s: time failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
