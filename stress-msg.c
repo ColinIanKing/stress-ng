@@ -280,11 +280,7 @@ static int OPTIMIZE3 stress_msg_receiver(
 				(void)msgrcv(-1, &msg, msg_bytes, mtype, 0);
 
 				/* Exercise invalid msgrcv message size */
-				(void)msgrcv(msgq_id, &msg, (size_t)-1, mtype, 0);
 				(void)msgrcv(msgq_id, &msg, 0, mtype, 0);
-
-				/* Exercise invalid msgrcv message flag */
-				(void)msgrcv(msgq_id, &msg, msg_bytes, mtype, ~0);
 			}
 
 redo:
@@ -320,6 +316,7 @@ redo:
 						" but received 0x%" PRIx32 " instead (data length %zd)\n",
 						 args->name, i, msg.u.value, msgsz);
 					rc = EXIT_FAILURE;
+					break;
 				}
 			}
 		}
