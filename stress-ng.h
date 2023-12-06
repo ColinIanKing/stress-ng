@@ -26,6 +26,8 @@
 #define _GNU_SOURCE
 #endif
 
+#define _FILE_OFFSET_BITS 	(64)
+
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif
@@ -73,10 +75,6 @@
     !defined(HAVE_COMPILER_TCC) &&	\
     !defined(_FORTIFY_SOURCE)
 #define _FORTIFY_SOURCE 	(2)
-#endif
-
-#if !defined(_FILE_OFFSET_BITS)
-#define _FILE_OFFSET_BITS 	(64)
 #endif
 
 /* Some Solaris tool chains only define __sun */
