@@ -2161,7 +2161,7 @@ time_t shim_time(time_t *tloc)
     defined(__linux__)
 	return (time_t)syscall(__NR_time, tloc);
 #elif defined(HAVE_TIME)
-	return time(tlock);
+	return time(tloc);
 #else
 	return (time_t)shim_enosys(0, tloc);
 #endif
