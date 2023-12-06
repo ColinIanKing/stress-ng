@@ -567,14 +567,16 @@ static int stress_get(stress_args_t *args)
 		 *  The following gettimeofday calls probably use the VDSO
 		 *  on Linux
 		 */
+#if defined(__linux__)
 		ret = gettimeofday(&tv, NULL);
 		if (ret < 0) {
-			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+#endif
 		ret = gettimeofday(&tv, &tz);
 		if (ret < 0) {
-			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 #if 0
@@ -585,7 +587,7 @@ static int stress_get(stress_args_t *args)
 		 */
 		ret = gettimeofday(NULL, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
-			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 #endif
@@ -597,17 +599,17 @@ static int stress_get(stress_args_t *args)
 		 */
 		ret = shim_gettimeofday(&tv, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
-			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 		ret = shim_gettimeofday(&tv, &tz);
 		if ((ret < 0) && (errno != ENOSYS)) {
-			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 		ret = shim_gettimeofday(NULL, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
-			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 
