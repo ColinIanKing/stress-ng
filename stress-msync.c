@@ -107,7 +107,7 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
  */
 static int stress_msync(stress_args_t *args)
 {
-	uint8_t *buf = NULL;
+	NOCLOBBER uint8_t *buf = NULL;
 	uint8_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
