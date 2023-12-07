@@ -58,9 +58,9 @@ static inline void OPTIMIZE3 * lfind_nonlibc(
 	int (*compare)(const void *p1, const void *p2))
 {
 	register size_t i = 0;
-	register const void *found = base;
+	register const char *found = base;
 
-	while ((i < *nmemb) && ((*compare)(key, found) != 0)) {
+	while ((i < *nmemb) && ((*compare)(key, (const void *)found) != 0)) {
 		i++;
 		found += size;
 	}
@@ -77,7 +77,7 @@ static void * OPTIMIZE3 lsearch_nonlibc(
 	register void *result = lfind_nonlibc(key, base, nmemb, size, compare);
 
 	if (!result) {
-		result = shim_memcpy(base + ((*nmemb) * size), key, size);
+		result = shim_memcpy((char *)base + ((*nmemb) * size), key, size);
 		++(*nmemb);
 	}
 	return result;
