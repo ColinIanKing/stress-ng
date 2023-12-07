@@ -71,7 +71,7 @@ static void OPTIMIZE3 * bsearch_nonlibc(
 
 	while (LIKELY(lower < upper)) {
 		register size_t index = (lower + upper) >> 1;
-		register const void *ptr = base + (index * size);
+		register const void *ptr = (const char *)base + (index * size);
 		register int cmp = compare(key, ptr);
 
 		if (cmp < 0) {
