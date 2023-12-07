@@ -1,3 +1,258 @@
+stress-ng (0.17.02-1) unstable; urgency=medium
+
+  [Sascha Hauer]
+  * stress-physpage: explicitly use 64bit type for physical addresses
+  * stress-ng.h: define _FILE_OFFSET_BITS before including features.h
+
+  [Rulin Huang]
+  * Reduce the file operations if the unused pid can be found within
+    several tries
+
+  [Colin Ian King]
+  * stress-bigheap: ensure value in *uintptr is initialized
+  * stress-workload: clean up some clang-scan-build warnings
+  * stress-workload: remove redundant assignments to variable t
+  * stress-workload: remove redundant initialization of t_begin
+  * stress-sigpipe: add wrapper to pipe_child to clear up tcc warning
+  * stress-reboot: add wrapper to reboot_clone_func to clear up tcc
+    warning
+  * stress-vma: remove volatile cast, it is unnecessary
+  * stress-lsearch: add casts to const char * to avoid void * arithmetic
+  * stress-bsearch: cast base to const char * to avoid void * arithmetic
+  * core-time: return -1 if time not available via
+    stress_time_now_timespec
+  * stress-msync: make pointer buf unclobberable
+  * stress-msg: remove another invalid msgrcv calls that work for
+    OpenBSD systems
+  * stress-msg: remove invalid msgrcv calls that work for *BSD systems
+  * core-shim: Fix non-PURE shim_enosys function
+  * core-resources: include core-pthread.h for pthread types
+  * stress-get: don't call gettimeofday with NULL values
+  * core-shim/stress-get: use gettimeofday() for non-linux shim_time calls
+  * core-shim: fix typo: tlock -> tloc
+  * core-shim/stress-get: use time() for non-linux shim_time calls
+  * stress-get: fix error messages, replace gettimeval with gettimeofday
+  * stress-get: only exercise time(NULL) on Linux
+  * core-helper: move ret inside #ifdef block
+  * README.md: Update contributor list
+  * stress-*: clean up a handful of spelling mistakes
+  * stress-stream: unmap in correct idx order
+  * README.md: add another link to a research paper
+  * stress-prctl: munmap page_anon on error return path
+  * stress-seal: unmap buf on error return paths
+  * stress-cyclic: unmap latencies mappings on error return
+  * stress-zero: unmap read/write buffers on error return paths
+  * stress-stream: simplify error unmapping return paths
+  * stress-rawdev: fix memory leak on mmap'd buffer on error return path
+  * stress-fail: use fail error exit path for non-implemented /dev/full
+  * stress-sockmany: fix memory leak on signal handler error return path
+  * stress-signest: fix memory leak on signal handler error return path
+  * stress-sock: fix memory leak on fork failure error return path
+  * stress-sigpipe: fix memory leak on signal handler error return path
+  * stress-stackmmap: make stack_sig non-clobberable
+  * stress-sigbus: make ptr non-clobberable
+  * core-helper: add stress_mmap_populate to mmap with MAP_POPULATE
+  * stress-qsort: add missing tab
+  * stress-bseach: add -O3 for nonlibc bsearch function
+  * stress-waitcpu: add some more nops
+  * stress-vm: remove volaile where it's not required, add memory barrier
+  * stress-vm: speed up prime-gray-0 and prime-gray-1 by reducing total
+    memory read/writes
+  * stress-vm: speed up prime-0 and prime-1 by reducing total memory
+    read/writes
+  * stress-vma: provide different handlers for SIGBUS and SIGSEGV
+  * stress-vma: optimize matrics, add cacheline pad and remove volatile
+  * stress-vdso: add dummy function call to emulate minimal vdso function
+  * stress-udp: don't memset the send buffer on each send
+  * stress-trig: replace iterations with macro STRESS_TRIG_LOOPS
+  * stress-trig: unroll loops, speed up by ~4.2%
+  * stress-memthrash: only report lack of NUMA support with instance 0
+  * stress-schedmix: reduce compute overhead on prime number CPU load
+  * stress-stack: unroll loop in stress_stack_alloc
+  * stress-sockpair: optimize buffer setting and checking
+  * stress-sockdiag: move bogo-op count to outside parser loop
+  * stress-skiplist: use 8 bits for skip_list_random_level generation
+  * stress-skiplist: optimize ln2 operation using clzl
+  * stress-sigxfs: optimize counter increment, remove branch
+  * stress-sigxfsz: don't make async_sigs volatile
+  * core-helper: only declare array buf when it is required
+  * core-helper: voidify function argument dumpable
+  * core-helper: only declare array buf when it is required
+  * core-shim: move include <sys/uio.h> to core-shim.h
+  * stress-gpu: move declarations for gpu_freq_sum and gpu_freq_count
+  * core-numa: add stress_numa_nodes helper for non-linux builds
+  * stress-stream: don't print numa nodes related info for non-linux
+    systems
+  * core-shim: add missing include of sys/uio.h required for struct iovec
+  * stress-mmapfixed: fix array overflow, iterate over only the array
+    elements
+  * stress-gpu: ensure usec computations are using uint64_t type
+  * stress-hsearch: voidify return from stress_get_setting
+  * core-helper: use STRESS_MAXIMUM on maximum pid
+  * stress-vma: add in extra protection flags and mmap flags for more
+    stress
+  * stress-vma: add PROT_NONE back
+  * stress-vma: ensure page is always mappable
+  * stress-ng: move ci counter struct into args and args into stat struct
+  * stress-signal: don't use volatile for in-signal handler counter
+    increment
+  * stress-ring-pipe: replace % operator with compare and set
+  * stress-resched: remove need to check for non-mapped yields array
+  * README.md: add more research paper links
+  * stress-remap: unroll a handful of loops
+  * stress-regs: reference registers rather than v variable
+  * stress-readahead: unroll some loops
+  * stress-randlist: add prefetch to next pointer in list scanning
+  * core-mwc: use clz for shift maximization for 8 and 16 bit mwci
+    functions
+  * core-sort: optimize of powers of 2 size for
+    stress_sort_data_int32_shuffle
+  * stress-gpu: only report GPU frequency if > 0.0 MHz
+  * core-time: optimize get_time_now()
+  * stress-procfs: use MAP_POPULATE on mmap to reduce read-fault hit
+  * stress-procfs: perform less timeout checks on 1 byte reads and
+    optimize timeout paths
+  * stress-poll: switch order of read return checks
+  * stress-opcode: inline and unroll loop in stress_opcode_random
+  * stress-null: scale down mmaps to 1 once every 500 iterations
+  * stress-nice: add ( ) to clarify precedence
+  * stress-syncload: add yield delay for ppc
+  * core-builtin.h: Add llabs builtin shim wrapper
+  * core-ops: add in missing OPT_hsearch_method
+  * stress-nanosleep: ensure no overflow occurs on 32 bit systems
+  * stress-hsearch: add hsearch method for libc and non-libc versions
+  * stress-mmaphuge: simplyfy the set and check memory exercising
+  * stress-mmapfixed: make vec array uint32 to speed up mincore checking
+  * stress-mmapfixed: move memset in stress_mmapfixed_is_mapped_slow
+  * core-helper: add missing space between ) and {
+  * core-helper: stress_process_dumpable: use stress_system_write
+    to write data
+  * core-helper: stress_get_memlimits: use stress_system_read to read data
+  * stress-lsearch: use lfind_nonlibc in lsearch_nonlibc
+  * stress-lsearch: add lsearch method for libc and non-libc versions
+  * stress-bsearch: add --bsearch-method short help
+  * stress-lockofd: remove yield point, it's not helping that much
+  * stress-lockf: remove yield point, it's not helping that much
+  * stress-locka: remove yield point, it's not helping that much
+  * Makefile.config: echo the number of configurations in config.h
+  * stress-jpeg: compute gradient image using float instead of double
+  * stress-io-uring: add UNLIKELY hint on error return check
+  * stress-iomix: stress-_iomix_rd_wr_mmap: just read 1 byte from page
+  * core-mwc: move stress_rndstr from core-helper to core-mwc
+  * stress-icache: add missing space before + operator
+  * stress-hdd: optimize hdd_fill_buf
+  * core-mwc: move stress_rndbuf from core-helper to core-mwc
+  * stress-gpu: add GPU frequency metrics based on 10 samples per second
+  * stress-ng: emit plural of instance if instances > 1
+  * core-config-check: replace "will" with "may"
+  * stress-getrandom: reduce overhead of gettimeofday calls
+  * stress-full: fix and optimize stress_data_is_not_zero
+  * core-mwc: optimize modulo mwc32 and mwc64 functions
+  * stress-fifo: add poll replacement to select, disable it for now
+  * stress-far-branch: inline the branch shuffling, reduce iterations
+    from 5 to 1
+  * stress-epoll: don't fill send buffer on each send
+  * core-time: make function stress_timeval_to_double PURE
+  * core-helper: add PURE annotation to two more helper functions
+  * core-helper: optimize stress_rndstr
+  * stress-clock: move memsets outside of loops for minor performance
+    improvement
+  * stress-bsearch: allocate bsearch array using mmap
+  * stress-ng: fix short help for change-cpu, fix missing -
+  * stress-bsearch: add bsearch method for libc and non-libc versions
+  * stress-qsort: add in missing qsort-method short help
+  * stress-ng: don't timeout until all stressors are spawned
+  * core-helper: fix low memory swap check
+  * stress-sigxfsz: remove unused include files
+  * stress-sigxcpu: Add new SIGXCPU stressor
+  * stress-sig*: add new class "signal", add signal stressors to this
+    class
+  * stress-cpu-online: write the string length rather than buffer size
+  * core-helper: make inline helper function stress_chr_munge PURE
+  * stress-pthread: constify variable trun
+  * stress-pthread: use same racy pid for tgid rather than fetching one
+    3 times
+  * README.md: Update contributors name list
+  * stress-sigxfsz: Add new SIGXFSZ stressor
+  * README.md: add some more kernel issues found with stress-ng
+  * core-cpuidle: report C states with commas between each state
+  * stress-sysbadaddr: add missing #include <termios.h>
+  * Add in some missing <sched.h> includes
+  * fix up build errors from unchecked in changes
+  * stress-ng.h: move #include <sched.h> to sources that require it
+  * stress-af-alg: add in missing #include <sys/socket.h>
+  * README.md: add another citation link
+  * stress-ng.h: move #include <pthread.h> to core-pthread.h
+  * stress-ng.h: move #include <termios.h> to sources that require it
+  * stress-ng.h: move #include <pwd.h> to sources that require it
+  * stress-ng.h: remove #include <getopt.h>
+  * stress-ng.h: move #include <sys/socket.h> to sources that require it
+  * core-helper: move MEM_CACHE_SIZE from stress-ng.h to core-helper.c
+  * stress-stream: decouple the default guess cache size from
+    MEM_CACHE_SIZE
+  * core-attribute: add extra checks for attribute noinline
+  * core-attribute: add extra checks for attribute always_inline
+  * core-attribute: add extra checks for attribute weak
+  * core-attribute: add extra checks for attribute noreturn
+  * core-attribute: add extra checks for attribute warn_unused_result
+  * core-attribute: add extra build checks for hot attribute
+  * core-attribute: add PURE macro for gcc pure attribute
+  * stress-crypt: use the correct size to strlcpy to
+  * stress-cpu-online: report the sysfs file when writes fail
+  * core-helper: take into consideration NUMA nodes for full cache size
+  * stress-msync: mark fd as NOCLOBBER, clean up gcc 13.2.1 warning
+  * Makefile: remove gcc optimization flags
+  * Makefile: fix gcc detection for extra gcc optimization flags
+  * stress-memthrash: add a buffer 8 bit reverse method
+  * stress-malloc: use valloc in non-thread scenarios
+  * stress-malloc: add valloc (or valloc emulation) for more calls to
+    exercise
+  * stress-hsearch: add -O3 optimization
+  * stress-hsearch: move repeated verify flag check to a const bool
+  * stress-fma: improve fma buffer copying
+  * core-sort: minor re-ordering of load/stores and compute for minor
+    speed improvement
+  * core-sort: minor optimization in stress_sort_data_int32_init
+  * stress-zlib: improve rarely0 and rarely1 performance
+  * stress-ng: clean up some more whitespace / tab issues
+  * stress-ng: replace spaces with tab
+  * stress-zlib: implement rdrand filler for non-x86 systems
+  * stress-zlib: improve performance of rdrand filling of buffer
+  * stress-tree: remove the UNLIKELY hint in avl_find
+  * stress-tree: remove the UNLIKELY hint in binary_find
+  * stress-tree: remove TARGET_CLONES from binary tree find/insert
+  * stress-stream: add TARGET_CLONES for index0 level streaming
+  * core-nt-store.h: use a union cast for stress_nt_store_double store
+  * stress-prefetch: clean up some source white space/tabs
+  * stress-io-uring: tweak number of io-uring entries depending on CPU
+    count
+  * stress-io-uring: add --io-uring-entries N option to specify ring size
+  * Revert "stress-context: avoid using alternative stacks in a
+    swapcontext"
+  * stress-fork: replace slow mwc8 with fair round-robin switch
+    selection index
+  * stress-hash: don't call expensive mwc reseed for non-verify mode
+  * stress-branch: load next goto address in previous loop
+  * stress-branch: re-order branching code to compute idx before jmp
+  * test/test-crypt-r: check for support of GNU libcrypt data fields
+  * stress-ng: Fix stupid extraneous {
+  * Makefile.config: remove some trailing spaces
+  * stress-*: improve rate metrics by using harmonic mean
+  * kernel-coverage: remove scheduler names
+  * stress-cpu: replace 64 bit mwc and 7 shifts with 2 x 32 bit mwc and
+    6 shifts
+  * stress-crypt: remove redundant prefix initialization
+  * stress-crypt: remove a few more args from stress_crypt_id call
+  * stress-crypt: optimize crypt_r usage with less memory buffer copying
+  * stress-memfd: store and read data in cacheline strides
+  * kernel-coverage: add bcachefs
+  * stress-metamix: remove empty line
+  * stress-metamix: handle EINTR for fdatasync and fsync
+  * stress-iomix: break out of stressor loops on EINTR for read or writes
+  * core-helper: add bcachefs magic
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 7 Dec 2023 11:24:11 +0000
+
 stress-ng (0.17.01-1) unstable; urgency=medium
 
   [Andrey Gelman]
