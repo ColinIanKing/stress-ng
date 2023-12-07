@@ -287,6 +287,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 			} else {
 				phase = STRESS_BIGHEAP_WRITE_HEAP_FULL;
 				uintptr = (uintptr_t *)ptr;
+				*uintptr = (uintptr_t)uintptr;
 			}
 			while (uintptr < uintptr_end) {
 				if (!stress_continue(args))
