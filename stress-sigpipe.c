@@ -41,13 +41,19 @@ static void stress_sigpipe_handler(int signum)
 }
 
 #if defined(HAVE_CLONE)
-static int NORETURN pipe_child(void *ptr)
+static inline void NORETURN no_return_pipe_child(void *ptr)
 {
 	int *pipefds = (int *)ptr;
 
 	(void)close(pipefds[0]);	/* causes SIGPIPE */
 	(void)close(pipefds[1]);
 	_exit(EXIT_SUCCESS);
+}
+
+static int pipe_child(void *ptr)
+{
+	no_return_pipe_child(ptr);
+	return -1;
 }
 #endif
 
