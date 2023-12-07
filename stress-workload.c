@@ -615,7 +615,7 @@ static inline void stress_workload_waste_time(
 		break;
 	case STRESS_WORKLOAD_METHOD_RANDOM:
 	default:
-		while (stress_time_now() < t_end) {
+		while ((t = stress_time_now()) < t_end) {
 			switch (stress_mwc8modn(STRESS_WORKLOAD_METHOD_MAX - 1) + 1) {
 			case STRESS_WORKLOAD_METHOD_TIME:
 				(void)time(NULL);
@@ -985,7 +985,7 @@ static int stress_workload(stress_args_t *args)
 			pr_inf_skip("%s: no threads started, skipping stressor\n",
 				args->name);
 			rc = EXIT_NO_RESOURCE;
-			goto exit_close_mq;
+			goto exit_free_threads;
 		}
 #else
 		pr_inf("%s: %" PRIu32 " workload threads were requested but "
@@ -1005,7 +1005,7 @@ static int stress_workload(stress_args_t *args)
 			args->name, workload_quanta_us, workload_slice_us);
 		rc =  EXIT_FAILURE;
 #if defined(WORKLOAD_THREADED)
-		goto exit_close_mq;
+		goto exit_free_threads;
 #else
 		goto exit_free_buffer;
 #endif
@@ -1024,7 +1024,7 @@ static int stress_workload(stress_args_t *args)
 			"skipping stressor\n", args->name, max_quanta);
 		rc = EXIT_NO_RESOURCE;
 #if defined(WORKLOAD_THREADED)
-		goto exit_close_mq;
+		goto exit_free_threads;
 #else
 		goto exit_free_buffer;
 #endif
@@ -1060,17 +1060,20 @@ static int stress_workload(stress_args_t *args)
 	free(workload);
 
 #if defined(WORKLOAD_THREADED)
-exit_close_mq:
-	if (mq != (mqd_t)-1) {
-		(void)mq_close(mq);
-		(void)mq_unlink(mq_name);
-	}
+exit_free_threads:
 	for (i = 0; i < workload_threads; i++) {
 		if (threads[i].ret == 0) {
 			VOID_RET(int, pthread_cancel(threads[i].pthread));
 			VOID_RET(int, pthread_join(threads[i].pthread, NULL));
 		}
 	}
+
+exit_close_mq:
+	if (mq != (mqd_t)-1) {
+		(void)mq_close(mq);
+		(void)mq_unlink(mq_name);
+	}
+
 	free(threads);
 #endif
 exit_free_buffer:
