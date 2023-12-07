@@ -757,8 +757,7 @@ static int stress_workload_exercise(
 {
 	size_t i;
 	const double scale_us_to_sec = 1.0 / STRESS_DBL_MICROSECOND;
-	double t_begin = stress_time_now(), t_end;
-	double sleep_duration_ns, run_duration_sec;
+	double t_begin, t_end, sleep_duration_ns, run_duration_sec;
 	double scale32bit = 1.0 / (double)4294967296.0;
 	double sum, scale;
 	uint32_t offset;
