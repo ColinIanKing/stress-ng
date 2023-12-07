@@ -57,7 +57,7 @@ static const uint32_t boot_magic[] = {
  *  reboot_func()
  *	reboot a process in a PID namespace
  */
-static int NORETURN reboot_clone_func(void *arg)
+static inline void NORETURN no_return_reboot_clone_func(void *arg)
 {
 	size_t i, j = stress_mwc8modn(SIZEOF_ARRAY(boot_magic));
 
@@ -74,8 +74,15 @@ static int NORETURN reboot_clone_func(void *arg)
 			j = 0;
 	}
 
+	_exit(errno);
+}
+
+static int reboot_clone_func(void *arg)
+{
+	no_return_reboot_clone_func(arg);
+
 	/* Should never get here */
-	exit(errno);
+	return -1;
 }
 #endif
 
