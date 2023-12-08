@@ -429,6 +429,7 @@ const struct option stress_long_options[] = {
 	{ "malloc-pthreads",	1,	0,	OPT_malloc_pthreads },
 	{ "malloc-thresh",	1,	0,	OPT_malloc_threshold },
 	{ "malloc-touch",	0,	0,	OPT_malloc_touch },
+	{ "malloc-trim",	0,	0,	OPT_malloc_trim },
 	{ "malloc-zerofree",	0,	0,	OPT_malloc_zerofree },
 	{ "matrix",		1,	0,	OPT_matrix },
 	{ "matrix-method",	1,	0,	OPT_matrix_method },

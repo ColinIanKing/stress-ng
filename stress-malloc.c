@@ -49,7 +49,8 @@ typedef struct {
 } stress_malloc_info_t;
 
 static bool malloc_mlock;		/* True = mlock all future allocs */
-static bool malloc_touch;		/* True will touch allocate pages */
+static bool malloc_touch;		/* True = will touch allocate pages */
+static bool malloc_trim_opt;		/* True = periodically trim malloc arena */
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */
 static void *counter_lock;		/* Counter lock */
@@ -84,6 +85,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL, "malloc-touch",		"touch pages force pages to be populated" },
 	{ NULL,	"malloc-zerofree",	"zero free'd memory" },
+	{ NULL, "malloc-trim",		"enable malloc trimming" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -135,6 +137,11 @@ static int stress_set_malloc_pthreads(const char *opt)
 static int stress_set_malloc_touch(const char *opt)
 {
 	return stress_set_setting_true("malloc-touch", opt);
+}
+
+static int stress_set_malloc_trim(const char *opt)
+{
+	return stress_set_setting_true("malloc-trim", opt);
 }
 
 static int stress_set_malloc_zerofree(const char *opt)
@@ -202,6 +209,7 @@ static void *stress_malloc_loop(void *ptr)
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	stress_malloc_info_t *info;
+	register uint16_t trim_counter = 0;
 
 #if defined(MCL_FUTURE)
 	if (malloc_mlock)
@@ -218,9 +226,6 @@ static void *stress_malloc_loop(void *ptr)
 		const unsigned int i = rnd % malloc_max;
 		const unsigned int action = (rnd >> 12);
 		const unsigned int do_calloc = (rnd >> 14) & 0x1f;
-#if defined(HAVE_MALLOC_TRIM)
-		const unsigned int do_trim = (rnd & 0x7);
-#endif
 		const bool low_mem = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(malloc_bytes / 2));
 
 		/*
@@ -329,7 +334,7 @@ static void *stress_malloc_loop(void *ptr)
 			}
 		}
 #if defined(HAVE_MALLOC_TRIM)
-		if (do_trim == 0)
+		if (malloc_trim_opt && (++trim_counter == 0))
 			(void)malloc_trim(0);
 #endif
 	}
@@ -477,6 +482,8 @@ static int stress_malloc(stress_args_t *args)
 
 	malloc_touch = false;
 	(void)stress_get_setting("malloc-touch", &malloc_touch);
+	malloc_trim_opt = false;
+	(void)stress_get_setting("malloc-trim", &malloc_trim_opt);
 	malloc_mlock = false;
 	(void)stress_get_setting("malloc-mlock", &malloc_mlock);
 	(void)stress_get_setting("malloc-zerofree", &malloc_zerofree);
@@ -496,6 +503,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_malloc_pthreads,	stress_set_malloc_pthreads },
 	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
 	{ OPT_malloc_touch,	stress_set_malloc_touch },
+	{ OPT_malloc_trim,	stress_set_malloc_trim },
 	{ OPT_malloc_zerofree,	stress_set_malloc_zerofree },
 	{ 0,			NULL }
 };

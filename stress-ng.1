@@ -3580,6 +3580,12 @@ the malloc stressor will madvise pages into memory or use mincore to check for
 non-resident memory pages and try to force them into memory; this option
 aggressively forces pages to be memory resident.
 .TP
+.B \-\-malloc\-trim
+periodically trim memory allocation by attempting to release free memory from
+the heap every 65536 allocation iterations. This can be a time consuming
+operation. It is only available with libc malloc implementations that
+support malloc_trim(3).
+.TP
 .B \-\-malloc\-zerofree
 zero allocated memory before free'ing. This can be useful in touching broken
 allocations and triggering failures. Also useful for forcing extra
