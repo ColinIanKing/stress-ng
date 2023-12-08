@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
@@ -203,30 +204,36 @@ static void stress_malloc_page_touch(
 static void *stress_malloc_loop(void *ptr)
 {
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
+	register stress_malloc_info_t *info;
 	stress_args_t *args = malloc_args->args;
 	const size_t page_size = args->page_size;
+	const size_t info_size = malloc_max * sizeof(*info);
 	static void *nowt = NULL;
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	stress_malloc_info_t *info;
 	register uint16_t trim_counter = 0;
 
 #if defined(MCL_FUTURE)
 	if (malloc_mlock)
 		(void)shim_mlockall(MCL_FUTURE);
 #endif
-	info = (stress_malloc_info_t *)calloc(malloc_max, sizeof(*info));
-	if (!info) {
-		pr_dbg("%s: cannot allocate address buffer: %d (%s)\n",
-			args->name, errno, strerror(errno));
+	info = (stress_malloc_info_t *)stress_mmap_populate(NULL, info_size,
+			PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS,
+			-1, 0);
+	if (info == MAP_FAILED) {
+		pr_inf("%s: cannot mmap address buffer of size %zd bytes: %d (%s)\n",
+			args->name, info_size, errno, strerror(errno));
 		return &nowt;
 	}
 	for (;;) {
 		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
-		const unsigned int action = (rnd >> 12);
+		const bool action = (rnd >> 12) & 1;
 		const unsigned int do_calloc = (rnd >> 14) & 0x1f;
 		const bool low_mem = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(malloc_bytes / 2));
+
+		shim_builtin_prefetch(&info[i]);
 
 		/*
 		 * With many instances running it is wise to
@@ -245,7 +252,7 @@ static void *stress_malloc_loop(void *ptr)
 		if (info[i].addr) {
 			/* 50% free, 50% realloc */
 			if (action || low_mem) {
-				if (verify && (uintptr_t)info[i].addr != *info[i].addr) {
+				if (UNLIKELY(verify && (uintptr_t)info[i].addr != *info[i].addr)) {
 					pr_fail("%s: allocation at %p does not contain correct value\n",
 						args->name, (void *)info[i].addr);
 				}
@@ -266,11 +273,11 @@ static void *stress_malloc_loop(void *ptr)
 
 					stress_malloc_page_touch((void *)info[i].addr, info[i].len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
-					if (verify && (uintptr_t)info[i].addr != *info[i].addr) {
+					if (UNLIKELY(verify && (uintptr_t)info[i].addr != *info[i].addr)) {
 						pr_fail("%s: allocation at %p does not contain correct value\n",
 							args->name, (void *)info[i].addr);
 					}
-					if (!stress_bogo_inc_lock(args, counter_lock, true))
+					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 						break;
 				}
 			}
@@ -326,7 +333,7 @@ static void *stress_malloc_loop(void *ptr)
 					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					info[i].len = len;
-					if (!stress_bogo_inc_lock(args, counter_lock, true))
+					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 						break;
 				} else {
 					info[i].len = 0;
@@ -346,7 +353,7 @@ static void *stress_malloc_loop(void *ptr)
 		}
 		free_func(info[j].addr, info[j].len);
 	}
-	free(info);
+	(void)munmap((void *)info, info_size);
 
 	return &nowt;
 }
