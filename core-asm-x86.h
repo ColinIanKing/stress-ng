@@ -74,12 +74,14 @@ static inline void stress_asm_x86_serialize(void)
  */
 static inline uint64_t stress_asm_x86_rdtsc(void)
 {
-#if defined(STRESS_ARCH_X86_64)
+#if defined(STRESS_ARCH_X86_64) &&	\
+    defined(HAVE_ASM_X86_RDTSC)
 	uint32_t lo, hi;
 
 	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
 	return ((uint64_t)hi << 32) | lo;
-#elif defined(STRESS_ARCH_X86_32)
+#elif defined(STRESS_ARCH_X86_32) &&	\
+      defined(HAVE_ASM_X86_RDTSC)
 	uint64_t tsc;
 
 	__asm__ __volatile__("rdtsc" : "=A" (tsc));
