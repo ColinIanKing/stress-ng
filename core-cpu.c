@@ -210,6 +210,7 @@
 #define CPUID_mcdt_no_EDX	(1U << 5)	/* EAX=0x7, ECX=0x2, -> EDX */
 
 #define CPUID_syscall_EDX	(1U << 11)	/* EAX=0x80000001 -> EDX */
+#define CPUID_rdtscp		(1U << 27)	/* EAX=0x80000001 -> EDX */
 
 /*
  *  stress_cpu_is_x86()
@@ -443,6 +444,27 @@ bool stress_cpu_x86_has_tsc(void)
 	return false;
 #endif
 }
+
+/*
+ *  stress_cpu_x86_has_rdtscp()
+ *	does x86 cpu support rdtscp?
+ */
+bool stress_cpu_x86_has_rdtscp(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x80000001, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+
+	return !!(edx & CPUID_rdtscp);
+#else
+	return false;
+#endif
+}
+
 
 /*
  *  stress_cpu_x86_has_msr()

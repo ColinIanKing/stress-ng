@@ -6963,6 +6963,10 @@ add lfence after each tsc read to force serialization (x86 only).
 .TP
 .B \-\-tsc\-ops N
 stop the tsc workers after N bogo operations are completed.
+.TP
+.B \-\-tsc\-rdtscp
+use the rdtscp instruction instead of rdtsc (x86 only). This also disables
+the \-\-tsc\-lfence option.
 .RE
 .TP
 .B Binary tree stressor

@@ -949,6 +949,7 @@ const struct option stress_long_options[] = {
 	{ "tsc",		1,	0,	OPT_tsc },
 	{ "tsc-lfence",		0,	0,	OPT_tsc_lfence },
 	{ "tsc-ops",		1,	0,	OPT_tsc_ops },
+	{ "tsc-rdtscp",		0,	0,	OPT_tsc_rdtscp },
 	{ "tsearch",		1,	0,	OPT_tsearch },
 	{ "tsearch-ops",	1,	0,	OPT_tsearch_ops },
 	{ "tsearch-size",	1,	0,	OPT_tsearch_size },

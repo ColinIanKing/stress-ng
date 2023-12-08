@@ -91,6 +91,22 @@ static inline uint64_t stress_asm_x86_rdtsc(void)
 #endif
 }
 
+/*
+ *  x86 read TSCP
+ */
+static inline uint64_t stress_asm_x86_rdtscp(void)
+{
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_ASM_X86_RDTSCP)
+	uint32_t lo, hi, tsc_aux;
+
+	__asm__ __volatile__("rdtscp" : "=a" (lo), "=d" (hi), "=c" (tsc_aux));
+	return ((uint64_t)hi << 32) | lo;
+#else
+	return 0;
+#endif
+}
+
 #if defined(STRESS_ARCH_X86_64) &&	\
     defined(HAVE_ASM_X86_RDRAND)
 /*

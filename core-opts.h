@@ -1356,6 +1356,7 @@ typedef enum {
 	OPT_tsc,
 	OPT_tsc_ops,
 	OPT_tsc_lfence,
+	OPT_tsc_rdtscp,
 
 	OPT_tsearch,
 	OPT_tsearch_ops,
