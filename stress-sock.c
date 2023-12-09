@@ -1335,6 +1335,7 @@ again:
 			goto again;
 		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
+			(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 			goto finish;
 		}
 		pr_err("%s: fork failed, errno=%d (%s)\n",
