@@ -218,6 +218,7 @@ static inline uint64_t rdtsc(void)
 
 #endif
 
+#if defined(HAVE_STRESS_TSC_CAPABILITY)
 static void stress_tsc_check(
 	stress_args_t *args,
 	const uint64_t tsc,
@@ -236,6 +237,7 @@ static void stress_tsc_check(
 	*ret = EXIT_FAILURE;
 	return;
 }
+#endif
 
 #if defined(HAVE_STRESS_TSC_CAPABILITY)
 /*
