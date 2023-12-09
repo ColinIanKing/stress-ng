@@ -509,9 +509,9 @@ do {			\
 
 #endif
 
+#if defined(HAVE_STRESS_TSC_LFENCE)
 static int stress_tsc_lfence(stress_args_t *args, const bool verify, double *duration)
 {
-#if defined(HAVE_STRESS_TSC_LFENCE)
 	int ret = EXIT_SUCCESS;
 
 	if (verify) {
@@ -543,12 +543,8 @@ static int stress_tsc_lfence(stress_args_t *args, const bool verify, double *dur
 		} while (stress_continue(args));
 	}
 	return ret;
-#else
-	if (args->instance == 0)
-		pr_inf("%s: tsc-lfence enabled but cpu does not support it, skipping stressor\n", args->name);
-	return EXIT_NO_RESOURCE;
-#endif
 }
+#endif
 
 #if defined(HAVE_STRESS_TSC_CAPABILITY) &&	\
     defined(HAVE_ASM_X86_RDTSCP)
@@ -639,12 +635,17 @@ static int stress_tsc(stress_args_t *args)
 	(void)stress_get_setting("tsc-rdtscp", &tsc_rdtscp);
 
 	if (tsc_lfence) {
+#if defined(HAVE_STRESS_TSC_LFENCE)
 		if (!stress_cpu_is_x86()) {
 			pr_inf("%s: tsc-lfence is disabled, this is an x86 only option\n", args->name);
 			tsc_lfence = false;
 		} else {
 			tsc_func = stress_tsc_lfence;
 		}
+#else
+		pr_inf("%s: tsc-lfence is disabled, not supported by the compiler\n", args->name);
+		tsc_lfence = false;
+#endif
 	}
 	if (tsc_rdtscp) {
 #if defined(HAVE_STRESS_TSC_CAPABILITY) &&	\
