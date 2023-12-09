@@ -1728,6 +1728,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_arc_gettls)
 	__NR_arc_gettls,
 #endif
+#if defined(__NR_arch_prctl)
+	__NR_arch_prctl,
+#endif
 #if defined(__NR_arch_specific_syscall)
 	__NR_arch_specific_syscall,
 #endif
@@ -1739,6 +1742,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_arm_fadvise64_64)
 	__NR_arm_fadvise64_64,
+#endif
+#if defined(__NR_arm_sync_file_range)
+	__NR_arm_sync_file_range,
 #endif
 #if defined(__NR_atomic_barrier)
 	__NR_atomic_barrier,
@@ -1763,6 +1769,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_break)
 	__NR_break,
+#endif
+#if defined(__NR_breakpoint)
+	__NR_breakpoint,
 #endif
 #if defined(__NR_brk)
 	__NR_brk,
@@ -1817,6 +1826,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_clock_nanosleep)
 	__NR_clock_nanosleep,
+#endif
+#if defined(__NR_clock_nanosleep_time64)
+	__NR_clock_nanosleep_time64,
 #endif
 #if defined(__NR_clock_nanosleep64)
 	__NR_clock_nanosleep64,
@@ -1950,6 +1962,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_faccessat)
 	__NR_faccessat,
 #endif
+#if defined(__NR_faccessat2)
+	__NR_faccessat2,
+#endif
 #if defined(__NR_fadvise64)
 	__NR_fadvise64,
 #endif
@@ -2076,6 +2091,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_futex_time64)
 	__NR_futex_time64,
 #endif
+#if defined(__NR_futex_waitv)
+	__NR_futex_waitv,
+#endif
 #if defined(__NR_futimens)
 	__NR_futimens,
 #endif
@@ -2093,6 +2111,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_get_thread_area)
 	__NR_get_thread_area,
+#endif
+#if defined(__NR_get_tls)
+	__NR_get_tls,
 #endif
 #if defined(__NR_gettls)
 	__NR_gettls,
@@ -2625,12 +2646,341 @@ static const long skip_syscalls[] = {
 #if defined(__NR_openat)
 	__NR_openat,
 #endif
+#if defined(__NR_openat2)
+	__NR_openat2,
+#endif
 #if defined(__NR_or1k_atomic)
 	__NR_or1k_atomic,
 #endif
-/* TODO: all NR_osf calls */
 #if defined(__NR_osf_adjtime)
 	__NR_osf_adjtime,
+#endif
+#if defined(__NR_osf_afs_syscall)
+	__NR_osf_afs_syscall,
+#endif
+#if defined(__NR_osf_alt_plock)
+	__NR_osf_alt_plock,
+#endif
+#if defined(__NR_osf_alt_setsid)
+	__NR_osf_alt_setsid,
+#endif
+#if defined(__NR_osf_alt_sigpending)
+	__NR_osf_alt_sigpending,
+#endif
+#if defined(__NR_osf_asynch_daemon)
+	__NR_osf_asynch_daemon,
+#endif
+#if defined(__NR_osf_audcntl)
+	__NR_osf_audcntl,
+#endif
+#if defined(__NR_osf_audgen)
+	__NR_osf_audgen,
+#endif
+#if defined(__NR_osf_chflags)
+	__NR_osf_chflags,
+#endif
+#if defined(__NR_osf_execve)
+	__NR_osf_execve,
+#endif
+#if defined(__NR_osf_exportfs)
+	__NR_osf_exportfs,
+#endif
+#if defined(__NR_osf_fchflags)
+	__NR_osf_fchflags,
+#endif
+#if defined(__NR_osf_fdatasync)
+	__NR_osf_fdatasync,
+#endif
+#if defined(__NR_osf_fpathconf)
+	__NR_osf_fpathconf,
+#endif
+#if defined(__NR_osf_fstat)
+	__NR_osf_fstat,
+#endif
+#if defined(__NR_osf_fstatfs64)
+	__NR_osf_fstatfs64,
+#endif
+#if defined(__NR_osf_fstatfs)
+	__NR_osf_fstatfs,
+#endif
+#if defined(__NR_osf_fuser)
+	__NR_osf_fuser,
+#endif
+#if defined(__NR_osf_getaddressconf)
+	__NR_osf_getaddressconf,
+#endif
+#if defined(__NR_osf_getdirentries)
+	__NR_osf_getdirentries,
+#endif
+#if defined(__NR_osf_getdomainname)
+	__NR_osf_getdomainname,
+#endif
+#if defined(__NR_osf_getfh)
+	__NR_osf_getfh,
+#endif
+#if defined(__NR_osf_getfsstat)
+	__NR_osf_getfsstat,
+#endif
+#if defined(__NR_osf_gethostid)
+	__NR_osf_gethostid,
+#endif
+#if defined(__NR_osf_getitimer)
+	__NR_osf_getitimer,
+#endif
+#if defined(__NR_osf_getlogin)
+	__NR_osf_getlogin,
+#endif
+#if defined(__NR_osf_getmnt)
+	__NR_osf_getmnt,
+#endif
+#if defined(__NR_osf_getrusage)
+	__NR_osf_getrusage,
+#endif
+#if defined(__NR_osf_getsysinfo)
+	__NR_osf_getsysinfo,
+#endif
+#if defined(__NR_osf_gettimeofday)
+	__NR_osf_gettimeofday,
+#endif
+#if defined(__NR_osf_kloadcall)
+	__NR_osf_kloadcall,
+#endif
+#if defined(__NR_osf_kmodcall)
+	__NR_osf_kmodcall,
+#endif
+#if defined(__NR_osf_lstat)
+	__NR_osf_lstat,
+#endif
+#if defined(__NR_osf_memcntl)
+	__NR_osf_memcntl,
+#endif
+#if defined(__NR_osf_mincore)
+	__NR_osf_mincore,
+#endif
+#if defined(__NR_osf_mount)
+	__NR_osf_mount,
+#endif
+#if defined(__NR_osf_mremap)
+	__NR_osf_mremap,
+#endif
+#if defined(__NR_osf_msfs_syscall)
+	__NR_osf_msfs_syscall,
+#endif
+#if defined(__NR_osf_msleep)
+	__NR_osf_msleep,
+#endif
+#if defined(__NR_osf_mvalid)
+	__NR_osf_mvalid,
+#endif
+#if defined(__NR_osf_mwakeup)
+	__NR_osf_mwakeup,
+#endif
+#if defined(__NR_osf_naccept)
+	__NR_osf_naccept,
+#endif
+#if defined(__NR_osf_nfssvc)
+	__NR_osf_nfssvc,
+#endif
+#if defined(__NR_osf_ngetpeername)
+	__NR_osf_ngetpeername,
+#endif
+#if defined(__NR_osf_ngetsockname)
+	__NR_osf_ngetsockname,
+#endif
+#if defined(__NR_osf_nrecvfrom)
+	__NR_osf_nrecvfrom,
+#endif
+#if defined(__NR_osf_nrecvmsg)
+	__NR_osf_nrecvmsg,
+#endif
+#if defined(__NR_osf_nsendmsg)
+	__NR_osf_nsendmsg,
+#endif
+#if defined(__NR_osf_ntp_adjtime)
+	__NR_osf_ntp_adjtime,
+#endif
+#if defined(__NR_osf_ntp_gettime)
+	__NR_osf_ntp_gettime,
+#endif
+#if defined(__NR_osf_old_creat)
+	__NR_osf_old_creat,
+#endif
+#if defined(__NR_osf_old_fstat)
+	__NR_osf_old_fstat,
+#endif
+#if defined(__NR_osf_old_getpgrp)
+	__NR_osf_old_getpgrp,
+#endif
+#if defined(__NR_osf_old_killpg)
+	__NR_osf_old_killpg,
+#endif
+#if defined(__NR_osf_old_lstat)
+	__NR_osf_old_lstat,
+#endif
+#if defined(__NR_osf_old_open)
+	__NR_osf_old_open,
+#endif
+#if defined(__NR_osf_old_sigaction)
+	__NR_osf_old_sigaction,
+#endif
+#if defined(__NR_osf_old_sigblock)
+	__NR_osf_old_sigblock,
+#endif
+#if defined(__NR_osf_old_sigreturn)
+	__NR_osf_old_sigreturn,
+#endif
+#if defined(__NR_osf_old_sigsetmask)
+	__NR_osf_old_sigsetmask,
+#endif
+#if defined(__NR_osf_old_sigvec)
+	__NR_osf_old_sigvec,
+#endif
+#if defined(__NR_osf_old_stat)
+	__NR_osf_old_stat,
+#endif
+#if defined(__NR_osf_old_vadvise)
+	__NR_osf_old_vadvise,
+#endif
+#if defined(__NR_osf_old_vtrace)
+	__NR_osf_old_vtrace,
+#endif
+#if defined(__NR_osf_old_wait)
+	__NR_osf_old_wait,
+#endif
+#if defined(__NR_osf_oldquota)
+	__NR_osf_oldquota,
+#endif
+#if defined(__NR_osf_pathconf)
+	__NR_osf_pathconf,
+#endif
+#if defined(__NR_osf_pid_block)
+	__NR_osf_pid_block,
+#endif
+#if defined(__NR_osf_pid_unblock)
+	__NR_osf_pid_unblock,
+#endif
+#if defined(__NR_osf_plock)
+	__NR_osf_plock,
+#endif
+#if defined(__NR_osf_priocntlset)
+	__NR_osf_priocntlset,
+#endif
+#if defined(__NR_osf_profil)
+	__NR_osf_profil,
+#endif
+#if defined(__NR_osf_proplist_syscall)
+	__NR_osf_proplist_syscall,
+#endif
+#if defined(__NR_osf_reboot)
+	__NR_osf_reboot,
+#endif
+#if defined(__NR_osf_revoke)
+	__NR_osf_revoke,
+#endif
+#if defined(__NR_osf_sbrk)
+	__NR_osf_sbrk,
+#endif
+#if defined(__NR_osf_security)
+	__NR_osf_security,
+#endif
+#if defined(__NR_osf_select)
+	__NR_osf_select,
+#endif
+#if defined(__NR_osf_set_program_attributes)
+	__NR_osf_set_program_attributes,
+#endif
+#if defined(__NR_osf_set_speculative)
+	__NR_osf_set_speculative,
+#endif
+#if defined(__NR_osf_sethostid)
+	__NR_osf_sethostid,
+#endif
+#if defined(__NR_osf_setitimer)
+	__NR_osf_setitimer,
+#endif
+#if defined(__NR_osf_setlogin)
+	__NR_osf_setlogin,
+#endif
+#if defined(__NR_osf_setsysinfo)
+	__NR_osf_setsysinfo,
+#endif
+#if defined(__NR_osf_settimeofday)
+	__NR_osf_settimeofday,
+#endif
+#if defined(__NR_osf_shmat)
+	__NR_osf_shmat,
+#endif
+#if defined(__NR_osf_signal)
+	__NR_osf_signal,
+#endif
+#if defined(__NR_osf_sigprocmask)
+	__NR_osf_sigprocmask,
+#endif
+#if defined(__NR_osf_sigsendset)
+	__NR_osf_sigsendset,
+#endif
+#if defined(__NR_osf_sigstack)
+	__NR_osf_sigstack,
+#endif
+#if defined(__NR_osf_sigwaitprim)
+	__NR_osf_sigwaitprim,
+#endif
+#if defined(__NR_osf_sstk)
+	__NR_osf_sstk,
+#endif
+#if defined(__NR_osf_stat)
+	__NR_osf_stat,
+#endif
+#if defined(__NR_osf_statfs64)
+	__NR_osf_statfs64,
+#endif
+#if defined(__NR_osf_statfs)
+	__NR_osf_statfs,
+#endif
+#if defined(__NR_osf_subsys_info)
+	__NR_osf_subsys_info,
+#endif
+#if defined(__NR_osf_swapctl)
+	__NR_osf_swapctl,
+#endif
+#if defined(__NR_osf_swapon)
+	__NR_osf_swapon,
+#endif
+#if defined(__NR_osf_syscall)
+	__NR_osf_syscall,
+#endif
+#if defined(__NR_osf_sysinfo)
+	__NR_osf_sysinfo,
+#endif
+#if defined(__NR_osf_table)
+	__NR_osf_table,
+#endif
+#if defined(__NR_osf_uadmin)
+	__NR_osf_uadmin,
+#endif
+#if defined(__NR_osf_usleep_thread)
+	__NR_osf_usleep_thread,
+#endif
+#if defined(__NR_osf_uswitch)
+	__NR_osf_uswitch,
+#endif
+#if defined(__NR_osf_utc_adjtime)
+	__NR_osf_utc_adjtime,
+#endif
+#if defined(__NR_osf_utc_gettime)
+	__NR_osf_utc_gettime,
+#endif
+#if defined(__NR_osf_utimes)
+	__NR_osf_utimes,
+#endif
+#if defined(__NR_osf_utsname)
+	__NR_osf_utsname,
+#endif
+#if defined(__NR_osf_wait4)
+	__NR_osf_wait4,
+#endif
+#if defined(__NR_osf_waitid)
+	__NR_osf_waitid,
 #endif
 #if defined(__NR_pause)
 	__NR_pause,
@@ -3028,6 +3378,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_set_tid_address)
 	__NR_set_tid_address,
 #endif
+#if defined(__NR_set_tls)
+	__NR_set_tls,
+#endif
 #if defined(__NR_setdomainname)
 	__NR_setdomainname,
 #endif
@@ -3262,6 +3615,15 @@ static const long skip_syscalls[] = {
 #if defined(__NR_sys_debug_setcontext)
 	__NR_sys_debug_setcontext,
 #endif
+#if defined(__NR_sys_epoll_create)
+	__NR_sys_epoll_create,
+#endif
+#if defined(__NR_sys_epoll_ctl)
+	__NR_sys_epoll_ctl,
+#endif
+#if defined(__NR_sys_epoll_wait)
+	__NR_sys_epoll_wait,
+#endif
 #if defined(__NR_syscall)
 	__NR_syscall,
 #endif
@@ -3361,6 +3723,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_tuxcall)
 	__NR_tuxcall,
 #endif
+#if defined(__NR_udftrap)
+	__NR_udftrap,
+#endif
 #if defined(__NR_ugetrlimit)
 	__NR_ugetrlimit,
 #endif
@@ -3411,6 +3776,12 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_userfaultfd)
 	__NR_userfaultfd,
+#endif
+#if defined(__NR_usr26)
+	__NR_usr26,
+#endif
+#if defined(__NR_usr32)
+	__NR_usr32,
 #endif
 #if defined(__NR_ustat)
 	__NR_ustat,
