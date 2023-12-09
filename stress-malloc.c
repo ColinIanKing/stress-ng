@@ -341,7 +341,7 @@ static void *stress_malloc_loop(void *ptr)
 			}
 		}
 #if defined(HAVE_MALLOC_TRIM)
-		if (malloc_trim_opt && (++trim_counter == 0))
+		if (malloc_trim_opt && (trim_counter++ == 0))
 			(void)malloc_trim(0);
 #endif
 	}
