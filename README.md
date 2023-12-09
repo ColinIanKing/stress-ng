@@ -477,6 +477,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [mm: shrinker: add infrastructure for dynamically allocating shrinker](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c42d50aefd17a6bad3ed617769edbbb579137545)
 * [mm: shrinker: make global slab shrink lockless](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ca1d36b823944f24b5755311e95883fb5fdb807b)
 * [bcachefs: Clear btree_node_just_written() when node reused or evicted](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0b438c5bfaebda3fdf6edc35d9572d4e2f66aef1)
+* [tracing: Fix incomplete locking when disabling buffered events](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7fed14f7ac9cf5e38c693836fe4a874720141845)
 
 ## Kernel improvements that used stress-ng
 
