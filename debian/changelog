@@ -1,3 +1,28 @@
+stress-ng (0.17.03-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Makefile: remove -g from CFLAGS
+  * stress-sock: fix memory real on mmap_buffer
+  * stress-malloc: replace pre-inc with post-inc on trim_counter
+  * stress-tsc: only define stress_tsc_check when required
+  * manual: update release date
+  * stress-opcode: allow exit system call
+  * stress-sysbadaddr: don't unmap shared memory, just make it read-only
+  * stress-enosys: don't unmap shared memory, just make it read-only
+  * stress-opcode: don't unmap shared memory, just make it read-only
+  * stress-sysinval: don't unmap shared memory, just make it read-only
+  * stress-tsc: clean up warnings with systems that do not support lfence
+  * stress-sysonval: add in missing old/deprecated and new system calls
+  * stress-enosys: add in missing __NR_* syscalls
+  * README.md: add another kernel issue found by stress-ng
+  * stress-malloc: mmap addr array and prefetch values
+  * stress-malloc: only trim memory when new option --malloc-trim is used
+  * stress-tsc: add the --tsc-rdtscp option
+  * Add build-time check for rdtsc instruction
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sat, 9 Dec 2023 23:57:32 +0000
+
 stress-ng (0.17.02-1) unstable; urgency=medium
 
   [Sascha Hauer]
