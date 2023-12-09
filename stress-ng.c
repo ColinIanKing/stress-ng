@@ -2445,6 +2445,16 @@ err_unmap_shared:
 }
 
 /*
+ *  stress_shared_readonly()
+ *	unmap shared region
+ */
+void stress_shared_readonly(void)
+{
+	(void)mprotect((void *)g_shared->checksum.checksums, g_shared->checksum.length, PROT_READ);
+	(void)mprotect((void *)g_shared, g_shared->length, PROT_READ);
+}
+
+/*
  *  stress_shared_unmap()
  *	unmap shared region
  */

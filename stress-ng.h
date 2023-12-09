@@ -792,6 +792,7 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 #define STRESS_HARMONIC_MEAN	(2)
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
+extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
 extern void stress_metrics_set_const_check(stress_args_t *args,
