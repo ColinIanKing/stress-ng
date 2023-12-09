@@ -25,7 +25,7 @@ VERSION=0.17.02
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
-override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99 -g
+override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 
 #
 #  Building stress-vnni with less than -O2 causes breakage with
