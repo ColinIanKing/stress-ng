@@ -470,15 +470,19 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(epoll_wait), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_TIMEOUT, 0, 0 } },
 	{ SYS(epoll_wait), 4, { ARG_FD, ARG_PTR_WR, ARG_INT, ARG_TIMEOUT, 0, 0 } },
 #endif
+#if DEFSYS(epoll_wait_old)
+	{ SYS(epoll_wait_old), 3, { ARG_FD, ARG_PTR, ARG_INT, 0 , 0, 0 } },
+	{ SYS(epoll_wait_old), 3, { ARG_FD, ARG_PTR_WR, ARG_INT, 0 , 0, 0 } },
+#endif
 #if DEFSYS(epoll_pwait)
 	{ SYS(epoll_pwait), 5, { ARG_FD, ARG_PTR, ARG_INT, ARG_TIMEOUT, ARG_PTR, 0 } },
 	{ SYS(epoll_pwait), 5, { ARG_FD, ARG_PTR, ARG_INT, ARG_TIMEOUT, ARG_PTR_WR, 0 } },
 	{ SYS(epoll_pwait), 5, { ARG_FD, ARG_PTR_WR, ARG_INT, ARG_TIMEOUT, ARG_PTR_WR, 0 } },
 #endif
-#if DEFSYS(evendfd)
+#if DEFSYS(eventfd)
 	{ SYS(eventfd), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if DEFSYS(evendfd2)
+#if DEFSYS(eventfd2)
 	{ SYS(eventfd2), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(exec_with_loader)
@@ -529,6 +533,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(fchmodat)
 	{ SYS(fchmodat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 #endif
+#if DEFSYS(fchmodat2)
+	{ SYS(fchmodat2), 4, { ARG_DIRFD, ARG_FLAG, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(fchown)
 	/* { SYS(fchown), 3, { ARG_FD, 0, 0, 0, 0, 0 } }, ;*/
 #endif
@@ -576,15 +583,20 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(fremovexattr), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fsconfig)
+	{ SYS(fsconfig), 5, { ARG_PTR, ARG_UINT, ARG_PTR, ARG_PTR, ARG_INT, 0 } },
 #endif
-#if defined(fsetxattr)
-	{ SYS(fsetxattr), 5, { ARG_FD, ARG_PTR, ARG_PTR, ARG_LEN, ARG_FLAG, 0, } },
+#if DEFSYS(fsetxattr)
+	{ SYS(fsetxattr), 5, { ARG_FD, ARG_PTR, ARG_PTR, ARG_LEN, ARG_FLAG, 0 } },
 #endif
 #if DEFSYS(fsmount)
+	{ SYS(fsmount), 3, { ARG_FD, ARG_FLAG, ARG_UINT, 0, 0 , 0 } },
 #endif
 #if DEFSYS(fsopen)
+	{ SYS(fsopen), 2, { ARG_PTR, ARG_UINT, 0, 0 , 0, 0 } },
 #endif
 #if DEFSYS(fspick)
+	{ SYS(fspick), 3, { ARG_DIRFD, ARG_PTR, ARG_FLAG, 0, 0 } },
+	{ SYS(fspick), 3, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(fstat)
 	{ SYS(fstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
@@ -629,6 +641,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(futex)
 	{ SYS(futex), 6, { ARG_FUTEX_PTR, ARG_INT, ARG_INT, ARG_FUTEX_PTR, ARG_FUTEX_PTR, ARG_INT } },
+#endif
+#if DEFSYS(futex_waitv)
+	{ SYS(futex_waitv), 5, { ARG_FUTEX_PTR, ARG_INT, ARG_FLAG, ARG_PTR, ARG_INT, 0 } },
 #endif
 #if DEFSYS(futex_time64)
 	{ SYS(futex_time64), 6, { ARG_FUTEX_PTR, ARG_INT, ARG_INT, ARG_FUTEX_PTR, ARG_FUTEX_PTR, ARG_INT } },
@@ -733,6 +748,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(getpid)
 	{ SYS(getpid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(getpgrp)
+	{ SYS(getpgrp), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(getpmsg)
 	/* Unimplemented */
 	/* { SYS(getpmsg), 0, { 0, 0, 0, 0, 0, 0 } }, */
@@ -825,6 +843,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(getxuid)
 	/* Alpha only */
 	{ SYS(getxuid), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(idle)
+	{ SYS(idle), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(init_module)
 	{ SYS(init_module), 3, { ARG_PTR, ARG_LEN, ARG_PTR } },
@@ -987,6 +1008,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(lws_enties)
 	/* PARISC, todo */
+#endif
+#if DEFSYS(map_shadow_stack)
+	{ SYS(map_shadow_stack), 4, { ARG_PTR, ARG_LEN, ARG_INT, ARG_INT, 0, 0 } },
 #endif
 #if DEFSYS(madvise)
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
@@ -1186,11 +1210,17 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(old_adjtimex)
 	{ SYS(old_adjtimex), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(oldfstat)
+	{ SYS(oldfstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(old_getrlimit)
 	{ SYS(old_getrlimit), 2, { ARG_RND, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(old_getrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(old_getrlimit), 2, { ARG_RND, ARG_PTR_WR, 0, 0, 0, 0 } },
 	{ SYS(old_getrlimit), 2, { ARG_INT, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(oldlstat)
+	{ SYS(oldlstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(oldolduname)
 	{ SYS(oldolduname), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
@@ -1245,6 +1275,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(perf_event_open)
 	{ SYS(perf_event_open), 5, { ARG_PTR, ARG_PID, ARG_INT, ARG_INT, ARG_FLAG, 0 } },
+#endif
+#if DEFSYS(perfmonctl)
+	{ SYS(perfmonctl), 4, { ARG_FD, ARG_INT, ARG_PTR, ARG_INT, 0, 0 } },
 #endif
 #if DEFSYS(personality)
 	{ SYS(personality), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
@@ -1663,6 +1696,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(set_tid_address)
 	{ SYS(set_tid_address), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(set_tls)
+	{ SYS(set_tls), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(setdomainname)
 	/* { SYS(setdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } }, */
 #endif
@@ -2003,13 +2039,17 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(truncate64), 2, { ARG_EMPTY_FILENAME, ARG_LEN, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(tuxcall)
-	/* { SYS(tuxcall), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(tuxcall), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(tuxcall), 2, { ARG_INT, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(ugetrlimit)
 	{ SYS(ugetrlimit), 2, { ARG_RND, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(ugetrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(ugetrlimit), 2, { ARG_RND, ARG_PTR_WR, 0, 0, 0, 0 } },
 	{ SYS(ugetrlimit), 2, { ARG_INT, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(ulimit)
+	{ SYS(ulimit), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(umask)
 	{ SYS(umask), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
@@ -2043,7 +2083,10 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(userfaultfd), 1, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(usr26)
-	/* ARM OABI only */
+	{ SYS(usr26), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(usr32)
+	{ SYS(usr32), 1, { ARH_INT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(ustat)
 	{ SYS(ustat), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
