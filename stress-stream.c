@@ -69,6 +69,9 @@ static const stress_stream_madvise_info_t stream_madvise_info[] = {
 #if defined(MADV_NOHUGEPAGE)
 	{ "nohugepage",	MADV_NOHUGEPAGE },
 #endif
+#if defined(MADV_COLLAPSE)
+	{ "collapse",	MADV_NORMAL },
+#endif
 #if defined(MADV_NORMAL)
 	{ "normal",	MADV_NORMAL },
 #endif

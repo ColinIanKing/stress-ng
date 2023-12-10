@@ -6523,7 +6523,7 @@ determine the cache size, and failing this, will default the size to 4MB.
 attempt to mlock the stream buffers into memory to prevent them from being
 swapped out.
 .TP
-.B \-\-stream\-madvise [ hugepage | nohugepage | normal ]
+.B \-\-stream\-madvise [ collapse | hugepage | nohugepage | normal ]
 Specify the madvise options used on the memory mapped buffer used in the
 stream stressor. Non-linux systems will only have the 'normal' madvise
 advice. The default is 'normal'.
