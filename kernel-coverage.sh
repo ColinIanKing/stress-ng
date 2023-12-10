@@ -516,6 +516,7 @@ do_stress --malloc -1 --malloc-mlock
 do_stress --malloc -1 --malloc-pthreads 4
 do_stress --malloc -1 --malloc-touch
 do_stress --malloc -1 --malloc-zerofree
+do_stress --malloc -1 --malloc-trim
 
 do_stress --memfd -1 --memfd-fds 4096
 do_stress --memfd -1 --memfd-mlock
@@ -555,6 +556,11 @@ do_stress --msg -1 --msg-bytes 8192
 do_stress --mutex -1 --mutex-procs 64
 
 do_stress --nanosleep -1 --nanosleep-threads 128
+do_stress --nanosleep -1 --nanosleep-method cstate
+do_stress --nanosleep -1 --nanosleep-method random
+do_stress --nanosleep -1 --nanosleep-method ns
+do_stress --nanosleep -1 --nanosleep-method us
+do_stress --nanosleep -1 --nanosleep-method ms
 
 do_stress --open -1 --open-fd
 do_stress --open -1 --open-max 100000
@@ -666,6 +672,7 @@ do_stress --timerfd -1 --timerfd-rand
 do_stress --timerfd -1 --timerfd-freq 100000
 
 do_stress --tsc -1 --tsc-lfence
+do_stress --tsc -1 --tsc-rdtscp
 
 do_stress --tmpfs -1 --tmpfs-mmap-async
 do_stress --tmpfs -1 --tmpfs-mmap-file
@@ -710,6 +717,7 @@ do_stress --workload -1 --workload-sched idle --workload-load 90
 do_stress --workload -1 --workload-sched other --workload-load 90
 do_stress --workload -1 --workload-sched batch --workload-load 90
 do_stress --workload -1 --workload-sched deadline --workload-load 90
+do_stress --workload -1 --workload-threads 8
 
 do_stress --zombie 1 --zombie-max 1000000
 
