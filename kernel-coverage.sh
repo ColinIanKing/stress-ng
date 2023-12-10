@@ -649,6 +649,7 @@ do_stress --stack -1 --stack-pageout
 do_stress --stack -1 --stack-unmap
 
 do_stress --stream -1 --stream-mlock
+do_stress --stream -1 --stream-madvise collapse
 do_stress --stream -1 --stream-madvise hugepage
 do_stress --stream -1 --stream-madvise nohugepage
 do_stress --stream -1 --stream-madvise normal
