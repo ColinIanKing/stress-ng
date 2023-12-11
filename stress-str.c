@@ -138,7 +138,8 @@ static size_t stress_strncasecmp(stress_args_t *args, stress_str_args_t *info)
 }
 #endif
 
-#if defined(HAVE_STRINGS_H)
+#if defined(HAVE_STRINGS_H) &&	\
+    defined(HAVE_INDEX)
 /*
  *  stress_index()
  *	stress on index
@@ -165,7 +166,8 @@ static size_t stress_index(stress_args_t *args, stress_str_args_t *info)
 }
 #endif
 
-#if defined(HAVE_STRINGS_H)
+#if defined(HAVE_STRINGS_H) &&	\
+    defined(HAVE_RINDEX)
 /*
  *  stress_rindex()
  *	stress on rindex
@@ -563,9 +565,15 @@ static size_t stress_str_all(stress_args_t *args, stress_str_args_t *info);
 static const stress_str_method_info_t str_methods[] = {
 	{ "all",		stress_str_all,		NULL },	/* Special "all test */
 
-#if defined(HAVE_STRINGS_H)
+#if defined(HAVE_STRINGS_H) &&	\
+    defined(HAVE_INDEX)
 	{ "index",		stress_index,		(void *)index },
+#endif
+#if defined(HAVE_STRINGS_H) &&	\
+    defined(HAVE_RINDEX)
 	{ "rindex",		stress_rindex,		(void *)rindex  },
+#endif
+#if defined(HAVE_STRINGS_H)
 	{ "strcasecmp",		stress_strcasecmp,	(void *)strcasecmp },
 #endif
 #if defined(HAVE_BSD_STRLCAT) &&	\

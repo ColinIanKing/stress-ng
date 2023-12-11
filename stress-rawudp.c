@@ -32,6 +32,10 @@
 #include <netinet/ip.h>
 #endif
 
+#if defined(HAVE_NETINET_UDP_H)
+#include <netinet/udp.h>
+#endif
+
 #include <arpa/inet.h>
 
 #define MIN_RAWUDP_PORT		(1024)

@@ -48,6 +48,10 @@
 #include <netinet/ip.h>
 #endif
 
+#if defined(HAVE_NETINET_UDP_H)
+#include <netinet/udp.h>
+#endif
+
 #include <arpa/inet.h>
 
 #define MIN_RAWPKT_PORT		(1024)
@@ -369,7 +373,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	const struct udphdr *udp = (struct udphdr *)((uintptr_t)buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
 	struct sockaddr saddr;
 	int saddr_len = sizeof(saddr);
-	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
+	const in_addr_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
 	uint64_t all_pkts = 0;
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
 	double t_start, duration, bytes = 0.0, rate;
@@ -421,7 +425,7 @@ static int OPTIMIZE3 stress_rawpkt_server(
 		if (LIKELY(n >= min_size)) {
 			all_pkts++;
 			if ((eth->h_proto == htons(ETH_P_IP)) &&
-			    (ip->saddr == addr) &&
+			    ((in_addr_t)ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
 				stress_bogo_inc(args);
