@@ -279,11 +279,11 @@ static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctx
 	if (fd > -1)
 		(void)close(fd);
 
-	fd = open(ctxt->filename, O_WRONLY, S_IRUSR | S_IWUSR);
+	fd = open(ctxt->filename, O_WRONLY);
 	if (fd > -1)
 		(void)close(fd);
 
-	fd = open(ctxt->filename, O_RDWR, S_IRUSR | S_IWUSR);
+	fd = open(ctxt->filename, O_RDWR);
 	if (fd > -1)
 		(void)close(fd);
 	(void)shim_unlink(ctxt->filename);

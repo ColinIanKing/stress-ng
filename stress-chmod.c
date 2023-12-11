@@ -285,7 +285,7 @@ static int stress_chmod(stress_args_t *args)
 	} else {
 		/* Other instances must try to open the file */
 		for (;;) {
-			if ((fd = open(filename, O_RDWR, S_IRUSR | S_IWUSR)) > - 1)
+			if ((fd = open(filename, O_RDWR)) > - 1)
 				break;
 
 #if defined(__NetBSD__)

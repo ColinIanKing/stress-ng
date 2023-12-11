@@ -104,7 +104,7 @@ again:
 			int fd;
 
 			errno = 0;
-			fd = open(filename, O_NONBLOCK | O_WRONLY, S_IRUSR | S_IWUSR);
+			fd = open(filename, O_NONBLOCK | O_WRONLY);
 			if (fd < 0) {
 				if ((errno != EWOULDBLOCK) &&
                                     (errno != EACCES)) {
@@ -137,7 +137,7 @@ static int stress_try_lease(
 {
 	int fd;
 
-	fd = open(filename, flags, S_IRUSR | S_IWUSR);
+	fd = open(filename, flags);
 	if (fd < 0) {
 		int ret;
 

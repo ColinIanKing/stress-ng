@@ -144,7 +144,7 @@ static int stress_fallocate(stress_args_t *args)
 	}
 #if defined(O_SYNC)
 	/* don't worry if this fails, we won't use it fails */
-	fd_sync = open(filename, O_RDWR | O_SYNC, S_IRUSR | S_IWUSR);
+	fd_sync = open(filename, O_RDWR | O_SYNC);
 #endif
 	fs_type = stress_get_fs_type(filename);
 	(void)shim_unlink(filename);
