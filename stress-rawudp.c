@@ -24,16 +24,14 @@
 #include "core-killpid.h"
 #include "core-net.h"
 
-#if defined(HAVE_LINUX_UDP_H)
-#include <linux/udp.h>
-#endif
-
 #if defined(HAVE_NETINET_IP_H)
 #include <netinet/ip.h>
 #endif
 
 #if defined(HAVE_NETINET_UDP_H)
 #include <netinet/udp.h>
+#elif defined(HAVE_LINUX_UDP_H)
+#include <linux/udp.h>
 #endif
 
 #include <arpa/inet.h>
