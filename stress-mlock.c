@@ -217,10 +217,10 @@ static void stress_mlock_misc(stress_args_t *args, const size_t page_size, const
 	VOID_RET(int, shim_munlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1));
 
 	VOID_RET(int, shim_mlock((void *)0, ~(size_t)0));
-	VOID_RET(int, munlock((void *)0, ~(size_t)0));
+	VOID_RET(int, munlock((void *)stress_get_uint64_zero(), ~(size_t)0));
 
 	VOID_RET(int, shim_mlock((void *)0, 0));
-	VOID_RET(int, munlock((void *)0, 0));
+	VOID_RET(int, munlock((void *)stress_get_uint64_zero(), 0));
 
 #if defined(HAVE_MLOCKALL)
 	{
