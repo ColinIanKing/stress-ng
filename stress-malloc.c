@@ -211,7 +211,9 @@ static void *stress_malloc_loop(void *ptr)
 	static void *nowt = NULL;
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+#if defined(HAVE_MALLOC_TRIM)
 	register uint16_t trim_counter = 0;
+#endif
 
 #if defined(MCL_FUTURE)
 	if (malloc_mlock)
