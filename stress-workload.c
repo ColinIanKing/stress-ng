@@ -29,6 +29,8 @@
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
+#include <sched.h>
+
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
 #endif
