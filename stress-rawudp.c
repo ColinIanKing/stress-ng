@@ -223,7 +223,7 @@ static int OPTIMIZE3 stress_rawudp_server(
 
 		n = recv(fd, buf, sizeof(buf), 0);
 		if (LIKELY(n > 0)) {
-			if ((ip->saddr == addr) &&
+			if (((in_addr_t)ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
 				if (UNLIKELY(*(const pid_t *)data != args->pid)) {
