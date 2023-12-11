@@ -77,6 +77,7 @@ extern WARN_UNUSED int stress_strcmp_munged(const char *s1, const char *s2);
 extern WARN_UNUSED ssize_t stress_get_stack_direction(void);
 extern WARN_UNUSED void *stress_get_stack_top(void *start, size_t size);
 extern WARN_UNUSED uint64_t stress_get_uint64_zero(void);
+extern WARN_UNUSED void *stress_get_null(void);
 extern int stress_temp_filename(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance, const uint64_t magic);
 extern int stress_temp_filename_args(stress_args_t *args, char *path,

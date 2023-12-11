@@ -712,8 +712,8 @@ cleanup:
 		/*
 		 *  Step #6, invalid unmappings
 		 */
-		(void)munmap(NULL, 0);
-		(void)munmap(NULL, ~(size_t)0);
+		(void)munmap(stress_get_null(), 0);
+		(void)munmap(stress_get_null(), ~(size_t)0);
 
 		/*
 		 *  Step #7, random choice from any of the valid/invalid

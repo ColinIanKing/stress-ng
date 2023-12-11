@@ -1416,6 +1416,18 @@ uint64_t stress_get_uint64_zero(void)
 }
 
 /*
+ *  stress_get_uint64_zero()
+ *	return null in way that force less smart
+ *	static analysers to realise we are doing this
+ *	to force a division by zero. I'd like to have
+ *	a better solution than this ghastly way.
+ */
+void *stress_get_null(void)
+{
+	return (void *)g_shared->zero;
+}
+
+/*
  *  stress_base36_encode_uint64()
  *	encode 64 bit hash of filename into a unique base 36
  *	filename of up to 13 chars long + 1 char eos
