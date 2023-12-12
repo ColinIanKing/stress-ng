@@ -83,7 +83,7 @@ kill_stress_ng()
 mount_filesystem()
 {
 	rm -f ${FSIMAGE}
-	COUNT=4096
+	COUNT=4000
 	case $1 in
 		ext2)	MKFS_CMD="mkfs.ext2"
 			MKFS_ARGS="-F ${FSIMAGE}"
