@@ -204,7 +204,7 @@ mount_filesystem()
 			;;
 		bcachefs)
 			MKFS_CMD="bcachefs"
-			MKFS_ARGS="format ${FSIMAGE}"
+			MKFS_ARGS="format -f --compression=lz4 --replicas=3 --discard ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
