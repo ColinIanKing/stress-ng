@@ -24,6 +24,12 @@
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
+/* Workaround GCC 9.4.0 target clones build failure issue */
+#if EQUAL_GNUC(9,4,0)
+#undef TARGET_CLONES
+#define TARGET_CLONES
+#endif
+
 #define VERY_WIDE	(0)
 
 static const stress_help_t help[] = {

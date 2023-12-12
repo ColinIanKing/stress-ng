@@ -38,9 +38,15 @@
 #define NEED_GNUC(major, minor, patchlevel) 			\
 	STRESS_VERSION_NUMBER(major, minor, patchlevel) <= 	\
 	STRESS_VERSION_NUMBER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+#define EQUAL_GNUC(major, minor, patchlevel)			\
+	STRESS_VERSION_NUMBER(major, minor, patchlevel) == 	\
+	STRESS_VERSION_NUMBER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #else
 #define NEED_GNUC(major, minor, patchlevel) 			\
 	STRESS_VERSION_NUMBER(major, minor, patchlevel) <=	\
+	STRESS_VERSION_NUMBER(__GNUC__, __GNUC_MINOR__, 0)
+#define EQUAL_GNUC(major, minor, patchlevel)			\
+	STRESS_VERSION_NUMBER(major, minor, patchlevel) ==	\
 	STRESS_VERSION_NUMBER(__GNUC__, __GNUC_MINOR__, 0)
 #endif
 #else
