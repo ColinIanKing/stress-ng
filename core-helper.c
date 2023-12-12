@@ -1424,7 +1424,7 @@ uint64_t stress_get_uint64_zero(void)
  */
 void *stress_get_null(void)
 {
-	return (void *)g_shared->zero;
+	return (void *)(uintptr_t)g_shared->zero;
 }
 
 /*
