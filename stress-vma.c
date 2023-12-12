@@ -85,6 +85,7 @@ static const char *stress_vma_metrics_name[] = {
 
 static stress_vma_metrics_t *stress_vma_metrics;
 static void *stress_vma_page;
+static bool stress_vma_continue_flag;
 
 static bool stress_vma_continue(stress_args_t *args)
 {
@@ -105,7 +106,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 	void *addr = NULL;
 	uintptr_t ui_addr;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		int fd[2], err;
 		ssize_t ret;
 
@@ -162,7 +163,7 @@ static void *stress_vma_mmap(void *ptr)
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		static const int prots[] = {
 			PROT_NONE,
 			PROT_READ,
@@ -196,7 +197,6 @@ static void *stress_vma_mmap(void *ptr)
 		if (mapped != MAP_FAILED)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -207,14 +207,13 @@ static void *stress_vma_munmap(void *ptr)
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t size = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (munmap((void *)(data + offset), size) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MUNMAP]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -225,7 +224,7 @@ static void *stress_vma_mlock(void *ptr)
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 #if defined(MLOCK_ONFAULT)
@@ -241,7 +240,6 @@ static void *stress_vma_mlock(void *ptr)
 				stress_vma_metrics->s.metrics[STRESS_VMA_MLOCK]++;
 		}
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -252,14 +250,13 @@ static void *stress_vma_munlock(void *ptr)
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
 		if (munlock((void *)(data + offset), len) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MUNLOCK]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -309,7 +306,7 @@ static void *stress_vma_madvise(void *ptr)
 #endif
 	};
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(advice));
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
@@ -317,7 +314,6 @@ static void *stress_vma_madvise(void *ptr)
 		if (madvise((void *)(data + offset), len, advice[i]) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MADVISE]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -329,7 +325,7 @@ static void *stress_vma_mincore(void *ptr)
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t pages = stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * pages;
@@ -338,7 +334,6 @@ static void *stress_vma_mincore(void *ptr)
 		if (shim_mincore((void *)(data + offset), len, vec) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MINCORE]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 #endif
@@ -366,7 +361,7 @@ static void *stress_vma_mprotect(void *ptr)
 #endif
 	};
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(prot));
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
@@ -374,7 +369,6 @@ static void *stress_vma_mprotect(void *ptr)
 		if (mprotect((void *)(data + offset), len, prot[i]) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MPROTECT]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -397,7 +391,7 @@ static void *stress_vma_msync(void *ptr)
 #endif
 	};
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t i = stress_mwc8modn(SIZEOF_ARRAY(flags));
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const size_t len = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
@@ -405,7 +399,6 @@ static void *stress_vma_msync(void *ptr)
 		if (msync((void *)(data + offset), len, flags[i]) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MSYNC]++;
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -418,13 +411,11 @@ static void *stress_vma_maps(void *ptr)
 
 	fd = open("/proc/self/maps", O_RDONLY);
 	if (fd != -1) {
-		while (stress_vma_continue(args)) {
+		while (stress_vma_continue_flag && stress_vma_continue(args)) {
 			char buf[4096];
 
-			if (lseek(fd, 0, SEEK_SET) < 0) {
-				pr_inf("lseek fail\n");
+			if (lseek(fd, 0, SEEK_SET) < 0)
 				break;
-			}
 			while (read(fd, buf, sizeof(buf)) > 1)
 				;
 		}
@@ -442,14 +433,13 @@ static void *stress_vma_access(void *ptr)
 	const uintptr_t data = (uintptr_t)ctxt->data;
 	const size_t page_size = args->page_size;
 
-	while (stress_vma_continue(args)) {
+	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		uint8_t *ptr8 = (uint8_t *)(data + offset);
 
 		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
 		++(*ptr8);
 	}
-	(void)kill(ctxt->pid, SIGALRM);
 	return NULL;
 }
 
@@ -500,9 +490,12 @@ static void stress_vma_loop(
 
 	do {
 		pid_t pid;
+		int status;
 
 		stress_mwc_reseed();
 		ctxt->data = stress_mmapaddr_get_addr(args);
+
+		stress_vma_continue_flag = true;
 
 		pid = fork();
 		if (pid < 0) {
@@ -510,26 +503,37 @@ static void stress_vma_loop(
 			continue;
 		} else if (pid == 0) {
 			pthread_t pthreads[n];
+			int pthreads_ret[n];
 			size_t j;
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			for (i = 0, j = 0; stress_vma_continue(args) && (i < SIZEOF_ARRAY(vma_funcs)); i++) {
+			for (i = 0, j = 0; stress_vma_continue_flag && stress_vma_continue(args) && (i < SIZEOF_ARRAY(vma_funcs)); i++) {
 				size_t k;
 
-				for (k = 0; stress_vma_continue(args) && (k < vma_funcs[i].count); k++, j++) {
-					(void)pthread_create(&pthreads[j], NULL,
+				for (k = 0; stress_vma_continue_flag && stress_vma_continue(args) && (k < vma_funcs[i].count); k++, j++) {
+					pthreads_ret[j] = pthread_create(&pthreads[j], NULL,
 							vma_funcs[i].vma_func, (void *)ctxt);
 				}
 			}
-			pause();
+			/* Let pthreads run for 10 seconds */
+			sleep(10);
+			for (i = 0; i < j; i++) {
+				if (pthreads_ret[i] == 0) {
+					VOID_RET(int, pthread_kill(pthreads[i], SIGBUS));
+					VOID_RET(int, pthread_cancel(pthreads[i]));
+				}
+			}
+
+			stress_vma_continue_flag = false;
 			_exit(0);
 		}
 
-		(void)sleep(15);
-		stress_force_killed_bogo(args);
-		stress_kill_pid(pid);
+		sleep(10);
+		stress_vma_continue_flag = false;
+		(void)kill(pid, SIGKILL);
+		shim_waitpid(pid, &status, 0);
 	} while (stress_vma_continue(args));
 }
 
@@ -559,7 +563,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 		stress_bogo_set(args, stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]);
 	} while (stress_continue(args));
 
-	return stress_kill_and_wait_many(args, pids, i, SIGKILL, false);
+	return stress_kill_and_wait_many(args, pids, i, SIGALRM, false);
 }
 
 /*
