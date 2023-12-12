@@ -176,8 +176,13 @@ static int OPTIMIZE3 stress_semaphore_sysv_thrash(stress_args_t *args)
 #endif
 
 #if defined(__linux__)
-		if (get_procinfo)
-			stress_semaphore_sysv_get_procinfo(&get_procinfo);
+		/* periodically get proc info */
+		if (get_procinfo) {
+			static uint8_t procinfo_count = 0;
+
+			if (procinfo_count++ == 0)
+				stress_semaphore_sysv_get_procinfo(&get_procinfo);
+		}
 #endif
 
 #if defined(HAVE_SEMTIMEDOP)
