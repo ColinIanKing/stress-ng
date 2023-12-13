@@ -1133,19 +1133,28 @@ static int OPTIMIZE3 stress_sock_server(
 			opt = sock_opts;
 
 			for (k = 0; (k < sock_msgs) && stress_continue(args); k++) {
+				int flag = sendflag;
+
 				if (UNLIKELY(sock_opts == SOCKET_OPT_RANDOM))
 					opt = stress_mwc8modn(3);
 
 				switch (opt) {
 				case SOCKET_OPT_SEND:
 					for (i = 16; i < MMAP_IO_SIZE; i += 16) {
-						if (UNLIKELY(send(sfd, buf, i, sendflag) < 0)) {
-							if (stress_send_error(errno))
+retry_send:
+						if (UNLIKELY(send(sfd, buf, i, flag) < 0)) {
+							if (errno == ENOBUFS) {
+								flag = 0;
+								goto retry_send;
+							}
+							if (stress_send_error(errno)) {
 								pr_fail("%s: send failed, errno=%d (%s)\n",
 									args->name, errno, strerror(errno));
+							}
 							break;
-						} else
+						} else {
 							msgs++;
+						}
 					}
 					break;
 				case SOCKET_OPT_SENDMSG:
@@ -1156,12 +1165,19 @@ static int OPTIMIZE3 stress_sock_server(
 					(void)shim_memset(&msg, 0, sizeof(msg));
 					msg.msg_iov = vec;
 					msg.msg_iovlen = j;
-					if (UNLIKELY(sendmsg(sfd, &msg, sendflag) < 0)) {
-					if (stress_send_error(errno))
-						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-					} else
+retry_sendmsg:
+					if (UNLIKELY(sendmsg(sfd, &msg, flag) < 0)) {
+						if (errno == ENOBUFS) {
+							flag = 0;
+							goto retry_sendmsg;
+						}
+						if (stress_send_error(errno)) {
+							pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
+						}
+					} else {
 						msgs += j;
+					}
 					break;
 #if defined(HAVE_SENDMMSG)
 				case SOCKET_OPT_SENDMMSG:
@@ -1174,12 +1190,19 @@ static int OPTIMIZE3 stress_sock_server(
 						msgvec[i].msg_hdr.msg_iov = vec;
 						msgvec[i].msg_hdr.msg_iovlen = j;
 					}
-					if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, sendflag) < 0)) {
-						if (stress_send_error(errno))
+retry_sendmmsg:
+					if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, flag) < 0)) {
+						if (errno == ENOBUFS) {
+							flag = 0;
+							goto retry_sendmmsg;
+						}
+						if (stress_send_error(errno)) {
 							pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
 								args->name, errno, strerror(errno));
-					} else
+						}
+					} else {
 						msgs += (MSGVEC_SIZE * j);
+					}
 					break;
 #endif
 				default:
