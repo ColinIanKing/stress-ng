@@ -28,6 +28,11 @@
 #include <sys/inotify.h>
 #endif
 
+#if !defined(INOTIFY_IOC_SETNEXTWD) &&	\
+    defined(_IOW)
+#define INOTIFY_IOC_SETNEXTWD	_IOW('I', 0, __s32)
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"inotify N",	 "start N workers exercising inotify events" },
 	{ NULL,	"inotify-ops N", "stop inotify workers after N bogo operations" },
@@ -95,7 +100,6 @@ static void exercise_inotify_add_watch(
     defined(IN_MASK_ADD)
 	int wd2;
 #endif
-
 	(void)bad_fd;
 
 	fd = inotify_init();
@@ -107,6 +111,12 @@ static void exercise_inotify_add_watch(
 	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
 
+#if defined(INOTIFY_IOC_SETNEXTWD)
+	/*
+	 *  Exercise INOTIFY_IOC_SETNEXTWD
+	 */
+	VOID_RET(int, ioctl(fd, INOTIFY_IOC_SETNEXTWD, 8192));
+#endif
 	wd = inotify_add_watch(fd, watchname, ~0U);
 	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
@@ -229,6 +239,7 @@ retry:
 			args->name, errno, strerror(errno), n);
 		return;
 	}
+
 
 	if ((wd = inotify_add_watch(fd, watchname, flags)) < 0) {
 		(void)close(fd);
