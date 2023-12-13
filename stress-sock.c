@@ -509,12 +509,6 @@ static int OPTIMIZE3 stress_sock_client(
 	(void)sched_settings_apply(true);
 
 	ctrls = stress_get_congestion_controls(sock_domain, &n_ctrls);
-#if defined(MSG_ZEROCOPY)
-	if (sock_zerocopy)
-		recvflag |= MSG_ZEROCOPY;
-#else
-	(void)sock_zerocopy;
-#endif
 
 	do {
 		int fd;
@@ -547,6 +541,20 @@ retry:
 				args->name, errno, strerror(errno));
 			goto free_controls;
 		}
+#if defined(MSG_ZEROCOPY)
+		if (sock_zerocopy) {
+			int so_zerocopy = 1;
+
+			if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
+				recvflag |= MSG_ZEROCOPY;
+			} else {
+				if (args->instance == 0)
+					pr_inf("%s: cannot enable zerocopy on data being received\n", args->name);
+			}
+		}
+#else
+		(void)sock_zerocopy;
+#endif
 
 		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 				sock_domain, sock_port, sock_if,
@@ -823,7 +831,7 @@ retry:
 				(void)shim_memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
-				n = recvmsg(fd, &msg, 0);
+				n = recvmsg(fd, &msg, recvflag);
 				break;
 #if defined(HAVE_RECVMMSG)
 			case SOCKET_OPT_RECVMMSG:
@@ -836,7 +844,7 @@ retry:
 					msgvec[i].msg_hdr.msg_iov = vec;
 					msgvec[i].msg_hdr.msg_iovlen = j;
 				}
-				n = recvmmsg(fd, msgvec, MSGVEC_SIZE, 0, NULL);
+				n = recvmmsg(fd, msgvec, MSGVEC_SIZE, recvflag, NULL);
 				if (LIKELY(n > 0)) {
 					for (n = 0, i = 0; i < MSGVEC_SIZE; i++)
 						n += msgvec[i].msg_len;
@@ -936,12 +944,6 @@ static int OPTIMIZE3 stress_sock_server(
 
 	(void)stress_get_setting("sock-msgs", &sock_msgs);
 
-#if defined(MSG_ZEROCOPY)
-	if (sock_zerocopy)
-		sendflag |= MSG_ZEROCOPY;
-#else
-	(void)sock_zerocopy;
-#endif
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
@@ -953,6 +955,21 @@ static int OPTIMIZE3 stress_sock_server(
 			args->name, errno, strerror(errno));
 		goto die;
 	}
+
+#if defined(MSG_ZEROCOPY)
+	if (sock_zerocopy) {
+		int so_zerocopy = 1;
+
+		if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
+			sendflag |= MSG_ZEROCOPY;
+		} else {
+			if (args->instance == 0)
+				pr_inf("%s: cannot enable zerocopy on data being sent\n", args->name);
+		}
+	}
+#else
+	(void)sock_zerocopy;
+#endif
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
@@ -1139,7 +1156,7 @@ static int OPTIMIZE3 stress_sock_server(
 					(void)shim_memset(&msg, 0, sizeof(msg));
 					msg.msg_iov = vec;
 					msg.msg_iovlen = j;
-					if (UNLIKELY(sendmsg(sfd, &msg, 0) < 0)) {
+					if (UNLIKELY(sendmsg(sfd, &msg, sendflag) < 0)) {
 					if (stress_send_error(errno))
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
@@ -1157,7 +1174,7 @@ static int OPTIMIZE3 stress_sock_server(
 						msgvec[i].msg_hdr.msg_iov = vec;
 						msgvec[i].msg_hdr.msg_iovlen = j;
 					}
-					if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0)) {
+					if (UNLIKELY(sendmmsg(sfd, msgvec, MSGVEC_SIZE, sendflag) < 0)) {
 						if (stress_send_error(errno))
 							pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
 								args->name, errno, strerror(errno));
