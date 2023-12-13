@@ -31,7 +31,6 @@
 			: "ir" (inc));			\
 	} while (0)
 
-#if defined(STRESS_ARCH_X86_32) && !NEED_GNUC(5, 0, 0) && defined(__PIC__)
 #define stress_asm_x86_cpuid(a, b, c, d)		\
 	do {						\
 		__asm__ __volatile__ (			\
@@ -42,18 +41,6 @@
 			  "=d"(d)			\
 			: "0"(a),"2"(c));		\
 	} while (0)
-#else
-#define stress_asm_x86_cpuid(a, b, c, d)		\
-	do {						\
-		__asm__ __volatile__ (			\
-			"cpuid\n"			\
-			: "=a"(a),			\
-			  "=b"(b),			\
-			  "=c"(c),			\
-			  "=d"(d)			\
-			: "0"(a),"2"(c));		\
-	} while (0)
-#endif
 
 #if defined(HAVE_ASM_X86_PAUSE)
 static inline void stress_asm_x86_pause(void)
