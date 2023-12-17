@@ -142,6 +142,9 @@ typedef enum {
 	OPT_access,
 	OPT_access_ops,
 
+	OPT_acl,
+	OPT_acl_ops,
+
 	OPT_affinity,
 	OPT_affinity_delay,
 	OPT_affinity_ops,

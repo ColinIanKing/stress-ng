@@ -25,6 +25,8 @@ const struct option stress_long_options[] = {
 	{ "abort",		0,	0,	OPT_abort },
 	{ "access",		1,	0,	OPT_access },
 	{ "access-ops",		1,	0,	OPT_access_ops },
+	{ "acl",		1,	0,	OPT_acl },
+	{ "acl-ops",		1,	0,	OPT_acl_ops },
 	{ "af-alg",		1,	0,	OPT_af_alg },
 	{ "af-alg-dump",	0,	0,	OPT_af_alg_dump },
 	{ "af-alg-ops",		1,	0,	OPT_af_alg_ops },

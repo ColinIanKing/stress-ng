@@ -25,7 +25,7 @@ VERSION=0.17.03
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
-override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
+override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99 -g
 
 #
 #  Building stress-vnni with less than -O2 causes breakage with
@@ -225,6 +225,7 @@ HEADERS_GEN = \
 #
 STRESS_SRC = \
 	stress-access.c \
+	stress-acl.c \
 	stress-affinity.c \
 	stress-af-alg.c \
 	stress-aio.c \

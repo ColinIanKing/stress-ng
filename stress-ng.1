@@ -629,6 +629,17 @@ of the file using access(2) and faccessat(2) are sane.
 stop access workers after N bogo access sanity checks.
 .RE
 .TP
+.B POSIX Access Control List Stressor
+.RS 5
+.TQ
+.B \-\-acl N
+start N workers that exercise permutations of ACL access permission settings
+on user, group, other and mask tags.
+.TP
+.B \-\-acl\-ops N
+stop acl workers after N bogo acl settings have been set.
+.RE
+.TP
 .B Affinity stressor
 .RS 5
 .TQ
