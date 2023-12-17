@@ -6,7 +6,7 @@ Maintainer: Colin Ian King <colin.i.king@gmail.com>
 Standards-Version: 4.6.2
 Build-Depends: debhelper (>= 13),
                debhelper-compat (=13),
-               acl-dev,
+               libacl1-dev,
                zlib1g-dev,
                libbsd-dev,
                libeigen3-dev,

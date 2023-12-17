@@ -82,6 +82,7 @@ Debian, Ubuntu:
 
   * gcc
   * g++
+  * libacl1-dev
   * libaio-dev
   * libapparmor-dev
   * libatomic1
@@ -111,6 +112,7 @@ RHEL, Fedora, Centos:
   * Judy-devel
   * keyutils-libs-devel
   * kmod-devel
+  * libacl-devel
   * libaio-devel
   * libatomic
   * libattr-devel
@@ -139,6 +141,7 @@ RHEL, Fedora, Centos (static builds):
   * glibc-static
   * Judy-devel
   * keyutils-libs-devel
+  * libacl-devel
   * libaio-devel
   * libatomic-static
   * libattr-devel
@@ -182,6 +185,7 @@ SUSE:
   * zlib-devel
 
 ClearLinux:
+  * devpkg-acl
   * devpkg-eigen
   * devpkg-Judy
   * devpkg-kmod
@@ -199,6 +203,7 @@ Alpine Linux:
   * judy-dev
   * keyutils-dev
   * kmod-dev
+  * libacl-dev
   * libaio-dev
   * libatomic
   * libattr
