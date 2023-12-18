@@ -919,6 +919,45 @@ static int open_rdonly_trunc(
 }
 #endif
 
+#if defined(O_CREAT)
+static int open_modes(
+	stress_args_t *args,
+	const char *temp_dir,
+	const pid_t pid,
+	double *duration,
+	double *count)
+{
+	char filename[PATH_MAX];
+	int fd;
+	int mode_mask = 0777;
+	static int mode = 0;
+
+#if defined(S_ISVTX)
+	mode_mask |= S_ISVTX;
+#endif
+#if defined(S_ISGID)
+	mode_mask |= S_ISGID;
+#endif
+#if defined(S_ISUID)
+	mode_mask |= S_ISUID;
+#endif
+
+	(void)args;
+
+	(void)snprintf(filename, sizeof(filename), "%s/stress-open-%" PRIdMAX "-%" PRIu32,
+		temp_dir, (intmax_t)pid, stress_mwc32());
+
+	fd = open_arg3(filename, O_CREAT | O_RDWR, mode, duration, count);
+	mode++;
+	mode &= mode_mask;
+	if (fd < 0)
+		return fd;
+
+	(void)shim_unlink(filename);
+	return fd;
+}
+#endif
+
 static stress_open_func_t open_funcs[] = {
 #if defined(O_CREAT)
 	open_flag_perm,
@@ -983,6 +1022,9 @@ static stress_open_func_t open_funcs[] = {
 #if defined(O_CREAT) &&	\
     defined(O_TRUNC)
 	open_rdonly_trunc,
+#endif
+#if defined(O_CREAT)
+	open_modes,
 #endif
 };
 
