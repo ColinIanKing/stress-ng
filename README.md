@@ -659,6 +659,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Targeted Deanonymization via the Cache Side Channel: Attacks and Defenses](https://leakuidatorplusteam.github.io/preprint.pdf)
 * [Validating Full-System RISC-V Simulator: A Systematic Approach](https://infoscience.epfl.ch/record/302433)
 * [Lightweight Implementation of Per-packet Service Protection in eBPF/XDP](https://arxiv.org/pdf/2312.07152.pdf)
+* [ROS2 Real-time Performance Optimization and Evaluation](https://cjme.springeropen.com/articles/10.1186/s10033-023-00976-5)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
