@@ -193,7 +193,7 @@ mount_filesystem()
 		reiserfs)
 			MKFS_CMD="mkfs.reiserfs"
 			MKFS_ARGS="-q -f ${FSIMAGE}"
-			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			MNT_CMD="sudo mount -o loop -o acl ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		overlay)
