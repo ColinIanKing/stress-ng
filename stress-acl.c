@@ -31,35 +31,30 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LIB_ACL) &&	\
     defined(HAVE_SYS_ACL_H)
 
-typedef struct {
-	const int perm_mask;
-} stress_acl_entry;
-
 static acl_tag_t stress_acl_tags[] = {
 	ACL_USER_OBJ,
 	ACL_GROUP_OBJ,
 	ACL_USER,
 	ACL_GROUP,
 	ACL_OTHER,
-	ACL_MASK,
 };
 
-static stress_acl_entry stress_acl_entries[] = {
-	{ 0 },
-	{ ACL_READ },
-	{ ACL_WRITE },
-	{ ACL_EXECUTE },
-	{ ACL_READ | ACL_WRITE },
-	{ ACL_READ | ACL_EXECUTE },
-	{ ACL_WRITE | ACL_EXECUTE },
-	{ ACL_READ | ACL_WRITE | ACL_EXECUTE },
+static const int stress_acl_entries[] = {
+	0,
+	ACL_READ,
+	ACL_WRITE,
+	ACL_EXECUTE,
+	ACL_READ | ACL_WRITE,
+	ACL_READ | ACL_EXECUTE,
+	ACL_WRITE | ACL_EXECUTE,
+	ACL_READ | ACL_WRITE | ACL_EXECUTE,
 };
 
 /*
  *  acl_delete_all()
  *	try to delete all acl entries on filename
  */
-static void acl_delete_all(const char *filename)
+static inline void acl_delete_all(const char *filename)
 {
 	acl_t acl;
 	acl_entry_t entry;
@@ -84,10 +79,30 @@ static void acl_delete_all(const char *filename)
 }
 
 /*
- *  acl_set()
- *	exercise all valid an invalid acls on filename
+ *  stress_acl_free()
+ *	free ACLs
  */
-static int acl_set(stress_args_t *args, const char *filename)
+static inline void stress_acl_free(acl_t *acls, const size_t acl_count)
+{
+	register size_t i;
+
+	for (i = 0; i < acl_count; i++) {
+		acl_free(acls[i]);
+		acls[i] = NULL;
+	}
+}
+
+/*
+ *  stress_acl_setup()
+ *	setup valid ACLs
+ */
+static int stress_acl_setup(
+	stress_args_t *args,
+	const uid_t uid,
+	const gid_t gid,
+	const size_t max_acls,
+	acl_t *acls,
+	size_t *acl_count)
 {
 	size_t usr, grp, oth;
 
@@ -97,14 +112,9 @@ static int acl_set(stress_args_t *args, const char *filename)
 				acl_t acl;
 				acl_entry_t entry = (acl_entry_t)NULL;
 				acl_permset_t permset;
-				uid_t uid;
-				gid_t gid;
 				size_t j;
 
-				if (!stress_continue(args))
-					break;
-
-				acl = acl_init(64);
+				acl = acl_init((int)SIZEOF_ARRAY(stress_acl_tags));
 				if (acl == (acl_t)NULL) {
 					pr_inf("%s: failed to initialize acl, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -128,23 +138,21 @@ static int acl_set(stress_args_t *args, const char *filename)
 					}
 					switch (stress_acl_tags[j]) {
 					case ACL_USER_OBJ:
-						perm_mask = stress_acl_entries[usr].perm_mask;
+						perm_mask = stress_acl_entries[usr];
 						break;
 					case ACL_USER:
-						uid = getuid();
 						acl_set_qualifier(entry, &uid);
-						perm_mask = stress_acl_entries[usr].perm_mask;
+						perm_mask = stress_acl_entries[usr];
 						break;
 					case ACL_GROUP_OBJ:
-						perm_mask = stress_acl_entries[grp].perm_mask;
+						perm_mask = stress_acl_entries[grp];
 						break;
 					case ACL_GROUP:
-						gid = getgid();
 						acl_set_qualifier(entry, &gid);
-						perm_mask = stress_acl_entries[grp].perm_mask;
+						perm_mask = stress_acl_entries[grp];
 						break;
 					case ACL_OTHER:
-						perm_mask = stress_acl_entries[oth].perm_mask;
+						perm_mask = stress_acl_entries[oth];
 						break;
 					case ACL_MASK:
 						perm_mask = 0777;
@@ -170,31 +178,59 @@ static int acl_set(stress_args_t *args, const char *filename)
 						return EXIT_FAILURE;
 					}
 					acl_calc_mask(&acl);
-
-					if (acl_valid(acl) == 0) {
-						stress_bogo_inc(args);
-						if (acl_set_file(filename, ACL_TYPE_ACCESS, acl) != 0) {
-							switch (errno) {
-							case EOPNOTSUPP:
-								pr_inf_skip("%s: cannot set acl on '%s', errno=%d (%s), skipping stressor\n",
-									args->name, filename, errno, strerror(errno));
-								acl_free(acl);
-								return EXIT_NOT_IMPLEMENTED;
-							case ENOENT:
-								acl_free(acl);
-								return EXIT_SUCCESS;
-							default:
-								pr_inf("%s: failed to set acl on '%s', errno=%d (%s)\n",
-									args->name, filename, errno, strerror(errno));
-								return EXIT_FAILURE;
-							}
-						}
-					}
 				}
-				acl_free(acl);
+
+				if (acl_valid(acl) == 0) {
+					acls[*acl_count] = acl;
+					(*acl_count)++;
+					if (*acl_count >= max_acls)
+						return EXIT_SUCCESS;
+				} else {
+					acl_free(acl);
+					acl = (acl_t)NULL;
+				}
 			}
 		}
 	}
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  acl_set()
+ *	exercise all valid an invalid acls on filename
+ */
+static int acl_set(
+	stress_args_t *args,
+	const char *filename,
+	acl_t *acls,
+	const size_t acl_count,
+	double *duration,
+	double *count)
+{
+	size_t i = 0;
+	const double t  = stress_time_now();
+
+	for (i = 0; i < acl_count; i++) {
+		if (LIKELY(acl_set_file(filename, ACL_TYPE_ACCESS, acls[i]) == 0)) {
+			stress_bogo_inc(args);
+		} else {
+			switch (errno) {
+			case EOPNOTSUPP:
+				pr_inf_skip("%s: cannot set acl on '%s', errno=%d (%s), skipping stressor\n",
+					args->name, filename, errno, strerror(errno));
+				return EXIT_NOT_IMPLEMENTED;
+			case ENOENT:
+				return EXIT_SUCCESS;
+			default:
+				pr_inf("%s: failed to set acl on '%s', errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
+				return EXIT_FAILURE;
+				}
+		}
+	}
+	(*duration) += (stress_time_now() - t);
+	(*count) += (double)acl_count;
+
 	return EXIT_SUCCESS;
 }
 
@@ -204,9 +240,32 @@ static int acl_set(stress_args_t *args, const char *filename)
  */
 static int stress_acl(stress_args_t *args)
 {
-	int fd, rc = EXIT_FAILURE;
+	double duration = 0.0, count = 0.0, rate;
+	int fd, rc;
+	const uid_t uid = getuid();
+	const gid_t gid = getgid();
+	acl_t *acls;
+	size_t acl_count = 0;
+	const size_t max_acls = SIZEOF_ARRAY(stress_acl_entries) *
+				      SIZEOF_ARRAY(stress_acl_entries) *
+				      SIZEOF_ARRAY(stress_acl_entries) *
+				      SIZEOF_ARRAY(stress_acl_tags);
+	const size_t acls_size = max_acls * sizeof(*acls);
 
 	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
+
+	acls = (acl_t *)stress_mmap_populate(NULL, acls_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_PRIVATE,
+					-1, 0);
+	if (acls == MAP_FAILED) {
+		pr_inf("%s: cannot mmap %zd bytes for valid acl cache, errno=%d (%s), skipping stressor\n",
+			args->name, acls_size, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	rc = stress_acl_setup(args, uid, gid, max_acls, acls, &acl_count);
+	if (rc != EXIT_SUCCESS)
+		goto tidy_unmap;
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
@@ -214,7 +273,7 @@ static int stress_acl(stress_args_t *args)
 			rc = stress_exit_status(errno);
 			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
-			return rc;
+			goto tidy_acl_free;
 		}
 	}
 
@@ -234,16 +293,31 @@ static int stress_acl(stress_args_t *args)
 
 	do {
 		acl_delete_all(filename);
-		rc = acl_set(args, filename);
+		rc = acl_set(args, filename, acls, acl_count, &duration, &count);
 		if (rc != EXIT_SUCCESS)
 			break;
 	} while (stress_continue(args));
 	acl_delete_all(filename);
+
+	if (args->instance == 0)
+		pr_inf("%s: %zd unique ACLs used\n", args->name, acl_count);
+
+	rate = (count > 0.0) ? duration * STRESS_DBL_NANOSECOND / count : 0.0;
+	stress_metrics_set(args, 1, "nanoseconds to set an ACL", rate, STRESS_HARMONIC_MEAN);
+
+	rc = EXIT_SUCCESS;
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
+
+tidy_acl_free:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_acl_free(acls, acl_count);
+
+tidy_unmap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)munmap((void *)acls, acls_size);
 
 	return rc;
 }
