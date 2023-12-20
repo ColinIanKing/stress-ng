@@ -26,7 +26,7 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"acl N",	"start N workers exercising valid acl file mode bits " },
+	{ NULL,	"acl N",	"start N workers exercising valid ACL file mode bits " },
 	{ NULL,	"acl-ops N",	"stop acl workers after N bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
