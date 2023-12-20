@@ -204,14 +204,29 @@ static int acl_set(
 	const char *filename,
 	acl_t *acls,
 	const size_t acl_count,
-	double *duration,
-	double *count)
+	stress_metrics_t metrics[2])
 {
 	size_t i = 0;
-	const double t  = stress_time_now();
 
 	for (i = 0; i < acl_count; i++) {
+		const double t1 = stress_time_now();
+
 		if (LIKELY(acl_set_file(filename, ACL_TYPE_ACCESS, acls[i]) == 0)) {
+			double t2 = stress_time_now();
+			acl_t acl;
+
+			metrics[0].count += 1.0;
+
+			acl = acl_get_file(filename, ACL_TYPE_ACCESS);
+			if (acl) {
+				metrics[1].duration += (stress_time_now() - t2);
+				metrics[1].count += 1.0;
+				acl_free(acl);
+			}
+
+			metrics[0].duration += (t2 - t1);
+			metrics[0].count += 1.0;
+
 			stress_bogo_inc(args);
 		} else {
 			switch (errno) {
@@ -228,8 +243,6 @@ static int acl_set(
 				}
 		}
 	}
-	(*duration) += (stress_time_now() - t);
-	(*count) += (double)acl_count;
 
 	return EXIT_SUCCESS;
 }
@@ -240,19 +253,23 @@ static int acl_set(
  */
 static int stress_acl(stress_args_t *args)
 {
-	double duration = 0.0, count = 0.0, rate;
+	double rate;
 	int fd, rc;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	acl_t *acls;
-	size_t acl_count = 0;
+	size_t i, acl_count = 0;
 	const size_t max_acls = SIZEOF_ARRAY(stress_acl_entries) *
 				      SIZEOF_ARRAY(stress_acl_entries) *
 				      SIZEOF_ARRAY(stress_acl_entries) *
 				      SIZEOF_ARRAY(stress_acl_tags);
 	const size_t acls_size = max_acls * sizeof(*acls);
-
-	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
+	stress_metrics_t metrics[2];
+	char filename[PATH_MAX], pathname[PATH_MAX];
+	static char *description[] = {
+		"nanoseconds to set an ACL",
+		"nanoseconds to get an ACL",
+	};
 
 	acls = (acl_t *)stress_mmap_populate(NULL, acls_size,
 					PROT_READ | PROT_WRITE,
@@ -277,9 +294,6 @@ static int stress_acl(stress_args_t *args)
 		}
 	}
 
-	stress_rndstr(longpath, sizeof(longpath));
-	longpath[0] = '/';
-
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
@@ -289,11 +303,16 @@ static int stress_acl(stress_args_t *args)
 	}
 	(void)close(fd);
 
+	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
+		metrics[i].duration = 0.0;
+		metrics[i].count = 0.0;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		acl_delete_all(filename);
-		rc = acl_set(args, filename, acls, acl_count, &duration, &count);
+		rc = acl_set(args, filename, acls, acl_count, metrics);
 		if (rc != EXIT_SUCCESS)
 			break;
 	} while (stress_continue(args));
@@ -302,8 +321,10 @@ static int stress_acl(stress_args_t *args)
 	if (args->instance == 0)
 		pr_inf("%s: %zd unique ACLs used\n", args->name, acl_count);
 
-	rate = (count > 0.0) ? duration * STRESS_DBL_NANOSECOND / count : 0.0;
-	stress_metrics_set(args, 1, "nanoseconds to set an ACL", rate, STRESS_HARMONIC_MEAN);
+	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
+		rate = (metrics[i].count > 0.0) ? metrics[i].duration * STRESS_DBL_NANOSECOND / metrics[i].count : 0.0;
+		stress_metrics_set(args, i, description[i], rate, STRESS_HARMONIC_MEAN);
+	}
 
 	rc = EXIT_SUCCESS;
 tidy:
