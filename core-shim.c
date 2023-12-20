@@ -2633,6 +2633,10 @@ int shim_kill(pid_t pid, int sig)
 		errno = EPERM;
 		return -1;
 	}
+	if ((pid == -1) && (sig == SIGKILL)) {
+		errno = EINVAL;
+		return -1;
+	}
 	if (geteuid() != 0)
 		return kill(pid, sig);
 	if (pid <= 0) {
