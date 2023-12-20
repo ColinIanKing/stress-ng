@@ -51,10 +51,10 @@ static const int stress_acl_entries[] = {
 };
 
 /*
- *  acl_delete_all()
+ *  stress_acl_delete_all()
  *	try to delete all acl entries on filename
  */
-static inline void acl_delete_all(const char *filename)
+static inline void stress_acl_delete_all(const char *filename)
 {
 	acl_t acl;
 	acl_entry_t entry;
@@ -196,10 +196,10 @@ static int stress_acl_setup(
 }
 
 /*
- *  acl_set()
+ *  stress_acl_exercise()
  *	exercise all valid an invalid acls on filename
  */
-static int acl_set(
+static int stress_acl_exercise(
 	stress_args_t *args,
 	const char *filename,
 	acl_t *acls,
@@ -311,12 +311,12 @@ static int stress_acl(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		acl_delete_all(filename);
-		rc = acl_set(args, filename, acls, acl_count, metrics);
+		stress_acl_delete_all(filename);
+		rc = stress_acl_exercise(args, filename, acls, acl_count, metrics);
 		if (rc != EXIT_SUCCESS)
 			break;
 	} while (stress_continue(args));
-	acl_delete_all(filename);
+	stress_acl_delete_all(filename);
 
 	if (args->instance == 0)
 		pr_inf("%s: %zd unique ACLs used\n", args->name, acl_count);
