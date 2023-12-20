@@ -2683,7 +2683,7 @@ static inline void stress_setup_stats_buffers(void)
 
 			ss->stats[i] = stats;
 			for (j = 0; j < SIZEOF_ARRAY(stats->metrics); j++) {
-				stats->metrics[j].value = -1.0;
+				stats->metrics[j].value = 0.0;
 				stats->metrics[j].description = NULL;
 			}
 		}
