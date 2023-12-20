@@ -21,14 +21,18 @@
 #if defined(HAVE_SYS_ACL_H)
 #include <sys/acl.h>
 #endif
+#if defined(HAVE_ACL_LIBACL_H)
+#include <acl/libacl.h>
+#endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"acl N",	"start N workers thrashing acl file mode bits " },
+	{ NULL,	"acl N",	"start N workers exercising valid acl file mode bits " },
 	{ NULL,	"acl-ops N",	"stop acl workers after N bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_ACL) &&	\
+#if defined(HAVE_LIB_ACL) &&		\
+    defined(HAVE_ACL_LIBACL_H) &&	\
     defined(HAVE_SYS_ACL_H)
 
 static acl_tag_t stress_acl_tags[] = {
@@ -76,6 +80,86 @@ static inline void stress_acl_delete_all(const char *filename)
 	if (acl_valid(acl) == 0)
 		acl_set_file(filename, ACL_TYPE_ACCESS, acl);
 	acl_free(acl);
+}
+
+/*
+ *  stress_acl_cmp()
+ *	naive acl comparison, assumes that acl_to_text generates
+ *	the same strings for identical acls
+ */
+static inline int stress_acl_cmp(acl_t acl1, acl_t acl2)
+{
+	char *acl_txt1, *acl_txt2;
+	ssize_t len1, len2;
+	int ret = -1;
+
+	acl_txt1 = acl_to_text(acl1, &len1);
+	if (!acl_txt1)
+		return 0;
+	acl_txt2 = acl_to_text(acl2, &len2);
+	if (!acl_txt2) {
+		acl_free((void *)acl_txt1);
+		return 0;
+	}
+	if (len1 == len2)
+		ret = strcmp(acl_txt1, acl_txt2);
+
+	acl_free((void *)acl_txt2);
+	acl_free((void *)acl_txt1);
+
+	return ret;
+}
+
+/*
+ *  stress_acl_perms()
+ *	convert ACL permission bits to string
+ */
+static void stress_acl_perms(acl_t acl, char *str, const size_t str_len)
+{
+	int which = ACL_FIRST_ENTRY;
+
+	if (str_len < 18)
+		return;
+
+	/* user, group and other permission bits */
+	(void)snprintf(str, str_len, "u:--- g:--- o:---");
+
+	for (;;) {
+		acl_tag_t tag;
+		acl_entry_t entry;
+		acl_permset_t permset;
+		int index = 0;
+
+		if (acl_get_entry(acl, which, &entry) <= 0)
+			break;
+		which = ACL_NEXT_ENTRY;
+
+		if (acl_get_tag_type(entry, &tag) != 0)
+			continue;
+		if (acl_get_permset(entry, &permset) != 0)
+			continue;
+
+		switch (tag) {
+		case ACL_USER:
+			index = 2;
+			break;
+		case ACL_GROUP:
+			index = 8;
+			break;
+		case ACL_OTHER:
+			index = 14;
+			break;
+		default:
+			continue;
+		}
+
+		if (acl_get_perm(permset, ACL_READ))
+			str[index + 0] = 'r';
+		if (acl_get_perm(permset, ACL_WRITE))
+			str[index + 1] = 'w';
+		if (acl_get_perm(permset, ACL_EXECUTE))
+			str[index + 2] = 'x';
+	}
 }
 
 /*
@@ -208,7 +292,7 @@ static int stress_acl_exercise(
 {
 	size_t i = 0;
 
-	for (i = 0; i < acl_count; i++) {
+	for (i = 0; i < acl_count && stress_continue(args); i++) {
 		const double t1 = stress_time_now();
 
 		if (LIKELY(acl_set_file(filename, ACL_TYPE_ACCESS, acls[i]) == 0)) {
@@ -221,6 +305,15 @@ static int stress_acl_exercise(
 			if (acl) {
 				metrics[1].duration += (stress_time_now() - t2);
 				metrics[1].count += 1.0;
+				if (stress_acl_cmp(acls[i], acl)) {
+					char setacl[32], getacl[32];
+
+					stress_acl_perms(acls[i], setacl, sizeof(setacl));
+					stress_acl_perms(acl, getacl, sizeof(getacl));
+
+					pr_fail("%s: mismatch between set acl %s and get acl %s\n",
+						args->name, setacl, getacl);
+				}
 				acl_free(acl);
 			}
 
@@ -355,5 +448,6 @@ stressor_info_t stress_acl_info = {
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
+	.unimplemented_reason = "build without libacl or acl/libacl.h or sys/acl.h";
 };
 #endif

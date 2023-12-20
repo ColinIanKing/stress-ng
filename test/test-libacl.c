@@ -17,12 +17,27 @@
  *
  */
 #include <sys/acl.h>
+#include <acl/libacl.h>
 
 /* The following functions from libacl are used by stress-ng */
 
 static void *aio_funcs[] = {
-	acl_init,
+	acl_add_perm,
+	acl_calc_mask,
+	acl_clear_perms,
+	acl_create_entry,
+	acl_delete_entry,
 	acl_free,
+	acl_get_entry,
+	acl_get_file,
+	acl_get_perm,
+	acl_get_permset,
+	acl_get_tag_type,
+	acl_init,
+	acl_set_file,
+	acl_set_permset,
+	acl_set_qualifier,
+	acl_valid,
 };
 
 int main(void)
