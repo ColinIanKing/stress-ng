@@ -545,7 +545,8 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 			stress_stats_t *const stats = ss->stats[i];
 			const pid_t pid = stats->pid;
 
-			if (pid && !stats->signalled) {
+			/* Don't kill -1 (group), or init processes! */
+			if ((pid > 1) && !stats->signalled) {
 				(void)shim_kill(pid, signum);
 				stats->signalled = true;
 			}
