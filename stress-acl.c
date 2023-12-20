@@ -54,17 +54,22 @@ static const int stress_acl_entries[] = {
 	ACL_READ | ACL_WRITE | ACL_EXECUTE,
 };
 
+static const acl_type_t stress_acl_types[] = {
+	ACL_TYPE_ACCESS,
+	ACL_TYPE_DEFAULT,
+};
+
 /*
  *  stress_acl_delete_all()
  *	try to delete all acl entries on filename
  */
-static inline void stress_acl_delete_all(const char *filename)
+static inline void stress_acl_delete_all(const char *filename, const acl_type_t type)
 {
 	acl_t acl;
 	acl_entry_t entry;
 	int which = ACL_FIRST_ENTRY;
 
-	acl = acl_get_file(filename, ACL_TYPE_ACCESS);
+	acl = acl_get_file(filename, type);
 	if (acl == (acl_t)NULL)
 		return;
 
@@ -78,7 +83,7 @@ static inline void stress_acl_delete_all(const char *filename)
 		which = ACL_NEXT_ENTRY;
 	}
 	if (acl_valid(acl) == 0)
-		acl_set_file(filename, ACL_TYPE_ACCESS, acl);
+		acl_set_file(filename, type, acl);
 	acl_free(acl);
 }
 
@@ -286,22 +291,23 @@ static int stress_acl_setup(
 static int stress_acl_exercise(
 	stress_args_t *args,
 	const char *filename,
+	const acl_type_t type,
 	acl_t *acls,
 	const size_t acl_count,
 	stress_metrics_t metrics[2])
 {
-	size_t i = 0;
+	size_t i;
 
 	for (i = 0; i < acl_count && stress_continue(args); i++) {
 		const double t1 = stress_time_now();
 
-		if (LIKELY(acl_set_file(filename, ACL_TYPE_ACCESS, acls[i]) == 0)) {
+		if (LIKELY(acl_set_file(filename, type, acls[i]) == 0)) {
 			double t2 = stress_time_now();
 			acl_t acl;
 
 			metrics[0].count += 1.0;
 
-			acl = acl_get_file(filename, ACL_TYPE_ACCESS);
+			acl = acl_get_file(filename, type);
 			if (acl) {
 				metrics[1].duration += (stress_time_now() - t2);
 				metrics[1].count += 1.0;
@@ -322,21 +328,25 @@ static int stress_acl_exercise(
 
 			stress_bogo_inc(args);
 		} else {
+			char getacl[32];
+
 			switch (errno) {
 			case EOPNOTSUPP:
 				pr_inf_skip("%s: cannot set acl on '%s', errno=%d (%s), skipping stressor\n",
 					args->name, filename, errno, strerror(errno));
 				return EXIT_NOT_IMPLEMENTED;
 			case ENOENT:
+			case EACCES:
+				/* silently ignore these, faked to OK */
 				return EXIT_SUCCESS;
 			default:
-				pr_inf("%s: failed to set acl on '%s', errno=%d (%s)\n",
-					args->name, filename, errno, strerror(errno));
+				stress_acl_perms(acls[i], getacl, sizeof(getacl));
+				pr_inf("%s: failed to set acl on '%s' %s, errno=%d (%s)\n",
+					args->name, filename, getacl, errno, strerror(errno));
 				return EXIT_FAILURE;
-				}
+			}
 		}
 	}
-
 	return EXIT_SUCCESS;
 }
 
@@ -404,12 +414,19 @@ static int stress_acl(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_acl_delete_all(filename);
-		rc = stress_acl_exercise(args, filename, acls, acl_count, metrics);
-		if (rc != EXIT_SUCCESS)
-			break;
+		for (i = 0; i < SIZEOF_ARRAY(stress_acl_types); i++) {
+			const acl_type_t type = stress_acl_types[i];
+
+			stress_acl_delete_all(filename, type);
+			rc = stress_acl_exercise(args, filename, type, acls, acl_count, metrics);
+			if (rc != EXIT_SUCCESS)
+				break;
+		}
 	} while (stress_continue(args));
-	stress_acl_delete_all(filename);
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_acl_types); i++) {
+		stress_acl_delete_all(filename, stress_acl_types[i]);
+	}
 
 	if (args->instance == 0)
 		pr_inf("%s: %zd unique ACLs used\n", args->name, acl_count);
