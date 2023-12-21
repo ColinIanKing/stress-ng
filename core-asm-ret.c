@@ -63,6 +63,10 @@ stress_ret_opcode_t stress_ret_opcode =
 	{ 0, 0, "", { 0x00 } };
 #endif
 
+/*
+ *  stress_asm_ret_supported()
+ *	check if assembler return instruction is supported by stress-ng
+ */
 int stress_asm_ret_supported(const char *name)
 {
 	char tmp[64];
