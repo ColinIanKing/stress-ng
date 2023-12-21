@@ -37,6 +37,10 @@ static int stress_config_check_cpu_filter(const struct dirent *d)
 	return 0;
 }
 
+/*
+ *  stress_config_read()
+ *	read a uint64_t value from a file
+ */
 static int stress_config_read(const char *path, uint64_t *value)
 {
 	char buffer[256];
@@ -51,6 +55,11 @@ static int stress_config_read(const char *path, uint64_t *value)
 }
 #endif
 
+/*
+ *  stress_config_check()
+ *	sanity check system configuration and inform user if
+ *	any sub-optimal performance configurations are being used
+ */
 void stress_config_check(void)
 {
 #if defined(__linux__)
