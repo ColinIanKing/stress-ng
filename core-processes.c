@@ -23,6 +23,10 @@
 #include <pwd.h>
 
 #if defined(__linux__)
+/*
+ *  stress_dump_processes_filter()
+ *	filter out non-process filenames from /proc
+ */
 static int stress_dump_processes_filter(const struct dirent *d)
 {
 	if (!d)
@@ -31,6 +35,10 @@ static int stress_dump_processes_filter(const struct dirent *d)
 	return isdigit((int)d->d_name[0]);
 }
 
+/*
+ *  stress_dump_processes()
+ *	dump out names and state of running processes
+ */
 void stress_dump_processes(void)
 {
 	int i, n, pid_width = 5;
