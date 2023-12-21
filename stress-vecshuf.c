@@ -391,6 +391,9 @@ static int stress_vecshuf(stress_args_t *args)
 		double total_duration = 0.0;
 		double total_ops = 0.0;
 		double total_bytes = 0.0;
+		double inverse_sum_ops = 0.0;
+		double inverse_sum_bytes = 0.0;
+		double n = 0.0;
 
 		pr_block_begin();
 		pr_dbg("%s: shuffle throughput for just stressor instance 0:\n", args->name);
@@ -414,6 +417,10 @@ static int stress_vecshuf(stress_args_t *args)
 				const double ops_rate = (ops / duration) / 1000000.0;
 				const double bytes_rate = (bytes / duration) / (1.0 * MB);
 
+				inverse_sum_ops += 1.0 / ops_rate;
+				inverse_sum_bytes += 1.0 / bytes_rate;
+				n += 1.0;
+
 				pr_dbg("%s: %14.14s %13.3f %13.3f %13.3f\n", args->name,
 					stress_vecshuf_funcs[i].name, bytes_rate, ops_rate,
 					100.0 * duration / total_duration);
@@ -421,11 +428,12 @@ static int stress_vecshuf(stress_args_t *args)
 		}
 
 		if (total_duration > 0.0) {
-			const double ops_rate = (total_ops / total_duration) / 1000000.0;
-			const double bytes_rate = (total_bytes / total_duration) / (1.0 * MB);
+			double ops_rate, bytes_rate;
 
+			ops_rate = n / inverse_sum_ops;
+			bytes_rate = n / inverse_sum_bytes;
 			pr_dbg("%s: %14.14s %13.3f %13.3f\n", args->name,
-				"Mean:", bytes_rate, ops_rate);
+				"Harmonic Mean:", bytes_rate, ops_rate);
 		}
 		pr_block_end();
 	}
