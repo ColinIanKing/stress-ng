@@ -112,6 +112,10 @@ static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
 
 #if defined(__FreeBSD__)
+/*
+ *  freebsd_get_cpu_time()
+ *	get user, system, idle times; FreeBSD variant
+ */
 static void freebsd_get_cpu_time(
 	uint64_t *user_time,
 	uint64_t *system_time,
@@ -141,6 +145,10 @@ static void freebsd_get_cpu_time(
 #endif
 
 #if defined(__NetBSD__)
+/*
+ *  freebsd_get_cpu_time()
+ *	get user, system, idle times; NetBSD variant
+ */
 static void netbsd_get_cpu_time(
 	uint64_t *user_time,
 	uint64_t *system_time,
@@ -160,6 +168,10 @@ static void netbsd_get_cpu_time(
 }
 #endif
 
+/*
+ *  stress_set_generic_stat()
+ *	parse and check op for valud time range
+ */
 static int stress_set_generic_stat(
 	const char *const opt,
 	const char *name,
@@ -175,22 +187,38 @@ static int stress_set_generic_stat(
 	return 0;
 }
 
+/*
+ *  stress_set_status()
+ *	parse --status option
+ */
 int stress_set_status(const char *const opt)
 {
 	return stress_set_generic_stat(opt, "status", &status_delay);
 }
 
+/*
+ *  stress_set_vmstat()
+ *	parse --vmstat option
+ */
 int stress_set_vmstat(const char *const opt)
 {
 	return stress_set_generic_stat(opt, "vmstat", &vmstat_delay);
 }
 
+/*
+ *  stress_set_thermalstat()
+ *	parse --thermalstat option
+ */
 int stress_set_thermalstat(const char *const opt)
 {
 	g_opt_flags |= OPT_FLAGS_TZ_INFO;
 	return stress_set_generic_stat(opt, "thermalstat", &thermalstat_delay);
 }
 
+/*
+ *  stress_set_iostat()
+ *	parse --iostat option
+ */
 int stress_set_iostat(const char *const opt)
 {
 	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
@@ -879,7 +907,11 @@ static double stress_get_tz_info(const stress_tz_info_t *tz_info)
 }
 #endif
 
-static void stress_zero_cpu_ghz(
+/*
+ *  stress_zero_cpu_ghz()
+ *	zero CPU clock freq stats
+ */
+static inline void stress_zero_cpu_ghz(
 	double *avg_ghz,
 	double *min_ghz,
 	double *max_ghz)
