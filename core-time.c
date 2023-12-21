@@ -26,7 +26,6 @@
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
 
-
 /*
  *  stress_timeval_to_double()
  *      convert timeval to seconds as a double
@@ -45,6 +44,10 @@ double PURE OPTIMIZE3 stress_timespec_to_double(const struct timespec *ts)
 	return (double)ts->tv_sec + ((double)ts->tv_nsec * ONE_BILLIONTH);
 }
 
+/*
+ *  stress_time_now_timeval()
+ *	get time as double accurate to microseconds
+ */
 static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 {
 	struct timeval now;
@@ -56,6 +59,10 @@ static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 	return 0;
 }
 
+/*
+ *  stress_time_now_timeval()
+ *	get time as double accurate to nanoseconds
+ */
 static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
 {
 #if defined(HAVE_CLOCK_GETTIME) &&     \
