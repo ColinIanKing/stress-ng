@@ -375,6 +375,10 @@ static int PURE stress_smart_dev_filter(const struct dirent *d)
 	return 1;
 }
 
+/*
+ *  stress_smart_dev_sort()
+ *	sort on dirent filenames
+ */
 static int PURE stress_smart_dev_sort(const struct dirent **d1, const struct dirent **d2)
 {
 	int cmp;
