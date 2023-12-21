@@ -67,6 +67,10 @@ static stress_mwc_t mwc = {
 	0,
 };
 
+/*
+ *  mwc_flush()
+ *	reset internal mwc cached values, flush out
+ */
 static inline void mwc_flush(void)
 {
 	mwc.n16 = 0;
