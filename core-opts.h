@@ -143,6 +143,7 @@ typedef enum {
 	OPT_access_ops,
 
 	OPT_acl,
+	OPT_acl_rand,
 	OPT_acl_ops,
 
 	OPT_affinity,

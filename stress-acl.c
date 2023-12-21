@@ -27,8 +27,18 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"acl N",	"start N workers exercising valid ACL file mode bits " },
+	{ NULL,	"acl-rand",	"randomize ordering of ACL file mode tests" },
 	{ NULL,	"acl-ops N",	"stop acl workers after N bogo operations" },
 	{ NULL,	NULL,		NULL }
+};
+
+static int stress_set_acl_rand(const char *opt)
+{
+	return stress_set_setting_true("acl-rand", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_acl_rand,	stress_set_acl_rand },
 };
 
 #if defined(HAVE_LIB_ACL) &&		\
@@ -58,6 +68,7 @@ static const acl_type_t stress_acl_types[] = {
 	ACL_TYPE_ACCESS,
 	ACL_TYPE_DEFAULT,
 };
+
 
 /*
  *  stress_acl_delete_all()
@@ -187,6 +198,7 @@ static inline void stress_acl_free(acl_t *acls, const size_t acl_count)
  */
 static int stress_acl_setup(
 	stress_args_t *args,
+	const bool acl_rand,
 	const uid_t uid,
 	const gid_t gid,
 	const size_t max_acls,
@@ -281,6 +293,20 @@ static int stress_acl_setup(
 			}
 		}
 	}
+
+	if (acl_rand) {
+		register size_t i;
+		register size_t n = *acl_count;
+
+		for (i = 0; i < n; i++) {
+			register acl_t tmp;
+			register size_t j = (size_t)stress_mwc32modn_maybe_pwr2(n);
+
+			tmp = acls[i];
+			acls[i] = acls[j];
+			acls[j] = tmp;
+		}
+	}
 	return EXIT_SUCCESS;
 }
 
@@ -311,6 +337,7 @@ static int stress_acl_exercise(
 			if (acl) {
 				metrics[1].duration += (stress_time_now() - t2);
 				metrics[1].count += 1.0;
+
 				if (stress_acl_cmp(acls[i], acl)) {
 					char setacl[32], getacl[32];
 
@@ -362,6 +389,7 @@ static int stress_acl(stress_args_t *args)
 	const gid_t gid = getgid();
 	acl_t *acls;
 	size_t i, acl_count = 0;
+	bool acl_rand = false;
 	const size_t max_acls = SIZEOF_ARRAY(stress_acl_entries) *
 				      SIZEOF_ARRAY(stress_acl_entries) *
 				      SIZEOF_ARRAY(stress_acl_entries) *
@@ -374,6 +402,8 @@ static int stress_acl(stress_args_t *args)
 		"nanoseconds to get an ACL",
 	};
 
+	(void)stress_get_setting("acl-rand", &acl_rand);
+
 	acls = (acl_t *)stress_mmap_populate(NULL, acls_size,
 					PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE,
@@ -383,7 +413,7 @@ static int stress_acl(stress_args_t *args)
 			args->name, acls_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	rc = stress_acl_setup(args, uid, gid, max_acls, acls, &acl_count);
+	rc = stress_acl_setup(args, acl_rand, uid, gid, max_acls, acls, &acl_count);
 	if (rc != EXIT_SUCCESS)
 		goto tidy_unmap;
 
@@ -456,6 +486,7 @@ tidy_unmap:
 stressor_info_t stress_acl_info = {
 	.stressor = stress_acl,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -463,6 +494,7 @@ stressor_info_t stress_acl_info = {
 stressor_info_t stress_acl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 	.unimplemented_reason = "build without libacl or acl/libacl.h or sys/acl.h";
