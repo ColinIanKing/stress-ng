@@ -22,16 +22,28 @@
 
 uint64_t stress_sort_compares ALIGN64;
 
+/*
+ *  stress_sort_compare_reset
+ *	reset stress_sort_compares counter
+ */
 void stress_sort_compare_reset(void)
 {
 	stress_sort_compares = 0;
 }
 
+/*
+ *  stress_sort_compare_get
+ *	get stress_sort_compares counter
+ */
 uint64_t stress_sort_compare_get(void)
 {
 	return stress_sort_compares;
 }
 
+/*
+ *  stress_sort_data_int32_mangle()
+ *	flip bits to re-order 16 and 32 bit comparisons
+ */
 void OPTIMIZE3 stress_sort_data_int32_mangle(int32_t *data, const size_t n)
 {
 	const int32_t *end = data + n;
