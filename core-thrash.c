@@ -34,6 +34,10 @@ static volatile bool thrash_run;
 static sigjmp_buf jmp_env;
 static bool jmp_env_set;
 
+/*
+ *  stress_thrash_handler()
+ *	handle signals, set flag to stop thrash child process
+ */
 static void MLOCKED_TEXT stress_thrash_handler(int signum)
 {
 	(void)signum;
@@ -41,6 +45,10 @@ static void MLOCKED_TEXT stress_thrash_handler(int signum)
 	thrash_run = false;
 }
 
+/*
+ *  stress_pagein_handler()
+ *	jmp back to stress_pagein_self on signal
+ */
 static void MLOCKED_TEXT stress_pagein_handler(int signum)
 {
 	(void)signum;
@@ -49,6 +57,10 @@ static void MLOCKED_TEXT stress_pagein_handler(int signum)
 		siglongjmp(jmp_env, 1);
 }
 
+/*
+ *  stress_thrash_state()
+ *	set name of thrasher child process
+ */
 static void stress_thrash_state(const char *state)
 {
 	stress_set_proc_state_str("thrash", state);
