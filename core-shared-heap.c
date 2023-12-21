@@ -45,6 +45,10 @@ typedef struct stress_shared_heap_str {
 	char str[];
 } stress_shared_heap_str_t;
 
+/*
+ *  stress_shared_heap_init()
+ *	initialized shared heap
+ */
 void *stress_shared_heap_init(void)
 {
 	const size_t page_size = stress_get_page_size();
@@ -73,6 +77,10 @@ void *stress_shared_heap_init(void)
 	return g_shared->shared_heap.lock;
 }
 
+/*
+ *  stress_shared_heap_deinit()
+ *	free shared heap
+ */
 void stress_shared_heap_deinit(void)
 {
 	if (g_shared->shared_heap.out_of_memory) {
