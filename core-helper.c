@@ -1367,7 +1367,7 @@ int stress_strcmp_munged(const char *s1, const char *s2)
  */
 static ssize_t NOINLINE OPTIMIZE0 stress_get_stack_direction_helper(const uint8_t *val1)
 {
-	const uint8_t val2 = 0;
+	const uint8_t val2 = *val1;
 	const ssize_t diff = &val2 - (const uint8_t *)val1;
 
 	return (diff > 0) - (diff < 0);
