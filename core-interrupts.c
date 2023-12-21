@@ -49,7 +49,15 @@ static const stress_interrupt_info_t info[] = {
 
 STRESS_ASSERT(SIZEOF_ARRAY(info) <= STRESS_INTERRUPTS_MAX)
 
-static void stress_interrupts_counter_set(stress_interrupts_t *counters, const size_t i, const uint64_t value, const int which)
+/*
+ *  stress_interrupts_counter_set()
+ *	set interrupts counter if it is value
+ */
+static void stress_interrupts_counter_set(
+	stress_interrupts_t *counters,
+	const size_t i,
+	const uint64_t value,
+	const int which)
 {
 	if (i >= SIZEOF_ARRAY(info))
 		return;
