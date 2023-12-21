@@ -3172,6 +3172,36 @@ static int syscall_madvise(void)
 }
 #endif
 
+#if defined(HAVE_SYSCALL) &&		\
+    defined(__NR_map_shadow_stack)
+#define HAVE_SYSCALL_MAP_SHADOW_STACK
+#define SHADOW_STACK_SET_TOKEN		STRESS_BIT_ULL(0)
+static int syscall_map_shadow_stack(void)
+{
+	void *stack, *addr;
+	const size_t stack_size = 0x20000;
+
+	addr = NULL;
+	stack = (void *)syscall(__NR_map_shadow_stack, addr, stack_size, SHADOW_STACK_SET_TOKEN);
+	if (stack == MAP_FAILED)
+		return -1;
+	(void)munmap(stack, stack_size);
+
+	addr = mmap(NULL, stack_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (addr != MAP_FAILED) {
+		(void)munmap(addr, stack_size);
+		stack = (void *)syscall(__NR_map_shadow_stack, addr, stack_size, SHADOW_STACK_SET_TOKEN);
+		if (stack == MAP_FAILED)
+			return -1;
+		(void)munmap(stack, stack_size);
+	}
+	return 0;
+}
+
+#undef SHADOW_STACK_SET_TOKEN
+#endif
+
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&	\
     defined(HAVE_SYSCALL) &&		\
     defined(__NR_mbind) &&		\
@@ -7739,6 +7769,9 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_MADVISE)
 	SYSCALL(syscall_madvise),
+#endif
+#if defined(HAVE_SYSCALL_MAP_SHADOW_STACK)
+	SYSCALL(syscall_map_shadow_stack),
 #endif
 #if defined(HAVE_SYSCALL_MBIND)
 	SYSCALL(syscall_mbind),
