@@ -90,6 +90,11 @@ static void stress_klog_kernel_cmdline(void)
 }
 #endif
 
+/*
+ *  stress_klog_start()
+ *	start a child process that monitors kernel log
+ *	messages and logs them if they look concerning
+ */
 void stress_klog_start(void)
 {
 #if defined(__linux__)
@@ -219,6 +224,10 @@ log_info:
 #endif
 }
 
+/*
+ *  stress_klog_stop()
+ *	stop klog monitoring child process
+ */
 void stress_klog_stop(bool *success)
 {
 #if defined(__linux__)
