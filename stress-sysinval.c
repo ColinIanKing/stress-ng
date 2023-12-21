@@ -1018,6 +1018,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(madvise1)
 	/* Unimplemented, deprecated */
 #endif
+#if DEFSYS(map_shadow_stack)
+	{ SYS(map_shadow_stack), 3, { ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0, 0 } },
+#endif
 #if DEFSYS(mbind)
 	{ SYS(mbind), 6, { ARG_PTR, ARG_UINT, ARG_INT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
