@@ -399,8 +399,8 @@ static const stress_fs_name_t stress_fs_names[] = {
 #endif
 
 typedef struct {
-	const int  signum;
-	const char *name;
+	const int  signum;	/* signal number */
+	const char *name;	/* human readable signal name */
 } stress_sig_name_t;
 
 #define SIG_NAME(x) { x, #x }
@@ -1699,6 +1699,10 @@ HOT OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 	}
 }
 
+/*
+ *  stress_get_libc_version()
+ *	return human readble libc version (where possible)
+ */
 static char *stress_get_libc_version(void)
 {
 #if defined(__GLIBC__) &&	\
@@ -4373,6 +4377,10 @@ static void stress_dump_objcode(
 	}
 }
 
+/*
+ *  stress_catch_sig_si_code()
+ *	covert signale and si_code into human readable form
+ */
 static const PURE char *stress_catch_sig_si_code(const int sig, const int sig_code)
 {
 	static const char unknown[] = "UNKNOWN";
@@ -4624,6 +4632,14 @@ void stress_process_info(stress_args_t *args, const pid_t pid)
 #endif
 }
 
+/*
+ *  stress_mmap_populate()
+ *	try mmap with MAP_POPULATE option, if it fails
+ *	retry without MAP_POPULATE. This prefaults pages
+ *	into memory to avoid faulting during stressor
+ *	execution. Useful for mappings that get accessed
+ *	immediately after being mmap'd.
+ */
 void *stress_mmap_populate(
 	void *addr,
 	size_t length,
