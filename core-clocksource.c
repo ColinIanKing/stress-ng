@@ -30,6 +30,11 @@ static inline void stress_clocksource_tolower(char *str)
 }
 #endif
 
+/*
+ *  stress_clocksource_check()
+ *	check the clocksource being used, warn if the less accurate
+ *	HPET is being used
+ */	
 void stress_clocksource_check(void)
 {
 #if defined(__linux__)
