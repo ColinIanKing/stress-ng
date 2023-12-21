@@ -23,12 +23,20 @@
 static cpu_cstate_t *cpu_cstate_list;
 static size_t cpu_cstate_list_len;
 
+/*
+ *  stress_cpuidle_cstate_list_head()
+ *	return head of C-state list
+ */
 cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
 {
 	return cpu_cstate_list;
 }
 
 #if defined(__linux__)
+/*
+ *  stress_cpuidle_cstate_add_unique()
+ *	add a new unique C-state to the C-state list
+ */
 static void stress_cpuidle_cstate_add_unique(
 	const char *cstate,
 	const uint32_t residency)
@@ -59,6 +67,10 @@ static void stress_cpuidle_cstate_add_unique(
 }
 #endif
 
+/*
+ *  stress_cpuidle_init()
+ *	initialize the C-state CPU idle list
+ */
 void stress_cpuidle_init(void)
 {
 #if defined(__linux__)
@@ -116,6 +128,10 @@ void stress_cpuidle_init(void)
 #endif
 }
 
+/*
+ *  stress_cpuidle_free()
+ *	free the C-state CPU idle list
+ */
 void stress_cpuidle_free(void)
 {
 	cpu_cstate_t *cc = cpu_cstate_list;
@@ -131,6 +147,10 @@ void stress_cpuidle_free(void)
 	cpu_cstate_list_len = 0;
 }
 
+/*
+ *  stress_cpuidle_log_info()
+ *	log the C-states, only log them if list contains C-states
+ */
 void stress_cpuidle_log_info(void)
 {
 	char *buf;
