@@ -402,6 +402,26 @@ static int stress_pty(stress_args_t *args)
 				(void)ret;
 			}
 #endif
+			{
+				struct termios ios;
+
+				if (tcgetattr(ptys[i].follower, &ios) == 0) {
+#if defined(HAVE_CFGETISPEED)
+					(void)cfgetispeed(&ios);
+#endif
+#if defined(HAVE_CFGETOSPEED)
+					(void)cfgetospeed(&ios);
+#endif
+				}
+				if (tcgetattr(ptys[i].leader, &ios) == 0) {
+#if defined(HAVE_CFGETISPEED)
+					(void)cfgetispeed(&ios);
+#endif
+#if defined(HAVE_CFGETOSPEED)
+					(void)cfgetospeed(&ios);
+#endif
+				}
+			}
 			if (!stress_continue_flag())
 				goto clean;
 		}
@@ -437,6 +457,7 @@ static int stress_pty(stress_args_t *args)
 			}
 		}
 #endif
+
 clean:
 		/*
 		 *  and close
