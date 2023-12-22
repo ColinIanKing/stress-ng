@@ -78,6 +78,22 @@ typedef struct {
 	uint64_t sysfs_files_opened;	/* count of sysfs files opened */
 } stress_ctxt_t;
 
+typedef struct {
+	const char *path;
+	void (*const sysfs_func)(const char *path);
+} stress_sysfs_wr_func_t;
+
+static void stress_sysfs_sys_power_disk(const char *path)
+{
+	(void)stress_system_write(path, "test_resume", 11);
+}
+
+static stress_sysfs_wr_func_t stress_sysfs_wr_funcs[] = {
+#if defined(__linux__)
+	{ "/sys/power/disk",	stress_sysfs_sys_power_disk },
+#endif
+};
+
 static inline uint32_t path_sum(const char *path)
 {
 	return stress_hash_x17(path);
@@ -150,7 +166,7 @@ static inline stress_hash_t *stress_sys_bad(stress_hash_table_t *hash_table, con
 
 /*
  *  stress_sys_rw()
- *	read a proc file
+ *	read a sys file
  */
 static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 {
@@ -270,7 +286,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			goto next;
 
 		/*
-		 *  select on proc file
+		 *  select on sys file
 		 */
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
@@ -374,6 +390,17 @@ err:
 			if (stress_time_now() - t_start > threshold)
 				goto next;
 		} else {
+			/*
+			 * Special case for some sysfs entries
+			 */
+			size_t j;
+
+			for (j = 0; j < SIZEOF_ARRAY(stress_sysfs_wr_funcs); j++) {
+				if (strcmp(stress_sysfs_wr_funcs[j].path, path) == 0) {
+					stress_sysfs_wr_funcs[j].sysfs_func(path);
+				}
+			}
+
 #if 0
 			/*
 			 * Special case where we are root and file
