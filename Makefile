@@ -76,6 +76,10 @@ endif
 endif
 endif
 
+ifeq ($(shell $(CC) $(CFLAGS) -fipa-pta -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
+override CFLAGS += -fipa-pta
+endif
+
 #
 # Expected build warnings
 #
