@@ -41,27 +41,70 @@ typedef struct {
 	const heapsort_func_t heapsort_func;
 } stress_heapsort_method_t;
 
-static inline void heapsort_swap(void *p1, void *p2, register size_t size)
+static inline OPTIMIZE3 void heapsort_swap(void *p1, void *p2, register size_t size)
 {
-	register uint8_t *u1 = (uint8_t *)p1;
-	register uint8_t *u2 = (uint8_t *)p2;
+	switch (size) {
+	case 8: {
+			register uint64_t tmp64;
 
-	do {
-		uint8_t tmp = *u1;
+			tmp64 = *(uint64_t *)p1;
+			*(uint64_t *)p1 = *(uint64_t *)p2;
+			*(uint64_t *)p2 = tmp64;
+			return;
+		}
+	case 4: {
+			register uint32_t tmp32;
 
-		*(u1++) = *u2;
-		*(u2++) = tmp;
-	} while (--size);
+			tmp32 = *(uint32_t *)p1;
+			*(uint32_t *)p1 = *(uint32_t *)p2;
+			*(uint32_t *)p2 = tmp32;
+			return;
+		}
+	case 2: {
+			register uint16_t tmp16;
+
+			tmp16 = *(uint16_t *)p1;
+			*(uint16_t *)p1 = *(uint16_t *)p2;
+			*(uint16_t *)p2 = tmp16;
+			return;
+		}
+	default: {
+			register uint8_t *u8p1 = (uint8_t *)p1;
+			register uint8_t *u8p2 = (uint8_t *)p2;
+
+			do {
+				register uint8_t tmp;
+
+				tmp = *(u8p1);
+				*(u8p1++) = *(u8p2);
+				*(u8p2++) = tmp;
+			} while (--size);
+			return;
+		}
+	}
 }
 
 static inline void heapsort_copy(void *p1, void *p2, register size_t size)
 {
-	register uint8_t *u1 = (uint8_t *)p1;
-	register uint8_t *u2 = (uint8_t *)p2;
+	switch (size) {
+	case 8:
+		*(uint64_t *)p1 = *(uint64_t *)p2;
+		return;
+	case 4:
+		*(uint32_t *)p1 = *(uint32_t *)p2;
+		return;
+	case 2:
+		*(uint16_t *)p1 = *(uint16_t *)p2;
+		return;
+	default:
+		register uint8_t *u8p1 = (uint8_t *)p1;
+		register uint8_t *u8p2 = (uint8_t *)p2;
 
-	do {
-		*(u1++) = *(u2++);
-	} while (--size);
+		do {
+			*(u8p1++) = *(u8p2++);
+		} while (--size);
+		return;
+	}
 }
 
 static int heapsort_nonlibc(
@@ -71,11 +114,11 @@ static int heapsort_nonlibc(
 	int (*compar)(const void *, const void *))
 {
 	register uint8_t *u8base;
-	register size_t l;
+	register size_t l = (nmemb / 2) + 1;
 
-	if (nmemb <= 1)
+	if (UNLIKELY(nmemb <= 1))
 		return 0;
-	if (size < 1) {
+	if (UNLIKELY(size < 1)) {
 		errno = EINVAL;
 		return -1;
 	}
@@ -84,14 +127,13 @@ static int heapsort_nonlibc(
 	 *  Phase #1, create initial heap
 	 */
 	u8base = (uint8_t *)base - size;
-	l = (nmemb / 2) + 1;
 	while (--l) {
 		register size_t i, j;
 
 		for (i = l; (j = i * 2) <= nmemb; i = j) {
 			register uint8_t *p1 = u8base + (j * size), *p2;
 
-			if (j < nmemb && compar(p1, p1 + size) < 0) {
+			if ((j < nmemb) && (compar(p1, p1 + size) < 0)) {
 				p1 += size;
 				++j;
 			}
@@ -111,12 +153,12 @@ static int heapsort_nonlibc(
 
 		heapsort_copy(tmp, ptr, size);
 		heapsort_copy(ptr, u8base + size, size);
-		--nmemb;
+		nmemb--;
 
 		for (i = 1; (j = i * 2) <= nmemb; i = j) {
 			register uint8_t *p1 = u8base + (j * size), *p2;
 
-			if (j < nmemb && compar(p1, p1 + size) < 0) {
+			if ((j < nmemb) && (compar(p1, p1 + size) < 0)) {
 				p1 += size;
 				++j;
 			}
