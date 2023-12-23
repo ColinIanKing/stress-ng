@@ -25,7 +25,7 @@ VERSION=0.17.03
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
-override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99 -g
+override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 
 #
 #  Building stress-vnni with less than -O2 causes breakage with
@@ -46,14 +46,25 @@ ifeq "$(findstring -O,$(VNNI_CFLAGS))" ""
 endif
 
 #
+# Debug flag
+#
+ifeq ($(DEBUG),1)
+override CFLAGS += -g
+endif
+
+#
 # Pedantic flags
 #
 ifeq ($(PEDANTIC),1)
-override CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
+cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>&1 && echo $(flag))
+
+PEDANTIC_FLAGS := \
+	-Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
 	-Wredundant-decls -Wshadow -Wno-missing-field-initializers \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar \
 	-DHAVE_PEDANTIC
+override CFLAGS += $(foreach flag,$(PEDANTIC_FLAGS),$(cc_supports_flag))
 endif
 
 #
@@ -62,23 +73,17 @@ endif
 MACHINE = $(shell uname -m)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
-ifeq ($(shell $(CC) $(CFLAGS) -fstack-protector-strong -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-override CFLAGS += -fstack-protector-strong
-endif
-endif
-ifeq ($(shell $(CC) $(CFLAGS) -Werror=format-security -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-override CFLAGS += -Werror=format-security
-endif
-ifneq ($(findstring pcc,$(CC)),pcc)
-ifeq ($(shell $(CC) $(CFLAGS) -D_FORTIFY_SOURCE=2 -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-override CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
-endif
+flag = -Wformat -fstack-protector-strong \
+	-D_FORTIFY_SOURCE=2 -U_FORTIFY_SOURCE \
+	-Werror=format-security
+override CFLAGS += $(cc_supports_flag)
 endif
 endif
 
-ifeq ($(shell $(CC) $(CFLAGS) -fipa-pta -E -xc /dev/null > /dev/null 2>& 1 && echo 1),1)
-override CFLAGS += -fipa-pta
-endif
+#
+# Optimization flags
+#
+override CFLAGS += $(foreach flag,-fipa-pta,$(cc_supports_flag))
 
 #
 # Expected build warnings
