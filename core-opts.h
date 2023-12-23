@@ -497,8 +497,9 @@ typedef enum {
 	OPT_hdd_opts,
 
 	OPT_heapsort,
+	OPT_heapsort_method,
 	OPT_heapsort_ops,
-	OPT_heapsort_integers,
+	OPT_heapsort_size,
 
 	OPT_hrtimers,
 	OPT_hrtimers_ops,

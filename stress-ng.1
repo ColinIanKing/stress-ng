@@ -2889,6 +2889,11 @@ specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .B \-\-heapsort N
 start N workers that sort 32 bit integers using the BSD heapsort.
 .TP
+.B \-\-heapsort\-method [ heapsort\-libc | heapsort\-nonlibc ]
+select either the libc implementation of heapsort or an optimized
+implementation of heapsort. The default is the libc implementation if it
+is available.
+.TP
 .B \-\-heapsort\-ops N
 stop heapsort stress workers after N bogo heapsorts.
 .TP

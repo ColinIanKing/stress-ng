@@ -24,10 +24,8 @@
 #define MAX_HEAPSORT_SIZE	(4 * MB)
 #define DEFAULT_HEAPSORT_SIZE	(256 * KB)
 
-#if defined(HAVE_LIB_BSD)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
-#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"heapsort N",	   "start N workers heap sorting 32 bit random integers" },
@@ -35,6 +33,138 @@ static const stress_help_t help[] = {
 	{ NULL,	"heapsort-size N", "number of 32 bit integers to sort" },
 	{ NULL,	NULL,		   NULL }
 };
+
+typedef int (*heapsort_func_t)(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+
+typedef struct {
+	const char *name;
+	const heapsort_func_t heapsort_func;
+} stress_heapsort_method_t;
+
+static inline void heapsort_swap(void *p1, void *p2, register size_t size)
+{
+	register uint8_t *u1 = (uint8_t *)p1;
+	register uint8_t *u2 = (uint8_t *)p2;
+
+	do {
+		uint8_t tmp = *u1;
+
+		*(u1++) = *u2;
+		*(u2++) = tmp;
+	} while (--size);
+}
+
+static inline void heapsort_copy(void *p1, void *p2, register size_t size)
+{
+	register uint8_t *u1 = (uint8_t *)p1;
+	register uint8_t *u2 = (uint8_t *)p2;
+
+	do {
+		*(u1++) = *(u2++);
+	} while (--size);
+}
+
+static int heapsort_nonlibc(
+	void *base,
+	size_t nmemb,
+	size_t size,
+	int (*compar)(const void *, const void *))
+{
+	register uint8_t *u8base;
+	register size_t l;
+
+	if (nmemb <= 1)
+		return 0;
+	if (size < 1) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	/*
+	 *  Phase #1, create initial heap
+	 */
+	u8base = (uint8_t *)base - size;
+	l = (nmemb / 2) + 1;
+	while (--l) {
+		register size_t i, j;
+
+		for (i = l; (j = i * 2) <= nmemb; i = j) {
+			register uint8_t *p1 = u8base + (j * size), *p2;
+
+			if (j < nmemb && compar(p1, p1 + size) < 0) {
+				p1 += size;
+				++j;
+			}
+			p2 = u8base + (i * size);
+			if (compar(p1, p2) <= 0)
+				break;
+			heapsort_swap(p2, p1, size);
+		}
+	}
+	/*
+	 *  Phase #2, insert into heap
+	 */
+	while (nmemb > 1) {
+		register uint8_t *ptr = u8base + (nmemb * size);
+		register size_t i, j;
+		uint8_t tmp[size] ALIGN64;
+
+		heapsort_copy(tmp, ptr, size);
+		heapsort_copy(ptr, u8base + size, size);
+		--nmemb;
+
+		for (i = 1; (j = i * 2) <= nmemb; i = j) {
+			register uint8_t *p1 = u8base + (j * size), *p2;
+
+			if (j < nmemb && compar(p1, p1 + size) < 0) {
+				p1 += size;
+				++j;
+			}
+			p2 = u8base + (i * size);
+			heapsort_copy(p2, p1, size);
+		}
+		for (;;) {
+			register uint8_t *p1, *p2;
+
+			j = i;
+			i = j / 2;
+			p1 = u8base + (j * size);
+			p2 = u8base + (i * size);
+			if ((j == 1) || (compar(tmp, p2) < 0)) {
+				heapsort_copy(p1, tmp, size);
+				break;
+			}
+			(void)heapsort_copy(p1, p2, size);
+		}
+	}
+	return 0;
+}
+
+static const stress_heapsort_method_t stress_heapsort_methods[] = {
+#if defined(HAVE_LIB_BSD)
+	{ "heapsort-libc",		heapsort },
+#endif
+	{ "heapsort-nonlibc",		heapsort_nonlibc },
+};
+
+static int stress_set_heapsort_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_heapsort_methods); i++) {
+		if (strcmp(opt, stress_heapsort_methods[i].name) == 0) {
+			stress_set_setting("heapsort-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "heapsort-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_heapsort_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_heapsort_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
 
 /*
  *  stress_set_heapsort_size()
@@ -51,11 +181,10 @@ static int stress_set_heapsort_size(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_heapsort_integers,	stress_set_heapsort_size },
+	{ OPT_heapsort_size,	stress_set_heapsort_size },
+	{ OPT_heapsort_method,	stress_set_heapsort_method },
 	{ 0,				NULL }
 };
-
-#if defined(HAVE_LIB_BSD)
 
 /*
  *  stress_heapsort_handler()
@@ -79,11 +208,19 @@ static int stress_heapsort(stress_args_t *args)
 {
 	uint64_t heapsort_size = DEFAULT_HEAPSORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n, i;
+	size_t n, i, heapsort_method = 0;
 	struct sigaction old_action;
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	heapsort_func_t heapsort_func;
+
+	(void)stress_get_setting("heapsort-method", &heapsort_method);
+
+	heapsort_func = stress_heapsort_methods[heapsort_method].heapsort_func;
+	if (args->instance == 0)
+		pr_inf("%s: using method '%s'\n",
+			args->name, stress_heapsort_methods[heapsort_method].name);
 
 	if (!stress_get_setting("heapsort-size", &heapsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -125,7 +262,7 @@ static int stress_heapsort(stress_args_t *args)
 		/* Sort "random" data */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
+		if (heapsort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
 			pr_fail("%s: heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -149,7 +286,7 @@ static int stress_heapsort(stress_args_t *args)
 		/* Reverse sort */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
+		if (heapsort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -176,7 +313,7 @@ static int stress_heapsort(stress_args_t *args)
 		/* Reverse sort this again */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
+		if (heapsort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -222,13 +359,3 @@ stressor_info_t stress_heapsort_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-#else
-stressor_info_t stress_heapsort_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without the BSD library"
-};
-#endif
