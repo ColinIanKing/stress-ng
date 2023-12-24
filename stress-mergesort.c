@@ -78,7 +78,6 @@ static inline void mergesort_partition(
 	size_t mid, lhs_size, rhs_size, lhs_len, rhs_len;
 	register ssize_t n;
 	register uint8_t *rhs, *lhs_end, *rhs_end;
-	register uint8_t *base_ptr;
 
 	mid = left + ((right - left) >> 1);
 	if (left < mid)
@@ -97,34 +96,34 @@ static inline void mergesort_partition(
 	(void)shim_memcpy(lhs, IDX(base, left, size), lhs_size);
 	(void)shim_memcpy(rhs, IDX(base, (mid + 1), size), rhs_size);
 
-	base_ptr = IDX(base, left, size);
+	base = IDX(base, left, size);
 	lhs_end = rhs;
 	rhs_end = rhs + rhs_size;
 
 	for (;;) {
 		if (compar(lhs, rhs) < 0) {
-			mergesort_copy(base_ptr, lhs, size);
+			mergesort_copy(base, lhs, size);
 			lhs += size;
 			if (lhs > lhs_end)
 				break;
-			base_ptr += size;
+			base += size;
 		} else {
-			mergesort_copy(base_ptr, rhs, size);
+			mergesort_copy(base, rhs, size);
 			rhs += size;
 			if (rhs > rhs_end)
 				break;
-			base_ptr += size;
+			base += size;
 		}
 	}
 
 	n = lhs_end - lhs;
 	if (n > 0) {
-		(void)shim_memcpy(base_ptr, lhs, n);
-		base_ptr += n;
+		(void)shim_memcpy(base, lhs, n);
+		base += n;
 	}
 	n = rhs_end - rhs;
 	if (n > 0)
-		(void)shim_memcpy(base_ptr, rhs, n);
+		(void)shim_memcpy(base, rhs, n);
 }
 
 static int mergesort_nonlibc(
