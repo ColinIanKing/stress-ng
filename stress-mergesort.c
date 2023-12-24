@@ -44,7 +44,7 @@ typedef struct {
 
 #define IDX(base, idx, size)	((base) + ((idx) * (size)))
 
-static inline void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
+static inline ALWAYS_INLINE OPTIMIZE3 void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
 {
 	switch (size) {
 	case 4:
@@ -67,7 +67,7 @@ static inline void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
 	}
 }
 
-static inline void mergesort_partition(
+static inline OPTIMIZE3 void mergesort_partition(
 	register uint8_t *base,
 	register uint8_t *lhs,
 	const size_t left,
@@ -107,12 +107,15 @@ static inline void mergesort_partition(
 		base_ptr += size;
 	}
 
-	if (lhs < lhs_end) {
-		(void)shim_memcpy(base_ptr, lhs, (lhs_end - lhs));
+	while (lhs < lhs_end) {
+		mergesort_copy(base_ptr, lhs, size);
+		lhs += size;
 		base_ptr += size;
 	}
-	if (rhs < rhs_end)
-		(void)shim_memcpy(base_ptr, rhs, (rhs_end - rhs));
+	while (rhs < rhs_end) {
+		mergesort_copy(base_ptr, rhs, size);
+		rhs += size;
+	}
 }
 
 static int mergesort_nonlibc(
