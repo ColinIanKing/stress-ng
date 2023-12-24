@@ -722,8 +722,9 @@ typedef enum {
 	OPT_memthrash_method,
 
 	OPT_mergesort,
+	OPT_mergesort_method,
 	OPT_mergesort_ops,
-	OPT_mergesort_integers,
+	OPT_mergesort_size,
 
 	OPT_metamix,
 	OPT_metamix_ops,

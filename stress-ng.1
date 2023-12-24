@@ -4028,6 +4028,11 @@ stop after N memthrash bogo operations.
 .B -\-mergesort N
 start N workers that sort 32 bit integers using the BSD mergesort.
 .TP
+.B \-\-mergesort\-method [ mergesort\-libc | mergesort\-nonlibc ]
+select either the libc implementation of mergesort or an unoptimized
+implementation of mergesort. The default is the libc implementation if it
+is available.
+.TP
 .B \-\-mergesort\-ops N
 stop mergesort stress workers after N bogo mergesorts.
 .TP

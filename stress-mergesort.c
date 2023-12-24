@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-sort.h"
 
 #define MIN_MERGESORT_SIZE	(1 * KB)
@@ -31,10 +32,134 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+
+typedef int (*mergesort_func_t)(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+
+typedef struct {
+	const char *name;
+	const mergesort_func_t mergesort_func;
+} stress_mergesort_method_t;
+
+#define IDX(base, idx, size)	((base) + ((idx) * (size)))
+
+static inline void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
+{
+	switch (size) {
+	case 4:
+		*(uint32_t *)p1 = *(uint32_t *)p2;
+		return;
+	case 8:
+		*(uint64_t *)p1 = *(uint64_t *)p2;
+		return;
+	case 2:
+		*(uint16_t *)p1 = *(uint16_t *)p2;
+		return;
+	default:
+		register uint8_t *u8p1 = (uint8_t *)p1;
+		register uint8_t *u8p2 = (uint8_t *)p2;
+
+		do {
+			*(u8p1++) = *(u8p2++);
+		} while (--size);
+		return;
+	}
+}
+
+static inline void mergesort_partition(
+	register uint8_t *base,
+	register uint8_t *lhs,
+	const size_t left,
+	const size_t right,
+	const size_t size,
+	int (*compar)(const void *, const void *))
+{
+	size_t mid, lhs_size, rhs_size;
+	register uint8_t *rhs, *lhs_end, *rhs_end;
+	register uint8_t *base_ptr;
+
+	if (left >= right)
+		return;
+	mid = left + (right - left) / 2;
+	mergesort_partition(base, lhs, left, mid, size, compar);
+	mergesort_partition(base, lhs, mid + 1, right, size, compar);
+
+	lhs_size = (mid - left + 1) * size;
+	rhs_size = (right - mid) * size;
+	rhs = lhs + lhs_size;
+
+	(void)shim_memcpy(lhs, IDX(base, left, size), lhs_size);
+	(void)shim_memcpy(rhs, IDX(base, (mid + 1), size), rhs_size);
+
+	base_ptr = IDX(base, left, size);
+	lhs_end = rhs;
+	rhs_end = rhs + rhs_size;
+
+	while ((lhs < lhs_end) && (rhs < rhs_end)) {
+		if (compar(lhs, rhs) < 0) {
+			mergesort_copy(base_ptr, lhs, size);
+			lhs += size;
+		} else {
+			mergesort_copy(base_ptr, rhs, size);
+			rhs += size;
+		}
+		base_ptr += size;
+	}
+
+	if (lhs < lhs_end) {
+		(void)shim_memcpy(base_ptr, lhs, (lhs_end - lhs));
+		base_ptr += size;
+	}
+	if (rhs < rhs_end)
+		(void)shim_memcpy(base_ptr, rhs, (rhs_end - rhs));
+}
+
+static int mergesort_nonlibc(
+	void *base,
+	size_t nmemb,
+	size_t size,
+	int (*compar)(const void *, const void *))
+{
+	uint8_t *lhs;
+	size_t mmap_size = nmemb * size;
+
+	lhs = (uint8_t *)stress_mmap_populate(NULL, mmap_size,
+			PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE,
+			-1, 0);
+	if (lhs == MAP_FAILED)
+		return -1;
+	mergesort_partition((uint8_t *)base, lhs, 0, nmemb - 1, size, compar);
+	(void)munmap((void *)lhs, mmap_size);
+	return 0;
+}
+
+static const stress_mergesort_method_t stress_mergesort_methods[] = {
+#if defined(HAVE_LIB_BSD)
+	{ "mergesort-libc",	mergesort },
 #endif
+	{ "mergesort-nonlibc",	mergesort_nonlibc },
+};
+
+static int stress_set_mergesort_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_mergesort_methods); i++) {
+		if (strcmp(opt, stress_mergesort_methods[i].name) == 0) {
+			stress_set_setting("mergesort-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "mergesort-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_mergesort_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_mergesort_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
 
 /*
  *  stress_set_mergesort_size()
@@ -51,11 +176,10 @@ static int stress_set_mergesort_size(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mergesort_integers,	stress_set_mergesort_size },
-	{ 0,				NULL }
+	{ OPT_mergesort_size,	stress_set_mergesort_size },
+	{ OPT_mergesort_method,	stress_set_mergesort_method },
+	{ 0,			NULL }
 };
-
-#if defined(HAVE_LIB_BSD)
 
 #if !defined(__OpenBSD__) &&	\
     !defined(__NetBSD__)
@@ -82,11 +206,19 @@ static int stress_mergesort(stress_args_t *args)
 {
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n, i;
+	size_t n, i, mergesort_method = 0;
 	struct sigaction old_action;
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	mergesort_func_t mergesort_func;
+
+	(void)stress_get_setting("mergesort-method", &mergesort_method);
+
+	mergesort_func = stress_mergesort_methods[mergesort_method].mergesort_func;
+	if (args->instance == 0)
+		pr_inf("%s: using method '%s'\n",
+			args->name, stress_mergesort_methods[mergesort_method].name);
 
 	if (!stress_get_setting("mergesort-size", &mergesort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -111,7 +243,6 @@ static int stress_mergesort(stress_args_t *args)
 		goto tidy;
 	}
 
-
 #if !defined(__OpenBSD__) &&	\
     !defined(__NetBSD__)
 	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
@@ -131,7 +262,7 @@ static int stress_mergesort(stress_args_t *args)
 		stress_sort_compare_reset();
 		t = stress_time_now();
 		/* Sort "random" data */
-		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
+		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
 			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -156,7 +287,7 @@ static int stress_mergesort(stress_args_t *args)
 		/* Reverse sort */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
+		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -185,7 +316,7 @@ static int stress_mergesort(stress_args_t *args)
 		/* Reverse sort this again */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
+		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -233,13 +364,3 @@ stressor_info_t stress_mergesort_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-#else
-stressor_info_t stress_mergesort_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without the BSD library"
-};
-#endif
