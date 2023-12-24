@@ -44,32 +44,90 @@ typedef struct {
 
 #define IDX(base, idx, size)	((base) + ((idx) * (size)))
 
-static inline ALWAYS_INLINE void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
+static void mergesort_copy4(uint8_t *p1, uint8_t *p2)
 {
-	switch (size) {
-	case 4:
-		*(uint32_t *)p1 = *(uint32_t *)p2;
-		return;
-	case 8:
-		*(uint64_t *)p1 = *(uint64_t *)p2;
-		return;
-	case 2:
-		*(uint16_t *)p1 = *(uint16_t *)p2;
-		return;
-	default:
-		register uint8_t *u8p1 = (uint8_t *)p1;
-		register uint8_t *u8p2 = (uint8_t *)p2;
-
-		do {
-			*(u8p1++) = *(u8p2++);
-		} while (--size);
-		return;
-	}
+	*(uint32_t *)p1 = *(uint32_t *)p2;
 }
 
+static inline ALWAYS_INLINE void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
+{
+	register uint8_t *u8p1 = (uint8_t *)p1;
+	register uint8_t *u8p2 = (uint8_t *)p2;
+
+	do {
+		*(u8p1++) = *(u8p2++);
+	} while (--size);
+}
+
+/*
+ *  mergesort_partition4
+ *  	partitioning with 4 byte data
+ */
+static inline void mergesort_partition4(
+	register uint8_t * RESTRICT base,
+	register uint8_t * RESTRICT lhs,
+	const size_t left,
+	const size_t right,
+	int (*compar)(const void *, const void *))
+{
+	size_t mid, lhs_size, rhs_size, lhs_len, rhs_len;
+	register ssize_t n;
+	register uint8_t *rhs, *lhs_end, *rhs_end;
+
+	mid = left + ((right - left) >> 1);
+	if (left < mid)
+		mergesort_partition4(base, lhs, left, mid, compar);
+	if (mid + 1 < right)
+		mergesort_partition4(base, lhs, mid + 1, right, compar);
+
+	lhs_len = mid - left + 1;
+	rhs_len = right - mid;
+
+	lhs_size = lhs_len * 4;
+	rhs_size = rhs_len * 4;
+
+	rhs = lhs + lhs_size;
+
+	(void)shim_memcpy(lhs, IDX(base, left, 4), lhs_size);
+	(void)shim_memcpy(rhs, IDX(base, (mid + 1), 4), rhs_size);
+
+	base = IDX(base, left, 4);
+	lhs_end = rhs;
+	rhs_end = rhs + rhs_size;
+
+	for (;;) {
+		if (compar(lhs, rhs) < 0) {
+			mergesort_copy4(base, lhs);
+			lhs += 4;
+			if (lhs > lhs_end)
+				break;
+			base += 4;
+		} else {
+			mergesort_copy4(base, rhs);
+			rhs += 4;
+			if (rhs > rhs_end)
+				break;
+			base += 4;
+		}
+	}
+
+	n = lhs_end - lhs;
+	if (n > 0) {
+		(void)shim_memcpy(base, lhs, n);
+		base += n;
+	}
+	n = rhs_end - rhs;
+	if (n > 0)
+		(void)shim_memcpy(base, rhs, n);
+}
+
+/*
+ *  mergesort_partition
+ *  	partitioning with size sized byte data
+ */
 static inline void mergesort_partition(
-	register uint8_t *base,
-	register uint8_t *lhs,
+	register uint8_t * RESTRICT base,
+	register uint8_t * RESTRICT lhs,
 	const size_t left,
 	const size_t right,
 	const size_t size,
@@ -141,7 +199,15 @@ static int mergesort_nonlibc(
 			-1, 0);
 	if (lhs == MAP_FAILED)
 		return -1;
-	mergesort_partition((uint8_t *)base, lhs, 0, nmemb - 1, size, compar);
+
+	switch (size) {
+	case 4:
+		mergesort_partition4((uint8_t *)base, lhs, 0, nmemb - 1, compar);
+		break;
+	default:
+		mergesort_partition((uint8_t *)base, lhs, 0, nmemb - 1, size, compar);
+		break;
+	}
 	(void)munmap((void *)lhs, mmap_size);
 	return 0;
 }
