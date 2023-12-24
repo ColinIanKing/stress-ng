@@ -115,6 +115,7 @@ static inline OPTIMIZE3 void mergesort_partition(
 	while (rhs < rhs_end) {
 		mergesort_copy(base_ptr, rhs, size);
 		rhs += size;
+		base_ptr += size;
 	}
 }
 
