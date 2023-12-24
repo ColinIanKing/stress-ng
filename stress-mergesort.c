@@ -44,7 +44,7 @@ typedef struct {
 
 #define IDX(base, idx, size)	((base) + ((idx) * (size)))
 
-static inline ALWAYS_INLINE OPTIMIZE3 void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
+static inline ALWAYS_INLINE void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
 {
 	switch (size) {
 	case 4:
@@ -67,7 +67,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 void mergesort_copy(uint8_t *p1, uint8_t *
 	}
 }
 
-static inline OPTIMIZE3 void mergesort_partition(
+static inline void mergesort_partition(
 	register uint8_t *base,
 	register uint8_t *lhs,
 	const size_t left,
@@ -75,18 +75,23 @@ static inline OPTIMIZE3 void mergesort_partition(
 	const size_t size,
 	int (*compar)(const void *, const void *))
 {
-	size_t mid, lhs_size, rhs_size;
+	size_t mid, lhs_size, rhs_size, lhs_len, rhs_len;
+	register ssize_t n;
 	register uint8_t *rhs, *lhs_end, *rhs_end;
 	register uint8_t *base_ptr;
 
-	if (left >= right)
-		return;
-	mid = left + (right - left) / 2;
-	mergesort_partition(base, lhs, left, mid, size, compar);
-	mergesort_partition(base, lhs, mid + 1, right, size, compar);
+	mid = left + ((right - left) >> 1);
+	if (left < mid)
+		mergesort_partition(base, lhs, left, mid, size, compar);
+	if (mid + 1 < right)
+		mergesort_partition(base, lhs, mid + 1, right, size, compar);
 
-	lhs_size = (mid - left + 1) * size;
-	rhs_size = (right - mid) * size;
+	lhs_len = mid - left + 1;
+	rhs_len = right - mid;
+
+	lhs_size = lhs_len * size;
+	rhs_size = rhs_len * size;
+
 	rhs = lhs + lhs_size;
 
 	(void)shim_memcpy(lhs, IDX(base, left, size), lhs_size);
@@ -96,27 +101,30 @@ static inline OPTIMIZE3 void mergesort_partition(
 	lhs_end = rhs;
 	rhs_end = rhs + rhs_size;
 
-	while ((lhs < lhs_end) && (rhs < rhs_end)) {
+	for (;;) {
 		if (compar(lhs, rhs) < 0) {
 			mergesort_copy(base_ptr, lhs, size);
 			lhs += size;
+			if (lhs > lhs_end)
+				break;
+			base_ptr += size;
 		} else {
 			mergesort_copy(base_ptr, rhs, size);
 			rhs += size;
+			if (rhs > rhs_end)
+				break;
+			base_ptr += size;
 		}
-		base_ptr += size;
 	}
 
-	while (lhs < lhs_end) {
-		mergesort_copy(base_ptr, lhs, size);
-		lhs += size;
-		base_ptr += size;
+	n = lhs_end - lhs;
+	if (n > 0) {
+		(void)shim_memcpy(base_ptr, lhs, n);
+		base_ptr += n;
 	}
-	while (rhs < rhs_end) {
-		mergesort_copy(base_ptr, rhs, size);
-		rhs += size;
-		base_ptr += size;
-	}
+	n = rhs_end - rhs;
+	if (n > 0)
+		(void)shim_memcpy(base_ptr, rhs, n);
 }
 
 static int mergesort_nonlibc(
