@@ -18,8 +18,8 @@
  *
  */
 #include "stress-ng.h"
-#include "core-builtin.h"
 #include "core-sort.h"
+#include "core-target-clones.h"
 
 #define MIN_MERGESORT_SIZE	(1 * KB)
 #define MAX_MERGESORT_SIZE	(4 * MB)
@@ -44,19 +44,25 @@ typedef struct {
 
 #define IDX(base, idx, size)	((base) + ((idx) * (size)))
 
-static void mergesort_copy4(uint8_t *p1, uint8_t *p2)
+static inline ALWAYS_INLINE void mergesort_copy(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
 {
-	*(uint32_t *)p1 = *(uint32_t *)p2;
-}
+	if (size == 4) {
+		register uint32_t *u32p1 = (uint32_t *)p1;
+		register uint32_t *u32p2 = (uint32_t *)p2;
+		register uint32_t *u32end = (uint32_t *)(p1 + size);
 
-static inline ALWAYS_INLINE void mergesort_copy(uint8_t *p1, uint8_t *p2, size_t size)
-{
-	register uint8_t *u8p1 = (uint8_t *)p1;
-	register uint8_t *u8p2 = (uint8_t *)p2;
+		while (LIKELY(u32p1 < u32end)) {
+			*(u32p1++) = *(u32p2++);
+		}
+	} else {
+		register uint8_t *u8p1 = p1;
+		register uint8_t *u8p2 = p2;
+		register uint8_t *u8end = p1 + size;
 
-	do {
-		*(u8p1++) = *(u8p2++);
-	} while (--size);
+		while (LIKELY(u8p1 < u8end)) {
+			*(u8p1++) = *(u8p2++);
+		}
+	}
 }
 
 /*
@@ -88,8 +94,8 @@ static inline void mergesort_partition4(
 
 	rhs = lhs + lhs_size;
 
-	(void)shim_memcpy(lhs, IDX(base, left, 4), lhs_size);
-	(void)shim_memcpy(rhs, IDX(base, (mid + 1), 4), rhs_size);
+	mergesort_copy(lhs, IDX(base, left, 4), lhs_size);
+	mergesort_copy(rhs, IDX(base, (mid + 1), 4), rhs_size);
 
 	base = IDX(base, left, 4);
 	lhs_end = rhs;
@@ -97,13 +103,13 @@ static inline void mergesort_partition4(
 
 	for (;;) {
 		if (compar(lhs, rhs) < 0) {
-			mergesort_copy4(base, lhs);
+			*(uint32_t *)base = *(uint32_t *)lhs;
 			lhs += 4;
 			if (lhs > lhs_end)
 				break;
 			base += 4;
 		} else {
-			mergesort_copy4(base, rhs);
+			*(uint32_t *)base = *(uint32_t *)rhs;
 			rhs += 4;
 			if (rhs > rhs_end)
 				break;
@@ -113,12 +119,13 @@ static inline void mergesort_partition4(
 
 	n = lhs_end - lhs;
 	if (n > 0) {
-		(void)shim_memcpy(base, lhs, n);
+		mergesort_copy(base, lhs, n);
 		base += n;
 	}
 	n = rhs_end - rhs;
-	if (n > 0)
-		(void)shim_memcpy(base, rhs, n);
+	if (n > 0) {
+		mergesort_copy(base, rhs, n);
+	}
 }
 
 /*
@@ -151,8 +158,8 @@ static inline void mergesort_partition(
 
 	rhs = lhs + lhs_size;
 
-	(void)shim_memcpy(lhs, IDX(base, left, size), lhs_size);
-	(void)shim_memcpy(rhs, IDX(base, (mid + 1), size), rhs_size);
+	mergesort_copy(lhs, IDX(base, left, size), lhs_size);
+	mergesort_copy(rhs, IDX(base, (mid + 1), size), rhs_size);
 
 	base = IDX(base, left, size);
 	lhs_end = rhs;
@@ -176,12 +183,12 @@ static inline void mergesort_partition(
 
 	n = lhs_end - lhs;
 	if (n > 0) {
-		(void)shim_memcpy(base, lhs, n);
+		mergesort_copy(base, lhs, n);
 		base += n;
 	}
 	n = rhs_end - rhs;
 	if (n > 0)
-		(void)shim_memcpy(base, rhs, n);
+		mergesort_copy(base, rhs, n);
 }
 
 static int mergesort_nonlibc(
