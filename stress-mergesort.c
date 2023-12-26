@@ -27,6 +27,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mergesort N",		"start N workers merge sorting 32 bit random integers" },
+	{ NULL,	"mergesort-method M",	"select sort method [ method-libc | method-nonlibc" },
 	{ NULL,	"mergesort-ops N",	"stop after N merge sort bogo operations" },
 	{ NULL,	"mergesort-size N",	"number of 32 bit integers to sort" },
 	{ NULL,	NULL,			NULL }
