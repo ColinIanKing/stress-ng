@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-cpu-cache.h"
 
 #define MIN_RADIXSORT_SIZE	(1 * KB)
 #define MAX_RADIXSORT_SIZE	(4 * MB)
@@ -47,16 +48,16 @@ static sigjmp_buf jmp_env;
 #define IDX(base, i, k) 	((int)(unsigned char)base[(i)][(k)] + 1)
 #define IDX_T(base, i, k)	((int)(unsigned char)table[base[(i)][(k)] + 1])
 
-static inline void radix_count_sort(
-	const unsigned char **base,
-	const unsigned char **b,
-	const int *lengths,
-	const unsigned char *table,
+static inline void ALWAYS_INLINE radix_count_sort(
 	const int size,
-	const int k)
+	const int k,
+	const unsigned char *base[size],
+	const unsigned char *b[size],
+	const int lengths[size],
+	const unsigned char table[256])
 {
 	register int i;
-	int c[257] ALIGN64;
+	unsigned int c[257];
 
 	(void)shim_memset(c, 0, sizeof(c));
 
@@ -68,8 +69,9 @@ static inline void radix_count_sort(
 			c[i] += c[i - 1];
 
 		for (i = size - 1; i >= 0; i--) {
+			register const bool lt = k < lengths[i];
 			register const int j = IDX_T(base, i, k);
-			register const int l = (k < lengths[i]) ? j : 0;
+			register const int l = lt ? j : 0;
 
 			c[l]--;
 			b[c[l]] = base[i];
@@ -82,14 +84,15 @@ static inline void radix_count_sort(
 			c[i] += c[i - 1];
 
 		for (i = size - 1; i >= 0; i--) {
+			register const bool lt = k < lengths[i];
 			register const int j = IDX(base, i, k);
-			register const int l = (k < lengths[i]) ? j : 0;
+			register const int l = lt ? j : 0;
 
 			c[l]--;
 			b[c[l]] = base[i];
 		}
 	}
-	(void)shim_memcpy(base, b, sizeof(*base) * size);
+	(void)shim_memcpy((void *)base, (void *)b, sizeof(*base) * size);
 }
 
 static inline ALWAYS_INLINE int radix_strlen(const char *str, unsigned int endbyte)
@@ -138,7 +141,7 @@ static int radixsort_nonlibc(
 	}
 
 	for (digit = max; digit > 0; digit--)
-		radix_count_sort(base, b, lengths, table, nmemb, digit - 1);
+		radix_count_sort(nmemb, digit - 1, base, b, lengths, table);
 
 	free(lengths);
 	free(b);
