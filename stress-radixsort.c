@@ -18,24 +18,151 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #define MIN_RADIXSORT_SIZE	(1 * KB)
 #define MAX_RADIXSORT_SIZE	(4 * MB)
 #define DEFAULT_RADIXSORT_SIZE	(256 * KB)
 
 static const stress_help_t help[] = {
-	{ NULL,	"radixsort N",	    "start N workers radix sorting random strings" },
-	{ NULL,	"radixsort-ops N",  "stop after N radixsort bogo operations" },
-	{ NULL,	"radixsort-size N", "number of strings to sort" },
-	{ NULL,	NULL,		    NULL }
+	{ NULL,	"radixsort N",		"start N workers radix sorting random strings" },
+	{ NULL,	"radixsort-method M",	"select sort method [ radixsort-libc | radixsort-nonlibc]" },
+	{ NULL,	"radixsort-ops N",	"stop after N radixsort bogo operations" },
+	{ NULL,	"radixsort-size N",	"number of strings to sort" },
+	{ NULL,	NULL,			NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
+typedef int (*radixsort_func_t)(const unsigned char **base, int nmemb, const unsigned char *table, unsigned endbyte);
+
+typedef struct {
+	const char *name;
+	const radixsort_func_t radixsort_func;
+} stress_radixsort_method_t;
 
 #define STR_SIZE	(8)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+
+void countSort(
+	const unsigned char **base,
+	const unsigned char **b,
+	const size_t *lengths,
+	const unsigned char *table,
+	const int size,
+	const size_t k)
+{
+	int c[257];
+	register int i;
+
+	(void)shim_memset(c, 0, sizeof(c));
+
+	if (table) {
+		for (i = 0; i < size; i++)
+			c[k < lengths[i] ? (int)(unsigned char)table[base[i][k]] + 1 : 0]++;
+
+		for (i = 1; i < 257; i++)
+			c[i] += c[i - 1];
+
+		for (i = size - 1; i >= 0; i--) {
+			b[c[k < lengths[i] ? (int)(unsigned char)table[base[i][k]] + 1 : 0] - 1] = base[i];
+			c[k < lengths[i] ? (int)(unsigned char)table[base[i][k]] + 1 : 0]--;
+		}
+	} else {
+		for (i = 0; i < size; i++)
+			c[k < lengths[i] ? (int)(unsigned char)base[i][k] + 1 : 0]++;
+
+		for (i = 1; i < 257; i++)
+			c[i] += c[i - 1];
+
+		for (i = size - 1; i >= 0; i--) {
+			b[c[k < lengths[i] ? (int)(unsigned char)base[i][k] + 1 : 0] - 1] = base[i];
+			c[k < lengths[i] ? (int)(unsigned char)base[i][k] + 1 : 0]--;
+		}
+	}
+	for (i = 0; i < size; i++)
+		base[i] = b[i];
+}
+
+static inline ALWAYS_INLINE int radix_strlen(const char *str, unsigned int endbyte)
+{
+	const char *ptr = str;
+
+	while ((unsigned int)*ptr != endbyte)
+		ptr++;
+
+	return ptr - str;
+}
+
+static int radixsort_nonlibc(
+	const unsigned char **base,
+	int nmemb,
+	const unsigned char *table,
+	unsigned int endbyte)
+{
+	size_t max, digit;
+	const unsigned char **b;
+	size_t *lengths;
+	register int i;
+
+	if (nmemb < 2)
+		return 0;
+
+	b = malloc(sizeof(*b) * nmemb);
+	if (!b) {
+		errno = ENOMEM;
+		return -1;
+	}
+	lengths = malloc(sizeof(*lengths) * nmemb);
+	if (!lengths) {
+		free(b);
+		errno = ENOMEM;
+		return -1;
+	}
+
+	max = radix_strlen((char *)base[0], endbyte);
+	lengths[0] = max;
+	for (i = 1; i < nmemb; i++) {
+		const size_t len = radix_strlen((char *)base[i], endbyte);
+
+		lengths[i] = len;
+		if (len > max)
+			max = len;
+	}
+
+	for (digit = max; digit > 0; digit--)
+		countSort(base, b, lengths, table, nmemb, digit - 1);
+
+	free(lengths);
+	free(b);
+	return 0;
+}
+
+static const stress_radixsort_method_t stress_radixsort_methods[] = {
+#if defined(HAVE_LIB_BSD)
+	{ "radixsort-libc",	radixsort },
+#endif
+	{ "radixsort-nonlibc",	radixsort_nonlibc },
+};
+
+static int stress_set_radixsort_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_radixsort_methods); i++) {
+		if (strcmp(opt, stress_radixsort_methods[i].name) == 0) {
+			stress_set_setting("radixsort-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "radixsort-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_radixsort_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_radixsort_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
 
 /*
  *  stress_radixsort_handler()
@@ -50,7 +177,6 @@ static void MLOCKED_TEXT stress_radixsort_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
-#endif
 
 /*
  *  stress_set_radixsort_size()
@@ -67,11 +193,11 @@ static int stress_set_radixsort_size(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_radixsort_method,	stress_set_radixsort_method },
 	{ OPT_radixsort_size,	stress_set_radixsort_size },
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_LIB_BSD)
 /*
  *  stress_radixsort()
  *	stress radixsort
@@ -85,6 +211,16 @@ static int stress_radixsort(stress_args_t *args)
 	struct sigaction old_action;
 	int ret;
 	unsigned char revtable[256];
+	size_t radixsort_method = 0;
+
+	radixsort_func_t radixsort_func;
+
+	(void)stress_get_setting("radixsort-method", &radixsort_method);
+
+	radixsort_func = stress_radixsort_methods[radixsort_method].radixsort_func;
+	if (args->instance == 0)
+		pr_inf("%s: using method '%s'\n",
+			args->name, stress_radixsort_methods[radixsort_method].name);
 
 	if (!stress_get_setting("radixsort-size", &radixsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -123,7 +259,6 @@ static int stress_radixsort(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-
 	for (i = 0; i < 256; i++)
 		revtable[i] = (unsigned char)(255 - i);
 
@@ -137,7 +272,7 @@ static int stress_radixsort(stress_args_t *args)
 
 	do {
 		/* Sort "random" data */
-		(void)radixsort(data, n, NULL, 0);
+		(void)radixsort_func(data, n, NULL, 0);
 		if (!stress_continue_flag())
 			break;
 
@@ -153,7 +288,7 @@ static int stress_radixsort(stress_args_t *args)
 		}
 
 		/* Reverse sort */
-		(void)radixsort(data, n, revtable, 0);
+		(void)radixsort_func(data, n, revtable, 0);
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (i = 0; i < n - 1; i++) {
@@ -191,13 +326,3 @@ stressor_info_t stress_radixsort_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-#else
-stressor_info_t stress_radixsort_info = {
-	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_OPTIONAL,
-	.help = help,
-	.unimplemented_reason = "built without the BSD library"
-};
-#endif

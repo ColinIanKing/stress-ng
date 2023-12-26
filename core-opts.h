@@ -966,6 +966,7 @@ typedef enum {
 	OPT_race_sched_method,
 
 	OPT_radixsort,
+	OPT_radixsort_method,
 	OPT_radixsort_ops,
 	OPT_radixsort_size,
 

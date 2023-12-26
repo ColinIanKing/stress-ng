@@ -663,6 +663,7 @@ const struct option stress_long_options[] = {
 	{ "race-sched-ops",	1,	0,	OPT_race_sched_ops },
 	{ "race-sched-method",	1,	0,	OPT_race_sched_method },
 	{ "radixsort",		1,	0,	OPT_radixsort },
+	{ "radixsort-method",	1,	0,	OPT_radixsort_method },
 	{ "radixsort-ops",	1,	0,	OPT_radixsort_ops },
 	{ "radixsort-size",	1,	0,	OPT_radixsort_size },
 	{ "ramfs",		1,	0,	OPT_ramfs },

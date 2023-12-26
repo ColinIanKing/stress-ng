@@ -5248,6 +5248,11 @@ stop after N process creation bogo-operations.
 .B \-\-radixsort N
 start N workers that sort random 8 byte strings using radixsort.
 .TP
+.B \-\-radixsort\-method [ radixsort\-libc | radixsort\-nonlibc ]
+select either the libc implementation of radixsort or an optimized
+implementation of radixsort. The default is the libc implementation if it
+is available.
+.TP
 .B \-\-radixsort\-ops N
 stop radixsort stress workers after N bogo radixsorts.
 .TP
