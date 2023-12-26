@@ -140,8 +140,8 @@ static int radixsort_nonlibc(
 			max = len;
 	}
 
-	for (digit = max; digit > 0; digit--)
-		radix_count_sort(nmemb, digit - 1, base, b, lengths, table);
+	for (digit = max - 1; digit >= 0; digit--)
+		radix_count_sort(nmemb, digit, base, b, lengths, table);
 
 	free(lengths);
 	free(b);
