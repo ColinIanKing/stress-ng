@@ -95,11 +95,11 @@ static inline void ALWAYS_INLINE radix_count_sort(
 	(void)shim_memcpy((void *)base, (void *)b, sizeof(*base) * size);
 }
 
-static inline ALWAYS_INLINE int radix_strlen(const char *str, unsigned int endbyte)
+static inline ALWAYS_INLINE int radix_strlen(const unsigned char *str, unsigned char endbyte)
 {
-	const char *ptr = str;
+	register const unsigned char *ptr = str;
 
-	while ((unsigned int)*ptr != endbyte)
+	while (*ptr != endbyte)
 		ptr++;
 
 	return ptr - str;
@@ -114,6 +114,7 @@ static int radixsort_nonlibc(
 	const unsigned char **b;
 	register int max, digit, *lengths;
 	register int i;
+	unsigned char endchar;
 
 	if (nmemb < 2)
 		return 0;
@@ -130,10 +131,11 @@ static int radixsort_nonlibc(
 		return -1;
 	}
 
-	max = radix_strlen((char *)base[0], endbyte);
+	endchar = (unsigned char)endbyte;
+	max = radix_strlen(base[0], endchar);
 	lengths[0] = max;
 	for (i = 1; i < nmemb; i++) {
-		const int len = radix_strlen((char *)base[i], endbyte);
+		const int len = radix_strlen(base[i], endchar);
 
 		lengths[i] = len;
 		if (len > max)
