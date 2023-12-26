@@ -496,7 +496,7 @@ stressor_info_t stress_acl_info = {
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
-	.help = help
-	.unimplemented_reason = "build without libacl or acl/libacl.h or sys/acl.h";
+	.help = help,
+	.unimplemented_reason = "build without libacl or acl/libacl.h or sys/acl.h"
 };
 #endif
