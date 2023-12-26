@@ -44,44 +44,52 @@ typedef struct {
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
-void countSort(
+#define IDX(base, i, k) 	((int)(unsigned char)base[(i)][(k)] + 1)
+#define IDX_T(base, i, k)	((int)(unsigned char)table[base[(i)][(k)] + 1])
+
+static inline void radix_count_sort(
 	const unsigned char **base,
 	const unsigned char **b,
-	const size_t *lengths,
+	const int *lengths,
 	const unsigned char *table,
 	const int size,
-	const size_t k)
+	const int k)
 {
-	int c[257];
 	register int i;
+	int c[257] ALIGN64;
 
 	(void)shim_memset(c, 0, sizeof(c));
 
 	if (table) {
 		for (i = 0; i < size; i++)
-			c[k < lengths[i] ? (int)(unsigned char)table[base[i][k]] + 1 : 0]++;
+			c[(k < lengths[i]) ? IDX_T(base, i, k) : 0]++;
 
 		for (i = 1; i < 257; i++)
 			c[i] += c[i - 1];
 
 		for (i = size - 1; i >= 0; i--) {
-			b[c[k < lengths[i] ? (int)(unsigned char)table[base[i][k]] + 1 : 0] - 1] = base[i];
-			c[k < lengths[i] ? (int)(unsigned char)table[base[i][k]] + 1 : 0]--;
+			register const int j = IDX_T(base, i, k);
+			register const int l = (k < lengths[i]) ? j : 0;
+
+			c[l]--;
+			b[c[l]] = base[i];
 		}
 	} else {
 		for (i = 0; i < size; i++)
-			c[k < lengths[i] ? (int)(unsigned char)base[i][k] + 1 : 0]++;
+			c[k < lengths[i] ? IDX(base, i, k) : 0]++;
 
 		for (i = 1; i < 257; i++)
 			c[i] += c[i - 1];
 
 		for (i = size - 1; i >= 0; i--) {
-			b[c[k < lengths[i] ? (int)(unsigned char)base[i][k] + 1 : 0] - 1] = base[i];
-			c[k < lengths[i] ? (int)(unsigned char)base[i][k] + 1 : 0]--;
+			register const int j = IDX(base, i, k);
+			register const int l = (k < lengths[i]) ? j : 0;
+
+			c[l]--;
+			b[c[l]] = base[i];
 		}
 	}
-	for (i = 0; i < size; i++)
-		base[i] = b[i];
+	(void)shim_memcpy(base, b, sizeof(*base) * size);
 }
 
 static inline ALWAYS_INLINE int radix_strlen(const char *str, unsigned int endbyte)
@@ -100,9 +108,8 @@ static int radixsort_nonlibc(
 	const unsigned char *table,
 	unsigned int endbyte)
 {
-	size_t max, digit;
 	const unsigned char **b;
-	size_t *lengths;
+	register int max, digit, *lengths;
 	register int i;
 
 	if (nmemb < 2)
@@ -123,7 +130,7 @@ static int radixsort_nonlibc(
 	max = radix_strlen((char *)base[0], endbyte);
 	lengths[0] = max;
 	for (i = 1; i < nmemb; i++) {
-		const size_t len = radix_strlen((char *)base[i], endbyte);
+		const int len = radix_strlen((char *)base[i], endbyte);
 
 		lengths[i] = len;
 		if (len > max)
@@ -131,7 +138,7 @@ static int radixsort_nonlibc(
 	}
 
 	for (digit = max; digit > 0; digit--)
-		countSort(base, b, lengths, table, nmemb, digit - 1);
+		radix_count_sort(base, b, lengths, table, nmemb, digit - 1);
 
 	free(lengths);
 	free(b);
