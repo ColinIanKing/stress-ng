@@ -45,8 +45,8 @@ typedef struct {
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
-#define IDX(base, i, k) 	((int)(unsigned char)base[(i)][(k)] + 1)
-#define IDX_T(base, i, k)	((int)(unsigned char)table[base[(i)][(k)] + 1])
+#define IDX(base, i, k) 	(1U + base[(i)][(k)])
+#define IDX_T(base, i, k)	(1U + table[base[(i)][(k)]])
 
 static inline void ALWAYS_INLINE radix_count_sort(
 	const int size,
@@ -78,7 +78,7 @@ static inline void ALWAYS_INLINE radix_count_sort(
 		}
 	} else {
 		for (i = 0; i < size; i++)
-			c[k < lengths[i] ? IDX(base, i, k) : 0]++;
+			c[(k < lengths[i]) ? IDX(base, i, k) : 0]++;
 
 		for (i = 1; i < 257; i++)
 			c[i] += c[i - 1];
