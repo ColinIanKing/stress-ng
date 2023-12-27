@@ -461,7 +461,7 @@ static int stress_numa(stress_args_t *args)
 			break;
 
 		/*
-		 *  exericse set_mempolicy_home_node
+		 *  Exercise set_mempolicy_home_node
 		 */
 		(void)shim_set_mempolicy_home_node((unsigned long)buf,
 				(unsigned long)MMAP_SZ, max_nodes - 1, 0);
