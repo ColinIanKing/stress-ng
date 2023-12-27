@@ -525,8 +525,10 @@ static uint64_t syscall_time_now(void)
 
 static const stress_help_t help[] = {
 	{ NULL,	"syscall N",		"start N workers that exercise a wide range of system calls" },
+	{ NULL,	"syscall-method M",	"select method of selecting system calls to exercise" },
 	{ NULL,	"syscall-ops N",	"stop after N syscall bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"syscall-top N",	"display fastest top N system calls" },
+	{ NULL,	NULL,			NULL }
 };
 
 static const syscall_method_t syscall_methods[] = {
@@ -563,6 +565,15 @@ static int stress_set_syscall_method(const char *opt)
 	(void)fprintf(stderr, "\n");
 
 	return -1;
+}
+
+static int stress_set_syscall_top(const char *opt)
+{
+	size_t syscall_top;
+
+	syscall_top = (size_t)stress_get_uint32(opt);
+	stress_check_range("syscall-top", (uint64_t)syscall_top, 0, (uint64_t)1000);
+	return stress_set_setting("syscall-top", TYPE_ID_SIZE_T, &syscall_top);
 }
 
 #if defined(HAVE_SYS_UN_H) &&	\
@@ -8456,8 +8467,16 @@ static inline int cmp_syscall_time(const void *p1, const void *p2)
  */
 static void stress_syscall_report_syscall_top10(stress_args_t *args)
 {
-	size_t i, n, sort_index[STRESS_SYSCALLS_MAX];
-	size_t max = STRESS_MINIMUM(10, STRESS_SYSCALLS_MAX);
+	size_t i, n, sort_index[STRESS_SYSCALLS_MAX], syscall_top = 10;
+
+	(void)stress_get_setting("syscall-top", &syscall_top);
+
+	for (n = 0, i = 0; (i < STRESS_SYSCALLS_MAX); i++) {
+		if (syscall_stats[i].succeed)
+			n++;
+	}
+	if ((syscall_top == 0) || (syscall_top > n))
+		syscall_top = n;
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		syscall_stats_t *ss = &syscall_stats[i];
@@ -8473,9 +8492,10 @@ static void stress_syscall_report_syscall_top10(stress_args_t *args)
 	syscall_shellsort_size_t(sort_index, STRESS_SYSCALLS_MAX, cmp_syscall_time);
 
 	pr_block_begin();
-	pr_inf("%s: Top 10 fastest system calls (timings in nanosecs):\n", args->name);
+	pr_inf("%s: Top %zu fastest system calls (timings in nanosecs):\n",
+		args->name, syscall_top);
 	pr_inf("%s: %25s %10s %10s\n", args->name, "System Call", "Avg (ns)", "Min (ns)");
-	for (n = 0, i = 0; (i < STRESS_SYSCALLS_MAX) && (n < max); i++) {
+	for (i = 0; i < syscall_top; i++) {
 		const size_t j = sort_index[i];
 		syscall_stats_t *ss = &syscall_stats[j];
 
@@ -8485,7 +8505,6 @@ static void stress_syscall_report_syscall_top10(stress_args_t *args)
 				syscalls[j].name,
 				ss->total_duration / (double)ss->count,
 				ss->min_duration);
-			n++;
 		}
 	}
 	pr_block_end();
@@ -8775,7 +8794,7 @@ static int stress_syscall(stress_args_t *args)
 	}
 
 	if (args->instance == 0) {
-		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest non-failing tests exercised\n",
+		pr_inf("%s: %zd system call tests, %zd (%.1f%%) fastest non-failing tests fully exercised\n",
 			args->name, STRESS_SYSCALLS_MAX, exercised,
 			(double)exercised * 100.0 / (double)STRESS_SYSCALLS_MAX);
 		stress_syscall_report_syscall_top10(args);
@@ -8808,6 +8827,7 @@ err_close_dir_fd:
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_syscall_method, 	stress_set_syscall_method },
+	{ OPT_syscall_top,	stress_set_syscall_top },
 	{ 0,			NULL },
 };
 
