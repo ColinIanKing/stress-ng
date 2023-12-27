@@ -849,7 +849,7 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 
 
 mmap_retry:
-	mem = stress_mmap_populate(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, 
+	mem = stress_mmap_populate(NULL, MEM_SIZE, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mem == MAP_FAILED) {
 		if (!stress_continue_flag()) {
