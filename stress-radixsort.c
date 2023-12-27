@@ -50,10 +50,10 @@ static sigjmp_buf jmp_env;
 
 static inline void ALWAYS_INLINE radix_count_sort(
 	const int size,
-	const int k,
+	const unsigned short int k,
 	const unsigned char *base[size],
 	const unsigned char *b[size],
-	const int lengths[size],
+	const unsigned short int lengths[size],
 	const unsigned char table[256])
 {
 	register int i;
@@ -112,7 +112,8 @@ static int radixsort_nonlibc(
 	unsigned int endbyte)
 {
 	const unsigned char **b;
-	register int max, digit, *lengths;
+	register int digit;
+	unsigned short int *lengths, max;
 	register int i;
 	unsigned char endchar;
 
@@ -135,7 +136,7 @@ static int radixsort_nonlibc(
 	max = radix_strlen(base[0], endchar);
 	lengths[0] = max;
 	for (i = 1; i < nmemb; i++) {
-		const int len = radix_strlen(base[i], endchar);
+		const short int len = radix_strlen(base[i], endchar);
 
 		lengths[i] = len;
 		if (len > max)
