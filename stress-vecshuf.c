@@ -389,8 +389,6 @@ static int stress_vecshuf(stress_args_t *args)
 
 	if (args->instance == 0) {
 		double total_duration = 0.0;
-		double total_ops = 0.0;
-		double total_bytes = 0.0;
 		double inverse_sum_ops = 0.0;
 		double inverse_sum_bytes = 0.0;
 		double n = 0.0;
@@ -408,9 +406,6 @@ static int stress_vecshuf(stress_args_t *args)
 			const double ops = stress_vecshuf_funcs[i].ops;
 			const double bytes = stress_vecshuf_funcs[i].bytes;
 			const double duration = stress_vecshuf_funcs[i].duration;
-
-			total_ops += ops;
-			total_bytes += bytes;
 
 			if ((duration > 0.0) && (ops > 0.0) &&
 			    (bytes > 0.0) && (total_duration > 0.0)) {
