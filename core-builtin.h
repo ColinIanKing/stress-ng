@@ -23,6 +23,12 @@
 #include <x86intrin.h>
 #endif
 
+#if defined(HAVE_BUILTIN_ASSUME_ALIGNED)
+#define shim_assume_aligned(arg, n)	__builtin_assume_aligned(arg, n)
+#else
+#define shim_assume_aligned(arg, n)	arg
+#endif
+
 #if defined(HAVE_BUILTIN_MEMSET)
 #define shim_memset(s, c, n)		__builtin_memset(s, c, n)
 #else

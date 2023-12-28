@@ -1687,7 +1687,7 @@ bool PURE stress_little_endian(void)
  */
 HOT OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 {
-	register uint32_t *ptr32 = (uint32_t *)data;
+	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
 	register const uint32_t *ptr32end = (uint32_t *)(data + len);
 
 	if (stress_little_endian()) {
