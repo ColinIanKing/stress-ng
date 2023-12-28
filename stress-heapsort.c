@@ -87,6 +87,8 @@ static inline OPTIMIZE3 void heapsort_swap(void *p1, void *p2, register size_t s
 
 static inline void heapsort_copy(void *p1, void *p2, register size_t size)
 {
+	register uint8_t *u8p1, *u8p2;
+
 	switch (size) {
 	case 8:
 		*(uint64_t *)p1 = *(uint64_t *)p2;
@@ -98,8 +100,8 @@ static inline void heapsort_copy(void *p1, void *p2, register size_t size)
 		*(uint16_t *)p1 = *(uint16_t *)p2;
 		return;
 	default:
-		register uint8_t *u8p1 = (uint8_t *)p1;
-		register uint8_t *u8p2 = (uint8_t *)p2;
+		u8p1 = (uint8_t *)p1;
+		u8p2 = (uint8_t *)p2;
 
 		do {
 			*(u8p1++) = *(u8p2++);
