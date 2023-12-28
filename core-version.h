@@ -51,6 +51,7 @@
 #endif
 #else
 #define NEED_GNUC(major, minor, patchlevel) 	(0)
+#define EQUAL_GNUC(major, minor, patchlevel)	(0)
 #endif
 
 #if defined(__clang__) &&	\
