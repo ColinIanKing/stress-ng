@@ -258,7 +258,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define CACHE_WRITE_USE_MOD(x)						\
 static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
-	stress_args_t *args,					\
+	stress_args_t *args,						\
 	const uint64_t inc,						\
 	const uint64_t r, 						\
 	uint64_t *pi,							\
