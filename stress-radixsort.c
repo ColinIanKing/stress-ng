@@ -51,10 +51,10 @@ static sigjmp_buf jmp_env;
 static inline void ALWAYS_INLINE radix_count_sort(
 	const int size,
 	const unsigned short int k,
-	const unsigned char *base[size],
-	const unsigned char *b[size],
-	const unsigned short int lengths[size],
-	const unsigned char table[256])
+	const unsigned char *base[],
+	const unsigned char *b[],
+	const unsigned short int lengths[],
+	const unsigned char table[])
 {
 	register int i;
 	unsigned int c[257];
