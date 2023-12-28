@@ -97,14 +97,15 @@ static inline void heapsort_copy(void *p1, void *p2, register size_t size)
 	case 2:
 		*(uint16_t *)p1 = *(uint16_t *)p2;
 		return;
-	default:
-		register uint8_t *u8p1 = (uint8_t *)p1;
-		register uint8_t *u8p2 = (uint8_t *)p2;
+	default: {
+		    register uint8_t *u8p1 = (uint8_t *)p1;
+		    register uint8_t *u8p2 = (uint8_t *)p2;
 
-		do {
-			*(u8p1++) = *(u8p2++);
-		} while (--size);
-		return;
+		    do {
+			    *(u8p1++) = *(u8p2++);
+		    } while (--size);
+		    return;
+		}
 	}
 }
 
