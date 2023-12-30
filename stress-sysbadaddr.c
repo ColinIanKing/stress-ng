@@ -529,7 +529,19 @@ static int bad_faccessat(void *addr)
 
 static int bad_fstat(void *addr)
 {
-	return shim_fstat(0, (struct stat *)addr);
+	int ret, fd = 0;
+
+#if defined(O_DIRECTORY)
+	fd = open(stress_get_temp_path(), O_RDONLY | O_DIRECTORY);
+	if (fd < 0)
+		fd = 0;
+#endif
+	ret = shim_fstat(fd, (struct stat *)addr);
+#if defined(O_DIRECTORY)
+	if (fd)
+		(void)close(fd);
+#endif
+	return ret;
 }
 
 static int bad_getcpu1(void *addr)
