@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cpu-cache.h"
 #include "core-builtin.h"
 #include "core-io-priority.h"
 
@@ -948,6 +949,21 @@ static int syscall_brk(void)
 	}
 	return -1;
 }
+
+#if defined(HAVE_ASM_CACHECTL_H) &&	\
+    defined(HAVE_CACHEFLUSH) &&		\
+    defined(STRESS_ARCH_MIPS)
+#define HAVE_SYSCALL_CACHEFLUSH
+static int syscall_cacheflush(void)
+{
+	int ret;
+
+	t1 = syscall_time_now();
+	ret = shim_cacheflush(syscall_2_pages, syscall_2_pages_size, SHIM_DCACHE);
+	t2 = syscall_time_now();
+	return ret;
+}
+#endif
 
 #if defined(HAVE_SYS_CAPABILITY_H) &&		\
     defined(_LINUX_CAPABILITY_U32S_3) &&	\
@@ -7417,6 +7433,9 @@ static const syscall_t syscalls[] = {
 	/* syscall_bpf, ignore for now */
 #if defined(HAVE_SYSCALL_BRK)
 	SYSCALL(syscall_brk),
+#endif
+#if defined(HAVE_SYSCALL_CACHEFLUSH)
+	SYSCALL(syscall_cacheflush),
 #endif
 #if defined(HAVE_SYSCALL_CAPGET)
 	SYSCALL(syscall_capget),
