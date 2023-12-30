@@ -76,7 +76,14 @@ UNEXPECTED
 
 typedef void *(*stress_bad_addr_t)(stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
+typedef struct {
+	volatile size_t syscall_index;
+	volatile size_t addr_index;
+	volatile uint64_t counter;
+	uint64_t max_ops;
+} stress_sysbadaddr_state_t;
 
+static stress_sysbadaddr_state_t *state;
 static void *no_page;	/* no protect page */
 static void *ro_page;	/* Read only page */
 static void *rw_page;	/* Read-Write page */
@@ -1033,10 +1040,7 @@ static stress_bad_syscall_t bad_syscalls[] = {
  *  Call a system call in a child context so we don't clobber
  *  the parent
  */
-static inline int stress_do_syscall(
-	stress_args_t *args,
-	stress_bad_syscall_t bad_syscall,
-	void *addr)
+static inline int stress_do_syscall(stress_args_t *args)
 {
 	pid_t pid;
 	int rc = 0;
@@ -1050,8 +1054,7 @@ static inline int stress_do_syscall(
 #if defined(HAVE_SETITIMER)
 		struct itimerval it;
 #endif
-		size_t i;
-		int ret;
+		size_t k;
 
 		/* Try to limit child from spawning */
 		limit_procs(2);
@@ -1063,33 +1066,44 @@ static inline int stress_do_syscall(
 		if (stress_drop_capabilities(args->name) < 0) {
 			_exit(EXIT_NO_RESOURCE);
 		}
-		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (stress_sighandler(args->name, sigs[i], stress_sig_handler_exit, NULL) < 0)
+		for (k = 0; k < SIZEOF_ARRAY(sigs); k++) {
+			if (stress_sighandler(args->name, sigs[k], stress_sig_handler_exit, NULL) < 0)
 				_exit(EXIT_FAILURE);
 		}
 
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-#if defined(HAVE_SETITIMER)
-		/*
-		 * Force abort if we take too long
-		 */
-		it.it_interval.tv_sec = 0;
-		it.it_interval.tv_usec = 100000;
-		it.it_value.tv_sec = 0;
-		it.it_value.tv_usec = 100000;
-		if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-			pr_fail("%s: setitimer failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			_exit(EXIT_NO_RESOURCE);
-		}
-#endif
+		state->counter = stress_bogo_get(args);
+		while (state->syscall_index < SIZEOF_ARRAY(bad_syscalls)) {
+			while (state->addr_index < SIZEOF_ARRAY(bad_addrs)) {
+				void *addr = bad_addrs[state->addr_index];
+				const stress_bad_syscall_t bad_syscall = bad_syscalls[state->syscall_index];
 
-		ret = bad_syscall(addr);
-		if (ret < 0)
-			ret = errno;
-		_exit(ret);
+				if (addr) {
+#if defined(HAVE_SETITIMER)
+					/*
+					 * Force abort if we take too long
+					 */
+					it.it_interval.tv_sec = 0;
+					it.it_interval.tv_usec = 100000;
+					it.it_value.tv_sec = 0;
+					it.it_value.tv_usec = 100000;
+					if (setitimer(ITIMER_REAL, &it, NULL) < 0)
+						_exit(EXIT_NO_RESOURCE);
+#endif
+					state->counter++;
+					if ((state->max_ops) && (state->counter >= state->max_ops))
+						_exit(EXIT_SUCCESS);
+
+					(void)bad_syscall(addr);
+				}
+				state->addr_index++;
+			}
+			state->addr_index = 0;
+			state->syscall_index++;
+		}
+		_exit(EXIT_SUCCESS);
 	} else {
 		int ret, status;
 
@@ -1101,9 +1115,8 @@ static inline int stress_do_syscall(
 			(void)stress_kill_pid_wait(pid, &status);
 		}
 		rc = WEXITSTATUS(status);
-
-		stress_bogo_inc(args);
 	}
+	stress_bogo_set(args, state->counter);
 	return rc;
 }
 
@@ -1112,18 +1125,23 @@ static int stress_sysbadaddr_child(stress_args_t *args, void *context)
 	(void)context;
 
 	do {
-		size_t i;
+		size_t last_syscall_index = 0;
 
-		for (i = 0; i < SIZEOF_ARRAY(bad_syscalls); i++) {
-			size_t j;
+		state->syscall_index = 0;
+		while (state->syscall_index < SIZEOF_ARRAY(bad_syscalls)) {
+			size_t last_addr_index = 0;
 
-			for (j = 0; j < SIZEOF_ARRAY(bad_addrs); j++) {
-				void *addr = bad_addrs[j](args);
-
-				if (addr != MAP_FAILED) {
-					VOID_RET(int, stress_do_syscall(args, bad_syscalls[i], addr));
-				}
+			state->addr_index = 0;
+			while (state->addr_index < SIZEOF_ARRAY(bad_addrs)) {
+				if (bad_addrs[state->addr_index])
+					stress_do_syscall(args);
+				if (last_addr_index == state->addr_index)
+					state->addr_index++;
+				last_addr_index = state->addr_index;
 			}
+			if (last_syscall_index == state->syscall_index)
+				state->syscall_index++;
+			last_syscall_index = state->syscall_index;
 		}
 	} while (stress_continue(args));
 
@@ -1145,8 +1163,19 @@ static int stress_sysbadaddr(stress_args_t *args)
 	size_t page_size = args->page_size;
 	int ret;
 
+	state = (stress_sysbadaddr_state_t *)stress_mmap_populate(NULL,
+		sizeof(*state), PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (state == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap anonymous state structure: "
+		       "errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
+	}
+
 	ro_page = stress_mmap_populate(NULL, page_size,
-		PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		PROT_READ, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (ro_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous read-only page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1158,7 +1187,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 
 	rw_page = stress_mmap_populate(NULL, page_size << 1,
 		PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rw_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous read-write page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1170,7 +1199,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 
 	rx_page = stress_mmap_populate(NULL, page_size,
 		PROT_EXEC | PROT_READ,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rx_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous execute-only page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1181,7 +1210,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 	(void)stress_madvise_mergeable(rx_page, page_size);
 
 	no_page = stress_mmap_populate(NULL, page_size,
-		PROT_NONE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		PROT_NONE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (no_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous prot-none page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1191,7 +1220,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 	}
 
 	wo_page = stress_mmap_populate(NULL, page_size,
-		PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (wo_page == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap anonymous write-only page: "
 		       "errno=%d (%s), skipping stressor\n",
@@ -1207,7 +1236,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 	 * and skip MAP_FAILED addresses in the main stressor
 	 */
 	wx_page = stress_mmap_populate(NULL, page_size,
-		PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	/*
 	 * Unmap last page, so we know we have an unmapped
 	 * page following the r/w page
@@ -1225,6 +1254,7 @@ cleanup:
 	stress_munmap(rx_page, page_size);
 	stress_munmap(rw_page, page_size);
 	stress_munmap(ro_page, page_size);
+	stress_munmap((void *)state, sizeof(*state));
 
 	return ret;
 }
