@@ -74,6 +74,14 @@ UNEXPECTED
 #include <sys/ptrace.h>
 #endif
 
+#if defined(CLONE_CHILD_CLEARTID) &&	\
+    defined(CLONE_CHILD_SETTID) &&	\
+    defined(SIGCHLD)
+#define STRESS_CLONE_FLAGS (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID | SIGCHLD)
+#else
+#define STRESS_CLONE_FLAGS (0)
+#endif
+
 typedef void *(*stress_bad_addr_t)(stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 typedef struct {
@@ -309,10 +317,29 @@ static int bad_clock_gettime(void *addr)
 
 #if defined(HAVE_CLOCK_NANOSLEEP) &&	\
     defined(CLOCK_REALTIME)
-static int bad_clock_nanosleep(void *addr)
+static int bad_clock_nanosleep1(void *addr)
 {
 	return clock_nanosleep(CLOCK_REALTIME, 0,
 		(const struct timespec *)addr,
+		(struct timespec *)addr);
+}
+
+static int bad_clock_nanosleep2(void *addr)
+{
+	return clock_nanosleep(CLOCK_REALTIME, 0,
+		(const struct timespec *)addr,
+		(struct timespec *)NULL);
+}
+
+static int bad_clock_nanosleep3(void *addr)
+{
+	struct timespec ts;
+
+	ts.tv_sec = 0;
+	ts.tv_nsec = 0;
+
+	return clock_nanosleep(CLOCK_REALTIME, 0,
+		(const struct timespec *)&ts,
 		(struct timespec *)addr);
 }
 #endif
@@ -327,14 +354,70 @@ static int bad_clock_settime(void *addr)
 
 #if defined(HAVE_CLONE) && 	\
     defined(__linux__)
-static int bad_clone(void *addr)
+
+static int clone_func(void *ptr)
+{
+	(void)ptr;
+
+	_exit(0);
+	return 0;
+}
+
+static int bad_clone1(void *addr)
 {
 	typedef int (*fn)(void *);
+	int pid, status;
 
-	return clone((fn)addr, (void *)addr, 0, (void *)addr,
+	pid = clone((fn)addr, (void *)addr, STRESS_CLONE_FLAGS, (void *)addr,
 		(pid_t *)inc_addr(addr, 1),
 		(void *)inc_addr(addr, 2),
 		(pid_t *)inc_addr(addr, 3));
+	if (pid > 1)
+		(void)stress_kill_pid_wait(pid, &status);
+	return 0;
+}
+
+static int bad_clone2(void *addr)
+{
+	int pid, status;
+
+	pid = clone(clone_func, (void *)addr, STRESS_CLONE_FLAGS, NULL, NULL, NULL);
+	if (pid > 1)
+		(void)stress_kill_pid_wait(pid, &status);
+	return 0;
+}
+
+static int bad_clone3(void *addr)
+{
+	char stack[8192];
+	int pid, status;
+
+	pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, addr, NULL, NULL);
+	if (pid > 1)
+		(void)stress_kill_pid_wait(pid, &status);
+	return 0;
+}
+
+static int bad_clone4(void *addr)
+{
+	char stack[8192];
+	int pid, status;
+
+	pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, addr, NULL);
+	if (pid > 1)
+		(void)stress_kill_pid_wait(pid, &status);
+	return 0;
+}
+
+static int bad_clone5(void *addr)
+{
+	char stack[8192];
+	int pid, status;
+
+	pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, NULL, addr);
+	if (pid > 1)
+		(void)stress_kill_pid_wait(pid, &status);
+	return 0;
 }
 #endif
 
@@ -350,10 +433,36 @@ static int bad_creat(void *addr)
 }
 */
 
-static int bad_execve(void *addr)
+static int bad_execve1(void *addr)
 {
 	return execve((char *)addr, (char **)inc_addr(addr, 1),
 		(char **)inc_addr(addr, 2));
+}
+
+static int bad_execve2(void *addr)
+{
+	char name[PATH_MAX];
+
+	if (stress_get_proc_self_exe(name, sizeof(name)) == 0)
+		return execve(name, addr, NULL);
+	return -1;
+}
+
+static int bad_execve3(void *addr)
+{
+	char name[PATH_MAX];
+	static char *newargv[] = { NULL, NULL };
+
+	if (stress_get_proc_self_exe(name, sizeof(name)) == 0)
+		return execve(name, newargv, addr);
+	return -1;
+}
+
+static int bad_execve4(void *addr)
+{
+	static char *newargv[] = { NULL, NULL };
+
+	return execve(addr, newargv, NULL);
 }
 
 #if defined(HAVE_FACCESSAT)
@@ -368,10 +477,32 @@ static int bad_fstat(void *addr)
 	return shim_fstat(0, (struct stat *)addr);
 }
 
-static int bad_getcpu(void *addr)
+static int bad_getcpu1(void *addr)
 {
 	return (int)shim_getcpu((unsigned *)addr, (unsigned *)inc_addr(addr, 2),
 		(void *)inc_addr(addr, 2));
+}
+
+static int bad_getcpu2(void *addr)
+{
+	unsigned int node = 0;
+
+	return (int)shim_getcpu((unsigned *)addr, &node, NULL);
+}
+
+static int bad_getcpu3(void *addr)
+{
+	unsigned int cpu;
+
+	return (int)shim_getcpu(&cpu, (unsigned *)addr, NULL);
+}
+
+static int bad_getcpu4(void *addr)
+{
+	unsigned int node;
+	unsigned int cpu;
+
+	return (int)shim_getcpu(&cpu, &node, addr);
 }
 
 static int bad_getcwd(void *addr)
@@ -408,17 +539,47 @@ static int bad_getitimer(void *addr)
 }
 #endif
 
-static int bad_getpeername(void *addr)
+static int bad_getpeername1(void *addr)
 {
 	return getpeername(0, (struct sockaddr *)addr, (socklen_t *)inc_addr(addr, 1));
 }
 
-static int bad_get_mempolicy(void *addr)
+static int bad_getpeername2(void *addr)
+{
+	struct sockaddr saddr;
+
+	(void)memset(&saddr, 0, sizeof(saddr));
+	return getpeername(0, &saddr, (socklen_t *)addr);
+}
+
+static int bad_getpeername3(void *addr)
+{
+	socklen_t addrlen = sizeof(struct sockaddr);
+
+	return getpeername(0, addr, &addrlen);
+}
+
+static int bad_get_mempolicy1(void *addr)
 {
 	return shim_get_mempolicy((int *)addr,
 		(unsigned long *)inc_addr(addr, 1), 1,
 		inc_addr(addr, 2), 0UL);
 }
+
+static int bad_get_mempolicy2(void *addr)
+{
+	int mode = 0;
+
+	return shim_get_mempolicy(&mode, (unsigned long *)addr, 1, addr, 0UL);
+}
+
+static int bad_get_mempolicy3(void *addr)
+{
+	unsigned long nodemask = 1;
+
+	return shim_get_mempolicy((int *)addr, &nodemask, 1, addr, 0UL);
+}
+
 
 static int bad_getrandom(void *addr)
 {
@@ -426,18 +587,60 @@ static int bad_getrandom(void *addr)
 }
 
 #if defined(HAVE_GETRESGID)
-static int bad_getresgid(void *addr)
+static int bad_getresgid1(void *addr)
 {
 	return getresgid((gid_t *)addr, (gid_t *)inc_addr(addr, 1),
 		(gid_t *)inc_addr(addr, 2));
 }
+
+static int bad_getresgid2(void *addr)
+{
+	uid_t egid, sgid;
+
+	return getresgid((gid_t *)addr, &egid, &sgid);
+}
+
+static int bad_getresgid3(void *addr)
+{
+	gid_t rgid, sgid;
+
+	return getresgid(&rgid, (uid_t *)addr, &sgid);
+}
+
+static int bad_getresgid4(void *addr)
+{
+	gid_t rgid, egid;
+
+	return getresgid(&rgid, &egid, (gid_t *)addr);
+}
 #endif
 
 #if defined(HAVE_GETRESUID)
-static int bad_getresuid(void *addr)
+static int bad_getresuid1(void *addr)
 {
 	return getresuid((uid_t *)addr, (uid_t *)inc_addr(addr, 1),
 		(uid_t *)inc_addr(addr, 2));
+}
+
+static int bad_getresuid2(void *addr)
+{
+	uid_t euid, suid;
+
+	return getresuid((uid_t *)addr, &euid, &suid);
+}
+
+static int bad_getresuid3(void *addr)
+{
+	uid_t ruid, suid;
+
+	return getresuid(&ruid, (uid_t *)addr, &suid);
+}
+
+static int bad_getresuid4(void *addr)
+{
+	uid_t ruid, euid;
+
+	return getresuid(&ruid, &euid, (uid_t *)addr);
 }
 #endif
 
@@ -454,23 +657,71 @@ static int bad_getrusage(void *addr)
 }
 #endif
 
-static int bad_getsockname(void *addr)
+static int bad_getsockname1(void *addr)
 {
 	return getsockname(0, (struct sockaddr *)addr, (socklen_t *)inc_addr(addr, 1));
 }
 
-static int bad_gettimeofday(void *addr)
+static int bad_getsockname2(void *addr)
+{
+	struct sockaddr saddr;
+
+	(void)memset(&addr, 0, sizeof(saddr));
+	return getsockname(0, &saddr, (socklen_t *)addr);
+}
+
+static int bad_getsockname3(void *addr)
+{
+	socklen_t socklen = sizeof(struct sockaddr);
+
+	return getsockname(0,  addr, &socklen);
+}
+
+static int bad_gettimeofday1(void *addr)
 {
 	struct timezone *tz = (struct timezone *)inc_addr(addr, 1);
 	return gettimeofday((struct timeval *)addr, tz);
 }
 
+static int bad_gettimeofday2(void *addr)
+{
+	struct timeval tv;
+
+	return gettimeofday(&tv, (struct timezone *)addr);
+}
+
+static int bad_gettimeofday3(void *addr)
+{
+	struct timezone tz;
+
+	return gettimeofday((struct timeval *)addr, &tz);
+}
+
 #if defined(HAVE_GETXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
-static int bad_getxattr(void *addr)
+static int bad_getxattr1(void *addr)
 {
 	return (int)shim_getxattr((char *)addr, (char *)inc_addr(addr, 1),
 		(void *)inc_addr(addr, 2), (size_t)32);
+}
+
+static int bad_getxattr2(void *addr)
+{
+	char buf[1024];
+
+	return (int)shim_getxattr((char *)addr, "somename", buf, sizeof(buf));
+}
+
+static int bad_getxattr3(void *addr)
+{
+	char buf[1024];
+
+	return (int)shim_getxattr(stress_get_temp_path(), (char *)addr, buf, sizeof(buf));
+}
+
+static int bad_getxattr4(void *addr)
+{
+	return (int)shim_getxattr(stress_get_temp_path(), "somename", addr, 1024);
 }
 #endif
 
@@ -488,14 +739,36 @@ static int bad_lchown(void *addr)
 	return lchown((char *)addr, getuid(), getgid());
 }
 
-static int bad_link(void *addr)
+static int bad_link1(void *addr)
 {
 	return link((char *)addr, (char *)inc_addr(addr, 1));
 }
 
-static int bad_lstat(void *addr)
+static int bad_link2(void *addr)
+{
+	return link(stress_get_temp_path(), (char *)addr);
+}
+
+static int bad_link3(void *addr)
+{
+	return link((char *)addr, stress_get_temp_path());
+}
+
+static int bad_lstat1(void *addr)
 {
 	return shim_lstat((const char *)addr, (struct stat *)inc_addr(addr, 1));
+}
+
+static int bad_lstat2(void *addr)
+{
+	struct stat statbuf;
+
+	return shim_lstat(addr, &statbuf);
+}
+
+static int bad_lstat3(void *addr)
+{
+	return shim_lstat(stress_get_temp_path(), (struct stat *)addr);
 }
 
 #if defined(HAVE_MADVISE)
@@ -520,10 +793,24 @@ static int bad_memfd_create(void *addr)
 }
 #endif
 
-static int bad_migrate_pages(void *addr)
+static int bad_migrate_pages1(void *addr)
 {
 	return (int)shim_migrate_pages(getpid(), 1, (unsigned long *)addr,
 		(unsigned long *)inc_addr(addr, 1));
+}
+
+static int bad_migrate_pages2(void *addr)
+{
+	unsigned long nodes = 0;
+
+	return (int)shim_migrate_pages(getpid(), 1, &nodes, (unsigned long *)addr);
+}
+
+static int bad_migrate_pages3(void *addr)
+{
+	unsigned long nodes = 0;
+
+	return (int)shim_migrate_pages(getpid(), 1, (unsigned long *)addr, &nodes);
 }
 
 static int bad_mincore(void *addr)
@@ -548,10 +835,33 @@ static int bad_mlock2(void *addr)
 #endif
 
 #if defined(__NR_move_pages)
-static int bad_move_pages(void *addr)
+static int bad_move_pages1(void *addr)
 {
 	return (int)shim_move_pages(getpid(), (unsigned long)1, (void **)addr,
 		(const int *)inc_addr(addr, 1), (int *)inc_addr(addr, 2), 0);
+}
+
+static int bad_move_pages2(void *addr)
+{
+	int nodes, status;
+
+	return (int)shim_move_pages(getpid(), (unsigned long)1, (void **)addr, &nodes, &status, 0);
+}
+
+static int bad_move_pages3(void *addr)
+{
+	void *pages[1] = { addr };
+	int status = 0;
+
+	return (int)shim_move_pages(getpid(), (unsigned long)1, pages, (int *)addr, &status, 0);
+}
+
+static int bad_move_pages4(void *addr)
+{
+	void *pages[1] = { addr };
+	int nodes = 0;
+
+	return (int)shim_move_pages(getpid(), (unsigned long)1, pages, &nodes, (int *)addr, 0);
 }
 #endif
 
@@ -581,10 +891,27 @@ UNEXPECTED
 #endif
 
 #if defined(HAVE_NANOSLEEP)
-static int bad_nanosleep(void *addr)
+static int bad_nanosleep1(void *addr)
 {
 	return nanosleep((struct timespec *)addr,
 		(struct timespec *)inc_addr(addr, 1));
+}
+
+static int bad_nanosleep2(void *addr)
+{
+	struct timespec rem;
+
+	return nanosleep((struct timespec *)addr, &rem);
+}
+
+static int bad_nanosleep3(void *addr)
+{
+	struct timespec req;
+
+	req.tv_sec = 0;
+	req.tv_nsec = 0;
+
+	return nanosleep(&req, (struct timespec *)addr);
 }
 #else
 UNEXPECTED
@@ -663,9 +990,21 @@ static int bad_read(void *addr)
 	return (int)ret;
 }
 
-static int bad_readlink(void *addr)
+static int bad_readlink1(void *addr)
 {
 	return (int)shim_readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
+}
+
+static int bad_readlink2(void *addr)
+{
+	return (int)shim_readlink(stress_get_temp_path(), (char *)addr, 8192);
+}
+
+static int bad_readlink3(void *addr)
+{
+	char buf[PATH_MAX];
+
+	return (int)shim_readlink((const char *)addr, (char *)buf, PATH_MAX);
 }
 
 #if defined(HAVE_SYS_UIO_H)
@@ -683,9 +1022,14 @@ static int bad_readv(void *addr)
 }
 #endif
 
-static int bad_rename(void *addr)
+static int bad_rename1(void *addr)
 {
 	return rename((char *)addr, (char *)inc_addr(addr, 1));
+}
+
+static int bad_rename2(void *addr)
+{
+	return rename((char *)addr, "sng-tmp-17262");
 }
 
 #if defined(HAVE_SCHED_GETAFFINITY)
@@ -698,7 +1042,7 @@ UNEXPECTED
 #endif
 
 #if defined(HAVE_SELECT)
-static int bad_select(void *addr)
+static int bad_select1(void *addr)
 {
 	int fd, ret = 0;
 	fd_set *readfds = addr;
@@ -712,13 +1056,112 @@ static int bad_select(void *addr)
 	}
 	return ret;
 }
+
+static int bad_select2(void *addr)
+{
+	int fd, ret = 0;
+	fd_set readfds;
+	fd_set writefds;
+	fd_set exceptfds;
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&writefds);
+	FD_ZERO(&exceptfds);
+
+	fd = open("/dev/zero", O_RDONLY);
+	if (fd > -1) {
+		ret = select(fd, &readfds, &writefds, &exceptfds, (struct timeval *)addr);
+		(void)close(fd);
+	}
+	return ret;
+}
+
+static int bad_select3(void *addr)
+{
+	int fd, ret = 0;
+	fd_set writefds;
+	fd_set exceptfds;
+	struct timeval tv;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	FD_ZERO(&writefds);
+	FD_ZERO(&exceptfds);
+
+	fd = open("/dev/zero", O_RDONLY);
+	if (fd > -1) {
+		ret = select(fd, addr, &writefds, &exceptfds, &tv);
+		(void)close(fd);
+	}
+	return ret;
+}
+
+static int bad_select4(void *addr)
+{
+	int fd, ret = 0;
+	fd_set readfds;
+	fd_set exceptfds;
+	struct timeval tv;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&exceptfds);
+
+	fd = open("/dev/zero", O_RDONLY);
+	if (fd > -1) {
+		ret = select(fd, &readfds, addr, &exceptfds, &tv);
+		(void)close(fd);
+	}
+	return ret;
+}
+
+static int bad_select5(void *addr)
+{
+	int fd, ret = 0;
+	fd_set readfds;
+	fd_set writefds;
+	struct timeval tv;
+
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	FD_ZERO(&readfds);
+	FD_ZERO(&writefds);
+
+	fd = open("/dev/zero", O_RDONLY);
+	if (fd > -1) {
+		ret = select(fd, &readfds, &writefds, addr, &tv);
+		(void)close(fd);
+	}
+	return ret;
+}
+
 #endif
 
 #if defined(HAVE_SETITIMER)
-static int bad_setitimer(void *addr)
+static int bad_setitimer1(void *addr)
 {
 	return setitimer(ITIMER_PROF, (struct itimerval *)addr,
 		(struct itimerval *)inc_addr(addr, 1));
+}
+
+static int bad_setitimer2(void *addr)
+{
+	struct itimerval oldval;
+
+	return setitimer(ITIMER_PROF, (struct itimerval *)addr, &oldval);
+}
+
+static int bad_setitimer3(void *addr)
+{
+	struct itimerval newval;
+
+	(void)memset(&newval, 0, sizeof(newval));
+
+	return setitimer(ITIMER_PROF, &newval, (struct itimerval *)addr);
 }
 #endif
 
@@ -727,9 +1170,21 @@ static int bad_setrlimit(void *addr)
 	return setrlimit(RLIMIT_CPU, (struct rlimit *)addr);
 }
 
-static int bad_stat(void *addr)
+static int bad_stat1(void *addr)
 {
 	return shim_stat((char *)addr, (struct stat *)inc_addr(addr, 1));
+}
+
+static int bad_stat2(void *addr)
+{
+	return shim_stat(stress_get_temp_path(), (struct stat *)addr);
+}
+
+static int bad_stat3(void *addr)
+{
+	struct stat statbuf;
+
+	return shim_stat((char *)addr, &statbuf);
 }
 
 #if defined(HAVE_STATFS)
@@ -813,9 +1268,19 @@ static int bad_utime(void *addr)
 }
 #endif
 
-static int bad_utimes(void *addr)
+static int bad_utimes1(void *addr)
 {
 	return utimes(addr, (const struct timeval *)inc_addr(addr, 1));
+}
+
+static int bad_utimes2(void *addr)
+{
+	return utimes(stress_get_temp_path(), (const struct timeval *)addr);
+}
+
+static int bad_utimes3(void *addr)
+{
+	return utimes(addr, NULL);
 }
 
 static int bad_wait(void *addr)
@@ -889,7 +1354,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #endif
 #if defined(HAVE_CLOCK_NANOSLEEP) &&	\
     defined(CLOCK_REALTIME)
-	bad_clock_nanosleep,
+	bad_clock_nanosleep1,
+	bad_clock_nanosleep2,
+	bad_clock_nanosleep3,
 #endif
 #if defined(CLOCK_THREAD_CPUTIME_ID) &&	\
     defined(HAVE_CLOCK_SETTIME)
@@ -897,63 +1364,96 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #endif
 #if defined(HAVE_CLONE) && 	\
     defined(__linux__)
-	bad_clone,
+	bad_clone1,
+	bad_clone2,
+	bad_clone3,
+	bad_clone4,
+	bad_clone5,
 #endif
 	bad_connect,
 /*
 	bad_creat,
 */
-	bad_execve,
+	bad_execve1,
+	bad_execve2,
+	bad_execve3,
+	bad_execve4,
 #if defined(HAVE_FACCESSAT)
 	bad_faccessat,
 #endif
 	bad_fstat,
-	bad_getcpu,
+	bad_getcpu1,
+	bad_getcpu2,
+	bad_getcpu3,
+	bad_getcpu4,
 	bad_getcwd,
 #if defined(HAVE_GETDOMAINNAME)
 	bad_getdomainname,
 #endif
 	bad_getgroups,
-	bad_get_mempolicy,
+	bad_get_mempolicy1,
+	bad_get_mempolicy2,
+	bad_get_mempolicy3,
 #if defined(HAVE_GETHOSTNAME)
 	bad_gethostname,
 #endif
 #if defined(HAVE_GETITIMER)
 	bad_getitimer,
 #endif
-	bad_getpeername,
+	bad_getpeername1,
+	bad_getpeername2,
+	bad_getpeername3,
 	bad_getrandom,
 	bad_getrlimit,
 #if defined(HAVE_GETRESGID)
-	bad_getresgid,
+	bad_getresgid1,
+	bad_getresgid2,
+	bad_getresgid3,
+	bad_getresgid4,
 #endif
 #if defined(HAVE_GETRESUID)
-	bad_getresuid,
+	bad_getresuid1,
+	bad_getresuid2,
+	bad_getresuid3,
+	bad_getresuid4,
 #endif
 	bad_getrlimit,
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_SELF)
 	bad_getrusage,
 #endif
-	bad_getsockname,
-	bad_gettimeofday,
+	bad_getsockname1,
+	bad_getsockname2,
+	bad_getsockname3,
+	bad_gettimeofday1,
+	bad_gettimeofday2,
+	bad_gettimeofday3,
 #if defined(HAVE_GETXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
-	bad_getxattr,
+	bad_getxattr1,
+	bad_getxattr2,
+	bad_getxattr3,
+	bad_getxattr4,
 #endif
 #if defined(TCGETS)
 	bad_ioctl,
 #endif
 	bad_lchown,
-	bad_link,
-	bad_lstat,
+	bad_link1,
+	bad_link2,
+	bad_link3,
+	bad_lstat1,
+	bad_lstat2,
+	bad_lstat3,
 #if defined(HAVE_MADVISE)
 	bad_madvise,
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 	bad_memfd_create,
 #endif
-	bad_migrate_pages,
+	bad_migrate_pages1,
+	bad_migrate_pages2,
+	bad_migrate_pages3,
 	bad_mincore,
 #if defined(HAVE_MLOCK)
 	bad_mlock,
@@ -962,7 +1462,10 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_mlock2,
 #endif
 #if defined(__NR_move_pages)
-	bad_move_pages,
+	bad_move_pages1,
+	bad_move_pages2,
+	bad_move_pages3,
+	bad_move_pages4,
 #endif
 #if defined(HAVE_MSYNC)
 	bad_msync,
@@ -971,7 +1474,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_munlock,
 #endif
 #if defined(HAVE_NANOSLEEP)
-	bad_nanosleep,
+	bad_nanosleep1,
+	bad_nanosleep2,
+	bad_nanosleep3,
 #endif
 	bad_open,
 	bad_pipe,
@@ -985,22 +1490,33 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_pwrite,
 	bad_read,
-	bad_readlink,
+	bad_readlink1,
+	bad_readlink2,
+	bad_readlink3,
 #if defined(HAVE_SYS_UIO_H)
 	bad_readv,
 #endif
-	bad_rename,
+	bad_rename1,
+	bad_rename2,
 #if defined(HAVE_SCHED_GETAFFINITY)
 	bad_sched_getaffinity,
 #endif
 #if defined(HAVE_SELECT)
-	bad_select,
+	bad_select1,
+	bad_select2,
+	bad_select3,
+	bad_select4,
+	bad_select5,
 #endif
 #if defined(HAVE_SETITIMER)
-	bad_setitimer,
+	bad_setitimer1,
+	bad_setitimer2,
+	bad_setitimer3,
 #endif
 	bad_setrlimit,
-	bad_stat,
+	bad_stat1,
+	bad_stat2,
+	bad_stat3,
 #if defined(HAVE_STATFS)
 	bad_statfs,
 #endif
@@ -1023,7 +1539,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_UTIME_H)
 	bad_utime,
 #endif
-	bad_utimes,
+	bad_utimes1,
+	bad_utimes2,
+	bad_utimes3,
 	bad_wait,
 	bad_waitpid,
 #if defined(HAVE_WAITID)
@@ -1133,8 +1651,9 @@ static int stress_sysbadaddr_child(stress_args_t *args, void *context)
 
 			state->addr_index = 0;
 			while (state->addr_index < SIZEOF_ARRAY(bad_addrs)) {
-				if (bad_addrs[state->addr_index])
+				if (bad_addrs[state->addr_index]) {
 					stress_do_syscall(args);
+				}
 				if (last_addr_index == state->addr_index)
 					state->addr_index++;
 				last_addr_index = state->addr_index;
