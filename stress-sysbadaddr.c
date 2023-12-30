@@ -303,7 +303,10 @@ static int bad_chroot(void *addr)
     defined(CLOCK_REALTIME)
 static int bad_clock_getres(void *addr)
 {
-	return clock_getres(CLOCK_REALTIME, (struct timespec *)addr);
+	if (stress_mwc1())
+		return clock_getres(CLOCK_REALTIME, (struct timespec *)addr);
+	else
+		return shim_clock_getres(CLOCK_REALTIME, (struct timespec *)addr);
 }
 #endif
 
@@ -348,7 +351,10 @@ static int bad_clock_nanosleep3(void *addr)
     defined(HAVE_CLOCK_SETTIME)
 static int bad_clock_settime(void *addr)
 {
-	return clock_settime(CLOCK_THREAD_CPUTIME_ID, (const struct timespec *)addr);
+	if (stress_mwc1())
+		return clock_settime(CLOCK_THREAD_CPUTIME_ID, (struct timespec *)addr);
+	else
+		return shim_clock_settime(CLOCK_THREAD_CPUTIME_ID, (struct timespec *)addr);
 }
 #endif
 
@@ -1210,7 +1216,10 @@ static int bad_time(void *addr)
 {
 	time_t ret;
 
-	ret = time((time_t *)addr);
+	if (stress_mwc1())
+		ret = time((time_t *)addr);
+	else
+		ret = shim_time((time_t *)addr);
 
 	return (ret == ((time_t) -1)) ? -1 : 0;
 }
@@ -1562,6 +1571,9 @@ static inline int stress_do_syscall(stress_args_t *args)
 {
 	pid_t pid;
 	int rc = 0;
+
+	/* force update of 1 bit mwc random val */
+	(void)stress_mwc1();
 
 	if (!stress_continue(args))
 		return 0;
