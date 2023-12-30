@@ -821,6 +821,53 @@ static int bad_link3(void *addr)
 	return link((char *)addr, stress_get_temp_path());
 }
 
+#if defined(HAVE_LGETXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+static int bad_lgetxattr1(void *addr)
+{
+	return (int)shim_lgetxattr((char *)addr, (char *)inc_addr(addr, 1),
+		(void *)inc_addr(addr, 2), (size_t)32);
+}
+
+static int bad_lgetxattr2(void *addr)
+{
+	char buf[1024];
+
+	return (int)shim_lgetxattr((char *)addr, "somename", buf, sizeof(buf));
+}
+
+static int bad_lgetxattr3(void *addr)
+{
+	char buf[1024];
+
+	return (int)shim_lgetxattr(stress_get_temp_path(), (char *)addr, buf, sizeof(buf));
+}
+
+static int bad_lgetxattr4(void *addr)
+{
+	return (int)shim_lgetxattr(stress_get_temp_path(), "somename", addr, 1024);
+}
+#endif
+
+#if defined(HAVE_LREMOVEXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+static int bad_lremovexattr1(void *addr)
+{
+	return shim_lremovexattr((char *)addr, (char *)inc_addr(addr, 1));
+}
+
+static int bad_lremovexattr2(void *addr)
+{
+	return shim_lremovexattr((char *)addr, "nameval");
+}
+
+static int bad_lremovexattr3(void *addr)
+{
+	return shim_lremovexattr(stress_get_temp_path(), (char *)addr);
+}
+#endif
+
+
 static int bad_lstat1(void *addr)
 {
 	return shim_lstat((const char *)addr, (struct stat *)inc_addr(addr, 1));
@@ -1089,6 +1136,24 @@ static int bad_readv(void *addr)
 }
 #endif
 
+#if defined(HAVE_REMOVEXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+static int bad_removexattr1(void *addr)
+{
+	return shim_removexattr((char *)addr, (char *)inc_addr(addr, 1));
+}
+
+static int bad_removexattr2(void *addr)
+{
+	return shim_removexattr((char *)addr, "nameval");
+}
+
+static int bad_removexattr3(void *addr)
+{
+	return shim_removexattr(stress_get_temp_path(), (char *)addr);
+}
+#endif
+
 static int bad_rename1(void *addr)
 {
 	return rename((char *)addr, (char *)inc_addr(addr, 1));
@@ -1096,7 +1161,7 @@ static int bad_rename1(void *addr)
 
 static int bad_rename2(void *addr)
 {
-	return rename((char *)addr, "sng-tmp-17262");
+	return shim_removexattr(stress_get_temp_path(), (char *)addr);
 }
 
 #if defined(HAVE_SCHED_GETAFFINITY)
@@ -1522,6 +1587,19 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_link1,
 	bad_link2,
 	bad_link3,
+#if defined(HAVE_LGETXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	bad_lgetxattr1,
+	bad_lgetxattr2,
+	bad_lgetxattr3,
+	bad_lgetxattr4,
+#endif
+#if defined(HAVE_LREMOVEXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	bad_lremovexattr1,
+	bad_lremovexattr2,
+	bad_lremovexattr3,
+#endif
 	bad_lstat1,
 	bad_lstat2,
 	bad_lstat3,
@@ -1575,6 +1653,12 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_readlink3,
 #if defined(HAVE_SYS_UIO_H)
 	bad_readv,
+#endif
+#if defined(HAVE_REMOVEXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	bad_removexattr1,
+	bad_removexattr2,
+	bad_removexattr3,
 #endif
 	bad_rename1,
 	bad_rename2,
