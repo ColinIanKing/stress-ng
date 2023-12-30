@@ -442,6 +442,45 @@ static int bad_connect(void *addr)
 	return connect(0, (const struct sockaddr *)addr, sizeof(struct sockaddr));
 }
 
+#if defined(HAVE_COPY_FILE_RANGE)
+static int bad_copy_file_range(shim_off64_t *off_in, shim_off64_t *off_out)
+{
+	int ret, fdin, fdout;
+
+	fdin = open("/dev/zero", O_RDONLY);
+	if (fdin < 0)
+		return -1;
+	fdout = open("/dev/null", O_WRONLY);
+	if (fdout < 0) {
+		(void)close(fdout);
+		return -1;
+	}
+	ret = (int)shim_copy_file_range(fdin, off_in, fdout, off_out, 1, 0);
+	(void)close(fdout);
+	(void)close(fdin);
+	return ret;
+}
+
+static int bad_copy_file_range1(void *addr)
+{
+	return bad_copy_file_range((shim_off64_t *)addr, (shim_off64_t *)addr);
+}
+
+static int bad_copy_file_range2(void *addr)
+{
+	shim_off64_t off_out = 0ULL;
+
+	return bad_copy_file_range((shim_off64_t *)addr, &off_out);
+}
+
+static int bad_copy_file_range3(void *addr)
+{
+	shim_off64_t off_in = 0ULL;
+
+	return bad_copy_file_range(&off_in, (shim_off64_t *)addr);
+}
+#endif
+
 /*
 static int bad_creat(void *addr)
 {
@@ -1395,6 +1434,11 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_clone5,
 #endif
 	bad_connect,
+#if defined(HAVE_COPY_FILE_RANGE)
+	bad_copy_file_range1,
+	bad_copy_file_range2,
+	bad_copy_file_range3,
+#endif
 /*
 	bad_creat,
 */
