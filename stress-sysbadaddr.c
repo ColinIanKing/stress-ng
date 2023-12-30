@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
@@ -276,6 +277,15 @@ static int bad_bind(void *addr)
 {
 	return bind(0, (struct sockaddr *)addr, 0);
 }
+
+#if defined(HAVE_ASM_CACHECTL_H) &&	\
+    defined(HAVE_CACHEFLUSH) &&		\
+    defined(STRESS_ARCH_MIPS)
+static int bad_cacheflush(void *addr)
+{	
+	return cacheflush(addr, 4096, SHIM_DCACHE);
+}
+#endif
 
 static int bad_chdir(void *addr)
 {
@@ -1347,6 +1357,11 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_acct,
 */
 	bad_bind,
+#if defined(HAVE_ASM_CACHECTL_H) &&     \
+    defined(HAVE_CACHEFLUSH) &&         \
+    defined(STRESS_ARCH_MIPS)
+	bad_cacheflush,
+#endif
 	bad_chdir,
 	bad_chmod,
 	bad_chown,
