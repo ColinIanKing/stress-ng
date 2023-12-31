@@ -481,6 +481,113 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 	}
 }
 
+/* SOL_SOCKET SO_* options that return int type */
+static const int sol_socket_so_opts[] = {
+#if defined(SO_DEBUG)
+	SO_DEBUG,
+#endif
+#if defined(SO_DONTROUTE)
+	SO_DONTROUTE,
+#endif
+#if defined(SO_BROADCAST)
+	SO_BROADCAST,
+#endif
+#if defined(SO_KEEPALIVE)
+	SO_KEEPALIVE,
+#endif
+#if defined(SO_TYPE)
+	SO_TYPE,
+#endif
+#if defined(SO_DOMAIN)
+	SO_DOMAIN,
+#endif
+#if defined(SO_OOBINLINE)
+	SO_OOBINLINE,
+#endif
+#if defined(SO_NO_CHECK)
+	SO_NO_CHECK,
+#endif
+#if defined(SO_BSDCOMPAT)
+	SO_BSDCOMPAT,
+#endif
+#if defined(SO_TIMESTAMP_OLD)
+	SO_TIMESTAMP_OLD,
+#endif
+#if defined(SO_TIMESTAMPNS_OLD)
+	SO_TIMESTAMPNS_OLD,
+#endif
+#if defined(SO_TIMESTAMP_NEW)
+	SO_TIMESTAMP_NEW,
+#endif
+#if defined(SO_TIMESTAMPNS_NEW)
+	SO_TIMESTAMPNS_NEW,
+#endif
+#if defined(SO_RCVLOWAT)
+	SO_RCVLOWAT,
+#endif
+#if defined(SO_SNDLOWAT)
+	SO_SNDLOWAT,
+#endif
+#if defined(SO_PASSCRED)
+	SO_PASSCRED,
+#endif
+#if defined(SO_PASSPIDFD)
+	SO_PASSPIDFD,
+#endif
+#if defined(SO_ACCEPTCONN)
+	SO_ACCEPTCONN,
+#endif
+#if defined(SO_MARK)
+	SO_MARK,
+#endif
+#if defined(SO_RXQ_OVFL)
+	SO_RXQ_OVFL,
+#endif
+#if defined(SO_WIFI_STATUS)
+	SO_WIFI_STATUS,
+#endif
+#if defined(SO_PEEK_OFF)
+	SO_PEEK_OFF,
+#endif
+#if defined(SO_NOFCS)
+	SO_NOFCS,
+#endif
+#if defined(SO_LOCK_FILTER)
+	SO_LOCK_FILTER,
+#endif
+#if defined(SO_BPF_EXTENSIONS)
+	SO_BPF_EXTENSIONS,
+#endif
+#if defined(SO_SELECT_ERR_QUEUE)
+	SO_SELECT_ERR_QUEUE,
+#endif
+#if defined(SO_BUSY_POLL)
+	SO_BUSY_POLL,
+#endif
+#if defined(SO_PREFER_BUSY_POLL)
+	SO_PREFER_BUSY_POLL,
+#endif
+#if defined(SO_INCOMING_CPU)
+	SO_INCOMING_CPU,
+#endif
+#if defined(SO_INCOMING_NAPI_ID)
+	SO_INCOMING_NAPI_ID,
+#endif
+#if defined(SO_BINDTOIFINDEX)
+	SO_BINDTOIFINDEX,
+#endif
+#if defined(SO_BUF_LOCK)
+	SO_BUF_LOCK,
+#endif
+#if defined(SO_RESERVE_MEM)
+	SO_RESERVE_MEM,
+#endif
+#if defined(SO_TXREHASH)
+	SO_TXREHASH,
+#endif
+};
+
+
 /*
  *  stress_sock_client()
  *	client reader
@@ -511,6 +618,7 @@ static int OPTIMIZE3 stress_sock_client(
 	ctrls = stress_get_congestion_controls(sock_domain, &n_ctrls);
 
 	do {
+		size_t i;
 		int fd;
 		int retries = 0;
 		socklen_t addr_len = 0;
@@ -619,25 +727,14 @@ retry:
 				&tos, &optlen);
 		}
 #endif
-#if defined(SO_RESERVE_MEM)
-		{
-			const int mem = 4 * 1024 * 1024;
-			socklen_t optlen = sizeof(mem);
+		for (i = 0; i < SIZEOF_ARRAY(sol_socket_so_opts); i++) {
+			int val = 0;
+			socklen_t optlen = sizeof(val);
 
-			(void)setsockopt(fd, SOL_SOCKET, SO_RESERVE_MEM,
-				&mem, optlen);
+			VOID_RET(int, getsockopt(fd, SOL_SOCKET, sol_socket_so_opts[i], &val, &optlen));
 		}
-#endif
-#if defined(SO_INCOMING_CPU)
-		{
-			int cpu;
-			socklen_t optlen = sizeof(cpu);
-
-			(void)getsockopt(fd, SOL_SOCKET, SO_INCOMING_CPU,
-				&cpu, &optlen);
-		}
-#endif
 		if ((sock_domain == AF_INET) || (sock_domain == AF_INET6)) {
+
 #if defined(TCP_NODELAY)
 			{
 				int val = 0, ret;
