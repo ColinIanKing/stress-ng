@@ -91,7 +91,7 @@ typedef struct {
 	bool unwriteable;
 } stress_bad_addr_t;
 
-typedef void (*stress_bad_syscall_t)(stress_bad_addr_t *ba);
+typedef void (*stress_bad_syscall_t)(stress_bad_addr_t *ba, volatile uint64_t *counter);
 typedef struct {
 	volatile size_t syscall_index;
 	volatile size_t addr_index;
@@ -269,66 +269,82 @@ static stress_bad_addr_t bad_addrs[] = {
 	{ write_exec_addr,	NULL, false,	false },
 };
 
-static void bad_access(stress_bad_addr_t *ba)
+static void bad_access(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)access((char *)ba->addr, R_OK);
+	}
 }
 
 /*
-static int bad_acct(stress_bad_addr_t *ba)
+static int bad_acct(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)acct((char *)ba->addr);
+	}
 }
 */
 
-static void bad_bind(stress_bad_addr_t *ba)
+static void bad_bind(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)bind(0, (struct sockaddr *)ba->addr, 0);
+	}
 }
 
 #if defined(HAVE_ASM_CACHECTL_H) &&	\
     defined(HAVE_CACHEFLUSH) &&		\
     defined(STRESS_ARCH_MIPS)
-static void bad_cacheflush(stress_bad_addr_t *ba
+static void bad_cacheflush(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)cacheflush(ba->addr, 4096, SHIM_DCACHE);
 }
 #endif
 
-static void bad_chdir(stress_bad_addr_t *ba)
+static void bad_chdir(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)chdir((char *)ba->addr);
+	}
 }
 
-static void bad_chmod(stress_bad_addr_t *ba)
+static void bad_chmod(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)chmod((char *)ba->addr, 0);
+	}
 }
 
-static void bad_chown(stress_bad_addr_t *ba)
+static void bad_chown(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)chown((char *)ba->addr, getuid(), getgid());
+	}
 }
 
 #if defined(HAVE_CHROOT)
-static void bad_chroot(stress_bad_addr_t *ba)
+static void bad_chroot(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)chroot((char *)ba->addr);
+	}
 }
 #endif
 
 #if defined(HAVE_CLOCK_GETRES) &&	\
     defined(CLOCK_REALTIME)
-static void bad_clock_getres(stress_bad_addr_t *ba)
+static void bad_clock_getres(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
+		(*counter)++;
 		if (stress_mwc1())
 			(void)clock_getres(CLOCK_REALTIME, (struct timespec *)ba->addr);
 		else
@@ -339,31 +355,36 @@ static void bad_clock_getres(stress_bad_addr_t *ba)
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_REALTIME)
-static void bad_clock_gettime(stress_bad_addr_t *ba)
+static void bad_clock_gettime(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)clock_gettime(CLOCK_REALTIME, (struct timespec *)ba->addr);
+	}
 }
 #endif
 
 #if defined(HAVE_CLOCK_NANOSLEEP) &&	\
     defined(CLOCK_REALTIME)
-static void bad_clock_nanosleep1(stress_bad_addr_t *ba)
+static void bad_clock_nanosleep1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	clock_nanosleep(CLOCK_REALTIME, 0,
+	(*counter)++;
+	(void)clock_nanosleep(CLOCK_REALTIME, 0,
 		(const struct timespec *)ba->addr,
 		(struct timespec *)ba->addr);
 }
 
-static void bad_clock_nanosleep2(stress_bad_addr_t *ba)
+static void bad_clock_nanosleep2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)clock_nanosleep(CLOCK_REALTIME, 0,
 			(const struct timespec *)ba->addr,
 			(struct timespec *)NULL);
+	}
 }
 
-static void bad_clock_nanosleep3(stress_bad_addr_t *ba)
+static void bad_clock_nanosleep3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		struct timespec ts;
@@ -371,6 +392,7 @@ static void bad_clock_nanosleep3(stress_bad_addr_t *ba)
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
 
+		(*counter)++;
 		(void)clock_nanosleep(CLOCK_REALTIME, 0,
 			(const struct timespec *)&ts,
 			(struct timespec *)ba->addr);
@@ -380,9 +402,10 @@ static void bad_clock_nanosleep3(stress_bad_addr_t *ba)
 
 #if defined(CLOCK_THREAD_CPUTIME_ID) &&	\
     defined(HAVE_CLOCK_SETTIME)
-static void bad_clock_settime(stress_bad_addr_t *ba)
+static void bad_clock_settime(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
+		(*counter)++;
 		if (stress_mwc1())
 			(void)clock_settime(CLOCK_THREAD_CPUTIME_ID, (struct timespec *)ba->addr);
 		else
@@ -402,11 +425,12 @@ static int clone_func(void *ptr)
 	return 0;
 }
 
-static void bad_clone1(stress_bad_addr_t *ba)
+static void bad_clone1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	typedef int (*fn)(void *);
 	int pid, status;
 
+	(*counter)++;
 	pid = clone((fn)ba->addr, (void *)ba->addr, STRESS_CLONE_FLAGS, (void *)ba->addr,
 		(pid_t *)inc_addr(ba->addr, 1),
 		(void *)inc_addr(ba->addr, 2),
@@ -415,45 +439,49 @@ static void bad_clone1(stress_bad_addr_t *ba)
 		(void)stress_kill_pid_wait(pid, &status);
 }
 
-static void bad_clone2(stress_bad_addr_t *ba)
+static void bad_clone2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int pid, status;
 
+	(*counter)++;
 	pid = clone(clone_func, (void *)ba->addr, STRESS_CLONE_FLAGS, NULL, NULL, NULL);
 	if (pid > 1)
 		(void)stress_kill_pid_wait(pid, &status);
 }
 
-static void bad_clone3(stress_bad_addr_t *ba)
+static void bad_clone3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		char stack[8192];
 		int pid, status;
 
+		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, ba->addr, NULL, NULL);
 		if (pid > 1)
 			(void)stress_kill_pid_wait(pid, &status);
 	}
 }
 
-static void bad_clone4(stress_bad_addr_t *ba)
+static void bad_clone4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		char stack[8192];
 		int pid, status;
 
+		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, ba->addr, NULL);
 		if (pid > 1)
 			(void)stress_kill_pid_wait(pid, &status);
 	}
 }
 
-static void bad_clone5(stress_bad_addr_t *ba)
+static void bad_clone5(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		char stack[8192];
 		int pid, status;
 
+		(*counter)++;
 		pid = clone(clone_func, (void *)stack, STRESS_CLONE_FLAGS, NULL, NULL, ba->addr);
 		if (pid > 1)
 			(void)stress_kill_pid_wait(pid, &status);
@@ -461,14 +489,16 @@ static void bad_clone5(stress_bad_addr_t *ba)
 }
 #endif
 
-static void bad_connect(stress_bad_addr_t *ba)
+static void bad_connect(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)connect(0, (const struct sockaddr *)ba->addr, sizeof(struct sockaddr));
+	}
 }
 
 #if defined(HAVE_COPY_FILE_RANGE)
-static void bad_copy_file_range(shim_off64_t *off_in, shim_off64_t *off_out)
+static void bad_copy_file_range(shim_off64_t *off_in, shim_off64_t *off_out, volatile uint64_t *counter)
 {
 	int fdin, fdout;
 
@@ -480,85 +510,114 @@ static void bad_copy_file_range(shim_off64_t *off_in, shim_off64_t *off_out)
 		(void)close(fdout);
 		return;
 	}
+	(*counter)++;
 	(void)shim_copy_file_range(fdin, off_in, fdout, off_out, 1, 0);
 	(void)close(fdout);
 	(void)close(fdin);
 }
 
-static void bad_copy_file_range1(stress_bad_addr_t *ba)
+static void bad_copy_file_range1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	bad_copy_file_range((shim_off64_t *)ba->addr, (shim_off64_t *)ba->addr);
+	bad_copy_file_range((shim_off64_t *)ba->addr, (shim_off64_t *)ba->addr, counter);
 }
 
-static void bad_copy_file_range2(stress_bad_addr_t *ba)
+static void bad_copy_file_range2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	shim_off64_t off_out = 0ULL;
 
-	return bad_copy_file_range((shim_off64_t *)ba->addr, &off_out);
+	return bad_copy_file_range((shim_off64_t *)ba->addr, &off_out, counter);
 }
 
-static void bad_copy_file_range3(stress_bad_addr_t *ba)
+static void bad_copy_file_range3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	shim_off64_t off_in = 0ULL;
 
-	return bad_copy_file_range(&off_in, (shim_off64_t *)ba->addr);
+	return bad_copy_file_range(&off_in, (shim_off64_t *)ba->addr, counter);
 }
 #endif
 
 /*
-static void bad_creat(stress_bad_addr_t *ba)
+static void bad_creat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)creat((char *)ba->addr, 0);
+	}
 }
 */
 
-static void bad_execve1(stress_bad_addr_t *ba)
+static void bad_execve1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)execve((char *)ba->addr, (char **)inc_addr(ba->addr, 1),
 			(char **)inc_addr(ba->addr, 2));
+	}
 }
 
-static void bad_execve2(stress_bad_addr_t *ba)
+static void bad_execve2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char name[PATH_MAX];
 
-		if (stress_get_proc_self_exe(name, sizeof(name)) == 0)
+		if (stress_get_proc_self_exe(name, sizeof(name)) == 0) {
+			(*counter)++;
 			(void)execve(name, ba->addr, NULL);
+		}
 	}
 }
 
-static void bad_execve3(stress_bad_addr_t *ba)
+static void bad_execve3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char name[PATH_MAX];
 		static char *newargv[] = { NULL, NULL };
 
-		if (stress_get_proc_self_exe(name, sizeof(name)) == 0)
+		if (stress_get_proc_self_exe(name, sizeof(name)) == 0) {
+			(*counter)++;
 			(void)execve(name, newargv, ba->addr);
+		}
 	}
 }
 
-static void bad_execve4(stress_bad_addr_t *ba)
+static void bad_execve4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		static char *newargv[] = { NULL, NULL };
 
+		(*counter)++;
 		(void)execve(ba->addr, newargv, NULL);
 	}
 }
 
 #if defined(HAVE_FACCESSAT)
-static void bad_faccessat(stress_bad_addr_t *ba)
+static void bad_faccessat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)faccessat(AT_FDCWD, (char *)ba->addr, R_OK, 0);
+	}
 }
 #endif
 
-static void bad_fstat(stress_bad_addr_t *ba)
+#if defined(HAVE_FLISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+static void bad_flistxattr(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+#if defined(O_DIRECTORY)
+	int fd;
+
+	fd = open(stress_get_temp_path(), O_RDONLY | O_DIRECTORY);
+	if (fd >= 0) {
+		(*counter)++;
+		(void)shim_flistxattr(fd, (char *)ba->addr, 1024);
+		(void)close(fd);
+	}
+#endif
+}
+#endif
+
+static void bad_fstat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd = 0;
@@ -568,6 +627,7 @@ static void bad_fstat(stress_bad_addr_t *ba)
 		if (fd < 0)
 			fd = 0;
 #endif
+		(*counter)++;
 		(void)shim_fstat(fd, (struct stat *)ba->addr);
 #if defined(O_DIRECTORY)
 		if (fd)
@@ -576,409 +636,539 @@ static void bad_fstat(stress_bad_addr_t *ba)
 	}
 }
 
-static void bad_getcpu1(stress_bad_addr_t *ba)
+static void bad_getcpu1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_getcpu((unsigned *)ba->addr, (unsigned *)inc_addr(ba->addr, 2),
 			(void *)inc_addr(ba->addr, 2));
+	}
 }
 
-static void bad_getcpu2(stress_bad_addr_t *ba)
+static void bad_getcpu2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		unsigned int node = 0;
 
+		(*counter)++;
 		(void)shim_getcpu((unsigned *)ba->addr, &node, NULL);
 	}
 }
 
-static void bad_getcpu3(stress_bad_addr_t *ba)
+static void bad_getcpu3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		unsigned int cpu;
 
+		(*counter)++;
 		(void)shim_getcpu(&cpu, (unsigned *)ba->addr, NULL);
 	}
 }
 
-static void bad_getcpu4(stress_bad_addr_t *ba)
+static void bad_getcpu4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		unsigned int node;
 		unsigned int cpu;
 
+		(*counter)++;
 		(void)shim_getcpu(&cpu, &node, ba->addr);
 	}
 }
 
-static void bad_getcwd(stress_bad_addr_t *ba)
+static void bad_getcwd(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getcwd((char *)ba->addr, 1024);
+	}
 }
 
 #if defined(HAVE_GETDOMAINNAME)
-static void bad_getdomainname(stress_bad_addr_t *ba)
+static void bad_getdomainname(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_getdomainname((char *)ba->addr, 8192);
+	}
 }
 #endif
 
-static void bad_getgroups(stress_bad_addr_t *ba)
+static void bad_getgroups(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getgroups(8192, (gid_t *)ba->addr);
+	}
 }
 
 #if defined(HAVE_GETHOSTNAME)
-static void bad_gethostname(stress_bad_addr_t *ba)
+static void bad_gethostname(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)gethostname((char *)ba->addr, 8192);
+	}
 }
 #endif
 
 #if defined(HAVE_GETITIMER)
-static void bad_getitimer(stress_bad_addr_t *ba)
+static void bad_getitimer(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getitimer(ITIMER_PROF, (struct itimerval *)ba->addr);
+	}
 }
 #endif
 
-static void bad_getpeername1(stress_bad_addr_t *ba)
+static void bad_getpeername1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getpeername(0, (struct sockaddr *)ba->addr, (socklen_t *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_getpeername2(stress_bad_addr_t *ba)
+static void bad_getpeername2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		struct sockaddr saddr;
 
 		(void)memset(&saddr, 0, sizeof(saddr));
+		(*counter)++;
 		(void)getpeername(0, &saddr, (socklen_t *)ba->addr);
 	}
 }
 
-static void bad_getpeername3(stress_bad_addr_t *ba)
+static void bad_getpeername3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		socklen_t addrlen = sizeof(struct sockaddr);
 
+		(*counter)++;
 		(void)getpeername(0, ba->addr, &addrlen);
 	}
 }
 
-static void bad_get_mempolicy1(stress_bad_addr_t *ba)
+static void bad_get_mempolicy1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_get_mempolicy((int *)ba->addr,
 		(unsigned long *)inc_addr(ba->addr, 1), 1,
 		inc_addr(ba->addr, 2), 0UL);
 }
 
-static void bad_get_mempolicy2(stress_bad_addr_t *ba)
+static void bad_get_mempolicy2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int mode = 0;
 
+	(*counter)++;
 	(void)shim_get_mempolicy(&mode, (unsigned long *)ba->addr, 1, ba->addr, 0UL);
 }
 
-static void bad_get_mempolicy3(stress_bad_addr_t *ba)
+static void bad_get_mempolicy3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	unsigned long nodemask = 1;
 
+	(*counter)++;
 	(void)shim_get_mempolicy((int *)ba->addr, &nodemask, 1, ba->addr, 0UL);
 }
 
 
-static void bad_getrandom(stress_bad_addr_t *ba)
+static void bad_getrandom(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_getrandom((void *)ba->addr, 1024, 0);
+	}
 }
 
 #if defined(HAVE_GETRESGID)
-static void bad_getresgid1(stress_bad_addr_t *ba)
+static void bad_getresgid1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getresgid((gid_t *)ba->addr, (gid_t *)inc_addr(ba->addr, 1),
 			(gid_t *)inc_addr(ba->addr, 2));
+	}
 }
 
-static void bad_getresgid2(stress_bad_addr_t *ba)
+static void bad_getresgid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		uid_t egid, sgid;
 
+		(*counter)++;
 		(void)getresgid((gid_t *)ba->addr, &egid, &sgid);
 	}
 }
 
-static void bad_getresgid3(stress_bad_addr_t *ba)
+static void bad_getresgid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		gid_t rgid, sgid;
 
+		(*counter)++;
 		(void)getresgid(&rgid, (uid_t *)ba->addr, &sgid);
 	}
 }
 
-static void bad_getresgid4(stress_bad_addr_t *ba)
+static void bad_getresgid4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		gid_t rgid, egid;
 
+		(*counter)++;
 		(void)getresgid(&rgid, &egid, (gid_t *)ba->addr);
 	}
 }
 #endif
 
 #if defined(HAVE_GETRESUID)
-static void bad_getresuid1(stress_bad_addr_t *ba)
+static void bad_getresuid1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getresuid((uid_t *)ba->addr, (uid_t *)inc_addr(ba->addr, 1),
 				(uid_t *)inc_addr(ba->addr, 2));
+	}
 }
 
-static void bad_getresuid2(stress_bad_addr_t *ba)
+static void bad_getresuid2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		uid_t euid, suid;
 
+		(*counter)++;
 		(void)getresuid((uid_t *)ba->addr, &euid, &suid);
 	}
 }
 
-static void bad_getresuid3(stress_bad_addr_t *ba)
+static void bad_getresuid3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		uid_t ruid, suid;
 
+		(*counter)++;
 		(void)getresuid(&ruid, (uid_t *)ba->addr, &suid);
 	}
 }
 
-static void bad_getresuid4(stress_bad_addr_t *ba)
+static void bad_getresuid4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		uid_t ruid, euid;
 
+		(*counter)++;
 		(void)getresuid(&ruid, &euid, (uid_t *)ba->addr);
 	}
 }
 #endif
 
-static void bad_getrlimit(stress_bad_addr_t *ba)
+static void bad_getrlimit(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getrlimit(RLIMIT_CPU, (struct rlimit *)ba->addr);
+	}
 }
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_SELF)
-static void bad_getrusage(stress_bad_addr_t *ba)
+static void bad_getrusage(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_getrusage(RUSAGE_SELF, (struct rusage *)ba->addr);
+	}
 }
 #endif
 
-static void bad_getsockname1(stress_bad_addr_t *ba)
+static void bad_getsockname1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)getsockname(0, (struct sockaddr *)ba->addr, (socklen_t *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_getsockname2(stress_bad_addr_t *ba)
+static void bad_getsockname2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		struct sockaddr saddr;
 
 		(void)memset(&ba->addr, 0, sizeof(saddr));
+		(*counter)++;
 		(void)getsockname(0, &saddr, (socklen_t *)ba->addr);
 	}
 }
 
-static void bad_getsockname3(stress_bad_addr_t *ba)
+static void bad_getsockname3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		socklen_t socklen = sizeof(struct sockaddr);
 
+		(*counter)++;
 		(void)getsockname(0, ba->addr, &socklen);
 	}
 }
 
-static void bad_gettimeofday1(stress_bad_addr_t *ba)
+static void bad_gettimeofday1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	struct timezone *tz = (struct timezone *)inc_addr(ba->addr, 1);
 
+	(*counter)++;
 	(void)gettimeofday((struct timeval *)ba->addr, tz);
 }
 
-static void bad_gettimeofday2(stress_bad_addr_t *ba)
+static void bad_gettimeofday2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	struct timeval tv;
 
+	(*counter)++;
 	(void)gettimeofday(&tv, (struct timezone *)ba->addr);
 }
 
-static void bad_gettimeofday3(stress_bad_addr_t *ba)
+static void bad_gettimeofday3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		struct timezone tz;
 
+		(*counter)++;
 		(void)gettimeofday((struct timeval *)ba->addr, &tz);
 	}
 }
 
 #if defined(HAVE_GETXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
-static void bad_getxattr1(stress_bad_addr_t *ba)
+static void bad_getxattr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_getxattr((char *)ba->addr, (char *)inc_addr(ba->addr, 1),
 		(void *)inc_addr(ba->addr, 2), (size_t)32);
 }
 
-static void bad_getxattr2(stress_bad_addr_t *ba)
+static void bad_getxattr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char buf[1024];
 
+		(*counter)++;
 		(void)shim_getxattr((char *)ba->addr, "somename", buf, sizeof(buf));
 	}
 }
 
-static void bad_getxattr3(stress_bad_addr_t *ba)
+static void bad_getxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char buf[1024];
 
+		(*counter)++;
 		(void)shim_getxattr(stress_get_temp_path(), (char *)ba->addr, buf, sizeof(buf));
 	}
 }
 
-static void bad_getxattr4(stress_bad_addr_t *ba)
+static void bad_getxattr4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_getxattr(stress_get_temp_path(), "somename", ba->addr, 1024);
+	}
 }
 #endif
 
 #if defined(TCGETS)
-static void bad_ioctl(stress_bad_addr_t *ba)
+static void bad_ioctl(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)ioctl(0, TCGETS, ba->addr);
+	}
 }
 #else
 UNEXPECTED
 #endif
 
-static void bad_lchown(stress_bad_addr_t *ba)
+static void bad_lchown(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)lchown((char *)ba->addr, getuid(), getgid());
+	}
 }
 
-static void bad_link1(stress_bad_addr_t *ba)
+static void bad_link1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)link((char *)ba->addr, (char *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_link2(stress_bad_addr_t *ba)
+static void bad_link2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)link(stress_get_temp_path(), (char *)ba->addr);
+	}
 }
 
-static void bad_link3(stress_bad_addr_t *ba)
+static void bad_link3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)link((char *)ba->addr, stress_get_temp_path());
+	}
 }
 
 #if defined(HAVE_LGETXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
-static void bad_lgetxattr1(stress_bad_addr_t *ba)
+static void bad_lgetxattr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_lgetxattr((char *)ba->addr, (char *)inc_addr(ba->addr, 1),
 		(void *)inc_addr(ba->addr, 2), (size_t)32);
 }
 
-static void bad_lgetxattr2(stress_bad_addr_t *ba)
+static void bad_lgetxattr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char buf[1024];
 
+		(*counter)++;
 		(void)shim_lgetxattr((char *)ba->addr, "somename", buf, sizeof(buf));
 	}
 }
 
-static void bad_lgetxattr3(stress_bad_addr_t *ba)
+static void bad_lgetxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char buf[1024];
 
+		(*counter)++;
 		(void)shim_lgetxattr(stress_get_temp_path(), (char *)ba->addr, buf, sizeof(buf));
 	}
 }
 
-static void bad_lgetxattr4(stress_bad_addr_t *ba)
+static void bad_lgetxattr4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_lgetxattr(stress_get_temp_path(), "somename", ba->addr, 1024);
+	}
+}
+#endif
+
+#if defined(HAVE_LISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+static void bad_listxattr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	(*counter)++;
+	(void)shim_listxattr((char *)ba->addr, (char *)inc_addr(ba->addr, 1), 1024);
+}
+
+static void bad_listxattr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		char list[4096];
+
+		(*counter)++;
+		(void)shim_listxattr((char *)ba->addr, list, sizeof(list));
+	}
+}
+
+static void bad_listxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unwriteable) {
+		(*counter)++;
+		(void)shim_listxattr(stress_get_temp_path(), (char *)ba->addr, 4096);
+	}
+}
+#endif
+
+#if defined(HAVE_LLISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+static void bad_llistxattr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	(*counter)++;
+	(void)shim_llistxattr((char *)ba->addr, (char *)inc_addr(ba->addr, 1), 1024);
+}
+
+static void bad_llistxattr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		char list[4096];
+
+		(*counter)++;
+		(void)shim_llistxattr((char *)ba->addr, list, sizeof(list));
+	}
+}
+
+static void bad_llistxattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unwriteable) {
+		(*counter)++;
+		(void)shim_llistxattr(stress_get_temp_path(), (char *)ba->addr, 4096);
+	}
 }
 #endif
 
 #if defined(HAVE_LREMOVEXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
-static void bad_lremovexattr1(stress_bad_addr_t *ba)
+static void bad_lremovexattr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_lremovexattr((char *)ba->addr, (char *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_lremovexattr2(stress_bad_addr_t *ba)
+static void bad_lremovexattr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_lremovexattr((char *)ba->addr, "nameval");
+	}
 }
 
-static void bad_lremovexattr3(stress_bad_addr_t *ba)
+static void bad_lremovexattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_lremovexattr(stress_get_temp_path(), (char *)ba->addr);
+	}
 }
 #endif
 
-static void bad_lstat1(stress_bad_addr_t *ba)
+static void bad_lstat1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_lstat((const char *)ba->addr, (struct stat *)inc_addr(ba->addr, 1));
 }
 
-static void bad_lstat2(stress_bad_addr_t *ba)
+static void bad_lstat2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		struct stat statbuf;
 
+		(*counter)++;
 		(void)shim_lstat(ba->addr, &statbuf);
 	}
 }
 
-static void bad_lstat3(stress_bad_addr_t *ba)
+static void bad_lstat3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_lstat(stress_get_temp_path(), (struct stat *)ba->addr);
+	}
 }
 
 #if defined(HAVE_MADVISE)
-static void bad_madvise(stress_bad_addr_t *ba)
+static void bad_madvise(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)madvise((void *)ba->addr, 8192, MADV_NORMAL);
 }
 #else
@@ -986,11 +1176,12 @@ UNEXPECTED
 #endif
 
 #if defined(HAVE_MEMFD_CREATE)
-static void bad_memfd_create(stress_bad_addr_t *ba)
+static void bad_memfd_create(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd;
 
+		(*counter)++;
 		fd = shim_memfd_create(ba->addr, 0);
 		if (fd > 0)
 			(void)close(fd);
@@ -998,40 +1189,47 @@ static void bad_memfd_create(stress_bad_addr_t *ba)
 }
 #endif
 
-static void bad_migrate_pages1(stress_bad_addr_t *ba)
+static void bad_migrate_pages1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_migrate_pages(getpid(), 1, (unsigned long *)ba->addr,
 			(unsigned long *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_migrate_pages2(stress_bad_addr_t *ba)
+static void bad_migrate_pages2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		unsigned long nodes = 0;
 
+		(*counter)++;
 		(void)shim_migrate_pages(getpid(), 1, &nodes, (unsigned long *)ba->addr);
 	}
 }
 
-static void bad_migrate_pages3(stress_bad_addr_t *ba)
+static void bad_migrate_pages3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		unsigned long nodes = 0;
 
+		(*counter)++;
 		(void)shim_migrate_pages(getpid(), 1, (unsigned long *)ba->addr, &nodes);
 	}
 }
 
-static void bad_mincore(stress_bad_addr_t *ba)
+static void bad_mincore(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_mincore((void *)ro_page, 1, (unsigned char *)ba->addr);
+	}
 }
 
 #if defined(HAVE_MLOCK)
-static void bad_mlock(stress_bad_addr_t *ba)
+static void bad_mlock(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_mlock((void *)ba->addr, 4096);
 }
 #else
@@ -1039,70 +1237,78 @@ UNEXPECTED
 #endif
 
 #if defined(HAVE_MLOCK2)
-static void bad_mlock2(stress_bad_addr_t *ba)
+static void bad_mlock2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_mlock2((void *)ba->addr, 4096, 0);
 }
 #endif
 
 #if defined(__NR_move_pages)
-static void bad_move_pages1(stress_bad_addr_t *ba)
+static void bad_move_pages1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_move_pages(getpid(), (unsigned long)1, (void **)ba->addr,
 		(const int *)inc_addr(ba->addr, 1), (int *)inc_addr(ba->addr, 2), 0);
 }
 
-static void bad_move_pages2(stress_bad_addr_t *ba)
+static void bad_move_pages2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int nodes, status;
 
+		(*counter)++;
 		(void)shim_move_pages(getpid(), (unsigned long)1, (void **)ba->addr, &nodes, &status, 0);
 	}
 }
 
-static void bad_move_pages3(stress_bad_addr_t *ba)
+static void bad_move_pages3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int status = 0;
 		void *pages[1];
 
 		pages[0] = ba->addr;
+		(*counter)++;
 		(void)shim_move_pages(getpid(), (unsigned long)1, pages, (int *)ba->addr, &status, 0);
 	}
 }
 
-static void bad_move_pages4(stress_bad_addr_t *ba)
+static void bad_move_pages4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		int nodes = 0;
 		void *pages[1];
 
 		pages[0] = ba->addr;
+		(*counter)++;
 		(void)shim_move_pages(getpid(), (unsigned long)1, pages, &nodes, (int *)ba->addr, 0);
 	}
 }
 #endif
 
 #if defined(HAVE_MLOCK)
-static void bad_munlock(stress_bad_addr_t *ba)
+static void bad_munlock(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_munlock((void *)ba->addr, 4096);
 }
 
 #endif
 /*
 #if defined(HAVE_MPROTECT)
-static void bad_mprotect(stress_bad_addr_t *ba)
+static void bad_mprotect(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)mprotect((void *)ba->addr, 4096, PROT_READ | PROT_WRITE);
 }
 #endif
 */
 
 #if defined(HAVE_MSYNC)
-static void bad_msync(stress_bad_addr_t *ba)
+static void bad_msync(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_msync((void *)ba->addr, 4096, MS_SYNC);
 }
 #else
@@ -1110,75 +1316,118 @@ UNEXPECTED
 #endif
 
 #if defined(HAVE_NANOSLEEP)
-static void bad_nanosleep1(stress_bad_addr_t *ba)
+static void bad_nanosleep1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)nanosleep((struct timespec *)ba->addr,
 		(struct timespec *)inc_addr(ba->addr, 1));
 }
 
-static void bad_nanosleep2(stress_bad_addr_t *ba)
+static void bad_nanosleep2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		struct timespec rem;
 
+		(*counter)++;
 		(void)nanosleep((struct timespec *)ba->addr, &rem);
 	}
 }
 
-static void bad_nanosleep3(stress_bad_addr_t *ba)
+static void bad_nanosleep3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	struct timespec req;
 
 	req.tv_sec = 0;
 	req.tv_nsec = 0;
+	(*counter)++;
 	(void)nanosleep(&req, (struct timespec *)ba->addr);
 }
 #else
 UNEXPECTED
 #endif
 
-static void bad_open(stress_bad_addr_t *ba)
+static void bad_open(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd;
 
+		(*counter)++;
 		fd = open((char *)ba->addr, O_RDONLY);
 		if (fd != -1)
 			(void)close(fd);
 	}
 }
 
-static void bad_pipe(stress_bad_addr_t *ba)
+static void bad_pipe(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)pipe((int *)ba->addr);
+	}
 }
 
-static void bad_pread(stress_bad_addr_t *ba)
+#if defined(HAVE_PREAD)
+static void bad_pread(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		int fd;
 
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)pread(fd, ba->addr, 1024, 0);
 			(void)close(fd);
 		}
 	}
 }
+#endif
+
+#if defined(HAVE_PREADV)
+static void bad_preadv(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unwriteable) {
+		int fd;
+
+		fd = open("/dev/zero", O_RDONLY);
+		if (fd > -1) {
+			(*counter)++;
+			(void)preadv(fd, (struct iovec *)ba->addr, 1, 0);
+			(void)close(fd);
+		}
+	}
+}
+#endif
+
+#if defined(HAVE_PREADV2)
+static void bad_preadv2(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unwriteable) {
+		int fd;
+
+		fd = open("/dev/zero", O_RDONLY);
+		if (fd > -1) {
+			(*counter)++;
+			(void)preadv2(fd, (struct iovec *)ba->addr, 1, 0, 0);
+			(void)close(fd);
+		}
+	}
+}
+#endif
 
 #if defined(HAVE_PTRACE) && 	\
     defined(PTRACE_GETREGS)
-static void bad_ptrace(stress_bad_addr_t *ba)
+static void bad_ptrace(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	return ptrace(PTRACE_GETREGS, getpid(), (void *)ba->addr,
+	(*counter)++;
+	(void)ptrace(PTRACE_GETREGS, getpid(), (void *)ba->addr,
 		(void *)inc_addr(ba->addr, 1));
 }
 #endif
 
 #if defined(HAVE_POLL_H)
-static void bad_poll(stress_bad_addr_t *ba)
+static void bad_poll(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)poll((struct pollfd *)ba->addr, (nfds_t)16, (int)1);
 }
 #else
@@ -1187,13 +1436,14 @@ UNEXPECTED
 
 #if defined(HAVE_POLL_H) &&	\
     defined(HAVE_PPOLL)
-static void bad_ppoll1(stress_bad_addr_t *ba)
+static void bad_ppoll1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)ppoll((struct pollfd *)ba->addr, (nfds_t)16,
 			(struct timespec *)ba->addr, (sigset_t *)ba->addr);
 }
 
-static void bad_ppoll2(stress_bad_addr_t *ba)
+static void bad_ppoll2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	struct timespec ts;
 	sigset_t sigmask;
@@ -1202,10 +1452,11 @@ static void bad_ppoll2(stress_bad_addr_t *ba)
 	ts.tv_sec = 0;
 	ts.tv_nsec = 0;
 
+	(*counter)++;
 	(void)ppoll((struct pollfd *)ba->addr, (nfds_t)16, &ts, &sigmask);
 }
 
-static void bad_ppoll3(stress_bad_addr_t *ba)
+static void bad_ppoll3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		sigset_t sigmask;
@@ -1216,11 +1467,12 @@ static void bad_ppoll3(stress_bad_addr_t *ba)
 		pfd.revents = 0;
 		(void)sigemptyset(&sigmask);
 
+		(*counter)++;
 		(void)ppoll(&pfd, (nfds_t)1, (struct timespec *)ba->addr, &sigmask);
 	}
 }
 
-static void bad_ppoll4(stress_bad_addr_t *ba)
+static void bad_ppoll4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		struct timespec ts;
@@ -1232,65 +1484,107 @@ static void bad_ppoll4(stress_bad_addr_t *ba)
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
 
+		(*counter)++;
 		(void)ppoll(&pfd, (nfds_t)1, &ts, (sigset_t *)ba->addr);
 	}
 }
 #endif
 
-static void bad_pwrite(stress_bad_addr_t *ba)
+#if defined(HAVE_PWRITE)
+static void bad_pwrite(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd;
 
 		fd = open("/dev/null", O_WRONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)pwrite(fd, ba->addr, 1024, 0);
 			(void)close(fd);
 		}
 	}
 }
+#endif
 
-static void bad_read(stress_bad_addr_t *ba)
+#if defined(HAVE_PWRITEV)
+static void bad_pwritev(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		int fd;
+
+		fd = open("/dev/null", O_WRONLY);
+		if (fd > -1) {
+			(*counter)++;
+			(void)pwritev(fd, (struct iovec *)ba->addr, 1, 0);
+			(void)close(fd);
+		}
+	}
+}
+#endif
+
+#if defined(HAVE_PWRITEV2)
+static void bad_pwritev2(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		int fd;
+
+		fd = open("/dev/null", O_WRONLY);
+		if (fd > -1) {
+			(*counter)++;
+			(void)pwritev2(fd, (struct iovec *)ba->addr, 1, 0, 0);
+			(void)close(fd);
+		}
+	}
+}
+#endif
+
+static void bad_read(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		int fd;
 
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)read(fd, ba->addr, 1024);
 			(void)close(fd);
 		}
 	}
 }
 
-static void bad_readlink1(stress_bad_addr_t *ba)
+static void bad_readlink1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_readlink((const char *)ba->addr, (char *)inc_addr(ba->addr, 1), 8192);
 }
 
-static void bad_readlink2(stress_bad_addr_t *ba)
+static void bad_readlink2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_readlink(stress_get_temp_path(), (char *)ba->addr, 8192);
+	}
 }
 
-static void bad_readlink3(stress_bad_addr_t *ba)
+static void bad_readlink3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char buf[PATH_MAX];
 
+		(*counter)++;
 		(void)shim_readlink((const char *)ba->addr, (char *)buf, PATH_MAX);
 	}
 }
 
 #if defined(HAVE_SYS_UIO_H)
-static void bad_readv(stress_bad_addr_t *ba)
+static void bad_readv(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		int fd;
 
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)readv(fd, ba->addr, 32);
 			(void)close(fd);
 		}
@@ -1300,48 +1594,59 @@ static void bad_readv(stress_bad_addr_t *ba)
 
 #if defined(HAVE_REMOVEXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
-static void bad_removexattr1(stress_bad_addr_t *ba)
+static void bad_removexattr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_removexattr((char *)ba->addr, (char *)inc_addr(ba->addr, 1));
 }
 
-static void bad_removexattr2(stress_bad_addr_t *ba)
+static void bad_removexattr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_removexattr((char *)ba->addr, "nameval");
+	}
 }
 
-static void bad_removexattr3(stress_bad_addr_t *ba)
+static void bad_removexattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_removexattr(stress_get_temp_path(), (char *)ba->addr);
+	}
 }
 #endif
 
-static void bad_rename1(stress_bad_addr_t *ba)
+static void bad_rename1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)rename((char *)ba->addr, (char *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_rename2(stress_bad_addr_t *ba)
+static void bad_rename2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)shim_removexattr(stress_get_temp_path(), (char *)ba->addr);
+	}
 }
 
 #if defined(HAVE_SCHED_GETAFFINITY)
-static void bad_sched_getaffinity(stress_bad_addr_t *ba)
+static void bad_sched_getaffinity(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)sched_getaffinity(getpid(), (size_t)8192, (cpu_set_t *)ba->addr);
+	}
 }
 #else
 UNEXPECTED
 #endif
 
 #if defined(HAVE_SELECT)
-static void bad_select1(stress_bad_addr_t *ba)
+static void bad_select1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int fd;
 	fd_set *readfds = ba->addr;
@@ -1350,12 +1655,13 @@ static void bad_select1(stress_bad_addr_t *ba)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
+		(*counter)++;
 		(void)select(fd, readfds, writefds, exceptfds, (struct timeval *)inc_addr(ba->addr, 4));
 		(void)close(fd);
 	}
 }
 
-static void bad_select2(stress_bad_addr_t *ba)
+static void bad_select2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd;
@@ -1369,13 +1675,14 @@ static void bad_select2(stress_bad_addr_t *ba)
 
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)select(fd, &readfds, &writefds, &exceptfds, (struct timeval *)ba->addr);
 			(void)close(fd);
 		}
 	}
 }
 
-static void bad_select3(stress_bad_addr_t *ba)
+static void bad_select3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int fd;
 	fd_set writefds;
@@ -1390,12 +1697,13 @@ static void bad_select3(stress_bad_addr_t *ba)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
+		(*counter)++;
 		(void)select(fd, ba->addr, &writefds, &exceptfds, &tv);
 		(void)close(fd);
 	}
 }
 
-static void bad_select4(stress_bad_addr_t *ba)
+static void bad_select4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int fd;
 	fd_set readfds;
@@ -1410,12 +1718,13 @@ static void bad_select4(stress_bad_addr_t *ba)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
+		(*counter)++;
 		(void)select(fd, &readfds, ba->addr, &exceptfds, &tv);
 		(void)close(fd);
 	}
 }
 
-static void bad_select5(stress_bad_addr_t *ba)
+static void bad_select5(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	int fd;
 	fd_set readfds;
@@ -1430,6 +1739,7 @@ static void bad_select5(stress_bad_addr_t *ba)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
+		(*counter)++;
 		(void)select(fd, &readfds, &writefds, ba->addr, &tv);
 		(void)close(fd);
 	}
@@ -1438,65 +1748,76 @@ static void bad_select5(stress_bad_addr_t *ba)
 #endif
 
 #if defined(HAVE_SETITIMER)
-static void bad_setitimer1(stress_bad_addr_t *ba)
+static void bad_setitimer1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)setitimer(ITIMER_PROF, (struct itimerval *)ba->addr,
 			(struct itimerval *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_setitimer2(stress_bad_addr_t *ba)
+static void bad_setitimer2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		struct itimerval oldval;
 
+		(*counter)++;
 		(void)setitimer(ITIMER_PROF, (struct itimerval *)ba->addr, &oldval);
 	}
 }
 
-static void bad_setitimer3(stress_bad_addr_t *ba)
+static void bad_setitimer3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		struct itimerval newval;
 
 		(void)memset(&newval, 0, sizeof(newval));
-
+		(*counter)++;
 		(void)setitimer(ITIMER_PROF, &newval, (struct itimerval *)ba->addr);
 	}
 }
 #endif
 
-static void bad_setrlimit(stress_bad_addr_t *ba)
+static void bad_setrlimit(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)setrlimit(RLIMIT_CPU, (struct rlimit *)ba->addr);
+	}
 }
 
-static void bad_stat1(stress_bad_addr_t *ba)
+static void bad_stat1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	(*counter)++;
 	(void)shim_stat((char *)ba->addr, (struct stat *)inc_addr(ba->addr, 1));
 }
 
-static void bad_stat2(stress_bad_addr_t *ba)
+static void bad_stat2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)shim_stat(stress_get_temp_path(), (struct stat *)ba->addr);
+	}
 }
 
-static void bad_stat3(stress_bad_addr_t *ba)
+static void bad_stat3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		struct stat statbuf;
 
+		(*counter)++;
 		(void)shim_stat((char *)ba->addr, &statbuf);
 	}
 }
 
 #if defined(HAVE_STATFS)
-static void bad_statfs(stress_bad_addr_t *ba)
+static void bad_statfs(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)statfs(".", (struct statfs *)ba->addr);
+	}
 }
 #else
 UNEXPECTED
@@ -1504,18 +1825,21 @@ UNEXPECTED
 
 #if defined(HAVE_SYS_SYSINFO_H) && 	\
     defined(HAVE_SYSINFO)
-static void bad_sysinfo(stress_bad_addr_t *ba)
+static void bad_sysinfo(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)sysinfo((struct sysinfo *)ba->addr);
+	}
 }
 #else
 UNEXPECTED
 #endif
 
-static void bad_time(stress_bad_addr_t *ba)
+static void bad_time(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
+		(*counter)++;
 		if (stress_mwc1())
 			(void)time((time_t *)ba->addr);
 		else
@@ -1525,12 +1849,13 @@ static void bad_time(stress_bad_addr_t *ba)
 
 #if defined(HAVE_LIB_RT) &&	\
     defined(HAVE_TIMER_CREATE)
-static void bad_timer_create(stress_bad_addr_t *ba)
+static void bad_timer_create(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		timer_t *timerid = (timer_t *)ba->addr;
 
 		timerid++;
+		(*counter)++;
 		(void)timer_create(CLOCK_MONOTONIC, (struct sigevent *)ba->addr, timerid);
 	}
 }
@@ -1538,93 +1863,115 @@ static void bad_timer_create(stress_bad_addr_t *ba)
 UNEXPECTED
 #endif
 
-static void bad_times(stress_bad_addr_t *ba)
+static void bad_times(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)times((struct tms *)ba->addr);
+	}
 }
 
-static void bad_truncate(stress_bad_addr_t *ba)
+static void bad_truncate(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)truncate((char *)ba->addr, 8192);
+	}
 }
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
-static void bad_uname(stress_bad_addr_t *ba)
+static void bad_uname(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)uname((struct utsname *)ba->addr);
+	}
 }
 #else
 UNEXPECTED
 #endif
 
-static void bad_ustat(stress_bad_addr_t *ba)
+static void bad_ustat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
 		dev_t dev = { 0 };
 
+		(*counter)++;
 		(void)shim_ustat(dev, (struct shim_ustat *)ba->addr);
 	}
 }
 
 #if defined(HAVE_UTIME_H)
-static void bad_utime(stress_bad_addr_t *ba)
+static void bad_utime(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)utime(ba->addr, (struct utimbuf *)ba->addr);
+	}
 }
 #endif
 
-static void bad_utimes1(stress_bad_addr_t *ba)
+static void bad_utimes1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)utimes(ba->addr, (const struct timeval *)inc_addr(ba->addr, 1));
+	}
 }
 
-static void bad_utimes2(stress_bad_addr_t *ba)
+static void bad_utimes2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)utimes(stress_get_temp_path(), (const struct timeval *)ba->addr);
+	}
 }
 
-static void bad_utimes3(stress_bad_addr_t *ba)
+static void bad_utimes3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unreadable)
+	if (ba->unreadable) {
+		(*counter)++;
 		(void)utimes(ba->addr, NULL);
+	}
 }
 
-static void bad_wait(stress_bad_addr_t *ba)
+static void bad_wait(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)wait((int *)ba->addr);
+	}
 }
 
-static void bad_waitpid(stress_bad_addr_t *ba)
+static void bad_waitpid(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)waitpid(getpid(), (int *)ba->addr, (int)0);
+	}
 }
 
 #if defined(HAVE_WAITID)
-static void bad_waitid(stress_bad_addr_t *ba)
+static void bad_waitid(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	if (ba->unwriteable)
+	if (ba->unwriteable) {
+		(*counter)++;
 		(void)waitid(P_PID, (id_t)getpid(), (siginfo_t *)ba->addr, 0);
+	}
 }
 #else
 UNEXPECTED
 #endif
 
-static void bad_write(stress_bad_addr_t *ba)
+static void bad_write(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd;
 
 		fd = open("/dev/null", O_WRONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)write(fd, (void *)ba->addr, 1024);
 			(void)close(fd);
 		}
@@ -1632,13 +1979,14 @@ static void bad_write(stress_bad_addr_t *ba)
 }
 
 #if defined(HAVE_SYS_UIO_H)
-static void bad_writev(stress_bad_addr_t *ba)
+static void bad_writev(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		int fd;
 
 		fd = open("/dev/zero", O_RDONLY);
 		if (fd > -1) {
+			(*counter)++;
 			(void)writev(fd, (void *)ba->addr, 32);
 			(void)close(fd);
 		}
@@ -1706,6 +2054,10 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_execve4,
 #if defined(HAVE_FACCESSAT)
 	bad_faccessat,
+#endif
+#if defined(HAVE_FLISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	bad_flistxattr,
 #endif
 	bad_fstat,
 	bad_getcpu1,
@@ -1775,6 +2127,18 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_lgetxattr3,
 	bad_lgetxattr4,
 #endif
+#if defined(HAVE_LISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	bad_listxattr1,
+	bad_listxattr2,
+	bad_listxattr3,
+#endif
+#if defined(HAVE_LLISTXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+	bad_llistxattr1,
+	bad_llistxattr2,
+	bad_llistxattr3,
+#endif
 #if defined(HAVE_LREMOVEXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 	bad_lremovexattr1,
@@ -1829,12 +2193,28 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_ppoll3,
 	bad_ppoll4,
 #endif
+#if defined(HAVE_PREAD)
 	bad_pread,
+#endif
+#if defined(HAVE_PREADV)
+	bad_preadv,
+#endif
+#if defined(HAVE_PREADV2)
+	bad_preadv2,
+#endif
 #if defined(HAVE_PTRACE) &&	\
     defined(PTRACE_GETREGS)
 	bad_ptrace,
 #endif
+#if defined(HAVE_PWRITE)
 	bad_pwrite,
+#endif
+#if defined(HAVE_PWRITEV)
+	bad_pwritev,
+#endif
+#if defined(HAVE_PWRITEV2)
+	bad_pwritev2,
+#endif
 	bad_read,
 	bad_readlink1,
 	bad_readlink2,
@@ -1966,11 +2346,10 @@ static inline int stress_do_syscall(stress_args_t *args)
 				const stress_bad_syscall_t bad_syscall = bad_syscalls[state->syscall_index];
 
 				if (ba->addr) {
-					state->counter++;
 					if ((state->max_ops) && (state->counter >= state->max_ops))
 						_exit(EXIT_SUCCESS);
 
-					(void)bad_syscall(ba);
+					(void)bad_syscall(ba, &state->counter);
 				}
 				state->addr_index++;
 			}
