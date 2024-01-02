@@ -61,7 +61,8 @@ static inline shim_off64_t stress_copy_file_seek64(int fd, shim_off64_t off64, i
 #if defined(HAVE_LSEEK64)
 	return lseek64(fd, off64, whence);
 #else
-	const off_t max_off64 = ~(off_t)0;
+	/* max signed off_t without causing signed overflow */
+	const off_t max_off64 = ((((off_t)1U << (sizeof(off_t) * sizeof(char) - 2)) - 1) * 2 + 1);
 
 	if (off64 > max_off64) {
 		errno = EINVAL;
