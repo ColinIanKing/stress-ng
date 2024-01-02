@@ -30,8 +30,8 @@
 { .crypto_type = CRYPTO_AKCIPHER, .type = "akcipher", .name = "pkcs1pad(rsa,sha512)" },
 { .crypto_type = CRYPTO_AKCIPHER, .type = "akcipher", .name = "rsa" },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "aes",	.block_size = 16,	.max_key_size = 32 },
-{ .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "aria",	.block_size = 16,	.max_key_size = 32 },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "anubis",	.block_size = 16,	.max_key_size = 40 },
+{ .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "aria",	.block_size = 16,	.max_key_size = 32 },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "blowfish",	.block_size = 8,	.max_key_size = 56 },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "camellia",	.block_size = 16,	.max_key_size = 32 },
 { .crypto_type = CRYPTO_CIPHER, .type = "cipher", .name = "cast5",	.block_size = 8,	.max_key_size = 16 },
@@ -125,7 +125,6 @@
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "cbc(twofish)",	.block_size = 16,	.max_key_size = 32,	.iv_size = 16 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "cfb(aes)",	.block_size = 1,	.max_key_size = 32,	.iv_size = 16 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "cfb(aria)",	.block_size = 1,	.max_key_size = 32,	.iv_size = 16 },
-
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "cfb(sm4)",	.block_size = 1,	.max_key_size = 16,	.iv_size = 16 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "chacha20",	.block_size = 1,	.max_key_size = 32,	.iv_size = 16 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "ctr(aes)",	.block_size = 1,	.max_key_size = 32,	.iv_size = 16 },
@@ -161,8 +160,6 @@
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "ofb(aes)",	.block_size = 1,	.max_key_size = 32,	.iv_size = 16 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "pcbc(fcrypt)",	.block_size = 8,	.max_key_size = 8,	.iv_size = 8 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "rfc3686(ctr(aes))",	.block_size = 1,	.max_key_size = 36,	.iv_size = 8 },
-
-
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "salsa20",	.block_size = 1,	.max_key_size = 32,	.iv_size = 8 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "xchacha12",	.block_size = 1,	.max_key_size = 32,	.iv_size = 32 },
 { .crypto_type = CRYPTO_SKCIPHER, .type = "skcipher", .name = "xchacha20",	.block_size = 1,	.max_key_size = 32,	.iv_size = 32 },
