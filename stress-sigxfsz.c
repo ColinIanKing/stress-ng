@@ -51,6 +51,7 @@ static int stress_sigxfsz(stress_args_t *args)
 	char buffer[4] ALIGN64;
 	char filename[PATH_MAX];
 	struct rlimit limit;
+	uint32_t max_sz = ~(uint32_t)0;
 
 	async_sigs = 0;
 
@@ -86,8 +87,13 @@ static int stress_sigxfsz(stress_args_t *args)
 	do {
 		ssize_t wret;
 
-		limit.rlim_cur = stress_mwc32();
+		limit.rlim_cur = stress_mwc32modn(max_sz);
 		if (setrlimit(RLIMIT_FSIZE, &limit) < 0) {
+			if (errno == EINVAL) {
+				max_sz >>= 1;
+				if (max_sz > 512)
+					continue;
+			}
 			pr_inf("%s: setrlimit failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
