@@ -465,6 +465,8 @@ static const char *syscall_lxattr_name = "trusted.val";	/* lxattr name */
 /*
  *  syscall_shellsort_size_t()
  *	shellsort of size_t sized array
+ *	this is used instead of qsort since some libc implementations
+ *	do not provide qsort.
  */
 static void NOINLINE syscall_shellsort_size_t(
 	size_t *base,
