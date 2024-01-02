@@ -1436,8 +1436,12 @@ UNEXPECTED
     defined(HAVE_PPOLL)
 static void bad_ppoll1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
+	void *addr = (char *)ba->addr;
+	struct timespec *ts = (struct timespec *)inc_addr(addr, sizeof(struct pollfd));
+	sigset_t *ss = (sigset_t *)(inc_addr(addr, sizeof(struct pollfd) + sizeof(struct timespec)));
+
 	(*counter)++;
-	VOID_RET(int, ppoll((struct pollfd *)ba->addr, (nfds_t)16, (struct timespec *)ba->addr, (sigset_t *)ba->addr));
+	VOID_RET(int, ppoll((struct pollfd *)addr, (nfds_t)1, ts, ss));
 }
 
 static void bad_ppoll2(stress_bad_addr_t *ba, volatile uint64_t *counter)
