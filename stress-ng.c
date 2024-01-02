@@ -2451,8 +2451,10 @@ err_unmap_shared:
  */
 void stress_shared_readonly(void)
 {
+#if defined(HAVE_MPROTECT)
 	(void)mprotect((void *)g_shared->checksum.checksums, g_shared->checksum.length, PROT_READ);
 	(void)mprotect((void *)g_shared, g_shared->length, PROT_READ);
+#endif
 }
 
 /*
