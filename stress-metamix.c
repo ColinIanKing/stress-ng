@@ -158,7 +158,7 @@ static int stress_metamix_file(
 	}
 	if (stress_mwc8() > 240) {
 		if (shim_fdatasync(fd) < 0) {
-			if ((errno != EINTR) && (errno != ENOSYS)) {
+			if ((errno != EINTR) && (errno != ENOSYS) && (errno != EBADF)) {
 				pr_inf("%s: fdatasync on %s failed, errno=%d (%s)%s\n",
 					args->name, filename, errno, strerror(errno), fs_type);
 				rc = EXIT_FAILURE;
