@@ -773,9 +773,13 @@ cleanup:
 
 			*buf64 = val;
 			ret = mprotect((void *)buf64, page_size, PROT_READ);
-			if ((ret < 0) && (errno != ENOMEM) && (errno != EPERM)) {
-				pr_fail("%s: cannot set write-only page to read-only, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+			if (ret < 0) {
+				if ((errno != EACCES) &&
+				    (errno != ENOMEM) &&
+				    (errno != EPERM)) {
+					pr_fail("%s: cannot set write-only page to read-only, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 			} else {
 				if (*buf64 != val) {
 					pr_fail("%s: unexpected value in read-only page, "
@@ -798,9 +802,13 @@ cleanup:
 			stress_set_vma_anon_name((void *)buf64, page_size, mmap_name);
 
 			ret = mprotect((void *)buf64, page_size, PROT_WRITE);
-			if ((ret < 0) && (errno != ENOMEM) && (errno != EPERM)) {
-				pr_fail("%s: cannot set read-only page to write-only, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+			if (ret < 0) {
+				if ((errno != EACCES) &&
+				    (errno != ENOMEM) &&
+				    (errno != EPERM)) {
+					pr_fail("%s: cannot set read-only page to write-only, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 			}
 			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
 		}
