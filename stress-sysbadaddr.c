@@ -630,7 +630,7 @@ static void bad_fstat(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		(*counter)++;
 		VOID_RET(int, shim_fstat(fd, (struct stat *)ba->addr));
 #if defined(O_DIRECTORY)
-		if (fd > 0)
+		if (fd >= 0)
 			VOID_RET(int, close(fd));
 #endif
 	}
