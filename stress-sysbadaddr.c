@@ -507,7 +507,7 @@ static void bad_copy_file_range(shim_off64_t *off_in, shim_off64_t *off_out, vol
 		return;
 	fdout = open("/dev/null", O_WRONLY);
 	if (fdout < 0) {
-		VOID_RET(int, close(fdout));
+		VOID_RET(int, close(fdin));
 		return;
 	}
 	(*counter)++;
