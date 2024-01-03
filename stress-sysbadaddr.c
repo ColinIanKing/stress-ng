@@ -608,7 +608,7 @@ static void bad_flistxattr(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	int fd;
 
 	fd = open(stress_get_temp_path(), O_RDONLY | O_DIRECTORY);
-	if (fd > 0) {
+	if (fd >= 0) {
 		(*counter)++;
 		VOID_RET(ssize_t, shim_flistxattr(fd, (char *)ba->addr, 1024));
 		VOID_RET(int, close(fd));
