@@ -716,7 +716,7 @@ static int stress_sysfs(stress_args_t *args)
 		if (ret == 0) {
 			uint16_t major, minor;
 
-			if (sscanf(utsbuf.release, "%5" SCNd16 ".%5" SCNd16, &major, &minor) == 2)
+			if (sscanf(utsbuf.release, "%5" SCNu16 ".%5" SCNu16, &major, &minor) == 2)
 				os_release = (major * 100) + minor;
 		}
 	}
