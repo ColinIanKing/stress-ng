@@ -2179,6 +2179,12 @@ typedef struct {
 	uint64_t crash_count[SYSCALL_ARGS_SIZE];
 	unsigned long args[6];
 	unsigned char filler[4096];
+	struct {
+		mode_t mode;
+		uid_t uid;
+		gid_t gid;
+		char cwd[PATH_MAX];
+	} dirfd;
 } syscall_current_context_t;
 
 static syscall_current_context_t *current_context;
@@ -2400,6 +2406,52 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
 }
 
 /*
+ *  syscall_set_cwd_perms()
+ *	set mode and uid/gid back to original if specific system
+ *	calls were called and may have modified them
+ */
+static void syscall_set_cwd_perms(const unsigned long syscall_num)
+{
+	switch (syscall_num) {
+#if DEFSYS(chmod)
+	case DEFSYS(chmod):
+		VOID_RET(int, chmod(current_context->dirfd.cwd, current_context->dirfd.mode));
+		break;
+#endif
+#if DEFSYS(fchmod)
+	case DEFSYS(fchmod):
+		VOID_RET(int, chmod(current_context->dirfd.cwd, current_context->dirfd.mode));
+		break;
+#endif
+#if DEFSYS(fchmodat)
+	case DEFSYS(fchmodat):
+		VOID_RET(int, chmod(current_context->dirfd.cwd, current_context->dirfd.mode));
+		break;
+#endif
+#if DEFSYS(chown)
+	case DEFSYS(chown):
+		VOID_RET(int, chown(current_context->dirfd.cwd, current_context->dirfd.uid, current_context->dirfd.gid));
+		break;
+#endif
+#if DEFSYS(fchown)
+	case DEFSYS(fchown):
+		VOID_RET(int, chown(current_context->dirfd.cwd, current_context->dirfd.uid, current_context->dirfd.gid));
+		break;
+#endif
+#if DEFSYS(fchownat)
+	case DEFSYS(fchownat):
+		VOID_RET(int, chown(current_context->dirfd.cwd, current_context->dirfd.uid, current_context->dirfd.gid));
+		break;
+#endif
+#if DEFSYS(lchown)
+	case DEFSYS(lchown):
+		VOID_RET(int, chown(current_context->dirfd.cwd, current_context->dirfd.uid, current_context->dirfd.gid));
+		break;
+#endif
+	}
+}
+
+/*
  *  syscall_permute()
  *	recursively permute all possible system call invalid arguments
  *	- if the system call crashes, the call info is cached in
@@ -2476,6 +2528,8 @@ static void syscall_permute(
 			current_context->args[3],
 			current_context->args[4],
 			current_context->args[5]);
+
+		syscall_set_cwd_perms(syscall_num);
 
 		/*
 		(void)printf("syscall: %s(%lx,%lx,%lx,%lx,%lx,%lx) -> %d\n",
@@ -2657,6 +2711,7 @@ static inline int stress_do_syscall(stress_args_t *args)
 				if (current_context->crash_count[j] >= MAX_CRASHES)
 					continue;
 				syscall_permute(args, 0, &stress_syscall_args[j], &stress_syscall_exercised[j]);
+				syscall_set_cwd_perms(current_context->syscall);
 			}
 		}
 		_exit(EXIT_SUCCESS);
@@ -2711,6 +2766,7 @@ static int stress_sysinval_child(stress_args_t *args, void *context)
  */
 static int stress_sysinval(stress_args_t *args)
 {
+	struct stat statbuf;
 	int ret, rc = EXIT_NO_RESOURCE;
 	size_t i;
 	uint64_t syscalls_exercised, syscalls_unique, syscalls_crashed;
@@ -2781,6 +2837,20 @@ static int stress_sysinval(stress_args_t *args)
 		goto tidy;
 	}
 
+	if (getcwd(current_context->dirfd.cwd, sizeof(current_context->dirfd.cwd)) == NULL ) {
+		pr_fail("%s: getcwd failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto tidy;
+	}
+	if (stat(current_context->dirfd.cwd, &statbuf) < 0) {
+		pr_fail("%s: stat on '%s' failed, errno=%d (%s)\n",
+			args->name, current_context->dirfd.cwd, errno, strerror(errno));
+		goto tidy;
+	}
+	current_context->dirfd.mode = statbuf.st_mode;
+	current_context->dirfd.uid = statbuf.st_uid;
+	current_context->dirfd.gid = statbuf.st_gid;
+
 	small_ptr = (uint8_t *)mmap(NULL, small_ptr_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (small_ptr == MAP_FAILED) {
@@ -2828,6 +2898,7 @@ static int stress_sysinval(stress_args_t *args)
 	futex_ptrs[1] = (unsigned long)page_ptr;
 
 	(void)shim_memset(current_context->crash_count, 0, sizeof(current_context->crash_count));
+
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
