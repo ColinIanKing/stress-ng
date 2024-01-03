@@ -871,7 +871,7 @@ retry:
 
 		do {
 			ssize_t n = 0;
-			size_t i, j;
+			size_t j;
 			struct msghdr ALIGN64 msg;
 			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_RECVMMSG)
