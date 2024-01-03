@@ -137,6 +137,22 @@ static int OPTIMIZE3 wrap_clock_gettime(void *vdso_func)
 }
 #endif
 
+#if defined(HAVE_CLOCK_GETRES)
+/*
+ *  wrap_clock_getres()
+ *	invoke clock_getres()
+ */
+static int OPTIMIZE3 wrap_clock_getres(void *vdso_func)
+{
+	int (*vdso_clock_getres)(clockid_t clockid, struct timespec *res);
+	struct timespec res;
+
+	*(void **)(&vdso_clock_getres) = vdso_func;
+	return vdso_clock_getres(CLOCK_MONOTONIC, &res);
+}
+#endif
+
+
 /*
  *  stress_dummy()
  *	no-op dummy func
@@ -167,6 +183,11 @@ static const stress_wrap_func_t wrap_funcs[] = {
 	{ wrap_clock_gettime,	"clock_gettime" },
 	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
 	{ wrap_clock_gettime,	"__kernel_clock_gettime" },
+#endif
+#if defined(HAVE_CLOCK_GETRES)
+	{ wrap_clock_getres,	"clock_getres" },
+	{ wrap_clock_getres,	"__vdso_clock_getres" },
+	{ wrap_clock_getres,	"__kernel_clock_getres" },
 #endif
 	{ wrap_getcpu,		"getcpu" },
 	{ wrap_getcpu,		"__vdso_getcpu" },
