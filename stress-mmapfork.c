@@ -167,8 +167,8 @@ static int stress_mmapfork(stress_args_t *args)
 
 				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
 				segv_ret = MMAPFORK_SEGV_MMAP;
-				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
-					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+				ptr = stress_mmap_populate(NULL, len, PROT_READ | PROT_WRITE,
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
 #if defined(MADV_WILLNEED)
 					if (should_terminate(args, ppid))
