@@ -152,10 +152,12 @@ static int stress_dir_read(
 		struct stat statbuf;
 		int fd;
 
+#if !defined(__CYGWIN__)
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
 			break;
 		}
+#endif
 		stress_mk_filename(filename, sizeof(filename), path, de->d_name);
 		fd = open(filename, O_RDONLY);
 		if (fd >= 0) {
@@ -196,10 +198,12 @@ static int stress_dir_rename(
 	while (stress_continue(args) && ((de = readdir(dp)) != NULL)) {
 		char old_filename[PATH_MAX];
 
+#if !defined(__CYGWIN__)
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
 			break;
 		}
+#endif
 		if (de->d_name[0] == '.')
 			continue;
 
