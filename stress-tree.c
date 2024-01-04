@@ -42,7 +42,8 @@
     defined(RB_INSERT) &&	\
     defined(RB_MIN) &&		\
     defined(RB_NEXT) &&		\
-    defined(RB_REMOVE)
+    defined(RB_REMOVE) &&	\
+    !defined(__CYGWIN__)
 #define HAVE_RB_TREE
 #endif
 
