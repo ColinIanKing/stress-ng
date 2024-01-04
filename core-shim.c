@@ -2270,12 +2270,12 @@ int shim_stime(const time_t *t)
 	 *  Minix does not provide the prototype for stime
 	 *  and does not use a const time_t * argument
 	 */
-	int stime(time_t *t);
+	extern int stime(time_t *t);
 	time_t *ut = (time_t *)shim_unconstify_ptr(t);
 
 	return stime(ut);
 #else
-	int stime(const time_t *t);
+	extern int stime(const time_t *t);
 
 	return stime(t);
 #endif
@@ -2543,7 +2543,7 @@ int shim_getdomainname(char *name, size_t len)
  */
 int shim_setdomainname(const char *name, size_t len)
 {
-#if defined(HAVE_GETDOMAINNAME)
+#if defined(HAVE_SETDOMAINNAME)
 	return setdomainname(name, len);
 #elif defined(__NR_setdomainname) &&	\
       defined(HAVE_SYSCALL)
