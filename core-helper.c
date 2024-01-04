@@ -2915,6 +2915,9 @@ size_t stress_exec_text_addr(char **start, char **end)
 #elif defined(HAVE_COMPILER_TCC)
 	extern char _start;
 	intptr_t text_start = (intptr_t)&_start;
+#elif defined(__CYGWIN__)
+	extern char WinMainCRTStartup;
+	intptr_t text_start = (intptr_t)&WinMainCRTStartup;
 #else
 	extern char _start;
 	intptr_t text_start = (intptr_t)&_start;
