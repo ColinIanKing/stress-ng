@@ -484,7 +484,12 @@ static int stress_xattr(stress_args_t *args)
 				break;
 			}
 			if (ret < 0) {
+#if defined(ENODATA)
 				if ((errno != ENODATA) && (errno != ENOSPC)) {
+#else
+				/* NetBSD does not have ENODATA */
+				if (errno != ENOSPC) {
+#endif
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
 						args->name, errmsg, errno, strerror(errno));
 					goto out_close;
