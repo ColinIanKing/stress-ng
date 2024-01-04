@@ -75,6 +75,8 @@ static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
 	*dnow = stress_timespec_to_double(&ts);
 	return 0;
 #else
+	(void)dnow;
+
 	return -1;
 #endif
 }
