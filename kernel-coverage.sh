@@ -736,6 +736,7 @@ do_stress --sysinval 8 --pathological
 
 DURATION=120
 do_stress --bad-ioctl -1 --pathological
+do_stress --sysbadaddr 8
 
 #
 #  And exercise I/O with plenty of time for file setup
