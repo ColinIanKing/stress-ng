@@ -57,7 +57,8 @@
 #endif
 
 #if defined(HAVE_LIB_BSD) &&	\
-    !defined(__APPLE__)
+    !defined(__APPLE__) &&	\
+    !defined(__CYGWIN__)
 #define HAVE_RB_TREE	(1)
 #endif
 
