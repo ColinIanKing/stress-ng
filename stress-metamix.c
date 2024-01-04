@@ -225,6 +225,8 @@ static int stress_metamix_file(
 		}
 		(void)close(fd);
 	}
+#else
+	(void)temp_dir;
 #endif
 
 	/* Re-order seek position in quasi-random order */
