@@ -1,3 +1,142 @@
+stress-ng (0.17.04-1) unstable; urgency=medium
+
+  [Munehisa Kamata]
+  * README.md: fix a typo in the contributor name
+  * stress-acl: Fix stress_acl_info definition
+
+  [Colin Ian King]
+  * Makefile: bump version, change code name
+  * README.md: add Cygwin to supported systems
+  * kernel-coverage: add longer duration sysbadaddr test
+  * stress-pthread: disable pthread_sigqueue call for CYGWIN
+  * stress-tree: disable RB trees for CYGWIN
+  * stress-sparsematrix: disable RB trees for CYGWIN
+  * core-helper: add _start workaround for CYGWIN
+  * core-shim: fix setdomainname check on HAVE_SETDOMAINNAME
+  * stress-dir: don't reference non-POSIX d_reclen for CYGWIN
+  * stress-mmapfork: use stress_mmap_populate for MAP_POPULATE
+  * stress-xattr: workaround ENODATA not being defined for NetBSD
+  * stress-metamix: voidify parameter temp_dir if O_DIRECTORY is not defined
+  * core-time: voidify parameter dnow, cleans up Dilos build warning
+  * stress-sysbadaddr: fix another valid fd check, should be >= 0
+  * stress-sysbadaddr: fix valid fd check, should be >= 0
+  * stress-sysbadaddr: close fdin rather than fdout on fdout open failure
+  * stress-sysfs: use SCNu16 formate specifier for sscanf uint16_t
+  * stress-sock: remove shadowed declaration of variable i
+  * stress-vdso: add clock_getres
+  * stress-sysinval: set dirfd mode, gid and uid back to original setting
+  * stress-sigxfsz: retry setrlimit with smaller size if limit is too large
+  * stress-copy-file: replace sizeof(char) with 8
+  * stress-copy-file: fix the max off_t, it's signed to cater for this
+  * stress-sysbadaddr: use shim_cacheflush instead of direct system call
+  * stress-sysbadaddr: pass different addresses to ppoll
+  * stress-af-alg-defconfigs: re-order and remove blank lines
+  * stress-mmap: add mprotect EACCESS error check for NetBSD
+  * stress-metamix: add EBADF on fdatasync on read-only fd
+  * stress-metamix: fix incorrect EBADF check
+  * stress-metamix: ignore EBADF on fdatasync on read-only file
+  * stress-ng: don't call mprotect if it does not exist
+  * stress-syscall: add comment explaining why shell sort is used instead
+    of qsort
+  * stress-sysbadaddr: use VOID_RET for typed voidification of system call
+    returns
+  * Update copyright year to 2024
+  * Manual: remove . in Eigen description
+  * stress-sock: exercise SO_SOCKET SO_* opts that return int type values
+  * stress-sysbadaddr: only increment counter if a syscall is to be made
+  * stress-sysbadaddr: avoid exercising system calls that will not fail
+  * stress-sysbadaddr: add some more xattr system calls
+  * stress-sysbadaddr: bad_fstat: exercise fstat on temp dir
+  * stress-sysbadaddr: add copy_file_range
+  * stress-sysbadaddr: add missing MIPS cacheflush system call
+  * stress-syscall: add missing MIPS cacheflush system call
+  * stress-sysbadaddr: exercise shim'd and non-shim'd syscalls
+  * stress-sysbadaddr: exericse system call parameters with range of
+    parameters
+  * stress-sysbadaddr: only respawn child when bad addr breaks system call
+  * core-version: define EQUAL_GNUC for all compiler times
+  * stress-radixsort: remove array size specifiers to fix tcc build failures
+  * core-builtin: add shim wrapper for __builtin_assume_aligned()
+  * core-cache: add missing tab to clean up \ alignments
+  * stress-vecshuf: remove redundant variables total_ops and total_bytes
+  * stress-numa: Fix spelling mistake in comment
+  * stress-memthrash: remove trailing space at end of line
+  * README.md: update contributors list
+  * stress-syscall: add the --syscall-top N option to report top N fastest
+    syscalls
+  * Manual: fix typo "fasted" -> "fastest"
+  * stress-radixsort: reduce memory bandwidth by making length 2 bytes
+  * stress-radixsort: clean up casting in IDX and IDX_T macros
+  * stress-radixsort: remove signed conversions in radix_strlen
+  * stress-radixsort: offset digit counter by 1
+  * stress-radixsort: optimize radixsort
+  * stress-radixsort: add nonlibc implementation of radixsort
+  * stress-heapsort: add new --heapsort-method option to help
+  * stress-mergesort: add new --mergesort-method option to help
+  * stress-mergesort: add some more memory copying optimizations
+  * stress-mergesort: optimize for 4 byte data
+  * stress-mergesort: remove base_ptr, replace with base
+  * stress-mergesort: optimize copying of lhs and rhs to base
+  * stress-mergesort: add missing base_ptr increment
+  * stress-mergesort: optimize lhs and rhs copying
+  * stress-mergesort: add nonlibc implementation of mergesort
+  * stress-heapsort: optimize copy and swap for common size cases
+  * stress-heapsort: add nonlibc implementation of heapsort
+  * Makefile: add cc_supports_flag to simplify CFLAGS checking
+  * Makefile: add gcc optimization flag -fipa-pta
+  * stress-sysfs: exercise test resume command for /sys/power/disk
+  * stress-pty: exercise cfgetispeed and cfgetospeed on leader and follower
+  * stress-vecshuf: report shuffle rates as Harmonic Mean
+  * stress-sysinval: add map_shadow_stack system call
+  * stress-syscall: add map_shadow_stack call
+  * core-*: add more comments
+  * core-helper: assign val2 to avoid any static analysis warnings
+  * stress-acl: add randomized acl attribute order shuffling with --acl-rand
+  * Makefile.config: Fix incorrect addition of -DSTRFUNC to LDFLAGS
+  * stress-ng: initialize values to 0.0 rather -1.0
+  * stress-acl: exercise all ACL types, ACL_TYPE_ACCESS and ACL_TYPE_DEFAULT
+  * core-shim: shim_kill: don't allow SIGKILL on pid -1
+  * stress-ng: don't kill entire group or pid 1 (init)
+  * stress-acl: uppercase ACL in help text
+  * stress-acl: add ACL set vs get verification
+  * stress_acl: rename acl functions, prefix with stress_
+  * stress-acl: exercise acl_get_file and add metrics for this
+  * kernel-coverage: enable acl for reiserfs
+  * README.md: add another link to a research paper
+  * stress-open: add open using all the possible file modes
+  * stress-acl: compute and cache all valid ACLs to improve performance
+  * stress-vma: voidify returns using VOID_RET macro
+  * Update documentation and debian/control for libacl dev libs
+  * stress-acl: exercise POSIX ACLs using libacl
+  * README.md: add another link to a research paper
+  * stress-inotify: exercise ioctl command INOTIFY_IOC_SETNEXTWD
+  * stress-sock: retry send on ENOBUFS
+  * stress-sock: fix zerocopy - enable it via setsockopt and use flag
+    appropriately
+  * core-asm-x86.h: remove duplicated cpuid legacy implementation
+  * kernel-coverage: add extra bcachefs format options for more test
+    coverage
+  * core-helper: stress_get_null: cast zero to uintptr_t before void * cast
+  * stress-sem-sysv: reduce the rate at which proc info is being read
+  * stress-vecwide: don't use target clones for gcc 9.4.0
+  * core-asm-x86.h: remove STRESS_ARCH_X86_32 variant of rdtsc
+  * stress-vma: fix non-termination of vma pthreads and child processes
+  * kernel-coverage: reduce tmp file system image size to 4000MB for bfs
+  * stress-raw[pkg|udp]: only include linux/udp.h if netinet/udp.h does not
+    exist
+  * core-helper: add null function to obfuscate (void *)0 values
+  * stress-workload: include sched.h required for
+    aarch64-linux-android33-clang
+  * stress-rawudp: fix type comparison warning, cast to in_addr_t
+  * Fix missing headers and rindex/index for clang android static builds
+  * stress-malloc: only declare trim_counter when it's required
+  * Fix open calls that have extraneous mode flags on non-create opens
+  * kernel-coverage: add collapse --stream-madvise option
+  * stress-stream: add collapse --stream-madvise option
+  * kernel-coverage: add in some extra stressing options
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Fri, 5 Jan 2024 09:12:11 +0000
+
 stress-ng (0.17.03-1) unstable; urgency=medium
 
   [Colin Ian King]
