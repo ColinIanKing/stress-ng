@@ -22,6 +22,8 @@
 #include "core-out-of-memory.h"
 #include "io-uring.h"
 
+#define SQE_SET_OPTIMIZE	(1)
+
 #if defined(HAVE_LINUX_IO_URING_H)
 #include <linux/io_uring.h>
 #endif
@@ -436,7 +438,9 @@ static int stress_io_uring_submit(
 	stress_asm_mb();
 	index = tail & *submit->sq_ring.ring_mask;
 	sqe = &submit->sqes_mmap[index];
+#if !defined(SEQ_LATE_MEMSET)
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 
 	setup_func(io_uring_file, sqe, extra_data);
 	/* Save opcode for later completion error reporting */
@@ -490,13 +494,19 @@ static void stress_io_uring_async_cancel_setup(
 	const struct io_uring_sqe *sqe_to_cancel =
 		(const struct io_uring_sqe *)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = sqe_to_cancel->fd;
 	sqe->flags = 2;
 	sqe->opcode = IORING_OP_ASYNC_CANCEL;
 	sqe->addr = sqe_to_cancel->addr;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->off = 0;
 	sqe->len = 0;
 	sqe->splice_fd_in = 0;
+#endif
 }
 
 /*
@@ -549,8 +559,14 @@ static void stress_io_uring_readv_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
+#endif
 	sqe->opcode = IORING_OP_READV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
@@ -570,8 +586,14 @@ static void stress_io_uring_writev_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
+#endif
 	sqe->opcode = IORING_OP_WRITEV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
@@ -591,8 +613,14 @@ static void stress_io_uring_read_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
+#endif
 	sqe->opcode = IORING_OP_READ;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
 	sqe->len = io_uring_file->iovecs[0].iov_len;
@@ -612,8 +640,14 @@ static void stress_io_uring_write_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
+#endif
 	sqe->opcode = IORING_OP_WRITE;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
 	sqe->len = io_uring_file->iovecs[0].iov_len;
@@ -633,13 +667,19 @@ static void stress_io_uring_fsync_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_FSYNC;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->len = 0;
 	sqe->off = 0;
 	sqe->ioprio = 0;
 	sqe->buf_index = 0;
 	sqe->rw_flags = 0;
+#endif
 }
 #endif
 
@@ -656,6 +696,9 @@ static void stress_io_uring_nop_setup(
 	(void)io_uring_file;
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->opcode = IORING_OP_NOP;
 }
 #endif
@@ -672,14 +715,23 @@ static void stress_io_uring_fallocate_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_FALLOCATE;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->off = 0;			/* offset */
+#endif
 	sqe->addr = stress_mwc16();	/* length */
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->len = 0;			/* mode */
 	sqe->ioprio = 0;
 	sqe->buf_index = 0;
 	sqe->rw_flags = 0;
+#endif
 }
 #endif
 
@@ -695,18 +747,30 @@ static void stress_io_uring_fadvise_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_FADVISE;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->off = 0;			/* offset */
+#endif
 	sqe->len = stress_mwc16();	/* length */
 #if defined(POSIX_FADV_NORMAL)
 	sqe->fadvise_advice = POSIX_FADV_NORMAL;
 #else
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->fadvise_advice = 0;
 #endif
+#endif
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->ioprio = 0;
 	sqe->buf_index = 0;
 	sqe->addr = 0;
+#endif
 }
 #endif
 
@@ -723,15 +787,21 @@ static void stress_io_uring_close_setup(
 	(void)io_uring_file;
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	/* don't worry about bad fd if dup fails */
 	sqe->fd = dup(io_uring_file->fd_dup);
 	sqe->opcode = IORING_OP_CLOSE;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->ioprio = 0;
 	sqe->off = 0;
 	sqe->addr = 0;
 	sqe->len = 0;
 	sqe->rw_flags = 0;
 	sqe->buf_index = 0;
+#endif
 }
 #endif
 
@@ -747,6 +817,9 @@ static void stress_io_uring_madvise_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_MADVISE;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
@@ -754,11 +827,17 @@ static void stress_io_uring_madvise_setup(
 #if defined(MADV_NORMAL)
 	sqe->fadvise_advice = MADV_NORMAL;
 #else
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->fadvise_advice = 0;
 #endif
+#endif
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->ioprio = 0;
 	sqe->buf_index = 0;
 	sqe->off = 0;
+#endif
 }
 #endif
 
@@ -780,14 +859,20 @@ static void stress_io_uring_statx_setup(
 	if (io_uring_file->fd_at >= 0) {
 		static shim_statx_t statxbuf;
 
+#if defined(SEQ_LATE_MEMSET)
+		(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 		sqe->opcode = IORING_OP_STATX;
 		sqe->fd = io_uring_file->fd_at;
 		sqe->addr = (uintptr_t)"";
 		sqe->addr2 = (uintptr_t)&statxbuf;
 		sqe->statx_flags = AT_EMPTY_PATH;
+#if defined(SQE_SET_OPTIMIZE)
+		/* memset to zero already, so no need for following */
 		sqe->ioprio = 0;
 		sqe->buf_index = 0;
 		sqe->flags = 0;
+#endif
 		sqe->len = STATX_SIZE;
 	}
 #endif
@@ -806,13 +891,19 @@ static void stress_io_uring_sync_file_range_setup(
 {
 	(void)extra_info;
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->fd = io_uring_file->fd;
 	sqe->off = stress_mwc16() & ~511UL;
 	sqe->len = stress_mwc32() & ~511UL;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
 	sqe->addr = 0;
 	sqe->ioprio = 0;
 	sqe->buf_index = 0;
+#endif
 }
 #endif
 
@@ -832,15 +923,27 @@ static void stress_io_uring_setxattr_setup(
 
 	static char attr_value[] = "ioring-xattr-data";
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->opcode = IORING_OP_SETXATTR;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->fd = 0;
+#endif
 	sqe->off = (uintptr_t)attr_value;
 	sqe->len = sizeof(attr_value);
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
+#endif
 	sqe->addr = (uintptr_t)"user.var_test";
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->ioprio = 0;
 	sqe->rw_flags = 0;
 	sqe->buf_index = 0;
+#endif
 	sqe->addr3 = (uintptr_t)io_uring_file->filename;
         sqe->xattr_flags = XATTR_CREATE;
 }
@@ -863,17 +966,32 @@ static void stress_io_uring_getxattr_setup(
 
 	static char attr_value[128];
 
+#if defined(SEQ_LATE_MEMSET)
+	(void)shim_memset(sqe, 0, sizeof(*sqe));
+#endif
 	sqe->opcode = IORING_OP_GETXATTR;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->fd = 0;
+#endif
 	sqe->off = (uintptr_t)attr_value;
 	sqe->len = sizeof(attr_value);
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->flags = 0;
+#endif
 	sqe->addr = (uintptr_t)"user.var_test";
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
 	sqe->ioprio = 0;
 	sqe->rw_flags = 0;
 	sqe->buf_index = 0;
+#endif
 	sqe->addr3 = (uintptr_t)io_uring_file->filename;
+#if defined(SQE_SET_OPTIMIZE)
+	/* memset to zero already, so no need for following */
         sqe->xattr_flags = 0;
+#endif
 }
 #endif
 
