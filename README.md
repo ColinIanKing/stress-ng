@@ -17,7 +17,7 @@ the various operating system kernel interfaces. Stress-ng features:
   * portable: builds on Linux (Debian, Devuan, RHEL, Fedora, Centos, Slackware
     OpenSUSE, Ubuntu, etc..), Solaris, FreeBSD, NetBSD, OpenBSD, DragonFlyBSD,
     Minix, Android, MacOS X, Serenity OS, GNU/Hurd, Haiku, Windows Subsystem
-    for Linux and SunOs/Dilos/Solaris.
+    for Linux, Cygwin and SunOs/Dilos/Solaris.
     with gcc, musl-gcc, clang, icc, icx, tcc and pcc.
   * tested on alpha, armel, armhf, arm64, hppa, i386, m68k, mips32, mips64,
     power32, ppc64el, risc-v, sh4, s390x, sparc64, x86-64
