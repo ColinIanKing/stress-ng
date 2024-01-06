@@ -78,7 +78,7 @@ MACHINE = $(shell uname -m)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
 flag = -Wformat -fstack-protector-strong \
-	-D_FORTIFY_SOURCE=2 -U_FORTIFY_SOURCE \
+	-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
 	-Werror=format-security
 override CFLAGS += $(cc_supports_flag)
 endif
