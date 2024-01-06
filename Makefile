@@ -53,10 +53,14 @@ override CFLAGS += -g
 endif
 
 #
+# Check if compiler supports flag set in $(flag)
+#
+cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>&1 && echo $(flag))
+
+#
 # Pedantic flags
 #
 ifeq ($(PEDANTIC),1)
-cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>&1 && echo $(flag))
 
 PEDANTIC_FLAGS := \
 	-Wcast-qual -Wfloat-equal -Wmissing-declarations \
