@@ -58,7 +58,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(STRESS_ARCH_LOONG64)
+#if defined(STRESS_ARCH_LOONG64) &&	\
+    defined(HAVE_ASM_LOONG64_RDTIME)
 
 #define HAVE_STRESS_TSC_CAPABILITY
 
