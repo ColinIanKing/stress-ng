@@ -41,6 +41,10 @@ stress_ret_opcode_t stress_ret_opcode =
 	{ 4, 4, "ret", { 0xc0, 0x03, 0x5f, 0xd6 } };
 #elif defined(STRESS_ARCH_HPPA)
 	{ 8, 8, "bv,n r0(rp); nop", { 0xe8, 0x40, 0xc0, 0x02, 0x08, 0x00, 0x02, 0x40 } };
+#elif defined(STRESS_ARCH_LOONG64) && defined(STRESS_ARCH_LE)
+	{ 4, 4, "ret", { 0x20, 0x00, 0x00, 0x4c } };
+#elif defined(STRESS_ARCH_LOONG64) && defined(STRESS_ARCH_BE)
+	{ 4, 4, "ret", { 0x4c, 0x00, 0x00, 0x20 } };
 #elif defined(STRESS_ARCH_M68K)
 	{ 2, 2, "rts", { 0x4e, 0x75 } };
 #elif defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_LE)

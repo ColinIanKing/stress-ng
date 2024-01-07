@@ -67,6 +67,14 @@
 #define STRESS_OPCODE_MASK	(0xffffffffffffULL)
 #endif
 
+/* Arch specific LoongArch64 */
+#if defined(__loongarch64) ||	\
+    defined(__loongarch__)
+#define STRESS_ARCH_LOONG64	(1)
+#define STRESS_OPCODE_SIZE	(32)
+#define STRESS_OPCODE_MASK	(0xffffffffUL)
+#endif
+
 /* Arch specific PPC64 */
 #if defined(__PPC64__)
 #define STRESS_ARCH_PPC64	(1)
