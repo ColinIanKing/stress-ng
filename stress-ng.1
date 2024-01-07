@@ -6995,8 +6995,8 @@ stop after N bogo-operations.
 .B \-\-tsc N
 start N workers that read the Time Stamp Counter (TSC) 256 times per loop
 iteration (bogo operation).  This exercises the tsc instruction for x86,
-the mftb instruction for ppc64, the rdcycle instruction for RISC-V and
-the tick instruction on SPARC.
+the mftb instruction for ppc64, the rdcycle instruction for RISC-V,
+the tick instruction on SPARC and the rdtime.d instruction for Loong64.
 .TP
 .B \-\-tsc\-lfence
 add lfence after each tsc read to force serialization (x86 only).
