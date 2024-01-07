@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-asm-loong64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-s390.h"
 #include "core-asm-sparc.h"
@@ -56,6 +57,25 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tsc_rdtscp,	stress_set_tsc_rdtscp },
 	{ 0,			NULL }
 };
+
+#if defined(STRESS_ARCH_LOONG64)
+
+#define HAVE_STRESS_TSC_CAPABILITY
+
+static bool tsc_supported = true;
+
+static int stress_tsc_supported(const char *name)
+{
+	(void)name;
+
+	return 0;
+}
+
+static inline uint64_t rdtsc(void) {
+	return stress_asm_loong64_rdtime();
+}
+
+#endif
 
 #if defined(STRESS_ARCH_RISCV) &&	\
     defined(SIGILL)
