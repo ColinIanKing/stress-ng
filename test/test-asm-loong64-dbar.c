@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024      Colin Ian King.
+ * Copyright (C) 2024      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,30 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_ASM_RISCV_H
-#define CORE_ASM_RISCV_H
 
-#include "stress-ng.h"
-#include "core-arch.h"
-
-#if defined(STRESS_ARCH_LOONG64)
-
-static inline uint64_t stress_asm_loong64_rdtime(void)
-{
-	uint64_t val = 0;
-
-	__asm__ __volatile__("rdtime.d %0, $zero\n\t" : "=r"(val) :);
-
-	return val;
-}
-
-#if defined(HAVE_ASM_LOONG64_DBAR)
-static inline void stress_asm_loong64_dbar(void)
+#if defined(__loongarch64) || \
+    defined(__loongarch__)
+int main(void)
 {
 	__asm__ __volatile__("dbar 0" ::: "memory");
+
+	return 0;
 }
-#endif
-
-#endif
-
+#else
+#error not Loong64 so no sbar instruction
 #endif

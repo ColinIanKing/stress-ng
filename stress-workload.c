@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-arm.h"
+#include "core-asm-loong64.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-x86.h"
@@ -502,6 +503,11 @@ static void stress_workload_pause(void)
 	stress_asm_riscv_fence();
 	stress_asm_riscv_fence();
 	stress_asm_riscv_fence();
+#elif defined(HAVE_ASM_LOONG64_DBAR)
+	stress_asm_loong64_dbar();
+	stress_asm_loong64_dbar();
+	stress_asm_loong64_dbar();
+	stress_asm_loong64_dbar();
 #else
 	stress_asm_mb();
 	stress_asm_nop();
