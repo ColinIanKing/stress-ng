@@ -338,7 +338,22 @@ do_stress --dev 32
 for FS in bcachefs bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	if mount_filesystem $FS; then
+		MNTDEV=$(findmnt -T $MNT -o SOURCE  --verbose -n)
+		MNTDEVBASE=$(basename $MNTDEV)
+		echo MNTDEV $MNTDEV MNTDEVBASE $MNTDEVBASE
+		IOSCHED=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed  's/.*\[\(.*\)\].*/\1/')
+		IOSCHEDS=$(cat /sys/block/${MNTDEVBASE}/queue/scheduler | sed 's/\[//' | sed s'/\]//')
+
 		DURATION=10
+		for IO in $IOSCHEDS
+		do
+			echo "Filesystem: $FS $MNTDEV, iosched $IO of $IOSCHEDS"
+			echo $IO | sudo tee /sys/block/${MNTDEVBASE}/queue/scheduler
+			do_stress --iomix -1 --iostat 1
+		done
+		# revert to original ioscheduler
+		echo $IOSCHED | sudo tee /sys/block/${MNTDEVBASE}/queue/scheduler
+
 		echo "Filesystem: $FS"
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT --iostat 1
 		echo "Filesystem: $FS"
