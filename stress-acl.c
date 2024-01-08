@@ -443,6 +443,7 @@ static int stress_acl(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	rc = 0;
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(stress_acl_types); i++) {
 			const acl_type_t type = stress_acl_types[i];
@@ -452,7 +453,7 @@ static int stress_acl(stress_args_t *args)
 			if (rc != EXIT_SUCCESS)
 				break;
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_acl_types); i++) {
 		stress_acl_delete_all(filename, stress_acl_types[i]);
