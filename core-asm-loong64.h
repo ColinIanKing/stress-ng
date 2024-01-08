@@ -16,8 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_ASM_RISCV_H
-#define CORE_ASM_RISCV_H
+#ifndef CORE_ASM_LOONG64_H
+#define CORE_ASM_LOONG64_H
 
 #include "stress-ng.h"
 #include "core-arch.h"
@@ -42,6 +42,23 @@ static inline void stress_asm_loong64_dbar(void)
 }
 #endif
 
+#if defined(HAVE_ASM_LOONG64_CPUCFG)
+static inline uint32_t stress_asm_loong64_cpucfg(const uint32_t cfg)
+{
+	uint32_t ret;
+
+	__asm__ __volatile__(
+	"cpucfg %1, %0\n"
+        : "=r" (ret)
+        : "r" (cfg)
+        : "memory");
+
+	return ret;
+}
 #endif
 
+/* STRESS_ARCH_LOONG64 */
+#endif
+
+/* CORE_ASM_LOONG64_H */
 #endif
