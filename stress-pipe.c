@@ -616,6 +616,11 @@ static int stress_pipe(stress_args_t *args)
 	pipe_rd_size = pipe_get_size(pipefds[0]);
 	pipe_wr_size = pipe_get_size(pipefds[1]);
 
+	if (args->instance == 0) {
+		pr_dbg("%s: pipe read size %zuK, pipe write size %zuK\n",
+			args->name, pipe_rd_size >> 10, pipe_wr_size >> 10);
+	}
+
 	/* round to nearest whole page */
 	buf_rd_size = ((pipe_rd_size + page_size - 1) & ~(page_size - 1)) * 2;
 	buf_rd = (char *)stress_mmap_populate(NULL, buf_rd_size,
