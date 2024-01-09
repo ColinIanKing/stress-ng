@@ -98,8 +98,6 @@ template <typename T> static int eigen_transpose(const size_t size, double *dura
 
 		a = matrix::Random(size, size);
 
-		//cout<< b << "\n";
-
 		t = stress_time_now();
 		result = a.transpose();
 		*duration += stress_time_now() - t;
