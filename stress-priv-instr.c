@@ -114,6 +114,36 @@ static op_info_t op_info[] =
 };
 #endif
 
+#if defined(STRESS_ARCH_LOONG64)
+#define HAVE_PRIV_INSTR
+
+
+#if defined(HAVE_ASM_LOONG64_TLBRD)
+static void stress_loong64_tlbrd(void)
+{
+	__asm__ __volatile__("tlbrd");
+}
+#endif
+
+#if defined(HAVE_ASM_LOONG64_TLBSRCH)
+static void stress_loong64_tlbsrch(void)
+{
+	__asm__ __volatile__("tlbsrch");
+}
+#endif
+
+static op_info_t op_info[] =
+{
+#if defined(HAVE_ASM_LOONG64_TLBRD)
+	{ "tlbrd",	stress_loong64_tlbrd,	false, false },
+#endif
+#if defined(HAVE_ASM_LOONG64_TLBSRCH)
+	{ "tlbsrch",	stress_loong64_tlbsrch,	false, false },
+#endif
+};
+
+#endif
+
 #if defined(STRESS_ARCH_M68K) &&	\
     defined(HAVE_ASM_M68K_EORI_SR)
 #define HAVE_PRIV_INSTR
