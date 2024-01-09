@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-builtin.h"
 #include "core-cpu.h"
 #include "core-put.h"
 #include "core-target-clones.h"
@@ -317,6 +318,92 @@ do {			\
 
 	stash32 = edx;
 	REGS_CHECK(args, "edx", v, stash32);
+
+#undef SHUFFLE_REGS
+}
+#endif
+
+#if defined(STRESS_ARCH_LOONG64)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress loong64 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(stress_args_t *args, register uint64_t v)
+{
+	uint64_t v64 = (uint64_t)v;
+	register uint64_t r4  __asm__("r4")  = v64;
+	register uint64_t r5  __asm__("r5")  = r4 >> 1;
+	register uint64_t r6  __asm__("r6")  = r4 << 1;
+	register uint64_t r7  __asm__("r7")  = r4 >> 2;
+	register uint64_t r8  __asm__("r8")  = r4 << 2;
+	register uint64_t r9  __asm__("r9")  = ~r4;
+	register uint64_t r10 __asm__("r10") = ~r5;
+	register uint64_t r11 __asm__("r11") = ~r6;
+	register uint64_t r12 __asm__("r12") = ~r7;
+	register uint64_t r13 __asm__("r13") = ~r8;
+	register uint64_t r14 __asm__("r14") = r4 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r15 __asm__("r15") = r5 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r16 __asm__("r16") = r6 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r17 __asm__("r17") = r7 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r18 __asm__("r18") = r8 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r19 __asm__("r19") = r4 ^ 0xaa55aa55aa55aa55ULL;
+	register uint64_t r20 __asm__("r20") = r5 ^ 0xaa55aa55aa55aa55ULL;
+	register uint64_t r21 __asm__("r21") = r6 ^ 0xaa55aa55aa55aa55ULL;
+	register uint64_t r23 __asm__("r23") = r7 ^ 0xaa55aa55aa55aa55ULL;
+	register uint64_t r24 __asm__("r24") = r8 ^ 0xaa55aa55aa55aa55ULL;
+	register uint64_t r25 __asm__("r25") = r4 ^ 0x55aa55aa55aa55aaULL;
+	register uint64_t r26 __asm__("r26") = r5 ^ 0x55aa55aa55aa55aaULL;
+	register uint64_t r27 __asm__("r27") = r6 ^ 0x55aa55aa55aa55aaULL;
+	register uint64_t r28 __asm__("r28") = r7 ^ 0x55aa55aa55aa55aaULL;
+	register uint64_t r29 __asm__("r29") = r8 ^ 0x55aa55aa55aa55aaULL;
+	register uint64_t r30 __asm__("r30") = shim_rol64(r4);
+	register uint64_t r31 __asm__("r31") = shim_ror64(r4);
+
+#define SHUFFLE_REGS()	\
+do {			\
+	r31 = r4;	\
+	r4  = r5;	\
+	r5  = r6;	\
+	r6  = r7;	\
+	r7  = r8;	\
+	r8  = r9;	\
+	r9  = r10;	\
+	r10 = r11;	\
+	r11 = r12;	\
+	r12 = r13;	\
+	r13 = r14;	\
+	r14 = r15;	\
+	r15 = r16;	\
+	r16 = r17;	\
+	r17 = r18;	\
+	r18 = r19;	\
+	r19 = r20;	\
+	r20 = r21;	\
+	r21 = r23;	\
+	r23 = r24;	\
+	r24 = r25;	\
+	r25 = r26;	\
+	r26 = r27;	\
+	r27 = r28;	\
+	r28 = r29;	\
+	r29 = r30;	\
+	r30 = r31;	\
+} while (0);
+
+	SHUFFLE_REGS16();
+
+	stash64 = r14;
+	REGS_CHECK(args, "r14", v, stash64);
+
+	stash64 = r4 + r5 + r6 + r7 +
+		r8 + r9 + r10 + r11 +
+		r12 + r13 + r14 + r15 +
+		r16 + r17 + r18 + r19 +
+		r20 + r21 + r23 + r24 +
+		r25 + r26 + r27 + r28 +
+		r29 + r30 + r31;
 
 #undef SHUFFLE_REGS
 }
