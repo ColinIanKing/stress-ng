@@ -24,7 +24,7 @@
 
 #if defined(STRESS_ARCH_S390)
 
-static inline uint64_t stress_asm_s390_stck(void)
+static inline uint64_t ALWAYS_INLINE stress_asm_s390_stck(void)
 {
 	uint64_t tick;
 

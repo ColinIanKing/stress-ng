@@ -19,7 +19,7 @@
 #ifndef CORE_ASM_GENERIC_H
 #define CORE_ASM_GENERIC_H
 
-static inline void stress_asm_nop(void)
+static inline void ALWAYS_INLINE stress_asm_nop(void)
 {
 #if defined(HAVE_ASM_NOP)
 #if defined(STRESS_ARCH_KVX)
@@ -34,14 +34,14 @@ static inline void stress_asm_nop(void)
 #endif
 }
 
-static inline void stress_asm_mb(void)
+static inline void ALWAYS_INLINE stress_asm_mb(void)
 {
 #if defined(HAVE_ASM_MB)
         __asm__ __volatile__("" ::: "memory");
 #endif
 }
 
-static inline void stress_asm_nothing(void)
+static inline void ALWAYS_INLINE stress_asm_nothing(void)
 {
 #if defined(HAVE_ASM_NOTHING)
 	__asm__ __volatile__("");

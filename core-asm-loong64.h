@@ -25,7 +25,7 @@
 #if defined(STRESS_ARCH_LOONG64)
 
 #if defined(HAVE_ASM_LOONG64_RDTIME)
-static inline uint64_t stress_asm_loong64_rdtime(void)
+static inline uint64_t ALWAYS_INLINE stress_asm_loong64_rdtime(void)
 {
 	uint64_t val = 0;
 
@@ -36,14 +36,14 @@ static inline uint64_t stress_asm_loong64_rdtime(void)
 #endif
 
 #if defined(HAVE_ASM_LOONG64_DBAR)
-static inline void stress_asm_loong64_dbar(void)
+static inline void ALWAYS_INLINE stress_asm_loong64_dbar(void)
 {
 	__asm__ __volatile__("dbar 0" ::: "memory");
 }
 #endif
 
 #if defined(HAVE_ASM_LOONG64_CPUCFG)
-static inline uint32_t stress_asm_loong64_cpucfg(const uint32_t cfg)
+static inline uint32_t ALWAYS_INLINE stress_asm_loong64_cpucfg(const uint32_t cfg)
 {
 	uint32_t ret;
 

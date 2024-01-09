@@ -24,7 +24,7 @@
 
 #if defined(STRESS_ARCH_ARM)
 
-static inline void stress_asm_arm_yield(void)
+static inline void ALWAYS_INLINE stress_asm_arm_yield(void)
 {
 	__asm__ __volatile__("yield;\n");
 }

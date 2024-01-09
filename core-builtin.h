@@ -360,7 +360,7 @@
       !defined(HAVE_COMPILER_ICC)
 #define shim_rol8n(x, bits)	__rolb(x, bits)
 #else
-static inline uint8_t shim_rol8n(const uint8_t x, const unsigned int bits)
+static inline uint8_t ALWAYS_INLINE shim_rol8n(const uint8_t x, const unsigned int bits)
 {
 	return ((x << bits) | x >> (8 - bits));
 }
@@ -373,7 +373,7 @@ static inline uint8_t shim_rol8n(const uint8_t x, const unsigned int bits)
       !defined(HAVE_COMPILER_ICC)
 #define shim_rol16n(x, bits)	__rolw(x, bits)
 #else
-static inline uint16_t shim_rol16n(const uint16_t x, const unsigned int bits)
+static inline uint16_t ALWAYS_INLINE shim_rol16n(const uint16_t x, const unsigned int bits)
 {
 	return ((x << bits) | x >> (16 - bits));
 }
@@ -386,7 +386,7 @@ static inline uint16_t shim_rol16n(const uint16_t x, const unsigned int bits)
       !defined(HAVE_COMPILER_ICC)
 #define shim_rol32n(x, bits)	__rold(x, bits)
 #else
-static inline uint32_t shim_rol32n(const uint32_t x, const unsigned int bits)
+static inline uint32_t ALWAYS_INLINE shim_rol32n(const uint32_t x, const unsigned int bits)
 {
 	return ((x << bits) | x >> (32 - bits));
 }
@@ -399,14 +399,14 @@ static inline uint32_t shim_rol32n(const uint32_t x, const unsigned int bits)
       !defined(HAVE_COMPILER_ICC)
 #define shim_rol64n(x, bits)	__rolq(x, bits)
 #else
-static inline uint64_t shim_rol64n(const uint64_t x, const unsigned int bits)
+static inline uint64_t ALWAYS_INLINE shim_rol64n(const uint64_t x, const unsigned int bits)
 {
 	return ((x << bits) | x >> (64 - bits));
 }
 #endif
 
 #if defined(HAVE_INT128_T)
-static inline __uint128_t shim_rol128n(const __uint128_t x, const unsigned int bits)
+static inline __uint128_t ALWAYS_INLINE shim_rol128n(const __uint128_t x, const unsigned int bits)
 {
 	return ((x << bits) | x >> (128 - bits));
 }
@@ -419,7 +419,7 @@ static inline __uint128_t shim_rol128n(const __uint128_t x, const unsigned int b
       !defined(HAVE_COMPILER_ICC)
 #define shim_ror8n(x, bits)	__rorb(x, bits)
 #else
-static inline uint8_t shim_ror8n(const uint8_t x, const unsigned int bits)
+static inline uint8_t ALWAYS_INLINE shim_ror8n(const uint8_t x, const unsigned int bits)
 {
 	return ((x >> bits) | x << (8 - bits));
 }
@@ -432,7 +432,7 @@ static inline uint8_t shim_ror8n(const uint8_t x, const unsigned int bits)
       !defined(HAVE_COMPILER_ICC)
 #define shim_ror16n(x, bits)	__rorw(x, bits)
 #else
-static inline uint16_t shim_ror16n(const uint16_t x, const unsigned int bits)
+static inline uint16_t ALWAYS_INLINE shim_ror16n(const uint16_t x, const unsigned int bits)
 {
 	return ((x >> bits) | x << (16 - bits));
 }
@@ -445,7 +445,7 @@ static inline uint16_t shim_ror16n(const uint16_t x, const unsigned int bits)
       !defined(HAVE_COMPILER_ICC)
 #define shim_ror32n(x, bits)	__rord(x, bits)
 #else
-static inline uint32_t shim_ror32n(const uint32_t x, const unsigned int bits)
+static inline uint32_t ALWAYS_INLINE shim_ror32n(const uint32_t x, const unsigned int bits)
 {
 	return ((x >> bits) | x << (32 - bits));
 }
@@ -458,14 +458,14 @@ static inline uint32_t shim_ror32n(const uint32_t x, const unsigned int bits)
       !defined(HAVE_COMPILER_ICC)
 #define shim_ror64n(x, bits)	__rorq(x, bits)
 #else
-static inline uint64_t shim_ror64n(const uint64_t x, const unsigned int bits)
+static inline uint64_t ALWAYS_INLINE shim_ror64n(const uint64_t x, const unsigned int bits)
 {
 	return ((x >> bits) | x << (64 - bits));
 }
 #endif
 
 #if defined(HAVE_INT128_T)
-static inline __uint128_t shim_ror128n(const __uint128_t x, const unsigned int bits)
+static inline __uint128_t ALWAYS_INLINE shim_ror128n(const __uint128_t x, const unsigned int bits)
 {
 	return ((x >> bits) | x << (128 - bits));
 }

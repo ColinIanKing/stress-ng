@@ -24,7 +24,7 @@
 
 #if defined(STRESS_ARCH_RISCV)
 
-static inline uint64_t stress_asm_riscv_rdtime(void)
+static inline uint64_t ALWAYS_INLINE stress_asm_riscv_rdtime(void)
 {
 	register unsigned long ticks;
 
@@ -36,7 +36,7 @@ static inline uint64_t stress_asm_riscv_rdtime(void)
 }
 
 #if defined(HAVE_ASM_RISCV_FENCE)
-static inline void stress_asm_riscv_fence(void)
+static inline void ALWAYS_INLINE stress_asm_riscv_fence(void)
 {
          __asm__ __volatile__("fence" ::: "memory");
 }
@@ -44,7 +44,7 @@ static inline void stress_asm_riscv_fence(void)
 
 /* Flush instruction cache */
 #if defined(HAVE_ASM_RISCV_FENCE_I)
-static inline void stress_asm_riscv_fence_i(void)
+static inline void ALWAYS_INLINE stress_asm_riscv_fence_i(void)
 {
          __asm__ __volatile__("fence.i" ::: "memory");
 }

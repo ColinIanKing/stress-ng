@@ -25,7 +25,7 @@
 #if defined(STRESS_ARCH_SPARC)
 
 #if defined(HAVE_ASM_SPARC_TICK)
-static inline uint64_t stress_asm_sparc_tick(void)
+static inline uint64_t ALWAYS_INLINE stress_asm_sparc_tick(void)
 {
 	register uint64_t ticks;
 
@@ -36,7 +36,7 @@ static inline uint64_t stress_asm_sparc_tick(void)
 #endif
 
 #if defined(HAVE_ASM_SPARC_MEMBAR)
-static inline void stress_asm_sparc_membar(void)
+static inline void ALWAYS_INLINE stress_asm_sparc_membar(void)
 {
          __asm__ __volatile__ ("membar #StoreLoad" : : : "memory");
 }
