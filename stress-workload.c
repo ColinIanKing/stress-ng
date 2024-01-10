@@ -498,11 +498,11 @@ static void stress_workload_pause(void)
 	stress_asm_ppc64_yield();
 	stress_asm_ppc64_yield();
 	stress_asm_ppc64_yield();
-#elif defined(HAVE_ASM_RISCV_FENCE)
-	stress_asm_riscv_fence();
-	stress_asm_riscv_fence();
-	stress_asm_riscv_fence();
-	stress_asm_riscv_fence();
+#elif defined(STRESS_ARCH_RISCV)
+	stress_asm_riscv_pause();
+	stress_asm_riscv_pause();
+	stress_asm_riscv_pause();
+	stress_asm_riscv_pause();
 #elif defined(HAVE_ASM_LOONG64_DBAR)
 	stress_asm_loong64_dbar();
 	stress_asm_loong64_dbar();
