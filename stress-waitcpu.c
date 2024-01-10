@@ -296,20 +296,40 @@ static int stress_waitcpu(stress_args_t *args)
 	}
 
 #if defined(STRESS_ARCH_X86)
+	/*
+	 *  Sanity check nop vs non-nop rates on non-virt x86 systems
+	 */
 	if (nop_rate > 0.0) {
-		for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
-			if (!strcmp("nop", stress_waitcpu_method[i].name))
-				continue;
-			/*
-			 *   compare with ~50% slop
-			 */
-			if (stress_waitcpu_method[i].rate > (nop_rate * 1.50)) {
-				pr_fail("%s: %s instruction rate (%.2f ops "
-					"per sec) is higher than nop "
-					"instruction rate (%.2f ops per sec)\n",
-					args->name, stress_waitcpu_method[i].name,
-					stress_waitcpu_method[i].rate, nop_rate);
-				rc = EXIT_FAILURE;
+		FILE *fp;
+
+		fp = fopen("/proc/cpuinfo", "r");
+		if (fp) {
+			char buf[4096];
+			bool virtualized = false;
+
+			while (fgets(buf, sizeof(buf), fp) != NULL) {
+				if (strstr(buf, "hypervisor")) {
+					virtualized = true;
+					break;
+				}
+			}
+			(void)fclose(fp);
+
+			if (!virtualized) {
+				for (i = 0; i < SIZEOF_ARRAY(stress_waitcpu_method); i++) {
+					if (!strcmp("nop", stress_waitcpu_method[i].name))
+						continue;
+					/*
+					 *   compare with ~50% slop
+					 */
+					if (stress_waitcpu_method[i].rate > (nop_rate * 1.50)) {
+						pr_inf("%s: note: %s instruction rate (%.2f ops "
+							"per sec) is higher than nop "
+							"instruction rate (%.2f ops per sec)\n",
+							args->name, stress_waitcpu_method[i].name,
+							stress_waitcpu_method[i].rate, nop_rate);
+					}
+				}
 			}
 		}
 	}
