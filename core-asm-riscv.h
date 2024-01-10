@@ -50,6 +50,13 @@ static inline void ALWAYS_INLINE stress_asm_riscv_fence_i(void)
 }
 #endif
 
+/* Pause instruction */
+static inline void ALWAYS_INLINE stress_asm_riscv_pause(void)
+{
+	/* pause is encoded as a fence instruction with pred=W, succ=0, and fm=0 */
+	__asm__ __volatile__ (".4byte 0x100000F");
+}
+
 /* #if defined(STRESS_ARCH_RISCV) */
 #endif
 

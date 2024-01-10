@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
+#include "core-asm-riscv.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-cpu.h"
@@ -185,6 +186,18 @@ static void stress_waitcpu_ppc64_mdoom(void)
 }
 #endif
 
+#if defined(STRESS_ARCH_RISCV)
+static bool stress_waitcpu_riscv_pause_supported(void)
+{
+	return true;
+}
+
+static void stress_waitcpu_riscv_pause(void)
+{
+	stress_asm_riscv_pause();
+}
+#endif
+
 stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0, 0.0 },
 #if defined(STRESS_ARCH_X86)
@@ -201,6 +214,9 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "umwait0",	stress_waitcpu_x86_umwait0,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0, 0.0 },
 	{ "umwait0",	stress_waitcpu_x86_umwait1,	stress_waitcpu_x86_umwait_supported,	false, 0.0, 0.0, 0.0 },
 #endif
+#endif
+#if defined(STRESS_ARCH_RISCV)
+	{ "pause",	stress_waitcpu_riscv_pause,	stress_waitcpu_riscv_pause_supported,	false, 0.0, 0.0, 0.0 },
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
 	{ "yield",	stress_waitcpu_arm_yield,	stress_waitcpu_arm_yield_supported,	false, 0.0, 0.0, 0.0 },
