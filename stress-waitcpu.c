@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-asm-arm.h"
+#include "core-asm-loong64.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-x86.h"
@@ -198,6 +199,20 @@ static void stress_waitcpu_riscv_pause(void)
 }
 #endif
 
+#if defined(STRESS_ARCH_LOONG64)
+#if defined(HAVE_ASM_LOONG64_DBAR)
+static bool stress_waitcpu_loong64_dbar_supported(void)
+{
+	return true;
+}
+
+static void stress_waitcpu_loong64_dbar(void)
+{
+	stress_asm_loong64_dbar();
+}
+#endif
+#endif
+
 stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "nop",	stress_waitcpu_nop,		stress_waitcpu_nop_supported,		false, 0.0, 0.0, 0.0 },
 #if defined(STRESS_ARCH_X86)
@@ -225,6 +240,11 @@ stress_waitcpu_method_t stress_waitcpu_method[] = {
 	{ "mdoio",	stress_waitcpu_ppc64_mdoio,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
 	{ "mdoom",	stress_waitcpu_ppc64_mdoom,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
 	{ "yield",	stress_waitcpu_ppc64_yield,	stress_waitcpu_ppc64_supported,		false, 0.0, 0.0, 0.0 },
+#endif
+#if defined(STRESS_ARCH_LOONG64)
+#if defined(HAVE_ASM_LOONG64_DBAR)
+	{ "dbar",	stress_waitcpu_loong64_dbar,	stress_waitcpu_loong64_dbar_supported,	false, 0.0, 0.0, 0.0 },
+#endif
 #endif
 };
 
