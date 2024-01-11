@@ -1141,6 +1141,60 @@ static void bad_lremovexattr3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
+#if defined(__NR_lsm_get_self_attr)
+static void bad_lsm_get_self_attr1(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unwriteable) {
+		size_t size = 1024;
+
+		(*counter)++;
+		VOID_RET(int, syscall(__NR_lsm_get_self_attr, 0, ba->addr, &size, 0));
+	}
+}
+
+static void bad_lsm_get_self_attr2(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unwriteable) {
+		unsigned char ctxt[1024];
+
+		(*counter)++;
+		VOID_RET(int, syscall(__NR_lsm_get_self_attr, 0, ctxt, ba->addr, 0));
+	}
+}
+#endif
+
+#if defined(__NR_lsm_set_self_attr)
+static void bad_lsm_set_self_attr(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		(*counter)++;
+		VOID_RET(int, syscall(__NR_lsm_set_self_attr, 0, ba->addr, 1024, 0));
+	}
+}
+#endif
+
+#if defined(__NR_lsm_list_modules)
+static void bad_lsm_list_modules1(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		size_t size = 64;
+
+		(*counter)++;
+		VOID_RET(int, syscall(__NR_lsm_list_modules, (uint64_t *)ba->addr, &size, 0));
+	}
+}
+
+static void bad_lsm_list_modules2(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	if (ba->unreadable) {
+		uint64_t ids[64];
+
+		(*counter)++;
+		VOID_RET(int, syscall(__NR_lsm_list_modules, ids, (size_t *)ba->addr, 0));
+	}
+}
+#endif
+
 static void bad_lstat1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
@@ -2145,6 +2199,17 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_lremovexattr1,
 	bad_lremovexattr2,
 	bad_lremovexattr3,
+#endif
+#if defined(__NR_lsm_get_self_attr)
+	bad_lsm_get_self_attr1,
+	bad_lsm_get_self_attr2,
+#endif
+#if defined(__NR_lsm_set_self_attr)
+	bad_lsm_set_self_attr,
+#endif
+#if defined(__NR_lsm_list_modules)
+	bad_lsm_list_modules1,
+	bad_lsm_list_modules2,
 #endif
 	bad_lstat1,
 	bad_lstat2,
