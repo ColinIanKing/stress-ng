@@ -158,6 +158,11 @@
 #define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
 #define STRESS_STRESSOR_STATUS_MAX		(4)
 
+/*
+ *  Per stressor misc rate metrics
+ */
+#define STRESS_MISC_METRICS_MAX			(64)
+
 typedef struct {
 	uint64_t counter;		/* bogo-op counter */
 	bool counter_ready;		/* ready flag */
@@ -176,6 +181,11 @@ typedef struct {
 	char *description;		/* description of metric */
 	double value;			/* value of metric */
 	int mean_type;			/* type of metric, geometric or harmonic mean */
+} stress_metrics_item_t;
+
+typedef struct {
+	size_t max_metrics;
+	stress_metrics_item_t items[STRESS_MISC_METRICS_MAX];
 } stress_metrics_data_t;
 
 /* stressor args */
@@ -382,7 +392,6 @@ typedef union {
 
 typedef uint32_t stress_class_t;
 
-#define STRESS_MISC_METRICS_MAX	(40)
 
 typedef struct {
 	void *lock;			/* optional lock */
@@ -522,7 +531,7 @@ typedef struct stress_stats {
 #endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
-	stress_metrics_data_t metrics[STRESS_MISC_METRICS_MAX];
+	stress_metrics_data_t metrics;	/* misc metrics */
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
 	double rusage_utime_total;	/* rusage user time */

@@ -1286,21 +1286,30 @@ void stress_metrics_set_const_check(
 	const int mean_type)
 {
 	stress_metrics_data_t *metrics;
+	stress_metrics_item_t *item;
 
-	if (idx >= STRESS_MISC_METRICS_MAX)
-		return;
 	if (!args)
 		return;
+
 	metrics = args->metrics;
 	if (!metrics)
 		return;
 
-	metrics[idx].description = const_description ?
+	/* track max index requested */
+	if (idx > metrics->max_metrics)
+		metrics->max_metrics = idx;
+
+	if (idx >= STRESS_MISC_METRICS_MAX)
+		return;
+
+	item = &metrics->items[idx];
+
+	item->description = const_description ?
 		description :
 		stress_shared_heap_dup_const(description);
-	if (metrics[idx].description)
-		metrics[idx].value = value;
-	metrics[idx].mean_type = mean_type;
+	if (item->description)
+		item->value = value;
+	metrics->items[idx].mean_type = mean_type;
 }
 
 #if defined(HAVE_GETRUSAGE)
@@ -1433,7 +1442,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.page_size = page_size,
 		stats->args.time_end = stress_time_now() + (double)g_opt_timeout,
 		stats->args.mapped = &g_shared->mapped,
-		stats->args.metrics = stats->metrics,
+		stats->args.metrics = &stats->metrics,
 		stats->args.info = g_stressor_current->stressor->info;
 
 		stress_set_oom_adjustment(&stats->args, false);
@@ -1889,6 +1898,8 @@ static char *stess_description_yamlify(const char *description)
 static void stress_metrics_dump(FILE *yaml)
 {
 	stress_stressor_t *ss;
+	const stress_metrics_item_t *item;
+	const char *description;
 	bool misc_metrics = false;
 
 	pr_block_begin();
@@ -2038,8 +2049,9 @@ static void stress_metrics_dump(FILE *yaml)
 			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 		}
 
-		for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
-			const char *description = ss->stats[0]->metrics[i].description;
+		for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics.items); i++) {
+			item = &ss->stats[0]->metrics.items[i];
+			description = item->description;
 
 			if (description) {
 				double metric, total = 0.0;
@@ -2048,7 +2060,7 @@ static void stress_metrics_dump(FILE *yaml)
 				for (j = 0; j < ss->num_instances; j++) {
 					const stress_stats_t *const stats = ss->stats[j];
 
-					total += stats->metrics[i].value;
+					total += stats->metrics.items[i].value;
 				}
 				metric = ss->completed_instances ? total / ss->completed_instances : 0.0;
 				if (g_opt_flags & OPT_FLAGS_SN) {
@@ -2075,8 +2087,13 @@ static void stress_metrics_dump(FILE *yaml)
 
 			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 
-			for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics); i++) {
-				const char *description = ss->stats[0]->metrics[i].description;
+			if (ss->stats[0]->metrics.max_metrics > SIZEOF_ARRAY(ss->stats[0]->metrics.items))
+				pr_metrics("note: %zd metrics were set, only reporting first %zd metrics\n",
+					ss->stats[0]->metrics.max_metrics, SIZEOF_ARRAY(ss->stats[0]->metrics.items));
+
+			for (i = 0; i < SIZEOF_ARRAY(ss->stats[0]->metrics.items); i++) {
+				item = &ss->stats[0]->metrics.items[i];
+				description = item->description;
 
 				if (description) {
 					int64_t exponent;
@@ -2084,7 +2101,7 @@ static void stress_metrics_dump(FILE *yaml)
 					double n, sum;
 					const char *plural = (ss->completed_instances > 1) ? "s" : "";
 
-					switch (ss->stats[0]->metrics[i].mean_type) {
+					switch (ss->stats[0]->metrics.items[i].mean_type) {
 					case STRESS_GEOMETRIC_MEAN:
 						exponent = 0;
 						mantissa = 1.0;
@@ -2094,8 +2111,9 @@ static void stress_metrics_dump(FILE *yaml)
 							int e;
 							const stress_stats_t *const stats = ss->stats[j];
 
-							if ((stats->metrics[i].value > 0.0) || (stats->metrics[i].value < 0.0)) {
-								const double f = frexp(stats->metrics[i].value, &e);
+							item = &stats->metrics.items[i];
+							if ((item->value > 0.0) || (item->value < 0.0)) {
+								const double f = frexp(item->value, &e);
 
 								mantissa *= f;
 								exponent += e;
@@ -2126,8 +2144,9 @@ static void stress_metrics_dump(FILE *yaml)
 						for (j = 0; j < ss->num_instances; j++) {
 							const stress_stats_t *const stats = ss->stats[j];
 
-							if ((stats->metrics[i].value > 0.0) || (stats->metrics[i].value < 0.0)) {
-								const double reciprocal = 1.0 / stats->metrics[i].value;
+							item = &stats->metrics.items[i];
+							if ((item->value > 0.0) || (item->value < 0.0)) {
+								const double reciprocal = 1.0 / item->value;
 
 								sum += reciprocal;
 								n += 1.0;
@@ -2684,9 +2703,9 @@ static inline void stress_setup_stats_buffers(void)
 			size_t j;
 
 			ss->stats[i] = stats;
-			for (j = 0; j < SIZEOF_ARRAY(stats->metrics); j++) {
-				stats->metrics[j].value = 0.0;
-				stats->metrics[j].description = NULL;
+			for (j = 0; j < SIZEOF_ARRAY(stats->metrics.items); j++) {
+				stats->metrics.items[j].value = 0.0;
+				stats->metrics.items[j].description = NULL;
 			}
 		}
 	}
