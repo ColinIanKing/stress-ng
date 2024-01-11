@@ -109,6 +109,7 @@ typedef struct stress_crypto_info {
 	bool	internal;		/* true if accessible to userspace */
 	bool	ignore;
 	bool	selftest;		/* true if passed */
+	stress_metrics_t metrics;	/* performance metrics */
 	struct stress_crypto_info *next;
 } stress_crypto_info_t;
 
@@ -179,8 +180,8 @@ static void stress_af_alg_ignore(
 	if ((args->instance == 0) && (!info->ignore)) {
 		pr_dbg_skip("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
 			args->name, info->name);
-		info->ignore = true;
 	}
+	info->ignore = true;
 }
 
 static int stress_af_alg_hash(
@@ -214,6 +215,7 @@ retry_bind:
 		/* Perhaps the hash does not exist with this kernel */
 		switch (errno) {
 		case ENOENT:
+			info->ignore = true;
 			rc = EXIT_SUCCESS;
 			goto err;
 		case ELIBBAD:
@@ -261,8 +263,12 @@ retry_bind:
 	stress_rndbuf(input, DATA_LEN);
 
 	for (j = 32; j < DATA_LEN; j += 32) {
+		double t, delta;
+
 		if (!stress_continue(args))
 			break;
+
+		t = stress_time_now();
 		if (send(fd, input, j, 0) != (ssize_t)j) {
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
 				continue;
@@ -284,6 +290,11 @@ retry_bind:
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err_close;
+		}
+		delta = stress_time_now() - t;
+		if (delta > 0.0) {
+			info->metrics.duration += delta;
+			info->metrics.count += 1.0;
 		}
 		stress_bogo_inc(args);
 		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops)) {
@@ -365,6 +376,7 @@ retry_bind:
 		}
 		if ((errno == 0) || (errno == ENOKEY) ||
 		    (errno == ENOENT) || (errno == EBUSY)) {
+			info->ignore = true;
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
@@ -452,6 +464,7 @@ retry_bind:
 		struct cmsghdr *cmsg;
 		struct af_alg_iv *iv;	/* Initialisation Vector */
 		struct iovec iov;
+		double t;
 
 		if (!stress_continue(args))
 			break;
@@ -546,6 +559,7 @@ retry_bind:
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
 
+		t = stress_time_now();
 		if (sendmsg(fd, &msg, 0) < 0) {
 			if (errno == ENOMEM)
 				break;
@@ -571,13 +585,20 @@ retry_bind:
 					"different from original data "
 					"(possible kernel bug)\n",
 					args->name, info->name);
+			} else {
+				const double delta = stress_time_now() - t;
+
+				if (delta > 0.0) {
+					info->metrics.duration += delta;
+					info->metrics.count += 1.0;
+				}
+				stress_bogo_inc(args);
 			}
 		}
 	}
 
 err_abort:
 	rc = EXIT_SUCCESS;
-	stress_bogo_inc(args);
 err_close:
 	(void)close(fd);
 err:
@@ -619,6 +640,7 @@ retry_bind:
 		}
 		/* Perhaps the rng does not exist with this kernel */
 		if ((errno == ENOENT) || (errno == EBUSY)) {
+			info->ignore = true;
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
@@ -643,8 +665,12 @@ retry_bind:
 	}
 
 	for (j = 0; j < 16; j++) {
+		double delta, t;
+
 		if (!stress_continue(args))
 			break;
+
+		t = stress_time_now();
 		if (read(fd, output, output_size) != output_size) {
 			if (errno != EINVAL) {
 				pr_fail("%s: read failed, errno=%d (%s)\n",
@@ -652,6 +678,11 @@ retry_bind:
 				rc = EXIT_FAILURE;
 				goto err_close;
 			}
+		}
+		delta = stress_time_now() - t;
+		if (delta > 0.0) {
+			info->metrics.duration += delta;
+			info->metrics.count += 1.0;
 		}
 		stress_bogo_inc(args);
 		if (args->max_ops && (stress_bogo_get(args) >= args->max_ops)) {
@@ -780,8 +811,9 @@ static int stress_af_alg(stress_args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
-	size_t proc_count, count, internal;
+	size_t proc_count, count, internal, idx;
 	bool af_alg_dump = false;
+	stress_crypto_info_t *info;
 
 	stress_af_alg_count_crypto(&proc_count, &internal);
 
@@ -842,11 +874,10 @@ static int stress_af_alg(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_crypto_info_t *info;
-
 		for (info = crypto_info_list; info && stress_continue(args); info = info->next) {
 			if (info->internal || info->ignore)
 				continue;
+
 			switch (info->crypto_type) {
 			case CRYPTO_AHASH:
 			case CRYPTO_SHASH:
@@ -874,6 +905,18 @@ static int stress_af_alg(stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (idx = 0, info = crypto_info_list; info; info = info->next) {
+		if (info->metrics.duration > 0.0) {
+			const double rate = info->metrics.count / info->metrics.duration;
+			char str[64];
+
+			(void)snprintf(str, sizeof(str), "%s (%s) ops/sec", info->name, info->type),
+
+			stress_metrics_set(args, idx, str, rate, STRESS_HARMONIC_MEAN);
+			idx++;
+		}
+	}
 
 	rc = EXIT_SUCCESS;
 	(void)close(sockfd);
@@ -977,6 +1020,8 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	if (!ci)
 		return false;
 	*ci = *info;
+	ci->metrics.duration = 0.0;
+	ci->metrics.count = 0.0;
 	ci->next = crypto_info_list;
 	crypto_info_list = ci;
 
