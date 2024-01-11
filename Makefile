@@ -88,6 +88,12 @@ endif
 # Optimization flags
 #
 override CFLAGS += $(foreach flag,-fipa-pta,$(cc_supports_flag))
+#
+# Enable Link Time Optimization
+#
+ifeq ($(LTO),1)
+override CFLAGS += $(foreach flag,-flto=auto,$(cc_supports_flag))
+endif
 
 #
 # Expected build warnings
