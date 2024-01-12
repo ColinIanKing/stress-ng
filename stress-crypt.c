@@ -31,7 +31,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LIB_CRYPT) &&	\
-    defined(HAVE_CRYPT_H)
+    (defined(HAVE_CRYPT_H) || 	\
+     defined(__FreeBSD__))
 
 typedef struct {
 	const char *prefix;

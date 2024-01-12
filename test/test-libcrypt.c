@@ -21,7 +21,11 @@
 #define _XOPEN_SOURCE	600
 
 #include <string.h>
+#if defined(__FreeBSD__)
+#include <unistd.h>
+#else
 #include <crypt.h>
+#endif
 
 int main(void)
 {
