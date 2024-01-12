@@ -1669,6 +1669,10 @@ int shim_fsopen(const char *fsname, unsigned int flags)
 #endif
 }
 
+/*
+ *  shim_fsmount()
+ *	wrapper for fsmount
+ */
 int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
 {
 #if defined(__NR_fsmount) &&	\
@@ -1679,6 +1683,10 @@ int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
 #endif
 }
 
+/*
+ *  shim_fsconfig()
+ *	wrapper for fsconfig
+ */
 int shim_fsconfig(
 	int fd,
 	unsigned int cmd,
@@ -1694,6 +1702,10 @@ int shim_fsconfig(
 #endif
 }
 
+/*
+ *  shim_move_mount()
+ *	wrapper for move_mount
+ */
 int shim_move_mount(
 	int from_dfd,
 	const char *from_pathname,
