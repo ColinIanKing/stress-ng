@@ -218,6 +218,10 @@ Alpine Linux:
   * xxhash-dev
   * zlib-dev
 
+Snaps:
+  * stress-ng is not intended to be snap'd with snapcraft. Doing so is strictly
+    against the wishes of the project maintainer and main developer.
+
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
 
