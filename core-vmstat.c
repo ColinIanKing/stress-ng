@@ -726,7 +726,6 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 #endif
 }
 #elif defined(__OpenBSD__)
-
 /*
  *  stress_read_vmstat()
  *	read vmstat statistics, OS X variant, partially implemented
@@ -1068,6 +1067,26 @@ static void stress_get_cpu_ghz(
 		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
 	} else {
 		*avg_ghz = (total_freq / n);
+	}
+}
+#elif defined(__OpenBSD__)
+static void stress_get_cpu_ghz(
+	double *avg_ghz,
+	double *min_ghz,
+	double *max_ghz)
+{
+	int mib[2], speed_mhz;
+	size_t size;
+
+	mib[0] = CTL_HW;
+	mib[1] = HW_CPUSPEED;
+	size = sizeof(speed_mhz);
+	if (sysctl(mib, 2, &speed_mhz, &size, NULL, 0) == 0) {
+		*avg_ghz = (double)speed_mhz / 1000.0;
+		*min_ghz = *avg_ghz;
+		*max_ghz = *avg_ghz;
+	} else {
+		stress_zero_cpu_ghz(avg_ghz, min_ghz, max_ghz);
 	}
 }
 #else
