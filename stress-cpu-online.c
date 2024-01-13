@@ -290,6 +290,8 @@ static int stress_cpu_online(stress_args_t *args)
 				} else {
 					online_duration += stress_time_now() - t;
 					online_count += 1.0;
+					if (cpu_online_affinity)
+						stress_cpu_online_set_affinity(cpu);
 				}
 			}
 			stress_bogo_inc(args);
