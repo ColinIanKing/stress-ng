@@ -63,6 +63,10 @@ STRESS_PRAGMA_POP
 #include <mntent.h>
 #endif
 
+#if defined(__OpenBSD__)
+#include <sys/sched.h>
+#endif
+
 /* vmstat information */
 typedef struct {			/* vmstat column */
 	uint64_t	procs_running;	/* r */
@@ -721,6 +725,53 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	}
 #endif
 }
+#elif defined(__OpenBSD__)
+
+/*
+ *  stress_read_vmstat()
+ *	read vmstat statistics, OS X variant, partially implemented
+ */
+static void stress_read_vmstat(stress_vmstat_t *vmstat)
+{
+	int mib[2];
+	struct uvmexp u;
+	size_t size;
+	long cp_time[CPUSTATES];
+	struct vmtotal t;
+
+	mib[0] = CTL_VM;
+	mib[1] = VM_METER;
+	size = sizeof(t);
+	if (sysctl(mib, 2, &t, &size, NULL, 0) == 0) {
+		vmstat->procs_running = t.t_rq - 1;
+		vmstat->procs_blocked = t.t_sl;
+	}
+
+	mib[0] = CTL_VM;
+	mib[1] = VM_UVMEXP;
+	size = sizeof(struct uvmexp);
+
+	if (sysctl(mib, 2, &u, &size, NULL, 0) == 0) {
+		vmstat->memory_cached = 0;
+		vmstat->interrupt = u.intrs;
+		vmstat->context_switch = u.swtch;
+		vmstat->swap_in = u.pageins;
+		vmstat->swap_out = u.pdpageouts;
+		vmstat->swap_used = (u.swpginuse * (u.pagesize >> 10));
+		vmstat->memory_free = (u.free * (u.pagesize >> 10));
+	}
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_CPTIME;
+	size = sizeof(cp_time);
+
+	if (sysctl(mib, 2, cp_time, &size, NULL, 0) == 0) {
+		vmstat->user_time = (double)(cp_time[CP_USER] + cp_time[CP_NICE]);
+		vmstat->system_time = (double)(cp_time[CP_SYS] + cp_time[CP_SPIN] + cp_time[CP_INTR]);
+		vmstat->idle_time = (double)cp_time[CP_IDLE];
+	}
+}
+
 #elif defined(__APPLE__) &&		\
       defined(HAVE_SYS_SYSCTL_H) &&	\
       defined(HAVE_MACH_MACH_H) &&	\
@@ -1089,7 +1140,6 @@ void stress_vmstat_start(void)
 
 	while (stress_continue_flag()) {
 		int32_t sleep_delay = INT_MAX;
-		long clk_tick;
 		double delta;
 
 		if (vmstat_delay > 0)
@@ -1100,7 +1150,7 @@ void stress_vmstat_start(void)
     defined(__linux__)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
-#endif	
+#endif
 		if (status_delay > 0)
 			sleep_delay = STRESS_MINIMUM(status_delay, sleep_delay);
 		t1 += sleep_delay;
@@ -1112,9 +1162,6 @@ void stress_vmstat_start(void)
 
 			(void)shim_nanosleep_uint64(nsec);
 		}
-
-		/* This may change each time we get stats */
-		clk_tick = sysconf(_SC_CLK_TCK) * sysconf(_SC_NPROCESSORS_ONLN);
 
 		vmstat_sleep -= sleep_delay;
 		thermalstat_sleep -= sleep_delay;
@@ -1131,8 +1178,8 @@ void stress_vmstat_start(void)
 			status_sleep = status_delay;
 
 		if (vmstat_sleep == vmstat_delay) {
-			double clk_tick_vmstat_delay = (double)clk_tick * (double)vmstat_delay;
 			static uint32_t vmstat_count = 0;
+			double total_ticks, percent;
 
 			stress_get_vmstat(&vmstat);
 
@@ -1145,6 +1192,13 @@ void stress_vmstat_start(void)
 					"cache", "si", "so", "bi", "bo",
 					"in", "cs", "us", "sy", "id",
 					"wa", "st");
+
+			total_ticks = (double)vmstat.user_time +
+				      (double)vmstat.system_time +
+				      (double)vmstat.idle_time +
+				      (double)vmstat.wait_time +
+				      (double)vmstat.stolen_time;
+			percent = (total_ticks > 0.0) ? 100.0 / total_ticks : 0.0;
 
 			pr_inf("vmstat: %3" PRIu64 " %3" PRIu64 /* procs */
 			       " %9" PRIu64 " %9" PRIu64	/* vm used */
@@ -1167,11 +1221,11 @@ void stress_vmstat_start(void)
 				vmstat.block_out / (uint64_t)vmstat_delay,
 				vmstat.interrupt / (uint64_t)vmstat_delay,
 				vmstat.context_switch / (uint64_t)vmstat_delay,
-				100.0 * (double)vmstat.user_time / clk_tick_vmstat_delay,
-				100.0 * (double)vmstat.system_time / clk_tick_vmstat_delay,
-				100.0 * (double)vmstat.idle_time / clk_tick_vmstat_delay,
-				100.0 * (double)vmstat.wait_time / clk_tick_vmstat_delay,
-				100.0 * (double)vmstat.stolen_time / clk_tick_vmstat_delay);
+				percent * (double)vmstat.user_time,
+				percent * (double)vmstat.system_time,
+				percent * (double)vmstat.idle_time,
+				percent * (double)vmstat.wait_time,
+				percent * (double)vmstat.stolen_time);
 			pr_block_end();
 
 			vmstat_count++;
