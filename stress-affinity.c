@@ -148,7 +148,6 @@ static inline void stress_affinity_spin_delay(
 static void stress_affinity_child(
 	stress_args_t *args,
 	stress_affinity_info_t *info,
-	const pid_t *pids,
 	const bool pin_controller)
 {
 	uint32_t cpu = args->instance, last_cpu = cpu;
@@ -232,8 +231,6 @@ affinity_continue:
 		if (info->affinity_sleep > 0)
 			shim_nanosleep_uint64(info->affinity_sleep);
 	} while (stress_continue(args));
-
-	stress_affinity_reap(args, pids);
 }
 
 static int stress_affinity(stress_args_t *args)
@@ -280,13 +277,13 @@ static int stress_affinity(stress_args_t *args)
 		pids[i] = fork();
 
 		if (pids[i] == 0) {
-			stress_affinity_child(args, info, pids, false);
+			stress_affinity_child(args, info, false);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_affinity_child(args, info, pids, true);
+	stress_affinity_child(args, info, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/*
