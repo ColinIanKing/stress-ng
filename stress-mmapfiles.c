@@ -80,7 +80,7 @@ static size_t stress_mmapfiles_dir(
 {
 	DIR *dir;
 	struct dirent *d;
-	int flags = MAP_ANONYMOUS;
+	int flags = 0;
 
 	flags |= mmap_shared ? MAP_SHARED : MAP_PRIVATE;
 #if defined(MAP_POPULATE)
@@ -126,7 +126,7 @@ static size_t stress_mmapfiles_dir(
 				break;
 
 			t = stress_time_now();
-			ptr = (uint8_t *)mmap(NULL, len, PROT_READ, flags, -1, 0);
+			ptr = (uint8_t *)mmap(NULL, len, PROT_READ, flags, fd, 0);
 			delta = stress_time_now() - t;
 			if (ptr != MAP_FAILED) {
 				if (mmap_populate) {
