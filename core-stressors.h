@@ -168,6 +168,7 @@
 	MACRO(mlockmany)	\
 	MACRO(mmap)		\
 	MACRO(mmapaddr)		\
+	MACRO(mmapfiles)	\
 	MACRO(mmapfixed)	\
 	MACRO(mmapfork)		\
 	MACRO(mmaphuge)		\

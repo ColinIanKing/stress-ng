@@ -767,6 +767,11 @@ typedef enum {
 	OPT_mmapaddr_mlock,
 	OPT_mmapaddr_ops,
 
+	OPT_mmapfiles,
+	OPT_mmapfiles_ops,
+	OPT_mmapfiles_populate,
+	OPT_mmapfiles_shared,
+
 	OPT_mmapfixed,
 	OPT_mmapfixed_mlock,
 	OPT_mmapfixed_ops,

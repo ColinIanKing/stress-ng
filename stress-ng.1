@@ -4251,6 +4251,27 @@ activity, a lot of cache misses and with minimal swapping.
 stop after N mmapfork bogo operations.
 .RE
 .TP
+.B Memory map files stressor
+.RS 5
+.TQ
+.B \-\-mmapfiles N
+start N workers that attempt to memory map and then unmap up to 512 \(mu 1024
+files into memory.
+.TP
+.B \-\-mmapfiles\-ops N
+stop after N memory map/unmap operations.
+.TP
+.B \-\-mmapfiles\-populate
+The default is to perform a memory mapping and not fault any pages into
+physical memory. This option uses MAP_POPULATE when available and will also
+read the first byte in each page to ensure pages are faulted into memory
+to force memory population from file.
+.TP
+.B \-\-mmapfiles\-shared
+The default is for private memory mapped files, however, with this option
+will use shared memory mappings.
+.RE
+.TP
 .B Fixed address memory map stressor
 .RS 5
 .TQ
