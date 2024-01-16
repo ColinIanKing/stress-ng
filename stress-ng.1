@@ -5839,7 +5839,11 @@ stop semaphore stress workers after N bogo semaphore operations.
 .B \-\-sem\-procs N
 start N child workers per worker to provide contention on the semaphore, the
 default is 4 and a maximum of 64 are allowed.
+.RE
 .TP
+.B System V semaphore stressor
+.RS 5
+.TQ
 .B \-\-sem\-sysv N
 start N workers that perform System V semaphore wait and post operations. By
 default, a parent and 4 children are started per worker to provide some
