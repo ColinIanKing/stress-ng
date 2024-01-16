@@ -110,9 +110,10 @@ int OPTIMIZE3 stress_mmap_check(
 
 	while ((ptr < end) && stress_continue_flag()) {
 		register const uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
-		register uint64_t sum;
 
 		while (ptr < page_end) {
+			register uint64_t sum;
+
 			sum  = ptr[0x00];
 			sum += ptr[0x01];
 			sum += ptr[0x02];
@@ -129,24 +130,24 @@ int OPTIMIZE3 stress_mmap_check(
 			sum += ptr[0x0d];
 			sum += ptr[0x0e];
 			sum += ptr[0x0f];
-			sum += ptr[0x10];
-			sum += ptr[0x11];
-			sum += ptr[0x12];
-			sum += ptr[0x13];
-			sum += ptr[0x14];
-			sum += ptr[0x15];
-			sum += ptr[0x16];
-			sum += ptr[0x17];
-			sum += ptr[0x18];
-			sum += ptr[0x19];
-			sum += ptr[0x1a];
-			sum += ptr[0x1b];
-			sum += ptr[0x1c];
-			sum += ptr[0x1d];
-			sum += ptr[0x1e];
-			sum += ptr[0x1f];
+			sum -= ptr[0x10];
+			sum -= ptr[0x11];
+			sum -= ptr[0x12];
+			sum -= ptr[0x13];
+			sum -= ptr[0x14];
+			sum -= ptr[0x15];
+			sum -= ptr[0x16];
+			sum -= ptr[0x17];
+			sum -= ptr[0x18];
+			sum -= ptr[0x19];
+			sum -= ptr[0x1a];
+			sum -= ptr[0x1b];
+			sum -= ptr[0x1c];
+			sum -= ptr[0x1d];
+			sum -= ptr[0x1e];
+			sum -= ptr[0x1f];
 			ptr += 32;
-			if (sum != (val << 5))
+			if (sum)
 				return -1;
 		}
 		val++;
