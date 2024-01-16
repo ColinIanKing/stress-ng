@@ -110,43 +110,44 @@ int OPTIMIZE3 stress_mmap_check(
 
 	while ((ptr < end) && stress_continue_flag()) {
 		register const uint64_t *page_end = (uint64_t *)((uintptr_t)ptr + page_size);
+		register uint64_t sum;
 
 		while (ptr < page_end) {
-			if (ptr[0x00] != val)
+			sum  = ptr[0x00];
+			sum += ptr[0x01];
+			sum += ptr[0x02];
+			sum += ptr[0x03];
+			sum += ptr[0x04];
+			sum += ptr[0x05];
+			sum += ptr[0x06];
+			sum += ptr[0x07];
+			sum += ptr[0x08];
+			sum += ptr[0x09];
+			sum += ptr[0x0a];
+			sum += ptr[0x0b];
+			sum += ptr[0x0c];
+			sum += ptr[0x0d];
+			sum += ptr[0x0e];
+			sum += ptr[0x0f];
+			sum += ptr[0x10];
+			sum += ptr[0x11];
+			sum += ptr[0x12];
+			sum += ptr[0x13];
+			sum += ptr[0x14];
+			sum += ptr[0x15];
+			sum += ptr[0x16];
+			sum += ptr[0x17];
+			sum += ptr[0x18];
+			sum += ptr[0x19];
+			sum += ptr[0x1a];
+			sum += ptr[0x1b];
+			sum += ptr[0x1c];
+			sum += ptr[0x1d];
+			sum += ptr[0x1e];
+			sum += ptr[0x1f];
+			ptr += 32;
+			if (sum != (val << 5))
 				return -1;
-			if (ptr[0x01] != val)
-				return -1;
-			if (ptr[0x02] != val)
-				return -1;
-			if (ptr[0x03] != val)
-				return -1;
-			if (ptr[0x04] != val)
-				return -1;
-			if (ptr[0x05] != val)
-				return -1;
-			if (ptr[0x06] != val)
-				return -1;
-			if (ptr[0x07] != val)
-				return -1;
-			shim_builtin_prefetch(ptr + 64);
-			if (ptr[0x08] != val)
-				return -1;
-			if (ptr[0x09] != val)
-				return -1;
-			if (ptr[0x0a] != val)
-				return -1;
-			if (ptr[0x0b] != val)
-				return -1;
-			if (ptr[0x0c] != val)
-				return -1;
-			if (ptr[0x0d] != val)
-				return -1;
-			if (ptr[0x0e] != val)
-				return -1;
-			if (ptr[0x0f] != val)
-				return -1;
-			shim_builtin_prefetch(ptr + 128);
-			ptr += 16;
 		}
 		val++;
 	}
