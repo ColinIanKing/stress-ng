@@ -122,8 +122,10 @@ static size_t stress_mmapfiles_dir(
 				continue;
 			}
 			len = statbuf.st_size;
-			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(len))
+			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(len)) {
+				(void)close(fd);
 				break;
+			}
 
 			t = stress_time_now();
 			ptr = (uint8_t *)mmap(NULL, len, PROT_READ, flags, fd, 0);
@@ -146,6 +148,7 @@ static size_t stress_mmapfiles_dir(
 			} else {
 				if (errno == ENOMEM) {
 					*enomem = true;
+					(void)close(fd);
 					break;
 				}
 			}
