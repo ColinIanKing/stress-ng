@@ -4256,7 +4256,10 @@ stop after N mmapfork bogo operations.
 .TQ
 .B \-\-mmapfiles N
 start N workers that attempt to memory map and then unmap up to 512 \(mu 1024
-files into memory.
+files into memory. The stressor will traverse /lib, /lib32, /lib64, /boot,
+/bin, /etc, /sbin, /usr, /var, /sys and /proc and attempt to memory map files
+in these directories. Note that mapping bogo-ops rate will depend on the speed of
+access to files on these file systems.
 .TP
 .B \-\-mmapfiles\-ops N
 stop after N memory map/unmap operations.
