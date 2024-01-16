@@ -74,9 +74,9 @@ static size_t stress_mmapfiles_dir(
 	const char *path,
 	stress_mapping_t *mappings,
 	size_t n_mappings,
-	const size_t max_mappings,
 	const bool mmap_populate,
-	const bool mmap_shared)
+	const bool mmap_shared,
+	bool *enomem)
 {
 	DIR *dir;
 	struct dirent *d;
@@ -90,8 +90,8 @@ static size_t stress_mmapfiles_dir(
 	if (!dir)
 		return n_mappings;
 
-	while ((d = readdir(dir)) != NULL) {
-		if (n_mappings >= max_mappings)
+	while (!(*enomem) && ((d = readdir(dir)) != NULL)) {
+		if (n_mappings >= MMAP_MAX)
 			break;
 		if (!stress_continue_flag())
 			break;
@@ -102,7 +102,7 @@ static size_t stress_mmapfiles_dir(
 
 			(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
 			n_mappings = stress_mmapfiles_dir(args, mmapfile_info, newpath, mappings, n_mappings,
-							max_mappings, mmap_populate, mmap_shared);
+							mmap_populate, mmap_shared, enomem);
 		} else if (d->d_type == DT_REG) {
 			char filename[PATH_MAX];
 			uint8_t *ptr;
@@ -143,6 +143,11 @@ static size_t stress_mmapfiles_dir(
 				mmapfile_info->mmap_duration += delta;
 				mmapfile_info->mmap_page_count += (double)(len + page_size - 1) / page_size;
 				stress_bogo_inc(args);
+			} else {
+				if (errno == ENOMEM) {
+					*enomem = true;
+					break;
+				}
 			}
 			(void)close(fd);
 		}
@@ -153,7 +158,7 @@ static size_t stress_mmapfiles_dir(
 
 static int stress_mmapfiles_child(stress_args_t *args, void *context)
 {
-	size_t max_mappings = (size_t)STRESS_MINIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
+	size_t idx = 0;
 	stress_mmapfile_info_t *mmapfile_info = (stress_mmapfile_info_t *)context;
 	stress_mapping_t *mappings;
 	static const char *dirs[] = {
@@ -175,7 +180,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 	(void)stress_get_setting("mmapfiles-populate", &mmap_populate);
 	(void)stress_get_setting("mmapfiles-shared", &mmap_shared);
 
-	mappings = calloc((size_t)max_mappings, sizeof(*mappings));
+	mappings = calloc((size_t)MMAP_MAX, sizeof(*mappings));
 	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -187,8 +192,15 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 		size_t i, n;
 
 		for (n = 0, i = 0; i < SIZEOF_ARRAY(dirs); i++) {
-			n = stress_mmapfiles_dir(args, mmapfile_info, dirs[i], mappings, n,
-						max_mappings, mmap_populate, mmap_shared);
+			bool enomem = false;
+
+			n = stress_mmapfiles_dir(args, mmapfile_info, dirs[idx], mappings, n,
+						mmap_populate, mmap_shared, &enomem);
+			idx++;
+			if (idx >= SIZEOF_ARRAY(dirs))
+				idx = 0;
+			if (enomem)
+				break;
 		}
 
 		for (i = 0; i < n; i++) {
