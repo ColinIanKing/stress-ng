@@ -398,6 +398,49 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
 	}
 }
 
+/*
+ *  stress_mmap_fast_unmap()
+ *      individual page unmappings can be very slow, especially with
+ *      cgroups since the page removal in the kernel release_pages
+ *      path has a heavily contended spinlock on the lruvec on large
+ *      systems. Since this stressor is exercising mmap and not mmunap
+ *      we focus on optimizing this unmappings by trying to unmap as
+ *      large a region as possible by checking for page adjacency and
+ *	where possible unmapping large contiguous regions.
+ */
+static void stress_mmap_fast_unmap(
+	uint8_t **mappings,
+	uint8_t *mapped,
+	const size_t pages,
+	const size_t page_size)
+{
+	register size_t i, munmap_size = 0;
+	register uint8_t *munmap_start = NULL;
+
+	for (i = 0; i < pages; i++) {
+		if (mapped[i] == PAGE_MAPPED) {
+			munmap_size = page_size;
+			munmap_start = mappings[i];
+			break;
+		}
+	}
+
+	for (; i < pages; i++) {
+		if (mapped[i] == PAGE_MAPPED) {
+			if (mappings[i] == munmap_start + munmap_size) {
+				munmap_size += page_size;
+			} else {
+				(void)stress_munmap_retry_enomem((void *)munmap_start, munmap_size);
+				munmap_start = mappings[i];
+				munmap_size = page_size;
+			}
+		}
+	}
+	if (munmap_start && (munmap_size > 0))
+		(void)stress_munmap_retry_enomem((void *)munmap_start, munmap_size);
+	(void)memset(mapped, 0, pages);
+}
+
 static int stress_mmap_child(stress_args_t *args, void *ctxt)
 {
 	stress_mmap_context_t *context = (stress_mmap_context_t *)ctxt;
@@ -575,19 +618,19 @@ retry:
 			}
 		}
 
+		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
+
 		/*
-		 *  Step #1, unmap all pages in random order
+		 *  Step #1, set random ordered page advise and protection
 		 */
 		for (n = 0; n < pages; n++)
 			index[n] = n;
 		stress_mmap_index_shuffle(index, n);
 
-		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		for (n = 0; n < pages; n++) {
 			register size_t page = index[n];
 
 			if (mapped[page] == PAGE_MAPPED) {
-				mapped[page] = 0;
 #if defined(HAVE_MQUERY) &&	\
     defined(MAP_FIXED)
 				{
@@ -599,11 +642,15 @@ retry:
 				(void)stress_madvise_random(mappings[page], page_size);
 				stress_mmap_mprotect(args->name, mappings[page],
 					page_size, page_size, context->mmap_mprotect);
-				(void)stress_munmap_retry_enomem((void *)mappings[page], page_size);
 			}
 			if (!stress_continue_flag())
 				goto cleanup;
 		}
+		/*
+		 *  ..and ummap pages
+		 */
+		stress_mmap_fast_unmap(mappings, mapped, pages, page_size);
+
 		(void)stress_munmap_retry_enomem((void *)buf, sz);
 #if defined(MAP_FIXED)
 
@@ -667,14 +714,7 @@ cleanup:
 		/*
 		 *  Step #3, unmap them all
 		 */
-		for (n = 0; n < pages; n++) {
-			if (mapped[n] & PAGE_MAPPED) {
-				(void)stress_madvise_random(mappings[n], page_size);
-				stress_mmap_mprotect(args->name, mappings[n],
-					page_size, page_size, context->mmap_mprotect);
-				(void)stress_munmap_retry_enomem((void *)mappings[n], page_size);
-			}
-		}
+		stress_mmap_fast_unmap(mappings, mapped, pages, page_size);
 
 		/*
 		 *  Step #4, invalid unmapping on the first found page that
