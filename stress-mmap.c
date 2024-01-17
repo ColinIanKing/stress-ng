@@ -42,6 +42,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap-async",	 "using asynchronous msyncs for file based mmap" },
 	{ NULL,	"mmap-bytes N",	 "mmap and munmap N bytes for each stress iteration" },
 	{ NULL,	"mmap-file",	 "mmap onto a file using synchronous msyncs" },
+	{ NULL,	"mmap-mergeable","where possible, flag mmap'd pages as mergeable" },
 	{ NULL,	"mmap-mlock",	 "attempt to mlock mmap'd pages" },
 	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
 	{ NULL, "mmap-odirect",	 "enable O_DIRECT on file" },
@@ -57,10 +58,11 @@ typedef struct {
 	int flags;
 	size_t sz;
 	size_t mmap_bytes;
-	bool mmap_mprotect;
-	bool mmap_file;
 	bool mmap_async;
+	bool mmap_file;
+	bool mmap_mergeable;
 	bool mmap_mlock;
+	bool mmap_mprotect;
 	mmap_func_t mmap;
 	size_t mmap_prot_count;
 	int *mmap_prot_perms;
@@ -241,6 +243,11 @@ static int stress_set_mmap_bytes(const char *opt)
 	stress_check_range_bytes("mmap-bytes", mmap_bytes,
 		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
 	return stress_set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
+}
+
+static int stress_set_mmap_mergeable(const char *opt)
+{
+	return stress_set_setting_true("mmap-mergeable", opt);
 }
 
 static int stress_set_mmap_mprotect(const char *opt)
@@ -586,7 +593,8 @@ retry:
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)stress_madvise_random(buf, sz);
-		(void)stress_madvise_mergeable(buf, sz);
+		if (context->mmap_mergeable)
+			(void)stress_madvise_mergeable(buf, sz);
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz, page_size, context->mmap_mprotect);
 		for (n = 0; n < pages; n++) {
@@ -686,7 +694,8 @@ retry:
 						(void)shim_mlock(mappings[page], page_size);
 					(void)stress_mincore_touch_pages(mappings[page], page_size);
 					(void)stress_madvise_random(mappings[page], page_size);
-					(void)stress_madvise_mergeable(mappings[page], page_size);
+					if (context->mmap_mergeable)
+						(void)stress_madvise_mergeable(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
 						page_size, page_size, context->mmap_mprotect);
 					mapped[page] = PAGE_MAPPED;
@@ -887,6 +896,7 @@ static int stress_mmap(stress_args_t *args)
 	context.mmap_bytes = DEFAULT_MMAP_BYTES;
 	context.mmap_async = false;
 	context.mmap_file = false;
+	context.mmap_mergeable = false;
 	context.mmap_mlock = false;
 	context.mmap_mprotect = false;
 	context.flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -896,11 +906,12 @@ static int stress_mmap(stress_args_t *args)
 
 	(void)stress_get_setting("mmap-async", &context.mmap_async);
 	(void)stress_get_setting("mmap-file", &context.mmap_file);
-	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
 	(void)stress_get_setting("mmap-osync", &mmap_osync);
 	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
+	(void)stress_get_setting("mmap-mergeable", &context.mmap_mergeable);
 	(void)stress_get_setting("mmap-mlock", &context.mmap_mlock);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
+	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
 		all_flags |= mmap_prot[i];
@@ -1033,11 +1044,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_async,	stress_set_mmap_async },
 	{ OPT_mmap_bytes,	stress_set_mmap_bytes },
 	{ OPT_mmap_file,	stress_set_mmap_file },
-	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
-	{ OPT_mmap_osync,	stress_set_mmap_osync },
-	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
+	{ OPT_mmap_mergeable,	stress_set_mmap_mergeable },
 	{ OPT_mmap_mlock,	stress_set_mmap_mlock },
 	{ OPT_mmap_mmap2,	stress_set_mmap_mmap2 },
+	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
+	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
+	{ OPT_mmap_osync,	stress_set_mmap_osync },
 	{ 0,			NULL }
 };
 

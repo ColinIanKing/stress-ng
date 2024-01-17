@@ -4211,6 +4211,9 @@ and GBytes using the suffix b, k, m or g.
 enable file based memory mapping and by default use synchronous msync'ing on
 each page.
 .TP
+.B \-\-mmap\-mergeable
+mark pages as mergeable via madvise(2) where possible.
+.TP
 .B \-\-mmap\-mlock
 attempt to mlock mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
