@@ -2150,6 +2150,23 @@ the controlling child process using exit_group(2). (Linux only stressor).
 stop after N iterations of pthread creation and deletion loops.
 .RE
 .TP
+.B Factorization of large integers stressor
+.RS 5
+.TQ
+.B \-\-factor N
+start N workers that factorize large integers using the GNU Multiple Precision
+Arithmetic Library. Randomized values to be factorized are computed so that
+an N digit value is comprised of about 0.4 \(mu N random factors,
+for N > 100. The default number of digits in the value to be factorized is 10.
+.TP
+.B \-\-factor\-digits N
+select the number of digits in the values to be factorized. Range 8 to 1000000
+digits, default is 10.
+.TP
+.B \-\-factor\-ops N
+stop after N factorizations.
+.RE
+.TP
 .B File space allocation (fallocate) stressor
 .RS 5
 .TQ

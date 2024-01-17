@@ -378,6 +378,10 @@ typedef enum {
 	OPT_exit_group,
 	OPT_exit_group_ops,
 
+	OPT_factor,
+	OPT_factor_digits,
+	OPT_factor_ops,
+
 	OPT_fallocate_ops,
 	OPT_fallocate_bytes,
 

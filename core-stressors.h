@@ -80,6 +80,7 @@
 	MACRO(eventfd) 		\
 	MACRO(exec)		\
 	MACRO(exit_group)	\
+	MACRO(factor)		\
 	MACRO(fallocate)	\
 	MACRO(fanotify)		\
 	MACRO(far_branch)	\
