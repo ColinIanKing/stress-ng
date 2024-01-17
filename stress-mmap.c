@@ -595,7 +595,7 @@ retry:
 		(void)stress_madvise_random(buf, sz);
 		if (context->mmap_mergeable)
 			(void)stress_madvise_mergeable(buf, sz);
-		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
+		(void)stress_mincore_touch_pages(buf, sz);
 		stress_mmap_mprotect(args->name, buf, sz, page_size, context->mmap_mprotect);
 		for (n = 0; n < pages; n++) {
 			mapped[n] = PAGE_MAPPED;
@@ -626,7 +626,7 @@ retry:
 			}
 		}
 
-		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
+		(void)stress_mincore_touch_pages(buf, sz);
 
 		/*
 		 *  Step #1, set random ordered page advise and protection
