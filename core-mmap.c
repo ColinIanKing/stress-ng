@@ -31,7 +31,7 @@
  *  stress_mmap_set()
  *	set mmap'd data, touching pages in
  *	a specific pattern - check with
- *	mmap_check().
+ *	stress_mmap_check().
  */
 void OPTIMIZE3 stress_mmap_set(
 	uint8_t *buf,
@@ -154,3 +154,50 @@ int OPTIMIZE3 stress_mmap_check(
 	}
 	return 0;
 }
+
+/*
+ *  stress_mmap_set_light()
+ *	set mmap'd data, touching pages in
+ *	a specific pattern at start of each page - check with
+ *	stress_mmap_check_light().
+ */
+void OPTIMIZE3 stress_mmap_set_light(
+	uint8_t *buf,
+	const size_t sz,
+	const size_t page_size)
+{
+	register uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t val = stress_mwc64();
+	register const uint64_t *end = (uint64_t *)(buf + sz);
+	register const size_t ptr_inc = page_size / sizeof(*ptr);
+
+	while (LIKELY(ptr < end)) {
+		*ptr = val;
+		ptr += ptr_inc;
+		val++;
+	}
+}
+
+/*
+ *  stress_mmap_check_light()
+ *	check if mmap'd data is sane
+ */
+int OPTIMIZE3 stress_mmap_check_light(
+	uint8_t *buf,
+	const size_t sz,
+	const size_t page_size)
+{
+	register uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t val = *ptr;
+	register const uint64_t *end = (uint64_t *)(buf + sz);
+	register const size_t ptr_inc = page_size / sizeof(*ptr);
+
+	while (LIKELY(ptr < end)) {
+		if (*ptr != val)
+			return -1;
+		ptr += ptr_inc;
+		val++;
+	}
+	return 0;
+}
+

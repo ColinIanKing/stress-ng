@@ -603,9 +603,9 @@ retry:
 		}
 
 		/* Ensure we can write to the mapped pages */
-		stress_mmap_set(buf, sz, page_size);
+		stress_mmap_set_light(buf, sz, page_size);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (stress_mmap_check(buf, sz, page_size) < 0)
+			if (stress_mmap_check_light(buf, sz, page_size) < 0)
 				pr_fail("%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", args->name, sz);
 		}
@@ -700,8 +700,8 @@ retry:
 						page_size, page_size, context->mmap_mprotect);
 					mapped[page] = PAGE_MAPPED;
 					/* Ensure we can write to the mapped page */
-					stress_mmap_set(mappings[page], page_size, page_size);
-					if (stress_mmap_check(mappings[page], page_size, page_size) < 0)
+					stress_mmap_set_light(mappings[page], page_size, page_size);
+					if (stress_mmap_check_light(mappings[page], page_size, page_size) < 0)
 						pr_fail("%s: mmap'd region of %zu bytes does "
 							"not contain expected data\n", args->name, page_size);
 					if (mmap_file) {
