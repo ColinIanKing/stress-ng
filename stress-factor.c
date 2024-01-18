@@ -34,7 +34,7 @@ static int stress_set_factor_digits(const char *opt)
 	size_t factor_digits;
 
 	factor_digits = (size_t)stress_get_int32(opt);
-	stress_check_range("factor-digits", (uint64_t)factor_digits, 8, 1000000);
+	stress_check_range("factor-digits", (uint64_t)factor_digits, 8, 100000000);
 	return stress_set_setting("factor-digits", TYPE_ID_SIZE_T, &factor_digits);
 }
 
