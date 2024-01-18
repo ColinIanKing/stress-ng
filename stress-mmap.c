@@ -395,15 +395,22 @@ static void stress_mmap_invalid(
 /*
  *  stress_mmap_index_shuffle()
  *	single pass shuffle to mix up page mapping orders
+ *
+ *      note: for a perfectly fair random distribution we should be
+ *	using stress_mwc*modn_maybe_pwr2() however this is an expensive
+ *	operation for cases where n is not a power of 2 which is quite
+ *	likely when running on systems with non-power of 2 instances.
+ *	Using stress_mwc*() is much faster and is good enough for this
+ *	kind of random-ish fast and dirty shuffle operation.
  */
 static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
 {
-	size_t i;
+	register size_t i;
 
 	if (LIKELY(n <= 0xffffffff)) {
 		/* small index < 4GB of items we can use 32bit mod */
 		for (i = 0; i < n; i++) {
-			register size_t tmp, j = (size_t)stress_mwc32modn_maybe_pwr2(n);
+			register size_t tmp, j = (size_t)stress_mwc32() % n;
 
 			tmp = index[i];
 			index[i] = index[j];
@@ -411,7 +418,7 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
 		}
 	} else {
 		for (i = 0; i < n; i++) {
-			register size_t tmp, j = (size_t)stress_mwc64modn_maybe_pwr2(n);
+			register size_t tmp, j = (size_t)stress_mwc64 % n;
 
 			tmp = index[i];
 			index[i] = index[j];
