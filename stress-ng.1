@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "9 December 2023"
+.TH STRESS-NG 1 "18 January 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4239,6 +4239,13 @@ stop mmap stress workers after N bogo operations.
 .B \-\-mmap\-osync
 enable file based memory mapping and used O_SYNC synchronous I/O
 integrity completion.
+.TP
+.B \-\-mmap\-write\-check
+write into each page a unique 64 bit check value for all pages and
+then read the value for a sanity check. This will force newly memory mapped
+pages to be faulted-in which slows down mmap bogo-op rate. This can also
+cause lock contention on page allocation and page unmapping on systems
+with many CPU threads and with cgroup memory accounting.
 .RE
 .TP
 .B Random memory map/unmap stressor

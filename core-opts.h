@@ -768,6 +768,7 @@ typedef enum {
 	OPT_mmap_odirect,
 	OPT_mmap_ops,
 	OPT_mmap_osync,
+	OPT_mmap_write_check,
 
 	OPT_mmapaddr,
 	OPT_mmapaddr_mlock,

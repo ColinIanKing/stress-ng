@@ -509,6 +509,7 @@ const struct option stress_long_options[] = {
 	{ "mmap-mergeable",	0,	0,	OPT_mmap_mergeable },
 	{ "mmap-mlock",		0,	0,	OPT_mmap_mlock },
 	{ "mmap-mmap2",		0,	0,	OPT_mmap_mmap2 },
+	{ "mmap-write-check",	0,	0,	OPT_mmap_write_check },
 	{ "mmapaddr",		1,	0,	OPT_mmapaddr },
 	{ "mmapaddr-mlock",	0,	0,	OPT_mmapaddr_mlock },
 	{ "mmapaddr-ops",	1,	0,	OPT_mmapaddr_ops },

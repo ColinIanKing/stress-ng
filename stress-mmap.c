@@ -38,19 +38,20 @@
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
 static const stress_help_t help[] = {
-	{ NULL,	"mmap N",	 "start N workers stressing mmap and munmap" },
-	{ NULL,	"mmap-async",	 "using asynchronous msyncs for file based mmap" },
-	{ NULL,	"mmap-bytes N",	 "mmap and munmap N bytes for each stress iteration" },
-	{ NULL,	"mmap-file",	 "mmap onto a file using synchronous msyncs" },
-	{ NULL, "mmap-madvise",	 "enable random madvise on mmap'd region" },
-	{ NULL,	"mmap-mergeable","where possible, flag mmap'd pages as mergeable" },
-	{ NULL,	"mmap-mlock",	 "attempt to mlock mmap'd pages" },
-	{ NULL,	"mmap-mmap2",	 "use mmap2 instead of mmap (when available)" },
-	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
-	{ NULL, "mmap-odirect",	 "enable O_DIRECT on file" },
-	{ NULL,	"mmap-ops N",	 "stop after N mmap bogo operations" },
-	{ NULL, "mmap-osync",	 "enable O_SYNC on file" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	"mmap N",	     "start N workers stressing mmap and munmap" },
+	{ NULL,	"mmap-async",	     "using asynchronous msyncs for file based mmap" },
+	{ NULL,	"mmap-bytes N",	     "mmap and munmap N bytes for each stress iteration" },
+	{ NULL,	"mmap-file",	     "mmap onto a file using synchronous msyncs" },
+	{ NULL, "mmap-madvise",	     "enable random madvise on mmap'd region" },
+	{ NULL,	"mmap-mergeable",    "where possible, flag mmap'd pages as mergeable" },
+	{ NULL,	"mmap-mlock",	     "attempt to mlock mmap'd pages" },
+	{ NULL,	"mmap-mmap2",	     "use mmap2 instead of mmap (when available)" },
+	{ NULL,	"mmap-mprotect",     "enable mmap mprotect stressing" },
+	{ NULL, "mmap-odirect",	     "enable O_DIRECT on file" },
+	{ NULL,	"mmap-ops N",	     "stop after N mmap bogo operations" },
+	{ NULL, "mmap-osync",	    "enable O_SYNC on file" },
+	{ NULL,	"mmap-write-check", "set check value in each page and perform sanity read check" },
+	{ NULL,	NULL,		     NULL }
 };
 
 typedef void * (*mmap_func_t)(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
@@ -66,6 +67,7 @@ typedef struct {
 	bool mmap_mergeable;
 	bool mmap_mlock;
 	bool mmap_mprotect;
+	bool mmap_write_check;
 	mmap_func_t mmap;
 	size_t mmap_prot_count;
 	int *mmap_prot_perms;
@@ -291,6 +293,11 @@ static int stress_set_mmap_mlock(const char *opt)
 static int stress_set_mmap_mmap2(const char *opt)
 {
 	return stress_set_setting_true("mmap-mmap2", opt);
+}
+
+static int stress_set_mmap_write_check(const char *opt)
+{
+	return stress_set_setting_true("mmap-write-check", opt);
 }
 
 /*
@@ -612,11 +619,13 @@ retry:
 		}
 
 		/* Ensure we can write to the mapped pages */
-		stress_mmap_set_light(buf, sz, page_size);
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (stress_mmap_check_light(buf, sz, page_size) < 0)
-				pr_fail("%s: mmap'd region of %zu bytes does "
-					"not contain expected data\n", args->name, sz);
+		if (context->mmap_write_check) {
+			stress_mmap_set_light(buf, sz, page_size);
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				if (stress_mmap_check_light(buf, sz, page_size) < 0)
+					pr_fail("%s: mmap'd region of %zu bytes does "
+						"not contain expected data\n", args->name, sz);
+			}
 		}
 
 		/*
@@ -711,10 +720,12 @@ retry:
 						page_size, page_size, context->mmap_mprotect);
 					mapped[page] = PAGE_MAPPED;
 					/* Ensure we can write to the mapped page */
-					stress_mmap_set_light(mappings[page], page_size, page_size);
-					if (stress_mmap_check_light(mappings[page], page_size, page_size) < 0)
-						pr_fail("%s: mmap'd region of %zu bytes does "
-							"not contain expected data\n", args->name, page_size);
+					if (context->mmap_write_check) {
+						stress_mmap_set_light(mappings[page], page_size, page_size);
+						if (stress_mmap_check_light(mappings[page], page_size, page_size) < 0)
+							pr_fail("%s: mmap'd region of %zu bytes does "
+								"not contain expected data\n", args->name, page_size);
+					}
 					if (mmap_file) {
 						(void)shim_memset(mappings[page], (int)n, page_size);
 						(void)shim_msync((void *)mappings[page], page_size, ms_flags);
@@ -925,6 +936,7 @@ static int stress_mmap(stress_args_t *args)
 	(void)stress_get_setting("mmap-mlock", &context.mmap_mlock);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
 	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
+	(void)stress_get_setting("mmap-write-check", &context.mmap_write_check);
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
 		all_flags |= mmap_prot[i];
@@ -1064,6 +1076,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
 	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
 	{ OPT_mmap_osync,	stress_set_mmap_osync },
+	{ OPT_mmap_write_check,	stress_set_mmap_write_check },
 	{ 0,			NULL }
 };
 
