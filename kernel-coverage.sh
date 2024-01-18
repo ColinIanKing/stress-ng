@@ -540,13 +540,15 @@ do_stress --memrate -1 --memrate-flush
 
 do_stress --mincore -1 --mincore-random
 
-do_stress --mmap -1 --mmap-file
-do_stress --mmap -1 --mmap-mprotect
 do_stress --mmap -1 --mmap-async
+do_stress --mmap -1 --mmap-file
+do_stress --mmap -1 --mmap-madvise
+do_stress --mmap -1 --mmap-mergeable
+do_stress --mmap -1 --mmap-mlock
+do_stress --mmap -1 --mmap-mprotect
 do_stress --mmap -1 --mmap-odirect
 do_stress --mmap -1 --mmap-osync
 do_stress --mmap -1 --mmap-mmap2
-do_stress --mmap -1 --mmap-mlock
 do_stress --mmap -1 --thrash
 
 do_stress --mmapaddr -1 --mmapaddr-mlock
