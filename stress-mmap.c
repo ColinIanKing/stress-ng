@@ -45,6 +45,7 @@ static const stress_help_t help[] = {
 	{ NULL, "mmap-madvise",	 "enable random madvise on mmap'd region" },
 	{ NULL,	"mmap-mergeable","where possible, flag mmap'd pages as mergeable" },
 	{ NULL,	"mmap-mlock",	 "attempt to mlock mmap'd pages" },
+	{ NULL,	"mmap-mmap2",	 "use mmap2 instead of mmap (when available)" },
 	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
 	{ NULL, "mmap-odirect",	 "enable O_DIRECT on file" },
 	{ NULL,	"mmap-ops N",	 "stop after N mmap bogo operations" },
