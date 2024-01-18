@@ -501,6 +501,7 @@ const struct option stress_long_options[] = {
 	{ "mmap-async",		0,	0,	OPT_mmap_async },
 	{ "mmap-bytes",		1,	0,	OPT_mmap_bytes },
 	{ "mmap-file",		0,	0,	OPT_mmap_file },
+	{ "mmap-madvise",	0,	0,	OPT_mmap_madvise },
 	{ "mmap-mprotect",	0,	0,	OPT_mmap_mprotect },
 	{ "mmap-odirect",	0,	0,	OPT_mmap_odirect },
 	{ "mmap-ops",		1,	0,	OPT_mmap_ops },
