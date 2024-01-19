@@ -341,74 +341,25 @@ HOT OPTIMIZE3 uint8_t stress_mwc1(void)
  *  stress_mwc8modn()
  *	see https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
  *	return 8 bit non-modulo biased value 1..max (inclusive)
- *	with no non-zero max check
- */
-HOT OPTIMIZE3 static uint8_t stress_mwc8modn_nonzero(const uint8_t max)
-{
-	register uint8_t threshold;
-	register uint8_t val;
-
-#if defined(HAVE_BUILTIN_CLZ)
-	threshold = max << (__builtin_clz((uint32_t)max) - 24);
-#else
-	threshold = max;
-	while (threshold < 0x80U) {
-		threshold <<= 1;
-	}
-#endif
-	do {
-		val = stress_mwc8();
-	} while (val >= threshold);
-
-	return val % max;
-}
-
-/*
- *  stress_mwc8modn()
- *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
 HOT OPTIMIZE3 uint8_t stress_mwc8modn(const uint8_t max)
 {
-	return (LIKELY(max > 0)) ? stress_mwc8modn_nonzero(max) : 0;
-}
+	register uint8_t lim, val;
 
-/*
- *  stress_mwc8modn()
- *	return 8 bit non-modulo biased value 1..max (inclusive)
- *	where max is potentially a power of 2
- */
-HOT OPTIMIZE3 uint8_t stress_mwc8modn_maybe_pwr2(const uint8_t max)
-{
-	register const uint8_t mask = max - 1;
-
-	if (UNLIKELY(max == 0))
+	if (UNLIKELY(max < 2))
 		return 0;
-	return ((max & mask) == 0) ?
-		(stress_mwc8() & mask) : stress_mwc8modn_nonzero(max);
-}
-
-/*
- *  stress_mwc16modn()
- *	return 16 bit non-modulo biased value 1..max (inclusive)
- *	with no non-zero max check
- */
-HOT OPTIMIZE3 static uint16_t stress_mwc16modn_nonzero(const uint16_t max)
-{
-	register uint16_t threshold;
-	register uint16_t val;
-
-#if defined(HAVE_BUILTIN_CLZ)
-	threshold = max << (__builtin_clz((uint32_t)max) - 16);
-#else
-	threshold = max;
-	while (threshold < 0x8000U) {
-		threshold <<= 1;
-	}
-#endif
+	/*
+	 * -max % max == ((2^8) - max) % max)
+	 *	      == (2^8) % max
+	 * and lim ends up being relatively large
+	 * compared to 2^8, so it's rare we need
+	 * to loop many times to satisfy val < lim
+	 */
+	lim = -max % max;
 	do {
-		val = stress_mwc16();
-	} while (val >= threshold);
+		val = stress_mwc8();
+	} while (val < lim);
 
 	return val % max;
 }
@@ -420,45 +371,21 @@ HOT OPTIMIZE3 static uint16_t stress_mwc16modn_nonzero(const uint16_t max)
  */
 HOT OPTIMIZE3 uint16_t stress_mwc16modn(const uint16_t max)
 {
-	return (LIKELY(max > 0)) ? stress_mwc16modn_nonzero(max) : 0;
-}
+	register uint16_t lim, val;
 
-/*
- *  stress_mwc16modn()
- *	return 16 bit non-modulo biased value 1..max (inclusive)
- *	where max is potentially a power of 2
- */
-HOT OPTIMIZE3 uint16_t stress_mwc16modn_maybe_pwr2(const uint16_t max)
-{
-	register const uint16_t mask = max - 1;
-
-	if (UNLIKELY(max == 0))
+	if (UNLIKELY(max < 2))
 		return 0;
-	return ((max & mask) == 0) ?
-		(stress_mwc16() & mask) : stress_mwc16modn_nonzero(max);
-}
-
-/*
- *  stress_mwc32modn()
- *	return 32 bit non-modulo biased value 1..max (inclusive)
- *	with no non-zero max check
- */
-HOT OPTIMIZE3 static uint32_t stress_mwc32modn_nonzero(const uint32_t max)
-{
-	register uint32_t threshold;
-	register uint32_t val;
-
-#if defined(HAVE_BUILTIN_CLZ)
-	threshold = max << __builtin_clz(max);
-#else
-	threshold = max;
-	while (threshold < 0x80000000UL) {
-		threshold <<= 1;
-	}
-#endif
+	/*
+	 * -max % max == ((2^16) - max) % max)
+	 *	      == (2^16) % max
+	 * and lim ends up being relatively large
+	 * compared to 2^16, so it's rare we need
+	 * to loop many times to satisfy val < lim
+	 */
+	lim = -max % max;
 	do {
-		val = stress_mwc32();
-	} while (val >= threshold);
+		val = stress_mwc16();
+	} while (val < lim);
 
 	return val % max;
 }
@@ -466,49 +393,25 @@ HOT OPTIMIZE3 static uint32_t stress_mwc32modn_nonzero(const uint32_t max)
 /*
  *  stress_mwc32modn()
  *	return 32 bit non-modulo biased value 1..max (inclusive)
- *	where max is most probably not a power of 2
+ *	with no non-zero max check
  */
 HOT OPTIMIZE3 uint32_t stress_mwc32modn(const uint32_t max)
 {
-	return (LIKELY(max > 0)) ? stress_mwc32modn_nonzero(max) : 0;
-}
+	register uint32_t lim, val;
 
-/*
- *  stress_mwc32modn()
- *	return 32 bit non-modulo biased value 1..max (inclusive)
- *	where max is potentially a power of 2
- */
-HOT OPTIMIZE3 uint32_t stress_mwc32modn_maybe_pwr2(const uint32_t max)
-{
-	register const uint32_t mask = max - 1;
-
-	if (UNLIKELY(max == 0))
+	if (UNLIKELY(max < 2))
 		return 0;
-	return ((max & mask) == 0) ?
-		(stress_mwc32() & mask) : stress_mwc32modn_nonzero(max);
-}
-
-/*
- *  stress_mwc64modn()
- *	return 64 bit non-modulo biased value 1..max (inclusive)
- *	with no non-zero max check
- */
-HOT OPTIMIZE3 static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
-{
-	register uint64_t threshold;
-	register uint64_t val;
-
-#if defined(HAVE_BUILTIN_CLZLL)
-	threshold = max << __builtin_clzll(max);
-#else
-	threshold = max;
-	while (threshold < 0x8000000000000000ULL) {
-		threshold <<= 1;
-	}
-#endif
+	/*
+	 * -max % max == ((2^32) - max) % max)
+	 *	      == (2^32) % max
+	 * and lim ends up being relatively large
+	 * compared to 2^32, so it's rare we need
+	 * to loop many times to satisfy val < lim
+	 */
+	lim = -max % max;
 	do {
-		val = stress_mwc64();
-	} while (val >= threshold);
+		val = stress_mwc32();
+	} while (val < lim);
 
 	return val % max;
 }
@@ -516,26 +419,27 @@ HOT OPTIMIZE3 static uint64_t stress_mwc64modn_nonzero(const uint64_t max)
 /*
  *  stress_mwc64modn()
  *	return 64 bit non-modulo biased value 1..max (inclusive)
- *	where max is most probably not a power of 2
+ *	with no non-zero max check
  */
 HOT OPTIMIZE3 uint64_t stress_mwc64modn(const uint64_t max)
 {
-	return (LIKELY(max > 0)) ? stress_mwc64modn_nonzero(max) : 0;
-}
+	register uint64_t lim, val;
 
-/*
- *  stress_mwc64modn_maybe_pwr2()
- *	return 64 bit non-modulo biased value 1..max (inclusive)
- *	where max is potentially a power of 2
- */
-HOT OPTIMIZE3 uint64_t stress_mwc64modn_maybe_pwr2(const uint64_t max)
-{
-	register const uint64_t mask = max - 1;
-
-	if (UNLIKELY(max == 0))
+	if (UNLIKELY(max < 2))
 		return 0;
-	return ((max & mask) == 0) ?
-		(stress_mwc64() & mask) : stress_mwc64modn_nonzero(max);
+	/*
+	 * -max % max == ((2^64) - max) % max)
+	 *	      == (2^64) % max
+	 * and lim ends up being relatively large
+	 * compared to 2^64, so it's rare we need
+	 * to loop many times to satisfy val < lim
+	 */
+	lim = -max % max;
+	do {
+		val = stress_mwc64();
+	} while (val < lim);
+
+	return val % max;
 }
 
 /*

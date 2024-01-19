@@ -300,7 +300,7 @@ static int stress_acl_setup(
 
 		for (i = 0; i < n; i++) {
 			register acl_t tmp;
-			register size_t j = (size_t)stress_mwc32modn_maybe_pwr2(n);
+			register size_t j = (size_t)stress_mwc32modn(n);
 
 			tmp = acls[i];
 			acls[i] = acls[j];

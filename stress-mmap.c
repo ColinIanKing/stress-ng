@@ -397,7 +397,7 @@ static void stress_mmap_invalid(
  *	single pass shuffle to mix up page mapping orders
  *
  *      note: for a perfectly fair random distribution we should be
- *	using stress_mwc*modn_maybe_pwr2() however this is an expensive
+ *	using stress_mwc*modn2() however this is an expensive
  *	operation for cases where n is not a power of 2 which is quite
  *	likely when running on systems with non-power of 2 instances.
  *	Using stress_mwc*() is much faster and is good enough for this
