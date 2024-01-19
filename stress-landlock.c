@@ -35,34 +35,120 @@ static const stress_help_t help[] = {
 };
 #define SHIM_LANDLOCK_CREATE_RULESET_VERSION	(1U << 0)
 
+/* cater for older headers that may not have latest landlock #defines */
+#if defined(LANDLOCK_ACCESS_FS_EXECUTE)
+#define SHIM_LANDLOCK_ACCESS_FS_EXECUTE		(LANDLOCK_ACCESS_FS_EXECUTE)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_EXECUTE		(1ULL << 0)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_WRITE_FILE)
+#define SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE	(LANDLOCK_ACCESS_FS_WRITE_FILE)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE	(1ULL << 1)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_READ_FILE)
+#define SHIM_LANDLOCK_ACCESS_FS_READ_FILE	(LANDLOCK_ACCESS_FS_READ_FILE)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_READ_FILE	(1ULL << 2)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_READ_DIR)
+#define SHIM_LANDLOCK_ACCESS_FS_READ_DIR	(LANDLOCK_ACCESS_FS_READ_DIR)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_READ_DIR	(1ULL << 3)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_REMOVE_DIR)
+#define SHIM_LANDLOCK_ACCESS_FS_REMOVE_DIR	(LANDLOCK_ACCESS_FS_REMOVE_DIR)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_REMOVE_DIR	(1ULL << 4)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_REMOVE_FILE)
+#define SHIM_LANDLOCK_ACCESS_FS_REMOVE_FILE	(LANDLOCK_ACCESS_FS_REMOVE_FILE)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_REMOVE_FILE	(1ULL << 5)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_CHAR)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_CHAR	(LANDLOCK_ACCESS_FS_MAKE_CHAR)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_CHAR	(1ULL << 6)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_DIR)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_DIR	(LANDLOCK_ACCESS_FS_MAKE_DIR)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_DIR	(1ULL << 7)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_REG)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_REG	(LANDLOCK_ACCESS_FS_MAKE_REG)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_REG	(1ULL << 8)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_SOCK)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_SOCK	(LANDLOCK_ACCESS_FS_MAKE_SOCK)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_SOCK	(1ULL << 9)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_FIFO)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO	(LANDLOCK_ACCESS_FS_MAKE_FIFO)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO	(1ULL << 10)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_BLOCK)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK	(LANDLOCK_ACCESS_FS_MAKE_BLOCK)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK	(1ULL << 11)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_MAKE_SYM)
+#define SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM 	(LANDLOCK_ACCESS_FS_MAKE_SYM)
+#else
 #define SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM	(1ULL << 12)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_REFER)
+#define SHIM_LANDLOCK_ACCESS_FS_REFER		(LANDLOCK_ACCESS_FS_REFER)
+#else
+#define SHIM_LANDLOCK_ACCESS_FS_REFER		(1ULL << 13)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_TRUNCATE)
+#define SHIM_LANDLOCK_ACCESS_FS_TRUNCATE	(LANDLOCK_ACCESS_FS_TRUNCATE)
+#else
+#define SHIM_LANDLOCK_ACCESS_FS_TRUNCATE	(1ULL << 14)
+#endif
+
+#if defined(LANDLOCK_ACCESS_FS_IOCTL)
+#define SHIM_LANDLOCK_ACCESS_FS_IOCTL		(LANDLOCK_ACCESS_FS_IOCTL)
+#else
+#define SHIM_LANDLOCK_ACCESS_FS_IOCTL		(1ULL << 15)
+#endif
 
 #define SHIM_LANDLOCK_ACCESS_ALL		\
-	SHIM_LANDLOCK_ACCESS_FS_EXECUTE |	\
-	SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE |	\
-	SHIM_LANDLOCK_ACCESS_FS_READ_FILE |	\
-	SHIM_LANDLOCK_ACCESS_FS_READ_DIR |	\
-	SHIM_LANDLOCK_ACCESS_FS_REMOVE_DIR |	\
-	SHIM_LANDLOCK_ACCESS_FS_REMOVE_FILE |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_CHAR |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_DIR |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_REG |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_SOCK |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK |	\
-	SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM;	\
+	(SHIM_LANDLOCK_ACCESS_FS_EXECUTE |	\
+	 SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE |	\
+	 SHIM_LANDLOCK_ACCESS_FS_READ_FILE |	\
+	 SHIM_LANDLOCK_ACCESS_FS_READ_DIR |	\
+	 SHIM_LANDLOCK_ACCESS_FS_REMOVE_DIR |	\
+	 SHIM_LANDLOCK_ACCESS_FS_REMOVE_FILE |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_CHAR |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_DIR |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_REG |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_SOCK |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK |	\
+	 SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM |	\
+	 SHIM_LANDLOCK_ACCESS_FS_REFER |	\
+	 SHIM_LANDLOCK_ACCESS_FS_TRUNCATE |	\
+	 SHIM_LANDLOCK_ACCESS_FS_IOCTL)
 
 #if defined(HAVE_LINUX_LANDLOCK_H) &&		\
     defined(HAVE_LANDLOCK_RULE_TYPE) &&		\
@@ -73,6 +159,7 @@ static const stress_help_t help[] = {
     defined(__NR_landlock_add_rule)
 
 typedef struct {
+	uint64_t mask;
 	uint32_t flag;
 	char filename[PATH_MAX];
 	const char *path;
@@ -163,7 +250,11 @@ static int stress_landlock_filter(const struct dirent *d)
  *   	recursively apply landlock to as many files as possible to consume
  *   	landlock resources.
  */
-static void stress_landlock_many(stress_args_t *args, const char *path, const int depth)
+static void stress_landlock_many(
+	stress_args_t *args,
+	stress_landlock_ctxt_t *ctxt,
+	const char *path,
+	const int depth)
 {
 	struct dirent **namelist = NULL;
 	int i, n;
@@ -172,7 +263,8 @@ static void stress_landlock_many(stress_args_t *args, const char *path, const in
 	struct landlock_ruleset_attr ruleset_attr;
 
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
-	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_ALL;
+
+	ruleset_attr.handled_access_fs = ctxt->mask;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
 		if (errno != ENOSYS)
@@ -212,7 +304,7 @@ static void stress_landlock_many(stress_args_t *args, const char *path, const in
 				break;
 			case DT_DIR:
 				if (depth < 30)
-					stress_landlock_many(args, resolved, depth + 1);
+					stress_landlock_many(args, ctxt, resolved, depth + 1);
 				break;
 			default:
 				break;
@@ -226,6 +318,28 @@ next:
 
 close_ruleset:
 	(void)close(ruleset_fd);
+}
+
+static uint64_t stress_landlock_get_access_mask(void)
+{
+	struct landlock_ruleset_attr ruleset_attr;
+	int i;
+	uint64_t mask;
+
+	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
+	for (mask = 0, i = 0; i < 64; i++) {
+		int ruleset_fd;
+
+		ruleset_attr.handled_access_fs = 1U << i;
+		if ((ruleset_attr.handled_access_fs & SHIM_LANDLOCK_ACCESS_ALL)) {
+			ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+			if (ruleset_fd >= 0) {
+				mask |= (1U << i);
+				(void)close(ruleset_fd);
+			}
+		}
+	}
+	return mask;
 }
 
 static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctxt)
@@ -242,8 +356,7 @@ static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctx
 	/* Exercise fetch of ruleset API version, ignore return */
 	VOID_RET(int, shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION));
 
-	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
-	ruleset_attr.handled_access_fs = SHIM_LANDLOCK_ACCESS_ALL;
+	ruleset_attr.handled_access_fs = ctxt->mask;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
 		pr_inf("%s: landlock_create_ruleset failed, errno=%d (%s), handled_access_fs = 0x%" PRIx64 "\n",
@@ -358,6 +471,9 @@ static int stress_landlock(stress_args_t *args)
 		SHIM_LANDLOCK_ACCESS_FS_MAKE_FIFO,
 		SHIM_LANDLOCK_ACCESS_FS_MAKE_BLOCK,
 		SHIM_LANDLOCK_ACCESS_FS_MAKE_SYM,
+		SHIM_LANDLOCK_ACCESS_FS_REFER,
+		SHIM_LANDLOCK_ACCESS_FS_TRUNCATE,
+		SHIM_LANDLOCK_ACCESS_FS_IOCTL,
 		0,
 	};
 	stress_landlock_ctxt_t ctxt;
@@ -368,6 +484,12 @@ static int stress_landlock(stress_args_t *args)
 	(void)snprintf(ctxt.filename, sizeof(ctxt.filename), "%s/landlock-%" PRIdMAX,
 			ctxt.path, (intmax_t)getpid());
 
+	ctxt.mask = stress_landlock_get_access_mask();
+	if (ctxt.mask == 0) {
+		pr_inf_skip("%s: cannot determine usable landlock access flags, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
 again:
 	pid_many = fork();
 	if (pid_many < 0) {
@@ -375,7 +497,7 @@ again:
 			goto again;
 	} else if (pid_many == 0) {
 		do {
-			stress_landlock_many(args, "/", 0);
+			stress_landlock_many(args, &ctxt, "/", 0);
 		} while (stress_continue(args));
 		_exit(0);
 	}
