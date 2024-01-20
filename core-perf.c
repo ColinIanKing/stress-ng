@@ -288,6 +288,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("sched/sched_process_hang",	"Sched Proc Hang"),
 	PERF_INFO_TP("sched/sched_process_wait",	"Sched Proc Wait"),
 	PERF_INFO_TP("sched/sched_switch",		"Sched Switch"),
+	PERF_INFO_TP("sched/sched_wait_task",		"Sched Wait Task"),
 
 	PERF_INFO_TP("task/task_newtask",		"New Task"),
 	PERF_INFO_TP("context_tracking/user_enter",	"Context User Enter"),
@@ -305,6 +306,13 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("ipi/ipi_entry",			"IPI Entry"),
 	PERF_INFO_TP("ipi/ipi_send_cpu",		"IPI Send CPU"),
 	PERF_INFO_TP("ipi/ipi_exit",			"IPI Exit"),
+
+	PERF_INFO_TP("irq_vectors/x86_platform_ipi_entry", "x86 Platform IPI Entry"),
+	PERF_INFO_TP("irq_vectors/call_function_entry", "Call Function Entry"),
+	PERF_INFO_TP("irq_vectors/irq_work_entry",	"IRQ Work Entry"),
+	PERF_INFO_TP("irq_vectors/local_timer_entry",	"Local Timer Entry"),
+	PERF_INFO_TP("irq_vectors/reschedule_entry",	"Reschedule Entry"),
+	PERF_INFO_TP("irq_vectors/thermal_apic_entry",	"Thermal APIC Entry"),
 
 	PERF_INFO_TP("block/block_bio_complete",	"Block BIO Complete"),
 #if 1
@@ -329,6 +337,9 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("maple_tree/ma_read",		"Maple Tree Read"),
 	PERF_INFO_TP("maple_tree/ma_write",		"Maple Tree Write"),
+
+	PERF_INFO_TP("qdisc/qdisc_enqueue",		"Qdisc Enqueue"),
+	PERF_INFO_TP("qdisc/qdisc_dequeue",		"Qdisc Dequeue"),
 
 	PERF_INFO_TP("msr/read_msr",			"MSR read"),
 	PERF_INFO_TP("msr/write_msr",			"MSR write"),
