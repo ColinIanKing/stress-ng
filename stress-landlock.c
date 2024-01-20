@@ -511,22 +511,27 @@ again:
 
 		/* Exercise with a mix of valid and invalid flags */
 		for (i = 0; i < SIZEOF_ARRAY(landlock_access_flags); i++) {
-			ctxt.flag |= (uint32_t)landlock_access_flags[i];
-			stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
-			if (failures >= 5)
-				goto err;
+			if (landlock_access_flags[i] & ctxt.mask) {
+				ctxt.flag |= (uint32_t)landlock_access_flags[i];
+				stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
+				if (failures >= 5)
+					goto err;
+			}
 		}
 		for (i = 0; i < SIZEOF_ARRAY(landlock_access_flags); i++) {
-			ctxt.flag = (uint32_t)landlock_access_flags[i];
+			if (landlock_access_flags[i] & ctxt.mask) {
+				ctxt.flag = (uint32_t)landlock_access_flags[i];
+				stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
+				if (failures >= 5)
+					goto err;
+			}
+		}
+		ctxt.flag = ~ctxt.flag;
+		if (ctxt.flag & ctxt.mask) {
 			stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
 			if (failures >= 5)
 				goto err;
 		}
-		ctxt.flag = ~ctxt.flag;
-		stress_landlock_test(args, stress_landlock_flag, &ctxt, &failures);
-		if (failures >= 5)
-			goto err;
-
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
