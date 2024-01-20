@@ -158,7 +158,7 @@ char *stress_shared_heap_dup_const(const char *str)
 	if (!heap_str)
 		return NULL;
 
-	(void)shim_strlcpy(heap_str->str, str, str_len);
+	(void)shim_strscpy(heap_str->str, str, str_len);
 	heap_str->next = NULL;
 
 	/*

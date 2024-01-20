@@ -497,7 +497,7 @@ static int stress_rawpkt(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	(void)shim_memset(&hwaddr, 0, sizeof(hwaddr));
-	(void)shim_strlcpy(hwaddr.ifr_name, "lo", sizeof(hwaddr.ifr_name));
+	(void)shim_strscpy(hwaddr.ifr_name, "lo", sizeof(hwaddr.ifr_name));
 	if (ioctl(fd, SIOCGIFHWADDR, &hwaddr) < 0) {
 		pr_fail("%s: ioctl SIOCGIFHWADDR on lo failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -506,7 +506,7 @@ static int stress_rawpkt(stress_args_t *args)
 	}
 
 	(void)shim_memset(&ifaddr, 0, sizeof(ifaddr));
-	(void)shim_strlcpy(ifaddr.ifr_name, "lo", sizeof(ifaddr.ifr_name));
+	(void)shim_strscpy(ifaddr.ifr_name, "lo", sizeof(ifaddr.ifr_name));
 	if (ioctl(fd, SIOCGIFADDR, &ifaddr) < 0) {
 		pr_fail("%s: ioctl SIOCGIFADDR on lo failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -515,7 +515,7 @@ static int stress_rawpkt(stress_args_t *args)
 	}
 
 	(void)shim_memset(&idx, 0, sizeof(idx));
-	(void)shim_strlcpy(idx.ifr_name, "lo", sizeof(idx.ifr_name));
+	(void)shim_strscpy(idx.ifr_name, "lo", sizeof(idx.ifr_name));
 	if (ioctl(fd, SIOCGIFINDEX, &idx) < 0) {
 		pr_fail("%s: ioctl SIOCGIFINDEX on lo failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

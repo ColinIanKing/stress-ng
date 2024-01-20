@@ -319,7 +319,7 @@ extern int shim_ioprio_set(int which, int who, int ioprio);
 extern int shim_ioprio_get(int which, int who);
 extern int shim_brk(void *addr);
 extern void *shim_sbrk(intptr_t increment);
-extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
+extern ssize_t shim_strscpy(char *dst, const char *src, size_t len);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);
 extern int shim_fsync(int fd);
 extern int shim_fdatasync(int fd);

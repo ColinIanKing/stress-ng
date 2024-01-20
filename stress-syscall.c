@@ -653,7 +653,7 @@ static int syscall_socket_measure(const int measure)
 			if (ret < 0)
 				syscall_shared_error(ret);
 		}
-		(void)shim_strlcpy(buffer, "senddata", sizeof(buffer));
+		(void)shim_strscpy(buffer, "senddata", sizeof(buffer));
 		switch (measure) {
 		case SOCK_MEASURE_SEND:
 			syscall_shared_info->t1 = syscall_time_now();

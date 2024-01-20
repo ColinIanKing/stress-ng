@@ -362,7 +362,7 @@ static int stress_filename(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	(void)shim_strlcpy(filename, pathname, sizeof(filename) - 1);
+	(void)shim_strscpy(filename, pathname, sizeof(filename) - 1);
 	ptr = filename + strlen(pathname);
 	*(ptr++) = '/';
 	*(ptr) = '\0';
@@ -394,7 +394,7 @@ static int stress_filename(stress_args_t *args)
 
 	switch (filename_opt) {
 	case STRESS_FILENAME_POSIX:
-		(void)shim_strlcpy(allowed, posix_allowed, sizeof(allowed));
+		(void)shim_strscpy(allowed, posix_allowed, sizeof(allowed));
 		chars_allowed = strlen(allowed);
 		break;
 	case STRESS_FILENAME_EXT:

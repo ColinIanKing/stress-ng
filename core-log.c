@@ -115,7 +115,7 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 				return;
 			}
 			pr_msg_buf.buf = new_buf;
-			shim_strlcpy(pr_msg_buf.buf + len, buf, len + buf_len + 1);
+			shim_strscpy(pr_msg_buf.buf + len, buf, len + buf_len + 1);
 		}
 		return;
 	}

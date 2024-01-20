@@ -195,7 +195,7 @@ static int stress_shm_posix_child(
 			(void)shim_memset(&msg, 0, sizeof(msg));
 			msg.index = i;
 			shm_name[SHM_NAME_LEN - 1] = '\0';
-			(void)shim_strlcpy(msg.shm_name, shm_name, SHM_NAME_LEN);
+			(void)shim_strscpy(msg.shm_name, shm_name, SHM_NAME_LEN);
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 				pr_err("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
@@ -335,7 +335,7 @@ reap:
 			/* Inform parent shm ID is now free */
 			msg.index = i;
 			msg.shm_name[SHM_NAME_LEN - 1] = '\0';
-			(void)shim_strlcpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
+			(void)shim_strscpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
 			if (UNLIKELY(write(fd, &msg, sizeof(msg)) < 0)) {
 				pr_dbg("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
@@ -348,7 +348,7 @@ reap:
 
 	/* Inform parent of end of run */
 	msg.index = -1;
-	(void)shim_strlcpy(msg.shm_name, "", SHM_NAME_LEN);
+	(void)shim_strscpy(msg.shm_name, "", SHM_NAME_LEN);
 	if (write(fd, &msg, sizeof(msg)) < 0) {
 		pr_err("%s: write failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -480,7 +480,7 @@ again:
 
 				shm_name = &shm_names[msg.index * SHM_NAME_LEN];
 				msg.shm_name[SHM_NAME_LEN - 1] = '\0';
-				(void)shim_strlcpy(shm_name, msg.shm_name, SHM_NAME_LEN);
+				(void)shim_strscpy(shm_name, msg.shm_name, SHM_NAME_LEN);
 			}
 			(void)stress_kill_pid_wait(pid, &status);
 			if (WIFSIGNALED(status)) {

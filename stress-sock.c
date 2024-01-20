@@ -1099,7 +1099,7 @@ static int OPTIMIZE3 stress_sock_server(
 		struct ifreq ifaddr;
 
 		(void)shim_memset(&ifaddr, 0, sizeof(ifaddr));
-		(void)shim_strlcpy(ifaddr.ifr_name, sock_if ? sock_if : "lo", sizeof(ifaddr.ifr_name));
+		(void)shim_strscpy(ifaddr.ifr_name, sock_if ? sock_if : "lo", sizeof(ifaddr.ifr_name));
 		VOID_RET(int, ioctl(fd, SIOCGIFADDR, &ifaddr));
 	}
 #endif

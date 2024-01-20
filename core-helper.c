@@ -595,7 +595,7 @@ size_t stress_mk_filename(
 	 *  be tempted to optimize this, it is not used frequently
 	 *  and is not a CPU bottleneck.
 	 */
-	(void)shim_strlcpy(fullname, pathname, fullname_len);
+	(void)shim_strscpy(fullname, pathname, fullname_len);
 	(void)shim_strlcat(fullname, "/", fullname_len);
 	return shim_strlcat(fullname, filename, fullname_len);
 }
@@ -1321,7 +1321,7 @@ static inline char PURE stress_chr_munge(const char ch)
 
 /*
  *   stress_munge_underscore()
- *	turn '_' to '-' in strings with strlcpy api
+ *	turn '_' to '-' in strings with strscpy api
  */
 size_t stress_munge_underscore(char *dst, const char *src, size_t len)
 {
@@ -3816,7 +3816,7 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	if (!execname)
 		return NULL;
 	/* Need to perform a string copy to deconstify execname */
-	(void)shim_strlcpy(path, execname, path_len);
+	(void)shim_strscpy(path, execname, path_len);
 	return path;
 #else
 	(void)stress_get_proc_self_exe_path;

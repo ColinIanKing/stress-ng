@@ -487,7 +487,7 @@ static int stress_dirdeep(stress_args_t *args)
 		}
 	}
 
-	(void)shim_strlcpy(path, rootpath, sizeof(path));
+	(void)shim_strscpy(path, rootpath, sizeof(path));
 	inodes_estimate = 1;		/* created one for root */
 	inodes_min = inodes_start;
 
@@ -497,14 +497,14 @@ static int stress_dirdeep(stress_args_t *args)
 		inodes_start, &inodes_estimate, &inodes_min, 0);
 
 	do {
-		(void)shim_strlcpy(path, rootpath, sizeof(path));
+		(void)shim_strscpy(path, rootpath, sizeof(path));
 		if (stress_dir_exercise(args, path, path_len, sizeof(path)) < 0)
 			break;
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)shim_strlcpy(path, rootpath, sizeof(path));
+	(void)shim_strscpy(path, rootpath, sizeof(path));
 	stress_dir_tidy(args, path, path_len, sizeof(path), stress_time_now());
 
 	inodes_exercised = (inodes_start == 0) ? inodes_estimate : inodes_start - inodes_min;

@@ -1144,10 +1144,10 @@ static void stress_misaligned_exercised(stress_args_t *args)
 			}
 			str = tmp;
 			if (str_len) {
-				(void)shim_strlcpy(str + str_len, " ", 2);
+				(void)shim_strscpy(str + str_len, " ", 2);
 				str_len++;
 			}
-			(void)shim_strlcpy(str + str_len, info->name, name_len + 1);
+			(void)shim_strscpy(str + str_len, info->name, name_len + 1);
 			str_len += name_len;
 		}
 	}

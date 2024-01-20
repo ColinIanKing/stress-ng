@@ -188,7 +188,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return false;
-		(void)shim_strlcpy(path, ctxt->sysfs_path, sizeof(path));
+		(void)shim_strscpy(path, ctxt->sysfs_path, sizeof(path));
 		counter++;
 		(void)shim_pthread_spin_unlock(&lock);
 		if (counter > OPS_PER_SYSFS_FILE)
@@ -580,7 +580,7 @@ static void stress_sys_dir(
 		if (ret)
 			goto dt_reg_free;
 
-		(void)shim_strlcpy(ctxt->sysfs_path, tmp, sizeof(ctxt->sysfs_path));
+		(void)shim_strscpy(ctxt->sysfs_path, tmp, sizeof(ctxt->sysfs_path));
 		counter = 0;
 		(void)shim_pthread_spin_unlock(&lock);
 
@@ -732,7 +732,7 @@ static int stress_sysfs(stress_args_t *args)
 	}
 
 	(void)shim_memset(ctxt, 0, sizeof(*ctxt));
-	(void)shim_strlcpy(ctxt->sysfs_path, signum_path, sizeof(ctxt->sysfs_path));
+	(void)shim_strscpy(ctxt->sysfs_path, signum_path, sizeof(ctxt->sysfs_path));
 
 	ctxt->args = args;
 	ctxt->kmsgfd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
@@ -851,7 +851,7 @@ again:
 			if (ret) {
 				pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 			} else {
-				(void)shim_strlcpy(ctxt->sysfs_path, "", sizeof(ctxt->sysfs_path));
+				(void)shim_strscpy(ctxt->sysfs_path, "", sizeof(ctxt->sysfs_path));
 				VOID_RET(int, shim_pthread_spin_unlock(&lock));
 			}
 

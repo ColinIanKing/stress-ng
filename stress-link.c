@@ -190,9 +190,9 @@ static int stress_link_generic(
 					char tmpdir[PATH_MAX], *dir;
 					int dir_fd;
 
-					(void)shim_strlcpy(tmpfilename, newpath, sizeof(tmpfilename));
+					(void)shim_strscpy(tmpfilename, newpath, sizeof(tmpfilename));
 					filename = basename(tmpfilename);
-					(void)shim_strlcpy(tmpdir, newpath, sizeof(tmpdir));
+					(void)shim_strscpy(tmpdir, newpath, sizeof(tmpdir));
 					dir = dirname(tmpdir);
 
 					/*

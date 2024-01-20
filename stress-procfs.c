@@ -279,7 +279,7 @@ static inline void stress_proc_rw(
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		(void)shim_strlcpy(path, proc_path, sizeof(path));
+		(void)shim_strscpy(path, proc_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!*path || !stress_continue_flag())
@@ -665,7 +665,7 @@ static void stress_proc_dir(
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
-				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
+				(void)shim_strscpy(proc_path, tmp, sizeof(proc_path));
 				(void)shim_pthread_spin_unlock(&lock);
 
 				stress_proc_rw(ctxt, loops);
@@ -709,7 +709,7 @@ static char *stress_random_pid(void)
 	int i, n;
 	size_t j;
 
-	(void)shim_strlcpy(path, "/proc/self", sizeof(path));
+	(void)shim_strscpy(path, "/proc/self", sizeof(path));
 
 	n = stress_proc_scandir("/proc", &dlist, NULL, mixup_sort);
 	if (!n) {
@@ -767,7 +767,7 @@ static int stress_procfs(stress_args_t *args)
 
 	(void)sigfillset(&set);
 
-	(void)shim_strlcpy(proc_path, "/proc/self", sizeof(proc_path));
+	(void)shim_strscpy(proc_path, "/proc/self", sizeof(proc_path));
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
@@ -801,7 +801,7 @@ static int stress_procfs(stress_args_t *args)
 			stress_mk_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
 			if ((d->d_type == DT_REG) || (d->d_type == DT_LNK)) {
 				if (!shim_pthread_spin_lock(&lock)) {
-					(void)shim_strlcpy(proc_path, procfspath, sizeof(proc_path));
+					(void)shim_strscpy(proc_path, procfspath, sizeof(proc_path));
 					(void)shim_pthread_spin_unlock(&lock);
 
 					stress_proc_rw(&ctxt, 8);
@@ -827,7 +827,7 @@ static int stress_procfs(stress_args_t *args)
 	if (rc) {
 		pr_dbg("%s: spin lock failed for %s\n", args->name, proc_path);
 	} else {
-		(void)shim_strlcpy(proc_path, "", sizeof(proc_path));
+		(void)shim_strscpy(proc_path, "", sizeof(proc_path));
 		VOID_RET(int, shim_pthread_spin_unlock(&lock));
 	}
 

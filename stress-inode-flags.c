@@ -245,7 +245,7 @@ static int stress_inode_flags(stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		file_name, sizeof(file_name), stress_mwc32());
 
-	shim_strlcpy(tmp, file_name, sizeof(tmp));
+	(void)shim_strscpy(tmp, file_name, sizeof(tmp));
 	dir_name = dirname(tmp);
 
 	data.dir_fd = open(dir_name, O_RDONLY | O_DIRECTORY);

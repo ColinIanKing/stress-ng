@@ -988,11 +988,11 @@ next:
 			if (mask_flag_info[j].flag & disabled_flags) {
 				const size_t len = strlen(mask_flag_info[j].name);
 
-				(void)shim_strlcpy(ptr, " ", buf_len);
+				(void)shim_strscpy(ptr, " ", buf_len);
 				buf_len--;
 				ptr++;
 
-				(void)shim_strlcpy(ptr, mask_flag_info[j].name, buf_len);
+				(void)shim_strscpy(ptr, mask_flag_info[j].name, buf_len);
 				buf_len -= len;
 				ptr += len;
 			}

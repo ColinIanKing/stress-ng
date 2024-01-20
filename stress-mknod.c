@@ -158,7 +158,7 @@ static int stress_do_mknod(
 	if ((dir_fd >= 0) && stress_mwc1()) {
 		char tmp[PATH_MAX], *filename;
 
-		(void)shim_strlcpy(tmp, path, sizeof(tmp));
+		(void)shim_strscpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
 		(void)shim_force_unlink(path);

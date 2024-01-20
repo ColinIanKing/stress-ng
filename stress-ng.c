@@ -1715,7 +1715,7 @@ static int stress_show_stressors(void)
 					return -1;
 				}
 				str = newstr;
-				(void)shim_strlcpy(str + len, buffer, (size_t)(buffer_len + 1));
+				(void)shim_strscpy(str + len, buffer, (size_t)(buffer_len + 1));
 			}
 			len += buffer_len;
 		}

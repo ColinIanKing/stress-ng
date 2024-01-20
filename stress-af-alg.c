@@ -207,8 +207,8 @@ static int stress_af_alg_hash(
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
-	(void)shim_strlcpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
-	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
+	(void)shim_strscpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
+	(void)shim_strscpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -345,8 +345,8 @@ static int stress_af_alg_cipher(
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
-	(void)shim_strlcpy((char *)sa.salg_type, salg_type, sizeof(sa.salg_type));
-	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
+	(void)shim_strscpy((char *)sa.salg_type, salg_type, sizeof(sa.salg_type));
+	(void)shim_strscpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -627,8 +627,8 @@ static int stress_af_alg_rng(
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
-	(void)shim_strlcpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
-	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
+	(void)shim_strscpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
+	(void)shim_strscpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {

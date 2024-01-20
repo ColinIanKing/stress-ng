@@ -146,7 +146,7 @@ int stress_parse_jobfile(
 
 		/* remove \n */
 		stress_chop(buf, '\n');
-		(void)shim_strlcpy(txt, buf, sizeof(txt) - 1);
+		(void)shim_strscpy(txt, buf, sizeof(txt) - 1);
 
 		/* remove comments */
 		stress_chop(buf, '#');

@@ -941,7 +941,7 @@ char *shim_getlogin(void)
 	if (!pw)
 		return NULL;
 
-	(void)shim_strlcpy(pw_name, pw->pw_name, sizeof(pw_name));
+	(void)shim_strscpy(pw_name, pw->pw_name, sizeof(pw_name));
 	pw_name[sizeof(pw_name) - 1 ] = '\0';
 
 	return pw_name;
@@ -1278,38 +1278,26 @@ STRESS_PRAGMA_POP
 #endif
 
 /*
- *   shim_strlcpy()
- *	wrapper / implementation of BSD strlcpy
+ *  shim_strscpy()
+ *	safer string copy
  */
-size_t shim_strlcpy(char *dst, const char *src, size_t len)
+ssize_t shim_strscpy(char *dst, const char *src, size_t len)
 {
-#if defined(HAVE_BSD_STRLCPY) &&	\
-    !defined(BUILD_STATIC)
-	return strlcpy(dst, src, len);
-#else
-	register char *d = dst;
-	register const char *s = src;
-	register size_t n = len;
+	register size_t i;
 
-	if (n) {
-		while (--n) {
-			register char c = *s++;
+	if (!len || (len > INT_MAX))
+		return -E2BIG;
 
-			*d++ = c;
-			if (c == '\0')
-				break;
-		}
+	for (i = 0; len; i++, len--) {
+		register const char ch = src[i];
+
+		dst[i] = ch;
+		if (!ch)
+			return (ssize_t)i;
 	}
-
-	if (!n) {
-		if (len)
-			*d = '\0';
-		while (*s)
-			s++;
-	}
-
-	return (s - src - 1);
-#endif
+	if (i)
+		dst[i - 1] = '\0';
+	return -E2BIG;
 }
 
 /*

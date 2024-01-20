@@ -71,7 +71,7 @@ static char *stress_led_orig_trigger(const char *str)
 	orig = calloc(len, sizeof(*orig));
 	if (!orig)
 		return NULL;
-	shim_strlcpy(orig, start, len);
+	(void)shim_strscpy(orig, start, len);
 	return orig;
 }
 
@@ -224,7 +224,7 @@ static void stress_led_exercise(stress_args_t *args, stress_led_info_t *led_info
 	char *ptr, *token;
 	int brightness;
 
-	shim_strlcpy(buf, led_info->trigger, sizeof(buf));
+	(void)shim_strscpy(buf, led_info->trigger, sizeof(buf));
 	for (ptr = buf; (token = strtok(ptr, " ")) != NULL; ptr = NULL) {
 		char *tmp;
 		int delta = 1;

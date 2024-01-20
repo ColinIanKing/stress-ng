@@ -248,7 +248,7 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 				info[i].pr_func("   %7.0f %s%s%s\n", average, info[i].descr, plural,
 					info[i].check_failure ? " (Failure)" : "");
-				(void)shim_strlcpy(munged, info[i].descr, sizeof(munged));
+				(void)shim_strscpy(munged, info[i].descr, sizeof(munged));
 				stress_interrupt_tolower(munged);
 				pr_yaml(yaml, "      %s%s: %.0f\n", munged, plural, average);
 				pr_nl = true;

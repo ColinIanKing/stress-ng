@@ -261,7 +261,7 @@ static int stress_mkdir(const int dir_fd, const char *path, const int mode)
 	if ((dir_fd >= 0) && stress_mwc1()) {
 		char tmp[PATH_MAX], *filename;
 
-		(void)shim_strlcpy(tmp, path, sizeof(tmp));
+		(void)shim_strscpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
 		ret = mkdirat(dir_fd, filename, (shim_mode_t)mode);
@@ -286,7 +286,7 @@ static void stress_invalid_mkdir(const char *path)
 	char filename[PATH_MAX + 16];
 	size_t len;
 
-	(void)shim_strlcpy(filename, path, sizeof(filename));
+	(void)shim_strscpy(filename, path, sizeof(filename));
 	(void)shim_strlcat(filename, "/", sizeof(filename));
 	len = strlen(filename);
 	(void)stress_rndstr(filename + len, sizeof(filename) - len);
@@ -316,7 +316,7 @@ static void stress_invalid_rmdir(const char *path)
 {
 	char filename[PATH_MAX + 16];
 
-	(void)shim_strlcpy(filename, path, sizeof(filename));
+	(void)shim_strscpy(filename, path, sizeof(filename));
 	/* remove . - exercise EINVAL error */
 	(void)shim_strlcat(filename, "/.", sizeof(filename));
 	VOID_RET(int, shim_rmdir(filename));

@@ -245,11 +245,11 @@ static int get_modpath_name(
 				line = NULL;
 				break;
 			}
-			(void)shim_strlcpy(module_path_truncated, module_pathp, sizeof(module_path_truncated));
+			(void)shim_strscpy(module_path_truncated, module_pathp, sizeof(module_path_truncated));
 
 			/* basename can modify the the original string */
 			modulenamep = basename(module_path_truncated);
-			(void)shim_strlcpy(module_path_basename, modulenamep, sizeof(module_path_basename));
+			(void)shim_strscpy(module_path_basename, modulenamep, sizeof(module_path_basename));
 
 			start_postfix = strchr(module_path_basename, '.');
 			if (!start_postfix) {
@@ -259,7 +259,7 @@ static int get_modpath_name(
 			}
 			*start_postfix  = '\0';
 
-			(void)shim_strlcpy(module_short, module_path_basename, sizeof(module_short));
+			(void)shim_strscpy(module_short, module_path_basename, sizeof(module_short));
 			if (strlen(name) != strlen(module_short)) {
 				free(line);
 				line = NULL;

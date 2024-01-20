@@ -544,7 +544,7 @@ finish:
 				if (!op_info[i].trapped) {
 					unhandled++;
 					if (!*str)  {
-						(void)shim_strlcpy(str, op_info[i].instr, len);
+						(void)shim_strscpy(str, op_info[i].instr, len);
 					} else {
 						(void)shim_strlcat(str, ", ", len);
 						(void)shim_strlcat(str, op_info[i].instr, len);
