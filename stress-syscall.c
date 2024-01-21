@@ -8539,11 +8539,7 @@ static int cmp_test_duration(const void *p1, const void *p2)
 	const uint64_t v1 = syscall_stats[i1].max_test_duration;
 	const uint64_t v2 = syscall_stats[i2].max_test_duration;
 
-	if (v1 > v2)
-		return 1;
-	if (v1 < v2)
-		return -1;
-	return 0;
+	return v1 > v2;
 }
 
 /*
