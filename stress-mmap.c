@@ -49,7 +49,8 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap-mprotect",     "enable mmap mprotect stressing" },
 	{ NULL, "mmap-odirect",	     "enable O_DIRECT on file" },
 	{ NULL,	"mmap-ops N",	     "stop after N mmap bogo operations" },
-	{ NULL, "mmap-osync",	    "enable O_SYNC on file" },
+	{ NULL, "mmap-osync",	     "enable O_SYNC on file" },
+	{ NULL,	"mmap-slow-munmap",  "munmap pages inefficiently one at a time" },
 	{ NULL,	"mmap-write-check", "set check value in each page and perform sanity read check" },
 	{ NULL,	NULL,		     NULL }
 };
@@ -67,6 +68,7 @@ typedef struct {
 	bool mmap_mergeable;
 	bool mmap_mlock;
 	bool mmap_mprotect;
+	bool mmap_slow_munmap;
 	bool mmap_write_check;
 	mmap_func_t mmap;
 	size_t mmap_prot_count;
@@ -295,6 +297,11 @@ static int stress_set_mmap_mmap2(const char *opt)
 	return stress_set_setting_true("mmap-mmap2", opt);
 }
 
+static int stress_set_mmap_slow_munmap(const char *opt)
+{
+	return stress_set_setting_true("mmap-slow-munmap", opt);
+}
+
 static int stress_set_mmap_write_check(const char *opt)
 {
 	return stress_set_setting_true("mmap-write-check", opt);
@@ -428,7 +435,7 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
 }
 
 /*
- *  stress_mmap_fast_unmap()
+ *  stress_mmap_fast_munmap()
  *      individual page unmappings can be very slow, especially with
  *      cgroups since the page removal in the kernel release_pages
  *      path has a heavily contended spinlock on the lruvec on large
@@ -437,7 +444,7 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
  *      large a region as possible by checking for page adjacency and
  *	where possible unmapping large contiguous regions.
  */
-static void stress_mmap_fast_unmap(
+static void stress_mmap_fast_munmap(
 	uint8_t **mappings,
 	uint8_t *mapped,
 	const size_t pages,
@@ -467,6 +474,25 @@ static void stress_mmap_fast_unmap(
 	}
 	if (munmap_start && (munmap_size > 0))
 		(void)stress_munmap_retry_enomem((void *)munmap_start, munmap_size);
+	(void)memset(mapped, 0, pages);
+}
+
+/*
+ *  stress_mmap_slow_munmap()
+ *	slow munmap pages - munmap page by page
+ */
+static void stress_mmap_slow_munmap(
+	uint8_t **mappings,
+	uint8_t *mapped,
+	const size_t pages,
+	const size_t page_size)
+{
+	register size_t i;
+
+	for (i = 0; i < pages; i++) {
+		if (mapped[i] == PAGE_MAPPED)
+			(void)stress_munmap_retry_enomem((void *)mappings[i], page_size);
+	}
 	(void)memset(mapped, 0, pages);
 }
 
@@ -683,7 +709,10 @@ retry:
 		/*
 		 *  ..and ummap pages
 		 */
-		stress_mmap_fast_unmap(mappings, mapped, pages, page_size);
+		if (context->mmap_slow_munmap)
+			stress_mmap_slow_munmap(mappings, mapped, pages, page_size);
+		else
+			stress_mmap_fast_munmap(mappings, mapped, pages, page_size);
 
 		(void)stress_munmap_retry_enomem((void *)buf, sz);
 #if defined(MAP_FIXED)
@@ -752,7 +781,10 @@ cleanup:
 		/*
 		 *  Step #3, unmap them all
 		 */
-		stress_mmap_fast_unmap(mappings, mapped, pages, page_size);
+		if (context->mmap_slow_munmap)
+			stress_mmap_slow_munmap(mappings, mapped, pages, page_size);
+		else
+			stress_mmap_fast_munmap(mappings, mapped, pages, page_size);
 
 		/*
 		 *  Step #4, invalid unmapping on the first found page that
@@ -943,6 +975,7 @@ static int stress_mmap(stress_args_t *args)
 	(void)stress_get_setting("mmap-mlock", &context.mmap_mlock);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
 	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
+	(void)stress_get_setting("mmap-slow-munmap", &context.mmap_slow_munmap);
 	(void)stress_get_setting("mmap-write-check", &context.mmap_write_check);
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
@@ -1083,6 +1116,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
 	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
 	{ OPT_mmap_osync,	stress_set_mmap_osync },
+	{ OPT_mmap_slow_munmap,	stress_set_mmap_slow_munmap },
 	{ OPT_mmap_write_check,	stress_set_mmap_write_check },
 	{ 0,			NULL }
 };

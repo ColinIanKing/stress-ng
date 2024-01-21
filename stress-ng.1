@@ -4197,6 +4197,12 @@ MAP_POPULATE option is used to populate pages into memory on systems that
 support this.  By default, anonymous mappings are used, however, the
 \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based
 mappings if desired.
+.RS
+.PP
+Note that since stress-ng 0.17.05 the \-\-mmap\-madvise, \-\-mmap\-mergeable,
+\-\-mmap\-mprotect, \-\-mmap\-slow\-munmap and \-\-mmap\-write\-check options
+should be used to enable the pre-0.17.05 mmap stressor behaviour.
+.RE
 .TP
 .B \-\-mmap\-async
 enable file based memory mapping and use asynchronous msync'ing on each page,
@@ -4239,6 +4245,11 @@ stop mmap stress workers after N bogo operations.
 .B \-\-mmap\-osync
 enable file based memory mapping and used O_SYNC synchronous I/O
 integrity completion.
+.TP
+.B \-\-mmap\-slow\-munmap
+enable page-by-page memory unmapping rather than attempting to memory unmap
+contiguous pages in one large unmapping. This can cause lock contention when
+running with many concurrent mmap stressors and will slow down the stressor.
 .TP
 .B \-\-mmap\-write\-check
 write into each page a unique 64 bit check value for all pages and
