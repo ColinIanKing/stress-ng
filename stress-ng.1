@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 January 2023"
+.TH STRESS-NG 1 "21 January 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5158,6 +5158,45 @@ T}
 .TP
 .B \-\-prefetch\-ops N
 stop prefetch stressors after N benchmark operations
+.RE
+.TP
+.B Priority inversion stressor
+.RS 5
+.TQ
+.B \-\-prio\-inv N
+start N workers that exercise mutex lock priority inversion scheduling.
+Three child process run with low, medium and high FIFO scheduling priorities.
+The processes with low and high priorities share a mutex lock that both
+try to lock and unlock, aiming to make the low priority process block the
+high priority process. Meanwhile the middle priority process will run
+in priority over the low priority process, causing the high priority
+process to become unrunnable.
+.TP
+.B \-\-prio\-inv\-ops N
+stop after N bogo lock/unlock operations.
+.TP
+.B \-\-prio\-inv\-type [ inherit | none | protect ]
+select the mutex lock priority inversion type, described as follows:
+.TS
+lB2 lB
+l lx.
+Type	Description
+inherit	T{
+The priority of the process owning the mutex lock is run with highest
+priority of any other process waiting on the lock to avoid priority
+inversion deadlock.
+T}
+none	T{
+The priority of the process owning the mutex lock is
+not affected by its mutex ownership. This may lead to the high priority
+process to become unrunnable on a single thread system.
+T}
+protect	T{
+The priority of the process owning the mutex lock is given the
+priority of the mutex (in this stress test case, the maximum priority)
+during the lock ownership.
+T}
+.TE
 .RE
 .TP
 .B Privileged CPU instructions stressor

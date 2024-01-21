@@ -210,6 +210,7 @@
 	MACRO(poll)		\
 	MACRO(prctl)		\
 	MACRO(prefetch)		\
+	MACRO(prio_inv)		\
 	MACRO(priv_instr)	\
 	MACRO(procfs)		\
 	MACRO(pthread)		\

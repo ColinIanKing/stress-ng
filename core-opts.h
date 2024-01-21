@@ -949,6 +949,10 @@ typedef enum {
 	OPT_prctl,
 	OPT_prctl_ops,
 
+	OPT_prio_inv,
+	OPT_prio_inv_ops,
+	OPT_prio_inv_type,
+
 	OPT_priv_instr,
 	OPT_priv_instr_ops,
 
