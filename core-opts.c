@@ -653,6 +653,7 @@ const struct option stress_long_options[] = {
 	{ "prefetch-ops",	1,	0,	OPT_prefetch_ops },
 	{ "prio-inv",		1,	0,	OPT_prio_inv },
 	{ "prio-inv-ops",	1,	0,	OPT_prio_inv_ops },
+	{ "prio-inv-policy",	1,	0,	OPT_prio_inv_policy },
 	{ "prio-inv-type",	1,	0,	OPT_prio_inv_type },
 	{ "priv-instr",		1,	0,	OPT_priv_instr },
 	{ "priv-instr-ops",	1,	0,	OPT_priv_instr_ops },

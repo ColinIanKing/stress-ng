@@ -951,6 +951,7 @@ typedef enum {
 
 	OPT_prio_inv,
 	OPT_prio_inv_ops,
+	OPT_prio_inv_policy,
 	OPT_prio_inv_type,
 
 	OPT_priv_instr,
