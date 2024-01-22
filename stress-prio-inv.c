@@ -156,7 +156,7 @@ static int stress_prio_inv_set_prio(const int prio)
 
 	(void)shim_memset(&param, 0, sizeof(param));
 	param.sched_priority = prio;
-	return sched_setscheduler(0, SCHED_RR, &param);
+	return sched_setscheduler(0, SCHED_FIFO, &param);
 }
 
 static void stress_prio_inv_alarm_handler(int sig)
@@ -216,8 +216,8 @@ static int stress_prio_inv(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	prio_min = sched_get_priority_min(SCHED_RR);
-	prio_max = sched_get_priority_max(SCHED_RR);
+	prio_min = sched_get_priority_min(SCHED_FIFO);
+	prio_max = sched_get_priority_max(SCHED_FIFO);
 	prio_div = (prio_max - prio_min) / (MUTEX_PROCS - 1);
 
 	switch (prio_inv_type) {
