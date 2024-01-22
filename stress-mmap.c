@@ -41,6 +41,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mmap N",	     "start N workers stressing mmap and munmap" },
 	{ NULL,	"mmap-async",	     "using asynchronous msyncs for file based mmap" },
 	{ NULL,	"mmap-bytes N",	     "mmap and munmap N bytes for each stress iteration" },
+	{ NULL, "mmap-stressful",    "enable most stressful mmap options (and slowest)" },
 	{ NULL,	"mmap-file",	     "mmap onto a file using synchronous msyncs" },
 	{ NULL, "mmap-madvise",	     "enable random madvise on mmap'd region" },
 	{ NULL,	"mmap-mergeable",    "where possible, flag mmap'd pages as mergeable" },
@@ -300,6 +301,17 @@ static int stress_set_mmap_mmap2(const char *opt)
 static int stress_set_mmap_slow_munmap(const char *opt)
 {
 	return stress_set_setting_true("mmap-slow-munmap", opt);
+}
+
+static int stress_set_mmap_stressful(const char *opt)
+{
+	return stress_set_setting_true("mmap-mergeable", opt) |
+	       stress_set_setting_true("mmap-mprotect", opt) |
+	       stress_set_setting_true("mmap-file", opt) |
+	       stress_set_setting_true("mmap-odirect", opt) |
+	       stress_set_setting_true("mmap-madvise", opt) |
+	       stress_set_setting_true("mmap-mlock", opt) |
+	       stress_set_setting_true("mmap-slow-munmap", opt);
 }
 
 static int stress_set_mmap_write_check(const char *opt)
@@ -1117,6 +1129,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
 	{ OPT_mmap_osync,	stress_set_mmap_osync },
 	{ OPT_mmap_slow_munmap,	stress_set_mmap_slow_munmap },
+	{ OPT_mmap_stressful,	stress_set_mmap_stressful },
 	{ OPT_mmap_write_check,	stress_set_mmap_write_check },
 	{ 0,			NULL }
 };

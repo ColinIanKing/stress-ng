@@ -4251,6 +4251,11 @@ enable page-by-page memory unmapping rather than attempting to memory unmap
 contiguous pages in one large unmapping. This can cause lock contention when
 running with many concurrent mmap stressors and will slow down the stressor.
 .TP
+.B \-\-mmap\-stressful
+enable \-\-mmap\-file, \-\-mmap\-madvise, \-\-mmap\-mergeable,
+\-\-mmap\-mlock, \-\-mmap\-mprotect, \-\-mmap\-odirect,
+\-\-mmap\-slow\-munmap
+.TP
 .B \-\-mmap\-write\-check
 write into each page a unique 64 bit check value for all pages and
 then read the value for a sanity check. This will force newly memory mapped
