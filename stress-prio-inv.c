@@ -36,10 +36,11 @@
 #define STRESS_PRIO_INV_TYPE_NONE	(1)
 #define STRESS_PRIO_INV_TYPE_PROTECT	(2)
 
-#define STRESS_PRIO_INV_POLICY_OTHER	(0)
-#define STRESS_PRIO_INV_POLICY_BATCH	(1)
-#define STRESS_PRIO_INV_POLICY_IDLE	(2)
-#define STRESS_PRIO_INV_POLICY_FIFO	(3)
+/* must match order in stress_prio_inv_policies[] */
+#define STRESS_PRIO_INV_POLICY_BATCH	(0)
+#define STRESS_PRIO_INV_POLICY_IDLE	(1)
+#define STRESS_PRIO_INV_POLICY_FIFO	(2)
+#define STRESS_PRIO_INV_POLICY_OTHER	(3)
 #define STRESS_PRIO_INV_POLICY_RR	(4)
 
 static const stress_help_t help[] = {
@@ -135,6 +136,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_PTHREAD_MUTEX_T) &&			\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&			\
     defined(HAVE_PTHREAD_MUTEX_DESTROY) &&		\
+    defined(HAVE_SETPRIORITY) &&			\
+    defined(HAVE_SCHED_SETSCHEDULER) &&			\
     defined(HAVE_SCHED_GET_PRIORITY_MIN) &&		\
     defined(HAVE_SCHED_GET_PRIORITY_MAX) &&		\
     (defined(SCHED_FIFO) ||				\
