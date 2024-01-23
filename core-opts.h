@@ -769,6 +769,7 @@ typedef enum {
 	OPT_mmap_ops,
 	OPT_mmap_osync,
 	OPT_mmap_slow_munmap,
+	OPT_mmap_stressful,
 	OPT_mmap_write_check,
 
 	OPT_mmapaddr,
@@ -1357,6 +1358,9 @@ typedef enum {
 	OPT_times,
 
 	OPT_timestamp,
+
+	OPT_time_warp,
+	OPT_time_warp_ops,
 
 	OPT_tlb_shootdown,
 	OPT_tlb_shootdown_ops,

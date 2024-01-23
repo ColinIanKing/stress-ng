@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "21 January 2023"
+.TH STRESS-NG 1 "23 January 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6944,6 +6944,21 @@ stop timerfd stress workers after N bogo timerfd events (Linux only).
 select a timerfd frequency based around the timer frequency +/- 12.5% random
 jitter. This tries to force more variability in the timer interval to make the
 scheduling less predictable.
+.RE
+.TP
+.B Time warp stressor
+.RS 5
+.TQ
+.B \-\-time\-warp N
+start N workers that read the system time and where appropriate for monotonic
+clocks perform a check for reverse time warping. At the end of the run there are time
+wrap-around checks. This stressor exercises clock_gettime(2) on all
+available clocks, gettimeofday(2), time(2) and getrusage(2) to check for
+unexpected time behaviour. Note that only some clocks are reliably monotonic.
+.TP
+.B \-\-time\-warp\-ops N
+stop after N rounds of checking all the availble clocks and time fetching
+system calls.
 .RE
 .TP
 .B Translation lookaside buffer shootdowns stressor

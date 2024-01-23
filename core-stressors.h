@@ -303,6 +303,7 @@
 	MACRO(tee)		\
 	MACRO(timer)		\
 	MACRO(timerfd)		\
+	MACRO(time_warp)	\
 	MACRO(tlb_shootdown)	\
 	MACRO(tmpfs)		\
 	MACRO(touch)		\
