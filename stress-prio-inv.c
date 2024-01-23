@@ -63,14 +63,6 @@ typedef struct {
 	double usage;		/* user + system run time usage */
 } stress_prio_inv_child_info_t;
 
-typedef struct {
-	stress_prio_inv_child_info_t	child_info[MUTEX_PROCS];
-	pthread_mutex_t mutex;
-	stress_args_t *args;
-} stress_prio_inv_info_t;
-
-typedef void (*stress_prio_inv_func_t)(const size_t instance, stress_prio_inv_info_t *info);
-
 static const stress_prio_inv_options_t stress_prio_inv_types[] = {
 	{ "inherit",	STRESS_PRIO_INV_TYPE_INHERIT },
 	{ "none",	STRESS_PRIO_INV_TYPE_NONE },
@@ -145,6 +137,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
      defined(SCHED_OTHER) ||				\
      defined(SCHED_BATCH) ||				\
      defined(SCHED_IDLE))
+
+typedef struct {
+	stress_prio_inv_child_info_t	child_info[MUTEX_PROCS];
+	pthread_mutex_t mutex;
+	stress_args_t *args;
+} stress_prio_inv_info_t;
+
+typedef void (*stress_prio_inv_func_t)(const size_t instance, stress_prio_inv_info_t *info);
+
 
 static void stress_prio_inv_getrusage(stress_prio_inv_child_info_t *child_info)
 {
