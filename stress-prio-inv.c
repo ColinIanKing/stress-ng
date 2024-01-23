@@ -452,6 +452,6 @@ stressor_info_t stress_prio_inv_info = {
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without librt, pthread_np.h, pthread or SCHED_FIFO support"
+	.unimplemented_reason = "built without librt, pthread_np.h, pthread or SCHED_* support"
 };
 #endif
