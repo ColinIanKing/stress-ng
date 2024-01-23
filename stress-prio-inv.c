@@ -208,8 +208,13 @@ static int stress_prio_inv_set_prio_policy(
 	int ret;
 
 	switch (policy) {
+#if defined(SCHED_FIFO)
 	case SCHED_FIFO:
+#endif
+#if defined(SCHED_RR)
 	case SCHED_RR:
+#endif
+#if defined(SCHED_FIFO) || defined(SCHED_RR)
 		(void)shim_memset(&param, 0, sizeof(param));
 		param.sched_priority = prio;
 		ret = sched_setscheduler(0, policy, &param);
@@ -218,6 +223,7 @@ static int stress_prio_inv_set_prio_policy(
 				args->name, prio, errno, strerror(errno));
 		}
 		break;
+#endif
 	default:
 		(void)shim_memset(&param, 0, sizeof(param));
 		param.sched_priority = 0;
@@ -242,6 +248,31 @@ static void stress_prio_inv_alarm_handler(int sig)
 	_exit(0);
 }
 
+#if defined(SCHED_FIFO) ||	\
+    defined(SCHED_RR)
+static void stress_prio_inv_check_policy(
+	stress_args_t *args,
+	const int policy,
+	int *sched_policy,
+	const char *policy_name)
+{
+	if (!stress_check_capability(SHIM_CAP_IS_ROOT)) {
+		if (*sched_policy == policy) {
+			if (args->instance == 0) {
+				pr_inf("%s: cannot set prio-inv-policy '%s' as non-root user, "
+					"defaulting to 'other'\n",
+					args->name, policy_name);
+			}
+#if defined(SCHED_OTHER)
+			*sched_policy = SCHED_OTHER;
+#else
+			*sched_policy = -1;	/* Unknown! */
+#endif
+		}
+	}
+}
+#endif
+
 /*
  *  stress_prio_inv()
  *	stress system with priority changing mutex lock/unlocks
@@ -249,7 +280,7 @@ static void stress_prio_inv_alarm_handler(int sig)
 static int stress_prio_inv(stress_args_t *args)
 {
 	size_t i;
-	int prio_min, prio_max, prio_div, sched_policy;
+	int prio_min, prio_max, prio_div, sched_policy = -1;
 	int prio_inv_type = STRESS_PRIO_INV_TYPE_INHERIT;
 	int prio_inv_policy = STRESS_PRIO_INV_POLICY_FIFO;
 	int nice_min, nice_max, nice_div;
@@ -258,6 +289,7 @@ static int stress_prio_inv(stress_args_t *args)
 	pthread_mutexattr_t mutexattr;
 	stress_prio_inv_info_t *prio_inv_info;
 	stress_prio_inv_child_info_t *child_info;
+	const char *policy_name;
 #if defined(DEBUG_USAGE)
 	double total_usage;
 #endif
@@ -283,35 +315,62 @@ static int stress_prio_inv(stress_args_t *args)
 	(void)stress_get_setting("prio-inv-type", &prio_inv_type);
 	(void)stress_get_setting("prio-inv-policy", &prio_inv_policy);
 
+	policy_name = stress_prio_inv_policies[prio_inv_policy].option;
+
 	switch (prio_inv_policy) {
 	default:
 	case STRESS_PRIO_INV_POLICY_FIFO:
+#if defined(SCHED_FIFO)
 		sched_policy = SCHED_FIFO;
+#endif
 		break;
 	case STRESS_PRIO_INV_POLICY_RR:
+#if defined(SCHED_RR)
 		sched_policy = SCHED_RR;
+#endif
 		break;
 	case STRESS_PRIO_INV_POLICY_BATCH:
+#if defined(SCHED_BATCH)
 		sched_policy = SCHED_BATCH;
+#endif
 		break;
 	case STRESS_PRIO_INV_POLICY_IDLE:
+#if defined(SCHED_IDLE)
 		sched_policy = SCHED_IDLE;
+#endif
 		break;
 	case STRESS_PRIO_INV_POLICY_OTHER:
+#if defined(SCHED_OTHER)
 		sched_policy = SCHED_OTHER;
+#endif
 		break;
 	}
 
-	if (!stress_check_capability(SHIM_CAP_IS_ROOT)) {
-		if ((sched_policy == SCHED_FIFO) || (sched_policy == SCHED_RR)) {
-			if (args->instance == 0) {
-				pr_inf("%s: cannot set prio-inv-policy '%s' as non-root user, "
-					"defaulting to 'other'\n",
-					args->name, stress_prio_inv_policies[prio_inv_policy].option);
-			}
+	if (sched_policy == -1) {
+#if defined(SCHED_OTHER)
+		if (args->instance == 0) {
+			pr_inf("%s: scheduling policy '%s' is not supported, "
+				"defaulting to 'other'\n",
+				args->name, policy_name);
 			sched_policy = SCHED_OTHER;
 		}
+#else
+		if (args->instance == 0) {
+			pr_inf_skip("%s: cheduling policy '%s' is not supported, "
+				"no default 'other' either, skipping stressor\n",
+				args->name, policy_name);
+		}
+		rc = EXIT_NO_RESOURCE;
+		goto unmap_prio_inv_info;
+#endif
 	}
+
+#if defined(SCHED_FIFO)
+	stress_prio_inv_check_policy(args, SCHED_FIFO, &sched_policy, policy_name);
+#endif
+#if defined(SCHED_RR)
+	stress_prio_inv_check_policy(args, SCHED_RR, &sched_policy, policy_name);
+#endif
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -338,15 +397,21 @@ static int stress_prio_inv(stress_args_t *args)
 
 	switch (prio_inv_type) {
 	default:
+#if defined(PTHREAD_PRIO_NONE)
 	case STRESS_PRIO_INV_TYPE_NONE:
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_NONE));
 		break;
+#endif
+#if defined(PTHREAD_PRIO_INHERIT)
 	case STRESS_PRIO_INV_TYPE_INHERIT:
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT));
 		break;
+#endif
+#if defined(PTHREAD_PRIO_PROTECT)
 	case STRESS_PRIO_INV_TYPE_PROTECT:
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_PROTECT));
 		break;
+#endif
 	}
 	VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, prio_max));
 	pthread_mutexattr_setrobust(&mutexattr, PTHREAD_MUTEX_ROBUST);
@@ -433,6 +498,9 @@ reap:
 	}
 
 	(void)pthread_mutex_destroy(&prio_inv_info->mutex);
+#if !defined(SCHED_OTHER)
+unmap_prio_inv_info:
+#endif
 	(void)munmap((void *)prio_inv_info, sizeof(*prio_inv_info));
 
 	return rc;
