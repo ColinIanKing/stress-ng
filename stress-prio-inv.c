@@ -398,7 +398,6 @@ static int stress_prio_inv(stress_args_t *args)
 	prio_div = (prio_max - prio_min) / (MUTEX_PROCS - 1);
 
 	switch (prio_inv_type) {
-	default:
 #if defined(PTHREAD_PRIO_NONE)
 	case STRESS_PRIO_INV_TYPE_NONE:
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_NONE));
