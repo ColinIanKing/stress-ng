@@ -26,8 +26,6 @@
 #include <pthread_np.h>
 #endif
 
-#undef PTHREAD_MUTEX_ROBUST
-
 /*
 #define DEBUG_USAGE
 */
