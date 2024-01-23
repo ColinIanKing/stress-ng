@@ -213,14 +213,14 @@ static void stress_apparmor_dir(
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
-		switch (d->d_type) {
-		case DT_DIR:
+		switch (shim_dirent_type(path, d)) {
+		case SHIM_DT_DIR:
 			if (recurse) {
 				(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
 				stress_apparmor_dir(args, name, recurse, depth + 1);
 			}
 			break;
-		case DT_REG:
+		case SHIM_DT_REG:
 			(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
 			stress_apparmor_read(args, name);
 			break;

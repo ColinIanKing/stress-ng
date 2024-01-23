@@ -2733,3 +2733,56 @@ int shim_stat(const char *pathname, struct stat *statbuf)
 	return shim_enosys(0, pathname, statbuf);
 #endif
 }
+
+/*
+ *  shim_dirent_type()
+ *	shim / emulation of d->d_type
+ */
+unsigned char shim_dirent_type(const char *path, const struct dirent *d)
+{
+	char filename[PATH_MAX];
+	struct stat statbuf;
+
+#if defined(HAVE_DIRENT_D_TYPE)
+	/* Some file systems can determine d->d_type */
+	if (d->d_type != SHIM_DT_UNKNOWN)
+		return d->d_type;
+#endif
+	/* Systems without d->d_type or have d->d_type as unknown */
+	(void)snprintf(filename, sizeof(filename), "%s/%s", path, d->d_name);
+	if (lstat(filename, &statbuf) == 0) {
+		switch (statbuf.st_mode & S_IFMT) {
+#if defined(S_IFBLK)
+		case S_IFBLK:
+			return SHIM_DT_BLK;
+#endif
+#if defined(S_IFCHR)
+		case S_IFCHR:
+			return SHIM_DT_CHR;
+#endif
+#if defined(S_IFDIR)
+		case S_IFDIR:
+			return SHIM_DT_DIR;
+#endif
+#if defined(S_IFIFO)
+		case S_IFIFO:
+			return SHIM_DT_FIFO;
+#endif
+#if defined(S_IFLNK)
+		case S_IFLNK:
+			return SHIM_DT_LNK;
+#endif
+#if defined(S_IFREG)
+		case S_IFREG:
+			return SHIM_DT_REG;
+#endif
+#if defined(S_IFSOCK)
+		case S_IFSOCK:
+			return SHIM_DT_SOCK;
+#endif
+		default:
+			break;
+		}
+	}
+	return SHIM_DT_UNKNOWN;
+}

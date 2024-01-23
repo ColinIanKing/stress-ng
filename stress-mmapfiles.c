@@ -91,19 +91,22 @@ static size_t stress_mmapfiles_dir(
 		return n_mappings;
 
 	while (!(*enomem) && ((d = readdir(dir)) != NULL)) {
+		unsigned char type;
+
 		if (n_mappings >= MMAP_MAX)
 			break;
 		if (!stress_continue_flag())
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
-		if (d->d_type == DT_DIR) {
+		type = shim_dirent_type(path, d);
+		if (type == SHIM_DT_DIR) {
 			char newpath[PATH_MAX];
 
 			(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
 			n_mappings = stress_mmapfiles_dir(args, mmapfile_info, newpath, mappings, n_mappings,
 							mmap_populate, mmap_shared, enomem);
-		} else if (d->d_type == DT_REG) {
+		} else if (type == SHIM_DT_REG) {
 			char filename[PATH_MAX];
 			uint8_t *ptr;
 			struct stat statbuf;

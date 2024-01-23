@@ -288,9 +288,9 @@ static void stress_landlock_many(
 		if (strcmp(newpath, resolved) == 0) {
 			struct landlock_path_beneath_attr path_beneath;
 
-			switch (namelist[i]->d_type) {
-			case DT_REG:
-			case DT_LNK:
+			switch (shim_dirent_type(path, namelist[i])) {
+			case SHIM_DT_REG:
+			case SHIM_DT_LNK:
 				(void)shim_memset(&path_beneath, 0, sizeof(path_beneath));
 				path_beneath.allowed_access = SHIM_LANDLOCK_ACCESS_FS_READ_FILE;
 				path_beneath.parent_fd = open(resolved, O_PATH | O_NONBLOCK);
@@ -302,7 +302,7 @@ static void stress_landlock_many(
 					goto close_ruleset;
 				}
 				break;
-			case DT_DIR:
+			case SHIM_DT_DIR:
 				if (depth < 30)
 					stress_landlock_many(args, ctxt, resolved, depth + 1);
 				break;

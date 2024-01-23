@@ -566,7 +566,7 @@ static void stress_sys_dir(
 		if (stress_sys_skip(tmp))
 			goto dt_reg_free;
 
-		if (d->d_type != DT_REG)
+		if (shim_dirent_type(path, d) != SHIM_DT_REG)
 			continue;
 
 		ret = shim_stat(tmp, &buf);
@@ -623,7 +623,7 @@ dt_reg_free:
 
 		if (!d)
 			continue;
-		if (d->d_type != DT_DIR)
+		if (shim_dirent_type(path, d) != SHIM_DT_DIR)
 			goto dt_dir_free;
 
 		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);

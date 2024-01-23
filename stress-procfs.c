@@ -654,6 +654,7 @@ static void stress_proc_dir(
 	/* Non-directories files first */
 	for (i = 0; (i < n) && stress_continue_flag(); i++) {
 		struct dirent *d = dlist[i];
+		unsigned char type;
 
 		if (stress_is_dot_filename(d->d_name)) {
 			free(d);
@@ -661,7 +662,8 @@ static void stress_proc_dir(
 			continue;
 		}
 
-		if ((d->d_type == DT_REG) || (d->d_type == DT_LNK)) {
+		type = shim_dirent_type(path, d);
+		if ((type == SHIM_DT_REG) || (type == SHIM_DT_LNK)) {
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
@@ -685,7 +687,7 @@ static void stress_proc_dir(
 	for (i = 0; (i < n) && stress_continue_flag(); i++) {
 		struct dirent *d = dlist[i];
 
-		if (d && (d->d_type == DT_DIR)) {
+		if (d && (shim_dirent_type(path, d) == SHIM_DT_DIR)) {
 			(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 
 			free(d);
@@ -794,12 +796,14 @@ static int stress_procfs(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			char procfspath[PATH_MAX];
 			const struct dirent *d = dlist[i];
+			unsigned char type;
 
 			if (!stress_continue(args))
 				break;
 
 			stress_mk_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
-			if ((d->d_type == DT_REG) || (d->d_type == DT_LNK)) {
+			type = shim_dirent_type("/proc", d);
+			if ((type == SHIM_DT_REG) || (type == SHIM_DT_LNK)) {
 				if (!shim_pthread_spin_lock(&lock)) {
 					(void)shim_strscpy(proc_path, procfspath, sizeof(proc_path));
 					(void)shim_pthread_spin_unlock(&lock);
@@ -807,7 +811,7 @@ static int stress_procfs(stress_args_t *args)
 					stress_proc_rw(&ctxt, 8);
 					stress_bogo_inc(args);
 				}
-			} else if (d->d_type == DT_DIR) {
+			} else if (type == SHIM_DT_DIR) {
 				stress_proc_dir(&ctxt, procfspath, true, 0);
 			}
 

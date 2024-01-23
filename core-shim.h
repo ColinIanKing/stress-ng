@@ -69,6 +69,55 @@ typedef off64_t		shim_off64_t;
 typedef uint64_t	shim_off64_t;
 #endif
 
+/* Should be defined by POSIX, but add shim */
+#if defined(DT_BLK)
+#define SHIM_DT_BLK	(DT_BLK)
+#else
+#define SHIM_DT_BLK	(6)
+#endif
+
+#if defined(DT_CHR)
+#define SHIM_DT_CHR	(DT_CHR)
+#else
+#define SHIM_DT_CHR	(2)
+#endif
+
+#if defined(DT_DIR)
+#define SHIM_DT_DIR	(DT_DIR)
+#else
+#define SHIM_DT_DIR	(4)
+#endif
+
+#if defined(DT_FIFO)
+#define SHIM_DT_FIFO	(DT_FIFO)
+#else
+#define SHIM_DT_FIFO	(1)
+#endif
+
+#if defined(DT_LNK)
+#define SHIM_DT_LNK	(DT_LNK)
+#else
+#define SHIM_DT_LNK	(10)
+#endif
+
+#if defined(DT_REG)
+#define SHIM_DT_REG	(DT_REG)
+#else
+#define SHIM_DT_REG	(8)
+#endif
+
+#if defined(DT_SOCK)
+#define SHIM_DT_SOCK	(DT_SOCK)
+#else
+#define SHIM_DT_SOCK	(12)
+#endif
+
+#if defined(DT_UNKNOWN)
+#define SHIM_DT_UNKNOWN	(DT_UNKNOWN)
+#else
+#define SHIM_DT_UNKNOWN	(0)
+#endif
+
 /* clone3 clone args */
 struct shim_clone_args {
 	uint64_t flags;		/* Flags bit mask */
@@ -417,5 +466,6 @@ extern int shim_fchmodat2(int dfd, const char *filename, mode_t mode,
 extern int shim_fstat(int fd, struct stat *statbuf);
 extern int shim_lstat(const char *pathname, struct stat *statbuf);
 extern int shim_stat(const char *pathname, struct stat *statbuf);
+extern unsigned char shim_dirent_type(const char *path, const struct dirent *d);
 
 #endif

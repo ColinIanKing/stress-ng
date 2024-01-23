@@ -4444,8 +4444,8 @@ static void stress_dev_infos_get(
 		if (tty_name && !strcmp(tty_name, tmp))
 			continue;
 
-		switch (d->d_type) {
-		case DT_DIR:
+		switch (shim_dirent_type(path, d)) {
+		case SHIM_DT_DIR:
 			ret = shim_stat(tmp, &buf);
 			if (ret < 0)
 				continue;
@@ -4453,8 +4453,8 @@ static void stress_dev_infos_get(
 				continue;
 			stress_dev_infos_get(args, tmp, tty_name, list, list_len);
 			break;
-		case DT_BLK:
-		case DT_CHR:
+		case SHIM_DT_BLK:
+		case SHIM_DT_CHR:
 			if (strstr(tmp, "watchdog"))
 				continue;
 			stress_dev_info_add(tmp, list, list_len);
