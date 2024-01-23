@@ -665,6 +665,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Validating Full-System RISC-V Simulator: A Systematic Approach](https://infoscience.epfl.ch/record/302433)
 * [Lightweight Implementation of Per-packet Service Protection in eBPF/XDP](https://arxiv.org/pdf/2312.07152.pdf)
 * [ROS2 Real-time Performance Optimization and Evaluation](https://cjme.springeropen.com/articles/10.1186/s10033-023-00976-5)
+* [Experimental and numerical analysis of the thermal behaviour of a single-phase immersion-cooled data centre](https://www.sciencedirect.com/science/article/pii/S1359431123012899)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
