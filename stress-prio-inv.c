@@ -26,6 +26,8 @@
 #include <pthread_np.h>
 #endif
 
+#undef PTHREAD_MUTEX_ROBUST
+
 /*
 #define DEBUG_USAGE
 */
@@ -81,7 +83,6 @@ static int stress_set_prio_inv_type(const char *opts)
 {
 	size_t i;
 
-
 	for (i = 0; i < SIZEOF_ARRAY(stress_prio_inv_types); i++) {
 		if (!strcmp(opts, stress_prio_inv_types[i].option)) {
 			return stress_set_setting("prio-inv-type", TYPE_ID_INT, &stress_prio_inv_types[i].value);
@@ -125,6 +126,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
     defined(HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING) &&	\
     defined(HAVE_PTHREAD_MUTEXATTR_SETPROTOCOL) &&	\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETROBUST) &&	\
     defined(HAVE_PTHREAD_MUTEX_T) &&			\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&			\
     defined(HAVE_PTHREAD_MUTEX_DESTROY) &&		\
@@ -414,7 +416,7 @@ static int stress_prio_inv(stress_args_t *args)
 #endif
 	}
 	VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, prio_max));
-	pthread_mutexattr_setrobust(&mutexattr, PTHREAD_MUTEX_ROBUST);
+	VOID_RET(int, pthread_mutexattr_setrobust(&mutexattr, PTHREAD_MUTEX_ROBUST));
 	if (pthread_mutex_init(&prio_inv_info->mutex, &mutexattr) < 0) {
 		pr_fail("%s: pthread_mutex_init failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
