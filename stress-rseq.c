@@ -49,19 +49,28 @@ static const stress_help_t help[] = {
 
 #define STRESS_ACCESS_ONCE(x)     (*(__volatile__  __typeof__(x) *)&(x))
 
-#if defined(NOPS)
-#undef NOPS
-#endif
-
 #if !defined(OPTIMIZE0)
 #define OPTIMIZE0       __attribute__((optimize("-O0")))
 #endif
 
-#define NOPS()	do {		\
-	stress_asm_nop();	\
-	stress_asm_nop();	\
-	stress_asm_nop();	\
-	stress_asm_nop();	\
+#define STALLS() 	\
+do {			\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
+	rseq_stalls++;	\
 } while (0);
 
 typedef struct {
@@ -72,6 +81,7 @@ typedef struct {
 
 static struct rseq *rseq_area;
 static rseq_info_t *rseq_info;
+static volatile uint64_t rseq_stalls;
 
 static inline struct rseq *stress_rseq_get_area(void)
 {
@@ -139,12 +149,16 @@ l1:
 	/*
 	 *  Long duration in critical section will
 	 *  be likely to be interrupted so rseq jumps
-	 *  to label l4
+	 *  to label l3
 	 */
-	NOPS();
-	NOPS();
-	NOPS();
-	NOPS();
+	STALLS();
+	STALLS();
+	STALLS();
+	STALLS();
+	STALLS();
+	STALLS();
+	STALLS();
+	STALLS();
 
 	set_rseq_ptr(NULL);
 	return;
@@ -152,7 +166,6 @@ l1:
 l2:
 	/* No-op filler, should never execute */
 	set_rseq_ptr(NULL);
-	NOPS();
 l3:
 	/* Interrupted abort handler */
 	set_rseq_ptr(NULL);
@@ -266,6 +279,7 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 static int stress_rseq(stress_args_t *args)
 {
 	int ret;
+	double rate;
 
 	/*
 	 *  rseq_info is in a shared page to avoid losing the
@@ -288,12 +302,13 @@ static int stress_rseq(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
-	pr_inf("%s: %" PRIu64 " critical section interruptions, %" PRIu64
-	       " flag mismatches of %" PRIu64 " restartable sequences\n",
-		args->name, rseq_info->crit_interruptions,
-		rseq_info->segv_count, rseq_info->crit_count);
 
+	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
+
+	rate = (rseq_info->crit_count > 0) ? 
+		(double)rseq_info->crit_interruptions * 1000000000.0 / (rseq_info->crit_count) : 0.0;
+	pr_inf("rate: %f\n", rate);
+	stress_metrics_set(args, 0, "critical section interruptions per billion rseq ops", rate, STRESS_HARMONIC_MEAN);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(rseq_info, args->page_size);
