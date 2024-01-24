@@ -91,41 +91,6 @@ static inline struct rseq *stress_rseq_get_area(void)
 #define set_rseq_ptr(value)	*(uint64_t *)(uintptr_t)&rseq_area->rseq_cs = (uint64_t)(uintptr_t)value
 
 /*
- *  shim_rseq()
- *	shim wrapper to rseq system call
- */
-static int shim_rseq(volatile struct rseq *rseq_abi, uint32_t rseq_len,
-			int flags, uint32_t sig)
-{
-	return syscall(__NR_rseq, (long)rseq_abi, (long)rseq_len, (long)flags, (long)sig);
-}
-
-/*
- *  rseq_register
- *  	register rseq critical section and handler with a
- *	a signature of the 32 bits before the handler. This is
- *	abusing the spirit of the signature but it makes the
- *	critical section code easier to write in pure C rather
- *	have to hand craft per-architecture specific code
- */
-static int rseq_register(volatile struct rseq *rseq, uint32_t signature)
-{
-	return shim_rseq(rseq, sizeof(*rseq), 0, signature);
-}
-
-/*
- *  rseq_unregister
- *	unregister the rseq handler code
- */
-static int rseq_unregister(volatile struct rseq *rseq, uint32_t signature)
-{
-	int rc;
-
-	rc = shim_rseq(rseq, sizeof(*rseq), RSEQ_FLAG_UNREGISTER, signature);
-	return rc;
-}
-
-/*
  *  rseq_test()
  *	exercise a critical section. force zero optimization to try
  *	and keep the compiler from doing any code reorganization that
@@ -234,7 +199,6 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 
 	do {
 		register int i;
-		int ret;
 
 		for (i = 0; i < 10000; i++) {
 			uint32_t cpu;
@@ -244,33 +208,6 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 		rseq_info->crit_count += i;
 
 		stress_bogo_inc(args);
-		shim_sched_yield();
-
-		/* Exercise invalid rseq calls.. */
-
-		/* Invalid rseq size, EINVAL */
-		ret = shim_rseq(rseq_area, 0, 0, RSEQ_SIG);
-		if (ret == 0)
-			(void)rseq_unregister(rseq_area, RSEQ_SIG);
-
-		/* invalid flags */
-		ret = shim_rseq(rseq_area, sizeof(invalid_seq), ~RSEQ_FLAG_UNREGISTER, RSEQ_SIG);
-		if (ret == 0)
-			(void)rseq_unregister(rseq_area, RSEQ_SIG);
-
-		/* Invalid alignment, EINVAL */
-		ret = rseq_register(misaligned_seq, RSEQ_SIG);
-		if (ret == 0)
-			(void)rseq_unregister(misaligned_seq, RSEQ_SIG);
-
-		/* Invalid unregister, invalid struct size, EINVAL */
-		(void)shim_rseq(rseq_area, 0, RSEQ_FLAG_UNREGISTER, RSEQ_SIG);
-
-		/* Invalid unregister, different seq struct addr, EINVAL */
-		(void)rseq_unregister(&invalid_seq, RSEQ_SIG);
-
-		/* Invalid unregister, different signature, EINAL  */
-		(void)rseq_unregister(&invalid_seq, ~RSEQ_SIG);
 	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
@@ -301,7 +238,6 @@ static int stress_rseq(stress_args_t *args)
 		pr_dbg("libc rseq_area @ %p\n", rseq_area);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 
 	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
 
