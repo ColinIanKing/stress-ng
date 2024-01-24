@@ -241,7 +241,7 @@ static int stress_rseq(stress_args_t *args)
 
 	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
 
-	rate = (rseq_info->crit_count > 0) ? 
+	rate = (rseq_info->crit_count > 0) ?
 		(double)rseq_info->crit_interruptions * 1000000000.0 / (rseq_info->crit_count) : 0.0;
 	stress_metrics_set(args, 0, "critical section interruptions per billion rseq ops", rate, STRESS_HARMONIC_MEAN);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
