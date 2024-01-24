@@ -8285,12 +8285,13 @@ stop after N iterations that exercise the different cpuid leaf types.
 .TQ
 .B \-\-x86syscall N
 start N workers that repeatedly exercise the x86-64 syscall instruction to
-call the getpid(2), getcpu(2), gettimeofday(2) and time(2) system using the Linux
-vsyscall handler. Only for Linux.
+call the getcpu(2), geteuid(2), getgid(2), getpid(2), gettimeofday(2) and time(2)
+system calls using the Linux vsyscall handler. Only for Linux.
 .TP
 .B \-\-x86syscall\-func F
-Instead of exercising the 4 syscall system calls, just call the syscall
-function F. The function F must be one of getcpu, gettimeofday and time.
+Instead of exercising the 6 syscall system calls, just call the syscall
+function F. The function F must be one of getcpu, geteuid, getgid, getpid,
+gettimeofday or time.
 .TP
 .B \-\-x86syscall\-ops N
 stop after N x86syscall system calls.

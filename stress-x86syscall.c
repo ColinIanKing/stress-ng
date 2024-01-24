@@ -46,7 +46,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     !defined(HAVE_COMPILER_PCC) &&	\
     defined(STRESS_ARCH_X86_64)
 
-typedef int (*stress_wfunc_t)(void);
+typedef long (*stress_wfunc_t)(void);
 
 /*
  *  syscall symbol mapping name to address and wrapper function
@@ -76,9 +76,12 @@ static int stress_x86syscall_supported(const char *name)
 		return -1;
 	}
 
-#if defined(__NR_getpid) ||		\
-    defined(__NR_getcpu) ||		\
+#if defined(__NR_getcpu) ||		\
+    defined(__NR_geteuid) ||		\
+    defined(__NR_getgid) ||		\
+    defined(__NR_getpid) ||		\
     defined(__NR_gettimeofday) ||	\
+    defined(__NR_getuid) ||		\
     defined(__NR_time)
 	return 0;
 #else
@@ -175,14 +178,47 @@ static inline long OPTIMIZE3 x86_64_syscall3(long number, long arg1, long arg2, 
 	return ret;
 }
 
+#if defined(__NR_getuid)
+/*
+ *  wrap_getuid()
+ *	invoke getuid()
+ */
+static long wrap_getuid(void)
+{
+	return x86_64_syscall0(__NR_getuid);
+}
+#endif
+
+#if defined(__NR_geteuid)
+/*
+ *  wrap_geteuid()
+ *	invoke geteuid()
+ */
+static long wrap_geteuid(void)
+{
+	return x86_64_syscall0(__NR_geteuid);
+}
+#endif
+
+#if defined(__NR_getgid)
+/*
+ *  wrap_getgid()
+ *	invoke getgid()
+ */
+static long wrap_getgid(void)
+{
+	return x86_64_syscall0(__NR_getgid);
+}
+#endif
+
 #if defined(__NR_getpid)
 /*
  *  wrap_getpid()
  *	invoke getpid()
  */
-static int wrap_getpid(void)
+static long wrap_getpid(void)
 {
-	return (int)x86_64_syscall0(__NR_getpid);
+	return x86_64_syscall0(__NR_getpid);
 }
 #endif
 
@@ -191,11 +227,11 @@ static int wrap_getpid(void)
  *  wrap_getcpu()
  *	invoke getcpu()
  */
-static int wrap_getcpu(void)
+static long wrap_getcpu(void)
 {
 	unsigned cpu, node;
 
-	return (int)x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
+	return x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
 }
 #endif
 
@@ -204,11 +240,11 @@ static int wrap_getcpu(void)
  *  wrap_gettimeofday()
  *	invoke gettimeofday()
  */
-static int wrap_gettimeofday(void)
+static long wrap_gettimeofday(void)
 {
 	struct timeval tv;
 
-	return (int)x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
+	return x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
 }
 #endif
 
@@ -217,11 +253,11 @@ static int wrap_gettimeofday(void)
  *  wrap_time()
  *	invoke time()
  */
-static int wrap_time(void)
+static long wrap_time(void)
 {
 	time_t t;
 
-	return (int)x86_64_syscall1(__NR_time, (long)&t);
+	return x86_64_syscall1(__NR_time, (long)&t);
 }
 #endif
 
@@ -229,25 +265,32 @@ static int wrap_time(void)
  *  wrap_dummy()
  *	dummy empty function for baseline
  */
-static int wrap_dummy(void)
+static long wrap_dummy(void)
 {
-	int ret = -1;
-
-	return ret;
+	return (long)-1;
 }
 
 /*
  *  mapping of wrappers to function symbol name
  */
 static stress_x86syscall_t x86syscalls[] = {
-#if defined(__NR_getpid)
-	{ wrap_getpid,		"getpid",		true },
-#endif
 #if defined(__NR_getcpu)
 	{ wrap_getcpu,		"getcpu",		true },
 #endif
+#if defined(__NR_geteuid)
+	{ wrap_geteuid,		"geteuid",		true },
+#endif
+#if defined(__NR_getgid)
+	{ wrap_getgid,		"getgid",		true },
+#endif
+#if defined(__NR_getpid)
+	{ wrap_getpid,		"getpid",		true },
+#endif
 #if defined(__NR_gettimeofday)
 	{ wrap_gettimeofday,	"gettimeofday",		true },
+#endif
+#if defined(__NR_getuid)
+	{ wrap_getuid,		"getuid",		true },
 #endif
 #if defined(__NR_time)
 	{ wrap_time,		"time",			true },
@@ -411,6 +454,45 @@ static int stress_x86syscall(stress_args_t *args)
 			pr_fail("%s: getpid syscall returned PID %jd, "
 				"expected PID %jd\n",
 				args->name, (intmax_t)pid2, (intmax_t)pid1);
+			rc = EXIT_FAILURE;
+		}
+	}
+#endif
+#if defined(__NR_getgid)
+	{
+		const pid_t gid1 = getgid();
+		const pid_t gid2 = (gid_t)x86_64_syscall0(__NR_getgid);
+
+		if (gid1 != gid2) {
+			pr_fail("%s: getgid syscall returned GID %jd, "
+				"expected GID %jd\n",
+				args->name, (intmax_t)gid2, (intmax_t)gid1);
+			rc = EXIT_FAILURE;
+		}
+	}
+#endif
+#if defined(__NR_getuid)
+	{
+		const uid_t uid1 = getuid();
+		const uid_t uid2 = (uid_t)x86_64_syscall0(__NR_getuid);
+
+		if (uid1 != uid2) {
+			pr_fail("%s: getuid syscall returned UID %jd, "
+				"expected UID %jd\n",
+				args->name, (intmax_t)uid2, (intmax_t)uid1);
+			rc = EXIT_FAILURE;
+		}
+	}
+#endif
+#if defined(__NR_geteuid)
+	{
+		const uid_t uid1 = geteuid();
+		const uid_t uid2 = (uid_t)x86_64_syscall0(__NR_geteuid);
+
+		if (uid1 != uid2) {
+			pr_fail("%s: geteuid syscall returned UID %jd, "
+				"expected UID %jd\n",
+				args->name, (intmax_t)uid2, (intmax_t)uid1);
 			rc = EXIT_FAILURE;
 		}
 	}
