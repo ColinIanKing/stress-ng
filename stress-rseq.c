@@ -19,11 +19,15 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-helper.h"
 #include "core-out-of-memory.h"
 #include "core-pragma.h"
 
 #if defined(HAVE_LINUX_RSEQ_H)
 #include <linux/rseq.h>
+#endif
+#if defined(HAVE_SYS_RSEQ_H) | 1
+#include <sys/rseq.h>
 #endif
 
 static const stress_help_t help[] = {
@@ -35,7 +39,9 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LINUX_RSEQ_H) &&		\
     defined(HAVE_ASM_NOP) &&			\
     defined(__NR_rseq) &&			\
+    defined(HAVE___RSEQ_OFFSET) &&		\
     defined(HAVE_SYSCALL) &&			\
+    defined(RSEQ_SIG) &&			\
     defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     !defined(HAVE_COMPILER_CLANG) &&		\
     !defined(HAVE_COMPILER_ICC) &&		\
@@ -62,28 +68,17 @@ typedef struct {
 	uint64_t crit_count;		/* critical path entry count */
 	uint64_t crit_interruptions;	/* interruptions in critical path */
 	uint64_t segv_count;		/* SIGSEGV count from rseq */
-	uint32_t valid_signature;	/* rseq valid signature */
 } rseq_info_t;
 
-static struct rseq restartable_seq;	/* rseq */
-static uint32_t valid_signature;
+static struct rseq *rseq_area;
 static rseq_info_t *rseq_info;
 
-STRESS_PRAGMA_PUSH
-STRESS_PRAGMA_WARN_OFF
-static inline void set_rseq_ptr64(uint64_t value)
+static inline struct rseq *stress_rseq_get_area(void)
 {
-	(void)shim_memcpy((void *)&restartable_seq.rseq_cs, &value, sizeof(value));
+	return (struct rseq *)((ptrdiff_t)__builtin_thread_pointer() + __rseq_offset);
 }
 
-static inline void set_rseq_zero(void)
-{
-	(void)shim_memset((void *)&restartable_seq, 0, sizeof(restartable_seq));
-}
-
-STRESS_PRAGMA_POP
-
-#define set_rseq_ptr(value)	set_rseq_ptr64((uint64_t)(intptr_t)value)
+#define set_rseq_ptr(value)	*(uint64_t *)(uintptr_t)&rseq_area->rseq_cs = (uint64_t)(uintptr_t)value
 
 /*
  *  shim_rseq()
@@ -92,7 +87,7 @@ STRESS_PRAGMA_POP
 static int shim_rseq(volatile struct rseq *rseq_abi, uint32_t rseq_len,
 			int flags, uint32_t sig)
 {
-	return syscall(__NR_rseq, rseq_abi, rseq_len, flags, sig);
+	return syscall(__NR_rseq, (long)rseq_abi, (long)rseq_len, (long)flags, (long)sig);
 }
 
 /*
@@ -105,7 +100,6 @@ static int shim_rseq(volatile struct rseq *rseq_abi, uint32_t rseq_len,
  */
 static int rseq_register(volatile struct rseq *rseq, uint32_t signature)
 {
-	set_rseq_zero();
 	return shim_rseq(rseq, sizeof(*rseq), 0, signature);
 }
 
@@ -118,7 +112,6 @@ static int rseq_unregister(volatile struct rseq *rseq, uint32_t signature)
 	int rc;
 
 	rc = shim_rseq(rseq, sizeof(*rseq), RSEQ_FLAG_UNREGISTER, signature);
-	set_rseq_zero();
 	return rc;
 }
 
@@ -128,59 +121,42 @@ static int rseq_unregister(volatile struct rseq *rseq, uint32_t signature)
  *	and keep the compiler from doing any code reorganization that
  *	may affect the intentional layout of the branch sections
  */
-static int OPTIMIZE0 rseq_test(const uint32_t cpu, uint32_t *signature)
+static void OPTIMIZE0 rseq_test(const uint32_t cpu)
 {
-	register int i;
-	struct rseq_cs __attribute__((aligned(32))) cs = {
-		/* Version */
+	struct rseq_cs __attribute__((aligned(64))) cs = {
 		0,
-		/* Flags */
 		0,
-		/* Start of critical section */
 		(uintptr_t)(void *)&&l1,
-		/* Length of critical section */
 		((uintptr_t)&&l2 - (uintptr_t)&&l1),
-		/* Address of abort handler */
-		(uintptr_t)&&l4
+		(uintptr_t)&&l3
 	};
-
-	/*
-	 *  setup phase, called once to find the
-	 *  location of label l4 and the 32 bits before
-	 *  it which acts as a 32 bit special magic signature
-	 */
-	if (signature) {
-		uint32_t *ptr = &&l4;
-		ptr--;
-		*signature = *ptr;
-		return 0;
-	}
-
 l1:
 	/* Critical section starts here */
 	set_rseq_ptr(&cs);
-	if (cpu != restartable_seq.cpu_id)
-		goto l4;
+	if (cpu != rseq_area->cpu_id)
+		goto l3;
 
 	/*
 	 *  Long duration in critical section will
 	 *  be likely to be interrupted so rseq jumps
 	 *  to label l4
 	 */
-	for (i = 0; i < 1000; i++) {
-		NOPS();
-	}
+	NOPS();
+	NOPS();
+	NOPS();
+	NOPS();
+
 	set_rseq_ptr(NULL);
-	return 0;
+	return;
 	/* Critical section ends here */
 l2:
 	/* No-op filler, should never execute */
 	set_rseq_ptr(NULL);
 	NOPS();
-l4:
+l3:
 	/* Interrupted abort handler */
 	set_rseq_ptr(NULL);
-	return 1;
+	rseq_info->crit_interruptions++;
 }
 
 /*
@@ -198,24 +174,26 @@ static void sigsegv_handler(int sig)
 }
 
 /*
- *  Sanity check of the rseq system call is available
+ *  Sanity check if glibc supports rseq and area is
+ *  initialized
  */
 static int stress_rseq_supported(const char *name)
 {
-	uint32_t signature;
+	struct rseq *rseq;
 
-	rseq_test(-1, &signature);
-	if (rseq_register(&restartable_seq, signature) < 0) {
-		if (errno == ENOSYS) {
-			pr_inf_skip("%s stressor will be skipped, rseq system call not implemented\n",
-				name);
-		} else {
-			pr_inf_skip("%s stressor will be skipped, rseq system call failed to register, errno=%d (%s)\n",
-				name, errno, strerror(errno));
-		}
+	rseq = stress_rseq_get_area();
+	if (rseq == NULL) {
+		pr_inf_skip("%s stressor will be skipped, libc rseq area is NULL\n", name);
 		return -1;
 	}
-	(void)rseq_unregister(&restartable_seq, signature);
+	if (!stress_addr_readable(rseq, sizeof(*rseq))) {
+		pr_inf_skip("%s stressor will be skipped, libc rseq area is unreadable\n", name);
+		return -1;
+	}
+	if ((uint32_t)rseq->cpu_id == (uint32_t)RSEQ_CPU_ID_REGISTRATION_FAILED) {
+		pr_inf_skip("%s stressor will be skipped, libc rseq area is not enabled\n", name);
+		return -1;
+	}
 	return 0;
 }
 
@@ -231,9 +209,6 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 	struct rseq *misaligned_seq = (struct rseq *)&misaligned_seq_buf[1];
 	struct rseq invalid_seq;
 
-	(void)shim_memcpy((void *)misaligned_seq, (void *)&restartable_seq, sizeof(restartable_seq));
-	(void)shim_memcpy((void *)&invalid_seq, (void *)&restartable_seq, sizeof(restartable_seq));
-
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigsegv_handler;
 	if (sigaction(SIGSEGV, &sa, NULL) < 0) {
@@ -241,70 +216,48 @@ static int stress_rseq_oomable(stress_args_t *args, void *context)
 		_exit(EXIT_FAILURE);
 	}
 
+	(void)shim_memcpy((void *)misaligned_seq, (void *)rseq_area, sizeof(*rseq_area));
+	(void)shim_memcpy((void *)&invalid_seq, (void *)rseq_area, sizeof(*rseq_area));
+
 	do {
 		register int i;
 		int ret;
 
-		/*
-		 *  exercise register/critical section/unregister,
-		 *  every 2048 register with an invalid signature to
-		 *  exercise kernel invalid signature check
-		 */
-		if ((stress_bogo_get(args) & 0x1fff) == 1)
-			valid_signature = 0xbadc0de;
-		else
-			valid_signature = rseq_info->valid_signature;
-
-		if (rseq_register(&restartable_seq, valid_signature) < 0) {
-			if (errno != EINVAL)
-				pr_err("%s: rseq failed to register: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			goto unreg;
-		}
-
 		for (i = 0; i < 10000; i++) {
 			uint32_t cpu;
-			cpu = STRESS_ACCESS_ONCE(restartable_seq.cpu_id_start);
-			if (rseq_test(cpu, NULL))
-				rseq_info->crit_interruptions++;
+			cpu = STRESS_ACCESS_ONCE(rseq_area->cpu_id_start);
+			rseq_test(cpu);
 		}
 		rseq_info->crit_count += i;
 
-unreg:
-		(void)rseq_unregister(&restartable_seq, valid_signature);
 		stress_bogo_inc(args);
 		shim_sched_yield();
 
 		/* Exercise invalid rseq calls.. */
 
 		/* Invalid rseq size, EINVAL */
-		ret = shim_rseq(&restartable_seq, 0, 0, valid_signature);
+		ret = shim_rseq(rseq_area, 0, 0, RSEQ_SIG);
 		if (ret == 0)
-			(void)rseq_unregister(&restartable_seq, valid_signature);
+			(void)rseq_unregister(rseq_area, RSEQ_SIG);
 
 		/* invalid flags */
-		ret = shim_rseq(&restartable_seq, sizeof(invalid_seq), ~RSEQ_FLAG_UNREGISTER, valid_signature);
+		ret = shim_rseq(rseq_area, sizeof(invalid_seq), ~RSEQ_FLAG_UNREGISTER, RSEQ_SIG);
 		if (ret == 0)
-			(void)rseq_unregister(&restartable_seq, valid_signature);
+			(void)rseq_unregister(rseq_area, RSEQ_SIG);
 
 		/* Invalid alignment, EINVAL */
-		ret = rseq_register(misaligned_seq, valid_signature);
+		ret = rseq_register(misaligned_seq, RSEQ_SIG);
 		if (ret == 0)
-			(void)rseq_unregister(misaligned_seq, valid_signature);
+			(void)rseq_unregister(misaligned_seq, RSEQ_SIG);
 
 		/* Invalid unregister, invalid struct size, EINVAL */
-		(void)shim_rseq(&restartable_seq, 0, RSEQ_FLAG_UNREGISTER, valid_signature);
+		(void)shim_rseq(rseq_area, 0, RSEQ_FLAG_UNREGISTER, RSEQ_SIG);
 
 		/* Invalid unregister, different seq struct addr, EINVAL */
-		(void)rseq_unregister(&invalid_seq, valid_signature);
+		(void)rseq_unregister(&invalid_seq, RSEQ_SIG);
 
 		/* Invalid unregister, different signature, EINAL  */
-		(void)rseq_unregister(&invalid_seq, ~valid_signature);
-
-		/* Register twice, EBUSY */
-		(void)rseq_register(&restartable_seq, valid_signature);
-		(void)rseq_register(&restartable_seq, valid_signature);
-		(void)rseq_unregister(&restartable_seq, valid_signature);
+		(void)rseq_unregister(&invalid_seq, ~RSEQ_SIG);
 	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
@@ -329,8 +282,9 @@ static int stress_rseq(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	/* Get the expected valid signature */
-	rseq_test(-1, &rseq_info->valid_signature);
+	rseq_area = stress_rseq_get_area();
+	if (args->instance == 0)
+		pr_dbg("libc rseq_area @ %p\n", rseq_area);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

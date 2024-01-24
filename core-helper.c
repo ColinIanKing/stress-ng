@@ -4336,7 +4336,7 @@ static void stress_dbg(const char *fmt, ...)
  *	create pipe, see if write of the memory range works, failure (with
  *	EFAULT) will be used to indicate address range is not readable.
  */
-static inline bool stress_addr_readable(const void *addr, const size_t len)
+bool stress_addr_readable(const void *addr, const size_t len)
 {
 	int fds[2];
 	bool ret = false;

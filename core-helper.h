@@ -188,5 +188,6 @@ extern void stress_catch_sigsegv(void);
 extern void stress_process_info(stress_args_t *args, const pid_t pid);
 extern void *stress_mmap_populate(void *addr, size_t length, int prot,
 	int flags, int fd, off_t offset);
+extern bool stress_addr_readable(const void *addr, const size_t len);
 
 #endif
