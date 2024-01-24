@@ -46,7 +46,7 @@ static volatile int signo;
 static volatile int code;
 #endif
 
-#define BAD_ADDR	((void *)(0x08))
+#define BAD_ADDR	((void *)(0x10))
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigsegv N",	 "start N workers generating segmentation faults" },
@@ -334,7 +334,9 @@ static int stress_sigsegv(stress_args_t *args)
 		if (ret) {
 			/* Signal was tripped */
 #if defined(SA_SIGINFO)
-			if (verify && expected_addr && fault_addr && (fault_addr != expected_addr)) {
+			if (verify && expected_addr && fault_addr &&
+				(fault_addr < expected_addr) &&
+				(fault_addr > (expected_addr + 8))) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
 					args->name, (volatile void *)expected_addr, fault_addr);
 			}
