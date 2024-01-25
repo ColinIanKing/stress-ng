@@ -93,11 +93,11 @@ static bool stress_mc_rdrand_supported(void)
 static double OPTIMIZE3 stress_mc_darn_rand(void)
 {
 #if defined(HAVE_BUILTIN_CPU_IS_POWER9)
-	const double scale_u64 = 1.0 / (double)0xffffffffffffffffULL;
+	const double scale_u32 = 1.0 / (double)0xffffffffUL;
 
-	return (double)stress_asm_ppc64_darn() * scale_u64;
+	return (double)stress_asm_ppc64_darn() * scale_u32;
 #else
-	return 0.0;
+	return 0.1;
 #endif
 }
 
@@ -105,6 +105,7 @@ static void stress_mc_darn_seed(void)
 {
 }
 
+static bool stress_mc_darn_supported(void)
 {
 #if defined(HAVE_BUILTIN_CPU_IS_POWER9)
 	return __builtin_cpu_is("power9");
@@ -273,7 +274,7 @@ static bool stress_mc_supported(void)
 }
 
 static const stress_monte_carlo_rand_info_t rand_info[] = {
-	{ "all",	NULL,				NULL,			NULL},
+	{ "all",	NULL,				NULL,				stress_mc_supported },
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_DARN)
 	{ "darn",	stress_mc_darn_rand,		stress_mc_darn_seed,		stress_mc_darn_supported },
@@ -334,7 +335,7 @@ static double OPTIMIZE3 stress_monte_carlo_e(
 		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
 
 		for (j = 0; j < n; j++) {
-			register double sum = 0.0;
+			double sum = 0.0;
 
 			while (sum < 1.0)  {
 				sum += info->rand();
@@ -416,20 +417,23 @@ static void stress_monto_carlo_by_rand(
 	const size_t rand,
 	const size_t method,
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX],
-	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX])
+	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX],
+	const bool rands_supported[RANDS_MAX])
 {
 	if (rand == 0) {
 		size_t i;
 
 		/* all random generators */
 		for (i = 1; i < RANDS_MAX; i++) {
-			const double t = stress_time_now();
+			if (rands_supported[i]) {
+				const double t = stress_time_now();
 
-			results[method][i].sum += stress_monte_carlo_methods[method].method(&rand_info[i], monte_carlo_samples);
-			metrics[method][i].duration += (stress_time_now() - t);
-			results[method][i].count += 1.0;
-			metrics[method][i].count += (double)monte_carlo_samples;
-			stress_bogo_inc(args);
+				results[method][i].sum += stress_monte_carlo_methods[method].method(&rand_info[i], monte_carlo_samples);
+				metrics[method][i].duration += (stress_time_now() - t);
+				results[method][i].count += 1.0;
+				metrics[method][i].count += (double)monte_carlo_samples;
+				stress_bogo_inc(args);
+			}
 		}
 	} else {
 		const double t = stress_time_now();
@@ -449,17 +453,18 @@ static void stress_monte_carlo_by_method(
 	const size_t rand,
 	const size_t method,
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX],
-	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX])
+	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX],
+	const bool rands_supported[RANDS_MAX])
 {
 	if (method == 0) {
 		size_t i;
 
 		/* all methods */
 		for (i = 1; i < METHODS_MAX; i++) {
-			stress_monto_carlo_by_rand(args, monte_carlo_samples, rand, i, metrics, results);
+			stress_monto_carlo_by_rand(args, monte_carlo_samples, rand, i, metrics, results, rands_supported);
 		}
 	} else {
-		stress_monto_carlo_by_rand(args, monte_carlo_samples, rand, method, metrics, results);
+		stress_monto_carlo_by_rand(args, monte_carlo_samples, rand, method, metrics, results, rands_supported);
 	}
 }
 
@@ -474,7 +479,12 @@ static int stress_monte_carlo(stress_args_t *args)
 	monte_carlo_rand = 0;
 	stress_metrics_t metrics[METHODS_MAX][RANDS_MAX];
 	stress_monte_carlo_result_t results[METHODS_MAX][RANDS_MAX];
+	bool rands_supported[RANDS_MAX];
 	size_t i, j, idx;
+
+	for (i = 0; i < RANDS_MAX; i++) {
+		rands_supported[i] = rand_info[i].supported();
+	}
 
 	for (i = 0; i < METHODS_MAX; i++) {
 		for (j = 0; j < RANDS_MAX; j++) {
@@ -497,7 +507,7 @@ static int stress_monte_carlo(stress_args_t *args)
 	do {
 		stress_monte_carlo_by_method(args, monte_carlo_samples,
 			monte_carlo_rand, monte_carlo_method,
-			metrics, results);
+			metrics, results, rands_supported);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
