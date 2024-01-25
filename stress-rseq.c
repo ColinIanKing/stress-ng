@@ -43,6 +43,7 @@ static const stress_help_t help[] = {
     defined(HAVE_SYSCALL) &&			\
     defined(RSEQ_SIG) &&			\
     defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+    defined(HAVE_BUILTIN_THREAD_POINTER) &&	\
     !defined(HAVE_COMPILER_CLANG) &&		\
     !defined(HAVE_COMPILER_ICC) &&		\
     !defined(HAVE_COMPILER_ICX)
