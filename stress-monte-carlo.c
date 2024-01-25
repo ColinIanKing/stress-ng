@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"monte-carlo-ops N",	"stop after N monte-carlo operations" },
 	{ NULL, "monte-carlo-rand R",	"select random number generator [ all | drand48 | getrandom | lcg | pcg32 | mwc32 | mwc64 | random | xorshift ]" },
 	{ NULL,	"monte-carlo-samples N","specify number of samples for each computation" },
-	{ NULL,	"monte-carlo-method M",	"select computation method [ pi | e ]" },
+	{ NULL,	"monte-carlo-method M",	"select computation method [ pi | e | exp | sin | sqrt ]" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -297,6 +297,10 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
 	{ "xorshift",	stress_mc_xorshift_rand,	stress_mc_xorshift_seed,	stress_mc_supported },
 };
 
+/*
+ *  stress_monte_carlo_pi()
+ *	compute pi based on area of a circle
+ */
 static double OPTIMIZE3 stress_monte_carlo_pi(
 	const stress_monte_carlo_rand_info_t *info,
 	const uint32_t samples)
@@ -323,6 +327,10 @@ static double OPTIMIZE3 stress_monte_carlo_pi(
 	return ((double)pi_count) * 4.0 / (double)(samples - i);
 }
 
+/*
+ *  stress_monte_carlo_e
+ *	Euler's number e
+ */
 static double OPTIMIZE3 stress_monte_carlo_e(
 	const stress_monte_carlo_rand_info_t *info,
 	const uint32_t samples)
@@ -349,10 +357,93 @@ static double OPTIMIZE3 stress_monte_carlo_e(
 	return (double)count / (double)(samples - i);
 }
 
+/*
+ *  stress_monte_carlo_sin()
+ *	integral of sin(x) for x = 0 to pi
+ */
+static double OPTIMIZE3 stress_monte_carlo_sin(
+	const stress_monte_carlo_rand_info_t *info,
+	const uint32_t samples)
+{
+	register uint32_t i = samples;
+	double sum = 0.0;
+
+	while (i > 0) {
+		register uint32_t j;
+		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+
+		for (j = 0; j < n; j++) {
+			double theta = info->rand() * M_PI;
+			sum += sin(theta);
+		}
+		i -= j;
+		if (!stress_continue_flag())
+			break;
+	}
+	return M_PI * (double)sum / (double)(samples - i);
+}
+
+/*
+ *  stress_monte_carlo_exp()
+ *	integral of exp(x * x) for x = 0..1
+ */
+static double OPTIMIZE3 stress_monte_carlo_exp(
+	const stress_monte_carlo_rand_info_t *info,
+	const uint32_t samples)
+{
+	register uint32_t i = samples;
+	double sum = 0.0;
+
+	while (i > 0) {
+		register uint32_t j;
+		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+
+		for (j = 0; j < n; j++) {
+			const double x = info->rand();
+
+			sum += exp(x * x);
+		}
+		i -= j;
+		if (!stress_continue_flag())
+			break;
+	}
+	return (double)sum / (double)(samples - i);
+}
+
+/*
+ *  stress_monte_carlo_sqrt()
+ *	integral of sqrt(1 + (x * x * x * x)) for x = 0..1
+ */
+static double OPTIMIZE3 stress_monte_carlo_sqrt(
+	const stress_monte_carlo_rand_info_t *info,
+	const uint32_t samples)
+{
+	register uint32_t i = samples;
+	double sum = 0.0;
+
+	while (i > 0) {
+		register uint32_t j;
+		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+
+		for (j = 0; j < n; j++) {
+			const double x = info->rand();
+
+			sum += sqrt(1.0 + (x * x * x * x));
+		}
+		i -= j;
+		if (!stress_continue_flag())
+			break;
+	}
+	return (double)sum / (double)(samples - i);
+}
+
 static const stress_monte_carlo_method_t stress_monte_carlo_methods[] = {
-	{ "all",	0,	NULL },
-	{ "pi",		M_PI,	stress_monte_carlo_pi },
-	{ "e",		M_E,	stress_monte_carlo_e },
+	{ "all",	0,			NULL },
+	{ "e",		M_E,			stress_monte_carlo_e },
+	{ "exp",	1.46265174590718160880,	stress_monte_carlo_exp },
+	{ "pi",		M_PI,			stress_monte_carlo_pi },
+	{ "sin",	2.0,			stress_monte_carlo_sin },
+	{ "sqrt",	1.08942941322482232241,	stress_monte_carlo_sqrt },
 };
 
 /*
@@ -534,7 +625,7 @@ static int stress_monte_carlo(stress_args_t *args)
 				if (results[i][j].count > 0.0) {
 					const double result = results[i][j].sum / results[i][j].count;
 
-					pr_inf("%s: %-2.2s ~ %.13f vs %.13f using %s (average of %.0f runs)\n",
+					pr_inf("%s: %-4.4s ~ %.13f vs %.13f using %s (average of %.0f runs)\n",
 						args->name, stress_monte_carlo_methods[i].name,
 						result, stress_monte_carlo_methods[i].expected,
 						rand_info[j].name, results[i][j].count);

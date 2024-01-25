@@ -4424,16 +4424,38 @@ do not unload the module right after loading it with finit_module().
 stop after N module load/unload cycles
 .RE
 .TP
-.B Monte Carlo computations of \(*p and e
+.B Monte Carlo computations of \(*p and e and various integrals
 .RS 5
 .TQ
 .B \-\-monte\-carlo N
 start N stressors that compute \(*p and e (Euler's number) using Monte Carlo computational
 experiments with various random number generators.
 .TP
-.B \-\-monte\-carlo\-method [ all | pi | e ]
-specify the computation to perform, all computes both \(*p and e, pi computes just \(*p
-and e computes just e.
+.B \-\-monte\-carlo\-method [ all | e | exp | pi | sin | sqrt ]
+specify the computation to perform, options are as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+use all monte carlo computation methods
+T}
+e	T{
+compute Euler's constant e
+T}
+exp	T{
+integrate exp(x \[ua] 2) for x = 0..1
+T}
+pi	T{
+compute \(*p from the area of a circle
+T}
+sin	T{
+integrate sin(x) for x = 0..\(*p
+T}
+sqrt	T{
+integrate sqrt(1 + x \[ua] 4) for x = 0..1
+T}
+.TE
 .TP
 .B \-\-monte\-carlo\-ops N
 stop after Monte Carlo computation experiments
