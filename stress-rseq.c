@@ -26,7 +26,7 @@
 #if defined(HAVE_LINUX_RSEQ_H)
 #include <linux/rseq.h>
 #endif
-#if defined(HAVE_SYS_RSEQ_H) | 1
+#if defined(HAVE_SYS_RSEQ_H)
 #include <sys/rseq.h>
 #endif
 
