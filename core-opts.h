@@ -805,6 +805,12 @@ typedef enum {
 	OPT_module_no_unload,
 	OPT_module_ops,
 
+	OPT_monte_carlo,
+	OPT_monte_carlo_method,
+	OPT_monte_carlo_ops,
+	OPT_monte_carlo_rand,
+	OPT_monte_carlo_samples,
+
 	OPT_mprotect,
 	OPT_mprotect_ops,
 

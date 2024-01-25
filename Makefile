@@ -393,6 +393,7 @@ STRESS_SRC = \
 	stress-mmaphuge.c \
 	stress-mmapmany.c \
 	stress-module.c \
+	stress-monte-carlo.c \
 	stress-mprotect.c \
 	stress-mpfr.c \
 	stress-mq.c \

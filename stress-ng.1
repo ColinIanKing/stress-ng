@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 January 2023"
+.TH STRESS-NG 1 "25 January 2023"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4422,6 +4422,56 @@ do not unload the module right after loading it with finit_module().
 .TP
 .B \-\-module\-ops N
 stop after N module load/unload cycles
+.RE
+.TP
+.B Monte Carlo computations of \(*p and e
+.RS 5
+.TQ
+.B \-\-monte\-carlo N
+start N stressors that compute \(*p and e (Euler's number) using Monte Carlo computational
+experiments with various random number generators.
+.TP
+.B \-\-monte\-carlo\-method [ all | pi | e ]
+specify the computation to perform, all computes both \(*p and e, pi computes just \(*p
+and e computes just e.
+.TP
+.B \-\-monte\-carlo\-ops N
+stop after Monte Carlo computation experiments
+.TP
+.B \-\-monte\-carlo\-rand [ all | drand48 | getrandom | lcg | pcg32 | mwc64 | random | xorshift ]
+specify the random number generator to use, options are as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+use all the random number generators
+T}
+drand48	T{
+use the libc linear congruential algorithm drand48(3) using 48-bit integer arithmetic.
+T}
+getrandom	T{
+use the getrandom(2) system call for random values.
+T}
+lcg	T{
+use a 32 bit Paker-Miller Linear Congruential Generator, with a division optimization.
+T}
+pcg32	T{
+use a 32 bit O'Neill Permuted Congruential Generator.
+T}
+mwc64	T{
+use the 64 bit stress-ng Multiply With Carry random number generator.
+T}
+random	T{
+use the libc random(3) Non-linear Additive Feedback random number generator.
+T}
+xorshift	T{
+use a 32 bit Marsaglia shift-register random number generator.
+T}
+.TE
+.TP
+.B \-\-monte\-carlo\-samples N
+specify the number of random number samples to use to compute \(*p or e, default is 100000.
 .RE
 .TP
 .B Multi-precision floating operations (mpfr) stressor

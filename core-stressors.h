@@ -175,6 +175,7 @@
 	MACRO(mmaphuge)		\
 	MACRO(mmapmany)		\
 	MACRO(module)		\
+	MACRO(monte_carlo)	\
 	MACRO(mprotect)		\
 	MACRO(mpfr)		\
 	MACRO(mq)		\
