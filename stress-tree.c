@@ -410,10 +410,10 @@ static bool OPTIMIZE3 avl_insert(
 	struct tree_node **root,
 	struct tree_node *node)
 {
-	register struct tree_node *p, *q;
+	register struct tree_node *p, *q, *r = *root;
 	register bool taller;
 
-	if (!*root) {
+	if (!r) {
 		*root = node;
 		node->u.avl.left = NULL;
 		node->u.avl.right = NULL;
@@ -422,47 +422,47 @@ static bool OPTIMIZE3 avl_insert(
 	}
 
 	taller = false;
-	if (node->value < (*root)->value) {
-			if (avl_insert(&(*root)->u.avl.left, node)) {
-			switch ((*root)->u.avl.bf) {
+	if (node->value < r->value) {
+			if (avl_insert(&r->u.avl.left, node)) {
+			switch (r->u.avl.bf) {
 			case EH:
-				(*root)->u.avl.bf = LH;
+				r->u.avl.bf = LH;
 				taller = true;
 				break;
 			case RH:
-				(*root)->u.avl.bf = EH;
+				r->u.avl.bf = EH;
 				taller = false;
 				break;
 			case LH:
 				/* Rebalance required */
-				p = (*root)->u.avl.left;
+				p = r->u.avl.left;
 				if (p->u.avl.bf == LH) {
 					/* Single rotation */
-					(*root)->u.avl.left = p->u.avl.right;
-					p->u.avl.right = *root;
+					r->u.avl.left = p->u.avl.right;
+					p->u.avl.right = r;
 					p->u.avl.bf = EH;
-					(*root)->u.avl.bf = EH;
+					r->u.avl.bf = EH;
 					*root = p;
 				} else {
 					/* Double rotation */
 					q = p->u.avl.right;
-					(*root)->u.avl.left = q->u.avl.right;
-					q->u.avl.right = *root;
+					r->u.avl.left = q->u.avl.right;
+					q->u.avl.right = r;
 					p->u.avl.right = q->u.avl.left;
 					q->u.avl.left = p;
 
 					/* Update balance factors */
 					switch (q->u.avl.bf) {
 					case RH:
-						(*root)->u.avl.bf = EH;
+						r->u.avl.bf = EH;
 						p->u.avl.bf = LH;
 						break;
 					case LH:
-						(*root)->u.avl.bf = RH;
+						r->u.avl.bf = RH;
 						p->u.avl.bf = EH;
 						break;
 					case EH:
-						(*root)->u.avl.bf = EH;
+						r->u.avl.bf = EH;
 						p->u.avl.bf = EH;
 						break;
 					}
@@ -473,47 +473,47 @@ static bool OPTIMIZE3 avl_insert(
 				break;
 			}
 		}
-	} else if (node->value > (*root)->value) {
-		if (avl_insert(&(*root)->u.avl.right, node)) {
-			switch ((*root)->u.avl.bf) {
+	} else if (node->value > r->value) {
+		if (avl_insert(&r->u.avl.right, node)) {
+			switch (r->u.avl.bf) {
 			case LH:
-				(*root)->u.avl.bf = EH;
+				r->u.avl.bf = EH;
 				taller = false;
 				break;
 			case EH:
-				(*root)->u.avl.bf = RH;
+				r->u.avl.bf = RH;
 				taller = true;
 				break;
 			case RH:
 				/* Rebalance required */
-				p = (*root)->u.avl.right;
+				p = r->u.avl.right;
 				if (p->u.avl.bf == RH) {
 					/* Single rotation */
-					(*root)->u.avl.right = p->u.avl.left;
-					p->u.avl.left = *root;
+					r->u.avl.right = p->u.avl.left;
+					p->u.avl.left = r;
 					p->u.avl.bf = EH;
-					(*root)->u.avl.bf = EH;
+					r->u.avl.bf = EH;
 					*root = p;
 				} else {
 					/* Double rotation */
 					q = p->u.avl.left;
-					(*root)->u.avl.right = q->u.avl.left;
-					q->u.avl.left = *root;
+					r->u.avl.right = q->u.avl.left;
+					q->u.avl.left = r;
 					p->u.avl.left = q->u.avl.right;
 					q->u.avl.right = p;
 
 					/* Update balance factors */
 					switch (q->u.avl.bf) {
 					case LH:
-						(*root)->u.avl.bf = EH;
+						r->u.avl.bf = EH;
 						p->u.avl.bf = RH;
 						break;
 					case RH:
-						(*root)->u.avl.bf = LH;
+						r->u.avl.bf = LH;
 						p->u.avl.bf = EH;
 						break;
 					case EH:
-						(*root)->u.avl.bf = EH;
+						r->u.avl.bf = EH;
 						p->u.avl.bf = EH;
 						break;
 					}
