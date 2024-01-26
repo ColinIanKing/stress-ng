@@ -406,132 +406,137 @@ PRAGMA_UNROLL_N(4)
 	metrics->count += (double)n;
 }
 
-static void OPTIMIZE3 avl_insert(
+static bool OPTIMIZE3 avl_insert(
 	struct tree_node **root,
-	struct tree_node *node,
-	bool *taller)
+	struct tree_node *node)
 {
-	bool sub_taller = false;
 	register struct tree_node *p, *q;
+	bool taller;
 
 	if (!*root) {
 		*root = node;
 		(*root)->u.avl.left = NULL;
 		(*root)->u.avl.right = NULL;
 		(*root)->u.avl.bf = EH;
-		*taller = true;
-	} else {
-		if (node->value < (*root)->value) {
-			avl_insert(&(*root)->u.avl.left, node, &sub_taller);
-			if (sub_taller) {
-				switch ((*root)->u.avl.bf) {
-				case EH:
-					(*root)->u.avl.bf = LH;
-					*taller = true;
-					break;
-				case RH:
-					(*root)->u.avl.bf = EH;
-					*taller = false;
-					break;
-				case LH:
-					/* Rebalance required */
-					p = (*root)->u.avl.left;
-					if (p->u.avl.bf == LH) {
-						/* Single rotation */
-						(*root)->u.avl.left = p->u.avl.right;
-						p->u.avl.right = *root;
-						p->u.avl.bf = EH;
-						(*root)->u.avl.bf = EH;
-						*root = p;
-					} else {
-						/* Double rotation */
-						q = p->u.avl.right;
-						(*root)->u.avl.left = q->u.avl.right;
-						q->u.avl.right = *root;
-						p->u.avl.right = q->u.avl.left;
-						q->u.avl.left = p;
+		return true;
+	}
 
-						/* Update balance factors */
-						switch (q->u.avl.bf) {
-						case RH:
-							(*root)->u.avl.bf = EH;
-							p->u.avl.bf = LH;
-							break;
-						case LH:
-							(*root)->u.avl.bf = RH;
-							p->u.avl.bf = EH;
-							break;
-						case EH:
-							(*root)->u.avl.bf = EH;
-							p->u.avl.bf = EH;
-							break;
-						}
-						q->u.avl.bf = EH;
-						*root = q;
+	taller = false;
+	if (node->value < (*root)->value) {
+		register bool sub_taller;
+
+		sub_taller = avl_insert(&(*root)->u.avl.left, node);
+		if (sub_taller) {
+			switch ((*root)->u.avl.bf) {
+			case EH:
+				(*root)->u.avl.bf = LH;
+				taller = true;
+				break;
+			case RH:
+				(*root)->u.avl.bf = EH;
+				taller = false;
+				break;
+			case LH:
+				/* Rebalance required */
+				p = (*root)->u.avl.left;
+				if (p->u.avl.bf == LH) {
+					/* Single rotation */
+					(*root)->u.avl.left = p->u.avl.right;
+					p->u.avl.right = *root;
+					p->u.avl.bf = EH;
+					(*root)->u.avl.bf = EH;
+					*root = p;
+				} else {
+					/* Double rotation */
+					q = p->u.avl.right;
+					(*root)->u.avl.left = q->u.avl.right;
+					q->u.avl.right = *root;
+					p->u.avl.right = q->u.avl.left;
+					q->u.avl.left = p;
+
+					/* Update balance factors */
+					switch (q->u.avl.bf) {
+					case RH:
+						(*root)->u.avl.bf = EH;
+						p->u.avl.bf = LH;
+						break;
+					case LH:
+						(*root)->u.avl.bf = RH;
+						p->u.avl.bf = EH;
+						break;
+					case EH:
+						(*root)->u.avl.bf = EH;
+						p->u.avl.bf = EH;
+						break;
 					}
-					*taller = false;
-					break;
+					q->u.avl.bf = EH;
+					*root = q;
 				}
+				taller = false;
+				break;
 			}
-		} else if (node->value > (*root)->value) {
-			avl_insert(&(*root)->u.avl.right, node, &sub_taller);
-			if (sub_taller) {
-				switch ((*root)->u.avl.bf) {
-				case LH:
-					(*root)->u.avl.bf = EH;
-					*taller = false;
-					break;
-				case EH:
-					(*root)->u.avl.bf = RH;
-					*taller = true;
-					break;
-				case RH:
-					/* Rebalance required */
-					p = (*root)->u.avl.right;
-					if (p->u.avl.bf == RH) {
-						/* Single rotation */
-						(*root)->u.avl.right = p->u.avl.left;
-						p->u.avl.left = *root;
-						p->u.avl.bf = EH;
-						(*root)->u.avl.bf = EH;
-						*root = p;
-					} else {
-						/* Double rotation */
-						q = p->u.avl.left;
-						(*root)->u.avl.right = q->u.avl.left;
-						q->u.avl.left = *root;
-						p->u.avl.left = q->u.avl.right;
-						q->u.avl.right = p;
+		}
+	} else if (node->value > (*root)->value) {
+		register bool sub_taller;
 
-						/* Update balance factors */
-						switch (q->u.avl.bf) {
-						case LH:
-							(*root)->u.avl.bf = EH;
-							p->u.avl.bf = RH;
-							break;
-						case RH:
-							(*root)->u.avl.bf = LH;
-							p->u.avl.bf = EH;
-							break;
-						case EH:
-							(*root)->u.avl.bf = EH;
-							p->u.avl.bf = EH;
-							break;
-						}
-						q->u.avl.bf = EH;
-						*root = q;
+		sub_taller = avl_insert(&(*root)->u.avl.right, node);
+		if (sub_taller) {
+			switch ((*root)->u.avl.bf) {
+			case LH:
+				(*root)->u.avl.bf = EH;
+				taller = false;
+				break;
+			case EH:
+				(*root)->u.avl.bf = RH;
+				taller = true;
+				break;
+			case RH:
+				/* Rebalance required */
+				p = (*root)->u.avl.right;
+				if (p->u.avl.bf == RH) {
+					/* Single rotation */
+					(*root)->u.avl.right = p->u.avl.left;
+					p->u.avl.left = *root;
+					p->u.avl.bf = EH;
+					(*root)->u.avl.bf = EH;
+					*root = p;
+				} else {
+					/* Double rotation */
+					q = p->u.avl.left;
+					(*root)->u.avl.right = q->u.avl.left;
+					q->u.avl.left = *root;
+					p->u.avl.left = q->u.avl.right;
+					q->u.avl.right = p;
+
+					/* Update balance factors */
+					switch (q->u.avl.bf) {
+					case LH:
+						(*root)->u.avl.bf = EH;
+						p->u.avl.bf = RH;
+						break;
+					case RH:
+						(*root)->u.avl.bf = LH;
+						p->u.avl.bf = EH;
+						break;
+					case EH:
+						(*root)->u.avl.bf = EH;
+						p->u.avl.bf = EH;
+						break;
 					}
-					*taller = false;
-					break;
+					q->u.avl.bf = EH;
+					*root = q;
 				}
-			} else {
-				/* tree not rebalanced.. */
-				*taller = false;
+				taller = false;
+				break;
 			}
 		} else {
-			*taller = false;
+			/* tree not rebalanced.. */
+			taller = false;
 		}
+	} else {
+		taller = false;
 	}
+	return taller;
 }
 
 static struct tree_node OPTIMIZE3 TARGET_CLONES *avl_find(
@@ -572,8 +577,7 @@ static void OPTIMIZE3 stress_tree_avl(
 	t = stress_time_now();
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
-		bool taller = false;
-		avl_insert(&head, node, &taller);
+		avl_insert(&head, node);
 	}
 	metrics->insert += stress_time_now() - t;
 
