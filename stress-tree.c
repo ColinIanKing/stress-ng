@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-pragma.h"
 #include "core-target-clones.h"
@@ -123,6 +124,22 @@ typedef struct btree_node {
 	int count;
 } btree_node_t;
 
+/*
+ *  We can enable struct packing for x86 since
+ *  this allows unaligned access of packed pointers.
+ *  For large trees where stressing becomes memory
+ *  bound once the tree is larger than the cache
+ *  it's best to pack as many tree nodes into memory
+ *  since the memory stall penalty is much larger than
+ *  the misaligned pointer access penalty.
+ */
+#if !defined(STRESS_ARCH_X86)
+#undef PACKED
+#define PACKED
+#endif
+
+STRESS_PRAGMA_PUSH
+
 typedef union {
 #if defined(HAVE_RB_TREE)
 	RB_ENTRY(tree_node)	rb;
@@ -136,8 +153,10 @@ typedef union {
 
 struct tree_node {
 	uint32_t value;
-	tree_union_t u;
-};
+	tree_union_t u PACKED;
+} PACKED;
+
+STRESS_PRAGMA_POP
 
 /*
  *  stress_set_tree_size()
