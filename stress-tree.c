@@ -411,7 +411,7 @@ static bool OPTIMIZE3 avl_insert(
 	struct tree_node *node)
 {
 	register struct tree_node *p, *q;
-	bool taller;
+	register bool taller;
 
 	if (!*root) {
 		*root = node;
