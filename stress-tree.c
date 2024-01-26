@@ -423,15 +423,14 @@ static bool OPTIMIZE3 avl_insert(
 
 	taller = false;
 	if (node->value < r->value) {
-			if (avl_insert(&r->u.avl.left, node)) {
+		if (avl_insert(&r->u.avl.left, node)) {
 			switch (r->u.avl.bf) {
 			case EH:
-				r->u.avl.bf = LH;
 				taller = true;
+				r->u.avl.bf = LH;
 				break;
 			case RH:
 				r->u.avl.bf = EH;
-				taller = false;
 				break;
 			case LH:
 				/* Rebalance required */
@@ -456,20 +455,23 @@ static bool OPTIMIZE3 avl_insert(
 					case RH:
 						r->u.avl.bf = EH;
 						p->u.avl.bf = LH;
+						q->u.avl.bf = EH;
+						*root = q;
 						break;
 					case LH:
 						r->u.avl.bf = RH;
 						p->u.avl.bf = EH;
+						q->u.avl.bf = EH;
+						*root = q;
 						break;
 					case EH:
 						r->u.avl.bf = EH;
 						p->u.avl.bf = EH;
+						q->u.avl.bf = EH;
+						*root = q;
 						break;
 					}
-					q->u.avl.bf = EH;
-					*root = q;
 				}
-				taller = false;
 				break;
 			}
 		}
@@ -478,11 +480,10 @@ static bool OPTIMIZE3 avl_insert(
 			switch (r->u.avl.bf) {
 			case LH:
 				r->u.avl.bf = EH;
-				taller = false;
 				break;
 			case EH:
-				r->u.avl.bf = RH;
 				taller = true;
+				r->u.avl.bf = RH;
 				break;
 			case RH:
 				/* Rebalance required */
@@ -507,28 +508,26 @@ static bool OPTIMIZE3 avl_insert(
 					case LH:
 						r->u.avl.bf = EH;
 						p->u.avl.bf = RH;
+						q->u.avl.bf = EH;
+						*root = q;
 						break;
 					case RH:
 						r->u.avl.bf = LH;
 						p->u.avl.bf = EH;
+						q->u.avl.bf = EH;
+						*root = q;
 						break;
 					case EH:
 						r->u.avl.bf = EH;
 						p->u.avl.bf = EH;
+						q->u.avl.bf = EH;
+						*root = q;
 						break;
 					}
-					q->u.avl.bf = EH;
-					*root = q;
 				}
-				taller = false;
 				break;
 			}
-		} else {
-			/* tree not rebalanced.. */
-			taller = false;
 		}
-	} else {
-		taller = false;
 	}
 	return taller;
 }
