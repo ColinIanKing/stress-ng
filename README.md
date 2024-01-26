@@ -322,6 +322,12 @@ the toolchain (both CC and CXX). For example, a mips64 cross build:
 	STATIC=1 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ make -j $(nproc)
 ```
 
+To build with debug (-g) enabled use:
+```
+	make clean
+	DEBUG=1 make
+```
+
 ## Contributing to stress-ng:
 
 Send patches to colin.i.king@gmail.com or merge requests at
