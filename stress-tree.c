@@ -123,18 +123,20 @@ typedef struct btree_node {
 	int count;
 } btree_node_t;
 
-struct tree_node {
-	uint32_t value;
-	union {
+typedef union {
 #if defined(HAVE_RB_TREE)
-		RB_ENTRY(tree_node)	rb;
+	RB_ENTRY(tree_node)	rb;
 #endif
 #if defined(HAVE_SPLAY_TREE)
-		SPLAY_ENTRY(tree_node)	splay;
+	SPLAY_ENTRY(tree_node)	splay;
 #endif
-		struct binary_node	binary;
-		struct avl_node		avl;
-	} u;
+	struct binary_node	binary;
+	struct avl_node		avl;
+} tree_union_t;
+
+struct tree_node {
+	uint32_t value;
+	tree_union_t u;
 };
 
 /*
