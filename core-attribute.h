@@ -56,6 +56,15 @@
 #define WEAK
 #endif
 
+/* packed attribute */
+#if defined(HAVE_ATTRIBUTE_PACKED) &&					\
+    ((defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 0, 0)) || 	\
+     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 4, 0)))
+#define PACKED		__attribute__((packed))
+#else
+#define PACKED
+#endif
+
 #if defined(ALWAYS_INLINE)
 #undef ALWAYS_INLINE
 #endif
