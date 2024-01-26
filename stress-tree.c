@@ -415,9 +415,9 @@ static bool OPTIMIZE3 avl_insert(
 
 	if (!*root) {
 		*root = node;
-		(*root)->u.avl.left = NULL;
-		(*root)->u.avl.right = NULL;
-		(*root)->u.avl.bf = EH;
+		node->u.avl.left = NULL;
+		node->u.avl.right = NULL;
+		node->u.avl.bf = EH;
 		return true;
 	}
 
