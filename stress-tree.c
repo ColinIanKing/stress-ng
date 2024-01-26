@@ -423,10 +423,7 @@ static bool OPTIMIZE3 avl_insert(
 
 	taller = false;
 	if (node->value < (*root)->value) {
-		register bool sub_taller;
-
-		sub_taller = avl_insert(&(*root)->u.avl.left, node);
-		if (sub_taller) {
+			if (avl_insert(&(*root)->u.avl.left, node)) {
 			switch ((*root)->u.avl.bf) {
 			case EH:
 				(*root)->u.avl.bf = LH;
@@ -477,10 +474,7 @@ static bool OPTIMIZE3 avl_insert(
 			}
 		}
 	} else if (node->value > (*root)->value) {
-		register bool sub_taller;
-
-		sub_taller = avl_insert(&(*root)->u.avl.right, node);
-		if (sub_taller) {
+		if (avl_insert(&(*root)->u.avl.right, node)) {
 			switch ((*root)->u.avl.bf) {
 			case LH:
 				(*root)->u.avl.bf = EH;
