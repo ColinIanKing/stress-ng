@@ -160,6 +160,9 @@ static const int mmap_flags[] = {
 #if defined(MAP_DENYWRITE)
 	MAP_DENYWRITE,
 #endif
+#if defined(MAP_SYNC)
+	MAP_SYNC,
+#endif
 /* OpenBSD */
 #if defined(MAP_HASSEMAPHORE)
 	 MAP_HASSEMAPHORE,
