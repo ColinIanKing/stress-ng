@@ -87,7 +87,9 @@ endif
 #
 # Optimization flags
 #
+ifeq ($(findstring icc,$(CC)),)
 override CFLAGS += $(foreach flag,-fipa-pta,$(cc_supports_flag))
+endif
 #
 # Enable Link Time Optimization
 #
