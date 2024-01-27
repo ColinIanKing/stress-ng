@@ -28,6 +28,10 @@
 
 #define _FILE_OFFSET_BITS 	(64)
 
+#if defined(__TINYC__)
+#undef _FORTIFY_SOURCE
+#endif
+
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif
@@ -43,7 +47,6 @@
 #elif defined(__TINYC__)
 /* Tiny C Compiler */
 #define HAVE_COMPILER_TCC
-#undef _FORTIFY_SOURCE
 #elif defined(__clang__) && 	\
    (defined(__INTEL_CLANG_COMPILER) || defined(__INTEL_LLVM_COMPILER))
 /* Intel ICX compiler */
