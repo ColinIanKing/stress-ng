@@ -40,8 +40,8 @@
 
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
-static volatile void *fault_addr;
-static volatile void *expected_addr;
+static volatile uint8_t *fault_addr;
+static volatile uint8_t *expected_addr;
 static volatile int signo;
 static volatile int code;
 #endif
@@ -67,7 +67,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(
 	(void)num;
 	(void)ucontext;
 
-	fault_addr = info->si_addr;
+	fault_addr = (uint8_t *)info->si_addr;
 	signo = info->si_signo;
 	code = info->si_code;
 
@@ -405,7 +405,7 @@ retry:
 #if defined(HAVE_SIGSEGV_VDSO)
 			case 6:
 #if defined(SA_SIGINFO)
-				expected_addr = BAD_ADDR;
+				expected_addr = (uint8_t *)BAD_ADDR;
 				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
 				stress_sigsegv_vdso();
@@ -413,14 +413,14 @@ retry:
 #endif
 			case 7:
 #if defined(SA_SIGINFO)
-				expected_addr = ro_ptr;
+				expected_addr = (uint8_t *)ro_ptr;
 				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
 				*ro_ptr = 0;
 				goto retry;
 			case 8:
 #if defined(SA_SIGINFO)
-				expected_addr = none_ptr;
+				expected_addr = (uint8_t *)none_ptr;
 #endif
 				stress_uint8_put(*none_ptr);
 				break;
