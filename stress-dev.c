@@ -87,6 +87,10 @@
 #include <linux/random.h>
 #endif
 
+#if defined(HAVE_LINUX_RTC_H)
+#include <linux/rtc.h>
+#endif
+
 #if defined(HAVE_LINUX_SERIAL_H)
 #include <linux/serial.h>
 #endif
@@ -1672,6 +1676,40 @@ static void stress_dev_mem_linux(
 	(void)devpath;
 
 	stress_dev_mem_mmap_linux(fd, devpath, true, true);
+}
+#endif
+
+#if defined(__linux__)
+static void stress_dev_rtc_linux(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(RTC_IRQP_READ)
+	{
+		unsigned long irqp;
+
+		VOID_RET(int, ioctl(fd, RTC_IRQP_READ, &irqp));
+	}
+#endif
+#if defined(RTC_EPOCH_READ)
+	{
+		unsigned long epoch;
+
+		VOID_RET(int, ioctl(fd, RTC_EPOCH_READ, &epoch));
+	}
+#endif
+#if defined(RTC_VL_READ)
+	{
+		unsigned int vl;
+
+		VOID_RET(int, ioctl(fd, RTC_VL_READ, &vl));
+	}
+#endif
 }
 #endif
 
@@ -3802,6 +3840,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	UNEXPECTED
 #endif
 #if defined(__linux__)
+	DEV_FUNC("/dev/rtc",	stress_dev_rtc_linux),
 	DEV_FUNC("/dev/mem",	stress_dev_mem_linux),
 	DEV_FUNC("/dev/kmem",	stress_dev_kmem_linux),
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
@@ -3956,7 +3995,7 @@ static int stress_dev_open_lock(
 	fd = stress_open_timeout(args->name, dev_info->path, mode, 250000000);
 	if (fd < 0) {
 		if (errno == EBUSY)
-			dev_info->state->open_failed = true;
+			shim_usleep(10000);
 		return -1;
 	}
 	if (stress_dev_lock(dev_info->path, fd) < 0) {
@@ -4039,7 +4078,6 @@ static inline void stress_dev_rw(
 			return;
 		dev_info = pthread_dev_info;
 		(void)shim_pthread_spin_unlock(&lock);
-
 		if (!dev_info || !stress_continue_flag())
 			break;
 
