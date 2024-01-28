@@ -2499,7 +2499,6 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(__linux__)
-
 #define ACPI_THERMAL_GET_TRT_LEN	_IOR('s', 1, unsigned long)
 #define ACPI_THERMAL_GET_ART_LEN	_IOR('s', 2, unsigned long)
 #define ACPI_THERMAL_GET_TRT_COUNT	_IOR('s', 3, unsigned long)
@@ -2888,6 +2887,8 @@ static void stress_dev_null_nop(
 	VOID_ARGS(args, fd, devpath);
 }
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_PTP_CLOCK_H)
 /*
  *  stress_dev_ptp_linux()
  *	minor exercising of the PTP device
@@ -2899,8 +2900,7 @@ static void stress_dev_ptp_linux(
 {
 	VOID_ARGS(args, fd, devpath);
 
-#if defined(HAVE_LINUX_PTP_CLOCK_H) &&	\
-    defined(PTP_CLOCK_GETCAPS) &&	\
+#if defined(PTP_CLOCK_GETCAPS) &&	\
     defined(PTP_PIN_GETFUNC)
 	int ret;
 	struct ptp_clock_caps caps;
@@ -2922,6 +2922,7 @@ static void stress_dev_ptp_linux(
 	}
 #endif
 }
+#endif
 
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_FD_H)
@@ -3492,7 +3493,10 @@ static const stress_dev_func_t dev_funcs[] = {
     defined(HAVE_LINUX_HPET_H)
 	DEV_FUNC("/dev/hpet",	stress_dev_hpet_linux),
 #endif
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_PTP_CLOCK_H)
 	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux),
+#endif
 	DEV_FUNC("/dev/snd/control",	stress_dev_snd_control_linux),
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_FD_H)
