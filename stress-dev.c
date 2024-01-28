@@ -245,6 +245,14 @@ static shim_pthread_spinlock_t lock;
 static shim_pthread_spinlock_t parport_lock;
 static dev_info_t *pthread_dev_info;
 
+#define VOID_ARGS(args, fd, devpath)	\
+do {					\
+	(void)args;			\
+	(void)fd;			\
+	(void)devpath;			\
+} while (0)
+
+
 /*
  *  linux_xen_guest()
  *	return true if stress-ng is running
@@ -376,9 +384,7 @@ static void stress_dev_media_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(MEDIA_IOC_DEVICE_INFO) &&	\
     defined(HAVE_MEDIA_DEVICE_INFO)
@@ -411,9 +417,7 @@ static void stress_dev_vcs_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(VT_GETMODE) &&	\
     defined(HAVE_VT_MODE)
@@ -441,9 +445,7 @@ static void stress_dev_dm_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(DM_VERSION) &&	\
     defined(HAVE_DM_IOCTL)
@@ -497,9 +499,7 @@ static void stress_dev_video_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(VIDIOC_QUERYCAP) &&	\
     defined(HAVE_V4L2_CAPABILITY)
@@ -617,8 +617,7 @@ static void stress_dev_tty(
 	struct termios t;
 	int ret;
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	if (!isatty(fd))
 		return;
@@ -936,9 +935,7 @@ static void stress_dev_blk(
 {
 	off_t offset;
 
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(BLKFLSBUF)
 	{
@@ -1190,8 +1187,7 @@ static void stress_dev_scsi_blk(
 	const int fd,
 	dev_info_t *dev_info)
 {
-	(void)args;
-	(void)fd;
+	VOID_ARGS(args, fd, dev_info);
 
 	if (!is_scsi_dev(dev_info))
 		return;
@@ -1254,9 +1250,7 @@ static void stress_dev_scsi_generic_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(SG_GET_VERSION_NUM)
 	{
@@ -1369,9 +1363,7 @@ static void stress_dev_random_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(RNDGETENTCNT)
 	{
@@ -1502,8 +1494,7 @@ static void stress_dev_mem_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	stress_dev_mem_mmap_linux(fd, devpath, true, true);
 }
@@ -1516,9 +1507,7 @@ static void stress_dev_rtc_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if !defined(RTC_IRQP_READ32) &&	\
     defined(_IOR)
@@ -1562,8 +1551,7 @@ static void stress_dev_kmem_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	stress_dev_mem_mmap_linux(fd, devpath, false, false);
 }
@@ -1729,9 +1717,7 @@ static void stress_dev_cdrom_linux(
 		"lock",
 	};
 
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	for (i = 0; i < SIZEOF_ARRAY(proc_files); i++) {
 		char path[PATH_MAX];
@@ -2139,9 +2125,7 @@ static void stress_dev_console_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(HAVE_LINUX_KD_H) &&	\
     defined(KDGETLED)
@@ -2552,8 +2536,7 @@ static void stress_dev_acpi_thermal_rel_linux(
 	int count;
 	unsigned long length;
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	VOID_RET(int, ioctl(fd, ACPI_THERMAL_GET_TRT_COUNT, &count));
 	if (ioctl(fd, ACPI_THERMAL_GET_TRT_LEN, &length) == 0)
@@ -2578,9 +2561,7 @@ static void stress_dev_hid_linux(
 {
 	int size = -1;
 
-	(void)args;
-	(void)devpath;
-	(void)size;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(HIDIOCGRDESCSIZE)
 	{
@@ -2643,8 +2624,7 @@ static void stress_dev_kmsg_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	stress_dev_mem_mmap_linux(fd, devpath, true, false);
 }
@@ -2657,9 +2637,8 @@ static void stress_dev_nvram_linux(
 	const char *devpath)
 {
 	char buffer[114];
-	(void)args;
-	(void)devpath;
 
+	VOID_ARGS(args, fd, devpath);
 	stress_dev_mem_mmap_linux(fd, devpath, true, false);
 
 	VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
@@ -2674,9 +2653,7 @@ static void stress_dev_hpet_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	/*
 	 *  Avoid https://bugs.xenserver.org/browse/XSO-809
@@ -2734,8 +2711,7 @@ static void stress_dev_port_linux(
 	uint8_t *ptr;
 	const size_t page_size = stress_get_page_size();
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	/* seek and read port 0x80 */
 	off = lseek(fd, (off_t)0x80, SEEK_SET);
@@ -2758,9 +2734,7 @@ static void stress_dev_lirc_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(LIRC_GET_FEATURES)
 	{
@@ -2838,8 +2812,7 @@ static void stress_dev_hd_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(HDIO_GETGEO)
 	{
@@ -2912,9 +2885,7 @@ static void stress_dev_null_nop(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 }
 
 /*
@@ -2926,14 +2897,15 @@ static void stress_dev_ptp_linux(
 	const int fd,
 	const char *devpath)
 {
+	VOID_ARGS(args, fd, devpath);
+
 #if defined(HAVE_LINUX_PTP_CLOCK_H) &&	\
     defined(PTP_CLOCK_GETCAPS) &&	\
     defined(PTP_PIN_GETFUNC)
 	int ret;
 	struct ptp_clock_caps caps;
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	errno = 0;
 	ret = ioctl(fd, PTP_CLOCK_GETCAPS, &caps);
@@ -2948,10 +2920,6 @@ static void stress_dev_ptp_linux(
 			VOID_RET(int, ioctl(fd, PTP_PIN_GETFUNC, &desc));
 		}
 	}
-#else
-	(void)args;
-	(void)fd;
-	(void)devpath;
 #endif
 }
 
@@ -2966,9 +2934,7 @@ static void stress_dev_floppy_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(FDMSGON)
 	VOID_RET(int, ioctl(fd, FDMSGON, 0));
@@ -3055,9 +3021,7 @@ static void stress_dev_snd_control_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(SNDRV_CTL_IOCTL_PVERSION)
 	{
@@ -3126,8 +3090,7 @@ static void stress_dev_hwrng_linux(
 {
 	char buffer[8];
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
 	VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
@@ -3159,9 +3122,7 @@ static void stress_dev_parport_linux(
 	bool claimed = false;
 #endif
 
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	/*
 	 *  We don't do a PPCLAIM or PPRELEASE on all
@@ -3297,9 +3258,7 @@ static void stress_dev_bus_usb_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(HAVE_LINUX_USBDEVICE_FS_H) &&	\
     (defined(USBDEVFS_GET_SPEED) ||		\
@@ -3350,8 +3309,7 @@ static void stress_dev_vmci_linux(
 {
 	int val;
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	val = 0;
 	VOID_RET(int, ioctl(fd, IOCTL_VMCI_VERSION, &val));
@@ -3369,8 +3327,7 @@ static void stress_dev_cdc_wdm_linux(
 {
 	uint16_t val;
 
-	(void)args;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 	VOID_RET(int, ioctl(fd, IOCTL_WDM_MAX_COMMAND, &val));
 }
@@ -3387,9 +3344,7 @@ static void stress_dev_input_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(EVIOCGVERSION)
 	{
@@ -3436,9 +3391,7 @@ static void stress_dev_uinput_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(UI_GET_VERSION)
 	{
@@ -3461,9 +3414,7 @@ static void stress_dev_kvm_linux(
 	const int fd,
 	const char *devpath)
 {
-	(void)args;
-	(void)fd;
-	(void)devpath;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(KVM_GET_API_VERSION)
 	VOID_RET(int, ioctl(fd, KVM_GET_API_VERSION, 0));
