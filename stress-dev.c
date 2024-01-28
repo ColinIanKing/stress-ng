@@ -67,6 +67,10 @@
 #include <linux/hpet.h>
 #endif
 
+#if defined(HAVE_LINUX_INPUT_H)
+#include <linux/input.h>
+#endif
+
 #if defined(HAVE_LINUX_KD_H)
 #include <linux/kd.h>
 #endif
@@ -3819,6 +3823,52 @@ static void stress_dev_cdc_wdm_linux(
 }
 #endif
 
+/*
+ *   stress_dev_input_linux()
+ *   	Exercise Linux input device
+ */
+static void stress_dev_input_linux(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(EVIOCGVERSION)
+	{
+		int version;
+
+		VOID_RET(int, ioctl(fd, EVIOCGVERSION, &version));
+	}
+#endif
+#if defined(EVIOCGREP)
+	{
+		unsigned int repeat[2];
+
+		VOID_RET(int, ioctl(fd, EVIOCGREP, repeat));
+	}
+#endif
+#if defined(EVIOCGKEYCODE)
+	{
+		unsigned int keycode[2];
+
+		keycode[0] = stress_mwc8();
+		keycode[1] = stress_mwc8();
+
+		VOID_RET(int, ioctl(fd, EVIOCGKEYCODE, keycode));
+	}
+#endif
+#if defined(EVIOCGEFFECTS)
+	{
+		int effects;
+
+		VOID_RET(int, ioctl(fd, EVIOCGEFFECTS, &effects));
+	}
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3890,6 +3940,11 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/hwrng",	stress_dev_hwrng_linux),
+#else
+	UNEXPECTED
+#endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/input/event", stress_dev_input_linux),
 #else
 	UNEXPECTED
 #endif
