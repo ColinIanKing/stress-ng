@@ -75,6 +75,10 @@
 #include <linux/kd.h>
 #endif
 
+#if defined(HAVE_LINUX_KVM_H)
+#include <linux/kvm.h>
+#endif
+
 #if defined(HAVE_LINUX_LIRC_H)
 #include <linux/lirc.h>
 #endif
@@ -3903,6 +3907,37 @@ static void stress_dev_uinput_linux(
 #endif
 }
 
+/*
+ *   stress_dev_kvm_linux()
+ *   	Exercise Linux kvm device
+ */
+static void stress_dev_kvm_linux(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(KVM_GET_API_VERSION)
+	VOID_RET(int, ioctl(fd, KVM_GET_API_VERSION, 0));
+#endif
+#if defined(KVM_GET_VCPU_MMAP_SIZE)
+	VOID_RET(int, ioctl(fd, KVM_GET_VCPU_MMAP_SIZE, 0));
+#endif
+#if defined(KVM_GET_NR_MMU_PAGES)
+	/* deprecated, but worth exercising */
+	VOID_RET(int, ioctl(fd, KVM_GET_NR_MMU_PAGES, 0));
+#endif
+#if defined(KVM_GET_TSC_KHZ)
+	VOID_RET(int, ioctl(fd, KVM_GET_TSC_KHZ, 0));
+#endif
+#if defined(KVM_GET_STATS_FD)
+	VOID_RET(int, ioctl(fd, KVM_GET_STATS_FD, 0));
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3979,6 +4014,11 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/input/event", stress_dev_input_linux),
+#else
+	UNEXPECTED
+#endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/kvm", stress_dev_kvm_linux),
 #else
 	UNEXPECTED
 #endif
