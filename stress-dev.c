@@ -103,6 +103,10 @@
 #include <linux/ptp_clock.h>
 #endif
 
+#if defined(HAVE_LINUX_UINPUT_H)
+#include <linux/uinput.h>
+#endif
+
 #if defined(HAVE_LINUX_USBDEVICE_FS_H)
 #include <linux/usbdevice_fs.h>
 #endif
@@ -3877,6 +3881,28 @@ static void stress_dev_input_linux(
 #endif
 }
 
+/*
+ *   stress_dev_uinput_linux()
+ *   	Exercise Linux uinput device
+ */
+static void stress_dev_uinput_linux(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(UI_GET_VERSION)
+	{
+		unsigned int version;
+
+		VOID_RET(int, ioctl(fd, UI_GET_VERSION, &version));
+	}
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3968,6 +3994,11 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(HAVE_LINUX_LIRC_H)
 	DEV_FUNC("/dev/lirc",	stress_dev_lirc_linux),
+#else
+	UNEXPECTED
+#endif
+#if defined(HAVE_LINUX_UINPUT_H)
+	DEV_FUNC("/dev/uinput",	stress_dev_uinput_linux),
 #else
 	UNEXPECTED
 #endif
