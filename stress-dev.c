@@ -1689,11 +1689,23 @@ static void stress_dev_rtc_linux(
 	(void)fd;
 	(void)devpath;
 
+#if !defined(RTC_IRQP_READ32) &&	\
+    defined(_IOR)
+#define RTC_IRQP_READ32               _IOR('p', 0x0b, __u32)
+#endif
+
 #if defined(RTC_IRQP_READ)
 	{
 		unsigned long irqp;
 
 		VOID_RET(int, ioctl(fd, RTC_IRQP_READ, &irqp));
+	}
+#endif
+#if defined(RTC_IRQP_READ32)
+	{
+		uint32_t irqp;
+
+		VOID_RET(int, ioctl(fd, RTC_IRQP_READ32, &irqp));
 	}
 #endif
 #if defined(RTC_EPOCH_READ)
