@@ -1563,6 +1563,14 @@ static void stress_dev_random_linux(
 	}
 #endif
 
+#if defined(RNDGETPOOL)
+	{
+		int pool[2];
+
+		VOID_RET(int, ioctl(fd, RNDGETPOOL, pool));
+	}
+#endif
+
 #if defined(RNDRESEEDCRNG)
 	{
 		VOID_RET(int, ioctl(fd, RNDRESEEDCRNG, NULL));
