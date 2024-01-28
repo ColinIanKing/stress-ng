@@ -325,7 +325,6 @@ static void ioctl_set_timeout(const double secs)
 		VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
 	}
 #else
-	UNEXPECTED
 	(void)secs;
 #endif
 }
@@ -341,8 +340,6 @@ static void ioctl_clr_timeout(void)
 
 	(void)shim_memset(&it, 0, sizeof(it));
 	VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
-#else
-	UNEXPECTED
 #endif
 }
 
@@ -403,13 +400,12 @@ static void stress_dev_media_linux(
 			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null bus_info field\n",
 				args->name, devpath);
 	}
-#else
-	UNEXPECTED
 #endif
 }
 #endif
 
-#if defined(HAVE_LINUX_VT_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_VT_H)
 static void stress_dev_vcs_linux(
 	stress_args_t *args,
 	const int fd,
@@ -426,8 +422,6 @@ static void stress_dev_vcs_linux(
 
 		VOID_RET(int, ioctl(fd, VT_GETMODE, &mode));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VT_GETSTATE) &&	\
     defined(HAVE_VT_STAT)
@@ -436,13 +430,12 @@ static void stress_dev_vcs_linux(
 
 		VOID_RET(int, ioctl(fd, VT_GETSTATE, &vt_stat));
 	}
-#else
-	UNEXPECTED
 #endif
 }
 #endif
 
-#if defined(HAVE_LINUX_DM_IOCTL_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_DM_IOCTL_H)
 static void stress_dev_dm_linux(
 	stress_args_t *args,
 	const int fd,
@@ -459,8 +452,6 @@ static void stress_dev_dm_linux(
 
 		VOID_RET(int, ioctl(fd, DM_VERSION, &dm));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(DM_DEV_STATUS) &&	\
     defined(HAVE_DM_IOCTL)
@@ -469,8 +460,6 @@ static void stress_dev_dm_linux(
 
 		VOID_RET(int, ioctl(fd, DM_DEV_STATUS, &dm));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(RWF_NOWAIT) &&	\
     defined(O_DIRECT) &&	\
@@ -501,7 +490,8 @@ static void stress_dev_dm_linux(
 }
 #endif
 
-#if defined(HAVE_LINUX_VIDEODEV2_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_VIDEODEV2_H)
 static void stress_dev_video_linux(
 	stress_args_t *args,
 	const int fd,
@@ -519,8 +509,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&c, 0, sizeof(c));
 		VOID_RET(int, ioctl(fd, VIDIOC_QUERYCAP, &c));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_FBUF) &&	\
     defined(HAVE_V4L2_FRAMEBUFFER)
@@ -530,8 +518,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&f, 0, sizeof(f));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_FBUF, &f));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_STD) &&	\
     defined(HAVE_V4L2_STD_ID)
@@ -541,8 +527,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&id, 0, sizeof(id));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_STD, &id));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_AUDIO) &&	\
     defined(HAVE_V4L2_AUDIO)
@@ -552,8 +536,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_AUDIO, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_INPUT)
 	{
@@ -561,8 +543,6 @@ static void stress_dev_video_linux(
 
 		VOID_RET(int, ioctl(fd, VIDIOC_G_INPUT, &in));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_OUTPUT)
 	{
@@ -570,8 +550,6 @@ static void stress_dev_video_linux(
 
 		VOID_RET(int, ioctl(fd, VIDIOC_G_OUTPUT, &in));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_AUDOUT) &&	\
     defined(HAVE_V4L2_AUDIOOUT)
@@ -581,8 +559,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_AUDOUT, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_JPEGCOMP) && \
     defined(HAVE_V4L2_JPEGCOMPRESSION)
@@ -592,8 +568,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_JPEGCOMP, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_QUERYSTD) &&	\
     defined(HAVE_V4L2_STD_ID)
@@ -603,8 +577,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_QUERYSTD, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_PRIORITY)
 	{
@@ -612,8 +584,6 @@ static void stress_dev_video_linux(
 
 		VOID_RET(int, ioctl(fd, VIDIOC_G_PRIORITY, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_ENC_INDEX) &&	\
     defined(HAVE_V4L2_ENC_IDX)
@@ -623,8 +593,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_G_ENC_INDEX, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(VIDIOC_QUERY_DV_TIMINGS) &&	\
     defined(HAVE_V4L2_DV_TIMINGS)
@@ -634,8 +602,6 @@ static void stress_dev_video_linux(
 		(void)shim_memset(&a, 0, sizeof(a));
 		VOID_RET(int, ioctl(fd, VIDIOC_QUERY_DV_TIMINGS, &a));
 	}
-#else
-	UNEXPECTED
 #endif
 }
 #endif
@@ -665,13 +631,9 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TCSETS, &t);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGPTLCK)
 	{
@@ -682,8 +644,6 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TIOCSPTLCK, &lck);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
@@ -697,13 +657,9 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TIOCPKT, &pktmode);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGPTN)
 	{
@@ -711,8 +667,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, TIOCGPTN, &ptnum));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCSIG) &&	\
     defined(SIGCONT)
@@ -722,8 +676,6 @@ static void stress_dev_tty(
 		/* generally causes EINVAL */
 		VOID_RET(int, ioctl(fd, TIOCSIG, &sig));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGWINSZ) && \
     defined(HAVE_WINSIZE)
@@ -735,13 +687,9 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TIOCSWINSZ, &ws);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(FIONREAD)
 	{
@@ -749,8 +697,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, FIONREAD, &n));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCINQ)
 	{
@@ -758,8 +704,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, TIOCINQ, &n));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCOUTQ)
 	{
@@ -767,8 +711,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, TIOCOUTQ, &n));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGPGRP)
 	{
@@ -779,13 +721,9 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TIOCSPGRP, &pgrp);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGSID)
 	{
@@ -793,8 +731,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, TIOCGSID, &gsid));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGEXCL)
 	{
@@ -811,14 +747,10 @@ static void stress_dev_tty(
 				VOID_RET(int, ioctl(fd, TIOCEXCL, NULL));
 				VOID_RET(int, ioctl(fd, TIOCNXCL, NULL));
 			}
-#else
-		UNEXPECTED
 #endif
 		}
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 /*
  *  On some older 3.13 kernels this can lock up, need to add
@@ -834,21 +766,15 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TIOCSETD, &ldis);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	/* UNEXPECTED */
 #endif
 
 #if defined(TIOCGPTPEER)
 	{
 		VOID_RET(int, ioctl(fd, TIOCGPTPEER, O_RDWR));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(TCXONC) &&	\
@@ -860,8 +786,6 @@ static void stress_dev_tty(
 			ret = ioctl(fd, TCXONC, TCOON);
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(TCXONC) &&	\
@@ -873,8 +797,6 @@ static void stress_dev_tty(
 			ret = ioctl(fd, TCXONC, TCION);
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 	/* Modem */
@@ -887,13 +809,9 @@ static void stress_dev_tty(
 		if (ret == 0) {
 			ret = ioctl(fd, TIOCSSOFTCAR, &flag);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(KDGETLED)
@@ -902,8 +820,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, KDGETLED, &state));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(KDGKBTYPE)
@@ -912,8 +828,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, KDGKBTYPE, &type));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(KDGETMODE)
@@ -922,8 +836,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, KDGETMODE, &mode));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(KDGKBMODE)
@@ -932,8 +844,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, KDGKBMODE, &mode));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(KDGKBMETA)
@@ -942,8 +852,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, KDGKBMETA, &mode));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCMGET)
 	{
@@ -954,23 +862,15 @@ static void stress_dev_tty(
 		if (ret == 0) {
 #if defined(TIOCMBIC)
 			VOID_RET(int, ioctl(fd, TIOCMBIC, &status));
-#else
-			UNEXPECTED
 #endif
 #if defined(TIOCMBIS)
 			VOID_RET(int, ioctl(fd, TIOCMBIS, &status));
-#else
-			UNEXPECTED
 #endif
 			ret = ioctl(fd, TIOCMSET, &status);
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGICOUNT) &&		\
     defined(HAVE_LINUX_SERIAL_H) &&	\
@@ -980,8 +880,6 @@ static void stress_dev_tty(
 
 		VOID_RET(int, ioctl(fd, TIOCGICOUNT, &counter));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(TIOCGSERIAL) &&		\
     defined(HAVE_LINUX_SERIAL_H) &&	\
@@ -993,13 +891,9 @@ static void stress_dev_tty(
 #if defined(TIOCSSERIAL)
 		if (ret == 0)
 			ret = ioctl(fd, TIOCSSERIAL, &serial);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_SHIM_TERMIOS2) &&	\
@@ -1016,31 +910,19 @@ static void stress_dev_tty(
 		if (ret == 0) {
 #if defined(TCSETSF2)
 			VOID_RET(int, ioctl(fd, TCSETSF2, &t2));
-#else
-			UNEXPECTED
 #endif
 #if defined(TCSETSW2)
 			VOID_RET(int, ioctl(fd, TCSETSW2, &t2));
-#else
-			UNEXPECTED
 #endif
 #if defined(TCSETS2)
 			VOID_RET(int, ioctl(fd, TCSETS2, &t2));
 			(void)ret;
-#else
-			UNEXPECTED
 #endif
 		}
-#else
-		UNEXPECTED
 #endif
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 /*
@@ -1062,8 +944,6 @@ static void stress_dev_blk(
 	{
 		VOID_RET(int, ioctl(fd, BLKFLSBUF, 0));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKRAGET)
@@ -1079,8 +959,6 @@ static void stress_dev_blk(
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKFRAGET)
@@ -1096,8 +974,6 @@ static void stress_dev_blk(
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKROGET)
@@ -1112,8 +988,6 @@ static void stress_dev_blk(
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKBSZGET)
@@ -1128,8 +1002,6 @@ static void stress_dev_blk(
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKPBSZGET)
@@ -1139,8 +1011,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKPBSZGET, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKIOMIN)
@@ -1149,8 +1019,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKIOMIN, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKIOOPT)
@@ -1159,8 +1027,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKIOOPT, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKALIGNOFF)
@@ -1169,8 +1035,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKALIGNOFF, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKROTATIONAL)
@@ -1179,8 +1043,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKROTATIONAL, &rotational));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKSECTGET)
@@ -1189,8 +1051,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKSECTGET, &max_sectors));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKGETSIZE)
@@ -1199,8 +1059,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKGETSIZE, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKGETSIZE64)
@@ -1209,8 +1067,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKGETSIZE64, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKGETDISKSEQ)
@@ -1219,8 +1075,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKGETDISKSEQ, &diskseq));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKGETZONESZ)
@@ -1229,8 +1083,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKGETZONESZ, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(BLKGETNRZONES)
@@ -1239,8 +1091,6 @@ static void stress_dev_blk(
 
 		VOID_RET(int, ioctl(fd, BLKGETNRZONES, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 
 	offset = lseek(fd, 0, SEEK_END);
@@ -1352,8 +1202,6 @@ static void stress_dev_scsi_blk(
 
 		VOID_RET(int, ioctl(fd, SG_GET_VERSION_NUM, &ver));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SCSI_IOCTL_GET_IDLUN)
 	{
@@ -1365,8 +1213,6 @@ static void stress_dev_scsi_blk(
 		(void)shim_memset(&lun, 0, sizeof(lun));
 		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SCSI_IOCTL_GET_BUS_NUMBER)
 	{
@@ -1374,15 +1220,11 @@ static void stress_dev_scsi_blk(
 
 		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_TIMEOUT)
 	{
 		VOID_RET(int, ioctl(fd, SG_GET_TIMEOUT, 0));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_RESERVED_SIZE)
 	{
@@ -1390,8 +1232,6 @@ static void stress_dev_scsi_blk(
 
 		VOID_RET(int, ioctl(fd, SG_GET_RESERVED_SIZE, &sz));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SCSI_IOCTL_GET_PCI)
 	{
@@ -1400,12 +1240,11 @@ static void stress_dev_scsi_blk(
 
 		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_PCI, pci));
 	}
-#else
-	/* UNEXPECTED */
 #endif
 }
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SCSI_SG_H)
 /*
  *  stress_dev_scsi_generic_linux()
  *	SCSI generic device specific ioctls for linux
@@ -1425,15 +1264,11 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_VERSION_NUM, &version));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_TIMEOUT)
 	{
 		VOID_RET(int, ioctl(fd, SG_GET_TIMEOUT, 0));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_LOW_DMA)
 	{
@@ -1441,8 +1276,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_LOW_DMA, &low));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_PACK_ID)
 	{
@@ -1450,8 +1283,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_PACK_ID, &pack_id));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_NUM_WAITING)
 	{
@@ -1459,8 +1290,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_NUM_WAITING, &n));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_SG_TABLESIZE)
 	{
@@ -1468,8 +1297,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_SG_TABLESIZE, &size));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_RESERVED_SIZE)
 	{
@@ -1477,8 +1304,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_RESERVED_SIZE, &size));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_COMMAND_Q)
 	{
@@ -1486,8 +1311,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_COMMAND_Q, &cmd_q));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_ACCESS_COUNT)
 	{
@@ -1495,8 +1318,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_GET_ACCESS_COUNT, &n));
 	}
-#else
-	/* UNEXPECTED */
 #endif
 #if defined(SCSI_IOCTL_GET_IDLUN)
 	{
@@ -1507,8 +1328,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_IDLUN, &idlun));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SCSI_IOCTL_GET_BUS_NUMBER)
 	{
@@ -1516,15 +1335,11 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_GET_TRANSFORM)
 	{
 		VOID_RET(int, ioctl(fd, SG_GET_TRANSFORM, 0));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(SG_EMULATED_HOST)
 	{
@@ -1532,8 +1347,6 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, SG_EMULATED_HOST, &emulated));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(BLKSECTGET)
 	{
@@ -1541,15 +1354,12 @@ static void stress_dev_scsi_generic_linux(
 
 		VOID_RET(int, ioctl(fd, BLKSECTGET, &n));
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
-#if defined(HAVE_LINUX_RANDOM_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_RANDOM_H)
 /*
  *  stress_dev_random_linux()
  *	Linux /dev/random ioctls
@@ -1699,7 +1509,8 @@ static void stress_dev_mem_linux(
 }
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_RTC_H)
 static void stress_dev_rtc_linux(
 	stress_args_t *args,
 	const int fd,
@@ -1821,8 +1632,6 @@ static void stress_cdrom_ioctl_msf(const int fd)
 	if ((endtrk == 0) && (starttrk != 0)) {
 		return;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROMPLAYTRKIND) &&	\
@@ -1837,8 +1646,6 @@ static void stress_cdrom_ioctl_msf(const int fd)
 		if (ioctl(fd, CDROMPLAYTRKIND, &ti) == 0)
 			VOID_RET(int, ioctl(fd, CDROMPAUSE, 0));
 	}, return);
-#else
-	/* UNEXPECTED */
 #endif
 
 #if defined(CDROMREADTOCENTRY) &&	\
@@ -1860,8 +1667,6 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			if (ioctl(fd, CDROMPLAYMSF, &msf) == 0)
 				VOID_RET(int, ioctl(fd, CDROMPAUSE, 0));
 		}, return);
-#else
-		UNEXPECTED
 #endif
 
 #if defined(CDROMREADRAW) &&	\
@@ -1875,8 +1680,6 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			arg.msf = msf;
 			VOID_RET(int, ioctl(fd, CDROMREADRAW, &arg));
 		}, return);
-#else
-		UNEXPECTED
 #endif
 
 #if defined(CDROMREADMODE1) &&	\
@@ -1890,8 +1693,6 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			arg.msf = msf;
 			VOID_RET(int, ioctl(fd, CDROMREADMODE1, &arg));
 		}, return);
-#else
-		UNEXPECTED
 #endif
 
 #if defined(CDROMREADMODE2) &&	\
@@ -1905,16 +1706,10 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			arg.msf = msf;
 			VOID_RET(int, ioctl(fd, CDROMREADMODE2, &arg));
 		}, return);
-#else
-		UNEXPECTED
 #endif
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 #if defined(__linux__)
@@ -1961,8 +1756,6 @@ static void stress_dev_cdrom_linux(
 			ret = ioctl(fd, CDROMVOLCTRL, &volume);
 		(void)ret;
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROM_GET_MCN) &&	\
     defined(HAVE_CDROM_MCN)
@@ -1972,8 +1765,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&mcn, 0, sizeof(mcn));
 		VOID_RET(int, ioctl(fd, CDROM_GET_MCN, &mcn));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMREADTOCHDR) &&		\
     defined(HAVE_CDROM_TOCHDR)
@@ -1983,8 +1774,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&header, 0, sizeof(header));
 		VOID_RET(int, ioctl(fd, CDROMREADTOCHDR, &header));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMREADTOCENTRY) &&	\
     defined(HAVE_CDROM_TOCENTRY)
@@ -1994,8 +1783,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&entry, 0, sizeof(entry));
 		VOID_RET(int, ioctl(fd, CDROMREADTOCENTRY, &entry));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMSUBCHNL) &&	\
     defined(HAVE_CDROM_SUBCHNL)
@@ -2010,8 +1797,6 @@ static void stress_dev_cdrom_linux(
 #endif
 		VOID_RET(int, ioctl(fd, CDROMSUBCHNL, &q));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMREADAUDIO) &&	\
     defined(HAVE_CDROM_READ_AUDIO)
@@ -2021,8 +1806,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&ra, 0, sizeof(ra));
 		VOID_RET(int, ioctl(fd, CDROMREADAUDIO, &ra));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMREADCOOKED) &&	\
     defined(CD_FRAMESIZE)
@@ -2032,8 +1815,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&buffer, 0, sizeof(buffer));
 		VOID_RET(int, ioctl(fd, CDROMREADCOOKED, buffer));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMREADALL) &&	\
     defined(CD_FRAMESIZE)
@@ -2043,8 +1824,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&buffer, 0, sizeof(buffer));
 		VOID_RET(int, ioctl(fd, CDROMREADALL, buffer));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMSEEK) &&	\
     defined(HAVE_CDROM_MSF)
@@ -2054,8 +1833,6 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&msf, 0, sizeof(msf));
 		VOID_RET(int, ioctl(fd, CDROMSEEK, &msf));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMGETSPINDOWN)
 	{
@@ -2080,30 +1857,20 @@ static void stress_dev_cdrom_linux(
 				ret = ioctl(fd, CDROMSETSPINDOWN, &spindown);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_DISC_STATUS)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROM_DISC_STATUS, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_GET_CAPABILITY)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROM_GET_CAPABILITY, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROM_CHANGER_NSLOTS)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROM_CHANGER_NSLOTS, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROM_NEXT_WRITABLE)
 	IOCTL_TIMEOUT(0.10, {
@@ -2111,8 +1878,6 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_NEXT_WRITABLE, &next));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROM_LAST_WRITTEN)
 	IOCTL_TIMEOUT(0.10, {
@@ -2120,8 +1885,6 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_LAST_WRITTEN, &last));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROM_MEDIA_CHANGED) && 0
 	IOCTL_TIMEOUT(0.10, {
@@ -2129,8 +1892,6 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_MEDIA_CHANGED, slot));
 	}, return);
-#else
-	/* UNEXPECTED */
 #endif
 #if defined(CDSL_NONE)
 	IOCTL_TIMEOUT(0.10, {
@@ -2138,8 +1899,6 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_MEDIA_CHANGED, slot));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDSL_CURRENT)
 	IOCTL_TIMEOUT(0.10, {
@@ -2147,28 +1906,18 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_MEDIA_CHANGED, slot));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMSTART)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROMSTART, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMPAUSE)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROMPAUSE, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMRESUME)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROMRESUME, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMSTOP)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROMSTOP, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROM_DRIVE_STATUS)
 	IOCTL_TIMEOUT(0.10, {
@@ -2182,8 +1931,6 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_DRIVE_STATUS, slot));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDSL_CURRENT)
 	IOCTL_TIMEOUT(0.10, {
@@ -2191,11 +1938,7 @@ static void stress_dev_cdrom_linux(
 
 		VOID_RET(int, ioctl(fd, CDROM_DRIVE_STATUS, slot));
 	}, return);
-#else
-	UNEXPECTED
 #endif
-#else
-	UNEXPECTED
 #endif
 #if defined(DVD_READ_STRUCT) &&	\
     defined(HAVE_DVD_STRUCT)
@@ -2240,8 +1983,6 @@ static void stress_dev_cdrom_linux(
 		s.type = UINT8_MAX;
 		VOID_RET(int, ioctl(fd, DVD_READ_STRUCT, &s));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMAUDIOBUFSIZ)
 	IOCTL_TIMEOUT(0.10, {
@@ -2250,8 +1991,6 @@ static void stress_dev_cdrom_linux(
 		/* Invalid CDROMAUDIOBUFSIZ call with negative buffer size */
 		VOID_RET(int, ioctl(fd, CDROMAUDIOBUFSIZ, val));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 #if defined(DVD_AUTH) &&	\
     defined(HAVE_DVD_AUTHINFO)
@@ -2311,8 +2050,6 @@ static void stress_dev_cdrom_linux(
 		ai.type = (uint8_t)~0;
 		VOID_RET(int, ioctl(fd, DVD_AUTH, &ai));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_DEBUG)
@@ -2327,8 +2064,6 @@ static void stress_dev_cdrom_linux(
 		debug = 0;
 		VOID_RET(int, ioctl(fd, CDROM_DEBUG, debug));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_LOCKDOOR)
@@ -2343,8 +2078,6 @@ static void stress_dev_cdrom_linux(
 		lockdoor = 0;
 		VOID_RET(int, ioctl(fd, CDROM_LOCKDOOR, lockdoor));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_SET_OPTIONS)
@@ -2365,21 +2098,15 @@ static void stress_dev_cdrom_linux(
 		VOID_RET(int, ioctl(fd, CDROM_SET_OPTIONS, option));
 #endif
 	}, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_SELECT_DISC) &&	\
     defined(CDSL_CURRENT)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROM_SELECT_DISC, CDSL_CURRENT)); }, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROMCLOSETRAY)
 	IOCTL_TIMEOUT(0.10, { VOID_RET(int, ioctl(fd, CDROMCLOSETRAY, 0)); }, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROM_SELECT_SPEED)
@@ -2392,8 +2119,6 @@ static void stress_dev_cdrom_linux(
 			VOID_RET(int, ioctl(fd, CDROM_SELECT_SPEED, speed));
 		}
 	}, return);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(CDROMPLAYBLK) &&	\
@@ -2404,12 +2129,8 @@ static void stress_dev_cdrom_linux(
 		(void)shim_memset(&blk, 0, sizeof(blk));
 		VOID_RET(int, ioctl(fd, CDROMPLAYBLK, &blk));
 	}, return);
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 #if defined(__linux__)
@@ -2442,13 +2163,9 @@ static void stress_dev_console_linux(
 				ret = ioctl(fd, KDSETLED, &argp);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
@@ -2472,13 +2189,9 @@ static void stress_dev_console_linux(
 				ret = ioctl(fd, KDSKBLED, val);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
@@ -2501,8 +2214,6 @@ static void stress_dev_console_linux(
 				ret = ioctl(fd, KDSETMODE, argp);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
@@ -2515,8 +2226,6 @@ static void stress_dev_console_linux(
 
 		VOID_RET(int, ioctl(fd, KDGKBTYPE, &val));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2529,13 +2238,9 @@ static void stress_dev_console_linux(
 #if defined(PIO_CMAP)
 		if (ret == 0)
 			ret = ioctl(fd, PIO_CMAP, colormap);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2550,13 +2255,9 @@ static void stress_dev_console_linux(
 #if defined(PIO_FONTX)
 		if (ret == 0)
 			ret = ioctl(fd, PIO_FONTX, &font);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
@@ -2589,13 +2290,9 @@ static void stress_dev_console_linux(
 				ret = ioctl(fd, KDSETKEYCODE, &argp);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2608,13 +2305,9 @@ static void stress_dev_console_linux(
 #if defined(PIO_FONT)
 		if (ret == 0)
 			ret = ioctl(fd, PIO_FONT, argp);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2628,13 +2321,9 @@ static void stress_dev_console_linux(
 #if defined(PIO_SCRNMAP)
 		if (ret == 0)
 			ret = ioctl(fd, PIO_SCRNMAP, argp);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2648,13 +2337,9 @@ static void stress_dev_console_linux(
 #if defined(PIO_UNISCRNMAP)
 		if (ret == 0)
 			ret = ioctl(fd, PIO_UNISCRNMAP, argp);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
@@ -2677,13 +2362,9 @@ static void stress_dev_console_linux(
 				ret = ioctl(fd, KDSKBMODE, argp);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
@@ -2706,13 +2387,9 @@ static void stress_dev_console_linux(
 				ret = ioctl(fd, KDSKBMETA, argp);
 			}
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2729,13 +2406,9 @@ static void stress_dev_console_linux(
 			ret = ioctl(fd, PIO_UNIMAP, &argp);
 			(void)ret;
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2747,8 +2420,6 @@ static void stress_dev_console_linux(
 		(void)shim_memset(&argp, 0, sizeof(argp));
 		VOID_RET(int, ioctl(fd, KDGKBDIACR, &argp));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2765,8 +2436,6 @@ static void stress_dev_console_linux(
 			VOID_RET(int, ioctl(fd, VT_RESIZE, &argp));
 		}
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2783,8 +2452,6 @@ static void stress_dev_console_linux(
 			VOID_RET(int, ioctl(fd, VT_RESIZEX, &argp));
 		}
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
@@ -2801,13 +2468,9 @@ static void stress_dev_console_linux(
 			ret = ioctl(fd, KDSKBSENT, &argp);
 			(void)ret;
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_VT_H) &&	\
@@ -2824,13 +2487,9 @@ static void stress_dev_console_linux(
 			ret = ioctl(fd, VT_SETMODE, &mode);
 			(void)ret;
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
@@ -2848,17 +2507,11 @@ static void stress_dev_console_linux(
 			(void)ret;
 
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 #if defined(__linux__)
@@ -3014,7 +2667,8 @@ static void stress_dev_nvram_linux(
 }
 #endif
 
-#if defined(HAVE_LINUX_HPET_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_HPET_H)
 static void stress_dev_hpet_linux(
 	stress_args_t *args,
 	const int fd,
@@ -3036,8 +2690,6 @@ static void stress_dev_hpet_linux(
 
 		VOID_RET(int, ioctl(fd, HPET_INFO, &info));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(HPET_IRQFREQ)
 	{
@@ -3045,8 +2697,6 @@ static void stress_dev_hpet_linux(
 
 		VOID_RET(int, ioctl(fd, HPET_IRQFREQ, &freq));
 	}
-#else
-	UNEXPECTED
 #endif
 #if defined(CDROMMULTISESSION)
 	{
@@ -3069,12 +2719,8 @@ static void stress_dev_hpet_linux(
 		ms_info.addr_format = CDROM_LBA;
 		VOID_RET(int, ioctl(fd, CDROMMULTISESSION, &ms_info));
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 #if defined(__linux__) &&	\
@@ -3201,14 +2847,10 @@ static void stress_dev_hd_linux(
 
 		VOID_RET(int, ioctl(fd, HDIO_GETGEO, &geom));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_UNMASKINTR)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_UNMASKINTR);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_MULTCOUNT)
@@ -3217,8 +2859,6 @@ static void stress_dev_hd_linux(
 
 		VOID_RET(int, ioctl(fd, HDIO_GET_MULTCOUNT, &val));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_IDENTITY)
@@ -3227,62 +2867,42 @@ static void stress_dev_hd_linux(
 
 		VOID_RET(int, ioctl(fd, HDIO_GET_IDENTITY, identity));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_KEEPSETTINGS)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_KEEPSETTINGS);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_32BIT)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_32BIT);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_NOWERR)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_NOWERR);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_DMA)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_DMA);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_NICE)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_NICE);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_WCACHE)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_WCACHE);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_ACOUSTIC)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_ACOUSTIC);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_ADDRESS)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_ADDRESS);
-#else
-	UNEXPECTED
 #endif
 
 #if defined(HDIO_GET_BUSSTATE)
 	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_BUSSTATE);
-#else
-	UNEXPECTED
 #endif
 }
 #endif
@@ -3335,7 +2955,8 @@ static void stress_dev_ptp_linux(
 #endif
 }
 
-#if defined(HAVE_LINUX_FD_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_FD_H)
 /*
  *  stress_dev_floppy_linux()
  *	minor exercising of the floppy device
@@ -3351,26 +2972,18 @@ static void stress_dev_floppy_linux(
 
 #if defined(FDMSGON)
 	VOID_RET(int, ioctl(fd, FDMSGON, 0));
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDFLUSH)
 	VOID_RET(int, ioctl(fd, FDFLUSH, 0));
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDTWADDLE)
 	VOID_RET(int, ioctl(fd, FDTWADDLE, 0));
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDCLRPRM)
 	VOID_RET(int, ioctl(fd, FDCLRPRM, 0));
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDWERRORGET) &&		\
@@ -3380,26 +2993,10 @@ static void stress_dev_floppy_linux(
 
 		VOID_RET(int, ioctl(fd, FDWERRORGET, &errors));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDWERRORCLR)
 	VOID_RET(int, ioctl(fd, FDWERRORCLR, 0));
-#else
-	UNEXPECTED
-#endif
-
-#if defined(FDGETPRM) &&	\
-    defined(HAVE_FLOPPY_STRUCT)
-	{
-		struct floppy_struct floppy;
-
-		if (ioctl(fd, FDGETPRM, &floppy) == 0)
-			VOID_RET(int, ioctl(fd, FDSETPRM, &floppy));
-	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDGETDRVSTAT) &&	\
@@ -3409,8 +3006,6 @@ static void stress_dev_floppy_linux(
 
 		VOID_RET(int, ioctl(fd, FDGETDRVSTAT, &drive));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDPOLLDRVSTAT) &&	\
@@ -3420,8 +3015,6 @@ static void stress_dev_floppy_linux(
 
 		VOID_RET(int, ioctl(fd, FDPOLLDRVSTAT, &drive));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDGETDRVTYP)
@@ -3430,8 +3023,6 @@ static void stress_dev_floppy_linux(
 
 		VOID_RET(int, ioctl(fd, FDGETDRVTYP, buf));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(FDGETFDCSTAT) &&		\
@@ -3442,8 +3033,6 @@ static void stress_dev_floppy_linux(
 		VOID_RET(int, ioctl(fd, FDGETFDCSTAT, &state));
 
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(_IO)
@@ -3453,12 +3042,8 @@ static void stress_dev_floppy_linux(
 
 #if defined(FDMSGOFF)
 	VOID_RET(int, ioctl(fd, FDMSGOFF, 0));
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 /*
@@ -3480,8 +3065,6 @@ static void stress_dev_snd_control_linux(
 
 		VOID_RET(int, ioctl(fd, SNDRV_CTL_IOCTL_PVERSION, &ver));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(SNDRV_CTL_IOCTL_CARD_INFO) &&	\
@@ -3491,8 +3074,6 @@ static void stress_dev_snd_control_linux(
 
 		VOID_RET(int, ioctl(fd, SNDRV_CTL_IOCTL_CARD_INFO, &card));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(SNDRV_CTL_IOCTL_TLV_READ) &&	\
@@ -3517,8 +3098,6 @@ STRESS_PRAGMA_POP
 		buf.tlv.length = sizeof(buf.data);
 		VOID_RET(int, ioctl(fd, SNDRV_CTL_IOCTL_TLV_READ, (struct snd_ctl_tlv *)&buf.tlv));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(SNDRV_CTL_IOCTL_POWER_STATE)
@@ -3529,13 +3108,9 @@ STRESS_PRAGMA_POP
 #if defined(SNDRV_CTL_IOCTL_POWER)
 		if (ret == 0)
 			ret = ioctl(fd, SNDRV_CTL_IOCTL_POWER, &state);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 }
 
@@ -3611,8 +3186,6 @@ static void stress_dev_parport_linux(
 				VOID_RET(int, shim_pthread_spin_unlock(&parport_lock));
 		}
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPGETMODE)
@@ -3624,13 +3197,9 @@ static void stress_dev_parport_linux(
 		errno = 0;
 		if (ret == 0)
 			ret = ioctl(fd, PPSETMODE, &mode);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPGETPHASE)
@@ -3642,13 +3211,9 @@ static void stress_dev_parport_linux(
 		errno = 0;
 		if (ret == 0)
 			ret = ioctl(fd, PPSETPHASE, &phase);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPGETMODES)
@@ -3657,8 +3222,6 @@ static void stress_dev_parport_linux(
 
 		VOID_RET(int, ioctl(fd, PPGETMODES, &modes));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPGETFLAGS)
@@ -3670,13 +3233,9 @@ static void stress_dev_parport_linux(
 		errno = 0;
 		if (ret == 0)
 			ret = ioctl(fd, PPSETFLAGS, &uflags);
-#else
-		UNEXPECTED
 #endif
 		(void)ret;
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPRSTATUS)
@@ -3685,8 +3244,6 @@ static void stress_dev_parport_linux(
 
 		VOID_RET(int, ioctl(fd, PPRSTATUS, &reg));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPRCONTROL)
@@ -3695,8 +3252,6 @@ static void stress_dev_parport_linux(
 
 		VOID_RET(int, ioctl(fd, PPRCONTROL, &reg));
 	}
-#else
-	UNEXPECTED
 #endif
 
 #if defined(PPGETTIME32)
@@ -3705,8 +3260,6 @@ static void stress_dev_parport_linux(
 
 		VOID_RET(int, ioctl(fd, PPGETTIME32, time32));
 	}
-#else
-	/* UNEXPECTED */
 #endif
 
 #if defined(PPGETTIME64)
@@ -3715,16 +3268,12 @@ static void stress_dev_parport_linux(
 
 		VOID_RET(int, ioctl(fd, PPGETTIME64, time64));
 	}
-#else
-	/* UNEXPECTED */
 #endif
 
 #if defined(PPYIELD)
 	{
 		VOID_RET(int, ioctl(fd, PPYIELD));
 	}
-#else
-	UNEXPECTED
 #endif
 
 
@@ -3734,12 +3283,8 @@ static void stress_dev_parport_linux(
 		VOID_RET(int, ioctl(fd, PPRELEASE));
 		VOID_RET(int, shim_pthread_spin_unlock(&parport_lock));
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 #if defined(__linux__)
@@ -3769,8 +3314,6 @@ static void stress_dev_bus_usb_linux(
 
 #if defined(USBDEVFS_GET_SPEED)
 		VOID_RET(int, ioctl(fdwr, USBDEVFS_GET_SPEED, 0));
-#else
-		UNEXPECTED
 #endif
 
 #if defined(HAVE_USBDEVFS_GETDRIVER) &&	\
@@ -3780,17 +3323,11 @@ static void stress_dev_bus_usb_linux(
 
 			VOID_RET(int, ioctl(fdwr, USBDEVFS_GETDRIVER, &dr));
 		}
-#else
-		UNEXPECTED
 #endif
 		(void)close(fdwr);
 	}
-#else
-	UNEXPECTED
 #endif
 }
-#else
-UNEXPECTED
 #endif
 
 #if defined(__linux__) &&	\
@@ -3839,6 +3376,8 @@ static void stress_dev_cdc_wdm_linux(
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_INPUT_H)
 /*
  *   stress_dev_input_linux()
  *   	Exercise Linux input device
@@ -3884,7 +3423,10 @@ static void stress_dev_input_linux(
 	}
 #endif
 }
+#endif
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_UINPUT_H)
 /*
  *   stress_dev_uinput_linux()
  *   	Exercise Linux uinput device
@@ -3906,7 +3448,10 @@ static void stress_dev_uinput_linux(
 	}
 #endif
 }
+#endif
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_KVM_H)
 /*
  *   stress_dev_kvm_linux()
  *   	Exercise Linux kvm device
@@ -3937,122 +3482,102 @@ static void stress_dev_kvm_linux(
 	VOID_RET(int, ioctl(fd, KVM_GET_STATS_FD, 0));
 #endif
 }
+#endif
 
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
 static const stress_dev_func_t dev_funcs[] = {
+	DEV_FUNC("/dev/null",	stress_dev_null_nop),
 #if defined(__linux__) &&		\
     defined(HAVE_LINUX_MEDIA_H) &&	\
     defined(MEDIA_IOC_DEVICE_INFO)
 	DEV_FUNC("/dev/media",	stress_dev_media_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(HAVE_LINUX_VT_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_VT_H)
 	DEV_FUNC("/dev/vcs",	stress_dev_vcs_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(HAVE_LINUX_DM_IOCTL_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_DM_IOCTL_H)
 	DEV_FUNC("/dev/dm",	stress_dev_dm_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(HAVE_LINUX_VIDEODEV2_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_VIDEODEV2_H)
 	DEV_FUNC("/dev/video",	stress_dev_video_linux),
 	DEV_FUNC("/dev/radio",	stress_dev_video_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(HAVE_LINUX_RANDOM_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_RANDOM_H)
 	DEV_FUNC("/dev/random",	stress_dev_random_linux),
-#else
-	UNEXPECTED
+#endif
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_RTC_H)
+	DEV_FUNC("/dev/rtc",	stress_dev_rtc_linux),
 #endif
 #if defined(__linux__)
-	DEV_FUNC("/dev/rtc",	stress_dev_rtc_linux),
 	DEV_FUNC("/dev/mem",	stress_dev_mem_linux),
 	DEV_FUNC("/dev/kmem",	stress_dev_kmem_linux),
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 	DEV_FUNC("/dev/cdrom",  stress_dev_cdrom_linux),
 	DEV_FUNC("/dev/sr0",    stress_dev_cdrom_linux),
-	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
 	DEV_FUNC("/dev/acpi_thermal_rel", stress_dev_acpi_thermal_rel_linux),
-#if defined(HAVE_LINUX_HIDRAW_H)
+#endif
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_HIDRAW_H)
 	DEV_FUNC("/dev/hid",	stress_dev_hid_linux),
 #endif
-#else
-	UNEXPECTED
+#if defined(__linux__) &&       \
+    defined(HAVE_SCSI_SG_H)
+	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 #endif
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(HAVE_LINUX_HPET_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_HPET_H)
 	DEV_FUNC("/dev/hpet",	stress_dev_hpet_linux),
-#else
-	UNEXPECTED
 #endif
-	DEV_FUNC("/dev/null",	stress_dev_null_nop),
 	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux),
 	DEV_FUNC("/dev/snd/control",	stress_dev_snd_control_linux),
-#if defined(HAVE_LINUX_FD_H) &&	\
-    defined(HAVE_FLOPPY_STRUCT)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_FD_H)
 	DEV_FUNC("/dev/fd0",	stress_dev_floppy_linux),
-#else
-	UNEXPECTED
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/hwrng",	stress_dev_hwrng_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_INPUT_H)
 	DEV_FUNC("/dev/input/event", stress_dev_input_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_KVM_H)
 	DEV_FUNC("/dev/kvm", stress_dev_kvm_linux),
-#else
-	UNEXPECTED
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/parport",stress_dev_parport_linux),
-#else
-	UNEXPECTED
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/bus/usb",stress_dev_bus_usb_linux),
-#else
-	UNEXPECTED
 #endif
 #if defined(HAVE_LINUX_LIRC_H)
 	DEV_FUNC("/dev/lirc",	stress_dev_lirc_linux),
-#else
-	UNEXPECTED
 #endif
-#if defined(HAVE_LINUX_UINPUT_H)
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_UINPUT_H)
 	DEV_FUNC("/dev/uinput",	stress_dev_uinput_linux),
-#else
-	UNEXPECTED
 #endif
 #if defined(__linux__) &&	\
     defined(_IO)
 	DEV_FUNC("/dev/vmci",	stress_dev_vmci_linux),
-#else
-	UNEXPECTED
 #endif
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_USB_CDC_WDM_H)
 	DEV_FUNC("/dev/cdc-wdm",stress_dev_cdc_wdm_linux),
-#else
-	UNEXPECTED
 #endif
 };
 
@@ -4098,8 +3623,6 @@ static inline int stress_dev_lock(const char *path, const int fd)
 			return -1;
 		}
 	}
-#else
-	UNEXPECTED
 #endif
 	return 0;
 #else
@@ -4121,8 +3644,6 @@ static inline void stress_dev_unlock(const char *path, const int fd)
     defined(LOCK_NB) &&	\
     defined(LOCK_UN)
 	VOID_RET(int, flock(fd, LOCK_UN));
-#else
-	UNEXPECTED
 #endif
 	VOID_RET(int, ioctl(fd, TIOCNXCL));
 #else
@@ -4277,8 +3798,6 @@ static inline void stress_dev_rw(
 		    strncmp("/dev/ndctl", path, 10) &&
 		    (ioctl(fd, TCGETS, &tios) == 0))
 			stress_dev_tty(args, fd, path);
-#else
-		UNEXPECTED
 #endif
 
 		offset = lseek(fd, 0, SEEK_SET);
@@ -4335,8 +3854,6 @@ static inline void stress_dev_rw(
 			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
-#else
-		UNEXPECTED
 #endif
 #if defined(F_GETFL)
 		VOID_RET(int, fcntl(fd, F_GETFL, NULL));
@@ -4346,8 +3863,6 @@ static inline void stress_dev_rw(
 			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
-#else
-		UNEXPECTED
 #endif
 #if defined(F_GETSIG)
 		VOID_RET(int, fcntl(fd, F_GETSIG, NULL));
@@ -4357,8 +3872,6 @@ static inline void stress_dev_rw(
 			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
-#else
-		UNEXPECTED
 #endif
 		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
