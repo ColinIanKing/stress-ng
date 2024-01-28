@@ -62,6 +62,10 @@ static int stress_set_monte_carlo_samples(const char *opt)
 	return stress_set_setting("monte-carlo-samples", TYPE_ID_UINT32, &monte_carlo_samples);
 }
 
+static void stress_mc_no_seed(void)
+{
+}
+
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDRAND)
 static double OPTIMIZE3 stress_mc_rdrand_rand(void)
@@ -69,10 +73,6 @@ static double OPTIMIZE3 stress_mc_rdrand_rand(void)
 	const double scale_u64 = 1.0 / (double)0xffffffffffffffffULL;
 
 	return (double)stress_asm_x86_rdrand() * scale_u64;
-}
-
-static void stress_mc_rdrand_seed(void)
-{
 }
 
 static bool stress_mc_rdrand_supported(void)
@@ -99,10 +99,6 @@ static double OPTIMIZE3 stress_mc_darn_rand(void)
 #else
 	return 0.1;
 #endif
-}
-
-static void stress_mc_darn_seed(void)
-{
 }
 
 static bool stress_mc_darn_supported(void)
@@ -165,11 +161,6 @@ static void OPTIMIZE3 stress_mc_drand48_seed(void)
 
 	seed48(seed);
 }
-
-static bool stress_mc_drand48_supported(void)
-{
-	return true;
-}
 #endif
 
 #if defined(HAVE_GETRANDOM)
@@ -189,15 +180,6 @@ static double OPTIMIZE3 stress_mc_getrandom_rand(void)
 	if (idx >= SIZEOF_ARRAY(buf))
 		idx = 0;
 	return r;
-}
-
-static void stress_mc_getrandom_seed(void)
-{
-}
-
-static bool stress_mc_getrandom_supported(void)
-{
-	return true;
 }
 #endif
 
@@ -277,13 +259,13 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
 	{ "all",	NULL,				NULL,				stress_mc_supported },
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_DARN)
-	{ "darn",	stress_mc_darn_rand,		stress_mc_darn_seed,		stress_mc_darn_supported },
+	{ "darn",	stress_mc_darn_rand,		stress_mc_no_seed,		stress_mc_darn_supported },
 #endif
 #if defined(HAVE_DRAND48)
-	{ "drand48",	stress_mc_drand48_rand,		stress_mc_drand48_seed,		stress_mc_drand48_supported },
+	{ "drand48",	stress_mc_drand48_rand,		stress_mc_drand48_seed,		stress_mc_supported },
 #endif
 #if defined(HAVE_GETRANDOM)
-	{ "getrandom",	stress_mc_getrandom_rand,	stress_mc_getrandom_seed,	stress_mc_getrandom_supported },
+	{ "getrandom",	stress_mc_getrandom_rand,	stress_mc_no_seed,		stress_mc_supported },
 #endif
 	{ "lcg",	stress_mc_lcg_rand,		stress_mc_lcg_seed,		stress_mc_supported },
 	{ "pcg32",	stress_mc_pcg32_rand,		stress_mc_pcg32_seed,		stress_mc_supported },
@@ -292,7 +274,7 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
 	{ "random",	stress_mc_random_rand,		stress_mc_random_seed,		stress_mc_supported },
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDRAND)
-	{ "rdrand",	stress_mc_rdrand_rand,		stress_mc_rdrand_seed,		stress_mc_rdrand_supported },
+	{ "rdrand",	stress_mc_rdrand_rand,		stress_mc_no_seed,		stress_mc_rdrand_supported },
 #endif
 	{ "xorshift",	stress_mc_xorshift_rand,	stress_mc_xorshift_seed,	stress_mc_supported },
 };
