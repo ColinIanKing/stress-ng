@@ -348,8 +348,8 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("iommu/map",			"IOMMU Map"),
 	PERF_INFO_TP("iommu/unmap",			"IOMMU Unmap"),
 
-	PERF_INFO_TP("filemap/mm_filemap_add_to_page_cache",		"Filemap page-cache add"),
-	PERF_INFO_TP("filemap/mm_filemap_delete_from_page_cache",	"Filemap page-cache del"),
+	PERF_INFO_TP("filemap/mm_filemap_add_to_page_cache",		"Filemap Page-Cache Add"),
+	PERF_INFO_TP("filemap/mm_filemap_delete_from_page_cache",	"Filemap Page-Cache Del"),
 
 	PERF_INFO_TP("oom/compact_retry",		"OOM Compact Retry"),
 	PERF_INFO_TP("oom/wake_reaper",			"OOM Wake Reaper"),
