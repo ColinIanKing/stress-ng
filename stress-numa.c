@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-madvise.h"
+#include "core-mmap.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -353,7 +354,7 @@ static int stress_numa(stress_args_t *args)
 			}
 		}
 
-		(void)shim_memset(buf, 0xff, MMAP_SZ);
+		(void)stress_mmap_set_light(buf, MMAP_SZ, page_size);
 		if (!stress_continue_flag())
 			break;
 
@@ -455,7 +456,7 @@ static int stress_numa(stress_args_t *args)
 		} else {
 			(void)shim_set_mempolicy_home_node((unsigned long)buf,
 				(unsigned long)MMAP_SZ, n->node_id, 0);
-			(void)shim_memset(buf, 0xaa, MMAP_SZ);
+			(void)stress_mmap_set_light(buf, MMAP_SZ, page_size);
 		}
 		if (!stress_continue_flag())
 			break;
@@ -488,7 +489,7 @@ static int stress_numa(stress_args_t *args)
 		} else {
 			(void)shim_set_mempolicy_home_node((unsigned long)buf,
 				(unsigned long)MMAP_SZ, n->node_id, 0);
-			(void)shim_memset(buf, 0x5c, MMAP_SZ);
+			(void)stress_mmap_set_light(buf, MMAP_SZ, page_size);
 		}
 		if (!stress_continue_flag())
 			break;
@@ -578,7 +579,7 @@ static int stress_numa(stress_args_t *args)
 					goto err;
 				}
 			}
-			(void)shim_memset(buf, j, MMAP_SZ);
+			(void)stress_mmap_set_light(buf, MMAP_SZ, page_size);
 			if (!stress_continue_flag())
 				break;
 		}
