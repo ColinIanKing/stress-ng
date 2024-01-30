@@ -232,7 +232,7 @@ static int stress_numa(stress_args_t *args)
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 	int *status, *dest_nodes;
 	void **pages;
-	size_t mask_elements;
+	size_t mask_elements, k;
 	unsigned long *node_mask, *old_node_mask;
 
 	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
@@ -302,6 +302,7 @@ static int stress_numa(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	k = 0;
 	do {
 		int j, mode, ret;
 		long lret;
@@ -566,9 +567,20 @@ static int stress_numa(stress_args_t *args)
 			 *  Now move pages to lots of different numa nodes
 			 */
 			for (ptr = buf, i = 0; i < num_pages; i++, ptr += page_size, n_tmp = n_tmp->next) {
-				pages[i] = ptr;
-				dest_nodes[i] = (int)n_tmp->node_id;
+				pages[k] = ptr;
+				dest_nodes[k] = (int)n_tmp->node_id;
+				k++;
+				if (k >= num_pages)
+					k = 0;
 			}
+			/* 
+			 *  ..and bump k to ensure next round the pages get reassigned to
+			 *  a different node
+			 */
+			k++;
+			if (k >= num_pages)
+				k = 0;
+
 			stress_set_numa_array(status, 0x00, num_pages, sizeof(*status));
 			lret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
