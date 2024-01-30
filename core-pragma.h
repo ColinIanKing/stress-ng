@@ -44,7 +44,7 @@
 					_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
 					_Pragma("GCC diagnostic ignored \"-Wcast-qual\"") \
 					_Pragma("GCC diagnostic ignored \"-Wnonnull\"")	\
-					_Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"")
+					_Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"") \
 					_Pragma("GCC diagnostic ignored \"-Waddress-of-packed-member\"")
 #elif defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
       defined(HAVE_PRAGMA) &&			\
