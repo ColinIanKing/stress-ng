@@ -593,6 +593,8 @@ const struct option stress_long_options[] = {
 	{ "null-write",		0,	0,	OPT_null_write },
 	{ "numa",		1,	0,	OPT_numa },
 	{ "numa-ops",		1,	0,	OPT_numa_ops },
+	{ "numa-shuffle-addr",	0,	0,	OPT_numa_shuffle_addr },
+	{ "numa-shuffle-node",	0,	0,	OPT_numa_shuffle_node },
 	{ "oomable",		0,	0,	OPT_oomable },
 	{ "oom-avoid",		0,	0,	OPT_oom_avoid },
 	{ "oom-avoid-bytes",	1,	0,	OPT_oom_avoid_bytes },

@@ -29,9 +29,26 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"numa N",	"start N workers stressing NUMA interfaces" },
-	{ NULL,	"numa-ops N",	"stop after N NUMA bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"numa N",		"start N workers stressing NUMA interfaces" },
+	{ NULL,	"numa-ops N",		"stop after N NUMA bogo operations" },
+	{ NULL,	"numa-shuffle-addr",	"shuffle page addresses to move to numa nodes" },
+	{ NULL,	"numa-shuffle-node",	"shuffle numa nodes on numa pages moves" },
+	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_numa_shuffle_addr(const char *opt)
+{
+	return stress_set_setting_true("numa-shuffle-addr", opt);
+}
+
+static int stress_set_numa_shuffle_node(const char *opt)
+{
+	return stress_set_setting_true("numa-shuffle-node", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_numa_shuffle_addr,	stress_set_numa_shuffle_addr },
+	{ OPT_numa_shuffle_node,	stress_set_numa_shuffle_node },
 };
 
 #if defined(__NR_get_mempolicy) &&	\
@@ -234,6 +251,10 @@ static int stress_numa(stress_args_t *args)
 	void **pages;
 	size_t mask_elements, k;
 	unsigned long *node_mask, *old_node_mask;
+	bool numa_shuffle_addr, numa_shuffle_node;
+
+	(void)stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr);
+	(void)stress_get_setting("numa-shuffle-node", &numa_shuffle_node);
 
 	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
 	if (numa_nodes < 1) {
@@ -573,6 +594,27 @@ static int stress_numa(stress_args_t *args)
 				if (k >= num_pages)
 					k = 0;
 			}
+			if (numa_shuffle_addr) {
+				for (i = 0; i < num_pages; i++) {
+					register const size_t l = stress_mwc32modn(num_pages);
+					register void *tmp;
+
+					tmp = pages[i];
+					pages[i] = pages[l];
+					pages[l] = tmp;
+				}
+			}
+			if (numa_shuffle_node) {
+				for (i = 0; i < num_pages; i++) {
+					register const size_t l = stress_mwc32modn(num_pages);
+					register int tmp;
+
+					tmp = dest_nodes[i];
+					dest_nodes[i] = dest_nodes[l];
+					dest_nodes[l] = tmp;
+				}
+			}
+
 			/* 
 			 *  ..and bump k to ensure next round the pages get reassigned to
 			 *  a different node
@@ -668,6 +710,7 @@ stressor_info_t stress_numa_info = {
 	.stressor = stress_numa,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
@@ -675,6 +718,7 @@ stressor_info_t stress_numa_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 	.unimplemented_reason = "built without linux/mempolicy.h, get_mempolicy(), mbind(), migrate_pages(), move_pages() or set_mempolicy()"
 };

@@ -4832,6 +4832,12 @@ than 1 NUMA node.
 .TP
 .B \-\-numa\-ops N
 stop NUMA stress workers after N bogo NUMA operations.
+.TP
+.B \-\-numa\-shuffle\-addr
+shuffle page order for the address list when calling move_pages(2)
+.TP
+.B \-\-numa\-shuffle\-node
+shuffle node order for the address list when calling move_pages(2)
 .RE
 .TP
 .B Large Pipe stressor

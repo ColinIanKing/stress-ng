@@ -878,6 +878,8 @@ typedef enum {
 
 	OPT_numa,
 	OPT_numa_ops,
+	OPT_numa_shuffle_addr,
+	OPT_numa_shuffle_node,
 
 	OPT_oomable,
 	OPT_oom_avoid,
