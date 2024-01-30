@@ -293,8 +293,11 @@ static int stress_numa(stress_args_t *args)
 	}
 
 	if (!args->instance) {
-		pr_inf("%s: system has %lu of a maximum %lu memory NUMA nodes. Using %zd MB mappings for each instance.\n",
-			args->name, numa_nodes, max_nodes, numa_bytes >> 20);
+		char str[32];
+
+		stress_uint64_to_str(str, sizeof(str), (uint64_t)numa_bytes);
+		pr_inf("%s: system has %lu of a maximum %lu memory NUMA nodes. Using %sB mappings for each instance.\n",
+			args->name, numa_nodes, max_nodes, str);
 	}
 
 	mask_elements = (max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
