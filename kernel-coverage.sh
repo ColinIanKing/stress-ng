@@ -580,6 +580,9 @@ do_stress --nanosleep -1 --nanosleep-method ns
 do_stress --nanosleep -1 --nanosleep-method us
 do_stress --nanosleep -1 --nanosleep-method ms
 
+do_stress --numa -1 --numa-shuffle-addr
+do_stress --numa -1 --numa-shuffle-node
+
 do_stress --open -1 --open-fd
 do_stress --open -1 --open-max 100000
 
