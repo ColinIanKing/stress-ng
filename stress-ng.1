@@ -4830,6 +4830,13 @@ each move, the buffer is written to force activity over the bus which results
 cache misses.  This test will only run on hardware with NUMA enabled and more
 than 1 NUMA node.
 .TP
+.B \-\-numa\-bytes N
+specify the total number bytes to be exercised by all the workers, the given
+size is divided by the number of workers and rounded to the nearest page
+size. The default is 4MB per worker. One can specify the size as % of total
+available memory or in units of Bytes, KBytes, MBytes and GBytes using the
+suffix b, k, m or g.
+.TP
 .B \-\-numa\-ops N
 stop NUMA stress workers after N bogo NUMA operations.
 .TP

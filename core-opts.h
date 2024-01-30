@@ -877,6 +877,7 @@ typedef enum {
 	OPT_null_write,
 
 	OPT_numa,
+	OPT_numa_bytes,
 	OPT_numa_ops,
 	OPT_numa_shuffle_addr,
 	OPT_numa_shuffle_node,
