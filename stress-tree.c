@@ -139,6 +139,7 @@ typedef struct btree_node {
 #endif
 
 STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 
 typedef union {
 #if defined(HAVE_RB_TREE)
@@ -338,6 +339,8 @@ PRAGMA_UNROLL_N(4)
 }
 #endif
 
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 static void OPTIMIZE3 binary_insert(
 	struct tree_node **head,
 	struct tree_node *node)
@@ -349,6 +352,7 @@ static void OPTIMIZE3 binary_insert(
 	}
 	*head = node;
 }
+STRESS_PRAGMA_POP
 
 static struct tree_node * OPTIMIZE3 binary_find(
 	struct tree_node *head,
@@ -426,6 +430,9 @@ PRAGMA_UNROLL_N(4)
 	metrics->remove += stress_time_now() - t;
 	metrics->count += (double)n;
 }
+
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 
 static bool OPTIMIZE3 avl_insert(
 	struct tree_node **root,
@@ -552,6 +559,7 @@ static bool OPTIMIZE3 avl_insert(
 	}
 	return taller;
 }
+STRESS_PRAGMA_POP
 
 static struct tree_node OPTIMIZE3 TARGET_CLONES *avl_find(
 	struct tree_node *head,
