@@ -36,7 +36,7 @@
 #define STRESS_PRAGMA_WARN_OFF		_Pragma("GCC diagnostic ignored \"-Weverything\"")
 #elif defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
       defined(HAVE_PRAGMA) &&			\
-      NEED_GNUC(7, 5, 0)
+      NEED_GNUC(10, 0, 0)
 #define STRESS_PRAGMA_PUSH		_Pragma("GCC diagnostic push")
 #define STRESS_PRAGMA_POP		_Pragma("GCC diagnostic pop")
 #define STRESS_PRAGMA_WARN_OFF		_Pragma("GCC diagnostic ignored \"-Wall\"") \
@@ -46,6 +46,17 @@
 					_Pragma("GCC diagnostic ignored \"-Wnonnull\"")	\
 					_Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"") \
 					_Pragma("GCC diagnostic ignored \"-Waddress-of-packed-member\"")
+#elif defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
+      defined(HAVE_PRAGMA) &&			\
+      NEED_GNUC(7, 5, 0)
+#define STRESS_PRAGMA_PUSH		_Pragma("GCC diagnostic push")
+#define STRESS_PRAGMA_POP		_Pragma("GCC diagnostic pop")
+#define STRESS_PRAGMA_WARN_OFF		_Pragma("GCC diagnostic ignored \"-Wall\"") \
+					_Pragma("GCC diagnostic ignored \"-Wextra\"") \
+					_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
+					_Pragma("GCC diagnostic ignored \"-Wcast-qual\"") \
+					_Pragma("GCC diagnostic ignored \"-Wnonnull\"")	\
+					_Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"")
 #elif defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
       defined(HAVE_PRAGMA) &&			\
       NEED_GNUC(4, 6, 0)
