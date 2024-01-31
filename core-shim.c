@@ -2419,11 +2419,14 @@ int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
 /*
  *  shim_process_mrelease()
  *	system call wrapper for Linux 5.14 process_mrelease
+ *	- note sparc64 SEGVs on the syscall, so commenting
+ *	  this out for some kernels for SPARC
  */
 int shim_process_mrelease(int pidfd, unsigned int flags)
 {
 #if defined(__NR_process_mrelease) &&	\
-    defined(HAVE_SYSCALL)
+    defined(HAVE_SYSCALL) &&		\
+    !defined(STRESS_ARCH_SPARC)
 	return (int)syscall(__NR_process_mrelease, pidfd, flags);
 #else
 	return (int)shim_enosys(0, pidfd, flags);
