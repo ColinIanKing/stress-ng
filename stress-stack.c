@@ -204,7 +204,7 @@ static int stress_stack_child(stress_args_t *args, void *context)
 	bool stack_mlock = false;
 	bool stack_pageout = false;
 	bool stack_unmap = false;
-	int rc = EXIT_SUCCESS;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	(void)context;
 
