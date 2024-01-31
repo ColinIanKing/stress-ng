@@ -1701,7 +1701,7 @@ HOT OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 
 /*
  *  stress_get_libc_version()
- *	return human readble libc version (where possible)
+ *	return human readable libc version (where possible)
  */
 static char *stress_get_libc_version(void)
 {
@@ -4382,7 +4382,7 @@ static void stress_dump_objcode(
 
 /*
  *  stress_catch_sig_si_code()
- *	covert signale and si_code into human readable form
+ *	convert signal and si_code into human readable form
  */
 static const PURE char *stress_catch_sig_si_code(const int sig, const int sig_code)
 {
