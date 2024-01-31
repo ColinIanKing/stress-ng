@@ -36,7 +36,7 @@
 #define STRESS_PRAGMA_WARN_OFF		_Pragma("GCC diagnostic ignored \"-Weverything\"")
 #elif defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
       defined(HAVE_PRAGMA) &&			\
-      NEED_GNUC(10, 0, 0)
+      NEED_GNUC(9, 4, 0)
 #define STRESS_PRAGMA_PUSH		_Pragma("GCC diagnostic push")
 #define STRESS_PRAGMA_POP		_Pragma("GCC diagnostic pop")
 #define STRESS_PRAGMA_WARN_OFF		_Pragma("GCC diagnostic ignored \"-Wall\"") \
