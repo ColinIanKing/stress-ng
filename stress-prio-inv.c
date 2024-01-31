@@ -356,7 +356,7 @@ static int stress_prio_inv(stress_args_t *args)
 		}
 #else
 		if (args->instance == 0) {
-			pr_inf_skip("%s: cheduling policy '%s' is not supported, "
+			pr_inf_skip("%s: scheduling policy '%s' is not supported, "
 				"no default 'other' either, skipping stressor\n",
 				args->name, policy_name);
 		}
