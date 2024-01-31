@@ -332,7 +332,7 @@ static int stress_numa(stress_args_t *args)
 	}
 	pages = (void **)calloc(num_pages, sizeof(*pages));
 	if (!pages) {
-		pr_inf_skip("%s: cannot allocate pages array of %lu elements, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate pages array of %zu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
 		goto dest_nodes_free;
