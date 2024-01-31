@@ -656,9 +656,6 @@ static bool stress_sysfs_bad_signal(const int status)
 #if defined(SIGSEGV)
 		SIGSEGV,
 #endif
-#if defined(SIGKILL)
-		SIGKILL,
-#endif
 #if defined(SIGTRAP)
 		SIGTRAP,
 #endif
