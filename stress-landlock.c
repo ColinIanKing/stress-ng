@@ -263,7 +263,6 @@ static void stress_landlock_many(
 	struct landlock_ruleset_attr ruleset_attr;
 
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
-
 	ruleset_attr.handled_access_fs = ctxt->mask;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
@@ -330,15 +329,26 @@ static uint64_t stress_landlock_get_access_mask(void)
 	for (mask = 0, i = 0; i < 64; i++) {
 		int ruleset_fd;
 
+		(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 		ruleset_attr.handled_access_fs = 1UL << i;
 		if ((ruleset_attr.handled_access_fs & SHIM_LANDLOCK_ACCESS_ALL)) {
 			ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 			if (ruleset_fd >= 0) {
-				mask |= (1UL << i);
+				mask = (mask | (1UL << i)) & SHIM_LANDLOCK_ACCESS_ALL;
 				(void)close(ruleset_fd);
+
+				/* now try with all bits set in mask */
+				ruleset_attr.handled_access_fs = mask;
+				ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
+				if (ruleset_fd >= 0) {
+					(void)close(ruleset_fd);
+				} else {
+					mask &= ~(1UL << i);
+				}
 			}
 		}
 	}
+	mask &= 0x1fff;
 	return mask;
 }
 
@@ -356,6 +366,7 @@ static int stress_landlock_flag(stress_args_t *args, stress_landlock_ctxt_t *ctx
 	/* Exercise fetch of ruleset API version, ignore return */
 	VOID_RET(int, shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION));
 
+	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = ctxt->mask;
 	ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 	if (ruleset_fd < 0) {
