@@ -64,7 +64,7 @@ static int stress_set_monte_carlo_samples(const char *opt)
 
 #if (defined(STRESS_ARCH_PPC64) && defined(HAVE_ASM_PPC64_DARN)) ||	\
     (defined(STRESS_ARCH_X86) && defined(HAVE_ASM_X86_RDRAND)) ||	\
-    defined(HAVE_GETRANDOM)
+    (defined(HAVE_GETRANDOM) && !defined(__sun__))
 static void stress_mc_no_seed(void)
 {
 }
@@ -167,7 +167,8 @@ static void OPTIMIZE3 stress_mc_drand48_seed(void)
 }
 #endif
 
-#if defined(HAVE_GETRANDOM)
+#if defined(HAVE_GETRANDOM) &&	\
+    !defined(__sun__)
 static double OPTIMIZE3 stress_mc_getrandom_rand(void)
 {
 	uint64_t buf[16384 / sizeof(uint64_t)];
@@ -268,7 +269,8 @@ static const stress_monte_carlo_rand_info_t rand_info[] = {
 #if defined(HAVE_DRAND48)
 	{ "drand48",	stress_mc_drand48_rand,		stress_mc_drand48_seed,		stress_mc_supported },
 #endif
-#if defined(HAVE_GETRANDOM)
+#if defined(HAVE_GETRANDOM) &&	\
+    !defined(__sun__)
 	{ "getrandom",	stress_mc_getrandom_rand,	stress_mc_no_seed,		stress_mc_supported },
 #endif
 	{ "lcg",	stress_mc_lcg_rand,		stress_mc_lcg_seed,		stress_mc_supported },
