@@ -766,7 +766,11 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 
 	if (sysctl(mib, 2, cp_time, &size, NULL, 0) == 0) {
 		vmstat->user_time = (double)(cp_time[CP_USER] + cp_time[CP_NICE]);
+#if defined(CP_SPIN)
 		vmstat->system_time = (double)(cp_time[CP_SYS] + cp_time[CP_SPIN] + cp_time[CP_INTR]);
+#else
+		vmstat->system_time = (double)(cp_time[CP_SYS] + cp_time[CP_INTR]);
+#endif
 		vmstat->idle_time = (double)cp_time[CP_IDLE];
 	}
 }
