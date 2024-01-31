@@ -62,9 +62,13 @@ static int stress_set_monte_carlo_samples(const char *opt)
 	return stress_set_setting("monte-carlo-samples", TYPE_ID_UINT32, &monte_carlo_samples);
 }
 
+#if (defined(STRESS_ARCH_PPC64) && defined(HAVE_ASM_PPC64_DARN)) ||	\
+    (defined(STRESS_ARCH_X86) && defined(HAVE_ASM_X86_RDRAND)) ||	\
+    defined(HAVE_GETRANDOM)
 static void stress_mc_no_seed(void)
 {
 }
+#endif
 
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDRAND)
