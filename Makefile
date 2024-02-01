@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.17.04
+VERSION=0.17.05
 #
-# Codename "pragmatic problem producer"
+# Codename "scintillating scheduler smasher"
 #
 
 KERNEL=$(shell uname -s)
