@@ -1,3 +1,176 @@
+stress-ng (0.17.05-1) unstable; urgency=medium
+
+  [Nikolas Kyx]
+  * stress-syscall: fix cmp_test_duration() return value
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Makefile: add core-asm-loong64.h to HEADERS
+  * stress-atomic: make atomic region 64 bytes wide, step through it
+  * Manual: update caveat concerning bogo-op rates
+  * Manual: update date
+  * stress-unshare: silently ignore EACCES returns
+  * core-pragma: drop packed gcc version to 9.4
+  * Manual: fix a couple of typos
+  * stress-prio-inv: fix typo "cheduling" -> "scheduling"
+  * core-helper: fix some spelling mistakes
+  * stress-landlock: ensure all set bits work in mask and zero
+    ruleset_attr before use
+  * stress-sysfs: ignore SIGKILL as bad signal
+  * stress-numa: fix one more %zu format specifier
+  * stress-numa: use %zu format specifier for size_t
+  * stress-monte-carlo: don't use getrandom for Solaris, it's very slow
+  * core-vmstat: only account for CP_SPIN on OpenBSD if it exists
+  * stress-stack: make rc no-clobberable, cleans up gcc 4.9.2 warning on
+    kfreebsd
+  * core-shim: disabled process_mrelease for SPARC
+  * stress-monte-carlog: only define stress_mc_no_seed if it is required
+  * core-perf: make filemap page cache description match existing style
+  * stress-numa: report per instance mapping size to 1 decimal place
+  * stress-numa: add --numa-bytes option to specify total memory size
+  * kernel-coverage: add numa addr and node shuffling options
+  * stress-numa: add --numa-shuffle-addr and --numa-shuffle-node
+  * stress-numa: ensure pages get re-assigned to different nodes
+  * stress-tree: disable warnings on misaligned pointer access
+  * stress-numa: use stress_mmap_set_light to touch pages
+  * core-pragma: add checks for gcc 10
+  * core-pragma: add missing \
+  * stress-monte-carlo: use generic supported and no_seed functions
+  * stress-dev: add include ifdefs around stress_dev_ptp_linux
+  * stress-dev: add macro VOID_ARGS to voidify common function args
+  * stress-dev: remove UNEXPECTED checks, add more linux guarding
+  * stress-dev: add some kvm ioctls
+  * stress-dev: exercise UI_GET_VERSION ioctl on /dev/uinput
+  * stress-dev: add RNDGETPOOL ioctl on /dev/random
+  * stress-dev: exercise /dev/input/event*
+  * stress-dev: add RTC RTC_IRQP_READ32 ioctl
+  * stress-dev: add linux /dev/rtc ioctls, delay on -EBUSY
+  * stress-mmap: add missing MMAP_SYNC flag
+  * stress-ng.h: disable _FORTIFY_SOURCE when using PCC
+  * stress-ng.h: disable _FORTIFY_SOURCE when using TCC
+  * core-mmap: remove unused variable val
+  * stress-sigsegv: make pointers uint8_t * to clean up void * pointer
+    addition warnings
+  * Makefile: don't enable -fipa for icc
+  * stress-tree: allow tree node packed structures where packed is
+    allowed on x86
+  * core-pragma: add -Waddress-of-packed-member to WARN_OFF macro
+  * core-attribute.h: add PACKED macro for attribute packed
+  * stress-tree: move u into it's own typedef and make tree node 8 byte
+    aligned
+  * stress-tree: avl: remove redundant assignments to taller
+  * stress-tree: avl: add pointer r as a short cut for (*root)
+  * stress-tress: avl: make variable taller a register
+  * stress-tree: avl: remove sub_taller variable
+  * stress-tree: avl: replace (*root) with node on new node
+  * stress-tree: don't pass taller flag in avl_insert
+  * Add build-time test for packed attribute
+  * README.md: add DEBUG=1 make build instructions
+  * stress-monte-carlo: add some more complex integrals to compute
+  * stress-monte-carlo: fix ppc64 darn and add missing rand support check
+  * stress-rseq: add check for __builtin_thread_pointer()
+  * stress-monte-carlo: add Monte Carlo computation of pi and e
+  * stress-rseq: remove debug '| 1' for sys/rseq.h include
+  * stress-rseq: remove trailing white space
+  * stress-rseq: remove invalid rseq test cases
+  * stress-rseq: remove rate debug
+  * stress-rseq: move critical section count into a stressor metric
+  * stress-rseq: rework to work with rseq in glibc
+  * stress-sigsegv: fix exact fault address check
+  * stress-x86syscall: add geteuid, getgid and getuid
+  * README.md: add another citation link
+  * stress-prio-inv: remove undef of PTHREAD_MUTEX_ROBUST
+  * stress-prio-inv: remove prio default case from switch
+  * stress-prio-inv: add build time check for pthread_mutexattr_setrobust
+  * stress-prio-inv: add build-time checks for various SCHED_* support
+  * stress-prio-inv: update reason why stressor is not implemented
+  * stress-prio-inv: move pthread_mutex_t dependant types
+  * Add shim for dirent d_type
+  * stress-landlock: shift left with correct sized integer
+  * Makefile.config: cater for empty $LIB_BSD string
+  * stress-time-warp: add a time/clock time warp checking stressor
+  * stress-prio-inv: match order of STRESS_PRIO_INV_POLICY_* with
+    stress_prio_inv_policies
+  * stress-mmap: add --mmap-stressful
+  * stress-prio-inv: add --prio-inv-policy to select scheduler policy
+  * stress-prio-inv: use FIFO sched by default
+  * README.md: add Nikolas Kyx to contributors list
+  * Add new prio-inv (priority inversion) stressor
+  * stress-mmap: add --mmap-slow-munmap option
+  * core-perf: add some more trace events
+  * stress-landlock: only exercise flags that are usable
+  * core-shim: replace strlcpy with safer strscpy
+  * stress-landlock: add more landlock access flags, add check for
+    usability
+  * core-mwc: optimize and generalize mwc*modn() functions, remove pwr2
+    helpers
+  * stress-mmap: use non-mod random mwc functions for faster index
+    generation
+  * stress-mmap: add new option --mmap-write-check for opt-in write +
+    checks
+  * stress-factor: up the maximum digit size to 100000000 digits
+  * stress-mmap: add --mmap2 option in short help
+  * kernel-coverage: add new mmap options to mmap stress cases
+  * stress-mmap: add opt-in randomized madvise on pages
+  * core-mmap: touch + check just start of each page rather than filling
+    them
+  * debian/control: add libgmp-dev for factor stressor
+  * README.md: update number of stressors (320+) and add loong64 arch
+  * stress-mmap: touching pages should be using sz and not
+    context->mmap_bytes
+  * stress-mmap: add --mmap-mergeable option
+  * stress-factor: clean up indentation
+  * stress-mmap: reduce affect of mumap on stressor
+  * stress-factor: add factorization stressor using libgmp
+  * core-mmap: replace add/sub with xor
+  * core-mmap: remove need for shift and compare, replace with add/sub
+  * Manual: add "next generation" reference in title to explain why it
+    is called stress-ng
+  * core-mmap: replace compare + check for each value with 32 sum + check
+  * Manual: add missing System V semaphore stressor title
+  * stress-mmapfiles: ensure fd is closed on loop break paths
+  * stress-mmapfiles: add ENOMEM check to bail out early
+  * Manual: add notes to --mmapfiles stressor
+  * stress-mmapfiles: add missing , between literal strings
+  * stress-mmapfiles: remove ANONYMOUS mapping flag and use fd in mmap
+  * stress-mmapfile: add file based memory mapping stressor
+  * stress-cpu-online: move stressor back onto newly online'd cpu
+  * stress-affinity: let main stress process reap all children
+  * core-vmstat: Add OpenBSD implementation of stress_get_cpu_ghz
+  * core-vmstat: add vmstat support for OpenBSD
+  * stress-crypt: fix FreeBSD build issues
+  * README.md: add note about snaps of stress-ng
+  * core-shim: add missing shim block comments
+  * Makefile: add support for Link Time Optimization
+  * stress-ng: keep track of metrics overflow, report so.
+  * stress-af-alg: add metrics for each af-alg crypto type
+  * README.md: add another link to a kernel issue found by using stress-ng
+  * stress-sysbadaddr: add Linux 6.8 lsm system calls
+  * stress-waitcpu: add support for loong64 by using dbar instruction
+  * stress-workload: RISC-V: use stress_asm_riscv_pause instead of a fence
+  * stress-waitcpu: use RISC-V pause instruction for small delays
+  * stress-waitcpu: only sanity check non-rates on non virt x86 systems
+  * stress-eigen-ops.cpp: remove commented out debug code
+  * stress-priv-instr: add loong64 privileged instructions
+  * stress-pipe: add debug to log default pipe read/write sizes
+  * core-*.h: add ALWAYS_INLINE annotation for small inline helpers
+  * stress-regs: add loong64 implementation
+  * core-asm-loong64.h: Add support for cpucfg instruction
+  * stress-acl: terminate do-while stressor loop on acl error exit
+  * kernel-coverage: exercise all ioschedulers on filesystems
+  * stress-tsc: add rdtime.d instruction auto-built detection
+  * stress-workload: add Loong64 support for dbar instruction
+  * Manual: Add Loong64 implementation details for tsc stressor
+  * stress-tsc: add Loong64 tsc reading support
+  * core-asm-arch: initial support of Loong64 arch
+  * Makefile: swap order of -U and -D FORTIFY_SOURCE
+  * Makefile: ensure cc_supports_flag is defined outside the PEDANTIC
+    flag settings
+  * stress-io-uring: add optimizations - late sqe memset and optimize
+    out zero stores
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 1 Feb 2024 15:02:47 +0000
+
 stress-ng (0.17.04-1) unstable; urgency=medium
 
   [Munehisa Kamata]
