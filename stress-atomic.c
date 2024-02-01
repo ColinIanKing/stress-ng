@@ -308,7 +308,7 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint32(
 	int rc = 0;
 
 	DO_ATOMIC_OPS(args, uint32_t, &g_shared->atomic.val32[idx], duration, count, rc);
-	idx++;
+	idx += 3;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val32) - 1);
 
 	return rc;
@@ -323,7 +323,7 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint16(
 	int rc = 0;
 
 	DO_ATOMIC_OPS(args, uint16_t, &g_shared->atomic.val16[idx], duration, count, rc);
-	idx++;
+	idx += 5;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val16) - 1);
 
 	return rc;
@@ -338,7 +338,7 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint8(
 	int rc = 0;
 
 	DO_ATOMIC_OPS(args, uint8_t, &g_shared->atomic.val8[idx], duration, count, rc);
-	idx++;
+	idx += 9;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val8) - 1);
 
 	return rc;

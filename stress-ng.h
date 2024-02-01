@@ -590,11 +590,11 @@ typedef struct {
 		void *lock;		/* protection lock */
 	} warn_once;
 	union {
-		uint64_t val64[1] ALIGN64;
-		uint32_t val32[2] ALIGN64;
-		uint16_t val16[4] ALIGN64;
-		uint8_t	 val8[8] ALIGN64;
-	} atomic;			/* Shared atomic temp vars */
+		uint64_t val64[8] ALIGN64;
+		uint32_t val32[16] ALIGN64;
+		uint16_t val16[32] ALIGN64;
+		uint8_t	 val8[64] ALIGN64;
+	} atomic ALIGN64;		/* Shared atomic temp vars */
 	struct {
 		/* futexes must be aligned to avoid -EINVAL */
 		uint32_t futex[STRESS_PROCS_MAX] ALIGNED(4);/* Shared futexes */
