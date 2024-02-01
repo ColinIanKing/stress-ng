@@ -112,6 +112,7 @@ static void check_unshare(
 	rc = shim_unshare(flags);
 	if ((rc < 0) &&
             (errno != EPERM) &&
+            (errno != EACCES) &&
             (errno != EINVAL) &&
             (errno != ENOSPC)) {
 		pr_fail("%s: unshare(%s) failed, errno=%d (%s)\n",
