@@ -35,7 +35,7 @@ static stress_help_t help[] = {
 #if defined(HAVE_SWAPCONTEXT) &&	\
     defined(HAVE_UCONTEXT_H)
 
-#define CONTEXT_STACK_SIZE	(16384)
+#define STACK_ALLOC		(16384)
 
 typedef struct {
 	uint32_t check0;	/* memory clobbering check canary */
@@ -50,7 +50,7 @@ typedef struct {
 
 typedef struct {
 	chk_ucontext_t	cu ALIGN64;	/* check ucontext */
-	uint8_t		stack[CONTEXT_STACK_SIZE + STACK_ALIGNMENT]; /* stack */
+	uint8_t		*stack;
 	chk_canary_t	canary;	/* copy of canary */
 } context_data_t;
 
@@ -67,13 +67,13 @@ static void OPTIMIZE3 stress_thread1(void)
 
 	if (max_ops) {
 		do {
-			context_counter++;
 			(void)swapcontext(uctx0, uctx1);
+			context_counter++;
 		} while (stress_continue_flag() && (context_counter < max_ops));
 	} else {
 		do {
-			context_counter++;
 			(void)swapcontext(uctx0, uctx1);
+			context_counter++;
 		} while (stress_continue_flag());
 	}
 
@@ -88,13 +88,13 @@ static void OPTIMIZE3 stress_thread2(void)
 
 	if (max_ops) {
 		do {
-			context_counter++;
 			(void)swapcontext(uctx1, uctx2);
+			context_counter++;
 		} while (stress_continue_flag() && (!max_ops || (context_counter < max_ops)));
 	} else {
 		do {
-			context_counter++;
 			(void)swapcontext(uctx1, uctx2);
+			context_counter++;
 		} while (stress_continue_flag());
 	}
 	(void)swapcontext(uctx1, &uctx_main);
@@ -108,13 +108,13 @@ static void OPTIMIZE3 stress_thread3(void)
 
 	if (max_ops) {
 		do {
-			context_counter++;
 			(void)swapcontext(uctx2, uctx0);
+			context_counter++;
 		} while (stress_continue_flag() && (!max_ops || (context_counter < max_ops)));
 	} else {
 		do {
-			context_counter++;
 			(void)swapcontext(uctx2, uctx0);
+			context_counter++;
 		} while (stress_continue_flag());
 	}
 	(void)swapcontext(uctx2, &uctx_main);
@@ -139,15 +139,23 @@ static int stress_context_init(
 			args->name, errno, strerror(errno));
 		return -1;
 	}
+	context_data->stack = (uint8_t *)stress_mmap_populate(NULL,
+					STACK_ALLOC,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (context_data->stack == MAP_FAILED) {
+		pr_fail("%s: mmap of %d bytes for stack failed: %d (%s)\n",
+			args->name, STACK_ALLOC, errno, strerror(errno));
+		return -1;
+	}
 
 	context_data->canary.check0 = stress_mwc32();
 	context_data->canary.check1 = stress_mwc32();
 
 	context_data->cu.check0 = context_data->canary.check0;
 	context_data->cu.check1 = context_data->canary.check1;
-	context_data->cu.uctx.uc_stack.ss_sp =
-		(void *)stress_align_address(context_data->stack, STACK_ALIGNMENT);
-	context_data->cu.uctx.uc_stack.ss_size = CONTEXT_STACK_SIZE;
+	context_data->cu.uctx.uc_stack.ss_sp = (void *)context_data->stack;
+	context_data->cu.uctx.uc_stack.ss_size = STACK_ALLOC;
 	context_data->cu.uctx.uc_link = uctx_link;
 	makecontext(&context_data->cu.uctx, func, 0);
 
@@ -224,6 +232,10 @@ static int stress_context(stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 fail:
+	for (i = 0; i < STRESS_CONTEXTS; i++) {
+		if ((context[i].stack != MAP_FAILED) && (context[i].stack))
+			(void)munmap((void *)context[i].stack, STACK_ALLOC);
+	}
 	(void)munmap((void *)context, context_size);
 	return rc;
 }
