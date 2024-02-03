@@ -70,6 +70,15 @@ static void stress_mc_no_seed(void)
 }
 #endif
 
+#if defined(HAVE_ARC4RANDOM)
+static double OPTIMIZE3 stress_mc_arc4_rand(void)
+{
+	const double scale_u32 = 1.0 / (double)0xffffffffUL;
+
+	return (double)arc4random() * scale_u32;
+}
+#endif
+
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_RDRAND)
 static double OPTIMIZE3 stress_mc_rdrand_rand(void)
@@ -262,6 +271,9 @@ static bool stress_mc_supported(void)
 
 static const stress_monte_carlo_rand_info_t rand_info[] = {
 	{ "all",	NULL,				NULL,				stress_mc_supported },
+#if defined(HAVE_ARC4RANDOM)
+	{ "arc4",	stress_mc_arc4_rand,		stress_mc_no_seed,		stress_mc_supported },
+#endif
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_PPC64_DARN)
 	{ "darn",	stress_mc_darn_rand,		stress_mc_no_seed,		stress_mc_darn_supported },
