@@ -3818,6 +3818,12 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	/* Need to perform a string copy to deconstify execname */
 	(void)shim_strscpy(path, execname, path_len);
 	return path;
+#elif defined(HAVE_PROGRAM_INVOCATION_NAME)
+	(void)stress_get_proc_self_exe_path;
+
+	/* this may return the wrong name if it's been argv modified */
+	(void)shim_strscpy(path, program_invocation_name, path_len);
+	return path;
 #else
 	(void)stress_get_proc_self_exe_path;
 
