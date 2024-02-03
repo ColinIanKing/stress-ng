@@ -125,11 +125,73 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define MPOL_F_STATIC_NODES	(1 << 15)
 #endif
 
-
 typedef struct stress_node {
 	struct stress_node	*next;
 	unsigned long		node_id;
 } stress_node_t;
+
+#define STRESS_NUMA_STAT_NUMA_HIT	(0)
+#define STRESS_NUMA_STAT_NUMA_MISS	(1)
+#define STRESS_NUMA_STAT_MAX		(2)
+
+typedef struct {
+	uint64_t value[STRESS_NUMA_STAT_MAX];
+} stress_numa_stats_t;
+
+static void stress_numa_stats_read(stress_numa_stats_t *stats)
+{
+	DIR *dir;
+	struct dirent *d;
+	static const char *path = "/sys/devices/system/node";
+	static const struct {
+		const char *name;
+		const size_t len;
+		size_t index;
+	} numa_fields[] = {
+		{ "numa_hit",	8,	STRESS_NUMA_STAT_NUMA_HIT },
+		{ "numa_miss",	9,	STRESS_NUMA_STAT_NUMA_MISS },
+	};
+
+	(void)memset(stats, 0, sizeof(*stats));
+
+	dir = opendir(path);
+	if (!dir)
+		return;
+
+	while ((d = readdir(dir)) != NULL) {
+		char filename[PATH_MAX];
+		char buffer[256];
+		FILE *fp;
+
+		if (shim_dirent_type(path, d) != SHIM_DT_DIR)
+			continue;
+		if (strncmp(d->d_name, "node", 4))
+			continue;
+
+		(void)snprintf(filename, sizeof(filename), "%s/%s/numastat", path, d->d_name);
+		fp = fopen(filename, "r");
+		if (!fp)
+			continue;
+
+		while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+			size_t i;
+
+			for (i = 0; i < SIZEOF_ARRAY(numa_fields); i++) {
+				if (strncmp(buffer, numa_fields[i].name, numa_fields[i].len) == 0) {
+					uint64_t val = 0;
+
+					if (sscanf(buffer + numa_fields[i].len + 1, "%" SCNu64, &val) == 1) {
+						const size_t index = numa_fields[i].index;
+
+						stats->value[index] += val;
+					}
+				}
+			}
+		}
+		(void)fclose(fp);
+	}
+	(void)closedir(dir);
+}
 
 /*
  *  stress_numa_free_nodes()
@@ -267,6 +329,8 @@ static int stress_numa(stress_args_t *args)
 	size_t mask_elements, k;
 	unsigned long *node_mask, *old_node_mask;
 	bool numa_shuffle_addr, numa_shuffle_node;
+	stress_numa_stats_t stats_begin, stats_end;
+	double t, duration, rate;
 
 	(void)stress_get_setting("numa-bytes", &numa_bytes);
 	(void)stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr);
@@ -352,9 +416,11 @@ static int stress_numa(stress_args_t *args)
 	}
 	(void)stress_madvise_mergeable(buf, numa_bytes);
 
+	stress_numa_stats_read(&stats_begin);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	k = 0;
+	t = stress_time_now();
 	do {
 		int j, mode, ret;
 		long lret;
@@ -646,7 +712,7 @@ static int stress_numa(stress_args_t *args)
 				}
 			}
 
-			/* 
+			/*
 			 *  ..and bump k to ensure next round the pages get reassigned to
 			 *  a different node
 			 */
@@ -714,6 +780,17 @@ static int stress_numa(stress_args_t *args)
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
+
+	duration = stress_time_now() - t;
+	stress_numa_stats_read(&stats_end);
+
+	rate = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_HIT] -
+				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_HIT]) / duration : 0.0;
+	stress_metrics_set(args, 0, "NUMA hits per sec", rate, STRESS_GEOMETRIC_MEAN);
+
+	rate = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_MISS] -
+				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_MISS]) / duration : 0.0;
+	stress_metrics_set(args, 1, "NUMA misses per sec", rate, STRESS_GEOMETRIC_MEAN);
 
 	rc = EXIT_SUCCESS;
 err:
