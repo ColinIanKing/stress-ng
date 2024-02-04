@@ -94,6 +94,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if !defined(MPOL_PREFERRED_MANY)
 #define MPOL_PREFERRED_MANY	(5)
 #endif
+#if !defined(MPOL_WEIGHTED_INTERLEAVE)
+#define MPOL_WEIGHTED_INTERLEAVE (6)
+#endif
 
 #if !defined(MPOL_F_NODE)
 #define MPOL_F_NODE		(1 << 0)
@@ -488,7 +491,7 @@ static int stress_numa(stress_args_t *args)
 			mode |= MPOL_F_RELATIVE_NODES;
 #endif
 
-		switch (stress_mwc8modn(11)) {
+		switch (stress_mwc8modn(12)) {
 		case 0:
 #if defined(MPOL_DEFAULT)
 			VOID_RET(long, shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes));
@@ -520,18 +523,23 @@ static int stress_numa(stress_args_t *args)
 			break;
 #endif
 		case 6:
+#if defined(MPOL_WEIGHTED_INTERLEAVE)
+			VOID_RET(long, shim_set_mempolicy(MPOL_WEIGHTED_INTERLEAVE | mode, node_mask, max_nodes));
+			break;
+#endif
+		case 7:
 			VOID_RET(long, shim_set_mempolicy(0, node_mask, max_nodes));
 			break;
-		case 7:
+		case 8:
 			VOID_RET(long, shim_set_mempolicy(mode, node_mask, max_nodes));
 			break;
-		case 8:
+		case 9:
 			/* Invalid mode */
 			VOID_RET(long, shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes));
 			break;
 #if defined(MPOL_F_NUMA_BALANCING) &&	\
     defined(MPOL_LOCAL)
-		case 9:
+		case 10:
 			/* Invalid  MPOL_F_NUMA_BALANCING | MPOL_LOCAL */
 			VOID_RET(long, shim_set_mempolicy(MPOL_F_NUMA_BALANCING | MPOL_LOCAL, node_mask, max_nodes));
 			break;
