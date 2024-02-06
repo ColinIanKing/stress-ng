@@ -698,6 +698,8 @@ static void stress_cache_show_flags(stress_args_t *args, const uint32_t flags)
 			(void)shim_strlcat(buf, mask_flag_info[i].name, sizeof(buf));
 		}
 	}
+	if (!*buf)
+		(void)shim_strscpy(buf, " none", sizeof(buf));
 	pr_inf("%s: cache flags used:%s\n", args->name, buf);
 }
 
@@ -880,8 +882,11 @@ static int stress_cache(stress_args_t *args)
 		(void)munmap(bad_addr, args->page_size);
 
 	masked_flags = cache_flags & CACHE_FLAGS_MASK;
-	if (args->instance == 0)
-		stress_cache_show_flags(args, masked_flags ? masked_flags : cache_flags_mask);
+	if (args->instance == 0) {
+		stress_cache_show_flags(args, masked_flags);
+		if (masked_flags == 0)
+			pr_inf("%s: use --cache-enable-all to enable all cache flags for heavier cache stressing\n", args->name);
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
