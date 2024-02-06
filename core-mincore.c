@@ -66,6 +66,8 @@ static int stress_mincore_touch_pages_generic(
 	const size_t n_pages = buf_len / page_size;
 
 #if !defined(HAVE_MINCORE)
+	if (!(g_opt_flags & OPT_FLAGS_MMAP_MINCORE))
+		return 0;
 	/* systems that don't have mincore */
 	stress_mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 	return 0;
@@ -139,6 +141,8 @@ int stress_mincore_touch_pages(void *buf, const size_t buf_len)
     defined(HAVE_MADVISE)
 	int ret;
 
+	if (!(g_opt_flags & OPT_FLAGS_MMAP_MINCORE))
+		return 0;
 	ret = madvise(buf, buf_len, MADV_POPULATE_READ);
 	if (ret == 0)
 		return 0;
