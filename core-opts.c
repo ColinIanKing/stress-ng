@@ -1047,6 +1047,7 @@ const struct option stress_long_options[] = {
 	{ "vforkmany",		1,	0,	OPT_vforkmany },
 	{ "vforkmany-ops", 	1,	0,	OPT_vforkmany_ops },
 	{ "vforkmany-vm", 	0,	0,	OPT_vforkmany_vm },
+	{ "vforkmany-vm-bytes", 1,	0,	OPT_vforkmany_vm_bytes },
 	{ "vm",			1,	0,	OPT_vm },
 	{ "vm-bytes",		1,	0,	OPT_vm_bytes },
 	{ "vm-hang",		1,	0,	OPT_vm_hang },

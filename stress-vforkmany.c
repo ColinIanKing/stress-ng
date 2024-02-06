@@ -23,7 +23,9 @@
 #include "core-mincore.h"
 #include "core-out-of-memory.h"
 
-#define WASTE_SIZE	(64 * MB)
+#define MIN_VFORKMANY_VM_BYTES		(4 * KB)
+#define MAX_VFORKMANY_VM_BYTES		(MAX_MEM_LIMIT)
+#define DEFAULT_VFORKMANY_VM_BYTES	(64 * MB)
 
 typedef struct {
 	volatile uint64_t invoked;	/* count of vfork processes that started */
@@ -36,15 +38,26 @@ typedef struct {
 } vforkmany_shared_t;
 
 static const stress_help_t help[] = {
-	{ NULL,	"vforkmany N",     "start N workers spawning many vfork children" },
-	{ NULL,	"vforkmany-ops N", "stop after spawning N vfork children" },
-	{ NULL, "vforkmany-vm",	   "enable extra virtual memory pressure" },
-	{ NULL,	NULL,		   NULL }
+	{ NULL,	"vforkmany N",     	"start N workers spawning many vfork children" },
+	{ NULL,	"vforkmany-ops N", 	"stop after spawning N vfork children" },
+	{ NULL, "vforkmany-vm",	   	"enable extra virtual memory pressure" },
+	{ NULL, "vforkmany-vm-bytes",	"set the default vm mmap'd size, default 64MB" },
+	{ NULL,	NULL,			NULL }
 };
 
 static int stress_set_vforkmany_vm(const char *opt)
 {
 	return stress_set_setting_true("vforkmany-vm", opt);
+}
+
+static int stress_set_vforkmany_vm_bytes(const char *opt)
+{
+	size_t vforkmany_vm_bytes;
+
+	vforkmany_vm_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
+	stress_check_range_bytes("vforkmany-vm-bytes", (uint64_t)vforkmany_vm_bytes,
+		MIN_VFORKMANY_VM_BYTES, MAX_VFORKMANY_VM_BYTES);
+	return stress_set_setting("vforkmany-vm-bytes", TYPE_ID_SIZE_T, &vforkmany_vm_bytes);
 }
 
 /*
@@ -81,11 +94,19 @@ static int stress_vforkmany(stress_args_t *args)
 	/* avoid variables on stack since we're using vfork */
 	static pid_t chpid;
 	static uint8_t *stack_sig;
-	static bool vm = false;
+	static bool vforkmany_vm = false;
 	static vforkmany_shared_t *vforkmany_shared;
+	static size_t vforkmany_vm_bytes = 0;
 	static int rc = EXIT_SUCCESS;
 
-	(void)stress_get_setting("vforkmany-vm", &vm);
+	(void)stress_get_setting("vforkmany-vm", &vforkmany_vm);
+	(void)stress_get_setting("vforkmany-vm-bytes", &vforkmany_vm_bytes);
+	if (vforkmany_vm_bytes != 0) {
+		/* vm bytes supplied so enable vforkmany_vm */
+		vforkmany_vm = true;
+	} else {
+		vforkmany_vm_bytes = DEFAULT_VFORKMANY_VM_BYTES;
+	}
 
 	stress_ksm_memory_merge(1);
 
@@ -137,7 +158,7 @@ fork_again:
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
 		static uint8_t *waste;
-		static size_t waste_size = WASTE_SIZE;
+		static size_t waste_size;
 
 		/*
 		 *  We want the children to be OOM'd if we
@@ -152,6 +173,7 @@ fork_again:
 		 *  parent waiter so in theory it should be
 		 *  OOM'd before the parent.
 		 */
+		waste_size = vforkmany_vm_bytes;
 		do {
 			waste = (uint8_t *)mmap(NULL, waste_size, PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -162,13 +184,20 @@ fork_again:
 			waste_size >>= 1;
 		} while (waste_size > 4096);
 
-		if (waste != MAP_FAILED)
-			(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
 
+		if (waste != MAP_FAILED) {
+			if (waste_size != vforkmany_vm_bytes) {
+				static char buf[32];
+
+				stress_uint64_to_str(buf, sizeof(buf), (uint64_t)waste_size);
+				pr_dbg("%s: could only mmap a region of size of %s\n", args->name, buf);
+			}
+			(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
+		}
 		if (!stress_continue_flag())
 			_exit(0);
 
-		if (vm) {
+		if (vforkmany_vm) {
 			int flags = 0;
 
 #if defined(MADV_NORMAL)
@@ -230,7 +259,7 @@ vfork_again:
 					}
 				}
 
-				if (vm) {
+				if (vforkmany_vm) {
 					int flags = 0;
 
 #if defined(MADV_MERGEABLE)
@@ -308,8 +337,9 @@ finish:
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vforkmany_vm,	stress_set_vforkmany_vm },
-	{ 0,			NULL }
+	{ OPT_vforkmany_vm,		stress_set_vforkmany_vm },
+	{ OPT_vforkmany_vm_bytes,	stress_set_vforkmany_vm_bytes },
+	{ 0,				NULL }
 };
 
 stressor_info_t stress_vforkmany_info = {

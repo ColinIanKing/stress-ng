@@ -1472,6 +1472,7 @@ typedef enum {
 	OPT_vforkmany,
 	OPT_vforkmany_ops,
 	OPT_vforkmany_vm,
+	OPT_vforkmany_vm_bytes,
 
 	OPT_vm_bytes,
 	OPT_vm_hang,

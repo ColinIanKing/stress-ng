@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "1 February 2024"
+.TH STRESS-NG 1 "6 February 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7692,6 +7692,12 @@ enable detrimental performance virtual memory advice using madvise on
 all pages of the vforked process. Where possible this will try to set
 every page in the new process with using madvise MADV_MERGEABLE,
 MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
+.TP
+.B \-\-vforkmany\-vm\-bytes N
+mmap N bytes per vm worker for more memory pressure, the default is 64MB. This
+also enables the \-\-vforkmany\-vm option.  One can specify the size
+as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
 .RE
 .TP
 .B Memory allocate and write stressor
