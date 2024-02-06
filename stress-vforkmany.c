@@ -157,15 +157,14 @@ fork_again:
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (waste != MAP_FAILED)
 				break;
-
 			if (!stress_continue_flag())
 				_exit(0);
-
 			waste_size >>= 1;
 		} while (waste_size > 4096);
 
 		if (waste != MAP_FAILED)
-			(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
+			(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
+
 		if (!stress_continue_flag())
 			_exit(0);
 
@@ -250,7 +249,7 @@ vfork_again:
 						stress_madvise_pid_all_pages(getpid(), flags);
 				}
 				if (waste != MAP_FAILED)
-					(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
+					(void)stress_mincore_touch_pages_interruptible(waste, waste_size);
 
 				/* child, parent is blocked, spawn new child */
 				if (!args->max_ops || (stress_bogo_get(args) < args->max_ops))
@@ -267,7 +266,7 @@ vfork_again:
 		} while (stress_continue(args));
 
 		if (waste != MAP_FAILED)
-			(void)munmap((void *)waste, WASTE_SIZE);
+			(void)munmap((void *)waste, waste_size);
 
 		_exit(0);
 	} else {
