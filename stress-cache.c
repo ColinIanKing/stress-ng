@@ -887,6 +887,7 @@ static int stress_cache(stress_args_t *args)
 		if (masked_flags == 0)
 			pr_inf("%s: use --cache-enable-all to enable all cache flags for heavier cache stressing\n", args->name);
 	}
+	(void)shim_memset(buffer, 0, buffer_size);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
