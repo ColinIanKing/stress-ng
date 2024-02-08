@@ -72,7 +72,6 @@ static void stress_thrash_state(const char *state)
  */
 int stress_pagein_self(const char *name)
 {
-	char path[PATH_MAX];
 	char buffer[4096];
 	int rc = 0, ret;
 	NOCLOBBER FILE *fpmap = NULL;
@@ -88,8 +87,7 @@ int stress_pagein_self(const char *name)
 	if (ret == 1)
 		goto err;
 
-	(void)snprintf(path, sizeof(path), "/proc/self/maps");
-	fpmap = fopen(path, "r");
+	fpmap = fopen("/proc/self/maps", "r");
 	if (!fpmap)
 		return -errno;
 
