@@ -103,7 +103,7 @@ static int stress_fork_fn(
 	const uint32_t fork_max,
 	const bool vm)
 {
-	static fork_info_t info[MAX_FORKS];
+	static fork_info_t info[MAX_FORKS] ALIGN64;
 	NOCLOBBER uint32_t j;
 
 	stress_set_oom_adjustment(args, true);
