@@ -100,7 +100,7 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
 	head->value = INT_MAX;
 
 	for (i = 0; i <= max_level; i++)
-		head->skip_nodes[i] = list->head;
+		list->head->skip_nodes[i] = list->head;
 
 	return list;
 }
@@ -222,6 +222,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 {
 	unsigned long n, i, ln2n;
 	uint64_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
+	int rc = EXIT_FAILURE;
 
 	if (!stress_get_setting("skiplist-size", &skiplist_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -231,6 +232,17 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 	}
 	n = (unsigned long)skiplist_size;
 	ln2n = skip_list_ln2(n);
+
+	/*
+	 *  This stops static analyzers getting confused for
+	 *  sizes where they assume ln2n is 0
+	 */
+	if (ln2n < 1) {
+		pr_fail("%s: unexpected ln base 2 of %lu is less than 1 (should not occur)\n",
+			args->name, n);
+		rc = EXIT_FAILURE;
+		goto finish;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -266,9 +278,11 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+	rc = EXIT_SUCCESS;
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
