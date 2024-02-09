@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "6 February 2024"
+.TH STRESS-NG 1 "9 February 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2492,6 +2492,12 @@ available, this uses fallocate(2) FALLOC_FL_KEEP_SIZE,
 FALLOC_FL_PUNCH_HOLE, FALLOC_FL_ZERO_RANGE, FALLOC_FL_COLLAPSE_RANGE
 and FALLOC_FL_INSERT_RANGE to make and fill holes across the file
 and breaks it into multiple extents.
+.TP
+.B \-\-fpunch\-bytes N
+set maximum size of each file for each fpunch worker process, the
+default is 16 MB. One can specify the size as % of free space on
+the file system or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
 .TP
 .B \-\-fpunch\-ops N
 stop fpunch workers after N punch and fill bogo operations.

@@ -259,6 +259,7 @@ const struct option stress_long_options[] = {
 	{ "fp-error",		1,	0,	OPT_fp_error},
 	{ "fp-error-ops",	1,	0,	OPT_fp_error_ops },
 	{ "fpunch",		1,	0,	OPT_fpunch },
+	{ "fpunch-bytes",	1,	0,	OPT_fpunch_bytes },
 	{ "fpunch-ops",		1,	0,	OPT_fpunch_ops },
 	{ "fsize",		1,	0,	OPT_fsize },
 	{ "fsize-ops",		1,	0,	OPT_fsize_ops },

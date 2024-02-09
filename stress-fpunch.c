@@ -22,15 +22,34 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 
+#define MIN_FPUNCH_BYTES	(1 * MB)
+#define MAX_FPUNCH_BYTES	(2 * GB)
+#define DEFAULT_FPUNCH_BYTES	(16 * MB)
+
 static const stress_help_t help[] = {
-	{ NULL,	"fpunch N",	"start N workers punching holes in a 16MB file" },
-	{ NULL,	"fpunch-ops N",	"stop after N punch bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"fpunch N",		"start N workers punching holes in a 16MB file" },
+	{ NULL,	"fpunch-bytes N",	"size of file being punched" },
+	{ NULL,	"fpunch-ops N",		"stop after N punch bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
+static int stress_set_fpunch_bytes(const char *opt)
+{
+	uint64_t fpunch_bytes;
+
+	fpunch_bytes = stress_get_uint64_byte_filesystem(opt, 1);
+	stress_check_range_bytes("fpunch-bytes", fpunch_bytes,
+		MIN_FPUNCH_BYTES, MAX_FPUNCH_BYTES);
+	return stress_set_setting("fpunch-bytes", TYPE_ID_UINT64, &fpunch_bytes);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fpunch_bytes,	stress_set_fpunch_bytes },
+	{ 0,			NULL },
 };
 
 #if defined(HAVE_FALLOCATE)
 
-#define DEFAULT_FPUNCH_LENGTH		(16 * MB)
 #define PROC_FPUNCH_OFFSET		(2 * MB)
 #define BUF_SIZE			(4096)
 #define STRESS_PUNCH_PIDS		(4)
@@ -197,6 +216,7 @@ static int stress_punch_action(
 static int stress_punch_file(
 	stress_args_t *args,
 	stress_punch_buf_t *buf,
+	const uint64_t fpunch_bytes,
 	const size_t instance,
 	const int fd)
 {
@@ -254,15 +274,15 @@ static int stress_punch_file(
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset + 128, 16);
 		if (!stress_continue(args))
 			break;
-		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32modn(DEFAULT_FPUNCH_LENGTH), 16);
+		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc64modn(fpunch_bytes), 16);
 		if (!stress_continue(args))
 			break;
 #endif
 		offset += (256 * (instance + 1));
-		if (offset + 4096 > (off_t)DEFAULT_FPUNCH_LENGTH)
+		if (offset + 4096 > (off_t)fpunch_bytes)
 			offset = offset_min;
 
-		VOID_RET(int, ftruncate(fd, (off_t)DEFAULT_FPUNCH_LENGTH));
+		VOID_RET(int, ftruncate(fd, (off_t)fpunch_bytes));
 
 		stress_bogo_inc(args);
 	} while ((rc == 0) && stress_continue(args));
@@ -282,8 +302,11 @@ static int stress_fpunch(stress_args_t *args)
 	pid_t pids[STRESS_PUNCH_PIDS];
 	size_t i, extents, n;
 	const size_t stride = (size_t)BUF_SIZE << 1;
-	const size_t max_punches = (size_t)(DEFAULT_FPUNCH_LENGTH / (off_t)stride);
 	stress_punch_buf_t *buf;
+	uint64_t punches, fpunch_bytes = DEFAULT_FPUNCH_BYTES, max_punches;
+
+	(void)stress_get_setting("fpunch-bytes", &fpunch_bytes);
+	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
 
 	buf = (stress_punch_buf_t *)stress_mmap_populate(NULL, sizeof(*buf),
 			PROT_READ | PROT_WRITE,
@@ -321,9 +344,9 @@ static int stress_fpunch(stress_args_t *args)
 	 *  it with 50% data and 50% holes by writing it backwards
 	 *  and skipping over stride sized hunks.
 	 */
-	offset = DEFAULT_FPUNCH_LENGTH;
+	offset = (off_t)fpunch_bytes;
 	n = 0;
-	for (i = 0; stress_continue(args) && (i < max_punches); i++) {
+	for (punches = 0; stress_continue(args) && (punches < max_punches); punches++) {
 		ssize_t r;
 
 		offset -= stride;
@@ -337,7 +360,7 @@ static int stress_fpunch(stress_args_t *args)
 	/* Zero sized file is a bit concerning, so abort */
 	if (n == 0) {
 		pr_inf_skip("%s: cannot allocate file of %" PRIu64 " bytes, skipping stressor\n",
-			args->name, (uint64_t)DEFAULT_FPUNCH_LENGTH);
+			args->name, fpunch_bytes);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}
@@ -349,7 +372,7 @@ static int stress_fpunch(stress_args_t *args)
 		pids[i] = fork();
 		if (pids[i] == 0) {
 			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
-			if (stress_punch_file(args, buf, i, fd) < 0)
+			if (stress_punch_file(args, buf, fpunch_bytes, i, fd) < 0)
 				_exit(EXIT_FAILURE);
 			_exit(EXIT_SUCCESS);
 		}
@@ -382,6 +405,7 @@ tidy_buf:
 stressor_info_t stress_fpunch_info = {
 	.stressor = stress_fpunch,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -389,6 +413,7 @@ stressor_info_t stress_fpunch_info = {
 stressor_info_t stress_fpunch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without fallocate() support"

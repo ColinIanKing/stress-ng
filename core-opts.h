@@ -441,6 +441,7 @@ typedef enum {
 	OPT_fp_error_ops,
 
 	OPT_fpunch,
+	OPT_fpunch_bytes,
 	OPT_fpunch_ops,
 
 	OPT_fsize,
