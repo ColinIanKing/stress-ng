@@ -2759,6 +2759,21 @@ static inline bool stress_check_root(void)
 }
 
 #if defined(HAVE_SYS_CAPABILITY_H)
+void stress_getset_capability(void)
+{
+	struct __user_cap_header_struct uch;
+	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
+
+	uch.version = _LINUX_CAPABILITY_VERSION_3;
+	uch.pid = getpid();
+
+	if (capget(&uch, ucd) < 0)
+		return;
+	(void)capset(&uch, ucd);
+}
+#endif
+
+#if defined(HAVE_SYS_CAPABILITY_H)
 /*
  *  stress_check_capability()
  *	returns true if process has the given capability,

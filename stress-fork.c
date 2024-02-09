@@ -51,6 +51,52 @@ static const stress_help_t vfork_help[] = {
 #define STRESS_VFORK	(1)
 
 /*
+ *  stress_fork_shim_exit()
+ *	perform _exit(), try and use syscall first to
+ *	avoid any shared library late binding of _exit(),
+ *	if the direct syscall fails do _exit() call.
+ */
+static inline ALWAYS_INLINE NORETURN void stress_fork_shim_exit(int status)
+{
+#if defined(__NR_exit) && \
+    defined(HAVE_SYSCALL)
+        (void)syscall(__NR_exit, status);
+	/* in case __NR_exit fails, do _exit anyhow */
+#endif
+	_exit(status);
+}
+
+/*
+ *  stress_force_bind()
+ *	the child process performs various system calls via the libc
+ *	shared library and this involves doing late binding on these
+ *	libc functions. Since the child process has to do this many
+ *	times it's useful to avoid the late binding overhead by forcing
+ *	binding by calling the functions before the child uses them.
+ *
+ *	This could be avoided by compiling with late binding disabled
+ *	via LD_FLAGS -znow however this can break on some distros due
+ *	to symbol resolving ordering, so we do it using this ugly way.
+ */
+static void stress_force_bind(void)
+{
+	pid_t pid;
+
+	pid = getpid();
+#if defined(HAVE_GETPGID)
+	(void)getpgid(pid);
+#endif
+	(void)setpgid(0, 0);
+#if defined(HAVE_SYS_CAPABILITY_H)
+	stress_getset_capability();
+#endif
+#if defined(__NR_getpid) && \
+    defined(HAVE_SYSCALL)
+	(void)syscall(__NR_getpid);
+#endif
+}
+
+/*
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
  */
@@ -92,6 +138,7 @@ typedef struct {
 	int	err;	/* Saved fork errno */
 } fork_info_t;
 
+
 /*
  *  stress_fork_fn()
  *	stress by forking and exiting using
@@ -130,7 +177,7 @@ static int stress_fork_fn(
 				fork_fn_name = "vfork";
 				pid = shim_vfork();
 				if (pid == 0)
-					_exit(0);
+					stress_fork_shim_exit(0);
 				break;
 			default:
 				/* This should not happen */
@@ -146,16 +193,8 @@ static int stress_fork_fn(
 				 *  50% of forks are very short lived exiting processes
 				 */
 				if (n & 1)
-					_exit(0);
+					stress_fork_shim_exit(0);
 
-				/*
-				 *  With new session and capabilities
-				 *  dropped vhangup will always fail
-				 *  but it's useful to exercise this
-				 *  to get more kernel coverage
-				 */
-				if (setsid() != (pid_t) -1)
-					shim_vhangup();
 				if (vm) {
 					int flags = 0;
 
@@ -226,7 +265,7 @@ static int stress_fork_fn(
 				VOID_RET(int, setpgid(-1, 0));
 				(void)shim_sched_yield();
 				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
-				_exit(0);
+				stress_fork_shim_exit(0);
 			} else if (pid < 0) {
 				info[n].err = errno;
 			}
@@ -289,6 +328,7 @@ static int stress_fork(stress_args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
+	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	rc = stress_fork_fn(args, STRESS_FORK, fork_max, vm);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -315,6 +355,7 @@ static int stress_vfork(stress_args_t *args)
 			vfork_max = MIN_VFORKS;
 	}
 
+	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, false);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
