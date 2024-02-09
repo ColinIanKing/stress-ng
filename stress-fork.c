@@ -143,10 +143,10 @@ static int stress_fork_fn(
 
 			if (pid == 0) {
 				/*
-				 *  50% of forks are short lived exiting processes
+				 *  50% of forks are very short lived exiting processes
 				 */
 				if (n & 1)
-					goto fast_exit;
+					_exit(0);
 
 				/*
 				 *  With new session and capabilities
@@ -224,7 +224,6 @@ static int stress_fork_fn(
 				VOID_RET(int, setpgid(0, -1));
 				/* -ve pid is EINVAL */
 				VOID_RET(int, setpgid(-1, 0));
-fast_exit:
 				(void)shim_sched_yield();
 				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				_exit(0);
