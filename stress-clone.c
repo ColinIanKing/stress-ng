@@ -261,6 +261,42 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_CLONE)
 
+/*
+ *  stress_clone_shim_exit()
+ *	perform _exit(), try and use syscall first to
+ *	avoid any shared library late binding of _exit(),
+ *	if the direct syscall fails do _exit() call.
+ */
+static inline ALWAYS_INLINE NORETURN void stress_clone_shim_exit(int status)
+{
+#if defined(__NR_exit) && \
+    defined(HAVE_SYSCALL)
+        (void)syscall(__NR_exit, status);
+	/* in case __NR_exit fails, do _exit anyhow */
+#endif
+	_exit(status);
+}
+
+/*
+ *  stress_clone_force_bind()
+ *	the child process performs various system calls via the libc
+ *	shared library and this involves doing late binding on these
+ *	libc functions. Since the child process has to do this many
+ *	times it's useful to avoid the late binding overhead by forcing
+ *	binding by calling the functions before the child uses them.
+ *
+ *	This could be avoided by compiling with late binding disabled
+ *	via LD_FLAGS -znow however this can break on some distros due
+ *	to symbol resolving ordering, so we do it using this ugly way.
+ */
+static void clone_stress_force_bind(void)
+{
+#if defined(HAVE_SETNS)
+	(void)setns(-1, 0);
+#endif
+	(void)shim_unshare(0);
+}
+
 static inline PURE uint64_t uint64_ptr(const void *ptr)
 {
 	return (uint64_t)(uintptr_t)ptr;
@@ -470,6 +506,8 @@ static int stress_clone_child(stress_args_t *args, void *context)
 	if (ptr != MAP_FAILED)
 		(void)stress_mincore_touch_pages(ptr, mmap_size);
 
+	clone_stress_force_bind();
+
 	do {
 		const bool low_mem_reap = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
 					   stress_low_memory((size_t)(1 * MB)));
@@ -518,7 +556,7 @@ static int stress_clone_child(stress_args_t *args, void *context)
 						use_clone3 = false;
 				} else if (clone_info->pid == 0) {
 					/* child */
-					_exit(clone_func(&clone_arg));
+					stress_clone_shim_exit(clone_func(&clone_arg));
 				}
 			} else {
 				char *stack_top = (char *)stress_get_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
