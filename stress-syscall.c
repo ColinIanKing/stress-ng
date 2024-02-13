@@ -3204,7 +3204,9 @@ static int syscall_madvise(void)
 #if defined(HAVE_SYSCALL) &&		\
     defined(__NR_map_shadow_stack)
 #define HAVE_SYSCALL_MAP_SHADOW_STACK
-#define SHADOW_STACK_SET_TOKEN		STRESS_BIT_ULL(0)
+#if !defined(SHADOW_STACK_SET_TOKEN)
+#define SHADOW_STACK_SET_TOKEN	STRESS_BIT_ULL(0)
+#endif
 static int syscall_map_shadow_stack(void)
 {
 	void *stack, *addr;
@@ -3228,7 +3230,6 @@ static int syscall_map_shadow_stack(void)
 	return 0;
 }
 
-#undef SHADOW_STACK_SET_TOKEN
 #endif
 
 #if defined(HAVE_LINUX_MEMPOLICY_H) &&	\
