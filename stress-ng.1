@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "9 February 2024"
+.TH STRESS-NG 1 "13 February 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2386,6 +2386,11 @@ table using high values for \-\-fork\-max and \-\-fork.
 .TP
 .B \-\-fork\-ops N
 stop fork stress workers after N bogo operations.
+.TP
+.B \-\-fork\-unmap
+attempt to unmap unused non-memory resident shared library pages
+to try and reduced anonymous vma copying. This is an ugly hack for
+benchmarking reduced vma copying and not guaranteed to work. Linux only.
 .TP
 .B \-\-fork\-vm
 enable detrimental performance virtual memory advice using madvise on

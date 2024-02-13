@@ -36,6 +36,7 @@ static const stress_help_t fork_help[] = {
 	{ "f N","fork N",	"start N workers spinning on fork() and exit()" },
 	{ NULL,	"fork-max P",	"create P forked processes per iteration, default is 1" },
 	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
+	{ NULL,	"fork-unmap",	"forcibly unmap unused shared library pages (dangerous)" },
 	{ NULL, "fork-vm",	"enable extra virtual memory pressure" },
 	{ NULL,	NULL,		NULL }
 };
@@ -49,6 +50,9 @@ static const stress_help_t vfork_help[] = {
 
 #define STRESS_FORK	(0)
 #define STRESS_VFORK	(1)
+
+#define STRESS_REDUCE_MADVISE	(0)
+#define STRESS_REDUCE_REMOVE	(1)
 
 /*
  *  stress_fork_shim_exit()
@@ -96,6 +100,135 @@ static void stress_force_bind(void)
 #endif
 }
 
+#if defined(__linux__)
+/*
+ *  shared libraries that stress-ng currently
+ *  uses and can be potentially be force unmapped
+ */
+static const char *stress_fork_shlibs[] = {
+	"libacl.so",
+	"libapparmor.so",
+	/* "libbsd.so", */
+	"libcrypt.so",
+	"libdrm.so",
+	"libEGL.so",
+	"libgbm.so",
+	"libGLdispatch.so",
+	"libGLESv2.so",
+	"libgmp.so",
+	"libIPSec_MB.so",
+	"libjpeg.so",
+	"libJudy.so",
+	"libmd.so",
+	"libmpfr.so",
+	"libpthread.so",
+	"libsctp.so",
+	"libxxhash.so",
+	"libz.so",
+	"libkmod.so",
+	"liblzma.so",
+	"libwayland-server.so",
+	"libzstd.so",
+};
+
+/*
+ *  stress_fork_maps_reduce()
+ *	force non-resident shared library pages to be unmapped
+ *	to reduce vma copying. This is a Linux-only ugly hack
+ *	and we expect _exit() to be called at the end of the
+ *	parent and child processes.
+ */
+static void stress_fork_maps_reduce(const size_t page_size, const int mode)
+{
+	char buffer[4096];
+	FILE *fp;
+	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
+
+	fp = fopen("/proc/self/maps", "r");
+	if (!fp)
+		return;
+
+	/*
+	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
+	 */
+	while (fgets(buffer, sizeof(buffer), fp)) {
+		uintmax_t begin, end, len, offset;
+		char tmppath[1024];
+		char prot[6];
+		size_t i;
+
+		tmppath[0] = '\0';
+		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		           " %5s %" SCNx64 " %*x:%*x %*d %1023s", &begin, &end, prot, &offset, tmppath) != 5) {
+			continue;
+		}
+
+		if (tmppath[0] == '\0')
+			continue;
+
+		/* Avoid VDSO */
+		if (strncmp("[v", tmppath, 2) == 0)
+			continue;
+
+		len = end - begin;
+
+		/* Ignore bad ranges */
+		if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
+			continue;
+
+		/* Skip invalid ranges */
+		if ((len < page_size) || (len > 0x80000000UL))
+			continue;
+
+		for (i = 0; i < SIZEOF_ARRAY(stress_fork_shlibs); i++) {
+			if (strstr(tmppath, stress_fork_shlibs[i])) {
+				if (mode == STRESS_REDUCE_MADVISE) {
+					(void)madvise((void *)begin, len, MADV_DONTNEED);
+				} else if (mode == STRESS_REDUCE_REMOVE) {
+					unsigned char *vec;
+					uint8_t *ptr, *unmap_start = NULL;
+					size_t unmap_len = 0, j;
+
+					vec = calloc(len / page_size, sizeof(*vec));
+					if (!vec)
+						continue;
+
+					if (shim_mincore((void *)begin, (size_t)len, vec) < 0) {
+						free(vec);
+						continue;
+					}
+
+					/*
+					 *  find longest run of pages that can be
+					 *  forcibly unmapped.
+					 */
+					for (j = 0, ptr = (uint8_t *)begin; ptr < (uint8_t *)end; ptr += page_size, j++) {
+						if (vec[j]) {
+							if (unmap_len == 0) {
+								unmap_start = ptr;
+								unmap_len = page_size;
+							} else {
+								unmap_len += page_size;
+							}
+						} else {
+							if (unmap_len != 0)
+								(void)munmap(unmap_start, unmap_len);
+							unmap_start = NULL;
+							unmap_len = 0;
+						}
+					}
+					if (unmap_len != 0)
+						(void)munmap(unmap_start, unmap_len);
+					free(vec);
+				}
+				continue;
+			}
+		}
+	}
+	(void)fclose(fp);
+}
+#endif
+
 /*
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
@@ -108,6 +241,15 @@ static int stress_set_fork_max(const char *opt)
 	stress_check_range("fork-max", (uint64_t)fork_max,
 		MIN_FORKS, MAX_FORKS);
 	return stress_set_setting("fork-max", TYPE_ID_UINT32, &fork_max);
+}
+
+/*
+ *  stress_set_fork_unmap()
+ *	set fork-unmap flag on
+ */
+static int stress_set_fork_unmap(const char *opt)
+{
+	return stress_set_setting_true("fork-unmap", opt);
 }
 
 /*
@@ -148,12 +290,20 @@ static int stress_fork_fn(
 	stress_args_t *args,
 	const int which,
 	const uint32_t fork_max,
-	const bool vm)
+	const bool fork_unmap,
+	const bool fork_vm)
 {
 	static fork_info_t info[MAX_FORKS] ALIGN64;
 	NOCLOBBER uint32_t j;
+#if defined(__linux__)
+	NOCLOBBER bool remove_reduced = false;
+#endif
 
 	stress_set_oom_adjustment(args, true);
+#if defined(__linux__)
+	if (fork_unmap)
+		stress_fork_maps_reduce(args->page_size, STRESS_REDUCE_MADVISE);
+#endif
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	VOID_RET(int, stress_drop_capabilities(args->name));
@@ -195,7 +345,7 @@ static int stress_fork_fn(
 				if (n & 1)
 					stress_fork_shim_exit(0);
 
-				if (vm) {
+				if (fork_vm) {
 					int flags = 0;
 
 					switch (j++ & 7) {
@@ -269,14 +419,14 @@ static int stress_fork_fn(
 			} else if (pid < 0) {
 				info[n].err = errno;
 			}
-			info[n].pid  = pid;
+			info[n].pid = pid;
 			if (!stress_continue(args))
 				break;
 		}
 		for (i = 0; i < n; i++) {
 			if (info[i].pid > 0) {
 				int status;
-				/* Parent, kill and then wait for child */
+				/* wait for child */
 				(void)shim_waitpid(info[i].pid, &status, 0);
 				stress_bogo_inc(args);
 			}
@@ -304,6 +454,12 @@ static int stress_fork_fn(
 		if ((which == STRESS_VFORK) && (stress_time_now() > args->time_end))
 			break;
 #endif
+#if defined(__linux__)
+		if (fork_unmap && !remove_reduced) {
+			stress_fork_maps_reduce(args->page_size, STRESS_REDUCE_REMOVE);
+			remove_reduced = true;
+		}
+#endif
 	} while (stress_continue(args));
 
 	return EXIT_SUCCESS;
@@ -317,9 +473,11 @@ static int stress_fork(stress_args_t *args)
 {
 	uint32_t fork_max = DEFAULT_FORKS;
 	int rc;
-	bool vm = false;
+	bool fork_vm = false, fork_unmap = false;
+	pid_t pid;
 
-	(void)stress_get_setting("fork-vm", &vm);
+	(void)stress_get_setting("fork-unmap", &fork_unmap);
+	(void)stress_get_setting("fork-vm", &fork_vm);
 
 	if (!stress_get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -330,7 +488,27 @@ static int stress_fork(stress_args_t *args)
 
 	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	rc = stress_fork_fn(args, STRESS_FORK, fork_max, vm);
+
+	if (fork_unmap) {
+		pid = fork();
+		if (pid == 0) {
+			rc = stress_fork_fn(args, STRESS_FORK, fork_max, true, fork_vm);
+			_exit(rc);
+		} else if (pid < 0) {
+			rc = EXIT_FAILURE;
+		} else {
+			int status;
+
+			(void)shim_waitpid(pid, &status, 0);
+			if (WIFEXITED(status)) {
+				rc = WEXITSTATUS(status);
+			} else {
+				rc = EXIT_FAILURE;
+			}
+		}
+	} else {
+		rc = stress_fork_fn(args, STRESS_FORK, fork_max, false, fork_vm);
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -357,7 +535,7 @@ static int stress_vfork(stress_args_t *args)
 
 	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, false);
+	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, false, false);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -366,6 +544,7 @@ STRESS_PRAGMA_POP
 
 static const stress_opt_set_func_t fork_opt_set_funcs[] = {
 	{ OPT_fork_max,		stress_set_fork_max },
+	{ OPT_fork_unmap,	stress_set_fork_unmap },
 	{ OPT_fork_vm,		stress_set_fork_vm },
 	{ 0,			NULL }
 };

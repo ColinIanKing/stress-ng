@@ -425,6 +425,7 @@ typedef enum {
 
 	OPT_fork_ops,
 	OPT_fork_max,
+	OPT_fork_unmap,
 	OPT_fork_vm,
 
 	OPT_forkheavy,
