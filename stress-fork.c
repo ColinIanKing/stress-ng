@@ -108,7 +108,7 @@ static void stress_force_bind(void)
 static const char *stress_fork_shlibs[] = {
 	"libacl.so",
 	"libapparmor.so",
-	/* "libbsd.so", */
+	"libbsd.so",
 	"libcrypt.so",
 	"libdrm.so",
 	"libEGL.so",
@@ -415,7 +415,6 @@ static int stress_fork_fn(
 				VOID_RET(int, setpgid(0, -1));
 				/* -ve pid is EINVAL */
 				VOID_RET(int, setpgid(-1, 0));
-				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				stress_fork_shim_exit(0);
 			} else if (pid < 0) {
 				info[n].err = errno;
