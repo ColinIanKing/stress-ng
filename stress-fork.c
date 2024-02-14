@@ -486,6 +486,13 @@ static int stress_fork(stress_args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
+	if (fork_vm && fork_unmap) {
+		pr_inf("%s: --fork-vm and --fork-unmap cannot be enabled "
+			"at the same time, disabling --fork-unmap option\n",
+			args->name);
+		fork_unmap = false;
+	}
+
 	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
