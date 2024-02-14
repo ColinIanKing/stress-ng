@@ -163,6 +163,9 @@ static void stress_fork_maps_reduce(const size_t page_size, const int mode)
 			continue;
 		}
 
+		if ((prot[2] != 'x') && (prot[1] != 'w'))
+			continue;
+
 		if (tmppath[0] == '\0')
 			continue;
 
@@ -279,7 +282,6 @@ typedef struct {
 	pid_t	pid;	/* Child PID */
 	int	err;	/* Saved fork errno */
 } fork_info_t;
-
 
 /*
  *  stress_fork_fn()
@@ -413,7 +415,6 @@ static int stress_fork_fn(
 				VOID_RET(int, setpgid(0, -1));
 				/* -ve pid is EINVAL */
 				VOID_RET(int, setpgid(-1, 0));
-				(void)shim_sched_yield();
 				stress_set_proc_state(args->name, STRESS_STATE_ZOMBIE);
 				stress_fork_shim_exit(0);
 			} else if (pid < 0) {
@@ -493,7 +494,7 @@ static int stress_fork(stress_args_t *args)
 		pid = fork();
 		if (pid == 0) {
 			rc = stress_fork_fn(args, STRESS_FORK, fork_max, true, fork_vm);
-			_exit(rc);
+			stress_fork_shim_exit(rc);
 		} else if (pid < 0) {
 			rc = EXIT_FAILURE;
 		} else {
