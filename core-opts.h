@@ -81,6 +81,7 @@
 #define OPT_FLAGS_WITH		 STRESS_BIT_ULL(50)	/* --with list */
 #define OPT_FLAGS_PERMUTE	 STRESS_BIT_ULL(51)	/* --permute N */
 #define OPT_FLAGS_INTERRUPTS	 STRESS_BIT_ULL(52)	/* --interrupts */
+#define OPT_FLAGS_PROGRESS	 STRESS_BIT_ULL(53)	/* --progress */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -971,6 +972,8 @@ typedef enum {
 
 	OPT_procfs,
 	OPT_procfs_ops,
+
+	OPT_progress,
 
 	OPT_pthread,
 	OPT_pthread_ops,

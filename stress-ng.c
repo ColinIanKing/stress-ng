@@ -154,6 +154,7 @@ static const stress_opt_flag_t opt_flags[] = {
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
+	{ OPT_progress,		OPT_FLAGS_PROGRESS },
 	{ OPT_settings,		OPT_FLAGS_SETTINGS },
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
 	{ OPT_smart,		OPT_FLAGS_SMART },
@@ -3224,6 +3225,15 @@ static inline void stress_run_sequential(
 {
 	stress_stressor_t *ss;
 	stress_checksum_t *checksum = g_shared->checksum.checksums;
+	size_t total_run = 0, run = 0;
+	const bool progress = !!(g_opt_flags & OPT_FLAGS_PROGRESS);
+
+	if (progress) {
+		for (ss = stressors_head; ss; ss = ss->next) {
+			if (!ss->ignore.run)
+				total_run++;
+		}
+	}
 
 	/*
 	 *  Step through each stressor one by one
@@ -3234,6 +3244,17 @@ static inline void stress_run_sequential(
 		if (ss->ignore.run)
 			continue;
 
+		if (progress) {
+			char munged[64];
+
+			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+			run++;
+			pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s\n",
+				munged, run, total_run,
+				100.0 * (double)run / (double)total_run,
+				ss->num_instances,
+				(ss->num_instances > 1) ? "s" : "");
+		}
 		ss->next = NULL;
 		stress_run(ticks_per_sec, ss, duration, success, resource_success,
 			metrics_success, &checksum);

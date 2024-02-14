@@ -670,6 +670,7 @@ const struct option stress_long_options[] = {
 	{ "priv-instr-ops",	1,	0,	OPT_priv_instr_ops },
 	{ "procfs",		1,	0,	OPT_procfs },
 	{ "procfs-ops",		1,	0,	OPT_procfs_ops },
+	{ "progress",		0,	0,	OPT_progress },
 	{ "pthread",		1,	0,	OPT_pthread },
 	{ "pthread-max",	1,	0,	OPT_pthread_max },
 	{ "pthread-ops",	1,	0,	OPT_pthread_ops },
