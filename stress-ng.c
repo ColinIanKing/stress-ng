@@ -3245,15 +3245,29 @@ static inline void stress_run_sequential(
 			continue;
 
 		if (progress) {
+			struct tm *tm_finish;
+			time_t t_finish;
 			char munged[64];
+			char finish[64];
+
+			t_finish = time(NULL);
+			t_finish += g_opt_timeout * ((105 * (total_run - run)) / 100);
+			tm_finish = gmtime(&t_finish);
+			if (tm_finish) {
+				strftime(finish, sizeof(finish), "%T %F", tm_finish);
+			} else {
+				*finish = '\0';
+			}
 
 			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 			run++;
-			pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s\n",
+			pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s%s%s\n",
 				munged, run, total_run,
 				100.0 * (double)run / (double)total_run,
 				ss->num_instances,
-				(ss->num_instances > 1) ? "s" : "");
+				(ss->num_instances > 1) ? "s" : "",
+				*finish ? ", finish at " : "",
+				finish);
 		}
 		ss->next = NULL;
 		stress_run(ticks_per_sec, ss, duration, success, resource_success,
