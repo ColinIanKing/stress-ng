@@ -40,11 +40,17 @@ static const stress_help_t help[] = {
 	{ NULL,	"memfd N",	 "start N workers allocating memory with memfd_create" },
 	{ NULL,	"memfd-bytes N", "allocate N bytes for each stress iteration" },
 	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },
+	{ NULL,	"memfd-madvise", "add random madvise hints to memfd mapped pages" },
 	{ NULL,	"memfd-mlock",	 "attempt to mlock pages into memory" },
 	{ NULL,	"memfd-ops N",	 "stop after N memfd bogo operations" },
 	{ NULL,	"memfd-zap-pte", "enable zap pte bug check (slow)" },
 	{ NULL,	NULL,		 NULL }
 };
+
+static int stress_set_memfd_madvise(const char *opt)
+{
+	return stress_set_setting_true("memfd-madvise", opt);
+}
 
 static int stress_set_memfd_mlock(const char *opt)
 {
@@ -87,6 +93,7 @@ static int stress_set_memfd_fds(const char *opt)
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memfd_bytes,	stress_set_memfd_bytes },
 	{ OPT_memfd_fds,	stress_set_memfd_fds },
+	{ OPT_memfd_madvise,	stress_set_memfd_madvise },
 	{ OPT_memfd_mlock,	stress_set_memfd_mlock },
 	{ OPT_memfd_zap_pte,	stress_set_memfd_zap_pte },
 	{ 0,			NULL }
@@ -244,6 +251,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
 	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	double duration = 0.0, count = 0.0, rate;
+	bool memfd_madvise = false;
 	bool memfd_mlock = false;
 	bool memfd_zap_pte = false;
 #if defined(HAVE_NT_STORE64)
@@ -257,8 +265,19 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 
 	(void)context;
 
+	(void)stress_get_setting("memfd-mlock", &memfd_madvise);
 	(void)stress_get_setting("memfd-mlock", &memfd_mlock);
 	(void)stress_get_setting("memfd-zap-pte", &memfd_zap_pte);
+
+#if !defined(HAVE_MADVISE)
+	if (memfd_madvise) {
+		if (args->instance == 0) {
+			pr_inf("%s: disabling --memfd-madvise, madvise() "
+				"not supported\n", args->name);
+		}
+		memfd_madvise = false;
+	}
+#endif
 
 #if !defined(HAVE_MADVISE) ||	\
     !defined(MADV_PAGEOUT)
@@ -384,8 +403,10 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			if (memfd_mlock)
 				(void)shim_mlock(maps[i], size);
 			stress_memfd_fill_pages(stress_mwc64(), maps[i], size);
-			(void)stress_madvise_random(maps[i], size);
-			(void)stress_madvise_mergeable(maps[i], size);
+			if (memfd_madvise) {
+				(void)stress_madvise_random(maps[i], size);
+				(void)stress_madvise_mergeable(maps[i], size);
+			}
 
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)

@@ -3890,6 +3890,10 @@ and GBytes using the suffix b, k, m or g.
 create N memfd file descriptors, the default is 256. One can select 8 to 4096
 memfd file descriptions with this option.
 .TP
+.B \-\-memfd\-madvise
+enable random madvise page advice on memfd memory mapped regions to add
+a little more VM exercising.
+.TP
 .B \-\-memfd\-mlock
 attempt to mlock mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
