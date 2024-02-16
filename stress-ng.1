@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "14 February 2024"
+.TH STRESS-NG 1 "16 February 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3896,6 +3896,12 @@ preventing pages from swapped out.
 .TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
+.TP
+.B \-\-memfd\-zap\-pte
+exercise zapping page-table-entries to try to reproduce a Linux kernel bug
+that was fixed by commit 5abfd71d936a8aefd9f9ccd299dea7a164a5d455 "mm: don't
+skip swap entry even if zap_details specified". This will slow the stressor
+down significantly and hence is an opt-in memfd stressor option.
 .RE
 .TP
 .B Memory hotplug stressor (Linux)

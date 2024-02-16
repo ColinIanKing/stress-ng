@@ -42,12 +42,18 @@ static const stress_help_t help[] = {
 	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },
 	{ NULL,	"memfd-mlock",	 "attempt to mlock pages into memory" },
 	{ NULL,	"memfd-ops N",	 "stop after N memfd bogo operations" },
+	{ NULL,	"memfd-zap-pte", "enable zap pte bug check (slow)" },
 	{ NULL,	NULL,		 NULL }
 };
 
 static int stress_set_memfd_mlock(const char *opt)
 {
 	return stress_set_setting_true("memfd-mlock", opt);
+}
+
+static int stress_set_memfd_zap_pte(const char *opt)
+{
+	return stress_set_setting_true("memfd-zap-pte", opt);
 }
 
 /*
@@ -82,6 +88,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memfd_bytes,	stress_set_memfd_bytes },
 	{ OPT_memfd_fds,	stress_set_memfd_fds },
 	{ OPT_memfd_mlock,	stress_set_memfd_mlock },
+	{ OPT_memfd_zap_pte,	stress_set_memfd_zap_pte },
 	{ 0,			NULL }
 };
 
@@ -238,6 +245,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	double duration = 0.0, count = 0.0, rate;
 	bool memfd_mlock = false;
+	bool memfd_zap_pte = false;
 #if defined(HAVE_NT_STORE64)
 	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) =
 		stress_cpu_x86_has_sse2() ? stress_memfd_fill_pages_nt_store : stress_memfd_fill_pages_generic;
@@ -250,6 +258,18 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	(void)context;
 
 	(void)stress_get_setting("memfd-mlock", &memfd_mlock);
+	(void)stress_get_setting("memfd-zap-pte", &memfd_zap_pte);
+
+#if !defined(HAVE_MADVISE) ||	\
+    !defined(MADV_PAGEOUT)
+	if (memfd_zap_pte) {
+		if (args->instance == 0) {
+			pr_inf("%s: disabling --memfd-zap-pte, madvise() "
+				"with MADV_PAGEOUT not supported\n", args->name);
+		}
+		memfd_zap_pte = false;
+	}
+#endif
 
 	if (!stress_get_setting("memfd-bytes", &memfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -326,6 +346,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				goto memfd_unmap;
 		}
 
+#if 0
 		for (i = 0; i < memfd_fds; i++) {
 			ssize_t ret;
 
@@ -385,6 +406,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			if (!stress_continue_flag())
 				goto memfd_unmap;
 		}
+#endif
 
 		for (i = 0; i < memfd_fds; i++) {
 			if (fds[i] < 0)
@@ -436,45 +458,46 @@ memfd_unmap:
 				(void)munmap(maps[i], size);
 		}
 #if defined(HAVE_MADVISE) &&	\
-    defined(MADV_PAGEOUT)
-		/*
-		 *  Check for zap_pte bug, see Linux commit
-		 *  5abfd71d936a8aefd9f9ccd299dea7a164a5d455
-		 */
-		for (i = 0; stress_continue_flag() && (i < memfd_fds); i++) {
-			uint64_t *buf;
-			uint64_t val;
-			const ssize_t test_size = page_size << 1;
+    defined(MADV_PAGEOUT) 
+		if (UNLIKELY(memfd_zap_pte)) {
+			/*
+			 *  Check for zap_pte bug, see Linux commit
+			 *  5abfd71d936a8aefd9f9ccd299dea7a164a5d455
+			 */
+			for (i = 0; stress_continue_flag() && (i < memfd_fds); i++) {
+				uint64_t *buf;
+				uint64_t val;
+				const ssize_t test_size = page_size << 1;
 
-			if (ftruncate(fds[i], (off_t)test_size) < 0)
-				continue;
-			buf = mmap(NULL, test_size, PROT_READ | PROT_WRITE,
-					MAP_PRIVATE, fds[i], 0);
-			if (buf == MAP_FAILED)
-				continue;
-			if (memfd_mlock)
-				(void)shim_mlock(buf, test_size);
-			val = stress_mwc64();
-			stress_memfd_fill_pages(val, buf, test_size);
+				if (ftruncate(fds[i], (off_t)test_size) < 0)
+					continue;
+				buf = mmap(NULL, test_size, PROT_READ | PROT_WRITE,
+						MAP_PRIVATE, fds[i], 0);
+				if (buf == MAP_FAILED)
+					continue;
+				if (memfd_mlock)
+					(void)shim_mlock(buf, test_size);
+				val = stress_mwc64();
+				stress_memfd_fill_pages(val, buf, test_size);
 
-			if (madvise(buf, test_size, MADV_PAGEOUT) < 0)
-				goto buf_unmap;
-			if (ftruncate(fds[i], (off_t)page_size) < 0)
-				goto buf_unmap;
-			if (ftruncate(fds[i], (off_t)test_size) < 0)
-				goto buf_unmap;
-			if (!stress_memfd_check(val, buf, page_size, 1))
-				pr_fail("%s: unexpected memfd %d data mismatch in first page\n",
-					args->name, fds[i]);
-			if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0))
-				pr_fail("%s: unexpected memfd %d data mismatch in zero'd second page\n",
-					args->name, fds[i]);
+				if (madvise(buf, test_size, MADV_PAGEOUT) < 0)
+					goto buf_unmap;
+				if (ftruncate(fds[i], (off_t)page_size) < 0)
+					goto buf_unmap;
+				if (ftruncate(fds[i], (off_t)test_size) < 0)
+					goto buf_unmap;
+				if (!stress_memfd_check(val, buf, page_size, 1))
+					pr_fail("%s: unexpected memfd %d data mismatch in first page\n",
+						args->name, fds[i]);
+				if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0))
+					pr_fail("%s: unexpected memfd %d data mismatch in zero'd second page\n",
+						args->name, fds[i]);
 buf_unmap:
-			(void)munmap((void *)buf, test_size);
-			VOID_RET(int, ftruncate(fds[i], 0));
+				(void)munmap((void *)buf, test_size);
+				VOID_RET(int, ftruncate(fds[i], 0));
+			}
 		}
 #endif
-
 		stress_close_fds(fds, memfd_fds);
 
 		/* Exercise illegal memfd name */
