@@ -23,6 +23,10 @@
 #include "core-out-of-memory.h"
 #include "core-target-clones.h"
 
+#if defined(HAVE_LINUX_MEMFD_H)
+#include <linux/memfd.h>
+#endif
+
 #define MIN_MEMFD_BYTES		(2 * MB)
 #define DEFAULT_MEMFD_BYTES	(256 * MB)
 
