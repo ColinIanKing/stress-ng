@@ -426,7 +426,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 			if (!stress_continue_flag())
 				goto memfd_unmap;
 		}
-#endif
 
 		for (i = 0; i < memfd_fds; i++) {
 			if (fds[i] < 0)
@@ -517,6 +516,7 @@ buf_unmap:
 				VOID_RET(int, ftruncate(fds[i], 0));
 			}
 		}
+#endif
 		stress_close_fds(fds, memfd_fds);
 
 		/* Exercise illegal memfd name */
