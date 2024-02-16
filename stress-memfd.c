@@ -365,7 +365,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				goto memfd_unmap;
 		}
 
-#if 0
 		for (i = 0; i < memfd_fds; i++) {
 			ssize_t ret;
 
@@ -518,7 +517,6 @@ buf_unmap:
 				VOID_RET(int, ftruncate(fds[i], 0));
 			}
 		}
-#endif
 		stress_close_fds(fds, memfd_fds);
 
 		/* Exercise illegal memfd name */
