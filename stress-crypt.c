@@ -25,14 +25,11 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"crypt N",	"start N workers performing password encryption" },
-	{ NULL,	"crypt-ops N",	"stop after N bogo crypt operations" },
+	{ NULL,	"crypt N",		"start N workers performing password encryption" },
+	{ NULL, "crypt-method M",	"select encryption method [ all | MD5 | NT | SHA-1 | SHA-256 | SHA-512 | scrypt | SunMD5 | yescrypt]" },
+	{ NULL,	"crypt-ops N",		"stop after N bogo crypt operations" },
 	{ NULL,	NULL,		NULL }
 };
-
-#if defined(HAVE_LIB_CRYPT) &&	\
-    (defined(HAVE_CRYPT_H) || 	\
-     defined(__FreeBSD__))
 
 typedef struct {
 	const char *prefix;
@@ -41,6 +38,7 @@ typedef struct {
 } crypt_method_t;
 
 static const crypt_method_t crypt_methods[] = {
+	{ NULL,		0,	"all" },
 	{ "$1$",	3,	"MD5" },
 	{ "$3$",	3,	"NT" },
 	{ "$sha1",	5,	"SHA-1" },
@@ -51,6 +49,38 @@ static const crypt_method_t crypt_methods[] = {
 	{ "$y$",	3,	"yescrypt" },
 };
 
+/*
+ *  stress_set_crypt_method()
+ *      set default crypt stress method
+ */
+static int stress_set_crypt_method(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+		if (!strcmp(crypt_methods[i].method, name)) {
+			stress_set_setting("crypt-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "crypt-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+		(void)fprintf(stderr, " %s", crypt_methods[i].method);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_crypt_method,	stress_set_crypt_method },
+	{ 0,			NULL },
+};
+
+#if defined(HAVE_LIB_CRYPT) &&	\
+    (defined(HAVE_CRYPT_H) || 	\
+     defined(__FreeBSD__))
 static stress_metrics_t *crypt_metrics;
 
 /*
@@ -117,7 +147,10 @@ static int stress_crypt_id(
  */
 static int stress_crypt(stress_args_t *args)
 {
-	register size_t i;
+	register size_t i, j;
+	size_t crypt_method = 0;	/* all */
+
+	(void)stress_get_setting("crypt-method", &crypt_method);
 
 	crypt_metrics = calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));
 	if (!crypt_metrics) {
@@ -151,6 +184,7 @@ static int stress_crypt(stress_args_t *args)
 		uint64_t seed[2];
 		const crypt_method_t *cm = crypt_methods;
 		size_t failed = 0;
+		int ret;
 
 		seed[0] = stress_mwc64();
 		seed[1] = stress_mwc64();
@@ -161,20 +195,37 @@ static int stress_crypt(stress_args_t *args)
 			phrase[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
 		phrase[i] = '\0';
 
-		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
-			int ret;
+		if (crypt_method == 0) {
+			for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
+				(void)shim_strscpy(setting, orig_setting, setting_len);
+				(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
+#if defined (HAVE_CRYPT_R)
+				data.initialized = 0;
+#endif
 
+				ret = stress_crypt_id(args, i,
+#if defined (HAVE_CRYPT_R)
+					&data);
+#else
+					phrase, setting);
+#endif
+				if (UNLIKELY(ret < 0))
+					failed++;
+				else
+					stress_bogo_inc(args);
+			}
+		} else {
 			(void)shim_strscpy(setting, orig_setting, setting_len);
 			(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
 #if defined (HAVE_CRYPT_R)
 			data.initialized = 0;
 #endif
 
-			ret = stress_crypt_id(args, i,
+			ret = stress_crypt_id(args, crypt_method,
 #if defined (HAVE_CRYPT_R)
-					      &data);
+				&data);
 #else
-					      phrase, setting);
+				phrase, setting);
 #endif
 			if (UNLIKELY(ret < 0))
 				failed++;
@@ -187,13 +238,16 @@ static int stress_crypt(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+	for (i = 1, j = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
 		char str[40];
 		const double duration = crypt_metrics[i].duration;
 		const double rate = duration > 0 ? crypt_metrics[i].count / duration : 0.0;
 
-		(void)snprintf(str, sizeof(str), "%s encrypts per sec", crypt_methods[i].method);
-		stress_metrics_set(args, i, str, rate, STRESS_HARMONIC_MEAN);
+		if (rate > 0.0) {
+			(void)snprintf(str, sizeof(str), "%s encrypts per sec", crypt_methods[i].method);
+			stress_metrics_set(args, j, str, rate, STRESS_HARMONIC_MEAN);
+			j++;
+		}
 	}
 
 	free(crypt_metrics);
@@ -204,6 +258,7 @@ static int stress_crypt(stress_args_t *args)
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt,
 	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -211,6 +266,7 @@ stressor_info_t stress_crypt_info = {
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gcrypt library"

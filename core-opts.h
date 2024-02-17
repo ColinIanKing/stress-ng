@@ -284,6 +284,7 @@ typedef enum {
 	OPT_cpu_online_ops,
 
 	OPT_crypt,
+	OPT_crypt_method,
 	OPT_crypt_ops,
 
 	OPT_cyclic,
