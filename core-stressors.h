@@ -86,6 +86,7 @@
 	MACRO(far_branch)	\
 	MACRO(fault)		\
 	MACRO(fcntl)		\
+	MACRO(fd_fork)		\
 	MACRO(fiemap)		\
 	MACRO(fifo)		\
 	MACRO(file_ioctl)	\

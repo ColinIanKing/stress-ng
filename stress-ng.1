@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 February 2024"
+.TH STRESS-NG 1 "18 February 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2255,6 +2255,23 @@ and F_OFD_SETLKW.
 .TP
 .B \-\-fcntl\-ops N
 stop the fcntl workers after N bogo fcntl operations.
+.RE
+.TP
+.B File descriptor duplication and closing stressor
+.RS 5
+.TQ
+.B \-\-fd\-fork N
+start N workers that open files using dup(2) on /dev/zero and then
+copies these using multiple fork'd child processes and closes them
+with the fast clone_range(2) or close(2) or by directly ending the
+processes using _exit(2). For every bogo-op, the stressor attempts
+to dup(2) another 1000 file descriptors up to the maximum allowed,
+fork 8 child processes that then close their copies of the file
+descriptors.
+.TP
+.B \-\-fd\-fork\-ops N
+stop after N rounds of 1000 dups, forking/closing/exiting and waiting for
+the child processes.
 .RE
 .TP
 .B File extent (fiemap) stressor

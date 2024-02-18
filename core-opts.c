@@ -227,6 +227,8 @@ const struct option stress_long_options[] = {
 	{ "fault-ops",		1,	0,	OPT_fault_ops },
 	{ "fcntl",		1,	0,	OPT_fcntl},
 	{ "fcntl-ops",		1,	0,	OPT_fcntl_ops },
+	{ "fd-fork",		1,	0,	OPT_fd_fork },
+	{ "fd-fork-ops",	1,	0,	OPT_fd_fork_ops },
 	{ "fiemap",		1,	0,	OPT_fiemap },
 	{ "fiemap-bytes",	1,	0,	OPT_fiemap_bytes },
 	{ "fiemap-ops",		1,	0,	OPT_fiemap_ops },
