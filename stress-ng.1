@@ -2272,7 +2272,9 @@ descriptors.
 .TP
 .B \-\-fd\-fork\-ops N
 stop after N rounds of 1000 dups, forking/closing/exiting and waiting for
-the child processes.
+the child processes. Note that the bogo\-ops metric rate will slow down
+over time as this stressor increases the number of open files per bogo-loop
+and this increases the fork and close run times.
 .RE
 .TP
 .B File extent (fiemap) stressor
