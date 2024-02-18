@@ -2270,6 +2270,12 @@ to dup(2) another 1000 file descriptors up to the maximum allowed,
 fork 8 child processes that then close their copies of the file
 descriptors.
 .TP
+.B \-\-fd\-fork\-fds N
+specify maximum number of file descriptors to be opened. The default
+is 2 million, with a range of 1000 to 16 million. The actual number
+used may be less depending on the system defined limits of the number
+of open files per process.
+.TP
 .B \-\-fd\-fork\-ops N
 stop after N rounds of 1000 dups, forking/closing/exiting and waiting for
 the child processes. Note that the bogo\-ops metric rate will slow down

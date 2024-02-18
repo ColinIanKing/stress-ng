@@ -22,14 +22,10 @@
 
 #include <sched.h>
 
-#define STRESS_FD_MAX	(2 * 1024 * 1024)	/* Max fds if we can't figure it out */
-#define STRESS_PID_MAX	(8)
-
-static const stress_help_t help[] = {
-	{ NULL,	"fd-fork N",		"start N workers exercising dup/fork/close" },
-	{ NULL,	"fd-fork-ops N",	"stop after N dup/fork/close bogo operations" },
-	{ NULL,	NULL,			NULL }
-};
+#define STRESS_FD_MIN		(1000)
+#define STRESS_FD_MAX		(16000000)	/* Max fds if we can't figure it out */
+#define STRESS_FD_DEFAULT	(2000000)	/* Max fds if we can't figure it out */
+#define STRESS_PID_MAX		(8)
 
 typedef struct {
 	stress_metrics_t metrics;
@@ -37,6 +33,32 @@ typedef struct {
 	int	fd_min_val;
 	int	fd_max_val;
 } stress_fd_close_info_t;
+
+static const stress_help_t help[] = {
+	{ NULL,	"fd-fork N",		"start N workers exercising dup/fork/close" },
+	{ NULL,	"fd-fork-fds N",	"set maximum number of file desciptors to use" },
+	{ NULL,	"fd-fork-ops N",	"stop after N dup/fork/close bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
+/*
+ *  stress_set_fd_fork_fds()
+ *	set maximum number of file desciptors to use
+ */
+static int stress_set_fd_fork_fds(const char *opt)
+{
+	size_t fd_fork_fds;
+
+	fd_fork_fds = stress_get_uint64(opt);
+	stress_check_range("fd-fork-fds", (uint64_t)fd_fork_fds,
+		STRESS_FD_MIN, STRESS_FD_MAX);
+	return stress_set_setting("fd-fork-fds", TYPE_ID_SIZE_T, &fd_fork_fds);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fd_fork_fds,	stress_set_fd_fork_fds },
+	{ 0,			NULL }
+};
 
 static void stress_fd_close(
 	int *fds,
@@ -74,22 +96,22 @@ static void stress_fd_close(
 static int stress_fd_fork(stress_args_t *args)
 {
 	int *fds, rc = EXIT_SUCCESS;
-	size_t i, count_fd, start_fd, fds_size, max_fd = stress_get_file_limit();
+	size_t i, count_fd, start_fd, fds_size;
+	size_t max_fd = stress_get_file_limit();
+	size_t fd_fork_fds = STRESS_FD_DEFAULT;
 	stress_fd_close_info_t *info;
 	double rate;
 
-	if (max_fd > STRESS_FD_MAX) {
-		if (args->instance == 0)
-			pr_inf("%s: limited to %d file descriptors (system maximum %zu)\n",
-				args->name, STRESS_FD_MAX, max_fd);
-		max_fd = STRESS_FD_MAX;
-	} else {
+	(void)stress_get_setting("fd-fork-fds", &fd_fork_fds);
+
+	if (fd_fork_fds > max_fd) {
 		if (args->instance == 0)
 			pr_inf("%s: limited to system maximum of %zu file descriptors\n",
 				args->name, max_fd);
+		fd_fork_fds = max_fd;
 	}
-	fds_size = sizeof(int) * max_fd;
 
+	fds_size = sizeof(int) * fd_fork_fds;
 	fds = stress_mmap_populate(NULL, fds_size,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -114,7 +136,7 @@ static int stress_fd_fork(stress_args_t *args)
 	info->metrics.duration = 0.0;
 	info->use_close_range = true;
 
-	for (i = 1; i < max_fd; i++)
+	for (i = 1; i < fd_fork_fds; i++)
 		fds[i] = -1;
 
 	fds[0] = open("/dev/zero", O_RDONLY);
@@ -137,15 +159,15 @@ static int stress_fd_fork(stress_args_t *args)
 		size_t max_pids;
 		const bool rnd = stress_mwc1();
 
-		if (n > max_fd)
-			n = max_fd;
+		if (n > fd_fork_fds)
+			n = fd_fork_fds;
 
 		for (i = start_fd; i < n; i++) {
 			register int fd;
 
 			fd = dup(fds[0]);
 			if (fd < 0) {
-				max_fd = i - 1;
+				fd_fork_fds = i - 1;
 				break;
 			}
 			if (fd > info->fd_max_val)
@@ -165,7 +187,7 @@ static int stress_fd_fork(stress_args_t *args)
 				continue;
 			} else if (pids[i] == 0) {
 				if (rnd) {
-					stress_fd_close(fds, max_fd, info);
+					stress_fd_close(fds, fd_fork_fds, info);
 				}
 				_exit(0);
 			} else {
@@ -188,9 +210,9 @@ static int stress_fd_fork(stress_args_t *args)
 
 tidy_fds:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_fd_close(fds, max_fd, info);
+	stress_fd_close(fds, fd_fork_fds, info);
 
-	for (count_fd = 0, i = 0; i < max_fd; i++) {
+	for (count_fd = 0, i = 0; i < fd_fork_fds; i++) {
 		if (fds[i] != -1)
 			count_fd++;
 	}
@@ -215,6 +237,7 @@ tidy_fds:
 stressor_info_t stress_fd_fork_info = {
 	.stressor = stress_fd_fork,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

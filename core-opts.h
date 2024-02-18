@@ -401,6 +401,7 @@ typedef enum {
 	OPT_fcntl_ops,
 
 	OPT_fd_fork,
+	OPT_fd_fork_fds,
 	OPT_fd_fork_ops,
 
 	OPT_fiemap,
