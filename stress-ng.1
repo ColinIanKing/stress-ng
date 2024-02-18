@@ -2266,7 +2266,7 @@ start N workers that open files using dup(2) on /dev/zero and then
 copies these using multiple fork'd child processes and closes them
 with the fast clone_range(2) or close(2) or by directly ending the
 processes using _exit(2). For every bogo-op, the stressor attempts
-to dup(2) another 1000 file descriptors up to the maximum allowed,
+to dup(2) another 10000 file descriptors up to the maximum allowed,
 fork 8 child processes that then close their copies of the file
 descriptors.
 .TP
@@ -2277,7 +2277,7 @@ used may be less depending on the system defined limits of the number
 of open files per process.
 .TP
 .B \-\-fd\-fork\-ops N
-stop after N rounds of 1000 dups, forking/closing/exiting and waiting for
+stop after N rounds of 10000 dups, forking/closing/exiting and waiting for
 the child processes. Note that the bogo\-ops metric rate will slow down
 over time as this stressor increases the number of open files per bogo-loop
 and this increases the fork and close run times.

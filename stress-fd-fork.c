@@ -96,11 +96,11 @@ static void stress_fd_close(
 static int stress_fd_fork(stress_args_t *args)
 {
 	int *fds, rc = EXIT_SUCCESS;
-	size_t i, count_fd, start_fd, fds_size;
+	size_t i, count_fd = 1, start_fd = 1, fds_size;
 	size_t max_fd = stress_get_file_limit();
 	size_t fd_fork_fds = STRESS_FD_DEFAULT;
 	stress_fd_close_info_t *info;
-	double rate;
+	double rate, t_start = -1.0, t_max = -1.0;
 
 	(void)stress_get_setting("fd-fork-fds", &fd_fork_fds);
 
@@ -152,10 +152,10 @@ static int stress_fd_fork(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	start_fd = 1;
+	t_start = stress_time_now();
 	do {
 		pid_t pids[STRESS_PID_MAX];
-		size_t n = start_fd + 1000;
+		size_t n = (start_fd == 1) ? 10000 : start_fd + 10000;
 		size_t max_pids;
 		const bool rnd = stress_mwc1();
 
@@ -168,6 +168,7 @@ static int stress_fd_fork(stress_args_t *args)
 			fd = dup(fds[0]);
 			if (fd < 0) {
 				fd_fork_fds = i - 1;
+				t_max = stress_time_now();
 				break;
 			}
 			if (fd > info->fd_max_val)
@@ -175,8 +176,11 @@ static int stress_fd_fork(stress_args_t *args)
 			if (fd < info->fd_min_val)
 				info->fd_min_val = fd;
 			fds[i] = fd;
+			count_fd++;
 		}
 		start_fd = i;
+		if ((count_fd >= fd_fork_fds) && (t_max < 0.0))
+			t_max = stress_time_now();
 
 		for (i = 0; i < STRESS_PID_MAX; i++)
 			pids[i] = -1;
@@ -212,11 +216,6 @@ tidy_fds:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_fd_close(fds, fd_fork_fds, info);
 
-	for (count_fd = 0, i = 0; i < fd_fork_fds; i++) {
-		if (fds[i] != -1)
-			count_fd++;
-	}
-
 	if (args->instance == 0) {
 		pr_inf("%s: used %s() to close file descriptors\n",
 			args->name, info->use_close_range ? "close_range" : "close");
@@ -227,6 +226,12 @@ tidy_fds:
 		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 	stress_metrics_set(args, 1, "file descriptors open at one time",
 		(double)count_fd, STRESS_GEOMETRIC_MEAN);
+	if (t_max > 0.0) {
+		const double duration = t_max - t_start;
+
+		stress_metrics_set(args, 2, "seconds to open all file descriptors",
+			(double)duration, STRESS_GEOMETRIC_MEAN);
+	}
 
 	(void)munmap((void *)info, sizeof(*info));
 	(void)munmap((void *)fds, fds_size);
