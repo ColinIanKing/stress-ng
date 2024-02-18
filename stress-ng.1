@@ -956,7 +956,8 @@ be from 1K to 4M.
 start N workers that perform random wide spread memory read and writes to
 thrash the CPU cache.  The code does not intelligently determine the CPU cache
 configuration and so it may be sub-optimal in producing hit-miss read/write
-activity for some processors.
+activity for some processors.  Note: to exercise cache misses it is recommended
+to instead use the matrix-3d stessor using the \-\-matrix\-3d\-zyx option.
 .TP
 .B \-\-cache\-cldemote
 cache line demote (x86 only). This is a no-op for non-x86
