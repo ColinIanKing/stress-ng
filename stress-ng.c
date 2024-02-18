@@ -3263,7 +3263,7 @@ static inline void stress_run_sequential(
 			run++;
 			pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s%s%s\n",
 				munged, run, total_run,
-				100.0 * (double)run / (double)total_run,
+				(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
 				ss->num_instances,
 				(ss->num_instances > 1) ? "s" : "",
 				*finish ? ", finish at " : "",
