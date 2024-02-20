@@ -55,6 +55,8 @@ static bool malloc_trim_opt;		/* True = periodically trim malloc arena */
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */
 static void *counter_lock;		/* Counter lock */
+static const char *alloc_action = NULL;
+static size_t alloc_size = 0;
 static volatile bool do_jmp = true;	/* SIGSEGV jmp handler, longjmp back if true */
 static sigjmp_buf jmp_env;		/* SIGSEGV jmp environment */
 #if defined(HAVE_LIB_PTHREAD)
@@ -89,6 +91,12 @@ static const stress_help_t help[] = {
 	{ NULL, "malloc-trim",		"enable malloc trimming" },
 	{ NULL,	NULL,			NULL }
 };
+
+static inline ALWAYS_INLINE void stress_alloc_action(const char *str, const size_t size)
+{
+	alloc_action = str;
+	alloc_size = size;
+}
 
 static int stress_set_malloc_mlock(const char *opt)
 {
@@ -190,6 +198,7 @@ static void stress_malloc_page_touch(
 	const size_t size,
 	const size_t page_size)
 {
+	stress_alloc_action("page_touch", size);
 	if (malloc_touch) {
 		register uint8_t *ptr;
 		const uint8_t *end = buffer + size;
@@ -216,9 +225,12 @@ static void *stress_malloc_loop(void *ptr)
 #endif
 
 #if defined(MCL_FUTURE)
-	if (malloc_mlock)
+	if (malloc_mlock) {
+		stress_alloc_action("mlockall", 0);
 		(void)shim_mlockall(MCL_FUTURE);
+	}
 #endif
+	stress_alloc_action("mmap", info_size);
 	info = (stress_malloc_info_t *)stress_mmap_populate(NULL, info_size,
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS,
@@ -258,6 +270,7 @@ static void *stress_malloc_loop(void *ptr)
 					pr_fail("%s: allocation at %p does not contain correct value\n",
 						args->name, (void *)info[i].addr);
 				}
+				stress_alloc_action("free", info[i].len);
 				free_func(info[i].addr, info[i].len);
 				info[i].addr = NULL;
 				info[i].len = 0;
@@ -268,6 +281,7 @@ static void *stress_malloc_loop(void *ptr)
 				void *tmp;
 				const size_t len = stress_alloc_size(malloc_bytes);
 
+				stress_alloc_action("realloc", len);
 				tmp = realloc(info[i].addr, len);
 				if (tmp) {
 					info[i].addr = tmp;
@@ -294,12 +308,14 @@ static void *stress_malloc_loop(void *ptr)
 					/* Avoid zero len / n being less than uintptr_t */
 					if (len < (n * sizeof(uintptr_t)))
 						len = n * sizeof(uintptr_t);
+					stress_alloc_action("calloc", len);
 					info[i].addr = calloc(n, len / n);
 					len = n * (len / n);
 					break;
 #if defined(HAVE_POSIX_MEMALIGN)
 				case 1:
 					/* POSIX.1-2001 and POSIX.1-2008 */
+					stress_alloc_action("posix_memalign", len);
 					if (posix_memalign((void **)&info[i].addr, MK_ALIGN(i), len) != 0)
 						info[i].addr = NULL;
 					break;
@@ -308,30 +324,36 @@ static void *stress_malloc_loop(void *ptr)
     !defined(__OpenBSD__)
 				case 2:
 					/* C11 aligned allocation */
+					stress_alloc_action("aligned_alloc", len);
 					info[i].addr = aligned_alloc(MK_ALIGN(i), len);
 					break;
 #endif
 #if defined(HAVE_MEMALIGN)
 				case 3:
 					/* SunOS 4.1.3 */
+					stress_alloc_action("memalign", len);
 					info[i].addr = memalign(MK_ALIGN(i), len);
 					break;
 #endif
 #if defined(HAVE_VALLOC) &&	\
     !defined(HAVE_LIB_PTHREAD)
 				case 4:
+					stress_alloc_action("valloc", len);
 					info[i].addr = valloc(len);
 					break;
 #elif defined(HAVE_MEMALIGN)
 				case 4:
+					stress_alloc_action("memalign", len);
 					info[i].addr = memalign(page_size, len);
 					break;
 #endif
 				default:
+					stress_alloc_action("malloc", len);
 					info[i].addr = malloc(len);
 					break;
 				}
 				if (LIKELY(info[i].addr != NULL)) {
+					stress_alloc_action("malloc", len);
 					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
 					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
 					info[i].len = len;
@@ -343,8 +365,10 @@ static void *stress_malloc_loop(void *ptr)
 			}
 		}
 #if defined(HAVE_MALLOC_TRIM)
-		if (malloc_trim_opt && (trim_counter++ == 0))
+		if (malloc_trim_opt && (trim_counter++ == 0)) {
+			stress_alloc_action("malloc_trim", 0);
 			(void)malloc_trim(0);
+		}
 #endif
 	}
 
@@ -353,8 +377,10 @@ static void *stress_malloc_loop(void *ptr)
 			pr_fail("%s: allocation at %p does not contain correct value\n",
 				args->name, (void *)info[j].addr);
 		}
+		stress_alloc_action("free", info[j].len);
 		free_func(info[j].addr, info[j].len);
 	}
+	stress_alloc_action("munmap", info_size);
 	(void)munmap((void *)info, info_size);
 
 	return &nowt;
@@ -389,7 +415,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret == 1) {
 		do_jmp = false;
-		pr_fail("%s: unexpected SIGSEGV occurred, exiting immediately\n", args->name);
+		pr_fail("%s: unexpected SIGSEGV occurred after allocating %zu bytes using %s(), exiting immediately\n", args->name, alloc_size, alloc_action);
 		return EXIT_FAILURE;
 	}
 
@@ -399,8 +425,10 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	(void)stress_get_setting("malloc-pthreads", &malloc_pthreads);
 
 #if defined(MCL_FUTURE)
-	if (malloc_mlock)
+	if (malloc_mlock) {
+		stress_alloc_action("mlockall", 0);
 		(void)shim_mlockall(MCL_FUTURE);
+	}
 #endif
 
 	malloc_args[0].args = args;
@@ -452,6 +480,8 @@ static int stress_malloc(stress_args_t *args)
 {
 	int ret;
 	bool malloc_zerofree = false;
+
+	stress_alloc_action("<unknown>", 0);
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
