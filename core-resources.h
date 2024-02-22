@@ -147,6 +147,9 @@ typedef struct {
 #endif
 #if defined(HAVE_PIDFD_OPEN)
 	int pid_fd;
+#if defined(HAVE_PIDFD_GETFD)
+	int pid_fd_getfd;
+#endif
 #endif
 } stress_resources_t;
 

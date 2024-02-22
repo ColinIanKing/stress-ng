@@ -123,6 +123,9 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 #endif
 #if defined(HAVE_PIDFD_OPEN)
 		resources[i].pid_fd = -1;
+#if defined(HAVE_PIDFD_GETFD)
+		resources[i].pid_fd_getfd = -1;
+#endif
 #endif
 		resources[i].pid = 0;
 	}
@@ -148,6 +151,7 @@ size_t stress_resources_allocate(
 	size_t i, n = 0;
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
 	const pid_t pid = getpid();
+	const pid_t ppid = getppid();
 	const size_t page_size = args->page_size;
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
@@ -269,6 +273,9 @@ size_t stress_resources_allocate(
 #endif
 #if defined(HAVE_PIDFD_OPEN)
 		resources[i].pid_fd = -1;
+#if defined(HAVE_PIDFD_GETFD)
+		resources[i].pid_fd_getfd = -1;
+#endif
 #endif
 		resources[i].pid = 0;
 
@@ -593,9 +600,12 @@ size_t stress_resources_allocate(
 			break;
 
 #if defined(HAVE_PIDFD_OPEN)
-		resources[i].pid_fd = shim_pidfd_open(pid, 0);
+		resources[i].pid_fd = shim_pidfd_open(ppid, 0);
+#if defined(HAVE_PIDFD_GETFD)
+		/* get parent pid stdout */
+		resources[i].pid_fd_getfd = shim_pidfd_getfd(resources[i].pid_fd, 1, 0);
 #endif
-
+#endif
 		if (do_fork) {
 			resources[i].pid = fork();
 			if (resources[i].pid == 0) {
@@ -817,6 +827,12 @@ void stress_resources_free(
 		if (resources[i].pid_fd > -1) {
 			(void)close(resources[i].pid_fd);
 			resources[i].pid_fd = -1;
+#if defined(HAVE_PIDFD_GETFD)
+		if (resources[i].pid_fd_getfd > -1) {
+			(void)close(resources[i].pid_fd_getfd);
+			resources[i].pid_fd_getfd = -1;
+		}
+#endif
 		}
 #endif
 		if (resources[i].pid > 0) {
