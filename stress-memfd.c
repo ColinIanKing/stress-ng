@@ -260,6 +260,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 #else
 	void (*stress_memfd_fill_pages)(uint64_t val, void *ptr, const size_t size) = stress_memfd_fill_pages_generic;
 #endif
+	char filename_rndstr[64], filename_unusual[64], filename_pid[64];
 
 	stress_catch_sigill();
 
@@ -320,10 +321,16 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_rndstr(filename_rndstr, sizeof(filename_rndstr));
+	(void)snprintf(filename_unusual, sizeof(filename_unusual),
+		"memfd-%c[H%c%c:?*~", 27, 7, 255);
+	(void)snprintf(filename_pid, sizeof(filename_pid),
+		"memfd-%" PRIdMAX "-%" PRIu64, (intmax_t)args->pid, stress_mwc64());
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		char filename[PATH_MAX];
+		char filename[64];
 		double t;
 		int min_fd = INT_MAX;
 		int max_fd = INT_MIN;
@@ -533,16 +540,12 @@ buf_unmap:
 		}
 
 		/* Exercise illegal memfd name */
-		stress_rndstr(filename, sizeof(filename));
-		fd = shim_memfd_create(filename, 0);
+		fd = shim_memfd_create(filename_rndstr, 0);
 		if (fd >= 0)
 			(void)close(fd);
 
 		/* Exercise illegal flags */
-		(void)snprintf(filename, sizeof(filename),
-			"memfd-%" PRIdMAX "-%" PRIu64,
-			(intmax_t)args->pid, stress_mwc64());
-		fd = shim_memfd_create(filename, ~0U);
+		fd = shim_memfd_create(filename_pid, ~0U);
 		if (fd >= 0)
 			(void)close(fd);
 
@@ -557,9 +560,7 @@ buf_unmap:
 			(void)close(fd);
 
 		/* Exercise unusual chars in name */
-		(void)snprintf(filename, sizeof(filename),
-			"memfd-%c[H%c%c:?*~", 27, 7, 255);
-		fd = shim_memfd_create(filename, 0);
+		fd = shim_memfd_create(filename_unusual, 0);
 		if (fd >= 0)
 			(void)close(fd);
 
@@ -575,11 +576,8 @@ buf_unmap:
 
 		/* Exercise all flags */
 		for (i = 0; i < (uint64_t)SIZEOF_ARRAY(flags); i++) {
-			(void)snprintf(filename, sizeof(filename),
-				"memfd-%" PRIdMAX"-%" PRIu64,
-				(intmax_t)args->pid, i);
 			t = stress_time_now();
-			fd = shim_memfd_create(filename, flags[i]);
+			fd = shim_memfd_create(filename_pid, flags[i]);
 			if (fd >= 0) {
 				duration += stress_time_now() - t;
 				count += 1.0;
