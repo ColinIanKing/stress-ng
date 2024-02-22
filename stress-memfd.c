@@ -325,6 +325,8 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	do {
 		char filename[PATH_MAX];
 		double t;
+		int min_fd = INT_MAX;
+		int max_fd = INT_MIN;
 
 		for (i = 0; i < memfd_fds; i++) {
 			fds[i] = -1;
@@ -332,6 +334,8 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 		}
 
 		for (i = 0; i < memfd_fds; i++) {
+			register int fd;
+
 			/* Low memory avoidance, re-start */
 			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(size))
 				break;
@@ -341,10 +345,15 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				(intmax_t)args->pid, i);
 
 			t = stress_time_now();
-			fds[i] = shim_memfd_create(filename, 0);
-			if (fds[i] >= 0) {
+			fd = shim_memfd_create(filename, 0);
+			if (fd >= 0) {
 				duration += stress_time_now() - t;
 				count += 1.0;
+				if (min_fd > fd)
+					min_fd = fd;
+				if (max_fd < fd)
+					max_fd = fd;
+				fds[i] = fd;
 			} else {
 				switch (errno) {
 				case EMFILE:
@@ -517,7 +526,11 @@ buf_unmap:
 			}
 		}
 #endif
-		stress_close_fds(fds, memfd_fds);
+		if (shim_close_range(min_fd, max_fd, 0) < 0) {
+			for (i = 0; i < memfd_fds; i++) {
+				(void)close(fds[i]);
+			}
+		}
 
 		/* Exercise illegal memfd name */
 		stress_rndstr(filename, sizeof(filename));
