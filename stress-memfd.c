@@ -408,10 +408,9 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				}
 			}
 			/*
-			 *  ..and map it in, using MAP_POPULATE
-			 *  to force page it in
+			 *  ..and map it in, don't populate as this is expensive
 			 */
-			maps[i] = stress_mmap_populate(NULL, size, PROT_WRITE,
+			maps[i] = mmap(NULL, size, PROT_WRITE,
 					MAP_FILE | MAP_SHARED, fds[i], 0);
 			if (maps[i] == MAP_FAILED)
 				continue;
