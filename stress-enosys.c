@@ -4047,7 +4047,12 @@ again:
 			}
 		}
 	} else {
-		const unsigned long mask = ULONG_MAX;
+		const unsigned long mask24 = 0xffffffUL;
+		const unsigned long mask40 = 0xffffffffffUL;
+		const unsigned long mask48 = 0xffffffffffffUL;
+		const unsigned long mask56 = 0xffffffffffffffUL;
+		const unsigned long mask64 = ULONG_MAX;
+
 		ssize_t j;
 
 		/* Child, wrapped to catch OOMs */
@@ -4079,16 +4084,28 @@ again:
 			for (j = 0; j < 1024; j++) {
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc8() & mask, true);
+				stress_do_syscall(args, (long)stress_mwc8() & mask64, true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc16() & mask, true);
+				stress_do_syscall(args, (long)stress_mwc16() & mask64, true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc32() & mask, true);
+				stress_do_syscall(args, (long)stress_mwc32() & mask24, true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)(stress_mwc64() & mask), true);
+				stress_do_syscall(args, (long)stress_mwc32() & mask64, true);
+				if (!stress_continue(args))
+					goto finish;
+				stress_do_syscall(args, (long)(stress_mwc64() & mask40), true);
+				if (!stress_continue(args))
+					goto finish;
+				stress_do_syscall(args, (long)(stress_mwc64() & mask48), true);
+				if (!stress_continue(args))
+					goto finish;
+				stress_do_syscall(args, (long)(stress_mwc64() & mask56), true);
+				if (!stress_continue(args))
+					goto finish;
+				stress_do_syscall(args, (long)(stress_mwc64() & mask64), true);
 			}
 
 			/* Various bit masks */
