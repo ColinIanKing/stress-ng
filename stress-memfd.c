@@ -247,7 +247,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	int32_t i;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	size_t size;
+	size_t size, flag_index = 0;
 	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
 	int32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	double duration = 0.0, count = 0.0, rate;
@@ -574,16 +574,17 @@ buf_unmap:
 		if (fd >= 0)
 			(void)close(fd);
 
-		/* Exercise all flags */
-		for (i = 0; i < (int32_t)SIZEOF_ARRAY(flags); i++) {
-			t = stress_time_now();
-			fd = shim_memfd_create(filename_pid, flags[i]);
-			if (fd >= 0) {
-				duration += stress_time_now() - t;
-				count += 1.0;
-				(void)close(fd);
-			}
+		/* Exercise next flag */
+		t = stress_time_now();
+		fd = shim_memfd_create(filename_pid, flags[flag_index]);
+		if (fd >= 0) {
+			duration += stress_time_now() - t;
+			count += 1.0;
+			(void)close(fd);
 		}
+		flag_index++;
+		if (flag_index >= SIZEOF_ARRAY(flags))
+			flag_index = 0;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
