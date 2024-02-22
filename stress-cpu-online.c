@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-killpid.h"
 
 #include <sched.h>
 
@@ -173,7 +174,10 @@ static int stress_cpu_online(stress_args_t *args)
 	bool *cpu_online;
 	bool cpu_online_affinity = false;
 	bool cpu_online_all = false;
+	bool child_affinity = true;
 	int rc = EXIT_SUCCESS;
+	int fds[2];
+	pid_t pid;
 	double offline_duration = 0.0, offline_count = 0.0;
 	double online_duration  = 0.0, online_count = 0.0;
 	double rate;
@@ -245,6 +249,60 @@ static int stress_cpu_online(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	/* Use a pipe to send offlined CPU number to child */
+	if (pipe(fds) < 0) {
+		pr_dbg("%s: unable to create pipe, errno=%d (%s), ignoring "
+			"exercising child affinity\n",
+			args->name, errno, strerror(errno));
+		child_affinity = false;
+	}
+	if (child_affinity) {
+		/*
+		 *  Try to fork child that tries to pin itself to the
+		 *  CPU that the parent offlines.
+		 */
+		pid = fork();
+		if (pid < 0) {
+			pr_dbg("%s: unable to fork child, errno=%d (%s), ignoring "
+				"exercising child affinity\n",
+				args->name, errno, strerror(errno));
+			child_affinity = false;
+		} else if (pid == 0) {
+			uint32_t cpu = 0;
+
+			/*
+			 *  Try to pin child process to that of the
+			 *  offline'd CPU. This runs at 20Hz trying
+			 *  to read the next CPU that the parent is
+			 *  offlining and setting affinity to this.
+			 */
+			do {
+				fd_set rfds;
+				struct timeval timeout;
+				int ret;
+
+				FD_ZERO(&rfds);
+				FD_SET(fds[0], &rfds);
+				timeout.tv_sec = 0;
+				timeout.tv_usec = 50000;
+
+				ret = select(fds[0] + 1, &rfds, NULL, NULL, &timeout);
+				if (ret < 0)
+					break;
+				if ((ret == 1) && (FD_ISSET(fds[0], &rfds))) {
+					/* Read fail, bail out, pipe maybe closed */
+					if (read(fds[0], &cpu, sizeof(cpu)) < 0)
+						break;
+				}
+				/* This may fail if the CPU is offlined */
+				stress_cpu_online_set_affinity(cpu);
+			} while (stress_continue(args));
+			(void)close(fds[0]);
+			(void)close(fds[1]);
+			_exit(0);
+		}
+	}
+
 	/*
 	 *  Now randomly offline/online them all
 	 */
@@ -259,6 +317,15 @@ static int stress_cpu_online(stress_args_t *args)
 		if (cpu_online[cpu]) {
 			double t;
 			int setting;
+
+			if (child_affinity && (fds[1] != -1)) {
+				if (write(fds[1], &cpu, sizeof(cpu)) < 0) {
+					(void)close(fds[0]);
+					(void)close(fds[1]);
+					fds[0] = -1;
+					fds[1] = -1;
+				}
+			}
 
 			if (cpu_online_affinity)
 				stress_cpu_online_set_affinity(cpu);
@@ -299,6 +366,17 @@ static int stress_cpu_online(stress_args_t *args)
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	/*
+	 *  Child running? close pipe and kill it
+	 */
+	if (child_affinity) {
+		if (fds[0] != -1)
+			(void)close(fds[0]);
+		if (fds[1] != -1)
+			(void)close(fds[1]);
+		(void)stress_kill_and_wait(args, pid, SIGKILL, false);
+	}
 
 	/*
 	 *  Force CPUs all back online
