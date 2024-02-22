@@ -82,7 +82,7 @@ allows one to ramp up the stress tests over time.
 this forces child processes of some stressors to change to a different CPU from the
 parent on startup. Note that during the execution of the stressor the scheduler
 may choose move the parent onto the same CPU as the child. The stressors affected
-by this option are client/server style stressors, such as the network stresors
+by this option are client/server style stressors, such as the network stressors
 (sock, sockmany, udp, etc) or context switching stressors (switch, pipe, etc).
 .TP
 .B \-\-class name
@@ -3994,7 +3994,7 @@ is dependent on scheduling jitter and memory accesses from other running
 processes.
 .RE
 .TP
-.B Memory trash stressor
+.B Memory thrash stressor
 .RS 5
 .TQ
 .B \-\-memthrash N
