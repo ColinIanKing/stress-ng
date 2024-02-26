@@ -25,7 +25,7 @@
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
-static uint64_t bionicsort_count;
+static uint64_t bitonic_count;
 
 static const stress_help_t help[] = {
 	{ NULL,	"bitonicsort N",	"start N workers bitonic sorting 32 bit random integers" },
@@ -67,7 +67,7 @@ static void MLOCKED_TEXT stress_bitonicsort_handler(int signum)
 	}
 }
 
-static inline void OPTIMIZE3 bitonicsort32_fwd(void *base, size_t nmemb)
+static inline void OPTIMIZE3 bitonicsort32_fwd(void *base, const size_t nmemb)
 {
 	register uint32_t *const array = (uint32_t *)base;
 	size_t k;
@@ -87,7 +87,7 @@ static inline void OPTIMIZE3 bitonicsort32_fwd(void *base, size_t nmemb)
 
 					if ((((i & k) == 0) && (ai > al)) ||
 					    (((i & k) != 0) && (ai < al))) {
-						bionicsort_count++;
+						bitonic_count++;
 						array[i] = al;
 						array[l] = ai;
 					}
@@ -97,7 +97,7 @@ static inline void OPTIMIZE3 bitonicsort32_fwd(void *base, size_t nmemb)
 	}
 }
 
-static inline void OPTIMIZE3 bitonicsort32_rev(void *base, size_t nmemb)
+static inline void OPTIMIZE3 bitonicsort32_rev(void *base, const size_t nmemb)
 {
 	register uint32_t *const array = (uint32_t *)base;
 	size_t k;
@@ -117,7 +117,7 @@ static inline void OPTIMIZE3 bitonicsort32_rev(void *base, size_t nmemb)
 
 					if ((((i & k) == 0) && (ai > al)) ||
 					    (((i & k) != 0) && (ai < al))) {
-						bionicsort_count++;
+						bitonic_count++;
 						array[i] = al;
 						array[l] = ai;
 					}
@@ -180,11 +180,11 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		stress_sort_data_int32_shuffle(data, n);
 
 		/* Sort "random" data */
-		bionicsort_count = 0;
+		bitonic_count = 0;
 		t = stress_time_now();
 		bitonicsort32_fwd(data, n);
 		duration += stress_time_now() - t;
-		count += (double)bionicsort_count;
+		count += (double)bitonic_count;
 		sorted += (double)n;
 
 		if (UNLIKELY(verify)) {
@@ -203,11 +203,11 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 			break;
 
 		/* Reverse sort */
-		bionicsort_count = 0;
+		bitonic_count = 0;
 		t = stress_time_now();
 		bitonicsort32_rev(data, n);
 		duration += stress_time_now() - t;
-		count += (double)bionicsort_count;
+		count += (double)bitonic_count;
 		sorted += (double)n;
 
 		if (UNLIKELY(verify)) {
@@ -229,11 +229,11 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		stress_sort_data_int32_mangle(data, n);
 
 		/* Reverse sort this again */
-		bionicsort_count = 0;
+		bitonic_count = 0;
 		t = stress_time_now();
 		bitonicsort32_rev(data, n);
 		duration += stress_time_now() - t;
-		count += (double)bionicsort_count;
+		count += (double)bitonic_count;
 		sorted += (double)n;
 
 		if (UNLIKELY(verify)) {
