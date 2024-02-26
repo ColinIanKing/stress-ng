@@ -67,7 +67,7 @@ static void MLOCKED_TEXT stress_shellsort_handler(int signum)
 	}
 }
 
-static inline int OPTIMIZE3 shellsort32(void *base, size_t nmemb,
+static inline void OPTIMIZE3 shellsort32(void *base, size_t nmemb,
 	int (*compar)(const void *, const void *))
 {
 	register size_t gap;
@@ -86,39 +86,6 @@ static inline int OPTIMIZE3 shellsort32(void *base, size_t nmemb,
 			array[j] = temp;
 		}
 	}
-	return 0;
-}
-
-static inline int OPTIMIZE3 shellsort8(void *base, size_t nmemb,
-	int (*compar)(const void *, const void *))
-{
-	register size_t gap;
-	register uint8_t *const array = (uint8_t *)base;
-
-	for (gap = nmemb >> 1; gap > 0; gap >>= 1) {
-		register size_t i;
-
-		for (i = gap; i < nmemb; i++) {
-			register size_t j;
-			const uint8_t temp = array[i];
-
-			for (j = i; (j >= gap) && (compar(&array[j - gap], &temp) > 0); j -= gap) {
-				array[j] = array[j - gap];
-			}
-			array[j] = temp;
-		}
-	}
-	return 0;
-}
-
-static inline int OPTIMIZE3 shellsort(void *base, size_t nmemb, size_t size,
-	int (*compar)(const void *, const void *))
-{
-	if (size == sizeof(uint32_t))
-		return shellsort32(base, nmemb, compar);
-	else if (size == sizeof(uint8_t))
-		return shellsort8(base, nmemb, compar);
-	else return -1;
 }
 
 /*
@@ -176,24 +143,20 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 		/* Sort "random" data */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (shellsort(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
-			pr_fail("%s: shellsort of random data failed: %d (%s)\n",
-				args->name, errno, strerror(errno));
-		} else {
-			duration += stress_time_now() - t;
-			count += (double)stress_sort_compare_get();
-			sorted += (double)n;
+		shellsort32(data, n, stress_sort_cmp_fwd_int32);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
 
-			if (UNLIKELY(verify)) {
-				register size_t i;
+		if (UNLIKELY(verify)) {
+			register size_t i;
 
-				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr > *(ptr + 1)) {
-						pr_fail("%s: sort error "
-							"detected, incorrect ordering "
-							"found\n", args->name);
-						break;
-					}
+			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+				if (*ptr > *(ptr + 1)) {
+					pr_fail("%s: sort error "
+						"detected, incorrect ordering "
+						"found\n", args->name);
+					break;
 				}
 			}
 		}
@@ -203,24 +166,20 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 		/* Reverse sort */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (shellsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
-			pr_fail("%s: reversed shellsort of random data failed: %d (%s)\n",
-				args->name, errno, strerror(errno));
-		} else {
-			duration += stress_time_now() - t;
-			count += (double)stress_sort_compare_get();
-			sorted += (double)n;
+		shellsort32(data, n, stress_sort_cmp_rev_int32);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
 
-			if (UNLIKELY(verify)) {
-				register size_t i;
+		if (UNLIKELY(verify)) {
+			register size_t i;
 
-				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr < *(ptr + 1)) {
-						pr_fail("%s: reverse sort "
-							"error detected, incorrect "
-							"ordering found\n", args->name);
-						break;
-					}
+			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+				if (*ptr < *(ptr + 1)) {
+					pr_fail("%s: reverse sort "
+						"error detected, incorrect "
+						"ordering found\n", args->name);
+					break;
 				}
 			}
 		}
@@ -234,24 +193,20 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 		/* Reverse sort this again */
 		stress_sort_compare_reset();
 		t = stress_time_now();
-		if (shellsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
-			pr_fail("%s: reversed shellsort of random data failed: %d (%s)\n",
-				args->name, errno, strerror(errno));
-		} else {
-			duration += stress_time_now() - t;
-			count += (double)stress_sort_compare_get();
-			sorted += (double)n;
+		shellsort32(data, n, stress_sort_cmp_rev_int32);
+		duration += stress_time_now() - t;
+		count += (double)stress_sort_compare_get();
+		sorted += (double)n;
 
-			if (UNLIKELY(verify)) {
-				register size_t i;
+		if (UNLIKELY(verify)) {
+			register size_t i;
 
-				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-					if (*ptr < *(ptr + 1)) {
-						pr_fail("%s: reverse sort "
-							"error detected, incorrect "
-							"ordering found\n", args->name);
-						break;
-					}
+			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+				if (*ptr < *(ptr + 1)) {
+					pr_fail("%s: reverse sort "
+						"error detected, incorrect "
+						"ordering found\n", args->name);
+					break;
 				}
 			}
 		}
