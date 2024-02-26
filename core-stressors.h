@@ -39,6 +39,7 @@
 	MACRO(bigheap)		\
 	MACRO(bind_mount)	\
 	MACRO(binderfs)		\
+	MACRO(bitonicsort)	\
 	MACRO(branch)		\
 	MACRO(brk)		\
 	MACRO(bsearch)		\

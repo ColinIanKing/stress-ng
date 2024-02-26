@@ -260,6 +260,7 @@ STRESS_SRC = \
 	stress-bigheap.c \
 	stress-bind-mount.c \
 	stress-binderfs.c \
+	stress-bitonicsort.c \
 	stress-branch.c \
 	stress-brk.c \
 	stress-bsearch.c \

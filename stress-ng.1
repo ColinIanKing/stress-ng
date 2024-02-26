@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 February 2024"
+.TH STRESS-NG 1 "26 February 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -883,6 +883,19 @@ stressor unless you want to risk hanging your machine.
 .TP
 .B \-\-bind\-mount\-ops N
 stop after N bind mount bogo operations.
+.RE
+.TP
+.B Bitonic sort stressor
+.RS 5
+.TQ
+.B \-\-bitonicsort N
+start N workers that sort 32 bit integers using bitonic sort.
+.TP
+.B \-\-bitonicsort\-ops N
+stop bitonic sort stress workers after N bogo bitonic sorts.
+.TP
+.B \-\-bitonicsort\-size N
+specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .RE
 .TP
 .B Branch stressor

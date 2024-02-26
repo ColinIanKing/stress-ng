@@ -184,6 +184,21 @@ typedef enum {
 	OPT_bad_ioctl_method,
 	OPT_bad_ioctl_ops,
 
+	OPT_bigheap_bytes,
+	OPT_bigheap_growth,
+	OPT_bigheap_mlock,
+	OPT_bigheap_ops,
+
+	OPT_bind_mount,
+	OPT_bind_mount_ops,
+
+	OPT_binderfs,
+	OPT_binderfs_ops,
+
+	OPT_bitonicsort,
+	OPT_bitonicsort_ops,
+	OPT_bitonicsort_size,
+
 	OPT_branch,
 	OPT_branch_ops,
 
@@ -197,17 +212,6 @@ typedef enum {
 	OPT_bsearch_method,
 	OPT_bsearch_ops,
 	OPT_bsearch_size,
-
-	OPT_bigheap_bytes,
-	OPT_bigheap_growth,
-	OPT_bigheap_mlock,
-	OPT_bigheap_ops,
-
-	OPT_bind_mount,
-	OPT_bind_mount_ops,
-
-	OPT_binderfs,
-	OPT_binderfs_ops,
 
 	OPT_class,
 
