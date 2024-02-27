@@ -301,6 +301,8 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("irq/irq_handler_exit",		"IRQ Exit"),
 	PERF_INFO_TP("irq/softirq_entry",		"Soft IRQ Entry"),
 	PERF_INFO_TP("irq/softirq_exit",		"Soft IRQ Exit"),
+	PERF_INFO_TP("irq/tasklet_entry",		"Tasklet Entry"),
+	PERF_INFO_TP("irq/tasklet_exit",		"Tasklet Exit"),
 	PERF_INFO_TP("nmi/nmi_handler",			"NMI handler"),
 
 	PERF_INFO_TP("ipi/ipi_entry",			"IPI Entry"),
