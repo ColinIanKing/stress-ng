@@ -171,6 +171,7 @@ static int stress_cpu_online(stress_args_t *args)
 {
 	int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;
+	uint32_t prev_cpu;
 	bool *cpu_online;
 	bool cpu_online_affinity = false;
 	bool cpu_online_all = false;
@@ -306,6 +307,7 @@ static int stress_cpu_online(stress_args_t *args)
 	/*
 	 *  Now randomly offline/online them all
 	 */
+	prev_cpu = cpus;
 	do {
 		const uint32_t cpu = stress_mwc32modn((uint32_t)cpus);
 
@@ -314,9 +316,16 @@ static int stress_cpu_online(stress_args_t *args)
 		 */
 		if ((cpu == 0) && !cpu_online_all)
 			continue;
+		if (cpu == prev_cpu)
+			continue;
 		if (cpu_online[cpu]) {
 			double t;
 			int setting;
+
+			/* Don't try if already offline */
+			stress_cpu_online_get(cpu, &setting);
+			if (setting == 0)
+				continue;
 
 			if (child_affinity && (fds[1] != -1)) {
 				if (write(fds[1], &cpu, sizeof(cpu)) < 0) {
