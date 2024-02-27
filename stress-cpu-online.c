@@ -309,14 +309,26 @@ static int stress_cpu_online(stress_args_t *args)
 	 */
 	prev_cpu = cpus;
 	do {
-		const uint32_t cpu = stress_mwc32modn((uint32_t)cpus);
+		uint32_t cpu;
+
+		switch (args->instance) {
+		case 1:
+			cpu = (cpu + 1) % (uint32_t)cpus;
+			break;
+		case 2:
+			cpu = (cpu - 1) % (uint32_t)cpus;
+			break;
+		default:
+			cpu = stress_mwc32modn((uint32_t)cpus);
+			if (cpu == prev_cpu)
+				continue;
+			break;
+		}
 
 		/*
 		 *  Only allow CPU 0 to be offlined if --cpu-online-all has been enabled
 		 */
 		if ((cpu == 0) && !cpu_online_all)
-			continue;
-		if (cpu == prev_cpu)
 			continue;
 		if (cpu_online[cpu]) {
 			double t;
@@ -324,8 +336,10 @@ static int stress_cpu_online(stress_args_t *args)
 
 			/* Don't try if already offline */
 			stress_cpu_online_get(cpu, &setting);
-			if (setting == 0)
+			if (setting == 0) {
+				shim_sched_yield();
 				continue;
+			}
 
 			if (child_affinity && (fds[1] != -1)) {
 				if (write(fds[1], &cpu, sizeof(cpu)) < 0) {
@@ -371,6 +385,7 @@ static int stress_cpu_online(stress_args_t *args)
 				}
 			}
 			stress_bogo_inc(args);
+			shim_sched_yield();
 		}
 	} while (stress_continue(args));
 
