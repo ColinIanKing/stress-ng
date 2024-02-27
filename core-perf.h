@@ -27,7 +27,7 @@
     defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
-#define STRESS_PERF_MAX		(128 + 16)
+#define STRESS_PERF_MAX		(128 + 32)
 
 /* per perf counter info */
 typedef struct {

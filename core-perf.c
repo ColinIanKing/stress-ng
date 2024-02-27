@@ -259,6 +259,8 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 #if 1
 	PERF_INFO_TP("tlb/tlb_flush",			"TLB Flushes"),
 #endif
+	PERF_INFO_TP("swiotlb/swiotlb_bounced",		"Software I/O TLB Bounces"),
+
 	PERF_INFO_TP("kmem/kmalloc",			"Kmalloc"),
 	PERF_INFO_TP("kmem/kmalloc_node",		"Kmalloc Node"),
 	PERF_INFO_TP("kmem/kfree",			"Kfree"),
