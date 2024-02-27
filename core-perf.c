@@ -304,6 +304,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("nmi/nmi_handler",			"NMI handler"),
 
 	PERF_INFO_TP("ipi/ipi_entry",			"IPI Entry"),
+	PERF_INFO_TP("ipi/ipi_raise",			"IPI Raise"),
 	PERF_INFO_TP("ipi/ipi_send_cpu",		"IPI Send CPU"),
 	PERF_INFO_TP("ipi/ipi_exit",			"IPI Exit"),
 
