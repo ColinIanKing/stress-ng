@@ -41,6 +41,7 @@ static const char *err_exceptions[] = {
 	"callbacks suppressed",
 	"kmod_concurrent_max",
 	"hrtimer: interrupt took",
+	"no longer affine to",
 };
 
 /*
