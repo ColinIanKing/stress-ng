@@ -171,7 +171,7 @@ static int stress_cpu_online(stress_args_t *args)
 {
 	int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;
-	uint32_t prev_cpu;
+	uint32_t cpu, prev_cpu;
 	bool *cpu_online;
 	bool cpu_online_affinity = false;
 	bool cpu_online_all = false;
@@ -307,10 +307,9 @@ static int stress_cpu_online(stress_args_t *args)
 	/*
 	 *  Now randomly offline/online them all
 	 */
+	cpu = 0;
 	prev_cpu = cpus;
 	do {
-		uint32_t cpu;
-
 		switch (args->instance) {
 		case 1:
 			cpu = (cpu + 1) % (uint32_t)cpus;
