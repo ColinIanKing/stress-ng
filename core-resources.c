@@ -151,7 +151,9 @@ size_t stress_resources_allocate(
 	size_t i, n = 0;
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
 	const pid_t pid = getpid();
+#if defined(HAVE_PIDFD_OPEN)
 	const pid_t ppid = getppid();
+#endif
 	const size_t page_size = args->page_size;
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
