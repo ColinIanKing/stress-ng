@@ -3700,7 +3700,7 @@ int main(int argc, char **argv, char **envp)
 		goto exit_destroy_perf_lock;
 	}
 	g_shared->net_port_map.lock = stress_lock_create();
-	if (!g_shared->warn_once.lock) {
+	if (!g_shared->net_port_map.lock) {
 		pr_err("failed to create net_port_map lock\n");
 		ret = EXIT_FAILURE;
 		goto exit_destroy_warn_once_lock;
