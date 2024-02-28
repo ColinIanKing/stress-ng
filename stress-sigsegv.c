@@ -255,6 +255,8 @@ static void stress_sigsegv_vdso(void)
 static int stress_sigsegv(stress_args_t *args)
 {
 	uint8_t *ro_ptr, *none_ptr;
+	static uint32_t mask_shift;
+	static uintptr_t mask, last_mask;
 	NOCLOBBER int rc = EXIT_FAILURE;
 #if defined(SA_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -290,9 +292,14 @@ static int stress_sigsegv(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	mask = 0;
+	last_mask = 0;
+	mask_shift = 0;
+
 	for (;;) {
 		int ret;
 		struct sigaction action;
+		uintptr_t mask_bit, masked_ptr;
 
 		(void)shim_memset(&action, 0, sizeof action);
 #if defined(SA_SIGINFO)
@@ -366,7 +373,7 @@ static int stress_sigsegv(stress_args_t *args)
 retry:
 			if (!stress_continue(args))
 				break;
-			switch (stress_mwc8modn(9)) {
+			switch (stress_mwc8modn(10)) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
 			case 0:
 				/* Trip a SIGSEGV/SIGILL/SIGBUS */
@@ -388,22 +395,26 @@ retry:
 #endif
 #if defined(HAVE_SIGSEGV_MISALIGNED128NT)
 			case 3:
+				/* Misaligned 128 non-temporal read */
 				if (has_sse2)
 					stress_sigsegv_misaligned128nt();
 				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_READ_TSC)
 			case 4:
+				/* Read TSC when TSC reads are disabled */
 				stress_sigsegv_readtsc();
 				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_READ_IO)
 			case 5:
+				/* Illegal I/O reads */
 				stress_sigsegv_read_io();
 				goto retry;
 #endif
 #if defined(HAVE_SIGSEGV_VDSO)
 			case 6:
+				/* Illegal address passed to VDSO system call  */
 #if defined(SA_SIGINFO)
 				expected_addr = (uint8_t *)BAD_ADDR;
 				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
@@ -413,17 +424,47 @@ retry:
 #endif
 			case 7:
 #if defined(SA_SIGINFO)
+				/* Write to read-only address */
 				expected_addr = (uint8_t *)ro_ptr;
 				shim_cacheflush((char *)&expected_addr, (int)sizeof(*expected_addr), SHIM_DCACHE);
 #endif
 				*ro_ptr = 0;
 				goto retry;
 			case 8:
+				/* Read from write-only address */
 #if defined(SA_SIGINFO)
 				expected_addr = (uint8_t *)none_ptr;
 #endif
 				stress_uint8_put(*none_ptr);
-				break;
+				goto retry;
+			case 9:
+				/* Read from random address, work through all address widths */
+#if defined(UINTPTR_MAX)
+#if UINTMAX_WIDTH > 32
+				masked_ptr = (uintptr_t)stress_mwc64();
+#else
+				masked_ptr = (uintptr_t)stress_mwc32();
+#endif
+#else
+				if (sizeof(masked_ptr) > 4) {
+					masked_ptr = (uintptr_t)stress_mwc64();
+				} else {
+					masked_ptr = (uintptr_t)stress_mwc32();
+				}
+#endif
+				mask_bit = ((uintptr_t)1 << mask_shift);
+				mask |= mask_bit;
+				if (mask == last_mask) {
+					mask_shift = 0;
+					mask_bit = ((uintptr_t)1 << mask_shift);
+					mask = mask_bit;
+				}
+				mask_shift++;
+				masked_ptr &= mask;
+				masked_ptr |= mask_bit;	/* ensure top bit always set */
+				last_mask = mask;
+				stress_uint8_put(*(volatile uint8_t *)masked_ptr);
+				goto retry;
 			default:
 				goto retry;
 			}
