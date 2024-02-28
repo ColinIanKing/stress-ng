@@ -1,7 +1,8 @@
 FROM alpine:3 as build
 
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
-    apk add --update build-base libaio-dev libattr libbsd-dev libcap-dev libcap-dev libgcrypt-dev jpeg-dev judy-dev@testing keyutils-dev lksctp-tools-dev libatomic zlib-dev kmod-dev xxhash-dev
+    echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk add --update build-base libaio-dev libattr libbsd-dev libcap-dev libcap-dev libgcrypt-dev jpeg-dev judy-dev keyutils-dev lksctp-tools-dev libatomic zlib-dev kmod-dev xxhash-dev mpfr-dev
 
 ADD . stress-ng
 
@@ -13,7 +14,8 @@ RUN cd stress-ng && mkdir install-root && \
 FROM alpine:3
 
 RUN echo "@testing http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
-    apk add --update libaio libattr libbsd libcap libcap libgcrypt jpeg judy@testing keyutils lksctp-tools libatomic zlib kmod-dev xxhash-dev && \
+    echo "@community http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
+    apk add --update libaio libattr libbsd libcap libcap libgcrypt jpeg judy keyutils lksctp-tools libatomic zlib kmod xxhash mpfr && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 COPY --from=build stress-ng/install-root/ /
