@@ -64,7 +64,8 @@ static int stress_set_monte_carlo_samples(const char *opt)
 
 #if (defined(STRESS_ARCH_PPC64) && defined(HAVE_ASM_PPC64_DARN)) ||	\
     (defined(STRESS_ARCH_X86) && defined(HAVE_ASM_X86_RDRAND)) ||	\
-    (defined(HAVE_GETRANDOM) && !defined(__sun__))
+    (defined(HAVE_GETRANDOM) && !defined(__sun__)) ||			\
+    defined(HAVE_ARC4RANDOM)
 static void stress_mc_no_seed(void)
 {
 }
