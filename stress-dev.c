@@ -4172,7 +4172,7 @@ static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_
 	dev_info_t **dev_info_sorted, *dev;
 	size_t i;
 
-	dev_info_sorted = calloc(sizeof(*dev_info_sorted), dev_info_list_len);
+	dev_info_sorted = calloc(dev_info_list_len, sizeof(*dev_info_sorted));
 	if (!dev_info_sorted)
 		return;
 
