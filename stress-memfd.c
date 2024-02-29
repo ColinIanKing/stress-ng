@@ -242,7 +242,8 @@ static inline bool stress_memfd_check(
  */
 static int stress_memfd_child(stress_args_t *args, void *context)
 {
-	int *fds, fd;
+	int *fds;
+	register int fd;
 	void **maps;
 	int32_t i;
 	const size_t page_size = args->page_size;
@@ -341,8 +342,6 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 		}
 
 		for (i = 0; i < memfd_fds; i++) {
-			register int fd;
-
 			/* Low memory avoidance, re-start */
 			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(size))
 				break;
