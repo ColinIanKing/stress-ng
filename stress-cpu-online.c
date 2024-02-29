@@ -269,7 +269,7 @@ static int stress_cpu_online(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			child_affinity = false;
 		} else if (pid == 0) {
-			uint32_t cpu = 0;
+			cpu = 0;
 
 			/*
 			 *  Try to pin child process to that of the
