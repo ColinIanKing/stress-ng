@@ -305,6 +305,8 @@ static int stress_fork_fn(
 #if defined(__linux__)
 	if (fork_unmap)
 		stress_fork_maps_reduce(args->page_size, STRESS_REDUCE_MADVISE);
+#else
+	(void)fork_unmap;
 #endif
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
