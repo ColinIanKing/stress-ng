@@ -745,6 +745,9 @@ static int stress_cache(stress_args_t *args)
 
 	disabled_flags = 0;
 
+	(void)cache_flags;
+	(void)cache_flags_mask;
+
 	if (sigsetjmp(jmp_env, 1)) {
 		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
 			args->name);
