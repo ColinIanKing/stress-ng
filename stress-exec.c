@@ -281,9 +281,14 @@ static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 
 #if defined(HAVE_CLONE)
 	if (sph && alloc_stack && !sph->stack) {
+#if defined(MAP_STACK)
+		const int flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK;
+#else
+		const int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+#endif
+		pr_inf("%x\n", flags);
 		sph->stack = stress_mmap_populate(NULL, CLONE_STACK_SIZE,
-				PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+				PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (sph->stack == MAP_FAILED) {
 			sph->stack = NULL;
 			stress_exec_free_list_add(sph);
