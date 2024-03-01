@@ -2258,6 +2258,9 @@ long shim_ssetmask(long newmask)
 #endif
 }
 
+/* use praga to avoid stime already declared warning */
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 /*
  *  shim_stime()
  *	wrapper for obsolete SVr4 stime system call
@@ -2286,6 +2289,7 @@ int shim_stime(const time_t *t)
 	return (int)shim_enosys(0, t);
 #endif
 }
+STRESS_PRAGMA_POP
 
 /*
  *  shim_vhangup()
