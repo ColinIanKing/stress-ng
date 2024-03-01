@@ -4048,9 +4048,11 @@ again:
 		}
 	} else {
 		const unsigned long mask24 = 0xffffffUL;
+#if ULONG_MAX > 0xffffffff
 		const unsigned long mask40 = 0xffffffffffUL;
 		const unsigned long mask48 = 0xffffffffffffUL;
 		const unsigned long mask56 = 0xffffffffffffffUL;
+#endif
 		const unsigned long mask64 = ULONG_MAX;
 
 		ssize_t j;
@@ -4096,6 +4098,7 @@ again:
 				stress_do_syscall(args, (long)stress_mwc32() & mask64, true);
 				if (!stress_continue(args))
 					goto finish;
+#if ULONG_MAX > 0xffffffff
 				stress_do_syscall(args, (long)(stress_mwc64() & mask40), true);
 				if (!stress_continue(args))
 					goto finish;
@@ -4106,6 +4109,7 @@ again:
 				if (!stress_continue(args))
 					goto finish;
 				stress_do_syscall(args, (long)(stress_mwc64() & mask64), true);
+#endif
 			}
 
 			/* Various bit masks */
