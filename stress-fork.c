@@ -152,7 +152,8 @@ static void stress_fork_maps_reduce(const size_t page_size, const int mode)
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
 	while (fgets(buffer, sizeof(buffer), fp)) {
-		uintmax_t begin, end, len, offset;
+		uint64_t begin, end, len, offset;
+		uintptr_t begin_ptr, end_ptr;
 		char tmppath[1024];
 		char prot[6];
 		size_t i;
@@ -173,20 +174,26 @@ static void stress_fork_maps_reduce(const size_t page_size, const int mode)
 		if (strncmp("[v", tmppath, 2) == 0)
 			continue;
 
-		len = end - begin;
+		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))
+			continue;
 
 		/* Ignore bad ranges */
 		if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
 			continue;
 
+		len = end - begin;
+
 		/* Skip invalid ranges */
 		if ((len < page_size) || (len > 0x80000000UL))
 			continue;
 
+		begin_ptr = (uintptr_t)begin;
+		end_ptr = (uintptr_t)end;
+
 		for (i = 0; i < SIZEOF_ARRAY(stress_fork_shlibs); i++) {
 			if (strstr(tmppath, stress_fork_shlibs[i])) {
 				if (mode == STRESS_REDUCE_MADVISE) {
-					(void)madvise((void *)begin, len, MADV_DONTNEED);
+					(void)madvise((void *)begin_ptr, len, MADV_DONTNEED);
 				} else if (mode == STRESS_REDUCE_REMOVE) {
 					unsigned char *vec;
 					uint8_t *ptr, *unmap_start = NULL;
@@ -196,7 +203,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int mode)
 					if (!vec)
 						continue;
 
-					if (shim_mincore((void *)begin, (size_t)len, vec) < 0) {
+					if (shim_mincore((void *)begin_ptr, (size_t)len, vec) < 0) {
 						free(vec);
 						continue;
 					}
@@ -205,7 +212,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int mode)
 					 *  find longest run of pages that can be
 					 *  forcibly unmapped.
 					 */
-					for (j = 0, ptr = (uint8_t *)begin; ptr < (uint8_t *)end; ptr += page_size, j++) {
+					for (j = 0, ptr = (uint8_t *)begin_ptr; ptr < (uint8_t *)end_ptr; ptr += page_size, j++) {
 						if (vec[j]) {
 							if (unmap_len == 0) {
 								unmap_start = ptr;
