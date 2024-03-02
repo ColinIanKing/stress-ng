@@ -1012,7 +1012,7 @@ case_stream_index_1:
 			fp_rate, STRESS_HARMONIC_MEAN);
 	} else {
 		if (args->instance == 0)
-			pr_inf("%s: run duration too short to determine memory rate\n", args->name);
+			pr_inf("%s: run duration too short to reliably determine memory rate\n", args->name);
 	}
 
 	rc = EXIT_SUCCESS;
