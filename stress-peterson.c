@@ -69,6 +69,9 @@ static void stress_peterson_p0(stress_args_t *args)
 	check0 = peterson->m.check;
 	peterson->m.check++;
 	check1 = peterson->m.check;
+#if defined(STRESS_ARCH_ARM)
+	shim_mfence();
+#endif
 
 	peterson->m.flag[0] = false;
 	shim_mfence();
@@ -100,6 +103,9 @@ static void stress_peterson_p1(stress_args_t *args)
 	check0 = peterson->m.check;
 	peterson->m.check--;
 	check1 = peterson->m.check;
+#if defined(STRESS_ARCH_ARM)
+	shim_mfence();
+#endif
 	stress_bogo_inc(args);
 
 	peterson->m.flag[1] = false;
