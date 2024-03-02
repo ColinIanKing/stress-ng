@@ -803,11 +803,11 @@ lite-test: all
 
 .PHONY: slow-test-all
 slow-test-all: all
-	./stress-ng --seq 0 -t 15 --pathological --times --tz --metrics --klog-check --progress || true
+	./stress-ng --seq 0 -t 15 --pathological --times --tz --metrics --klog-check --progress --cache-enable-all || true
 
 .PHONY: verify-test-all
 verify-test-all: all
-	./stress-ng --seq 0 -t 5 --pathological --times --tz --metrics --verify --progress || true
+	./stress-ng --seq 0 -t 5 --pathological --times --tz --metrics --verify --progress --cache-enable-all || true
 
 .PHONY: tags
 tags:
