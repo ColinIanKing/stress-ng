@@ -482,7 +482,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	if (max_mlocked_pages > 0) {
 		uint64_t kb_per_page = (uint64_t)page_size / 1024U;
 
-		pr_dbg("%s: maximum of %" PRIu64 " pages (%" PRIu64 " MB)  mlocked\n",
+		pr_dbg("%s: maximum of %" PRIu64 " pages (%" PRIu64 " MB) mlocked\n",
 			args->name, max_mlocked_pages, (max_mlocked_pages / (kb_per_page * 1024)));
 	}
 #endif
