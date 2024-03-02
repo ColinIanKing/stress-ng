@@ -288,7 +288,7 @@ tidy_fds:
 	stress_fd_close(fds, fd_fork_fds, info);
 
 	if (args->instance == 0) {
-		pr_inf("%s: used %s() to close %d file descriptors on %s\n",
+		pr_inf("%s: used %s() to close ~%d file descriptors on %s\n",
 			args->name,
 			info->use_close_range ? "close_range" : "close",
 			1 + info->fd_max_val - info->fd_min_val,
