@@ -3251,7 +3251,7 @@ static inline void stress_run_sequential(
 			char finish[64];
 
 			t_finish = time(NULL);
-			t_finish += g_opt_timeout * ((105 * (total_run - run)) / 100);
+			t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
 			tm_finish = gmtime(&t_finish);
 			if (tm_finish) {
 				strftime(finish, sizeof(finish), "%T %F", tm_finish);
