@@ -29,44 +29,77 @@ static bool jmp_env_ok;
 static sigjmp_buf jmp_env;
 
 static const int signals[] = {
+#if defined(SIGABRT)
+	SIGABRT,
+#endif
+#if defined(SIGBUS)
+	SIGBUS,
+#endif
+#if defined(SIGCHLD)
+	SIGCHLD,
+#endif
+#if defined(SIGEMT)
+	SIGEMT,
+#endif
+#if defined(SIGFPE)
+	SIGFPE,
+#endif
 #if defined(SIGHUP)
 	SIGHUP,
 #endif
 #if defined(SIGILL)
 	SIGILL,
 #endif
-#if defined(SIGQUIT)
-	SIGQUIT,
-#endif
-#if defined(SIGABRT)
-	SIGABRT,
-#endif
-#if defined(SIGFPE)
-	SIGFPE,
-#endif
-#if defined(SIGTERM)
-	SIGTERM,
-#endif
-#if defined(SIGXCPU)
-	SIGXCPU,
-#endif
-#if defined(SIGXFSZ)
-	SIGXFSZ,
-#endif
-#if defined(SIGIOT)
-	SIGIOT,
-#endif
-#if defined(SIGSTKFLT)
-	SIGSTKFLT,
-#endif
-#if defined(SIGPWR)
-	SIGPWR,
+#if defined(SIGINT)
+	SIGINT,
 #endif
 #if defined(SIGINFO)
 	SIGINFO,
 #endif
-#if defined(SIGVTALRM)
-	SIGVTALRM,
+#if defined(SIGIO)
+	SIGIO,
+#endif
+#if defined(SIGIOT)
+	SIGIOT,
+#endif
+#if defined(SIGLOST)
+	SIGLOST,
+#endif
+#if defined(SIGPIPE)
+	SIGPIPE,
+#endif
+#if defined(SIGPOLL)
+	SIGPOLL,
+#endif
+#if defined(SIGPROF)
+	SIGPROF,
+#endif
+#if defined(SIGPWR)
+	SIGPWR,
+#endif
+#if defined(SIGQUIT)
+	SIGQUIT,
+#endif
+#if defined(SIGSEGV)
+	SIGSEGV,
+#endif
+#if defined(SIGSTKFLT)
+	SIGSTKFLT,
+#endif
+#if defined(SIGSYS)
+	SIGSYS,
+#endif
+#if defined(SIGTERM)
+	SIGTERM,
+#endif
+#if defined(SIGTRAP)
+	SIGTRAP,
+#endif
+#if defined(SIGTTIN)
+	SIGTTIN,
+#endif
+#if defined(SIGTTOU)
+	SIGTTOU,
 #endif
 #if defined(SIGUSR1)
 	SIGUSR1,
@@ -74,14 +107,17 @@ static const int signals[] = {
 #if defined(SIGUSR2)
 	SIGUSR2,
 #endif
-#if defined(SIGTTOU)
-	SIGTTOU,
-#endif
-#if defined(SIGTTIN)
-	SIGTTIN,
+#if defined(SIGVTALRM)
+	SIGVTALRM,
 #endif
 #if defined(SIGWINCH)
 	SIGWINCH,
+#endif
+#if defined(SIGXCPU)
+	SIGXCPU,
+#endif
+#if defined(SIGXFSZ)
+	SIGXFSZ,
 #endif
 };
 
