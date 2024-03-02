@@ -183,8 +183,14 @@ static int stress_mq(stress_args_t *args)
 		 *  than hard fail
 		 */
 		if (errno == ENOSPC) {
-			pr_inf_skip("%s: mq_open: no more free queue space, skipping stressor\n",
-				args->name);
+			pr_inf_skip("%s: mq_open: no more free queue space%s, skipping stressor\n",
+				args->name,
+#if defined(__linux__)
+				" (increasing /proc/sys/fs/mqueue/queues_max may help)"
+#else
+				""
+#endif
+				);
 			return EXIT_NO_RESOURCE;
 		}
 		pr_fail("%s: mq_open failed, errno=%d (%s)\n",
