@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
@@ -4341,9 +4342,11 @@ again:
 
 	if (args->instance == 0) {
 		const size_t opened = stress_dev_infos_opened(dev_info_list);
+		const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
-		pr_inf("%s: %zd of %zd devices opened and exercised\n",
-			args->name, opened, dev_info_list_len);
+		pr_inf("%s: %zd of %zd devices opened and exercised%s\n",
+			args->name, opened, dev_info_list_len,
+			is_root ? "" : " (run as root to exercise more devices)");
 	}
 
 	(void)munmap((void *)mmap_dev_states, mmap_dev_states_size);
