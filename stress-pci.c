@@ -257,9 +257,12 @@ static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 	siglongjmp(jmp_env, 1);
 }
 
-static double stress_pci_rate(const stress_metrics_t *metrics)
+static void stress_pci_rate(const stress_metrics_t *metrics, char *str, const size_t len)
 {
-	return metrics->duration > 0.0 ? metrics->count / metrics->duration : 0.0;
+	if (metrics->duration > 0.0)
+		(void)snprintf(str, len, "%8.2f", (metrics->count / metrics->duration) / MB);
+	else
+		(void)snprintf(str, len, "%8s", " unknown");
 }
 
 /*
@@ -316,11 +319,13 @@ static int stress_pci(stress_args_t *args)
 		pr_block_begin();
 		pr_inf("%s: PCI space read rates in MB per sec for stressor instance 0:\n", args->name);
 		pr_inf("%s: PCI Device     Config Resource\n", args->name);
+
 		for (pci_info = pci_info_list; pci_info; pci_info = pci_info->next) {
-			pr_inf("%s: %s %8.2f %8.2f\n",
-				args->name, pci_info->name,
-				stress_pci_rate(&pci_info->metrics[PCI_METRICS_CONFIG]) / MB,
-				stress_pci_rate(&pci_info->metrics[PCI_METRICS_RESOURCE]) / MB);
+			char rate_config[9], rate_resource[9];
+
+			stress_pci_rate(&pci_info->metrics[PCI_METRICS_CONFIG], rate_config, sizeof(rate_config));
+			stress_pci_rate(&pci_info->metrics[PCI_METRICS_RESOURCE], rate_resource, sizeof(rate_resource));
+			pr_inf("%s: %s %8s %8s\n", args->name, pci_info->name, rate_config, rate_resource);
 		}
 		pr_block_end();
 	}
