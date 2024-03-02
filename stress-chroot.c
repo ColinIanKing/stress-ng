@@ -398,7 +398,7 @@ static void stress_chroot_report_escapes(
 		}
 	}
 	if (j) {
-		pr_inf("%s: escaped chroot using method:%s%s\n",
+		pr_inf("%s: escaped chroot using method%s:%s\n",
 			args->name, (j > 1) ? "s" : "", buf);
 	}
 }
