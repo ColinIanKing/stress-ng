@@ -255,16 +255,22 @@ static ssize_t stress_aiol_wait(
 				if (stress_continue_flag()) {
 					continue;
 				} else {
-					return (ssize_t)i;
+					/* indicate terminated early */
+					return -1;
 				}
 			}
 			pr_fail("%s: io_getevents failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			/* indicate terminated early */
 			return -1;
 		} else {
 			i += (size_t)ret;
 		}
-	} while ((i < n) && stress_continue_flag());
+		if (!stress_continue_flag()) {
+			/* indicate terminated early */
+			return -1;
+		}
+	} while (i < n);
 
 	return (ssize_t)i;
 }
