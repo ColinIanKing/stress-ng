@@ -20,8 +20,19 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
-#if defined(HAVE_SEARCH_H)
+#if defined(HAVE_SEARCH_H) && 	\
+     defined(HAVE_HSEARCH)
 #include <search.h>
+#else
+typedef enum {
+	FIND,
+	ENTER
+} ACTION;
+
+typedef struct {
+	char *key;
+	void *data;
+} ENTRY;
 #endif
 
 #define MIN_HSEARCH_SIZE	(1 * KB)
@@ -45,14 +56,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"hsearch-size N", "number of integers to insert into hash table" },
 	{ NULL,	NULL,		  NULL }
 };
-
-#if !(defined(HAVE_SEARCH_H) ||	\
-     defined(HAVE_HSEARCH))
-typedef struct {
-	char *key;
-	void *data;
-} ENTRY;
-#endif
 
 typedef struct {
 	uint32_t hash;
