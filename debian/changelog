@@ -1,3 +1,136 @@
+stress-ng (0.17.06-1) unstable; urgency=medium
+
+  [Hsieh-Tseng Shen]
+  * Manual: fix a few typos
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-fd-fork: fix comment for STRESS_FD_DEFAULT
+  * stress-fd-fork: fix spelling mistake "discriptors" -> "descriptors"
+  * test/test-utime: zero buf
+  * test/test/test-pthread-setaffinity-np: zero cpuset
+  * stress-fork: voidify pid
+  * Makefile.config: ensure all CONFIG_LDFLAGS are passed through
+    LIB_ORDER filter
+  * stress-sigsegv: ignore SEGV_ACCERR error check on OpenBSD
+  * stress-hsearch: typedef ACTION if we don't have native hsearch support
+  * Makefile.config: workaround a make issue on Nixos, add empty echo in
+    loop
+  * stress-aiol: fix interrupted or end of stressing aiol waits with -1
+    return
+  * stress-peterson: add mfence to fix failures on out-of-order ARM cpus
+  * stress-pci: report untested PCI rates as "unknown" rather than 0.00
+  * stress-ng.h: only define _FILE_OFFSET_BITS if it is not defined
+  * stress-signest: add some more signals, sort them in name order
+  * Makefile: add --cache-enable-all for slow-test-all and verify-test-all
+  * stress-chroot: fix placement of colon in chroot escape message
+  * stress-ng: add a few more percent wiggle room on end of run estimate
+  * stress-stream: improve memrate message
+  * stress-mq: add note to increase /proc/sys/fs/mqueue/queues_max for
+    linux
+  * stress-kvm: report KVM kernel API as a debug message
+  * stress-dev: add notes about running as root to exercise more devices
+  * Makefile: add --progress and remove --verbose from verify-test-all
+    and slow-test-all
+  * stress-mlock: remove extranous space in debug message
+  * stress-fd-fork: report approx number of fds
+  * stress-fd-fork: report how many fds were closed
+  * core-shim: add warning disabling pragma on extern stime declaration
+  * stress-fork: handle 32/64 bit address for 32 bit systems
+  * stress-enosys: don't exercise > 32 bits for 32 bit systems
+  * stress-exec: only use MAP_STACK if it is defined
+  * stress-memfd: remove duplicated declaration of fd
+  * stress-cpu-online: remove duplicated declaration of variable cpu
+  * stress-monte-carlo: declare stress_mc_supported for HAVE_ARC4RANDOM
+  * stress-fork: voidify unused arg fork_unmap for non-linux builds
+  * stress-cache: voidify cache related flags and mask
+  * stress-dev: swap calloc arguments to the correct way around
+  * core-target-clones: add Arrowlake and Pantherlake CPU support
+  * Dockerfile: remove kmod and xxhash
+  * Dockerfile: add mpfr and judy from community repos
+  * stress-sigsegv: methodically exercise reads from all VM address range
+  * core-perf: add swiotlb perf event and bump event count up as we are
+    running low
+  * core-perf: add IRQ tasklet entry/exit metrics
+  * core-perf: add IPI Raise event
+  * stress-resources: only declare ppid if HAVE_PIDFD_OPEN is defined
+  * stress-cpu-online: ensure cpu is initialized
+  * core-klog: ignore cpu affinity warnings, these are benign
+  * stress-cpu-online: round-robin CPUs for instances 1 and 2
+  * stress-cpu-online: always try a different cpu and don't try an
+    already offlined cpu
+  * stress-ng: Fix net_port_map lock failure
+  * stress-cpu: don't check for onlining failure for more than 1 instance
+  * stress-bitonic: rename bionicsort_count to bitonic_count
+  * stress-shellsort: remove redundant 8 bit sort
+  * stress-bitonicsort: Add another sorting stressor
+  * stress-cpu-online: run a child process that tries to pin itself to
+    offlined CPU
+  * core-resouces: open another fd, based on the stdout of parent pid
+  * stress-memfd: don't populate memfd mapped pages
+  * stress-memfd: exercise each flag per iteration
+  * stress-memfd: change memfd_fds to a int32_t
+  * stress-memfd: create some filenames just one
+  * stress-memfd: use close_range on fds, fall back to loop'd fd close
+  * stress-enosys: add 24, 40, 48, 56 bit syscalls
+  * stress-malloc: add some SEGV action information
+  * stress-fd-fork: add --fd-fork-file option to specify file to dup
+  * stress-fd-fork: add metrics on time to open all fds and open 10000
+    files per loop
+  * stress-fd-fork: add --fd-fork-fds option to specify number of files
+    to open
+  * Manual: add note about fd-fork bogo-op rate dropping over time
+  * Manual: recommend using the maxtrix-3d stressor for cache misses
+  * stress-ng: avoid potential division by zero by total_run
+  * stress-fd-fork: add a file descriptor copying via fork stressor
+  * Manual: Fix typo "maybe" -> "may be"
+  * stress-crypt: add --crypt-method to allow encryption method to be
+    selected
+  * Manual: update crypt stressor with list of all crypt methods used
+  * stress-memfd: fix #endif, removed the wrong one
+  * stress-memfd: remove debug #ifdef's
+  * stress-memfd: make random madvise calls an optional opt-in with
+    --memfd-madvise
+  * stress-memfd: add in opt-in zap pte test option --memfd-zap-pte
+  * stress-memfd: include <linux/memfd.h> for MEMFD huge page flags
+  * TODO: add IP_LOCAL_PORT_RANGE
+  * stress-ng: add estimated completion time for --progress option
+  * stress-ng: add a --progress option to show --sequential run progress
+  * stress-fork: disable --fork-unmap if --fork-vm is also enabled
+  * stress-fork: remove stress_set_proc_state so libbsd can be removed
+  * stress-fork: don't remove readable pages that may be used in dlsym
+    searches
+  * stress-syscall: only define SHADOW_STACK_SET_TOKEN if it's not defined
+  * stress-fork: add --fork-unmap option to force unmapping of shared libs
+  * Makefile.config: specify library link ordering
+  * stress-clone: force lazy bind libc functions to be bound before clone
+    is run
+  * stress-stream: fix collapse stream-madvise option to use MADV_COLLAPSE
+  * stress-fpunch: add --fpunch-bytes option to specify fpunch file size
+  * stress-fork: force lazy bind libc functions to be bound before child
+    is run
+  * stress-fork: do immediate _exit() call for short lived processes
+  * stress-fork: make help clearer on process creation naming
+  * core-thrash: no need to snprintf a fixed path name, clean up code
+  * stress-fork: align info array to cacheline
+  * stress-skiplist: add bounds check on ln2n
+  * Manual: fix misalignment of --misaligned-ops option
+  * stress-cache: zero buffer before benchmarking read/write rates
+  * stress-cache: correctly report the cache flags being used
+  * stress-vforkmany: add --vforkmany-bytes option to specify mmap size
+  * core-mincore: add missing --page-in OPT_FLAGS_MMAP_MINCORE check
+  * stress-vforkmany: use waste_size instead of WASTE_SIZE for mmap'd
+    waste region
+  * stress-numa: add support for MPOL_WEIGHTED_INTERLEAVE
+  * core-helper: use program_invocation_name to get program name
+  * stress-monte-carloc: add arc4 cryptographically-secure pseudorandom
+    generator
+  * stress-numa: add NUMA hit/miss metrics
+  * stress-context: make context regions smaller, move stack to new
+    mmap'd area
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 5 Mar 2024 16:43:38 +0000
+
 stress-ng (0.17.05-1) unstable; urgency=medium
 
   [Nikolas Kyx]
