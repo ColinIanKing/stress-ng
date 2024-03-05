@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.17.05
+VERSION=0.17.06
 #
 # Codename "scintillating scheduler smasher"
 #
