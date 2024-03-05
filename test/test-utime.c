@@ -18,10 +18,13 @@
  */
 
 #include <utime.h>
+#include <string.h>
 
 int main(void)
 {
 	struct utimbuf buf;
+
+	(void)memset(&buf, 0, sizeof(buf));
 
 	return utime(".", &buf);
 }
