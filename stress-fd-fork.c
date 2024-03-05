@@ -24,7 +24,7 @@
 
 #define STRESS_FD_MIN		(1000)
 #define STRESS_FD_MAX		(16000000)	/* Max fds if we can't figure it out */
-#define STRESS_FD_DEFAULT	(2000000)	/* Max fds if we can't figure it out */
+#define STRESS_FD_DEFAULT	(2000000)	/* Default fds */
 #define STRESS_PID_MAX		(8)
 
 #define STRESS_FD_NULL		(0)
