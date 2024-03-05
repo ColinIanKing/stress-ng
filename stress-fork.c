@@ -98,6 +98,7 @@ static void stress_force_bind(void)
     defined(HAVE_SYSCALL)
 	(void)syscall(__NR_getpid);
 #endif
+	(void)pid;
 }
 
 #if defined(__linux__)
