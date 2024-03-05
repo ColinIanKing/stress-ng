@@ -27,6 +27,7 @@ int main(void)
 	cpu_set_t cpuset;
 
 	(void)memset(&pthread, 0, sizeof(pthread));
+	(void)memset(&cpuset, 0, sizeof(cpuset));
 	CPU_ZERO(&cpuset);
 	CPU_SET(1, &cpuset);
 
