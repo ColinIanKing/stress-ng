@@ -244,9 +244,6 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 #if STRESS_PERF_DEFINED(SW_EMULATION_FAULTS)
 	PERF_INFO_SW(SW_EMULATION_FAULTS,	"Emulation Faults"),
 #endif
-#if STRESS_PERF_DEFINED(SW_CGROUP_SWITCHES)
-	PERF_INFO_SW(SW_CGROUP_SWITCHES,	"Cgroup Switches"),
-#endif
 	/*
 	 *  Tracepoint counters
  	 */
