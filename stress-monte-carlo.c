@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"monte-carlo-ops N",	"stop after N monte-carlo operations" },
 	{ NULL, "monte-carlo-rand R",	"select random number generator [ all | drand48 | getrandom | lcg | pcg32 | mwc32 | mwc64 | random | xorshift ]" },
 	{ NULL,	"monte-carlo-samples N","specify number of samples for each computation" },
-	{ NULL,	"monte-carlo-method M",	"select computation method [ pi | e | exp | sin | sqrt ]" },
+	{ NULL,	"monte-carlo-method M",	"select computation method [ pi | e | exp | sin | sqrt | squircle ]" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -438,6 +438,38 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
 	return (double)sum / (double)(samples - i);
 }
 
+/*
+ *  stress_monte_carlo_squircle()
+ *	compute area of a squircle, where x^4 + y^4 = r^4
+ */
+static double OPTIMIZE3 stress_monte_carlo_squircle(
+	const stress_monte_carlo_rand_info_t *info,
+	const uint32_t samples)
+{
+	register uint64_t area_count = 0;
+	register uint32_t i = samples;
+
+	while (i > 0) {
+		register uint32_t j;
+		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
+
+		for (j = 0; j < n; j++) {
+			register const double x = info->rand();
+			register const double y = info->rand();
+			register const double x2 = x * x;
+			register const double y2 = y * y;
+			register const double h = (x2 * x2) + (y2 * y2);
+
+			area_count += (h <= 1.0);
+		}
+		i -= j;
+		if (!stress_continue_flag())
+			break;
+	}
+	return (double)(4.0) * (double)area_count / (double)(samples - i);
+}
+
+
 static const stress_monte_carlo_method_t stress_monte_carlo_methods[] = {
 	{ "all",	0,			NULL },
 	{ "e",		M_E,			stress_monte_carlo_e },
@@ -445,6 +477,8 @@ static const stress_monte_carlo_method_t stress_monte_carlo_methods[] = {
 	{ "pi",		M_PI,			stress_monte_carlo_pi },
 	{ "sin",	2.0,			stress_monte_carlo_sin },
 	{ "sqrt",	1.08942941322482232241,	stress_monte_carlo_sqrt },
+	{ "squircle",	3.7081493546,		stress_monte_carlo_squircle },
+
 };
 
 /*
@@ -626,7 +660,7 @@ static int stress_monte_carlo(stress_args_t *args)
 				if (results[i][j].count > 0.0) {
 					const double result = results[i][j].sum / results[i][j].count;
 
-					pr_inf("%s: %-4.4s ~ %.13f vs %.13f using %s (average of %.0f runs)\n",
+					pr_inf("%s: %-8.8s ~ %.13f vs %.13f using %s (average of %.0f runs)\n",
 						args->name, stress_monte_carlo_methods[i].name,
 						result, stress_monte_carlo_methods[i].expected,
 						rand_info[j].name, results[i][j].count);

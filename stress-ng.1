@@ -4505,7 +4505,7 @@ stop after N module load/unload cycles
 start N stressors that compute \(*p and e (Euler's number) using Monte Carlo computational
 experiments with various random number generators.
 .TP
-.B \-\-monte\-carlo\-method [ all | e | exp | pi | sin | sqrt ]
+.B \-\-monte\-carlo\-method [ all | e | exp | pi | sin | sqrt | squircle ]
 specify the computation to perform, options are as follows:
 .TS
 lB2 lB
@@ -4528,6 +4528,9 @@ integrate sin(x) for x = 0..\(*p
 T}
 sqrt	T{
 integrate sqrt(1 + x \[ua] 4) for x = 0..1
+T}
+squircle	T{
+area of a unit squircle x \[ua] 4 + y \[ua] 4 = 1
 T}
 .TE
 .TP
