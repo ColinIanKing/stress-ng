@@ -241,7 +241,7 @@ bool stress_cpu_is_x86(void)
 		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
 		"E2K MACHINE\0",	/* MCST Elbrus */
 		"GenuineAO486",		/* ao486 CPU (old) */
-		"MiSTer AO486",		/* ao486 CPU */ 
+		"MiSTer AO486",		/* ao486 CPU */
 		"bhyve bhyve ",		/* bhyve VM */
 		"KVMKVMKVM\0\0\0",	/* KVM */
 		"TCGTCGTCGTCG",		/* QEMU */
