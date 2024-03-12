@@ -528,13 +528,23 @@ static int stress_file_ioctl(stress_args_t *args)
 		UNEXPECTED
 #endif
 
+#if defined(FS_IOC_GETFSUUID) &&	\
+    defined(HAVE_FSUUID2)
+		{
+			struct fsuuid2 uuid2;
+
+			(void)memset(&uuid2, 0, sizeof(uuid2));
+			VOID_RET(int, ioctl(fd, FS_IOC_GETFSUUID, &uuid2));
+
+		}
+#endif
+
 #if defined(FS_IOC_GETFSSYSFSPATH) &&	\
     defined(HAVE_FS_SYSFS_PATH)
 		{
 			struct fs_sysfs_path	sysfs_path;
 
 			(void)memset(&sysfs_path, 0, sizeof(sysfs_path));
-
 			VOID_RET(int, ioctl(fd, FS_IOC_GETFSSYSFSPATH, &sysfs_path));
 		}
 #endif
