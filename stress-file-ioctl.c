@@ -527,6 +527,18 @@ static int stress_file_ioctl(stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
+
+#if defined(FS_IOC_GETFSSYSFSPATH) &&	\
+    defined(HAVE_FS_SYSFS_PATH)
+		{
+			struct fs_sysfs_path	sysfs_path;
+
+			(void)memset(&sysfs_path, 0, sizeof(sysfs_path));
+
+			VOID_RET(int, ioctl(fd, FS_IOC_GETFSSYSFSPATH, &sysfs_path));
+		}
+#endif
+
 		if (!exercised) {	/* cppcheck-suppress knownConditionTrueFalse */
 			pr_inf("%s: no available file ioctls to exercise\n",
 				args->name);
