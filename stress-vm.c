@@ -722,6 +722,79 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 }
 
 /*
+ *  stress_vm_walking_flush_data()
+ *	for each byte, walk through each byte flushing data
+ */
+static size_t TARGET_CLONES stress_vm_walking_flush_data(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	stress_args_t *args,
+	const uint64_t max_ops)
+{
+	size_t bit_errors = 0;
+	register uint8_t *ptr;
+	register uint64_t c = stress_bogo_get(args);
+	register uint8_t val = 0;
+
+	(void)sz;
+
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, val++) {
+		*(ptr + 0) = (val + 0) & 0xff;
+		shim_clflush(ptr + 0);
+		stress_asm_mb();
+		*(ptr + 1) = (val + 1) & 0xff;
+		shim_clflush(ptr + 1);
+		stress_asm_mb();
+		*(ptr + 2) = (val + 2) & 0xff;
+		shim_clflush(ptr + 2);
+		stress_asm_mb();
+		*(ptr + 3) = (val + 3) & 0xff;
+		shim_clflush(ptr + 3);
+		stress_asm_mb();
+		*(ptr + 4) = (val + 4) & 0xff;
+		shim_clflush(ptr + 4);
+		stress_asm_mb();
+		*(ptr + 5) = (val + 5) & 0xff;
+		shim_clflush(ptr + 5);
+		stress_asm_mb();
+		*(ptr + 6) = (val + 6) & 0xff;
+		shim_clflush(ptr + 6);
+		stress_asm_mb();
+		*(ptr + 7) = (val + 7) & 0xff;
+		shim_mfence();
+
+		bit_errors += (*(ptr + 0) != ((val + 0) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 1) != ((val + 1) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 2) != ((val + 2) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 3) != ((val + 3) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 4) != ((val + 4) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 5) != ((val + 5) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 6) != ((val + 6) & 0xff));
+		stress_asm_mb();
+		bit_errors += (*(ptr + 7) != ((val + 7) & 0xff));
+		stress_asm_mb();
+
+		c++;
+		if (UNLIKELY(max_ops && (c >= max_ops)))
+			break;
+		if (UNLIKELY(!stress_continue_flag()))
+			break;
+	}
+	stress_vm_check("walking flush (data)", bit_errors);
+	stress_bogo_set(args, c);
+
+	return bit_errors;
+}
+
+
+/*
  *  stress_vm_gray()
  *	fill all of memory with a gray code and check that
  *	all the bits are set correctly. gray codes just change
@@ -3183,6 +3256,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "walk-1d",		stress_vm_walking_one_data },
 	{ "walk-0a",		stress_vm_walking_zero_addr },
 	{ "walk-1a",		stress_vm_walking_one_addr },
+	{ "walk-flush",		stress_vm_walking_flush_data },
 	{ "write64",		stress_vm_write64 },
 #if defined(HAVE_NT_STORE64)
 	{ "write64nt",		stress_vm_write64nt },

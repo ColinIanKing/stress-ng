@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 February 2024"
+.TH STRESS-NG 1 "12 March 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7991,6 +7991,11 @@ in the given memory mapping, work through a range of specially chosen addresses
 working through address lines to see if any address lines are stuck high. This
 works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
+T}
+walk-flush	T{
+walk through memory a byte at a time writing/flushing/reading 8 bytes of
+incrementing 8 bit data. For architectures that support user space cache flushing
+this will cause high data cache miss rates.
 T}
 write64	T{
 sequentially write to memory using 32 \(mu 64 bit writes per bogo loop. Each loop
