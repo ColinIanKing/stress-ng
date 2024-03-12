@@ -224,6 +224,7 @@ bool stress_cpu_is_x86(void)
 	 */
 	static const char * const x86_id_str[] = {
 		"GenuineIntel",		/* Intel */
+		"GenuineIotel",		/* Intel (https://twitter.com/InstLatX64/status/1101230794364862464) */
 		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
 		"AuthenticAMD",		/* AMD */
 		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
@@ -239,7 +240,8 @@ bool stress_cpu_is_x86(void)
 		"HygonGenuine",		/* Hygon */
 		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
 		"E2K MACHINE\0",	/* MCST Elbrus */
-		"MiSTer AO486",		/* ao486 CPU */
+		"GenuineAO486",		/* ao486 CPU (old) */
+		"MiSTer AO486",		/* ao486 CPU */ 
 		"bhyve bhyve ",		/* bhyve VM */
 		"KVMKVMKVM\0\0\0",	/* KVM */
 		"TCGTCGTCGTCG",		/* QEMU */
