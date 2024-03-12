@@ -6763,6 +6763,17 @@ reached (stack overflow). This exercises dirty page and stack exception handling
 stop workers after N stack overflows have occurred.
 .RE
 .TP
+.B Statmount and listmount system call stressor
+.RS 5
+.TQ
+.B \-\-statmount N
+start N workers that find mounts on / via listmount and get mount information
+on the mount IDs using statmount. (Linux only).
+.TP
+.B \-\-statmount\-ops N
+stop workers after iterating on mounts N times.
+.RE
+.TP
 .B Libc string functions stressor
 .RS 5
 .TQ

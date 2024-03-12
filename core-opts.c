@@ -915,6 +915,8 @@ const struct option stress_long_options[] = {
 	{ "stack-unmap",	0,	0,	OPT_stack_unmap },
 	{ "stackmmap",		1,	0,	OPT_stackmmap },
 	{ "stackmmap-ops",	1,	0,	OPT_stackmmap_ops },
+	{ "statmount",		1,	0,	OPT_statmount },
+	{ "statmount-ops",	1,	0,	OPT_statmount_ops },
 	{ "status",		1,	0,	OPT_status },
 	{ "stderr",		0,	0,	OPT_stderr },
 	{ "stdout",		0,	0,	OPT_stdout },

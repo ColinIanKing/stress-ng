@@ -291,6 +291,7 @@
 	MACRO(splice)		\
 	MACRO(stack)		\
 	MACRO(stackmmap)	\
+	MACRO(statmount)	\
 	MACRO(str)		\
 	MACRO(stream)		\
 	MACRO(swap)		\

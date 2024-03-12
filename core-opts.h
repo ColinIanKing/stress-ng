@@ -1307,6 +1307,9 @@ typedef enum {
 	OPT_stackmmap,
 	OPT_stackmmap_ops,
 
+	OPT_statmount,
+	OPT_statmount_ops,
+
 	OPT_status,
 
 	OPT_stderr,
