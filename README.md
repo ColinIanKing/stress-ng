@@ -494,6 +494,12 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [bcachefs: Clear btree_node_just_written() when node reused or evicted](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=0b438c5bfaebda3fdf6edc35d9572d4e2f66aef1)
 * [tracing: Fix incomplete locking when disabling buffered events](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7fed14f7ac9cf5e38c693836fe4a874720141845)
 * [mm: migrate: fix getting incorrect page mapping during page migration](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d1adb25df7111de83b64655a80b5a135adbded61)
+* [mm: mmap: map MAP_STACK to VM_NOHUGEPAGE](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c4608d1bf7c6536d1a3d233eb21e50678681564e)
+2024:
+* [fs: improve dump_mapping() robustness](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8b3d838139bcd1e552f1899191f734264ce2a1a5)
+* [tracing: Ensure visibility when inserting an element into tracing_map](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=2b44760609e9eaafc9d234a6883d042fc21132a7)
+* [connector/cn_proc: revert "connector: Fix proc_event_num_listeners count not cleared"](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8929f95b2b587791a7dcd04cc91520194a76d3a6)
+* [powerpc/pseries: fix accuracy of stolen time](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cbecc9fcbbec60136b0180ba0609c829afed5c81)
 
 ## Kernel improvements that used stress-ng
 
@@ -524,6 +530,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [module: add debug stats to help identify memory pressure](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=df3e764d8e5cd416efee29e0de3c93917dff5d33)
 * [module: avoid allocation if module is already present and ready](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=064f4536d13939b6e8cdb71298ff5d657f4f8caa)
 * [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
+* [mm/khugepaged: remove redundant try_to_freeze()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b39ca208403c8f2c17dab1fbfef1f5ecaff25e53)
 
 ## Presentations
 
