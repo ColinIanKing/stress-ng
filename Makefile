@@ -372,6 +372,7 @@ STRESS_SRC = \
 	stress-longjmp.c \
 	stress-loop.c \
 	stress-lsearch.c \
+	stress-lsm.c \
 	stress-madvise.c \
 	stress-malloc.c \
 	stress-matrix.c \

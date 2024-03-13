@@ -676,6 +676,9 @@ typedef enum {
 	OPT_lsearch_ops,
 	OPT_lsearch_size,
 
+	OPT_lsm,
+	OPT_lsm_ops,
+
 	OPT_madvise,
 	OPT_madvise_ops,
 	OPT_madvise_hwpoison,

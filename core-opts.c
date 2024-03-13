@@ -435,6 +435,8 @@ const struct option stress_long_options[] = {
 	{ "lsearch-method",	1,	0,	OPT_lsearch_method },
 	{ "lsearch-ops",	1,	0,	OPT_lsearch_ops },
 	{ "lsearch-size",	1,	0,	OPT_lsearch_size },
+	{ "lsm",		1,	0,	OPT_lsm },
+	{ "lsm-ops",		1,	0,	OPT_lsm_ops },
 	{ "madvise",		1,	0,	OPT_madvise },
 	{ "madvise-ops",	1,	0,	OPT_madvise_ops },
 	{ "madvise-hwpoison",	0,	0,	OPT_madvise_hwpoison },

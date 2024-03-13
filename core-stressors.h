@@ -151,6 +151,7 @@
 	MACRO(longjmp)		\
 	MACRO(loop)		\
 	MACRO(lsearch)		\
+	MACRO(lsm)		\
 	MACRO(madvise)		\
 	MACRO(malloc)		\
 	MACRO(matrix)		\

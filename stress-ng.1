@@ -3612,6 +3612,18 @@ specify the size (number of 32 bit integers) in the array to lsearch. Size can
 be from 1K to 4M.
 .RE
 .TP
+.B Linux Security Modules system call stressor
+.RS 5
+.TQ
+.B \-\-lsm N
+start N workers that exercise the LSM system calls lsm_list_modules and lsm_get_self_attr, (Linux only).
+Each bogo\-op loop fetches a list of available security modules and fetching LSM attributes as
+well as some invalid LSM system calls to exercise error handling.
+.TP
+.B \-\-lsm\-ops N
+stop after N loops of fetching security modules lists and fetching LSM attributes.
+.RE
+.TP
 .B Madvise stressor
 .RS 5
 .TQ
