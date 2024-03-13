@@ -495,6 +495,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [tracing: Fix incomplete locking when disabling buffered events](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7fed14f7ac9cf5e38c693836fe4a874720141845)
 * [mm: migrate: fix getting incorrect page mapping during page migration](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d1adb25df7111de83b64655a80b5a135adbded61)
 * [mm: mmap: map MAP_STACK to VM_NOHUGEPAGE](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=c4608d1bf7c6536d1a3d233eb21e50678681564e)
+
 2024:
 * [fs: improve dump_mapping() robustness](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8b3d838139bcd1e552f1899191f734264ce2a1a5)
 * [tracing: Ensure visibility when inserting an element into tracing_map](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=2b44760609e9eaafc9d234a6883d042fc21132a7)
