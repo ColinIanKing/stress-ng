@@ -464,10 +464,17 @@ static int stress_prio_inv(stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	/* Need to send alarm to all children before waitpid'ing them */
+	for (i = 0; i < MUTEX_PROCS; i++) {
+		if (child_info[i].pid != -1)
+			(void)shim_kill(child_info[i].pid, SIGALRM);
+	}
+	/* Now wait for children to exit */
 	for (i = 0; i < MUTEX_PROCS; i++) {
 		if (child_info[i].pid != -1) {
-			if (stress_kill_and_wait(args, child_info[i].pid, SIGALRM, false) < 0)
-				rc = EXIT_FAILURE;
+			int status;
+
+			(void)shim_waitpid(child_info[i].pid, &status, 0);
 		}
 	}
 	(void)pthread_mutexattr_destroy(&mutexattr);
