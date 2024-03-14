@@ -393,7 +393,9 @@ static int stress_prio_inv(stress_args_t *args)
 	/* prio for RR and FIFO scheduling */
 	prio_min = sched_get_priority_min(sched_policy);
 	prio_max = sched_get_priority_max(sched_policy);
-	prio_div = (prio_max - prio_min) / (MUTEX_PROCS - 1);
+	prio_div = (prio_max - prio_min - 1) / (MUTEX_PROCS - 1);
+	if (prio_div < 0)
+		prio_div = 0;
 
 	switch (prio_inv_type) {
 #if defined(PTHREAD_PRIO_NONE)
@@ -457,9 +459,11 @@ static int stress_prio_inv(stress_args_t *args)
 		goto reap;
 	}
 
+	(void)stress_prio_inv_set_prio_policy(args, prio_max, 0, sched_policy);
+
 	/* Wait for termination */
 	while (stress_continue(args))
-		pause();
+		shim_usleep(250000);
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
