@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-mmap.h"
 
 #if defined(__linux__)
 typedef struct {
@@ -37,12 +38,29 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"memhotplug N",		"start N workers that exercise memory hotplug" },
+	{ NULL, "memhotplug-mmap",	"enable random memory mapping/unmapping" },
 	{ NULL,	"memhotplug-ops N",	"stop after N memory hotplug operations" },
 	{ NULL,	NULL,			NULL }
 };
 
+static int stress_set_memhotplug_mmap(const char *opt)
+{
+	return stress_set_setting_true("memhotplug-mmap", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_memhotplug_mmap,	stress_set_memhotplug_mmap },
+	{ 0,			NULL },
+};
+
 #if defined(__linux__)
 static const char sys_memory_path[] = "/sys/devices/system/memory";
+
+static volatile bool do_jmp = false;
+static sigjmp_buf jmp_env;
+static uint64_t segv_count;
+static void *mmap_ptr;
+static size_t mmap_size;
 
 /*
  *  stress_memhotplug_supported()
@@ -59,6 +77,47 @@ static int stress_memhotplug_supported(const char *name)
 	return 0;
 }
 
+/*
+ *  stress_memhotplug_munmap()
+ *	unmap mmap'd region if it's valid
+ */
+static void stress_memhotplug_munmap(void)
+{
+	if ((mmap_ptr != MAP_FAILED) && (mmap_size > 0)) {
+		(void)munmap(mmap_ptr, mmap_size);
+		mmap_ptr = MAP_FAILED;
+		mmap_size = 0;
+	}
+}
+
+/*
+ *  stress_memhotplug_mmap()
+ *	exercise mmap to see if we can trip any activity
+ *	that breaks mappings on hotplugged memory
+ */
+static void stress_memhotplug_mmap(void)
+{
+	const int flags = stress_mwc1() ? (MAP_ANONYMOUS | MAP_SHARED) :
+				(MAP_ANONYMOUS | MAP_PRIVATE);
+	mmap_size = 1024 * ((stress_mwc16() & 0x3ff) + 1);
+
+	/*
+	 *  need to catch any SEGVs and unmap in case the populate
+	 *  or touching of pages are not mapped (being paranoid).
+	 */
+	do_jmp = true;
+        if (sigsetjmp(jmp_env, 1)) {
+		stress_memhotplug_munmap();
+		return;
+	}
+	mmap_ptr = stress_mmap_populate(NULL, mmap_size, PROT_READ | PROT_WRITE, flags, -1, 0);
+}
+
+
+/*
+ *  stress_memhotplug_removable()
+ *	return true if memory can be hotplug removed
+ */
 static bool stress_memhotplug_removable(const char *name)
 {
 	char path[PATH_MAX];
@@ -89,6 +148,7 @@ static void stress_memhotplug_set_timer(const unsigned int secs)
 }
 
 static void stress_memhotplug_mem_toggle(
+	const bool memhotplug_mmap,
 	stress_mem_info_t *mem_info,
 	stress_memhotplug_metrics_t *metrics)
 {
@@ -113,6 +173,9 @@ static void stress_memhotplug_mem_toggle(
 	if (fd < 0)
 		return;
 
+	if (memhotplug_mmap)
+		stress_memhotplug_mmap();
+
 	stress_memhotplug_set_timer(5);
 	t = stress_time_now();
 	errno = 0;
@@ -124,6 +187,9 @@ static void stress_memhotplug_mem_toggle(
 		metrics->offline_duration = stress_time_now() - t;
 		metrics->offline_count += 1.0;
 	}
+
+	if (memhotplug_mmap)
+		stress_memhotplug_munmap();
 
 	stress_memhotplug_set_timer(5);
 	t = stress_time_now();
@@ -160,6 +226,16 @@ static void stress_memhotplug_mem_online(stress_mem_info_t *mem_info)
 	(void)close(fd);
 }
 
+static void stress_segv_handler(int signum)
+{
+	(void)signum;
+
+	segv_count++;
+
+	if (do_jmp)
+		siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+}
+
 /*
  *  stress_memhotplug()
  *	stress the linux memory hotplug subsystem
@@ -169,12 +245,19 @@ static int stress_memhotplug(stress_args_t *args)
 	DIR *dir;
 	struct dirent *d;
 	stress_mem_info_t *mem_info;
-	size_t i, n = 0, max;
+	size_t i, max;
+	NOCLOBBER size_t n = 0;
 	stress_memhotplug_metrics_t metrics;
+	struct sigaction old_action;
 	double rate;
+	bool memhotplug_mmap = false;
 
 	if (stress_sighandler(args->name, SIGPROF, stress_sighandler_nop, NULL))
 		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, &old_action) < 0)
+		return EXIT_NO_RESOURCE;
+
+	(void)stress_get_setting("memhotplug-mmap", &memhotplug_mmap);
 
 	dir = opendir(sys_memory_path);
 	if (!dir) {
@@ -226,12 +309,21 @@ static int stress_memhotplug(stress_args_t *args)
 	metrics.online_duration = 0.0;
 	metrics.online_count = 0.0;
 
+	mmap_ptr = MAP_FAILED;
+	mmap_size = 0;
+	segv_count = 0;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+        if (sigsetjmp(jmp_env, 1))
+		goto finish;
+	do_jmp = true;
 
 	do {
 		bool ok = false;
+
 		for (i = 0; stress_continue(args) && (i < max); i++) {
-			stress_memhotplug_mem_toggle(&mem_info[i], &metrics);
+			stress_memhotplug_mem_toggle(memhotplug_mmap, &mem_info[i], &metrics);
 			if (!mem_info[i].timeout)
 				ok = true;
 			stress_bogo_inc(args);
@@ -242,7 +334,16 @@ static int stress_memhotplug(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	do_jmp = false;
+	(void)stress_sigrestore(args->name, SIGSEGV, &old_action);
+
+	if (segv_count) {
+		pr_dbg("%s: caught %" PRIu64 " unexpected SIGSEGVs\n",
+			args->name, segv_count);
+	}
 
 	rate = (metrics.offline_count > 0.0) ? (double)metrics.offline_duration / metrics.offline_count : 0.0;
 	if (rate > 0.0)
@@ -265,6 +366,7 @@ static int stress_memhotplug(stress_args_t *args)
 stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_memhotplug,
 	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_memhotplug_supported,
 	.help = help
 };
@@ -272,6 +374,7 @@ stressor_info_t stress_memhotplug_info = {
 stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

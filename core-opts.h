@@ -731,6 +731,7 @@ typedef enum {
 
 	OPT_memhotplug,
 	OPT_memhotplug_ops,
+	OPT_memhotplug_mmap,
 
 	OPT_memrate,
 	OPT_memrate_bytes,

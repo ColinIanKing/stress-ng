@@ -479,6 +479,7 @@ const struct option stress_long_options[] = {
 	{ "memfd-zap-pte",	0,	0,	OPT_memfd_zap_pte },
 	{ "memhotplug",		1,	0,	OPT_memhotplug },
 	{ "memhotplug-ops",	1,	0,	OPT_memhotplug_ops },
+	{ "memhotplug-mmap",	0,	0,	OPT_memhotplug_mmap },
 	{ "memrate",		1,	0,	OPT_memrate },
 	{ "memrate-bytes",	1,	0,	OPT_memrate_bytes },
 	{ "memrate-flush",	0,	0,	OPT_memrate_flush },

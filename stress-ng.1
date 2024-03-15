@@ -3976,6 +3976,9 @@ down significantly and hence is an opt-in memfd stressor option.
 start N workers that offline and online memory hotplug regions. Linux only
 and requires CAP_SYS_ADMIN capabilities.
 .TP
+.B \-\memhotplug\-mmap
+enable random 1K to 1MB memory mapping/unmappings before each offline event.
+.TP
 .B \-\-memhotplug\-ops N
 stop memhotplug stressors after N memory offline and online bogo operations.
 .RE
