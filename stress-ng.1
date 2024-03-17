@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "12 March 2024"
+.TH STRESS-NG 1 "17 March 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3564,6 +3564,65 @@ concurrent locks. Old locks are unlocked in a first-in, first-out basis.
 .TP
 .B \-\-lockofd\-ops N
 stop lockofd workers after N bogo lockofd operations.
+.RE
+.TP
+.B Logarithmic functions
+.RS 5
+.TQ
+.B \-\-logmath N
+start N workers that exercise various logarithmic functions with input values 1 to 10000.
+Results are sanity checked to ensure no variation occurs after each round of 10000 computations.
+.TP
+.B \-\-logmath\-ops N
+stop after N logarithmic bogo-operation loops.
+.TP
+.B \-\-logmath\-method method
+specify a logarithmic function to exercise. Available logarithmic stress methods are described
+as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate over all the below logarithmic functions methods
+T}
+clog	T{
+double complex natural logarithm
+T}
+clogf	T{
+float complex natural logarithm
+T}
+clogl	T{
+long double complex natural logarithm
+T}
+log	T{
+double natural logarithm
+T}
+logf	T{
+float natural logarithm
+T}
+logl	T{
+long double natural logarithm
+T}
+log10	T{
+double base-10 logarithm
+T}
+log10f	T{
+float base-10 logarithm
+T}
+log10l	T{
+long double base-10 logarithm
+T}
+log2	T{
+double base-2 logarithm
+T}
+log2f	T{
+float base-2 logarithm
+T}
+log2l	T{
+long double base-2 logarithm
+T}
+.TE
 .RE
 .TP
 .B Long jump (longjmp) stressor

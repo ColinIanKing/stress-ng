@@ -665,6 +665,10 @@ typedef enum {
 	OPT_log_file,
 	OPT_log_lockless,
 
+	OPT_logmath,
+	OPT_logmath_method,
+	OPT_logmath_ops,
+
 	OPT_longjmp,
 	OPT_longjmp_ops,
 

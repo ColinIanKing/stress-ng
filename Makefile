@@ -369,6 +369,7 @@ STRESS_SRC = \
 	stress-locka.c \
 	stress-lockf.c \
 	stress-lockofd.c \
+	stress-logmath.c \
 	stress-longjmp.c \
 	stress-loop.c \
 	stress-lsearch.c \

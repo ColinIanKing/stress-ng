@@ -53,6 +53,18 @@
 #define	shim_memcmp(dst, src, n)	memcmp(dst, src, n)
 #endif
 
+#if defined(HAVE_BUILTIN_CABS)
+#define shim_cabs(x)	__builtin_cabs(x)
+#else
+#define shim_cabs(x)	cabs(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CABSF)
+#define shim_cabsf(x)	__builtin_cabsf(x)
+#else
+#define shim_cabsf(x)	cabsf(x)
+#endif
+
 #if defined(HAVE_BUILTIN_CABSL)
 #define shim_cabsl(x)	__builtin_cabsl(x)
 #else
@@ -103,6 +115,34 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_CLOGF)
+#define shim_clogf(x)	__builtin_clogf(x)
+#else
+#define shim_clogf(x)	clogf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CLOG)
+#define shim_clog(x)	__builtin_clog(x)
+#else
+#define shim_clog(x)	clog(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CLOGL)
+#define shim_clogl(x)	__builtin_clogl(x)
+#else
+#if defined(HAVE_CLOGL)
+#define shim_clogl(x)	clogl(x)
+#else
+#define shim_clogl(x)	shim_clog(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_LOGF)
+#define shim_logf(x)	__builtin_logf(x)
+#else
+#define shim_logf(x)	logf(x)
+#endif
+
 #if defined(HAVE_BUILTIN_LOG)
 #define shim_log(x)	__builtin_log(x)
 #else
@@ -116,6 +156,50 @@
 #define shim_logl(x)	logl(x)
 #else
 #define shim_logl(x)	shim_log(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_LOG10F)
+#define shim_log10f(x)	__builtin_log10f(x)
+#else
+#define shim_log10f(x)	log10f(x)
+#endif
+
+#if defined(HAVE_BUILTIN_LOG10)
+#define shim_log10(x)	__builtin_log10(x)
+#else
+#define shim_log10(x)	log10(x)
+#endif
+
+#if defined(HAVE_BUILTIN_LOG10L)
+#define shim_log10l(x)	__builtin_log10l(x)
+#else
+#if defined(HAVE_LOGL10)
+#define shim_log10l(x)	log10l(x)
+#else
+#define shim_log10l(x)	shim_log10(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_LOG2F)
+#define shim_log2f(x)	__builtin_log2f(x)
+#else
+#define shim_log2f(x)	log2f(x)
+#endif
+
+#if defined(HAVE_BUILTIN_LOG2)
+#define shim_log2(x)	__builtin_log2(x)
+#else
+#define shim_log2(x)	log2(x)
+#endif
+
+#if defined(HAVE_BUILTIN_LOG2L)
+#define shim_log2l(x)	__builtin_log2l(x)
+#else
+#if defined(HAVE_LOGL2)
+#define shim_log2l(x)	log2l(x)
+#else
+#define shim_log2l(x)	shim_log2(x)
 #endif
 #endif
 

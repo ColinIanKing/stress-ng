@@ -148,6 +148,7 @@
 	MACRO(lockbus)		\
 	MACRO(lockf)		\
 	MACRO(lockofd)		\
+	MACRO(logmath)		\
 	MACRO(longjmp)		\
 	MACRO(loop)		\
 	MACRO(lsearch)		\
