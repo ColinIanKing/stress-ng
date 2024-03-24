@@ -1922,7 +1922,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 
-	stress_vm_check("prime-zero", bit_errors);
+	stress_vm_check("prime-one", bit_errors);
 abort:
 	offset++;
 	if (offset >= prime)
