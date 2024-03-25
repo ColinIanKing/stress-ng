@@ -739,7 +739,7 @@ static size_t TARGET_CLONES stress_vm_walking_flush_data(
 
 	(void)sz;
 
-	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, val++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end - 7; ptr++, val++) {
 		*(ptr + 0) = (val + 0) & 0xff;
 		shim_clflush(ptr + 0);
 		stress_asm_mb();
@@ -3360,7 +3360,17 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz)) {
 				buf = MAP_FAILED;
 			} else {
+#if defined(HAVE_MPROTECT) &&	\
+    defined(PROT_NONE)
+				/*
+				 *   allocate buffer + one trailing page
+				 *   so the last page can be marked PROT_NONE later
+				 *   to catch any buffer over-runs.
+				 */
+				buf = (uint8_t *)mmap(NULL, buf_sz + page_size,
+#else
 				buf = (uint8_t *)mmap(NULL, buf_sz,
+#endif
 					PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS |
 					vm_flags, -1, 0);
@@ -3372,6 +3382,15 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 				continue;	/* Try again */
 			}
 			buf_end = (void *)((uint8_t *)buf + buf_sz);
+#if defined(HAVE_MPROTECT) &&	\
+    defined(PROT_NONE)
+			/*
+			 * page after end of buffer is not readable or writable
+			 * to catch any buffer overruns
+			 */
+			(void)mprotect(buf_end, page_size, PROT_NONE);
+#endif
+
 			if (vm_madvise < 0)
 				(void)stress_madvise_random(buf, buf_sz);
 			else
@@ -3392,12 +3411,23 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 		if (!vm_keep) {
 			(void)stress_madvise_random(buf, buf_sz);
+#if defined(HAVE_MPROTECT) &&	\
+    defined(PROT_NONE)
+			(void)stress_munmap_retry_enomem(buf, buf_sz + page_size);
+#else
 			(void)stress_munmap_retry_enomem(buf, buf_sz);
+#endif
 		}
 	} while (stress_continue_vm(args));
 
-	if (vm_keep && (buf != NULL))
-		(void)stress_munmap_retry_enomem((void *)buf, buf_sz);
+	if (vm_keep && (buf != NULL)) {
+#if defined(HAVE_MPROTECT) && 	\
+    defined(PROT_NONE)
+		(void)stress_munmap_retry_enomem(buf, buf_sz + page_size);
+#else
+		(void)stress_munmap_retry_enomem(buf, buf_sz);
+#endif
+	}
 
 	return rc;
 }
