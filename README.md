@@ -632,6 +632,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [FIRESTARTER 2: Dynamic Code Generation for Processor Stress Tests](https://tu-dresden.de/zih/forschung/ressourcen/dateien/projekte/firestarter/FIRESTARTER-2-Dynamic-Code-Generation-for-Processor-Stress-Tests.pdf?lang=en)
 * [Performance comparison between a Kubernetes cluster and an embedded system](http://www.diva-portal.se/smash/get/diva2:1569829/FULLTEXT01.pdf)
 * [Performance Exploration of Virtualization Systems](https://www.researchgate.net/publication/350061536_Performance_Exploration_of_Virtualization_Systems)
+* [Tricking Hardware into Efficiently Securing Software](https://research.vu.nl/ws/portalfiles/portal/120740500/983666.pdf)
 
 2022:
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
@@ -683,6 +684,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 
 2024:
 * [IdleLeak: Exploiting Idle State Side Effects for Information Leakage](https://www.sicheroder.net/files/idleleak.pdf)
+* [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
