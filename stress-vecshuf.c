@@ -117,37 +117,45 @@ static double stress_vecshuf_all(
 #else
 
 #define STRESS_VEC_BUILTIN_SHUFFLE(tag, elements)		\
-static inline void shim_builtin_shuffle_ ## tag ## _ ## elements(\
+static inline ALWAYS_INLINE void shim_builtin_shuffle_ ## tag ## _ ## elements(\
 	stress_scalar_ ## tag ## _t *dst,			\
 	stress_scalar_ ## tag ## _t *src,			\
 	stress_scalar_ ## tag ## _t *mask)			\
 {								\
 	register int i;						\
 								\
-	for (i = 0; i < elements; i++) 				\
-		dst[i] = src[mask[i]];				\
+PRAGMA_UNROLL_N(elements)					\
+	for (i = 0; i < elements; i++) {			\
+		const stress_scalar_ ## tag ## _t m = mask[i];	\
+		dst[i] = src[m];				\
+	}							\
 }
 
-#define SHIM_SHUFFLE_u8_64(dst, src, mask)	shim_builtin_shuffle_u8_64((void *)&(dst), (void *)&(src), (void *)&(mask))
+#define SHIM_SHUFFLE_u8_64(dst, src, mask)	\
+	shim_builtin_shuffle_u8_64((void *)&(dst), (void *)&(src), (void *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u8, 64)
 
-#define SHIM_SHUFFLE_u16_32(dst, src, mask)	shim_builtin_shuffle_u16_32((void *)&(dst), (void *)&(src), (void *)&(mask))
+#define SHIM_SHUFFLE_u16_32(dst, src, mask) \
+	shim_builtin_shuffle_u16_32((void *)&(dst), (void *)&(src), (void *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u16, 32)
 
-#define SHIM_SHUFFLE_u32_16(dst, src, mask)	shim_builtin_shuffle_u32_16((void *)&(dst), (void *)&(src), (void *)&(mask))
+#define SHIM_SHUFFLE_u32_16(dst, src, mask) \
+	shim_builtin_shuffle_u32_16((void *)&(dst), (void *)&(src), (void *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u32, 16)
 
-#define SHIM_SHUFFLE_u64_8(dst, src, mask)	shim_builtin_shuffle_u64_8((void *)&(dst), (void *)&(src), (void *)&(mask))
+#define SHIM_SHUFFLE_u64_8(dst, src, mask) \
+	shim_builtin_shuffle_u64_8((void *)&(dst), (void *)&(src), (void *)&(mask))
 STRESS_VEC_BUILTIN_SHUFFLE(u64, 8)
 #if defined(HAVE_INT128_T)
 STRESS_VEC_BUILTIN_SHUFFLE(u128, 4)
-#define SHIM_SHUFFLE_u128_4(dst, src, mask)	shim_builtin_shuffle_u128_4((void *)&(dst), (void *)&(src), (void *)&(mask))
+#define SHIM_SHUFFLE_u128_4(dst, src, mask) \
+	shim_builtin_shuffle_u128_4((void *)&(dst), (void *)&(src), (void *)&(mask))
 #endif
 #endif
 
-#define STRESS_VEC_SHUFFLE(tag, elements)				\
-static double TARGET_CLONES stress_vecshuf_ ## tag ## _ ## elements (	\
-	stress_args_t *args,					\
+#define STRESS_VEC_SHUFFLE(tag, elements, opt)				\
+static double TARGET_CLONES opt stress_vecshuf_ ## tag ## _ ## elements (	\
+	stress_args_t *args,						\
 	stress_vec_data_t *data)					\
 {									\
 	stress_vec_ ## tag ## _ ## elements ## _t *RESTRICT s;		\
@@ -174,12 +182,27 @@ PRAGMA_UNROLL_N(4)							\
 	return t2 - t1;							\
 }
 
-STRESS_VEC_SHUFFLE(u8,   64)
-STRESS_VEC_SHUFFLE(u16,  32)
-STRESS_VEC_SHUFFLE(u32,  16)
-STRESS_VEC_SHUFFLE(u64,   8)
+#if defined(STRESS_ARCH_X86)
+/*
+ *  Force optimization levels 1 for non-64 bit
+ *  shuffles on x86 to workaround gcc/clang
+ *  store-to-load forwarding optimization issue
+ */
+STRESS_VEC_SHUFFLE(u8,   64, OPTIMIZE2)
+STRESS_VEC_SHUFFLE(u16,  32, OPTIMIZE1)
+STRESS_VEC_SHUFFLE(u32,  16, OPTIMIZE1)
+STRESS_VEC_SHUFFLE(u64,   8, OPTIMIZE1)
 #if defined(HAVE_INT128_T)
-STRESS_VEC_SHUFFLE(u128,  4)
+STRESS_VEC_SHUFFLE(u128,  4, OPTIMIZE1)
+#endif
+#else
+STRESS_VEC_SHUFFLE(u8,   64, OPTIMIZE2)
+STRESS_VEC_SHUFFLE(u16,  32, OPTIMIZE2)
+STRESS_VEC_SHUFFLE(u32,  16, OPTIMIZE2)
+STRESS_VEC_SHUFFLE(u64,   8, OPTIMIZE2)
+#if defined(HAVE_INT128_T)
+STRESS_VEC_SHUFFLE(u128,  4, OPTIMIZE2)
+#endif
 #endif
 
 typedef struct {
