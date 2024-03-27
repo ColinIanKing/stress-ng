@@ -978,6 +978,10 @@ typedef enum {
 	OPT_poll_ops,
 	OPT_poll_fds,
 
+	OPT_powmath,
+	OPT_powmath_method,
+	OPT_powmath_ops,
+
 	OPT_prefetch,
 	OPT_prefetch_l3_size,
 	OPT_prefetch_method,

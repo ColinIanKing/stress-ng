@@ -214,6 +214,7 @@
 	MACRO(pkey)		\
 	MACRO(plugin)		\
 	MACRO(poll)		\
+	MACRO(powmath)		\
 	MACRO(prctl)		\
 	MACRO(prefetch)		\
 	MACRO(prio_inv)		\

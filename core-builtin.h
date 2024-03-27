@@ -91,8 +91,41 @@
 #if defined(HAVE_CPOW)
 #define shim_cpow(x, z)	cpow(x, z)
 #else
-#define shim_cpow(x, z)	pow(x, z)
+#define shim_cpow(x, z)	(shim_cexp((y) * shim_clog((x))))
 #endif
+#endif
+
+#if defined(HAVE_BUILTIN_CPOWF)
+#define shim_cpowf(x, z)	__builtin_cpowf(x, z)
+#else
+#if defined(HAVE_CPOWF)
+#define shim_cpowf(x, z)	cpowf(x, z)
+#else
+#define shim_cpowf(x, z)	(shim_cexpf((y) * shim_clogf((x))))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CPOWL)
+#define shim_cpowl(x, z)	__builtin_cpowl(x, z)
+#else
+#if defined(HAVE_CPOWL)
+#define shim_cpowl(x, z)	cpowl(x, z)
+#else
+#define shim_cpowl(x, z)	(shim_cexpl((y) * shim_clogf((l))))
+#endif
+#endif
+
+
+#if defined(HAVE_BUILTIN_POW)
+#define shim_pow(x, y)	__builtin_pow(x, y)
+#else
+#define shim_pow(x, y)	pow(x, y)
+#endif
+
+#if defined(HAVE_BUILTIN_POWF)
+#define shim_powf(x, y)	__builtin_powf(x, y)
+#else
+#define shim_powf(x, y)	powf(x, y)
 #endif
 
 #if defined(HAVE_BUILTIN_POWL)
@@ -269,6 +302,28 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_CBRT)
+#define shim_cbrt(x)	__builtin_cbrt(x)
+#else
+#define shim_cbrt(x)	cbrt(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CBRTF)
+#define shim_cbrtf(x)	__builtin_cbrtf(x)
+#else
+#define shim_cbrtf(x)	cbrtf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CBRTL)
+#define shim_cbrtl(x)	__builtin_cbrtl(x)
+#else
+#if defined(HAVE_SQRTL)
+#define shim_cbrtl(x)	cbrtl(x)
+#else
+#define shim_cbrtl(x)	((long double)shim_cbrt(x))
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_CEXP)
 #define shim_cexp(x)	__builtin_cexp(x)
 #else
@@ -346,6 +401,28 @@
 #define	shim_ccosl(x)	ccosl(x)
 #else
 #define	shim_ccosl(x)	((long double complex)shim_ccos((double complex)(x))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CSQRT)
+#define shim_csqrt(x)	__builtin_csqrt(x)
+#else
+#define shim_csqrt(x)	csqrt(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CSQRTF)
+#define shim_csqrtf(x)	__builtin_csqrtf(x)
+#else
+#define shim_csqrtf(x)	csqrtf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CSQRTL)
+#define shim_csqrtl(x)	__builtin_csqrtl(x)
+#else
+#if defined(HAVE_CSQRTL)
+#define shim_csqrtl(x)	csqrtl(x)
+#else
+#define shim_csqrtl(x)	((long double)shim_csqrt(x))
 #endif
 #endif
 
@@ -451,6 +528,12 @@
 #define shim_sqrt(x)	__builtin_sqrt(x)
 #else
 #define shim_sqrt(x)	sqrt(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SQRTF)
+#define shim_sqrtf(x)	__builtin_sqrtf(x)
+#else
+#define shim_sqrtf(x)	sqrtf(x)
 #endif
 
 #if defined(HAVE_BUILTIN_SQRTL)

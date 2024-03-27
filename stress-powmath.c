@@ -1,0 +1,602 @@
+/*
+ * Copyright (C) 2024      Colin Ian King.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ */
+#include "stress-ng.h"
+#include "core-builtin.h"
+#include "core-pragma.h"
+#include "core-put.h"
+#include "core-target-clones.h"
+
+#if defined(HAVE_COMPLEX_H)
+#include <complex.h>
+#endif
+
+#define STRESS_POWMATH_LOOPS	(10000)
+
+typedef struct {
+	const char *name;
+	bool (*powmath_func)(stress_args_t *args);
+} stress_powmath_method_t;
+
+static const stress_help_t help[] = {
+	{ NULL,	"powmath N",	 	"start N workers exercising power math functions" },
+	{ NULL,	"powmath-ops N",	"stop after N powmath bogo power math operations" },
+	{ NULL, "powmath-method M",	"select power math function to exercise" },
+	{ NULL,	NULL,		 	NULL }
+};
+
+#if defined(HAVE_CBRT) ||	\
+    defined(HAVE_CBRTF) ||	\
+    defined(HAVE_CBRTL) ||	\
+    defined(HAVE_CPOW) || 	\
+    defined(HAVE_CPOWF) ||	\
+    defined(HAVE_CPOWL) ||	\
+    defined(HAVE_CSQRT) ||	\
+    defined(HAVE_CSQRTF) ||	\
+    defined(HAVE_CSQRTL) ||	\
+    defined(HAVE_POW) ||	\
+    defined(HAVE_POWF) ||	\
+    defined(HAVE_POWL) ||	\
+    defined(HAVE_SQRT) ||	\
+    defined(HAVE_SQRTF) ||	\
+    defined(HAVE_SQRTL)
+
+#if defined(HAVE_COMPLEX_H)
+
+#if defined(HAVE_CPOW)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpow(stress_args_t *args)
+{
+	register complex double sum = 0.0;
+	register int i;
+	static complex double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const double df = (double)(i + 1) / (double)STRESS_POWMATH_LOOPS;
+		register const double complex dci = df + (df * I);
+
+		sum += shim_cpow((double complex)(i + (i * I)), dci);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CPOWF)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowf(stress_args_t *args)
+{
+	register float complex sum = 0.0;
+	register int i;
+	static complex float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const float fi = (float)(i + 1) / (float)STRESS_POWMATH_LOOPS;
+		register const float complex fci = fi + (fi * I);
+
+		sum += (double complex)shim_cpowf((double complex)(i + (i * I)), fci);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CPOWL)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cpowl(stress_args_t *args)
+{
+	register long double complex sum = 0.0;
+	register int i;
+	static long complex double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const long double ldi = (long double)(i + 1) / (long double)STRESS_POWMATH_LOOPS;
+		register const long double complex ldci = ldi + (ldi * I);
+
+		sum += shim_cpowl((long double complex)(i + (i * I)), ldci);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CSQRT)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrt(stress_args_t *args)
+{
+	register complex double sum = 0.0;
+	register int i;
+	static complex double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const double df = (double)i / (double)STRESS_POWMATH_LOOPS;
+		register const double complex dci = df + (df * I);
+
+		sum += shim_csqrt(dci);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CSQRTF)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtf(stress_args_t *args)
+{
+	register float complex sum = 0.0;
+	register int i;
+	static complex float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
+		register const float complex fci = fi + (fi * I);
+
+		sum += shim_csqrtf(fci);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CSQRTL)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_csqrtl(stress_args_t *args)
+{
+	register long double complex sum = 0.0;
+	register int i;
+	static long complex double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
+		register const long double complex ldci = ldi + (ldi * I);
+
+		sum += shim_csqrtl(ldci);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#endif
+
+#if defined(HAVE_CBRT)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrt(stress_args_t *args)
+{
+	register double sum = 0.0;
+	register int i;
+	static double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const double di = (double)i / (double)STRESS_POWMATH_LOOPS;
+
+		sum += shim_cbrt(di);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CBRTF)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrtf(stress_args_t *args)
+{
+	register float sum = 0.0;
+	register int i;
+	static float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
+
+		sum += (double)shim_cbrtf(fi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_CBRTL)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_cbrtl(stress_args_t *args)
+{
+	register long double sum = 0.0;
+	register int i;
+	static long double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
+
+		sum += shim_cbrtl(ldi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_POW)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_pow(stress_args_t *args)
+{
+	register double sum = 0.0;
+	register int i;
+	static double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const double di = (double)i / (double)STRESS_POWMATH_LOOPS;
+
+		sum += shim_pow((double)i, di);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_POWF)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_powf(stress_args_t *args)
+{
+	register float sum = 0.0;
+	register int i;
+	static float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
+
+		sum += (double)shim_powf((float)i, fi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_POWL)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_powl(stress_args_t *args)
+{
+	register long double sum = 0.0;
+	register int i;
+	static long double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
+
+		sum += shim_powl((long double)i, ldi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_SQRT)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrt(stress_args_t *args)
+{
+	register double sum = 0.0;
+	register int i;
+	static double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const double di = (double)i / (double)STRESS_POWMATH_LOOPS;
+
+		sum += shim_sqrt(di);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_SQRTF)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrtf(stress_args_t *args)
+{
+	register float sum = 0.0;
+	register int i;
+	static float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const float fi = (float)i / (float)STRESS_POWMATH_LOOPS;
+
+		sum += (double)shim_sqrtf(fi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_SQRTL)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_sqrtl(stress_args_t *args)
+{
+	register long double sum = 0.0;
+	register int i;
+	static long double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const long double ldi = (long double)i / (long double)STRESS_POWMATH_LOOPS;
+
+		sum += shim_sqrtl(ldi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+static bool stress_powmath_all(stress_args_t *args);
+
+static const stress_powmath_method_t stress_powmath_methods[] = {
+	{ "all",	stress_powmath_all },
+#if defined(HAVE_COMPLEX_H)
+#if defined(HAVE_CPOW)
+	{ "cpow",	stress_powmath_cpow },
+#endif
+#if defined(HAVE_CPOWF)
+	{ "cpowf",	stress_powmath_cpowf },
+#endif
+#if defined(HAVE_CPOWL)
+	{ "cpowl",	stress_powmath_cpowl },
+#endif
+#if defined(HAVE_CSQRT)
+	{ "csqrt",	stress_powmath_csqrt},
+#endif
+#if defined(HAVE_CSQRTF)
+	{ "csqrtf",	stress_powmath_csqrtf },
+#endif
+#if defined(HAVE_CSQRTL)
+	{ "csqrtl",	stress_powmath_csqrtl },
+#endif
+#endif
+#if defined(HAVE_CBRT)
+	{ "cbrt",	stress_powmath_cbrt},
+#endif
+#if defined(HAVE_CBRTF)
+	{ "cbrtf",	stress_powmath_cbrtf},
+#endif
+#if defined(HAVE_CBRTL)
+	{ "cbrtl",	stress_powmath_cbrtl},
+#endif
+#if defined(HAVE_POW)
+	{ "pow",	stress_powmath_pow },
+#endif
+#if defined(HAVE_POWF)
+	{ "powf",	stress_powmath_powf },
+#endif
+#if defined(HAVE_POWL)
+	{ "powl",	stress_powmath_powl },
+#endif
+#if defined(HAVE_SQRT)
+	{ "sqrt",	stress_powmath_sqrt},
+#endif
+#if defined(HAVE_SQRTF)
+	{ "sqrtf",	stress_powmath_sqrtf},
+#endif
+#if defined(HAVE_SQRTL)
+	{ "sqrtl",	stress_powmath_sqrtl},
+#endif
+};
+
+stress_metrics_t stress_powmath_metrics[SIZEOF_ARRAY(stress_powmath_methods)];
+
+static int stress_set_powmath_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_powmath_methods); i++) {
+		if (strcmp(opt, stress_powmath_methods[i].name) == 0)
+			return stress_set_setting("powmath-method", TYPE_ID_SIZE_T, &i);
+	}
+
+	(void)fprintf(stderr, "powmath-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_powmath_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_powmath_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
+static bool stess_powmath_exercise(stress_args_t *args, const size_t index)
+{
+	bool ret;
+	const double t = stress_time_now();
+
+	ret = stress_powmath_methods[index].powmath_func(args);
+	stress_powmath_metrics[index].duration += (stress_time_now() - t);
+	stress_powmath_metrics[index].count += 1.0;
+	if (ret) {
+		pr_fail("powmath: %s does not match expected result\n",
+			stress_powmath_methods[index].name);
+	}
+	return ret;
+}
+
+static bool stress_powmath_all(stress_args_t *args)
+{
+	size_t i;
+	bool ret = false;
+
+	for (i = 1; i < SIZEOF_ARRAY(stress_powmath_methods); i++) {
+		ret |= stess_powmath_exercise(args, i);
+	}
+	return ret;
+}
+
+/*
+ * stress_powmath()
+ *	stress system by various powmath function calls
+ */
+static int stress_powmath(stress_args_t *args)
+{
+	size_t i, j;
+	size_t powmath_method = 0;
+
+	(void)stress_get_setting("powmath-method", &powmath_method);
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_powmath_metrics); i++) {
+		stress_powmath_metrics[i].duration = 0.0;
+		stress_powmath_metrics[i].count = 0.0;
+	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	do {
+		stess_powmath_exercise(args, powmath_method);
+	} while (stress_continue(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_powmath_metrics); i++) {
+		if (stress_powmath_metrics[i].duration > 0.0) {
+			char buf[80];
+			const double rate = (double)STRESS_POWMATH_LOOPS *
+				stress_powmath_metrics[i].count / stress_powmath_metrics[i].duration;
+
+			(void)snprintf(buf, sizeof(buf), "%s ops per second", stress_powmath_methods[i].name);
+			stress_metrics_set(args, j, buf,
+				rate, STRESS_HARMONIC_MEAN);
+			j++;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_powmath_method,	stress_set_powmath_method },
+	{ 0,			NULL },
+};
+
+stressor_info_t stress_powmath_info = {
+	.stressor = stress_powmath,
+	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
+	.help = help
+};
+
+#else
+
+static int stress_set_powmath_method(const char *opt)
+{
+	(void)opt;
+
+	(void)fprintf(stderr, "powmath-method is not implemented\n");
+	return -1;
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_powmath_method,	stress_set_powmath_method },
+	{ 0,			NULL },
+};
+
+stressor_info_t stress_powmath_info = {
+	.stressor = stress_unimplemented,
+	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
+	.help = help
+};
+
+#endif

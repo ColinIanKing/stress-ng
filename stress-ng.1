@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 March 2024"
+.TH STRESS-NG 1 "27 March 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5386,6 +5386,74 @@ allowed.
 .TP
 .B \-\-poll\-ops N
 stop poll stress workers after N bogo poll operations.
+.RE
+.TP
+.B Power maths functions
+.RS 5
+.TQ
+.B \-\-powmath N
+start N workers that exercise various power functions with input values 0 to 1 in steps of 0.001;
+the results are sanity checked to ensure no variation occurs after each round of 10000 computations.
+.TP
+.B \-\-powmath\-ops N
+stop after N power function bogo-operation loops.
+.TP
+.B \-\-powmath\-method method
+specify a power function to exercise. Available power function stress methods are described
+as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate over all the below power functions methods
+T}
+cpow	T{
+complex double power function
+T}
+cpowf	T{
+complex float power function
+T}
+cpowl	T{
+complex long double power function
+T}
+csqrt	T{
+complex double square root function (1/2 power)
+T}
+csqrtf	T{
+complex float square root function (1/2 power)
+T}
+csqrtl	T{
+complex long double square root function (1/2 power)
+T}
+cbrt	T{
+double cube root function (1/3 power)
+T}
+cbrtf	T{
+float cube root function (1/3 power)
+T}
+cbrtl	T{
+long double cube root function (1/3 power)
+T}
+pow	T{
+double power function
+T}
+powf	T{
+float power function
+T}
+powl	T{
+long double power function
+T}
+sqrt	T{
+double square root function (1/2 power)
+T}
+sqrtf	T{
+float square root function (1/2 power)
+T}
+sqrtl	T{
+long double square root function (1/2 power)
+T}
+.TE
 .RE
 .TP
 .B Prctl stressor
