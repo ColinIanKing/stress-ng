@@ -36,16 +36,14 @@
 #define TARGET_CLONE_MMX
 #endif
 
-#if defined(HAVE_TARGET_CLONES_AVX) &&	\
-    NEED_GNUC(8,0,0)
+#if defined(HAVE_TARGET_CLONES_AVX)
 #define TARGET_CLONE_AVX	"avx",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_AVX
 #endif
 
-#if defined(HAVE_TARGET_CLONES_AVX2) &&	\
-    NEED_GNUC(8,0,0)
+#if defined(HAVE_TARGET_CLONES_AVX2)
 #define TARGET_CLONE_AVX2	"avx2",
 #define TARGET_CLONE_USE
 #else
@@ -94,8 +92,7 @@
 #define TARGET_CLONE_SSE4_2
 #endif
 
-#if defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512) &&	\
-    NEED_GNUC(8,0,0)
+#if defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512)
 #define TARGET_CLONE_SKYLAKE_AVX512	"arch=skylake-avx512",
 #define TARGET_CLONE_USE
 #else
