@@ -384,6 +384,10 @@ typedef enum {
 	OPT_exit_group,
 	OPT_exit_group_ops,
 
+	OPT_expmath,
+	OPT_expmath_method,
+	OPT_expmath_ops,
+
 	OPT_factor,
 	OPT_factor_digits,
 	OPT_factor_ops,

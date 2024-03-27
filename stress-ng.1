@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 March 2024"
+.TH STRESS-NG 1 "26 March 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2172,6 +2172,65 @@ the controlling child process using exit_group(2). (Linux only stressor).
 .TP
 .B \-\-exit\-group\-ops N
 stop after N iterations of pthread creation and deletion loops.
+.RE
+.TP
+.B Exponential functions
+.RS 5
+.TQ
+.B \-\-expmath N
+start N workers that exercise various exponential functions with input values 0 to 1 in steps of 0.001;
+the results are sanity checked to ensure no variation occurs after each round of 10000 computations.
+.TP
+.B \-\-expmath\-ops N
+stop after N exponential bogo-operation loops.
+.TP
+.B \-\-expmath\-method method
+specify a exponential function to exercise. Available exponential stress methods are described
+as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate over all the below exponential functions methods
+T}
+cexp	T{
+double complex natural exponential
+T}
+cexpf	T{
+float complex natural exponential
+T}
+cexpl	T{
+long double complex natural exponential
+T}
+exp	T{
+double natural exponential
+T}
+expf	T{
+float natural exponential
+T}
+expl	T{
+long double natural exponential
+T}
+exp10	T{
+double base-10 exponential
+T}
+exp10f	T{
+float base-10 exponential
+T}
+exp10l	T{
+long double base-10 exponential
+T}
+exp2	T{
+double base-2 exponential
+T}
+exp2f	T{
+float base-2 exponential
+T}
+exp2l	T{
+long double base-2 exponential
+T}
+.TE
 .RE
 .TP
 .B Factorization of large integers stressor

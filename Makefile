@@ -302,6 +302,7 @@ STRESS_SRC = \
 	stress-eventfd.c \
 	stress-exec.c \
 	stress-exit-group.c \
+	stress-expmath.c \
 	stress-factor.c \
 	stress-fallocate.c \
 	stress-fanotify.c \

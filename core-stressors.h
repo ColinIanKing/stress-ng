@@ -81,6 +81,7 @@
 	MACRO(eventfd) 		\
 	MACRO(exec)		\
 	MACRO(exit_group)	\
+	MACRO(expmath)		\
 	MACRO(factor)		\
 	MACRO(fallocate)	\
 	MACRO(fanotify)		\

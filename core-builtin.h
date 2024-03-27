@@ -209,6 +209,12 @@
 #define shim_exp(x)	exp(x)
 #endif
 
+#if defined(HAVE_BUILTIN_EXPF)
+#define shim_expf(x)	__builtin_expf(x)
+#else
+#define shim_expf(x)	expf(x)
+#endif
+
 #if defined(HAVE_BUILTIN_EXPL)
 #define shim_expl(x)	__builtin_expl(x)
 #else
@@ -219,10 +225,66 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_EXP2)
+#define shim_exp2(x)	__builtin_exp2(x)
+#else
+#define shim_exp2(x)	exp2(x)
+#endif
+
+#if defined(HAVE_BUILTIN_EXP2F)
+#define shim_exp2f(x)	__builtin_exp2f(x)
+#else
+#define shim_exp2f(x)	exp2f(x)
+#endif
+
+#if defined(HAVE_BUILTIN_EXP2L)
+#define shim_exp2l(x)	__builtin_exp2l(x)
+#else
+#if defined(HAVE_EXP2L) && !defined(__HAIKU__)
+#define shim_exp2l(x)	exp2l(x)
+#else
+#define shim_exp2l(x)	shim_exp2(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_EXP10)
+#define shim_exp10(x)	__builtin_exp10(x)
+#else
+#define shim_exp10(x)	exp10(x)
+#endif
+
+#if defined(HAVE_BUILTIN_EXP10F)
+#define shim_exp10f(x)	__builtin_exp10f(x)
+#else
+#define shim_exp10f(x)	exp10f(x)
+#endif
+
+#if defined(HAVE_BUILTIN_EXP10L)
+#define shim_exp10l(x)	__builtin_exp10l(x)
+#else
+#if defined(HAVE_EXP10L) && !defined(__HAIKU__)
+#define shim_exp10l(x)	exp10l(x)
+#else
+#define shim_exp10l(x)	shim_exp10(x)
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_CEXP)
 #define shim_cexp(x)	__builtin_cexp(x)
 #else
 #define shim_cexp(x)	cexp(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CEXPF)
+#define shim_cexpf(x)	__builtin_cexpf(x)
+#else
+#define shim_cexpf(x)	cexpf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_CEXPL)
+#define shim_cexpl(x)	__builtin_cexpl(x)
+#else
+#define shim_cexpl(x)	cexpl(x)
 #endif
 
 #if defined(HAVE_BUILTIN_COSF)
