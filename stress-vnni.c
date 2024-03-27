@@ -132,7 +132,8 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
     defined(HAVE_IMMINTRIN_H) &&	\
     defined(HAVE_MM256_LOADU_SI256) &&	\
     defined(HAVE_MM256_ADD_EPI8) &&	\
-    defined(HAVE_MM256_STOREU_SI256)
+    defined(HAVE_MM256_STOREU_SI256) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
 #define HAVE_STRESS_VNNI_VPADDB256
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb256(stress_args_t *args)
 {
@@ -156,7 +157,8 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
     defined(HAVE_IMMINTRIN_H) &&	\
     defined(HAVE_MM_LOADU_SI128) &&	\
     defined(HAVE_MM_ADD_EPI8) &&	\
-    defined(HAVE_MM_STOREU_SI128)
+    defined(HAVE_MM_STOREU_SI128) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
 #define HAVE_STRESS_VNNI_VPADDB128
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpaddb128(stress_args_t *args)
 {
@@ -216,7 +218,8 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
     defined(HAVE_IMMINTRIN_H) &&	\
     defined(HAVE_MM256_LOADU_SI256) &&	\
     defined(HAVE_MM256_DPBUSD_EPI32) &&	\
-    defined(HAVE_MM256_STOREU_SI256)
+    defined(HAVE_MM256_STOREU_SI256) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
 #define HAVE_STRESS_VNNI_VPDPBUSD256
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd256(stress_args_t *args)
 {
@@ -241,7 +244,8 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
     defined(HAVE_IMMINTRIN_H) &&	\
     defined(HAVE_MM_LOADU_SI128) &&	\
     defined(HAVE_MM_DPBUSD_EPI32) &&	\
-    defined(HAVE_MM_STOREU_SI128)
+    defined(HAVE_MM_STOREU_SI128) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
 #define HAVE_STRESS_VNNI_VPDPBUSD128
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpbusd128(stress_args_t *args)
 {
@@ -309,7 +313,8 @@ PRAGMA_UNROLL_N(VEC_VNNI512_LOOPS)
     defined(HAVE_IMMINTRIN_H) &&	\
     defined(HAVE_MM256_LOADU_SI256) &&	\
     defined(HAVE_MM256_DPWSSD_EPI32) &&	\
-    defined(HAVE_MM256_STOREU_SI256)
+    defined(HAVE_MM256_STOREU_SI256) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
 #define HAVE_STRESS_VNNI_VPDPWSSD256
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd256(stress_args_t *args)
 {
@@ -334,7 +339,8 @@ PRAGMA_UNROLL_N(VEC_VNNI256_LOOPS)
     defined(HAVE_IMMINTRIN_H) &&	\
     defined(HAVE_MM_LOADU_SI128) &&	\
     defined(HAVE_MM_DPWSSD_EPI32) &&	\
-    defined(HAVE_MM_STOREU_SI128)
+    defined(HAVE_MM_STOREU_SI128) &&	\
+    defined(HAVE_TARGET_CLONES_AVXVNNI)
 #define HAVE_STRESS_VNNI_VPDPWSSD128
 static void TARGET_AVXVNNI OPTIMIZE3 stress_vnni_vpdpwssd128(stress_args_t *args)
 {
