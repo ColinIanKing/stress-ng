@@ -2035,8 +2035,6 @@ ssize_t stress_system_read(
 	(void)close(fd);
 	if ((ssize_t)buf_len == ret)
 		buf[buf_len - 1] = '\0';
-	else
-		buf[ret] = '\0';
 
 	return ret;
 }
