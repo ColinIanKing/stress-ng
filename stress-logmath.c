@@ -46,6 +46,9 @@ static const stress_help_t help[] = {
     defined(HAVE_LOG) ||	\
     defined(HAVE_LOGF) ||	\
     defined(HAVE_LOGL) ||	\
+    defined(HAVE_LOGB) ||	\
+    defined(HAVE_LOGBF) ||	\
+    defined(HAVE_LOGBL) ||	\
     defined(HAVE_LOG10) ||	\
     defined(HAVE_LOG10F) ||	\
     defined(HAVE_LOG10L) ||	\
@@ -193,6 +196,78 @@ PRAGMA_UNROLL_N(8)
 		register const long double ldi = (long double)(i + 1);
 
 		sum += shim_logl(ldi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_LOGB)
+static bool OPTIMIZE3 TARGET_CLONES stress_logmath_logb(stress_args_t *args)
+{
+	register double sum = 0.0;
+	register int i;
+	static double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
+		register const double di = (double)(i + 1);
+
+		sum += shim_logb(di);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_LOGBF)
+static bool OPTIMIZE3 TARGET_CLONES stress_logmath_logbf(stress_args_t *args)
+{
+	register float sum = 0.0;
+	register int i;
+	static float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
+		register const float fi = (float)(i + 1);
+
+		sum += (double)shim_logbf(fi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_LOGBL)
+static bool OPTIMIZE3 TARGET_CLONES stress_logmath_logbl(stress_args_t *args)
+{
+	register long double sum = 0.0;
+	register int i;
+	static long double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
+		register const long double ldi = (long double)(i + 1);
+
+		sum += shim_logbl(ldi);
 	}
 	stress_bogo_inc(args);
 
@@ -370,6 +445,15 @@ static const stress_logmath_method_t stress_logmath_methods[] = {
 #endif
 #if defined(HAVE_LOGL)
 	{ "logl",	stress_logmath_logl },
+#endif
+#if defined(HAVE_LOGB)
+	{ "logb",	stress_logmath_logb },
+#endif
+#if defined(HAVE_LOGBF)
+	{ "logbf",	stress_logmath_logbf },
+#endif
+#if defined(HAVE_LOGBL)
+	{ "logbl",	stress_logmath_logbl },
 #endif
 #if defined(HAVE_LOG10)
 	{ "log10",	stress_logmath_log10 },

@@ -192,6 +192,28 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_LOGBF)
+#define shim_logbf(x)	__builtin_logbf(x)
+#else
+#define shim_logbf(x)	logbf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_LOGB)
+#define shim_logb(x)	__builtin_logb(x)
+#else
+#define shim_logb(x)	logb(x)
+#endif
+
+#if defined(HAVE_BUILTIN_LOGBL)
+#define shim_logbl(x)	__builtin_logbl(x)
+#else
+#if defined(HAVE_LOGBL)
+#define shim_logbl(x)	logbl(x)
+#else
+#define shim_logbl(x)	shim_logb(x)
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_LOG10F)
 #define shim_log10f(x)	__builtin_log10f(x)
 #else
