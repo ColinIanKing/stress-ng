@@ -26,6 +26,7 @@
 
 #define FMA_ELEMENTS	(512)
 #define FMA_UNROLL	(8)
+/* #define USE_FMA_FAST	 */
 
 typedef struct {
 	double  *double_a;
@@ -159,7 +160,8 @@ static void TARGET_CLONES stress_fma_add132_libc_double(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-#if defined(FP_FAST_FMA)
+#if defined(FP_FAST_FMA) &&	\
+    defined(USE_FMA_FAST)
 		a[i] = FP_FAST_FMA(a[i], c, b);
 #else
 		a[i] = shim_fma(a[i], c, b);
@@ -176,7 +178,8 @@ static void TARGET_CLONES stress_fma_add132_libc_float(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-#if defined(FP_FAST_FMAF)
+#if defined(FP_FAST_FMAF) &&	\
+    defined(USE_FMA_FAST)
 		a[i] = FP_FAST_FMAF(a[i], c, b);
 #else
 		a[i] = shim_fmaf(a[i], c, b);
@@ -193,7 +196,8 @@ static void TARGET_CLONES stress_fma_add213_libc_double(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-#if defined(FP_FAST_FMA)
+#if defined(FP_FAST_FMA) && 	\
+    defined(USE_FMA_FAST)
 		a[i] = FP_FAST_FMA(b, a[i], c);
 #else
 		a[i] = shim_fma(b, a[i], c);
@@ -210,7 +214,8 @@ static void TARGET_CLONES stress_fma_add213_libc_float(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-#if defined(FP_FAST_FMAF)
+#if defined(FP_FAST_FMAF) &&	\
+    defined(USE_FMA_FAST)
 		a[i] = FP_FAST_FMAF(b, a[i], c);
 #else
 		a[i] = shim_fmaf(b, a[i], c);
@@ -227,7 +232,8 @@ static void TARGET_CLONES stress_fma_add231_libc_double(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-#if defined(FP_FAST_FMA)
+#if defined(FP_FAST_FMA) &&	\
+    defined(USE_FMA_FAST)
 		a[i] = FP_FAST_FMA(b, c, a[i]);
 #else
 		a[i] = shim_fma(b, c, a[i]);
@@ -244,7 +250,8 @@ static void TARGET_CLONES stress_fma_add231_libc_float(stress_fma_t *pfma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
-#if defined(FP_FAST_FMAF)
+#if defined(FP_FAST_FMAF) &&	\
+    defined(USE_FMA_FAST)
 		a[i] = FP_FAST_FMAF(b, c, a[i]);
 #else
 		a[i] = shim_fmaf(b, c, a[i]);
