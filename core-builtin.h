@@ -115,6 +115,27 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_HYPOT)
+#define shim_hypot(x, y)	__builtin_hypot((x), (y))
+#else
+#define shim_hypot(x, y)	hypot((x), (y))
+#endif
+
+#if defined(HAVE_BUILTIN_HYPOTF)
+#define shim_hypotf(x, y)	__builtin_hypotf((x), (y))
+#else
+#define shim_hypotf(x, y)	hypotf((x), (y))
+#endif
+
+#if defined(HAVE_BUILTIN_HYPOTL)
+#define shim_hypotl(x, y)	__builtin_hypotl((x), (y))
+#else
+#if defined(HAVE_HYPOTL)
+#define shim_hypotl(x, y)	hypotl((x), (y))
+#else
+#define shim_hypotl(x, y)	hypot((x), (y))
+#endif
+#endif
 
 #if defined(HAVE_BUILTIN_POW)
 #define shim_pow(x, y)	__builtin_pow(x, y)

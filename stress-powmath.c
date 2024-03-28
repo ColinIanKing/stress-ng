@@ -49,6 +49,9 @@ static const stress_help_t help[] = {
     defined(HAVE_CSQRT) ||	\
     defined(HAVE_CSQRTF) ||	\
     defined(HAVE_CSQRTL) ||	\
+    defined(HAVE_HYPOT) ||	\
+    defined(HAVE_HYPOTF) ||	\
+    defined(HAVE_HYPOTL) ||	\
     defined(HAVE_POW) ||	\
     defined(HAVE_POWF) ||	\
     defined(HAVE_POWL) ||	\
@@ -282,6 +285,78 @@ PRAGMA_UNROLL_N(8)
 }
 #endif
 
+#if defined(HAVE_HYPOT)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_hypot(stress_args_t *args)
+{
+	register double sum = 0.0;
+	register int i;
+	static double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const double di = (double)(i + 500);
+
+		sum += shim_hypot((double)i, di);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_HYPOTF)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_hypotf(stress_args_t *args)
+{
+	register float sum = 0.0;
+	register int i;
+	static float result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const float fi = (float)(i + 500);
+
+		sum += shim_hypotf((float)i, fi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
+#if defined(HAVE_HYPOTL)
+static bool OPTIMIZE3 TARGET_CLONES stress_powmath_hypotl(stress_args_t *args)
+{
+	register long double sum = 0.0;
+	register int i;
+	static long double result = -1.0;
+	static bool first_run = true;
+
+PRAGMA_UNROLL_N(8)
+	for (i = 0; i < STRESS_POWMATH_LOOPS; i++) {
+		register const long double ldi = (long double)(i + 500);
+
+		sum += shim_hypotl((long double)i, ldi);
+	}
+	stress_bogo_inc(args);
+
+	if (first_run) {
+		result = sum;
+		first_run = false;
+	}
+	return (sum != result);
+}
+#endif
+
 #if defined(HAVE_POW)
 static bool OPTIMIZE3 TARGET_CLONES stress_powmath_pow(stress_args_t *args)
 {
@@ -458,6 +533,15 @@ static const stress_powmath_method_t stress_powmath_methods[] = {
 #endif
 #if defined(HAVE_CBRTL)
 	{ "cbrtl",	stress_powmath_cbrtl},
+#endif
+#if defined(HAVE_HYPOT)
+	{ "hypot",	stress_powmath_hypot},
+#endif
+#if defined(HAVE_HYPOTF)
+	{ "hypotf",	stress_powmath_hypotf },
+#endif
+#if defined(HAVE_HYPOTL)
+	{ "hypotl",	stress_powmath_hypotl },
 #endif
 #if defined(HAVE_POW)
 	{ "pow",	stress_powmath_pow },
