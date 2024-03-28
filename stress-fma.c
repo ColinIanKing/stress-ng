@@ -50,8 +50,14 @@ typedef void (*stress_fma_func)(stress_fma_t *fma);
 static const stress_help_t help[] = {
 	{ NULL,	"fma N",	"start N workers performing floating point multiply-add ops" },
 	{ NULL,	"fma-ops N",	"stop after N floating point multiply-add bogo operations" },
+	{ NULL, "fma-libc",	"use fma libc fused multiply-add helpers" },
 	{ NULL,	NULL,		 NULL }
 };
+
+static int stress_set_fma_libc(const char *opt)
+{
+	return stress_set_setting_true("fma-libc", opt);
+}
 
 static inline float stress_fma_rnd_float(void)
 {
@@ -69,7 +75,7 @@ static void TARGET_CLONES stress_fma_add132_double(stress_fma_t *fma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = a[i] * c + b;
+		a[i] = (a[i] * c) + b;
 }
 
 static void TARGET_CLONES stress_fma_add132_float(stress_fma_t *fma)
@@ -81,55 +87,55 @@ static void TARGET_CLONES stress_fma_add132_float(stress_fma_t *fma)
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = a[i] * c + b;
+		a[i] = (a[i] * c) + b;
 }
 
-static void TARGET_CLONES stress_fma_add213_double(stress_fma_t *fma)
+static void TARGET_CLONES stress_fma_add213_double(stress_fma_t *pfma)
 {
 	register size_t i;
-	register double *a = fma->double_a;
-	register double b = fma->double_b;
-	register double c = fma->double_c;
+	register double *a = pfma->double_a;
+	register double b = pfma->double_b;
+	register double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = b * a[i] + c;
+		a[i] = (b * a[i]) + c;
 }
 
-static void TARGET_CLONES stress_fma_add213_float(stress_fma_t *fma)
+static void TARGET_CLONES stress_fma_add213_float(stress_fma_t *pfma)
 {
 	register size_t i;
-	register float *a = fma->float_a;
-	register float b = fma->float_b;
-	register float c = fma->float_c;
+	register float *a = pfma->float_a;
+	register float b = pfma->float_b;
+	register float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = b * a[i] + c;
+		a[i] = (b * a[i]) + c;
 }
 
-static void TARGET_CLONES stress_fma_add231_double(stress_fma_t *fma)
+static void TARGET_CLONES stress_fma_add231_double(stress_fma_t *pfma)
 {
 	register size_t i;
-	register double *a = fma->double_a;
-	register double b = fma->double_b;
-	register double c = fma->double_c;
+	register double *a = pfma->double_a;
+	register double b = pfma->double_b;
+	register double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = b * c + a[i];
+		a[i] = (b * c) + a[i];
 }
 
-static void TARGET_CLONES stress_fma_add231_float(stress_fma_t *fma)
+static void TARGET_CLONES stress_fma_add231_float(stress_fma_t *pfma)
 {
 	register size_t i;
-	register float *a = fma->float_a;
-	register float b = fma->float_b;
-	register float c = fma->float_c;
+	register float *a = pfma->float_a;
+	register float b = pfma->float_b;
+	register float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
-		a[i] = b * c + a[i];
+		a[i] = (b * c) + a[i];
 }
 
 stress_fma_func stress_fma_funcs[] = {
@@ -141,7 +147,122 @@ stress_fma_func stress_fma_funcs[] = {
 	stress_fma_add231_float,
 };
 
-static inline void OPTIMIZE3 TARGET_CLONES stress_fma_init(stress_fma_t *fma)
+/* libc variants */
+#if (defined(HAVE_FMA)  || defined(FP_FAST_FMA)) && 	\
+    (defined(HAVE_FMAF) || defined(FP_FAST_FMAF))
+static void TARGET_CLONES stress_fma_add132_libc_double(stress_fma_t *pfma)
+{
+	register size_t i;
+	register double *a = pfma->double_a;
+	register double b = pfma->double_b;
+	register double c = pfma->double_c;
+
+PRAGMA_UNROLL_N(FMA_UNROLL)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
+#if defined(FP_FAST_FMA)
+		a[i] = FP_FAST_FMA(a[i], c, b);
+#else
+		a[i] = shim_fma(a[i], c, b);
+#endif
+	}
+}
+
+static void TARGET_CLONES stress_fma_add132_libc_float(stress_fma_t *pfma)
+{
+	register size_t i;
+	register float *a = pfma->float_a;
+	register float b = pfma->float_b;
+	register float c = pfma->float_c;
+
+PRAGMA_UNROLL_N(FMA_UNROLL)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
+#if defined(FP_FAST_FMAF)
+		a[i] = FP_FAST_FMAF(a[i], c, b);
+#else
+		a[i] = shim_fmaf(a[i], c, b);
+#endif
+	}
+}
+
+static void TARGET_CLONES stress_fma_add213_libc_double(stress_fma_t *pfma)
+{
+	register size_t i;
+	register double *a = pfma->double_a;
+	register double b = pfma->double_b;
+	register double c = pfma->double_c;
+
+PRAGMA_UNROLL_N(FMA_UNROLL)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
+#if defined(FP_FAST_FMA)
+		a[i] = FP_FAST_FMA(b, a[i], c);
+#else
+		a[i] = shim_fma(b, a[i], c);
+#endif
+	}
+}
+
+static void TARGET_CLONES stress_fma_add213_libc_float(stress_fma_t *pfma)
+{
+	register size_t i;
+	register float *a = pfma->float_a;
+	register float b = pfma->float_b;
+	register float c = pfma->float_c;
+
+PRAGMA_UNROLL_N(FMA_UNROLL)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
+#if defined(FP_FAST_FMAF)
+		a[i] = FP_FAST_FMAF(b, a[i], c);
+#else
+		a[i] = shim_fmaf(b, a[i], c);
+#endif
+	}
+}
+
+static void TARGET_CLONES stress_fma_add231_libc_double(stress_fma_t *pfma)
+{
+	register size_t i;
+	register double *a = pfma->double_a;
+	register double b = pfma->double_b;
+	register double c = pfma->double_c;
+
+PRAGMA_UNROLL_N(FMA_UNROLL)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
+#if defined(FP_FAST_FMA)
+		a[i] = FP_FAST_FMA(b, c, a[i]);
+#else
+		a[i] = shim_fma(b, c, a[i]);
+#endif
+	}
+}
+
+static void TARGET_CLONES stress_fma_add231_libc_float(stress_fma_t *pfma)
+{
+	register size_t i;
+	register float *a = pfma->float_a;
+	register float b = pfma->float_b;
+	register float c = pfma->float_c;
+
+PRAGMA_UNROLL_N(FMA_UNROLL)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
+#if defined(FP_FAST_FMAF)
+		a[i] = FP_FAST_FMAF(b, c, a[i]);
+#else
+		a[i] = shim_fmaf(b, c, a[i]);
+#endif
+	}
+}
+
+stress_fma_func stress_fma_libc_funcs[] = {
+	stress_fma_add132_libc_double,
+	stress_fma_add132_libc_float,
+	stress_fma_add213_libc_double,
+	stress_fma_add213_libc_float,
+	stress_fma_add231_libc_double,
+	stress_fma_add231_libc_float,
+};
+#endif
+
+static inline void OPTIMIZE3 TARGET_CLONES stress_fma_init(stress_fma_t *pfma)
 {
 	register size_t i;
 
@@ -149,45 +270,59 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
 		register const float rnd = stress_fma_rnd_float();
 
-		fma->double_init[i] = (double)rnd;
-		fma->float_init[i] = rnd;
+		pfma->double_init[i] = (double)rnd;
+		pfma->float_init[i] = rnd;
 	}
 }
 
-static inline void OPTIMIZE3 TARGET_CLONES stress_fma_reset_a(stress_fma_t *fma)
+static inline void OPTIMIZE3 TARGET_CLONES stress_fma_reset_a(stress_fma_t *pfma)
 {
-	(void)shim_memcpy(fma->double_a1, fma->double_init, sizeof(fma->double_init));
-	(void)shim_memcpy(fma->double_a2, fma->double_init, sizeof(fma->double_init));
+	(void)shim_memcpy(pfma->double_a1, pfma->double_init, sizeof(pfma->double_init));
+	(void)shim_memcpy(pfma->double_a2, pfma->double_init, sizeof(pfma->double_init));
 
-	(void)shim_memcpy(fma->float_a1, fma->float_init, sizeof(fma->float_init));
-	(void)shim_memcpy(fma->float_a2, fma->float_init, sizeof(fma->float_init));
+	(void)shim_memcpy(pfma->float_a1, pfma->float_init, sizeof(pfma->float_init));
+	(void)shim_memcpy(pfma->float_a2, pfma->float_init, sizeof(pfma->float_init));
 }
 
 static int stress_fma(stress_args_t *args)
 {
-	stress_fma_t *fma;
+	stress_fma_t *pfma;
 	register size_t idx_b = 0, idx_c = 0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	stress_fma_func *fma_funcs;
+	bool fma_libc = false;
+
+	stress_get_setting("fma-libc", &fma_libc);
+#if (defined(HAVE_FMA)  || defined(FP_FAST_FMA)) && 	\
+    (defined(HAVE_FMAF) || defined(FP_FAST_FMAF))
+	fma_funcs = fma_libc ? stress_fma_libc_funcs : stress_fma_funcs;
+#else
+	if (fma_libc) {
+		pr_inf("%s: libc fma functions not available, defaulting "
+			"to non-libc fma operations\n", args->name);
+	}
+	fma_funcs = stress_fma_funcs;
+#endif
 
 	stress_catch_sigill();
 
-	fma = (stress_fma_t *)stress_mmap_populate(NULL, sizeof(*fma),
+	pfma = (stress_fma_t *)stress_mmap_populate(NULL, sizeof(*pfma),
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (fma == MAP_FAILED) {
+	if (pfma == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd bytes for FMA data\n",
-			args->name, sizeof(*fma));
+			args->name, sizeof(*pfma));
 		return EXIT_NO_RESOURCE;
 	}
-	stress_madvise_mergeable(fma, sizeof(*fma));
+	stress_madvise_mergeable(pfma, sizeof(*pfma));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_fma_init(fma);
+	stress_fma_init(pfma);
 
 	do {
 		size_t i;
 
-		stress_fma_reset_a(fma);
+		stress_fma_reset_a(pfma);
 
 		idx_b++;
 		if (idx_b >= FMA_ELEMENTS)
@@ -196,35 +331,35 @@ static int stress_fma(stress_args_t *args)
 		if (idx_c >= FMA_ELEMENTS)
 			idx_c = 0;
 
-		fma->double_a = fma->double_a1;
-		fma->double_b = fma->double_a[idx_b];
-		fma->double_c = fma->double_a[idx_c];
-		fma->float_a = fma->float_a1;
-		fma->float_b = fma->float_a[idx_b];
-		fma->float_c = fma->float_a[idx_c];
+		pfma->double_a = pfma->double_a1;
+		pfma->double_b = pfma->double_a[idx_b];
+		pfma->double_c = pfma->double_a[idx_c];
+		pfma->float_a = pfma->float_a1;
+		pfma->float_b = pfma->float_a[idx_b];
+		pfma->float_c = pfma->float_a[idx_c];
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++) {
-			stress_fma_funcs[i](fma);
+			fma_funcs[i](pfma);
 		}
 		stress_bogo_inc(args);
 
 		if (verify) {
-			fma->double_a = fma->double_a2;
-			fma->double_b = fma->double_a[idx_b];
-			fma->double_c = fma->double_a[idx_c];
-			fma->float_a = fma->float_a2;
-			fma->float_b = fma->float_a[idx_b];
-			fma->float_c = fma->float_a[idx_c];
+			pfma->double_a = pfma->double_a2;
+			pfma->double_b = pfma->double_a[idx_b];
+			pfma->double_c = pfma->double_a[idx_c];
+			pfma->float_a = pfma->float_a2;
+			pfma->float_b = pfma->float_a[idx_b];
+			pfma->float_c = pfma->float_a[idx_c];
 
 			for (i = 0; i < SIZEOF_ARRAY(stress_fma_funcs); i++) {
-				stress_fma_funcs[i](fma);
+				fma_funcs[i](pfma);
 			}
 			stress_bogo_inc(args);
 
-			if (shim_memcmp(fma->double_a1, fma->double_a2, sizeof(fma->double_a1))) {
+			if (shim_memcmp(pfma->double_a1, pfma->double_a2, sizeof(pfma->double_a1))) {
 				pr_fail("%s: data difference between identical double fma computations\n", args->name);
 			}
-			if (shim_memcmp(fma->float_a1, fma->float_a2, sizeof(fma->float_a1))) {
+			if (shim_memcmp(pfma->float_a1, pfma->float_a2, sizeof(pfma->float_a1))) {
 				pr_fail("%s: data difference between identical float fma computations\n", args->name);
 			}
 		}
@@ -237,9 +372,14 @@ static int stress_fma(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fma_libc,	stress_set_fma_libc },
+};
+
 stressor_info_t stress_fma_info = {
 	.stressor = stress_fma,
 	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -302,6 +302,18 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_FMA)
+#define shim_fma(x, y, z)	__builtin_fma((x), (y), (z))
+#else
+#define shim_fma(x, y, z)	fma((x), (y), (z))
+#endif
+
+#if defined(HAVE_BUILTIN_FMAF)
+#define shim_fmaf(x, y, z)	__builtin_fmaf((x), (y), (z))
+#else
+#define shim_fmaf(x, y, z)	fmaf((x), (y), (z))
+#endif
+
 #if defined(HAVE_BUILTIN_CBRT)
 #define shim_cbrt(x)	__builtin_cbrt(x)
 #else

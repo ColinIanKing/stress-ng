@@ -437,6 +437,7 @@ typedef enum {
 
 	OPT_fma,
 	OPT_fma_ops,
+	OPT_fma_libc,
 
 	OPT_fork_ops,
 	OPT_fork_max,

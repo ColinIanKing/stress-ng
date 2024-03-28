@@ -255,6 +255,7 @@ const struct option stress_long_options[] = {
 	{ "flushcache-ops",	1,	0,	OPT_flushcache_ops },
 	{ "fma",		1,	0,	OPT_fma },
 	{ "fma-ops",		1,	0,	OPT_fma_ops },
+	{ "fma-libc",		0,	0,	OPT_fma_libc },
 	{ "fork",		1,	0,	OPT_fork },
 	{ "fork-max",		1,	0,	OPT_fork_max },
 	{ "fork-ops",		1,	0,	OPT_fork_ops },
