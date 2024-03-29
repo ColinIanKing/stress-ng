@@ -543,11 +543,17 @@ void stress_temp_path_free(void)
  */
 int stress_set_temp_path(const char *path)
 {
+	static const char *func = "stress_set_temp_path";
 	stress_temp_path_free();
+
+	if (!path) {
+		(void)fprintf(stderr, "%s: invalid NULL path\n", func);
+		return -1;
+	}
 
 	stress_temp_path = stress_const_optdup(path);
 	if (!stress_temp_path) {
-		(void)fprintf(stderr, "aborting: cannot allocate memory for '%s'\n", path);
+		(void)fprintf(stderr, "%s: aborting: cannot allocate memory for '%s'\n", func, path);
 		return -1;
 	}
 	return 0;
@@ -717,6 +723,8 @@ static int stress_get_meminfo(
     defined(HAVE_SYSINFO)
 	struct sysinfo info;
 
+	if (!freemem || !totalmem || !freeswap || !totalswap)
+		return -1;
 	(void)shim_memset(&info, 0, sizeof(info));
 
 	if (sysinfo(&info) == 0) {
@@ -737,6 +745,10 @@ static int stress_get_meminfo(
 		const size_t max_size_t = (size_t)-1;
 		const uint64_t vm_swap_total = stress_bsd_getsysctl_uint64("vm.swap_total");
 
+#endif
+		if (!freemem || !totalmem || !freeswap || !totalswap)
+			return -1;
+#if 0
 		*totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
 #endif
 		*freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
@@ -755,6 +767,9 @@ static int stress_get_meminfo(
     defined(HAVE_UVM_UVM_EXTERN_H)
 	{
 		struct uvmexp_sysctl u;
+
+		if (!freemem || !totalmem || !freeswap || !totalswap)
+			return -1;
 
 		if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
 			*freemem = (size_t)u.free * u.pagesize;
@@ -775,6 +790,9 @@ static int stress_get_meminfo(
 		size_t page_size = stress_get_page_size();
 		int ret;
 
+		if (!freemem || !totalmem || !freeswap || !totalswap)
+			return -1;
+
 		/* zero vm_stat, keep cppcheck silent */
 		(void)shim_memset(&vm_stat, 0, sizeof(vm_stat));
 		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
@@ -789,6 +807,8 @@ static int stress_get_meminfo(
 
 	}
 #endif
+	if (!freemem || !totalmem || !freeswap || !totalswap)
+		return -1;
 
 	*freemem = 0;
 	*totalmem = 0;
@@ -813,6 +833,8 @@ void stress_get_memlimits(
 #if defined(__linux__)
 	char buf[64];
 #endif
+	if (!shmall || !freemem || !totalmem || !freeswap || !totalswap)
+		return;
 
 	(void)stress_get_meminfo(freemem, totalmem, freeswap, totalswap);
 #if defined(__linux__)
@@ -833,6 +855,9 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 #if defined(__linux__)
 	char buf[64];
 
+	if (!gpu_freq)
+		return;
+
 	if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
 		if (sscanf(buf, "%lf", gpu_freq) == 1)
 			return;
@@ -841,6 +866,8 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 			return;
 	}
 #endif
+	if (!gpu_freq)
+		return;
 	*gpu_freq = 0.0;
 }
 
@@ -1067,6 +1094,9 @@ int stress_get_load_avg(
 	int rc;
 	double loadavg[3];
 
+	if (!min1 || !min5 || !min15)
+		return -1;
+
 	loadavg[0] = 0.0;
 	loadavg[1] = 0.0;
 	loadavg[2] = 0.0;
@@ -1086,6 +1116,9 @@ fail:
 	struct sysinfo info;
 	const double scale = 1.0 / (double)(1 << SI_LOAD_SHIFT);
 
+	if (!min1 || !min5 || !min15)
+		return -1;
+
 	if (sysinfo(&info) < 0)
 		goto fail;
 
@@ -1096,6 +1129,8 @@ fail:
 	return 0;
 fail:
 #endif
+	if (!min1 || !min5 || !min15)
+		return -1;
 	*min1 = *min5 = *min15 = 0.0;
 	return -1;
 }
@@ -1241,6 +1276,9 @@ void stress_set_proc_name(const char *name)
 {
 	char long_name[64];
 
+	if (!name)
+		return;
+
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
 		return;
 	(void)snprintf(long_name, sizeof(long_name), "%s-%s",
@@ -1267,6 +1305,9 @@ void stress_set_proc_name(const char *name)
 void stress_set_proc_state_str(const char *name, const char *str)
 {
 	char long_name[64];
+
+	if (!name || !str)
+		return;
 
 	(void)str;
 	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
@@ -1304,6 +1345,8 @@ void stress_set_proc_state(const char *name, const int state)
 		"zombie",
 	};
 
+	if (!name)
+		return;
 	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))
 		return;
 
@@ -1626,7 +1669,7 @@ void stress_cwd_readwriteable(void)
 	char path[PATH_MAX];
 
 	if (getcwd(path, sizeof(path)) == NULL) {
-		pr_dbg("cwd: Cannot determine current working directory\n");
+		pr_dbg("getcwd: Cannot determine current working directory\n");
 		return;
 	}
 	if (access(path, R_OK | W_OK)) {
@@ -1689,6 +1732,9 @@ HOT OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
 	register const uint32_t *ptr32end = (uint32_t *)(data + len);
+
+	if (!data || (len < 4))
+		return;
 
 	if (stress_little_endian()) {
 		while (ptr32 < ptr32end)
@@ -1796,6 +1842,9 @@ void stress_yaml_runinfo(FILE *yaml)
 	const size_t hostname_len = stress_get_hostname_length();
 	char *hostname;
 	const char *user = shim_getlogin();
+
+	if (!yaml)
+		return;
 
 	pr_yaml(yaml, "system-info:\n");
 	if (time(&t) != ((time_t)-1))
@@ -1999,6 +2048,11 @@ ssize_t stress_system_write(
 	int fd;
 	ssize_t ret;
 
+	if (UNLIKELY(!path || !buf))
+		return -EINVAL;
+	if (UNLIKELY(buf_len == 0))
+		return -EINVAL;
+
 	fd = open(path, O_WRONLY);
 	if (UNLIKELY(fd < 0))
 		return -errno;
@@ -2021,6 +2075,11 @@ ssize_t stress_system_read(
 {
 	int fd;
 	ssize_t ret;
+
+	if (UNLIKELY(!path || !buf))
+		return -EINVAL;
+	if (UNLIKELY(buf_len == 0))
+		return -EINVAL;
 
 	(void)shim_memset(buf, 0, buf_len);
 
@@ -2732,6 +2791,9 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 	const char *suffix = "";
 	uint64_t scale = 1;
 
+	if ((!str) || (len < 1))
+		return str;
+
 	for (i = 0; i < SIZEOF_ARRAY(size_info); i++) {
 		const uint64_t scaled = val / size_info[i].size;
 
@@ -2889,6 +2951,8 @@ int stress_drop_capabilities(const char *name)
  */
 bool PURE stress_is_dot_filename(const char *name)
 {
+	if (!name)
+		return false;
 	if (!strcmp(name, "."))
 		return true;
 	if (!strcmp(name, ".."))
@@ -2902,8 +2966,12 @@ bool PURE stress_is_dot_filename(const char *name)
  */
 char *stress_const_optdup(const char *opt)
 {
-	char *str = strdup(opt);
+	char *str;
 
+	if (!opt)
+		return NULL;
+
+	str = strdup(opt);
 	if (!str)
 		(void)fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
 
@@ -3004,6 +3072,9 @@ int stress_dirent_list_prune(struct dirent **dlist, const int n)
 {
 	int i, j;
 
+	if (!dlist)
+		return -1;
+
 	for (i = 0, j = 0; i < n; i++) {
 		if (dlist[i]) {
 			if (stress_is_dot_filename(dlist[i]->d_name)) {
@@ -3074,6 +3145,9 @@ uint16_t PURE HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 	register uint32_t sum = 0;
 	register size_t n = sz;
 
+	if (!ptr)
+		return 0;
+
 	while (n > 1) {
 		sum += *ptr++;
 		n -= 2;
@@ -3123,6 +3197,8 @@ int stress_get_unused_uid(uid_t *uid)
 	static uid_t cached_uid = 0;
 	uid_t *uids;
 
+	if (!uid)
+		return -1;
 	*uid = 0;
 
 	/*
@@ -3185,7 +3261,8 @@ int stress_get_unused_uid(uid_t *uid)
 #else
 int stress_get_unused_uid(uid_t *uid)
 {
-	*uid = 0;
+	if (uid)
+		*uid = 0;
 
 	return -1;
 }
@@ -3199,12 +3276,14 @@ int stress_get_unused_uid(uid_t *uid)
  */
 ssize_t stress_read_buffer(
 	const int fd,
-	void* buffer,
+	void *buffer,
 	const ssize_t size,
 	const bool ignore_sig_eintr)
 {
 	ssize_t rbytes = 0, ret;
 
+	if (!buffer || (size < 1))
+		return -1;
 	do {
 		char *ptr = ((char *)buffer) + rbytes;
 ignore_eintr:
@@ -3213,9 +3292,9 @@ ignore_eintr:
 			goto ignore_eintr;
 		if (ret > 0)
 			rbytes += ret;
-	} while (ret > 0 && (rbytes != size));
+	} while ((ret > 0) && (rbytes != size));
 
-	return (ret <= 0)? ret : rbytes;
+	return (ret <= 0) ? ret : rbytes;
 }
 
 /*
@@ -3226,11 +3305,14 @@ ignore_eintr:
  */
 ssize_t stress_write_buffer(
 	const int fd,
-	const void* buffer,
+	const void *buffer,
 	const ssize_t size,
 	const bool ignore_sig_eintr)
 {
 	ssize_t wbytes = 0, ret;
+
+	if (!buffer || (size < 1))
+		return -1;
 
 	do {
 		const void *ptr = (void *)((uintptr_t)buffer + wbytes);
@@ -3241,9 +3323,9 @@ ignore_eintr:
 			goto ignore_eintr;
 		if (ret > 0)
 			wbytes += ret;
-	} while (ret > 0 && (wbytes != size));
+	} while ((ret > 0) && (wbytes != size));
 
-	return (ret <= 0)? ret : wbytes;
+	return (ret <= 0) ? ret : wbytes;
 }
 
 /*
@@ -3669,6 +3751,9 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 	register unsigned int j, n_flags;
 	int *perms;
 
+	if (!permutations)
+		return 0;
+
 	*permutations = NULL;
 
 	for (n_bits = 0, flag_bits = (unsigned int)flags; flag_bits; flag_bits >>= 1U)
@@ -3732,6 +3817,8 @@ const char *stress_get_fs_type(const char *filename)
 	struct statfs buf;
 	static char tmp[256];
 
+	if (!filename)
+		return "";
 	if (statfs(filename, &buf) != 0)
 		return "";
 	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
@@ -3782,6 +3869,9 @@ static char *stress_get_proc_self_exe_path(char *path, const char *proc_path, co
 {
 	ssize_t len;
 
+	if (!path || !proc_path)
+		return NULL;
+
 	len = shim_readlink(proc_path, path, path_len);
 	if ((len < 0) || (len >= PATH_MAX))
 		return NULL;
@@ -3810,6 +3900,9 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	size_t tmp_path_len = path_len;
 	int ret;
 
+	if (!path)
+		return NULL;
+
 	ret = sysctl(mib, SIZEOF_ARRAY(mib), (void *)path, &tmp_path_len, NULL, 0);
 	if (ret < 0) {
 		/* fall back to procfs */
@@ -3818,12 +3911,16 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	return path;
 #else
 	/* fall back to procfs */
+	if (!path)
+		return NULL;
 	return stress_get_proc_self_exe_path(path, "/proc/curproc/file", path_len);
 #endif
 #elif defined(__sun__) && 	\
       defined(HAVE_GETEXECNAME)
 	const char *execname = getexecname();
 
+	if (!path)
+		return NULL;
 	(void)stress_get_proc_self_exe_path;
 
 	if (!execname)
@@ -3832,14 +3929,18 @@ char *stress_get_proc_self_exe(char *path, const size_t path_len)
 	(void)shim_strscpy(path, execname, path_len);
 	return path;
 #elif defined(HAVE_PROGRAM_INVOCATION_NAME)
+	if (!path)
+		return NULL;
+
 	(void)stress_get_proc_self_exe_path;
 
 	/* this may return the wrong name if it's been argv modified */
 	(void)shim_strscpy(path, program_invocation_name, path_len);
 	return path;
 #else
+	if (!path)
+		return NULL;
 	(void)stress_get_proc_self_exe_path;
-
 	(void)path;
 	(void)path_len;
 	return NULL;
@@ -3857,7 +3958,7 @@ int stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
 {
 	int ret;
 	size_t nsize = size;
-	if (!ptr)
+	if (!ptr || !name)
 		return -1;
 
 	(void)shim_memset(ptr, 0, size);
@@ -3878,6 +3979,8 @@ uint64_t stress_bsd_getsysctl_uint64(const char *name)
 {
 	uint64_t val;
 
+	if (!name)
+		return 0ULL;
 	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
 		return val;
 	return 0ULL;
@@ -3891,6 +3994,8 @@ uint32_t stress_bsd_getsysctl_uint32(const char *name)
 {
 	uint32_t val;
 
+	if (!name)
+		return 0UL;
 	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
 		return val;
 	return 0UL;
@@ -3904,6 +4009,8 @@ unsigned int stress_bsd_getsysctl_uint(const char *name)
 {
 	unsigned int val;
 
+	if (!name)
+		return 0;
 	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
 		return val;
 	return 0;
@@ -3917,6 +4024,8 @@ int stress_bsd_getsysctl_int(const char *name)
 {
 	int val;
 
+	if (!name)
+		return 0;
 	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
 		return val;
 	return 0;
@@ -3969,6 +4078,8 @@ void stress_close_fds(int *fds, const size_t n)
 {
 	size_t i, j;
 
+	if (!fds)
+		return;
 	if (n < 1)
 		return;
 
@@ -4038,6 +4149,8 @@ int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
 	int fd;
 	ssize_t ret;
 
+	if (!val)
+		return -1;
 	*val = ~0ULL;
 	(void)snprintf(buffer, sizeof(buffer), "/dev/cpu/%d/msr", cpu);
 	if ((fd = open(buffer, O_RDONLY)) < 0)
@@ -4055,7 +4168,8 @@ int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
 	(void)reg;
 	(void)val;
 
-	*val = ~0ULL;
+	if (val)
+		*val = ~0ULL;
 	return -1;
 #endif
 }
@@ -4075,6 +4189,8 @@ void stress_unset_chattr_flags(const char *pathname)
 	int fd;
 	unsigned long flags = 0;
 
+	if (!pathname)
+		return;
 	fd = open(pathname, O_RDONLY);
 	if (fd < 0)
 		return;
@@ -4124,6 +4240,11 @@ int stress_swapoff(const char *path)
     defined(HAVE_SWAP)
 	int i;
 
+	if (!path) {
+		errno = EINVAL;
+		return -1;
+	}
+
 	for (i = 0; i < 25; i++) {
 		int ret;
 
@@ -4136,7 +4257,10 @@ int stress_swapoff(const char *path)
 	}
 	return -1;
 #else
-	(void)path;
+	if (!path) {
+		errno = EINIVAL;
+		return -1;
+	}
 	errno = ENOSYS;
 	return -1;
 #endif
@@ -4162,6 +4286,8 @@ static void stress_unset_inode_flags(const char *filename, const int flag)
 	int fd;
         const long int new_flag = 0;
 
+	if (!filename)
+		return;
 	fd = open(filename, O_RDWR | flag);
 	if (fd < 0)
 		return;
@@ -4189,6 +4315,9 @@ static void stress_clean_dir_files(
 	const char *end = path + PATH_MAX;
 	int n;
 	struct dirent **names = NULL;
+
+	if (!temp_path || !path)
+		return;
 
 	if (shim_stat(path, &statbuf) < 0) {
 		pr_dbg("stress-ng: failed to stat %s, errno=%d (%s)\n", path, errno, strerror(errno));
@@ -4299,10 +4428,12 @@ void stress_clean_dir(
 	const char *temp_path = stress_get_temp_path();
 	const size_t temp_path_len = strlen(temp_path);
 
-	(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
-	if (access(path, F_OK) == 0) {
-		pr_dbg("%s: removing temporary files in %s\n", name, path);
-		stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
+	if (name) {
+		(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
+		if (access(path, F_OK) == 0) {
+			pr_dbg("%s: removing temporary files in %s\n", name, path);
+			stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
+		}
 	}
 }
 
@@ -4598,6 +4729,9 @@ static void stress_process_info_dump(
 	char buf[8192];
 	char *ptr, *end, *begin, *emit;
 	ssize_t ret;
+
+	if (!filename)
+		return;
 
 	(void)snprintf(path, sizeof(path), "/proc/%jd/%s", (intmax_t)pid, filename);
 	ret = stress_system_read(path, buf, sizeof(buf));
