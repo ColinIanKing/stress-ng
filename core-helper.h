@@ -163,7 +163,6 @@ extern WARN_UNUSED bool stress_redo_fork(stress_args_t *args, const int err);
 extern void stress_sighandler_nop(int sig);
 extern void stress_clear_warn_once(void);
 extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
-extern WARN_UNUSED const char *stress_fs_magic_to_name(const unsigned long fs_magic);
 extern WARN_UNUSED const char *stress_get_fs_type(const char *filename);
 extern WARN_UNUSED int stress_exit_status(const int err);
 extern WARN_UNUSED char *stress_get_proc_self_exe(char *path, const size_t path_len);

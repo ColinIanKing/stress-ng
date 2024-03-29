@@ -3785,6 +3785,8 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 	return (size_t)n_flags;
 }
 
+#if defined(HAVE_LINUX_MAGIC_H) &&	\
+    defined(HAVE_SYS_STATFS_H)
 /*
  *  stress_fs_magic_to_name()
  *	return the human readable file system type based on fs type magic
@@ -3792,19 +3794,17 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 const char *stress_fs_magic_to_name(const unsigned long fs_magic)
 {
 	static char unknown[32];
-#if defined(HAVE_LINUX_MAGIC_H) &&	\
-    defined(HAVE_SYS_STATFS_H)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_fs_names); i++) {
 		if (stress_fs_names[i].fs_magic == fs_magic)
 			return stress_fs_names[i].fs_name;
 	}
-#endif
 	(void)snprintf(unknown, sizeof(unknown), "unknown 0x%lx", fs_magic);
 
 	return unknown;
 }
+#endif
 
 /*
  *  stress_get_fs_type()
