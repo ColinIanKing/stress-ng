@@ -98,6 +98,17 @@ override CFLAGS += $(foreach flag,-flto=auto,$(cc_supports_flag))
 endif
 
 #
+# Sections flags
+#
+SECTIONS_FLAGS := -ffunction-sections -fdata-sections -Wl,--gc-sections
+override CFLAGS += $(foreach flag,$(SECTIONS_FLAGS),$(cc_supports_flag))
+
+ifneq ($(VERBOSE),)
+GC_SECTIONS_FLAGS := -Wl,--print-gc-sections
+override CFLAGS += $(foreach flag,$(GC_SECTIONS_FLAGS),$(cc_supports_flag))
+endif
+
+#
 # Expected build warnings
 #
 ifeq ($(UNEXPECTED),1)
@@ -663,7 +674,7 @@ stress-ng: config.h $(OBJS)
 	$(PRE_Q)echo "LD $@"
 	$(eval LINK_TOOL := $(shell if [ -n "$(shell grep '^#define HAVE_EIGEN' config.h)" ]; then echo $(CXX); else echo $(CC); fi))
 	$(eval LDFLAGS_EXTRA := $(shell grep CONFIG_LDFLAGS config | sed 's/CONFIG_LDFLAGS +=//' | tr '\n' ' '))
-	$(PRE_V)$(LINK_TOOL) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) -o $@
+	$(PRE_V)$(LINK_TOOL) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) $(CFLAGS) -o $@
 
 stress-eigen-ops.o: config.h
 	@if grep -q '^#define HAVE_EIGEN' config.h; then \
