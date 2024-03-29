@@ -931,6 +931,12 @@ static const long skip_syscalls[] = {
 #if defined(SYS_lstat64)
 	SYS_lstat64,
 #endif
+#if defined(SYS_lsm_get_self_attr)
+	SYS_lsm_get_self_attr,
+#endif
+#if defined(SYS_lsm_list_modules)
+	SYS_lsm_modules,
+#endif
 #if defined(SYS_madvise)
 	SYS_madvise,
 #endif
@@ -2399,6 +2405,12 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_lstat64)
 	__NR_lstat64,
+#endif
+#if defined(__NR_lsm_get_self_attr)
+	__NR_lsm_get_self_attr,
+#endif
+#if defined(__NR_lsm_list_modules)
+	__NR_lsm_modules,
 #endif
 #if defined(__NR_lws_entries)
 	__NR_lws_entries,
