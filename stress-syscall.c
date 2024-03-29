@@ -248,6 +248,7 @@ typedef struct {
 	double total_duration;		/* syscall duration in ns */
 	double average_duration;	/* average syscall duration */
 	uint64_t min_duration;		/* syscall min duration in ns */
+	uint64_t max_duration;		/* syscall max duration in ns */
 	uint64_t max_test_duration;	/* maximum test duration */
 	int syscall_errno;		/* syscall errno */
 	bool ignore;			/* true if too slow */
@@ -8557,17 +8558,19 @@ static void stress_syscall_report_syscall_top10(stress_args_t *args)
 	pr_block_begin();
 	pr_inf("%s: Top %zu fastest system calls (timings in nanosecs):\n",
 		args->name, syscall_top);
-	pr_inf("%s: %25s %10s %10s\n", args->name, "System Call", "Avg (ns)", "Min (ns)");
+	pr_inf("%s: %25s %10s %10s %10s\n", args->name,
+		"System Call", "Avg (ns)", "Min (ns)", "Max (ns)");
 	for (i = 0; i < syscall_top; i++) {
 		const size_t j = sort_index[i];
 		syscall_stats_t *ss = &syscall_stats[j];
 
 		if (ss->succeed) {
-			pr_inf("%s: %25s %10.1f %10" PRIu64 "\n",
+			pr_inf("%s: %25s %10.1f %10" PRIu64 " %10" PRIu64 "\n",
 				args->name,
 				syscalls[j].name,
 				ss->total_duration / (double)ss->count,
-				ss->min_duration);
+				ss->min_duration,
+				ss->max_duration);
 		}
 	}
 	pr_block_end();
@@ -8708,6 +8711,8 @@ static void stress_syscall_benchmark_calls(stress_args_t *args)
 		if ((d > 0) && (ret >= 0) && (t1 != ~0ULL) && (t2 != ~0ULL)) {
 			if (ss->min_duration > d)
 				ss->min_duration = d;
+			if (ss->max_duration < d)
+				ss->max_duration = d;
 			ss->total_duration += (double)d;
 			ss->succeed = true;
 			ss->count++;
@@ -8814,6 +8819,7 @@ static int stress_syscall(stress_args_t *args)
 		ss->total_duration = 0.0;
 		ss->count = 0ULL;
 		ss->min_duration = ~0ULL;
+		ss->max_duration = 0ULL;
 		ss->max_test_duration = 0ULL;
 		ss->succeed = false;
 		ss->ignore = false;
