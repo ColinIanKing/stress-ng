@@ -36,15 +36,6 @@ double PURE OPTIMIZE3 stress_timeval_to_double(const struct timeval *tv)
 }
 
 /*
- *  stress_timespec_to_double()
- *      convert timespec to seconds as a double
- */
-double PURE OPTIMIZE3 stress_timespec_to_double(const struct timespec *ts)
-{
-	return (double)ts->tv_sec + ((double)ts->tv_nsec * ONE_BILLIONTH);
-}
-
-/*
  *  stress_time_now_timeval()
  *	get time as double accurate to microseconds
  */
@@ -72,7 +63,7 @@ static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
 	if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
 		return -1;
 
-	*dnow = stress_timespec_to_double(&ts);
+	*dnow = (double)ts.tv_sec + ((double)ts.tv_nsec * ONE_BILLIONTH);
 	return 0;
 #else
 	(void)dnow;
