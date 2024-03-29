@@ -265,7 +265,7 @@ static long wrap_time(void)
  *  wrap_dummy()
  *	dummy empty function for baseline
  */
-static long wrap_dummy(void)
+extern long wrap_dummy(void)
 {
 	return (long)-1;
 }
@@ -295,15 +295,6 @@ static stress_x86syscall_t x86syscalls[] = {
 #if defined(__NR_time)
 	{ wrap_time,		"time",			true },
 #endif
-};
-
-/*
- *  mapping of wrappers for instrumentation measurement,
- *  MUST NOT be static to avoid optimizer from removing the
- *  indirect calls
- */
-stress_x86syscall_t dummy_x86syscalls[] = {
-	{ wrap_dummy,		"dummy",		true },
 };
 
 /*
