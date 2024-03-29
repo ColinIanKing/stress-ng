@@ -3187,6 +3187,41 @@ static int syscall_lstat(void)
 	return ret;
 }
 
+#if defined(HAVE_LSM_GET_SELF_ATTR) && 	\
+    defined(LSM_ATTR_CURRENT)
+#define HAVE_SYSCALL_LSM_GET_SELF_ATTR
+static int syscall_lsm_get_self_attr(void)
+{
+	int ret;
+	char buf[4096];
+	struct lsm_ctx *ctx = (struct lsm_ctx *)buf;
+	size_t size = sizeof(buf);
+
+	t1 = syscall_time_now();
+	ret = lsm_get_self_attr(LSM_ATTR_CURRENT, ctx, &size, 0);
+	t2 = syscall_time_now();
+
+	return ret;
+}
+#endif
+
+#if defined(HAVE_LSM_LIST_MODULES)
+#define HAVE_SYSCALL_LSM_LIST_MODULES
+static int syscall_lsm_list_modules(void)
+{
+	int ret;
+	char buf[4096];
+	uint64_t *ids = (uint64_t *)buf;
+	size_t size = sizeof(buf);
+
+	t1 = syscall_time_now();
+	ret = lsm_list_modules(ids, &size, 0);
+	t2 = syscall_time_now();
+
+	return ret;
+}
+#endif
+
 #if defined(HAVE_MADVISE)
 #define HAVE_SYSCALL_MADVISE
 static int syscall_madvise(void)
@@ -7799,6 +7834,12 @@ static const syscall_t syscalls[] = {
 #endif
 #if defined(HAVE_SYSCALL_LSTAT)
 	SYSCALL(syscall_lstat),
+#endif
+#if defined(HAVE_SYSCALL_LSM_GET_SELF_ATTR)
+	SYSCALL(syscall_lsm_get_self_attr),
+#endif
+#if defined(HAVE_SYSCALL_LSM_LIST_MODULES)
+	SYSCALL(syscall_lsm_list_modules),
 #endif
 #if defined(HAVE_SYSCALL_MADVISE)
 	SYSCALL(syscall_madvise),
