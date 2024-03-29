@@ -635,7 +635,7 @@ out_ok:
  *  stress_perf_stat_succeeded()
  *	did perf event open work OK?
  */
-bool stress_perf_stat_succeeded(const stress_perf_t *sp)
+static bool stress_perf_stat_succeeded(const stress_perf_t *sp)
 {
 	return sp->perf_opened > 0;
 }
