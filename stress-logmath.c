@@ -96,7 +96,7 @@ PRAGMA_UNROLL_N(8)
 		register const float fi = (float)(i + 1);
 		register const float complex fci = fi + (fi * I);
 
-		sum += (double complex)shim_clogf(fci);
+		sum += shim_clogf(fci);
 	}
 	stress_bogo_inc(args);
 
@@ -171,7 +171,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const float fi = (float)(i + 1);
 
-		sum += (double)shim_logf(fi);
+		sum += shim_logf(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -243,7 +243,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const float fi = (float)(i + 1);
 
-		sum += (double)shim_logbf(fi);
+		sum += shim_logbf(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -315,7 +315,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const float fi = (float)(i + 1);
 
-		sum += (double)shim_log10f(fi);
+		sum += shim_log10f(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -387,7 +387,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_LOGMATH_LOOPS; i++) {
 		register const float fi = (float)(i + 1);
 
-		sum += (double)shim_log2f(fi);
+		sum += shim_log2f(fi);
 	}
 	stress_bogo_inc(args);
 
