@@ -93,7 +93,7 @@ PRAGMA_UNROLL_N(8)
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 		register const float complex fci = fi + (fi * I);
 
-		sum += (double complex)shim_cexpf(fci);
+		sum += shim_cexpf(fci);
 	}
 	stress_bogo_inc(args);
 
@@ -168,7 +168,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 
-		sum += (double)shim_expf(fi);
+		sum += shim_expf(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -240,7 +240,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 
-		sum += (double)shim_exp10f(fi);
+		sum += shim_exp10f(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -312,7 +312,7 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 
-		sum += (double)shim_exp2f(fi);
+		sum += shim_exp2f(fi);
 	}
 	stress_bogo_inc(args);
 
