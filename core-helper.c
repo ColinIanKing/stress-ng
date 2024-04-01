@@ -4258,7 +4258,7 @@ int stress_swapoff(const char *path)
 	return -1;
 #else
 	if (!path) {
-		errno = EINIVAL;
+		errno = EINVAL;
 		return -1;
 	}
 	errno = ENOSYS;
