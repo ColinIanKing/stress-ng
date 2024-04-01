@@ -31,14 +31,14 @@
 	MACRO(affinity) 	\
 	MACRO(aio) 		\
 	MACRO(aiol) 		\
-	MACRO(apparmor) 	\
 	MACRO(alarm)		\
+	MACRO(apparmor) 	\
 	MACRO(atomic)		\
 	MACRO(bad_altstack) 	\
 	MACRO(bad_ioctl) 	\
 	MACRO(bigheap)		\
-	MACRO(bind_mount)	\
 	MACRO(binderfs)		\
+	MACRO(bind_mount)	\
 	MACRO(bitonicsort)	\
 	MACRO(branch)		\
 	MACRO(brk)		\
@@ -73,8 +73,8 @@
 	MACRO(dnotify)		\
 	MACRO(dup)		\
 	MACRO(dynlib)		\
-	MACRO(eigen)		\
 	MACRO(efivar)		\
+	MACRO(eigen)		\
 	MACRO(enosys)		\
 	MACRO(env)		\
 	MACRO(epoll)		\
@@ -181,8 +181,8 @@
 	MACRO(mmapmany)		\
 	MACRO(module)		\
 	MACRO(monte_carlo)	\
-	MACRO(mprotect)		\
 	MACRO(mpfr)		\
+	MACRO(mprotect)		\
 	MACRO(mq)		\
 	MACRO(mremap)		\
 	MACRO(msg)		\
@@ -227,8 +227,8 @@
 	MACRO(quota)		\
 	MACRO(race_sched)	\
 	MACRO(radixsort)	\
-	MACRO(randlist)		\
 	MACRO(ramfs)		\
+	MACRO(randlist)		\
 	MACRO(rawdev)		\
 	MACRO(rawpkt)		\
 	MACRO(rawsock)		\
@@ -287,11 +287,11 @@
 	MACRO(sockabuse)	\
 	MACRO(sockdiag)		\
 	MACRO(sockfd)		\
-	MACRO(sockpair)		\
 	MACRO(sockmany)		\
+	MACRO(sockpair)		\
 	MACRO(softlockup)	\
-	MACRO(spawn)		\
 	MACRO(sparsematrix)	\
+	MACRO(spawn)		\
 	MACRO(splice)		\
 	MACRO(stack)		\
 	MACRO(stackmmap)	\
@@ -305,9 +305,9 @@
 	MACRO(syncload)		\
 	MACRO(sysbadaddr)	\
 	MACRO(syscall)		\
+	MACRO(sysfs)		\
 	MACRO(sysinfo)		\
 	MACRO(sysinval)		\
-	MACRO(sysfs)		\
 	MACRO(tee)		\
 	MACRO(timer)		\
 	MACRO(timerfd)		\
@@ -338,11 +338,11 @@
 	MACRO(vfork)		\
 	MACRO(vforkmany)	\
 	MACRO(vm)		\
+	MACRO(vma)		\
 	MACRO(vm_addr)		\
 	MACRO(vm_rw)		\
 	MACRO(vm_segv)		\
 	MACRO(vm_splice)	\
-	MACRO(vma)		\
 	MACRO(vnni)		\
 	MACRO(wait)		\
 	MACRO(waitcpu)		\
