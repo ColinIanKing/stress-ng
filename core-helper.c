@@ -3791,7 +3791,7 @@ size_t stress_flag_permutation(const int flags, int **permutations)
  *  stress_fs_magic_to_name()
  *	return the human readable file system type based on fs type magic
  */
-const char *stress_fs_magic_to_name(const unsigned long fs_magic)
+static const char *stress_fs_magic_to_name(const unsigned long fs_magic)
 {
 	static char unknown[32];
 	size_t i;
