@@ -694,7 +694,6 @@ bugs or performance regressions found with stress-ng.
 
 Many thanks to the following contributors to stress-ng (in alphabetical order):
 
-
 Abdul Haleem, Aboorva Devarajan, Adriand Martin, Adrian Ratiu,
 Aleksandar N. Kostadinov, Alexander Kanavin, Alexandru Ardelean,
 Alfonso Sánchez-Beato, Allen H, Amit Singh Tomar Andrey Gelman, André Wild,
@@ -710,6 +709,6 @@ Luca Pizzamiglio, Luis Chamberlain, Luis Henriques, Matthew Tippett,
 Mauricio Faria de Oliveira, Maxime Chevallier, Max Kellermann, Maya Rashish,
 Mayuresh Chitale, Meysam Azad, Mike Koreneff, Munehisa Kamata, Nick Hanley,
 Nikolas Kyx, Paul Menzel, Piyush Goyal, Ralf Ramsauer, Rosen Penev, Rulin Huang,
-Sascha Hauer, Siddhesh Poyarekar, Shoily Rahman, Thadeu Lima de Souza Cascardo,
-Thia Wyrod, Thinh Tran, Tim Gardner, Tim Gates, Tim Orling,
-Tommi Rantala, Witold Baryluk, Yong-Xuan Wang, Zhiyi Sun.
+Sascha Hauer, Siddhesh Poyarekar, Shoily Rahman, Stian Onarheim,
+Thadeu Lima de Souza Cascardo, Thia Wyrod, Thinh Tran, Tim Gardner, Tim Gates,
+Tim Orling, Tommi Rantala, Witold Baryluk, Yong-Xuan Wang, Zhiyi Sun.
