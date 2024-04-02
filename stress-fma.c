@@ -374,7 +374,7 @@ static int stress_fma(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap((void *)fma, sizeof(*fma));
+	(void)munmap((void *)pfma, sizeof(*pfma));
 
 	return EXIT_SUCCESS;
 }
