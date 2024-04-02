@@ -84,9 +84,9 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_CEXPF)
 static bool OPTIMIZE3 TARGET_CLONES stress_expmath_cexpf(stress_args_t *args)
 {
-	register float complex sum = 0.0;
+	register double complex sum = 0.0;
 	register int i;
-	static complex float result = -1.0;
+	static complex double result = -1.0;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
@@ -94,7 +94,7 @@ PRAGMA_UNROLL_N(8)
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 		register const float complex fci = fi + (fi * I);
 
-		sum += shim_cexpf(fci);
+		sum += (complex double)shim_cexpf(fci);
 	}
 	stress_bogo_inc(args);
 
@@ -102,7 +102,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_cabsf(sum - result) > PRECISION);
+	return (shim_cabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -160,16 +160,16 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_EXPF)
 static bool OPTIMIZE3 TARGET_CLONES stress_expmath_expf(stress_args_t *args)
 {
-	register float sum = 0.0;
+	register double sum = 0.0;
 	register int i;
-	static float result = -1.0;
+	static double result = -1.0;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 
-		sum += shim_expf(fi);
+		sum += (double)shim_expf(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -177,7 +177,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsf(sum - result) > PRECISION);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -232,16 +232,16 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_EXP10F)
 static bool OPTIMIZE3 TARGET_CLONES stress_expmath_exp10f(stress_args_t *args)
 {
-	register float sum = 0.0;
+	register double sum = 0.0;
 	register int i;
-	static float result = -1.0;
+	static double result = -1.0;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 
-		sum += shim_exp10f(fi);
+		sum += (double)shim_exp10f(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -249,7 +249,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsf(sum - result) > PRECISION);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -304,16 +304,16 @@ PRAGMA_UNROLL_N(8)
 #if defined(HAVE_EXP2F)
 static bool OPTIMIZE3 TARGET_CLONES stress_expmath_exp2f(stress_args_t *args)
 {
-	register float sum = 0.0;
+	register double sum = 0.0;
 	register int i;
-	static float result = -1.0;
+	static double result = -1.0;
 	static bool first_run = true;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_EXPMATH_LOOPS; i++) {
 		register const float fi = (float)i / (float)STRESS_EXPMATH_LOOPS;
 
-		sum += shim_exp2f(fi);
+		sum += (double)shim_exp2f(fi);
 	}
 	stress_bogo_inc(args);
 
@@ -321,7 +321,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsf(sum - result) > PRECISION);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
