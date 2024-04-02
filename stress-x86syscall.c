@@ -265,7 +265,7 @@ static long wrap_time(void)
  *  wrap_dummy()
  *	dummy empty function for baseline
  */
-extern long wrap_dummy(void)
+static long wrap_dummy(void)
 {
 	return (long)-1;
 }
