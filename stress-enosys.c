@@ -2410,7 +2410,7 @@ static const long skip_syscalls[] = {
 	__NR_lsm_get_self_attr,
 #endif
 #if defined(__NR_lsm_list_modules)
-	__NR_lsm_modules,
+	__NR_lsm_list_modules,
 #endif
 #if defined(__NR_lws_entries)
 	__NR_lws_entries,
