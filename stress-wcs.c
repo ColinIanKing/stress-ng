@@ -21,14 +21,14 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
-#if defined(HAVE_BSD_WCHAR)
+#if defined(HAVE_BSD_WCHAR_H)
 #include <bsd/wchar.h>
-#define HAVE_WCHAR_H
+#define HAVE_WCHAR
 #endif
 
-#if defined(HAVE_WCHAR)
+#if defined(HAVE_WCHAR_H)
 #include <wchar.h>
-#define HAVE_WCHAR_H
+#define HAVE_WCHAR
 #endif
 
 #define STR1LEN 256
@@ -100,7 +100,7 @@ static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
      defined(HAVE_WCSLEN)  || 		\
      defined(HAVE_WCSCOLL) ||		\
      defined(HAVE_WCSXFRM)) &&		\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 
 static void wcschk(
 	stress_wcs_args_t *info,
@@ -120,7 +120,7 @@ static void wcschk(
 #define WCSCHK(info, test)	wcschk(info, test, STR(test))
 
 #if defined(HAVE_WCSCASECMP) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcscasecmp()
  *	stress on wcscasecmp
@@ -155,7 +155,7 @@ static size_t stress_wcscasecmp(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSNCASECMP) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcsncasecmp()
  *	stress on wcsncasecmp
@@ -192,7 +192,7 @@ static size_t stress_wcsncasecmp(stress_args_t *args, stress_wcs_args_t *info)
 
 #if defined(HAVE_WCSLCPY) &&		\
     defined(HAVE_WCSLEN) &&		\
-    defined(HAVE_WCHAR_H) &&		\
+    defined(HAVE_WCHAR) &&		\
     !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 /*
@@ -221,7 +221,7 @@ static size_t stress_wcslcpy(stress_args_t *args, stress_wcs_args_t *info)
 	return i * 2;
 }
 #elif defined(HAVE_WCSCPY) &&	\
-      defined(HAVE_WCHAR_H)
+      defined(HAVE_WCHAR)
 /*
  *  stress_wcscpy()
  *	stress on wcscpy
@@ -248,7 +248,7 @@ static size_t stress_wcscpy(stress_args_t *args, stress_wcs_args_t *info)
 
 #if defined(HAVE_WCSLCAT) &&		\
     defined(HAVE_WCSLEN) &&		\
-    defined(HAVE_WCHAR_H) &&		\
+    defined(HAVE_WCHAR) &&		\
     !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 /*
@@ -286,7 +286,7 @@ static size_t stress_wcslcat(stress_args_t *args, stress_wcs_args_t *info)
 	return i * 6;
 }
 #elif defined(HAVE_WCSCAT) &&	\
-      defined(HAVE_WCHAR_H)
+      defined(HAVE_WCHAR)
 /*
  *  stress_wcscat()
  *	stress on wcscat
@@ -320,7 +320,7 @@ static size_t stress_wcscat(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSNCAT) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcsncat()
  *	stress on wcsncat
@@ -355,7 +355,7 @@ static size_t stress_wcsncat(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSCHR) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcschr()
  *	stress on wcschr
@@ -383,7 +383,7 @@ static size_t stress_wcschr(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSRCHR) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcsrchr()
  *	stress on wcsrchr
@@ -411,7 +411,7 @@ static size_t stress_wcsrchr(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSCMP) &&	\
-    defined(HAVE_WCHAR_H) &&	\
+    defined(HAVE_WCHAR) &&	\
     !defined(STRESS_ARCH_M68K)
 /*
  *  stress_wcscmp()
@@ -447,7 +447,7 @@ static size_t stress_wcscmp(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSNCMP) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcsncmp()
  *	stress on wcsncmp
@@ -483,7 +483,7 @@ static size_t stress_wcsncmp(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSLEN) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcslen()
  *	stress on wcslen
@@ -514,7 +514,7 @@ static size_t stress_wcslen(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSCOLL) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcscoll()
  *	stress on wcscoll
@@ -549,7 +549,7 @@ static size_t stress_wcscoll(stress_args_t *args, stress_wcs_args_t *info)
 #endif
 
 #if defined(HAVE_WCSXFRM) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 /*
  *  stress_wcsxfrm()
  *	stress on wcsxfrm
@@ -591,64 +591,64 @@ static size_t stress_wcs_all(stress_args_t *args, stress_wcs_args_t *info);
 static const stress_wcs_method_info_t wcs_methods[] = {
 	{ "all",		stress_wcs_all,		NULL },	/* Special "all" test */
 #if defined(HAVE_WCSCASECMP) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcscasecmp",		stress_wcscasecmp,	(void *)wcscasecmp },
 #endif
 #if defined(HAVE_WCSLCAT) &&		\
     defined(HAVE_WCSLEN) &&		\
-    defined(HAVE_WCHAR_H) &&		\
+    defined(HAVE_WCHAR) &&		\
     !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 	{ "wcslcat",		stress_wcslcat,		(void *)wcslcat },
 #elif defined(HAVE_WCSCAT) &&	\
-      defined(HAVE_WCHAR_H)
+      defined(HAVE_WCHAR)
 	{ "wcscat",		stress_wcscat,		(void *)wcscat },
 #endif
 #if defined(HAVE_WCSCHR) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcschr",		stress_wcschr,		(void *)wcschr },
 #endif
 #if defined(HAVE_WCSCMP) &&	\
-    defined(HAVE_WCHAR_H) &&	\
+    defined(HAVE_WCHAR) &&	\
     !defined(STRESS_ARCH_M68K)
 	{ "wcscmp",		stress_wcscmp,		(void *)wcscmp },
 #endif
 #if defined(HAVE_WCSLCPY) &&		\
     defined(HAVE_WCSLEN) &&		\
-    defined(HAVE_WCHAR_H) &&		\
+    defined(HAVE_WCHAR) &&		\
     !defined(HAVE_COMPILER_PCC) &&	\
     !defined(BUILD_STATIC)
 	{ "wcslcpy",		stress_wcslcpy,		(void *)wcslcpy },
 #elif defined(HAVE_WCSCPY) &&	\
-      defined(HAVE_WCHAR_H)
+      defined(HAVE_WCHAR)
 	{ "wcscpy",		stress_wcscpy,		(void *)wcscpy },
 #endif
 #if defined(HAVE_WCSLEN) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcslen",		stress_wcslen,		(void *)wcslen },
 #endif
 #if defined(HAVE_WCSNCASECMP) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcsncasecmp",	stress_wcsncasecmp,	(void *)wcsncasecmp },
 #endif
 #if defined(HAVE_WCSNCAT) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcsncat",		stress_wcsncat,		(void *)wcsncat },
 #endif
 #if defined(HAVE_WCSNCMP) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcsncmp",		stress_wcsncmp,		(void *)wcsncmp },
 #endif
 #if defined(HAVE_WCSRCHR) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcsrchr",		stress_wcsrchr,		(void *)wcschr },
 #endif
 #if defined(HAVE_WCSCOLL) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcscoll",		stress_wcscoll,		(void *)wcscoll },
 #endif
 #if defined(HAVE_WCSXFRM) &&	\
-    defined(HAVE_WCHAR_H)
+    defined(HAVE_WCHAR)
 	{ "wcsxfrm",		stress_wcsxfrm,		(void *)wcsxfrm },
 #endif
 };
