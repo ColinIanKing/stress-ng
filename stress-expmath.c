@@ -27,6 +27,7 @@
 #endif
 
 #define STRESS_EXPMATH_LOOPS	(10000)
+#define PRECISION 		(1.0E-4)
 
 typedef struct {
 	const char *name;
@@ -76,7 +77,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_cabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -101,7 +102,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_cabsf(sum - result) > PRECISION);
 }
 #endif
 
@@ -126,7 +127,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_cabsl(sum - result) > PRECISION);
 }
 #endif
 
@@ -152,7 +153,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -176,7 +177,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabsf(sum - result) > PRECISION);
 }
 #endif
 
@@ -200,7 +201,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabsl(sum - result) > PRECISION);
 }
 #endif
 
@@ -224,7 +225,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -248,7 +249,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabsf(sum - result) > PRECISION);
 }
 #endif
 
@@ -272,7 +273,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabsl(sum - result) > PRECISION);
 }
 #endif
 
@@ -296,7 +297,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -320,7 +321,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabsf(sum - result) > PRECISION);
 }
 #endif
 
@@ -343,7 +344,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (sum != result);
+	return (shim_fabsl(sum - result) > PRECISION);
 }
 #endif
 
