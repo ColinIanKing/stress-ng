@@ -97,6 +97,7 @@ ifeq ($(LTO),1)
 override CFLAGS += $(foreach flag,-flto=auto,$(cc_supports_flag))
 endif
 
+ifeq ($(GARBAGE_COLLECT),1)
 #
 # Sections flags
 #
@@ -106,6 +107,7 @@ override CFLAGS += $(foreach flag,$(SECTIONS_FLAGS),$(cc_supports_flag))
 ifneq ($(VERBOSE),)
 GC_SECTIONS_FLAGS := -Wl,--print-gc-sections
 override CFLAGS += $(foreach flag,$(GC_SECTIONS_FLAGS),$(cc_supports_flag))
+endif
 endif
 
 #
