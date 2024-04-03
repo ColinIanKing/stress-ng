@@ -299,7 +299,7 @@ static int stress_fma(stress_args_t *args)
 	stress_fma_func *fma_funcs;
 	bool fma_libc = false;
 
-	stress_get_setting("fma-libc", &fma_libc);
+	(void)stress_get_setting("fma-libc", &fma_libc);
 #if (defined(HAVE_FMA)  || defined(FP_FAST_FMA)) && 	\
     (defined(HAVE_FMAF) || defined(FP_FAST_FMAF))
 	fma_funcs = fma_libc ? stress_fma_libc_funcs : stress_fma_funcs;
