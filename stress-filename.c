@@ -102,6 +102,8 @@ static int stress_filename_probe_length(
 		*(ptr + i + 1) = '\0';
 
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+			if (errno == ENOTSUP)
+				break;
 			if (errno == ENAMETOOLONG)
 				break;
 			pr_err("%s: creat() failed when probing "
@@ -163,7 +165,7 @@ static int stress_filename_probe(
 			 */
 			if ((errno != EINVAL) &&
 			    (errno != ENOENT) &&
-			    (errno == ENAMETOOLONG) &&
+			    ((errno == ENAMETOOLONG) || (errno == ENOTSUP)) &&
 			    (errno != EILSEQ)) {
 				pr_err("%s: creat() failed when probing "
 					"for allowed filename characters, "
