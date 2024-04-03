@@ -79,7 +79,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 	}
 
 	do {
-		int ret;
+		int ret, failed = 0;
 		const uint64_t pattern = stress_mwc64();
 
 		*mapped = pattern;
@@ -99,6 +99,9 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 			if (*ptr != pattern) {
 				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (const void *)ptr, *ptr, pattern);
+				failed++;
+				if (failed >= 5)
+					break;
 			}
 		}
 		stress_bogo_inc(args);
