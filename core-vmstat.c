@@ -51,6 +51,10 @@ STRESS_PRAGMA_POP
 #include <sys/sysmacros.h>
 #endif
 
+#if defined(HAVE_SYS_MKDEV_H)
+#include <sys/mkdev.h>
+#endif
+
 #if defined(HAVE_SYS_VMMETER_H)
 #include <sys/vmmeter.h>
 #endif

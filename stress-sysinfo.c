@@ -23,26 +23,22 @@
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
-#else
-UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_SYSMACROS_H)
 #include <sys/sysmacros.h>
-#else
-UNEXPECTED
+#endif
+
+#if defined(HAVE_SYS_MKDEV_H)
+#include <sys/mkdev.h>
 #endif
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
-#else
-UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
-#else
-UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
