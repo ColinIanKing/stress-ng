@@ -719,20 +719,22 @@ static int stress_get_meminfo(
 	size_t *freeswap,
 	size_t *totalswap)
 {
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	struct sysinfo info;
-
 	if (!freemem || !totalmem || !freeswap || !totalswap)
 		return -1;
-	(void)shim_memset(&info, 0, sizeof(info));
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
+	{
+		struct sysinfo info;
 
-	if (sysinfo(&info) == 0) {
-		*freemem = info.freeram * info.mem_unit;
-		*totalmem = info.totalram * info.mem_unit;
-		*freeswap = info.freeswap * info.mem_unit;
-		*totalswap = info.totalswap * info.mem_unit;
-		return 0;
+		(void)shim_memset(&info, 0, sizeof(info));
+
+		if (sysinfo(&info) == 0) {
+			*freemem = info.freeram * info.mem_unit;
+			*totalmem = info.totalram * info.mem_unit;
+			*freeswap = info.freeswap * info.mem_unit;
+			*totalswap = info.totalswap * info.mem_unit;
+			return 0;
+		}
 	}
 #endif
 #if defined(__FreeBSD__)
@@ -745,10 +747,6 @@ static int stress_get_meminfo(
 		const size_t max_size_t = (size_t)-1;
 		const uint64_t vm_swap_total = stress_bsd_getsysctl_uint64("vm.swap_total");
 
-#endif
-		if (!freemem || !totalmem || !freeswap || !totalswap)
-			return -1;
-#if 0
 		*totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
 #endif
 		*freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
@@ -767,9 +765,6 @@ static int stress_get_meminfo(
     defined(HAVE_UVM_UVM_EXTERN_H)
 	{
 		struct uvmexp_sysctl u;
-
-		if (!freemem || !totalmem || !freeswap || !totalswap)
-			return -1;
 
 		if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
 			*freemem = (size_t)u.free * u.pagesize;
@@ -790,9 +785,6 @@ static int stress_get_meminfo(
 		size_t page_size = stress_get_page_size();
 		int ret;
 
-		if (!freemem || !totalmem || !freeswap || !totalswap)
-			return -1;
-
 		/* zero vm_stat, keep cppcheck silent */
 		(void)shim_memset(&vm_stat, 0, sizeof(vm_stat));
 		ret = host_statistics64(host, HOST_VM_INFO64, (host_info64_t)&vm_stat, &count);
@@ -807,9 +799,6 @@ static int stress_get_meminfo(
 
 	}
 #endif
-	if (!freemem || !totalmem || !freeswap || !totalswap)
-		return -1;
-
 	*freemem = 0;
 	*totalmem = 0;
 	*freeswap = 0;
