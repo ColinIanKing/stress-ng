@@ -127,6 +127,8 @@ static int stress_pty(stress_args_t *args)
 				}
 				ptys[n].follower = open(ptys[n].followername, O_RDWR);
 				if (UNLIKELY(ptys[n].follower < 0)) {
+					if (errno == EINTR)
+						break;
 					if (errno != EMFILE) {
 						pr_fail("%s: open %s failed, errno=%d (%s)\n",
 							args->name, ptys[n].followername, errno, strerror(errno));
