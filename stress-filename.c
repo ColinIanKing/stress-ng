@@ -296,10 +296,12 @@ static void stress_filename_test(
 			args->name);
 
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+		if (errno == ENOTSUP)
+			return;
 		if ((!should_pass) && (errno == ENAMETOOLONG))
 			return;
 
-		pr_fail("%s: open failed on file of length "
+		pr_fail("%s: creat() failed on file of length "
 			"%zu bytes, errno=%d (%s)\n",
 			args->name, sz_max, errno, strerror(errno));
 	} else {
