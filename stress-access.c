@@ -403,6 +403,7 @@ static int stress_access(stress_args_t *args)
 					goto unmap;
 				}
 				t = stress_time_now();
+				errno = 0;
 				ret = access(filename1, modes[i].access_mode);
 				if (UNLIKELY((ret == 0) && dont_ignore)) {
 					if (report_chmod_error) {
@@ -418,6 +419,7 @@ static int stress_access(stress_args_t *args)
 				}
 #if defined(HAVE_FACCESSAT)
 				t = stress_time_now();
+				errno = 0;
 				ret = faccessat(AT_FDCWD, filename1, modes[i].access_mode,
 					AT_SYMLINK_NOFOLLOW);
 				if (UNLIKELY((ret == 0) && dont_ignore)) {
