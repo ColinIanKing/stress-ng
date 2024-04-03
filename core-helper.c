@@ -1128,9 +1128,10 @@ fail:
 
 	return 0;
 fail:
-#endif
+#else
 	if (!min1 || !min5 || !min15)
 		return -1;
+#endif
 	*min1 = *min5 = *min15 = 0.0;
 	return -1;
 }
