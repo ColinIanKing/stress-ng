@@ -1524,7 +1524,7 @@ static int stress_zlib_inflate(
 			sz = stress_read_buffer(fd, &def_size, sizeof(def_size), false);
 			if (sz == 0) {
 				break;
-			} else if (sz != sizeof(def_size)) {
+			} else if ((sz != sizeof(def_size)) || (sz < 0)) {
 				(void)inflateEnd(&stream_inf);
 				if ((errno != EINTR) && (errno != EPIPE)) {
 					pr_fail("%s: zlib pipe read size error: %s (ret=%zd errno=%d)\n",
@@ -1543,7 +1543,7 @@ static int stress_zlib_inflate(
 			sz = stress_read_buffer(fd, in, def_size, false);
 			if (sz == 0) {
 				break;
-			} else if (sz != def_size) {
+			} else if ((sz != def_size) || (sz < 0)) {
 				(void)inflateEnd(&stream_inf);
 				if ((errno != EINTR) && (errno != EPIPE)) {
 					pr_fail("%s: zlib pipe read buffer error: %s (ret=%zd errno=%d)\n",
