@@ -1724,6 +1724,15 @@ bool PURE stress_little_endian(void)
 }
 
 /*
+ *  stress_endian_str()
+ *	return endianess as a string
+ */
+static const char *stress_endian_str(void)
+{
+	return stress_little_endian() ? "little endian" : "big endian";
+}
+
+/*
  *  stress_uint8rnd4()
  *	fill a uint8_t buffer full of random data
  *	buffer *must* be multiple of 4 bytes in size
@@ -1800,16 +1809,18 @@ void stress_runinfo(void)
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	if (uname(&uts) >= 0) {
-		pr_dbg("system: %s %s %s %s %s, %s, %s\n",
+		pr_dbg("system: %s %s %s %s %s, %s, %s, %s\n",
 			uts.sysname, uts.nodename, uts.release,
 			uts.version, uts.machine,
 			stress_get_compiler(),
-			stress_get_libc_version());
+			stress_get_libc_version(),
+			stress_endian_str());
 	}
 #else
-	pr_dbg("system: %s, %s\n",
+	pr_dbg("system: %s, %s, %s\n",
 		stress_get_compiler(),
-		stress_get_libc_version());
+		stress_get_libc_version(),
+		stress_endian_str());
 #endif
 	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
 		char ram_t[32], ram_f[32], ram_s[32];
