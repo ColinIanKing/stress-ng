@@ -1384,6 +1384,7 @@ static int MLOCKED_TEXT stress_run_child(
 	pid_t child_pid;
 	char name[64];
 	int rc = EXIT_SUCCESS;
+	int sched_rc;
 	bool ok;
 	double finish, run_duration;
 
@@ -1394,7 +1395,18 @@ static int MLOCKED_TEXT stress_run_child(
 	stress_set_proc_state(name, STRESS_STATE_START);
 	g_shared->instance_count.started++;
 
-	(void)sched_settings_apply(true);
+	if ((sched_rc = sched_settings_apply(true)) < 0) {
+#if defined(SCHED_DEADLINE) &&	\
+    defined(__linux__)
+		int32_t sched = UNDEFINED;
+
+		(void)stress_get_setting("sched", &sched);
+		if (sched_rc == -EBUSY && sched == SCHED_DEADLINE) {
+			pr_err("failed admission for sched-deadline, exiting\n");
+			exit(EXIT_NO_RESOURCE);
+		}
+#endif
+	}
 	(void)atexit(stress_child_atexit);
 	if (stress_set_handler(name, true) < 0) {
 		rc = EXIT_FAILURE;
