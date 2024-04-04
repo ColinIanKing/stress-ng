@@ -1,3 +1,113 @@
+stress-ng (0.17.07-1) unstable; urgency=medium
+
+  [Stian Onarheim]
+  * core-stressors.h: Sort the stressor list
+
+  [Amit Singh Tomar]
+  * stress-vm: fix the stress_vm_check argument name
+
+  [Erik Stahlman]
+  * Remove write potentially outside of buffer
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: fix table T{ T} around --eigen-method add-double
+  * core-shared-heap: double size of shared heap allocation slab
+  * core-helper: move gpu_freq null check to start of function
+    stress_get_gpu_freq_mhz
+  * stress-zlib: negative read size check
+  * core-helper: move null ptr checks earlier in stress_get_meminfo
+  * core-helper: add #else path in stress_get_load_avg
+  * stress-fma: voidify return from stress_get_setting call
+  * core-helper: add endianness information
+  * stress-pty: break out of loop if EINTR occurs on pty open
+  * stress-access: set errno to 0 before access calls
+  * stress-filename: ignore ENOTSUP failures
+  * stress-msyncmany: break out of test loop if failed more than 5 times
+  * stress-filename: add ENOSUP error check for Solaris
+  * stress-clock: ignore EINTR for clock_nanosleep for Solaris
+  * stress-clock: ignore EINTR for clock_gettime for Solaris
+  * Add build check and use <sys/mkdev.h> for makedev() macro
+  * Makefile: enable compile/link garbage collection when GARBAGE_COLLECT
+    is set to 1
+  * stress-powmath: increase precision for float tests sum and result to
+    double
+  * stress-logmath: increase precision for float tests sum and result to
+    double
+  * stress-expmath: increase precision for float tests sum and result to
+    double
+  * stress-fma: munmap pfma and not fma
+  * stress-x86syscall: make function wrap_dummy static
+  * core-helper: make function stress_fs_magic_to_name static
+  * stress-powmath: compare floating point values using difference and
+    precision
+  * stress-logmath: compare floating point values using difference and
+    precision
+  * stress-expmath: compare floating point values using difference and
+    precision
+  * stress-enosys: fix system call name __NR_lsm_list_modules
+  * README.md: update contributor list
+  * Makefile.config: break functions into 1 line entries and sort them
+  * Makefile.config: break types into 1 line entries and sort them
+  * Makefile.config: break cpufeatures into 1 line entries and sort them
+  * Makefile.config: rename *_WCHAR to *_WCHAR_H to match header naming
+  * Makefile.config: break headers into 1 line entries and sort them
+  * core-helper: fix error return code, should be EINVAL
+  * stress-powmath: remove redundant cast on sum addition
+  * stress-expmath: remove redundant cast on sum addition
+  * stress-logmath: remove redundant cast on sum addition
+  * stress-cgroup: add missing wait for each fork'd child
+  * core-helper: make stress_fs_magic_to_name static
+  * core-time: manually inline stress_timespec_to_double into code
+  * core-perf: make stress_perf_stat_succeeded static
+  * stress-x86syscall: remove dummy_x86syscalls
+  * Makefile: add linker garbage collection to remove unreferenced
+    sections
+  * core-helper: add some argument sanity checking
+  * stress-syscall: add maximum system call time in nanoseconds
+  * stress-syscall: add lsm_list_modules and lsm_get_self_attr system
+    calls
+  * stress-enosys: add lsm_list_modules and lsm_get_self_attr system calls
+  * stress-powmath: add hypotenuse functions
+  * stress-fma: disable FP_FAST_FMA, FP_FAST_FMAF for now
+  * stress-mathlog: add logb, logbf and logbl exponent get libc functions
+  * stress-fma: add the --fma-libc option to use libc fma functions
+  * README.md: update number of tests
+  * stress-powmath: add power maths function exercising
+  * stress-vecshuf: for x86, reduce optimization levels to avoid STLF
+  * stress-vnni: add build time check for target clone avxvnni
+  * stress-memhotplug: make variable max non-clobberable by longjmp
+  * core-target-clones: remove need for gcc version check
+  * stress-vecshuf: remove OPTIMIZE3 setting
+  * stress-expmath: add exponential maths function exercising
+  * README.md: add a couple more paper references
+  * stress_vm_walking_flush_data: fix buffer overflow on last 7 bytes
+  * README.md: update contributors list
+  * stress-logmath: add logarithmic maths function exercising
+  * README.md: Add another publication link
+  * memhotplug: add --memhotplug-mmap option
+  * stress-prio-inv: ensure parent has higher priority than children
+  * stress-prio-inv: break kill and wait into separate phases
+  * README.md: add missing newline
+  * README.md: add some more upstream linux git commit references
+  * stress-acl: fix typo in unimplemented_reason string
+  * stress-lsm: exercise new LSM system calls lsm_list_modules and
+    lsm_get_self_attr
+  * core-cpu: remove trainling white space
+  * stress-statmount: Add new stressor to exercise statmount and
+    listmount system calls
+  * stress-file-ioct: exercise FS_IOC_GETFSSYSFSPATH
+  * stress-file-ioctl: add FS_IOC_GETFSSYSFSPATH ioctl
+  * stress-vm: add walking memory flush stress method
+  * core-cpu: add a couple more obscure CPU id strings
+  * stress-monte-carlo: add area of a unit squircle
+  * kernel-coverage: add --mmap-stressful option
+  * stress-malloc: add malloc_usable_size allocation size verification
+  * Makefile.config: filter out -Werror from CFLAGS
+  * core-perf: remove duplicated "Cgroup Switches" event
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 4 Apr 2024 22:33:12 +0100
+
 stress-ng (0.17.06-1) unstable; urgency=medium
 
   [Hsieh-Tseng Shen]
