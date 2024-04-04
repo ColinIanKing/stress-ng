@@ -841,22 +841,24 @@ void stress_get_memlimits(
  */
 void stress_get_gpu_freq_mhz(double *gpu_freq)
 {
-#if defined(__linux__)
-	char buf[64];
-
 	if (!gpu_freq)
 		return;
+#if defined(__linux__)
+	{
+		char buf[64];
 
-	if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
-		if (sscanf(buf, "%lf", gpu_freq) == 1)
+		if (!gpu_freq)
+		return;
+
+		if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
+			if (sscanf(buf, "%lf", gpu_freq) == 1)
 			return;
-	} else if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
-		if (sscanf(buf, "%lf", gpu_freq) == 1)
-			return;
+		} else if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
+			if (sscanf(buf, "%lf", gpu_freq) == 1)
+				return;
+		}
 	}
 #endif
-	if (!gpu_freq)
-		return;
 	*gpu_freq = 0.0;
 }
 
