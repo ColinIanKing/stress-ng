@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.17.06
+VERSION=0.17.07
 #
-# Codename "scintillating scheduler smasher"
+# Codename "trusty task trasher"
 #
 
 KERNEL=$(shell uname -s)
