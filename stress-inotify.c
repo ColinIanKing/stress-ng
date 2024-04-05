@@ -30,7 +30,7 @@
 
 #if !defined(INOTIFY_IOC_SETNEXTWD) &&	\
     defined(_IOW)
-#define INOTIFY_IOC_SETNEXTWD	_IOW('I', 0, __s32)
+#define INOTIFY_IOC_SETNEXTWD	_IOW('I', 0, int32_t)
 #endif
 
 static const stress_help_t help[] = {
