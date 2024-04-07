@@ -30,6 +30,8 @@
 #define OOM_ADJ_MIN		"-16"
 #define OOM_ADJ_MAX		"15"
 
+#define WAIT_TIMEOUT		(120)	/* waitpid timeout, 2 minutes */
+
 /*
  *  stress_process_oomed()
  *	check if a process has been logged as OOM killed
@@ -245,6 +247,7 @@ again:
 	} else if (pid > 0) {
 		/* Parent, wait for child */
 		int status, ret;
+		double t_end = stress_time_now() + WAIT_TIMEOUT;
 
 rewait:
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
@@ -259,9 +262,12 @@ rewait:
 					args->name, errno, strerror(errno));
 
 			(void)stress_kill_sig(pid, signals[signal_idx]);
-			if (++signal_idx >= SIZEOF_ARRAY(signals))
+			if (signal_idx < SIZEOF_ARRAY(signals))
+				signal_idx++;
+			else if (stress_time_now() > t_end) {
+				pr_warn("cannot terminate process %ju, gave up after %d seconds\n", (intmax_t)pid, WAIT_TIMEOUT);
 				goto report;
-
+			}
 			/*
 			 *  First time round do fast re-wait
 			 *  in case child can be reaped quickly,
