@@ -702,7 +702,7 @@ retry:
 		stress_mmap_index_shuffle(index, n);
 
 		for (n = 0; n < pages; n++) {
-			register size_t page = index[n];
+			register const size_t page = index[n];
 
 			if (mapped[page] == PAGE_MAPPED) {
 #if defined(HAVE_MQUERY) &&	\
@@ -738,7 +738,7 @@ retry:
 		stress_mmap_index_shuffle(index, n);
 
 		for (n = 0; n < pages; n++) {
-			register size_t page = index[n];
+			register const size_t page = index[n];
 
 			if (!mapped[page]) {
 				off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
