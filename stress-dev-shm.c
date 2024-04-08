@@ -92,7 +92,7 @@ static inline int stress_dev_shm_child(
 				register uint32_t *ptr;
 				register const uint32_t *end = addr + ((size_t)sz / sizeof(*end));
 				const size_t words = page_size / sizeof(*ptr);
-				uint32_t rnd = stress_mwc32();
+				const uint32_t rnd = stress_mwc32();
 
 				(void)stress_madvise_random(addr, (size_t)sz);
 				(void)stress_madvise_mergeable(addr, (size_t)sz);
