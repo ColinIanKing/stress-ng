@@ -45,7 +45,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_ACL_LIBACL_H) &&	\
     defined(HAVE_SYS_ACL_H)
 
-static acl_tag_t stress_acl_tags[] = {
+static const acl_tag_t stress_acl_tags[] = {
 	ACL_USER_OBJ,
 	ACL_GROUP_OBJ,
 	ACL_USER,
