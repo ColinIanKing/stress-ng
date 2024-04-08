@@ -573,7 +573,7 @@ static inline void stress_workload_waste_time(
 	const double t_end = stress_time_now() + run_duration_sec;
 	double t;
 	static volatile uint64_t val = 0;
-	int which = (workload_method == STRESS_WORKLOAD_METHOD_ALL) ?
+	const int which = (workload_method == STRESS_WORKLOAD_METHOD_ALL) ?
 		stress_mwc8modn(STRESS_WORKLOAD_METHOD_MAX) + 1 : workload_method;
 
 	switch (which) {
@@ -681,7 +681,7 @@ static void stress_workload_bucket_account(stress_workload_bucket_t *bucket, con
 	ssize_t i;
 
 	i = (ssize_t)(value / bucket->width);
-	if (i < 0)
+	if (UNLIKELY(i < 0))
 		i = 0;
 	if (i < (ssize_t)SIZEOF_ARRAY(bucket->bucket))
 		bucket->bucket[i]++;
@@ -735,8 +735,8 @@ static int stress_workload_cmp(const void *p1, const void *p2)
 	const stress_workload_t *w1 = (const stress_workload_t *)p1;
 	const stress_workload_t *w2 = (const stress_workload_t *)p2;
 
-	register double when1 = w1->when_us;
-	register double when2 = w2->when_us;
+	register const double when1 = w1->when_us;
+	register const double when2 = w2->when_us;
 
 	if (when1 < when2)
 		return -1;
@@ -766,7 +766,7 @@ static int stress_workload_exercise(
 	size_t i;
 	const double scale_us_to_sec = 1.0 / STRESS_DBL_MICROSECOND;
 	double t_begin, t_end, sleep_duration_ns, run_duration_sec;
-	double scale32bit = 1.0 / (double)4294967296.0;
+	const double scale32bit = 1.0 / (double)4294967296.0;
 	double sum, scale;
 	uint32_t offset;
 
