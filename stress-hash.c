@@ -90,8 +90,8 @@ static void stress_hash_generic(
 	t1 = stress_time_now();
 	for (i = bucket->n_keys - 1; i; i--) {
 		uint32_t hash;
-		bucket->buffer[i] = '\0';
 
+		bucket->buffer[i] = '\0';
 		hash = hash_func(bucket->buffer, i);
 		i_sum += hash;
 
@@ -294,6 +294,7 @@ static uint32_t PURE OPTIMIZE3 stress_hash_xor(const char *str, const size_t len
 
 	while (*str) {
 		register uint32_t top = sum >> 31;
+
 		sum ^= (uint8_t)*str++;
 		sum <<= 1;
 		sum |= top;
@@ -707,7 +708,7 @@ static int HOT OPTIMIZE3 stress_hash(stress_args_t *args)
 		pr_inf("%s: %12.12s %15s %10s\n",
 			args->name, "hash", "hashes/sec", "chi squared");
 		for (i = 1; i < SIZEOF_ARRAY(hash_methods); i++) {
-			stress_hash_stats_t *stats = hash_methods[i].stats;
+			const stress_hash_stats_t *stats = hash_methods[i].stats;
 
 			if ((stats->duration > 0.0) && (stats->total > 0)) {
 				const double rate = (double)((stats->duration > 0.0) ?
