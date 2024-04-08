@@ -82,8 +82,8 @@ static inline void OPTIMIZE3 bitonicsort32_fwd(void *base, const size_t nmemb)
 				register const size_t l = i ^ j;
 
 				if (l > i) {
-					register uint32_t ai = array[i];
-					register uint32_t al = array[l];
+					register const uint32_t ai = array[i];
+					register const uint32_t al = array[l];
 
 					if ((((i & k) == 0) && (ai > al)) ||
 					    (((i & k) != 0) && (ai < al))) {
@@ -112,8 +112,8 @@ static inline void OPTIMIZE3 bitonicsort32_rev(void *base, const size_t nmemb)
 				register const size_t l = i ^ j;
 
 				if (l < i) {
-					register uint32_t ai = array[i];
-					register uint32_t al = array[l];
+					register const uint32_t ai = array[i];
+					register const uint32_t al = array[l];
 
 					if ((((i & k) == 0) && (ai > al)) ||
 					    (((i & k) != 0) && (ai < al))) {
