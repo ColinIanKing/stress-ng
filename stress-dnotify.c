@@ -188,7 +188,7 @@ static int mk_file(stress_args_t *args, const char *filename, const size_t len)
 
 	(void)shim_memset(buffer, 'x', BUF_SIZE);
 	while (stress_continue(args) && (sz > 0)) {
-		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
+		const size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
 		ret = write(fd, buffer, n);
