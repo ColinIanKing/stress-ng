@@ -164,7 +164,7 @@ static void *stress_close_func(void *arg)
 
 #if defined(F_GETFL)
 		{
-			int fd_rnd = (int)stress_mwc32() + 64;
+			const int fd_rnd = (int)stress_mwc32() + 64;
 
 			/*
 			 *  close random unused fd to force EBADF
