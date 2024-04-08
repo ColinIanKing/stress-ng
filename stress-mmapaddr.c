@@ -129,7 +129,7 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 	do {
 		uint8_t *addr, *map_addr, *remap_addr;
 		int flags;
-		uint8_t rnd = stress_mwc8();
+		const uint8_t rnd = stress_mwc8();
 #if defined(MAP_POPULATE)
 		const int mmap_flags = MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS;
 #else
