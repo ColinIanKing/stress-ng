@@ -449,7 +449,7 @@ static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 	rt_stats->latency_mode = 0;
 
 	for (i = 0; i < rt_stats->index; i++) {
-		int64_t ns = rt_stats->latencies[i];
+		const int64_t ns = rt_stats->latencies[i];
 
 		if (ns > rt_stats->max_ns)
 			rt_stats->max_ns = ns;
@@ -466,7 +466,7 @@ static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 	current = rt_stats->latency_mode = rt_stats->latencies[0];
 
 	for (i = 0; i < rt_stats->index; i++) {
-		int64_t ns = rt_stats->latencies[i];
+		const int64_t ns = rt_stats->latencies[i];
 		double diff;
 
 		if (ns == current) {
@@ -573,7 +573,7 @@ static void stress_rt_dist(
 	}
 
 	for (i = 0; i < (ssize_t)rt_stats->index; i++) {
-		int64_t lat = rt_stats->latencies[i] / cyclic_dist;
+		const int64_t lat = rt_stats->latencies[i] / cyclic_dist;
 
 		if (lat < (int64_t)dist_size)
 			dist[lat]++;
