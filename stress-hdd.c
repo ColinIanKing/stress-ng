@@ -557,7 +557,8 @@ static int stress_set_hdd_opts(const char *opts)
 
 		for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 			if (!strcmp(token, hdd_opts[i].opt)) {
-				int exclude = hdd_flags & hdd_opts[i].exclude;
+				const int exclude = hdd_flags & hdd_opts[i].exclude;
+
 				if (exclude) {
 					int j;
 
@@ -635,7 +636,10 @@ static int stress_hdd_advise(stress_args_t *args, const int fd, const int flags)
  *  data_value()
  *	generate 8 bit data value for offsets and instance # into a test file
  */
-static inline ALWAYS_INLINE uint8_t PURE OPTIMIZE3 data_value(const uint64_t i, uint64_t j, const uint32_t instance)
+static inline ALWAYS_INLINE uint8_t PURE OPTIMIZE3 data_value(
+	const uint64_t i,
+	uint64_t j,
+	const uint32_t instance)
 {
 	return (uint8_t)(((i + j) >> 9) + i + j + instance);
 }
@@ -855,15 +859,13 @@ static int stress_hdd(stress_args_t *args)
 
 		/* Random Write */
 		if (hdd_flags & HDD_OPT_WR_RND) {
-			uint32_t w, z;
-
-			w = stress_mwc32();
-			z = stress_mwc32();
+			const uint32_t w = stress_mwc32();
+			const uint32_t z = stress_mwc32();
 
 			stress_mwc_set_seed(w, z);
 
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
-				uint64_t offset = (i == 0) ?
+				const uint64_t offset = (i == 0) ?
 					hdd_bytes : stress_mwc64modn(hdd_bytes) & ~511UL;
 rnd_wr_retry:
 				if (!stress_continue(args)) {
@@ -1003,7 +1005,7 @@ seq_rd_retry:
 			uint64_t baddata = 0;
 
 			for (i = 0; i < hdd_bytes_max; i += hdd_write_size) {
-				size_t offset = (hdd_bytes > hdd_write_size) ?
+				const size_t offset = (hdd_bytes > hdd_write_size) ?
 					stress_mwc64modn(hdd_bytes - hdd_write_size) & ~511UL : 0;
 
 				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
