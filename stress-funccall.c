@@ -166,15 +166,15 @@ stress_funccall_ ## type(stress_args_t *args)			\
 	register int ii;						\
 	type res_old;							\
 									\
-	type a = rndfunc();						\
-	type b = rndfunc();						\
-	type c = rndfunc();						\
-	type d = rndfunc();						\
-	type e = rndfunc();						\
-	type f = rndfunc();						\
-	type g = rndfunc();						\
-	type h = rndfunc();						\
-	type i = rndfunc();						\
+	const type a = rndfunc();					\
+	const type b = rndfunc();					\
+	const type c = rndfunc();					\
+	const type d = rndfunc();					\
+	const type e = rndfunc();					\
+	const type f = rndfunc();					\
+	const type g = rndfunc();					\
+	const type h = rndfunc();					\
+	const type i = rndfunc();					\
 									\
 	(void)shim_memset(&res_old, 0, sizeof(res_old));		\
 									\
@@ -1285,7 +1285,7 @@ static int stress_funccall(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_funccall_metrics); i++) {
-		double rate = (stress_funccall_metrics[i].duration > 0) ?
+		const double rate = (stress_funccall_metrics[i].duration > 0) ?
 			stress_funccall_metrics[i].count / stress_funccall_metrics[i].duration : 0.0;
 
 		if (rate > 0.0) {
