@@ -218,7 +218,8 @@ retry:
 		}
 
 		do {
-			ssize_t n = recv(fd, buf, sizeof(buf), 0);
+			const ssize_t n = recv(fd, buf, sizeof(buf), 0);
+
 			if (n == 0)
 				break;
 			if (n < 0) {
