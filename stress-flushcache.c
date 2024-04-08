@@ -181,9 +181,8 @@ static inline int stress_flush_icache(
 
 	while ((ptr < ptr_end) && stress_continue_flag()) {
 		volatile uint8_t *vptr = (volatile uint8_t *)ptr;
-		uint8_t val;
+		const uint8_t val = *vptr;
 
-		val = *vptr;
 		*vptr ^= ~0;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
 #if defined(HAVE_ASM_PPC64_ICBI)
