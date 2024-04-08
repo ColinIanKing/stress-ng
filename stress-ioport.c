@@ -230,7 +230,8 @@ static int stress_ioport(stress_args_t *args)
 		}
 
 		if (fd >= 0) {
-			off_t offset = IO_PORT, offret;
+			const off_t offset = IO_PORT;
+			off_t offret;
 
 			offret = lseek(fd, offset, SEEK_SET);
 			if (offret != (off_t)-1) {
