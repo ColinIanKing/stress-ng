@@ -57,7 +57,7 @@ static char allowed[256];
  * The Open Group Base Specifications Issue 7
  * POSIX.1-2008, 3.278 Portable Filename Character Set
  */
-static char posix_allowed[] =
+static const char posix_allowed[] =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
 	"0123456789._-";
@@ -265,6 +265,7 @@ static void stress_filename_generate_random(
 
 	for (i = 0; i < sz_max; i++) {
 		const size_t j = (size_t)stress_mwc32modn(chars_allowed);
+
 		filename[i] = allowed[j];
 	}
 	if (*filename == '.')
