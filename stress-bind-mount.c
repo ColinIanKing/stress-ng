@@ -57,7 +57,7 @@ static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
  */
 static int stress_bind_mount_child(void *parg)
 {
-	stress_pthread_args_t *pargs = (stress_pthread_args_t *)parg;
+	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)parg;
 	stress_args_t *args = pargs->args;
 	const char *path = (const char *)pargs->data;
 	double mount_duration = 0.0, umount_duration = 0.0;
@@ -184,7 +184,7 @@ static int stress_bind_mount(stress_args_t *args)
 	do {
 		pid_t pid;
 		static char stack[CLONE_STACK_SIZE];
-		char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
+		char *const stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 
 		(void)shim_memset(stack, 0, sizeof stack);
 
