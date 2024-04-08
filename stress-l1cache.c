@@ -98,7 +98,7 @@ static int stress_l1cache_info_check(
 	const uint32_t sets,
 	const uint32_t line_size)
 {
-	uint64_t sz = size ? size :
+	const uint64_t sz = size ? size :
 		(uint64_t)ways * (uint64_t)sets * (uint64_t)line_size;
 
 	if (args->instance == 0) {
@@ -455,7 +455,8 @@ static void OPTIMIZE3 stress_l1cache_random_and_verify(
 
 		stress_mwc_set_seed(w, z);
 		for (j = 0; j < loops; j++) {
-			size_t idx = stress_mwc32modn((uint32_t)cache_size);
+			const size_t idx = stress_mwc32modn((uint32_t)cache_size);
+
 			if (*(ptr + idx) != (uint8_t)set)
 				pr_fail("%s: cache value mismatch at offset %zd\n",
 					args->name, idx);
