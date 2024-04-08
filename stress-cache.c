@@ -666,7 +666,8 @@ static void stress_cache_write(
 
 	t = stress_time_now();
 	for (j = 0; j < buffer_size; j++) {
-		register uint8_t v = j & 0xff;
+		register const uint8_t v = j & 0xff;
+
 		i += inc;
 		i = (i >= buffer_size) ? i - buffer_size : i;
 		k += 33;
