@@ -219,6 +219,12 @@ static int stress_setup_io_uring(
 	struct io_uring_params p;
 
 	(void)shim_memset(&p, 0, sizeof(p));
+#if defined(IORING_SETUP_COOP_TASKRUN) && 	\
+    defined(IORING_SETUP_DEFER_TASKRUN) &&	\
+    defined(IORING_SETUP_SINGLE_ISSUER)
+	p.flags = IORING_SETUP_COOP_TASKRUN | IORING_SETUP_DEFER_TASKRUN | IORING_SETUP_SINGLE_ISSUER;
+#endif
+
 	/*
 	 *  16 is plenty, with too many we end up with lots of cache
 	 *  misses, with too few we end up with ring filling. This
@@ -462,7 +468,7 @@ retry:
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
 	if (UNLIKELY(ret < 0)) {
-		if (errno == EBUSY){
+		if (errno == EBUSY) {
 			stress_io_uring_complete(args, submit);
 			goto retry;
 		}
@@ -1186,17 +1192,20 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	i = 0;
 	do {
 		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
+			if (!stress_continue(args))
+				break;
 			if (user_data[j].supported) {
 				rc = stress_io_uring_submit(args,
 					stress_io_uring_setups[j].setup_func,
 					&io_uring_file, &submit, &user_data[j], NULL);
-				if ((rc != EXIT_SUCCESS) || !stress_continue(args))
+				if (rc != EXIT_SUCCESS)
 					break;
 			}
 		}
 		if (!stress_continue(args))
 			break;
-		stress_io_uring_complete(args, &submit);
+		if (stress_io_uring_complete(args, &submit) < 0)
+			break;
 
 		if (i++ >= 4096) {
 			i = 0;
