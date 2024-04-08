@@ -107,8 +107,8 @@ static void TARGET_CLONES stress_fma_add213_float(stress_fma_t *pfma)
 {
 	register size_t i;
 	register float *a = pfma->float_a;
-	register float b = pfma->float_b;
-	register float c = pfma->float_c;
+	register const float b = pfma->float_b;
+	register const float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++)
@@ -120,11 +120,13 @@ static void TARGET_CLONES stress_fma_add231_double(stress_fma_t *pfma)
 	register size_t i;
 	register double *a = pfma->double_a;
 	register double b = pfma->double_b;
-	register double c = pfma->double_c;
+	register const double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
-	for (i = 0; i < FMA_ELEMENTS; i++)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
 		a[i] = (b * c) + a[i];
+		b += 0.125;
+	}
 }
 
 static void TARGET_CLONES stress_fma_add231_float(stress_fma_t *pfma)
@@ -132,11 +134,13 @@ static void TARGET_CLONES stress_fma_add231_float(stress_fma_t *pfma)
 	register size_t i;
 	register float *a = pfma->float_a;
 	register float b = pfma->float_b;
-	register float c = pfma->float_c;
+	register const float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
-	for (i = 0; i < FMA_ELEMENTS; i++)
+	for (i = 0; i < FMA_ELEMENTS; i++) {
 		a[i] = (b * c) + a[i];
+		b += 0.125;
+	}
 }
 
 stress_fma_func stress_fma_funcs[] = {
@@ -155,8 +159,8 @@ static void TARGET_CLONES stress_fma_add132_libc_double(stress_fma_t *pfma)
 {
 	register size_t i;
 	register double *a = pfma->double_a;
-	register double b = pfma->double_b;
-	register double c = pfma->double_c;
+	register const double b = pfma->double_b;
+	register const double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
@@ -173,8 +177,8 @@ static void TARGET_CLONES stress_fma_add132_libc_float(stress_fma_t *pfma)
 {
 	register size_t i;
 	register float *a = pfma->float_a;
-	register float b = pfma->float_b;
-	register float c = pfma->float_c;
+	register const float b = pfma->float_b;
+	register const float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
@@ -191,8 +195,8 @@ static void TARGET_CLONES stress_fma_add213_libc_double(stress_fma_t *pfma)
 {
 	register size_t i;
 	register double *a = pfma->double_a;
-	register double b = pfma->double_b;
-	register double c = pfma->double_c;
+	register const double b = pfma->double_b;
+	register const double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
@@ -209,8 +213,8 @@ static void TARGET_CLONES stress_fma_add213_libc_float(stress_fma_t *pfma)
 {
 	register size_t i;
 	register float *a = pfma->float_a;
-	register float b = pfma->float_b;
-	register float c = pfma->float_c;
+	register const float b = pfma->float_b;
+	register const float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
@@ -228,7 +232,7 @@ static void TARGET_CLONES stress_fma_add231_libc_double(stress_fma_t *pfma)
 	register size_t i;
 	register double *a = pfma->double_a;
 	register double b = pfma->double_b;
-	register double c = pfma->double_c;
+	register const double c = pfma->double_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
@@ -238,6 +242,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 #else
 		a[i] = shim_fma(b, c, a[i]);
 #endif
+		b += 0.125;
 	}
 }
 
@@ -246,7 +251,7 @@ static void TARGET_CLONES stress_fma_add231_libc_float(stress_fma_t *pfma)
 	register size_t i;
 	register float *a = pfma->float_a;
 	register float b = pfma->float_b;
-	register float c = pfma->float_c;
+	register const float c = pfma->float_c;
 
 PRAGMA_UNROLL_N(FMA_UNROLL)
 	for (i = 0; i < FMA_ELEMENTS; i++) {
@@ -256,6 +261,7 @@ PRAGMA_UNROLL_N(FMA_UNROLL)
 #else
 		a[i] = shim_fmaf(b, c, a[i]);
 #endif
+		b += 0.125;
 	}
 }
 
