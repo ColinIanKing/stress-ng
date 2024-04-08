@@ -491,7 +491,7 @@ static int stress_funcret(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_funcret_metrics); i++) {
-		double rate = (stress_funcret_metrics[i].duration > 0) ?
+		const double rate = (stress_funcret_metrics[i].duration > 0) ?
 			stress_funcret_metrics[i].count / stress_funcret_metrics[i].duration : 0.0;
 
 		if (rate > 0.0) {
