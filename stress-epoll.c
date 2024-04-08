@@ -155,7 +155,7 @@ static int stress_epoll_pwait(
     defined(HAVE_SYSCALL)
 	if (stress_mwc1()) {
 		struct timespec timeout_ts;
-		int64_t timeout_ns = (int64_t)timeout * 1000;
+		const int64_t timeout_ns = (int64_t)timeout * 1000;
 		int ret;
 
 		timeout_ts.tv_sec = timeout_ns / STRESS_NANOSECOND;
