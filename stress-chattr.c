@@ -256,7 +256,7 @@ static int do_chattr(
 		 */
 		tmp = 0;
 		for (j = 0; (j < sizeof(orig) * 8); j++) {
-			register unsigned long bitmask = 1ULL << j;
+			register const unsigned long bitmask = 1ULL << j;
 
 			tmp |= bitmask;
 			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
