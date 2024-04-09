@@ -79,7 +79,8 @@ typedef struct {
 typedef void (*stress_tree_func)(stress_args_t *args,
 				 const size_t n,
 				 struct tree_node *data,
-				 stress_tree_metrics_t *metrics);
+				 stress_tree_metrics_t *metrics,
+				 int *rc);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
@@ -209,7 +210,8 @@ static void OPTIMIZE3 stress_tree_rb(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics)
+	stress_tree_metrics_t *metrics,
+	int *rc)
 {
 	size_t i;
 	register struct tree_node *node, *next;
@@ -234,9 +236,11 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
-		if (!find)
+		if (!find) {
 			pr_fail("%s: rb tree node #%zd not found\n",
 				args->name, i);
+			*rc = EXIT_FAILURE;
+		}
 	}
 	metrics->find += stress_time_now() - t;
 
@@ -244,9 +248,11 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = RB_FIND(stress_rb_tree, &rb_root, node);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: rb tree node #%zd not found\n",
 					args->name, i);
+				*rc = EXIT_FAILURE;
+			}
 		}
 		/* optional random find */
 PRAGMA_UNROLL_N(4)
@@ -254,9 +260,11 @@ PRAGMA_UNROLL_N(4)
 			const size_t j = stress_mwc32modn(n);
 
 			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: rb tree node #%zd not found\n",
 					args->name, j);
+				*rc = EXIT_FAILURE;
+			}
 		}
 	}
 
@@ -279,7 +287,8 @@ static void OPTIMIZE3 stress_tree_splay(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics)
+	stress_tree_metrics_t *metrics,
+	int *rc)
 {
 	size_t i;
 	register struct tree_node *node, *next;
@@ -304,9 +313,11 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
-		if (!find)
+		if (!find) {
 			pr_fail("%s: splay tree node #%zd not found\n",
 				args->name, i);
+			*rc = EXIT_FAILURE;
+		}
 	}
 	metrics->find += stress_time_now() - t;
 
@@ -314,18 +325,22 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: splay tree node #%zd not found\n",
 					args->name, i);
+				*rc = EXIT_FAILURE;
+			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
 			const size_t j = stress_mwc32modn(n);
 
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: splay tree node #%zd not found\n",
 					args->name, j);
+				*rc = EXIT_FAILURE;
+			}
 		}
 	}
 	t = stress_time_now();
@@ -382,7 +397,8 @@ static void OPTIMIZE3 stress_tree_binary(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics)
+	stress_tree_metrics_t *metrics,
+	int *rc)
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
@@ -401,9 +417,11 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
-		if (!find)
+		if (!find) {
 			pr_fail("%s: binary tree node #%zd not found\n",
 				args->name, i);
+			*rc = EXIT_FAILURE;
+		}
 	}
 	metrics->find += stress_time_now() - t;
 
@@ -411,18 +429,22 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = binary_find(head, node);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: binary tree node #%zd not found\n",
 					args->name, i);
+				*rc = EXIT_FAILURE;
+			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
 			const size_t j = stress_mwc32modn(n);
 
 			find = binary_find(head, &nodes[j]);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: binary tree node #%zd not found\n",
 					args->name, j);
+				*rc = EXIT_FAILURE;
+			}
 		}
 	}
 	t = stress_time_now();
@@ -589,7 +611,8 @@ static void OPTIMIZE3 stress_tree_avl(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics)
+	stress_tree_metrics_t *metrics,
+	int *rc)
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
@@ -608,9 +631,11 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
-		if (!find)
+		if (!find) {
 			pr_fail("%s: avl tree node #%zd not found\n",
 				args->name, i);
+			*rc = EXIT_FAILURE;	
+		}
 	}
 	metrics->find += stress_time_now() - t;
 
@@ -618,18 +643,22 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = avl_find(head, node);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, i);
+				*rc = EXIT_FAILURE;	
+			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
 			const size_t j = stress_mwc32modn(n);
 
 			find = avl_find(head, &nodes[j]);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, j);
+				*rc = EXIT_FAILURE;	
+			}
 		}
 	}
 	t = stress_time_now();
@@ -808,7 +837,8 @@ static void stress_tree_btree(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics)
+	stress_tree_metrics_t *metrics,
+	int *rc)
 {
 	size_t i;
 	struct tree_node *node;
@@ -827,9 +857,11 @@ PRAGMA_UNROLL_N(4)
 PRAGMA_UNROLL_N(4)
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = btree_find(root, node->value);
-		if (!find)
+		if (!find) {
 			pr_fail("%s: btree node #%zd not found\n",
 				args->name, i);
+			*rc = EXIT_FAILURE;	
+		}
 	}
 	metrics->find += stress_time_now() - t;
 
@@ -837,18 +869,22 @@ PRAGMA_UNROLL_N(4)
 		/* optional reverse find */
 		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = btree_find(root, node->value);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: btree node #%zd not found\n",
 					args->name, i);
+				*rc = EXIT_FAILURE;	
+			}
 		}
 		/* optional random find */
 		for (i = 0; i < n; i++) {
 			const size_t j = stress_mwc32modn(n);
 
 			find = btree_find(root, nodes[j].value);
-			if (!find)
+			if (!find) {
 				pr_fail("%s: btree node #%zd not found\n",
 					args->name, j);
+				*rc = EXIT_FAILURE;	
+			}
 		}
 	}
 	t = stress_time_now();
@@ -861,7 +897,8 @@ static void stress_tree_all(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics);
+	stress_tree_metrics_t *metrics,
+	int *rc);
 
 /*
  * Table of tree stress methods
@@ -885,14 +922,15 @@ static void stress_tree_all(
 	stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes,
-	stress_tree_metrics_t *metrics)
+	stress_tree_metrics_t *metrics,
+	int *rc)
 {
 	size_t i;
 
 	(void)metrics;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_tree_methods); i++) {
-		stress_tree_methods[i].func(args, n, nodes, &stress_tree_metrics[i]);
+		stress_tree_methods[i].func(args, n, nodes, &stress_tree_metrics[i], rc);
 	}
 }
 
@@ -957,7 +995,7 @@ static int stress_tree(stress_args_t *args)
 	struct tree_node *nodes;
 	size_t n, i, j, tree_method = 0;
 	struct sigaction old_action;
-	int ret;
+	int ret, rc = EXIT_SUCCESS;
 	stress_tree_func func;
 	stress_tree_metrics_t *metrics;
 
@@ -1010,11 +1048,11 @@ static int stress_tree(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		func(args, n, nodes, metrics);
+		func(args, n, nodes, metrics, &rc);
 		stress_tree_shuffle(nodes, n);
 
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
@@ -1038,7 +1076,7 @@ tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(nodes);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_tree_info = {
