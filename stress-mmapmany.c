@@ -60,6 +60,7 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 	const uint64_t pattern1 = stress_mwc64();
 	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
 	bool mmapmany_mlock = false;
+	int rc = EXIT_SUCCESS;
 
 	(void)context;
 
@@ -112,24 +113,26 @@ static int stress_mmapmany_child(stress_args_t *args, void *context)
 			if (*ptr != val) {
 				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (void *)ptr, *ptr, val);
+				rc = EXIT_FAILURE;
 			}
 			ptr += offset2pages;
 			val = (uint64_t)i ^ pattern1;
 			if (*ptr != val) {
 				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (void *)ptr, *ptr, val);
+				rc = EXIT_FAILURE;
 			}
 
 			(void)stress_munmap_retry_enomem((void *)mappings[i], page_size);
 			(void)stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[i]) + page_size), page_size);
 			(void)stress_munmap_retry_enomem((void *)(((uintptr_t)mappings[i]) + page_size + page_size), page_size);
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free(mappings);
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
