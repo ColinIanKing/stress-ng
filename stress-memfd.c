@@ -242,7 +242,7 @@ static inline bool stress_memfd_check(
  */
 static int stress_memfd_child(stress_args_t *args, void *context)
 {
-	int *fds;
+	int *fds, rc = EXIT_SUCCESS;
 	register int fd;
 	void **maps;
 	int32_t i;
@@ -373,6 +373,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 					pr_fail("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					stress_continue_set_flag(false);
+					rc = EXIT_FAILURE;
 					goto memfd_unmap;
 				}
 			}
@@ -403,6 +404,7 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				default:
 					pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -448,37 +450,47 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 				continue;
 #if defined(SEEK_SET)
 			if (lseek(fds[i], (off_t)size >> 1, SEEK_SET) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL))
+				if ((errno != ENXIO) && (errno != EINVAL)) {
 					pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 			}
 #endif
 #if defined(SEEK_CUR)
 			if (lseek(fds[i], (off_t)0, SEEK_CUR) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL))
+				if ((errno != ENXIO) && (errno != EINVAL)) {
 					pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 			}
 #endif
 #if defined(SEEK_END)
 			if (lseek(fds[i], (off_t)0, SEEK_END) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL))
+				if ((errno != ENXIO) && (errno != EINVAL)) {
 					pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 			}
 #endif
 #if defined(SEEK_HOLE)
 			if (lseek(fds[i], (off_t)0, SEEK_HOLE) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL))
+				if ((errno != ENXIO) && (errno != EINVAL)) {
 					pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 			}
 #endif
 #if defined(SEEK_DATA)
 			if (lseek(fds[i], (off_t)0, SEEK_DATA) < 0) {
-				if ((errno != ENXIO) && (errno != EINVAL))
+				if ((errno != ENXIO) && (errno != EINVAL)) {
 					pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 			}
 #endif
 			if (!stress_continue_flag())
@@ -519,12 +531,16 @@ memfd_unmap:
 					goto buf_unmap;
 				if (ftruncate(fds[i], (off_t)test_size) < 0)
 					goto buf_unmap;
-				if (!stress_memfd_check(val, buf, page_size, 1))
+				if (!stress_memfd_check(val, buf, page_size, 1)) {
 					pr_fail("%s: unexpected memfd %d data mismatch in first page\n",
 						args->name, fds[i]);
-				if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0))
+					rc = EXIT_FAILURE;
+				}
+				if (!stress_memfd_check(0ULL, uint64_ptr_offset(buf, page_size), page_size, 0)) {
 					pr_fail("%s: unexpected memfd %d data mismatch in zero'd second page\n",
 						args->name, fds[i]);
+					rc = EXIT_FAILURE;
+				}
 buf_unmap:
 				(void)munmap((void *)buf, test_size);
 				VOID_RET(int, ftruncate(fds[i], 0));
@@ -595,7 +611,7 @@ buf_unmap:
 	free(maps);
 	free(fds);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
