@@ -395,7 +395,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static int stress_rawdev(stress_args_t *args)
 {
-	int ret, fd;
+	int ret, fd, rc = EXIT_SUCCESS;
 	char *devpath, *buffer;
 	const char *path = stress_get_temp_path();
 	size_t blks, blksz = 0, mmapsz;
@@ -491,8 +491,10 @@ static int stress_rawdev(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]) < 0)
+		if (func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]) < 0) {
+			rc = EXIT_FAILURE;
 			break;
+		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -515,7 +517,7 @@ static int stress_rawdev(stress_args_t *args)
 	(void)close(fd);
 	free(metrics);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_rawdev_info = {
