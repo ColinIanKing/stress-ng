@@ -229,32 +229,39 @@ static int stress_chown(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	rc = EXIT_SUCCESS;
 	do {
 		int ret;
 
 		ret = do_fchown(fd, bad_fd, cap_chown, uid, gid);
-		if ((ret < 0) && (ret != -EPERM))
+		if ((ret < 0) && (ret != -EPERM)) {
 			pr_fail("%s: fchown failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno),
 				stress_get_fs_type(filename));
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM)) {
 			pr_fail("%s: chown %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
 				stress_get_fs_type(filename));
+			rc = EXIT_FAILURE;
+			break;
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM)) {
 			pr_fail("%s: lchown %s failed, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
 				stress_get_fs_type(filename));
+			rc = EXIT_FAILURE;
+			break;
 		}
 		(void)shim_fsync(fd);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	rc = EXIT_SUCCESS;
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
