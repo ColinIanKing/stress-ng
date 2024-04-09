@@ -528,6 +528,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	int ret;
 	NOCLOBBER int mask = ~0;
 	static const char mmap_name[] = "stress-mmap";
+	int rc = EXIT_SUCCESS;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
@@ -670,9 +671,11 @@ retry:
 		if (context->mmap_write_check) {
 			stress_mmap_set_light(buf, sz, page_size);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (stress_mmap_check_light(buf, sz, page_size) < 0)
+				if (stress_mmap_check_light(buf, sz, page_size) < 0) {
 					pr_fail("%s: mmap'd region of %zu bytes does "
 						"not contain expected data\n", args->name, sz);
+					rc = EXIT_FAILURE;
+				}
 			}
 		}
 
@@ -773,9 +776,11 @@ retry:
 					/* Ensure we can write to the mapped page */
 					if (context->mmap_write_check) {
 						stress_mmap_set_light(mappings[page], page_size, page_size);
-						if (stress_mmap_check_light(mappings[page], page_size, page_size) < 0)
+						if (stress_mmap_check_light(mappings[page], page_size, page_size) < 0) {
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
+							rc = EXIT_FAILURE;
+						}
 					}
 					if (mmap_file) {
 						(void)shim_memset(mappings[page], (int)n, page_size);
@@ -904,12 +909,14 @@ cleanup:
 				    (errno != EPERM)) {
 					pr_fail("%s: cannot set write-only page to read-only, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			} else {
 				if (*buf64 != val) {
 					pr_fail("%s: unexpected value in read-only page, "
 						"got %" PRIx64 ", expected %" PRIx64 "\n",
 						args->name, *buf64, val);
+					rc = EXIT_FAILURE;
 				}
 			}
 			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
@@ -933,13 +940,14 @@ cleanup:
 				    (errno != EPERM)) {
 					pr_fail("%s: cannot set read-only page to write-only, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			}
 			(void)stress_munmap_retry_enomem((void *)buf64, page_size);
 		}
 #endif
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	jmp_env_set = false;
 
@@ -947,7 +955,7 @@ cleanup:
 	(void)munmap((void *)mappings, pages * sizeof(*mappings));
 	(void)munmap((void *)mapped, pages * sizeof(*mapped));
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
