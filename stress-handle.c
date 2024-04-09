@@ -116,6 +116,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 {
 	const int mounts = *((int *)context);
 	const int bad_fd = stress_get_bad_fd();
+	int rc = EXIT_SUCCESS;
 
 	do {
 		struct file_handle *fhp, *tmp;
@@ -131,6 +132,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		    (errno != EOVERFLOW)) {
 			pr_fail("%s: name_to_handle_at failed to get file handle size, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			free(fhp);
 			break;
 		}
@@ -143,6 +145,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
 			pr_fail("%s: name_to_handle_at failed to get file handle, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			free(fhp);
 			break;
 		}
@@ -156,12 +159,14 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		}
 		if (mount_fd == -2) {
 			pr_fail("%s: cannot find mount id %d\n", args->name, mount_id);
+			rc = EXIT_FAILURE;
 			free(fhp);
 			break;
 		}
 		if (mount_fd < 0) {
 			pr_fail("%s: failed to open mount path '%s': errno=%d (%s)\n",
 				args->name, mount_info[i].mount_path, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			free(fhp);
 			break;
 		}
@@ -172,6 +177,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 				pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(mount_fd);
+				rc = EXIT_FAILURE;
 				free(fhp);
 				break;
 			}
@@ -232,7 +238,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
