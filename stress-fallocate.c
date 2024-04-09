@@ -110,7 +110,7 @@ static int stress_fallocate(stress_args_t *args)
 	int *mode_perms = NULL, all_modes;
 	size_t i, mode_count;
 	const char *fs_type;
-	int count = 0;
+	int count = 0, rc = EXIT_SUCCESS;
 
 	for (all_modes = 0, i = 0; i < SIZEOF_ARRAY(modes); i++)
 		all_modes |= modes[i];
@@ -172,13 +172,17 @@ static int stress_fallocate(stress_args_t *args)
 		if ((ret == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			struct stat buf;
 
-			if (shim_fstat(fd, &buf) < 0)
+			if (shim_fstat(fd, &buf) < 0) {
 				pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
-			else if (buf.st_size != fallocate_bytes)
+				rc = EXIT_FAILURE;
+			}
+			else if (buf.st_size != fallocate_bytes) {
 				pr_fail("%s: file size %jd does not match size the expected file size of %jd\n",
 					args->name, (intmax_t)buf.st_size,
 					(intmax_t)fallocate_bytes);
+				rc = EXIT_FAILURE;
+			}
 		}
 
 		if (ftruncate(fd, 0) < 0)
@@ -192,14 +196,18 @@ static int stress_fallocate(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
 
-			if (shim_fstat(fd, &buf) < 0)
+			if (shim_fstat(fd, &buf) < 0) {
 				pr_fail("%s: fstat failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			else if (buf.st_size != (off_t)0)
+				rc = EXIT_FAILURE;
+			}
+			else if (buf.st_size != (off_t)0) {
 				pr_fail("%s: file size %jd does not "
 					"match size the expected file size "
 					"of 0\n",
 					args->name, (intmax_t)buf.st_size);
+				rc = EXIT_FAILURE;
+			}
 		}
 
 		if (ftruncate(fd, fallocate_bytes) < 0)
@@ -295,7 +303,7 @@ static int stress_fallocate(stress_args_t *args)
 		VOID_RET(int, shim_posix_fallocate(fd, (off_t)-1, (off_t)-1));
 
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	if (ftrunc_errs)
 		pr_dbg("%s: %" PRIu64
@@ -316,7 +324,7 @@ static int stress_fallocate(stress_args_t *args)
 	(void)stress_temp_dir_rm_args(args);
 	free(mode_perms);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_fallocate_info = {
