@@ -30,10 +30,10 @@
 
 struct list_entry;
 
-typedef void (*stress_list_func)(stress_args_t *args,
-				 struct list_entry *entries,
-				 const struct list_entry *entries_end,
-				 stress_metrics_t *metrics);
+typedef int (*stress_list_func)(stress_args_t *args,
+				struct list_entry *entries,
+				const struct list_entry *entries_end,
+				stress_metrics_t *metrics);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
@@ -168,7 +168,7 @@ static void MLOCKED_TEXT stress_list_handler(int signum)
 	}
 }
 
-static void OPTIMIZE3 stress_list_slistt(
+static int OPTIMIZE3 stress_list_slistt(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -177,6 +177,7 @@ static void OPTIMIZE3 stress_list_slistt(
 	register struct list_entry *entry, *head, *tail;
 	bool found = false;
 	double t;
+	int rc = EXIT_SUCCESS;
 
 	head = entries;
 	tail = entries;
@@ -196,9 +197,12 @@ static void OPTIMIZE3 stress_list_slistt(
 			}
 		}
 
-		if (UNLIKELY(!found))
+		if (UNLIKELY(!found)) {
 			pr_fail("%s: slistt entry #%zd not found\n",
 				args->name, entry - entries);
+			rc = EXIT_FAILURE;
+			break;
+		}
 	}
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
@@ -209,10 +213,11 @@ static void OPTIMIZE3 stress_list_slistt(
 		head->u.next = NULL;
 		head = next;
 	}
+	return rc;
 }
 
 #if defined(HAVE_SYS_QUEUE_LIST)
-static void OPTIMIZE3 stress_list_list(
+static int OPTIMIZE3 stress_list_list(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -222,6 +227,7 @@ static void OPTIMIZE3 stress_list_list(
 	struct listhead head;
 	bool found = false;
 	double t;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&head, 0, sizeof(head));
 	LIST_INIT(&head);
@@ -241,9 +247,12 @@ static void OPTIMIZE3 stress_list_list(
 			}
 		}
 
-		if (UNLIKELY(!found))
+		if (UNLIKELY(!found)) {
 			pr_fail("%s: list entry #%zd not found\n",
 				args->name, entry - entries);
+			rc = EXIT_FAILURE;
+			break;
+		}
 	}
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
@@ -253,11 +262,13 @@ static void OPTIMIZE3 stress_list_list(
 		LIST_REMOVE(entry, u.list_entries);
 	}
 	LIST_INIT(&head);
+
+	return rc;
 }
 #endif
 
 #if defined(HAVE_SYS_QUEUE_SLIST)
-static void OPTIMIZE3 stress_list_slist(
+static int OPTIMIZE3 stress_list_slist(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -267,6 +278,7 @@ static void OPTIMIZE3 stress_list_slist(
 	struct slisthead head;
 	bool found = false;
 	double t;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&head, 0, sizeof(head));
 	SLIST_INIT(&head);
@@ -286,9 +298,12 @@ static void OPTIMIZE3 stress_list_slist(
 			}
 		}
 
-		if (UNLIKELY(!found))
+		if (UNLIKELY(!found)) {
 			pr_fail("%s: slist entry #%zd not found\n",
 				args->name, entry - entries);
+			rc = EXIT_FAILURE;
+			break;
+		}
 	}
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
@@ -297,11 +312,13 @@ static void OPTIMIZE3 stress_list_slist(
 		SLIST_REMOVE_HEAD(&head, u.slist_entries);
 	}
 	SLIST_INIT(&head);
+
+	return rc;
 }
 #endif
 
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
-static void OPTIMIZE3 stress_list_circleq(
+static int OPTIMIZE3 stress_list_circleq(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -311,6 +328,7 @@ static void OPTIMIZE3 stress_list_circleq(
 	struct circleqhead head;
 	bool found = false;
 	double t;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&head, 0, sizeof(head));
 	CIRCLEQ_INIT(&head);
@@ -330,9 +348,12 @@ static void OPTIMIZE3 stress_list_circleq(
 			}
 		}
 
-		if (UNLIKELY(!found))
+		if (UNLIKELY(!found)) {
 			pr_fail("%s: circleq entry #%zd not found\n",
 				args->name, entry - entries);
+			rc = EXIT_FAILURE;
+			break;
+		}
 	}
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
@@ -341,11 +362,13 @@ static void OPTIMIZE3 stress_list_circleq(
 		CIRCLEQ_REMOVE(&head, entry, u.circleq_entries);
 	}
 	CIRCLEQ_INIT(&head);
+
+	return rc;
 }
 #endif
 
 #if defined(HAVE_SYS_QUEUE_STAILQ)
-static void OPTIMIZE3 stress_list_stailq(
+static int OPTIMIZE3 stress_list_stailq(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -355,6 +378,7 @@ static void OPTIMIZE3 stress_list_stailq(
 	struct stailhead head;
 	bool found = false;
 	double t;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&head, 0, sizeof(head));
 	STAILQ_INIT(&head);
@@ -374,9 +398,12 @@ static void OPTIMIZE3 stress_list_stailq(
 			}
 		}
 
-		if (UNLIKELY(!found))
+		if (UNLIKELY(!found)) {
 			pr_fail("%s: stailq entry #%zd not found\n",
 				args->name, entry - entries);
+			rc = EXIT_FAILURE;
+			break;
+		}
 	}
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
@@ -385,11 +412,13 @@ static void OPTIMIZE3 stress_list_stailq(
 		STAILQ_REMOVE(&head, entry, list_entry, u.stailq_entries);
 	}
 	STAILQ_INIT(&head);
+
+	return rc;
 }
 #endif
 
 #if defined(HAVE_SYS_QUEUE_TAILQ)
-static void OPTIMIZE3 stress_list_tailq(
+static int OPTIMIZE3 stress_list_tailq(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -399,6 +428,7 @@ static void OPTIMIZE3 stress_list_tailq(
 	struct tailhead head;
 	bool found = false;
 	double t;
+	int rc = EXIT_SUCCESS;
 
 	(void)shim_memset(&head, 0, sizeof(head));
 	TAILQ_INIT(&head);
@@ -418,9 +448,12 @@ static void OPTIMIZE3 stress_list_tailq(
 			}
 		}
 
-		if (!found)
+		if (!found) {
 			pr_fail("%s: tailq entry #%zd not found\n",
 				args->name, entry - entries);
+			rc = EXIT_FAILURE;
+			break;
+		}
 	}
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
@@ -429,10 +462,12 @@ static void OPTIMIZE3 stress_list_tailq(
 		TAILQ_REMOVE(&head, entry, u.tailq_entries);
 	}
 	TAILQ_INIT(&head);
+
+	return rc;
 }
 #endif
 
-static void stress_list_all(
+static int stress_list_all(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
@@ -462,18 +497,21 @@ static const stress_list_method_info_t list_methods[] = {
 #endif
 };
 
-static void stress_list_all(
+static int stress_list_all(
 	stress_args_t *args,
 	struct list_entry *entries,
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
 	static size_t index = 1;
+	int rc;
 
-	list_methods[index].func(args, entries, entries_end, &metrics[index]);
+	rc = list_methods[index].func(args, entries, entries_end, &metrics[index]);
 	index++;
 	if (index >= SIZEOF_ARRAY(list_methods))
 		index = 1;
+
+	return rc;
 }
 
 /*
@@ -517,6 +555,7 @@ static int stress_list(stress_args_t *args)
 	size_t n, i, j, bit, list_method = 0;
 	struct sigaction old_action;
 	int ret;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	stress_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;
 
@@ -576,7 +615,10 @@ static int stress_list(stress_args_t *args)
 	do {
 		uint64_t rnd;
 
-		func(args, entries, entries_end, metrics);
+		if (func(args, entries, entries_end, metrics) == EXIT_FAILURE) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		rnd = stress_mwc64();
 		for (entry = entries; entry < entries_end; entry++) {
@@ -606,7 +648,7 @@ tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(entries);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_list_info = {
