@@ -38,7 +38,8 @@ static void check_flag(
 	const int fd,
 	const int flag,
 	const int ret,
-	const bool set)
+	const bool set,
+	int *rc)
 {
 #if defined(F_GETFL)
 	if (ret == 0) {
@@ -52,9 +53,11 @@ static void check_flag(
 		if (errno != 0)
 			return;
 		if ((set && !(flags & flag)) ||
-		    (!set && (flags & flag)))
+		    (!set && (flags & flag))) {
 			pr_fail("%s: ioctl %s failed, unexpected flags when checked with F_GETFL\n",
 				args->name, ioctl_name);
+			*rc = EXIT_FAILURE;
+		}
 	}
 #else
 	(void)args;
@@ -113,7 +116,7 @@ struct shim_space_resv {
 static int stress_file_ioctl(stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int ret, fd;
+	int ret, fd, rc = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
 #if defined(FICLONE) || defined(FICLONERANGE)
 	int dfd;
@@ -184,7 +187,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			opt = 1;
 			ret = ioctl(fd, FIONBIO, &opt);
 #if defined(O_NONBLOCK)
-			check_flag(args, "FIONBIO", fd, O_NONBLOCK, ret, true);
+			check_flag(args, "FIONBIO", fd, O_NONBLOCK, ret, true, &rc);
 #else
 			(void)ret;
 #endif
@@ -192,7 +195,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			opt = 0;
 			ret = ioctl(fd, FIONBIO, &opt);
 #if defined(O_NONBLOCK)
-			check_flag(args, "FIONBIO", fd, O_NONBLOCK, ret, false);
+			check_flag(args, "FIONBIO", fd, O_NONBLOCK, ret, false, &rc);
 #else
 			(void)ret;
 #endif
@@ -209,7 +212,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			opt = 1;
 			ret = ioctl(fd, FIOASYNC, &opt);
 #if defined(O_ASYNC)
-			check_flag(args, "FIONASYNC", fd, O_ASYNC, ret, true);
+			check_flag(args, "FIONASYNC", fd, O_ASYNC, ret, true, &rc);
 #else
 			(void)ret;
 #endif
@@ -217,7 +220,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			opt = 0;
 			ret = ioctl(fd, FIOASYNC, &opt);
 #if defined(O_ASYNC)
-			check_flag(args, "FIONASYNC", fd, O_ASYNC, ret, false);
+			check_flag(args, "FIONASYNC", fd, O_ASYNC, ret, false, &rc);
 #else
 			(void)ret;
 #endif
@@ -257,9 +260,11 @@ static int stress_file_ioctl(stress_args_t *args)
 			int isz;
 
 			ret = ioctl(fd, FIGETBSZ, &isz);
-			if ((ret == 0) && (isz < 1))
+			if ((ret == 0) && (isz < 1)) {
 				pr_fail("%s: ioctl FIGETBSZ returned unusual block size %d\n",
 					args->name, isz);
+				rc = EXIT_FAILURE;
+			}
 			exercised++;
 		}
 #else
@@ -559,8 +564,6 @@ static int stress_file_ioctl(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	ret = EXIT_SUCCESS;
-
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(FICLONE) || defined(FICLONERANGE)
@@ -569,7 +572,7 @@ tidy:
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 
-	return ret;
+	return rc;
 }
 
 stressor_info_t stress_file_ioctl_info = {
