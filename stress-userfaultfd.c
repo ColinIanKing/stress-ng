@@ -125,6 +125,7 @@ static int stress_userfaultfd_error(const char *name, const int err, const int m
 			} else {
 				pr_fail("%s: userfaultfd() failed, errno=%d (%s)\n",
 					name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 			}
 		}
 		break;
