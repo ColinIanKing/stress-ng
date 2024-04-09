@@ -47,6 +47,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 	const size_t arg_huge = 16 * MB;
 	char *value;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	int rc = EXIT_SUCCESS;
 
 	(void)context;
 
@@ -129,12 +130,14 @@ static int stress_env_child(stress_args_t *args, void *context)
 					if (!val) {
 						pr_fail("%s: cannot fetch environment variable %s\n",
 							args->name, name);
+						rc = EXIT_FAILURE;
 					} else {
 						tmp = value[env_sz];
 						value[env_sz] = '\0';
 						if (strcmp(value, val)) {
 							pr_fail("%s: environment variable %s contains incorrect data\n",
 								args->name, name);
+							rc = EXIT_FAILURE;
 						}
 						value[env_sz] = tmp;
 					}
@@ -143,6 +146,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 				if (ret < 0) {
 					pr_fail("%s: unsentenv on variable %s failed, errno=%d (%s)\n",
 						args->name, name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 				stress_bogo_inc(args);
 				if (!stress_continue(args))
@@ -162,7 +166,7 @@ reap:
 
 	(void)munmap(value, arg_max);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
