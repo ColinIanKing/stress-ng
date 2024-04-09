@@ -225,6 +225,7 @@ static int stress_radixsort(stress_args_t *args)
 	int ret;
 	unsigned char revtable[256];
 	size_t radixsort_method = 0;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	radixsort_func_t radixsort_func;
 
@@ -295,6 +296,7 @@ static int stress_radixsort(stress_args_t *args)
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -309,6 +311,7 @@ static int stress_radixsort(stress_args_t *args)
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -319,7 +322,7 @@ static int stress_radixsort(stress_args_t *args)
 			*ptr = 'a' + stress_mwc8modn(26);
 
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
@@ -329,7 +332,7 @@ tidy:
 	free(data);
 	free(text);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_radixsort_info = {
