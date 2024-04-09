@@ -371,6 +371,7 @@ static int stress_mpfr(stress_args_t *args)
 	register size_t i;
 	mpfr_t r0, r1;
 	static stress_metrics_t metrics[SIZEOF_ARRAY(stress_mpfr_methods)];
+	int rc = EXIT_SUCCESS;
 
 	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
 		metrics[i].count = 0.0;
@@ -410,9 +411,11 @@ static int stress_mpfr(stress_args_t *args)
 			if (mpfr_cmp(r0, r1) != 0) {
 				pr_fail("%s: %s computation with %d precision inconsistent\n",
 					args->name, stress_mpfr_methods[i].name, (int)precision);
+				rc = EXIT_FAILURE;
+				break;
 			}
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -431,7 +434,7 @@ static int stress_mpfr(stress_args_t *args)
 			rate, STRESS_HARMONIC_MEAN);
 	}
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_mpfr_info = {
