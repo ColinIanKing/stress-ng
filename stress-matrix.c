@@ -946,6 +946,8 @@ static inline int stress_matrix_exercise(
 		}
 	}
 
+	ret = EXIT_SUCCESS;
+
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
@@ -968,6 +970,7 @@ static inline int stress_matrix_exercise(
 			if (shim_memcmp(r, s, matrix_size)) {
 				pr_fail("%s: %s: data difference between identical matrix computations\n",
 					args->name, current_method);
+				ret = EXIT_FAILURE;
 			}
 		}
 		if (matrix_method == 0) {
@@ -990,7 +993,6 @@ static inline int stress_matrix_exercise(
 		}
 	}
 
-	ret = EXIT_SUCCESS;
 
 	if (verify)
 		(void)munmap((void *)s, matrix_mmap_size);
