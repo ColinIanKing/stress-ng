@@ -41,6 +41,7 @@ static const stress_help_t help[] = {
     !defined(HAVE_COMPILER_PCC) &&					\
     !defined(HAVE_COMPILER_TCC)
 
+static int stress_regs_success;
 static volatile uint32_t stash32;
 static volatile uint64_t stash64;
 #if defined(HAVE_INT128_T)
@@ -82,6 +83,7 @@ static void regs_check32(
 		pr_fail("%s: register %s was 0x%"
 			PRIx32 ", expecting 0x%" PRIx32 "\n",
 			args->name, reg, expected, value);
+		stress_regs_success = false;
 	}
 }
 
@@ -95,6 +97,7 @@ static void regs_check64(
 		pr_fail("%s: register %s was 0x%"
 			PRIx64 ", expecting 0x%" PRIx64 "\n",
 			args->name, reg, expected, value);
+		stress_regs_success = false;
 	}
 }
 
@@ -1047,6 +1050,7 @@ static int stress_regs(stress_args_t *args)
 	x86_cpu_flags |= stress_cpu_x86_has_mmx() ? CPU_X86_MMX : 0;
 	x86_cpu_flags |= stress_cpu_x86_has_sse() ? CPU_X86_SSE : 0;
 #endif
+	stress_regs_success = true;
 
 	do {
 		int i;
@@ -1055,11 +1059,11 @@ static int stress_regs(stress_args_t *args)
 			stress_regs_helper(args, v);
 		v++;
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while (stress_regs_success && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return stress_regs_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 stressor_info_t stress_regs_info = {
