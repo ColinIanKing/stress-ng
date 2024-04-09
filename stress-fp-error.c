@@ -83,7 +83,8 @@ static void stress_fp_check(
 	const bool is_nan,
 	const bool is_inf,
 	const int errno_expected,
-	const int excepts_expected)
+	const int excepts_expected,
+	int *rc)
 {
 #if defined(__linux__) &&		\
     !defined(STRESS_ARCH_M68K) &&	\
@@ -102,6 +103,7 @@ static void stress_fp_check(
 		val, val_expected,
 		errno, errno_expected,
 		fetestexcept(excepts_expected), excepts_expected);
+	*rc = EXIT_FAILURE;
 #else
 	(void)errno_expected;
 	(void)excepts_expected;
@@ -112,6 +114,7 @@ static void stress_fp_check(
 	pr_fail("%s: %s return was %f (expected %f)\n",
 		args->name, expr,
 		val, val_expected);
+	*rc = EXIT_FAILURE;
 #endif
 }
 
@@ -121,6 +124,8 @@ static void stress_fp_check(
  */
 static int stress_fp_error(stress_args_t *args)
 {
+	int rc = EXIT_SUCCESS;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -130,32 +135,32 @@ static int stress_fp_error(stress_args_t *args)
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(-1.0)", log(-1.0), (double)NAN,
-			true, false, EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID, &rc);
 #endif
 #if defined(ERANGE) && defined(FE_DIVBYZERO)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(0.0)", log(0.0), -HUGE_VAL,
-			false, false, ERANGE, FE_DIVBYZERO);
+			false, false, ERANGE, FE_DIVBYZERO, &rc);
 #endif
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(-1.0)", log2(-1.0), (double)NAN,
-			true, false, EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID, &rc);
 #endif
 #if defined(ERANGE) && defined(FE_DIVBYZERO)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(0.0)", log2(0.0), -HUGE_VAL,
-			false, false, ERANGE, FE_DIVBYZERO);
+			false, false, ERANGE, FE_DIVBYZERO, &rc);
 #endif
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
-			true, false, EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID, &rc);
 #endif
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
-			true, false, EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID, &rc);
 #endif
 #if defined(FE_INEXACT)
 #if !defined(STRESS_ARCH_ALPHA)
@@ -167,7 +172,7 @@ static int stress_fp_error(stress_args_t *args)
 		SET_VOLATILE(d1, 1.0);
 		SET_VOLATILE(d2, M_PI);
 		stress_fp_check(args, "1.0 / M_PI", d1 / d2, d1 / d2,
-			false, false, 0, FE_INEXACT);
+			false, false, 0, FE_INEXACT, &rc);
 #endif
 		/*
 		 * Use volatiles to force compiler to generate code
@@ -178,17 +183,17 @@ static int stress_fp_error(stress_args_t *args)
 		SET_VOLATILE(d2, DBL_MAX / 2.0);
 		stress_fp_check(args, "DBL_MAX + DBL_MAX / 2.0",
 			d1 + d2, (double)INFINITY,
-			false, true, 0, FE_OVERFLOW | FE_INEXACT);
+			false, true, 0, FE_OVERFLOW | FE_INEXACT, &rc);
 #endif
 #if defined(ERANGE) && defined(FE_UNDERFLOW)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(-1000000.0)", exp(-1000000.0), 0.0,
-			false, false, ERANGE, FE_UNDERFLOW);
+			false, false, ERANGE, FE_UNDERFLOW, &rc);
 #endif
 #if defined(ERANGE) && defined(FE_OVERFLOW)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
-			false, false, ERANGE, FE_OVERFLOW);
+			false, false, ERANGE, FE_OVERFLOW, &rc);
 #endif
 		/*
 		 *  Some implementations of fegetrount return
@@ -196,14 +201,16 @@ static int stress_fp_error(stress_args_t *args)
 		 *  to int so we can check for -1 without any
 		 *  warnings.
 		 */
-		if ((int)fegetround() == -1)
+		if ((int)fegetround() == -1) {
 			pr_fail("%s: fegetround() returned -1\n", args->name);
+			rc = EXIT_FAILURE;
+		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_fp_error_info = {
