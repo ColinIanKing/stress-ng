@@ -231,6 +231,7 @@ static int stress_time_warp(stress_args_t *args)
 				pr_fail("%s: %s failed, errno=%d (%s)\n",
 					args->name, clocks[i].name, errno, strerror(errno));
 				stress_times[i].failed = true;
+				rc = EXIT_FAILURE;
 			}
 		}
 		stress_bogo_inc(args);
