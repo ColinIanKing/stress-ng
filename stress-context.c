@@ -171,7 +171,7 @@ static int stress_context(stress_args_t *args)
 	size_t i;
 	const size_t context_size = 3 * sizeof(*context);
 	double duration, rate, t;
-	int rc = EXIT_FAILURE;
+	int rc = EXIT_SUCCESS;
 
 	context = (context_data_t *)stress_mmap_populate(NULL,
 					context_size,
@@ -194,8 +194,10 @@ static int stress_context(stress_args_t *args)
 
 	/* Create 3 micro threads */
 	for (i = 0; i < STRESS_CONTEXTS; i++) {
-		if (stress_context_init(args, stress_threads[i], &uctx_main, &context[i]) < 0)
+		if (stress_context_init(args, stress_threads[i], &uctx_main, &context[i]) < 0) {
+			rc = EXIT_FAILURE;
 			goto fail;
+		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -207,6 +209,7 @@ static int stress_context(stress_args_t *args)
 	if (swapcontext(&uctx_main, &context[0].cu.uctx) < 0) {
 		pr_fail("%s: swapcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
 		goto fail;
 	}
 	duration = stress_time_now() - t;
@@ -217,10 +220,12 @@ static int stress_context(stress_args_t *args)
 		if (context[i].canary.check0 != context[i].cu.check0) {
 			pr_fail("%s: swapcontext clobbered data before context region\n",
 				args->name);
+			rc = EXIT_FAILURE;
 		}
 		if (context[i].canary.check1 != context[i].cu.check1) {
 			pr_fail("%s: swapcontext clobbered data after context region\n",
 				args->name);
+			rc = EXIT_FAILURE;
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -228,9 +233,6 @@ static int stress_context(stress_args_t *args)
 	rate = (duration > 0.0) ? (double)context_counter / duration : 0.0;
 	stress_metrics_set(args, 0, "swapcontext calls per sec",
 		rate, STRESS_HARMONIC_MEAN);
-
-	rc = EXIT_SUCCESS;
-
 fail:
 	for (i = 0; i < STRESS_CONTEXTS; i++) {
 		if ((context[i].stack != MAP_FAILED) && (context[i].stack))
