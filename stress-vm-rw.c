@@ -91,7 +91,7 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	uint8_t *buf;
-	int ret = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 	stress_addr_msg_t msg_rd ALIGN64, msg_wr ALIGN64;
 
 	stress_parent_died_alarm();
@@ -103,7 +103,7 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 	buf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		ret = stress_exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto cleanup;
@@ -124,9 +124,11 @@ redo_wr1:
 		if (UNLIKELY(rwret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
-			if (errno != EBADF)
+			if (errno != EBADF) {
 				pr_fail("%s: write failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			break;
 		}
 redo_rd1:
@@ -137,6 +139,7 @@ redo_rd1:
 				goto redo_rd1;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			break;
 		}
 		if (UNLIKELY(rwret != sizeof(msg_rd))) {
@@ -144,6 +147,7 @@ redo_rd1:
 				break;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			break;
 		}
 
@@ -153,6 +157,7 @@ redo_rd1:
 				if (UNLIKELY(*ptr != msg_rd.val)) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
 						args->name, (void *)ptr, ptr - buf, *ptr, msg_rd.val);
+					rc = EXIT_FAILURE;
 					goto cleanup;
 				}
 				*ptr = 0;
@@ -173,7 +178,7 @@ cleanup:
 	(void)close(ctxt->pipe_wr[1]);
 	(void)close(ctxt->pipe_rd[0]);
 	(void)munmap(buf, ctxt->sz);
-	return ret;
+	return rc;
 }
 
 
