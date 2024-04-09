@@ -93,6 +93,7 @@ static int reboot_clone_func(void *arg)
 static int stress_reboot(stress_args_t *args)
 {
 	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
+	int rc = EXIT_SUCCESS;
 #if defined(HAVE_CLONE)
 	char *stack;
 
@@ -124,6 +125,7 @@ static int stress_reboot(stress_args_t *args)
 			if (WIFEXITED(status) && (ret != 0)) {
 				pr_fail("%s: reboot in PID namespace failed, errno=%d (%s)\n",
 					args->name, ret, strerror(ret));
+				rc = EXIT_FAILURE;
 			}
 		}
 #endif
@@ -133,11 +135,13 @@ static int stress_reboot(stress_args_t *args)
 				if (errno != EINVAL) {
 					pr_fail("%s: reboot with incorrect magic didn't return EINVAL, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			} else {
 				if ((errno != EPERM) && (errno != EINVAL)) {
 					pr_fail("%s: reboot when not reboot capable didn't return EPERM, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
@@ -148,11 +152,13 @@ static int stress_reboot(stress_args_t *args)
 				if (errno != EINVAL) {
 					pr_fail("%s: reboot with incorrect magic didn't return EINVAL, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			} else {
 				if ((errno != EPERM) && (errno != EINVAL)) {
 					pr_fail("%s: reboot when not reboot capable didn't return EPERM, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
@@ -170,11 +176,12 @@ static int stress_reboot(stress_args_t *args)
 				if (errno != EPERM) {
 					pr_fail("%s: reboot when not reboot capable didn't return EPERM, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
