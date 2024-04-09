@@ -145,7 +145,8 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 	stress_args_t *args,
 	stress_randlist_item_t *head,
 	const size_t randlist_size,
-	const bool verify)
+	const bool verify,
+	int *rc)
 {
 	register stress_randlist_item_t *ptr;
 	uint8_t dataval = stress_mwc8();
@@ -163,8 +164,10 @@ static inline void OPTIMIZE3 stress_randlist_exercise(
 		shim_builtin_prefetch(ptr->next);
 		if (!stress_continue_flag())
 			break;
-		if (verify && stress_randlist_bad_data(ptr, randlist_size))
+		if (verify && stress_randlist_bad_data(ptr, randlist_size)) {
 			pr_fail("%s: data check failure in list object at 0x%p\n", args->name, ptr);
+			*rc = EXIT_FAILURE;
+		}
 	}
 }
 
@@ -185,6 +188,7 @@ static int stress_randlist(stress_args_t *args)
 	size_t randlist_size = STRESS_RANDLIST_DEFAULT_SIZE;
 	size_t heap_allocs = 0;
 	size_t mmap_allocs = 0;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("randlist-compact", &randlist_compact);
 	(void)stress_get_setting("randlist-items", &randlist_items);
@@ -287,9 +291,9 @@ retry:
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_randlist_exercise(args, head, randlist_size, verify);
+		stress_randlist_exercise(args, head, randlist_size, verify, &rc);
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -305,7 +309,7 @@ retry:
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
