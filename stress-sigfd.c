@@ -60,7 +60,7 @@ static inline int shim_signalfd4(
 static int stress_sigfd(stress_args_t *args)
 {
 	pid_t pid, ppid = args->pid;
-	int sfd, parent_cpu;
+	int sfd, parent_cpu, rc = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
 	sigset_t mask;
 
@@ -117,6 +117,7 @@ again:
 			goto finish;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)close(sfd);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		int val = 0;
@@ -154,8 +155,8 @@ again:
 				if (errno) {
 					pr_fail("%s: read failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					(void)close(sfd);
-					_exit(EXIT_FAILURE);
+					rc = EXIT_FAILURE;
+					break;
 				}
 				continue;
 			}
@@ -165,6 +166,7 @@ again:
 				if (UNLIKELY(fdsi.ssi_signo != (uint32_t)SIGRTMIN)) {
 					pr_fail("%s: unexpected signal %d\n",
 						args->name, fdsi.ssi_signo);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -184,9 +186,10 @@ again:
 	}
 
 finish:
+	(void)close(sfd);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sigfd_info = {
