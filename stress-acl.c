@@ -226,13 +226,13 @@ static int stress_acl_setup(
 					int perm_mask = 0;
 
 					if (acl_create_entry(&acl, &entry) != 0) {
-						pr_inf("%s: failed to create acl entry, errno=%d (%s)\n",
+						pr_fail("%s: failed to create acl entry, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						acl_free(acl);
 						return EXIT_FAILURE;
 					}
 					if (acl_set_tag_type(entry, stress_acl_tags[j]) != 0) {
-						pr_inf("%s: failed to set tag type, errno=%d (%s)\n",
+						pr_fail("%s: failed to set tag type, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						acl_free(acl);
 						return EXIT_FAILURE;
@@ -261,7 +261,7 @@ static int stress_acl_setup(
 					}
 
 					if (acl_get_permset(entry, &permset) != 0) {
-						pr_inf("%s: failed to get permset, errno=%d (%s)\n",
+						pr_fail("%s: failed to get permset, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						return EXIT_FAILURE;
 					}
@@ -274,7 +274,7 @@ static int stress_acl_setup(
 					if (perm_mask & ACL_EXECUTE)
 						acl_add_perm(permset, ACL_EXECUTE);
 					if (acl_set_permset(entry, permset) != 0) {
-						pr_inf("%s: failed to set permissions, errno=%d (%s)\n",
+						pr_fail("%s: failed to set permissions, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						return EXIT_FAILURE;
 					}
@@ -346,6 +346,8 @@ static int stress_acl_exercise(
 
 					pr_fail("%s: mismatch between set acl %s and get acl %s\n",
 						args->name, setacl, getacl);
+					acl_free(acl);
+					return EXIT_FAILURE;
 				}
 				acl_free(acl);
 			}
@@ -368,7 +370,7 @@ static int stress_acl_exercise(
 				return EXIT_SUCCESS;
 			default:
 				stress_acl_perms(acls[i], getacl, sizeof(getacl));
-				pr_inf("%s: failed to set acl on '%s' %s, errno=%d (%s)\n",
+				pr_fail("%s: failed to set acl on '%s' %s, errno=%d (%s)\n",
 					args->name, filename, getacl, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
