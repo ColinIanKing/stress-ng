@@ -190,7 +190,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 {
 	uint64_t hsearch_size = DEFAULT_HSEARCH_SIZE;
 	size_t i, max;
-	int ret = EXIT_FAILURE;
+	int rc = EXIT_FAILURE;
 	char **keys;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	hsearch_func_t hsearch_func;
@@ -256,9 +256,11 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 			if (verify) {
 				if (ep == NULL) {
 					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
+					rc = EXIT_FAILURE;
 				} else {
 					if (i != (size_t)ep->data) {
 						pr_fail("%s: hash returned incorrect data %zd\n", args->name, i);
+						rc = EXIT_FAILURE;
 					}
 				}
 			}
@@ -266,7 +268,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	ret = EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
 
 free_all:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -291,7 +293,7 @@ free_hash:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	hdestroy_func();
 
-	return ret;
+	return rc;
 }
 
 stressor_info_t stress_hsearch_info = {
