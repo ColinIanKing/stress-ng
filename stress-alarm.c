@@ -63,6 +63,7 @@ static void stress_alarm_stress_bogo_inc(stress_args_t *args)
 static int stress_alarm(stress_args_t *args)
 {
 	pid_t pid;
+	int rc = EXIT_SUCCESS;
 
 	if (stress_sighandler(args->name, SIGALRM, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
@@ -160,6 +161,7 @@ again:
 					(err_mask & STRESS_SLEEP_ZERO) &&
 						(err_mask & STRESS_SLEEP_RANDOM) ? ", " : "",
 					(err_mask & STRESS_SLEEP_RANDOM) ? "sleep($RANDOM)": "");
+				rc = EXIT_FAILURE;
 			}
 
 			if (err_mask & STRESS_ALARM_MASK) {
@@ -172,12 +174,13 @@ again:
 					(err_mask & STRESS_ALARM_ZERO) &&
 						(err_mask & STRESS_ALARM_RANDOM) ? ", " : "",
 					(err_mask & STRESS_ALARM_RANDOM) ? "alarm($RANDOM)": "");
+				rc = EXIT_FAILURE;
 			}
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_alarm_info = {
