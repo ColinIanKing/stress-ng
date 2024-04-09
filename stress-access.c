@@ -318,6 +318,7 @@ static int stress_access(stress_args_t *args)
 				pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 					args->name, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
 				goto unmap;
 			}
 			t = stress_time_now();
@@ -332,6 +333,8 @@ static int stress_access(stress_args_t *args)
 						modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
 						errno, strerror(errno), fs_type);
+					rc = EXIT_FAILURE;
+					goto unmap;
 				}
 			}
 #if defined(HAVE_FACCESSAT)
@@ -347,6 +350,8 @@ static int stress_access(stress_args_t *args)
 						modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
 						errno, strerror(errno), fs_type);
+					rc = EXIT_FAILURE;
+					goto unmap;
 				}
 			}
 
@@ -380,6 +385,8 @@ static int stress_access(stress_args_t *args)
 						modes[i].access_mode,
 						(unsigned int)modes[i].chmod_mode,
 						errno, strerror(errno), fs_type);
+					rc = EXIT_FAILURE;
+					goto unmap;
 				}
 			}
 			/*
@@ -400,6 +407,7 @@ static int stress_access(stress_args_t *args)
 					pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 						args->name, (unsigned int)chmod_mode,
 						errno, strerror(errno), fs_type);
+					rc = EXIT_FAILURE;
 					goto unmap;
 				}
 				t = stress_time_now();
@@ -412,6 +420,8 @@ static int stress_access(stress_args_t *args)
 							modes[i].access_mode,
 							(unsigned int)chmod_mode,
 							errno, strerror(errno), fs_type);
+						rc = EXIT_FAILURE;
+						goto unmap;
 					}
 				} else {
 					metrics[0].duration = stress_time_now() - t;
@@ -429,6 +439,8 @@ static int stress_access(stress_args_t *args)
 							modes[i].access_mode,
 							(unsigned int)chmod_mode,
 							errno, strerror(errno), fs_type);
+						rc = EXIT_FAILURE;
+						goto unmap;
 					}
 				} else {
 					metrics[0].duration = stress_time_now() - t;
