@@ -49,7 +49,7 @@ typedef struct dekker {
 
 dekker_t *dekker;
 
-static void stress_dekker_p0(stress_args_t *args)
+static int stress_dekker_p0(stress_args_t *args)
 {
 	int check0, check1;
 	double t;
@@ -82,10 +82,12 @@ static void stress_dekker_p0(stress_args_t *args)
 	if (check0 + 1 != check1) {
 		pr_fail("%s p0: dekker mutex check failed %d vs %d\n",
 			args->name, check0 + 1, check1);
+		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
 
-static void stress_dekker_p1(stress_args_t *args)
+static int stress_dekker_p1(stress_args_t *args)
 {
 	int check0, check1;
 	double t;
@@ -120,7 +122,9 @@ static void stress_dekker_p1(stress_args_t *args)
 	if (check0 - 1 != check1) {
 		pr_fail("%s p1: dekker mutex check failed %d vs %d\n",
 			args->name, check0 - 1, check1);
+		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -132,7 +136,7 @@ static int stress_dekker(stress_args_t *args)
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*dekker));
 	pid_t pid;
 	double rate, duration, count;
-	int parent_cpu;
+	int parent_cpu, rc = EXIT_SUCCESS;
 
 	dekker = (dekker_t *)stress_mmap_populate(NULL, sz,
 			PROT_READ | PROT_WRITE,
@@ -153,14 +157,25 @@ static int stress_dekker(stress_args_t *args)
 		/* Child */
 		(void)stress_change_cpu(args, parent_cpu);
 
-		while (stress_continue(args))
-			stress_dekker_p0(args);
-		_exit(0);
+		while (stress_continue(args)) {
+			rc = stress_dekker_p0(args);
+			if (rc != EXIT_SUCCESS)
+				break;
+		}
+		_exit(rc);
 	} else {
+		int status;
+
 		/* Parent */
-		while (stress_continue(args))
-			stress_dekker_p1(args);
-		(void)stress_kill_pid_wait(pid, NULL);
+		while (stress_continue(args)) {
+			rc = stress_dekker_p1(args);
+			if (rc != EXIT_SUCCESS)
+				break;
+		}
+		if (stress_kill_pid_wait(pid, &status) >= 0) {
+			if (WIFEXITED(status))
+				rc = WEXITSTATUS(status);
+		}
 	}
 
 	duration = dekker->p0.duration + dekker->p1.duration;
@@ -174,7 +189,7 @@ static int stress_dekker(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)dekker, sz);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_dekker_info = {
