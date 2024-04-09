@@ -929,6 +929,7 @@ static inline int stress_matrix_3d_exercise(
 		}
 	}
 
+	ret = EXIT_SUCCESS;
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
@@ -951,6 +952,7 @@ static inline int stress_matrix_3d_exercise(
 			if (shim_memcmp(r, s, matrix_3d_size)) {
 				pr_fail("%s: %s: data difference between identical matrix-3d computations\n",
 					args->name, current_method);
+				ret = EXIT_FAILURE;
 			}
 		}
 		if (matrix_3d_method == 0) {
@@ -973,7 +975,6 @@ static inline int stress_matrix_3d_exercise(
 		}
 	}
 
-	ret = EXIT_SUCCESS;
 	if (verify)
 		(void)munmap((void *)s, matrix_3d_mmap_size);
 tidy_r:
