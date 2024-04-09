@@ -66,6 +66,7 @@ static int stress_fault(stress_args_t *args)
 	double t1 = 0.0, t2 = 0.0, dt;
 #endif
 	NOCLOBBER double duration = 0.0, count = 0.0;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -100,6 +101,7 @@ static int stress_fault(stress_args_t *args)
 			do_jmp = false;
 			pr_fail("%s: unexpected %s, terminating early\n",
 				args->name, stress_strsignal(die_signum));
+			rc = EXIT_FAILURE;
 			break;
 		}
 
@@ -109,6 +111,7 @@ static int stress_fault(stress_args_t *args)
 				continue;	/* Try again */
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			break;
 		}
 #if defined(HAVE_POSIX_FALLOCATE)
@@ -120,6 +123,7 @@ static int stress_fault(stress_args_t *args)
 			(void)close(fd);
 			pr_fail("%s: posix_fallocate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			break;
 		}
 #else
@@ -138,6 +142,7 @@ redo:
 				(void)close(fd);
 				pr_fail("%s: write failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				break;
 			}
 		}
@@ -272,7 +277,7 @@ next:
 			average_duration * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
 	}
 #endif
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_fault_info = {
