@@ -41,6 +41,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	pthread_t pthread;	/* thread handle */
 	int pthread_ret;	/* thread create return */
+	int rc;			/* thread return value */
 	double duration;	/* membarrier duration */
 	double count;		/* membarrier call count */
 } membarrier_info_t;
@@ -80,6 +81,7 @@ static int stress_membarrier_exercise(stress_args_t *args, membarrier_info_t *in
 	if (ret < 0) {
 		pr_fail("%s: membarrier CMD QUERY failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		info->rc = EXIT_FAILURE;
 		return -1;
 	}
 	mask = (unsigned int)ret;
@@ -147,7 +149,7 @@ static void *stress_membarrier_thread(void *arg)
  */
 static int stress_membarrier(stress_args_t *args)
 {
-	int ret;
+	int ret, rc = EXIT_SUCCESS;
 	/* We have MAX_MEMBARRIER_THREADS plus the stressor process */
 	membarrier_info_t info[MAX_MEMBARRIER_THREADS + 1];
 	size_t i;
@@ -176,6 +178,7 @@ static int stress_membarrier(stress_args_t *args)
 	(void)sigfillset(&set);
 	for (i = 0; i < MAX_MEMBARRIER_THREADS + 1; i++) {
 		info[i].pthread_ret = -1;
+		info[i].rc = EXIT_SUCCESS;
 		(void)shim_memset(&info[i].pthread, 0, sizeof(info[i].pthread));
 		info[i].duration = 0.0;
 		info[i].count = 0.0;
@@ -195,6 +198,7 @@ static int stress_membarrier(stress_args_t *args)
 		if (stress_membarrier_exercise(args, &info[MAX_MEMBARRIER_THREADS]) < 0) {
 			pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
@@ -212,10 +216,13 @@ static int stress_membarrier(stress_args_t *args)
 		rate, STRESS_HARMONIC_MEAN);
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
-		if (info[i].pthread_ret == 0)
+		if (info[i].pthread_ret == 0) {
 			(void)pthread_join(info[i].pthread, NULL);
+			if (info[i].rc == EXIT_FAILURE)
+				rc = EXIT_FAILURE;
+		}
 	}
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_membarrier_info = {
