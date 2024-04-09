@@ -108,6 +108,7 @@ static int stress_mq(stress_args_t *args)
 	time_t time_start;
 	struct timespec abs_timeout;
 	unsigned int max_prio = UINT_MAX;
+	int rc = EXIT_SUCCESS;
 
 #if defined(SIGUSR2)
 	if (stress_sighandler(args->name, SIGUSR2, stress_sighandler_nop, NULL) < 0)
@@ -281,6 +282,7 @@ again:
 							break;
 						pr_fail("%s: mq read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
 					}
 #endif
 					(void)shim_memset(&sigev, 0, sizeof sigev);
@@ -381,12 +383,14 @@ again:
 							args->name,
 							timed ? "mq_timedreceive" : "mq_receive",
 							errno, strerror(errno));
+						rc = EXIT_FAILURE;
 					}
 					break;
 				}
 				if (prio >= PRIOS_MAX) {
 					pr_fail("%s: mq_receive: unexpected priority %u, expected 0..%d\n",
 						args->name, prio, PRIOS_MAX - 1);
+					rc = EXIT_FAILURE;
 				} else {
 					if (g_opt_flags & OPT_FLAGS_VERIFY) {
 						if (msg.value != values[prio]) {
@@ -394,6 +398,7 @@ again:
 								"containing 0x%" PRIx64
 								" but received 0x%" PRIx64 " instead\n",
 								args->name, values[prio], msg.value);
+							rc = EXIT_FAILURE;
 						}
 						values[prio]++;
 					}
@@ -438,6 +443,7 @@ again:
 				if (mq_getattr(mq, &attr) < 0) {
 					pr_fail("%s: mq_getattr failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				} else {
 					(void)mq_setattr(mq, &attr, &old_attr);
 				}
@@ -461,11 +467,13 @@ again:
 			else
 				ret = mq_send(mq, (char *)&msg, sizeof(msg), prio);
 			if (ret < 0) {
-				if ((errno != EINTR) && (errno != ETIMEDOUT))
+				if ((errno != EINTR) && (errno != ETIMEDOUT)) {
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
 						args->name,
 						timed ? "mq_timedsend" : "mq_send",
 						errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 				break;
 			}
 
@@ -499,13 +507,16 @@ again:
 		} while (stress_continue(args));
 
 		(void)stress_kill_pid_wait(pid, NULL);
-		if (mq_close(mq) < 0)
+		if (mq_close(mq) < 0) {
 			pr_fail("%s: mq_close failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-		if (mq_unlink(mq_name) < 0)
+			rc = EXIT_FAILURE;
+		}
+		if (mq_unlink(mq_name) < 0) {
 			pr_fail("%s: mq_unlink failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-
+			rc = EXIT_FAILURE;
+		}
 		/* Exercise invalid mq_close, already closed mq */
 		(void)mq_close(mq);
 		/* Exercise invalid mq_unlink */
@@ -516,7 +527,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_mq_info = {
