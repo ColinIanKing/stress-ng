@@ -121,7 +121,7 @@ static int stress_affinity_supported(const char *name)
  */
 static void stress_affinity_reap(stress_args_t *args, const pid_t *pids)
 {
-	stress_kill_and_wait_many(args, pids, STRESS_AFFINITY_PROCS,  SIGALRM, true);
+	stress_kill_and_wait_many(args, pids, STRESS_AFFINITY_PROCS, SIGALRM, true);
 }
 
 /*
