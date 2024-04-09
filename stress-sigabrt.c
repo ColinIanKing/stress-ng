@@ -59,6 +59,7 @@ static int stress_sigabrt(stress_args_t *args)
 {
 	void *sigabrt_mapping;
 	double rate;
+	int rc = EXIT_SUCCESS;
 
 	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -129,6 +130,7 @@ rewait:
 				}
 				pr_fail("%s: waitpid failed: %d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 			} else {
 				if (WIFSIGNALED(status) &&
 				    (WTERMSIG(status) == SIGABRT)) {
@@ -136,21 +138,24 @@ rewait:
 						if (sigabrt_info->signalled == false) {
 							pr_fail("%s SIGABORT signal handler did not get called\n",
 								args->name);
+							rc = EXIT_FAILURE;
 						}
 					} else {
 						if (sigabrt_info->signalled == true) {
 							pr_fail("%s SIGABORT signal handler was unexpectedly called\n",
 								args->name);
+							rc = EXIT_FAILURE;
 						}
 					}
 					stress_bogo_inc(args);
 				} else if (WIFEXITED(status)) {
 					pr_fail("%s: child did not abort as expected\n",
 						args->name);
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -160,7 +165,7 @@ finish:
 
 	(void)munmap((void *)sigabrt_mapping, args->page_size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sigabrt_info = {
