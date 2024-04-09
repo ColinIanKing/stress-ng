@@ -1059,6 +1059,7 @@ redo:
 		case EXIT_SIGNALED:
 			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
 			do_abort = true;
+			*success = false;
 #if defined(STRESS_REPORT_EXIT_SIGNALED)
 			pr_dbg("%s: [%d] aborted via a termination signal\n",
 				stressor_name, ret);
