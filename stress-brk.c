@@ -223,6 +223,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 						"check value 0x%" PRIxPTR ", expected "
 						"0x%" PRIxPTR "\n",
 						args->name, tmp, *tmp, (uintptr_t)tmp);
+					return EXIT_FAILURE;
 				}
 			}
 		} else {
