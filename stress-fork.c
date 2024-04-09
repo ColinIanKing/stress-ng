@@ -308,6 +308,7 @@ static int stress_fork_fn(
 #if defined(__linux__)
 	NOCLOBBER bool remove_reduced = false;
 #endif
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	stress_set_oom_adjustment(args, true);
 #if defined(__linux__)
@@ -451,6 +452,7 @@ static int stress_fork_fn(
 				default:
 					pr_fail("%s: %s failed, errno=%d (%s)\n", args->name,
 						fork_fn_name, info[i].err, strerror(info[i].err));
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -472,7 +474,7 @@ static int stress_fork_fn(
 #endif
 	} while (stress_continue(args));
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
