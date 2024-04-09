@@ -157,8 +157,10 @@ kill_child:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (test_valid && (stress_bogo_get(args) == 0))
+	if (test_valid && (stress_bogo_get(args) == 0)) {
 		pr_fail("%s: no SIGSEGV signals detected\n", args->name);
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
