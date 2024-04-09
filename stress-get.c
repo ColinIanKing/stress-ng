@@ -170,6 +170,7 @@ static int stress_get(stress_args_t *args)
 {
 	char *mnts[MOUNTS_MAX];
 	int mounts_max;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SYS_TIMEX_H)
 #if defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME)
@@ -264,12 +265,14 @@ static int stress_get(stress_args_t *args)
 				pr_fail("%s: getcwd %s failed, errno=%d (%s)%s\n",
 					args->name, path, errno, strerror(errno),
 					stress_get_fs_type(path));
+				rc = EXIT_FAILURE;
 			} else {
 				/* getcwd returned a string: is it the same as path? */
 				if (strncmp(ptr, path, sizeof(path))) {
 					pr_fail("%s: getcwd returned a string that "
 						"is different from the expected path\n",
 						args->name);
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
@@ -293,9 +296,11 @@ static int stress_get(stress_args_t *args)
 		 *  Try to get GIDS_MAX number of gids
 		 */
 		ret = getgroups(GIDS_MAX, gids);
-		if (verify && (ret < 0) && (errno != EINVAL))
+		if (verify && (ret < 0) && (errno != EINVAL)) {
 			pr_fail("%s: getgroups failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 		/*
 		 *  Exercise invalid getgroups calls
 		 */
@@ -354,9 +359,11 @@ static int stress_get(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
-			if (verify && errno && (errno != EINVAL) && (ret < 0))
+			if (verify && errno && (errno != EINVAL) && (ret < 0)) {
 				pr_fail("%s: getpriority failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			if (!stress_continue_flag())
 				break;
 		}
@@ -373,9 +380,11 @@ static int stress_get(stress_args_t *args)
 			gid_t rgid, egid, sgid;
 
 			ret = getresgid(&rgid, &egid, &sgid);
-			if (verify && (ret < 0))
+			if (verify && (ret < 0)) {
 				pr_fail("%s: getresgid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			if (!stress_continue_flag())
 				break;
 		}
@@ -388,9 +397,11 @@ static int stress_get(stress_args_t *args)
 			uid_t ruid, euid, suid;
 
 			ret = getresuid(&ruid, &euid, &suid);
-			if (verify && (ret < 0))
+			if (verify && (ret < 0)) {
 				pr_fail("%s: getresuid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			if (!stress_continue_flag())
 				break;
 		}
@@ -402,9 +413,11 @@ static int stress_get(stress_args_t *args)
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			ret = getrlimit(rlimits[i], &rlim);
-			if (verify && (ret < 0))
+			if (verify && (ret < 0)) {
 				pr_fail("%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			if (!stress_continue_flag())
 				break;
 		}
@@ -440,18 +453,24 @@ static int stress_get(stress_args_t *args)
 				struct rlimit rlims[2];
 
 				ret = prlimit(mypid, rlimits[i], NULL, &rlims[0]);
-				if (verify && (ret < 0) && (errno != EOVERFLOW))
+				if (verify && (ret < 0) && (errno != EOVERFLOW)) {
 					pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
 						args->name, (intmax_t)mypid, i, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 				if (!ret) {
 					ret = prlimit(mypid, rlimits[i], &rlims[0], NULL);
-					if (verify && (ret < 0) && (errno != EOVERFLOW))
+					if (verify && (ret < 0) && (errno != EOVERFLOW)) {
 						pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
 							args->name, (intmax_t)mypid, i, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 					ret = prlimit(mypid, rlimits[i], &rlims[0], &rlims[1]);
-					if (verify && (ret < 0) && (errno != EOVERFLOW))
+					if (verify && (ret < 0) && (errno != EOVERFLOW)) {
 						pr_fail("%s: prlimit(%" PRIdMAX", %zu, ..) failed, errno=%d (%s)\n",
 							args->name, (intmax_t)mypid, i, errno, strerror(errno));
+						rc = EXIT_FAILURE;
+					}
 				}
 
 				/* Exercise invalid pids */
@@ -493,9 +512,11 @@ static int stress_get(stress_args_t *args)
 			struct rusage usage;
 
 			ret = shim_getrusage(rusages[i].who, &usage);
-			if (rusages[i].verify && verify && (ret < 0) && (errno != ENOSYS))
+			if (rusages[i].verify && verify && (ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: getrusage(%s, ..) failed, errno=%d (%s)\n",
 					args->name, rusages[i].name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			if (!stress_continue_flag())
 				break;
 		}
@@ -505,9 +526,11 @@ static int stress_get(stress_args_t *args)
 			pid_t pid;
 
 			ret = getsid(mypid);
-			if (verify && (ret < 0))
+			if (verify && (ret < 0)) {
 				pr_fail("%s: getsid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			pid = stress_get_unused_pid_racy(false);
 			VOID_RET(int, getsid(pid));
 		}
@@ -530,6 +553,7 @@ static int stress_get(stress_args_t *args)
 		if (t1 == (time_t)-1) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 		/*
 		 *  Exercise time calls with a pointer to time_t
@@ -540,21 +564,24 @@ static int stress_get(stress_args_t *args)
 		if (shim_memcmp(&t1, &t2, sizeof(t1))) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-
+			rc = EXIT_FAILURE;
 		}
 		/*
 		 *  Exercise the time system call using the syscall()
 		 *  function to increase kernel test coverage
 		 */
 		t1 = shim_time(NULL);
-		if ((t1 == (time_t)-1) && (errno != ENOSYS))
+		if ((t1 == (time_t)-1) && (errno != ENOSYS)) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 		t1 = shim_time(&t2);
 		if ((t1 == (time_t)-1) && (errno != ENOSYS)) {
 			if (shim_memcmp(&t1, &t2, sizeof(t1))) {
 				pr_fail("%s: time failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 			}
 		}
 
@@ -566,11 +593,13 @@ static int stress_get(stress_args_t *args)
 		if (ret < 0) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 		ret = gettimeofday(&tv, &tz);
 		if (ret < 0) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 #if 0
 		/*
@@ -582,6 +611,7 @@ static int stress_get(stress_args_t *args)
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 #endif
 
@@ -594,17 +624,20 @@ static int stress_get(stress_args_t *args)
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 		ret = shim_gettimeofday(&tv, &tz);
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 #if 0
 		ret = shim_gettimeofday(NULL, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeofday failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		}
 #endif
 
@@ -626,14 +659,17 @@ static int stress_get(stress_args_t *args)
 						pr_fail("%s: uname unexpectedly succeeded with read only utsbuf, "
 							"expected -EFAULT, instead got errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
 					}
 				}
 			}
 
 			ret = uname(&utsbuf);
-			if (verify && (ret < 0))
+			if (verify && (ret < 0)) {
 				pr_fail("%s: uname failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 		}
 #else
 		UNEXPECTED
@@ -669,9 +705,11 @@ static int stress_get(stress_args_t *args)
 
 			timexbuf.modes = 0;
 			ret = adjtimex(&timexbuf);
-			if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))
+			if (cap_sys_time && verify && (ret < 0) && (errno != EPERM)) {
 				pr_fail("%s: adjtimex failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 		}
 #else
 		UNEXPECTED
@@ -681,9 +719,11 @@ static int stress_get(stress_args_t *args)
     defined(HAVE_ADJTIME)
 		(void)shim_memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
-		if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))
+		if (cap_sys_time && verify && (ret < 0) && (errno != EPERM)) {
 			pr_fail("%s: adjtime failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 #else
 		UNEXPECTED
 #endif
@@ -711,11 +751,13 @@ static int stress_get(stress_args_t *args)
 				if (verify && (ret != fs_index)) {
 					pr_fail("%s: sysfs(1, %s) failed, errno=%d (%s)\n",
 						args->name, buf, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			} else {
 				if (verify) {
 					pr_fail("%s: sysfs(2, %d, buf) failed, errno=%d (%s)\n",
 						args->name, fs_index, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			}
 		}
@@ -753,7 +795,7 @@ static int stress_get(stress_args_t *args)
 
 	stress_mount_free(mnts, mounts_max);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_get_info = {
