@@ -411,7 +411,7 @@ static int stress_set_expmath_method(const char *opt)
 	return -1;
 }
 
-static bool stess_expmath_exercise(stress_args_t *args, const size_t index)
+static bool stress_expmath_exercise(stress_args_t *args, const size_t index)
 {
 	bool ret;
 	const double t = stress_time_now();
@@ -420,8 +420,9 @@ static bool stess_expmath_exercise(stress_args_t *args, const size_t index)
 	stress_expmath_metrics[index].duration += (stress_time_now() - t);
 	stress_expmath_metrics[index].count += 1.0;
 	if (ret) {
-		pr_fail("expmath: %s does not match expected result\n",
-			stress_expmath_methods[index].name);
+		if (index != 0)
+			pr_fail("expmath: %s does not match expected result\n",
+				stress_expmath_methods[index].name);
 	}
 	return ret;
 }
@@ -432,7 +433,7 @@ static bool stress_expmath_all(stress_args_t *args)
 	bool ret = false;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_expmath_methods); i++) {
-		ret |= stess_expmath_exercise(args, i);
+		ret |= stress_expmath_exercise(args, i);
 	}
 	return ret;
 }
@@ -445,6 +446,7 @@ static int stress_expmath(stress_args_t *args)
 {
 	size_t i, j;
 	size_t expmath_method = 0;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("expmath-method", &expmath_method);
 
@@ -456,7 +458,10 @@ static int stress_expmath(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stess_expmath_exercise(args, expmath_method);
+		if (stress_expmath_exercise(args, expmath_method)) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -473,7 +478,7 @@ static int stress_expmath(stress_args_t *args)
 			j++;
 		}
 	}
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
