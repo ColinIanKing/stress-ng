@@ -77,7 +77,7 @@
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
-typedef void (*stress_cpu_func)(const char *name);
+typedef int (*stress_cpu_func)(const char *name);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
@@ -136,7 +136,7 @@ static int stress_set_cpu_load_slice(const char *opt)
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
  */
-static void TARGET_CLONES stress_cpu_sqrt(const char *name)
+static int TARGET_CLONES stress_cpu_sqrt(const char *name)
 {
 	int i;
 
@@ -151,8 +151,7 @@ static void TARGET_CLONES stress_cpu_sqrt(const char *name)
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
 			pr_fail("%s: sqrt error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
-			if (!stress_continue_flag())
-				break;
+			return EXIT_FAILURE;
 		}
 
 		r_ld = shim_rintl(r_ld);
@@ -160,10 +159,10 @@ static void TARGET_CLONES stress_cpu_sqrt(const char *name)
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
 			pr_fail("%s: sqrtf error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
-			if (!stress_continue_flag())
-				break;
+			return EXIT_FAILURE;
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 static bool stress_is_affinity_set(void)
@@ -197,7 +196,7 @@ static bool stress_is_affinity_set(void)
  *  stress_cpu_loop()
  *	simple CPU busy loop
  */
-static void OPTIMIZE0 stress_cpu_loop(const char *name)
+static int OPTIMIZE0 stress_cpu_loop(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 134209536UL;
@@ -206,17 +205,20 @@ static void OPTIMIZE0 stress_cpu_loop(const char *name)
 		i_sum += i;
 		FORCE_DO_NOTHING();
 	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum)) {
 		pr_fail("%s: cpu loop 0..16383 sum was %" PRIu32 " and "
 			"did not match the expected value of %" PRIu32 "\n",
 			name, i_sum, sum);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_gcd()
  *	compute Greatest Common Divisor
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 {
 	uint32_t i, gcd_sum = 0;
 	const uint32_t gcd_checksum = 63000868UL;
@@ -239,9 +241,12 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 	}
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 	    (gcd_sum != gcd_checksum) &&
-	    (lcm_sum != lcm_checksum))
+	    (lcm_sum != lcm_checksum)) {
 		pr_fail("%s: gcd error detected, failed modulo "
 			"or assignment operations\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -249,7 +254,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
  *	various bit manipulation hacks from bithacks
  *	https://graphics.stanford.edu/~seander/bithacks.html
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 0x8aac4aab;
@@ -260,16 +265,19 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 		i_sum += stress_popcount32(i);
 		i_sum += stress_nextpwr2(i);
 	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum)) {
 		pr_fail("%s: bitops error detected, failed "
 			"bitops operations\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_trig()
  *	simple sin, cos trig functions
  */
-static void HOT OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
+static int HOT OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 {
 	int i;
 	long double d_sum = 0.0L;
@@ -306,13 +314,14 @@ static void HOT OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 		}
 	}
 	stress_long_double_put(d_sum);
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_hyperbolic()
  *	simple hyperbolic sinh, cosh functions
  */
-static void HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
+static int HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 {
 	int i;
 	long double d_sum = 0.0L;
@@ -349,13 +358,14 @@ static void HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 		}
 	}
 	stress_long_double_put(d_sum);
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_rand()
  *	generate lots of pseudo-random integers
  */
-static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 {
 	int i;
 	uint32_t i_sum = 0;
@@ -366,9 +376,12 @@ PRAGMA_UNROLL_N(8)
 	for (i = 0; LIKELY(i < 16384); i++)
 		i_sum += stress_mwc32();
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum)) {
 		pr_fail("%s: rand error detected, failed sum of "
 			"pseudo-random values\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -377,7 +390,7 @@ PRAGMA_UNROLL_N(8)
  * 	accumulation point based on A098587. Data is scaled in the
  *	range 0..255
  */
-static void HOT OPTIMIZE3 stress_cpu_logmap(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_logmap(const char *name)
 {
 	static double x = 0.4;
 	/*
@@ -401,6 +414,7 @@ PRAGMA_UNROLL_N(8)
 		x = x * r * (1.0 - x);
 	}
 	stress_double_put(x);
+	return EXIT_SUCCESS;
 }
 
 #if defined(HAVE_SRAND48) &&	\
@@ -420,7 +434,7 @@ PRAGMA_UNROLL_N(8)
  *  stress_cpu_rand48()
  *	generate random values using rand48 family of functions
  */
-static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 {
 	int i;
 	double d = 0;
@@ -441,15 +455,20 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 #if defined(STRESS_CPU_RAND48_VERIFY)
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		double d_error = d - d_expected_sum;
-		if (fabs(d_error) > 0.0001)
+		if (fabs(d_error) > 0.0001) {
 			pr_fail("%s: drand48 error detected, failed sum\n", name);
-		if (l != l_expected_sum)
+			return EXIT_FAILURE;
+		}
+		if (l != l_expected_sum) {
 			pr_fail("%s: lrand48 error detected, failed sum\n", name);
+			return EXIT_FAILURE;
+		}
 	}
 #endif
 
 	stress_double_put(d);
 	stress_uint64_put((uint64_t)l);
+	return EXIT_SUCCESS;
 }
 #endif
 
@@ -458,7 +477,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
  *	generate 16384 values from the Galois polynomial
  *	x^32 + x^31 + x^29 + x + 1
  */
-static void HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 {
         static uint32_t lfsr = 0xf63acb01;
 	register int i;
@@ -470,13 +489,14 @@ PRAGMA_UNROLL_N(8)
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 	}
 	stress_uint32_put(lfsr);
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_nsqrt()
  *	iterative Newton-Raphson square root
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 {
 	int i;
 	const long double precision = 1.0e-12L;
@@ -501,22 +521,27 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			const long double r2 = shim_rintl(rt * rt);
 
-			if (j >= max_iter)
+			if (j >= max_iter) {
 				pr_fail("%s: Newton-Raphson sqrt "
 					"computation took more iterations "
 					"than expected\n", name);
-			if ((int)r2 != i)
+				return EXIT_FAILURE;
+			}
+			if ((int)r2 != i) {
 				pr_fail("%s: Newton-Raphson sqrt not "
 					"accurate enough\n", name);
+				return EXIT_FAILURE;
+			}
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_phi()
  *	compute the Golden Ratio
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 {
 	long double phi; /* Golden ratio */
 	const long double precision = 1.0e-15L;
@@ -541,16 +566,19 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 	phi = (long double)b / (long double)a;
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-	    (shim_fabsl(phi - phi_) > precision))
+	    (shim_fabsl(phi - phi_) > precision)) {
 		pr_fail("%s: Golden Ratio phi not accurate enough\n",
 			name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_apery()
  *      compute Apéry's constant
  */
-static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_apery(const char *name)
 {
 	uint32_t n;
 	long double a = 0.0L, a_ = a;
@@ -567,8 +595,11 @@ static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
 		if (shim_fabsl(a - a_) < precision)
 			break;
 	}
-	if (shim_fabsl(a - a_) > precision)
+	if (shim_fabsl(a - a_) > precision) {
 		pr_fail("%s: Apéry's constant not accurate enough\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 
@@ -608,7 +639,7 @@ static void HOT OPTIMIZE3 fft_partial(
  *  stress_cpu_fft()
  *	Fast Fourier Transform
  */
-static void TARGET_CLONES stress_cpu_fft(const char *name)
+static int TARGET_CLONES stress_cpu_fft(const char *name)
 {
 	static double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
@@ -620,6 +651,7 @@ static void TARGET_CLONES stress_cpu_fft(const char *name)
 
 	(void)shim_memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
+	return EXIT_SUCCESS;
 }
 #else
 	UNEXPECTED
@@ -629,7 +661,7 @@ static void TARGET_CLONES stress_cpu_fft(const char *name)
  *   stress_cpu_euler()
  *	compute e using series
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_euler(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_euler(const char *name)
 {
 	long double e = 1.0L, last_e;
 	long double fact = 1.0L;
@@ -643,9 +675,12 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_euler(const char *name)
 		e += (1.0L / fact);
 	} while ((n < 25) && (shim_fabsl(e - last_e) > precision));
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= 25))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= 25)) {
 		pr_fail("%s: Euler computation took more iterations "
 			"than expected\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -674,7 +709,7 @@ static void random_buffer(uint8_t *data, const size_t len)
  *  stress_cpu_collatz()
  *	stress test integer collatz conjecture
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
 {
 	register uint64_t n = 989345275647ULL;	/* Has 1348 steps in cycle */
 	register uint64_t s = stress_mwc8();
@@ -689,16 +724,19 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
 		s += n;		/* Force compiler to do iterative computations */
 	}
 	stress_uint64_put(s);
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i != 1348))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i != 1348)) {
 		pr_fail("%s: error detected, failed collatz progression\n",
 			name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 {
 #define IDCT_SIZE	(8)
 
@@ -749,14 +787,16 @@ PRAGMA_UNROLL_N(8)
 						"IDCT[%d][%d] was %d, "
 						"expecting 255\n",
 						name, i, j, (int)idct[i][j]);
+					return EXIT_FAILURE;
 				}
 			}
 			if (!stress_continue_flag())
-				return;
+				return EXIT_SUCCESS;
 		}
 	}
 
 #undef IDCT_SIZE
+	return EXIT_SUCCESS;
 }
 
 #define int_ops(_type, a, b, c1, c2, c3)\
@@ -796,7 +836,7 @@ PRAGMA_UNROLL_N(8)
  *  Generic int stressor macro
  */
 #define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 {								\
 	const _type mask = (_type)~(_type)0;			\
 	const _type a_final = _a;				\
@@ -816,10 +856,13 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 	}							\
 								\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
-	    ((a != a_final) || (b != b_final)))			\
+	    ((a != a_final) || (b != b_final)))	{		\
 		pr_fail("%s: int" # _sz " error detected, " 	\
 			"failed int" # _sz 			\
 			" math operations\n", name);		\
+		return EXIT_FAILURE;				\
+	}							\
+	return EXIT_SUCCESS;					\
 }								\
 
 /* For compilers that support int128 .. */
@@ -879,7 +922,7 @@ stress_cpu_int(uint8_t, 8, \
  *  Generic floating point stressor macro
  */
 #define stress_cpu_fp(_type, _name, _sin, _cos)		\
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
 	const uint32_t r1 = stress_mwc32(),		\
@@ -898,6 +941,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 	}						\
 	r = a + b + c + d;				\
 	stress_double_put((double)r);			\
+	return EXIT_SUCCESS;				\
 }
 
 stress_cpu_fp(float, float, shim_sinf, shim_cosf)
@@ -966,7 +1010,7 @@ static inline void stress_cpu_complex_long_double_put(complex long double v)
  *  Generic complex stressor macro
  */
 #define stress_cpu_complex(_type, _ltype, _name, _csin, _ccos, _put)	\
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name) \
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name) \
 {								\
 	int i;							\
 	const uint32_t r1 = stress_mwc32(),			\
@@ -987,6 +1031,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name) \
 	}							\
 	r = a + b + c + d;					\
 	_put(r);						\
+	return EXIT_SUCCESS;					\
 }
 
 stress_cpu_complex(complex float, f, complex_float, shim_csinf, shim_ccosf, stress_cpu_complex_float_put)
@@ -1046,7 +1091,7 @@ stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim
  */
 #define stress_cpu_int_fp(_inttype, _sz, _ftype, _name, _a, _b, \
 	_c1, _c2, _c3, _sinf, _cosf)				\
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(const char *name)\
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 {								\
 	int i;							\
 	_inttype int_a, int_b;					\
@@ -1074,13 +1119,16 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(const ch
 			int_a, int_b, c1, c2, c3);		\
 	}							\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
-	    ((int_a != a_final) || (int_b != b_final)))		\
+	    ((int_a != a_final) || (int_b != b_final)))	{	\
 		pr_fail("%s: int" # _sz " error detected, "	\
 			"failed int" # _sz "" # _ftype		\
 			" math operations\n", name);		\
+		return EXIT_FAILURE;				\
+	}							\
 								\
 	flt_r = flt_a + flt_b + flt_c + flt_d;			\
 	stress_double_put((double)flt_r);			\
+	return EXIT_SUCCESS;					\
 }
 
 stress_cpu_int_fp(uint32_t, 32, float, float,
@@ -1148,7 +1196,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
  *  stress_cpu_rgb()
  *	CCIR 601 RGB to YUV to RGB conversion
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 {
 	int i;
 	uint32_t rgb = stress_mwc32() & 0xffffff;
@@ -1179,13 +1227,14 @@ PRAGMA_UNROLL_N(8)
 		b += 3;
 		stress_uint64_put(r + g + b);
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_matrix_prod(void)
  *	matrix product
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
 
@@ -1221,13 +1270,14 @@ PRAGMA_UNROLL_N(8)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
 	stress_long_double_put(sum);
+	return EXIT_SUCCESS;
 }
 
 /*
  *   stress_cpu_fibonacci()
  *	compute fibonacci series
  */
-static void OPTIMIZE3 stress_cpu_fibonacci(const char *name)
+static int OPTIMIZE3 stress_cpu_fibonacci(const char *name)
 {
 	const uint64_t fn_res = 0xa94fad42221f2702ULL;
 	register uint64_t f1 = 0, f2 = 1, fn;
@@ -1238,9 +1288,12 @@ static void OPTIMIZE3 stress_cpu_fibonacci(const char *name)
 		f2 = fn;
 	} while (!(fn & 0x8000000000000000ULL));
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (fn_res != fn))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (fn_res != fn)) {
 		pr_fail("%s: fibonacci error detected, summation "
 			"or assignment failure\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1248,7 +1301,7 @@ static void OPTIMIZE3 stress_cpu_fibonacci(const char *name)
  *	compute the constant psi,
  * 	the reciprocal Fibonacci constant
  */
-static void OPTIMIZE3 stress_cpu_psi(const char *name)
+static int OPTIMIZE3 stress_cpu_psi(const char *name)
 {
 	long double f1 = 0.0L, f2 = 1.0L;
 	long double psi = 0.0L, last_psi;
@@ -1267,24 +1320,29 @@ static void OPTIMIZE3 stress_cpu_psi(const char *name)
 	} while ((i < max_iter) && (shim_fabsl(psi - last_psi) > precision));
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (shim_fabsl(psi - PSI) > 1.0e-15L)
+		if (shim_fabsl(psi - PSI) > 1.0e-15L) {
 			pr_fail("%s: calculation of reciprocal "
 				"Fibonacci constant phi not as accurate "
 				"as expected\n", name);
-		if (i >= max_iter)
+			return EXIT_FAILURE;
+		}
+		if (i >= max_iter) {
 			pr_fail("%s: calculation of reciprocal "
 				"Fibonacci constant took more iterations "
 				"than expected\n", name);
+			return EXIT_FAILURE;
+		}
 	}
 
 	stress_long_double_put(psi);
+	return EXIT_SUCCESS;
 }
 
 /*
  *   stress_cpu_ln2
  *	compute ln(2) using series
  */
-static void OPTIMIZE3 TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_ln2(const char *name)
+static int OPTIMIZE3 TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_ln2(const char *name)
 {
 	long double ln2 = 0.0L, last_ln2 = 0.0L;
 	const long double precision = 1.0e-7L;
@@ -1305,11 +1363,14 @@ static void OPTIMIZE3 TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_ln2(const char
 		ln2 -= (long double)1.0L / (long double)n++;
 	} while ((n < max_iter) && (shim_fabsl(ln2 - last_ln2) > precision));
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= max_iter))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= max_iter)) {
 		pr_fail("%s: calculation of ln(2) took more "
 			"iterations than expected\n", name);
+		return EXIT_FAILURE;
+	}
 
 	stress_long_double_put(ln2);
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1330,20 +1391,23 @@ static uint32_t HOT ackermann(const uint32_t m, const uint32_t n)
  *   stress_cpu_ackermann
  *	compute ackermann function
  */
-static void stress_cpu_ackermann(const char *name)
+static int stress_cpu_ackermann(const char *name)
 {
 	uint32_t a = ackermann(3, 7);
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 0x3fd))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 0x3fd)) {
 		pr_fail("%s: ackermann error detected, "
 			"ackermann(3,9) miscalculated\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *   stress_cpu_explog
  *	compute exp(log(n))
  */
-static void HOT OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
+static int HOT OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
 {
 	uint32_t i;
 	double n = 1e6 + (double)stress_mwc8();
@@ -1359,6 +1423,7 @@ static void HOT OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
 	}
 	stress_double_put(m);
 	stress_double_put(n);
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1379,7 +1444,7 @@ do {						\
  *   stress_cpu_jmp
  *	jmp conditionals
  */
-static void HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
+static int HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
 {
 	register int i, next = 0;
 
@@ -1400,6 +1465,7 @@ static void HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
 		JMP(next, >, 2, 0, 1);
 		JMP(next, <, 1, 1, 0);
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1445,7 +1511,7 @@ static uint16_t PURE HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
  *   stress_cpu_crc16
  *	compute 1024 rounds of CCITT CRC16
  */
-static void stress_cpu_crc16(const char *name)
+static int stress_cpu_crc16(const char *name)
 {
 	uint8_t buffer[1024];
 	size_t i;
@@ -1455,6 +1521,7 @@ static void stress_cpu_crc16(const char *name)
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
 		stress_uint64_put(ccitt_crc16(buffer, i));
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1477,7 +1544,7 @@ static uint16_t PURE HOT OPTIMIZE3 fletcher16(const uint8_t *data, const size_t 
  *   stress_cpu_fletcher16()
  *	compute 1024 rounds of fletcher16 checksum
  */
-static void stress_cpu_fletcher16(const char *name)
+static int stress_cpu_fletcher16(const char *name)
 {
 	uint8_t buffer[1024];
 	size_t i;
@@ -1487,13 +1554,14 @@ static void stress_cpu_fletcher16(const char *name)
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
 		stress_uint16_put(fletcher16(buffer, i));
+	return EXIT_SUCCESS;
 }
 
 /*
  *   stress_cpu_ipv4checksum
  *	compute 1024 rounds of IPv4 checksum
  */
-static void stress_cpu_ipv4checksum(const char *name)
+static int stress_cpu_ipv4checksum(const char *name)
 {
 	uint16_t buffer[512];
 	size_t i;
@@ -1503,6 +1571,7 @@ static void stress_cpu_ipv4checksum(const char *name)
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	for (i = 1; i < sizeof(buffer); i++)
 		stress_uint16_put(stress_ipv4_checksum(buffer, i));
+	return EXIT_SUCCESS;
 }
 
 #if defined(HAVE_COMPLEX_H) &&		\
@@ -1533,7 +1602,7 @@ static inline long double complex PURE HOT OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
  * stress_cpu_zeta()
  *	stress test Zeta(2.0)..Zeta(10.0)
  */
-static void stress_cpu_zeta(const char *name)
+static int stress_cpu_zeta(const char *name)
 {
 	long double precision = 0.00000001L;
 	int i;
@@ -1545,6 +1614,7 @@ static void stress_cpu_zeta(const char *name)
 
 		stress_long_double_put((long double)z);
 	}
+	return EXIT_SUCCESS;
 }
 #else
 	UNEXPECTED
@@ -1554,7 +1624,7 @@ static void stress_cpu_zeta(const char *name)
  * stress_cpu_gamma()
  *	stress Euler-Mascheroni constant gamma
  */
-static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
+static int HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
 {
 	const long double precision = 1.0e-10L;
 	long double sum = 0.0L, k = 1.0L, _gamma = 0.0L, gammaold;
@@ -1569,15 +1639,19 @@ static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
 	stress_long_double_put(_gamma);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (shim_fabsl(_gamma - GAMMA) > 1.0e-5L)
+		if (shim_fabsl(_gamma - GAMMA) > 1.0e-5L) {
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant not as accurate as expected\n", name);
-		if (k > 80000.0L)
+			return EXIT_FAILURE;
+		}
+		if (k > 80000.0L) {
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant took more iterations than "
 				"expected\n", name);
+			return EXIT_FAILURE;
+		}
 	}
-
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1586,7 +1660,7 @@ static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
  *  Introduction to Signal Processing,
  *  Prentice-Hall, 1995, ISBN: 0-13-209172-0.
  */
-static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 {
 	size_t i, j;
 	double data_average = 0.0;
@@ -1614,14 +1688,14 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 		corr[i] /= (double)CORRELATE_LEN;
 		stress_double_put(corr[i]);
 	}
+	return EXIT_SUCCESS;
 }
-
 
 /*
  * stress_cpu_sieve()
  * 	slightly optimised Sieve of Eratosthenes
  */
-static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 {
 	const double dsqrt = shim_sqrt(SIEVE_SIZE);
 	const uint32_t nsqrt = (uint32_t)dsqrt;
@@ -1640,9 +1714,12 @@ PRAGMA_UNROLL_N(8)
 		if (STRESS_GETBIT(sieve, i))
 			j++;
 	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (j != 10000))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (j != 10000)) {
 		pr_fail("%s: sieve error detected, number of "
 			"primes has been miscalculated\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1672,7 +1749,7 @@ static inline PURE HOT OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
  *  stress_cpu_prime()
  *
  */
-static void stress_cpu_prime(const char *name)
+static int stress_cpu_prime(const char *name)
 {
 	uint32_t i, nprimes = 0;
 
@@ -1680,16 +1757,19 @@ static void stress_cpu_prime(const char *name)
 		nprimes += is_prime(i);
 	}
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 10000))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 10000)) {
 		pr_fail("%s: prime error detected, number of primes "
 			"has been miscalculated\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_gray()
  *	compute gray codes
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_gray(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_gray(const char *name)
 {
 	register uint32_t i;
 	register uint64_t sum = 0;
@@ -1720,10 +1800,13 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_gray(const char *name)
 #endif
 		sum += gray_code;
 	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff0000))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff0000)) {
 		pr_fail("%s: gray code error detected, sum of gray "
 			"codes between 0x00000 and 0x10000 miscalculated\n",
 			name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1751,22 +1834,25 @@ static uint32_t HOT hanoi(
  *  stress_cpu_hanoi
  *	stress with recursive Towers of Hanoi
  */
-static void stress_cpu_hanoi(const char *name)
+static int stress_cpu_hanoi(const char *name)
 {
 	const uint32_t n = hanoi(20, 'X', 'Y', 'Z');
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n != 1048576))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n != 1048576)) {
 		pr_fail("%s: number of hanoi moves different from "
 			"the expected number\n", name);
-
+		return EXIT_FAILURE;
+	}
 	stress_uint64_put(n);
+
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_floatconversion
  *	exercise conversion to/from different floating point values
  */
-static void TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_floatconversion(const char *name)
+static int TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_floatconversion(const char *name)
 {
 	float f_sum = 0.0;
 	double d_sum = 0.0;
@@ -1820,13 +1906,15 @@ static void TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_floatconversion(const ch
 	stress_double_put(d_sum);
 	stress_float_put(f_sum);
 	stress_uint32_put(j_sum);
+
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_intconversion
  *	exercise conversion to/from different int values
  */
-static void stress_cpu_intconversion(const char *name)
+static int stress_cpu_intconversion(const char *name)
 {
 	int16_t i16_sum = (int16_t)stress_mwc16();
 	int32_t i32_sum = (int32_t)stress_mwc32();
@@ -1894,6 +1982,8 @@ static void stress_cpu_intconversion(const char *name)
 	stress_uint16_put((uint16_t)i16_sum);
 	stress_uint32_put((uint32_t)i32_sum);
 	stress_uint64_put((uint64_t)i64_sum);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1949,7 +2039,7 @@ static inline long double PURE HOT OPTIMIZE3 factorial(int n)
  *	compute pi using the Srinivasa Ramanujan
  *	fast convergence algorithm
  */
-static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 {
 	long double s = 0.0L, pi = 0.0L, last_pi = 0.0L;
 	const long double precision = 1.0e-20L;
@@ -1968,15 +2058,21 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 
 	/* Quick sanity checks */
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (k >= max_iter)
+		if (k >= max_iter) {
 			pr_fail("%s: number of iterations to compute "
 				"pi was more than expected\n", name);
-		if (shim_fabsl(pi - PI) > 1.0e-15L)
+			return EXIT_FAILURE;
+		}
+		if (shim_fabsl(pi - PI) > 1.0e-15L) {
 			pr_fail("%s: accuracy of computed pi is not "
 				"as good as expected\n", name);
+			return EXIT_FAILURE;
+		}
 	}
 
 	stress_long_double_put(pi);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -1984,7 +2080,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
  *	compute the constant omega
  *	See http://en.wikipedia.org/wiki/Omega_constant
  */
-static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
+static int HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 {
 	long double omega = 0.5 + ((double)stress_mwc16() * 1.0E-9), last_omega = 0.0L;
 	const long double precision = 1.0e-20L;
@@ -2002,16 +2098,22 @@ static void HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 	} while ((n < max_iter) && (shim_fabsl(omega - last_omega) > precision));
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (n > max_iter)
+		if (n > max_iter) {
 			pr_fail("%s: number of iterations to compute "
 				"omega was more than expected (%d vs %d)\n",
 				name, n, max_iter);
-		if (shim_fabsl(omega - OMEGA) > 1.0e-16L)
+			return EXIT_FAILURE;
+		}
+		if (shim_fabsl(omega - OMEGA) > 1.0e-16L) {
 			pr_fail("%s: accuracy of computed omega is "
 				"not as good as expected\n", name);
+			return EXIT_FAILURE;
+		}
 	}
 
 	stress_long_double_put(omega);
+
+	return EXIT_SUCCESS;
 }
 
 #define HAMMING(G, i, nybble, code) 			\
@@ -2077,7 +2179,7 @@ static uint8_t PURE HOT OPTIMIZE3 hamming84(const uint8_t nybble)
  *  stress_cpu_hamming()
  *	compute hamming code on 65536 x 4 nybbles
  */
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
+static int OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
 {
 	uint32_t i;
 	uint32_t sum = 0;
@@ -2092,11 +2194,13 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
 		sum += encoded;
 	}
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff8000))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff8000)) {
 		pr_fail("%s: hamming error detected, sum of 65536 "
 			"hamming codes not correct\n", name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
-
 
 static ptrdiff_t stress_cpu_callfunc_func(
 	ssize_t		n,
@@ -2127,7 +2231,7 @@ static ptrdiff_t stress_cpu_callfunc_func(
  *  stress_cpu_callfunc()
  *	deep function calls
  */
-static void stress_cpu_callfunc(const char *name)
+static int stress_cpu_callfunc(const char *name)
 {
 	uint64_t u64arg = stress_mwc64();
 	uint32_t u32arg = stress_mwc32();
@@ -2141,6 +2245,8 @@ static void stress_cpu_callfunc(const char *name)
 		u64arg, u32arg, u16arg, u8arg,
 		&u64arg, &u32arg, &u16arg, &u8arg);
 	stress_uint64_put((uint64_t)ret);
+
+	return EXIT_SUCCESS;
 }
 
 
@@ -2156,7 +2262,7 @@ static const bool stress_cpu_parity_table[256] = {
  *  stress_cpu_parity
  *	compute parity different ways
  */
-static void stress_cpu_parity(const char *name)
+static int stress_cpu_parity(const char *name)
 {
 	uint32_t val = 0x83fb5acf;
 	size_t i;
@@ -2190,9 +2296,11 @@ static void stress_cpu_parity(const char *name)
 			p = !p;
 			v = v & (v - 1);
 		}
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity)) {
 			pr_fail("%s: parity error detected, using "
 				"optimised naive method\n",  name);
+			return EXIT_FAILURE;
+		}
 
 		/*
 		 * "Compute parity of a word with a multiply"
@@ -2204,9 +2312,11 @@ static void stress_cpu_parity(const char *name)
 		v ^= v >> 2;
 		v = (v & 0x11111111U) * 0x11111111U;
 		p = (v >> 28) & 1;
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity)) {
 			pr_fail("%s: parity error detected, using the "
 				"multiply Shapira method\n",  name);
+			return EXIT_FAILURE;
+		}
 
 		/*
 		 * "Compute parity in parallel"
@@ -2218,9 +2328,11 @@ static void stress_cpu_parity(const char *name)
 		v ^= v >> 4;
 		v &= 0xf;
 		p = (0x6996 >> v) & 1;
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity)) {
 			pr_fail("%s: parity error detected, using "
 				"the parallel method\n",  name);
+			return EXIT_FAILURE;
+		}
 
 		/*
 		 * "Compute parity by lookup table"
@@ -2231,9 +2343,11 @@ static void stress_cpu_parity(const char *name)
 		v ^= v >> 16;
 		v ^= v >> 8;
 		p = stress_cpu_parity_table[v & 0xff];
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity)) {
 			pr_fail("%s: parity error detected, using "
 				"the lookup method, variation 1\n",  name);
+			return EXIT_FAILURE;
+		}
 
 		/*
 		 * "Compute parity by lookup table"
@@ -2242,19 +2356,24 @@ static void stress_cpu_parity(const char *name)
 		 */
 		u.v32 = val;
 		p = stress_cpu_parity_table[u.v8[0] ^ u.v8[1] ^ u.v8[2] ^ u.v8[3]];
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity)) {
 			pr_fail("%s: parity error detected, using the "
 				"lookup method, variation 2\n",  name);
+			return EXIT_FAILURE;
+		}
 #if defined(HAVE_BUILTIN_PARITY)
 		/*
 		 *  Compute parity using built-in function
 		 */
 		p = (uint32_t)__builtin_parity((unsigned int)val);
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity)) {
 			pr_fail("%s: parity error detected, using "
 				"the __builtin_parity function\n",  name);
+			return EXIT_FAILURE;
+		}
 #endif
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2262,7 +2381,7 @@ static void stress_cpu_parity(const char *name)
  *	perform 8 bit to 1 bit gray scale
  *	Floyd-Steinberg dither
  */
-static void TARGET_CLONES stress_cpu_dither(const char *name)
+static int TARGET_CLONES stress_cpu_dither(const char *name)
 {
 	size_t x, y;
 
@@ -2323,6 +2442,7 @@ PRAGMA_UNROLL_N(8)
 					error >> 4;
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2330,7 +2450,7 @@ PRAGMA_UNROLL_N(8)
  *	perform 50000 x 8 bit divisions, these are traditionally
  *	slow ops
  */
-static void TARGET_CLONES stress_cpu_div8(const char *name)
+static int TARGET_CLONES stress_cpu_div8(const char *name)
 {
 	register uint16_t i = 50000, j = 0;
 	const uint8_t delta = 0xff / 224;
@@ -2350,6 +2470,8 @@ static void TARGET_CLONES stress_cpu_div8(const char *name)
 		j += delta;
 	}
 	stress_uint8_put(sum);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2357,7 +2479,7 @@ static void TARGET_CLONES stress_cpu_div8(const char *name)
  *	perform 50000 x 16 bit divisions, these are traditionally
  *	slow ops
  */
-static void TARGET_CLONES stress_cpu_div16(const char *name)
+static int TARGET_CLONES stress_cpu_div16(const char *name)
 {
 	register uint16_t i = 50000, j = 0;
 	const uint16_t delta = 0xffff / 224;
@@ -2378,6 +2500,8 @@ static void TARGET_CLONES stress_cpu_div16(const char *name)
 		j += delta;
 	}
 	stress_uint16_put(sum);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2385,7 +2509,7 @@ static void TARGET_CLONES stress_cpu_div16(const char *name)
  *	perform 50000 x 32 bit divisions, these are traditionally
  *	slow ops
  */
-static void TARGET_CLONES stress_cpu_div32(const char *name)
+static int TARGET_CLONES stress_cpu_div32(const char *name)
 {
 	register uint32_t i = 50000, j = 0;
 	const uint32_t delta = 0xffffffff / 224;
@@ -2406,6 +2530,8 @@ static void TARGET_CLONES stress_cpu_div32(const char *name)
 		j += delta;
 	}
 	stress_uint32_put(sum);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2413,7 +2539,7 @@ static void TARGET_CLONES stress_cpu_div32(const char *name)
  *	perform 50000 x 64 bit divisions, these are traditionally
  *	slow ops
  */
-static void TARGET_CLONES stress_cpu_div64(const char *name)
+static int TARGET_CLONES stress_cpu_div64(const char *name)
 {
 	register uint64_t i = 50000, j = 0;
 	const uint64_t delta = 0xffffffffffffffffULL / 224;
@@ -2434,6 +2560,8 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
 		j += delta;
 	}
 	stress_uint64_put(sum);
+
+	return EXIT_SUCCESS;
 }
 
 #if defined(HAVE_INT128_T)
@@ -2442,7 +2570,7 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
  *	perform 50000 x 128 bit divisions, these are traditionally
  *	slow ops
  */
-static void TARGET_CLONES stress_cpu_div128(const char *name)
+static int TARGET_CLONES stress_cpu_div128(const char *name)
 {
 	register __uint128_t i = 50000, j = 0;
 	const uint64_t delta64 = 0xffffffffffffffffULL;
@@ -2464,6 +2592,8 @@ static void TARGET_CLONES stress_cpu_div128(const char *name)
 		j += delta;
 	}
 	stress_uint64_put((uint64_t)sum);
+
+	return EXIT_SUCCESS;
 }
 #endif
 
@@ -2471,7 +2601,7 @@ static void TARGET_CLONES stress_cpu_div128(const char *name)
  *  stress_cpu_union
  *	perform bit field operations on a union
  */
-static void TARGET_CLONES stress_cpu_union(const char *name)
+static int TARGET_CLONES stress_cpu_union(const char *name)
 {
 	typedef union {
 		struct {
@@ -2535,6 +2665,7 @@ static void TARGET_CLONES stress_cpu_union(const char *name)
 		u.bits64.b10 *= 5;
 		u.u32 += 1;
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2568,7 +2699,7 @@ static uint32_t queens_try(
  *  stress_cpu_queens
  *	solve the queens problem for sizes 1..11
  */
-static void stress_cpu_queens(const char *name)
+static int stress_cpu_queens(const char *name)
 {
 	uint32_t all, n;
 
@@ -2580,12 +2711,15 @@ static void stress_cpu_queens(const char *name)
 		const uint32_t solutions = queens_try(0, 0, 0, all);
 
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (solutions != queens_solutions[n]))
+		    (solutions != queens_solutions[n])) {
 			pr_fail("%s: queens solution error detected "
 				"on board size %" PRIu32 "\n",
 				name, n);
+			return EXIT_FAILURE;
+		}
 		all = (all + all) + 1;
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2593,7 +2727,7 @@ static void stress_cpu_queens(const char *name)
  *	find factorials from 1..150 using
  *	Stirling's and Ramanujan's Approximations.
  */
-static void OPTIMIZE_FAST_MATH stress_cpu_factorial(const char *name)
+static int OPTIMIZE_FAST_MATH stress_cpu_factorial(const char *name)
 {
 	int n;
 	long double f = 1.0L;
@@ -2612,6 +2746,7 @@ static void OPTIMIZE_FAST_MATH stress_cpu_factorial(const char *name)
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Stirling's approximation of factorial(%d) out of range\n",
 				name, n);
+			return EXIT_FAILURE;
 		}
 
 		/* Ramanujan */
@@ -2622,15 +2757,17 @@ static void OPTIMIZE_FAST_MATH stress_cpu_factorial(const char *name)
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Ramanujan's approximation of factorial(%d) out of range\n",
 				name, n);
+			return EXIT_FAILURE;
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_stats
  *	Exercise some standard stats computations on random data
  */
-static void stress_cpu_stats(const char *name)
+static int stress_cpu_stats(const char *name)
 {
 	size_t i;
 	double data[STATS_MAX];
@@ -2646,7 +2783,7 @@ static void stress_cpu_stats(const char *name)
 
 	for (i = 0; i < STATS_MAX; i++) {
 		int e;
-		const double d = data[i]; 
+		const double d = data[i];
 		const double f = frexp(d, &e);
 
 		mant *= f;
@@ -2681,27 +2818,39 @@ static void stress_cpu_stats(const char *name)
 	stress_double_put(hm);
 	stress_double_put(stddev);
 
-	if (min > hm)
+	if (min > hm) {
 		pr_fail("%s: stats: minimum %f > harmonic mean %f\n",
 			name, min, hm);
-	if (hm > gm)
+		return EXIT_FAILURE;
+	}
+	if (hm > gm) {
 		pr_fail("%s: stats: harmonic mean %f > geometric mean %f\n",
 			name, hm, gm);
-	if (gm > am)
+		return EXIT_FAILURE;
+	}
+	if (gm > am) {
 		pr_fail("%s: stats: geometric mean %f > arithmetic mean %f\n",
 			name, gm, am);
-	if (am > max)
+		return EXIT_FAILURE;
+	}
+	if (am > max) {
 		pr_fail("%s: stats: arithmetic mean %f > maximum %f\n",
 			name, am, max);
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
 }
 
 /*
  *  stress_cpu_all()
  *	dummy function, not called
  */
-static HOT OPTIMIZE3 void stress_cpu_all(const char *name)
+static int HOT OPTIMIZE3 stress_cpu_all(const char *name)
 {
 	(void)name;
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -2860,8 +3009,10 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 
 static double stress_cpu_counter_scale[SIZEOF_ARRAY(cpu_methods)];
 
-static void stress_cpu_method(size_t method, stress_args_t *args, double *counter)
+static int stress_cpu_method(size_t method, stress_args_t *args, double *counter)
 {
+	int rc;
+
 	if (method == 0) {
 		static size_t i = 1;	/* Skip over stress_cpu_all */
 
@@ -2870,9 +3021,11 @@ static void stress_cpu_method(size_t method, stress_args_t *args, double *counte
 		if (i >= SIZEOF_ARRAY(cpu_methods))
 			i = 1;
 	}
-	cpu_methods[method].func(args->name);
+	rc = cpu_methods[method].func(args->name);
 	*counter += stress_cpu_counter_scale[method];
 	stress_bogo_set(args, (uint64_t)*counter);
+
+	return rc;
 }
 
 /*
@@ -2942,6 +3095,7 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 	double counter = 0.0;
 	bool cpu_old_metrics = false;
 	size_t i;
+	int rc = EXIT_SUCCESS;
 
 	stress_catch_sigill();
 
@@ -2985,11 +3139,11 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 	 */
 	if (cpu_load == 100) {
 		do {
-			stress_cpu_method(cpu_method, args, &counter);
-		} while (stress_continue(args));
+			rc = stress_cpu_method(cpu_method, args, &counter);
+		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-		return EXIT_SUCCESS;
+		return rc;
 	}
 
 	/*
@@ -3013,8 +3167,8 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 			int j;
 
 			for (j = 0; j < -cpu_load_slice; j++) {
-				stress_cpu_method(cpu_method, args, &counter);
-				if (!stress_continue_flag())
+				rc = stress_cpu_method(cpu_method, args, &counter);
+				if ((rc != EXIT_SUCCESS) || !stress_continue_flag())
 					break;
 			}
 			t2_wall_clock = stress_time_now();
@@ -3024,10 +3178,10 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 			const uint16_t r = stress_mwc16();
 			double slice_end = t1_cpu_clock + ((double)r / 131072.0);
 			do {
-				stress_cpu_method(cpu_method, args, &counter);
+				rc = stress_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
 				t2_cpu_clock = stress_per_cpu_time();
-				if (!stress_continue_flag())
+				if ((rc != EXIT_SUCCESS) || !stress_continue_flag())
 					break;
 			} while (t2_cpu_clock < slice_end);
 		} else {
@@ -3035,10 +3189,10 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 			const double slice_end = t1_cpu_clock + ((double)cpu_load_slice / STRESS_DBL_MILLISECOND);
 
 			do {
-				stress_cpu_method(cpu_method, args, &counter);
+				rc = stress_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
 				t2_cpu_clock = stress_per_cpu_time();
-				if (!stress_continue_flag())
+				if ((rc != EXIT_SUCCESS) || !stress_continue_flag())
 					break;
 			} while (t2_cpu_clock < slice_end);
 		}
@@ -3074,7 +3228,7 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 			/* Bias takes account of the time to do the delay */
 			bias = (t3_wall_clock - t2_wall_clock) - delay;
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) || stress_continue(args));
 
 	if (stress_is_affinity_set() && (args->instance == 0)) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",
@@ -3083,7 +3237,7 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static void stress_cpu_set_default(void)
