@@ -44,6 +44,7 @@ static int stress_personality(stress_args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(personalities);
 	bool *failed;
+	int rc = EXIT_SUCCESS;
 
 	if (n == 0) {
 		pr_inf_skip("%s: no personalities to stress test, skipping stressor\n", args->name);
@@ -84,6 +85,8 @@ static int stress_personality(stress_args_t *args)
 			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: failed to get personality, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				break;
 			}
 			/*
 			 *  Exercise invalid personalities
@@ -94,6 +97,7 @@ static int stress_personality(stress_args_t *args)
 		if (fails == n) {
 			pr_fail("%s: all %zu personalities failed "
 				"to be set\n", args->name, fails);
+			rc = EXIT_FAILURE;
 			break;
 		}
 		stress_bogo_inc(args);
@@ -103,7 +107,7 @@ static int stress_personality(stress_args_t *args)
 
 	free(failed);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_personality_info = {
