@@ -79,20 +79,24 @@ static void stress_mincore_expect(
 	const int ret_expected,	/* expected return value */
 	const int err,		/* returned errno */
 	const int err_expected,	/* expected errno */
-	char *msg)		/* test message */
+	char *msg,		/* test message */
+	int *rc)		/* return code */
 {
 	if (LIKELY(ret == ret_expected)) {
 		if (LIKELY(ret_expected == 0))
 			return;	/* Success! */
 		pr_fail("%s: unexpected success exercising %s\n",
 			args->name, msg);
+		*rc = EXIT_FAILURE;
 	}
 	/* Silently ignore ENOSYS for now */
 	if (UNLIKELY(err == ENOSYS))
 		return;
-	if (err != err_expected)
+	if (err != err_expected) {
 		pr_fail("%s: expected errno %d, got %d instead while exercising %s\n",
 			args->name, err_expected, err, msg);
+		*rc = EXIT_FAILURE;
+	}
 }
 
 /*
@@ -227,7 +231,7 @@ redo: 			errno = 0;
 				 */
 				ret = shim_mincore((void *)mapped, 0, vec);
 				stress_mincore_expect(args, ret, 0, errno, EINVAL,
-					"zero length for vector size");
+					"zero length for vector size", &rc);
 
 #if 0
 				/*
@@ -235,7 +239,7 @@ redo: 			errno = 0;
 				 */
 				ret = shim_mincore((void *)mapped, ~0, vec);
 				stress_mincore_expect(args, ret, 0, errno, ENOMEM,
-					"invalid length for vector size");
+					"invalid length for vector size", &rc);
 #endif
 
 				/*
@@ -243,21 +247,21 @@ redo: 			errno = 0;
 				 */
 				ret = shim_mincore((void *)(mapped + 1), 0, vec);
 				stress_mincore_expect(args, ret, 0, errno, EINVAL,
-					"misaligned address");
+					"misaligned address", &rc);
 
 				/*
 				 *  Exercise with NULL vec, ignore return
 				 */
 				ret = shim_mincore((void *)mapped, page_size, NULL);
 				stress_mincore_expect(args, ret, 0, errno, EFAULT,
-					"NULL vector address");
+					"NULL vector address", &rc);
 
 				/*
 				 *  Exercise with invalid page
 				 */
 				ret = shim_mincore(mapped, page_size, args->mapped->page_none);
 				stress_mincore_expect(args, ret, 0, errno, EFAULT,
-					"invalid vector address");
+					"invalid vector address", &rc);
 			}
 
 			/*
@@ -265,14 +269,14 @@ redo: 			errno = 0;
 			 */
 			ret = shim_mincore(NULL, page_size, vec);
 			stress_mincore_expect(args, ret, 0, errno, ENOMEM,
-				"NULL memory address");
+				"NULL memory address", &rc);
 
 			/*
 			 *  Exercise with NULL/zero arguments
 			 */
 			ret = shim_mincore(NULL, 0, NULL);
 			stress_mincore_expect(args, ret, 0, errno, EINVAL,
-				"NULL and zero arguments");
+				"NULL and zero arguments", &rc);
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
