@@ -411,6 +411,7 @@ static int stress_close(stress_args_t *args)
 				pr_fail("%s: faccessat opened file descriptor succeeded unexpectedly, "
 					"errno=%d (%s)\n", args->name, errno, strerror(errno));
 				(void)close(ret);
+				rc = EXIT_FAILURE;
 				goto tidy;
 			}
 #else
@@ -432,12 +433,14 @@ static int stress_close(stress_args_t *args)
 					pr_fail("%s: unexpectedly able to close the same file %d twice\n",
 						args->name, fd);
 					close_failure = true;
+					rc = EXIT_FAILURE;
 				} else {
 					if ((errno != EBADF) &&
 					    (errno != EINTR)) {
 						pr_fail("%s: expected error on close failure, error=%d (%s)\n",
 							args->name,  errno, strerror(errno));
 						close_failure = true;
+						rc = EXIT_FAILURE;
 					}
 				}
 			}
