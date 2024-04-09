@@ -269,9 +269,13 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			const unsigned long v = (i >> 1) ^ i;
 
-			if (!skip_list_search(&list, v))
+			if (!skip_list_search(&list, v)) {
 				pr_fail("%s node containing value %lu was not found\n",
 					args->name, v);
+				rc = EXIT_FAILURE;
+				skip_list_free(&list);
+				goto finish;
+			}
 		}
 		skip_list_free(&list);
 
