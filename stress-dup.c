@@ -343,6 +343,7 @@ static int stress_dup(stress_args_t *args)
 			if (UNLIKELY(tmp != fds[n])) {
 				pr_fail("%s: dup2 failed with same fds, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				break;
 			}
 			/* do an invalid dup2 on an invalid fd */
