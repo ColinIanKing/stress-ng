@@ -221,7 +221,7 @@ bad_cache:
 	return EXIT_NO_RESOURCE;
 }
 
-static void OPTIMIZE3 stress_l1cache_forward(
+static int OPTIMIZE3 stress_l1cache_forward(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -255,9 +255,10 @@ static void OPTIMIZE3 stress_l1cache_forward(
 		if (set >= l1cache_sets)
 			set = 0;
 	}
+	return EXIT_SUCCESS;
 }
 
-static void OPTIMIZE3 stress_l1cache_forward_and_verify(
+static int OPTIMIZE3 stress_l1cache_forward_and_verify(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -285,17 +286,21 @@ static void OPTIMIZE3 stress_l1cache_forward_and_verify(
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
 			*(ptr) = (uint8_t)set;
 
-		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-			if (*ptr != (uint8_t)set)
+		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size) {
+			if (*ptr != (uint8_t)set) {
 				pr_fail("%s: cache value mismatch at offset %zd\n",
 					args->name, (size_t)(ptr - cache_start));
+				return EXIT_FAILURE;
+			}
+		}
 		set++;
 		if (set >= l1cache_sets)
 			set = 0;
 	}
+	return EXIT_SUCCESS;
 }
 
-static void OPTIMIZE3 stress_l1cache_reverse(
+static int OPTIMIZE3 stress_l1cache_reverse(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -329,9 +334,10 @@ static void OPTIMIZE3 stress_l1cache_reverse(
 		if (set >= l1cache_sets)
 			set = 0;
 	}
+	return EXIT_SUCCESS;
 }
 
-static void OPTIMIZE3 stress_l1cache_reverse_and_verify(
+static int OPTIMIZE3 stress_l1cache_reverse_and_verify(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -361,19 +367,21 @@ static void OPTIMIZE3 stress_l1cache_reverse_and_verify(
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
 			*(ptr) = (uint8_t)set;
 
-		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
-			if (*ptr != (uint8_t)set)
+		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size) {
+			if (*ptr != (uint8_t)set) {
 				pr_fail("%s: cache value mismatch at offset %zd\n",
 					args->name, (size_t)(ptr - cache_start));
-
+				return EXIT_FAILURE;
+			}
+		}
 		set++;
 		if (set >= l1cache_sets)
 			set = 0;
 	}
+	return EXIT_SUCCESS;
 }
 
-
-static void OPTIMIZE3 stress_l1cache_random(
+static int OPTIMIZE3 stress_l1cache_random(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -414,9 +422,10 @@ static void OPTIMIZE3 stress_l1cache_random(
 		if (set >= l1cache_sets)
 			set = 0;
 	}
+	return EXIT_SUCCESS;
 }
 
-static void OPTIMIZE3 stress_l1cache_random_and_verify(
+static int OPTIMIZE3 stress_l1cache_random_and_verify(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -457,19 +466,22 @@ static void OPTIMIZE3 stress_l1cache_random_and_verify(
 		for (j = 0; j < loops; j++) {
 			const size_t idx = stress_mwc32modn((uint32_t)cache_size);
 
-			if (*(ptr + idx) != (uint8_t)set)
+			if (*(ptr + idx) != (uint8_t)set) {
 				pr_fail("%s: cache value mismatch at offset %zd\n",
 					args->name, idx);
+				return EXIT_FAILURE;
+			}
 		}
 
 		set++;
 		if (set >= l1cache_sets)
 			set = 0;
 	}
+	return EXIT_SUCCESS;
 }
 
 
-typedef void (*l1cache_func_t)(
+typedef int (*l1cache_func_t)(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
 	const uint32_t l1cache_size,
@@ -516,7 +528,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static int stress_l1cache(stress_args_t *args)
 {
-	int ret;
+	int ret, rc = EXIT_SUCCESS;
 	uint32_t l1cache_ways = 0;
 	uint32_t l1cache_size = 0;
 	uint32_t l1cache_sets = 0;
@@ -576,7 +588,10 @@ static int stress_l1cache(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size);
+		if (stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size) == EXIT_FAILURE) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		stress_bogo_add(args, l1cache_sets);
 	} while (stress_continue(args));
@@ -585,7 +600,7 @@ static int stress_l1cache(stress_args_t *args)
 
 	(void)munmap((void *)cache, l1cache_size << 2);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_l1cache_info = {
