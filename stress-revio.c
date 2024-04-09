@@ -377,6 +377,7 @@ static int stress_revio(stress_args_t *args)
 				continue;	/* Retry */
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			goto finish;
 		}
 		stress_file_rw_hint_short(fd);
@@ -387,11 +388,13 @@ static int stress_revio(stress_args_t *args)
 			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			(void)close(fd);
+			rc = EXIT_FAILURE;
 			goto finish;
 		}
 
 		if (UNLIKELY(stress_revio_advise(args, fd, fadvise_flags) < 0)) {
 			(void)close(fd);
+			rc = EXIT_FAILURE;
 			goto finish;
 		}
 
@@ -408,6 +411,7 @@ seq_wr_retry:
 				pr_fail("%s: write failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				(void)close(fd);
+				rc = EXIT_FAILURE;
 				goto finish;
 			}
 
@@ -424,6 +428,7 @@ PRAGMA_UNROLL_N(4)
 					pr_fail("%s: write failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno), fs_type);
 					(void)close(fd);
+					rc = EXIT_FAILURE;
 					goto finish;
 				}
 				continue;
