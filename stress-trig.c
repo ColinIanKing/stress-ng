@@ -351,8 +351,9 @@ static bool stess_trig_exercise(stress_args_t *args, const size_t index)
 	stress_trig_metrics[index].duration += (stress_time_now() - t);
 	stress_trig_metrics[index].count += 1.0;
 	if (ret) {
-		pr_fail("trig: %s does not match expected checksum\n",
-			stress_trig_methods[index].name);
+		if (index != 0)
+			pr_fail("trig: %s does not match expected checksum\n",
+				stress_trig_methods[index].name);
 	}
 	return ret;
 }
@@ -376,6 +377,7 @@ static int stress_trig(stress_args_t *args)
 {
 	size_t i, j;
 	size_t trig_method = 0;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("trig-method", &trig_method);
 
@@ -387,7 +389,10 @@ static int stress_trig(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stess_trig_exercise(args, trig_method);
+		if (stess_trig_exercise(args, trig_method)) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -404,7 +409,7 @@ static int stress_trig(stress_args_t *args)
 			j++;
 		}
 	}
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
