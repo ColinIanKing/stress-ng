@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 static int stress_io(stress_args_t *args)
 {
 #if defined(HAVE_SYNCFS)
-	int i, fd, n_mnts;
+	int i, fd, n_mnts, rc = EXIT_SUCCESS;
 	char *mnts[MAX_MNTS];
 	int fds[MAX_MNTS];
 	const int bad_fd = stress_get_bad_fd();
@@ -54,9 +54,12 @@ static int stress_io(stress_args_t *args)
 	do {
 		sync();
 #if defined(HAVE_SYNCFS)
-		if ((fd != -1) && (syncfs(fd) < 0))
+		if ((fd != -1) && (syncfs(fd) < 0)) {
 			pr_fail("%s: syncfs failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			goto tidy;
+		}
 
 		/* try to sync on all the mount points */
 		for (i = 0; i < n_mnts; i++) {
@@ -68,6 +71,8 @@ static int stress_io(stress_args_t *args)
 				    (errno != EINTR)) {
 					pr_fail("%s: syncfs failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+					goto tidy;
 				}
 			}
 		}
@@ -78,6 +83,8 @@ static int stress_io(stress_args_t *args)
 		if (syncfs(bad_fd) == 0) {
 			pr_fail("%s: syncfs on invalid fd %d succeed\n",
 				args->name, bad_fd);
+			rc = EXIT_FAILURE;
+			goto tidy;
 		}
 #else
 		UNEXPECTED
@@ -85,6 +92,7 @@ static int stress_io(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_SYNCFS)
 	if (fd != -1)
@@ -97,7 +105,7 @@ static int stress_io(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_io_info = {
