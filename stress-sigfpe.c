@@ -158,6 +158,7 @@ static int stress_sigfpe(stress_args_t *args)
 #if defined(STRESS_CHECK_SIGINFO)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #endif
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	typedef struct {
 		unsigned int exception;
@@ -270,6 +271,8 @@ static int stress_sigfpe(stress_args_t *args)
 					args->name,
 					siginfo.si_code, stress_sigfpe_errstr(siginfo.si_code),
 					expected_err_code, stress_sigfpe_errstr(expected_err_code));
+				rc = EXIT_FAILURE;
+				break;
 			}
 #endif
 			stress_bogo_inc(args);
@@ -303,7 +306,7 @@ static int stress_sigfpe(stress_args_t *args)
 
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sigfpe_info = {
