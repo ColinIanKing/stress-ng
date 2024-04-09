@@ -78,7 +78,8 @@ static void stress_munmap_range(
 	stress_args_t *args,
 	void *start,
 	void *end,
-	munmap_context_t *ctxt)
+	munmap_context_t *ctxt,
+	int *rc)
 {
 	const size_t page_shift = ctxt->page_shift;
 	const size_t page_size = args->page_size;
@@ -104,6 +105,7 @@ static void stress_munmap_range(
 			    (vec[0] != 0)) {
 				pr_fail("%s: unmapped page %p still resident in memory\n",
 					args->name, addr);
+				*rc = EXIT_FAILURE;
 			}
 		}
 		j += stride;
@@ -137,6 +139,7 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	munmap_context_t *ctxt = (munmap_context_t *)context;
 	void *start, *end, *offset;
 	int major, minor, n;
+	int rc = EXIT_SUCCESS;
 	uint64_t inode;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_munmap_sig_handler, NULL));
@@ -198,14 +201,14 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 			continue;	/* don't unmap non-readable pages */
 		if (prot[2] == 'x')
 			continue;	/* don't unmap executable pages */
-		stress_munmap_range(args, start, end, ctxt);
+		stress_munmap_range(args, start, end, ctxt, &rc);
 	}
 	(void)fclose(fp);
 
 	if (stress_continue(args))
 		stress_bogo_inc(args);	/* bump per stressor */
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static inline void stress_munmap_clean_path(char *path)
