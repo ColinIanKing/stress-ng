@@ -78,7 +78,7 @@ static inline void *stress_get_umapped_addr(const size_t sz)
  *  check_order()
  *	check page order
  */
-static void OPTIMIZE3 check_order(
+static bool OPTIMIZE3 check_order(
 	stress_args_t *args,
 	const size_t stride,
 	const stress_mapdata_t *data,
@@ -87,17 +87,15 @@ static void OPTIMIZE3 check_order(
 	const char *ordering)
 {
 	size_t i;
-	bool failed;
 
-	for (failed = false, i = 0; i < remap_pages; i++) {
+	for (i = 0; i < remap_pages; i++) {
 		if (data[i * stride] != order[i]) {
-			failed = true;
-			break;
+			pr_fail("%s: remap %s order pages failed\n",
+				args->name, ordering);
+			return true;
 		}
 	}
-	if (failed)
-		pr_fail("%s: remap %s order pages failed\n",
-			args->name, ordering);
+	return false;
 }
 
 /*
@@ -241,7 +239,11 @@ static int stress_remap(stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		check_order(args, stride, data, remap_pages, order, "reverse");
+		if (check_order(args, stride, data, remap_pages, order, "reverse")) {
+			rc = EXIT_FAILURE;
+			break;
+		}
+			
 
 		/* random order pages */
 PRAGMA_UNROLL_N(4)
@@ -260,7 +262,10 @@ PRAGMA_UNROLL_N(4)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		check_order(args, stride, data, remap_pages, order, "random");
+		if (check_order(args, stride, data, remap_pages, order, "random")) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		/* all mapped to 1 page */
 PRAGMA_UNROLL_N(4)
@@ -270,7 +275,10 @@ PRAGMA_UNROLL_N(4)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		check_order(args, stride, data, remap_pages, order, "all-to-1");
+		if (check_order(args, stride, data, remap_pages, order, "all-to-1")) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		/* reorder pages back again */
 PRAGMA_UNROLL_N(4)
@@ -280,7 +288,10 @@ PRAGMA_UNROLL_N(4)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		check_order(args, stride, data, remap_pages, order, "forward");
+		if (check_order(args, stride, data, remap_pages, order, "forward")) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		/*
 		 *  exercise some illegal remapping calls
