@@ -919,6 +919,7 @@ case_stream_index_1:
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	rc = EXIT_SUCCESS;
 	dt = 0.0;
 	do {
 		if (init_counter == 0) {
@@ -989,6 +990,8 @@ case_stream_index_1:
 
 				pr_fail("%s: checksum failure, got 0x%s, expecting 0x%s\n",
 					args->name, new_str, old_str);
+				rc = EXIT_FAILURE;
+				break;
 			} else {
 				old_checksum = new_checksum;
 			}
@@ -1015,7 +1018,6 @@ case_stream_index_1:
 			pr_inf("%s: run duration too short to reliably determine memory rate\n", args->name);
 	}
 
-	rc = EXIT_SUCCESS;
 err_unmap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (idx3 != MAP_FAILED)
