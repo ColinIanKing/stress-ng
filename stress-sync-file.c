@@ -111,7 +111,7 @@ static int stress_sync_allocate(
  */
 static int stress_sync_file(stress_args_t *args)
 {
-	int fd, ret;
+	int fd, ret, rc = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
 	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
@@ -177,6 +177,7 @@ static int stress_sync_file(stress_args_t *args)
 				}
 				pr_fail("%s: sync_file_range (forward), errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
 				break;
 			}
 			offset += sz;
@@ -217,6 +218,7 @@ static int stress_sync_file(stress_args_t *args)
 				}
 				pr_fail("%s: sync_file_range (reverse), errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
 				break;
 			}
 			offset += sz;
@@ -243,18 +245,19 @@ static int stress_sync_file(stress_args_t *args)
 				}
 				pr_fail("%s: sync_file_range (random), errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
 				break;
 			}
 		}
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sync_file_info = {
