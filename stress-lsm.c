@@ -127,6 +127,7 @@ static int stress_lsm(stress_args_t *args)
 		if ((ret >= 0) || ((ret < 0) && (errno != EINVAL))) {
 			pr_fail("%s: invalid lsm_list_modules call should return -1, got %d, errno=%d (%s) instead\n",
 				args->name, ret, errno, strerror(errno));
+			goto err;
 		}
 
 		/* exercise NULL ids */
