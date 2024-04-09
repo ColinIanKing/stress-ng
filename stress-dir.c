@@ -499,6 +499,7 @@ static int stress_dir(stress_args_t *args)
 				    (errno != EMLINK)) {
 					pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 						args->name, path, errno, strerror(errno));
+					ret = EXIT_FAILURE;
 					break;
 				}
 			}
