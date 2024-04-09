@@ -232,6 +232,7 @@ static int stress_wait(stress_args_t *args)
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -245,6 +246,7 @@ static int stress_wait(stress_args_t *args)
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait3 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -260,6 +262,7 @@ static int stress_wait(stress_args_t *args)
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait4 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -273,6 +276,7 @@ static int stress_wait(stress_args_t *args)
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait4 on PID -1 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -286,6 +290,7 @@ static int stress_wait(stress_args_t *args)
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait4 on PID 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -299,6 +304,7 @@ static int stress_wait(stress_args_t *args)
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait4 on pgrp %" PRIdMAX " failed, errno=%d (%s)\n",
 				args->name, (intmax_t)pgrp, errno, strerror(errno));
+			ret = EXIT_FAILURE;
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -328,6 +334,7 @@ static int stress_wait(stress_args_t *args)
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 				pr_fail("%s: waitid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				ret = EXIT_FAILURE;
 				break;
 			}
 			/*
@@ -337,10 +344,12 @@ static int stress_wait(stress_args_t *args)
 			if ((info.si_pid != pid_r) && (info.si_pid != 0)) {
 				pr_fail("%s: waitid returned PID %ld but expected PID %ld\n",
 					args->name, (long int)info.si_pid, (long int)pid_r);
+				ret = EXIT_FAILURE;
 			}
 			if ((info.si_signo != SIGCHLD) && (info.si_signo != 0)) {
 				pr_fail("%s: waitid returned si_signo %d (%s) but expected SIGCHLD\n",
 					args->name, info.si_signo, stress_strsignal(info.si_signo));
+				ret = EXIT_FAILURE;
 			}
 			if ((info.si_status != EXIT_SUCCESS) &&
 			    (info.si_status != SIGSTOP) &&
@@ -348,6 +357,7 @@ static int stress_wait(stress_args_t *args)
 			    (info.si_status != SIGKILL)) {
 				pr_fail("%s: waitid returned unexpected si_status %d\n",
 					args->name, info.si_status);
+				ret = EXIT_FAILURE;
 			}
 #if defined(CLD_EXITED) &&	\
     defined(CLD_KILLED) &&	\
@@ -360,6 +370,7 @@ static int stress_wait(stress_args_t *args)
 			    (info.si_code != 0)) {
 				pr_fail("%s: waitid returned unexpected si_code %d\n",
 					args->name, info.si_code);
+				ret = EXIT_FAILURE;
 			}
 #endif
 			stress_wait_continued(args, status);
