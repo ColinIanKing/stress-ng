@@ -313,6 +313,8 @@ static inline int stress_rtc_proc(stress_args_t *args)
  */
 static int stress_rtc(stress_args_t *args)
 {
+	int rc = EXIT_SUCCESS;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -320,21 +322,27 @@ static int stress_rtc(stress_args_t *args)
 
 		ret = stress_rtc_dev(args);
 		if (ret < 0) {
-			if ((ret != -EACCES) && (ret != -EBUSY))
+			if ((ret != -EACCES) && (ret != -EBUSY)) {
+				rc = EXIT_FAILURE;
 				break;
+			}
 		}
 		ret = stress_rtc_sys(args);
-		if (ret < 0)
+		if (ret < 0) {
+			rc = EXIT_FAILURE;
 			break;
+		}
 		ret = stress_rtc_proc(args);
-		if (ret < 0)
+		if (ret < 0) {
+			rc = EXIT_FAILURE;
 			break;
+		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_rtc_info = {
