@@ -361,12 +361,14 @@ static void OPTIMIZE3 stress_vecfp_call_method(
 					args->name, stress_vecfp_funcs[method].name,
 					vecfp_init[i].d.r2, vecfp_init[i].d.r1);
 				*success = false;
+				break;
 			}
 			if (fabsf(vecfp_init[i].f.r1 - vecfp_init[i].f.r2) > (float)0.0001) {
 				pr_fail("%s: %s float vector operation result mismatch, got %f, expected %f\n",
 					args->name, stress_vecfp_funcs[method].name,
 					vecfp_init[i].f.r2, vecfp_init[i].f.r1);
 				*success = false;
+				break;
 			}
 		}
 	}
@@ -469,7 +471,7 @@ static int stress_vecfp(stress_args_t *args)
 
 	do {
 		stress_vecfp_call_method(args, vecfp_init, vecfp_method, &success);
-	} while (stress_continue(args));
+	} while (success && stress_continue(args));
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const double rate = (stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration) / 1000000.0;
