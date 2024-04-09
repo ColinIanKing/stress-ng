@@ -205,6 +205,7 @@ static int stress_link_generic(
 							pr_fail("%s: readlinkat failed, errno=%d (%s)%s\n",
 							args->name, errno, strerror(errno),
 							stress_get_fs_type(filename));
+							rc = EXIT_FAILURE;
 						}
 						(void)close(dir_fd);
 					}
@@ -219,13 +220,15 @@ static int stress_link_generic(
 						stress_get_fs_type(newpath));
 				} else {
 					buf[rret] = '\0';
-					if ((size_t)rret != oldpathlen)
+					if ((size_t)rret != oldpathlen) {
 						pr_fail("%s: readlink length error, got %zd, expected: %zd\n",
 							args->name, (size_t)rret, oldpathlen);
-					else
+						rc = EXIT_FAILURE;
+					} else {
 						if (strncmp(oldpath, buf, (size_t)rret))
 							pr_fail("%s: readlink path error, got %s, expected %s\n",
 								args->name, buf, oldpath);
+					}
 				}
 			} else {
 				/* Hard link, exercise illegal cross device link, EXDEV error */
