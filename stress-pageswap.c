@@ -66,7 +66,8 @@ static void stress_pageswap_count_paged_out(void *page, const size_t page_size, 
 static void stress_pageswap_unmap(
 	stress_args_t *args,
 	page_info_t **head,
-	double *count)
+	double *count,
+	int *rc)
 {
 	page_info_t *pi = *head;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -80,6 +81,7 @@ static void stress_pageswap_unmap(
 		if (verify && (pi->self != pi)) {
 			pr_fail("%s: page at %p does not contain expected data\n",
 				args->name, (void *)pi);
+			*rc = EXIT_FAILURE;
 		}
 		(void)munmap(pi, pi->size);
 		pi = next;
@@ -100,6 +102,7 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 	size_t max = 0;
 	page_info_t *head = NULL;
 	double count = 0.0, t, duration, rate;
+	int rc = EXIT_SUCCESS;
 
 	(void)context;
 
@@ -108,14 +111,14 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 		page_info_t *pi;
 
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size)) {
-			stress_pageswap_unmap(args, &head, &count);
+			stress_pageswap_unmap(args, &head, &count, &rc);
 			max = 0;
 		}
 
 		pi = (page_info_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (pi == MAP_FAILED) {
-			stress_pageswap_unmap(args, &head, &count);
+			stress_pageswap_unmap(args, &head, &count, &rc);
 			max = 0;
 		} else {
 			page_info_t *oldhead = head;
@@ -130,22 +133,22 @@ static int stress_pageswap_child(stress_args_t *args, void *context)
 				(void)madvise(oldhead, oldhead->size, MADV_PAGEOUT);
 
 			if (max++ > 65536) {
-				stress_pageswap_unmap(args, &head, &count);
+				stress_pageswap_unmap(args, &head, &count, &rc);
 				max = 0;
 			}
 			stress_bogo_inc(args);
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 	duration = stress_time_now() - t;
 
-	stress_pageswap_unmap(args, &head, &count);
+	stress_pageswap_unmap(args, &head, &count, &rc);
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, 0, "millisecs per page swapout",
 			rate * 1000000, STRESS_HARMONIC_MEAN);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
