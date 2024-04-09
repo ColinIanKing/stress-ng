@@ -96,7 +96,7 @@ static int stress_futex(stress_args_t *args)
 	uint64_t *timeout = &g_shared->futex.timeout[args->instance];
 	uint32_t *futex = &g_shared->futex.futex[args->instance];
 	pid_t pid;
-	int parent_cpu;
+	int parent_cpu, rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -117,8 +117,8 @@ again:
 			int ret;
 
 			/*
-			 * Break early in case wake gets stuck
-			 * (which it shouldn't)
+			 *  Break early in case wake gets stuck
+			 *  (which it shouldn't)
 			 */
 			if (!stress_continue_flag())
 				break;
@@ -127,6 +127,7 @@ again:
 				if (ret < 0) {
 					pr_fail("%s: futex_wake failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 			}
 		} while (stress_continue(args));
@@ -170,16 +171,18 @@ again:
 					if (errno != EINTR) {
 						pr_fail("%s: futex_wait failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+						rc = EXIT_FAILURE;
 					}
 				}
 				stress_bogo_inc(args);
 			}
 		} while (stress_continue(args));
+		_exit(rc);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_futex_info = {
