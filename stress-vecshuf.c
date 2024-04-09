@@ -371,7 +371,6 @@ static bool stress_vecshuf_check_data(
 #if defined(HAVE_INT128_T)
 	VEC_CHECK(u128, 4, fail);
 #endif
-
 	return fail;
 }
 
@@ -380,6 +379,7 @@ static int stress_vecshuf(stress_args_t *args)
 	stress_vec_data_t *data;
 	size_t vecshuf_method = 0;	/* "all" */
 	size_t i;
+	int rc = EXIT_SUCCESS;
 
 	stress_catch_sigill();
 
@@ -406,7 +406,10 @@ static int stress_vecshuf(stress_args_t *args)
 	do {
 		stress_vecshuf_set_mask(data);
 		stress_vecshuf_call_method(args, data, vecshuf_method);
-		stress_vecshuf_check_data(args, data);
+		if (stress_vecshuf_check_data(args, data)) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 	} while (stress_continue(args));
 
 
@@ -460,7 +463,7 @@ static int stress_vecshuf(stress_args_t *args)
 
 	(void)munmap((void *)data, sizeof(*data));
 
-	return EXIT_SUCCESS;
+	return rc; 
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
