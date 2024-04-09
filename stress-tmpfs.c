@@ -212,6 +212,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 	int no_mem_retries = 0;
 	int ms_flags;
 	int flags = MAP_SHARED;
+	int rc = EXIT_SUCCESS;
 	mapping_info_t *mappings;
 
 #if defined(MAP_POPULATE)
@@ -323,9 +324,12 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		/* Ensure we can write to the mapped pages */
 		stress_mmap_set(buf, sz, page_size);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (stress_mmap_check(buf, sz, page_size) < 0)
+			if (stress_mmap_check(buf, sz, page_size) < 0) {
 				pr_fail("%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", args->name, sz);
+				rc = EXIT_FAILURE;
+				break;
+			}
 		}
 
 		/*
@@ -378,9 +382,12 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 						mappings[page].state = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page].addr, page_size, page_size);
-						if (stress_mmap_check(mappings[page].addr, page_size, page_size) < 0)
+						if (stress_mmap_check(mappings[page].addr, page_size, page_size) < 0) {
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
+							rc = EXIT_FAILURE;
+							break;
+						}
 						if (tmpfs_mmap_file) {
 							(void)shim_memset(mappings[page].addr, (int)n, page_size);
 							(void)shim_msync((void *)mappings[page].addr, page_size, ms_flags);
@@ -410,7 +417,7 @@ cleanup:
 	(void)close(fd);
 	free(mappings);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
