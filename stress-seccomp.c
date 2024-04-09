@@ -450,6 +450,7 @@ static int stress_seccomp(stress_args_t *args)
 						"but got a successful exit which "
 						"was not expected\n",
 						args->name);
+					return EXIT_FAILURE;
 				}
 				/* ..exited with a SIGSYS but we expected OK exit? */
 				if (WIFSIGNALED(status) && allow_write) {
@@ -458,6 +459,7 @@ static int stress_seccomp(stress_args_t *args)
 							"but got a seccomp SIGSYS "
 							"which was not expected\n",
 							args->name);
+						return EXIT_FAILURE;
 					}
 				}
 			}
