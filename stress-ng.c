@@ -71,6 +71,8 @@
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_CACHE_LEVEL     (3)
 
+#define STRESS_REPORT_EXIT_SIGNALED		(1)
+
 /* stress_stressor_info ignore value. 2 bits */
 #define STRESS_STRESSOR_NOT_IGNORED		(0)
 #define STRESS_STRESSOR_UNSUPPORTED		(1)
@@ -197,6 +199,9 @@ static const int stress_terminate_signals[] = {
 #endif
 #if defined(SIGFPE)
 	SIGFPE,
+#endif
+#if defined(SIGSEGV)
+	SIGSEGV,
 #endif
 #if defined(SIGTERM)
 	SIGTERM,
@@ -1051,7 +1056,8 @@ redo:
 			ss->status[STRESS_STRESSOR_STATUS_SKIPPED]++;
 			do_abort = true;
 			break;
-			case EXIT_SIGNALED:
+		case EXIT_SIGNALED:
+			ss->status[STRESS_STRESSOR_STATUS_FAILED]++;
 			do_abort = true;
 #if defined(STRESS_REPORT_EXIT_SIGNALED)
 			pr_dbg("%s: [%d] aborted via a termination signal\n",
@@ -1175,8 +1181,8 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		/*
 		 *  Critical failure, report and die ASAP
 		 */
-		(void)snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
-			g_app_name, (int)getpid(), stress_strsignal(signum));
+		(void)snprintf(buf, sizeof(buf), "%s: info:  [%jd] stressor terminated with unexpected signal %s\n",
+			g_app_name, (intmax_t)getpid(), stress_strsignal(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		stress_kill_stressors(SIGALRM, true);
 		_exit(EXIT_SIGNALED);
