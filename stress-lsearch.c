@@ -142,6 +142,7 @@ static int stress_lsearch(stress_args_t *args)
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
 	lsearch_func_t lsearch_func;
 	lfind_func_t lfind_func;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("lsearch-method", &lsearch_method);
 	lfind_func = stress_lsearch_methods[lsearch_method].lfind_func;
@@ -189,11 +190,14 @@ static int stress_lsearch(stress_args_t *args)
 
 			result = lfind_func(&data[i], root, &n, sizeof(*data), stress_sort_cmp_fwd_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (result == NULL)
+				if (result == NULL) {
 					pr_fail("%s: element %zu could not be found\n", args->name, i);
-				else if (*result != data[i])
+					rc = EXIT_FAILURE;
+				} else if (*result != data[i]) {
 					pr_fail("%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
-					args->name, i, *result, data[i]);
+						args->name, i, *result, data[i]);
+					rc = EXIT_FAILURE;
+				}
 			}
 		}
 		duration += stress_time_now() - t;
@@ -212,7 +216,7 @@ static int stress_lsearch(stress_args_t *args)
 
 	free(root);
 	free(data);
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_lsearch_info = {
