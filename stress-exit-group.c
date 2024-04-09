@@ -222,13 +222,13 @@ again:
 
         stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (exit_group_failed > 0)
+	if (exit_group_failed > 0) {
 		pr_fail("%s: at least %" PRIu64 " exit_group() calls failed to exit\n",
 			args->name, exit_group_failed);
-
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
-
 
 stressor_info_t stress_exit_group_info = {
 	.stressor = stress_exit_group,
