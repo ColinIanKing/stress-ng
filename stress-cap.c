@@ -56,6 +56,7 @@ static int stress_capgetset_pid(
 		    (errno != ESRCH)) {
 			pr_fail("%s: capget on PID %jd failed: errno=%d (%s)\n",
 				args->name, (intmax_t)pid, errno, strerror(errno));
+			return EXIT_FAILURE;
 		}
 	}
 
@@ -66,6 +67,7 @@ static int stress_capgetset_pid(
 			    (errno != ESRCH)) {
 				pr_fail("%s: capget on PID %jd failed: errno=%d (%s)\n",
 					args->name, (intmax_t)pid, errno, strerror(errno));
+				return EXIT_FAILURE;
 			}
 		}
 
