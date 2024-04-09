@@ -134,7 +134,7 @@ static void stress_dentry_unlink_file(
  *  stress_dentry_unlink()
  *	remove all dentries
  */
-static void stress_dentry_unlink(
+static int stress_dentry_unlink(
 	stress_args_t *args,
 	const uint64_t n,
 	const uint8_t dentry_order,
@@ -178,7 +178,9 @@ static void stress_dentry_unlink(
 	if (read_errors > 0) {
 		pr_fail("%s: %" PRIu64 " files did not contain the expected graycode check data\n",
 			args->name, read_errors);
+		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -340,7 +342,7 @@ static void stress_dentry_misc(const char *path)
  */
 static int stress_dentry(stress_args_t *args)
 {
-	int ret;
+	int ret, rc = EXIT_SUCCESS;
 	uint64_t dentries = DEFAULT_DENTRIES;
 	uint64_t dentry_offset = dentries;
 	uint8_t dentry_order = ORDER_RANDOM;
@@ -388,9 +390,11 @@ static int stress_dentry(stress_args_t *args)
 			t = stress_time_now();
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
-				if (errno != ENOSPC)
+				if (errno != ENOSPC) {
 					pr_fail("%s open %s failed, errno=%d (%s)\n",
 						args->name, path, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 				n = i;
 				break;
 			}
@@ -463,12 +467,14 @@ static int stress_dentry(stress_args_t *args)
 		/*
 		 *  And remove
 		 */
-		stress_dentry_unlink(args, n, dentry_order, verify);
+		if (stress_dentry_unlink(args, n, dentry_order, verify) != EXIT_SUCCESS)
+			rc = EXIT_FAILURE;
+
 		stress_dentry_misc(dir_path);
 
 		if (!stress_continue_flag())
 			break;
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 abort:
 	stress_dentry_state(&nr_dentry2);
@@ -496,7 +502,7 @@ abort:
 	stress_dentry_unlink(args, dentries, dentry_order, verify);
 	(void)stress_temp_dir_rm_args(args);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
