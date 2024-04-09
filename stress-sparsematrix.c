@@ -1173,6 +1173,8 @@ static int stress_sparse_method_test(
 			pr_fail("%s: %s mismatch (%" PRIu32 ",%" PRIu32
 				") was %" PRIu32 ", got %" PRIu32 "\n",
 				args->name, info->name, x, y, v, gv);
+			rc = SPARSE_TEST_FAILED;
+			goto err;
 		}
 	}
 	t2 = stress_time_now();
