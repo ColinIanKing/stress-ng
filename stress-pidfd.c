@@ -118,10 +118,11 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
 static int stress_pidfd(stress_args_t *args)
 {
 	const int bad_fd = stress_get_bad_fd();
+	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (stress_continue(args)) {
+	while ((rc == EXIT_SUCCESS) && stress_continue(args)) {
 		pid_t pid;
 
 again:
@@ -150,10 +151,12 @@ again:
 				unsigned int flags;
 
 				flags = fcntl(pidfd, F_GETFL, 0);
-				if ((flags & O_NONBLOCK) == 0)
+				if ((flags & O_NONBLOCK) == 0) {
 					pr_fail("%s: pidfd_open opened using PIDFD_NONBLOCK "
 						"but O_NONBLOCK is not set on the file\n",
 						args->name);
+					rc = EXIT_FAILURE;
+				}
 #endif
 				(void)close(pidfd);
 			}
@@ -200,6 +203,7 @@ again:
 				}
 				pr_fail("%s: pidfd_send_signal failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				stress_pidfd_reap(pid, pidfd);
 				break;
 			}
@@ -207,11 +211,13 @@ again:
 			if (ret != 0) {
 				pr_fail("%s: pidfd_send_signal (SIGSTOP), failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 			}
 			ret = shim_pidfd_send_signal(pidfd, SIGCONT, NULL, 0);
 			if (ret != 0) {
 				pr_fail("%s: pidfd_send_signal (SIGCONT), failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 			}
 			stress_pidfd_reap(pid, pidfd);
 		}
