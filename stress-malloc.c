@@ -74,8 +74,9 @@ typedef struct {
 #endif
 
 typedef struct {
-	stress_args_t *args;	/* args info */
+	stress_args_t *args;		/* args info */
 	size_t instance;		/* per thread instance number */
+	int rc;				/* return status */
 } stress_malloc_args_t;
 
 static const stress_help_t help[] = {
@@ -212,7 +213,7 @@ static void stress_malloc_page_touch(
 
 static void *stress_malloc_loop(void *ptr)
 {
-	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
+	stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
 	register stress_malloc_info_t *info;
 	stress_args_t *args = malloc_args->args;
 	const size_t page_size = args->page_size;
@@ -238,6 +239,7 @@ static void *stress_malloc_loop(void *ptr)
 	if (info == MAP_FAILED) {
 		pr_inf("%s: cannot mmap address buffer of size %zd bytes: %d (%s)\n",
 			args->name, info_size, errno, strerror(errno));
+		malloc_args->rc = EXIT_FAILURE;
 		return &nowt;
 	}
 	for (;;) {
@@ -269,6 +271,8 @@ static void *stress_malloc_loop(void *ptr)
 				if (UNLIKELY(verify && (uintptr_t)info[i].addr != *info[i].addr)) {
 					pr_fail("%s: allocation at %p does not contain correct value\n",
 						args->name, (void *)info[i].addr);
+					malloc_args->rc = EXIT_FAILURE;
+					break;
 				}
 				stress_alloc_action("free", info[i].len);
 				free_func(info[i].addr, info[i].len);
@@ -292,6 +296,8 @@ static void *stress_malloc_loop(void *ptr)
 					if (UNLIKELY(verify && (uintptr_t)info[i].addr != *info[i].addr)) {
 						pr_fail("%s: allocation at %p does not contain correct value\n",
 							args->name, (void *)info[i].addr);
+						malloc_args->rc = EXIT_FAILURE;
+						break;
 					}
 					if (UNLIKELY(!stress_bogo_inc_lock(args, counter_lock, true)))
 						break;
@@ -369,6 +375,8 @@ static void *stress_malloc_loop(void *ptr)
 							pr_fail("%s: malloc_usable_size on %p returned a "
 								"value %zu, expected %zu or larger\n",
 								args->name, info[i].addr, usable_size, len);
+							malloc_args->rc = EXIT_FAILURE;
+							break;
 						}
 					}
 #endif
@@ -389,6 +397,7 @@ static void *stress_malloc_loop(void *ptr)
 		if (verify && info[j].addr && ((uintptr_t)info[j].addr != *info[j].addr)) {
 			pr_fail("%s: allocation at %p does not contain correct value\n",
 				args->name, (void *)info[j].addr);
+			malloc_args->rc = EXIT_FAILURE;
 		}
 		stress_alloc_action("free", info[j].len);
 		free_func(info[j].addr, info[j].len);
@@ -412,6 +421,7 @@ static void MLOCKED_TEXT stress_malloc_sigsegv_handler(int signum)
 static int stress_malloc_child(stress_args_t *args, void *context)
 {
 	int ret;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	/*
 	 *  pthread instance 0 is actually the main child process,
 	 *  insances 1..N are pthreads 0..N-1
@@ -446,6 +456,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 
 	malloc_args[0].args = args;
 	malloc_args[0].instance = 0;
+	malloc_args[0].rc = EXIT_SUCCESS;
 
 	(void)context;
 
@@ -457,19 +468,24 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	for (j = 0; j < malloc_pthreads; j++) {
 		malloc_args[j + 1].args = args;
 		malloc_args[j + 1].instance = j + 1;
+		malloc_args[j + 1].rc = EXIT_SUCCESS;
 		pthreads[j].ret = pthread_create(&pthreads[j].pthread, NULL,
-			stress_malloc_loop, (void *)&malloc_args);
+			stress_malloc_loop, (void *)&malloc_args[j + 1]);
 	}
 #else
 	if ((args->instance == 0) && (malloc_pthreads > 0))
 		pr_inf("%s: pthreads not supported, ignoring the "
 			"--malloc-pthreads option\n", args->name);
 #endif
-	stress_malloc_loop(&malloc_args);
+	stress_malloc_loop(&malloc_args[0]);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_LIB_PTHREAD)
 	keep_thread_running_flag = false;
+
+	if (malloc_args[0].rc == EXIT_FAILURE)
+		rc = EXIT_FAILURE;
+
 	for (j = 0; j < malloc_pthreads; j++) {
 		if (pthreads[j].ret)
 			continue;
@@ -479,9 +495,11 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 			pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
 				args->name, ret, strerror(ret));
 		}
+		if (malloc_args[j].rc == EXIT_FAILURE)
+			rc = EXIT_FAILURE;
 	}
 #endif
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
