@@ -51,6 +51,7 @@ typedef void * (*memmove_check_func_t)(memmove_func_t func, void *dest, const vo
 
 static memcpy_check_func_t memcpy_check;
 static memmove_check_func_t memmove_check;
+static bool memcpy_okay;
 
 static OPTIMIZE3 void *memcpy_check_func(memcpy_func_t func, void *dest, const void *src, size_t n)
 {
@@ -58,9 +59,11 @@ static OPTIMIZE3 void *memcpy_check_func(memcpy_func_t func, void *dest, const v
 
 	if (shim_memcmp(dest, src, n)) {
 		pr_fail("%s: %s: memcpy content is different than expected\n", s_args_name, s_method_name);
+		memcpy_okay = false;
 	}
 	if (ptr != dest) {
 		pr_fail("%s: %s: memcpy return was %p and not %p as expected\n", s_args_name, s_method_name, ptr, dest);
+		memcpy_okay = false;
 	}
 	return ptr;
 }
@@ -76,9 +79,11 @@ static OPTIMIZE3 void *memmove_check_func(memcpy_func_t func, void *dest, const 
 
 	if (shim_memcmp(dest, src, n)) {
 		pr_fail("%s: %s: memmove content is different than expected\n", s_args_name, s_method_name);
+		memcpy_okay = false;
 	}
 	if (ptr != dest) {
 		pr_fail("%s: %s: memmove return was %p and not %p as expected\n", s_args_name, s_method_name, ptr, dest);
+		memcpy_okay = false;
 	}
 	return ptr;
 }
@@ -140,7 +145,7 @@ static NOINLINE void stress_memcpy_libc(
 	int i;
 	s_method_name = "libc";
 
-	for (i = 0; i < MEMCPY_LOOPS; i++) {
+	for (i = 0; memcpy_okay && (i < MEMCPY_LOOPS); i++) {
 		(void)memcpy_check(memcpy, str3, str2, MEMCPY_MEMSIZE);
 		(void)memcpy_check(memcpy, str2, str3, MEMCPY_MEMSIZE / 2);
 		(void)memmove_check(memmove, str3, str3 + 64, MEMCPY_MEMSIZE - 64);
@@ -176,7 +181,7 @@ static NOINLINE void stress_memcpy_builtin(
 
 	s_method_name = "builtin";
 
-	for (i = 0; i < MEMCPY_LOOPS; i++) {
+	for (i = 0; memcpy_okay && (i < MEMCPY_LOOPS); i++) {
 		(void)memcpy_check(stress_builtin_memcpy_wrapper, str3, str2, MEMCPY_MEMSIZE);
 		(void)memcpy_check(stress_builtin_memcpy_wrapper, str2, str3, MEMCPY_MEMSIZE / 2);
 		(void)memmove_check(stress_builtin_memmove_wrapper, str3, str3 + 64, MEMCPY_MEMSIZE - 64);
@@ -195,7 +200,7 @@ static NOINLINE void stress_memcpy_builtin(
 
 	s_method_name = "builtin (libc)";
 
-	for (i = 0; i < MEMCPY_LOOPS; i++) {
+	for (i = 0; memcpy_okay && (i < MEMCPY_LOOPS); i++) {
 		(void)memcpy_check(memcpy, str3, str2, MEMCPY_MEMSIZE);
 		(void)memcpy_check(memcpy, str2, str3, MEMCPY_MEMSIZE / 2);
 		(void)memmove_check(memmove, str3, str3 + 64, MEMCPY_MEMSIZE - 64);
@@ -218,7 +223,7 @@ static NOINLINE void name(							\
 										\
 	s_method_name = method;							\
 										\
-	for (i = 0; i < MEMCPY_LOOPS; i++) {					\
+	for (i = 0; memcpy_okay && (i < MEMCPY_LOOPS); i++) {			\
 		(void)memcpy_check(cpy, str3, str2, MEMCPY_MEMSIZE);		\
 		(void)memcpy_check(cpy, str2, str3, MEMCPY_MEMSIZE / 2);	\
 		(void)memmove_check(move, str3, str3 + 64, MEMCPY_MEMSIZE - 64);\
@@ -317,6 +322,7 @@ static int stress_memcpy(stress_args_t *args)
 	size_t memcpy_method = 0;
 	stress_memcpy_func func;
 
+	memcpy_okay = true;
 	buf = (uint8_t *)stress_mmap_populate(NULL, 3 * MEMCPY_MEMSIZE,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1 , 0);
@@ -347,7 +353,7 @@ static int stress_memcpy(stress_args_t *args)
 	do {
 		func(str1, str2, str3);
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while (memcpy_okay && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
