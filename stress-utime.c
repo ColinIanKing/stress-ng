@@ -73,6 +73,7 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 	char path[PATH_MAX];
 #endif
 	int dir_fd = -1;
+	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	char hugename[PATH_MAX + 16];
 	int ret, fd;
@@ -402,6 +403,7 @@ STRESS_PRAGMA_POP
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
+					rc = EXIT_FAILURE;
 					break;
 				}
 			} else {
@@ -410,6 +412,7 @@ STRESS_PRAGMA_POP
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
+					rc = EXIT_FAILURE;
 					break;
 				}
 				duration += stress_time_now() - t;
@@ -423,10 +426,14 @@ STRESS_PRAGMA_POP
 					if (statbuf.st_atime < tv.tv_sec) {
 						pr_fail("%s: utime failed: access time is less than expected time\n",
 							args->name);
+						rc = EXIT_FAILURE;
+						break;
 					}
 					if (statbuf.st_mtime < tv.tv_sec) {
 						pr_fail("%s: utime failed: modified time is less than expected time\n",
 							args->name);
+						rc = EXIT_FAILURE;
+						break;
 					}
 				}
 			}
@@ -435,6 +442,7 @@ STRESS_PRAGMA_POP
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
+					rc = EXIT_FAILURE;
 					break;
 				}
 			} else {
@@ -443,6 +451,7 @@ STRESS_PRAGMA_POP
 					pr_fail("%s: utime failed: errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_get_fs_type(filename));
+					rc = EXIT_FAILURE;
 					break;
 				}
 				duration += stress_time_now() - t;
@@ -483,7 +492,7 @@ STRESS_PRAGMA_POP
 	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_utime_info = {
