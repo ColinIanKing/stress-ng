@@ -294,6 +294,7 @@ static int stress_mergesort(stress_args_t *args)
 	size_t n, i, mergesort_method = 0;
 	struct sigaction old_action;
 	int ret;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	mergesort_func_t mergesort_func;
@@ -350,6 +351,8 @@ static int stress_mergesort(stress_args_t *args)
 		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
 			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
 		} else {
 			duration += stress_time_now() - t;
 			count += (double)stress_sort_compare_get();
@@ -361,6 +364,7 @@ static int stress_mergesort(stress_args_t *args)
 						pr_fail("%s: sort error "
 							"detected, incorrect ordering "
 							"found\n", args->name);
+						rc = EXIT_FAILURE;
 						break;
 					}
 				}
@@ -375,6 +379,8 @@ static int stress_mergesort(stress_args_t *args)
 		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
 		} else {
 			duration += stress_time_now() - t;
 			count += (double)stress_sort_compare_get();
@@ -386,6 +392,7 @@ static int stress_mergesort(stress_args_t *args)
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
+						rc = EXIT_FAILURE;
 						break;
 					}
 				}
@@ -404,6 +411,8 @@ static int stress_mergesort(stress_args_t *args)
 		if (mergesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
 		} else {
 			duration += stress_time_now() - t;
 			count += (double)stress_sort_compare_get();
@@ -416,6 +425,7 @@ static int stress_mergesort(stress_args_t *args)
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
+						rc = EXIT_FAILURE;
 						break;
 					}
 				}
@@ -439,7 +449,7 @@ tidy:
 
 	free(data);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_mergesort_info = {
