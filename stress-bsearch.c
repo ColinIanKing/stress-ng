@@ -122,6 +122,7 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
 	bsearch_func_t bsearch_func;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("bsearch-method", &bsearch_method);
 	bsearch_func = stress_bsearch_methods[bsearch_method].bsearch_func;
@@ -162,11 +163,14 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n",
 						args->name, i);
-				else if (*result != *ptr)
+				else if (*result != *ptr) {
 					pr_fail("%s: element %zu "
 						"found %" PRIu32
 						", expecting %" PRIu32 "\n",
 						args->name, i, *result, *ptr);
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 		}
 		duration += stress_time_now() - t;
@@ -184,7 +188,7 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 		count / sorted, STRESS_HARMONIC_MEAN);
 
 	(void)munmap((void *)data, data_size);
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
