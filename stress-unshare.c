@@ -53,8 +53,8 @@ typedef struct {
     defined(CLONE_SIGHAND)	|| \
     defined(CLONE_VM)
 
-#define UNSHARE(flags, duration, count)	\
-	check_unshare(args, flags, #flags, duration, count)
+#define UNSHARE(flags, duration, count, rc)	\
+	check_unshare(args, flags, #flags, duration, count, rc)
 
 static const int clone_flags[] = {
 #if defined(CLONE_FS)
@@ -103,14 +103,15 @@ static void check_unshare(
 	const int flags,
 	const char *flags_name,
 	double *duration,
-	double *count)
+	double *count,
+	int *rc)
 {
-	int rc;
+	int ret; 
 	double t;
 
 	t = stress_time_now();
-	rc = shim_unshare(flags);
-	if ((rc < 0) &&
+	ret = shim_unshare(flags);
+	if ((ret < 0) &&
             (errno != EPERM) &&
             (errno != EACCES) &&
             (errno != EINVAL) &&
@@ -118,6 +119,7 @@ static void check_unshare(
 		pr_fail("%s: unshare(%s) failed, errno=%d (%s)\n",
 			args->name, flags_name,
 			errno, strerror(errno));
+		*rc = EXIT_FAILURE;
 	} else {
 		(*duration) += stress_time_now() - t;
 		(*count) += 1.0;
@@ -157,6 +159,7 @@ static int stress_unshare(stress_args_t *args)
 	const size_t unshare_info_size = sizeof(stress_unshare_info_t) * MAX_PIDS;
 	stress_unshare_info_t *unshare_info;
 	double total_duration = 0.0, total_count = 0.0, rate;
+	int rc = EXIT_SUCCESS;
 
 	unshare_info = (stress_unshare_info_t *)stress_mmap_populate(NULL,
 				unshare_info_size,
@@ -223,18 +226,18 @@ static int stress_unshare(stress_args_t *args)
 				stress_set_oom_adjustment(args, true);
 
 				if (do_flag_perm)
-					UNSHARE(clone_flag, duration, count);
+					UNSHARE(clone_flag, duration, count, &rc);
 #if defined(CLONE_FS)
-				UNSHARE(CLONE_FS, duration, count);
+				UNSHARE(CLONE_FS, duration, count, &rc);
 #endif
 #if defined(CLONE_FILES)
-				UNSHARE(CLONE_FILES, duration, count);
+				UNSHARE(CLONE_FILES, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWCGROUP)
-				UNSHARE(CLONE_NEWCGROUP, duration, count);
+				UNSHARE(CLONE_NEWCGROUP, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWIPC)
-				UNSHARE(CLONE_NEWIPC, duration, count);
+				UNSHARE(CLONE_NEWIPC, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWNET)
 				/*
@@ -245,31 +248,31 @@ static int stress_unshare(stress_args_t *args)
 				 *  and don't unshare of root
 				 */
 				if ((n == 0) && (euid != 0))
-					UNSHARE(CLONE_NEWNET, duration, count);
+					UNSHARE(CLONE_NEWNET, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWNS)
-				UNSHARE(CLONE_NEWNS, duration, count);
+				UNSHARE(CLONE_NEWNS, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWPID)
-				UNSHARE(CLONE_NEWPID, duration, count);
+				UNSHARE(CLONE_NEWPID, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWUSER)
-				UNSHARE(CLONE_NEWUSER, duration, count);
+				UNSHARE(CLONE_NEWUSER, duration, count, &rc);
 #endif
 #if defined(CLONE_NEWUTS)
-				UNSHARE(CLONE_NEWUTS, duration, count);
+				UNSHARE(CLONE_NEWUTS, duration, count, &rc);
 #endif
 #if defined(CLONE_SYSVSEM)
-				UNSHARE(CLONE_SYSVSEM, duration, count);
+				UNSHARE(CLONE_SYSVSEM, duration, count, &rc);
 #endif
 #if defined(CLONE_THREAD)
-				UNSHARE(CLONE_THREAD, duration, count);
+				UNSHARE(CLONE_THREAD, duration, count, &rc);
 #endif
 #if defined(CLONE_SIGHAND)
-				UNSHARE(CLONE_SIGHAND, duration, count);
+				UNSHARE(CLONE_SIGHAND, duration, count, &rc);
 #endif
 #if defined(CLONE_VM)
-				UNSHARE(CLONE_VM, duration, count);
+				UNSHARE(CLONE_VM, duration, count, &rc);
 #endif
 				_exit(0);
 			}
