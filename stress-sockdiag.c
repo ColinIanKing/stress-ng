@@ -283,12 +283,12 @@ static int sockdiag_recv(stress_args_t *args, const int fd)
  */
 static int stress_sockdiag(stress_args_t *args)
 {
-	int ret = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int fd, rc;
+		int fd, ret;
 
 		fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_SOCK_DIAG);
 		if (UNLIKELY(fd < 0)) {
@@ -296,22 +296,22 @@ static int stress_sockdiag(stress_args_t *args)
 				if (args->instance == 0)
 					pr_inf_skip("%s: NETLINK_SOCK_DIAG not supported, skipping stressor\n",
 						args->name);
-				ret = EXIT_NOT_IMPLEMENTED;
+				rc  = EXIT_NOT_IMPLEMENTED;
 				break;
 			}
 			pr_fail("%s: NETLINK_SOCK_DIAG open failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			ret = EXIT_FAILURE;
+			rc = EXIT_FAILURE;
 			break;
 		}
-		rc = sockdiag_send(args, fd);
-		if (UNLIKELY(rc < 0)) {
+		ret = sockdiag_send(args, fd);
+		if (UNLIKELY(ret < 0)) {
 			pr_fail("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			ret = EXIT_FAILURE;
+			rc = EXIT_FAILURE;
 			(void)close(fd);
 			break;
-		} else if (rc == 0) {
+		} else if (ret == 0) {
 			/* Nothing sent or timed out? */
 			(void)close(fd);
 			break;
@@ -322,7 +322,7 @@ static int stress_sockdiag(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return ret;
+	return rc;
 }
 
 stressor_info_t stress_sockdiag_info = {
