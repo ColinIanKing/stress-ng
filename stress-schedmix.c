@@ -315,7 +315,7 @@ static void stress_schedmix_itimer_handler(int signum)
 
 static int stress_schedmix_child(stress_args_t *args)
 {
-	int old_policy = -1;
+	int old_policy = -1, rc = EXIT_SUCCESS;
 
 #if defined(HAVE_SETITIMER) &&	\
     defined(ITIMER_PROF)
@@ -455,6 +455,7 @@ case_sched_fifo:
 					"for scheduler policy %s\n",
 					args->name, errno, strerror(errno),
 					new_policy_name);
+				rc = EXIT_FAILURE;
 			}
 		}
 		stress_schedmix_waste_time(args);
@@ -466,7 +467,7 @@ case_sched_fifo:
 	stress_schedmix_itimer_clear();
 #endif
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static int stress_schedmix(stress_args_t *args)
