@@ -58,6 +58,7 @@ static int stress_spawn_supported(const char *name)
  */
 static int stress_spawn(stress_args_t *args)
 {
+	int rc = EXIT_SUCCESS;
 	char *path;
 	char exec_path[PATH_MAX];
 	uint64_t spawn_fails = 0, spawn_calls = 0;
@@ -97,6 +98,7 @@ static int stress_spawn(stress_args_t *args)
 		if (ret < 0) {
 			pr_fail("%s: posix_spawn failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			spawn_fails++;
 		} else {
 			int status;
@@ -113,10 +115,11 @@ static int stress_spawn(stress_args_t *args)
 		pr_fail("%s: %" PRIu64 " spawns failed (%.2f%%)\n",
 			args->name, spawn_fails,
 			(double)spawn_fails * 100.0 / (double)(spawn_calls));
+		rc = EXIT_FAILURE;
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_spawn_info = {
