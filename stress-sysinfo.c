@@ -53,7 +53,7 @@ static const stress_help_t help[] = {
  */
 static int stress_sysinfo(stress_args_t *args)
 {
-	int n_mounts;
+	int n_mounts, rc = EXIT_SUCCESS;
 	const int verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	char *mnts[128];
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
@@ -89,9 +89,12 @@ static int stress_sysinfo(stress_args_t *args)
 			ret = sysinfo(&sysinfo_buf);
 			if ((ret < 0) &&
 			    (verify) &&
-			    (errno != EPERM))
+			    (errno != EPERM)) {
 			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				break;
+			}
 
 			if (!stress_continue_flag())
 				break;
@@ -122,6 +125,8 @@ static int stress_sysinfo(stress_args_t *args)
 						pr_fail("%s: statfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
+						rc = EXIT_FAILURE;
+						break;
 					}
 				}
 
@@ -158,6 +163,8 @@ static int stress_sysinfo(stress_args_t *args)
 						pr_fail("%s: fstatfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
+						rc = EXIT_FAILURE;
+						break;
 					}
 				}
 				/*
@@ -194,6 +201,8 @@ static int stress_sysinfo(stress_args_t *args)
 						pr_fail("%s: ustat on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
+						rc = EXIT_FAILURE;
+						break;
 					}
 				}
 			}
@@ -235,6 +244,8 @@ static int stress_sysinfo(stress_args_t *args)
 						pr_fail("%s: statvfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
+						rc = EXIT_FAILURE;
+						break;
 					}
 				}
 				/*
@@ -253,13 +264,13 @@ static int stress_sysinfo(stress_args_t *args)
 				args->name, errno, strerror(errno));
 		}
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	stress_mount_free(mnts, n_mounts);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sysinfo_info = {
