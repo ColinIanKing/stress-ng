@@ -412,7 +412,7 @@ static const char * PURE stress_fp_type(const int fp_type)
 	return "unknown";
 }
 
-static void stress_fp_call_method(
+static int stress_fp_call_method(
 	stress_args_t *args,
 	fp_data_t *fp_data,
 	const size_t method,
@@ -432,6 +432,8 @@ static void stress_fp_call_method(
 		const char *fp_description = stress_fp_type(fp_type);
 
 		dt = func->fp_func(args, fp_data, 1);
+		if (dt < 0.0)
+			return EXIT_FAILURE;
 		func->duration += dt;
 		func->ops += (FP_ELEMENTS * LOOPS_PER_CALL);
 
@@ -441,7 +443,7 @@ static void stress_fp_call_method(
 		 *  don't verify these results
 		 */
 		if (!stress_continue_flag())
-			return;
+			return EXIT_SUCCESS;
 
 		for (i = 0; i < FP_ELEMENTS; i++) {
 			long double r0, r1;
@@ -494,14 +496,16 @@ static void stress_fp_call_method(
 #endif
 			default:
 				/* Should never happen! */
-				return;
+				return EXIT_SUCCESS;
 			}
 			if (ret) {
 				pr_fail("%s %s %s verification failure on element %zd, got %Lf, expected %Lf\n",
 					args->name, fp_description, method_name, i, r0, r1);
+				return EXIT_FAILURE;
 			}
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 static double stress_fp_all(
@@ -514,7 +518,8 @@ static double stress_fp_all(
 	(void)index;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
-		stress_fp_call_method(args, fp_data, i, verify);
+		if (stress_fp_call_method(args, fp_data, i, verify) == EXIT_FAILURE)
+			return -1.0;
 	}
 	return 0.0;
 }
@@ -549,6 +554,7 @@ static int stress_fp(stress_args_t *args)
 	fp_data_t *fp_data;
 	size_t fp_method = 0;	/* "all" */
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	int rc = EXIT_SUCCESS;
 
 	stress_catch_sigill();
 
@@ -708,7 +714,10 @@ static int stress_fp(stress_args_t *args)
 	}
 
 	do {
-		stress_fp_call_method(args, fp_data, fp_method, verify);
+		if (stress_fp_call_method(args, fp_data, fp_method, verify) == EXIT_FAILURE) {
+			rc = EXIT_FAILURE;
+			break;
+		}
 	} while (stress_continue(args));
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
@@ -728,7 +737,7 @@ static int stress_fp(stress_args_t *args)
 
 	(void)munmap((void *)fp_data, mmap_size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
