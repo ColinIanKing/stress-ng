@@ -304,6 +304,7 @@ static int stress_fma(stress_args_t *args)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	stress_fma_func *fma_funcs;
 	bool fma_libc = false;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("fma-libc", &fma_libc);
 #if (defined(HAVE_FMA)  || defined(FP_FAST_FMA)) && 	\
@@ -371,9 +372,11 @@ static int stress_fma(stress_args_t *args)
 
 			if (shim_memcmp(pfma->double_a1, pfma->double_a2, sizeof(pfma->double_a1))) {
 				pr_fail("%s: data difference between identical double fma computations\n", args->name);
+				rc = EXIT_FAILURE;
 			}
 			if (shim_memcmp(pfma->float_a1, pfma->float_a2, sizeof(pfma->float_a1))) {
 				pr_fail("%s: data difference between identical float fma computations\n", args->name);
+				rc = EXIT_FAILURE;
 			}
 		}
 	} while (stress_continue(args));
@@ -382,7 +385,7 @@ static int stress_fma(stress_args_t *args)
 
 	(void)munmap((void *)pfma, sizeof(*pfma));
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
