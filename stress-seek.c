@@ -159,6 +159,7 @@ static int stress_seek(stress_args_t *args)
 		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
+			rc = EXIT_FAILURE;
 			goto close_finish;
 		}
 re_write:
@@ -173,6 +174,7 @@ re_write:
 			if (errno) {
 				pr_fail("%s: write failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
 				goto close_finish;
 			}
 		}
@@ -182,6 +184,7 @@ do_read:
 		if (UNLIKELY(stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0)) {
 			pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
+			rc = EXIT_FAILURE;
 			goto close_finish;
 		}
 re_read:
@@ -194,27 +197,36 @@ re_read:
 			if (errno) {
 				pr_fail("%s: read failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
 				goto close_finish;
 			}
 		}
 		if (UNLIKELY((rwret != sizeof(tmp)) &&
 		    (g_opt_flags & OPT_FLAGS_VERIFY))) {
-			pr_fail("%s: incorrect read size, expecting 512 bytes\n", args->name);
+			pr_fail("%s: incorrect read size, expecting 512 bytes\n", args->name); 
+			rc = EXIT_FAILURE;
+			goto close_finish;
 		}
 #if defined(SEEK_END)
 		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_END) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
 #endif
 #if defined(SEEK_CUR)
 		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_CUR) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
@@ -229,27 +241,36 @@ re_read:
 		 *  broken on 32 or 64 bit systems
 		 */
 		if (UNLIKELY(lseek64(fd, offset64, SEEK_SET) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek64 SEEK_SET failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
 #endif
 #if defined(SEEK_END)
 		if (UNLIKELY(lseek64(fd, offset64, SEEK_END) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek64 SEEK_END failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
 #endif
 #if defined(SEEK_CUR)
 		if (UNLIKELY(lseek64(fd, offset64, SEEK_CUR) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek64 SEEK_CUR failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
@@ -258,9 +279,12 @@ re_read:
 #if defined(SEEK_HOLE) &&	\
     !defined(__APPLE__)
 		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_HOLE) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
@@ -268,9 +292,12 @@ re_read:
 #if defined(SEEK_DATA) &&	\
     !defined(__APPLE__)
 		if (UNLIKELY(stress_shim_lseek(fd, 0, SEEK_DATA) < 0)) {
-			if (errno != EINVAL)
+			if (errno != EINVAL) {
 				pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
+				rc = EXIT_FAILURE;
+				goto close_finish;
+			}
 		}
 #else
 		UNEXPECTED
