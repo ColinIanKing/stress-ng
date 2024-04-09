@@ -244,7 +244,8 @@ static int stress_set_qsort_method(const char *opt)
 static inline bool OPTIMIZE3 stress_qsort_verify_forward(
 	stress_args_t *args,
 	const int32_t *data,
-	const size_t n)
+	const size_t n,
+	int *rc)
 {
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		register const int32_t *ptr = data;
@@ -267,13 +268,15 @@ PRAGMA_UNROLL_N(8)
 fail:
 	pr_fail("%s: forward sort error detected, incorrect ordering found\n",
 		args->name);
+	*rc = EXIT_FAILURE;
 	return false;
 }
 
 static inline bool OPTIMIZE3 stress_qsort_verify_reverse(
 	stress_args_t *args,
 	const int32_t *data,
-	const size_t n)
+	const size_t n,
+	int *rc)
 {
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		register const int32_t *ptr = data;
@@ -296,6 +299,7 @@ PRAGMA_UNROLL_N(8)
 fail:
 	pr_fail("%s: reverse sort error detected, incorrect ordering found\n",
 		args->name);
+	*rc = EXIT_FAILURE;
 	return false;
 }
 
@@ -312,6 +316,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	qsort_func_t qsort_func;
 
 	stress_catch_sigill();
@@ -371,7 +376,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
 
-		if (!stress_qsort_verify_forward(args, data, n))
+		if (!stress_qsort_verify_forward(args, data, n, &rc))
 			break;
 
 		if (!stress_continue_flag())
@@ -385,7 +390,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
 
-		if (!stress_qsort_verify_reverse(args, data, n))
+		if (!stress_qsort_verify_reverse(args, data, n, &rc))
 			break;
 
 		if (!stress_continue_flag())
@@ -407,7 +412,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		count += (double)stress_sort_compare_get();
 		sorted += (double)n;
 
-		if (!stress_qsort_verify_reverse(args, data, n))
+		if (!stress_qsort_verify_reverse(args, data, n, &rc))
 			break;
 
 		stress_bogo_inc(args);
@@ -425,7 +430,7 @@ tidy:
 
 	(void)munmap((void *)data, data_size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
