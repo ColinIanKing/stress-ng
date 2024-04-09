@@ -124,7 +124,7 @@ static int stress_signal(stress_args_t *args)
 		}
 
 		stress_bogo_set(args, *pcounter);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
