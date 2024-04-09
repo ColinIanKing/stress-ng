@@ -63,6 +63,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	static uint32_t check0, check1;
 	static double t_total;
 	static uint64_t n = 0;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	/* assume OK unless proven otherwise */
 	longjmp_failed = false;
@@ -89,10 +90,12 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 		if (UNLIKELY(bufchk.check0 != check0)) {
 			pr_fail("%s: memory corrupted before jmpbuf region\n",
 				args->name);
+			return EXIT_FAILURE;
 		}
 		if (UNLIKELY(bufchk.check1 != check1)) {
 			pr_fail("%s: memory corrupted before jmpbuf region\n",
 				args->name);
+			return EXIT_FAILURE;
 		}
 		sample_counter++;
 		if (sample_counter >= 1000)
@@ -107,8 +110,10 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	}
 
 
-	if (longjmp_failed)
+	if (longjmp_failed) {
 		pr_fail("%s failed, did not detect any successful longjmp calls\n", args->name);
+		rc = EXIT_FAILURE;
+	}
 
 	if (n) {
 		const double rate = (double)STRESS_NANOSECOND * t_total / (double)n;
@@ -119,7 +124,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_longjmp_info = {
