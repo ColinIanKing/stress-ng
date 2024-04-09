@@ -163,6 +163,7 @@ static int stress_vecwide(stress_args_t *args)
 	size_t total_bytes = 0;
 	const size_t vec_args_size = (sizeof(*vec_args) + args->page_size - 1) & ~(args->page_size - 1);
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+	int rc = EXIT_SUCCESS;
 
 	stress_catch_sigill();
 
@@ -221,10 +222,12 @@ static int stress_vecwide(stress_args_t *args)
 
 				if (shim_memcmp(vec_args->res1, vec_args->res2, sizeof(vec_args->res1))) {
 					pr_fail("%s: data difference between identical vector computations\n", args->name);
+					rc = EXIT_FAILURE;
+					break;
 				}
 			}
 		}
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {
 		total_bytes += stress_vecwide_funcs[i].byte_size;
@@ -263,7 +266,7 @@ static int stress_vecwide(stress_args_t *args)
 
 	(void)munmap((void *)vec_args, vec_args_size);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_vecwide_info = {
