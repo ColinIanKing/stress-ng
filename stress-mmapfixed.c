@@ -114,6 +114,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 #endif
 	uintptr_t addr = MMAP_TOP;
 	bool mmapfixed_mlock = false;
+	int rc = EXIT_SUCCESS;
 
 	(void)context;
 
@@ -217,6 +218,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 						pr_fail("%s: remap from %p to %p contains 0x%" PRIx64
 							" and not expected value 0x%" PRIx64 "\n",
 							args->name, buf, newbuf, *buf64, val64);
+						rc = EXIT_FAILURE;
 					}
 
 					buf = newbuf;
@@ -234,11 +236,11 @@ next:
 		addr >>= 1;
 		if (addr < MMAP_BOTTOM)
 			addr = MMAP_TOP;
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
