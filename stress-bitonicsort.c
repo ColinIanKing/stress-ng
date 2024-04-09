@@ -138,6 +138,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 	size_t n;
 	struct sigaction old_action;
 	int ret;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -195,6 +196,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -218,6 +220,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -244,6 +247,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -266,7 +270,7 @@ tidy:
 
 	free(data);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_bitonicsort_info = {
