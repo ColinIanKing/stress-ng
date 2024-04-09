@@ -90,6 +90,8 @@ typedef struct {
 	double				 duration;		/* usage duration */
 } stress_vnni_method_t;
 
+static bool vnni_checksum_okay;
+
 static uint32_t OPTIMIZE3 stress_vnni_checksum(void)
 {
 	uint32_t sum = 0;
@@ -479,6 +481,7 @@ static void OPTIMIZE3 stress_vnni_exercise(stress_args_t *args, const size_t n)
 	if (checksum != expected_checksum) {
 		pr_fail("%s: checksum mismatch for %s, got %" PRIx32 ", expected %" PRIx32 "\n",
 			args->name, method->name, checksum, expected_checksum);
+		vnni_checksum_okay = false;
 	}
 	stress_bogo_inc(args);
 }
@@ -533,6 +536,7 @@ static int stress_vnni(stress_args_t *args)
 
 	stress_catch_sigill();
 
+	vnni_checksum_okay = true;
 	little_endian = stress_little_endian();
 
 	stress_mwc_set_seed(0x172fb3ea, 0xd9c02f73);
@@ -584,7 +588,7 @@ static int stress_vnni(stress_args_t *args)
 		} else {
 			stress_vnni_all(args);
 		}
-	} while (stress_continue(args));
+	} while (vnni_checksum_okay && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -602,7 +606,7 @@ static int stress_vnni(stress_args_t *args)
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return vnni_checksum_okay ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
