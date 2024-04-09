@@ -67,6 +67,7 @@ static int stress_tsearch(stress_args_t *args)
 	int32_t *data;
 	size_t i, n;
 	double rate, duration = 0.0, count = 0.0, sorted = 0.0;
+	int rc = EXIT_SUCCESS;
 
 	if (!stress_get_setting("tsearch-size", &tsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -114,6 +115,8 @@ static int stress_tsearch(stress_args_t *args)
 				if (!result) {
 					pr_fail("%s: element %zu could not be found\n",
 						args->name, i);
+					rc = EXIT_FAILURE;
+					break;
 				} else {
 					const int32_t *val = *result;
 
@@ -122,6 +125,8 @@ static int stress_tsearch(stress_args_t *args)
 							"%zu found %" PRIu32
 							", expecting %" PRIu32 "\n",
 							args->name, i, *val, data[i]);
+						rc = EXIT_FAILURE;
+						break;
 					}
 				}
 			}
@@ -137,10 +142,12 @@ static int stress_tsearch(stress_args_t *args)
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL)) {
 				pr_fail("%s: element %zu could not be found\n",
 					args->name, i);
+				rc = EXIT_FAILURE;
+				break;
 			}
 		}
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 abort:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -151,7 +158,7 @@ abort:
 		count / sorted, STRESS_HARMONIC_MEAN);
 
 	free(data);
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_tsearch_info = {
