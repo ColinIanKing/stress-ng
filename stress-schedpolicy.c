@@ -79,7 +79,7 @@ static const int policies[] = {
 static int stress_schedpolicy(stress_args_t *args)
 {
 	int policy = args->instance % SIZEOF_ARRAY(policies);
-	int old_policy = -1;
+	int old_policy = -1, rc = EXIT_SUCCESS;
 	bool schedpolicy_rand = false;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	const bool root_or_nice_capability = stress_check_capability(SHIM_CAP_SYS_NICE);
@@ -253,6 +253,8 @@ case_sched_fifo:
 					"for scheduler policy %s\n",
 					args->name, errno, strerror(errno),
 					new_policy_name);
+				rc = EXIT_FAILURE;
+				break;
 			}
 		} else {
 			ret = sched_getscheduler(pid);
@@ -265,6 +267,8 @@ case_sched_fifo:
 					"but function returned %d instead\n",
 					args->name, (intmax_t)pid, new_policy,
 					new_policy_name, ret);
+				rc = EXIT_FAILURE;
+				break;
 			}
 		}
 #if defined(_POSIX_PRIORITY_SCHEDULING)
@@ -311,14 +315,20 @@ case_sched_fifo:
 
 		(void)shim_memset(&param, 0, sizeof(param));
 		ret = sched_getparam(pid, &param);
-		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM))))
+		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))) {
 			pr_fail("%s: sched_getparam failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
+		}
 
 		ret = sched_setparam(pid, &param);
-		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM))))
+		if (UNLIKELY((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))) {
 			pr_fail("%s: sched_setparam failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
+		}
 #endif
 
 #if defined(HAVE_SCHED_GETATTR) && \
@@ -363,6 +373,8 @@ case_sched_fifo:
 			if (UNLIKELY(errno != ENOSYS)) {
 				pr_fail("%s: sched_getattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				break;
 			}
 		}
 
@@ -400,6 +412,8 @@ case_sched_fifo:
 			if (errno != ENOSYS) {
 				pr_fail("%s: sched_setattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				break;
 			}
 		}
 
@@ -424,7 +438,7 @@ case_sched_fifo:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_schedpolicy_info = {
