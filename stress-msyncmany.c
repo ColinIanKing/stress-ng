@@ -99,6 +99,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 			if (*ptr != pattern) {
 				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, (const void *)ptr, *ptr, pattern);
+				rc = EXIT_FAILURE;
 				failed++;
 				if (failed >= 5)
 					break;
