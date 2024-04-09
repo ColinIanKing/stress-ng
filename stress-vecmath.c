@@ -161,6 +161,7 @@ static int stress_vecmath(stress_args_t *args)
 static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 #endif
 {
+	int rc = EXIT_SUCCESS;
 	/* checksum values */
 	const uint8_t csum8_val =  (uint8_t)0x1b;
 	const uint16_t csum16_val = (uint16_t)0xe76b;
@@ -276,6 +277,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		if (csum8 != csum8_val) {
 			pr_fail("%s: 16 x 8 bit vector checksum mismatch, got 0x%2.2" PRIx8
 				", expected 0x%" PRIx8 "\n", args->name, csum8, csum8_val);
+			rc = EXIT_FAILURE;
 		}
 
 		csum16 = a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
@@ -284,6 +286,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		if (csum16 != csum16_val) {
 			pr_fail("%s: 8 x 16 bit vector checksum mismatch, got 0x%4.4" PRIx16
 				", expected 0x%" PRIx16 "\n", args->name, csum16, csum16_val);
+			rc = EXIT_FAILURE;
 		}
 
 		csum32 = a32[0] ^ a32[1] ^ a32[2] ^ a32[3];
@@ -291,6 +294,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		if (csum32 != csum32_val) {
 			pr_fail("%s: 4 x 32 bit vector checksum mismatch, got 0x%8.8" PRIx32
 				", expected 0x%" PRIx32 "\n", args->name, csum32, csum32_val);
+			rc = EXIT_FAILURE;
 		}
 
 		csum64 = a64[0] ^ a64[1];
@@ -298,6 +302,7 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 		if (csum64 != csum64_val) {
 			pr_fail("%s: 2 x 64 bit vector checksum mismatch, got 0x%16.16" PRIx64
 				", expected 0x%" PRIx64 "\n", args->name, csum64, csum64_val);
+			rc = EXIT_FAILURE;
 		}
 
 #if defined(HAVE_INT128_T)
@@ -308,13 +313,14 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 			pr_fail("%s: 1 x 128 bit vector checksum mismatch, got 0x%16.16" PRIx64 ":%16.16" PRIx64
 				", expected 0x%16.16" PRIx64 "%16.16" PRIx64 "\n", args->name,
 				csum128hi, csum128lo, csum128hi_val, csum128lo_val);
+			rc = EXIT_FAILURE;
 		}
 #endif
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_vecmath_info = {
