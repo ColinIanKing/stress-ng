@@ -101,6 +101,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 	int ret;
 	double rate;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (!stress_get_setting("shellsort-size", &shellsort_size)) {
@@ -156,6 +157,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -179,6 +181,7 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
@@ -206,15 +209,13 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 					pr_fail("%s: reverse sort "
 						"error detected, incorrect "
 						"ordering found\n", args->name);
+					rc = EXIT_FAILURE;
 					break;
 				}
 			}
 		}
-		if (!stress_continue_flag())
-			break;
-
 		stress_bogo_inc(args);
-	} while (stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
@@ -228,7 +229,7 @@ tidy:
 
 	free(data);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_shellsort_info = {
