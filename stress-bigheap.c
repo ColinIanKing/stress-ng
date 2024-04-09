@@ -167,6 +167,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	bool bigheap_mlock = false;
 	struct sigaction action;
 	int ret;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	fault_addr = NULL;
 	signo = -1;
@@ -307,11 +308,13 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 				while (uintptr < uintptr_end) {
 					if (!stress_continue(args))
 						goto finish;
-					if (*uintptr != (uintptr_t)uintptr)
+					if (*uintptr != (uintptr_t)uintptr) {
 						pr_fail("%s: data at location %p was 0x%" PRIxPTR
 							" instead of 0x%" PRIxPTR "\n",
 							args->name, (void *)uintptr, *uintptr,
 							(uintptr_t)uintptr);
+						rc = EXIT_FAILURE;
+					}
 					uintptr += stride / sizeof(uintptr_t);
 				}
 			}
@@ -329,7 +332,7 @@ finish:
 
 	free(ptr);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*
