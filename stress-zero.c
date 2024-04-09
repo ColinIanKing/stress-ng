@@ -93,7 +93,7 @@ static const mmap_flags_t mmap_flags[] = {
  */
 static int stress_zero(stress_args_t *args)
 {
-	int fd;
+	int fd, rc = EXIT_SUCCESS;
 	double duration = 0.0, rate;
 	uint64_t bytes = 0ULL;
 	const size_t page_size = args->page_size;
@@ -165,6 +165,7 @@ static int stress_zero(stress_args_t *args)
 		if ((ret > 0) && stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 			pr_fail("%s: non-zero value from a read of /dev/zero\n",
 				args->name);
+			rc = EXIT_FAILURE;
 		}
 	} else {
 #if defined(__linux__)
@@ -201,6 +202,7 @@ static int stress_zero(stress_args_t *args)
 			if ((ret > 0) && stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 				pr_fail("%s: non-zero value from a read of /dev/zero\n",
 					args->name);
+				rc = EXIT_FAILURE;
 			}
 #if !defined(__minix__)
 			/* One can also write to /dev/zero w/o failure */
@@ -283,7 +285,7 @@ static int stress_zero(stress_args_t *args)
 			}
 #endif
 			stress_bogo_inc(args);
-		} while (stress_continue(args));
+		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
@@ -295,7 +297,7 @@ static int stress_zero(stress_args_t *args)
 	stress_metrics_set(args, 0, "MB per sec /dev/zero read rate",
 		rate, STRESS_HARMONIC_MEAN);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
