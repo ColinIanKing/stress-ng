@@ -257,6 +257,7 @@ static int stress_heapsort(stress_args_t *args)
 	struct sigaction old_action;
 	int ret;
 	double rate;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
 	heapsort_func_t heapsort_func;
 
@@ -310,6 +311,7 @@ static int stress_heapsort(stress_args_t *args)
 		if (heapsort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
 			pr_fail("%s: heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		} else {
 			duration += stress_time_now() - t;
 			count += (double)stress_sort_compare_get();
@@ -320,6 +322,7 @@ static int stress_heapsort(stress_args_t *args)
 						pr_fail("%s: sort error "
 							"detected, incorrect ordering "
 							"found\n", args->name);
+						rc = EXIT_FAILURE;
 						break;
 					}
 				}
@@ -334,6 +337,7 @@ static int stress_heapsort(stress_args_t *args)
 		if (heapsort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		} else {
 			duration += stress_time_now() - t;
 			count += (double)stress_sort_compare_get();
@@ -344,6 +348,7 @@ static int stress_heapsort(stress_args_t *args)
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
+						rc = EXIT_FAILURE;
 						break;
 					}
 				}
@@ -361,6 +366,7 @@ static int stress_heapsort(stress_args_t *args)
 		if (heapsort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 		} else {
 			duration += stress_time_now() - t;
 			count += (double)stress_sort_compare_get();
@@ -371,6 +377,7 @@ static int stress_heapsort(stress_args_t *args)
 						pr_fail("%s: reverse sort "
 							"error detected, incorrect "
 							"ordering found\n", args->name);
+						rc = EXIT_FAILURE;
 						break;
 					}
 				}
@@ -394,7 +401,7 @@ tidy:
 
 	free(data);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_heapsort_info = {
