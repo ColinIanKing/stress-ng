@@ -175,9 +175,10 @@ static void OPTIMIZE3 stress_rgb_noise(
 	const int32_t	x_max,
 	const int32_t	y_max)
 {
-	int32_t i, size = x_max * y_max * 3, n;
-	uint32_t *ptr32 = (uint32_t *)rgb;
-	uint8_t *ptr8;
+	const int32_t size = x_max * y_max * 3;
+	register int32_t i, n;
+	register uint32_t *ptr32 = (uint32_t *)rgb;
+	register uint8_t *ptr8;
 
 	n = size >> 2;
 	for (i = 0; i < n; i++) {
@@ -195,7 +196,8 @@ static void OPTIMIZE3 stress_rgb_brown(
 	const int32_t	x_max,
 	const int32_t	y_max)
 {
-	int32_t i, size = x_max * y_max * 3;
+	int32_t i;
+	const int32_t size = x_max * y_max * 3;
 	uint8_t *ptr = (uint8_t *)rgb;
 	const uint32_t val = stress_mwc32();
 	register uint8_t r = (val >> 24) & 0xff;
@@ -221,11 +223,13 @@ static void OPTIMIZE3 stress_rgb_gradient(
 	const int32_t	x_max,
 	const int32_t	y_max)
 {
-	float y = 0.0, dy = 256.0 / y_max;
+	const float dy = 256.0 / y_max;
+	const float dx = 256.0 / x_max;
+	register float y = 0.0;
 	register int sy;
 
 	for (sy = 0; sy < y_max; sy++, y += dy) {
-		float x = 0.0, dx = 256.0 / x_max;
+		register float x = 0.0;
 		register int sx;
 
 		for (sx = 0; sx < x_max; sx++, x += dx) {
