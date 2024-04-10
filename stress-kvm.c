@@ -74,7 +74,7 @@ static int stress_kvm(stress_args_t *args)
 	do {
 		int kvm_fd, vm_fd, vcpu_fd, version, ret, i;
 		void *vm_mem;
-		size_t vm_mem_size = (stress_mwc16() + 2) * args->page_size;
+		const size_t vm_mem_size = (stress_mwc16() + 2) * args->page_size;
 		ssize_t run_size;
 		struct kvm_userspace_memory_region kvm_mem;
 		struct kvm_sregs sregs;
