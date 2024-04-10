@@ -254,7 +254,7 @@ static inline bool OPTIMIZE3 stress_qsort_verify_forward(
 
 PRAGMA_UNROLL_N(8)
 		while (ptr < end) {
-			register int32_t next_val = *(ptr + 1);
+			register const int32_t next_val = *(ptr + 1);
 
 			if (UNLIKELY(val > next_val))
 				goto fail;
