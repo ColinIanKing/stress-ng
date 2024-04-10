@@ -333,19 +333,17 @@ static inline size_t PURE stress_vm_count_bits(uint64_t v)
 	if (sizeof(unsigned long) == sizeof(uint64_t)) {
 		return (size_t)__builtin_popcountl((unsigned long)v);
 	} else if (sizeof(unsigned long) == sizeof(uint32_t)) {
-		unsigned long lo, hi;
+		const unsigned long lo = (unsigned long)(v >> 32);
+		const unsigned long hi = (unsigned long)(v & 0xffffffff);
 
-		lo = (unsigned long)(v >> 32);
-		hi = (unsigned long)(v & 0xffffffff);
 		return (size_t)__builtin_popcountl(hi) + __builtin_popcountl(lo);
 	}
 #endif
 #if defined(HAVE_BUILTIN_POPCOUNT)
 	if (sizeof(unsigned int) == sizeof(uint32_t)) {
-		unsigned int lo, hi;
+		const unsigned int lo = (unsigned int)(v >> 32);
+		const unsigned int hi = (unsigned int)(v & 0xffffffff);
 
-		lo = (unsigned int)(v >> 32);
-		hi = (unsigned int)(v & 0xffffffff);
 		return (size_t)__builtin_popcount(hi) + __builtin_popcount(lo);
 	}
 #else
@@ -1827,7 +1825,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	size_t bit_errors = 0;
 	register uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
-	register size_t prime = 61; /* prime less than cache line size */
+	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
 	register uint8_t *ptr = (uint8_t *)buf + offset;
 
@@ -1887,7 +1885,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	size_t bit_errors = 0;
 	uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
-	register size_t prime = 61; /* prime less than cache line size */
+	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
 	register uint8_t *ptr = (uint8_t *)buf + offset;
 
@@ -1947,7 +1945,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	size_t bit_errors = 0;
 	register uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
-	register size_t prime = 61; /* prime less than cache line size */
+	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
 	register uint8_t *ptr = (uint8_t *)buf + offset;
 
@@ -2007,7 +2005,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	size_t bit_errors = 0;
 	register uint64_t c = stress_bogo_get(args);
 	register uint8_t i = 0;
-	register size_t prime = 61; /* prime less than cache line size */
+	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
 	register uint8_t *ptr = (uint8_t *)buf + offset;
 
