@@ -33,9 +33,9 @@ static const stress_help_t help[] = {
 
 static void stress_nice_delay(void)
 {
-	double start = stress_time_now();
+	const double start = stress_time_now();
 	const uint16_t r = stress_mwc16();
-	double delay = 0.01 + (double)r / 3276800.0;
+	const double delay = 0.01 + (double)r / 3276800.0;
 
 	while ((stress_time_now() - start) < delay)
 		(void)shim_sched_yield();
