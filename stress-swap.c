@@ -405,7 +405,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 
 			/* Check page has check address value */
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
-				uintptr_t *up = (uintptr_t *)(uintptr_t)p;
+				const uintptr_t *up = (uintptr_t *)(uintptr_t)p;
 
 				if (*up != (uintptr_t)p) {
 					pr_fail("%s: failed: address %p contains "
