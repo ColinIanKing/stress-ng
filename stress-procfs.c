@@ -145,10 +145,8 @@ static uint32_t path_sum(const char *path)
 
 static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 {
-	uint32_t s1, s2;
-
-	s1 = path_sum((*d1)->d_name);
-	s2 = path_sum((*d2)->d_name);
+	register const uint32_t s1 = path_sum((*d1)->d_name);
+	register const uint32_t s2 = path_sum((*d2)->d_name);
 
 	if (s1 == s2)
 		return 0;
@@ -162,7 +160,8 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
  */
 static void stress_proc_self_mem(stress_args_t *args, const int fd)
 {
-	uint8_t *page, *buf, rnd = stress_mwc8();
+	uint8_t *page, *buf;
+	const uint8_t rnd = stress_mwc8();
 	const size_t page_size = stress_get_page_size();
 	off_t offset;
 
@@ -181,7 +180,7 @@ static void stress_proc_self_mem(stress_args_t *args, const int fd)
 	(void)shim_memset(page, rnd, page_size);
 	if (lseek(fd, offset, SEEK_SET) == offset) {
 		ssize_t ret;
-		size_t mem_offset = stress_mwc32modn((uint32_t)page_size);
+		const size_t mem_offset = stress_mwc32modn((uint32_t)page_size);
 
 		ret = read(fd, buf, page_size);
 		if ((ret == (ssize_t)page_size) &&
@@ -268,12 +267,12 @@ static inline void stress_proc_rw(
 
 	while ((loops == -1) || (loops > 0)) {
 		double t_start;
-		bool timeout = false;
 		uint8_t *ptr;
 		struct stat statbuf;
-		bool writeable = true;
 		size_t len;
 		ssize_t i;
+		bool timeout = false;
+		bool writeable = true;
 		bool skip_fifo = true;
 
 		ret = shim_pthread_spin_lock(&lock);
