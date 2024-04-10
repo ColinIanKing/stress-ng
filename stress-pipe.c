@@ -250,8 +250,8 @@ static int stress_pipe_read_splice(
 #endif
 	struct iovec iov;
 	size_t offset = 0;
-	size_t nbufs = buf_size / pipe_data_size;
-	size_t offset_end = nbufs * pipe_data_size;
+	const size_t nbufs = buf_size / pipe_data_size;
+	const size_t offset_end = nbufs * pipe_data_size;
 
 	iov.iov_len = pipe_data_size;
 
@@ -312,8 +312,8 @@ static int stress_pipe_read_splice_verify(
 	uint32_t *buf32;
 	struct iovec iov;
 	size_t offset = 0;
-	size_t nbufs = buf_size / pipe_data_size;
-	size_t offset_end = nbufs * pipe_data_size;
+	const size_t nbufs = buf_size / pipe_data_size;
+	const size_t offset_end = nbufs * pipe_data_size;
 
 	iov.iov_len = pipe_data_size;
 
@@ -462,8 +462,8 @@ static int stress_pipe_write_splice(
 	register uint64_t bytes = 0;
 	struct iovec iov;
 	size_t offset = 0;
-	size_t nbufs = buf_size / pipe_data_size;
-	size_t offset_end = nbufs * pipe_data_size;
+	const size_t nbufs = buf_size / pipe_data_size;
+	const size_t offset_end = nbufs * pipe_data_size;
 
 	iov.iov_len = pipe_data_size;
 
@@ -513,8 +513,8 @@ static int stress_pipe_write_splice_verify(
 	register uint64_t bytes = 0;
 	struct iovec iov;
 	size_t offset = 0;
-	size_t nbufs = buf_size / pipe_data_size;
-	size_t offset_end = nbufs * pipe_data_size;
+	const size_t nbufs = buf_size / pipe_data_size;
+	const size_t offset_end = nbufs * pipe_data_size;
 
 	iov.iov_len = pipe_data_size;
 
