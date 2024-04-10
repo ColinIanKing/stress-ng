@@ -161,7 +161,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 {
 	ssize_t i;
 	const intptr_t addr = (intptr_t)&i;
-	double run_time = stress_time_now() - signal_info.time_start;
+	const double run_time = stress_time_now() - signal_info.time_start;
 
 	handled++;
 	signal_info.depth++;
@@ -172,9 +172,8 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	/* using alternative signal stack? */
 	if ((addr >= signal_info.altstack_start) &&
 	    (addr < signal_info.altstack_end)) {
-		ptrdiff_t delta;
+		ptrdiff_t delta = signal_info.altstack - addr;
 
- 		delta = signal_info.altstack - addr;
 		if (delta < 0)
 			delta = -delta;
 		if (delta > signal_info.stack_depth)
