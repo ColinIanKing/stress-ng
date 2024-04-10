@@ -432,17 +432,17 @@ static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
 	if (LIKELY(n <= 0xffffffff)) {
 		/* small index < 4GB of items we can use 32bit mod */
 		for (i = 0; i < n; i++) {
-			register size_t tmp, j = (size_t)stress_mwc32() % n;
+			register const size_t tmp = index[i];
+			register const size_t j = (size_t)stress_mwc32() % n;
 
-			tmp = index[i];
 			index[i] = index[j];
 			index[j] = tmp;
 		}
 	} else {
 		for (i = 0; i < n; i++) {
-			register size_t tmp, j = (size_t)stress_mwc64 % n;
+			register const size_t tmp = index[i];
+			register const size_t j = (size_t)stress_mwc64 % n;
 
-			tmp = index[i];
 			index[i] = index[j];
 			index[j] = tmp;
 		}
@@ -895,7 +895,7 @@ cleanup:
 		buf64 = (uint64_t *)mmap(NULL, page_size, PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (buf64 != MAP_FAILED) {
-			uint64_t val = stress_mwc64();
+			register const uint64_t val = stress_mwc64();
 
 			if (context->mmap_mlock)
 				(void)shim_mlock(buf64, page_size);
