@@ -70,7 +70,7 @@ struct shim_kcmp_epoll_slot {
 
 #define KCMP(pid1, pid2, type, idx1, idx2)				\
 do {									\
-	int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
+	const int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
 									\
 	if (UNLIKELY(rc < 0)) {	 					\
 		if (errno == EPERM) {					\
@@ -90,7 +90,7 @@ do {									\
 
 #define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)			\
 do {									\
-	int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
+	const int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
 									\
 	if (UNLIKELY(rc != res)) {					\
 		if (rc < 0) {						\
