@@ -70,7 +70,7 @@ static int OPTIMIZE3 stress_rmap_touch(
 	/* fill and put check value in that always has lowest bit set */
 PRAGMA_UNROLL_N(8)
 	for (ptr = begin; ptr < end; ptr += inc) {
-		register uintptr_t val = (uintptr_t)ptr ^ mix;
+		register const uintptr_t val = (uintptr_t)ptr ^ mix;
 
 		*ptr = val;
 	}
@@ -78,7 +78,7 @@ PRAGMA_UNROLL_N(8)
 	/* read back and check */
 PRAGMA_UNROLL_N(8)
 	for (ptr = begin; ptr < end; ptr += inc) {
-		register uintptr_t chk = (uintptr_t)ptr ^ mix;
+		register const uintptr_t chk = (uintptr_t)ptr ^ mix;
 
 		if (*ptr != chk) {
 			pr_fail("%s: address 0x%p check failure, "
