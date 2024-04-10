@@ -80,7 +80,7 @@ static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(const uint8_t *mem, c
 static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(uint8_t *mem, const size_t size, const size_t page_size)
 {
 	volatile uint8_t *vmem;
-	uint8_t rnd8 = stress_mwc8();
+	const uint8_t rnd8 = stress_mwc8();
 
 	for (vmem = mem; vmem < mem + size; vmem += page_size) {
 		register size_t m;
@@ -263,7 +263,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 			do {
 				size_t l;
 				size_t k = stress_mwc32() & mem_mask;
-				uint8_t rnd8 = stress_mwc8();
+				const uint8_t rnd8 = stress_mwc8();
 				volatile uint8_t *vmem;
 
 				(void)mprotect(mem, mmap_size, PROT_READ);
