@@ -166,7 +166,7 @@ static double stress_mc_drand48_rand(void)
 
 static void OPTIMIZE3 stress_mc_drand48_seed(void)
 {
-	uint64_t seed64 = (shim_time(NULL) + 1) * getpid();
+	register const uint64_t seed64 = (shim_time(NULL) + 1) * getpid();
 	unsigned short seed[3];
 
 	seed[0] = seed64 & 0xffff;
@@ -249,7 +249,7 @@ static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mc_rotr32(uint32_t x, unsi
 static double OPTIMIZE3 stress_mc_pcg32_rand(void)
 {
 	register uint64_t x = stress_mc_pcg32_state;
-	register unsigned count = (unsigned)(x >> 59);
+	register const unsigned count = (unsigned)(x >> 59);
 	register const double scale_u32 = 1.0 / (double)0xffffffff;
 
 	static uint64_t const multiplier = 6364136223846793005u;
@@ -314,9 +314,9 @@ static double OPTIMIZE3 stress_monte_carlo_pi(
 		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
 
 		for (j = 0; j < n; j++) {
-			const double x = info->rand();
-			const double y = info->rand();
-			const double h = (x * x) + (y * y);
+			register const double x = info->rand();
+			register const double y = info->rand();
+			register const double h = (x * x) + (y * y);
 
 			if (h <= 1.0)
 				pi_count++;
@@ -344,7 +344,7 @@ static double OPTIMIZE3 stress_monte_carlo_e(
 		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
 
 		for (j = 0; j < n; j++) {
-			double sum = 0.0;
+			register double sum = 0.0;
 
 			while (sum < 1.0)  {
 				sum += info->rand();
@@ -374,7 +374,8 @@ static double OPTIMIZE3 stress_monte_carlo_sin(
 		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
 
 		for (j = 0; j < n; j++) {
-			double theta = info->rand() * M_PI;
+			register const double theta = info->rand() * M_PI;
+
 			sum += sin(theta);
 		}
 		i -= j;
@@ -400,7 +401,7 @@ static double OPTIMIZE3 stress_monte_carlo_exp(
 		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
 
 		for (j = 0; j < n; j++) {
-			const double x = info->rand();
+			register const double x = info->rand();
 
 			sum += exp(x * x);
 		}
@@ -427,7 +428,7 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
 		register const uint32_t n = (i > 16384) ? 16384 : (i & 16383);
 
 		for (j = 0; j < n; j++) {
-			const double x = info->rand();
+			register const double x = info->rand();
 
 			sum += sqrt(1.0 + (x * x * x * x));
 		}
