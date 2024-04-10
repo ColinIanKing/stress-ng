@@ -340,7 +340,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 			uint64_t j, i = stress_mwc64modn(pages);
 
 			for (j = 0; j < n; j++) {
-				uint64_t page = (i + j) % pages;
+				const uint64_t page = (i + j) % pages;
 
 				if (mappings[page].state == PAGE_MAPPED) {
 					mappings[page].state = 0;
@@ -362,7 +362,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 			uint64_t j, i = stress_mwc64modn(pages);
 
 			for (j = 0; j < n; j++) {
-				uint64_t page = (i + j) % pages;
+				const uint64_t page = (i + j) % pages;
 
 				if (!mappings[page].state) {
 					offset = tmpfs_mmap_file ? (off_t)(page * page_size) : 0;
