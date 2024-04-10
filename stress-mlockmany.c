@@ -64,7 +64,7 @@ static int stress_mlock_interruptible(
 	uintptr_t ptr = (uintptr_t)addr;
 
 	while ((len > 0) && (stress_continue(args))) {
-		size_t sz = (len > chunk_size) ? chunk_size : len;
+		const size_t sz = (len > chunk_size) ? chunk_size : len;
 		int ret;
 
 		ret = shim_mlock((void *)ptr, sz);
@@ -85,7 +85,7 @@ static int stress_munlock_interruptible(
 	uintptr_t ptr = (uintptr_t)addr;
 
 	while ((len > 0) && (stress_continue(args))) {
-		size_t sz = (len > chunk_size) ? chunk_size : len;
+		const size_t sz = (len > chunk_size) ? chunk_size : len;
 		int ret;
 
 		ret = shim_munlock((void *)ptr, sz);
