@@ -83,7 +83,7 @@ static int stress_kill(stress_args_t *args)
 		t = stress_time_now();
 		ret = kill(args->pid, SIGUSR1);
 		if (ret == 0) {
-			int saved_errno = errno;
+			const int saved_errno = errno;
 
 			duration += stress_time_now() - t;
 			count += 1.0;
@@ -97,7 +97,7 @@ static int stress_kill(stress_args_t *args)
 		t = stress_time_now();
 		ret = kill(args->pid, 0);
 		if (ret == 0) {
-			int saved_errno = errno;
+			const int saved_errno = errno;
 
 			duration += stress_time_now() - t;
 			count += 1.0;
@@ -115,7 +115,7 @@ static int stress_kill(stress_args_t *args)
 		t = stress_time_now();
 		ret = kill(-1, 0);
 		if (ret == 0) {
-			int saved_errno = errno;
+			const int saved_errno = errno;
 
 			duration += stress_time_now() - t;
 			count += 1.0;
