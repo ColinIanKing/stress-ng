@@ -335,8 +335,8 @@ static int HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 			const float thetaf = (float)theta;
 
 			d_sum += (shim_coshl(theta) * shim_sinhl(theta));
-			d_sum += ((long double)cosh(thetad) * (long double)sinh(thetad));
-			d_sum += ((long double)coshf(thetaf) * (long double)sinhf(thetaf));
+			d_sum += ((long double)cosh(thetad) * (long double)shim_sinh(thetad));
+			d_sum += ((long double)coshf(thetaf) * (long double)shim_sinhf(thetaf));
 		}
 		{
 			const long double thetal = theta * 2.0L;
@@ -344,8 +344,8 @@ static int HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 			const float thetaf = (float)theta;
 
 			d_sum += shim_coshl(thetal);
-			d_sum += (long double)cosh(thetad);
-			d_sum += (long double)coshf(thetaf);
+			d_sum += (long double)shim_cosh(thetad);
+			d_sum += (long double)shim_coshf(thetaf);
 		}
 		{
 			const long double thetal = theta * 3.0L;
@@ -353,8 +353,8 @@ static int HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 			const float thetaf = (float)theta;
 
 			d_sum += shim_sinhl(thetal);
-			d_sum += (long double)sinh(thetad);
-			d_sum += (long double)sinhf(thetaf);
+			d_sum += (long double)shim_sinh(thetad);
+			d_sum += (long double)shim_sinhf(thetaf);
 		}
 	}
 	stress_long_double_put(d_sum);
@@ -455,7 +455,7 @@ static int HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 #if defined(STRESS_CPU_RAND48_VERIFY)
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		double d_error = d - d_expected_sum;
-		if (fabs(d_error) > 0.0001) {
+		if (shim_fabs(d_error) > 0.0001) {
 			pr_fail("%s: drand48 error detected, failed sum\n", name);
 			return EXIT_FAILURE;
 		}
@@ -891,7 +891,7 @@ stress_cpu_int(uint8_t, 8, \
 	C1, C2, C3)
 
 #define float_thresh(x, _type)	x = (_type)		\
-	((fabs((double)x) > 1.0) ?	\
+	((shim_fabs((double)x) > 1.0) ?	\
 	((_type)(0.1 + (double)x - (double)(long)x)) :	\
 	((_type)(x)))
 
@@ -2752,7 +2752,7 @@ static int OPTIMIZE_FAST_MATH stress_cpu_factorial(const char *name)
 		/* Ramanujan */
 		dn = (long double)n;
 		fact = sqrt_pi * shim_powl((dn / (long double)M_E), dn);
-		fact *= shim_powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0L/30.0L), (1.0L/6.0L));
+		fact *= shim_powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0L / 30.0L), (1.0L / 6.0L));
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Ramanujan's approximation of factorial(%d) out of range\n",

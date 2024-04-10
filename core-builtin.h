@@ -419,6 +419,18 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_COSHF)
+#define shim_coshf(x)	__builtin_coshf(x)
+#else
+#define shim_coshf(x)	coshf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_COSH)
+#define shim_cosh(x)	__builtin_cosh(x)
+#else
+#define shim_cosh(x)	cosh(x)
+#endif
+
 #if defined(HAVE_BUILTIN_COSHL)
 #define shim_coshl(x)	__builtin_coshl(x)
 #else
@@ -519,6 +531,18 @@
 #define shim_sincosl(x, s, c)	__builtin_sincosl(x, s, c)
 #else
 #define shim_sincosl(x, s, c)	sincosl(x, s, c)
+#endif
+
+#if defined(HAVE_BUILTIN_SINHF)
+#define shim_sinhf(x)	__builtin_sinhf(x)
+#else
+#define shim_sinhf(x)	sinhf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SINH)
+#define shim_sinh(x)	__builtin_sinh(x)
+#else
+#define shim_sinh(x)	sinh(x)
 #endif
 
 #if defined(HAVE_BUILTIN_SINHL)
