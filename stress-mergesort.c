@@ -50,7 +50,7 @@ static inline ALWAYS_INLINE void mergesort_copy(uint8_t *RESTRICT p1, uint8_t *R
 	if (size == 4) {
 		register uint32_t *u32p1 = (uint32_t *)p1;
 		register uint32_t *u32p2 = (uint32_t *)p2;
-		register uint32_t *u32end = (uint32_t *)(p1 + size);
+		register const uint32_t *u32end = (uint32_t *)(p1 + size);
 
 		while (LIKELY(u32p1 < u32end)) {
 			*(u32p1++) = *(u32p2++);
@@ -58,7 +58,7 @@ static inline ALWAYS_INLINE void mergesort_copy(uint8_t *RESTRICT p1, uint8_t *R
 	} else {
 		register uint8_t *u8p1 = p1;
 		register uint8_t *u8p2 = p2;
-		register uint8_t *u8end = p1 + size;
+		register const uint8_t *u8end = p1 + size;
 
 		while (LIKELY(u8p1 < u8end)) {
 			*(u8p1++) = *(u8p2++);
@@ -199,7 +199,7 @@ static int mergesort_nonlibc(
 	int (*compar)(const void *, const void *))
 {
 	uint8_t *lhs;
-	size_t mmap_size = nmemb * size;
+	const size_t mmap_size = nmemb * size;
 
 	lhs = (uint8_t *)stress_mmap_populate(NULL, mmap_size,
 			PROT_READ | PROT_WRITE,
