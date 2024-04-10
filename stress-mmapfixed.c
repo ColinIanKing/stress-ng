@@ -128,7 +128,7 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 	do {
 		uint8_t *buf;
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
-		size_t  sz = page_size * (1 + stress_mwc8modn(7));
+		const size_t sz = page_size * (1 + stress_mwc8modn(7));
 
 #if defined(MAP_SHARED) &&	\
     defined(MAP_PRIVATE)
@@ -194,9 +194,9 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 			(void)stress_madvise_random(buf, sz);
 
 			for (mask = ~(uintptr_t)0; mask > page_size; mask >>= 1) {
-				uintptr_t rndaddr = rndaddr_base & mask;
+				const uintptr_t rndaddr = rndaddr_base & mask;
 				uint64_t *buf64 = (uint64_t *)buf;
-				uint64_t val64 = (uint64_t)(uintptr_t)buf64;
+				const uint64_t val64 = (uint64_t)(uintptr_t)buf64;
 
 				if (rndaddr == last_rndaddr)
 					continue;
