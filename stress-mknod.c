@@ -243,7 +243,8 @@ static int stress_mknod(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint64_t i, n = DEFAULT_DIRS;
+		register uint64_t i;
+		const uint64_t n = DEFAULT_DIRS;
 
 		if (chr_dev_ret == 0)
 			stress_mknod_test_dev(args, dir_fd, bad_fd, S_IFCHR, "S_IFCHR", chr_dev);
@@ -252,8 +253,8 @@ static int stress_mknod(stress_args_t *args)
 
 		for (i = 0; stress_continue(args) && (i < n); i++) {
 			char path[PATH_MAX];
-			const uint64_t gray_code = (i >> 1) ^ i;
-			size_t j = stress_mwc32modn(num_nodes);
+			register const uint64_t gray_code = (i >> 1) ^ i;
+			register size_t j = stress_mwc32modn(num_nodes);
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
