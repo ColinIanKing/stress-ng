@@ -76,7 +76,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2(
 	uint8_t *buf, const size_t sz)
 {
 	size_t n, errs = 0, step;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 
 	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + n) = rnd;
@@ -99,7 +99,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2inv(
 {
 	const size_t mask = sz - 1;
 	size_t n, errs = 0, step;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 
 	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + (n ^ mask)) = rnd;
@@ -123,7 +123,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_gray(
 {
 	size_t errs = 0, n;
 	const size_t mask = sz - 1;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
@@ -149,7 +149,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
 {
 	size_t n, errs = 0;
 	const size_t mask = sz - 1;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
@@ -175,8 +175,9 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
 	uint8_t *buf, const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0, shift;
-	uint8_t rnd = stress_mwc8();
+	size_t n, errs = 0, shift;
+	const size_t mask = sz - 1;
+	const uint8_t rnd = stress_mwc8();
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
@@ -205,8 +206,9 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
 	uint8_t *buf, const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0, shift;
-	uint8_t rnd = stress_mwc8();
+	size_t n, errs = 0, shift;
+	const size_t mask = sz - 1;
+	const uint8_t rnd = stress_mwc8();
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
@@ -233,7 +235,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
 	uint8_t *buf, const size_t sz)
 {
 	size_t errs = 0;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 	register uint8_t *ptr;
 	register const uint8_t *ptr_end = buf + sz;
 
@@ -254,8 +256,9 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
 	uint8_t *buf, const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = stress_mwc8();
+	size_t n, errs = 0;
+	const size_t mask = sz - 1;
+	const uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
@@ -279,7 +282,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
 	uint8_t *buf, const size_t sz)
 {
 	size_t errs = 0;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 	uint8_t *ptr;
 
 	for (ptr = (uint8_t *)buf + sz - 1; ptr != buf; ptr--) {
@@ -300,7 +303,8 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
 static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
 	uint8_t *buf, const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0;
+	size_t n, errs = 0;
+	const size_t mask = sz - 1;
 	const uint8_t rnd = stress_mwc8();
 
 	for (n = sz; n; n--) {
