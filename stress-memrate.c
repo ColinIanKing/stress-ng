@@ -126,8 +126,8 @@ static uint64_t stress_memrate_loops(
 	const size_t size)
 {
 	uint64_t chunk_shift = 20;	/* 1 MB */
-	uint64_t bytes = context->memrate_bytes;
-	uint64_t best_fit = bytes / size;
+	const uint64_t bytes = context->memrate_bytes;
+	const uint64_t best_fit = bytes / size;
 
 	/* check for powers of 2 size, from 1MB down to 1K */
 	for (chunk_shift = 20; chunk_shift >= 10; chunk_shift--) {
