@@ -222,7 +222,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 {
 	switch (STRESS_OPCODE_SIZE) {
 	case 8:	{
-			register uint8_t tmp8 = *op & 0xff;
+			register const uint8_t tmp8 = *op & 0xff;
 			register uint8_t *ops = (uint8_t *)ops_begin;
 			register ssize_t i = (ssize_t)page_size;
 
@@ -232,7 +232,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 		}
 		break;
 	case 16: {
-			register uint16_t tmp16 = *op & 0xffff;
+			register const uint16_t tmp16 = *op & 0xffff;
 			register uint16_t *ops = (uint16_t *)ops_begin;
 			register ssize_t i = (ssize_t)(page_size >> 1);
 
@@ -243,7 +243,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 		break;
 	default:
 	case 32: {
-			register uint32_t tmp32 = *op & 0xffffffffL;
+			register const uint32_t tmp32 = *op & 0xffffffffL;
 			register uint32_t *ops = (uint32_t *)ops_begin;
 			register size_t i = (ssize_t)(page_size >> 2);
 
@@ -254,7 +254,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 		break;
 	case 48:
 		{
-			register uint64_t tmp64 = *op;
+			register const uint64_t tmp64 = *op;
 			register uint8_t *ops = (uint8_t *)ops_begin;
 			register size_t i = (ssize_t)(page_size / 6);
 
@@ -272,7 +272,7 @@ static void OPTIMIZE3 stress_opcode_inc(
 		}
 		break;
 	case 64: {
-			register uint64_t tmp64 = *op;
+			register const uint64_t tmp64 = *op;
 			register uint64_t *ops = (uint64_t *)ops_begin;
 			register size_t i = (ssize_t)(page_size >> 3);
 
@@ -328,11 +328,12 @@ static void stress_opcode_text(
 	offset = stress_mwc64modn(text_len - ops_len) & ~(0x7ULL);
 	(void)shim_memcpy(ops_begin, text_start + offset, ops_len);
 	for (ops = (uint8_t *)ops_begin; ops < (const uint8_t *)ops_end; ops++) {
-		const uint8_t rnd = stress_mwc8();
+		register const uint8_t rnd = stress_mwc8();
 
 		/* 1 in 8 chance of random bit corruption */
 		if (rnd < 32) {
-			uint8_t bit = (uint8_t)(1 << (rnd & 7));
+			register const uint8_t bit = (uint8_t)(1 << (rnd & 7));
+
 			*ops ^= bit;
 		}
 	}
