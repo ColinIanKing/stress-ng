@@ -111,7 +111,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		ssize_t ret;
 
 		if (sizeof(uintptr_t) > 4) {
-			uint64_t page_63 = (stress_mwc64() << 12) & 0x7fffffffffffffffULL;
+			const uint64_t page_63 = (stress_mwc64() << 12) & 0x7fffffffffffffffULL;
 
 			if (stress_mwc1()) {
 				ui_addr = stress_mwc64modn((1ULL << 38) - 1) | page_63;
@@ -122,7 +122,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 			if (stress_mwc8modn(5) == 0)
 				ui_addr &= 0x7fffffffUL;
 		} else {
-			uint32_t page_31 = (stress_mwc32() << 12) & 0x7fffffffUL;
+			const uint32_t page_31 = (stress_mwc32() << 12) & 0x7fffffffUL;
 
 			if (stress_mwc1())
 				ui_addr = stress_mwc32modn((1UL << 28) - 1) | page_31;
