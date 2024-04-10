@@ -203,7 +203,8 @@ static int stress_set_revio_opts(const char *opts)
 
 		for (i = 0; i < SIZEOF_ARRAY(revio_opts); i++) {
 			if (!strcmp(token, revio_opts[i].opt)) {
-				int exclude = revio_flags & revio_opts[i].exclude;
+				const int exclude = revio_flags & revio_opts[i].exclude;
+
 				if (exclude) {
 					int j;
 
@@ -401,7 +402,8 @@ static int stress_revio(stress_args_t *args)
 		/* Sequential Reverse Write */
 		for (i = 0; i < revio_bytes; i += DEFAULT_REVIO_WRITE_SIZE * (8 + (stress_mwc8() & 7))) {
 			size_t j;
-			off_t lseek_ret, offset = (off_t)(revio_bytes - i);
+			off_t lseek_ret;
+			const off_t offset = (off_t)(revio_bytes - i);
 seq_wr_retry:
 			if (!stress_continue(args))
 				break;
