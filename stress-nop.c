@@ -59,16 +59,17 @@ static stress_nop_instr_t *current_instr = NULL;
 
 #define STRESS_NOP_SPIN_OP(name, op)				\
 static void stress_nop_spin_ ## name(				\
-	stress_args_t *args,				\
+	stress_args_t *args,					\
 	const bool flag,					\
 	double *duration,					\
 	double *count)						\
 {								\
 	do {							\
 		register int j = 64;				\
+								\
 		while (j--) {					\
 			register int i = NOP_LOOPS;		\
-			double t = stress_time_now();		\
+			const double t = stress_time_now();	\
 								\
 			while (i--)				\
 				OPx64(op); 			\
@@ -77,7 +78,7 @@ static void stress_nop_spin_ ## name(				\
 								\
 			stress_bogo_inc(args);			\
 		}						\
-	} while (flag && stress_continue(args));			\
+	} while (flag && stress_continue(args));		\
 }
 
 STRESS_NOP_SPIN_OP(nop, stress_asm_nop)
