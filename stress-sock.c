@@ -671,7 +671,7 @@ retry:
 			goto free_controls;
 		}
 		if (connect(fd, addr, addr_len) < 0) {
-			int errno_tmp = errno;
+			const int errno_tmp = errno;
 
 			(void)close(fd);
 			(void)shim_usleep(10000);
