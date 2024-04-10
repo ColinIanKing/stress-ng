@@ -152,9 +152,8 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 	while (!stop_rawsock && stress_continue(args)) {
 		uint32_t ready;
 
-		if (stress_lock_acquire(rawsock_lock) < 0) {
+		if (stress_lock_acquire(rawsock_lock) < 0)
 			_exit(EXIT_FAILURE);
-			}
 		ready = g_shared->rawsock.ready;
 		(void)stress_lock_release(rawsock_lock);
 
@@ -297,9 +296,8 @@ again:
 			shim_usleep(100000);
 			goto again;
 		}
-		if (stop_rawsock || !stress_continue(args)) {
+		if (stop_rawsock || !stress_continue(args))
 			return EXIT_SUCCESS;
-		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
