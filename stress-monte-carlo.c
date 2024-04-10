@@ -376,7 +376,7 @@ static double OPTIMIZE3 stress_monte_carlo_sin(
 		for (j = 0; j < n; j++) {
 			register const double theta = info->rand() * M_PI;
 
-			sum += sin(theta);
+			sum += shim_sin(theta);
 		}
 		i -= j;
 		if (!stress_continue_flag())
@@ -403,7 +403,7 @@ static double OPTIMIZE3 stress_monte_carlo_exp(
 		for (j = 0; j < n; j++) {
 			register const double x = info->rand();
 
-			sum += exp(x * x);
+			sum += shim_exp(x * x);
 		}
 		i -= j;
 		if (!stress_continue_flag())
@@ -430,7 +430,7 @@ static double OPTIMIZE3 stress_monte_carlo_sqrt(
 		for (j = 0; j < n; j++) {
 			register const double x = info->rand();
 
-			sum += sqrt(1.0 + (x * x * x * x));
+			sum += shim_sqrt(1.0 + (x * x * x * x));
 		}
 		i -= j;
 		if (!stress_continue_flag())
