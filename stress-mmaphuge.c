@@ -146,7 +146,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 				bufs[i].sz = sz;
 				/* If we're mapping onto a file, try it first */
 				if (ctxt->mmaphuge_file) {
-					off_t offset = 4096 * stress_mwc8modn(16);
+					const off_t offset = 4096 * stress_mwc8modn(16);
 
 					if (sz + offset < ctxt->sz) {
 						buf = (uint8_t *)mmap(NULL, sz,
@@ -170,7 +170,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 					idx = 0;
 
 				if (buf != MAP_FAILED) {
-					uint64_t rndval = stress_mwc64();
+					const uint64_t rndval = stress_mwc64();
 					register const size_t stride = (page_size * 64) / sizeof(uint64_t);
 					register uint64_t *ptr, val;
 					const uint64_t *buf_end = (uint64_t *)(buf + sz);
@@ -273,7 +273,6 @@ static int stress_mmaphuge(stress_args_t *args)
 	}
 
 	if (ctxt.mmaphuge_file) {
-		int file_flags = O_CREAT | O_RDWR;
 		ssize_t rc;
 
 		rc = stress_temp_dir_mk_args(args);
@@ -284,7 +283,7 @@ static int stress_mmaphuge(stress_args_t *args)
 
 		(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
-		ctxt.fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
+		ctxt.fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (ctxt.fd < 0) {
 			rc = stress_exit_status(errno);
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
