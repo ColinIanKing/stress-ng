@@ -847,9 +847,6 @@ void stress_get_gpu_freq_mhz(double *gpu_freq)
 	{
 		char buf[64];
 
-		if (!gpu_freq)
-		return;
-
 		if (stress_system_read("/sys/class/drm/card0/gt_cur_freq_mhz", buf, sizeof(buf)) > 0) {
 			if (sscanf(buf, "%lf", gpu_freq) == 1)
 			return;
