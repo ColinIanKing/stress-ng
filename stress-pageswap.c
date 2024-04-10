@@ -74,7 +74,7 @@ static void stress_pageswap_unmap(
 
 	while (pi) {
 		page_info_t *next = pi->next;
-		size_t size = pi->size;
+		const size_t size = pi->size;
 
 		(void)madvise(pi, size, MADV_PAGEOUT);
 		stress_pageswap_count_paged_out(pi, size, count);
