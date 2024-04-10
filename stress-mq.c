@@ -434,7 +434,7 @@ again:
 
 		do {
 			int ret;
-			unsigned int prio = stress_mwc8modn(PRIOS_MAX);
+			const unsigned int prio = stress_mwc8modn(PRIOS_MAX);
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {
