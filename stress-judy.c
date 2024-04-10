@@ -113,7 +113,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		/* Step #1, populate Judy array in sparse index order */
 		t = stress_time_now();
 		for (i = 0; i < n; i++) {
-			Word_t idx = gen_index(i);
+			const Word_t idx = gen_index(i);
 
 			JLI(pvalue, PJLArray, idx);
 			if (UNLIKELY((pvalue == NULL) || (pvalue == PJERR))) {
@@ -132,7 +132,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		/* Step #2, find */
 		t = stress_time_now();
 		for (i = 0; stress_continue_flag() && (i < n); i++) {
-			Word_t idx = gen_index(i);
+			const Word_t idx = gen_index(i);
 
 			JLG(pvalue, PJLArray, idx);
 			if (UNLIKELY(verify)) {
@@ -161,7 +161,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		/* Step #3, delete, reverse index order */
 		t = stress_time_now();
 		for (j = n -1, i = 0; i < n; i++, j--) {
-			Word_t idx = gen_index(j);
+			const Word_t idx = gen_index(j);
 
 			JLD(rc, PJLArray, idx);
 			if (UNLIKELY(verify && (rc != 1))) {
