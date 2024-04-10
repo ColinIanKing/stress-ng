@@ -112,7 +112,7 @@ static int stress_metamix_file(
 	(void)shim_memset(file_info, 0, sizeof(file_info));
 
 	for (n = 0; n < METAMIX_WRITES; n++) {
-		size_t data_len = stress_mwc8modn(max_seek) + min_data_len;
+		const size_t data_len = stress_mwc8modn(max_seek) + min_data_len;
 		off_t bytes_left;
 
 		file_info[n].offset = offset;
