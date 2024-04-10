@@ -243,7 +243,6 @@ static int stress_remap(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-			
 
 		/* random order pages */
 PRAGMA_UNROLL_N(4)
