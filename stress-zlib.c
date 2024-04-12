@@ -663,7 +663,7 @@ static void OPTIMIZE3 OPTIMIZE_FAST_MATH stress_rand_data_double(
 	(void)args;
 
 	while (ptr < end) {
-		const double s = sin(theta);
+		const double s = shim_sin(theta);
 
 		(void)shim_memcpy((void *)ptr, &s, sizeof(*ptr));
 
