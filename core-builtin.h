@@ -467,7 +467,7 @@
 #if defined(HAVE_CCOSL)
 #define	shim_ccosl(x)	ccosl(x)
 #else
-#define	shim_ccosl(x)	((long double complex)shim_ccos((double complex)(x))
+#define	shim_ccosl(x)	((long double complex)shim_ccos((double complex)(x)))
 #endif
 #endif
 
@@ -581,7 +581,7 @@
 #if defined(HAVE_CSINL)
 #define	shim_csinl(x)	csinl(x)
 #else
-#define	shim_csinl(x)	(long double complex)shim_csin((double complex)(x))
+#define	shim_csinl(x)	((long double complex)shim_csin((double complex)(x)))
 #endif
 #endif
 
