@@ -486,6 +486,7 @@ typedef enum {
 
 	OPT_get,
 	OPT_get_ops,
+	OPT_get_slow_sync,
 
 	OPT_getrandom,
 	OPT_getrandom_ops,

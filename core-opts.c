@@ -292,6 +292,7 @@ const struct option stress_long_options[] = {
 	{ "futex-ops",		1,	0,	OPT_futex_ops },
 	{ "get",		1,	0,	OPT_get },
 	{ "get-ops",		1,	0,	OPT_get_ops },
+	{ "get-slow-sync",	0,	0,	OPT_get_slow_sync },
 	{ "getrandom",		1,	0,	OPT_getrandom },
 	{ "getrandom-ops",	1,	0,	OPT_getrandom_ops },
 	{ "getdent",		1,	0,	OPT_getdent },

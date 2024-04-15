@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 April 2024"
+.TH STRESS-NG 1 "15 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2727,10 +2727,17 @@ start N workers that call system calls that fetch data from the kernel,
 currently these are: getpid, getppid, getcwd, getgid, getegid, getuid,
 getgroups, getpgrp, getpgid, getpriority, getresgid, getresuid, getrlimit,
 prlimit, getrusage, getsid, gettid, getcpu, gettimeofday, uname, adjtimex,
-sysfs.  Some of these system calls are OS specific.
+sysfs. Some of these system calls are OS specific.
 .TP
 .B \-\-get\-ops N
 stop get workers after N bogo get operations.
+.TP
+.B \-\-get\-slow\-sync
+attempt to synchronize system calls across the N get workers to try to
+force forms of locking contention in the kernel on the more complex
+cases. Each system call is exercised concurrently with the N workers
+for 0.1 seconds at a time, so it takes a 3-4 seconds to work through
+all the system calls.
 .RE
 .TP
 .B Virtual filesystem directories stressor (Linux)
