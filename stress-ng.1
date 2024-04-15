@@ -2347,7 +2347,7 @@ is 2 million, with a range of 1000 to 16 million. The actual number
 used may be less depending on the system defined limits of the number
 of open files per process.
 .TP
-.B \-\-fd\-fork\-file [ null, random, stdin, stdout, zero ]
+.B \-\-fd\-fork\-file [ null | random | stdin | stdout | zero ]
 specify file to dup: null for /dev/null, random for /dev/random,
 stdin for standard input, stdout for standard output, zero for /dev/zero.
 Default is /dev/zero.
