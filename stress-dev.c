@@ -64,6 +64,10 @@
 #include <linux/hdreg.h>
 #endif
 
+#if defined(HAVE_LINUX_HIDDEV)
+#include <linux/hiddev.h>
+#endif
+
 #if defined(HAVE_LINUX_HIDRAW_H)
 #include <linux/hidraw.h>
 #endif
@@ -2557,7 +2561,8 @@ static void stress_dev_acpi_thermal_rel_linux(
 #endif
 
 #if defined(__linux__) &&	\
-    defined(HAVE_LINUX_HIDRAW_H)
+    (defined(HAVE_LINUX_HIDRAW_H) || \
+     defined(HAVE_LINUX_HIDDEV_H))
 static void stress_dev_hid_linux(
 	stress_args_t *args,
 	const int fd,
@@ -2567,6 +2572,27 @@ static void stress_dev_hid_linux(
 
 	VOID_ARGS(args, fd, devpath);
 
+#if defined(HIDIOCGVERSION)
+	{
+		int version;
+
+		IOCTL_TIMEOUT(0.05, { VOID_RET(int, ioctl(fd, HIDIOCGVERSION, &version)); }, return);
+	}
+#endif
+#if defined(HIDIOCGFLAG)
+	{
+		int flag;
+
+		IOCTL_TIMEOUT(0.05, { VOID_RET(int, ioctl(fd, HIDIOCGFLAG, &flag)); }, return);
+	}
+#endif
+#if defined(HIDIOCGDEVINFO)
+	{
+		struct hiddev_devinfo devinfo;
+
+		IOCTL_TIMEOUT(0.05, { VOID_RET(int, ioctl(fd, HIDIOCGDEVINFO, &devinfo)); }, return);
+	}
+#endif
 #if defined(HIDIOCGRDESCSIZE)
 	{
 		if (ioctl(fd, HIDIOCGRDESCSIZE, &size) < 0)
@@ -3519,8 +3545,10 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/acpi_thermal_rel", stress_dev_acpi_thermal_rel_linux),
 #endif
 #if defined(__linux__) &&	\
-    defined(HAVE_LINUX_HIDRAW_H)
+    (defined(HAVE_LINUX_HIDRAW_H) || \
+     defined(HAVE_LINUX_HIDDEV_H))
 	DEV_FUNC("/dev/hid",	stress_dev_hid_linux),
+	DEV_FUNC("/dev/usb/hiddev", stress_dev_hid_linux),
 #endif
 #if defined(__linux__) &&       \
     defined(HAVE_SCSI_SG_H)
