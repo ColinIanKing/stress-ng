@@ -24,92 +24,92 @@
 #endif
 
 #if defined(HAVE_BUILTIN_ASSUME_ALIGNED)
-#define shim_assume_aligned(arg, n)	__builtin_assume_aligned(arg, n)
+#define shim_assume_aligned(arg, n)	__builtin_assume_aligned((arg), (n))
 #else
 #define shim_assume_aligned(arg, n)	arg
 #endif
 
 #if defined(HAVE_BUILTIN_MEMSET)
-#define shim_memset(s, c, n)		__builtin_memset(s, c, n)
+#define shim_memset(s, c, n)		__builtin_memset((s), (c), (n))
 #else
-#define shim_memset(s, c, n)		memset(s, c, n)
+#define shim_memset(s, c, n)		memset((s), (c), (n))
 #endif
 
 #if defined(HAVE_BUILTIN_MEMCPY)
-#define	shim_memcpy(dst, src, n)	__builtin_memcpy(dst, src, n)
+#define	shim_memcpy(dst, src, n)	__builtin_memcpy((dst), (src), (n))
 #else
-#define	shim_memcpy(dst, src, n)	memcpy(dst, src, n)
+#define	shim_memcpy(dst, src, n)	memcpy((dst), (src), (n))
 #endif
 
 #if defined(HAVE_BUILTIN_MEMMOVE)
-#define	shim_memmove(dst, src, n)	__builtin_memmove(dst, src, n)
+#define	shim_memmove(dst, src, n)	__builtin_memmove((dst), (src), (n))
 #else
-#define	shim_memmove(dst, src, n)	memmove(dst, src, n)
+#define	shim_memmove(dst, src, n)	memmove((dst), (src), (n))
 #endif
 
 #if defined(HAVE_BUILTIN_MEMCMP)
-#define	shim_memcmp(dst, src, n)	__builtin_memcmp(dst, src, n)
+#define	shim_memcmp(dst, src, n)	__builtin_memcmp((dst), (src), (n))
 #else
-#define	shim_memcmp(dst, src, n)	memcmp(dst, src, n)
+#define	shim_memcmp(dst, src, n)	memcmp((dst), (src), (n))
 #endif
 
 #if defined(HAVE_BUILTIN_CABS)
-#define shim_cabs(x)	__builtin_cabs(x)
+#define shim_cabs(x)		__builtin_cabs((x))
 #else
-#define shim_cabs(x)	cabs(x)
+#define shim_cabs(x)		cabs((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CABSF)
-#define shim_cabsf(x)	__builtin_cabsf(x)
+#define shim_cabsf(x)		__builtin_cabsf((x))
 #else
-#define shim_cabsf(x)	cabsf(x)
+#define shim_cabsf(x)		cabsf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CABSL)
-#define shim_cabsl(x)	__builtin_cabsl(x)
+#define shim_cabsl(x)		__builtin_cabsl((x))
 #else
 #if defined(HAVE_CABSL)
-#define shim_cabsl(x)	cabsl(x)
+#define shim_cabsl(x)		cabsl((x))
 #else
-#define shim_cabsl(x)	cabs(x)
+#define shim_cabsl(x)		((long double)cabs((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_LGAMMAL)
-#define shim_lgammal(x)	__builtin_lgammal(x)
+#define shim_lgammal(x)		__builtin_lgammal((x))
 #else
 #if defined(HAVE_LGAMMAL)
-#define shim_lgammal(x)	lgammal(x)
+#define shim_lgammal(x)		lgammal((x))
 #else
-#define shim_lgammal(x)	lgamma(x)
+#define shim_lgammal(x)		((long double)lgamma((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CPOW)
-#define shim_cpow(x, z)	__builtin_cpow(x, z)
+#define shim_cpow(x, z)		__builtin_cpow((x), (z))
 #else
 #if defined(HAVE_CPOW)
-#define shim_cpow(x, z)	cpow(x, z)
+#define shim_cpow(x, z)		cpow((x), (z))
 #else
-#define shim_cpow(x, z)	(shim_cexp((y) * shim_clog((x))))
+#define shim_cpow(x, z)		(shim_cexp((y) * shim_clog((x))))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CPOWF)
-#define shim_cpowf(x, z)	__builtin_cpowf(x, z)
+#define shim_cpowf(x, z)	__builtin_cpowf((x), (z))
 #else
 #if defined(HAVE_CPOWF)
-#define shim_cpowf(x, z)	cpowf(x, z)
+#define shim_cpowf(x, z)	cpowf((x), (z))
 #else
 #define shim_cpowf(x, z)	(shim_cexpf((y) * shim_clogf((x))))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CPOWL)
-#define shim_cpowl(x, z)	__builtin_cpowl(x, z)
+#define shim_cpowl(x, z)	__builtin_cpowl((x), (z))
 #else
 #if defined(HAVE_CPOWL)
-#define shim_cpowl(x, z)	cpowl(x, z)
+#define shim_cpowl(x, z)	cpowl((x), (z))
 #else
 #define shim_cpowl(x, z)	(shim_cexpl((y) * shim_clogf((l))))
 #endif
@@ -133,215 +133,215 @@
 #if defined(HAVE_HYPOTL)
 #define shim_hypotl(x, y)	hypotl((x), (y))
 #else
-#define shim_hypotl(x, y)	hypot((x), (y))
+#define shim_hypotl(x, y)	((long dounle)hypot((x), (y)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_POW)
-#define shim_pow(x, y)	__builtin_pow(x, y)
+#define shim_pow(x, y)		__builtin_pow((x), (y))
 #else
-#define shim_pow(x, y)	pow(x, y)
+#define shim_pow(x, y)		pow((x), (y))
 #endif
 
 #if defined(HAVE_BUILTIN_POWF)
-#define shim_powf(x, y)	__builtin_powf(x, y)
+#define shim_powf(x, y)		__builtin_powf((x), (y))
 #else
-#define shim_powf(x, y)	powf(x, y)
+#define shim_powf(x, y)		powf((x), (y))
 #endif
 
 #if defined(HAVE_BUILTIN_POWL)
-#define shim_powl(x, y)	__builtin_powl(x, y)
+#define shim_powl(x, y)		__builtin_powl((x), (y))
 #else
 #if defined(HAVE_POWL)
-#define shim_powl(x, y)	powl(x, y)
+#define shim_powl(x, y)		powl((x), (y))
 #else
-#define shim_powl(x, y)	pow(x, y)
+#define shim_powl(x, y)		((long double)pow((x), (y)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_RINTL)
-#define shim_rintl(x)	__builtin_rintl(x)
+#define shim_rintl(x)		__builtin_rintl((x))
 #else
 #if defined(HAVE_RINTL)
-#define shim_rintl(x)	rintl(x)
+#define shim_rintl(x)		rintl((x))
 #else
-#define shim_rintl(x)	shim_rint(x)
+#define shim_rintl(x)		((long double)shim_rint((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CLOGF)
-#define shim_clogf(x)	__builtin_clogf(x)
+#define shim_clogf(x)		__builtin_clogf((x))
 #else
-#define shim_clogf(x)	clogf(x)
+#define shim_clogf(x)		clogf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CLOG)
-#define shim_clog(x)	__builtin_clog(x)
+#define shim_clog(x)		__builtin_clog((x))
 #else
-#define shim_clog(x)	clog(x)
+#define shim_clog(x)		clog((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CLOGL)
-#define shim_clogl(x)	__builtin_clogl(x)
+#define shim_clogl(x)		__builtin_clogl((x))
 #else
 #if defined(HAVE_CLOGL)
-#define shim_clogl(x)	clogl(x)
+#define shim_clogl(x)		clogl((x))
 #else
-#define shim_clogl(x)	shim_clog(x)
+#define shim_clogl(x)		((long double)shim_clog((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_LOGF)
-#define shim_logf(x)	__builtin_logf(x)
+#define shim_logf(x)		__builtin_logf((x))
 #else
-#define shim_logf(x)	logf(x)
+#define shim_logf(x)		logf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOG)
-#define shim_log(x)	__builtin_log(x)
+#define shim_log(x)		__builtin_log((x))
 #else
-#define shim_log(x)	log(x)
+#define shim_log(x)		log((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOGL)
-#define shim_logl(x)	__builtin_logl(x)
+#define shim_logl(x)		__builtin_logl((x))
 #else
 #if defined(HAVE_LOGL)
-#define shim_logl(x)	logl(x)
+#define shim_logl(x)		logl((x))
 #else
-#define shim_logl(x)	shim_log(x)
+#define shim_logl(x)		((long double)shim_log((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_LOGBF)
-#define shim_logbf(x)	__builtin_logbf(x)
+#define shim_logbf(x)		__builtin_logbf((x))
 #else
-#define shim_logbf(x)	logbf(x)
+#define shim_logbf(x)		logbf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOGB)
-#define shim_logb(x)	__builtin_logb(x)
+#define shim_logb(x)		__builtin_logb((x))
 #else
-#define shim_logb(x)	logb(x)
+#define shim_logb(x)		logb((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOGBL)
-#define shim_logbl(x)	__builtin_logbl(x)
+#define shim_logbl(x)		__builtin_logbl((x))
 #else
 #if defined(HAVE_LOGBL)
-#define shim_logbl(x)	logbl(x)
+#define shim_logbl(x)		logbl((x))
 #else
-#define shim_logbl(x)	shim_logb(x)
+#define shim_logbl(x)		((long double)shim_logb((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_LOG10F)
-#define shim_log10f(x)	__builtin_log10f(x)
+#define shim_log10f(x)		__builtin_log10f((x))
 #else
-#define shim_log10f(x)	log10f(x)
+#define shim_log10f(x)		log10f((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOG10)
-#define shim_log10(x)	__builtin_log10(x)
+#define shim_log10(x)		__builtin_log10((x))
 #else
-#define shim_log10(x)	log10(x)
+#define shim_log10(x)		log10((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOG10L)
-#define shim_log10l(x)	__builtin_log10l(x)
+#define shim_log10l(x)		__builtin_log10l((x))
 #else
 #if defined(HAVE_LOGL10)
-#define shim_log10l(x)	log10l(x)
+#define shim_log10l(x)		log10l((x))
 #else
-#define shim_log10l(x)	shim_log10(x)
+#define shim_log10l(x)		((long double)shim_log10((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_LOG2F)
-#define shim_log2f(x)	__builtin_log2f(x)
+#define shim_log2f(x)		__builtin_log2f((x))
 #else
-#define shim_log2f(x)	log2f(x)
+#define shim_log2f(x)		log2f((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOG2)
-#define shim_log2(x)	__builtin_log2(x)
+#define shim_log2(x)		__builtin_log2((x))
 #else
-#define shim_log2(x)	log2(x)
+#define shim_log2(x)		log2((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LOG2L)
-#define shim_log2l(x)	__builtin_log2l(x)
+#define shim_log2l(x)		__builtin_log2l((x))
 #else
 #if defined(HAVE_LOGL2)
-#define shim_log2l(x)	log2l(x)
+#define shim_log2l(x)		log2l((x))
 #else
-#define shim_log2l(x)	shim_log2(x)
+#define shim_log2l(x)		((long double)shim_log2((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_EXP)
-#define shim_exp(x)	__builtin_exp(x)
+#define shim_exp(x)		__builtin_exp((x))
 #else
-#define shim_exp(x)	exp(x)
+#define shim_exp(x)		exp((x))
 #endif
 
 #if defined(HAVE_BUILTIN_EXPF)
-#define shim_expf(x)	__builtin_expf(x)
+#define shim_expf(x)		__builtin_expf((x))
 #else
-#define shim_expf(x)	expf(x)
+#define shim_expf(x)		expf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_EXPL)
-#define shim_expl(x)	__builtin_expl(x)
+#define shim_expl(x)		__builtin_expl((x))
 #else
 #if defined(HAVE_EXPL) && !defined(__HAIKU__)
-#define shim_expl(x)	expl(x)
+#define shim_expl(x)		expl((x))
 #else
-#define shim_expl(x)	shim_exp(x)
+#define shim_expl(x)		((long double)shim_exp((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_EXP2)
-#define shim_exp2(x)	__builtin_exp2(x)
+#define shim_exp2(x)		__builtin_exp2((x))
 #else
-#define shim_exp2(x)	exp2(x)
+#define shim_exp2(x)		exp2((x))
 #endif
 
 #if defined(HAVE_BUILTIN_EXP2F)
-#define shim_exp2f(x)	__builtin_exp2f(x)
+#define shim_exp2f(x)		__builtin_exp2f((x))
 #else
-#define shim_exp2f(x)	exp2f(x)
+#define shim_exp2f(x)		exp2f((x))
 #endif
 
 #if defined(HAVE_BUILTIN_EXP2L)
-#define shim_exp2l(x)	__builtin_exp2l(x)
+#define shim_exp2l(x)		__builtin_exp2l((x))
 #else
 #if defined(HAVE_EXP2L) && !defined(__HAIKU__)
-#define shim_exp2l(x)	exp2l(x)
+#define shim_exp2l(x)		exp2l((x))
 #else
-#define shim_exp2l(x)	shim_exp2(x)
+#define shim_exp2l(x)		((long double)shim_exp2((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_EXP10)
-#define shim_exp10(x)	__builtin_exp10(x)
+#define shim_exp10(x)		__builtin_exp10((x))
 #else
-#define shim_exp10(x)	exp10(x)
+#define shim_exp10(x)		exp10((x))
 #endif
 
 #if defined(HAVE_BUILTIN_EXP10F)
-#define shim_exp10f(x)	__builtin_exp10f(x)
+#define shim_exp10f(x)		__builtin_exp10f((x))
 #else
-#define shim_exp10f(x)	exp10f(x)
+#define shim_exp10f(x)		exp10f((x))
 #endif
 
 #if defined(HAVE_BUILTIN_EXP10L)
-#define shim_exp10l(x)	__builtin_exp10l(x)
+#define shim_exp10l(x)		__builtin_exp10l((x))
 #else
 #if defined(HAVE_EXP10L) && !defined(__HAIKU__)
-#define shim_exp10l(x)	exp10l(x)
+#define shim_exp10l(x)		exp10l((x))
 #else
-#define shim_exp10l(x)	shim_exp10(x)
+#define shim_exp10l(x)		((long double)shim_exp10((x)))
 #endif
 #endif
 
@@ -358,307 +358,311 @@
 #endif
 
 #if defined(HAVE_BUILTIN_CBRT)
-#define shim_cbrt(x)	__builtin_cbrt(x)
+#define shim_cbrt(x)		__builtin_cbrt((x))
 #else
-#define shim_cbrt(x)	cbrt(x)
+#define shim_cbrt(x)		cbrt((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CBRTF)
-#define shim_cbrtf(x)	__builtin_cbrtf(x)
+#define shim_cbrtf(x)		__builtin_cbrtf((x))
 #else
-#define shim_cbrtf(x)	cbrtf(x)
+#define shim_cbrtf(x)		cbrtf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CBRTL)
-#define shim_cbrtl(x)	__builtin_cbrtl(x)
+#define shim_cbrtl(x)		__builtin_cbrtl((x))
 #else
 #if defined(HAVE_SQRTL)
-#define shim_cbrtl(x)	cbrtl(x)
+#define shim_cbrtl(x)		cbrtl((x))
 #else
-#define shim_cbrtl(x)	((long double)shim_cbrt(x))
+#define shim_cbrtl(x)		((long double)shim_cbrt((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CEXP)
-#define shim_cexp(x)	__builtin_cexp(x)
+#define shim_cexp(x)		__builtin_cexp((x))
 #else
-#define shim_cexp(x)	cexp(x)
+#define shim_cexp(x)		cexp((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CEXPF)
-#define shim_cexpf(x)	__builtin_cexpf(x)
+#define shim_cexpf(x)		__builtin_cexpf((x))
 #else
-#define shim_cexpf(x)	cexpf(x)
+#define shim_cexpf(x)		cexpf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CEXPL)
-#define shim_cexpl(x)	__builtin_cexpl(x)
+#define shim_cexpl(x)		__builtin_cexpl((x))
 #else
-#define shim_cexpl(x)	cexpl(x)
+#if defined(HAVE_CEXPL)
+#define shim_cexpl(x)		cexpl((x))
+#else
+#define	shim_cexpl(x)		((long double)cexp((x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_COSF)
-#define shim_cosf(x)	__builtin_cosf(x)
+#define shim_cosf(x)		__builtin_cosf((x))
 #else
-#define shim_cosf(x)	cosf(x)
+#define shim_cosf(x)		cosf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_COS)
-#define shim_cos(x)	__builtin_cos(x)
+#define shim_cos(x)		__builtin_cos((x))
 #else
-#define shim_cos(x)	cos(x)
+#define shim_cos(x)		cos((x))
 #endif
 
 #if defined(HAVE_BUILTIN_COSL)
-#define shim_cosl(x)	__builtin_cosl(x)
+#define shim_cosl(x)		__builtin_cosl((x))
 #else
 #if defined(HAVE_COSL)
-#define shim_cosl(x)	cosl(x)
+#define shim_cosl(x)		cosl((x))
 #else
-#define shim_cosl(x)	((long double)shim_cos((double)(x)))
+#define shim_cosl(x)		((long double)shim_cos((double)(x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_COSHF)
-#define shim_coshf(x)	__builtin_coshf(x)
+#define shim_coshf(x)		__builtin_coshf((x))
 #else
-#define shim_coshf(x)	coshf(x)
+#define shim_coshf(x)		coshf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_COSH)
-#define shim_cosh(x)	__builtin_cosh(x)
+#define shim_cosh(x)		__builtin_cosh((x))
 #else
-#define shim_cosh(x)	cosh(x)
+#define shim_cosh(x)		cosh((x))
 #endif
 
 #if defined(HAVE_BUILTIN_COSHL)
-#define shim_coshl(x)	__builtin_coshl(x)
+#define shim_coshl(x)		__builtin_coshl((x))
 #else
 #if defined(HAVE_COSHL)
-#define shim_coshl(x)	coshl(x)
+#define shim_coshl(x)		coshl((x))
 #else
-#define shim_coshl(x)	((long double)cosh((double)(x)))
+#define shim_coshl(x)		((long double)cosh((double)(x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CCOS)
-#define shim_ccos(x)	__builtin_ccos(x)
+#define shim_ccos(x)		__builtin_ccos((x))
 #else
 #if defined(HAVE_CCOS)
-#define	shim_ccos(x)	ccos(x)
+#define	shim_ccos(x)		ccos((x))
 #else
-#define	shim_ccos(x)	shim_cos((double)x)
+#define	shim_ccos(x)		((exp(I * (x)) + exp(-I * (x))) / 2.0)
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CCOSF)
-#define shim_ccosf(x)	__builtin_ccosf(x)
+#define shim_ccosf(x)		__builtin_ccosf((x))
 #else
 #if defined(HAVE_CCOSF)
-#define	shim_ccosf(x)	ccosf(x)
+#define	shim_ccosf(x)		ccosf((x))
 #else
-#define	shim_ccosf(x)	shim_ccos(x)
+#define	shim_ccosf(x)		shim_ccos((x))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CCOSL)
-#define shim_ccosl(x)	__builtin_ccosl(x)
+#define shim_ccosl(x)		__builtin_ccosl((x))
 #else
 #if defined(HAVE_CCOSL)
-#define	shim_ccosl(x)	ccosl(x)
+#define	shim_ccosl(x)		ccosl((x))
 #else
-#define	shim_ccosl(x)	((long double complex)shim_ccos((double complex)(x)))
+#define	shim_ccosl(x)		((long double complex)shim_ccos((double complex)(x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CSQRT)
-#define shim_csqrt(x)	__builtin_csqrt(x)
+#define shim_csqrt(x)		__builtin_csqrt((x))
 #else
-#define shim_csqrt(x)	csqrt(x)
+#define shim_csqrt(x)		csqrt((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CSQRTF)
-#define shim_csqrtf(x)	__builtin_csqrtf(x)
+#define shim_csqrtf(x)		__builtin_csqrtf((x))
 #else
-#define shim_csqrtf(x)	csqrtf(x)
+#define shim_csqrtf(x)		csqrtf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_CSQRTL)
-#define shim_csqrtl(x)	__builtin_csqrtl(x)
+#define shim_csqrtl(x)		__builtin_csqrtl((x))
 #else
 #if defined(HAVE_CSQRTL)
-#define shim_csqrtl(x)	csqrtl(x)
+#define shim_csqrtl(x)		csqrtl((x))
 #else
-#define shim_csqrtl(x)	((long double)shim_csqrt(x))
+#define shim_csqrtl(x)		((long double)shim_csqrt((x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_SINF)
-#define shim_sinf(x)	__builtin_sinf(x)
+#define shim_sinf(x)		__builtin_sinf((x))
 #else
-#define shim_sinf(x)	sinf(x)
+#define shim_sinf(x)		sinf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SIN)
-#define shim_sin(x)	__builtin_sin(x)
+#define shim_sin(x)		__builtin_sin((x))
 #else
-#define shim_sin(x)	sin(x)
+#define shim_sin(x)		sin((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SINL)
-#define shim_sinl(x)	__builtin_sinl(x)
+#define shim_sinl(x)		__builtin_sinl((x))
 #else
 #if defined(HAVE_SINL)
-#define shim_sinl(x)	sinl(x)
+#define shim_sinl(x)		sinl((x))
 #else
-#define shim_sinl(x)	((long double)shim_sin((double)(x)))
+#define shim_sinl(x)		((long double)shim_sin((double)(x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_SINCOSF)
-#define shim_sincosf(x, s, c)	__builtin_sincosf(x, s, c)
+#define shim_sincosf(x, s, c)	__builtin_sincosf((x), (s), (c))
 #else
-#define shim_sincosf(x, s, c)	sincosf(x, s, c)
+#define shim_sincosf(x, s, c)	sincosf((x), (s), (c))
 #endif
 
 #if defined(HAVE_BUILTIN_SINCOS)
-#define shim_sincos(x, s, c)	__builtin_sincos(x, s, c)
+#define shim_sincos(x, s, c)	__builtin_sincos((x), (s), (c))
 #else
-#define shim_sincos(x, s, c)	sincos(x, s, c)
+#define shim_sincos(x, s, c)	sincos((x), (s), (c))
 #endif
 
 #if defined(HAVE_BUILTIN_SINCOSL)
-#define shim_sincosl(x, s, c)	__builtin_sincosl(x, s, c)
+#define shim_sincosl(x, s, c)	__builtin_sincosl((x), (s), (c))
 #else
-#define shim_sincosl(x, s, c)	sincosl(x, s, c)
+#define shim_sincosl(x, s, c)	sincosl((x), (s), (c))
 #endif
 
 #if defined(HAVE_BUILTIN_SINHF)
-#define shim_sinhf(x)	__builtin_sinhf(x)
+#define shim_sinhf(x)		__builtin_sinhf((x))
 #else
-#define shim_sinhf(x)	sinhf(x)
+#define shim_sinhf(x)		sinhf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SINH)
-#define shim_sinh(x)	__builtin_sinh(x)
+#define shim_sinh(x)		__builtin_sinh((x))
 #else
-#define shim_sinh(x)	sinh(x)
+#define shim_sinh(x)		sinh((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SINHL)
-#define shim_sinhl(x)	__builtin_sinhl(x)
+#define shim_sinhl(x)		__builtin_sinhl((x))
 #else
 #if defined(HAVE_SINHL)
-#define shim_sinhl(x)	sinhl(x)
+#define shim_sinhl(x)		sinhl((x))
 #else
-#define shim_sinhl(x)	((long double)sinh((double)(x)))
+#define shim_sinhl(x)		((long double)sinh((double)(x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CSIN)
-#define shim_csin(x)	__builtin_csin(x)
+#define shim_csin(x)		__builtin_csin((x))
 #else
 #if defined(HAVE_CSIN)
-#define	shim_csin(x)	csin(x)
+#define	shim_csin(x)		csin((x))
 #else
-#define	shim_csin(x)	shim_sin((double)x)
+#define	shim_csin(x)		((exp(I * (x)) - exp(-I * (x))) / (2.0 * I))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CSINF)
-#define shim_csinf(x)	__builtin_csinf(x)
+#define shim_csinf(x)		__builtin_csinf((x))
 #else
 #if defined(HAVE_CSINF)
-#define	shim_csinf(x)	csinf(x)
+#define	shim_csinf(x)		csinf((x))
 #else
-#define	shim_csinf(x)	shim_csin(x)
+#define	shim_csinf(x)		shim_csin((x))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_CSINL)
-#define shim_csinl(x)	__builtin_csinl(x)
+#define shim_csinl(x)		__builtin_csinl((x))
 #else
 #if defined(HAVE_CSINL)
-#define	shim_csinl(x)	csinl(x)
+#define	shim_csinl(x)		csinl((x))
 #else
-#define	shim_csinl(x)	((long double complex)shim_csin((double complex)(x)))
+#define	shim_csinl(x)		((long double complex)shim_csin((double complex)(x)))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_TANF)
-#define shim_tanf(x)	__builtin_tanf(x)
+#define shim_tanf(x)		__builtin_tanf((x))
 #else
-#define shim_tanf(x)	tanf(x)
+#define shim_tanf(x)		tanf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_TAN)
-#define shim_tan(x)	__builtin_tan(x)
+#define shim_tan(x)		__builtin_tan((x))
 #else
-#define shim_tan(x)	tan(x)
+#define shim_tan(x)		tan((x))
 #endif
 
 #if defined(HAVE_BUILTIN_TANL)
-#define shim_tanl(x)	__builtin_tanl(x)
+#define shim_tanl(x)		__builtin_tanl((x))
 #else
-#define shim_tanl(x)	tanl(x)
+#define shim_tanl(x)		tanl((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SQRT)
-#define shim_sqrt(x)	__builtin_sqrt(x)
+#define shim_sqrt(x)		__builtin_sqrt((x))
 #else
-#define shim_sqrt(x)	sqrt(x)
+#define shim_sqrt(x)		sqrt((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SQRTF)
-#define shim_sqrtf(x)	__builtin_sqrtf(x)
+#define shim_sqrtf(x)		__builtin_sqrtf((x))
 #else
-#define shim_sqrtf(x)	sqrtf(x)
+#define shim_sqrtf(x)		sqrtf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_SQRTL)
-#define shim_sqrtl(x)	__builtin_sqrtl(x)
+#define shim_sqrtl(x)		__builtin_sqrtl((x))
 #else
 #if defined(HAVE_SQRTL)
-#define shim_sqrtl(x)	sqrtl(x)
+#define shim_sqrtl(x)		sqrtl((x))
 #else
-#define shim_sqrtl(x)	((long double)shim_sqrt(x))
+#define shim_sqrtl(x)		((long double)shim_sqrt(x))
 #endif
 #endif
 
 #if defined(HAVE_BUILTIN_FABS)
-#define shim_fabs(x)	__builtin_fabs(x)
+#define shim_fabs(x)		__builtin_fabs((x))
 #else
-#define shim_fabs(x)	fabs(x)
+#define shim_fabs(x)		fabs((x))
 #endif
 
 #if defined(HAVE_BUILTIN_FABSF)
-#define shim_fabsf(x)	__builtin_fabsf(x)
+#define shim_fabsf(x)		__builtin_fabsf((x))
 #else
-#define shim_fabsf(x)	fabsf(x)
+#define shim_fabsf(x)		fabsf((x))
 #endif
 
 #if defined(HAVE_BUILTIN_FABSL)
-#define shim_fabsl(x)	__builtin_fabsl(x)
+#define shim_fabsl(x)		__builtin_fabsl((x))
 #else
-#define shim_fabsl(x)	fabsl(x)
+#define shim_fabsl(x)		fabsl((x))
 #endif
 
 #if defined(HAVE_BUILTIN_LLABS)
-#define shim_llabs(x)	__builtin_llabs(x)
+#define shim_llabs(x)		__builtin_llabs((x))
 #else
-#define shim_llabs(x)	llabs(x)
+#define shim_llabs(x)		llabs((x))
 #endif
 
 #if defined(HAVE_BUILTIN_RINT)
-#define shim_rint(x)	__builtin_rint(x)
+#define shim_rint(x)		__builtin_rint((x))
 #else
-#define shim_rint(x)	rint(x)
+#define shim_rint(x)		rint((x))
 #endif
 
 #if defined(HAVE_BUILTIN_ROUNDL)
-#define shim_roundl(x)	__builtin_roundl(x)
+#define shim_roundl(x)		__builtin_roundl((x))
 #else
-#define shim_roundl(x)	roundl(x)
+#define shim_roundl(x)		roundl((x))
 #endif
 
 #if defined(HAVE_BUILTIN_ROTATELEFT8)
@@ -779,16 +783,16 @@ static inline __uint128_t ALWAYS_INLINE shim_ror128n(const __uint128_t x, const 
 }
 #endif
 
-#define shim_rol8(x)	shim_rol8n(x, 1)
-#define shim_rol16(x)	shim_rol16n(x, 1)
-#define shim_rol32(x)	shim_rol32n(x, 1)
-#define shim_rol64(x)	shim_rol64n(x, 1)
-#define shim_rol128(x)	shim_rol128n(x, 1)
+#define shim_rol8(x)	shim_rol8n((x), 1)
+#define shim_rol16(x)	shim_rol16n((x), 1)
+#define shim_rol32(x)	shim_rol32n((x), 1)
+#define shim_rol64(x)	shim_rol64n((x), 1)
+#define shim_rol128(x)	shim_rol128n((x), 1)
 
-#define shim_ror8(x)	shim_ror8n(x, 1)
-#define shim_ror16(x)	shim_ror16n(x, 1)
-#define shim_ror32(x)	shim_ror32n(x, 1)
-#define shim_ror64(x)	shim_ror64n(x, 1)
-#define shim_ror128(x)	shim_ror128n(x, 1)
+#define shim_ror8(x)	shim_ror8n((x), 1)
+#define shim_ror16(x)	shim_ror16n((x), 1)
+#define shim_ror32(x)	shim_ror32n((x), 1)
+#define shim_ror64(x)	shim_ror64n((x), 1)
+#define shim_ror128(x)	shim_ror128n((x), 1)
 
 #endif
