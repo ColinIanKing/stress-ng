@@ -48,6 +48,10 @@
 #include <linux/dm-ioctl.h>
 #endif
 
+#if defined(HAVE_LINUX_FB_H)
+#include <linux/fb.h>
+#endif
+
 #if defined(HAVE_LINUX_FD_H)
 #include <linux/fd.h>
 #endif
@@ -3437,6 +3441,42 @@ static void stress_dev_kvm_linux(
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_FB_H)
+/*
+ *   stress_dev_fb_linux()
+ *   	Exercise Linux frame buffer device
+ */
+static void stress_dev_fb_linux(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	VOID_ARGS(args, fd, devpath);
+
+#if defined(FBIOGET_FSCREENINFO)
+	{
+		struct fb_fix_screeninfo screeninfo;
+
+		VOID_RET(int, ioctl(fd, FBIOGET_FSCREENINFO, &screeninfo));
+	}
+#endif
+#if defined(FBIOGET_VSCREENINFO)
+	{
+		struct fb_var_screeninfo screeninfo;
+		int ret;
+
+		ret = ioctl(fd, FBIOGET_VSCREENINFO, &screeninfo);
+#if defined(FBIOPUT_VSCREENINFO)
+		if (ret == 0)
+			ret = ioctl(fd, FBIOPUT_VSCREENINFO, &screeninfo);
+#endif
+		(void)ret;
+	}
+#endif
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3534,6 +3574,10 @@ static const stress_dev_func_t dev_funcs[] = {
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_USB_CDC_WDM_H)
 	DEV_FUNC("/dev/cdc-wdm",stress_dev_cdc_wdm_linux),
+#endif
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_FB_H)
+	DEV_FUNC("/dev/fb", 	stress_dev_fb_linux),
 #endif
 };
 
