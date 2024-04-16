@@ -323,6 +323,7 @@
 	MACRO(udp)		\
 	MACRO(udp_flood)	\
 	MACRO(umount)		\
+	MACRO(unlink)		\
 	MACRO(unshare)		\
 	MACRO(uprobe)		\
 	MACRO(urandom)		\

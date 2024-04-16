@@ -1460,6 +1460,9 @@ typedef enum {
 	OPT_umount,
 	OPT_umount_ops,
 
+	OPT_unlink,
+	OPT_unlink_ops,
+
 	OPT_unshare,
 	OPT_unshare_ops,
 

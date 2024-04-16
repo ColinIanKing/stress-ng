@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 April 2024"
+.TH STRESS-NG 1 "16 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7646,6 +7646,19 @@ umount calls to try to trigger race conditions on the umount calls.
 .TP
 .B \-\-umount\-ops N
 stop umount workers after N successful bogo mount/umount operations.
+.RE
+.TP
+.B Unlink stressor
+.RS 5
+.TQ
+.B \-\-unlink N
+start N workers that each run 4 processes per worker that create, open, unlink
+and close 1024 files in randomized order to exercise unlinking (removal) of
+files. This attempts to create races on file creation, linking and unlinking.
+.TP
+.B \-\-unlink\-ops N
+stop after N bogo rounds of unlink operations on 1024 files by the
+controlling worker.
 .RE
 .TP
 .B Unshare stressor (Linux)

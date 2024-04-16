@@ -1037,6 +1037,8 @@ const struct option stress_long_options[] = {
 	{ "udp-flood-ops",	1,	0,	OPT_udp_flood_ops },
 	{ "umount",		1,	0,	OPT_umount },
 	{ "umount-ops",		1,	0,	OPT_umount_ops },
+	{ "unlink",		1,	0,	OPT_unlink },
+	{ "unlink-ops",		1,	0,	OPT_unlink_ops },
 	{ "unshare",		1,	0,	OPT_unshare },
 	{ "unshare-ops",	1,	0,	OPT_unshare_ops },
 	{ "uprobe",		1,	0,	OPT_uprobe },
