@@ -21,7 +21,7 @@
 #define STRESS_VERSION_H
 
 #define STRESS_VERSION_NUMBER(major, minor, patchlevel)		\
-	((major * 10000) + (minor * 100) + patchlevel)
+	(((major) * 10000) + ((minor) * 100) + (patchlevel))
 
 #if defined(__GLIBC__) &&	\
     defined(__GLIBC_MINOR__)
