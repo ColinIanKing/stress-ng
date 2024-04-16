@@ -45,7 +45,7 @@
 #endif
 
 #if !defined(IOPRIO_PRIO_VALUE)
-#define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | data)
+#define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | (data))
 #endif
 
 int32_t stress_get_opt_ionice_class(const char *const str);
