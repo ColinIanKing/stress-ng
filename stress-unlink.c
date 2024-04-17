@@ -213,8 +213,8 @@ static int stress_unlink(stress_args_t *args)
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);
-    	if (ret < 0) {
-                rc =  stress_exit_status(-ret);
+	if (ret < 0) {
+		rc =  stress_exit_status(-ret);
 		goto metrics_free;
 	}
 
@@ -224,10 +224,10 @@ static int stress_unlink(stress_args_t *args)
 
 		(void)snprintf(filename, sizeof(filename), "%s/%c%c%c%c-%4.4zx",
 			pathname,
-		 	'a' + stress_mwc8modn(26),
-		 	'a' + stress_mwc8modn(26),
-		 	'a' + stress_mwc8modn(26),
-		 	'a' + stress_mwc8modn(26), i);
+			'a' + stress_mwc8modn(26),
+			'a' + stress_mwc8modn(26),
+			'a' + stress_mwc8modn(26),
+			'a' + stress_mwc8modn(26), i);
 
 		filenames[i] = strdup(filename);
 		if (!filenames[i]) {
@@ -269,8 +269,8 @@ static int stress_unlink(stress_args_t *args)
 	}
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
-        stress_metrics_set(args, 0, "unlink calls per sec",
-                rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 0, "unlink calls per sec",
+		rate, STRESS_HARMONIC_MEAN);
 
 filenames_free:
 	for (i = 0; i < UNLINK_FILES; i++) {
