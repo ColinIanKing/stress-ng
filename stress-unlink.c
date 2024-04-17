@@ -119,10 +119,10 @@ retry:
 					break;
 				}
 			} else {
-				if ((i & 31) == 0)
-					fsync(fds[i]);
-				if ((i & 127) == 0)
-					fdatasync(fds[i]);
+				if ((i & 63) == 0)
+					(void)fsync(fds[i]);
+				if ((i & 511) == 0)
+					(void)fdatasync(fds[i]);
 			}
 		}
 
@@ -175,8 +175,8 @@ retry:
 
 	for (i = 0; i < UNLINK_FILES; i++) {
 		if (fds[i] != -1) {
-			if ((i & 31) == 15)
-				fsync(fds[i]);
+			if ((i & 127) == 15)
+				(void)fsync(fds[i]);
 			(void)close(fds[i]);
 		}
 	}
