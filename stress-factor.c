@@ -23,7 +23,7 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"factor N",		"start N workers performing multi-precision floating point operations" },
+	{ NULL,	"factor N",		"start N workers performing large integer factorization" },
 	{ NULL,	"factor-digits N",	"specific number of digits of number to factor" },
 	{ NULL,	"factor-ops N",		"stop after N factorisation operations" },
 	{ NULL,	NULL,		 	NULL }
