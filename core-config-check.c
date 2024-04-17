@@ -105,7 +105,7 @@ void stress_config_check(void)
 		stress_dirent_list_free(namelist, n);
 		if (powersave > 0) {
 			pr_inf("note: %d cpus have scaling governors set to "
-				"powersave and this can impact on performance; "
+				"powersave and this may impact performance; "
 				"setting %s/cpu*/cpufreq/scaling_governor to "
 				"'performance' may improve performance\n",
 				powersave, path);
