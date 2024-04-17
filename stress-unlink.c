@@ -58,6 +58,29 @@ static void stress_unlink_exercise(
 	const size_t mask = UNLINK_FILES - 1;
 	double t;
 
+	/* Various open mode flags to be selected randomly */
+	static const int open_flags[] = {
+#if defined(O_EXCL)
+		O_EXCL,
+#endif
+#if defined(O_DIRECT)
+		O_DIRECT,
+#endif
+#if defined(O_DSYNC)
+		O_DSYNC,
+#endif
+#if defined(O_NOATIME)
+		O_NOATIME,
+#endif
+#if defined(O_SYNC)
+		O_SYNC,
+#endif
+#if defined(O_TRUNC)
+		O_TRUNC,
+#endif
+		0,
+	};
+
 	stress_mwc_reseed();
 
 	for (i = 0; i < UNLINK_FILES; i++)
@@ -65,9 +88,10 @@ static void stress_unlink_exercise(
 
 	stress_unlink_shuffle(idx, mask);
 
-
 	do {
 		for (i = 0; i < UNLINK_FILES; i++) {
+			int mode, retries = 0;
+
 			fds[i] = -1;
 
 			if ((i & 7) == 7) {
@@ -77,16 +101,29 @@ static void stress_unlink_exercise(
 						continue;
 				}
 			}
-			fds[i] = open(filenames[i], O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+retry:
+			mode = open_flags[stress_mwc8modn(SIZEOF_ARRAY(open_flags))];
+			fds[i] = open(filenames[i], O_CREAT | O_RDWR | mode, S_IRUSR | S_IWUSR);
 			if (fds[i] < 0) {
-				fds[i] = open(filenames[i], O_RDWR, S_IRUSR | S_IWUSR);
-				if (fds[i] < 0)
-					continue;
+				switch (errno) {
+				case EEXIST:
+					fds[i] = open(filenames[i], O_RDWR, S_IRUSR | S_IWUSR);
+					if (fds[i] < 0)
+						continue;
+					break;
+				case EINVAL:
+					retries++;
+					if (stress_continue(args) && (retries < 5))
+						goto retry;
+				default:
+					break;
+				}
+			} else {
+				if ((i & 31) == 0)
+					fsync(fds[i]);
+				if ((i & 127) == 0)
+					fdatasync(fds[i]);
 			}
-			if ((i & 31) == 0)
-				fsync(fds[i]);
-			if ((i & 127) == 0)
-				fdatasync(fds[i]);
 		}
 
 		/*
