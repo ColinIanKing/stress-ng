@@ -199,7 +199,7 @@ timeout 60s      # stop each stressor after 60 seconds
 # vm stressor options:
 #
 vm 2             # 2 vm stressors
-vm-bytes 128M    # 128MB available memory
+vm-bytes 128M    # 128MB available memory shared by 2 vm stressors
 vm-keep          # keep vm mapping
 vm-populate      # populate memory
 #
@@ -8043,9 +8043,9 @@ killer on Linux systems if not enough physical memory and swap is not
 available.
 .TP
 .B \-\-vm\-bytes N
-mmap N bytes per vm worker, the default is 256MB. One can specify the size
-as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
-using the suffix b, k, m or g.
+mmap N bytes in total, this is shared by each vm worker, the default is 256MB.
+One can specify the size as % of total available memory or in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-vm\-hang N
 sleep N seconds before unmapping memory, the default is zero seconds.
