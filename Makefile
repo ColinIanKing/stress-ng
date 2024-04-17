@@ -451,6 +451,7 @@ STRESS_SRC = \
 	stress-powmath.c \
 	stress-prctl.c \
 	stress-prefetch.c \
+	stress-prime.c \
 	stress-prio-inv.c \
 	stress-priv-instr.c \
 	stress-procfs.c \

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 April 2024"
+.TH STRESS-NG 1 "17 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5560,6 +5560,45 @@ T}
 .TP
 .B \-\-prefetch\-ops N
 stop prefetch stressors after N benchmark operations
+.RE
+.TP
+.B Search for prime numbers using large integers
+.RS 5
+.TQ
+.B \-\-prime N
+start N workers that find prime numbers using the GNU Multiple Precision
+Arithmetic Library for large integers. The GMP mpz_nextprime function is
+used to find primes and it uses a probabilistic algorithm to identify
+primes, but there is a extremely small chance that the values found are
+non-prime. The search becomes computationally more expensive over time
+to find larger and larger primes, hence the bogo-op rate will reduce over
+time.
+.TP
+.B \-\-prime\-method [ factorial | inc | pwr2 | pwr10 ]
+selects the method of calculating the next value from where to start searching
+primes and hence how large the primes get. The default is inc, the methods to
+start searching for primes are described as follows.
+.TS
+lB2 lB
+l lx.
+Method	Description
+factorial	T{
+start of search based on factorial expansion. This grows rapidly.
+T}
+inc	T{
+start of search based on increments by 2. This grows very slowly.
+T}
+pwr2	T{
+start of search based on powers of 2. Grows relatively quicky.
+T}
+pwr10	T{
+start of search based on powers of 10. Grows by 1 digit per iteration and
+grows quickly.
+T}
+.TE
+.TP
+.B \-\-factor\-ops N
+stop after finding N prime numbers.
 .RE
 .TP
 .B Priority inversion stressor

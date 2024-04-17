@@ -217,6 +217,7 @@
 	MACRO(powmath)		\
 	MACRO(prctl)		\
 	MACRO(prefetch)		\
+	MACRO(prime)		\
 	MACRO(prio_inv)		\
 	MACRO(priv_instr)	\
 	MACRO(procfs)		\

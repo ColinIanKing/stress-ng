@@ -992,6 +992,10 @@ typedef enum {
 	OPT_prctl,
 	OPT_prctl_ops,
 
+	OPT_prime,
+	OPT_prime_method,
+	OPT_prime_ops,
+
 	OPT_prio_inv,
 	OPT_prio_inv_ops,
 	OPT_prio_inv_policy,
