@@ -89,7 +89,7 @@ static void stress_unlink_exercise(
 	stress_unlink_shuffle(idx, mask);
 
 	do {
-		for (i = 0; i < UNLINK_FILES; i++) {
+		for (i = 0; stress_continue(args) && (i < UNLINK_FILES); i++) {
 			int mode, retries = 0;
 
 			fds[i] = -1;
@@ -249,6 +249,8 @@ static int stress_unlink(stress_args_t *args)
 	}
 
 	stress_unlink_exercise(args, true, &metrics[UNLINK_PROCS], filenames);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	duration = metrics[UNLINK_PROCS].duration;
 	count = metrics[UNLINK_PROCS].count;
