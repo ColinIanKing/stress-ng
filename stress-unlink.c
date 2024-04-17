@@ -83,6 +83,10 @@ static void stress_unlink_exercise(
 				if (fds[i] < 0)
 					continue;
 			}
+			if ((i & 31) == 0)
+				fsync(fds[i]);
+			if ((i & 127) == 0)
+				fdatasync(fds[i]);
 		}
 
 		/*
@@ -133,8 +137,11 @@ static void stress_unlink_exercise(
 	metrics->count += (double)n;
 
 	for (i = 0; i < UNLINK_FILES; i++) {
-		if (fds[i] != -1)
+		if (fds[i] != -1) {
+			if ((i & 31) == 15)
+				fsync(fds[i]);
 			(void)close(fds[i]);
+		}
 	}
 }
 	
