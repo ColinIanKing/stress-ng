@@ -27,6 +27,8 @@
 #define STRESS_PRIME_METHOD_PWR2	(2)
 #define STRESS_PRIME_METHOD_PWR10	(3)
 
+#define STRESS_PRIME_PROGRESS_INC_SECS	(60.0)
+
 static sigjmp_buf jmpbuf;
 static bool jumped;
 
@@ -34,6 +36,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"prime N",		"start N workers that find prime numbers" },
 	{ NULL,	"prime-ops N",		"stop after N prime operations" },
 	{ NULL, "prime-method M",	"method of searching for next prime [ factorial | inc | pwr2 | pwr10 ]" },
+	{ NULL,	"prime-progress",	"show prime progress every 60 seconds (just first stressor instance)" },
 	{ NULL,	NULL,		 	NULL }
 };
 
@@ -84,8 +87,18 @@ static int stress_set_prime_method(const char *name)
 	return -1;
 }
 
+/*
+ *  stress_set_prime_progress
+ *	enable periodic prime progress information
+ */
+static int stress_set_prime_progress(const char *opt)
+{
+	return stress_set_setting_true("prime-progress", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_prime_method,	stress_set_prime_method },
+	{ OPT_prime_progress,	stress_set_prime_progress },
 	{ 0,			NULL },
 };
 
@@ -94,16 +107,22 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static int OPTIMIZE3 stress_prime(stress_args_t *args)
 {
-	double t, rate;
+	double rate, t_progress_secs;
 	NOCLOBBER double duration = 0.0;
 	NOCLOBBER size_t digits = 1;
 	uint64_t ops;
 	mpz_t start, value, factorial;
 	int prime_method = STRESS_PRIME_METHOD_INC;
+	bool prime_progress = false;
 
 	(void)stress_get_setting("prime-method", &prime_method);
+	(void)stress_get_setting("prime-progress", &prime_progress);
 
 	mpz_inits(start, value, factorial, NULL);
+
+	/* only report progress on instance 0 */
+	if (args->instance > 0)
+		prime_progress = false;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -116,13 +135,18 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 		goto finish;
 	}
 
+	t_progress_secs = stress_time_now() + STRESS_PRIME_PROGRESS_INC_SECS;
+
 	if (stress_sighandler(args->name, SIGALRM, stress_prime_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	do {
-		t = stress_time_now();
+		double t1, t2;
+
+		t1 = stress_time_now();
 		mpz_nextprime(value, start);
-		duration += stress_time_now() - t;
+		t2 = stress_time_now();
+		duration += t2 - t1;
 
 		switch (prime_method) {
 		default:
@@ -142,6 +166,12 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 		}
 		stress_bogo_inc(args);
 		digits = mpz_sizeinbase(value, 10);
+
+		if (prime_progress && (t2 >= t_progress_secs)) {
+			t_progress_secs += STRESS_PRIME_PROGRESS_INC_SECS;
+			pr_inf("%s: %" PRIu64 " primes found, largest prime: %zu digits long\n",
+				args->name, stress_bogo_get(args), digits);
+		}
 	} while (stress_continue(args));
 
 finish:
@@ -154,8 +184,7 @@ finish:
 	}
 
 	ops = stress_bogo_get(args);
-
-	pr_inf("%s: %" PRIu64 " primes found, largest prime: %zd digits long\n",
+	pr_inf("%s: %" PRIu64 " primes found, largest prime: %zu digits long\n",
 		args->name, ops, digits);
 
 	rate = (duration > 0.0) ? (double)ops / duration : 0.0;

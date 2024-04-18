@@ -689,6 +689,7 @@ const struct option stress_long_options[] = {
 	{ "prime",		1,	0,	OPT_prime },
 	{ "prime-method",	1,	0,	OPT_prime_method },
 	{ "prime-ops",		1,	0,	OPT_prime_ops },
+	{ "prime-progress",	0,	0,	OPT_prime_progress },
 	{ "prio-inv",		1,	0,	OPT_prio_inv },
 	{ "prio-inv-ops",	1,	0,	OPT_prio_inv_ops },
 	{ "prio-inv-policy",	1,	0,	OPT_prio_inv_policy },

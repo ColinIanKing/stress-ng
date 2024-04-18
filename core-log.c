@@ -234,12 +234,21 @@ static int pr_msg(
 			strncpy(ts, empty_ts, sizeof(ts));
 		} else {
 			time_t t = tv.tv_sec;
-			struct tm *tm;
+			struct tm *ptm;
+#if defined(HAVE_LOCALTIME_R)
+			struct tm tm;
 
-			tm = localtime(&t);
-			if (tm) {
+			(void)localtime_r(&t, &tm);
+			ptm = &tm;
+#else
+			struct tm *ptm;
+
+			ptm = localtime(&t);
+#endif
+
+			if (ptm) {
 				(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
-					tm->tm_hour, tm->tm_min, tm->tm_sec,
+					ptm->tm_hour, ptm->tm_min, ptm->tm_sec,
 					(long)tv.tv_usec / 10000);
 			} else {
 				strncpy(ts, empty_ts, sizeof(ts));

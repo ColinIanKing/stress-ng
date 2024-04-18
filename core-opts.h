@@ -995,6 +995,7 @@ typedef enum {
 	OPT_prime,
 	OPT_prime_method,
 	OPT_prime_ops,
+	OPT_prime_progress,
 
 	OPT_prio_inv,
 	OPT_prio_inv_ops,
