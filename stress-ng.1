@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 April 2024"
+.TH STRESS-NG 1 "18 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5597,8 +5597,11 @@ grows quickly.
 T}
 .TE
 .TP
-.B \-\-factor\-ops N
+.B \-\-prime\-ops N
 stop after finding N prime numbers.
+.TP
+.B \-\-prime\-progress
+show every 60 seconds the number of primes found and length of largest prime found.
 .RE
 .TP
 .B Priority inversion stressor
