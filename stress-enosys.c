@@ -935,7 +935,7 @@ static const long skip_syscalls[] = {
 	SYS_lsm_get_self_attr,
 #endif
 #if defined(SYS_lsm_list_modules)
-	SYS_lsm_modules,
+	SYS_lsm_list_modules,
 #endif
 #if defined(SYS_madvise)
 	SYS_madvise,
