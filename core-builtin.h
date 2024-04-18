@@ -71,7 +71,7 @@
 #if defined(HAVE_CABSL)
 #define shim_cabsl(x)		cabsl((x))
 #else
-#define shim_cabsl(x)		((long double)cabs((x)))
+#define shim_cabsl(x)		((long double)cabs((double complex)(x)))
 #endif
 #endif
 
@@ -81,7 +81,7 @@
 #if defined(HAVE_LGAMMAL)
 #define shim_lgammal(x)		lgammal((x))
 #else
-#define shim_lgammal(x)		((long double)lgamma((x)))
+#define shim_lgammal(x)		((long double)lgamma((double)(x)))
 #endif
 #endif
 
@@ -91,7 +91,7 @@
 #if defined(HAVE_CPOW)
 #define shim_cpow(x, z)		cpow((x), (z))
 #else
-#define shim_cpow(x, z)		(shim_cexp((y) * shim_clog((x))))
+#define shim_cpow(x, z)		(shim_cexp((z) * shim_clog((x))))
 #endif
 #endif
 
@@ -101,7 +101,7 @@
 #if defined(HAVE_CPOWF)
 #define shim_cpowf(x, z)	cpowf((x), (z))
 #else
-#define shim_cpowf(x, z)	(shim_cexpf((y) * shim_clogf((x))))
+#define shim_cpowf(x, z)	(shim_cexpf(z) * shim_clogf((x))))
 #endif
 #endif
 
@@ -111,7 +111,7 @@
 #if defined(HAVE_CPOWL)
 #define shim_cpowl(x, z)	cpowl((x), (z))
 #else
-#define shim_cpowl(x, z)	(shim_cexpl((y) * shim_clogf((l))))
+#define shim_cpowl(x, z)	(shim_cexpl((z) * shim_clogl((l))))
 #endif
 #endif
 
@@ -133,7 +133,7 @@
 #if defined(HAVE_HYPOTL)
 #define shim_hypotl(x, y)	hypotl((x), (y))
 #else
-#define shim_hypotl(x, y)	((long dounle)hypot((x), (y)))
+#define shim_hypotl(x, y)	((long double)hypot((double)(x), (double)(y)))
 #endif
 #endif
 
@@ -155,7 +155,7 @@
 #if defined(HAVE_POWL)
 #define shim_powl(x, y)		powl((x), (y))
 #else
-#define shim_powl(x, y)		((long double)pow((x), (y)))
+#define shim_powl(x, y)		((long double)pow((double)(x), (double)(y)))
 #endif
 #endif
 
@@ -165,7 +165,7 @@
 #if defined(HAVE_RINTL)
 #define shim_rintl(x)		rintl((x))
 #else
-#define shim_rintl(x)		((long double)shim_rint((x)))
+#define shim_rintl(x)		((long double)shim_rint((double)(x)))
 #endif
 #endif
 
@@ -187,7 +187,7 @@
 #if defined(HAVE_CLOGL)
 #define shim_clogl(x)		clogl((x))
 #else
-#define shim_clogl(x)		((long double)shim_clog((x)))
+#define shim_clogl(x)		((long double complex)shim_clog((double complex)(x)))
 #endif
 #endif
 
@@ -209,7 +209,7 @@
 #if defined(HAVE_LOGL)
 #define shim_logl(x)		logl((x))
 #else
-#define shim_logl(x)		((long double)shim_log((x)))
+#define shim_logl(x)		((long double)shim_log((double)(x)))
 #endif
 #endif
 
@@ -231,7 +231,7 @@
 #if defined(HAVE_LOGBL)
 #define shim_logbl(x)		logbl((x))
 #else
-#define shim_logbl(x)		((long double)shim_logb((x)))
+#define shim_logbl(x)		((long double)shim_logb((double)(x)))
 #endif
 #endif
 
@@ -250,10 +250,10 @@
 #if defined(HAVE_BUILTIN_LOG10L)
 #define shim_log10l(x)		__builtin_log10l((x))
 #else
-#if defined(HAVE_LOGL10)
+#if defined(HAVE_LOG10L)
 #define shim_log10l(x)		log10l((x))
 #else
-#define shim_log10l(x)		((long double)shim_log10((x)))
+#define shim_log10l(x)		((long double)shim_log10((double)(x)))
 #endif
 #endif
 
@@ -272,10 +272,10 @@
 #if defined(HAVE_BUILTIN_LOG2L)
 #define shim_log2l(x)		__builtin_log2l((x))
 #else
-#if defined(HAVE_LOGL2)
+#if defined(HAVE_LOG2L)
 #define shim_log2l(x)		log2l((x))
 #else
-#define shim_log2l(x)		((long double)shim_log2((x)))
+#define shim_log2l(x)		((long double)shim_log2((double)(x)))
 #endif
 #endif
 
@@ -297,7 +297,7 @@
 #if defined(HAVE_EXPL) && !defined(__HAIKU__)
 #define shim_expl(x)		expl((x))
 #else
-#define shim_expl(x)		((long double)shim_exp((x)))
+#define shim_expl(x)		((long double)shim_exp((double)(x)))
 #endif
 #endif
 
@@ -319,7 +319,7 @@
 #if defined(HAVE_EXP2L) && !defined(__HAIKU__)
 #define shim_exp2l(x)		exp2l((x))
 #else
-#define shim_exp2l(x)		((long double)shim_exp2((x)))
+#define shim_exp2l(x)		((long double)shim_exp2((double)(x)))
 #endif
 #endif
 
@@ -341,7 +341,7 @@
 #if defined(HAVE_EXP10L) && !defined(__HAIKU__)
 #define shim_exp10l(x)		exp10l((x))
 #else
-#define shim_exp10l(x)		((long double)shim_exp10((x)))
+#define shim_exp10l(x)		((long double)shim_exp10((double)(x)))
 #endif
 #endif
 
@@ -375,7 +375,7 @@
 #if defined(HAVE_SQRTL)
 #define shim_cbrtl(x)		cbrtl((x))
 #else
-#define shim_cbrtl(x)		((long double)shim_cbrt((x)))
+#define shim_cbrtl(x)		((long double)shim_cbrt((double)(x)))
 #endif
 #endif
 
@@ -397,7 +397,7 @@
 #if defined(HAVE_CEXPL)
 #define shim_cexpl(x)		cexpl((x))
 #else
-#define	shim_cexpl(x)		((long double)cexp((x)))
+#define	shim_cexpl(x)		((long double complex)cexp((double complex)(x)))
 #endif
 #endif
 
@@ -451,7 +451,7 @@
 #if defined(HAVE_CCOS)
 #define	shim_ccos(x)		ccos((x))
 #else
-#define	shim_ccos(x)		((exp(I * (x)) + exp(-I * (x))) / 2.0)
+#define	shim_ccos(x)		((shim_exp(I * (x)) + shim_exp(-I * (x))) / 2.0)
 #endif
 #endif
 
@@ -461,7 +461,7 @@
 #if defined(HAVE_CCOSF)
 #define	shim_ccosf(x)		ccosf((x))
 #else
-#define	shim_ccosf(x)		shim_ccos((x))
+#define	shim_ccosf(x)		((shim_expf(I * (x)) + shim_expf(-I * (x))) / 2.0)
 #endif
 #endif
 
@@ -471,7 +471,7 @@
 #if defined(HAVE_CCOSL)
 #define	shim_ccosl(x)		ccosl((x))
 #else
-#define	shim_ccosl(x)		((long double complex)shim_ccos((double complex)(x)))
+#define	shim_ccosl(x)		((shim_expl(I * (x)) + shim_expl(-I * (x))) / 2.0)
 #endif
 #endif
 
@@ -493,7 +493,7 @@
 #if defined(HAVE_CSQRTL)
 #define shim_csqrtl(x)		csqrtl((x))
 #else
-#define shim_csqrtl(x)		((long double)shim_csqrt((x)))
+#define shim_csqrtl(x)		((long double)shim_csqrt((double)(x)))
 #endif
 #endif
 
@@ -565,7 +565,7 @@
 #if defined(HAVE_CSIN)
 #define	shim_csin(x)		csin((x))
 #else
-#define	shim_csin(x)		((exp(I * (x)) - exp(-I * (x))) / (2.0 * I))
+#define	shim_csin(x)		((shim_exp(I * (x)) - shim_exp(-I * (x))) / (2.0 * I))
 #endif
 #endif
 
@@ -575,7 +575,7 @@
 #if defined(HAVE_CSINF)
 #define	shim_csinf(x)		csinf((x))
 #else
-#define	shim_csinf(x)		shim_csin((x))
+#define	shim_csinf(x)		((shim_expf(I * (x)) - shim_expf(-I * (x))) / (2.0 * I))
 #endif
 #endif
 
@@ -585,7 +585,7 @@
 #if defined(HAVE_CSINL)
 #define	shim_csinl(x)		csinl((x))
 #else
-#define	shim_csinl(x)		((long double complex)shim_csin((double complex)(x)))
+#define	shim_csinl(x)		((shim_expl(I * (x)) - shim_expl(-I * (x))) / (2.0 * I))
 #endif
 #endif
 
@@ -625,7 +625,7 @@
 #if defined(HAVE_SQRTL)
 #define shim_sqrtl(x)		sqrtl((x))
 #else
-#define shim_sqrtl(x)		((long double)shim_sqrt(x))
+#define shim_sqrtl(x)		((long double)shim_sqrt((double)x))
 #endif
 #endif
 
