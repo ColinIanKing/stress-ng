@@ -233,26 +233,18 @@ static int pr_msg(
 		if (gettimeofday(&tv, NULL) < 0) {
 			strncpy(ts, empty_ts, sizeof(ts));
 		} else {
-			time_t t = tv.tv_sec;
-			struct tm *ptm;
 #if defined(HAVE_LOCALTIME_R)
+			time_t t = tv.tv_sec;
 			struct tm tm;
 
 			(void)localtime_r(&t, &tm);
-			ptm = &tm;
+
+			(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
+				tm.tm_hour, tm.tm_min, tm.tm_sec,
+				(long)tv.tv_usec / 10000);
 #else
-			struct tm *ptm;
-
-			ptm = localtime(&t);
+			strncpy(ts, empty_ts, sizeof(ts));
 #endif
-
-			if (ptm) {
-				(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
-					ptm->tm_hour, ptm->tm_min, ptm->tm_sec,
-					(long)tv.tv_usec / 10000);
-			} else {
-				strncpy(ts, empty_ts, sizeof(ts));
-			}
 		}
 	} else {
 		*ts = '\0';
