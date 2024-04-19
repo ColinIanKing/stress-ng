@@ -29,9 +29,6 @@
 
 #define STRESS_PRIME_PROGRESS_INC_SECS	(60.0)
 
-static sigjmp_buf jmpbuf;
-static bool jumped;
-
 static const stress_help_t help[] = {
 	{ NULL,	"prime N",		"start N workers that find prime numbers" },
 	{ NULL,	"prime-ops N",		"stop after N prime operations" },
@@ -51,17 +48,6 @@ static const stress_prime_method_t stress_prime_methods[] = {
 	{ "pwr2",	STRESS_PRIME_METHOD_PWR2 },
 	{ "pwr10",	STRESS_PRIME_METHOD_PWR10 },
 };
-
-static void MLOCKED_TEXT stress_prime_alarm_handler(int signum)
-{
-	static int count = 0;
-	(void)signum;
-
-	stress_continue_set_flag(false);
-	count++;
-	if (count > 1)
-		siglongjmp(jmpbuf, 1);
-}
 
 /*
  *  stress_set_prime_method()
@@ -104,6 +90,20 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_GMP_H) &&	\
     defined(HAVE_LIB_GMP)
+
+static sigjmp_buf jmpbuf;
+static bool jumped;
+
+static void MLOCKED_TEXT stress_prime_alarm_handler(int signum)
+{
+	static int count = 0;
+	(void)signum;
+
+	stress_continue_set_flag(false);
+	count++;
+	if (count > 1)
+		siglongjmp(jmpbuf, 1);
+}
 
 static int OPTIMIZE3 stress_prime(stress_args_t *args)
 {
