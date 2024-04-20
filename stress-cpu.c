@@ -3228,7 +3228,7 @@ static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
 			/* Bias takes account of the time to do the delay */
 			bias = (t3_wall_clock - t2_wall_clock) - delay;
 		}
-	} while ((rc == EXIT_SUCCESS) || stress_continue(args));
+	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 	if (stress_is_affinity_set() && (args->instance == 0)) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",
