@@ -696,7 +696,7 @@ Many thanks to the following contributors to stress-ng (in alphabetical order):
 
 Abdul Haleem, Aboorva Devarajan, Adriand Martin, Adrian Ratiu,
 Aleksandar N. Kostadinov, Alexander Kanavin, Alexandru Ardelean,
-Alfonso Sánchez-Beato, Allen H, Amit Singh Tomar Andrey Gelman, André Wild,
+Alfonso Sánchez-Beato, Allen H, Amit Singh Tomar, Andrey Gelman, André Wild,
 Anisse Astier, Anton Eliasson, Arjan van de Ven, Baruch Siach,
 Bryan W. Lewis, Camille Constans, Carlos Santos, Christian Ehrhardt,
 Christopher Brown, Chunyu Hu, Danilo Krummrich, Davidson Francis,
@@ -711,4 +711,5 @@ Mayuresh Chitale, Meysam Azad, Mike Koreneff, Munehisa Kamata, Nick Hanley,
 Nikolas Kyx, Paul Menzel, Piyush Goyal, Ralf Ramsauer, Rosen Penev, Rulin Huang,
 Sascha Hauer, Siddhesh Poyarekar, Shoily Rahman, Stian Onarheim,
 Thadeu Lima de Souza Cascardo, Thia Wyrod, Thinh Tran, Tim Gardner, Tim Gates,
-Tim Orling, Tommi Rantala, Witold Baryluk, Yong-Xuan Wang, Zhiyi Sun.
+Tim Orling, Tommi Rantala, Witold Baryluk, Yiwei Lin, Yong-Xuan Wang,
+Zhiyi Sun.
