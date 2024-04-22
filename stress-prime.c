@@ -110,6 +110,7 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 	double rate, t_progress_secs;
 	NOCLOBBER double duration = 0.0;
 	NOCLOBBER size_t digits = 1;
+	NOCLOBBER size_t t_start;
 	uint64_t ops;
 	mpz_t start, value, factorial;
 	int prime_method = STRESS_PRIME_METHOD_INC;
@@ -135,7 +136,8 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 		goto finish;
 	}
 
-	t_progress_secs = stress_time_now() + STRESS_PRIME_PROGRESS_INC_SECS;
+	t_start = stress_time_now();
+	t_progress_secs = t_start + STRESS_PRIME_PROGRESS_INC_SECS;
 
 	if (stress_sighandler(args->name, SIGALRM, stress_prime_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -168,9 +170,13 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 		digits = mpz_sizeinbase(value, 10);
 
 		if (prime_progress && (t2 >= t_progress_secs)) {
+			duration = t2 - t_start;
+			ops = stress_bogo_get(args);
+			rate = (duration > 0.0) ? (3600.0 * (double)ops) / duration : 0.0;
+			
 			t_progress_secs += STRESS_PRIME_PROGRESS_INC_SECS;
-			pr_inf("%s: %" PRIu64 " primes found, largest prime: %zu digits long\n",
-				args->name, stress_bogo_get(args), digits);
+			pr_inf("%s: %" PRIu64 " primes found, largest prime: %zu digits long, (~%.2f primes per hour)\n",
+				args->name, stress_bogo_get(args), digits, rate);
 		}
 	} while (stress_continue(args));
 
