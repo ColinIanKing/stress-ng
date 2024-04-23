@@ -194,8 +194,10 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 		begin_ptr = (uintptr_t)begin;
 		end_ptr = (uintptr_t)end;
 
+#if defined(MADV_PAGEOUT)
 		if (reduce_mode & STRESS_MODE_PAGEOUT)
 			(void)madvise((void *)begin_ptr, len, MADV_PAGEOUT);
+#endif
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_fork_shlibs); i++) {
 			if (strstr(tmppath, stress_fork_shlibs[i])) {
