@@ -502,6 +502,7 @@ do_stress --fifo -1 --fifo-readers 64
 
 do_stress --fork -1 --fork-vm
 do_stress --fork -1 --fork-max 64
+do_stress --fork -1 --fork-pageout
 
 do_stress --forkheavy -1 --forkheavy-mlock
 

@@ -259,6 +259,7 @@ const struct option stress_long_options[] = {
 	{ "fork",		1,	0,	OPT_fork },
 	{ "fork-max",		1,	0,	OPT_fork_max },
 	{ "fork-ops",		1,	0,	OPT_fork_ops },
+	{ "fork-pageout",	0,	0,	OPT_fork_pageout },
 	{ "fork-unmap",		0,	0,	OPT_fork_unmap },
 	{ "fork-vm",		0,	0,	OPT_fork_vm },
 	{ "forkheavy",		1,	0,	OPT_forkheavy },

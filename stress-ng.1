@@ -2505,6 +2505,9 @@ table using high values for \-\-fork\-max and \-\-fork.
 .B \-\-fork\-ops N
 stop fork stress workers after N bogo operations.
 .TP
+.B \-\-fork\-pageout
+enable force paging-out of memory resident pages in fork stressor instances.
+.TP
 .B \-\-fork\-unmap
 attempt to unmap unused non-memory resident shared library pages
 to try and reduced anonymous vma copying. This is an ugly hack for

@@ -36,6 +36,7 @@ static const stress_help_t fork_help[] = {
 	{ "f N","fork N",	"start N workers spinning on fork() and exit()" },
 	{ NULL,	"fork-max P",	"create P forked processes per iteration, default is 1" },
 	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
+	{ NULL, "fork-pageout",	"force pageout memory resident pages" },
 	{ NULL,	"fork-unmap",	"forcibly unmap unused shared library pages (dangerous)" },
 	{ NULL, "fork-vm",	"enable extra virtual memory pressure" },
 	{ NULL,	NULL,		NULL }
@@ -51,8 +52,10 @@ static const stress_help_t vfork_help[] = {
 #define STRESS_FORK	(0)
 #define STRESS_VFORK	(1)
 
-#define STRESS_REDUCE_MADVISE	(0)
-#define STRESS_REDUCE_REMOVE	(1)
+#define STRESS_MODE_FORK_VM	(1)
+#define STRESS_MODE_PAGEOUT	(2)
+#define STRESS_MODE_UNMAP	(4)
+#define STRESS_MODE_DONTNEED	(8)
 
 /*
  *  stress_fork_shim_exit()
@@ -139,7 +142,7 @@ static const char *stress_fork_shlibs[] = {
  *	and we expect _exit() to be called at the end of the
  *	parent and child processes.
  */
-static void stress_fork_maps_reduce(const size_t page_size, const int mode)
+static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mode)
 {
 	char buffer[4096];
 	FILE *fp;
@@ -192,10 +195,13 @@ static void stress_fork_maps_reduce(const size_t page_size, const int mode)
 		end_ptr = (uintptr_t)end;
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_fork_shlibs); i++) {
+			if (reduce_mode & STRESS_MODE_PAGEOUT) {
+				(void)madvise((void *)begin_ptr, len, MADV_PAGEOUT);
+			}
 			if (strstr(tmppath, stress_fork_shlibs[i])) {
-				if (mode == STRESS_REDUCE_MADVISE) {
+				if (reduce_mode & STRESS_MODE_DONTNEED) {
 					(void)madvise((void *)begin_ptr, len, MADV_DONTNEED);
-				} else if (mode == STRESS_REDUCE_REMOVE) {
+				} else if (reduce_mode & STRESS_MODE_UNMAP) {
 					unsigned char *vec;
 					uint8_t *ptr, *unmap_start = NULL;
 					size_t unmap_len = 0, j;
@@ -273,6 +279,15 @@ static int stress_set_fork_vm(const char *opt)
 }
 
 /*
+ *  stress_set_fork_pageout()
+ *	set fork-pageout flag on
+ */
+static int stress_set_fork_pageout(const char *opt)
+{
+	return stress_set_setting_true("fork-pageout", opt);
+}
+
+/*
  *  stress_set_vfork_max()
  *	set maximum number of vforks allowed
  */
@@ -300,8 +315,7 @@ static int stress_fork_fn(
 	stress_args_t *args,
 	const int which,
 	const uint32_t fork_max,
-	const bool fork_unmap,
-	const bool fork_vm)
+	const int mode)
 {
 	static fork_info_t info[MAX_FORKS] ALIGN64;
 	NOCLOBBER uint32_t j;
@@ -312,10 +326,16 @@ static int stress_fork_fn(
 
 	stress_set_oom_adjustment(args, true);
 #if defined(__linux__)
-	if (fork_unmap)
-		stress_fork_maps_reduce(args->page_size, STRESS_REDUCE_MADVISE);
+	{
+		int reduce_mode = mode & STRESS_MODE_PAGEOUT;
+
+		if (mode & STRESS_MODE_UNMAP)
+			reduce_mode |= STRESS_MODE_DONTNEED;
+
+		stress_fork_maps_reduce(args->page_size, reduce_mode);
+	}
 #else
-	(void)fork_unmap;
+	(void)mode;
 #endif
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
@@ -358,7 +378,7 @@ static int stress_fork_fn(
 				if (n & 1)
 					stress_fork_shim_exit(0);
 
-				if (fork_vm) {
+				if (mode & STRESS_MODE_FORK_VM) {
 					int flags = 0;
 
 					switch (j++ & 7) {
@@ -467,9 +487,15 @@ static int stress_fork_fn(
 			break;
 #endif
 #if defined(__linux__)
-		if (fork_unmap && !remove_reduced) {
-			stress_fork_maps_reduce(args->page_size, STRESS_REDUCE_REMOVE);
-			remove_reduced = true;
+		{
+			int reduced_mode = mode & STRESS_MODE_PAGEOUT;
+			if ((mode & STRESS_MODE_UNMAP) && !remove_reduced) {
+				reduced_mode |= STRESS_MODE_UNMAP;
+				remove_reduced = true;
+			}
+			if (reduced_mode)
+				stress_fork_maps_reduce(args->page_size, reduced_mode);
+
 		}
 #endif
 	} while (stress_continue(args));
@@ -484,12 +510,17 @@ static int stress_fork_fn(
 static int stress_fork(stress_args_t *args)
 {
 	uint32_t fork_max = DEFAULT_FORKS;
-	int rc;
-	bool fork_vm = false, fork_unmap = false;
+	int rc, mode = 0;
+	bool fork_vm = false, fork_unmap = false, fork_pageout = false;
 	pid_t pid;
 
 	(void)stress_get_setting("fork-unmap", &fork_unmap);
+	(void)stress_get_setting("fork-pageout", &fork_pageout);
 	(void)stress_get_setting("fork-vm", &fork_vm);
+
+	mode = (fork_pageout ? STRESS_MODE_PAGEOUT : 0) |
+	       (fork_unmap ? STRESS_MODE_UNMAP : 0) |
+	       (fork_vm ? STRESS_MODE_FORK_VM : 0);
 
 	if (!stress_get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -498,7 +529,7 @@ static int stress_fork(stress_args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
-	if (fork_vm && fork_unmap) {
+	if ((mode & STRESS_MODE_FORK_VM) && fork_unmap) {
 		pr_inf("%s: --fork-vm and --fork-unmap cannot be enabled "
 			"at the same time, disabling --fork-unmap option\n",
 			args->name);
@@ -511,7 +542,7 @@ static int stress_fork(stress_args_t *args)
 	if (fork_unmap) {
 		pid = fork();
 		if (pid == 0) {
-			rc = stress_fork_fn(args, STRESS_FORK, fork_max, true, fork_vm);
+			rc = stress_fork_fn(args, STRESS_FORK, fork_max, mode);
 			stress_fork_shim_exit(rc);
 		} else if (pid < 0) {
 			rc = EXIT_FAILURE;
@@ -526,7 +557,7 @@ static int stress_fork(stress_args_t *args)
 			}
 		}
 	} else {
-		rc = stress_fork_fn(args, STRESS_FORK, fork_max, false, fork_vm);
+		rc = stress_fork_fn(args, STRESS_FORK, fork_max, mode);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -554,7 +585,7 @@ static int stress_vfork(stress_args_t *args)
 
 	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, false, false);
+	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, 0);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -563,6 +594,7 @@ STRESS_PRAGMA_POP
 
 static const stress_opt_set_func_t fork_opt_set_funcs[] = {
 	{ OPT_fork_max,		stress_set_fork_max },
+	{ OPT_fork_pageout,	stress_set_fork_pageout },
 	{ OPT_fork_unmap,	stress_set_fork_unmap },
 	{ OPT_fork_vm,		stress_set_fork_vm },
 	{ 0,			NULL }
