@@ -173,7 +173,6 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 			duration = t2 - t_start;
 			ops = stress_bogo_get(args);
 			rate = (duration > 0.0) ? (3600.0 * (double)ops) / duration : 0.0;
-			
 			t_progress_secs += STRESS_PRIME_PROGRESS_INC_SECS;
 			pr_inf("%s: %" PRIu64 " primes found, largest prime: %zu digits long, (~%.2f primes per hour)\n",
 				args->name, stress_bogo_get(args), digits, rate);
