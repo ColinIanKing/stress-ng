@@ -951,6 +951,7 @@ const struct option stress_long_options[] = {
 	{ "stream-ops",		1,	0,	OPT_stream_ops },
 	{ "swap",		1,	0,	OPT_swap },
 	{ "swap-ops",		1,	0,	OPT_swap_ops },
+	{ "swap-self",		0,	0,	OPT_swap_self },
 	{ "switch",		1,	0,	OPT_switch },
 	{ "switch-freq",	1,	0,	OPT_switch_freq },
 	{ "switch-method",	1,	0,	OPT_switch_method },

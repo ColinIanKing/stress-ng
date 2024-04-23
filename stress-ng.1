@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 April 2024"
+.TH STRESS-NG 1 "23 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7149,6 +7149,9 @@ CAP_SYS_ADMIN to run.
 .TP
 .B \-\-swap\-ops N
 stop the swap workers after N swapon/swapoff iterations.
+.TP
+.B \-\-swap\-self
+attempt to swap out pages of the stressor.
 .RE
 .TP
 .B Context switching between mutually tied processes stressor

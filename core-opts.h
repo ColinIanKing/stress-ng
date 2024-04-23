@@ -1303,6 +1303,7 @@ typedef enum {
 
 	OPT_swap,
 	OPT_swap_ops,
+	OPT_swap_self,
 
 	OPT_switch_ops,
 	OPT_switch_freq,

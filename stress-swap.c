@@ -38,6 +38,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"swap N",	"start N workers exercising swapon/swapoff" },
 	{ NULL,	"swap-ops N",	"stop after N swapon/swapoff operations" },
+	{ NULL,	"swap-self",	"attempt to swap stressors pages out" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -100,6 +101,77 @@ static int stress_swap_supported(const char *name)
 	}
 	return 0;
 }
+
+/*
+ *  stress_set_swap_self()
+ *      set swap-self option
+ */
+static int stress_set_swap_self(const char *opt)
+{
+        return stress_set_setting_true("swap-self", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_swap_self,	stress_set_swap_self },
+	{ 0,			NULL },
+};
+
+#if defined(MADV_PAGEOUT) &&	\
+    defined(__linux__)
+/*
+ *  stress_swap_self()
+ *	swap pages out of process
+ */
+static void stress_swap_self(const size_t page_size)
+{
+	char buffer[4096];
+	FILE *fp;
+	const uintmax_t max_addr = UINTMAX_MAX - (UINTMAX_MAX >> 1);
+
+	fp = fopen("/proc/self/maps", "r");
+	if (!fp)
+		return;
+
+	/*
+	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
+	 */
+	while (fgets(buffer, sizeof(buffer), fp)) {
+		uint64_t begin, end, len, offset;
+		char tmppath[1024];
+		char prot[6];
+
+		tmppath[0] = '\0';
+		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		           " %5s %" SCNx64 " %*x:%*x %*d %1023s", &begin, &end, prot, &offset, tmppath) != 5) {
+			continue;
+		}
+#if 0
+		if ((prot[2] != 'x') && (prot[1] != 'w'))
+			continue;
+		if (tmppath[0] == '\0')
+			continue;
+#endif
+		/* Avoid VDSO */
+		if (strncmp("[v", tmppath, 2) == 0)
+			continue;
+
+		if ((begin > UINTPTR_MAX) || (end > UINTPTR_MAX))
+			continue;
+
+		/* Ignore bad ranges */
+		if ((begin >= end) || (begin == 0) || (end == 0) || (end >= max_addr))
+			continue;
+
+		len = end - begin;
+		/* Skip invalid ranges */
+		if ((len < page_size) || (len > 0x80000000UL))
+			continue;
+
+		(void)madvise((void *)(uintptr_t)begin, len, MADV_PAGEOUT);
+	}
+	(void)fclose(fp);
+}
+#endif
 
 static int32_t stress_swap_zero(
 	stress_args_t *args,
@@ -262,8 +334,11 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	int32_t max_swap_pages;
 	const size_t page_size = args->page_size;
 	double swapped_percent;
+	bool swap_self = false;
 
 	(void)context;
+
+	(void)stress_get_setting("swap-self", &swap_self);
 
 	page = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -383,6 +458,12 @@ static int stress_swap_child(stress_args_t *args, void *context)
 			goto tidy_close;
 		}
 
+#if defined(MADV_PAGEOUT) &&	\
+    defined(__linux__)
+		if (swap_self)
+			stress_swap_self(args->page_size);
+#endif
+
 		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (ptr != MAP_FAILED) {
@@ -390,6 +471,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 			const char *p_end = ptr + mmap_size;
 			char *p;
 
+			(void)shim_madvise(ptr, mmap_size, MADV_WILLNEED);
 			/* Add simple check value to start of each page */
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
 				uintptr_t *up = (uintptr_t *)(uintptr_t)p;
@@ -478,6 +560,7 @@ stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -485,6 +568,7 @@ stressor_info_t stress_swap_info = {
 stressor_info_t stress_swap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/swap.h or swap() system call"
