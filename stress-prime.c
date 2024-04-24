@@ -22,6 +22,10 @@
 #include <gmp.h>
 #endif
 
+#if defined(HAVE_MPFR_H)
+#include <mpfr.h>
+#endif
+
 #define STRESS_PRIME_METHOD_FACTORIAL	(0)
 #define STRESS_PRIME_METHOD_INC		(1)
 #define STRESS_PRIME_METHOD_PWR2	(2)
@@ -34,6 +38,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"prime-ops N",		"stop after N prime operations" },
 	{ NULL, "prime-method M",	"method of searching for next prime [ factorial | inc | pwr2 | pwr10 ]" },
 	{ NULL,	"prime-progress",	"show prime progress every 60 seconds (just first stressor instance)" },
+	{ NULL,	"prime-start N",	"value N from where to start computing primes" },
 	{ NULL,	NULL,		 	NULL }
 };
 
@@ -82,9 +87,19 @@ static int stress_set_prime_progress(const char *opt)
 	return stress_set_setting_true("prime-progress", opt);
 }
 
+/*
+ *  stress_set_prime_start
+ *	define start value
+ */
+static int stress_set_prime_start(const char *opt)
+{
+	return stress_set_setting("prime-start", TYPE_ID_STR, opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_prime_method,	stress_set_prime_method },
 	{ OPT_prime_progress,	stress_set_prime_progress },
+	{ OPT_prime_start,	stress_set_prime_start },
 	{ 0,			NULL },
 };
 
@@ -105,21 +120,96 @@ static void MLOCKED_TEXT stress_prime_alarm_handler(int signum)
 		siglongjmp(jmpbuf, 1);
 }
 
+/*
+ *  stress_prime_start()
+ *	parse prime start value
+ */
+static int stress_prime_start(char *prime_start, mpz_t start)
+{
+	/* Try to parse as a mpz integer */
+	if (mpz_set_str(start, prime_start, 0) == 0) {
+		mpz_t zero;
+		int ret;
+
+		mpz_init(zero);
+		mpz_set_ui(zero, 0);
+
+		/* Ensure it's positive */
+		ret = mpz_cmp(zero, start);
+		mpz_clear(zero);
+		if (ret > 0)
+			return -1;
+	} else {
+#if defined(HAVE_MPFR_H)
+		/*
+		 *  Try as float and covert to integer
+		 */
+		mpfr_t start_mpfr, zero;
+		char *str = NULL;
+		int ret;
+
+		mpfr_init(start_mpfr);
+
+		/* Try to parse as a mpfr floating point value, e.g 1e20 */
+		if (mpfr_set_str(start_mpfr, prime_start, 0, MPFR_RNDZ) != 0) {
+			mpfr_clear(start_mpfr);
+			return -1;
+		}
+
+		mpfr_init(zero);
+		mpfr_set_ui(zero, 0, MPFR_RNDZ);
+
+		/* Ensure it's positive */
+		ret = mpfr_cmp(zero, start_mpfr);
+		mpfr_clear(zero);
+		if (ret > 0)
+			return -1;
+
+		/* Covert to string */
+		if (mpfr_asprintf(&str, "%0.Rf", start_mpfr) < 1)
+			return -1;
+		/* Covert string to mpz integer */
+		ret = mpz_set_str(start, str, 0);
+		mpfr_free_str(str);
+		if (ret != 0)
+			return -1;
+#else
+		return -1;
+#endif
+	}
+	return 0;
+}
+
 static int OPTIMIZE3 stress_prime(stress_args_t *args)
 {
 	double rate, t_progress_secs;
 	NOCLOBBER double duration = 0.0;
-	NOCLOBBER size_t digits = 1;
+	NOCLOBBER size_t digits = 0;
 	NOCLOBBER size_t t_start;
 	uint64_t ops;
 	mpz_t start, value, factorial;
 	int prime_method = STRESS_PRIME_METHOD_INC;
 	bool prime_progress = false;
+	char *prime_start = NULL;
+
+	mpz_inits(start, value, factorial, NULL);
 
 	(void)stress_get_setting("prime-method", &prime_method);
 	(void)stress_get_setting("prime-progress", &prime_progress);
+	(void)stress_get_setting("prime-start", &prime_start);
 
-	mpz_inits(start, value, factorial, NULL);
+	if (prime_start) {
+		if (stress_prime_start(prime_start, start) < 0) {
+			pr_err("%s: invalid --prime-start value '%s', aborting\n",
+				args->name, prime_start);
+			mpz_clears(start, value, factorial, NULL);
+			return EXIT_FAILURE;
+		}
+	} else {
+		mpz_set_ui(start, 1);
+	}
+
+	mpz_set_ui(factorial, 2);
 
 	/* only report progress on instance 0 */
 	if (args->instance > 0)
@@ -127,8 +217,6 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	mpz_set_ui(start, 1);
-	mpz_set_ui(factorial, 2);
 
 	jumped = false;
 	if (sigsetjmp(jmpbuf, 1) != 0) {

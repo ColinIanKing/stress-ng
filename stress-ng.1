@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 April 2024"
+.TH STRESS-NG 1 "24 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5607,6 +5607,10 @@ stop after finding N prime numbers.
 show the number of primes found and length of largest prime found. This is displayed
 either every 60 seconds or more than 60 seconds if it takes longer to find
 the next prime.
+.TP
+.B \-\-prime\-start N
+start the prime search from value N. The value may be expressed as an integer value
+or as a floating point value (e.g. 1e200 to express a very large starting value).
 .RE
 .TP
 .B Priority inversion stressor
