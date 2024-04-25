@@ -8583,7 +8583,9 @@ stop after N bogo wait operations.
 .B \-\-waitcpu N
 start N workers that exercise processor wait instructions. For x86 these
 are pause, tpause and umwait (when available) and nop. For ARM the yield
-instruction is used. For other architectures currently nop instructions
+instruction is used. For PPC64 the yield, mdoio and mdooom instructions
+are used. For RISC-V the pause instruction is used. For Loong64 the
+dbar instruction is used. For other architectures no-op instructions
 are used.
 .TP
 .B \-\-waitcpu\-ops N
