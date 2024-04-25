@@ -81,7 +81,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 	double duration[JUDY_OP_MAX], count[JUDY_OP_MAX];
 	size_t k;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_FAILURE;
 
 	static const char * const judy_ops[] = {
 		"insert",
@@ -140,7 +140,6 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 					pr_fail("%s: element %" PRIu32
 						"could not be found\n",
 						args->name, (uint32_t)idx);
-					rc = EXIT_FAILURE;
 					goto abort;
 				} else {
 					if (UNLIKELY((uint32_t)*pvalue != i)) {
@@ -149,7 +148,6 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 							", expecting %" PRIu32 "\n",
 							args->name, (uint32_t)idx,
 							(uint32_t)*pvalue, (uint32_t)i);
-						rc = EXIT_FAILURE;
 						goto abort;
 					}
 				}
@@ -167,7 +165,6 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 			if (UNLIKELY(verify && (rc != 1))) {
 				pr_fail("%s: element %" PRIu32 " could not "
 					"be found\n", args->name, (uint32_t)idx);
-				rc = EXIT_FAILURE;
 				goto abort;
 			}
 		}
@@ -177,6 +174,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+	rc = EXIT_SUCCESS;
 abort:
 	for (k = 0; k < JUDY_OP_MAX; k++) {
 		char msg[64];
