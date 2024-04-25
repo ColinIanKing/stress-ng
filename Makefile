@@ -17,10 +17,39 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.17.07
 #
 # Codename "trusty task trasher"
 #
+VERSION=0.17.07
+
+#
+# Determine supported toolchains
+#
+COMPILER = cc
+ifneq ($(shell $(CC) -v 2>&1 | grep version | grep gcc),)
+COMPILER = gcc
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep version | grep icc),)
+COMPILER = icc
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep "Portable C Compiler"),)
+COMPILER = pcc
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep "tcc"),)
+COMPILER = tcc
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep version | grep clang),)
+COMPILER = clang
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep oneAPI | grep Compiler),)
+COMPILER = icx
+endif
+ifneq ($(shell $(CC) -v 2>&1 | grep scan-build),)
+COMPILER = scan-build
+endif
+ifneq ($(basename $(CC) | grep ccc-analyzer),)
+COMPILER = scan-build
+endif
 
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
@@ -34,6 +63,8 @@ override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 #
 VNNI_OFLAGS_REMOVE=-O0 -O1 -Og
 VNNI_CFLAGS += $(filter-out $(VNNI_OFLAGS_REMOVE),$(CFLAGS))
+
+
 
 #
 # Default -O2 if optimization level not defined
@@ -87,7 +118,7 @@ endif
 #
 # Optimization flags
 #
-ifeq ($(findstring icc,$(CC)),)
+ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-fipa-pta,$(cc_supports_flag))
 endif
 #
@@ -135,14 +166,14 @@ PRE_Q=@#
 endif
 
 ifneq ($(PRESERVE_CFLAGS),1)
-ifeq ($(findstring icc,$(CC)),icc)
+ifeq ($(findstring icc,$(COMPILER)),icc)
 override CFLAGS += -no-inline-max-size -no-inline-max-total-size
 override CFLAGS += -axAVX,CORE-AVX2,CORE-AVX-I,CORE-AVX512,SSE2,SSE3,SSSE3,SSE4.1,SSE4.2,SANDYBRIDGE,SKYLAKE,SKYLAKE-AVX512,TIGERLAKE,SAPPHIRERAPIDS
 override CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias -fma -qoverride-limits
 endif
 endif
 
-#ifeq ($(findstring clang,$(CC)),clang)
+#ifeq ($(findstring clang,$(COMPILER)),clang)
 #override CFLAGS += -Weverything
 #endif
 
@@ -656,6 +687,7 @@ OBJS += stress-eigen-ops.o
 OBJS += $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
+
 
 all: config.h stress-ng
 
