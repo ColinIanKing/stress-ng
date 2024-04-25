@@ -71,7 +71,7 @@ static int stress_set_forkheavy_mlock(const char *opt)
 }
 
 /*
- *  stress_set_forkeheavy_allocs()
+ *  stress_set_forkheavy_allocs()
  *	set maximum number of resources allocated
  */
 static int stress_set_forkheavy_allocs(const char *opt)
@@ -85,7 +85,7 @@ static int stress_set_forkheavy_allocs(const char *opt)
 }
 
 /*
- *  stress_set_forkeheavy_procs()
+ *  stress_set_forkheavy_procs()
  *	set maximum number of processes allowed
  */
 static int stress_set_forkheavy_procs(const char *opt)
