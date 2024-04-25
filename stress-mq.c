@@ -420,7 +420,7 @@ again:
 					(void)mq_receive(mq, (char *)&msg, (size_t)0, &prio);
 				}
 			}
-			_exit(EXIT_SUCCESS);
+			_exit(rc);
 		}
 	} else {
 		int attr_count = 0;
