@@ -138,7 +138,7 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		struct rb_node *tn, node;
-		char *ptr, *func_name, *num = "0";
+		char *ptr, *func_name, *num;
 		int64_t count;
 		double time_us;
 
