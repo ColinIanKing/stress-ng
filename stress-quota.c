@@ -101,7 +101,7 @@ static int do_quotactl_call(
 	const caddr_t addr)
 {
 	static bool have_quotactl_fd = true;
-	int ret, fd;
+	int ret, fd, saved_errno;
 
 	/*
 	 *  quotactl_fd() failed on ENOSYS or random choice
@@ -125,7 +125,9 @@ static int do_quotactl_call(
 		(void)close(fd);
 		goto do_quotactl;
 	}
+	saved_errno = errno;
 	(void)close(fd);
+	errno = saved_errno;
 	return ret;
 
 do_quotactl:

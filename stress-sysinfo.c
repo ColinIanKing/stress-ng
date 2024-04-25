@@ -151,9 +151,10 @@ static int stress_sysinfo(stress_args_t *args)
 #endif
 
 				ret = fstatfs(fd, &statfs_buf);
-				(void)close(fd);
-				if (UNLIKELY((ret < 0) && (errno == ENOENT)))
+				if (UNLIKELY((ret < 0) && (errno == ENOENT))) {
+					(void)close(fd);
 					continue;
+				}
 				if (UNLIKELY((ret < 0) && (verify))) {
 					if ((errno != ENOSYS) &&
 					    (errno != EOVERFLOW) &&
@@ -164,9 +165,12 @@ static int stress_sysinfo(stress_args_t *args)
 							args->name, mnts[i], errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
+						(void)close(fd);
 						break;
 					}
 				}
+				(void)close(fd);
+
 				/*
 				 *  Exercise invalid fd
 				 */

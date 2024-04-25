@@ -165,8 +165,6 @@ redo:
 
 		ptr = (uint8_t *)mmap(NULL, 1, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
-		(void)close(fd);
-
 		if (ptr == MAP_FAILED) {
 			if ((errno == EAGAIN) ||
 			    (errno == ENOMEM) ||
@@ -174,9 +172,11 @@ redo:
 				goto next;
 			pr_err("%s: mmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			(void)close(fd);
 			break;
 
 		}
+		(void)close(fd);
 		t = stress_time_now();
 		*ptr = 0;	/* Cause the page fault */
 		duration += stress_time_now() - t;

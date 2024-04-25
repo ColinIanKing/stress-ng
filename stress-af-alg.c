@@ -264,32 +264,43 @@ retry_bind:
 
 	for (j = 32; j < DATA_LEN; j += 32) {
 		double t, delta;
+		ssize_t ret;
 
 		if (!stress_continue(args))
 			break;
 
 		t = stress_time_now();
-		if (send(fd, input, j, 0) != (ssize_t)j) {
-			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
-				continue;
-			if (errno == EINVAL) {
-				stress_af_alg_ignore(args, info);
-				break;
+		ret = send(fd, input, j, 0);
+		if (ret != (ssize_t)j) {
+			if (ret < 0) {
+				if ((errno == ENOKEY) || (errno == ENOENT))
+					continue;
+				if (errno == EINVAL) {
+					stress_af_alg_ignore(args, info);
+					break;
+				}
+				pr_fail("%s: %s: send failed: errno=%d (%s)\n",
+						args->name, info->name,
+						errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto err_close;
 			}
-			pr_fail("%s: %s: send failed: errno=%d (%s)\n",
+			/* Silently ignore incorrectly sized data */
+			continue;
+		}
+		ret = recv(fd, digest, (size_t)digest_size, MSG_WAITALL);
+		if (ret != digest_size) {
+			if (ret < 0) {
+				if (errno == EOPNOTSUPP)
+					goto err_abort;
+				pr_fail("%s: %s: recv failed: errno=%d (%s)\n",
 					args->name, info->name,
 					errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto err_close;
-		}
-		if (recv(fd, digest, (size_t)digest_size, MSG_WAITALL) != digest_size) {
-			if (errno == EOPNOTSUPP)
-				goto err_abort;
-			pr_fail("%s: %s: recv failed: errno=%d (%s)\n",
-				args->name, info->name,
-				errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto err_close;
+				rc = EXIT_FAILURE;
+				goto err_close;
+			}
+			/* Silently ignore incorrectly sized data */
+			continue;
 		}
 		delta = stress_time_now() - t;
 		if (delta > 0.0) {
@@ -465,6 +476,7 @@ retry_bind:
 		struct af_alg_iv *iv;	/* Initialisation Vector */
 		struct iovec iov;
 		double t;
+		ssize_t ret;
 
 		if (!stress_continue(args))
 			break;
@@ -522,12 +534,19 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
-		if (recv(fd, output, DATA_LEN, 0) != DATA_LEN) {
-			if (errno == EOPNOTSUPP)
-				goto err_abort;
-			pr_fail("%s: %s: read failed: errno=%d (%s)\n",
-				args->name, info->name,
-				errno, strerror(errno));
+		ret = recv(fd, output, DATA_LEN, 0);
+		if (ret != DATA_LEN) {
+			if (ret < 0) {
+				if (errno == EOPNOTSUPP)
+					goto err_abort;
+				pr_fail("%s: %s: read failed: errno=%d (%s)\n",
+					args->name, info->name,
+					errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto err_close;
+			}
+			pr_fail("%s: %s: read failed, unexpected return length\n",
+				args->name, info->name);
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}

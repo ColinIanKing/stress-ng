@@ -155,7 +155,7 @@ static int stress_chroot_test1(chroot_shared_data_t *data)
 	 * We check for error, ENOENT can happen on termination
 	 * so ignore this error
 	 */
-	if ((ret1 < 0) && (errno != ENOENT)) {
+	if ((ret1 < 0) && (errno1 != ENOENT)) {
 		pr_fail("%s: chroot(\"%s\"), errno=%d (%s)\n",
 			data->args->name, temppath, errno1, strerror(errno1));
 		return EXIT_FAILURE;

@@ -142,7 +142,7 @@ retry:
 				(void)close(fds[i]);
 
 				/* Run out of resources? */
-				if (errno == EADDRNOTAVAIL)
+				if (save_errno == EADDRNOTAVAIL)
 					break;
 
 				(void)shim_usleep(10000);
@@ -150,9 +150,8 @@ retry:
 				if (retries > 100) {
 					/* Give up.. */
 					stress_sockmany_cleanup(fds, i);
-					errno = save_errno;
 					pr_fail("%s: connect failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+						args->name, save_errno, strerror(save_errno));
 					return EXIT_FAILURE;
 				}
 				goto retry;

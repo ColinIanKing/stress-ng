@@ -326,25 +326,29 @@ static int stress_dup(stress_args_t *args)
 			if (!stress_continue(args))
 				break;
 
-			t = stress_time_now();
-			fds[n] = dup2(fds[0], fds[n]);
-			if (LIKELY(fds[n] >= 0)) {
-				dup_duration += stress_time_now() - t;
-				dup_count += 1;
-			} else {
-				break;
+			if (fds[n] > -1) {
+				t = stress_time_now();
+				fds[n] = dup2(fds[0], fds[n]);
+				if (LIKELY(fds[n] >= 0)) {
+					dup_duration += stress_time_now() - t;
+					dup_count += 1;
+				} else {
+					break;
+				}
 			}
 
 			if (!stress_continue(args))
 				break;
 
 			/* dup2 on the same fd should be a no-op */
-			tmp = dup2(fds[n], fds[n]);
-			if (UNLIKELY(tmp != fds[n])) {
-				pr_fail("%s: dup2 failed with same fds, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-				break;
+			if (fds[n] > -1) {
+				tmp = dup2(fds[n], fds[n]);
+				if (UNLIKELY(tmp != fds[n])) {
+					pr_fail("%s: dup2 failed with same fds, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 			/* do an invalid dup2 on an invalid fd */
 			tmp = dup2(fds[0], bad_fd);

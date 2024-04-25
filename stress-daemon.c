@@ -209,13 +209,13 @@ again:
 
 			n = read(fds[0], &rc, sizeof(rc));
 			if (n < (ssize_t)sizeof(rc)) {
-				(void)close(fds[0]);
 				if (errno != EINTR) {
 					pr_dbg("%s: read failed: "
 						"errno=%d (%s)\n",
 						args->name,
 						errno, strerror(errno));
 				}
+				(void)close(fds[0]);
 				break;
 			} else {
 				if (rc != EXIT_SUCCESS)

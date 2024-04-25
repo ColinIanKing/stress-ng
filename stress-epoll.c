@@ -986,11 +986,11 @@ static void NORETURN epoll_server(
 	} while (stress_continue(args));
 
 die_close:
-	if (efd != -1)
+	if (efd > -1)
 		(void)close(efd);
-	if (efd2 != -1)
+	if (efd2 > -1)
 		(void)close(efd2);
-	if (sfd != -1)
+	if (sfd > -1)
 		(void)close(sfd);
 die:
 #if defined(AF_UNIX) &&		\

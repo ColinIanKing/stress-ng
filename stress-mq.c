@@ -153,6 +153,8 @@ static int stress_mq(stress_args_t *args)
 
 	if (sz > max_sz)
 		sz = max_sz;
+	if (sz <= 0)
+		sz = 1;
 	/*
 	 *  Determine a workable MQ size if we can't determine it from /proc
 	 */
