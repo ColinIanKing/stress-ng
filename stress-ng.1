@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "24 April 2024"
+.TH STRESS-NG 1 "25 April 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -8804,6 +8804,10 @@ many workers are specified, thus always ensuring rapid context switching.
 .TP
 .B \-\-yield\-ops N
 stop yield stress workers after N sched_yield(2) bogo operations.
+.TP
+.B \-\-yield\-procs N
+specify the number of child processes to run per stressor instance. The
+default is 2, range 1 to 65536.
 .RE
 .TP
 .B /dev/zero stressor

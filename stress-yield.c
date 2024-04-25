@@ -22,10 +22,33 @@
 
 #include <sched.h>
 
+#define MIN_YIELD_PROCS	(1)
+#define MAX_YIELD_PROCS	(65536)
+
 static const stress_help_t help[] = {
-	{ "y N", "yield N",	"start N workers doing sched_yield() calls" },
-	{ NULL,	 "yield-ops N",	"stop after N bogo yield operations" },
-	{ NULL,	 NULL,		NULL }
+	{ "y N", "yield N",	  "start N workers doing sched_yield() calls" },
+	{ NULL,	 "yield-ops N",	  "stop after N bogo yield operations" },
+	{ NULL,	 "yield-procs N", "specify number of yield processes per stressor" },
+	{ NULL,	 NULL,		  NULL }
+};
+
+/*
+ *  stress_set_yield_procs()
+ *	set maximum number of processes allowed
+ */
+static int stress_set_yield_procs(const char *opt)
+{
+	uint32_t yield_procs;
+
+	yield_procs = stress_get_uint32(opt);
+	stress_check_range("yield-procs", (uint64_t)yield_procs,
+		MIN_YIELD_PROCS, MAX_YIELD_PROCS);
+	return stress_set_setting("yield-procs", TYPE_ID_UINT32, &yield_procs);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_yield_procs,	stress_set_yield_procs },
+	{ 0,			NULL }
 };
 
 #if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
@@ -42,13 +65,15 @@ static int stress_yield(stress_args_t *args)
 	uint64_t max_ops_per_yielder;
 	int32_t cpus = stress_get_processors_configured();
 	const uint32_t instances = args->num_instances;
-	uint32_t yielders = 2;
+	uint32_t yielders = 2, yield_procs = 0;
 	double count, duration, ns;
 #if defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 #endif
 	pid_t *pids;
 	size_t i;
+
+	(void)stress_get_setting("yield-procs", &yield_procs);
 
 #if defined(HAVE_SCHED_GETAFFINITY)
 	/*
@@ -71,25 +96,29 @@ static int stress_yield(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	/*
-	 *  Ensure we always have at least 2 yielders per
-	 *  CPU available to force context switching on yields
-	 */
-	if (cpus > 0) {
-		cpus *= 2;
-		yielders = cpus / instances;
-		if (yielders < 1)
-			yielders = 1;
-		if (!args->instance) {
-			/* residual may be -ve, ensure it is signed */
-			int32_t residual = cpus - (int32_t)(yielders * instances);
-
-			if (residual > 0)
-				yielders += residual;
+	if (yield_procs == 0) {
+		/*
+		 *  Ensure we always have at least 2 yielders per
+		 *  CPU available to force context switching on yields
+		 */
+		if (cpus > 0) {
+			cpus *= 2;
+			yielders = cpus / instances;
+			if (yielders < 1)
+				yielders = 1;
+			if (!args->instance) {
+				/* residual may be -ve, ensure it is signed */
+				int32_t residual = cpus - (int32_t)(yielders * instances);
+	
+				if (residual > 0)
+					yielders += residual;
+			}
 		}
+	} else {
+		yielders = yield_procs;
 	}
-
 	max_ops_per_yielder = args->max_ops / yielders;
+
 	pids = calloc(yielders, sizeof(*pids));
 	if (!pids) {
 		pr_inf_skip("%s: calloc failed allocating %" PRIu32
@@ -176,6 +205,7 @@ static int stress_yield(stress_args_t *args)
 stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -183,6 +213,7 @@ stressor_info_t stress_yield_info = {
 stressor_info_t stress_yield_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without scheduling support"
