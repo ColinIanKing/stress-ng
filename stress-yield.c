@@ -108,8 +108,8 @@ static int stress_yield(stress_args_t *args)
 				yielders = 1;
 			if (!args->instance) {
 				/* residual may be -ve, ensure it is signed */
-				int32_t residual = cpus - (int32_t)(yielders * instances);
-	
+				const int32_t residual = cpus - (int32_t)(yielders * instances);
+
 				if (residual > 0)
 					yielders += residual;
 			}
