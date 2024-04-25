@@ -226,7 +226,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_pidfd_info = {
