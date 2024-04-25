@@ -30,20 +30,14 @@
 #include <utime.h>
 #endif
 
-#define STRESS_USE_MWC_32
-
 /* MWC random number initial seed */
 #define STRESS_MWC_SEED_W	(521288629UL)
 #define STRESS_MWC_SEED_Z	(362436069UL)
 
 /* Fast random number generator state */
 typedef struct {
-#if defined(STRESS_USE_MWC_32)
 	uint32_t w;
 	uint32_t z;
-#else
-	uint64_t state;
-#endif
 	uint32_t n16;
 	uint32_t saved16;
 	uint32_t n8;
@@ -53,12 +47,8 @@ typedef struct {
 } stress_mwc_t;
 
 static stress_mwc_t mwc = {
-#if defined(STRESS_USE_MWC_32)
 	STRESS_MWC_SEED_W,
 	STRESS_MWC_SEED_Z,
-#else
-	((uint64_t)STRESS_MWC_SEED_W << 32) | (STRESS_MWC_SEED_Z),
-#endif
 	0,
 	0,
 	0,
@@ -122,12 +112,8 @@ void stress_mwc_reseed(void)
 		uint64_t seed;
 
 		if (stress_get_setting("seed", &seed)) {
-#if defined(STRESS_USE_MWC_32)
 			mwc.z = seed >> 32;
 			mwc.w = seed & 0xffffffff;
-#else
-			mwc.state = seed;
-#endif
 			mwc_flush();
 			return;
 		} else {
@@ -136,12 +122,8 @@ void stress_mwc_reseed(void)
 		}
 	}
 	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
-#if defined(STRESS_USE_MWC_32)
 		mwc.w = STRESS_MWC_SEED_W;
 		mwc.z = STRESS_MWC_SEED_Z;
-#else
-		mwc.state = ((uint64_t)STRESS_MWC_SEED_W << 32) | (STRESS_MWC_SEED_Z);
-#endif
 	} else {
 		struct timeval tv;
 		struct rusage r;
@@ -151,56 +133,24 @@ void stress_mwc_reseed(void)
 		const intptr_t p1 = (intptr_t)&mwc;
 		const intptr_t p2 = (intptr_t)&tv;
 
-#if defined(STRESS_USE_MWC_32)
 		mwc.z = aux_rnd >> 32;
 		mwc.w = aux_rnd & 0xffffffff;
-#else
-		mwc.state = aux_rnd;
-#endif
 		if (gettimeofday(&tv, NULL) == 0)
-#if defined(STRESS_USE_MWC_32)
 			mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-#else
-			mwc.state ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-#endif
-#if defined(STRESS_USE_MWC_32)
 		mwc.z += ~(p1 - p2);
 		mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid() << 12;
-#else
-		mwc.state += ~(p1 - p2);
-		mwc.state += (uint64_t)getpid() ^ (uint64_t)getppid() << 12;
-#endif
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
-#if defined(STRESS_USE_MWC_32)
 			mwc.z += (uint64_t)(128.0 * (m1 + m15));
 			mwc.w += (uint64_t)(256.0 * (m5));
-#else
-			mwc.state += (128.0 * (m1 + m15));
-			mwc.state += ((uint64_t)(256.0 * (m5))) << 32;
-#endif
 		}
 		if (getrusage(RUSAGE_SELF, &r) == 0) {
-#if defined(STRESS_USE_MWC_32)
 			mwc.z += r.ru_utime.tv_usec;
 			mwc.w += r.ru_utime.tv_sec;
-#else
-			mwc.state += r.ru_utime.tv_usec;
-			mwc.state += (uint64_t)r.ru_utime.tv_sec << 32;
-#endif
 		}
-#if defined(STRESS_USE_MWC_32)
 		mwc.z ^= stress_get_cpu();
 		mwc.w ^= stress_get_phys_mem_size();
-#else
-		mwc.state ^= stress_get_cpu();
-		mwc.state ^= stress_get_phys_mem_size();
-#endif
 
-#if defined(STRESS_USE_MWC_32)
 		n = (int)mwc.z % 1733;
-#else
-		n = (int)(mwc.state & 0xffffffff) % 1733;
-#endif
 		for (i = 0; i < n; i++) {
 			(void)stress_mwc32();
 		}
@@ -214,12 +164,8 @@ void stress_mwc_reseed(void)
  */
 void stress_mwc_set_seed(const uint32_t w, const uint32_t z)
 {
-#if defined(STRESS_USE_MWC_32)
 	mwc.w = w;
 	mwc.z = z;
-#else
-	mwc.state = ((uint64_t)w << 32) | z;
-#endif
 	mwc_flush();
 }
 
@@ -229,13 +175,8 @@ void stress_mwc_set_seed(const uint32_t w, const uint32_t z)
  */
 void stress_mwc_get_seed(uint32_t *w, uint32_t *z)
 {
-#if defined(STRESS_USE_MWC_32)
 	*w = mwc.w;
 	*z = mwc.z;
-#else
-	*w = mwc.state >> 32;
-	*z = mwc.state & 0xffffffff;
-#endif
 }
 
 /*
@@ -248,7 +189,6 @@ void stress_mwc_seed(void)
 }
 
 
-#if defined(STRESS_USE_MWC_32)
 /*
  *  stress_mwc32()
  *      Multiply-with-carry random numbers
@@ -262,23 +202,6 @@ HOT OPTIMIZE3 inline uint32_t stress_mwc32(void)
 
 	return (mwc.z << 16) + mwc.w;
 }
-#else
-/*
- *  stress_mwc32()
- *      Multiply-with-carry random numbers
- *      fast pseudo random number generator, using 64 bit
- *	multiply
- */
-HOT OPTIMIZE3 uint32_t stress_mwc32(void)
-{
-	register uint32_t c = (mwc.state) >> 32;
-	register uint32_t x = (uint32_t)(mwc.state);
-	register uint32_t r = x ^ c;
-
-	mwc.state = x * ((uint64_t)4294883355UL) + c;
-	return r;
-}
-#endif
 
 /*
  *  stress_mwc64()
