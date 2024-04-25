@@ -246,6 +246,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	rc = EXIT_SUCCESS;
 	do {
 		for (i = 0; stress_continue_flag() && (i < max); i++) {
 			ENTRY e, *ep;
@@ -267,8 +268,6 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
-
-	rc = EXIT_SUCCESS;
 
 free_all:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
