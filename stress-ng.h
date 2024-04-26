@@ -598,6 +598,10 @@ typedef struct {
 		uint8_t	 val8[64] ALIGN64;
 	} atomic ALIGN64;		/* Shared atomic temp vars */
 	struct {
+		void *lock;
+		int32_t row;
+	} fractal;
+	struct {
 		/* futexes must be aligned to avoid -EINVAL */
 		uint32_t futex[STRESS_PROCS_MAX] ALIGNED(4);/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */

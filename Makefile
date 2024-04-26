@@ -366,6 +366,7 @@ STRESS_SRC = \
 	stress-fp.c \
 	stress-fp-error.c \
 	stress-fpunch.c \
+	stress-fractal.c \
 	stress-fsize.c \
 	stress-fstat.c \
 	stress-full.c \

@@ -462,6 +462,13 @@ typedef enum {
 	OPT_fpunch_bytes,
 	OPT_fpunch_ops,
 
+	OPT_fractal,
+	OPT_fractal_iterations,
+	OPT_fractal_method,
+	OPT_fractal_ops,
+	OPT_fractal_xsize,
+	OPT_fractal_ysize,
+
 	OPT_fsize,
 	OPT_fsize_ops,
 

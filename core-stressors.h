@@ -101,6 +101,7 @@
 	MACRO(fp)		\
 	MACRO(fp_error)		\
 	MACRO(fpunch)		\
+	MACRO(fractal)		\
 	MACRO(fsize)		\
 	MACRO(fstat)		\
 	MACRO(full)		\

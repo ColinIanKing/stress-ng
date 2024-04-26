@@ -2629,6 +2629,36 @@ using the suffix b, k, m or g.
 stop fpunch workers after N punch and fill bogo operations.
 .RE
 .TP
+.B Fractal Stressor
+.RS 5
+.TQ
+.B \-\-fractal N
+start N workers that generate 2D fractals. By default a 1024 x 1024
+point Mandelbrot set is computed with a maximum of 256 iterations
+per point in the iterative compute loop. The fractal is computed row
+by row with multiple rows shared amongst the N fractal stressor
+instances. Double precision floating point values are used for the
+points in the complex set of values. Naive computation is used with
+no special algorithmic short-cuts or interpolation.
+.TP
+.B \-\-fractal\-iterations N
+specify the maximum number of iterations for the quadratic map computation
+of each point, default is 256 iterations.
+.TP
+.B \-\-fractal\-method [ julia | mandelbrot ]
+select the method of fractal generation, Julia set or Mandlebrot set,
+default is the Mandelbrot set.
+.TP
+.B \-\-fractal\-ops N
+stop after N fractals have been generated.
+.TP
+.B \-\-fractal\-sizex N
+set the maximum width of the fractal, default is 1024 points.
+.TP
+.B \-\-fractal\-sizey N
+set the maximum height of the fractal,, default is 1024 points.
+.RE
+.TP
 .B File size limit stressor
 .RS 5
 .TQ
