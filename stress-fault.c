@@ -168,8 +168,10 @@ redo:
 		if (ptr == MAP_FAILED) {
 			if ((errno == EAGAIN) ||
 			    (errno == ENOMEM) ||
-			    (errno == ENFILE))
+			    (errno == ENFILE)) {
+				(void)close(fd);
 				goto next;
+			}
 			pr_err("%s: mmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
