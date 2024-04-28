@@ -337,7 +337,7 @@ tidy:
 
 stressor_info_t stress_radixsort_info = {
 	.stressor = stress_radixsort,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

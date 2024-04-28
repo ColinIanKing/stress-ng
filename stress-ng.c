@@ -280,6 +280,7 @@ static const stress_class_info_t stress_classes[] = {
 	{ CLASS_OS,		"os" },
 	{ CLASS_PIPE_IO,	"pipe" },
 	{ CLASS_SCHEDULER,	"scheduler" },
+	{ CLASS_SEARCH,		"search" },
 	{ CLASS_SECURITY,	"security" },
 	{ CLASS_SIGNAL,		"signal" },
 	{ CLASS_VM,		"vm" },

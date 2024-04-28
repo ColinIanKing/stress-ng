@@ -173,7 +173,7 @@ stressor_info_t stress_tsearch_info = {
 
 stressor_info_t stress_tsearch_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
