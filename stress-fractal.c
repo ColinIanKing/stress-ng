@@ -175,7 +175,7 @@ PRAGMA_UNROLL_N(2)
 }
 
 static const stress_fractal_method_t stress_fractal_methods[] = {
-	{ "mandlebrot",	stress_fractal_mandelbrot,
+	{ "mandelbrot",	stress_fractal_mandelbrot,
 		{ -2.0, 0.47, -1.15, 1.15, 0.0, 0.0, NULL, 1024, 1024, 256 } },
 	{ "julia",	stress_fractal_julia,
 		{ -1.5, 1.5, -1.0, 1.0, 0.0, 0.0, NULL, 1024, 1024, 256 } },
