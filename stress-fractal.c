@@ -111,15 +111,18 @@ static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_ro
 static void OPTIMIZE3 TARGET_CLONES stress_fractal_mandelbrot(fractal_info_t *info, const int32_t row)
 {
 	register int32_t ix;
+	const double max_iter = info->iterations;
+	const double dx = info->dx;
+	const int32_t xsize = info->xsize;
 	double xc, yc = info->ymin + ((double)row * info->dy);
 	uint16_t *data = info->data;
 
-	for (ix = 0, xc = info->xmin; ix < info->xsize; ix++, xc += info->dx) {
+	for (ix = 0, xc = info->xmin; LIKELY(ix < xsize); ix++, xc += dx) {
 		register double x = 0.0, y = 0.0;
 		register int32_t iter = 0;
 
 PRAGMA_UNROLL_N(2)
-		while (iter < info->iterations) {
+		while (LIKELY(iter < max_iter)) {
 			register const double x2 = x * x;
 			register const double y2 = y * y;
 			register double t;
@@ -127,8 +130,8 @@ PRAGMA_UNROLL_N(2)
 			if (x2 + y2 >= 4.0)
 				break;
 
-			iter++;
 			t = x2 - y2 + xc;
+			iter++;
 			y = (2 * x * y) + yc;
 			x = t;
 		}
@@ -153,7 +156,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_fractal_julia(fractal_info_t *info, c
 		register double y = y_start;
 
 PRAGMA_UNROLL_N(2)
-		while (iter < info->iterations) {
+		while (LIKELY(iter < info->iterations)) {
 			register const double x2 = x * x;
 			register const double y2 = y * y;
 			register double t;
@@ -161,8 +164,8 @@ PRAGMA_UNROLL_N(2)
 			if (x2 + y2 > 4.0)
 				break;
 
-			iter++;
 			t = x2 - y2 - 0.79;
+			iter++;
 			y = (2 * x * y) + 0.15;
 			x = t;
 		}
