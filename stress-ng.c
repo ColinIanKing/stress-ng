@@ -1457,6 +1457,7 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.mapped = &g_shared->mapped,
 		stats->args.metrics = &stats->metrics,
 		stats->args.info = g_stressor_current->stressor->info;
+		stats->args.ci.counter = 0;
 
 		stress_set_oom_adjustment(&stats->args, false);
 
@@ -1607,8 +1608,10 @@ static void MLOCKED_TEXT stress_run(
 	for (g_stressor_current = stressors_list; g_stressor_current; g_stressor_current = g_stressor_current->next) {
 		int32_t j;
 
-		if (g_stressor_current->ignore.run || g_stressor_current->ignore.permute)
+		if (g_stressor_current->ignore.run || g_stressor_current->ignore.permute) {
+			*checksum += g_stressor_current->num_instances;
 			continue;
+		}
 
 		/*
 		 *  Each stressor has 1 or more instances to run
@@ -3286,6 +3289,7 @@ static inline void stress_run_sequential(
 			metrics_success, &checksum);
 		ss->next = next;
 	}
+	stress_metrics_check(success);
 }
 
 /*
@@ -3306,6 +3310,7 @@ static inline void stress_run_parallel(
 	 */
 	stress_run(ticks_per_sec, stressors_head, duration, success, resource_success,
 			metrics_success, &checksum);
+	stress_metrics_check(success);
 }
 
 /*
@@ -3793,7 +3798,6 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		stress_metrics_dump(yaml);
 
-	stress_metrics_check(&success);
 	if (g_opt_flags & OPT_FLAGS_INTERRUPTS)
 		stress_interrupts_dump(yaml, stressors_head);
 
