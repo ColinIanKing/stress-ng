@@ -302,7 +302,7 @@ static int stress_mergesort(stress_args_t *args)
 
 	data = (int32_t *)stress_mmap_populate(NULL, data_size,
 			PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT,
+			MAP_ANONYMOUS | MAP_PRIVATE,
 			-1, 0);
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: mmap failed, allocating %zd integers, skipping stressor\n",
