@@ -142,7 +142,7 @@ static int stress_prime_start(char *prime_start, mpz_t start)
 	} else {
 #if defined(HAVE_MPFR_H)
 		/*
-		 *  Try as float and covert to integer
+		 *  Try as float and convert to integer
 		 */
 		mpfr_t start_mpfr, zero;
 		char *str = NULL;
@@ -165,10 +165,10 @@ static int stress_prime_start(char *prime_start, mpz_t start)
 		if (ret > 0)
 			return -1;
 
-		/* Covert to string */
+		/* Convert to string */
 		if (mpfr_asprintf(&str, "%0.Rf", start_mpfr) < 1)
 			return -1;
-		/* Covert string to mpz integer */
+		/* Convert string to mpz integer */
 		ret = mpz_set_str(start, str, 0);
 		mpfr_free_str(str);
 		if (ret != 0)
