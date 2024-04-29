@@ -120,9 +120,9 @@ retry:
 				}
 			} else {
 				if ((i & 63) == 0)
-					(void)fsync(fds[i]);
+					(void)shim_fsync(fds[i]);
 				if ((i & 511) == 0)
-					(void)fdatasync(fds[i]);
+					(void)shim_fdatasync(fds[i]);
 			}
 		}
 
@@ -176,7 +176,7 @@ retry:
 	for (i = 0; i < UNLINK_FILES; i++) {
 		if (fds[i] != -1) {
 			if ((i & 127) == 15)
-				(void)fsync(fds[i]);
+				(void)shim_fsync(fds[i]);
 			(void)close(fds[i]);
 		}
 	}
