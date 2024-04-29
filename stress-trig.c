@@ -419,7 +419,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_trig_info = {
 	.stressor = stress_trig,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help

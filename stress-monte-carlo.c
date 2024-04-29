@@ -676,7 +676,7 @@ static int stress_monte_carlo(stress_args_t *args)
 stressor_info_t stress_monte_carlo_info = {
 	.stressor = stress_monte_carlo,
 	.opt_set_funcs = opt_set_funcs,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_NONE,
 	.help = help
 };

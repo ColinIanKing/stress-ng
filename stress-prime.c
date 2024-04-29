@@ -290,7 +290,7 @@ finish:
 
 stressor_info_t stress_prime_info = {
 	.stressor = stress_prime,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_NONE,
 	.help = help
@@ -300,7 +300,7 @@ stressor_info_t stress_prime_info = {
 
 stressor_info_t stress_prime_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_NONE,
 	.help = help,

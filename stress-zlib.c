@@ -1921,7 +1921,7 @@ static void stress_zlib_set_default(void)
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
 	.set_default = stress_zlib_set_default,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
@@ -1929,7 +1929,7 @@ stressor_info_t stress_zlib_info = {
 #else
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without zlib library support"

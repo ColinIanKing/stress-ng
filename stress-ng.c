@@ -268,6 +268,7 @@ static const stress_t stressors[] = {
  *  Different stress classes
  */
 static const stress_class_info_t stress_classes[] = {
+	{ CLASS_COMPUTE,	"compute" },
 	{ CLASS_CPU_CACHE,	"cpu-cache" },
 	{ CLASS_CPU,		"cpu" },
 	{ CLASS_DEV,		"device" },

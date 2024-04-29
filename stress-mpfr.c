@@ -439,7 +439,7 @@ static int stress_mpfr(stress_args_t *args)
 
 stressor_info_t stress_mpfr_info = {
 	.stressor = stress_mpfr,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help
@@ -449,7 +449,7 @@ stressor_info_t stress_mpfr_info = {
 
 stressor_info_t stress_mpfr_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

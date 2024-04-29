@@ -141,7 +141,7 @@ stressor_info_t stress_factor_info = {
 
 stressor_info_t stress_factor_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
