@@ -34,8 +34,9 @@ static const stress_help_t help[] = {
  */
 static int stress_io(stress_args_t *args)
 {
+	int rc = EXIT_SUCCESS;
 #if defined(HAVE_SYNCFS)
-	int i, fd, n_mnts, rc = EXIT_SUCCESS;
+	int i, fd, n_mnts;
 	char *mnts[MAX_MNTS];
 	int fds[MAX_MNTS];
 	const int bad_fd = stress_get_bad_fd();
@@ -92,7 +93,9 @@ static int stress_io(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+#if defined(HAVE_SYNCFS)
 tidy:
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_SYNCFS)
 	if (fd != -1)
