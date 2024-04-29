@@ -47,23 +47,12 @@ typedef struct {
 
 static inline ALWAYS_INLINE void mergesort_copy(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
 {
-	if (size == 4) {
-		register uint32_t *u32p1 = (uint32_t *)p1;
-		register uint32_t *u32p2 = (uint32_t *)p2;
-		register const uint32_t *u32end = (uint32_t *)(p1 + size);
+	register uint32_t *u32p1 = (uint32_t *)p1;
+	register uint32_t *u32p2 = (uint32_t *)p2;
+	register const uint32_t *u32end = (uint32_t *)(p1 + size);
 
-		while (LIKELY(u32p1 < u32end)) {
-			*(u32p1++) = *(u32p2++);
-		}
-	} else {
-		register uint8_t *u8p1 = p1;
-		register uint8_t *u8p2 = p2;
-		register const uint8_t *u8end = p1 + size;
-
-		while (LIKELY(u8p1 < u8end)) {
-			*(u8p1++) = *(u8p2++);
-		}
-	}
+	while (LIKELY(u32p1 < u32end))
+		*(u32p1++) = *(u32p2++);
 }
 
 /*
@@ -102,18 +91,14 @@ static inline void mergesort_partition4(
 	lhs_end = rhs;
 	rhs_end = rhs + rhs_size;
 
-	for (;;) {
+	while ((lhs < lhs_end) && (rhs < rhs_end)) {
 		if (compar(lhs, rhs) < 0) {
 			*(uint32_t *)base = *(uint32_t *)lhs;
 			lhs += 4;
-			if (lhs > lhs_end)
-				break;
 			base += 4;
 		} else {
 			*(uint32_t *)base = *(uint32_t *)rhs;
 			rhs += 4;
-			if (rhs > rhs_end)
-				break;
 			base += 4;
 		}
 	}
@@ -166,7 +151,7 @@ static inline void mergesort_partition(
 	lhs_end = rhs;
 	rhs_end = rhs + rhs_size;
 
-	for (;;) {
+	while ((lhs < lhs_end) && (rhs < rhs_end)) {
 		if (compar(lhs, rhs) < 0) {
 			mergesort_copy(base, lhs, size);
 			lhs += size;
@@ -291,7 +276,7 @@ static int stress_mergesort(stress_args_t *args)
 {
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data, *ptr;
-	size_t n, i, mergesort_method = 0;
+	size_t n, i, mergesort_method = 0, data_size;
 	struct sigaction old_action;
 	int ret;
 	NOCLOBBER int rc = EXIT_SUCCESS;
@@ -313,9 +298,14 @@ static int stress_mergesort(stress_args_t *args)
 			mergesort_size = MIN_MERGESORT_SIZE;
 	}
 	n = (size_t)mergesort_size;
+	data_size = n * sizeof(*data);
 
-	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_inf_skip("%s: malloc failed, allocating %zd integers, skipping stressor\n",
+	data = (int32_t *)stress_mmap_populate(NULL, data_size,
+			PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE | MAP_32BIT,
+			-1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf_skip("%s: mmap failed, allocating %zd integers, skipping stressor\n",
 			args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
@@ -447,7 +437,7 @@ tidy:
 	stress_metrics_set(args, 1, "mergesort comparisons per item",
 		count / sorted, STRESS_HARMONIC_MEAN);
 
-	free(data);
+	(void)munmap((void *)data, data_size);
 
 	return rc;
 }
