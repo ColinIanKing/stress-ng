@@ -21,6 +21,8 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
+#define WAIT_TIMEOUT		(120)	/* waitpid timeout, 2 minutes */
+
 #if defined(__linux__)
 
 #define OOM_SCORE_ADJ_MIN	"-1000"
@@ -29,8 +31,6 @@
 #define OOM_ADJ_NO_OOM		"-17"
 #define OOM_ADJ_MIN		"-16"
 #define OOM_ADJ_MAX		"15"
-
-#define WAIT_TIMEOUT		(120)	/* waitpid timeout, 2 minutes */
 
 /*
  *  stress_process_oomed()
