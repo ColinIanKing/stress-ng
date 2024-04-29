@@ -102,6 +102,8 @@ static int stress_swap_supported(const char *name)
 	return 0;
 }
 
+#endif
+
 /*
  *  stress_set_swap_self()
  *      set swap-self option
@@ -115,6 +117,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_swap_self,	stress_set_swap_self },
 	{ 0,			NULL },
 };
+
+#if defined(HAVE_SYS_SWAP_H) &&	\
+    defined(HAVE_SWAP)
 
 #if defined(MADV_PAGEOUT) &&	\
     defined(__linux__)
