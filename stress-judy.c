@@ -107,7 +107,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 	do {
 		Pvoid_t PJLArray = (Pvoid_t)NULL;
 		Word_t *pvalue;
-		int rc;
+		int judyrc;
 		double t;
 
 		/* Step #1, populate Judy array in sparse index order */
@@ -120,7 +120,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 				pr_err("%s: cannot allocate new "
 					"judy node\n", args->name);
 				for (j = 0; j < n; j++) {
-					JLD(rc, PJLArray, idx);
+					JLD(judyrc, PJLArray, idx);
 				}
 				goto abort;
 			}
@@ -161,8 +161,8 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 		for (j = n -1, i = 0; i < n; i++, j--) {
 			const Word_t idx = gen_index(j);
 
-			JLD(rc, PJLArray, idx);
-			if (UNLIKELY(verify && (rc != 1))) {
+			JLD(judyrc, PJLArray, idx);
+			if (UNLIKELY(verify && (judyrc != 1))) {
 				pr_fail("%s: element %" PRIu32 " could not "
 					"be found\n", args->name, (uint32_t)idx);
 				goto abort;
