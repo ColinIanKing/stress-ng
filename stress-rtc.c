@@ -70,9 +70,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 		if (ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
+				ret = -errno;
 				pr_fail("%s: ioctl RTC_RD_TIME failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				ret = -errno;
 				goto err;
 			}
 		} else {
@@ -87,9 +87,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 		if (ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
+				ret = -errno;
 				pr_fail("%s: ioctl RTC_ALRM_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				ret = -errno;
 				goto err;
 			}
 		} else {
@@ -106,9 +106,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 		if (ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
+				ret = -errno;
 				pr_fail("%s: ioctl RTC_WKALRM_RD failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				ret = -errno;
 				goto err;
 			}
 		} else {
@@ -146,9 +146,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 		if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
+				ret = -errno;
 				pr_fail("%s: ioctl RTC_EPOCH_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				ret = -errno;
 				goto err;
 			}
 		} else {
@@ -165,9 +165,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 		if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
+				ret = -errno;
 				pr_fail("%s: ioctl RTC_IRQP_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				ret = -errno;
 				goto err;
 			}
 		} else {
@@ -201,9 +201,9 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 		if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
 			if ((errno != EINTR) && (errno != ENOTTY)) {
+				ret = -errno;
 				pr_fail("%s: ioctl RTC_VL_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				ret = -errno;
 				goto err;
 			}
 		}
@@ -322,19 +322,23 @@ static int stress_rtc(stress_args_t *args)
 
 		ret = stress_rtc_dev(args);
 		if (ret < 0) {
-			if ((ret != -EACCES) && (ret != -EBUSY)) {
+			if ((ret != -EACCES) && (ret != -EBUSY) && (ret != -EPERM) && (ret != -EINTR)) {
 				rc = EXIT_FAILURE;
 				break;
 			}
 		}
 		ret = stress_rtc_sys(args);
 		if (ret < 0) {
-			rc = EXIT_FAILURE;
+			if (ret != -EINTR) {
+				rc = EXIT_FAILURE;
+			}
 			break;
 		}
 		ret = stress_rtc_proc(args);
 		if (ret < 0) {
-			rc = EXIT_FAILURE;
+			if (ret != -EINTR) {
+				rc = EXIT_FAILURE;
+			}
 			break;
 		}
 		stress_bogo_inc(args);
