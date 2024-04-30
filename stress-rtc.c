@@ -322,21 +322,23 @@ static int stress_rtc(stress_args_t *args)
 
 		ret = stress_rtc_dev(args);
 		if (ret < 0) {
-			if ((ret != -EACCES) && (ret != -EBUSY) && (ret != -EPERM) && (ret != -EINTR)) {
+			if ((ret != -ENOENT) && (ret != -EINTR) &&
+			    (ret != -EACCES) && (ret != -EBUSY) &&
+			    (ret != -EPERM)) {
 				rc = EXIT_FAILURE;
 				break;
 			}
 		}
 		ret = stress_rtc_sys(args);
 		if (ret < 0) {
-			if (ret != -EINTR) {
+			if ((ret != -ENOENT) && (ret != -EINTR)) {
 				rc = EXIT_FAILURE;
 			}
 			break;
 		}
 		ret = stress_rtc_proc(args);
 		if (ret < 0) {
-			if (ret != -EINTR) {
+			if ((ret != -ENOENT) && (ret != -EINTR)) {
 				rc = EXIT_FAILURE;
 			}
 			break;
