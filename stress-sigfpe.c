@@ -229,6 +229,16 @@ static int stress_sigfpe(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+	/*
+	 *  division by zero is undefined, some C libs
+	 *  may even throw SIGILL, so catch these.
+	 */
+	ret = sigaction(SIGILL, &action, NULL);
+	if (ret < 0) {
+		pr_err("%s: sigaction SIGILL: errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
 
 	(void)alarm(0);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
