@@ -276,6 +276,9 @@ static inline int stress_rtc_sys(stress_args_t *args)
 				break;
 			} else if (ret == -ENOENT) {
 				enoents++;
+			} else if (ret == -EINVAL) {
+				/* this can occur on interrupted EFI rtc reads, ignore */
+				continue;
 			} else {
 				pr_fail("%s: read of %s failed: errno=%zd (%s)\n",
 					args->name, path, -ret, strerror((int)-ret));
