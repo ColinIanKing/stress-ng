@@ -54,6 +54,7 @@ static const stress_help_t help[] = {
 #define SNG_FLTDIV	(0x80000000)
 
 static sigjmp_buf jmp_env;
+static int signum;
 #if defined(STRESS_CHECK_SIGINFO)
 static volatile siginfo_t siginfo;
 #endif
@@ -65,9 +66,9 @@ static volatile siginfo_t siginfo;
 #if defined(STRESS_CHECK_SIGINFO)
 static void NORETURN MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucontext)
 {
-	(void)num;
 	(void)ucontext;
 
+	signum = num;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 	siginfo = *info;
 
@@ -76,12 +77,17 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, vo
 #else
 static void NORETURN MLOCKED_TEXT stress_fpehandler(int num)
 {
-	(void)num;
+	signum = num;
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 #endif
+
+typedef struct {
+	const int code;
+	const char *name;
+} sigill_si_code_t;
 
 #if defined(STRESS_CHECK_SIGINFO)
 /*
@@ -127,6 +133,51 @@ static char *stress_sigfpe_errstr(const int err)
 		break;
 	}
 	return "FPE_UNKNOWN";
+}
+
+/*
+ *  stress_sigill_errstr()
+ *	convert sigill error code to string
+ */
+static char *stress_sigill_errstr(const int err)
+{
+	switch (err) {
+#if defined(ILL_ILLOPC)
+	case ILL_ILLOPC:
+		return "ILL_ILLOPC";
+#endif
+#if defined(ILL_ILLOPN)
+	case ILL_ILLOPN:
+		return "ILL_ILLOPN";
+#endif
+#if defined(ILL_ILLADR)
+	case ILL_ILLADR:
+		return "ILL_ILLADR";
+#endif
+#if defined(ILL_ILLTRP)
+	case ILL_ILLTRP:
+		return "ILL_ILLTRP";
+#endif
+#if defined(ILL_PRVOPC)
+	case ILL_PRVOPC:
+		return "ILL_PRVOPC";
+#endif
+#if defined(ILL_PRVREG)
+	case ILL_PRVREG:
+		return "ILL_PRVREG";
+#endif
+#if defined(ILL_COPROC)
+	case ILL_COPROC:
+		return "ILL_COPROC";
+#endif
+#if defined(ILL_BADSTK)
+	case ILL_BADSTK:
+		return "ILL_BADSTK";
+#endif
+	default:
+		break;
+	}
+	return "ILL_UNKNOWN";
 }
 #endif
 
@@ -274,15 +325,29 @@ static int stress_sigfpe(stress_args_t *args)
 			(void)feclearexcept(FE_ALL_EXCEPT);
 
 #if defined(STRESS_CHECK_SIGINFO)
-			if (verify &&
-			    (siginfo.si_code >= 0) &&
-			    (siginfo.si_code != expected_err_code)) {
-				pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
-					args->name,
-					siginfo.si_code, stress_sigfpe_errstr(siginfo.si_code),
-					expected_err_code, stress_sigfpe_errstr(expected_err_code));
-				rc = EXIT_FAILURE;
-				break;
+			if (verify) {
+				if (signum == SIGFPE) {
+					if ((siginfo.si_code >= 0) &&
+				            (siginfo.si_code != expected_err_code)) {
+						pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
+							args->name,
+							siginfo.si_code, stress_sigfpe_errstr(siginfo.si_code),
+							expected_err_code, stress_sigfpe_errstr(expected_err_code));
+						rc = EXIT_FAILURE;
+						break;
+					}
+				} else if (signum == SIGILL) {
+					static bool reported = false;
+
+					if (!reported) {
+						reported = true;
+						pr_inf("%s: got SIGILL error %d (%s) at %p, expected SIGFPE %d (%s)\n",
+							args->name,
+							siginfo.si_code, stress_sigill_errstr(siginfo.si_code),
+							siginfo.si_addr,
+							expected_err_code, stress_sigfpe_errstr(expected_err_code));
+					}
+				}
 			}
 #endif
 			stress_bogo_inc(args);
