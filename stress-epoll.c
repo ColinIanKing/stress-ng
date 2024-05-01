@@ -779,7 +779,7 @@ static void NORETURN epoll_server(
 		efd = epoll_create1(INT_MIN);
 		if (efd >= 0) {
 			(void)close(efd);
-			pr_fail("%s: epoll_create1 unexpectedly succeeded with an invalid flag,"
+			pr_fail("%s: epoll_create1 unexpectedly succeeded with an invalid flag, "
 				"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		}
 
@@ -813,7 +813,7 @@ static void NORETURN epoll_server(
 		efd = epoll_create(INT_MIN);
 		if (efd >= 0) {
 			(void)close(efd);
-			pr_fail("%s: epoll_create unexpectedly succeeded with an invalid size,"
+			pr_fail("%s: epoll_create unexpectedly succeeded with an invalid size, "
 				"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		}
 
@@ -837,7 +837,7 @@ static void NORETURN epoll_server(
 	efd = epoll_create(INT_MIN);
 	if (efd >= 0) {
 		(void)close(efd);
-		pr_fail("%s: epoll_create unexpectedly succeeded with an invalid size,"
+		pr_fail("%s: epoll_create unexpectedly succeeded with an invalid size, "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 	}
 
