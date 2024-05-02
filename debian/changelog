@@ -1,3 +1,129 @@
+stress-ng (0.17.08-1) unstable; urgency=medium
+
+  [ruihongw]
+  * fix spelling of lsm_list_modules in Makefile.config
+
+  [Yiwei Lin]
+  * Fix unterminated cpu-stress if non 0% or 100% load
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-epoll: fix missing space after comma in error messages
+  * README.md: add another bug found by stress-ng
+  * stress-sigfpe: report SIGILL trap information when --verify is used
+  * stress-sigfpe: handle unexpected SIGILL signals
+  * stress-rtc: silently ignore RTC sys read EINVAL errors
+  * stress-rtc: don't fail on ENOENT errors
+  * stress-tsearch: remove double comma
+  * stress-rtc: fix error handling, don't fail on EINTR or EPERM
+  * stress-mergesort: remove MAP_32BIT
+  * stress-mergesort: fix out of bounds copy
+  * stress-unlink: use shim'd versions of fsync and fdatasync
+  * stress-swap: ensure opt_set_funcs and stress_set_swap_self are
+    declared for all builds
+  * stress-io: fix build issues when HAVE_SYNCFS is not defined
+  * core-out-of-memory: move #define of WAIT_TIMEOUT to fix non-linux
+    builds
+  * stress-judy: clean up variable shadowing warning
+  * stress*: Add compute to the --class option for high compute stressors
+  * stress-prime: fix spelling mistakes in comments
+  * stress-factal: fix spelling mistake of Mandelbrot
+  * stress-ng: fix --permute with checksum verification enabled
+  * stress-fractal: minor tweaks to reduce front end delays and improve
+    core utilization
+  * stress*: Add search to the --class option for searching stressors
+  * Manual: remove duplicated comma
+  * stress-fault: fix fd leak on error path
+  * stress-fractal: add Mandelbrot and Julia set fractal stressor.
+  * stress-*: clean up errno handling
+  * core-ftrace: remove redundant initialization of pointer num
+  * core-klog: remove redundant initialization of pointer msg
+  * stress-yield: constify variable residual
+  * Manual: waitcpu: add more per-processor notes for waiting
+    instructions
+  * stress-yield: add --yield-procs option, specify child processes per
+    stressor
+  * stress-forkheavy: fix typo in comments forke -> fork
+  * Makefile: improve toolchain detection, fixes scan-build builds
+  * stress-pidfd: ensure return code in rc is returned to parent
+  * stress-mq: ensure child rc status is returned to parent
+  * stress-judy: re-work rc status so the default is EXIT_FAILURE
+  * stress-hsearch: ensure rc is set to EXIT_SUCCESS for success path
+  * stress-file-ioctl: assign rc to EXIT_NOT_IMPLEMENTED and not ret
+  * stress-close: remove redundant assignments to rc
+  * core-mwc: remove unused 32 bit mwc implementation
+  * Makefile.config: fix float checks, need LIB_MATH not LIB_M
+  * stress-prime: add --prime-start N option to specify starting point
+    of search
+  * stress-fork: add #ifdef check around MADV_PAGEOUT
+  * stress-swap: add --swap-self option to force self process pages out
+  * stress-fork: make --fork-pageout more aggressive, do all maps
+  * stress-prime: remove empty line
+  * stress-fork: add --fork-pageout option to force pages to be paged out
+  * stress-prime: add hourly prime rate in --prime-progress output
+  * README.md: update contributors list
+  * stress-prime: move variables and a function to clean up build warning
+  * stress-enosys: fix typo: SYS_lsm_modules -> SYS_lsm_list_modules
+  * Manual: clarify the time between each prime progress update
+  * core-builtin: fix macros and shims
+  * Manual: add new --primes-progress option, fix prime-ops name
+  * core-log: don't report timestamp if localtime_r does not exist
+  * stress-prime: add --prime-progress option to periodically show prime
+    finding progress
+  * stress-prime: add long integer prime computations stressor
+  * stress-factor: fix short description of stressor
+  * stress-unlink: add end of test check in link phase, add missing
+    deinit state
+  * stress-unlink: make file syncs less frequent
+  * core-config-check: minor re-phrasing of scaling governors note
+  * stress-unlink: remove some whitespaces
+  * stress-unlink: use random open flags
+  * stress-unlink: add occasional fd sync'ing and data syncing
+  * Manual: correct the --vm-bytes description.
+  * stress-unlink: add new stressor to exercise concurrent racing unlink
+    calls
+  * stress-dev: add a few more HID specific ioctls
+  * stress-dev: add linux frame buffer /dev/fb* ioctl exercising
+  * core-version.h: wrap macro parameters with ( )
+  * core-io-priority: wrap macro parameters with ( )
+  * core-builtin: wrap macro parameters with ( ), align macros
+  * Manual: replace ',' with '|' in the --prio-inv-policy option
+  * Manual: replace ',' with '|' in --fd-fork-file option
+  * core-builtin: fix brackets on shim'd helpers shim_ccosl and
+    shim_csinl
+  * stress-get: add --get-slow-sync option to force get system calls to
+    be in sync
+  * stress-zlib: use shim wrapped sin function
+  * stress-remap: remove empty line
+  * stress-monte-carlo: use shim'd math functions
+  * core-builtin: add hyperbolic sin, cos float and double shim wrappers
+  * stress-*: constify variables
+  * core-helper: remove duplicated null check on gpu_freq
+  * stress-*: ensure EXIT_FAILURE is returned on failures
+  * stress-sockdiag: rename rc to ret and ret to rc
+  * stress-cacheline: ensure EXIT_FAILURE is returned on data corruption
+  * stress-bsearch: ensure EXIT_FAILURE is returned on data mismatches
+  * stress-ng: set success flag to false on EXIT_SIGNALED exits
+  * stress-bitonicsort: ensure EXIT_FAILURE is returned on data
+    mismatches
+  * stress-bigheap: ensure EXIT_FAILURE is returned on memory failures
+  * stress-affinity: remove space
+  * stress-matrix-3d: ensure EXIT_FAILURE is returned on data mismatch
+  * stress-matrix: ensure EXIT_FAILURE is returned on data mismatch
+  * stress-ng: fix missing FAILED flag increment for EXIT_SIGNALED state
+  * stress-fma: increment b in add231 to force use of fma instruction
+  * stress-filename: make static array posix_allowed const
+  * stress-acl: make static array stress_acl_tags const
+  * stress-workload: add some constifications and UNLIKELY on an if
+  * stress-io-uring: improve termination by enabling various flags
+  * core-out-of-memory: give at least 2 minutes before giving up waiting
+    for OOMable child processes
+  * stress-ng: bail out with EXIT_NO_RESOURCE on sched_settings_apply
+    call
+  * stress-inotify: replace __s32 with int32_t
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 2 May 2024 08:30:57 +0100
+
 stress-ng (0.17.07-1) unstable; urgency=medium
 
   [Stian Onarheim]
