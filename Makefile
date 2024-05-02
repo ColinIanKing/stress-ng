@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "trusty task trasher"
+# Codename "consummate cpu crusher"
 #
-VERSION=0.17.07
+VERSION=0.17.08
 
 #
 # Determine supported toolchains
