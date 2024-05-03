@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-arm.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
@@ -154,6 +155,14 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 		while (test_and_set(&lock->u.flag) == true) {
 #if defined(HAVE_ASM_X86_PAUSE)
 			stress_asm_x86_pause();
+#elif defined(HAVE_ASM_ARM_YIELD)
+			stress_asm_arm_yield();
+#elif defined(HAVE_ASM_LOONG64_DBAR)
+			stress_waitcpu_loong64_dbar();
+#elif defined(STRESS_ARCH_PPC64)
+			stress_asm_ppc64_yield();
+#elif defined(STRESS_ARCH_RISCV)
+			stress_asm_riscv_pause();
 #else
 			shim_sched_yield();
 #endif
