@@ -24,10 +24,12 @@
 
 #if defined(STRESS_ARCH_ARM)
 
+#if defined(HAVE_ASM_ARM_YIELD)
 static inline void ALWAYS_INLINE stress_asm_arm_yield(void)
 {
 	__asm__ __volatile__("yield;\n");
 }
+#endif
 
 /* #if defined(STRESS_ARCH_ARM) */
 #endif
