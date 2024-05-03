@@ -186,6 +186,16 @@ static int stress_lsm(stress_args_t *args)
 					args->name, ret, errno, strerror(errno));
 				goto err;
 			}
+
+			/*
+			 *  exercise invalid ctx_len, see Linux commits
+		 	 *  a04a1198088a and d8bdd795d383
+			 */
+			ctx->id = LSM_ID_APPARMOR;
+			ctx->flags = 0;
+			ctx->len = sizeof(*ctx);
+			ctx->ctx_len = -sizeof(*ctx);
+			VOID_RET(int, shim_lsm_set_self_attr(LSM_ATTR_CURRENT, ctx, sizeof(*ctx), 0));
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
