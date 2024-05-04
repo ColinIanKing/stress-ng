@@ -2793,3 +2793,18 @@ unsigned char shim_dirent_type(const char *path, const struct dirent *d)
 	}
 	return SHIM_DT_UNKNOWN;
 }
+
+/*
+ *  shim_mseal()
+ *	shim wrapper for the Linux 5.10 mseal system call
+ */
+int shim_mseal(void *addr, size_t len, unsigned long flags)
+{
+#if defined(HAVE_MSEAL)
+	return mseal(addr, len, flags);
+#elif defined(__NR_mseal)
+	return (int)syscall(__NR_mseal, addr, len, flags);
+#else
+	return shim_enosys(0, addr, len, flags);
+#endif
+}

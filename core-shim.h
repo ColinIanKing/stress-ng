@@ -467,5 +467,6 @@ extern int shim_fstat(int fd, struct stat *statbuf);
 extern int shim_lstat(const char *pathname, struct stat *statbuf);
 extern int shim_stat(const char *pathname, struct stat *statbuf);
 extern unsigned char shim_dirent_type(const char *path, const struct dirent *d);
+extern int shim_mseal(void *addr, size_t len, unsigned long flags);
 
 #endif
