@@ -649,7 +649,7 @@ retry:
 				args->name, errno, strerror(errno));
 			goto free_controls;
 		}
-#if defined(MSG_ZEROCOPY)
+#if defined(MSG_ZEROCOPY) && defined(SO_ZEROCOPY)
 		if (sock_zerocopy) {
 			int so_zerocopy = 1;
 
@@ -1053,7 +1053,7 @@ static int OPTIMIZE3 stress_sock_server(
 		goto die;
 	}
 
-#if defined(MSG_ZEROCOPY)
+#if defined(MSG_ZEROCOPY) && defined(SO_ZEROCOPY)
 	if (sock_zerocopy) {
 		int so_zerocopy = 1;
 
