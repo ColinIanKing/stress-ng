@@ -45,7 +45,7 @@ static const crypt_method_t crypt_methods[] = {
 	{ "$5$",	3,	"SHA-256" },
 	{ "$6$",	3,	"SHA-512" },
 	{ "$7$",	3,	"scrypt" },
-	{ "$md5",	5,	"SunMD5" },
+	{ "$md5",	4,	"SunMD5" },
 	{ "$y$",	3,	"yescrypt" },
 };
 
@@ -149,6 +149,9 @@ static int stress_crypt(stress_args_t *args)
 {
 	register size_t i, j;
 	size_t crypt_method = 0;	/* all */
+#if defined(HAVE_CRYPT_R)
+	static struct crypt_data data;
+#endif
 
 	(void)stress_get_setting("crypt-method", &crypt_method);
 
@@ -163,24 +166,24 @@ static int stress_crypt(stress_args_t *args)
 		crypt_metrics[i].duration = 0.0;
 		crypt_metrics[i].count = 0.0;
 	}
-
+#if defined(HAVE_CRYPT_R)
+	(void)memset(&data, 0, sizeof(data));
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		static const char seedchars[] ALIGN64 =
+		static const char seedchars[64] ALIGN64 =
 			"./0123456789ABCDEFGHIJKLMNOPQRST"
 			"UVWXYZabcdefghijklmnopqrstuvwxyz";
 #if defined(HAVE_CRYPT_R)
-		static struct crypt_data data;
 		char *const phrase = data.input;
 		char *const setting = data.setting;
-		const size_t setting_len = sizeof(data.setting);
 #else
 		char phrase[16];
 		char setting[12];
-		const size_t setting_len = sizeof(setting);
 #endif
 		char orig_setting[12];
+		char orig_phrase[16];
 		uint64_t seed[2];
 		const crypt_method_t *cm = crypt_methods;
 		size_t failed = 0;
@@ -189,20 +192,24 @@ static int stress_crypt(stress_args_t *args)
 		seed[0] = stress_mwc64();
 		seed[1] = stress_mwc64();
 
+		setting[0] = '$';
+		setting[1] = 'x';
+		setting[2] = '$';
+
 		for (i = 0; i < 8; i++)
 			orig_setting[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
-		for (i = 0; i < sizeof(phrase) - 1; i++)
-			phrase[i] = seedchars[stress_mwc32modn((uint32_t)sizeof(seedchars))];
-		phrase[i] = '\0';
+		for (i = 0; i < sizeof(orig_phrase) - 1; i++)
+			orig_phrase[i] = seedchars[stress_mwc32() & 0x3f];
+		orig_phrase[i] = '\0';
 
 		if (crypt_method == 0) {
 			for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
-				(void)shim_strscpy(setting, orig_setting, setting_len);
+				(void)shim_memcpy(setting, orig_setting, sizeof(orig_setting));
 				(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
+				(void)shim_memcpy(phrase, orig_phrase, sizeof(orig_phrase));
 #if defined (HAVE_CRYPT_R)
 				data.initialized = 0;
 #endif
-
 				ret = stress_crypt_id(args, i,
 #if defined (HAVE_CRYPT_R)
 					&data);
@@ -215,8 +222,9 @@ static int stress_crypt(stress_args_t *args)
 					stress_bogo_inc(args);
 			}
 		} else {
-			(void)shim_strscpy(setting, orig_setting, setting_len);
+			(void)shim_strscpy(setting, orig_setting, sizeof(orig_setting));
 			(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
+			(void)shim_memcpy(phrase, orig_phrase, sizeof(orig_phrase));
 #if defined (HAVE_CRYPT_R)
 			data.initialized = 0;
 #endif
