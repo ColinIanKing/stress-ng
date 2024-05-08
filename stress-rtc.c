@@ -105,7 +105,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 		struct rtc_wkalrm wake_alarm;
 
 		if (ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0) {
-			if ((errno != EINTR) && (errno != ENOTTY)) {
+			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_WKALRM_RD failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -145,7 +145,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 		unsigned long tmp;
 
 		if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
-			if ((errno != EINTR) && (errno != ENOTTY)) {
+			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_EPOCH_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -164,7 +164,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 		unsigned long tmp;
 
 		if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
-			if ((errno != EINTR) && (errno != ENOTTY)) {
+			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_IRQP_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -200,7 +200,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 		unsigned long tmp;
 
 		if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
-			if ((errno != EINTR) && (errno != ENOTTY)) {
+			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
 				ret = -errno;
 				pr_fail("%s: ioctl RTC_VL_READ failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
