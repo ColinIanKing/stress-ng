@@ -18,6 +18,9 @@
  */
 #include "stress-ng.h"
 #include "core-asm-arm.h"
+#include "core-asm-ppc64.h"
+#include "core-asm-loong64.h"
+#include "core-asm-riscv.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
