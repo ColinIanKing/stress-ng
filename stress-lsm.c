@@ -199,7 +199,7 @@ static int stress_lsm(stress_args_t *args)
 
 			/*
 			 *  exercise invalid ctx_len, see Linux commits
-		 	 *  a04a1198088a and d8bdd795d383
+			 *  a04a1198088a and d8bdd795d383
 			 */
 			ctx->id = LSM_ID_APPARMOR;
 			ctx->flags = 0;
