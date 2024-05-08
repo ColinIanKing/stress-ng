@@ -30,6 +30,7 @@ static const stress_help_t help[] = {
 
 #if defined(__NR_lsm_list_modules) &&	\
     defined(__NR_lsm_get_self_attr) &&	\
+    defined(__NR_lsm_set_self_attr) &&	\
     defined(HAVE_LINUX_LSM_H)
 
 /*
@@ -48,6 +49,15 @@ static int shim_lsm_list_modules(uint64_t *ids, size_t *size, uint32_t flags)
 static int shim_lsm_get_self_attr(unsigned int attr, struct lsm_ctx *ctx, size_t *size, uint32_t flags)
 {
 	return (int)syscall(__NR_lsm_get_self_attr, attr, ctx, size, flags);
+}
+
+/*
+ *  shim_lsm_set_self_attr
+ *	shim system call wrapper for lsm_set_self_attr()
+ */
+static int shim_lsm_set_self_attr(unsigned int attr, struct lsm_ctx *ctx, size_t size, uint32_t flags)
+{
+	return (int)syscall(__NR_lsm_set_self_attr, attr, ctx, size, flags);
 }
 
 /*
