@@ -195,7 +195,7 @@ static uint64_t stress_ipsec_mb_features(stress_args_t *args, const IMB_MGR *p_m
 			}
 		}
 
-		pr_inf("%s: features:%s\n", args->name, str);
+		pr_inf("%s: features:%s\n", args->name, *str ? str : " none detected");
 	}
 	return features;
 }
