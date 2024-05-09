@@ -2626,36 +2626,8 @@ const char *stress_get_uname_info(void)
  */
 int stress_unimplemented(stress_args_t *args)
 {
-	static const char msg[] = "this stressor is not implemented on "
-				  "this system";
-	if (args->instance == 0) {
-#if defined(HAVE_UNAME) &&	\
-    defined(HAVE_SYS_UTSNAME_H)
-		struct utsname buf;
+	(void)args;
 
-		if (uname(&buf) >= 0) {
-			if (args->info->unimplemented_reason) {
-				pr_inf_skip("%s: %s: %s %s (%s)\n",
-					args->name, msg, stress_get_uname_info(),
-					stress_get_compiler(),
-					args->info->unimplemented_reason);
-			} else {
-				pr_inf_skip("%s: %s: %s %s\n",
-					args->name, msg, stress_get_uname_info(),
-					stress_get_compiler());
-			}
-			return EXIT_NOT_IMPLEMENTED;
-		}
-#endif
-		if (args->info->unimplemented_reason) {
-			pr_inf_skip("%s: %s: %s (%s)\n",
-				args->name, msg, stress_get_compiler(),
-				args->info->unimplemented_reason);
-		} else {
-			pr_inf_skip("%s: %s: %s\n",
-				args->name, msg, stress_get_compiler());
-		}
-	}
 	return EXIT_NOT_IMPLEMENTED;
 }
 

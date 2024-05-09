@@ -2509,6 +2509,44 @@ void stress_shared_unmap(void)
 }
 
 /*
+ *  stress_exclude_unimplemented()
+ *	report why an unimplemented stressor will be skipped
+ */
+void stress_exclude_unimplemented(
+	const char *name,
+	const struct stressor_info *info)
+{
+	static const char msg[] = "stressor will be skipped, it is not implemented on "
+				  "this system";
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
+	struct utsname buf;
+
+	if (uname(&buf) >= 0) {
+		if (info->unimplemented_reason) {
+			pr_inf_skip("%s %s: %s %s (%s)\n",
+				name, msg, stress_get_uname_info(),
+				stress_get_compiler(),
+				info->unimplemented_reason);
+		} else {
+			pr_inf_skip("%s %s: %s %s\n",
+				name, msg, stress_get_uname_info(),
+				stress_get_compiler());
+		}
+	}
+#else
+	if (info->unimplemented_reason) {
+		pr_inf_skip("%s %s: %s (%s)\n",
+			name, msg, stress_get_compiler(),
+			info->unimplemented_reason);
+	} else {
+		pr_inf_skip("%s %s: %s\n",
+			name, msg, stress_get_compiler());
+	}
+#endif
+}
+
+/*
  *  stress_exclude_unsupported()
  *	tag stressor proc count to be excluded
  */
@@ -2517,16 +2555,26 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (stressors[i].info && stressors[i].info->supported) {
-			stress_stressor_t *ss;
-			unsigned int id = stressors[i].id;
+		stress_stressor_t *ss;
+		unsigned int id = stressors[i].id;
 
+		if (stressors[i].info && stressors[i].info->supported) {
 			for (ss = stressors_head; ss; ss = ss->next) {
 				if (ss->ignore.run)
 					continue;
-				if ((ss->stressor->id == id) &&
-				    ss->num_instances &&
+				if ((ss->stressor->id == id) && ss->num_instances &&
 				    (stressors[i].info->supported(stressors[i].name) < 0)) {
+					stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+					*unsupported = true;
+				}
+			}
+		}
+		if (stressors[i].info && (stressors[i].info->stressor == stress_unimplemented)) {
+			for (ss = stressors_head; ss; ss = ss->next) {
+				if (ss->ignore.run)
+					continue;
+				if ((ss->stressor->id == id) && ss->num_instances) {
+					stress_exclude_unimplemented(stressors[i].name, stressors[i].info);
 					stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 					*unsupported = true;
 				}
