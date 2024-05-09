@@ -1816,6 +1816,7 @@ static void stress_metrics_check(bool *success)
 	stress_stressor_t *ss;
 	bool ok = true;
 	uint64_t counter_check = 0;
+	uint32_t instances = 0;
 	double min_run_time = DBL_MAX;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
@@ -1823,6 +1824,8 @@ static void stress_metrics_check(bool *success)
 
 		if (ss->ignore.run)
 			continue;
+
+		instances += ss->num_instances;
 
 		for (j = 0; j < ss->num_instances; j++) {
 			const stress_stats_t *const stats = ss->stats[j];
@@ -1867,6 +1870,14 @@ static void stress_metrics_check(bool *success)
 				ok = false;
 			}
 		}
+	}
+
+	/*
+	 *  No point sanity checking metrics if nothing happened
+	 */
+	if (instances == 0) {
+		pr_dbg("metrics-check: no stressors run\n");
+		return;
 	}
 
 	/*
