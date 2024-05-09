@@ -135,7 +135,7 @@ static int stress_lsm(stress_args_t *args)
 		size = 1;
 		ret = shim_lsm_list_modules(ids, &size, ~0);
 		if ((ret >= 0) || ((ret < 0) && (errno != EINVAL))) {
-			pr_fail("%s: invalid lsm_list_modules call should return -1, got %d, errno=%d (%s) instead\n",
+			pr_fail("%s: lsm_list_modules call with invalid flags should return -1, got %d, errno=%d (%s) instead\n",
 				args->name, ret, errno, strerror(errno));
 			goto err;
 		}
@@ -144,7 +144,7 @@ static int stress_lsm(stress_args_t *args)
 		size = 1;
 		ret = shim_lsm_list_modules(NULL, &size, 0);
 		if ((ret >= 0) || ((ret < 0) && (errno != EFAULT))) {
-			pr_fail("%s: invalid lsm_list_modules call should return -1, got %d, errno=%d (%s) instead\n",
+			pr_fail("%s: lsm_list_modules call with NULL ids should return -1, got %d, errno=%d (%s) instead\n",
 				args->name, ret, errno, strerror(errno));
 			goto err;
 		}
@@ -174,16 +174,16 @@ static int stress_lsm(stress_args_t *args)
 			size = buf_size;
 			ret = shim_lsm_get_self_attr(~0, ctx, &size, 0);
 			if ((ret >= 0) || ((ret < 0) && (errno != EOPNOTSUPP))) {
-				pr_fail("%s: invalid lsm_get_self_attr call should return -1, got %d, errno=%d (%s) instead\n",
+				pr_fail("%s: lsm_get_self_attr call with invalid attr should return -1, got %d, errno=%d (%s) instead\n",
 					args->name, ret, errno, strerror(errno));
 				goto err;
 			}
 
 			/* exercise invalid ctx */
 			size = buf_size;
-			ret = shim_lsm_get_self_attr(attr[j], NULL, &size, 0);
+			ret = shim_lsm_get_self_attr(attr[j], (struct lsm_ctx *)~(uintptr_t)0, &size, 0);
 			if ((ret >= 0) || ((ret < 0) && (errno != EFAULT))) {
-				pr_fail("%s: invalid lsm_get_self_attr call should return -1, got %d, errno=%d (%s) instead\n",
+				pr_fail("%s: lsm_get_self_attr call with NULL ctx should return -1, got %d, errno=%d (%s) instead\n",
 					args->name, ret, errno, strerror(errno));
 				goto err;
 			}
@@ -192,7 +192,7 @@ static int stress_lsm(stress_args_t *args)
 			size = buf_size;
 			ret = shim_lsm_get_self_attr(attr[j], ctx, &size, ~0);
 			if ((ret >= 0) || ((ret < 0) && (errno != EINVAL))) {
-				pr_fail("%s: invalid lsm_get_self_attr call should return -1, got %d, errno=%d (%s) instead\n",
+				pr_fail("%s: lsm_get_self_attr call with invalid flags should return -1, got %d, errno=%d (%s) instead\n",
 					args->name, ret, errno, strerror(errno));
 				goto err;
 			}
