@@ -90,7 +90,7 @@ static inline int32_t stress_fractal_get_row(stress_args_t *args, int32_t max_ro
 {
 	int32_t row, row_next;
 
-	if (stress_lock_acquire(g_shared->fractal.lock) < 0)
+	if (stress_lock_acquire_relax(g_shared->fractal.lock) < 0)
 		return -1;
 	row = g_shared->fractal.row;
 	row_next = row + 1;
