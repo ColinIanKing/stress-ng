@@ -39,6 +39,7 @@
 #endif
 
 #define STRESS_LOCK_MAGIC	(0x387cb9e5)
+#define STRESS_LOCK_MAX_BACKOFF	(1U << 18)
 
 #if defined(HAVE_LIB_PTHREAD) &&		\
     defined(HAVE_LIB_PTHREAD_SPINLOCK) &&       \
@@ -124,6 +125,7 @@ typedef struct stress_lock {
 	int (*init)(struct stress_lock *lock);
 	int (*deinit)(struct stress_lock *lock);
 	int (*acquire)(struct stress_lock *lock);
+	int (*acquire_relax)(struct stress_lock *lock);
 	int (*release)(struct stress_lock *lock);
 } stress_lock_t;
 
@@ -156,18 +158,54 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 		double t = stress_time_now();
 
 		while (test_and_set(&lock->u.flag) == true) {
+			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
+				errno = EAGAIN;
+				return -1;
+			}
+		}
+		return 0;
+	}
+	errno = EINVAL;
+	return -1;
+}
+
+static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
+{
+	if (lock) {
+		double t = stress_time_now();
+		uint32_t backoff = 1;
+
+		while (test_and_set(&lock->u.flag) == true) {
+			register uint32_t i;
+
+			for (i = 0; i < backoff; i++) {
 #if defined(HAVE_ASM_X86_PAUSE)
-			stress_asm_x86_pause();
+#define STRESS_LOCK_BACKOFF
+				stress_asm_x86_pause();
 #elif defined(HAVE_ASM_ARM_YIELD)
-			stress_asm_arm_yield();
+#define STRESS_LOCK_BACKOFF
+				stress_asm_arm_yield();
 #elif defined(HAVE_ASM_LOONG64_DBAR)
-			stress_waitcpu_loong64_dbar();
+#define STRESS_LOCK_BACKOFF
+				stress_waitcpu_loong64_dbar();
 #elif defined(STRESS_ARCH_PPC64)
-			stress_asm_ppc64_yield();
+#define STRESS_LOCK_BACKOFF
+				stress_asm_ppc64_yield();
 #elif defined(STRESS_ARCH_RISCV)
-			stress_asm_riscv_pause();
+#define STRESS_LOCK_BACKOFF
+				stress_asm_riscv_pause();
 #else
-			shim_sched_yield();
+				shim_sched_yield();
+#endif
+			}
+#if defined(STRESS_LOCK_BACKOFF)
+			/*
+			 *  multiple fast cpu pauses on a failed lock acquire
+			 *  benefit from exponential backoff
+			 */
+			backoff = backoff << 1;
+			if (backoff > STRESS_LOCK_MAX_BACKOFF)
+				backoff = STRESS_LOCK_MAX_BACKOFF;
 #endif
 			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
 				errno = EAGAIN;
@@ -424,36 +462,42 @@ void *stress_lock_create(void)
 	lock->init = stress_atomic_lock_init;
 	lock->deinit = stress_atomic_lock_deinit;
 	lock->acquire = stress_atomic_lock_acquire;
+	lock->acquire_relax = stress_atomic_lock_acquire_relax;
 	lock->release = stress_atomic_lock_release;
 	lock->type = "atomic-spinlock";
 #elif LOCK_METHOD_PTHREAD_SPINLOCK != 0
 	lock->init = stress_pthread_spinlock_init;
 	lock->deinit = stress_pthread_spinlock_deinit;
 	lock->acquire = stress_pthread_spinlock_acquire;
+	lock->acquire_relax = stress_pthread_spinlock_acquire;
 	lock->release = stress_pthread_spinlock_release;
 	lock->type = "pthread-spinlock";
 #elif LOCK_METHOD_PTHREAD_MUTEX != 0
 	lock->init = stress_pthread_mutex_init;
 	lock->deinit = stress_pthread_mutex_deinit;
 	lock->acquire = stress_pthread_mutex_acquire;
+	lock->acquire_relax = stress_pthread_mutex_acquire;
 	lock->release = stress_pthread_mutex_release;
 	lock->type = "pthread-mutex";
 #elif LOCK_METHOD_FUTEX != 0
 	lock->init = stress_futex_init;
 	lock->deinit = stress_futex_deinit;
 	lock->acquire = stress_futex_acquire;
+	lock->acquire_relax = stress_futex_acquire;
 	lock->release = stress_futex_release;
 	lock->type = "futex";
 #elif LOCK_METHOD_SEM_POSIX != 0
 	lock->init = stress_sem_posix_init;
 	lock->deinit = stress_sem_posix_deinit;
 	lock->acquire = stress_sem_posix_acquire;
+	lock->acquire_relax = stress_sem_posix_acquire;
 	lock->release = stress_sem_posix_release;
 	lock->type = "sem-posix";
 #elif LOCK_METHOD_SEM_SYSV != 0
 	lock->init = stress_sem_sysv_init;
 	lock->deinit = stress_sem_sysv_deinit;
 	lock->acquire = stress_sem_sysv_acquire;
+	lock->acquire_relax = stress_sem_sysv_acquire;
 	lock->release = stress_sem_sysv_release;
 	lock->type = "sem-posix";
 #else
@@ -503,6 +547,21 @@ int stress_lock_acquire(void *lock_handle)
 
 	if (stress_lock_valid(lock))
 		return lock->acquire(lock);
+
+	errno = EINVAL;
+	return -1;
+}
+
+/*
+ *  stress_lock_acquire_relax()
+ *	generic lock acquire (lock) with relaxed backoff
+ */
+int stress_lock_acquire_relax(void *lock_handle)
+{
+	stress_lock_t *lock = (stress_lock_t *)lock_handle;
+
+	if (stress_lock_valid(lock))
+		return lock->acquire_relax(lock);
 
 	errno = EINVAL;
 	return -1;
