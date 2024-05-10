@@ -1395,9 +1395,10 @@ static int stress_cpu_ackermann(const char *name)
 {
 	uint32_t a = ackermann(3, 7);
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 0x3fd)) {
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 1021)) {
 		pr_fail("%s: ackermann error detected, "
-			"ackermann(3,9) miscalculated\n", name);
+			"ackermann(3, 7) miscalculated, got %" PRIu32
+			", expected %" PRIu32 "\n", name, a, 1021);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
