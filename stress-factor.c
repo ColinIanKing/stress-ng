@@ -48,7 +48,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static int OPTIMIZE3 stress_factor(stress_args_t *args)
 {
-	size_t factor_digits = 10;
+	size_t factor_digits = 10, max_digits = 0;
 	double total_factors = 0.0, mean, t, duration = 0.0, rate;
 	uint64_t ops, factors;
 	mpz_t value, divisor, q, r, tmp;
@@ -60,6 +60,8 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		size_t digits;
+
 		/* Step #1, generate a number to factorize */
 		mpz_set_ui(value, 2);
 		do {
@@ -87,6 +89,10 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 			mpz_set_ui(tmp, n);
 			mpz_mul(value, value, tmp);
 		} while (mpz_sizeinbase(value, 10) < factor_digits);
+
+		digits = mpz_sizeinbase(value, 10);
+		if (digits > max_digits)
+			max_digits = digits;
 
 		/* Step #2, factorize it */
 		t = stress_time_now();
@@ -123,6 +129,7 @@ abort:
 
 	rate = (ops > 0) ? (double)duration / (double)ops : 0.0;
 	stress_metrics_set(args, 1, "millisec per factorization", 1000.0 * rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, 2, "digits in largest factor", (double)max_digits, STRESS_METRIC_MAXIMUM);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
