@@ -211,9 +211,11 @@ static int stress_lsm(stress_args_t *args)
 	} while (stress_continue(args));
 
 	rate = (list_duration > 0.0) ? list_count / list_duration  : 0.0;
-	stress_metrics_set(args, 0, "lsm_list_modules calls per sec", rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 0, "lsm_list_modules calls per sec",
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (get_duration > 0.0) ? get_count / get_duration  : 0.0;
-	stress_metrics_set(args, 1, "lsm_get_self_attr calls per sec", rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "lsm_get_self_attr calls per sec",
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 err:
 	pr_dbg("%s: got LSM IDs: undefined: %s, reserved: %s, defined: %s\n",

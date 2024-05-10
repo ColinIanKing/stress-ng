@@ -283,7 +283,7 @@ redo: 			errno = 0;
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per mincore call",
-		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

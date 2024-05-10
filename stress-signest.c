@@ -340,7 +340,7 @@ finish:
 	}
 	rate = handled > 0 ? duration / (double)handled : 0.0;
 	stress_metrics_set(args, 0, "nanosec to handle a signal",
-		rate * 1000000000.0, STRESS_HARMONIC_MEAN);
+		rate * 1000000000.0, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_sigaltstack_disable();
 	(void)munmap((void *)altstack, altstack_size);

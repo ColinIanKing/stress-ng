@@ -729,7 +729,7 @@ static int stress_fp(stress_args_t *args)
 
 			(void)snprintf(msg, sizeof(msg), "Mfp-ops per sec, %-20s", stress_fp_funcs[i].description);
 			stress_metrics_set(args, i - 1, msg,
-				rate / 1000000.0, STRESS_HARMONIC_MEAN);
+				rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 		}
 	}
 

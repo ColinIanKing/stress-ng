@@ -508,7 +508,7 @@ static int stress_rawdev(stress_args_t *args)
 
 			(void)snprintf(str, sizeof(str), "MB per sec read rate (%s)", rawdev_methods[i].name);
 			stress_metrics_set(args, j, str,
-				rate, STRESS_HARMONIC_MEAN);
+				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

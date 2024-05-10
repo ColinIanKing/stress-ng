@@ -608,7 +608,7 @@ static int stress_vma(stress_args_t *args)
 
 		(void)snprintf(msg, sizeof(msg), "%s per second", stress_vma_metrics_name[i]);
 		stress_metrics_set(args, i, msg,
-			rate, STRESS_HARMONIC_MEAN);
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	(void)munmap((void *)stress_vma_metrics, sizeof(*stress_vma_metrics));

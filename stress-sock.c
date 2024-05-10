@@ -978,7 +978,7 @@ retry:
 		(void)close(fd);
 		metric = (inq_samples > 0) ? (double)inq_bytes / (double)inq_samples : 0.0;
 		stress_metrics_set(args, 2, "byte average in queue length",
-			metric, STRESS_GEOMETRIC_MEAN);
+			metric, STRESS_METRIC_GEOMETRIC_MEAN);
 	} while (stress_continue(args));
 
 #if defined(AF_UNIX) &&		\
@@ -1345,10 +1345,10 @@ retry_sendmmsg:
 	duration = stress_time_now() - t;
 	metric = (duration > 0.0) ? (double)msgs / duration : 0.0;
 	stress_metrics_set(args, 0, "messages sent per sec",
-		metric, STRESS_HARMONIC_MEAN);
+		metric, STRESS_METRIC_HARMONIC_MEAN);
 	metric = (outq_samples > 0) ? (double)outq_bytes / (double)outq_samples : 0.0;
 	stress_metrics_set(args, 1, "byte average out queue length",
-		metric, STRESS_HARMONIC_MEAN);
+		metric, STRESS_METRIC_HARMONIC_MEAN);
 
 die_close:
 	(void)close(fd);

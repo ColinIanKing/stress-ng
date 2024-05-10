@@ -303,7 +303,7 @@ static int stress_fsize(stress_args_t *args)
 	duration = stress_time_now() - t;
 	rate = (duration > 0.0) ? (double)sigxfsz_count / duration : 0.0;
 	stress_metrics_set(args, 0, "SIGXFSZ signals per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd != -1)

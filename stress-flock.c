@@ -279,10 +279,10 @@ static int stress_flock_child(
 	if (save_metrics) {
 		rate = (lock_count > 0.0) ? lock_duration / lock_count : 0.0;
 		stress_metrics_set(args, 0, "nanosecs per flock lock call",
-			rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+			rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 		rate = (unlock_count > 0.0) ? unlock_duration / unlock_count : 0.0;
 		stress_metrics_set(args, 1, "nanosecs per flock unlock call",
-			rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+			rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	}
 	(void)close(fd2);
 	(void)close(fd1);

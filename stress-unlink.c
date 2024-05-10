@@ -272,7 +272,7 @@ static int stress_unlink(stress_args_t *args)
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "unlink calls per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 filenames_free:
 	for (i = 0; i < UNLINK_FILES; i++) {

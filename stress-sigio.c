@@ -211,7 +211,8 @@ again:
 	t_delta = stress_time_now() - t_start;
 	rate = (t_delta > 0.0) ? (double)async_sigs / t_delta : 0.0;
 	stress_metrics_set(args, 0, "SIGIO signals per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
+
 
 finish:
 	/*  And ignore IO signals from now on */

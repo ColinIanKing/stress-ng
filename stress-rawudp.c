@@ -242,11 +242,11 @@ static int OPTIMIZE3 stress_rawudp_server(
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB recv'd per sec",
-		rate / (double)MB, STRESS_HARMONIC_MEAN);
+		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (duration > 0.0) ? (double)stress_bogo_get(args) / duration : 0.0;
 	(void)snprintf(msg, sizeof(msg), "packets (%zu bytes) received per sec", PACKET_SIZE);
 	stress_metrics_set(args, 1, msg,
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 die_close:
 	(void)close(fd);

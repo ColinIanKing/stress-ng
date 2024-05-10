@@ -215,16 +215,16 @@ static int stress_dirmany(stress_args_t *args)
 		double rate;
 
 		stress_metrics_set(args, 0, "% of time creating files",
-			create_time / total_time * 100.0, STRESS_GEOMETRIC_MEAN);
+			create_time / total_time * 100.0, STRESS_METRIC_GEOMETRIC_MEAN);
 		stress_metrics_set(args, 1, "% of time removing file",
-			remove_time / total_time * 100.0, STRESS_GEOMETRIC_MEAN);
+			remove_time / total_time * 100.0, STRESS_METRIC_GEOMETRIC_MEAN);
 
 		rate = (create_time > 0.0) ? (double)total_created / create_time : 0.0;
 		stress_metrics_set(args, 2, "files created per sec",
-			rate, STRESS_HARMONIC_MEAN);
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 		rate = (remove_time > 0.0) ? (double)total_created / remove_time : 0.0;
 		stress_metrics_set(args, 3, "files removed per sec",
-			rate, STRESS_HARMONIC_MEAN);
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

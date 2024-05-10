@@ -271,12 +271,12 @@ next:
 		double average_duration;
 
 		stress_metrics_set(args, 0, "minor page faults per sec",
-			(double)usage.ru_minflt / dt, STRESS_HARMONIC_MEAN);
+			(double)usage.ru_minflt / dt, STRESS_METRIC_HARMONIC_MEAN);
 		stress_metrics_set(args, 1, "major page faults per sec",
-			(double)usage.ru_majflt / dt, STRESS_HARMONIC_MEAN);
+			(double)usage.ru_majflt / dt, STRESS_METRIC_HARMONIC_MEAN);
 		average_duration = (count > 0.0) ? duration / count : 0.0;
 		stress_metrics_set(args, 2, "nanosecs per page fault",
-			average_duration * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+			average_duration * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	}
 #endif
 	return rc;

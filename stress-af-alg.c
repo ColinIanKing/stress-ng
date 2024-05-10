@@ -932,7 +932,7 @@ static int stress_af_alg(stress_args_t *args)
 
 			(void)snprintf(str, sizeof(str), "%s (%s) ops/sec", info->name, info->type),
 
-			stress_metrics_set(args, idx, str, rate, STRESS_HARMONIC_MEAN);
+			stress_metrics_set(args, idx, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 			idx++;
 		}
 	}

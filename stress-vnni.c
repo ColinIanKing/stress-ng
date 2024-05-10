@@ -601,7 +601,7 @@ static int stress_vnni(stress_args_t *args)
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per sec", stress_vnni_methods[i].name);
 			stress_metrics_set(args, j, buf,
-				rate, STRESS_HARMONIC_MEAN);
+				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

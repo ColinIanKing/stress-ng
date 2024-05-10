@@ -474,7 +474,7 @@ static int stress_expmath(stress_args_t *args)
 
 			(void)snprintf(buf, sizeof(buf), "%s ops per second", stress_expmath_methods[i].name);
 			stress_metrics_set(args, j, buf,
-				rate, STRESS_HARMONIC_MEAN);
+				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

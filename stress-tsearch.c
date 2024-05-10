@@ -153,9 +153,9 @@ abort:
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "tsearch comparisons per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, 1, "tsearch comparisons per item",
-		count / sorted, STRESS_HARMONIC_MEAN);
+		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
 	free(data);
 	return rc;

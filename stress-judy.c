@@ -181,7 +181,7 @@ abort:
 		const double rate = (duration[k] > 0.0) ? count[k] / duration[k] : 0.0;
 
 		(void)snprintf(msg, sizeof(msg), "Judy %s operations per sec", judy_ops[k]);
-		stress_metrics_set(args, k, msg, rate, STRESS_HARMONIC_MEAN);
+		stress_metrics_set(args, k, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

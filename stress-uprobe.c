@@ -268,7 +268,7 @@ terminate:
 	duration = stress_time_now() - t_start;
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB trace data per second",
-		rate / (double)MB, STRESS_HARMONIC_MEAN);
+		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

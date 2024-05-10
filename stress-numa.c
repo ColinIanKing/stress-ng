@@ -794,11 +794,11 @@ static int stress_numa(stress_args_t *args)
 
 	rate = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_HIT] -
 				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_HIT]) / duration : 0.0;
-	stress_metrics_set(args, 0, "NUMA hits per sec", rate, STRESS_GEOMETRIC_MEAN);
+	stress_metrics_set(args, 0, "NUMA hits per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	rate = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_MISS] -
 				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_MISS]) / duration : 0.0;
-	stress_metrics_set(args, 1, "NUMA misses per sec", rate, STRESS_GEOMETRIC_MEAN);
+	stress_metrics_set(args, 1, "NUMA misses per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	rc = EXIT_SUCCESS;
 err:

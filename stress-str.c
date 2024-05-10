@@ -713,7 +713,7 @@ static int stress_str(stress_args_t *args)
 
 			(void)snprintf(msg, sizeof(msg), "%s calls per sec", str_methods[i].name);
 			stress_metrics_set(args, j, msg,	
-				rate, STRESS_HARMONIC_MEAN);
+				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

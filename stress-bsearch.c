@@ -183,9 +183,9 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "bsearch comparisons per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, 1, "bsearch comparisons per item",
-		count / sorted, STRESS_HARMONIC_MEAN);
+		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)data, data_size);
 	return rc;

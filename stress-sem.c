@@ -247,11 +247,11 @@ static int stress_sem(stress_args_t *args)
 	duration = stress_time_now() - t;
 	if (duration > 0.0) {
 		stress_metrics_set(args, 0, "sem_trywait calls per sec",
-			trywait_count / duration, STRESS_HARMONIC_MEAN);
+			trywait_count / duration, STRESS_METRIC_HARMONIC_MEAN);
 		stress_metrics_set(args, 1, "sem_timedwait calls per sec",
-			timedwait_count / duration, STRESS_HARMONIC_MEAN);
+			timedwait_count / duration, STRESS_METRIC_HARMONIC_MEAN);
 		stress_metrics_set(args, 2, "sem_wait calls per sec",
-			wait_count / duration, STRESS_HARMONIC_MEAN);
+			wait_count / duration, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	(void)sem_destroy(&sem);

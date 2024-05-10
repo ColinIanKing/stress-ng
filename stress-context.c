@@ -232,7 +232,7 @@ static int stress_context(stress_args_t *args)
 
 	rate = (duration > 0.0) ? (double)context_counter / duration : 0.0;
 	stress_metrics_set(args, 0, "swapcontext calls per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 fail:
 	for (i = 0; i < STRESS_CONTEXTS; i++) {
 		if ((context[i].stack != MAP_FAILED) && (context[i].stack))

@@ -463,7 +463,7 @@ static int stress_atomic(stress_args_t *args)
 		}
 		rate = (duration > 0.0) ? count / duration : 0.0;
 		(void)snprintf(str, sizeof(str), "%s atomic ops per sec", atomic_func_info[j].name);
-		stress_metrics_set(args, j, str, rate, STRESS_HARMONIC_MEAN);
+		stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

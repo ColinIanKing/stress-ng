@@ -295,7 +295,7 @@ static int stress_zero(stress_args_t *args)
 
 	rate = (duration > 0.0) ? ((double)bytes / duration) / (double)MB : 0.0;
 	stress_metrics_set(args, 0, "MB per sec /dev/zero read rate",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	return rc;
 }

@@ -161,7 +161,7 @@ finish:
 
 	rate = (sigabrt_info->count > 0.0) ? sigabrt_info->latency / sigabrt_info->count : 0.0;
 	stress_metrics_set(args, 0, "nanosec SIGABRT latency",
-		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)sigabrt_mapping, args->page_size);
 

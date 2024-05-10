@@ -1771,10 +1771,10 @@ finish:
 
 	ratio = (bytes_in > 0) ? 100.0 * (double)bytes_out / (double)bytes_in : 0.0;
 	stress_metrics_set(args, 0, "% compression ratio",
-		ratio, STRESS_GEOMETRIC_MEAN);
+		ratio, STRESS_METRIC_GEOMETRIC_MEAN);
 	rate = (duration > 0.0) ? ((double)bytes_in / duration) / MB : 0.0;
 	stress_metrics_set(args, 1, "MB/sec compression rate",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	ret = EXIT_SUCCESS;
 zlib_checksum_error:

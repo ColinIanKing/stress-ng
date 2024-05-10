@@ -363,7 +363,7 @@ static int stress_splice(stress_args_t *args)
 
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB per sec splice rate",
-		rate / (double)MB, STRESS_HARMONIC_MEAN);
+		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)close(fd_out);
 close_fds4:

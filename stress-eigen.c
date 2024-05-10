@@ -186,7 +186,7 @@ static inline int stress_eigen_exercise(
 
 			(void)snprintf(msg, sizeof(msg), "%s matrix %zd x %zd ops per sec",
 				eigen_methods[i].name, eigen_size, eigen_size);
-			stress_metrics_set(args, j, msg, rate, STRESS_HARMONIC_MEAN);
+			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

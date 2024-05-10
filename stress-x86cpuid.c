@@ -229,7 +229,7 @@ PRAGMA_UNROLL_N(8)
 
 	rate = (count > 0.0) ? (duration / count) : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per cpuid instruction",
-		STRESS_DBL_NANOSECOND * rate, STRESS_HARMONIC_MEAN);
+		STRESS_DBL_NANOSECOND * rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	return rc;
 }

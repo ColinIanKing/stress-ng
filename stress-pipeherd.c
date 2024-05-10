@@ -197,10 +197,10 @@ static int stress_pipeherd(stress_args_t *args)
 			if (total) {
 				stress_metrics_set(args, 0, "context switches per bogo op",
 					(count > 0) ? ((double)total / (double)count) : 0.0,
-					STRESS_HARMONIC_MEAN);
+					STRESS_METRIC_HARMONIC_MEAN);
 				stress_metrics_set(args, 1, "context switches per sec",
 					(dt > 0.0) ? ((double)total / dt) : 0.0,
-					STRESS_HARMONIC_MEAN);
+					STRESS_METRIC_HARMONIC_MEAN);
 			}
 		}
 	}

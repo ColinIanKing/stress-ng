@@ -119,10 +119,10 @@ abort:
 
 	ops = stress_bogo_get(args);
 	mean = (ops > 0) ? total_factors / (double)ops : 0.0;
-	stress_metrics_set(args, 0, "average number of factors", mean, STRESS_GEOMETRIC_MEAN);
+	stress_metrics_set(args, 0, "average number of factors", mean, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	rate = (ops > 0) ? (double)duration / (double)ops : 0.0;
-	stress_metrics_set(args, 1, "millisec per factorization", 1000.0 * rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "millisec per factorization", 1000.0 * rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

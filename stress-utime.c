@@ -480,7 +480,7 @@ STRESS_PRAGMA_POP
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "utime calls per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\

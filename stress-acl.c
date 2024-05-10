@@ -466,7 +466,7 @@ static int stress_acl(stress_args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
 		rate = (metrics[i].count > 0.0) ? metrics[i].duration * STRESS_DBL_NANOSECOND / metrics[i].count : 0.0;
-		stress_metrics_set(args, i, description[i], rate, STRESS_HARMONIC_MEAN);
+		stress_metrics_set(args, i, description[i], rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	rc = EXIT_SUCCESS;

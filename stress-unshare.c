@@ -292,7 +292,7 @@ static int stress_unshare(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	rate = (total_count > 0.0) ? total_duration / total_count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per unshare call",
-		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	if (clone_flag_perms)
 		free(clone_flag_perms);

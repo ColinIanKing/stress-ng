@@ -2130,7 +2130,7 @@ static void stress_metrics_dump(FILE *yaml)
 					const char *plural = (ss->completed_instances > 1) ? "s" : "";
 
 					switch (ss->stats[0]->metrics.items[i].mean_type) {
-					case STRESS_GEOMETRIC_MEAN:
+					case STRESS_METRIC_GEOMETRIC_MEAN:
 						exponent = 0;
 						mantissa = 1.0;
 						n = 0.0;
@@ -2165,7 +2165,7 @@ static void stress_metrics_dump(FILE *yaml)
 								ss->completed_instances, plural);
 						}
 						break;
-					case STRESS_HARMONIC_MEAN:
+					case STRESS_METRIC_HARMONIC_MEAN:
 						sum = 0.0;
 						n = 0.0;
 

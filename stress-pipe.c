@@ -714,7 +714,7 @@ again:
 		duration = stress_time_now() - t;
 		rate = (duration > 0.0) ? ((double)bytes / duration) / (double)MB : 0.0;
 		stress_metrics_set(args, 0, "MB per sec pipe write rate",
-			rate, STRESS_HARMONIC_MEAN);
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 
 		(void)close(pipefds[1]);
 		(void)shim_kill(pid, SIGPIPE);

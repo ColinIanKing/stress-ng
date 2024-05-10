@@ -312,7 +312,7 @@ static int stress_forkheavy(stress_args_t *args)
 
 	average = (metrics->count > 0.0) ? metrics->duration / metrics->count : 0.0;
 	stress_metrics_set(args, 0, "microsecs per fork" ,
-		average * 1000000, STRESS_HARMONIC_MEAN);
+		average * 1000000, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)metrics, sizeof(*metrics));
 	free(forkheavy_args.resources);

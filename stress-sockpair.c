@@ -158,7 +158,7 @@ static int stress_sockpair_oomable(stress_args_t *args, void *context)
 	duration = stress_time_now() - t;
 	rate = (duration > 0.0) ? (double)max / duration : 0.0;
 	stress_metrics_set(args, 0, "socketpair calls sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	if (max == 0) {
 		int rc;
@@ -311,7 +311,7 @@ abort:
 tidy:
 		rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
 		stress_metrics_set(args, 1, "MB written per sec",
-			rate / (double)MB, STRESS_HARMONIC_MEAN);
+			rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
 
 		if (low_memory_count > 0) {
 			pr_dbg("%s: %.2f%% of writes backed off due to low memory\n",

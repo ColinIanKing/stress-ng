@@ -321,7 +321,7 @@ finish:
 		double rate = vforkmany_shared->duration / (double)vforkmany_shared->counter;
 
 		stress_metrics_set(args, 0, "nanosecs to start vfork'd a process",
-			rate * 1000000000.0, STRESS_HARMONIC_MEAN);
+			rate * 1000000000.0, STRESS_METRIC_HARMONIC_MEAN);
 	}
 	if ((vforkmany_shared->waited > 0) && (vforkmany_shared->invoked == 0)) {
 		pr_fail("%s: no vfork'd processes got fully invoked correctly "

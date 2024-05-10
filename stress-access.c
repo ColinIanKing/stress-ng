@@ -458,7 +458,7 @@ static int stress_access(stress_args_t *args)
 	metrics[2].count = metrics[0].count + metrics[1].count;
 
 	rate = (metrics[2].duration > 0.0) ? metrics[2].count / metrics[2].duration : 0.0;
-	stress_metrics_set(args, 0, "access calls per sec", rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 0, "access calls per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	rc = EXIT_SUCCESS;
 

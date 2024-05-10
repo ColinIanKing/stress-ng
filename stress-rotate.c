@@ -237,7 +237,7 @@ static int stress_rotate(stress_args_t *args)
 
 			(void)snprintf(msg, sizeof(msg), "%s rotate ops per sec", stress_rotate_funcs[i].name);
 			stress_metrics_set(args, j, msg,
-				rate, STRESS_HARMONIC_MEAN);
+				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

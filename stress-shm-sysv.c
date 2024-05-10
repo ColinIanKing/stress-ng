@@ -173,7 +173,7 @@ static void stress_shm_metrics(
 
 	(void)snprintf(buffer, sizeof(buffer), "nanosecs per %s call", syscall);
 	stress_metrics_set(args, index, buffer,
-		STRESS_DBL_NANOSECOND * rate, STRESS_HARMONIC_MEAN);
+		STRESS_DBL_NANOSECOND * rate, STRESS_METRIC_HARMONIC_MEAN);
 }
 
 /*

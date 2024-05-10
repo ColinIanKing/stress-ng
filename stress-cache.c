@@ -1020,7 +1020,7 @@ next:
 			metrics[j].count / metrics[j].duration : 0.0;
 
 		stress_metrics_set(args, j, metrics_description[j],
-			rate, STRESS_HARMONIC_MEAN);
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	return ret;

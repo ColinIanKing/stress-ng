@@ -357,7 +357,7 @@ die:
 	dt = t2 - t1;
 	if (dt > 0.0)
 		stress_metrics_set(args, 0, "messages sent per sec",
-			(double)msgs / dt, STRESS_HARMONIC_MEAN);
+			(double)msgs / dt, STRESS_METRIC_HARMONIC_MEAN);
 
 	return rc;
 }

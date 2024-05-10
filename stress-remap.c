@@ -320,7 +320,7 @@ PRAGMA_UNROLL_N(4)
 
 	rate = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per page remap",
-		rate * 1000000000, STRESS_HARMONIC_MEAN);
+		rate * 1000000000, STRESS_METRIC_HARMONIC_MEAN);
 
 	(void)munmap((void *)order, order_size);
 	(void)munmap((void *)data, data_size);

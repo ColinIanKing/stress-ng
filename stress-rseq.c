@@ -244,7 +244,8 @@ static int stress_rseq(stress_args_t *args)
 
 	rate = (rseq_info->crit_count > 0) ?
 		(double)rseq_info->crit_interruptions * 1000000000.0 / (rseq_info->crit_count) : 0.0;
-	stress_metrics_set(args, 0, "critical section interruptions per billion rseq ops", rate, STRESS_HARMONIC_MEAN);
+	stress_metrics_set(args, 0, "critical section interruptions per billion rseq ops",
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(rseq_info, args->page_size);

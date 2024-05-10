@@ -287,7 +287,7 @@ tidy:
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "chdir calls per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(chdir_info);

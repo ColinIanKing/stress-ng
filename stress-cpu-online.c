@@ -412,10 +412,10 @@ static int stress_cpu_online(stress_args_t *args)
 
 	rate = (offline_count > 0.0) ? (double)offline_duration / offline_count : 0.0;
 	stress_metrics_set(args, 0, "millisecs per offline action",
-		rate * STRESS_DBL_MILLISECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_MILLISECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (online_count > 0.0) ? (double)online_duration / online_count : 0.0;
 	stress_metrics_set(args, 1, "millisecs per online action",
-		rate * STRESS_DBL_MILLISECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_MILLISECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	return rc;
 }

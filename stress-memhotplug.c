@@ -348,11 +348,11 @@ finish:
 	rate = (metrics.offline_count > 0.0) ? (double)metrics.offline_duration / metrics.offline_count : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, 0, "millisecs per offline action",
-			rate * STRESS_DBL_MILLISECOND, STRESS_HARMONIC_MEAN);
+			rate * STRESS_DBL_MILLISECOND, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (metrics.online_count > 0.0) ? (double)metrics.online_duration / metrics.online_count : 0.0;
 	if (rate > 0.0)
 		stress_metrics_set(args, 1, "millisecs per online action",
-			rate * STRESS_DBL_MILLISECOND, STRESS_HARMONIC_MEAN);
+			rate * STRESS_DBL_MILLISECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	for (i = 0; i < max; i++)
 		stress_memhotplug_mem_online(&mem_info[i]);

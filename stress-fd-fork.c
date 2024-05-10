@@ -297,14 +297,14 @@ tidy_fds:
 
 	rate = (info->metrics.count > 0.0) ? (double)info->metrics.duration / info->metrics.count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per fd close",
-		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	stress_metrics_set(args, 1, "file descriptors open at one time",
-		(double)count_fd, STRESS_GEOMETRIC_MEAN);
+		(double)count_fd, STRESS_METRIC_GEOMETRIC_MEAN);
 	if (t_max > 0.0) {
 		const double duration = t_max - t_start;
 
 		stress_metrics_set(args, 2, "seconds to open all file descriptors",
-			(double)duration, STRESS_GEOMETRIC_MEAN);
+			(double)duration, STRESS_METRIC_GEOMETRIC_MEAN);
 	}
 
 	(void)munmap((void *)info, sizeof(*info));

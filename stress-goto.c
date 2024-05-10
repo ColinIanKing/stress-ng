@@ -445,7 +445,7 @@ L0x000:
 	duration = t2 - t1;
 	rate = (duration > 0.0) ? (1024.0 * (double)stress_bogo_get(args)) / duration : 0.0;
 	stress_metrics_set(args, 0, "million gotos per sec",
-		rate / 1000000.0, STRESS_HARMONIC_MEAN);
+		rate / 1000000.0, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

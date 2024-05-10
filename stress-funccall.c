@@ -1293,7 +1293,7 @@ static int stress_funccall(stress_args_t *args)
 
 			(void)snprintf(msg, sizeof(msg), "%s function invocations per sec",
 					stress_funccall_methods[i].name);
-			stress_metrics_set(args, j, msg, rate, STRESS_HARMONIC_MEAN);
+			stress_metrics_set(args, j, msg, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

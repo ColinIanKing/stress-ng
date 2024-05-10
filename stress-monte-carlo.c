@@ -648,7 +648,7 @@ static int stress_monte_carlo(stress_args_t *args)
 
 				(void)snprintf(buf, sizeof(buf), "samples/sec, %s using %s",
 					stress_monte_carlo_methods[i].name, rand_info[j].name);
-				stress_metrics_set(args, idx, buf, rate, STRESS_GEOMETRIC_MEAN);
+				stress_metrics_set(args, idx, buf, rate, STRESS_METRIC_GEOMETRIC_MEAN);
 				idx++;
 			}
 		}

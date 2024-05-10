@@ -701,7 +701,7 @@ static int stress_tsc(stress_args_t *args)
 		count = 32.0 * 4.0 * (double)stress_bogo_get(args);
 		duration = (count > 0.0) ? duration / count : 0.0;
 		stress_metrics_set(args, 0, "nanosecs per time counter read",
-			duration * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+			duration * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -431,7 +431,7 @@ static int stress_mpfr(stress_args_t *args)
 		(void)snprintf(msg, sizeof(msg), "%s %" PRIu32 " bit computations per sec",
 				stress_mpfr_methods[i].name, mpfr_precision);
 		stress_metrics_set(args, i, msg,
-			rate, STRESS_HARMONIC_MEAN);
+			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	return rc;

@@ -640,7 +640,7 @@ tidy:
 
 			(void)snprintf(msg, sizeof(msg), "%s searches per second", list_methods[i].name);
 			stress_metrics_set(args, j, msg,
-				rate, STRESS_HARMONIC_MEAN);
+				rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

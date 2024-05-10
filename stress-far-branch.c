@@ -400,10 +400,10 @@ static int stress_far_branch(stress_args_t *args)
 
 	rate = (duration > 0.0) ? calls / duration : 0.0;
 	stress_metrics_set(args, 0, "function calls per sec",
-		rate, STRESS_HARMONIC_MEAN);
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 	rate = (calls > 0.0) ? duration / calls: 0.0;
 	stress_metrics_set(args, 1, "nanosecs per call/return",
-		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

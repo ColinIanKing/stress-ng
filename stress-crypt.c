@@ -253,7 +253,7 @@ static int stress_crypt(stress_args_t *args)
 
 		if (rate > 0.0) {
 			(void)snprintf(str, sizeof(str), "%s encrypts per sec", crypt_methods[i].method);
-			stress_metrics_set(args, j, str, rate, STRESS_HARMONIC_MEAN);
+			stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
 		}
 	}

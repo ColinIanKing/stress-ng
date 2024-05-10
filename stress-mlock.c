@@ -489,11 +489,11 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 
 	rate = (mlock_count > 0.0) ? mlock_duration / mlock_count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per mlock call",
-		rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	if (munlock_count > 0.0) {
 		rate =  munlock_duration / munlock_count;
 		stress_metrics_set(args, 1, "nanosecs per munlock call",
-			rate * STRESS_DBL_NANOSECOND, STRESS_HARMONIC_MEAN);
+			rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	(void)munmap((void *)mappings, mappings_len);

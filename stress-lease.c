@@ -258,7 +258,7 @@ reap:
 	dt = t2 - t1;
 	if (dt > 0.0) {
 		stress_metrics_set(args, 0, "lease sigio interrupts per sec",
-			(double)lease_sigio / dt, STRESS_HARMONIC_MEAN);
+			(double)lease_sigio / dt, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	return ret;

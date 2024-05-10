@@ -622,7 +622,8 @@ finish:
 
 		rate = (gpu_freq_count > 0) ? gpu_freq_sum / (double)gpu_freq_count : 0.0;
 		if (rate > 0.0)
-			stress_metrics_set(args, 0, "MHz GPU frequency", rate, STRESS_HARMONIC_MEAN);
+			stress_metrics_set(args, 0, "MHz GPU frequency",
+					rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 #endif
 
