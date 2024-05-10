@@ -240,7 +240,7 @@ static int stress_aio(stress_args_t *args)
 	struct sigaction sa, sa_old;
 	char filename[PATH_MAX];
 	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
-	double t1 = 0.0, t2 = 0.0, dt;
+	double t1 = 0.0, t2 = 0.0, dt, rate;
 	const char *fs_type;
 
 	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
@@ -368,14 +368,12 @@ finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(io_reqs);
 
-	pr_dbg("%s: total of %" PRIu32 " async I/O signals "
-		"caught (instance %d)\n",
-		args->name, total, args->instance);
-
 	dt = t2 - t1;
-	if (dt > 0.0)
-		stress_metrics_set(args, 0, "async I/O signals per sec",
-			(double)total / dt, STRESS_METRIC_HARMONIC_MEAN);
+	rate = (dt > 0.0) ? (double)total / dt : 0.0;
+	stress_metrics_set(args, 0, "async I/O signals per sec",
+			rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "async I/O signals",
+			(double)total, STRESS_METRIC_TOTAL);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
