@@ -2126,7 +2126,7 @@ static void stress_metrics_dump(FILE *yaml)
 				if (description) {
 					int64_t exponent;
 					double geometric_mean, harmonic_mean, mantissa;
-					double n, sum;
+					double n, sum, maximum = 0.0, total = 0.0;
 					const char *plural = (ss->completed_instances > 1) ? "s" : "";
 
 					switch (ss->stats[0]->metrics.items[i].mean_type) {
@@ -2197,6 +2197,42 @@ static void stress_metrics_dump(FILE *yaml)
 						} else {
 							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instance%s)\n",
 								munged, harmonic_mean, description,
+								ss->completed_instances, plural);
+						}
+						break;
+					case STRESS_METRIC_TOTAL:
+						for (j = 0; j < ss->num_instances; j++) {
+							const stress_stats_t *const stats = ss->stats[j];
+
+							item = &stats->metrics.items[i];
+							if (item->value > 0.0)
+								total += item->value;
+						}
+						if (g_opt_flags & OPT_FLAGS_SN) {
+							pr_metrics("%-13s %13.2e %s (total of %" PRIu32 " instance%s)\n",
+								munged, total, description,
+								ss->completed_instances, plural);
+						} else {
+							pr_metrics("%-13s %13.2f %s (total of %" PRIu32 " instance%s)\n",
+								munged, total, description,
+								ss->completed_instances, plural);
+						}
+						break;
+					case STRESS_METRIC_MAXIMUM:
+						for (j = 0; j < ss->num_instances; j++) {
+							const stress_stats_t *const stats = ss->stats[j];
+
+							item = &stats->metrics.items[i];
+							if ((item->value > 0.0) && (item->value > maximum))
+								maximum = item->value;
+						}
+						if (g_opt_flags & OPT_FLAGS_SN) {
+							pr_metrics("%-13s %13.2e %s (maximum of %" PRIu32 " instance%s)\n",
+								munged, maximum, description,
+								ss->completed_instances, plural);
+						} else {
+							pr_metrics("%-13s %13.2f %s (maximum of %" PRIu32 " instance%s)\n",
+								munged, maximum, description,
 								ss->completed_instances, plural);
 						}
 						break;

@@ -809,8 +809,10 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 
 #include "core-helper.h"
 
-#define STRESS_GEOMETRIC_MEAN	(1)
-#define STRESS_HARMONIC_MEAN	(2)
+#define STRESS_GEOMETRIC_MEAN	(0x1)
+#define STRESS_HARMONIC_MEAN	(0x2)
+#define STRESS_METRIC_TOTAL	(0x3)
+#define STRESS_METRIC_MAXIMUM	(0x4)
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 extern void stress_shared_readonly(void);
