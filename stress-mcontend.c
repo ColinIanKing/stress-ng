@@ -63,7 +63,7 @@ static int page_write_sync(const int fd, const size_t page_size)
 	return 0;
 }
 
-static inline HOT OPTIMIZE3 void read64(uint64_t *data)
+static inline OPTIMIZE3 void read64(uint64_t *data)
 {
 	register uint64_t v;
 	const volatile uint64_t *vdata = data;
@@ -88,7 +88,7 @@ static inline HOT OPTIMIZE3 void read64(uint64_t *data)
 }
 
 #if defined(HAVE_ASM_X86_LFENCE)
-static inline HOT OPTIMIZE3 void read64_lfence(uint64_t *data)
+static inline OPTIMIZE3 void read64_lfence(uint64_t *data)
 {
 	register uint64_t v;
 	const volatile uint64_t *vdata = data;
@@ -129,7 +129,7 @@ static inline void read64_lfence(uint64_t *data)
  *  stress_memory_contend()
  *	read a proc file
  */
-static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *pa)
+static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *pa)
 {
 	uint64_t **mappings = pa->data;
 	volatile uint64_t *vdata0 = mappings[0];

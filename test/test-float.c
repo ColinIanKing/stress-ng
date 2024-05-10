@@ -21,13 +21,6 @@
 
 #include "../core-version.h"
 
-/* GCC hot attribute */
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
-#define HOT		__attribute__ ((hot))
-#else
-#define HOT
-#endif
-
 /* -O3 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
@@ -62,7 +55,7 @@
 typedef FLOAT float_type;
 
 FLOAT a = 0.0, b = 0.0, c = 0.0, d = 0.0;
-static float_type HOT OPTIMIZE3 test(void)
+static float_type OPTIMIZE3 test(void)
 {
 	float_ops(FLOAT, a, b, c, d, sin, cos);
 	float_ops(FLOAT, a, b, c, d, sinl, cosl);

@@ -71,7 +71,7 @@ static void stress_hrtimers_set(struct itimerspec *timer)
  *  stress_hrtimers_stress_continue(args)
  *      returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_hrtimers_stress_continue(void)
+static bool OPTIMIZE3 stress_hrtimers_stress_continue(void)
 {
 	return (LIKELY(stress_continue_flag()) &&
 		LIKELY(!max_ops || ((timer_counter) < max_ops)));

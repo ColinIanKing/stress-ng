@@ -277,7 +277,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
  *  stress_cpu_trig()
  *	simple sin, cos trig functions
  */
-static int HOT OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
+static int OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 {
 	int i;
 	long double d_sum = 0.0L;
@@ -321,7 +321,7 @@ static int HOT OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
  *  stress_cpu_hyperbolic()
  *	simple hyperbolic sinh, cosh functions
  */
-static int HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
+static int OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 {
 	int i;
 	long double d_sum = 0.0L;
@@ -365,7 +365,7 @@ static int HOT OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
  *  stress_cpu_rand()
  *	generate lots of pseudo-random integers
  */
-static int HOT OPTIMIZE3 stress_cpu_rand(const char *name)
+static int OPTIMIZE3 stress_cpu_rand(const char *name)
 {
 	int i;
 	uint32_t i_sum = 0;
@@ -390,7 +390,7 @@ PRAGMA_UNROLL_N(8)
  * 	accumulation point based on A098587. Data is scaled in the
  *	range 0..255
  */
-static int HOT OPTIMIZE3 stress_cpu_logmap(const char *name)
+static int OPTIMIZE3 stress_cpu_logmap(const char *name)
 {
 	static double x = 0.4;
 	/*
@@ -434,7 +434,7 @@ PRAGMA_UNROLL_N(8)
  *  stress_cpu_rand48()
  *	generate random values using rand48 family of functions
  */
-static int HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
+static int OPTIMIZE3 stress_cpu_rand48(const char *name)
 {
 	int i;
 	double d = 0;
@@ -477,7 +477,7 @@ static int HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
  *	generate 16384 values from the Galois polynomial
  *	x^32 + x^31 + x^29 + x + 1
  */
-static int HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
+static int OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 {
         static uint32_t lfsr = 0xf63acb01;
 	register int i;
@@ -578,7 +578,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
  *  stress_cpu_apery()
  *      compute Apéry's constant
  */
-static int HOT OPTIMIZE3 stress_cpu_apery(const char *name)
+static int OPTIMIZE3 stress_cpu_apery(const char *name)
 {
 	uint32_t n;
 	long double a = 0.0L, a_ = a;
@@ -611,7 +611,7 @@ static int HOT OPTIMIZE3 stress_cpu_apery(const char *name)
  *  fft_partial()
  *  	partial Fast Fourier Transform
  */
-static void HOT OPTIMIZE3 fft_partial(
+static void OPTIMIZE3 fft_partial(
 	double complex *data,
 	double complex *tmp,
 	const int n,
@@ -1377,7 +1377,7 @@ static int OPTIMIZE3 TARGET_CLONES OPTIMIZE_FAST_MATH stress_cpu_ln2(const char 
  *  ackermann()
  *	a naive/simple implementation of the ackermann function
  */
-static uint32_t HOT ackermann(const uint32_t m, const uint32_t n)
+static uint32_t ackermann(const uint32_t m, const uint32_t n)
 {
 	if (m == 0)
 		return n + 1;
@@ -1408,7 +1408,7 @@ static int stress_cpu_ackermann(const char *name)
  *   stress_cpu_explog
  *	compute exp(log(n))
  */
-static int HOT OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
+static int OPTIMIZE_FAST_MATH stress_cpu_explog(const char *name)
 {
 	uint32_t i;
 	double n = 1e6 + (double)stress_mwc8();
@@ -1445,7 +1445,7 @@ do {						\
  *   stress_cpu_jmp
  *	jmp conditionals
  */
-static int HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
+static int OPTIMIZE0 stress_cpu_jmp(const char *name)
 {
 	register int i, next = 0;
 
@@ -1473,7 +1473,7 @@ static int HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
  *  ccitt_crc16()
  *	perform naive CCITT CRC16
  */
-static uint16_t PURE HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
+static uint16_t PURE OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 {
 	/*
 	 *  The CCITT CRC16 polynomial is
@@ -1529,7 +1529,7 @@ static int stress_cpu_crc16(const char *name)
  *  fletcher16
  *	naive implementation of fletcher16 checksum
  */
-static uint16_t PURE HOT OPTIMIZE3 fletcher16(const uint8_t *data, const size_t len)
+static uint16_t PURE OPTIMIZE3 fletcher16(const uint8_t *data, const size_t len)
 {
 	register uint16_t sum1 = 0, sum2 = 0;
 	register size_t i;
@@ -1583,7 +1583,7 @@ static int stress_cpu_ipv4checksum(const char *name)
  *  zeta()
  *	Riemann zeta function
  */
-static inline long double complex PURE HOT OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
+static inline long double complex PURE OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
 	const long double complex s,
 	long double precision)
 {
@@ -1625,7 +1625,7 @@ static int stress_cpu_zeta(const char *name)
  * stress_cpu_gamma()
  *	stress Euler-Mascheroni constant gamma
  */
-static int HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
+static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
 {
 	const long double precision = 1.0e-10L;
 	long double sum = 0.0L, k = 1.0L, _gamma = 0.0L, gammaold;
@@ -1661,7 +1661,7 @@ static int HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_gamma(const char *name)
  *  Introduction to Signal Processing,
  *  Prentice-Hall, 1995, ISBN: 0-13-209172-0.
  */
-static int HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
+static int OPTIMIZE3 stress_cpu_correlate(const char *name)
 {
 	size_t i, j;
 	double data_average = 0.0;
@@ -1696,7 +1696,7 @@ static int HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
  * stress_cpu_sieve()
  * 	slightly optimised Sieve of Eratosthenes
  */
-static int HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
+static int OPTIMIZE3 stress_cpu_sieve(const char *name)
 {
 	const double dsqrt = shim_sqrt(SIEVE_SIZE);
 	const uint32_t nsqrt = (uint32_t)dsqrt;
@@ -1728,7 +1728,7 @@ PRAGMA_UNROLL_N(8)
  *	return true if n is prime
  *	http://en.wikipedia.org/wiki/Primality_test
  */
-static inline PURE HOT OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
+static inline PURE OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
 {
 	register uint32_t i, max;
 	double dsqrt;
@@ -1814,7 +1814,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_gray(const char *name)
  * hanoi()
  *	do a Hanoi move
  */
-static uint32_t HOT hanoi(
+static uint32_t hanoi(
 	const uint16_t n,
 	const char p1,
 	const char p2,
@@ -1991,7 +1991,7 @@ static int stress_cpu_intconversion(const char *name)
  *  factorial()
  *	compute n!
  */
-static inline long double PURE HOT OPTIMIZE3 factorial(int n)
+static inline long double PURE OPTIMIZE3 factorial(int n)
 {
 	static const long double factorials[] = {
 		1.0L,
@@ -2040,7 +2040,7 @@ static inline long double PURE HOT OPTIMIZE3 factorial(int n)
  *	compute pi using the Srinivasa Ramanujan
  *	fast convergence algorithm
  */
-static int HOT OPTIMIZE3 stress_cpu_pi(const char *name)
+static int OPTIMIZE3 stress_cpu_pi(const char *name)
 {
 	long double s = 0.0L, pi = 0.0L, last_pi = 0.0L;
 	const long double precision = 1.0e-20L;
@@ -2081,7 +2081,7 @@ static int HOT OPTIMIZE3 stress_cpu_pi(const char *name)
  *	compute the constant omega
  *	See http://en.wikipedia.org/wiki/Omega_constant
  */
-static int HOT OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
+static int OPTIMIZE3 OPTIMIZE_FAST_MATH stress_cpu_omega(const char *name)
 {
 	long double omega = 0.5 + ((double)stress_mwc16() * 1.0E-9), last_omega = 0.0L;
 	const long double precision = 1.0e-20L;
@@ -2132,7 +2132,7 @@ do {							\
  *  hamming84()
  *	compute Hamming (8,4) codes
  */
-static uint8_t PURE HOT OPTIMIZE3 hamming84(const uint8_t nybble)
+static uint8_t PURE OPTIMIZE3 hamming84(const uint8_t nybble)
 {
 	/*
 	 * Hamming (8,4) Generator matrix
@@ -2847,7 +2847,7 @@ static int stress_cpu_stats(const char *name)
  *  stress_cpu_all()
  *	dummy function, not called
  */
-static int HOT OPTIMIZE3 stress_cpu_all(const char *name)
+static int OPTIMIZE3 stress_cpu_all(const char *name)
 {
 	(void)name;
 
@@ -3087,7 +3087,7 @@ static double stress_per_cpu_time(void)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-static int HOT OPTIMIZE3 stress_cpu(stress_args_t *args)
+static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 {
 	double bias;
 	size_t cpu_method = 0;

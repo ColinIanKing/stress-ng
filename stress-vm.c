@@ -127,7 +127,7 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
  *  stress_continue(args)
  *	returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_continue_vm(stress_args_t *args)
+static bool OPTIMIZE3 stress_continue_vm(stress_args_t *args)
 {
 	return (LIKELY(stress_continue_flag()) &&
 	        LIKELY(!args->max_ops || ((stress_bogo_get(args) >> VM_BOGO_SHIFT) < args->max_ops)));

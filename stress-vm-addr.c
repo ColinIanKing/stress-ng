@@ -62,7 +62,7 @@ static int stress_set_vm_addr_mlock(const char *opt)
  *  stress_continue(args)
  *	returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_continue_vm(stress_args_t *args)
+static bool OPTIMIZE3 stress_continue_vm(stress_args_t *args)
 {
 	return (LIKELY(stress_continue_flag()) &&
 	        LIKELY(!args->max_ops || (stress_bogo_get(args) < args->max_ops)));

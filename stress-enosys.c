@@ -320,7 +320,7 @@ static const int syscall_ignore[] = {
 #endif
 };
 
-static inline bool HOT OPTIMIZE3 syscall_find(long number)
+static inline bool OPTIMIZE3 syscall_find(long number)
 {
 	register stress_hash_syscall_t *h;
 	register int i;
@@ -342,7 +342,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 	return false;
 }
 
-static inline void HOT OPTIMIZE3 syscall_add(const long number)
+static inline void OPTIMIZE3 syscall_add(const long number)
 {
 	const unsigned long index = (unsigned long)number;
 	const unsigned long hash = index % HASH_SYSCALL_SIZE;

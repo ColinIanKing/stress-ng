@@ -224,7 +224,7 @@ static uint32_t PURE stress_hash_fnv1a_wrapper(const char *str, const size_t len
  *  stress_hash_method_fnv1a()
  *	stress test hash fnv1a
  */
-static int HOT stress_hash_method_fnv1a(
+static int stress_hash_method_fnv1a(
 	const char *name,
 	const struct stress_hash_method_info *hmi,
 	const stress_bucket_t *bucket)
@@ -569,7 +569,7 @@ static int stress_hash_method_sobel(
 	return stress_hash_generic(name, hmi, bucket, stress_hash_sobel_wrapper, 0x2a7cdb61, 0x2a7cdb61);
 }
 
-static HOT OPTIMIZE3 int stress_hash_all(
+static OPTIMIZE3 int stress_hash_all(
 	const char *name,
 	const struct stress_hash_method_info *hmi,
 	const stress_bucket_t *bucket);
@@ -614,7 +614,7 @@ static stress_hash_method_info_t hash_methods[] = {
  *  stress_hash_all()
  *	iterate over all hash stressor methods
  */
-static HOT OPTIMIZE3 int stress_hash_all(
+static OPTIMIZE3 int stress_hash_all(
 	const char *name,
 	const struct stress_hash_method_info *hmi,
 	const stress_bucket_t *bucket)
@@ -662,7 +662,7 @@ static int stress_set_hash_method(const char *name)
  *  stress_hash()
  *	stress CPU by doing floating point math ops
  */
-static int HOT OPTIMIZE3 stress_hash(stress_args_t *args)
+static int OPTIMIZE3 stress_hash(stress_args_t *args)
 {
 	size_t i;
 	const stress_hash_method_info_t *hm;

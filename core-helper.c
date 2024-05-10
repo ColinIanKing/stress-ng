@@ -1726,7 +1726,7 @@ static const char *stress_endian_str(void)
  *	fill a uint8_t buffer full of random data
  *	buffer *must* be multiple of 4 bytes in size
  */
-HOT OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
+OPTIMIZE3 void stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)shim_assume_aligned(data, 4);
 	register const uint32_t *ptr32end = (uint32_t *)(data + len);
@@ -3112,7 +3112,7 @@ unlock:
  *  stress_ipv4_checksum()
  *	ipv4 data checksum
  */
-uint16_t PURE HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
+uint16_t PURE OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 {
 	register uint32_t sum = 0;
 	register size_t n = sz;

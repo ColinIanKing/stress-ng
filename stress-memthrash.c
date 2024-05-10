@@ -109,7 +109,7 @@ static stress_memthrash_primes_t stress_memthrash_primes[MEM_SIZE_PRIMES];
 #endif
 #endif
 
-static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
+static inline OPTIMIZE3 void stress_memthrash_random_chunk(
 	const size_t chunk_size,
 	const size_t mem_size)
 {
@@ -129,14 +129,14 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunkpage(
+static void OPTIMIZE3 stress_memthrash_random_chunkpage(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
 	stress_memthrash_random_chunk(context->args->page_size, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk256(
+static void OPTIMIZE3 stress_memthrash_random_chunk256(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -145,7 +145,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk256(
 	stress_memthrash_random_chunk(256, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk64(
+static void OPTIMIZE3 stress_memthrash_random_chunk64(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -154,7 +154,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk64(
 	stress_memthrash_random_chunk(64, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk8(
+static void OPTIMIZE3 stress_memthrash_random_chunk8(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -163,7 +163,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk8(
 	stress_memthrash_random_chunk(8, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk1(
+static void OPTIMIZE3 stress_memthrash_random_chunk1(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -214,7 +214,7 @@ static void stress_memthrash_memmove(
 	(void)shim_memmove((void *)dst, mem, mem_size - 1);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_memset64(
+static void OPTIMIZE3 stress_memthrash_memset64(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -347,7 +347,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 }
 #endif
 
-static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
+static void OPTIMIZE3 stress_memthrash_flip_mem(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -362,7 +362,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_swap(
+static void OPTIMIZE3 stress_memthrash_swap(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -389,7 +389,7 @@ static void HOT OPTIMIZE3 stress_memthrash_swap(
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_matrix(
+static void OPTIMIZE3 stress_memthrash_matrix(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -412,7 +412,7 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_prefetch(
+static void OPTIMIZE3 stress_memthrash_prefetch(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -433,7 +433,7 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 }
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
-static void HOT OPTIMIZE3 stress_memthrash_flush(
+static void OPTIMIZE3 stress_memthrash_flush(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -453,7 +453,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(
 }
 #endif
 
-static void HOT OPTIMIZE3 stress_memthrash_mfence(
+static void OPTIMIZE3 stress_memthrash_mfence(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -472,7 +472,7 @@ static void HOT OPTIMIZE3 stress_memthrash_mfence(
 }
 
 #if defined(MEM_LOCK)
-static void HOT OPTIMIZE3 stress_memthrash_lock(
+static void OPTIMIZE3 stress_memthrash_lock(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -489,7 +489,7 @@ static void HOT OPTIMIZE3 stress_memthrash_lock(
 }
 #endif
 
-static void HOT OPTIMIZE3 stress_memthrash_spinread(
+static void OPTIMIZE3 stress_memthrash_spinread(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -514,7 +514,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
+static void OPTIMIZE3 stress_memthrash_spinwrite(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {
@@ -539,7 +539,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_tlb(
+static void OPTIMIZE3 stress_memthrash_tlb(
 	const stress_memthrash_context_t *context,
 	const size_t mem_size)
 {

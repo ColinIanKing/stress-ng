@@ -110,7 +110,7 @@ static void stress_itimer_set(struct itimerval *timer)
  *  stress_itimer_stress_continue(args)
  *      returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 stress_itimer_stress_continue(void)
+static bool OPTIMIZE3 stress_itimer_stress_continue(void)
 {
 	return (LIKELY(stress_continue_flag()) &&
 		LIKELY(!max_ops || (itimer_counter < max_ops)));
