@@ -64,8 +64,6 @@ override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 VNNI_OFLAGS_REMOVE=-O0 -O1 -Og
 VNNI_CFLAGS += $(filter-out $(VNNI_OFLAGS_REMOVE),$(CFLAGS))
 
-
-
 #
 # Default -O2 if optimization level not defined
 #
@@ -199,7 +197,6 @@ BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 JOBDIR=/usr/share/stress-ng/example-jobs
 BASHDIR=/usr/share/bash-completion/completions
-
 
 #
 # Header files
@@ -623,7 +620,6 @@ STRESS_SRC = \
 	stress-zlib.c \
 	stress-zombie.c \
 
-
 #
 #  Build time core source files
 #
@@ -888,4 +884,3 @@ uninstall:
 	rm -f ${DESTDIR}${MANDIR}/stress-ng.1
 	rm -f ${DESTDIR}${JOBDIR}/*.job
 	rm -f ${DESTDIR}${BASHDIR}/stress-ng
-
