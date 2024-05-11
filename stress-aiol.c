@@ -230,7 +230,8 @@ static ssize_t stress_aiol_wait(
 	stress_args_t *args,
 	const io_context_t ctx,
 	struct io_event events[],
-	const size_t n)
+	const size_t n,
+	uint64_t *aiol_completions)
 {
 	size_t i = 0;
 
@@ -265,6 +266,7 @@ static ssize_t stress_aiol_wait(
 			return -1;
 		} else {
 			i += (size_t)ret;
+			(*aiol_completions) += ret;
 		}
 		if (!stress_continue_flag()) {
 			/* indicate terminated early */
@@ -367,6 +369,7 @@ static int stress_aiol(stress_args_t *args)
 	char filename[PATH_MAX];
 	char buf[1];
 	io_context_t ctx = 0;
+	uint64_t aiol_completions = 0;
 	uint32_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 	uint8_t *buffer;
 	struct iocb *cb;
@@ -529,7 +532,7 @@ retry_open:
 		}
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
-		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests, &aiol_completions) < 0)
 			break;
 		stress_bogo_inc(args);
 		if (!stress_continue(args))
@@ -553,7 +556,7 @@ retry_open:
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
 
-		n = stress_aiol_wait(args, ctx, events, aio_linux_requests);
+		n = stress_aiol_wait(args, ctx, events, aio_linux_requests, &aiol_completions);
 		if (n < 0)
 			break;
 
@@ -597,7 +600,7 @@ retry_open:
 		}
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
-		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests, &aiol_completions) < 0)
 			break;
 		stress_bogo_inc(args);
 		if (!stress_continue(args))
@@ -624,7 +627,7 @@ retry_open:
 		}
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
-		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests, &aiol_completions) < 0)
 			break;
 		stress_bogo_inc(args);
 		if (!stress_continue(args))
@@ -734,7 +737,7 @@ retry_open:
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
 			break;
 		if (errno == 0)
-			(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
+			(void)stress_aiol_wait(args, ctx, events, aio_linux_requests, &aiol_completions);
 		stress_bogo_inc(args);
 		if (!stress_continue(args))
 			break;
@@ -760,7 +763,7 @@ retry_open:
 				cbs[0] = &cb[0];
 				(void)stress_aiol_submit(args, ctx, cbs, 1, true);
 				if (errno == 0) {
-					(void)stress_aiol_wait(args, ctx, events, 1);
+					(void)stress_aiol_wait(args, ctx, events, 1, &aiol_completions);
 				} else {
 					/* Don't try again */
 					do_sync = false;
@@ -786,6 +789,10 @@ finish:
 free_memory:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_aiol_free(buffer, cb, events, cbs, fds, iov);
+
+	stress_metrics_set(args, 1, "async I/O events completed",
+		(double)aiol_completions, STRESS_METRIC_TOTAL);
+
 	return rc;
 }
 
