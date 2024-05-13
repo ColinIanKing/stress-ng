@@ -104,6 +104,7 @@ static int stress_link_generic(
 	size_t oldpathlen;
 	bool symlink_func = (linkfunc == symlink);
 	char *mnts[MOUNTS_MAX];
+	double t_start, duration, rate, link_count = 0.0;
 
 	(void)shim_memset(tmp_newpath, 0, sizeof(tmp_newpath));
 	(void)snprintf(tmp_newpath, sizeof(tmp_newpath),
@@ -146,6 +147,7 @@ static int stress_link_generic(
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = EXIT_SUCCESS;
+	t_start = stress_time_now();
 	do {
 		uint64_t i, n = DEFAULT_LINKS;
 		char testpath[PATH_MAX];
@@ -179,6 +181,8 @@ static int stress_link_generic(
 					stress_get_fs_type(oldpath));
 				n = i;
 				break;
+			} else {
+				link_count++;
 			}
 
 			if (symlink_func) {
@@ -289,6 +293,10 @@ err_unlink:
 #endif
 		stress_bogo_inc(args);
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
+
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? link_count / duration : 0.0;
+	stress_metrics_set(args, 0, "links created/removed per sec", rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
