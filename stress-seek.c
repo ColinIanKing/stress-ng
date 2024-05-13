@@ -25,6 +25,7 @@
 
 static double duration;
 static double count;
+static double seek_count;
 
 static const stress_help_t help[] = {
 	{ NULL,	"seek N",	"start N workers performing random seek r/w IO" },
@@ -66,6 +67,7 @@ static off_t stress_shim_lseek(int fd, off_t offset, int whence)
 
 	if (LIKELY(metrics_count++ < 1000)) {
 		ret = lseek(fd, offset, whence);
+		seek_count++;
 	} else {
 		double t;
 
@@ -74,7 +76,8 @@ static off_t stress_shim_lseek(int fd, off_t offset, int whence)
 		ret = lseek(fd, offset, whence);
 		if (LIKELY(ret >= 0)) {
 			duration += stress_time_now() - t;
-			count += 1.0;
+			count++;
+			seek_count++;
 		}
 	}
 	return ret;
@@ -103,6 +106,8 @@ static int stress_seek(stress_args_t *args)
 
 	(void)stress_get_setting("seek-punch", &seek_punch);
 #endif
+	count = 0.0;
+	seek_count = 0.0;
 
 	if (!stress_get_setting("seek-size", &seek_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -375,6 +380,7 @@ finish:
 	duration = (count > 0.0) ? duration / count : 0.0;
 	stress_metrics_set(args, 0, "nanosecs per seek",
 		duration * 1000000000, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "seeks", seek_count, STRESS_METRIC_TOTAL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
