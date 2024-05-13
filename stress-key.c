@@ -125,6 +125,8 @@ static int stress_key(stress_args_t *args)
 	bool no_error = true;
 	char *huge_description;
 	const size_t key_huge_desc_size = STRESS_MAXIMUM(args->page_size, KEY_HUGE_DESC_SIZE) + 1024;
+	uint64_t keys_added = 0;
+	double t_start, duration, rate;
 
 	huge_description = malloc(key_huge_desc_size);
 	if (!huge_description) {
@@ -136,6 +138,7 @@ static int stress_key(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t_start = stress_time_now();
 	do {
 		size_t i = 0, n = 0;
 		char ALIGN64 description[64];
@@ -151,7 +154,6 @@ static int stress_key(stress_args_t *args)
 			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%" PRIdMAX "-%" PRIu32
 				"-%zu", (intmax_t)ppid, args->instance, n);
-
 
 #if defined(KEYCTL_INVALIDATE)
 			/* Exericse add_key with invalid long description */
@@ -210,6 +212,8 @@ static int stress_key(stress_args_t *args)
 				pr_fail("%s: add_key failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto tidy;
+			} else {
+				keys_added++;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (timeout_supported) {
@@ -396,6 +400,11 @@ tidy:
 		(void)shim_keyctl(KEYCTL_CLEAR, KEY_SPEC_PROCESS_KEYRING);
 #endif
 	} while (no_error && stress_continue(args));
+
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? (double)keys_added / duration : 0.0;
+	stress_metrics_set(args, 0, "keys added/modified/searched/removed per sec",
+		rate, STRESS_METRIC_HARMONIC_MEAN);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
