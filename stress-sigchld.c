@@ -118,11 +118,10 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_dbg("%s: exit: %" PRIu64 ", kill: %" PRIu64
-		", stop: %" PRIu64 ", continue: %" PRIu64 "\n",
-		args->name,
-		cld_exited, cld_killed,
-		cld_stopped, cld_continued);
+	stress_metrics_set(args, 0, "child exited", (double)cld_exited, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 1, "child killed", (double)cld_killed, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 2, "child stopped", (double)cld_stopped, STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 3, "child continued", (double)cld_continued, STRESS_METRIC_TOTAL);
 
 #if !defined(__OpenBSD__)
 	/*
