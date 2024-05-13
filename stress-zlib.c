@@ -1775,6 +1775,8 @@ finish:
 	rate = (duration > 0.0) ? ((double)bytes_in / duration) / MB : 0.0;
 	stress_metrics_set(args, 1, "MB/sec compression rate",
 		rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, 2, "MB compressed",
+		(double)bytes_in / MB, STRESS_METRIC_HARMONIC_MEAN);
 
 	ret = EXIT_SUCCESS;
 zlib_checksum_error:
