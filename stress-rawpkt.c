@@ -444,6 +444,10 @@ static int OPTIMIZE3 stress_rawpkt_server(
 	rate = (duration > 0.0) ? bytes / duration : 0.0;
 	stress_metrics_set(args, 0, "MB recv'd per sec",
 		rate / (double)MB, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "packets sent",
+		(double)stress_bogo_get(args), STRESS_METRIC_TOTAL);
+	stress_metrics_set(args, 2, "packets received",
+		(double)all_pkts, STRESS_METRIC_TOTAL);
 
 	stress_rawpkt_sockopts(fd);
 #if defined(PACKET_RX_RING) &&	\
@@ -453,8 +457,6 @@ close_fd:
 #endif
 	(void)close(fd);
 die:
-	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, stress_bogo_get(args), all_pkts);
-
 	return rc;
 }
 
