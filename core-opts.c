@@ -217,7 +217,7 @@ const struct option stress_long_options[] = {
 	{ "exit-group-ops",	1,	0,	OPT_exit_group_ops },
 	{ "expmath",		1,	0,	OPT_expmath },
 	{ "expmath-method",	1,	0,	OPT_expmath_method },
-	{ "expmath-ops",	1,	0,	OPT_expmath},
+	{ "expmath-ops",	1,	0,	OPT_expmath_ops },
 	{ "factor",		1,	0,	OPT_factor },
 	{ "factor-digits",	1,	0,	OPT_factor_digits },
 	{ "factor-ops",		1,	0,	OPT_factor_ops },
