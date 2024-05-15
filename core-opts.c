@@ -441,7 +441,7 @@ const struct option stress_long_options[] = {
 	{ "log-lockless",	0,	0,	OPT_log_lockless },
 	{ "logmath",		1,	0,	OPT_logmath },
 	{ "logmath-method",	1,	0,	OPT_logmath_method },
-	{ "logmath-ops",	1,	0,	OPT_logmath},
+	{ "logmath-ops",	1,	0,	OPT_logmath_ops },
 	{ "longjmp",		1,	0,	OPT_longjmp },
 	{ "longjmp-ops",	1,	0,	OPT_longjmp_ops },
 	{ "loop",		1,	0,	OPT_loop },
