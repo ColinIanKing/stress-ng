@@ -686,7 +686,7 @@ const struct option stress_long_options[] = {
 	{ "poll-fds",		1,	0,	OPT_poll_fds },
 	{ "powmath",		1,	0,	OPT_powmath },
 	{ "powmath-method",	1,	0,	OPT_powmath_method },
-	{ "powmath-ops",	1,	0,	OPT_powmath},
+	{ "powmath-ops",	1,	0,	OPT_powmath_ops },
 	{ "prctl",		1,	0,	OPT_prctl },
 	{ "prctl-ops",		1,	0,	OPT_prctl_ops },
 	{ "prefetch",		1,	0,	OPT_prefetch },
