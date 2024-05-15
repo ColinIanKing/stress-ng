@@ -3509,6 +3509,50 @@ static void stress_yaml_close(FILE *yaml)
 	}
 }
 
+/*
+ *  stress_global_lock_create()
+ *	create global locks
+ */
+static int stress_global_lock_create(void)
+{
+#if defined(STRESS_PERF_STATS) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
+	g_shared->perf.lock = stress_lock_create();
+	if (!g_shared->perf.lock) {
+		pr_err("failed to create perf lock\n");
+		return -1;
+	}
+#endif
+	g_shared->warn_once.lock = stress_lock_create();
+	if (!g_shared->warn_once.lock) {
+		pr_err("failed to create warn_once lock\n");
+		return -1;
+	}
+	g_shared->net_port_map.lock = stress_lock_create();
+	if (!g_shared->net_port_map.lock) {
+		pr_err("failed to create net_port_map lock\n");
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  stress_global_lock_destroy()
+ *	destroy global locks
+ */
+static void stress_global_lock_destroy(void)
+{
+	if (g_shared->net_port_map.lock)
+		stress_lock_destroy(g_shared->net_port_map.lock);
+	if (g_shared->warn_once.lock)
+		stress_lock_destroy(g_shared->warn_once.lock);
+#if defined(STRESS_PERF_STATS) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
+	if (g_shared->perf.lock)
+		stress_lock_destroy(g_shared->perf.lock);
+#endif
+}
+
 int main(int argc, char **argv, char **envp)
 {
 	double duration = 0.0;			/* stressor run time in secs */
@@ -3794,29 +3838,9 @@ int main(int argc, char **argv, char **envp)
 		goto exit_shared_unmap;
 	}
 
-	/*
-	 *  Initialize global locks
-	 */
-#if defined(STRESS_PERF_STATS) &&	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
-	g_shared->perf.lock = stress_lock_create();
-	if (!g_shared->perf.lock) {
-		pr_err("failed to create perf lock\n");
+	if (stress_global_lock_create() < 0) {
 		ret = EXIT_FAILURE;
-		goto exit_shared_unmap;
-	}
-#endif
-	g_shared->warn_once.lock = stress_lock_create();
-	if (!g_shared->warn_once.lock) {
-		pr_err("failed to create warn_once lock\n");
-		ret = EXIT_FAILURE;
-		goto exit_destroy_perf_lock;
-	}
-	g_shared->net_port_map.lock = stress_lock_create();
-	if (!g_shared->net_port_map.lock) {
-		pr_err("failed to create net_port_map lock\n");
-		ret = EXIT_FAILURE;
-		goto exit_destroy_warn_once_lock;
+		goto exit_lock_destroy;
 	}
 
 	/*
@@ -3936,13 +3960,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Tidy up
 	 */
-	(void)stress_lock_destroy(g_shared->net_port_map.lock);
-	(void)stress_lock_destroy(g_shared->warn_once.lock);
-#if defined(STRESS_PERF_STATS) && 	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
-	(void)stress_lock_destroy(g_shared->perf.lock);
-#endif
-
+	stress_global_lock_destroy();
 	stress_shared_heap_deinit();
 	stress_stressors_deinit();
 	stress_stressors_free();
@@ -3970,14 +3988,8 @@ int main(int argc, char **argv, char **envp)
 		exit(EXIT_METRICS_UNTRUSTWORTHY);
 	exit(EXIT_SUCCESS);
 
-exit_destroy_warn_once_lock:
-	(void)stress_lock_destroy(g_shared->warn_once.lock);
-
-exit_destroy_perf_lock:
-#if defined(STRESS_PERF_STATS) && 	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
-	(void)stress_lock_destroy(g_shared->perf.lock);
-#endif
+exit_lock_destroy:
+	stress_global_lock_destroy();
 
 exit_shared_unmap:
 	stress_shared_unmap();
