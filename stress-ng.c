@@ -115,14 +115,14 @@ stress_put_val_t g_put_val;			/* sync data to somewhere */
 
 #if defined(SA_SIGINFO)
 typedef struct {
-	int	code;
-	pid_t	pid;
-	uid_t	uid;
-	struct timeval when;
-	bool 	triggered;
+	int	code;				/* signal code */
+	pid_t	pid;				/* PID of signalled process */
+	uid_t	uid;				/* UID of signalled process */
+	struct timeval when;			/* When signal occurred */
+	bool 	triggered;			/* true when signal handled */
 } stress_sigalrm_info_t;
 
-stress_sigalrm_info_t sigalrm_info;
+static stress_sigalrm_info_t sigalrm_info;
 #endif
 
 /*
