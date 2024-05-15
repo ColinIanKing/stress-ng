@@ -3498,7 +3498,7 @@ static FILE *stress_yaml_open(const char *yaml_filename)
 }
 
 /*
- *  stress_yaml_open()
+ *  stress_yaml_close()
  *	close YAML results file
  */
 static void stress_yaml_close(FILE *yaml)
