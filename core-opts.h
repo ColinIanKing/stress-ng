@@ -1297,6 +1297,7 @@ typedef enum {
 	OPT_sockfd,
 	OPT_sockfd_ops,
 	OPT_sockfd_port,
+	OPT_sockfd_reuse,
 
 	OPT_sockmany,
 	OPT_sockmany_if,

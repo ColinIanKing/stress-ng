@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 April 2024"
+.TH STRESS-NG 1 "15 May 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6885,6 +6885,10 @@ stop sockfd stress workers after N bogo operations.
 .B \-\-sockfd\-port P
 start at socket port P. For N socket worker processes, ports P to P - 1 are
 used.
+.TP
+.B \-\-sockfd\-reuse
+re-use the file descriptor by passing it back from the receiver to the
+sender and re-sending it again rather than opening /dev/null each time.
 .RE
 .TP
 .B Opening network socket stressor
