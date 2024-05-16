@@ -220,7 +220,7 @@ retry:
 
 #if defined(HAVE_SELECT)
 			if (socket_fd_reuse)
-				stress_socket_fd_send(fd, fds[n]);
+				(void)stress_socket_fd_send(fd, fds[n]);
 #else
 			(void)socket_fd_reuse;
 #endif
