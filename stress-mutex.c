@@ -196,7 +196,7 @@ static int stress_mutex(stress_args_t *args)
 	size_t i;
 	bool created = false;
 	int prio_min, prio_max;
-	pthread_info_t pthread_info[DEFAULT_MUTEX_PROCS];
+	pthread_info_t pthread_info[MAX_MUTEX_PROCS];
 	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
 	bool mutex_affinity = false;
 	double duration = 0.0, count = 0.0, rate;
@@ -225,7 +225,7 @@ static int stress_mutex(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	for (i = 0; i < DEFAULT_MUTEX_PROCS; i++) {
+	for (i = 0; i < mutex_procs; i++) {
 		pthread_info[i].args = args;
 		pthread_info[i].prio_min = prio_min;
 		pthread_info[i].prio_max = prio_max;
@@ -255,7 +255,7 @@ static int stress_mutex(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < DEFAULT_MUTEX_PROCS; i++) {
+	for (i = 0; i < mutex_procs; i++) {
 		if (pthread_info[i].ret)
 			continue;
 
