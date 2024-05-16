@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 May 2024"
+.TH STRESS-NG 1 "16 May 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3194,6 +3194,19 @@ events (Linux only).
 .TP
 .B \-\-inotify\-ops N
 stop inotify stress workers after N inotify bogo operations.
+.RE
+.TP
+.B Insertion sort stressor
+.RS 5
+.TQ
+.B \-\-insertionsort N
+start N workers that sort 32 bit integers using insertion sort.
+.TP
+.B \-\-insertionsort\-ops N
+stop insertionsort stress workers after N bogo insertion sorts.
+.TP
+.B \-\-insertionsort\-size N
+specify number of 32 bit integers to sort, default is 16384 (16 \(mu 1024).
 .RE
 .TP
 .B Data synchronization (sync) stressor

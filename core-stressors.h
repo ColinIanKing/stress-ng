@@ -124,6 +124,7 @@
 	MACRO(idle_page)	\
 	MACRO(inode_flags)	\
 	MACRO(inotify)		\
+	MACRO(insertionsort)	\
 	MACRO(io)		\
 	MACRO(iomix)		\
 	MACRO(ioport)		\

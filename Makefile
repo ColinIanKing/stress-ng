@@ -386,6 +386,7 @@ STRESS_SRC = \
 	stress-idle-page.c \
 	stress-inode-flags.c \
 	stress-inotify.c \
+	stress-insertionsort.c \
 	stress-io.c \
 	stress-iomix.c \
 	stress-ioport.c \
