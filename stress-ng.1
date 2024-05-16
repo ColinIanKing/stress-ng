@@ -834,6 +834,83 @@ T}
 stop the bad ioctl stressors after N bogo ioctl operations.
 .RE
 .TP
+.B Bessel functions
+.RS 5
+.TQ
+.B \-\-besselmath N
+start N workers that exercise various Bessel functions.  Results are sanity checked to
+ensure no variation occurs after each round of 10000 computations.
+.TP
+.B \-\-besselmath\-ops N
+stop after N bessel bogo-operation loops.
+.TP
+.B \-\-besselmath\-method method
+specify a Bessel function to exercise. Available bessel stress methods are described
+as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate over all the below Bessel functions methods
+T}
+j0	T{
+double precision Bessel function of the first kind of order 0
+T}
+j1	T{
+double precision Bessel function of the first kind of order 1
+T}
+jn	T{
+double precision Bessel function of the first kind of order n (where n = 5 for this test)
+T}
+j0f	T{
+float precision Bessel function of the first kind of order 0
+T}
+j1f	T{
+float precision Bessel function of the first kind of order 1
+T}
+jnf	T{
+float precision Bessel function of the first kind of order n (where n = 5 for this test)
+T}
+j0l	T{
+long double precision Bessel function of the first kind of order 0
+T}
+j1l	T{
+long double precision Bessel function of the first kind of order 1
+T}
+jnl	T{
+long double precision Bessel function of the first kind of order n (where n = 5 for this test)
+T}
+y0	T{
+double precision Bessel function of the second kind of order 0
+T}
+y1	T{
+youble precision Bessel function of the second kind of order 1
+T}
+yn	T{
+double precision Bessel function of the second kind of order n (where n = 5 for this test)
+T}
+y0f	T{
+float precision Bessel function of the second kind of order 0
+T}
+y1f	T{
+float precision Bessel function of the second kind of order 1
+T}
+ynf	T{
+float precision Bessel function of the second kind of order n (where n = 5 for this test)
+T}
+y0l	T{
+long double precision Bessel function of the second kind of order 0
+T}
+y1l	T{
+long double precision Bessel function of the second kind of order 1
+T}
+ynl	T{
+long double precision Bessel function of the second kind of order n (where n = 5 for this test)
+T}
+.TE
+.RE
+.TP
 .B Big heap stressor
 .RS 5
 .TQ

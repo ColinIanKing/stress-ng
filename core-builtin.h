@@ -653,10 +653,142 @@
 #define shim_llabs(x)		llabs((x))
 #endif
 
+#if defined(HAVE_BUILTIN_J0)
+#define shim_j0(x)		__builtin_j0((x))
+#else
+#define shim_j0(x)		j0((x))
+#endif
+
+#if defined(HAVE_BUILTIN_J0F)
+#define shim_j0f(x)		__builtin_j0f((x))
+#else
+#define shim_j0f(x)		j0f((x))
+#endif
+
+#if defined(HAVE_BUILTIN_J0L)
+#define shim_j0l(x)		__builtin_j0l((x))
+#else
+#if defined(HAVE_POWL)
+#define shim_j0l(x)		j0l((x))
+#else
+#define shim_j0l(x)		((long double)j0((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_J1)
+#define shim_j1(x)		__builtin_j1((x))
+#else
+#define shim_j1(x)		j1((x))
+#endif
+
+#if defined(HAVE_BUILTIN_J1F)
+#define shim_j1f(x)		__builtin_j1f((x))
+#else
+#define shim_j1f(x)		j1f((x))
+#endif
+
+#if defined(HAVE_BUILTIN_J1L)
+#define shim_j1l(x)		__builtin_j1l((x))
+#else
+#if defined(HAVE_POWL)
+#define shim_j1l(x)		j1l((x))
+#else
+#define shim_j1l(x)		((long double)j1((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_JN)
+#define shim_jn(n, x)		__builtin_jn((n), (x))
+#else
+#define shim_jn(n, x)		jn((n), (x))
+#endif
+
+#if defined(HAVE_BUILTIN_JNF)
+#define shim_jnf(n, x)		__builtin_jnf((n), (x))
+#else
+#define shim_jnf(n, x)		jnf((n), (x))
+#endif
+
+#if defined(HAVE_BUILTIN_JNL)
+#define shim_jnl(n, x)		__builtin_jnl((n), (x))
+#else
+#if defined(HAVE_POWL)
+#define shim_jnl(n, x)		jnl((n), (x))
+#else
+#define shim_jnl(n, x)		((long double)jn((n), (double)(x)))
+#endif
+#endif
+
 #if defined(HAVE_BUILTIN_RINT)
 #define shim_rint(x)		__builtin_rint((x))
 #else
 #define shim_rint(x)		rint((x))
+#endif
+
+#if defined(HAVE_BUILTIN_Y0)
+#define shim_y0(x)		__builtin_y0((x))
+#else
+#define shim_y0(x)		y0((x))
+#endif
+
+#if defined(HAVE_BUILTIN_Y0F)
+#define shim_y0f(x)		__builtin_y0f((x))
+#else
+#define shim_y0f(x)		y0f((x))
+#endif
+
+#if defined(HAVE_BUILTIN_Y0L)
+#define shim_y0l(x)		__builtin_y0l((x))
+#else
+#if defined(HAVE_POWL)
+#define shim_y0l(x)		y0l((x))
+#else
+#define shim_y0l(x)		((long double)y0((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_Y1)
+#define shim_y1(x)		__builtin_y1((x))
+#else
+#define shim_y1(x)		y1((x))
+#endif
+
+#if defined(HAVE_BUILTIN_Y1F)
+#define shim_y1f(x)		__builtin_y1f((x))
+#else
+#define shim_y1f(x)		y1f((x))
+#endif
+
+#if defined(HAVE_BUILTIN_Y1L)
+#define shim_y1l(x)		__builtin_y1l((x))
+#else
+#if defined(HAVE_POWL)
+#define shim_y1l(x)		y1l((x))
+#else
+#define shim_y1l(x)		((long double)y1((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_YN)
+#define shim_yn(n, x)		__builtin_yn((n), (x))
+#else
+#define shim_yn(n, x)		yn((n), (x))
+#endif
+
+#if defined(HAVE_BUILTIN_YNF)
+#define shim_ynf(n, x)		__builtin_ynf((n), (x))
+#else
+#define shim_ynf(n, x)		ynf((n), (x))
+#endif
+
+#if defined(HAVE_BUILTIN_YNL)
+#define shim_ynl(n, x)		__builtin_ynl((n), (x))
+#else
+#if defined(HAVE_POWL)
+#define shim_ynl(n, x)		ynl((n), (x))
+#else
+#define shim_ynl(n, x)		((long double)yn((n), (double)(x)))
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_ROUNDL)

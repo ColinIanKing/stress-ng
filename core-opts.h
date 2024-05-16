@@ -184,6 +184,10 @@ typedef enum {
 	OPT_bad_ioctl_method,
 	OPT_bad_ioctl_ops,
 
+	OPT_besselmath,
+	OPT_besselmath_method,
+	OPT_besselmath_ops,
+
 	OPT_bigheap_bytes,
 	OPT_bigheap_growth,
 	OPT_bigheap_mlock,

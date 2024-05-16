@@ -36,6 +36,7 @@
 	MACRO(atomic)		\
 	MACRO(bad_altstack) 	\
 	MACRO(bad_ioctl) 	\
+	MACRO(besselmath)	\
 	MACRO(bigheap)		\
 	MACRO(binderfs)		\
 	MACRO(bind_mount)	\

@@ -298,6 +298,7 @@ STRESS_SRC = \
 	stress-atomic.c \
 	stress-bad-altstack.c \
 	stress-bad-ioctl.c \
+	stress-besselmath.c \
 	stress-bigheap.c \
 	stress-bind-mount.c \
 	stress-binderfs.c \
