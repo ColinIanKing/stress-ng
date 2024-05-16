@@ -5011,6 +5011,20 @@ check value is msync'd back to these pages.
 stop after N msync calls in the msyncmany stressors are completed.
 .RE
 .TP
+.B ISO C mtx (mutex) stressor
+.RS 5
+.TQ
+.B \-\-mtx N
+start N stressors that exercise ISO C mutex locking and unlocking.
+.TP
+.B \-\-mtx\-ops N
+stop after N bogo mutex lock/unlock operations.
+.TP
+.B \-\-mtx\-procs N
+By default 2 threads are used for locking/unlocking on a single mutex. This option
+allows the default to be changed to 2 to 64 concurrent threads.
+.RE
+.TP
 .B Unmapping shared non-executable memory stressor (Linux)
 .RS 5
 .TQ

@@ -884,6 +884,10 @@ typedef enum {
 	OPT_msyncmany,
 	OPT_msyncmany_ops,
 
+	OPT_mtx,
+	OPT_mtx_ops,
+	OPT_mtx_procs,
+
 	OPT_munmap,
 	OPT_munmap_ops,
 

@@ -191,6 +191,7 @@
 	MACRO(msg)		\
 	MACRO(msync)		\
 	MACRO(msyncmany)	\
+	MACRO(mtx)		\
 	MACRO(munmap)		\
 	MACRO(mutex)		\
 	MACRO(nanosleep)	\
