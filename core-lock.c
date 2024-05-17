@@ -38,8 +38,17 @@
 #include <sys/sem.h>
 #endif
 
+#if defined(HAVE_THREADS_H)
+#include <threads.h>
+#endif
+
 #define STRESS_LOCK_MAGIC	(0x387cb9e5)
 #define STRESS_LOCK_MAX_BACKOFF	(1U << 18)
+
+#undef HAVE_LIB_PTHREAD_SPINLOCK
+#undef HAVE_PTHREAD_MUTEX_T
+#undef FUTEX_LOCK_PI
+#undef HAVE_ATOMIC_TEST_AND_SET
 
 #if defined(HAVE_LIB_PTHREAD) &&		\
     defined(HAVE_LIB_PTHREAD_SPINLOCK) &&       \
@@ -59,18 +68,26 @@
 #define LOCK_METHOD_PTHREAD_MUTEX	(0)
 #endif
 
+#if defined(HAVE_LIB_PTHREAD) &&		\
+    defined(HAVE_THREADS_H) &&			\
+    defined(HAVE_MTX_T)
+#define LOCK_METHOD_OSI_C_MTX		(0x0004)
+#else
+#define LOCK_METHOD_OSI_C_MTX		(0)
+#endif
+
 #if defined(HAVE_LINUX_FUTEX_H) &&	\
     defined(__NR_futex) &&		\
     defined(FUTEX_LOCK_PI) &&		\
     defined(FUTEX_UNLOCK_PI) &&		\
     defined(HAVE_SYSCALL)
-#define LOCK_METHOD_FUTEX		(0x0004)
+#define LOCK_METHOD_FUTEX		(0x0008)
 #else
 #define LOCK_METHOD_FUTEX		(0)
 #endif
 
 #if defined(HAVE_ATOMIC_TEST_AND_SET)
-#define LOCK_METHOD_ATOMIC_SPINLOCK	(0x0008)
+#define LOCK_METHOD_ATOMIC_SPINLOCK	(0x0010)
 #else
 #define LOCK_METHOD_ATOMIC_SPINLOCK	(0)
 #endif
@@ -78,14 +95,14 @@
 #if defined(HAVE_SEMAPHORE_H) && \
     defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_SEM_POSIX)
-#define LOCK_METHOD_SEM_POSIX		(0x0010)
+#define LOCK_METHOD_SEM_POSIX		(0x0020)
 #else
 #define LOCK_METHOD_SEM_POSIX		(0)
 #endif
 
 #if defined(HAVE_SEM_SYSV) && 	\
     defined(HAVE_KEY_T)
-#define LOCK_METHOD_SEM_SYSV		(0x0020)
+#define LOCK_METHOD_SEM_SYSV		(0x0040)
 #else
 #define LOCK_METHOD_SEM_SYSV		(0)
 #endif
@@ -111,6 +128,9 @@ typedef struct stress_lock {
 #endif
 #if LOCK_METHOD_PTHREAD_MUTEX != 0
 		pthread_mutex_t pthread_mutex;	/* mutex */
+#endif
+#if LOCK_METHOD_OSI_C_MTX != 0
+		mtx_t mtx;		/* ISO C mutex */
 #endif
 #if LOCK_METHOD_FUTEX != 0
 		int	futex;		/* futex */
@@ -320,6 +340,44 @@ static int stress_pthread_mutex_release(stress_lock_t *lock)
 }
 
 /*
+ *  Locking via OSI C mtx Mutex
+ */
+#elif LOCK_METHOD_OSI_C_MTX != 0
+static int stress_mtx_init(stress_lock_t *lock)
+{
+	if (mtx_init(&lock->u.mtx, mtx_plain) == thrd_success)
+		return 0;
+
+	errno = -ENOSYS;
+	return -1;
+}
+
+static int stress_mtx_deinit(stress_lock_t *lock)
+{
+	mtx_destroy(&lock->u.mtx);
+
+	return 0;
+}
+
+static int stress_mtx_acquire(stress_lock_t *lock)
+{
+	if (mtx_lock(&lock->u.mtx) == thrd_success)
+		return 0;
+
+	errno = -ENOSYS;
+	return -1;
+}
+
+static int stress_mtx_release(stress_lock_t *lock)
+{
+	if (mtx_unlock(&lock->u.mtx) == thrd_success)
+		return 0;
+
+	errno = -ENOSYS;
+	return -1;
+}
+
+/*
  *  Locking via Linux futex system call API
  */
 #elif LOCK_METHOD_FUTEX != 0
@@ -479,6 +537,13 @@ void *stress_lock_create(void)
 	lock->acquire_relax = stress_pthread_mutex_acquire;
 	lock->release = stress_pthread_mutex_release;
 	lock->type = "pthread-mutex";
+#elif LOCK_METHOD_OSI_C_MTX != 0
+	lock->init = stress_mtx_init;
+	lock->deinit = stress_mtx_deinit;
+	lock->acquire = stress_mtx_acquire;
+	lock->acquire_relax = stress_mtx_acquire;
+	lock->release = stress_mtx_release;
+	lock->type = "mtx";
 #elif LOCK_METHOD_FUTEX != 0
 	lock->init = stress_futex_init;
 	lock->deinit = stress_futex_deinit;
