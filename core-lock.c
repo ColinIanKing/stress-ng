@@ -68,9 +68,10 @@
 #define LOCK_METHOD_PTHREAD_MUTEX	(0)
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) &&		\
-    defined(HAVE_THREADS_H) &&			\
-    defined(HAVE_MTX_T)
+#if defined(HAVE_THREADS_H) &&			\
+    defined(HAVE_MTX_T) &&			\
+    defined(HAVE_MTX_DESTROY) &&		\
+    defined(HAVE_MTX_INIT)
 #define LOCK_METHOD_OSI_C_MTX		(0x0004)
 #else
 #define LOCK_METHOD_OSI_C_MTX		(0)

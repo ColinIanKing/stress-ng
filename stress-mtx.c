@@ -52,7 +52,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_THREADS_H) &&		\
-    defined(HAVE_MTX_T)
+    defined(HAVE_MTX_T) &&		\
+    defined(HAVE_MTX_DESTROY) &&	\
+    defined(HAVE_MTX_INIT)
 
 static mtx_t ALIGN64 mtx;
 
