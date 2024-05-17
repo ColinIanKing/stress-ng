@@ -50,12 +50,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
-    defined(HAVE_LIB_PTHREAD) &&		\
-    defined(HAVE_PTHREAD_SETSCHEDPARAM) &&	\
-    defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
-    defined(HAVE_SCHED_GET_PRIORITY_MAX) &&	\
-    defined(SCHED_FIFO) &&			\
+#if defined(HAVE_LIB_PTHREAD) &&		\
     defined(HAVE_THREADS_H)
 
 static mtx_t ALIGN64 mtx;
