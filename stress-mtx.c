@@ -50,8 +50,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_LIB_PTHREAD) &&		\
-    defined(HAVE_THREADS_H)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_THREADS_H) &&		\
+    defined(HAVE_MTX_T)
 
 static mtx_t ALIGN64 mtx;
 
@@ -120,7 +121,6 @@ static int stress_mtx(stress_args_t *args)
 	size_t i;
 	bool created = false;
 	pthread_info_t pthread_info[MAX_MTX_PROCS];
-	pthread_attr_t attr;
 	uint64_t mtx_procs = DEFAULT_MTX_PROCS;
 	double duration = 0.0, count = 0.0, rate;
 
@@ -141,21 +141,10 @@ static int stress_mtx(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < mtx_procs; i++) {
-		(void)memset(&attr, 0, sizeof(attr));
-		if (pthread_attr_init(&attr) != 0) {
-			pr_fail("%s: pthread_attr_init failed\n", args->name);
-			break;
-		}
-
-		if (pthread_attr_setstacksize(&attr, 1024 * 1024) != 0) {
-			pr_fail("%s: pthread_attr_setstacksize failed\n", args->name);
-			break;
-		}
-
 		pthread_info[i].args = args;
 		pthread_info[i].lock_duration = 0.0;
 		pthread_info[i].lock_count = 0.0;
-		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, &attr,
+		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
                                 mtx_exercise, (void *)&pthread_info[i]);
 		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
