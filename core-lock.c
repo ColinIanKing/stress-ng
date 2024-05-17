@@ -499,7 +499,7 @@ void *stress_lock_create(void)
 	lock->acquire = stress_sem_sysv_acquire;
 	lock->acquire_relax = stress_sem_sysv_acquire;
 	lock->release = stress_sem_sysv_release;
-	lock->type = "sem-posix";
+	lock->type = "sem-sysv";
 #else
 	(void)munmap((void *)lock, sizeof(*lock));
 	goto no_locks;
