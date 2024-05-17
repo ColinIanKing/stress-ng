@@ -68,7 +68,7 @@ const struct option stress_long_options[] = {
 	{ "bind-mount",		1,	0,	OPT_bind_mount },
 	{ "bind-mount-ops",	1,	0,	OPT_bind_mount_ops },
 	{ "binderfs",		1,	0,	OPT_binderfs },
-	{ "binderfs-opts",	1,	0,	OPT_binderfs_ops },
+	{ "binderfs-ops",	1,	0,	OPT_binderfs_ops },
 	{ "bitonicsort",	1,	0,	OPT_bitonicsort },
 	{ "bitonicsort-ops",	1,	0,	OPT_bitonicsort_ops },
 	{ "bitonicsort-size",	1,	0,	OPT_bitonicsort_size },
