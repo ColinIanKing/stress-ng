@@ -568,7 +568,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 	}
 
 	(void)shim_memset(buffer, 0, sizeof(buffer));
-	while ((cpu->cache_count) < 2 && fgets(buffer, sizeof(buffer), fp) != NULL) {
+	while ((cpu->cache_count < 2) && fgets(buffer, sizeof(buffer), fp) != NULL) {
 		const char *ptr = strchr(buffer, ':');
 
 		if (ptr &&
