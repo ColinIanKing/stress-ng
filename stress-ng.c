@@ -2560,7 +2560,7 @@ void stress_shared_unmap(void)
  *  stress_exclude_unimplemented()
  *	report why an unimplemented stressor will be skipped
  */
-void stress_exclude_unimplemented(
+static void stress_exclude_unimplemented(
 	const char *name,
 	const struct stressor_info *info)
 {
