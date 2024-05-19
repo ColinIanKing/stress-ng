@@ -83,7 +83,7 @@ static int stress_cgroup_mounted_state(const char *path)
 	while (fgets(buf, sizeof(buf), fp)) {
 		char *mnt, *type, *ptr;
 		ptr = buf;
-		while (*ptr && *ptr != ' ')
+		while (*ptr && (*ptr != ' '))
 			ptr++;
 		if (*ptr == '\0')
 			break;
@@ -91,14 +91,14 @@ static int stress_cgroup_mounted_state(const char *path)
 		ptr++;
 		mnt = ptr;
 
-		while (*ptr && *ptr != ' ')
+		while (*ptr && (*ptr != ' '))
 			ptr++;
 		if (*ptr == '\0')
 			break;
 		*ptr = '\0';
 		ptr++;
 		type = ptr;
-		while (*ptr && *ptr != ' ')
+		while (*ptr && (*ptr != ' '))
 			ptr++;
 		if (*ptr == '\0')
 			break;
