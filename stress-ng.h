@@ -103,7 +103,6 @@
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
-//include <math.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdarg.h>
