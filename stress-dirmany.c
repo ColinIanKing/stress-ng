@@ -91,7 +91,7 @@ static uint64_t stress_dirmany_create(
 		char filename[PATH_MAX + 20];
 		int fd;
 
-		if ((LIKELY(g_opt_timeout > 0)) && stress_time_now() > t_end)
+		if ((LIKELY(g_opt_timeout > 0)) && (stress_time_now() > t_end))
 			break;
 
 		stress_dirmany_filename(pathname, pathname_len, filename, sizeof(filename), filename_len, i_end);
