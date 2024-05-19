@@ -80,7 +80,7 @@ static void stress_klog_kernel_cmdline(void)
 	if (ret < 0)
 		return;
 
-	for (ptr = buffer; *ptr && ptr < (buffer + ret); ptr++) {
+	for (ptr = buffer; *ptr && (ptr < (buffer + ret)); ptr++) {
 		if (*ptr == '\n') {
 			*ptr = '\0';
 			break;
