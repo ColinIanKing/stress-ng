@@ -456,7 +456,7 @@ static int stress_dnotify(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; stress_continue(args) && i < SIZEOF_ARRAY(dnotify_stressors); i++) {
+		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(dnotify_stressors)); i++) {
 			ret = dnotify_stressors[i].func(args, pathname);
 			if (ret < 0) {
 				rc = EXIT_FAILURE;
