@@ -95,7 +95,7 @@ static void pr_log_write(const char *buf, const size_t buf_len)
 {
 	const bool buffer_messages = !(g_opt_flags & OPT_FLAGS_LOG_LOCKLESS);
 
-	if (buffer_messages && pr_msg_buf.pid == getpid()) {
+	if (buffer_messages && (pr_msg_buf.pid == getpid())) {
 		if (!pr_msg_buf.buf) {
 			pr_msg_buf.buf = strdup(buf);
 			if (!pr_msg_buf.buf) {
