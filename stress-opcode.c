@@ -24,6 +24,8 @@
 #include "core-killpid.h"
 #include "core-pragma.h"
 
+#include <math.h>
+
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
 #endif

@@ -22,6 +22,8 @@
 #include "core-put.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 #define PI			(3.14159265358979323846264338327950288419716939937511L)
 #define TANSUM			(-710.4128636743199902703338466380955651402473L)
 #define STRESS_TRIG_LOOPS	(10000)

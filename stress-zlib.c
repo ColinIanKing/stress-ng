@@ -26,6 +26,8 @@
 #include "core-killpid.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"zlib N",		"start N workers compressing data with zlib" },
 	{ NULL,	"zlib-level L",		"specify zlib compression level 0=fast, 9=best" },

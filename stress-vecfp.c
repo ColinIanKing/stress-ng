@@ -22,6 +22,8 @@
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
+#include <math.h>
+
 #define LOOPS_PER_CALL	(65536)
 
 static const stress_help_t help[] = {

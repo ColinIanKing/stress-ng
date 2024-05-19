@@ -22,6 +22,7 @@
 #include "core-builtin.h"
 #include "core-io-priority.h"
 
+#include <math.h>
 #include <sched.h>
 
 #define SYSCALL_METHOD_ALL	(0)

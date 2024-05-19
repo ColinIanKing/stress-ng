@@ -22,6 +22,8 @@
 #include "core-capabilities.h"
 #include "core-mounts.h"
 
+#include <math.h>
+
 #if defined(HAVE_LINUX_SYSCTL_H)
 #include <linux/sysctl.h>
 #endif

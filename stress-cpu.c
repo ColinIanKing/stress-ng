@@ -27,6 +27,7 @@
 #include "core-put.h"
 #include "core-target-clones.h"
 
+#include <math.h>
 #include <sched.h>
 
 #if defined(HAVE_SYS_SELECT_H)

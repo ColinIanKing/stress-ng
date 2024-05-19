@@ -20,6 +20,8 @@
 #include "core-builtin.h"
 #include "core-pragma.h"
 
+#include <math.h>
+
 #define STRESS_BESSELMATH_LOOPS	(10000)
 #define PRECISION		(1.0E-4)
 

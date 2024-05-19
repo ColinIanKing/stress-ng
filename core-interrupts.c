@@ -20,6 +20,8 @@
 #include "core-arch.h"
 #include "core-interrupts.h"
 
+#include <math.h>
+
 #define MSR_SMI_COUNT		(0x34)
 
 #define COUNTERS_START		(0x00)

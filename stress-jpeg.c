@@ -20,6 +20,8 @@
 #include "core-builtin.h"
 #include "core-pragma.h"
 
+#include <math.h>
+
 #if defined(HAVE_LIBJPEG_H)
 #include <jpeglib.h>
 #endif

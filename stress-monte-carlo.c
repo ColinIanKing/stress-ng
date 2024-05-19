@@ -23,6 +23,8 @@
 #include "core-asm-ppc64.h"
 #include "core-cpu.h"
 
+#include <math.h>
+
 /* Don't use HAVE_ASM_X86_RDRAND for now, it is too slow */
 #undef HAVE_ASM_X86_RDRAND
 

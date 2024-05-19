@@ -22,6 +22,8 @@
 #include "core-put.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 #if defined(HAVE_COMPLEX_H)
 #include <complex.h>
 #endif

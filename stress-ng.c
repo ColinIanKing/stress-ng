@@ -48,6 +48,7 @@
 #include "core-vmstat.h"
 
 #include <sched.h>
+#include <math.h>
 
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>

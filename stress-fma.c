@@ -24,6 +24,8 @@
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 #define FMA_ELEMENTS	(512)
 #define FMA_UNROLL	(8)
 /* #define USE_FMA_FAST	 */

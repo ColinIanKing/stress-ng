@@ -31,6 +31,7 @@
 #include "core-pragma.h"
 #include "core-sort.h"
 
+#include <math.h>
 #include <sched.h>
 #include <pwd.h>
 

@@ -36,6 +36,8 @@
 #include "core-pragma.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 #define MIN_STREAM_L3_SIZE	(4 * KB)
 #define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
 #define DEFAULT_STREAM_L3_SIZE	(4 * MB)

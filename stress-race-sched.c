@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-out-of-memory.h"
 
+#include <math.h>
 #include <sched.h>
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&					     \

@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+#include <math.h>
+
 #if defined(HAVE_FENV_H)
 #include <fenv.h>
 #endif

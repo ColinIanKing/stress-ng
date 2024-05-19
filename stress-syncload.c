@@ -25,6 +25,8 @@
 #include "core-put.h"
 #include "core-target-clones.h"
 
+#include <math.h>
+
 #define STRESS_SYNCLOAD_MS_DEFAULT	(125)	/* 125 milliseconds */
 #define STRESS_SYNCLOAD_MS_MIN		(1)	/* 1 millisecond */
 #define STRESS_SYNCLOAD_MS_MAX		(10000)	/* 1 second */

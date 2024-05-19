@@ -20,6 +20,9 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-hash.h"
+
+#include <math.h>
+
 #if defined(HAVE_XXHASH_H)
 #include <xxhash.h>
 #endif

@@ -23,6 +23,8 @@
 #include "core-builtin.h"
 #include "core-pragma.h"
 
+#include <math.h>
+
 #if defined(STRESS_ARCH_S390)
 #undef ALWAYS_INLINE
 #define ALWAYS_INLINE

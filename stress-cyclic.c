@@ -22,6 +22,7 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 
+#include <math.h>
 #include <sched.h>
 
 #define DEFAULT_DELAY_NS	(100000)
