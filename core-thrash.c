@@ -184,7 +184,7 @@ static int stress_pagein_proc(const pid_t pid)
 			continue;
 
 		/* ignore non-readable or non-private mappings */
-		if (prot[0] != 'r' && prot[3] != 'p')
+		if ((prot[0] != 'r') && (prot[3] != 'p'))
 			continue;
 		len = end - begin;
 
