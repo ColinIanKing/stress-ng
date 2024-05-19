@@ -114,7 +114,7 @@ static int stress_set_adjustment(
 			if ((saved_errno != EAGAIN) &&
 			    (saved_errno != EINTR) &&
 			    (saved_errno != EACCES)) {
-				if (args && args->instance == 0)
+				if (args && (args->instance == 0))
 					pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n",
 						stress_args_name(args), saved_errno, strerror(saved_errno));
 				return -saved_errno;
@@ -122,7 +122,7 @@ static int stress_set_adjustment(
 		}
 	}
 	/* Unexpected failure, report why */
-	if ((args && args->instance == 0) && (saved_errno != EACCES))
+	if ((args && (args->instance == 0)) && (saved_errno != EACCES))
 		pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n", stress_args_name(args),
 			saved_errno, strerror(saved_errno));
 	return -1;
