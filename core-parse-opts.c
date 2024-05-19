@@ -362,7 +362,7 @@ uint64_t stress_get_uint64_time(const char *const str)
 		{ 'h',  3600ULL },		/* hours */
 		{ 'd',  24ULL * 3600 },		/* days */
 		{ 'w',  24ULL * 3600 * 7 },	/* weeks */
-		{ 'y',  31556926ULL },		/* years (equinoctial) */
+		{ 'y',  31536000 },		/* years */
 	};
 
 	return stress_get_uint64_scale(str, scales, "time");
