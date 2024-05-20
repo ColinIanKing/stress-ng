@@ -128,7 +128,7 @@ static int stress_fault(stress_args_t *args)
 		}
 #else
 		{
-			char buffer[1];
+			char buffer[1] = { 0 };
 
 redo:
 			if (stress_continue_flag() &&
