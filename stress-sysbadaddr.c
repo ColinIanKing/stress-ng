@@ -1312,7 +1312,7 @@ static void bad_move_pages1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_move_pages2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
-		int nodes, status;
+		int nodes = 0, status;
 
 		(*counter)++;
 		VOID_RET(long, shim_move_pages(getpid(), (unsigned long)1, (void **)ba->addr, &nodes, &status, 0));
