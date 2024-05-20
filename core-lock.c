@@ -45,11 +45,6 @@
 #define STRESS_LOCK_MAGIC	(0x387cb9e5)
 #define STRESS_LOCK_MAX_BACKOFF	(1U << 18)
 
-#undef HAVE_LIB_PTHREAD_SPINLOCK
-#undef HAVE_PTHREAD_MUTEX_T
-#undef FUTEX_LOCK_PI
-#undef HAVE_ATOMIC_TEST_AND_SET
-
 #if defined(HAVE_LIB_PTHREAD) &&		\
     defined(HAVE_LIB_PTHREAD_SPINLOCK) &&       \
     !defined(__DragonFly__) &&                  \
