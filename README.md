@@ -534,6 +534,10 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [sched: Interleave cfs bandwidth timers for improved single thread performance at low utilization](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=41abdba9374734b743019fc1cc05e3225c82ba6b)
 * [mm/khugepaged: remove redundant try_to_freeze()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b39ca208403c8f2c17dab1fbfef1f5ecaff25e53)
 
+2024:
+* [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
+* [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
+
 ## Presentations
 
 * [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
