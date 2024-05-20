@@ -21,6 +21,8 @@
 #include "core-log.h"
 #include "core-syslog.h"
 
+#include <stdarg.h>
+
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
 #endif

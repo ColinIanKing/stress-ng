@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
+#include <stdarg.h>
+
 #if defined(HAVE_KEYUTILS_H)
 #include <keyutils.h>
 #endif

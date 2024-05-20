@@ -30,6 +30,7 @@
 #include "core-shim.h"
 
 #include <sched.h>
+#include <stdarg.h>
 #include <pwd.h>
 
 #if defined(__NR_pkey_get)

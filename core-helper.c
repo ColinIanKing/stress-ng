@@ -34,6 +34,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <sched.h>
+#include <stdarg.h>
 #include <pwd.h>
 #include <sys/ioctl.h>
 
