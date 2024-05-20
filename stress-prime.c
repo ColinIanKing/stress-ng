@@ -279,7 +279,6 @@ finish:
 	ops = stress_bogo_get(args);
 	rate = (duration > 0.0) ? (double)ops / duration : 0.0;
 	stress_metrics_set(args, 0, "primes per second", rate, STRESS_METRIC_HARMONIC_MEAN);
-	rate = (duration > 0.0) ? (double)ops / duration : 0.0;
 	stress_metrics_set(args, 1, "primes found", (double)ops, STRESS_METRIC_TOTAL);
 	stress_metrics_set(args, 2, "digits in largest prime", (double)digits, STRESS_METRIC_MAXIMUM);
 
