@@ -172,8 +172,10 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 	}
 	errno = 0;
 	rewind(fp);
-	if (errno < 0)
+	if (errno < 0) {
+		(void)fclose(fp);
 		return EXIT_NO_RESOURCE;
+	}
 #endif
 	while (stress_continue(args) && fgets(buf, sizeof(buf), fp)) {
 		*path = '\0';
