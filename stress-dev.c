@@ -29,6 +29,7 @@
 #include "core-try-open.h"
 
 #include <ctype.h>
+#include <sys/file.h>
 
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>

@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
+#include <sys/file.h>
+
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif
