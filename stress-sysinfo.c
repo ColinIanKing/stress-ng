@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-mounts.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif

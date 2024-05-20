@@ -26,6 +26,8 @@
 #include "core-put.h"
 #include "core-try-open.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #else

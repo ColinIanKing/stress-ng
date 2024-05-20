@@ -29,6 +29,8 @@
 #define STRESS_EFI_VARS		(1)
 #define STRESS_EFI_EFIVARS	(2)
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif

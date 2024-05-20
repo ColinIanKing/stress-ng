@@ -21,6 +21,8 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 
+#include <sys/ioctl.h>
+
 static const stress_help_t help[] = {
 	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,	"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },

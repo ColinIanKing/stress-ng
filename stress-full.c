@@ -24,6 +24,8 @@
 #include "core-put.h"
 #include "core-target-clones.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif

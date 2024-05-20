@@ -22,6 +22,8 @@
 #include "core-killpid.h"
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
+
+#include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sched.h>
 

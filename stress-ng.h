@@ -129,7 +129,6 @@
 /*
  *  Various sys include files
  */
-#include <sys/ioctl.h>
 #include <sys/file.h>
 #include <sys/mman.h>
 #include <sys/resource.h>

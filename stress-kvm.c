@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_KVM_H)
 #include <linux/kvm.h>
 #endif

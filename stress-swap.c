@@ -23,6 +23,8 @@
 #include "core-madvise.h"
 #include "core-out-of-memory.h"
 
+#include <sys/ioctl.h>
+
 #if defined(__sun__)
 /* Disable for SunOs/Solaris because */
 #undef HAVE_SYS_SWAP_H

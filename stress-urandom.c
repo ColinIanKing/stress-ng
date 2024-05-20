@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
 #else

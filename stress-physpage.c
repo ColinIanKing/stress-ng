@@ -21,6 +21,8 @@
 #include "core-arch.h"
 #include "core-capabilities.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_ASM_MTRR_H)
 #include <asm/mtrr.h>
 #endif

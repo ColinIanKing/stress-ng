@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif

@@ -22,6 +22,8 @@
 #include "core-net.h"
 #include "core-out-of-memory.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif

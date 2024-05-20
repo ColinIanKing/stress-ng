@@ -23,6 +23,8 @@
 #include "core-killpid.h"
 #include "core-net.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
 #undef HAVE_ATTR_XATTR_H

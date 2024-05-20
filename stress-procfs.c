@@ -24,6 +24,7 @@
 #include "core-put.h"
 
 #include <ctype.h>
+#include <sys/ioctl.h>
 
 #if defined(HAVE_ASM_MTRR_H)
 #include <asm/mtrr.h>

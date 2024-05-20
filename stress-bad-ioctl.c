@@ -27,6 +27,7 @@
 #include "core-try-open.h"
 
 #include <ctype.h>
+#include <sys/ioctl.h>
 
 static const stress_help_t help[] = {
 	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal read ioctls on devices" },

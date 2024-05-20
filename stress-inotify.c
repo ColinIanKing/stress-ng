@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_EPOLL_H)
 #include <sys/epoll.h>
 #endif

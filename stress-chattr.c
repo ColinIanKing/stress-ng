@@ -27,6 +27,8 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__)
 
+#include <sys/ioctl.h>
+
 #define SHIM_EXT2_SECRM_FL		0x00000001 /* Secure deletion */
 #define SHIM_EXT2_UNRM_FL		0x00000002 /* Undelete */
 #define SHIM_EXT2_COMPR_FL		0x00000004 /* Compress file */

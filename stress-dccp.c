@@ -23,6 +23,8 @@
 #include "core-killpid.h"
 #include "core-net.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif

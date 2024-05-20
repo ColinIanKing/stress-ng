@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-pthread.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
 #endif

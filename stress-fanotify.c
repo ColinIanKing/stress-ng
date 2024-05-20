@@ -23,6 +23,8 @@
 #include "core-killpid.h"
 #include "core-mounts.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_FANOTIFY_H)
 #include <sys/fanotify.h>
 #endif

@@ -23,6 +23,7 @@
 #include "core-out-of-memory.h"
 
 #include <sched.h>
+#include <sys/ioctl.h>
 
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD

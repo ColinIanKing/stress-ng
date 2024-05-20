@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_SYS_TIMERFD_H)
 #include <sys/timerfd.h>
 #else

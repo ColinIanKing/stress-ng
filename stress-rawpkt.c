@@ -24,6 +24,8 @@
 #include "core-killpid.h"
 #include "core-net.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_IF_PACKET_H)
 #include <linux/if_packet.h>
 #endif

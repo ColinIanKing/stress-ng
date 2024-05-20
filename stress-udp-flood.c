@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-net.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
 #else

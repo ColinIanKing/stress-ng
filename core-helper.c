@@ -35,6 +35,7 @@
 #include <math.h>
 #include <sched.h>
 #include <pwd.h>
+#include <sys/ioctl.h>
 
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>

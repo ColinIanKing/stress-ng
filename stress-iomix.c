@@ -22,6 +22,8 @@
 #include "core-killpid.h"
 #include "core-put.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif

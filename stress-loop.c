@@ -22,6 +22,8 @@
 #include "core-capabilities.h"
 #include "core-mincore.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
 #endif

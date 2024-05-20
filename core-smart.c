@@ -24,6 +24,7 @@
 #include "core-smart.h"
 
 #include <ctype.h>
+#include <sys/ioctl.h>
 
 #if defined(HAVE_SCSI_SG_H)
 #include <scsi/sg.h>
