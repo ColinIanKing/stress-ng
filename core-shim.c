@@ -320,7 +320,8 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		if (mode & FALLOC_FL_COLLAPSE_RANGE)
 			return ret;
 #endif
-#if defined(HAVE_SYSCALL)
+#if defined(__NR_fallocate) &&	\
+    defined(HAVE_SYSCALL)
 		ret = (int)syscall(__NR_fallocate, fd, 0, offset, len);
 #else
 		ret = -1;
