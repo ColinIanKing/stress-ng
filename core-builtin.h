@@ -668,11 +668,7 @@
 #if defined(HAVE_BUILTIN_J0L)
 #define shim_j0l(x)		__builtin_j0l((x))
 #else
-#if defined(HAVE_J0L)
 #define shim_j0l(x)		j0l((x))
-#else
-#define shim_j0l(x)		((long double)j0((double)(x)))
-#endif
 #endif
 
 #if defined(HAVE_BUILTIN_J1)
@@ -690,11 +686,7 @@
 #if defined(HAVE_BUILTIN_J1L)
 #define shim_j1l(x)		__builtin_j1l((x))
 #else
-#if defined(HAVE_J1L)
 #define shim_j1l(x)		j1l((x))
-#else
-#define shim_j1l(x)		((long double)j1((double)(x)))
-#endif
 #endif
 
 #if defined(HAVE_BUILTIN_JN)
@@ -712,11 +704,7 @@
 #if defined(HAVE_BUILTIN_JNL)
 #define shim_jnl(n, x)		__builtin_jnl((n), (x))
 #else
-#if defined(HAVE_JNL)
 #define shim_jnl(n, x)		jnl((n), (x))
-#else
-#define shim_jnl(n, x)		((long double)jn((n), (double)(x)))
-#endif
 #endif
 
 #if defined(HAVE_BUILTIN_RINT)
@@ -740,11 +728,7 @@
 #if defined(HAVE_BUILTIN_Y0L)
 #define shim_y0l(x)		__builtin_y0l((x))
 #else
-#if defined(HAVE_Y0L)
 #define shim_y0l(x)		y0l((x))
-#else
-#define shim_y0l(x)		((long double)y0((double)(x)))
-#endif
 #endif
 
 #if defined(HAVE_BUILTIN_Y1)
@@ -762,11 +746,7 @@
 #if defined(HAVE_BUILTIN_Y1L)
 #define shim_y1l(x)		__builtin_y1l((x))
 #else
-#if defined(HAVE_Y1L)
 #define shim_y1l(x)		y1l((x))
-#else
-#define shim_y1l(x)		((long double)y1((double)(x)))
-#endif
 #endif
 
 #if defined(HAVE_BUILTIN_YN)
@@ -784,11 +764,7 @@
 #if defined(HAVE_BUILTIN_YNL)
 #define shim_ynl(n, x)		__builtin_ynl((n), (x))
 #else
-#if defined(HAVE_YNL)
 #define shim_ynl(n, x)		ynl((n), (x))
-#else
-#define shim_ynl(n, x)		((long double)yn((n), (double)(x)))
-#endif
 #endif
 
 #if defined(HAVE_BUILTIN_ROUNDL)
