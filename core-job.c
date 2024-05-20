@@ -114,6 +114,8 @@ int stress_parse_jobfile(
 	uint32_t flag;
 	static uint32_t lineno;
 
+	(void)shim_memset(txt, 0, sizeof(txt));
+
 	if (!jobfile) {
 		if (optind >= argc)
 			return 0;
