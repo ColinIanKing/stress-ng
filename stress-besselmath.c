@@ -135,7 +135,7 @@ static bool OPTIMIZE3 stress_besselmath_j0f(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
-		sum += (float)shim_j0f((float)di);
+		sum += (double)shim_j0f((float)di);
 		di += 0.001;
 	}
 	stress_bogo_inc(args);
@@ -158,7 +158,7 @@ static bool OPTIMIZE3 stress_besselmath_j1f(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
-		sum += (float)shim_j1f((float)di);
+		sum += (double)shim_j1f((float)di);
 		di += 0.001;
 	}
 	stress_bogo_inc(args);
@@ -181,7 +181,7 @@ static bool OPTIMIZE3 stress_besselmath_jnf(stress_args_t *args)
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
-		sum += (float)shim_jnf(5, (float)di);
+		sum += (double)shim_jnf(5, (float)di);
 		di += 0.001;
 	}
 	stress_bogo_inc(args);
@@ -336,13 +336,13 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_y0f(stress_args_t *args)
 {
 	static bool first_run = true;
-	static float result = -1.0;
-	register float sum = 0.0, di = 0.1;
+	static double result = -1.0;
+	register double sum = 0.0, di = 0.1;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
-		sum += shim_y0f(di);
+		sum += (double)shim_y0f((float)di);
 		di += 0.001;
 	}
 	stress_bogo_inc(args);
@@ -351,7 +351,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsf(sum - result) > PRECISION);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -359,13 +359,13 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_y1f(stress_args_t *args)
 {
 	static bool first_run = true;
-	static float result = -1.0;
-	register float sum = 0.0, di = 0.1;
+	static double result = -1.0;
+	register double sum = 0.0, di = 0.1;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
-		sum += shim_y1f(di);
+		sum += (double)shim_y1f((float)di);
 		di += 0.001;
 	}
 	stress_bogo_inc(args);
@@ -374,7 +374,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsf(sum - result) > PRECISION);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
@@ -382,13 +382,13 @@ PRAGMA_UNROLL_N(8)
 static bool OPTIMIZE3 stress_besselmath_ynf(stress_args_t *args)
 {
 	static bool first_run = true;
-	static float result = -1.0;
-	register float sum = 0.0, di = 0.1;
+	static double result = -1.0;
+	register double sum = 0.0, di = 0.1;
 	register int i;
 
 PRAGMA_UNROLL_N(8)
 	for (i = 0; i < STRESS_BESSELMATH_LOOPS; i++) {
-		sum += shim_ynf(5, di);
+		sum += (double)shim_ynf(5, (float)di);
 		di += 0.001;
 	}
 	stress_bogo_inc(args);
@@ -397,7 +397,7 @@ PRAGMA_UNROLL_N(8)
 		result = sum;
 		first_run = false;
 	}
-	return (shim_fabsf(sum - result) > PRECISION);
+	return (shim_fabs(sum - result) > PRECISION);
 }
 #endif
 
