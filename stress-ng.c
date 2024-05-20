@@ -50,6 +50,9 @@
 #include <ctype.h>
 #include <sched.h>
 #include <math.h>
+#include <float.h>
+
+#include <sys/times.h>
 
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
@@ -62,8 +65,6 @@
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif
-
-#include <float.h>
 
 #define MIN_SEQUENTIAL		(0)
 #define MAX_SEQUENTIAL		(1000000)

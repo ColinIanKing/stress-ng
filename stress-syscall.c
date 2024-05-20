@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sched.h>
 #include <sys/file.h>
+#include <sys/times.h>
 
 #define SYSCALL_METHOD_ALL	(0)
 #define SYSCALL_METHOD_FAST10	(1)

@@ -22,6 +22,7 @@
 #include "core-mounts.h"
 
 #include <sys/ioctl.h>
+#include <sys/times.h>
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>

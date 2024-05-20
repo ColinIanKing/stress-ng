@@ -25,6 +25,7 @@
 
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/times.h>
 #include <sched.h>
 
 #if defined(HAVE_TERMIOS_H)

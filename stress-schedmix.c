@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 
 #include <sched.h>
+#include <sys/times.h>
 
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
