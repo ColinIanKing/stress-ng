@@ -1827,7 +1827,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	register uint8_t i = 0;
 	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
-	register uint8_t *ptr = (uint8_t *)buf + offset;
+	register uint8_t *ptr;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1887,7 +1887,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	register uint8_t i = 0;
 	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
-	register uint8_t *ptr = (uint8_t *)buf + offset;
+	register uint8_t *ptr;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1947,7 +1947,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	register uint8_t i = 0;
 	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
-	register uint8_t *ptr = (uint8_t *)buf + offset;
+	register uint8_t *ptr;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -2007,7 +2007,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	register uint8_t i = 0;
 	register const size_t prime = 61; /* prime less than cache line size */
 	static size_t offset = 0;
-	register uint8_t *ptr = (uint8_t *)buf + offset;
+	register uint8_t *ptr;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
