@@ -191,10 +191,13 @@ static int stress_af_alg_hash(
 {
 	int fd, rc;
 	size_t j;
-	const ssize_t digest_size = info->digest_size;
+	const int digest_size = info->digest_size;
 	char *input, *digest;
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
+
+	if (UNLIKELY(digest_size < 1))
+		return EXIT_NO_RESOURCE;
 
 	input = malloc(DATA_LEN + ALLOC_SLOP);
 	if (!input)
@@ -289,7 +292,7 @@ retry_bind:
 			continue;
 		}
 		ret = recv(fd, digest, (size_t)digest_size, MSG_WAITALL);
-		if (ret != digest_size) {
+		if (ret != (ssize_t)digest_size) {
 			if (ret < 0) {
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
@@ -1017,6 +1020,14 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	if (strcmp(info->name, "tk(cbc(aes))") == 0)
 		return false;
 	if (strcmp(info->name, "tk(ecb(aes))") == 0)
+		return false;
+
+	/* Discard invalid data */
+	if ((info->digest_size < 0) ||
+	    (info->block_size < 0) ||
+	    (info->iv_size < 0) ||
+	    (info->max_key_size < 0) ||
+	    (info->max_auth_size < 0))
 		return false;
 
 	/* Scan for duplications */
