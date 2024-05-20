@@ -22,6 +22,8 @@
 #include "core-capabilities.h"
 #include "core-module.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_LINUX_MODULE_H)
 #include <linux/module.h>
 #else

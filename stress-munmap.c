@@ -21,6 +21,8 @@
 #include "core-attribute.h"
 #include "core-out-of-memory.h"
 
+#include <ctype.h>
+
 typedef struct {
 	stress_args_t *args;	/* stress-ng arguments */
 	size_t page_shift;		/* log2(page_size) */

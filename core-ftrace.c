@@ -24,6 +24,8 @@
 #include "core-ftrace.h"
 #include "core-mounts.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
 #endif

@@ -24,6 +24,8 @@
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
 #endif

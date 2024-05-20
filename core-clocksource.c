@@ -19,6 +19,8 @@
 #include "stress-ng.h"
 #include "core-clocksource.h"
 
+#include <ctype.h>
+
 #if defined(__linux__)
 static inline void stress_clocksource_tolower(char *str)
 {

@@ -23,6 +23,8 @@
 #include "core-capabilities.h"
 #include "core-smart.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_SCSI_SG_H)
 #include <scsi/sg.h>
 #endif

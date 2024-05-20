@@ -23,6 +23,8 @@
 #include "core-pthread.h"
 #include "core-put.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_ASM_MTRR_H)
 #include <asm/mtrr.h>
 #endif

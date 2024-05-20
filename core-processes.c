@@ -20,6 +20,7 @@
 #include "core-builtin.h"
 #include "core-processes.h"
 
+#include <ctype.h>
 #include <pwd.h>
 
 #if defined(__linux__)

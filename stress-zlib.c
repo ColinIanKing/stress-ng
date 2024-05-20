@@ -26,6 +26,7 @@
 #include "core-killpid.h"
 #include "core-target-clones.h"
 
+#include <ctype.h>
 #include <math.h>
 
 static const stress_help_t help[] = {

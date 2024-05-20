@@ -21,6 +21,7 @@
 #include "core-killpid.h"
 #include "core-thrash.h"
 
+#include <ctype.h>
 #include <sched.h>
 
 #if defined(__linux__) &&	\

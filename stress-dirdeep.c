@@ -19,6 +19,8 @@
  */
 #include "stress-ng.h"
 
+#include <ctype.h>
+
 #define MIN_DIRDEEP_BYTES	(0)
 #define MAX_DIRDEEP_BYTES	(MAX_FILE_LIMIT)
 

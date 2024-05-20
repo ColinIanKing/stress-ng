@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-thermal-zone.h"
 
+#include <ctype.h>
+
 #if defined(STRESS_THERMAL_ZONES)
 
 /*

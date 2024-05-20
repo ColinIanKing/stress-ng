@@ -28,6 +28,8 @@
 #include "core-put.h"
 #include "core-try-open.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>
 #endif

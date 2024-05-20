@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-job.h"
 
+#include <ctype.h>
+
 #define MAX_ARGS	(64)
 #define RUN_SEQUENTIAL	(0x01)
 #define RUN_PARALLEL	(0x02)

@@ -24,6 +24,7 @@
 #include "core-thermal-zone.h"
 #include "core-vmstat.h"
 
+#include <ctype.h>
 #include <math.h>
 #include <sched.h>
 

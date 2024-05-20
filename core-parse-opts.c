@@ -21,6 +21,8 @@
 #include "core-parse-opts.h"
 #include "core-cpu-cache.h"
 
+#include <ctype.h>
+
 /*
  *  stress_check_max_stressors()
  *	sanity check number of stressors

@@ -20,13 +20,15 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
-#define MIN_DIR_DIRS		(64)
-#define MAX_DIR_DIRS		(65536)
-#define DEFAULT_DIR_DIRS	(8192)
+#include <ctype.h>
 
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
 #endif
+
+#define MIN_DIR_DIRS		(64)
+#define MAX_DIR_DIRS		(65536)
+#define DEFAULT_DIR_DIRS	(8192)
 
 static const stress_help_t help[] = {
 	{ NULL,	"dir N",	"start N directory thrashing stressors" },

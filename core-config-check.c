@@ -19,6 +19,8 @@
 #include "stress-ng.h"
 #include "core-config-check.h"
 
+#include <ctype.h>
+
 #if defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif

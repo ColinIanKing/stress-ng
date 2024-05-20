@@ -47,6 +47,7 @@
 #include "core-thrash.h"
 #include "core-vmstat.h"
 
+#include <ctype.h>
 #include <sched.h>
 #include <math.h>
 
