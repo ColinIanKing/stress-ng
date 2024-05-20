@@ -127,9 +127,9 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 
 		len = sendto(sock, nlmsgbuf, (size_t)nlmsgbuf_len, 0,
 			(struct sockaddr *)&addr, sizeof(addr));
-		if ((len < 0) &&
-		    (errno != EAGAIN) &&
-		    (errno != EINTR)) {
+		if (len < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				return 0;
 			pr_fail("%s: sendto failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
