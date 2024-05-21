@@ -61,7 +61,7 @@ override CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -std=gnu99
 #  gcc-13.2, so remove then and ensure at least -O2 is used or
 #  honour flags > -O2 if they are provided
 #
-VNNI_OFLAGS_REMOVE=-O0 -O1 -Og
+VNNI_OFLAGS_REMOVE=-O0 -O1 -Os -Oz -Og
 VNNI_CFLAGS += $(filter-out $(VNNI_OFLAGS_REMOVE),$(CFLAGS))
 
 #
