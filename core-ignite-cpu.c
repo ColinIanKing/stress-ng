@@ -112,16 +112,16 @@ static void stress_ignite_cpu_set(
 
 	if ((*setting_flag & SETTING_ENERGY_PERF_BIAS) && (energy_perf_bias >= 0)) {
 		(void)snprintf(path, sizeof(path),
-			"/sys/devices/system/cpu/cpu%" PRIu32
+			"/sys/devices/system/cpu/cpu%" PRId32
 			"/power/energy_perf_bias", cpu);
-		(void)snprintf(buffer, sizeof(buffer), "%" PRIu8 "\n", energy_perf_bias);
+		(void)snprintf(buffer, sizeof(buffer), "%" PRId8 "\n", energy_perf_bias);
 		if (stress_system_write(path, buffer, strlen(buffer)) < 0)
 			*setting_flag &= ~SETTING_ENERGY_PERF_BIAS;
 	}
 
 	if ((*setting_flag & SETTING_GOVERNOR) && (*governor != '\0')) {
 		(void)snprintf(path, sizeof(path),
-			"/sys/devices/system/cpu/cpu%" PRIu32
+			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_governor", cpu);
 		if (stress_system_write(path, governor, strlen(governor)) < 0)
 			*setting_flag &= ~SETTING_GOVERNOR;
@@ -173,7 +173,7 @@ void stress_ignite_cpu_start(void)
 
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/scaling_max_freq", cpu);
 			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
@@ -184,7 +184,7 @@ void stress_ignite_cpu_start(void)
 			}
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/scaling_min_freq", cpu);
 			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
@@ -196,7 +196,7 @@ void stress_ignite_cpu_start(void)
 
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/cpuinfo_max_freq", cpu);
 			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
@@ -207,7 +207,7 @@ void stress_ignite_cpu_start(void)
 			}
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/cpuinfo_min_freq", cpu);
 			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
@@ -220,7 +220,7 @@ void stress_ignite_cpu_start(void)
 			(void)shim_memset(cpu_settings[cpu].cur_governor, 0,
 				sizeof(cpu_settings[cpu].cur_governor));
 			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/sys/devices/system/cpu/cpu%" PRId32
 				"/cpufreq/scaling_governor", cpu);
 			ret = stress_system_read(path, cpu_settings[cpu].cur_governor,
 					  sizeof(cpu_settings[cpu].cur_governor));
@@ -229,7 +229,7 @@ void stress_ignite_cpu_start(void)
 
 			(void)shim_memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/sys/devices/system/cpu/cpu%" PRId32
 				"/power/energy_perf_bias", cpu);
 			ret = stress_system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
