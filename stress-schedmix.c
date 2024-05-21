@@ -504,7 +504,11 @@ static int stress_schedmix(stress_args_t *args)
 
 	(void)stress_get_setting("schedmix-procs", &schedmix_procs);
 
+	for (i = 0; i < schedmix_procs; i++) 
+		pids[i] = -1;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 
 	for (i = 0; i < schedmix_procs; i++) {
 		stress_mwc_reseed();
