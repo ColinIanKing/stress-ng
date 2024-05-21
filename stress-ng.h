@@ -161,7 +161,7 @@
 /*
  *  Per stressor misc rate metrics
  */
-#define STRESS_MISC_METRICS_MAX			(64)
+#define STRESS_MISC_METRICS_MAX			(96)
 
 typedef struct {
 	uint64_t counter;		/* bogo-op counter */
