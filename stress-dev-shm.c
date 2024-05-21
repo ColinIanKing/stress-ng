@@ -217,7 +217,7 @@ static int stress_dev_shm(stress_args_t *args)
 		}
 	}
 
-	(void)snprintf(path, sizeof(path), "/dev/shm/stress-dev-shm-%d-%d-%" PRIu32,
+	(void)snprintf(path, sizeof(path), "/dev/shm/stress-dev-shm-%" PRIu32 "-%d-%" PRIu32,
 		args->instance, getpid(), stress_mwc32());
 	context.fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
 	if (context.fd < 0) {
