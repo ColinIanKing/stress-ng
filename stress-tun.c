@@ -171,8 +171,8 @@ static int stress_tun(stress_args_t *args)
 		 */
 		for (i = 0; i < 32; i++) {
 			(void)snprintf(ip_addr, sizeof(ip_addr), "192.168.%" PRIu8 ".%" PRIu8,
-				(stress_mwc8modn(252)) + 2,
-				(stress_mwc8modn(254)) + 1);
+				(uint8_t)(stress_mwc8modn(252)) + 2,
+				(uint8_t)(stress_mwc8modn(254)) + 1);
 
 			(void)inet_pton(AF_INET, ip_addr, &tun_addr->sin_addr);
 			ret = ioctl(sfd, SIOCSIFADDR, &ifr);
