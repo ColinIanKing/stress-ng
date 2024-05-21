@@ -50,8 +50,8 @@ void stress_check_range(
 	const uint64_t hi)
 {
 	if ((val < lo) || (val > hi)) {
-		(void)fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
-			" allowed: %" PRId64 " .. %" PRId64 "\n",
+		(void)fprintf(stderr, "Value %" PRIu64 " is out of range for %s,"
+			" allowed: %" PRIu64 " .. %" PRIu64 "\n",
 			val, opt, lo, hi);
 		longjmp(g_error_env, 1);
 	}
@@ -383,7 +383,7 @@ void stress_check_power_of_2(
 	stress_check_range(opt, val, lo, hi);
 
 	if ((val & (val - 1)) != 0) {
-		(void)fprintf(stderr, "Value %" PRId64 " is not power of 2 for %s\n",
+		(void)fprintf(stderr, "Value %" PRIu64 " is not power of 2 for %s\n",
 					  val, opt);
 		longjmp(g_error_env, 1);
 	}
