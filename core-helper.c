@@ -1718,7 +1718,7 @@ bool PURE stress_little_endian(void)
 
 /*
  *  stress_endian_str()
- *	return endianess as a string
+ *	return endianness as a string
  */
 static const char *stress_endian_str(void)
 {
