@@ -242,6 +242,11 @@ static int stress_dup(stress_args_t *args)
 		for (n = 1; n < max_fd; n++) {
 			int tmp;
 			double t;
+#if defined(O_CLOEXEC)
+			const int flags = O_CLOEXEC;
+#else
+			const int flags = 0;
+#endif
 
 			t = stress_time_now();
 			fds[n] = dup(fds[0]);
@@ -259,7 +264,7 @@ static int stress_dup(stress_args_t *args)
 				break;
 
 			/* do an invalid dup3 on an invalid fd */
-			tmp = shim_dup3(fds[0], bad_fd, O_CLOEXEC);
+			tmp = shim_dup3(fds[0], bad_fd, flags);
 			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 			else if (errno == ENOSYS)
@@ -289,7 +294,7 @@ static int stress_dup(stress_args_t *args)
 				break;
 
 			/* do an invalid dup3 with same oldfd and newfd */
-			tmp = shim_dup3(fds[0], fds[0], O_CLOEXEC);
+			tmp = shim_dup3(fds[0], fds[0], flags);
 			if (UNLIKELY(tmp >= 0))
 				(void)close(tmp);
 			else if (errno == ENOSYS)
@@ -302,7 +307,7 @@ static int stress_dup(stress_args_t *args)
 				int fd;
 
 				t = stress_time_now();
-				fd = shim_dup3(fds[0], fds[n], O_CLOEXEC);
+				fd = shim_dup3(fds[0], fds[n], flags);
 				/* No dup3 support? then fallback to dup2 */
 				if ((fd < 0) && (errno == ENOSYS)) {
 					t = stress_time_now();
