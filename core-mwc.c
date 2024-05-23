@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-cpu-cache.h"
+#include "core-helper.h"
 #include "core-mwc.h"
 
 #if defined(HAVE_SYS_AUXV_H)
@@ -130,9 +131,10 @@ void stress_mwc_reseed(void)
 		double m1, m5, m15;
 		int i, n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
+		const uint64_t id = stress_get_machine_id();
 		const intptr_t p1 = (intptr_t)&mwc;
 		const intptr_t p2 = (intptr_t)&tv;
-
+		
 		mwc.z = aux_rnd >> 32;
 		mwc.w = aux_rnd & 0xffffffff;
 		if (gettimeofday(&tv, NULL) == 0)
@@ -149,6 +151,9 @@ void stress_mwc_reseed(void)
 		}
 		mwc.z ^= stress_get_cpu();
 		mwc.w ^= stress_get_phys_mem_size();
+
+		mwc.z ^= (uint32_t)(id & 0xffffffffULL);
+		mwc.w ^= (uint32_t)((id >> 32) & 0xffffffffULL);
 
 		n = (int)mwc.z % 1733;
 		for (i = 0; i < n; i++) {
