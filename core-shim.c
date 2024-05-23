@@ -266,7 +266,8 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
  */
 int shim_posix_fallocate(int fd, off_t offset, off_t len)
 {
-#if defined(HAVE_POSIX_FALLOCATE)
+#if defined(HAVE_POSIX_FALLOCATE) &&	\
+    !defined(__FreeBSD__)
 	const off_t chunk_len = (off_t)(1 * MB);
 
 	do {
