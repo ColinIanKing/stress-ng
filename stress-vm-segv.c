@@ -39,7 +39,8 @@ static NOINLINE void vm_unmap_child(const size_t page_size)
 	while (len > page_size) {
 		(void)munmap((void *)stress_get_null(), len - page_size);
 		len >>= 1;
-#if !defined(__DragonFly__)
+#if !defined(__DragonFly__) &&	\
+    !defined(__OpenBSD__)
 		shim_clflush(addr);
 #endif
 		shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
