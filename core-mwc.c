@@ -134,7 +134,7 @@ void stress_mwc_reseed(void)
 		const uint64_t id = stress_get_machine_id();
 		const intptr_t p1 = (intptr_t)&mwc;
 		const intptr_t p2 = (intptr_t)&tv;
-		
+
 		mwc.z = aux_rnd >> 32;
 		mwc.w = aux_rnd & 0xffffffff;
 		if (gettimeofday(&tv, NULL) == 0)
