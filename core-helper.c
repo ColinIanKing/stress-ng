@@ -4792,3 +4792,54 @@ void *stress_mmap_populate(
 	return mmap(addr, length, prot, flags, fd, offset);
 }
 
+/*
+ *  stress_get_machine_id()
+ *	try to get a unique 64 bit machine id number
+ */
+uint64_t stress_get_machine_id(void)
+{
+	uint64_t id = 0;
+
+#if defined(__linux__)
+	{
+		char buf[17];
+
+		/* Try machine id from /etc */
+		if (stress_system_read("/etc/machine-id", buf, sizeof(buf)) > 0) {
+			buf[16] = '\0';
+			return (uint64_t)strtoll(buf, NULL, 16);
+		}
+	}
+#endif
+#if defined(__linux__)
+	{
+		char buf[17];
+
+		/* Try machine id from /var/lib */
+		if (stress_system_read("/var/lib/dbus/machine-id", buf, sizeof(buf)) > 0) {
+			buf[16] = '\0';
+			return (uint64_t)strtoll(buf, NULL, 16);
+		}
+	}
+#endif
+#if defined(HAVE_GETHOSTID)
+	{
+		/* Mangle 32 bit hostid to 64 bit */
+		uint64_t hostid = (uint64_t)gethostid();
+
+		id = hostid ^ ((~hostid) << 32);
+	}
+#endif
+#if defined(HAVE_GETHOSTNAME)
+	{
+		char buf[256];
+
+		/* Mangle hostname to 64 bit value */
+		if (gethostname(buf, sizeof(buf)) == 0) {
+			id ^= stress_hash_crc32c(buf) |
+			      ((uint64_t)stress_hash_x17(buf) << 32);
+		}
+	}
+#endif
+	return id;
+}
