@@ -295,7 +295,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 	size_t i, n;
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
-	const size_t max = stress_mlock_max_lockable();
+	size_t max = stress_mlock_max_lockable(), mappings_max;
 	size_t mappings_len = max * sizeof(*mappings);
 	size_t shmall, freemem, totalmem, freeswap, totalswap;
 	double mlock_duration = 0.0, mlock_count = 0.0;
@@ -352,6 +352,10 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+
+	mappings_max = mappings_len / sizeof(*mappings);
+	if (max > mappings_max)
+		max = mappings_max;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
