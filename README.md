@@ -650,6 +650,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Evaluation of Real-Time Linux on RISC-V processor architecture](https://trepo.tuni.fi/bitstream/handle/10024/138547/J%C3%A4mb%C3%A4ckMarkus.pdf)
 * [Hertzbleed: Turning Power Side-Channel Attacks Into Remote Timing Attacks on x86](https://www.hertzbleed.com/hertzbleed.pdf)
 * [Don’t Mesh Around: Side-Channel Attacks and Mitigations on Mesh Interconnects](https://www.cs.cmu.edu/~rpaccagn/papers/dont-mesh-around-usenix2022.pdf)
+* [Performance Implications for Multi-Core RISC-V Systems with Dedicated Security Hardware](https://papers.academic-conferences.org/index.php/iccws/article/download/56/55/96)
 
 2023:
 * [Fight Hardware with Hardware: System-wide Detection and Mitigation of Side-Channel Attacks using Performance Counters](https://dl.acm.org/doi/10.1145/3519601)
