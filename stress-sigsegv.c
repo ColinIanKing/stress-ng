@@ -355,11 +355,11 @@ static int stress_sigsegv(stress_args_t *args)
 				pr_fail("%s: expecting SIGSEGV/SIGILL/SIGBUS, got %s instead\n",
 					args->name, strsignal(signo));
 			}
-#if defined(SEGV_ACCERR) && 	\
+#if defined(BUS_OBJERR) && 	\
     !defined(__OpenBSD__)
-			if (verify && (signo == SIGBUS) && (code != SEGV_ACCERR)) {
-				pr_fail("%s: expecting SIGBUS si_code SEGV_ACCERR (%d), got %d instead\n",
-					args->name, SEGV_ACCERR, code);
+			if (verify && (signo == SIGBUS) && (code != BUS_OBJERR)) {
+				pr_fail("%s: expecting SIGBUS si_code BUS_OBJERR (%d), got %d instead\n",
+					args->name, BUS_OBJERR, code);
 			}
 #endif
 #endif
