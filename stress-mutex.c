@@ -169,7 +169,11 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 		}
 #endif
 		stress_bogo_inc(args);
+#if defined(__NetBSD__)
+		shim_usleep(0);
+#else
 		shim_sched_yield();
+#endif
 
 		if (UNLIKELY(pthread_mutex_unlock(&mutex) < 0)) {
 			pr_fail("%s: pthread_mutex_unlock failed, errno=%d (%s)\n",
