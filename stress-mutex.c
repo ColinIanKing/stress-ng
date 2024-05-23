@@ -228,6 +228,9 @@ static int stress_mutex(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	for (i = 0; i < mutex_procs; i++)
+		pthread_info[i].ret = -1;
+
 	for (i = 0; i < mutex_procs; i++) {
 		pthread_info[i].args = args;
 		pthread_info[i].prio_min = prio_min;
@@ -242,9 +245,10 @@ static int stress_mutex(stress_args_t *args)
 				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
 			break;
 		}
-		if (!stress_continue_flag())
-			break;
 		created = true;
+
+		if (!stress_continue(args))
+			break;
 	}
 
 	if (!created) {
@@ -262,10 +266,10 @@ static int stress_mutex(stress_args_t *args)
 		if (pthread_info[i].ret)
 			continue;
 
+		VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
+
 		duration += pthread_info[i].lock_duration;
 		count += pthread_info[i].lock_count;
-
-		VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
 	}
 	(void)pthread_mutex_destroy(&mutex);
 
