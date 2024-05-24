@@ -200,7 +200,7 @@ void stress_mwc_seed(void)
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-OPTIMIZE3 inline uint32_t stress_mwc32(void)
+inline OPTIMIZE3 uint32_t stress_mwc32(void)
 {
 	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
 	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
@@ -212,7 +212,7 @@ OPTIMIZE3 inline uint32_t stress_mwc32(void)
  *  stress_mwc64()
  *	get a 64 bit pseudo random number
  */
-OPTIMIZE3 uint64_t stress_mwc64(void)
+uint64_t OPTIMIZE3 stress_mwc64(void)
 {
 	return (((uint64_t)stress_mwc32()) << 32) | stress_mwc32();
 }
@@ -221,7 +221,7 @@ OPTIMIZE3 uint64_t stress_mwc64(void)
  *  stress_mwc16()
  *	get a 16 bit pseudo random number
  */
-OPTIMIZE3 uint16_t stress_mwc16(void)
+uint16_t OPTIMIZE3 stress_mwc16(void)
 {
 	if (LIKELY(mwc.n16)) {
 		mwc.n16--;
@@ -237,7 +237,7 @@ OPTIMIZE3 uint16_t stress_mwc16(void)
  *  stress_mwc8()
  *	get an 8 bit pseudo random number
  */
-OPTIMIZE3 uint8_t stress_mwc8(void)
+uint8_t OPTIMIZE3 stress_mwc8(void)
 {
 	if (LIKELY(mwc.n8)) {
 		mwc.n8--;
@@ -253,7 +253,7 @@ OPTIMIZE3 uint8_t stress_mwc8(void)
  *  stress_mwc1()
  *	get an 1 bit pseudo random number
  */
-OPTIMIZE3 uint8_t stress_mwc1(void)
+uint8_t OPTIMIZE3 stress_mwc1(void)
 {
 	if (LIKELY(mwc.n1)) {
 		mwc.n1--;
@@ -266,30 +266,53 @@ OPTIMIZE3 uint8_t stress_mwc1(void)
 }
 
 /*
+ *  stress_mwc8mask()
+ *	generate a mask large enough for 8 bit val
+ */
+static inline ALWAYS_INLINE OPTIMIZE3 uint8_t stress_mwc8mask(const uint8_t val)
+{
+	register uint8_t v = val;
+
+	v |= (v >> 1);
+	v |= (v >> 2);
+	v |= (v >> 4);
+	return v;
+}
+
+/*
  *  stress_mwc8modn()
  *	see https://research.kudelskisecurity.com/2020/07/28/the-definitive-guide-to-modulo-bias-and-how-to-avoid-it/
  *	return 8 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-OPTIMIZE3 uint8_t stress_mwc8modn(const uint8_t max)
+uint8_t OPTIMIZE3 stress_mwc8modn(const uint8_t max)
 {
-	register uint8_t lim, val;
+	register uint8_t mask, val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
-	/*
-	 * -max % max == ((2^8) - max) % max)
-	 *	      == (2^8) % max
-	 * and lim ends up being relatively large
-	 * compared to 2^8, so it's rare we need
-	 * to loop many times to satisfy val < lim
-	 */
-	lim = -max % max;
-	do {
-		val = stress_mwc8();
-	} while (val < lim);
 
-	return val % max;
+	mask = stress_mwc8mask(max);
+	do {
+		val = stress_mwc8() & mask;
+	} while (val >= max);
+
+	return val;
+}
+
+/*
+ *  stress_mwc16mask()
+ *	generate a mask large enough for 16 bit val
+ */
+static inline ALWAYS_INLINE OPTIMIZE3 uint16_t stress_mwc16mask(const uint16_t val)
+{
+	register uint16_t v = val;
+
+	v |= (v >> 1);
+	v |= (v >> 2);
+	v |= (v >> 4);
+	v |= (v >> 8);
+	return v;
 }
 
 /*
@@ -297,25 +320,35 @@ OPTIMIZE3 uint8_t stress_mwc8modn(const uint8_t max)
  *	return 16 bit non-modulo biased value 1..max (inclusive)
  *	where max is most probably not a power of 2
  */
-OPTIMIZE3 uint16_t stress_mwc16modn(const uint16_t max)
+uint16_t OPTIMIZE3 stress_mwc16modn(const uint16_t max)
 {
-	register uint16_t lim, val;
+	register uint16_t mask, val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
-	/*
-	 * -max % max == ((2^16) - max) % max)
-	 *	      == (2^16) % max
-	 * and lim ends up being relatively large
-	 * compared to 2^16, so it's rare we need
-	 * to loop many times to satisfy val < lim
-	 */
-	lim = -max % max;
-	do {
-		val = stress_mwc16();
-	} while (val < lim);
 
-	return val % max;
+	mask = stress_mwc16mask(max);
+	do {
+		val = stress_mwc16() & mask;
+	} while (val >= max);
+
+	return val;
+}
+
+/*
+ *  stress_mwc32mask()
+ *	generate a mask large enough for 32 bit val
+ */
+static inline ALWAYS_INLINE OPTIMIZE3 uint32_t stress_mwc32mask(const uint32_t val)
+{
+	register uint32_t v = val;
+
+	v |= (v >> 1);
+	v |= (v >> 2);
+	v |= (v >> 4);
+	v |= (v >> 8);
+	v |= (v >> 16);
+	return v;
 }
 
 /*
@@ -323,25 +356,36 @@ OPTIMIZE3 uint16_t stress_mwc16modn(const uint16_t max)
  *	return 32 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-OPTIMIZE3 uint32_t stress_mwc32modn(const uint32_t max)
+uint32_t OPTIMIZE3 stress_mwc32modn(const uint32_t max)
 {
-	register uint32_t lim, val;
+	register uint32_t mask, val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
-	/*
-	 * -max % max == ((2^32) - max) % max)
-	 *	      == (2^32) % max
-	 * and lim ends up being relatively large
-	 * compared to 2^32, so it's rare we need
-	 * to loop many times to satisfy val < lim
-	 */
-	lim = -max % max;
-	do {
-		val = stress_mwc32();
-	} while (val < lim);
 
-	return val % max;
+	mask = stress_mwc32mask(max);
+	do {
+		val = stress_mwc32() & mask;
+	} while (val >= max);
+
+	return val;
+}
+
+/*
+ *  stress_mwc64mask()
+ *	generate a mask large enough for 64 bit val
+ */
+static inline ALWAYS_INLINE OPTIMIZE3 uint64_t stress_mwc64mask(const uint64_t val)
+{
+	register uint64_t v = val;
+
+	v |= (v >> 1);
+	v |= (v >> 2);
+	v |= (v >> 4);
+	v |= (v >> 8);
+	v |= (v >> 16);
+	v |= (v >> 32);
+	return v;
 }
 
 /*
@@ -349,25 +393,19 @@ OPTIMIZE3 uint32_t stress_mwc32modn(const uint32_t max)
  *	return 64 bit non-modulo biased value 1..max (inclusive)
  *	with no non-zero max check
  */
-OPTIMIZE3 uint64_t stress_mwc64modn(const uint64_t max)
+uint64_t OPTIMIZE3 stress_mwc64modn(const uint64_t max)
 {
-	register uint64_t lim, val;
+	register uint64_t mask, val;
 
 	if (UNLIKELY(max < 2))
 		return 0;
-	/*
-	 * -max % max == ((2^64) - max) % max)
-	 *	      == (2^64) % max
-	 * and lim ends up being relatively large
-	 * compared to 2^64, so it's rare we need
-	 * to loop many times to satisfy val < lim
-	 */
-	lim = -max % max;
-	do {
-		val = stress_mwc64();
-	} while (val < lim);
 
-	return val % max;
+	mask = stress_mwc64mask(max);
+	do {
+		val = stress_mwc64() & mask;
+	} while (val >= max);
+
+	return val;
 }
 
 /*
