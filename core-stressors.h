@@ -188,6 +188,7 @@
 	MACRO(mprotect)		\
 	MACRO(mq)		\
 	MACRO(mremap)		\
+	MACRO(mseal)		\
 	MACRO(msg)		\
 	MACRO(msync)		\
 	MACRO(msyncmany)	\

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "16 May 2024"
+.TH STRESS-NG 1 "27 May 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4957,6 +4957,18 @@ preventing pages from swapped out.
 .TP
 .B \-\-mremap\-ops N
 stop mremap stress workers after N bogo operations.
+.RE
+.TP
+.B Memory Sealing
+.RS 5
+.TQ
+.B \-\-mseal N
+start N memory sealing stressors that exercise madvise, mremap, mprotect
+and mseal operations on two pages of of memory mapped anonymous private
+memory. Linux 6.10+ kernels only.
+.TP
+.B \-\-mseal\-ops N
+stop after N msealed memory operations.
 .RE
 .TP
 .B System V message IPC stressor

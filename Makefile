@@ -450,6 +450,7 @@ STRESS_SRC = \
 	stress-mpfr.c \
 	stress-mq.c \
 	stress-mremap.c \
+	stress-mseal.c \
 	stress-msg.c \
 	stress-msync.c \
 	stress-msyncmany.c \
