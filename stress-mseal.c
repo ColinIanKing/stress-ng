@@ -299,7 +299,7 @@ static const mseal_func_t mseal_funcs[] = {
  */
 static int stress_mseal(stress_args_t *args)
 {
-	int fail;
+	bool keep_running = true;
 	double rate;
 
 	mseal_duration = 0.0;
@@ -333,10 +333,10 @@ static int stress_mseal(stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(mseal_funcs); i++) {
 			errno = 0;
 			if (mseal_funcs[i](args) < 0)
-				fail++;
+				keep_running = false;
 		}
 		stress_bogo_inc(args);
-	} while ((fail == 0) && stress_continue(args));
+	} while (keep_running && stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
