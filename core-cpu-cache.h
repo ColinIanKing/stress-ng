@@ -19,6 +19,8 @@
 #ifndef CORE_CPU_CACHE_H
 #define CORE_CPU_CACHE_H
 
+#include <stdarg.h>
+
 #include "core-asm-ppc64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-sparc.h"
