@@ -269,6 +269,10 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 #if defined(HAVE_POSIX_FALLOCATE) &&	\
     !defined(__FreeBSD__)
 	const off_t chunk_len = (off_t)(1 * MB);
+	static bool emulate = false;
+
+	if (emulate)
+		return shim_emulate_fallocate(fd, offset, len);
 
 	do {
 		const off_t sz = (len > chunk_len) ? chunk_len : len;
@@ -277,6 +281,10 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 		errno = 0;
 		ret = posix_fallocate(fd, offset, sz);
 		if (ret != 0) {
+			if (errno == EINVAL) {
+				emulate = true;
+				return shim_emulate_fallocate(fd, offset, len);
+			}
 			errno = ret;
 			return -1;
 		}
