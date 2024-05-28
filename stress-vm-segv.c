@@ -60,7 +60,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 	shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
 }
 
-static NOINLINE void vm_unmap_stack(const size_t page_size)
+static NOINLINE OPTIMIZE0 void vm_unmap_stack(const size_t page_size)
 {
 	uint32_t stackvar = 0;
 	void *addr = stress_align_address((void *)&stackvar, page_size);
