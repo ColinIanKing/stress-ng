@@ -21,6 +21,7 @@
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
+#include "core-put.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"vm-segv N",	 "start N workers that unmap their address space" },
@@ -61,11 +62,14 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 
 static NOINLINE void vm_unmap_stack(const size_t page_size)
 {
-	const int stackvar = 0;
+	uint32_t stackvar = 0;
 	void *addr = stress_align_address((void *)&stackvar, page_size);
 
 	(void)munmap(addr, page_size);
 	(void)munmap(addr - page_size, page_size);
+
+	(void)memset(&stackvar, 0xa5, sizeof(stackvar));
+	stress_uint32_put(stackvar);
 }
 
 /*
