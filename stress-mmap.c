@@ -528,7 +528,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	int ret;
 	NOCLOBBER int mask = ~0;
 	static const char mmap_name[] = "stress-mmap";
-	int rc = EXIT_SUCCESS;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
