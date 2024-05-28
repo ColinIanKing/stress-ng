@@ -177,11 +177,27 @@ static int stress_timerfd(stress_args_t *args)
 	rate_ns = timerfd_freq ? (double)STRESS_NANOSECOND / (double)timerfd_freq :
 				 (double)STRESS_NANOSECOND;
 
+	/* Create a non valid timerfd file descriptor */
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0) {
+		rc = stress_exit_status(-ret);
+		goto dir_rm;
+	}
+	(void)stress_temp_filename_args(args, file_fd_name, sizeof(file_fd_name), stress_mwc32());
+	file_fd = open(file_fd_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (file_fd < 0) {
+		pr_err("%s: cannot create %s\n", args->name, file_fd_name);
+		rc = stress_exit_status(errno);
+		goto close_file_fd;
+	}
+	(void)shim_unlink(file_fd_name);
+
 	timerfds = calloc((size_t)timerfd_fds, sizeof(*timerfds));
 	if (!timerfds) {
 		pr_inf_skip("%s: cannot allocate %" PRIu32 " timerfd file descriptors, "
 			"skipping stressor\n", args->name, timerfd_fds);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto close_file_fd;
 	}
 	for (i = 0; i < timerfd_fds; i++)
 		timerfds[i] = -1;
@@ -189,10 +205,10 @@ static int stress_timerfd(stress_args_t *args)
 #if defined(USE_POLL)
 	pollfds = calloc((size_t)timerfd_fds, sizeof(*pollfds));
 	if (!pollfds) {
-		pr_inf_skip("%s: cannot allocate %" PRIu32 " timerfd file descriptors, "
+		pr_inf_skip("%s: cannot allocate %" PRIu32 " pollfd file descriptors, "
 			"skipping stressor\n", args->name, timerfd_fds);
 		rc = EXIT_NO_RESOURCE;
-		goto free_fds;
+		goto free_timerfds;
 	}
 #endif
 
@@ -219,21 +235,6 @@ static int stress_timerfd(stress_args_t *args)
 		}
 	}
 
-	/* Create a non valid timerfd file descriptor */
-	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0) {
-		rc = stress_exit_status(-ret);
-		goto dir_rm;
-	}
-	(void)stress_temp_filename_args(args, file_fd_name, sizeof(file_fd_name), stress_mwc32());
-	file_fd = open(file_fd_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if (file_fd < 0) {
-		pr_err("%s: cannot create %s\n", args->name, file_fd_name);
-		rc = stress_exit_status(errno);
-		goto close_file_fd;
-	}
-	(void)shim_unlink(file_fd_name);
-
 #if defined(CLOCK_REALTIME_ALARM)
 	/* Check timerfd_create cannot succeed without capability */
 	if (!cap_wake_alarm) {
@@ -258,7 +259,7 @@ static int stress_timerfd(stress_args_t *args)
 	if (count == 0) {
 		pr_fail("%s: timerfd_create failed, no timers created\n", args->name);
 		rc = EXIT_FAILURE;
-		goto close_file_fd;
+		goto free_pollfds;
 	}
 	count = 0;
 
@@ -270,7 +271,7 @@ static int stress_timerfd(stress_args_t *args)
 			pr_fail("%s: timerfd_settime failed on fd %d, errno=%d (%s)\n",
 				args->name, timerfds[i], errno, strerror(errno));
 			rc = EXIT_FAILURE;
-			goto close_file_fd;
+			goto free_pollfds;
 		}
 	}
 
@@ -405,11 +406,6 @@ static int stress_timerfd(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-close_file_fd:
-	if (file_fd >= 0)
-		(void)close(file_fd);
-dir_rm:
-	(void)stress_temp_dir_rm_args(args);
 
 close_timer_fds:
 	for (i = 0; i < timerfd_fds; i++) {
@@ -417,11 +413,18 @@ close_timer_fds:
 			(void)close(timerfds[i]);
 	}
 
+free_pollfds:
 #if defined(USE_POLL)
-free_fds:
 	free(pollfds);
+free_timerfds:
 #endif
 	free(timerfds);
+
+close_file_fd:
+	if (file_fd >= 0)
+		(void)close(file_fd);
+dir_rm:
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }
