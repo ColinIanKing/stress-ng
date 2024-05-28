@@ -86,7 +86,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 	 * while in this context. Not sure if this is portable
 	 * so ignore this for now.
 	{
-		VOID_RET(int, stress_sigaltstack(stack, STRESS_BAD_ALTSTACK_SIZE));
+		VOID_RET(int, stress_sigaltstack_no_check(stack, STRESS_BAD_ALTSTACK_SIZE));
 	}
 	 */
 
@@ -187,8 +187,14 @@ static int stress_bad_altstack_child(stress_args_t *args)
 #endif
 
 	/* Set alternative stack for testing */
-	if (stress_sigaltstack(stack, stress_minsigstksz) < 0)
-		return EXIT_FAILURE;
+	if (stress_sigaltstack_no_check(stack, stress_minsigstksz) < 0) {
+		/*
+		 *  Pretend it's all OK, for example OpenBSD can fail
+		 *  depending on the stack setting on some of test cases
+		 *  so don't flag it's a failue per se
+		 */
+		return EXIT_SUCCESS;
+	}
 
 	/* Child */
 	stress_mwc_reseed();
@@ -234,13 +240,13 @@ retry:
 #endif
 		case 5:
 			/* Illegal NULL stack */
-			ret = stress_sigaltstack(NULL, STRESS_SIGSTKSZ);
+			ret = stress_sigaltstack_no_check(NULL, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
 		case 6:
 			/* Illegal text segment stack */
-			ret = stress_sigaltstack(stress_signal_handler, STRESS_SIGSTKSZ);
+			ret = stress_sigaltstack_no_check(stress_signal_handler, STRESS_SIGSTKSZ);
 			if (ret == 0)
 				stress_bad_altstack_force_fault(stack);
 			goto retry;
@@ -259,7 +265,7 @@ retry:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 			/* Illegal stack on VDSO, otherwises NULL stack */
 			if (vdso) {
-				ret = stress_sigaltstack((void *)vdso, STRESS_SIGSTKSZ);
+				ret = stress_sigaltstack_no_check((void *)vdso, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 			}
@@ -268,7 +274,7 @@ retry:
 		case 9:
 			/* Illegal /dev/zero mapped stack */
 			if (zero_stack != MAP_FAILED) {
-				ret = stress_sigaltstack(zero_stack, stress_minsigstksz);
+				ret = stress_sigaltstack_no_check(zero_stack, stress_minsigstksz);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(zero_stack);
 			}
@@ -277,7 +283,7 @@ retry:
 #if defined(O_TMPFILE)
 			/* Illegal mapped stack to empty file, causes BUS error */
 			if (bus_stack != MAP_FAILED) {
-				ret = stress_sigaltstack(bus_stack, stress_minsigstksz);
+				ret = stress_sigaltstack_no_check(bus_stack, stress_minsigstksz);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(bus_stack);
 			}
@@ -310,12 +316,18 @@ static int stress_bad_altstack(stress_args_t *args)
 #if defined(O_TMPFILE)
 	int tmp_fd;
 #endif
+#if defined(MAP_STACK)
+	const int map_stackflags = MAP_STACK;
+#else
+	const int map_stackflags = 0;
+#endif
+
 	stress_minsigstksz = STRESS_MINSIGSTKSZ;
 	stress_set_oom_adjustment(args, true);
 
 	stack = stress_mmap_populate(NULL, stress_minsigstksz,
 			PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+			MAP_PRIVATE | MAP_ANONYMOUS | map_stackflags, -1, 0);
 	if (stack == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu byte signal handler stack, "
 			    "errno=%d (%s), skipping stressor\n",
@@ -332,7 +344,7 @@ static int stress_bad_altstack(stress_args_t *args)
 		bus_stack = stress_mmap_populate(NULL,
 				stress_minsigstksz,
 				PROT_READ | PROT_WRITE,
-				MAP_PRIVATE, tmp_fd, 0);
+				MAP_PRIVATE | map_stackflags, tmp_fd, 0);
 		(void)close(tmp_fd);
 	}
 #else
