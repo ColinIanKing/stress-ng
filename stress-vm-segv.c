@@ -52,10 +52,20 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 	void *addr = stress_align_address((void *)vm_unmap_self, page_size);
 
 	(void)munmap(addr, page_size);
+	(void)munmap(addr - page_size, page_size);
 #if !defined(__DragonFly__)
 	shim_clflush(addr);
 #endif
 	shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
+}
+
+static NOINLINE void vm_unmap_stack(const size_t page_size)
+{
+	const int stackvar = 0;
+	void *addr = stress_align_address((void *)&stackvar, page_size);
+
+	(void)munmap(addr, page_size);
+	(void)munmap(addr - page_size, page_size);
 }
 
 /*
@@ -148,6 +158,11 @@ kill_child:
 				 *  That failed, so try unmapping this function
 				 */
 				vm_unmap_self(page_size);
+
+				/*
+				 *  That failed, so try unmapping the stack
+				 */
+				vm_unmap_stack(page_size);
 			}
 			/* No luck, well that's unexpected.. */
 			(void)close(fd[1]);
