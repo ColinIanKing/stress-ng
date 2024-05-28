@@ -27,11 +27,6 @@
 #define MAX_MATRIX3D_SIZE	(1024)
 #define DEFAULT_MATRIX3D_SIZE	(128)
 
-#if !(NEED_GNUC(12, 0, 0))
-#undef RESTRICT
-#define RESTRICT
-#endif
-
 static const stress_help_t help[] = {
 	{ NULL,	"matrix-3d N",		"start N workers exercising 3D matrix operations" },
 	{ NULL,	"matrix-3d-method M",	"specify 3D matrix stress method M, default is all" },
