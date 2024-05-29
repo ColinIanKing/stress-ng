@@ -90,7 +90,7 @@ again:
 		} else if (pids[i] == 0) {
 			sigset_t mask;
 			siginfo_t info ALIGN64;
-			int index;
+			int idx;
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
@@ -109,12 +109,12 @@ again:
 					break;
 				}
 
-				index = info.si_signo - SIGRTMIN;
-				if ((index >= 0) && (index < SIGRTMIN)) {
-					const double delta = stress_time_now() - stress_sigrt_metrics[index].t_start;
+				idx = info.si_signo - SIGRTMIN;
+				if ((idx >= 0) && (idx < SIGRTMIN)) {
+					const double delta = stress_time_now() - stress_sigrt_metrics[idx].t_start;
 					if (delta > 0.0) {
-						stress_sigrt_metrics[index].duration += delta;
-						stress_sigrt_metrics[index].count += 1.0;
+						stress_sigrt_metrics[idx].duration += delta;
+						stress_sigrt_metrics[idx].count += 1.0;
 					}
 				}
 				if (UNLIKELY(info.si_value.sival_int == 0))
