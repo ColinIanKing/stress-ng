@@ -247,11 +247,12 @@ static int stress_crypt(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 1, j = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
-		char str[40];
 		const double duration = crypt_metrics[i].duration;
 		const double rate = duration > 0 ? crypt_metrics[i].count / duration : 0.0;
 
 		if (rate > 0.0) {
+			char str[40];
+
 			(void)snprintf(str, sizeof(str), "%s encrypts per sec", crypt_methods[i].method);
 			stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 			j++;
