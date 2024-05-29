@@ -574,9 +574,10 @@ static void bad_execve3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
 		char name[PATH_MAX];
-		static char *newargv[] = { NULL, NULL };
 
 		if (stress_get_proc_self_exe(name, sizeof(name)) == 0) {
+			static char *newargv[] = { NULL, NULL };
+
 			(*counter)++;
 			VOID_RET(int, execve(name, newargv, ba->addr));
 		}
