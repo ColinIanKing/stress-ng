@@ -288,7 +288,7 @@ static int stress_chattr(stress_args_t *args)
 	char filename[PATH_MAX], pathname[PATH_MAX];
 	unsigned long mask = 0;;
 	int *flag_perms = NULL;
-	size_t i, index, flag_count;
+	size_t i, idx, flag_count;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
 		mask |= stress_chattr_flags[i].flag;
@@ -314,7 +314,7 @@ static int stress_chattr(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	index = 0;
+	idx = 0;
 	do {
 		size_t fail = 0;
 
@@ -345,10 +345,10 @@ static int stress_chattr(stress_args_t *args)
 
 		/* Try next flag permutation */
 		if ((flag_count > 0) && (flag_perms)) {
-			(void)do_chattr(args, filename, (unsigned long)flag_perms[index], mask);
-			index++;
-			if (index >= flag_count)
-				index = 0;
+			(void)do_chattr(args, filename, (unsigned long)flag_perms[idx], mask);
+			idx++;
+			if (idx >= flag_count)
+				idx = 0;
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
