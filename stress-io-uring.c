@@ -435,15 +435,15 @@ static int stress_io_uring_submit(
 	const void *extra_data)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
-	unsigned index = 0, tail = 0, next_tail = 0;
+	unsigned idx = 0, tail = 0, next_tail = 0;
 	struct io_uring_sqe *sqe;
 	int ret;
 
 	next_tail = tail = *sring->tail;
 	next_tail++;
 	stress_asm_mb();
-	index = tail & *submit->sq_ring.ring_mask;
-	sqe = &submit->sqes_mmap[index];
+	idx = tail & *submit->sq_ring.ring_mask;
+	sqe = &submit->sqes_mmap[idx];
 #if !defined(SEQ_LATE_MEMSET)
 	(void)shim_memset(sqe, 0, sizeof(*sqe));
 #endif
@@ -452,7 +452,7 @@ static int stress_io_uring_submit(
 	/* Save opcode for later completion error reporting */
 	sqe->user_data = (uint64_t)(uintptr_t)user_data;
 
-	sring->array[index] = index;
+	sring->array[idx] = idx;
 	tail = next_tail;
 	if (*sring->tail != tail) {
 		stress_asm_mb();
