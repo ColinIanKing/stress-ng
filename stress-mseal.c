@@ -158,7 +158,7 @@ static int stress_mseal_unmapped_last_page(stress_args_t *args)
 	if (no_mapping != MAP_FAILED) {
 		const size_t size = mapping_size / 2;
 
-		return stress_mseal_expect_error(args, shim_mseal(no_mapping + size, size, 0),
+		return stress_mseal_expect_error(args, shim_mseal((void *)((uint8_t *)no_mapping + size), size, 0),
 			"mseal of unmapped address unexpectedly succeeded", -1, ENOMEM);
 	}
 	return 0;
@@ -196,7 +196,7 @@ static int stress_mseal_mapped_last_page(stress_args_t *args)
 	double t;
 
 	t = stress_time_now();
-	ret = shim_mseal(mapping + size, size, 0);
+	ret = shim_mseal((void *)((uint8_t *)mapping + size), size, 0);
 	if (ret == 0) {
 		mseal_duration += stress_time_now() - t;
 		mseal_count += 1.0;
