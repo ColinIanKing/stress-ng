@@ -503,13 +503,13 @@ static int stress_list_all(
 	const struct list_entry *entries_end,
 	stress_metrics_t *metrics)
 {
-	static size_t index = 1;
+	static size_t idx = 1;
 	int rc;
 
-	rc = list_methods[index].func(args, entries, entries_end, &metrics[index]);
-	index++;
-	if (index >= SIZEOF_ARRAY(list_methods))
-		index = 1;
+	rc = list_methods[idx].func(args, entries, entries_end, &metrics[idx]);
+	idx++;
+	if (idx >= SIZEOF_ARRAY(list_methods))
+		idx = 1;
 
 	return rc;
 }
