@@ -1027,6 +1027,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_mremap)
 	SYS_mremap,
 #endif
+#if defined(SYS_mseal)
+	SYS_mseal,
+#endif
 #if defined(SYS_msgctl)
 	SYS_msgctl,
 #endif
@@ -2543,6 +2546,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_mremap)
 	__NR_mremap,
+#endif
+#if defined(__NR_mseal)
+	__NR_mseal,
 #endif
 #if defined(__NR_msgctl)
 	__NR_msgctl,
