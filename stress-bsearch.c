@@ -70,14 +70,14 @@ static void OPTIMIZE3 * bsearch_nonlibc(
 	register size_t upper = nmemb;
 
 	while (LIKELY(lower < upper)) {
-		register const size_t index = (lower + upper) >> 1;
-		register const void *ptr = (const char *)base + (index * size);
+		register const size_t idx = (lower + upper) >> 1;
+		register const void *ptr = (const char *)base + (idx * size);
 		register const int cmp = compare(key, ptr);
 
 		if (cmp < 0) {
-			upper = index;
+			upper = idx;
 		} else if (cmp > 0) {
-			lower = index + 1;
+			lower = idx + 1;
 		} else {
 			return shim_unconstify_ptr(ptr);
 		}
