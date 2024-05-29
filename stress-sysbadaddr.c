@@ -1344,6 +1344,14 @@ static void bad_move_pages4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
+#if defined(__NR_seal)
+static void bad_mseal(stress_bad_addr_t *ba, volatile uint64_t *counter)
+{
+	(*counter)++;
+	VOID_RET(long, shim_mseal((void **)ba->addr, 4096, 0));
+}
+#endif
+
 #if defined(HAVE_MLOCK)
 static void bad_munlock(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
@@ -2238,6 +2246,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_move_pages2,
 	bad_move_pages3,
 	bad_move_pages4,
+#endif
+#if defined(__NR_seal)
+	bad_mseal,
 #endif
 #if defined(HAVE_MSYNC)
 	bad_msync,
