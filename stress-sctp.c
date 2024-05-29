@@ -526,7 +526,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	int rc = EXIT_SUCCESS;
-	int index = 0;
+	int idx = 0;
 
 	(void)sctp_sched;
 
@@ -608,7 +608,7 @@ static int OPTIMIZE3 stress_sctp_server(
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (LIKELY(sfd >= 0)) {
 			size_t i;
-			const int c = stress_ascii32[index++ & 0x1f];
+			const int c = stress_ascii32[idx++ & 0x1f];
 			pid_t *pidptr = (pid_t *)buf;
 
 			(void)shim_memset(buf, c, sizeof(buf));
