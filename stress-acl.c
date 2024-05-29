@@ -144,7 +144,7 @@ static void stress_acl_perms(acl_t acl, char *str, const size_t str_len)
 		acl_tag_t tag;
 		acl_entry_t entry;
 		acl_permset_t permset;
-		int index = 0;
+		int idx = 0;
 
 		if (acl_get_entry(acl, which, &entry) <= 0)
 			break;
@@ -157,24 +157,24 @@ static void stress_acl_perms(acl_t acl, char *str, const size_t str_len)
 
 		switch (tag) {
 		case ACL_USER:
-			index = 2;
+			idx = 2;
 			break;
 		case ACL_GROUP:
-			index = 8;
+			idx = 8;
 			break;
 		case ACL_OTHER:
-			index = 14;
+			idx = 14;
 			break;
 		default:
 			continue;
 		}
 
 		if (acl_get_perm(permset, ACL_READ))
-			str[index + 0] = 'r';
+			str[idx + 0] = 'r';
 		if (acl_get_perm(permset, ACL_WRITE))
-			str[index + 1] = 'w';
+			str[idx + 1] = 'w';
 		if (acl_get_perm(permset, ACL_EXECUTE))
-			str[index + 2] = 'x';
+			str[idx + 2] = 'x';
 	}
 }
 
