@@ -388,16 +388,16 @@ static int stress_dir_readdir(
 	const char *pathname)
 {
 	DIR *dir;
-	char dirname[PATH_MAX + 64];
+	char dirpath[PATH_MAX + 64];
 	char filename[PATH_MAX + 70];
 	int rc = 0, i, got_mask, all_mask;
 	struct dirent *entry;
 
-	(void)snprintf(dirname, sizeof(dirname), "%s/test-%jd-%" PRIu32, pathname,
+	(void)snprintf(dirpath, sizeof(dirpath), "%s/test-%jd-%" PRIu32, pathname,
 		(intmax_t)getpid(), stress_mwc32());
-	if (mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
+	if (mkdir(dirpath, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
-			args->name, dirname, errno, strerror(errno));
+			args->name, dirpath, errno, strerror(errno));
 		rc = -1;
 		goto err_rmdir;
 	}
@@ -405,17 +405,17 @@ static int stress_dir_readdir(
 	/*
 	 *  Check if readdir + rewinddir will pick up new files
 	 */
-	dir = opendir(dirname);
+	dir = opendir(dirpath);
 	if (!dir) {
 		pr_fail("%s: cannot opendir %s, errno=%d (%s)\n",
-			args->name, dirname, errno, strerror(errno));
+			args->name, dirpath, errno, strerror(errno));
 		rc = -1;
 		goto err_rmdir;
 	}
 	all_mask = 0;
 	for (i = 0; i < 10; i++) {
 		all_mask |= (1U << i);
-		(void)snprintf(filename, sizeof(filename), "%s/%d", dirname, i);
+		(void)snprintf(filename, sizeof(filename), "%s/%d", dirpath, i);
 		if (stress_dir_touch(args, filename) < 0) {
 			(void)closedir(dir);
 			rc = -1;
@@ -436,17 +436,17 @@ static int stress_dir_readdir(
 
 	if (got_mask != all_mask) {
 		pr_fail("%s: rewinddir and readdir did not find all the files in directory %s\n",
-			args->name, dirname);
+			args->name, dirpath);
 		rc = -1;
 	}
 
 err_rm_files:
 	for (i = 0; i < 10; i++) {
-		(void)snprintf(filename, sizeof(filename), "%s/%d", dirname, i);
+		(void)snprintf(filename, sizeof(filename), "%s/%d", dirpath, i);
 		(void)unlink(filename);
 	}
 err_rmdir:
-	(void)rmdir(dirname);
+	(void)rmdir(dirpath);
 
 	return rc;
 }
