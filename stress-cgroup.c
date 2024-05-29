@@ -177,8 +177,7 @@ static void stress_cgroup_read(const char *path)
 {
 	int fd, i;
 	char buf[1024];
-	ssize_t ret;
-	off_t len = 0, offset;
+	off_t len = 0;
 	struct stat statbuf;
 
 	fd = open(path, O_RDONLY);
@@ -188,6 +187,8 @@ static void stress_cgroup_read(const char *path)
 	VOID_RET(int, shim_fstat(fd, &statbuf));
 
 	for (;;) {
+		ssize_t ret;
+
 		ret = read(fd, buf, sizeof(buf));
 		if (ret > 0)
 			len += (off_t)ret;
@@ -196,6 +197,8 @@ static void stress_cgroup_read(const char *path)
 	}
 	/* Add in a couple of random seek/reads for good measure */
 	for (i = 0; (i < 2) && (i < len); i++) {
+		off_t offset;
+
 		offset = (off_t)stress_mwc32modn((uint32_t)len);
 		if (lseek(fd, offset, SEEK_SET) >= 0)
 			VOID_RET(int, read(fd, buf, sizeof(buf)));
@@ -278,8 +281,6 @@ static void stress_cgroup_del_pid(const char *realpathname, const pid_t pid)
 
 static void stress_cgroup_new_group(const char *realpathname)
 {
-	char path[PATH_MAX + 64], filename[PATH_MAX + 64];
-	size_t i;
 	pid_t pid;
 
 	stress_cgroup_values_t values[] = {
@@ -364,6 +365,8 @@ static void stress_cgroup_new_group(const char *realpathname)
 		_exit(0);
 	} else {
 		int status;
+		size_t i;
+		char path[PATH_MAX + 64];
 
 		/* Parent, exercise child in the cgroup */
 		(void)snprintf(path, sizeof(path), "%s/stress-ng-%jd", realpathname, (intmax_t)pid);
@@ -377,6 +380,8 @@ static void stress_cgroup_new_group(const char *realpathname)
 		 *  Keep moving pid to/from cgroup while read and adjusting cgroup values
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(values); i++) {
+			char filename[PATH_MAX + 64];	
+
 			stress_cgroup_add_pid(realpathname, pid);
 			(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/%s", realpathname, (intmax_t)pid, values[i].name);
 			stress_cgroup_read(filename);
