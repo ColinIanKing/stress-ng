@@ -127,19 +127,19 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 static void stress_resched_spawn(
 	stress_args_t *args,
 	pid_t *pids,
-	const int index,
+	const int idx,
 	const int max_prio,
 	uint64_t *yields)
 {
 	pid_t pid;
 
-	pids[index] = -1;
+	pids[idx] = -1;
 
 	pid = fork();
 	if (pid == 0) {
-		stress_resched_child(args, index, max_prio, yields);
+		stress_resched_child(args, idx, max_prio, yields);
 	} else if (pid > 0) {
-		pids[index] = pid;
+		pids[idx] = pid;
 	}
 }
 
