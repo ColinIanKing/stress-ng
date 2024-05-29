@@ -344,18 +344,18 @@ static int stress_set_trig_method(const char *opt)
 	return -1;
 }
 
-static bool stess_trig_exercise(stress_args_t *args, const size_t index)
+static bool stess_trig_exercise(stress_args_t *args, const size_t idx)
 {
 	bool ret;
 	const double t = stress_time_now();
 
-	ret = stress_trig_methods[index].trig_func(args);
-	stress_trig_metrics[index].duration += (stress_time_now() - t);
-	stress_trig_metrics[index].count += 1.0;
+	ret = stress_trig_methods[idx].trig_func(args);
+	stress_trig_metrics[idx].duration += (stress_time_now() - t);
+	stress_trig_metrics[idx].count += 1.0;
 	if (ret) {
-		if (index != 0)
+		if (idx != 0)
 			pr_fail("trig: %s does not match expected checksum\n",
-				stress_trig_methods[index].name);
+				stress_trig_methods[idx].name);
 	}
 	return ret;
 }
