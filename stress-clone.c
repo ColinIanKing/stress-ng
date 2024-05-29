@@ -513,7 +513,7 @@ static int stress_clone_child(stress_args_t *args, void *context)
 					   stress_low_memory((size_t)(1 * MB)));
 
 		if (!low_mem_reap && (clones.length < clone_max)) {
-			static size_t index;
+			static size_t idx;
 			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args, shared };
 			const uint32_t rnd = stress_mwc32();
@@ -527,10 +527,10 @@ static int stress_clone_child(stress_args_t *args, void *context)
 			if ((rnd & 0x80000000UL) || (flag_count == 0) || (!flag_perms)) {
 				flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
 			} else {
-				flag = (unsigned int)flag_perms[index];
-				index++;
-				if (index >= flag_count)
-					index = 0;
+				flag = (unsigned int)flag_perms[idx];
+				idx++;
+				if (idx >= flag_count)
+					idx = 0;
 			}
 
 			if (use_clone3 && try_clone3) {
