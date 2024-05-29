@@ -566,9 +566,9 @@ STRESS_PRAGMA_POP
 static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, const uint32_t value)
 {
 	Word_t *pvalue;
-	const Word_t index = ((Word_t)x << 32) | y;
+	const Word_t idx = ((Word_t)x << 32) | y;
 
-	JLI(pvalue, *(Pvoid_t *)handle, index);
+	JLI(pvalue, *(Pvoid_t *)handle, idx);
 	if ((pvalue == NULL) || (pvalue == PJERR))
 		return -1;
 
@@ -583,9 +583,9 @@ static int OPTIMIZE3 judy_put(void *handle, const uint32_t x, const uint32_t y, 
 static uint32_t OPTIMIZE3 judy_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	Word_t *pvalue, value;
-	const Word_t index = ((Word_t)x << 32) | y;
+	const Word_t idx = ((Word_t)x << 32) | y;
 
-	JLG(pvalue, *(Pvoid_t *)handle, index);
+	JLG(pvalue, *(Pvoid_t *)handle, idx);
 	value = pvalue ? *pvalue : 0;
 	return value;
 }
