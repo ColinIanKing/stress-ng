@@ -158,17 +158,17 @@ static int stress_inode_flags_stressor(
 	stress_args_t *args,
 	const stress_data_t *data)
 {
-	size_t index = 0;
+	size_t idx = 0;
 
 	while (keep_running && stress_continue(args)) {
 		size_t i;
 
 		/* Work through all inode flag permutations */
-		stress_inode_flags_ioctl(args, data->dir_fd, inode_flag_perms[index]);
-		stress_inode_flags_ioctl(args, data->file_fd, inode_flag_perms[index]);
-		index++;
-		if (index >= inode_flag_count)
-			index = 0;
+		stress_inode_flags_ioctl(args, data->dir_fd, inode_flag_perms[idx]);
+		stress_inode_flags_ioctl(args, data->file_fd, inode_flag_perms[idx]);
+		idx++;
+		if (idx >= inode_flag_count)
+			idx = 0;
 		stress_inode_flags_ioctl_sane(data->dir_fd);
 		stress_inode_flags_ioctl_sane(data->file_fd);
 
