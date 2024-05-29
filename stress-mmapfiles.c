@@ -210,12 +210,13 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 		}
 
 		for (i = 0; i < n; i++) {
-			double t, delta;
+			double t;
 			const size_t len = mappings[i].len;
 
 			t = stress_time_now();
 			if (munmap((void *)mappings[i].addr, len) == 0) {
-				delta = stress_time_now() - t;
+				const double delta = stress_time_now() - t;
+
 				mmapfile_info->munmap_duration += delta;
 				mmapfile_info->munmap_count += 1.0;
 				mmapfile_info->munmap_page_count += (double)(len + args->page_size - 1) / args->page_size;
