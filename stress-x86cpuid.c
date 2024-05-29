@@ -101,23 +101,23 @@ static const stress_cpuid_regs_t ALIGN64 stress_cpuid_regs[] = {
 
 static void OPTIMIZE3 stress_x86cpuid_reorder_regs(const size_t n, stress_cpuid_regs_t *reordered_cpu_regs)
 {
-	uint8_t ALIGN64 index[SIZEOF_ARRAY(stress_cpuid_regs)];
+	uint8_t ALIGN64 idx[SIZEOF_ARRAY(stress_cpuid_regs)];
 	register size_t i;
 
 	for (i = 0; i < n; i++)
-		index[i] = i;
+		idx[i] = i;
 
 	for (i = 0; i < n; i++) {
 		register const size_t j = stress_mwc8modn((uint8_t)n);
 		register uint8_t tmp;
 
-		tmp = index[i];
-		index[i] = index[j];
-		index[j] = tmp;
+		tmp = idx[i];
+		idx[i] = idx[j];
+		idx[j] = tmp;
 	}
 
 	for (i = 0; i < n; i++)
-		reordered_cpu_regs[i] = stress_cpuid_regs[index[i]];
+		reordered_cpu_regs[i] = stress_cpuid_regs[idx[i]];
 }
 
 /*
