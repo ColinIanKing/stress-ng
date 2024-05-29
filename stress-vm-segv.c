@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 static NOINLINE void vm_unmap_child(const size_t page_size)
 {
 	size_t len = ~(size_t)0;
-	void *addr = stress_align_address((void *)vm_unmap_child, page_size);
+	uint8_t *addr = stress_align_address((void *)vm_unmap_child, page_size);
 
 	len = len ^ (len >> 1);
 	while (len > page_size) {
@@ -42,35 +42,35 @@ static NOINLINE void vm_unmap_child(const size_t page_size)
 		len >>= 1;
 #if !defined(__DragonFly__) &&	\
     !defined(__OpenBSD__)
-		shim_clflush(addr);
+		shim_clflush((void *)addr);
 #endif
-		shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
+		shim_flush_icache(addr, (void *)(addr + 64));
 	}
 }
 
 static NOINLINE void vm_unmap_self(const size_t page_size)
 {
-	void *addr = stress_align_address((void *)vm_unmap_self, page_size);
+	uint8_t *addr = stress_align_address((void *)vm_unmap_self, page_size);
 
-	(void)munmap(addr, page_size);
-	(void)munmap(addr - page_size, page_size);
+	(void)munmap((void *)addr, page_size);
+	(void)munmap((void *)(addr - page_size), page_size);
 #if !defined(__DragonFly__)
 	shim_clflush(addr);
 #endif
-	shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
+	shim_flush_icache(addr, (void *)(addr + 64));
 }
 
 static NOINLINE OPTIMIZE0 void vm_unmap_stack(const size_t page_size)
 {
 	uint32_t stackvar = 0;
-	void *addr = stress_align_address((void *)&stackvar, page_size);
+	uint8_t *addr = stress_align_address((void *)&stackvar, page_size);
 
 #if defined(PROT_READ)
-	(void)mprotect(addr, page_size, PROT_READ);
-	(void)mprotect(addr - page_size, page_size, PROT_READ);
+	(void)mprotect((void *)addr, page_size, PROT_READ);
+	(void)mprotect((void *)(addr - page_size), page_size, PROT_READ);
 #endif
-	(void)munmap(addr, page_size);
-	(void)munmap(addr - page_size, page_size);
+	(void)munmap((void *)addr, page_size);
+	(void)munmap((void *)(addr - page_size), page_size);
 }
 
 /*
