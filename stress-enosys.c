@@ -325,7 +325,7 @@ static inline bool OPTIMIZE3 syscall_find(long number)
 	register stress_hash_syscall_t *h;
 	register int i;
 	register const long number16 = number & 0xffff;
-	const unsigned long index = (unsigned long)number;
+	const unsigned long idx = (unsigned long)number;
 
 	/* Really make sure some syscalls are never called */
 	for (i = 0; i < (int)SIZEOF_ARRAY(syscall_ignore); i++) {
@@ -333,7 +333,7 @@ static inline bool OPTIMIZE3 syscall_find(long number)
 			return true;
 	}
 
-	h = hash_syscall_table[index % HASH_SYSCALL_SIZE];
+	h = hash_syscall_table[idx % HASH_SYSCALL_SIZE];
 	while (h) {
 		if (h->number == number)
 			return true;
@@ -344,8 +344,8 @@ static inline bool OPTIMIZE3 syscall_find(long number)
 
 static inline void OPTIMIZE3 syscall_add(const long number)
 {
-	const unsigned long index = (unsigned long)number;
-	const unsigned long hash = index % HASH_SYSCALL_SIZE;
+	const unsigned long idx = (unsigned long)number;
+	const unsigned long hash = idx % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
 
 	while (h) {
