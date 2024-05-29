@@ -514,7 +514,6 @@ static int stress_fork(stress_args_t *args)
 	uint32_t fork_max = DEFAULT_FORKS;
 	int rc, mode = 0;
 	bool fork_vm = false, fork_unmap = false, fork_pageout = false;
-	pid_t pid;
 
 	(void)stress_get_setting("fork-unmap", &fork_unmap);
 	(void)stress_get_setting("fork-pageout", &fork_pageout);
@@ -542,6 +541,8 @@ static int stress_fork(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (fork_unmap) {
+		pid_t pid;
+
 		pid = fork();
 		if (pid == 0) {
 			rc = stress_fork_fn(args, STRESS_FORK, fork_max, mode);
