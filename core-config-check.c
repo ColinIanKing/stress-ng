@@ -66,7 +66,7 @@ void stress_config_check(void)
 {
 #if defined(__linux__)
 	{
-		static char path[] = "/proc/sys/kernel/sched_autogroup_enabled";
+		static const char path[] = "/proc/sys/kernel/sched_autogroup_enabled";
 		uint64_t value;
 
 		if ((stress_config_read(path, &value) != -1) && (value > 0)) {
