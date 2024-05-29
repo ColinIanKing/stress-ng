@@ -166,13 +166,13 @@ static void stress_shm_metrics(
 	const double duration,
 	const double count,
 	const char *syscall,
-	const int index)
+	const int idx)
 {
 	char buffer[40];
 	const double rate = (count > 0.0) ? (duration / count) : 0.0;
 
 	(void)snprintf(buffer, sizeof(buffer), "nanosecs per %s call", syscall);
-	stress_metrics_set(args, index, buffer,
+	stress_metrics_set(args, idx, buffer,
 		STRESS_DBL_NANOSECOND * rate, STRESS_METRIC_HARMONIC_MEAN);
 }
 
