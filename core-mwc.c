@@ -425,7 +425,7 @@ OPTIMIZE3 void stress_rndbuf(void *buf, const size_t len)
  *  stress_rndstr()
  *	generate pseudorandom string
  */
-OPTIMIZE3 void stress_rndstr(char *str, size_t len)
+OPTIMIZE3 void stress_rndstr(char *str, const size_t len)
 {
 	/*
 	 * base64url alphabet.
@@ -447,7 +447,6 @@ OPTIMIZE3 void stress_rndstr(char *str, size_t len)
 	ptr_end = str + len - 1;
 	mask = 0xc0000000;
 
-	len--; /* Leave one byte for the terminator. */
 	r = stress_mwc32() | mask;
 	while (LIKELY(ptr < ptr_end)) {
 		/* If we don't have enough random bits in r, get more. */
