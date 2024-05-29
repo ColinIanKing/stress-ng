@@ -425,26 +425,26 @@ static void stress_mmap_invalid(
  *	Using stress_mwc*() is much faster and is good enough for this
  *	kind of random-ish fast and dirty shuffle operation.
  */
-static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *index, const size_t n)
+static void OPTIMIZE3 stress_mmap_index_shuffle(size_t *idx, const size_t n)
 {
 	register size_t i;
 
 	if (LIKELY(n <= 0xffffffff)) {
 		/* small index < 4GB of items we can use 32bit mod */
 		for (i = 0; i < n; i++) {
-			register const size_t tmp = index[i];
+			register const size_t tmp = idx[i];
 			register const size_t j = (size_t)stress_mwc32() % n;
 
-			index[i] = index[j];
-			index[j] = tmp;
+			idx[i] = idx[j];
+			idx[j] = tmp;
 		}
 	} else {
 		for (i = 0; i < n; i++) {
-			register const size_t tmp = index[i];
+			register const size_t tmp = idx[i];
 			register const size_t j = (size_t)stress_mwc64 % n;
 
-			index[i] = index[j];
-			index[j] = tmp;
+			idx[i] = idx[j];
+			idx[j] = tmp;
 		}
 	}
 }
@@ -523,7 +523,7 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	const int bad_fd = stress_get_bad_fd();
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
-	size_t *index;
+	size_t *idx;
 	void *hint;
 	int ret;
 	NOCLOBBER int mask = ~0;
@@ -553,18 +553,18 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 	}
 	if (context->mmap_mlock)
 		(void)shim_mlock(mappings, pages * sizeof(*mappings));
-	index = (size_t *)mmap(NULL, pages * sizeof(*index),
+	idx = (size_t *)mmap(NULL, pages * sizeof(*idx),
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (index == MAP_FAILED) {
-		pr_dbg("%s: cannot allocate index buffer: %d (%s)\n",
+	if (idx == MAP_FAILED) {
+		pr_dbg("%s: cannot allocate idx buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)mappings, pages * sizeof(*mappings));
 		(void)munmap((void *)mapped, pages * sizeof(*mapped));
 		return EXIT_NO_RESOURCE;
 	}
 	if (context->mmap_mlock)
-		(void)shim_mlock(index, pages * sizeof(*index));
+		(void)shim_mlock(idx, pages * sizeof(*idx));
 
 	do {
 		size_t n;
@@ -701,11 +701,11 @@ retry:
 		 *  Step #1, set random ordered page advise and protection
 		 */
 		for (n = 0; n < pages; n++)
-			index[n] = n;
-		stress_mmap_index_shuffle(index, n);
+			idx[n] = n;
+		stress_mmap_index_shuffle(idx, n);
 
 		for (n = 0; n < pages; n++) {
-			register const size_t page = index[n];
+			register const size_t page = idx[n];
 
 			if (mapped[page] == PAGE_MAPPED) {
 #if defined(HAVE_MQUERY) &&	\
@@ -738,10 +738,10 @@ retry:
 		/*
 		 *  Step #2, map them back in random order
 		 */
-		stress_mmap_index_shuffle(index, n);
+		stress_mmap_index_shuffle(idx, n);
 
 		for (n = 0; n < pages; n++) {
-			register const size_t page = index[n];
+			register const size_t page = idx[n];
 
 			if (!mapped[page]) {
 				off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
@@ -951,7 +951,7 @@ cleanup:
 
 	jmp_env_set = false;
 
-	(void)munmap((void *)index, pages * sizeof(*index));
+	(void)munmap((void *)idx, pages * sizeof(*idx));
 	(void)munmap((void *)mappings, pages * sizeof(*mappings));
 	(void)munmap((void *)mapped, pages * sizeof(*mapped));
 
