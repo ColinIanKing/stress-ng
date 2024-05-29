@@ -346,10 +346,10 @@ static int open_flag_perm(
 	double *duration,
 	double *count)
 {
-	static size_t index = 0;
+	static size_t idx = 0;
 	int fd;
 	const int mode = S_IRUSR | S_IWUSR;
-	const int flags = open_perms[index];
+	const int flags = open_perms[idx];
 	char filename[PATH_MAX];
 
 	(void)args;
@@ -384,9 +384,9 @@ static int open_flag_perm(
 		(void)shim_rmdir(filename);
 #endif
 	(void)shim_unlink(filename);
-	index++;
-	if (index >= open_count)
-		index = 0;
+	idx++;
+	if (idx >= open_count)
+		idx = 0;
 
 	return fd;
 }
