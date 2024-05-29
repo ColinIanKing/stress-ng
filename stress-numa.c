@@ -149,7 +149,7 @@ static void stress_numa_stats_read(stress_numa_stats_t *stats)
 	static const struct {
 		const char *name;
 		const size_t len;
-		size_t index;
+		size_t idx;
 	} numa_fields[] = {
 		{ "numa_hit",	8,	STRESS_NUMA_STAT_NUMA_HIT },
 		{ "numa_miss",	9,	STRESS_NUMA_STAT_NUMA_MISS },
@@ -184,9 +184,9 @@ static void stress_numa_stats_read(stress_numa_stats_t *stats)
 					uint64_t val = 0;
 
 					if (sscanf(buffer + numa_fields[i].len + 1, "%" SCNu64, &val) == 1) {
-						const size_t index = numa_fields[i].index;
+						const size_t idx = numa_fields[i].idx;
 
-						stats->value[index] += val;
+						stats->value[idx] += val;
 					}
 				}
 			}
