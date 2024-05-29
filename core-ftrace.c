@@ -240,7 +240,7 @@ memory_fail:
 static int stress_ftrace_parse_stat_files(const char *path, const bool start)
 {
 	DIR *dp;
-	struct dirent *de;
+	const struct dirent *de;
 	char filename[PATH_MAX];
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
@@ -270,7 +270,7 @@ static int stress_ftrace_parse_stat_files(const char *path, const bool start)
 void stress_ftrace_add_pid(const pid_t pid)
 {
 	char filename[PATH_MAX];
-	char *path;
+	const char *path;
 	char buffer[32];
 	int fd;
 
@@ -300,7 +300,8 @@ void stress_ftrace_add_pid(const pid_t pid)
  */
 int stress_ftrace_start(void)
 {
-	char *path, filename[PATH_MAX];
+	const char *path;
+	char filename[PATH_MAX];
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return 0;
@@ -392,7 +393,8 @@ static void stress_ftrace_analyze(void)
  */
 void stress_ftrace_stop(void)
 {
-	char *path, filename[PATH_MAX];
+	const char *path;
+	char filename[PATH_MAX];
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
