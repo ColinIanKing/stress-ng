@@ -1137,6 +1137,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(mremap)
 	{ SYS(mremap), 5, { ARG_PTR, ARG_LEN, ARG_PTR, ARG_LEN, ARG_FLAG, ARG_PTR } },
 #endif
+#if DEFSYS(mseal)
+	{ SYS(mseal), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
+#endif
 #if DEFSYS(msgctl)
 	{ SYS(msgctl), 3, { ARG_INT, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
