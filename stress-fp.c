@@ -141,45 +141,45 @@ typedef struct {
 typedef double (*stress_fp_func_t)(
 	stress_args_t *args,
 	fp_data_t *fp_data,
-	const int index);
+	const int idx);
 
 static double stress_fp_all(
 	stress_args_t *args,
 	fp_data_t *fp_data,
-	const int index);
+	const int idx);
 
 #define STRESS_FP_ADD(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
-	stress_args_t *args,					\
+	stress_args_t *args,						\
 	fp_data_t *fp_data,						\
-	const int index)						\
+	const int idx)							\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
 	double t1, t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
-		fp_data[i].field.r[index] = fp_data[i].field.r_init;	\
+		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
 									\
 	t1 = stress_time_now();						\
 	for (i = 0; i < loops ; i++) {					\
-		fp_data[0].field.r[index] += fp_data[0].field.add;	\
-		fp_data[0].field.r[index] += fp_data[0].field.add_rev;	\
-		fp_data[1].field.r[index] += fp_data[1].field.add;	\
-		fp_data[1].field.r[index] += fp_data[1].field.add_rev;	\
-		fp_data[2].field.r[index] += fp_data[2].field.add;	\
-		fp_data[2].field.r[index] += fp_data[2].field.add_rev;	\
-		fp_data[3].field.r[index] += fp_data[3].field.add;	\
-		fp_data[3].field.r[index] += fp_data[3].field.add_rev;	\
-		fp_data[4].field.r[index] += fp_data[4].field.add;	\
-		fp_data[4].field.r[index] += fp_data[4].field.add_rev;	\
-		fp_data[5].field.r[index] += fp_data[5].field.add;	\
-		fp_data[5].field.r[index] += fp_data[5].field.add_rev;	\
-		fp_data[6].field.r[index] += fp_data[6].field.add;	\
-		fp_data[6].field.r[index] += fp_data[6].field.add_rev;	\
-		fp_data[7].field.r[index] += fp_data[7].field.add;	\
-		fp_data[7].field.r[index] += fp_data[7].field.add_rev;	\
+		fp_data[0].field.r[idx] += fp_data[0].field.add;	\
+		fp_data[0].field.r[idx] += fp_data[0].field.add_rev;	\
+		fp_data[1].field.r[idx] += fp_data[1].field.add;	\
+		fp_data[1].field.r[idx] += fp_data[1].field.add_rev;	\
+		fp_data[2].field.r[idx] += fp_data[2].field.add;	\
+		fp_data[2].field.r[idx] += fp_data[2].field.add_rev;	\
+		fp_data[3].field.r[idx] += fp_data[3].field.add;	\
+		fp_data[3].field.r[idx] += fp_data[3].field.add_rev;	\
+		fp_data[4].field.r[idx] += fp_data[4].field.add;	\
+		fp_data[4].field.r[idx] += fp_data[4].field.add_rev;	\
+		fp_data[5].field.r[idx] += fp_data[5].field.add;	\
+		fp_data[5].field.r[idx] += fp_data[5].field.add_rev;	\
+		fp_data[6].field.r[idx] += fp_data[6].field.add;	\
+		fp_data[6].field.r[idx] += fp_data[6].field.add_rev;	\
+		fp_data[7].field.r[idx] += fp_data[7].field.add;	\
+		fp_data[7].field.r[idx] += fp_data[7].field.add_rev;	\
 	}								\
 	t2 = stress_time_now();						\
 									\
@@ -190,36 +190,36 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 
 #define STRESS_FP_MUL(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
-	stress_args_t *args,					\
+	stress_args_t *args,						\
 	fp_data_t *fp_data,						\
-	const int index)						\
+	const int idx)							\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
 	double t1, t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
-		fp_data[i].field.r[index] = fp_data[i].field.r_init;	\
+		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
 									\
 	t1 = stress_time_now();						\
 	for (i = 0; i < loops ; i++) {					\
-		fp_data[0].field.r[index] *= fp_data[0].field.mul;	\
-		fp_data[0].field.r[index] *= fp_data[0].field.mul_rev;	\
-		fp_data[1].field.r[index] *= fp_data[1].field.mul;	\
-		fp_data[1].field.r[index] *= fp_data[1].field.mul_rev;	\
-		fp_data[2].field.r[index] *= fp_data[2].field.mul;	\
-		fp_data[2].field.r[index] *= fp_data[2].field.mul_rev;	\
-		fp_data[3].field.r[index] *= fp_data[3].field.mul;	\
-		fp_data[3].field.r[index] *= fp_data[3].field.mul_rev;	\
-		fp_data[4].field.r[index] *= fp_data[4].field.mul;	\
-		fp_data[4].field.r[index] *= fp_data[4].field.mul_rev;	\
-		fp_data[5].field.r[index] *= fp_data[5].field.mul;	\
-		fp_data[5].field.r[index] *= fp_data[5].field.mul_rev;	\
-		fp_data[6].field.r[index] *= fp_data[6].field.mul;	\
-		fp_data[6].field.r[index] *= fp_data[6].field.mul_rev;	\
-		fp_data[7].field.r[index] *= fp_data[7].field.mul;	\
-		fp_data[7].field.r[index] *= fp_data[7].field.mul_rev;	\
+		fp_data[0].field.r[idx] *= fp_data[0].field.mul;	\
+		fp_data[0].field.r[idx] *= fp_data[0].field.mul_rev;	\
+		fp_data[1].field.r[idx] *= fp_data[1].field.mul;	\
+		fp_data[1].field.r[idx] *= fp_data[1].field.mul_rev;	\
+		fp_data[2].field.r[idx] *= fp_data[2].field.mul;	\
+		fp_data[2].field.r[idx] *= fp_data[2].field.mul_rev;	\
+		fp_data[3].field.r[idx] *= fp_data[3].field.mul;	\
+		fp_data[3].field.r[idx] *= fp_data[3].field.mul_rev;	\
+		fp_data[4].field.r[idx] *= fp_data[4].field.mul;	\
+		fp_data[4].field.r[idx] *= fp_data[4].field.mul_rev;	\
+		fp_data[5].field.r[idx] *= fp_data[5].field.mul;	\
+		fp_data[5].field.r[idx] *= fp_data[5].field.mul_rev;	\
+		fp_data[6].field.r[idx] *= fp_data[6].field.mul;	\
+		fp_data[6].field.r[idx] *= fp_data[6].field.mul_rev;	\
+		fp_data[7].field.r[idx] *= fp_data[7].field.mul;	\
+		fp_data[7].field.r[idx] *= fp_data[7].field.mul_rev;	\
 	}								\
 	t2 = stress_time_now();						\
 									\
@@ -230,36 +230,36 @@ static double TARGET_CLONES OPTIMIZE3 name(				\
 
 #define STRESS_FP_DIV(field, name, do_bogo_ops)				\
 static double TARGET_CLONES OPTIMIZE3 name(				\
-	stress_args_t *args,					\
+	stress_args_t *args,						\
 	fp_data_t *fp_data,						\
-	const int index)						\
+	const int idx)							\
 {									\
 	register int i;							\
 	const int loops = LOOPS_PER_CALL >> 1;				\
 	double t1, t2;							\
 									\
 	for (i = 0; i < FP_ELEMENTS; i++) {				\
-		fp_data[i].field.r[index] = fp_data[i].field.r_init;	\
+		fp_data[i].field.r[idx] = fp_data[i].field.r_init;	\
 	}								\
 									\
 	t1 = stress_time_now();						\
 	for (i = 0; stress_continue_flag() && (i < loops); i++) {	\
-		fp_data[0].field.r[index] /= fp_data[0].field.mul;	\
-		fp_data[0].field.r[index] /= fp_data[0].field.mul_rev;	\
-		fp_data[1].field.r[index] /= fp_data[1].field.mul;	\
-		fp_data[1].field.r[index] /= fp_data[1].field.mul_rev;	\
-		fp_data[2].field.r[index] /= fp_data[2].field.mul;	\
-		fp_data[2].field.r[index] /= fp_data[2].field.mul_rev;	\
-		fp_data[3].field.r[index] /= fp_data[3].field.mul;	\
-		fp_data[3].field.r[index] /= fp_data[3].field.mul_rev;	\
-		fp_data[4].field.r[index] /= fp_data[4].field.mul;	\
-		fp_data[4].field.r[index] /= fp_data[4].field.mul_rev;	\
-		fp_data[5].field.r[index] /= fp_data[5].field.mul;	\
-		fp_data[5].field.r[index] /= fp_data[5].field.mul_rev;	\
-		fp_data[6].field.r[index] /= fp_data[6].field.mul;	\
-		fp_data[6].field.r[index] /= fp_data[6].field.mul_rev;	\
-		fp_data[7].field.r[index] /= fp_data[7].field.mul;	\
-		fp_data[7].field.r[index] /= fp_data[7].field.mul_rev;	\
+		fp_data[0].field.r[idx] /= fp_data[0].field.mul;	\
+		fp_data[0].field.r[idx] /= fp_data[0].field.mul_rev;	\
+		fp_data[1].field.r[idx] /= fp_data[1].field.mul;	\
+		fp_data[1].field.r[idx] /= fp_data[1].field.mul_rev;	\
+		fp_data[2].field.r[idx] /= fp_data[2].field.mul;	\
+		fp_data[2].field.r[idx] /= fp_data[2].field.mul_rev;	\
+		fp_data[3].field.r[idx] /= fp_data[3].field.mul;	\
+		fp_data[3].field.r[idx] /= fp_data[3].field.mul_rev;	\
+		fp_data[4].field.r[idx] /= fp_data[4].field.mul;	\
+		fp_data[4].field.r[idx] /= fp_data[4].field.mul_rev;	\
+		fp_data[5].field.r[idx] /= fp_data[5].field.mul;	\
+		fp_data[5].field.r[idx] /= fp_data[5].field.mul_rev;	\
+		fp_data[6].field.r[idx] /= fp_data[6].field.mul;	\
+		fp_data[6].field.r[idx] /= fp_data[6].field.mul_rev;	\
+		fp_data[7].field.r[idx] /= fp_data[7].field.mul;	\
+		fp_data[7].field.r[idx] /= fp_data[7].field.mul_rev;	\
 	}								\
 	t2 = stress_time_now();						\
 									\
@@ -511,11 +511,11 @@ static int stress_fp_call_method(
 static double stress_fp_all(
 	stress_args_t *args,
 	fp_data_t *fp_data,
-	const int index)
+	const int idx)
 {
 	size_t i;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-	(void)index;
+	(void)idx;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
 		if (stress_fp_call_method(args, fp_data, i, verify) == EXIT_FAILURE)
