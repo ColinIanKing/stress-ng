@@ -664,11 +664,12 @@ static void stress_iomix_rd_bytes(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn = iomix_bytes;
+		off_t posn = iomix_bytes;
 
 		while (posn != 0) {
 			char buffer[1];
 			ssize_t rc;
+			off_t ret;
 
 			/* Add some unhelpful advice */
 			stress_iomix_fadvise_random_dontneed(fd, posn, sizeof(buffer));
