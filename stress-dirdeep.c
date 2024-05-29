@@ -406,7 +406,7 @@ static void stress_dir_tidy(
 	}
 
 	while (n--) {
-		char *name = namelist[n]->d_name;
+		const char *name = namelist[n]->d_name;
 		register const int ch = (int)name[0];
 
 		if (ch == '.') {
