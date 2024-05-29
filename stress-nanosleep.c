@@ -191,7 +191,6 @@ static void *stress_nanosleep_pthread(void *c)
 	while (stress_continue(args) &&
 	       !thread_terminate &&
 	       (!ctxt->max_ops || (ctxt->counter < ctxt->max_ops))) {
-		register unsigned long i;
 		cpu_cstate_t *cc;
 
 		if (ctxt->mask & STRESS_NANOSLEEP_CSTATE) {
@@ -201,6 +200,8 @@ static void *stress_nanosleep_pthread(void *c)
 			}
 		}
 		if (ctxt->mask & STRESS_NANOSLEEP_RANDOM) {
+			register unsigned long i;
+
 			for (i = 1 << 18; i > 0; i >>=1) {
 				register const unsigned long mask = (i - 1);
 				register const long nsec = (long)(stress_mwc32() & mask) + 8;
