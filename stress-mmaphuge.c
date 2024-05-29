@@ -255,7 +255,6 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 static int stress_mmaphuge(stress_args_t *args)
 {
 	stress_mmaphuge_context_t ctxt;
-	char filename[PATH_MAX];
 
 	int ret;
 
@@ -273,6 +272,7 @@ static int stress_mmaphuge(stress_args_t *args)
 	}
 
 	if (ctxt.mmaphuge_file) {
+		char filename[PATH_MAX];
 		ssize_t rc;
 
 		rc = stress_temp_dir_mk_args(args);
