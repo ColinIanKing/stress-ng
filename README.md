@@ -537,6 +537,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 2024:
 * [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
 * [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
+* [uprobes: prevent mutex_lock() under rcu_read_lock()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=699646734ab51bf5b1cd4a7a30c20074f6e74f6e)
 
 ## Presentations
 
