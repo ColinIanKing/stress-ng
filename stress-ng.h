@@ -437,7 +437,8 @@ typedef struct stressor_info {
 #endif
 
 /* optimisation on branching */
-#if defined(HAVE_BUILTIN_EXPECT)
+#if defined(HAVE_BUILTIN_EXPECT) && \
+    !defined(COVERITY)
 #define LIKELY(x)	__builtin_expect((x), 1)
 #define UNLIKELY(x)	__builtin_expect((x), 0)
 #else

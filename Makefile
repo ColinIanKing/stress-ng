@@ -147,6 +147,13 @@ override CFLAGS += -DCHECK_UNEXPECTED
 endif
 
 #
+# Building with Coverity?
+#
+ifeq ($(COVERITY),1)
+override CFLAGS += -DCOVERITY
+endif
+
+#
 # Disable any user defined PREFV setting
 #
 ifneq ($(PRE_V),)
