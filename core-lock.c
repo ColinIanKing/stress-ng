@@ -198,9 +198,6 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 #if defined(HAVE_ASM_X86_PAUSE)
 #define STRESS_LOCK_BACKOFF
 				stress_asm_x86_pause();
-#elif defined(HAVE_ASM_ARM_YIELD)
-#define STRESS_LOCK_BACKOFF
-				stress_asm_arm_yield();
 #elif defined(HAVE_ASM_LOONG64_DBAR)
 #define STRESS_LOCK_BACKOFF
 				stress_waitcpu_loong64_dbar();
