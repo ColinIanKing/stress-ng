@@ -876,6 +876,7 @@ static int stress_stream(stress_args_t *args)
 	 */
 	n = (n + 7) & ~(uint64_t)7;
 	sz = n * sizeof(*a);
+	sz_idx = n * sizeof(size_t);
 
 	a = stress_stream_mmap(args, sz, stream_mlock);
 	if (a == MAP_FAILED)
@@ -887,7 +888,6 @@ static int stress_stream(stress_args_t *args)
 	if (c == MAP_FAILED)
 		goto err_unmap;
 
-	sz_idx = n * sizeof(size_t);
 	switch (stream_index) {
 	case 3:
 		idx3 = stress_stream_mmap(args, sz_idx, stream_mlock);
