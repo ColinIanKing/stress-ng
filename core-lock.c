@@ -259,9 +259,13 @@ static int stress_pthread_spinlock_init(stress_lock_t *lock)
 
 static int stress_pthread_spinlock_deinit(stress_lock_t *lock)
 {
-	(void)lock;
+	int ret;
 
-	return 0;
+	ret = pthread_spin_destroy(&lock->u.pthread_spinlock);
+	if (ret == 0)
+		return 0;
+	errno = ret;
+	return -1;
 }
 
 static int stress_pthread_spinlock_acquire(stress_lock_t *lock)
