@@ -38,7 +38,8 @@
  *  PPC64 for some reason with some flavours of the toolchain
  *  so disable this test for now
  */
-#if defined(STRESS_ARCH_PPC64) && 		\
+#if (defined(STRESS_ARCH_PPC64) ||		\
+     defined(STRESS_ARCH_PPC)) && 		\
     defined(HAVE_COMPILER_GCC_OR_MUSL) &&	\
     __GNUC__ < 6
 #undef HAVE_VECMATH

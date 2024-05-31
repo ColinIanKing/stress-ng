@@ -82,6 +82,13 @@
 #define STRESS_OPCODE_MASK	(0xffffffffUL)
 #endif
 
+/* Arch specific PPC (32 bit ) */
+#if defined(__PPC__)
+#define STRESS_ARCH_PPC		(1)
+#define STRESS_OPCODE_SIZE	(32)
+#define STRESS_OPCODE_MASK	(0xffffffffUL)
+#endif
+
 /* Arch specific M68K */
 #if defined(__m68k__) ||	\
     defined(__mc68000__) ||	\
