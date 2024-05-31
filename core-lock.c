@@ -185,33 +185,36 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 	return -1;
 }
 
+#if defined(HAVE_ASM_X86_PAUSE) ||	\
+    defined(HAVE_ASM_LOONG64_DBAR) ||	\
+    defined(STRESS_ARCH_PPC64) ||	\
+    defined(STRESS_ARCH_RISCV)
+#define STRESS_LOCK_BACKOFF
+#endif
+
 static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 {
 	if (lock) {
 		double t = stress_time_now();
+#if defined(STRESS_LOCK_BACKOFF)
 		uint32_t backoff = 1;
+#endif
 
 		while (test_and_set(&lock->u.flag) == true) {
+#if defined(STRESS_LOCK_BACKOFF)
 			register uint32_t i;
 
 			for (i = 0; i < backoff; i++) {
 #if defined(HAVE_ASM_X86_PAUSE)
-#define STRESS_LOCK_BACKOFF
 				stress_asm_x86_pause();
 #elif defined(HAVE_ASM_LOONG64_DBAR)
-#define STRESS_LOCK_BACKOFF
 				stress_waitcpu_loong64_dbar();
 #elif defined(STRESS_ARCH_PPC64)
-#define STRESS_LOCK_BACKOFF
 				stress_asm_ppc64_yield();
 #elif defined(STRESS_ARCH_RISCV)
-#define STRESS_LOCK_BACKOFF
 				stress_asm_riscv_pause();
-#else
-				shim_sched_yield();
 #endif
 			}
-#if defined(STRESS_LOCK_BACKOFF)
 			/*
 			 *  multiple fast cpu pauses on a failed lock acquire
 			 *  benefit from exponential backoff
@@ -219,6 +222,8 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 			backoff = backoff << 1;
 			if (backoff > STRESS_LOCK_MAX_BACKOFF)
 				backoff = STRESS_LOCK_MAX_BACKOFF;
+#else
+			shim_sched_yield();
 #endif
 			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
 				errno = EAGAIN;
