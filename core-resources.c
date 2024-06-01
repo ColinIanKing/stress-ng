@@ -70,12 +70,13 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 #if defined(HAVE_LIB_PTHREAD)
 		resources[i].pthread_ret = -1;
 		resources[i].pthread = (pthread_t)0;
-#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
 		(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 		resources[i].mutex_ret = -1;
-#endif
 #endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_THREADS_H) &&		\
@@ -229,12 +230,13 @@ size_t stress_resources_allocate(
 #if defined(HAVE_LIB_PTHREAD)
 		resources[i].pthread_ret = -1;
 		resources[i].pthread = (pthread_t)0;
-#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
 		(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 		resources[i].mutex_ret = -1;
-#endif
 #endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_THREADS_H) &&		\
@@ -520,14 +522,17 @@ size_t stress_resources_allocate(
 			resources[i].pthread_ret =
 				pthread_create(&resources[i].pthread, NULL,
 					stress_resources_pthread_func, NULL);
-#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
-    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
-    defined(HAVE_PTHREAD_MUTEX_DESTROY)
-			resources[i].mutex_ret = pthread_mutex_init(&resources[i].mutex, NULL);
-#endif
 			if (!stress_continue_flag())
 				break;
 		}
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_PTHREAD_MUTEX_T) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY)
+		resources[i].mutex_ret = pthread_mutex_init(&resources[i].mutex, NULL);
+		if (!stress_continue_flag())
+			break;
 #endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_THREADS_H) &&		\
@@ -749,13 +754,14 @@ void stress_resources_free(
 		if ((!i) && (!resources[i].pthread_ret) && (resources[i].pthread)) {
 			(void)pthread_join(resources[i].pthread, NULL);
 			resources[i].pthread = (pthread_t)0;
-#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+		}
+#endif
+#if defined(HAVE_LIB_PTHREAD) && 	\
+    defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
-			(void)pthread_mutex_destroy(&resources[i].mutex);
-			(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
-#endif
-		}
+		(void)pthread_mutex_destroy(&resources[i].mutex);
+		(void)shim_memset(&resources[i].mutex, 0, sizeof(resources[i].mutex));
 #endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_THREADS_H) &&		\
