@@ -54,6 +54,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_LINUX_SOCKET_H) &&	\
     defined(AF_ALG)
 
+static sigjmp_buf jmpbuf;
+
 #if !defined(SOL_ALG)
 #define SOL_ALG				(279)
 #endif
@@ -127,6 +129,21 @@ static stress_crypto_info_t crypto_info_defconfigs[] = {
 };
 
 static void stress_af_alg_add_crypto_defconfigs(void);
+
+static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
+{
+	static int count = 0;
+
+	/* Indicate we need to stop */
+	stress_handle_stop_stressing(signum);
+
+	/*
+	 * If we've not stopped after 5 seconds then an af-alg
+	 * got stuck, so force  jmp to terminate path
+	 */
+	if (count++ > 5)
+        	siglongjmp(jmpbuf, 1);
+}
 
 /*
  *   name_to_type()
@@ -905,6 +922,16 @@ static int stress_af_alg(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	if (sigsetjmp(jmpbuf, 1) != 0) {
+		pr_inf("JMP out\n");
+		goto deinit;
+	}
+
+	if (stress_sighandler(args->name, SIGALRM, stress_af_alg_alarm_handler, NULL) < 0) {
+		rc = EXIT_NO_RESOURCE;
+		goto deinit;
+	}
+
 	do {
 		for (info = crypto_info_list; info && stress_continue(args); info = info->next) {
 			if (info->internal || info->ignore)
@@ -936,6 +963,7 @@ static int stress_af_alg(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
+deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (idx = 0, info = crypto_info_list; info; info = info->next) {
