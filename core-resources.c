@@ -77,7 +77,14 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 		resources[i].mutex_ret = -1;
 #endif
 #endif
-
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_THREADS_H) &&		\
+    defined(HAVE_MTX_T) &&		\
+    defined(HAVE_MTX_DESTROY) &&	\
+    defined(HAVE_MTX_INIT)
+		(void)shim_memset(&resources[i].mtx, 0, sizeof(resources[i].mtx));
+		resources[i].mtx_ret = -1;
+#endif
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -229,7 +236,14 @@ size_t stress_resources_allocate(
 		resources[i].mutex_ret = -1;
 #endif
 #endif
-
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_THREADS_H) &&		\
+    defined(HAVE_MTX_T) &&		\
+    defined(HAVE_MTX_DESTROY) &&	\
+    defined(HAVE_MTX_INIT)
+		(void)shim_memset(&resources[i].mtx, 0, sizeof(resources[i].mtx));
+		resources[i].mtx_ret = -1;
+#endif
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -515,7 +529,15 @@ size_t stress_resources_allocate(
 				break;
 		}
 #endif
-
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_THREADS_H) &&		\
+    defined(HAVE_MTX_T) &&		\
+    defined(HAVE_MTX_DESTROY) &&	\
+    defined(HAVE_MTX_INIT)
+		resources[i].mtx_ret = mtx_init(&resources[i].mtx, mtx_plain);
+		if (!stress_continue_flag())
+			break;
+#endif
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -717,14 +739,12 @@ void stress_resources_free(
 			resources[i].fd_uf = -1;
 		}
 #endif
-
 #if defined(O_TMPFILE)
 		if (resources[i].fd_tmp != -1) {
 			(void)close(resources[i].fd_tmp);
 			resources[i].fd_tmp = -1;
 		}
 #endif
-
 #if defined(HAVE_LIB_PTHREAD)
 		if ((!i) && (!resources[i].pthread_ret) && (resources[i].pthread)) {
 			(void)pthread_join(resources[i].pthread, NULL);
@@ -737,7 +757,16 @@ void stress_resources_free(
 #endif
 		}
 #endif
-
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_THREADS_H) &&		\
+    defined(HAVE_MTX_T) &&		\
+    defined(HAVE_MTX_DESTROY) &&	\
+    defined(HAVE_MTX_INIT)
+		if (resources[i].mtx_ret == 0) {
+			mtx_destroy(&resources[i].mtx);
+			(void)shim_memset(&resources[i].mtx, 0, sizeof(resources[i].mtx));
+		}
+#endif
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\

@@ -60,6 +60,10 @@
 #include <semaphore.h>
 #endif
 
+#if defined(HAVE_THREADS_H)
+#include <threads.h>
+#endif
+
 typedef struct {
 	void *m_malloc;
 	void *m_sbrk;
@@ -98,6 +102,14 @@ typedef struct {
 	int mutex_ret;
 	pthread_mutex_t mutex;
 #endif
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&        \
+    defined(HAVE_THREADS_H) &&          \
+    defined(HAVE_MTX_T) &&              \
+    defined(HAVE_MTX_DESTROY) &&        \
+    defined(HAVE_MTX_INIT)
+	int mtx_ret;
+	mtx_t mtx;
 #endif
 #if defined(HAVE_SYS_INOTIFY_H)
 	int fd_inotify;
