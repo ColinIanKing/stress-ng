@@ -276,6 +276,8 @@ retry_bind:
 		ret = send(fd, input, j, 0);
 		if (ret != (ssize_t)j) {
 			if (ret < 0) {
+				if (errno == EINTR)
+					break;
 				if ((errno == ENOKEY) || (errno == ENOENT))
 					continue;
 				if (errno == EINVAL) {
@@ -294,6 +296,8 @@ retry_bind:
 		ret = recv(fd, digest, (size_t)digest_size, MSG_WAITALL);
 		if (ret != (ssize_t)digest_size) {
 			if (ret < 0) {
+				if (errno == EINTR)
+					break;
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
 				pr_fail("%s: %s: recv failed: errno=%d (%s)\n",
@@ -525,6 +529,8 @@ retry_bind:
 		msg.msg_iovlen = 1;
 
 		if (sendmsg(fd, &msg, 0) < 0) {
+			if (errno == EINTR)
+				break;
 			if (errno == ENOMEM)
 				break;
 			if (errno == EINVAL) {
@@ -540,6 +546,8 @@ retry_bind:
 		ret = recv(fd, output, DATA_LEN, 0);
 		if (ret != DATA_LEN) {
 			if (ret < 0) {
+				if (errno == EINTR)
+					break;
 				if (errno == EOPNOTSUPP)
 					goto err_abort;
 				pr_fail("%s: %s: read failed: errno=%d (%s)\n",
@@ -584,6 +592,8 @@ retry_bind:
 		t = stress_time_now();
 		if (sendmsg(fd, &msg, 0) < 0) {
 			if (errno == ENOMEM)
+				break;
+			if (errno == EINTR)
 				break;
 			if (errno == EINVAL) {
 				stress_af_alg_ignore(args, info);
