@@ -142,7 +142,7 @@ static void MLOCKED_TEXT stress_af_alg_alarm_handler(int signum)
 	 * got stuck, so force  jmp to terminate path
 	 */
 	if (count++ > 5)
-        	siglongjmp(jmpbuf, 1);
+		siglongjmp(jmpbuf, 1);
 }
 
 /*
