@@ -210,7 +210,7 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 #if defined(HAVE_ASM_X86_PAUSE)
 				stress_asm_x86_pause();
 #elif defined(HAVE_ASM_LOONG64_DBAR)
-				stress_waitcpu_loong64_dbar();
+				stress_asm_loong64_dbar();
 #elif defined(STRESS_ARCH_PPC64)
 				stress_asm_ppc64_yield();
 #elif defined(STRESS_ARCH_RISCV)
