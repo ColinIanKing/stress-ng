@@ -687,21 +687,35 @@ static void stress_cache_write(
 	stress_uint32_put(total);
 }
 
-static void stress_cache_show_flags(stress_args_t *args, const uint32_t flags)
+static void stress_cached_str_flags(char *buf, size_t buflen, const uint32_t flags)
 {
 	size_t i;
-	char buf[256];
 
-	(void)shim_memset(buf, 0, sizeof(buf));
+	(void)shim_memset(buf, 0, buflen);
 	for (i = 0; i < SIZEOF_ARRAY(mask_flag_info); i++) {
 		if (flags & mask_flag_info[i].flag) {
-			(void)shim_strlcat(buf, " ", sizeof(buf));
-			(void)shim_strlcat(buf, mask_flag_info[i].name, sizeof(buf));
+			(void)shim_strlcat(buf, " ", buflen);
+			(void)shim_strlcat(buf, mask_flag_info[i].name, buflen);
 		}
 	}
+}
+
+static void stress_cache_show_flags(
+	stress_args_t *args,
+	const uint32_t used_flags,
+	const uint32_t ignored_flags)
+{
+	char buf[256];
+
+	stress_cached_str_flags(buf, sizeof(buf), used_flags);
 	if (!*buf)
 		(void)shim_strscpy(buf, " none", sizeof(buf));
 	pr_inf("%s: cache flags used:%s\n", args->name, buf);
+	(void)shim_memset(buf, 0, sizeof(buf));
+
+	stress_cached_str_flags(buf, sizeof(buf), ignored_flags);
+	if (*buf)
+		pr_inf("%s: unavailable unused cache flags:%s\n", args->name, buf);
 }
 
 /*
@@ -721,6 +735,7 @@ static int stress_cache(stress_args_t *args)
 #endif
 	uint32_t cache_flags = 0;
 	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
+	NOCLOBBER uint32_t ignored_flags = 0;
 	NOCLOBBER uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const buffer = g_shared->mem_cache.buffer;
@@ -787,19 +802,15 @@ static int stress_cache(stress_args_t *args)
 #endif
 
 #if !defined(HAVE_BUILTIN_SFENCE)
-	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_SFENCE)) {
-		pr_inf("%s: sfence is not available, ignoring this option\n",
-			args->name);
-	}
+	if (cache_flags & CACHE_FLAGS_SFENCE)
+		ignored_flags |= CACHE_FLAGS_SFENCE;
 	cache_flags &= ~CACHE_FLAGS_SFENCE;
 	cache_flags_mask &= ~CACHE_FLAGS_SFENCE;
 #endif
 
 #if !defined(HAVE_ASM_X86_CLDEMOTE)
-	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLDEMOTE)) {
-		pr_inf("%s: cldemote is not available, ignoring this option\n",
-			args->name);
-	}
+	if (cache_flags & CACHE_FLAGS_CLDEMOTE)
+		ignored_flags |= CACHE_FLAGS_CLDEMOTE;
 	cache_flags &= ~CACHE_FLAGS_CLDEMOTE;
 	cache_flags_mask &= ~CACHE_FLAGS_CLDEMOTE;
 #endif
@@ -808,18 +819,13 @@ static int stress_cache(stress_args_t *args)
 	if (!stress_cpu_x86_has_cldemote() && (cache_flags & CACHE_FLAGS_CLDEMOTE)) {
 		cache_flags &= ~CACHE_FLAGS_CLDEMOTE;
 		cache_flags_mask &= ~CACHE_FLAGS_CLDEMOTE;
-		if (args->instance == 0) {
-			pr_inf("%s: cldemote is not available, ignoring this option\n",
-				args->name);
-		}
+		ignored_flags |= CACHE_FLAGS_CLDEMOTE;
 	}
 #endif
 
 #if !defined(HAVE_ASM_X86_CLFLUSH)
-	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLFLUSH)) {
-		pr_inf("%s: clflush is not available, ignoring this option\n",
-			args->name);
-	}
+	if (cache_flags & CACHE_FLAGS_CLFLUSH) {
+		ignored_flags |= CACHE_FLAGS_CLFLUSH;
 	cache_flags &= ~CACHE_FLAGS_CLFLUSH;
 	cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
 #endif
@@ -828,18 +834,13 @@ static int stress_cache(stress_args_t *args)
 	if (!stress_cpu_x86_has_clfsh() && (cache_flags & CACHE_FLAGS_CLFLUSH)) {
 		cache_flags &= ~CACHE_FLAGS_CLFLUSH;
 		cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
-		if (args->instance == 0) {
-			pr_inf("%s: clflush is not available, ignoring this option\n",
-				args->name);
-		}
+		ignored_flags |= CACHE_FLAGS_CLFLUSH;
 	}
 #endif
 
 #if !defined(HAVE_ASM_X86_CLFLUSHOPT)
-	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLFLUSHOPT)) {
-		pr_inf("%s: clflushopt is not available, ignoring this option\n",
-			args->name);
-	}
+	if (cache_flags & CACHE_FLAGS_CLFLUSHOPT)
+		ignored_flags |= CACHE_FLAGS_CLFLUSHOPT;
 	cache_flags &= ~CACHE_FLAGS_CLFLUSHOPT;
 	cache_flags_mask &= ~CACHE_FLAGS_CLFLUSHOPT;
 #endif
@@ -848,18 +849,13 @@ static int stress_cache(stress_args_t *args)
 	if (!stress_cpu_x86_has_clflushopt() && (cache_flags & CACHE_FLAGS_CLFLUSHOPT)) {
 		cache_flags &= ~CACHE_FLAGS_CLFLUSHOPT;
 		cache_flags_mask &= ~CACHE_FLAGS_CLFLUSHOPT;
-		if (args->instance == 0) {
-			pr_inf("%s: clflushopt is not available, ignoring this option\n",
-				args->name);
-		}
+		ignored_flags |= CACHE_FLAGS_CLFLUSHOPT;
 	}
 #endif
 
 #if !defined(HAVE_ASM_X86_CLWB)
-	if ((args->instance == 0) && (cache_flags & CACHE_FLAGS_CLWB)) {
-		pr_inf("%s: clwb is not available, ignoring this option\n",
-			args->name);
-	}
+	if (cache_flags & CACHE_FLAGS_CLWB)
+		ignored_flags |= CACHE_FLAGS_CLWB;
 	cache_flags &= ~CACHE_FLAGS_CLWB;
 	cache_flags_mask &= ~CACHE_FLAGS_CLWB;
 #endif
@@ -868,10 +864,7 @@ static int stress_cache(stress_args_t *args)
 	if (!stress_cpu_x86_has_clwb() && (cache_flags & CACHE_FLAGS_CLWB)) {
 		cache_flags &= ~CACHE_FLAGS_CLWB;
 		cache_flags_mask &= ~CACHE_FLAGS_CLWB;
-		if (args->instance == 0) {
-			pr_inf("%s: clwb is not available, ignoring this option\n",
-				args->name);
-		}
+		ignored_flags |= CACHE_FLAGS_CLWB;
 	}
 #endif
 	/*
@@ -887,7 +880,7 @@ static int stress_cache(stress_args_t *args)
 
 	masked_flags = cache_flags & CACHE_FLAGS_MASK;
 	if (args->instance == 0) {
-		stress_cache_show_flags(args, masked_flags);
+		stress_cache_show_flags(args, masked_flags, ignored_flags);
 		if (masked_flags == 0)
 			pr_inf("%s: use --cache-enable-all to enable all cache flags for heavier cache stressing\n", args->name);
 	}
