@@ -50,6 +50,14 @@ static NOINLINE void vm_unmap_child(const size_t page_size)
 
 static NOINLINE void vm_unmap_self(const size_t page_size)
 {
+#if defined(__APPLE__)
+	(void)page_size;
+
+	/*
+	 *  munmapping one's self seems to cause OS X child
+	 *  processes to hang, so don't do it
+	 */
+#else
 	uint8_t *addr = stress_align_address((void *)vm_unmap_self, page_size);
 
 	(void)munmap((void *)addr, page_size);
@@ -58,6 +66,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 	shim_clflush(addr);
 #endif
 	shim_flush_icache(addr, (void *)(addr + 64));
+#endif
 }
 
 static NOINLINE OPTIMIZE0 void vm_unmap_stack(const size_t page_size)
