@@ -165,7 +165,6 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_smart,		OPT_FLAGS_SMART },
 	{ OPT_sn,		OPT_FLAGS_SN },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
-	{ OPT_sync_start,	OPT_FLAGS_SYNC_START },
 	{ OPT_stderr,		OPT_FLAGS_STDERR },
 	{ OPT_stdout,		OPT_FLAGS_STDOUT },
 #if defined(HAVE_SYSLOG_H)
@@ -1449,7 +1448,7 @@ static int MLOCKED_TEXT stress_run_child(
 #endif
 	stress_yield_sleep_ms();
 	stats->start = stress_time_now();
-	if ((g_opt_timeout) && ((g_opt_flags & OPT_FLAGS_SYNC_START) == 0))
+	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
 	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 		stats->args.name = name,
@@ -1578,71 +1577,6 @@ child_exit:
 	return rc;
 }
 
-void stress_sync_start_init(void)
-{
-	if (g_opt_flags & OPT_FLAGS_SYNC_START) {
-		g_shared->sync_start.ready = 0;
-		if (pipe(g_shared->sync_start.fds) != 0) {
-			pr_inf("pipe failed\n");
-			g_shared->sync_start.fds[0] = -1;
-			g_shared->sync_start.fds[1] = -1;
-		}
-		pr_inf("pipe created %d %d\n", g_shared->sync_start.fds[0], g_shared->sync_start.fds[1]);
-	}
-}
-
-void stress_sync_start_wait(const uint32_t total_instances)
-{
-	if (g_opt_flags & OPT_FLAGS_SYNC_START) {
-		uint32_t instances = 0;
-
-		do { 
-
-			if (stress_lock_acquire(g_shared->sync_start.lock) == 0) {
-				instances = g_shared->sync_start.ready;
-				(void)stress_lock_release(g_shared->sync_start.lock);
-				shim_usleep(50000);
-			}
-			pr_inf("%" PRIu32 " vs %" PRIu32 "\n", instances, total_instances);
-		} while ((instances < total_instances) && stress_continue_flag());
-
-		pr_inf("closing sync pipe\n");
-
-		if (g_shared->sync_start.fds[0] != -1)
-			(void)close(g_shared->sync_start.fds[0]);
-		if (g_shared->sync_start.fds[1] != -1)
-			(void)close(g_shared->sync_start.fds[1]);
-	}
-}
-
-void stress_sync_start_stressors(void)
-{
-	if (g_opt_flags & OPT_FLAGS_SYNC_START) {
-		ssize_t ret;
-		char data;
-
-		pr_inf("stressor acquiring lock\n");
-		if (stress_lock_acquire(g_shared->sync_start.lock) == 0) {
-			g_shared->sync_start.ready++;
-			(void)stress_lock_release(g_shared->sync_start.lock);
-		}
-
-		(void)close(g_shared->sync_start.fds[1]);
-		pr_inf("waiting in pipe\n");
-		do {
-			errno = 0;
-			ret = read(g_shared->sync_start.fds[0], &data, sizeof(data));
-			if ((ret < 0) && (errno != EINTR))
-				break;
-		pr_inf("waiting ret = %d\n", ret);
-		} while ((ret != 0) && stress_continue_flag());
-		pr_inf("stressor started\n");
-		(void)close(g_shared->sync_start.fds[0]);
-		if (g_opt_timeout)
-			(void)alarm((unsigned int)g_opt_timeout);
-	}
-}
-
 /*
  *  stress_run()
  *	kick off and run stressors
@@ -1657,7 +1591,7 @@ static void MLOCKED_TEXT stress_run(
 	stress_checksum_t **checksum)
 {
 	double time_start, time_finish;
-	int32_t started_instances = 0, total_instances = 0;
+	int32_t started_instances = 0;
 	const size_t page_size = stress_get_page_size();
 	int64_t backoff = DEFAULT_BACKOFF;
 	int32_t ionice_class = UNDEFINED;
@@ -1671,18 +1605,6 @@ static void MLOCKED_TEXT stress_run(
 	(void)stress_get_setting("backoff", &backoff);
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
-
-	for (g_stressor_current = stressors_list; g_stressor_current; g_stressor_current = g_stressor_current->next) {
-		int32_t j;
-
-		for (j = 0; j < g_stressor_current->num_instances; j++) {
-			if (g_stressor_current->ignore.run || g_stressor_current->ignore.permute)
-				continue;
-			total_instances++;
-		}
-	}
-
-	stress_sync_start_init();
 
 	/*
 	 *  Work through the list of stressors to run
@@ -1765,14 +1687,12 @@ abort:
 		 started_instances == 1 ? "" : "s");
 
 wait_for_stressors:
-	stress_sync_start_wait(total_instances);
-	
 	if (!handler_set)
 		(void)stress_set_handler("stress-ng", false);
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_start();
 #if STRESS_FORCE_TIMEOUT_ALL
-	if (g_opt_timeout) 
+	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
 #endif
 	stress_wait_stressors(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
@@ -3616,11 +3536,6 @@ static int stress_global_lock_create(void)
 		pr_err("failed to create net_port_map lock\n");
 		return -1;
 	}
-	g_shared->sync_start.lock = stress_lock_create();
-	if (!g_shared->sync_start.lock) {
-		pr_err("failed to create sync_start lock\n");
-		return -1;
-	}
 	return 0;
 }
 
@@ -3630,8 +3545,6 @@ static int stress_global_lock_create(void)
  */
 static void stress_global_lock_destroy(void)
 {
-	if (g_shared->sync_start.lock)
-		stress_lock_destroy(g_shared->sync_start.lock);
 	if (g_shared->net_port_map.lock)
 		stress_lock_destroy(g_shared->net_port_map.lock);
 	if (g_shared->warn_once.lock)

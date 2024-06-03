@@ -564,11 +564,6 @@ typedef struct {
 	pid_t (*vfork)(void);		/* vfork syscall */
 	stress_mapped_t mapped;		/* mmap'd pages to help testing */
 	shared_heap_t shared_heap;
-	struct  {
-		void *lock;		/* lock for ready counter */
-		int32_t ready;		/* ready counter */
-		int fds[2];		/* start sync pipe descriptors */
-	} sync_start;			
 	struct {
 		void *lock;		/* Cacheline stressor lock */
 		int index;		/* Cacheline stressor index */
@@ -814,7 +809,6 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 #define STRESS_METRIC_TOTAL		(0x3)
 #define STRESS_METRIC_MAXIMUM		(0x4)
 
-extern void stress_sync_start_stressors(void);
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);

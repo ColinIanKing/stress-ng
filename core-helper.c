@@ -1344,9 +1344,6 @@ void stress_set_proc_state(const char *name, const int state)
 		return;
 
 	stress_set_proc_state_str(name, stress_states[state]);
-
-	if (state == STRESS_STATE_RUN)
-		stress_sync_start_stressors();
 }
 
 /*

@@ -297,8 +297,6 @@ static int stress_access(stress_args_t *args)
 	metrics[1].duration = 0.0;
 	metrics[1].count = 0.0;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 	pid[0] = stress_access_spawn(args, filename2);
 	if (pid[0] >= 0) {
 		pid[1] = stress_access_spawn(args, filename2);
@@ -306,7 +304,7 @@ static int stress_access(stress_args_t *args)
 			stress_access_reap(&pid[0]);
 	}
 
-	//stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
