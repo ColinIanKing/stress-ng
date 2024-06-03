@@ -824,7 +824,7 @@ static int stress_cache(stress_args_t *args)
 #endif
 
 #if !defined(HAVE_ASM_X86_CLFLUSH)
-	if (cache_flags & CACHE_FLAGS_CLFLUSH) {
+	if (cache_flags & CACHE_FLAGS_CLFLUSH)
 		ignored_flags |= CACHE_FLAGS_CLFLUSH;
 	cache_flags &= ~CACHE_FLAGS_CLFLUSH;
 	cache_flags_mask &= ~CACHE_FLAGS_CLFLUSH;
