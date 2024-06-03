@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-loong64.h"
@@ -82,7 +83,8 @@
 #define LOCK_METHOD_FUTEX		(0)
 #endif
 
-#if defined(HAVE_ATOMIC_TEST_AND_SET)
+#if defined(HAVE_ATOMIC_TEST_AND_SET) &&	\
+    !defined(STRESS_ARCH_ARM)
 #define LOCK_METHOD_ATOMIC_SPINLOCK	(0x0010)
 #else
 #define LOCK_METHOD_ATOMIC_SPINLOCK	(0)
