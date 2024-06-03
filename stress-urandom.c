@@ -42,7 +42,10 @@ static const stress_help_t help[] = {
 static void check_eperm(stress_args_t *args, const ssize_t ret, const int err)
 {
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-	    ((ret == 0) || ((err != EPERM) && (err != EINVAL) && (err != ENOTTY)))) {
+	    ((ret == 0) || ((err != EPERM) &&
+			    (err != ENOSYS) &&
+			    (err != EINVAL) &&
+			    (err != ENOTTY)))) {
 		pr_fail("%s: expected errno to be EPERM, got errno %d (%s) instead\n",
 			args->name, err, strerror(err));
 	}
