@@ -981,6 +981,7 @@ const struct option stress_long_options[] = {
 	{ "sync-file",		1,	0,	OPT_sync_file },
 	{ "sync-file-bytes", 	1,	0,	OPT_sync_file_bytes },
 	{ "sync-file-ops", 	1,	0,	OPT_sync_file_ops },
+	{ "sync-start",		0,	0,	OPT_sync_start },
 	{ "syncload",		1,	0,	OPT_syncload },
 	{ "syncload-msbusy",	1,	0,	OPT_syncload_msbusy },
 	{ "syncload-mssleep",	1,	0,	OPT_syncload_mssleep },
