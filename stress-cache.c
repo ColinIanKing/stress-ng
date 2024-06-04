@@ -721,7 +721,8 @@ static void stress_cache_show_flags(
 
 static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 {
-#if defined(HAVE_ASM_RISCV_CBO_ZERO) &&		\
+#if defined(STRESS_ARCH_RISCV) &&	\
+    defined(HAVE_ASM_RISCV_CBO_ZERO) &&	\
     defined(__NR_riscv_hwprobe)
 	cpu_set_t cpus;
 	struct riscv_hwprobe pair;
@@ -748,7 +749,9 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 			}
 		}
 	}
-
+#else
+	(void)buffer;
+	(void)buffer_size;
 #endif
 }
 
