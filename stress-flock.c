@@ -276,6 +276,8 @@ static int stress_flock_child(
 
 			VOID_RET(ssize_t, stress_system_read("/proc/locks", buf, sizeof(buf)));
 		}
+#else
+		(void)i;
 #endif
 	}
 	if (save_metrics) {
