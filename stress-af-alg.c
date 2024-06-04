@@ -858,7 +858,9 @@ static void stress_af_alg_dump_crypto_list(void)
  */
 static int stress_af_alg(stress_args_t *args)
 {
-	int sockfd = -1, rc = EXIT_FAILURE;
+	int sockfd = -1;
+	NOCLOBBER int rc = EXIT_FAILURE;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	int retries = MAX_AF_ALG_RETRIES;
 	size_t proc_count, count, internal, idx;
 	bool af_alg_dump = false;
@@ -941,7 +943,8 @@ static int stress_af_alg(stress_args_t *args)
 			case CRYPTO_AHASH:
 			case CRYPTO_SHASH:
 				rc = stress_af_alg_hash(args, sockfd, info);
-				(void)rc;
+				if (verify && (rc == EXIT_FAILURE))
+					goto deinit;
 				break;
 #if defined(ALG_SET_AEAD_ASSOCLEN)
 			case CRYPTO_AEAD:
@@ -950,11 +953,13 @@ static int stress_af_alg(stress_args_t *args)
 			case CRYPTO_AKCIPHER:
 			case CRYPTO_SKCIPHER:
 				rc = stress_af_alg_cipher(args, sockfd, info);
-				(void)rc;
+				if (verify && (rc == EXIT_FAILURE))
+					goto deinit;
 				break;
 			case CRYPTO_RNG:
 				rc = stress_af_alg_rng(args, sockfd, info);
-				(void)rc;
+				if (verify && (rc == EXIT_FAILURE))
+					goto deinit;
 				break;
 			case CRYPTO_UNKNOWN:
 			default:
@@ -963,6 +968,7 @@ static int stress_af_alg(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
+	rc = EXIT_SUCCESS;
 deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -978,7 +984,6 @@ deinit:
 		}
 	}
 
-	rc = EXIT_SUCCESS;
 	(void)close(sockfd);
 
 	return rc;
@@ -1209,7 +1214,7 @@ stressor_info_t stress_af_alg_info = {
 	.deinit = stress_af_alg_deinit,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 
@@ -1218,7 +1223,7 @@ stressor_info_t stress_af_alg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_ALWAYS,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without linux/if_alg.h"
 };
