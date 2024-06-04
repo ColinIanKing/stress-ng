@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-x86.h"
+#include "core-asm-riscv.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-put.h"
@@ -718,6 +719,39 @@ static void stress_cache_show_flags(
 		pr_inf("%s: unavailable unused cache flags:%s\n", args->name, buf);
 }
 
+static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
+{
+#if defined(HAVE_ASM_RISCV_CBO_ZERO) &&		\
+    defined(__NR_riscv_hwprobe)
+	cpu_set_t cpus;
+	struct riscv_hwprobe pair;
+
+	(void)sched_getaffinity(0, sizeof(cpu_set_t), &cpus);
+
+	pair.key = RISCV_HWPROBE_KEY_IMA_EXT_0;
+
+	if (syscall(__NR_riscv_hwprobe, &pair, 1, sizeof(cpu_set_t), &cpus, 0) == 0) {
+		if (pair.value & RISCV_HWPROBE_EXT_ZICBOZ) {
+			int block_size;
+			register uint8_t *ptr;
+			const uint8_t *buffer_end = buffer + buffer_size;
+
+			pair.key = RISCV_HWPROBE_KEY_ZICBOZ_BLOCK_SIZE;
+
+			if (syscall(__NR_riscv_hwprobe, &pair, 1,
+				    sizeof(cpu_set_t), &cpus, 0) == 0) {
+				block_size = (int)pair.value;
+
+				for (ptr = buffer; ptr < buffer_end; ptr += block_size) {
+					(void)stress_asm_riscv_cbo_zero((char *)ptr);
+				}
+			}
+		}
+	}
+
+#endif
+}
+
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -953,6 +987,7 @@ static int stress_cache(stress_args_t *args)
 #endif
 		(void)shim_cacheflush((char *)stress_cache, 8192, SHIM_ICACHE);
 		(void)shim_cacheflush((char *)buffer, (int)buffer_size, SHIM_DCACHE);
+		stress_cache_bzero(buffer, buffer_size);
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 		__builtin___clear_cache((void *)stress_cache,
 					(void *)((char *)stress_cache + 64));
