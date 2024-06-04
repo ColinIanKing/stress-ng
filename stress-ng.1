@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 May 2024"
+.TH STRESS-NG 1 "4 June 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -9269,13 +9269,22 @@ run all the stressors (1 instance of each per online CPU) simultaneously, maximi
 the settings (memory sizes, file allocations, etc.) and select the most
 demanding/aggressive options.
 .LP
+\f[CR]stress-ng \-\-all 8 \-\-with cpu,hash,nop,vm \-\-timeout 1m\f[]
+.IP
+run 8 instances of cpu, hash, nop and vm stressors altogether for 1 minute.
+.LP
+\f[CR]stress-ng \-\-seq 8 \-\-with cpu,hash,nop,vm \-\-timeout 1m \-\-progress\f[]
+.IP
+run 8 instances of cpu, hash, nop and vm stressors one after another for 1 minute
+each and show the run progress.
+.LP
 \f[CR]stress\-ng \-\-random 32 \-x numa,hdd,key\f[]
 .IP
 run 32 randomly selected stressors and exclude the numa, hdd and key stressors
 .LP
 \f[CR]stress\-ng \-\-sequential 4 \-\-class vm \-\-exclude bigheap,brk,stack\f[]
 .IP
-run 4 instances of the VM stressors one after each other, excluding the
+run 4 instances of the VM stressors one after another, excluding the
 bigheap, brk and stack stressors
 .LP
 \f[CR]stress\-ng \-\-taskset 0,2-3 \-\-cpu 3\f[]
