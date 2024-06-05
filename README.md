@@ -693,6 +693,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [IdleLeak: Exploiting Idle State Side Effects for Information Leakage](https://www.sicheroder.net/files/idleleak.pdf)
 * [Profiling with trust: system monitoring from trusted execution environments](https://www.researchgate.net/publication/378265673_Profiling_with_trust_system_monitoring_from_trusted_execution_environments)
 * [Exemplary Determination of Cgroups-Based QoS Isolation for a Database Workload](https://dl.acm.org/doi/pdf/10.1145/3629527.3652267)
+* [BARO: Robust Root Cause Analysis for Microservices via Multivariate Bayesian Online Change Point Detection](https://arxiv.org/pdf/2405.09330)
+* [Disambiguating Performance Anomalies from Workload Changes in Cloud-Native Applications](https://dl.acm.org/doi/pdf/10.1145/3629526.3645046)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
