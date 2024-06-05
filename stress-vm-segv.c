@@ -74,7 +74,8 @@ static NOINLINE OPTIMIZE0 void vm_unmap_stack(const size_t page_size)
 	uint32_t stackvar = 0;
 	uint8_t *addr = stress_align_address((void *)&stackvar, page_size);
 
-#if defined(PROT_READ)
+#if defined(HAVE_MPROTECT) &&	\
+    defined(PROT_READ)
 	(void)mprotect((void *)addr, page_size, PROT_READ);
 	(void)mprotect((void *)(addr - page_size), page_size, PROT_READ);
 #endif
