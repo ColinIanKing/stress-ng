@@ -70,7 +70,8 @@ static int stress_mseal_expect_error(
 	return -1;
 }
 
-#if defined(MADV_DONTNEED)
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
 static int stress_mseal_madvise_dontneed(stress_args_t *args)
 {
 	return stress_mseal_expect_error(args, madvise(mapping, mapping_size, MADV_DONTNEED),
@@ -256,7 +257,8 @@ static int stress_mseal_supported(const char *name)
 }
 
 static const mseal_func_t mseal_funcs[] = {
-#if defined(MADV_DONTNEED)
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_DONTNEED)
 	stress_mseal_madvise_dontneed,
 #endif
 #if defined(HAVE_MREMAP) &&	\
