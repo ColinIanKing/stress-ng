@@ -275,8 +275,10 @@ redo: 			errno = 0;
 			 *  Exercise with NULL/zero arguments
 			 */
 			ret = shim_mincore(NULL, 0, NULL);
-			stress_mincore_expect(args, ret, 0, errno, EINVAL,
-				"NULL and zero arguments", &rc);
+			/*  some systems return ENOMEM.. */
+			if (errno != ENOMEM)
+				stress_mincore_expect(args, ret, 0, errno, EINVAL,
+					"NULL and zero arguments", &rc);
 		}
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
