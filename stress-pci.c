@@ -22,6 +22,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"pci N",	"start N workers that read and mmap PCI regions" },
+	{ NULL,	"pci-dev name ",	"specify the pci device(wwww:xx:yy.z) to exercise" },
 	{ NULL,	"pci-ops N",	"stop after N PCI bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
@@ -41,6 +42,16 @@ typedef struct stress_pci_info {
 	stress_metrics_t metrics[PCI_METRICS_MAX]; /* PCI read rate metrics */
 	struct stress_pci_info	*next;		/* next in list */
 } stress_pci_info_t;
+
+static int stress_set_pci_dev(const char *opt)
+{
+	return stress_set_setting("pci-dev", TYPE_ID_STR, opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_pci_dev,         stress_set_pci_dev },
+	{ 0,                   NULL },
+};
 
 /*
  *  stress_pci_dev_filter()
@@ -91,51 +102,71 @@ static int stress_pci_rev_sort(const struct dirent **a, const struct dirent **b)
 	return alphasort(b, a);
 }
 
+static const char sys_pci_devices[] = "/sys/bus/pci/devices";
+
+static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, char *name)
+{
+	stress_pci_info_t *pci_info = NULL;
+
+	pci_info = calloc(1, sizeof(*pci_info));
+	if (pci_info) {
+		char pci_path[PATH_MAX];
+		int j;
+
+		(void)snprintf(pci_path, sizeof(pci_path),
+			"%s/%s", sys_pci_devices, name);
+		pci_info->path = strdup(pci_path);
+		if (!pci_info->path) {
+			free(pci_info);
+			return;
+		}
+		pci_info->name = strdup(name);
+		if (!pci_info->name) {
+			free(pci_info->path);
+			free(pci_info);
+			return;
+		}
+		for (j = 0; j < PCI_METRICS_MAX; j++) {
+			pci_info->metrics[j].duration = 0.0;
+			pci_info->metrics[j].count = 0.0;
+		}
+		pci_info->ignore = false;
+		pci_info->next = *pci_info_list;
+		*pci_info_list = pci_info;
+	}
+}
+
 /*
  *  stress_pci_info_get()
  *	get a list of PCI device paths of stress_pci_info items
  */
 static stress_pci_info_t *stress_pci_info_get(void)
 {
-	static const char sys_devices[] = "/sys/bus/pci/devices";
 	stress_pci_info_t *pci_info_list = NULL;
 
 	int n_devs, i;
 	struct dirent **pci_list = NULL;
+	char *pci_dev = NULL;
 
-	n_devs = scandir(sys_devices, &pci_list, stress_pci_dev_filter, stress_pci_rev_sort);
-	for (i = 0; i < n_devs; i++) {
-		stress_pci_info_t *pci_info;
+	(void)stress_get_setting("pci-dev", &pci_dev);
 
-		pci_info = calloc(1, sizeof(*pci_info));
-		if (pci_info) {
-			char pci_path[PATH_MAX];
-			int j;
+	if (pci_dev) {
+		char pci_path[PATH_MAX];
+		struct stat statbuf;
 
-			(void)snprintf(pci_path, sizeof(pci_path),
-				"%s/%s", sys_devices, pci_list[i]->d_name);
-			pci_info->path = strdup(pci_path);
-			if (!pci_info->path) {
-				free(pci_info);
-				continue;
-			}
-			pci_info->name = strdup(pci_list[i]->d_name);
-			if (!pci_info->name) {
-				free(pci_info->path);
-				free(pci_info);
-				continue;
-			}
-			for (j = 0; j < PCI_METRICS_MAX; j++) {
-				pci_info->metrics[j].duration = 0.0;
-				pci_info->metrics[j].count = 0.0;
-			}
-			pci_info->ignore = false;
-			pci_info->next = pci_info_list;
-			pci_info_list = pci_info;
+		(void)snprintf(pci_path, sizeof(pci_path),
+			"%s/%s", sys_pci_devices, pci_dev);
+		if (shim_stat(pci_path, &statbuf) == 0) {
+		    stress_pci_info_get_by_name(&pci_info_list, pci_dev);
 		}
-		free(pci_list[i]);
+	} else {
+		n_devs = scandir(sys_pci_devices, &pci_list, stress_pci_dev_filter, stress_pci_rev_sort);
+		for (i = 0; i < n_devs; i++) {
+			stress_pci_info_get_by_name(&pci_info_list, pci_list[i]->d_name);
+			free(pci_list[i]);
+		}
+		free(pci_list);
 	}
-	free(pci_list);
 
 	return pci_info_list;
 }
@@ -338,12 +369,14 @@ static int stress_pci(stress_args_t *args)
 stressor_info_t stress_pci_info = {
 	.stressor = stress_pci,
 	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_pci_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };
