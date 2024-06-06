@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "consummate cpu crusher"
+# Codename "systematic system smasher"
 #
-VERSION=0.17.08
+VERSION=0.18.00
 
 #
 # Determine supported toolchains
