@@ -85,7 +85,7 @@ static int stress_mseal_mremap_size(stress_args_t *args)
 {
 	return stress_mseal_expect_addr(args,
 		mremap(mapping, mapping_size, mapping_size / 2, 0),
-		"mremap() unexpectedly succeded", MAP_FAILED, EPERM);
+		"mremap() unexpectedly succeeded", MAP_FAILED, EPERM);
 }
 #endif
 
@@ -97,7 +97,7 @@ static int stress_mseal_mremap_addr(stress_args_t *args)
 {
 	return stress_mseal_expect_addr(args,
 		mremap(mapping, mapping_size, mapping_size, MREMAP_FIXED | MREMAP_MAYMOVE, no_mapping),
-		"mremap() unexpectedly succeded", MAP_FAILED, EPERM);
+		"mremap() unexpectedly succeeded", MAP_FAILED, EPERM);
 }
 #endif
 
