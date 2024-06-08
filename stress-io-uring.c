@@ -1095,6 +1095,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	uint32_t io_uring_entries;
 	stress_io_uring_user_data_t user_data[SIZEOF_ARRAY(stress_io_uring_setups)];
 	const int32_t cpus = stress_get_processors_online();
+	int flags;
 
 	(void)context;
 
@@ -1164,7 +1165,14 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	if (rc != EXIT_SUCCESS)
 		goto clean;
 
-	if ((io_uring_file.fd = open(filename, O_CREAT | O_RDWR | O_DSYNC, S_IRUSR | S_IWUSR)) < 0) {
+	flags = O_CREAT | O_RDWR;
+#if defined(O_DSYNC)
+	flags |= O_DSYNC;
+#endif
+#if defined(O_DIRECT)
+	flags |= O_DIRECT;
+#endif
+	if ((io_uring_file.fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
