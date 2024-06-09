@@ -118,7 +118,6 @@ static int OPTIMIZE3 stress_shellsort(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
