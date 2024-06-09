@@ -88,7 +88,7 @@ static void stress_pci_info_free(stress_pci_info_t *pci_info_list)
 
 static int stress_pci_rev_sort(const struct dirent **a, const struct dirent **b)
 {
-	return alphasort(b, a);
+	return strcmp((*b)->d_name, (*a)->d_name);
 }
 
 /*
