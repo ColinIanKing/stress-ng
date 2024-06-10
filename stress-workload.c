@@ -954,7 +954,7 @@ static int stress_workload(stress_args_t *args)
 	if (workload_threads > 0) {
 #if defined(WORKLOAD_THREADED)
 		struct mq_attr attr;
-		stress_workload_ctxt_t c;
+		static stress_workload_ctxt_t c;
 		uint32_t threads_started = 0;
 
 		(void)snprintf(mq_name, sizeof(mq_name), "/%s-%jd-%" PRIu32,
