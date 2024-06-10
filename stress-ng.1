@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 June 2024"
+.TH STRESS-NG 1 "10 June 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5349,6 +5349,11 @@ stop after N page allocation bogo operations.
 exercise PCI sysfs by running N workers that read data (and mmap/unmap
 PCI config or PCI resource files). Linux only. Running as root will allow
 config and resource mmappings to be read and exercises PCI I/O mapping.
+.TP
+.B \-\-pci\-dev xxxx:xx:xx.x
+specify a PCI device to exercise rather than exercise all PCI devices. The
+device is specified using the PCI device name xxxx:xx:xx.x where x is a
+hexadecimal digit.
 .TP
 .B \-\-pci\-ops N
 stop pci stress workers after N PCI subdirectory exercising operations.

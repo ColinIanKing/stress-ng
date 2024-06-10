@@ -961,6 +961,7 @@ typedef enum {
 	OPT_pageswap_ops,
 
 	OPT_pci,
+	OPT_pci_dev,
 	OPT_pci_ops,
 
 	OPT_perf_stats,
