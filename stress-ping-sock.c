@@ -38,34 +38,59 @@ static const stress_help_t help[] = {
 
 #define PING_PAYLOAD_SIZE	(4)
 
+static int stress_rawsock_open(const char *name, int *fd)
+{
+	if ((*fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
+		*fd = -1;
+		if (errno == EPROTONOSUPPORT) {
+			pr_inf_skip("%s: stressor will be skipped, protocol not supported\n", name);
+			return EXIT_NOT_IMPLEMENTED;
+		}
+		if ((errno == EPERM) || (errno == EACCES)) {
+			pr_inf_skip("%s: stressor will be skipped, permission denied\n", name);
+#if defined(__linux__)
+			pr_inf("%s: writing 0 0 to /proc/sys/net/ipv4/ping_group_range may help\n", name);
+#endif
+			return EXIT_NOT_IMPLEMENTED;
+		}
+		pr_fail("%s: stressor will be skipped, errno=%d (%s)\n",
+			name, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_ping_sock_supported()
+ *	check if we can run this
+ */
+static int stress_rawsock_supported(const char *name)
+{
+	int fd;
+
+	if (stress_rawsock_open(name, &fd) != EXIT_SUCCESS)
+		return -1;
+
+	(void)close(fd);
+	return 0;
+}
+
 /*
  *  stress_ping_sock
  *	UDP flood
  */
 static int stress_ping_sock(stress_args_t *args)
 {
-	int fd, rc = EXIT_SUCCESS, j = 0;
+	int fd, rc, j = 0;
 	struct sockaddr_in addr;
 	struct icmphdr *icmp_hdr;
 	int rand_port;
 	char ALIGN64 buf[sizeof(*icmp_hdr) + PING_PAYLOAD_SIZE];
 	double t, duration = 0.0, rate;
 
-	if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
-		if (errno == EPROTONOSUPPORT) {
-			pr_inf_skip("%s: skipping stressor, protocol not supported\n",
-				args->name);
-			return EXIT_NOT_IMPLEMENTED;
-		}
-		if ((errno == EPERM) || (errno == EACCES)) {
-			pr_inf_skip("%s: skipping stressor, permission denied\n",
-				args->name);
-			return EXIT_NOT_IMPLEMENTED;
-		}
-		pr_fail("%s: socket failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
+	rc = stress_rawsock_open(args->name, &fd);
+	if (rc != EXIT_SUCCESS)
+		return rc;
 
 	(void)shim_memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
@@ -109,6 +134,7 @@ static int stress_ping_sock(stress_args_t *args)
 stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_ping_sock,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.supported = stress_rawsock_supported,
 	.help = help
 };
 #else
