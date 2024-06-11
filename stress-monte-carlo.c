@@ -663,7 +663,7 @@ static int stress_monte_carlo(stress_args_t *args)
 				if (results[i][j].count > 0.0) {
 					const double result = results[i][j].sum / results[i][j].count;
 
-					pr_inf("%s: %-8.8s ~ %.13f vs %.13f using %s (average of %.0f runs)\n",
+					pr_dbg("%s: %-8.8s ~ %.13f vs %.13f using %s (average of %.0f runs)\n",
 						args->name, stress_monte_carlo_methods[i].name,
 						result, stress_monte_carlo_methods[i].expected,
 						rand_info[j].name, results[i][j].count);
