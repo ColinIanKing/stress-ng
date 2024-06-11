@@ -278,6 +278,6 @@ stressor_info_t stress_crypt_info = {
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.unimplemented_reason = "built without gcrypt library"
+	.unimplemented_reason = "built without crypt library"
 };
 #endif

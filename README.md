@@ -91,7 +91,7 @@ Debian, Ubuntu:
   * libcap-dev
   * libeigen3-dev
   * libgbm-dev
-  * libgcrypt-dev
+  * libcrypt-dev
   * libglvnd-dev
   * libipsec-mb-dev
   * libjpeg-dev
@@ -119,7 +119,7 @@ RHEL, Fedora, Centos:
   * libbsd-devel
   * libcap-devel
   * libgbm-devel
-  * libgcrypt-devel
+  * libcrypt-devel
   * libglvnd-core-devel
   * libglvnd-devel
   * libjpeg-devel
@@ -148,7 +148,7 @@ RHEL, Fedora, Centos (static builds):
   * libbsd-devel
   * libcap-devel
   * libgbm-devel
-  * libgcrypt-devel
+  * libcrypt-devel
   * libglvnd-core-devel
   * libglvnd-devel
   * libjpeg-devel
@@ -191,7 +191,6 @@ ClearLinux:
   * devpkg-kmod
   * devpkg-attr
   * devpkg-libbsd
-  * devpkg-libgcrypt
   * devpkg-libjpeg-turbo
   * devpkg-libsctp
   * devpkg-mesa
@@ -209,7 +208,6 @@ Alpine Linux:
   * libattr
   * libbsd-dev
   * libcap-dev
-  * libgcrypt-dev
   * libmd-dev
   * libseccomp-dev
   * lksctp-tools-dev
