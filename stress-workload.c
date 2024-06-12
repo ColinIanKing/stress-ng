@@ -106,11 +106,6 @@ typedef struct {
 
 typedef struct {
 	const char *name;
-	const int policy;
-} stress_workload_sched_t;
-
-typedef struct {
-	const char *name;
 	const int method;
 } stress_workload_method_t;
 
@@ -158,40 +153,18 @@ static int stress_set_workload_dist(const char *opt)
 	return -1;
 }
 
-static const stress_workload_sched_t workload_scheds[] = {
-	{ "none",	SCHED_UNDEFINED },	/* Must be first */
-#if defined(SCHED_IDLE)
-	{ "idle",	SCHED_IDLE },
-#endif
-#if defined(SCHED_FIFO)
-	{ "fifo",	SCHED_FIFO },
-#endif
-#if defined(SCHED_RR)
-	{ "rr",		SCHED_RR },
-#endif
-#if defined(SCHED_OTHER)
-	{ "other",	SCHED_OTHER },
-#endif
-#if defined(SCHED_BATCH)
-	{ "batch",	SCHED_BATCH },
-#endif
-#if defined(SCHED_DEADLINE)
-	{ "deadline",	SCHED_DEADLINE },
-#endif
-};
-
 static int stress_set_workload_sched(const char *opt)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(workload_scheds); i++) {
-		if (strcmp(opt, workload_scheds[i].name) == 0)
+	for (i = 0; i < stress_sched_types_length; i++) {
+		if (strcmp(opt, stress_sched_types[i].sched_name) == 0)
 			return stress_set_setting("workload-sched", TYPE_ID_SIZE_T, &i);
 	}
 
 	(void)fprintf(stderr, "workload-sched must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(workload_scheds); i++) {
-		(void)fprintf(stderr, " %s", workload_scheds[i].name);
+	for (i = 0; i < stress_sched_types_length; i++) {
+		(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
 	}
 	(void)fprintf(stderr, "\n");
 	return -1;
@@ -319,11 +292,11 @@ static int stress_workload_set_sched(
 	const char *policy_name;
 	int policy;
 
-	if ((workload_sched < 1) || (workload_sched >= SIZEOF_ARRAY(workload_scheds)))
+	if ((workload_sched < 1) || (workload_sched >= stress_sched_types_length))
 		return 0;
 
-	policy_name = workload_scheds[workload_sched].name;
-	policy = workload_scheds[workload_sched].policy;
+	policy_name = stress_sched_types[workload_sched].sched_name;
+	policy = stress_sched_types[workload_sched].sched;
 
 	errno = 0;
 	switch (policy) {
