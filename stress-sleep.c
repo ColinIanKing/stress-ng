@@ -43,6 +43,11 @@ typedef struct {
 	uint64_t underruns;
 } stress_ctxt_t;
 
+typedef struct {
+	double monotonic;
+	double time_now;
+} stress_sleep_times_t;
+
 static void *stress_sleep_counter_lock;
 static volatile bool thread_terminate;
 static sigset_t set;
@@ -80,6 +85,45 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 }
 
 /*
+ *  stress_sleep_time_now()
+ *	Linux uses CLOCK_MONOTONIC for nanosecond
+ *	sleeps with nanosleep(), however, other systems
+ *	may use a different wall clock time. Get both
+ *	and later use both to find the largest delta
+ *	between measured times to overcome any warpages
+ */
+static void stress_sleep_time_now(stress_sleep_times_t *t)
+{
+	t->time_now = stress_time_now();
+#if defined(HAVE_CLOCK_GETTIME) &&      \
+    defined(CLOCK_MONOTONIC)
+	struct timespec ts;
+
+	if (clock_gettime(CLOCK_MONOTONIC, &ts) < 0) {
+		/* fall back to re-using stress_time_now() time */
+		t->monotonic = t->time_now;
+	} else {
+		t->monotonic = ts.tv_sec + (ts.tv_nsec * ONE_BILLIONTH);
+	}
+#endif
+}
+
+/*
+ *  stress_time_delta()
+ *	find largetst delta between t1 and t2 in terms
+ *	of monotonic time and time_now call
+ */
+static double stress_time_delta(
+	const stress_sleep_times_t *t1,
+	const stress_sleep_times_t *t2)
+{
+	const double d1 = t2->monotonic - t1->monotonic;
+	const double d2 = t2->time_now - t1->time_now;
+
+	return (d1 > d2) ? d1 : d2;
+}
+
+/*
  *  stress_pthread_func()
  *	pthread that performs different ranges of sleeps
  */
@@ -97,7 +141,8 @@ static void *stress_pthread_func(void *c)
 	while (stress_continue(args) && !thread_terminate) {
 		cpu_cstate_t *cc;
 		struct timespec tv;
-		double t1, t2, delta, expected;
+		double delta, expected;
+		stress_sleep_times_t t1, t2;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
 		struct timeval timeout;
@@ -110,7 +155,7 @@ static void *stress_pthread_func(void *c)
 		 *  to try and get CPU into deeper C states
 		 */
 		expected = 0.0;
-		t1 = stress_time_now();
+		stress_sleep_time_now(&t1);
 		for (cc = cstate_list; cc; cc = cc->next) {
 			if (cc->residency > 0) {
 				const unsigned long residency_ns = (unsigned long)(cc->residency + 1) * 1000UL;
@@ -122,8 +167,8 @@ static void *stress_pthread_func(void *c)
 					break;
 			}
 		}
-		t2 = stress_time_now();
-		delta = t2 - t1;
+		stress_sleep_time_now(&t2);
+		delta = stress_time_delta(&t1, &t2);
 		/* don't check for clock warping */
 		if ((expected > 0.0) && (delta > 0.0)) {
 			expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
@@ -134,7 +179,7 @@ static void *stress_pthread_func(void *c)
 			}
 		}
 
-		t1 = stress_time_now();
+		stress_sleep_time_now(&t1);
 		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
@@ -170,19 +215,19 @@ static void *stress_pthread_func(void *c)
 		if (nanosleep(&tv, NULL) < 0)
 			break;
 
-		t2 = stress_time_now();
-		delta = t2 - t1;
+		stress_sleep_time_now(&t2);
+		delta = stress_time_delta(&t1, &t2);
 		/* don't check for clock warping */
 		if (delta > 0.0) {
 			expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 			if (delta < expected / STRESS_DBL_NANOSECOND) {
-				pr_fail("%s: nanosleeps for %.f nanosecs to less than %.2f nanosecs to complete\n",
+				pr_fail("%s: nanosleeps for %.f nanosecs took less than %.2f nanosecs to complete\n",
 					args->name, expected, delta * STRESS_DBL_NANOSECOND);
 				ctxt->underruns++;
 			}
 		}
 
-		t1 = stress_time_now();
+		stress_sleep_time_now(&t1);
 		if (!stress_continue_flag())
 			break;
 		if (shim_usleep(1) < 0)
@@ -208,17 +253,17 @@ static void *stress_pthread_func(void *c)
 		if (shim_usleep(10000) < 0)
 			break;
 
-		t2 = stress_time_now();
-		delta = t2 - t1;
+		stress_sleep_time_now(&t2);
+		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 		if (delta < expected / STRESS_DBL_MICROSECOND) {
-			pr_fail("%s: nanosleeps for %.f microsecs to less than %.2f microsecs to complete\n",
+			pr_fail("%s: nanosleeps for %.f microsecs took less than %.2f microsecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_MICROSECOND);
 			ctxt->underruns++;
 		}
 
 #if defined(HAVE_PSELECT)
-		t1 = stress_time_now();
+		stress_sleep_time_now(&t1);
 		if (!stress_continue_flag())
 			break;
 		tv.tv_sec = 0;
@@ -255,11 +300,11 @@ static void *stress_pthread_func(void *c)
 		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
 			goto skip_pselect;
 
-		t2 = stress_time_now();
-		delta = t2 - t1;
+		stress_sleep_time_now(&t2);
+		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 		if (delta < expected / STRESS_DBL_NANOSECOND) {
-			pr_fail("%s: pselects for %.f nanosecs to less than %.2f nanosecs to complete\n",
+			pr_fail("%s: pselects for %.f nanosecs took less than %.2f nanosecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_NANOSECOND);
 			ctxt->underruns++;
 		}
@@ -269,7 +314,7 @@ skip_pselect:
 
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
-		t1 = stress_time_now();
+		stress_sleep_time_now(&t1);
 		if (!stress_continue_flag())
 			break;
 		timeout.tv_sec = 0;
@@ -298,11 +343,11 @@ skip_pselect:
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
 
-		t2 = stress_time_now();
-		delta = t2 - t1;
+		stress_sleep_time_now(&t2);
+		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 		if (delta < expected / STRESS_DBL_MICROSECOND) {
-			pr_fail("%s: selectss for %.f microsecs to less than %.2f microsecs to complete\n",
+			pr_fail("%s: selectss for %.f microsecs took less than %.2f microsecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_MICROSECOND);
 			ctxt->underruns++;
 		}
