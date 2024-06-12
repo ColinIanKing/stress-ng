@@ -18,7 +18,9 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
+#include "core-sched.h"
 
 #include <sched.h>
 
@@ -29,6 +31,7 @@ static const stress_help_t help[] = {
 	{ "y N", "yield N",	  "start N workers doing sched_yield() calls" },
 	{ NULL,	 "yield-ops N",	  "stop after N bogo yield operations" },
 	{ NULL,	 "yield-procs N", "specify number of yield processes per stressor" },
+	{ NULL,  "yield-sched P", "select scheduler policy [idle, fifo, rr, other, batch, deadline]" },
 	{ NULL,	 NULL,		  NULL }
 };
 
@@ -46,13 +49,156 @@ static int stress_set_yield_procs(const char *opt)
 	return stress_set_setting("yield-procs", TYPE_ID_UINT32, &yield_procs);
 }
 
+static int stress_set_yield_sched(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < stress_sched_types_length; i++) {
+		if (strcmp(opt, stress_sched_types[i].sched_name) == 0)
+			return stress_set_setting("yield-sched", TYPE_ID_SIZE_T, &i);
+	}
+
+	(void)fprintf(stderr, "yield-sched must be one of:");
+	for (i = 0; i < stress_sched_types_length; i++) {
+		(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_yield_procs,	stress_set_yield_procs },
+	{ OPT_yield_sched,	stress_set_yield_sched },
 	{ 0,			NULL }
 };
 
 #if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
     !defined(__minix__)
+
+/*
+ *  stress_yield_sched()
+ *	attenmt to apply a scheduling policy, ignore if yield_sched out of bounds
+ *	or if policy cannot be applied (e.g. not enough privilege).
+ */
+static void stress_yield_sched(stress_args_t *args, const size_t yield_sched)
+{
+	struct sched_param param;
+	int ret = 0;
+	int max_prio, min_prio, rng_prio, policy;
+	const char *policy_name;
+
+	if (yield_sched >= stress_sched_types_length)
+		return;
+
+	policy = stress_sched_types[yield_sched].sched;
+	policy_name = stress_sched_types[yield_sched].sched_name;
+
+	errno = 0;
+	switch (policy) {
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
+    defined(HAVE_SCHED_SETATTR)
+	case SCHED_DEADLINE:
+		/*
+		 *  Only have 1 RT deadline instance running
+		 */
+		if (args->instance == 0) {
+			struct shim_sched_attr attr;
+
+			(void)shim_memset(&attr, 0, sizeof(attr));
+			attr.size = sizeof(attr);
+			attr.sched_flags = 0;
+			attr.sched_nice = 0;
+			attr.sched_priority = 0;
+			attr.sched_policy = SCHED_DEADLINE;
+			/* runtime <= deadline <= period */
+			attr.sched_runtime = 40 * 100000;
+			attr.sched_deadline = 80 * 100000;
+			attr.sched_period = 160 * 100000;
+
+			ret = shim_sched_setattr(0, &attr, 0);
+			break;
+		}
+		goto case_sched_other;
+#endif
+#if defined(SCHED_IDLE)
+	case SCHED_IDLE:
+		goto case_sched_other;
+#endif
+#if defined(SCHED_BATCH)
+	case SCHED_BATCH:
+		goto case_sched_other;
+#endif
+#if defined(SCHED_OTHER)
+	case SCHED_OTHER:
+#endif
+#if (defined(SCHED_DEADLINE) &&		\
+     defined(HAVE_SCHED_GETATTR) &&	\
+     defined(HAVE_SCHED_SETATTR)) ||	\
+     defined(SCHED_IDLE) ||		\
+     defined(SCHED_BATCH)
+case_sched_other:
+#endif
+		param.sched_priority = 0;
+		ret = sched_setscheduler(0, policy, &param);
+		break;
+#if defined(SCHED_RR)
+	case SCHED_RR:
+#if defined(HAVE_SCHED_RR_GET_INTERVAL)
+		{
+			struct timespec t;
+
+			VOID_RET(int, sched_rr_get_interval(0, &t));
+		}
+#endif
+		goto case_sched_fifo;
+#endif
+#if defined(SCHED_FIFO)
+	case SCHED_FIFO:
+#endif
+case_sched_fifo:
+		min_prio = sched_get_priority_min(policy);
+		max_prio = sched_get_priority_max(policy);
+
+		/* Check if min/max is supported or not */
+		if ((min_prio == -1) || (max_prio == -1))
+			return;
+
+		rng_prio = max_prio - min_prio;
+		if (UNLIKELY(rng_prio == 0)) {
+			pr_dbg("%s: invalid min/max priority "
+				"range for scheduling policy %s "
+				"(min=%d, max=%d)\n",
+				args->name,
+				policy_name,
+				min_prio, max_prio);
+			break;
+		}
+		param.sched_priority = (int)stress_mwc32modn(rng_prio) + min_prio;
+		ret = sched_setscheduler(0, policy, &param);
+		break;
+	default:
+		/* Should never get here */
+		break;
+	}
+	if (ret < 0) {
+		/*
+		 *  Some systems return EINVAL for non-POSIX
+		 *  scheduling policies, silently ignore these
+		 *  failures.
+		 */
+		if ((errno != EINVAL) &&
+		    (errno != EINTR) &&
+		    (errno != ENOSYS) &&
+		    (errno != EBUSY)) {
+			pr_dbg("%s: sched_setscheduler "
+				"failed: errno=%d (%s) "
+				"for scheduler policy %s\n",
+				args->name, errno, strerror(errno),
+				policy_name);
+		}
+	}
+}
 
 /*
  *  stress on sched_yield()
@@ -71,9 +217,10 @@ static int stress_yield(stress_args_t *args)
 	cpu_set_t mask;
 #endif
 	pid_t *pids;
-	size_t i;
+	size_t i, yield_sched = SIZE_MAX;
 
 	(void)stress_get_setting("yield-procs", &yield_procs);
+	(void)stress_get_setting("yield-sched", &yield_sched);
 
 #if defined(HAVE_SCHED_GETAFFINITY)
 	/*
@@ -92,8 +239,6 @@ static int stress_yield(stress_args_t *args)
 			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 #endif
 	}
-#else
-	UNEXPECTED
 #endif
 
 	if (yield_procs == 0) {
@@ -153,6 +298,7 @@ static int stress_yield(stress_args_t *args)
 		} else if (pids[i] == 0) {
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
+			stress_yield_sched(args, yield_sched);
 
 			do {
 				int ret;

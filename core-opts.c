@@ -1167,6 +1167,7 @@ const struct option stress_long_options[] = {
 	{ "yield",		1,	0,	OPT_yield },
 	{ "yield-ops",		1,	0,	OPT_yield_ops },
 	{ "yield-procs",	1,	0,	OPT_yield_procs },
+	{ "yield-sched",	1,	0,	OPT_yield_sched },
 	{ "zero",		1,	0,	OPT_zero },
 	{ "zero-ops",		1,	0,	OPT_zero_ops },
 	{ "zero-read",		0,	0,	OPT_zero_read },

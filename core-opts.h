@@ -1619,6 +1619,7 @@ typedef enum {
 
 	OPT_yield_ops,
 	OPT_yield_procs,
+	OPT_yield_sched,
 
 	OPT_zero,
 	OPT_zero_read,
