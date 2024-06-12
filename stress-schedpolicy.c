@@ -21,16 +21,9 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-sched.h"
 
 #include <sched.h>
-
-#if defined(__NR_sched_getattr)
-#define HAVE_SCHED_GETATTR
-#endif
-
-#if defined(__NR_sched_setattr)
-#define HAVE_SCHED_SETATTR
-#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"schedpolicy N",	"start N workers that exercise scheduling policy" },

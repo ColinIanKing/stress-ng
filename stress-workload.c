@@ -27,6 +27,7 @@
 #include "core-builtin.h"
 #include "core-pthread.h"
 #include "core-put.h"
+#include "core-sched.h"
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
@@ -56,14 +57,6 @@ typedef struct {
 	size_t buffer_len;
 	int workload_method;
 } stress_workload_ctxt_t;
-#endif
-
-#if defined(__NR_sched_getattr)
-#define HAVE_SCHED_GETATTR
-#endif
-
-#if defined(__NR_sched_setattr)
-#define HAVE_SCHED_SETATTR
 #endif
 
 #define NUM_BUCKETS	(20)

@@ -33,14 +33,6 @@
 #include <semaphore.h>
 #endif
 
-#if defined(__NR_sched_getattr)
-#define HAVE_SCHED_GETATTR
-#endif
-
-#if defined(__NR_sched_setattr)
-#define HAVE_SCHED_SETATTR
-#endif
-
 #if defined(HAVE_SEMAPHORE_H) && \
     defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_SEM_POSIX) &&	 \
