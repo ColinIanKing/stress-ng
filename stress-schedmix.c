@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-sched.h"
 
 #include <sched.h>
 #include <sys/times.h>
@@ -91,27 +92,6 @@ typedef struct {
 
 static stress_schedmix_sem_t *schedmix_sem;
 #endif
-
-static const int policies[] = {
-#if defined(SCHED_IDLE)
-	SCHED_IDLE,
-#endif
-#if defined(SCHED_FIFO)
-	SCHED_FIFO,
-#endif
-#if defined(SCHED_RR)
-	SCHED_RR,
-#endif
-#if defined(SCHED_OTHER)
-	SCHED_OTHER,
-#endif
-#if defined(SCHED_BATCH)
-	SCHED_BATCH,
-#endif
-#if defined(SCHED_DEADLINE)
-	SCHED_DEADLINE,
-#endif
-};
 
 static inline void stress_schedmix_waste_time(stress_args_t *args)
 {
@@ -343,12 +323,12 @@ static int stress_schedmix_child(stress_args_t *args)
 		 *  as the previous old policy
 		 */
 		do {
-			policy = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(policies));
+			policy = stress_mwc8modn((uint8_t)stress_sched_types_length);
 		} while (policy == old_policy);
 		old_policy = policy;
 
-		new_policy = policies[policy];
-		new_policy_name = stress_get_sched_name(new_policy);
+		new_policy = stress_sched_types[policy].sched;
+		new_policy_name = stress_sched_types[policy].sched_name;
 
 		if (!stress_continue(args))
 			break;
@@ -478,7 +458,7 @@ static int stress_schedmix(stress_args_t *args)
 	size_t schedmix_procs = DEFAULT_SCHEDMIX_PROCS;
 	const int parent_cpu = stress_get_cpu();
 
-	if (SIZEOF_ARRAY(policies) == (0)) {
+	if (stress_sched_types_length == (0)) {
 		if (args->instance == 0) {
 			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
