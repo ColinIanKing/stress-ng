@@ -55,30 +55,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
      !defined(__APPLE__) &&						\
      !defined(__serenity__)
 
-static const int policies[] = {
-#if defined(SCHED_IDLE)
-	SCHED_IDLE,
-#endif
-#if defined(SCHED_FIFO)
-	SCHED_FIFO,
-#endif
-#if defined(SCHED_RR)
-	SCHED_RR,
-#endif
-#if defined(SCHED_OTHER)
-	SCHED_OTHER,
-#endif
-#if defined(SCHED_BATCH)
-	SCHED_BATCH,
-#endif
-#if defined(SCHED_DEADLINE)
-	SCHED_DEADLINE,
-#endif
-};
-
 static int stress_schedpolicy(stress_args_t *args)
 {
-	int policy = args->instance % SIZEOF_ARRAY(policies);
+	int policy = args->instance % stress_sched_types_length;
 	int old_policy = -1, rc = EXIT_SUCCESS;
 	bool schedpolicy_rand = false;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
@@ -98,7 +77,7 @@ static int stress_schedpolicy(stress_args_t *args)
 
 	(void)stress_get_setting("schedpolicy-rand", &schedpolicy_rand);
 
-	if (SIZEOF_ARRAY(policies) == (0)) {
+	if (stress_sched_types_length == (0)) {
 		if (args->instance == 0) {
 			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
@@ -128,13 +107,14 @@ static int stress_schedpolicy(stress_args_t *args)
 		 */
 		if (schedpolicy_rand) {
 			do {
-				policy = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(policies));
+				policy = stress_mwc8modn((uint8_t)stress_sched_types_length);
 			} while (policy == old_policy);
 			old_policy = policy;
 		}
 
-		new_policy = policies[policy];
-		new_policy_name = stress_get_sched_name(new_policy);
+
+		new_policy = stress_sched_types[policy].sched;
+		new_policy_name = stress_sched_types[policy].sched_name;
 
 		if (!stress_continue(args))
 			break;
@@ -261,7 +241,7 @@ case_sched_fifo:
 			if (UNLIKELY(ret < 0)) {
 				pr_fail("%s: sched_getscheduler failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			} else if (ret != policies[policy]) {
+			} else if (ret != stress_sched_types[policy].sched) {
 				pr_fail("%s: sched_getscheduler "
 					"failed: PID %jd has policy %d (%s) "
 					"but function returned %d instead\n",
@@ -431,7 +411,7 @@ case_sched_fifo:
 		UNEXPECTED
 #endif
 		policy++;
-		if (policy >= (int)SIZEOF_ARRAY(policies))
+		if (policy >= (int)stress_sched_types_length)
 			policy = 0;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
