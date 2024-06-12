@@ -19,6 +19,14 @@
 #ifndef CORE_SCHED_H
 #define CORE_SCHED_H
 
+typedef struct {
+	const int sched;
+	const char *const sched_name;
+} stress_sched_types_t;
+
+extern const stress_sched_types_t stress_sched_types[];
+extern const size_t stress_sched_types_length;
+
 extern const char *stress_get_sched_name(const int sched);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int sched,
 	const int sched_priority, const bool quiet);

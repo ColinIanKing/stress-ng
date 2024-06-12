@@ -36,12 +36,7 @@
 #define SCHED_FLAG_DL_OVERRUN           (0x04)
 #endif
 
-typedef struct {
-	const int sched;
-	const char *const sched_name;
-} stress_sched_types_t;
-
-static const stress_sched_types_t sched_types[] = {
+const stress_sched_types_t stress_sched_types[] = {
 #if defined(SCHED_BATCH)
 	{ SCHED_BATCH,		"batch" },
 #endif
@@ -62,6 +57,8 @@ static const stress_sched_types_t sched_types[] = {
 #endif
 };
 
+const size_t stress_sched_types_length = SIZEOF_ARRAY(stress_sched_types);
+
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
@@ -70,9 +67,9 @@ const char * PURE stress_get_sched_name(const int sched)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-		if (sched_types[i].sched == sched)
-			return sched_types[i].sched_name;
+	for (i = 0; i < stress_sched_types_length; i++) {
+		if (stress_sched_types[i].sched == sched)
+			return stress_sched_types[i].sched_name;
 	}
 	return "unknown";
 }
@@ -298,18 +295,18 @@ int32_t stress_get_opt_sched(const char *const str)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-		if (!strcmp(sched_types[i].sched_name, str))
-			return sched_types[i].sched;
+	for (i = 0; i < stress_sched_types_length; i++) {
+		if (!strcmp(stress_sched_types[i].sched_name, str))
+			return stress_sched_types[i].sched;
 	}
 	if (strcmp("which", str))
 		(void)fprintf(stderr, "Invalid sched option: %s\n", str);
-	if (SIZEOF_ARRAY(sched_types) == (0)) {
+	if (stress_sched_types_length == (0)) {
 		(void)fprintf(stderr, "No scheduler options are available\n");
 	} else {
 		(void)fprintf(stderr, "Available scheduler options are:");
-		for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-			(void)fprintf(stderr, " %s", sched_types[i].sched_name);
+		for (i = 0; i < stress_sched_types_length; i++) {
+			(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
 		}
 		(void)fprintf(stderr, "\n");
 	}
