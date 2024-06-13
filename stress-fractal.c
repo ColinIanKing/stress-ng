@@ -63,8 +63,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	NULL }
 };
 
-static void stress_fractal_init(void)
+static void stress_fractal_init(const uint32_t num_instances)
 {
+	(void)num_instances;
+
 	g_shared->fractal.lock = stress_lock_create();
 	g_shared->fractal.row = 0;
 

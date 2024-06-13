@@ -86,8 +86,10 @@ static void MLOCKED_TEXT rawsock_sigalrm_handler(int signum)
 	stop_rawsock = true;
 }
 
-static void stress_rawsock_init(void)
+static void stress_rawsock_init(const uint32_t num_instances)
 {
+	(void)num_instances;
+
 	rawsock_lock = stress_lock_create();
 	stop_rawsock = false;
 }

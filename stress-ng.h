@@ -412,7 +412,7 @@ typedef enum {
 typedef struct stressor_info {
 	int (*stressor)(stress_args_t *args);	/* stressor function */
 	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
-	void (*init)(void);		/* stressor init, NULL = ignore */
+	void (*init)(const uint32_t num_instances); /* stressor init, NULL = ignore */
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
 	void (*set_default)(void);	/* default set-up */
 	void (*set_limit)(uint64_t max);/* set limits */

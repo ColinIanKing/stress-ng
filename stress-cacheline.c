@@ -663,8 +663,10 @@ static int stress_cacheline_child(
  *  stress_cacheline_init()
  *	called once by stress-ng, so we can set idx to 0
  */
-static void stress_cacheline_init(void)
+static void stress_cacheline_init(const uint32_t num_instances)
 {
+	(void)num_instances;
+
 	g_shared->cacheline.index = 0;
 	g_shared->cacheline.lock = stress_lock_create();
 }

@@ -2733,7 +2733,7 @@ static void stress_stressors_init(void)
 		if ((i < SIZEOF_ARRAY(stressors)) &&
 		    stressors[i].info &&
 		    stressors[i].info->init) {
-			stressors[i].info->init();
+			stressors[i].info->init(ss->num_instances);
 		}
 	}
 }
