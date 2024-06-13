@@ -57,7 +57,7 @@ static OPTIMIZE3 int stress_time_now_timeval(double *dnow)
 static OPTIMIZE3 int stress_time_now_timespec(double *dnow)
 {
 #if defined(HAVE_CLOCK_GETTIME) &&     \
-    defined(CLOCK_MONOTONIC)
+    defined(CLOCK_REALTIME)
 	struct timespec ts;
 
 	if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
