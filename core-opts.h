@@ -837,6 +837,7 @@ typedef enum {
 
 	OPT_mmapfork,
 	OPT_mmapfork_ops,
+	OPT_mmapfork_bytes,
 
 	OPT_mmaphuge,
 	OPT_mmaphuge_file,
