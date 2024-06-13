@@ -371,6 +371,7 @@ err:
 
 	if (args->instance == 0) {
 		uint32_t count;
+		uint32_t underflow = 0;
 
 		do {
 			count = 0;
@@ -403,6 +404,7 @@ err:
 			"sleep ns", "min ns", "max ns", "mean ns");
 		for (i = 0; i <= max_delay; i++) {
 			nanosleep_delay_t result;
+			char *notes = "";
 
 			stress_min_nanosleep_init_delay(&result, delays[0].delay[i].nsec);
 
@@ -418,11 +420,22 @@ err:
 					result.sum_nsec += delay->sum_nsec;
 				}
 			}
+			if (result.min_nsec < result.nsec) {
+				underflow++;
+				notes = "(too short)";
+			}
 
-			pr_inf("%8" PRIu32 " %9" PRIu32 " %9" PRIu32 " %12.2f\n",
+			pr_inf("%8" PRIu32 " %9" PRIu32 " %9" PRIu32 " %12.2f %s\n",
 				result.nsec, result.min_nsec, result.max_nsec,
-				(double)result.sum_nsec / (double)result.count);
+				(double)result.sum_nsec / (double)result.count,
+				notes);
 		}
+		if (underflow) {
+			pr_fail("%s: %" PRIu32 " nanosleeps were too short in duration\n",
+				args->name, underflow);
+			rc = EXIT_FAILURE;
+		}
+
 		pr_block_end();
 	}
 	return rc;
