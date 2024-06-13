@@ -171,9 +171,8 @@ static void *stress_pthread_func(void *c)
 		delta = stress_time_delta(&t1, &t2);
 		/* don't check for clock warping */
 		if ((expected > 0.0) && (delta > 0.0)) {
-			expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 			if (delta < expected / STRESS_DBL_NANOSECOND) {
-				pr_fail("%s: nanosleeps for %.f nanosecs took less than %.2f nanosecs to complete\n",
+				pr_fail("%s: C state nanosleeps for %.f nanosecs took less than %.2f nanosecs to complete\n",
 					args->name, expected, delta * STRESS_DBL_NANOSECOND);
 				ctxt->underruns++;
 			}
@@ -347,7 +346,7 @@ skip_pselect:
 		delta = stress_time_delta(&t1, &t2);
 		expected = (1.0 + 10.0 + 100.0 + 1000.0 + 10000.0);
 		if (delta < expected / STRESS_DBL_MICROSECOND) {
-			pr_fail("%s: selectss for %.f microsecs took less than %.2f microsecs to complete\n",
+			pr_fail("%s: selects for %.f microsecs took less than %.2f microsecs to complete\n",
 				args->name, expected, delta * STRESS_DBL_MICROSECOND);
 			ctxt->underruns++;
 		}
