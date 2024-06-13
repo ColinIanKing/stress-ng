@@ -560,6 +560,7 @@ const struct option stress_long_options[] = {
 	{ "mmapfixed-ops",	1,	0,	OPT_mmapfixed_ops },
 	{ "mmapfork",		1,	0,	OPT_mmapfork },
 	{ "mmapfork-ops",	1,	0,	OPT_mmapfork_ops },
+	{ "mmapfork-bytes",	1,	0,	OPT_mmapfork_bytes},
 	{ "mmaphuge",		1,	0,	OPT_mmaphuge },
 	{ "mmaphuge-file",	0,	0,	OPT_mmaphuge_file },
 	{ "mmaphuge-mlock",	0,	0,	OPT_mmaphuge_mlock },

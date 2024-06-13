@@ -21,10 +21,14 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 
+#define MIN_MMAPFORK_BYTES     (4 * KB)
+#define MAX_MMAPFORK_BYTES     (MAX_MEM_LIMIT)
+
 static const stress_help_t help[] = {
-	{ NULL,	"mmapfork N",	  "start N workers stressing many forked mmaps/munmaps" },
-	{ NULL,	"mmapfork-ops N", "stop after N mmapfork bogo operations" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	"mmapfork N",	    "start N workers stressing many forked mmaps/munmaps" },
+	{ NULL,	"mmapfork-ops N",   "stop after N mmapfork bogo operations" },
+	{ NULL,	"mmapfork-bytes N", "mmap and munmap N bytes by workers for each stress iteration" },
+	{ NULL,	NULL,		    NULL }
 };
 
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
@@ -66,6 +70,16 @@ static void notrunc_strlcat(char *dst, const char *src, size_t *n)
 
 	(void)shim_strlcat(dst, src, *n);
 	*n -= ln;
+}
+
+static int stress_set_mmapfork_bytes(const char *opt)
+{
+	size_t mmapfork_bytes;
+
+	mmapfork_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
+	stress_check_range_bytes("mmapfork-bytes", mmapfork_bytes,
+		MIN_MMAPFORK_BYTES, MAX_MMAPFORK_BYTES);
+	return stress_set_setting("mmapfork-bytes", TYPE_ID_SIZE_T, &mmapfork_bytes);
 }
 
 /*
@@ -156,6 +170,9 @@ static int stress_mmapfork(stress_args_t *args)
 						args->name, errno, strerror(errno));
 					_exit(MMAPFORK_FAILURE);
 				}
+
+				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
+
 #if defined(MADV_WIPEONFORK)
 				if (wipe_ok && (wipe_ptr != MAP_FAILED) &&
 				    stress_memory_is_not_zero(wipe_ptr, wipe_size)) {
@@ -165,7 +182,14 @@ static int stress_mmapfork(stress_args_t *args)
 				}
 #endif
 
-				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
+				if (!stress_get_setting("mmapfork-bytes", &len)) {
+					if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+						len = MIN_MMAPFORK_BYTES;
+				}
+
+				if (len < MIN_MMAPFORK_BYTES)
+					len = MIN_MMAPFORK_BYTES;
+
 				segv_ret = MMAPFORK_SEGV_MMAP;
 				ptr = stress_mmap_populate(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -262,9 +286,15 @@ reap:
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmapfork_bytes,	stress_set_mmapfork_bytes },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_mmapfork,
 	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
