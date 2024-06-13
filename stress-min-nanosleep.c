@@ -24,6 +24,7 @@
 #define NANOSLEEP_MAX_NS	(1U << NANOSLEEP_MAX_SHIFT)
 #define NANOSLEEP_LOOPS		(16)
 #define NANOSLEEP_DELAYS_MAX	(NANOSLEEP_MAX_SHIFT + 2)
+#define NANOSLEEP_MAX		(0xffffffff)
 
 /*
  *  per nsec nanosleep delay stats
@@ -266,7 +267,7 @@ static void stress_min_nanosleep_deinit(void)
 static void stress_min_nanosleep_init_delay(nanosleep_delay_t *delay, const uint32_t nsec)
 {
 	delay->nsec = nsec;
-	delay->min_nsec = 0xffffffff;
+	delay->min_nsec = NANOSLEEP_MAX;
 	delay->max_nsec = 0;
 	delay->count = 0;
 	delay->sum_nsec = 0;
@@ -372,6 +373,8 @@ err:
 	if (args->instance == 0) {
 		uint32_t count;
 		uint32_t underflow = 0;
+		uint32_t min_ns_requested = NANOSLEEP_MAX;
+		uint32_t min_ns_measured = NANOSLEEP_MAX;
 
 		do {
 			count = 0;
@@ -418,6 +421,11 @@ err:
 						result.max_nsec = delay->max_nsec;
 					result.count += delay->count;
 					result.sum_nsec += delay->sum_nsec;
+
+					if (min_ns_measured > delay->min_nsec) {
+						min_ns_measured = delay->min_nsec;
+						min_ns_requested = delay->nsec;
+					}
 				}
 			}
 			if (result.min_nsec < result.nsec) {
@@ -435,6 +443,9 @@ err:
 				args->name, underflow);
 			rc = EXIT_FAILURE;
 		}
+		if (min_ns_measured != NANOSLEEP_MAX)
+			pr_inf("%s: minimum nanosleep of %" PRIu32 " ns using sleep of %" PRIu32 " ns\n",
+				args->name, min_ns_measured, min_ns_requested);
 
 		pr_block_end();
 	}
