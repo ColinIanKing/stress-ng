@@ -785,6 +785,11 @@ typedef enum {
 	OPT_mincore_ops,
 	OPT_mincore_rand,
 
+	OPT_min_nanosleep,
+	OPT_min_nanosleep_ops,
+	OPT_min_nanosleep_max,
+	OPT_min_nanosleep_sched,
+
 	OPT_misaligned,
 	OPT_misaligned_ops,
 	OPT_misaligned_method,

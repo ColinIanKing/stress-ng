@@ -171,6 +171,7 @@
 	MACRO(mergesort)	\
 	MACRO(metamix)		\
 	MACRO(mincore)		\
+	MACRO(min_nanosleep)	\
 	MACRO(misaligned)	\
 	MACRO(mknod)		\
 	MACRO(mlock)		\

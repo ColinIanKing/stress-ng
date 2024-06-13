@@ -440,6 +440,7 @@ STRESS_SRC = \
 	stress-mergesort.c \
 	stress-metamix.c \
 	stress-mincore.c \
+	stress-min-nanosleep.c \
 	stress-misaligned.c \
 	stress-mknod.c \
 	stress-mlock.c \

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "10 June 2024"
+.TH STRESS-NG 1 "13 June 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4443,6 +4443,27 @@ stop after N mincore bogo operations. One mincore bogo op is equivalent to a
 instead of walking through pages sequentially, select pages at random. The
 chosen address is iterated over by shifting it right one place and checked by
 mincore until the address is less or equal to the page size.
+.RE
+.TP
+.B Minimum sleep time in nanosleep stressor
+.RS 5
+.TQ
+.B \-\-min\-nanosleep N
+start M workers that exercise nanosecond sleeps using powers of two nanosecond
+sleep delays. Once all the instances have completed, the minimum, maximum and mean
+sleep times are reported for the sleep delays across all the min-nanosleep stressor
+instances.
+.TP
+.B \-\-min\-nanosleep\-ops N
+stop after N rounds of measurements across all the sleeps are completed.
+.TP
+.B \-\-min\-nanosleep\-max N
+set the maximum nanosleep delay to use. If this is not a power of two then the
+previous power of two nanosecond delay time is used, e.g. specifying 10000 will
+select 8192 nanoseconds.
+.TP
+.B \-\-min\-nanosleep\-sched [ batch | deadline | fifo | idle | other | rr ]
+select scheduling policy. Note that deadline, fifo and rr require root privilege.
 .RE
 .TP
 .B Misaligned read/write stressor
