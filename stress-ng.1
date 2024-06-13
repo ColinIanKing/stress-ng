@@ -4666,6 +4666,10 @@ needed with madvise(2) and then memset it to zero and hint that it is no longer
 needed with madvise before exiting.  This produces significant amounts of VM
 activity, a lot of cache misses and with minimal swapping.
 .TP
+.B \-\-mmapfork\-bytes N
+specify the size of memory mapped fork region size. One can specify the size
+in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-mmapfork\-ops N
 stop after N mmapfork bogo operations.
 .RE
