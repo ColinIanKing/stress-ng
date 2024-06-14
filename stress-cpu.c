@@ -603,7 +603,6 @@ static int OPTIMIZE3 stress_cpu_apery(const char *name)
 	return EXIT_SUCCESS;
 }
 
-
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
@@ -613,8 +612,8 @@ static int OPTIMIZE3 stress_cpu_apery(const char *name)
  *  	partial Fast Fourier Transform
  */
 static void OPTIMIZE3 fft_partial(
-	double complex *data,
-	double complex *tmp,
+	double complex * RESTRICT data,
+	double complex * RESTRICT tmp,
 	const int n,
 	const int m)
 {
@@ -642,7 +641,7 @@ static void OPTIMIZE3 fft_partial(
  */
 static int TARGET_CLONES stress_cpu_fft(const char *name)
 {
-	static double complex buf[FFT_SIZE], tmp[FFT_SIZE];
+	static double complex buf[FFT_SIZE] ALIGN64, tmp[FFT_SIZE] ALIGN64;
 	int i;
 
 	(void)name;
