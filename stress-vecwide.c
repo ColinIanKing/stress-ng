@@ -76,7 +76,7 @@ typedef struct {
 	uint8_t *res;	/* pointer to res1 and/or res2 */
 } vec_args_t;
 
-typedef void (*stress_vecwide_func_t)(const vec_args_t *vec_args);
+typedef void (*stress_vecwide_func_t)(vec_args_t *vec_args);
 
 typedef struct {
 	const stress_vecwide_func_t vecwide_func;
@@ -86,7 +86,7 @@ typedef struct {
 } stress_vecwide_funcs_t;
 
 #define STRESS_VECWIDE(name, type)				\
-static void TARGET_CLONES OPTIMIZE3 name (const vec_args_t *vec_args) \
+static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
 {								\
 	type ALIGN64 a;						\
 	type ALIGN64 b;						\
@@ -116,6 +116,7 @@ PRAGMA_UNROLL_N(8)						\
 	}							\
 								\
 	res = a + b + c;					\
+	(void)shim_memcpy(vec_args->res, &res, sizeof(res));	\
 								\
 PRAGMA_UNROLL							\
 	for (i = 0; i < (int)sizeof(res); i++) {		\
