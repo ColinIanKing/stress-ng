@@ -1236,9 +1236,9 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
 
-	static long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
-		    	   b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
-		    	   r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE];
+	static long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64,
+			   b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64,
+			   r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE] ALIGN64;
 	const long double v = 1 / (long double)((uint32_t)~0);
 	long double sum = 0.0L;
 
