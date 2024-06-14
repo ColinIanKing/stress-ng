@@ -232,6 +232,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 
 		while (b != 0) {
 			register uint32_t r = b;
+
 			b = a % b;
 			a = r;
 		}
@@ -286,7 +287,7 @@ static int OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		const long double theta = (2.0L * PI * (long double)i)/1500.0L;
+		const long double theta = (2.0L * PI * (long double)i) / 1500.0L;
 		{
 			const double thetad = (double)theta;
 			const float thetaf = (float)theta;
@@ -330,7 +331,7 @@ static int OPTIMIZE_FAST_MATH stress_cpu_hyperbolic(const char *name)
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		const long double theta = (2.0L * PI * (long double)i)/1500.0L;
+		const long double theta = (2.0L * PI * (long double)i) / 1500.0L;
 		{
 			const double thetad = (double)theta;
 			const float thetaf = (float)theta;
@@ -398,7 +399,7 @@ static int OPTIMIZE3 stress_cpu_logmap(const char *name)
 	 * Use an accumulation point that is slightly larger
 	 * than the point where chaotic behaviour starts
 	 */
-	const double r = 3.569945671870944901842 * 1.0999999;
+	const double r = 3.569945671870944901842L * 1.0999999L;
 	register int i;
 
 	(void)name;
@@ -441,7 +442,7 @@ static int OPTIMIZE3 stress_cpu_rand48(const char *name)
 	double d = 0;
 	long long int l = 0;
 #if defined(STRESS_CPU_RAND48_VERIFY)
-	const double d_expected_sum = 8184.618041;
+	const double d_expected_sum = 8184.618041L;
 	const long long int l_expected_sum = 17522760427916;
 #endif
 
@@ -588,7 +589,7 @@ static int OPTIMIZE3 stress_cpu_apery(const char *name)
 	(void)name;
 
 	for (n = 1; LIKELY(n < 100000); n++) {
-		long double n3 = (long double)n;
+		register long double n3 = (long double)n;
 
 		a_ = a;
 		n3 = n3 * n3 * n3;
@@ -625,8 +626,8 @@ static void OPTIMIZE3 fft_partial(
 		fft_partial(tmp + m, data + m, n, m2);
 		for (i = 0; i < n; i += m2) {
 			const double complex negI = -(double complex)I;
-			double complex v = tmp[i];
-			double complex t =
+			register double complex v = tmp[i];
+			register double complex t =
 				shim_cexp((negI * (double)PI * (double)i) /
 				     (double)n) * tmp[i + m];
 			data[i / 2] = v + t;
@@ -693,7 +694,7 @@ static void random_buffer(uint8_t *data, const size_t len)
 	size_t i;
 
 	for (i = 0; i < len / 4; i++) {
-		uint32_t v = stress_mwc32();
+		register uint32_t v = stress_mwc32();
 
 		*data++ = (uint8_t)v;
 		v >>= 8;
@@ -1024,8 +1025,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name) \
 	(void)name;						\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		float_ops(_type, a, b, c, d,			\
-			_csin, _ccos);				\
+		float_ops(_type, a, b, c, d, _csin, _ccos);	\
 	}							\
 	r = a + b + c + d;					\
 	_put(r);						\
@@ -1591,7 +1591,7 @@ static inline long double complex PURE OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
 	do {
 		double complex pwr = shim_cpow(i++, (complex double)s);
 		zold = z;
-		z += 1 / (long double complex)pwr;
+		z += 1.0L / (long double complex)pwr;
 	} while (shim_cabsl(z - zold) > precision);
 
 	return z;
