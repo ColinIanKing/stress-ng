@@ -764,15 +764,13 @@ PRAGMA_UNROLL_N(8)
 
 			for (u = 0; u < IDCT_SIZE; u++) {
 				const double cos_pi_i_u = shim_cos(pi_i * u);
+				const double tmp = cos_pi_i_u * (u ? 1.0 : invsqrt2);
 
 				for (v = 0; v < IDCT_SIZE; v++) {
-					const double cos_pi_j_v =
-						shim_cos(pi_j * v);
+					const double cos_pi_j_v = shim_cos(pi_j * v);
 
-					sum += ((double)data[u][v] *
-						(u ? 1.0 : invsqrt2) *
-						(v ? 1.0 : invsqrt2) *
-						cos_pi_i_u * cos_pi_j_v);
+					sum += (double)data[u][v] *
+						(v ? 1.0 : invsqrt2) * cos_pi_j_v * tmp;
 				}
 			}
 			idct[i][j] = (float)(0.25 * sum);
