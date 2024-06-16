@@ -276,6 +276,17 @@ static void stress_min_nanosleep_init_delay(nanosleep_delay_t *delay, const uint
 }
 
 /*
+ *  stress_min_nanosleep_sched_name()
+ *	report scheduler name
+ */
+static const char * stress_min_nanosleep_sched_name(void)
+{
+	const int sched = sched_getscheduler(0);
+
+	return stress_get_sched_name(sched);
+}
+
+/*
  *  stress_min_nanosleep()
  *	stress nanosleep by many sleeping threads
  */
@@ -403,6 +414,7 @@ err:
 		} while (count != args->num_instances);
 
 		pr_block_begin();
+		pr_inf("using scheduler '%s'\n", stress_min_nanosleep_sched_name());
 		pr_inf("%8s %9s %9s %12s\n",
 			"sleep ns", "min ns", "max ns", "mean ns");
 		for (i = 0; i <= max_delay; i++) {
