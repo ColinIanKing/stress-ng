@@ -536,6 +536,10 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
 * [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
 * [uprobes: prevent mutex_lock() under rcu_read_lock()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=699646734ab51bf5b1cd4a7a30c20074f6e74f6e)
+* [system lock up with RT kernel on amd64](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068900)
+* [WARNING: CPU: 17 PID: 118273 at kernel/sched/deadline.c:794 setup_new_dl_entity+0x12c/0x1e8](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068720)
+* [kernel oops in pick_next_task_fair in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068615)
+* [kernel oops in aafs_create in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068602)
 
 ## Presentations
 
