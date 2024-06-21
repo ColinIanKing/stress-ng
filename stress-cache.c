@@ -723,7 +723,8 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 {
 #if defined(STRESS_ARCH_RISCV) &&	\
     defined(HAVE_ASM_RISCV_CBO_ZERO) &&	\
-    defined(__NR_riscv_hwprobe)
+    defined(__NR_riscv_hwprobe) && \
+    defined(RISCV_HWPROBE_EXT_ZICBOZ)
 	cpu_set_t cpus;
 	struct riscv_hwprobe pair;
 
