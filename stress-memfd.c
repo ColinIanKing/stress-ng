@@ -504,7 +504,7 @@ memfd_unmap:
 				(void)munmap(maps[i], size);
 		}
 #if defined(HAVE_MADVISE) &&	\
-    defined(MADV_PAGEOUT) 
+    defined(MADV_PAGEOUT)
 		if (UNLIKELY(memfd_zap_pte)) {
 			/*
 			 *  Check for zap_pte bug, see Linux commit

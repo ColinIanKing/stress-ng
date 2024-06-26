@@ -464,7 +464,7 @@ static int stress_vecshuf(stress_args_t *args)
 
 	(void)munmap((void *)data, sizeof(*data));
 
-	return rc; 
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

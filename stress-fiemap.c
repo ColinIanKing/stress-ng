@@ -270,7 +270,7 @@ static int stress_fiemap(stress_args_t *args)
 	}
 
 	s_pids = stress_s_pids_mmap(MAX_FIEMAP_PROCS);
-	if (s_pids == MAP_FAILED) { 
+	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_FIEMAP_PROCS);
 		stress_lock_destroy(counter_lock);
 		return EXIT_NO_RESOURCE;

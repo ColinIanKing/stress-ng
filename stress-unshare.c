@@ -106,7 +106,7 @@ static void check_unshare(
 	double *count,
 	int *rc)
 {
-	int ret; 
+	int ret;
 	double t;
 
 	t = stress_time_now();
