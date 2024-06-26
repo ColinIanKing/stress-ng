@@ -145,6 +145,7 @@ static int stress_link_generic(
 	oldpathlen = strlen(oldpath);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	rc = EXIT_SUCCESS;
 	t_start = stress_time_now();

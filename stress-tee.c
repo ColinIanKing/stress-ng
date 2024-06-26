@@ -245,6 +245,7 @@ static int stress_tee(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	pids[0] = stress_tee_spawn(args, stress_tee_pipe_write, pipe_in);
 	if (pids[0] < 0) {

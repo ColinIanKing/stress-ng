@@ -227,6 +227,7 @@ static int stress_ring_pipe(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	(void)shim_memset(buf, 0xa5, STRESS_RING_PIPE_SIZE_MAX);
 

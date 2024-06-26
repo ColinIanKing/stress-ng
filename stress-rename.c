@@ -245,6 +245,8 @@ static int stress_rename(stress_args_t *args)
 	}
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 restart:
 	(void)stress_temp_filename(oldname, PATH_MAX,
 		args->name, args->pid, inst1, i++);
@@ -265,8 +267,6 @@ restart:
 		return rc;
 	}
 	(void)fclose(fp);
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (stress_continue(args)) {
 		(void)stress_temp_filename(newname, PATH_MAX,

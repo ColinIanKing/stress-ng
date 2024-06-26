@@ -211,6 +211,7 @@ static int stress_copy_file(stress_args_t *args)
 	(void)shim_unlink(tmp);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		ssize_t copy_ret;

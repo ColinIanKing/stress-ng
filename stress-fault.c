@@ -84,6 +84,7 @@ static int stress_fault(stress_args_t *args)
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\

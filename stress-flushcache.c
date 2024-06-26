@@ -261,6 +261,7 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 	(void)stress_flushcache_nohugepage(context->d_addr, context->d_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		if (context->i_addr)

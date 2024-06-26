@@ -103,6 +103,7 @@ static int OPTIMIZE3 stress_judy(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		Pvoid_t PJLArray = (Pvoid_t)NULL;

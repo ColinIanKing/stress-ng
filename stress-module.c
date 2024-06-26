@@ -406,6 +406,7 @@ static int stress_module(stress_args_t *args)
 		(void)shim_delete_module(module_name, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		if (!stress_continue(args))

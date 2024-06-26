@@ -183,6 +183,7 @@ static int stress_lockbus(stress_args_t *args)
 		goto done;
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	duration = 0;
 	count = 0;

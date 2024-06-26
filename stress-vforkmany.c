@@ -143,6 +143,7 @@ static int stress_vforkmany(stress_args_t *args)
 	vforkmany_shared->counter = 0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 fork_again:
 	chpid = fork();
 	if (chpid < 0) {

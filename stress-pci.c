@@ -311,6 +311,7 @@ static int stress_pci(stress_args_t *args)
 	int ret;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {

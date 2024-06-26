@@ -442,6 +442,7 @@ static int stress_vecfp(stress_args_t *args)
 	(void)stress_get_setting("vecfp-method", &vecfp_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	for (i = 0; i < max_elements; i++) {
 		double d;

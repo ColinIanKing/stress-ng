@@ -924,6 +924,7 @@ static int stress_cache(stress_args_t *args)
 	}
 	(void)shim_memset(buffer, 0, buffer_size);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int jmpret;

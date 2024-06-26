@@ -82,6 +82,7 @@
 #define OPT_FLAGS_PERMUTE	 STRESS_BIT_ULL(51)	/* --permute N */
 #define OPT_FLAGS_INTERRUPTS	 STRESS_BIT_ULL(52)	/* --interrupts */
 #define OPT_FLAGS_PROGRESS	 STRESS_BIT_ULL(53)	/* --progress */
+#define OPT_FLAGS_SYNC_START	 STRESS_BIT_ULL(54)	/* --sync-start */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1391,6 +1392,8 @@ typedef enum {
 	OPT_sync_file,
 	OPT_sync_file_ops,
 	OPT_sync_file_bytes,
+
+	OPT_sync_start,
 
 	OPT_syncload,
 	OPT_syncload_ops,

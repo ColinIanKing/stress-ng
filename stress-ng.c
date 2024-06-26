@@ -81,6 +81,11 @@
 #define STRESS_STRESSOR_UNSUPPORTED		(1)
 #define STRESS_STRESSOR_EXCLUDED		(2)
 
+#define STRESS_SYNC_START_FLAG_WAITING		(0)
+#define STRESS_SYNC_START_FLAG_STARTED		(1)
+#define STRESS_SYNC_START_FLAG_RUNNING		(2)
+#define STRESS_SYNC_START_FLAG_FINISHED		(3)
+
 /* Stress test classes */
 typedef struct {
 	const stress_class_t class;	/* Class type bit mask */
@@ -167,6 +172,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
 	{ OPT_stderr,		OPT_FLAGS_STDERR },
 	{ OPT_stdout,		OPT_FLAGS_STDOUT },
+	{ OPT_sync_start,	OPT_FLAGS_SYNC_START },
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
 #endif
@@ -554,7 +560,7 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 
 		for (i = 0; i < ss->num_instances; i++) {
 			stress_stats_t *const stats = ss->stats[i];
-			const pid_t pid = stats->pid;
+			const pid_t pid = stats->s_pid.pid;
 
 			/* Don't kill -1 (group), or init processes! */
 			if ((pid > 1) && !stats->signalled) {
@@ -925,6 +931,109 @@ static const char * PURE stress_exit_status_to_string(const int status)
 	return "unknown";
 }
 
+static void stress_start_timeout(void)
+{
+	if (g_opt_timeout)
+		(void)alarm((unsigned int)g_opt_timeout);
+}
+
+stress_pid_t *stress_s_pids_mmap(const size_t num)
+{
+	return (stress_pid_t *)mmap(NULL, num * sizeof(stress_pid_t),
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+}
+
+int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num)
+{
+	return munmap(s_pids, num * sizeof(stress_pid_t));
+}
+
+void stress_sync_start_init(stress_pid_t *s_pid)
+{
+	s_pid->pid = -1;
+	s_pid->state = STRESS_SYNC_START_FLAG_STARTED;
+}
+
+void stress_sync_start_wait_s_pid(stress_pid_t *s_pid)
+{
+	pid_t pid;
+
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		return;
+
+	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
+	if ((pid <= 1))
+		return;
+
+	s_pid->state = STRESS_SYNC_START_FLAG_WAITING;
+	if (kill(pid, SIGSTOP) < 0) {
+		pr_inf("cannot stop stressor on for --sync-start, errno=%d (%s)",
+			errno, strerror(errno));
+	}
+	s_pid->state = STRESS_SYNC_START_FLAG_RUNNING;
+	stress_start_timeout();
+}
+
+void stress_sync_start_wait(stress_args_t *args)
+{
+	pid_t pid;
+	stress_pid_t *s_pid;
+
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		return;
+
+	s_pid = &args->stats->s_pid;
+	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
+	if (pid <= 1)
+		return;
+
+	args->stats->s_pid.state = STRESS_SYNC_START_FLAG_WAITING;
+	if (kill(pid, SIGSTOP) < 0) {
+		pr_inf("%s: cannot stop stressor on for --sync-start, errno=%d (%s)",
+			args->name, errno, strerror(errno));
+	}
+	args->stats->s_pid.state = STRESS_SYNC_START_FLAG_RUNNING;
+	stress_start_timeout();
+}
+
+void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
+{
+	pid_t pid;
+
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		return;
+
+	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
+	if (pid <= 1)
+		return;
+
+	if (s_pid->state != STRESS_SYNC_START_FLAG_WAITING)
+		pr_dbg("sync start of PID %jd on stressor that is not in wait state (%x)\n",
+			(intmax_t)pid, s_pid->state);
+	if (kill(pid, SIGCONT) < 0) {
+		pr_dbg("sync start of PID %jd failed, errno=%d (%s)\n",
+			(intmax_t)pid, errno, strerror(errno));
+	}
+}
+
+void stress_sync_start_cont(stress_args_t *args, const pid_t pid)
+{
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		return;
+	if (pid <= 1)
+		return;
+
+	if (args->stats->s_pid.state != STRESS_SYNC_START_FLAG_WAITING)
+		pr_dbg("%s: sync start of PID %jd on stressor that is not in wait state (%x)\n",
+			args->name, (intmax_t)pid, args->stats->s_pid.state);
+	if (kill(pid, SIGCONT) < 0) {
+		pr_dbg("%s: sync start of PID %jd failed, errno=%d (%s)\n",
+			args->name, (intmax_t)pid, errno, strerror(errno));
+	}
+}
+
+
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
 /*
@@ -961,7 +1070,7 @@ static void stress_wait_aggressive(
 
 			for (j = 0; j < ss->num_instances; j++) {
 				const stress_stats_t *const stats = ss->stats[j];
-				const pid_t pid = stats->pid;
+				const pid_t pid = stats->s_pid.pid;
 
 				if (pid) {
 					cpu_set_t mask;
@@ -1104,7 +1213,7 @@ wexit_status_default:
 			stress_kill_stressors(SIGALRM, true);
 		}
 
-		stress_stressor_finished(&stats->pid);
+		stress_stressor_finished(&stats->s_pid.pid);
 		pr_dbg("%s: [%d] terminated (%s)\n",
 			stressor_name, ret,
 			stress_exit_status_to_string(wexit_status));
@@ -1114,7 +1223,59 @@ wexit_status_default:
 			goto redo;
 		/* This child did not exist, mark it done anyhow */
 		if (errno == ECHILD)
-			stress_stressor_finished(&stats->pid);
+			stress_stressor_finished(&stats->s_pid.pid);
+	}
+}
+
+void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
+{
+	int unready, ready, running, waiting;
+
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		return;
+
+	do {
+		stress_pid_t *s_pid;
+
+		unready = 0;
+		ready = 0;
+
+		for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
+			if (s_pid->state == STRESS_SYNC_START_FLAG_FINISHED)
+				continue;
+			if (s_pid->state != STRESS_SYNC_START_FLAG_WAITING)
+				unready++;
+			if (s_pid->state == STRESS_SYNC_START_FLAG_WAITING)
+				ready++;
+		}
+		if (!unready)
+			break;
+		shim_usleep(10000);
+		unready = 0;
+	} while (stress_continue_flag());
+
+	if (!unready) {
+		do {
+			stress_pid_t *s_pid;
+			running = 0;
+			waiting = 0;
+
+			for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
+				if (s_pid->state == STRESS_SYNC_START_FLAG_FINISHED)
+					continue;
+				if (s_pid->state == STRESS_SYNC_START_FLAG_WAITING)
+					stress_sync_start_cont_s_pid(s_pid);
+				if (s_pid->state == STRESS_SYNC_START_FLAG_RUNNING)
+					running++;
+				else if (s_pid->state == STRESS_SYNC_START_FLAG_WAITING) {
+					waiting++;
+				}
+			}
+			if (running == ready)
+				break;
+			//if (waiting == 0)
+				//break;
+		} while (stress_continue_flag());
 	}
 }
 
@@ -1123,6 +1284,7 @@ wexit_status_default:
  * 	wait for stressor child processes
  */
 static void stress_wait_stressors(
+	stress_pid_t *s_pids_head,
 	const int32_t ticks_per_sec,
 	stress_stressor_t *stressors_list,
 	bool *success,
@@ -1130,6 +1292,8 @@ static void stress_wait_stressors(
 	bool *metrics_success)
 {
 	stress_stressor_t *ss;
+
+	stress_sync_start_cont_list(s_pids_head);
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
@@ -1152,7 +1316,7 @@ static void stress_wait_stressors(
 
 		for (j = 0; j < ss->num_instances; j++) {
 			stress_stats_t *const stats = ss->stats[j];
-			const pid_t pid = stats->pid;
+			const pid_t pid = stats->s_pid.pid;
 
 			if (pid) {
 				char munged[64];
@@ -1391,16 +1555,15 @@ static int MLOCKED_TEXT stress_run_child(
 	const int32_t ionice_level,
 	const int32_t instance,
 	const int32_t started_instances,
-	const size_t page_size)
+	const size_t page_size,
+	const pid_t child_pid)
 {
-	pid_t child_pid;
 	char name[64];
 	int rc = EXIT_SUCCESS;
 	bool ok;
 	double finish, run_duration;
 
 	sigalarmed = &stats->sigalarmed;
-	child_pid = getpid();
 
 	(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
 	stress_set_proc_state(name, STRESS_STATE_START);
@@ -1451,15 +1614,16 @@ static int MLOCKED_TEXT stress_run_child(
 	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
 	if (stress_continue_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
-		stats->args.name = name,
-		stats->args.max_ops = g_stressor_current->bogo_ops,
-		stats->args.instance = (uint32_t)instance,
-		stats->args.num_instances = (uint32_t)g_stressor_current->num_instances,
-		stats->args.pid = child_pid,
-		stats->args.page_size = page_size,
-		stats->args.time_end = stress_time_now() + (double)g_opt_timeout,
-		stats->args.mapped = &g_shared->mapped,
-		stats->args.metrics = &stats->metrics,
+		stats->args.stats = stats;
+		stats->args.name = name;
+		stats->args.max_ops = g_stressor_current->bogo_ops;
+		stats->args.instance = (uint32_t)instance;
+		stats->args.num_instances = (uint32_t)g_stressor_current->num_instances;
+		stats->args.pid = child_pid;
+		stats->args.page_size = page_size;
+		stats->args.time_end = stress_time_now() + (double)g_opt_timeout;
+		stats->args.mapped = &g_shared->mapped;
+		stats->args.metrics = &stats->metrics;
 		stats->args.info = g_stressor_current->stressor->info;
 		stats->args.ci.counter = 0;
 
@@ -1468,6 +1632,7 @@ static int MLOCKED_TEXT stress_run_child(
 		(void)shim_memset(*checksum, 0, sizeof(**checksum));
 		stats->start = stress_time_now();
 		rc = g_stressor_current->stressor->info->stressor(&stats->args);
+		stats->s_pid.state = STRESS_SYNC_START_FLAG_FINISHED;
 		stress_block_signals();
 		(void)alarm(0);
 		if (g_opt_flags & OPT_FLAGS_INTERRUPTS) {
@@ -1597,6 +1762,7 @@ static void MLOCKED_TEXT stress_run(
 	int32_t ionice_class = UNDEFINED;
 	int32_t ionice_level = UNDEFINED;
 	bool handler_set = false;
+	stress_pid_t *s_pids_head = NULL;
 
 	wait_flag = true;
 	time_start = stress_time_now();
@@ -1622,7 +1788,7 @@ static void MLOCKED_TEXT stress_run(
 		 */
 		for (j = 0; j < g_stressor_current->num_instances; j++, (*checksum)++) {
 			double fork_time_start;
-			pid_t pid;
+			pid_t pid, child_pid;
 			int rc;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
 
@@ -1630,7 +1796,7 @@ static void MLOCKED_TEXT stress_run(
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
 #endif
-			stats->pid = -1;
+			stress_sync_start_init(&stats->s_pid);
 			stats->args.ci.counter_ready = true;
 			stats->args.ci.counter = 0;
 			stats->checksum = *checksum;
@@ -1651,19 +1817,23 @@ again:
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
+				child_pid = getpid();
+				stats->s_pid.pid = child_pid;
 				rc = stress_run_child(checksum,
 						stats, fork_time_start,
 						backoff, ticks_per_sec,
 						ionice_class, ionice_level,
 						j, started_instances,
-						page_size);
+						page_size, child_pid);
 				_exit(rc);
 			default:
 				if (pid > -1) {
-					stats->pid = pid;
+					stats->s_pid.pid = pid;
 					stats->signalled = false;
 					started_instances++;
 					stress_ftrace_add_pid(pid);
+
+					stress_sync_start_s_pid_list_add(&s_pids_head, &stats->s_pid);
 				}
 
 				/* Forced early abort during startup? */
@@ -1692,10 +1862,10 @@ wait_for_stressors:
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		stress_ignite_cpu_start();
 #if STRESS_FORCE_TIMEOUT_ALL
-	if (g_opt_timeout)
-		(void)alarm((unsigned int)g_opt_timeout);
+	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
+		stress_start_timeout();
 #endif
-	stress_wait_stressors(ticks_per_sec, stressors_list, success, resource_success, metrics_success);
+	stress_wait_stressors(s_pids_head, ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
 	*duration += time_finish - time_start;

@@ -77,6 +77,7 @@ static int stress_sysinfo(stress_args_t *args)
 			args->name, n_mounts);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		struct tms tms_buf;

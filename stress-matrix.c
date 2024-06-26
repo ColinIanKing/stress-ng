@@ -1034,6 +1034,7 @@ static int stress_matrix(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	rc = stress_matrix_exercise(args, matrix_method, matrix_yx, matrix_size);
 

@@ -99,6 +99,7 @@ static int stress_futex(stress_args_t *args)
 	int parent_cpu, rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

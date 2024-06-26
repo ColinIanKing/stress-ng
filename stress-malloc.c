@@ -461,6 +461,7 @@ static int stress_malloc_child(stress_args_t *args, void *context)
 	(void)context;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 #if defined(HAVE_LIB_PTHREAD)
 	keep_thread_running_flag = true;

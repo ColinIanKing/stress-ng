@@ -119,9 +119,9 @@ static int stress_affinity_supported(const char *name)
  *  stress_affinity_reap()
  *	kill and wait on child processes
  */
-static void stress_affinity_reap(stress_args_t *args, const pid_t *pids)
+static void stress_affinity_reap(stress_args_t *args, const stress_pid_t *s_pids)
 {
-	stress_kill_and_wait_many(args, pids, STRESS_AFFINITY_PROCS, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, STRESS_AFFINITY_PROCS, SIGALRM, true);
 }
 
 /*
@@ -155,8 +155,6 @@ static void stress_affinity_child(
 	bool stress_continue_affinity = true;
 
 	CPU_ZERO(&mask0);
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		cpu_set_t mask;
@@ -235,14 +233,22 @@ affinity_continue:
 
 static int stress_affinity(stress_args_t *args)
 {
-	pid_t pids[STRESS_AFFINITY_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
+
 	size_t i;
 	stress_affinity_info_t *info;
 	const size_t info_sz = (sizeof(*info) + args->page_size) & ~(args->page_size - 1);
 
+	s_pids = stress_s_pids_mmap(STRESS_AFFINITY_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_AFFINITY_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
+
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
+		(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -253,10 +259,9 @@ static int stress_affinity(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
 			args->name, info_sz);
 		(void)stress_lock_destroy(counter_lock);
+		(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
-
-	(void)shim_memset(pids, 0, sizeof(pids));
 
 	info->affinity_delay = 0;
 	info->affinity_pin = false;
@@ -274,15 +279,26 @@ static int stress_affinity(stress_args_t *args)
 	 *  slot 0 is the parent.
 	 */
 	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
-		pids[i] = fork();
+		stress_sync_start_init(&s_pids[i]);
+		s_pids[i].pid = fork();
 
-		if (pids[i] == 0) {
+		if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_sync_start_wait_s_pid(&s_pids[i]);
 			stress_affinity_child(args, info, false);
 			_exit(EXIT_SUCCESS);
+		} else if (s_pids[i].pid > 0) {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
+
 	stress_affinity_child(args, info, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -291,10 +307,11 @@ static int stress_affinity(stress_args_t *args)
 	 *  will have reap'd the processes, but to be safe, reap again
 	 *  to ensure all processes are really dead and reaped.
 	 */
-	stress_affinity_reap(args, pids);
+	stress_affinity_reap(args, s_pids);
 
 	(void)munmap((void *)info, info_sz);
 	(void)stress_lock_destroy(counter_lock);
+	(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 
 	return EXIT_SUCCESS;
 }

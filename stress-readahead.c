@@ -214,6 +214,7 @@ PRAGMA_UNROLL_N(8)
 		(uint64_t)(statbuf.st_size % BUF_SIZE);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	stress_readahead_generate_offsets(offsets, rounded_readahead_bytes);
 

@@ -358,6 +358,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 		max = mappings_max;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int ret;

@@ -369,9 +369,11 @@ static int stress_dentry(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
+	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name,
+		args->pid, args->instance);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	stress_dentry_state(&nr_dentry1);
 	do {

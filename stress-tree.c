@@ -1046,6 +1046,7 @@ static int stress_tree(stress_args_t *args)
 	stress_tree_shuffle(nodes, n);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		func(args, n, nodes, metrics, &rc);

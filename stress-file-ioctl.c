@@ -162,6 +162,7 @@ static int stress_file_ioctl(stress_args_t *args)
 	(void)bad_fd;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int exercised = 0;

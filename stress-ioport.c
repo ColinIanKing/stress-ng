@@ -150,6 +150,7 @@ static int stress_ioport(stress_args_t *args)
 	v = inb(IO_PORT);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		double t;

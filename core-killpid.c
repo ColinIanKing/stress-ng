@@ -167,7 +167,7 @@ int stress_kill_and_wait(
  */
 int stress_kill_and_wait_many(
 	stress_args_t *args,
-	const pid_t *pids,
+	const stress_pid_t *s_pids,
 	const size_t n_pids,
 	const int signum,
 	const bool set_stress_force_killed_bogo)
@@ -178,15 +178,15 @@ int stress_kill_and_wait_many(
 
 	/* Kill first */
 	for (i = 0; i < n_pids; i++) {
-		if ((pids[i] > 1) && (pids[i] != mypid))
-			stress_kill_sig(pids[i], signum);
+		if ((s_pids[i].pid > 1) && (s_pids[i].pid != mypid))
+			stress_kill_sig(s_pids[i].pid, signum);
 	}
 	/* Then reap */
 	for (i = 0; i < n_pids; i++) {
-		if ((pids[i] > 1) && (pids[i] != mypid)) {
+		if ((s_pids[i].pid > 1) && (s_pids[i].pid != mypid)) {
 			int ret;
 
-			ret = stress_kill_and_wait(args, pids[i], signum, set_stress_force_killed_bogo);
+			ret = stress_kill_and_wait(args, s_pids[i].pid, signum, set_stress_force_killed_bogo);
 			if (ret == EXIT_FAILURE)
 				rc = ret;
 		}

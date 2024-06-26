@@ -78,6 +78,7 @@ static int stress_sigabrt(stress_args_t *args)
 	sigabrt_info->count = 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

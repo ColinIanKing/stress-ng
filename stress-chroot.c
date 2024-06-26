@@ -443,6 +443,7 @@ static int stress_chroot(stress_args_t *args)
 	data->cwd_fd = open(".", O_DIRECTORY | O_RDONLY);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

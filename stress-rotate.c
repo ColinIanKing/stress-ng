@@ -225,6 +225,7 @@ static int stress_rotate(stress_args_t *args)
 	(void)stress_get_setting("rotate-method", &rotate_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		stress_rotate_call_method(args, rotate_method, verify, &success);

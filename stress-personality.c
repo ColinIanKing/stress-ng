@@ -62,6 +62,7 @@ static int stress_personality(stress_args_t *args)
 		pr_dbg("%s: exercising %zu personalities\n", args->name, n);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		size_t i, fails = 0;

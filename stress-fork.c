@@ -539,6 +539,7 @@ static int stress_fork(stress_args_t *args)
 
 	stress_force_bind();
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	if (fork_unmap) {
 		pid_t pid;

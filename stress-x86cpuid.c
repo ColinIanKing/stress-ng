@@ -136,6 +136,8 @@ static int stress_x86cpuid(stress_args_t *args)
 	stress_cpuid_regs_t ALIGN64 reordered_cpu_regs[SIZEOF_ARRAY(stress_cpuid_regs)];
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	do {
 		double t;
 		register size_t i, j;

@@ -160,6 +160,7 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/* Child rlimit stressor */
 	do {

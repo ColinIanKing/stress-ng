@@ -103,7 +103,7 @@ static int stress_munlock_interruptible(
  */
 static int stress_mlockmany(stress_args_t *args)
 {
-	pid_t *pids;
+	stress_pid_t *s_pids;
 	int ret;
 #if defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
@@ -123,9 +123,9 @@ static int stress_mlockmany(stress_args_t *args)
 			mlockmany_procs = 1;
 	}
 
-	pids = calloc((size_t)mlockmany_procs, sizeof(*pids));
-	if (!pids) {
-		pr_inf_skip("%s: cannot allocate pids array, skipping stressor\n", args->name);
+	s_pids = stress_s_pids_mmap(mlockmany_procs);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, mlockmany_procs);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -140,16 +140,19 @@ static int stress_mlockmany(stress_args_t *args)
 	mlock_size = args->page_size * 1024;
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		unsigned int n;
 		size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 
-		(void)shim_memset(pids, 0, sizeof(*pids) * mlockmany_procs);
+		(void)shim_memset(s_pids, 0, sizeof(*s_pids) * mlockmany_procs);
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 		for (n = 0; stress_continue(args) && (n < mlockmany_procs); n++) {
 			pid_t pid;
+
+			s_pids[n].pid = -1;
 
 			/* In case we've missed SIGALRM */
 			if (stress_time_now() > args->time_end) {
@@ -240,7 +243,7 @@ unmap:
 				(void)munmap(ptr, mmap_size);
 				_exit(0);
 			}
-			pids[n] = pid;
+			s_pids[n].pid = pid;
 			if (pid > 1) {
 				stress_bogo_inc(args);
 			} else if (pid < 0)
@@ -248,12 +251,12 @@ unmap:
 			if (!stress_continue(args))
 				break;
 		}
-		stress_kill_and_wait_many(args, pids, n, SIGALRM, false);
+		stress_kill_and_wait_many(args, s_pids, n, SIGALRM, false);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	free(pids);
+	(void)stress_s_pids_munmap(s_pids, mlockmany_procs);
 
 	return EXIT_SUCCESS;
 }

@@ -123,6 +123,7 @@ static int stress_binderfs(stress_args_t *args)
 		return stress_exit_status(-ret);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int fd;

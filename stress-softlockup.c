@@ -280,7 +280,7 @@ static int stress_softlockup(stress_args_t *args)
 	struct sched_param param;
 	NOCLOBBER uint64_t timeout;
 	const double start = stress_time_now();
-	pid_t *pids;
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	int rc = EXIT_SUCCESS;
 	uint64_t loop_count;
 
@@ -295,14 +295,14 @@ static int stress_softlockup(stress_args_t *args)
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 #endif
 
-	pids = malloc(sizeof(*pids) * (size_t)cpus_online);
-	if (!pids) {
-		pr_inf_skip("%s: cannot allocate %" PRIu32 " pids, skipping stressor\n",
-			args->name, cpus_online);
+	s_pids = stress_s_pids_mmap((size_t)cpus_online);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, (size_t)cpus_online);
 		return EXIT_NO_RESOURCE;
 	}
+
 	for (i = 0; i < cpus_online; i++)
-		pids[i] = -1;
+		stress_sync_start_init(&s_pids[i]);
 
 	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (first_instance) {
@@ -310,7 +310,7 @@ static int stress_softlockup(stress_args_t *args)
 					"available, skipping stressor\n",
 					args->name);
 		}
-		free(pids);
+		(void)stress_s_pids_munmap(s_pids, (size_t)cpus_online);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -335,7 +335,7 @@ static int stress_softlockup(stress_args_t *args)
 				"scheduling policies, skipping test\n",
 					args->name);
 		}
-		free(pids);
+		(void)stress_s_pids_munmap(s_pids, (size_t)cpus_online);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -344,13 +344,11 @@ static int stress_softlockup(stress_args_t *args)
 			args->name, max_prio);
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 	for (i = 0; i < cpus_online; i++) {
 again:
 		parent_cpu = stress_get_cpu();
-		pids[i] = fork();
-		if (pids[i] < 0) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
 			if (!stress_continue(args))
@@ -358,18 +356,27 @@ again:
 			pr_inf("%s: cannot fork, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto finish;
-		} else if (pids[i] == 0) {
+		} else if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			(void)stress_change_cpu(args, parent_cpu);
 			stress_softlockup_child(args, &param, start, timeout, loop_count);
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
+
 	param.sched_priority = policies[0].max_prio;
 	(void)sched_setscheduler(args->pid, policies[0].policy, &param);
 
 	softlockup_start = true;
 
 	(void)pause();
-	rc = stress_kill_and_wait_many(args, pids, (size_t)cpus_online, SIGALRM, false);
+	rc = stress_kill_and_wait_many(args, s_pids, (size_t)cpus_online, SIGALRM, false);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -378,7 +385,7 @@ finish:
 		(void)munmap((void *)softlockup_buffer, MB);
 #endif
 
-	free(pids);
+	(void)stress_s_pids_munmap(s_pids, (size_t)cpus_online);
 
 	return rc;
 }

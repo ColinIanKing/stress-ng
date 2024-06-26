@@ -115,7 +115,7 @@ static bool stress_memory_is_not_zero(const uint8_t *ptr, const size_t size)
  */
 static int stress_mmapfork(stress_args_t *args)
 {
-	pid_t pids[MAX_PIDS];
+	stress_pid_t s_pids[MAX_PIDS];
 	struct sysinfo info;
 	void *ptr;
 	uint64_t segv_count = 0;
@@ -139,22 +139,23 @@ static int stress_mmapfork(stress_args_t *args)
 	}
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		size_t i, len;
 
 		for (i = 0; i < MAX_PIDS; i++)
-			pids[i] = -1;
+			s_pids[i].pid = -1;
 
 		for (i = 0; i < MAX_PIDS; i++) {
 			if (!stress_continue(args))
 				goto reap;
 
-			pids[i] = fork();
+			s_pids[i].pid = fork();
 			/* Out of resources for fork?, do a reap */
-			if (pids[i] < 0)
+			if (s_pids[i].pid < 0)
 				break;
-			if (pids[i] == 0) {
+			if (s_pids[i].pid == 0) {
 				/* Child */
 				const pid_t ppid = getppid();
 
@@ -227,10 +228,10 @@ static int stress_mmapfork(stress_args_t *args)
 		for (i = 0; i < MAX_PIDS; i++) {
 			int status;
 
-			if (UNLIKELY(pids[i] < 0))
+			if (UNLIKELY(s_pids[i].pid < 0))
 				continue;
 
-			if (shim_waitpid(pids[i], &status, 0) < 0) {
+			if (shim_waitpid(s_pids[i].pid, &status, 0) < 0) {
 				if (errno != EINTR) {
 					pr_err("%s: waitpid errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -239,7 +240,7 @@ static int stress_mmapfork(stress_args_t *args)
 					goto reap;
 				}
 			} else {
-				pids[i] = -1;
+				s_pids[i].pid = -1;
 				if (WIFEXITED(status)) {
 					int masked = WEXITSTATUS(status) & MMAPFORK_MASK;
 
@@ -251,7 +252,7 @@ static int stress_mmapfork(stress_args_t *args)
 			}
 		}
 reap:
-		stress_kill_and_wait_many(args, pids, MAX_PIDS, SIGALRM, false);
+		stress_kill_and_wait_many(args, s_pids, MAX_PIDS, SIGALRM, false);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 

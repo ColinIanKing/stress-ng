@@ -118,6 +118,7 @@ static int stress_sendfile(stress_args_t *args)
 	bad_fd = stress_get_bad_fd();
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		off_t offset = 0;

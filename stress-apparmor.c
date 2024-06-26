@@ -235,21 +235,23 @@ static void stress_apparmor_dir(
  *  apparmor_spawn()
  *	spawn a process
  */
-static pid_t apparmor_spawn(
+static void apparmor_spawn(
 	stress_args_t *args,
-	stress_apparmor_func func)
+	stress_apparmor_func func,
+	stress_pid_t **s_pids_head,
+	stress_pid_t *s_pid)
 {
-	pid_t pid;
-
 again:
-	pid = fork();
-	if (pid < 0) {
+	s_pid->pid = fork();
+	if (s_pid->pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		return -1;
-	}
-	if (pid == 0) {
+		return;
+	} else if (s_pid->pid == 0) {
 		int ret = EXIT_SUCCESS;
+
+		s_pid->pid = getpid();
+		stress_sync_start_wait_s_pid(s_pid);
 
 		if (!stress_apparmor_stress_continue_inc(args, false))
 			goto abort;
@@ -268,8 +270,9 @@ abort:
 		free(apparmor_path);
 		(void)shim_kill(args->pid, SIGUSR1);
 		_exit(ret);
+	} else {
+		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return pid;
 }
 
 /*
@@ -656,12 +659,19 @@ static const stress_apparmor_func apparmor_funcs[] = {
  */
 static int stress_apparmor(stress_args_t *args)
 {
-	pid_t pids[MAX_APPARMOR_FUNCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i;
 	int rc = EXIT_NO_RESOURCE;
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0) {
 		return EXIT_FAILURE;
+	}
+
+	s_pids = stress_s_pids_mmap(MAX_APPARMOR_FUNCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, MAX_APPARMOR_FUNCS);
+                return EXIT_NO_RESOURCE;
+	}
 
 	stress_apparmor_shared_info = (stress_apparmor_shared_info_t *)
 		stress_mmap_populate(NULL, sizeof(*stress_apparmor_shared_info),
@@ -669,7 +679,7 @@ static int stress_apparmor(stress_args_t *args)
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (stress_apparmor_shared_info == MAP_FAILED) {
 		pr_inf_skip("%s: failed to allocated shared memory, skipping stressor\n", args->name);
-		return rc;
+		goto err_free_s_pids;
 	}
 	data_copy = malloc(g_apparmor_data_len);
 	if (!data_copy) {
@@ -693,10 +703,13 @@ static int stress_apparmor(stress_args_t *args)
 	}
 
 	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
-		pids[i] = apparmor_spawn(args, apparmor_funcs[i]);
+		stress_sync_start_init(&s_pids[i]);
+		apparmor_spawn(args, apparmor_funcs[i], &s_pids_head, &s_pids[i]);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	while (stress_apparmor_stress_continue_inc(args, false)) {
 #if defined(HAVE_SELECT)
@@ -709,7 +722,7 @@ static int stress_apparmor(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Wakeup, time to die */
-	stress_kill_and_wait_many(args, pids, MAX_APPARMOR_FUNCS, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, MAX_APPARMOR_FUNCS, SIGALRM, true);
 
 	free(apparmor_path);
 	apparmor_path = NULL;
@@ -725,6 +738,8 @@ err_free_data_copy:
 	free(data_copy);
 err_free_shared_info:
 	(void)munmap((void *)stress_apparmor_shared_info, sizeof(*stress_apparmor_shared_info));
+err_free_s_pids:
+	(void)stress_s_pids_munmap(s_pids, MAX_APPARMOR_FUNCS);
 
 	return rc;
 }

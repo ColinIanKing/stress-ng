@@ -286,6 +286,8 @@ static int stress_waitcpu(stress_args_t *args)
 			str);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	do {
 		for (i = 0; (i < SIZEOF_ARRAY(stress_waitcpu_method)) && stress_continue(args); i++) {
 			const int loops = 1000;

@@ -139,6 +139,7 @@ static int stress_key(stress_args_t *args)
 	stress_rndstr(huge_description, key_huge_desc_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t_start = stress_time_now();
 	do {

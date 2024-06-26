@@ -217,6 +217,7 @@ static int stress_oom_pipe(stress_args_t *args)
 	context.max_pipe_size &= ~(page_size - 1);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	rc = stress_oomable_child(args, &context, stress_oom_pipe_child, STRESS_OOMABLE_DROP_CAP);
 

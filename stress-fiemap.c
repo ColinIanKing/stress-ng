@@ -219,21 +219,29 @@ static void stress_fiemap_ioctl(
  *  stress_fiemap_spawn()
  *	helper to spawn off fiemap stressor
  */
-static inline pid_t stress_fiemap_spawn(stress_args_t *args, const int fd)
+static inline pid_t stress_fiemap_spawn(
+	stress_args_t *args,
+	const int fd,
+	stress_pid_t **s_pids_head,
+	stress_pid_t *s_pid)
 {
-	pid_t pid;
-
-	pid = fork();
-	if (pid < 0)
+	s_pid->pid = fork();
+	if (s_pid->pid < 0) {
 		return -1;
-	if (pid == 0) {
+	} else if (s_pid->pid == 0) {
+		s_pid->pid = getpid();
+
+		stress_sync_start_wait_s_pid(s_pid);
+
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		stress_mwc_reseed();
 		stress_fiemap_ioctl(args, fd);
 		_exit(EXIT_SUCCESS);
+	} else {
+		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return pid;
+	return s_pid->pid;
 }
 
 /*
@@ -242,7 +250,7 @@ static inline pid_t stress_fiemap_spawn(stress_args_t *args, const int fd)
  */
 static int stress_fiemap(stress_args_t *args)
 {
-	pid_t pids[MAX_FIEMAP_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	size_t n;
@@ -258,6 +266,13 @@ static int stress_fiemap(stress_args_t *args)
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_err("%s: failed to create counter lock\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	s_pids = stress_s_pids_mmap(MAX_FIEMAP_PROCS);
+	if (s_pids == MAP_FAILED) { 
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_FIEMAP_PROCS);
+		stress_lock_destroy(counter_lock);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -301,24 +316,29 @@ static int stress_fiemap(stress_args_t *args)
 		}
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
+		stress_sync_start_init(&s_pids[n]);
+
 		if (!stress_continue(args)) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}
 
-		pids[n] = stress_fiemap_spawn(args, fd);
-		if (pids[n] < 0)
+		if (stress_fiemap_spawn(args, fd, &s_pids_head, &s_pids[n]) < 0)
 			goto reap;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+        stress_sync_start_cont_list(s_pids_head);
+
 	rc = stress_fiemap_writer(args, fd, fiemap_bytes);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* And reap stressors */
-	stress_kill_and_wait_many(args, pids, n, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, n, SIGALRM, true);
 close_clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
@@ -328,6 +348,7 @@ dir_clean:
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)stress_s_pids_munmap(s_pids, MAX_FIEMAP_PROCS);
 	stress_lock_destroy(counter_lock);
 
 	return rc;

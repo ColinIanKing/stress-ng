@@ -205,6 +205,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	buf_end = (uint64_t *)((uintptr_t)buf + mmap_sz);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	writes = 0.0;
 	write_duration = 0.0;

@@ -210,28 +210,32 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
 static pid_t epoll_spawn(
 	stress_args_t *args,
 	stress_epoll_func_t func,
+	stress_pid_t **s_pids_head,
+	stress_pid_t *s_pid,
 	const int child,
 	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
 	const int epoll_sockets)
 {
-	pid_t pid;
-
 again:
-	pid = fork();
-	if (pid < 0) {
+	s_pid->pid = fork();
+	if (s_pid->pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
 		return -1;
-	}
-	if (pid == 0) {
+	} else if (s_pid->pid == 0) {
+		s_pid->pid = getpid();
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+		stress_sync_start_wait_s_pid(s_pid);
+
 		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets);
 		_exit(EXIT_SUCCESS);
+	}  else {
+		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return pid;
+	return s_pid->pid;
 }
 
 /*
@@ -1012,7 +1016,8 @@ die:
  */
 static int stress_epoll(stress_args_t *args)
 {
-	pid_t pids[MAX_SERVERS], mypid = getpid();
+	stress_pid_t *s_pids, *s_pids_head = NULL;
+	pid_t mypid = getpid();
 	int i, rc = EXIT_SUCCESS;
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
@@ -1026,12 +1031,19 @@ static int stress_epoll(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
+	s_pids = stress_s_pids_mmap(MAX_SERVERS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SERVERS);
+		return EXIT_NO_RESOURCE;
+	}
+
 	if (max_servers == 1) {
 		start_port = epoll_port + (int)args->instance;
 		reserved_port = stress_net_reserve_ports(start_port, start_port);
 		if (reserved_port < 0) {
 			pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 				args->name, start_port);
+			(void)stress_s_pids_munmap(s_pids, MAX_SERVERS);
 			return EXIT_NO_RESOURCE;
 		}
 		/* adjust for reserved port range */
@@ -1050,6 +1062,7 @@ static int stress_epoll(stress_args_t *args)
 		if (reserved_port < 0) {
 			pr_inf_skip("%s: cannot reserve ports %d..%d, skipping stressor\n",
 				args->name, start_port, end_port);
+			(void)stress_s_pids_munmap(s_pids, MAX_SERVERS);
 			return EXIT_NO_RESOURCE;
 		}
 		/* adjust for reserved port range */
@@ -1060,8 +1073,6 @@ static int stress_epoll(stress_args_t *args)
 		pr_dbg("%s: process [%" PRIdMAX "] using socket ports %d..%d\n",
 			args->name, (intmax_t)args->pid, start_port, end_port);
 	}
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/*
 	 *  Spawn off servers to handle multi port connections.
@@ -1077,22 +1088,26 @@ static int stress_epoll(stress_args_t *args)
 	 *  Typically, we are limited to ~500 connections per second
 	 *  on a default Linux configuration.
 	 */
-	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
-		pids[i] = epoll_spawn(args, epoll_server, i, mypid, epoll_port, epoll_domain, epoll_sockets);
-		if (pids[i] < 0) {
+		stress_sync_start_init(&s_pids[i]);
+		if (epoll_spawn(args, epoll_server, &s_pids_head, &s_pids[i], i, mypid, epoll_port, epoll_domain, epoll_sockets) < 0) {
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto reap;
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
+
 	rc = epoll_client(args, mypid, epoll_port, epoll_domain);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(start_port, end_port);
 
-	stress_kill_and_wait_many(args, pids, max_servers, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, max_servers, SIGALRM, true);
+	(void)stress_s_pids_munmap(s_pids, MAX_SERVERS);
 
 	return rc;
 }

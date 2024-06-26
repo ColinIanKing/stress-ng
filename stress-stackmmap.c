@@ -207,6 +207,7 @@ static int stress_stackmmap(stress_args_t *args)
 	c_test.uc_link = &c_main;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/*
 	 *  set jmp handler to jmp back into the loop on a full

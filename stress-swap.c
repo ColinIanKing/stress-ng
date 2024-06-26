@@ -306,7 +306,8 @@ static void stress_swap_clean_dir(stress_args_t *args)
 	DIR *dir;
 	struct dirent *d;
 
-	stress_temp_dir(path, sizeof(path), args->name, args->pid, args->instance);
+	stress_temp_dir(path, sizeof(path), args->name,
+		args->pid, args->instance);
 	dir = opendir(path);
 	if (!dir)
 		return;
@@ -400,6 +401,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int swapflags = 0;

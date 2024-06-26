@@ -187,6 +187,7 @@ static void NORETURN stress_exit_group_child(stress_args_t *args)
 static int stress_exit_group(stress_args_t *args)
 {
         stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	while (stress_continue(args)) {
 		pid_t pid;

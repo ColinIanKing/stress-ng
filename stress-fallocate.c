@@ -152,6 +152,7 @@ static int stress_fallocate(stress_args_t *args)
 	pipe_ret = pipe(pipe_fds);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		const bool use_sync = (fd_sync != -1) && ((count++ & 15) == 15);

@@ -342,6 +342,7 @@ static int stress_sockpair(stress_args_t *args)
 	int rc;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;

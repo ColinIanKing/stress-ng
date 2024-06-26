@@ -171,7 +171,8 @@ static int stress_dirmany(stress_args_t *args)
 	off_t dirmany_bytes = 0;
 	size_t pathname_len;
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	stress_temp_dir(pathname, sizeof(pathname), args->name,
+		args->pid, args->instance);
 	pathname_len = strlen(pathname);
 
 	ret = stress_temp_dir_mk_args(args);
@@ -188,6 +189,7 @@ static int stress_dirmany(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		uint64_t i_end;

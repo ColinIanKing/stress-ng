@@ -228,6 +228,7 @@ static int stress_dev_shm(stress_args_t *args)
 	(void)shim_unlink(path);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	rc = stress_oomable_child(args, &context, stress_dev_shm_oomable_child, STRESS_OOMABLE_NORMAL);
 

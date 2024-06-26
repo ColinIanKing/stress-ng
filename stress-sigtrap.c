@@ -57,6 +57,7 @@ static int stress_sigtrap(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	while (stress_continue(args)) {
 		switch (stress_mwc1()) {

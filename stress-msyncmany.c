@@ -71,6 +71,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	if (!mapped) {
 		pr_inf("%s: no mappings made, out of resources\n", args->name);

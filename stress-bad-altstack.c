@@ -371,6 +371,7 @@ static int stress_bad_altstack(stress_args_t *args)
 	(void)munmap(MAP_FAILED, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

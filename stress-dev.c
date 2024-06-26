@@ -4342,6 +4342,7 @@ static int stress_dev(stress_args_t *args)
 	stress_dev_info_list_state_init(dev_info_list, mmap_dev_states);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

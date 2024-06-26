@@ -1186,6 +1186,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	stress_file_rw_hint_short(io_uring_file.fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/*
 	 *  Assume all opcodes are supported

@@ -333,6 +333,8 @@ static int stress_fma(stress_args_t *args)
 	stress_madvise_mergeable(pfma, sizeof(*pfma));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	stress_fma_init(pfma);
 
 	do {

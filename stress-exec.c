@@ -787,6 +787,7 @@ static int stress_exec(stress_args_t *args)
 	}
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		NOCLOBBER uint32_t i;

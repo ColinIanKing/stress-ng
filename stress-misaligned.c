@@ -1244,6 +1244,7 @@ static int stress_misaligned(stress_args_t *args)
 	stress_misaligned_enable_all();
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	method = &stress_misaligned_methods[misaligned_method];
 	current_method = method;

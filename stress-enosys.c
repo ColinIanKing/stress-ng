@@ -4013,6 +4013,7 @@ static int stress_enosys(stress_args_t *args)
 	stress_x86syscall_available = stress_cpu_x86_has_syscall();
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	if (!stress_continue(args))
 		return EXIT_SUCCESS;

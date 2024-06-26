@@ -406,6 +406,7 @@ static int stress_vm_rw(stress_args_t *args)
 
 	(void)shim_memset(stack, 0, sizeof(stack));
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	ctxt.pid = clone(stress_vm_child, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);

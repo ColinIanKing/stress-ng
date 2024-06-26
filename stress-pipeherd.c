@@ -133,6 +133,7 @@ static int stress_pipeherd(stress_args_t *args)
 		pids[i] = -1;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\

@@ -119,6 +119,7 @@ static int stress_mmaphuge_child(stress_args_t *args, void *v_ctxt)
 	(void)stress_get_setting("mmaphuge-mlock", &mmaphuge_mlock);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		size_t i;

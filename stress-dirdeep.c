@@ -494,6 +494,8 @@ static int stress_dirdeep(stress_args_t *args)
 	inodes_min = inodes_start;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	stress_dirdeep_make(args, linkpath, path, path_len, sizeof(path),
 		dirdeep_dirs, dirdeep_inodes, dirdeep_files, dirdeep_bytes,
 		inodes_start, &inodes_estimate, &inodes_min, 0);

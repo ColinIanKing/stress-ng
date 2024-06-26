@@ -58,6 +58,7 @@ static int OPTIMIZE3 stress_factor(stress_args_t *args)
 	mpz_inits(value, divisor, q, r, tmp, NULL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		size_t digits;

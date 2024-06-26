@@ -19,6 +19,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
@@ -540,30 +541,49 @@ static void stress_vma_loop(
 static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 {
 	size_t i;
-	pid_t pids[STRESS_VMA_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)void_ctxt;
+	int ret;
+
+	s_pids = stress_s_pids_mmap(STRESS_VMA_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_VMA_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
 
 	ctxt->pid = getpid();
+	for (i = 0; i < STRESS_VMA_PROCS; i++)
+		stress_sync_start_init(&s_pids[i]);
 
-	for (i = 0; (stress_continue(args)) && (i < SIZEOF_ARRAY(pids)); i++) {
-		pids[i] = fork();
-		if (pids[i] < 0)
+	for (i = 0; (stress_continue(args)) && (i < STRESS_VMA_PROCS); i++) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0)
 			continue;
-		else if (pids[i] == 0) {
+		else if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
+			stress_sync_start_wait_s_pid(&s_pids[i]);
 			stress_vma_loop(args, ctxt);
 			_exit(0);
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_sync_start_cont_list(s_pids_head);
 
 	do {
 		sleep(1);
 		stress_bogo_set(args, stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]);
 	} while (stress_continue(args));
 
-	return stress_kill_and_wait_many(args, pids, i, SIGALRM, false);
+	ret = stress_kill_and_wait_many(args, s_pids, i, SIGALRM, false);
+	(void)stress_s_pids_munmap(s_pids, STRESS_VMA_PROCS);
+
+	return ret;
 }
 
 /*
@@ -597,6 +617,8 @@ static int stress_vma(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	t1 = stress_time_now();
 	ret = stress_oomable_child(args, &ctxt, stress_vma_child, STRESS_OOMABLE_NORMAL);
 	duration = stress_time_now() - t1;

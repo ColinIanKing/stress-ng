@@ -389,6 +389,7 @@ static int stress_trig(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		if (stess_trig_exercise(args, trig_method)) {

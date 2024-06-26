@@ -516,6 +516,7 @@ static int stress_bad_ioctl(stress_args_t *args)
 	dev_ioctl_node = dev_ioctl_info_head;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

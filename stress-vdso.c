@@ -518,6 +518,7 @@ static int stress_vdso(stress_args_t *args)
 		n_vdso++;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t1 = stress_time_now();
 	do {

@@ -303,12 +303,20 @@ static int stress_flock(stress_args_t *args)
 	int fd, ret, rc = EXIT_FAILURE;
 	const int bad_fd = stress_get_bad_fd();
 	size_t i;
-	pid_t pids[MAX_FLOCK_STRESSORS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	char filename[PATH_MAX];
 
+	s_pids = stress_s_pids_mmap(MAX_FLOCK_STRESSORS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_FLOCK_STRESSORS);
+		return EXIT_NO_RESOURCE;
+        }
+
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
-		return stress_exit_status(-ret);
+	if (ret < 0) {
+		rc = stress_exit_status(-ret);
+		goto err_free_s_pids;
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -320,31 +328,41 @@ static int stress_flock(stress_args_t *args)
 	}
 	(void)close(fd);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
-		pids[i] = fork();
-		if (pids[i] < 0) {
+		stress_sync_start_init(&s_pids[i]);
+
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
 			goto reap;
-		} else if (pids[i] == 0) {
+		} else if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
 			_exit(stress_flock_child(args, filename, bad_fd, false));
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	stress_flock_child(args, filename, bad_fd, true);
 	rc = EXIT_SUCCESS;
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_kill_and_wait_many(args, pids, MAX_FLOCK_STRESSORS, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, MAX_FLOCK_STRESSORS, SIGALRM, true);
 	(void)shim_unlink(filename);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
+err_free_s_pids:
+	(void)stress_s_pids_munmap(s_pids, MAX_FLOCK_STRESSORS);
 
 	return rc;
 }

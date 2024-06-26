@@ -8831,6 +8831,7 @@ static int stress_syscall(stress_args_t *args)
 	syscall_brk_addr = shim_sbrk(0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/*
 	 *  First benchmark all system calls, find the ones

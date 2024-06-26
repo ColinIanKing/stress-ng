@@ -121,6 +121,7 @@ static int stress_pidfd(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	while ((rc == EXIT_SUCCESS) && stress_continue(args)) {
 		pid_t pid;

@@ -433,6 +433,7 @@ static int stress_filename(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	if (!stress_continue_flag()) {
 		/* Time to die */

@@ -630,6 +630,7 @@ static int stress_powmath(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		if (stress_powmath_exercise(args, powmath_method)) {

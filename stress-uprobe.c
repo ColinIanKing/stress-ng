@@ -141,6 +141,7 @@ static int stress_uprobe(stress_args_t *args)
 		getpid(), args->instance);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t_start = stress_time_now();
 	do {

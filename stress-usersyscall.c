@@ -230,6 +230,7 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 	(void)shim_memset(&siginfo, 0, sizeof(siginfo));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		/*

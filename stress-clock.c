@@ -180,6 +180,7 @@ static int stress_clock(stress_args_t *args)
 	stress_mwc_set_seed(0xf238, 0x1872);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \

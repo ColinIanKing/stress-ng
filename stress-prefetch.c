@@ -418,6 +418,7 @@ static int stress_prefetch(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {

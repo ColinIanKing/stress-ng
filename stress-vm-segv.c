@@ -95,6 +95,7 @@ static int stress_vm_segv(stress_args_t *args)
 
 	stress_set_oom_adjustment(args, true);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

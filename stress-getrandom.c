@@ -119,6 +119,7 @@ static int stress_getrandom(stress_args_t *args)
 	double duration = 0.0, bytes = 0.0, rate;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];

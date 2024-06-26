@@ -257,6 +257,7 @@ static int stress_handle(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	ret = stress_oomable_child(args, &mounts,
 		stress_handle_child, STRESS_OOMABLE_NORMAL);

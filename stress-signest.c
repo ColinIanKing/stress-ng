@@ -278,6 +278,7 @@ static int stress_signest(stress_args_t *args)
 
 	jmp_env_ok = true;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t = stress_time_now();
 	do {

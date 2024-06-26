@@ -543,6 +543,7 @@ static int stress_vm_addr(stress_args_t *args)
 	*context.bit_error_count = 0ULL;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	ret = stress_oomable_child(args, &context, stress_vm_addr_child, STRESS_OOMABLE_NORMAL);
 

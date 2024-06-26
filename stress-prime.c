@@ -216,7 +216,7 @@ static int OPTIMIZE3 stress_prime(stress_args_t *args)
 		prime_progress = false;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
+	stress_sync_start_wait(args);
 
 	jumped = false;
 	if (sigsetjmp(jmpbuf, 1) != 0) {

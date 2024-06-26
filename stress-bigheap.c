@@ -220,6 +220,7 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 #if defined(MCL_FUTURE)
 	if (bigheap_mlock)

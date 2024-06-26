@@ -343,6 +343,7 @@ static int stress_rawsock(stress_args_t *args)
 		args->name, (int)args->pid, rawsock_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	rc = stress_oomable_child(args, (void *)&rawsock_port, stress_rawsock_child, STRESS_OOMABLE_NORMAL);
 

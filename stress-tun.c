@@ -111,6 +111,7 @@ static int stress_tun(stress_args_t *args)
 	(void)stress_get_setting("tun-tap", &tun_tap);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int i, fd, sfd, ret, status, parent_cpu;

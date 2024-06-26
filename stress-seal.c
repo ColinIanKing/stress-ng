@@ -80,6 +80,7 @@ static int stress_seal(stress_args_t *args)
 	(void)stress_madvise_mergeable(buf, page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		const off_t sz = (off_t)page_size;

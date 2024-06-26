@@ -1045,6 +1045,8 @@ static stress_iomix_func iomix_funcs[] = {
 #endif
 };
 
+#define MAX_IOMIX_PROCS	(SIZEOF_ARRAY(iomix_funcs))
+
 /*
  *  stress_iomix
  *	stress I/O via random mix of io ops
@@ -1056,13 +1058,19 @@ static int stress_iomix(stress_args_t *args)
 	off_t iomix_bytes = DEFAULT_IOMIX_BYTES;
 	const size_t page_size = args->page_size;
 	size_t i;
-	pid_t pids[SIZEOF_ARRAY(iomix_funcs)];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	const char *fs_type;
 	int oflags = O_CREAT | O_RDWR;
 	bool iomix_bytes_shrunk = false;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
+
+	s_pids = stress_s_pids_mmap(MAX_IOMIX_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, MAX_IOMIX_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
 
 #if defined(O_SYNC)
 	oflags |= O_SYNC;
@@ -1071,7 +1079,8 @@ static int stress_iomix(stress_args_t *args)
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto tidy_s_pids;
 	}
 
 	if (!stress_get_setting("iomix-bytes", &iomix_bytes)) {
@@ -1138,21 +1147,28 @@ static int stress_iomix(stress_args_t *args)
 
 	stress_file_rw_hint_short(fd);
 
-	(void)shim_memset(pids, 0, sizeof(pids));
+	for (i = 0; i < MAX_IOMIX_PROCS; i++) {
+		stress_sync_start_init(&s_pids[i]);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-		pids[i] = fork();
-		if (pids[i] < 0) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
 			goto reap;
-		} else if (pids[i] == 0) {
+		} else if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			/* Child */
 			(void)sched_settings_apply(true);
 			iomix_funcs[i](args, fd, fs_type, iomix_bytes);
 			_exit(EXIT_SUCCESS);
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	do {
 		pause();
@@ -1160,7 +1176,7 @@ static int stress_iomix(stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 reap:
-	stress_kill_and_wait_many(args, pids, SIZEOF_ARRAY(iomix_funcs), SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, MAX_IOMIX_PROCS, SIGALRM, true);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
@@ -1168,6 +1184,8 @@ tidy:
 lock_destroy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_lock_destroy(counter_lock);
+tidy_s_pids:
+	(void)stress_s_pids_munmap(s_pids, MAX_IOMIX_PROCS);
 
 	return ret;
 }

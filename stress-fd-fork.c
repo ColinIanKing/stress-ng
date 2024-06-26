@@ -222,6 +222,7 @@ static int stress_fd_fork(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t_start = stress_time_now();
 	do {

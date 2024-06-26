@@ -237,10 +237,12 @@ static int stress_mknod(stress_args_t *args)
 
 #if defined(HAVE_MKNODAT) &&	\
     defined(O_DIRECTORY)
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	stress_temp_dir(pathname, sizeof(pathname), args->name,
+		args->pid, args->instance);
 	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		register uint64_t i;

@@ -3132,6 +3132,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU

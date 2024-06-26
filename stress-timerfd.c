@@ -276,6 +276,7 @@ static int stress_timerfd(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		uint64_t expval;

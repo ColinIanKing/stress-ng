@@ -151,7 +151,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
 	const int32_t max_cpus = stress_get_processors_configured();
-	pid_t pids[MAX_TLB_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	const pid_t pid = getpid();
 	cpu_set_t proc_mask_initial;
 	int rc = EXIT_SUCCESS;
@@ -166,11 +166,19 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	char filename[PATH_MAX];
 #endif
 
+	s_pids = stress_s_pids_mmap(MAX_TLB_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_TLB_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
+
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
-		return stress_exit_status(-ret);
+	if (ret < 0) {
+		rc = stress_exit_status(-ret);
+		goto err_s_pids;
+	}
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
@@ -221,9 +229,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	CPU_OR(&proc_mask, &proc_mask_initial, &proc_mask);
 
 	for (i = 0; i < tlb_procs; i++)
-		pids[i] = -1;
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+		stress_sync_start_init(&s_pids[i]);
 
 	for (i = 0; i < tlb_procs; i++) {
 		int32_t j, cpu = -1;
@@ -240,18 +246,22 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		if (cpu == -1)
 			break;
 
-		pids[i] = fork();
-		if (pids[i] < 0) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
 			continue;
-		} else if (pids[i] == 0) {
+		} else if (s_pids[i].pid == 0) {
 			cpu_set_t mask;
 			double t_start, t_next;
+
+			s_pids[i].pid = getpid();
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args, true);
+
+                        stress_sync_start_wait_s_pid(&s_pids[i]);
 
 			CPU_ZERO(&mask);
 			CPU_SET(cpu % max_cpus, &mask);
@@ -302,8 +312,14 @@ PRAGMA_UNROLL_N(8)
 
 			(void)shim_kill(pid, SIGALRM);
 			_exit(0);
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	do {
 #if defined(HAVE_MADVISE) &&	\
@@ -338,7 +354,7 @@ PRAGMA_UNROLL_N(8)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_kill_and_wait_many(args, pids, tlb_procs, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, tlb_procs, SIGALRM, true);
 err_munmap_mem:
 	(void)munmap(mem, mmap_size);
 err_munmap_memfd:
@@ -349,6 +365,8 @@ err_close:
 	(void)close(fd);
 err_rmdir:
 	(void)stress_temp_dir_rm_args(args);
+err_s_pids:
+	(void)stress_s_pids_munmap(s_pids, MAX_TLB_PROCS);
 #endif
 	return rc;
 }

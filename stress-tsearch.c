@@ -84,6 +84,7 @@ static int stress_tsearch(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	stress_sort_data_int32_init(data, n);
 

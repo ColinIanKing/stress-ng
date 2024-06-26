@@ -21,6 +21,8 @@
 #include "core-capabilities.h"
 #include "core-killpid.h"
 
+#define STRESS_ACCESS_PROCS	(2)
+
 typedef struct {
 	const mode_t	chmod_mode;
 	const int	access_mode;
@@ -153,19 +155,21 @@ static int shim_faccessat(int dir_fd, const char *pathname, int mode, int flags)
  */
 static pid_t stress_access_spawn(
 	stress_args_t *args,
-	const char *filename)
+	const char *filename,
+	stress_pid_t **s_pids_head,
+	stress_pid_t *s_pid)
 {
-	pid_t pid;
-
-	pid = fork();
-	if (pid < 0) {
+	s_pid->pid = fork();
+	if (s_pid->pid < 0) {
 		pr_inf_skip("%s: fork failed %d (%s), skipping concurrent access stressing\n",
 			args->name, errno, strerror(errno));
 		return -1;
-	} else if (pid == 0) {
+	} else if (s_pid->pid == 0) {
 		/* Concurrent stressor */
-
 		size_t j = 0;
+
+		s_pid->pid = getpid();
+		stress_sync_start_wait_s_pid(s_pid);
 
 		stress_mwc_reseed();
 		shim_nice(1);
@@ -208,16 +212,18 @@ static pid_t stress_access_spawn(
 			shim_sched_yield();
 		} while(stress_continue(args));
 		_exit(0);
+	} else {
+		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return pid;
+	return s_pid->pid;
 }
 
-static void stress_access_reap(pid_t *pid)
+static void stress_access_reap(stress_pid_t *s_pid)
 {
-	if (*pid == -1)
+	if (s_pid->pid == -1)
 		return;
-	(void)stress_kill_pid_wait(*pid, NULL);
-	*pid = -1;
+	(void)stress_kill_pid_wait(s_pid->pid, NULL);
+	s_pid->pid = -1;
 }
 
 /*
@@ -235,7 +241,7 @@ static int stress_access(stress_args_t *args)
 #endif
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 	const char *fs_type;
-	pid_t pid[2] = { -1, -1 };
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	uint32_t rnd32 = stress_mwc32();
 	/* 3 metrics, index 0 for parent, 1 for child, 2 for total */
 	size_t i, metrics_size = sizeof(*metrics) * 3;
@@ -245,9 +251,17 @@ static int stress_access(stress_args_t *args)
 		"exfat", "msdos", "hfs", "fuse"
 	};
 
+	s_pids = stress_s_pids_mmap(STRESS_ACCESS_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_ACCESS_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
+
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) {
+		(void)stress_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
 		return stress_exit_status(-ret);
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename1, sizeof(filename1), rnd32);
@@ -297,14 +311,21 @@ static int stress_access(stress_args_t *args)
 	metrics[1].duration = 0.0;
 	metrics[1].count = 0.0;
 
-	pid[0] = stress_access_spawn(args, filename2);
-	if (pid[0] >= 0) {
-		pid[1] = stress_access_spawn(args, filename2);
-		if (pid[1] < 0)
-			stress_access_reap(&pid[0]);
+	stress_sync_start_init(&s_pids[0]);
+	stress_sync_start_init(&s_pids[1]);
+
+	if (stress_access_spawn(args, filename2, &s_pids_head, &s_pids[0]) >= 0) {
+		if (stress_access_spawn(args, filename2, &s_pids_head, &s_pids[1]) < 0) {
+			stress_access_reap(&s_pids[0]);
+			pr_inf_skip("%s: cannot spawn access child process, skipping stressor\n", args->name);
+			rc = EXIT_NO_RESOURCE;
+			goto unmap;
+		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
@@ -467,8 +488,8 @@ unmap:
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_access_reap(&pid[1]);
-	stress_access_reap(&pid[0]);
+	stress_access_reap(&s_pids[1]);
+	stress_access_reap(&s_pids[0]);
 
 	if (fd2 >= 0) {
 		(void)fchmod(fd2, S_IRUSR | S_IWUSR);
@@ -481,6 +502,7 @@ tidy:
 	(void)shim_unlink(filename2);
 	(void)shim_unlink(filename1);
 	(void)stress_temp_dir_rm_args(args);
+	(void)stress_s_pids_munmap(s_pids, STRESS_ACCESS_PROCS);
 
 	return rc;
 }

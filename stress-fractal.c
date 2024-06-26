@@ -278,6 +278,7 @@ static int stress_fractal(stress_args_t *args)
 
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	info.dx = (info.xmax - info.xmin) / (double)info.xsize;
 	info.dy = (info.ymax - info.ymin) / (double)info.ysize;

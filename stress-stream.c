@@ -920,6 +920,7 @@ case_stream_index_1:
 	init_counter_max = verify ? 1 : 64;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	rc = EXIT_SUCCESS;
 	dt = 0.0;

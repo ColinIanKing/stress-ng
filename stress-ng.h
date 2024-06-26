@@ -163,6 +163,13 @@
  */
 #define STRESS_MISC_METRICS_MAX			(96)
 
+typedef struct stress_pid {
+	struct stress_pid *next;	/* next stress_pid in list, or NULL */
+	pid_t pid;			/* PID of process */
+	pid_t oomable_child;		/* oomable child pid, zero = none */
+	volatile int state;		/* sync start state */
+} stress_pid_t;
+
 typedef struct {
 	uint64_t counter;		/* bogo-op counter */
 	bool counter_ready;		/* ready flag */
@@ -195,11 +202,12 @@ typedef struct {
 	stress_counter_info_t ci;	/* counter info struct */
 	uint32_t instance;		/* stressor instance # */
 	uint32_t num_instances;		/* number of instances */
-	pid_t pid;			/* stressor pid */
+	pid_t pid;			/* stress pid info */
 	size_t page_size;		/* page size */
 	double time_end;		/* when to end */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
 	stress_metrics_data_t *metrics;	/* misc per stressor metrics */
+	struct stress_stats *stats; 	/* stressor stats */
 	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
 
@@ -522,7 +530,7 @@ typedef struct stress_stats {
 	double duration;		/* finish - start */
 	uint64_t counter_total;		/* counter total */
 	double duration_total;		/* wall clock duration */
-	pid_t pid;			/* stressor pid */
+	stress_pid_t s_pid;		/* stressor pid */
 	bool sigalarmed;		/* set true if signalled with SIGALRM */
 	bool signalled;			/* set true if signalled with a kill */
 	bool completed;			/* true if stressor completed */
@@ -810,6 +818,21 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 #define STRESS_METRIC_MAXIMUM		(0x4)
 
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
+extern void stress_sync_start_init(stress_pid_t *s_pid);
+extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
+extern void stress_sync_start_cont(stress_args_t *args, const pid_t pid);
+extern void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
+extern void stress_sync_start_wait(stress_args_t *args);
+extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);
+extern stress_pid_t *stress_s_pids_mmap(const size_t num);
+extern int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num);
+
+static inline void stress_sync_start_s_pid_list_add(stress_pid_t **s_pids_head, stress_pid_t *s_pid)
+{
+	s_pid->next = *s_pids_head;
+	*s_pids_head = s_pid;
+}
+
 extern void stress_shared_readonly(void);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);

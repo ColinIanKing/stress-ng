@@ -117,6 +117,7 @@ static int stress_vm_splice(stress_args_t *args)
 	prime = stress_get_prime64(vm_splice_bytes);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	(void)shim_memset(buf, 0, sz);
 	do {

@@ -743,6 +743,7 @@ static int stress_wcs(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		register wchar_t *tmpptr;

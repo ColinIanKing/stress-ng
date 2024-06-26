@@ -181,7 +181,8 @@ static void stress_touch_dir_clean(stress_args_t *args)
 	struct dirent *d;
 
 	sync();
-	stress_temp_dir(tmp, sizeof(tmp), args->name, args->pid, args->instance);
+	stress_temp_dir(tmp, sizeof(tmp), args->name,
+		args->pid, args->instance);
 	dir = opendir(tmp);
 
 	if (!dir)
@@ -303,12 +304,19 @@ static int stress_touch(stress_args_t *args)
 	int ret;
 	int open_flags = 0;
 	int touch_method = TOUCH_RANDOM;
-	pid_t pids[TOUCH_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i;
+
+	s_pids = stress_s_pids_mmap(TOUCH_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, TOUCH_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
 
 	touch_lock = stress_lock_create();
 	if (!touch_lock) {
 		pr_inf_skip("%s: cannot create lock, skipping stressor\n", args->name);
+		(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -321,29 +329,41 @@ static int stress_touch(stress_args_t *args)
 		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);
 
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) {
+		(void)stress_lock_destroy(touch_lock);
+		(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);
 		return stress_exit_status(-ret);
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	}
 
 	for (i = 0; i < TOUCH_PROCS; i++) {
-		pids[i] = fork();
+		stress_sync_start_init(&s_pids[i]);
 
-		if (pids[i] == 0) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			stress_touch_loop(args, touch_method, open_flags);
 			_exit(0);
+		} else if (s_pids[i].pid > 0) {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
+
 	stress_touch_loop(args, touch_method, open_flags);
 
 	stress_continue_set_flag(false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_kill_and_wait_many(args, pids, TOUCH_PROCS, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, TOUCH_PROCS, SIGALRM, true);
 	stress_touch_dir_clean(args);
 	(void)stress_temp_dir_rm_args(args);
 	(void)stress_lock_destroy(touch_lock);
+	(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);
 
 	return EXIT_SUCCESS;
 }

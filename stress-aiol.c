@@ -508,6 +508,7 @@ retry_open:
 	(void)shim_unlink(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		uint8_t *bufptr;

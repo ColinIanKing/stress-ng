@@ -110,12 +110,14 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	if (stress_set_sockaddr_if(args->name, args->instance, args->pid,
+	if (stress_set_sockaddr_if(args->name, args->instance,
+			args->pid,
 			udp_flood_domain, port, udp_flood_if,
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t = stress_time_now();
 	do {

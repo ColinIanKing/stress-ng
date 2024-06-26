@@ -400,6 +400,7 @@ static int stress_sleep(stress_args_t *args)
 	(void)sigfillset(&set);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	for (n = 0; n < sleep_max; n++) {
 		ctxts[n].args = args;

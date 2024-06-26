@@ -203,6 +203,7 @@ static int stress_fsize(stress_args_t *args)
 	stress_file_rw_hint_short(fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t = stress_time_now();
 	max = STRESS_MINIMUM(old_rlim.rlim_max, 1024 * 256);

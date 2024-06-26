@@ -329,7 +329,7 @@ static int stress_metamix(stress_args_t *args)
 	int ret;
 	off_t metamix_bytes = DEFAULT_METAMIX_BYTES;
 	size_t i;
-	pid_t pids[METAMIX_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	uint32_t w, z;
 	char temp_dir[PATH_MAX];
 	const char *fs_type;
@@ -337,10 +337,17 @@ static int stress_metamix(stress_args_t *args)
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
+	s_pids = stress_s_pids_mmap(METAMIX_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, METAMIX_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
+
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto tidy_s_pids;
 	}
 
 	(void)stress_get_setting("metamix-bytes", &metamix_bytes);
@@ -353,35 +360,43 @@ static int stress_metamix(stress_args_t *args)
 	}
 	fs_type = stress_get_fs_type(temp_dir);
 
-	(void)shim_memset(pids, 0, sizeof(pids));
 	stress_mwc_get_seed(&w, &z);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-	for (i = 0; i < SIZEOF_ARRAY(pids); i++) {
+	for (i = 0; i < METAMIX_PROCS; i++) {
 		(void)stress_mwc_set_seed(w ^ i, z + i);
 		(void)stress_mwc32();
 
-		pids[i] = fork();
-		if (pids[i] < 0) {
+		stress_sync_start_init(&s_pids[i]);
+
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
 			goto reap;
-		} else if (pids[i] == 0) {
+		} else if (s_pids[i].pid == 0) {
 			/* Child */
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
 
 			(void)sched_settings_apply(true);
+
 			do {
 				ret = stress_metamix_file(args, temp_dir, fs_type, (uint32_t)i, metamix_bytes);
 			} while (stress_bogo_inc_lock(args, counter_lock, true) && (ret == EXIT_SUCCESS));
 			_exit(ret);
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	do {
 		ret = stress_metamix_file(args, temp_dir, fs_type, (uint32_t)i, metamix_bytes);
 	} while (stress_bogo_inc_lock(args, counter_lock, true) && (ret == EXIT_SUCCESS));
 
 reap:
-	if (stress_kill_and_wait_many(args, pids, SIZEOF_ARRAY(pids), SIGALRM, true) != EXIT_SUCCESS)
+	if (stress_kill_and_wait_many(args, s_pids, METAMIX_PROCS, SIGALRM, true) != EXIT_SUCCESS)
 		ret = EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -389,6 +404,9 @@ reap:
 lock_destroy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_lock_destroy(counter_lock);
+tidy_s_pids:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)stress_s_pids_munmap(s_pids, METAMIX_PROCS);
 
 	return ret;
 }

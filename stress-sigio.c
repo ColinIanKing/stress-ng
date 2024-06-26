@@ -163,6 +163,7 @@ again:
 		(void)close(fds[0]);
 		(void)shim_memset(wr_buffer, 0, BUFFER_SIZE);
 
+		
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 		while (stress_continue(args)) {
@@ -180,6 +181,7 @@ again:
 	fds[1] = -1;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		goto reap;

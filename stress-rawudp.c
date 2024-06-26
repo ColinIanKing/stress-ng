@@ -309,6 +309,7 @@ static int stress_rawudp(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

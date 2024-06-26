@@ -402,6 +402,7 @@ static int stress_vecshuf(stress_args_t *args)
 
 	stress_vecshuf_set_data(data);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		stress_vecshuf_set_mask(data);

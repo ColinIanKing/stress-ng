@@ -412,6 +412,7 @@ static int stress_shm(stress_args_t *args)
 	}
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	while (stress_continue_flag() && retry) {
 		if (pipe(pipefds) < 0) {

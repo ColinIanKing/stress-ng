@@ -289,6 +289,7 @@ retry:
 	free(ptrs);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		stress_randlist_exercise(args, head, randlist_size, verify, &rc);

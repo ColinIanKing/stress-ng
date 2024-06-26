@@ -744,6 +744,7 @@ static int stress_cacheline(stress_args_t *args)
 	func = cacheline_methods[cacheline_method].func;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	pid = fork();
 	if (pid < 0) {

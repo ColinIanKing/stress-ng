@@ -464,7 +464,8 @@ static int stress_dir(stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	pid_t pid;
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	stress_temp_dir(pathname, sizeof(pathname), args->name,
+		args->pid, args->instance);
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
 
 	ret = stress_temp_dir_mk_args(args);
@@ -475,6 +476,7 @@ static int stress_dir(stress_args_t *args)
 	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	pid = fork();
 	if (pid == 0) {

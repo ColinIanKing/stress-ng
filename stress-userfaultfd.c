@@ -366,6 +366,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 	c.parent = self;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/*
 	 *  We need to clone and share the same VM address space

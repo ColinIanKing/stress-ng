@@ -421,6 +421,7 @@ static int stress_numa(stress_args_t *args)
 
 	stress_numa_stats_read(&stats_begin);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	k = 0;
 	t = stress_time_now();

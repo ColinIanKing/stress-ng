@@ -249,6 +249,7 @@ again:
 		int status, ret;
 		double t_end = stress_time_now() + WAIT_TIMEOUT;
 
+		args->stats->s_pid.oomable_child = pid;
 rewait:
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 		ret = waitpid(pid, &status, 0);

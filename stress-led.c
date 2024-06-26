@@ -262,6 +262,7 @@ static int stress_led(stress_args_t *args)
 		pr_inf("%s: unable to set LED settings, need root privilege\n", args->name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	led_info_list = stress_led_info_get();
 	if (!led_info_list) {

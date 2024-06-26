@@ -789,6 +789,7 @@ static int stress_fcntl(stress_args_t *args)
 		args->name, ppid, 0, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 #if defined(O_PATH)
 	path_fd = open("/bin/true", O_PATH | O_RDONLY);

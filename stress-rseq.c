@@ -239,6 +239,7 @@ static int stress_rseq(stress_args_t *args)
 		pr_dbg("libc rseq_area @ %p\n", rseq_area);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
 

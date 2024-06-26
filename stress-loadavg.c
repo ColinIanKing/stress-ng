@@ -237,6 +237,7 @@ static int stress_loadavg(stress_args_t *args)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	keep_thread_running_flag = true;
 

@@ -89,7 +89,6 @@ static int stress_full(stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	int fd = -1;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	buffer = stress_mmap_populate(NULL, buffer_size,
 			PROT_READ | PROT_WRITE,
@@ -100,6 +99,9 @@ static int stress_full(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	(void)stress_madvise_mergeable(buffer, buffer_size);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		ssize_t ret;

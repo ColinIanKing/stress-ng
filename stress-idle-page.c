@@ -82,6 +82,7 @@ static int stress_idle_page(stress_args_t *args)
 	(void)shim_memset(bitmap_set, 0xff, sizeof(bitmap_set));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		off_t oret;

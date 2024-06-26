@@ -50,7 +50,7 @@ static int stress_resources(stress_args_t *args)
 	size_t num_pids = MAX_PIDS;
 	stress_resources_t *resources;
 	const size_t num_resources = MAX_LOOPS;
-	pid_t *pids;
+	stress_pid_t *s_pids;
 	bool resources_mlock = false;
 
 	(void)stress_get_setting("resources-mlock", &resources_mlock);
@@ -67,10 +67,9 @@ static int stress_resources(stress_args_t *args)
 	UNEXPECTED
 #endif
 
-	pids = malloc(num_pids * sizeof(*pids));
-	if (!pids) {
-		pr_inf_skip("%s: cannot allocate %zd process ids, skipping stressor\n",
-			args->name, num_pids);
+	s_pids = stress_s_pids_mmap(num_pids);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %zu PIDs, skipping stressor\n", args->name, num_pids);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -78,16 +77,17 @@ static int stress_resources(stress_args_t *args)
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",
 			args->name, num_resources);
-		free(pids);
+		(void)stress_s_pids_munmap(s_pids, num_pids);
 		return EXIT_NO_RESOURCE;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		unsigned int i;
 
-		(void)shim_memset(pids, 0, sizeof(*pids));
+		(void)shim_memset(s_pids, 0, sizeof(*s_pids));
 		for (i = 0; i < num_pids; i++) {
 			pid_t pid;
 
@@ -108,17 +108,17 @@ static int stress_resources(stress_args_t *args)
 				_exit(0);
 			}
 
-			pids[i] = pid;
+			s_pids[i].pid = pid;
 			if (!stress_continue(args))
 				break;
 			stress_bogo_inc(args);
 		}
-		stress_kill_and_wait_many(args, pids, num_pids, SIGALRM, true);
+		stress_kill_and_wait_many(args, s_pids, num_pids, SIGALRM, true);
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(resources);
-	free(pids);
+	(void)stress_s_pids_munmap(s_pids, num_pids);
 
 	return EXIT_SUCCESS;
 }

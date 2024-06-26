@@ -299,7 +299,7 @@ static int stress_fpunch(stress_args_t *args)
 	int fd = -1, ret, rc = EXIT_SUCCESS;
 	char filename[PATH_MAX];
 	off_t offset;
-	pid_t pids[STRESS_PUNCH_PIDS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i, extents, n;
 	const size_t stride = (size_t)BUF_SIZE << 1;
 	stress_punch_buf_t *buf;
@@ -308,13 +308,20 @@ static int stress_fpunch(stress_args_t *args)
 	(void)stress_get_setting("fpunch-bytes", &fpunch_bytes);
 	max_punches = (off_t)(fpunch_bytes / (off_t)stride);
 
+	s_pids = stress_s_pids_mmap(STRESS_PUNCH_PIDS);
+	if (s_pids == MAP_FAILED) {
+                pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_PUNCH_PIDS);
+		return EXIT_NO_RESOURCE;
+        }
+
 	buf = (stress_punch_buf_t *)stress_mmap_populate(NULL, sizeof(*buf),
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf("%s: failed to mmap %zd sized buffer, errno=%d (%s), skipping stressor\n",
 			args->name, sizeof(*buf), errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_s_pids;
 	}
 	(void)stress_madvise_mergeable(buf, sizeof(*buf));
 
@@ -365,23 +372,31 @@ static int stress_fpunch(stress_args_t *args)
 		goto tidy;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
-		pids[i] = fork();
-		if (pids[i] == 0) {
+		stress_sync_start_init(&s_pids[i]);
+
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
 			if (stress_punch_file(args, buf, fpunch_bytes, i, fd) < 0)
 				_exit(EXIT_FAILURE);
 			_exit(EXIT_SUCCESS);
+		} else if (s_pids[i].pid > 0) {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head); 
 
 	/* Wait for test run duration to complete */
 	(void)sleep((unsigned int)g_opt_timeout);
 
-	if (stress_kill_and_wait_many(args, pids, STRESS_PUNCH_PIDS, SIGALRM, true) != EXIT_SUCCESS)
+	if (stress_kill_and_wait_many(args, s_pids, STRESS_PUNCH_PIDS, SIGALRM, true) != EXIT_SUCCESS)
 		rc = EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -398,6 +413,8 @@ tidy_temp:
 	(void)stress_temp_dir_rm_args(args);
 tidy_buf:
 	(void)munmap((void *)buf, sizeof(*buf));
+tidy_s_pids:
+	(void)stress_s_pids_munmap(s_pids, STRESS_PUNCH_PIDS);
 
 	return rc;
 }

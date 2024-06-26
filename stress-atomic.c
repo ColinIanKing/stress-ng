@@ -358,7 +358,7 @@ static atomic_func_info_t atomic_func_info[] = {
 
 typedef struct {
 	stress_metrics_t metrics[STRESS_ATOMIC_MAX_FUNCS];
-	pid_t pid;
+	stress_pid_t s_pid;
 } stress_atomic_info_t;
 
 static int stress_atomic_exercise(
@@ -366,6 +366,7 @@ static int stress_atomic_exercise(
 	stress_atomic_info_t *atomic_info)
 {
 	const int rounds = 1000;
+
 	do {
 		size_t i;
 
@@ -393,6 +394,7 @@ static int stress_atomic(stress_args_t *args)
 {
 	size_t i, j, atomic_info_sz;
 	stress_atomic_info_t *atomic_info;
+	stress_pid_t *s_pid_head = NULL;
 	const size_t n_atomic_procs = STRESS_ATOMIC_MAX_PROCS + 1;
 	int rc = EXIT_SUCCESS;
 
@@ -408,7 +410,7 @@ static int stress_atomic(stress_args_t *args)
 	}
 
 	for (i = 0; i < n_atomic_procs; i++) {
-		atomic_info[i].pid = -1;
+		stress_sync_start_init(&atomic_info[i].s_pid);
 		for (j = 0; j < STRESS_ATOMIC_MAX_FUNCS; j++) {
 			atomic_info[i].metrics[j].duration = 0.0;
 			atomic_info[i].metrics[j].count = 0.0;
@@ -421,23 +423,28 @@ static int stress_atomic(stress_args_t *args)
 		pid_t pid;
 
 		pid = fork();
-
 		if (pid == 0) {
+			stress_sync_start_wait_s_pid(&atomic_info[i].s_pid);
 			if (stress_atomic_exercise(args, &atomic_info[i]) < 0)
 				_exit(EXIT_FAILURE);
 			_exit(EXIT_SUCCESS);
 		}
-		atomic_info[i].pid = pid;
+		atomic_info[i].s_pid.pid = pid;
+		if (pid > 0)
+			stress_sync_start_s_pid_list_add(&s_pid_head, &atomic_info[i].s_pid);
 	}
+
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pid_head);
 
 	if (stress_atomic_exercise(args, &atomic_info[n_atomic_procs - 1]) < 0)
 		rc = EXIT_FAILURE;
 
 	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
-		if (atomic_info[i].pid > 0) {
+		if (atomic_info[i].s_pid.pid > 0) {
 			int status;
 
-			if (waitpid(atomic_info[i].pid, &status, WNOHANG) == atomic_info[i].pid) {
+			if (waitpid(atomic_info[i].s_pid.pid, &status, WNOHANG) == atomic_info[i].s_pid.pid) {
 				if (WIFEXITED(status)) {
 					if (WEXITSTATUS(status) == EXIT_FAILURE)
 						rc = EXIT_FAILURE;
@@ -445,11 +452,11 @@ static int stress_atomic(stress_args_t *args)
 				}
 			}
 
-			if (shim_kill(atomic_info[i].pid, 0) == 0) {
+			if (shim_kill(atomic_info[i].s_pid.pid, 0) == 0) {
 				stress_force_killed_bogo(args);
-				(void)stress_kill_pid(atomic_info[i].pid);
+				(void)stress_kill_pid(atomic_info[i].s_pid.pid);
 			}
-			(void)waitpid(atomic_info[i].pid, &status, 0);
+			(void)waitpid(atomic_info[i].s_pid.pid, &status, 0);
 		}
 	}
 

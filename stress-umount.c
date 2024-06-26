@@ -17,12 +17,15 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
 
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
 #endif
+
+#define STRESS_UMOUNT_PROCS	(3)
 
 static const stress_help_t help[] = {
 	{ NULL,	"umount N",	 "start N workers exercising umount races" },
@@ -192,13 +195,13 @@ cleanup:
 static pid_t stress_umount_spawn(
 	stress_args_t *args,
 	const char *path,
-	void (*func)(stress_args_t *args, const char *path))
+	void (*func)(stress_args_t *args, const char *path),
+	stress_pid_t **s_pid_head,
+	stress_pid_t *s_pid)
 {
-	pid_t pid;
-
 again:
-	pid = fork();
-	if (pid < 0) {
+	s_pid->pid = fork();
+	if (s_pid->pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
 		if (!stress_continue(args))
@@ -206,19 +209,25 @@ again:
 		pr_inf("%s: fork failed: %d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return -1;
-	}
-	if (pid == 0) {
+	} else if (s_pid->pid == 0) {
+		s_pid->pid = getpid();
+
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+
+		stress_sync_start_wait_s_pid(s_pid);
 
 		stress_set_proc_state(args->name, STRESS_STATE_RUN);
 		func(args, path);
 		stress_set_proc_state(args->name, STRESS_STATE_WAIT);
 
 		_exit(EXIT_SUCCESS);
+	} else {
+		stress_sync_start_s_pid_list_add(s_pid_head, s_pid);
 	}
-	return pid;
+	return s_pid->pid;
 }
+
 
 /*
  *  stress_umount()
@@ -226,37 +235,52 @@ again:
  */
 static int stress_umount(stress_args_t *args)
 {
-	pid_t pids[3] = { -1, -1, -1 };
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	int ret = EXIT_NO_RESOURCE;
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 
-	if (stress_sigchld_set_handler(args) < 0)
+	s_pids = stress_s_pids_mmap(STRESS_UMOUNT_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, STRESS_UMOUNT_PROCS);
 		return EXIT_NO_RESOURCE;
+	}
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	stress_sync_start_init(&s_pids[0]);
+	stress_sync_start_init(&s_pids[1]);
+	stress_sync_start_init(&s_pids[2]);
+
+	if (stress_sigchld_set_handler(args) < 0) {
+		(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
+
+	stress_temp_dir(pathname, sizeof(pathname), args->name,
+		args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
+		(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_FAILURE;
 	}
 	if (!realpath(pathname, realpathname)) {
 		pr_fail("%s: cannot realpath %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
+		(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 		return EXIT_FAILURE;
 	}
 
-	pids[0] = stress_umount_spawn(args, realpathname, stress_umount_mounter);
-	if (pids[0] < 1)
+
+	if (stress_umount_spawn(args, realpathname, stress_umount_mounter, &s_pids_head, &s_pids[0]) < 0)
 		goto reap;
-	pids[1] = stress_umount_spawn(args, realpathname, stress_umount_umounter);
-	if (pids[1] < 1)
+	if (stress_umount_spawn(args, realpathname, stress_umount_umounter, &s_pids_head, &s_pids[1]) < 0)
 		goto reap;
-	pids[2] = stress_umount_spawn(args, realpathname, stress_umount_read_proc_mounts);
-	if (pids[2] < 1)
+	if (stress_umount_spawn(args, realpathname, stress_umount_read_proc_mounts, &s_pids_head, &s_pids[2]) < 0)
 		goto reap;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	/* Wait for SIGALARMs */
 	do {
@@ -266,8 +290,9 @@ static int stress_umount(stress_args_t *args)
 	ret = EXIT_SUCCESS;
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_kill_and_wait_many(args, pids, SIZEOF_ARRAY(pids), SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, STRESS_UMOUNT_PROCS, SIGALRM, true);
 	(void)stress_temp_dir_rm_args(args);
+	(void)stress_s_pids_munmap(s_pids, STRESS_UMOUNT_PROCS);
 
 	return ret;
 }

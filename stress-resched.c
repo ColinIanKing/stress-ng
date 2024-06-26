@@ -126,20 +126,20 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
  */
 static void stress_resched_spawn(
 	stress_args_t *args,
-	pid_t *pids,
+	stress_pid_t *s_pids,
 	const int idx,
 	const int max_prio,
 	uint64_t *yields)
 {
 	pid_t pid;
 
-	pids[idx] = -1;
+	s_pids[idx].pid = -1;
 
 	pid = fork();
 	if (pid == 0) {
 		stress_resched_child(args, idx, max_prio, yields);
 	} else if (pid > 0) {
-		pids[idx] = pid;
+		s_pids[idx].pid = pid;
 	}
 }
 
@@ -149,11 +149,11 @@ static void stress_resched_spawn(
  */
 static int stress_resched(stress_args_t *args)
 {
-	pid_t *pids;
+	stress_pid_t *s_pids;
 	int rc = EXIT_SUCCESS;
 
 #if defined(HAVE_SETPRIORITY)
-	int i, pids_max, max_prio = 19;
+	int i, s_pids_max, max_prio = 19;
 	size_t yields_size;
 	uint64_t *yields;
 
@@ -167,22 +167,21 @@ static int stress_resched(stress_args_t *args)
 	}
 #endif
 #endif
-	pids_max = max_prio + 1; /* 0.. max_prio */
-	pids = calloc((size_t)pids_max, sizeof(*pids));
-	if (!pids) {
-		pr_inf_skip("%s: cannot allocate pids array, skipping stressor, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+	s_pids_max = max_prio + 1; /* 0.. max_prio */
+	s_pids = stress_s_pids_mmap((size_t)s_pids_max);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, s_pids_max);
 		return EXIT_NO_RESOURCE;
 	}
-	for (i = 0; i < pids_max; i++)
-		pids[i] = -1;
+	for (i = 0; i < s_pids_max; i++)
+		s_pids[i].pid = -1;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_resched_usr1_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
-		goto free_pids;
+		goto tidy_s_pids;
 	}
 
-	yields_size = ((sizeof(*yields) * (size_t)pids_max) + args->page_size - 1) & ~(args->page_size - 1);
+	yields_size = ((sizeof(*yields) * (size_t)s_pids_max) + args->page_size - 1) & ~(args->page_size - 1);
 	yields = (uint64_t *)stress_mmap_populate(NULL, yields_size,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -190,14 +189,15 @@ static int stress_resched(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap yield counter array, skipping stressor, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
-		goto free_pids;
+		goto tidy_s_pids;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	/* Start off one child process per positive nice level */
-	for (i = 0; stress_continue(args) && (i < pids_max); i++)
-		stress_resched_spawn(args, pids, i, max_prio, yields);
+	for (i = 0; stress_continue(args) && (i < s_pids_max); i++)
+		stress_resched_spawn(args, s_pids, i, max_prio, yields);
 
 	do {
 		pid_t pid;
@@ -213,14 +213,14 @@ static int stress_resched(stress_args_t *args)
 			 *  Find unstarted process or process that just terminated
 			 *  and respawn it at the nice level of the given slot
 			 */
-			for (i = 0; i < pids_max; i++) {
-				if ((pids[i] == -1) || (pid == pids[i]))
-					stress_resched_spawn(args, pids, i, max_prio, yields);
+			for (i = 0; i < s_pids_max; i++) {
+				if ((s_pids[i].pid == -1) || (pid == s_pids[i].pid))
+					stress_resched_spawn(args, s_pids, i, max_prio, yields);
 			}
 		}
 	} while (stress_continue(args));
 
-	if (stress_kill_and_wait_many(args, pids, pids_max, SIGALRM, true) == EXIT_FAILURE)
+	if (stress_kill_and_wait_many(args, s_pids, s_pids_max, SIGALRM, true) == EXIT_FAILURE)
 		rc = EXIT_FAILURE;
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -230,11 +230,11 @@ static int stress_resched(stress_args_t *args)
 	if (args->instance == 0) {
 		uint64_t total_yields = 0;
 
-		for (i = 0; i < pids_max; i++)
+		for (i = 0; i < s_pids_max; i++)
 			total_yields += yields[i];
 
 		pr_block_begin();
-		for (i = 0; i < pids_max; i++) {
+		for (i = 0; i < s_pids_max; i++) {
 			if (yields[i] > 0) {
 				double percent = 100.0 * ((double)yields[i]/ (double)total_yields);
 
@@ -254,8 +254,8 @@ static int stress_resched(stress_args_t *args)
 	}
 
 	(void)munmap((void *)yields, yields_size);
-free_pids:
-	free(pids);
+tidy_s_pids:
+	(void)stress_s_pids_munmap(s_pids, (size_t)s_pids_max);
 
 	return rc;
 }

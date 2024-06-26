@@ -184,13 +184,14 @@ static int stress_wait(stress_args_t *args)
 	options |= WCONTINUED;
 #endif
 
-	pr_dbg("%s: waiter started [%d]\n",
-		args->name, (int)args->pid);
+	pr_dbg("%s: waiter started [%jd]\n",
+		args->name, (intmax_t)args->pid);
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_sighandler_nop, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {

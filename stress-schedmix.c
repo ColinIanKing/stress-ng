@@ -445,9 +445,10 @@ case_sched_fifo:
 
 static int stress_schedmix(stress_args_t *args)
 {
-	pid_t pids[MAX_SCHEDMIX_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i;
 	size_t schedmix_procs = DEFAULT_SCHEDMIX_PROCS;
+	int rc;
 	const int parent_cpu = stress_get_cpu();
 
 	if (stress_sched_types_length == (0)) {
@@ -457,6 +458,12 @@ static int stress_schedmix(stress_args_t *args)
 				args->name);
 		}
 		return EXIT_NOT_IMPLEMENTED;
+	}
+
+	s_pids = stress_s_pids_mmap(MAX_SCHEDMIX_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SCHEDMIX_PROCS);
+		return EXIT_NO_RESOURCE;
 	}
 
 #if defined(HAVE_SCHEDMIX_SEM)
@@ -476,25 +483,30 @@ static int stress_schedmix(stress_args_t *args)
 
 	(void)stress_get_setting("schedmix-procs", &schedmix_procs);
 
-	for (i = 0; i < schedmix_procs; i++)
-		pids[i] = -1;
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-
 	for (i = 0; i < schedmix_procs; i++) {
+		stress_sync_start_init(&s_pids[i]);
+
 		stress_mwc_reseed();
 
-		pids[i] = fork();
-		if (pids[i] < 0) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid < 0) {
 			continue;
-		} else if (pids[i] == 0) {
+		} else if (s_pids[i].pid == 0) {
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			VOID_RET(int, nice(stress_mwc8modn(7)));
 			stress_parent_died_alarm();
 			(void)stress_change_cpu(args, parent_cpu);
 			_exit(stress_schedmix_child(args));
+		} else {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	do {
 		pause();
@@ -509,7 +521,11 @@ static int stress_schedmix(stress_args_t *args)
 	}
 #endif
 
-	return stress_kill_and_wait_many(args, pids, schedmix_procs, SIGALRM, true);
+	rc = stress_kill_and_wait_many(args, s_pids, schedmix_procs, SIGALRM, true);
+
+	(void)stress_s_pids_munmap(s_pids, MAX_SCHEDMIX_PROCS);
+
+	return rc;
 }
 
 stressor_info_t stress_schedmix_info = {

@@ -523,24 +523,29 @@ timed_out:
  *  semaphore_sysv_spawn()
  *	spawn a process
  */
-static pid_t semaphore_sysv_spawn(stress_args_t *args)
+static pid_t semaphore_sysv_spawn(
+	stress_args_t *args,
+	stress_pid_t **s_pids_head,
+	stress_pid_t *s_pid)
 {
-	pid_t pid;
-
 again:
-	pid = fork();
-	if (pid < 0) {
+	s_pid->pid = fork();
+	if (s_pid->pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
 		return -1;
-	}
-	if (pid == 0) {
+	} else if (s_pid->pid == 0) {
+		s_pid->pid = getpid();
+		stress_sync_start_wait_s_pid(s_pid);
+
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
 		_exit(stress_semaphore_sysv_thrash(args));
+	} else {
+		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
-	return pid;
+	return s_pid->pid;
 }
 
 /*
@@ -549,7 +554,7 @@ again:
  */
 static int stress_sem_sysv(stress_args_t *args)
 {
-	pid_t pids[MAX_SEM_SYSV_PROCS];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	uint64_t i;
 	uint64_t semaphore_sysv_procs = DEFAULT_SEM_SYSV_PROCS;
 	int rc = EXIT_SUCCESS;
@@ -569,25 +574,35 @@ static int stress_sem_sysv(stress_args_t *args)
 			semaphore_sysv_procs = MIN_SEM_SYSV_PROCS;
 	}
 
-
 	if (stress_sighandler(args->name, SIGCHLD, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	s_pids = stress_s_pids_mmap(MAX_SEM_SYSV_PROCS);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SEM_SYSV_PROCS);
+		return EXIT_NO_RESOURCE;
+	}
 
-	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_sysv_procs; i++) {
-		pids[i] = semaphore_sysv_spawn(args);
-		if (!stress_continue_flag() || pids[i] < 0)
+		stress_sync_start_init(&s_pids[i]);
+
+		if (semaphore_sysv_spawn(args, &s_pids_head, &s_pids[i]) < 0)
+			goto reap;
+		if (!stress_continue_flag())
 			goto reap;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
 
 	/* Wait for termination */
 	while (stress_continue(args))
 		pause();
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_kill_and_wait_many(args, pids, semaphore_sysv_procs, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, semaphore_sysv_procs, SIGALRM, true);
+	stress_s_pids_munmap(s_pids, MAX_SEM_SYSV_PROCS);
 
 	return rc;
 }

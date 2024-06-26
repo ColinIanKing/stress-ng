@@ -37,6 +37,7 @@ static int stress_sigpending(stress_args_t *args)
 		return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		(void)sigemptyset(&new_sigset);

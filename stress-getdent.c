@@ -288,6 +288,7 @@ static int stress_getdent(stress_args_t *args)
 	double duration = 0.0, count = 0.0, rate;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int ret;

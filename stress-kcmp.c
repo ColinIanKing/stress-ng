@@ -127,7 +127,7 @@ static int stress_kcmp(stress_args_t *args)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-	int efd, sfd;
+	int efd = -1, sfd = -1;
 	int so_reuseaddr = 1;
 	struct epoll_event ev;
 	struct sockaddr *addr = NULL;
@@ -137,6 +137,10 @@ static int stress_kcmp(stress_args_t *args)
 	int ret = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
+	int port = 23000, reserved_port;
+#endif
 
 	static const char *capfail =
 		"need CAP_SYS_PTRACE capability to run kcmp stressor, "
@@ -150,55 +154,57 @@ static int stress_kcmp(stress_args_t *args)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
-	efd = -1;
-	if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		sfd = -1;
-		goto again;
-	}
-	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
-			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		(void)close(sfd);
-		sfd = -1;
-		goto again;
-	}
-	if (stress_set_sockaddr(args->name, args->instance, mypid,
-		AF_INET, 23000, &addr, &addr_len, NET_ADDR_ANY) < 0) {
-		(void)close(sfd);
-		sfd = -1;
-		goto again;
-	}
+	reserved_port = stress_net_reserve_ports(port, port);
 
-	if (bind(sfd, addr, addr_len) < 0) {
-		(void)close(sfd);
-		sfd = -1;
-		goto again;
-	}
-	if (listen(sfd, SOMAXCONN) < 0) {
-		(void)close(sfd);
-		sfd = -1;
-		goto again;
-	}
-
-	efd = epoll_create1(0);
-	if (efd < 0) {
-		(void)close(sfd);
-		sfd = -1;
+	if (reserved_port >= 0) {
 		efd = -1;
-		goto again;
-	}
-
-	(void)shim_memset(&ev, 0, sizeof(ev));
-	ev.data.fd = efd;
-	ev.events = EPOLLIN | EPOLLET;
-	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev) < 0) {
-		(void)close(sfd);
-		(void)close(efd);
-		sfd = -1;
-		efd = -1;
+		if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			sfd = -1;
+			goto again;
+		}
+		if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
+				&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+			(void)close(sfd);
+			sfd = -1;
+			goto again;
+		}
+		if (stress_set_sockaddr(args->name, args->instance, mypid,
+					AF_INET, reserved_port, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+			(void)close(sfd);
+			sfd = -1;
+			goto again;
+		}
+		if (bind(sfd, addr, addr_len) < 0) {
+			(void)close(sfd);
+			sfd = -1;
+			goto again;
+		}
+		if (listen(sfd, SOMAXCONN) < 0) {
+			(void)close(sfd);
+			sfd = -1;
+			goto again;
+		}
+		efd = epoll_create1(0);
+		if (efd < 0) {
+			(void)close(sfd);
+			sfd = -1;
+			efd = -1;
+			goto again;
+		}
+		(void)shim_memset(&ev, 0, sizeof(ev));
+		ev.data.fd = efd;
+		ev.events = EPOLLIN | EPOLLET;
+		if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev) < 0) {
+			(void)close(sfd);
+			(void)close(efd);
+			sfd = -1;
+			efd = -1;
+		}
 	}
 #endif
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	pid1 = fork();
 	if (pid1 < 0) {

@@ -131,6 +131,7 @@ static int stress_dynlib(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		size_t i;

@@ -501,6 +501,7 @@ static int stress_dccp(stress_args_t *args)
 		args->name, (int)args->pid, dccp_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

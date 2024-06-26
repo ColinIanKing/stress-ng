@@ -170,6 +170,7 @@ static int stress_crypt(stress_args_t *args)
 	(void)memset(&data, 0, sizeof(data));
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		static const char seedchars[64] ALIGN64 =

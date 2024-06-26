@@ -255,6 +255,7 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 	(void)stress_get_setting("goto-direction", &goto_direction);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	switch (goto_direction) {
 	case STRESS_GOTO_FORWARD:

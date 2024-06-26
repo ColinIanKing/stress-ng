@@ -654,6 +654,8 @@ static int stress_tsc(stress_args_t *args)
 	int (*tsc_func)(stress_args_t *args, const bool verify, double *duration) = stress_tsc_generic;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	(void)stress_get_setting("tsc-lfence", &tsc_lfence);
 	(void)stress_get_setting("tsc-rdtscp", &tsc_rdtscp);
 

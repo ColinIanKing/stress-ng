@@ -983,6 +983,7 @@ static int stress_shm_sysv(stress_args_t *args)
 	orig_sz = sz = shm_sysv_bytes & ~(page_size - 1);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	while (stress_continue_flag() && retry) {
 		if (pipe(pipefds) < 0) {

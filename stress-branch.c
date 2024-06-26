@@ -213,6 +213,7 @@ static int OPTIMIZE3 stress_branch(stress_args_t *args)
 		counters[i] = 0ULL;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	for (;;) {
 L0x000:

@@ -224,6 +224,7 @@ static int stress_mutex(stress_args_t *args)
 	prio_max = sched_get_priority_max(SCHED_FIFO);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	for (i = 0; i < mutex_procs; i++)
 		pthread_info[i].ret = -1;

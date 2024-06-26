@@ -285,6 +285,7 @@ static int stress_rdrand(stress_args_t *args)
 	(void)memset(counters, 0, sizeof(counters));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	if (rdrand_supported) {
 		double time_start, duration, million_bits, rate;

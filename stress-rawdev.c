@@ -489,6 +489,7 @@ static int stress_rawdev(stress_args_t *args)
 			args->name, devpath, blks, blksz);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		if (func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]) < 0) {

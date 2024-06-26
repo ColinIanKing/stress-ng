@@ -322,6 +322,7 @@ static int stress_plugin(stress_args_t *args)
 		pr_dbg("%s: exercising plugin method '%s'\n", args->name, stress_plugin_methods[plugin_method].name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		pid_t pid;

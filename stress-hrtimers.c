@@ -188,19 +188,27 @@ static int stress_hrtimer_process(stress_args_t *args)
 
 static int stress_hrtimers(stress_args_t *args)
 {
-	pid_t pids[PROCS_MAX];
+	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i;
-        bool hrtimers_adjust = false;
+	bool hrtimers_adjust = false;
 	double start_time = -1.0, end_time;
 	sigset_t mask;
+	int rc = EXIT_SUCCESS;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
 
+	s_pids = stress_s_pids_mmap(PROCS_MAX);
+	if (s_pids == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, PROCS_MAX);
+		return EXIT_NO_RESOURCE;
+	}
+
 	lock = stress_lock_create();
 	if (!lock) {
 		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_s_pids;
 	}
 
         (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
@@ -208,26 +216,34 @@ static int stress_hrtimers(stress_args_t *args)
 	ns_delay = hrtimers_adjust ? 10000 : -1;
 	max_ops = args->max_ops / PROCS_MAX;
 
-	(void)shim_memset(pids, 0, sizeof(pids));
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 	for (i = 0; i < PROCS_MAX; i++) {
+		stress_sync_start_init(&s_pids[i]);
+
 		if (!stress_continue(args))
 			goto reap;
 
-		pids[i] = fork();
-		if (pids[i] == 0) {
+		s_pids[i].pid = fork();
+		if (s_pids[i].pid == 0) {
 			/* Child */
+			s_pids[i].pid = getpid();
+			stress_sync_start_wait_s_pid(&s_pids[i]);
+
 			stress_parent_died_alarm();
 			stress_set_oom_adjustment(args, true);
 			(void)sched_settings_apply(true);
 			stress_hrtimer_process(args);
 			_exit(EXIT_SUCCESS);
+		} else if (s_pids[i].pid > 0) {
+			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+	stress_sync_start_cont_list(s_pids_head);
+
 	(void)sigemptyset(&mask);
-        (void)sigaddset(&mask, SIGRTMIN);
+	(void)sigaddset(&mask, SIGRTMIN);
 	(void)sigprocmask(SIG_BLOCK, &mask, NULL);
 
 	start_time = stress_time_now();
@@ -238,7 +254,7 @@ static int stress_hrtimers(stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	stress_kill_and_wait_many(args, pids, PROCS_MAX, SIGALRM, true);
+	stress_kill_and_wait_many(args, s_pids, PROCS_MAX, SIGALRM, true);
 	end_time = stress_time_now();
 
 	if (start_time >= 0.0) {
@@ -253,8 +269,10 @@ reap:
 		}
 	}
 	stress_lock_destroy(lock);
+tidy_s_pids:
+	(void)stress_s_pids_munmap(s_pids, PROCS_MAX);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_hrtimers_info = {

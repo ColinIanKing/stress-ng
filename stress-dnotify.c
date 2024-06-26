@@ -454,6 +454,7 @@ static int stress_dnotify(stress_args_t *args)
 		return stress_exit_status(-ret);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		for (i = 0; stress_continue(args) && (i < SIZEOF_ARRAY(dnotify_stressors)); i++) {

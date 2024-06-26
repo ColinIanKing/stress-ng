@@ -483,6 +483,7 @@ static int stress_funcret(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		success = stress_funcret_exercise(args, funcret_method);

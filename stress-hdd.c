@@ -772,6 +772,7 @@ static int stress_hdd(stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		int fd;

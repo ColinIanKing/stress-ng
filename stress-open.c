@@ -1127,6 +1127,7 @@ static int stress_open(stress_args_t *args)
 	open_count = stress_flag_permutation(all_open_flags, &open_perms);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		size_t n;

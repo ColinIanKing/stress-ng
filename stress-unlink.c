@@ -238,6 +238,7 @@ static int stress_unlink(stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	for (i = 0; i < UNLINK_PROCS; i++) {
 		pids[i] = fork();

@@ -190,6 +190,7 @@ static int stress_smi(stress_args_t *args)
 			args->name, APM_PORT);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	if (args->instance == 0) {
 		d1 = stress_time_now();

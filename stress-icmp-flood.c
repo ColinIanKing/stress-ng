@@ -105,6 +105,7 @@ static int stress_icmp_flood(stress_args_t *args)
 	(void)shim_memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	t_start = stress_time_now();
 	do {

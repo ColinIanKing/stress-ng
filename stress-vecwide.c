@@ -193,6 +193,7 @@ static int stress_vecwide(stress_args_t *args)
 	(void)shim_memset(&vec_args->v3, 3, sizeof(vec_args->v3));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(stress_vecwide_funcs); i++) {

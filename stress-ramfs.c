@@ -288,7 +288,8 @@ static int stress_ramfs_child(stress_args_t *args)
 	(void)stress_get_setting("ramfs-size", &ramfs_size);
 	(void)stress_get_setting("ramfs-fill", &ramfs_fill);
 
-	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	stress_temp_dir(pathname, sizeof(pathname), args->name,
+		args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {
 		pr_fail("%s: cannot mkdir %s, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
@@ -420,6 +421,7 @@ static int stress_ramfs_mount(stress_args_t *args)
 	int pid;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
 
 	do {
 again:
