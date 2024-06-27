@@ -371,6 +371,7 @@ const struct option stress_long_options[] = {
 	{ "io-uring",		1,	0,	OPT_io_uring },
 	{ "io-uring-entries",	1,	0,	OPT_io_uring_entries },
 	{ "io-uring-ops",	1,	0,	OPT_io_uring_ops },
+	{ "io-uring-rand",	0,	0,	OPT_io_uring_rand },
 	{ "ipsec-mb",		1,	0,	OPT_ipsec_mb },
 	{ "ipsec-mb-feature",	1,	0,	OPT_ipsec_mb_feature },
 	{ "ipsec-mb-jobs",	1,	0,	OPT_ipsec_mb_jobs },

@@ -590,6 +590,7 @@ typedef enum {
 	OPT_io_uring,
 	OPT_io_uring_entries,
 	OPT_io_uring_ops,
+	OPT_io_uring_rand,
 
 	OPT_ipsec_mb,
 	OPT_ipsec_mb_ops,
