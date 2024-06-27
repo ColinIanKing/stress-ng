@@ -27,6 +27,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+static int stress_set_pci_dev(const char *opt)
+{
+	return stress_set_setting("pci-dev", TYPE_ID_STR, opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_pci_dev,         stress_set_pci_dev },
+	{ 0,                   NULL },
+};
+
 #if defined(__linux__)
 
 static sigjmp_buf jmp_env;
@@ -42,16 +52,6 @@ typedef struct stress_pci_info {
 	stress_metrics_t metrics[PCI_METRICS_MAX]; /* PCI read rate metrics */
 	struct stress_pci_info	*next;		/* next in list */
 } stress_pci_info_t;
-
-static int stress_set_pci_dev(const char *opt)
-{
-	return stress_set_setting("pci-dev", TYPE_ID_STR, opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_pci_dev,         stress_set_pci_dev },
-	{ 0,                   NULL },
-};
 
 /*
  *  stress_pci_dev_filter()
