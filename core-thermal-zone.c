@@ -277,31 +277,25 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			if (total) {
 				const double temp = (count > 0) ? ((double)total / count) / 1000.0 : 0.0;
-				char munged[64];
+				char tmp[64], *type;
 
-				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+				(void)stress_munge_underscore(tmp, ss->stressor->name, sizeof(tmp));
 				if (!dumped_heading) {
 					dumped_heading = true;
-					pr_inf("%s:\n", munged);
-					pr_yaml(yaml, "    - stressor: %s\n",
-						munged);
+					pr_inf("%s:\n", tmp);
+					pr_yaml(yaml, "    - stressor: %s\n", tmp);
 				}
 
 				if (stress_tz_type_instance(g_shared->tz_info, tz_info->type) <= 1) {
-					pr_inf("%20s %7.2f C (%.2f K)\n",
-						tz_info->type, temp, temp + 273.15);
-					pr_yaml(yaml, "      %s: %7.2f\n",
-						tz_info->type, temp);
+					type = tz_info->type;
 				} else {
-					pr_inf("%20s%d %7.2f C (%.2f K)\n",
+					(void)snprintf(tmp, sizeof(tmp), "%s%d",
 						tz_info->type,
-						tz_info->type_instance,
-						temp, temp + 273.15);
-					pr_yaml(yaml, "      %s%d: %7.2f\n",
-						tz_info->type,
-						tz_info->type_instance,
-						temp);
+						tz_info->type_instance);
+					type = tmp;
 				}
+				pr_inf(" %-20s %7.2f C (%.2f K)\n", type, temp, temp + 273.15);
+				pr_yaml(yaml, "      %s: %7.2f\n", type, temp);
 				no_tz_stats = false;
 				print_nl = true;
 			}
