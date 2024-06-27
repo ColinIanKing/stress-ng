@@ -471,8 +471,10 @@ reap:
 
 	/* Need to send alarm to all children before waitpid'ing them */
 	for (i = 0; i < MUTEX_PROCS; i++) {
-		if (child_info[i].pid != -1)
+		if (child_info[i].pid != -1) {
+			stress_force_killed_bogo(args);
 			(void)shim_kill(child_info[i].pid, SIGALRM);
+		}
 	}
 	/* Now wait for children to exit */
 	for (i = 0; i < MUTEX_PROCS; i++) {
