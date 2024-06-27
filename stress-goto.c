@@ -74,11 +74,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 }
 
 /*
- *  Intel icx can take hours optimizating the code,
+ *  Intel icx and clang can take hours optimizating the code,
  *  so workaround this by defaulting it to -O0 until
  *  this is resolved
  */
-#if defined(HAVE_COMPILER_ICX)
+#if defined(HAVE_COMPILER_ICX) ||	\
+    defined(HAVE_COMPILER_CLANG)
 #define OPTIMIZE_GOTO	OPTIMIZE0
 #else
 #define OPTIMIZE_GOTO	OPTIMIZE3
