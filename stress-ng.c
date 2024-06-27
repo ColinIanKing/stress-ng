@@ -1235,10 +1235,9 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 			int running = 0, finished = 0;
 
 			for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
+				stress_sync_start_cont_s_pid(s_pid);
 				if (s_pid->state == STRESS_SYNC_START_FLAG_FINISHED)
 					finished++;
-				if (s_pid->state == STRESS_SYNC_START_FLAG_WAITING)
-					stress_sync_start_cont_s_pid(s_pid);
 				if (s_pid->state == STRESS_SYNC_START_FLAG_RUNNING)
 					running++;
 			}
