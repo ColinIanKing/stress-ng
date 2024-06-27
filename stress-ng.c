@@ -1273,8 +1273,7 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 			}
 			if (running == ready)
 				break;
-			//if (waiting == 0)
-				//break;
+			shim_usleep(10000);
 		} while (stress_continue_flag());
 	}
 }
