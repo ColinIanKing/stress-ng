@@ -1229,7 +1229,7 @@ wexit_status_default:
 
 void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 {
-	int unready, ready, running, waiting;
+	int unready, ready, running;
 
 	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
 		return;
@@ -1258,7 +1258,6 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 		do {
 			stress_pid_t *s_pid;
 			running = 0;
-			waiting = 0;
 
 			for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
 				if (s_pid->state == STRESS_SYNC_START_FLAG_FINISHED)
@@ -1267,9 +1266,6 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 					stress_sync_start_cont_s_pid(s_pid);
 				if (s_pid->state == STRESS_SYNC_START_FLAG_RUNNING)
 					running++;
-				else if (s_pid->state == STRESS_SYNC_START_FLAG_WAITING) {
-					waiting++;
-				}
 			}
 			if (running == ready)
 				break;
