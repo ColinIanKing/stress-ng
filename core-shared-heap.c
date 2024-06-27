@@ -53,8 +53,8 @@ void *stress_shared_heap_init(void)
 {
 	const size_t page_size = stress_get_page_size();
 
-	/* Allocate enough heap for all stressor descriptions with 50% metrics allocated */
-	size_t size = (STRESS_MISC_METRICS_MAX * (32 + sizeof(void *)) * STRESS_MAX) / 2;
+	/* Allocate enough heap for all stressor descriptions with 100% metrics allocated */
+	size_t size = (STRESS_MISC_METRICS_MAX * (32 + sizeof(void *)) * STRESS_MAX);
 
 	size = STRESS_MINIMUM(size, STRESS_MAX_SHARED_HEAP_SIZE);
 	g_shared->shared_heap.out_of_memory = false;
