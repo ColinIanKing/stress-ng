@@ -45,7 +45,9 @@ static const stress_help_t help[] = {
 static inline size_t PURE stress_munmap_log2(size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZLL)
-	return (8 * sizeof(n)) - __builtin_clzll(n) - 1;
+	long long lln = (long long)n;
+
+	return (8 * sizeof(lln)) - __builtin_clzll(lln) - 1;
 #else
 	register size_t l2;
 
