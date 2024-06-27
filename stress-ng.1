@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 June 2024"
+.TH STRESS-NG 1 "27 June 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3352,15 +3352,17 @@ stop after N io priority bogo operations.
 .RS 5
 .TQ
 .B \-\-io\-uring N
-start N workers that perform iovec write and read I/O operations using the
-Linux io-uring interface. On each bogo-loop 1024 \(mu 512 byte writes and
-1024 \(mu reads are performed on a temporary file.
+start N workers that perform various io-uring file operations using the
+Linux io-uring interface.
 .TP
 .B \-\-io\-uring\-entries N
 specify the number of io-uring ring entries.
 .TP
 .B \-\-io\-uring\-ops
-stop after N rounds of write and reads.
+stop after N rounds of io-uring operations.
+.TP
+.B \-\-io\-uring\-rand
+randomize order of io-uring operations and file seek locations.
 .RE
 .TP
 .B Ipsec multi-buffer cryptographic stressor

@@ -50,8 +50,14 @@ static int stress_set_io_uring_entries(const char *opt)
         return stress_set_setting("io-uring-entries", TYPE_ID_UINT32, &io_uring_entries);
 }
 
+static int stress_set_io_uring_rand(const char *opt)
+{
+	return stress_set_setting_true("io-uring-rand", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_io_uring_entries,	stress_set_io_uring_entries },
+	{ OPT_io_uring_rand,	stress_set_io_uring_rand },
 	{ 0,			NULL },
 };
 
@@ -149,6 +155,8 @@ typedef struct {
 	const stress_io_uring_setup setup_func;	/* setup function */
 } stress_io_uring_setup_info_t;
 
+static bool io_uring_rand;
+
 static const char *stress_io_uring_opcode_name(const uint8_t opcode);
 
 /*
@@ -219,7 +227,6 @@ static int stress_setup_io_uring(
     defined(IORING_SETUP_DEFER_TASKRUN) &&	\
     defined(IORING_SETUP_SINGLE_ISSUER)
 	p.flags = IORING_SETUP_COOP_TASKRUN | IORING_SETUP_DEFER_TASKRUN | IORING_SETUP_SINGLE_ISSUER;
-	//p.flags = 0;
 #endif
 
 	/*
@@ -576,7 +583,8 @@ static void stress_io_uring_readv_setup(
 	sqe->opcode = IORING_OP_READV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
-	sqe->off = (uint64_t)0;
+	sqe->off = (uint64_t)io_uring_rand ?
+			(stress_mwc8() * io_uring_file->blocks) : 0;
 }
 #endif
 
@@ -603,7 +611,8 @@ static void stress_io_uring_writev_setup(
 	sqe->opcode = IORING_OP_WRITEV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
-	sqe->off = (uint64_t)0;
+	sqe->off = (uint64_t)io_uring_rand ?
+			(stress_mwc8() * io_uring_file->blocks) : 0;
 }
 #endif
 
@@ -630,7 +639,8 @@ static void stress_io_uring_read_setup(
 	sqe->opcode = IORING_OP_READ;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
 	sqe->len = io_uring_file->iovecs[0].iov_len;
-	sqe->off = (uint64_t)0;
+	sqe->off = (uint64_t)io_uring_rand ?
+			(stress_mwc8() * io_uring_file->blocks) : 0;
 }
 #endif
 
@@ -657,7 +667,8 @@ static void stress_io_uring_write_setup(
 	sqe->opcode = IORING_OP_WRITE;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
 	sqe->len = io_uring_file->iovecs[0].iov_len;
-	sqe->off = (uint64_t)0;
+	sqe->off = (uint64_t)io_uring_rand ?
+			(stress_mwc8() * io_uring_file->blocks) : 0;
 }
 #endif
 
@@ -762,7 +773,7 @@ static void stress_io_uring_fadvise_setup(
 	/* memset to zero already, so no need for following */
 	sqe->off = 0;			/* offset */
 #endif
-	sqe->len = 1024;
+	sqe->len = io_uring_rand ?  stress_mwc16(): 1024;
 #if defined(POSIX_FADV_NORMAL)
 	sqe->fadvise_advice = POSIX_FADV_NORMAL;
 #else
@@ -1101,7 +1112,10 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 	else
 		io_uring_entries = 14;
 
+	io_uring_rand = false;
+
 	(void)stress_get_setting("io-uring-entries", &io_uring_entries);
+	(void)stress_get_setting("io-uring-rand", &io_uring_rand);
 
 	(void)shim_memset(&submit, 0, sizeof(submit));
 	(void)shim_memset(&io_uring_file, 0, sizeof(io_uring_file));
@@ -1187,12 +1201,14 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 		io_uring_file.fd_at = -1;
 #endif
 		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
+			size_t idx = io_uring_rand ? (size_t)stress_mwc8modn((uint8_t)SIZEOF_ARRAY(stress_io_uring_setups)) : j;
+
 			if (!stress_continue(args))
 				break;
-			if (user_data[j].supported) {
+			if (user_data[idx].supported) {
 				rc = stress_io_uring_submit(args,
-					stress_io_uring_setups[j].setup_func,
-					&io_uring_file, &submit, &user_data[j], NULL);
+					stress_io_uring_setups[idx].setup_func,
+					&io_uring_file, &submit, &user_data[idx], NULL);
 				if (rc != EXIT_SUCCESS)
 					break;
 			}
