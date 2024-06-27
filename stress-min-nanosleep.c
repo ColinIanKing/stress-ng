@@ -53,7 +53,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"min-nanosleep N",	 "start N workers performing short sleeps" },
 	{ NULL,	"min-nanosleep-ops N",	 "stop after N bogo sleep operations" },
 	{ NULL,	"min-nanosleep-max N",	 "maximum nanosleep delay to be used" },
-	{ NULL,	"min-nanosleep-sched P", "select scheduler policy [idle, fifo, rr, other, batch, deadline]" },
+	{ NULL,	"min-nanosleep-sched P", "select scheduler policy [ batch, deadline, idle, fifo, other, rr ]" },
 	{ NULL,	NULL,			 NULL }
 };
 
@@ -92,12 +92,21 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_MONOTONIC)
-
 static nanosleep_delays_t *delays = MAP_FAILED;
 static size_t delays_size;
 
-#if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
-    !defined(__minix__)
+#if defined(HAVE_SCHED_SETAFFINITY) &&		\
+    (defined(_POSIX_PRIORITY_SCHEDULING) || 	\
+     defined(__linux__)) &&			\
+    (defined(SCHED_BATCH) ||			\
+     defined(SCHED_DEADLINE) ||			\
+     defined(SCHED_IDLE) ||			\
+     defined(SCHED_FIFO) ||			\
+     defined(SCHED_OTHER) ||			\
+     defined(SCHED_RR)) &&			\
+    !defined(__OpenBSD__) &&			\
+    !defined(__minix__) &&			\
+    !defined(__APPLE__)
 /*
  *  stress_min_nanosleep_sched()
  *	attenmt to apply a scheduling policy, ignore if min_nanosleep_sched out of bounds
