@@ -820,7 +820,6 @@ static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const b
 extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 extern void stress_sync_start_init(stress_pid_t *s_pid);
 extern void stress_sync_start_cont_list(stress_pid_t *s_pids_head);
-extern void stress_sync_start_cont(stress_args_t *args, const pid_t pid);
 extern void stress_sync_start_cont_s_pid(stress_pid_t *s_pid);
 extern void stress_sync_start_wait(stress_args_t *args);
 extern void stress_sync_start_wait_s_pid(stress_pid_t *s_pid);

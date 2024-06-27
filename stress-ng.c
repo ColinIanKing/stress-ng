@@ -1008,31 +1008,8 @@ void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
 	if (pid <= 1)
 		return;
 
-	if (s_pid->state != STRESS_SYNC_START_FLAG_WAITING)
-		pr_dbg("sync start of PID %jd on stressor that is not in wait state (%x)\n",
-			(intmax_t)pid, s_pid->state);
-	if (kill(pid, SIGCONT) < 0) {
-		pr_dbg("sync start of PID %jd failed, errno=%d (%s)\n",
-			(intmax_t)pid, errno, strerror(errno));
-	}
+	(void)kill(pid, SIGCONT);
 }
-
-void stress_sync_start_cont(stress_args_t *args, const pid_t pid)
-{
-	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
-		return;
-	if (pid <= 1)
-		return;
-
-	if (args->stats->s_pid.state != STRESS_SYNC_START_FLAG_WAITING)
-		pr_dbg("%s: sync start of PID %jd on stressor that is not in wait state (%x)\n",
-			args->name, (intmax_t)pid, args->stats->s_pid.state);
-	if (kill(pid, SIGCONT) < 0) {
-		pr_dbg("%s: sync start of PID %jd failed, errno=%d (%s)\n",
-			args->name, (intmax_t)pid, errno, strerror(errno));
-	}
-}
-
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
