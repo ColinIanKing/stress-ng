@@ -108,6 +108,17 @@ static size_t delays_size;
     !defined(__minix__) &&			\
     !defined(__APPLE__)
 /*
+ *  stress_min_nanosleep_sched_name()
+ *	report scheduler name
+ */
+static const char * stress_min_nanosleep_sched_name(void)
+{
+	const int sched = sched_getscheduler(0);
+
+	return stress_get_sched_name(sched);
+}
+
+/*
  *  stress_min_nanosleep_sched()
  *	attenmt to apply a scheduling policy, ignore if min_nanosleep_sched out of bounds
  *	or if policy cannot be applied (e.g. not enough privilege).
@@ -232,6 +243,11 @@ case_sched_fifo:
 	}
 }
 #else
+static const char * stress_min_nanosleep_sched_name(void)
+{
+	return "default (unknown)";
+}
+
 static void stress_min_nanosleep_sched(stress_args_t *args, const size_t min_nanosleep_sched)
 {
 	(void)min_nanosleep_sched;
@@ -282,17 +298,6 @@ static void stress_min_nanosleep_init_delay(nanosleep_delay_t *delay, const uint
 	delay->sum_nsec = 0;
 	delay->mean = 0.0;
 	delay->updated = false;
-}
-
-/*
- *  stress_min_nanosleep_sched_name()
- *	report scheduler name
- */
-static const char * stress_min_nanosleep_sched_name(void)
-{
-	const int sched = sched_getscheduler(0);
-
-	return stress_get_sched_name(sched);
 }
 
 /*
