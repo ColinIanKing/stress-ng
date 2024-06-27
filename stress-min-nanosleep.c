@@ -262,9 +262,11 @@ static void stress_min_nanosleep_sched(stress_args_t *args, const size_t min_nan
 static inline size_t PURE stress_min_nanosleep_log2plus1(size_t n)
 {
 #if defined(HAVE_BUILTIN_CLZLL)
-	if (n == 0)
+	long long lln = (long long)n;
+
+	if (lln == 0)
 		return 0;
-	return (8 * sizeof(n)) - __builtin_clzll(n);
+	return (8 * sizeof(lln)) - __builtin_clzll(lln);
 #else
 	register size_t l2;
 
