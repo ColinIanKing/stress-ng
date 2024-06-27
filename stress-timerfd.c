@@ -249,6 +249,9 @@ static int stress_timerfd(stress_args_t *args)
 	}
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 #if defined(CLOCK_REALTIME)
 	/* Exercise timerfd_create with invalid flags */
 	ret = timerfd_create(CLOCK_REALTIME, ~0);
@@ -274,9 +277,6 @@ static int stress_timerfd(stress_args_t *args)
 			goto free_pollfds;
 		}
 	}
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_sync_start_wait(args);
 
 	do {
 		uint64_t expval;
