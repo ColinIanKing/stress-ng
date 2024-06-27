@@ -72,9 +72,19 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
-    !defined(__minix__)
 
+#if defined(HAVE_SCHED_SETAFFINITY) &&		\
+    (defined(_POSIX_PRIORITY_SCHEDULING) || 	\
+     defined(__linux__)) &&			\
+    (defined(SCHED_BATCH) ||			\
+     defined(SCHED_DEADLINE) ||			\
+     defined(SCHED_IDLE) ||			\
+     defined(SCHED_FIFO) ||			\
+     defined(SCHED_OTHER) ||			\
+     defined(SCHED_RR)) &&			\
+    !defined(__OpenBSD__) &&			\
+    !defined(__minix__) &&			\
+    !defined(__APPLE__)
 /*
  *  stress_yield_sched()
  *	attenmt to apply a scheduling policy, ignore if yield_sched out of bounds
