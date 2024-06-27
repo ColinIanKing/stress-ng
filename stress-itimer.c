@@ -179,6 +179,9 @@ static int stress_itimer(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_sync_start_wait(args);
+
 	stress_itimer_set(&timer);
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {
 		if (errno == EINVAL) {
@@ -193,8 +196,6 @@ static int stress_itimer(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_sync_start_wait(args);
 
 	do {
 		size_t i;
