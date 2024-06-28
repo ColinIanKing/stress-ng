@@ -931,12 +931,22 @@ static const char * PURE stress_exit_status_to_string(const int status)
 	return "unknown";
 }
 
+/*
+ *  stress_start_timeout()
+ *	set the timeout for SIGALRM for a stressor
+ */
 static void stress_start_timeout(void)
 {
 	if (g_opt_timeout)
 		(void)alarm((unsigned int)g_opt_timeout);
 }
 
+/*
+ *  stress_s_pids_mmap()
+ *	mmap an array of stress_pids_t of num elements; these need
+ *	to map as shared so stressor and parent can load/store the
+ *	state setting.
+ */
 stress_pid_t *stress_s_pids_mmap(const size_t num)
 {
 	return (stress_pid_t *)mmap(NULL, num * sizeof(stress_pid_t),
@@ -944,11 +954,22 @@ stress_pid_t *stress_s_pids_mmap(const size_t num)
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 }
 
+/*
+ *  stress_s_pids_munmap()
+ *	unmap num sized stress_pids_t array
+ */
 int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num)
 {
 	return munmap(s_pids, num * sizeof(stress_pid_t));
 }
 
+/*
+ *  stress_sync_state_store()
+ *	store the stress_pids_t state, try and use atomic updates where
+ *	possible. non-atomic state changes are OK, but can require
+ *	additional re-polled read loops so are less optimial when
+ *	reading state changes
+ */
 static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, int state)
 {
 #if defined(HAVE_ATOMIC_STORE)
@@ -959,6 +980,10 @@ static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, in
 #endif
 }
 
+/*
+ *  stress_sync_state_load()
+ *	load the stress_pid_state
+ */
 static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, int *state)
 {
 #if defined(HAVE_ATOMIC_LOAD)
@@ -969,12 +994,21 @@ static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, int
 #endif
 }
 
+/*
+ *  stress_sync_start_init()
+ *	initialize the stress_pid_t state
+ */
 void stress_sync_start_init(stress_pid_t *s_pid)
 {
 	s_pid->pid = -1;
 	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_STARTED);
 }
 
+/*
+ *  stress_sync_start_wait_s_pid()
+ *	put process into a stop (waiting) state, will be
+ *	woken up by a parent call to stress_sync_start_cont_s_pid()
+ */
 void stress_sync_start_wait_s_pid(stress_pid_t *s_pid)
 {
 	pid_t pid;
@@ -995,6 +1029,11 @@ void stress_sync_start_wait_s_pid(stress_pid_t *s_pid)
 	stress_start_timeout();
 }
 
+/*
+ *  stress_sync_start_wait()
+ *	put stressor into a stop (waiting) state, will be
+ *	woken up by a parent call to stress_sync_start_cont_s_pid()
+ */
 void stress_sync_start_wait(stress_args_t *args)
 {
 	pid_t pid;
@@ -1017,6 +1056,10 @@ void stress_sync_start_wait(stress_args_t *args)
 	stress_start_timeout();
 }
 
+/*
+ *  stress_sync_start_cont_s_pid()
+ *	wake up (continue) a stopped process
+ */
 void stress_sync_start_cont_s_pid(stress_pid_t *s_pid)
 {
 	pid_t pid;
