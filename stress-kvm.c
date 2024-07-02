@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-madvise.h"
 
 #include <sys/ioctl.h>
@@ -48,6 +49,47 @@ static const stress_help_t help[] = {
     defined(STRESS_ARCH_X86) &&			\
     !defined(__i386__) &&			\
     !defined(__i386)
+
+static int stress_kvm_open(const char *name, const bool report)
+{
+	int kvm_fd;
+
+	if ((kvm_fd = open("/dev/kvm", O_RDWR)) < 0) {
+		switch (errno) {
+		case ENOENT:
+			if (report)
+				pr_inf_skip("%s: /dev/kvm not available, skipping stress test\n",
+					name);
+			break;
+		case EPERM:
+		case EACCES:
+			if (report && !stress_check_capability(SHIM_CAP_SYS_ADMIN))
+				pr_inf_skip("%s stressor will be skipped, "
+					"need to be running with CAP_SYS_ADMIN "
+					"rights for this stressor\n", name);
+			break;
+		default:
+			if (report)
+				pr_fail("%s: open /dev/kvm failed, errno=%d (%s), skipping stress test\n",
+					name, errno, strerror(errno));
+			break;
+		}
+		return -1;
+	}
+	return kvm_fd;
+}
+
+static int stress_kvm_supported(const char *name)
+{
+	int kvm_fd;
+
+	kvm_fd = stress_kvm_open(name, true);
+	if (kvm_fd < 0)
+		return -1;
+
+	(void)close(kvm_fd);
+	return 0;
+}
 
 /*
  *  Minimal x86 kernel, read/increment/write port $80 loop
@@ -86,17 +128,9 @@ static int stress_kvm(stress_args_t *args)
 		bool run_ok = false;
 		uint8_t value = 0;
 
-		if ((kvm_fd = open("/dev/kvm", O_RDWR)) < 0) {
-			if (errno == ENOENT) {
-				if (args->instance == 0)
-					pr_inf_skip("%s: /dev/kvm not available, skipping stress test\n",
-						args->name);
-				return EXIT_NOT_IMPLEMENTED;
-			}
-			pr_fail("%s: open /dev/kvm failed, errno=%d (%s), skipping stress test\n",
-				args->name, errno, strerror(errno));
+		kvm_fd = stress_kvm_open(args->name, args->instance == 0);
+		if (kvm_fd < 0)
 			return EXIT_NOT_IMPLEMENTED;
-		}
 
 #if defined(KVM_GET_API_VERSION)
 		version = ioctl(kvm_fd, KVM_GET_API_VERSION, 0);
@@ -292,6 +326,7 @@ tidy_kvm_fd:
 stressor_info_t stress_kvm_info = {
 	.stressor = stress_kvm,
 	.class = CLASS_DEV | CLASS_OS,
+	.supported = stress_kvm_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
