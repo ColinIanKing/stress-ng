@@ -289,7 +289,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 				if (stress_tz_type_instance(g_shared->tz_info, tz_info->type) <= 1) {
 					type = tz_info->type;
 				} else {
-					(void)snprintf(tmp, sizeof(tmp), "%s%d",
+					(void)snprintf(tmp, sizeof(tmp), "%s%" PRIu32,
 						tz_info->type,
 						tz_info->type_instance);
 					type = tmp;
