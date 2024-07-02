@@ -171,7 +171,6 @@ static int stress_fsize(stress_args_t *args)
 	char filename[PATH_MAX];
 	int fd, ret, rc = EXIT_SUCCESS;
 	struct rlimit old_rlim;
-	off_t offset;
 	rlim_t max;
 	const off_t max_offset = stress_fsize_max_off_t();
 	double t, duration, rate;
@@ -209,6 +208,7 @@ static int stress_fsize(stress_args_t *args)
 	max = STRESS_MINIMUM(old_rlim.rlim_max, 1024 * 256);
 	do {
 		struct rlimit new_rlim;
+		off_t offset;
 
 		new_rlim.rlim_cur = max;
 		new_rlim.rlim_max = old_rlim.rlim_max;
