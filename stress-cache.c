@@ -734,15 +734,13 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 
 	if (syscall(__NR_riscv_hwprobe, &pair, 1, sizeof(cpu_set_t), &cpus, 0) == 0) {
 		if (pair.value & RISCV_HWPROBE_EXT_ZICBOZ) {
-			int block_size;
-			register uint8_t *ptr;
-			const uint8_t *buffer_end = buffer + buffer_size;
-
 			pair.key = RISCV_HWPROBE_KEY_ZICBOZ_BLOCK_SIZE;
 
 			if (syscall(__NR_riscv_hwprobe, &pair, 1,
 				    sizeof(cpu_set_t), &cpus, 0) == 0) {
-				block_size = (int)pair.value;
+				int block_size = (int)pair.value;
+				register uint8_t *ptr;
+				const uint8_t *buffer_end = buffer + buffer_size;
 
 				for (ptr = buffer; ptr < buffer_end; ptr += block_size) {
 					(void)stress_asm_riscv_cbo_zero((char *)ptr);
