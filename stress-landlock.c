@@ -327,11 +327,11 @@ static uint64_t stress_landlock_get_access_mask(void)
 
 	(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	for (mask = 0, i = 0; i < 64; i++) {
-		int ruleset_fd;
-
 		(void)shim_memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 		ruleset_attr.handled_access_fs = 1UL << i;
 		if ((ruleset_attr.handled_access_fs & SHIM_LANDLOCK_ACCESS_ALL)) {
+			int ruleset_fd;
+
 			ruleset_fd = shim_landlock_create_ruleset(&ruleset_attr, sizeof(ruleset_attr), 0);
 			if (ruleset_fd >= 0) {
 				mask = (mask | (1UL << i)) & SHIM_LANDLOCK_ACCESS_ALL;
