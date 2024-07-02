@@ -137,7 +137,7 @@ static void NORETURN MLOCKED_TEXT stress_munmap_sig_handler(int num)
 static int stress_munmap_child(stress_args_t *args, void *context)
 {
 	FILE *fp;
-	char path[PATH_MAX];
+	char path[4096];
 	char buf[4096], prot[5];
 	const pid_t pid = getpid();
 	munmap_context_t *ctxt = (munmap_context_t *)context;
@@ -162,7 +162,7 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 		size_t size;
 
 		*path = '\0';
-		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %s\n",
+		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
 			&start, &end, prot, &offset, &major, &minor,
 			&inode, path);
 		if (n < 7)
@@ -181,7 +181,7 @@ static int stress_munmap_child(stress_args_t *args, void *context)
 #endif
 	while (stress_continue(args) && fgets(buf, sizeof(buf), fp)) {
 		*path = '\0';
-		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %s\n",
+		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
 			&start, &end, prot, &offset, &major, &minor,
 			&inode, path);
 		/*
