@@ -148,7 +148,6 @@ static stress_pci_info_t *stress_pci_info_get(void)
 {
 	stress_pci_info_t *pci_info_list = NULL;
 
-	int n_devs, i;
 	struct dirent **pci_list = NULL;
 	char *pci_dev = NULL;
 
@@ -164,6 +163,8 @@ static stress_pci_info_t *stress_pci_info_get(void)
 			stress_pci_info_get_by_name(&pci_info_list, pci_dev);
 		}
 	} else {
+		int n_devs, i;
+
 		n_devs = scandir(sys_pci_devices, &pci_list, stress_pci_dev_filter, stress_pci_rev_sort);
 		for (i = 0; i < n_devs; i++) {
 			stress_pci_info_get_by_name(&pci_info_list, pci_list[i]->d_name);
