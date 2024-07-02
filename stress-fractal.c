@@ -258,10 +258,10 @@ static int stress_fractal(stress_args_t *args)
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (args->instance == 0) {
 		pr_inf("%s: %s, %" PRId32 " x %" PRId32 ", %" PRId32 " iterations, "
-			"(%.2f, %.2f) .. (%.2fi, %.2fi)\n",
+			"(%.2f, %.2fi) .. (%.2f, %.2fi)\n",
 			args->name, stress_fractal_methods[fractal_method].name,
 			info.xsize, info.ysize, info.iterations,
-			info.xmin, info.xmax, info.ymin, info.ymax);
+			info.xmin, info.ymin, info.xmax, info.ymax);
 	}
 
 	if (!g_shared->fractal.lock) {
