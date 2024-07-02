@@ -140,7 +140,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 #if defined(HAVE_MADVISE) &&	\
     defined(__linux__)
 	FILE *fp;
-	char path[PATH_MAX];
+	char path[4096];
 	char buf[4096];
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
@@ -154,7 +154,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		uint64_t inode;
 		char prot[5];
 
-		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %s\n",
+		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %4095s\n",
 			&start, &end, prot, &offset, &major, &minor,
 			&inode, path);
 		if (n < 7)
