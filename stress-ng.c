@@ -970,7 +970,7 @@ int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num)
  *	additional re-polled read loops so are less optimial when
  *	reading state changes
  */
-static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, int state)
+static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, uint8_t state)
 {
 #if defined(HAVE_ATOMIC_STORE)
 	__atomic_store(&s_pid->state, &state, __ATOMIC_SEQ_CST);
@@ -984,7 +984,7 @@ static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, in
  *  stress_sync_state_load()
  *	load the stress_pid_state
  */
-static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, int *state)
+static inline ALWAYS_INLINE void stress_sync_state_load(stress_pid_t *s_pid, uint8_t *state)
 {
 #if defined(HAVE_ATOMIC_LOAD)
 	__atomic_load(&s_pid->state, state, __ATOMIC_SEQ_CST);
@@ -1280,7 +1280,7 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 		unready = 0;
 		n_pids = 0;
 		for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
-			int state;
+			uint8_t state;
 
 			n_pids++;
 			stress_sync_state_load(s_pid, &state);
@@ -1298,7 +1298,8 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 	if (!unready) {
 		do {
 			stress_pid_t *s_pid;
-			int running = 0, finished = 0, state;
+			int running = 0, finished = 0;
+			uint8_t state;
 
 			for (s_pid = s_pids_head; s_pid; s_pid = s_pid->next) {
 				stress_sync_start_cont_s_pid(s_pid);
