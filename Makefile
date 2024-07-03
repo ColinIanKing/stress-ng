@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "systematic system smasher"
+# Codename "synchronized synthetic stressor"
 #
-VERSION=0.18.00
+VERSION=0.18.01
 
 #
 # Determine supported toolchains
