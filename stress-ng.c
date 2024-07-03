@@ -960,7 +960,7 @@ stress_pid_t *stress_s_pids_mmap(const size_t num)
  */
 int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num)
 {
-	return munmap(s_pids, num * sizeof(stress_pid_t));
+	return munmap((void *)s_pids, num * sizeof(stress_pid_t));
 }
 
 /*
