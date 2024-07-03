@@ -1,3 +1,106 @@
+stress-ng (0.18.01-1) unstable; urgency=medium
+
+  [Daniel Andriesse]
+  * stress-vecwide: fix verify option by setting results vector res
+
+  [Po-Hsu Lin]
+  * stress-cache: check RISCV_HWPROBE_EXT_ZICBOZ support for
+    stress_cache_bzero
+
+  [Sergey Matyukevich]
+  * mmapfork: add --mmapfork-bytes option to specify mmap size
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-ng: cast s_pids to void * in munmap to clear up OpenHipster
+    build warning
+  * stress-fsize: reduce scope of variable offset
+  * stress-pci: reduce scope of i and n_devs
+  * stress-landlock: reduce scope of ruleset_fd
+  * stress-cgroup: reduce scope of array values and make it static const
+  * stress-cache: reduce scope of some variables
+  * stress-munmap: add sscanf string size limit to avoid potential buffer
+    overflows
+  * core-thermal-zone: use PRIu32 format specifier for uint32_t type
+  * core-madvise: add sscanf string size limit to avoid potential buffer
+    overflows
+  * stress-chroot: just report chroot escapes with instance 0
+  * stress-ng: make stress_pid_t state flag 8 bits
+  * stress-kvm: add early /dev/kvm open permission checking
+  * stress-fractal: report co-ordinates as (xmin, ymin) .. (xmax, ymax)
+  * stress-ng: comment the stress_pid_t helper functions
+  * stress-ng: add atomic load/store helpers for stress_pid_t state
+  * core-shared-heap: increase initial size of shared heap
+  * stress-ng: always send a SIGCONT to a waiting process
+  * stress-prio-inv: indicate a force killed bogo op-counter state when
+    child exits
+  * stress-ng: remove stress_sync_start_cont, and remove debug
+  * stress-open: don't populate mmap'd fd array, it may not be all used
+  * stress-ng: stress_sync_start_cont_list: check against number of pids in
+    list
+  * stress-ng: stress_sync_start_cont_list: take into account finished
+    stressors
+  * stress-timerfd: configure timer after sync start has completed
+  * stress-ng: remove unused variable waiting
+  * stress-ng: add delay while waiting for stressors to start in loop
+  * stress-timer: configure timer after sync start has completed
+  * stress-itimer: configure timer after sync start has completed
+  * stress-munmap: fix incorrect clz where size_t is not long long
+  * stress-min-nanosleep: fix incorrect clz where size_t is not long long
+  * core-thermal-zone: clean up formatting of multiply tz names
+  * stress-goto: reduce optimization level for clang
+  * stress-yield: fix build for various non-linux systems
+  * stress-pci: move stress_set_pci_dev to support all arches
+  * stress-min-nanosleep: provide unknown sched name
+  * stress-min-nanosleep: fix build for various non-linux systems
+  * core-ops: forgot to commit the io-uring-rand option
+  * io-uring: add --io-uring-rand option for randomized io-uring ops
+  * stress-io-uring: reduce memory impact for smaller memory systems
+  * stress-*: remove trailing whitespaces
+  * Add --sync-start option
+  * README.md: add 4 more kernel issues found with stress-ng
+  * stress-min-nanosleep: report scheduler name
+  * stress-cpu: minor code clean-ups
+  * README.md: update contributors name list
+  * stress-cpu: matrixprod: align matrices
+  * stress-cpu: idct: re-factor, move some calculations out of loop
+  * stress-cpu: fft: align data and pass as restrict pointers
+  * stress-min-nanosleep: use the more optimal log2 function
+  * stress-sleep: fix expected C state delay, fix typo for selects message
+  * stress-min-nanosleep: report shorted nanosleep measurement
+  * stress-min-nanosleep: add check for short nanosleeps
+  * README.md: add Sergey Matyukevich to contributors list
+  * Manual: add missing --mmapfork-bytes manual option
+  * stress-min-nanosleep: add stressor that measures minimum nanosleep
+    delay times
+  * stress-*: pass the number of stressor instances into the stressor init
+    callback
+  * core-time: check for CLOCK_REALTIME when using it
+  * stress-sleep: use monotonic clock and stress_time_now() clocks for time
+    measurement
+  * stress-sleep: fix typo "to" -> "took"
+  * stress-yield: add --yield-sched scheduler options
+  * stress-*: use core-sched.h to define HAVE_SCHED_{GET|SET}_ATTR macros
+  * core-sched: define HAVE_SCHED_GETATTR and HAVE_SCHED_SETATTR
+  * README.md: add one more research paper that references stress-ng
+  * stress-workload: use stress_sched_types for scheduler type information
+  * stress-schedpolicy: use stress_sched_types for scheduler type
+    information
+  * stress-schedmix: use stress_sched_types for scheduler type information
+  * core-sched: allow stress_sched_types to be in global scope
+  * stress-monte-carlo: print monte-carlo computations as debug
+  * stress-ping-sock: add pre-run check and explain why it may fail with
+    EPERM
+  * stress-ng: report stressor name in munged format, replace _ with -
+  * lib: remove build dependency on libgcrypt20
+  * stress-workload: make c static since it's used in pthread contexts
+  * stress-pci: Add a new --pci-dev option to specify the pci device
+  * stress-shellsort: remove empty line
+  * stress-pci: use strcmp on dentry name for sort ordering
+  * stress-io-uring: use O_DIRECT when it is available on files
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 3 Jul 2024 18:33:42 +0100
+
 stress-ng (0.18.00-1) unstable; urgency=medium
 
   [Fabrice Fontaine]
