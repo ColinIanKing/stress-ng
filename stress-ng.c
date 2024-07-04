@@ -39,6 +39,7 @@
 #include "core-out-of-memory.h"
 #include "core-perf.h"
 #include "core-pragma.h"
+#include "core-rapl.h"
 #include "core-shared-heap.h"
 #include "core-smart.h"
 #include "core-stressors.h"
@@ -165,6 +166,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
 	{ OPT_progress,		OPT_FLAGS_PROGRESS },
+	{ OPT_rapl,		OPT_FLAGS_RAPL | OPT_FLAGS_RAPL_REQUIRED },
 	{ OPT_settings,		OPT_FLAGS_SETTINGS },
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
 	{ OPT_smart,		OPT_FLAGS_SMART },
@@ -344,6 +346,8 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"permute N",		"run permutations of stressors with N stressors per permutation" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
+	{ NULL,		"rapl",			"report RAPL power domain measurments over entire run (Linux x86 only)" },
+	{ NULL,		"raplstat S",		"show RAPL power domain stats every S seconds (Linux x86 only)" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sched-period N",	"set period for SCHED_DEADLINE to N nanosecs (Linux only)" },
@@ -1668,6 +1672,10 @@ static int MLOCKED_TEXT stress_run_child(
 
 		(void)shim_memset(*checksum, 0, sizeof(**checksum));
 		stats->start = stress_time_now();
+#if defined(STRESS_RAPL)
+		if (g_opt_flags & OPT_FLAGS_RAPL)
+			(void)stress_rapl_get_power_stressor(g_shared->rapl_domains, NULL);
+#endif
 		rc = g_stressor_current->stressor->info->stressor(&stats->args);
 		stress_sync_state_store(&stats->s_pid, STRESS_SYNC_START_FLAG_FINISHED);
 		stress_block_signals();
@@ -1676,6 +1684,10 @@ static int MLOCKED_TEXT stress_run_child(
 			stress_interrupts_stop(stats->interrupts);
 			stress_interrupts_check_failure(name, stats->interrupts, instance, &rc);
 		}
+#if defined(STRESS_RAPL)
+		if (g_opt_flags & OPT_FLAGS_RAPL)
+			(void)stress_rapl_get_power_stressor(g_shared->rapl_domains, &stats->rapl);
+#endif
 		pr_fail_check(&rc);
 #if defined(SA_SIGINFO) &&	\
     defined(SI_USER)
@@ -2390,13 +2402,8 @@ static void stress_metrics_dump(FILE *yaml)
 								n += 1.0;
 							}
 						}
-						if (n > 0.0) {
-							harmonic_mean = sum / n;
-							if ((harmonic_mean > 0.0) || (harmonic_mean < 0.0)) {
-								harmonic_mean = 1.0 / harmonic_mean;
-							} else {
-								harmonic_mean = 0.0;
-							}
+						if (sum > 0.0) {
+							harmonic_mean = n / sum;
 						} else {
 							harmonic_mean = 0.0;
 						}
@@ -3428,6 +3435,11 @@ next_opt:
 			if (stress_set_iostat(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
+		case OPT_raplstat:
+			if (stress_set_raplstat(optarg) < 0)
+				exit(EXIT_FAILURE);
+			g_opt_flags |= OPT_FLAGS_RAPL_REQUIRED;
+			break;
 		case OPT_with:
 			g_opt_flags |= (OPT_FLAGS_WITH | OPT_FLAGS_SET);
 			stress_set_setting_global("with", TYPE_ID_STR, (void *)optarg);
@@ -4096,6 +4108,11 @@ int main(int argc, char **argv, char **envp)
 		stress_tz_init(&g_shared->tz_info);
 #endif
 
+#if defined(STRESS_RAPL)
+	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
+		stress_rapl_get_domains(&g_shared->rapl_domains);
+#endif
+
 	stress_clear_warn_once();
 	stress_stressors_init();
 
@@ -4148,6 +4165,7 @@ int main(int argc, char **argv, char **envp)
 		stress_perf_stat_dump(yaml, stressors_head, duration);
 #endif
 
+
 #if defined(STRESS_THERMAL_ZONES)
 	/*
 	 *  Dump thermal zone measurements
@@ -4156,6 +4174,12 @@ int main(int argc, char **argv, char **envp)
 		stress_tz_dump(yaml, stressors_head);
 	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_free(&g_shared->tz_info);
+#endif
+#if defined(STRESS_RAPL)
+	if (g_opt_flags & OPT_FLAGS_RAPL)
+		stress_rapl_dump(yaml, stressors_head, g_shared->rapl_domains);
+	if (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)
+		stress_rapl_free_domains(g_shared->rapl_domains);
 #endif
 	/*
 	 *  Dump run times

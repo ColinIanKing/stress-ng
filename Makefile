@@ -260,6 +260,7 @@ HEADERS = \
 	core-processes.h \
 	core-pthread.h \
 	core-put.h \
+	core-rapl.h \
 	core-resources.h \
 	core-sched.h \
 	core-setting.h \
@@ -675,6 +676,7 @@ CORE_SRC = \
 	core-parse-opts.c \
 	core-perf.c \
 	core-processes.c \
+	core-rapl.c \
 	core-resources.c \
 	core-sched.c \
 	core-setting.c \

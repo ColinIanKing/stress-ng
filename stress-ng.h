@@ -243,6 +243,7 @@ typedef struct stress_stressor_info {
 #include "core-log.h"
 #include "core-lock.h"
 #include "core-mwc.h"
+#include "core-rapl.h"
 #include "core-sched.h"
 #include "core-shim.h"
 #include "core-time.h"
@@ -540,6 +541,9 @@ typedef struct stress_stats {
 #if defined(STRESS_THERMAL_ZONES)
 	stress_tz_t tz;			/* thermal zones */
 #endif
+#if defined(STRESS_RAPL)
+	stress_rapl_t rapl;		/* rapl power measurements */
+#endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
 	stress_metrics_data_t metrics;	/* misc metrics */
@@ -627,6 +631,10 @@ typedef struct {
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 	stress_tz_info_t *tz_info;	/* List of valid thermal zones */
+#endif
+#if defined(STRESS_RAPL)
+	stress_rapl_domain_t *rapl_domains;
+					/* RAPL domain information */
 #endif
 	struct {
 		double start_time ALIGNED(8);	/* Time to complete operation */

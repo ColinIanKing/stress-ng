@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 June 2024"
+.TH STRESS-NG 1 "4 July 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -442,6 +442,16 @@ do not show any output.
 .B \-r N, \-\-random N
 start N random stress workers. If N is 0, then the number of configured
 processors is used for N.
+.TP
+.B \-\-rapl
+Report the Running Average Power Limit (RAPL) energy measurements of
+stressor instances. Currently Linux and x86 only, requires root access
+rights to read RAPL kernel interfaces. Note that the RAPL domains supported
+may vary between devices.
+.TP
+.B \-\-raplstat S
+every S seconds show RAPL energy measurements. Currently Linux and x86 only,
+requires root access rights to read RAPL kernel interfaces.
 .TP
 .B \-\-sched scheduler
 select the named scheduler (only on Linux). To see the list of available

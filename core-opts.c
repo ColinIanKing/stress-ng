@@ -757,6 +757,8 @@ const struct option stress_long_options[] = {
 	{ "randlist-ops",	1,	0,	OPT_randlist_ops },
 	{ "randlist-size", 	1,	0,	OPT_randlist_size },
 	{ "random",		1,	0,	OPT_random },
+	{ "rapl",		0,	0,	OPT_rapl },
+	{ "raplstat",		1,	0,	OPT_raplstat },
 	{ "rawdev",		1,	0,	OPT_rawdev },
 	{ "rawdev-method",	1,	0,	OPT_rawdev_method },
 	{ "rawdev-ops",		1,	0,	OPT_rawdev_ops },

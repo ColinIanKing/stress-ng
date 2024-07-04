@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-killpid.h"
 #include "core-pragma.h"
+#include "core-rapl.h"
 #include "core-thermal-zone.h"
 #include "core-vmstat.h"
 
@@ -120,6 +121,7 @@ static int32_t status_delay = 0;
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
+static int32_t raplstat_delay = 0;
 
 #if defined(__FreeBSD__)
 /*
@@ -232,6 +234,15 @@ int stress_set_thermalstat(const char *const opt)
 int stress_set_iostat(const char *const opt)
 {
 	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
+}
+
+/*
+ *  stress_set_raplstat()
+ *	parse --raplstat option
+ */
+int stress_set_raplstat(const char *const opt)
+{
+	return stress_set_generic_stat(opt, "raplstat", &raplstat_delay);
 }
 
 /*
@@ -1118,7 +1129,7 @@ void stress_vmstat_start(void)
 	stress_vmstat_t vmstat;
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info;
-	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep, status_sleep;
+	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep, status_sleep, raplstat_sleep;
 	double t1, t2, t_start;
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
@@ -1129,13 +1140,15 @@ void stress_vmstat_start(void)
 	if ((vmstat_delay == 0) &&
 	    (thermalstat_delay == 0) &&
 	    (iostat_delay == 0) &&
-	    (status_delay == 0))
+	    (status_delay == 0) &&
+	    (raplstat_delay == 0))
 		return;
 
 	vmstat_sleep = vmstat_delay;
 	thermalstat_sleep = thermalstat_delay;
 	iostat_sleep = iostat_delay;
 	status_sleep = status_delay;
+	raplstat_sleep = raplstat_delay;
 
 	vmstat_pid = fork();
 	if ((vmstat_pid < 0) || (vmstat_pid > 0))
@@ -1151,6 +1164,10 @@ void stress_vmstat_start(void)
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next)
 			tz_num++;
 	}
+#if defined(STRESS_RAPL)
+	if (raplstat_delay && (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED))
+		stress_rapl_get_power_raplstat(g_shared->rapl_domains);
+#endif
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
@@ -1182,6 +1199,8 @@ void stress_vmstat_start(void)
 #endif
 		if (status_delay > 0)
 			sleep_delay = STRESS_MINIMUM(status_delay, sleep_delay);
+		if (raplstat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(raplstat_delay, raplstat_delay);
 		t1 += sleep_delay;
 		t2 = stress_time_now();
 
@@ -1205,6 +1224,8 @@ void stress_vmstat_start(void)
 			iostat_sleep = iostat_delay;
 		if ((status_delay > 0) && (status_sleep <= 0))
 			status_sleep = status_delay;
+		if ((raplstat_delay > 0) && (raplstat_sleep <= 0))
+			raplstat_sleep = raplstat_delay;
 
 		if (vmstat_sleep == vmstat_delay) {
 			static uint32_t vmstat_count = 0;
@@ -1354,6 +1375,46 @@ void stress_vmstat_start(void)
 				g_shared->instance_count.alarmed,
 				stress_duration_to_str(runtime, false));
 		}
+#if defined(STRESS_RAPL)
+		if ((raplstat_sleep == raplstat_delay) && (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)) {
+			int ret;
+
+			ret = stress_rapl_get_power_raplstat(g_shared->rapl_domains);
+			if (ret == 0) {
+				char buf[256], *ptr;
+				stress_rapl_domain_t *rapl;
+				size_t len;
+				static uint32_t raplstat_count = 0;
+
+				if (raplstat_count == 0) {
+					ptr = buf;
+					len = sizeof(buf);
+					for (rapl = g_shared->rapl_domains; rapl; rapl = rapl->next) {
+						ret = snprintf(ptr, len, " %7.7s", rapl->domain_name);
+						if (ret > 0) {
+							ptr += ret;
+							len -= ret;
+						}
+					}
+					pr_inf("raplstat: %s\n", buf);
+				}
+
+				ptr = buf;
+				len = sizeof(buf);
+				for (rapl = g_shared->rapl_domains; rapl; rapl = rapl->next) {
+					ret = snprintf(ptr, len, " %7.2f", rapl->data[STRESS_RAPL_DATA_RAPLSTAT].power_watts);
+					if (ret > 0) {
+						ptr += ret;
+						len -= ret;
+					}
+				}
+				pr_inf("raplstat: %s\n", buf);
+				raplstat_count++;
+				if (raplstat_count >= 25)
+					raplstat_count = 0;
+			}
+		}
+#endif
 	}
 	_exit(0);
 }

@@ -83,6 +83,8 @@
 #define OPT_FLAGS_INTERRUPTS	 STRESS_BIT_ULL(52)	/* --interrupts */
 #define OPT_FLAGS_PROGRESS	 STRESS_BIT_ULL(53)	/* --progress */
 #define OPT_FLAGS_SYNC_START	 STRESS_BIT_ULL(54)	/* --sync-start */
+#define OPT_FLAGS_RAPL		 STRESS_BIT_ULL(55)	/* --rapl */
+#define OPT_FLAGS_RAPL_REQUIRED  STRESS_BIT_ULL(56)	/* set if RAPL is required */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1076,6 +1078,9 @@ typedef enum {
 	OPT_randlist_compact,
 	OPT_randlist_items,
 	OPT_randlist_size,
+
+	OPT_rapl,
+	OPT_raplstat,
 
 	OPT_ramfs,
 	OPT_ramfs_ops,
