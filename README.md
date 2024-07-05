@@ -500,6 +500,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [connector/cn_proc: revert "connector: Fix proc_event_num_listeners count not cleared"](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=8929f95b2b587791a7dcd04cc91520194a76d3a6)
 * [powerpc/pseries: fix accuracy of stolen time](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cbecc9fcbbec60136b0180ba0609c829afed5c81)
 * [OpenBSD: libm: segfault in sincosl](https://marc.info/?l=openbsd-bugs&m=171453603728385&w=2)
+* [opening and closing /dev/dri/card0 in a QEMU KVM instance will shutdown system, 6.10.0-rc6+](https://bugzilla.kernel.org/show_bug.cgi?id=219007)
 
 ## Kernel improvements that used stress-ng
 
