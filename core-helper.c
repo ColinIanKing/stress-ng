@@ -1680,6 +1680,16 @@ const char PURE *stress_get_signal_name(const int signum)
 {
 	size_t i;
 
+#if defined(SIGRTMIN) &&	\
+    defined(SIGRTMAX)
+	if ((signum >= SIGRTMIN) && (signum <= SIGRTMAX)) {
+		static char sigrtname[10];
+
+		(void)snprintf(sigrtname, sizeof(sigrtname), "SIGRT%d",
+			signum - SIGRTMIN);
+		return sigrtname;
+	}
+#endif
 	for (i = 0; i < SIZEOF_ARRAY(sig_names); i++) {
 		if (signum == sig_names[i].signum)
 			return sig_names[i].name;
