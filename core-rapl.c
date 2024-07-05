@@ -237,7 +237,6 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 
 			/* ensure we have a valid value */
 			if (ujoules > 0.0) {
-				rapl_domain->data[which].time = t_now;
 
 				/* Wrapped around since prevous time? */
 				if (ujoules - rapl_domain->data[which].energy_uj < 0.0) {
@@ -246,10 +245,15 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 				} else {
 					rapl_domain->data[which].energy_uj = ujoules;
 				}
-				if (t_delta <= 0.0) {
-					rapl_domain->data[which].power_watts = 0.0;
-				} else {
-					rapl_domain->data[which].power_watts = (ujoules - prev_energy_uj) / (t_delta * 1000000.0);
+				/* Time delta must be large enough to be reliable */
+				if (t_delta >= 0.25) {
+					const double power_watts = (ujoules - prev_energy_uj) / (t_delta * 1000000.0);
+
+					/* Ignore updates for zero readings */
+					if (power_watts > 0.0)  {
+						rapl_domain->data[which].time = t_now;
+						rapl_domain->data[which].power_watts = power_watts;
+					}
 				}
 			}
 		}
