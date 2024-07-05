@@ -3505,7 +3505,8 @@ static void stress_set_default_timeout(const uint64_t timeout)
 		action = "setting";
 	}
 	pr_inf("%s to a %s run per stressor\n",
-		action, stress_duration_to_str((double)g_opt_timeout, false));
+		action, (g_opt_timeout == 0) ? "infinite" :
+		stress_duration_to_str((double)g_opt_timeout, false));
 }
 
 /*

@@ -105,7 +105,7 @@ double OPTIMIZE3 stress_time_now(void)
  *	format a unit of time into human readable format
  */
 static inline void stress_format_time(
-	const bool last,		/* Last unit to format */
+	bool *emitted,			/* data has been emitted */
 	const bool int_val,		/* Last unit in integer form */
 	const double secs_in_units,	/* Seconds in the specific time unit */
 	const char *units,		/* Unit of time */
@@ -115,23 +115,27 @@ static inline void stress_format_time(
 {
 	const unsigned long val = (unsigned long)(*duration / secs_in_units);
 
-	if (last || (val > 0)) {
+	if (val > 0) {
 		int ret;
 
-		if (last) {
-			if (int_val) {
-				ret = snprintf(*ptr, *len, "%.2f %ss", *duration, units);
-			} else {
-				ret = snprintf(*ptr, *len, "%lu %ss", val, units);
+		if (*emitted) {
+			ret = snprintf(*ptr, *len, ", ");
+			if (ret > 0) {
+				*len -= (size_t)ret;
+				*ptr += ret;
 			}
+		}
+
+		if (int_val) {
+			ret = snprintf(*ptr, *len, "%.2f %s%s", *duration, units, (val > 1) ? "s" : "");
 		} else {
-			ret = snprintf(*ptr, *len, "%lu %s%s, ", val, units,
-				(val > 1) ? "s" : "");
+			ret = snprintf(*ptr, *len, "%lu %s%s", val, units, (val > 1) ? "s" : "");
 		}
 		if (ret > 0) {
 			*len -= (size_t)ret;
 			*ptr += ret;
 		}
+		*emitted = true;
 	}
 	*duration -= secs_in_units * (double)val;
 }
@@ -146,12 +150,13 @@ const char *stress_duration_to_str(const double duration, const bool int_secs)
 	char *ptr = str;
 	size_t len = sizeof(str) - 1;
 	double dur = duration;
+	bool emitted = false;
 
 	*str = '\0';
-	stress_format_time(false, false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
-	stress_format_time(false, false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
-	stress_format_time(false, false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
-	stress_format_time(false, false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
-	stress_format_time(true, int_secs, 1, "sec", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
+	stress_format_time(&emitted, int_secs, 1, "sec", &ptr, &dur, &len);
 	return str;
 }
