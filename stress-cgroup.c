@@ -367,7 +367,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 			{ "misc.max",			NULL },
 			{ "misc.events",		NULL },
 		};
-	
+
 		/* Parent, exercise child in the cgroup */
 		(void)snprintf(path, sizeof(path), "%s/stress-ng-%jd", realpathname, (intmax_t)pid);
 		if (mkdir(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP) < 0) {
@@ -380,7 +380,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 		 *  Keep moving pid to/from cgroup while read and adjusting cgroup values
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(values); i++) {
-			char filename[PATH_MAX + 64];	
+			char filename[PATH_MAX + 64];
 
 			stress_cgroup_add_pid(realpathname, pid);
 			(void)snprintf(filename, sizeof(filename), "%s/stress-ng-%jd/%s", realpathname, (intmax_t)pid, values[i].name);
