@@ -1376,7 +1376,9 @@ void stress_vmstat_start(void)
 				stress_duration_to_str(runtime, false));
 		}
 #if defined(STRESS_RAPL)
-		if ((raplstat_sleep == raplstat_delay) && (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)) {
+		if ((raplstat_delay > 0) &&
+		    (raplstat_sleep == raplstat_delay) &&
+		    (g_opt_flags & OPT_FLAGS_RAPL_REQUIRED)) {
 			int ret;
 
 			ret = stress_rapl_get_power_raplstat(g_shared->rapl_domains);
