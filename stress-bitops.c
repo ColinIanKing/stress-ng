@@ -748,7 +748,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 		}
 
 #if defined(HAVE_BUILTIN_BITREVERSE)
-		r2 = __builtin_bitreverse32(x);
+		r2 = __builtin_bitreverse32(v);
 		stress_uint32_put(r2);
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse builtin_reverse method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
