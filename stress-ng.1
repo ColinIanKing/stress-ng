@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 July 2024"
+.TH STRESS-NG 1 "8 July 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -987,6 +987,72 @@ stop bitonic sort stress workers after N bogo bitonic sorts.
 .TP
 .B \-\-bitonicsort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
+.RE
+.TP
+.B Bit Manipulation Operations
+.RS 5
+.TQ
+.B \-\-bitops N
+start N workers that perform various calculations using 32 bit integer manipulation operations.
+.TP
+.B \-\-bitops\-ops N
+stop after N bitop operations.
+.TP
+.B \-\-bitops\-method method
+specify bitops stress method. By default, all the bitops stress methods are exercised
+sequentially, however one can specify just one method to be used if required.
+Available bitops stress methods are described as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description 
+all	T{
+iterate over all the below bitops stress methods.
+T}
+abs	T{
+calculate the absolute value of a 32 bit signed integer. Computed two different ways, one with masking and addition, one with masking and subtraction.
+T}
+countbits	T{
+count the number of bits set to 1 in a 32 bit unsigned integer. Computed five different ways, two with bit counting, one with 64 bit multiplication, one with parallelised masking and shifting, one using a builtin popcount function.
+T}
+clz	T{
+count the number of leading zero bits in a 32 bit unsigned integer. Computed four different ways, one with bit counting, one with log2 shifting, one using a builtin popcount function, one using a builtin clz function, 
+T}
+ctz	T{
+count the number of trailing zero bits in a 32 bit unsigned integer. Computed five different ways, one with bit cointing, one using masking and shifting, one using the masking and ternary operator Gaudet method, one using a builtin clz function, one using a builtin popcount function.
+T}
+cmp	T{
+compare two 32 bit unsigned integers with comparison results of -1, 0, 1 for less than, equal or greater than. Computed 3 ways, one using simple comparisons, two using comparisons and subtraction.
+T}
+log2	T{
+calculate log base 2 of a 32 bit unsigned integer. Computed four ways, one using bit counting, one using masking and shifting and braching, one using masking and shifting with no branching, one using shifting and bitwise or'ing.
+T}
+max	T{
+find the maximum of two 32 bit unsigned integers without a temporary variable. Computed two ways, one using xor'ing and masking, one using the ternary operator.
+T}
+min	T{
+find the minimum of two 32 bit unsigned integers without a temporary variable. Computed two ways, one using xor'ing and masking, one using the ternary operator.
+T}
+parity	T{
+compute the parity of a 32 bit unsigned integer. Computed five ways, two using bit counting, one using multiplication, shifting and xor'ing, one using shifting and xor'ing, one using a builtin parity function.
+T}
+rnddnpwr2	T{
+find the nearest power of 2 of a 32 bit unsigned integer, rounded down. Computed three ways, one using bit counting and shifting, one using shifting and or'ing, one using a shift and the builtin ctz function.
+T}
+rnduppwr2	T{
+find the nearest power of 2 of a 32 bit unsigned integer, rounded up. Computed three ways, one using bit counting
+and shifting, one using shifting and or'ing, one using a shift and the builtin ctz function.
+T}
+reverse	T{
+reverse the bits of a 32 bit unsigned integer. Computed six ways, one using bit shifting loop, one using bit shitting and mask loop, one using parallelised masking and shifting, one using 64 bit multiplication, one using 32 bit multiplication, one using the builtin bitreverse32 function.
+T}
+sign	T{
+calculate the sign of a 32 bit signed integer. Computed two ways, one using a branchless less than zero operator, one using sign bit shifting and negation.
+T}
+swap	T{
+swap two 32 bit signed integers without a temporary variable. Computed two ways, one using subtraction and addition, one using xor'ing.
+T}
+.TE
 .RE
 .TP
 .B Branch stressor

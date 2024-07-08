@@ -41,6 +41,7 @@
 	MACRO(binderfs)		\
 	MACRO(bind_mount)	\
 	MACRO(bitonicsort)	\
+	MACRO(bitops)		\
 	MACRO(branch)		\
 	MACRO(brk)		\
 	MACRO(bsearch)		\
@@ -371,7 +372,6 @@
 #define STRESSOR_ENUM(name)	\
 	STRESS_ ## name,
 
-
 /*
  *  Elements in stressor array
  */
@@ -387,7 +387,6 @@
 /*
  *  Declaration of stress_*_info object
  */
-#define STRESSOR_INFO(name)     \
-	extern stressor_info_t stress_ ## name ## _info;
+#define STRESSOR_INFO(name)	extern stressor_info_t stress_ ## name ## _info;
 
 #endif

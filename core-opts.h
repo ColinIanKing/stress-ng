@@ -206,6 +206,10 @@ typedef enum {
 	OPT_bitonicsort_ops,
 	OPT_bitonicsort_size,
 
+	OPT_bitops,
+	OPT_bitops_method,
+	OPT_bitops_ops,
+
 	OPT_branch,
 	OPT_branch_ops,
 
