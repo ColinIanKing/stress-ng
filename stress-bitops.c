@@ -38,6 +38,10 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,			NULL }
 };
 
+#if defined(HAVE_BUILTIN_CLZ)
+#define BITOPS_CLZ(x)	(UNLIKELY((x) == 0) ? 0 : __builtin_clz((x)))
+#endif
+
 static const stress_bitops_method_info_t bitops_methods[];
 
 static int stress_bitops_all(const char *name, uint32_t *count);
@@ -260,7 +264,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 #endif
 #if defined(HAVE_BUILTIN_CLZ)
 		/* #4 Count leading zeros, clz method */
-		c2 = __builtin_clz(v);
+		c2 = BITOPS_CLZ(v);
 		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: clz builtin_clz method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
@@ -835,7 +839,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 
 #if defined(HAVE_BUILTIN_CTZ)
 		/*  #3, rnddnpwr2 ctz */
-		c2 = (v == 0) ? 0 : 0x80000000 >> __builtin_clz(v);
+		c2 = (v == 0) ? 0 : 0x80000000 >> BITOPS_CLZ(v);
 		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: rnddnpwr2 clz method 1 failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
@@ -899,7 +903,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 
 #if defined(HAVE_BUILTIN_CTZ)
 		/*  #3, rnduppwr2 ctz */
-		c2 = (v == 0) ? 0 : 0x80000000 >> (__builtin_clz(v - 1) - 1);
+		c2 = (v == 0) ? 0 : 0x80000000 >> (BITOPS_CLZ(v - 1) - 1);
 		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: rnduppwr2 clz method 1 failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
