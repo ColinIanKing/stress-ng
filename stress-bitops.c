@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_BUILTIN_CLZ)
-#define BITOPS_CLZ(x)	(UNLIKELY((x) == 0) ? 0 : __builtin_clz((x)))
+#define BITOPS_CLZ(x)	(UNLIKELY((x) == 0) ? 32 : __builtin_clz((x)))
 #endif
 
 static const stress_bitops_method_info_t bitops_methods[];
