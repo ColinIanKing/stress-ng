@@ -51,17 +51,18 @@ static int OPTIMIZE3 stress_bitops_sign(const char *name, uint32_t *count)
 	int32_t i;
 	int32_t v = stress_mwc32();
 	uint32_t d = (~0U) >> 1;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		register int32_t sign1, sign2;
 
 		/* #1 sign, comparison */
 		sign1 = -(v < 0);
-		stress_uint32_put(sign1);
+		sum += sign1;
 
 		/* #2 sign, sign bit */
 		sign2 = -(int)((unsigned int)((int)v) >> ((sizeof(int) * CHAR_BIT) - 1));
-		stress_uint32_put(sign2);
+		sum += sign2;
 
 		if (UNLIKELY(sign1 != sign2)) {
 			pr_fail("%s: sign method failure, value %d, sign1 = %d, sign2 = %d\n",
@@ -70,7 +71,9 @@ static int OPTIMIZE3 stress_bitops_sign(const char *name, uint32_t *count)
 		}
 		v += d;
 	}
+	stress_uint32_put(sum);
 	*count += (2 * i);
+
 	return EXIT_SUCCESS;
 }
 
@@ -83,6 +86,7 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 	int32_t i;
 	int32_t v = stress_mwc32();
 	uint32_t d = (~0U) >> 1;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		register const int32_t mask = v >> (((sizeof(int) * CHAR_BIT)) - 1);
@@ -90,11 +94,11 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 
 		/* #1 abs, mask method 1 */
 		abs1 = (v + mask) ^ mask;
-		stress_uint32_put(abs1);
+		sum += abs1;
 
 		/* #2 abs, mask method 1 */
 		abs2 = (v ^ mask) - mask;
-		stress_uint32_put(abs2);
+		sum += abs2;
 
 		if (UNLIKELY(abs1 != abs2)) {
 			pr_fail("%s: abs method failure, value %d, abs1 = %d, abs2 = %d\n",
@@ -103,6 +107,7 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 		}
 		v += d;
 	}
+	stress_uint32_put(sum);
 	*count += (2 * i);
 	return EXIT_SUCCESS;
 }
@@ -116,6 +121,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 	int32_t i;
 	uint32_t v = stress_mwc32();
 	uint32_t dv = stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		uint32_t c1, c2, tmp;
@@ -123,12 +129,12 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 		/* #1, Count bits, naive method */
 		for (tmp = v, c1 = 0; tmp; tmp >>= 1)
 			c1 += (tmp & 1);
-		stress_uint32_put(c1);
+		sum += c1;
 
 		/* #2 Count bits, Brian Kernighan method */
 		for (tmp = v, c2 = 0; tmp; c2++)
 			tmp &= (tmp - 1);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: countbits Kernighan method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -139,7 +145,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 		c2 = ((v & 0xfff) * 0x1001001001001ULL & 0x84210842108421ULL) % 0x1f;
 		c2 += (((v & 0xfff000) >> 12) * 0x1001001001001ULL & 0x84210842108421ULL) % 0x1f;
 		c2 += ((v >> 24) * 0x1001001001001ULL & 0x84210842108421ULL) % 0x1f;
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: countbits 64 bit method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -150,7 +156,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 		tmp = v - ((v >> 1) & 0x55555555);
 		tmp = (tmp & 0x33333333) + ((tmp >> 2) & 0x33333333);
 		c2 = (((tmp + (tmp >> 4)) & 0xF0F0F0F) * 0x1010101) >> 24;
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: countbits parallel method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -160,7 +166,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 #if defined(HAVE_BUILTIN_POPCOUNT)
 		/* #5 Count bits popcount method */
 		c2 = __builtin_popcount((unsigned int)v);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: countbits builtin_popcount failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -169,6 +175,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 #endif
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_POPCOUNT)
 	*count += 5 * i;
 #else
@@ -186,6 +193,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 	int32_t i;
 	uint32_t v = stress_mwc32();
 	uint32_t dv = stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		uint32_t c1, c2, tmp, n;
@@ -197,7 +205,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 			for (c1 = 0, tmp = v; tmp && ((tmp & 0x80000000) == 0); tmp <<= 1)
 				c1++;
 		}
-		stress_uint32_put(c1);
+		sum += c1;
 
 		/* #2 Count leading zeros, log shift method */
 		n = 32;
@@ -227,7 +235,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 			c2 = n - 2;
 		else
 			c2 = n - c2;
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: clz log shift method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -243,7 +251,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 		tmp = tmp | (tmp >> 8);
 		tmp = tmp | (tmp >>16);
 		c2 = __builtin_popcount((unsigned int)~tmp);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: clz builtin_popcount method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -253,7 +261,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 #if defined(HAVE_BUILTIN_CLZ)
 		/* #4 Count leading zeros, clz method */
 		c2 = __builtin_clz(v);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: clz builtin_clz method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -262,6 +270,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 #endif
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_POPCOUNT) &&	\
     defined(HAVE_BUILTIN_CLZ)
 	*count += 4 * i;
@@ -284,6 +293,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 	int32_t i;
 	uint32_t v = stress_mwc32();
 	uint32_t dv = stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		uint32_t c1, c2, tmp, n;
@@ -296,7 +306,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 			for (c1 = 0, tmp = v; tmp && ((tmp & 1) == 0); tmp >>= 1)
 				c1++;
 		}
-		stress_uint32_put(c1);
+		sum += c1;
 
 		/* #2 Count trailing zeros, mask and shift */
 		if (UNLIKELY(v == 0)) {
@@ -322,7 +332,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 			}
 			c2 = n - (tmp & 1);
 		}
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: ctz mask and shift method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -338,7 +348,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 		b1 = (tmp & 0x33333333) ? 0 : 2;
 		b0 = (tmp & 0x55555555) ? 0 : 1;
 		c2 = bz + b4 + b3 + b2 + b1 + b0;
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: ctz Gaudet method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -348,7 +358,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 #if defined(HAVE_BUILTIN_CTZ)
 		/* #4, Count trailing zeros, ctz method */
 		c2 = __builtin_ctz((unsigned int)v);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: ctz builtin_ctz method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -358,7 +368,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 #if defined(HAVE_BUILTIN_POPCOUNT)
 		/* #5, Count trailing zeros, popcount method */
 		c2 = __builtin_popcount((unsigned int)((v & -v) - 1));
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: ctz builtin_popcount method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -367,6 +377,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 #endif
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_CLZ) &&	\
     defined(HAVE_BUILTIN_POPCOUNT)
 	*count += 5 * i;
@@ -392,6 +403,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 	int32_t y = x;
 	uint32_t dx = (~0U) >> 1;
 	uint32_t dy = (~0U) >> 2;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		int32_t cmp1, cmp2;
@@ -403,11 +415,11 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 			cmp1 = 1;
 		else
 			cmp1 = 0;
-		stress_uint32_put(cmp1);
+		sum += cmp1;
 
 		/* #2 branchless comparisons */
 		cmp2 = (x > y) - (x < y);
-		stress_uint32_put(cmp2);
+		sum += cmp2;
 		if (UNLIKELY(cmp1 != cmp2)) {
 			pr_fail("%s: cmp method 1 failure, values 0x%" PRIx32 " vs 0x%" PRIx32 ", cmp1 = 0x%" PRIx32 ", cmp2 = 0x%" PRIx32 "\n",
 				name, x, y, cmp1, cmp2);
@@ -416,7 +428,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 
 		/* #3 branchless comparisons */
 		cmp2 = (x >= y) - (x <= y);
-		stress_uint32_put(cmp2);
+		sum += cmp2;
 		if (UNLIKELY(cmp1 != cmp2)) {
 			pr_fail("%s: cmp method 2 failure, values 0x%" PRIx32 " vs 0x%" PRIx32 ", cmp1 = 0x%" PRIx32 ", cmp2 = 0x%" PRIx32 "\n",
 				name, x, y, cmp1, cmp2);
@@ -426,6 +438,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
+	stress_uint32_put(sum);
 	*count += 3 * i;
 
 	return EXIT_SUCCESS;
@@ -440,6 +453,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 	int32_t i;
 	uint32_t v = stress_mwc32();
 	uint32_t dv = stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		bool p1, p2;
@@ -448,12 +462,12 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		/* #1 Parity, very naive method */
 		for (p1 = 0, tmp = v; tmp; tmp >>= 1)
 			p1 = (tmp & 1) ? !p1 : p1;
-		stress_uint8_put(p1);
+		sum += p1;
 
 		/* #2 Parity, naive method */
 		for (p2 = 0, tmp = v; tmp; tmp = tmp & (tmp - 1))
 			p2 = !p2;
-		stress_uint8_put(p2);
+		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
 			pr_fail("%s: parity naive method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
 				name, v, p1, p2);
@@ -465,7 +479,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		tmp ^= tmp >> 2;
 		tmp = (tmp & 0x11111111U) * 0x11111111U;
 		p2 = (tmp >> 28) & 1;
-		stress_uint8_put(p2);
+		sum += p2;
 		if (p1 != p2)  {
 			pr_fail("%s: parity 32 bit multiply method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
 				name, v, p1, p2);
@@ -478,7 +492,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 		tmp ^= tmp >> 4;
 		tmp &= 0xf;
 		p2 = (0x6996 >> tmp) & 1;
-		stress_uint8_put(p2);
+		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
 			pr_fail("%s: parity parallel method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
 				name, v, p1, p2);
@@ -488,7 +502,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 #if defined(HAVE_BUILTIN_PARITY)
 		/* #5 Parity, builtin */
 		p2 = __builtin_parity((unsigned int)v);
-		stress_uint8_put(p2);
+		sum += p2;
 		if (UNLIKELY(p1 != p2)) {
 			pr_fail("%s: parity builtin_parity method failure, value 0x%" PRIx32 ", p1 = 0x%" PRIx32 ", p2 = 0x%" PRIx32 "\n",
 				name, v, p1, p2);
@@ -497,6 +511,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 #endif
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_PARITY)
 	*count += 5 * i;
 #else
@@ -516,15 +531,16 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 	int32_t y = stress_mwc32();
 	uint32_t dx = (~0U) >> 1;
 	uint32_t dy = (~0U) >> 2;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		register int32_t min1, min2;
 
 		min1 = y ^ ((x ^ y) & -(x < y));
-		stress_uint32_put(min1);
+		sum += min1;
 
 		min2 = (x < y) ? x : y;
-		stress_uint32_put(min2);
+		sum += min2;
 
 		if (UNLIKELY(min1 != min2)) {
 			pr_fail("%s: min method failure, values %d %d, min1 = %d, min2 = %d\n",
@@ -534,6 +550,7 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
+	stress_uint32_put(sum);
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }
@@ -549,15 +566,16 @@ static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 	int32_t y = stress_mwc32();
 	uint32_t dx = (~0U) >> 1;
 	uint32_t dy = (~0U) >> 2;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		register int32_t max1, max2;
 
 		max1 = x ^ ((x ^ y) & -(x < y));
-		stress_uint32_put(max1);
+		sum += max1;
 
 		max2 = (x > y) ? x : y;
-		stress_uint32_put(max2);
+		sum += max2;
 
 		if (UNLIKELY(max1 != max2)) {
 			pr_fail("%s: max method failure, values %d %d, max1 = %d, max2 = %d\n",
@@ -567,6 +585,7 @@ static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
+	stress_uint32_put(sum);
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }
@@ -580,6 +599,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 	int32_t i;
 	uint32_t v = stress_mwc32();
 	uint32_t dv = stress_mwc16() << 12;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		static const int bitposition[32] ALIGN64 = {
@@ -594,7 +614,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 		ln2_1 = 0;
 		while (tmp >>= 1)
 			ln2_1++;
-		stress_uint32_put(ln2_1);
+		sum += ln2_1;
 
 		tmp = v;
 		ln2_2 = 0;
@@ -618,7 +638,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 			tmp >>= 1;
 			ln2_2 |= 1;
 		}
-		stress_uint32_put(ln2_2);
+		sum += ln2_2;
 		if (UNLIKELY(ln2_1 != ln2_2)) {
 			pr_fail("%s: log2 mask and shift method 1 failure, value 0x%" PRIx32 ", ln2_1 = 0x%" PRIx32 ", ln2_2 = 0x%" PRIx32 "\n",
 				name, v, ln2_1, ln2_2);
@@ -637,7 +657,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 		shift = (tmp > 0x3) << 1;
 		tmp >>= shift;
 		ln2_2 |= shift | (tmp >> 1);
-		stress_uint32_put(ln2_2);
+		sum += ln2_2;
 		if (UNLIKELY(ln2_1 != ln2_2)) {
 			pr_fail("%s: log2 mask and shift method 2 failure, value 0x%" PRIx32 ", ln2_1 = 0x%" PRIx32 ", ln2_2 = 0x%" PRIx32 "\n",
 				name, v, ln2_1, ln2_2);
@@ -651,7 +671,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 		tmp |= tmp >> 8;
 		tmp |= tmp >> 16;
 		ln2_2 = bitposition[(uint32_t)(tmp * 0x07c4acdd) >> 27];
-		stress_uint32_put(ln2_2);
+		sum += ln2_2;
 		if (UNLIKELY(ln2_1 != ln2_2)) {
 			pr_fail("%s: log2 multiply and lookup method failure, value 0x%" PRIx32 ", ln2_1 = 0x%" PRIx32 ", ln2_2 = 0x%" PRIx32 "\n",
 				name, v, ln2_1, ln2_2);
@@ -660,6 +680,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 
 		v += dv;
 	}
+	stress_uint32_put(sum);
 	*count += 4 * i;
 	return EXIT_SUCCESS;
 }
@@ -673,6 +694,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 	int32_t i;
 	uint32_t v = stress_mwc32();
 	uint32_t dv = stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		uint32_t tmp, r1, r2, s, mask;
@@ -686,7 +708,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 			s--;
 		}
 		r1 <<= s;
-		stress_uint32_put(r1);
+		sum += r1;
 
 		mask = ~0;
 		s = (sizeof(r2) * CHAR_BIT);
@@ -695,7 +717,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 			mask ^= (mask << s);
 			r2 = ((r2 >> s) & mask) | ((r2 << s) & ~mask);
 		}
-		stress_uint32_put(r2);
+		sum += r2;
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse lg(N) method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
 				name, v, r1, r2);
@@ -708,7 +730,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 		tmp = (((tmp & 0xf0f0f0f0UL) >> 4)  | ((tmp & 0x0f0f0f0fUL) << 4));
 		tmp = (((tmp & 0xff00ff00UL) >> 8)  | ((tmp & 0x00ff00ffUL) << 8));
 		r2 =  (((tmp & 0xffff0000UL) >> 16) | ((tmp & 0x0000ffffUL) << 16));
-		stress_uint32_put(r2);
+		sum += r2;
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse parallel method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
 				name, v, r1, r2);
@@ -724,7 +746,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 		b4 = v >> 24;
 		b4 = ((b4 * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
 		r2 = ((uint32_t)b1 << 24) | ((uint32_t)b2 << 16) | ((uint32_t)b3 << 8) | ((uint32_t)b4 << 0);
-		stress_uint32_put(r2);
+		sum += r2;
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse 64 bit multiply method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
 				name, v, r1, r2);
@@ -740,7 +762,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 		b4 = (v >> 24);
 		b4 = ((b4 * 0x0802LU & 0x22110LU) | (b4 * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 		r2 = ((uint32_t)b1 << 24) | ((uint32_t)b2 << 16) | ((uint32_t)b3 << 8) | ((uint32_t)b4 << 0);
-		stress_uint32_put(r2);
+		sum += r2;
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse non-64 bit multiply method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
 				name, v, r1, r2);
@@ -749,7 +771,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 
 #if defined(HAVE_BUILTIN_BITREVERSE)
 		r2 = __builtin_bitreverse32(v);
-		stress_uint32_put(r2);
+		sum += r2;
 		if (UNLIKELY(r1 != r2)) {
 			pr_fail("%s: reverse builtin_reverse method failure, value 0x%" PRIx32 ", r1 = 0x%" PRIx32 ", r2 = 0x%" PRIx32 "\n",
 				name, v, r1, r2);
@@ -758,6 +780,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 #endif
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_BITREVERSE)
 	*count += 6 * i;
 #else
@@ -775,6 +798,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 	int32_t i;
 	uint32_t v = 0;
 	uint32_t dv = 0x12345 + stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		uint32_t c1, c2, tmp;
@@ -792,7 +816,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 				c1++;
 			c1 = 0x80000000 >> c1;
 		}
-		stress_uint32_put(c1);
+		sum += c1;
 
 		/*  #2 rnddnpwr2 branch free */
 		c2 = v;
@@ -802,7 +826,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 		c2 |= (c2 >> 8);
 		c2 |= (c2 >> 16);
 		c2 = (c2 - (c2 >> 1));
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: rnddnpwr2 branch free method 1 failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -812,7 +836,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 #if defined(HAVE_BUILTIN_CTZ)
 		/*  #3, rnddnpwr2 ctz */
 		c2 = (v == 0) ? 0 : 0x80000000 >> __builtin_clz(v);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: rnddnpwr2 clz method 1 failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -821,6 +845,7 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 #endif
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_CTZ)
 	*count += 3 * i;
 #else
@@ -838,6 +863,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 	int32_t i;
 	uint32_t v = 0;
 	uint32_t dv = 0x12345 + stress_mwc16();
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		uint32_t c1, c2, tmp;
@@ -853,7 +879,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 				c1++;
 			c1 = 0x80000000 >> (c1 - 1);
 		}
-		stress_uint32_put(c1);
+		sum += c1;
 
 		/*  #2 rnduppwr2 branch free */
 		c2 = v;
@@ -864,7 +890,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 		c2 |= (c2 >> 8);
 		c2 |= (c2 >> 16);
 		c2 += 1;
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: rmduppwr2 branch free method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -874,7 +900,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 #if defined(HAVE_BUILTIN_CTZ)
 		/*  #3, rnduppwr2 ctz */
 		c2 = (v == 0) ? 0 : 0x80000000 >> (__builtin_clz(v - 1) - 1);
-		stress_uint32_put(c2);
+		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: rnduppwr2 clz method 1 failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
 				name, v, c1, c2);
@@ -884,6 +910,7 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 
 		v += dv;
 	}
+	stress_uint32_put(sum);
 #if defined(HAVE_BUILTIN_CTZ)
 	*count += 3 * i;
 #else
@@ -903,6 +930,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 	uint32_t y = stress_mwc32();
 	uint32_t dx = (~0U) >> 1;
 	uint32_t dy = (~0U) >> 2;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
 		register uint32_t sx, sy;
@@ -912,8 +940,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		sx -= sy;
 		sy += sx;
 		sx = sy - sx;
-		stress_uint32_put(sx);
-		stress_uint32_put(sy);
+		sum += sx + sy;
 		if (UNLIKELY((sx != y) && (sy != x))) {
 			pr_fail("%s: swap add/sub method failure, values %d %d, sapped %d %d\n",
 				name, x, y, sx, sy);
@@ -925,8 +952,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		sx ^= sy;
 		sy ^= sx;
 		sx ^= sy;
-		stress_uint32_put(sx);
-		stress_uint32_put(sy);
+		sum += sx + sy;
 		if (UNLIKELY((sx != y) && (sy != x))) {
 			pr_fail("%s: swap xor method failure, values %d %d, sapped %d %d\n",
 				name, x, y, sx, sy);
@@ -936,6 +962,7 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 		x += dx;
 		y += dy;
 	}
+	stress_uint32_put(sum);
 	*count += 2 * i;
 	return EXIT_SUCCESS;
 }
