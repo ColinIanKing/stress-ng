@@ -38,5 +38,9 @@ static void *egl_funcs[] = {
 /* This program does nothing as it is intended to be a compile-only check*/
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(egl_funcs) / sizeof(egl_funcs[0]); i++)
+		printf("%p\n", egl_funcs[i]);
 	return 0;
 }

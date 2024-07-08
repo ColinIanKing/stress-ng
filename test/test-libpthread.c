@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
 
@@ -35,5 +36,10 @@ static void *pthread_funcs[] = {
 
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(pthread_funcs) / sizeof(pthread_funcs[0]); i++)
+		printf("%p\n", pthread_funcs[i]);
+
 	return 0;
 }

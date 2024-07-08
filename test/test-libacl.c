@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include <stdio.h>
 #include <sys/acl.h>
 #include <acl/libacl.h>
 
@@ -42,5 +43,9 @@ static void *aio_funcs[] = {
 
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(aio_funcs) / sizeof(aio_funcs[0]); i++)
+		printf("%p\n", aio_funcs[i]);
 	return 0;
 }

@@ -57,5 +57,9 @@ static void *gl_funcs[] = {
 /* This program does nothing as it is intended to be a compile-only check*/
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(gl_funcs) / sizeof(gl_funcs[0]); i++)
+		printf("%p\n", gl_funcs[i]);
 	return 0;
 }

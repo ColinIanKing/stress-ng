@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include <stdio.h>
 #include <signal.h>
 #include <time.h>
 #include <aio.h>
@@ -59,5 +60,10 @@ static void *rt_funcs[] = {
 
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(rt_funcs) / sizeof(rt_funcs[0]); i++)
+		printf("%p\n", rt_funcs[i]);
+
 	return 0;
 }

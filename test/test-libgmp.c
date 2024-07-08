@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include <stdio.h>
 #include <gmp.h>
 
 /* The following functions from libgmp are used by stress-ng */
@@ -35,5 +36,9 @@ static void *gmp_funcs[] = {
 
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(gmp_funcs) / sizeof(gmp_funcs[0]); i++)
+		printf("%p\n", gmp_funcs[i]);
 	return 0;
 }

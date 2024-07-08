@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/sctp.h>
@@ -38,5 +39,9 @@ static void *sctp_funcs[] = {
 
 int main(void)
 {
+	size_t i;
+
+	for (i = 0; i < sizeof(sctp_funcs) / sizeof(sctp_funcs[0]); i++)
+		printf("%p\n", sctp_funcs[i]);
 	return 0;
 }
