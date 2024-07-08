@@ -501,6 +501,12 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [powerpc/pseries: fix accuracy of stolen time](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cbecc9fcbbec60136b0180ba0609c829afed5c81)
 * [OpenBSD: libm: segfault in sincosl](https://marc.info/?l=openbsd-bugs&m=171453603728385&w=2)
 * [opening and closing /dev/dri/card0 in a QEMU KVM instance will shutdown system, 6.10.0-rc6+](https://bugzilla.kernel.org/show_bug.cgi?id=219007)
+* [uprobes: prevent mutex_lock() under rcu_read_lock()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=699646734ab51bf5b1cd4a7a30c20074f6e74f6e)
+* [system lock up with RT kernel on amd64](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068900)
+* [WARNING: CPU: 17 PID: 118273 at kernel/sched/deadline.c:794 setup_new_dl_entity+0x12c/0x1e8](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068720)
+* [kernel oops in pick_next_task_fair in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068615)
+* [kernel oops in aafs_create in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068602)
+* [mm: optimize the redundant loop](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cf3f9a593dab87a032d2b6a6fb205e7f3de4f0a1)
 
 ## Kernel improvements that used stress-ng
 
@@ -536,11 +542,6 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 2024:
 * [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
 * [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
-* [uprobes: prevent mutex_lock() under rcu_read_lock()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=699646734ab51bf5b1cd4a7a30c20074f6e74f6e)
-* [system lock up with RT kernel on amd64](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068900)
-* [WARNING: CPU: 17 PID: 118273 at kernel/sched/deadline.c:794 setup_new_dl_entity+0x12c/0x1e8](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068720)
-* [kernel oops in pick_next_task_fair in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068615)
-* [kernel oops in aafs_create in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068602)
 
 ## Presentations
 
