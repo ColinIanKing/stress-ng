@@ -259,8 +259,38 @@ struct shim_sched_attr {
 #if defined(HAVE_STATX)
 typedef struct statx shim_statx_t;
 #else
-typedef struct {
-	char reserved[512];
+struct shim_statx_timestamp {
+        int64_t	 tv_sec;
+        uint32_t tv_nsec;
+        int32_t  __reserved;
+};
+
+typedef struct shim_statx {
+        uint32_t   stx_mask;       /* What results were written [uncond] */
+        uint32_t   stx_blksize;    /* Preferred general I/O size [uncond] */
+        uint64_t   stx_attributes; /* Flags conveying information about the file [uncond] */
+        uint32_t   stx_nlink;      /* Number of hard links */
+        uint32_t   stx_uid;        /* User ID of owner */
+        uint32_t   stx_gid;        /* Group ID of owner */
+        uint16_t   stx_mode;       /* File mode */
+        uint16_t   __spare0[1];
+        uint64_t   stx_ino;        /* Inode number */
+        uint64_t   stx_size;       /* File size */
+        uint64_t   stx_blocks;     /* Number of 512-byte blocks allocated */
+        uint64_t   stx_attributes_mask; /* Mask to show what's supported in stx_attributes */
+        struct shim_statx_timestamp  stx_atime;      /* Last access time */
+        struct shim_statx_timestamp  stx_btime;      /* File creation time */
+        struct shim_statx_timestamp  stx_ctime;      /* Last attribute change time */
+        struct shim_statx_timestamp  stx_mtime;      /* Last data modification time */
+        uint32_t   stx_rdev_major; /* Device ID of special file [if bdev/cdev] */
+        uint32_t   stx_rdev_minor;
+        uint32_t   stx_dev_major;  /* ID of device containing file [uncond] */
+        uint32_t   stx_dev_minor;
+        uint64_t   stx_mnt_id;
+        uint32_t   stx_dio_mem_align;      /* Memory buffer alignment for direct I/O */
+        uint32_t   stx_dio_offset_align;   /* File offset alignment for direct I/O */
+        uint64_t   stx_subvol;     /* Subvolume identifier */
+        uint64_t   __spare3[11];   /* Spare space for future expansion */
 } shim_statx_t;
 #endif
 

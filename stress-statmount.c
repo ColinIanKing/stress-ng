@@ -36,7 +36,8 @@ static const stress_help_t help[] = {
     defined(MNT_ID_REQ_SIZE_VER0) &&	\
     defined(STATMOUNT_MNT_BASIC) &&	\
     defined(STATMOUNT_SB_BASIC) &&	\
-    defined(HAVE_MNT_ID_REQ)
+    defined(STATX_MNT_ID_UNIQUE) &&	\
+    defined(LSMT_ROOT)
 
 /*
  *  shim_statmount()
