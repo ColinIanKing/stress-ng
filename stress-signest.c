@@ -152,17 +152,6 @@ static void stress_signest_ignore(void)
 		VOID_RET(int, stress_sighandler("signest", signals[i], SIG_IGN, NULL));
 }
 
-static inline size_t stress_signest_find(int signum)
-{
-	size_t i;
-
-	for (i = 0; i < max_signals; i++) {
-		if (signals[i] == signum)
-			return i;
-	}
-	return MAX_SIGNALS;
-}
-
 static void MLOCKED_TEXT stress_signest_handler(int signum)
 {
 	const int i = signum;
