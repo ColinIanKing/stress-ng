@@ -96,7 +96,7 @@ static void stress_unlink_exercise(
 
 			if ((i & 7) == 7) {
 				if (link(filenames[i - 1], filenames[i]) == 0) {
-					fds[i] = open(filenames[i], O_RDWR, S_IRUSR | S_IWUSR);
+					fds[i] = open(filenames[i], O_RDWR);
 					if (fds[i] < 0)
 						continue;
 				}
@@ -107,7 +107,7 @@ retry:
 			if (fds[i] < 0) {
 				switch (errno) {
 				case EEXIST:
-					fds[i] = open(filenames[i], O_RDWR, S_IRUSR | S_IWUSR);
+					fds[i] = open(filenames[i], O_RDWR);
 					if (fds[i] < 0)
 						continue;
 					break;
