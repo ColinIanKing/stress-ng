@@ -134,14 +134,17 @@ static int stress_hrtimer_process(stress_args_t *args)
 	struct sigevent sev;
 	struct itimerspec timer;
 	sigset_t mask;
+	int sched;
 
 	time_end = args->time_end;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
-
-	VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
+	/* If sched is not set, use SCHED_RR as default */
+	if (!stress_get_setting("sched", &sched)) {
+		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
+	}
 
 	(void)shim_memset(&action, 0, sizeof action);
 	action.sa_handler = stress_hrtimers_handler;
