@@ -316,7 +316,11 @@ char *stress_find_mount_dev(const char *name)
 	else
 		dev = statbuf.st_dev;
 
+#if defined(__QNXNTO__)
+	majdev = makedev(0, major(dev), 0);
+#else
 	majdev = makedev(major(dev), 0);
+#endif
 
 	dir = opendir("/dev");
 	if (!dir)

@@ -2437,7 +2437,10 @@ int stress_sighandler(
 	(void)shim_memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
 	(void)sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = SA_ONSTACK | SA_NOCLDSTOP;
+	new_action.sa_flags = SA_NOCLDSTOP;
+#if defined(HAVE_SIGALTSTACK)
+	new_action.sa_flags |= SA_ONSTACK;
+#endif
 
 	if (sigaction(signum, &new_action, orig_action) < 0) {
 		pr_fail("%s: sigaction %s: errno=%d (%s)\n",

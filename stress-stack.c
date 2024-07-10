@@ -270,7 +270,9 @@ static int stress_stack_child(stress_args_t *args, void *context)
 		(void)shim_memset(&new_action, 0, sizeof new_action);
 		new_action.sa_handler = stress_segvhandler;
 		(void)sigemptyset(&new_action.sa_mask);
+#if defined(HAVE_SIGALTSTACK)
 		new_action.sa_flags = SA_ONSTACK;
+#endif
 
 		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
 			pr_fail("%s: sigaction on SIGSEGV failed, errno=%d (%s)\n",
