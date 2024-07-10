@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2024-2025 Colin Ian King.
+ * Copyright (C) 2025 SiPearl
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +24,40 @@
 #include "core-arch.h"
 
 #if defined(STRESS_ARCH_ARM)
+
+#if defined(HAVE_ASM_ARM_PRFM)
+/* KEEP */
+static inline void ALWAYS_INLINE stress_asm_arm_prfm_pldl1keep(void *p)
+{
+       __asm__ __volatile__("prfm PLDL1KEEP, [%0]\n" : : "r"(p) : "memory");
+}
+
+static inline void ALWAYS_INLINE stress_asm_arm_prfm_pldl2keep(void *p)
+{
+       __asm__ __volatile__("prfm PLDL2KEEP, [%0]\n" : : "r"(p) : "memory");
+}
+
+static inline void ALWAYS_INLINE stress_asm_arm_prfm_pldl3keep(void *p)
+{
+       __asm__ __volatile__("prfm PLDL3KEEP, [%0]\n" : : "r"(p) : "memory");
+}
+
+/* STRM */
+static inline void ALWAYS_INLINE stress_asm_arm_prfm_pldl1strm(void *p)
+{
+       __asm__ __volatile__("prfm PLDL1STRM, [%0]\n" : : "r"(p) : "memory");
+}
+
+static inline void ALWAYS_INLINE stress_asm_arm_prfm_pldl2strm(void *p)
+{
+       __asm__ __volatile__("prfm PLDL2STRM, [%0]\n" : : "r"(p) : "memory");
+}
+
+static inline void ALWAYS_INLINE stress_asm_arm_prfm_pldl3strm(void *p)
+{
+       __asm__ __volatile__("prfm PLDL3STRM, [%0]\n" : : "r"(p) : "memory");
+}
+#endif
 
 #if defined(HAVE_ASM_ARM_YIELD)
 static inline void ALWAYS_INLINE stress_asm_arm_yield(void)
