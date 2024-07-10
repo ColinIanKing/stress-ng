@@ -139,6 +139,10 @@ static const int mmap_flags[] = {
     defined(STRESS_ARCH_X86_64)
 	MAP_32BIT,
 #endif
+/* Linux 6.11 */
+#if defined(MAP_DROPPABLE)
+	MAP_DROPPABLE,
+#endif
 #if defined(MAP_NOCACHE)	/* Mac OS X */
 	MAP_NOCACHE,
 #endif
