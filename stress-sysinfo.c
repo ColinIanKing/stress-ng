@@ -219,7 +219,11 @@ static int stress_sysinfo(stress_args_t *args)
 			 * Exercise invalid ustat, assuming that major ~0 is
 			 * invalid
 			 */
+#if defined(__QNXNTO__)
+			sbuf.st_dev = makedev(0, ~0, stress_mwc32());
+#else
 			sbuf.st_dev = makedev(~0, stress_mwc32());
+#endif
 			VOID_RET(int, shim_ustat(sbuf.st_dev, &ubuf));
 #endif
 		}

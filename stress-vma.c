@@ -261,6 +261,7 @@ static void *stress_vma_munlock(void *ptr)
 	return NULL;
 }
 
+#if defined(HAVE_MADVISE)
 static void *stress_vma_madvise(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -317,6 +318,7 @@ static void *stress_vma_madvise(void *ptr)
 	}
 	return NULL;
 }
+#endif
 
 #if defined(HAVE_MINCORE)
 static void *stress_vma_mincore(void *ptr)
@@ -449,7 +451,9 @@ static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_munmap,	1 },
 	{ stress_vma_mlock,	1 },
 	{ stress_vma_munlock,	1 },
+#if defined(HAVE_MADVISE)
 	{ stress_vma_madvise,	1 },
+#endif
 #if defined(HAVE_MINCORE)
 	{ stress_vma_mincore,	1 },
 #endif
