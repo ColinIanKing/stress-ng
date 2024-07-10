@@ -6354,6 +6354,36 @@ Use the x86 prefetchnta instruction (non-temporal data with respect to all
 cache levels) into a location close to the processor, minimizing cache
 pollution (x86 only).
 T}
+prfm_pldl1keep	T{
+Use the aarch64 prfm instruction with pld1keep operation (retained or temporal
+prefetch, allocated in the cache normally) to prefetch data into level 1 of the
+cache hierarchy (aarch64 only).
+T}
+prfm_pldl2keep	T{
+Use the aarch64 prfm instruction with pld1keep operation (retained or temporal
+prefetch, allocated in the cache normally) to prefetch data into level 2 of the
+cache hierarchy (aarch64 only).
+T}
+prfm_pldl3keep	T{
+Use the aarch64 prfm instruction with pld1keep operation (retained or temporal
+prefetch, allocated in the cache normally) to prefetch data into level 3 of the
+cache hierarchy (aarch64 only).
+T}
+prfm_pldl1strm	T{
+Use the aarch64 prfm instruction with pld1strm operation (streaming or
+non-temporal prefetch, for data that is used only once) to prefetch data into
+level 1 of the cache hierarchy (aarch64 only).
+T}
+prfm_pldl2strm	T{
+Use the aarch64 prfm instruction with pld1strm operation (streaming or
+non-temporal prefetch, for data that is used only once) to prefetch data into
+level 2 of the cache hierarchy (aarch64 only).
+T}
+prfm_pldl3strm	T{
+Use the aarch64 prfm instruction with pld1strm operation (streaming or
+non-temporal prefetch, for data that is used only once) to prefetch data into
+level 3 of the cache hierarchy (aarch64 only).
+T}
 .TE
 .TP
 .B \-\-prefetch\-ops N

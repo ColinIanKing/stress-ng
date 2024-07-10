@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016-2021 Canonical, Ltd.
  * Copyright (C) 2022-2025 Colin Ian King.
+ * Copyright (C) 2025 SiPearl
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +19,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-arm.h"
 #include "core-asm-ppc64.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
@@ -57,15 +59,21 @@ typedef struct {
 	bool check_prefetch_rate;
 } stress_prefetch_method_t;
 
-#define STRESS_PREFETCH_BUILTIN		(0)
-#define STRESS_PREFETCH_BUILTIN_L0	(1)
-#define STRESS_PREFETCH_BUILTIN_L3	(2)
-#define STRESS_PREFETCH_X86_PREFETCHT0	(3)
-#define STRESS_PREFETCH_X86_PREFETCHT1	(4)
-#define STRESS_PREFETCH_X86_PREFETCHT2	(5)
-#define STRESS_PREFETCH_X86_PREFETCHNTA	(6)
-#define STRESS_PREFETCH_PPC64_DCBT	(7)
-#define STRESS_PREFETCH_PPC64_DCBTST	(8)
+#define STRESS_PREFETCH_BUILTIN            (0)
+#define STRESS_PREFETCH_BUILTIN_L0         (1)
+#define STRESS_PREFETCH_BUILTIN_L3         (2)
+#define STRESS_PREFETCH_X86_PREFETCHT0     (3)
+#define STRESS_PREFETCH_X86_PREFETCHT1     (4)
+#define STRESS_PREFETCH_X86_PREFETCHT2     (5)
+#define STRESS_PREFETCH_X86_PREFETCHNTA    (6)
+#define STRESS_PREFETCH_PPC64_DCBT         (7)
+#define STRESS_PREFETCH_PPC64_DCBTST       (8)
+#define STRESS_PREFETCH_ARM_PRFM_PLDL1KEEP (9)
+#define STRESS_PREFETCH_ARM_PRFM_PLDL2KEEP (10)
+#define STRESS_PREFETCH_ARM_PRFM_PLDL3KEEP (11)
+#define STRESS_PREFETCH_ARM_PRFM_PLDL1STRM (12)
+#define STRESS_PREFETCH_ARM_PRFM_PLDL2STRM (13)
+#define STRESS_PREFETCH_ARM_PRFM_PLDL3STRM (14)
 
 static inline bool stress_prefetch_true(void)
 {
@@ -93,6 +101,14 @@ stress_prefetch_method_t prefetch_methods[] = {
 #endif
 #if defined(HAVE_ASM_PPC64_DCBTST)
 	{ "dcbtst",		STRESS_PREFETCH_PPC64_DCBTST,	stress_prefetch_true,	true },
+#endif
+#if defined(HAVE_ASM_ARM_PRFM)
+	{ "prfm_pldl1keep",	STRESS_PREFETCH_ARM_PRFM_PLDL1KEEP,	stress_prefetch_true,	true },
+	{ "prfm_pldl2keep",	STRESS_PREFETCH_ARM_PRFM_PLDL2KEEP,	stress_prefetch_true,	true },
+	{ "prfm_pldl3keep",	STRESS_PREFETCH_ARM_PRFM_PLDL3KEEP,	stress_prefetch_true,	true },
+	{ "prfm_pldl1strm",	STRESS_PREFETCH_ARM_PRFM_PLDL1STRM,	stress_prefetch_true,	true },
+	{ "prfm_pldl2strm",	STRESS_PREFETCH_ARM_PRFM_PLDL2STRM,	stress_prefetch_true,	true },
+	{ "prfm_pldl3strm",	STRESS_PREFETCH_ARM_PRFM_PLDL3STRM,	stress_prefetch_true,	true },
 #endif
 };
 
@@ -284,6 +300,26 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 #if defined(HAVE_ASM_PPC64_DCBTST)
 		case STRESS_PREFETCH_PPC64_DCBTST:
 			STRESS_PREFETCH_LOOP(stress_asm_ppc64_dcbtst, "ppc64 dcbtst");
+			break;
+#endif
+#if defined(HAVE_ASM_ARM_PRFM)
+		case STRESS_PREFETCH_ARM_PRFM_PLDL1KEEP:
+			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl1keep, "arm prfm pldl1keep");
+			break;
+		case STRESS_PREFETCH_ARM_PRFM_PLDL2KEEP:
+			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl2keep, "arm prfm pldl2keep");
+			break;
+		case STRESS_PREFETCH_ARM_PRFM_PLDL3KEEP:
+			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl3keep, "arm prfm pldl3keep");
+			break;
+		case STRESS_PREFETCH_ARM_PRFM_PLDL1STRM:
+			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl1strm, "arm prfm pldl1strm");
+			break;
+		case STRESS_PREFETCH_ARM_PRFM_PLDL2STRM:
+			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl2strm, "arm prfm pldl2strm");
+			break;
+		case STRESS_PREFETCH_ARM_PRFM_PLDL3STRM:
+			STRESS_PREFETCH_LOOP(stress_asm_arm_prfm_pldl3strm, "arm prfm pldl3strm");
 			break;
 #endif
 		}
