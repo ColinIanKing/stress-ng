@@ -272,6 +272,14 @@ To build on Haiku Alpha 4:
 
 To build a static image (example, for Android), use:
 ```
+	# path to Android NDK
+	export NDK=$HOME/android-ndk-r27-beta2
+	export PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
+	export TARGET=aarch64-linux-android
+	# Define Android API level
+	export API=27
+	export CC=$TARGET$API-clang
+
 	make clean
 	STATIC=1 make
 ```
