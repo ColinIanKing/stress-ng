@@ -3009,15 +3009,15 @@ size_t stress_exec_text_addr(char **start, char **end)
 	extern char etext;
 	intptr_t text_end = (intptr_t)&etext;
 #endif
-	const size_t text_len = (size_t)(text_end - text_start);
+	if (text_end <= text_start)
+		return 0;
 
 	if ((start == NULL) || (end == NULL) || (text_start >= text_end))
 		return 0;
 
 	*start = (char *)text_start;
 	*end = (char *)text_end;
-
-	return text_len;
+	return (size_t)(text_end - text_start);
 }
 
 /*
