@@ -35,19 +35,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_mtx_procs(const char *opt)
-{
-	uint64_t mtx_procs;
-
-	mtx_procs = stress_get_uint64(opt);
-	stress_check_range("mtx-procs", mtx_procs,
-		MIN_MTX_PROCS, MAX_MTX_PROCS);
-	return stress_set_setting("mtx-procs", TYPE_ID_UINT64, &mtx_procs);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mtx_procs,	stress_set_mtx_procs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mtx_procs, "mtx-procs", TYPE_ID_UINT64, MIN_MTX_PROCS, MAX_MTX_PROCS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
@@ -191,14 +181,14 @@ stressor_info_t stress_mtx_info = {
 	.stressor = stress_mtx,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_mtx_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt, threads.h, pthread_np.h or pthread support"

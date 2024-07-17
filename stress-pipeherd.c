@@ -44,11 +44,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_pipeherd_yield(const char *opt)
-{
-	return stress_set_setting_true("pipeherd-yield", opt);
-}
-
 static int stress_pipeherd_read_write(stress_args_t *args, const int fd[2], const bool pipeherd_yield)
 {
 	while (stress_continue(args)) {
@@ -215,15 +210,15 @@ static int stress_pipeherd(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_pipeherd_yield,	stress_set_pipeherd_yield },
-	{ 0,                    NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_pipeherd_yield, "pipeherd-yield", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_pipeherd_info = {
 	.stressor = stress_pipeherd,
 	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

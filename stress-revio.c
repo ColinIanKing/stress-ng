@@ -53,6 +53,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"revio N",		"start N workers performing reverse I/O" },
 	{ NULL, "revio-bytes N",	"specify file size (default is 1GB)" },
 	{ NULL,	"revio-ops N",		"stop after N revio bogo operations" },
+	{ NULL, "revop-opts list",	"specify list of various stressor options" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -127,16 +128,6 @@ static const stress_revio_opts_t revio_opts[] = {
 	{ "utimes",	REVIO_OPT_UTIMES, 0, 0, 0 },
 };
 
-static int stress_set_revio_bytes(const char *opt)
-{
-	uint64_t revio_bytes;
-
-	revio_bytes = stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("revio-bytes", revio_bytes,
-		MIN_REVIO_BYTES, MAX_REVIO_BYTES);
-	return stress_set_setting("revio-bytes", TYPE_ID_UINT64, &revio_bytes);
-}
-
 /*
  *  stress_revio_write()
  *	write with writev or write depending on mode
@@ -183,19 +174,24 @@ static ssize_t stress_revio_write(
 }
 
 /*
- *  stress_set_revio_opts
+ *  stress_revio_opts
  *	parse --revio-opts option(s) list
  */
-static int stress_set_revio_opts(const char *opts)
+static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	char *str, *ptr, *token;
 	int revio_flags = 0;
 	int revio_oflags = 0;
 	bool opts_set = false;
 
-	str = stress_const_optdup(opts);
-	if (!str)
-		return -1;
+	(void)type_id;
+	(void)value;
+
+	str = stress_const_optdup(opt_arg);
+	if (!str) {
+		(void)fprintf(stderr, "%s option: cannot dup string '%s'\n", opt_name, opt_arg);
+		longjmp(g_error_env, 1);
+	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		size_t i;
@@ -211,15 +207,16 @@ static int stress_set_revio_opts(const char *opts)
 					for (j = 0; revio_opts[j].opt; j++) {
 						if ((exclude & revio_opts[j].flag) == exclude) {
 							(void)fprintf(stderr,
-								"revio-opt option '%s' is not "
+								"%s option '%s' is not "
 								"compatible with option '%s'\n",
-								token,
+								opt_name, token,
 								revio_opts[j].opt);
-							break;
+							free(str);
+							longjmp(g_error_env, 1);
 						}
 					}
 					free(str);
-					return -1;
+					return;
 				}
 				revio_flags  |= revio_opts[i].flag;
 				revio_oflags |= revio_opts[i].oflag;
@@ -228,13 +225,13 @@ static int stress_set_revio_opts(const char *opts)
 			}
 		}
 		if (!opt_ok) {
-			(void)fprintf(stderr, "revio-opt option '%s' not known, options are:", token);
+			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, token);
 			for (i = 0; i < SIZEOF_ARRAY(revio_opts); i++)
 				(void)fprintf(stderr, "%s %s",
 					i == 0 ? "" : ",", revio_opts[i].opt);
 			(void)fprintf(stderr, "\n");
 			free(str);
-			return -1;
+			longjmp(g_error_env, 1);
 		}
 	}
 
@@ -242,8 +239,6 @@ static int stress_set_revio_opts(const char *opts)
 	stress_set_setting("revio-oflags", TYPE_ID_INT, &revio_oflags);
 	stress_set_setting("revio-opts-set", TYPE_ID_BOOL, &opts_set);
 	free(str);
-
-	return 0;
 }
 
 /*
@@ -459,17 +454,17 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_revio_bytes,	stress_set_revio_bytes },
-	{ OPT_revio_opts,	stress_set_revio_opts },
-	{ 0,			NULL }
 
+static const stress_opt_t opts[] = {
+	{ OPT_revio_bytes, "revio-bytes", TYPE_ID_UINT64_BYTES, MIN_REVIO_BYTES, MAX_REVIO_BYTES, NULL },
+	{ OPT_revio_opts,  "revio-opts",  TYPE_ID_CALLBACK, 0, 0, stress_revio_opts },
+	END_OPT,
 };
 
 stressor_info_t stress_revio_info = {
 	.stressor = stress_revio,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -73,16 +73,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_nanosleep_threads(const char *opt)
-{
-	uint32_t nanosleep_threads;
-
-	nanosleep_threads = stress_get_uint32(opt);
-	stress_check_range("nanosleep_threads", nanosleep_threads,
-		MIN_NANOSLEEP_THREADS, MAX_NANOSLEEP_THREADS);
-	return stress_set_setting("nanosleep-threads", TYPE_ID_UINT32, &nanosleep_threads);
-}
-
 static const stress_nanosleep_method_t stress_nanosleep_methods[] = {
 	{ "all",	STRESS_NANOSLEEP_ALL },
 	{ "cstate",	STRESS_NANOSLEEP_CSTATE },
@@ -92,34 +82,15 @@ static const stress_nanosleep_method_t stress_nanosleep_methods[] = {
 	{ "ms",		STRESS_NANOSLEEP_MS },
 };
 
-/*
- *  stress_set_nanosleep_method()
- *	set the default nanosleep time method
- */
-static int stress_set_nanosleep_method(const char *name)
+static const char *stress_nanosleep_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_nanosleep_methods); i++) {
-		if (!strcmp(stress_nanosleep_methods[i].name, name)) {
-			stress_set_setting("stress-nanosleep-method", TYPE_ID_INT, &stress_nanosleep_methods[i].mask);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "nanosleep-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_nanosleep_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_nanosleep_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_nanosleep_methods)) ? stress_nanosleep_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_nanosleep_threads,	stress_set_nanosleep_threads },
-	{ OPT_nanosleep_method,		stress_set_nanosleep_method },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_nanosleep_threads, "nanosleep-threads", TYPE_ID_UINT32, MIN_NANOSLEEP_THREADS, MAX_NANOSLEEP_THREADS, NULL },
+	{ OPT_nanosleep_method,  "nanosleep-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_nanosleep_method },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -390,7 +361,7 @@ tidy:
 stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_nanosleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -398,7 +369,7 @@ stressor_info_t stress_nanosleep_info = {
 stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without pthread, librt or nanosleep() system call support"

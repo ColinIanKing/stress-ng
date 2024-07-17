@@ -35,25 +35,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static int stress_set_mremap_bytes(const char *opt)
-{
-	size_t mremap_bytes;
-
-	mremap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("mremap-bytes", mremap_bytes,
-		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
-	return stress_set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
-}
-
-static int stress_set_mremap_mlock(const char *opt)
-{
-	return stress_set_setting_true("mremap-mlock", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mremap_bytes,	stress_set_mremap_bytes },
-	{ OPT_mremap_mlock,	stress_set_mremap_mlock },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mremap_bytes, "mremap-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MREMAP_BYTES, MAX_MREMAP_BYTES, NULL },
+	{ OPT_mremap_mlock, "mremap-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MREMAP) &&	\
@@ -352,7 +337,7 @@ static int stress_mremap(stress_args_t *args)
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_mremap,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -360,7 +345,7 @@ stressor_info_t stress_mremap_info = {
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without mremap() system call support"

@@ -99,66 +99,6 @@ static inline ALWAYS_INLINE void stress_alloc_action(const char *str, const size
 	alloc_size = size;
 }
 
-static int stress_set_malloc_mlock(const char *opt)
-{
-	return stress_set_setting_true("malloc-mlock", opt);
-}
-
-static int stress_set_malloc_bytes(const char *opt)
-{
-	size_t bytes;
-
-	bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("malloc-bytes", bytes,
-		MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
-	return stress_set_setting("malloc-bytes", TYPE_ID_SIZE_T, &bytes);
-}
-
-static int stress_set_malloc_max(const char *opt)
-{
-	size_t max;
-
-	max = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range("malloc-max", max,
-		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
-	return stress_set_setting("malloc-max", TYPE_ID_SIZE_T, &max);
-}
-
-static int stress_set_malloc_threshold(const char *opt)
-{
-	size_t threshold;
-
-	threshold = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range("malloc-threshold", threshold,
-		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
-	return stress_set_setting("malloc-threshold", TYPE_ID_SIZE_T, &threshold);
-}
-
-static int stress_set_malloc_pthreads(const char *opt)
-{
-	size_t npthreads;
-
-	npthreads = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range("malloc-pthreads", npthreads,
-		0, MAX_MALLOC_PTHREADS);
-	return stress_set_setting("malloc-pthreads", TYPE_ID_SIZE_T, &npthreads);
-}
-
-static int stress_set_malloc_touch(const char *opt)
-{
-	return stress_set_setting_true("malloc-touch", opt);
-}
-
-static int stress_set_malloc_trim(const char *opt)
-{
-	return stress_set_setting_true("malloc-trim", opt);
-}
-
-static int stress_set_malloc_zerofree(const char *opt)
-{
-	return stress_set_setting_true("malloc-zerofree", opt);
-}
-
 /*
  *  stress_malloc_free()
  *	standard free, ignore length
@@ -567,22 +507,22 @@ static int stress_malloc(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_malloc_bytes,	stress_set_malloc_bytes },
-	{ OPT_malloc_max,	stress_set_malloc_max },
-	{ OPT_malloc_mlock,	stress_set_malloc_mlock },
-	{ OPT_malloc_pthreads,	stress_set_malloc_pthreads },
-	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
-	{ OPT_malloc_touch,	stress_set_malloc_touch },
-	{ OPT_malloc_trim,	stress_set_malloc_trim },
-	{ OPT_malloc_zerofree,	stress_set_malloc_zerofree },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_malloc_bytes,	"malloc-bytes",     TYPE_ID_SIZE_T_BYTES, MIN_MALLOC_BYTES, MAX_MALLOC_BYTES, NULL },
+	{ OPT_malloc_max,	"malloc-max",       TYPE_ID_SIZE_T_BYTES, MIN_MALLOC_MAX, MAX_MALLOC_MAX, NULL },
+	{ OPT_malloc_mlock,	"malloc-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_malloc_pthreads,	"malloc-pthreads",  TYPE_ID_SIZE_T, 0, MAX_MALLOC_PTHREADS, NULL },
+	{ OPT_malloc_threshold,	"malloc-thresh",    TYPE_ID_SIZE_T_BYTES, MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD, NULL },
+	{ OPT_malloc_touch,	"malloc-touch",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_malloc_trim,	"malloc-trim",      TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_malloc_zerofree,	"malloc-zerofree",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

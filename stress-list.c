@@ -141,20 +141,6 @@ struct list_entry {
 };
 
 /*
- *  stress_set_list_size()
- *	set list size
- */
-static int stress_set_list_size(const char *opt)
-{
-	uint64_t list_size;
-
-	list_size = stress_get_uint64(opt);
-	stress_check_range("list-size", list_size,
-		MIN_LIST_SIZE, MAX_LIST_SIZE);
-	return stress_set_setting("list-size", TYPE_ID_UINT64, &list_size);
-}
-
-/*
  *  stress_list_handler()
  *	SIGALRM generic handler
  */
@@ -514,34 +500,15 @@ static int stress_list_all(
 	return rc;
 }
 
-/*
- *  stress_set_list_method()
- *	set the default funccal stress method
- */
-static int stress_set_list_method(const char *name)
+static const char *stress_list_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(list_methods); i++) {
-		if (!strcmp(list_methods[i].name, name)) {
-			stress_set_setting("list-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "list-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(list_methods); i++) {
-		(void)fprintf(stderr, " %s", list_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(list_methods)) ? list_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_list_method,	stress_set_list_method },
-	{ OPT_list_size,	stress_set_list_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_list_method, "list-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_list_method },
+	{ OPT_list_size,   "list-size",   TYPE_ID_UINT64, MIN_LIST_SIZE, MAX_LIST_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -655,7 +622,7 @@ tidy:
 stressor_info_t stress_list_info = {
 	.stressor = stress_list,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

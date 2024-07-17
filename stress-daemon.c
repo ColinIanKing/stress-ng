@@ -36,16 +36,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_daemon_set_daemon_wait(const char *opt)
-{
-	bool daemon_wait = true;
-	(void)opt;
-
-	return stress_set_setting("daemon-wait", TYPE_ID_BOOL, &daemon_wait);
-}
-
 /*
- *  stress_daemon_set_daemon_wait()
+ *  daemon_wait_pid()
  *	waits for child if daemon_wait is set, otherwise let init do it
  */
 static void daemon_wait_pid(const pid_t pid, const bool daemon_wait)
@@ -234,15 +226,15 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_daemon_wait,	stress_daemon_set_daemon_wait },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_daemon_wait, "daemon-wait", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_daemon_info = {
 	.stressor = stress_daemon,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

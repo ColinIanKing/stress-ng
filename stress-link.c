@@ -43,20 +43,9 @@ static const stress_help_t symlink_help[] = {
 
 #define MOUNTS_MAX	(128)
 
-static int stress_set_link_sync(const char *opt)
-{
-	return stress_set_setting_true("link-sync", opt);
-}
-
-static int stress_set_symlink_sync(const char *opt)
-{
-	return stress_set_setting_true("symlink-sync", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_link_sync,	stress_set_link_sync },
-	{ OPT_symlink_sync,	stress_set_symlink_sync },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_link_sync,    "link-sync",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_symlink_sync, "symlink-sync", TYPE_ID_BOOL, 0, 1, NULL },
 };
 
 /*
@@ -344,7 +333,7 @@ stressor_info_t stress_link_info = {
 	.stressor = stress_link,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = hardlink_help
 };
 #else
@@ -352,7 +341,7 @@ stressor_info_t stress_link_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = hardlink_help,
 	.unimplemented_reason = "unsupported on Haiku"
 };
@@ -362,6 +351,6 @@ stressor_info_t stress_symlink_info = {
 	.stressor = stress_symlink,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = symlink_help,
 };

@@ -40,35 +40,11 @@ typedef struct {
 	bool brk_notouch;
 } brk_context_t;
 
-/*
- *  stress_set_bigheap_bytes()
- *     Set maximum allocation amount in bytes
- */
-static int stress_set_brk_bytes(const char *opt)
-{
-	size_t brk_bytes;
-
-	brk_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("brk-bytes", (uint64_t)brk_bytes,
-		MIN_BRK_BYTES, MAX_BRK_BYTES);
-	return stress_set_setting("brk-bytes", TYPE_ID_SIZE_T, &brk_bytes);
-}
-
-static int stress_set_brk_mlock(const char *opt)
-{
-	return stress_set_setting_true("brk-mlock", opt);
-}
-
-static int stress_set_brk_notouch(const char *opt)
-{
-	return stress_set_setting_true("brk-notouch", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_brk_bytes,	stress_set_brk_bytes },
-	{ OPT_brk_mlock,	stress_set_brk_mlock },
-	{ OPT_brk_notouch,	stress_set_brk_notouch },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_brk_bytes,   "brk-bytes",   TYPE_ID_SIZE_T_BYTES, MIN_BRK_BYTES, MAX_BRK_BYTES, NULL },
+	{ OPT_brk_mlock,   "brk-mlock",   TYPE_ID_BOOL,         0,             1,             NULL },
+	{ OPT_brk_notouch, "brk-notouch", TYPE_ID_BOOL,         0,             1,             NULL },
+	END_OPT,
 };
 
 static int stress_brk_supported(const char *name)
@@ -296,7 +272,7 @@ stressor_info_t stress_brk_info = {
 	.stressor = stress_brk,
 	.supported = stress_brk_supported,
 	.class = CLASS_OS | CLASS_VM,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

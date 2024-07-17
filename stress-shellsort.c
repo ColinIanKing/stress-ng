@@ -34,23 +34,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-/*
- *  stress_set_shellsort_size()
- *	set shellsort size
- */
-static int stress_set_shellsort_size(const char *opt)
-{
-	uint64_t shellsort_size;
-
-	shellsort_size = stress_get_uint64(opt);
-	stress_check_range("shellsort-size", shellsort_size,
-		MIN_SHELLSORT_SIZE, MAX_SHELLSORT_SIZE);
-	return stress_set_setting("shellsort-size", TYPE_ID_UINT64, &shellsort_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_shellsort_size,		stress_set_shellsort_size },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_shellsort_size, "shellsort-size", TYPE_ID_UINT64, MIN_SHELLSORT_SIZE, MAX_SHELLSORT_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -235,7 +221,7 @@ tidy:
 stressor_info_t stress_shellsort_info = {
 	.stressor = stress_shellsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -106,18 +106,9 @@ static int stress_swap_supported(const char *name)
 
 #endif
 
-/*
- *  stress_set_swap_self()
- *      set swap-self option
- */
-static int stress_set_swap_self(const char *opt)
-{
-        return stress_set_setting_true("swap-self", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_swap_self,	stress_set_swap_self },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_swap_self, "swap-self", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_SWAP_H) &&	\
@@ -569,7 +560,7 @@ stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -577,7 +568,7 @@ stressor_info_t stress_swap_info = {
 stressor_info_t stress_swap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/swap.h or swap() system call"

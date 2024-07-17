@@ -284,35 +284,6 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
 };
 
 /*
- *  stress_set_memcpy_method()
- *      set default memcpy stress method
- */
-static int stress_set_memcpy_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_memcpy_methods); i++) {
-		if (!strcmp(stress_memcpy_methods[i].name, name)) {
-			stress_set_setting("memcpy-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "memcpy-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_memcpy_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_memcpy_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-static void stress_memcpy_set_default(void)
-{
-	stress_set_memcpy_method("all");
-}
-
-/*
  *  stress_memcpy()
  *	stress memory copies
  */
@@ -363,16 +334,20 @@ static int stress_memcpy(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_memcpy_method,	stress_set_memcpy_method },
-	{ 0,			NULL }
+static const char *stress_memcpy_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_memcpy_methods)) ? stress_memcpy_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_memcpy_method, "memcpy-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_memcpy_method },
+	END_OPT,
 };
 
 stressor_info_t stress_memcpy_info = {
 	.stressor = stress_memcpy,
-	.set_default = stress_memcpy_set_default,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -59,25 +59,6 @@ static size_t method_all_index;				/* all method index */
 
 static const stress_matrix_method_info_t matrix_methods[];
 
-static int stress_set_matrix_size(const char *opt)
-{
-	size_t matrix_size;
-
-	matrix_size = stress_get_uint64(opt);
-	stress_check_range("matrix-size", matrix_size,
-		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
-	return stress_set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
-}
-
-static int stress_set_matrix_yx(const char *opt)
-{
-	size_t matrix_yx = 1;
-
-	(void)opt;
-
-	return stress_set_setting("matrix-yx", TYPE_ID_SIZE_T, &matrix_yx);
-}
-
 /*
  *  stress_matrix_xy_prod()
  *	matrix product
@@ -836,29 +817,6 @@ static void OPTIMIZE3 stress_matrix_yx_all(
 	matrix_metrics[method_all_index].count += 1.0;
 }
 
-/*
- *  stress_set_matrix_method()
- *	get the default matrix stress method
- */
-static int stress_set_matrix_method(const char *name)
-{
-	size_t matrix_method;
-
-	for (matrix_method = 0; matrix_method < SIZEOF_ARRAY(matrix_methods); matrix_method++) {
-		if (!strcmp(matrix_methods[matrix_method].name, name)) {
-			stress_set_setting("matrix-method", TYPE_ID_SIZE_T, &matrix_method);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "matrix-method must be one of:");
-	for (matrix_method = 0; matrix_method < SIZEOF_ARRAY(matrix_methods); matrix_method++)
-		(void)fprintf(stderr, " %s", matrix_methods[matrix_method].name);
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static inline size_t round_up(size_t page_size, size_t n)
 {
 	page_size = (page_size == 0) ? 4096 : page_size;
@@ -1043,31 +1001,46 @@ static int stress_matrix(stress_args_t *args)
 	return rc;
 }
 
-static void stress_matrix_set_default(void)
+static const char *stress_matrix_method(const size_t i)
 {
-	stress_set_matrix_method("all");
+	return (i < SIZEOF_ARRAY(matrix_methods)) ? matrix_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_matrix_method,	stress_set_matrix_method },
-	{ OPT_matrix_size,	stress_set_matrix_size },
-	{ OPT_matrix_yx,	stress_set_matrix_yx },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_matrix_method, "matrix-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_matrix_method },
+	{ OPT_matrix_size,   "matrix-size",   TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
+	{ OPT_matrix_yx,     "matrix-yx",     TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_matrix_info = {
 	.stressor = stress_matrix,
-	.set_default = stress_matrix_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 
 #else
+
+static void stress_matrix_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "matrix stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_matrix_method, "matrix-method", TYPE_ID_CALLBACK, 0, 0, stress_matrix_method },
+	{ OPT_matrix_size,   "matrix-size",   TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
+	{ OPT_matrix_yx,     "matrix-yx",     TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
 stressor_info_t stress_matrix_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "compiler does not support variable length array function arguments"

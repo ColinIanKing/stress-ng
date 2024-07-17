@@ -31,14 +31,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_madvise_hwpoison(const char *opt)
-{
-	return stress_set_setting_true("madvise-hwpoison", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_madvise_hwpoison,	stress_set_madvise_hwpoison },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_madvise_hwpoison,	"madvise-hwpoison", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MADVISE)
@@ -708,15 +703,13 @@ madv_free_out:
 stressor_info_t stress_madvise_info = {
 	.stressor = stress_madvise,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_madvise_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
-	.help = help,
-	.unimplemented_reason = "built without madvise() system call"
+	.opts = opts,
 };
 #endif

@@ -35,41 +35,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_l1cache_set(const char *opt, const char *name, const size_t max)
-{
-	uint32_t val32;
-	uint64_t val64;
-
-        val64 = stress_get_uint64_byte(opt);
-        stress_check_range_bytes(name, val64, 1, max);
-	val32 = (uint32_t)val64;
-        return stress_set_setting(name, TYPE_ID_UINT32, &val32);
-}
-
-static int stress_l1cache_set_ways(const char *opt)
-{
-	return stress_l1cache_set(opt, "l1cache-ways", 65536);
-}
-
-static int stress_l1cache_set_size(const char *opt)
-{
-	return stress_l1cache_set(opt, "l1cache-size", INT_MAX);
-}
-
-static int stress_l1cache_set_line_size(const char *opt)
-{
-	return stress_l1cache_set(opt, "l1cache-line-size", INT_MAX);
-}
-
-static int stress_l1cache_set_sets(const char *opt)
-{
-	return stress_l1cache_set(opt, "l1cache-sets", 65536);
-}
-
-static int stress_l1cache_set_mlock(const char *opt)
-{
-	return stress_set_setting_true("l1cache-mlock", opt);
-}
 
 #if DEBUG_TAG_INFO
 /*
@@ -480,7 +445,6 @@ static int OPTIMIZE3 stress_l1cache_random_and_verify(
 	return EXIT_SUCCESS;
 }
 
-
 typedef int (*l1cache_func_t)(
 	stress_args_t *args,
 	uint8_t *cache_aligned,
@@ -499,31 +463,19 @@ static const stress_l1cache_method_t stress_l1cache_methods[] = {
 	{ "reverse",	{ stress_l1cache_reverse,	stress_l1cache_reverse_and_verify } },
 };
 
-static int stress_l1cache_set_method(const char *name)
+static const char *stress_l1cache_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_l1cache_methods); i++) {
-		if (!strcmp(stress_l1cache_methods[i].name, name)) {
-			return stress_set_setting("l1cache-method", TYPE_ID_SIZE_T, &i);
-		}
-	}
-	(void)fprintf(stderr, "l1cache-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_l1cache_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_l1cache_methods[i].name);
-        }
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_l1cache_methods)) ? stress_l1cache_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_l1cache_sets,	 stress_l1cache_set_sets },
-	{ OPT_l1cache_size,	 stress_l1cache_set_size },
-	{ OPT_l1cache_line_size, stress_l1cache_set_line_size },
-	{ OPT_l1cache_method,	 stress_l1cache_set_method },
-	{ OPT_l1cache_mlock,	 stress_l1cache_set_mlock },
-	{ OPT_l1cache_ways,	 stress_l1cache_set_ways },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_l1cache_sets,      "l1cache-sets",      TYPE_ID_UINT32, 1, 65536, NULL },
+	{ OPT_l1cache_size,      "l1cache-size",      TYPE_ID_UINT32, 1, INT_MAX, NULL },
+	{ OPT_l1cache_line_size, "l1cache-line-size", TYPE_ID_UINT32, 1, INT_MAX, NULL },
+	{ OPT_l1cache_method,    "l1cache-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_l1cache_method },
+	{ OPT_l1cache_mlock,     "l1cache-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_l1cache_ways,      "l1cache-ways",      TYPE_ID_UINT32, 1, 65536, NULL },
+	END_OPT,
 };
 
 static int stress_l1cache(stress_args_t *args)
@@ -607,7 +559,7 @@ static int stress_l1cache(stress_args_t *args)
 stressor_info_t stress_l1cache_info = {
 	.stressor = stress_l1cache,
 	.class = CLASS_CPU_CACHE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

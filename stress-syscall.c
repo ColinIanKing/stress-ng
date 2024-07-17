@@ -550,39 +550,6 @@ static const syscall_method_t syscall_methods[] = {
 	{ "geomean3",	SYSCALL_METHOD_GEOMEAN3 },
 };
 
-/*
- *  stress_syscall_method()
- *	set the method of testing some or all of the system calls
- */
-static int stress_set_syscall_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(syscall_methods); i++) {
-		if (!strcmp(syscall_methods[i].opt, opt)) {
-			stress_set_setting("syscall-method", TYPE_ID_INT, &syscall_methods[i].method);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "syscall-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(syscall_methods); i++) {
-		(void)fprintf(stderr, " %s", syscall_methods[i].opt);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-static int stress_set_syscall_top(const char *opt)
-{
-	size_t syscall_top;
-
-	syscall_top = (size_t)stress_get_uint32(opt);
-	stress_check_range("syscall-top", (uint64_t)syscall_top, 0, (uint64_t)1000);
-	return stress_set_setting("syscall-top", TYPE_ID_SIZE_T, &syscall_top);
-}
-
 #if defined(HAVE_SYS_UN_H) &&	\
     defined(AF_UNIX)
 
@@ -8894,15 +8861,20 @@ err_close_dir_fd:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_syscall_method, 	stress_set_syscall_method },
-	{ OPT_syscall_top,	stress_set_syscall_top },
-	{ 0,			NULL },
+static const char *stress_syscall_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(syscall_methods)) ? syscall_methods[i].opt : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_syscall_method, "syscall-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_syscall_method },
+	{ OPT_syscall_top,    "syscall-top",    TYPE_ID_SIZE_T, 0, 1000, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_syscall_info = {
 	.stressor = stress_syscall,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

@@ -54,19 +54,6 @@ typedef struct {
 #define THRESH_FREQ	(100)		/* Delay adjustment rate in HZ */
 
 /*
- *  stress_set_switch_freq()
- *	set context switch freq in Hz from given option
- */
-static int stress_set_switch_freq(const char *opt)
-{
-	uint64_t switch_freq;
-
-	switch_freq = stress_get_uint64(opt);
-	stress_check_range("switch-freq", switch_freq, 0, STRESS_NANOSECOND);
-	return stress_set_setting("switch-freq", TYPE_ID_UINT64, &switch_freq);
-}
-
-/*
  *  stress_switch_rate()
  *	report context switch duration
  */
@@ -500,37 +487,20 @@ static stress_switch_method_t stress_switch_methods[] = {
 };
 
 /*
- *  stress_set_switch_method()
- *	set the default switch method
- */
-static int stress_set_switch_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
-		if (!strcmp(stress_switch_methods[i].name, name)) {
-			stress_set_setting("switch-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "switch-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_switch_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-/*
  *  stress_switch
  *	stress by heavy context switching
  */
 static int stress_switch(stress_args_t *args)
 {
 	uint64_t switch_freq = 0, switch_delay, threshold;
-	size_t switch_method;
+	size_t switch_method = 0, i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_switch_methods); i++) {
+		if (strcmp(stress_switch_methods[i].name, "pipe") == 0) {
+			switch_method = i;
+			break;
+		}
+	}
 
 	(void)stress_get_setting("switch-freq", &switch_freq);
 	(void)stress_get_setting("switch-method", &switch_method);
@@ -541,22 +511,21 @@ static int stress_switch(stress_args_t *args)
 	return stress_switch_methods[switch_method].switch_func(args, switch_freq, switch_delay, threshold);
 }
 
-static void stress_switch_set_default(void)
+static const char *stress_switch_method(const size_t i)
 {
-	stress_set_switch_method("pipe");
+	return (i < SIZEOF_ARRAY(stress_switch_methods)) ? stress_switch_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_switch_freq,	stress_set_switch_freq },
-	{ OPT_switch_method,	stress_set_switch_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_switch_freq,   "switch-freq",   TYPE_ID_UINT64, 0, STRESS_NANOSECOND, NULL },
+	{ OPT_switch_method, "switch-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_switch_method },
+	END_OPT,
 };
 
 stressor_info_t stress_switch_info = {
 	.stressor = stress_switch,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
-	.set_default = stress_switch_set_default,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -994,6 +994,11 @@ static const stress_bitops_method_info_t bitops_methods[] = {
 
 stress_metrics_t metrics[SIZEOF_ARRAY(bitops_methods)];
 
+static const char *stress_bitops_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(bitops_methods)) ? bitops_methods[i].name : NULL;
+}
+
 static int stress_bitops_callfunc(const char *name, const size_t method)
 {
 	double t1, t2;
@@ -1021,31 +1026,6 @@ static int stress_bitops_all(const char *name, uint32_t *count)
 	if (i >= SIZEOF_ARRAY(bitops_methods))
 		i = 1;
 	return rc;
-}
-
-
-/*
- *  stress_set_bitops_method()
- *	set the default bitops stress method
- */
-static int stress_set_bitops_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(bitops_methods); i++) {
-		if (!strcmp(bitops_methods[i].name, name)) {
-			stress_set_setting("bitops-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "bitops-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(bitops_methods); i++) {
-		(void)fprintf(stderr, " %s", bitops_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 /*
@@ -1094,21 +1074,15 @@ static int stress_bitops(stress_args_t *args)
 	return rc;
 }
 
-static void stress_bitops_set_default(void)
-{
-	stress_set_bitops_method("all");
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_bitops_method,	stress_set_bitops_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_bitops_method, "bitops-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bitops_method },
+	END_OPT,
 };
 
 stressor_info_t stress_bitops_info = {
 	.stressor = stress_bitops,
-	.set_default = stress_bitops_set_default,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

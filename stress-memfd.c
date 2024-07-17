@@ -47,56 +47,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static int stress_set_memfd_madvise(const char *opt)
-{
-	return stress_set_setting_true("memfd-madvise", opt);
-}
-
-static int stress_set_memfd_mlock(const char *opt)
-{
-	return stress_set_setting_true("memfd-mlock", opt);
-}
-
-static int stress_set_memfd_zap_pte(const char *opt)
-{
-	return stress_set_setting_true("memfd-zap-pte", opt);
-}
-
-/*
- *  stress_set_memfd_bytes
- *	set max size of each memfd size
- */
-static int stress_set_memfd_bytes(const char *opt)
-{
-	size_t memfd_bytes;
-
-	memfd_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("memfd-bytes", memfd_bytes,
-		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
-	return stress_set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
-}
-
-/*
- *  stress_set_memfd_fds()
- *      set number of memfd file descriptors
- */
-static int stress_set_memfd_fds(const char *opt)
-{
-	int32_t memfd_fds;
-
-	memfd_fds = (uint32_t)stress_get_int32(opt);
-	stress_check_range("memfd-fds", memfd_fds,
-		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
-	return stress_set_setting("memfd-fds", TYPE_ID_INT32, &memfd_fds);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_memfd_bytes,	stress_set_memfd_bytes },
-	{ OPT_memfd_fds,	stress_set_memfd_fds },
-	{ OPT_memfd_madvise,	stress_set_memfd_madvise },
-	{ OPT_memfd_mlock,	stress_set_memfd_mlock },
-	{ OPT_memfd_zap_pte,	stress_set_memfd_zap_pte },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_memfd_bytes,   "memfd-bytes",   TYPE_ID_SIZE_T_BYTES, MIN_MEMFD_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_memfd_fds,     "memfd-fds",     TYPE_ID_INT32, MIN_MEMFD_FDS, MAX_MEMFD_FDS, NULL },
+	{ OPT_memfd_madvise, "memfd-madvise", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_memfd_mlock,   "memfd-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_memfd_zap_pte, "memfd-zap-pte", TYPE_ID_BOOL, 0, 1, NULL },
 };
 
 #if defined(HAVE_MEMFD_CREATE)
@@ -627,7 +583,7 @@ static int stress_memfd(stress_args_t *args)
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -635,7 +591,7 @@ stressor_info_t stress_memfd_info = {
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without memfd_create() system call"

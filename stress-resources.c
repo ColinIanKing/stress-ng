@@ -34,11 +34,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static int stress_set_resources_mlock(const char *opt)
-{
-	return stress_set_setting_true("resources-mlock", opt);
-}
-
 /*
  *  stress_resources()
  *	stress by forking and exiting
@@ -123,14 +118,15 @@ static int stress_resources(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_resources_mlock,	stress_set_resources_mlock },
-	{ 0,			NULL },
+
+static const stress_opt_t opts[] = {
+	{ OPT_resources_mlock, "resources-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_resources_info = {
 	.stressor = stress_resources,
 	.class = CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

@@ -33,12 +33,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_null_write(const char *opt)
-{
-	return stress_set_setting_true("null-write", opt);
-}
-
-
 /*
  *  stress_null
  *	stress writing to /dev/null
@@ -200,15 +194,15 @@ static int stress_null(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_null_write,	stress_set_null_write },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_null_write, "null-write", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_null_info = {
 	.stressor = stress_null,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -69,32 +69,12 @@ static int stress_module_supported(const char *name)
 	return 0;
 }
 
-static int stress_set_module_no_unload(const char *opt)
-{
-	return stress_set_setting_true("module-no-unload", opt);
-}
-
-static int stress_set_module_no_modver(const char *opt)
-{
-	return stress_set_setting_true("module-no-modver", opt);
-}
-
-static int stress_set_module_no_vermag(const char *opt)
-{
-	return stress_set_setting_true("module-no-vermag", opt);
-}
-
-static int stress_set_module_name(const char *name)
-{
-	return stress_set_setting("module-name", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_module_name,	stress_set_module_name},
-	{ OPT_module_no_modver,	stress_set_module_no_modver },
-	{ OPT_module_no_vermag,	stress_set_module_no_vermag },
-	{ OPT_module_no_unload,	stress_set_module_no_unload },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_module_name,      "module-name",      TYPE_ID_STR,  0, 0, NULL },
+	{ OPT_module_no_modver, "module-no-modver", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_module_no_vermag, "module-no-vermag", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_module_no_unload, "module-no-unload", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -432,7 +412,7 @@ out:
 stressor_info_t stress_module_info = {
 	.stressor = stress_module,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_module_supported,
 	.help = help
 };
@@ -441,7 +421,7 @@ stressor_info_t stress_module_info = {
 stressor_info_t stress_module_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_module_supported,
 	.help = help
 };

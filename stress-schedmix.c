@@ -51,23 +51,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_schedmix_procs()
- *	set maximum number of processes allowed
- */
-static int stress_set_schedmix_procs(const char *opt)
-{
-	size_t schedmix_procs;
-
-	schedmix_procs = stress_get_uint32(opt);
-	stress_check_range("schedmix-procs", (uint64_t)schedmix_procs,
-		MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS);
-	return stress_set_setting("schedmix-procs", TYPE_ID_SIZE_T, &schedmix_procs);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_schedmix_procs,	stress_set_schedmix_procs },
-        { 0,			NULL }
+static const stress_opt_t opts[] = {
+        { OPT_schedmix_procs, "schedmix-procs", TYPE_ID_SIZE_T, MIN_SCHEDMIX_PROCS, MAX_SCHEDMIX_PROCS, NULL },
+	END_OPT,
 };
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
@@ -531,7 +517,7 @@ static int stress_schedmix(stress_args_t *args)
 stressor_info_t stress_schedmix_info = {
 	.stressor = stress_schedmix,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -539,7 +525,7 @@ stressor_info_t stress_schedmix_info = {
 stressor_info_t stress_schedmix_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"

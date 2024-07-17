@@ -95,37 +95,6 @@ stress_prefetch_method_t prefetch_methods[] = {
 #endif
 };
 
-static int stress_set_prefetch_L3_size(const char *opt)
-{
-	uint64_t prefetch_L3_size;
-	size_t sz;
-
-	prefetch_L3_size = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("prefetch-L3-size", prefetch_L3_size,
-		MIN_PREFETCH_L3_SIZE, MAX_PREFETCH_L3_SIZE);
-	sz = (size_t)prefetch_L3_size;
-
-	return stress_set_setting("prefetch-L3-size", TYPE_ID_SIZE_T, &sz);
-}
-
-static int stress_set_prefetch_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(prefetch_methods); i++) {
-		if (!strcmp(prefetch_methods[i].name, opt)) {
-			return stress_set_setting("prefetch-method", TYPE_ID_SIZE_T, &i);
-		}
-	}
-
-	(void)fprintf(stderr, "prefetch-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(prefetch_methods); i++) {
-		(void)fprintf(stderr, " %s", prefetch_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
 static inline uint64_t get_prefetch_L3_size(stress_args_t *args)
 {
 	uint64_t cache_size = DEFAULT_PREFETCH_L3_SIZE;
@@ -478,16 +447,21 @@ static int stress_prefetch(stress_args_t *args)
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_prefetch_l3_size,	stress_set_prefetch_L3_size },
-	{ OPT_prefetch_method,	stress_set_prefetch_method  },
-	{ 0,			NULL }
+static const char *stress_prefetch_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(prefetch_methods)) ? prefetch_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_prefetch_l3_size,	"prefetch-l3-size", TYPE_ID_SIZE_T_BYTES, MIN_PREFETCH_L3_SIZE, MAX_PREFETCH_L3_SIZE, NULL },
+	{ OPT_prefetch_method,	"prefetch-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prefetch_method },
+	END_OPT,
 };
 
 stressor_info_t stress_prefetch_info = {
 	.stressor = stress_prefetch,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

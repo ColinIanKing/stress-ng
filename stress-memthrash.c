@@ -718,30 +718,6 @@ static void stress_memthrash_random(const stress_memthrash_context_t *context, s
 	}
 }
 
-/*
- *  stress_set_memthrash_method()
- *	set the default memthresh method
- */
-static int stress_set_memthrash_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++) {
-		if (!strcmp(memthrash_methods[i].name, name)) {
-			stress_set_setting("memthrash-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "memthrash-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++) {
-		(void)fprintf(stderr, " %s", memthrash_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static void stress_memthrash_find_primes(void)
 {
 	size_t i;
@@ -988,36 +964,40 @@ static int stress_memthrash(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_memthrash_method,	stress_set_memthrash_method },
-	{ 0,			NULL }
+static const char *stress_memthrash_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(memthrash_methods)) ? memthrash_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_memthrash_method, "memthrash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_memthrash_method },
+	END_OPT,
 };
 
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_memthrash,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 
-static int stress_set_memthrash_method(const char *name)
+static void stress_memthrash_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)name;
-
-	(void)pr_inf("warning: --memthrash-method not available on this system\n");
-	return 0;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "memthrash stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_memthrash_method,	stress_set_memthrash_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_memthrash_method, "memthrash-method", TYPE_ID_CALLBACK, 0, 0, stress_memthrash_method },
+	END_OPT,
 };
 
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
 };

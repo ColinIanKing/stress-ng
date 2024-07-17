@@ -55,6 +55,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static const stress_opt_t opts[] = {
+	{ OPT_tun_tap, "tun-tap", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
 #if defined(HAVE_LINUX_IF_TUN_H) &&	\
     defined(HAVE_IFREQ) &&		\
     defined(IFF_TUN) &&			\
@@ -89,11 +94,6 @@ static int stress_tun_supported(const char *name)
 	(void)close(fd);
 
 	return 0;
-}
-
-static int stress_set_tun_tap(const char *opt)
-{
-	return stress_set_setting_true("tun-tap", opt);
 }
 
 /*
@@ -397,16 +397,11 @@ clean_up:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_tun_tap,		stress_set_tun_tap },
-	{ 0,                    NULL }
-};
-
 stressor_info_t stress_tun_info = {
 	.stressor = stress_tun,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.opts = opts,
 	.supported = stress_tun_supported,
-	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -414,6 +409,7 @@ stressor_info_t stress_tun_info = {
 stressor_info_t stress_tun_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/if_tun.h and various undefined TUN related macros"

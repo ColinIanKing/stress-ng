@@ -42,20 +42,6 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  stress_set_skiplist_size()
- *	set skiplist size from given option string
- */
-static int stress_set_skiplist_size(const char *opt)
-{
-	uint64_t skiplist_size;
-
-	skiplist_size = stress_get_uint64(opt);
-	stress_check_range("skiplist-size", skiplist_size,
-		MIN_SKIPLIST_SIZE, MAX_SKIPLIST_SIZE);
-	return stress_set_setting("skiplist-size", TYPE_ID_UINT64, &skiplist_size);
-}
-
-/*
  *  skip_list_random_level()
  *	generate a quasi-random skip list level
  */
@@ -290,15 +276,15 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_skiplist_size,	stress_set_skiplist_size },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_skiplist_size, "skiplist-size", TYPE_ID_UINT64, MIN_SKIPLIST_SIZE, MAX_SKIPLIST_SIZE, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_skiplist_info = {
 	.stressor = stress_skiplist,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -30,18 +30,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_far_branch_pages(const char *opt)
-{
-	size_t far_branch_pages;
-
-	far_branch_pages = (size_t)stress_get_uint64(opt);
-	stress_check_range("far-branch-pages", (uint64_t)far_branch_pages, 1, 65536);
-	return stress_set_setting("far-branch-pages", TYPE_ID_SIZE_T, &far_branch_pages);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_far_branch_pages,	stress_set_far_branch_pages },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_far_branch_pages, "far-branch-pages", TYPE_ID_SIZE_T, 1, 65536, NULL },
+	END_OPT,
 };
 
 #define PAGE_MULTIPLES	(8)
@@ -430,7 +421,7 @@ stressor_info_t stress_far_branch_info = {
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_asm_ret_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -439,7 +430,7 @@ stressor_info_t stress_far_branch_info = {
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
 	.supported = stress_asm_ret_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 #if defined(__NetBSD__)
 	.unimplemented_reason = "denied by NetBSD exploit mitigation features"

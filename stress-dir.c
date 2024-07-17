@@ -38,20 +38,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-/*
- *  stress_set_dir_dirs()
- *      set number of dir directories from given option string
- */
-static int stress_set_dir_dirs(const char *opt)
-{
-	uint64_t dir_dirs;
-
-	dir_dirs = stress_get_uint64(opt);
-	stress_check_range("dir-dirs", dir_dirs,
-		MIN_DIR_DIRS, MAX_DIR_DIRS);
-	return stress_set_setting("dir-dirs", TYPE_ID_UINT64, &dir_dirs);
-}
-
 #if defined(__DragonFly__)
 #define d_reclen d_namlen
 #endif
@@ -561,15 +547,15 @@ static int stress_dir(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dir_dirs,	stress_set_dir_dirs },
-	{ 0,		NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_dir_dirs, "dir-dirs", TYPE_ID_UINT64, MIN_DIR_DIRS, MAX_DIR_DIRS, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_dir_info = {
 	.stressor = stress_dir,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

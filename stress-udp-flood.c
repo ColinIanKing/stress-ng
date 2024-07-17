@@ -39,30 +39,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_udp_domain()
- *      set the udp domain option
- */
-static int stress_set_udp_flood_domain(const char *name)
-{
-	int ret, udp_flood_domain;
+static int udp_domain_mask = DOMAIN_INET_ALL;
 
-	ret = stress_set_net_domain(DOMAIN_INET_ALL, "udp-flood-domain",
-		name, &udp_flood_domain);
-	stress_set_setting("udp-flood-domain", TYPE_ID_INT, &udp_flood_domain);
-
-	return ret;
-}
-
-static int stress_set_udp_flood_if(const char *name)
-{
-	return stress_set_setting("udp-flood-if", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_udp_flood_domain,	stress_set_udp_flood_domain },
-	{ OPT_udp_flood_if,	stress_set_udp_flood_if },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_udp_flood_domain,	"udp-flood-domain", TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
+	{ OPT_udp_flood_if,	"udp-flood-if",     TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(AF_PACKET)
@@ -205,7 +187,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -213,7 +195,7 @@ stressor_info_t stress_udp_flood_info = {
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built with undefined AF_PACKET"

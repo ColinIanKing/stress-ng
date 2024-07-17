@@ -142,44 +142,15 @@ static const stress_hsearch_method_t stress_hsearch_methods[] = {
 	{ "hsearch-nonlibc",	hcreate_nonlibc, hsearch_nonlibc, hdestroy_nonlibc },
 };
 
-
-/*
- *  stress_set_hsearch_size()
- *      set hsearch size from given option string
- */
-static int stress_set_hsearch_size(const char *opt)
+static const char *stress_hsearch_method(const size_t i)
 {
-	uint64_t hsearch_size;
-
-	hsearch_size = stress_get_uint64(opt);
-	stress_check_range("hsearch-size", hsearch_size,
-		MIN_HSEARCH_SIZE, MAX_HSEARCH_SIZE);
-	return stress_set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
+	return (i < SIZEOF_ARRAY(stress_hsearch_methods)) ? stress_hsearch_methods[i].name : NULL;
 }
 
-static int stress_set_hsearch_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_hsearch_methods); i++) {
-		if (strcmp(opt, stress_hsearch_methods[i].name) == 0) {
-			stress_set_setting("hsearch-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "ssearch-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_hsearch_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_hsearch_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_hsearch_method,	stress_set_hsearch_method },
-	{ OPT_hsearch_size,	stress_set_hsearch_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_hsearch_method, "hsearch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_hsearch_method },
+	{ OPT_hsearch_size,   "hsearch-size",   TYPE_ID_UINT64, MIN_HSEARCH_SIZE, MAX_HSEARCH_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -299,7 +270,7 @@ free_hash:
 stressor_info_t stress_hsearch_info = {
 	.stressor = stress_hsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

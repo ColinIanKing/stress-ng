@@ -255,30 +255,6 @@ static double stress_vecshuf_all(
 	return 0.0;
 }
 
-/*
- *  stress_set_vecshuf_method()
- *	set the default vector floating point stress method
- */
-static int stress_set_vecshuf_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_vecshuf_funcs); i++) {
-		if (!strcmp(stress_vecshuf_funcs[i].name, name)) {
-			stress_set_setting("vecshuf-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "vecshuf-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_vecshuf_funcs); i++) {
-		(void)fprintf(stderr, " %s", stress_vecshuf_funcs[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 #define VEC_SET_DATA(type, elements, mwc)			\
 do {								\
 	for (i = 0; i < elements; i++) {			\
@@ -467,39 +443,41 @@ static int stress_vecshuf(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_vecshuf_method,	stress_set_vecshuf_method },
+static const char *stress_vecshuf_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_vecshuf_funcs)) ? stress_vecshuf_funcs[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+        { OPT_vecshuf_method, "vecshuf-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vecshuf_method },
+	END_OPT,
 };
 
 stressor_info_t stress_vecshuf_info = {
 	.stressor = stress_vecshuf,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 
-/*
- *  stress_set_vecshuf_method()
- *	set the default vector floating point stress method, no-op
- */
-static int stress_set_vecshuf_method(const char *name)
+static void stress_vecshuf_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)name;
-
-	fprintf(stderr, "option --vecshuf-method is not implemented, ignoring option '%s'\n", name);
-	return 0;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "vecshuf stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_vecshuf_method,	stress_set_vecshuf_method },
+static const stress_opt_t opts[] = {
+        { OPT_vecshuf_method, "vecshuf_method", TYPE_ID_CALLBACK, 0, 0, stress_vecshuf_method },
+	END_OPT,
 };
 
 stressor_info_t stress_vecshuf_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without compiler support for vector shuffling operations"

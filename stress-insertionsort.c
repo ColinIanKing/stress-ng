@@ -71,23 +71,9 @@ static uint64_t OPTIMIZE3 insertionsort_rev(int32_t *base, size_t nmemb)
 	return compares;
 }
 
-/*
- *  stress_set_insertionsort_size()
- *	set insertionsort size
- */
-static int stress_set_insertionsort_size(const char *opt)
-{
-	uint64_t insertionsort_size;
-
-	insertionsort_size = stress_get_uint64(opt);
-	stress_check_range("insertionsort-size", insertionsort_size,
-		MIN_INSERTIONSORT_SIZE, MAX_INSERTIONSORT_SIZE);
-	return stress_set_setting("insertionsort-size", TYPE_ID_UINT64, &insertionsort_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_insertionsort_size,	stress_set_insertionsort_size },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_insertionsort_size, "insertionsort-size", TYPE_ID_UINT64, MIN_INSERTIONSORT_SIZE, MAX_INSERTIONSORT_SIZE, 0 },
+	END_OPT,
 };
 
 /*
@@ -240,7 +226,7 @@ tidy:
 stressor_info_t stress_insertionsort_info = {
 	.stressor = stress_insertionsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

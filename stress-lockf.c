@@ -50,14 +50,9 @@ typedef struct {
 static stress_lockf_info_list_t lockf_infos;
 #endif
 
-static int stress_lockf_set_nonblock(const char *opt)
-{
-	return stress_set_setting_true("lockf-nonblock", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_lockf_nonblock,   stress_lockf_set_nonblock },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_lockf_nonblock, "lockf-nonblock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LOCKF)
@@ -345,7 +340,7 @@ tidy:
 stressor_info_t stress_lockf_info = {
 	.stressor = stress_lockf,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -353,7 +348,7 @@ stressor_info_t stress_lockf_info = {
 stressor_info_t stress_lockf_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without lockf() system call"

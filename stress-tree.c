@@ -161,20 +161,6 @@ struct tree_node {
 STRESS_PRAGMA_POP
 
 /*
- *  stress_set_tree_size()
- *	set tree size
- */
-static int stress_set_tree_size(const char *opt)
-{
-	uint64_t tree_size;
-
-	tree_size = stress_get_uint64(opt);
-	stress_check_range("tree-size", tree_size,
-		MIN_TREE_SIZE, MAX_TREE_SIZE);
-	return stress_set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
-}
-
-/*
  *  stress_tree_handler()
  *	SIGALRM generic handler
  */
@@ -934,34 +920,15 @@ static void stress_tree_all(
 	}
 }
 
-/*
- *  stress_set_tree_method()
- *	set the default funccal stress method
- */
-static int stress_set_tree_method(const char *name)
+static const char *stress_tree_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_tree_methods); i++) {
-		if (!strcmp(stress_tree_methods[i].name, name)) {
-			stress_set_setting("tree-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "tree-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_tree_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_tree_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_tree_methods)) ? stress_tree_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_tree_method,	stress_set_tree_method },
-	{ OPT_tree_size,	stress_set_tree_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_tree_method, "tree-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_tree_method },
+	{ OPT_tree_size,   "tree-size",   TYPE_ID_UINT64, MIN_TREE_SIZE, MAX_TREE_SIZE, NULL },
+	END_OPT,
 };
 
 static void OPTIMIZE3 TARGET_CLONES stress_tree_shuffle(struct tree_node *nodes, const size_t n)
@@ -1083,7 +1050,7 @@ tidy:
 stressor_info_t stress_tree_info = {
 	.stressor = stress_tree,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

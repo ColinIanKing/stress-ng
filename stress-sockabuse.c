@@ -53,19 +53,6 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  stress_set_sockabuse_port()
- *	set port to use
- */
-static int stress_set_sockabuse_port(const char *opt)
-{
-	int sockabuse_port;
-
-	stress_set_net_port("sockabuse-port", opt,
-		MIN_SOCKABUSE_PORT, MAX_SOCKABUSE_PORT, &sockabuse_port);
-	return stress_set_setting("sockabuse-port", TYPE_ID_INT, &sockabuse_port);
-}
-
-/*
  *  stress_sockabuse_fd
  *	exercise and abuse the fd
  */
@@ -433,15 +420,16 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sockabuse_port,	stress_set_sockabuse_port },
-	{ 0,			NULL },
+
+static const stress_opt_t opts[] = {
+	{ OPT_sockabuse_port, "sockabuse-port", TYPE_ID_INT_PORT, MIN_SOCKABUSE_PORT, MAX_SOCKABUSE_PORT, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_sockabuse_info = {
 	.stressor = stress_sockabuse,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

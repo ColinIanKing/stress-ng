@@ -74,87 +74,22 @@ static const stress_dccp_opts_t dccp_options[] = {
 #if defined(HAVE_SENDMMSG)
 	{ "sendmmsg",	DCCP_OPT_SENDMMSG },
 #endif
-	{ NULL,		0 }
 };
 
-/*
- *  stress_set_dccp_opts()
- *	parse --dccp-opts
- */
-static int stress_set_dccp_opts(const char *opt)
+static const char *stress_dccp_options(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; dccp_options[i].optname; i++) {
-		if (!strcmp(opt, dccp_options[i].optname)) {
-			int dccp_opt = dccp_options[i].opt;
-
-			stress_set_setting("dccp-opts", TYPE_ID_INT, &dccp_opt);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "dccp-opts option '%s' not known, options are:", opt);
-	for (i = 0; dccp_options[i].optname; i++) {
-		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", dccp_options[i].optname);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(dccp_options)) ? dccp_options[i].optname: NULL;
 }
 
-/*
- *  stress_set_dccp_msgs()
- *	set number of messages to send per connection
- */
-static int stress_set_dccp_msgs(const char *opt)
-{
-	size_t dccp_msgs;
+static int dccp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
 
-	dccp_msgs = (size_t)stress_get_uint64(opt);
-	stress_check_range("dccp-msgs", (uint64_t)dccp_msgs,
-                MIN_DCCP_MSGS, MAX_DCCP_MSGS);
-	return stress_set_setting("dccp-msgs", TYPE_ID_SIZE_T, &dccp_msgs);
-}
-
-/*
- *  stress_set_dccp_port()
- *	set port to use
- */
-static int stress_set_dccp_port(const char *opt)
-{
-	int dccp_port;
-
-	stress_set_net_port("dccp-port", opt,
-		MIN_DCCP_PORT, MAX_DCCP_PORT, &dccp_port);
-	return stress_set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
-}
-
-/*
- *  stress_set_dccp_domain()
- *	set the socket domain option
- */
-static int stress_set_dccp_domain(const char *name)
-{
-	int ret, dccp_domain;
-
-	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6,
-				"dccp-domain", name, &dccp_domain);
-	stress_set_setting("dccp-domain", TYPE_ID_INT, &dccp_domain);
-	return ret;
-}
-
-static int stress_set_dccp_if(const char *name)
-{
-        return stress_set_setting("dccp-if", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dccp_domain,	stress_set_dccp_domain },
-	{ OPT_dccp_if,		stress_set_dccp_if },
-	{ OPT_dccp_msgs,	stress_set_dccp_msgs },
-	{ OPT_dccp_opts,	stress_set_dccp_opts },
-	{ OPT_dccp_port,	stress_set_dccp_port },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_dccp_domain, "dccp-domain", TYPE_ID_INT_DOMAIN,    0, 0, &dccp_domain_mask },
+	{ OPT_dccp_if,     "dccp-if",     TYPE_ID_STR,           0, 0, NULL },
+	{ OPT_dccp_msgs,   "dccp-msgs",   TYPE_ID_SIZE_T,        MIN_DCCP_MSGS, MAX_DCCP_MSGS, NULL },
+	{ OPT_dccp_opts,   "dccp-opts",	  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dccp_options },
+	{ OPT_dccp_port,   "dccp-port",   TYPE_ID_INT_PORT,      MIN_DCCP_PORT, MAX_DCCP_PORT, NULL },
+	END_OPT,
 };
 
 #if defined(SOCK_DCCP) &&	\
@@ -533,7 +468,7 @@ finish:
 stressor_info_t stress_dccp_info = {
 	.stressor = stress_dccp,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -541,7 +476,7 @@ stressor_info_t stress_dccp_info = {
 stressor_info_t stress_dccp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without IPPROTO_DCCP or SOCK_DCCP defined"

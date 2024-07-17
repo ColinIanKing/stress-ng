@@ -327,23 +327,6 @@ static const stress_trig_method_t stress_trig_methods[] = {
 
 stress_metrics_t stress_trig_metrics[SIZEOF_ARRAY(stress_trig_methods)];
 
-static int stress_set_trig_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_trig_methods); i++) {
-		if (strcmp(opt, stress_trig_methods[i].name) == 0)
-			return stress_set_setting("trig-method", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "trig-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_trig_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_trig_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
 static bool stess_trig_exercise(stress_args_t *args, const size_t idx)
 {
 	bool ret;
@@ -415,15 +398,20 @@ static int stress_trig(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_trig_method,	stress_set_trig_method },
-	{ 0,			NULL },
+static const char *stress_trig_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_trig_methods)) ? stress_trig_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_trig_method, "trig-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_trig_method },
+	END_OPT,
 };
 
 stressor_info_t stress_trig_info = {
 	.stressor = stress_trig,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -57,37 +57,15 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			 NULL }
 };
 
-static int stress_set_min_nanosleep_max(const char *opt)
+static const char *stress_min_nanoseconds_sched(const size_t i)
 {
-	size_t min_nanosleep_max;
-
-	min_nanosleep_max = (size_t)stress_get_uint64(opt);
-	stress_check_range("min-nanosleep-max", (uint64_t)min_nanosleep_max,
-		0, (uint64_t)NANOSLEEP_MAX_NS);
-	return stress_set_setting("min-nanosleep-max", TYPE_ID_SIZE_T, &min_nanosleep_max);
+	return (i < stress_sched_types_length) ? stress_sched_types[i].sched_name : NULL;
 }
 
-static int stress_set_min_nanoslep_sched(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < stress_sched_types_length; i++) {
-		if (strcmp(opt, stress_sched_types[i].sched_name) == 0)
-			return stress_set_setting("min-nanosleep-sched", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "min-nanosleep-sched must be one of:");
-	for (i = 0; i < stress_sched_types_length; i++) {
-		(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_min_nanosleep_max,	stress_set_min_nanosleep_max },
-	{ OPT_min_nanosleep_sched,	stress_set_min_nanoslep_sched },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_min_nanosleep_max,   "min-nanosleep-max",   TYPE_ID_SIZE_T, 0, NANOSLEEP_MAX_NS, NULL },
+	{ OPT_min_nanosleep_sched, "min-nanosleep-sched", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_min_nanoseconds_sched },
+	END_OPT,
 };
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
@@ -487,7 +465,7 @@ stressor_info_t stress_min_nanosleep_info = {
 	.deinit = stress_min_nanosleep_deinit,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -496,7 +474,7 @@ stressor_info_t stress_min_nanosleep_info = {
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.unimplemented_reason = "built without clock_gettime() system call and CLOCK_MONOTONIC support"
 };
 #endif

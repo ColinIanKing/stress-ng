@@ -46,28 +46,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-/*
- *  stress_set_socket_fd_port()
- *	set port to use
- */
-static int stress_set_socket_fd_port(const char *opt)
-{
-	int socket_fd_port;
-
-	stress_set_net_port("sockfd-port", opt,
-		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT, &socket_fd_port);
-	return stress_set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
-}
-
-static int stress_set_socket_fd_reuse(const char *opt)
-{
-	return stress_set_setting_true("sockfd-reuse", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sockfd_port,	stress_set_socket_fd_port },
-	{ OPT_sockfd_reuse,	stress_set_socket_fd_reuse },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sockfd_port,  "sockfd-port",  TYPE_ID_INT_PORT, MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT, NULL },
+	{ OPT_sockfd_reuse, "sockfd-reuse", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -494,7 +476,7 @@ finish:
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_sockfd,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -502,7 +484,7 @@ stressor_info_t stress_sockfd_info = {
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

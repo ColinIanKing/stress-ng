@@ -36,25 +36,10 @@ typedef struct {
 	size_t	page_num;		/* original page number relative to start of entire mapping */
 } page_info_t;
 
-static int stress_set_pagemove_mlock(const char *opt)
-{
-	return stress_set_setting_true("pagemove-mlock", opt);
-}
-
-static int stress_set_pagemove_bytes(const char *opt)
-{
-	size_t pagemove_bytes;
-
-	pagemove_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("pagemove-bytes", pagemove_bytes,
-		MIN_PAGE_MOVE_BYTES, MAX_PAGE_MOVE_BYTES);
-	return stress_set_setting("pagemove-bytes", TYPE_ID_SIZE_T, &pagemove_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_pagemove_bytes,	stress_set_pagemove_bytes },
-	{ OPT_pagemove_mlock,	stress_set_pagemove_mlock },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_pagemove_bytes, "pagemove-bytes", TYPE_ID_SIZE_T_BYTES, MIN_PAGE_MOVE_BYTES, MAX_PAGE_MOVE_BYTES, NULL },
+	{ OPT_pagemove_mlock, "pagemove-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MREMAP) &&	\
@@ -267,7 +252,7 @@ static int stress_pagemove(stress_args_t *args)
 stressor_info_t stress_pagemove_info = {
 	.stressor = stress_pagemove,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -275,7 +260,7 @@ stressor_info_t stress_pagemove_info = {
 stressor_info_t stress_pagemove_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without mremap() or MREMAP_FIXED/MREMAP_MAYMOVE defined"

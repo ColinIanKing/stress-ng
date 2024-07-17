@@ -35,19 +35,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_readahead_bytes(const char *opt)
-{
-	uint64_t readahead_bytes;
-
-	readahead_bytes = stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("readahead-bytes", readahead_bytes,
-		MIN_READAHEAD_BYTES, MAX_READAHEAD_BYTES);
-	return stress_set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_readahead_bytes,	stress_set_readahead_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_readahead_bytes, "readahead-bytes", TYPE_ID_UINT64_BYTES, MIN_READAHEAD_BYTES, MAX_READAHEAD_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__) &&	\
@@ -314,7 +304,7 @@ finish:
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -322,7 +312,7 @@ stressor_info_t stress_readahead_info = {
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

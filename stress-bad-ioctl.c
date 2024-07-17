@@ -53,33 +53,14 @@ static const bad_ioct_method_t stress_bad_ioctl_methods[] = {
 	{ "stride",	STRESS_BAD_IOCTL_CMD_STRIDE },
 };
 
-/*
- *  stress_set_bad_ioctl_method()
- *	set the default ioctl command selection method
- */
-static int stress_set_bad_ioctl_method(const char *name)
+static const char *stress_bad_ioctl_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_bad_ioctl_methods); i++) {
-		if (!strcmp(stress_bad_ioctl_methods[i].name, name)) {
-			stress_set_setting("bad-ioctl-method", TYPE_ID_SIZE_T, &stress_bad_ioctl_methods[i].ioctl_cmd_method);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "bad-ioctl-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_bad_ioctl_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_bad_ioctl_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_bad_ioctl_methods)) ?  stress_bad_ioctl_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_bad_ioctl_method,	stress_set_bad_ioctl_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_bad_ioctl_method, "bad-ioctl-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bad_ioctl_method },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
@@ -612,14 +593,14 @@ stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_bad_ioctl,
 	.supported = stress_bad_ioctl_supported,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread and/or ioctl() _IOR macro or is not Linux"
 };

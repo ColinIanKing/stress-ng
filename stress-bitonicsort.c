@@ -34,23 +34,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_bitonicsort_size()
- *	set bitonicsort size
- */
-static int stress_set_bitonicsort_size(const char *opt)
-{
-	uint64_t bitonicsort_size;
-
-	bitonicsort_size = stress_get_uint64(opt);
-	stress_check_range("bitonicsort-size", bitonicsort_size,
-		MIN_BITONICSORT_SIZE, MAX_BITONICSORT_SIZE);
-	return stress_set_setting("bitonicsort-size", TYPE_ID_UINT64, &bitonicsort_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_bitonicsort_size,		stress_set_bitonicsort_size },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_bitonicsort_size, "bitonicsort-size", TYPE_ID_UINT64, MIN_BITONICSORT_SIZE, MAX_BITONICSORT_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -277,7 +263,7 @@ tidy:
 stressor_info_t stress_bitonicsort_info = {
 	.stressor = stress_bitonicsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

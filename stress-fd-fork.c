@@ -62,48 +62,15 @@ static const stress_fd_file_t stress_fd_files[] = {
 	{ "zero",	STRESS_FD_ZERO },
 };
 
-/*
- *  stress_set_fd_fork_fds()
- *	set maximum number of file descriptors to use
- */
-static int stress_set_fd_fork_fds(const char *opt)
+static const char *stress_fd_fork_file(const size_t i)
 {
-	size_t fd_fork_fds;
-
-	fd_fork_fds = stress_get_uint64(opt);
-	stress_check_range("fd-fork-fds", (uint64_t)fd_fork_fds,
-		STRESS_FD_MIN, STRESS_FD_MAX);
-	return stress_set_setting("fd-fork-fds", TYPE_ID_SIZE_T, &fd_fork_fds);
+	return (i < SIZEOF_ARRAY(stress_fd_files)) ? stress_fd_files[i].name : NULL;
 }
 
-/*
- *  stress_set_fd_fork_file()
- *	set file to dup
- */
-static int stress_set_fd_fork_file(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_fd_files); i++) {
-		if (strcmp(opt, stress_fd_files[i].name) == 0) {
-			stress_set_setting("fd-fork-file", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "fd-fork-file be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_fd_files); i++) {
-		(void)fprintf(stderr, " %s", stress_fd_files[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fd_fork_fds,	stress_set_fd_fork_fds },
-	{ OPT_fd_fork_file,	stress_set_fd_fork_file },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_fd_fork_fds,  "fd-fork-fds",  TYPE_ID_SIZE_T, STRESS_FD_MIN, STRESS_FD_MAX, NULL },
+	{ OPT_fd_fork_file, "fd-fork-file", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_fd_fork_file },
+	END_OPT,
 };
 
 static void stress_fd_close(
@@ -317,7 +284,7 @@ tidy_fds:
 stressor_info_t stress_fd_fork_info = {
 	.stressor = stress_fd_fork,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

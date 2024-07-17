@@ -50,40 +50,10 @@ static int stress_ramfs_supported(const char *name)
 	return 0;
 }
 
-/*
- *  stress_set_ramfs_size()
- *	set ramfs allocation size
- */
-static int stress_set_ramfs_size(const char *opt)
-{
-	uint64_t ramfs_size;
-	const uint64_t page_size = (uint64_t)stress_get_page_size();
-	const uint64_t page_mask = ~(page_size - 1);
-
-	ramfs_size = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("ramfs-size", ramfs_size,
-		1 * MB, 1 * GB);
-	if (ramfs_size & (page_size - 1)) {
-		ramfs_size &= page_mask;
-		pr_inf("ramfs: rounding ramfs-size to %" PRIu64 " x %" PRId64 "K pages\n",
-			ramfs_size / page_size, page_size >> 10);
-	}
-	return stress_set_setting("ramfs-size", TYPE_ID_UINT64, &ramfs_size);
-}
-
-/*
- *  stress_set_ramfs_fill()
- *      set flag to fill ramfs
- */
-static int stress_set_ramfs_fill(const char *opt)
-{
-	return stress_set_setting_true("ramfs-fill", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_ramfs_size,	stress_set_ramfs_size },
-	{ OPT_ramfs_fill,	stress_set_ramfs_fill },
-	{ 0,                    NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_ramfs_size, "ramfs-size", TYPE_ID_UINT64_BYTES, 1 * MB, 1 * GB, NULL },
+	{ OPT_ramfs_fill, "ramfs-fill", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__) && \
@@ -269,6 +239,8 @@ static int stress_ramfs_child(stress_args_t *args)
 	bool ramfs_fill = false;
 	int i = 0;
 	int rc = EXIT_SUCCESS;
+	const uint64_t page_size = (uint64_t)stress_get_page_size();
+	const uint64_t page_mask = ~(page_size - 1);
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_ramfs_child_handler, NULL) < 0) {
@@ -287,6 +259,12 @@ static int stress_ramfs_child(stress_args_t *args)
 
 	(void)stress_get_setting("ramfs-size", &ramfs_size);
 	(void)stress_get_setting("ramfs-fill", &ramfs_fill);
+
+	if (ramfs_size & (page_size - 1)) {
+		ramfs_size &= page_mask;
+		pr_inf("ramfs: rounding ramfs-size to %" PRIu64 " x %" PRId64 "K pages\n",
+			ramfs_size / page_size, page_size >> 10);
+	}
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name,
 		args->pid, args->instance);
@@ -478,7 +456,7 @@ finish:
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_ramfs_mount,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_ramfs_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -487,7 +465,7 @@ stressor_info_t stress_ramfs_info = {
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_ramfs_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

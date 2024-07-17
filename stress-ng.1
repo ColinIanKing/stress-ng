@@ -6551,8 +6551,10 @@ start at sctp port P. For N sctp worker processes, ports P to (P * 4) - 1
 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix
 domain.
 .TP
-.B \-\-sctp\-sched [ fcfs | prio | rr ]
-specify SCTP scheduler, one of fcfs (default), prio (priority) or rr (round\-robin).
+.B \-\-sctp\-sched [ fc | fcfs | prio | rr | wfq ]
+specify SCTP scheduler, one of fc (fair capacity), fcfs (first come first
+served, the default), prio (priority), rr (round\-robin) or wfq (weighted fair
+queueing)
 .RE
 .TP
 .B File sealing (SEAL) stressor (Linux)

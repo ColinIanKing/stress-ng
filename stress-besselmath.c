@@ -530,24 +530,12 @@ static const stress_besselmath_method_t stress_besselmath_methods[] = {
 #endif
 };
 
-stress_metrics_t stress_besselmath_metrics[SIZEOF_ARRAY(stress_besselmath_methods)];
-
-static int stress_set_besselmath_method(const char *opt)
+static const char *stress_besselmath_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_besselmath_methods); i++) {
-		if (strcmp(opt, stress_besselmath_methods[i].name) == 0)
-			return stress_set_setting("besselmath-method", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "besselmath-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_besselmath_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_besselmath_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_besselmath_methods)) ? stress_besselmath_methods[i].name : NULL;
 }
+
+stress_metrics_t stress_besselmath_metrics[SIZEOF_ARRAY(stress_besselmath_methods)];
 
 static bool stress_besselmath_exercise(stress_args_t *args, const size_t idx)
 {
@@ -620,15 +608,15 @@ static int stress_besselmath(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_besselmath_method,	stress_set_besselmath_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_besselmath_method, "besselmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_besselmath_method },
+	END_OPT,
 };
 
 stressor_info_t stress_besselmath_info = {
 	.stressor = stress_besselmath,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

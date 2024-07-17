@@ -23,23 +23,14 @@
 #define MAX_MATRIX_SIZE		(1024)
 #define DEFAULT_MATRIX_SIZE	(32)
 
+
 static const stress_help_t help[] = {
-	{ NULL,	"eigen N",		"start N workers exercising eigen operations" },
-	{ NULL,	"eigen-method M",	"specify eigen stress method M, default is all" },
-	{ NULL,	"eigen-ops N",		"stop after N maxtrix bogo operations" },
-	{ NULL,	"eigen-size N",	"specify the size of the N x N eigen" },
-	{ NULL,	NULL,			NULL }
+	{ NULL,	"eigen N",	  "start N workers exercising eigen operations" },
+	{ NULL,	"eigen-method M", "specify eigen stress method M, default is all" },
+	{ NULL,	"eigen-ops N",	  "stop after N maxtrix bogo operations" },
+	{ NULL,	"eigen-size N",	  "specify the size of the N x N eigen" },
+	{ NULL,	NULL,		  NULL }
 };
-
-static int stress_set_eigen_size(const char *opt)
-{
-	size_t eigen_size;
-
-	eigen_size = stress_get_uint64(opt);
-	stress_check_range("eigen-size", eigen_size,
-		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
-	return stress_set_setting("eigen-size", TYPE_ID_SIZE_T, &eigen_size);
-}
 
 #if defined(HAVE_EIGEN)
 
@@ -85,7 +76,14 @@ static const stress_eigen_method_info_t eigen_methods[] = {
 	{ "transpose-float",		eigen_transpose_float, },
 };
 
-static stress_metrics_t eigen_metrics[SIZEOF_ARRAY(eigen_methods)];
+#define NUM_EIGEN_METHODS	(SIZEOF_ARRAY(eigen_methods))
+
+static stress_metrics_t eigen_metrics[NUM_EIGEN_METHODS];
+
+static const char *stress_eigen_method(const size_t i)
+{
+	return (i < NUM_EIGEN_METHODS) ? eigen_methods[i].name : NULL;
+}
 
 /*
  *  stress_eigen_all()
@@ -110,43 +108,19 @@ static int stress_eigen_all(
 	return rc;
 }
 
-/*
- *  stress_set_eigen_method()
- *	get the default eigen stress method
- */
-static int stress_set_eigen_method(const char *name)
-{
-	size_t eigen_method;
-
-	for (eigen_method = 0; eigen_method < SIZEOF_ARRAY(eigen_methods); eigen_method++) {
-		if (!strcmp(eigen_methods[eigen_method].name, name)) {
-			stress_set_setting("eigen-method", TYPE_ID_SIZE_T, &eigen_method);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "eigen-method must be one of:");
-	for (eigen_method = 0; eigen_method < SIZEOF_ARRAY(eigen_methods); eigen_method++)
-		(void)fprintf(stderr, " %s", eigen_methods[eigen_method].name);
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static inline int stress_eigen_exercise(
 	stress_args_t *args,
 	const size_t eigen_method,
 	const size_t eigen_size)
 {
 	int rc = EXIT_SUCCESS;
-	const size_t num_eigen_methods = SIZEOF_ARRAY(eigen_methods);
 	const stress_eigen_func_t func = eigen_methods[eigen_method].func;
 	const char *name = eigen_methods[eigen_method].name;
 
 	register size_t i, j;
 	method_all_index = 1;
 
-	for (i = 0; i < SIZEOF_ARRAY(eigen_metrics); i++) {
+	for (i = 0; i < NUM_EIGEN_METHODS; i++) {
 		eigen_metrics[i].duration = 0.0;
 		eigen_metrics[i].count = 0.0;
 	}
@@ -173,13 +147,13 @@ static inline int stress_eigen_exercise(
 		stress_bogo_inc(args);
                 if (eigen_method == 0) {
                         method_all_index++;
-                        if (method_all_index >= SIZEOF_ARRAY(eigen_methods))
+                        if (method_all_index >= NUM_EIGEN_METHODS)
                                 method_all_index = 1;
 		}
 	} while (stress_continue(args));
 
 	/* Dump metrics except for 'all' method */
-	for (i = 1, j = 0; i < num_eigen_methods; i++) {
+	for (i = 1, j = 0; i < NUM_EIGEN_METHODS; i++) {
 		if (eigen_metrics[i].duration > 0.0) {
 			char msg[64];
 			const double rate = eigen_metrics[i].count / eigen_metrics[i].duration;
@@ -224,45 +198,39 @@ static int stress_eigen(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_eigen_method,	stress_set_eigen_method },
-	{ OPT_eigen_size,	stress_set_eigen_size },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_eigen_method, "eigen-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_eigen_method },
+	{ OPT_eigen_size,   "eigen-size",    TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_eigen_info = {
 	.stressor = stress_eigen,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
 #else
 
-/*
- *  stress_set_eigen_method()
- *	get the default eigen stress method
- */
-static int stress_set_eigen_method(const char *name)
+static void stress_eigen_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)name;
-
-	(void)fprintf(stderr, "eigen stressor not implemented, eigen-method '%s' not available\n", name);
-	return -1;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "eigen stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_eigen_method,	stress_set_eigen_method },
-	{ OPT_eigen_size,	stress_set_eigen_size },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_eigen_method, "eigen-method",  TYPE_ID_CALLBACK, 0, 0, stress_eigen_method },
+	{ OPT_eigen_size,   "eigen-size",    TYPE_ID_SIZE_T, MIN_MATRIX_SIZE, MAX_MATRIX_SIZE, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_eigen_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "eigen C++ library, headers or g++ compiler not used"

@@ -30,19 +30,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_fallocate_bytes(const char *opt)
-{
-	off_t fallocate_bytes;
-
-	fallocate_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("fallocate-bytes", (uint64_t)fallocate_bytes,
-		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
-	return stress_set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fallocate_bytes,	stress_set_fallocate_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_fallocate_bytes, "fallocate-bytes", TYPE_ID_OFF_T, MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_FALLOCATE)
@@ -331,7 +321,7 @@ static int stress_fallocate(stress_args_t *args)
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_fallocate,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -339,7 +329,7 @@ stressor_info_t stress_fallocate_info = {
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without fallocate() system call"

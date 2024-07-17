@@ -187,48 +187,20 @@ static int heapsort_nonlibc(
 
 static const stress_heapsort_method_t stress_heapsort_methods[] = {
 #if defined(HAVE_LIB_BSD)
-	{ "heapsort-libc",		heapsort },
+	{ "heapsort-libc",	heapsort },
 #endif
-	{ "heapsort-nonlibc",		heapsort_nonlibc },
+	{ "heapsort-nonlibc",	heapsort_nonlibc },
 };
 
-static int stress_set_heapsort_method(const char *opt)
+static const char *stress_heapsort_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_heapsort_methods); i++) {
-		if (strcmp(opt, stress_heapsort_methods[i].name) == 0) {
-			stress_set_setting("heapsort-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "heapsort-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_heapsort_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_heapsort_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_heapsort_methods)) ? stress_heapsort_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_heapsort_size()
- *	set heapsort size
- */
-static int stress_set_heapsort_size(const char *opt)
-{
-	uint64_t heapsort_size;
-
-	heapsort_size = stress_get_uint64(opt);
-	stress_check_range("heapsort-size", heapsort_size,
-		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
-	return stress_set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_heapsort_size,	stress_set_heapsort_size },
-	{ OPT_heapsort_method,	stress_set_heapsort_method },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_heapsort_size,   "heapsort-size",   TYPE_ID_UINT64, MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE, NULL },
+	{ OPT_heapsort_method, "heapsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_heapsort_method },
+	END_OPT,
 };
 
 /*
@@ -408,7 +380,7 @@ tidy:
 stressor_info_t stress_heapsort_info = {
 	.stressor = stress_heapsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

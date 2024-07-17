@@ -212,43 +212,15 @@ static const stress_mergesort_method_t stress_mergesort_methods[] = {
 	{ "mergesort-nonlibc",	mergesort_nonlibc },
 };
 
-static int stress_set_mergesort_method(const char *opt)
+static const char *stress_mergesort_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_mergesort_methods); i++) {
-		if (strcmp(opt, stress_mergesort_methods[i].name) == 0) {
-			stress_set_setting("mergesort-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "mergesort-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_mergesort_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_mergesort_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_mergesort_methods)) ? stress_mergesort_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_mergesort_size()
- *	set mergesort size
- */
-static int stress_set_mergesort_size(const char *opt)
-{
-	uint64_t mergesort_size;
-
-	mergesort_size = stress_get_uint64(opt);
-	stress_check_range("mergesort-size", mergesort_size,
-		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
-	return stress_set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mergesort_size,	stress_set_mergesort_size },
-	{ OPT_mergesort_method,	stress_set_mergesort_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mergesort_size,   "mergesort-size",   TYPE_ID_UINT64, MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE, NULL },
+	{ OPT_mergesort_method, "mergesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_mergesort_method },
+	END_OPT,
 };
 
 #if !defined(__OpenBSD__) &&	\
@@ -446,7 +418,7 @@ tidy:
 stressor_info_t stress_mergesort_info = {
 	.stressor = stress_mergesort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -47,16 +47,12 @@ typedef struct {
 static const stress_vm_addr_method_info_t vm_addr_methods[];
 
 static const stress_help_t help[] = {
-	{ NULL,	"vm-addr N",	 "start N vm address exercising workers" },
-	{ NULL,	"vm-addr-mlock", "attempt to mlock pages into memory" },
-	{ NULL,	"vm-addr-ops N", "stop after N vm address bogo operations" },
+	{ NULL,	"vm-addr N",	    "start N vm address exercising workers" },
+	{ NULL, "vm-addr-method M", "select method to exercise vm addresses" },
+	{ NULL,	"vm-addr-mlock",    "attempt to mlock pages into memory" },
+	{ NULL,	"vm-addr-ops N",    "stop after N vm address bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
-
-static int stress_set_vm_addr_mlock(const char *opt)
-{
-	return stress_set_setting_true("vm-addr-mlock", opt);
-}
 
 /*
  *  stress_continue(args)
@@ -426,30 +422,6 @@ static size_t stress_vm_addr_all(uint8_t *buf, const size_t sz)
 	return bit_errors;
 }
 
-/*
- *  stress_set_vm_addr_method()
- *      set default vm stress method
- */
-static int stress_set_vm_addr_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(vm_addr_methods); i++) {
-		if (!strcmp(vm_addr_methods[i].name, name)) {
-			stress_set_setting("vm-addr-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "vm-addr-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(vm_addr_methods); i++) {
-		(void)fprintf(stderr, " %s", vm_addr_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static int stress_vm_addr_child(stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
@@ -560,16 +532,21 @@ static int stress_vm_addr(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vm_addr_method,	stress_set_vm_addr_method },
-	{ OPT_vm_addr_mlock,	stress_set_vm_addr_mlock },
-	{ 0,			NULL }
+static const char *stress_vm_addr_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(vm_addr_methods)) ? vm_addr_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_vm_addr_method, "vm-addr-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_addr_method },
+	{ OPT_vm_addr_mlock,  "vm-addr-mlock",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_vm_addr_info = {
 	.stressor = stress_vm_addr,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

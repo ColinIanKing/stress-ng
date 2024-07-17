@@ -83,20 +83,6 @@ static void * OPTIMIZE3 lsearch_nonlibc(
 	return result;
 }
 
-/*
- *  stress_set_lsearch_size()
- *      set lsearch size from given option string
- */
-static int stress_set_lsearch_size(const char *opt)
-{
-	uint64_t lsearch_size;
-
-	lsearch_size = stress_get_uint64(opt);
-	stress_check_range("lsearch-size", lsearch_size,
-		MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE);
-	return stress_set_setting("lsearch-size", TYPE_ID_UINT64, &lsearch_size);
-}
-
 static const stress_lsearch_method_t stress_lsearch_methods[] = {
 #if defined(HAVE_SEARCH_H) &&	\
     defined(HAVE_LSEARCH)
@@ -105,29 +91,15 @@ static const stress_lsearch_method_t stress_lsearch_methods[] = {
 	{ "lsearch-nonlibc",	lfind_nonlibc,	lsearch_nonlibc },
 };
 
-static int stress_set_lsearch_method(const char *opt)
+static const char *stress_lsearch_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_lsearch_methods); i++) {
-		if (strcmp(opt, stress_lsearch_methods[i].name) == 0) {
-			stress_set_setting("lsearch-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "lsearch-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_lsearch_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_lsearch_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_lsearch_methods)) ? stress_lsearch_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_lsearch_method,	stress_set_lsearch_method },
-	{ OPT_lsearch_size,	stress_set_lsearch_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_lsearch_method, "lsearch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_lsearch_method },
+	{ OPT_lsearch_size,   "lsearch-size",   TYPE_ID_UINT64, MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -223,7 +195,7 @@ static int stress_lsearch(stress_args_t *args)
 stressor_info_t stress_lsearch_info = {
 	.stressor = stress_lsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

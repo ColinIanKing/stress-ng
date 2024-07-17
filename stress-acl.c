@@ -32,13 +32,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_acl_rand(const char *opt)
-{
-	return stress_set_setting_true("acl-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_acl_rand,	stress_set_acl_rand },
+static const stress_opt_t opts[] = {
+	{ OPT_acl_rand, "acl-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_ACL) &&		\
@@ -490,7 +486,7 @@ tidy_unmap:
 stressor_info_t stress_acl_info = {
 	.stressor = stress_acl,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -498,7 +494,7 @@ stressor_info_t stress_acl_info = {
 stressor_info_t stress_acl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without libacl or acl/libacl.h or sys/acl.h"

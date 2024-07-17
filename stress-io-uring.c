@@ -38,27 +38,14 @@ static const stress_help_t help[] = {
 	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
 	{ NULL, "io-uring-entries N",	"specify number if io-uring ring entries" },
 	{ NULL,	"io-uring-ops N",	"stop after N bogo io-uring I/O requests" },
+	{ NULL,	"io-uring-rand",	"enable randomized io-uring I/O request ordering" },
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_io_uring_entries(const char *opt)
-{
-        uint32_t io_uring_entries;
-
-        io_uring_entries = stress_get_uint32(opt);
-        stress_check_range("io-uring-entries", (uint64_t)io_uring_entries, 1, 16384);
-        return stress_set_setting("io-uring-entries", TYPE_ID_UINT32, &io_uring_entries);
-}
-
-static int stress_set_io_uring_rand(const char *opt)
-{
-	return stress_set_setting_true("io-uring-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_io_uring_entries,	stress_set_io_uring_entries },
-	{ OPT_io_uring_rand,	stress_set_io_uring_rand },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_io_uring_entries, "io-uring-entries", TYPE_ID_UINT32, 1, 16384, NULL },
+	{ OPT_io_uring_rand,    "io-uring-rand",    TYPE_ID_BOOL,   0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LINUX_IO_URING_H) &&	\
@@ -473,7 +460,6 @@ retry:
 		1, IORING_ENTER_GETEVENTS);
 	if (UNLIKELY(ret < 0)) {
 		if (errno == EBUSY) {
-pr_inf("busy!\n");
 			stress_io_uring_complete(args, submit);
 			goto retry;
 		}
@@ -1253,7 +1239,7 @@ static int stress_io_uring(stress_args_t *args)
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_io_uring,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -1261,7 +1247,7 @@ stressor_info_t stress_io_uring_info = {
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/io_uring.h or syscall() support"

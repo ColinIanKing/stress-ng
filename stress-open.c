@@ -147,11 +147,6 @@ static int open_flags[] = {
 #endif
 };
 
-static int stress_set_open_fd(const char *opt)
-{
-        return stress_set_setting_true("open-fd", opt);
-}
-
 static size_t stress_get_max_fds(void)
 {
 	const size_t max_size = (size_t)-1;
@@ -179,21 +174,22 @@ static size_t stress_get_max_fds(void)
 	return max_fds;
 }
 
-static int stress_set_open_max(const char *opt)
+static void stress_open_max(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	size_t open_max;
+	size_t *open_max = (size_t *)value;
 	const size_t max_fds = stress_get_max_fds();
 
-	open_max = (size_t)stress_get_uint64_percent(opt, 1, (uint64_t)max_fds,
-			"cannot determine maximum number of file descriptors");
-
-        return stress_set_setting("open-max", TYPE_ID_SIZE_T, &open_max);
+	(void)opt_name;
+	
+	*type_id = TYPE_ID_SIZE_T;
+	*open_max = (size_t)stress_get_uint64_percent(opt_arg, 1, (uint64_t)max_fds,
+                        "cannot determine maximum number of file descriptors");
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_open_fd,	stress_set_open_fd, },
-	{ OPT_open_max,	stress_set_open_max },
-	{ 0,		NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_open_fd,  "open-fd",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_open_max,	"open-max", TYPE_ID_CALLBACK, 0, 0, stress_open_max },
+	END_OPT,
 };
 
 #if defined(HAVE_OPENAT) &&	\
@@ -1096,6 +1092,8 @@ static int stress_open(stress_args_t *args)
 	/* Limit to max int (fd value) */
 	if (open_max > INT_MAX)
 		open_max = INT_MAX;
+	if (open_max < 1)
+		open_max = 1;
 
 	if (!args->instance)
 		pr_inf("%s: using a maximum of %zd file descriptors\n", args->name, open_max);
@@ -1206,6 +1204,6 @@ close_all:
 stressor_info_t stress_open_info = {
 	.stressor = stress_open,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

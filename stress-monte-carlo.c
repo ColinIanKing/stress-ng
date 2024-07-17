@@ -55,15 +55,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_monte_carlo_samples(const char *opt)
-{
-	uint32_t monte_carlo_samples;
-
-	monte_carlo_samples = stress_get_int32(opt);
-	stress_check_range("monte-carlo-samples", (uint64_t)monte_carlo_samples, 1, 0xffffffff);
-	return stress_set_setting("monte-carlo-samples", TYPE_ID_UINT32, &monte_carlo_samples);
-}
-
 #if (defined(STRESS_ARCH_PPC64) && defined(HAVE_ASM_PPC64_DARN)) ||	\
     (defined(STRESS_ARCH_X86) && defined(HAVE_ASM_X86_RDRAND)) ||	\
     (defined(HAVE_GETRANDOM) && !defined(__sun__)) ||			\
@@ -484,57 +475,21 @@ static const stress_monte_carlo_method_t stress_monte_carlo_methods[] = {
 
 };
 
-/*
- *  stress_set_monte_carlo_method()
- *      set the default monte_carlo stress method
- */
-static int stress_set_monte_carlo_method(const char *opt)
+static const char *stress_monte_carlo_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_monte_carlo_methods); i++) {
-		if (!strcmp(opt, stress_monte_carlo_methods[i].name)) {
-			stress_set_setting("monte-carlo-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "monte-carlo-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_monte_carlo_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_monte_carlo_methods[i].name);
-        }
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_monte_carlo_methods)) ? stress_monte_carlo_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_monte_carlo_rand()
- *      set the default monte_carlo random number generator
- */
-static int stress_set_monte_carlo_rand(const char *opt)
+static const char *stress_monte_carlo_rand(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(rand_info); i++) {
-		if (!strcmp(opt, rand_info[i].name)) {
-			stress_set_setting("monte-carlo-rand", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "monte-carlo-rand must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(rand_info); i++) {
-		(void)fprintf(stderr, " %s", rand_info[i].name);
-        }
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(rand_info)) ? rand_info[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_monte_carlo_method,	stress_set_monte_carlo_method },
-	{ OPT_monte_carlo_rand,		stress_set_monte_carlo_rand },
-	{ OPT_monte_carlo_samples,	stress_set_monte_carlo_samples },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_monte_carlo_method,  "monte-carlo-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_monte_carlo_method },
+	{ OPT_monte_carlo_rand,    "monte-carlo-rand",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_monte_carlo_rand },
+	{ OPT_monte_carlo_samples, "monte-carlo-samples", TYPE_ID_UINT32, 1, 0xffffffffULL, NULL },
+	END_OPT,
 };
 
 #define METHODS_MAX	SIZEOF_ARRAY(stress_monte_carlo_methods)
@@ -678,7 +633,7 @@ static int stress_monte_carlo(stress_args_t *args)
 
 stressor_info_t stress_monte_carlo_info = {
 	.stressor = stress_monte_carlo,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_NONE,
 	.help = help

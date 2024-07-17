@@ -61,43 +61,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_forkheavy_mlock
- *     enable mlocking on allocated pages
- */
-static int stress_set_forkheavy_mlock(const char *opt)
-{
-	return stress_set_setting_true("forkheavy-mlock", opt);
-}
-
-/*
- *  stress_set_forkheavy_allocs()
- *	set maximum number of resources allocated
- */
-static int stress_set_forkheavy_allocs(const char *opt)
-{
-	uint32_t forkheavy_allocs;
-
-	forkheavy_allocs = stress_get_uint32(opt);
-	stress_check_range("forkheavy-allocs", (uint64_t)forkheavy_allocs,
-		MIN_FORKHEAVY_ALLOCS, MAX_FORKHEAVY_ALLOCS);
-	return stress_set_setting("forkheavy-allocs", TYPE_ID_UINT32, &forkheavy_allocs);
-}
-
-/*
- *  stress_set_forkheavy_procs()
- *	set maximum number of processes allowed
- */
-static int stress_set_forkheavy_procs(const char *opt)
-{
-	uint32_t forkheavy_procs;
-
-	forkheavy_procs = stress_get_uint32(opt);
-	stress_check_range("forkheavy-procs", (uint64_t)forkheavy_procs,
-		MIN_FORKHEAVY_PROCS, MAX_FORKHEAVY_PROCS);
-	return stress_set_setting("forkheavy-procs", TYPE_ID_UINT32, &forkheavy_procs);
-}
-
 static stress_forkheavy_list_t forkheavy_list;
 
 /*
@@ -322,16 +285,16 @@ static int stress_forkheavy(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t forkheavy_opt_set_funcs[] = {
-	{ OPT_forkheavy_allocs,	stress_set_forkheavy_allocs },
-	{ OPT_forkheavy_mlock,	stress_set_forkheavy_mlock },
-	{ OPT_forkheavy_procs,	stress_set_forkheavy_procs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_forkheavy_allocs,	"forkheavy-allocs", TYPE_ID_UINT32, MIN_FORKHEAVY_ALLOCS, MAX_FORKHEAVY_ALLOCS, NULL },
+	{ OPT_forkheavy_mlock,	"forkheavy-mlock",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_forkheavy_procs,	"forkheavy-procs",  TYPE_ID_UINT32, MIN_FORKHEAVY_PROCS, MAX_FORKHEAVY_PROCS, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_forkheavy_info = {
 	.stressor = stress_forkheavy,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = forkheavy_opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

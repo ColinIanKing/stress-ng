@@ -43,28 +43,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_msg_bytes(const char *opt)
-{
-	size_t bytes;
-
-	bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("msg-bytes", bytes,
-		MIN_MSG_BYTES, MAX_MSG_BYTES);
-	return stress_set_setting("msg-bytes", TYPE_ID_SIZE_T, &bytes);
-}
-
-static int stress_set_msg_types(const char *opt) {
-	int32_t msg_types;
-
-	msg_types = stress_get_int32(opt);
-	stress_check_range("msg-types", (uint64_t)msg_types, 0, 100);
-	return stress_set_setting("msg-types", TYPE_ID_INT32, &msg_types);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_msg_types,	stress_set_msg_types },
-	{ OPT_msg_bytes,	stress_set_msg_bytes },
-	{ 0,                    NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_msg_types, "msg-types", TYPE_ID_INT32, 0, 100, NULL },
+	{ OPT_msg_bytes, "msg-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MSG_BYTES, MAX_MSG_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_IPC_H) &&	\
@@ -483,7 +465,7 @@ cleanup:
 stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -491,7 +473,7 @@ stressor_info_t stress_msg_info = {
 stressor_info_t stress_msg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/ipc.h, sys/msg.h or System V message queues support"

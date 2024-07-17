@@ -37,19 +37,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static int stress_set_msync_bytes(const char *opt)
-{
-	size_t msync_bytes;
-
-	msync_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("msync-bytes", msync_bytes,
-		MIN_MSYNC_BYTES, MAX_MSYNC_BYTES);
-	return stress_set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_msync_bytes,	stress_set_msync_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_msync_bytes, "msync-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MSYNC_BYTES, MAX_MSYNC_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MSYNC)
@@ -316,7 +306,7 @@ err:
 stressor_info_t stress_msync_info = {
 	.stressor = stress_msync,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -324,7 +314,7 @@ stressor_info_t stress_msync_info = {
 stressor_info_t stress_msync_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without msync() system call support"

@@ -50,19 +50,9 @@ typedef union stress_semun {
 } stress_semun_t;
 #endif
 
-static int stress_set_semaphore_sysv_procs(const char *opt)
-{
-	uint64_t semaphore_sysv_procs;
-
-	semaphore_sysv_procs = stress_get_uint64(opt);
-	stress_check_range("sem-sysv-procs", semaphore_sysv_procs,
-		MIN_SEM_SYSV_PROCS, MAX_SEM_SYSV_PROCS);
-	return stress_set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sem_sysv_procs,	stress_set_semaphore_sysv_procs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sem_sysv_procs, "sem-sysv-procs", TYPE_ID_UINT64, MIN_SEM_SYSV_PROCS, MAX_SEM_SYSV_PROCS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SEM_SYSV) &&	\
@@ -612,7 +602,7 @@ stressor_info_t stress_sem_sysv_info = {
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -620,7 +610,7 @@ stressor_info_t stress_sem_sysv_info = {
 stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/sem.h"

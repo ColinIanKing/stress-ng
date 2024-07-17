@@ -24,6 +24,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#define STRESS_GOTO_UNDEFINED	(0)
 #define STRESS_GOTO_FORWARD	(1)
 #define STRESS_GOTO_BACKWARD	(2)
 #define STRESS_GOTO_RANDOM	(3)
@@ -33,32 +34,20 @@ typedef struct {
 	const int  direction;
 } stress_goto_direction_t;
 
-static int stress_set_goto_direction(const char *opts)
+static const stress_goto_direction_t stress_goto_directions[] = {
+	{ "forward",	STRESS_GOTO_FORWARD },
+	{ "backward",	STRESS_GOTO_BACKWARD },
+	{ "random",	STRESS_GOTO_RANDOM },
+};
+
+static const char *stress_goto_direction(const size_t i)
 {
-	size_t i;
-
-	static const stress_goto_direction_t stress_goto_direction[] = {
-		{ "forward",	STRESS_GOTO_FORWARD },
-		{ "backward",	STRESS_GOTO_BACKWARD },
-		{ "random",	STRESS_GOTO_RANDOM },
-	};
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_goto_direction); i++) {
-		if (!strcmp(opts, stress_goto_direction[i].option)) {
-			return stress_set_setting("goto-direction", TYPE_ID_INT, &stress_goto_direction[i].direction);
-		}
-	}
-	(void)fprintf(stderr, "goto-option option '%s' not known, options are:", opts);
-	for (i = 0; i < SIZEOF_ARRAY(stress_goto_direction); i++)
-		(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", stress_goto_direction[i].option);
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_goto_directions)) ? stress_goto_directions[i].option : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_goto_direction,	stress_set_goto_direction },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_goto_direction, "goto-direction", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_goto_direction },
+	END_OPT,
 };
 
 #define MAX_LABELS	(0x400)
@@ -92,7 +81,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 {
 	size_t i;
-	int rc = EXIT_SUCCESS, goto_direction;
+	int rc = EXIT_SUCCESS;
+	size_t goto_direction = 0;
 	double t1, t2, duration, rate;
 	uint64_t lo, hi, bogo_counter;
 
@@ -252,13 +242,12 @@ static int OPTIMIZE_GOTO stress_goto(stress_args_t *args)
 		labels_backward[i] = default_labels[(MAX_LABELS + i - 1) % MAX_LABELS];
 	}
 
-	goto_direction = STRESS_GOTO_RANDOM;
 	(void)stress_get_setting("goto-direction", &goto_direction);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);
 
-	switch (goto_direction) {
+	switch (stress_goto_directions[goto_direction].direction) {
 	case STRESS_GOTO_FORWARD:
 		labels = labels_forward;
 		break;
@@ -457,7 +446,7 @@ L0x000:
 stressor_info_t stress_goto_info = {
 	.stressor = stress_goto,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -465,7 +454,7 @@ stressor_info_t stress_goto_info = {
 stressor_info_t stress_goto_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without compiler support gcc style 'labels as values' feature"

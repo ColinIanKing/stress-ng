@@ -36,19 +36,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static int stress_set_sendfile_size(const char *opt)
-{
-	uint64_t sendfile_size;
-
-	sendfile_size = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("sendfile-size", sendfile_size,
-		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
-	return stress_set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sendfile_size,	stress_set_sendfile_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sendfile_size, "sendfile-size", TYPE_ID_UINT64_BYTES, MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_SENDFILE_H) &&	\
@@ -215,7 +205,7 @@ dir_out:
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -223,7 +213,7 @@ stressor_info_t stress_sendfile_info = {
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/sendfile.h or sendfile() system call support"

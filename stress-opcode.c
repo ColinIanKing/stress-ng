@@ -53,7 +53,7 @@ static const stress_help_t help[] = {
     defined(HAVE_LINUX_AUDIT_H) &&	\
     defined(HAVE_LINUX_FILTER_H) &&	\
     defined(HAVE_MPROTECT) &&		\
-    defined(HAVE_SYS_PRCTL_H)
+    defined(HAVE_SYS_PRCTL_H) && 0
 
 #if defined(__NR_rt_sigreturn)	&&	\
     defined(__NR_rt_sigprocmask)
@@ -349,30 +349,6 @@ static const stress_opcode_method_info_t stress_opcode_methods[] = {
 };
 
 /*
- *  stress_set_opcode_method()
- *      set default opcode stress method
- */
-static int stress_set_opcode_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_opcode_methods); i++) {
-		if (!strcmp(stress_opcode_methods[i].name, name)) {
-			stress_set_setting("opcode-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "opcode-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_opcode_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_opcode_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-/*
  *  stress_opcode
  *	stress with random opcodes
  */
@@ -634,43 +610,40 @@ err:
 	return rc;
 }
 
-static void stress_opcode_set_default(void)
+static const char *stress_opcode_method(const size_t i)
 {
-	stress_set_opcode_method("random");
-}
+	return (i < SIZEOF_ARRAY(stress_opcode_methods)) ? stress_opcode_methods[i].name : NULL;
+} 
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_opcode_method,	stress_set_opcode_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_opcode_method, "opcode-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_opcode_method },
+	END_OPT,
 };
 
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_opcode,
-	.set_default = stress_opcode_set_default,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 
-static int stress_set_opcode_method(const char *name)
+static void stress_opcode_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)name;
-
-	(void)fprintf(stderr, "opcode-method not implemented");
-
-	return -1;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "opcode stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_opcode_method,	stress_set_opcode_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_opcode_method, "opcode-method", TYPE_ID_CALLBACK, 0, 0, stress_opcode_method },
+	END_OPT,
 };
 
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without linux/seccomp.h, linux/audit.h, linux/filter.h, sys/prctl.h or mprotect()"
 };

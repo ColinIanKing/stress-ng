@@ -394,24 +394,9 @@ static const stress_expmath_method_t stress_expmath_methods[] = {
 #endif
 };
 
-stress_metrics_t stress_expmath_metrics[SIZEOF_ARRAY(stress_expmath_methods)];
+#define NUM_EXPMATH_METHODS	(SIZEOF_ARRAY(stress_expmath_methods))
 
-static int stress_set_expmath_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_expmath_methods); i++) {
-		if (strcmp(opt, stress_expmath_methods[i].name) == 0)
-			return stress_set_setting("expmath-method", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "expmath-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_expmath_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_expmath_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
+stress_metrics_t stress_expmath_metrics[NUM_EXPMATH_METHODS];
 
 static bool stress_expmath_exercise(stress_args_t *args, const size_t idx)
 {
@@ -434,7 +419,7 @@ static bool stress_expmath_all(stress_args_t *args)
 	size_t i;
 	bool ret = false;
 
-	for (i = 1; i < SIZEOF_ARRAY(stress_expmath_methods); i++) {
+	for (i = 1; i < NUM_EXPMATH_METHODS; i++) {
 		ret |= stress_expmath_exercise(args, i);
 	}
 	return ret;
@@ -452,7 +437,7 @@ static int stress_expmath(stress_args_t *args)
 
 	(void)stress_get_setting("expmath-method", &expmath_method);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_expmath_metrics); i++) {
+	for (i = 0; i < NUM_EXPMATH_METHODS; i++) {
 		stress_expmath_metrics[i].duration = 0.0;
 		stress_expmath_metrics[i].count = 0.0;
 	}
@@ -469,7 +454,7 @@ static int stress_expmath(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_expmath_metrics); i++) {
+	for (i = 1, j = 0; i < NUM_EXPMATH_METHODS; i++) {
 		if (stress_expmath_metrics[i].duration > 0.0) {
 			char buf[80];
 			const double rate = (double)STRESS_EXPMATH_LOOPS *
@@ -484,38 +469,42 @@ static int stress_expmath(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_expmath_method,	stress_set_expmath_method },
-	{ 0,			NULL },
+static const char *stress_expmath_method(const size_t i)
+{
+	return (i < NUM_EXPMATH_METHODS) ? stress_expmath_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_expmath_method, "expmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_expmath_method },
+	END_OPT,
 };
 
 stressor_info_t stress_expmath_info = {
 	.stressor = stress_expmath,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
 #else
 
-static int stress_set_expmath_method(const char *opt)
+static void stress_expmath_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)opt;
-
-	(void)fprintf(stderr, "expmath-method is not implemented\n");
-	return -1;
+	*type_id = TYPE_ID_SIZE_T;
+	(size_t *)value = 0;
+	(void)fprintf(stderr, "expmath stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_expmath_method,	stress_set_expmath_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_expmath_method, "expmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_expmath_method },
+	END_OPT,
 };
 
 stressor_info_t stress_expmath_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

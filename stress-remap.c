@@ -29,29 +29,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_remap_mlock(const char *opt)
-{
-	return stress_set_setting_true("remap-mlock", opt);
-}
-
-static int stress_set_remap_pages(const char *opt)
-{
-        size_t remap_pages;
-
-        remap_pages = (size_t)stress_get_uint64(opt);
-        stress_check_range("remap-pages", (uint64_t)remap_pages, 1, 0x80000000);
-
-	if ((remap_pages & (remap_pages - 1)) != 0) {
-		(void)fprintf(stderr, "Value for option --remap-pages %zu must be a power of 2\n", remap_pages);
-                longjmp(g_error_env, 1);
-	}
-        return stress_set_setting("remap-pages", TYPE_ID_SIZE_T, &remap_pages);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_remap_mlock,	stress_set_remap_mlock },
-	{ OPT_remap_pages,	stress_set_remap_pages },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_remap_mlock, "remap-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_remap_pages, "remap-pages", TYPE_ID_SIZE_T, 1, 0x80000000ULL, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_REMAP_FILE_PAGES) &&	\
@@ -171,6 +152,12 @@ static int stress_remap(stress_args_t *args)
 
 	(void)stress_get_setting("remap-mlock", &remap_mlock);
 	(void)stress_get_setting("remap-pages", &remap_pages);
+
+	if ((remap_pages & (remap_pages - 1)) != 0) {
+		(void)pr_inf("%s: value for option --remap-pages %zu must be a power of 2, falling back to using default %d\n",
+			args->name, remap_pages, N_PAGES);
+		remap_pages = N_PAGES;
+	}
 
 	data_size = remap_pages * page_size;
 	data = (stress_mapdata_t *)stress_mmap_populate(NULL, data_size,
@@ -335,7 +322,7 @@ PRAGMA_UNROLL_N(4)
 
 stressor_info_t stress_remap_info = {
 	.stressor = stress_remap,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -343,7 +330,7 @@ stressor_info_t stress_remap_info = {
 #else
 stressor_info_t stress_remap_info = {
 	.stressor = stress_unimplemented,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

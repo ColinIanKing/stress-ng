@@ -64,7 +64,10 @@ static const stress_help_t help[] = {
 };
 
 static const stress_stream_madvise_info_t stream_madvise_info[] = {
-#if defined(HAVE_MADVISE)
+#if !defined(HAVE_MADVISE)
+	/* No MADVISE, default to normal, ignored */
+	{ "normal",	0 },
+#else
 #if defined(MADV_HUGEPAGE)
 	{ "hugepage",	MADV_HUGEPAGE },
 #endif
@@ -77,54 +80,8 @@ static const stress_stream_madvise_info_t stream_madvise_info[] = {
 #if defined(MADV_NORMAL)
 	{ "normal",	MADV_NORMAL },
 #endif
-#else
-	/* No MADVISE, default to normal, ignored */
-	{ "normal",	0 },
 #endif
-	{ NULL,         0 },
 };
-
-static int stress_set_stream_mlock(const char *opt)
-{
-	return stress_set_setting_true("stream-mlock", opt);
-}
-
-static int stress_set_stream_L3_size(const char *opt)
-{
-	uint64_t stream_L3_size;
-
-	stream_L3_size = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("stream-L3-size", stream_L3_size,
-		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
-	return stress_set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
-}
-
-static int stress_set_stream_madvise(const char *opt)
-{
-	const stress_stream_madvise_info_t *info;
-
-	for (info = stream_madvise_info; info->name; info++) {
-		if (!strcmp(opt, info->name)) {
-			stress_set_setting("stream-madvise", TYPE_ID_INT, &info->advice);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "invalid stream-madvise advice '%s', allowed advice options are:", opt);
-	for (info = stream_madvise_info; info->name; info++) {
-		(void)fprintf(stderr, " %s", info->name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-static int stress_set_stream_index(const char *opt)
-{
-	uint32_t stream_index;
-
-	stream_index = stress_get_uint32(opt);
-	stress_check_range("stream-index", (uint64_t)stream_index, 0, 3);
-	return stress_set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
-}
 
 /*
  *  stress_stream_checksum_to_hexstr()
@@ -719,9 +676,11 @@ static inline void *stress_stream_mmap(
 		if (stream_mlock)
 			(void)shim_mlock(ptr, (size_t)sz);
 #if defined(HAVE_MADVISE)
+		size_t stream_madvise;
 		int advice = MADV_NORMAL;
 
-		(void)stress_get_setting("stream-madvise", &advice);
+		if (stress_get_setting("stream-madvise", &stream_madvise))
+			advice = stream_madvise_info[stream_madvise].advice;
 
 		VOID_RET(int, madvise(ptr, (size_t)sz, advice));
 #else
@@ -832,7 +791,7 @@ static int stress_stream(stress_args_t *args)
 
 	(void)stress_get_setting("stream-mlock", &stream_mlock);
 
-	if (stress_get_setting("stream-L3-size", &stream_L3_size))
+	if (stress_get_setting("stream-l3-size", &stream_L3_size))
 		L3 = stream_L3_size;
 	else
 		L3 = get_stream_L3_size(args);
@@ -1038,18 +997,23 @@ err_unmap:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_stream_index,	stress_set_stream_index },
-	{ OPT_stream_l3_size,	stress_set_stream_L3_size },
-	{ OPT_stream_madvise,	stress_set_stream_madvise },
-	{ OPT_stream_mlock,	stress_set_stream_mlock },
-	{ 0,			NULL }
+static const char *stress_stream_madvise(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stream_madvise_info)) ? stream_madvise_info[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_stream_index,   "stream-index",   TYPE_ID_UINT32, 0, 3, NULL },
+	{ OPT_stream_l3_size, "stream-l3-size", TYPE_ID_UINT64_BYTES, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
+	{ OPT_stream_madvise, "stream-madvise", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_stream_madvise },
+	{ OPT_stream_mlock,   "stream-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_stream_info = {
 	.stressor = stress_stream,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

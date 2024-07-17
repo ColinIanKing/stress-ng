@@ -33,20 +33,10 @@ static const stress_help_t help[] = {
 
 #define STRESS_CPU_ONLINE_MAX_CPUS	(65536)
 
-static int stress_set_cpu_online_affinity(const char *opt)
-{
-	return stress_set_setting_true("cpu-online-affinity", opt);
-}
-
-static int stress_set_cpu_online_all(const char *opt)
-{
-	return stress_set_setting_true("cpu-online-all", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_cpu_online_affinity,	stress_set_cpu_online_affinity },
-	{ OPT_cpu_online_all,		stress_set_cpu_online_all },
-	{ 0,				NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_cpu_online_affinity, "cpu-online-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cpu_online_all,      "cpu-online-all",      TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -425,7 +415,7 @@ stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online,
 	.supported = stress_cpu_online_supported,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -433,7 +423,7 @@ stressor_info_t stress_cpu_online_info = {
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"

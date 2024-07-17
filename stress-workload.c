@@ -121,145 +121,55 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_workload_dist(const char *opt)
+static const stress_workload_dist_t workload_dists[] = {
+	{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
+	{ "even",	STRESS_WORKLOAD_DIST_EVEN },
+	{ "poisson",	STRESS_WORKLOAD_DIST_POISSON },
+	{ "random1",	STRESS_WORKLOAD_DIST_RANDOM1 },
+	{ "random2",	STRESS_WORKLOAD_DIST_RANDOM2 },
+	{ "random3",	STRESS_WORKLOAD_DIST_RANDOM3 },
+};
+
+static const stress_workload_method_t workload_methods[] = {
+	{ "all",	STRESS_WORKLOAD_METHOD_ALL },
+	{ "fma",	STRESS_WORKLOAD_METHOD_FMA },
+	{ "getpid",	STRESS_WORKLOAD_METHOD_GETPID },
+	{ "time",	STRESS_WORKLOAD_METHOD_TIME },
+	{ "inc64",	STRESS_WORKLOAD_METHOD_INC64 },
+	{ "memmove",	STRESS_WORKLOAD_METHOD_MEMMOVE },
+	{ "memread",	STRESS_WORKLOAD_METHOD_MEMREAD },
+	{ "memset",	STRESS_WORKLOAD_METHOD_MEMSET },
+	{ "mwc64",	STRESS_WORKLOAD_METHOD_MWC64 },
+	{ "nop",	STRESS_WORKLOAD_METHOD_NOP },
+	{ "pause",	STRESS_WORKLOAD_METHOD_PAUSE },
+	{ "random",	STRESS_WORKLOAD_METHOD_RANDOM },
+	{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
+};
+
+static const char *stress_workload_dist(const size_t i)
 {
-	static const stress_workload_dist_t workload_dist[] = {
-		{ "cluster",	STRESS_WORKLOAD_DIST_CLUSTER },
-		{ "even",	STRESS_WORKLOAD_DIST_EVEN },
-		{ "poisson",	STRESS_WORKLOAD_DIST_POISSON },
-		{ "random1",	STRESS_WORKLOAD_DIST_RANDOM1 },
-		{ "random2",	STRESS_WORKLOAD_DIST_RANDOM2 },
-		{ "random3",	STRESS_WORKLOAD_DIST_RANDOM3 },
-	};
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(workload_dist); i++) {
-		if (strcmp(opt, workload_dist[i].name) == 0)
-			return stress_set_setting("workload-dist", TYPE_ID_INT, &workload_dist[i].type);
-	}
-
-	(void)fprintf(stderr, "workload-dist must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(workload_dist); i++) {
-		(void)fprintf(stderr, " %s", workload_dist[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(workload_dists)) ? workload_dists[i].name : NULL;
 }
 
-static int stress_set_workload_sched(const char *opt)
+static const char *stress_workload_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < stress_sched_types_length; i++) {
-		if (strcmp(opt, stress_sched_types[i].sched_name) == 0)
-			return stress_set_setting("workload-sched", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "workload-sched must be one of:");
-	for (i = 0; i < stress_sched_types_length; i++) {
-		(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(workload_methods)) ? workload_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_workload_load()
- *	set workload load (%)
- */
-static int stress_set_workload_load(const char *opt)
+static const char *stress_workload_sched(const size_t i)
 {
-	uint32_t workload_load;
-
-	workload_load = stress_get_uint32(opt);
-	stress_check_range("workload-load", (uint64_t)workload_load, 1, 100);
-	return stress_set_setting("workload-load", TYPE_ID_UINT32, &workload_load);
+	return (i < stress_sched_types_length) ? stress_sched_types[i].sched_name : NULL;
 }
 
-/*
- *  stress_set_workload_quanta_us()
- *	set duration of each work quanta in microseconds
- */
-static int stress_set_workload_quanta_us(const char *opt)
-{
-	uint32_t workload_quanta_us;
-
-	workload_quanta_us = stress_get_uint32(opt);
-	stress_check_range("workload-quanta-us", (uint64_t)workload_quanta_us,
-		1, 10000000);
-	return stress_set_setting("workload-quanta-us", TYPE_ID_UINT32, &workload_quanta_us);
-}
-
-/*
- *  stress_set_workload_slice_us()
- *	set duration of each work slice in microseconds
- */
-static int stress_set_workload_slice_us(const char *opt)
-{
-	uint32_t workload_slice_us;
-
-	workload_slice_us = stress_get_uint32(opt);
-	stress_check_range("workload-slice-us", (uint64_t)workload_slice_us,
-		1, 10000000);
-	return stress_set_setting("workload-slice-us", TYPE_ID_UINT32, &workload_slice_us);
-}
-
-
-static int stress_set_workload_method(const char *opt)
-{
-	static const stress_workload_method_t workload_methods[] = {
-		{ "all",	STRESS_WORKLOAD_METHOD_ALL },
-		{ "fma",	STRESS_WORKLOAD_METHOD_FMA },
-		{ "getpid",	STRESS_WORKLOAD_METHOD_GETPID },
-		{ "time",	STRESS_WORKLOAD_METHOD_TIME },
-		{ "inc64",	STRESS_WORKLOAD_METHOD_INC64 },
-		{ "memmove",	STRESS_WORKLOAD_METHOD_MEMMOVE },
-		{ "memread",	STRESS_WORKLOAD_METHOD_MEMREAD },
-		{ "memset",	STRESS_WORKLOAD_METHOD_MEMSET },
-		{ "mwc64",	STRESS_WORKLOAD_METHOD_MWC64 },
-		{ "nop",	STRESS_WORKLOAD_METHOD_NOP },
-		{ "pause",	STRESS_WORKLOAD_METHOD_PAUSE },
-		{ "random",	STRESS_WORKLOAD_METHOD_RANDOM },
-		{ "sqrt",	STRESS_WORKLOAD_METHOD_SQRT },
-	};
-
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(workload_methods); i++) {
-		if (strcmp(opt, workload_methods[i].name) == 0)
-			return stress_set_setting("workload-method", TYPE_ID_INT, &workload_methods[i].method);
-	}
-
-	(void)fprintf(stderr, "workload-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(workload_methods); i++) {
-		(void)fprintf(stderr, " %s", workload_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-/*
- *  stress_set_workload_threads()
- *	set number of concurrent workload threads
- */
-static int stress_set_workload_threads(const char *opt)
-{
-	uint32_t workload_threads;
-
-	workload_threads = stress_get_uint32(opt);
-	stress_check_range("workload-threads", (uint64_t)workload_threads, 0, 1024);
-	return stress_set_setting("workload-threads", TYPE_ID_UINT32, &workload_threads);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_workload_dist,		stress_set_workload_dist },
-	{ OPT_workload_load,		stress_set_workload_load },
-	{ OPT_workload_method,		stress_set_workload_method },
-	{ OPT_workload_quanta_us,	stress_set_workload_quanta_us },
-	{ OPT_workload_sched,		stress_set_workload_sched },
-	{ OPT_workload_slice_us,	stress_set_workload_slice_us },
-	{ OPT_workload_threads,		stress_set_workload_threads },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_workload_dist,      "workload-dist",      TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_dist },
+	{ OPT_workload_load,      "workload-load",      TYPE_ID_UINT32, 1, 100, NULL },
+	{ OPT_workload_method,    "workload-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_method },
+	{ OPT_workload_quanta_us, "workload-quanta-us", TYPE_ID_UINT32,  1, 10000000, NULL },
+	{ OPT_workload_sched,     "workload-sched",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_workload_sched },
+	{ OPT_workload_slice_us,  "workload-slice-us",  TYPE_ID_UINT32, 1, 10000000, NULL },
+	{ OPT_workload_threads,   "workload-threads",   TYPE_ID_UINT32, 0, 1024, NULL },
+	END_OPT,
 };
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
@@ -872,8 +782,9 @@ static int stress_workload(stress_args_t *args)
 	uint32_t workload_threads = 0;		/* 0 = disabled */
 	uint32_t max_quanta;
 	size_t workload_sched = 0;		/* undefined */
-	int workload_dist = STRESS_WORKLOAD_DIST_CLUSTER;
-	int workload_method = STRESS_WORKLOAD_METHOD_ALL;
+	size_t workload_dist_idx = 0;
+	size_t workload_method_idx = 0;
+	int workload_dist, workload_method;
 	stress_workload_t *workload;
 	uint8_t *buffer;
 	const size_t buffer_len = MB;
@@ -886,13 +797,16 @@ static int stress_workload(stress_args_t *args)
 	uint32_t i;
 #endif
 
-	(void)stress_get_setting("workload-dist", &workload_dist);
+	(void)stress_get_setting("workload-dist", &workload_dist_idx);
 	(void)stress_get_setting("workload-load", &workload_load);
-	(void)stress_get_setting("workload-method", &workload_method);
+	(void)stress_get_setting("workload-method", &workload_method_idx);
 	(void)stress_get_setting("workload-quanta-us", &workload_quanta_us);
 	(void)stress_get_setting("workload-sched", &workload_sched);
 	(void)stress_get_setting("workload-slice-us", &workload_slice_us);
 	(void)stress_get_setting("workload-threads", &workload_threads);
+
+	workload_method = workload_methods[workload_method_idx].method;
+	workload_dist = workload_dists[workload_dist_idx].type;
 
 	if (args->instance == 0) {
 		uint32_t timer_slack_ns;
@@ -1060,7 +974,7 @@ exit_free_buffer:
 stressor_info_t stress_workload_info = {
 	.stressor = stress_workload,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

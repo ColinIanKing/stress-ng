@@ -28,18 +28,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_x86syscall_func()
- *      set the default x86syscall function
- */
-static int stress_set_x86syscall_func(const char *name)
-{
-	return stress_set_setting("x86syscall-func", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_x86syscall_func,	stress_set_x86syscall_func },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_x86syscall_func, "x86syscall-func", TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__) &&		\
@@ -531,7 +522,7 @@ stressor_info_t stress_x86syscall_info = {
 	.stressor = stress_x86syscall,
 	.class = CLASS_OS,
 	.supported = stress_x86syscall_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -539,7 +530,7 @@ stressor_info_t stress_x86syscall_info = {
 stressor_info_t stress_x86syscall_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "only supported on Linux x86-64 and non-PCC compilers"

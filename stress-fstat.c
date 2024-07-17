@@ -71,11 +71,6 @@ typedef struct ctxt {
 	int bad_fd;			/* bad/invalid fd */
 } stress_fstat_context_t;
 
-static int stress_set_fstat_dir(const char *opt)
-{
-	return stress_set_setting("fstat-dir", TYPE_ID_STR, opt);
-}
-
 /*
  *  handle_fstat_sigalrm()
  *      catch SIGALRM
@@ -391,15 +386,15 @@ free_cache:
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fstat_dir,	stress_set_fstat_dir },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_fstat_dir, "fstat-dir", TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_fstat_info = {
 	.stressor = stress_fstat,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

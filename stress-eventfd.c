@@ -33,14 +33,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_eventfd_nonblock(const char *opt)
-{
-	return stress_set_setting_true("eventfd-nonblock", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_eventfd_nonblock,	stress_set_eventfd_nonblock },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_eventfd_nonblock, "eventfd-nonblock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_EVENTFD_H) && \
@@ -253,7 +248,7 @@ exit_parent:
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -261,7 +256,7 @@ stressor_info_t stress_eventfd_info = {
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/eventfd.h or eventfd() support"

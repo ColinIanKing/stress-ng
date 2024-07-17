@@ -48,36 +48,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_shm_mlock(const char *opt)
-{
-	return stress_set_setting_true("shm-mlock", opt);
-}
-
-static int stress_set_shm_posix_bytes(const char *opt)
-{
-	size_t shm_posix_bytes;
-
-	shm_posix_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("shm-bytes", shm_posix_bytes,
-		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
-	return stress_set_setting("shm-bytes", TYPE_ID_SIZE_T, &shm_posix_bytes);
-}
-
-static int stress_set_shm_posix_objects(const char *opt)
-{
-	size_t shm_posix_objects;
-
-	shm_posix_objects = (size_t)stress_get_uint64(opt);
-	stress_check_range("shm-objs", shm_posix_objects,
-		MIN_SHM_POSIX_OBJECTS, MAX_48);
-	return stress_set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_shm_bytes,	stress_set_shm_posix_bytes },
-	{ OPT_shm_mlock,	stress_set_shm_mlock },
-	{ OPT_shm_objects,	stress_set_shm_posix_objects },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_shm_bytes, "shm-bytes", TYPE_ID_SIZE_T_BYTES, MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_shm_mlock, "shm-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_shm_objs,  "shm-objs",  TYPE_ID_SIZE_T, MIN_SHM_POSIX_OBJECTS, MAX_48, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_RT)
@@ -535,7 +510,7 @@ err:
 stressor_info_t stress_shm_info = {
 	.stressor = stress_shm,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -543,7 +518,7 @@ stressor_info_t stress_shm_info = {
 stressor_info_t stress_shm_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt"

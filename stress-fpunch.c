@@ -33,19 +33,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_fpunch_bytes(const char *opt)
-{
-	uint64_t fpunch_bytes;
-
-	fpunch_bytes = stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("fpunch-bytes", fpunch_bytes,
-		MIN_FPUNCH_BYTES, MAX_FPUNCH_BYTES);
-	return stress_set_setting("fpunch-bytes", TYPE_ID_UINT64, &fpunch_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fpunch_bytes,	stress_set_fpunch_bytes },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_fpunch_bytes, "fpunch-bytes", TYPE_ID_UINT64_BYTES, MIN_FPUNCH_BYTES, MAX_FPUNCH_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_FALLOCATE)
@@ -422,7 +412,7 @@ tidy_s_pids:
 stressor_info_t stress_fpunch_info = {
 	.stressor = stress_fpunch,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -430,7 +420,7 @@ stressor_info_t stress_fpunch_info = {
 stressor_info_t stress_fpunch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without fallocate() support"

@@ -183,57 +183,17 @@ static const stress_fractal_method_t stress_fractal_methods[] = {
 		{ -1.5, 1.5, -1.0, 1.0, 0.0, 0.0, NULL, 1024, 1024, 256 } },
 };
 
-static int stress_set_fractal_method(const char *opt)
+static const char *stress_fractal_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_fractal_methods); i++) {
-		if (strcmp(opt, stress_fractal_methods[i].name) == 0) {
-			stress_set_setting("fractal-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "fractal-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_fractal_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_fractal_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_fractal_methods)) ? stress_fractal_methods[i].name : NULL;
 }
 
-static int stress_set_fractal_int32(const char *opt, const char *name, const int32_t min, const int32_t max)
-{
-	int32_t val32;
-	int64_t val64;
-
-	val64 = (int64_t)stress_get_uint64(opt);
-	stress_check_range(name, (uint64_t)val64, (int64_t)min, (uint64_t)max);
-	val32 = (int32_t)val64;
-	return stress_set_setting(name, TYPE_ID_INT32, &val32);
-}
-
-static int stress_set_fractal_iterations(const char *opt)
-{
-        return stress_set_fractal_int32(opt, "fractal-iterations", 1, 65535);
-}
-
-static int stress_set_fractal_xsize(const char *opt)
-{
-        return stress_set_fractal_int32(opt, "fractal-xsize", 64, 1000000);
-}
-
-static int stress_set_fractal_ysize(const char *opt)
-{
-        return stress_set_fractal_int32(opt, "fractal-ysize", 64, 1000000);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fractal_iterations,	stress_set_fractal_iterations },
-	{ OPT_fractal_method,		stress_set_fractal_method },
-	{ OPT_fractal_xsize,		stress_set_fractal_xsize },
-	{ OPT_fractal_ysize,		stress_set_fractal_ysize },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_fractal_iterations, "fractal-iterations", TYPE_ID_INT32, 1, 65535, NULL },
+	{ OPT_fractal_method,     "fractal-method",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_fractal_method },
+	{ OPT_fractal_xsize,      "fractal-xsize",      TYPE_ID_INT32, 64, 1000000, NULL },
+	{ OPT_fractal_ysize,      "fractal-ysize",      TYPE_ID_INT32, 64, 1000000, NULL },
+	END_OPT,
 };
 
 static int stress_fractal(stress_args_t *args)
@@ -313,6 +273,6 @@ stressor_info_t stress_fractal_info = {
 	.init = stress_fractal_init,
 	.deinit = stress_fractal_deinit,
 	.verify = VERIFY_NONE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

@@ -207,34 +207,6 @@ typedef struct {
 	bool	skip_no_mem;	/* True if can't allocate memory */
 } test_info_t;
 
-/*
- *  stress_set_sparsematrix_items()
- *	set number of items to put into the sparse matrix
- */
-static int stress_set_sparsematrix_items(const char *opt)
-{
-	uint64_t sparsematrix_items;
-
-	sparsematrix_items = stress_get_uint64(opt);
-	stress_check_range("sparsematrix-items", sparsematrix_items,
-		MIN_SPARSEMATRIX_ITEMS, MAX_SPARSEMATRIX_ITEMS);
-	return stress_set_setting("sparsematrix-items", TYPE_ID_UINT64, &sparsematrix_items);
-}
-
-/*
- *  stress_set_sparsematrix_size()
- *	set sparse matrix size (X x Y)
- */
-static int stress_set_sparsematrix_size(const char *opt)
-{
-	uint32_t sparsematrix_size;
-
-	sparsematrix_size = stress_get_uint32(opt);
-	stress_check_range("sparsematrix-size", (uint64_t)sparsematrix_size,
-		MIN_SPARSEMATRIX_SIZE, MAX_SPARSEMATRIX_SIZE);
-	return stress_set_setting("sparsematrix-size", TYPE_ID_UINT32, &sparsematrix_size);
-}
-
 static inline uint32_t value_map(const uint32_t x, register uint32_t y)
 {
 	return x ^ ~y;
@@ -1349,35 +1321,16 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 #endif
 };
 
-/*
- *  stress_set_sparsematrix_method()
- *	set the default method
- */
-static int stress_set_sparsematrix_method(const char *name)
+static const char *sparsematrix_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(sparsematrix_methods); i++) {
-		if (!strcmp(sparsematrix_methods[i].name, name)) {
-			stress_set_setting("sparsematrix-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "sparsematrix-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(sparsematrix_methods); i++) {
-		(void)fprintf(stderr, " %s", sparsematrix_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(sparsematrix_methods)) ? sparsematrix_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sparsematrix_items,	stress_set_sparsematrix_items },
-	{ OPT_sparsematrix_method,	stress_set_sparsematrix_method },
-	{ OPT_sparsematrix_size,	stress_set_sparsematrix_size },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sparsematrix_items,  "sparsematrix-items",  TYPE_ID_UINT64, MIN_SPARSEMATRIX_ITEMS, MAX_SPARSEMATRIX_ITEMS, NULL },
+	{ OPT_sparsematrix_method, "sparsematrix-method", TYPE_ID_SIZE_T_METHOD, 0, 1, sparsematrix_method },
+	{ OPT_sparsematrix_size,   "sparsematrix-size",   TYPE_ID_UINT32, MIN_SPARSEMATRIX_SIZE, MAX_SPARSEMATRIX_SIZE, NULL },
+	END_OPT,
 };
 
 static void stress_sparsematrix_create_failed(stress_args_t *args, const char *name)
@@ -1511,7 +1464,7 @@ err:
 stressor_info_t stress_sparsematrix_info = {
 	.stressor = stress_sparsematrix,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

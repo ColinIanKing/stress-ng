@@ -80,45 +80,10 @@ typedef struct {
 	const stress_memrate_func_t	func_rate;
 } stress_memrate_info_t;
 
-static int stress_set_memrate_bytes(const char *opt)
-{
-	uint64_t memrate_bytes;
-
-	memrate_bytes = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("memrate-bytes", memrate_bytes,
-		MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES);
-	return stress_set_setting("memrate-bytes", TYPE_ID_UINT64, &memrate_bytes);
-}
-
-static int stress_set_memrate_rd_mbs(const char *opt)
-{
-	uint64_t memrate_rd_mbs;
-
-	memrate_rd_mbs = stress_get_uint64(opt);
-	stress_check_range_bytes("memrate-rd-mbs", memrate_rd_mbs,
-		1, 1000000);
-	return stress_set_setting("memrate-rd-mbs", TYPE_ID_UINT64, &memrate_rd_mbs);
-}
-
-static int stress_set_memrate_wr_mbs(const char *opt)
-{
-	uint64_t memrate_wr_mbs;
-
-	memrate_wr_mbs = stress_get_uint64(opt);
-	stress_check_range_bytes("memrate-wr-mbs", memrate_wr_mbs,
-		1, 1000000);
-	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
-}
-
 static void NORETURN MLOCKED_TEXT stress_memrate_alarm_handler(int signum)
 {
         (void)signum;
         siglongjmp(jmpbuf, 1);
-}
-
-static int stress_set_memrate_flush(const char *opt)
-{
-	return stress_set_setting_true("memrate-flush", opt);
 }
 
 static uint64_t stress_memrate_loops(
@@ -1121,17 +1086,17 @@ static int stress_memrate(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_memrate_bytes,	stress_set_memrate_bytes },
-	{ OPT_memrate_flush,	stress_set_memrate_flush },
-	{ OPT_memrate_rd_mbs,	stress_set_memrate_rd_mbs },
-	{ OPT_memrate_wr_mbs,	stress_set_memrate_wr_mbs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_memrate_bytes,  "memrate-bytes",  TYPE_ID_UINT64_BYTES, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
+	{ OPT_memrate_flush,  "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 1, 1000000, NULL },
+	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 1, 1000000, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_memrate_info = {
 	.stressor = stress_memrate,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

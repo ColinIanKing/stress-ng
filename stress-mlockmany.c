@@ -34,23 +34,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   	NULL }
 };
 
-/*
- *  stress_set_mlockmany_procs()
- *      set number of processes to spawn to mlock pages
- */
-static int stress_set_mlockmany_procs(const char *opt)
-{
-	size_t mlockmany_procs;
-
-	mlockmany_procs = (size_t)stress_get_uint64(opt);
-	stress_check_range("mlockmany-procs", mlockmany_procs,
-		1, 1000000);
-	return stress_set_setting("mlockmany-procs", TYPE_ID_SIZE_T, &mlockmany_procs);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mlockmany_procs,	stress_set_mlockmany_procs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mlockmany_procs, "mlockmany-procs", TYPE_ID_SIZE_T, 1, 1000000, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MLOCK)
@@ -264,7 +250,7 @@ unmap:
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
 	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 
@@ -273,7 +259,7 @@ stressor_info_t stress_mlockmany_info = {
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without mlock() support"
 };

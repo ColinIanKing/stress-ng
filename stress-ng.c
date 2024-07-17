@@ -3218,13 +3218,13 @@ next_opt:
 					g_stressor_current->bogo_ops = bogo_ops;
 				goto next_opt;
 			}
-			if (stressors[i].info->opt_set_funcs) {
+			if (stressors[i].info->opts) {
 				size_t j;
 				const stressor_info_t *info = stressors[i].info;
 
-				for (j = 0; info->opt_set_funcs[j].opt_set_func; j++) {
-					if (info->opt_set_funcs[j].opt == c) {
-						ret = info->opt_set_funcs[j].opt_set_func(optarg);
+				for (j = 0; info->opts[j].opt_name; j++) {
+					if (info->opts[j].opt == c) {
+						ret = stress_parse_opt(optarg, &info->opts[j]);
 						if (ret < 0)
 							return EXIT_FAILURE;
 						goto next_opt;

@@ -29,18 +29,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	NULL }
 };
 
-static int stress_set_factor_digits(const char *opt)
-{
-	size_t factor_digits;
-
-	factor_digits = (size_t)stress_get_int32(opt);
-	stress_check_range("factor-digits", (uint64_t)factor_digits, 8, 100000000);
-	return stress_set_setting("factor-digits", TYPE_ID_SIZE_T, &factor_digits);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_factor_digits,	stress_set_factor_digits },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_factor_digits, "factor-digits", TYPE_ID_SIZE_T, 8, 100000000, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_GMP_H) &&	\
@@ -141,7 +132,7 @@ stressor_info_t stress_factor_info = {
 	.stressor = stress_factor,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 
@@ -150,7 +141,7 @@ stressor_info_t stress_factor_info = {
 stressor_info_t stress_factor_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gmp.h, or libgmp"

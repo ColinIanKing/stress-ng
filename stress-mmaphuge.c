@@ -30,35 +30,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_mmaphuge_mlock(const char *opt)
-{
-	return stress_set_setting_true("mmaphuge-mlock", opt);
-}
-
-/*
- *  stress_set_mmaphuge_mmaps()
- *      set number of huge memory mappings to make per loop
- */
-static int stress_set_mmaphuge_mmaps(const char *opt)
-{
-	size_t mmaphuge_mmaps;
-
-	mmaphuge_mmaps = (size_t)stress_get_uint64(opt);
-	stress_check_range("mmaphuge-mmaps", mmaphuge_mmaps,
-		1, 65536 );
-	return stress_set_setting("mmaphuge-mmaps", TYPE_ID_SIZE_T, &mmaphuge_mmaps);
-}
-
-static int stress_set_mmaphuge_file(const char *opt)
-{
-	return stress_set_setting_true("mmaphuge-file", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmaphuge_file,	stress_set_mmaphuge_file },
-	{ OPT_mmaphuge_mlock,	stress_set_mmaphuge_mlock },
-	{ OPT_mmaphuge_mmaps,	stress_set_mmaphuge_mmaps },
-	{ 0,                    NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mmaphuge_file,  "mmaphuge-file",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmaphuge_mlock, "mmaphuge-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmaphuge_mmaps, "mmaphuge-mmaps", TYPE_ID_SIZE_T, 1, 65536, NULL },
 };
 
 #if defined(MAP_HUGETLB)
@@ -333,7 +308,7 @@ static int stress_mmaphuge(stress_args_t *args)
 stressor_info_t stress_mmaphuge_info = {
 	.stressor = stress_mmaphuge,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -343,7 +318,7 @@ stressor_info_t stress_mmaphuge_info = {
 stressor_info_t stress_mmaphuge_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without mmap() MAP_HUGETLB support"

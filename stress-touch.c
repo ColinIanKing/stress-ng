@@ -107,17 +107,20 @@ static const touch_method_t touch_methods[] = {
 };
 
 /*
- *  stress_set_touch_opts
+ *  stress_touch_opts
  *	parse --touch-opts option(s) list
  */
-static int stress_set_touch_opts(const char *opts)
+static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	char *str, *ptr, *token;
 	int open_flags = 0;
 
-	str = stress_const_optdup(opts);
-	if (!str)
-		return -1;
+	str = stress_const_optdup(opt_arg);
+	if (!str) {
+		(void)fprintf(stderr, "%s option: cannot dup string '%s'\n",
+			opt_name, opt_arg);
+		longjmp(g_error_env, 1);
+	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		size_t i;
@@ -130,48 +133,29 @@ static int stress_set_touch_opts(const char *opts)
 			}
 		}
 		if (!opt_ok) {
-			(void)fprintf(stderr, "touch-opts option '%s' not known, options are:", token);
+			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, token);
 			for (i = 0; i < SIZEOF_ARRAY(touch_opts); i++)
 				(void)fprintf(stderr, "%s %s",
 					i == 0 ? "" : ",", touch_opts[i].opt);
 			(void)fprintf(stderr, "\n");
 			free(str);
-			return -1;
+			longjmp(g_error_env, 1);
 		}
 	}
-
-	stress_set_setting("touch-opts", TYPE_ID_INT, &open_flags);
+	*type_id = TYPE_ID_INT;
+	*(int *)value = open_flags;
 	free(str);
-
-	return 0;
 }
 
-/*
- *  stress_set_touch_method
- *	set method to open the file to touch
- */
-static int stress_set_touch_method(const char *opts)
+static const char *stress_touch_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(touch_methods); i++) {
-		if (!strcmp(opts, touch_methods[i].method)) {
-			stress_set_setting("touch-method", TYPE_ID_INT, &touch_methods[i].method_type);
-			return 0;
-		}
-	}
-	fprintf(stderr, "touch-method '%s' not known, methods are:", opts);
-	for (i = 0; i < SIZEOF_ARRAY(touch_methods); i++)
-			(void)fprintf(stderr, "%s %s",
-				i == 0 ? "" : ",", touch_methods[i].method);
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(touch_methods)) ? touch_methods[i].method : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_touch_opts,	stress_set_touch_opts },
-	{ OPT_touch_method,	stress_set_touch_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_touch_opts,   "touch-opts",   TYPE_ID_CALLBACK, 0, 0, stress_touch_opts },
+	{ OPT_touch_method, "touch-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_touch_method },
+	END_OPT,
 };
 
 static void stress_touch_dir_clean(stress_args_t *args)
@@ -202,7 +186,7 @@ static void stress_touch_dir_clean(stress_args_t *args)
 
 static void stress_touch_loop(
 	stress_args_t *args,
-	const int touch_method,
+	const int touch_method_type,
 	const int open_flags)
 {
 	do {
@@ -221,7 +205,7 @@ static void stress_touch_loop(
 		(void)stress_temp_filename_args(args, filename,
 			sizeof(filename), counter);
 
-		switch (touch_method) {
+		switch (touch_method_type) {
 		default:
 		case TOUCH_RANDOM:
 			if (stress_mwc1())
@@ -303,7 +287,8 @@ static int stress_touch(stress_args_t *args)
 {
 	int ret;
 	int open_flags = 0;
-	int touch_method = TOUCH_RANDOM;
+	size_t touch_method = 0; /* TOUCH_RANDOM */
+	int touch_method_type;
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	size_t i;
 
@@ -323,8 +308,10 @@ static int stress_touch(stress_args_t *args)
 	(void)stress_get_setting("touch-opts", &open_flags);
 	(void)stress_get_setting("touch-method", &touch_method);
 
+	touch_method_type = touch_methods[touch_method].method_type;
+
 	if ((args->instance == 0) &&
-	    (touch_method == TOUCH_CREAT) &&
+	    (touch_method_type == TOUCH_CREAT) &&
 	    (open_flags != 0))
 		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);
 
@@ -343,7 +330,7 @@ static int stress_touch(stress_args_t *args)
 			s_pids[i].pid = getpid();
 			stress_sync_start_wait_s_pid(&s_pids[i]);
 
-			stress_touch_loop(args, touch_method, open_flags);
+			stress_touch_loop(args, touch_method_type, open_flags);
 			_exit(0);
 		} else if (s_pids[i].pid > 0) {
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
@@ -353,7 +340,7 @@ static int stress_touch(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
 
-	stress_touch_loop(args, touch_method, open_flags);
+	stress_touch_loop(args, touch_method_type, open_flags);
 
 	stress_continue_set_flag(false);
 
@@ -371,7 +358,7 @@ static int stress_touch(stress_args_t *args)
 stressor_info_t stress_touch_info = {
 	.stressor = stress_touch,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

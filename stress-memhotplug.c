@@ -43,14 +43,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_memhotplug_mmap(const char *opt)
-{
-	return stress_set_setting_true("memhotplug-mmap", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_memhotplug_mmap,	stress_set_memhotplug_mmap },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_memhotplug_mmap, "memhotplug-mmap", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -367,7 +362,7 @@ finish:
 stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_memhotplug,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_memhotplug_supported,
 	.help = help
 };
@@ -375,7 +370,7 @@ stressor_info_t stress_memhotplug_info = {
 stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

@@ -41,30 +41,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_numa_bytes(const char *opt)
-{
-	size_t numa_bytes;
-
-	numa_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("numa-bytes", numa_bytes,
-		MIN_NUMA_MMAP_BYTES, MAX_NUMA_MMAP_BYTES);
-	return stress_set_setting("numa-bytes", TYPE_ID_SIZE_T, &numa_bytes);
-}
-
-static int stress_set_numa_shuffle_addr(const char *opt)
-{
-	return stress_set_setting_true("numa-shuffle-addr", opt);
-}
-
-static int stress_set_numa_shuffle_node(const char *opt)
-{
-	return stress_set_setting_true("numa-shuffle-node", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_numa_bytes,		stress_set_numa_bytes },
-	{ OPT_numa_shuffle_addr,	stress_set_numa_shuffle_addr },
-	{ OPT_numa_shuffle_node,	stress_set_numa_shuffle_node },
+static const stress_opt_t opts[] = {
+	{ OPT_numa_bytes,        "numa-bytes",        TYPE_ID_SIZE_T_BYTES, MIN_NUMA_MMAP_BYTES, MAX_NUMA_MMAP_BYTES, NULL },
+	{ OPT_numa_shuffle_addr, "numa-shuffle-addr", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_numa_shuffle_node, "numa-shiffle-node", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__NR_get_mempolicy) &&	\
@@ -827,7 +808,7 @@ stressor_info_t stress_numa_info = {
 	.stressor = stress_numa,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -835,7 +816,7 @@ stressor_info_t stress_numa_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without linux/mempolicy.h, get_mempolicy(), mbind(), migrate_pages(), move_pages() or set_mempolicy()"
 };

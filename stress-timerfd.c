@@ -65,43 +65,11 @@ static const stress_help_t help[] = {
 #endif
 #define TIMER_FDS_DEFAULT	STRESS_MINIMUM(1024, TIMER_FDS_MAX)
 
-/*
- *  stress_set_timerfd_fds()
- *	set maximum number of timerfd file descriptors to use
- */
-static int stress_set_timerfd_fds(const char *opt)
-{
-	int timerfd_fds;
-
-	timerfd_fds = (int)stress_get_uint32(opt);
-	stress_check_range("timerfd-fds", (uint64_t)timerfd_fds, 1, TIMER_FDS_MAX);
-	return stress_set_setting("timerfd-fds", TYPE_ID_INT, &timerfd_fds);
-}
-
-/*
- *  stress_set_timerfd_freq()
- *	set timer frequency from given option
- */
-static int stress_set_timerfd_freq(const char *opt)
-{
-	uint64_t timerfd_freq;
-
-	timerfd_freq = stress_get_uint64(opt);
-	stress_check_range("timerfd-freq", timerfd_freq,
-		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
-	return stress_set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
-}
-
-static int stress_set_timerfd_rand(const char *opt)
-{
-	return stress_set_setting_true("timerfd-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_timerfd_fds,	stress_set_timerfd_fds },
-	{ OPT_timerfd_freq,	stress_set_timerfd_freq },
-	{ OPT_timerfd_rand,	stress_set_timerfd_rand },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_timerfd_fds,  "timerfd-fds",  TYPE_ID_INT, 1, TIMER_FDS_MAX, NULL },
+	{ OPT_timerfd_freq, "timerfd-freq", TYPE_ID_UINT64, MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ, NULL },
+	{ OPT_timerfd_rand, "timerfd-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_TIMERFD_H) &&	\
@@ -434,14 +402,14 @@ stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_timerfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/timerfd.h, timerfd_create(), timerfd_settime(), timerfd_setime, select() or poll()"

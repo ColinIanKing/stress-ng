@@ -61,7 +61,7 @@ typedef struct {
 
 static const mask_flag_info_t mask_flag_info[] = {
 	{ CACHE_FLAGS_PREFETCH,		"prefetch" },
-	{ CACHE_FLAGS_CLFLUSH,		"clflush" },
+	{ CACHE_FLAGS_CLFLUSH,		"flush" },
 	{ CACHE_FLAGS_FENCE,		"fence" },
 	{ CACHE_FLAGS_SFENCE,		"sfence" },
 	{ CACHE_FLAGS_CLFLUSHOPT,	"clflushopt" },
@@ -99,96 +99,17 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_cache_set_flag(const uint32_t flag)
-{
-	uint32_t cache_flags = 0;
-
-	(void)stress_get_setting("cache-flags", &cache_flags);
-	cache_flags |= flag;
-	(void)stress_set_setting("cache-flags", TYPE_ID_UINT32, &cache_flags);
-
-	return 0;
-}
-
-static int stress_cache_set_enable_all(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_MASK);
-}
-
-static int stress_cache_set_cldemote(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_CLDEMOTE);
-}
-
-static int stress_cache_set_clflushopt(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_CLFLUSHOPT);
-}
-
-static int stress_cache_set_clwb(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_CLWB);
-}
-
-static int stress_cache_set_fence(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_FENCE);
-}
-
-static int stress_cache_set_flush(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_CLFLUSH);
-}
-
-static int stress_cache_set_noaff(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_NOAFF);
-}
-
-static int stress_cache_set_prefetch(const char *opt)
-{
-	(void)opt;
-
-	return stress_cache_set_flag(CACHE_FLAGS_PREFETCH);
-}
-
-static int stress_cache_set_sfence(const char *opt)
-{
-	(void)opt;
-
-#if defined(HAVE_BUILTIN_SFENCE)
-	return stress_cache_set_flag(CACHE_FLAGS_SFENCE);
-#else
-	pr_inf("sfence not available, ignoring option --cache-sfence\n");
-	return 0;
-#endif
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_cache_cldemote,		stress_cache_set_cldemote },
-	{ OPT_cache_clflushopt,		stress_cache_set_clflushopt },
-	{ OPT_cache_enable_all,		stress_cache_set_enable_all },
-	{ OPT_cache_fence,		stress_cache_set_fence },
-	{ OPT_cache_flush,		stress_cache_set_flush },
-	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
-	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
-	{ OPT_cache_sfence,		stress_cache_set_sfence },
-	{ OPT_cache_clwb,		stress_cache_set_clwb },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_cache_cldemote,    "cache-cldemote",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_clflushopt,  "cache-cflushopt",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_enable_all,  "cache-enable-all",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_fence,       "cache-fence",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_flush,	 "cache-flush",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_no_affinity, "cache-no-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_prefetch,    "cache-prefetch",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_sfence,      "cache-sfence",      TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cache_clwb,        "cache-clb",         TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_BUILTIN_SFENCE)
@@ -754,6 +675,15 @@ static void stress_cache_bzero(uint8_t *buffer, const uint64_t buffer_size)
 #endif
 }
 
+static void stress_get_cache_flags(const char *opt, uint32_t *cache_flags, uint32_t bitmask)
+{
+	bool flag = 0;
+
+	(void)stress_get_setting(opt, &flag);
+	if (flag)
+		*cache_flags |= bitmask;
+}
+
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -815,7 +745,16 @@ static int stress_cache(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)stress_get_setting("cache-flags", &cache_flags);
+	(void)stress_get_cache_flags("cache-cldemote", &cache_flags, CACHE_FLAGS_CLDEMOTE);
+	(void)stress_get_cache_flags("cache-cflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
+	(void)stress_get_cache_flags("cache-enable-all", &cache_flags, CACHE_FLAGS_MASK);
+	(void)stress_get_cache_flags("cache-fence", &cache_flags, CACHE_FLAGS_FENCE);
+	(void)stress_get_cache_flags("cache-flush", &cache_flags, CACHE_FLAGS_CLFLUSH);
+	(void)stress_get_cache_flags("cache-no-affinity", &cache_flags, CACHE_FLAGS_NOAFF);
+	(void)stress_get_cache_flags("cache-prefetch", &cache_flags, CACHE_FLAGS_PREFETCH);
+	(void)stress_get_cache_flags("cache-sfence", &cache_flags, CACHE_FLAGS_SFENCE);
+	(void)stress_get_cache_flags("cache-clb", &cache_flags, CACHE_FLAGS_CLWB);
+
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, buffer_size / 1024);
@@ -1060,6 +999,6 @@ next:
 stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
 	.class = CLASS_CPU_CACHE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

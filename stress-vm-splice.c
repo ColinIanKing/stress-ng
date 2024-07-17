@@ -31,19 +31,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_vm_splice_bytes(const char *opt)
-{
-	size_t vm_splice_bytes;
-
-	vm_splice_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("vm-splice-bytes", vm_splice_bytes,
-		MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT);
-	return stress_set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vm_splice_bytes,	stress_set_vm_splice_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_vm_splice_bytes, "vm-splice-bytes", TYPE_ID_SIZE_T_BYTES, MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_VMSPLICE) &&	\
@@ -208,7 +198,7 @@ static int stress_vm_splice(stress_args_t *args)
 stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_vm_splice,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -216,7 +206,7 @@ stressor_info_t stress_vm_splice_info = {
 stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without vmsplice() or undefined SPLICE_F_MOVE"

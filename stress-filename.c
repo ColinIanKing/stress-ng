@@ -29,7 +29,6 @@
 #define	STRESS_FILENAME_PROBE	(0)	/* Default */
 #define STRESS_FILENAME_POSIX	(1)	/* POSIX 2008.1 */
 #define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
-#define STRESS_FILENAME_UNDEF	(0xff)	/* Undefined */
 
 typedef struct {
 	const uint8_t opt;
@@ -40,7 +39,6 @@ static const stress_filename_opts_t filename_opts[] = {
 	{ STRESS_FILENAME_PROBE,	"probe" },
 	{ STRESS_FILENAME_POSIX,	"posix" },
 	{ STRESS_FILENAME_EXT,		"ext" },
-	{ STRESS_FILENAME_UNDEF,	NULL }
 };
 
 static const stress_help_t help[] = {
@@ -61,25 +59,6 @@ static const char posix_allowed[] =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"abcdefghijklmnopqrstuvwxyz"
 	"0123456789._-";
-
-static int stress_set_filename_opts(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; filename_opts[i].opt_text; i++) {
-		if (!strcmp(opt, filename_opts[i].opt_text)) {
-			uint8_t filename_opt = filename_opts[i].opt;
-			stress_set_setting("filename-opts", TYPE_ID_UINT8, &filename_opt);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "filename-opts option '%s' not known, options are:", opt);
-	for (i = 0; filename_opts[i].opt_text; i++)
-		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", filename_opts[i].opt_text);
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
 
 /*
  *  stress_filename_probe_length()
@@ -581,15 +560,20 @@ tidy_dir:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_filename_opts,	stress_set_filename_opts },
-	{ 0,			NULL }
+static const char *stress_filename_opts(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(filename_opts)) ? filename_opts[i].opt_text : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_filename_opts, "filename-opts", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_filename_opts },
+	END_OPT,
 };
 
 stressor_info_t stress_filename_info = {
 	.stressor = stress_filename,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

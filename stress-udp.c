@@ -74,44 +74,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_udp_port(const char *opt)
-{
-	int udp_port;
-
-	stress_set_net_port("udp-port", opt,
-		MIN_UDP_PORT, MAX_UDP_PORT, &udp_port);
-	return stress_set_setting("udp-port", TYPE_ID_INT, &udp_port);
-}
-
-/*
- *  stress_set_udp_domain()
- *	set the udp domain option
- */
-static int stress_set_udp_domain(const char *name)
-{
-	int ret, udp_domain;
-
-	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "udp-domain", name, &udp_domain);
-	stress_set_setting("udp-domain", TYPE_ID_INT, &udp_domain);
-
-	return ret;
-}
-
-static int stress_set_udp_lite(const char *opt)
-{
-	return stress_set_setting_true("udp-lite", opt);
-}
-
-static int stress_set_udp_gro(const char *opt)
-{
-	return stress_set_setting_true("udp-gro", opt);
-}
-
-static int stress_set_udp_if(const char *name)
-{
-	return stress_set_setting("udp-if", TYPE_ID_STR, name);
-}
-
 static int OPTIMIZE3 stress_udp_client(
 	stress_args_t *args,
 	const pid_t mypid,
@@ -534,19 +496,21 @@ again:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_udp_domain,	stress_set_udp_domain },
-	{ OPT_udp_port,		stress_set_udp_port },
-	{ OPT_udp_lite,		stress_set_udp_lite },
-	{ OPT_udp_gro,		stress_set_udp_gro },
-	{ OPT_udp_if,		stress_set_udp_if },
-	{ 0,			NULL }
+static int udp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
+
+static const stress_opt_t opts[] = {
+	{ OPT_udp_domain, "udp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
+	{ OPT_udp_port,   "udp-port",   TYPE_ID_INT_PORT, MIN_UDP_PORT, MAX_UDP_PORT, NULL },
+	{ OPT_udp_lite,   "udp-lite",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_udp_gro,    "upd-gro",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_udp_if,     "udp-if",     TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_udp_info = {
 	.stressor = stress_udp,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

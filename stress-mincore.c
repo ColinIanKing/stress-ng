@@ -26,14 +26,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static int stress_set_mincore_rand(const char *opt)
-{
-	return stress_set_setting_true("mincore-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mincore_rand,     stress_set_mincore_rand },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mincore_rand, "mincore-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MINCORE) &&	\
@@ -306,7 +301,7 @@ err:
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -314,7 +309,7 @@ stressor_info_t stress_mincore_info = {
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without mincore() system call support"

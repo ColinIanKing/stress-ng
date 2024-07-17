@@ -41,36 +41,20 @@ static const stress_ioport_opts_t ioport_opts[] = {
 };
 
 static const stress_help_t help[] = {
-	{ NULL,	"ioport N",	"start N workers exercising port I/O" },
-	{ NULL,	"ioport-ops N",	"stop ioport workers after N port bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"ioport N",      "start N workers exercising port I/O" },
+	{ NULL,	"ioport-ops N",  "stop ioport workers after N port bogo operations" },
+	{ NULL, "ioport-opts O", "option to select ioport access [ in | out | inout ]" },
+	{ NULL,	NULL,		 NULL }
 };
 
-static int stress_set_ioport_opts(const char *opts)
+static const char *stress_ioport_opts(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(ioport_opts); i++) {
-		if (!strcmp(opts, ioport_opts[i].opt)) {
-			uint32_t flag = ioport_opts[i].flag;
-
-			stress_set_setting("ioport-opts", TYPE_ID_UINT32, &flag);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "ioport-opt option '%s' not known, options are:", opts);
-	for (i = 0; i < SIZEOF_ARRAY(ioport_opts); i++) {
-		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", ioport_opts[i].opt);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(ioport_opts)) ? ioport_opts[i].opt : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_ioport_opts,	stress_set_ioport_opts },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_ioport_opts, "ioport-opts", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_ioport_opts },
+	END_OPT,
 };
 
 #if defined(STRESS_ARCH_X86) && 	\
@@ -127,6 +111,7 @@ static int stress_ioport_ioperm(
 static int stress_ioport(stress_args_t *args)
 {
 	int ret, fd, rc = EXIT_SUCCESS;
+	size_t ioport_opt = 2;
 	uint32_t flag = 0;
 	unsigned char v;
 	double duration_in = 0.0, count_in = 0.0;
@@ -134,7 +119,8 @@ static int stress_ioport(stress_args_t *args)
 	double rate;
 	char msg[40];
 
-	(void)stress_get_setting("ioport-opts", &flag);
+	(void)stress_get_setting("ioport-opts", &ioport_opt);
+	flag = ioport_opts[ioport_opt].flag;
 	if (!flag)
 		flag = IOPORT_OPT_IN | IOPORT_OPT_OUT;
 
@@ -330,7 +316,7 @@ stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -338,7 +324,7 @@ stressor_info_t stress_ioport_info = {
 stressor_info_t stress_ioport_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "not x86 CPU and/or not built with ioport() support"

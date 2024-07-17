@@ -77,33 +77,14 @@ static const stress_race_sched_method_t stress_race_sched_methods[] = {
 	{ "syncprev",	RACE_SCHED_METHOD_SYNCPREV },
 };
 
-/*
- *  stress_set_race_sched_method()
- *	set the default race sched method
- */
-static int stress_set_race_sched_method(const char *name)
+static const char *stress_race_sched_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_race_sched_methods); i++) {
-		if (!strcmp(stress_race_sched_methods[i].name, name)) {
-			stress_set_setting("race-sched-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "race-sched-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_race_sched_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_race_sched_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_race_sched_methods)) ? stress_race_sched_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_race_sched_method,	stress_set_race_sched_method },
-	{ 0,				NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_race_sched_method, "race-sched-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_race_sched_method },
+	END_OPT,
 };
 
 #if defined(HAVE_SCHEDULING) &&		\
@@ -125,8 +106,7 @@ static const int normal_policies[] = {
 #endif
 };
 
-
-static int stress_race_sched_method(const int cpu, const int max_cpus, size_t method_index)
+static int stress_call_race_sched_method(const int cpu, const int max_cpus, size_t method_index)
 {
 
 	static size_t method_all_index = 1;
@@ -226,7 +206,7 @@ static int stress_race_sched_exercise(
 	for (i = 0; stress_continue_flag() && (i < 20); i++)  {
 		for (child = children.head; child; child = child->next) {
 			if (stress_mwc1()) {
-				const int cpu = stress_race_sched_method(child->cpu, cpus, method_index);
+				const int cpu = stress_call_race_sched_method(child->cpu, cpus, method_index);
 
 				child->cpu = cpu;
 				if (stress_race_sched_setaffinity(args, child->pid, cpu) < 0)
@@ -337,7 +317,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 					   stress_low_memory((size_t)(1 * MB)));
 		const uint8_t rnd = stress_mwc8();
 
-		cpu = stress_race_sched_method(cpu, cpus, method_index);
+		cpu = stress_call_race_sched_method(cpu, cpus, method_index);
 		if (stress_race_sched_setaffinity(args, mypid, cpu) < 0) {
 			rc = EXIT_FAILURE;
 			break;
@@ -454,7 +434,7 @@ static int stress_race_sched(stress_args_t *args)
 stressor_info_t stress_race_sched_info = {
 	.stressor = stress_race_sched,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -464,7 +444,7 @@ stressor_info_t stress_race_sched_info = {
 stressor_info_t stress_race_sched_info = {
         .stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without Linux scheduling or sched_setscheduler() system call"

@@ -34,14 +34,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static int stress_set_physpage_mtrr(const char *opt)
-{
-	return stress_set_setting_true("physpage-mtrr", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_physpage_mtrr,	stress_set_physpage_mtrr },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_physpage_mtrr, "physpage-mtrr", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -321,7 +316,7 @@ static int stress_physpage(stress_args_t *args)
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -329,7 +324,7 @@ stressor_info_t stress_physpage_info = {
 #else
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_unimplemented,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_VM,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

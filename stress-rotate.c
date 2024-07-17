@@ -186,30 +186,6 @@ static double stress_rotate_all(stress_args_t *args, const bool verify, bool *su
 	return 0.0;
 }
 
-/*
- *  stress_set_rotate_method()
- *	set the default vector floating point stress method
- */
-static int stress_set_rotate_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
-		if (!strcmp(stress_rotate_funcs[i].name, name)) {
-			stress_set_setting("rotate-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "rotate-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_rotate_funcs); i++) {
-		(void)fprintf(stderr, " %s", stress_rotate_funcs[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static int stress_rotate(stress_args_t *args)
 {
 	size_t rotate_method = 0;	/* "all" */
@@ -248,14 +224,20 @@ static int stress_rotate(stress_args_t *args)
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_rotate_method,	stress_set_rotate_method },
+static const char *stress_rotate_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_rotate_funcs)) ? stress_rotate_funcs[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+        { OPT_rotate_method, "rotate-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_rotate_method },
+	END_OPT,
 };
 
 stressor_info_t stress_rotate_info = {
 	.stressor = stress_rotate,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

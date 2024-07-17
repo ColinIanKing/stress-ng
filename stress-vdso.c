@@ -38,18 +38,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-/*
- *  stress_set_vdso_func()
- *      set the default vdso function
- */
-static int stress_set_vdso_func(const char *name)
-{
-	return stress_set_setting("vdso-func", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vdso_func,	stress_set_vdso_func },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_vdso_func, "vdso-func", TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_AUXV_H) && \
@@ -567,14 +558,14 @@ stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
 	.supported = stress_vdso_supported,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_vdso_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without sys/auxv.h, link.h, getauxval() or AT_SYSINFO_EHDR defined"
 };

@@ -158,25 +158,6 @@ static const stress_radixsort_method_t stress_radixsort_methods[] = {
 	{ "radixsort-nonlibc",	radixsort_nonlibc },
 };
 
-static int stress_set_radixsort_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_radixsort_methods); i++) {
-		if (strcmp(opt, stress_radixsort_methods[i].name) == 0) {
-			stress_set_setting("radixsort-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "radixsort-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_radixsort_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_radixsort_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
 /*
  *  stress_radixsort_handler()
  *	SIGALRM generic handler
@@ -191,24 +172,15 @@ static void MLOCKED_TEXT stress_radixsort_handler(int signum)
 	}
 }
 
-/*
- *  stress_set_radixsort_size()
- *	set radixsort size
- */
-static int stress_set_radixsort_size(const char *opt)
+static const char *stress_radixsort_method(const size_t i)
 {
-	uint64_t radixsort_size;
-
-	radixsort_size = stress_get_uint64(opt);
-	stress_check_range("radixsort-size", radixsort_size,
-		MIN_RADIXSORT_SIZE, MAX_RADIXSORT_SIZE);
-	return stress_set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
+	return (i < SIZEOF_ARRAY(stress_radixsort_methods)) ? stress_radixsort_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_radixsort_method,	stress_set_radixsort_method },
-	{ OPT_radixsort_size,	stress_set_radixsort_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_radixsort_method,	"radixsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_radixsort_method },
+	{ OPT_radixsort_size,	"radixsort-size",   TYPE_ID_UINT64, MIN_RADIXSORT_SIZE, MAX_RADIXSORT_SIZE, NULL },
+	END_OPT,
 };
 
 /*
@@ -339,7 +311,7 @@ tidy:
 stressor_info_t stress_radixsort_info = {
 	.stressor = stress_radixsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -31,6 +31,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
+static const stress_opt_t opts[] = {
+	{ OPT_mmapfork_bytes, "mmapfork-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MMAPFORK_BYTES, MAX_MMAPFORK_BYTES, NULL },
+	END_OPT,
+};
+
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 
@@ -70,16 +75,6 @@ static void notrunc_strlcat(char *dst, const char *src, size_t *n)
 
 	(void)shim_strlcat(dst, src, *n);
 	*n -= ln;
-}
-
-static int stress_set_mmapfork_bytes(const char *opt)
-{
-	size_t mmapfork_bytes;
-
-	mmapfork_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("mmapfork-bytes", mmapfork_bytes,
-		MIN_MMAPFORK_BYTES, MAX_MMAPFORK_BYTES);
-	return stress_set_setting("mmapfork-bytes", TYPE_ID_SIZE_T, &mmapfork_bytes);
 }
 
 /*
@@ -287,15 +282,11 @@ reap:
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmapfork_bytes,	stress_set_mmapfork_bytes },
-	{ 0,			NULL }
-};
 
 stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_mmapfork,
 	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -304,6 +295,7 @@ stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without sys/sysinfo_h or sysinfo() system call"
 };

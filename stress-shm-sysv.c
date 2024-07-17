@@ -127,36 +127,11 @@ static const int shm_flags[] = {
 };
 #endif
 
-static int stress_set_shm_sysv_mlock(const char *opt)
-{
-	return stress_set_setting_true("shm-sysv-mlock", opt);
-}
-
-static int stress_set_shm_sysv_bytes(const char *opt)
-{
-	size_t shm_sysv_bytes;
-
-	shm_sysv_bytes = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range_bytes("shm-sysv-bytes", shm_sysv_bytes,
-		MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT);
-	return stress_set_setting("shm-sysv-bytes", TYPE_ID_SIZE_T, &shm_sysv_bytes);
-}
-
-static int stress_set_shm_sysv_segments(const char *opt)
-{
-	size_t shm_sysv_segments;
-
-	shm_sysv_segments = (size_t)stress_get_uint64(opt);
-	stress_check_range("shm-sysv-segs", shm_sysv_segments,
-		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
-	return stress_set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_shm_sysv_bytes,		stress_set_shm_sysv_bytes },
-	{ OPT_shm_sysv_mlock,		stress_set_shm_sysv_mlock },
-	{ OPT_shm_sysv_segments,	stress_set_shm_sysv_segments },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_shm_sysv_bytes, "shm-sysv-bytes", TYPE_ID_SIZE_T_BYTES, MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_shm_sysv_mlock, "shm-sysv-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_shm_sysv_segs,  "shm-sysv-segs",  TYPE_ID_SIZE_T, MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SHM_SYSV)
@@ -1110,7 +1085,7 @@ fork_again:
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -1118,7 +1093,7 @@ stressor_info_t stress_shm_sysv_info = {
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without System V shared memory shmat() shmdt() system calls"

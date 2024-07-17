@@ -1314,59 +1314,7 @@ static void stress_zlib_random_test(
 }
 
 /*
- *  stress_set_zlib_level
- *	set zlib compression level, 0..9,
- *	0 = no compression, 1 = fastest, 9 = best compression
- */
-static int stress_set_zlib_level(const char *opt)
-{
-	uint32_t zlib_level;
-
-	zlib_level = stress_get_uint32(opt);
-	stress_check_range("zlib-level", (uint64_t)zlib_level, 0, Z_BEST_COMPRESSION);
-	return stress_set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
-}
-
-/*
- *  stress_set_zlib_mem_level
- *	set the amount of reserved memory for the compression state, 1..9,
- *	1 = minimum, 9 = maximum
- */
-static int stress_set_zlib_mem_level(const char *opt)
-{
-	uint32_t zlib_mem_level;
-
-	zlib_mem_level = stress_get_uint32(opt);
-	stress_check_range("zlib-mem-level", (uint64_t)zlib_mem_level, 1, 9);
-	return stress_set_setting("zlib-mem-level", TYPE_ID_UINT32, &zlib_mem_level);
-}
-
-/*
- *  stress_set_zlib_method()
- *	set the default zlib random data method
- */
-static int stress_set_zlib_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(zlib_rand_data_methods); i++) {
-		if (!strcmp(zlib_rand_data_methods[i].name, opt)) {
-			stress_set_setting("zlib-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "zlib-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(zlib_rand_data_methods); i++) {
-		(void)fprintf(stderr, " %s", zlib_rand_data_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-/*
- *  stress_set_zlib_window_bits
+ *  stress_zlib_window_bits
  *	specify the window bits used to allocate the history buffer size. The value is
  * 	specified as the base two logarithm of the buffer size (e.g. value 9 is 2^9 =
  * 	512 bytes).
@@ -1376,60 +1324,39 @@ static int stress_set_zlib_method(const char *opt)
  * 	  40-47: autodetect format when using inflate (zlib format +32)
  *	         hint: stress-ng uses zlib format as default for deflate
  */
-static int stress_set_zlib_window_bits(const char *opt)
+static void stress_zlib_window_bits(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	int32_t zlib_window_bits;
+	int32_t *zlib_window_bits = (int32_t *)value;
 
-	zlib_window_bits = stress_get_int32(opt);
-	if (zlib_window_bits > 31) {
+	*zlib_window_bits = stress_get_int32(opt_arg);
+	if (*zlib_window_bits > 31) {
 		/* auto detect inflate format */
-		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, 40, 47);
-	} else if (zlib_window_bits > 15) {
+		stress_check_range(opt_name, (uint64_t)*zlib_window_bits, 40, 47);
+	} else if (*zlib_window_bits > 15) {
 		/* gzip format */
-		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, 24, 31);
-	} else if (zlib_window_bits > 0) {
+		stress_check_range(opt_name, (uint64_t)*zlib_window_bits, 24, 31);
+	} else if (*zlib_window_bits > 0) {
 		/* zlib format */
-		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, 8, 15);
+		stress_check_range(opt_name, (uint64_t)*zlib_window_bits, 8, 15);
 	} else {
-		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, -15, -8);
+		stress_check_range(opt_name, (uint64_t)*zlib_window_bits, -15, -8);
 	}
-	return stress_set_setting("zlib-window-bits", TYPE_ID_INT32, &zlib_window_bits);
+	*type_id = TYPE_ID_INT32;
 }
 
-/*
- *  stress_set_zlib_stream_bytes
- *	create chunks instead of an endless deflate stream
- */
-static int stress_set_zlib_stream_bytes(const char *opt)
+static const char *stress_zlib_method(const size_t i)
 {
-	uint64_t zlib_stream_bytes;
-
-	zlib_stream_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("zlib-stream-bytes", zlib_stream_bytes, 0, MAX_MEM_LIMIT);
-	return stress_set_setting("zlib-stream-bytes", TYPE_ID_UINT64, &zlib_stream_bytes);
+	return (i < SIZEOF_ARRAY(zlib_rand_data_methods)) ? zlib_rand_data_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_zlib_strategy
- *	set the zlib compression strategy to be used for compression
- */
-static int stress_set_zlib_strategy(const char *opt)
-{
-	uint32_t zlib_strategy;
-
-	zlib_strategy = stress_get_uint32(opt);
-	stress_check_range("zlib-strategy", (uint64_t)zlib_strategy, Z_DEFAULT_STRATEGY, Z_FIXED);
-	return stress_set_setting("zlib-strategy", TYPE_ID_UINT32, &zlib_strategy);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_zlib_level,		stress_set_zlib_level },
-	{ OPT_zlib_mem_level,		stress_set_zlib_mem_level },
-	{ OPT_zlib_method,		stress_set_zlib_method },
-	{ OPT_zlib_window_bits,		stress_set_zlib_window_bits },
-	{ OPT_zlib_stream_bytes,	stress_set_zlib_stream_bytes },
-	{ OPT_zlib_strategy,		stress_set_zlib_strategy },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_zlib_level,        "zlib-level",        TYPE_ID_UINT32, 0, Z_BEST_COMPRESSION, NULL },
+	{ OPT_zlib_mem_level,    "zlib-mem-level",    TYPE_ID_UINT32, 1, 9, NULL },
+	{ OPT_zlib_method,       "zlib-method",       TYPE_ID_SIZE_T_METHOD, 0, 0, stress_zlib_method },
+	{ OPT_zlib_window_bits,  "zlib-window-bits",  TYPE_ID_CALLBACK, 0, 0, stress_zlib_window_bits },
+	{ OPT_zlib_stream_bytes, "zlib-stream-bytes", TYPE_ID_UINT64_BYTES, 0, MAX_MEM_LIMIT, NULL },
+	{ OPT_zlib_strategy,     "zlib-stategy",      TYPE_ID_UINT32, Z_DEFAULT_STRATEGY, Z_FIXED, NULL },
+	END_OPT,
 };
 
 /*
@@ -1466,6 +1393,13 @@ static const char *stress_zlib_err(const int zlib_err)
  *	get all zlib arguments at once
  */
 static void stress_zlib_get_args(stress_zlib_args_t *params) {
+	params->level = Z_BEST_COMPRESSION;
+	params->mem_level = 8;
+	params->method = 0;
+	params->window_bits = 15;
+	params->stream_bytes = 0;
+	params->strategy = Z_DEFAULT_STRATEGY;
+
 	(void)stress_get_setting("zlib-level", &params->level);
 	(void)stress_get_setting("zlib-mem-level", &params->mem_level);
 	(void)stress_get_setting("zlib-method", &params->method);
@@ -1910,25 +1844,10 @@ again:
 	return ret;
 }
 
-static void stress_zlib_set_default(void)
-{
-	char value[21];
-
-	(void)snprintf(value, 21, "%d", Z_BEST_COMPRESSION);
-	stress_set_zlib_level(value);
-	stress_set_zlib_mem_level("8");
-	stress_set_zlib_method("random");
-	stress_set_zlib_window_bits("15");
-	stress_set_zlib_stream_bytes("0");
-	(void)snprintf(value, 21, "%d", Z_DEFAULT_STRATEGY);
-	stress_set_zlib_strategy(value);
-}
-
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
-	.set_default = stress_zlib_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

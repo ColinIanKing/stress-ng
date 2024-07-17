@@ -558,6 +558,11 @@ static const stress_cacheline_method_t cacheline_methods[] = {
 	{ "rdwr",	stress_cacheline_rdwr },
 };
 
+static const char *stress_cacheline_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(cacheline_methods)) ? cacheline_methods[i].name : NULL;
+}
+
 static int stress_cacheline_all(
 	stress_args_t *args,
 	const int idx,
@@ -575,35 +580,6 @@ static int stress_cacheline_all(
 			return rc;
 	}
 	return EXIT_SUCCESS;
-}
-
-static int stress_set_cacheline_affinity(const char *opt)
-{
-	return stress_set_setting_true("cacheline-affinity", opt);
-}
-
-/*
- *  stress_set_cacheline_method()
- *	set the default cacheline stress method
- */
-static int stress_set_cacheline_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(cacheline_methods); i++) {
-		if (!strcmp(cacheline_methods[i].name, name)) {
-			stress_set_setting("cacheline-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "cacheline-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(cacheline_methods); i++) {
-		(void)fprintf(stderr, " %s", cacheline_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
@@ -770,17 +746,17 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_cacheline_affinity,	stress_set_cacheline_affinity },
-	{ OPT_cacheline_method,		stress_set_cacheline_method },
-	{ 0,				NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_cacheline_affinity, "cacheline-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_cacheline_method,   "cacheline-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cacheline_method },
+	END_OPT,
 };
 
 stressor_info_t stress_cacheline_info = {
 	.stressor = stress_cacheline,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.init = stress_cacheline_init,
 	.deinit = stress_cacheline_deinit,
 	.help = help

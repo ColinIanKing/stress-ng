@@ -29,8 +29,8 @@
 #define BUFFER_SZ		(16)
 
 static const stress_help_t help[] = {
-	{ NULL,	"aio N",	"start N workers that issue async I/O requests" },
-	{ NULL,	"aio-ops N",	"stop after N bogo async I/O requests" },
+	{ NULL,	"aio N",	  "start N workers that issue async I/O requests" },
+	{ NULL,	"aio-ops N",	  "stop after N bogo async I/O requests" },
 	{ NULL, "aio-requests N", "number of async I/O requests per worker" },
 	{ NULL,	NULL,		NULL }
 };
@@ -53,19 +53,9 @@ typedef struct {
 static volatile bool do_accounting = true;
 #endif
 
-static int stress_set_aio_requests(const char *opt)
-{
-	uint32_t aio_requests;
-
-	aio_requests = stress_get_uint32(opt);
-	stress_check_range("aio-requests", (uint64_t)aio_requests,
-		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
-	return stress_set_setting("aio-requests", TYPE_ID_UINT32, &aio_requests);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_aio_requests,	stress_set_aio_requests },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_aio_requests, "aio-requests", TYPE_ID_UINT32, MIN_AIO_REQUESTS, MAX_AIO_REQUESTS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_RT) &&	\
@@ -382,7 +372,7 @@ finish:
 stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -390,7 +380,7 @@ stressor_info_t stress_aio_info = {
 stressor_info_t stress_aio_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without aio.h"

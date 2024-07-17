@@ -480,21 +480,9 @@ static const stress_logmath_method_t stress_logmath_methods[] = {
 
 stress_metrics_t stress_logmath_metrics[SIZEOF_ARRAY(stress_logmath_methods)];
 
-static int stress_set_logmath_method(const char *opt)
+static const char *stress_logmath_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_logmath_methods); i++) {
-		if (strcmp(opt, stress_logmath_methods[i].name) == 0)
-			return stress_set_setting("logmath-method", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "logmath-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_logmath_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_logmath_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_logmath_methods)) ? stress_logmath_methods[i].name : NULL;
 }
 
 static bool stress_logmath_exercise(stress_args_t *args, const size_t idx)
@@ -568,38 +556,37 @@ static int stress_logmath(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_logmath_method,	stress_set_logmath_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_logmath_method, "logmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_logmath_method },
+	END_OPT,
 };
 
 stressor_info_t stress_logmath_info = {
 	.stressor = stress_logmath,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
 #else
 
-static int stress_set_logmath_method(const char *opt)
+static void stress_logmath_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)opt;
-
-	(void)fprintf(stderr, "logmath-method is not implemented\n");
-	return -1;
+	*type_id = TYPE_ID_SIZE_T;
+	(size_t *)value = 0;
+	(void)fprintf(stderr, "logmath stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_logmath_method,	stress_set_logmath_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_logmath_method, "logmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_logmath_method },
+	END_OPT,
 };
 
 stressor_info_t stress_logmath_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -613,6 +613,8 @@ static stress_hash_method_info_t hash_methods[] = {
 #endif
 };
 
+#define NUM_HASH_METHODS 	(SIZEOF_ARRAY(hash_methods))
+
 /*
  *  stress_hash_all()
  *	iterate over all hash stressor methods
@@ -630,36 +632,12 @@ static OPTIMIZE3 int stress_hash_all(
 
 	rc = h->func(name, h, bucket);
 	i++;
-	if (i >= SIZEOF_ARRAY(hash_methods))
+	if (i >= NUM_HASH_METHODS)
 		i = 1;
 	return rc;
 }
 
-static stress_hash_stats_t hash_stats[SIZEOF_ARRAY(hash_methods)];
-
-/*
- *  stress_set_hash_method()
- *	set the default hash stress method
- */
-static int stress_set_hash_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(hash_methods); i++) {
-		if (!strcmp(hash_methods[i].name, name)) {
-			stress_set_setting("hash-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "hash-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(hash_methods); i++) {
-		(void)fprintf(stderr, " %s", hash_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
+static stress_hash_stats_t hash_stats[NUM_HASH_METHODS];
 
 /*
  *  stress_hash()
@@ -695,7 +673,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 	(void)stress_get_setting("hash-method", &hash_method);
 	hm = &hash_methods[hash_method];
 
-	for (i = 0; i < SIZEOF_ARRAY(hash_methods); i++) {
+	for (i = 0; i < NUM_HASH_METHODS; i++) {
 		hash_stats[i].duration = 0.0;
 		hash_stats[i].total = false;
 		hash_stats[i].chi_squared = 0.0;
@@ -720,7 +698,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 		pr_block_begin();
 		pr_inf("%s: %12.12s %15s %10s\n",
 			args->name, "hash", "hashes/sec", "chi squared");
-		for (i = 1; i < SIZEOF_ARRAY(hash_methods); i++) {
+		for (i = 1; i < NUM_HASH_METHODS; i++) {
 			const stress_hash_stats_t *stats = hash_methods[i].stats;
 
 			if ((stats->duration > 0.0) && (stats->total > 0)) {
@@ -742,21 +720,20 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 	return rc;
 }
 
-static void stress_hash_set_default(void)
+static const char *stress_hash_method(const size_t i)
 {
-	stress_set_hash_method("all");
+	return (i < NUM_HASH_METHODS) ? hash_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_hash_method,	stress_set_hash_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_hash_method, "hash-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_hash_method },
+	END_OPT,
 };
 
 stressor_info_t stress_hash_info = {
 	.stressor = stress_hash,
-	.set_default = stress_hash_set_default,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

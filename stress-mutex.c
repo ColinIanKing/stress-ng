@@ -36,25 +36,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_mutex_affinity(const char *opt)
-{
-	return stress_set_setting_true("mutex-affinity", opt);
-}
-
-static int stress_set_mutex_procs(const char *opt)
-{
-	uint64_t mutex_procs;
-
-	mutex_procs = stress_get_uint64(opt);
-	stress_check_range("mutex-procs", mutex_procs,
-		MIN_MUTEX_PROCS, MAX_MUTEX_PROCS);
-	return stress_set_setting("mutex-procs", TYPE_ID_UINT64, &mutex_procs);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mutex_affinity,	stress_set_mutex_affinity },
-	{ OPT_mutex_procs,	stress_set_mutex_procs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mutex_affinity, "mutex-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mutex_procs,    "mutex-procs",    TYPE_ID_UINT64, MIN_MUTEX_PROCS, MAX_MUTEX_PROCS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
@@ -282,14 +267,14 @@ stressor_info_t stress_mutex_info = {
 	.stressor = stress_mutex,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_mutex_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt, pthread_np.h, pthread or SCHED_FIFO support"

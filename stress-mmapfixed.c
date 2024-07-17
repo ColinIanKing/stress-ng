@@ -30,11 +30,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_mmapfixed_mlock(const char *opt)
-{
-	return stress_set_setting_true("mmapfixed-mlock", opt);
-}
-
 #if UINTPTR_MAX == MAX_32
 #define MMAP_TOP	(0x80000000UL)
 #else
@@ -253,15 +248,15 @@ static int stress_mmapfixed(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmapfixed_mlock,	stress_set_mmapfixed_mlock },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_mmapfixed_mlock, "mmapfixed-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_mmapfixed_info = {
 	.stressor = stress_mmapfixed,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -45,46 +45,6 @@ typedef struct stress_randlist_item {
 	uint8_t data[];
 } stress_randlist_item_t;
 
-/*
- *  stress_set_randlist_compact()
- *      set randlist compact mode setting
- */
-static int stress_set_randlist_compact(const char *opt)
-{
-	return stress_set_setting_true("randlist-compact", opt);
-}
-
-/*
- *  stress_set_randlist_items()
- *      set randlist number of items from given option string
- */
-static int stress_set_randlist_items(const char *opt)
-{
-	uint32_t items;
-	size_t randlist_items;
-
-	items = stress_get_uint32(opt);
-	stress_check_range("randlist-size", (uint64_t)items, 1, 0xffffffff);
-	randlist_items = (size_t)items;
-	return stress_set_setting("randlist-items", TYPE_ID_SIZE_T, &randlist_items);
-}
-
-/*
- *  stress_set_randlist_size()
- *      set randlist size from given option string
- */
-static int stress_set_randlist_size(const char *opt)
-{
-	uint64_t size;
-	size_t randlist_size;
-
-	size = stress_get_uint64_byte(opt);
-	stress_check_range("randlist-size", size, 1, STRESS_RANDLIST_MAX_SIZE);
-
-	randlist_size = (size_t)size;
-	return stress_set_setting("randlist-size", TYPE_ID_SIZE_T, &randlist_size);
-}
-
 static void stress_randlist_free_item(stress_randlist_item_t **item, const size_t randlist_size)
 {
 	if (!*item)
@@ -313,17 +273,17 @@ retry:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_randlist_compact,	stress_set_randlist_compact },
-	{ OPT_randlist_items,	stress_set_randlist_items },
-	{ OPT_randlist_size,	stress_set_randlist_size },
-	{ 0,                    NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_randlist_compact,	"randlist-compact", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_randlist_items,	"randlist-items",   TYPE_ID_SIZE_T, 1, 0xffffffffULL, NULL },
+	{ OPT_randlist_size,	"randlist-size",    TYPE_ID_SIZE_T, 1, STRESS_RANDLIST_MAX_SIZE, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_randlist_info = {
 	.stressor = stress_randlist,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

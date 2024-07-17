@@ -145,83 +145,25 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
 	{ NULL,	"exec-no-pthread",	"do not use pthread_create" },
 	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
-	{ NULL,	NULL,			NULL }
+	{ NULL,	NULL,			NULL },
 };
 
-/*
- *  stress_set_exec_max()
- *	set maximum number of forks allowed
- */
-static int stress_set_exec_max(const char *opt)
+static const char *stress_exec_method(const size_t i)
 {
-	uint32_t exec_max;
-
-	exec_max = stress_get_uint32(opt);
-	stress_check_range("exec-max", (uint64_t)exec_max, MIN_EXECS, MAX_EXECS);
-	return stress_set_setting("exec-max", TYPE_ID_INT32, &exec_max);
+	return (i < SIZEOF_ARRAY(stress_exec_methods)) ? stress_exec_methods[i].name : NULL;
 }
 
-/*
- * stress_search_exec_method
- * 	search the given option in the given array and if found set the
- * 	corresponding option.
- */
-static int stress_search_exec_method(
-	const char *name,
-	const stress_exec_method_t *methods,
-	const size_t n,
-	const char *opt)
+static const char *stress_exec_fork_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < n; i++) {
-		if (!strcmp(opt, methods[i].name))
-			return stress_set_setting(name, TYPE_ID_INT, &methods[i].method);
-	}
-
-	(void)fprintf(stderr, "%s must be one of:", name);
-	for (i = 0; i < n; i++) {
-		(void)fprintf(stderr, " %s", methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_exec_fork_methods)) ? stress_exec_fork_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_exec_method()
- *	set exec call method
- */
-static int stress_set_exec_method(const char *opt)
-{
-	return stress_search_exec_method("exec-method", stress_exec_methods,
-					SIZEOF_ARRAY(stress_exec_methods), opt);
-}
-
-/*
- *  stress_set_exec_method()
- *	set exec call method
- */
-static int stress_set_exec_fork_method(const char *opt)
-{
-	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods,
-					SIZEOF_ARRAY(stress_exec_fork_methods), opt);
-}
-
-/*
- *  stress_set_exec_no_pthread()
- *	set no pthread flag
- */
-static int stress_set_exec_no_pthread(const char *opt)
-{
-	return stress_set_setting_true("exec-no-pthread", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_exec_max,		stress_set_exec_max },
-	{ OPT_exec_method,	stress_set_exec_method },
-	{ OPT_exec_fork_method,	stress_set_exec_fork_method },
-	{ OPT_exec_no_pthread,	stress_set_exec_no_pthread },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_exec_max,		"exec-max",         TYPE_ID_INT32, MIN_EXECS, MAX_EXECS, NULL },
+	{ OPT_exec_method,	"exec-method",	    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_exec_method },
+	{ OPT_exec_fork_method,	"exec-fork-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_exec_fork_method },
+	{ OPT_exec_no_pthread,	"exec-no-pthread",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 /*
@@ -386,7 +328,7 @@ static int stress_exec_supported(const char *name)
  *	perform one of the various execs depending on how
  *	ea->exec_method is set.
  */
-static int stress_exec_method(const stress_exec_context_t *context)
+static int stress_call_exec_method(const stress_exec_context_t *context)
 {
 	int ret;
 
@@ -425,7 +367,7 @@ static void *stress_exec_from_pthread(void *arg)
 
 	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-exec", context->args->name);
 	stress_set_proc_name(buffer);
-	ret = stress_exec_method(context);
+	ret = stress_call_exec_method(context);
 	pthread_exit((void *)&ret);
 
 	return NULL;
@@ -486,7 +428,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 	 *  pthread failure or 75% of the execs just fall back to
 	 *  the normal non-pthread exec
 	 */
-	ret = stress_exec_method(context);
+	ret = stress_call_exec_method(context);
 	/*
 	 *  If exec fails, we end up here, so kill dummy pthread
 	 */
@@ -497,7 +439,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 	/*
 	 *  non-pthread enable systems just do normal exec
 	 */
-	return stress_exec_method(context);
+	return stress_call_exec_method(context);
 #endif
 }
 
@@ -960,7 +902,7 @@ stressor_info_t stress_exec_info = {
 	.stressor = stress_exec,
 	.supported = stress_exec_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

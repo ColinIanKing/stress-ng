@@ -67,28 +67,10 @@ static int stress_rawudp_supported(const char *name)
 	return 0;
 }
 
-/*
- *  stress_set_rawudp_port()
- *	set port to use
- */
-static int stress_set_rawudp_port(const char *opt)
-{
-	int port;
-
-	stress_set_net_port("rawudp-port", opt,
-		MIN_RAWUDP_PORT, MAX_RAWUDP_PORT, &port);
-	return stress_set_setting("rawudp-port", TYPE_ID_INT, &port);
-}
-
-static int stress_set_rawudp_if(const char *name)
-{
-	return stress_set_setting("rawudp-if", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_rawudp_port,	stress_set_rawudp_port },
-	{ OPT_rawudp_if,	stress_set_rawudp_if },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_rawudp_port, "rawudp-port", TYPE_ID_INT_PORT, MIN_RAWUDP_PORT, MAX_RAWUDP_PORT, NULL },
+	{ OPT_rawudp_if,   "rawudp-if",   TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LINUX_UDP_H)
@@ -340,7 +322,7 @@ finish:
 stressor_info_t stress_rawudp_info = {
 	.stressor = stress_rawudp,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_rawudp_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -349,7 +331,7 @@ stressor_info_t stress_rawudp_info = {
 stressor_info_t stress_rawudp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_rawudp_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

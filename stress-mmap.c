@@ -250,82 +250,6 @@ static void *mmap2_try(void *addr, size_t length, int prot, int flags,
 }
 #endif
 
-static int stress_set_mmap_bytes(const char *opt)
-{
-	size_t mmap_bytes;
-
-	mmap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("mmap-bytes", mmap_bytes,
-		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
-	return stress_set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
-}
-
-static int stress_set_mmap_mergeable(const char *opt)
-{
-	return stress_set_setting_true("mmap-mergeable", opt);
-}
-
-static int stress_set_mmap_mprotect(const char *opt)
-{
-	return stress_set_setting_true("mmap-mprotect", opt);
-}
-
-static int stress_set_mmap_file(const char *opt)
-{
-	return stress_set_setting_true("mmap-file", opt);
-}
-
-static int stress_set_mmap_async(const char *opt)
-{
-	return stress_set_setting_true("mmap-async", opt);
-}
-
-static int stress_set_mmap_osync(const char *opt)
-{
-	return stress_set_setting_true("mmap-osync", opt);
-}
-
-static int stress_set_mmap_odirect(const char *opt)
-{
-	return stress_set_setting_true("mmap-odirect", opt);
-}
-
-static int stress_set_mmap_madvise(const char *opt)
-{
-	return stress_set_setting_true("mmap-madvise", opt);
-}
-
-static int stress_set_mmap_mlock(const char *opt)
-{
-	return stress_set_setting_true("mmap-mlock", opt);
-}
-
-static int stress_set_mmap_mmap2(const char *opt)
-{
-	return stress_set_setting_true("mmap-mmap2", opt);
-}
-
-static int stress_set_mmap_slow_munmap(const char *opt)
-{
-	return stress_set_setting_true("mmap-slow-munmap", opt);
-}
-
-static int stress_set_mmap_stressful(const char *opt)
-{
-	return stress_set_setting_true("mmap-mergeable", opt) |
-	       stress_set_setting_true("mmap-mprotect", opt) |
-	       stress_set_setting_true("mmap-file", opt) |
-	       stress_set_setting_true("mmap-odirect", opt) |
-	       stress_set_setting_true("mmap-madvise", opt) |
-	       stress_set_setting_true("mmap-mlock", opt) |
-	       stress_set_setting_true("mmap-slow-munmap", opt);
-}
-
-static int stress_set_mmap_write_check(const char *opt)
-{
-	return stress_set_setting_true("mmap-write-check", opt);
-}
-
 /*
  *  stress_mmap_mprotect()
  *	cycle through page settings on a region of mmap'd memory
@@ -1133,27 +1057,42 @@ redo:
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmap_async,	stress_set_mmap_async },
-	{ OPT_mmap_bytes,	stress_set_mmap_bytes },
-	{ OPT_mmap_file,	stress_set_mmap_file },
-	{ OPT_mmap_madvise,	stress_set_mmap_madvise },
-	{ OPT_mmap_mergeable,	stress_set_mmap_mergeable },
-	{ OPT_mmap_mlock,	stress_set_mmap_mlock },
-	{ OPT_mmap_mmap2,	stress_set_mmap_mmap2 },
-	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
-	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
-	{ OPT_mmap_osync,	stress_set_mmap_osync },
-	{ OPT_mmap_slow_munmap,	stress_set_mmap_slow_munmap },
-	{ OPT_mmap_stressful,	stress_set_mmap_stressful },
-	{ OPT_mmap_write_check,	stress_set_mmap_write_check },
-	{ 0,			NULL }
+static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	(void)opt_name;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+
+	(void)stress_set_setting_true("mmap-mergeable", opt_arg);
+	(void)stress_set_setting_true("mmap-mprotect", opt_arg);
+	(void)stress_set_setting_true("mmap-file", opt_arg);
+	(void)stress_set_setting_true("mmap-odirect", opt_arg);
+	(void)stress_set_setting_true("mmap-madvise", opt_arg);
+	(void)stress_set_setting_true("mmap-mlock", opt_arg);
+	(void)stress_set_setting_true("mmap-slow-munmap", opt_arg);
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_mmap_async,       "mmap-async",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_bytes,       "mmap-bytes",       TYPE_ID_SIZE_T_BYTES, MIN_MMAP_BYTES, MAX_MMAP_BYTES, NULL },
+	{ OPT_mmap_file,        "mmap-file",        TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_madvise,     "mmap-madvise",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mergeable,   "mmap-mergeable",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mlock,       "mmap-mlock",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mmap2,       "mmap-mmap2",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_mprotect,    "mmap-mprotect",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_odirect,     "mmap-odirect",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_osync,       "mmap-osync",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_slow_munmap,	"mmap-slow-munmap", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmap_stressful,   "mmap-stressful",   TYPE_ID_CALLBACK, 0, 0, stress_mmap_stressful },
+	{ OPT_mmap_write_check, "mmap-write-check", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_mmap_info = {
 	.stressor = stress_mmap,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

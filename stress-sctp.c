@@ -74,83 +74,36 @@ static uint64_t	sigpipe_count;
 UNEXPECTED
 #endif
 
-/*
- *  stress_set_sctp_port()
- *	set port to use
- */
-static int stress_set_sctp_port(const char *opt)
-{
-	int sctp_port;
+/* See include/uapi/linux/sctp.h */
+enum shim_sctp_sched_type {
+	SHIM_SCTP_SS_FCFS,
+	SHIM_SCTP_SS_PRIO,
+	SHIM_SCTP_SS_RR,
+	SHIM_SCTP_SS_FC,
+	SHIM_SCTP_SS_WFQ,
+};
 
-	stress_set_net_port("sctp-port", opt,
-		MIN_SCTP_PORT, MAX_SCTP_PORT - STRESS_PROCS_MAX,
-		&sctp_port);
-	return stress_set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
+static const stress_sctp_sched_t stress_sctp_scheds[] = {
+	{ (int)SHIM_SCTP_SS_FC,		"fc" },
+	{ (int)SHIM_SCTP_SS_FCFS,	"fcfs" },
+	{ (int)SHIM_SCTP_SS_PRIO,	"prio" },
+	{ (int)SHIM_SCTP_SS_RR,		"rr" },
+	{ (int)SHIM_SCTP_SS_WFQ,	"wfq" },
+};
+
+static const char *stress_sctp_sched(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_sctp_scheds)) ? stress_sctp_scheds[i].name : NULL;
 }
 
-/*
- *  stress_set_sctp_sched()
- *	set scheduler to use
- */
-static int stress_set_sctp_sched(const char *opt)
-{
-#if defined(HAVE_SCTP_SCHED_TYPE) && 	\
-    defined(HAVE_SCTP_ASSOC_VALUE) &&	\
-    (defined(SCTP_SS_FCFS) ||		\
-     defined(SCTP_SS_PRIO) ||		\
-     defined(SCTP_SS_RR))
-	size_t i;
+static int sctp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
 
-	static const stress_sctp_sched_t stress_sctp_scheds[] = {
-		{ (int)SCTP_SS_FCFS,	"fcfs" },
-		{ (int)SCTP_SS_PRIO,	"prio" },
-		{ (int)SCTP_SS_RR,	"rr", },
-	};
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_sctp_scheds); i++) {
-		if (!strcmp(opt, stress_sctp_scheds[i].name)) {
-			return stress_set_setting("sctp-sched", TYPE_ID_INT, &stress_sctp_scheds[i].sched_type);
-		}
-	}
-	(void)fprintf(stderr, "sctp-sched must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_sctp_scheds); i++) {
-                (void)fprintf(stderr, " %s", stress_sctp_scheds[i].name);
-        }
-        (void)fprintf(stderr, "\n");
-	return -1;
-#else
-	(void)opt;
-	pr_inf("sctp-sched option ignored, no SCTP scheduler types available\n");
-	return 0;
-#endif
-}
-
-/*
- *  stress_set_sctp_domain()
- *	set the socket domain option
- */
-static int stress_set_sctp_domain(const char *name)
-{
-	int ret, sctp_domain;
-
-	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "sctp-domain",
-				     name, &sctp_domain);
-	stress_set_setting("sctp-domain", TYPE_ID_INT, &sctp_domain);
-
-	return ret;
-}
-
-static int stress_set_sctp_if(const char *name)
-{
-        return stress_set_setting("sctp-if", TYPE_ID_STR, name);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sctp_domain,	stress_set_sctp_domain },
-	{ OPT_sctp_if,		stress_set_sctp_if },
-	{ OPT_sctp_port,	stress_set_sctp_port },
-	{ OPT_sctp_sched,	stress_set_sctp_sched },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sctp_domain, "sctp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &sctp_domain_mask },
+	{ OPT_sctp_if,     "sctp-if",     TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sctp_port,   "sctp-port",   TYPE_ID_INT_PORT, MIN_SCTP_PORT, MAX_SCTP_PORT - STRESS_PROCS_MAX, NULL },
+	{ OPT_sctp_sched,  "sctp-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sctp_sched },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_SCTP) &&	\
@@ -391,13 +344,13 @@ static int OPTIMIZE3 stress_sctp_client(
 	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
-	const int sctp_sched,
+	const int sctp_sched_type,
 	const char *sctp_if)
 {
 	struct sockaddr *addr;
 	int rc = EXIT_SUCCESS;
 
-	(void)sctp_sched;
+	(void)sctp_sched_type;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -458,11 +411,11 @@ retry:
 #endif
 #if defined(HAVE_SCTP_SCHED_TYPE) &&	\
     defined(HAVE_SCTP_ASSOC_VALUE)
-		if (sctp_sched > -1) {
+		if (sctp_sched_type > -1) {
 			struct sctp_assoc_value val;
 
 			(void)shim_memset(&val, 0, sizeof(val));
-			val.assoc_value = (uint32_t)sctp_sched;
+			val.assoc_value = (uint32_t)sctp_sched_type;
 			(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 		}
 #endif
@@ -517,7 +470,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
-	const int sctp_sched,
+	const int sctp_sched_type,
 	const char *sctp_if)
 {
 	char ALIGN64 buf[SOCKET_BUF];
@@ -528,7 +481,7 @@ static int OPTIMIZE3 stress_sctp_server(
 	int rc = EXIT_SUCCESS;
 	int idx = 0;
 
-	(void)sctp_sched;
+	(void)sctp_sched_type;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
@@ -591,11 +544,11 @@ static int OPTIMIZE3 stress_sctp_server(
 
 #if defined(HAVE_SCTP_SCHED_TYPE) &&	\
     defined(HAVE_SCTP_ASSOC_VALUE)
-	if (sctp_sched > -1) {
+	if (sctp_sched_type > -1) {
 		struct sctp_assoc_value val;
 
 		(void)shim_memset(&val, 0, sizeof(val));
-		val.assoc_value = (uint32_t)sctp_sched;
+		val.assoc_value = (uint32_t)sctp_sched_type;
 		(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 	}
 #endif
@@ -659,7 +612,8 @@ static int stress_sctp(stress_args_t *args)
 	pid_t pid, mypid = getpid();
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
-	int sctp_sched = -1;	/* Undefined */
+	int sctp_sched_type = -1; /* undefined */
+	size_t sctp_sched = 1; /* default to fcfs */
 	int ret, reserved_port, parent_cpu;
 	char *sctp_if = NULL;
 
@@ -669,7 +623,14 @@ static int stress_sctp(stress_args_t *args)
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
 	(void)stress_get_setting("sctp-if", &sctp_if);
 	(void)stress_get_setting("sctp-port", &sctp_port);
-	(void)stress_get_setting("sctp-sched", &sctp_sched);
+	if (stress_get_setting("sctp-sched", &sctp_sched)) {
+#if defined(HAVE_SCTP_SCHED_TYPE) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+		sctp_sched_type = stress_sctp_scheds[sctp_sched].sched_type;
+#else
+		pr_inf("sctp-sched option ignored, no SCTP scheduler types available\n");
+#endif
+	}
 
 	if (sctp_if) {
 		struct sockaddr if_addr;
@@ -713,12 +674,12 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		 (void)stress_change_cpu(args, parent_cpu);
-		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
+		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched_type, sctp_if);
 		_exit(ret);
 	} else {
 		int status;
 
-		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
+		ret = stress_sctp_server(args, mypid, sctp_port, sctp_domain, sctp_sched_type, sctp_if);
 		(void)stress_kill_pid_wait(pid, &status);
 		if (WIFEXITED(status)) {
 			if (WEXITSTATUS(status) != EXIT_SUCCESS) {
@@ -740,7 +701,7 @@ finish:
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
 	.class = CLASS_NETWORK,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -748,7 +709,7 @@ stressor_info_t stress_sctp_info = {
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without netinet/sctp.h or libsctp support"

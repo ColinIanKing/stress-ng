@@ -211,12 +211,6 @@ typedef struct {
 	const struct stressor_info *info; /* stressor info */
 } stress_args_t;
 
-typedef struct {
-	const int opt;			/* optarg option*/
-	int (*opt_set_func)(const char *opt); /* function to set it */
-} stress_opt_set_func_t;
-
-/* Per stressor information */
 typedef struct stress_stressor_info {
 	struct stress_stressor_info *next; /* next proc info struct in list */
 	struct stress_stressor_info *prev; /* prev proc info struct in list */
@@ -248,6 +242,8 @@ typedef struct stress_stressor_info {
 #include "core-shim.h"
 #include "core-time.h"
 #include "core-thermal-zone.h"
+
+/* Per stressor information */
 
 #if defined(CHECK_UNEXPECTED) && 	\
     defined(HAVE_PRAGMA) &&		\
@@ -425,7 +421,7 @@ typedef struct stressor_info {
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
 	void (*set_default)(void);	/* default set-up */
 	void (*set_limit)(uint64_t max);/* set limits */
-	const stress_opt_set_func_t *opt_set_funcs;	/* option functions */
+	const stress_opt_t *opts;	/* new option settings */
 	const stress_help_t *help;	/* stressor help options */
 	const stress_class_t class;	/* stressor class */
 	const stress_verify_t verify;	/* verification mode */

@@ -32,16 +32,54 @@
 
 #define MUTEX_PROCS	(3)
 
-#define STRESS_PRIO_INV_TYPE_INHERIT	(0)
-#define STRESS_PRIO_INV_TYPE_NONE	(1)
-#define STRESS_PRIO_INV_TYPE_PROTECT	(2)
+#if defined(PTHREAD_PRIO_INHERIT)
+#define STRESS_PRIO_INV_TYPE_INHERIT	(PTHREAD_PRIO_INHERIT)
+#else
+#define STRESS_PRIO_INV_TYPE_INHERIT	(-1)
+#endif
+
+#if defined(PTHREAD_PRIO_NONE)
+#define STRESS_PRIO_INV_TYPE_NONE	(PTHREAD_PRIO_NONE)
+#else
+#define STRESS_PRIO_INV_TYPE_NONE	(-2)
+#endif
+
+#if defined(PTHREAD_PRIO_PROTECT)
+#define STRESS_PRIO_INV_TYPE_PROTECT	(PTHREAD_PRIO_PROTECT)
+#else
+#define STRESS_PRIO_INV_TYPE_PROTECT	(-3)
+#endif
 
 /* must match order in stress_prio_inv_policies[] */
-#define STRESS_PRIO_INV_POLICY_BATCH	(0)
-#define STRESS_PRIO_INV_POLICY_IDLE	(1)
-#define STRESS_PRIO_INV_POLICY_FIFO	(2)
-#define STRESS_PRIO_INV_POLICY_OTHER	(3)
-#define STRESS_PRIO_INV_POLICY_RR	(4)
+#if defined(SCHED_BATCH)
+#define STRESS_PRIO_INV_POLICY_BATCH	(SCHED_BATCH)
+#else
+#define STRESS_PRIO_INV_POLICY_BATCH	(-1)
+#endif
+
+#if defined(SCHED_IDLE)
+#define STRESS_PRIO_INV_POLICY_IDLE	(SCHED_IDLE)
+#else
+#define STRESS_PRIO_INV_POLICY_IDLE	(-2)
+#endif
+
+#if defined(SCHED_FIFO)
+#define STRESS_PRIO_INV_POLICY_FIFO	(SCHED_FIFO)
+#else
+#define STRESS_PRIO_INV_POLICY_FIFO	(-3)
+#endif
+
+#if defined(SCHED_OTHER)
+#define STRESS_PRIO_INV_POLICY_OTHER	(SCHED_OTHER)
+#else
+#define STRESS_PRIO_INV_POLICY_OTHER	(-5)
+#endif
+
+#if defined(SCHED_RR)
+#define STRESS_PRIO_INV_POLICY_RR	(SCHED_RR)
+#else
+#define STRESS_PRIO_INV_POLICY_RR	(-6)
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"prio-inv",		"start N workers exercising priority inversion lock operations" },
@@ -77,44 +115,20 @@ static const stress_prio_inv_options_t stress_prio_inv_policies[] = {
 	{ "rr",		STRESS_PRIO_INV_POLICY_RR },
 };
 
-static int stress_set_prio_inv_type(const char *opts)
+static const char *stress_prio_inv_policy(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_prio_inv_types); i++) {
-		if (!strcmp(opts, stress_prio_inv_types[i].option)) {
-			return stress_set_setting("prio-inv-type", TYPE_ID_INT, &stress_prio_inv_types[i].value);
-		}
-	}
-	(void)fprintf(stderr, "prio-inv-type option '%s' not known, options are:", opts);
-	for (i = 0; i < SIZEOF_ARRAY(stress_prio_inv_types); i++)
-		(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", stress_prio_inv_types[i].option);
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_prio_inv_policies)) ? stress_prio_inv_policies[i].option : NULL;
 }
 
-static int stress_set_prio_inv_policy(const char *opts)
+static const char *stress_prio_inv_type(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_prio_inv_policies); i++) {
-		if (!strcmp(opts, stress_prio_inv_policies[i].option)) {
-			return stress_set_setting("prio-inv-policy", TYPE_ID_INT, &stress_prio_inv_policies[i].value);
-		}
-	}
-	(void)fprintf(stderr, "prio-inv-policy option '%s' not known, options are:", opts);
-	for (i = 0; i < SIZEOF_ARRAY(stress_prio_inv_policies); i++)
-		(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", stress_prio_inv_policies[i].option);
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_prio_inv_types)) ? stress_prio_inv_types[i].option : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_prio_inv_policy,	stress_set_prio_inv_policy},
-	{ OPT_prio_inv_type,	stress_set_prio_inv_type},
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_prio_inv_policy, "prio-inv-policy", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prio_inv_policy },
+	{ OPT_prio_inv_type,   "prio-inv-type",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prio_inv_type },
+	END_OPT,
 };
 
 #if defined(_POSIX_PRIORITY_SCHEDULING) &&		\
@@ -281,8 +295,9 @@ static int stress_prio_inv(stress_args_t *args)
 {
 	size_t i;
 	int prio_min, prio_max, prio_div, sched_policy = -1;
-	int prio_inv_type = STRESS_PRIO_INV_TYPE_INHERIT;
-	int prio_inv_policy = STRESS_PRIO_INV_POLICY_FIFO;
+	size_t prio_inv_type = 0; /* STRESS_PRIO_INV_TYPE_INHERIT */
+	size_t prio_inv_policy = 2; /* STRESS_PRIO_INV_POLICY_FIFO */
+	int pthread_protocol;
 	int nice_min, nice_max, nice_div;
 	int rc = EXIT_SUCCESS;
 	const pid_t ppid = getpid();
@@ -316,37 +331,9 @@ static int stress_prio_inv(stress_args_t *args)
 	(void)stress_get_setting("prio-inv-policy", &prio_inv_policy);
 
 	policy_name = stress_prio_inv_policies[prio_inv_policy].option;
+	sched_policy = stress_prio_inv_policies[prio_inv_policy].value;
 
-	switch (prio_inv_policy) {
-	default:
-	case STRESS_PRIO_INV_POLICY_FIFO:
-#if defined(SCHED_FIFO)
-		sched_policy = SCHED_FIFO;
-#endif
-		break;
-	case STRESS_PRIO_INV_POLICY_RR:
-#if defined(SCHED_RR)
-		sched_policy = SCHED_RR;
-#endif
-		break;
-	case STRESS_PRIO_INV_POLICY_BATCH:
-#if defined(SCHED_BATCH)
-		sched_policy = SCHED_BATCH;
-#endif
-		break;
-	case STRESS_PRIO_INV_POLICY_IDLE:
-#if defined(SCHED_IDLE)
-		sched_policy = SCHED_IDLE;
-#endif
-		break;
-	case STRESS_PRIO_INV_POLICY_OTHER:
-#if defined(SCHED_OTHER)
-		sched_policy = SCHED_OTHER;
-#endif
-		break;
-	}
-
-	if (sched_policy == -1) {
+	if (sched_policy < 0) {
 #if defined(SCHED_OTHER)
 		if (args->instance == 0) {
 			pr_inf("%s: scheduling policy '%s' is not supported, "
@@ -397,23 +384,10 @@ static int stress_prio_inv(stress_args_t *args)
 	if (prio_div < 0)
 		prio_div = 0;
 
-	switch (prio_inv_type) {
-#if defined(PTHREAD_PRIO_NONE)
-	case STRESS_PRIO_INV_TYPE_NONE:
-		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_NONE));
-		break;
-#endif
-#if defined(PTHREAD_PRIO_INHERIT)
-	case STRESS_PRIO_INV_TYPE_INHERIT:
-		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT));
-		break;
-#endif
-#if defined(PTHREAD_PRIO_PROTECT)
-	case STRESS_PRIO_INV_TYPE_PROTECT:
-		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_PROTECT));
-		break;
-#endif
-	}
+	pthread_protocol = stress_prio_inv_types[prio_inv_type].value;
+	if (pthread_protocol != -1)
+		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, pthread_protocol));
+
 	VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, prio_max));
 	VOID_RET(int, pthread_mutexattr_setrobust(&mutexattr, PTHREAD_MUTEX_ROBUST));
 	if (pthread_mutex_init(&prio_inv_info->mutex, &mutexattr) < 0) {
@@ -496,18 +470,20 @@ reap:
 	}
 #endif
 
-	switch (prio_inv_type) {
-	default:
-	case STRESS_PRIO_INV_TYPE_NONE:
-	case STRESS_PRIO_INV_TYPE_PROTECT:
-		break;
-	case STRESS_PRIO_INV_TYPE_INHERIT:
-		if ((child_info[2].usage < child_info[0].usage * 0.9) &&
-		    (child_info[0].usage > 1.0)) {
-			pr_fail("%s: mutex priority inheritance appears incorrect, low priority process has far more run time (%.2f secs) than high priority process (%.2f secs)\n",
-			args->name, child_info[0].usage, child_info[2].usage);
+	if (sched_policy >= 0) {
+		switch (sched_policy) {
+		default:
+		case STRESS_PRIO_INV_TYPE_NONE:
+		case STRESS_PRIO_INV_TYPE_PROTECT:
+			break;
+		case STRESS_PRIO_INV_TYPE_INHERIT:
+			if ((child_info[2].usage < child_info[0].usage * 0.9) &&
+		    	(child_info[0].usage > 1.0)) {
+				pr_fail("%s: mutex priority inheritance appears incorrect, low priority process has far more run time (%.2f secs) than high priority process (%.2f secs)\n",
+				args->name, child_info[0].usage, child_info[2].usage);
+			}
+			break;
 		}
-		break;
 	}
 
 	(void)pthread_mutex_destroy(&prio_inv_info->mutex);
@@ -522,7 +498,7 @@ unmap_prio_inv_info:
 stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_prio_inv,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -530,7 +506,7 @@ stressor_info_t stress_prio_inv_info = {
 stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt, pthread_np.h, pthread or SCHED_* support"

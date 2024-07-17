@@ -50,34 +50,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_fifo_readers(const char *opt)
-{
-	uint64_t fifo_readers;
-
-	fifo_readers = stress_get_uint64(opt);
-	stress_check_range("fifo-readers", fifo_readers,
-		MIN_FIFO_READERS, MAX_FIFO_READERS);
-	return stress_set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
-}
-
-/*
- *  stress_set_fifo_data_size()
- *	set fifo data read/write size in bytes
- */
-static int stress_set_fifo_data_size(const char *opt)
-{
-	size_t fifo_data_size;
-
-	fifo_data_size = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range_bytes("fifo-data-size", fifo_data_size,
-		MIN_FIFO_DATA_SIZE, MAX_FIFO_DATA_SIZE);
-	return stress_set_setting("fifo-data-size", TYPE_ID_SIZE_T, &fifo_data_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fifo_data_size,	stress_set_fifo_data_size },
-	{ OPT_fifo_readers,	stress_set_fifo_readers },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_fifo_data_size, "fifo-data-size", TYPE_ID_SIZE_T_BYTES, MIN_FIFO_DATA_SIZE, MAX_FIFO_DATA_SIZE, NULL },
+	{ OPT_fifo_readers,   "fifo-readers",   TYPE_ID_UINT64, MIN_FIFO_READERS, MAX_FIFO_READERS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_SELECT_H)
@@ -367,7 +343,7 @@ tidy_pids:
 stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -375,7 +351,7 @@ stressor_info_t stress_fifo_info = {
 stressor_info_t stress_fifo_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/select.h"

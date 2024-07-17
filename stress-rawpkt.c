@@ -86,38 +86,10 @@ static int stress_rawpkt_supported(const char *name)
 	return 0;
 }
 
-/*
- *  stress_set_rawpkt_port()
- *	set port to use
- */
-static int stress_set_port(const char *opt)
-{
-	int port;
-
-	stress_set_net_port("rawpkt-port", opt,
-		MIN_RAWPKT_PORT, MAX_RAWPKT_PORT - STRESS_PROCS_MAX,
-		&port);
-	return stress_set_setting("rawpkt-port", TYPE_ID_INT, &port);
-}
-
-/*
- *  stress_set_rawpkt_rxring()
- *  set RX ring to use
- */
-static int stress_set_rxring(const char *opt)
-{
-	const uint64_t val = stress_get_uint64(opt);
-	int ival;
-
-	stress_check_power_of_2("rawpkt-rxring", val, (uint64_t)1, (uint64_t)16);
-	ival = (int)val;
-	return stress_set_setting("rawpkt-rxring", TYPE_ID_INT, &ival);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_rawpkt_port,	stress_set_port },
-	{ OPT_rawpkt_rxring,	stress_set_rxring },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_rawpkt_port,   "rawpkt-port",   TYPE_ID_INT_PORT, MIN_RAWPKT_PORT, MAX_RAWPKT_PORT - STRESS_PROCS_MAX, NULL },
+	{ OPT_rawpkt_rxring, "rawpkt-rxring", TYPE_ID_INT, 1, 16, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LINUX_UDP_H) &&	\
@@ -487,6 +459,11 @@ static int stress_rawpkt(stress_args_t *args)
 	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
 	(void)stress_get_setting("rawpkt-rxring", &rawpkt_rxring);
 
+	if ((rawpkt_rxring & (rawpkt_rxring - 1)) != 0) {
+		(void)pr_inf("%s: --rawpkt-rxing value %d is not "
+			"a power of 2, disabing option\n", args->name, rawpkt_rxring);
+		rawpkt_rxring = 0;
+	}
 	rawpkt_port += args->instance;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
@@ -559,7 +536,7 @@ finish:
 stressor_info_t stress_rawpkt_info = {
 	.stressor = stress_rawpkt,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_rawpkt_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -568,7 +545,7 @@ stressor_info_t stress_rawpkt_info = {
 stressor_info_t stress_rawpkt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_rawpkt_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

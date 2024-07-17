@@ -229,14 +229,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_dev_file(const char *opt)
-{
-	return stress_set_setting("dev-file", TYPE_ID_STR, opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dev_file,         stress_set_dev_file },
-        { 0,                    NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_dev_file, "dev-file", TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_POLL_H) &&		\
@@ -4446,14 +4441,14 @@ deinit:
 stressor_info_t stress_dev_info = {
 	.stressor = stress_dev,
 	.class = CLASS_DEV | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_dev_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support or poll.h"
 };

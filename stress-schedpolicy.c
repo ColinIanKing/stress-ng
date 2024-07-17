@@ -32,14 +32,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_schedpolicy_rand(const char *opt)
-{
-	return stress_set_setting_true("schedpolicy-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_schedpolicy_rand,	stress_set_schedpolicy_rand },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_schedpolicy_rand,	"schedpolicy-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
@@ -418,7 +413,7 @@ case_sched_fifo:
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -426,7 +421,7 @@ stressor_info_t stress_schedpolicy_info = {
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without Linux scheduling support"

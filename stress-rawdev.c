@@ -35,7 +35,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-
 #define	MIN_BLKSZ	((int)512)
 #define	MAX_BLKSZ	((int)(128 * KB))
 
@@ -347,47 +346,30 @@ static int stress_rawdev_all(
 	return ret;
 }
 
-/*
- *  stress_set_rawdev_method()
- *	set the default rawdev method
- */
-static int stress_set_rawdev_method(const char *name)
+static const char *stress_rawdev_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
-		if (!strcmp(rawdev_methods[i].name, name)) {
-			stress_set_setting("rawdev-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "rawdev-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
-		(void)fprintf(stderr, " %s", rawdev_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(rawdev_methods)) ? rawdev_methods[i].name : NULL;
 }
-#else
-/*
- *  stress_set_rawdev_method()
- *	set the default rawdev method
- */
-static int stress_set_rawdev_method(const char *name)
-{
-	(void)name;
 
-	(void)fprintf(stderr, "option --rawdev-method not supported\n");
-	return -1;
-}
-#endif
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_rawdev_method,	stress_set_rawdev_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_rawdev_method },
+	END_OPT,
 };
+
+#else
+
+static void stress_rawdev_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+        *type_id = TYPE_ID_SIZE_T;
+        *(size_t *)value = 0;
+        (void)fprintf(stderr, "rawdev stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_CALLBACK, 0, 0, stress_rawdev_method },
+	END_OPT,
+};
+#endif
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(BLKGETSIZE) && 		\
@@ -525,7 +507,7 @@ stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported,
 	.class = CLASS_IO,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -533,7 +515,7 @@ stressor_info_t stress_rawdev_info = {
 stressor_info_t stress_rawdev_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/sysmacros.h or undefined BLKGETSIZE, BLKSSZGET"

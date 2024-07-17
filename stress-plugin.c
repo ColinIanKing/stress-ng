@@ -47,7 +47,7 @@ typedef struct {
 
 static stress_plugin_method_info_t *stress_plugin_methods;
 static size_t stress_plugin_methods_num;
-static void *stress_plugin_so;
+static void *stress_plugin_so_dl;
 
 typedef struct {
 	const int signum;	/* Signal number */
@@ -142,10 +142,10 @@ static int stress_plugin_method_all(void)
 }
 
 /*
- *  stress_set_plugin_so()
+ *  stress_plugin_so()
  *     set default plugin shared object file
  */
-static int stress_set_plugin_so(const char *opt)
+static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	struct link_map *map = NULL;
 	Elf64_Sym * symtab = NULL;
@@ -157,13 +157,17 @@ static int stress_set_plugin_so(const char *opt)
 	stress_plugin_methods = NULL;
 	stress_plugin_methods_num = 0;
 
-	stress_plugin_so = dlopen(opt, RTLD_LAZY | RTLD_GLOBAL);
-	if (!stress_plugin_so) {
-		fprintf(stderr, "plugin-so: cannot load shared object file %s (please specify full path to .so file)\n", opt);
-		return -1;
+	*type_id = TYPE_ID_STR;
+	*(char **)value = stress_const_optdup(opt_arg);
+
+	stress_plugin_so_dl = dlopen(opt_arg, RTLD_LAZY | RTLD_GLOBAL);
+	if (!stress_plugin_so_dl) {
+		fprintf(stderr, "option %s: cannot load shared object file %s "
+			"(please specify full path to .so file)\n", opt_name, opt_arg);
+		longjmp(g_error_env, 1);
 	}
 
-	dlinfo(stress_plugin_so, RTLD_DI_LINKMAP, &map);
+	dlinfo(stress_plugin_so_dl, RTLD_DI_LINKMAP, &map);
 
 	for (section = map->l_ld; section->d_tag != DT_NULL; ++section) {
 		switch (section->d_tag) {
@@ -180,16 +184,16 @@ static int stress_set_plugin_so(const char *opt)
 	}
 
 	if (!symtab) {
-		fprintf(stderr, "plugin-so: cannot find symbol table in file %s\n", opt);
-		return -1;
+		fprintf(stderr, "plugin-so: cannot find symbol table in file %s\n", opt_arg);
+		longjmp(g_error_env, 1);
 	}
 	if (!strtab) {
-		fprintf(stderr, "plugin-so: cannot find string table in file %s\n", opt);
-		return -1;
+		fprintf(stderr, "plugin-so: cannot find string table in file %s\n", opt_arg);
+		longjmp(g_error_env, 1);
 	}
 	if (!symentries) {
-		fprintf(stderr, "plugin-so: cannot find symbol table entry count in file %s\n", opt);
-		return -1;
+		fprintf(stderr, "plugin-so: cannot find symbol table entry count in file %s\n", opt_arg);
+		longjmp(g_error_env, 1);
 	}
 	size = (size_t)(strtab - (char *)symtab);
 
@@ -203,14 +207,14 @@ static int stress_set_plugin_so(const char *opt)
 		}
 	}
 	if (!n_funcs) {
-		fprintf(stderr, "plugin-so: cannot find any function symbols in file %s\n", opt);
-		return -1;
+		fprintf(stderr, "plugin-so: cannot find any function symbols in file %s\n", opt_arg);
+		longjmp(g_error_env, 1);
 	}
 
 	stress_plugin_methods = calloc(n_funcs + 1, sizeof(*stress_plugin_methods));
 	if (!stress_plugin_methods) {
 		fprintf(stderr, "plugin-so: cannot allocate %zu plugin methods\n", n_funcs);
-		return -1;
+		longjmp(g_error_env, 1);
 	}
 
 	n_funcs = 0;
@@ -225,51 +229,16 @@ static int stress_set_plugin_so(const char *opt)
 
 			if ((strlen(str) > 7) && !strncmp(str, "stress_", 7)) {
 				stress_plugin_methods[n_funcs].name = str + 7;
-				stress_plugin_methods[n_funcs].func = (stress_plugin_func)dlsym(stress_plugin_so, str);
+				stress_plugin_methods[n_funcs].func = (stress_plugin_func)dlsym(stress_plugin_so_dl, str);
 				if (!stress_plugin_methods[n_funcs].func) {
 					fprintf(stderr, "plugin-so: cannot get address of function %s()\n", str);
-					return -1;
+					longjmp(g_error_env, 1);
 				}
 				n_funcs++;
 			}
 		}
 	}
 	stress_plugin_methods_num = n_funcs;
-
-	return 0;
-}
-
-/*
- *  stress_set_plugin_method()
- *      set default plugin stress method
- */
-static int stress_set_plugin_method(const char *name)
-{
-	size_t i;
-
-	if (!stress_plugin_methods) {
-		pr_inf("plugin-method: no plugin methods found, need to first specify a valid shared library with --plug-so\n");
-		return -1;
-	}
-	if (!stress_plugin_methods_num) {
-		pr_inf("plugin-method: no plugin methods found, need to have stress_*() named functions in a valid shared shared library\n");
-		return -1;
-	}
-
-	for (i = 0; i < stress_plugin_methods_num; i++) {
-		if (!strcmp(stress_plugin_methods[i].name, name)) {
-			stress_set_setting("plugin-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "plugin-method must be one of:");
-	for (i = 0; i < stress_plugin_methods_num; i++) {
-		(void)fprintf(stderr, " %s", stress_plugin_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 /*
@@ -285,7 +254,7 @@ static int stress_plugin(stress_args_t *args)
 	const size_t sig_count_size = MAX_SIGS * sizeof(*sig_count);
 	bool report_sigs;
 
-	if (!stress_plugin_so) {
+	if (!stress_plugin_so_dl) {
 		if (args->instance == 0)
 			pr_inf_skip("%s: plugin shared library failed to open, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -296,14 +265,14 @@ static int stress_plugin(stress_args_t *args)
 		if (args->instance == 0)
 			pr_inf("%s: no plugin methods found, need to specify a valid shared library with --plug-so\n",
 				args->name);
-		(void)dlclose(stress_plugin_so);
+		(void)dlclose(stress_plugin_so_dl);
 		return EXIT_NO_RESOURCE;
 	}
 	if (plugin_method > stress_plugin_methods_num) {
 		if (args->instance == 0)
 			pr_inf("%s: invalid plugin method index %zd, expecting 0..%zd\n",
 				args->name, plugin_method, stress_plugin_methods_num);
-		(void)dlclose(stress_plugin_so);
+		(void)dlclose(stress_plugin_so_dl);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -313,7 +282,7 @@ static int stress_plugin(stress_args_t *args)
 	if (sig_count == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)dlclose(stress_plugin_so);
+		(void)dlclose(stress_plugin_so_dl);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -401,44 +370,63 @@ err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free(stress_plugin_methods);
-	(void)dlclose(stress_plugin_so);
+	(void)dlclose(stress_plugin_so_dl);
 	(void)munmap(sig_count, sig_count_size);
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_plugin_method,	stress_set_plugin_method },
-	{ OPT_plugin_so,	stress_set_plugin_so },
-	{ 0,			NULL }
+static const char *stress_plugin_method(const size_t i)
+{
+	static bool warned = false;
+
+	if (warned)
+		return NULL;
+	if (!stress_plugin_methods) {
+		pr_inf("plugin-method: no plugin methods found, need to first specify a valid shared library with --plug-so\n");
+		warned = true;
+		return NULL;
+	}
+	if (!stress_plugin_methods_num) {
+		pr_inf("plugin-method: no plugin methods found, need to have stress_*() named functions in a valid shared shared library\n");
+		warned = true;
+		return NULL;
+	}
+	return (i < stress_plugin_methods_num) ? stress_plugin_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_plugin_method, "plugin-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_plugin_method },
+	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, stress_plugin_so },
+	END_OPT,
 };
 
 stressor_info_t stress_plugin_info = {
 	.stressor = stress_plugin,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_plugin_supported,
 	.help = help
 };
 
 #else
 
-static int stress_set_plugin_ignored(const char *opt)
+static void stress_plugin_ignored(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)opt;
-
-	return 0;
+        *type_id = TYPE_ID_SIZE_T;
+        *(size_t *)value = 0;
+        (void)fprintf(stderr, "plugin stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_plugin_method,	stress_set_plugin_ignored },
-	{ OPT_plugin_so,	stress_set_plugin_ignored },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_plugin_method, "plugin-method", TYPE_ID_CALLBACK, 0, 0, stress_plugin_ignored },
+	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, stress_plugin_ignored },
+	END_OPT,
 };
 
 stressor_info_t stress_plugin_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without link.h, dlfcn.h or built as a static image"
 };

@@ -60,25 +60,6 @@ static size_t method_all_index;				/* all method index */
 
 static const stress_matrix_3d_method_info_t matrix_3d_methods[];
 
-static int stress_set_matrix_3d_size(const char *opt)
-{
-	size_t matrix_3d_size;
-
-	matrix_3d_size = stress_get_uint64(opt);
-	stress_check_range("matrix-3d-size", matrix_3d_size,
-		MIN_MATRIX3D_SIZE, MAX_MATRIX3D_SIZE);
-	return stress_set_setting("matrix-3d-size", TYPE_ID_SIZE_T, &matrix_3d_size);
-}
-
-static int stress_set_matrix_3d_zyx(const char *opt)
-{
-	size_t matrix_3d_zyx = 1;
-
-	(void)opt;
-
-	return stress_set_setting("matrix-3d-zyx", TYPE_ID_SIZE_T, &matrix_3d_zyx);
-}
-
 /*
  *  stress_matrix_3d_xyz_add()
  *	matrix addition
@@ -759,7 +740,6 @@ static void stress_matrix_3d_zyx_all(
  */
 static const stress_matrix_3d_method_info_t matrix_3d_methods[] = {
 	{ "all",		{ stress_matrix_3d_xyz_all,		stress_matrix_3d_zyx_all } },/* Special "all" test */
-
 	{ "add",		{ stress_matrix_3d_xyz_add,		stress_matrix_3d_zyx_add } },
 	{ "copy",		{ stress_matrix_3d_xyz_copy,		stress_matrix_3d_zyx_copy } },
 	{ "div",		{ stress_matrix_3d_xyz_div,		stress_matrix_3d_zyx_div } },
@@ -814,29 +794,6 @@ static void OPTIMIZE3 stress_matrix_3d_zyx_all(
 	matrix_3d_methods[method_all_index].func[1](n, a, b, r);
 	matrix_3d_metrics[method_all_index].duration += stress_time_now() - t;
 	matrix_3d_metrics[method_all_index].count += 1.0;
-}
-
-/*
- *  stress_set_matrix_3d_method()
- *	get the default matrix stress method
- */
-static int stress_set_matrix_3d_method(const char *name)
-{
-	size_t matrix_3d_method;
-
-	for (matrix_3d_method = 0; matrix_3d_method < SIZEOF_ARRAY(matrix_3d_methods); matrix_3d_method++) {
-		if (!strcmp(matrix_3d_methods[matrix_3d_method].name, name)) {
-			stress_set_setting("matrix-3d-method", TYPE_ID_SIZE_T, &matrix_3d_method);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "matrix-3d-method must be one of:");
-	for (matrix_3d_method = 0; matrix_3d_method < SIZEOF_ARRAY(matrix_3d_methods); matrix_3d_method++)
-		(void)fprintf(stderr, " %s", matrix_3d_methods[matrix_3d_method].name);
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 static inline size_t round_up(size_t page_size, size_t n)
@@ -1024,30 +981,45 @@ static int stress_matrix_3d(stress_args_t *args)
 	return rc;
 }
 
-static void stress_matrix_3d_set_default(void)
+static const char *stress_matrix_3d_method(const size_t i)
 {
-	stress_set_matrix_3d_method("all");
+	return (i < SIZEOF_ARRAY(matrix_3d_methods)) ? matrix_3d_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_matrix_3d_method,	stress_set_matrix_3d_method },
-	{ OPT_matrix_3d_size,	stress_set_matrix_3d_size },
-	{ OPT_matrix_3d_zyx,	stress_set_matrix_3d_zyx },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_matrix_3d_method,	"matrix-3d-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_matrix_3d_method },
+	{ OPT_matrix_3d_size,   "matrix-3d-size",   TYPE_ID_SIZE_T, MIN_MATRIX3D_SIZE, MAX_MATRIX3D_SIZE, NULL },
+	{ OPT_matrix_3d_zyx,    "matrix-3d-zyx",    TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_matrix_3d,
-	.set_default = stress_matrix_3d_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
+
+static void stress_matrix_3d_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "matrix-3d stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_matrix_3d_method,	"matrix-3d-method", TYPE_ID_CALLBACK, 0, 0, stress_matrix_3d_method },
+	{ OPT_matrix_3d_size,   "matrix-3d-size",   TYPE_ID_SIZE_T, MIN_MATRIX3D_SIZE, MAX_MATRIX3D_SIZE, NULL },
+	{ OPT_matrix_3d_zyx,    "matrix-3d-zyx",    TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
 stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "compiler does not support variable length array function arguments"

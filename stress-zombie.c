@@ -182,20 +182,6 @@ static void stress_zombie_free(void)
 }
 
 /*
- *  stress_set_zombie_max()
- *	set maximum number of zombies allowed
- */
-static int stress_set_zombie_max(const char *opt)
-{
-	uint32_t zombie_max;
-
-	zombie_max = stress_get_uint32(opt);
-	stress_check_range("zombie-max", (uint64_t)zombie_max,
-		MIN_ZOMBIES, MAX_ZOMBIES);
-	return stress_set_setting("zombie-max", TYPE_ID_INT32, &zombie_max);
-}
-
-/*
  *  stress_zombie()
  *	stress by zombieing and exiting
  */
@@ -268,15 +254,15 @@ static int stress_zombie(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_zombie_max,	stress_set_zombie_max },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_zombie_max, "zombie-max", TYPE_ID_INT32, MIN_ZOMBIES, MAX_ZOMBIES, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_zombie_info = {
 	.stressor = stress_zombie,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -38,67 +38,24 @@ static const stress_help_t help[] = {
 static const char stress_dir_names[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*
- *  stress_set_dirdeep_bytes()
- *      set size of files to be created
- */
-static int stress_set_dirdeep_bytes(const char *opt)
-{
-	off_t dirdeep_bytes;
-
-	dirdeep_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("dirdeep-bytes", (uint64_t)dirdeep_bytes,
-		MIN_DIRDEEP_BYTES, MAX_DIRDEEP_BYTES);
-	return stress_set_setting("dirdeep-bytes", TYPE_ID_OFF_T, &dirdeep_bytes);
-}
-
-/*
- *  stress_set_dirdeep_dirs()
- *      set number of dirdeep directories from given option string
- */
-static int stress_set_dirdeep_dirs(const char *opt)
-{
-	uint32_t dirdeep_dirs;
-
-	dirdeep_dirs = stress_get_uint32(opt);
-
-	stress_check_range("dirdeep-dirs", (uint64_t)dirdeep_dirs, 1, strlen(stress_dir_names));
-	return stress_set_setting("dirdeep-dirs", TYPE_ID_UINT32, &dirdeep_dirs);
-}
-
-/*
  *  stress_set_dirdeep_inodes()
  *      set max number of inodes to consume
  */
-static int stress_set_dirdeep_inodes(const char *opt)
+static void stress_dirdeep_inodes(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	uint64_t inodes = stress_get_filesystem_available_inodes();
-	uint64_t dirdeep_inodes;
+	uint64_t *dirdeep_inodes = (uint64_t *)value;
 
-
+	*type_id = TYPE_ID_UINT64;
 	if (inodes == 0) {
 		const char *type = stress_get_fs_type(stress_get_temp_path());
 
-		pr_inf("cannot determine number of available free inodes, defaulting to maximum allowed%s\n", type);
-		dirdeep_inodes = ~0ULL;
-		return stress_set_setting("dirdeep-inodes", TYPE_ID_UINT64, &dirdeep_inodes);
+		pr_inf("%s: cannot determine number of available free inodes, defaulting to maximum allowed%s\n", opt_name, type);
+		*dirdeep_inodes = ~0ULL;
+	} else {
+		*dirdeep_inodes = stress_get_uint64_percent(opt_arg, 1, inodes,
+			"cannot determine number of available free inodes");
 	}
-
-	dirdeep_inodes = stress_get_uint64_percent(opt, 1, inodes,
-		"cannot determine number of available free inodes");
-	return stress_set_setting("dirdeep-inodes", TYPE_ID_UINT64, &dirdeep_inodes);
-}
-
-/*
- *  stress_set_dirdeep_files()
- *      set max number of files to create per directory level
- */
-static int stress_set_dirdeep_files(const char *opt)
-{
-	uint32_t dirdeep_files;
-
-	dirdeep_files = stress_get_uint32(opt);
-	stress_check_range("dirdeep-files", (uint64_t)dirdeep_files, 0, 65535);
-	return stress_set_setting("dirdeep-files", TYPE_ID_UINT32, &dirdeep_files);
 }
 
 /*
@@ -524,18 +481,18 @@ static int stress_dirdeep(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dirdeep_bytes,	stress_set_dirdeep_bytes },
-	{ OPT_dirdeep_dirs,	stress_set_dirdeep_dirs },
-	{ OPT_dirdeep_inodes,	stress_set_dirdeep_inodes },
-	{ OPT_dirdeep_files,	stress_set_dirdeep_files },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_dirdeep_bytes,  "dirdeep-bytes",  TYPE_ID_OFF_T,  MIN_DIRDEEP_BYTES, MAX_DIRDEEP_BYTES, NULL },
+	{ OPT_dirdeep_dirs,   "dirdeep-dirs",   TYPE_ID_UINT32, 1, sizeof(stress_dir_names) - 1, NULL },
+	{ OPT_dirdeep_inodes, "dirdeep-inodes", TYPE_ID_CALLBACK, 0, 0, stress_dirdeep_inodes },
+	{ OPT_dirdeep_files,  "dirdeep-files",  TYPE_ID_UINT32, 0, 65535, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_dirdeep_info = {
 	.stressor = stress_dirdeep,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

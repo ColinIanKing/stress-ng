@@ -96,42 +96,10 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,			NULL }
 };
 
-static const stress_cpu_method_info_t cpu_methods[];
+static const stress_cpu_method_info_t stress_cpu_methods[];
 
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
-
-static int stress_set_cpu_old_metrics(const char *opt)
-{
-	return stress_set_setting_true("cpu-old-metrics", opt);
-}
-
-static int stress_set_cpu_load(const char *opt)
-{
-	int32_t cpu_load;
-
-	cpu_load = stress_get_int32(opt);
-	stress_check_range("cpu-load", (uint64_t)cpu_load, 0, 100);
-	return stress_set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
-}
-
-/*
- *  stress_set_cpu_load_slice()
- *	< 0   - number of iterations per busy slice
- *	= 0   - random duration between 0..0.5 seconds
- *	> 0   - milliseconds per busy slice
- */
-static int stress_set_cpu_load_slice(const char *opt)
-{
-	int32_t cpu_load_slice;
-
-	cpu_load_slice = stress_get_int32(opt);
-	if ((cpu_load_slice < -5000) || (cpu_load_slice > 5000)) {
-		(void)fprintf(stderr, "cpu-load-slice must in the range -5000 to 5000.\n");
-		_exit(EXIT_FAILURE);
-	}
-	return stress_set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
-}
 
 /*
  *  stress_cpu_sqrt()
@@ -2855,7 +2823,7 @@ static int OPTIMIZE3 stress_cpu_all(const char *name)
 /*
  * Table of cpu stress methods
  */
-static const stress_cpu_method_info_t cpu_methods[] = {
+static const stress_cpu_method_info_t stress_cpu_methods[] = {
 	{ "all",		stress_cpu_all,			10000.0	},	/* Special "all test */
 
 	{ "ackermann",		stress_cpu_ackermann,		2008.64	},
@@ -3006,9 +2974,9 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 #endif
 };
 
-static double stress_cpu_counter_scale[SIZEOF_ARRAY(cpu_methods)];
+static double stress_cpu_counter_scale[SIZEOF_ARRAY(stress_cpu_methods)];
 
-static int stress_cpu_method(size_t method, stress_args_t *args, double *counter)
+static int stress_call_cpu_method(size_t method, stress_args_t *args, double *counter)
 {
 	int rc;
 
@@ -3017,38 +2985,14 @@ static int stress_cpu_method(size_t method, stress_args_t *args, double *counter
 
 		method = i;
 		i++;
-		if (i >= SIZEOF_ARRAY(cpu_methods))
+		if (i >= SIZEOF_ARRAY(stress_cpu_methods))
 			i = 1;
 	}
-	rc = cpu_methods[method].func(args->name);
+	rc = stress_cpu_methods[method].func(args->name);
 	*counter += stress_cpu_counter_scale[method];
 	stress_bogo_set(args, (uint64_t)*counter);
 
 	return rc;
-}
-
-/*
- *  stress_set_cpu_method()
- *	set the default cpu stress method
- */
-static int stress_set_cpu_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(cpu_methods); i++) {
-		if (!strcmp(cpu_methods[i].name, name)) {
-			stress_set_setting("cpu-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "cpu-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(cpu_methods); i++) {
-		(void)fprintf(stderr, " %s", cpu_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 /*
@@ -3114,11 +3058,11 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			stress_cpu_counter_scale[i] = 1.0;
 	} else {
 		for (i = 0; i < SIZEOF_ARRAY(stress_cpu_counter_scale); i++)
-			stress_cpu_counter_scale[i] = 1484.50 / cpu_methods[i].bogo_op_rate;
+			stress_cpu_counter_scale[i] = 1484.50 / stress_cpu_methods[i].bogo_op_rate;
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: using method '%s'\n", args->name, cpu_methods[cpu_method].name);
+		pr_dbg("%s: using method '%s'\n", args->name, stress_cpu_methods[cpu_method].name);
 
 	/*
 	 * It is unlikely, but somebody may request to do a zero
@@ -3139,7 +3083,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	 */
 	if (cpu_load == 100) {
 		do {
-			rc = stress_cpu_method(cpu_method, args, &counter);
+			rc = stress_call_cpu_method(cpu_method, args, &counter);
 		} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -3167,7 +3111,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			int j;
 
 			for (j = 0; j < -cpu_load_slice; j++) {
-				rc = stress_cpu_method(cpu_method, args, &counter);
+				rc = stress_call_cpu_method(cpu_method, args, &counter);
 				if ((rc != EXIT_SUCCESS) || !stress_continue_flag())
 					break;
 			}
@@ -3178,7 +3122,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			const uint16_t r = stress_mwc16();
 			double slice_end = t1_cpu_clock + ((double)r / 131072.0);
 			do {
-				rc = stress_cpu_method(cpu_method, args, &counter);
+				rc = stress_call_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
 				t2_cpu_clock = stress_per_cpu_time();
 				if ((rc != EXIT_SUCCESS) || !stress_continue_flag())
@@ -3189,7 +3133,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			const double slice_end = t1_cpu_clock + ((double)cpu_load_slice / STRESS_DBL_MILLISECOND);
 
 			do {
-				rc = stress_cpu_method(cpu_method, args, &counter);
+				rc = stress_call_cpu_method(cpu_method, args, &counter);
 				t2_wall_clock = stress_time_now();
 				t2_cpu_clock = stress_per_cpu_time();
 				if ((rc != EXIT_SUCCESS) || !stress_continue_flag())
@@ -3240,24 +3184,23 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 	return rc;
 }
 
-static void stress_cpu_set_default(void)
+static const char *stress_cpu_method(const size_t i)
 {
-	stress_set_cpu_method("all");
+	return (i <  SIZEOF_ARRAY(stress_cpu_methods)) ? stress_cpu_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_cpu_load,		stress_set_cpu_load },
-	{ OPT_cpu_load_slice,	stress_set_cpu_load_slice },
-	{ OPT_cpu_method,	stress_set_cpu_method },
-	{ OPT_cpu_old_metrics,	stress_set_cpu_old_metrics },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_cpu_load,        "cpu-load",        TYPE_ID_INT32, 0, 100, NULL },
+	{ OPT_cpu_load_slice,  "cpu-load-slice",  TYPE_ID_INT32, (uint64_t)-5000, (uint64_t)5000, NULL },
+	{ OPT_cpu_method,      "cpu-method",      TYPE_ID_SIZE_T_METHOD, 0, 0, stress_cpu_method },
+	{ OPT_cpu_old_metrics, "cpu-old-metrics", TYPE_ID_BOOL,  0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_cpu_info = {
 	.stressor = stress_cpu,
-	.set_default = stress_cpu_set_default,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

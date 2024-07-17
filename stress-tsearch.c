@@ -36,23 +36,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_tsearch_size()
- *      set tsearch size from given option string
- */
-static int stress_set_tsearch_size(const char *opt)
-{
-	uint64_t tsearch_size;
-
-	tsearch_size = stress_get_uint64(opt);
-	stress_check_range("tsearch-size", tsearch_size,
-		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
-	return stress_set_setting("tsearch-size", TYPE_ID_UINT64, &tsearch_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_tsearch_size,	stress_set_tsearch_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_tsearch_size, "tsearch-size", TYPE_ID_UINT64, MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_TSEARCH)
@@ -165,7 +151,7 @@ abort:
 stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -175,7 +161,7 @@ stressor_info_t stress_tsearch_info = {
 stressor_info_t stress_tsearch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without libc tsearch() support"

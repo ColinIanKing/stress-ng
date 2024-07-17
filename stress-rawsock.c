@@ -48,22 +48,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_rawsock_port()
- *	set port to use
- */
-static int stress_set_rawsock_port(const char *opt)
-{
-	int rawsock_port;
-
-	stress_set_net_port("rawsock-port", opt,
-		MIN_RAWSOCK_PORT, MAX_RAWSOCK_PORT, &rawsock_port);
-	return stress_set_setting("rawsock-port", TYPE_ID_INT, &rawsock_port);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_rawsock_port,	stress_set_rawsock_port },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_rawsock_port, "rawsock-port", TYPE_ID_INT_PORT, MIN_RAWSOCK_PORT, MAX_RAWSOCK_PORT, NULL },
+	END_OPT,
 };
 
 #if defined(SOCK_RAW) &&	\
@@ -356,7 +343,7 @@ static int stress_rawsock(stress_args_t *args)
 stressor_info_t stress_rawsock_info = {
 	.stressor = stress_rawsock,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_rawsock_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
@@ -367,7 +354,7 @@ stressor_info_t stress_rawsock_info = {
 stressor_info_t stress_rawsock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/sockios.h, SOCK_RAW, IPPROTO_RAW or only supported on Linux"

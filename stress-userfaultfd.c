@@ -45,6 +45,7 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"userfaultfd N",	"start N page faulting workers with userspace handling" },
+	{ NULL, "userfualtfd-bytes N",	"size of mmap'd region to fault on" },
 	{ NULL,	"userfaultfd-ops N",	"stop after N page faults have been handled" },
 	{ NULL,	NULL,			NULL }
 };
@@ -68,19 +69,9 @@ typedef struct {
 
 #endif
 
-static int stress_set_userfaultfd_bytes(const char *opt)
-{
-	size_t userfaultfd_bytes;
-
-	userfaultfd_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("userfaultfd-bytes", userfaultfd_bytes,
-		MIN_USERFAULT_BYTES, MAX_USERFAULT_BYTES);
-	return stress_set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_userfaultfd_bytes,	stress_set_userfaultfd_bytes },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_userfaultfd_bytes, "userfaultfd-bytes", TYPE_ID_SIZE_T_BYTES, MIN_USERFAULT_BYTES, MAX_USERFAULT_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_USERFAULTFD) && 		\
@@ -508,7 +499,7 @@ static int stress_userfaultfd(stress_args_t *args)
 stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_userfaultfd_supported,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -517,7 +508,7 @@ stressor_info_t stress_userfaultfd_info = {
 stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/userfaultfd.h, clone(), posix_memalign() or userfaultfd()"

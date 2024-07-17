@@ -681,31 +681,6 @@ static size_t stress_wcs_all(stress_args_t *args, stress_wcs_args_t *info)
 	return 0;
 }
 
-
-/*
- *  stress_set_wcs_method()
- *	set the specified wcs stress method
- */
-static int stress_set_wcs_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(wcs_methods); i++) {
-		if (!strcmp(wcs_methods[i].name, name)) {
-			stress_set_setting("wcs-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "wcs-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(wcs_methods); i++) {
-		(void)fprintf(stderr, " %s", wcs_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 /*
  *  stress_wcs()
  *	stress CPU by doing wide character string ops
@@ -790,21 +765,20 @@ static int stress_wcs(stress_args_t *args)
 	return info.failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
-static void stress_wcs_set_default(void)
+static const char *stress_wcs_method(const size_t i)
 {
-	stress_set_wcs_method("all");
+	return (i < SIZEOF_ARRAY(wcs_methods)) ? wcs_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_wcs_method,	stress_set_wcs_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_wcs_method, "wcs-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_wcs_method },
+	END_OPT,
 };
 
 stressor_info_t stress_wcs_info = {
 	.stressor = stress_wcs,
-	.set_default = stress_wcs_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without wchar.h or bsd/wchar.h"

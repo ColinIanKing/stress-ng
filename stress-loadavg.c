@@ -29,23 +29,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-/*
- *  stress_set_loadavg_max()
- *      set upper limit on number of pthreads to create
- */
-static int stress_set_loadavg_max(const char *opt)
-{
-	uint64_t loadavg_max;
-
-        loadavg_max = stress_get_uint64(opt);
-
-        stress_check_range("loadavg-max", loadavg_max, 1, MAX_LOADAVG);
-        return stress_set_setting("loadavg-max", TYPE_ID_UINT64, &loadavg_max);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_loadavg_max,	stress_set_loadavg_max },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_loadavg_max, "loadavg-max", TYPE_ID_UINT64, 1, MAX_LOADAVG, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -300,14 +286,14 @@ static int stress_loadavg(stress_args_t *args)
 stressor_info_t stress_loadavg_info = {
 	.stressor = stress_loadavg,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_loadavg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"
 };

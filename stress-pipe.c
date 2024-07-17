@@ -38,40 +38,6 @@ static const stress_help_t help[] = {
 #define PIPE_BUF	(4096)
 #endif
 
-static int stress_set_pipe_vmsplice(const char *opt)
-{
-	return stress_set_setting_true("pipe-vmsplice", opt);
-}
-
-#if defined(F_SETPIPE_SZ)
-/*
- *  stress_set_pipe_size()
- *	set pipe size in bytes
- */
-static int stress_set_pipe_size(const char *opt)
-{
-	size_t pipe_size;
-
-	pipe_size = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range_bytes("pipe-size", pipe_size, 4096, 1024 * 1024);
-	return stress_set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
-}
-#endif
-
-/*
- *  stress_set_pipe_size()
- *	set pipe data write size in bytes
- */
-static int stress_set_pipe_data_size(const char *opt)
-{
-	size_t pipe_data_size;
-
-	pipe_data_size = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range_bytes("pipe-data-size", pipe_data_size,
-		8, stress_get_page_size());
-	return stress_set_setting("pipe-data-size", TYPE_ID_SIZE_T, &pipe_data_size);
-}
-
 static size_t pipe_get_size(const int fd)
 {
 #if defined(F_GETPIPE_SZ)
@@ -737,19 +703,20 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_t opts[] = {
 #if defined(F_SETPIPE_SZ)
-	{ OPT_pipe_size,	stress_set_pipe_size },
+	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_SIZE_T_BYTES, 4096, 1024 * 1024, NULL },
 #endif
-	{ OPT_pipe_data_size,	stress_set_pipe_data_size },
-	{ OPT_pipe_vmsplice,	stress_set_pipe_vmsplice },
-	{ 0,			NULL }
+	/* FIXME: was min = 8, max = stress_get_page_size() */
+	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_SIZE_T_BYTES, 8, 4096, NULL },
+	{ OPT_pipe_vmsplice,  "pipe-vmsplice",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_pipe_info = {
 	.stressor = stress_pipe,
 	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -44,16 +44,6 @@ static const stress_help_t help[] = {
 
 static void *counter_lock;
 
-static int stress_set_metamix_bytes(const char *opt)
-{
-	off_t metamix_bytes;
-
-	metamix_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("metamix-bytes", (uint64_t)metamix_bytes,
-		MIN_METAMIX_BYTES, MAX_METAMIX_BYTES);
-	return stress_set_setting("metamix-bytes", TYPE_ID_OFF_T, &metamix_bytes);
-}
-
 /*
  *  stress_metamix_cmp()
  *	sort by checksum to get randomized seek read ordering
@@ -411,15 +401,15 @@ tidy_s_pids:
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_metamix_bytes,	stress_set_metamix_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_metamix_bytes, "metamix-bytes", TYPE_ID_OFF_T, MIN_METAMIX_BYTES, MAX_METAMIX_BYTES, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_metamix_info = {
 	.stressor = stress_metamix,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

@@ -44,28 +44,10 @@ typedef struct {
 	double munmap_duration;
 } stress_mmapfile_info_t;
 
-/*
- *  stress_set_mmapfiles_populate()
- *      set mmapfiles_populate flag
- */
-static int stress_set_mmapfiles_populate(const char *opt)
-{
-        return stress_set_setting_true("mmapfiles-populate", opt);
-}
-
-/*
- *  stress_set_mmapfiles_shared()
- *      set mmapfiles_shared flag
- */
-static int stress_set_mmapfiles_shared(const char *opt)
-{
-        return stress_set_setting_true("mmapfiles-shared", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmapfiles_populate,	stress_set_mmapfiles_populate },
-	{ OPT_mmapfiles_shared,		stress_set_mmapfiles_shared },
-	{ 0, 				NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_mmapfiles_populate, "mmapfiles-populate", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_mmapfiles_shared,	  "mmapfiles-shared",   TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 static size_t stress_mmapfiles_dir(
@@ -285,6 +267,6 @@ stressor_info_t stress_mmapfiles_info = {
 	.stressor = stress_mmapfiles,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

@@ -60,19 +60,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_sleep_max(const char *opt)
-{
-	uint64_t sleep_max;
-
-	sleep_max = stress_get_uint64(opt);
-	stress_check_range("sleep-max", sleep_max,
-		MIN_SLEEP, MAX_SLEEP);
-	return stress_set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sleep_max,	stress_set_sleep_max },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sleep_max, "sleep-max", TYPE_ID_UINT64, MIN_SLEEP, MAX_SLEEP, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -463,7 +453,7 @@ tidy:
 stressor_info_t stress_sleep_info = {
 	.stressor = stress_sleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -471,7 +461,7 @@ stressor_info_t stress_sleep_info = {
 stressor_info_t stress_sleep_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without pthread support"

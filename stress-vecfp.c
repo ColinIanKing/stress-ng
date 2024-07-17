@@ -92,7 +92,7 @@ static double stress_vecfp_all(
 
 #define STRESS_VEC_ADD(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	stress_args_t *args,				\
+	stress_args_t *args,					\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -126,7 +126,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 
 #define STRESS_VEC_MUL(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	stress_args_t *args,				\
+	stress_args_t *args,					\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -160,7 +160,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 
 #define STRESS_VEC_DIV(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	stress_args_t *args,				\
+	stress_args_t *args,					\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -194,7 +194,7 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 
 #define STRESS_VEC_NEG(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
-	stress_args_t *args,				\
+	stress_args_t *args,					\
 	stress_vecfp_init *vecfp_init,				\
 	bool *success)						\
 {								\
@@ -389,30 +389,6 @@ static double stress_vecfp_all(
 	return 0.0;
 }
 
-/*
- *  stress_set_vecfp_method()
- *	set the default vector floating point stress method
- */
-static int stress_set_vecfp_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
-		if (!strcmp(stress_vecfp_funcs[i].name, name)) {
-			stress_set_setting("vecfp-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "vecfp-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
-		(void)fprintf(stderr, " %s", stress_vecfp_funcs[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static int stress_vecfp(stress_args_t *args)
 {
 	size_t i, j, max_elements = 0, mmap_size;
@@ -495,33 +471,35 @@ static int stress_vecfp(stress_args_t *args)
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_vecfp_method,	stress_set_vecfp_method },
+static const char *stress_vecfp_method(size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_vecfp_funcs)) ? stress_vecfp_funcs[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+        { OPT_vecfp_method, "vecfp-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vecfp_method },
+	END_OPT,
 };
 
 stressor_info_t stress_vecfp_info = {
 	.stressor = stress_vecfp,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
 
-/*
- *  stress_set_vecfp_method()
- *	set the default vector floating point stress method, no-op
- */
-static int stress_set_vecfp_method(const char *name)
+static void stress_eigen_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
-	(void)name;
-
-	fprintf(stderr, "option --vecfp-method is not implemented, ignoring option '%s'\n", name);
-	return 0;
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "vecfp stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_vecfp_method,	stress_set_vecfp_method },
+static const stress_opt_t opts[] = {
+        { OPT_vecfp_method, "vecfp-method", TYPE_ID_CALLBACK, 0, 0, stress_vecfp_method },
+	END_OPT,
 };
 
 stressor_info_t stress_vecfp_info = {

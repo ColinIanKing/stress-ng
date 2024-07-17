@@ -32,18 +32,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 	NULL }
 };
 
-static int stress_set_mpfr_precision(const char *opt)
-{
-	uint32_t mpfr_precision;
-
-	mpfr_precision = (uint32_t)stress_get_int32(opt);
-	stress_check_range("mpfr-precision", (uint64_t)mpfr_precision, 32, 1000000);
-        return stress_set_setting("mpfr-precision", TYPE_ID_UINT32, &mpfr_precision);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mpfr_precision,	stress_set_mpfr_precision },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_mpfr_precision, "mpfr-precision", TYPE_ID_UINT32, 32, 1000000, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_GMP_H) &&	\
@@ -442,7 +433,7 @@ stressor_info_t stress_mpfr_info = {
 	.stressor = stress_mpfr,
 	.class = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 
@@ -451,7 +442,7 @@ stressor_info_t stress_mpfr_info = {
 stressor_info_t stress_mpfr_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without gmp.h, mpfr.h or libmpfr"

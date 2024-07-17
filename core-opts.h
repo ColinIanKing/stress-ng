@@ -1062,7 +1062,7 @@ typedef enum {
 
 	OPT_qsort,
 	OPT_qsort_ops,
-	OPT_qsort_integers,
+	OPT_qsort_size,
 	OPT_qsort_method,
 
 	OPT_quota,
@@ -1231,13 +1231,13 @@ typedef enum {
 	OPT_shm_bytes,
 	OPT_shm_mlock,
 	OPT_shm_ops,
-	OPT_shm_objects,
+	OPT_shm_objs,
 
 	OPT_shm_sysv,
 	OPT_shm_sysv_bytes,
 	OPT_shm_sysv_mlock,
 	OPT_shm_sysv_ops,
-	OPT_shm_sysv_segments,
+	OPT_shm_sysv_segs,
 
 	OPT_sequential,
 
@@ -1569,8 +1569,8 @@ typedef enum {
 	OPT_vm_bytes,
 	OPT_vm_hang,
 	OPT_vm_keep,
-	OPT_vm_mmap_populate,
-	OPT_vm_mmap_locked,
+	OPT_vm_populate,
+	OPT_vm_locked,
 	OPT_vm_ops,
 	OPT_vm_madvise,
 	OPT_vm_method,

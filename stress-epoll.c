@@ -64,70 +64,20 @@ typedef void (stress_epoll_func_t)(
 	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
-	const int epoll_sockets);
+	const int epoll_sockets,
+	const int max_servers);
 
 static timer_t epoll_timerid;
 
 #endif
 
-static int max_servers = 1;
+static int epoll_domain_mask = DOMAIN_ALL;
 
-/*
- *  stress_set_epoll_port()
- *	set the default port base
- */
-static int stress_set_epoll_port(const char *opt)
-{
-	int epoll_port;
-
-	stress_set_net_port("epoll-port", opt,
-		MIN_EPOLL_PORT, MAX_EPOLL_PORT, &epoll_port);
-	return stress_set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
-}
-
-/*
- *  stress_set_epoll_domain()
- *	set the socket domain option
- */
-static int stress_set_epoll_domain(const char *opt)
-{
-	int ret, epoll_domain;
-
-	ret = stress_set_net_domain(DOMAIN_ALL, "epoll-domain",
-		opt, &epoll_domain);
-	stress_set_setting("epoll-domain", TYPE_ID_INT, &epoll_domain);
-
-	switch (epoll_domain) {
-	case AF_INET:
-	case AF_INET6:
-		max_servers = 4;
-		break;
-	case AF_UNIX:
-	default:
-		max_servers = 1;
-	}
-
-	return ret;
-}
-
-/*
- *  stress_set_epoll_sockets()
- *	set the maximum number of open sockets
- */
-static int stress_set_epoll_sockets(const char *opt)
-{
-	int epoll_sockets;
-
-        epoll_sockets = (int)stress_get_uint32(opt);
-        stress_check_range(opt, (uint64_t)epoll_sockets, MIN_EPOLL_SOCKETS, MAX_EPOLL_SOCKETS);
-        return stress_set_setting("epoll-sockets", TYPE_ID_INT, &epoll_sockets);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_epoll_domain,	stress_set_epoll_domain },
-	{ OPT_epoll_port,	stress_set_epoll_port },
-	{ OPT_epoll_sockets,	stress_set_epoll_sockets },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_epoll_domain,  "epoll-domain",  TYPE_ID_INT_DOMAIN, 0, 0, &epoll_domain_mask },
+	{ OPT_epoll_port,    "epoll-port",    TYPE_ID_INT_PORT,   MIN_EPOLL_PORT, MAX_EPOLL_PORT, NULL },
+	{ OPT_epoll_sockets, "epoll-sockets", TYPE_ID_INT,        MIN_EPOLL_SOCKETS, MAX_EPOLL_SOCKETS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
@@ -216,7 +166,8 @@ static pid_t epoll_spawn(
 	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
-	const int epoll_sockets)
+	const int epoll_sockets,
+	const int max_servers)
 {
 again:
 	s_pid->pid = fork();
@@ -230,7 +181,7 @@ again:
 		(void)sched_settings_apply(true);
 		stress_sync_start_wait_s_pid(s_pid);
 
-		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets);
+		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets, max_servers);
 		_exit(EXIT_SUCCESS);
 	}  else {
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
@@ -557,7 +508,8 @@ static int epoll_client(
 	stress_args_t *args,
 	const pid_t mypid,
 	const int epoll_port,
-	const int epoll_domain)
+	const int epoll_domain,
+	const int max_servers)
 {
 	int port_counter = 0;
 	uint64_t connect_timeouts = 0;
@@ -718,7 +670,8 @@ static void NORETURN epoll_server(
 	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
-	const int epoll_sockets)
+	const int epoll_sockets,
+	const int max_servers)
 {
 	NOCLOBBER int efd = -1, efd2 = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
@@ -1023,6 +976,7 @@ static int stress_epoll(stress_args_t *args)
 	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_sockets = DEFAULT_EPOLL_SOCKETS;
 	int start_port, end_port, reserved_port;
+	int max_servers;
 
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 	(void)stress_get_setting("epoll-port", &epoll_port);
@@ -1035,6 +989,16 @@ static int stress_epoll(stress_args_t *args)
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_SERVERS);
 		return EXIT_NO_RESOURCE;
+	}
+
+	switch (epoll_domain) {
+	case AF_INET:
+	case AF_INET6:
+		max_servers = 4;
+		break;
+	case AF_UNIX:
+	default:
+		max_servers = 1;
 	}
 
 	if (max_servers == 1) {
@@ -1090,7 +1054,7 @@ static int stress_epoll(stress_args_t *args)
 	 */
 	for (i = 0; i < max_servers; i++) {
 		stress_sync_start_init(&s_pids[i]);
-		if (epoll_spawn(args, epoll_server, &s_pids_head, &s_pids[i], i, mypid, epoll_port, epoll_domain, epoll_sockets) < 0) {
+		if (epoll_spawn(args, epoll_server, &s_pids_head, &s_pids[i], i, mypid, epoll_port, epoll_domain, epoll_sockets, max_servers) < 0) {
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto reap;
@@ -1101,7 +1065,7 @@ static int stress_epoll(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
 
-	rc = epoll_client(args, mypid, epoll_port, epoll_domain);
+	rc = epoll_client(args, mypid, epoll_port, epoll_domain, max_servers);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(start_port, end_port);
@@ -1114,7 +1078,7 @@ reap:
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_epoll,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -1122,7 +1086,7 @@ stressor_info_t stress_epoll_info = {
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without sys/epoll.h or librt or timer support"

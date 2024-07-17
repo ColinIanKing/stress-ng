@@ -46,11 +46,11 @@ typedef struct {
 } stress_dentry_removal_t;
 
 static const stress_help_t help[] = {
-	{ "D N","dentry N",		"start N dentry thrashing stressors" },
-	{ NULL,	"dentry-ops N",		"stop after N dentry bogo operations" },
-	{ NULL,	"dentry-order O",	"specify unlink order (reverse, forward, stride)" },
-	{ NULL,	"dentries N",		"create N dentries per iteration" },
-	{ NULL,	NULL,			NULL }
+	{ "D N","dentry N",	  "start N dentry thrashing stressors" },
+	{ NULL,	"dentry-ops N",	  "stop after N dentry bogo operations" },
+	{ NULL,	"dentry-order O", "specify unlink order (reverse, forward, stride)" },
+	{ NULL,	"dentries N",	  "create N dentries per iteration" },
+	{ NULL,	NULL,		  NULL }
 };
 
 static const stress_dentry_removal_t dentry_removals[] = {
@@ -58,44 +58,11 @@ static const stress_dentry_removal_t dentry_removals[] = {
 	{ "reverse",	ORDER_REVERSE },
 	{ "stride",	ORDER_STRIDE },
 	{ "random",	ORDER_RANDOM },
-	{ NULL,		ORDER_NONE },
 };
 
-static int stress_set_dentries(const char *opt)
+static const char *stress_dentry_order(const size_t i)
 {
-	uint64_t dentries;
-
-	dentries = stress_get_uint64(opt);
-	stress_check_range("dentries", dentries,
-		MIN_DENTRIES, MAX_DENTRIES);
-	return stress_set_setting("dentries", TYPE_ID_UINT64, &dentries);
-}
-
-/*
- *  stress_set_dentry_order()
- *	set dentry ordering from give option
- */
-static int stress_set_dentry_order(const char *opt)
-{
-	const stress_dentry_removal_t *dr;
-
-	for (dr = dentry_removals; dr->name; dr++) {
-		if (!strcmp(dr->name, opt)) {
-			uint8_t dentry_order = dr->denty_order;
-
-			stress_set_setting("dentry-order",
-				TYPE_ID_UINT8, &dentry_order);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "dentry-order must be one of:");
-	for (dr = dentry_removals; dr->name; dr++) {
-		(void)fprintf(stderr, " %s", dr->name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(dentry_removals)) ? dentry_removals[i].name : NULL;
 }
 
 /*
@@ -509,16 +476,16 @@ abort:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dentries,		stress_set_dentries },
-	{ OPT_dentry_order,	stress_set_dentry_order },
-	{ 0,		NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_dentries,	    "dentries",     TYPE_ID_UINT64, MIN_DENTRIES, MAX_DENTRIES, NULL },
+	{ OPT_dentry_order, "dentry-order", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dentry_order },
+	END_OPT,
 };
 
 stressor_info_t stress_dentry_info = {
 	.stressor = stress_dentry,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

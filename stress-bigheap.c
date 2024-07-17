@@ -86,43 +86,6 @@ static const char *stress_bigheap_phase(void)
 }
 
 /*
- *  stress_set_bigheap_mlock
- *	enable mlocking on allocated pages
- */
-static int stress_set_bigheap_mlock(const char *opt)
-{
-	return stress_set_setting_true("bigheap-mlock", opt);
-}
-
-/*
- *  stress_set_bigheap_bytes()
- *  	Set maximum allocation amount in bytes
- */
-static int stress_set_bigheap_bytes(const char *opt)
-{
-	size_t bigheap_bytes;
-
-	bigheap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("bigheap-bytes", (uint64_t)bigheap_bytes,
-		MIN_BIGHEAP_BYTES, MAX_BIGHEAP_BYTES);
-	return stress_set_setting("bigheap-bytes", TYPE_ID_SIZE_T, &bigheap_bytes);
-}
-
-/*
- *  stress_set_bigheap_growth()
- *  	Set bigheap growth from given opt arg string
- */
-static int stress_set_bigheap_growth(const char *opt)
-{
-	uint64_t bigheap_growth;
-
-	bigheap_growth = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("bigheap-growth", bigheap_growth,
-		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
-	return stress_set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
-}
-
-/*
  *  stress_bigheap_segvhandler()
  *	SEGV handler
  */
@@ -345,17 +308,17 @@ static int stress_bigheap(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_bigheap_bytes,	stress_set_bigheap_bytes },
-	{ OPT_bigheap_growth,	stress_set_bigheap_growth },
-	{ OPT_bigheap_mlock,	stress_set_bigheap_mlock },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_bigheap_bytes,  "bigheap-bytes",  TYPE_ID_SIZE_T_BYTES, MIN_BIGHEAP_BYTES,  MAX_BIGHEAP_BYTES,  NULL },
+	{ OPT_bigheap_growth, "bigheap-growth", TYPE_ID_UINT64,       MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH, NULL },
+	{ OPT_bigheap_mlock,  "bigheap-mlock",  TYPE_ID_BOOL,         0,                  1,                  NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
 	.class = CLASS_OS | CLASS_VM,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

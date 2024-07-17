@@ -240,23 +240,9 @@ static const uint64_t unshare_flags[] = {
 };
 #endif
 
-/*
- *  stress_set_clone_max()
- *	set maximum number of clones allowed
- */
-static int stress_set_clone_max(const char *opt)
-{
-	uint32_t clone_max;
-
-	clone_max = stress_get_uint32(opt);
-	stress_check_range("clone-max", clone_max,
-		MIN_CLONES, MAX_CLONES);
-	return stress_set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_clone_max,	stress_set_clone_max },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_clone_max, "clone-max", TYPE_ID_UINT32, MIN_CLONES, MAX_CLONES, NULL },
+        END_OPT,
 };
 
 #if defined(HAVE_CLONE)
@@ -657,7 +643,7 @@ static int stress_clone(stress_args_t *args)
 stressor_info_t stress_clone_info = {
 	.stressor = stress_clone,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -665,7 +651,7 @@ stressor_info_t stress_clone_info = {
 stressor_info_t stress_clone_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without clone() system call"

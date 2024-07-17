@@ -40,14 +40,9 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-static int stress_set_af_alg_dump(const char *opt)
-{
-	return stress_set_setting_true("af-alg-dump", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_af_alg_dump,	stress_set_af_alg_dump },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_af_alg_dump, "af-alg-dump", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LINUX_IF_ALG_H) &&	\
@@ -1216,7 +1211,7 @@ stressor_info_t stress_af_alg_info = {
 	.init = stress_af_alg_init,
 	.deinit = stress_af_alg_deinit,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -1225,7 +1220,7 @@ stressor_info_t stress_af_alg_info = {
 stressor_info_t stress_af_alg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without linux/if_alg.h"

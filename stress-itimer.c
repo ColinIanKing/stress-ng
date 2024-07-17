@@ -32,29 +32,10 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-/*
- *  stress_set_itimer_freq()
- *	set itimer frequency from given option
- */
-static int stress_set_itimer_freq(const char *opt)
-{
-	uint64_t itimer_freq;
-
-	itimer_freq = stress_get_uint64(opt);
-	stress_check_range("itimer-freq", itimer_freq,
-		MIN_ITIMER_FREQ, MAX_ITIMER_FREQ);
-	return stress_set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
-}
-
-static int stress_set_itimer_rand(const char *opt)
-{
-	return stress_set_setting_true("itimer-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_itimer_freq,	stress_set_itimer_freq },
-	{ OPT_itimer_rand,	stress_set_itimer_rand },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_itimer_freq, "itimer-freq", TYPE_ID_UINT64, MIN_ITIMER_FREQ, MAX_ITIMER_FREQ, NULL },
+	{ OPT_itimer_rand, "itimer-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_GETITIMER) &&	\
@@ -225,7 +206,7 @@ static int stress_itimer(stress_args_t *args)
 stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -235,7 +216,7 @@ stressor_info_t stress_itimer_info = {
 stressor_info_t stress_itimer_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without getitimer() or setitimer() support"

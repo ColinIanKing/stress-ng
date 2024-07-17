@@ -47,29 +47,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_syncload_ms(const char *opt, const char *setting)
-{
-	uint64_t ms;
-
-	ms = stress_get_uint64(opt);
-	stress_check_range(setting, ms, STRESS_SYNCLOAD_MS_MIN, STRESS_SYNCLOAD_MS_MAX);
-	return stress_set_setting(setting, TYPE_ID_UINT64, &ms);
-}
-
-static int stress_set_syncload_msbusy(const char *opt)
-{
-	return stress_set_syncload_ms(opt, "syncload-msbusy");
-}
-
-static int stress_set_syncload_mssleep(const char *opt)
-{
-	return stress_set_syncload_ms(opt, "syncload-mssleep");
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_syncload_msbusy,	stress_set_syncload_msbusy },
-	{ OPT_syncload_mssleep,	stress_set_syncload_mssleep },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_syncload_msbusy,	"syncload-msbusy",  TYPE_ID_UINT64, STRESS_SYNCLOAD_MS_MIN, STRESS_SYNCLOAD_MS_MAX, NULL },
+	{ OPT_syncload_mssleep,	"syncload-mssleep", TYPE_ID_UINT64, STRESS_SYNCLOAD_MS_MIN, STRESS_SYNCLOAD_MS_MAX, NULL },
+	END_OPT,
 };
 
 static void stress_syncload_none(void)
@@ -357,7 +338,7 @@ static int stress_syncload(stress_args_t *args)
 stressor_info_t stress_syncload_info = {
 	.stressor = stress_syncload,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.init = stress_syncload_init,
 	.help = help
 };

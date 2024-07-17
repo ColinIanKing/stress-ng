@@ -41,20 +41,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_mq_size(const char *opt)
-{
-	uint64_t sz;
-	int mq_size;
-
-	sz = stress_get_uint64(opt);
-	stress_check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
-	mq_size = (int)sz;
-	return stress_set_setting("mq-size", TYPE_ID_INT, &mq_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mq_size,	stress_set_mq_size },
-	{ 0,		NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mq_size, "mq-size", TYPE_ID_INT, MIN_MQ_SIZE, MAX_MQ_SIZE, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_MQUEUE_H) &&	\
@@ -536,7 +525,7 @@ finish:
 stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -544,7 +533,7 @@ stressor_info_t stress_mq_info = {
 stressor_info_t stress_mq_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without mqueue.h, POSIX message queues or librt support"

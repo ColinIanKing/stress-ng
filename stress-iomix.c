@@ -46,16 +46,6 @@ static const stress_help_t help[] = {
 
 static void *counter_lock;
 
-static int stress_set_iomix_bytes(const char *opt)
-{
-	off_t iomix_bytes;
-
-	iomix_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("iomix-bytes", (uint64_t)iomix_bytes,
-		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
-	return stress_set_setting("iomix-bytes", TYPE_ID_OFF_T, &iomix_bytes);
-}
-
 /*
  *  stress_iomix_rnd_offset()
  *	generate a random offset between 0..max-1
@@ -1190,15 +1180,15 @@ tidy_s_pids:
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_iomix_bytes,	stress_set_iomix_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_iomix_bytes, "iomix-bytes", TYPE_ID_OFF_T, MIN_IOMIX_BYTES, MAX_IOMIX_BYTES, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_iomix_info = {
 	.stressor = stress_iomix,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -54,53 +54,16 @@ static const stress_prime_method_t stress_prime_methods[] = {
 	{ "pwr10",	STRESS_PRIME_METHOD_PWR10 },
 };
 
-/*
- *  stress_set_prime_method()
- *	set the default prime method
- */
-static int stress_set_prime_method(const char *name)
+static const char *stress_prime_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_prime_methods); i++) {
-		if (!strcmp(stress_prime_methods[i].name, name)) {
-			stress_set_setting("prime-method", TYPE_ID_SIZE_T, &stress_prime_methods[i].prime_method);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "prime-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_prime_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_prime_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(stress_prime_methods)) ? stress_prime_methods[i].name : NULL;
 }
 
-/*
- *  stress_set_prime_progress
- *	enable periodic prime progress information
- */
-static int stress_set_prime_progress(const char *opt)
-{
-	return stress_set_setting_true("prime-progress", opt);
-}
-
-/*
- *  stress_set_prime_start
- *	define start value
- */
-static int stress_set_prime_start(const char *opt)
-{
-	return stress_set_setting("prime-start", TYPE_ID_STR, opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_prime_method,	stress_set_prime_method },
-	{ OPT_prime_progress,	stress_set_prime_progress },
-	{ OPT_prime_start,	stress_set_prime_start },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_prime_method,   "prime-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_prime_method },
+	{ OPT_prime_progress, "prime-progress", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_prime_start,    "prime-start",    TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_GMP_H) &&	\
@@ -290,7 +253,7 @@ finish:
 stressor_info_t stress_prime_info = {
 	.stressor = stress_prime,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help
 };
@@ -300,7 +263,7 @@ stressor_info_t stress_prime_info = {
 stressor_info_t stress_prime_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,
 	.unimplemented_reason = "built without gmp.h, or libgmp"

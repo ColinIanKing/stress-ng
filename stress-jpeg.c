@@ -57,72 +57,17 @@ static const jpeg_image_type_t jpeg_image_types[] = {
 	{ "xstripes",	JPEG_IMAGE_XSTRIPES },
 };
 
-/*
- *  stress_set_jpeg_height()
- *      set jpeg height
- */
-static int stress_set_jpeg_height(const char *opt)
+static const char *stress_jpeg_image(const size_t i)
 {
-	int32_t jpeg_height;
-
-	jpeg_height = stress_get_int32(opt);
-	stress_check_range("jpeg-height", (uint64_t)jpeg_height, 256, 4096);
-	return stress_set_setting("jpeg-height", TYPE_ID_INT32, &jpeg_height);
+	return (i < SIZEOF_ARRAY(jpeg_image_types)) ? jpeg_image_types[i].name : NULL;
 }
 
-/*
- *  stress_set_jpeg_width()
- *      set jpeg width
- */
-static int stress_set_jpeg_width(const char *opt)
-{
-	int32_t jpeg_width;
-
-	jpeg_width = stress_get_int32(opt);
-	stress_check_range("jpeg-width", (uint64_t)jpeg_width, 256, 4096);
-	return stress_set_setting("jpeg-width", TYPE_ID_INT32, &jpeg_width);
-}
-
-/*
- *  stress_set_jpeg_quality()
- *      set jpeg quality 1..100 (100 best)
- */
-static int stress_set_jpeg_quality(const char *opt)
-{
-	int32_t jpeg_quality;
-
-	jpeg_quality = stress_get_int32(opt);
-	stress_check_range("jpeg-quality", (uint64_t)jpeg_quality, 1, 100);
-	return stress_set_setting("jpeg-quality", TYPE_ID_INT32, &jpeg_quality);
-}
-
-/*
- *  stress_set_jpeg_image()
- *      set image to compress
- */
-static int stress_set_jpeg_image(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++) {
-		if (strcmp(opt, jpeg_image_types[i].name) == 0)
-			return stress_set_setting("jpeg-image", TYPE_ID_INT, &jpeg_image_types[i].type);
-	}
-	(void)fprintf(stderr, "jpeg-image must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++)
-		(void)fprintf(stderr, " %s", jpeg_image_types[i].name);
-
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_jpeg_height,	stress_set_jpeg_height },
-	{ OPT_jpeg_image,	stress_set_jpeg_image },
-	{ OPT_jpeg_width,	stress_set_jpeg_width },
-	{ OPT_jpeg_quality,	stress_set_jpeg_quality },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_jpeg_height,  "jpeg-height",   TYPE_ID_INT32, 256, 4096, NULL },
+	{ OPT_jpeg_image,   "jpeg-image",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_jpeg_image },
+	{ OPT_jpeg_width,   "jpeg-width",    TYPE_ID_INT32, 256, 4096, NULL },
+	{ OPT_jpeg_quality, "jpeg-quality",  TYPE_ID_INT32, 1, 100, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_JPEG) &&	\
@@ -395,7 +340,7 @@ static int stress_jpeg(stress_args_t *args)
 	int32_t jpeg_quality = 95;
 	int32_t yy = 0;
 	size_t rgb_size, row_pointer_size;
-	int jpeg_image = JPEG_IMAGE_PLASMA;
+	size_t jpeg_image = 0; /* plasma */
 	double total_pixels = 0.0, t_start, duration, rate, ratio;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
@@ -426,7 +371,7 @@ static int stress_jpeg(stress_args_t *args)
 
 	stress_mwc_set_seed(0xf1379ab2, 0x679ce25d);
 
-	switch (jpeg_image) {
+	switch (jpeg_image_types[jpeg_image].type) {
 	default:
 	case JPEG_IMAGE_PLASMA:
 		stress_rgb_plasma(rgb, x_max, y_max);
@@ -506,7 +451,7 @@ static int stress_jpeg(stress_args_t *args)
 stressor_info_t stress_jpeg_info = {
 	.stressor = stress_jpeg,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -514,7 +459,7 @@ stressor_info_t stress_jpeg_info = {
 stressor_info_t stress_jpeg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without jpeg library"

@@ -39,18 +39,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_poll_fds(const char *opt)
-{
-	size_t max_fds;
-
-        max_fds = (size_t)stress_get_uint32(opt);
-        stress_check_range("poll-fds", (uint64_t)max_fds, MIN_POLL_FDS, MAX_POLL_FDS);
-        return stress_set_setting("poll-fds", TYPE_ID_SIZE_T, &max_fds);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_poll_fds,		stress_set_poll_fds },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_poll_fds, "poll-fds", TYPE_ID_SIZE_T, MIN_POLL_FDS, MAX_POLL_FDS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_POLL_H)
@@ -422,7 +413,7 @@ tidy:
 stressor_info_t stress_poll_info = {
 	.stressor = stress_poll,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -430,7 +421,7 @@ stressor_info_t stress_poll_info = {
 stressor_info_t stress_poll_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without poll.h"

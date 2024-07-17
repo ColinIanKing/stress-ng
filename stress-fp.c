@@ -384,6 +384,8 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 	{ "ldoublediv",		"long double divide",	stress_fp_ldouble_div,	STRESS_FP_TYPE_LONG_DOUBLE,	0.0, 0.0 },
 };
 
+#define STRESS_NUM_FP_FUNCS	(SIZEOF_ARRAY(stress_fp_funcs))
+
 typedef struct {
 	const int fp_type;
 	const char *fp_description;
@@ -425,7 +427,7 @@ static int stress_fp_call_method(
 	func->duration += dt;
 	func->ops += (FP_ELEMENTS * LOOPS_PER_CALL);
 
-	if ((method > 0) && (method < SIZEOF_ARRAY(stress_fp_funcs)) && verify) {
+	if ((method > 0) && (method < STRESS_NUM_FP_FUNCS && verify)) {
 		register size_t i;
 		const int fp_type = stress_fp_funcs[method].fp_type;
 		const char *method_name = stress_fp_funcs[method].name;
@@ -517,35 +519,11 @@ static double stress_fp_all(
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 	(void)idx;
 
-	for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
+	for (i = 1; i < STRESS_NUM_FP_FUNCS; i++) {
 		if (stress_fp_call_method(args, fp_data, i, verify) == EXIT_FAILURE)
 			return -1.0;
 	}
 	return 0.0;
-}
-
-/*
- *  stress_set_fp_method()
- *	set the default vector floating point stress method
- */
-static int stress_set_fp_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
-		if (!strcmp(stress_fp_funcs[i].name, name)) {
-			stress_set_setting("fp-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "fp-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
-		(void)fprintf(stderr, " %s", stress_fp_funcs[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 static int stress_fp(stress_args_t *args)
@@ -721,7 +699,7 @@ static int stress_fp(stress_args_t *args)
 		}
 	} while (stress_continue(args));
 
-	for (i = 1; i < SIZEOF_ARRAY(stress_fp_funcs); i++) {
+	for (i = 1; i < STRESS_NUM_FP_FUNCS; i++) {
 		const double ops = stress_fp_funcs[i].ops;
 		const double duration = stress_fp_funcs[i].duration;
 		if ((duration > 0.0) && (ops > 0.0)) {
@@ -741,14 +719,20 @@ static int stress_fp(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_fp_method,	stress_set_fp_method },
+static const char *stress_fp_method(const size_t i)
+{
+	return (i < STRESS_NUM_FP_FUNCS) ? stress_fp_funcs[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_fp_method, "fp-method", TYPE_ID_SIZE_T_METHOD, 0, 1, stress_fp_method },
+	END_OPT,
 };
 
 stressor_info_t stress_fp_info = {
 	.stressor = stress_fp,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

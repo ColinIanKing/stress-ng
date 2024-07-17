@@ -1,4 +1,4 @@
-/*
+/*.
  * Copyright (C) 2013-2021 Canonical, Ltd.
  * Copyright (C) 2022-2024 Colin Ian King.
  *
@@ -108,54 +108,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_sock_option()
- *	generic helper to set an option
- */
-static int stress_set_sock_option(
-	const char *setting,
-	const stress_sock_options_t options[],
-	const char *opt)
-{
-	size_t i;
-
-	for (i = 0; options[i].optname; i++) {
-		if (!strcmp(opt, options[i].optname)) {
-			int type = options[i].optval;
-
-			stress_set_setting(setting, TYPE_ID_INT, &type);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "%s option '%s' not known, options are:", setting, opt);
-	for (i = 0; options[i].optname; i++) {
-		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", options[i].optname);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-/*
- *  stress_set_sock_opts()
- *	parse --sock-opts
- */
-static int stress_set_sock_opts(const char *opt)
-{
-	static const stress_sock_options_t sock_opts[] = {
-		{ "random",	SOCKET_OPT_RANDOM },
-		{ "send",	SOCKET_OPT_SEND },
-		{ "sendmsg",	SOCKET_OPT_SENDMSG },
+static const stress_sock_options_t sock_options_opts[] = {
+	{ "random",	SOCKET_OPT_RANDOM },
+	{ "send",	SOCKET_OPT_SEND },
+	{ "sendmsg",	SOCKET_OPT_SENDMSG },
 #if defined(HAVE_SENDMMSG)
-		{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
+	{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
 #else
-		UNEXPECTED
+	UNEXPECTED
 #endif
-		{ NULL,		0 }
-	};
-
-	return stress_set_sock_option("sock-opts", sock_opts, opt);
-}
+};
 
 static const char * PURE stress_recv_func_str(const int sock_opts)
 {
@@ -170,107 +132,24 @@ static const char * PURE stress_recv_func_str(const int sock_opts)
 	return "unknown";
 }
 
-/*
- *  stress_set_sock_type()
- *	parse --sock-type
- */
-static int stress_set_sock_type(const char *opt)
-{
-	static const stress_sock_options_t sock_types[] = {
+static const stress_sock_options_t sock_options_types[] = {
 #if defined(SOCK_STREAM)
-		{ "stream",	SOCK_STREAM  },
+	{ "stream",	SOCK_STREAM  },
 #endif
 #if defined(SOCK_SEQPACKET)
-		{ "seqpacket",	SOCK_SEQPACKET },
+	{ "seqpacket",	SOCK_SEQPACKET },
 #endif
 #if defined(SOCK_DGRAM)
-		{ "dgram",	SOCK_DGRAM },
+	{ "dgram",	SOCK_DGRAM },
 #endif
-		{ NULL,		0 }
-	};
+};
 
-	return stress_set_sock_option("sock-type", sock_types, opt);
-}
-
-/*
- *  stress_set_sock_msgs()
- *	set number of messages to send per connection
- */
-static int stress_set_sock_msgs(const char *opt)
-{
-	size_t sock_msgs;
-
-	sock_msgs = (size_t)stress_get_uint64(opt);
-	stress_check_range("sock-msgs", (uint64_t)sock_msgs,
-                MIN_SOCKET_MSGS, MAX_SOCKET_MSGS);
-	return stress_set_setting("sock-msgs", TYPE_ID_SIZE_T, &sock_msgs);
-}
-
-/*
- *  stress_set_sock_port()
- *	set port to use
- */
-static int stress_set_sock_port(const char *opt)
-{
-	int sock_port;
-
-	stress_set_net_port("sock-port", opt,
-		MIN_SOCKET_PORT, MAX_SOCKET_PORT, &sock_port);
-	return stress_set_setting("sock-port", TYPE_ID_INT, &sock_port);
-}
-
-static int stress_set_sock_if(const char *name)
-{
-	return stress_set_setting("sock-if", TYPE_ID_STR, name);
-}
-
-/*
- *  stress_set_sock_protocol()
- *	parse --sock-protocol
- */
-static int stress_set_sock_protocol(const char *opt)
-{
-	static const stress_sock_options_t sock_protocols[] = {
-		{ "tcp",	IPPROTO_TCP},
+static const stress_sock_options_t sock_options_protocols[] = {
+	{ "tcp",	IPPROTO_TCP},
 #if defined(IPPROTO_MPTCP)
-		{ "mptcp",	IPPROTO_MPTCP},
+	{ "mptcp",	IPPROTO_MPTCP},
 #endif
-		{ NULL,		0 }
-	};
-
-	return stress_set_sock_option("sock-protocol", sock_protocols, opt);
-}
-
-
-/*
- *  stress_set_sock_domain()
- *	set the sock domain option
- */
-static int stress_set_sock_domain(const char *name)
-{
-	int ret, sock_domain;
-
-	ret = stress_set_net_domain(DOMAIN_ALL, "sock-domain",
-				     name, &sock_domain);
-	stress_set_setting("sock-domain", TYPE_ID_INT, &sock_domain);
-
-	return ret;
-}
-
-/*
- *  stress_set_sock_zerocopy()
- *	set the sock zerocopy option
- */
-static int stress_set_sock_zerocopy(const char *opt)
-{
-#if defined(MSG_ZEROCOPY)
-	return stress_set_setting_true("sock-zerocopy", opt);
-#else
-	(void)opt;
-	pr_inf("sock: cannot enable sock-zerocopy, MSG_ZEROCOPY is not available\n");
-	return 0;
-#endif
-}
+};
 
 /*
  *  stress_get_congestion_controls()
@@ -654,12 +533,17 @@ retry:
 #if defined(MSG_ZEROCOPY) && defined(SO_ZEROCOPY)
 		if (sock_zerocopy) {
 			int so_zerocopy = 1;
+			static bool warned = false;
 
-			if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
-				recvflag |= MSG_ZEROCOPY;
-			} else {
-				if (args->instance == 0)
-					pr_inf("%s: cannot enable zerocopy on data being received\n", args->name);
+			if (!warned) {
+				if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
+					recvflag |= MSG_ZEROCOPY;
+				} else {
+					if (args->instance == 0) {
+						warned = true;
+						pr_inf("%s: cannot enable zerocopy on data being received\n", args->name);
+					}
+				}
 			}
 		}
 #else
@@ -1058,12 +942,17 @@ static int OPTIMIZE3 stress_sock_server(
 #if defined(MSG_ZEROCOPY) && defined(SO_ZEROCOPY)
 	if (sock_zerocopy) {
 		int so_zerocopy = 1;
+		static bool warned = false;
 
-		if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
-			sendflag |= MSG_ZEROCOPY;
-		} else {
-			if (args->instance == 0)
-				pr_inf("%s: cannot enable zerocopy on data being sent\n", args->name);
+		if (!warned) {
+			if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &so_zerocopy, sizeof(so_zerocopy)) == 0) {
+				sendflag |= MSG_ZEROCOPY;
+			} else {
+				if (args->instance == 0) {
+					pr_inf("%s: cannot enable zerocopy on data being sent\n", args->name);
+					warned = true;
+				}
+			}	
 		}
 	}
 #else
@@ -1408,9 +1297,10 @@ static bool stress_sock_kernel_rt(void)
 static int stress_sock(stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
-	int sock_opts = SOCKET_OPT_SEND;
+	size_t idx;
+	int sock_opts;
 	int sock_domain = AF_INET;
-	int sock_type = SOCK_STREAM;
+	int sock_type;
 	int sock_port = DEFAULT_SOCKET_PORT;
 	int sock_protocol = 0;
 	int sock_zerocopy = false;
@@ -1424,11 +1314,24 @@ static int stress_sock(stress_args_t *args)
 
 	(void)stress_get_setting("sock-if", &sock_if);
 	(void)stress_get_setting("sock-domain", &sock_domain);
-	(void)stress_get_setting("sock-type", &sock_type);
-	(void)stress_get_setting("sock-protocol", &sock_protocol);
 	(void)stress_get_setting("sock-port", &sock_port);
-	(void)stress_get_setting("sock-opts", &sock_opts);
 	(void)stress_get_setting("sock-zerocopy", &sock_zerocopy);
+	sock_opts = stress_get_setting("sock-opts", &idx) ?
+		sock_options_opts[idx].optval : SOCKET_OPT_SEND;
+#if defined(SOCK_STREAM)
+	sock_type = stress_get_setting("sock-type", &idx) ?
+		sock_options_types[idx].optval : SOCK_STREAM;
+#else
+	sock_type = stress_get_setting("sock-type", &idx) ?
+		sock_options_types[idx].optval : 1;
+#endif
+	sock_protocol = stress_get_setting("sock-protocol", &idx) ?
+		sock_options_protocols[idx].optval : IPPROTO_TCP;
+
+#if !defined(MSG_ZEROCOPY)
+	if (sock_zerocopy)
+		pr_inf("sock: cannot enable sock-zerocopy, MSG_ZEROCOPY is not available\n");
+#endif
 
 	if (sock_if) {
 		int ret;
@@ -1504,22 +1407,40 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sock_domain,	stress_set_sock_domain },
-	{ OPT_sock_if,		stress_set_sock_if },
-	{ OPT_sock_msgs,	stress_set_sock_msgs },
-	{ OPT_sock_opts,	stress_set_sock_opts },
-	{ OPT_sock_type,	stress_set_sock_type },
-	{ OPT_sock_port,	stress_set_sock_port },
-	{ OPT_sock_protocol,	stress_set_sock_protocol },
-	{ OPT_sock_zerocopy,	stress_set_sock_zerocopy },
-	{ 0,			NULL }
+static int sock_domain_mask = DOMAIN_ALL;
+
+static const char *stress_sock_opts(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(sock_options_opts)) ? sock_options_opts[i].optname : NULL;
+}
+
+static const char *stress_sock_types(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(sock_options_types)) ? sock_options_types[i].optname : NULL;
+}
+
+static const char *stress_sock_protocols(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(sock_options_protocols)) ? sock_options_protocols[i].optname : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_sock_domain,   "sock-domain",   TYPE_ID_INT_DOMAIN, 0, 0, &sock_domain_mask },
+	{ OPT_sock_if,	     "sock-if",       TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sock_msgs,     "sock-msgs",     TYPE_ID_SIZE_T, MIN_SOCKET_MSGS, MAX_SOCKET_MSGS, NULL },
+	{ OPT_sock_nodelay,  "sock-nodelay",  TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_sock_opts,     "sock-opts",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_opts },
+	{ OPT_sock_type,     "sock-type",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_types },
+	{ OPT_sock_port,     "sock-port",     TYPE_ID_INT_PORT, MIN_SOCKET_PORT, MAX_SOCKET_PORT, NULL },
+	{ OPT_sock_protocol, "sock-protocol", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_protocols },
+	{ OPT_sock_zerocopy, "sock-zerocopy", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_sock_info = {
 	.stressor = stress_sock,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

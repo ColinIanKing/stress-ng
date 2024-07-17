@@ -38,19 +38,9 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		    NULL }
 };
 
-static int stress_set_lease_breakers(const char *opt)
-{
-	uint64_t lease_breakers;
-
-	lease_breakers = stress_get_uint64(opt);
-	stress_check_range("lease-breakers", lease_breakers,
-		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
-	return stress_set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_lease_breakers,	stress_set_lease_breakers },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_lease_breakers, "lease-breakers", TYPE_ID_UINT64, MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS, NULL },
+	END_OPT,
 };
 
 #if defined(F_SETLEASE) &&	\
@@ -268,7 +258,7 @@ reap:
 stressor_info_t stress_lease_info = {
 	.stressor = stress_lease,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

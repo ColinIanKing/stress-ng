@@ -49,23 +49,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_sockmany_port()
- *	set port to use
- */
-static int stress_set_sockmany_port(const char *opt)
-{
-	int sockmany_port;
-
-	stress_set_net_port("sockmany-port", opt,
-		MIN_SOCKMANY_PORT, MAX_SOCKMANY_PORT, &sockmany_port);
-	return stress_set_setting("sockmany-port", TYPE_ID_INT, &sockmany_port);
-}
-
-static int stress_set_sockmany_if(const char *name)
-{
-	return stress_set_setting("sockmany-if", TYPE_ID_STR, name);
-}
+static const stress_opt_t opts[] = {
+	{ OPT_sockmany_if,   "sockmany-if",   TYPE_ID_STR, 0, 0, NULL },
+	{ OPT_sockmany_port, "sockmany-port", TYPE_ID_INT_PORT, MIN_SOCKMANY_PORT, MAX_SOCKMANY_PORT, NULL },
+	END_OPT,
+};
 
 /*
  *  stress_sockmany_cleanup()
@@ -388,16 +376,10 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sockmany_if,	stress_set_sockmany_if },
-	{ OPT_sockmany_port,	stress_set_sockmany_port },
-	{ 0,			NULL },
-};
-
 stressor_info_t stress_sockmany_info = {
 	.stressor = stress_sockmany,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

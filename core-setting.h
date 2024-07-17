@@ -21,7 +21,7 @@
 
 /* native setting types */
 typedef enum {
-	TYPE_ID_UNDEFINED,		/* no-id */
+	TYPE_ID_UNDEFINED = 0,		/* no-id */
 	TYPE_ID_UINT8,			/* uint8_t */
 	TYPE_ID_INT8,			/* int8_t */
 	TYPE_ID_UINT16,			/* uint16_t */
@@ -29,17 +29,47 @@ typedef enum {
 	TYPE_ID_UINT32,			/* uint32_t */
 	TYPE_ID_INT32,			/* int32_t */
 	TYPE_ID_UINT64,			/* uint64_t */
+	TYPE_ID_UINT64_BYTES,		/* uint64_t in bytes units */
 	TYPE_ID_INT64,			/* int64_t */
 	TYPE_ID_SIZE_T,			/* size_t */
+	TYPE_ID_SIZE_T_BYTES,		/* size_t in bytes units */
 	TYPE_ID_SSIZE_T,		/* ssize_t */
 	TYPE_ID_UINT,			/* unsigned int */
 	TYPE_ID_INT,			/* signed int */
-	TYPE_ID_ULONG,			/* unsigned long */
-	TYPE_ID_LONG,			/* signed long */
-	TYPE_ID_OFF_T,			/* off_t */
+	TYPE_ID_INT_DOMAIN,		/* net domain */
+	TYPE_ID_INT_PORT,		/* net port */
+	TYPE_ID_OFF_T,			/* off_t is always in bytes units */
 	TYPE_ID_STR,			/* char * */
 	TYPE_ID_BOOL,			/* bool */
+	TYPE_ID_SIZE_T_METHOD,		/* method index */
+	TYPE_ID_CALLBACK,		/* callback function */
 } stress_type_id_t;
+
+/* settings for storing opt arg parsed data */
+typedef struct stress_setting {
+	struct stress_setting *next;	/* next setting in list */
+	struct stress_stressor_info *proc;
+	char *name;			/* name of setting */
+	stress_type_id_t type_id;	/* setting type */
+	bool		global;		/* true if global */
+	union {				/* setting value */
+		uint8_t		uint8;	/* TYPE_ID_UINT8 */
+		int8_t		int8;	/* TYPE_ID_INT8 */
+		uint16_t	uint16;	/* TYPE_ID_UINT16 */
+		int16_t		int16;	/* TYPE_ID_INT16 */
+		uint32_t	uint32;	/* TYPE_ID_UINT32 */
+		int32_t		int32;	/* TYPE_ID_INT32 */
+		uint64_t	uint64;	/* TYPE_ID_UINT64 */
+		int64_t		int64;	/* TYPE_ID_INT64 */
+		size_t		size;	/* TYPE_ID_SIZE_T, TYPE_ID_SIZE_T_METHOD */
+		ssize_t		ssize;	/* TYPE_ID_SSIZE_T */
+		unsigned int	uint;	/* TYPE_ID_UINT */
+		signed int	sint;	/* TYPE_ID_INT, TYPE_ID_INT_DOMAIN, TYPE_ID_INT_PORT */
+		off_t		off;	/* TYPE_ID_OFF_T */
+		char 		*str;	/* TYPE_ID_STR */
+		bool		boolean;/* TYPE_ID_BOOL */
+	} u;
+} stress_setting_t;
 
 extern void stress_settings_free(void);
 extern void stress_settings_show(void);

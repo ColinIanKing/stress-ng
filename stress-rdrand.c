@@ -37,24 +37,9 @@ static const stress_help_t help[] = {
 #define STRESS_SANE_LOOPS_QUICK	16
 #define STRESS_SANE_LOOPS	65536
 
-static int stress_set_rdrand_seed(const char *opt)
-{
-	(void)opt;
-
-#if defined(STRESS_ARCH_X86) &&		\
-    defined(HAVE_ASM_X86_RDRAND) &&	\
-    defined(HAVE_ASM_X86_RDSEED)
-	if (stress_cpu_x86_has_rdseed()) {
-		return stress_set_setting_true("rdrand-seed", opt);
-	}
-#endif
-	pr_inf("rdrand-seed ignored, cpu does not support feature, defaulting to rdrand\n");
-	return 0;
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_rdrand_seed,	stress_set_rdrand_seed },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_rdrand_seed, "rdrand-seed", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(STRESS_ARCH_X86) &&	\
@@ -277,13 +262,20 @@ static int stress_rdrand(stress_args_t *args)
 	size_t j;
 #if defined(HAVE_SEED_CAPABILITY)
 	bool rdrand_seed = false;
-
-	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
-#endif
 	static uint64_t ALIGN64 counters[16];
 
 	(void)memset(counters, 0, sizeof(counters));
+	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
 
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_X86_RDRAND) &&	\
+    defined(HAVE_ASM_X86_RDSEED)
+	if (rdrand_seed && !stress_cpu_x86_has_rdseed()) {
+		pr_inf("rdrand-seed ignored, cpu does not support feature, defaulting to rdrand\n");
+		rdrand_seed = false;
+	}
+#endif
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);
 
@@ -386,7 +378,7 @@ static int stress_rdrand(stress_args_t *args)
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
 	.supported = stress_rdrand_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -403,7 +395,7 @@ static int stress_rdrand_supported(const char *name)
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_rdrand_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

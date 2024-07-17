@@ -47,64 +47,14 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_gpu_devnode(const char *opt)
-{
-	return stress_set_setting("gpu-devnode", TYPE_ID_STR, opt);
-}
-
-static int stress_set_gpu(const char *opt, const char *name, const size_t max)
-{
-	int32_t gpu32;
-	int64_t gpu64;
-
-	gpu64 = (int64_t)stress_get_uint64(opt);
-	stress_check_range(name, (uint64_t)gpu64, 1, max);
-	gpu32 = (int32_t)gpu64;
-	return stress_set_setting(name, TYPE_ID_INT32, &gpu32);
-}
-
-static int stress_set_gpu_frag(const char *opt)
-{
-	return stress_set_gpu(opt, "gpu-frag", INT_MAX);
-}
-
-static int stress_set_gpu_xsize(const char *opt)
-{
-	return stress_set_gpu(opt, "gpu-xsize", INT_MAX);
-}
-
-static int stress_set_gpu_ysize(const char *opt)
-{
-	return stress_set_gpu(opt, "gpu-ysize", INT_MAX);
-}
-
-static int stress_set_gpu_gl(const char *opt, const char *name, const size_t max)
-{
-	int32_t gpu_val;
-
-	gpu_val = stress_get_int32(opt);
-	stress_check_range(name, (uint64_t)gpu_val, 1, max);
-	return stress_set_setting(name, TYPE_ID_INT32, &gpu_val);
-}
-
-static int stress_set_gpu_upload(const char *opt)
-{
-	return stress_set_gpu_gl(opt, "gpu-upload", INT_MAX);
-}
-
-static int stress_set_gpu_size(const char *opt)
-{
-	return stress_set_gpu_gl(opt, "gpu-tex-size", INT_MAX);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_gpu_devnode,	stress_set_gpu_devnode },
-	{ OPT_gpu_frag,		stress_set_gpu_frag },
-	{ OPT_gpu_uploads,	stress_set_gpu_upload },
-	{ OPT_gpu_size,		stress_set_gpu_size },
-	{ OPT_gpu_xsize,	stress_set_gpu_xsize },
-	{ OPT_gpu_ysize,	stress_set_gpu_ysize },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_gpu_devnode, "gpu-devnode",  TYPE_ID_STR,    0, 0,        NULL },
+	{ OPT_gpu_frag,    "gpu-frag",     TYPE_ID_INT32,  1, INT_MAX,  NULL },
+	{ OPT_gpu_uploads, "gpu-uploads",  TYPE_ID_INT32,  1, INT_MAX,  NULL },
+	{ OPT_gpu_size,    "gpu-tex-size", TYPE_ID_INT32,  1, INT_MAX,  NULL },
+	{ OPT_gpu_xsize,   "gpu-xsize",    TYPE_ID_UINT32, 1, UINT_MAX, NULL },
+	{ OPT_gpu_ysize,   "gpu-ysize",    TYPE_ID_UINT32, 1, UINT_MAX, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_EGL) &&		\
@@ -649,7 +599,7 @@ static int stress_gpu(stress_args_t *args)
 stressor_info_t stress_gpu_info = {
 	.stressor = stress_gpu,
 	.class = CLASS_GPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.supported = stress_gpu_supported,
 	.help = help
 };
@@ -657,7 +607,7 @@ stressor_info_t stress_gpu_info = {
 stressor_info_t stress_gpu_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_GPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without EGL/egl.h, EGL/eglext.h, GLES2/gl2.h or gbm.h"
 };

@@ -20,34 +20,6 @@
 #include "stress-ng.h"
 #include "core-setting.h"
 
-/* settings for storing opt arg parsed data */
-typedef struct stress_setting {
-	struct stress_setting *next;	/* next setting in list */
-	struct stress_stressor_info *proc;
-	char *name;			/* name of setting */
-	stress_type_id_t type_id;	/* setting type */
-	bool		global;		/* true if global */
-	union {				/* setting value */
-		uint8_t		uint8;	/* TYPE_ID_UINT8 */
-		int8_t		int8;	/* TYPE_ID_INT8 */
-		uint16_t	uint16;	/* TYPE_ID_UINT16 */
-		int16_t		int16;	/* TYPE_ID_INT16 */
-		uint32_t	uint32;	/* TYPE_ID_UINT32 */
-		int32_t		int32;	/* TYPE_ID_INT32 */
-		uint64_t	uint64;	/* TYPE_ID_UINT64 */
-		int64_t		int64;	/* TYPE_ID_INT64 */
-		size_t		size;	/* TYPE_ID_SIZE_T */
-		ssize_t		ssize;	/* TYPE_ID_SSIZE_T */
-		unsigned int	uint;	/* TYPE_ID_UINT */
-		signed int	sint;	/* TYPE_ID_INT */
-		unsigned long	ulong;	/* TYPE_ID_ULONG */
-		signed long	slong;	/* TYPE_ID_LONG */
-		off_t		off;	/* TYPE_ID_OFF_T */
-		char 		*str;	/* TYPE_ID_STR */
-		bool		boolean;/* TYPE_ID_BOOL */
-	} u;
-} stress_setting_t;
-
 static stress_setting_t *setting_head;	/* setting list head */
 static stress_setting_t *setting_tail;	/* setting list tail */
 
@@ -94,12 +66,15 @@ static void stress_settings_show_setting(const stress_setting_t *setting)
 		pr_inf(" %-20.20s %" PRId32 " (int32_t)\n", setting->name, setting->u.int32);
 		break;
 	case TYPE_ID_UINT64:
+	case TYPE_ID_UINT64_BYTES:
 		pr_inf(" %-20.20s %" PRIu64 " (uint64_t)\n", setting->name, setting->u.uint64);
 		break;
 	case TYPE_ID_INT64:
 		pr_inf(" %-20.20s %" PRId64 " (int64_t)\n", setting->name, setting->u.int64);
 		break;
 	case TYPE_ID_SIZE_T:
+	case TYPE_ID_SIZE_T_BYTES:
+	case TYPE_ID_SIZE_T_METHOD:
 		pr_inf(" %-20.20s %zu (size_t)\n", setting->name, setting->u.size);
 		break;
 	case TYPE_ID_SSIZE_T:
@@ -109,13 +84,9 @@ static void stress_settings_show_setting(const stress_setting_t *setting)
 		pr_inf(" %-20.20s %u (unsigned int)\n", setting->name, setting->u.uint);
 		break;
 	case TYPE_ID_INT:
+	case TYPE_ID_INT_DOMAIN:
+	case TYPE_ID_INT_PORT:
 		pr_inf(" %-20.20s %d (signed int)\n", setting->name, setting->u.sint);
-		break;
-	case TYPE_ID_ULONG:
-		pr_inf(" %-20.20s %lu (unsigned long)\n", setting->name, setting->u.ulong);
-		break;
-	case TYPE_ID_LONG:
-		pr_inf(" %-20.20s %ld (signed long)\n", setting->name, setting->u.slong);
 		break;
 	case TYPE_ID_OFF_T:
 		pr_inf(" %-20.20s %ju (off_t)\n", setting->name, (uintmax_t)setting->u.off);
@@ -214,12 +185,15 @@ static int stress_set_setting_generic(
 		setting->u.int32 = *(const int32_t *)value;
 		break;
 	case TYPE_ID_UINT64:
+	case TYPE_ID_UINT64_BYTES:
 		setting->u.uint64 = *(const uint64_t *)value;
 		break;
 	case TYPE_ID_INT64:
 		setting->u.int64 = *(const int64_t *)value;
 		break;
 	case TYPE_ID_SIZE_T:
+	case TYPE_ID_SIZE_T_BYTES:
+	case TYPE_ID_SIZE_T_METHOD:
 		setting->u.size = *(const size_t *)value;
 		break;
 	case TYPE_ID_SSIZE_T:
@@ -229,13 +203,9 @@ static int stress_set_setting_generic(
 		setting->u.uint = *(const unsigned int *)value;
 		break;
 	case TYPE_ID_INT:
+	case TYPE_ID_INT_DOMAIN:
+	case TYPE_ID_INT_PORT:
 		setting->u.sint = *(const int *)value;
-		break;
-	case TYPE_ID_ULONG:
-		setting->u.ulong = *(const unsigned long  *)value;
-		break;
-	case TYPE_ID_LONG:
-		setting->u.slong = *(const long  *)value;
 		break;
 	case TYPE_ID_OFF_T:
 		setting->u.off = *(const long *)value;
@@ -341,6 +311,7 @@ bool stress_get_setting(const char *name, void *value)
 				*(int32_t *)value = setting->u.int32;
 				break;
 			case TYPE_ID_UINT64:
+			case TYPE_ID_UINT64_BYTES:
 				set = true;
 				*(uint64_t *)value = setting->u.uint64;
 				break;
@@ -349,6 +320,8 @@ bool stress_get_setting(const char *name, void *value)
 				*(int64_t *)value = setting->u.int64;
 				break;
 			case TYPE_ID_SIZE_T:
+			case TYPE_ID_SIZE_T_BYTES:
+			case TYPE_ID_SIZE_T_METHOD:
 				set = true;
 				*(size_t *)value = setting->u.size;
 				break;
@@ -361,16 +334,10 @@ bool stress_get_setting(const char *name, void *value)
 				*(unsigned int *)value = setting->u.uint;
 				break;
 			case TYPE_ID_INT:
+			case TYPE_ID_INT_DOMAIN:
+			case TYPE_ID_INT_PORT:
 				set = true;
 				*(int *)value = setting->u.sint;
-				break;
-			case TYPE_ID_ULONG:
-				set = true;
-				*(unsigned long  *)value = setting->u.ulong;
-				break;
-			case TYPE_ID_LONG:
-				set = true;
-				*(long *)value = setting->u.slong;
 				break;
 			case TYPE_ID_OFF_T:
 				set = true;

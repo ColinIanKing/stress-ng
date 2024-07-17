@@ -35,21 +35,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_seek_size(const char *opt)
-{
-	uint64_t seek_size;
-
-	seek_size = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("seek-size", seek_size,
-		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
-	return stress_set_setting("seek-size", TYPE_ID_UINT64, &seek_size);
-}
-
-static int stress_set_seek_punch(const char *opt)
-{
-	return stress_set_setting_true("seek-punch", opt);
-}
-
 static inline off_t max_off_t(void)
 {
 	off_t v, nv = 1;
@@ -388,16 +373,16 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_seek_size,	stress_set_seek_size },
-	{ OPT_seek_punch,	stress_set_seek_punch },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_seek_size,  "seek-size",  TYPE_ID_UINT64_BYTES, MIN_SEEK_SIZE, MAX_SEEK_SIZE, NULL },
+	{ OPT_seek_punch, "seek-punch", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_seek_info = {
 	.stressor = stress_seek,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

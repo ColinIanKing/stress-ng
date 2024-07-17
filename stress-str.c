@@ -626,30 +626,6 @@ static size_t stress_str_all(stress_args_t *args, stress_str_args_t *info)
 }
 
 /*
- *  stress_set_str_method()
- *	set the default string stress method
- */
-static int stress_set_str_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(str_methods); i++) {
-		if (!strcmp(str_methods[i].name, name)) {
-			stress_set_setting("str-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "str-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(str_methods); i++) {
-		(void)fprintf(stderr, " %s", str_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
-/*
  *  stress_str()
  *	stress CPU by doing various string operations
  */
@@ -722,21 +698,20 @@ static int stress_str(stress_args_t *args)
 	return info.failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
-static void stress_str_set_default(void)
+static const char *stress_str_method(const size_t i)
 {
-	stress_set_str_method("all");
+	return (i < SIZEOF_ARRAY(str_methods)) ? str_methods[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_str_method,	stress_set_str_method },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_str_method, "str-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_str_method },
+	END_OPT,
 };
 
 stressor_info_t stress_str_info = {
 	.stressor = stress_str,
-	.set_default = stress_str_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
+	.opts = opts,
 	.help = help
 };

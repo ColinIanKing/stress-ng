@@ -27,14 +27,9 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,			NULL }
 };
 
-static int stress_set_lockbus_nosplit(const char *opt)
-{
-	return stress_set_setting_true("lockbus-nosplit", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_lockbus_nosplit,	stress_set_lockbus_nosplit },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_lockbus_nosplit, "lockbus-nosplit", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if (((defined(HAVE_COMPILER_GCC_OR_MUSL) ||		\
@@ -256,14 +251,14 @@ done:
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without gcc __atomic* lock builtins"
 };

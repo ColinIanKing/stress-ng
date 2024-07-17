@@ -34,11 +34,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_zero_read(const char *opt)
-{
-        return stress_set_setting_true("zero-read", opt);
-}
-
 /*
  *  stress_is_not_zero()
  *	checks if buffer is zero, buffer must be 64 bit aligned
@@ -303,15 +298,15 @@ static int stress_zero(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_zero_read,	stress_set_zero_read },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+        { OPT_zero_read, "zero-read", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_zero_info = {
 	.stressor = stress_zero,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

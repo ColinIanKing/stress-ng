@@ -46,32 +46,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_stack_fill(const char *opt)
-{
-	return stress_set_setting_true("stack-fill", opt);
-}
-
-static int stress_set_stack_mlock(const char *opt)
-{
-	return stress_set_setting_true("stack-mlock", opt);
-}
-
-static int stress_set_stack_pageout(const char *opt)
-{
-	return stress_set_setting_true("stack-pageout", opt);
-}
-
-static int stress_set_stack_unmap(const char *opt)
-{
-	return stress_set_setting_true("stack-unmap", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_stack_fill,	stress_set_stack_fill },
-	{ OPT_stack_mlock,	stress_set_stack_mlock },
-	{ OPT_stack_pageout,	stress_set_stack_pageout },
-	{ OPT_stack_unmap,	stress_set_stack_unmap },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_stack_fill,    "stack-fill",    TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stack_mlock,   "stack-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stack_pageout, "stack-pageout", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_stack_unmap,   "stack-unmap",   TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 /*
@@ -327,7 +307,7 @@ static int stress_stack(stress_args_t *args)
 stressor_info_t stress_stack_info = {
 	.stressor = stress_stack,
 	.class = CLASS_VM | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

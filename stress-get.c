@@ -82,11 +82,6 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,			NULL }
 };
 
-static int stress_set_get_slow_sync(const char *opt)
-{
-        return stress_set_setting_true("get-slow-sync", opt);
-}
-
 static const stress_rusage_t rusages[] = {
 #if defined(RUSAGE_SELF)
 	{ RUSAGE_SELF, 		"RUSAGE_SELF",		true },
@@ -1038,15 +1033,15 @@ static int stress_get(stress_args_t *args)
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_get_slow_sync,	stress_set_get_slow_sync },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_get_slow_sync, "get-slow-sync", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_get_info = {
 	.stressor = stress_get,
 	.class = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };

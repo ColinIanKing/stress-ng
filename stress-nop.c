@@ -297,31 +297,6 @@ static void stress_nop_random(
 	} while (stress_continue(args));
 }
 
-static int stress_set_nop_instr(const char *opt)
-{
-	size_t i;
-
-	current_instr = &nop_instrs[0];
-
-	for (i = 0; i < SIZEOF_ARRAY(nop_instrs); i++) {
-		stress_nop_instr_t *instr = &nop_instrs[i];
-
-		if (!strcmp(instr->name, opt)) {
-			stress_set_setting("nop-instr", TYPE_ID_SIZE_T, &i);
-			current_instr = instr;
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "nop-instr must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(nop_instrs); i++) {
-		(void)fprintf(stderr, " %s", nop_instrs[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 static void NORETURN stress_sigill_nop_handler(int signum)
 {
 	(void)signum;
@@ -379,21 +354,40 @@ static int stress_nop(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_nop_instr,	stress_set_nop_instr },
-	{ 0,                    NULL }
+static const char *stress_nop_instr(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(nop_instrs)) ? nop_instrs[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_nop_instr, "nop-inst", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_nop_instr },
+	END_OPT,
 };
 
 stressor_info_t stress_nop_info = {
 	.stressor = stress_nop,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
+
+static void stress_nop_instr(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	*type_id = TYPE_ID_SIZE_T;
+	*(size_t *)value = 0;
+	(void)fprintf(stderr, "nop stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_nop_instr, "nop-inst", TYPE_ID_CALLBACK, 0, 0, stress_nop_instr },
+	END_OPT,
+};
+
 stressor_info_t stress_nop_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "no nop assembler op-code(s) for this architecture"
 };

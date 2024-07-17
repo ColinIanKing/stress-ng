@@ -29,11 +29,6 @@ static const stress_help_t help[] = {
 
 #define MMAP_MAX	(256 * 1024)
 
-static int stress_set_mmapmany_mlock(const char *opt)
-{
-	return stress_set_setting_true("mmapmany-mlock", opt);
-}
-
 #if defined(__linux__)
 static void stress_mmapmany_read_proc_file(const char *path)
 {
@@ -145,15 +140,15 @@ static int stress_mmapmany(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mmapmany_child, STRESS_OOMABLE_NORMAL);
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_mmapmany_mlock,	stress_set_mmapmany_mlock },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_mmapmany_mlock, "mmapmany-mlock", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_mmapmany_info = {
 	.stressor = stress_mmapmany,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

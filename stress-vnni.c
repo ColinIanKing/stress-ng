@@ -35,8 +35,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"vnni N",		"start N workers performing vector neural network ops" },
-	{ NULL,	"vnni-ops N",		"stop after N vnni bogo operations" },
 	{ NULL,	"vnni-intrinsic",	"use x86 intrinsic vnni methods, disable generic methods" },
+	{ NULL,	"vnni-method M",	"specify specific vnni methods to exercise" },
+	{ NULL,	"vnni-ops N",		"stop after N vnni bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
 
@@ -497,35 +498,6 @@ static void stress_vnni_all(stress_args_t *args)
 	}
 }
 
-static int stress_set_vnni_intrinsic(const char *opt)
-{
-	return stress_set_setting_true("vnni-intrinsic", opt);
-}
-
-/*
- *  stress_set_vnni_method()
- *	set the default vnni stress method
- */
-static int stress_set_vnni_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_vnni_methods); i++) {
-		if (!strcmp(stress_vnni_methods[i].name, name)) {
-			stress_set_setting("vnni-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "vnni-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_vnni_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_vnni_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
-}
-
 /*
  *  stress_vnni()
  *	stress intel VNNI ops
@@ -610,16 +582,21 @@ static int stress_vnni(stress_args_t *args)
 	return vnni_checksum_okay ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vnni_intrinsic,	stress_set_vnni_intrinsic },
-	{ OPT_vnni_method,	stress_set_vnni_method },
-	{ 0,			NULL },
+static const char *stress_vnni_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_vnni_methods)) ? stress_vnni_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_vnni_intrinsic, "vnni-intrinsic", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vnni_method,    "vnni-method",    TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vnni_method },
+	END_OPT,
 };
 
 stressor_info_t stress_vnni_info = {
 	.stressor = stress_vnni,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

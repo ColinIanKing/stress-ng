@@ -159,26 +159,6 @@ static const stress_hdd_opts_t hdd_opts[] = {
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 };
 
-static int stress_set_hdd_bytes(const char *opt)
-{
-	uint64_t hdd_bytes;
-
-	hdd_bytes = stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("hdd-bytes", hdd_bytes,
-		MIN_HDD_BYTES, MAX_HDD_BYTES);
-	return stress_set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
-}
-
-static int stress_set_hdd_write_size(const char *opt)
-{
-	uint64_t hdd_write_size;
-
-	hdd_write_size = stress_get_uint64_byte(opt);
-	stress_check_range_bytes("hdd-write-size", hdd_write_size,
-		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
-	return stress_set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
-}
-
 #if defined(HAVE_FUTIMES)
 static void stress_hdd_utimes(const int fd)
 {
@@ -537,19 +517,25 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 }
 
 /*
- *  stress_set_hdd_opts
+ *  stress_hdd_opts
  *	parse --hdd-opts option(s) list
  */
-static int stress_set_hdd_opts(const char *opts)
+static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	char *str, *ptr, *token;
 	int hdd_flags = 0;
 	int hdd_oflags = 0;
 	bool opts_set = false;
 
-	str = stress_const_optdup(opts);
-	if (!str)
-		return -1;
+	(void)type_id;
+	(void)value;
+
+	str = stress_const_optdup(opt_arg);
+	if (!str) {
+		(void)fprintf(stderr, "%s option: cannot dup string '%s'\n",
+			opt_name, opt_arg);
+		longjmp(g_error_env, 1);
+	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		size_t i;
@@ -565,15 +551,16 @@ static int stress_set_hdd_opts(const char *opts)
 					for (j = 0; hdd_opts[j].opt; j++) {
 						if ((exclude & hdd_opts[j].flag) == exclude) {
 							(void)fprintf(stderr,
-								"hdd-opt option '%s' is not "
+								"%s option '%s' is not "
 								"compatible with option '%s'\n",
-								token,
+								opt_name, token,
 								hdd_opts[j].opt);
-							break;
+							free(str);
+							longjmp(g_error_env, 1);
 						}
 					}
 					free(str);
-					return -1;
+					return;
 				}
 				hdd_flags  |= hdd_opts[i].flag;
 				hdd_oflags |= hdd_opts[i].oflag;
@@ -582,13 +569,13 @@ static int stress_set_hdd_opts(const char *opts)
 			}
 		}
 		if (!opt_ok) {
-			(void)fprintf(stderr, "hdd-opt option '%s' not known, options are:", token);
+			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, token);
 			for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++)
 				(void)fprintf(stderr, "%s %s",
 					i == 0 ? "" : ",", hdd_opts[i].opt);
 			(void)fprintf(stderr, "\n");
 			free(str);
-			return -1;
+			longjmp(g_error_env, 1);
 		}
 	}
 
@@ -596,8 +583,6 @@ static int stress_set_hdd_opts(const char *opts)
 	stress_set_setting("hdd-oflags", TYPE_ID_INT, &hdd_oflags);
 	stress_set_setting("hdd-opts-set", TYPE_ID_BOOL, &opts_set);
 	free(str);
-
-	return 0;
 }
 
 /*
@@ -1094,17 +1079,17 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_hdd_bytes,	stress_set_hdd_bytes },
-	{ OPT_hdd_opts,		stress_set_hdd_opts },
-	{ OPT_hdd_write_size,	stress_set_hdd_write_size },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_hdd_bytes,      "hdd-bytes",      TYPE_ID_UINT64_BYTES, MIN_HDD_BYTES, MAX_HDD_BYTES, NULL },
+	{ OPT_hdd_opts,       "hdd-opts",       TYPE_ID_CALLBACK, 0, 0, stress_hdd_opts },
+	{ OPT_hdd_write_size, "hdd-write-size", TYPE_ID_UINT64_BYTES, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
 	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

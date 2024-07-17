@@ -31,14 +31,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static int stress_set_hrtimers_adjust(const char *opt)
-{
-        return stress_set_setting_true("hrtimers-adjust", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_hrtimers_adjust,	stress_set_hrtimers_adjust },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_hrtimers_adjust, "hrtimers-adjust", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_RT) &&		\
@@ -281,7 +276,7 @@ tidy_s_pids:
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers,
 	.class = CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -289,7 +284,7 @@ stressor_info_t stress_hrtimers_info = {
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt or hrtimer support"

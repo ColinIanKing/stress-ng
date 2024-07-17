@@ -64,19 +64,9 @@ typedef struct {
 
 #endif
 
-static int stress_set_vm_rw_bytes(const char *opt)
-{
-	size_t vm_rw_bytes;
-
-	vm_rw_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("vm-rw-bytes", vm_rw_bytes,
-		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
-	return stress_set_setting("vm-rw-bytes", TYPE_ID_SIZE_T, &vm_rw_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vm_rw_bytes,	stress_set_vm_rw_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_vm_rw_bytes, "vm-rw-bytes", TYPE_ID_SIZE_T_BYTES, MIN_VM_RW_BYTES, MAX_VM_RW_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_PROCESS_VM_READV) &&	\
@@ -431,7 +421,7 @@ again:
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -439,7 +429,7 @@ stressor_info_t stress_vm_rw_info = {
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without process_vm_readv(), process_vm_writev(), clone() or CLONE_VM defined"

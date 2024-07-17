@@ -42,20 +42,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_tsc_lfence(const char *opt)
-{
-	return stress_set_setting_true("tsc-lfence", opt);
-}
-
-static int stress_set_tsc_rdtscp(const char *opt)
-{
-	return stress_set_setting_true("tsc-rdtscp", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_tsc_lfence,	stress_set_tsc_lfence },
-	{ OPT_tsc_rdtscp,	stress_set_tsc_rdtscp },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_tsc_lfence, "tsc-lfence", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_tsc_rdtscp, "tsc-rdtscp", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(STRESS_ARCH_LOONG64) &&	\
@@ -715,7 +705,7 @@ stressor_info_t stress_tsc_info = {
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
 	.verify = VERIFY_OPTIONAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -732,7 +722,7 @@ stressor_info_t stress_tsc_info = {
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
 	.verify = VERIFY_OPTIONAL,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without RISC-V rdtime, x86 rdtsc, s390 stck instructions or powerpc __ppc_get_timebase()"
 };

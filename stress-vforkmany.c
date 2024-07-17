@@ -45,21 +45,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_vforkmany_vm(const char *opt)
-{
-	return stress_set_setting_true("vforkmany-vm", opt);
-}
-
-static int stress_set_vforkmany_vm_bytes(const char *opt)
-{
-	size_t vforkmany_vm_bytes;
-
-	vforkmany_vm_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("vforkmany-vm-bytes", (uint64_t)vforkmany_vm_bytes,
-		MIN_VFORKMANY_VM_BYTES, MAX_VFORKMANY_VM_BYTES);
-	return stress_set_setting("vforkmany-vm-bytes", TYPE_ID_SIZE_T, &vforkmany_vm_bytes);
-}
-
 /*
  *  vforkmany_wait()
  *	wait and then kill
@@ -337,16 +322,16 @@ finish:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vforkmany_vm,		stress_set_vforkmany_vm },
-	{ OPT_vforkmany_vm_bytes,	stress_set_vforkmany_vm_bytes },
-	{ 0,				NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_vforkmany_vm,       "vforkmany-vm",       TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vforkmany_vm_bytes, "vforkmany-vm-bytes", TYPE_ID_SIZE_T_BYTES, MIN_VFORKMANY_VM_BYTES, MAX_VFORKMANY_VM_BYTES, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_vforkmany_info = {
 	.stressor = stress_vforkmany,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

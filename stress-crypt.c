@@ -25,10 +25,10 @@
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"crypt N",		"start N workers performing password encryption" },
-	{ NULL, "crypt-method M",	"select encryption method [ all | MD5 | NT | SHA-1 | SHA-256 | SHA-512 | scrypt | SunMD5 | yescrypt]" },
-	{ NULL,	"crypt-ops N",		"stop after N bogo crypt operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"crypt N",	  "start N workers performing password encryption" },
+	{ NULL, "crypt-method M", "select encryption method [ all | MD5 | NT | SHA-1 | SHA-256 | SHA-512 | scrypt | SunMD5 | yescrypt]" },
+	{ NULL,	"crypt-ops N",	  "stop after N bogo crypt operations" },
+	{ NULL,	NULL,		  NULL }
 };
 
 typedef struct {
@@ -49,33 +49,14 @@ static const crypt_method_t crypt_methods[] = {
 	{ "$y$",	3,	"yescrypt" },
 };
 
-/*
- *  stress_set_crypt_method()
- *      set default crypt stress method
- */
-static int stress_set_crypt_method(const char *name)
+static const char * stress_crypt_method(const size_t i)
 {
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
-		if (!strcmp(crypt_methods[i].method, name)) {
-			stress_set_setting("crypt-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "crypt-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
-		(void)fprintf(stderr, " %s", crypt_methods[i].method);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	return (i < SIZEOF_ARRAY(crypt_methods)) ? crypt_methods[i].method : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_crypt_method,	stress_set_crypt_method },
-	{ 0,			NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_crypt_method, "crypt-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_crypt_method },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_CRYPT) &&	\
@@ -268,7 +249,7 @@ static int stress_crypt(stress_args_t *args)
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -276,7 +257,7 @@ stressor_info_t stress_crypt_info = {
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without crypt library"

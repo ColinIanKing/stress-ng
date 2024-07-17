@@ -27,14 +27,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static int stress_set_pci_dev(const char *opt)
-{
-	return stress_set_setting("pci-dev", TYPE_ID_STR, opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_pci_dev,         stress_set_pci_dev },
-	{ 0,                   NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_pci_dev, "pci-dev", TYPE_ID_STR, 0, 0, NULL },
+	END_OPT,
 };
 
 #if defined(__linux__)
@@ -375,14 +370,14 @@ static int stress_pci(stress_args_t *args)
 stressor_info_t stress_pci_info = {
 	.stressor = stress_pci,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_pci_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "only supported on Linux"
 };

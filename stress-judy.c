@@ -39,23 +39,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-/*
- *  stress_set_judy_size()
- *      set judy size from given option string
- */
-static int stress_set_judy_size(const char *opt)
-{
-	uint64_t judy_size;
-
-	judy_size = stress_get_uint64(opt);
-	stress_check_range("judy-size", judy_size,
-		MIN_JUDY_SIZE, MAX_JUDY_SIZE);
-	return stress_set_setting("judy-size", TYPE_ID_UINT64, &judy_size);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_judy_size,	stress_set_judy_size },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_judy_size, "judy-size", TYPE_ID_UINT64, MIN_JUDY_SIZE, MAX_JUDY_SIZE, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_JUDY_H) && \
@@ -192,7 +178,7 @@ abort:
 stressor_info_t stress_judy_info = {
 	.stressor = stress_judy,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -200,7 +186,7 @@ stressor_info_t stress_judy_info = {
 stressor_info_t stress_judy_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without Judy.h or Judy library support"

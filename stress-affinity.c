@@ -44,42 +44,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_set_affinity_delay(const char *opt)
-{
-	uint64_t affinity_delay;
-
-	affinity_delay = stress_get_uint64(opt);
-	stress_check_range("affinity-delay", affinity_delay,
-		0, STRESS_NANOSECOND);
-	return stress_set_setting("affinity-delay", TYPE_ID_UINT64, &affinity_delay);
-}
-
-static int stress_set_affinity_rand(const char *opt)
-{
-	return stress_set_setting_true("affinity-rand", opt);
-}
-
-static int stress_set_affinity_pin(const char *opt)
-{
-	return stress_set_setting_true("affinity-pin", opt);
-}
-
-static int stress_set_affinity_sleep(const char *opt)
-{
-	uint64_t affinity_sleep;
-
-	affinity_sleep = stress_get_uint64(opt);
-	stress_check_range("affinity-sleep", affinity_sleep,
-		0, STRESS_NANOSECOND);
-	return stress_set_setting("affinity-sleep", TYPE_ID_UINT64, &affinity_sleep);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_affinity_delay,	stress_set_affinity_delay },
-	{ OPT_affinity_pin,	stress_set_affinity_pin },
-	{ OPT_affinity_rand,    stress_set_affinity_rand },
-	{ OPT_affinity_sleep,   stress_set_affinity_sleep },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_affinity_delay, "affinity-delay", TYPE_ID_UINT64, 0, STRESS_NANOSECOND, NULL },
+	{ OPT_affinity_pin,   "affinity-pin",	TYPE_ID_BOOL,	0, 1,                 NULL },
+	{ OPT_affinity_rand,  "affinity-rand",  TYPE_ID_BOOL,	0, 1,                 NULL },
+	{ OPT_affinity_sleep, "affinity-sleep", TYPE_ID_UINT64, 0, STRESS_NANOSECOND, NULL },
+	END_OPT,
 };
 
 /*
@@ -320,7 +290,7 @@ stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity,
 	.class = CLASS_SCHEDULER,
 	.supported = stress_affinity_supported,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 };
@@ -328,7 +298,7 @@ stressor_info_t stress_affinity_info = {
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without sched_getaffinity() or sched_setaffinity()"

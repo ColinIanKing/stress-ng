@@ -38,19 +38,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_semaphore_posix_procs(const char *opt)
-{
-	uint64_t semaphore_posix_procs;
-
-	semaphore_posix_procs = stress_get_uint64(opt);
-	stress_check_range("sem-procs", semaphore_posix_procs,
-		MIN_SEM_POSIX_PROCS, MAX_SEM_POSIX_PROCS);
-	return stress_set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sem_procs,	stress_set_semaphore_posix_procs },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_sem_procs, "sem-procs", TYPE_ID_UINT64, MIN_SEM_POSIX_PROCS, MAX_SEM_POSIX_PROCS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SEMAPHORE_H) && \
@@ -263,7 +253,7 @@ static int stress_sem(stress_args_t *args)
 stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -271,7 +261,7 @@ stressor_info_t stress_sem_info = {
 stressor_info_t stress_sem_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without semaphore.h, pthread or POSIX semaphore support"

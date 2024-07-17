@@ -61,20 +61,6 @@ static void MLOCKED_TEXT stress_qsort_handler(int signum)
 	}
 }
 
-/*
- *  stress_set_qsort_size()
- *	set qsort size
- */
-static int stress_set_qsort_size(const char *opt)
-{
-	uint64_t qsort_size;
-
-	qsort_size = stress_get_uint64(opt);
-	stress_check_range("qsort-size", qsort_size,
-		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
-	return stress_set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
-}
-
 typedef uint32_t qsort_swap_type_t;
 
 static inline size_t qsort_bm_minimum(const size_t x, const size_t y)
@@ -221,25 +207,6 @@ static const stress_qsort_method_t stress_qsort_methods[] = {
 	{ "qsort-libc",		qsort },
 	{ "qsort-bm",		qsort_bm },
 };
-
-static int stress_set_qsort_method(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_qsort_methods); i++) {
-		if (strcmp(opt, stress_qsort_methods[i].name) == 0) {
-			stress_set_setting("qsort-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "qsort-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_qsort_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_qsort_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
 
 static inline bool OPTIMIZE3 stress_qsort_verify_forward(
 	stress_args_t *args,
@@ -434,16 +401,21 @@ tidy:
 	return rc;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_qsort_integers,	stress_set_qsort_size },
-	{ OPT_qsort_method,	stress_set_qsort_method },
-	{ 0,			NULL }
+static const char *stress_qsort_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_qsort_methods)) ? stress_qsort_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_qsort_size,   "qsort-size",   TYPE_ID_UINT64, MIN_QSORT_SIZE, MAX_QSORT_SIZE, NULL },
+	{ OPT_qsort_method, "qsort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_qsort_method },
+	END_OPT,
 };
 
 stressor_info_t stress_qsort_info = {
 	.stressor = stress_qsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

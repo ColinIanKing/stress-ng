@@ -43,19 +43,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static int stress_set_aio_linux_requests(const char *opt)
-{
-	uint32_t aio_linux_requests;
-
-	aio_linux_requests = stress_get_uint32(opt);
-	stress_check_range("aiol-requests", aio_linux_requests,
-		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
-	return stress_set_setting("aiol-requests", TYPE_ID_UINT32, &aio_linux_requests);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_aiol_requests,	stress_set_aio_linux_requests },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_aiol_requests, "aiol-requests", TYPE_ID_UINT32, MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_AIO) &&		\
@@ -800,7 +790,7 @@ free_memory:
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -808,7 +798,7 @@ stressor_info_t stress_aiol_info = {
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.verify = VERIFY_ALWAYS,
 	.unimplemented_reason = "built without libaio.h or poll.h"

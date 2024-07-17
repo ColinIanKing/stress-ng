@@ -45,19 +45,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static int stress_set_fiemap_bytes(const char *opt)
-{
-	uint64_t fiemap_bytes;
-
-	fiemap_bytes = stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("fiemap-bytes", fiemap_bytes,
-		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
-	return stress_set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_fiemap_bytes,	stress_set_fiemap_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_fiemap_bytes, "fiemap-bytes", TYPE_ID_UINT64_BYTES, MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LINUX_FS_H) &&		\
@@ -357,7 +347,7 @@ clean:
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_fiemap,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -365,7 +355,7 @@ stressor_info_t stress_fiemap_info = {
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without linux/fiemap.h, linux/fs.h or ioctl() FS_IOC_FIEMAP support"

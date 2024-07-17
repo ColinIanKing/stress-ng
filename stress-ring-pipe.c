@@ -42,48 +42,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_ring_pipe_num()
- *	set number of pipes to use in the ring
- */
-static int stress_set_ring_pipe_num(const char *opt)
-{
-	size_t ring_pipe_num;
-
-	ring_pipe_num = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range("ring-pipe-num", ring_pipe_num,
-		STRESS_RING_PIPE_NUM_MIN, STRESS_RING_PIPE_NUM_MAX);
-	return stress_set_setting("ring-pipe-num", TYPE_ID_SIZE_T, &ring_pipe_num);
-}
-
-/*
- *  stress_set_ring_pipe_size()
- *	set size of data to be transferred in pipe
- */
-static int stress_set_ring_pipe_size(const char *opt)
-{
-	size_t ring_pipe_size;
-
-	ring_pipe_size = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range_bytes("ring-pipe-size", ring_pipe_size,
-		STRESS_RING_PIPE_SIZE_MIN, STRESS_RING_PIPE_SIZE_MAX);
-	return stress_set_setting("ring-pipe-size", TYPE_ID_SIZE_T, &ring_pipe_size);
-}
-
-/*
- *  stress_set_ring_pipe_splice()
- *	enable splice
- */
-static int stress_set_ring_pipe_splice(const char *opt)
-{
-	return stress_set_setting_true("ring-pipe-splice", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_ring_pipe_num,	stress_set_ring_pipe_num },
-	{ OPT_ring_pipe_size,	stress_set_ring_pipe_size },
-	{ OPT_ring_pipe_splice,	stress_set_ring_pipe_splice },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_ring_pipe_num,	"ring-pipe-num",    TYPE_ID_SIZE_T, STRESS_RING_PIPE_NUM_MIN, STRESS_RING_PIPE_NUM_MAX, NULL },
+	{ OPT_ring_pipe_size,	"ring-pipe-size",   TYPE_ID_SIZE_T_BYTES, STRESS_RING_PIPE_SIZE_MIN, STRESS_RING_PIPE_SIZE_MAX, NULL },
+	{ OPT_ring_pipe_splice,	"ring-pipe-splice", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_POLL_H)
@@ -312,7 +275,7 @@ err_ret:
 stressor_info_t stress_ring_pipe_info = {
 	.stressor = stress_ring_pipe,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help
 };
@@ -322,7 +285,7 @@ stressor_info_t stress_ring_pipe_info = {
 stressor_info_t stress_ring_pipe_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,
 	.unimplemented_reason = "built without poll.h or poll() support"

@@ -88,7 +88,10 @@ static const stress_help_t help[] = {
 };
 
 static const stress_vm_madvise_info_t vm_madvise_info[] = {
-#if defined(HAVE_MADVISE)
+#if !defined(HAVE_MADVISE)
+	/* No MADVISE, default to normal, ignored */
+	{ "normal",	0 },
+#else
 #if defined(MADV_DONTNEED)
 	{ "dontneed",	MADV_DONTNEED},
 #endif
@@ -116,10 +119,6 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
 #if defined(MADV_WILLNEED)
 	{ "willneed",	MADV_WILLNEED},
 #endif
-	{ NULL,         0 },
-#else
-	/* No MADVISE, default to normal, ignored */
-	{ "normal",	0 },
 #endif
 };
 
@@ -131,82 +130,6 @@ static bool OPTIMIZE3 stress_continue_vm(stress_args_t *args)
 {
 	return (LIKELY(stress_continue_flag()) &&
 	        LIKELY(!args->max_ops || ((stress_bogo_get(args) >> VM_BOGO_SHIFT) < args->max_ops)));
-}
-
-static int stress_set_vm_hang(const char *opt)
-{
-	uint64_t vm_hang;
-
-	vm_hang = stress_get_uint64_time(opt);
-	stress_check_range("vm-hang", vm_hang,
-		MIN_VM_HANG, MAX_VM_HANG);
-	return stress_set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
-}
-
-static int stress_set_vm_bytes(const char *opt)
-{
-	size_t vm_bytes;
-
-	vm_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("vm-bytes", vm_bytes,
-		MIN_VM_BYTES, MAX_VM_BYTES);
-	return stress_set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
-}
-
-#if defined(MAP_LOCKED) || defined(MAP_POPULATE)
-static int stress_set_vm_flags(const int flag)
-{
-	int vm_flags = 0;
-
-	(void)stress_get_setting("vm-flags", &vm_flags);
-	vm_flags |= flag;
-	return stress_set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
-}
-#endif
-
-static int stress_set_vm_mmap_locked(const char *opt)
-{
-	(void)opt;
-
-#if defined(MAP_LOCKED)
-	return stress_set_vm_flags(MAP_LOCKED);
-#else
-	return 0;
-#endif
-}
-
-static int stress_set_vm_mmap_populate(const char *opt)
-{
-	(void)opt;
-
-#if defined(MAP_POPULATE)
-	return stress_set_vm_flags(MAP_POPULATE);
-#else
-	return 0;
-#endif
-}
-
-static int stress_set_vm_madvise(const char *opt)
-{
-	const stress_vm_madvise_info_t *info;
-
-	for (info = vm_madvise_info; info->name; info++) {
-		if (!strcmp(opt, info->name)) {
-			stress_set_setting("vm-madvise", TYPE_ID_INT, &info->advice);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "invalid vm-madvise advice '%s', allowed advice options are:", opt);
-	for (info = vm_madvise_info; info->name; info++) {
-		(void)fprintf(stderr, " %s", info->name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-static int stress_set_vm_keep(const char *opt)
-{
-	return stress_set_setting_true("vm-keep", opt);
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
@@ -3287,28 +3210,13 @@ static size_t stress_vm_all(
 	return bit_errors;
 }
 
-/*
- *  stress_set_vm_method()
- *      set default vm stress method
- */
-static int stress_set_vm_method(const char *name)
+static void stress_vm_flags(const char *opt, int *vm_flags, const int bitmask)
 {
-	size_t i;
+	bool flag = false;
 
-	for (i = 0; i < SIZEOF_ARRAY(vm_methods); i++) {
-		if (!strcmp(vm_methods[i].name, name)) {
-			stress_set_setting("vm-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "vm-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(vm_methods); i++) {
-		(void)fprintf(stderr, " %s", vm_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
+	(void)stress_get_setting(opt, &flag);
+	if (flag)
+		*vm_flags |= bitmask;
 }
 
 static int stress_vm_child(stress_args_t *args, void *ctxt)
@@ -3318,7 +3226,8 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	uint64_t vm_hang = DEFAULT_VM_HANG;
 	void *buf = NULL, *buf_end = NULL;
 	int vm_flags = 0;                      /* VM mmap flags */
-	int vm_madvise = -1;
+	size_t vm_madvise = 0;
+	int advice = -1;
 	int rc = EXIT_SUCCESS;
 	size_t buf_sz;
 	size_t vm_bytes = DEFAULT_VM_BYTES;
@@ -3331,6 +3240,13 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 
 	(void)stress_get_setting("vm-hang", &vm_hang);
 	(void)stress_get_setting("vm-keep", &vm_keep);
+#if defined(MAP_LOCKED)
+	stress_vm_flags("vm-mmap-locked", &vm_flags, MAP_LOCKED);
+#endif
+#if defined(MAP_POPULATE)
+	stress_vm_flags("vm-mmap-populate", &vm_flags, MAP_POPULATE);
+#endif
+
 	(void)stress_get_setting("vm-flags", &vm_flags);
 
 	if (!stress_get_setting("vm-bytes", &vm_bytes)) {
@@ -3343,7 +3259,8 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 	if (vm_bytes < MIN_VM_BYTES)
 		vm_bytes = MIN_VM_BYTES;
 	buf_sz = vm_bytes & ~(page_size - 1);
-	(void)stress_get_setting("vm-madvise", &vm_madvise);
+	if (stress_get_setting("vm-madvise", &vm_madvise))
+		advice = vm_madvise_info[vm_madvise].advice;
 
 	do {
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
@@ -3389,10 +3306,10 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 			(void)mprotect(buf_end, page_size, PROT_NONE);
 #endif
 
-			if (vm_madvise < 0)
+			if (advice < 0)
 				(void)stress_madvise_random(buf, buf_sz);
 			else
-				(void)shim_madvise(buf, buf_sz, vm_madvise);
+				(void)shim_madvise(buf, buf_sz, advice);
 		}
 
 		no_mem_retries = 0;
@@ -3524,27 +3441,31 @@ static int stress_vm(stress_args_t *args)
 	return ret;
 }
 
-static void stress_vm_set_default(void)
+static const char *stress_vm_madvise(const size_t i)
 {
-	stress_set_vm_method("all");
+	return (i < SIZEOF_ARRAY(vm_madvise_info)) ? vm_madvise_info[i].name : NULL;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vm_bytes,		stress_set_vm_bytes },
-	{ OPT_vm_hang,		stress_set_vm_hang },
-	{ OPT_vm_keep,		stress_set_vm_keep },
-	{ OPT_vm_madvise,	stress_set_vm_madvise },
-	{ OPT_vm_method,	stress_set_vm_method },
-	{ OPT_vm_mmap_locked,	stress_set_vm_mmap_locked },
-	{ OPT_vm_mmap_populate,	stress_set_vm_mmap_populate },
-	{ 0,			NULL }
+static const char *stress_vm_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(vm_methods)) ? vm_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_vm_bytes,    "vm-bytes",    TYPE_ID_SIZE_T_BYTES, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
+	{ OPT_vm_hang,     "vm-hang",     TYPE_ID_UINT64, MIN_VM_HANG, MAX_VM_HANG, NULL },
+	{ OPT_vm_keep,     "vm-keep",     TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_madvise,  "vm-madvise",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_madvise },
+	{ OPT_vm_method,   "vm-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_method },
+	{ OPT_vm_locked,   "vm-locked",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_vm_populate, "vm-populate", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_vm_info = {
 	.stressor = stress_vm,
-	.set_default = stress_vm_set_default,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

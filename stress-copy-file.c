@@ -33,19 +33,9 @@ static const stress_help_t help[] = {
 
 };
 
-static int stress_set_copy_file_bytes(const char *opt)
-{
-	uint64_t copy_file_bytes;
-
-	copy_file_bytes = stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("copy-file-bytes", copy_file_bytes,
-		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
-	return stress_set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_copy_file_bytes,	stress_set_copy_file_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_copy_file_bytes, "copy-file-bytes", TYPE_ID_UINT64_BYTES, MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_COPY_FILE_RANGE)
@@ -315,7 +305,7 @@ tidy_dir:
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -323,7 +313,7 @@ stressor_info_t stress_copy_file_info = {
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without clone() system call"

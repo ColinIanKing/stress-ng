@@ -30,20 +30,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-/*
- *  stress_set_dirmany_bytes()
- *      set size of files to be created
- */
-static int stress_set_dirmany_bytes(const char *opt)
-{
-	off_t dirmany_bytes;
-
-	dirmany_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("dirmany-bytes", (uint64_t)dirmany_bytes,
-		MIN_DIRMANY_BYTES, MAX_DIRMANY_BYTES);
-	return stress_set_setting("dirmany-bytes", TYPE_ID_OFF_T, &dirmany_bytes);
-}
-
 static void stress_dirmany_filename(
 	const char *pathname,
 	const size_t pathname_len,
@@ -239,15 +225,15 @@ static int stress_dirmany(stress_args_t *args)
 	return ret;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dirmany_bytes,	stress_set_dirmany_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_dirmany_bytes, "dirmany-bytes", TYPE_ID_OFF_T, MIN_DIRMANY_BYTES, MAX_DIRMANY_BYTES, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_dirmany_info = {
 	.stressor = stress_dirmany,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

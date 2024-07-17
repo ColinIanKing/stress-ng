@@ -35,43 +35,16 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,		  NULL }
 };
 
-/*
- *  stress_set_yield_procs()
- *	set maximum number of processes allowed
- */
-static int stress_set_yield_procs(const char *opt)
+static const char *stress_yield_sched(const size_t i)
 {
-	uint32_t yield_procs;
-
-	yield_procs = stress_get_uint32(opt);
-	stress_check_range("yield-procs", (uint64_t)yield_procs,
-		MIN_YIELD_PROCS, MAX_YIELD_PROCS);
-	return stress_set_setting("yield-procs", TYPE_ID_UINT32, &yield_procs);
+	return (i < stress_sched_types_length) ? stress_sched_types[i].sched_name : NULL;
 }
 
-static int stress_set_yield_sched(const char *opt)
-{
-	size_t i;
-
-	for (i = 0; i < stress_sched_types_length; i++) {
-		if (strcmp(opt, stress_sched_types[i].sched_name) == 0)
-			return stress_set_setting("yield-sched", TYPE_ID_SIZE_T, &i);
-	}
-
-	(void)fprintf(stderr, "yield-sched must be one of:");
-	for (i = 0; i < stress_sched_types_length; i++) {
-		(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_yield_procs,	stress_set_yield_procs },
-	{ OPT_yield_sched,	stress_set_yield_sched },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_yield_procs, "yield-procs", TYPE_ID_UINT32, MIN_YIELD_PROCS, MAX_YIELD_PROCS, NULL },
+	{ OPT_yield_sched, "yield-sched", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_yield_sched },
+	END_OPT,
 };
-
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&		\
     (defined(_POSIX_PRIORITY_SCHEDULING) || 	\
@@ -86,11 +59,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     !defined(__minix__) &&			\
     !defined(__APPLE__)
 /*
- *  stress_yield_sched()
- *	attenmt to apply a scheduling policy, ignore if yield_sched out of bounds
+ *  stress_yield_sched_policy()
+ *	attempt to apply a scheduling policy, ignore if yield_sched out of bounds
  *	or if policy cannot be applied (e.g. not enough privilege).
  */
-static void stress_yield_sched(stress_args_t *args, const size_t yield_sched)
+static void stress_yield_sched_policy(stress_args_t *args, const size_t yield_sched)
 {
 	struct sched_param param;
 	int ret = 0;
@@ -309,7 +282,7 @@ static int stress_yield(stress_args_t *args)
 		} else if (pids[i] == 0) {
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
-			stress_yield_sched(args, yield_sched);
+			stress_yield_sched_policy(args, yield_sched);
 
 			do {
 				int ret;
@@ -362,7 +335,7 @@ static int stress_yield(stress_args_t *args)
 stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -370,7 +343,7 @@ stressor_info_t stress_yield_info = {
 stressor_info_t stress_yield_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without scheduling support"

@@ -47,29 +47,10 @@ static double time_end;
 static bool timer_rand;
 #endif
 
-/*
- *  stress_set_timer_freq()
- *	set timer frequency from given option
- */
-static int stress_set_timer_freq(const char *opt)
-{
-	uint64_t timer_freq;
-
-	timer_freq = stress_get_uint64(opt);
-	stress_check_range("timer-freq", timer_freq,
-		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
-	return stress_set_setting("timer-freq", TYPE_ID_UINT64, &timer_freq);
-}
-
-static int stress_set_timer_rand(const char *opt)
-{
-	return stress_set_setting_true("timer-rand", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_timer_freq,	stress_set_timer_freq },
-	{ OPT_timer_rand,	stress_set_timer_rand },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_timer_freq, "timer-freq", TYPE_ID_UINT64, MIN_TIMER_FREQ, MAX_TIMER_FREQ, NULL },
+	{ OPT_timer_rand, "timer-rand", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_LIB_RT) &&		\
@@ -297,7 +278,7 @@ static int stress_timer(stress_args_t *args)
 stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -305,7 +286,7 @@ stressor_info_t stress_timer_info = {
 stressor_info_t stress_timer_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without librt, timer_create(), timer_delete(), timer_getoverrun() or timer_settime()"

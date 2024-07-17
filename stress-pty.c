@@ -48,23 +48,9 @@ typedef struct {
 
 #endif
 
-/*
- *  stress_set_pty_max()
- *	set ptr maximum
- */
-static int stress_set_pty_max(const char *opt)
-{
-	uint64_t pty_max;
-
-	pty_max = stress_get_uint64(opt);
-	stress_check_range("pty-max", pty_max,
-		MIN_PTYS, MAX_PTYS);
-	return stress_set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_pty_max,	stress_set_pty_max },
-	{ 0,		NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_pty_max, "pty-max", TYPE_ID_UINT64, MIN_PTYS, MAX_PTYS, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_TERMIOS_H) &&	\
@@ -513,7 +499,7 @@ clean:
 stressor_info_t stress_pty_info = {
 	.stressor = stress_pty,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -521,7 +507,7 @@ stressor_info_t stress_pty_info = {
 stressor_info_t stress_pty_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without termios.h, termio.h or ptsname()"

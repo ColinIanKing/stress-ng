@@ -411,7 +411,9 @@ static const stress_funcret_method_info_t stress_funcret_methods[] = {
 	{ "uint64x128",	stress_funcret_stress_uint64x128_t },
 };
 
-static stress_metrics_t stress_funcret_metrics[SIZEOF_ARRAY(stress_funcret_methods)];
+#define NUM_STRESS_FUNCRET_METHODS	(SIZEOF_ARRAY(stress_funcret_methods))
+
+static stress_metrics_t stress_funcret_metrics[NUM_STRESS_FUNCRET_METHODS];
 
 static bool stress_funcret_exercise(stress_args_t *args, const size_t method)
 {
@@ -435,34 +437,10 @@ static bool stress_funcret_all(stress_args_t *args)
 	size_t i;
 	bool success = true;
 
-	for (i = 1; success && (i < SIZEOF_ARRAY(stress_funcret_methods)); i++) {
+	for (i = 1; success && (i < NUM_STRESS_FUNCRET_METHODS); i++) {
 		success &= stress_funcret_exercise(args, i);
 	}
 	return success;
-}
-
-/*
- *  stress_set_funcret_method()
- *	set the default funccal stress method
- */
-static int stress_set_funcret_method(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stress_funcret_methods); i++) {
-		if (!strcmp(stress_funcret_methods[i].name, name)) {
-			stress_set_setting("funcret-method", TYPE_ID_SIZE_T, &i);
-			return 0;
-		}
-	}
-
-	(void)fprintf(stderr, "funcret-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_funcret_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_funcret_methods[i].name);
-	}
-	(void)fprintf(stderr, "\n");
-
-	return -1;
 }
 
 /*
@@ -477,7 +455,7 @@ static int stress_funcret(stress_args_t *args)
 
 	(void)stress_get_setting("funcret-method", &funcret_method);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_funcret_metrics); i++) {
+	for (i = 0; i < NUM_STRESS_FUNCRET_METHODS; i++) {
 		stress_funcret_metrics[i].duration = 0.0;
 		stress_funcret_metrics[i].count = 0.0;
 	}
@@ -491,7 +469,7 @@ static int stress_funcret(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 1, j = 0; i < SIZEOF_ARRAY(stress_funcret_metrics); i++) {
+	for (i = 1, j = 0; i < NUM_STRESS_FUNCRET_METHODS; i++) {
 		const double rate = (stress_funcret_metrics[i].duration > 0) ?
 			stress_funcret_metrics[i].count / stress_funcret_metrics[i].duration : 0.0;
 
@@ -509,15 +487,20 @@ static int stress_funcret(stress_args_t *args)
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_funcret_method,	stress_set_funcret_method },
-	{ 0,			NULL }
+static const char *stress_funcret_method(const size_t i)
+{
+	return (i < NUM_STRESS_FUNCRET_METHODS) ? stress_funcret_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_funcret_method, "funcret_method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_funcret_method },
+	END_OPT,
 };
 
 stressor_info_t stress_funcret_info = {
 	.stressor = stress_funcret,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

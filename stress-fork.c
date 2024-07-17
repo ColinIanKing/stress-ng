@@ -248,61 +248,6 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 }
 #endif
 
-/*
- *  stress_set_fork_max()
- *	set maximum number of forks allowed
- */
-static int stress_set_fork_max(const char *opt)
-{
-	uint32_t fork_max;
-
-	fork_max = stress_get_uint32(opt);
-	stress_check_range("fork-max", (uint64_t)fork_max,
-		MIN_FORKS, MAX_FORKS);
-	return stress_set_setting("fork-max", TYPE_ID_UINT32, &fork_max);
-}
-
-/*
- *  stress_set_fork_unmap()
- *	set fork-unmap flag on
- */
-static int stress_set_fork_unmap(const char *opt)
-{
-	return stress_set_setting_true("fork-unmap", opt);
-}
-
-/*
- *  stress_set_fork_vm()
- *	set fork-vm flag on
- */
-static int stress_set_fork_vm(const char *opt)
-{
-	return stress_set_setting_true("fork-vm", opt);
-}
-
-/*
- *  stress_set_fork_pageout()
- *	set fork-pageout flag on
- */
-static int stress_set_fork_pageout(const char *opt)
-{
-	return stress_set_setting_true("fork-pageout", opt);
-}
-
-/*
- *  stress_set_vfork_max()
- *	set maximum number of vforks allowed
- */
-static int stress_set_vfork_max(const char *opt)
-{
-	uint32_t vfork_max;
-
-	vfork_max = stress_get_uint32(opt);
-	stress_check_range("vfork-max", vfork_max,
-		MIN_VFORKS, MAX_VFORKS);
-	return stress_set_setting("vfork-max", TYPE_ID_UINT32, &vfork_max);
-}
-
 typedef struct {
 	pid_t	pid;	/* Child PID */
 	int	err;	/* Saved fork errno */
@@ -596,23 +541,23 @@ static int stress_vfork(stress_args_t *args)
 }
 STRESS_PRAGMA_POP
 
-static const stress_opt_set_func_t fork_opt_set_funcs[] = {
-	{ OPT_fork_max,		stress_set_fork_max },
-	{ OPT_fork_pageout,	stress_set_fork_pageout },
-	{ OPT_fork_unmap,	stress_set_fork_unmap },
-	{ OPT_fork_vm,		stress_set_fork_vm },
-	{ 0,			NULL }
+static const stress_opt_t fork_opts[] = {
+	{ OPT_fork_max,     "fork-max",     TYPE_ID_UINT32, MIN_FORKS, MAX_FORKS, NULL },
+	{ OPT_fork_pageout, "fork-pageout", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_fork_unmap,   "fork-unmap",   TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_fork_vm,      "fork-vm",      TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
-static const stress_opt_set_func_t vfork_opt_set_funcs[] = {
-	{ OPT_vfork_max,	stress_set_vfork_max },
-	{ 0,			NULL }
+static const stress_opt_t vfork_opts[] = {
+	{ OPT_vfork_max,    "vfork-max",    TYPE_ID_UINT32, MIN_VFORKS, MAX_VFORKS, NULL },
+	END_OPT,
 };
 
 stressor_info_t stress_fork_info = {
 	.stressor = stress_fork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = fork_opt_set_funcs,
+	.opts = fork_opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = fork_help
 };
@@ -620,7 +565,7 @@ stressor_info_t stress_fork_info = {
 stressor_info_t stress_vfork_info = {
 	.stressor = stress_vfork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = vfork_opt_set_funcs,
+	.opts = vfork_opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = vfork_help
 };

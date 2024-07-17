@@ -36,14 +36,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_set_utime_fsync(const char *opt)
-{
-	return stress_set_setting_true("utime-fsync", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_utime_fsync,	stress_set_utime_fsync },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_utime_fsync, "utime-fsync", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_UTIME_H)
@@ -499,7 +494,7 @@ STRESS_PRAGMA_POP
 stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -509,7 +504,7 @@ stressor_info_t stress_utime_info = {
 stressor_info_t stress_utime_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without utime.h"

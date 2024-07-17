@@ -59,20 +59,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
-static int stress_set_tmpfs_mmap_file(const char *opt)
-{
-	return stress_set_setting_true("tmpfs-mmap-file", opt);
-}
-
-static int stress_set_tmpfs_mmap_async(const char *opt)
-{
-	return stress_set_setting_true("tmpfs-mmap-async", opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_tmpfs_mmap_async,	stress_set_tmpfs_mmap_async },
-	{ OPT_tmpfs_mmap_file,	stress_set_tmpfs_mmap_file },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_tmpfs_mmap_async,	"tmpfs-mmap-async", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_tmpfs_mmap_file,  "tmpfs-mmap-file",  TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SYS_VFS_H) && \
@@ -450,7 +440,7 @@ static int stress_tmpfs(stress_args_t *args)
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
@@ -458,7 +448,7 @@ stressor_info_t stress_tmpfs_info = {
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help,
 	.unimplemented_reason = "built without sys/vfs.h or statfs() system call"

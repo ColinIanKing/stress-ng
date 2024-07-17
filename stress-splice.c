@@ -34,19 +34,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static int stress_set_splice_bytes(const char *opt)
-{
-	size_t splice_bytes;
-
-	splice_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
-	stress_check_range_bytes("splice-bytes", splice_bytes,
-		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
-	return stress_set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_splice_bytes,	stress_set_splice_bytes },
-	{ 0,			NULL }
+static const stress_opt_t opts[] = {
+	{ OPT_splice_bytes, "splice-bytes", TYPE_ID_SIZE_T_BYTES, MIN_SPLICE_BYTES, MAX_MEM_LIMIT, NULL },
+	END_OPT,
 };
 
 #if defined(HAVE_SPLICE)
@@ -397,14 +387,14 @@ close_done:
 stressor_info_t stress_splice_info = {
 	.stressor = stress_splice,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help
 };
 #else
 stressor_info_t stress_splice_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without splice() system call"
 };
