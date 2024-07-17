@@ -711,5 +711,6 @@ stressor_info_t stress_madvise_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,
+	.help = help
 };
 #endif
