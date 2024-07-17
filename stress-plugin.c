@@ -410,9 +410,17 @@ stressor_info_t stress_plugin_info = {
 
 #else
 
+static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
+{
+	*type_id = TYPE_ID_STR;
+	*(char **)value = stress_const_optdup(opt_arg);
+
+	fprintf(stderr, "option %s '%s' not supported on unimplimented stressor\n", opt_name, opt_arg);
+}
+
 static const stress_opt_t opts[] = {
 	{ OPT_plugin_method, "plugin-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
-	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, stress_plugin_ignored },
+	{ OPT_plugin_so,     "plugin-so",     TYPE_ID_CALLBACK, 0, 0, stress_plugin_so },
 	END_OPT,
 };
 
