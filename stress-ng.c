@@ -346,7 +346,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"permute N",		"run permutations of stressors with N stressors per permutation" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
-	{ NULL,		"rapl",			"report RAPL power domain measurments over entire run (Linux x86 only)" },
+	{ NULL,		"rapl",			"report RAPL power domain measurements over entire run (Linux x86 only)" },
 	{ NULL,		"raplstat S",		"show RAPL power domain stats every S seconds (Linux x86 only)" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
@@ -971,7 +971,7 @@ int stress_s_pids_munmap(stress_pid_t *s_pids, const size_t num)
  *  stress_sync_state_store()
  *	store the stress_pids_t state, try and use atomic updates where
  *	possible. non-atomic state changes are OK, but can require
- *	additional re-polled read loops so are less optimial when
+ *	additional re-polled read loops so are less optimal when
  *	reading state changes
  */
 static inline ALWAYS_INLINE void stress_sync_state_store(stress_pid_t *s_pid, uint8_t state)

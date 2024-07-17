@@ -238,7 +238,7 @@ static int stress_rapl_get_power(stress_rapl_domain_t *rapl_domains, const int w
 			/* ensure we have a valid value */
 			if (ujoules > 0.0) {
 
-				/* Wrapped around since prevous time? */
+				/* Wrapped around since previous time? */
 				if (ujoules - rapl_domain->data[which].energy_uj < 0.0) {
 				rapl_domain->data[which].energy_uj = ujoules;
 					ujoules += rapl_domain->max_energy_uj;

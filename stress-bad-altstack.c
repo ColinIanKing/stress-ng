@@ -191,7 +191,7 @@ static int stress_bad_altstack_child(stress_args_t *args)
 		/*
 		 *  Pretend it's all OK, for example OpenBSD can fail
 		 *  depending on the stack setting on some of test cases
-		 *  so don't flag it's a failue per se
+		 *  so don't flag it's a failure per se
 		 */
 		return EXIT_SUCCESS;
 	}

@@ -415,7 +415,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	*type_id = TYPE_ID_STR;
 	*(char **)value = stress_const_optdup(opt_arg);
 
-	fprintf(stderr, "option %s '%s' not supported on unimplimented stressor\n", opt_name, opt_arg);
+	fprintf(stderr, "option %s '%s' not supported on unimplemented stressor\n", opt_name, opt_arg);
 }
 
 static const stress_opt_t opts[] = {

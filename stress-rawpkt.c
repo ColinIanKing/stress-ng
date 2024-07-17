@@ -461,7 +461,7 @@ static int stress_rawpkt(stress_args_t *args)
 
 	if ((rawpkt_rxring & (rawpkt_rxring - 1)) != 0) {
 		(void)pr_inf("%s: --rawpkt-rxing value %d is not "
-			"a power of 2, disabing option\n", args->name, rawpkt_rxring);
+			"a power of 2, disabling option\n", args->name, rawpkt_rxring);
 		rawpkt_rxring = 0;
 	}
 	rawpkt_port += args->instance;

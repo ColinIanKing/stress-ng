@@ -412,7 +412,7 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 	for (i = 0; i < 1000; i++) {
 		int32_t cmp1, cmp2;
 
-		/* #1 simple comparisions */
+		/* #1 simple comparisons */
 		if (x < y)
 			cmp1 = -1;
 		else if (x > y)
