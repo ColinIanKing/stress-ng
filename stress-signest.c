@@ -197,7 +197,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 			siglongjmp(jmp_env, 1);
 	}
 
-	signal_info.signalled |= 1UL << signal_index;
+	signal_info.signalled |= STRESS_BIT_ULL(signal_index);
 	signal_index++;
 	if (UNLIKELY(signal_index >= max_signals))
 		goto done;
@@ -300,7 +300,7 @@ finish:
 	stress_signest_ignore();
 
 	for (sz = 1, n = 0, i = 0; i < max_signals; i++) {
-		if (signal_info.signalled & (1U << i)) {
+		if (signal_info.signalled & STRESS_BIT_ULL(i)) {
 			const char *name = stress_get_signal_name(signals[i]);
 
 			n++;
