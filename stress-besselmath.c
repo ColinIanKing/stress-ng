@@ -623,23 +623,15 @@ stressor_info_t stress_besselmath_info = {
 
 #else
 
-static int stress_set_besselmath_method(const char *opt)
-{
-	(void)opt;
-
-	(void)fprintf(stderr, "besselmath-method is not implemented\n");
-	return -1;
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_besselmath_method,	stress_set_besselmath_method },
-	{ 0,				NULL },
+static const stress_opt_t opts[] = {
+	{ OPT_besselmath_method, "besselmath-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
+	END_OPT,
 };
 
 stressor_info_t stress_besselmath_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
-	.opt_set_funcs = opt_set_funcs,
+	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
