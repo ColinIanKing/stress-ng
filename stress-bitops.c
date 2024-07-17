@@ -639,7 +639,6 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 			ln2_2 |= 2;
 		}
 		if (tmp & 0x2) {
-			tmp >>= 1;
 			ln2_2 |= 1;
 		}
 		sum += ln2_2;
@@ -807,8 +806,6 @@ static int OPTIMIZE3 stress_bitops_rnddnpwr2(const char *name, uint32_t *count)
 	for (i = 0; i < 1000; i++) {
 		uint32_t c1, c2, tmp;
 
-		v = 0;
-
 		/*
 		 *  #1 rnddnpwr2: 1 << (31 - clz(v))
 		 *		= 0x80000000 >> clz(v)
@@ -876,17 +873,22 @@ static int OPTIMIZE3 stress_bitops_rnduppwr2(const char *name, uint32_t *count)
 		 *  #1 rnduppwr2: 1 << (31 - clz(v - 1))
 		 *		= 0x80000000 >> clz(v - 1)
 		 */
-		if (v == 0) {
+		switch (v) {
+		case 0:
 			c1 = 0;
-		} else {
+			break;
+		case 1:
+			c1 = 1;
+			break;
+		default:
 			for (c1 = 0, tmp = v - 1; tmp && ((tmp & 0x80000000) == 0); tmp <<= 1)
 				c1++;
-			c1 = 0x80000000 >> (c1 - 1);
+			c1 = (c1 > 0) ? 0x80000000 >> (c1 - 1) : 0;
+			break;
 		}
 		sum += c1;
 
 		/*  #2 rnduppwr2 branch free */
-		c2 = v;
 		c2 = v - 1;
 		c2 |= (c2 >> 1);
 		c2 |= (c2 >> 2);
