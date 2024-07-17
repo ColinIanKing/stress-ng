@@ -1002,15 +1002,8 @@ stressor_info_t stress_matrix_3d_info = {
 };
 #else
 
-static void stress_matrix_3d_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
-{
-	*type_id = TYPE_ID_SIZE_T;
-	*(size_t *)value = 0;
-	(void)fprintf(stderr, "matrix-3d stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
-}
-
 static const stress_opt_t opts[] = {
-	{ OPT_matrix_3d_method,	"matrix-3d-method", TYPE_ID_CALLBACK, 0, 0, stress_matrix_3d_method },
+	{ OPT_matrix_3d_method,	"matrix-3d-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method},
 	{ OPT_matrix_3d_size,   "matrix-3d-size",   TYPE_ID_SIZE_T, MIN_MATRIX3D_SIZE, MAX_MATRIX3D_SIZE, NULL },
 	{ OPT_matrix_3d_zyx,    "matrix-3d-zyx",    TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,

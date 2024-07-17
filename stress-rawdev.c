@@ -358,17 +358,11 @@ static const stress_opt_t opts[] = {
 
 #else
 
-static void stress_rawdev_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
-{
-        *type_id = TYPE_ID_SIZE_T;
-        *(size_t *)value = 0;
-        (void)fprintf(stderr, "rawdev stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
-}
-
 static const stress_opt_t opts[] = {
-	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_CALLBACK, 0, 0, stress_rawdev_method },
+	{ OPT_rawdev_method, "rawdev-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	END_OPT,
 };
+
 #endif
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\

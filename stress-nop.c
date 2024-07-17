@@ -360,7 +360,7 @@ static const char *stress_nop_instr(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_nop_instr, "nop-inst", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_nop_instr },
+	{ OPT_nop_instr, "nop-instr", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_nop_instr },
 	END_OPT,
 };
 
@@ -372,15 +372,8 @@ stressor_info_t stress_nop_info = {
 };
 #else
 
-static void stress_nop_instr(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
-{
-	*type_id = TYPE_ID_SIZE_T;
-	*(size_t *)value = 0;
-	(void)fprintf(stderr, "nop stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
-}
-
 static const stress_opt_t opts[] = {
-	{ OPT_nop_instr, "nop-inst", TYPE_ID_CALLBACK, 0, 0, stress_nop_instr },
+	{ OPT_nop_instr, "nop-instr", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	END_OPT,
 };
 

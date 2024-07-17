@@ -882,15 +882,6 @@ stressor_info_t stress_ipsec_mb_info = {
 };
 #else
 
-static void stress_unsupported_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
-{
-	(void)opt_arg;
-
-        *type_id = TYPE_ID_SIZE_T;
-        *(size_t *)value = 0;
-        (void)fprintf(stderr, "option --%s not supported on this system\n", opt_name);
-}
-
 static int stress_ipsec_mb_supported(const char *name)
 {
 	pr_inf_skip("%s: stressor will be skipped, CPU "
@@ -900,9 +891,9 @@ static int stress_ipsec_mb_supported(const char *name)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_CALLBACK, 0, 0, stress_unsupported_method },
+	{ OPT_ipsec_mb_feature, "ipsec-mb-feature", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	{ OPT_ipsec_mb_jobs,    "ipsec-mb-jobs",    TYPE_ID_INT, 1, 65536, NULL },
-	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_CALLBACK, 0, 0, stress_unsupported_method },
+	{ OPT_ipsec_mb_method,  "ipsec-mb-method",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_unimplemented_method },
 	END_OPT,
 };
 

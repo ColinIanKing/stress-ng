@@ -612,9 +612,9 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 				return stress_set_setting(opt_name, TYPE_ID_SIZE_T_METHOD, &i);
 		}
 		if (i == 0) {
-			(void)fprintf(stderr, "%s option '%s' not known, there are no options available\n", opt_name, opt_arg);
+			(void)fprintf(stderr, "option %s choice '%s' not known, there are none available (stressor unimplemented)\n", opt_name, opt_arg);
 		} else {
-			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, opt_arg);
+			(void)fprintf(stderr, "option %s choice '%s' not known, choices are:", opt_name, opt_arg);
 			for (i = 0; (str = method_func(i)) != NULL ; i++)
 				(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", str);
 			(void)fprintf(stderr, "\n");
@@ -670,4 +670,16 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 		break;
 	}
 	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_unimplemented_method()
+ *	method handler for methods that are unimplemented
+ *	(e.g. stressor not supported)
+ */
+const char *stress_unimplemented_method(const size_t i)
+{
+	(void)i;
+
+	return NULL;
 }
