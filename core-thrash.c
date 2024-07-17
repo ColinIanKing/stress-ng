@@ -175,33 +175,32 @@ static int stress_pagein_proc(const pid_t pid)
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
 	while (thrash_run && fgets(buffer, sizeof(buffer), fpmap)) {
-		uintmax_t begin, end, len;
-		uintptr_t off;
+		off_t begin, end, len, off;
 		char tmppath[1024];
 		char prot[6];
 
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
-		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
+		if (sscanf(buffer, "%jx-%jx %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
 			continue;
 
 		/* ignore non-readable or non-private mappings */
 		if ((prot[0] != 'r') && (prot[3] != 'p'))
 			continue;
-		len = end - begin;
 
 		/* Ignore bad range */
-		if ((begin >= end) || (len == 0) || (begin == 0))
+		if ((begin >= end) || (begin == 0))
 			continue;
+
+		len = end - begin;
 		/* Skip huge ranges more than 2GB */
-		if (len > 0x80000000UL)
+		if (len > (off_t)0x80000000UL)
 			continue;
 
 		for (off = begin; thrash_run && (off < end); off += page_size) {
 			unsigned long data;
 			off_t pos;
 
-			pos = lseek(fdmem, (off_t)off, SEEK_SET);
-			if (pos != (off_t)off)
+			pos = lseek(fdmem, off, SEEK_SET);
+			if (pos != off)
 				continue;
 			VOID_RET(ssize_t, read(fdmem, &data, sizeof(data)));
 		}
