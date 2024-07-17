@@ -3210,6 +3210,8 @@ static size_t stress_vm_all(
 	return bit_errors;
 }
 
+#if defined(MAP_LOCKED) ||	\
+    defined(MAP_POPULATE)
 static void stress_vm_flags(const char *opt, int *vm_flags, const int bitmask)
 {
 	bool flag = false;
@@ -3218,6 +3220,7 @@ static void stress_vm_flags(const char *opt, int *vm_flags, const int bitmask)
 	if (flag)
 		*vm_flags |= bitmask;
 }
+#endif
 
 static int stress_vm_child(stress_args_t *args, void *ctxt)
 {
