@@ -134,6 +134,9 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 				args->name, errno, strerror(errno));
 			return -1;
 		}
+		/* avoid underflowing nlmsgbuf_len on subtraction */
+		if (len > nlmsgbuf_len)
+			break;
 		nlmsgbuf_len -= len;
 		nlmsgbuf += len;
 	}
