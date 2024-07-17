@@ -250,7 +250,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 
 		ret = write(fd, buffer, count);
 		if (ret >= 0) {
-			n -= ret;
+			n -= STRESS_MINIMUM(ret, n);
 		} else {
 			return -1;
 		}
