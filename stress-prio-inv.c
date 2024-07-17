@@ -375,7 +375,7 @@ static int stress_prio_inv(stress_args_t *args)
 	/* niceness for non-RR and non-FIFO scheduling */
 	nice_max = 0;	/* normal level */
 	nice_min = 19;	/* very low niceness */
-	nice_div = (nice_max - nice_min) / (MUTEX_PROCS - 1);
+	nice_div = (nice_min - nice_max) / (MUTEX_PROCS - 1);
 
 	/* prio for RR and FIFO scheduling */
 	prio_min = sched_get_priority_min(sched_policy);
@@ -403,7 +403,7 @@ static int stress_prio_inv(stress_args_t *args)
 		pid_t pid;
 
 		child_info[i].prio = prio_min + (prio_div * i);
-		child_info[i].niceness = nice_min + (nice_div * i);
+		child_info[i].niceness = nice_max + (nice_div * i);
 		child_info[i].usage = 0.0;
 
 		pid = fork();
