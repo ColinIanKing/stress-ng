@@ -84,9 +84,16 @@ static uint64_t stress_dirmany_create(
 		fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			if (errno == ENAMETOOLONG) {
-				filename_len--;
-				*max_len = filename_len;
-				continue;
+				if (LIKELY(filename_len > 2)) {
+					filename_len--;
+					*max_len = filename_len;
+					continue;
+				} else {
+					pr_fail("%s: cannot determine largest valid filename size, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					*failed = true;
+					break;
+				}
 			}
 			break;
 		}
