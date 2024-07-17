@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "8 July 2024"
+.TH STRESS-NG 1 "17 July 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -5615,7 +5615,7 @@ int stress_example(void)
         int i;
 
         for (i = 0; i < 10000; i++) {
-                __volatile__ __asm__("nop");
+                __asm__ __volatile__("nop");
         }
         return 0;  /* Success */
 }
