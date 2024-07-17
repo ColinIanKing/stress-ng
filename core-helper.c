@@ -976,11 +976,17 @@ update:
 uint64_t stress_get_phys_mem_size(void)
 {
 #if defined(STRESS_SC_PAGES)
-	uint64_t phys_pages = 0;
+	uint64_t phys_pages;
 	const size_t page_size = stress_get_page_size();
 	const uint64_t max_pages = ~0ULL / page_size;
+	long ret;
 
-	phys_pages = (uint64_t)sysconf(STRESS_SC_PAGES);
+	errno = 0;
+	ret = sysconf(STRESS_SC_PAGES);
+	if ((ret < 0) && (errno != 0))
+		return 0ULL;
+
+	phys_pages = (uint64_t)ret;
 	/* Avoid overflow */
 	if (phys_pages > max_pages)
 		phys_pages = max_pages;
