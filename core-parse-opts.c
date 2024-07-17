@@ -554,8 +554,6 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 
 	(void)memset(&setting, 0, sizeof(setting));
 
-	printf("%s @ %s\n", opt->opt_name, opt_arg); fflush(stdout);
-
 	switch (opt->type_id) {
 	case TYPE_ID_UINT8:
 		setting.u.uint8 = stress_get_uint8(opt_arg);
@@ -613,10 +611,14 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 			if (strcmp(str, opt_arg) == 0)
 				return stress_set_setting(opt_name, TYPE_ID_SIZE_T_METHOD, &i);
 		}
-		(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, opt_arg);
-		for (i = 0; (str = method_func(i)) != NULL ; i++)
-			(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", str);
-		(void)fprintf(stderr, "\n");
+		if (i == 0) {
+			(void)fprintf(stderr, "%s option '%s' not known, there are no options available\n", opt_name, opt_arg);
+		} else {
+			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, opt_arg);
+			for (i = 0; (str = method_func(i)) != NULL ; i++)
+				(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", str);
+			(void)fprintf(stderr, "\n");
+		}
 		longjmp(g_error_env, 1);
 	case TYPE_ID_SSIZE_T:
 		setting.u.ssize = (ssize_t)stress_get_int64(opt_arg);
