@@ -123,7 +123,6 @@ static void stress_ensure_numeric(const char *const str)
 	longjmp(g_error_env, 1);
 }
 
-
 /*
  *  stress_ensure_positive()
  * 	ensure string contains just a +ve value
@@ -538,25 +537,6 @@ uint64_t stress_get_uint64_time(const char *const str)
 	};
 
 	return stress_get_uint64_scale(str, scales, "time");
-}
-
-/*
- *  stress_check_power_of_2()
- *  number must be power of 2
- */
-void stress_check_power_of_2(
-	const char *const opt,
-	const uint64_t val,
-	const uint64_t lo,
-	const uint64_t hi)
-{
-	stress_check_range(opt, val, lo, hi);
-
-	if ((val & (val - 1)) != 0) {
-		(void)fprintf(stderr, "Value %" PRIu64 " is not power of 2 for %s\n",
-					  val, opt);
-		longjmp(g_error_env, 1);
-	}
 }
 
 int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)

@@ -66,8 +66,6 @@ extern WARN_UNUSED uint64_t stress_get_uint64_byte_memory(const char *const str,
 extern WARN_UNUSED uint64_t stress_get_uint64_byte_filesystem(const char *const str,
 	const uint32_t instances);
 extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str);
-extern void stress_check_power_of_2(const char *const opt, const uint64_t val,
-	const uint64_t lo, const uint64_t hi);
 extern WARN_UNUSED int stress_parse_opt(const char *optarg, const stress_opt_t *opt);
 
 #endif
