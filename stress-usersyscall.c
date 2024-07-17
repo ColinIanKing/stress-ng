@@ -22,7 +22,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"usersyscall N",	"start N workers exercising a userspace system call handler" },
-	{ NULL,	"usersyscall-ops N", 	"stop after N successful SIGSYS system callls" },
+	{ NULL,	"usersyscall-ops N", 	"stop after N successful SIGSYS system calls" },
 	{ NULL,	NULL,		 	NULL }
 };
 
