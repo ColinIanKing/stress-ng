@@ -699,7 +699,7 @@ static int stress_cache(stress_args_t *args)
 	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 	NOCLOBBER bool pinned = false;
 #endif
-	uint32_t cache_flags = 0;
+	NOCLOBBER uint32_t cache_flags = 0;
 	NOCLOBBER uint32_t cache_flags_mask = CACHE_FLAGS_MASK;
 	NOCLOBBER uint32_t ignored_flags = 0;
 	NOCLOBBER uint32_t total = 0;
