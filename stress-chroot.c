@@ -209,7 +209,7 @@ static int stress_chroot_test3(chroot_shared_data_t *data)
 
 	do_chroot(data, longpath, NULL, &ret1, &ret2, &errno1, &errno2);
 #if defined(__HAIKU__)
-	if ((ret1 >= 0) || (errno1 != EINVAL) && (errno1 != ENAMETOOLONG)) {
+	if ((ret1 >= 0) || ((errno1 != EINVAL) && (errno1 != ENAMETOOLONG))) {
 #else
 	if ((ret1 >= 0) || (errno1 != ENAMETOOLONG)) {
 #endif
