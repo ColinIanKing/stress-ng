@@ -125,6 +125,10 @@ static int OPTIMIZE3 stress_netlink_sendcmd(
 	while (nlmsgbuf_len > 0) {
 		register ssize_t len;
 
+		/* Keep static analysis tools happy */
+		if (nlmsgbuf_len > (ssize_t)sizeof(stress_nlmsg_t))
+			break;
+
 		len = sendto(sock, nlmsgbuf, (size_t)nlmsgbuf_len, 0,
 			(struct sockaddr *)&addr, sizeof(addr));
 		if (len < 0) {
