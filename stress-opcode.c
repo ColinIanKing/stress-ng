@@ -318,9 +318,17 @@ static void stress_opcode_text(
 {
 	char *text_start, *text_end;
 	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
-	const size_t text_len = stress_exec_text_addr(&text_start, &text_end) - 8;
+	size_t text_len = stress_exec_text_addr(&text_start, &text_end);
 	uint8_t *ops;
 	size_t offset;
+
+	/*
+	 *  Don't access last 8 bytes to avoid 64 bit accesses off
+	 *  the end.
+	 */
+	if (text_len <= 8)
+		return;
+	text_len -= 8;
 
 	if (text_len < ops_len) {
 		stress_opcode_random(page_size, ops_begin, ops_end, op);
