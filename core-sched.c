@@ -300,11 +300,11 @@ int32_t stress_get_opt_sched(const char *const str)
 			return stress_sched_types[i].sched;
 	}
 	if (strcmp("which", str))
-		(void)fprintf(stderr, "Invalid sched option: %s\n", str);
+		(void)fprintf(stderr, "invalid sched option: %s\n", str);
 	if (stress_sched_types_length == (0)) {
-		(void)fprintf(stderr, "No scheduler options are available\n");
+		(void)fprintf(stderr, "no scheduler options are available\n");
 	} else {
-		(void)fprintf(stderr, "Available scheduler options are:");
+		(void)fprintf(stderr, "available scheduler options are:");
 		for (i = 0; i < stress_sched_types_length; i++) {
 			(void)fprintf(stderr, " %s", stress_sched_types[i].sched_name);
 		}

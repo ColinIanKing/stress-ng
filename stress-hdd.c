@@ -571,8 +571,7 @@ static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_ty
 		if (!opt_ok) {
 			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, token);
 			for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++)
-				(void)fprintf(stderr, "%s %s",
-					i == 0 ? "" : ",", hdd_opts[i].opt);
+				(void)fprintf(stderr, " %s", hdd_opts[i].opt);
 			(void)fprintf(stderr, "\n");
 			free(str);
 			longjmp(g_error_env, 1);

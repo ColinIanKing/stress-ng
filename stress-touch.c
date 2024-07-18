@@ -135,8 +135,7 @@ static void stress_touch_opts(const char *opt_name, const char *opt_arg, stress_
 		if (!opt_ok) {
 			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, token);
 			for (i = 0; i < SIZEOF_ARRAY(touch_opts); i++)
-				(void)fprintf(stderr, "%s %s",
-					i == 0 ? "" : ",", touch_opts[i].opt);
+				(void)fprintf(stderr, " %s", touch_opts[i].opt);
 			(void)fprintf(stderr, "\n");
 			free(str);
 			longjmp(g_error_env, 1);

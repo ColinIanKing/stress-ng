@@ -53,7 +53,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"revio N",		"start N workers performing reverse I/O" },
 	{ NULL, "revio-bytes N",	"specify file size (default is 1GB)" },
 	{ NULL,	"revio-ops N",		"stop after N revio bogo operations" },
-	{ NULL, "revop-opts list",	"specify list of various stressor options" },
+	{ NULL, "revio-opts list",	"specify list of various stressor options" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -227,8 +227,7 @@ static void stress_revio_opts(const char *opt_name, const char *opt_arg, stress_
 		if (!opt_ok) {
 			(void)fprintf(stderr, "%s option '%s' not known, options are:", opt_name, token);
 			for (i = 0; i < SIZEOF_ARRAY(revio_opts); i++)
-				(void)fprintf(stderr, "%s %s",
-					i == 0 ? "" : ",", revio_opts[i].opt);
+				(void)fprintf(stderr, " %s", revio_opts[i].opt);
 			(void)fprintf(stderr, "\n");
 			free(str);
 			longjmp(g_error_env, 1);

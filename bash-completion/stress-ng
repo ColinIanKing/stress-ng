@@ -25,7 +25,7 @@ _stress_ng()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	COMREPLY=()
 
-	case $prev in
+	case "$prev" in
         '--class')
                 local classes=$($1 --class which 2>&1 | cut -d':' -f3)
                 COMPREPLY=( $(compgen -W "$classes" -- $cur) )
@@ -63,25 +63,87 @@ _stress_ng()
                 COMPREPLY=( $(compgen -W "0 1 2 3 4 5 6 7 8 9" -- $cur) )
                 return 0
                 ;;
-	'--cpu-method' | '--cyclic-method' | '--funccall-method' |\
-	'--funcret-method' |\
-	'--matrix-method' | '--matrix-3d-method' | '--memcpy-method' |\
-	'--memthrash-method' | '--opcode-method' | '--rawdev-method' |\
-	'--str-method' | '--tree-method' | '--vm-method' |\
-	'--wcs-method' | '--zlib-method' | '--cyclic-policy')
+	'--bad-ioctl-method' | \
+	'--besselmath-method' | \
+	'--bitops-method' | \
+	'--bsearch-method' | \
+	'--cacheline-method' | \
+	'--cpu-method' | \
+	'--crypt-method' | \
+	'--cyclic-method' | \
+	'--eigen-method' | \
+	'--exec-fork-method' | \
+	'--exec-method' | \
+	'--expmath-method' | \
+	'--fp-method' | \
+	'--fractal-method' | \
+	'--funccall-method' | \
+	'--funcret-method' | \
+	'--hash-method' | \
+	'--heapsort-method' | \
+	'--hsearch-method' | \
+	'--ipsec-mb-method' | \
+	'--l1cache-method' | \
+	'--list-method' | \
+	'--logmath-method' | \
+	'--lsearch-method' | \
+	'--matrix-method' | \
+	'--matrix-3d-method' | \
+	'--memcpy-method' | \
+	'--memthrash-method' | \
+	'--mergesort-method' | \
+	'--misaligned-method' | \
+	'--monte-carlo-method' | \
+	'--nanosleep-method' | \
+	'--opcode-method' | \
+	'--plugin-method' | \
+	'--powmath-method' | \
+	'--prefetch-method' | \
+	'--prime-method' | \
+	'--qsort-method' | \
+	'--race-sched-method' | \
+	'--radixsort-method' | \
+	'--rawdev-method' | \
+	'--rotate-method' | \
+	'--sparsematrix-method' | \
+	'--str-method' | \
+	'--switch-method' | \
+	'--syscall-method' | \
+	'--touch-method' | \
+	'--tree-method' | \
+	'--trig-method' | \
+	'--vecfp-method' | \
+	'--vecshuf-method' | \
+	'--vm-method' | \
+	'--vm-addr-method' | \
+	'--vnni-method' | \
+	'--wcs-method' | \
+	'--workload-method' | \
+	'--zlib-method')
                 local methods=$($1 $prev which 2>&1 | cut -d':' -f2)
                 COMPREPLY=( $(compgen -W "$methods" -- $cur) )
                 return 0
                 ;;
-	'--dccp-domain' | '--epoll-domain' | '--sctp-domain' |\
-	'--sock-domain' | '--udp-domain' | '--udp-flood-domain')
+	'--dccp-domain' | \
+	'--epoll-domain' | \
+	'--sctp-domain' | \
+	'--sock-domain' | \
+	'--udp-domain' | \
+	'--udp-flood-domain')
                 local domains=$($1 $prev which 2>&1 | cut -d':' -f3)
                 COMPREPLY=( $(compgen -W "$domains" -- $cur) )
                 return 0
                 ;;
-	'--dccp-opts' | '--filename-opts' | '--hdd-opts' | '--sock-opts' |\
-	'--sock-type')
-                local options=$($1 $prev which 2>&1 | cut -d':' -f2 | sed 's/,//g')
+	'--cyclic-policy' | \
+	'--dccp-opts' | \
+	'--filename-opts' | \
+	'--hdd-opts' | \
+	'--sock-opts' | \
+	'--sock-type' | \
+	'--sock-protocol' | \
+	'--revio-opts' | \
+	'--touch-opts')
+                local options=$($1 $prev which 2>&1 | cut -d':' -f2)
                 COMPREPLY=( $(compgen -W "$options" -- $cur) )
                 return 0
                 ;;
@@ -101,20 +163,176 @@ _stress_ng()
 	#
 	# args without further options
 	#
-	'--abort' | '--aggressive' | '--dry-run' | '--help' | '--ignite-cpu' |\
-	'--keep-name' | '--log-brief' | '--maximize' | '--metrics' |\
-	'--metrics-brief' | '--minimize' | '--no-madvise' | '--no-rand-seed' |\
-	'--page-in' | '--pathological' | '--perf' | '--quiet' | '--stressors' |\
-	'--syslog' | '--taskset' | '--thrash' | '--timer-slack' | '--times' |\
-	'--timestamp' | '--tz' | '--verbose' | '--version' |\
-	'--affinity-rand' | '--brk-notouch' | '--cache-prefetch' |\
-	'--cache-flush' | '--cache-fence' | '--itimer-rand' |\
-	'--lockf-nonblock' | '--matrix-yx' | '--matrix-3d-zyx' |\
-	'--mincore-random' | '--mmap-async' | '--mmap-file' |\
-	'--mmap-mprotect' | '--seek-punch' | '--stack-fill' |\
-	'--stream-index' | '--timer-rand' | '--timerfd-rand' |\
-	'--tmpfs-mmap-async' | '--tmpfs-mmap-file' | '--udp-lite' |\
-	'--utime-fsync' | '--vm-keep' | '--vm-locked' | '--vm-populate')
+	'--abort' | \
+	'--acl-rand' | \
+	'--af-alg-dump' | \
+	'--affinity-pin' | \
+	'--affinity-rand' | \
+	'--aggressive' | \
+	'--bigheap-mlock' | \
+	'--brk-mlock' | \
+	'--brk-notouch' | \
+	'--cache-cldemote' | \
+	'--cache-clflushopt' | \
+	'--cache-clwb' | \
+	'--cache-enable-all' | \
+	'--cache-fence' | \
+	'--cache-flush' | \
+	'--cache-no-affinity' | \
+	'--cache-prefetch' | \
+	'--cache-sfence' | \
+	'--cacheline-affinity' | \
+	'--change-cpu' | \
+	'--config' | \
+	'--cpu-online-affinity0,' | \
+	'--cpu-online-all' | \
+	'--daemon-wait' | \
+	'--dry-run' | \
+	'--eventfd-nonblock' | \
+	'--exec-no-pthread' | \
+	'--fma-libc' | \
+	'--fork-pageout' | \
+	'--fork-unmap' | \
+	'--fork-vm' | \
+	'--forkheavy-mlock' | \
+	'--ftrace' | \
+	'--get-slow-sync' | \
+	'--hrtimers-adjust' | \
+	'--help' | \
+	'--ignite-cpu' | \
+	'--interrupts' | \
+	'--io-uring-rand' | \
+	'--itimer-rand' | \
+	'--keep-files' | \
+	'--keep-name' | \
+	'--klog-check' | \
+	'--ksm' | \
+	'--l1cache-mlock' | \
+	'--link-sync' | \
+	'--llc-affinity-mlock' | \
+	'--lockbus-nosplit' | \
+	'--lockf-nonblock' | \
+	'--log-brief' | \
+	'--log-lockless' | \
+	'--madvise-hwpoison' | \
+	'--malloc-mlock' | \
+	'--malloc-touch' | \
+	'--malloc-trim' | \
+	'--malloc-zerofree' | \
+	'--matrix-yx' | \
+	'--matrix-3d-zyx' | \
+	'--maximize' | \
+	'--memfd-madvise' | \
+	'--memfd-mlock' | \
+	'--memfd-zap-pte' | \
+	'--memhotplug-mmap' | \
+	'--memrate-flush' | \
+	'--metrics' | \
+	'--metrics-brief' | \
+	'--mincore-random' | \
+	'--min-nanosleep-sched1,' | \
+	'--minimize' | \
+	'--mmap-async' | \
+	'--mmap-file' | \
+	'--mmap-madvise' | \
+	'--mmap-mergeable' | \
+	'--mmap-mprotect' | \
+	'--mmap-mlock' | \
+	'--mmap-mmap2' | \
+	'--mmap-odirect' | \
+	'--mmap-osync' | \
+	'--mmap-slow-munmap' | \
+	'--mmap-stressful' | \
+	'--mmap-write-check' | \
+	'--mmapaddr-mlock' | \
+	'--mmapfiles-populate' | \
+	'--mmapfiles-shared' | \
+	'--mmapfixed-mlock' | \
+	'--mmaphuge-file' | \
+	'--mmaphuge-mlock' | \
+	'--mmapmany-mlock' | \
+	'--module-no-modver' | \
+	'--module-no-vermag' | \
+	'--module-no-unload' | \
+	'--monte-carlo-samples1,' | \
+	'--mremap-mlock' | \
+	'--mutex-affinity' | \
+	'--no-madvise' | \
+	'--no-oom-adjust' | \
+	'--no-rand-seed' | \
+	'--null-write' | \
+	'--numa-shuffle-addr' | \
+	'--numa-shuffle-node' | \
+	'--oomable' | \
+	'--oom-avoid' | \
+	'--open-fd' | \
+	'--page-in' | \
+	'--pagemove-mlock' | \
+	'--pathological' | \
+	'--perf' | \
+	'--physpage-mtrr' | \
+	'--pipe-vmsplice' | \
+	'--pipeherd-yield' | \
+	'--prime-progress' | \
+	'--progress' | \
+	'--quiet' | \
+	'--ramfs-fill' | \
+	'--randlist-compact' | \
+	'--rapl' | \
+	'--rdrand-seed' | \
+	'--remap-mlock' | \
+	'--resources-mlock' | \
+	'--ring-pipe-splice' | \
+	'--sched-reclaim' | \
+	'--schedpolicy-rand' | \
+	'--seek-punch' | \
+	'--settings' | \
+	'--shm-mlock' | \
+	'--shm-sysv-mlock' | \
+	'--skip-silent' | \
+	'--smart' | \
+	'--sn' | \
+	'--sock-nodelay' | \
+	'--sock-zerocopy' | \
+	'--sockfd-reuse' | \
+	'--sparsematrix-method1,' | \
+	'--stack-fill' | \
+	'--stack-mlock' | \
+	'--stack-pageout' | \
+	'--stack-unmap' | \
+	'--stderr' | \
+	'--stdout' | \
+	'--stressors' | \
+	'--stream-mlock' | \
+	'--swap-self' | \
+	'--symlink-sync' | \
+	'--sync-start' | \
+	'--syslog' | \
+	'--timer-rand' | \
+	'--timerfd-rand' | \
+	'--tmpfs-mmap-async' | \
+	'--tmpfs-mmap-file' | \
+	'--tsc-lfence' | \
+	'--tsc-rdtscp' | \
+	'--thrash' | \
+	'--times' | \
+	'--timestamp' | \
+	'--tz' | \
+	'--tun-tap' | \
+	'--udp-gro' | \
+	'--udp-lite' | \
+	'--utime-fsync' | \
+	'--verbose' | \
+	'--verify' | \
+	'--verifiable' | \
+	'--version' | \
+	'--vforkmany-vm' | \
+	'--vm-keep' | \
+	'--vm-locked' | \
+	'--vm-populate' | \
+	'--vm-addr-mlock' | \
+	'--vnni-intrinsic' | \
+	'--zero-read')
 		return 0
 		;;
 	-*)

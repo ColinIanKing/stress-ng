@@ -616,7 +616,7 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 		} else {
 			(void)fprintf(stderr, "option %s choice '%s' not known, choices are:", opt_name, opt_arg);
 			for (i = 0; (str = method_func(i)) != NULL ; i++)
-				(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", str);
+				(void)fprintf(stderr, " %s", str);
 			(void)fprintf(stderr, "\n");
 		}
 		longjmp(g_error_env, 1);
