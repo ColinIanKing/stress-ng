@@ -37,8 +37,6 @@
 
 #define DCCP_BUF		(1024)	/* DCCP I/O buffer size */
 
-#define MIN_DCCP_PORT		(1024)
-#define MAX_DCCP_PORT		(65535)
 #define DEFAULT_DCCP_PORT	(10000)
 
 #define MIN_DCCP_MSGS		(1)
@@ -88,7 +86,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_dccp_if,     "dccp-if",     TYPE_ID_STR,           0, 0, NULL },
 	{ OPT_dccp_msgs,   "dccp-msgs",   TYPE_ID_SIZE_T,        MIN_DCCP_MSGS, MAX_DCCP_MSGS, NULL },
 	{ OPT_dccp_opts,   "dccp-opts",	  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_dccp_options },
-	{ OPT_dccp_port,   "dccp-port",   TYPE_ID_INT_PORT,      MIN_DCCP_PORT, MAX_DCCP_PORT, NULL },
+	{ OPT_dccp_port,   "dccp-port",   TYPE_ID_INT_PORT,      MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };
 
@@ -424,6 +422,8 @@ static int stress_dccp(stress_args_t *args)
 	}
 
 	dccp_port += args->instance;
+	if (dccp_port > MAX_PORT)
+		dccp_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(dccp_port, dccp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",

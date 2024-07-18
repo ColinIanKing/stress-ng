@@ -60,8 +60,6 @@ UNEXPECTED
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define MIN_SOCKET_PORT		(1025)
-#define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(1000)
 
 #define MIN_SOCKET_MSGS		(1)
@@ -1345,6 +1343,8 @@ static int stress_sock(stress_args_t *args)
 		}
 	}
 	sock_port += args->instance;
+	if (sock_port > MAX_PORT)
+		sock_port -= (MAX_PORT- MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(sock_port, sock_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
@@ -1431,7 +1431,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_sock_nodelay,  "sock-nodelay",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_sock_opts,     "sock-opts",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_opts },
 	{ OPT_sock_type,     "sock-type",     TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_types },
-	{ OPT_sock_port,     "sock-port",     TYPE_ID_INT_PORT, MIN_SOCKET_PORT, MAX_SOCKET_PORT, NULL },
+	{ OPT_sock_port,     "sock-port",     TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_sock_protocol, "sock-protocol", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sock_protocols },
 	{ OPT_sock_zerocopy, "sock-zerocopy", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,

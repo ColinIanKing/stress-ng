@@ -34,8 +34,6 @@
 UNEXPECTED
 #endif
 
-#define MIN_SOCKET_FD_PORT	(1024)
-#define MAX_SOCKET_FD_PORT	(65535)
 #define DEFAULT_SOCKET_FD_PORT	(8000)
 
 static const stress_help_t help[] = {
@@ -47,7 +45,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_sockfd_port,  "sockfd-port",  TYPE_ID_INT_PORT, MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT, NULL },
+	{ OPT_sockfd_port,  "sockfd-port",  TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_sockfd_reuse, "sockfd-reuse", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };
@@ -407,6 +405,8 @@ static int stress_sockfd(stress_args_t *args)
 #endif
 
 	socket_fd_port += args->instance;
+	if (socket_fd_port > MAX_PORT)
+		socket_fd_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(socket_fd_port, socket_fd_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",

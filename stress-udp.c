@@ -46,8 +46,6 @@ UNEXPECTED
 
 #include <netinet/in.h>
 
-#define MIN_UDP_PORT		(1024)
-#define MAX_UDP_PORT		(65535)
 #define DEFAULT_UDP_PORT	(7000)
 
 #define UDP_BUF			(1024)	/* UDP I/O buffer size */
@@ -444,6 +442,8 @@ static int stress_udp(stress_args_t *args)
 	}
 #endif
 	udp_port += args->instance;
+	if (udp_port > MAX_PORT)
+		udp_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(udp_port, udp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
@@ -500,7 +500,7 @@ static int udp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
 
 static const stress_opt_t opts[] = {
 	{ OPT_udp_domain, "udp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &udp_domain_mask },
-	{ OPT_udp_port,   "udp-port",   TYPE_ID_INT_PORT, MIN_UDP_PORT, MAX_UDP_PORT, NULL },
+	{ OPT_udp_port,   "udp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_udp_lite,   "udp-lite",   TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_udp_gro,    "upd-gro",    TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_udp_if,     "udp-if",     TYPE_ID_STR, 0, 0, NULL },

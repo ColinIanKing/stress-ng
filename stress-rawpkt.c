@@ -54,8 +54,6 @@
 
 #include <arpa/inet.h>
 
-#define MIN_RAWPKT_PORT		(1024)
-#define MAX_RAWPKT_PORT		(65535)
 #define DEFAULT_RAWPKT_PORT	(14000)
 
 #if !defined(SOL_UDP)
@@ -87,7 +85,7 @@ static int stress_rawpkt_supported(const char *name)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_rawpkt_port,   "rawpkt-port",   TYPE_ID_INT_PORT, MIN_RAWPKT_PORT, MAX_RAWPKT_PORT - STRESS_PROCS_MAX, NULL },
+	{ OPT_rawpkt_port,   "rawpkt-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_rawpkt_rxring, "rawpkt-rxring", TYPE_ID_INT, 1, 16, NULL },
 	END_OPT,
 };
@@ -448,7 +446,7 @@ static void stress_sock_sigpipe_handler(int signum)
 static int stress_rawpkt(stress_args_t *args)
 {
 	pid_t pid;
-	int rawpkt_port = DEFAULT_RAWPKT_PORT;
+	int reserved_port, rawpkt_port = DEFAULT_RAWPKT_PORT;
 	int fd, rc = EXIT_FAILURE, parent_cpu;
 	struct ifreq hwaddr, ifaddr, idx;
 	int rawpkt_rxring = 0;
@@ -465,6 +463,15 @@ static int stress_rawpkt(stress_args_t *args)
 		rawpkt_rxring = 0;
 	}
 	rawpkt_port += args->instance;
+	if (rawpkt_port > MAX_PORT)
+		rawpkt_port -= (MAX_PORT - MIN_PORT + 1); /* Wrap round */
+	reserved_port = stress_net_reserve_ports(rawpkt_port, rawpkt_port);
+	if (reserved_port < 0) {
+		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, rawpkt_port);
+		return EXIT_NO_RESOURCE;
+	}
+	rawpkt_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, rawpkt_port);

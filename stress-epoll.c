@@ -31,8 +31,6 @@
 #include <sys/epoll.h>
 #endif
 
-#define MIN_EPOLL_PORT		(1024)
-#define MAX_EPOLL_PORT		(65535)
 #define DEFAULT_EPOLL_PORT	(6000)
 
 #define MAX_EPOLL_EVENTS 	(1024)
@@ -75,7 +73,7 @@ static int epoll_domain_mask = DOMAIN_ALL;
 
 static const stress_opt_t opts[] = {
 	{ OPT_epoll_domain,  "epoll-domain",  TYPE_ID_INT_DOMAIN, 0, 0, &epoll_domain_mask },
-	{ OPT_epoll_port,    "epoll-port",    TYPE_ID_INT_PORT,   MIN_EPOLL_PORT, MAX_EPOLL_PORT, NULL },
+	{ OPT_epoll_port,    "epoll-port",    TYPE_ID_INT_PORT,   MIN_PORT, MAX_PORT, NULL },
 	{ OPT_epoll_sockets, "epoll-sockets", TYPE_ID_INT,        MIN_EPOLL_SOCKETS, MAX_EPOLL_SOCKETS, NULL },
 	END_OPT,
 };
@@ -1003,6 +1001,8 @@ static int stress_epoll(stress_args_t *args)
 
 	if (max_servers == 1) {
 		start_port = epoll_port + (int)args->instance;
+		if (start_port > MAX_PORT)
+			start_port -= (MAX_PORT - MIN_PORT + 1);
 		reserved_port = stress_net_reserve_ports(start_port, start_port);
 		if (reserved_port < 0) {
 			pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
@@ -1021,6 +1021,10 @@ static int stress_epoll(stress_args_t *args)
 	} else {
 		start_port = epoll_port + (max_servers * (int)args->instance);
 		end_port = start_port + max_servers - 1;
+		if (end_port > MAX_PORT) {
+			start_port = MIN_PORT;
+			end_port = start_port + max_servers - 1;
+		}
 
 		reserved_port = stress_net_reserve_ports(start_port, end_port);
 		if (reserved_port < 0) {

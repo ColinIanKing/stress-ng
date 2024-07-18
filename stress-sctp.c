@@ -41,8 +41,6 @@ UNEXPECTED
 UNEXPECTED
 #endif
 
-#define MIN_SCTP_PORT		(1024)
-#define MAX_SCTP_PORT		(65535)
 #define DEFAULT_SCTP_PORT	(9000)
 
 #define SOCKET_BUF		(8192)	/* Socket I/O buffer size */
@@ -101,7 +99,7 @@ static int sctp_domain_mask = DOMAIN_INET | DOMAIN_INET6;
 static const stress_opt_t opts[] = {
 	{ OPT_sctp_domain, "sctp-domain", TYPE_ID_INT_DOMAIN, 0, 0, &sctp_domain_mask },
 	{ OPT_sctp_if,     "sctp-if",     TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_sctp_port,   "sctp-port",   TYPE_ID_INT_PORT, MIN_SCTP_PORT, MAX_SCTP_PORT - STRESS_PROCS_MAX, NULL },
+	{ OPT_sctp_port,   "sctp-port",   TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_sctp_sched,  "sctp-sched",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_sctp_sched },
 	END_OPT,
 };
@@ -647,6 +645,8 @@ static int stress_sctp(stress_args_t *args)
 		return EXIT_FAILURE;
 
 	sctp_port += args->instance;
+	if (sctp_port > MAX_PORT)
+		sctp_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(sctp_port, sctp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",

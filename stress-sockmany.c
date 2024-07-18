@@ -29,8 +29,6 @@
 UNEXPECTED
 #endif
 
-#define MIN_SOCKMANY_PORT	(1024)
-#define MAX_SOCKMANY_PORT	(65535)
 #define DEFAULT_SOCKET_MANY_PORT (11000)
 
 #define SOCKET_MANY_BUF		(8)
@@ -51,7 +49,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_sockmany_if,   "sockmany-if",   TYPE_ID_STR, 0, 0, NULL },
-	{ OPT_sockmany_port, "sockmany-port", TYPE_ID_INT_PORT, MIN_SOCKMANY_PORT, MAX_SOCKMANY_PORT, NULL },
+	{ OPT_sockmany_port, "sockmany-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };
 
@@ -317,6 +315,8 @@ static int stress_sockmany(stress_args_t *args)
 	}
 
 	sockmany_port += args->instance;
+	if (sockmany_port > MAX_PORT)
+		sockmany_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(sockmany_port, sockmany_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",

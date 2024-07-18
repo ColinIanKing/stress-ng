@@ -36,8 +36,6 @@
 
 #include <arpa/inet.h>
 
-#define MIN_RAWUDP_PORT		(1024)
-#define MAX_RAWUDP_PORT		(65535)
 #define DEFAULT_RAWUDP_PORT	(13000)
 
 #if !defined(SOL_UDP)
@@ -68,7 +66,7 @@ static int stress_rawudp_supported(const char *name)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_rawudp_port, "rawudp-port", TYPE_ID_INT_PORT, MIN_RAWUDP_PORT, MAX_RAWUDP_PORT, NULL },
+	{ OPT_rawudp_port, "rawudp-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	{ OPT_rawudp_if,   "rawudp-if",   TYPE_ID_STR, 0, 0, NULL },
 	END_OPT,
 };
@@ -276,6 +274,8 @@ static int stress_rawudp(stress_args_t *args)
 	}
 
 	rawudp_port += args->instance;
+	if (rawudp_port > MAX_PORT)
+		rawudp_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(rawudp_port, rawudp_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",

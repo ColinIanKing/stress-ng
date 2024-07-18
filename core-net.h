@@ -32,6 +32,9 @@
 #define NET_ADDR_ANY		(0)
 #define NET_ADDR_LOOPBACK	(1)
 
+#define MIN_PORT		(1024)
+#define MAX_PORT		(65535)
+
 /* Network helpers */
 extern void stress_set_net_port(const char *optname, const char *opt,
 	const int min_port, const int max_port, int *port);

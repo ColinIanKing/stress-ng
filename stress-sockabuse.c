@@ -38,8 +38,6 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
-#define MIN_SOCKABUSE_PORT	(1024)
-#define MAX_SOCKABUSE_PORT	(65535)
 #define DEFAULT_SOCKABUSE_PORT	(12000)
 
 #define MSGVEC_SIZE		(4)
@@ -375,6 +373,8 @@ static int stress_sockabuse(stress_args_t *args)
 	(void)stress_get_setting("sockabuse-port", &sockabuse_port);
 
 	sockabuse_port += args->instance;
+	if (sockabuse_port > MAX_PORT)
+		sockabuse_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(sockabuse_port, sockabuse_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
@@ -422,7 +422,7 @@ finish:
 
 
 static const stress_opt_t opts[] = {
-	{ OPT_sockabuse_port, "sockabuse-port", TYPE_ID_INT_PORT, MIN_SOCKABUSE_PORT, MAX_SOCKABUSE_PORT, NULL },
+	{ OPT_sockabuse_port, "sockabuse-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };
 

@@ -37,8 +37,6 @@
 #include <netinet/ip.h>
 #endif
 
-#define MIN_RAWSOCK_PORT		(1024)
-#define MAX_RAWSOCK_PORT		(65535)
 #define DEFAULT_RAWSOCK_PORT		(45000)
 
 static const stress_help_t help[] = {
@@ -49,7 +47,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_rawsock_port, "rawsock-port", TYPE_ID_INT_PORT, MIN_RAWSOCK_PORT, MAX_RAWSOCK_PORT, NULL },
+	{ OPT_rawsock_port, "rawsock-port", TYPE_ID_INT_PORT, MIN_PORT, MAX_PORT, NULL },
 	END_OPT,
 };
 
@@ -318,6 +316,8 @@ static int stress_rawsock(stress_args_t *args)
 	(void)stress_get_setting("rawsock-port", &rawsock_port);
 
 	rawsock_port += args->instance;
+	if (rawsock_port > MAX_PORT)
+		rawsock_port -= (MAX_PORT - MIN_PORT + 1);
 	reserved_port = stress_net_reserve_ports(rawsock_port, rawsock_port);
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
