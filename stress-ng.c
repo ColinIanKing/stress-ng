@@ -103,7 +103,6 @@ static stress_stressor_t *stressors_head, *stressors_tail;
 
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
-static int terminate_signum;			/* signal sent to process */
 static pid_t main_pid;				/* stress-ng main pid */
 static bool *sigalarmed = NULL;			/* pointer to stressor stats->sigalarmed */
 
@@ -1380,7 +1379,6 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 {
 	static char buf[128];
 	const int fd = fileno(stderr);
-	terminate_signum = signum;
 	stress_continue_set_flag(false);
 
 	switch (signum) {
@@ -1781,8 +1779,6 @@ child_exit:
 		(void)shim_kill(getppid(), SIGALRM);
 	}
 	stress_set_proc_state(name, STRESS_STATE_EXIT);
-	if (terminate_signum)
-		rc = EXIT_SIGNALED;
 	g_shared->instance_count.exited++;
 	g_shared->instance_count.started--;
 	if (rc == EXIT_FAILURE)
