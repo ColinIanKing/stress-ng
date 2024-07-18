@@ -312,7 +312,7 @@ finish:
 		buf = calloc(sz, sizeof(*buf));
 		if (buf) {
 			for (ptr = buf, i = 0; i < max_signals; i++) {
-				if (signal_info.signalled & (1U << i)) {
+				if (signal_info.signalled & STRESS_BIT_ULL(i)) {
 					const char *name = stress_get_signal_name(signals[i]);
 
 					if (name) {
