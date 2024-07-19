@@ -653,7 +653,6 @@ typedef struct {
 /* stress test metadata */
 typedef struct stress {
 	const stressor_info_t *info;	/* stress test info */
-	const unsigned int id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op_t op;		/* ops option */
 	const char *name;		/* name of stress test */

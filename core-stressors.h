@@ -378,7 +378,6 @@
 #define STRESSOR_ELEM(name)		\
 {					\
 	&stress_ ## name ## _info,	\
-	STRESS_ ## name,		\
 	OPT_ ## name,			\
 	OPT_ ## name  ## _ops,		\
 	# name				\
