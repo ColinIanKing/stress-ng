@@ -388,6 +388,18 @@ static const stress_help_t help_generic[] = {
 };
 
 /*
+ *  stress_readable_name()
+ *	convert stressor name to human readable name
+ */
+static const char *stress_readable_name(const stress_t *stressor)
+{
+	static char name[64];
+
+	(void)stress_munge_underscore(name, stressor->name, sizeof(name));
+	return name;
+}
+
+/*
  *  stress_hash_checksum()
  *	generate a hash of the checksum data
  */
@@ -448,12 +460,8 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 					(void)printf("class '%s' stressors:",
 						token);
 					for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
-						if (stressors[j].info->class & cl) {
-							char munged[64];
-
-							(void)stress_munge_underscore(munged, stressors[j].name, sizeof(munged));
-							(void)printf(" %s", munged);
-						}
+						if (stressors[j].info->class & cl)
+							(void)printf(" %s", stress_readable_name(&stressors[j]));
 					}
 					(void)printf("\n");
 					return 1;
@@ -755,10 +763,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info->verify == mode) {
-			char munged[64];
-
-			(void)stress_munge_underscore(munged, stressors[i].name, sizeof(munged));
-			(void)printf("%s%s", space ? " " : "", munged);
+			(void)printf("%s%s", space ? " " : "", stress_readable_name(&stressors[i]));
 			space = true;
 		}
 	}
@@ -801,12 +806,8 @@ static inline void stress_show_stressor_names(void)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		char munged[64];
-
-		(void)stress_munge_underscore(munged, stressors[i].name, sizeof(munged));
-		(void)printf("%s%s", i ? " " : "", munged);
-	}
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++)
+		(void)printf("%s%s", i ? " " : "", stress_readable_name(&stressors[i]));
 	(void)putchar('\n');
 }
 
@@ -1325,11 +1326,10 @@ static void stress_wait_stressors(
 			const pid_t pid = stats->s_pid.pid;
 
 			if (pid) {
-				char munged[64];
+				const char *name = stress_readable_name(ss->stressor);
 
-				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-				stress_wait_pid(ss, pid, munged, stats, success, resource_success, metrics_success);
-				stress_clean_dir(munged, pid, (uint32_t)j);
+				stress_wait_pid(ss, pid, name, stats, success, resource_success, metrics_success);
+				stress_clean_dir(name, pid, (uint32_t)j);
 			}
 		}
 	}
@@ -1563,14 +1563,13 @@ static int MLOCKED_TEXT stress_run_child(
 	const size_t page_size,
 	const pid_t child_pid)
 {
-	char name[64];
+	const char *name = stress_readable_name(g_stressor_current->stressor);
 	int rc = EXIT_SUCCESS;
 	bool ok;
 	double finish, run_duration;
 
 	sigalarmed = &stats->sigalarmed;
 
-	(void)stress_munge_underscore(name, g_stressor_current->stressor->name, sizeof(name));
 	stress_set_proc_state(name, STRESS_STATE_START);
 	g_shared->instance_count.started++;
 
@@ -1899,12 +1898,11 @@ static int stress_show_stressors(void)
 			const int32_t n = ss->num_instances;
 
 			if (n) {
-				char munged[64];
+				const char *name = stress_readable_name(ss->stressor);
 				ssize_t buffer_len;
 
-				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 				buffer_len = snprintf(buffer, sizeof(buffer),
-						"%s %" PRId32 " %s", previous ? "," : "", n, munged);
+						"%s %" PRId32 " %s", previous ? "," : "", n, name);
 				previous = true;
 				if (buffer_len >= 0) {
 					newstr = realloc(str, (size_t)(len + buffer_len + 1));
