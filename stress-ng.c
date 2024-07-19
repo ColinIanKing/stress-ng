@@ -413,21 +413,6 @@ static size_t PURE stressor_find_by_name(const char *name)
 }
 
 /*
- *  stressor_find_by_id()
- *	Find stressor by id, return index
- */
-static size_t PURE stressor_find_by_id(const unsigned int id)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (id == stressors[i].id)
-			break;
-	}
-	return i;
-}
-
-/*
  *  stress_ignore_stressor()
  *	remove stressor from stressor list
  */
@@ -514,7 +499,7 @@ static int stress_exclude(void)
 
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		unsigned int id;
-		stress_stressor_t *ss = stressors_head;
+		stress_stressor_t *ss;
 		const size_t i = stressor_find_by_name(token);
 
 		if (i >= SIZEOF_ARRAY(stressors)) {
@@ -524,7 +509,7 @@ static int stress_exclude(void)
 		}
 		id = stressors[i].id;
 
-		while (ss) {
+		for (ss = stressors_head; ss; ss = ss->next) {
 			stress_stressor_t *next = ss->next;
 
 			if (ss->stressor->id == id)
@@ -2865,18 +2850,15 @@ static void stress_set_proc_limits(void)
 		return;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		size_t i;
+		const stressor_info_t *info;
 
 		if (ss->ignore.run)
 			continue;
 
-		i = stressor_find_by_id(ss->stressor->id);
-		if ((i < SIZEOF_ARRAY(stressors)) &&
-		    stressors[i].info &&
-		    stressors[i].info->set_limit &&
-		    ss->num_instances) {
+		info = ss->stressor->info;
+		if (info && info->set_limit && ss->num_instances) {
 			const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
-			stressors[i].info->set_limit(max);
+			info->set_limit(max);
 		}
 	}
 #endif
@@ -2934,16 +2916,11 @@ static void stress_stressors_init(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		size_t i;
+		if (!ss->ignore.run) {
+			const stressor_info_t *info = ss->stressor->info;
 
-		if (ss->ignore.run)
-			continue;
-
-		i = stressor_find_by_id(ss->stressor->id);
-		if ((i < SIZEOF_ARRAY(stressors)) &&
-		    stressors[i].info &&
-		    stressors[i].info->init) {
-			stressors[i].info->init(ss->num_instances);
+			if (info && info->init)
+				info->init(ss->num_instances);
 		}
 	}
 }
@@ -2957,16 +2934,11 @@ static void stress_stressors_deinit(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		size_t i;
+		if (!ss->ignore.run) {
+			const stressor_info_t *info = ss->stressor->info;
 
-		if (ss->ignore.run)
-			continue;
-
-		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-			if (stressors[i].info &&
-			    stressors[i].info->deinit &&
-			    stressors[i].id == ss->stressor->id)
-				stressors[i].info->deinit();
+			if (info && info->deinit)
+				info->deinit();
 		}
 	}
 }
