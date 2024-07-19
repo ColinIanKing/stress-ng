@@ -398,21 +398,6 @@ static inline void stress_hash_checksum(stress_checksum_t *checksum)
 }
 
 /*
- *  stressor_find_by_name()
- *  	Find index into stressors by name
- */
-static size_t PURE stressor_find_by_name(const char *name)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
-		if (!stress_strcmp_munged(name, stressors[i].name))
-			break;
-	}
-	return i;
-}
-
-/*
  *  stress_ignore_stressor()
  *	remove stressor from stressor list
  */
@@ -498,23 +483,20 @@ static int stress_exclude(void)
 		return 0;
 
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
-		unsigned int id;
 		stress_stressor_t *ss;
-		const size_t i = stressor_find_by_name(token);
+		bool ignored = false;
 
-		if (i >= SIZEOF_ARRAY(stressors)) {
+		for (ss = stressors_head; ss; ss = ss->next) {
+			if (!strcmp(token, ss->stressor->name)) {
+				stress_ignore_stressor(ss, STRESS_STRESSOR_EXCLUDED);
+				ignored = true;
+				break;
+			}
+		}
+		if (!ignored) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
 				"invalid exclude option\n", token);
 			return -1;
-		}
-		id = stressors[i].id;
-
-		for (ss = stressors_head; ss; ss = ss->next) {
-			stress_stressor_t *next = ss->next;
-
-			if (ss->stressor->id == id)
-				stress_ignore_stressor(ss, STRESS_STRESSOR_EXCLUDED);
-			ss = next;
 		}
 	}
 	return 0;
@@ -3065,14 +3047,21 @@ static void stress_with(const int32_t instances)
 
 	for (str = opt_with; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
-		const size_t i = stressor_find_by_name(token);
+		const stress_t *stressor = NULL;
+		size_t i;
 
-		if (i >= SIZEOF_ARRAY(stressors)) {
+		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+			if (!stress_strcmp_munged(token, stressors[i].name)) {
+				stressor = &stressors[i];
+				break;
+			}
+		}
+		if (!stressor) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
 				"invalid --with option\n", token);
 			exit(EXIT_FAILURE);
 		}
-		ss = stress_find_proc_info(&stressors[i]);
+		ss = stress_find_proc_info(stressor);
 		if (!ss) {
 			(void)fprintf(stderr, "Cannot allocate stressor state info\n");
 			exit(EXIT_FAILURE);
