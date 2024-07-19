@@ -2780,28 +2780,30 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+		const stress_t *stressor = &stressors[i];
 		stress_stressor_t *ss;
-		const unsigned int id = stressors[i].id;
 		char munged[64];
 
-		if (stressors[i].info && stressors[i].info->supported) {
+		if (stressor->info && stressor->info->supported) {
 			for (ss = stressors_head; ss; ss = ss->next) {
 				if (!ss->ignore.run) {
 					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-					if ((ss->stressor->id == id) && ss->num_instances &&
-					    (stressors[i].info->supported(munged) < 0)) {
+
+					if ((ss->stressor == stressor) && ss->num_instances &&
+					    (stressor->info->supported(munged) < 0)) {
 						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 						*unsupported = true;
 					}
 				}
 			}
 		}
-		if (stressors[i].info && (stressors[i].info->stressor == stress_unimplemented)) {
+		if (stressors->info && (stressor->info->stressor == stress_unimplemented)) {
 			for (ss = stressors_head; ss; ss = ss->next) {
 				if (!ss->ignore.run) {
 					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-					if ((ss->stressor->id == id) && ss->num_instances) {
-						stress_exclude_unimplemented(munged, stressors[i].info);
+
+					if ((ss->stressor == stressor) && ss->num_instances) {
+						stress_exclude_unimplemented(munged, stressor->info);
 						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 						*unsupported = true;
 					}
