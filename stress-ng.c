@@ -523,19 +523,18 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 	}
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		int32_t i;
+		if (!ss->ignore.run) {
+			int32_t i;
 
-		if (ss->ignore.run)
-			continue;
+			for (i = 0; i < ss->num_instances; i++) {
+				stress_stats_t *const stats = ss->stats[i];
+				const pid_t pid = stats->s_pid.pid;
 
-		for (i = 0; i < ss->num_instances; i++) {
-			stress_stats_t *const stats = ss->stats[i];
-			const pid_t pid = stats->s_pid.pid;
-
-			/* Don't kill -1 (group), or init processes! */
-			if ((pid > 1) && !stats->signalled) {
-				(void)shim_kill(pid, signum);
-				stats->signalled = true;
+				/* Don't kill -1 (group), or init processes! */
+				if ((pid > 1) && !stats->signalled) {
+					(void)shim_kill(pid, signum);
+					stats->signalled = true;
+				}
 			}
 		}
 	}
@@ -1896,30 +1895,29 @@ static int stress_show_stressors(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		const int32_t n = ss->num_instances;
+		if (!ss->ignore.run) {
+			const int32_t n = ss->num_instances;
 
-		if (ss->ignore.run)
-			continue;
+			if (n) {
+				char munged[64];
+				ssize_t buffer_len;
 
-		if (n) {
-			char munged[64];
-			ssize_t buffer_len;
-
-			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-			buffer_len = snprintf(buffer, sizeof(buffer),
-					"%s %" PRId32 " %s", previous ? "," : "", n, munged);
-			previous = true;
-			if (buffer_len >= 0) {
-				newstr = realloc(str, (size_t)(len + buffer_len + 1));
-				if (!newstr) {
-					pr_err("Cannot allocate temporary buffer\n");
-					free(str);
-					return -1;
+				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+				buffer_len = snprintf(buffer, sizeof(buffer),
+						"%s %" PRId32 " %s", previous ? "," : "", n, munged);
+				previous = true;
+				if (buffer_len >= 0) {
+					newstr = realloc(str, (size_t)(len + buffer_len + 1));
+					if (!newstr) {
+						pr_err("Cannot allocate temporary buffer\n");
+						free(str);
+						return -1;
+					}
+					str = newstr;
+					(void)shim_strscpy(str + len, buffer, (size_t)(buffer_len + 1));
 				}
-				str = newstr;
-				(void)shim_strscpy(str + len, buffer, (size_t)(buffer_len + 1));
+				len += buffer_len;
 			}
-			len += buffer_len;
 		}
 	}
 	pr_inf("dispatching hogs:%s\n", str ? str : "");
@@ -2784,34 +2782,29 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		stress_stressor_t *ss;
 		const unsigned int id = stressors[i].id;
+		char munged[64];
 
 		if (stressors[i].info && stressors[i].info->supported) {
 			for (ss = stressors_head; ss; ss = ss->next) {
-				char munged[64];
-
-				if (ss->ignore.run)
-					continue;
-
-				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-				if ((ss->stressor->id == id) && ss->num_instances &&
-				    (stressors[i].info->supported(munged) < 0)) {
-					stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-					*unsupported = true;
+				if (!ss->ignore.run) {
+					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+					if ((ss->stressor->id == id) && ss->num_instances &&
+					    (stressors[i].info->supported(munged) < 0)) {
+						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+						*unsupported = true;
+					}
 				}
 			}
 		}
 		if (stressors[i].info && (stressors[i].info->stressor == stress_unimplemented)) {
 			for (ss = stressors_head; ss; ss = ss->next) {
-				char munged[64];
-
-				if (ss->ignore.run)
-					continue;
-
-				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-				if ((ss->stressor->id == id) && ss->num_instances) {
-					stress_exclude_unimplemented(munged, stressors[i].info);
-					stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-					*unsupported = true;
+				if (!ss->ignore.run) {
+					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+					if ((ss->stressor->id == id) && ss->num_instances) {
+						stress_exclude_unimplemented(munged, stressors[i].info);
+						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+						*unsupported = true;
+					}
 				}
 			}
 		}
@@ -2832,15 +2825,13 @@ static void stress_set_proc_limits(void)
 		return;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		const stressor_info_t *info;
+		if (!ss->ignore.run) {
+			const stressor_info_t *info = ss->stressor->info;
 
-		if (ss->ignore.run)
-			continue;
-
-		info = ss->stressor->info;
-		if (info && info->set_limit && ss->num_instances) {
-			const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
-			info->set_limit(max);
+			if (info && info->set_limit && ss->num_instances) {
+				const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
+				info->set_limit(max);
+			}
 		}
 	}
 #endif
@@ -2981,18 +2972,17 @@ static inline void stress_setup_stats_buffers(void)
 	stress_stats_t *stats = g_shared->stats;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		int32_t i;
+		if (!ss->ignore.run) {
+			int32_t i;
 
-		if (ss->ignore.run)
-			continue;
+			for (i = 0; i < ss->num_instances; i++, stats++) {
+				size_t j;
 
-		for (i = 0; i < ss->num_instances; i++, stats++) {
-			size_t j;
-
-			ss->stats[i] = stats;
-			for (j = 0; j < SIZEOF_ARRAY(stats->metrics.items); j++) {
-				stats->metrics.items[j].value = 0.0;
-				stats->metrics.items[j].description = NULL;
+				ss->stats[i] = stats;
+				for (j = 0; j < SIZEOF_ARRAY(stats->metrics.items); j++) {
+					stats->metrics.items[j].value = 0.0;
+					stats->metrics.items[j].description = NULL;
+				}
 			}
 		}
 	}
@@ -3479,9 +3469,8 @@ static void stress_setup_sequential(const uint32_t class, const int32_t instance
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->num_instances = instances;
-		if (ss->ignore.run)
-			continue;
-		stress_alloc_proc_resources(&ss->stats, ss->num_instances);
+		if (!ss->ignore.run)
+			stress_alloc_proc_resources(&ss->stats, ss->num_instances);
 	}
 }
 
@@ -3498,16 +3487,16 @@ static void stress_setup_parallel(const uint32_t class, const int32_t instances)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->num_instances = instances;
-		if (ss->ignore.run)
-			continue;
-		/*
-		 * Share bogo ops between processes equally, rounding up
-		 * if nonzero bogo_ops
-		 */
-		ss->bogo_ops = ss->num_instances ?
-			(ss->bogo_ops + (ss->num_instances - 1)) / ss->num_instances : 0;
-		if (ss->num_instances)
-			stress_alloc_proc_resources(&ss->stats, ss->num_instances);
+		if (!ss->ignore.run) {
+			/*
+			 * Share bogo ops between processes equally, rounding up
+			 * if nonzero bogo_ops
+			 */
+			ss->bogo_ops = ss->num_instances ?
+				(ss->bogo_ops + (ss->num_instances - 1)) / ss->num_instances : 0;
+			if (ss->num_instances)
+				stress_alloc_proc_resources(&ss->stats, ss->num_instances);
+		}
 	}
 }
 
@@ -3632,15 +3621,15 @@ static inline void stress_run_permute(
 		*str = '\0';
 		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
 			ss->ignore.permute = true;
-			if (ss->ignore.run)
-				continue;
-			ss->ignore.permute = ((i & (1U << j)) == 0);
-			if (!ss->ignore.permute) {
-				if (*str)
-					shim_strlcat(str, ", ", sizeof(str));
-				shim_strlcat(str, ss->stressor->name, sizeof(str));
+			if (!ss->ignore.run) {
+				ss->ignore.permute = ((i & (1U << j)) == 0);
+				if (!ss->ignore.permute) {
+					if (*str)
+						shim_strlcat(str, ", ", sizeof(str));
+					shim_strlcat(str, ss->stressor->name, sizeof(str));
+				}
+				j++;
 			}
-			j++;
 		}
 		pr_inf("permute: %s\n", str);
 		stress_run_parallel(ticks_per_sec, duration, success, resource_success, metrics_success);
