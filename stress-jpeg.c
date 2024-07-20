@@ -350,7 +350,6 @@ static int stress_jpeg(stress_args_t *args)
 
 	rgb_size = (size_t)x_max * (size_t)y_max * 3;
 
-pr_inf("mmap: %zd\n", rgb_size);
 	rgb = stress_mmap_populate(NULL, rgb_size,
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -359,7 +358,6 @@ pr_inf("mmap: %zd\n", rgb_size);
 			args->name, x_max, y_max, 3);
 		return EXIT_NO_RESOURCE;
 	}
-pr_inf("buf: %p .. %p\n", rgb, rgb + rgb_size);
 	row_pointer_size = (size_t)y_max * sizeof(*row_pointer);
 	row_pointer = (JSAMPROW *)stress_mmap_populate(NULL, row_pointer_size,
 				PROT_READ | PROT_WRITE,
