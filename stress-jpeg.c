@@ -144,7 +144,7 @@ static void OPTIMIZE3 stress_rgb_brown(
 	const int32_t	y_max)
 {
 	int32_t i;
-	const int32_t size = x_max * y_max * 3;
+	const int32_t size = x_max * y_max;
 	uint8_t *ptr = (uint8_t *)rgb;
 	const uint32_t val = stress_mwc32();
 	register uint8_t r = (val >> 24) & 0xff;
@@ -163,7 +163,6 @@ static void OPTIMIZE3 stress_rgb_brown(
 		b += ((v >> 6) & 3) - 1;
 	}
 }
-
 
 static void OPTIMIZE3 stress_rgb_gradient(
 	uint8_t		*rgb,
@@ -350,6 +349,8 @@ static int stress_jpeg(stress_args_t *args)
 	(void)stress_get_setting("jpeg-image", &jpeg_image);
 
 	rgb_size = (size_t)x_max * (size_t)y_max * 3;
+
+pr_inf("mmap: %zd\n", rgb_size);
 	rgb = stress_mmap_populate(NULL, rgb_size,
 		PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -358,6 +359,7 @@ static int stress_jpeg(stress_args_t *args)
 			args->name, x_max, y_max, 3);
 		return EXIT_NO_RESOURCE;
 	}
+pr_inf("buf: %p .. %p\n", rgb, rgb + rgb_size);
 	row_pointer_size = (size_t)y_max * sizeof(*row_pointer);
 	row_pointer = (JSAMPROW *)stress_mmap_populate(NULL, row_pointer_size,
 				PROT_READ | PROT_WRITE,
