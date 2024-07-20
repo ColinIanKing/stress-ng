@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 July 2024"
+.TH STRESS-NG 1 "20 July 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7247,6 +7247,26 @@ stress\-ng and then exit almost immediately. Currently Linux only.
 .TP
 .B \-\-spawn\-ops N
 stop spawn stress workers after N bogo spawns.
+.RE
+.TP
+.B Spinmem stressor
+.RS 5
+.TQ
+.B \-\-spinmem N
+start N workers that use a shared memory page to keep two processes synchronized
+using busy spin loops. One process is a writer that increments a value in memory slot 0
+and spin waits for the data to appear in memory slot 1. The other process spin waits
+for the data to change in slot 0 and copies the changed value into memory slot 1.
+The stessor benchmarks the time for the transactions to occur between both
+processes. Note that the optimal number of stressors is half the number of online
+CPUs in a system. By default 32 bit write/reads are used.
+.TP
+.B \-\-spinmem\-ops N
+stop after N spinmem bogo operations. A bogo operation is 1000 transactions betewen
+the two spinmem proceesses.
+.TP
+.B \-\-spinemm\-method [ 8bit | 16bit | 32bit | 64bit ]
+select the size of the memory write/reads, the default is 32 bit.
 .RE
 .TP
 .B Splice stressor (Linux)

@@ -1360,6 +1360,10 @@ typedef enum {
 	OPT_sparsematrix_method,
 	OPT_sparsematrix_size,
 
+	OPT_spinmem,
+	OPT_spinmem_ops,
+	OPT_spinmem_method,
+
 	OPT_splice,
 	OPT_splice_ops,
 	OPT_splice_bytes,

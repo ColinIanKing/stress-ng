@@ -300,6 +300,7 @@
 	MACRO(softlockup)	\
 	MACRO(sparsematrix)	\
 	MACRO(spawn)		\
+	MACRO(spinmem)		\
 	MACRO(splice)		\
 	MACRO(stack)		\
 	MACRO(stackmmap)	\
