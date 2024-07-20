@@ -1948,12 +1948,12 @@ static void stress_exit_status_type(const char *name, const size_t type)
 			count = ss->num_instances;
 		}
 		if (count > 0) {
-			char buf[80], munged[64];
+			char buf[80];
 			char *new_str;
 			size_t buf_len;
 
-			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")", munged, count);
+			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")",
+				stress_readable_name(ss->stressor), count);
 			buf_len = strlen(buf);
 			new_str = realloc(str, str_len + buf_len);
 			if (!new_str) {
@@ -2136,7 +2136,7 @@ static void stress_metrics_dump(FILE *yaml)
 		long int maxrss = 0;
 		int32_t  j;
 		size_t i;
-		char munged[64];
+		const char *name;
 		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
 		bool run_ok = false;
 
@@ -2145,7 +2145,7 @@ static void stress_metrics_dump(FILE *yaml)
 		if (!ss->stats)
 			continue;
 
-		(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+		name = stress_readable_name(ss->stressor);
 
 		for (j = 0; j < ss->num_instances; j++)
 			ss->completed_instances = 0;
@@ -2192,7 +2192,7 @@ static void stress_metrics_dump(FILE *yaml)
 		if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
 			if (g_opt_flags & OPT_FLAGS_SN) {
 				pr_metrics("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e\n",
-					munged,		/* stress test name */
+					name,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
 					u_time, 	/* actual user time */
@@ -2201,7 +2201,7 @@ static void stress_metrics_dump(FILE *yaml)
 					bogo_rate);	/* bogo ops per second */
 			} else {
 				pr_metrics("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
-					munged,		/* stress test name */
+					name,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
 					u_time, 	/* actual user time */
@@ -2213,7 +2213,7 @@ static void stress_metrics_dump(FILE *yaml)
 			/* extended metrics */
 			if (g_opt_flags & OPT_FLAGS_SN) {
 				pr_metrics("%-13s %9" PRIu64 " %9.3e %9.3e %9.3e %12.5e %14.5e %15.4e %13ld\n",
-					munged,		/* stress test name */
+					name,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
 					u_time, 	/* actual user time */
@@ -2224,7 +2224,7 @@ static void stress_metrics_dump(FILE *yaml)
 					maxrss);	/* maximum RSS in KB */
 			} else {
 				pr_metrics("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f %13ld\n",
-					munged,		/* stress test name */
+					name,		/* stress test name */
 					c_total,	/* op count */
 					r_total,	/* average real (wall) clock time */
 					u_time, 	/* actual user time */
@@ -2237,7 +2237,7 @@ static void stress_metrics_dump(FILE *yaml)
 		}
 
 		if (g_opt_flags & OPT_FLAGS_SN) {
-			pr_yaml(yaml, "    - stressor: %s\n", munged);
+			pr_yaml(yaml, "    - stressor: %s\n", name);
 			pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
 			pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %e\n", bogo_rate);
 			pr_yaml(yaml, "      bogo-ops-per-second-real-time: %e\n", bogo_rate_r_time);
@@ -2247,7 +2247,7 @@ static void stress_metrics_dump(FILE *yaml)
 			pr_yaml(yaml, "      cpu-usage-per-instance: %e\n", cpu_usage);
 			pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 		} else {
-			pr_yaml(yaml, "    - stressor: %s\n", munged);
+			pr_yaml(yaml, "    - stressor: %s\n", name);
 			pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
 			pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
 			pr_yaml(yaml, "      bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
@@ -2287,14 +2287,14 @@ static void stress_metrics_dump(FILE *yaml)
 		for (ss = stressors_head; ss; ss = ss->next) {
 			size_t i;
 			int32_t j;
-			char munged[64];
+			const char *name;
 
 			if (ss->ignore.run)
 				continue;
 			if (!ss->stats)
 				continue;
 
-			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+			name = stress_readable_name(ss->stressor);
 
 			if (ss->stats[0]->metrics.max_metrics > SIZEOF_ARRAY(ss->stats[0]->metrics.items))
 				pr_metrics("note: %zd metrics were set, only reporting first %zd metrics\n",
@@ -2338,11 +2338,11 @@ static void stress_metrics_dump(FILE *yaml)
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
 							pr_metrics("%-13s %13.2e %s (geometric mean of %" PRIu32 " instance%s)\n",
-								munged, geometric_mean, description,
+								name, geometric_mean, description,
 								ss->completed_instances, plural);
 						} else {
 							pr_metrics("%-13s %13.2f %s (geometric mean of %" PRIu32 " instance%s)\n",
-								munged, geometric_mean, description,
+								name, geometric_mean, description,
 								ss->completed_instances, plural);
 						}
 						break;
@@ -2368,11 +2368,11 @@ static void stress_metrics_dump(FILE *yaml)
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
 							pr_metrics("%-13s %13.2e %s (harmonic mean of %" PRIu32 " instance%s)\n",
-								munged, harmonic_mean, description,
+								name, harmonic_mean, description,
 								ss->completed_instances, plural);
 						} else {
 							pr_metrics("%-13s %13.2f %s (harmonic mean of %" PRIu32 " instance%s)\n",
-								munged, harmonic_mean, description,
+								name, harmonic_mean, description,
 								ss->completed_instances, plural);
 						}
 						break;
@@ -2386,11 +2386,11 @@ static void stress_metrics_dump(FILE *yaml)
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
 							pr_metrics("%-13s %13.2e %s (total of %" PRIu32 " instance%s)\n",
-								munged, total, description,
+								name, total, description,
 								ss->completed_instances, plural);
 						} else {
 							pr_metrics("%-13s %13.2f %s (total of %" PRIu32 " instance%s)\n",
-								munged, total, description,
+								name, total, description,
 								ss->completed_instances, plural);
 						}
 						break;
@@ -2404,11 +2404,11 @@ static void stress_metrics_dump(FILE *yaml)
 						}
 						if (g_opt_flags & OPT_FLAGS_SN) {
 							pr_metrics("%-13s %13.2e %s (maximum of %" PRIu32 " instance%s)\n",
-								munged, maximum, description,
+								name, maximum, description,
 								ss->completed_instances, plural);
 						} else {
 							pr_metrics("%-13s %13.2f %s (maximum of %" PRIu32 " instance%s)\n",
-								munged, maximum, description,
+								name, maximum, description,
 								ss->completed_instances, plural);
 						}
 						break;
@@ -2780,16 +2780,15 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		const stress_t *stressor = &stressors[i];
 		stress_stressor_t *ss;
-		char munged[64];
 
 		if (stressor->info) {
 			if (stressor->info->supported) {
 				for (ss = stressors_head; ss; ss = ss->next) {
 					if (!ss->ignore.run) {
-						(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+						const char *name = stress_readable_name(ss->stressor);
 
 						if ((ss->stressor == stressor) && ss->num_instances &&
-						    (stressor->info->supported(munged) < 0)) {
+						    (stressor->info->supported(name) < 0)) {
 							stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 							*unsupported = true;
 						}
@@ -2799,10 +2798,10 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			if (stressor->info->stressor == stress_unimplemented) {
 				for (ss = stressors_head; ss; ss = ss->next) {
 					if (!ss->ignore.run) {
-						(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+						const char *name = stress_readable_name(ss->stressor);
 
 						if ((ss->stressor == stressor) && ss->num_instances) {
-							stress_exclude_unimplemented(munged, stressor->info);
+							stress_exclude_unimplemented(name, stressor->info);
 							stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 							*unsupported = true;
 						}
@@ -2949,13 +2948,12 @@ static inline void stress_exclude_pathological(void)
 
 			if ((!ss->ignore.run) && (ss->stressor->info->class & CLASS_PATHOLOGICAL)) {
 				if (ss->num_instances > 0) {
-					char munged[64];
+					const char* name = stress_readable_name(ss->stressor);
 
-					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 					pr_inf("disabled '%s' as it "
 						"may hang or reboot the machine "
 						"(enable it with the "
-						"--pathological option)\n", munged);
+						"--pathological option)\n", name);
 				}
 				stress_ignore_stressor(ss, STRESS_STRESSOR_EXCLUDED);
 			}
@@ -3535,7 +3533,7 @@ static inline void stress_run_sequential(
 			if (progress) {
 				struct tm *tm_finish;
 				time_t t_finish;
-				char munged[64];
+				const char *name = stress_readable_name(ss->stressor);
 				char finish[64];
 
 				t_finish = time(NULL);
@@ -3547,10 +3545,9 @@ static inline void stress_run_sequential(
 					*finish = '\0';
 				}
 
-				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 				run++;
 				pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s%s%s\n",
-					munged, run, total_run,
+					name, run, total_run,
 					(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
 					ss->num_instances,
 					(ss->num_instances > 1) ? "s" : "",
