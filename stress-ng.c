@@ -2782,28 +2782,30 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 		stress_stressor_t *ss;
 		char munged[64];
 
-		if (stressor->info && stressor->info->supported) {
-			for (ss = stressors_head; ss; ss = ss->next) {
-				if (!ss->ignore.run) {
-					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+		if (stressor->info) {
+			if (stressor->info->supported) {
+				for (ss = stressors_head; ss; ss = ss->next) {
+					if (!ss->ignore.run) {
+						(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 
-					if ((ss->stressor == stressor) && ss->num_instances &&
-					    (stressor->info->supported(munged) < 0)) {
-						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-						*unsupported = true;
+						if ((ss->stressor == stressor) && ss->num_instances &&
+						    (stressor->info->supported(munged) < 0)) {
+							stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+							*unsupported = true;
+						}
 					}
 				}
 			}
-		}
-		if (stressors->info && (stressor->info->stressor == stress_unimplemented)) {
-			for (ss = stressors_head; ss; ss = ss->next) {
-				if (!ss->ignore.run) {
-					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+			if (stressor->info->stressor == stress_unimplemented) {
+				for (ss = stressors_head; ss; ss = ss->next) {
+					if (!ss->ignore.run) {
+						(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
 
-					if ((ss->stressor == stressor) && ss->num_instances) {
-						stress_exclude_unimplemented(munged, stressor->info);
-						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-						*unsupported = true;
+						if ((ss->stressor == stressor) && ss->num_instances) {
+							stress_exclude_unimplemented(munged, stressor->info);
+							stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+							*unsupported = true;
+						}
 					}
 				}
 			}
