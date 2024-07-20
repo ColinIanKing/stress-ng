@@ -3529,40 +3529,40 @@ static inline void stress_run_sequential(
 	 *  Step through each stressor one by one
 	 */
 	for (ss = stressors_head; ss && stress_continue_flag(); ss = ss->next) {
-		stress_stressor_t *next = ss->next;
+		if (!ss->ignore.run) {
+			stress_stressor_t *next;
 
-		if (ss->ignore.run)
-			continue;
+			if (progress) {
+				struct tm *tm_finish;
+				time_t t_finish;
+				char munged[64];
+				char finish[64];
 
-		if (progress) {
-			struct tm *tm_finish;
-			time_t t_finish;
-			char munged[64];
-			char finish[64];
+				t_finish = time(NULL);
+				t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
+				tm_finish = gmtime(&t_finish);
+				if (tm_finish) {
+					strftime(finish, sizeof(finish), "%T %F", tm_finish);
+				} else {
+					*finish = '\0';
+				}
 
-			t_finish = time(NULL);
-			t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
-			tm_finish = gmtime(&t_finish);
-			if (tm_finish) {
-				strftime(finish, sizeof(finish), "%T %F", tm_finish);
-			} else {
-				*finish = '\0';
+				(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
+				run++;
+				pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s%s%s\n",
+					munged, run, total_run,
+					(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
+					ss->num_instances,
+					(ss->num_instances > 1) ? "s" : "",
+					*finish ? ", finish at " : "",
+					finish);
 			}
-
-			(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-			run++;
-			pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s%s%s\n",
-				munged, run, total_run,
-				(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
-				ss->num_instances,
-				(ss->num_instances > 1) ? "s" : "",
-				*finish ? ", finish at " : "",
-				finish);
+ 			next = ss->next;
+			ss->next = NULL;
+			stress_run(ticks_per_sec, ss, duration, success, resource_success,
+				metrics_success, &checksum);
+			ss->next = next;
 		}
-		ss->next = NULL;
-		stress_run(ticks_per_sec, ss, duration, success, resource_success,
-			metrics_success, &checksum);
-		ss->next = next;
 	}
 	stress_metrics_check(success);
 }
