@@ -24,8 +24,12 @@
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 #define STRESS_VMA_PROCS	(2)
-#define STRESS_VMA_PAGES	(16)
+#define STRESS_VMA_PAGES	(32)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vma N",	"start N workers that exercise kernel VMA structures" },
@@ -39,6 +43,7 @@ typedef struct {
 	stress_args_t *args;
 	void *data;
 	pid_t pid;
+	void *mappings[STRESS_VMA_PAGES];
 } stress_vma_context_t;
 
 typedef void * (*stress_vma_func_t)(void *ptr);
@@ -97,6 +102,34 @@ static bool stress_vma_continue(stress_args_t *args)
         return stress_vma_metrics->s.metrics[STRESS_VMA_MMAP] < args->max_ops;
 }
 
+#if defined(__linux__) &&	\
+   defined(HAVE_SYS_PRCTL_H)
+static void stress_vma_page_name(void *addr, size_t page_size)
+{
+	static const char charset[] = " !\"#%&()*+,-,/0123456789:;<=>?@"
+				      "ABCDEFGHIJKLMNOPQRSTUVWXYZ^_"
+				      "abcdefghijklmnopqrstuvwxyz{|}~\177";
+	errno = 0;
+	if (stress_mwc1()) {
+		char name[80];
+
+		size_t i;
+		const size_t len = 10 + stress_mwc8modn(sizeof(name) - 11);
+
+		for (i = 0; i < len; i++) {
+			const size_t idx = (size_t)stress_mwc8modn(sizeof(charset));
+
+			name[i] = charset[idx];
+		}
+		name[i] = '\0';
+		(void)prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, page_size, name);
+	} else {
+		(void)prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, page_size, NULL);
+	}
+}
+#endif
+
+
 /*
  *  stress_vma_get_addr()
  *	try to find an unmapp'd address
@@ -147,7 +180,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 
 			/* Is it actually mappable? */
 			mapped = mmap(addr, args->page_size * 16, PROT_READ | PROT_WRITE,
-					MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+					MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 			if (mapped != MAP_FAILED) {
 				(void)munmap(mapped, args->page_size);
 				break;
@@ -173,6 +206,7 @@ static void *stress_vma_mmap(void *ptr)
 			PROT_READ | PROT_EXEC,
 		};
 
+		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 		const int prot = prots[stress_mwc8modn(SIZEOF_ARRAY(prots))];
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
 		void *mapped;
@@ -192,11 +226,15 @@ static void *stress_vma_mmap(void *ptr)
 		if (flags & MAP_POPULATE)
 			flags |= (stress_mwc1() ? MAP_NONBLOCK : 0);
 #endif
-		/* Map and grow */
-		errno = 0;
-		mapped = mmap((void *)data, page_size, prot, flags, -1, 0);
-		if (mapped != MAP_FAILED)
+		/* Map */
+		mapped = mmap((void *)data + offset, page_size, prot, flags, -1, 0);
+		if (mapped != MAP_FAILED) {
+#if defined(__linux__) &&	\
+   defined(HAVE_SYS_PRCTL_H)
+			stress_vma_page_name(mapped, page_size);
+#endif
 			stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]++;
+		}
 	}
 	return NULL;
 }
@@ -210,9 +248,8 @@ static void *stress_vma_munmap(void *ptr)
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
-		const size_t size = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
 
-		if (munmap((void *)(data + offset), size) == 0)
+		if (munmap((void *)(data + offset), page_size) == 0)
 			stress_vma_metrics->s.metrics[STRESS_VMA_MUNMAP]++;
 	}
 	return NULL;
@@ -462,7 +499,7 @@ static const stress_thread_info_t vma_funcs[] = {
 #if defined(__linux__)
 	{ stress_vma_maps,	1 },
 #endif
-	{ stress_vma_access,	20 }
+	{ stress_vma_access,	20 },
 };
 
 static void stress_vm_handle_sigsegv(int signo)
