@@ -102,13 +102,16 @@ static bool stress_vma_continue(stress_args_t *args)
         return stress_vma_metrics->s.metrics[STRESS_VMA_MMAP] < args->max_ops;
 }
 
-#if defined(__linux__) &&	\
-   defined(HAVE_SYS_PRCTL_H)
+#if defined(__linux__) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_VMA) &&		\
+    defined(PR_SET_VMA_ANON_NAME)
 static void stress_vma_page_name(void *addr, size_t page_size)
 {
 	static const char charset[] = " !\"#%&()*+,-,/0123456789:;<=>?@"
 				      "ABCDEFGHIJKLMNOPQRSTUVWXYZ^_"
 				      "abcdefghijklmnopqrstuvwxyz{|}~\177";
+
 	errno = 0;
 	if (stress_mwc1()) {
 		char name[80];
@@ -229,8 +232,10 @@ static void *stress_vma_mmap(void *ptr)
 		/* Map */
 		mapped = mmap((void *)data + offset, page_size, prot, flags, -1, 0);
 		if (mapped != MAP_FAILED) {
-#if defined(__linux__) &&	\
-   defined(HAVE_SYS_PRCTL_H)
+#if defined(__linux__) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_VMA) &&		\
+    defined(PR_SET_VMA_ANON_NAME)
 			stress_vma_page_name(mapped, page_size);
 #endif
 			stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]++;
