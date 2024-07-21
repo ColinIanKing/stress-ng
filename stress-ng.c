@@ -2838,7 +2838,7 @@ static void stress_set_proc_limits(void)
 #endif
 }
 
-static void stress_append_stressor(stress_stressor_t *ss)
+static inline void stress_append_stressor(stress_stressor_t *ss)
 {
 	ss->prev = NULL;
 	ss->next = NULL;
