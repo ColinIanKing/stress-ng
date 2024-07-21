@@ -514,6 +514,7 @@ void *stress_lock_create(void)
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (lock == MAP_FAILED)
 		return NULL;
+	stress_set_vma_anon_name(lock, sizeof(*lock), "lock");
 
 	/*
 	 *  Select locking implementation, try to use fast atomic
