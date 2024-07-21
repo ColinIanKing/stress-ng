@@ -106,13 +106,12 @@ static bool stress_vma_continue(stress_args_t *args)
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_VMA) &&		\
     defined(PR_SET_VMA_ANON_NAME)
-static void stress_vma_page_name(void *addr, size_t page_size)
+static void stress_vma_page_name(const void *addr, size_t page_size)
 {
 	static const char charset[] = " !\"#%&()*+,-,/0123456789:;<=>?@"
 				      "ABCDEFGHIJKLMNOPQRSTUVWXYZ^_"
 				      "abcdefghijklmnopqrstuvwxyz{|}~\177";
 
-	errno = 0;
 	if (stress_mwc1()) {
 		char name[80];
 
@@ -125,9 +124,9 @@ static void stress_vma_page_name(void *addr, size_t page_size)
 			name[i] = charset[idx];
 		}
 		name[i] = '\0';
-		(void)prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, page_size, name);
+		stress_set_vma_anon_name(addr, page_size, name);
 	} else {
-		(void)prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, addr, page_size, NULL);
+		stress_set_vma_anon_name(addr, page_size, NULL);
 	}
 }
 #endif
