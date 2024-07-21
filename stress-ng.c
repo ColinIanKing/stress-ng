@@ -926,7 +926,7 @@ stress_pid_t *stress_s_pids_mmap(const size_t num)
 	if (s_pids != MAP_FAILED)
 		stress_set_vma_anon_name(s_pids, size, "s_pids");
 	return s_pids;
-}	
+}
 
 /*
  *  stress_s_pids_munmap()
