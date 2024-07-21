@@ -8763,7 +8763,7 @@ stop after N bogo vm\-splice operations.
 .TQ
 .B \-\-vma N
 start M workers that create pthreads to mmap, munmap, mlock, munlock, madvise,
-msync, mprotect, mincore and access 16 pages in a randomly selected virtual
+msync, mprotect, mincore and access 32 pages in a randomly selected virtual
 memory address space. This is designed to trip races on VMA page modifications.
 Every 15 seconds a different virtual address space is randonly chosen.
 .TP
