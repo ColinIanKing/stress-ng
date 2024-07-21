@@ -2019,6 +2019,7 @@ init_done:
 			name, errno, strerror(errno));
 		return -1;
 	}
+	stress_set_vma_anon_name(g_shared->mem_cache.buffer, g_shared->mem_cache.size, "mem-cache");
 
 	g_shared->cacheline.size = (size_t)STRESS_PROCS_MAX * sizeof(uint8_t) * 2;
 	g_shared->cacheline.buffer =
@@ -2031,6 +2032,7 @@ init_done:
 			name, errno, strerror(errno));
 		return -1;
 	}
+	stress_set_vma_anon_name(g_shared->cacheline.buffer, g_shared->cacheline.size, "cacheline");
 	if (stress_warn_once()) {
 		if (numa_nodes > 1) {
 			pr_dbg("%s: shared cache buffer size: %" PRIu64 "K (LLC size x %d NUMA nodes)\n",
@@ -2435,6 +2437,7 @@ int stress_sighandler(
 					errno, strerror(errno));
 				return -1;
 			}
+			stress_set_vma_anon_name(stack, STRESS_SIGSTKSZ, "sigstack");
 			if (stress_sigaltstack(stack, STRESS_SIGSTKSZ) < 0)
 				return -1;
 		}

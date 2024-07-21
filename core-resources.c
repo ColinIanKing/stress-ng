@@ -329,6 +329,7 @@ size_t stress_resources_allocate(
 			if (resources[i].m_mmap != MAP_FAILED) {
 				const size_t locked = STRESS_MINIMUM(mlock_size, resources[i].m_mmap_size);
 
+				stress_set_vma_anon_name(resources[i].m_mmap, resources[i].m_mmap_size, "resources-mmap");
 				(void)stress_madvise_random(resources[i].m_mmap, resources[i].m_mmap_size);
 				(void)stress_mincore_touch_pages_interruptible(resources[i].m_mmap, resources[i].m_mmap_size);
 				if (locked > 0) {
@@ -381,8 +382,10 @@ size_t stress_resources_allocate(
 					resources[i].fd_memfd, 0);
 				if (resources[i].ptr_memfd == MAP_FAILED)
 					resources[i].ptr_memfd = NULL;
-				else
+				else {
+					stress_set_vma_anon_name(resources[i].ptr_memfd, page_size, "resources-memfd");
 					(void)stress_madvise_mergeable(resources[i].ptr_memfd, page_size);
+				}
 			}
 			shim_fallocate(resources[i].fd_memfd, 0, 0, (off_t)stress_mwc16());
 		}
@@ -401,8 +404,10 @@ size_t stress_resources_allocate(
 					resources[i].fd_memfd_secret, 0);
 				if (resources[i].ptr_memfd_secret == MAP_FAILED)
 					resources[i].ptr_memfd_secret = NULL;
-				else
+				else {
+					stress_set_vma_anon_name(resources[i].ptr_memfd_secret, page_size, "resources-memfd-secret");
 					(void)stress_madvise_mergeable(resources[i].ptr_memfd_secret, page_size);
+				}
 			}
 		}
 		if (!stress_continue_flag())
