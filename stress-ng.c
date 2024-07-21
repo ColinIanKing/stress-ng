@@ -186,8 +186,7 @@ static const stress_opt_flag_t opt_flags[] = {
 };
 
 /*
- *  Attempt to catch a range of signals so
- *  we can clean up rather than leave
+ *  Attempt to catch a range of signals so we can clean up rather than leave
  *  cruft everywhere.
  */
 static const int stress_terminate_signals[] = {
@@ -2917,7 +2916,6 @@ static void stress_stressors_deinit(void)
 	}
 }
 
-
 /*
  *  stessor_set_defaults()
  *	set up stressor default settings that can be overridden
@@ -3116,7 +3114,6 @@ static void stress_enable_classes(const uint32_t class)
 		}
 	}
 }
-
 
 /*
  *  stress_parse_opts
@@ -4110,7 +4107,6 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		stress_perf_stat_dump(yaml, stressors_head, duration);
 #endif
-
 
 #if defined(STRESS_THERMAL_ZONES)
 	/*
