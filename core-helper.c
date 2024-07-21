@@ -1899,6 +1899,7 @@ void stress_yaml_runinfo(FILE *yaml)
 	}
 #endif
 	pr_yaml(yaml, "      compiler: '%s'\n", stress_get_compiler());
+	pr_yaml(yaml, "      libc: '%s'\n", stress_get_libc_version());
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 	(void)shim_memset(&info, 0, sizeof(info));
