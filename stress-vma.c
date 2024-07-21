@@ -497,10 +497,10 @@ static void stress_vma_loop(
 		pid_t pid;
 		int status;
 
+		stress_vma_continue_flag = true;
+
 		stress_mwc_reseed();
 		ctxt->data = stress_mmapaddr_get_addr(args);
-
-		stress_vma_continue_flag = true;
 
 		pid = fork();
 		if (pid < 0) {
