@@ -1391,7 +1391,7 @@ static stress_stressor_t *stress_get_nth_stressor(const uint32_t n)
  *  stress_get_num_stressors()
  *	return number of stressors in stressor list
  */
-static uint32_t stress_get_num_stressors(void)
+static inline uint32_t stress_get_num_stressors(void)
 {
 	uint32_t n = 0;
 	stress_stressor_t *ss;
