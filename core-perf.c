@@ -340,6 +340,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("lock/contention_begin",		"Lock Contention Begin"),
 	PERF_INFO_TP("lock/contention_end",		"Lock Contention End"),
 
+	PERF_INFO_TP("maple_tree/ma_op",		"Maple Tree Op"),
 	PERF_INFO_TP("maple_tree/ma_read",		"Maple Tree Read"),
 	PERF_INFO_TP("maple_tree/ma_write",		"Maple Tree Write"),
 
