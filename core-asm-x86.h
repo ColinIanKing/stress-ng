@@ -286,7 +286,7 @@ static inline void ALWAYS_INLINE stress_asm_x86_prefetchnta(void *p)
 #endif
 
 #if !defined(HAVE_COMPILER_PCC) && 	\
-    defined(HAVE_ARCH_X86_64)
+    defined(STRESS_ARCH_X86_64)
 static inline int ALWAYS_INLINE stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
