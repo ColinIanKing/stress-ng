@@ -87,6 +87,11 @@ static int stress_bind_mount_child(void *parg)
 		t = stress_time_now();
 		rc = mount("/", path, "", MS_BIND | MS_REC | MS_RDONLY, 0);
 		if (rc < 0) {
+			if ((errno == EACCES) || (errno == ENOENT)) {
+				pr_inf_skip("%s: bind mount failed, skipping stressor\n", args->name);
+				(void)shim_rmdir(path);
+				return EXIT_NO_RESOURCE;
+			}
 			if (errno != ENOSPC)
 				pr_fail("%s: bind mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -157,7 +162,7 @@ bind_umount:
 
 	/* Remove path in child process just in case parent fails to reap it */
 	(void)shim_rmdir(path);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -166,7 +171,7 @@ bind_umount:
  */
 static int stress_bind_mount(stress_args_t *args)
 {
-	int status, ret;
+	int status, ret, rc = EXIT_SUCCESS;
 	char path[PATH_MAX];
 	stress_pthread_args_t pargs = { args, path, 0 };
 
@@ -208,14 +213,25 @@ static int stress_bind_mount(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-		VOID_RET(int, shim_waitpid(pid, &status, 0));
+		if (shim_waitpid(pid, &status, 0) < 0) {
+			pr_inf("%s: waitpid on failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
+		if (WIFEXITED(status)) {
+			rc = WEXITSTATUS(status);
+			if (rc != EXIT_SUCCESS)
+				break;
+		} else if (WIFSIGNALED(status)) {
+			break;
+		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_rmdir(path);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_bind_mount_info = {
