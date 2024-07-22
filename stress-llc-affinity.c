@@ -195,6 +195,7 @@ static int stress_llc_affinity(stress_args_t *args)
 		pr_fail("%s: mmap'd region of %zu bytes failed\n", args->name, mmap_sz);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buf, mmap_sz, "llc-buffer");
 	if (llc_affinity_mlock)
 		(void)shim_mlock(buf, mmap_sz);
 	buf_end = (uint64_t *)((uintptr_t)buf + mmap_sz);

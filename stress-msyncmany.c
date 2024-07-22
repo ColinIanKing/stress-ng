@@ -68,6 +68,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 		if (!mapped)
 			mapped = ptr;
 		mappings[n] = ptr;
+		stress_set_vma_anon_name(ptr, page_size, "msync-rw-page");
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

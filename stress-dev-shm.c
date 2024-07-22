@@ -94,6 +94,7 @@ static inline int stress_dev_shm_child(
 				const size_t words = page_size / sizeof(*ptr);
 				const uint32_t rnd = stress_mwc32();
 
+				stress_set_vma_anon_name(addr, (size_t)sz, "mmapped-dev-shm");
 				(void)stress_madvise_random(addr, (size_t)sz);
 				(void)stress_madvise_mergeable(addr, (size_t)sz);
 

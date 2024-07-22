@@ -148,6 +148,7 @@ static int stress_context_init(
 			args->name, STACK_ALLOC, errno, strerror(errno));
 		return -1;
 	}
+	stress_set_vma_anon_name(context_data->stack, STACK_ALLOC, "context-stack");
 
 	context_data->canary.check0 = stress_mwc32();
 	context_data->canary.check1 = stress_mwc32();

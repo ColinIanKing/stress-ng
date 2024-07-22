@@ -967,6 +967,7 @@ static int stress_memrate_child(stress_args_t *args, void *ctxt)
 	if (buffer == MAP_FAILED)
 		return EXIT_NO_RESOURCE;
 
+	stress_set_vma_anon_name(buffer, context->memrate_bytes, "memrate-buffer");
 	buffer_end = (uint8_t *)buffer + context->memrate_bytes;
 	stress_memrate_init_data(buffer, buffer_end);
 

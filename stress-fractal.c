@@ -216,6 +216,12 @@ static int stress_fractal(stress_args_t *args)
 	data_sz = sizeof(*info.data) * (size_t)info.xsize;
 	info.data = stress_mmap_populate(NULL, data_sz, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (info.data == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap fractal data buffer of %zu bytes, skipping stressor\n",
+			args->name, data_sz);
+		return EXIT_NO_RESOURCE;
+	}
+	stress_set_vma_anon_name(info.data, data_sz, "fractal-data");
 	if (args->instance == 0) {
 		pr_inf("%s: %s, %" PRId32 " x %" PRId32 ", %" PRId32 " iterations, "
 			"(%.2f, %.2fi) .. (%.2f, %.2fi)\n",
@@ -227,12 +233,14 @@ static int stress_fractal(stress_args_t *args)
 	if (!g_shared->fractal.lock) {
 		pr_inf_skip("%s: failed to create shared fractal row lock, skipping stressor\n",
 			args->name);
+		(void)munmap(info.data, data_sz);
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (info.data == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes for a row of data, skipping stressor\n",
 			args->name, data_sz);
+		(void)munmap(info.data, data_sz);
 		return EXIT_NO_RESOURCE;
 	}
 

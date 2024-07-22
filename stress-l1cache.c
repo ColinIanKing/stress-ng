@@ -516,6 +516,7 @@ static int stress_l1cache(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(cache, l1cache_size, "l1cache");
 	(void)stress_madvise_mergeable(cache, l1cache_size << 2);
 
 	if (l1cache_mlock)

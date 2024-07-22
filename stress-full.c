@@ -89,7 +89,6 @@ static int stress_full(stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	int fd = -1;
 
-
 	buffer = stress_mmap_populate(NULL, buffer_size,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -98,6 +97,7 @@ static int stress_full(stress_args_t *args)
 			args->name, buffer_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buffer, buffer_size, "io-buffer");
 	(void)stress_madvise_mergeable(buffer, buffer_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

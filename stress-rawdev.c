@@ -449,6 +449,7 @@ static int stress_rawdev(stress_args_t *args)
 		free(metrics);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buffer, mmapsz, "io-buffer");
 
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);

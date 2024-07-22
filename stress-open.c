@@ -1105,6 +1105,7 @@ static int stress_open(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap %zd file descriptors\n", args->name, open_max);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(fds, sz, "fds");
 
 	if (open_fd) {
 		(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/fd", (intmax_t)mypid);

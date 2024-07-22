@@ -105,6 +105,7 @@ static int stress_sigio(stress_args_t *args)
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buffers, 2 * BUFFER_SIZE, "io-buffers");
 	rd_buffer = &buffers[BUFFER_SIZE * 0];
 	wr_buffer = &buffers[BUFFER_SIZE * 1];
 

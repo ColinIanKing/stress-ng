@@ -609,6 +609,7 @@ static int stress_cyclic(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(rt_stats, size, "rt-statistics");
 	rt_stats->cyclic_samples = cyclic_samples;
 	rt_stats->latencies_size = cyclic_samples * sizeof(*rt_stats->latencies);
 	rt_stats->latencies = (int64_t *)stress_mmap_populate(NULL,

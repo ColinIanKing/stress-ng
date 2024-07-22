@@ -398,6 +398,7 @@ static int stress_numa(stress_args_t *args)
 			args->name, numa_bytes);
 		goto pages_free;
 	}
+	stress_set_vma_anon_name(buf, numa_bytes, "numa-shared-data");
 	(void)stress_madvise_mergeable(buf, numa_bytes);
 
 	stress_numa_stats_read(&stats_begin);

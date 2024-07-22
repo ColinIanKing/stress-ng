@@ -2511,6 +2511,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(state, sizeof(*state), "state");
 
 	ro_page = stress_mmap_populate(NULL, page_size,
 		PROT_READ, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -2521,6 +2522,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(ro_page, page_size, "ro-page");
 	(void)stress_madvise_mergeable(ro_page, page_size);
 
 	rw_page = stress_mmap_populate(NULL, page_size << 1,
@@ -2533,6 +2535,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(rw_page, page_size << 1, "rw-page");
 	(void)stress_madvise_mergeable(rw_page, page_size << 1);
 
 	rx_page = stress_mmap_populate(NULL, page_size,
@@ -2545,6 +2548,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(rx_page, page_size, "rx-page");
 	(void)stress_madvise_mergeable(rx_page, page_size);
 
 	no_page = stress_mmap_populate(NULL, page_size,
@@ -2556,6 +2560,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(no_page, page_size, "no-page");
 
 	wo_page = stress_mmap_populate(NULL, page_size,
 		PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
@@ -2566,6 +2571,7 @@ static int stress_sysbadaddr(stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(wo_page, page_size, "wo-page");
 	(void)stress_madvise_mergeable(wo_page, page_size);
 
 	/*
@@ -2575,6 +2581,8 @@ static int stress_sysbadaddr(stress_args_t *args)
 	 */
 	wx_page = stress_mmap_populate(NULL, page_size,
 		PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (wx_page != MAP_FAILED)
+		stress_set_vma_anon_name(wo_page, page_size, "wo-page");
 	/*
 	 * Unmap last page, so we know we have an unmapped
 	 * page following the r/w page

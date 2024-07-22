@@ -118,6 +118,7 @@ static int OPTIMIZE3 stress_bsearch(stress_args_t *args)
 			args->name, data_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(data, data_size, "bsearch-data");
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);

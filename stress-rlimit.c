@@ -158,6 +158,7 @@ static int stress_rlimit_child(stress_args_t *args, void *ctxt)
 		(void)munmap((void *)stack, STRESS_MINSIGSTKSZ);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(stack, STRESS_MINSIGSTKSZ, "stack");
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);

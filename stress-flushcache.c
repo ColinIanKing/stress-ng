@@ -255,6 +255,7 @@ static int stress_flushcache_child(stress_args_t *args, void *ctxt)
 			args->name, context->d_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(context->d_addr, context->d_size, "d-cache");
 
 	if (context->i_addr)
 		(void)stress_flushcache_nohugepage(context->i_addr, context->i_size);
@@ -304,6 +305,7 @@ static int stress_flushcache(stress_args_t *args)
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(context.i_addr, page_size, "i-cache");
 	context.icache_func = (stress_ret_func_t)context.i_addr;
 	context.i_size = page_size;
 

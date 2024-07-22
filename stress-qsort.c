@@ -305,6 +305,7 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 			"skipping stressor\n", args->name, n, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(data, data_size, "qsort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {

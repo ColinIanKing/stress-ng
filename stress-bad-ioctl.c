@@ -276,6 +276,7 @@ static inline void stress_bad_ioctl_rw(
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED)
 		return;
+	stress_set_vma_anon_name(buf, page_size << 1, "ioctl-rw");
 
 	/*
 	 *  Unmap last page so we know that the page following

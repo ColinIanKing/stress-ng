@@ -75,6 +75,7 @@ static int stress_vm_splice(stress_args_t *args)
 			args->name, sz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buf, sz, "iov-buffer");
 	data = stress_mmap_populate(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
@@ -83,6 +84,7 @@ static int stress_vm_splice(stress_args_t *args)
 		(void)munmap(buf, sz);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(data, page_size, "io-buffer");
 
 	if (pipe(fds) < 0) {
 		(void)munmap((void *)data, page_size);

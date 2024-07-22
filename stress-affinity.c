@@ -232,6 +232,7 @@ static int stress_affinity(stress_args_t *args)
 		(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(info, info_sz, "counters");
 
 	info->affinity_delay = 0;
 	info->affinity_pin = false;

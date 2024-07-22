@@ -411,6 +411,7 @@ static int stress_acl(stress_args_t *args)
 			args->name, acls_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(acls, acls_size, "acls");
 	rc = stress_acl_setup(args, acl_rand, uid, gid, max_acls, acls, &acl_count);
 	if (rc != EXIT_SUCCESS)
 		goto tidy_unmap;

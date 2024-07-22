@@ -191,6 +191,7 @@ static int stress_resched(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}
+	stress_set_vma_anon_name(yields, yields_size, "yield-stats");
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);

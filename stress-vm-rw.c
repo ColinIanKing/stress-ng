@@ -98,6 +98,7 @@ static int OPTIMIZE3 stress_vm_child(void *arg)
 			args->name, errno, strerror(errno));
 		goto cleanup;
 	}
+	stress_set_vma_anon_name(buf, ctxt->sz, "context");
 
 	while (stress_continue_flag()) {
 		register uint8_t *ptr;

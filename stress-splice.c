@@ -185,6 +185,7 @@ static int stress_splice(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto close_done;
 	}
+	stress_set_vma_anon_name(buffer, buffer_len, "write-buffer");
 	(void)stress_madvise_mergeable(buffer, buffer_len);
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {

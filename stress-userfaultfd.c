@@ -288,6 +288,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 		pr_err("%s: mmap failed\n", args->name);
 		goto free_zeropage;
 	}
+	stress_set_vma_anon_name(data, sz, "userfaultfd-data");
 
 	/* Exercise invalid flags */
 	fd = shim_userfaultfd(~0);

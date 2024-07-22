@@ -307,6 +307,7 @@ static stress_clone_t *stress_clone_new(void)
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (new == MAP_FAILED)
 			return NULL;
+		stress_set_vma_anon_name(new, sizeof(*new), "clone-descriptor");
 	}
 
 	if (clones.head)
@@ -489,8 +490,10 @@ static int stress_clone_child(stress_args_t *args, void *context)
 	 * a candidate for a OOMable process
 	 */
 	ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, mflags, -1, 0);
-	if (ptr != MAP_FAILED)
+	if (ptr != MAP_FAILED) {
+		stress_set_vma_anon_name(ptr, mmap_size, "oom-allocation");
 		(void)stress_mincore_touch_pages(ptr, mmap_size);
+	}
 
 	clone_stress_force_bind();
 
@@ -603,6 +606,7 @@ static int stress_clone(stress_args_t *args)
 			args->name, sizeof(*shared));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(shared, sizeof(*shared), "clone-state");
 	shared->metrics.lock = stress_lock_create();
 	shared->metrics.duration = 0.0;
 	shared->metrics.count = 0.0;

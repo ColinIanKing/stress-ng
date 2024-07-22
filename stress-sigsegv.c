@@ -279,6 +279,7 @@ static int stress_sigsegv(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(ro_ptr, args->page_size, "ro-page");
 	/* Allocate write only page */
 	none_ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_NONE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -289,6 +290,7 @@ static int stress_sigsegv(stress_args_t *args)
 		(void)munmap((void *)ro_ptr, args->page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(ro_ptr, args->page_size, "no-page");
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);

@@ -82,6 +82,8 @@ static int stress_fault(stress_args_t *args)
 
 	mapto = mmap(NULL, page_size, PROT_READ,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (mapto != MAP_FAILED)
+		stress_set_vma_anon_name(mapto, page_size, "mapping-ro-page");
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);
@@ -185,6 +187,7 @@ redo:
 		duration += stress_time_now() - t;
 		count += 1.0;
 
+		stress_set_vma_anon_name(ptr, page_size, "page-fault-major");
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
 		if (madvise((void *)ptr, page_size, MADV_DONTNEED) == 0) {
@@ -226,6 +229,7 @@ next:
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 				if (ptr != MAP_FAILED) {
 					stress_uint8_put(*ptr);
+					stress_set_vma_anon_name(ptr, page_size, "page-fault-minor");
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
 					if (madvise((void *)ptr, page_size, MADV_DONTNEED) == 0) {

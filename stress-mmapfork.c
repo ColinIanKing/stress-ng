@@ -128,6 +128,7 @@ static int stress_mmapfork(stress_args_t *args)
 	wipe_ptr = mmap(NULL, wipe_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (wipe_ptr != MAP_FAILED) {
+		stress_set_vma_anon_name(wipe_ptr, wipe_size, "wipe-on-fork-data");
 		(void)shim_memset(wipe_ptr, 0xff, wipe_size);
 		if (shim_madvise(wipe_ptr, wipe_size, MADV_WIPEONFORK) == 0)
 			wipe_ok = true;

@@ -334,6 +334,7 @@ static int stress_bad_altstack(stress_args_t *args)
 			args->name, (size_t)stress_minsigstksz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(stack, stress_minsigstksz, "altstack");
 	(void)stress_madvise_mergeable(stack, stress_minsigstksz);
 
 #if defined(O_TMPFILE)
@@ -346,19 +347,23 @@ static int stress_bad_altstack(stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | map_stackflags, tmp_fd, 0);
 		(void)close(tmp_fd);
+		if (bus_stack != MAP_FAILED)
+			stress_set_vma_anon_name(bus_stack, stress_minsigstksz, "altstack-bus-errors");
 	}
 #else
 	UNEXPECTED
 #endif
 
 	fd = open("/dev/zero", O_RDONLY);
-	if (fd >= 0) {
+	if (fd < 0) {
+		zero_stack = MAP_FAILED;
+	} else {
 		zero_stack = stress_mmap_populate(NULL,
 			stress_minsigstksz, PROT_READ,
 			MAP_PRIVATE, fd, 0);
 		(void)close(fd);
-	} else {
-		zero_stack = MAP_FAILED;
+		if (zero_stack != MAP_FAILED)
+			stress_set_vma_anon_name(bus_stack, stress_minsigstksz, "altstack-zero-ro");
 	}
 
 	/*

@@ -167,6 +167,7 @@ static int stress_sigpipe(stress_args_t *args)
 			args->name, buf_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buf, buf_size, "io-buffer");
 
 	s_args = args;
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0) {

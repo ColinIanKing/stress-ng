@@ -57,24 +57,23 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
  */
 static int stress_sigabrt(stress_args_t *args)
 {
-	void *sigabrt_mapping;
 	double rate;
 	int rc = EXIT_SUCCESS;
 
 	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	sigabrt_mapping = mmap(NULL, args->page_size,
+	sigabrt_info = (stress_sigabrt_info_t *)mmap(NULL, sizeof(*sigabrt_info),
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
-	if (sigabrt_mapping == MAP_FAILED) {
-		pr_inf_skip("%s: failed to mmap shared page, "
+	if (sigabrt_info == MAP_FAILED) {
+		pr_inf_skip("%s: failed to mmap sigabort information, "
 			"errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	sigabrt_info = (stress_sigabrt_info_t *)sigabrt_mapping;
+	stress_set_vma_anon_name((void *)sigabrt_info, sizeof(*sigabrt_info), "state");
 	sigabrt_info->count = 0.0;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -164,7 +163,7 @@ finish:
 	stress_metrics_set(args, 0, "nanosec SIGABRT latency",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
-	(void)munmap((void *)sigabrt_mapping, args->page_size);
+	(void)munmap((void *)sigabrt_info, sizeof(*sigabrt_info));
 
 	return rc;
 }

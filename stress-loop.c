@@ -248,6 +248,7 @@ static int stress_loop(stress_args_t *args)
 		ptr = stress_mmap_populate(NULL, backing_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, loop_dev, 0);
 		if (ptr != MAP_FAILED) {
+			stress_set_vma_anon_name(ptr, backing_size, "data");
 			(void)stress_mincore_touch_pages_interruptible(ptr, backing_size);
 #if defined(MS_ASYNC)
 			(void)shim_msync(ptr, backing_size, MS_ASYNC);

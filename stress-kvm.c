@@ -159,6 +159,7 @@ static int stress_kvm(stress_args_t *args)
 			-1, 0);
 		if (vm_mem == MAP_FAILED)
 			goto tidy_vm_fd;
+		stress_set_vma_anon_name(vm_mem, vm_mem_size, "vm-memory");
 		(void)stress_madvise_mergeable(vm_mem, vm_mem_size);
 
 		(void)shim_memset(&kvm_mem, 0, sizeof(kvm_mem));
@@ -240,6 +241,7 @@ static int stress_kvm(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_vcpu_fd;
 		}
+		stress_set_vma_anon_name(run, (size_t)run_size, "kvm-run");
 
 		for (i = 0; (i < 1000) && stress_continue(args); i++) {
 			uint8_t *port;

@@ -336,6 +336,7 @@ static int stress_sockmany(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(sock_fds, sizeof(*sock_fds), "sock-fds");
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sockmany_sigpipe_handler, NULL) < 0) {
 		(void)munmap((void *)sock_fds, sizeof(*sock_fds));

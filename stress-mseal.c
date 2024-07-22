@@ -316,6 +316,7 @@ static int stress_mseal(stress_args_t *args)
 			errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+	stress_set_vma_anon_name(mapping, mapping_size, "mapping-data");
 
 	/*
 	 *  Map and ummap some pages, if this failed no_mapping

@@ -305,6 +305,7 @@ static int stress_access(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	}
+	stress_set_vma_anon_name(metrics, metrics_size, "metrics");
 
 	metrics[0].duration = 0.0;
 	metrics[0].count = 0.0;

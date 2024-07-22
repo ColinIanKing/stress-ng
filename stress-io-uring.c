@@ -1122,6 +1122,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 				errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(io_uring_file.iovecs, io_uring_file.iovecs_sz, "iovecs");
 
 	for (i = 0; (i < blocks) && (file_size > 0); i++) {
 		const size_t iov_length = (file_size > (off_t)block_size) ? (size_t)block_size : (size_t)file_size;
@@ -1138,6 +1139,7 @@ static int stress_io_uring_child(stress_args_t *args, void *context)
 			stress_io_uring_unmap_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}
+		stress_set_vma_anon_name(io_uring_file.iovecs[i].iov_base, block_size, "iovec-buffer");
 		(void)shim_memset(io_uring_file.iovecs[i].iov_base, stress_mwc8(), block_size);
 		file_size -= iov_length;
 	}

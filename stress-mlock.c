@@ -352,6 +352,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(mappings, mappings_len, "mmap-mappings");
 
 	mappings_max = mappings_len / sizeof(*mappings);
 	if (max > mappings_max)

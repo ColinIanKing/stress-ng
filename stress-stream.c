@@ -673,6 +673,7 @@ static inline void *stress_stream_mmap(
 			args->name, sz);
 		ptr = MAP_FAILED;
 	} else {
+		stress_set_vma_anon_name(ptr, sz, "stream-buffer");
 		if (stream_mlock)
 			(void)shim_mlock(ptr, (size_t)sz);
 #if defined(HAVE_MADVISE)

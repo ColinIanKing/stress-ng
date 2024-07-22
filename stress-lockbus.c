@@ -164,6 +164,7 @@ static int stress_lockbus(stress_args_t *args)
 		pr_err("%s: mmap failed\n", args->name);
 		return rc;
 	}
+	stress_set_vma_anon_name(buffer, BUFFER_SIZE, "lockbus-data");
 
 #if defined(STRESS_ARCH_X86)
 	/* Split lock on a page boundary */

@@ -224,7 +224,7 @@ static int stress_rseq(stress_args_t *args)
 	 *  stats when the child gets SEGV'd by rseq when we use
 	 *  in invalid signature
 	 */
-	rseq_info = stress_mmap_populate(NULL, args->page_size,
+	rseq_info = stress_mmap_populate(NULL, sizeof(*rseq_info),
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (rseq_info == MAP_FAILED) {
@@ -233,6 +233,7 @@ static int stress_rseq(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(rseq_info, sizeof(*rseq_info), "state");
 
 	rseq_area = stress_rseq_get_area();
 	if (args->instance == 0)
@@ -249,7 +250,7 @@ static int stress_rseq(stress_args_t *args)
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(rseq_info, args->page_size);
+	(void)munmap(rseq_info, sizeof(*rseq_info));
 
 	return ret;
 }

@@ -228,7 +228,6 @@ static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 #else
 		const int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #endif
-		pr_inf("%x\n", flags);
 		sph->stack = stress_mmap_populate(NULL, CLONE_STACK_SIZE,
 				PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (sph->stack == MAP_FAILED) {
@@ -236,6 +235,7 @@ static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 			stress_exec_free_list_add(sph);
 			return NULL;
 		}
+		stress_set_vma_anon_name(sph->stack, CLONE_STACK_SIZE, "clone-stack");
 	}
 #else
 	(void)alloc_stack;
@@ -694,6 +694,7 @@ static int stress_exec(stress_args_t *args)
 		pr_inf_skip("%s: failed to allocate PID hash cache, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(stress_pid_cache, cache_max, "pid-cache");
 	stress_pid_cache_index = 0;
 	stress_pid_cache_items = (size_t)exec_max;
 
@@ -702,8 +703,10 @@ static int stress_exec(stress_args_t *args)
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (str == MAP_FAILED)
 		str = NULL;
-	else
+	else {
+		stress_set_vma_anon_name(str, arg_max, "exec-args");
 		(void)shim_memset(str, 'X', arg_max - 1);
+	}
 
 #if !defined(HAVE_EXECVEAT)
 	if (args->instance == 0 &&

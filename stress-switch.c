@@ -171,6 +171,7 @@ static int stress_switch_pipe(
 		(void)close(pipefds[1]);
 		return EXIT_FAILURE;
 	}
+	stress_set_vma_anon_name(buf, buf_size, "pipe-io-buffer");
 
 #if defined(F_SETPIPE_SZ)
 	if (fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0) {

@@ -486,6 +486,8 @@ static int stress_priv_instr(stress_args_t *args)
 #if defined(HAVE_PRIV_PAGE)
 	page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (page != MAP_FAILED)
+		stress_set_vma_anon_name(page, args->page_size, "priv-page");
 #endif
 	if (stress_sighandler(args->name, SIGSEGV, stress_sigsegv_handler, NULL))
 		return EXIT_NO_RESOURCE;

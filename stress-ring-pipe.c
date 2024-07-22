@@ -134,6 +134,7 @@ static int stress_ring_pipe(stress_args_t *args)
 			"skipping stresor\n", args->name, STRESS_RING_PIPE_SIZE_MAX);
 		goto err_ret;
 	}
+	stress_set_vma_anon_name(buf, STRESS_RING_PIPE_SIZE_MAX, "ring-pipe-buffer");
 
 	pipe_fds = calloc(ring_pipe_num, sizeof(*pipe_fds));
 	if (!pipe_fds) {

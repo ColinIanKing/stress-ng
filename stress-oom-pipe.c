@@ -198,6 +198,7 @@ static int stress_oom_pipe(stress_args_t *args)
 		pr_inf_skip("%s: cannot allocate pipe write buffer, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buffer, buffer_size, "rw-pipe-buffer");
 	context.wr_buffer = (uint32_t *)buffer;
 	context.rd_buffer = (uint32_t *)((uintptr_t)buffer + page_size);
 

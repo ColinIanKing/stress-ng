@@ -86,6 +86,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 		pr_inf("%s: falling back to %zd byte sized environment variable value size\n",
 			args->name, arg_max);
 	}
+	stress_set_vma_anon_name(value, arg_max, "env-variable-value");
 
 	stress_mwc_reseed();
 	stress_rndstr(value, arg_max);

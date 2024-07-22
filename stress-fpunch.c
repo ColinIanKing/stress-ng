@@ -313,6 +313,7 @@ static int stress_fpunch(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_s_pids;
 	}
+	stress_set_vma_anon_name(buf, sizeof(*buf), "fpunch-buffer");
 	(void)stress_madvise_mergeable(buf, sizeof(*buf));
 
 	ret = stress_temp_dir_mk_args(args);
