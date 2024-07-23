@@ -30,11 +30,6 @@
 #include <sys/auxv.h>
 #endif
 
-typedef struct {
-	const char	*name;			/* cache type name */
-	const stress_cpu_cache_type_t value;	/* cache type ID */
-} stress_generic_map_t;
-
 typedef enum {
 	STRESS_CACHE_SIZE,
 	STRESS_CACHE_LINE_SIZE,
@@ -155,7 +150,7 @@ uint16_t stress_cpu_cache_get_max_level(const stress_cpu_cache_cpus_t *cpus)
  */
 stress_cpu_cache_t *stress_cpu_cache_get(const stress_cpu_cache_cpus_t *cpus, const uint16_t cache_level)
 {
-	stress_cpu_cache_cpu_t *cpu;
+	const stress_cpu_cache_cpu_t *cpu;
 
 	if (!cpus) {
 		pr_dbg("%s: invalid cpus parameter\n", __func__);
@@ -734,6 +729,12 @@ static uint64_t stress_cpu_cache_size_to_bytes(const char *str)
     defined(__APPLE__)
 
 #if defined(__linux__)
+
+typedef struct {
+	const char	*name;			/* cache type name */
+	const stress_cpu_cache_type_t value;	/* cache type ID */
+} stress_generic_map_t;
+
 static const stress_generic_map_t stress_cpu_cache_type_map[] = {
 	{ "data",		CACHE_TYPE_DATA },
 	{ "instruction",	CACHE_TYPE_INSTRUCTION },
