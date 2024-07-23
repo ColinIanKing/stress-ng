@@ -46,11 +46,13 @@ extern void stress_check_range(const char *const opt, const uint64_t val,
 extern void stress_check_range_bytes(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 
+extern WARN_UNUSED int stress_get_int(const char *const str);
 extern WARN_UNUSED int8_t stress_get_int8(const char *const str);
 extern WARN_UNUSED int16_t stress_get_int16(const char *const str);
 extern WARN_UNUSED int32_t stress_get_int32(const char *const str);
 extern WARN_UNUSED int64_t stress_get_int64(const char *const str);
 
+extern WARN_UNUSED unsigned int stress_get_uint(const char *const str);
 extern WARN_UNUSED uint8_t stress_get_uint8(const char *const str);
 extern WARN_UNUSED uint16_t stress_get_uint16(const char *const str);
 extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
