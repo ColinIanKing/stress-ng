@@ -168,7 +168,7 @@ typedef struct {
 extern size_t stress_resources_allocate(stress_args_t *args, stress_resources_t *resources,
         const size_t num_resources, const size_t pipe_size, const size_t min_mem_free,
 	const bool do_fork);
-extern void stress_resources_free(stress_args_t *args, stress_resources_t *resources,
+extern void stress_resources_free(const stress_args_t *args, stress_resources_t *resources,
         const size_t num_resources);
 
 #endif

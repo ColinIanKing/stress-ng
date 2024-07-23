@@ -675,7 +675,7 @@ size_t stress_resources_allocate(
  *	resource frees
  */
 void stress_resources_free(
-	stress_args_t *args,
+	const stress_args_t *args,
 	stress_resources_t *resources,
         const size_t num_resources)
 {
