@@ -75,7 +75,7 @@ void stress_cpuidle_init(void)
 {
 #if defined(__linux__)
 	DIR *cpu_dir;
-	struct dirent *cpu_d;
+	const struct dirent *cpu_d;
 
 	cpu_cstate_list = NULL;
 	cpu_cstate_list_len = 0;
@@ -90,7 +90,7 @@ void stress_cpuidle_init(void)
 	while ((cpu_d = readdir(cpu_dir)) != NULL) {
 		char cpuidle_path[1024];
 		DIR *cpuidle_dir;
-		struct dirent *cpuidle_d;
+		const struct dirent *cpuidle_d;
 
 		if (strncmp(cpu_d->d_name, "cpu", 3))
 			continue;
