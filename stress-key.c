@@ -202,16 +202,25 @@ static int stress_key(stress_args_t *args)
 				payload, payload_len,
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
-				if (errno == ENOSYS) {
-					if (args->instance == 0)
-						pr_inf_skip("%s: skipping stressor, add_key not implemented\n",
+				if (errno == EPERM) {
+					if (args->instance == 0) {
+						pr_inf_skip("%s: skipping stressor, no permission for add_key\n",
 							args->name);
+					}
 					no_error = false;
 					rc = EXIT_NOT_IMPLEMENTED;
 					goto tidy;
-				}
-				if ((errno == ENOMEM) || (errno == EDQUOT))
+				} else if (errno == ENOSYS) {
+					if (args->instance == 0) {
+						pr_inf_skip("%s: skipping stressor, add_key not implemented\n",
+							args->name);
+					}
+					no_error = false;
+					rc = EXIT_NOT_IMPLEMENTED;
+					goto tidy;
+				} else if ((errno == ENOMEM) || (errno == EDQUOT)) {
 					break;
+				}
 				pr_fail("%s: add_key failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto tidy;
