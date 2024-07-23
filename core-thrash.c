@@ -270,7 +270,7 @@ static inline void stress_kmemleak_scan(void)
 static inline void stress_slab_shrink(void)
 {
 	DIR *dir;
-	struct dirent *d;
+	const struct dirent *d;
 	static const char slabpath[] = "/sys/kernel/slab";
 
 	/*
@@ -339,7 +339,7 @@ static inline void stress_merge_memory(void)
 static int stress_pagein_all_procs(void)
 {
 	DIR *dp;
-	struct dirent *d;
+	const struct dirent *d;
 
 	dp = opendir("/proc");
 	if (!dp)
