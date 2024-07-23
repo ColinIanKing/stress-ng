@@ -146,7 +146,9 @@ static int stress_binderfs(stress_args_t *args)
 					args->name, errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
-			} else if ((errno == ENOSPC) || (errno == ENOMEM)) {
+			} else if ((errno == ENOSPC) ||
+				   (errno == ENOMEM) ||
+				   (errno == EPERM)) {
 				/* ..ran out of resources, skip */
 				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), skipping stress test\n",
 					args->name, pathname, errno, strerror(errno));
