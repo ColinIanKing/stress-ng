@@ -133,6 +133,11 @@ static int stress_reboot(stress_args_t *args)
 		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_RESTART, 0);
 		if (ret < 0) {
 			if (reboot_capable) {
+				if (errno == EPERM) {
+					pr_inf_skip("%s: no permission, skipping stressor\n", args->name);
+					rc = EXIT_NO_RESOURCE;
+					break;
+				}
 				if (errno != EINVAL) {
 					pr_fail("%s: reboot with incorrect magic didn't return EINVAL, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -150,6 +155,11 @@ static int stress_reboot(stress_args_t *args)
 		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_SW_SUSPEND, 0);
 		if (ret < 0) {
 			if (reboot_capable) {
+				if (errno == EPERM) {
+					pr_inf_skip("%s: no permission, skipping stressor\n", args->name);
+					rc = EXIT_NO_RESOURCE;
+					break;
+				}
 				if (errno != EINVAL) {
 					pr_fail("%s: reboot with incorrect magic didn't return EINVAL, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
