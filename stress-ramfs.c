@@ -89,6 +89,8 @@ static void stress_ramfs_umount(stress_args_t *args, const char *path)
 	 *  know that umount been successful and can then return.
 	 */
 	for (i = 0; i < 100; i++) {
+		static bool warned = false;
+
 #if defined(HAVE_UMOUNT2) &&	\
     defined(MNT_FORCE)
 		if (stress_mwc1()) {
@@ -106,6 +108,12 @@ static void stress_ramfs_umount(stress_args_t *args, const char *path)
 			continue;
 		}
 		switch (errno) {
+		case EPERM:
+			if (!warned) {
+				warned = true;
+				pr_inf_skip("%s: cannot umount, no permission, skipping stressor\n", args->name);
+			}
+			break;
 		case EAGAIN:
 		case EBUSY:
 		case ENOMEM:
