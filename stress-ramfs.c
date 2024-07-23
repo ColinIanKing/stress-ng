@@ -297,11 +297,16 @@ static int stress_ramfs_child(stress_args_t *args)
 		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
 		ret = mount("", realpathname, fs, 0, opt);
 		if (ret < 0) {
-			if ((errno != ENOSPC) &&
+			if (errno == EPERM) {
+				pr_inf_skip("%s: cannot mount, no permission, skipping stressor\n",
+					args->name);
+				rc = EXIT_NO_RESOURCE;
+			} else if ((errno != ENOSPC) &&
 			    (errno != ENOMEM) &&
-			    (errno != ENODEV))
+			    (errno != ENODEV)) {
 				pr_fail("%s: mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+			}
 			/* Just in case, force umount */
 			goto cleanup;
 		}
