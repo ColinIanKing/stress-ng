@@ -158,5 +158,7 @@ const char *stress_duration_to_str(const double duration, const bool int_secs)
 	stress_format_time(&emitted, false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
 	stress_format_time(&emitted, false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
 	stress_format_time(&emitted, int_secs, 1, "sec", &ptr, &dur, &len);
+	if (!*str)
+		shim_strscpy(str, "0 secs", sizeof(str));
 	return str;
 }
