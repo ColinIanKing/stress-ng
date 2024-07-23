@@ -80,141 +80,24 @@ build: (note libattr is not required for more recent disto releases).
 
 Debian, Ubuntu:
 
-  * gcc
-  * g++
-  * libacl1-dev
-  * libaio-dev
-  * libapparmor-dev
-  * libatomic1
-  * libattr1-dev
-  * libbsd-dev
-  * libcap-dev
-  * libeigen3-dev
-  * libgbm-dev
-  * libcrypt-dev
-  * libglvnd-dev
-  * libipsec-mb-dev
-  * libjpeg-dev
-  * libjudy-dev
-  * libkeyutils-dev
-  * libkmod-dev
-  * libmd-dev
-  * libmpfr-dev
-  * libsctp-dev
-  * libxxhash-dev
-  * zlib1g-dev
+  * gcc g++ libacl1-dev libaio-dev libapparmor-dev libatomic1 libattr1-dev libbsd-dev libcap-dev libeigen3-dev libgbm-dev libcrypt-dev libglvnd-dev libipsec-mb-dev libjpeg-dev libjudy-dev libkeyutils-dev libkmod-dev libmd-dev libmpfr-dev libsctp-dev libxxhash-dev zlib1g-dev
 
 RHEL, Fedora, Centos:
 
-  * gcc
-  * g++
-  * eigen3-devel
-  * Judy-devel
-  * keyutils-libs-devel
-  * kmod-devel
-  * libacl-devel
-  * libaio-devel
-  * libatomic
-  * libattr-devel
-  * libbsd-devel
-  * libcap-devel
-  * libgbm-devel
-  * libcrypt-devel
-  * libglvnd-core-devel
-  * libglvnd-devel
-  * libjpeg-devel
-  * libmd-devel
-  * mpfr-devel
-  * libX11-devel
-  * libXau-devel
-  * libxcb-devel
-  * lksctp-tools-devel
-  * xorg-x11-proto-devel
-  * xxhash-devel
-  * zlib-devel
+  * gcc g++ eigen3-devel Judy-devel keyutils-libs-devel kmod-devel libacl-devel libaio-devel libatomic libattr-devel libbsd-devel libcap-devel libgbm-devel libcrypt-devel libglvnd-core-devel libglvnd-devel libjpeg-devel libmd-devel mpfr-devel libX11-devel libXau-devel libxcb-devel lksctp-tools-devel xorg-x11-proto-devel xxhash-devel zlib-devel
 
 RHEL, Fedora, Centos (static builds):
 
-  * gcc
-  * g++
-  * eigen3-devel
-  * glibc-static
-  * Judy-devel
-  * keyutils-libs-devel
-  * libacl-devel
-  * libaio-devel
-  * libatomic-static
-  * libattr-devel
-  * libbsd-devel
-  * libcap-devel
-  * libgbm-devel
-  * libcrypt-devel
-  * libglvnd-core-devel
-  * libglvnd-devel
-  * libjpeg-devel
-  * libmd-devel
-  * libX11-devel
-  * libXau-devel
-  * libxcb-devel
-  * lksctp-tools-devel
-  * mpfr-devel
-  * xorg-x11-proto-devel
-  * xxhash-devel
-  * zlib-devel
+  * gcc g++ eigen3-devel glibc-static Judy-devel keyutils-libs-devel libacl-devel libaio-devel libatomic-static libattr-devel libbsd-devel libcap-devel libgbm-devel libcrypt-devel libglvnd-core-devel libglvnd-devel libjpeg-devel libmd-devel libX11-devel libXau-devel libxcb-devel lksctp-tools-devel mpfr-devel xorg-x11-proto-devel xxhash-devel zlib-devel
 
 SUSE:
-  * gcc
-  * gcc-c++
-  * eigen3-devel
-  * keyutils-devel
-  * libaio-devel
-  * libapparmor-devel
-  * libatomic1
-  * libattr-devel
-  * libbsd-devel
-  * libcap-devel
-  * libgbm-devel
-  * libglvnd-devel
-  * libjpeg-turbo
-  * libkmod-devel
-  * libmd-devel
-  * libseccomp-devel
-  * lksctp-tools-devel
-  * mpfr-devel
-  * xxhash-devel
-  * zlib-devel
+  * gcc gcc-c++ eigen3-devel keyutils-devel libaio-devel libapparmor-devel libatomic1 libattr-devel libbsd-devel libcap-devel libgbm-devel libglvnd-devel libjpeg-turbo libkmod-devel libmd-devel libseccomp-devel lksctp-tools-devel mpfr-devel xxhash-devel zlib-devel
 
 ClearLinux:
-  * devpkg-acl
-  * devpkg-eigen
-  * devpkg-Judy
-  * devpkg-kmod
-  * devpkg-attr
-  * devpkg-libbsd
-  * devpkg-libjpeg-turbo
-  * devpkg-libsctp
-  * devpkg-mesa
+  * devpkg-acl devpkg-eigen devpkg-Judy devpkg-kmod devpkg-attr devpkg-libbsd devpkg-libjpeg-turbo devpkg-libsctp devpkg-mesa
 
 Alpine Linux:
-  * build-base
-  * eigen-dev
-  * jpeg-dev
-  * judy-dev
-  * keyutils-dev
-  * kmod-dev
-  * libacl-dev
-  * libaio-dev
-  * libatomic
-  * libattr
-  * libbsd-dev
-  * libcap-dev
-  * libmd-dev
-  * libseccomp-dev
-  * lksctp-tools-dev
-  * mesa-dev
-  * mpfr-dev
-  * xxhash-dev
-  * zlib-dev
+  * build-base eigen-dev jpeg-dev judy-dev keyutils-dev kmod-dev libacl-dev libaio-dev libatomic libattr libbsd-dev libcap-dev libmd-dev libseccomp-dev lksctp-tools-dev mesa-dev mpfr-dev xxhash-dev zlib-dev
 
 Snaps:
   * stress-ng is not intended to be snap'd with snapcraft. Doing so is strictly
