@@ -217,7 +217,7 @@ static int stress_netlink_proc(stress_args_t *args)
 			pr_inf_skip("%s: bind failed, no permission, "
 				"skipping stressor\n", args->name);
 			(void)close(sock);
-			return EXIT_FAILURE;
+			return EXIT_NO_RESOURCE;
 		}
 		pr_err("%s: bind failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
