@@ -424,7 +424,12 @@ static int stress_numa(stress_args_t *args)
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 					 buf, MPOL_F_ADDR);
 		if (UNLIKELY(ret < 0)) {
-			if (errno != ENOSYS) {
+			if (errno == EPERM) {
+				pr_inf_skip("%s: get_mempolicy, no permission, skipping stressor\n",
+					args->name);
+				rc = EXIT_NO_RESOURCE;
+				goto err;
+			} else if (errno != ENOSYS) {
 				pr_fail("%s: get_mempolicy failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto err;
