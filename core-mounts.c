@@ -99,7 +99,7 @@ int stress_mount_get(char *mnts[], const int max)
 int stress_mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
-	struct mntent* mnt;
+	const struct mntent* mnt;
 	int n = 0;
 
 	(void)shim_memset(mnts, 0, (size_t)max * sizeof(*mnts));
