@@ -428,11 +428,19 @@ static int stress_cgroup_child(stress_args_t *args)
 
 		ret = mount("none", realpathname, "cgroup2", 0, NULL);
 		if (ret < 0) {
+			if (errno == EPERM) {
+				pr_inf_skip("%s: mount failed, no permission, skipping stressor\n",
+					args->name);
+				rc = EXIT_NO_RESOURCE;
+				goto cleanup;
+			}
 			if ((errno != ENOSPC) &&
 			    (errno != ENOMEM) &&
-			    (errno != ENODEV))
+			    (errno != ENODEV)) {
 				pr_fail("%s: mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			/* Just in case, force umount */
 			goto cleanup;
 		}
@@ -459,7 +467,7 @@ cleanup:
  */
 static int stress_cgroup_mount(stress_args_t *args)
 {
-	int pid;
+	int pid, rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);
@@ -503,7 +511,12 @@ again:
 				}
 			} else if (WEXITSTATUS(status) == EXIT_FAILURE) {
 				pr_fail("%s: child mount/umount failed\n", args->name);
-				return EXIT_FAILURE;
+				rc = EXIT_FAILURE;
+				break;
+				
+			} else if (WEXITSTATUS(status) == EXIT_NO_RESOURCE) {
+				rc = EXIT_NO_RESOURCE;
+				break;
 			}
 		} else {
 			_exit(stress_cgroup_child(args));
@@ -513,7 +526,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_cgroup_info = {
