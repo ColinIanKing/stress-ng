@@ -33,7 +33,7 @@ typedef struct {
 	volatile double latency;
 } stress_sigabrt_info_t;
 
-static volatile stress_sigabrt_info_t *sigabrt_info;
+static stress_sigabrt_info_t *sigabrt_info;
 
 static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 {
