@@ -224,22 +224,24 @@ static int stress_setup_io_uring(
 	 */
 	submit->io_uring_fd = shim_io_uring_setup(io_uring_entries, &p);
 	if (submit->io_uring_fd < 0) {
-		if (errno == ENOSYS) {
-			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n",
-				args->name);
+		switch (errno) {
+		case EPERM:
+			pr_inf_skip("%s: io-uring not permitted, skipping stressor\n", args->name);
 			return EXIT_NOT_IMPLEMENTED;
-		}
-		if (errno == ENOMEM) {
-			pr_inf_skip("%s: io-uring setup failed, out of memory, skipping stressor\n",
-				args->name);
+		case ENOSYS:
+			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n", args->name);
+			return EXIT_NOT_IMPLEMENTED;
+		case ENOMEM:
+			pr_inf_skip("%s: io-uring setup failed, out of memory, skipping stressor\n", args->name);
 			return EXIT_NO_RESOURCE;
-		}
-		if (errno == EINVAL) {
+		case EINVAL:
 			pr_inf_skip("%s: io-uring failed, EINVAL, possibly %"
 				PRIu32 " io-uring-entries too large, "
 				"skipping stressor\n",
 				args->name, io_uring_entries);
 			return EXIT_NO_RESOURCE;
+		default:
+			break;
 		}
 		pr_fail("%s: io-uring setup failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
