@@ -213,6 +213,12 @@ static int stress_netlink_proc(stress_args_t *args)
 	addr.nl_groups = CN_IDX_PROC;
 
 	if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+		if (errno == EPERM) {
+			pr_inf_skip("%s: bind failed, no permission, "
+				"skipping stressor\n", args->name);
+			(void)close(sock);
+			return EXIT_FAILURE;
+		}
 		pr_err("%s: bind failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
