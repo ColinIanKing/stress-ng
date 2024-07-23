@@ -454,6 +454,8 @@ again:
 			} else if (WEXITSTATUS(status) == EXIT_FAILURE) {
 				pr_fail("%s: child mount/umount failed\n", args->name);
 				return EXIT_FAILURE;
+			} else if (WEXITSTATUS(status) == EXIT_NO_RESOURCE) {
+				return EXIT_NO_RESOURCE;
 			}
 		} else {
 			_exit(stress_ramfs_child(args));
