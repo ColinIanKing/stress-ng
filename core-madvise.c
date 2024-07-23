@@ -150,7 +150,8 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		return;
 	while (fgets(buf, sizeof(buf), fp)) {
 		void *start, *end, *offset;
-		int major, minor, n;
+		int n;
+		unsigned int major, minor;
 		uint64_t inode;
 		char prot[5];
 
