@@ -39,7 +39,8 @@ int stress_module_load(
 	int ret;
 	unsigned int flags = 0;
 	struct kmod_ctx *ctx;
-	struct kmod_list *l, *list = NULL;
+	struct kmod_list const *l;
+	struct kmod_list *list = NULL;
 
 	void (*show_func)(struct kmod_module *m, bool install,
 			  const char *options) = NULL;
