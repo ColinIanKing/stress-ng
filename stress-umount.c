@@ -53,10 +53,9 @@ static int stress_umount_supported(const char *name)
  *  stress_umount_umount()
  *	umount a path with retries.
  */
-static void stress_umount_umount(stress_args_t *args, const char *path, const uint64_t ns_delay)
+static int stress_umount_umount(stress_args_t *args, const char *path, const uint64_t ns_delay)
 {
-	int i;
-	int ret;
+	int i, ret, rc = EXIT_SUCCESS;
 
 	/*
 	 *  umount is attempted at least twice, the first successful mount
@@ -65,6 +64,8 @@ static void stress_umount_umount(stress_args_t *args, const char *path, const ui
 	 *  know that umount been successful and can then return.
 	 */
 	for (i = 0; i < 100; i++) {
+		static bool warned = false;
+
 #if defined(HAVE_UMOUNT2) &&	\
     defined(MNT_FORCE)
 		if (stress_mwc1()) {
@@ -82,6 +83,13 @@ static void stress_umount_umount(stress_args_t *args, const char *path, const ui
 			continue;
 		}
 		switch (errno) {
+		case EPERM:
+			if (!warned) {
+				warned = true;
+				pr_inf_skip("%s: umount failed, no permission, skipping stresor\n",
+					args->name);
+			}
+			return EXIT_NO_RESOURCE;
 		case EAGAIN:
 		case EBUSY:
 		case ENOMEM:
@@ -95,14 +103,15 @@ static void stress_umount_umount(stress_args_t *args, const char *path, const ui
 			 *  it can't be umounted.  We now assume it
 			 *  has been successfully umounted
 			 */
-			return;
+			return rc;
 		default:
 			/* Unexpected, so report it */
 			pr_inf("%s: umount failed %s: %d %s\n", args->name,
 				path, errno, strerror(errno));
-			return;
+			return EXIT_FAILURE;
 		}
 	}
+	return rc;
 }
 
 /*
@@ -138,15 +147,16 @@ static void stress_umount_read_proc_mounts(stress_args_t *args, const char *path
  */
 static void stress_umount_umounter(stress_args_t *args, const char *path)
 {
+	int rc;
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
 	do {
-		stress_umount_umount(args, path, 10000);
+		rc = stress_umount_umount(args, path, 10000);
 		shim_nanosleep_uint64(stress_mwc64modn(10000));
 	} while (stress_continue(args));
 
-	_exit(0);
+	_exit(rc);
 }
 
 /*
@@ -157,7 +167,7 @@ static void stress_umount_umounter(stress_args_t *args, const char *path)
 static void stress_umount_mounter(stress_args_t *args, const char *path)
 {
 	const uint64_t ramfs_size = 64 * KB;
-	int i = 0;
+	int i = 0, rc = EXIT_SUCCESS;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -170,22 +180,32 @@ static void stress_umount_mounter(stress_args_t *args, const char *path)
 		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
 		ret = mount("", path, fs, 0, opt);
 		if (ret < 0) {
-			if ((errno != ENOSPC) &&
-			    (errno != ENOMEM) &&
-			    (errno != ENODEV))
+			if (errno == EPERM) {
+				static bool warned;
+
+				if (!warned) {
+					warned = true;
+					pr_inf_skip("%s: mount failed, no permission, "
+						"skipping stressor\n", args->name);
+				}
+				rc = EXIT_NO_RESOURCE;
+			} else if ((errno != ENOSPC) && (errno != ENOMEM) &&
+			    (errno != ENODEV)) {
 				pr_fail("%s: mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 			/* Just in case, force umount */
 			goto cleanup;
 		} else {
 			stress_bogo_inc(args);
 		}
-		stress_umount_umount(args, path, 1000000);
+		(void)stress_umount_umount(args, path, 1000000);
 	} while (stress_continue(args));
 
 cleanup:
-	stress_umount_umount(args, path, 100000000);
-	_exit(0);
+	(void)stress_umount_umount(args, path, 100000000);
+	_exit(rc);
 }
 
 /*
