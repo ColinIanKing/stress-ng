@@ -262,20 +262,24 @@ static int stress_rdrand(stress_args_t *args)
 	size_t j;
 #if defined(HAVE_SEED_CAPABILITY)
 	bool rdrand_seed = false;
+#endif
 	static uint64_t ALIGN64 counters[16];
 
 	(void)memset(counters, 0, sizeof(counters));
+#if defined(HAVE_SEED_CAPABILITY)
 	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
+#endif
 
 #if defined(STRESS_ARCH_X86) &&		\
     defined(HAVE_ASM_X86_RDRAND) &&	\
-    defined(HAVE_ASM_X86_RDSEED)
+    defined(HAVE_ASM_X86_RDSEED) &&	\
+    defined(HAVE_SEED_CAPABILITY)
 	if (rdrand_seed && !stress_cpu_x86_has_rdseed()) {
 		pr_inf("rdrand-seed ignored, cpu does not support feature, defaulting to rdrand\n");
 		rdrand_seed = false;
 	}
 #endif
-#endif
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_sync_start_wait(args);
 
