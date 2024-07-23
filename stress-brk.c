@@ -110,8 +110,8 @@ static inline size_t PURE stress_brk_abs(const uint8_t *ptr1, const uint8_t *ptr
 
 static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 {
-	uint8_t *start_ptr, *unmap_ptr = NULL;
-	int i = 0;
+	uint8_t *start_ptr, *unmap_ptr = NULL, *brk_failed_ptr = NULL;
+	int i = 0, brk_failed_count = 0;
 	size_t brk_bytes = DEFAULT_BRK_BYTES;
 	const size_t page_size = args->page_size;
 	const brk_context_t *brk_context = (brk_context_t *)context;
@@ -164,6 +164,8 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 				sbrk_exp_count += 1.0;
 
 				ptr += page_size;
+				brk_failed_ptr = NULL;
+				brk_failed_count = 0;
 				if (!unmap_ptr)
 					unmap_ptr = ptr;
 				stress_brk_page_resident(ptr, page_size, brk_touch);
@@ -171,6 +173,16 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 				/* stash a check value */
 				tmp = (uintptr_t *)((uintptr_t)ptr - sizeof(uintptr_t));
 				*tmp = (uintptr_t)tmp;
+			} else {
+				if (brk_failed_ptr == ptr) {
+					brk_failed_count++;
+					if (brk_failed_count > 32) {
+						pr_inf("%s: repeated sbrk page expands ran out of memory, exiting early\n", args->name);
+						break;
+					}
+				}
+				i = 0;
+				brk_failed_ptr = ptr;
 			}
 		} else if (i < 9) {
 			/* brk to same brk position */
