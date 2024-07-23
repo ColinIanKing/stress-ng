@@ -90,7 +90,7 @@ static void stress_rapl_add_list(stress_rapl_domain_t **rapl_domains, stress_rap
 int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 {
 	DIR *dir;
-        struct dirent *entry;
+        const struct dirent *entry;
 	int n = 0;
 	bool unreadable_energy_uj = true;
 
