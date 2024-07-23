@@ -112,7 +112,7 @@ void stress_dump_processes(void)
 		(void)snprintf(path, sizeof(path), "/proc/%s/status", namelist[i]->d_name);
 		ret = stress_system_read(path, buf, sizeof(buf));
 		if (ret > 0) {
-			char *ptr;
+			const char *ptr;
 
 			ptr = strstr(buf, "\nPPid:");
 			if (ptr) {
