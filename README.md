@@ -564,6 +564,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Video of the above presentation](https://www.youtube.com/watch?v=8QaXStKfq3A)
 * [Linux Foundation Mentoring Session, May 2022](https://www.youtube.com/watch?v=gD3Hn02VSHA)
 * [Kernel Recipes presentation, Sept 2023](https://www.youtube.com/watch?v=PD0NOZCTIVQ)
+* [Linux Foundation, ELISA, June 2024](https://www.youtube.com/watch?v=-B1K-xpICtQ)
 
 ## Citations
 
