@@ -91,6 +91,7 @@ static void stress_fp_check(
 #if defined(__linux__) &&		\
     !defined(STRESS_ARCH_M68K) &&	\
     !defined(HAVE_COMPILER_ICC) &&	\
+    !defined(HAVE_COMPILER_MUSL) &&	\
     !defined(STRESS_ARCH_ARC64) &&	\
     !defined(__SOFTFP__) &&		\
     NEED_GNUC(4,8,0)
