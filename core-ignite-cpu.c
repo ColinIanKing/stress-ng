@@ -43,7 +43,6 @@ typedef struct {
 	uint64_t scaling_min_freq;	/* Min scaling frequency */
 	uint64_t cpuinfo_max_freq;	/* Max cpu frequency */
 	uint64_t cpuinfo_min_freq;	/* Min cpu frequency */
-	uint64_t cur_freq;		/* Original scaling frequency */
 	char cur_governor[128];		/* Original governor setting */
 	uint8_t setting_flag;		/* 0 if setting can't be read or set */
 	int8_t	energy_perf_bias;	/* Energy perf bias */
