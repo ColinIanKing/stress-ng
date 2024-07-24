@@ -120,23 +120,17 @@ typedef struct stress_lock {
 	union {
 #if LOCK_METHOD_ATOMIC_SPINLOCK != 0
 		bool	flag;		/* atomic spinlock flag */
-#endif
-#if LOCK_METHOD_PTHREAD_SPINLOCK != 0
+#elif LOCK_METHOD_PTHREAD_SPINLOCK != 0
 		pthread_spinlock_t pthread_spinlock;	/* spinlock */
-#endif
-#if LOCK_METHOD_PTHREAD_MUTEX != 0
+#elif LOCK_METHOD_PTHREAD_MUTEX != 0
 		pthread_mutex_t pthread_mutex;	/* mutex */
-#endif
-#if LOCK_METHOD_OSI_C_MTX != 0
+#elif LOCK_METHOD_OSI_C_MTX != 0
 		mtx_t mtx;		/* ISO C mutex */
-#endif
-#if LOCK_METHOD_FUTEX != 0
+#elif LOCK_METHOD_FUTEX != 0
 		int	futex;		/* futex */
-#endif
-#if LOCK_METHOD_SEM_POSIX != 0
+#elif LOCK_METHOD_SEM_POSIX != 0
 		sem_t	sem_posix;	/* POSIX semaphore */
-#endif
-#if LOCK_METHOD_SEM_SYSV != 0
+#elif LOCK_METHOD_SEM_SYSV != 0
 		int 	sem_id;		/* SYS V semaphore */
 #endif
 	} u;
