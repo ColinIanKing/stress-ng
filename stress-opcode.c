@@ -413,8 +413,9 @@ static int stress_opcode(stress_args_t *args)
 	(void)stress_get_setting("opcode-method", &opcode_method);
 	method = &stress_opcode_methods[opcode_method];
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	op_start = (num_opcodes * (double)args->instance) / args->num_instances;
 	vstate->opcode = (uint64_t)op_start;

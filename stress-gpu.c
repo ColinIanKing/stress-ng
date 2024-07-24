@@ -547,8 +547,9 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	pret = pthread_create(&pthread, NULL, stress_gpu_pthread, (void *)args);
 #endif
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {

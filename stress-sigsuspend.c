@@ -63,8 +63,9 @@ static int stress_sigsuspend(stress_args_t *args)
 	(void)sigemptyset(&mask);
 	(void)sigprocmask(SIG_BLOCK, &mask, &oldmask);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
 again:

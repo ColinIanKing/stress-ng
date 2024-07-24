@@ -172,8 +172,9 @@ static int stress_forkheavy_child(stress_args_t *args, void *context)
 				forkheavy_args->num_resources,
 				forkheavy_args->pipe_size, min_mem_free, false);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		const bool low_mem_reap = stress_low_memory(MIN_MEM_FREE);

@@ -217,8 +217,9 @@ static int stress_timerfd(stress_args_t *args)
 	}
 #endif
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 #if defined(CLOCK_REALTIME)
 	/* Exercise timerfd_create with invalid flags */

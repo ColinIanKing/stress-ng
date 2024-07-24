@@ -879,8 +879,9 @@ case_stream_index_1:
 	init_counter = 0;
 	init_counter_max = verify ? 1 : 64;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = EXIT_SUCCESS;
 	dt = 0.0;

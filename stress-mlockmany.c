@@ -125,8 +125,10 @@ static int stress_mlockmany(stress_args_t *args)
 #else
 	mlock_size = args->page_size * 1024;
 #endif
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		unsigned int n;

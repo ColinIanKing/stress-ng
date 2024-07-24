@@ -71,8 +71,9 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 		stress_set_vma_anon_name(ptr, page_size, "msync-rw-page");
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (!mapped) {
 		pr_inf("%s: no mappings made, out of resources\n", args->name);

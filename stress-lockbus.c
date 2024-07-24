@@ -178,8 +178,10 @@ static int stress_lockbus(stress_args_t *args)
 	if (sigsetjmp(jmp_env, 1) && !stress_continue(args))
 		goto done;
 #endif
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	duration = 0;
 	count = 0;

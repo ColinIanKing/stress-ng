@@ -238,8 +238,9 @@ static int stress_cpu_online(stress_args_t *args)
 			args->name, cpu_online_count + 1);
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Use a pipe to send offlined CPU number to child */
 	if (pipe(fds) < 0) {

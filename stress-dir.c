@@ -461,8 +461,9 @@ static int stress_dir(stress_args_t *args)
 #if defined(O_DIRECTORY)
 	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	pid = fork();
 	if (pid == 0) {

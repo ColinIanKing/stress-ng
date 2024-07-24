@@ -197,8 +197,9 @@ static int stress_zombie(stress_args_t *args)
 			zombie_max = MIN_ZOMBIES;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (zombies.length < zombie_max) {

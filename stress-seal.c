@@ -79,8 +79,9 @@ static int stress_seal(stress_args_t *args)
 	(void)shim_memset(buf, 0xff, page_size);
 	(void)stress_madvise_mergeable(buf, page_size);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		const off_t sz = (off_t)page_size;

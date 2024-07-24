@@ -264,8 +264,9 @@ static int stress_munmap(stress_args_t *args)
 	}
 	stress_munmap_clean_path(ctxt->exec_path);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (stress_continue(args)) {
 		VOID_RET(int, stress_oomable_child(args, (void *)ctxt, stress_munmap_child, STRESS_OOMABLE_QUIET));

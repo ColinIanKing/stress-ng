@@ -683,8 +683,9 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, hm->name);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (hm->func(args->name, hm, &bucket) == EXIT_FAILURE) {

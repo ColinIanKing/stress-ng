@@ -182,8 +182,9 @@ static int stress_bigheap_child(stress_args_t *args, void *context)
 		return EXIT_FAILURE;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 #if defined(MCL_FUTURE)
 	if (bigheap_mlock)

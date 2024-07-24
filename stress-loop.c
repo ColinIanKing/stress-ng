@@ -126,8 +126,9 @@ static int stress_loop(stress_args_t *args)
 		goto tidy;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int ctrl_dev, loop_dev;

@@ -1051,8 +1051,9 @@ static int stress_bitops(stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, bitops_methods[bitops_method].name);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint32_t count;

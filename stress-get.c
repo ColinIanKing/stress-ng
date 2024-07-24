@@ -1006,8 +1006,9 @@ static int stress_get(stress_args_t *args)
 	mypid = getpid();
 	verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	i = 0;
 

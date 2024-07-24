@@ -285,8 +285,9 @@ static int stress_waitcpu(stress_args_t *args)
 			SIZEOF_ARRAY(stress_waitcpu_method) > 1 ? "s" : "",
 			str);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		for (i = 0; (i < SIZEOF_ARRAY(stress_waitcpu_method)) && stress_continue(args); i++) {

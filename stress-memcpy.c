@@ -319,8 +319,10 @@ static int stress_memcpy(stress_args_t *args)
 	(void)stress_get_setting("memcpy-method", &memcpy_method);
 	func = stress_memcpy_methods[memcpy_method].func;
 	stress_rndbuf(str3, ALIGN_SIZE);
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		func(str1, str2, str3);

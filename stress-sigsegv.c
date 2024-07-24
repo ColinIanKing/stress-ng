@@ -292,8 +292,9 @@ static int stress_sigsegv(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(ro_ptr, args->page_size, "no-page");
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	mask = 0;
 	last_mask = 0;

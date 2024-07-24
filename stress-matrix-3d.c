@@ -971,8 +971,9 @@ static int stress_matrix_3d(stress_args_t *args)
 			matrix_3d_size = MIN_MATRIX3D_SIZE;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_matrix_3d_exercise(args, matrix_3d_method, matrix_3d_zyx, matrix_3d_size);
 

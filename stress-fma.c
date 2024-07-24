@@ -328,8 +328,9 @@ static int stress_fma(stress_args_t *args)
 	stress_set_vma_anon_name(pfma, sizeof(*pfma), "fma-data");
 	stress_madvise_mergeable(pfma, sizeof(*pfma));
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_fma_init(pfma);
 

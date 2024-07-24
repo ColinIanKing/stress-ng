@@ -386,8 +386,9 @@ static int stress_shm(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 #endif
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (stress_continue_flag() && retry) {
 		if (pipe(pipefds) < 0) {

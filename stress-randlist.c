@@ -248,8 +248,9 @@ retry:
 	head = ptrs[0];
 	free(ptrs);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		stress_randlist_exercise(args, head, randlist_size, verify, &rc);

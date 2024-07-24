@@ -351,8 +351,9 @@ static int stress_fstat(stress_args_t *args)
 	(void)closedir(dp);
 
 	(void)sigfillset(&set);
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		stat_some = false;

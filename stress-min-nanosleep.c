@@ -321,8 +321,10 @@ static int stress_min_nanosleep(stress_args_t *args)
 	}
 
 	delays[args->instance].started = true;
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		for (i = 0, delay = delay_head; i <= max_delay; i++, delay++) {

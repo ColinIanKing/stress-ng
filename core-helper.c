@@ -1337,6 +1337,7 @@ void stress_set_proc_state(const char *name, const int state)
 		"start",
 		"init",
 		"run",
+		"syncwait",
 		"deinit",
 		"stop",
 		"exit",

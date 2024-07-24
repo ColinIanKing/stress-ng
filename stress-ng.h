@@ -284,11 +284,12 @@ do {				\
 #define STRESS_STATE_START		(0)
 #define STRESS_STATE_INIT		(1)
 #define STRESS_STATE_RUN		(2)
-#define STRESS_STATE_DEINIT		(3)
-#define STRESS_STATE_STOP		(4)
-#define STRESS_STATE_EXIT		(5)
-#define STRESS_STATE_WAIT		(6)
-#define STRESS_STATE_ZOMBIE		(7)
+#define STRESS_STATE_SYNC_WAIT		(3)
+#define STRESS_STATE_DEINIT		(4)
+#define STRESS_STATE_STOP		(5)
+#define STRESS_STATE_EXIT		(6)
+#define STRESS_STATE_WAIT		(7)
+#define STRESS_STATE_ZOMBIE		(8)
 
 #define	STRESS_INTERRUPTS_MAX		(8)	/* see core_interrupts.c */
 

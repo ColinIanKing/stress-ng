@@ -497,8 +497,9 @@ static int stress_fanotify(stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	pid = fork();
 

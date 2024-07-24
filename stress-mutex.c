@@ -208,8 +208,9 @@ static int stress_mutex(stress_args_t *args)
 	prio_min = sched_get_priority_min(SCHED_FIFO);
 	prio_max = sched_get_priority_max(SCHED_FIFO);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < mutex_procs; i++)
 		pthread_info[i].ret = -1;

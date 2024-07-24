@@ -192,8 +192,9 @@ static int stress_membarrier(stress_args_t *args)
 				stress_membarrier_thread, (void *)&pargs);
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (stress_membarrier_exercise(args, &info[MAX_MEMBARRIER_THREADS]) < 0) {

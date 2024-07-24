@@ -110,8 +110,9 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 
 	stress_rndstr(hugename, sizeof(hugename));
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		double t;

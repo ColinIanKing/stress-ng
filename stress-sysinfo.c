@@ -76,8 +76,9 @@ static int stress_sysinfo(stress_args_t *args)
 		pr_dbg("%s: found %d mount points\n",
 			args->name, n_mounts);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		struct tms tms_buf;

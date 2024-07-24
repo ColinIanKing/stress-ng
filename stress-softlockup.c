@@ -368,9 +368,11 @@ again:
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	param.sched_priority = policies[0].max_prio;
 	(void)sched_setscheduler(args->pid, policies[0].policy, &param);

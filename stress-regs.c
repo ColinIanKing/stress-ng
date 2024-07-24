@@ -1043,8 +1043,9 @@ static int stress_regs(stress_args_t *args)
 {
 	uint64_t v = stress_mwc64();
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_INT128_T)

@@ -278,9 +278,10 @@ static int stress_fifo(stress_args_t *args)
 	(void)shim_memset(buf, 0xaa, sizeof(buf));
 	buf[0] = 0ULL;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	fd = open(fifoname, O_WRONLY);
 	if (fd < 0) {

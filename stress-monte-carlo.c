@@ -586,8 +586,9 @@ static int stress_monte_carlo(stress_args_t *args)
 	(void)stress_get_setting("monte-carlo-rand", &monte_carlo_rand);
 	(void)stress_get_setting("monte-carlo-samples", &monte_carlo_samples);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		stress_monte_carlo_by_method(args, monte_carlo_samples,

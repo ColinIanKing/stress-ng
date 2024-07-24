@@ -146,9 +146,11 @@ static int stress_dekker(stress_args_t *args)
 			args->name, sz);
 		return EXIT_NO_RESOURCE;
 	}
+
 	stress_set_vma_anon_name(dekker, sz, "dekker-mutex");
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	parent_cpu = stress_get_cpu();
 	pid = fork();

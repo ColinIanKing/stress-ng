@@ -256,8 +256,9 @@ static int stress_affinity(stress_args_t *args)
 		if (s_pids[i].pid == 0) {
 			s_pids[i].pid = getpid();
 
-			stress_set_proc_state(args->name, STRESS_STATE_RUN);
+			stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 			stress_sync_start_wait_s_pid(&s_pids[i]);
+			stress_set_proc_state(args->name, STRESS_STATE_RUN);
 			stress_affinity_child(args, info, false);
 			_exit(EXIT_SUCCESS);
 		} else if (s_pids[i].pid > 0) {
@@ -265,10 +266,10 @@ static int stress_affinity(stress_args_t *args)
 		}
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_affinity_child(args, info, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

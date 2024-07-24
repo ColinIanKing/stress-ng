@@ -329,8 +329,9 @@ static int OPTIMIZE3 stress_qsort(stress_args_t *args)
 		pr_inf("%s: using method '%s'\n",
 			args->name, stress_qsort_methods[qsort_method].name);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		double t;

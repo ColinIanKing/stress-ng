@@ -417,7 +417,7 @@ static int stress_atomic(stress_args_t *args)
 		}
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 
 	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
 		pid_t pid;
@@ -436,6 +436,7 @@ static int stress_atomic(stress_args_t *args)
 
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pid_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (stress_atomic_exercise(args, &atomic_info[n_atomic_procs - 1]) < 0)
 		rc = EXIT_FAILURE;

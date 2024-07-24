@@ -204,8 +204,9 @@ static int stress_timer(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_timer_set(&timer);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {

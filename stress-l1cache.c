@@ -538,8 +538,9 @@ static int stress_l1cache(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (stress_l1cache_func(args, cache_aligned, l1cache_size, l1cache_sets, l1cache_set_size) == EXIT_FAILURE) {

@@ -3422,8 +3422,9 @@ static int stress_vm(stress_args_t *args)
 
 	*context.bit_error_count = 0ULL;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	ret = stress_oomable_child(args, &context, stress_vm_child, STRESS_OOMABLE_NORMAL);
 

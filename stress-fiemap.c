@@ -319,9 +319,10 @@ static int stress_fiemap(stress_args_t *args)
 			goto reap;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
         stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_fiemap_writer(args, fd, fiemap_bytes);
 reap:

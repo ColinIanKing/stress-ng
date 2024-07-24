@@ -306,8 +306,9 @@ static int stress_pci(stress_args_t *args)
 	NOCLOBBER stress_pci_info_t *pci_info;
 	int ret;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {

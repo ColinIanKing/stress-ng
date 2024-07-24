@@ -120,8 +120,9 @@ static int stress_pidfd(stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	int rc = EXIT_SUCCESS;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while ((rc == EXIT_SUCCESS) && stress_continue(args)) {
 		pid_t pid;

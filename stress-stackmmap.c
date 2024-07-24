@@ -208,8 +208,9 @@ static int stress_stackmmap(stress_args_t *args)
 	c_test.uc_stack.ss_size = MMAPSTACK_SIZE - (page_size * 2);
 	c_test.uc_link = &c_main;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/*
 	 *  set jmp handler to jmp back into the loop on a full

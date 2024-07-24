@@ -504,8 +504,9 @@ static int stress_efivar(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(efi_ignore, sz, "efi-ignore-state");
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {

@@ -191,8 +191,9 @@ static int stress_sem(stress_args_t *args)
 
 	(void)shim_memset(sem_pthreads, 0, sizeof(sem_pthreads));
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t = stress_time_now();
 	for (i = 0; i < semaphore_posix_procs; i++) {

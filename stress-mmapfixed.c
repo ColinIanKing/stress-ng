@@ -118,8 +118,9 @@ static int stress_mmapfixed_child(stress_args_t *args, void *context)
 	VOID_RET(int, stress_sighandler(args->name, SIGSEGV,
 				stress_sig_handler_exit, NULL));
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint8_t *buf;

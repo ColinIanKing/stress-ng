@@ -142,8 +142,10 @@ static int stress_peterson(stress_args_t *args)
 			args->name, sz);
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	peterson->m.flag[0] = false;
 	peterson->m.flag[1] = false;

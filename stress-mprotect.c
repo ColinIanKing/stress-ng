@@ -240,9 +240,10 @@ static int stress_mprotect(stress_args_t *args)
 		}
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_mprotect_mem(args, page_size, mem, mem_pages, prot_flags, n_flags);
 	if (stress_kill_and_wait_many(args, s_pids, MPROTECT_MAX, SIGALRM, true) == EXIT_FAILURE)

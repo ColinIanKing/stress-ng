@@ -917,8 +917,9 @@ static int stress_af_alg(stress_args_t *args)
 		(void)shim_usleep(200000);
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (sigsetjmp(jmpbuf, 1) != 0) {
 		pr_inf("JMP out\n");

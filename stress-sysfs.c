@@ -762,8 +762,9 @@ static int stress_sysfs(stress_args_t *args)
 
 	(void)shim_memset(pthreads_ret, 0, sizeof(pthreads_ret));
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/*
 	 *  Main stressing loop: the pthread stressors are

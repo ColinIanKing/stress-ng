@@ -2902,9 +2902,9 @@ static int stress_sysinval(stress_args_t *args)
 
 	(void)shim_memset(current_context->crash_count, 0, sizeof(current_context->crash_count));
 
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 

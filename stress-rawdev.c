@@ -465,8 +465,9 @@ static int stress_rawdev(stress_args_t *args)
 		pr_dbg("%s: exercising %s (%zd blocks of size %zd bytes)\n",
 			args->name, devpath, blks, blksz);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (func(args, fd, buffer, blks, blksz, &metrics[rawdev_method]) < 0) {

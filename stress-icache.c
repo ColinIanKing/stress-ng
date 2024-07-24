@@ -161,8 +161,9 @@ static int stress_icache(stress_args_t *args)
 	}
 	(void)shim_memcpy(page, &stress_ret_opcode.opcodes, stress_ret_opcode.len);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	ret = stress_icache_func(args, page, page_size);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

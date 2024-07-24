@@ -189,8 +189,10 @@ static int stress_smi(stress_args_t *args)
 			"permissions on the APM port 0x%2x\n",
 			args->name, APM_PORT);
 	}
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (args->instance == 0) {
 		d1 = stress_time_now();

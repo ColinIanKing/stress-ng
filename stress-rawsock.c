@@ -329,8 +329,9 @@ static int stress_rawsock(stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, rawsock_port);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, (void *)&rawsock_port, stress_rawsock_child, STRESS_OOMABLE_NORMAL);
 

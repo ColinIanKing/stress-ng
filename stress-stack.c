@@ -299,8 +299,9 @@ static int stress_stack_child(stress_args_t *args, void *context)
  */
 static int stress_stack(stress_args_t *args)
 {
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	return stress_oomable_child(args, NULL, stress_stack_child, STRESS_OOMABLE_NORMAL);
 }

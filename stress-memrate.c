@@ -1057,8 +1057,9 @@ static int stress_memrate(stress_args_t *args)
 			pr_inf("%s: cache flushing can be enabled with --memrate-flush option\n", args->name);
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, &context, stress_memrate_child, STRESS_OOMABLE_NORMAL);
 

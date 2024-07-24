@@ -104,8 +104,9 @@ static int stress_icmp_flood(stress_args_t *args)
 	servaddr.sin_addr.s_addr = (in_addr_t)addr;
 	(void)shim_memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t_start = stress_time_now();
 	do {

@@ -175,8 +175,9 @@ static int stress_bind_mount(stress_args_t *args)
 	char path[PATH_MAX];
 	stress_pthread_args_t pargs = { args, path, 0 };
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	(void)stress_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);
 	ret = mkdir(path, S_IRUSR | S_IRGRP | S_IWGRP);

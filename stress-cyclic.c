@@ -646,8 +646,9 @@ static int stress_cyclic(stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, cyclic_methods[cyclic_method].name);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 again:
 	pid = fork();

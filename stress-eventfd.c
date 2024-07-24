@@ -87,8 +87,9 @@ static int stress_eventfd(stress_args_t *args)
 	if (test_fd >= 0)
 		(void)close(test_fd);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

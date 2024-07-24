@@ -181,8 +181,9 @@ static int stress_unshare(stress_args_t *args)
 
 	clone_flag_count = stress_flag_permutation(all_flags, &clone_flag_perms);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		size_t n;

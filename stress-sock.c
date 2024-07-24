@@ -1369,8 +1369,9 @@ static int stress_sock(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(mmap_buffer, MMAP_BUF_SIZE, "io-buffer");
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

@@ -203,8 +203,9 @@ PRAGMA_UNROLL_N(8)
 	rounded_readahead_bytes = (uint64_t)statbuf.st_size -
 		(uint64_t)(statbuf.st_size % BUF_SIZE);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_readahead_generate_offsets(offsets, rounded_readahead_bytes);
 

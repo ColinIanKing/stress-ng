@@ -98,8 +98,9 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t = stress_time_now();
 	do {

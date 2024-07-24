@@ -193,8 +193,9 @@ static int stress_resched(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(yields, yields_size, "yield-stats");
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Start off one child process per positive nice level */
 	for (i = 0; stress_continue(args) && (i < s_pids_max); i++)

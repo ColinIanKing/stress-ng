@@ -379,10 +379,11 @@ static int stress_fpunch(stress_args_t *args)
 			stress_sync_start_s_pid_list_add(&s_pids_head, &s_pids[i]);
 		}
 	}
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Wait for test run duration to complete */
 	(void)sleep((unsigned int)g_opt_timeout);

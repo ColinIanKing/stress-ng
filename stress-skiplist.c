@@ -230,8 +230,9 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		goto finish;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		skip_list_t list;

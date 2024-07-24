@@ -284,8 +284,9 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	(void)snprintf(filename_pid, sizeof(filename_pid),
 		"memfd-%" PRIdMAX "-%" PRIu64, (intmax_t)args->pid, stress_mwc64());
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		char filename[64];

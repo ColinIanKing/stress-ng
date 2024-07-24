@@ -659,8 +659,10 @@ static int stress_sctp(stress_args_t *args)
 		args->name, (intmax_t)args->pid, sctp_port);
 
 	ret = EXIT_FAILURE;
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	parent_cpu = stress_get_cpu();
 	pid = fork();

@@ -582,9 +582,10 @@ static int stress_sem_sysv(stress_args_t *args)
 			goto reap;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/* Wait for termination */
 	while (stress_continue(args))

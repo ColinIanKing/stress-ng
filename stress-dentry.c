@@ -339,8 +339,9 @@ static int stress_dentry(stress_args_t *args)
 	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name,
 		args->pid, args->instance);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	stress_dentry_state(&nr_dentry1);
 	do {

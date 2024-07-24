@@ -104,8 +104,9 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	unmapped_page = buf_end;
 	(void)munmap((void *)unmapped_page, page_size);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (!stress_continue(args))

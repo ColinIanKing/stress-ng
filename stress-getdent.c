@@ -287,8 +287,9 @@ static int stress_getdent(stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	double duration = 0.0, count = 0.0, rate;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int ret;

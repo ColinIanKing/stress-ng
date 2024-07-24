@@ -141,8 +141,9 @@ static int stress_sync_file(stress_args_t *args)
 	fs_type = stress_get_fs_type(filename);
 	(void)shim_unlink(filename);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		shim_off64_t i, offset;

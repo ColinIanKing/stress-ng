@@ -119,8 +119,9 @@ static int stress_mmapaddr_child(stress_args_t *args, void *context)
 
 	(void)stress_get_setting("mmapaddr-mlock", &mmapaddr_mlock);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint8_t *addr, *map_addr, *remap_addr;

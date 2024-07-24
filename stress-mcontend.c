@@ -403,8 +403,9 @@ static int stress_mcontend(stress_args_t *args)
 	(void)shim_mlock(data[0], args->page_size);
 	(void)shim_mlock(data[1], args->page_size);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	pa.data = data;
 	for (i = 0; i < MAX_READ_THREADS; i++) {

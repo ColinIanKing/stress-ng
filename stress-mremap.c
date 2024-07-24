@@ -222,8 +222,9 @@ static int stress_mremap_child(stress_args_t *args, void *context)
 
 	(void)stress_get_setting("mremap-mlock", &mremap_mlock);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint8_t *buf = NULL, *ptr;

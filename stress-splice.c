@@ -245,8 +245,9 @@ static int stress_splice(stress_args_t *args)
 	 */
 	use_splice_loop = stress_splice_non_block_write_4K(fds3[1]);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		ssize_t ret;

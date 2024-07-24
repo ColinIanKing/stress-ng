@@ -402,8 +402,10 @@ static int stress_numa(stress_args_t *args)
 	(void)stress_madvise_mergeable(buf, numa_bytes);
 
 	stress_numa_stats_read(&stats_begin);
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	k = 0;
 	t = stress_time_now();

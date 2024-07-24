@@ -113,8 +113,9 @@ static int stress_kvm(stress_args_t *args)
 {
 	bool pr_version = false;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int kvm_fd, vm_fd, vcpu_fd, version, ret, i;

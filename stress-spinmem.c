@@ -152,8 +152,9 @@ static int stress_spinmem(stress_args_t *args)
 	spinmem_reader = spinmem_funcs[spinmem_method].reader;
 	spinmem_writer = spinmem_funcs[spinmem_method].writer;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	pid = fork();
 	if (pid < 0) {

@@ -529,8 +529,9 @@ static int stress_logmath(stress_args_t *args)
 		stress_logmath_metrics[i].count = 0.0;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		if (stress_logmath_exercise(args, logmath_method)) {

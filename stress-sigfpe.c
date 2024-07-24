@@ -292,8 +292,10 @@ static int stress_sigfpe(stress_args_t *args)
 	}
 
 	(void)alarm(0);
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (;;) {
 #if defined(STRESS_CHECK_SIGINFO)

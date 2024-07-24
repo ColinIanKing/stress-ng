@@ -708,9 +708,10 @@ static int stress_apparmor(stress_args_t *args)
 		apparmor_spawn(args, apparmor_funcs[i], &s_pids_head, &s_pids[i]);
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_sync_start_cont_list(s_pids_head);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (stress_apparmor_stress_continue_inc(args, false)) {
 #if defined(HAVE_SELECT)

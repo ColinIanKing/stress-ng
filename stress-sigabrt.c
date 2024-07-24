@@ -76,8 +76,9 @@ static int stress_sigabrt(stress_args_t *args)
 	stress_set_vma_anon_name((void *)sigabrt_info, sizeof(*sigabrt_info), "state");
 	sigabrt_info->count = 0.0;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		pid_t pid;
