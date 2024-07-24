@@ -291,7 +291,7 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */
-		const size_t index;			/* map to cpu->cache array index */
+		const size_t idx;			/* map to cpu->cache array index */
 	} cache_info_t;
 
 	static const cache_info_t cache_info[] = {
@@ -315,7 +315,7 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
-		const size_t idx = cache_info[i].index;
+		const size_t idx = cache_info[i].idx;
 		uint64_t value;
 
 		value = stress_bsd_getsysctl_uint64(cache_info[i].name);
@@ -369,7 +369,7 @@ static int stress_cpu_cache_get_sparc64(
 		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */
-		const size_t index;			/* map to cpu->cache array index */
+		const size_t idx;			/* map to cpu->cache array index */
 	} cache_info_t;
 
 	static const cache_info_t cache_info[] = {
@@ -393,7 +393,7 @@ static int stress_cpu_cache_get_sparc64(
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
-		const size_t idx = cache_info[i].index;
+		const size_t idx = cache_info[i].idx;
 		uint64_t value;
 
 		if (stress_cpu_cache_get_value(cpu_path, cache_info[i].filename, &value) < 0)
@@ -926,7 +926,7 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */
-		const size_t index;			/* map to cpu->cache array index */
+		const size_t idx;			/* map to cpu->cache array index */
 	} cache_auxval_info_t;
 
 	static const cache_auxval_info_t cache_auxval_info[] = {
@@ -957,22 +957,22 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_auxval_info); i++) {
 		const uint64_t value = getauxval(cache_auxval_info[i].auxval_type);
-		const size_t index = cache_auxval_info[i].index;
+		const size_t idx = cache_auxval_info[i].idx;
 
 		if (value)
 			valid = true;
 
-		cpu->caches[index].type = cache_auxval_info[i].type;
-		cpu->caches[index].level = cache_auxval_info[i].level;
+		cpu->caches[idx].type = cache_auxval_info[i].type;
+		cpu->caches[idx].level = cache_auxval_info[i].level;
 		switch (cache_auxval_info[i].size_type) {
 		case STRESS_CACHE_SIZE:
-			cpu->caches[index].size = value;
+			cpu->caches[idx].size = value;
 			break;
 		case STRESS_CACHE_LINE_SIZE:
-			cpu->caches[index].line_size = (uint32_t)value;
+			cpu->caches[idx].line_size = (uint32_t)value;
 			break;
 		case STRESS_CACHE_WAYS:
-			cpu->caches[index].size = (uint32_t)value;
+			cpu->caches[idx].size = (uint32_t)value;
 			break;
 		default:
 			break;
