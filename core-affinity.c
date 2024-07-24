@@ -74,6 +74,7 @@ int stress_set_cpu_affinity(const char *arg)
 	cpu_set_t set;
 	char *str, *ptr, *token;
 	const int32_t max_cpus = stress_get_processors_configured();
+	bool setbits = false;
 
 	CPU_ZERO(&set);
 
@@ -109,16 +110,20 @@ int stress_set_cpu_affinity(const char *arg)
 		stress_check_cpu_affinity_range(max_cpus, lo);
 		stress_check_cpu_affinity_range(max_cpus, hi);
 
-		for (i = lo; i <= hi; i++)
+		for (i = lo; i <= hi; i++) {
 			CPU_SET(i, &set);
+			setbits = true;
+		}
 	}
-	if (sched_setaffinity(getpid(), sizeof(set), &set) < 0) {
-		pr_err("%s: cannot set CPU affinity, errno=%d (%s)\n",
-			option, errno, strerror(errno));
-		free(str);
-		_exit(EXIT_FAILURE);
+	if (setbits) {
+		if (sched_setaffinity(getpid(), sizeof(set), &set) < 0) {
+			pr_err("%s: cannot set CPU affinity, errno=%d (%s)\n",
+				option, errno, strerror(errno));
+			free(str);
+			_exit(EXIT_FAILURE);
+		}
+		(void)shim_memcpy(&stress_affinity_cpu_set, &set, sizeof(stress_affinity_cpu_set));
 	}
-	shim_memcpy(&stress_affinity_cpu_set, &set, sizeof(stress_affinity_cpu_set));
 
 	free(str);
 	return 0;
