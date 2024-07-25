@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 July 2024"
+.TH STRESS-NG 1 "25 July 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2514,6 +2514,29 @@ stop after N rounds of 10000 dups, forking/closing/exiting and waiting for
 the child processes. Note that the bogo\-ops metric rate will slow down
 over time as this stressor increases the number of open files per bogo-loop
 and this increases the fork and close run times.
+.RE
+.TP
+.B File descriptor race stressor
+.RS 5
+.TQ
+.B \-\-fd\-race N
+start N workers that attempt to force race conditions on opened file descriptors.
+Opened file descriptors are passed from a server to a client over a socket. At
+periodic intervals batches of the file descriptors are duplicated by creating multiple
+pthreads and then closed en-masse with synchronized pthread termination. Also other
+concurrent pthreads exercise various file based system calls on file descriptors that
+are in the process of being created. By default a single file is used for the
+open calls, however /dev and /proc files can be exercised using the appropriate
+fd\-race options.
+.TP
+.B \-\-fd\-race\-dev
+exercise /dev files for race conditions.
+.TP
+.B \-\-fd\-race\-race\-ops N
+stop after N file desciptors have been exercised.
+.TP
+.B \-\-fd\-race\-proc
+exercise /proc files for race conditions.
 .RE
 .TP
 .B File extent (fiemap) stressor

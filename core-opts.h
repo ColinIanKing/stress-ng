@@ -424,6 +424,11 @@ typedef enum {
 	OPT_fd_fork_file,
 	OPT_fd_fork_ops,
 
+	OPT_fd_race,
+	OPT_fd_race_dev,
+	OPT_fd_race_ops,
+	OPT_fd_race_proc,
+
 	OPT_fiemap,
 	OPT_fiemap_ops,
 	OPT_fiemap_bytes,

@@ -361,6 +361,7 @@ STRESS_SRC = \
 	stress-fault.c \
 	stress-fcntl.c \
 	stress-fd-fork.c \
+	stress-fd-race.c \
 	stress-file-ioctl.c \
 	stress-fiemap.c \
 	stress-fifo.c \

@@ -91,6 +91,7 @@
 	MACRO(fault)		\
 	MACRO(fcntl)		\
 	MACRO(fd_fork)		\
+	MACRO(fd_race)		\
 	MACRO(fiemap)		\
 	MACRO(fifo)		\
 	MACRO(file_ioctl)	\
