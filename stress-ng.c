@@ -479,6 +479,21 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 }
 
 /*
+ *  stress_is_stressor_name()
+ *	return true if name is valid stressor name
+ */
+static bool stress_is_stressor_name(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+		if (!stress_strcmp_munged(name, stressors[i].name))
+			return true;
+	}
+	return false;
+}
+
+/*
  *  stress_exclude()
  *  	parse -x --exlude exclude list
  */
@@ -491,19 +506,16 @@ static int stress_exclude(void)
 
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_stressor_t *ss;
-		bool ignored = false;
 
+		if (!stress_is_stressor_name(token)) {
+			(void)fprintf(stderr, "exclude option specifies unknown stressor: '%s'\n", token);
+			return -1;
+		}
 		for (ss = stressors_head; ss; ss = ss->next) {
 			if (!strcmp(token, ss->stressor->name)) {
 				stress_ignore_stressor(ss, STRESS_STRESSOR_EXCLUDED);
-				ignored = true;
 				break;
 			}
-		}
-		if (!ignored) {
-			(void)fprintf(stderr, "Unknown stressor: '%s', "
-				"invalid exclude option\n", token);
-			return -1;
 		}
 	}
 	return 0;
