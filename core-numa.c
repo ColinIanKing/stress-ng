@@ -62,7 +62,7 @@ int stress_numa_count_mem_nodes(unsigned long *max_node)
 	FILE *fp;
 	unsigned long node_id = 0;
 	char buffer[8192], *ptr;
-	const char *str;
+	const char *str = NULL;
 	long n = 0;
 
 	*max_node = 0;
