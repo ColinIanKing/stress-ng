@@ -525,6 +525,17 @@ static stress_fd_race_filename_t *stress_fd_race_filename_add(
 	int flags)
 {
 	stress_fd_race_filename_t *entry;
+	size_t i;
+
+	/* Files we don't want to access */
+	static const char *ignore_list[] = {
+		"/dev/watchdog",
+	};	
+
+	for (i = 0; i < SIZEOF_ARRAY(ignore_list); i++) {
+		if (strncmp(filename, ignore_list[i], strlen(ignore_list[i])) == 0)
+			return NULL;
+	}
 
 	entry = malloc(sizeof(*entry));
 	if (!entry)
