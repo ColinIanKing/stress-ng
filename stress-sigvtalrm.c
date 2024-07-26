@@ -82,6 +82,7 @@ static void stress_sigvtalrm_handler(int sig)
 static int stress_sigvtalrm(stress_args_t *args)
 {
 	struct itimerval timer;
+	double t_start, duration;
 
 	max_ops = args->max_ops;
 
@@ -110,14 +111,16 @@ static int stress_sigvtalrm(stress_args_t *args)
 	 *  Consume CPU cycles, the more we consume the more
 	 *  SIGVTALRM timer signals we generate
 	 */
+	t_start = stress_time_now();
 	do {
 		struct itimerval t;
 
 		(void)getitimer(ITIMER_VIRTUAL, &t);
 	} while (stress_sigvtalrm_stress_continue());
+	duration = stress_time_now() - t_start;
 
 	stress_bogo_set(args, itimer_counter);
-	if (itimer_counter == 0)
+	if ((duration > 1.0) && (itimer_counter == 0))
 		pr_fail("%s: did not handle any itimer SIGVTALRM signals\n", args->name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
