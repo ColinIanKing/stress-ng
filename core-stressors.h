@@ -287,6 +287,7 @@
 	MACRO(sigsegv)		\
 	MACRO(sigsuspend)	\
 	MACRO(sigtrap)		\
+	MACRO(sigvtalrm)	\
 	MACRO(sigxcpu)		\
 	MACRO(sigxfsz)		\
 	MACRO(skiplist)		\
