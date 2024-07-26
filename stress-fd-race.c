@@ -313,6 +313,7 @@ static void *stress_fd_race_current(void *ptr)
 
 		while (fd < fd_end) {
 			struct stat statbuf;
+			uint8_t rnd;
 #if defined(FIONREAD)
 			int isz;
 #endif
@@ -320,49 +321,76 @@ static void *stress_fd_race_current(void *ptr)
 #if defined(HAVE_POLL_H)
 			struct pollfd pfds[1];
 #endif
-			fdup = dup(fd);
-			if (fdup >= 0)
-				(void)close(fdup);
-			VOID_RET(int, fstat(fd, &statbuf));
+
+			rnd = stress_mwc8modn(11);
+			switch (rnd) {
+			case 0:
+				fdup = dup(fd);
+				if (fdup >= 0)
+					(void)close(fdup);
+				break;
+			case 1:
+				VOID_RET(int, fstat(fd, &statbuf));
+				break;
+			case 2:
+				VOID_RET(int, shim_fsync(fd));
+				break;
+			case 3:
+				VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
+				break;
+			case 4:
+				VOID_RET(int, fcntl(fd, F_GETFL, NULL));
+				break;
+			case 5:
+				VOID_RET(int, shim_fdatasync(fd));
+				break;
 #if defined(HAVE_POSIX_FADVISE) && 	\
     defined(POSIX_FADV_NORMAL)
-			VOID_RET(int, posix_fadvise(fd, 0, 1024, POSIX_FADV_NORMAL));
+			case 6:
+				VOID_RET(int, posix_fadvise(fd, 0, 1024, POSIX_FADV_NORMAL));
+				break;
 #endif
-			VOID_RET(int, fcntl(fd, F_GETFL, NULL));
-			VOID_RET(int, shim_fdatasync(fd));
 #if defined(HAVE_FLOCK) &&	\
     defined(LOCK_UN)
-			VOID_RET(int, flock(fd, LOCK_UN));
+			case 7:
+				VOID_RET(int, flock(fd, LOCK_UN));
+				break;
 #endif
-			VOID_RET(int, shim_fsync(fd));
 #if defined(FIONREAD)
-			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+			case 8:
+				VOID_RET(int, ioctl(fd, FIONREAD, &isz));
+				break;
 #endif
-			VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
 #if defined(HAVE_POLL_H)
-			pfds[0].fd = fd;
-			pfds[0].events = POLLIN | POLLOUT;
-			pfds[0].revents = 0;
-			VOID_RET(int, poll(pfds, 1, 0));
-
+			case 9:
+				pfds[0].fd = fd;
+				pfds[0].events = POLLIN | POLLOUT;
+				pfds[0].revents = 0;
+				VOID_RET(int, poll(pfds, 1, 0));
+				break;
 #endif
 #if defined(HAVE_SYS_SELECT_H) &&       \
     defined(HAVE_SELECT)
-			if (fd < FD_SETSIZE) {
-				fd_set rdfds, wrfds;
-				struct timeval timeout;
+			case 10:
+				if (fd < FD_SETSIZE) {
+					fd_set rdfds, wrfds;
+					struct timeval timeout;
 
-				timeout.tv_sec = 0;
-				timeout.tv_usec = 1;
+					timeout.tv_sec = 0;
+					timeout.tv_usec = 1;
 
-				FD_ZERO(&rdfds);
-				FD_SET(fd, &rdfds);
-				FD_ZERO(&wrfds);
-				FD_SET(fd, &wrfds);
+					FD_ZERO(&rdfds);
+					FD_SET(fd, &rdfds);
+					FD_ZERO(&wrfds);
+					FD_SET(fd, &wrfds);
 
-				VOID_RET(int, select(fd + 1, &rdfds, &wrfds, NULL, &timeout));
-			}
+					VOID_RET(int, select(fd + 1, &rdfds, &wrfds, NULL, &timeout));
+				}
+				break;
 #endif
+			default:
+				break;
+			}
 			fd++;
 		}
 	} while (stress_continue(args));
