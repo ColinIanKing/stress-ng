@@ -521,7 +521,8 @@ static int stress_clock(stress_args_t *args)
 			if (fd >= 0) {
 				struct timespec t;
 				int ret, clkid = FD_TO_CLOCKID(fd);
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 				struct pollfd pollfds[1];
 
 				pollfds[0].fd = fd;

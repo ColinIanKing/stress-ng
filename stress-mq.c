@@ -260,7 +260,8 @@ again:
 					ptr = mmap(NULL, 16, PROT_READ, MAP_SHARED, mq, 0);
 					if (ptr != MAP_FAILED)
 						(void)munmap(ptr, 16);
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 					/* ..and poll too */
 					fds[0].fd = mq;
 					fds[0].events = POLLIN;

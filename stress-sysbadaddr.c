@@ -1488,7 +1488,8 @@ static void bad_ptrace(stress_bad_addr_t *ba, volatile uint64_t *counter)
 }
 #endif
 
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 static void bad_poll(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;

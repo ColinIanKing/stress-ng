@@ -361,7 +361,8 @@ static void *stress_fd_race_current(void *ptr)
 				VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 				break;
 #endif
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 			case 9:
 				pfds[0].fd = fd;
 				pfds[0].events = POLLIN | POLLOUT;

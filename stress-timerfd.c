@@ -54,7 +54,8 @@ static const stress_help_t help[] = {
 };
 
 #define COUNT_MAX		(256)
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 #define TIMER_FDS_MAX		(INT_MAX)
 #define USE_POLL		(1)
 #elif defined(HAVE_SELECT)

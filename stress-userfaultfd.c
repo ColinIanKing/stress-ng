@@ -53,6 +53,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_USERFAULTFD) && 	 \
     defined(HAVE_LINUX_USERFAULTFD_H) && \
     defined(HAVE_POLL_H) &&		 \
+    defined(HAVE_POLL) &&		 \
     defined(HAVE_CLONE)
 
 #define STACK_SIZE	(64 * 1024)

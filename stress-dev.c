@@ -235,6 +235,7 @@ static const stress_opt_t opts[] = {
 };
 
 #if defined(HAVE_POLL_H) &&		\
+    defined(HAVE_POLL) &&		\
     defined(HAVE_LIB_PTHREAD) && 	\
     !defined(__sun__) && 		\
     !defined(__HAIKU__)

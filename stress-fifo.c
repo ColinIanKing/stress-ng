@@ -112,7 +112,8 @@ static void stress_fifo_reader(
 	}
 	while (stress_continue_flag()) {
 		ssize_t sz;
-#if defined(HAVE_POLL_H) && 0
+#if defined(HAVE_POLL_H) && 	\
+    defined(HAVE_POLL)
 		int ret;
 		struct pollfd fds;
 

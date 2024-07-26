@@ -485,7 +485,8 @@ mmap_test:
 			goto timeout_close;
 #endif
 
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 		{
 			struct pollfd fds[1];
 

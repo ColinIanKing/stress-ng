@@ -4484,7 +4484,8 @@ static int syscall_pkey_set(void)
 }
 #endif
 
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 #define HAVE_SYSCALL_POLL
 static int syscall_poll(void)
 {

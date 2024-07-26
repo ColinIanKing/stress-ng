@@ -712,7 +712,8 @@ retry_open:
 		if (!stress_continue(args))
 			break;
 
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 		/*
 		 *  Exercise aio_poll with illegal settings
 		 */

@@ -297,7 +297,8 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		if (stress_time_now() - t_start > threshold)
 			goto next;
 
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 		{
 			struct pollfd fds[1];
 

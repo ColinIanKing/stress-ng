@@ -49,7 +49,8 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 static int stress_pipe_non_block(stress_args_t *args, const int fd)
 {
 	int flags, ret;
