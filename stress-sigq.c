@@ -217,7 +217,7 @@ finish:
 
 stressor_info_t stress_sigq_info = {
 	.stressor = stress_sigq,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

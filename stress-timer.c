@@ -278,7 +278,7 @@ static int stress_timer(stress_args_t *args)
 
 stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -286,7 +286,7 @@ stressor_info_t stress_timer_info = {
 #else
 stressor_info_t stress_timer_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

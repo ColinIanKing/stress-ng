@@ -196,7 +196,7 @@ finish:
 
 stressor_info_t stress_sigfd_info = {
 	.stressor = stress_sigfd,
-	.class = CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
