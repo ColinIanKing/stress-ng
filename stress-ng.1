@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 July 2024"
+.TH STRESS-NG 1 "27 July 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6837,6 +6837,17 @@ start N workers that rapidly cause division by zero SIGFPE faults.
 .TP
 .B \-\-sigfpe\-ops N
 stop sigfpe stress workers after N bogo SIGFPE faults.
+.RE
+.TP
+.B SIGILL stressor
+.RS 5
+.TQ
+.B \-\-sigill N
+start N workers that execute illegal instructions to generate SIGILL
+signals.
+.TP
+.B \-\-sigill\-ops N
+stop sigill stressor workers after N SIGILL signals
 .RE
 .TP
 .B SIGIO stressor

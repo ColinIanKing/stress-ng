@@ -886,6 +886,8 @@ const struct option stress_long_options[] = {
 	{ "sigchld-ops",	1,	0,	OPT_sigchld_ops },
 	{ "sigfd",		1,	0,	OPT_sigfd },
 	{ "sigfd-ops",		1,	0,	OPT_sigfd_ops },
+	{ "sigill",		1,	0,	OPT_sigill },
+	{ "sigill-ops",		1,	0,	OPT_sigill_ops },
 	{ "sigio",		1,	0,	OPT_sigio },
 	{ "sigio-ops",		1,	0,	OPT_sigio_ops },
 	{ "sigfpe",		1,	0,	OPT_sigfpe },

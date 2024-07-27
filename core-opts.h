@@ -1261,6 +1261,9 @@ typedef enum {
 	OPT_sigfpe,
 	OPT_sigfpe_ops,
 
+	OPT_sigill,
+	OPT_sigill_ops,
+
 	OPT_sigio,
 	OPT_sigio_ops,
 

@@ -278,6 +278,7 @@
 	MACRO(sigfd)		\
 	MACRO(sigfpe)		\
 	MACRO(sigio)		\
+	MACRO(sigill)		\
 	MACRO(signal)		\
 	MACRO(signest)		\
 	MACRO(sigpending)	\
