@@ -20,8 +20,8 @@
 #include "core-builtin.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
-	{ NULL,	"itimer-ops N",	"stop after N interval timer bogo operations" },
+	{ NULL,	"sigvtalrm N",		"start N workers exercising SIGVTALRM signals" },
+	{ NULL,	"sigvtalrm-ops N",	"stop after N SIGVTALRM signals" },
 	{ NULL, NULL,		NULL }
 };
 
