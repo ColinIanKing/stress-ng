@@ -51,6 +51,7 @@ static void stress_sigpipe_handler_count_check(int signum)
  */
 static int stress_sigpipe(stress_args_t *args)
 {
+	char data = 0;
 	uint64_t epipe_count = 0;
 	int rc = EXIT_SUCCESS;
 	int pipefds[2];
@@ -74,7 +75,6 @@ static int stress_sigpipe(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		char data;
 		register int ret;
 
 		/* cause SIGPIPE if pipe closed */
