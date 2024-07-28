@@ -910,6 +910,8 @@ const struct option stress_long_options[] = {
 	{ "sigsuspend-ops",	1,	0,	OPT_sigsuspend_ops },
 	{ "sigtrap",		1,	0,	OPT_sigtrap },
 	{ "sigtrap-ops",	1,	0,	OPT_sigtrap_ops},
+	{ "sigurg",		1,	0,	OPT_sigurg },
+	{ "sigurg-ops",		1,	0,	OPT_sigurg_ops },
 	{ "sigvtalrm",		1,	0,	OPT_sigvtalrm },
 	{ "sigvtalrm-ops",	1,	0,	OPT_sigvtalrm_ops },
 	{ "sigxcpu",		1,	0,	OPT_sigxcpu },

@@ -1294,6 +1294,9 @@ typedef enum {
 	OPT_sigtrap,
 	OPT_sigtrap_ops,
 
+	OPT_sigurg,
+	OPT_sigurg_ops,
+
 	OPT_sigvtalrm,
 	OPT_sigvtalrm_ops,
 

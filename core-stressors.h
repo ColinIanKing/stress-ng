@@ -288,6 +288,7 @@
 	MACRO(sigsegv)		\
 	MACRO(sigsuspend)	\
 	MACRO(sigtrap)		\
+	MACRO(sigurg)		\
 	MACRO(sigvtalrm)	\
 	MACRO(sigxcpu)		\
 	MACRO(sigxfsz)		\
