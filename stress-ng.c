@@ -3571,11 +3571,9 @@ static inline void stress_run_sequential(
 				}
 
 				run++;
-				pr_inf("starting %s, %zd of %zd (%.2f%%), %" PRIu32 " instance%s%s%s\n",
+				pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
 					name, run, total_run,
 					(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
-					ss->num_instances,
-					(ss->num_instances > 1) ? "s" : "",
 					*finish ? ", finish at " : "",
 					finish);
 			}
@@ -3622,7 +3620,7 @@ static inline void stress_run_permute(
 	bool *metrics_success)
 {
 	stress_stressor_t *ss;
-	size_t i, perms, num_perms;
+	size_t i, perms, num_perms, run = 0;
 	const size_t max_perms = 16;
 	char str[4096];
 
@@ -3637,10 +3635,22 @@ static inline void stress_run_permute(
 		perms = max_perms;
 	}
 
-	num_perms = 1U << perms;
+	num_perms = (1U << perms) - 1;
 
-	for (i = 1; stress_continue_flag() && (i < num_perms); i++) {
+	for (i = 1; stress_continue_flag() && (i <= num_perms); i++) {
 		size_t j;
+		struct tm *tm_finish;
+		time_t t_finish;
+		char finish[64];
+
+		t_finish = time(NULL);
+		t_finish += g_opt_timeout * ((108 * (num_perms - run)) / 100);
+		tm_finish = gmtime(&t_finish);
+		if (tm_finish) {
+			strftime(finish, sizeof(finish), "%T %F", tm_finish);
+		} else {
+			*finish = '\0';
+		}
 
 		*str = '\0';
 		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
@@ -3650,14 +3660,18 @@ static inline void stress_run_permute(
 				if (!ss->ignore.permute) {
 					if (*str)
 						shim_strlcat(str, ", ", sizeof(str));
-					shim_strlcat(str, ss->stressor->name, sizeof(str));
+					shim_strlcat(str, stress_readable_name(ss->stressor), sizeof(str));
 				}
 				j++;
 			}
 		}
-		pr_inf("permute: %s\n", str);
+		run++;
+		pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
+			str, run, num_perms,
+			(num_perms > 0) ?  100.0 * (double)run / (double)num_perms : 100.0,
+			*finish ? ", finish at " : "",
+			finish);
 		stress_run_parallel(ticks_per_sec, duration, success, resource_success, metrics_success);
-		pr_inf("permute: %.2f%% complete\n", (double)i / (double)(num_perms - 1) * 100.0);
 	}
 	for (ss = stressors_head; ss; ss = ss->next) {
 		ss->ignore.permute = false;
