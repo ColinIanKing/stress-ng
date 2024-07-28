@@ -3563,12 +3563,11 @@ static inline void stress_run_sequential(
 
 				t_finish = time(NULL);
 				t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
-				tm_finish = gmtime(&t_finish);
-				if (tm_finish) {
+				tm_finish = localtime(&t_finish);
+				if (tm_finish)
 					strftime(finish, sizeof(finish), "%T %F", tm_finish);
-				} else {
+				else
 					*finish = '\0';
-				}
 
 				run++;
 				pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
@@ -3645,12 +3644,11 @@ static inline void stress_run_permute(
 
 		t_finish = time(NULL);
 		t_finish += g_opt_timeout * ((108 * (num_perms - run)) / 100);
-		tm_finish = gmtime(&t_finish);
-		if (tm_finish) {
+		tm_finish = localtime(&t_finish);
+		if (tm_finish)
 			strftime(finish, sizeof(finish), "%T %F", tm_finish);
-		} else {
+		else
 			*finish = '\0';
-		}
 
 		*str = '\0';
 		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
