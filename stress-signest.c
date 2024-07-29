@@ -109,6 +109,9 @@ static const int defined_signals[] = {
 #if defined(SIGUSR2)
 	SIGUSR2,
 #endif
+#if defined(SIGURG)
+	SIGURG,
+#endif
 #if defined(SIGVTALRM)
 	SIGVTALRM,
 #endif
