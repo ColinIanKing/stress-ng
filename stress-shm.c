@@ -181,6 +181,11 @@ static int stress_shm_posix_child(
 
 			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, shm_fd, 0);
+			if ((addr == MAP_FAILED) && (errno == EINVAL)) {
+				/* shm mmap may fail on Solaris, re-try with anon mapping */
+				addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE, shm_fd, 0);
+			}
 			if (UNLIKELY(addr == MAP_FAILED)) {
 				ok = false;
 				pr_fail("%s: mmap failed, errno=%d (%s)\n",
