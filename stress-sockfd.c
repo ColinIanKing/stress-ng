@@ -429,6 +429,8 @@ static int stress_sockfd(stress_args_t *args)
 		if (max_fd < 0)
 			max_fd = 1;
 	}
+	if (max_fd > (1024 * 1024))
+		max_fd = 1024 * 1024;
 
 	fds_size = sizeof(*fds) * (size_t)max_fd;
 	fds = malloc(fds_size);
