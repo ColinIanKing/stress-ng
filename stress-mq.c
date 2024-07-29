@@ -247,7 +247,8 @@ again:
 					char buffer[1024];
 					struct stat statbuf;
 					void *ptr;
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 					struct pollfd fds[1];
 #endif
 					/* On Linux, one can seek on a mq descriptor */
