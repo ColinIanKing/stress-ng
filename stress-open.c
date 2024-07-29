@@ -1100,10 +1100,17 @@ static int stress_open(stress_args_t *args)
 
 	sz = open_max * sizeof(*fds);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fds == MAP_FAILED) {
-		pr_inf_skip("%s: cannot mmap %zd file descriptors\n", args->name, open_max);
-		return EXIT_NO_RESOURCE;
+		/* shrink */
+		open_max = 1024 * 1024;
+		sz = open_max * sizeof(*fds);
+		fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		if (fds == MAP_FAILED) {
+			pr_inf_skip("%s: cannot mmap %zd file descriptors\n", args->name, open_max);
+			return EXIT_NO_RESOURCE;
+		}
 	}
 	stress_set_vma_anon_name(fds, sz, "fds");
 
