@@ -2265,7 +2265,8 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_open,
 	bad_pipe,
-#if defined(HAVE_POLL_H)
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_POLL)
 	bad_poll,
 #endif
 #if defined(HAVE_POLL_H) &&	\
