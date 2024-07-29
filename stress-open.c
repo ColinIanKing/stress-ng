@@ -1095,8 +1095,6 @@ static int stress_open(stress_args_t *args)
 	if (open_max < 1)
 		open_max = 1;
 
-	if (!args->instance)
-		pr_inf("%s: using a maximum of %zd file descriptors\n", args->name, open_max);
 
 	sz = open_max * sizeof(*fds);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
@@ -1112,6 +1110,8 @@ static int stress_open(stress_args_t *args)
 			return EXIT_NO_RESOURCE;
 		}
 	}
+	if (!args->instance)
+		pr_inf("%s: using a maximum of %zd file descriptors\n", args->name, open_max);
 	stress_set_vma_anon_name(fds, sz, "fds");
 
 	if (open_fd) {
