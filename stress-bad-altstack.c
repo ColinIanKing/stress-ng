@@ -363,7 +363,7 @@ static int stress_bad_altstack(stress_args_t *args)
 			MAP_PRIVATE, fd, 0);
 		(void)close(fd);
 		if (zero_stack != MAP_FAILED)
-			stress_set_vma_anon_name(bus_stack, stress_minsigstksz, "altstack-zero-ro");
+			stress_set_vma_anon_name(zero_stack, stress_minsigstksz, "altstack-zero-ro");
 	}
 
 	/*
