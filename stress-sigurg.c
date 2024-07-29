@@ -199,7 +199,6 @@ static int OPTIMIZE3 stress_sigurg_server(
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
-	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
@@ -260,8 +259,6 @@ static int OPTIMIZE3 stress_sigurg_server(
 							args->name, errno, strerror(errno));
 					}
 					break;
-				} else {
-					msgs++;
 				}
 			} while (stress_continue(args));
 		}
