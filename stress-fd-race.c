@@ -50,21 +50,6 @@ typedef struct stress_fd_race_filename {
 	int flags;			/* open flags  */
 } stress_fd_race_filename_t;
 
-/* stressor context for multiple child processes and pthreads */
-typedef struct {
-	stress_args_t *args;		/* stressor args */
-	pid_t pid;			/* stressor's pid */
-	ssize_t max_fd;			/* maximum fd allowed */
-	int socket_fd_port;		/* socket fd port */
-	size_t fds_size;		/* size of fd array in bytes */
-	int *fds;			/* pointer to fd array */
-	int n;				/* elements in fd array */
-	pthread_barrier_t barrier;	/* pthread sync barrier */
-	dev_t proc_dev;			/* /proc dev number */
-	dev_t dev_dev;			/* /dev dev number */
-	volatile int current_fd;	/* current fd being opened */
-} stress_fd_race_context;
-
 static const stress_help_t help[] = {
 	{ NULL,	"fd-race N",	 "start N workers sending file descriptors over sockets" },
 	{ NULL,	"fd-race-ops N", "stop after N fd_race bogo operations" },
@@ -84,6 +69,22 @@ static const stress_opt_t opts[] = {
     defined(HAVE_PTHREAD_BARRIER)
 
 #define MSG_ID			'M'
+
+/* stressor context for multiple child processes and pthreads */
+typedef struct {
+	stress_args_t *args;		/* stressor args */
+	pid_t pid;			/* stressor's pid */
+	ssize_t max_fd;			/* maximum fd allowed */
+	int socket_fd_port;		/* socket fd port */
+	size_t fds_size;		/* size of fd array in bytes */
+	int *fds;			/* pointer to fd array */
+	int n;				/* elements in fd array */
+	pthread_barrier_t barrier;	/* pthread sync barrier */
+	dev_t proc_dev;			/* /proc dev number */
+	dev_t dev_dev;			/* /dev dev number */
+	volatile int current_fd;	/* current fd being opened */
+} stress_fd_race_context;
+
 
 /*
  *  stress_race_fd_send()
