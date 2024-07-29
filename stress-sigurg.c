@@ -139,7 +139,7 @@ retry:
 		flags = fcntl(sockfd, F_GETFD);
 		if (flags >= 0) {
 			flags |= O_ASYNC;
-			fcntl(sockfd, F_SETFD, flags);
+			VOID_RET(int, fcntl(sockfd, F_SETFD, flags));
 		};
 		ret = fcntl(sockfd, F_SETOWN, getpid());
 		if (ret < 0) {
