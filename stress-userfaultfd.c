@@ -78,6 +78,8 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_USERFAULTFD) && 		\
     defined(HAVE_LINUX_USERFAULTFD_H) && 	\
     defined(HAVE_CLONE) &&			\
+    defined(HAVE_POLL_H) &&		 	\
+    defined(HAVE_POLL) &&		 	\
     defined(HAVE_POSIX_MEMALIGN)
 
 #define STRESS_USERFAULT_REPORT_ALWAYS		(0x01)
