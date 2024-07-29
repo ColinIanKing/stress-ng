@@ -766,6 +766,8 @@ static int stress_fd_race(stress_args_t *args)
 		if (context.max_fd < 0)
 			context.max_fd = 1;
 	}
+	if (context.max_fd > (1024 * 1024))
+		context.max_fd  = 1024 * 1024;
 
 	context.fds_size = sizeof(*fds) * (size_t)context.max_fd;
 	context.fds = malloc(context.fds_size);
