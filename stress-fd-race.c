@@ -174,7 +174,7 @@ static void *stress_fd_race_pthread(void *ptr)
 	stress_fd_race_context *context = (stress_fd_race_context *)ptr;
 	static int nowt;
 
-	int i, writes = 0;
+	int i;
 
 	for (i = 0; i < context->n; i++) {
 		if (context->fds[i] > 0) {
@@ -185,7 +185,6 @@ static void *stress_fd_race_pthread(void *ptr)
 				    (statbuf.st_dev != context->dev_dev) &&
 				    ((statbuf.st_mode & S_IFMT) ==  S_IFREG)) {
 					VOID_RET(ssize_t, write(context->fds[i], &i, sizeof(i)));
-					writes++;
 				}
 			}
 		}
