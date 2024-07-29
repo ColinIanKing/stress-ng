@@ -207,10 +207,15 @@ static int stress_oom_pipe(stress_args_t *args)
 
 	context.fds = calloc(context.max_fd, sizeof(*context.fds));
 	if (!context.fds) {
-		pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
-			args->name, context.max_fd);
-		(void)munmap(buffer, buffer_size);
-		return EXIT_NO_RESOURCE;
+		/* Shrink down */
+		context.max_fd = 1024 * 1024;
+		context.fds = calloc(context.max_fd, sizeof(*context.fds));
+		if (!context.fds) {
+			pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
+				args->name, context.max_fd);
+			(void)munmap(buffer, buffer_size);
+			return EXIT_NO_RESOURCE;
+		}
 	}
 
 	if (context.max_pipe_size < page_size)
