@@ -933,7 +933,7 @@ stress_pid_t *stress_s_pids_mmap(const size_t num)
 	stress_pid_t *s_pids;
 	const size_t size = num * sizeof(stress_pid_t);
 
-	s_pids = mmap(NULL, size, PROT_READ | PROT_WRITE,
+	s_pids = (stress_pid_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (s_pids != MAP_FAILED)
 		stress_set_vma_anon_name(s_pids, size, "s_pids");
