@@ -233,14 +233,14 @@ static int stress_fractal(stress_args_t *args)
 	if (!g_shared->fractal.lock) {
 		pr_inf_skip("%s: failed to create shared fractal row lock, skipping stressor\n",
 			args->name);
-		(void)munmap(info.data, data_sz);
+		(void)munmap((void *)info.data, data_sz);
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (info.data == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu bytes for a row of data, skipping stressor\n",
 			args->name, data_sz);
-		(void)munmap(info.data, data_sz);
+		(void)munmap((void *)info.data, data_sz);
 		return EXIT_NO_RESOURCE;
 	}
 
