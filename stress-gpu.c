@@ -82,6 +82,14 @@ static struct gbm_surface *gs;
 static const char default_gpu_devnode[] = "/dev/dri/renderD128";
 static GLubyte *teximage = NULL;
 
+static void stress_gpu_trim_newline(char *str)
+{
+	char *ptr = strrchr(str, '\n');
+
+	if (ptr)
+		*ptr = '\0';
+}
+
 static const char vert_shader[] =
     "attribute vec4 pos;\n"
     "attribute vec4 color;\n"
@@ -138,7 +146,8 @@ static GLuint compile_shader(
 				return 0;
 			}
 			glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-			pr_inf("%s: failed to compile shader:\n%s\n", args->name, infoLog);
+			stress_gpu_trim_newline(infoLog);
+			pr_inf("%s: failed to compile shader: %s\n", args->name, infoLog);
 			free(infoLog);
 		}
 		glDeleteShader(shader);
@@ -192,7 +201,8 @@ static int load_shaders(stress_args_t *args)
 				return EXIT_NO_RESOURCE;
 			}
 			glGetProgramInfoLog(program, infoLen, NULL, infoLog);
-			pr_fail("%s: failed to link shader program:\n%s\n", name, infoLog);
+			stress_gpu_trim_newline(infoLog);
+			pr_fail("%s: failed to link shader program: %s\n", name, infoLog);
 			free(infoLog);
 		}
 		glDeleteProgram(program);
