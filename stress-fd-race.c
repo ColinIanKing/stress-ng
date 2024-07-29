@@ -79,8 +79,9 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(__linux__) &&	\
-    defined(HAVE_LIB_PTHREAD)
+#if defined(__linux__) &&		\
+    defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_PTHREAD_BARRIER)
 
 #define MSG_ID			'M'
 
@@ -834,6 +835,6 @@ stressor_info_t stress_fd_race_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.opts = opts,
-	.unimplemented_reason = "only supported on Linux with pthread support"
+	.unimplemented_reason = "only supported on Linux with pthread support and pthread_barrier"
 };
 #endif
