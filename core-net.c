@@ -278,7 +278,7 @@ int stress_set_sockaddr(
 void stress_set_sockaddr_port(
 	const int domain,
 	const int port,
-	const struct sockaddr *sockaddr)
+	struct sockaddr *sockaddr)
 {
 	switch (domain) {
 #if defined(AF_INET)
