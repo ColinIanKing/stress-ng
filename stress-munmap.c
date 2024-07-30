@@ -243,7 +243,7 @@ static int stress_munmap(stress_args_t *args)
 	double rate;
 	char exec_path[PATH_MAX];
 
-	ctxt = mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
+	ctxt = (munmap_context_t *)mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt == MAP_FAILED) {
 		pr_inf_skip("%s: skipping stressor, cannot mmap context buffer, errno=%d (%s)\n",
