@@ -207,6 +207,7 @@ retry:
 			(void)socket_fd_reuse;
 #endif
 
+#if defined(FIONREAD)
 			/* Attempt to read a byte from the fd */
 			rc = ioctl(fds[n], FIONREAD, &nbytes);
 			if ((rc == 0) && (nbytes >= 1)) {
@@ -214,6 +215,7 @@ retry:
 
 				VOID_RET(ssize_t, read(fds[n], &data, sizeof(data)));
 			}
+#endif
 		}
 
 		stress_close_fds(fds, n);
