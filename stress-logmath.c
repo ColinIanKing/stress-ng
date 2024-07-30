@@ -575,7 +575,7 @@ stressor_info_t stress_logmath_info = {
 static void stress_logmath_method(const char *opt_name, const char *opt_arg, stress_type_id_t *type_id, void *value)
 {
 	*type_id = TYPE_ID_SIZE_T;
-	(size_t *)value = 0;
+	*(size_t *)value = 0;
 	(void)fprintf(stderr, "logmath stressor not implemented, %s '%s' not available\n", opt_name, opt_arg);
 }
 
