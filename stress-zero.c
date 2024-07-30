@@ -229,7 +229,7 @@ static int stress_zero(stress_args_t *args)
 				/*
 				 *  check if we can mmap /dev/zero
 				 */
-				ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[mmap_index].flag,
+				ptr = (int32_t *)mmap(NULL, page_size, PROT_READ, mmap_flags[mmap_index].flag,
 					fd, (off_t)(page_size * stress_mwc16()));
 				if (UNLIKELY(ptr == MAP_FAILED)) {
 					if ((errno == ENOMEM) || (errno == EAGAIN))
