@@ -86,7 +86,7 @@ static inline int stress_dev_shm_child(
 			 */
 			if (!stress_continue(args))
 				break;
-			addr = mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
+			addr = (uint32_t *)mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE, fd, 0);
 			if (addr != MAP_FAILED) {
 				register uint32_t *ptr;
@@ -112,13 +112,13 @@ static inline int stress_dev_shm_child(
 						pr_fail("%s: address %p does not contain correct value, "
 							"got 0x%" PRIx32 ", expecting 0x%" PRIx32 "\n",
 							args->name, ptr, *ptr, val);
-						(void)munmap(addr, (size_t)sz);
+						(void)munmap((void *)addr, (size_t)sz);
 						VOID_RET(int, ftruncate(fd, 0));
 						return EXIT_FAILURE;
 					}
 				}
-				(void)msync(addr, (size_t)sz, MS_INVALIDATE);
-				(void)munmap(addr, (size_t)sz);
+				(void)msync((void *)addr, (size_t)sz, MS_INVALIDATE);
+				(void)munmap((void *)addr, (size_t)sz);
 
 			}
 			sz = (ssize_t)page_size;
