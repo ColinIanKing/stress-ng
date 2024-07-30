@@ -102,7 +102,7 @@ void stress_cpuidle_init(void)
 			continue;
 
 		while ((cpuidle_d = readdir(cpuidle_dir)) != NULL) {
-			char path[PATH_MAX], data[64], *ptr;
+			char path[PATH_MAX + 32], data[64], *ptr;
 			uint32_t residency = 0;
 
 			if (strncmp(cpuidle_d->d_name, "state", 5))
