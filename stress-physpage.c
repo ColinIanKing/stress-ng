@@ -309,9 +309,9 @@ static int stress_physpage(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (fd_mem > 0)
+	if (fd_mem >= 0)
 		(void)close(fd_mem);
-	if (fd_pc > 0)
+	if (fd_pc >= 0)
 		(void)close(fd_pc);
 	(void)close(fd_pm);
 
