@@ -494,7 +494,7 @@ static int stress_efivar(stress_args_t *args)
 	}
 
 	sz = (((size_t)dir_count * sizeof(*efi_ignore)) + args->page_size) & (args->page_size - 1);
-	efi_ignore = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	efi_ignore = (bool *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes of shared memory: "
@@ -561,7 +561,7 @@ again:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(efi_ignore, sz);
+	(void)munmap((void *)efi_ignore, sz);
 	stress_dirent_list_free(efi_dentries, dir_count);
 
 	return rc;
