@@ -231,13 +231,13 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 							}
 						} else {
 							if (unmap_len != 0)
-								(void)munmap(unmap_start, unmap_len);
+								(void)munmap((void *)unmap_start, unmap_len);
 							unmap_start = NULL;
 							unmap_len = 0;
 						}
 					}
 					if (unmap_len != 0)
-						(void)munmap(unmap_start, unmap_len);
+						(void)munmap((void *)unmap_start, unmap_len);
 					free(vec);
 				}
 				continue;
