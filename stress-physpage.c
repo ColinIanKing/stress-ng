@@ -204,14 +204,14 @@ static int stress_virt_to_phys(
 				VOID_RET(ssize_t, read(fd_mem, data, sizeof(data)));
 			}
 
-			ptr = mmap(NULL, page_size, PROT_READ,
+			ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
 				MAP_SHARED, fd_mem, (off_t)phys_addr);
 			if (ptr != MAP_FAILED) {
 				stress_set_vma_anon_name(ptr, page_size, "ro-dev-mem");
 				(void)stress_munmap_retry_enomem((void *)ptr, page_size);
 			}
 			if (writable) {
-				ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+				ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 					MAP_SHARED, fd_mem, (off_t)phys_addr);
 				if (ptr != MAP_FAILED) {
 					uint8_t val = *ptr;
@@ -292,7 +292,7 @@ static int stress_physpage(stress_args_t *args)
 	do {
 		void *nptr;
 
-		nptr = mmap(ptr, page_size, PROT_READ | PROT_WRITE,
+		nptr = mmap((void *)ptr, page_size, PROT_READ | PROT_WRITE,
 			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (nptr != MAP_FAILED) {
 			stress_set_vma_anon_name(nptr, page_size, "rw-page");
