@@ -194,8 +194,6 @@ retry:
 			return EXIT_SUCCESS;
 
 		for (n = 0; stress_continue(args) && (n < max_fd); n++) {
-			int rc, nbytes;
-
 			fds[n] = stress_socket_fd_recv(fd);
 			if (fds[n] < 0)
 				continue;
@@ -208,12 +206,16 @@ retry:
 #endif
 
 #if defined(FIONREAD)
-			/* Attempt to read a byte from the fd */
-			rc = ioctl(fds[n], FIONREAD, &nbytes);
-			if ((rc == 0) && (nbytes >= 1)) {
-				char data;
+			{
+				int rc, nbytes;
 
-				VOID_RET(ssize_t, read(fds[n], &data, sizeof(data)));
+				/* Attempt to read a byte from the fd */
+				rc = ioctl(fds[n], FIONREAD, &nbytes);
+				if ((rc == 0) && (nbytes >= 1)) {
+					char data;
+
+					VOID_RET(ssize_t, read(fds[n], &data, sizeof(data)));
+				}
 			}
 #endif
 		}
