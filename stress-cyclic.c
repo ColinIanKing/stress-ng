@@ -578,17 +578,24 @@ static int stress_cyclic(stress_args_t *args)
 	(void)stress_get_setting("cyclic-samples", &cyclic_samples);
 	(void)stress_get_setting("cyclic-sleep", &cyclic_sleep);
 
-	func = cyclic_methods[cyclic_method].func;
-	policy = cyclic_policies[cyclic_policy].policy;
-
-	if (!args->instance) {
-		if (NUM_CYCLIC_POLICIES == 0) {
+	if (NUM_CYCLIC_POLICIES == 0) {
+		if (!args->instance) {
 			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
 				args->name);
-			return EXIT_NOT_IMPLEMENTED;
 		}
+		return EXIT_NOT_IMPLEMENTED;
 	}
+	if ((ssize_t)cyclic_policy >= (ssize_t)NUM_CYCLIC_POLICIES) {
+		if (!args->instance) {
+			pr_err("%s: cyclic-policy %zu is out of range\n",
+				args->name, cyclic_policy);
+		}
+		return EXIT_FAILURE;
+	}
+
+	func = cyclic_methods[cyclic_method].func;
+	policy = cyclic_policies[cyclic_policy].policy;
 
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		timeout = 60;
@@ -711,7 +718,7 @@ redo_policy:
 			if ((errno == E2BIG) &&
 			    (cyclic_policies[cyclic_policy].policy == SCHED_DEADLINE)) {
 				cyclic_policy = 1;
-				if (cyclic_policy >= NUM_CYCLIC_POLICIES) {
+				if ((ssize_t)cyclic_policy >= (ssize_t)NUM_CYCLIC_POLICIES) {
 					pr_inf("%s: DEADLINE not supported by kernel, no other policies "
 						"available. skipping stressor\n", args->name);
 					ncrc = EXIT_NO_RESOURCE;
@@ -837,7 +844,8 @@ static const char *stress_cyclic_methods(const size_t i)
 
 static const char *stress_cyclic_policies(const size_t i)
 {
-	return (i < NUM_CYCLIC_POLICIES) ? cyclic_policies[i].opt_name : NULL;
+	return (NUM_CYCLIC_POLICIES == 0) ? NULL : 
+		(((ssize_t)i < (ssize_t)NUM_CYCLIC_POLICIES) ? cyclic_policies[i].opt_name : NULL);
 };
 
 static const stress_opt_t opts[] = {
