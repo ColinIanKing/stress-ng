@@ -278,11 +278,11 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		/*
 		 *  mmap it
 		 */
-		ptr = mmap(NULL, page_size, PROT_READ,
+		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
 			MAP_SHARED | MAP_ANONYMOUS, fd, 0);
 		if (ptr != MAP_FAILED) {
 			stress_uint8_put(*ptr);
-			(void)munmap(ptr, page_size);
+			(void)munmap((void *)ptr, page_size);
 		}
 		if (stress_time_now() - t_start > threshold)
 			goto next;
