@@ -266,27 +266,6 @@ int stress_set_sched(
 }
 #endif
 
-#if !defined(HAVE_STRESS_SET_DEADLINE_SCHED)
-#define HAVE_STRESS_SET_DEADLINE_SCHED	(1)
-
-/* No-op shim */
-int stress_set_deadline_sched(
-	const pid_t pid,
-	const uint64_t period,
-	const uint64_t runtime,
-	const uint64_t deadline,
-	const bool quiet)
-{
-	(void)pid;
-	(void)period;
-	(void)runtime;
-	(void)deadline;
-	(void)quiet;
-
-	return 0;
-}
-#endif
-
 /*
  *  get_opt_sched()
  *	get scheduler policy
