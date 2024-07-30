@@ -593,6 +593,21 @@ static int stress_cyclic(stress_args_t *args)
 		}
 		return EXIT_FAILURE;
 	}
+	if (NUM_CYCLIC_METHODS == 0) {
+		if (!args->instance) {
+			pr_inf_skip("%s: no cyclic methods"
+				"available, skipping test\n",
+				args->name);
+		}
+		return EXIT_NOT_IMPLEMENTED;
+	}
+	if ((ssize_t)cyclic_method >= (ssize_t)NUM_CYCLIC_METHODS) {
+		if (!args->instance) {
+			pr_err("%s: cyclic-method %zu is out of range\n",
+				args->name, cyclic_method);
+		}
+		return EXIT_FAILURE;
+	}
 
 	func = cyclic_methods[cyclic_method].func;
 	policy = cyclic_policies[cyclic_policy].policy;
@@ -839,7 +854,8 @@ finish:
 
 static const char *stress_cyclic_methods(const size_t i)
 {
-	return (i < NUM_CYCLIC_METHODS) ? cyclic_methods[i].name : NULL;
+	return (NUM_CYCLIC_METHODS == 0) ? NULL :
+		(((ssize_t)i < (ssize_t)NUM_CYCLIC_METHODS) ? cyclic_methods[i].name : NULL);
 }
 
 static const char *stress_cyclic_policies(const size_t i)
