@@ -194,7 +194,7 @@ static void stress_proc_self_mem(stress_args_t *args, const int fd)
 		}
 	}
 
-	(void)munmap(page, page_size);
+	(void)munmap((void *)page, page_size);
 	free(buf);
 }
 
@@ -458,7 +458,7 @@ mmap_test:
 		/*
 		 *  mmap it
 		 */
-		ptr = mmap(NULL, page_size, PROT_READ,
+		ptr = (uint8_t *)mmap(NULL, page_size, PROT_READ,
 #if defined(MAP_POPULATE)
 			MAP_POPULATE |
 #endif
@@ -466,7 +466,7 @@ mmap_test:
 			fd, 0);
 		if (ptr != MAP_FAILED) {
 			stress_uint8_put(*ptr);
-			(void)munmap(ptr, page_size);
+			(void)munmap((void *)ptr, page_size);
 		}
 
 		if ((stress_time_now() - t_start) > threshold)
