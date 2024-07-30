@@ -114,6 +114,7 @@ static int do_chattr(
 
 		if (!stress_continue(args))
 			goto tidy_fd;
+		orig = 0UL;
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig);
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
@@ -195,6 +196,7 @@ static int do_chattr(
 			goto tidy_fdw;
 		}
 
+		check = 0UL;
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &check);
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
