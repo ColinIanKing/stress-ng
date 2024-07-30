@@ -101,7 +101,7 @@ static int OPTIMIZE3 stress_sigurg_client(
 
 	do {
 		int retries = 0;
-		int flags, ret;
+		int ret;
 		socklen_t addr_len = 0;
 
 retry:
@@ -136,11 +136,17 @@ retry:
 			}
 			goto retry;
 		}
-		flags = fcntl(sockfd, F_GETFD);
-		if (flags >= 0) {
-			flags |= O_ASYNC;
-			VOID_RET(int, fcntl(sockfd, F_SETFD, flags));
-		};
+#if defined(O_ASYNC)
+		{
+			int flags;
+
+			flags = fcntl(sockfd, F_GETFD);
+			if (flags >= 0) {
+				flags |= O_ASYNC;
+				VOID_RET(int, fcntl(sockfd, F_SETFD, flags));
+			}
+		}
+#endif
 		ret = fcntl(sockfd, F_SETOWN, getpid());
 		if (ret < 0) {
 			pr_fail("fcntl F_SETOWN, failed, errno=%d (%s)\n",
