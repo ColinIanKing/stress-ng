@@ -17,6 +17,8 @@
  */
 #include "stress-ng.h"
 
+#include <sys/ioctl.h>
+
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>
 #endif
