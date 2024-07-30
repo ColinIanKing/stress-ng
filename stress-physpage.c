@@ -292,8 +292,8 @@ static int stress_physpage(stress_args_t *args)
 	do {
 		void *nptr;
 
-		nptr = mmap((void *)ptr, page_size, PROT_READ | PROT_WRITE,
-			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		nptr = stress_mmap_populate((void *)ptr, page_size, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (nptr != MAP_FAILED) {
 			stress_set_vma_anon_name(nptr, page_size, "rw-page");
 			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem,
