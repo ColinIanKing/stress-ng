@@ -3,7 +3,7 @@ Rules-Requires-Root: no
 Section: devel
 Priority: optional
 Maintainer: Colin Ian King <colin.i.king@gmail.com>
-Standards-Version: 4.6.2
+Standards-Version: 4.7.0
 Build-Depends: debhelper (>= 13),
                debhelper-compat (=13),
                libacl1-dev,
