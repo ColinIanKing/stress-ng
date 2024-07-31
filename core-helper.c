@@ -399,6 +399,7 @@ static const stress_fs_name_t stress_fs_names[] = {
 #else
 	{ 0xca451a4e,		"bacachefs" },
 #endif
+	{ 0x2fc12fc1,		"zfs" },
 };
 #endif
 
