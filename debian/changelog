@@ -1,3 +1,229 @@
+stress-ng (0.18.02-1) unstable; urgency=medium
+
+  [Chunyu Hu]
+  * stress-hrtimers: follow sched setting
+
+  [Myd Xia]
+  * stress-ng: add qnx support
+
+  [Colin Ian King]
+  * README.md: remove extraneous spaces in examples
+  * README.md: Add RAPL power example
+  * README.md: add a I/O permuted stressor example
+  * stress-swap: clean up error messages when using stress_get_fs_type
+  * core-helper: add ZFS magic
+  * Add ELISA presentation "Improved system stressing with stress-ng"
+  * Manual: fix spelling mistake "desciptors" -> "descriptors"
+  * stress-physpage: fix zero fd check on close
+  * stress-chattr: initialize IOC_GETFLAGS arg before calling ioctl
+  * stress-sigurg: only use O_ASYNC if it is defined
+  * stress-pty: include sys/ioctl.h, cleans up cygwin build warning
+  * stress-sockfd: move rc and nbytes declaration into a code block
+  * stress-sockfd: add #ifdef around FIONREAD ioctl
+  * stress-physpage: use stress_mmap_populate for MAP_POPULATE mmaps
+  * stress-zero: cast ptr to clean up mmap warnings
+  * stress-sysfs: cast ptr to clean up mmap warnings
+  * stress-procfs: cast ptr to clean up mmap warnings
+  * stress-physpage: cast ptr to clean up mmap warnings
+  * stress-munmap: cast mmap return to munmap_context_t * to clean up
+    pedantic warning
+  * stress-efivar: cast efi_var to void * for mmap and munmap
+  * stress-fork: cast unmap_start to void * for munmap calls
+  * stress-dev-shm: cast addr for mmap, mummap and msync calls
+  * core-cpuidle: clean up pedantic warning with gcc 10.3.0
+  * core-sched: remove unused function stress_set_deadline_sched
+  * Manual: add missing deadline cyclic-policy option, rename ff to fifo
+  * stress-cyclic: clear up pedantic warnings when no cyclic methods are
+    available
+  * stress-cyclic: clear up pedantic warnings when no scheduling policies
+    are available
+  * stress-logmath: fix build issue on Nixos, need lvalue
+  * stress-expmath: fix build issue on Nixos, need lvalue
+  * stress-sigurg: ignore return from F_SETFD fcntl call
+  * stress-gpu: trim newline off infoLog messages
+  * stress-open: report number of fds to be used after they have been
+    adjusted
+  * stress-open: shrink number of fds if allocation is too large
+  * stress-oom-pipe: shrink number of fds if allocation is too large
+  * stress-sockfd: limit to 1024 * 1024 file descriptors
+  * stress-fd-race: limit to 1024 * 1024 file descriptors
+  * stress-userfaultfd: add missing HAVE_POLL_H and HAVE_POLL checks
+  * stress-sysbadaddr: add missing HAVE_POLL for bad_poll function
+  * stress-sigurg: remove redundant variable msgs
+  * stress-fd-race: remove unused variable writes
+  * stress-mq: only declare fds if poll() is available
+  * Makefile: disable smi stressor for regression tests
+  * stress-signest: add missing SIGURG signal
+  * stress-shm: retry shm mmap without MAP_ANONYMOUS if EINVAL is returned
+  * stress-fractal: cast info.data to void * for munmap call
+  * stress-ng: cast mmap return to stress_pid_t *
+  * stress-fd-race: move stress_fd_race_context_t declaration
+  * stress-fd-race: add build time check for pthread barrier support
+  * stress-bad-alt-stack: use zero_stack instead of bad_stack
+  * stress-ng: use localtime for completion times
+  * stress-ng: report permuted stressors and show progress
+  * stress-sigurg: add a SIGURG out-of-band socket signal stressor
+  * stress-sigpipe: initialize data before loop
+  * stress-sigpipe: remove need for a parent/child mechanism
+  * stress-sigill: add a SIGILL illegal instruction signal stressor
+  * stress-sigvtalrm: fix help information
+  * stress-*: add CLASS_SIGNAL class flags to stressors that generate
+    signal loads
+  * stress-sigvtalrm: use user time as run time count check not wallclock
+    time
+  * stress-sigvtalrm: sanity check signal count after 1 second of run time
+  * stress-sigvtalrm: add SIGVTALRM signal stressor
+  * stress-*: add built time check for poll() system call
+  * stress-fd-race: randomize syscalls on fd's
+  * README.md: add another link to a research paper
+  * stress-ng: sanity check if excluded stressor name is valid
+  * README.md: update number of stressors
+  * stress-fd-race: add ignore list of files not to exercise
+  * core-numa: ensure pointer str is initialized to NULL
+  * stress-fd-race: add a new stressor to race file descriptor access and
+    closing
+  * core-lock: use #if/#elif rather than many #if/#endif sequences
+  * core-ftrace: make char * pointer num const
+  * stress-h*: add syncwait proc state for --sync-start state waits
+  * stress-*: add syncwait proc state for --sync-start state waits
+  * core-ignite-cpu: remove unused field cur_freq from struct
+    stress_cpu_setting_t
+  * core-cpu-cache: rename index to idx to avoid name shadowing on index()
+  * core-affinity: only set cpu affinity if CPU affinity bits are set
+  * core-time: stress_duration_to_str: emit 0 secs if no time has been
+    formatted
+  * stress-brk: add sanity check for sbrk always returning out of memory
+  * stress-spinmem: add CLASS_CPU_CACHE to class flags
+  * stress-ramfs: abort early on mount/umount EPERM errors
+  * stress-ramfs: cater for EPERM on containerized umount failure
+  * stress-io-uring: cater for EPERM on containerized io-uring setup
+    permission denied
+  * README.md: make packages list more compact
+  * stress-umount: cater for EPERM on containerized mount failure
+  * stress-reboot: cater for EPERM on containerized reboot call failure
+  * stress-ramfs: cater for EPERM on containerized mount failure
+  * stress-netlink-proc: fix skipped rc code, it should be EXIT_NO_RESOURCE
+  * stress-numa: skip stressor on EPERM on get_mempolicy
+  * stress-netlink-proc: skip stressor on EPERM on bind (containerized)
+  * stress-key: skip stressor on EPERM on add_key in container
+  * stress-fp-error: relax fp pedantic error checking for musl-gcc builds
+  * core-helper: fix macro typo HAVE_COMPILER_MUSC -> HAVE_COMPILER_MUSL
+  * stress-binderfs: cater for EPERM on containerized mount failure
+  * stress-cgroup: cater for EPERM on containerized mount failure
+  * core-thrmal-zone: constify dirent pointer entry
+  * core-thrash: constify dirent pointer d
+  * core-mounts: constify pointer mnt
+  * core-resources: stress_resources_free: constify args parameter
+  * core-rapl: constify pointer entry
+  * core-numa: constify pointer str
+  * core-process: constify pointer ptr
+  * core-module: constify pointer l
+  * core-cpu-cache: only define type stress_generic_map_t for Linux builds
+  * core-cpuidle: constify pointers cpu_d and cpuidle_d
+  * stress-rdrand: fix build issues where HAVE_SEED_CAPABILITY is not
+    defined
+  * core-parse-opts: add stress_get_{int|uint} prototypes
+  * stress-sigabrt: remove volatile from struct pointer sigabrt_info
+  * README.md: Add Linux Foundation 2024 ELISA presentation link
+  * core-madvise: use unsigned int for major and minor
+  * core-perf: add maple_tree/ma_op event
+  * stress-bind-mount: skip stressor we don't have access
+  * stress-waitcpu: Fix umwait0 and umwait1
+  * stress-*: name mmap'd regions to help debugging
+  * core-helper: add libc version to yaml output
+  * stress-ng: remove trailing tab
+  * core-lock: name anonymous mappings
+  * stress-ng: name anonymous mappings
+  * core-*: name anonymous mappings
+  * stress-vma: use stress_set_vma_anon_name to set anon vma name
+  * stress-vma: add more prctl macro build time checks
+  * Manual: update vma stressor description, 32 pages now being exercised
+  * stress-vma: name anonymous pages with prctl
+  * stress-vma: move stress_vma_continue_flag to enable mapped regions
+  * stress-ng: remove empty lines, reformat a comment block
+  * stress-ng: inline helper function stress_get_num_stressors
+  * stress-ng: inline helper function stress_append_stressor
+  * stress-ng: munge stessor names using stress_readable_name helper
+  * stress-ng stress_run_sequential: remove continue if statement
+  * stress-jpeg: remove debug
+  * stress-jpeg: fix overflow with brown noise generator
+  * stress-ng: stress_exclude_unsupported: add check for null
+    stressor->info
+  * stress-spinmem: new spin write/read parent/child stressor
+  * stress-ng: add stress_readable_name to munge stressor names into a
+    readable form
+  * stress-ng: remove stressor id, it's now deprecated
+  * stress-ng: stress_exclude_unsupported: match stressors by address and
+    not id
+  * stress-ng: rework if (ss->ignore.run) comparisons
+  * stress-ng: remove stressor_find_by_name
+  * stress-ng: remove need to call stressor_find_by_id to find stressor
+  * stress-netlink-task: add static analysis sanity check on nlmsgbuf_len
+  * stress-opcode: check for small text lens before proceeding
+  * stress-signess: use STRESS_BIT_ULL for bitmask setting (part 2)
+  * bash-completion: refresh with new stressor options
+  * stress-chroot: add missing ( ) around && errno expressions
+  * stress-ng: fix SIGTERM on parent causing child to return bogus
+    EXIT_SIGNALED
+  * stress-sock: set starting port to 2000
+  * stress-*: use globally defined MIN_PORT, MAX_PORT and cater for port
+    wrap-around
+  * core*: stress-*: Fix various spelling mistakes and typos
+  * stress-usersyscall: Fix spelling mistake "syscallls" -> "syscalls"
+  * stress-chroot: allow EINVAL and ENAMETOOLONG for Haiku chroot syscall
+  * stress-madvise: add missing help in opts for unsupported builds
+  * stress-cache: make cache_flags non-clobberable over vfork
+  * stress-vm: only define stress_vm_flags when required
+  * stress-lease: use opts instead of opt_set_funcs
+  * stress-vecfp: use .opts instead of .opt_set_funcs
+  * stress-plugin: fix plugin-so option for unimplemented stressor build
+    case
+  * stress-besselmath: update to ops for unsupported build paths
+  * Manual: fix example code in plugin documentation
+  * core-thrash: process fdmem seeking in off_t space
+  * stress-dirmany: check for unlikely very small filenames
+  * core-helper: stress_exec_text_addr: cater for text end is less or
+    equal the text start
+  * stress-netlink-task: avoid underflow on nlmsgbuf_len
+  * stress-prio-inv: compute non-negative nice_div
+  * core-helper: check for failed sysconf when calculating memory size
+  * core-shim: ensure underflow never occurs on emulated fallocate writes
+  * core-parse-opts, stress-*: use stress_unimplemented_method for
+    unimplemented methods
+  * core-parse-opts: remove debug and cater for zero method options
+  * stress-signest: use STRESS_BIT_ULL for bitmask setting
+  * core-parse-opts: remove stress_check_power_of_2
+  * core-*, stress-*: use new table-driven option parsing
+  * README.md: update static build notes for Android
+  * README.md: update contributor list
+  * stress-mmap: add MAP_DROPPABLE (Linux 6.11+)
+  * Makefile.config: add LDFLAGS workaround for older versions of make
+  * test-lib*: reference the contents of the function arrays
+  * stress-unlink: no need for mode flags when opening existing file
+  * stress-bitops: clz(0) -> 32 and not 0, fix this
+  * stress-bitops: add macro to handle undefined return for the clz(0) case
+  * stress-bitops: use stashed checksum to ensure all computations are
+    performed
+  * stress-signest: remove unused function stress_signest_find
+  * stress-bitops: fix build error with clang-19
+  * stress-bitops: handle zero cases for ctz and clz, add 0x for PRIx
+    formats
+  * README.md: add another kernel bug reference
+  * core-shim: fully define shim'd statx struct
+  * Manual: Add Bit Twiddling Hacks and Hacker's Delight references
+  * stress-bitops: Add new bitops stressor --bitops
+  * core-vmstat: only report raplstat if delay > 0
+  * README.md: add another kernel bug found with stress-ng
+  * stress-cgroup: remove tabs at end of lines
+  * stress-signest: exercise RT signals if they are available
+  * core-helper: stress_get_signal_name(): add RT signal names
+  * core-time: fix time reporting where duration > 60 seconds and
+    duration % 60 == 0
+  * core-rapl: ignore short time measurement or zero power measurements
+  * stress-ng: add --rapl and --raplstat RAPL power measurements
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 31 Jul 2024 12:47:37 +0100
+
 stress-ng (0.18.01-1) unstable; urgency=medium
 
   [Daniel Andriesse]
