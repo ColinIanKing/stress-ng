@@ -438,19 +438,19 @@ static int stress_swap_child(stress_args_t *args, void *context)
 					shim_usleep(100000);
 					continue;
 				}
-				pr_inf_skip("%s: cannot enable swap file on the filesystem '%s', skipping test\n",
+				pr_inf_skip("%s: cannot enable swap%s, skipping test\n",
 					args->name, stress_get_fs_type(filename));
 				ret = EXIT_NO_RESOURCE;
 				break;
 			case EINVAL:
-				pr_inf_skip("%s: cannot enable swap file on the filesystem '%s', skipping test\n",
+				pr_inf_skip("%s: cannot enable swap%s, skipping test\n",
 					args->name, stress_get_fs_type(filename));
 				ret = EXIT_NO_RESOURCE;
 				break;
 			case EBUSY:
 				continue;
 			default:
-				pr_fail("%s: swapon failed on the filesystem '%s', errno=%d (%s)\n",
+				pr_fail("%s: swapon failed%s, errno=%d (%s)\n",
 					args->name, stress_get_fs_type(filename),
 					errno, strerror(errno));
 				ret = EXIT_FAILURE;
@@ -501,7 +501,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 
 		ret = stress_swapoff(filename);
 		if ((bad_flags == SWAP_HDR_SANE) && (ret < 0)) {
-			pr_fail("%s: swapoff failed on filesystem '%s', errno=%d (%s)\n",
+			pr_fail("%s: swapoff failed%s, errno=%d (%s)\n",
 				args->name, stress_get_fs_type(filename),
 				errno, strerror(errno));
 			ret = EXIT_FAILURE;
