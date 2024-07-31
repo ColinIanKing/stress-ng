@@ -303,6 +303,26 @@ Run permutations of I/O stressors on a ZFS file system, excluding the rawdev str
 stress-ng  --class io --permute 0 -x rawdev -t 1m --vmstat 1 --klog-check  --temp-path /zfs-pool/test
 ```
 
+x86 only: measure power using the RAPL interfaces on 8 concurrent 3D matrix stressors with verification enabled.
+Note that reading RAPL requires root permission.
+
+```
+sudo stress-ng  --matrix-3d 8 --matrix-3d-size 512 --rapl -t 10 --verify
+stress-ng: info:  [4563] setting to a 10 secs run per stressor
+stress-ng: info:  [4563] dispatching hogs: 8 matrix-3d
+stress-ng: info:  [4563] matrix-3d:
+stress-ng: info:  [4563]  core                     6.11 W
+stress-ng: info:  [4563]  dram                     2.71 W
+stress-ng: info:  [4563]  pkg-0                    8.20 W
+stress-ng: info:  [4563]  psys                    16.90 W
+stress-ng: info:  [4563]  uncore                   0.06 W
+stress-ng: info:  [4563] skipped: 0
+stress-ng: info:  [4563] passed: 8: matrix-3d (8)
+stress-ng: info:  [4563] failed: 0
+stress-ng: info:  [4563] metrics untrustworthy: 0
+stress-ng: info:  [4563] successful run completed in 11.38 secs
+```
+
 ## Bugs and regressions found with stress-ng
 
 stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have been landed to address these issues:
