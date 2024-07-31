@@ -293,9 +293,14 @@ stress-ng: info:  [1171584] vdso               9.88 nanoseconds per call (averag
 
 Generate and measure branch misses using perf metrics:
 ```
-sudo stress-ng --branch 1 --perf -t 10 --stdout | grep Branch
+sudo stress-ng --branch 1 --perf -t 10 | grep Branch
 stress-ng: info:  [1171714]                604,703,327 Branch Instructions            53.30 M/sec
 stress-ng: info:  [1171714]                598,760,234 Branch Misses                  52.77 M/sec (99.02%)
+```
+
+Run permutations of I/O stressors on a ZFS file system, excluding the rawdev stressor with kernel log error checking:
+```
+stress-ng  --class io --permute 0 -x rawdev -t 1m --vmstat 1 --klog-check  --temp-path /zfs-pool/test
 ```
 
 ## Bugs and regressions found with stress-ng
