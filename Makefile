@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "synchronized synthetic stressor"
+# Codename "punchy process pounder"
 #
-VERSION=0.18.01
+VERSION=0.18.02
 
 #
 # Determine supported toolchains
