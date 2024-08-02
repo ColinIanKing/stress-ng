@@ -316,7 +316,7 @@ static int stress_waitcpu(stress_args_t *args)
 		if ((stress_waitcpu_method[i].duration > 0.0) &&
 		    (stress_waitcpu_method[i].count > 0.0))
 			rate = stress_waitcpu_method[i].count /
-			       stress_waitcpu_method[i].duration;;
+			       stress_waitcpu_method[i].duration;
 
 #if defined(STRESS_ARCH_X86)
 		if (!strcmp("nop", stress_waitcpu_method[i].name))
