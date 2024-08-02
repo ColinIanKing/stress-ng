@@ -176,7 +176,7 @@ static void netbsd_get_cpu_time(
 		return;
 	*user_time = vals[0];
 	*system_time = vals[2];
-	*idle_time = vals[4];;
+	*idle_time = vals[4];
 }
 #endif
 
