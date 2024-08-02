@@ -288,7 +288,7 @@ static int stress_chattr(stress_args_t *args)
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX], pathname[PATH_MAX];
-	unsigned long mask = 0;;
+	unsigned long mask = 0;
 	int *flag_perms = NULL;
 	size_t i, idx, flag_count;
 
