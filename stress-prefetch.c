@@ -316,7 +316,7 @@ static uint64_t stress_prefetch_data_set(uint64_t *l3_data, const uint64_t *l3_d
 		seed = (a * seed + c);
 		val = seed;
 		seed = (a * seed + c);
-		val |= (uint64_t)seed << 32;;
+		val |= (uint64_t)seed << 32;
 
 		*(l3_data++) = val;
 		checksum += val;
