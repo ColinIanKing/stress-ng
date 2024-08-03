@@ -184,8 +184,6 @@ int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 
 		rapl_domain->index = (size_t)n;
 		stress_rapl_add_list(rapl_domains, rapl_domain);
-		//rapl_domain->next = *rapl_domains;
-		//*rapl_domains = rapl_domain;
 		n++;
 	}
 	(void)closedir(dir);
@@ -344,7 +342,7 @@ void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl
 					pr_yaml(yaml, "    - stressor: %s\n", tmp);
                                 }
 
-				pr_inf(" %-20s %8.2f W\n", rapl_domain->domain_name, harmonic_mean);
+				pr_inf(" %-19s %8.2f W\n", rapl_domain->domain_name, harmonic_mean);
 				pr_yaml(yaml, "      %s: %.2f\n", rapl_domain->domain_name, harmonic_mean);
 				no_rapl_stats = false;
 				print_nl = true;
