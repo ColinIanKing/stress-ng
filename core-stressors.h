@@ -128,6 +128,7 @@
 	MACRO(inode_flags)	\
 	MACRO(inotify)		\
 	MACRO(insertionsort)	\
+	MACRO(intmath)		\
 	MACRO(io)		\
 	MACRO(iomix)		\
 	MACRO(ioport)		\

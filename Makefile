@@ -398,6 +398,7 @@ STRESS_SRC = \
 	stress-inode-flags.c \
 	stress-inotify.c \
 	stress-insertionsort.c \
+	stress-intmath.c \
 	stress-io.c \
 	stress-iomix.c \
 	stress-ioport.c \
