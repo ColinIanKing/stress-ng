@@ -118,6 +118,9 @@ void stress_settings_show(void)
 	stress_setting_t **settings;
 	size_t i, n;
 
+	if (!(g_opt_flags & OPT_FLAGS_SETTINGS))
+		return;
+
 	pr_inf("stress-ng settings:\n");
 	for (n = 0, setting = setting_head; setting; setting = setting->next)
 		n++;

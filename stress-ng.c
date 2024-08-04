@@ -4033,6 +4033,7 @@ int main(int argc, char **argv, char **envp)
 		 *  unsupported then this is not an error.
 		 */
 		ret = unsupported ? EXIT_SUCCESS : EXIT_FAILURE;
+		stress_settings_show();
 		goto exit_logging_close;
 	}
 
@@ -4179,8 +4180,7 @@ int main(int argc, char **argv, char **envp)
 		success ? "successful" : "unsuccessful",
 		stress_duration_to_str(duration, true));
 
-	if (g_opt_flags & OPT_FLAGS_SETTINGS)
-		stress_settings_show();
+	stress_settings_show();
 	/*
 	 *  Tidy up
 	 */
