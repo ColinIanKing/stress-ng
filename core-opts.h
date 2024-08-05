@@ -973,7 +973,10 @@ typedef enum {
 	OPT_open_max,
 
 	OPT_page_in,
+
 	OPT_pathological,
+
+	OPT_pause,
 
 	OPT_pagemove,
 	OPT_pagemove_bytes,

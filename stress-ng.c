@@ -115,6 +115,7 @@ uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = OPT_FLAGS_PR_ERROR |	/* default option flags */
 		       OPT_FLAGS_PR_INFO |
 		       OPT_FLAGS_MMAP_MADVISE;
+uint64_t g_opt_pause = 0;			/* pause between stressor invocations */
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
@@ -1792,11 +1793,20 @@ static void MLOCKED_TEXT stress_run(
 
 	wait_flag = true;
 	time_start = stress_time_now();
-	pr_dbg("starting stressors\n");
 
 	(void)stress_get_setting("backoff", &backoff);
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
+
+	if (g_opt_pause) {
+		static bool first_run = true;
+
+		if (first_run)
+			first_run = false;
+		else
+			sleep(g_opt_pause);
+	}
+	pr_dbg("starting stressors\n");
 
 	/*
 	 *  Work through the list of stressors to run
@@ -3312,6 +3322,10 @@ next_opt:
 				stress_set_setting("oom-avoid-bytes", TYPE_ID_SIZE_T, &bytes);
 				g_opt_flags |= OPT_FLAGS_OOM_AVOID;
 			}
+			break;
+		case OPT_pause:
+			g_opt_pause = stress_get_uint64(optarg);
+			stress_set_setting_global("pause", TYPE_ID_UINT64, &g_opt_pause);
 			break;
 		case OPT_query:
 			if (!jobmode)

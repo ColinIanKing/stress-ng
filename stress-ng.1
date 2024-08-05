@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "3 August 2024"
+.TH STRESS-NG 1 "5 August 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -414,6 +414,11 @@ can lock a system up or cause it to reboot. These stressors are not enabled
 by default, this option enables them, but you probably don't want to do this.
 You have been warned. This option applies to the stressors: bad\-ioctl,
 bind\-mount, cpu\-online, mlockmany, oom\-pipe, smi, sysinval and watchdog.
+.TP
+.B \-\-pause T
+pause T seconds between each stressor. This is useful for allowing systems
+to cool down between each stressor invocation. By default this optiob is
+disabled.
 .TP
 .B \-\-perf
 measure processor and system activity using perf events. Linux only and

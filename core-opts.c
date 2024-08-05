@@ -674,6 +674,7 @@ const struct option stress_long_options[] = {
 	{ "pageswap-ops",	1,	0,	OPT_pageswap_ops },
 	{ "parallel",		1,	0,	OPT_all },
 	{ "pathological",	0,	0,	OPT_pathological },
+	{ "pause",		1,	0,	OPT_pause },
 	{ "pci",		1,	0,	OPT_pci},
 	{ "pci-dev",		1,	0,	OPT_pci_dev},
 	{ "pci-ops",		1,	0,	OPT_pci_ops },
