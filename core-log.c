@@ -253,7 +253,7 @@ static int pr_msg(
 	}
 
 	if ((flag & (OPT_FLAGS_PR_FAIL | OPT_FLAGS_PR_WARN)) || (g_opt_flags & flag)) {
-		char buf[4096];
+		char buf[8192];
 		const char *type = "";
 
 		if (flag & OPT_FLAGS_PR_ERROR)
