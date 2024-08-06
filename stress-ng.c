@@ -115,7 +115,7 @@ uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = OPT_FLAGS_PR_ERROR |	/* default option flags */
 		       OPT_FLAGS_PR_INFO |
 		       OPT_FLAGS_MMAP_MADVISE;
-uint64_t g_opt_pause = 0;			/* pause between stressor invocations */
+unsigned int g_opt_pause = 0;			/* pause between stressor invocations */
 volatile bool g_stress_continue_flag = true;	/* false to exit stressor */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
@@ -1803,8 +1803,11 @@ static void MLOCKED_TEXT stress_run(
 
 		if (first_run)
 			first_run = false;
-		else
-			sleep(g_opt_pause);
+		else {
+			pr_dbg("pausing for %u second%s\n", g_opt_pause,
+				g_opt_pause == 1 ? "" : "s");
+			(void)sleep(g_opt_pause);
+		}
 	}
 	pr_dbg("starting stressors\n");
 
@@ -3324,8 +3327,8 @@ next_opt:
 			}
 			break;
 		case OPT_pause:
-			g_opt_pause = stress_get_uint64(optarg);
-			stress_set_setting_global("pause", TYPE_ID_UINT64, &g_opt_pause);
+			g_opt_pause = stress_get_uint(optarg);
+			stress_set_setting_global("pause", TYPE_ID_UINT, &g_opt_pause);
 			break;
 		case OPT_query:
 			if (!jobmode)
@@ -3577,6 +3580,7 @@ static inline void stress_run_sequential(
 
 				t_finish = time(NULL);
 				t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
+				t_finish += g_opt_pause * (total_run - run - 1);
 				tm_finish = localtime(&t_finish);
 				if (tm_finish)
 					strftime(finish, sizeof(finish), "%T %F", tm_finish);
