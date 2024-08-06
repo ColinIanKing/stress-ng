@@ -445,7 +445,7 @@ static const stress_opt_t opts[] = {
 
 stressor_info_t stress_intmath_info = {
 	.stressor = stress_intmath,
-	.class = CLASS_SIGNAL | CLASS_OS,
+	.class = CLASS_CPU | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,
 	.opts = opts,
 	.help = help
