@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "5 August 2024"
+.TH STRESS-NG 1 "7 August 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3520,7 +3520,7 @@ on data encrypted by SHA, DES, CMAC, CTR, HMAC MD5, HMAC SHA1 and
 HMAC SHA512 cryptographic routines. This is only available for x86-64
 modern Intel CPUs.
 .TP
-.B \-\-ipsec\-mb\-feature [ sse | avx | avx2 | avx512 ]
+.B \-\-ipsec\-mb\-feature [ sse | avx | avx2 | avx512 | noaesni ]
 Just use the specified processor CPU feature. By default, all the available
 features for the CPU are exercised.
 .TP
