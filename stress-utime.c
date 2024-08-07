@@ -390,6 +390,7 @@ STRESS_PRAGMA_POP
 		{
 			struct utimbuf utbuf;
 			struct timeval tv;
+			int i;
 
 			(void)gettimeofday(&tv, NULL);
 			utbuf.actime = (time_t)tv.tv_sec;
@@ -460,6 +461,20 @@ STRESS_PRAGMA_POP
 
 			/* Exercise huge filename, ENAMETOOLONG */
 			VOID_RET(int, shim_utime(hugename, &utbuf));
+
+			/* Exercise ranges of +ve times */
+			utbuf.actime = (1ULL << ((sizeof(time_t) * 8) - 1)) - 1;
+			utbuf.modtime = utbuf.actime;
+			shim_utime(filename, &utbuf);
+			for (i = 0; utbuf.actime && (i < 64); i++) {
+				utbuf.actime >>= 1;
+				utbuf.modtime = utbuf.actime;
+				shim_utime(filename, &utbuf);
+			}
+
+			utbuf.actime = ~(time_t)0;
+			utbuf.modtime = utbuf.actime;
+			shim_utime(filename, &utbuf);
 		}
 		/* forces metadata writeback */
 		if (utime_fsync) {
