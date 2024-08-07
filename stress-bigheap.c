@@ -66,7 +66,7 @@ static volatile int sigcode;
  */
 static const char *stress_bigheap_phase(void)
 {
-	static const char *phases[] = {
+	static const char * const phases[] = {
 		"initialization",
 		"low memory check",
 		"malloc trim",

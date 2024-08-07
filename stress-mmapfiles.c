@@ -149,7 +149,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 	size_t idx = 0;
 	stress_mmapfile_info_t *mmapfile_info = (stress_mmapfile_info_t *)context;
 	stress_mapping_t *mappings;
-	static const char *dirs[] = {
+	static const char * const dirs[] = {
 		"/lib",
 		"/lib32",
 		"/lib64",

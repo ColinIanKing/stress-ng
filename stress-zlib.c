@@ -127,7 +127,7 @@ static const stress_zlib_method_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
 
-static const char *const lorem_ipsum[] = {
+static const char * const lorem_ipsum[] = {
 	"Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
 	"Nullam imperdiet quam at ultricies finibus. ",
 	"Nunc venenatis euismod velit sit amet ornare.",

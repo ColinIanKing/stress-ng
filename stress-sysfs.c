@@ -472,7 +472,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	return &nowt;
 }
 
-static const char *sys_skip_paths[] = {
+static const char * const sys_skip_paths[] = {
 	"/sys/class/zram-control/hot_add",	/* reading this will add a new zram dev */
 	"/sys/kernel/debug",			/* don't read debug interfaces */
 };

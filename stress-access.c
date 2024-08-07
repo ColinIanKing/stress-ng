@@ -247,8 +247,11 @@ static int stress_access(stress_args_t *args)
 	size_t i, metrics_size = sizeof(*metrics) * 3;
 	double rate;
 	bool report_chmod_error = true;
-	static const char *ignore_chmod_fs[] = {
-		"exfat", "msdos", "hfs", "fuse"
+	static const char * const ignore_chmod_fs[] = {
+		"exfat",
+		"msdos",
+		"hfs",
+		"fuse"
 	};
 
 	s_pids = stress_s_pids_mmap(STRESS_ACCESS_PROCS);

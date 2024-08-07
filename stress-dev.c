@@ -1717,7 +1717,7 @@ static void stress_dev_cdrom_linux(
 {
 	size_t i;
 
-	static const char *proc_files[] = {
+	static const char * const proc_files[] = {
 		"autoclose",
 		"autoeject",
 		"check_media",

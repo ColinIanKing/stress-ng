@@ -74,7 +74,7 @@ typedef struct {
 	} s;
 } stress_vma_metrics_t;
 
-static const char *stress_vma_metrics_name[] = {
+static const char * const stress_vma_metrics_name[] = {
 	"mmaps",	/* STRESS_VMA_MMAP */
 	"munmaps",	/* STRESS_VMA_MUNMAP */
 	"mlocks",	/* STRESS_VMA_MLOCK */

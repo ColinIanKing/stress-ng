@@ -109,7 +109,7 @@ static void stress_force_bind(void)
  *  shared libraries that stress-ng currently
  *  uses and can be potentially be force unmapped
  */
-static const char *stress_fork_shlibs[] = {
+static const char * const stress_fork_shlibs[] = {
 	"libacl.so",
 	"libapparmor.so",
 	"libbsd.so",

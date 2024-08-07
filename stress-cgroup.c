@@ -233,7 +233,7 @@ static void stress_cgroup_controllers(const char *realpathname)
 
 static void stress_cgroup_read_files(const char *realpathname)
 {
-	static const char *filenames[] = {
+	static const char * const filenames[] = {
 		"cgroup.type",
 		"cgroup.procs",
 		"cgroup.threads",

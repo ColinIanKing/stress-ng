@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
 };
 
 /* paths we should never stat */
-static const char *blocklist[] = {
+static const char * const blocklist[] = {
 	"/dev/watchdog"
 };
 

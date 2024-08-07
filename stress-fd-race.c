@@ -558,7 +558,7 @@ static stress_fd_race_filename_t *stress_fd_race_filename_add(
 	size_t i;
 
 	/* Files we don't want to access */
-	static const char *ignore_list[] = {
+	static const char * const ignore_list[] = {
 		"/dev/watchdog",
 	};	
 
