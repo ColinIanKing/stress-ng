@@ -21,6 +21,7 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-lock.h"
 
 #include <math.h>
 #include <sched.h>
@@ -29,6 +30,11 @@
 #define MAX_SAMPLES		(100000000)
 #define DEFAULT_SAMPLES		(10000)
 #define MAX_BUCKETS		(250)
+
+typedef struct {
+	void *lock;			/* lock protecting count */
+	uint32_t count;			/* count of error messages emitted */
+} stress_cyclic_state_t;
 
 typedef struct {
 	const int	policy;		/* scheduler policy */
@@ -71,6 +77,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+static stress_cyclic_state_t *stress_cyclic_state = MAP_FAILED;
+
 static const stress_policy_t cyclic_policies[] = {
 #if defined(SCHED_DEADLINE)
 	{ SCHED_DEADLINE, "SCHED_DEADLINE",  "deadline" },
@@ -84,6 +92,30 @@ static const stress_policy_t cyclic_policies[] = {
 };
 
 #define NUM_CYCLIC_POLICIES	(SIZEOF_ARRAY(cyclic_policies))
+
+static void stress_cyclic_init(const uint32_t num_instances)
+{
+	(void)num_instances;
+
+	stress_cyclic_state = (stress_cyclic_state_t *)
+		stress_mmap_populate(NULL, sizeof(*stress_cyclic_state),
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (stress_cyclic_state == MAP_FAILED)
+		return;
+
+	stress_set_vma_anon_name(stress_cyclic_state, sizeof(*stress_cyclic_state), "cyclic-state");
+	stress_cyclic_state->lock = stress_lock_create();
+}
+
+static void stress_cyclic_deinit(void)
+{
+	if (stress_cyclic_state != MAP_FAILED) {
+		if (stress_cyclic_state->lock)
+			stress_lock_destroy(stress_cyclic_state->lock);
+		(void)munmap((void *)stress_cyclic_state, sizeof(*stress_cyclic_state));
+	}
+}
 
 #if (defined(HAVE_CLOCK_GETTIME) && defined(HAVE_CLOCK_NANOSLEEP)) ||	\
     (defined(HAVE_CLOCK_GETTIME) && defined(HAVE_NANOSLEEP)) ||		\
@@ -751,15 +783,24 @@ redo_policy:
 			}
 #endif
 			if (errno != EPERM) {
+				uint32_t count = 0;
 				const char *msg = (errno == EBUSY) ?
-					", (recommend setting --sched-runtime to less than 90000)" : "";
+					", (recommend setting --sched-runtime to less than 90000 or run one instance of cyclic stressor)" : "";
 
-				pr_fail("%s: sched_setscheduler "
-					"failed: errno=%d (%s) "
-					"for scheduler policy %s%s\n",
-					args->name, errno, strerror(errno),
-					cyclic_policies[cyclic_policy].name,
-					msg);
+				if (stress_cyclic_state != MAP_FAILED) {
+					(void)stress_lock_acquire(stress_cyclic_state->lock);
+					count = stress_cyclic_state->count;
+					stress_cyclic_state->count++;
+					(void)stress_lock_release(stress_cyclic_state->lock);
+				}
+
+				if (count == 0)
+					pr_fail("%s: sched_setscheduler "
+						"failed: errno=%d (%s) "
+						"for scheduler policy %s%s\n",
+						args->name, errno, strerror(errno),
+						cyclic_policies[cyclic_policy].name,
+						msg);
 			}
 			goto tidy;
 		}
@@ -879,5 +920,7 @@ stressor_info_t stress_cyclic_info = {
 	.supported = stress_cyclic_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
+	.init = stress_cyclic_init,
+	.deinit = stress_cyclic_deinit,
 	.help = help
 };
