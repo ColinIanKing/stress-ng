@@ -116,6 +116,7 @@ static const stress_opt_t opts[] = {
 
 #if defined(MADV_PAGEOUT) &&	\
     defined(__linux__)
+
 /*
  *  stress_swap_self()
  *	swap pages out of process
@@ -264,31 +265,32 @@ static int stress_swap_set_size(
 	return 0;
 }
 
-static void stress_swap_check_swapped(
-	void *addr,
-	const size_t page_size,
-	const uint32_t npages,
-	uint64_t *swapped_out,
-	uint64_t *swapped_total)
+static void stress_swap_check_swapped(uint64_t *swapped_out)
 {
-	unsigned char *vec;
-	register size_t n = 0;
+	FILE *fp;
+	char buf[4096];
+	uint64_t swapout = 0;
+	static uint64_t prev_swapout = 0;
 
-	*swapped_total += npages;
-
-	vec = calloc((size_t)npages, sizeof(*vec));
-	if (!vec)
+	fp = fopen("/proc/vmstat", "r");
+	if (!fp)
 		return;
 
-	if (shim_mincore(addr, page_size * (size_t)npages, vec) == 0) {
-		register uint32_t i;
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+		if (strncmp(buf, "pswpout", 7) == 0) {
+			swapout = (uint64_t)atoll(buf + 8);
+			break;
+		}
+	}
+	(void)fclose(fp);
 
-		for (i = 0; i < npages; i++)
-			n += ((vec[i] & 1) == 0);
+	if (prev_swapout == 0) {
+		prev_swapout = swapout;
+		return;
 	}
 
-	*swapped_out += n;
-	free(vec);
+	*swapped_out += swapout - prev_swapout;
+	prev_swapout = swapout;
 }
 
 static void stress_swap_clean_dir(stress_args_t *args)
@@ -329,11 +331,10 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	int fd, ret;
 	uint8_t *page;
 	uint64_t swapped_out = 0;
-	uint64_t swapped_total = 0;
 	int32_t max_swap_pages;
 	const size_t page_size = args->page_size;
-	double swapped_percent;
 	bool swap_self = false;
+	double t, duration, rate;
 
 	(void)context;
 
@@ -395,6 +396,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t = stress_time_now();
 	do {
 		int swapflags = 0;
 		int bad_flags;
@@ -459,12 +461,6 @@ static int stress_swap_child(stress_args_t *args, void *context)
 			goto tidy_close;
 		}
 
-#if defined(MADV_PAGEOUT) &&	\
-    defined(__linux__)
-		if (swap_self)
-			stress_swap_self(args->page_size);
-#endif
-
 		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (ptr != MAP_FAILED) {
@@ -483,8 +479,12 @@ static int stress_swap_child(stress_args_t *args, void *context)
 #if defined(MADV_PAGEOUT)
 			(void)shim_madvise(ptr, mmap_size, MADV_PAGEOUT);
 #endif
-			stress_swap_check_swapped(ptr, page_size, npages,
-				&swapped_out, &swapped_total);
+#if defined(MADV_PAGEOUT) &&	\
+    defined(__linux__)
+			if (swap_self)
+				stress_swap_self(args->page_size);
+#endif
+			stress_swap_check_swapped(&swapped_out);
 
 			/* Check page has check address value */
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
@@ -526,10 +526,9 @@ static int stress_swap_child(stress_args_t *args, void *context)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
-	swapped_percent = (swapped_total == 0) ?
-		0.0 : (100.0 * (double)swapped_out) / (double)swapped_total;
-	pr_inf("%s: %" PRIu64 " of %" PRIu64 " (%.2f%%) pages were swapped out\n",
-		args->name, swapped_out, swapped_total, swapped_percent);
+	duration = stress_time_now() - t;
+	rate = (duration > 0.0) ? swapped_out / duration : 0.0;
+	stress_metrics_set(args, 0, "pages swapped out per second", rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	ret = EXIT_SUCCESS;
 tidy_close:
