@@ -1230,7 +1230,7 @@ static int stress_misaligned(stress_args_t *args)
 				stress_strsignal(handled_signum));
 			break;
 		case STRESS_MISALIGNED_TIMED_OUT:
-			pr_inf_skip("%s: skipping method %s, misaligned operations timed out after %.3f seconds (got stuck)\n",
+			pr_inf_skip("%s: skipping method %s, misaligned operations timed out after %.3f seconds, not fully tested\n",
 				args->name, current_method->name,
 				(double)STRESS_MISALIGNED_WAIT_TIME_NS / STRESS_DBL_NANOSECOND);
 			break;
