@@ -58,6 +58,7 @@ static const stress_help_t help[] = {
 #if defined(__NR_rt_sigreturn)	&&	\
     defined(__NR_rt_sigprocmask)
 #define STRESS_OPCODE_USE_SIGLONGJMP
+static bool jmp_env_set;
 static sigjmp_buf jmp_env;
 #endif
 
@@ -160,7 +161,7 @@ static struct sock_fprog prog = {
 };
 #endif
 
-static void MLOCKED_TEXT stress_badhandler(int signum)
+static void MLOCKED_TEXT stress_opcode_child_sighandler(int signum)
 {
 	if ((signum >= 0) && (signum < MAX_SIGS)) {
 		volatile stress_opcode_state_t *vstate = (volatile stress_opcode_state_t *)state;
@@ -187,7 +188,8 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 	 *  try to continue for less significant signals
 	 *  such as SIGFPE and SIGTRAP
 	 */
-	siglongjmp(jmp_env, 1);
+	if (jmp_env_set)
+		siglongjmp(jmp_env, 1);
 #else
 	_exit(1);
 #endif
@@ -437,6 +439,7 @@ static int stress_opcode(stress_args_t *args)
 			stress_set_proc_name(buf);
 		}
 again:
+		jmp_env_set = false;
 		pid = fork();
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
@@ -456,6 +459,11 @@ again:
 
 			(void)sched_settings_apply(true);
 
+			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
+				if (stress_sighandler(args->name, sigs[i], stress_opcode_child_sighandler, NULL) < 0)
+					_exit(EXIT_FAILURE);
+			}
+
 			/* We don't want bad ops clobbering this region */
 			stress_shared_readonly();
 
@@ -465,10 +473,6 @@ again:
 			/* Drop all capabilities */
 			if (stress_drop_capabilities(args->name) < 0) {
 				_exit(EXIT_NO_RESOURCE);
-			}
-			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-				if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
-					_exit(EXIT_FAILURE);
 			}
 
 			(void)mprotect((void *)opcodes, page_size, PROT_NONE);
@@ -520,6 +524,7 @@ again:
 				ret = sigsetjmp(jmp_env, 1);
 				if (ret == 1)
 					goto exercise;
+				jmp_env_set = true;
 			}
 #endif
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
