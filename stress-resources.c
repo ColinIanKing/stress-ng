@@ -99,7 +99,8 @@ static int stress_resources(stress_args_t *args)
 				(void)sched_settings_apply(true);
 
 				n = stress_resources_allocate(args, resources, num_resources, pipe_size, min_mem_free, true);
-				(void)stress_resources_free(args, resources, n);
+				stress_resources_access(args, resources, n);
+				stress_resources_free(args, resources, n);
 
 				_exit(0);
 			}

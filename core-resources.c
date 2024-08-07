@@ -44,9 +44,18 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 
 	for (i = 0; i < num_resources; i++) {
 		resources[i].m_malloc = NULL;
+		resources[i].m_malloc_size = 0;
+		resources[i].m_sbrk = NULL;
+		resources[i].m_sbrk_size = 0;
 		resources[i].m_mmap = MAP_FAILED;
+		resources[i].m_mmap_size = 0;
+		resources[i].fd_pipe[0] = -1;
+		resources[i].fd_pipe[1] = -1;
 		resources[i].pipe_ret = -1;
 		resources[i].fd_open = -1;
+		resources[i].fd_sock = -1;
+		resources[i].fd_socketpair[0] = -1;
+		resources[i].fd_socketpair[1] = -1;
 #if defined(HAVE_EVENTFD)
 		resources[i].fd_ev = -1;
 #endif
@@ -58,9 +67,6 @@ static void stress_resources_init(stress_resources_t *resources, const size_t nu
 		resources[i].fd_memfd_secret = -1;
 		resources[i].ptr_memfd_secret = NULL;
 #endif
-		resources[i].fd_sock = -1;
-		resources[i].fd_socketpair[0] = -1;
-		resources[i].fd_socketpair[1] = -1;
 #if defined(HAVE_USERFAULTFD)
 		resources[i].fd_uf = -1;
 #endif
@@ -204,23 +210,28 @@ size_t stress_resources_allocate(
 		char name[64];
 #endif
 		resources[i].m_malloc = NULL;
+		resources[i].m_malloc_size = 0;
 		resources[i].m_mmap = MAP_FAILED;
+		resources[i].m_mmap_size = 0;
 		resources[i].pipe_ret = -1;
 		resources[i].fd_open = -1;
+		resources[i].fd_sock = -1;
+		resources[i].fd_socketpair[0] = -1;
+		resources[i].fd_socketpair[1] = -1;
+		resources[i].pid = 0;
 #if defined(HAVE_EVENTFD)
 		resources[i].fd_ev = -1;
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 		resources[i].fd_memfd = -1;
 		resources[i].ptr_memfd = NULL;
+		resources[i].ptr_memfd_size = 0;
 #endif
 #if defined(__NR_memfd_secret)
 		resources[i].fd_memfd_secret = -1;
 		resources[i].ptr_memfd_secret = NULL;
+		resources[i].ptr_memfd_secret_size = 0;
 #endif
-		resources[i].fd_sock = -1;
-		resources[i].fd_socketpair[0] = -1;
-		resources[i].fd_socketpair[1] = -1;
 #if defined(HAVE_USERFAULTFD)
 		resources[i].fd_uf = -1;
 #endif
@@ -246,6 +257,14 @@ size_t stress_resources_allocate(
 		(void)shim_memset(&resources[i].mtx, 0, sizeof(resources[i].mtx));
 		resources[i].mtx_ret = -1;
 #endif
+#if defined(HAVE_SYS_INOTIFY)
+		resources[i].wd_inotify = -1;
+		resources[i].fd_inotify = -1;
+#endif
+#if defined(HAVE_PTSNAME)
+		resources[i].pty = -1;
+		resources[i].pty_mtx = -1;
+#endif
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -259,17 +278,10 @@ size_t stress_resources_allocate(
     defined(CLOCK_REALTIME)
 		resources[i].timer_fd = -1;
 #endif
-#if defined(HAVE_SYS_INOTIFY)
-		resources[i].wd_inotify = -1;
-		resources[i].fd_inotify = -1;
-#endif
-#if defined(HAVE_PTSNAME)
-		resources[i].pty = -1;
-		resources[i].pty_mtx = -1;
-#endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 		resources[i].semok = false;
+		(void)shim_memset(&resources[i].sem, 0, sizeof(resources[i].sem));
 #endif
 #if defined(HAVE_SEM_SYSV)
 		resources[i].sem_id = -1;
@@ -295,8 +307,6 @@ size_t stress_resources_allocate(
 		resources[i].pid_fd_getfd = -1;
 #endif
 #endif
-		resources[i].pid = 0;
-
 		/*
 		 *  Ensure we tidy half complete resources since n is off by one
 		 *  if we break out of the loop to early
@@ -312,11 +322,13 @@ size_t stress_resources_allocate(
 
 		if ((stress_mwc8() & 0xf) == 0) {
 			resources[i].m_malloc = calloc(1, page_size);
+			resources[i].m_malloc_size = page_size;
 			if (!stress_continue_flag())
 				break;
 		}
 		if ((stress_mwc8() & 0xf) == 0) {
 			resources[i].m_sbrk = shim_sbrk((intptr_t)page_size);
+			resources[i].m_sbrk_size = page_size;
 			if (!stress_continue_flag())
 				break;
 		}
@@ -383,6 +395,7 @@ size_t stress_resources_allocate(
 				if (resources[i].ptr_memfd == MAP_FAILED)
 					resources[i].ptr_memfd = NULL;
 				else {
+					resources[i].ptr_memfd_size = page_size;
 					stress_set_vma_anon_name(resources[i].ptr_memfd, page_size, "resources-memfd");
 					(void)stress_madvise_mergeable(resources[i].ptr_memfd, page_size);
 				}
@@ -405,6 +418,7 @@ size_t stress_resources_allocate(
 				if (resources[i].ptr_memfd_secret == MAP_FAILED)
 					resources[i].ptr_memfd_secret = NULL;
 				else {
+					resources[i].ptr_memfd_secret_size = page_size;
 					stress_set_vma_anon_name(resources[i].ptr_memfd_secret, page_size, "resources-memfd-secret");
 					(void)stress_madvise_mergeable(resources[i].ptr_memfd_secret, page_size);
 				}
@@ -884,3 +898,110 @@ void stress_resources_free(
 	}
 }
 
+/*
+ *  stress_resources_access()
+ *	access a wide range of resources
+ */
+void stress_resources_access(
+	const stress_args_t *args,
+	stress_resources_t *resources,
+        const size_t num_resources)
+{
+	const size_t page_size = args->page_size;
+	size_t i;
+
+	(void)page_size;
+
+	for (i = 0; i < num_resources; i++) {
+		if (resources[i].m_malloc)
+			(void)shim_memset(resources[i].m_malloc, (int)i, resources[i].m_malloc_size);
+		if (resources[i].m_mmap && (resources[i].m_mmap != MAP_FAILED))
+			(void)shim_memset(resources[i].m_mmap, (int)i, resources[i].m_mmap_size);
+#if defined(F_GETFL)
+		if (resources[i].pipe_ret != -1) {
+			VOID_RET(int, fcntl(resources[i].fd_pipe[0], F_GETFL, 0));
+			VOID_RET(int, fcntl(resources[i].fd_pipe[1], F_GETFL, 0));
+		}
+#endif
+#if defined(F_GETFL)
+		if (resources[i].fd_open != -1)
+			VOID_RET(int, fcntl(resources[i].fd_open, F_GETFL, 0));
+#endif
+
+#if defined(HAVE_EVENTFD) && 	\
+    defined(F_GETFL)
+		if (resources[i].fd_ev != -1)
+			VOID_RET(int, fcntl(resources[i].fd_ev, F_GETFL, 0));
+#endif
+#if defined(HAVE_MEMFD_CREATE)
+#if defined(F_GETFL)
+		if (resources[i].fd_memfd != -1)
+			VOID_RET(int, fcntl(resources[i].fd_memfd, F_GETFL, 0));
+#endif
+		if (resources[i].ptr_memfd && (resources[i].ptr_memfd != MAP_FAILED))
+			(void)shim_memset(resources[i].ptr_memfd, (int)i, resources[i].ptr_memfd_size);
+#endif
+#if defined(__NR_memfd_secret)
+#if defined(F_GETFL)
+		if (resources[i].fd_memfd_secret != -1)
+			VOID_RET(int, fcntl(resources[i].fd_memfd_secret, F_GETFL, 0));
+#endif
+		if (resources[i].ptr_memfd_secret && (resources[i].ptr_memfd_secret != MAP_FAILED))
+			(void)shim_memset(resources[i].ptr_memfd_secret, (int)i, resources[i].ptr_memfd_secret_size);
+#endif
+#if defined(F_GETFL)
+		if (resources[i].fd_sock != -1)
+			 VOID_RET(int, fcntl(resources[i].fd_sock, F_GETFL, 0));
+#endif
+#if defined(F_GETFL)
+		if (resources[i].fd_socketpair[0] != -1)
+			 VOID_RET(int, fcntl(resources[i].fd_socketpair[0], F_GETFL, 0));
+		if (resources[i].fd_socketpair[1] != -1)
+			 VOID_RET(int, fcntl(resources[i].fd_socketpair[1], F_GETFL, 0));
+#endif
+#if defined(HAVE_USERFAULTFD) &&	\
+    defined(F_GETFL)
+		if (resources[i].fd_uf != -1)
+			 VOID_RET(int, fcntl(resources[i].fd_uf, F_GETFL, 0));
+#endif
+#if defined(O_TMPFILE) &&		\
+    defined(F_GETFL)
+		if (resources[i].fd_tmp != -1)
+			 VOID_RET(int, fcntl(resources[i].fd_tmp, F_GETFL, 0));
+#endif
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME) &&		\
+    defined(F_GETFL)
+		if ((!i) && (resources[i].timer_fd != -1))
+			 VOID_RET(int, fcntl(resources[i].timer_fd, F_GETFL, 0));
+#endif
+#if defined(HAVE_SYS_INOTIFY) &&	\
+    defined(F_GETFL)
+		if (resources[i].wd_inotify != -1)
+			VOID_RET(int, fcntl(resources[i].wd_inotify, F_GETFL, 0));
+		if (resources[i].fd_inotify != -1)
+			VOID_RET(int, fcntl(resources[i].fd_inotify, F_GETFL, 0));
+#endif
+#if defined(HAVE_PTSNAME) &&		\
+    defined(F_GETFL)
+		if (resources[i].pty != -1)
+			VOID_RET(int, fcntl(resources[i].pty, F_GETFL, 0));
+		if (resources[i].pty_mtx != -1)
+			VOID_RET(int, fcntl(resources[i].pty_mtx, F_GETFL, 0));
+#endif
+#if defined(HAVE_PIDFD_OPEN) &&		\
+    defined(F_GETFL)
+		if (resources[i].pid_fd > -1)
+			VOID_RET(int, fcntl(resources[i].pid_fd, F_GETFL, 0));
+#if defined(HAVE_PIDFD_GETFD)
+		if (resources[i].pid_fd_getfd > -1)
+			VOID_RET(int, fcntl(resources[i].pid_fd_getfd, F_GETFL, 0));
+#endif
+#endif
+		if (resources[i].pid > 0)
+			(void)kill(resources[i].pid, 0);
+	}
+}

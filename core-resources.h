@@ -66,7 +66,9 @@
 
 typedef struct {
 	void *m_malloc;
+	size_t m_malloc_size;
 	void *m_sbrk;
+	size_t m_sbrk_size;
 	void *m_mmap;
 	size_t m_mmap_size;
 	int fd_pipe[2];
@@ -81,11 +83,13 @@ typedef struct {
 #if defined(HAVE_MEMFD_CREATE)
 	int fd_memfd;
 	void *ptr_memfd;
+	size_t ptr_memfd_size;
 #endif
 #if defined(__NR_memfd_secret)
 	int fd_memfd_secret;
 	int padding1;
 	void *ptr_memfd_secret;
+	size_t ptr_memfd_secret_size;
 #endif
 #if defined(HAVE_USERFAULTFD)
 	int fd_uf;
@@ -168,6 +172,8 @@ typedef struct {
 extern size_t stress_resources_allocate(stress_args_t *args, stress_resources_t *resources,
         const size_t num_resources, const size_t pipe_size, const size_t min_mem_free,
 	const bool do_fork);
+extern void stress_resources_access(const stress_args_t *args, stress_resources_t *resources,
+        const size_t num_resources);
 extern void stress_resources_free(const stress_args_t *args, stress_resources_t *resources,
         const size_t num_resources);
 
