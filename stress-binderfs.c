@@ -45,13 +45,33 @@ static const stress_help_t help[] = {
  */
 static int stress_binderfs_supported(const char *name)
 {
+	int ret;
+	const char *path = stress_get_temp_path();
+
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
 	}
-	return 0;
+
+	if (!path)
+		return 0;	/* defer */
+
+	ret = mount("binder", path, "binder", 0, 0);
+	if (ret >= 0) {
+		(void)umount(path);
+		return 0;
+	}
+
+	if (errno == ENODEV) {
+		pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
+	} else {
+		pr_inf_skip("%s stressor will be skipped, binderfs cannot be mounted\n", name);
+	}
+	/* umount just in case it got mounted and mount way lying */
+	(void)umount(path);
+	return -1;
 }
 
 #if defined(__linux__) &&			\
