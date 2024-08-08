@@ -309,6 +309,7 @@ static int stress_numa(stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 	int *status, *dest_nodes;
+	int failed = 0;
 	void **pages;
 	size_t mask_elements, k;
 	unsigned long *node_mask, *old_node_mask;
@@ -710,6 +711,11 @@ static int stress_numa(stress_args_t *args)
 				}
 			}
 
+			/* Touch each page */
+			for (i = 0; i < num_pages; i++) {
+				*(uintptr_t *)pages[i] = (uintptr_t)pages[i];
+			}
+
 			/*
 			 *  ..and bump k to ensure next round the pages get reassigned to
 			 *  a different node
@@ -726,6 +732,19 @@ static int stress_numa(stress_args_t *args)
 					pr_fail("%s: move_pages failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					goto err;
+				}
+			}
+			/* Check each page */
+			for (i = 0; i < num_pages; i++) {
+				if (*(uintptr_t *)pages[i] != (uintptr_t)pages[i]) {
+					pr_fail("%s: data mismatch on page #%lu %p: expected %p, got %p\n",
+						args->name, i, pages[i],
+						(void *)pages[i], (void *)*(uintptr_t *)pages[i]);
+					failed++;
+					if (failed > 32) {
+						pr_inf("%s: aborting due to too many failures\n", args->name);
+						goto err;
+					}
 				}
 			}
 			(void)stress_mmap_set_light(buf, numa_bytes, page_size);
