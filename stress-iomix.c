@@ -1066,7 +1066,7 @@ static int stress_iomix(stress_args_t *args)
 	oflags |= O_SYNC;
 #endif
 
-	counter_lock = stress_lock_create();
+	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		ret = EXIT_NO_RESOURCE;

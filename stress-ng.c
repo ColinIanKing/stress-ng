@@ -3748,18 +3748,18 @@ static int stress_global_lock_create(void)
 {
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
-	g_shared->perf.lock = stress_lock_create();
+	g_shared->perf.lock = stress_lock_create("perf");
 	if (!g_shared->perf.lock) {
 		pr_err("failed to create perf lock\n");
 		return -1;
 	}
 #endif
-	g_shared->warn_once.lock = stress_lock_create();
+	g_shared->warn_once.lock = stress_lock_create("warn-once");
 	if (!g_shared->warn_once.lock) {
 		pr_err("failed to create warn_once lock\n");
 		return -1;
 	}
-	g_shared->net_port_map.lock = stress_lock_create();
+	g_shared->net_port_map.lock = stress_lock_create("net-port");
 	if (!g_shared->net_port_map.lock) {
 		pr_err("failed to create net_port_map lock\n");
 		return -1;

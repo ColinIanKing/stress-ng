@@ -19,7 +19,7 @@
 #ifndef CORE_LOCK_H
 #define CORE_LOCK_H
 
-extern void *stress_lock_create(void);
+extern void *stress_lock_create(const char *name);
 extern int stress_lock_destroy(void *lock_handle);
 extern int stress_lock_acquire(void *lock_handle);
 extern int stress_lock_acquire_relax(void *lock_handle);

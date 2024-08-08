@@ -692,12 +692,12 @@ static int stress_apparmor(stress_args_t *args)
 		pr_inf_skip("%s: failed to allocate apparmor data prev buffer, skipping stressor\n", args->name);
 		goto err_free_data_copy;
 	}
-	stress_apparmor_shared_info->counter_lock = stress_lock_create();
+	stress_apparmor_shared_info->counter_lock = stress_lock_create("counter");
 	if (!stress_apparmor_shared_info->counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		goto err_free_data_prev;
 	}
-	stress_apparmor_shared_info->failure_lock = stress_lock_create();
+	stress_apparmor_shared_info->failure_lock = stress_lock_create("failure");
 	if (!stress_apparmor_shared_info->counter_lock) {
 		pr_inf_skip("%s: failed to create failure counter lock. skipping stressor\n", args->name);
 		goto err_free_counter_lock;

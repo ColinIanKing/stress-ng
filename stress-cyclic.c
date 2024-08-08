@@ -105,7 +105,7 @@ static void stress_cyclic_init(const uint32_t num_instances)
 		return;
 
 	stress_set_vma_anon_name(stress_cyclic_state, sizeof(*stress_cyclic_state), "cyclic-state");
-	stress_cyclic_state->lock = stress_lock_create();
+	stress_cyclic_state->lock = stress_lock_create("cyclic-state");
 }
 
 static void stress_cyclic_deinit(void)

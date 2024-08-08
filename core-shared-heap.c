@@ -69,7 +69,7 @@ void *stress_shared_heap_init(void)
 	}
 	stress_set_vma_anon_name(g_shared->shared_heap.heap, size, "shared-heap");
 	(void)stress_madvise_mergeable(g_shared->shared_heap.heap, size);
-	g_shared->shared_heap.lock = stress_lock_create();
+	g_shared->shared_heap.lock = stress_lock_create("shared-heap");
 	if (!g_shared->shared_heap.lock) {
 		(void)munmap((void *)g_shared->shared_heap.heap, g_shared->shared_heap.heap_size);
 		g_shared->shared_heap.heap = NULL;

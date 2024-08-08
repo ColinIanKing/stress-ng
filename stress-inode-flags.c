@@ -222,7 +222,7 @@ static int stress_inode_flags(stress_args_t *args)
 	char tmp[PATH_MAX], file_name[PATH_MAX];
 	char *dir_name;
 
-	inode_flags_counter_lock = stress_lock_create();
+	inode_flags_counter_lock = stress_lock_create("counter");
 	if (!inode_flags_counter_lock) {
 		pr_inf("%s: failed to create lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;

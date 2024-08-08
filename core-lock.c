@@ -495,7 +495,7 @@ static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
  *  stress_lock_create()
  *	generic lock creation and initialization
  */
-void *stress_lock_create(void)
+void *stress_lock_create(const char *name)
 {
 	stress_lock_t *lock;
 	char lock_type[64];
@@ -570,7 +570,7 @@ void *stress_lock_create(void)
 #endif
 	lock->magic = STRESS_LOCK_MAGIC;
 
-	(void)snprintf(lock_type, sizeof(lock_type), "lock-%s", lock->type);
+	(void)snprintf(lock_type, sizeof(lock_type), "lock-%s", name ? name : lock->type);
 	stress_set_vma_anon_name(lock, sizeof(*lock), lock_type);
 
 	if (lock->init(lock) == 0)

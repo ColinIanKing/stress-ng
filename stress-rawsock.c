@@ -75,7 +75,7 @@ static void stress_rawsock_init(const uint32_t num_instances)
 {
 	(void)num_instances;
 
-	rawsock_lock = stress_lock_create();
+	rawsock_lock = stress_lock_create("rawsock");
 	stop_rawsock = false;
 }
 

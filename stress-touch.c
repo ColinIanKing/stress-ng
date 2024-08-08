@@ -297,7 +297,7 @@ static int stress_touch(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	touch_lock = stress_lock_create();
+	touch_lock = stress_lock_create("counter");
 	if (!touch_lock) {
 		pr_inf_skip("%s: cannot create lock, skipping stressor\n", args->name);
 		(void)stress_s_pids_munmap(s_pids, TOUCH_PROCS);

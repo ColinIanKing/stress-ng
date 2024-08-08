@@ -202,7 +202,7 @@ static int stress_hrtimers(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	lock = stress_lock_create();
+	lock = stress_lock_create("counter");
 	if (!lock) {
 		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
 		rc = EXIT_NO_RESOURCE;

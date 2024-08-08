@@ -644,7 +644,7 @@ static void stress_cacheline_init(const uint32_t num_instances)
 	(void)num_instances;
 
 	g_shared->cacheline.index = 0;
-	g_shared->cacheline.lock = stress_lock_create();
+	g_shared->cacheline.lock = stress_lock_create("cacheline");
 }
 
 /*

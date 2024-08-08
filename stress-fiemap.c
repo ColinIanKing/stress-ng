@@ -253,7 +253,7 @@ static int stress_fiemap(stress_args_t *args)
 	const int flags = O_CREAT | O_RDWR;
 #endif
 
-	counter_lock = stress_lock_create();
+	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_err("%s: failed to create counter lock\n", args->name);
 		return EXIT_NO_RESOURCE;

@@ -215,7 +215,7 @@ static int stress_affinity(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	counter_lock = stress_lock_create();
+	counter_lock = stress_lock_create("counter");
 	if (!counter_lock) {
 		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		(void)stress_s_pids_munmap(s_pids, STRESS_AFFINITY_PROCS);

@@ -543,7 +543,7 @@ again:
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
-			lock = stress_lock_create();
+			lock = stress_lock_create("dev-path");
 			if (!lock) {
 				pr_inf("%s: lock create failed\n", args->name);
 				_exit(EXIT_NO_RESOURCE);
