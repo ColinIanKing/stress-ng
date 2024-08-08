@@ -175,7 +175,7 @@ extern void stress_close_fds(int *fds, const size_t n);
 extern void stress_file_rw_hint_short(const int fd);
 extern void stress_set_vma_anon_name(const void *addr, const size_t size,
 	const char *name);
-extern WARN_UNUSED int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg,
+extern WARN_UNUSED int stress_x86_readmsr64(const int cpu, const uint32_t reg,
 	uint64_t *val);
 extern void stress_unset_chattr_flags(const char *pathname);
 extern int stress_munmap_retry_enomem(void *addr, size_t length);

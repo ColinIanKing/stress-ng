@@ -90,7 +90,7 @@ static void stress_interrupts_count(stress_interrupts_t *counters, const int whi
 			unsigned int cpu;
 
 			if ((shim_getcpu(&cpu, NULL, NULL) == 0) &&
-			    (stress_x86_smi_readmsr64(cpu, MSR_SMI_COUNT, &count) == 0))
+			    (stress_x86_readmsr64(cpu, MSR_SMI_COUNT, &count) == 0))
 				stress_interrupts_counter_set(counters, i, count, which);
 			break;
 		}

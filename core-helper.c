@@ -4139,10 +4139,10 @@ void stress_set_vma_anon_name(const void *addr, const size_t size, const char *n
 }
 
 /*
- *  stress_x86_smi_readmsr()
+ *  stress_x86_readmsr()
  *	64 bit read an MSR on a specified x86 CPU
  */
-int stress_x86_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
+int stress_x86_readmsr64(const int cpu, const uint32_t reg, uint64_t *val)
 {
 #if defined(STRESS_ARCH_X86)
 	char buffer[PATH_MAX];
