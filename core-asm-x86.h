@@ -22,6 +22,14 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+#if defined(__LP64) || defined(__LP64__)
+#define STRESS_ARCH_X86_LP64
+#endif
+
+#if defined(__LP32) || defined(__LP32__)
+#define STRESS_ARCH_X86_LP32
+#endif
+
 #if defined(STRESS_ARCH_X86)
 #define stress_asm_x86_lock_add(ptr, inc) 		\
 	do {						\
@@ -286,7 +294,8 @@ static inline void ALWAYS_INLINE stress_asm_x86_prefetchnta(void *p)
 #endif
 
 #if !defined(HAVE_COMPILER_PCC) && 	\
-    defined(STRESS_ARCH_X86_64)
+    defined(STRESS_ARCH_X86_64) && 	\
+    defined(STRESS_ARCH_X86_LP64)
 static inline int ALWAYS_INLINE stress_asm_x86_umwait__(int state, uint32_t hi, uint32_t lo)
 {
 	uint8_t cflags;
