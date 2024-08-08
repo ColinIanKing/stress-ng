@@ -315,6 +315,8 @@ static int stress_numa(stress_args_t *args)
 	unsigned long *node_mask, *old_node_mask;
 	bool numa_shuffle_addr, numa_shuffle_node;
 	stress_numa_stats_t stats_begin, stats_end;
+	size_t node_mask_size, old_node_mask_size;
+	size_t status_size, dest_nodes_size, pages_size;
 	double t, duration, rate;
 
 	(void)stress_get_setting("numa-bytes", &numa_bytes);
@@ -350,49 +352,72 @@ static int stress_numa(stress_args_t *args)
 	}
 
 	mask_elements = (max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
-	node_mask = (unsigned long *)calloc(mask_elements, sizeof(*node_mask));
-	if (!node_mask) {
-		pr_inf_skip("%s: cannot allocate node mask array of %zu elements, skipping stressor\n",
+	node_mask_size = mask_elements * sizeof(*node_mask);
+	node_mask = (unsigned long *)stress_mmap_populate(NULL, node_mask_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+	if (node_mask == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap node mask array of %zu elements, skipping stressor\n",
 			args->name, mask_elements);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
-	old_node_mask = (unsigned long *)calloc(mask_elements, sizeof(*old_node_mask));
-	if (!old_node_mask) {
-		pr_inf_skip("%s: cannot allocate old mask array of %zu elements, skipping stressor\n",
+	stress_set_vma_anon_name(node_mask, node_mask_size, "node_mask");
+
+	old_node_mask_size = mask_elements * sizeof(*old_node_mask);
+	old_node_mask = (unsigned long *)stress_mmap_populate(NULL, old_node_mask_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+	if (old_node_mask == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap old mask array of %zu elements, skipping stressor\n",
 			args->name, mask_elements);
 		rc = EXIT_NO_RESOURCE;
 		goto node_mask_free;
 	}
+	stress_set_vma_anon_name(old_node_mask, old_node_mask_size, "old_node_mask");
 
-	status = (int *)calloc(num_pages, sizeof(*status));
-	if (!status) {
-		pr_inf_skip("%s: cannot allocate status array of %zu elements, skipping stressor\n",
+	status_size = num_pages * sizeof(*status);
+	status = (int *)stress_mmap_populate(NULL, status_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+	if (status == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap status array of %zu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
 		goto old_node_mask_free;
 	}
-	dest_nodes = (int *)calloc(num_pages, sizeof(*dest_nodes));
-	if (!dest_nodes) {
-		pr_inf("%s: cannot allocate dest_nodes array of %zu elements, skipping stressor\n",
+	stress_set_vma_anon_name(status, status_size, "status");
+
+	dest_nodes_size = num_pages * sizeof(*dest_nodes);
+	dest_nodes = (int *)stress_mmap_populate(NULL, dest_nodes_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+	if (dest_nodes == MAP_FAILED) {
+		pr_inf("%s: cannot mmap dest_nodes array of %zu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
 		goto status_free;
 	}
-	pages = (void **)calloc(num_pages, sizeof(*pages));
-	if (!pages) {
-		pr_inf_skip("%s: cannot allocate pages array of %zu elements, skipping stressor\n",
+	stress_set_vma_anon_name(dest_nodes, dest_nodes_size, "dest-nodes");
+
+	pages_size = num_pages * sizeof(*pages);
+	pages = (void **)stress_mmap_populate(NULL, pages_size,
+					PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+	if (pages == MAP_FAILED) {
+		pr_inf_skip("%s: cannot mmap pages array of %zu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
 		goto dest_nodes_free;
 	}
+	stress_set_vma_anon_name(pages, pages_size, "pages");
 
 	/*
 	 *  We need a buffer to migrate around NUMA nodes
 	 */
 	buf = stress_mmap_populate(NULL, numa_bytes,
 		PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
+		MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 	if (buf == MAP_FAILED) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: mmap'd region of %zu bytes failed\n",
@@ -815,15 +840,15 @@ err:
 	(void)munmap(buf, numa_bytes);
 
 pages_free:
-	free(pages);
+	(void)munmap((void *)pages, pages_size);
 dest_nodes_free:
-	free(dest_nodes);
+	(void)munmap((void *)dest_nodes, dest_nodes_size);
 status_free:
-	free(status);
+	(void)munmap((void *)status, status_size);
 old_node_mask_free:
-	free(old_node_mask);
+	(void)munmap((void *)old_node_mask, old_node_mask_size);
 node_mask_free:
-	free(node_mask);
+	(void)munmap((void *)node_mask, node_mask_size);
 numa_free:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_numa_free_nodes(n);
