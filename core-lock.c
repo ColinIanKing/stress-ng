@@ -498,6 +498,7 @@ static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
 void *stress_lock_create(void)
 {
 	stress_lock_t *lock;
+	char lock_type[64];
 
 	errno = ENOMEM;
 	if (LOCK_METHOD_ALL == (0))
@@ -508,7 +509,6 @@ void *stress_lock_create(void)
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (lock == MAP_FAILED)
 		return NULL;
-	stress_set_vma_anon_name(lock, sizeof(*lock), "lock");
 
 	/*
 	 *  Select locking implementation, try to use fast atomic
@@ -569,6 +569,9 @@ void *stress_lock_create(void)
 	goto no_locks;
 #endif
 	lock->magic = STRESS_LOCK_MAGIC;
+
+	(void)snprintf(lock_type, sizeof(lock_type), "lock-%s", lock->type);
+	stress_set_vma_anon_name(lock, sizeof(*lock), lock_type);
 
 	if (lock->init(lock) == 0)
 		return lock;
