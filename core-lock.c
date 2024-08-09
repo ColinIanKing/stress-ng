@@ -43,7 +43,9 @@
 #include <threads.h>
 #endif
 
-#define STRESS_LOCK_MAGIC	(0x387cb9e5)
+#define STRESS_LOCK_MAGIC	(0x387cb9e5)	/* magic when lock is used */
+#define STRESS_LOCK_MAGIC_FREE	(0x00000000)	/* magic when lock is free */
+
 #define STRESS_LOCK_MAX_BACKOFF	(1U << 18)
 
 #if defined(HAVE_LIB_PTHREAD) &&		\
@@ -113,38 +115,53 @@
 	 LOCK_METHOD_SEM_POSIX | 	\
 	 LOCK_METHOD_SEM_SYSV)
 
+typedef union {
+#if LOCK_METHOD_ATOMIC_SPINLOCK != 0
+	bool	flag;			/* atomic spinlock flag */
+#elif LOCK_METHOD_PTHREAD_SPINLOCK != 0
+	pthread_spinlock_t pthread_spinlock;	/* spinlock */
+#elif LOCK_METHOD_PTHREAD_MUTEX != 0
+	pthread_mutex_t pthread_mutex;	/* mutex */
+#elif LOCK_METHOD_OSI_C_MTX != 0
+	mtx_t mtx;			/* ISO C mutex */
+#elif LOCK_METHOD_FUTEX != 0
+	int	futex;			/* futex */
+#elif LOCK_METHOD_SEM_POSIX != 0
+	sem_t	sem_posix;		/* POSIX semaphore */
+#elif LOCK_METHOD_SEM_SYSV != 0
+	int 	sem_id;			/* SYS V semaphore */
+#endif
+} stress_lock_u_t;
 
 typedef struct stress_lock {
-	uint32_t	magic;		/* Lock magic struct pattern */
-	int		method;		/* Lock method */
-	char 		*type;		/* User readable lock type */
-	union {
-#if LOCK_METHOD_ATOMIC_SPINLOCK != 0
-		bool	flag;		/* atomic spinlock flag */
-#elif LOCK_METHOD_PTHREAD_SPINLOCK != 0
-		pthread_spinlock_t pthread_spinlock;	/* spinlock */
-#elif LOCK_METHOD_PTHREAD_MUTEX != 0
-		pthread_mutex_t pthread_mutex;	/* mutex */
-#elif LOCK_METHOD_OSI_C_MTX != 0
-		mtx_t mtx;		/* ISO C mutex */
-#elif LOCK_METHOD_FUTEX != 0
-		int	futex;		/* futex */
-#elif LOCK_METHOD_SEM_POSIX != 0
-		sem_t	sem_posix;	/* POSIX semaphore */
-#elif LOCK_METHOD_SEM_SYSV != 0
-		int 	sem_id;		/* SYS V semaphore */
-#endif
-	} u;
-	const struct stress_lock_funcs *funcs;
+	uint32_t	magic;		/* Lock magic struct pattern, zero when not in use */
+	stress_lock_u_t u;		/* Lock union */
 } stress_lock_t;
 
 typedef struct stress_lock_funcs {
+	const char *type;
 	int (*init)(struct stress_lock *lock);
 	int (*deinit)(struct stress_lock *lock);
 	int (*acquire)(struct stress_lock *lock);
 	int (*acquire_relax)(struct stress_lock *lock);
 	int (*release)(struct stress_lock *lock);
 } stress_lock_funcs_t;
+
+static stress_lock_t *stress_locks;
+static stress_lock_t *stress_lock_big_lock;
+static size_t stress_locks_max;
+
+static stress_lock_t *stress_lock_get(void);
+static int stress_lock_put(stress_lock_t *lock);
+
+/*
+ *  stress_lock_valid()
+ *	return true of lock magic is valid
+ */
+static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
+{
+	return (lock && (lock->magic == STRESS_LOCK_MAGIC));
+}
 
 /*
  *  Locking via atomic spinlock
@@ -244,7 +261,8 @@ static int stress_atomic_lock_release(stress_lock_t *lock)
 	return 0;
 }
 
-static const stress_lock_funcs_t stress_atomic_lock_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"atomic",
 	stress_atomic_lock_init,
 	stress_atomic_lock_deinit,
 	stress_atomic_lock_acquire,
@@ -303,7 +321,8 @@ static int stress_pthread_spinlock_release(stress_lock_t *lock)
 	return -1;
 }
 
-static const stress_lock_funcs_t stress_pthread_spinlock_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"spinlock",
 	stress_pthread_spinlock_init,
 	stress_pthread_spinlock_deinit,
 	stress_pthread_spinlock_acquire,
@@ -358,7 +377,8 @@ static int stress_pthread_mutex_release(stress_lock_t *lock)
 	return -1;
 }
 
-static const stress_lock_funcs_t stress_pthread_mutex_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"pthread-mutex",
 	stress_pthread_mutex_init,
 	stress_pthread_mutex_deinit,
 	stress_pthread_mutex_acquire,
@@ -404,7 +424,8 @@ static int stress_mtx_release(stress_lock_t *lock)
 	return -1;
 }
 
-static const stress_lock_funcs_t stress_mtx_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"OSI-C-mtx",
 	stress_mtx_init,
 	stress_mtx_deinit,
 	stress_mtx_acquire,
@@ -440,7 +461,8 @@ static int stress_futex_release(stress_lock_t *lock)
 	return (int)syscall(__NR_futex, &lock->u.futex, FUTEX_UNLOCK_PI, 0, 0, 0, 0);
 }
 
-static const stress_lock_funcs_t stress_futex_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"futex",
 	stress_futex_init,
 	stress_futex_deinit,
 	stress_futex_acquire,
@@ -474,7 +496,8 @@ static int stress_sem_posix_release(stress_lock_t *lock)
 	return sem_post(&lock->u.sem_posix);
 }
 
-static const stress_lock_funcs_t stress_sem_posix_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"sem-posix",
 	stress_sem_posix_init,
 	stress_sem_posix_deinit,
 	stress_sem_posix_acquire,
@@ -538,7 +561,8 @@ static int stress_sem_sysv_release(stress_lock_t *lock)
 	return semop(lock->u.sem_id, sops, 1);
 }
 
-static const stress_lock_funcs_t stress_sem_sysv_funcs = {
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"sem-sysv",
 	stress_sem_sysv_init,
 	stress_sem_sysv_deinit,
 	stress_sem_sysv_acquire,
@@ -546,12 +570,25 @@ static const stress_lock_funcs_t stress_sem_sysv_funcs = {
 	stress_sem_sysv_release
 };
 
-#endif
+#else
 
-static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
+static int stress_no_lock_fail(stress_lock_t *lock)
 {
-	return (lock && (lock->magic == STRESS_LOCK_MAGIC));
+	(void)lock;
+
+	return -1;
 }
+
+static const stress_lock_funcs_t stress_lock_funcs = {
+	"no-lock",
+	stress_no_lock_fail,
+	stress_no_lock_fail,
+	stress_no_lock_fail,
+	stress_no_lock_fail,
+	stress_no_lock_fail
+};
+
+#endif
 
 /*
  *  stress_lock_create()
@@ -560,56 +597,23 @@ static inline ALWAYS_INLINE bool stress_lock_valid(const stress_lock_t *lock)
 void *stress_lock_create(const char *name)
 {
 	stress_lock_t *lock;
-	char lock_type[64];
 
-	errno = ENOMEM;
-	if (LOCK_METHOD_ALL == (0))
-		goto no_locks;
+	(void)name;
 
-	lock = (stress_lock_t *)stress_mmap_populate(NULL, sizeof(*lock),
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (lock == MAP_FAILED)
+	if (LOCK_METHOD_ALL == (0)) {
+		/* Critical, we need to be able to lock somehow! */
+		pr_err("core-lock: no locking primitives available\n");
+		return NULL;
+	}
+
+	lock = stress_lock_get();
+	if (!lock)
 		return NULL;
 
-	/*
-	 *  Select locking implementation, try to use fast atomic
-	 *  spinlock, then pthread spinlock, then pthread mutex
-	 *  and fall back on Linux futex
-	 */
-#if LOCK_METHOD_ATOMIC_SPINLOCK != 0
-	lock->funcs = &stress_atomic_lock_funcs;
-#elif LOCK_METHOD_PTHREAD_SPINLOCK != 0
-	lock->funcs = &stress_pthread_spinlock_funcs;
-#elif LOCK_METHOD_PTHREAD_MUTEX != 0
-	lock->funcs = &stress_pthread_mutex_funcs;
-#elif LOCK_METHOD_OSI_C_MTX != 0
-	lock->funcs = &stress_mtx_funcs;
-#elif LOCK_METHOD_FUTEX != 0
-	lock->funcs = &stress_futex_funcs;
-#elif LOCK_METHOD_SEM_POSIX != 0
-	lock->funcs = &stress_sem_posix_funcs;
-#elif LOCK_METHOD_SEM_SYSV != 0
-	lock->funcs = &stress_sem_sysv_funcs;
-#else
-	(void)munmap((void *)lock, sizeof(*lock));
-	goto no_locks;
-#endif
-	lock->magic = STRESS_LOCK_MAGIC;
-
-	(void)snprintf(lock_type, sizeof(lock_type), "lock-%s", name ? name : lock->type);
-	stress_set_vma_anon_name(lock, sizeof(*lock), lock_type);
-
-	if (lock->funcs->init(lock) == 0)
+	if (stress_lock_funcs.init(lock) == 0)
 		return lock;
 
 	VOID_RET(int, stress_lock_destroy(lock));
-
-	return NULL;
-
-no_locks:
-	/* Critical, we need to be able to lock somehow! */
-	pr_err("core-lock: no locking primitives available\n");
 	return NULL;
 }
 
@@ -622,10 +626,8 @@ int stress_lock_destroy(void *lock_handle)
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
 	if (stress_lock_valid(lock)) {
-		(void)lock->funcs->deinit(lock);
-		(void)shim_memset(lock, 0, sizeof(*lock));
-		(void)munmap((void *)lock, sizeof(*lock));
-		return 0;
+		(void)stress_lock_funcs.deinit(lock);
+		return stress_lock_put(lock);
 	}
 	errno = EINVAL;
 	return -1;
@@ -640,7 +642,7 @@ int stress_lock_acquire(void *lock_handle)
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
 	if (stress_lock_valid(lock))
-		return lock->funcs->acquire(lock);
+		return stress_lock_funcs.acquire(lock);
 
 	errno = EINVAL;
 	return -1;
@@ -655,7 +657,7 @@ int stress_lock_acquire_relax(void *lock_handle)
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
 	if (stress_lock_valid(lock))
-		return lock->funcs->acquire_relax(lock);
+		return stress_lock_funcs.acquire_relax(lock);
 
 	errno = EINVAL;
 	return -1;
@@ -670,8 +672,104 @@ int stress_lock_release(void *lock_handle)
 	stress_lock_t *lock = (stress_lock_t *)lock_handle;
 
 	if (stress_lock_valid(lock))
-		return lock->funcs->release(lock);
+		return stress_lock_funcs.release(lock);
 
 	errno = EINVAL;
 	return -1;
 }
+
+/*
+ *  stress_lock_get()
+ *	get next free lock from shared locks mapping
+ */
+static stress_lock_t *stress_lock_get(void)
+{
+	register size_t i;
+	stress_lock_t *lock = NULL;
+
+	if (!stress_lock_big_lock)
+		return NULL;
+	if (!stress_lock_valid(stress_lock_big_lock))
+		return NULL;
+	if (stress_lock_funcs.acquire(stress_lock_big_lock) < 0)
+		return NULL;
+	for (i = 0; i < stress_locks_max; i++) {
+		if (stress_locks[i].magic == STRESS_LOCK_MAGIC_FREE) {
+			lock = &stress_locks[i];
+			lock->magic = STRESS_LOCK_MAGIC;
+			break;
+		}
+	}
+	stress_lock_funcs.release(stress_lock_big_lock);
+
+	return lock;
+
+}
+
+/*
+ *  stress_lock_put()
+ *	mark a lock as new free to be re-used
+ */
+static int stress_lock_put(stress_lock_t *lock)
+{
+	if (!lock)
+		return -1;
+	if (!stress_lock_valid(lock))
+		return -1;
+	if (!stress_lock_big_lock)
+		return -1;
+	if (!stress_lock_valid(stress_lock_big_lock))
+		return -1;
+	if (stress_lock_funcs.acquire(stress_lock_big_lock) < 0)
+		return -1;
+
+	(void)shim_memset(lock, 0, sizeof(*lock));
+
+	stress_lock_funcs.release(stress_lock_big_lock);
+
+	return 0;
+}
+
+/*
+ *  stress_lock_mem_map()
+ *	mmap 1 page of shared locks
+ */
+int stress_lock_mem_map(void)
+{
+	const size_t page_size = stress_get_page_size();
+	size_t mmap_size;
+	char name[64];
+
+	stress_locks_max = page_size / sizeof(*stress_locks);
+	mmap_size = stress_locks_max * sizeof(*stress_locks);
+	stress_locks = (stress_lock_t *)mmap(NULL, mmap_size,
+						PROT_READ | PROT_WRITE,
+						MAP_ANONYMOUS | MAP_SHARED,
+						-1, 0);
+	if (stress_locks == MAP_FAILED)
+		return -1;
+
+	(void)snprintf(name, sizeof(name), "lock-%s", stress_lock_funcs.type);
+	stress_set_vma_anon_name(stress_locks, mmap_size, name);
+
+	stress_lock_big_lock = &stress_locks[0];
+	stress_lock_funcs.init(stress_lock_big_lock);
+	stress_lock_big_lock->magic = STRESS_LOCK_MAGIC;
+
+	return 0;
+}
+
+/*
+ *  stress_lock_mem_unmap()
+ *	unmap shared locks
+ */
+void stress_lock_mem_unmap(void)
+{
+	const size_t mmap_size = stress_locks_max * sizeof(*stress_locks);
+
+	(void)munmap((void *)stress_locks, mmap_size);
+	stress_locks = NULL;
+	stress_lock_big_lock = NULL;
+	stress_locks_max = 0;
+}
+
