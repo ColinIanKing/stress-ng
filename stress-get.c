@@ -230,6 +230,16 @@ static int stress_gethostname(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static int stress_getlogin(stress_args_t *args)
+{
+#if defined(HAVE_GETLOGIN)
+	VOID_RET(char *, getlogin());
+#endif
+	(void)args;
+
+	return EXIT_SUCCESS;
+}
+
 static int stress_getcwd(stress_args_t *args)
 {
 	char *ptr;
@@ -958,6 +968,7 @@ static const stress_get_func_t stress_get_funcs[] = {
 	stress_getgroups,
 	stress_gethostid,
 	stress_gethostname,
+	stress_getlogin,
 	stress_getpagesize,
 	stress_getpgid,
 	stress_getpgrp,
