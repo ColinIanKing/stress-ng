@@ -139,14 +139,14 @@ static void stress_tee_pipe_read(stress_args_t *args, int fds[2])
 			if (UNLIKELY(ret < 0)) {
 				switch (errno) {
 				case EPIPE:
-					goto finish;
+					return;
 				case EAGAIN:
 				case EINTR:
 					continue;
 				default:
 					pr_fail("%s: unexpected read error, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					goto finish;
+					return;
 				}
 			} else {
 				n += (size_t)ret;
@@ -162,8 +162,6 @@ static void stress_tee_pipe_read(stress_args_t *args, int fds[2])
 		}
 		counter++;
 	}
-finish:
-	(void)close(fds[1]);
 }
 
 /*
@@ -249,14 +247,12 @@ static int stress_tee(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	pids[0] = stress_tee_spawn(args, stress_tee_pipe_write, pipe_in);
-	if (pids[0] < 0) {
-		(void)close(fd);
+	if (pids[0] < 0)
 		return EXIT_FAILURE;
-	}
 	(void)close(pipe_in[1]);
 
 	pids[1] = stress_tee_spawn(args, stress_tee_pipe_read, pipe_out);
-	if (pids[0] < 0)
+	if (pids[1] < 0)
 		goto tidy_child1;
 	(void)close(pipe_out[0]);
 
