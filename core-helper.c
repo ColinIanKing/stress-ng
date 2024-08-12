@@ -2669,7 +2669,7 @@ static inline int stress_check_max_pipe_size(
 	const size_t sz,
 	const size_t page_size)
 {
-	int fds[2];
+	int fds[2], rc = 0;
 
 	if (sz < page_size)
 		return -1;
@@ -2678,11 +2678,11 @@ static inline int stress_check_max_pipe_size(
 		return -1;
 
 	if (fcntl(fds[0], F_SETPIPE_SZ, sz) < 0)
-		return -1;
+		rc = -1;
 
 	(void)close(fds[0]);
 	(void)close(fds[1]);
-	return 0;
+	return rc;
 }
 #endif
 
