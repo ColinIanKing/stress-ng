@@ -121,7 +121,7 @@ static int stress_make_daemon(
 					backoff = MAX_BACKOFF;
 				continue;
 			}
-			goto tidy;
+			goto err2;
 		} else if (pid == 0) {
 			/* Child */
 			if (chdir("/") < 0)
@@ -138,12 +138,6 @@ static int stress_make_daemon(
 			break;
 		}
 	}
-
-tidy:
-	(void)close(fds[2]);
-	(void)close(fds[1]);
-	(void)close(fds[0]);
-	return rc;
 
 err2:	(void)close(fds[2]);
 err1:	(void)close(fds[1]);
@@ -182,8 +176,11 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno))
 			goto again;
-		if (!stress_continue(args))
+		if (!stress_continue(args)) {
+			(void)close(fds[0]);
+			(void)close(fds[1]);
 			goto finish;
+		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fds[0]);
@@ -193,7 +190,6 @@ again:
 		/* Children */
 		(void)close(fds[0]);
 		rc = stress_make_daemon(args, fds[1], daemon_wait);
-		(void)close(fds[1]);
 		shim_exit_group(rc);
 	} else {
 		/* Parent */
@@ -209,7 +205,6 @@ again:
 						args->name,
 						errno, strerror(errno));
 				}
-				(void)close(fds[0]);
 				break;
 			} else {
 				if (rc != EXIT_SUCCESS)
@@ -217,6 +212,7 @@ again:
 			}
 			stress_bogo_inc(args);
 		} while (stress_continue(args));
+		(void)close(fds[0]);
 
 		daemon_wait_pid(pid, daemon_wait);
 	}
