@@ -115,10 +115,15 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(args, errno))
 				goto again;
-			if (!stress_continue(args))
+			if (!stress_continue(args)) {
+				(void)close(fd[0]);
+				(void)close(fd[1]);
 				goto finish;
+			}
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
+			(void)close(fd[0]);
+			(void)close(fd[1]);
 			return EXIT_NO_RESOURCE;
 		} else if (pid > 0) {
 			int status, ret, msg;
