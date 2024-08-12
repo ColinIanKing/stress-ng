@@ -114,7 +114,7 @@ endif
 # Optimization flags
 #
 ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
-override CFLAGS += $(foreach flag,-fipa-pta,$(cc_supports_flag))
+override CFLAGS += $(foreach flag,-fipa-pta -fivopts -fmodulo-sched,$(cc_supports_flag))
 endif
 #
 # Enable Link Time Optimization
