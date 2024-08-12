@@ -67,20 +67,9 @@ static const stress_help_t help[] = {
  *  shim_keyctl()
  *	wrapper for the keyctl system call
  */
-static long shim_keyctl(int cmd, ...)
+static long shim_keyctl(int cmd, long int arg0, long int arg1, long int arg2, long int arg3)
 {
-	va_list args;
-	long int arg0, arg1, arg2, arg3, ret;
-
-	va_start(args, cmd);
-	arg0 = va_arg(args, long int);
-	arg1 = va_arg(args, long int);
-	arg2 = va_arg(args, long int);
-	arg3 = va_arg(args, long int);
-	ret = syscall(__NR_keyctl, cmd, arg0, arg1, arg2, arg3);
-	va_end(args);
-
-	return ret;
+	return syscall(__NR_keyctl, cmd, arg0, arg1, arg2, arg3);
 }
 
 /*
@@ -164,7 +153,7 @@ static int stress_key(stress_args_t *args)
 			keys[n] = shim_add_key("user", huge_description, payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
-				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[n], 0, 0, 0);
 #endif
 
 #if defined(KEYCTL_INVALIDATE)
@@ -172,7 +161,7 @@ static int stress_key(stress_args_t *args)
 			keys[n] = shim_add_key("user", "", payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
-				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[n], 0, 0, 0);
 #endif
 
 #if defined(KEYCTL_INVALIDATE)
@@ -180,7 +169,7 @@ static int stress_key(stress_args_t *args)
 			keys[n] = shim_add_key("keyring", ".bad", payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
-				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[n], 0, 0, 0);
 #endif
 
 #if defined(KEYCTL_INVALIDATE)
@@ -188,7 +177,7 @@ static int stress_key(stress_args_t *args)
 			keys[n] = shim_add_key("user", description, "",
 					0, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
-				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[n], 0, 0, 0);
 #endif
 
 #if defined(KEYCTL_INVALIDATE)
@@ -196,7 +185,7 @@ static int stress_key(stress_args_t *args)
 			keys[n] = shim_add_key("user", description, payload,
 					SIZE_MAX, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
-				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[n], 0, 0, 0);
 #endif
 
 			keys[n] = shim_add_key("user", description,
@@ -230,7 +219,7 @@ static int stress_key(stress_args_t *args)
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (timeout_supported) {
-				if (shim_keyctl(KEYCTL_SET_TIMEOUT, keys[n], KEYCTL_TIMEOUT) < 0) {
+				if (shim_keyctl(KEYCTL_SET_TIMEOUT, (long int)keys[n], (long int)KEYCTL_TIMEOUT, 0, 0) < 0) {
 					/* Some platforms don't support this */
 					if (errno == ENOSYS) {
 						timeout_supported = false;
@@ -242,7 +231,7 @@ static int stress_key(stress_args_t *args)
 			}
 #endif
 #if defined(KEYCTL_SEARCH)
-			(void)shim_keyctl(KEYCTL_SEARCH, KEY_SPEC_PROCESS_KEYRING, "user", description, 0);
+			(void)shim_keyctl(KEYCTL_SEARCH, (long int)KEY_SPEC_PROCESS_KEYRING, (long int)"user", (long int)description, 0);
 #endif
 			if (!stress_continue_flag())
 				goto tidy;
@@ -254,7 +243,7 @@ static int stress_key(stress_args_t *args)
 				"stress-ng-key-%" PRIdMAX "-%" PRIu32
 				"-%zu", (intmax_t)ppid, args->instance, i);
 #if defined(KEYCTL_DESCRIBE)
-			if (shim_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
+			if (shim_keyctl(KEYCTL_DESCRIBE, (long int)keys[i], (long int)description, 0, 0) < 0)
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -273,8 +262,8 @@ static int stress_key(stress_args_t *args)
 			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 #if defined(KEYCTL_UPDATE)
-			if (shim_keyctl(KEYCTL_UPDATE, keys[i],
-			    payload, strlen(payload)) < 0) {
+			if (shim_keyctl(KEYCTL_UPDATE, (long int)keys[i],
+			    (long int)payload, (long int)strlen(payload), 0) < 0) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -293,8 +282,8 @@ static int stress_key(stress_args_t *args)
 
 #if defined(KEYCTL_READ)
 			(void)shim_memset(payload, 0, sizeof(payload));
-			if (shim_keyctl(KEYCTL_READ, keys[i],
-			    payload, sizeof(payload)) < 0) {
+			if (shim_keyctl(KEYCTL_READ, (long int)keys[i],
+			    (long int)payload, (long int)sizeof(payload), 0) < 0) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -353,37 +342,37 @@ static int stress_key(stress_args_t *args)
 			{
 				char buf[128];
 
-				(void)shim_keyctl(KEYCTL_GET_SECURITY, keys[i], buf, sizeof(buf) - 1);
+				(void)shim_keyctl(KEYCTL_GET_SECURITY, (long int)keys[i], (long int)buf, (long int)(sizeof(buf) - 1), 0);
 			}
 #endif
 
 
 #if defined(KEYCTL_CHOWN)
-			(void)shim_keyctl(KEYCTL_CHOWN, keys[i], getuid(), -1);
-			(void)shim_keyctl(KEYCTL_CHOWN, keys[i], -1, getgid());
+			(void)shim_keyctl(KEYCTL_CHOWN, (long int)keys[i], (long int)getuid(), (long int)-1, 0);
+			(void)shim_keyctl(KEYCTL_CHOWN, (long int)keys[i], (long int)-1, (long int)getgid(), 0);
 #endif
 #if defined(KEYCTL_CAPABILITIES)
 			{
 				char buf[1024];
 
-				(void)shim_keyctl(KEYCTL_CAPABILITIES, buf, sizeof(buf));
+				(void)shim_keyctl(KEYCTL_CAPABILITIES, (long int)buf, (long int)sizeof(buf), 0, 0);
 			}
 #endif
 #if defined(KEYCTL_SETPERM)
-			(void)shim_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
+			(void)shim_keyctl(KEYCTL_SETPERM, (long int)keys[i], (long int)KEY_USR_ALL, 0, 0);
 #endif
 #if defined(KEYCTL_LINK)
-			(void)shim_keyctl(KEYCTL_LINK, keys[i], KEY_SPEC_PROCESS_KEYRING);
+			(void)shim_keyctl(KEYCTL_LINK, (long int)keys[i], (long int)KEY_SPEC_PROCESS_KEYRING, 0, 0);
 #endif
 #if defined(KEYCTL_UNLINK)
-			(void)shim_keyctl(KEYCTL_UNLINK, keys[i], KEY_SPEC_PROCESS_KEYRING);
+			(void)shim_keyctl(KEYCTL_UNLINK, (long int)keys[i], (long int)KEY_SPEC_PROCESS_KEYRING, 0, 0);
 #endif
 #if defined(KEYCTL_REVOKE)
 			if (stress_mwc1())
-				(void)shim_keyctl(KEYCTL_REVOKE, keys[i]);
+				(void)shim_keyctl(KEYCTL_REVOKE, (long int)keys[i], 0, 0, 0);
 #endif
 #if defined(KEYCTL_INVALIDATE)
-			(void)shim_keyctl(KEYCTL_INVALIDATE, keys[i]);
+			(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[i], 0, 0, 0);
 #endif
 		}
 
@@ -405,12 +394,12 @@ tidy:
 		for (i = 0; i < n; i++) {
 			if (keys[i] >= 0) {
 #if defined(KEYCTL_INVALIDATE)
-				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[i]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, (long int)keys[i], 0, 0, 0);
 #endif
 			}
 		}
 #if defined(KEYCTL_CLEAR)
-		(void)shim_keyctl(KEYCTL_CLEAR, KEY_SPEC_PROCESS_KEYRING);
+		(void)shim_keyctl(KEYCTL_CLEAR, (long int)KEY_SPEC_PROCESS_KEYRING, 0, 0, 0);
 #endif
 	} while (no_error && stress_continue(args));
 
