@@ -34,7 +34,7 @@
 #endif
 #endif
 
-stress_ret_opcode_t stress_ret_opcode =
+const stress_ret_opcode_t stress_ret_opcode =
 #if defined(STRESS_ARCH_ALPHA)
         { 4, 4, "ret", { 0x01, 0x80, 0xfa, 0x6b } };
 #elif defined(STRESS_ARCH_ARM) && defined(__aarch64__)
