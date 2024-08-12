@@ -318,6 +318,7 @@ static int stress_close(stress_args_t *args)
 		case 7:
 			if (LIKELY(pipe(pipefds) == 0)) {
 				fd = pipefds[0];
+				pipefds[0] = -1;
 				(void)close(pipefds[1]);
 			}
 			break;
@@ -412,7 +413,9 @@ static int stress_close(stress_args_t *args)
 			if (UNLIKELY(ret >= 0)) {
 				pr_fail("%s: faccessat opened file descriptor succeeded unexpectedly, "
 					"errno=%d (%s)\n", args->name, errno, strerror(errno));
-				(void)close(ret);
+				(void)close(fd);
+				if (dupfd != -1)
+					(void)close(dupfd);
 				rc = EXIT_FAILURE;
 				goto tidy;
 			}
@@ -421,7 +424,9 @@ static int stress_close(stress_args_t *args)
 #endif
 			VOID_RET(int, shim_fstat(fd, &statbuf));
 
-			VOID_RET(int, close(dup(STDOUT_FILENO)));
+			ret = dup(STDOUT_FILENO);
+			if (ret != -1)
+				(void)close(ret);
 
 			t = stress_time_now();
 			if (LIKELY(close(fd) == 0)) {
