@@ -952,7 +952,7 @@ static int stress_workload(stress_args_t *args)
 
 #if defined(WORKLOAD_THREADED)
 exit_free_threads:
-	for (i = 0; i < workload_threads; i++) {
+	for (i = 0; threads && (i < workload_threads); i++) {
 		if (threads[i].ret == 0) {
 			VOID_RET(int, pthread_cancel(threads[i].pthread));
 			VOID_RET(int, pthread_join(threads[i].pthread, NULL));
