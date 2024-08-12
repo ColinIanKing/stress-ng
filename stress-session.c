@@ -196,6 +196,8 @@ static int stress_session(stress_args_t *args)
 				continue;
 			pr_inf("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			(void)close(fds[0]);
+			(void)close(fds[1]);
 			return EXIT_NO_RESOURCE;
 		} else if (pid == 0) {
 			/* Child */
