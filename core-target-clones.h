@@ -184,12 +184,31 @@
 #endif
 #endif
 
-/* GCC5.0+ target_clones attribute, ppc64 */
+/* GCC5.0+ target_clones attributes, ppc64 */
 
 #if defined(STRESS_ARCH_PPC64) &&	\
-    defined(HAVE_TARGET_CLONES) && 	\
-    defined(HAVE_TARGET_CLONES_POWER9)
-#define TARGET_CLONES	__attribute__((target_clones("cpu=power9,default")))
+    defined(HAVE_TARGET_CLONES)
+
+#if defined(HAVE_TARGET_CLONES_POWER9)
+#define TARGET_CLONE_POWER9 "cpu=power9",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_POWER9
+#endif
+
+#if defined(HAVE_TARGET_CLONES_POWER10)
+#define TARGET_CLONE_POWER10 "cpu=power10",
+#define TARGET_CLONE_USE
+#endif
+
+#define TARGET_CLONES_ALL	\
+	TARGET_CLONE_POWER9	\
+	TARGET_CLONE_POWER10	\
+	"default"
+
+#if defined(TARGET_CLONE_USE)
+#define TARGET_CLONES	__attribute__((target_clones(TARGET_CLONES_ALL)))
+#endif
 #endif
 
 #if !defined(TARGET_CLONES)
