@@ -47,9 +47,6 @@ endif
 ifneq ($(shell $(CC) -v 2>&1 | grep scan-build),)
 COMPILER = scan-build
 endif
-ifneq ($(basename $(CC) | grep ccc-analyzer),)
-COMPILER = scan-build
-endif
 
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
