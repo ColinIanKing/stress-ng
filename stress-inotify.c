@@ -862,12 +862,15 @@ static int inotify_moved_from(
 static int inotify_close_write_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *fdptr)
+	const void *ptr)
 {
+	int *fdptr = (int *)ptr;
+
 	(void)args;
 	(void)path;
 
-	(void)close(*(const int *)fdptr);
+	(void)close(*fdptr);
+	*fdptr = -1;
 	return 0;
 }
 
@@ -892,7 +895,8 @@ static int inotify_close_write_file(
 	rc = inotify_exercise(args, filepath, path, "inotify_file",
 		inotify_close_write_helper, IN_CLOSE_WRITE, (void*)&fd, bad_fd);
 	(void)rm_file(args, filepath);
-	(void)close(fd);
+	if (fd != -1)
+		(void)close(fd);
 
 	return rc;
 }
@@ -904,12 +908,15 @@ static int inotify_close_write_file(
 static int inotify_close_nowrite_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *fdptr)
+	const void *ptr)
 {
+	int *fdptr = (int *)ptr;
+
 	(void)args;
 	(void)path;
 
-	(void)close(*(const int *)fdptr);
+	(void)close(*fdptr);
+	*fdptr = -1;
 	return 0;
 }
 
@@ -935,8 +942,9 @@ static int inotify_close_nowrite_file(
 	rc = inotify_exercise(args, filepath, path, "inotify_file",
 		inotify_close_nowrite_helper, IN_CLOSE_NOWRITE, (void*)&fd, bad_fd);
 	(void)rm_file(args, filepath);
-	(void)close(fd);
-
+	if (fd != -1)
+		(void)close(fd);
+	
 	return rc;
 }
 #else
