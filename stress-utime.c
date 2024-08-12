@@ -108,6 +108,10 @@ static int OPTIMIZE3 stress_utime(stress_args_t *args)
 		return ret;
 	}
 
+#if defined(HAVE_PATHCONF) &&	\
+    defined(_PC_TIMESTAMP_RESOLUTION)
+	VOID_RET(long, pathconf(filename, _PC_TIMESTAMP_RESOLUTION));
+#endif
 	stress_rndstr(hugename, sizeof(hugename));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

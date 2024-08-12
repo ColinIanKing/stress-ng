@@ -263,6 +263,11 @@ static int stress_fifo(stress_args_t *args)
 		goto tidy;
 	}
 
+#if defined(HAVE_PATHCONF) &&	\
+    defined(_PC_PIPE_BUF)
+	VOID_RET(long, pathconf(fifoname, _PC_PIPE_BUF));
+#endif
+
 	for (i = 0; i < fifo_readers; i++) {
 		stress_sync_start_init(&s_pids[i]);
 

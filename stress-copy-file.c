@@ -198,6 +198,22 @@ static int stress_copy_file(stress_args_t *args)
 			args->name, tmp, errno, strerror(errno));
 		goto tidy_in;
 	}
+
+#if defined(HAVE_PATHCONF)
+	/* Exercise some pathconf options */
+#if defined(_PC_REC_INCR_XFER_SIZE)
+	VOID_RET(long, pathconf(tmp, _PC_REC_INCR_XFER_SIZE));
+#endif
+#if defined(_PC_REC_MAX_XFER_SIZE)
+	VOID_RET(long, pathconf(tmp, _PC_REC_MAX_XFER_SIZE));
+#endif
+#if defined(_PC_REC_MIN_XFER_SIZE)
+	VOID_RET(long, pathconf(tmp, _PC_REC_MIN_XFER_SIZE));
+#endif
+#if defined(_PC_REC_XFER_ALIGN)
+	VOID_RET(long, pathconf(tmp, _PC_REC_XFER_ALIGN));
+#endif
+#endif
 	(void)shim_unlink(tmp);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

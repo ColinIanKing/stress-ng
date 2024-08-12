@@ -94,6 +94,7 @@ static int stress_link_generic(
 	bool symlink_func = (linkfunc == symlink);
 	char *mnts[MOUNTS_MAX];
 	double t_start, duration, rate, link_count = 0.0;
+	char dir_path[PATH_MAX];
 
 	(void)shim_memset(tmp_newpath, 0, sizeof(tmp_newpath));
 	(void)snprintf(tmp_newpath, sizeof(tmp_newpath),
@@ -103,14 +104,13 @@ static int stress_link_generic(
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
-#if defined(O_DIRECTORY)
-	if (do_sync) {
-		char dir_path[PATH_MAX];
 
-		stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
+	stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
+#if defined(O_DIRECTORY)
+	if (do_sync)
 		temp_dir_fd = open(dir_path, O_RDONLY | O_DIRECTORY);
-	}
 #else
+	(void)dir_path;
 	(void)do_sync;
 #endif
 
@@ -247,6 +247,21 @@ static int stress_link_generic(
 				(void)fsync(temp_dir_fd);
 #endif
 		}
+
+#if defined(HAVE_PATHCONF)
+#if defined(_PC_LINK_MAX)
+		/* exercise pathconf maximum file link count */
+		VOID_RET(long, pathconf(testpath, _PC_LINK_MAX));
+#endif
+#if defined(_PC_SYMLINK_MAX)
+		/* exercise pathconf maximum file symlink count */
+		VOID_RET(long, pathconf(testpath, _PC_SYMLINK_MAX));
+#endif
+#if defined(_PC_2_SYMLINKS)
+		/* exercise pathconf maximum file symlink count */
+		VOID_RET(long, pathconf(dir_path, _PC_2_SYMLINKS));
+#endif
+#endif
 
 		/* exercise invalid newpath size, EINVAL */
 		VOID_RET(ssize_t, readlink(oldpath, testpath, 0));

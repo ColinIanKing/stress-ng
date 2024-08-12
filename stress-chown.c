@@ -231,6 +231,11 @@ static int stress_chown(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+#if defined(HAVE_PATHCONF) &&	\
+    defined(_PC_CHOWN_RESTRICTED)
+	VOID_RET(long, pathconf(filename, _PC_CHOWN_RESTRICTED));
+#endif
+
 	rc = EXIT_SUCCESS;
 	do {
 		int ret;

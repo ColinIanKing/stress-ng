@@ -137,6 +137,14 @@ static int stress_fallocate(stress_args_t *args)
 	fd_sync = open(filename, O_RDWR | O_SYNC);
 #endif
 	fs_type = stress_get_fs_type(filename);
+#if defined(HAVE_PATHCONF)
+#if defined(_PC_ALLOC_SIZE_MIN)
+	VOID_RET(long, pathconf(filename, _PC_ALLOC_SIZE_MIN));
+#endif
+#if defined(_PC_FILESIZEBITS)
+	VOID_RET(long, pathconf(filename, _PC_FILESIZEBITS));
+#endif
+#endif
 	(void)shim_unlink(filename);
 
 	pipe_ret = pipe(pipe_fds);
