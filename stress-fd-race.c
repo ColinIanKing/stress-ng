@@ -46,8 +46,8 @@ UNEXPECTED
 /* list entry of filename and open flags */
 typedef struct stress_fd_race_filename {
 	struct stress_fd_race_filename *next;
-	const char *filename;		/* filename */
-	int flags;			/* open flags  */
+	char *filename;		/* filename */
+	int flags;		/* open flags  */
 } stress_fd_race_filename_t;
 
 static const stress_help_t help[] = {
@@ -594,6 +594,7 @@ static void stress_fd_race_filename_free(stress_fd_race_filename_t *list)
 	while (entry) {
 		stress_fd_race_filename_t *next = entry->next;
 
+		free(entry->filename);
 		free(entry);
 		entry = next;
 	};
@@ -748,7 +749,8 @@ static int stress_fd_race(stress_args_t *args)
 	if (reserved_port < 0) {
 		pr_inf_skip("%s: cannot reserve port %d, skipping stressor\n",
 			args->name, context.socket_fd_port);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_file;
 	}
 	context.socket_fd_port = reserved_port;
 
@@ -774,7 +776,8 @@ static int stress_fd_race(stress_args_t *args)
 	if (!context.fds) {
 		pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
 			args->name, context.max_fd);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_file;
 	}
 	if (pthread_barrier_init(&context.barrier, NULL, MAX_PTHREADS) != 0) {
 		pr_inf_skip("%s: cannot create pthread barrier, skipping stressor\n", args->name);
