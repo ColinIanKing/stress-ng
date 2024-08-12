@@ -483,7 +483,7 @@ static int stress_x86syscall(stress_args_t *args)
 #endif
 #if defined(__NR_time)
 	{
-		time_t time1, time2;
+		time_t time1 = 0, time2 = 0;
 
 		if ((time(&time1) != (time_t)-1) &&
 		    ((time_t)x86_64_syscall1(__NR_time, (long)&time2) != (time_t)-1)) {
