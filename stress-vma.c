@@ -229,7 +229,7 @@ static void *stress_vma_mmap(void *ptr)
 			flags |= (stress_mwc1() ? MAP_NONBLOCK : 0);
 #endif
 		/* Map */
-		mapped = mmap((void *)data + offset, page_size, prot, flags, -1, 0);
+		mapped = mmap((void *)(data + offset), page_size, prot, flags, -1, 0);
 		if (mapped != MAP_FAILED) {
 #if defined(__linux__) &&		\
     defined(HAVE_SYS_PRCTL_H) &&	\
