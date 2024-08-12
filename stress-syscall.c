@@ -6662,22 +6662,28 @@ static int syscall_tee(void)
 
 	if (pipe(fd1) < 0)
 		return -1;
-	if (pipe(fd2) < 0)
-		return -1;
+	if (pipe(fd2) < 0) {
+		ret = -1;
+		goto close_fd1;
+	}
 
 	sret = write(fd1[1], "test", 4);
-	if (sret < 0)
-		return -1;
+	if (sret < 0) {
+		ret = -1;
+		goto close_fd2;
+	}
 	t1 = syscall_time_now();
 	ret = tee(fd1[0], fd2[1], 1, SPLICE_F_NONBLOCK);
 	t2 = syscall_time_now();
 	sret = read(fd2[0], buf, 4);
 	if (sret < 0)
 		ret = -1;
-	(void)close(fd1[0]);
-	(void)close(fd1[1]);
+close_fd2:
 	(void)close(fd2[0]);
 	(void)close(fd2[1]);
+close_fd1:
+	(void)close(fd1[0]);
+	(void)close(fd1[1]);
 	return ret;
 }
 #endif
