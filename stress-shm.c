@@ -407,6 +407,8 @@ again:
 			if (stress_redo_fork(args, errno))
 				goto again;
 			if (!stress_continue(args)) {
+				(void)close(pipefds[0]);
+				(void)close(pipefds[1]);
 				rc = EXIT_SUCCESS;
 				goto finish;
 			}
@@ -425,6 +427,8 @@ again:
 			shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
 			if (!shm_names) {
 				pr_fail("%s: calloc failed, out of memory\n", args->name);
+				(void)close(pipefds[0]);
+				(void)close(pipefds[1]);
 				rc = EXIT_NO_RESOURCE;
 				goto err;
 			}
@@ -474,7 +478,7 @@ again:
 					restarts++;
 				}
 			}
-			(void)close(pipefds[1]);
+			(void)close(pipefds[0]);
 
 			/*
 			 *  The child may have been killed by the OOM killer or
