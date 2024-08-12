@@ -1426,8 +1426,14 @@ static void bad_open(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_pipe(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unwriteable) {
+		int *fds = (int *)ba->addr;
+
 		(*counter)++;
-		VOID_RET(int, pipe((int *)ba->addr));
+		if (pipe(fds) == 0) {
+			/* Should not get here */
+			(void)close(fds[0]);
+			(void)close(fds[1]);
+		}
 	}
 }
 
