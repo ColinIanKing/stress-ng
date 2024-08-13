@@ -251,11 +251,11 @@ static int stress_link_generic(
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_LINK_MAX)
 		/* exercise pathconf maximum file link count */
-		VOID_RET(long, pathconf(testpath, _PC_LINK_MAX));
+		VOID_RET(long, pathconf(oldpath, _PC_LINK_MAX));
 #endif
 #if defined(_PC_SYMLINK_MAX)
 		/* exercise pathconf maximum file symlink count */
-		VOID_RET(long, pathconf(testpath, _PC_SYMLINK_MAX));
+		VOID_RET(long, pathconf(oldpath, _PC_SYMLINK_MAX));
 #endif
 #if defined(_PC_2_SYMLINKS)
 		/* exercise pathconf maximum file symlink count */
