@@ -128,6 +128,16 @@ static const int types[] = {
 	0,
 };
 
+static const int close_range_flags[] = {
+#if defined(CLOSE_RANGE_UNSHARE)
+	CLOSE_RANGE_UNSHARE,
+#endif
+#if defined(CLOSE_RANGE_CLOEXEC)
+	CLOSE_RANGE_CLOEXEC,
+#endif
+	0
+};
+
 /*
  *  stress_close_func()
  *	pthread that exits immediately
@@ -151,6 +161,7 @@ static void *stress_close_func(void *arg)
 		const uint64_t delay =
 			max_delay_us ? stress_mwc64modn(max_delay_us) : 0;
 		int fds[FDS_TO_DUP], i, ret;
+		int flag;
 
 		for (i = 0; i < FDS_TO_DUP; i++) {
 			fds[i] = dup2(fileno(stderr), i + FDS_START);
@@ -178,7 +189,8 @@ static void *stress_close_func(void *arg)
 		/*
 		 *  close a range of fds
 		 */
-		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, 0);
+		flag = close_range_flags[stress_mwc8modn(SIZEOF_ARRAY(close_range_flags))];
+		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, flag);
 		if ((ret < 0) || (errno == ENOSYS)) {
 			for (i = 0; i < FDS_TO_DUP; i++)
 				(void)close(fds[i]);
