@@ -944,7 +944,6 @@ static int inotify_close_nowrite_file(
 	(void)rm_file(args, filepath);
 	if (fd != -1)
 		(void)close(fd);
-	
 	return rc;
 }
 #else
