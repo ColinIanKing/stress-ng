@@ -248,7 +248,7 @@ static int stress_tee(stress_args_t *args)
 
 	pids[0] = stress_tee_spawn(args, stress_tee_pipe_write, pipe_in);
 	if (pids[0] < 0)
-		return EXIT_FAILURE;
+		goto tidy_fd;
 	(void)close(pipe_in[1]);
 
 	pids[1] = stress_tee_spawn(args, stress_tee_pipe_read, pipe_out);
@@ -332,7 +332,7 @@ tidy_child1:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_in[0]);
 	(void)stress_kill_pid_wait(pids[0], NULL);
-
+tidy_fd:
 	(void)close(fd);
 
 	return ret;
