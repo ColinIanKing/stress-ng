@@ -87,12 +87,12 @@ by this option are client/server style stressors, such as the network stressors
 .TP
 .B \-\-class name
 specify the class of stressors to run. Stressors are classified into one or
-more of the following classes: compute, cpu, cpu\-cache, device, gpu, io, interrupt,
-filesystem, memory, network, os, pipe, scheduler, search, signal and vm.
+more of the following classes: compute, cpu, cpu\-cache, device, fp, gpu, interrupt,
+integer, io, filesystem, memory, network, os, pipe, scheduler, search, signal and vm.
 Some stressors fall into just one class. For example the 'get' stressor is
 just in the 'os' class. Other stressors fall into more than one class, for example,
 the 'lsearch' stressor falls into the 'cpu', 'cpu\-cache', 'memory' and 'search'
-classes as it exercises all these three.  Selecting a specific class
+classes as it exercises all these four.  Selecting a specific class
 will run all the stressors that fall into that class only when run with
 the \-\-sequential option.
 

@@ -358,6 +358,8 @@ do {				\
 #define CLASS_SIGNAL		STRESS_BIT_UL(15)	/* software signals */
 #define CLASS_SEARCH		STRESS_BIT_UL(16)	/* Search algorithms */
 #define CLASS_COMPUTE		STRESS_BIT_UL(17)	/* CPU computations */
+#define CLASS_FP		STRESS_BIT_UL(18)	/* Floating point operations */
+#define CLASS_INTEGER		STRESS_BIT_UL(19)	/* Integer operations */
 
 /* Help information for options */
 typedef struct {

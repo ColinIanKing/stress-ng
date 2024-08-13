@@ -396,7 +396,7 @@ static const stress_opt_t opts[] = {
 
 stressor_info_t stress_fma_info = {
 	.stressor = stress_fma,
-	.class = CLASS_CPU | CLASS_COMPUTE,
+	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
