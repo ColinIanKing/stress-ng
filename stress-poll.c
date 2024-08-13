@@ -150,8 +150,8 @@ static int OPTIMIZE3 stress_poll(stress_args_t *args)
 				args->name, errno, strerror(errno));
 
 			for (j = 0; j < i; j++) {
-				(void)close(pipe_fds[i].fd[0]);
-				(void)close(pipe_fds[i].fd[1]);
+				(void)close(pipe_fds[j].fd[0]);
+				(void)close(pipe_fds[j].fd[1]);
 			}
 			free(rnd_fds_index);
 			free(poll_fds);
