@@ -85,6 +85,68 @@ typedef struct {
 	volatile int current_fd;	/* current fd being opened */
 } stress_fd_race_context;
 
+static int stress_fd_race_close_range_flag(void)
+{
+#if defined(CLOSE_RANGE_UNSHARE)
+	return stress_mwc1() ? CLOSE_RANGE_UNSHARE : 0;
+#else
+	return 0;
+#endif
+}
+
+/*
+ *  stress_fd_race_close_fds()
+ *	close fds, use randomly chosen closing, either
+ *	by close_range, forward, reverse or randomly
+ *	ordered fds
+ */
+static void stress_fd_race_close_fds(
+	int *fds,
+	const size_t n,
+	const int fds_min,
+	const int fds_max,
+	const int flag)
+{
+	size_t i, j;
+	int tmp;
+
+	if (!fds)
+		return;
+	if (n < 1)
+		return;
+	if ((fds_min == INT_MAX) || (fds_max < 0))
+		return;
+	if (stress_mwc1()) {
+		/* Try to close on a range */
+		if (shim_close_range(fds_min, fds_max, flag) == 0)
+			return;
+	}
+	switch (stress_mwc8modn(3)) {
+	case 0:
+	default:
+		/* Close fds in order */
+		for (i = 0; i < n; i++)
+			(void)close(fds[i]);
+		break;
+	case 1:
+		/* Close fds in reverse order */
+		for (i = n; i > 0; i--)
+			(void)close(fds[i - 1]);
+		break;
+	case 2:
+		/* Close fds in randomized order */
+		for (i = 0; i < n; i++) {
+			j = (size_t)stress_mwc32modn(n);
+
+			tmp = fds[i];
+			fds[j] = fds[i];
+			fds[i] = tmp;
+		}
+		for (i = 0; i < n; i++)
+			(void)close(fds[i]);
+		break;
+	}
+}
 
 /*
  *  stress_race_fd_send()
@@ -212,6 +274,7 @@ static int OPTIMIZE3 stress_race_fd_client(stress_fd_race_context *context)
 		ssize_t n;
 		socklen_t addr_len = 0;
 		int i, fd, retries = 0, so_reuseaddr = 1;
+		int fds_min = INT_MAX, fds_max = -1;
 		int pthreads_ret[MAX_PTHREADS];
 		pthread_t pthreads[MAX_PTHREADS];
 
@@ -260,8 +323,11 @@ retry:
 			context->fds[n] = stress_race_fd_recv(fd);
 			if (context->fds[n] < 0)
 				continue;
+			if (fds_max < context->fds[n])
+				fds_max = context->fds[n];
+			if (fds_min > context->fds[n])
+				fds_min = context->fds[n];
 		}
-
 		context->n = n;
 
 		for (i = 0; i < MAX_PTHREADS; i++) {
@@ -272,7 +338,7 @@ retry:
 				(void)pthread_join(pthreads[i], NULL);
 		}
 
-		stress_close_fds(context->fds, n);
+		stress_fd_race_close_fds(context->fds, n, fds_min, fds_max, stress_fd_race_close_range_flag());
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 	} while (stress_continue(args));
@@ -519,7 +585,7 @@ static int OPTIMIZE3 stress_race_fd_server(
 					break;
 			}
 			(void)close(sfd);
-			stress_close_fds(context->fds, i);
+			stress_fd_race_close_fds(context->fds, i, fds_min, fds_max, stress_fd_race_close_range_flag());
 		}
 
 		/* cycle through filename list */
