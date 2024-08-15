@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "7 August 2024"
+.TH STRESS-NG 1 "15 August 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -77,6 +77,9 @@ then the number of configured CPUs in the system is used.
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
 allows one to ramp up the stress tests over time.
+.TP
+.B \-\-c\-states
+report CPU C-state residencies.
 .TP
 .B \-\-change\-cpu
 this forces child processes of some stressors to change to a different CPU from the

@@ -140,6 +140,7 @@ static stress_sigalrm_info_t sigalrm_info;
 static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_abort,		OPT_FLAGS_ABORT },
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
+	{ OPT_c_states,		OPT_FLAGS_C_STATES },
 	{ OPT_change_cpu,	OPT_FLAGS_CHANGE_CPU },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
@@ -1860,12 +1861,16 @@ again:
 				/* Child */
 				child_pid = getpid();
 				stats->s_pid.pid = child_pid;
+				if (g_opt_flags & OPT_FLAGS_C_STATES)
+					stress_cpuidle_read_cstates_begin(&stats->cstates);
 				rc = stress_run_child(checksum,
 						stats, fork_time_start,
 						backoff, ticks_per_sec,
 						ionice_class, ionice_level,
 						j, started_instances,
 						page_size, child_pid);
+				if (g_opt_flags & OPT_FLAGS_C_STATES)
+					stress_cpuidle_read_cstates_end(&stats->cstates);
 				_exit(rc);
 			default:
 				if (pid > -1) {
@@ -1906,6 +1911,7 @@ wait_for_stressors:
 	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
 		stress_start_timeout();
 #endif
+
 	stress_wait_stressors(s_pids_head, ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
@@ -4184,6 +4190,9 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_free(&g_shared->tz_info);
 #endif
+	if (g_opt_flags & OPT_FLAGS_C_STATES)
+		stress_cpuidle_dump(yaml, stressors_head);
+
 #if defined(STRESS_RAPL)
 	if (g_opt_flags & OPT_FLAGS_RAPL)
 		stress_rapl_dump(yaml, stressors_head, g_shared->rapl_domains);

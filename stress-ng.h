@@ -291,7 +291,8 @@ do {				\
 #define STRESS_STATE_WAIT		(7)
 #define STRESS_STATE_ZOMBIE		(8)
 
-#define	STRESS_INTERRUPTS_MAX		(8)	/* see core_interrupts.c */
+#define STRESS_INTERRUPTS_MAX		(8)	/* see core_interrupts.c */
+#define STRESS_CSTATES_MAX		(16)
 
 /* oomable flags */
 #define	STRESS_OOMABLE_NORMAL		(0x00000000)	/* Normal oomability */
@@ -523,6 +524,12 @@ typedef struct {
 	uint64_t count_stop;
 } stress_interrupts_t;
 
+typedef struct {
+	bool   valid;
+	double time[STRESS_CSTATES_MAX];
+	double residency[STRESS_CSTATES_MAX];
+} stress_cstate_stats_t;
+
 /* Per stressor statistics and accounting info */
 typedef struct stress_stats {
 	stress_args_t args;		/* stressor args */
@@ -545,6 +552,7 @@ typedef struct stress_stats {
 #endif
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_interrupts_t interrupts[STRESS_INTERRUPTS_MAX];
+	stress_cstate_stats_t cstates;	/* cstate stats */
 	stress_metrics_data_t metrics;	/* misc metrics */
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */

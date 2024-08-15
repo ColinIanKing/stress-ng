@@ -85,6 +85,7 @@
 #define OPT_FLAGS_SYNC_START	 STRESS_BIT_ULL(54)	/* --sync-start */
 #define OPT_FLAGS_RAPL		 STRESS_BIT_ULL(55)	/* --rapl */
 #define OPT_FLAGS_RAPL_REQUIRED  STRESS_BIT_ULL(56)	/* set if RAPL is required */
+#define OPT_FLAGS_C_STATES	 STRESS_BIT_ULL(57)	/* --c-states */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -223,6 +224,8 @@ typedef enum {
 	OPT_bsearch_method,
 	OPT_bsearch_ops,
 	OPT_bsearch_size,
+
+	OPT_c_states,
 
 	OPT_class,
 

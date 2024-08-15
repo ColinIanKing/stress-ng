@@ -86,6 +86,7 @@ const struct option stress_long_options[] = {
 	{ "bsearch-method",	1,	0,	OPT_bsearch_method },
 	{ "bsearch-ops",	1,	0,	OPT_bsearch_ops },
 	{ "bsearch-size",	1,	0,	OPT_bsearch_size },
+	{ "c-states",		0,	0,	OPT_c_states },
 	{ "cache",		1,	0, 	OPT_cache },
 	{ "cache-size",		1,	0, 	OPT_cache_size},
 	{ "cache-cldemote",	0,	0,	OPT_cache_cldemote },
