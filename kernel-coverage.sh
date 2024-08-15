@@ -249,7 +249,12 @@ umount_filesystem()
 		if [ $? -eq 0 ]; then
 			break;
 		else
-			echo umount of ${MNT} failed, retrying...
+			mnts=$(cat /proc/mounts | grep ${MNT} > /dev/null)
+			if [ $? -eq 1 ]; then
+				break;
+			else
+				echo umount of ${MNT} failed, retrying...
+			fi
 		fi
 		sleep 1
 	done
