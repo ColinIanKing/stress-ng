@@ -323,6 +323,28 @@ stress-ng: info:  [4563] metrics untrustworthy: 0
 stress-ng: info:  [4563] successful run completed in 11.38 secs
 ```
 
+Measure C-state residency:
+
+```
+stress-ng --intmath 0 -t 1m --c-states
+stress-ng: info:  [6998] setting to a 1 min run per stressor
+stress-ng: info:  [6998] dispatching hogs: 8 intmath
+stress-ng: info:  [6998] intmath:
+stress-ng: info:  [6998]  C0     99.98%
+stress-ng: info:  [6998]  C1      0.00%
+stress-ng: info:  [6998]  C1E     0.01%
+stress-ng: info:  [6998]  C3      0.00%
+stress-ng: info:  [6998]  C6      0.01%
+stress-ng: info:  [6998]  C7s     0.00%
+stress-ng: info:  [6998]  C8      0.00%
+stress-ng: info:  [6998]  POLL    0.00%
+stress-ng: info:  [6998] skipped: 0
+stress-ng: info:  [6998] passed: 8: intmath (8)
+stress-ng: info:  [6998] failed: 0
+stress-ng: info:  [6998] metrics untrustworthy: 0
+stress-ng: info:  [6998] successful run completed in 1 min
+```
+
 ## Bugs and regressions found with stress-ng
 
 stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have been landed to address these issues:
