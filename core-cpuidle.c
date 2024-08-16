@@ -26,6 +26,12 @@
 static cpu_cstate_t *cpu_cstate_list;
 static size_t cpu_cstate_list_len;
 
+#if defined(STRESS_ARCH_X86)
+static char *busy_state = "C0";
+#else
+static char *busy_state = "BUSY";
+#endif
+
 /*
  *  stress_cpuidle_cstate_list_head()
  *	return head of C-state list
@@ -148,7 +154,7 @@ void stress_cpuidle_init(void)
 	(void)closedir(cpu_dir);
 
 	if (cpu_cstate_list && !has_c0)
-		stress_cpuidle_cstate_add_unique("C0", 0);
+		stress_cpuidle_cstate_add_unique(busy_state, 0);
 #else
 	cpu_cstate_list = NULL;
 	cpu_cstate_list_len = 0;
@@ -310,7 +316,7 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 			pr_yaml(yaml, "    - stressor: %s\n", tmp);
 
 			for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
-				if (strcmp(cc->cstate, "C0") == 0)
+				if (strcmp(cc->cstate, busy_state) == 0)
 					residencies[i] = c0_residency;
 				pr_inf(" %-5.5s %6.2f%%\n", cc->cstate, residencies[i]);
 				pr_yaml(yaml, "      %s: %.2f\n", cc->cstate, residencies[i]);
