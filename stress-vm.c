@@ -203,7 +203,9 @@ static inline void inject_random_bit_errors(uint8_t *buf, const size_t sz)
  */
 static inline ALWAYS_INLINE PURE OPTIMIZE3 uint64_t stress_vm_mod(register uint64_t a, register const size_t b)
 {
-	while (LIKELY(a >= b))
+	if (LIKELY(a >= b))
+		a -= b;
+	if (UNLIKELY(a >= b))
 		a -= b;
 	return a;
 }
