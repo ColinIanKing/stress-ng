@@ -84,7 +84,7 @@ static inline OPTIMIZE3 void bubblesort_swap(void * RESTRICT p1, void * RESTRICT
 	}
 }
 
-static int bubblesort(
+static int bubblesort_fast(
 	void *base,
 	size_t nmemb,
 	size_t size,
@@ -152,7 +152,7 @@ static int bubblesort_naive(
 }
 
 static const stress_bubblesort_method_t stress_bubblesort_methods[] = {
-	{ "bubblesort",		bubblesort },
+	{ "bubblesort-fast",	bubblesort_fast },
 	{ "bubblesort-naive",	bubblesort_naive },
 };
 
