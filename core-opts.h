@@ -225,6 +225,11 @@ typedef enum {
 	OPT_bsearch_ops,
 	OPT_bsearch_size,
 
+	OPT_bubblesort,
+	OPT_bubblesort_method,
+	OPT_bubblesort_ops,
+	OPT_bubblesort_size,
+
 	OPT_c_states,
 
 	OPT_class,

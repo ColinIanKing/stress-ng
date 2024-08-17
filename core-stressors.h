@@ -45,6 +45,7 @@
 	MACRO(branch)		\
 	MACRO(brk)		\
 	MACRO(bsearch)		\
+	MACRO(bubblesort)	\
 	MACRO(cache)		\
 	MACRO(cacheline)	\
 	MACRO(cap)		\

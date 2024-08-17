@@ -1,0 +1,352 @@
+/*
+ * Copyright (C) 2024      Colin Ian King.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ */
+#include "stress-ng.h"
+#include "core-sort.h"
+
+#define MIN_HEAPSORT_SIZE	(1 * KB)
+#define MAX_HEAPSORT_SIZE	(4 * MB)
+#define DEFAULT_HEAPSORT_SIZE	(16384)
+
+static volatile bool do_jmp = true;
+static sigjmp_buf jmp_env;
+
+static const stress_help_t help[] = {
+	{ NULL,	"bubblesort N",	   	"start N workers heap sorting 32 bit random integers" },
+	{ NULL, "bubblesort-method M",	"select sort method [ bubblesort-libc | bubblesort-nonlibc" },
+	{ NULL,	"bubblesort-ops N",	"stop after N heap sort bogo operations" },
+	{ NULL,	"bubblesort-size N",	"number of 32 bit integers to sort" },
+	{ NULL,	NULL,		   NULL }
+};
+
+typedef int (*bubblesort_func_t)(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+
+typedef struct {
+	const char *name;
+	const bubblesort_func_t bubblesort_func;
+} stress_bubblesort_method_t;
+
+static inline OPTIMIZE3 void bubblesort_swap(void * RESTRICT p1, void * RESTRICT p2, register size_t size)
+{
+	switch (size) {
+	case 8: {
+			register uint64_t tmp64;
+
+			tmp64 = *(uint64_t *)p1;
+			*(uint64_t *)p1 = *(uint64_t *)p2;
+			*(uint64_t *)p2 = tmp64;
+			return;
+		}
+	case 4: {
+			register uint32_t tmp32;
+
+			tmp32 = *(uint32_t *)p1;
+			*(uint32_t *)p1 = *(uint32_t *)p2;
+			*(uint32_t *)p2 = tmp32;
+			return;
+		}
+	case 2: {
+			register uint16_t tmp16;
+
+			tmp16 = *(uint16_t *)p1;
+			*(uint16_t *)p1 = *(uint16_t *)p2;
+			*(uint16_t *)p2 = tmp16;
+			return;
+		}
+	default: {
+			register uint8_t *u8p1 = (uint8_t *)p1;
+			register uint8_t *u8p2 = (uint8_t *)p2;
+
+			do {
+				register uint8_t tmp;
+
+				tmp = *(u8p1);
+				*(u8p1++) = *(u8p2);
+				*(u8p2++) = tmp;
+			} while (--size);
+			return;
+		}
+	}
+}
+
+static int bubblesort(
+	void *base,
+	size_t nmemb,
+	size_t size,
+	int (*compar)(const void *, const void *))
+{
+	if (UNLIKELY(nmemb <= 1))
+		return 0;
+	if (UNLIKELY(size < 1)) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	do {
+		register size_t i, n = 0;
+		register uintptr_t p1 = (uintptr_t)base;
+		register uintptr_t p2 = size + (uintptr_t)base;
+
+		for (i = 1; i < nmemb; i++) {
+			if (compar((void *)p1, (void *)p2) > 0) {
+				bubblesort_swap((void *)p1, (void *)p2, size);
+				n = i;
+			}
+			p1 = p2;
+			p2 += size;
+		}
+		nmemb = n;
+	} while (LIKELY(nmemb > 1));
+
+	return 0;
+}
+
+static int bubblesort_naive(
+	void *base,
+	size_t nmemb,
+	size_t size,
+	int (*compar)(const void *, const void *))
+{
+	bool swapped;
+
+	if (UNLIKELY(nmemb <= 1))
+		return 0;
+	if (UNLIKELY(size < 1)) {
+		errno = EINVAL;
+		return -1;
+	}
+
+	do {
+		register size_t i;
+		register uintptr_t p1 = (uintptr_t)base;
+		register uintptr_t p2 = size + (uintptr_t)base;
+
+		swapped = false;
+		for (i = 1; i < nmemb; i++) {
+			if (compar((void *)p1, (void *)p2) > 0) {
+				bubblesort_swap((void *)p1, (void *)p2, size);
+				swapped = true;
+			}
+			p1 = p2;
+			p2 += size;
+		}
+		nmemb--;
+	} while (LIKELY(swapped));
+
+	return 0;
+}
+
+static const stress_bubblesort_method_t stress_bubblesort_methods[] = {
+	{ "bubblesort",		bubblesort },
+	{ "bubblesort-naive",	bubblesort_naive },
+};
+
+static const char *stress_bubblesort_method(const size_t i)
+{
+	return (i < SIZEOF_ARRAY(stress_bubblesort_methods)) ? stress_bubblesort_methods[i].name : NULL;
+}
+
+static const stress_opt_t opts[] = {
+	{ OPT_bubblesort_size,   "bubblesort-size",   TYPE_ID_UINT64, MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE, NULL },
+	{ OPT_bubblesort_method, "bubblesort-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_bubblesort_method },
+	END_OPT,
+};
+
+/*
+ *  stress_bubblesort_handler()
+ *	SIGALRM generic handler
+ */
+static void MLOCKED_TEXT stress_bubblesort_handler(int signum)
+{
+	(void)signum;
+
+	if (do_jmp) {
+		do_jmp = false;
+		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	}
+}
+
+/*
+ *  stress_bubblesort()
+ *	stress bubblesort
+ */
+static int stress_bubblesort(stress_args_t *args)
+{
+	uint64_t bubblesort_size = DEFAULT_HEAPSORT_SIZE;
+	int32_t *data, *ptr;
+	size_t n, i, bubblesort_method = 0;
+	struct sigaction old_action;
+	int ret;
+	double rate;
+	NOCLOBBER int rc = EXIT_SUCCESS;
+	NOCLOBBER double duration = 0.0, count = 0.0, sorted = 0.0;
+	bubblesort_func_t bubblesort_func;
+
+	(void)stress_get_setting("bubblesort-method", &bubblesort_method);
+
+	bubblesort_func = stress_bubblesort_methods[bubblesort_method].bubblesort_func;
+	if (args->instance == 0)
+		pr_inf("%s: using method '%s'\n",
+			args->name, stress_bubblesort_methods[bubblesort_method].name);
+
+	if (!stress_get_setting("bubblesort-size", &bubblesort_size)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			bubblesort_size = MAX_HEAPSORT_SIZE;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			bubblesort_size = MIN_HEAPSORT_SIZE;
+	}
+	n = (size_t)bubblesort_size;
+
+	if ((data = calloc(n, sizeof(*data))) == NULL) {
+		pr_inf_skip("%s: failed to allocate %zu integers, skipping stressor\n",
+			args->name, n);
+		return EXIT_NO_RESOURCE;
+	}
+
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		/*
+		 * We return here if SIGALRM jmp'd back
+		 */
+		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+		goto tidy;
+	}
+
+	if (stress_sighandler(args->name, SIGALRM, stress_bubblesort_handler, &old_action) < 0) {
+		free(data);
+		return EXIT_FAILURE;
+	}
+
+	stress_sort_data_int32_init(data, n);
+
+	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
+	stress_sync_start_wait(args);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	do {
+		double t;
+
+		stress_sort_data_int32_shuffle(data, n);
+
+		/* Sort "random" data */
+		stress_sort_compare_reset();
+		t = stress_time_now();
+		if (bubblesort_func(data, n, sizeof(*data), stress_sort_cmp_fwd_int32) < 0) {
+			pr_fail("%s: bubblesort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		} else {
+			duration += stress_time_now() - t;
+			count += (double)stress_sort_compare_get();
+			sorted += (double)n;
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr > *(ptr + 1)) {
+						pr_fail("%s: sort error "
+							"detected, incorrect ordering "
+							"found\n", args->name);
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
+			}
+		}
+		if (!stress_continue_flag())
+			break;
+
+		/* Reverse sort */
+		stress_sort_compare_reset();
+		t = stress_time_now();
+		if (bubblesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
+			pr_fail("%s: reversed bubblesort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		} else {
+			duration += stress_time_now() - t;
+			count += (double)stress_sort_compare_get();
+			sorted += (double)n;
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr < *(ptr + 1)) {
+						pr_fail("%s: reverse sort "
+							"error detected, incorrect "
+							"ordering found\n", args->name);
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
+			}
+		}
+		if (!stress_continue_flag())
+			break;
+		/* And re-order  */
+		stress_sort_data_int32_mangle(data, n);
+		stress_sort_compare_reset();
+
+		/* Reverse sort this again */
+		stress_sort_compare_reset();
+		t = stress_time_now();
+		if (bubblesort_func(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
+			pr_fail("%s: reversed bubblesort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		} else {
+			duration += stress_time_now() - t;
+			count += (double)stress_sort_compare_get();
+			sorted += (double)n;
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr < *(ptr + 1)) {
+						pr_fail("%s: reverse sort "
+							"error detected, incorrect "
+							"ordering found\n", args->name);
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
+			}
+		}
+		if (!stress_continue_flag())
+			break;
+
+		stress_bogo_inc(args);
+	} while (stress_continue(args));
+
+	do_jmp = false;
+	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
+tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_metrics_set(args, 0, "bubblesort comparisons per sec",
+		rate, STRESS_METRIC_HARMONIC_MEAN);
+	stress_metrics_set(args, 1, "bubblesort comparisons per item",
+		count / sorted, STRESS_METRIC_HARMONIC_MEAN);
+
+	free(data);
+
+	return rc;
+}
+
+stressor_info_t stress_bubblesort_info = {
+	.stressor = stress_bubblesort,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
+	.opts = opts,
+	.verify = VERIFY_OPTIONAL,
+	.help = help
+};

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 August 2024"
+.TH STRESS-NG 1 "17 August 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1125,6 +1125,24 @@ stop the bsearch worker after N bogo bsearch operations are completed.
 .B \-\-bsearch\-size N
 specify the size (number of 32 bit integers) in the array to bsearch. Size can
 be from 1K to 4M.
+.RE
+.TP
+.B bubblesort stressor
+.RS 5
+.TQ
+.B \-\-bubblesort N
+start N workers that sort 32 bit integers using bubblesort.
+.TP
+.B \-\-bubblesort\-method [ bubblesort | bubblesort\-naive ]
+select either a standard optimized implementation of bubblesort or a
+naive unoptimized implementation of bubblesort. The default is the standard
+optimized version.
+.TP
+.B \-\-bubblesort\-ops N
+stop bubblesort stress workers after N bogo bubblesorts.
+.TP
+.B \-\-bubblesort\-size N
+specify number of 32 bit integers to sort, default is 16384.
 .RE
 .TP
 .B Cache stressor
