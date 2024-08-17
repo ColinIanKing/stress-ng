@@ -361,6 +361,7 @@ do {				\
 #define CLASS_COMPUTE		STRESS_BIT_UL(17)	/* CPU computations */
 #define CLASS_FP		STRESS_BIT_UL(18)	/* Floating point operations */
 #define CLASS_INTEGER		STRESS_BIT_UL(19)	/* Integer operations */
+#define CLASS_SORT		STRESS_BIT_UL(20)	/* Sort stressors */
 
 /* Help information for options */
 typedef struct {

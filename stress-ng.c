@@ -297,6 +297,7 @@ static const stress_class_info_t stress_classes[] = {
 	{ CLASS_SEARCH,		"search" },
 	{ CLASS_SECURITY,	"security" },
 	{ CLASS_SIGNAL,		"signal" },
+	{ CLASS_SORT,		"sort" },
 	{ CLASS_VM,		"vm" },
 };
 

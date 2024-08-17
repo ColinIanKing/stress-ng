@@ -381,7 +381,7 @@ tidy:
 
 stressor_info_t stress_heapsort_info = {
 	.stressor = stress_heapsort,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help

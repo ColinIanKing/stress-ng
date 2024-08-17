@@ -345,7 +345,7 @@ tidy:
 
 stressor_info_t stress_bubblesort_info = {
 	.stressor = stress_bubblesort,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
 	.opts = opts,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
