@@ -93,6 +93,7 @@
 	MACRO(fcntl)		\
 	MACRO(fd_fork)		\
 	MACRO(fd_race)		\
+	MACRO(fibsearch)	\
 	MACRO(fiemap)		\
 	MACRO(fifo)		\
 	MACRO(file_ioctl)	\

@@ -1014,7 +1014,7 @@ Available bitops stress methods are described as follows:
 .TS
 lB2 lB
 l lx.
-Method	Description 
+Method	Description
 all	T{
 iterate over all the below bitops stress methods.
 T}
@@ -1025,7 +1025,7 @@ countbits	T{
 count the number of bits set to 1 in a 32 bit unsigned integer. Computed five different ways, two with bit counting, one with 64 bit multiplication, one with parallelised masking and shifting, one using a builtin popcount function.
 T}
 clz	T{
-count the number of leading zero bits in a 32 bit unsigned integer. Computed four different ways, one with bit counting, one with log2 shifting, one using a builtin popcount function, one using a builtin clz function, 
+count the number of leading zero bits in a 32 bit unsigned integer. Computed four different ways, one with bit counting, one with log2 shifting, one using a builtin popcount function, one using a builtin clz function,
 T}
 ctz	T{
 count the number of trailing zero bits in a 32 bit unsigned integer. Computed five different ways, one with bit cointing, one using masking and shifting, one using the masking and ternary operator Gaudet method, one using a builtin clz function, one using a builtin popcount function.
@@ -2564,6 +2564,26 @@ stop after N file descriptors have been exercised.
 .TP
 .B \-\-fd\-race\-proc
 exercise /proc files for race conditions.
+.RE
+.TP
+.B Fibonacci search stressor
+.RS 5
+.TQ
+.B \-\-fibsearch N
+start N workers that use a search a sorted array of 32 bit
+integers using a Fibonacci search. A Fibonacci seaarch is similar to a bsearch
+except that it uses the Fibonacci series to divide the search into unequal sized spaces. It
+avoids the costly division operator found in bsearches and examines closer elements on each
+search step so there is a slight compute and cache advantage over bsearch.
+By default, there are 65536 elements in the array.
+This is a useful method to exercise random access of memory and processor cache.
+.TP
+.B \-\-fibsearch\-ops N
+stop the fibsearch worker after N bogo fibsearch operations are completed.
+.TP
+.B \-\-fibsearch\-size N
+specify the size (number of 32 bit integers) in the array to fibsearch. Size can
+be from 1K to 4M.
 .RE
 .TP
 .B File extent (fiemap) stressor

@@ -360,9 +360,10 @@ STRESS_SRC = \
 	stress-fcntl.c \
 	stress-fd-fork.c \
 	stress-fd-race.c \
-	stress-file-ioctl.c \
+	stress-fibsearch.c \
 	stress-fiemap.c \
 	stress-fifo.c \
+	stress-file-ioctl.c \
 	stress-filename.c \
 	stress-flock.c \
 	stress-flushcache.c \

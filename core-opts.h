@@ -437,6 +437,10 @@ typedef enum {
 	OPT_fd_race_ops,
 	OPT_fd_race_proc,
 
+	OPT_fibsearch,
+	OPT_fibsearch_ops,
+	OPT_fibsearch_size,
+
 	OPT_fiemap,
 	OPT_fiemap_ops,
 	OPT_fiemap_bytes,
