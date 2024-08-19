@@ -83,12 +83,59 @@ static void * OPTIMIZE3 lsearch_nonlibc(
 	return result;
 }
 
+static inline void OPTIMIZE3 * lfind_sentinel(
+	const void *key,
+	const void *base,
+	size_t *nmemb,
+	size_t size,
+	int (*compare)(const void *p1, const void *p2))
+{
+	register char *ptr = (char *)base;
+	register const char *ptr_end;
+	char tmp[size];
+
+	if (*nmemb < 1)
+		return NULL;
+
+	ptr_end = (char *)base + (((*nmemb) - 1) * size);
+
+	/* save last value */
+	shim_memcpy((void *)tmp, ptr_end, size);
+	/* copy key to last value */
+	shim_memcpy((void *)ptr_end, key, size);
+
+	/* compare until we reach end value */
+	while (compare(ptr, key))
+		ptr += size;
+
+	/* copy saved last value back */
+	shim_memcpy((void *)ptr_end, tmp, size);
+	return ((ptr < ptr_end) || (compare(ptr_end, key) == 0)) ? ptr : NULL;
+}
+
+static void * OPTIMIZE3 lsearch_sentinel(
+	const void *key,
+	void *base,
+	size_t *nmemb,
+	size_t size,
+	int (*compare)(const void *p1, const void *p2))
+{
+	register void *result = lfind_sentinel(key, base, nmemb, size, compare);
+
+	if (!result) {
+		result = shim_memcpy((char *)base + ((*nmemb) * size), key, size);
+		++(*nmemb);
+	}
+	return result;
+}
+
 static const stress_lsearch_method_t stress_lsearch_methods[] = {
 #if defined(HAVE_SEARCH_H) &&	\
     defined(HAVE_LSEARCH)
 	{ "lsearch-libc",	lfind,		lsearch },
 #endif
 	{ "lsearch-nonlibc",	lfind_nonlibc,	lsearch_nonlibc },
+	{ "lsearch-sentinel",	lfind_sentinel,	lsearch_sentinel },
 };
 
 static const char *stress_lsearch_method(const size_t i)
