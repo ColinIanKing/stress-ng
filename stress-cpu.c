@@ -286,6 +286,34 @@ static int OPTIMIZE_FAST_MATH stress_cpu_trig(const char *name)
 	stress_long_double_put(d_sum);
 	return EXIT_SUCCESS;
 }
+/*
+stress cpu using count of armstrong numbers
+*/
+static int OPTIMIZE0 count_armstrong_numbers(const char *name)
+{
+    uint32_t i, num, sum, count = 0;
+
+    for (i = 0; LIKELY(i <= 16384); i++) {
+        num = i;
+        sum = 0;
+        while (num > 0) {
+            uint32_t digit = num % 10;
+            sum += digit * digit * digit;
+            num /= 10;
+        }
+        if (sum == i) {
+            count++;
+        }
+		FORCE_DO_NOTHING();
+    }
+
+    if ((g_opt_flags & OPT_FLAGS_VERIFY)&&(count!=16) {
+        printf("%s: Number of Armstrong numbers between 0 and 16384 is %" PRIu32 "\n", name, count);
+		return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
 
 /*
  *  stress_cpu_hyperbolic()
