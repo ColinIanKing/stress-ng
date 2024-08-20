@@ -71,11 +71,51 @@ static void OPTIMIZE3 * bsearch_nonlibc(
 	return NULL;
 }
 
+static void OPTIMIZE3 * bsearch_ternary(
+	const void *key,
+	const void *base,
+	size_t nmemb,
+	size_t size,
+	int (*compare)(const void *p1, const void *p2))
+{
+	register size_t lower = 0;
+	register size_t upper = nmemb;
+
+	while (LIKELY(upper >= lower)) {
+		register const size_t diff = upper - lower;
+		register const size_t mid1 = lower + (diff / 3);
+		register const size_t mid2 = upper - (diff / 3);
+		register void *ptr1, *ptr2;
+		register int cmp1, cmp2;
+
+		ptr1 = (void *)((const char *)base + (mid1 * size));
+		cmp1 = compare(key, ptr1);
+		if (cmp1 == 0)
+			return ptr1;
+
+		ptr2 = (void *)((const char *)base + (mid2 * size));
+		cmp2 = compare(key, ptr2);
+		if (cmp2 == 0)
+			return ptr2;
+
+		if (cmp1 < 0) {
+			upper = mid1 - 1;
+		} else if (cmp2 > 0) {
+			lower = mid2 + 1;
+		} else {
+			lower = mid1 + 1;
+			upper = mid2 - 1;
+		}
+	}
+	return NULL;
+}
+
 static const stress_bsearch_method_t stress_bsearch_methods[] = {
 #if defined(HAVE_BSEARCH)
 	{ "bsearch-libc",	bsearch },
 #endif
 	{ "bsearch-nonlibc",	bsearch_nonlibc },
+	{ "bsearch-ternary",	bsearch_ternary },
 };
 
 static const char *stress_bsearch_method(const size_t i)
