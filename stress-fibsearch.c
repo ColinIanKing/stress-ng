@@ -41,7 +41,7 @@ static void OPTIMIZE3 * fibsearch(
 	register size_t fib2 = 0;
 	register size_t fib1 = 1;
 	register size_t fib0 = fib2 + fib1;
-	register size_t n = nmemb - 1;
+	register ssize_t n = nmemb - 1;
 	register void *ptr;
 	register int offset = -1;
 
@@ -52,8 +52,8 @@ static void OPTIMIZE3 * fibsearch(
 	}
 
 	while (fib0 > 1) {
-		register size_t m = offset + fib2;
-		register int idx = (m < n) ? m : n;
+		register ssize_t m = offset + fib2;
+		register ssize_t idx = (m < n) ? m : n;
 		register void *ptr = (char *)base + (idx * size);
 		register const int cmp = compare(ptr, key);
 
