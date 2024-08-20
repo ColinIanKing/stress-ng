@@ -115,7 +115,7 @@ static const stress_bsearch_method_t stress_bsearch_methods[] = {
 	{ "bsearch-libc",	bsearch },
 #endif
 	{ "bsearch-nonlibc",	bsearch_nonlibc },
-	{ "bsearch-ternary",	bsearch_ternary },
+	{ "ternary",		bsearch_ternary },
 };
 
 static const char *stress_bsearch_method(const size_t i)
