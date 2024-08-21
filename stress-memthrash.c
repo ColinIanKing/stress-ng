@@ -922,7 +922,7 @@ static int stress_memthrash(stress_args_t *args)
 			if (!context.numa_node_mask) {
 				if (args->instance == 0) {
 					pr_inf_skip("%s: could not allocate %zd numa elements in numa mask, ignoring numa memthrash stressor\n",
-						args->name, numa_elements);	
+						args->name, numa_elements);
 				}
 				context.numa_node_mask = NULL;
 				context.numa_node_mask_size = 0;

@@ -901,7 +901,7 @@ static const char *stress_cyclic_methods(const size_t i)
 
 static const char *stress_cyclic_policies(const size_t i)
 {
-	return (NUM_CYCLIC_POLICIES == 0) ? NULL : 
+	return (NUM_CYCLIC_POLICIES == 0) ? NULL :
 		(((ssize_t)i < (ssize_t)NUM_CYCLIC_POLICIES) ? cyclic_policies[i].opt_name : NULL);
 };
 

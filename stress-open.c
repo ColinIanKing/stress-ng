@@ -180,7 +180,7 @@ static void stress_open_max(const char *opt_name, const char *opt_arg, stress_ty
 	const size_t max_fds = stress_get_max_fds();
 
 	(void)opt_name;
-	
+
 	*type_id = TYPE_ID_SIZE_T;
 	*open_max = (size_t)stress_get_uint64_percent(opt_arg, 1, (uint64_t)max_fds,
                         "cannot determine maximum number of file descriptors");

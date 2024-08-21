@@ -1082,7 +1082,7 @@ static int stress_prctl(stress_args_t *args)
 {
 	void *page_anon;
 
-	page_anon = stress_mmap_populate(NULL, args->page_size,	
+	page_anon = stress_mmap_populate(NULL, args->page_size,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 

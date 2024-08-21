@@ -96,13 +96,12 @@ void stress_config_check(void)
 		for (i = 0; i < n; i++) {
 			char filename[PATH_MAX];
 			char buffer[64];
-	
+
 			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", path, namelist[i]->d_name);
 			if (stress_system_read(filename, buffer, sizeof(buffer)) < 0)
 				continue;
 			if (strncmp(buffer, "powersave", 9) == 0)
 				powersave++;
-			
 		}
 		stress_dirent_list_free(namelist, n);
 		if (powersave > 0) {

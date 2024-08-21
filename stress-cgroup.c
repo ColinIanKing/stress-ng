@@ -514,7 +514,6 @@ again:
 				pr_fail("%s: child mount/umount failed\n", args->name);
 				rc = EXIT_FAILURE;
 				break;
-				
 			} else if (WEXITSTATUS(status) == EXIT_NO_RESOURCE) {
 				rc = EXIT_NO_RESOURCE;
 				break;

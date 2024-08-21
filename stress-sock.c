@@ -950,7 +950,7 @@ static int OPTIMIZE3 stress_sock_server(
 					pr_inf("%s: cannot enable zerocopy on data being sent\n", args->name);
 					warned = true;
 				}
-			}	
+			}
 		}
 	}
 #else

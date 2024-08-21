@@ -629,7 +629,7 @@ err:
 static const char *stress_opcode_method(const size_t i)
 {
 	return (i < SIZEOF_ARRAY(stress_opcode_methods)) ? stress_opcode_methods[i].name : NULL;
-} 
+}
 
 static const stress_opt_t opts[] = {
 	{ OPT_opcode_method, "opcode-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_opcode_method },

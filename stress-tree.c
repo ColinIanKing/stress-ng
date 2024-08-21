@@ -620,7 +620,7 @@ PRAGMA_UNROLL_N(4)
 		if (!find) {
 			pr_fail("%s: avl tree node #%zd not found\n",
 				args->name, i);
-			*rc = EXIT_FAILURE;	
+			*rc = EXIT_FAILURE;
 		}
 	}
 	metrics->find += stress_time_now() - t;
@@ -632,7 +632,7 @@ PRAGMA_UNROLL_N(4)
 			if (!find) {
 				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, i);
-				*rc = EXIT_FAILURE;	
+				*rc = EXIT_FAILURE;
 			}
 		}
 		/* optional random find */
@@ -643,7 +643,7 @@ PRAGMA_UNROLL_N(4)
 			if (!find) {
 				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, j);
-				*rc = EXIT_FAILURE;	
+				*rc = EXIT_FAILURE;
 			}
 		}
 	}
@@ -846,7 +846,7 @@ PRAGMA_UNROLL_N(4)
 		if (!find) {
 			pr_fail("%s: btree node #%zd not found\n",
 				args->name, i);
-			*rc = EXIT_FAILURE;	
+			*rc = EXIT_FAILURE;
 		}
 	}
 	metrics->find += stress_time_now() - t;
@@ -858,7 +858,7 @@ PRAGMA_UNROLL_N(4)
 			if (!find) {
 				pr_fail("%s: btree node #%zd not found\n",
 					args->name, i);
-				*rc = EXIT_FAILURE;	
+				*rc = EXIT_FAILURE;
 			}
 		}
 		/* optional random find */
@@ -869,7 +869,7 @@ PRAGMA_UNROLL_N(4)
 			if (!find) {
 				pr_fail("%s: btree node #%zd not found\n",
 					args->name, j);
-				*rc = EXIT_FAILURE;	
+				*rc = EXIT_FAILURE;
 			}
 		}
 	}
