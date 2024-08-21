@@ -256,7 +256,7 @@ write messages to the specified log file.
 .B \-\-log\-lockless
 log messages use a lock to avoid intermingling of blocks of stressor messages,
 however this may cause contention when emitting a high rate of logging messages
-in verbose mode and many stressors are running, for example when testing CPU
+in verbose mode with many stressors are running, for example when testing CPU
 scaling with many processes on many CPUs. This option disables log message
 locking.
 .TP
