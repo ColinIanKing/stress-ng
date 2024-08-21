@@ -66,10 +66,44 @@ void stress_config_check(void)
 {
 #if defined(__linux__)
 	{
-		static const char path[] = "/proc/sys/kernel/sched_autogroup_enabled";
-		uint64_t value;
+		char path[PATH_MAX];
+		const char *str;
+		bool is_snap = false;
 
-		if ((stress_config_read(path, &value) != -1) && (value > 0)) {
+		str = getenv("SNAP_NAME");
+		if (str) {
+			char *lowstr = strdup(str);
+
+			if (lowstr) {
+				char *ptr;
+
+				for (ptr = lowstr; *ptr; ptr++)
+					*ptr = (char)tolower((int)*ptr);
+
+				if (strstr(lowstr, "stress"))
+					is_snap = true;
+			}
+		}
+		str = stress_get_proc_self_exe(path, sizeof(path));
+		if (str) {
+			if (strncmp("/snap/", path, 6) == 0)
+				is_snap = true;
+		}
+		if (is_snap) {
+			pr_warn("note: stress-ng appears to be a snap and may not "
+				"run correctly inside this unsupported environment\n");
+		}
+	}
+
+	if (g_opt_flags & OPT_FLAGS_METRICS) {
+		static const char autogroup_path[] = "/proc/sys/kernel/sched_autogroup_enabled";
+		static const char cpu_path[] = "/sys/devices/system/cpu";
+		uint64_t value;
+		struct dirent **namelist;
+		int n, i;
+		int powersave = 0;
+
+		if ((stress_config_read(autogroup_path, &value) != -1) && (value > 0)) {
 #if defined(HAVE_TERMIO_H) &&	\
     defined(TCGETS)
 			struct termios t;
@@ -80,24 +114,17 @@ void stress_config_check(void)
 				pr_inf("note: %s is %" PRIu64 " and this can impact "
 					"scheduling throughput for processes not "
 					"attached to a tty. Setting this to 0 may "
-					"improve performance metrics\n", path, value);
+					"improve performance metrics\n", autogroup_path, value);
 			}
 #endif
 		}
-	}
 
-	{
-        	struct dirent **namelist;
-		static char path[] = "/sys/devices/system/cpu";
-		int n, i;
-		int powersave = 0;
-
-        	n = scandir(path, &namelist, stress_config_check_cpu_filter, alphasort);
+		n = scandir(cpu_path, &namelist, stress_config_check_cpu_filter, alphasort);
 		for (i = 0; i < n; i++) {
 			char filename[PATH_MAX];
 			char buffer[64];
 
-			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", path, namelist[i]->d_name);
+			(void)snprintf(filename, sizeof(filename), "%s/%s/cpufreq/scaling_governor", cpu_path, namelist[i]->d_name);
 			if (stress_system_read(filename, buffer, sizeof(buffer)) < 0)
 				continue;
 			if (strncmp(buffer, "powersave", 9) == 0)
@@ -109,7 +136,7 @@ void stress_config_check(void)
 				"powersave and this may impact performance; "
 				"setting %s/cpu*/cpufreq/scaling_governor to "
 				"'performance' may improve performance\n",
-				powersave, path);
+				powersave, cpu_path);
 		}
 	}
 #endif

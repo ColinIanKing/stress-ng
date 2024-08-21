@@ -4141,9 +4141,7 @@ int main(int argc, char **argv, char **envp)
 	stress_smart_start();
 	stress_klog_start();
 	stress_clocksource_check();
-
-	if (g_opt_flags & OPT_FLAGS_METRICS)
-		stress_config_check();
+	stress_config_check();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(ticks_per_sec, &duration, &success, &resource_success, &metrics_success);
