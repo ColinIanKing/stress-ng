@@ -82,6 +82,7 @@ void stress_config_check(void)
 
 				if (strstr(lowstr, "stress"))
 					is_snap = true;
+				free(lowstr);
 			}
 		}
 		str = stress_get_proc_self_exe(path, sizeof(path));
