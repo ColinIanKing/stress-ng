@@ -156,6 +156,7 @@
 	MACRO(locka)		\
 	MACRO(lockbus)		\
 	MACRO(lockf)		\
+	MACRO(lockmix)		\
 	MACRO(lockofd)		\
 	MACRO(logmath)		\
 	MACRO(longjmp)		\

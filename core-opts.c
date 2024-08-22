@@ -459,6 +459,8 @@ const struct option stress_long_options[] = {
 	{ "lockf",		1,	0,	OPT_lockf },
 	{ "lockf-nonblock", 	0,	0,	OPT_lockf_nonblock },
 	{ "lockf-ops",		1,	0,	OPT_lockf_ops },
+	{ "lockmix",		1,	0,	OPT_lockmix },
+	{ "lockmix-ops",	1,	0,	OPT_lockmix_ops },
 	{ "lockofd",		1,	0,	OPT_lockofd },
 	{ "lockofd-ops",	1,	0,	OPT_lockofd_ops },
 	{ "log-brief",		0,	0,	OPT_log_brief },

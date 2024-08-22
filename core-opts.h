@@ -709,6 +709,9 @@ typedef enum {
 	OPT_lockf_ops,
 	OPT_lockf_nonblock,
 
+	OPT_lockmix,
+	OPT_lockmix_ops,
+
 	OPT_lockofd,
 	OPT_lockofd_ops,
 

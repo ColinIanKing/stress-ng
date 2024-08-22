@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "19 August 2024"
+.TH STRESS-NG 1 "22 August 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2667,7 +2667,7 @@ T}
 .TE
 .RE
 .TP
-.B File locking (flock) stressor
+.B BSD File locking (flock) stressor
 .RS 5
 .TQ
 .B \-\-flock N
@@ -3939,7 +3939,22 @@ should increase locking contention.
 stop lockf workers after N bogo lockf operations.
 .RE
 .TP
-.B POSIX lock (F_OFD_SETLK/F_OFD_GETLK) stressor
+.B mixed file lock stressor (locka, lockf, lockofd)
+.RS 5
+.TQ
+.B \-\-lockmix N
+start N workers that randomly lock and unlock regions of a file using the
+BSD flock, locka (advisory), POSIX lockf and Linux open file lock (lockofd) locking
+mechanisms.  Each worker creates a 1024 KB file and attempts to hold a
+maximum of 1024 concurrent locks with a child process that also tries to
+hold 1024 concurrent locks. Old locks are unlocked in a first-in,
+first-out basis.
+.TP
+.B \-\-lockmix\-ops N
+stop lockmix workers after N bogo lockmix operations.
+.RE
+.TP
+.B Linux open file lock (ofd F_OFD_SETLK/F_OFD_GETLK) stressor
 .RS 5
 .TQ
 .B \-\-lockofd N
