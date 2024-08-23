@@ -114,15 +114,25 @@ static int stress_cgroup_mounted_state(const char *path)
 	return ret;
 }
 
+static void stress_group_sleep(uint64_t *counter)
+{
+	const uint64_t ns = stress_mwc64modn(100000000) + 50000000;
+
+	shim_nanosleep_uint64(ns);
+	(*counter)++;
+}
+
 /*
  *  stress_cgroup_umount()
  *	umount a path with retries.
  */
-static void stress_cgroup_umount(stress_args_t *args, const char *path)
+static void stress_cgroup_umount(
+	stress_args_t *args,
+	const char *path,
+	uint64_t *umount_retry)
 {
 	int i;
 	int ret;
-	static const uint64_t ns = 100000000;	/* 1/10th second */
 
 	/*
 	 *  umount is attempted at least twice, the first successful mount
@@ -130,7 +140,7 @@ static void stress_cgroup_umount(stress_args_t *args, const char *path)
 	 *  on a umount of a path that has already been umounted, so we
 	 *  know that umount been successful and can then return.
 	 */
-	for (i = 0; i < 100; i++) {
+	for (i = 0; i < 128; i++) {
 		if (stress_cgroup_mounted_state(path) == STRESS_CGROUP_UNMOUNTED)
 			return;
 
@@ -146,7 +156,7 @@ static void stress_cgroup_umount(stress_args_t *args, const char *path)
 #endif
 		if (ret == 0) {
 			if (i > 1)
-				shim_nanosleep_uint64(ns);
+				stress_group_sleep(umount_retry);
 			continue;
 		}
 
@@ -155,7 +165,7 @@ static void stress_cgroup_umount(stress_args_t *args, const char *path)
 		case EBUSY:
 		case ENOMEM:
 			/* Wait and then re-try */
-			shim_nanosleep_uint64(ns);
+			stress_group_sleep(umount_retry);
 			break;
 		case EINVAL:
 			/*
@@ -406,6 +416,7 @@ static int stress_cgroup_child(stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	int rc = EXIT_SUCCESS;
+	uint64_t mount_retry = 0, umount_retry = 0;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -428,15 +439,18 @@ static int stress_cgroup_child(stress_args_t *args)
 
 		ret = mount("none", realpathname, "cgroup2", 0, NULL);
 		if (ret < 0) {
-			if (errno == EPERM) {
+			if (errno == EBUSY) {
+				/* Wait and retry */
+				stress_group_sleep(&mount_retry);
+				continue;
+			} else if (errno == EPERM) {
 				pr_inf_skip("%s: mount failed, no permission, skipping stressor\n",
 					args->name);
 				rc = EXIT_NO_RESOURCE;
 				goto cleanup;
-			}
-			if ((errno != ENOSPC) &&
-			    (errno != ENOMEM) &&
-			    (errno != ENODEV)) {
+			} else if ((errno != ENOSPC) &&
+				   (errno != ENOMEM) &&
+				   (errno != ENODEV)) {
 				pr_fail("%s: mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
@@ -448,15 +462,19 @@ static int stress_cgroup_child(stress_args_t *args)
 		stress_cgroup_controllers(realpathname);
 		stress_cgroup_read_files(realpathname);
 		stress_cgroup_new_group(realpathname);
-		stress_cgroup_umount(args, realpathname);
+		stress_cgroup_umount(args, realpathname, &umount_retry);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 cleanup:
-	stress_cgroup_umount(args, realpathname);
+	stress_cgroup_umount(args, realpathname, &umount_retry);
 	if (stress_cgroup_mounted_state(realpathname) == STRESS_CGROUP_MOUNTED)
 		pr_dbg("%s: could not unmount of %s\n", args->name, realpathname);
 	(void)stress_temp_dir_rm_args(args);
+	if ((mount_retry + umount_retry) > 0) {
+		pr_dbg("%s: %" PRIu64 " mount retries, %" PRIu64 " umount retries\n",
+			args->name, mount_retry, umount_retry);
+	}
 
 	return rc;
 }
