@@ -1751,7 +1751,7 @@ static int MLOCKED_TEXT stress_run_child(
 	    (!(g_stressor_current->bogo_ops && stats->args.ci.counter >= g_stressor_current->bogo_ops))) {
 
 		pr_warn("%s: WARNING: finished prematurely after just %s\n",
-			name, stress_duration_to_str(run_duration, true));
+			name, stress_duration_to_str(run_duration, true, true));
 	}
 child_exit:
 	/*
@@ -3504,7 +3504,7 @@ static void stress_set_default_timeout(const uint64_t timeout)
 	}
 	pr_inf("%s to a %s run per stressor\n",
 		action, (g_opt_timeout == 0) ? "infinite" :
-		stress_duration_to_str((double)g_opt_timeout, false));
+		stress_duration_to_str((double)g_opt_timeout, false, false));
 }
 
 /*
@@ -4212,7 +4212,7 @@ int main(int argc, char **argv, char **envp)
 
 	pr_inf("%s run completed in %s\n",
 		success ? "successful" : "unsuccessful",
-		stress_duration_to_str(duration, true));
+		stress_duration_to_str(duration, true, false));
 
 	stress_settings_show();
 	/*

@@ -106,6 +106,7 @@ double OPTIMIZE3 stress_time_now(void)
  */
 static inline void stress_format_time(
 	bool *emitted,			/* data has been emitted */
+	const bool always_format,	/* true = always format a value */
 	const bool int_val,		/* Last unit in integer form */
 	const double secs_in_units,	/* Seconds in the specific time unit */
 	const char *units,		/* Unit of time */
@@ -115,7 +116,7 @@ static inline void stress_format_time(
 {
 	const unsigned long val = (unsigned long)(*duration / secs_in_units);
 
-	if (val > 0) {
+	if (always_format || (val > 0)) {
 		int ret;
 
 		if (*emitted) {
@@ -144,7 +145,7 @@ static inline void stress_format_time(
  *  stress_duration_to_str
  *	duration in seconds to a human readable string
  */
-const char *stress_duration_to_str(const double duration, const bool int_secs)
+const char *stress_duration_to_str(const double duration, const bool int_secs, const bool report_secs)
 {
 	static char str[128];
 	char *ptr = str;
@@ -153,11 +154,12 @@ const char *stress_duration_to_str(const double duration, const bool int_secs)
 	bool emitted = false;
 
 	*str = '\0';
-	stress_format_time(&emitted, false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
-	stress_format_time(&emitted, false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
-	stress_format_time(&emitted, false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
-	stress_format_time(&emitted, false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
-	stress_format_time(&emitted, int_secs, 1, "sec", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
+	stress_format_time(&emitted, false, false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
+	stress_format_time(&emitted, report_secs, int_secs, 1, "sec", &ptr, &dur, &len);
+
 	if (!*str)
 		shim_strscpy(str, "0 secs", sizeof(str));
 	return str;

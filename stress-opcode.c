@@ -590,7 +590,7 @@ finish:
 				args->name, estimated_duration);
 		} else {
 			pr_dbg("%s: estimated time to cover all op-codes: %s\n",
-				args->name, stress_duration_to_str(estimated_duration, false));
+				args->name, stress_duration_to_str(estimated_duration, false, false));
 		}
 	}
 
