@@ -198,7 +198,7 @@ static int stress_dekker(stress_args_t *args)
 
 stressor_info_t stress_dekker_info = {
 	.stressor = stress_dekker,
-	.class = CLASS_CPU_CACHE,
+	.class = CLASS_CPU_CACHE | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
@@ -207,7 +207,7 @@ stressor_info_t stress_dekker_info = {
 
 stressor_info_t stress_dekker_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
 	.unimplemented_reason = "built without user space memory fencing"

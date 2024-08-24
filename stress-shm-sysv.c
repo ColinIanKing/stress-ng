@@ -1085,7 +1085,7 @@ fork_again:
 
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
-	.class = CLASS_VM | CLASS_OS,
+	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -1093,7 +1093,7 @@ stressor_info_t stress_shm_sysv_info = {
 #else
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM | CLASS_OS,
+	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

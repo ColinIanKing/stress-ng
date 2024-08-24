@@ -465,7 +465,7 @@ cleanup:
 
 stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -473,7 +473,7 @@ stressor_info_t stress_msg_info = {
 #else
 stressor_info_t stress_msg_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
+	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

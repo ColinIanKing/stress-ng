@@ -289,6 +289,7 @@ static const stress_class_info_t stress_classes[] = {
 	{ CLASS_GPU,		"gpu" },
 	{ CLASS_INTERRUPT,	"interrupt" },
 	{ CLASS_IO,		"io" },
+	{ CLASS_IPC,		"ipc" },
 	{ CLASS_MEMORY,		"memory" },
 	{ CLASS_NETWORK,	"network" },
 	{ CLASS_OS,		"os" },

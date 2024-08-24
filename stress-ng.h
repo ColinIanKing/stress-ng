@@ -362,6 +362,7 @@ do {				\
 #define CLASS_FP		STRESS_BIT_UL(18)	/* Floating point operations */
 #define CLASS_INTEGER		STRESS_BIT_UL(19)	/* Integer operations */
 #define CLASS_SORT		STRESS_BIT_UL(20)	/* Sort stressors */
+#define CLASS_IPC		STRESS_BIT_UL(21)	/* Inter process communication */
 
 /* Help information for options */
 typedef struct {

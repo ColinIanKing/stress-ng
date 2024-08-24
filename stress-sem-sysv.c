@@ -602,7 +602,7 @@ stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_sem_sysv,
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -610,7 +610,7 @@ stressor_info_t stress_sem_sysv_info = {
 #else
 stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_OS | CLASS_SCHEDULER,
+	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,

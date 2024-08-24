@@ -519,7 +519,7 @@ err:
 
 stressor_info_t stress_shm_info = {
 	.stressor = stress_shm,
-	.class = CLASS_VM | CLASS_OS,
+	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -527,7 +527,7 @@ stressor_info_t stress_shm_info = {
 #else
 stressor_info_t stress_shm_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_VM | CLASS_OS,
+	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
