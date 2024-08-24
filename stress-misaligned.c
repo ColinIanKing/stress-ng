@@ -1175,6 +1175,11 @@ static int stress_misaligned(stress_args_t *args)
 	bool succeeded = true;
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	struct sigevent sev;
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+	const clockid_t clockid = CLOCK_PROCESS_CPUTIME_ID;
+#else
+	const clockid_t clockid = CLOCK_REALTIME;
+#endif
 #endif
 
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
@@ -1207,7 +1212,7 @@ static int stress_misaligned(stress_args_t *args)
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timer_id;
-	if (timer_create(CLOCK_REALTIME, &sev, &timer_id) == 0) {
+	if (timer_create(clockid, &sev, &timer_id) == 0) {
 		use_timer = true;
 		stress_misaligned_reset_timer();
 	}
