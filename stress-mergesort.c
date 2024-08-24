@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-sort.h"
+#include "core-builtin.h"
 #include "core-target-clones.h"
 
 #define MIN_MERGESORT_SIZE	(1 * KB)
@@ -45,18 +46,18 @@ typedef struct {
 
 #define IDX(base, idx, size)	((base) + ((idx) * (size)))
 
-static inline ALWAYS_INLINE void mergesort_copy(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
+static inline void ALWAYS_INLINE mergesort_copy(uint8_t *RESTRICT p1, uint8_t *RESTRICT p2, register size_t size)
 {
+	register const uint32_t *u32end = (uint32_t *)(p1 + size);
 	register uint32_t *u32p1 = (uint32_t *)p1;
 	register uint32_t *u32p2 = (uint32_t *)p2;
-	register const uint32_t *u32end = (uint32_t *)(p1 + size);
 
 	while (LIKELY(u32p1 < u32end))
 		*(u32p1++) = *(u32p2++);
 }
 
 /*
- *  mergesort_partition4
+ *  mergALWAYS_INLINE esort_partition4
  *  	partitioning with 4 byte data
  */
 static inline void mergesort_partition4(
@@ -77,12 +78,10 @@ static inline void mergesort_partition4(
 		mergesort_partition4(base, lhs, mid + 1, right, compar);
 
 	lhs_len = mid - left + 1;
-	rhs_len = right - mid;
-
 	lhs_size = lhs_len * 4;
-	rhs_size = rhs_len * 4;
-
 	rhs = lhs + lhs_size;
+	rhs_len = right - mid;
+	rhs_size = rhs_len * 4;
 
 	mergesort_copy(lhs, IDX(base, left, 4), lhs_size);
 	mergesort_copy(rhs, IDX(base, (mid + 1), 4), rhs_size);
@@ -137,12 +136,10 @@ static inline void mergesort_partition(
 		mergesort_partition(base, lhs, mid + 1, right, size, compar);
 
 	lhs_len = mid - left + 1;
-	rhs_len = right - mid;
-
 	lhs_size = lhs_len * size;
-	rhs_size = rhs_len * size;
-
 	rhs = lhs + lhs_size;
+	rhs_len = right - mid;
+	rhs_size = rhs_len * size;
 
 	mergesort_copy(lhs, IDX(base, left, size), lhs_size);
 	mergesort_copy(rhs, IDX(base, (mid + 1), size), rhs_size);
@@ -153,13 +150,13 @@ static inline void mergesort_partition(
 
 	while ((lhs < lhs_end) && (rhs < rhs_end)) {
 		if (compar(lhs, rhs) < 0) {
-			mergesort_copy(base, lhs, size);
+			shim_memcpy(base, lhs, size);
 			lhs += size;
 			if (lhs > lhs_end)
 				break;
 			base += size;
 		} else {
-			mergesort_copy(base, rhs, size);
+			shim_memcpy(base, rhs, size);
 			rhs += size;
 			if (rhs > rhs_end)
 				break;
