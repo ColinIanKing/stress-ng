@@ -42,72 +42,105 @@ typedef struct {
 	const heapsort_func_t heapsort_func;
 } stress_heapsort_method_t;
 
-static inline OPTIMIZE3 void heapsort_swap(void *p1, void *p2, register size_t size)
+typedef void (*heapsort_swap_func)(void *p1, void *p2, register size_t size);
+typedef void (*heapsort_copy_func)(void *p1, void *p2, register size_t size);
+
+static void OPTIMIZE3 heapsort_swap8(void *p1, void *p2, register size_t size)
 {
-	switch (size) {
-	case 8: {
-			register uint64_t tmp64;
+	register uint64_t tmp64;
 
-			tmp64 = *(uint64_t *)p1;
-			*(uint64_t *)p1 = *(uint64_t *)p2;
-			*(uint64_t *)p2 = tmp64;
-			return;
-		}
-	case 4: {
-			register uint32_t tmp32;
+	(void)size;
 
-			tmp32 = *(uint32_t *)p1;
-			*(uint32_t *)p1 = *(uint32_t *)p2;
-			*(uint32_t *)p2 = tmp32;
-			return;
-		}
-	case 2: {
-			register uint16_t tmp16;
-
-			tmp16 = *(uint16_t *)p1;
-			*(uint16_t *)p1 = *(uint16_t *)p2;
-			*(uint16_t *)p2 = tmp16;
-			return;
-		}
-	default: {
-			register uint8_t *u8p1 = (uint8_t *)p1;
-			register uint8_t *u8p2 = (uint8_t *)p2;
-
-			do {
-				register uint8_t tmp;
-
-				tmp = *(u8p1);
-				*(u8p1++) = *(u8p2);
-				*(u8p2++) = tmp;
-			} while (--size);
-			return;
-		}
-	}
+	tmp64 = *(uint64_t *)p1;
+	*(uint64_t *)p1 = *(uint64_t *)p2;
+	*(uint64_t *)p2 = tmp64;
 }
 
-static inline void heapsort_copy(void *p1, void *p2, register size_t size)
+static void OPTIMIZE3 heapsort_swap4(void *p1, void *p2, register size_t size)
+{
+	register uint32_t tmp32;
+
+	(void)size;
+
+	tmp32 = *(uint32_t *)p1;
+	*(uint32_t *)p1 = *(uint32_t *)p2;
+	*(uint32_t *)p2 = tmp32;
+}
+
+static void OPTIMIZE3 heapsort_swap2(void *p1, void *p2, register size_t size)
+{
+	register uint16_t tmp16;
+
+	(void)size;
+
+	tmp16 = *(uint16_t *)p1;
+	*(uint16_t *)p1 = *(uint16_t *)p2;
+	*(uint16_t *)p2 = tmp16;
+}
+
+static void OPTIMIZE3 heapsort_swap1(void *p1, void *p2, register size_t size)
+{
+	register uint8_t tmp8;
+
+	(void)size;
+
+	tmp8 = *(uint8_t *)p1;
+	*(uint8_t *)p1 = *(uint8_t *)p2;
+	*(uint8_t *)p2 = tmp8;
+}
+
+static void OPTIMIZE3 heapsort_swap(void *p1, void *p2, register size_t size)
+{
+	register uint8_t *u8p1 = (uint8_t *)p1;
+	register uint8_t *u8p2 = (uint8_t *)p2;
+
+	do {
+		register uint8_t tmp;
+
+		tmp = *(u8p1);
+		*(u8p1++) = *(u8p2);
+		*(u8p2++) = tmp;
+	} while (--size);
+}
+
+static void OPTIMIZE3 heapsort_copy8(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint64_t *)p1 = *(uint64_t *)p2;
+}
+
+static void OPTIMIZE3 heapsort_copy4(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint32_t *)p1 = *(uint32_t *)p2;
+}
+
+static void OPTIMIZE3 heapsort_copy2(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint16_t *)p1 = *(uint16_t *)p2;
+}
+
+static void OPTIMIZE3 heapsort_copy1(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint8_t *)p1 = *(uint8_t *)p2;
+}
+
+static void OPTIMIZE3 heapsort_copy(void *p1, void *p2, register size_t size)
 {
 	register uint8_t *u8p1, *u8p2;
 
-	switch (size) {
-	case 8:
-		*(uint64_t *)p1 = *(uint64_t *)p2;
-		return;
-	case 4:
-		*(uint32_t *)p1 = *(uint32_t *)p2;
-		return;
-	case 2:
-		*(uint16_t *)p1 = *(uint16_t *)p2;
-		return;
-	default:
-		u8p1 = (uint8_t *)p1;
-		u8p2 = (uint8_t *)p2;
+	u8p1 = (uint8_t *)p1;
+	u8p2 = (uint8_t *)p2;
 
-		do {
-			*(u8p1++) = *(u8p2++);
-		} while (--size);
-		return;
-	}
+	do {
+		*(u8p1++) = *(u8p2++);
+	} while (--size);
 }
 
 static int heapsort_nonlibc(
@@ -118,12 +151,37 @@ static int heapsort_nonlibc(
 {
 	register uint8_t *u8base;
 	register size_t l = (nmemb / 2) + 1;
+	heapsort_swap_func swap_func;
+	heapsort_copy_func copy_func;
 
 	if (UNLIKELY(nmemb <= 1))
 		return 0;
 	if (UNLIKELY(size < 1)) {
 		errno = EINVAL;
 		return -1;
+	}
+
+	switch (size) {
+	case 8:
+		swap_func = heapsort_swap8;
+		copy_func = heapsort_copy8;
+		break;
+	case 4:
+		swap_func = heapsort_swap4;
+		copy_func = heapsort_copy4;
+		break;
+	case 2:
+		swap_func = heapsort_swap2;
+		copy_func = heapsort_copy2;
+		break;
+	case 1:
+		swap_func = heapsort_swap1;
+		copy_func = heapsort_copy1;
+		break;
+	default:
+		swap_func = heapsort_swap;
+		copy_func = heapsort_copy;
+		break;
 	}
 
 	/*
@@ -143,7 +201,7 @@ static int heapsort_nonlibc(
 			p2 = u8base + (i * size);
 			if (compar(p1, p2) <= 0)
 				break;
-			heapsort_swap(p2, p1, size);
+			swap_func(p2, p1, size);
 		}
 	}
 	/*
@@ -154,8 +212,8 @@ static int heapsort_nonlibc(
 		register size_t i, j;
 		uint8_t tmp[size] ALIGN64;
 
-		heapsort_copy(tmp, ptr, size);
-		heapsort_copy(ptr, u8base + size, size);
+		copy_func(tmp, ptr, size);
+		copy_func(ptr, u8base + size, size);
 		nmemb--;
 
 		for (i = 1; (j = i * 2) <= nmemb; i = j) {
@@ -166,7 +224,7 @@ static int heapsort_nonlibc(
 				++j;
 			}
 			p2 = u8base + (i * size);
-			heapsort_copy(p2, p1, size);
+			copy_func(p2, p1, size);
 		}
 		for (;;) {
 			register uint8_t *p1, *p2;
@@ -176,10 +234,10 @@ static int heapsort_nonlibc(
 			p1 = u8base + (j * size);
 			p2 = u8base + (i * size);
 			if ((j == 1) || (compar(tmp, p2) < 0)) {
-				heapsort_copy(p1, tmp, size);
+				copy_func(p1, tmp, size);
 				break;
 			}
-			(void)heapsort_copy(p1, p2, size);
+			(void)copy_func(p1, p2, size);
 		}
 	}
 	return 0;
