@@ -709,7 +709,7 @@ static void TARGET_CLONES stress_rand_data_gray(
 }
 
 /*
- *  stress_rand_data_gray()
+ *  stress_rand_data_inc16()
  *	fill buffer with incrementing 16 bit values
  *
  */
