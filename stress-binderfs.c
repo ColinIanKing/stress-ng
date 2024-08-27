@@ -45,6 +45,9 @@ static const stress_help_t help[] = {
  */
 static int stress_binderfs_supported(const char *name)
 {
+#if defined(__linux__) &&			\
+    defined(HAVE_LINUX_ANDROID_BINDER_H) &&	\
+    defined(HAVE_LINUX_ANDROID_BINDERFS_H)
 	int ret;
 	const char *path = stress_get_temp_path();
 
@@ -72,6 +75,9 @@ static int stress_binderfs_supported(const char *name)
 	/* umount just in case it got mounted and mount way lying */
 	(void)umount(path);
 	return -1;
+#else
+	pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
+#endif
 }
 
 #if defined(__linux__) &&			\
