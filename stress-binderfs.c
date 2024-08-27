@@ -77,6 +77,7 @@ static int stress_binderfs_supported(const char *name)
 	return -1;
 #else
 	pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
+	return -1;
 #endif
 }
 
