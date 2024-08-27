@@ -85,18 +85,18 @@ static void OPTIMIZE3 * bsearch_ternary(
 		register const size_t diff = upper - lower;
 		register const size_t mid1 = lower + (diff / 3);
 		register const size_t mid2 = upper - (diff / 3);
-		register void *ptr1, *ptr2;
+		register const void *ptr1, *ptr2;
 		register int cmp1, cmp2;
 
-		ptr1 = (void *)((const char *)base + (mid1 * size));
+		ptr1 = (const void *)((const char *)base + (mid1 * size));
 		cmp1 = compare(key, ptr1);
 		if (cmp1 == 0)
-			return ptr1;
+			return shim_unconstify_ptr(ptr1);
 
-		ptr2 = (void *)((const char *)base + (mid2 * size));
+		ptr2 = (const void *)((const char *)base + (mid2 * size));
 		cmp2 = compare(key, ptr2);
 		if (cmp2 == 0)
-			return ptr2;
+			return shim_unconstify_ptr(ptr2);
 
 		if (cmp1 < 0) {
 			upper = mid1 - 1;
