@@ -452,6 +452,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [kernel oops in pick_next_task_fair in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068615)
 * [kernel oops in aafs_create in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068602)
 * [mm: optimize the redundant loop](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cf3f9a593dab87a032d2b6a6fb205e7f3de4f0a1)
+* [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
 
 ## Kernel improvements that used stress-ng
 
