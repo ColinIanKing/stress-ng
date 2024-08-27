@@ -33,6 +33,11 @@ static const stress_help_t help[] = {
 static int stress_uprobe_supported(const char *name)
 {
 #if defined(__linux__)
+#if defined(BUILD_STATIC)
+	pr_inf_skip("%s: stressor will be skipped, cannot determine "
+		"libc start for tracing with static builds of stress-ng\n", name);
+	return -1;
+#else
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
@@ -40,6 +45,7 @@ static int stress_uprobe_supported(const char *name)
 		return -1;
 	}
 	return 0;
+#endif
 #else
 	pr_inf_skip("%s: stressor will be skipped, uprobe not available\n", name);
 	return -1;
