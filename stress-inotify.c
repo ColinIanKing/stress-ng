@@ -54,7 +54,7 @@ static const stress_help_t help[] = {
 #define TIME_OUT	(10)	/* Secs for inotify to report back */
 #define BUF_SIZE	(4096)
 
-typedef int (*stress_inotify_helper)(stress_args_t *args, const char *path, const void *private);
+typedef int (*stress_inotify_helper)(stress_args_t *args, const char *path, void *private);
 typedef int (*stress_inotify_func)(stress_args_t *args, const char *path, const int bad_fd);
 
 typedef struct {
@@ -454,7 +454,7 @@ static int mk_file(stress_args_t *args, const char *filename, const size_t len)
 static int inotify_attrib_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	(void)signum;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
@@ -491,7 +491,7 @@ static int inotify_attrib_file(
 static int inotify_access_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	int fd;
 	char buffer[1];
@@ -543,7 +543,7 @@ static int inotify_access_file(
 static int inotify_modify_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	int fd, rc = 0;
 	char buffer[1] = { 0 };
@@ -591,7 +591,7 @@ static int inotify_modify_file(
 static int inotify_creat_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	int fd;
 
@@ -629,7 +629,7 @@ static int inotify_creat_file(
 static int inotify_open_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	int fd;
 
@@ -668,7 +668,7 @@ static int inotify_open_file(
 static int inotify_delete_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	(void)signum;
 
@@ -701,7 +701,7 @@ static int inotify_delete_file(
 static int inotify_delete_self_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *signum)
+	void *signum)
 {
 	(void)signum;
 
@@ -734,7 +734,7 @@ static int inotify_delete_self(
 static int inotify_move_self_helper(
 	stress_args_t *args,
 	const char *oldpath,
-	const void *private)
+	void *private)
 {
 	const char *newpath = (const char *)private;
 
@@ -774,7 +774,7 @@ static int inotify_move_self(
 static int inotify_moved_to_helper(
 	stress_args_t *args,
 	const char *newpath,
-	const void *private)
+	void *private)
 {
 	const char *oldpath = (const char *)private;
 
@@ -818,7 +818,7 @@ static int inotify_moved_to(
 static int inotify_moved_from_helper(
 	stress_args_t *args,
 	const char *oldpath,
-	const void *private)
+	void *private)
 {
 	const char *newpath = (const char *)private;
 
@@ -862,7 +862,7 @@ static int inotify_moved_from(
 static int inotify_close_write_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *ptr)
+	void *ptr)
 {
 	int *fdptr = (int *)ptr;
 
@@ -908,7 +908,7 @@ static int inotify_close_write_file(
 static int inotify_close_nowrite_helper(
 	stress_args_t *args,
 	const char *path,
-	const void *ptr)
+	void *ptr)
 {
 	int *fdptr = (int *)ptr;
 
