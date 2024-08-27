@@ -968,7 +968,6 @@ static const stress_get_func_t stress_get_funcs[] = {
 	stress_getgroups,
 	stress_gethostid,
 	stress_gethostname,
-	stress_getlogin,
 	stress_getpagesize,
 	stress_getpgid,
 	stress_getpgrp,
@@ -1023,6 +1022,7 @@ static int stress_get(stress_args_t *args)
 
 	i = 0;
 
+
 	do {
 		if (get_slow_sync) {
 			i = (size_t)(round(stress_time_now() * 10.0)) % SIZEOF_ARRAY(stress_get_funcs);
@@ -1034,6 +1034,9 @@ static int stress_get(stress_args_t *args)
 		stress_get_funcs[i](args);
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
+
+	/* getlogin can re-set alarm(), so exercise it once at end */
+	stress_getlogin(args);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
