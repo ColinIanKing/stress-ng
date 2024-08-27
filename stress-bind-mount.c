@@ -79,7 +79,7 @@ static int stress_bind_mount_child(void *parg)
 	stress_parent_died_alarm();
 
 	do {
-		int rc, retries;
+		int rc, retries, stat_count, stat_okay;
 		DIR *dir;
 		struct dirent *d;
 		double t;
@@ -106,6 +106,10 @@ static int stress_bind_mount_child(void *parg)
 		dir = opendir("/");
 		if (!dir)
 			goto bind_umount;
+
+		stat_count = 0;
+		stat_okay = 0;
+
 		while ((d = readdir(dir)) != NULL) {
 			char bindpath[PATH_MAX + sizeof(d->d_name) + 1];
 			const char *name = d->d_name;
@@ -114,13 +118,23 @@ static int stress_bind_mount_child(void *parg)
 			if (*name == '.')
 				continue;
 
+			stat_count++;
 			(void)snprintf(bindpath, sizeof(bindpath), "%s/%s", path, name);
+			/*
+			 *  Note that not all files may succeed on being stat'd on
+			 *  some systems
+			 */
 			rc = shim_stat(bindpath, &statbuf);
-			if (rc < 0) {
-				pr_fail("%s: failed to stat bind mounted file %s, errno=%d (%s)\n",
-					args->name, bindpath, errno, strerror(errno));
-			}
+			if (rc == 0)
+				stat_okay++;
 		}
+		/*
+		 *  More than one file in directory and all failed to stat..? then
+		 *  this looks like multiple failures, so report it
+		 */
+		if ((stat_okay == 0) && (stat_count > 0))
+			pr_fail("%s: failed to stat %d bind mounted files\n",
+				args->name, stat_count - stat_okay);
 		(void)closedir(dir);
 
 bind_umount:
