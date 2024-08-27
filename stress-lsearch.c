@@ -90,7 +90,7 @@ static inline void OPTIMIZE3 * lfind_sentinel(
 	size_t size,
 	int (*compare)(const void *p1, const void *p2))
 {
-	register char *ptr = (char *)base;
+	char *ptr = (char *)shim_unconstify_ptr(base);
 	register const char *ptr_end;
 	char tmp[size];
 
