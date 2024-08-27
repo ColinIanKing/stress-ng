@@ -45,12 +45,12 @@ static const stress_help_t help[] = {
     !defined(STRESS_ARCH_ALPHA)
 
 typedef struct {
-	uint16_t	varname[512];
+	uint8_t		varname[512 * sizeof(uint16_t)];
 	uint8_t		guid[16];
-	uint64_t	datalen;
+	uint8_t		datalen[8];
 	uint8_t		data[1024];
-	uint64_t	status;
-	uint32_t	attributes;
+	uint8_t		status[8];
+	uint8_t		attributes[4];
 } __attribute__((packed)) stress_efi_var_t ALIGNED(8);
 
 static const char sysfs_efi_vars[] = "/sys/firmware/efi/vars";
@@ -111,13 +111,7 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
 {
 	register size_t i = len;
 
-	/*
-	 * gcc-9 -Waddress-of-packed-member workaround, urgh, we know
-	 * this is always going to be aligned correctly, but gcc-9 whines
-	 * so this hack works around it for now.
-	 */
-	const uint8_t *src8 = (const uint8_t *)var->varname;
-	const uint16_t *src = (const uint16_t *)src8;
+	const uint16_t *src = (const uint16_t *)var->varname;
 
 	while ((*src) && (i > 1)) {
 		*dst++ = (char)(*(src++) & 0xff);
@@ -330,6 +324,7 @@ static int get_variable_sysfs_efi_vars(
 {
 	size_t i;
 	stress_efi_var_t var;
+	uint32_t *attributes = (uint32_t *)var.attributes;
 
 	static const char * const efi_sysfs_names[] = {
 		"attributes",
@@ -352,7 +347,7 @@ static int get_variable_sysfs_efi_vars(
 			      duration, count) < 0)
 		return -1;
 
-	if (var.attributes) {
+	if (attributes) {
 		char get_varname[513];
 		char guid_str[37];
 
