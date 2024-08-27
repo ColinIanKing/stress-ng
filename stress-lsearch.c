@@ -91,13 +91,13 @@ static inline void OPTIMIZE3 * lfind_sentinel(
 	int (*compare)(const void *p1, const void *p2))
 {
 	char *ptr = (char *)shim_unconstify_ptr(base);
-	register const char *ptr_end;
+	register char *ptr_end;
 	char tmp[size];
 
 	if (*nmemb < 1)
 		return NULL;
 
-	ptr_end = (char *)base + (((*nmemb) - 1) * size);
+	ptr_end = (char *)shim_unconstify_ptr(base) + (((*nmemb) - 1) * size);
 
 	/* save last value */
 	shim_memcpy((void *)tmp, ptr_end, size);
@@ -151,8 +151,8 @@ static const stress_opt_t opts[] = {
 
 static int32_t OPTIMIZE3 stress_lsearch_cmp_int32(const void *p1, const void *p2)
 {
-	register const int32_t v1 = *(int32_t *)p1;
-	register const int32_t v2 = *(int32_t *)p2;
+	register const int32_t v1 = *(const int32_t *)p1;
+	register const int32_t v2 = *(const int32_t *)p2;
 
 	stress_sort_compares++;
 	return (v1 != v2);
