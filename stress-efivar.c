@@ -347,7 +347,7 @@ static int get_variable_sysfs_efi_vars(
 			      duration, count) < 0)
 		return -1;
 
-	if (attributes) {
+	if (*attributes) {
 		char get_varname[513];
 		char guid_str[37];
 
@@ -436,11 +436,11 @@ static int efi_vars_get(
  */
 static int stress_efivar_supported(const char *name)
 {
-	if (access(sysfs_efi_efivars, R_OK)) {
+	if (access(sysfs_efi_efivars, R_OK) >= 0) {
 		efi_mode = STRESS_EFI_EFIVARS;
 		return 0;
 	}
-	if (access(sysfs_efi_vars, R_OK)) {
+	if (access(sysfs_efi_vars, R_OK) >= 0) {
 		efi_mode = STRESS_EFI_VARS;
 		return 0;
 	}
