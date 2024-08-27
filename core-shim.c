@@ -2270,16 +2270,14 @@ long shim_ssetmask(long newmask)
 }
 
 /* use praga to avoid stime already declared warning */
-STRESS_PRAGMA_PUSH
-STRESS_PRAGMA_WARN_OFF
 /*
  *  shim_stime()
  *	wrapper for obsolete SVr4 stime system call
  */
 int shim_stime(const time_t *t)
 {
-#if defined(HAVE_STIME)
-#if defined(__minix__)
+#if defined(HAVE_STIME) &&	\
+    defined(__minix__)
 	/*
 	 *  Minix does not provide the prototype for stime
 	 *  and does not use a const time_t * argument
@@ -2288,11 +2286,9 @@ int shim_stime(const time_t *t)
 	time_t *ut = (time_t *)shim_unconstify_ptr(t);
 
 	return stime(ut);
-#else
-	extern int stime(const time_t *t);
-
+#elif defined(HAVE_STIME) &&	\
+      !NEED_GLIBC(2, 31, 0)
 	return stime(t);
-#endif
 #elif defined(__NR_stime) &&	\
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_stime, t);
@@ -2300,7 +2296,6 @@ int shim_stime(const time_t *t)
 	return (int)shim_enosys(0, t);
 #endif
 }
-STRESS_PRAGMA_POP
 
 /*
  *  shim_vhangup()
