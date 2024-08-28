@@ -284,7 +284,7 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 		/* posix fallocate returns err in return and not via errno */
 		ret = posix_fallocate(fd, offset, sz);
 		if (ret != 0) {
-			if ((errno == EINVAL) || (errno == EOPNOTSUPP)) {
+			if ((ret == EINVAL) || (ret == EOPNOTSUPP)) {
 				emulate = true;
 				return shim_emulate_fallocate(fd, offset, len);
 			}
