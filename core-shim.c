@@ -295,16 +295,15 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 					return errno;
 				return 0;
 			}
-			return errno;
+			return ret;
 		}
 
 		/*
 		 *  stressor has been signaled to finish, fake
 		 *  an EINTR return
 		 */
-		if (!stress_continue_flag()) {
+		if (!stress_continue_flag())
 			return EINTR;
-		}
 		offset += sz;
 		len -= sz;
 	} while (len > 0);
