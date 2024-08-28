@@ -57,8 +57,8 @@ typedef struct {
 } stress_zlib_method_t;
 
 typedef struct {
-	uint64_t	checksum;
 	uint64_t	xchars;
+	uint32_t	checksum;
 	bool		error;
 	bool		pipe_broken;
 	bool		interrupted;
@@ -1519,7 +1519,7 @@ static int stress_zlib_inflate(
 					size_t i;
 
 					for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
-						zlib_checksum->checksum += (uint64_t)out[i];
+						zlib_checksum->checksum += (uint32_t)out[i];
 						zlib_checksum->xchars++;
 					}
 				}
@@ -1625,7 +1625,7 @@ static int stress_zlib_deflate(
 				int i;
 
 				for (i = 0; i < gen_sz; i++) {
-					zlib_checksum->checksum += zlib_checksum_in[i];
+					zlib_checksum->checksum += (uint32_t)zlib_checksum_in[i];
 					zlib_checksum->xchars++;
 				}
 			}
@@ -1816,10 +1816,10 @@ again:
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			if (shared_checksums->deflate.checksum != shared_checksums->inflate.checksum) {
 				pr_fail("%s: zlib zlib_checksum values do NOT match "
-					"%" PRIu64 "/%" PRIu64
+					"0x%8.8" PRIx32 "/0x%8.8" PRIx32
 					"(deflate/inflate)"
 					" vs "
-					"%" PRIu64 "/%" PRIu64
+					"0x%16.16" PRIx64 "/0x%16.16" PRIx64
 					"(deflated/inflated bytes)\n",
 					args->name,
 					shared_checksums->deflate.checksum,
@@ -1829,7 +1829,7 @@ again:
 				ret = EXIT_FAILURE;
 			} else {
 				pr_inf("%s: zlib checksum values matches "
-					"0x%" PRIx64"/0x%" PRIx64
+					"0x%8.8" PRIx32"/0x%8.8" PRIx32
 					" (deflate/inflate)\n", args->name,
 					shared_checksums->deflate.checksum,
 					shared_checksums->inflate.checksum);
