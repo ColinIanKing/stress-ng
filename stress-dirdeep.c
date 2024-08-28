@@ -109,7 +109,6 @@ static bool stress_dirdeep_make(
 		}
 		pr_fail("%s: mkdir failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		printf("%s\n", path);
 		return true;
 	}
 	stress_bogo_inc(args);
