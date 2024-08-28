@@ -338,6 +338,9 @@ again:
 	}
 finish:
 
+	/* re-sync bogo-counter flag if child is killed while updating it */
+	stress_bogo_add(args, 0);
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_net_release_ports(sock_port, sock_port);
 
