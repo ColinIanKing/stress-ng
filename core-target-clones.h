@@ -199,6 +199,8 @@
 #if defined(HAVE_TARGET_CLONES_POWER10)
 #define TARGET_CLONE_POWER10 "cpu=power10",
 #define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_POWER10
 #endif
 
 #define TARGET_CLONES_ALL	\
