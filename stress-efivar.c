@@ -51,7 +51,7 @@ typedef struct {
 	uint8_t		data[1024];
 	uint8_t		status[8];
 	uint8_t		attributes[4];
-} __attribute__((packed)) stress_efi_var_t ALIGNED(8);
+} stress_efi_var_t ALIGNED(8);
 
 static const char sysfs_efi_vars[] = "/sys/firmware/efi/vars";
 static const char sysfs_efi_efivars[] = "/sys/firmware/efi/efivars";
