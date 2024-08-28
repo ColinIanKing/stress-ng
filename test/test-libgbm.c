@@ -34,7 +34,7 @@ int main(void)
 	size_t i;
 
 	for (i = 0; i < sizeof(gbm_funcs) / sizeof(gbm_funcs[0]); i++)
-                printf("%p\n", gbm_funcs[i]);
+		printf("%p\n", gbm_funcs[i]);
 
 	return 0;
 }
