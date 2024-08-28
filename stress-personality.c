@@ -36,6 +36,15 @@ static const unsigned long personalities[] ALIGN64 = {
 #include "personality.h"
 };
 
+static int stress_personality_supported(const char *name)
+{
+	if (SIZEOF_ARRAY(personalities) == 0) {
+		pr_inf_skip("%s: stressor will be skipped, no personalities to stress test\n", name);
+		return -1;
+	}
+	return 0;
+}
+
 /*
  *  stress_personality()
  *	stress system by rapid open/close calls
@@ -47,6 +56,7 @@ static int stress_personality(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 	if (n == 0) {
+		/* should never reach here, but just in case we do.. */
 		pr_inf_skip("%s: no personalities to stress test, skipping stressor\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
@@ -116,6 +126,7 @@ stressor_info_t stress_personality_info = {
 	.stressor = stress_personality,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
+	.supported = stress_personality_supported,
 	.help = help
 };
 #else
