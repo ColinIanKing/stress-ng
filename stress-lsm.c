@@ -68,7 +68,7 @@ static int stress_lsm(stress_args_t *args)
 {
 	void *buf;
 	int rc = EXIT_SUCCESS;
-	const size_t buf_size = 4096;
+	const size_t buf_size = args->page_size * 8;
 	bool lsm_id_undef = false, lsm_id_reserved = false, lsm_id_defined = false;
 	double list_duration = 0.0, list_count = 0.0;
 	double get_duration = 0.0, get_count = 0.0;
@@ -96,7 +96,7 @@ static int stress_lsm(stress_args_t *args)
 		0,
 	};
 
-	buf = stress_mmap_populate(NULL, 4096, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	buf = stress_mmap_populate(NULL, buf_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zu byte sized buffer, skipping stressor\n", args->name, buf_size);
 		return EXIT_NO_RESOURCE;
@@ -110,8 +110,6 @@ static int stress_lsm(stress_args_t *args)
 		size_t size, j;
 		int i, ret;
 		uint64_t *ids = (uint64_t *)buf;
-		struct lsm_ctx *ctx = (struct lsm_ctx *)buf;
-		struct lsm_ctx *ctx_end = (struct lsm_ctx *)((uintptr_t)buf + buf_size);
 		double t;
 
 		size = buf_size;
@@ -152,8 +150,12 @@ static int stress_lsm(stress_args_t *args)
 		}
 
 		for (j = 0; j < SIZEOF_ARRAY(attr); j++) {
+			struct lsm_ctx *ctx = (struct lsm_ctx *)buf;
+			struct lsm_ctx *ctx_end = (struct lsm_ctx *)((uintptr_t)buf + buf_size);
+
 			size = buf_size;
 			t = stress_time_now();
+
 			ret = shim_lsm_get_self_attr(attr[j], ctx, &size, 0);
 			if (ret < 0)
 				continue;
