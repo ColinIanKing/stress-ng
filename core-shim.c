@@ -311,8 +311,6 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 
 	return 0;
 #else
-	int ret;
-
 	errno = 0;
 	if (shim_emulate_fallocate(fd, offset, len) < 0)
 		return errno;
