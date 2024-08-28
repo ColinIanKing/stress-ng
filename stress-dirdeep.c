@@ -164,7 +164,7 @@ static bool stress_dirdeep_make(
 #else
 					ret = shim_fallocate(fd, 0, (off_t)0, dirdeep_bytes);
 #endif
-					if (ret < 0) {
+					if (ret != 0) {
 						(void)close(fd);
 						break;
 					}

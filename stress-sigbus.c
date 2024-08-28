@@ -93,10 +93,10 @@ static int stress_sigbus(stress_args_t *args)
 	(void)shim_unlink(filename);
 
 	ret = shim_posix_fallocate(fd, 0, page_size * 2);
-	if (ret < 0) {
-		if (errno != EINTR) {
+	if (ret != 0) {
+		if (ret != EINTR) {
 			pr_inf_skip("%s: posix_fallocate failed, no free space, errno=%d (%s)%s, skipping stressor\n",
-				args->name, errno, strerror(errno), fs_type);
+				args->name, ret, strerror(ret), fs_type);
 		}
 		rc = EXIT_NO_RESOURCE;
 		goto tidy_close;

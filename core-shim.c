@@ -273,12 +273,16 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 	const off_t chunk_len = (off_t)(1 * MB);
 	static bool emulate = false;
 
-	if (emulate)
-		return shim_emulate_fallocate(fd, offset, len);
+	if (emulate) {
+		errno = 0;
+		if (shim_emulate_fallocate(fd, offset, len) < 0)
+			return errno;
+		return 0;
+	}
 
 	do {
-		const off_t sz = (len > chunk_len) ? chunk_len : len;
 		int ret;
+		const off_t sz = (len > chunk_len) ? chunk_len : len;
 
 		errno = 0;
 		/* posix fallocate returns err in return and not via errno */
@@ -286,10 +290,12 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 		if (ret != 0) {
 			if ((ret == EINVAL) || (ret == EOPNOTSUPP)) {
 				emulate = true;
-				return shim_emulate_fallocate(fd, offset, len);
+				errno = 0;
+				if (shim_emulate_fallocate(fd, offset, len) < 0)
+					return errno;
+				return 0;
 			}
-			errno = ret;
-			return -1;
+			return errno;
 		}
 
 		/*
@@ -297,8 +303,7 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 		 *  an EINTR return
 		 */
 		if (!stress_continue_flag()) {
-			errno = EINTR;
-			return -1;
+			return EINTR;
 		}
 		offset += sz;
 		len -= sz;
@@ -306,10 +311,14 @@ int shim_posix_fallocate(int fd, off_t offset, off_t len)
 
 	return 0;
 #else
-	return shim_emulate_fallocate(fd, offset, len);
+	int ret;
+
+	errno = 0;
+	if (shim_emulate_fallocate(fd, offset, len) < 0)
+		return errno;
+	return 0;
 #endif
 }
-
 
 /*
  * shim_fallocate()

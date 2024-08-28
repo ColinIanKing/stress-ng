@@ -81,10 +81,11 @@ static int stress_sendfile(stress_args_t *args)
 	}
 #if defined(HAVE_POSIX_FALLOCATE)
 	ret = shim_posix_fallocate(fdin, (off_t)0, (off_t)sz);
+	errno = ret;
 #else
 	ret = shim_fallocate(fdin, 0, (off_t)0, (off_t)sz);
 #endif
-	if (ret < 0) {
+	if (ret != 0) {
 		rc = stress_exit_status(errno);
 		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
