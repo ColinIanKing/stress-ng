@@ -49,6 +49,12 @@ typedef struct dekker {
 
 dekker_t *dekker;
 
+static inline void ALWAYS_INLINE dekker_mfence(void)
+{
+	shim_mfence();
+	stress_asm_mb();
+}
+
 static int stress_dekker_p0(stress_args_t *args)
 {
 	int check0, check1;
@@ -56,15 +62,15 @@ static int stress_dekker_p0(stress_args_t *args)
 
 	t = stress_time_now();
 	dekker->m.wants_to_enter[0] = true;
-	shim_mfence();
+	dekker_mfence();
 	while (LIKELY(dekker->m.wants_to_enter[1])) {
 		if (dekker->m.turn != 0) {
 			dekker->m.wants_to_enter[0] = false;
-			shim_mfence();
+			dekker_mfence();
 			while (dekker->m.turn != 0) {
 			}
 			dekker->m.wants_to_enter[0] = true;
-			shim_mfence();
+			dekker_mfence();
 		}
 	}
 
@@ -72,10 +78,11 @@ static int stress_dekker_p0(stress_args_t *args)
 	check0 = dekker->m.check;
 	dekker->m.check++;
 	check1 = dekker->m.check;
+	dekker_mfence();
 
 	dekker->m.turn = 1;
 	dekker->m.wants_to_enter[0] = false;
-	shim_mfence();
+	dekker_mfence();
 	dekker->p0.duration += stress_time_now() - t;
 	dekker->p0.count += 1.0;
 
@@ -95,15 +102,15 @@ static int stress_dekker_p1(stress_args_t *args)
 	t = stress_time_now();
 
 	dekker->m.wants_to_enter[1] = true;
-	shim_mfence();
+	dekker_mfence();
 	while (LIKELY(dekker->m.wants_to_enter[0])) {
 		if (dekker->m.turn != 1) {
 			dekker->m.wants_to_enter[1] = false;
-			shim_mfence();
+			dekker_mfence();
 			while (dekker->m.turn != 1) {
 			}
 			dekker->m.wants_to_enter[1] = true;
-			shim_mfence();
+			dekker_mfence();
 		}
 	}
 
@@ -111,11 +118,12 @@ static int stress_dekker_p1(stress_args_t *args)
 	check0 = dekker->m.check;
 	dekker->m.check--;
 	check1 = dekker->m.check;
+	dekker_mfence();
 	stress_bogo_inc(args);
 
 	dekker->m.turn = 0;
 	dekker->m.wants_to_enter[1] = false;
-	shim_mfence();
+	dekker_mfence();
 	dekker->p1.duration += stress_time_now() - t;
 	dekker->p1.count += 1.0;
 
