@@ -256,13 +256,13 @@ static int get_modpath_name(
 			(void)snprintf(module_path, module_path_size, "%s/%s/%s",
 				 dirname_default_prefix,
 				 u.release, module);
-			ret = 0;
 
-			/* Check for .xz ko, can't decompress these yet */
+			/* Check for .ko end, can't decompress .zst, .xz etc yet */
+			ret = -1 ;
 			len = strlen(module_path);
 			if (len > 3) {
-				if (strncmp(module_path + len - 3, ".xz", 3) == 0)
-					ret = -1;
+				if (strncmp(module_path + len - 3, ".ko", 3) == 0)
+					ret = 0;
 			}
 			goto out_close;
 		case PARSE_INVALID:
