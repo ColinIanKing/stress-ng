@@ -518,7 +518,7 @@ static int stress_exclude(void)
 			return -1;
 		}
 		for (ss = stressors_head; ss; ss = ss->next) {
-			if (!strcmp(token, ss->stressor->name)) {
+			if (!stress_strcmp_munged(token, ss->stressor->name)) {
 				stress_ignore_stressor(ss, STRESS_STRESSOR_EXCLUDED);
 				break;
 			}
