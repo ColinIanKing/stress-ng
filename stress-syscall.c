@@ -4522,7 +4522,7 @@ static int syscall_ppoll(void)
 {
 	struct pollfd fds[4];
 	struct timespec ts;
-	sigset_t sigset;
+	sigset_t sigmask;
 	int ret;
 
 	fds[0].fd = fileno(stdin);
@@ -4544,10 +4544,10 @@ static int syscall_ppoll(void)
 	ts.tv_sec = 0;
 	ts.tv_nsec = 1;
 
-	VOID_RET(int, sigemptyset(&sigset));
+	VOID_RET(int, sigemptyset(&sigmask));
 
 	t1 = syscall_time_now();
-	ret = ppoll(fds, SIZEOF_ARRAY(fds), &ts, &sigset);
+	ret = ppoll(fds, SIZEOF_ARRAY(fds), &ts, &sigmask);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -4830,7 +4830,7 @@ static int syscall_pselect(void)
 	int fds[4], nfds = -1, ret;
 	size_t i;
 	struct timespec ts;
-	sigset_t sigset;
+	sigset_t sigmask;
 
 	fds[0] = fileno(stdin);
 	fds[1] = fileno(stdout);
@@ -4852,10 +4852,10 @@ static int syscall_pselect(void)
 	ts.tv_sec = 0;
 	ts.tv_nsec = 0;
 
-	VOID_RET(int, sigemptyset(&sigset));
+	VOID_RET(int, sigemptyset(&sigmask));
 
 	t1 = syscall_time_now();
-	ret = pselect(nfds + 1, &rd_set, &wr_set, NULL, &ts, &sigset);
+	ret = pselect(nfds + 1, &rd_set, &wr_set, NULL, &ts, &sigmask);
 	t2 = syscall_time_now();
 	return ret;
 }
