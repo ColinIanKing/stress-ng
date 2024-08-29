@@ -675,15 +675,15 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 {
 	DIR *dir;
 	struct dirent *de;
-	int dirfd;
+	int dir_fd;
 
-	dirfd = open(dirname, O_DIRECTORY | O_RDONLY);
-	if (dirfd < 0)
+	dir_fd = open(dirname, O_DIRECTORY | O_RDONLY);
+	if (dir_fd < 0)
 		return;
 
 	dir = opendir(dirname);
 	if (!dir) {
-		(void)close(dirfd);
+		(void)close(dir_fd);
 		return;
 	}
 
@@ -703,14 +703,14 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 		if (atoi(&de->d_name[len + 1]) > 0)
 			continue;
 
-		if (fstatat(dirfd, de->d_name, &statbuf, 0) < 0)
+		if (fstatat(dir_fd, de->d_name, &statbuf, 0) < 0)
 			continue;
 
 		switch (statbuf.st_mode & S_IFMT) {
 		case S_IFBLK:
 		case S_IFCHR:
 		case S_IFREG:
-			if (faccessat(dirfd, de->d_name, R_OK, 0) == 0) {
+			if (faccessat(dir_fd, de->d_name, R_OK, 0) == 0) {
 				char filename[PATH_MAX];
 
 				(void)snprintf(filename, sizeof(filename), "%s/%s", dirname, de->d_name);
@@ -722,7 +722,7 @@ static void stress_fd_race_filename_dir(const char *dirname, stress_fd_race_file
 		}
 	}
 	(void)closedir(dir);
-	(void)close(dirfd);
+	(void)close(dir_fd);
 }
 
 /*
