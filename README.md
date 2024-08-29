@@ -453,6 +453,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [kernel oops in aafs_create in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068602)
 * [mm: optimize the redundant loop](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cf3f9a593dab87a032d2b6a6fb205e7f3de4f0a1)
 * [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
+* [powerpc/qspinlock: Fix deadlock in MCS queue](https://lore.kernel.org/lkml/20240829022830.1164355-1-nysal@linux.ibm.com/T/)
 
 ## Kernel improvements that used stress-ng
 
@@ -488,7 +489,6 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 2024:
 * [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
 * [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
-* [powerpc/qspinlock: Fix deadlock in MCS queue](https://lore.kernel.org/lkml/20240829022830.1164355-1-nysal@linux.ibm.com/T/)
 
 ## Presentations
 
