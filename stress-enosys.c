@@ -3909,7 +3909,7 @@ static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 static inline int stress_do_syscall(
 	stress_args_t *args,
 	const long number,
-	const bool random)
+	const bool do_random)
 {
 	pid_t pid;
 	int rc = 0;
@@ -3993,7 +3993,7 @@ static inline int stress_do_syscall(
 
 		/* Add to known syscalls that don't return ENOSYS */
 		if (rc != ENOSYS) {
-			if ((!random) || (number < 65536))
+			if ((!do_random) || (number < 65536))
 				syscall_add(number);
 		}
 		stress_bogo_inc(args);
