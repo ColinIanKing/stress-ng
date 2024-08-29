@@ -431,11 +431,10 @@ static int stress_module(stress_args_t *args)
 			break;
 
 		if (shim_finit_module(fd, finit_args1, kernel_flags) == 0) {
+			stress_bogo_inc(args);
 			if (!module_no_unload)
 				(void)shim_delete_module(module_name, 0);
 		}
-
-		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
 out:
