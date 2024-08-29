@@ -327,14 +327,14 @@ static int TARGET_CLONES stress_vecmath(stress_args_t *args)
 
 stressor_info_t stress_vecmath_info = {
 	.stressor = stress_vecmath,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
 stressor_info_t stress_vecmath_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

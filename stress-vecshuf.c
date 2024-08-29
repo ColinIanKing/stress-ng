@@ -458,7 +458,7 @@ static const stress_opt_t opts[] = {
 
 stressor_info_t stress_vecshuf_info = {
 	.stressor = stress_vecshuf,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help
@@ -472,7 +472,7 @@ static const stress_opt_t opts[] = {
 
 stressor_info_t stress_vecshuf_info = {
 	.stressor = stress_unimplemented,
-	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
+	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,
 	.verify = VERIFY_ALWAYS,
 	.help = help,
