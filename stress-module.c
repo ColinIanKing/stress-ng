@@ -257,6 +257,13 @@ static int get_modpath_name(
 				 dirname_default_prefix,
 				 u.release, module);
 			ret = 0;
+
+			/* Check for .xz ko, can't decompress these yet */
+			len = strlen(module_path);
+			if (len > 3) {
+				if (strncmp(module_path + len - 3, ".xz", 3) == 0)
+					ret = -1;
+			}
 			goto out_close;
 		case PARSE_INVALID:
 			ret = -1;
