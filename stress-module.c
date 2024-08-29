@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-attribute.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-module.h"
 
@@ -292,13 +293,19 @@ static int stress_module(stress_args_t *args)
 	bool module_no_unload = false;
 	bool module_no_vermag = false;
 	bool module_no_modver = false;
-	char *module_name_cli = NULL;
-	char *module_name;
-	static char default_module[] = "test_module";
+	const char *module_name_cli = NULL;
+	const char *module_name;
 	const char *finit_args1 = "";
 	unsigned int kernel_flags = 0;
 	struct stat statbuf;
 	int fd, ret = EXIT_SUCCESS;
+	static const char * const default_modules[] = {
+		"test_module",
+		"test_user_copy",
+		"test_static_key_base",
+		"test_bpf",
+		"test_firmware"
+	};
 
 	(void)stress_get_setting("module-name", &module_name_cli);
 	(void)stress_get_setting("module-no-vermag", &module_no_vermag);
@@ -310,8 +317,19 @@ static int stress_module(stress_args_t *args)
 	if (module_no_modver)
 		kernel_flags |= MODULE_INIT_IGNORE_MODVERSIONS;
 
-	module_name = module_name_cli ? module_name_cli : default_module;
-	ret = get_modpath_name(args, module_name, global_module_path, sizeof(global_module_path));
+	if (module_name_cli) {
+		module_name = module_name_cli;
+		ret = get_modpath_name(args, module_name, global_module_path, sizeof(global_module_path));
+	} else {
+		size_t i;
+
+		for (i = 0; i < SIZEOF_ARRAY(default_modules); i++) {
+			module_name = default_modules[i];
+			ret = get_modpath_name(args, module_name, global_module_path, sizeof(global_module_path));
+			if (ret == 0)
+				break;
+		}
+	}
 	if (ret < 0) {
 		if (args->instance == 0) {
 			if (module_name_cli) {
@@ -321,12 +339,21 @@ static int stress_module(stress_args_t *args)
 					"skipping stressor\n",
 					args->name, module_name);
 			} else {
+				size_t i;
+				char buf[SIZEOF_ARRAY(default_modules) * 32];
+
+				(void)shim_memset(buf, 0, sizeof(buf));
+				for (i = 0; i < SIZEOF_ARRAY(default_modules); i++) {
+					(void)shim_strlcat(buf, (i > 0) ? ", " : "", sizeof(buf));
+					(void)shim_strlcat(buf, default_modules[i], sizeof(buf));
+				}
+
 				pr_inf_skip("%s: could not find a module path for "
-					"the default test_module '%s', perhaps "
+					"the default modules '%s', perhaps "
 					"CONFIG_TEST_LKM is disabled in your "
 					"kernel (or alternatively use --module-name "
 					"to specify module), skipping stressor\n",
-					args->name, module_name);
+					args->name, buf);
 			}
 		}
 		return EXIT_NO_RESOURCE;
@@ -384,6 +411,9 @@ static int stress_module(stress_args_t *args)
 	 */
 	if (!module_no_unload)
 		(void)shim_delete_module(module_name, 0);
+
+	if (args->instance == 0)
+		pr_inf("%s: exercising module '%s'\n", args->name, module_name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
