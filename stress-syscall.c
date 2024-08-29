@@ -1073,14 +1073,14 @@ static int syscall_clock_adjtime(void)
 	shim_timex_t t;
 	static size_t i = 0;
 	int ret;
-	const int clock = clocks[i];
+	const int clock_id = clocks[i];
 
 	(void)shim_memset(&t, 0, sizeof(t));
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
 	t1 = syscall_time_now();
-	ret = shim_clock_adjtime(clock, &t);
+	ret = shim_clock_adjtime(clock_id, &t);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -1093,13 +1093,13 @@ static int syscall_clock_getres(void)
 	struct timespec t;
 	static size_t i = 0;
 	int ret;
-	const int clock = clocks[i];
+	const int clock_id = clocks[i];
 
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
 	t1 = syscall_time_now();
-	ret = shim_clock_getres(clock, &t);
+	ret = shim_clock_getres(clock_id, &t);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -1112,13 +1112,13 @@ static int syscall_clock_gettime(void)
 	struct timespec t;
 	static size_t i = 0;
 	int ret;
-	const int clock = clocks[i];
+	const int clock_id = clocks[i];
 
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
 	t1 = syscall_time_now();
-	ret = shim_clock_gettime(clock, &t);
+	ret = shim_clock_gettime(clock_id, &t);
 	t2 = syscall_time_now();
 	return ret;
 }
@@ -1168,16 +1168,16 @@ static int syscall_clock_settime(void)
 	struct timespec t;
 	static size_t i = 0;
 	int ret;
-	const int clock = clocks[i];
+	const int clock_id = clocks[i];
 
 	i++;
 	if (i >= SIZEOF_ARRAY(clocks))
 		i = 0;
-	ret = shim_clock_gettime(clock, &t);
+	ret = shim_clock_gettime(clock_id, &t);
 	if (ret < 0)
 		return -1;
 	t1 = syscall_time_now();
-	ret = shim_clock_settime(clock, &t);
+	ret = shim_clock_settime(clock_id, &t);
 	t2 = syscall_time_now();
 	return ret;
 }
