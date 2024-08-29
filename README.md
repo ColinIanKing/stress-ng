@@ -488,6 +488,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 2024:
 * [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
 * [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
+* [powerpc/qspinlock: Fix deadlock in MCS queue](https://lore.kernel.org/lkml/20240829022830.1164355-1-nysal@linux.ibm.com/T/)
 
 ## Presentations
 
