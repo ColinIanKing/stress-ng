@@ -73,19 +73,19 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_LIB_JPEG) &&	\
     defined(HAVE_LIBJPEG_H)
 
-static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(const double x, const double y, const double time)
+static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(const double x, const double y, const double whence)
 {
 	const double tau = 2 * M_PI;
 	double cx, cy;
 	double value;
 
-	value = shim_sin((time - x) * tau);
-	value += shim_cos((time + y) * tau);
-	value += shim_sin((time + x - y) * tau);
-	value += shim_sin((time + x + y) * tau);
+	value = shim_sin((whence - x) * tau);
+	value += shim_cos((whence + y) * tau);
+	value += shim_sin((whence + x - y) * tau);
+	value += shim_sin((whence + x + y) * tau);
 
-	cx = x - 0.5 + shim_sin(time * tau) / 3.0;
-	cy = y - 0.5 + shim_cos(time * tau) / 3.0;
+	cx = x - 0.5 + shim_sin(whence * tau) / 3.0;
+	cy = y - 0.5 + shim_cos(whence * tau) / 3.0;
 	value += shim_sin(shim_sqrt(128.0 * (cx * cx + cy * cy)));
 
 	return value;
