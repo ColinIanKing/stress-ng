@@ -358,8 +358,8 @@ static int stress_module(stress_args_t *args)
 				pr_inf_skip("%s: could not find a module path for "
 					"the default modules '%s', perhaps "
 					"CONFIG_TEST_LKM is disabled in your "
-					"kernel (or alternatively use --module-name "
-					"to specify module), skipping stressor\n",
+					"kernel or modules are compressed. Alternatively use --module-name "
+					"to specify module. Skipping stressor\n",
 					args->name, buf);
 			}
 		}
