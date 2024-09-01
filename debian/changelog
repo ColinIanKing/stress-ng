@@ -1,3 +1,167 @@
+stress-ng (0.18.03-1) unstable; urgency=medium
+
+  [Aboorva Devarajan]
+  * core-target-clone: fix power9 target build issue
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-ng: add vector class to --class option
+  * stress-dekker: fix failures for out-of-order processors
+  * stress-ng: fix -x option for options with - in the name
+  * stress-syscall: rename sigset to sigmask to avoid gcc-4.4 variable
+    shadowing warning
+  * stress-syscall: rename clock to clock_id to avoid gcc-4.4 variable
+    shadowing warning
+  * stress-shm-sysv: rename syscall to syscall_name to avoid gcc-4.4
+    variable shadowing warning
+  * stress-jpeg: rename func param time to whence to clean up gcc-4.4
+    name shadowing warning
+  * stress-fd-race: rename dirfd to dir_fd to avoid gcc-4.4 variable
+    shadowing warning
+  * stress-enosys: rename func param random to do_random to avoid name
+    shadowing gcc 4.4 warning
+  * core-shim: rename dirfd to dir_fd to avoid gcc-4.4 variable shadowing
+    warning
+  * README.md: move kernel issue to correct place in README file
+  * README.md: add another kernel issue to bug list for 2024
+  * stress-module: only increment bogo counter on successful module load
+  * stress-module: check for .ko module name ending
+  * stress-module: update module search failure message for compressed kos
+  * stress-module: ignore compressed .xz modules
+  * stress-module: try several test modules rather than just test_module
+  * core-shim: return ret instread of errno in shim_posix_fallocate
+  * stress-zlib: reduce checksum to 32 bits for faster compute
+  * core-shim: remove unused variable ret
+  * core-shim: make shim_posix_fallocate return error code on failure
+  * core-shim: check ret rather than errno on posix_fallocate failure
+  * core-shim: cater for EOPNOTSUPP in posix_fallocate failure
+  * stress-lsm: move ctx and ctx_end to inner loop scope
+  * stress-sigurg: clear bogo-op counter flag if child is killed during
+    bogo inc
+  * README.md: Add another research paper link
+  * Manual: fix spelling mistake "subraction" -> "subtraction"
+  * test/test-libgbm.c: replace whitespace with tabs
+  * stress-dirdeep: remove debug printf statement
+  * stress-personality: check for no personalities using supported
+    callback
+  * stress-efivar: remove need for packed attribute
+  * stress-get: exercise getlogin at end of stressor loop
+  * stress-uprobe: report why uprobe cannot be run with static builds
+  * stress-get: remove redundant #ifdef
+  * stress-bind-mount: check for multiple stat failures on bind mounted
+    directory
+  * stress-efivar: fix access checks and check on attribute
+  * stress-efivar: specify efi var fields in terms of uint8_t types
+  * README.md: add another kernel bug found with stress-ng
+  * stress-inotify: remove const from helper void arg
+  * core-cpuidle: ensure there is plenty of space for filename snprintf
+    formatting
+  * core-shim: only call stime for glibc < 2.31
+  * stress-lsearch: clean up some more pointer constification warnings
+  * stress-lsearch: clean up some constification warnings
+  * stress-fibsearch: remove re-declaration of pointer ptr
+  * stress-bsearch: clean up some constification warnings
+  * stress-binderfs: stress_binderfs_supported: return -1 for non-linux
+    builds
+  * stress-zlib: correct comment for function stress_rand_data_inc16
+  * stress-mergesort: minor optimization re-ordering tweaks
+  * stress-heapsort: use copy and swap helper for different data sizes
+  * stress-sigq: add sigq to IPC class of stressors
+  * stress-*: add ipc (inter process communication) class
+  * stress-misaligned: use CLOCK_PROCESS_CPUTIME_ID for timer
+  * core-time: stress_duration_to_str: add flag report_secs to always
+    report secs
+  * stess-cgroup: add mount EBUSY retry. Also add mount/umount retry debug
+  * core-config-check: fix memory load on string lowstr
+  * stress-lockmix: add a mixed file locking stressor
+  * core-config-check: warn if the run environment is not suitable for
+    stress-ng
+  * Manual: Fix grammar on --log-lockless description
+  * *.c: remove trailing tabs and white space from ends of lines
+  * stress-lsearch: use simpler check to speed up comparisons
+  * stress-fibsearch: make array indexes ssize_t for potential -ve ranges
+  * stress-bsearch: rename bsearch-ternary to ternary in method option
+  * stress-bsearch: add a 3-way ternary search method
+  * stress-lsearch: add a key sentinel search method
+  * Makefile: add fibsearch (Fibonacci search) stessor
+  * stress-hash, stress-tree: add stressors to search class
+  * stress-bubblesort: rename bubblesort method to bubblesort-fast
+  * stress-sort*: add sort class
+  * stress-bubblesort: add bubblesort stressor
+  * core-cpuidle: name busy state C0 for x86 and BUSY for other arches
+  * README.md: add C-state residency example
+  * stress-vm: stress_vm_mod: replace while loop with two if statements
+  * core-cpuidle: add C-state measurements with --c-state option
+  * kernel-coverage: add umount sanity check on umount failures
+  * stress-*: add integer and fp classes
+  * stress-vec*: remove CLASS_CPU_CACHE flag
+  * stress-fd-race: add helper to close fds in different orders
+  * stress-close: exercise flag field with close_range call
+  * stress-inotify: remove empty line
+  * stress-oom-pipe: fix valid fd check before closing the fd
+  * stress-tee: ensure fd is closed on error exit path
+  * stress-poll: use correct array index variable for closing fds
+  * stress-link: exercise pathconf on oldpath instead of testpath
+  * stress-session: close pipe fds on error exit path
+  * stress-shm: close pipe fds on error exit path
+  * stress-vm-segv: close pipe fds on error exit paths
+  * stress-key: replace vararg system call with 5 arg system call
+  * stress-fd-race: fix error return paths not cleaning up allocated
+    resources
+  * stress-close: clean up some file descriptor handling
+  * stress-tee: fix error handling closes on pipe file descriptors
+  * stress-x86syscall: initialize time1, time2 to zero
+  * stress-workload: add check for non-null threads array
+  * stress-sysbadaddr: close pipe fds if pipe succeeds
+  * stress-inotify: avoid double close on fd
+  * stress-syscall: fix fd leaks on pipes on tee syscall stress case
+  * stress-daemon: clean up file descriptor closing on error return paths
+  * core-helper: fix pipe file descriptor leak on error path
+  * core-asm-ret: constify stress_ret_opcode
+  * Makefile: add -fivopts -fmodulo-sched optimization options
+  * core-target-clones: add power10 cpu support
+  * Makefile: remove incorrect scan-build basename check
+  * stress-vma: fix void * pointer arithmetic warning on data + offset
+  * stress-*: exercise pathconf options on various files
+  * stress-get: exercise getlogin since this is a syscall on *BSD systems
+  * core-lock: use a single mapped page for all shared locks
+  * core-lock: put lock functions into per lock type struct
+  * README.md: add another reference link
+  * stress-waitcpu: only use umwait for x86-64 and LP64 (non-x32 builds)
+  * core-helper: rename stress_x86_smi_readmsr64 to stress_x86_readmsr64
+  * core-lock: provide created locks a name to track locks
+  * core-lock: add lock type into VMA anon name
+  * stress-numa: mmap all allocations and name the anon VMAs
+  * stress-numa: add simple page data checking
+  * stress-ng: remove "signal" from signal termination message
+  * stress-opcode: set child signal handlers before stress_shared_readonly
+  * stress-*: add some more pointer constifications
+  * stress-swap: produce more meaningful swap out metrics
+  * stress-misaligned: replace "got stuck" with "not fully tested"
+  * stress-resources: add stress_resources_access to access various
+    resources
+  * stress-utime: exercise a wide range of huge times with utime
+  * Manual: add missing --ipsec-mb-feature option noaesni
+  * stress-cyclic: reduce spamming of the same error message with many
+    instances
+  * stress-binderfs: check in init stage if binderfs mounts are supported
+  * stress-intmath: fix incorrect class flags, should be CLASS_CPU |
+    CLASS_COMPUTE
+  * stress-ng: make g_opt_pause unsigned int and add pause time in
+    progress time
+  * core-log: increase per line log buffer to 8K
+  * stress-ng: add pause option to add pauses between each stressor
+    invocation
+  * stress-ng: show settings even if no stressors are run
+  * core-rapl: align stats with the tz stats
+  * stress-intmath: add signed integer math + - * % operations
+  * stress-waitcpu: replace ;; with ;
+  * stress-prefetch: replace ;; with ;
+  * stress-chattr: replace ;; with ;
+  * core-vmstat: replace ;; with ;
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 1 Sep 2024 10:08:23 +0100
+
 stress-ng (0.18.02-1) unstable; urgency=medium
 
   [Chunyu Hu]
