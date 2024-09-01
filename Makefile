@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "punchy process pounder"
+# Codename "persistent process pressurizer"
 #
-VERSION=0.18.02
+VERSION=0.18.03
 
 #
 # Determine supported toolchains
