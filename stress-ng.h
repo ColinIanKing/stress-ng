@@ -745,6 +745,15 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *ar
 }
 
 /*
+ *  stress_bogo_ready()
+ *	set counter ready flag to true
+ */
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_ready(stress_args_t *args)
+{
+	args->ci.counter_ready = true;
+}
+
+/*
  *  stress_bogo_set()
  *	set the stessor bogo ops counter
  *	NOTE: try to only set the counter inside a stressor

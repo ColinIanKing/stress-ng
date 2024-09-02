@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "29 August 2024"
+.TH STRESS-NG 1 "2 September 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6765,6 +6765,12 @@ stop semaphore stress workers after N bogo semaphore operations.
 .B \-\-sem\-procs N
 start N child workers per worker to provide contention on the semaphore, the
 default is 4 and a maximum of 64 are allowed.
+.TP
+.B \-\-sem\-shared
+share the semaphore across all sem stressor instances. Normally each semaphore
+stressor shares a semaphore with its child processes, this option produces
+more locking contention and less throughput by sharing a semaphore across
+all semaphore stressor processes.
 .RE
 .TP
 .B System V semaphore stressor

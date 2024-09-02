@@ -867,6 +867,7 @@ const struct option stress_long_options[] = {
 	{ "sem",		1,	0,	OPT_sem },
 	{ "sem-ops",		1,	0,	OPT_sem_ops },
 	{ "sem-procs",		1,	0,	OPT_sem_procs },
+	{ "sem-shared",		0,	0,	OPT_sem_shared },
 	{ "sem-sysv",		1,	0,	OPT_sem_sysv },
 	{ "sem-sysv-ops",	1,	0,	OPT_sem_sysv_ops },
 	{ "sem-sysv-procs",	1,	0,	OPT_sem_sysv_procs },

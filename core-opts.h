@@ -1237,6 +1237,7 @@ typedef enum {
 	OPT_sem,
 	OPT_sem_ops,
 	OPT_sem_procs,
+	OPT_sem_shared,
 
 	OPT_sem_sysv,
 	OPT_sem_sysv_ops,
