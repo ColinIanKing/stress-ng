@@ -100,7 +100,7 @@ endif
 #
 # Test for hardening flags and apply them if applicable
 #
-MACHINE = $(shell uname -m)
+MACHINE = $(shell make -f Makefile.machine)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
 flag = -Wformat -fstack-protector-strong \
@@ -114,8 +114,12 @@ endif
 # Optimization flags
 #
 ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
-override CFLAGS += $(foreach flag,-fipa-pta -fivopts -fmodulo-sched,$(cc_supports_flag))
+override CFLAGS += $(foreach flag,-fipa-pta -fivopts,$(cc_supports_flag))
+ifneq ($(MACHINE),$(filter $(MACHINE),ibms390))
+override CFLAGS += $(foreach flag,-fmodulo-sched,$(cc_supports_flag))
 endif
+endif
+
 #
 # Enable Link Time Optimization
 #
