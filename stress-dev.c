@@ -3503,6 +3503,28 @@ static void stress_dev_fb_linux(
 }
 #endif
 
+#if defined(__linux__)
+/* exercise arch/x86/kernel/cpuid.c driver */
+static void stress_dev_cpu_cpuid(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	uint8_t data[64];
+
+	(void)args;
+	(void)devpath;
+
+	if (lseek(fd, 0, SEEK_SET) != (off_t)0)
+		return;
+
+	/* multiple of 16 bytes read */
+	VOID_RET(ssize_t, read(fd, data, sizeof(data)));
+	/* invalid non-multiple of 16 bytes read */
+	VOID_RET(ssize_t, read(fd, data, sizeof(data) - 1));
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3606,6 +3628,9 @@ static const stress_dev_func_t dev_funcs[] = {
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_FB_H)
 	DEV_FUNC("/dev/fb", 	stress_dev_fb_linux),
+#endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/cpu/0/cpuid", stress_dev_cpu_cpuid),
 #endif
 };
 
