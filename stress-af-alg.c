@@ -921,10 +921,8 @@ static int stress_af_alg(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (sigsetjmp(jmpbuf, 1) != 0) {
-		pr_inf("JMP out\n");
+	if (sigsetjmp(jmpbuf, 1) != 0)
 		goto deinit;
-	}
 
 	if (stress_sighandler(args->name, SIGALRM, stress_af_alg_alarm_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
