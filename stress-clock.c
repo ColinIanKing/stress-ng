@@ -520,7 +520,8 @@ static int stress_clock(stress_args_t *args)
 			fd = open("/dev/ptp0", O_RDWR);
 			if (fd >= 0) {
 				struct timespec t;
-				int ret, clkid = FD_TO_CLOCKID(fd);
+				int ret;
+				const int clkid = FD_TO_CLOCKID(fd);
 #if defined(HAVE_POLL_H) &&	\
     defined(HAVE_POLL)
 				struct pollfd pollfds[1];
