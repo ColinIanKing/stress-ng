@@ -86,11 +86,9 @@
 #include <sys/swap.h>
 #endif
 
-#if defined(HAVE_SYS_SYSCTL_H)
-STRESS_PRAGMA_PUSH
-STRESS_PRAGMA_WARN_CPP_OFF
+#if defined(HAVE_SYS_SYSCTL_H) &&	\
+    !defined(__linux__)
 #include <sys/sysctl.h>
-STRESS_PRAGMA_POP
 #endif
 
 #if defined(HAVE_SYS_UTSNAME_H)
