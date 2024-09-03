@@ -347,9 +347,8 @@ static void *stress_madvise_pages(void *arg)
 	if (ctxt->is_thread) {
 		sigset_t set;
 
-		sigemptyset(&set);
-		sigaddset(&set, SIGBUS);
-
+		(void)sigemptyset(&set);
+		(void)sigaddset(&set, SIGBUS);
 		(void)pthread_sigmask(SIG_SETMASK, &set, NULL);
 	}
 

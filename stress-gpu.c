@@ -527,9 +527,9 @@ static int stress_gpu_child(stress_args_t *args, void *context)
 	 *  in pthread or this process to check if
 	 *  SIGALRM has been sent.
 	 */
-	sigemptyset(&set);
-	sigaddset(&set, SIGALRM);
-	sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)sigemptyset(&set);
+	(void)sigaddset(&set, SIGALRM);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	(void)context;
 

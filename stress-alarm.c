@@ -48,8 +48,8 @@ static void stress_alarm_stress_bogo_inc(stress_args_t *args)
 {
 	sigset_t set;
 
-	sigemptyset(&set);
-	sigaddset(&set, SIGUSR1);
+	(void)sigemptyset(&set);
+	(void)sigaddset(&set, SIGUSR1);
 	if (sigprocmask(SIG_BLOCK, &set, NULL) == 0) {
 		stress_bogo_inc(args);
 		(void)sigprocmask(SIG_UNBLOCK, &set, NULL);
