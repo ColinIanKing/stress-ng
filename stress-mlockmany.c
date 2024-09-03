@@ -1,4 +1,4 @@
-const /*
+/*
  * Copyright (C) 2013-2021 Canonical, Ltd.
  * Copyright (C) 2022-2024 Colin Ian King.
  *
