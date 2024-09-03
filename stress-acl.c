@@ -65,7 +65,6 @@ static const acl_type_t stress_acl_types[] = {
 	ACL_TYPE_DEFAULT,
 };
 
-
 /*
  *  stress_acl_delete_all()
  *	try to delete all acl entries on filename
@@ -126,7 +125,7 @@ static inline int stress_acl_cmp(acl_t acl1, acl_t acl2)
  *  stress_acl_perms()
  *	convert ACL permission bits to string
  */
-static void stress_acl_perms(acl_t acl, char *str, const size_t str_len)
+static void stress_acl_perms(const acl_t acl, char *str, const size_t str_len)
 {
 	int which = ACL_FIRST_ENTRY;
 
@@ -292,11 +291,11 @@ static int stress_acl_setup(
 
 	if (acl_rand) {
 		register size_t i;
-		register size_t n = *acl_count;
+		register const size_t n = *acl_count;
 
 		for (i = 0; i < n; i++) {
 			register acl_t tmp;
-			register size_t j = (size_t)stress_mwc32modn(n);
+			register const size_t j = (size_t)stress_mwc32modn(n);
 
 			tmp = acls[i];
 			acls[i] = acls[j];
@@ -324,7 +323,7 @@ static int stress_acl_exercise(
 		const double t1 = stress_time_now();
 
 		if (LIKELY(acl_set_file(filename, type, acls[i]) == 0)) {
-			double t2 = stress_time_now();
+			const double t2 = stress_time_now();
 			acl_t acl;
 
 			metrics[0].count += 1.0;
@@ -381,7 +380,6 @@ static int stress_acl_exercise(
  */
 static int stress_acl(stress_args_t *args)
 {
-	double rate;
 	int fd, rc;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
@@ -389,13 +387,13 @@ static int stress_acl(stress_args_t *args)
 	size_t i, acl_count = 0;
 	bool acl_rand = false;
 	const size_t max_acls = SIZEOF_ARRAY(stress_acl_entries) *
-				      SIZEOF_ARRAY(stress_acl_entries) *
-				      SIZEOF_ARRAY(stress_acl_entries) *
-				      SIZEOF_ARRAY(stress_acl_tags);
+				SIZEOF_ARRAY(stress_acl_entries) *
+				SIZEOF_ARRAY(stress_acl_entries) *
+				SIZEOF_ARRAY(stress_acl_tags);
 	const size_t acls_size = max_acls * sizeof(*acls);
 	stress_metrics_t metrics[2];
 	char filename[PATH_MAX], pathname[PATH_MAX];
-	static char *description[] = {
+	static char * const description[] = {
 		"nanoseconds to set an ACL",
 		"nanoseconds to get an ACL",
 	};
@@ -464,7 +462,9 @@ static int stress_acl(stress_args_t *args)
 		pr_inf("%s: %zd unique ACLs used\n", args->name, acl_count);
 
 	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
-		rate = (metrics[i].count > 0.0) ? metrics[i].duration * STRESS_DBL_NANOSECOND / metrics[i].count : 0.0;
+		const double rate = (metrics[i].count > 0.0) ?
+			metrics[i].duration * STRESS_DBL_NANOSECOND / metrics[i].count : 0.0;
+
 		stress_metrics_set(args, i, description[i], rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
