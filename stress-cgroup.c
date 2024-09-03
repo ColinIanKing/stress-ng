@@ -207,9 +207,8 @@ static void stress_cgroup_read(const char *path)
 	}
 	/* Add in a couple of random seek/reads for good measure */
 	for (i = 0; (i < 2) && (i < len); i++) {
-		off_t offset;
+		const off_t offset = (off_t)stress_mwc32modn((uint32_t)len);
 
-		offset = (off_t)stress_mwc32modn((uint32_t)len);
 		if (lseek(fd, offset, SEEK_SET) >= 0)
 			VOID_RET(int, read(fd, buf, sizeof(buf)));
 	}
