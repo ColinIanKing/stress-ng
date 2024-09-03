@@ -54,7 +54,7 @@ static int OPTIMIZE3 stress_bitops_sign(const char *name, uint32_t *count)
 {
 	int32_t i;
 	int32_t v = stress_mwc32();
-	uint32_t d = (~0U) >> 1;
+	const uint32_t d = (~0U) >> 1;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -89,7 +89,7 @@ static int OPTIMIZE3 stress_bitops_abs(const char *name, uint32_t *count)
 {
 	int32_t i;
 	int32_t v = stress_mwc32();
-	uint32_t d = (~0U) >> 1;
+	const uint32_t d = (~0U) >> 1;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -124,7 +124,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_countbits(const char *name, uin
 {
 	int32_t i;
 	uint32_t v = stress_mwc32();
-	uint32_t dv = stress_mwc16();
+	const uint32_t dv = stress_mwc16();
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -196,7 +196,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_clz(const char *name, uint32_t 
 {
 	int32_t i;
 	uint32_t v = stress_mwc32();
-	uint32_t dv = stress_mwc16();
+	const uint32_t dv = stress_mwc16();
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -296,7 +296,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 {
 	int32_t i;
 	uint32_t v = stress_mwc32();
-	uint32_t dv = stress_mwc16();
+	const uint32_t dv = stress_mwc16();
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -405,8 +405,8 @@ static int OPTIMIZE3 stress_bitops_cmp(const char *name, uint32_t *count)
 	int32_t i;
 	int32_t x = stress_mwc32();
 	int32_t y = x;
-	uint32_t dx = (~0U) >> 1;
-	uint32_t dy = (~0U) >> 2;
+	const uint32_t dx = (~0U) >> 1;
+	const uint32_t dy = (~0U) >> 2;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -456,7 +456,7 @@ static int OPTIMIZE3 stress_bitops_parity(const char *name, uint32_t *count)
 {
 	int32_t i;
 	uint32_t v = stress_mwc32();
-	uint32_t dv = stress_mwc16();
+	const uint32_t dv = stress_mwc16();
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -533,8 +533,8 @@ static int OPTIMIZE3 stress_bitops_min(const char *name, uint32_t *count)
 	int32_t i;
 	int32_t x = stress_mwc32();
 	int32_t y = stress_mwc32();
-	uint32_t dx = (~0U) >> 1;
-	uint32_t dy = (~0U) >> 2;
+	const uint32_t dx = (~0U) >> 1;
+	const uint32_t dy = (~0U) >> 2;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -568,8 +568,8 @@ static int OPTIMIZE3 stress_bitops_max(const char *name, uint32_t *count)
 	int32_t i;
 	int32_t x = stress_mwc32();
 	int32_t y = stress_mwc32();
-	uint32_t dx = (~0U) >> 1;
-	uint32_t dy = (~0U) >> 2;
+	const uint32_t dx = (~0U) >> 1;
+	const uint32_t dy = (~0U) >> 2;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -602,7 +602,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 {
 	int32_t i;
 	uint32_t v = stress_mwc32();
-	uint32_t dv = stress_mwc16() << 12;
+	const uint32_t dv = stress_mwc16() << 12;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -696,7 +696,7 @@ static int OPTIMIZE3 stress_bitops_reverse(const char *name, uint32_t *count)
 {
 	int32_t i;
 	uint32_t v = stress_mwc32();
-	uint32_t dv = stress_mwc16();
+	const uint32_t dv = stress_mwc16();
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -934,8 +934,8 @@ static int OPTIMIZE3 stress_bitops_swap(const char *name, uint32_t *count)
 	int32_t i;
 	uint32_t x = stress_mwc32();
 	uint32_t y = stress_mwc32();
-	uint32_t dx = (~0U) >> 1;
-	uint32_t dy = (~0U) >> 2;
+	const uint32_t dx = (~0U) >> 1;
+	const uint32_t dy = (~0U) >> 2;
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
@@ -1039,7 +1039,6 @@ static int stress_bitops(stress_args_t *args)
 	size_t bitops_method = 0;
 	int rc = EXIT_SUCCESS;
 	size_t i, j;
-	double rate;
 
 	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
 		metrics[i].duration = 0.0;
@@ -1066,8 +1065,8 @@ static int stress_bitops(stress_args_t *args)
 
 	for (i = 0, j = 0; i < SIZEOF_ARRAY(metrics); i++) {
 		char buf[32];
+		const double rate = metrics[i].duration > 0.0 ? metrics[i].count / metrics[i].duration : 0.0;
 
-		rate = metrics[i].duration > 0.0 ? metrics[i].count / metrics[i].duration : 0.0;
 		if (rate > 0.0) {
 			(void)snprintf(buf, sizeof(buf), "%s mega-ops per second", bitops_methods[i].name);
 			stress_metrics_set(args, j, buf, rate / 1000000.0, STRESS_METRIC_GEOMETRIC_MEAN);
