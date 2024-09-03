@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "2 September 2024"
+.TH STRESS-NG 1 "3 September 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1499,6 +1499,8 @@ Ackermann function: compute A(3, 7), where:
  A(m, n) = n + 1 if m = 0;
  A(m - 1, 1) if m > 0 and n = 0;
  A(m - 1, A(m, n - 1)) if m > 0 and n > 0
+.br
+For other recursive methods, refer to the hanoi cpu stress method.
 T}
 apery	T{
 calculate Apery's constant \[*z](3); the sum of 1/(n \[ua] 3) to a precision of 1.0x10\[ua]14
@@ -1623,7 +1625,8 @@ parity bits are computed as:
   p4 = d1 + d2 + d3
 T}
 hanoi	T{
-solve a 21 disc Towers of Hanoi stack using the recursive solution
+solve a 21 disc Towers of Hanoi stack using the recursive solution. For
+other recursive methods, refer to the ackermann cpu stress method.
 T}
 hyperbolic	T{
 compute sinh(\(*h) \(mu cosh(\(*h) + sinh(2\(*h) + cosh(3\(*h) for float,
