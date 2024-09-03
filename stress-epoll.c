@@ -1080,7 +1080,7 @@ reap:
 
 	return rc;
 }
-stressor_info_t stress_epoll_info = {
+const stressor_info_t stress_epoll_info = {
 	.stressor = stress_epoll,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -1088,7 +1088,7 @@ stressor_info_t stress_epoll_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_epoll_info = {
+const stressor_info_t stress_epoll_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

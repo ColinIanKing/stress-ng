@@ -742,7 +742,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_fanotify_info = {
+const stressor_info_t stress_fanotify_info = {
 	.stressor = stress_fanotify,
 	.supported = stress_fanotify_supported,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
@@ -750,7 +750,7 @@ stressor_info_t stress_fanotify_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_fanotify_info = {
+const stressor_info_t stress_fanotify_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

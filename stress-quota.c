@@ -471,7 +471,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_quota_info = {
+const stressor_info_t stress_quota_info = {
 	.stressor = stress_quota,
 	.supported = stress_quota_supported,
 	.class = CLASS_OS,
@@ -479,7 +479,7 @@ stressor_info_t stress_quota_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_quota_info = {
+const stressor_info_t stress_quota_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

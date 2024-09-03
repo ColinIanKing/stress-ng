@@ -247,7 +247,7 @@ static int stress_crypt(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_crypt_info = {
+const stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt,
 	.class = CLASS_CPU,
 	.opts = opts,
@@ -255,7 +255,7 @@ stressor_info_t stress_crypt_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_crypt_info = {
+const stressor_info_t stress_crypt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,

@@ -306,7 +306,7 @@ static int stress_stack(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_stack_child, STRESS_OOMABLE_NORMAL);
 }
 
-stressor_info_t stress_stack_info = {
+const stressor_info_t stress_stack_info = {
 	.stressor = stress_stack,
 	.class = CLASS_VM | CLASS_MEMORY,
 	.opts = opts,

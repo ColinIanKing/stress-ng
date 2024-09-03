@@ -444,7 +444,7 @@ L0x000:
 	return rc;
 }
 
-stressor_info_t stress_goto_info = {
+const stressor_info_t stress_goto_info = {
 	.stressor = stress_goto,
 	.class = CLASS_CPU,
 	.opts = opts,
@@ -452,7 +452,7 @@ stressor_info_t stress_goto_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_goto_info = {
+const stressor_info_t stress_goto_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.opts = opts,

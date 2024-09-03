@@ -598,7 +598,7 @@ reap:
 	return rc;
 }
 
-stressor_info_t stress_sem_sysv_info = {
+const stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_sem_sysv,
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit,
@@ -608,7 +608,7 @@ stressor_info_t stress_sem_sysv_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_sem_sysv_info = {
+const stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,

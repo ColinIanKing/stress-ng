@@ -256,14 +256,14 @@ static int stress_rseq(stress_args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_rseq_info = {
+const stressor_info_t stress_rseq_info = {
 	.stressor = stress_rseq,
 	.supported = stress_rseq_supported,
 	.class = CLASS_CPU,
 	.help = help
 };
 #else
-stressor_info_t stress_rseq_info = {
+const stressor_info_t stress_rseq_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.help = help,

@@ -241,7 +241,7 @@ tidy_dir:
 	return rc;
 }
 
-stressor_info_t stress_sigbus_info = {
+const stressor_info_t stress_sigbus_info = {
 	.stressor = stress_sigbus,
 	.class = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)

@@ -282,7 +282,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_skiplist_info = {
+const stressor_info_t stress_skiplist_info = {
 	.stressor = stress_skiplist,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,

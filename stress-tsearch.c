@@ -149,7 +149,7 @@ abort:
 	return rc;
 }
 
-stressor_info_t stress_tsearch_info = {
+const stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opts = opts,
@@ -159,7 +159,7 @@ stressor_info_t stress_tsearch_info = {
 
 #else
 
-stressor_info_t stress_tsearch_info = {
+const stressor_info_t stress_tsearch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,

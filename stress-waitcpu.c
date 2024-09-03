@@ -379,7 +379,7 @@ static int stress_waitcpu(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_waitcpu_info = {
+const stressor_info_t stress_waitcpu_info = {
 	.stressor = stress_waitcpu,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

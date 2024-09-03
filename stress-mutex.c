@@ -264,7 +264,7 @@ static int stress_mutex(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_mutex_info = {
+const stressor_info_t stress_mutex_info = {
 	.stressor = stress_mutex,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
@@ -272,7 +272,7 @@ stressor_info_t stress_mutex_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_mutex_info = {
+const stressor_info_t stress_mutex_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,

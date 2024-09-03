@@ -1083,7 +1083,7 @@ fork_again:
 	return rc;
 }
 
-stressor_info_t stress_shm_sysv_info = {
+const stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
 	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
@@ -1091,7 +1091,7 @@ stressor_info_t stress_shm_sysv_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_shm_sysv_info = {
+const stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,

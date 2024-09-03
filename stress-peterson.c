@@ -192,7 +192,7 @@ static int stress_peterson(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_peterson_info = {
+const stressor_info_t stress_peterson_info = {
 	.stressor = stress_peterson,
 	.class = CLASS_CPU_CACHE | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
@@ -201,7 +201,7 @@ stressor_info_t stress_peterson_info = {
 
 #else
 
-stressor_info_t stress_peterson_info = {
+const stressor_info_t stress_peterson_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,

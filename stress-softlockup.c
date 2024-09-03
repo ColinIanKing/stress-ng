@@ -394,7 +394,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_softlockup_info = {
+const stressor_info_t stress_softlockup_info = {
 	.stressor = stress_softlockup,
 	.supported = stress_softlockup_supported,
 	.class = CLASS_SCHEDULER,
@@ -402,7 +402,7 @@ stressor_info_t stress_softlockup_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_softlockup_info = {
+const stressor_info_t stress_softlockup_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,

@@ -210,14 +210,14 @@ static int stress_statmount(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_statmount_info = {
+const stressor_info_t stress_statmount_info = {
 	.stressor = stress_statmount,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_statmount_info = {
+const stressor_info_t stress_statmount_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

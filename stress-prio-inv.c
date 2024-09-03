@@ -497,7 +497,7 @@ unmap_prio_inv_info:
 	return rc;
 }
 
-stressor_info_t stress_prio_inv_info = {
+const stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_prio_inv,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,
@@ -505,7 +505,7 @@ stressor_info_t stress_prio_inv_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_prio_inv_info = {
+const stressor_info_t stress_prio_inv_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,

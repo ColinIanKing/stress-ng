@@ -319,14 +319,14 @@ tidy:
 
 	return ret;
 }
-stressor_info_t stress_locka_info = {
+const stressor_info_t stress_locka_info = {
 	.stressor = stress_locka,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_locka_info = {
+const stressor_info_t stress_locka_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

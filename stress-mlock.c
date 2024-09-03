@@ -517,14 +517,14 @@ static int stress_mlock(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_mlock_child, STRESS_OOMABLE_NORMAL);
 }
 
-stressor_info_t stress_mlock_info = {
+const stressor_info_t stress_mlock_info = {
 	.stressor = stress_mlock,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_mlock_info = {
+const stressor_info_t stress_mlock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

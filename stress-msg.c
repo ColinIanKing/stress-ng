@@ -463,7 +463,7 @@ cleanup:
 	return rc;
 }
 
-stressor_info_t stress_msg_info = {
+const stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
 	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
@@ -471,7 +471,7 @@ stressor_info_t stress_msg_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_msg_info = {
+const stressor_info_t stress_msg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,

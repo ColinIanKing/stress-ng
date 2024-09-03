@@ -234,13 +234,13 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_lsm_info = {
+const stressor_info_t stress_lsm_info = {
 	.stressor = stress_lsm,
 	.class = CLASS_OS | CLASS_SECURITY,
 	.help = help
 };
 #else
-stressor_info_t stress_lsm_info = {
+const stressor_info_t stress_lsm_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SECURITY,
 	.help = help,

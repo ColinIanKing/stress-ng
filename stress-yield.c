@@ -334,7 +334,7 @@ static int stress_yield(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_yield_info = {
+const stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -342,7 +342,7 @@ stressor_info_t stress_yield_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_yield_info = {
+const stressor_info_t stress_yield_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

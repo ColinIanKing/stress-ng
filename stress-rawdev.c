@@ -499,7 +499,7 @@ static int stress_rawdev(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_rawdev_info = {
+const stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported,
 	.class = CLASS_IO,
@@ -508,7 +508,7 @@ stressor_info_t stress_rawdev_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_rawdev_info = {
+const stressor_info_t stress_rawdev_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO,
 	.opts = opts,

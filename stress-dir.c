@@ -553,7 +553,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_dir_info = {
+const stressor_info_t stress_dir_info = {
 	.stressor = stress_dir,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

@@ -261,7 +261,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_bitonicsort_info = {
+const stressor_info_t stress_bitonicsort_info = {
 	.stressor = stress_bitonicsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
 	.opts = opts,

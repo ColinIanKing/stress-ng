@@ -549,14 +549,14 @@ out_free:
 	return rc;
 }
 
-stressor_info_t stress_xattr_info = {
+const stressor_info_t stress_xattr_info = {
 	.stressor = stress_xattr,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_xattr_info = {
+const stressor_info_t stress_xattr_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

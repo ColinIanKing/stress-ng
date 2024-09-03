@@ -336,7 +336,7 @@ static int stress_netlink_task(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_netlink_task_info = {
+const stressor_info_t stress_netlink_task_info = {
 	.stressor = stress_netlink_task,
 	.supported = stress_netlink_task_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
@@ -344,7 +344,7 @@ stressor_info_t stress_netlink_task_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_netlink_task_info = {
+const stressor_info_t stress_netlink_task_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

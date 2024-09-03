@@ -507,7 +507,7 @@ tidy_ret:
 	return ret;
 }
 
-stressor_info_t stress_chroot_info = {
+const stressor_info_t stress_chroot_info = {
 	.stressor = stress_chroot,
 	.supported = stress_chroot_supported,
 	.class = CLASS_OS,
@@ -526,7 +526,7 @@ static int stress_chroot_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_chroot_info = {
+const stressor_info_t stress_chroot_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_chroot_supported,
 	.class = CLASS_OS,

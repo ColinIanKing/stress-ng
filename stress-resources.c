@@ -126,7 +126,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_resources_info = {
+const stressor_info_t stress_resources_info = {
 	.stressor = stress_resources,
 	.class = CLASS_MEMORY | CLASS_OS,
 	.opts = opts,

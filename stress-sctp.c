@@ -700,7 +700,7 @@ finish:
 	return ret;
 }
 
-stressor_info_t stress_sctp_info = {
+const stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
 	.class = CLASS_NETWORK,
 	.opts = opts,
@@ -708,7 +708,7 @@ stressor_info_t stress_sctp_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_sctp_info = {
+const stressor_info_t stress_sctp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK,
 	.opts = opts,

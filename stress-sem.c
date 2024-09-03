@@ -302,7 +302,7 @@ static int stress_sem(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_sem_info = {
+const stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
 	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,
@@ -312,7 +312,7 @@ stressor_info_t stress_sem_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_sem_info = {
+const stressor_info_t stress_sem_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER | CLASS_IPC,
 	.opts = opts,

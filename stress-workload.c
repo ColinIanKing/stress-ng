@@ -972,7 +972,7 @@ exit_free_buffer:
 	return rc;
 }
 
-stressor_info_t stress_workload_info = {
+const stressor_info_t stress_workload_info = {
 	.stressor = stress_workload,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

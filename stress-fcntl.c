@@ -849,7 +849,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_fcntl_info = {
+const stressor_info_t stress_fcntl_info = {
 	.stressor = stress_fcntl,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -366,7 +366,7 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_usersyscall_info = {
+const stressor_info_t stress_usersyscall_info = {
 	.stressor = stress_usersyscall,
 	.class = CLASS_OS,
 	.supported = stress_supported,
@@ -376,7 +376,7 @@ stressor_info_t stress_usersyscall_info = {
 
 #else
 
-stressor_info_t stress_usersyscall_info = {
+const stressor_info_t stress_usersyscall_info = {
         .stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

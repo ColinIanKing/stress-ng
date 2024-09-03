@@ -122,7 +122,7 @@ static int stress_personality(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_personality_info = {
+const stressor_info_t stress_personality_info = {
 	.stressor = stress_personality,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -130,7 +130,7 @@ stressor_info_t stress_personality_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_personality_info = {
+const stressor_info_t stress_personality_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

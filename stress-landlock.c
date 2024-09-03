@@ -557,7 +557,7 @@ err:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_landlock_info = {
+const stressor_info_t stress_landlock_info = {
 	.stressor = stress_landlock,
 	.class = CLASS_OS,
 	.supported = stress_landlock_supported,
@@ -565,7 +565,7 @@ stressor_info_t stress_landlock_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_landlock_info = {
+const stressor_info_t stress_landlock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

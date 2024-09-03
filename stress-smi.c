@@ -273,7 +273,7 @@ static int stress_smi(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_smi_info = {
+const stressor_info_t stress_smi_info = {
 	.stressor = stress_smi,
 	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
@@ -281,7 +281,7 @@ stressor_info_t stress_smi_info = {
 	.supported = stress_smi_supported
 };
 #else
-stressor_info_t stress_smi_info = {
+const stressor_info_t stress_smi_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,

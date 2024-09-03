@@ -1205,7 +1205,7 @@ static void stress_af_alg_deinit(void)
 	crypto_info_list = NULL;
 }
 
-stressor_info_t stress_af_alg_info = {
+const stressor_info_t stress_af_alg_info = {
 	.stressor = stress_af_alg,
 	.init = stress_af_alg_init,
 	.deinit = stress_af_alg_deinit,
@@ -1216,7 +1216,7 @@ stressor_info_t stress_af_alg_info = {
 };
 
 #else
-stressor_info_t stress_af_alg_info = {
+const stressor_info_t stress_af_alg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS,
 	.opts = opts,

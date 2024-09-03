@@ -327,7 +327,7 @@ static int stress_fallocate(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_fallocate_info = {
+const stressor_info_t stress_fallocate_info = {
 	.stressor = stress_fallocate,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
@@ -335,7 +335,7 @@ stressor_info_t stress_fallocate_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_fallocate_info = {
+const stressor_info_t stress_fallocate_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

@@ -451,7 +451,7 @@ tidy:
 	return ret;
 }
 
-stressor_info_t stress_sleep_info = {
+const stressor_info_t stress_sleep_info = {
 	.stressor = stress_sleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -459,7 +459,7 @@ stressor_info_t stress_sleep_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_sleep_info = {
+const stressor_info_t stress_sleep_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

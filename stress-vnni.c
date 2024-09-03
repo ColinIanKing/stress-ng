@@ -594,7 +594,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_vnni_info = {
+const stressor_info_t stress_vnni_info = {
 	.stressor = stress_vnni,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,

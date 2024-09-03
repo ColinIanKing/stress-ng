@@ -1069,7 +1069,7 @@ static int stress_regs(stress_args_t *args)
 	return stress_regs_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-stressor_info_t stress_regs_info = {
+const stressor_info_t stress_regs_info = {
 	.stressor = stress_regs,
 	.verify = VERIFY_ALWAYS,
 	.class = CLASS_CPU,
@@ -1078,7 +1078,7 @@ stressor_info_t stress_regs_info = {
 
 #else
 
-stressor_info_t stress_regs_info = {
+const stressor_info_t stress_regs_info = {
 	.stressor = stress_unimplemented,
 	.verify = VERIFY_ALWAYS,
 	.class = CLASS_CPU,

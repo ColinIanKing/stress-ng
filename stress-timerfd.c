@@ -400,7 +400,7 @@ dir_rm:
 	return rc;
 }
 
-stressor_info_t stress_timerfd_info = {
+const stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -408,7 +408,7 @@ stressor_info_t stress_timerfd_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_timerfd_info = {
+const stressor_info_t stress_timerfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,

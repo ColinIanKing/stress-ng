@@ -449,7 +449,7 @@ static int stress_jpeg(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_jpeg_info = {
+const stressor_info_t stress_jpeg_info = {
 	.stressor = stress_jpeg,
 	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,
@@ -457,7 +457,7 @@ stressor_info_t stress_jpeg_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_jpeg_info = {
+const stressor_info_t stress_jpeg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_COMPUTE,
 	.opts = opts,

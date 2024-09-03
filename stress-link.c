@@ -345,7 +345,7 @@ static int stress_symlink(stress_args_t *args)
 }
 
 #if !defined(__HAIKU__)
-stressor_info_t stress_link_info = {
+const stressor_info_t stress_link_info = {
 	.stressor = stress_link,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -353,7 +353,7 @@ stressor_info_t stress_link_info = {
 	.help = hardlink_help
 };
 #else
-stressor_info_t stress_link_info = {
+const stressor_info_t stress_link_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -363,7 +363,7 @@ stressor_info_t stress_link_info = {
 };
 #endif
 
-stressor_info_t stress_symlink_info = {
+const stressor_info_t stress_symlink_info = {
 	.stressor = stress_symlink,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -327,14 +327,14 @@ static int stress_sockdiag(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_sockdiag_info = {
+const stressor_info_t stress_sockdiag_info = {
 	.stressor = stress_sockdiag,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_sockdiag_info = {
+const stressor_info_t stress_sockdiag_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

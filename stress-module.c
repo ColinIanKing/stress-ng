@@ -446,7 +446,7 @@ out:
 	return ret;
 }
 
-stressor_info_t stress_module_info = {
+const stressor_info_t stress_module_info = {
 	.stressor = stress_module,
 	.class = CLASS_OS,
 	.opts = opts,
@@ -455,7 +455,7 @@ stressor_info_t stress_module_info = {
 };
 
 #else
-stressor_info_t stress_module_info = {
+const stressor_info_t stress_module_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opts = opts,

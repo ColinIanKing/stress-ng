@@ -198,7 +198,7 @@ static int stress_vm_splice(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_vm_splice_info = {
+const stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_vm_splice,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
@@ -206,7 +206,7 @@ stressor_info_t stress_vm_splice_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_vm_splice_info = {
+const stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,

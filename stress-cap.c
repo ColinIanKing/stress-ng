@@ -189,14 +189,14 @@ static int stress_cap(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_cap_info = {
+const stressor_info_t stress_cap_info = {
 	.stressor = stress_cap,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_cap_info = {
+const stressor_info_t stress_cap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,

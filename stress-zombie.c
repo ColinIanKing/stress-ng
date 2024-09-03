@@ -260,7 +260,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_zombie_info = {
+const stressor_info_t stress_zombie_info = {
 	.stressor = stress_zombie,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

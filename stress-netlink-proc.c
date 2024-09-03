@@ -273,14 +273,14 @@ static int stress_netlink_proc(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_netlink_proc_info = {
+const stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_netlink_proc,
 	.supported = stress_netlink_proc_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.help = help
 };
 #else
-stressor_info_t stress_netlink_proc_info = {
+const stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.help = help,

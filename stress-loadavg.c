@@ -284,14 +284,14 @@ static int stress_loadavg(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_loadavg_info = {
+const stressor_info_t stress_loadavg_info = {
 	.stressor = stress_loadavg,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
-stressor_info_t stress_loadavg_info = {
+const stressor_info_t stress_loadavg_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

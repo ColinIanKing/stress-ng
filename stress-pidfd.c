@@ -231,7 +231,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_pidfd_info = {
+const stressor_info_t stress_pidfd_info = {
 	.stressor = stress_pidfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,
@@ -246,7 +246,7 @@ static int stress_pidfd_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_pidfd_info = {
+const stressor_info_t stress_pidfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,

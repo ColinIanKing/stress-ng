@@ -398,7 +398,7 @@ clean_up:
 	return rc;
 }
 
-stressor_info_t stress_tun_info = {
+const stressor_info_t stress_tun_info = {
 	.stressor = stress_tun,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -407,7 +407,7 @@ stressor_info_t stress_tun_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_tun_info = {
+const stressor_info_t stress_tun_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

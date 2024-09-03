@@ -1210,7 +1210,7 @@ close_all:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_open_info = {
+const stressor_info_t stress_open_info = {
 	.stressor = stress_open,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

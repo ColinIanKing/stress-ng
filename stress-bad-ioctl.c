@@ -591,7 +591,7 @@ again:
 
 	return rc;
 }
-stressor_info_t stress_bad_ioctl_info = {
+const stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_bad_ioctl,
 	.supported = stress_bad_ioctl_supported,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
@@ -599,7 +599,7 @@ stressor_info_t stress_bad_ioctl_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_bad_ioctl_info = {
+const stressor_info_t stress_bad_ioctl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,

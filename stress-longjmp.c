@@ -129,7 +129,7 @@ static int OPTIMIZE1 stress_longjmp(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_longjmp_info = {
+const stressor_info_t stress_longjmp_info = {
 	.stressor = stress_longjmp,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

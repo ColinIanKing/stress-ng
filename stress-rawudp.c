@@ -320,7 +320,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_rawudp_info = {
+const stressor_info_t stress_rawudp_info = {
 	.stressor = stress_rawudp,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -329,7 +329,7 @@ stressor_info_t stress_rawudp_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_rawudp_info = {
+const stressor_info_t stress_rawudp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

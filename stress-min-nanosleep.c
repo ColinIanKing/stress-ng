@@ -461,7 +461,7 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_min_nanosleep_info = {
+const stressor_info_t stress_min_nanosleep_info = {
 	.stressor = stress_min_nanosleep,
 	.init = stress_min_nanosleep_init,
 	.deinit = stress_min_nanosleep_deinit,
@@ -471,7 +471,7 @@ stressor_info_t stress_min_nanosleep_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_min_nanosleep_info = {
+const stressor_info_t stress_min_nanosleep_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

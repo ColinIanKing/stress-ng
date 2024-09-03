@@ -287,13 +287,13 @@ static int stress_led(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_led_info = {
+const stressor_info_t stress_led_info = {
 	.stressor = stress_led,
 	.class = CLASS_OS,
 	.help = help
 };
 #else
-stressor_info_t stress_led_info = {
+const stressor_info_t stress_led_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,

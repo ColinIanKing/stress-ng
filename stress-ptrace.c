@@ -197,14 +197,14 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_ptrace_info = {
+const stressor_info_t stress_ptrace_info = {
 	.stressor = stress_ptrace,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_ptrace_info = {
+const stressor_info_t stress_ptrace_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

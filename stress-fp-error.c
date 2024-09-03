@@ -219,14 +219,14 @@ static int stress_fp_error(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_fp_error_info = {
+const stressor_info_t stress_fp_error_info = {
 	.stressor = stress_fp_error,
 	.class = CLASS_CPU | CLASS_FP,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_fp_error_info = {
+const stressor_info_t stress_fp_error_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_FP,
 	.verify = VERIFY_ALWAYS,

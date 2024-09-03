@@ -302,14 +302,14 @@ tidy_dir:
 	return rc;
 }
 
-stressor_info_t stress_stackmmap_info = {
+const stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_stackmmap,
 	.class = CLASS_VM | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_stackmmap_info = {
+const stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,

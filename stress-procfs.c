@@ -856,13 +856,13 @@ static int stress_procfs(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_procfs_info = {
+const stressor_info_t stress_procfs_info = {
 	.stressor = stress_procfs,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help
 };
 #else
-stressor_info_t stress_procfs_info = {
+const stressor_info_t stress_procfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help,

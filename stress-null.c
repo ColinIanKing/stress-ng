@@ -200,7 +200,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_null_info = {
+const stressor_info_t stress_null_info = {
 	.stressor = stress_null,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,

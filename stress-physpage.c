@@ -318,7 +318,7 @@ static int stress_physpage(stress_args_t *args)
 	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-stressor_info_t stress_physpage_info = {
+const stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
 	.opts = opts,
@@ -327,7 +327,7 @@ stressor_info_t stress_physpage_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_physpage_info = {
+const stressor_info_t stress_physpage_info = {
 	.stressor = stress_unimplemented,
 	.opts = opts,
 	.class = CLASS_VM,

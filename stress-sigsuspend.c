@@ -134,7 +134,7 @@ reap:
 	return rc;
 }
 
-stressor_info_t stress_sigsuspend_info = {
+const stressor_info_t stress_sigsuspend_info = {
 	.stressor = stress_sigsuspend,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -276,7 +276,7 @@ static int stress_timer(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_timer_info = {
+const stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
 	.class = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
@@ -284,7 +284,7 @@ stressor_info_t stress_timer_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_timer_info = {
+const stressor_info_t stress_timer_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,

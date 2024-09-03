@@ -558,7 +558,7 @@ static int stress_l1cache(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_l1cache_info = {
+const stressor_info_t stress_l1cache_info = {
 	.stressor = stress_l1cache,
 	.class = CLASS_CPU_CACHE,
 	.opts = opts,

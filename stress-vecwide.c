@@ -273,14 +273,14 @@ static int stress_vecwide(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_vecwide_info = {
+const stressor_info_t stress_vecwide_info = {
 	.stressor = stress_vecwide,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
-stressor_info_t stress_vecwide_info = {
+const stressor_info_t stress_vecwide_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.verify = VERIFY_OPTIONAL,

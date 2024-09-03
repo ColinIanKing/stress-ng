@@ -313,7 +313,7 @@ static int stress_ioport(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_ioport_info = {
+const stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported,
 	.class = CLASS_CPU,
@@ -322,7 +322,7 @@ stressor_info_t stress_ioport_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_ioport_info = {
+const stressor_info_t stress_ioport_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.opts = opts,

@@ -176,7 +176,7 @@ static int stress_kill(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_kill_info = {
+const stressor_info_t stress_kill_info = {
 	.stressor = stress_kill,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,

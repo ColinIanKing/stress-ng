@@ -345,7 +345,7 @@ clean:
 	return rc;
 }
 
-stressor_info_t stress_fiemap_info = {
+const stressor_info_t stress_fiemap_info = {
 	.stressor = stress_fiemap,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
@@ -353,7 +353,7 @@ stressor_info_t stress_fiemap_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_fiemap_info = {
+const stressor_info_t stress_fiemap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

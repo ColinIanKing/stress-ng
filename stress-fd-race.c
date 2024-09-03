@@ -892,7 +892,7 @@ tidy_dir:
 	return rc;
 }
 
-stressor_info_t stress_fd_race_info = {
+const stressor_info_t stress_fd_race_info = {
 	.stressor = stress_fd_race,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -900,7 +900,7 @@ stressor_info_t stress_fd_race_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_fd_race_info = {
+const stressor_info_t stress_fd_race_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

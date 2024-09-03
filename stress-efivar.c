@@ -562,7 +562,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_efivar_info = {
+const stressor_info_t stress_efivar_info = {
 	.stressor = stress_efivar,
 	.supported = stress_efivar_supported,
 	.class = CLASS_OS,
@@ -577,7 +577,7 @@ static int stress_efivar_supported(const char *name)
 
 	return -1;
 }
-stressor_info_t stress_efivar_info = {
+const stressor_info_t stress_efivar_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_efivar_supported,
 	.class = CLASS_OS,

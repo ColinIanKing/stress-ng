@@ -1086,7 +1086,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_hdd_info = {
+const stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
 	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

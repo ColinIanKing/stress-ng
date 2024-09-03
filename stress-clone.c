@@ -645,7 +645,7 @@ static int stress_clone(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_clone_info = {
+const stressor_info_t stress_clone_info = {
 	.stressor = stress_clone,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -653,7 +653,7 @@ stressor_info_t stress_clone_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_clone_info = {
+const stressor_info_t stress_clone_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

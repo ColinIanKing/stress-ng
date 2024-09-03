@@ -216,7 +216,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_pipeherd_info = {
+const stressor_info_t stress_pipeherd_info = {
 	.stressor = stress_pipeherd,
 	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS | CLASS_IPC,
 	.opts = opts,

@@ -704,7 +704,7 @@ reap:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_pthread_info = {
+const stressor_info_t stress_pthread_info = {
 	.stressor = stress_pthread,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -712,7 +712,7 @@ stressor_info_t stress_pthread_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_pthread_info = {
+const stressor_info_t stress_pthread_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

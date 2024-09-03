@@ -288,7 +288,7 @@ static int stress_affinity(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_affinity_info = {
+const stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity,
 	.class = CLASS_SCHEDULER,
 	.supported = stress_affinity_supported,
@@ -297,7 +297,7 @@ stressor_info_t stress_affinity_info = {
 	.help = help,
 };
 #else
-stressor_info_t stress_affinity_info = {
+const stressor_info_t stress_affinity_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
 	.opts = opts,

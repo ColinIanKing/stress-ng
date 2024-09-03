@@ -607,7 +607,7 @@ static int stress_gpu(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_gpu_child, STRESS_OOMABLE_NORMAL);
 }
 
-stressor_info_t stress_gpu_info = {
+const stressor_info_t stress_gpu_info = {
 	.stressor = stress_gpu,
 	.class = CLASS_GPU,
 	.opts = opts,
@@ -615,7 +615,7 @@ stressor_info_t stress_gpu_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_gpu_info = {
+const stressor_info_t stress_gpu_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_GPU,
 	.opts = opts,

@@ -511,7 +511,7 @@ clean:
 	return rc;
 }
 
-stressor_info_t stress_pty_info = {
+const stressor_info_t stress_pty_info = {
 	.stressor = stress_pty,
 	.class = CLASS_OS,
 	.opts = opts,
@@ -519,7 +519,7 @@ stressor_info_t stress_pty_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_pty_info = {
+const stressor_info_t stress_pty_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opts = opts,

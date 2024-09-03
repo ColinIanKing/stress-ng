@@ -1025,14 +1025,14 @@ static int stress_inotify(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_inotify_info = {
+const stressor_info_t stress_inotify_info = {
 	.stressor = stress_inotify,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
-stressor_info_t stress_inotify_info = {
+const stressor_info_t stress_inotify_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_OPTIONAL,

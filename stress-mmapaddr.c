@@ -242,7 +242,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_mmapaddr_info = {
+const stressor_info_t stress_mmapaddr_info = {
 	.stressor = stress_mmapaddr,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,

@@ -260,7 +260,7 @@ static int stress_llc_affinity(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_llc_affinity_info = {
+const stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_llc_affinity,
 	.class = CLASS_CPU_CACHE,
 	.opts = opts,
@@ -270,7 +270,7 @@ stressor_info_t stress_llc_affinity_info = {
 
 #else
 
-stressor_info_t stress_llc_affinity_info = {
+const stressor_info_t stress_llc_affinity_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.opts = opts,

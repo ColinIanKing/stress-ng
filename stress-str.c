@@ -709,7 +709,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_str_info = {
+const stressor_info_t stress_str_info = {
 	.stressor = stress_str,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.verify = VERIFY_OPTIONAL,

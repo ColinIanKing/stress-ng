@@ -997,7 +997,7 @@ next:
 	return ret;
 }
 
-stressor_info_t stress_cache_info = {
+const stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
 	.class = CLASS_CPU_CACHE,
 	.opts = opts,

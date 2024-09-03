@@ -856,7 +856,7 @@ numa_free:
 	return rc;
 }
 
-stressor_info_t stress_numa_info = {
+const stressor_info_t stress_numa_info = {
 	.stressor = stress_numa,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -864,7 +864,7 @@ stressor_info_t stress_numa_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_numa_info = {
+const stressor_info_t stress_numa_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

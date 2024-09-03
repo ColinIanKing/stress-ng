@@ -423,7 +423,7 @@ tidy_mmap:
 	return rc;
 }
 
-stressor_info_t stress_dup_info = {
+const stressor_info_t stress_dup_info = {
 	.stressor = stress_dup,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

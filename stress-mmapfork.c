@@ -286,7 +286,7 @@ reap:
 }
 
 
-stressor_info_t stress_mmapfork_info = {
+const stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_mmapfork,
 	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
 	.opts = opts,
@@ -294,7 +294,7 @@ stressor_info_t stress_mmapfork_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_mmapfork_info = {
+const stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -314,13 +314,13 @@ tidy_lock:
 	return rc;
 }
 
-stressor_info_t stress_inode_flags_info = {
+const stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_inode_flags,
 	.class = CLASS_OS | CLASS_FILESYSTEM,
 	.help = help
 };
 #else
-stressor_info_t stress_inode_flags_info = {
+const stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_FILESYSTEM,
 	.help = help,

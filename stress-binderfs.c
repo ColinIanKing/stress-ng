@@ -237,7 +237,7 @@ clean:
 	return rc;
 }
 
-stressor_info_t stress_binderfs_info = {
+const stressor_info_t stress_binderfs_info = {
 	.stressor = stress_binderfs,
 	.supported = stress_binderfs_supported,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
@@ -245,7 +245,7 @@ stressor_info_t stress_binderfs_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_binderfs_info = {
+const stressor_info_t stress_binderfs_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_binderfs_supported,
 	.class = CLASS_FILESYSTEM | CLASS_OS,

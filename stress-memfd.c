@@ -581,7 +581,7 @@ static int stress_memfd(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_memfd_child, STRESS_OOMABLE_NORMAL);
 }
 
-stressor_info_t stress_memfd_info = {
+const stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,
@@ -589,7 +589,7 @@ stressor_info_t stress_memfd_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_memfd_info = {
+const stressor_info_t stress_memfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,

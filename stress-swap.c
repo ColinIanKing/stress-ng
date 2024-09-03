@@ -556,7 +556,7 @@ static int stress_swap(stress_args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_swap_info = {
+const stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported,
 	.class = CLASS_VM | CLASS_OS,
@@ -565,7 +565,7 @@ stressor_info_t stress_swap_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_swap_info = {
+const stressor_info_t stress_swap_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,

@@ -169,7 +169,7 @@ static int stress_pageswap(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_pageswap_info = {
+const stressor_info_t stress_pageswap_info = {
 	.stressor = stress_pageswap,
 	.supported = stress_pageswap_supported,
 	.class = CLASS_OS | CLASS_VM,
@@ -179,7 +179,7 @@ stressor_info_t stress_pageswap_info = {
 
 #else
 
-stressor_info_t stress_pageswap_info = {
+const stressor_info_t stress_pageswap_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_pageswap_supported,
 	.class = CLASS_OS | CLASS_VM,

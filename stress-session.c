@@ -241,7 +241,7 @@ static int stress_session(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_session_info = {
+const stressor_info_t stress_session_info = {
 	.stressor = stress_session,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -324,7 +324,7 @@ PRAGMA_UNROLL_N(4)
 	return rc;
 }
 
-stressor_info_t stress_remap_info = {
+const stressor_info_t stress_remap_info = {
 	.stressor = stress_remap,
 	.opts = opts,
 	.class = CLASS_MEMORY | CLASS_OS,
@@ -332,7 +332,7 @@ stressor_info_t stress_remap_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_remap_info = {
+const stressor_info_t stress_remap_info = {
 	.stressor = stress_unimplemented,
 	.opts = opts,
 	.class = CLASS_MEMORY | CLASS_OS,

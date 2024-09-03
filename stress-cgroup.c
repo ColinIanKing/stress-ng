@@ -547,7 +547,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_cgroup_info = {
+const stressor_info_t stress_cgroup_info = {
 	.stressor = stress_cgroup_mount,
 	.class = CLASS_OS,
 	.supported = stress_cgroup_supported,
@@ -555,7 +555,7 @@ stressor_info_t stress_cgroup_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_cgroup_info = {
+const stressor_info_t stress_cgroup_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.supported = stress_cgroup_supported,

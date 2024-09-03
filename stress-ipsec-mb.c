@@ -875,7 +875,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_ipsec_mb_info = {
+const stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_ipsec_mb,
 	.supported = stress_ipsec_mb_supported,
 	.opts = opts,
@@ -899,7 +899,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_ipsec_mb_info = {
+const stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_ipsec_mb_supported,
 	.opts = opts,

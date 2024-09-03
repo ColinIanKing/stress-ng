@@ -260,14 +260,14 @@ tidy_s_pids:
 	return rc;
 }
 
-stressor_info_t stress_mprotect_info = {
+const stressor_info_t stress_mprotect_info = {
 	.stressor = stress_mprotect,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_mprotect_info = {
+const stressor_info_t stress_mprotect_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

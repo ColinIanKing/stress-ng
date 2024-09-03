@@ -204,7 +204,7 @@ dir_out:
 	return rc;
 }
 
-stressor_info_t stress_sendfile_info = {
+const stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
@@ -212,7 +212,7 @@ stressor_info_t stress_sendfile_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_sendfile_info = {
+const stressor_info_t stress_sendfile_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,

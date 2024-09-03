@@ -320,14 +320,14 @@ static int stress_getdent(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_getdent_info = {
+const stressor_info_t stress_getdent_info = {
 	.stressor = stress_getdent,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_getdent_info = {
+const stressor_info_t stress_getdent_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -402,7 +402,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_loop_info = {
+const stressor_info_t stress_loop_info = {
 	.stressor = stress_loop,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,
@@ -417,7 +417,7 @@ static int stress_loop_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_loop_info = {
+const stressor_info_t stress_loop_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,

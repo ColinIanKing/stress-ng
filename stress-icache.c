@@ -171,14 +171,14 @@ static int stress_icache(stress_args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_icache_info = {
+const stressor_info_t stress_icache_info = {
 	.stressor = stress_icache,
 	.class = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.help = help
 };
 #else
-stressor_info_t stress_icache_info = {
+const stressor_info_t stress_icache_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,

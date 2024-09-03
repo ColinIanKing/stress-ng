@@ -309,7 +309,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_radixsort_info = {
+const stressor_info_t stress_radixsort_info = {
 	.stressor = stress_radixsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
 	.opts = opts,

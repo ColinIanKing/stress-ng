@@ -418,7 +418,7 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_far_branch_info = {
+const stressor_info_t stress_far_branch_info = {
 	.stressor = stress_far_branch,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
@@ -427,7 +427,7 @@ stressor_info_t stress_far_branch_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_far_branch_info = {
+const stressor_info_t stress_far_branch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,

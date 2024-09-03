@@ -247,14 +247,14 @@ fail:
 	return rc;
 }
 
-stressor_info_t stress_full_info = {
+const stressor_info_t stress_full_info = {
 	.stressor = stress_full,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_full_info = {
+const stressor_info_t stress_full_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

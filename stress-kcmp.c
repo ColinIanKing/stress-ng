@@ -351,14 +351,14 @@ finish:
 	return ret;
 }
 
-stressor_info_t stress_kcmp_info = {
+const stressor_info_t stress_kcmp_info = {
 	.stressor = stress_kcmp,
 	.class = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
-stressor_info_t stress_kcmp_info = {
+const stressor_info_t stress_kcmp_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,

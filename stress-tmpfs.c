@@ -438,7 +438,7 @@ static int stress_tmpfs(stress_args_t *args)
 
 	return ret;
 }
-stressor_info_t stress_tmpfs_info = {
+const stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opts = opts,
@@ -446,7 +446,7 @@ stressor_info_t stress_tmpfs_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_tmpfs_info = {
+const stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opts = opts,

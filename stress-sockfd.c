@@ -480,7 +480,7 @@ finish:
 	return ret;
 }
 
-stressor_info_t stress_sockfd_info = {
+const stressor_info_t stress_sockfd_info = {
 	.stressor = stress_sockfd,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -488,7 +488,7 @@ stressor_info_t stress_sockfd_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_sockfd_info = {
+const stressor_info_t stress_sockfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

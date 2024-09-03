@@ -360,7 +360,7 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_memhotplug_info = {
+const stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_memhotplug,
 	.class = CLASS_OS,
 	.opts = opts,
@@ -368,7 +368,7 @@ stressor_info_t stress_memhotplug_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_memhotplug_info = {
+const stressor_info_t stress_memhotplug_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opts = opts,

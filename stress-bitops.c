@@ -1082,7 +1082,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_bitops_info = {
+const stressor_info_t stress_bitops_info = {
 	.stressor = stress_bitops,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.opts = opts,

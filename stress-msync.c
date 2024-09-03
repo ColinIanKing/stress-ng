@@ -304,7 +304,7 @@ err:
 	return (int)rc;
 }
 
-stressor_info_t stress_msync_info = {
+const stressor_info_t stress_msync_info = {
 	.stressor = stress_msync,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,
@@ -312,7 +312,7 @@ stressor_info_t stress_msync_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_msync_info = {
+const stressor_info_t stress_msync_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,

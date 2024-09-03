@@ -380,7 +380,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_seek_info = {
+const stressor_info_t stress_seek_info = {
 	.stressor = stress_seek,
 	.class = CLASS_IO | CLASS_OS,
 	.opts = opts,

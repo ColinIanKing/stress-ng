@@ -224,7 +224,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_insertionsort_info = {
+const stressor_info_t stress_insertionsort_info = {
 	.stressor = stress_insertionsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
 	.opts = opts,

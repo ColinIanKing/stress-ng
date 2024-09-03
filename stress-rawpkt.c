@@ -541,7 +541,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_rawpkt_info = {
+const stressor_info_t stress_rawpkt_info = {
 	.stressor = stress_rawpkt,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -550,7 +550,7 @@ stressor_info_t stress_rawpkt_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_rawpkt_info = {
+const stressor_info_t stress_rawpkt_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

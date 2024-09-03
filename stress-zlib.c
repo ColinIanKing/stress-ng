@@ -1845,7 +1845,7 @@ again:
 	return ret;
 }
 
-stressor_info_t stress_zlib_info = {
+const stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.opts = opts,
@@ -1853,7 +1853,7 @@ stressor_info_t stress_zlib_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_zlib_info = {
+const stressor_info_t stress_zlib_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_COMPUTE,
 	.verify = VERIFY_OPTIONAL,

@@ -650,7 +650,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_powmath_info = {
+const stressor_info_t stress_powmath_info = {
 	.stressor = stress_powmath,
 	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,
@@ -665,7 +665,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_powmath_info = {
+const stressor_info_t stress_powmath_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_FP | CLASS_COMPUTE,
 	.opts = opts,

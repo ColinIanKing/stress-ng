@@ -701,7 +701,7 @@ static int stress_tsc(stress_args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_tsc_info = {
+const stressor_info_t stress_tsc_info = {
 	.stressor = stress_tsc,
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,
@@ -718,7 +718,7 @@ static int stress_tsc_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_tsc_info = {
+const stressor_info_t stress_tsc_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_tsc_supported,
 	.class = CLASS_CPU,

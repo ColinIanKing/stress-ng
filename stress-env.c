@@ -181,7 +181,7 @@ static int stress_env(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_env_child, STRESS_OOMABLE_DROP_CAP | STRESS_OOMABLE_QUIET);
 }
 
-stressor_info_t stress_env_info = {
+const stressor_info_t stress_env_info = {
 	.stressor = stress_env,
 	.class = CLASS_OS | CLASS_VM,
 	.verify = VERIFY_OPTIONAL,

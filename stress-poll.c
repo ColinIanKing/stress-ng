@@ -412,7 +412,7 @@ tidy:
 }
 
 
-stressor_info_t stress_poll_info = {
+const stressor_info_t stress_poll_info = {
 	.stressor = stress_poll,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -420,7 +420,7 @@ stressor_info_t stress_poll_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_poll_info = {
+const stressor_info_t stress_poll_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

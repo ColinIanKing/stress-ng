@@ -274,14 +274,14 @@ static int stress_watchdog(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_watchdog_info = {
+const stressor_info_t stress_watchdog_info = {
 	.stressor = stress_watchdog,
 	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_watchdog_info = {
+const stressor_info_t stress_watchdog_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,

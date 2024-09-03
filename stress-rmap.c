@@ -320,7 +320,7 @@ cleanup:
 	return rc;
 }
 
-stressor_info_t stress_rmap_info = {
+const stressor_info_t stress_rmap_info = {
 	.stressor = stress_rmap,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,

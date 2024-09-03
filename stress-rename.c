@@ -383,7 +383,7 @@ restart:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_rename_info = {
+const stressor_info_t stress_rename_info = {
 	.stressor = stress_rename,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

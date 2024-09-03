@@ -204,7 +204,7 @@ static int stress_itimer(stress_args_t *args)
 }
 
 
-stressor_info_t stress_itimer_info = {
+const stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
@@ -214,7 +214,7 @@ stressor_info_t stress_itimer_info = {
 
 #else
 
-stressor_info_t stress_itimer_info = {
+const stressor_info_t stress_itimer_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SIGNAL | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,

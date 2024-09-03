@@ -267,14 +267,14 @@ static int stress_netdev(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_netdev_info = {
+const stressor_info_t stress_netdev_info = {
 	.stressor = stress_netdev,
 	.class = CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_netdev_info = {
+const stressor_info_t stress_netdev_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,

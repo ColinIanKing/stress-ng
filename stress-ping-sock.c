@@ -133,14 +133,14 @@ static int stress_ping_sock(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_ping_sock_info = {
+const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_ping_sock,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_rawsock_supported,
 	.help = help
 };
 #else
-stressor_info_t stress_ping_sock_info = {
+const stressor_info_t stress_ping_sock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.help = help,

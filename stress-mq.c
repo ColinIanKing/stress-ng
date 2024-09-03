@@ -524,7 +524,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_mq_info = {
+const stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
 	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,
@@ -532,7 +532,7 @@ stressor_info_t stress_mq_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_mq_info = {
+const stressor_info_t stress_mq_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS | CLASS_IPC,
 	.opts = opts,

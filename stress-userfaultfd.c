@@ -501,7 +501,7 @@ static int stress_userfaultfd(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_userfaultfd_child, STRESS_OOMABLE_NORMAL);
 }
 
-stressor_info_t stress_userfaultfd_info = {
+const stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,
@@ -510,7 +510,7 @@ stressor_info_t stress_userfaultfd_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_userfaultfd_info = {
+const stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,

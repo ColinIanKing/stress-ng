@@ -93,7 +93,7 @@ static int stress_sigpending(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_sigpending_info = {
+const stressor_info_t stress_sigpending_info = {
 	.stressor = stress_sigpending,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

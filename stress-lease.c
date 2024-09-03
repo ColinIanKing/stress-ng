@@ -256,7 +256,7 @@ reap:
 	return ret;
 }
 
-stressor_info_t stress_lease_info = {
+const stressor_info_t stress_lease_info = {
 	.stressor = stress_lease,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
@@ -264,7 +264,7 @@ stressor_info_t stress_lease_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_lease_info = {
+const stressor_info_t stress_lease_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

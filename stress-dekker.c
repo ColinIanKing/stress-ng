@@ -204,7 +204,7 @@ static int stress_dekker(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_dekker_info = {
+const stressor_info_t stress_dekker_info = {
 	.stressor = stress_dekker,
 	.class = CLASS_CPU_CACHE | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,
@@ -213,7 +213,7 @@ stressor_info_t stress_dekker_info = {
 
 #else
 
-stressor_info_t stress_dekker_info = {
+const stressor_info_t stress_dekker_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_IPC,
 	.verify = VERIFY_ALWAYS,

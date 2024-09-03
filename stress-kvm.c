@@ -326,7 +326,7 @@ tidy_kvm_fd:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_kvm_info = {
+const stressor_info_t stress_kvm_info = {
 	.stressor = stress_kvm,
 	.class = CLASS_DEV | CLASS_OS,
 	.supported = stress_kvm_supported,
@@ -334,7 +334,7 @@ stressor_info_t stress_kvm_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_kvm_info = {
+const stressor_info_t stress_kvm_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_DEV | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

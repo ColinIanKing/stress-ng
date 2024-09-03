@@ -555,7 +555,7 @@ static const stress_opt_t vfork_opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_fork_info = {
+const stressor_info_t stress_fork_info = {
 	.stressor = stress_fork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = fork_opts,
@@ -563,7 +563,7 @@ stressor_info_t stress_fork_info = {
 	.help = fork_help
 };
 
-stressor_info_t stress_vfork_info = {
+const stressor_info_t stress_vfork_info = {
 	.stressor = stress_vfork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = vfork_opts,

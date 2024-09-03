@@ -341,7 +341,7 @@ static int stress_rawsock(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_rawsock_info = {
+const stressor_info_t stress_rawsock_info = {
 	.stressor = stress_rawsock,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -352,7 +352,7 @@ stressor_info_t stress_rawsock_info = {
 	.deinit = stress_rawsock_deinit,
 };
 #else
-stressor_info_t stress_rawsock_info = {
+const stressor_info_t stress_rawsock_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

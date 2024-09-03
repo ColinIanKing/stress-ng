@@ -328,14 +328,14 @@ static int stress_flushcache(stress_args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_flushcache_info = {
+const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_flushcache,
 	.class = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,
 	.help = help
 };
 #else
-stressor_info_t stress_flushcache_info = {
+const stressor_info_t stress_flushcache_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE,
 	.supported = stress_asm_ret_supported,

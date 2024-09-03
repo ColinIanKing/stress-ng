@@ -790,7 +790,7 @@ free_memory:
 	return rc;
 }
 
-stressor_info_t stress_aiol_info = {
+const stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
@@ -798,7 +798,7 @@ stressor_info_t stress_aiol_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_aiol_info = {
+const stressor_info_t stress_aiol_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,

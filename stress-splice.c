@@ -386,14 +386,14 @@ close_done:
 	return rc;
 }
 
-stressor_info_t stress_splice_info = {
+const stressor_info_t stress_splice_info = {
 	.stressor = stress_splice,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
-stressor_info_t stress_splice_info = {
+const stressor_info_t stress_splice_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,

@@ -434,7 +434,7 @@ static int stress_race_sched(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_race_sched_info = {
+const stressor_info_t stress_race_sched_info = {
 	.stressor = stress_race_sched,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -444,7 +444,7 @@ stressor_info_t stress_race_sched_info = {
 
 #else
 
-stressor_info_t stress_race_sched_info = {
+const stressor_info_t stress_race_sched_info = {
         .stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

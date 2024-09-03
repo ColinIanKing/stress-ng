@@ -491,7 +491,7 @@ tidy:
 
 }
 
-stressor_info_t stress_sigsegv_info = {
+const stressor_info_t stress_sigsegv_info = {
 	.stressor = stress_sigsegv,
 	.class = CLASS_SIGNAL | CLASS_OS,
 #if defined(SA_SIGINFO)

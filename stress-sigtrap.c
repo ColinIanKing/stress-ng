@@ -96,7 +96,7 @@ static int stress_sigtrap(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_sigtrap_info = {
+const stressor_info_t stress_sigtrap_info = {
 	.stressor = stress_sigtrap,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -111,7 +111,7 @@ static int stress_sigtrap_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_sigtrap_info = {
+const stressor_info_t stress_sigtrap_info = {
         .stressor = stress_unimplemented,
         .supported = stress_sigtrap_supported,
 	.class = CLASS_SIGNAL | CLASS_OS,

@@ -178,7 +178,7 @@ static int stress_mtx(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_mtx_info = {
+const stressor_info_t stress_mtx_info = {
 	.stressor = stress_mtx,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.verify = VERIFY_ALWAYS,
@@ -186,7 +186,7 @@ stressor_info_t stress_mtx_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_mtx_info = {
+const stressor_info_t stress_mtx_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opts = opts,

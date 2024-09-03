@@ -511,7 +511,7 @@ STRESS_PRAGMA_POP
 	return rc;
 }
 
-stressor_info_t stress_utime_info = {
+const stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
@@ -521,7 +521,7 @@ stressor_info_t stress_utime_info = {
 
 #else
 
-stressor_info_t stress_utime_info = {
+const stressor_info_t stress_utime_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

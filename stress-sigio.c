@@ -242,14 +242,14 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_sigio_info = {
+const stressor_info_t stress_sigio_info = {
 	.stressor = stress_sigio,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_sigio_info = {
+const stressor_info_t stress_sigio_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -293,7 +293,7 @@ metrics_free:
 
 }
 
-stressor_info_t stress_unlink_info = {
+const stressor_info_t stress_unlink_info = {
 	.stressor = stress_unlink,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_NONE,

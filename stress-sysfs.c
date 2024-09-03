@@ -908,14 +908,14 @@ exit_no_sysfs_entries:
 	goto exit_free;
 }
 
-stressor_info_t stress_sysfs_info = {
+const stressor_info_t stress_sysfs_info = {
 	.stressor = stress_sysfs,
 	.class = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
-stressor_info_t stress_sysfs_info = {
+const stressor_info_t stress_sysfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_OPTIONAL,

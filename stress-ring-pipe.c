@@ -275,7 +275,7 @@ err_ret:
 	return rc;
 }
 
-stressor_info_t stress_ring_pipe_info = {
+const stressor_info_t stress_ring_pipe_info = {
 	.stressor = stress_ring_pipe,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,
@@ -285,7 +285,7 @@ stressor_info_t stress_ring_pipe_info = {
 
 #else
 
-stressor_info_t stress_ring_pipe_info = {
+const stressor_info_t stress_ring_pipe_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opts = opts,

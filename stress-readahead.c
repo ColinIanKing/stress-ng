@@ -302,7 +302,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_readahead_info = {
+const stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead,
 	.class = CLASS_IO | CLASS_OS,
 	.opts = opts,
@@ -310,7 +310,7 @@ stressor_info_t stress_readahead_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_readahead_info = {
+const stressor_info_t stress_readahead_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_OS,
 	.opts = opts,

@@ -576,7 +576,7 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_priv_instr_info = {
+const stressor_info_t stress_priv_instr_info = {
 	.stressor = stress_priv_instr,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
@@ -585,7 +585,7 @@ stressor_info_t stress_priv_instr_info = {
 
 #else
 
-stressor_info_t stress_priv_instr_info = {
+const stressor_info_t stress_priv_instr_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

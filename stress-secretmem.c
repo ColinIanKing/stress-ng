@@ -194,14 +194,14 @@ static int stress_secretmem(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_secretmem_child, STRESS_OOMABLE_QUIET);
 }
 
-stressor_info_t stress_secretmem_info = {
+const stressor_info_t stress_secretmem_info = {
 	.stressor = stress_secretmem,
 	.class = CLASS_CPU,
 	.help = help,
 	.supported = stress_secretmem_supported
 };
 #else
-stressor_info_t stress_secretmem_info = {
+const stressor_info_t stress_secretmem_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.help = help,

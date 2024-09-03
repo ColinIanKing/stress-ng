@@ -331,7 +331,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_vforkmany_info = {
+const stressor_info_t stress_vforkmany_info = {
 	.stressor = stress_vforkmany,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

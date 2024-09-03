@@ -519,7 +519,7 @@ static int stress_x86syscall(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_x86syscall_info = {
+const stressor_info_t stress_x86syscall_info = {
 	.stressor = stress_x86syscall,
 	.class = CLASS_OS,
 	.supported = stress_x86syscall_supported,
@@ -528,7 +528,7 @@ stressor_info_t stress_x86syscall_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_x86syscall_info = {
+const stressor_info_t stress_x86syscall_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opts = opts,

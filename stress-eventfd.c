@@ -246,7 +246,7 @@ exit_parent:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_eventfd_info = {
+const stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -254,7 +254,7 @@ stressor_info_t stress_eventfd_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_eventfd_info = {
+const stressor_info_t stress_eventfd_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

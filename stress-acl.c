@@ -485,7 +485,7 @@ tidy_unmap:
 	return rc;
 }
 
-stressor_info_t stress_acl_info = {
+const stressor_info_t stress_acl_info = {
 	.stressor = stress_acl,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
@@ -493,7 +493,7 @@ stressor_info_t stress_acl_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_acl_info = {
+const stressor_info_t stress_acl_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

@@ -398,14 +398,14 @@ L0x000:
 	return rc;
 }
 
-stressor_info_t stress_branch_info = {
+const stressor_info_t stress_branch_info = {
 	.stressor = stress_branch,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_branch_info = {
+const stressor_info_t stress_branch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

@@ -518,7 +518,7 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-stressor_info_t stress_access_info = {
+const stressor_info_t stress_access_info = {
 	.stressor = stress_access,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

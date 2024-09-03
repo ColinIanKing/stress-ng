@@ -8880,7 +8880,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_syscall_info = {
+const stressor_info_t stress_syscall_info = {
 	.stressor = stress_syscall,
 	.class = CLASS_OS,
 	.opts = opts,

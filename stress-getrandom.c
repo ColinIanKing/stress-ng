@@ -177,7 +177,7 @@ static int stress_getrandom(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_getrandom_info = {
+const stressor_info_t stress_getrandom_info = {
 	.stressor = stress_getrandom,
 	.supported = stress_getrandom_supported,
 	.class = CLASS_OS | CLASS_CPU,
@@ -185,7 +185,7 @@ stressor_info_t stress_getrandom_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_getrandom_info = {
+const stressor_info_t stress_getrandom_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

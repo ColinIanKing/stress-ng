@@ -1,4 +1,4 @@
-/*
+const /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
  * Copyright (C) 2022-2024 Colin Ian King.
  *
@@ -249,7 +249,7 @@ unmap:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_mlockmany_info = {
+const stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
 	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,
@@ -258,7 +258,7 @@ stressor_info_t stress_mlockmany_info = {
 
 #else
 
-stressor_info_t stress_mlockmany_info = {
+const stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opts = opts,

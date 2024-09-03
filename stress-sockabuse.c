@@ -427,7 +427,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_sockabuse_info = {
+const stressor_info_t stress_sockabuse_info = {
 	.stressor = stress_sockabuse,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

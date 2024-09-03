@@ -250,7 +250,7 @@ static int stress_pagemove(stress_args_t *args)
 	return stress_oomable_child(args, NULL, stress_pagemove_child, STRESS_OOMABLE_NORMAL);
 }
 
-stressor_info_t stress_pagemove_info = {
+const stressor_info_t stress_pagemove_info = {
 	.stressor = stress_pagemove,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,
@@ -258,7 +258,7 @@ stressor_info_t stress_pagemove_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_pagemove_info = {
+const stressor_info_t stress_pagemove_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,

@@ -411,7 +411,7 @@ tidy_s_pids:
 	return rc;
 }
 
-stressor_info_t stress_fpunch_info = {
+const stressor_info_t stress_fpunch_info = {
 	.stressor = stress_fpunch,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,
@@ -419,7 +419,7 @@ stressor_info_t stress_fpunch_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_fpunch_info = {
+const stressor_info_t stress_fpunch_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

@@ -746,7 +746,7 @@ err_free_s_pids:
 	return rc;
 }
 
-stressor_info_t stress_apparmor_info = {
+const stressor_info_t stress_apparmor_info = {
 	.stressor = stress_apparmor,
 	.supported = stress_apparmor_supported,
 	.class = CLASS_OS | CLASS_SECURITY,
@@ -763,7 +763,7 @@ static int stress_apparmor_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_apparmor_info = {
+const stressor_info_t stress_apparmor_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_apparmor_supported,
 	.class = CLASS_OS | CLASS_SECURITY,

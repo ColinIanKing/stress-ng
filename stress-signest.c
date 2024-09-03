@@ -362,7 +362,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_signest_info = {
+const stressor_info_t stress_signest_info = {
 	.stressor = stress_signest,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

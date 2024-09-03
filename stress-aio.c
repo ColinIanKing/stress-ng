@@ -371,7 +371,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_aio_info = {
+const stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,
@@ -379,7 +379,7 @@ stressor_info_t stress_aio_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_aio_info = {
+const stressor_info_t stress_aio_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opts = opts,

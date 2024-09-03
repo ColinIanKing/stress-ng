@@ -204,7 +204,7 @@ static int stress_reboot(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_reboot_info = {
+const stressor_info_t stress_reboot_info = {
 	.stressor = stress_reboot,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -213,7 +213,7 @@ stressor_info_t stress_reboot_info = {
 
 #else
 
-stressor_info_t stress_reboot_info = {
+const stressor_info_t stress_reboot_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

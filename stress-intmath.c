@@ -443,7 +443,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_intmath_info = {
+const stressor_info_t stress_intmath_info = {
 	.stressor = stress_intmath,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE,
 	.verify = VERIFY_ALWAYS,

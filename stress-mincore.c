@@ -303,7 +303,7 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_mincore_info = {
+const stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,
@@ -311,7 +311,7 @@ stressor_info_t stress_mincore_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_mincore_info = {
+const stressor_info_t stress_mincore_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opts = opts,

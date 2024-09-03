@@ -280,7 +280,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_chown_info = {
+const stressor_info_t stress_chown_info = {
 	.stressor = stress_chown,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

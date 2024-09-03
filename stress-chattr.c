@@ -366,7 +366,7 @@ static int stress_chattr(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_chattr_info = {
+const stressor_info_t stress_chattr_info = {
 	.stressor = stress_chattr,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -375,7 +375,7 @@ stressor_info_t stress_chattr_info = {
 
 #else
 
-stressor_info_t stress_chattr_info = {
+const stressor_info_t stress_chattr_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

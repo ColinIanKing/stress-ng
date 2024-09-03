@@ -438,13 +438,13 @@ static int stress_mcontend(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_mcontend_info = {
+const stressor_info_t stress_mcontend_info = {
 	.stressor = stress_mcontend,
 	.class = CLASS_MEMORY,
 	.help = help
 };
 #else
-stressor_info_t stress_mcontend_info = {
+const stressor_info_t stress_mcontend_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY,
 	.help = help,

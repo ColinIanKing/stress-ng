@@ -251,14 +251,14 @@ done:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_lockbus_info = {
+const stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,
 	.help = help
 };
 #else
-stressor_info_t stress_lockbus_info = {
+const stressor_info_t stress_lockbus_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opts = opts,

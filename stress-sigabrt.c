@@ -169,7 +169,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_sigabrt_info = {
+const stressor_info_t stress_sigabrt_info = {
 	.stressor = stress_sigabrt,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

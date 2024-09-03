@@ -141,7 +141,7 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_sigchld_info = {
+const stressor_info_t stress_sigchld_info = {
 	.stressor = stress_sigchld,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

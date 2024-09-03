@@ -197,7 +197,7 @@ static int stress_nice(stress_args_t *args)
 ;
 }
 
-stressor_info_t stress_nice_info = {
+const stressor_info_t stress_nice_info = {
 	.stressor = stress_nice,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -205,7 +205,7 @@ stressor_info_t stress_nice_info = {
 };
 
 #else
-stressor_info_t stress_nice_info = {
+const stressor_info_t stress_nice_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

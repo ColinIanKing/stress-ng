@@ -235,7 +235,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_rotate_info = {
+const stressor_info_t stress_rotate_info = {
 	.stressor = stress_rotate,
 	.class = CLASS_CPU | CLASS_INTEGER,
 	.opts = opts,

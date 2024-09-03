@@ -283,14 +283,14 @@ terminate:
 	return rc;
 }
 
-stressor_info_t stress_uprobe_info = {
+const stressor_info_t stress_uprobe_info = {
 	.stressor = stress_uprobe,
 	.class = CLASS_CPU,
 	.supported = stress_uprobe_supported,
 	.help = help
 };
 #else
-stressor_info_t stress_uprobe_info = {
+const stressor_info_t stress_uprobe_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.supported = stress_uprobe_supported,

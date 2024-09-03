@@ -185,7 +185,7 @@ static int OPTIMIZE3 stress_udp_flood(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_udp_flood_info = {
+const stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,
@@ -193,7 +193,7 @@ stressor_info_t stress_udp_flood_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_udp_flood_info = {
+const stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

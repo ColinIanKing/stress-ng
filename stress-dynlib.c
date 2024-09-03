@@ -192,13 +192,13 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-stressor_info_t stress_dynlib_info = {
+const stressor_info_t stress_dynlib_info = {
 	.stressor = stress_dynlib,
 	.class = CLASS_OS,
 	.help = help
 };
 #else
-stressor_info_t stress_dynlib_info = {
+const stressor_info_t stress_dynlib_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,

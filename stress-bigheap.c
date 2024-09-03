@@ -316,7 +316,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_bigheap_info = {
+const stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
 	.class = CLASS_OS | CLASS_VM,
 	.opts = opts,

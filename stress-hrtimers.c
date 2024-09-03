@@ -274,7 +274,7 @@ tidy_s_pids:
 	return rc;
 }
 
-stressor_info_t stress_hrtimers_info = {
+const stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers,
 	.class = CLASS_SCHEDULER,
 	.opts = opts,
@@ -282,7 +282,7 @@ stressor_info_t stress_hrtimers_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_hrtimers_info = {
+const stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER,
 	.opts = opts,

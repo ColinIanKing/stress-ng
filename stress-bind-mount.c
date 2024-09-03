@@ -249,14 +249,14 @@ static int stress_bind_mount(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_bind_mount_info = {
+const stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_bind_mount,
 	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_bind_mount_info = {
+const stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.verify = VERIFY_ALWAYS,

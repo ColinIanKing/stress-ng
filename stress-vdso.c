@@ -555,7 +555,7 @@ static int stress_vdso(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_vdso_info = {
+const stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
 	.supported = stress_vdso_supported,
 	.class = CLASS_OS,
@@ -563,7 +563,7 @@ stressor_info_t stress_vdso_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_vdso_info = {
+const stressor_info_t stress_vdso_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opts = opts,

@@ -245,14 +245,14 @@ fail:
 	return rc;
 }
 
-stressor_info_t stress_context_info = {
+const stressor_info_t stress_context_info = {
 	.stressor = stress_context,
 	.class = CLASS_MEMORY | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_context_info = {
+const stressor_info_t stress_context_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_MEMORY | CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

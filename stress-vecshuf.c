@@ -456,7 +456,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_vecshuf_info = {
+const stressor_info_t stress_vecshuf_info = {
 	.stressor = stress_vecshuf,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,
@@ -470,7 +470,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_vecshuf_info = {
+const stressor_info_t stress_vecshuf_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_INTEGER | CLASS_COMPUTE | CLASS_VECTOR,
 	.opts = opts,

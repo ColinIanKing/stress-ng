@@ -401,7 +401,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_plugin_info = {
+const stressor_info_t stress_plugin_info = {
 	.stressor = stress_plugin,
 	.class = CLASS_CPU | CLASS_OS,
 	.opts = opts,
@@ -425,7 +425,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_plugin_info = {
+const stressor_info_t stress_plugin_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_OS,
 	.opts = opts,

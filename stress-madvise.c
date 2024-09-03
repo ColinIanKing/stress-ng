@@ -700,14 +700,14 @@ madv_free_out:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_madvise_info = {
+const stressor_info_t stress_madvise_info = {
 	.stressor = stress_madvise,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,
 	.help = help
 };
 #else
-stressor_info_t stress_madvise_info = {
+const stressor_info_t stress_madvise_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS,
 	.opts = opts,

@@ -481,7 +481,7 @@ static int stress_atomic(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_atomic_info = {
+const stressor_info_t stress_atomic_info = {
 	.stressor = stress_atomic,
 	.class = CLASS_CPU | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,
@@ -489,7 +489,7 @@ stressor_info_t stress_atomic_info = {
 };
 
 #else
-stressor_info_t stress_atomic_info = {
+const stressor_info_t stress_atomic_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU | CLASS_MEMORY,
 	.verify = VERIFY_ALWAYS,

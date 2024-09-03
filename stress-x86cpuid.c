@@ -237,7 +237,7 @@ PRAGMA_UNROLL_N(8)
 	return rc;
 }
 
-stressor_info_t stress_x86cpuid_info = {
+const stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_x86cpuid,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,
@@ -245,7 +245,7 @@ stressor_info_t stress_x86cpuid_info = {
 };
 #else
 
-stressor_info_t stress_x86cpuid_info = {
+const stressor_info_t stress_x86cpuid_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_CPU,
 	.verify = VERIFY_ALWAYS,

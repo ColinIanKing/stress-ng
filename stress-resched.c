@@ -262,7 +262,7 @@ tidy_s_pids:
 	return rc;
 }
 
-stressor_info_t stress_resched_info = {
+const stressor_info_t stress_resched_info = {
 	.stressor = stress_resched,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
@@ -270,7 +270,7 @@ stressor_info_t stress_resched_info = {
 };
 
 #else
-stressor_info_t stress_resched_info = {
+const stressor_info_t stress_resched_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

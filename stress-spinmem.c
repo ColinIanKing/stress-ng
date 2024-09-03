@@ -201,7 +201,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_spinmem_info = {
+const stressor_info_t stress_spinmem_info = {
 	.stressor = stress_spinmem,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,

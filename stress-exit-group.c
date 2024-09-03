@@ -232,14 +232,14 @@ again:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_exit_group_info = {
+const stressor_info_t stress_exit_group_info = {
 	.stressor = stress_exit_group,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_exit_group_info = {
+const stressor_info_t stress_exit_group_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

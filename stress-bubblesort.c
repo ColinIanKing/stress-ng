@@ -343,7 +343,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_bubblesort_info = {
+const stressor_info_t stress_bubblesort_info = {
 	.stressor = stress_bubblesort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SORT,
 	.opts = opts,

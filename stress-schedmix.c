@@ -515,7 +515,7 @@ static int stress_schedmix(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_schedmix_info = {
+const stressor_info_t stress_schedmix_info = {
 	.stressor = stress_schedmix,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -523,7 +523,7 @@ stressor_info_t stress_schedmix_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_schedmix_info = {
+const stressor_info_t stress_schedmix_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

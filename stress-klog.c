@@ -178,7 +178,7 @@ static int stress_klog(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_klog_info = {
+const stressor_info_t stress_klog_info = {
 	.stressor = stress_klog,
 	.class = CLASS_OS,
 	.help = help,
@@ -186,7 +186,7 @@ stressor_info_t stress_klog_info = {
 	.supported = stress_klog_supported
 };
 #else
-stressor_info_t stress_klog_info = {
+const stressor_info_t stress_klog_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.verify = VERIFY_ALWAYS,

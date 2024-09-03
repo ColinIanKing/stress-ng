@@ -1048,7 +1048,7 @@ tidy:
 	return rc;
 }
 
-stressor_info_t stress_tree_info = {
+const stressor_info_t stress_tree_info = {
 	.stressor = stress_tree,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY | CLASS_SEARCH,
 	.opts = opts,

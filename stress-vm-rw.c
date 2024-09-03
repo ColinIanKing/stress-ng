@@ -421,7 +421,7 @@ again:
 	return rc;
 }
 
-stressor_info_t stress_vm_rw_info = {
+const stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,
@@ -429,7 +429,7 @@ stressor_info_t stress_vm_rw_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_vm_rw_info = {
+const stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,

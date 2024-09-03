@@ -544,7 +544,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_vm_addr_info = {
+const stressor_info_t stress_vm_addr_info = {
 	.stressor = stress_vm_addr,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opts = opts,

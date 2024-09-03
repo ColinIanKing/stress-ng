@@ -286,14 +286,14 @@ static int stress_mknod(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_mknod_info = {
+const stressor_info_t stress_mknod_info = {
 	.stressor = stress_mknod,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
-stressor_info_t stress_mknod_info = {
+const stressor_info_t stress_mknod_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

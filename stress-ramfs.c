@@ -469,7 +469,7 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_ramfs_info = {
+const stressor_info_t stress_ramfs_info = {
 	.stressor = stress_ramfs_mount,
 	.class = CLASS_OS,
 	.opts = opts,
@@ -478,7 +478,7 @@ stressor_info_t stress_ramfs_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_ramfs_info = {
+const stressor_info_t stress_ramfs_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.opts = opts,

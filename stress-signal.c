@@ -133,7 +133,7 @@ static int stress_signal(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_signal_info = {
+const stressor_info_t stress_signal_info = {
 	.stressor = stress_signal,
 	.class = CLASS_SIGNAL | CLASS_OS,
 	.verify = VERIFY_ALWAYS,

@@ -380,7 +380,7 @@ static int stress_rdrand(stress_args_t *args)
 	return rc;
 }
 
-stressor_info_t stress_rdrand_info = {
+const stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
 	.supported = stress_rdrand_supported,
 	.opts = opts,
@@ -397,7 +397,7 @@ static int stress_rdrand_supported(const char *name)
 	return -1;
 }
 
-stressor_info_t stress_rdrand_info = {
+const stressor_info_t stress_rdrand_info = {
 	.stressor = stress_unimplemented,
 	.supported = stress_rdrand_supported,
 	.opts = opts,

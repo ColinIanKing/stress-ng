@@ -356,7 +356,7 @@ static int stress_touch(stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_touch_info = {
+const stressor_info_t stress_touch_info = {
 	.stressor = stress_touch,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

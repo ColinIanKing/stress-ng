@@ -411,7 +411,7 @@ case_sched_fifo:
 	return rc;
 }
 
-stressor_info_t stress_schedpolicy_info = {
+const stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,
@@ -419,7 +419,7 @@ stressor_info_t stress_schedpolicy_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_schedpolicy_info = {
+const stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
 	.opts = opts,

@@ -392,7 +392,7 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-stressor_info_t stress_fstat_info = {
+const stressor_info_t stress_fstat_info = {
 	.stressor = stress_fstat,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opts = opts,

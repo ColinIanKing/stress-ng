@@ -517,7 +517,7 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_shm_info = {
+const stressor_info_t stress_shm_info = {
 	.stressor = stress_shm,
 	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,
@@ -525,7 +525,7 @@ stressor_info_t stress_shm_info = {
 	.help = help
 };
 #else
-stressor_info_t stress_shm_info = {
+const stressor_info_t stress_shm_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM | CLASS_OS | CLASS_IPC,
 	.opts = opts,

@@ -685,13 +685,13 @@ static int stress_vma(stress_args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_vma_info = {
+const stressor_info_t stress_vma_info = {
 	.stressor = stress_vma,
 	.class = CLASS_VM,
 	.help = help
 };
 #else
-stressor_info_t stress_vma_info = {
+const stressor_info_t stress_vma_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_VM,
 	.help = help,

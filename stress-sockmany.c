@@ -378,7 +378,7 @@ finish:
 	return rc;
 }
 
-stressor_info_t stress_sockmany_info = {
+const stressor_info_t stress_sockmany_info = {
 	.stressor = stress_sockmany,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opts = opts,

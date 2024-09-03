@@ -4168,13 +4168,13 @@ deinit:
 
 	return EXIT_SUCCESS;
 }
-stressor_info_t stress_enosys_info = {
+const stressor_info_t stress_enosys_info = {
 	.stressor = stress_enosys,
 	.class = CLASS_OS,
 	.help = help
 };
 #else
-stressor_info_t stress_enosys_info = {
+const stressor_info_t stress_enosys_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS,
 	.help = help,
