@@ -595,7 +595,7 @@ static inline void stress_cacheline_change_affinity(
 	bool parent)
 {
 	cpu_set_t mask;
-	double now = stress_time_now() * 100;
+	const double now = stress_time_now() * 100;
 	uint32_t cpu = ((uint32_t)args->instance + (uint32_t)parent + (uint32_t)now) % cpus;
 
 	CPU_ZERO(&mask);
