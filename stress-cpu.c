@@ -199,7 +199,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 		register uint64_t lcm = ((uint64_t)a * b);
 
 		while (b != 0) {
-			register uint32_t r = b;
+			register const uint32_t r = b;
 
 			b = a % b;
 			a = r;
@@ -480,7 +480,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 		int j = 0;
 
 		while ((j++ < max_iter) && ((hi - lo) > precision)) {
-			long double g = (lo + hi) / 2.0L;
+			const long double g = (lo + hi) / 2.0L;
 			if ((g * g) > n)
 				hi = g;
 			else
@@ -527,7 +527,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 	/* Iterate until we approach overflow */
 	for (i = 0; (i < 64) && !((a | b) & mask); i++) {
 		/* Find nth term */
-		register uint64_t c = a + b;
+		register const uint64_t c = a + b;
 
 		a = b;
 		b = c;
@@ -1460,8 +1460,8 @@ static uint16_t PURE OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 		return 0;
 
 	for (; n; n--) {
-		uint8_t i;
-		uint8_t val = (uint16_t)0xff & *data++;
+		register uint8_t i;
+		register uint8_t val = (uint16_t)0xff & *data++;
 
 		for (i = 8; i; --i, val >>= 1) {
 			bool do_xor = 1 & (val ^ crc);
@@ -1557,7 +1557,8 @@ static inline long double complex PURE OPTIMIZE3 OPTIMIZE_FAST_MATH zeta(
 	long double complex z = 0.0L, zold = 0.0L;
 
 	do {
-		double complex pwr = shim_cpow(i++, (complex double)s);
+		const double complex pwr = shim_cpow(i++, (complex double)s);
+
 		zold = z;
 		z += 1.0L / (long double complex)pwr;
 	} while (shim_cabsl(z - zold) > precision);
@@ -1577,7 +1578,7 @@ static int stress_cpu_zeta(const char *name)
 	(void)name;
 
 	for (i = 2; i < 11; i++) {
-		long double complex z = zeta((long double complex)i, precision);
+		const long double complex z = zeta((long double complex)i, precision);
 
 		stress_long_double_put((long double)z);
 	}
@@ -1791,6 +1792,7 @@ static uint32_t hanoi(
 		return 1;
 	} else {
 		uint32_t m = hanoi(n - 1, p1, p3, p2);
+
 		/* Move p1 -> p2 */
 		m += hanoi(n - 1, p3, p2, p1);
 		return m;
