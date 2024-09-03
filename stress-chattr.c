@@ -138,7 +138,7 @@ static int do_chattr(
 		/* work through flags disabling them one by one */
 		tmp = orig;
 		for (j = 0; (j < sizeof(orig) * 8); j++) {
-			register unsigned long bitmask = 1ULL << j;
+			register const unsigned long bitmask = 1ULL << j;
 
 			if (orig & bitmask) {
 				tmp &= ~bitmask;
