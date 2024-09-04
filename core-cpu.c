@@ -225,34 +225,37 @@ bool stress_cpu_is_x86(void)
 	static const char * const x86_id_str[] = {
 		"GenuineIntel",		/* Intel */
 		"GenuineIotel",		/* Intel (https://twitter.com/InstLatX64/status/1101230794364862464) */
+		"ACRNACRNACRN",		/* Project ACRN */
 		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
+		"AMD ISBETTER",		/* early engineering samples of AMD K5 processor */
 		"AuthenticAMD",		/* AMD */
+		"bhyve bhyve ",		/* bhyve VM */
+		"CyrixInstead",		/* Cyrix/early STMicroelectronics and IBM */
 		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
-		"TransmetaCPU",		/* Transmeta */
+		"E2K MACHINE\0",	/* MCST Elbrus */
+		"GenuineAO486",		/* ao486 CPU (old) */
 		"GenuineTMx86",		/* Transmeta */
+		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
 		"Geode by NSC",		/* National Semiconductor */
+		"HygonGenuine",		/* Hygon */
+		"KVMKVMKVM\0\0\0",	/* KVM */
+		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
+		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
+		"MiSTer AO486",		/* ao486 CPU */
 		"NexGenDriven",		/* NexGen */
 		"RiseRiseRise",		/* Rise */
 		"SiS SiS SiS ",		/* SiS */
-		"UMC UMC UMC ",		/* UMC */
-		"Vortex86 SoC",		/* DM&P Vortex86 */
-		"  Shanghai  ",		/* Zhaoxin */
-		"HygonGenuine",		/* Hygon */
-		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
-		"E2K MACHINE\0",	/* MCST Elbrus */
-		"GenuineAO486",		/* ao486 CPU (old) */
-		"MiSTer AO486",		/* ao486 CPU */
-		"bhyve bhyve ",		/* bhyve VM */
-		"KVMKVMKVM\0\0\0",	/* KVM */
 		"TCGTCGTCGTCG",		/* QEMU */
-		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
-		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
-		" lrpepyh  vr",		/* Parallels */
+		"TransmetaCPU",		/* Transmeta */
+		"UMC UMC UMC ",		/* UMC */
+		"VIA VIA VIA ",		/* VIA */
+		"VirtualApple",		/* Newer versions of Apple Rosetta 2 */
+		"Vortex86 SoC",		/* DM&P Vortex86 */
 		"VMwareVMware",		/* VMWare */
 		"XenVMMXenVMM",		/* XEN HVM */
-		"ACRNACRNACRN",		/* Project ACRN */
+		"  Shanghai  ",		/* Zhaoxin */
+		" lrpepyh  vr",		/* Parallels */
 		" QNXQVMBSQG ",		/* QNX Hypervisor */
-		"VirtualApple",		/* Newer versions of Apple Rosetta 2 */
 	};
 
 	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
