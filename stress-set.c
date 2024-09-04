@@ -43,55 +43,56 @@ UNEXPECTED
 #define GIDS_MAX 	(1024)
 
 typedef struct {
-	shim_rlimit_resource_t id;
 	int	ret;
 	struct rlimit rlim;
 } stress_rlimit_info_t;
 
-static stress_rlimit_info_t rlimits[] = {
+static const shim_rlimit_resource_t rlimit_resources[] = {
 #if defined(RLIMIT_AS)
-	{ RLIMIT_AS, 0, { 0, 0 } },
+	RLIMIT_AS,
 #endif
 #if defined(RLIMIT_CORE)
-	{ RLIMIT_CORE, 0, { 0, 0 } },
+	RLIMIT_CORE,
 #endif
 #if defined(RLIMIT_CPU)
-	{ RLIMIT_CPU, 0, { 0, 0 } },
+	RLIMIT_CPU,
 #endif
 #if defined(RLIMIT_DATA)
-	{ RLIMIT_DATA, 0, { 0, 0 } },
+	RLIMIT_DATA,
 #endif
 #if defined(RLIMIT_FSIZE)
-	{ RLIMIT_FSIZE, 0, { 0, 0 } },
+	RLIMIT_FSIZE,
 #endif
 #if defined(RLIMIT_MEMLOCK)
-	{ RLIMIT_MEMLOCK, 0, { 0, 0 } },
+	RLIMIT_MEMLOCK,
 #endif
 #if defined(RLIMIT_MSGQUEUE)
-	{ RLIMIT_MSGQUEUE, 0, { 0, 0 } },
+	RLIMIT_MSGQUEUE,
 #endif
 #if defined(RLIMIT_NICE)
-	{ RLIMIT_NICE, 0, { 0, 0 } },
+	RLIMIT_NICE,
 #endif
 #if defined(RLIMIT_NOFILE)
-	{ RLIMIT_NOFILE, 0, { 0, 0 } },
+	RLIMIT_NOFILE,
 #endif
 #if defined(RLIMIT_RSS)
-	{ RLIMIT_RSS, 0, { 0, 0 } },
+	RLIMIT_RSS,
 #endif
 #if defined(RLIMIT_RTPRIO)
-	{ RLIMIT_RTPRIO, 0, { 0, 0 } },
+	RLIMIT_RTPRIO,
 #endif
 #if defined(RLIMIT_RTTIME)
-	{ RLIMIT_RTTIME, 0, { 0, 0 } },
+	RLIMIT_RTTIME,
 #endif
 #if defined(RLIMIT_SIGPENDING)
-	{ RLIMIT_SIGPENDING, 0, { 0, 0 } },
+	RLIMIT_SIGPENDING,
 #endif
 #if defined(RLIMIT_STACK)
-	{ RLIMIT_STACK, 0, { 0, 0 } },
+	RLIMIT_STACK,
 #endif
 };
+
+static stress_rlimit_info_t rlimits[SIZEOF_ARRAY(rlimit_resources)];
 
 static const stress_help_t help[] = {
 	{ NULL,	"set N",	"start N workers exercising the set*() system calls" },
@@ -125,7 +126,7 @@ static int stress_set(stress_args_t *args)
 #endif
 
 	for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
-		rlimits[i].ret = getrlimit(rlimits[i].id, &rlimits[i].rlim);
+		rlimits[i].ret = getrlimit(rlimit_resources[i], &rlimits[i].rlim);
 	}
 
 	hostname = calloc(hostname_len, sizeof(*hostname));
@@ -491,11 +492,11 @@ static int stress_set(stress_args_t *args)
 				rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
 				if (rlim.rlim_cur > 1) {
 					rlim.rlim_max = rlim.rlim_cur - 1;
-					(void)setrlimit(rlimits[i].id, &rlim);
+					(void)setrlimit(rlimit_resources[i], &rlim);
 				}
 
 				/* Valid setrlimit syscall and ignoring failure */
-				(void)setrlimit(rlimits[i].id, &rlimits[i].rlim);
+				(void)setrlimit(rlimit_resources[i], &rlimits[i].rlim);
 			}
 		}
 
@@ -509,14 +510,14 @@ static int stress_set(stress_args_t *args)
 				if ((rlimits[i].ret == 0) && (rlimits[i].rlim.rlim_max < RLIM_INFINITY)) {
 					rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
 					rlim.rlim_max = RLIM_INFINITY;
-					ret = setrlimit(rlimits[i].id, &rlim);
+					ret = setrlimit(rlimit_resources[i], &rlim);
 					if (ret != -EPERM) {
 						pr_fail("%s: setrlimit failed, did not have privilege to set "
 							"hard limit, expected -EPERM, instead got errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 					}
 					if (ret == 0) {
-						(void)setrlimit(rlimits[i].id, &rlimits[i].rlim);
+						(void)setrlimit(rlimit_resources[i], &rlimits[i].rlim);
 					}
 				}
 			}
