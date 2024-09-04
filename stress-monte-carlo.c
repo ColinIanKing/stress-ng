@@ -111,10 +111,14 @@ static double OPTIMIZE3 stress_mc_darn_rand(void)
 static bool stress_mc_darn_supported(void)
 {
 #if defined(HAVE_BUILTIN_CPU_IS_POWER9)
-	return __builtin_cpu_is("power9");
-#else
-	return false;
+	if (__builtin_cpu_is("power9"))
+		return true;
 #endif
+#if defined(HAVE_BUILTIN_CPU_IS_POWER10)
+	if (__builtin_cpu_is("power10"))
+		return true;
+#endif
+	return false;
 }
 #endif
 
