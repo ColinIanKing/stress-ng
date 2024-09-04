@@ -71,6 +71,21 @@ static const stress_chattr_flag_t stress_chattr_flags[] = {
 	{ SHIM_FS_NOCOW_FL, 		'C' },
 };
 
+static sigjmp_buf jmp_env;
+static volatile bool do_jmp = false;
+
+/*
+ *  stress_chattr_fault_handler()
+ *	SIGSEGV/SIGBUS fault handler
+ */
+static void MLOCKED_TEXT stress_chattr_fault_handler(int signum)
+{
+	(void)signum;
+
+	if (do_jmp)
+		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
+
 static char *stress_chattr_flags_str(const unsigned long flags, char *str, const size_t str_len)
 {
 	unsigned int i;
@@ -96,26 +111,33 @@ static int do_chattr(
 	stress_args_t *args,
 	const char *filename,
 	const unsigned long flags,
-	const unsigned long mask)
+	const unsigned long mask,
+	uint64_t *chattr_count)
 {
 	int i;
-	int rc = EXIT_SUCCESS;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	for (i = 0; (i < 128) && stress_continue(args); i++) {
-		int fd, fdw, ret;
-		unsigned long zero = 0UL;
-		unsigned long orig, tmp, check;
-		bool verify;
-		unsigned int j;
+		NOCLOBBER int fd, fdw;
+		int ret;
+		unsigned long zero = 0UL, tmp, check;
+		NOCLOBBER unsigned long orig_flags;
+		NOCLOBBER unsigned int j;
+		NOCLOBBER uint8_t *page;
 
 		fd = open(filename, O_RDWR | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0)
 			continue;
 
-		if (!stress_continue(args))
-			goto tidy_fd;
-		orig = 0UL;
-		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig);
+		if (shim_fallocate(fd, 0, 0, args->page_size) == 0) {
+			page = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+				MAP_SHARED, fd, 0);
+		} else {
+			page = MAP_FAILED;
+		}
+
+		orig_flags = 0UL;
+		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig_flags);
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
 			    (errno != ENOTTY) &&
@@ -127,7 +149,7 @@ static int do_chattr(
 				rc = EXIT_FAILURE;
 				goto tidy_fd;
 			}
-			/* most probably not supported */
+			/* cannot get flags, so most probably not supported */
 			rc = EXIT_NO_RESOURCE;
 			goto tidy_fd;
 		}
@@ -136,11 +158,11 @@ static int do_chattr(
 			goto tidy_fd;
 
 		/* work through flags disabling them one by one */
-		tmp = orig;
-		for (j = 0; (j < sizeof(orig) * 8); j++) {
+		tmp = orig_flags;
+		for (j = 0; (j < sizeof(orig_flags) * 8); j++) {
 			register const unsigned long bitmask = 1ULL << j;
 
-			if (orig & bitmask) {
+			if (orig_flags & bitmask) {
 				tmp &= ~bitmask;
 
 				ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
@@ -159,6 +181,8 @@ static int do_chattr(
 					}
 					/* failed, so re-eable the bit */
 					tmp |= bitmask;
+				} else {
+					(*chattr_count)++;
 				}
 			}
 		}
@@ -173,7 +197,6 @@ static int do_chattr(
 		if (!stress_continue(args))
 			goto tidy_fdw;
 
-		verify = (args->num_instances == 1);
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
@@ -192,8 +215,9 @@ static int do_chattr(
 				goto tidy_fdw;
 			}
 			/* most probably not supported */
-			rc = EXIT_NO_RESOURCE;
 			goto tidy_fdw;
+		} else {
+			(*chattr_count)++;
 		}
 
 		check = 0UL;
@@ -210,32 +234,30 @@ static int do_chattr(
 				rc = EXIT_FAILURE;
 				goto tidy_fdw;
 			}
-			/* most probably not supported */
-			rc = EXIT_NO_RESOURCE;
-			goto tidy_fdw;
-		}
+			/* most probably not supported, don't verify */
+		} else {
+			/*
+			 *  check that no other *extra* flag bits have been set
+			 *  (as opposed to see if flags set is same as flags got
+			 *  since some flag settings are not set if the filesystem
+			 *  cannot honor them).
+			 */
+			if (args->num_instances == 1) {
+				tmp = mask & ~(SHIM_EXT3_JOURNAL_DATA_FL | SHIM_EXT4_EXTENTS_FL);
+				if (((flags & tmp) | (check & tmp)) != (flags & tmp)) {
+					char flags_str[65], check_str[65];
 
-		/*
-		 *  check that no other *extra* flag bits have been set
-		 *  (as opposed to see if flags set is same as flags got
-		 *  since some flag settings are not set if the filesystem
-		 *  cannot honor them).
-		 */
-		if (verify) {
-			tmp = mask & ~(SHIM_EXT3_JOURNAL_DATA_FL | SHIM_EXT4_EXTENTS_FL);
-			if (((flags & tmp) | (check & tmp)) != (flags & tmp)) {
-				char flags_str[65], check_str[65];
+					stress_chattr_flags_str(flags & tmp, flags_str, sizeof(flags_str));
+					stress_chattr_flags_str(check & tmp, check_str, sizeof(check_str));
 
-				stress_chattr_flags_str(flags & tmp, flags_str, sizeof(flags_str));
-				stress_chattr_flags_str(check & tmp, check_str, sizeof(check_str));
+					pr_fail("%s: EXT2_IOC_GETFLAGS returned different "
+						"flags 0x%lx ('%s') from set flags 0x%lx ('%s')\n",
+						args->name, check & tmp, check_str,
+						flags & tmp, flags_str);
 
-				pr_fail("%s: EXT2_IOC_GETFLAGS returned different "
-					"flags 0x%lx ('%s') from set flags 0x%lx ('%s')\n",
-					args->name, check & tmp, check_str,
-					flags & tmp, flags_str);
-
-				rc = EXIT_FAILURE;
-				goto tidy_fdw;
+					rc = EXIT_FAILURE;
+					goto tidy_fdw;
+				}
 			}
 		}
 
@@ -245,7 +267,8 @@ static int do_chattr(
 
 		if (!stress_continue(args))
 			goto tidy_fdw;
-		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero));
+		if (ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero) == 0)
+			(*chattr_count)++;
 
 		/*
 		 *  Try some random flag, exercises any illegal flags
@@ -253,24 +276,42 @@ static int do_chattr(
 		if (!stress_continue(args))
 			goto tidy_fdw;
 		tmp = 1ULL << (stress_mwc8() & 0x1f);
-		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp));
+		if (ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp) == 0)
+			(*chattr_count)++;
+
+		/*
+		 *  Some flags make a file based mmapping unmodifyable
+		 *  so exercise this by trying to change a the page
+		 *  and handling any SIGBUS/SIGSEGV faults
+		 */
+		if (page != MAP_FAILED) {
+			ret = sigsetjmp(jmp_env, 1);
+			do_jmp = true;
+			if (ret == 0)
+				*page = j;
+			do_jmp = false;
+		}
 
 		/*
 		 *  Restore original setting
 		 */
 		tmp = 0;
-		for (j = 0; (j < sizeof(orig) * 8); j++) {
+		for (j = 0; (j < sizeof(orig_flags) * 8); j++) {
 			register const unsigned long bitmask = 1ULL << j;
 
 			tmp |= bitmask;
 			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
 			if (ret < 0)
 				tmp &= ~bitmask;
+			else
+				(*chattr_count)++;
 		}
 tidy_fdw:
 
 		(void)close(fdw);
 tidy_fd:
+		if (page != MAP_FAILED)
+			(void)munmap((void *)page, args->page_size);
 		(void)shim_fsync(fd);
 		(void)close(fd);
 		(void)shim_unlink(filename);
@@ -291,6 +332,14 @@ static int stress_chattr(stress_args_t *args)
 	unsigned long mask = 0;
 	int *flag_perms = NULL;
 	size_t i, idx, flag_count;
+	uint64_t chattr_count = 0;
+	double rate, t, duration;
+
+	do_jmp = false;
+	if (stress_sighandler(args->name, SIGSEGV, stress_chattr_fault_handler, NULL) < 0)
+		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGBUS, stress_chattr_fault_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
 		mask |= stress_chattr_flags[i].flag;
@@ -319,13 +368,14 @@ static int stress_chattr(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	idx = 0;
+	t = stress_time_now();
 	do {
 		size_t fail = 0;
 
 		for (i = 0; i < SIZEOF_ARRAY(stress_chattr_flags); i++) {
 			int ret;
 
-			ret = do_chattr(args, filename, stress_chattr_flags[i].flag, mask);
+			ret = do_chattr(args, filename, stress_chattr_flags[i].flag, mask, &chattr_count);
 			switch (ret) {
 			case EXIT_FAILURE:
 				fail++;
@@ -349,7 +399,7 @@ static int stress_chattr(stress_args_t *args)
 
 		/* Try next flag permutation */
 		if ((flag_count > 0) && (flag_perms)) {
-			(void)do_chattr(args, filename, (unsigned long)flag_perms[idx], mask);
+			(void)do_chattr(args, filename, (unsigned long)flag_perms[idx], mask, &chattr_count);
 			idx++;
 			if (idx >= flag_count)
 				idx = 0;
@@ -357,7 +407,13 @@ static int stress_chattr(stress_args_t *args)
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
+	duration = stress_time_now() - t;
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? (double)chattr_count / duration : 0.0;
+	stress_metrics_set(args, 0, "successful chattr flags set per sec",
+		rate, STRESS_METRIC_GEOMETRIC_MEAN);
 
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
