@@ -89,7 +89,6 @@ static int stress_membarrier_exercise(stress_args_t *args, membarrier_info_t *in
 	t = stress_time_now();
 	for (i = 1; i; i <<= 1) {
 		if (i & mask) {
-
 			VOID_RET(int, shim_membarrier((int)i, 0, 0));
 			info->count += 1.0;
 
