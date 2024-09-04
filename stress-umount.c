@@ -290,7 +290,6 @@ static int stress_umount(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-
 	if (stress_umount_spawn(args, realpathname, stress_umount_mounter, &s_pids_head, &s_pids[0]) < 0)
 		goto reap;
 	if (stress_umount_spawn(args, realpathname, stress_umount_umounter, &s_pids_head, &s_pids[1]) < 0)
