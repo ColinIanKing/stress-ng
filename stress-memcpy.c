@@ -265,6 +265,14 @@ static NOINLINE void stress_memcpy_all(
 		whence++;
 		stress_memcpy_naive_o0(str1, str2, str3);
 		return;
+	case 4:
+		whence++;
+		stress_memcpy_naive_o1(str1, str2, str3);
+		return;
+	case 5:
+		whence++;
+		stress_memcpy_naive_o2(str1, str2, str3);
+		return;
 	default:
 		stress_memcpy_naive_o3(str1, str2, str3);
 		whence = 0;
