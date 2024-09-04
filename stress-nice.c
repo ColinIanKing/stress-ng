@@ -74,7 +74,7 @@ static int stress_nice(stress_args_t *args)
 
 	do {
 		pid_t pid;
-		int which = stress_mwc1();
+		const int which = stress_mwc1();
 
 		pid = fork();
 		if (pid == 0) {
