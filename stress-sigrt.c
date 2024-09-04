@@ -105,7 +105,6 @@ again:
 			(void)shim_memset(&info, 0, sizeof info);
 
 			while (stress_continue_flag()) {
-
 				if (UNLIKELY(sigwaitinfo(&mask, &info) < 0)) {
 					if (errno == EINTR)
 						continue;
