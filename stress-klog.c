@@ -107,7 +107,8 @@ static int stress_klog(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret, buflen = (int)stress_mwc32modn((uint32_t)len) + 1;
+		int ret;
+		const int buflen = (int)stress_mwc32modn((uint32_t)len) + 1;
 
 		/* Exercise illegal read size */
 		(void)shim_klogctl(SYSLOG_ACTION_READ, buffer, -1);
