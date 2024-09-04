@@ -238,13 +238,13 @@ static int stress_resched(stress_args_t *args)
 		pr_block_begin();
 		for (i = 0; i < s_pids_max; i++) {
 			if (yields[i] > 0) {
-				double percent = 100.0 * ((double)yields[i]/ (double)total_yields);
+				const double percent = 100.0 * ((double)yields[i]/ (double)total_yields);
 
 				if (i == 0) {
 					pr_dbg("%s: prio %2d: %5.2f%% yields\n",
 						args->name, i, percent);
 				} else {
-					double scale = (double)yields[i] / (double)yields[i - 1];
+					const double scale = (double)yields[i] / (double)yields[i - 1];
 
 					pr_dbg("%s: prio %2d: %5.2f%% yields (prio %2d x %f)%s\n",
 						args->name, i, percent, i - 1, scale,
