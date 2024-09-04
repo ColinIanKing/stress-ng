@@ -35,7 +35,7 @@ int stress_kill_pid(const pid_t pid)
 	ret = shim_kill(pid, SIGKILL);
 
 	if (pidfd >= 0) {
-		int saved_errno = errno;
+		 const int saved_errno = errno;
 
 		if (ret == 0)
 			(void)shim_process_mrelease(pidfd, 0);
