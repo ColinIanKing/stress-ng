@@ -1028,7 +1028,7 @@ rnd_rd_retry:
 					size_t j;
 
 					for (j = 0; j < (size_t)ret; j++) {
-						register uint8_t v = data_value(offset, j, instance);
+						register const uint8_t v = data_value(offset, j, instance);
 
 						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
