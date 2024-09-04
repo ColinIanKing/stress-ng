@@ -672,7 +672,7 @@ retry:
 			register const size_t page = idx[n];
 
 			if (!mapped[page]) {
-				off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
+				const off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
 				int fixed_flags = MAP_FIXED;
 
 				/*
