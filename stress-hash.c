@@ -112,7 +112,7 @@ static int stress_hash_generic(
 	}
 	n = (double)bucket->n_keys;
 	m = (double)bucket->n_buckets;
-	divisor = (n / (2.0 * m)) * (n + (2 * m) - 1);
+	divisor = (n / (2.0 * m)) * (n + (2.0 * m) - 1.0);
 
 	stats->chi_squared = sum / divisor;
 
@@ -697,8 +697,7 @@ static int OPTIMIZE3 stress_hash(stress_args_t *args)
 
 	if (args->instance == 0) {
 		pr_block_begin();
-		pr_inf("%s: %12.12s %15s %10s\n",
-			args->name, "hash", "hashes/sec", "chi squared");
+		pr_inf("%s: %12.12s %15s %10s\n", args->name, "hash", "hashes/sec", "chi squared");
 		for (i = 1; i < NUM_HASH_METHODS; i++) {
 			const stress_hash_stats_t *stats = hash_methods[i].stats;
 
