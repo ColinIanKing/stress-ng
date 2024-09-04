@@ -253,11 +253,11 @@ static void hash_destroy(void *handle, size_t *objmem)
 
 	n = table->n;
 	for (i = 0; i < n; i++) {
-		sparse_hash_node_t *next;
 		sparse_hash_node_t *node = table->table[i];
 
 		while (node) {
-			next = node->next;
+			sparse_hash_node_t *next = node->next;
+
 			free(node);
 			*objmem += sizeof(*node);
 			node = next;
