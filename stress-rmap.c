@@ -103,12 +103,13 @@ static void NORETURN stress_rmap_child(
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		ssize_t i;
+		register ssize_t i;
 		const uint8_t rnd8 = stress_mwc8();
 		const int sync_flag = (rnd8 & 0x80) ? MS_ASYNC : MS_SYNC;
 
 		switch (rnd8 & 3) {
-		case 0: for (i = 0; i < MAPPINGS_MAX; i++) {
+		case 0:
+			for (i = 0; i < MAPPINGS_MAX; i++) {
 				if (mappings[i] != MAP_FAILED) {
 					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
@@ -120,7 +121,8 @@ static void NORETURN stress_rmap_child(
 				}
 			}
 			break;
-		case 1: for (i = MAPPINGS_MAX - 1; i >= 0; i--) {
+		case 1:
+			for (i = MAPPINGS_MAX - 1; i >= 0; i--) {
 				if (mappings[i] != MAP_FAILED) {
 					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
@@ -132,7 +134,8 @@ static void NORETURN stress_rmap_child(
 				}
 			}
 			break;
-		case 2: for (i = 0; i < MAPPINGS_MAX; i++) {
+		case 2:
+			for (i = 0; i < MAPPINGS_MAX; i++) {
 				const size_t j = stress_mwc32modn(MAPPINGS_MAX);
 
 				if (mappings[j] != MAP_FAILED) {
@@ -146,7 +149,8 @@ static void NORETURN stress_rmap_child(
 				}
 			}
 			break;
-		case 3: for (i = 0; i < MAPPINGS_MAX - 1; i++) {
+		case 3:
+			for (i = 0; i < MAPPINGS_MAX - 1; i++) {
 				if (mappings[i] != MAP_FAILED) {
 					if (!stress_bogo_inc_lock(args, counter_lock, false))
 						break;
