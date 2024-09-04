@@ -252,7 +252,6 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
     defined(HAVE_FSETXATTR)
 		{
 			int ret;
-
 			char attrname[32];
 			char attrdata[32];
 
@@ -327,7 +326,8 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		 */
 		(void)stress_mincore_touch_pages(buf, sz);
 		for (n = pages; n; ) {
-			uint64_t j, i = stress_mwc64modn(pages);
+			uint64_t j;
+			const uint64_t i = stress_mwc64modn(pages);
 
 			for (j = 0; j < n; j++) {
 				const uint64_t page = (i + j) % pages;
@@ -349,7 +349,8 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 		 *  Step #2, map them back in random order
 		 */
 		for (n = pages; n; ) {
-			uint64_t j, i = stress_mwc64modn(pages);
+			uint64_t j;
+			const uint64_t i = stress_mwc64modn(pages);
 
 			for (j = 0; j < n; j++) {
 				const uint64_t page = (i + j) % pages;
