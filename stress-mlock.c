@@ -438,7 +438,7 @@ static int stress_mlock_child(stress_args_t *args, void *context)
 
 		for (i = 0; i < n; i++) {
 			intptr_t addr = (intptr_t)mappings[i];
-			intptr_t mlocked = addr & 1;
+			const intptr_t mlocked = addr & 1;
 
 			addr &= ~(intptr_t)1;
 
