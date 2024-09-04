@@ -99,10 +99,10 @@ static void stress_led_trigger(const char *path, const char *trigger)
  */
 static void stress_led_info_free(stress_led_info_t *led_info_list)
 {
-	stress_led_info_t *led_info = led_info_list, *next;
+	stress_led_info_t *led_info = led_info_list;
 
 	while (led_info) {
-		next = led_info->next;
+		stress_led_info_t *next = led_info->next;
 
 		stress_led_brightness(led_info->path, led_info->orig_brightness);
 		stress_led_trigger(led_info->path, led_info->orig_trigger);
