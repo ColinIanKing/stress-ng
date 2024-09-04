@@ -293,7 +293,7 @@ static void OPTIMIZE3 stress_opcode_mixed(
 	const void *ops_end,
 	const volatile uint64_t *op)
 {
-	register uint64_t tmp = *op;
+	register const uint64_t tmp = *op;
 	register uint64_t *ops = (uint64_t *)ops_begin;
 
 	(void)page_size;
