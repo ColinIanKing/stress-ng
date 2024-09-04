@@ -488,7 +488,6 @@ tidy:
 	(void)munmap((void *)ro_ptr, args->page_size);
 
 	return rc;
-
 }
 
 const stressor_info_t stress_sigsegv_info = {
