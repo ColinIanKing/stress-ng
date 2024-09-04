@@ -258,7 +258,7 @@ static int stress_mknod(stress_args_t *args)
 		for (i = 0; stress_continue(args) && (i < n); i++) {
 			char path[PATH_MAX];
 			register const uint64_t gray_code = (i >> 1) ^ i;
-			register size_t j = stress_mwc32modn(num_nodes);
+			register const size_t j = stress_mwc32modn(num_nodes);
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
