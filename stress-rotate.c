@@ -36,8 +36,8 @@ static double stress_rotate_all(stress_args_t *args, const bool verify, bool *su
 #if defined(HAVE_INT128_T)
 static __uint128_t stress_mwc128(void)
 {
-	uint64_t hi = stress_mwc64();
-	uint64_t lo = stress_mwc64();
+	const uint64_t hi = stress_mwc64();
+	const uint64_t lo = stress_mwc64();
 
 	return ((__uint128_t)hi << 64) | lo;
 }
