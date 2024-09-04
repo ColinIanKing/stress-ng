@@ -3525,6 +3525,41 @@ static void stress_dev_cpu_cpuid(
 }
 #endif
 
+#if defined(__linux__)
+/* exercise arch/x86/kernel/msr.c driver */
+
+#define X86_IOC_RDMSR_REGS	_IOWR('c', 0xA0, __u32[8])
+
+static void stress_dev_cpu_msr(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	uint64_t tsc;
+	uint32_t regs[8];
+
+	(void)args;
+	(void)devpath;
+
+	/* RDMSR_REGS ioctl(), see arch/x86/lib/msr-reg.S */
+	regs[0] = 0x00000000;	/* EAX */
+	regs[1] = 0x00000010;	/* ECX = TSC MSR */
+	regs[2] = 0x00000000;	/* EDX */
+	regs[3] = 0x00000000;	/* EBX */
+	regs[4] = 0x00000000;	/* unused */
+	regs[5] = 0x00000000;	/* R12D */
+	regs[6] = 0x00000000;	/* ESI */
+	regs[7] = 0x00000000;	/* EDI */
+	VOID_RET(int, ioctl(fd, X86_IOC_RDMSR_REGS, regs));
+
+	/* seek to TSC MSR */
+	if (lseek(fd, (off_t)0x00000010, SEEK_SET) < 0)
+		return;
+	/* read 64 bit TSC */
+	VOID_RET(ssize_t, read(fd, &tsc, sizeof(tsc)));
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3631,6 +3666,10 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/cpu/0/cpuid", stress_dev_cpu_cpuid),
+#endif
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_X86)
+	DEV_FUNC("/dev/cpu/0/msr", stress_dev_cpu_msr),
 #endif
 };
 
