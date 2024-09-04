@@ -40,6 +40,10 @@
 #include <libgen.h>
 #endif
 
+#if defined(HAVE_LINUX_AUTO_DEV_IOCTL_H)
+#include <linux/auto_dev-ioctl.h>
+#endif
+
 #if defined(HAVE_LINUX_BLKZONED_H)
 #include <linux/blkzoned.h>
 #endif
@@ -3560,6 +3564,49 @@ static void stress_dev_cpu_msr(
 }
 #endif
 
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_AUTO_DEV_IOCTL_H)
+static void stress_dev_autofs_linux(
+	stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	const char *tmp = ".....";
+	const size_t tmp_len = strlen(tmp) + 1;
+	size_t size;
+	struct autofs_dev_ioctl *info;
+	static bool try_invalid_path = false;
+
+	(void)args;
+	(void)devpath;
+
+	size = sizeof(*info) + tmp_len;
+	info = calloc(1, size);
+	if (!info)
+		return;
+
+	init_autofs_dev_ioctl(info);
+	errno = 0;
+	if (ioctl(fd, AUTOFS_DEV_IOCTL_VERSION, info) < 0) {
+		free(info);
+		return;
+	}
+
+	/* and exercise an invalid pathname, will spam dmesg, so do once */
+	if (!try_invalid_path) {
+		try_invalid_path = true;
+
+		init_autofs_dev_ioctl(info);
+		info->ioctlfd = -1;
+		shim_strscpy(info->path, tmp, tmp_len);
+		info->ismountpoint.in.type = AUTOFS_TYPE_ANY;
+		info->size = size;
+		VOID_RET(int, ioctl(fd, AUTOFS_DEV_IOCTL_ISMOUNTPOINT, info));
+	}
+	free(info);
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -3670,6 +3717,10 @@ static const stress_dev_func_t dev_funcs[] = {
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/cpu/0/msr", stress_dev_cpu_msr),
+#endif
+#if defined(__linux__) &&	\
+    defined(HAVE_LINUX_AUTO_DEV_IOCTL_H)
+	DEV_FUNC("/dev/autofs", stress_dev_autofs_linux),
 #endif
 };
 
