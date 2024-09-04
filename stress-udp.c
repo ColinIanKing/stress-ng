@@ -194,6 +194,7 @@ static int OPTIMIZE3 stress_udp_client(
 		{
 			int val, ret;
 			socklen_t slen = sizeof(val);
+
 			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_RX, &val, &slen);
 			if (LIKELY(ret == 0)) {
 				slen = sizeof(val);
