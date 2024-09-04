@@ -80,10 +80,10 @@ static int PURE stress_pci_dot_filter(const struct dirent *d)
  */
 static void stress_pci_info_free(stress_pci_info_t *pci_info_list)
 {
-	stress_pci_info_t *pci_info = pci_info_list, *next;
+	stress_pci_info_t *pci_info = pci_info_list;
 
 	while (pci_info) {
-		next = pci_info->next;
+		stress_pci_info_t *next = pci_info->next;
 
 		free(pci_info->path);
 		free(pci_info->name);
