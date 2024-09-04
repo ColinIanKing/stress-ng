@@ -39,7 +39,7 @@ static uint64_t OPTIMIZE3 insertionsort_fwd(int32_t *base, size_t nmemb)
 	register uint64_t compares = 0;
 
 	for (i = 1; i < nmemb; i++) {
-		register int32_t tmp = base[i];
+		register const int32_t tmp = base[i];
 		register size_t j = i;
 
 		while ((j > 0) && (base[j - 1] > tmp)) {
@@ -58,7 +58,7 @@ static uint64_t OPTIMIZE3 insertionsort_rev(int32_t *base, size_t nmemb)
 	register uint64_t compares = 0;
 
 	for (i = 1; i < nmemb; i++) {
-		register int32_t tmp = base[i];
+		register const int32_t tmp = base[i];
 		register size_t j = i;
 
 		while ((j > 0) && (base[j - 1] < tmp)) {
