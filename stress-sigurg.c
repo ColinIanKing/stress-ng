@@ -184,7 +184,7 @@ retry:
 	return rc;
 }
 
-static bool stress_send_error(const int err)
+static inline bool stress_send_error(const int err)
 {
 	return ((err != EINTR) &&
 		(err != EPIPE) &&
