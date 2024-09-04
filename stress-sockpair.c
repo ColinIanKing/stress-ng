@@ -231,22 +231,21 @@ again:
 
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
 				if (UNLIKELY(n <= 0)) {
-					if ((errno == EAGAIN) || (errno == EINTR))
+					switch (errno) {
+					case 0:		/* OKAY */
+					case EAGAIN:	/* Redo */
+					case EINTR:	/* Interrupted */
 						continue;
-					else if (errno == ENFILE) /* Too many files! */
+					case ENFILE:	/* Too many files */
+					case EMFILE:	/* Occurs on socket shutdown */
+					case EPERM:	/* Occurs on socket closure */
+					case EPIPE:	/* Pipe broke */
 						goto abort;
-					else if (errno == EMFILE) /* Occurs on socket shutdown */
-						goto abort;
-					else if (errno == EPERM)  /* Occurs on socket closure */
-						goto abort;
-					else if (errno == EPIPE)  /* Pipe broke */
-						goto abort;
-					else if (errno) {
+					default:
 						pr_fail("%s: read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						goto abort;
 					}
-					continue;
 				}
 				if (UNLIKELY(verify && socket_pair_memchk(buf, (size_t)n))) {
 					pr_fail("%s: socket_pair read error detected, "
