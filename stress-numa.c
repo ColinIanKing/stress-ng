@@ -494,7 +494,6 @@ static int stress_numa(stress_args_t *args)
 		long lret;
 		unsigned long i;
 		uint8_t *ptr;
-		stress_node_t *n_tmp;
 		unsigned cpu, curr_node;
 		struct shim_getcpu_cache cache;
 
@@ -757,16 +756,15 @@ static int stress_numa(stress_args_t *args)
 		if (!stress_continue_flag())
 			break;
 
-		n_tmp = n;
 		for (j = 0; j < 16; j++) {
 			int dest_node_of_buf = -1;
 
 			/*
 			 *  Now move pages to lots of different numa nodes
 			 */
-			for (ptr = buf, i = 0; i < num_pages; i++, ptr += page_size, n_tmp = n_tmp->next) {
+			for (ptr = buf, i = 0; i < num_pages; i++, ptr += page_size) {
 				pages[k] = ptr;
-				dest_nodes[k] = (int)n_tmp->node_id;
+				dest_nodes[k] = (int)n->node_id;
 				k++;
 				if (k >= num_pages)
 					k = 0;
