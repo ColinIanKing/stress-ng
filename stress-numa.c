@@ -197,6 +197,59 @@ static void stress_numa_free_nodes(stress_node_t *nodes)
 }
 
 /*
+ *  stress_numa_check_maps()
+ *	scan process' numa_maps file to see if ptr is
+ *	on the expected node and keep tally of total nodes
+ *	checked and correct node matches
+ */
+static void stress_numa_check_maps(
+	const void *ptr,
+	const int expected_node,
+	uint64_t *correct_nodes,
+	uint64_t *total_nodes)
+{
+	FILE *fp;
+	char buffer[1024];
+
+	fp = fopen("/proc/self/numa_maps", "r");
+	if (!fp)
+		return;
+
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		int n;
+		uintptr_t addr;
+
+		n = sscanf(buffer, "%" SCNxPTR, &addr);
+		if ((n == 1) && (ptr == (void *)addr)) {
+			char *ptr;
+
+			/* find active= field */
+			ptr = strstr(buffer, "active=");
+			if (ptr) {
+				int node;
+
+				/* skip to Nx field, read node numer */
+				while (*ptr && *ptr != ' ')
+					ptr++;
+				while (*ptr == ' ')
+					ptr++;
+				if (*ptr == 'N') {
+					ptr++;
+					if ((sscanf(ptr, "%d", &node) == 1) &&
+					    (expected_node == node)) {
+						(*correct_nodes)++;
+						break;
+					}
+				}
+			}
+			break;
+		}
+	}
+	(*total_nodes)++;
+	(void)fclose(fp);
+}
+
+/*
  *  hex_to_int()
  *	convert ASCII hex digit to integer
  */
@@ -317,7 +370,8 @@ static int stress_numa(stress_args_t *args)
 	stress_numa_stats_t stats_begin, stats_end;
 	size_t node_mask_size, old_node_mask_size;
 	size_t status_size, dest_nodes_size, pages_size;
-	double t, duration, rate;
+	double t, duration, metric;
+	uint64_t correct_nodes = 0, total_nodes = 0;
 
 	(void)stress_get_setting("numa-bytes", &numa_bytes);
 	(void)stress_get_setting("numa-shuffle-addr", &numa_shuffle_addr);
@@ -705,6 +759,8 @@ static int stress_numa(stress_args_t *args)
 
 		n_tmp = n;
 		for (j = 0; j < 16; j++) {
+			int dest_node_of_buf = -1;
+
 			/*
 			 *  Now move pages to lots of different numa nodes
 			 */
@@ -739,6 +795,8 @@ static int stress_numa(stress_args_t *args)
 			/* Touch each page */
 			for (i = 0; i < num_pages; i++) {
 				*(uintptr_t *)pages[i] = (uintptr_t)pages[i];
+				if (pages[i] == buf)
+					dest_node_of_buf = dest_nodes[i];
 			}
 
 			/*
@@ -759,6 +817,9 @@ static int stress_numa(stress_args_t *args)
 					goto err;
 				}
 			}
+
+			stress_numa_check_maps(buf, dest_node_of_buf, &correct_nodes, &total_nodes);
+
 			/* Check each page */
 			for (i = 0; i < num_pages; i++) {
 				if (*(uintptr_t *)pages[i] != (uintptr_t)pages[i]) {
@@ -826,13 +887,19 @@ static int stress_numa(stress_args_t *args)
 	duration = stress_time_now() - t;
 	stress_numa_stats_read(&stats_end);
 
-	rate = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_HIT] -
+	metric = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_HIT] -
 				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_HIT]) / duration : 0.0;
-	stress_metrics_set(args, 0, "NUMA hits per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, 0, "NUMA hits per sec", metric, STRESS_METRIC_GEOMETRIC_MEAN);
 
-	rate = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_MISS] -
+	metric = (duration > 0) ? ((double)stats_end.value[STRESS_NUMA_STAT_NUMA_MISS] -
 				 (double)stats_begin.value[STRESS_NUMA_STAT_NUMA_MISS]) / duration : 0.0;
-	stress_metrics_set(args, 1, "NUMA misses per sec", rate, STRESS_METRIC_GEOMETRIC_MEAN);
+	stress_metrics_set(args, 1, "NUMA misses per sec", metric, STRESS_METRIC_GEOMETRIC_MEAN);
+
+	/* total_nodes may be zero if we can't read /proc/self/numa_maps */
+	if (total_nodes > 0) {
+		metric = 100.0 * (double)correct_nodes / (double)total_nodes;
+		stress_metrics_set(args, 2, "% of checked pages on specified NUMA node", metric, STRESS_METRIC_GEOMETRIC_MEAN);
+	}
 
 	rc = EXIT_SUCCESS;
 err:
