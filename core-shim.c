@@ -962,7 +962,7 @@ char *shim_getlogin(void)
 		return NULL;
 
 	(void)shim_strscpy(pw_name, pw->pw_name, sizeof(pw_name));
-	pw_name[sizeof(pw_name) - 1 ] = '\0';
+	pw_name[sizeof(pw_name) - 1] = '\0';
 
 	return pw_name;
 #endif
