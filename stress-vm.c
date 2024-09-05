@@ -3268,17 +3268,12 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		advice = vm_madvise_info[vm_madvise].advice;
 
 	do {
-		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-			pr_inf_skip("%s: gave up trying to mmap, no available memory, skipping stressor\n",
-				args->name);
-			rc = EXIT_NO_RESOURCE;
-			break;
-		}
 		if (!vm_keep || (buf == NULL)) {
 			if (!stress_continue_flag())
 				return EXIT_SUCCESS;
-			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz)) {
+			if (1 | ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))) {
 				buf = MAP_FAILED;
+				errno = ENOMEM;
 			} else {
 #if defined(HAVE_MPROTECT) &&	\
     defined(PROT_NONE)
@@ -3298,6 +3293,17 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 			if (buf == MAP_FAILED) {
 				buf = NULL;
 				no_mem_retries++;
+				if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+					char str[32];
+
+					(void)stress_uint64_to_str(str, sizeof(str), (uint64_t)buf_sz);
+					pr_inf_skip("%s: gave up trying to mmap %s after %d attempts, "
+						"errno=%d (%s), skipping stressor\n",
+						args->name, str, NO_MEM_RETRIES_MAX,
+						errno, strerror(errno));
+					rc = EXIT_NO_RESOURCE;
+					break;
+				}
 				(void)shim_usleep(100000);
 				continue;	/* Try again */
 			}
