@@ -1736,7 +1736,7 @@ bool PURE stress_little_endian(void)
  *  stress_endian_str()
  *	return endianness as a string
  */
-static const char *stress_endian_str(void)
+static const char * PURE stress_endian_str(void)
 {
 	return stress_little_endian() ? "little endian" : "big endian";
 }
@@ -2651,7 +2651,7 @@ const char *stress_get_uname_info(void)
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int stress_unimplemented(stress_args_t *args)
+int PURE stress_unimplemented(stress_args_t *args)
 {
 	(void)args;
 

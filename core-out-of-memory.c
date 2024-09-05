@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
@@ -186,7 +187,7 @@ void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 	(void)args;
 	(void)killable;
 }
-bool stress_process_oomed(const pid_t pid)
+bool PURE stress_process_oomed(const pid_t pid)
 {
 	(void)pid;
 

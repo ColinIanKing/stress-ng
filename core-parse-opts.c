@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-parse-opts.h"
 #include "core-cpu-cache.h"
 #include "core-net.h"
@@ -677,7 +678,7 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
  *	method handler for methods that are unimplemented
  *	(e.g. stressor not supported)
  */
-const char *stress_unimplemented_method(const size_t i)
+const char * PURE stress_unimplemented_method(const size_t i)
 {
 	(void)i;
 

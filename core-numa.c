@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-numa.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
@@ -228,7 +229,7 @@ int stress_set_mbind(const char *arg)
 }
 
 #else
-int stress_numa_nodes(void)
+int PURE stress_numa_nodes(void)
 {
 	return 1;
 }

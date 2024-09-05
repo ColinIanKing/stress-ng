@@ -251,7 +251,7 @@ int stress_set_sched(
 #define HAVE_STRESS_SET_SCHED	(1)
 
 /* No-op shim */
-int stress_set_sched(
+int PURE stress_set_sched(
 	const pid_t pid,
 	const int sched,
 	const int32_t sched_priority,

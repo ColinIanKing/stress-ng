@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-killpid.h"
 #include "core-thrash.h"
 
@@ -448,7 +449,7 @@ void stress_thrash_stop(void)
 }
 
 #else
-int stress_thrash_start(void)
+int PURE stress_thrash_start(void)
 {
 	return 0;
 }
@@ -457,7 +458,7 @@ void stress_thrash_stop(void)
 {
 }
 
-int stress_pagein_self(const char *name)
+int PURE stress_pagein_self(const char *name)
 {
 	(void)name;
 

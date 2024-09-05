@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-cpuidle.h"
 #include "core-sort.h"
@@ -43,7 +44,7 @@ cpu_cstate_t *stress_cpuidle_cstate_list_head(void)
 
 #if defined(__linux__)
 
-static int stress_cpuidle_value(const char *cstate)
+static PURE int stress_cpuidle_value(const char *cstate)
 {
 	while (isalpha((int)*cstate))
 		cstate++;

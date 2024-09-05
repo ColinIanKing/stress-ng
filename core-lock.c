@@ -23,6 +23,7 @@
 #include "core-asm-loong64.h"
 #include "core-asm-riscv.h"
 #include "core-asm-x86.h"
+#include "core-attribute.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
 #include "core-lock.h"
@@ -179,7 +180,7 @@ static int stress_atomic_lock_init(stress_lock_t *lock)
 	return 0;
 }
 
-static int stress_atomic_lock_deinit(stress_lock_t *lock)
+static int PURE stress_atomic_lock_deinit(stress_lock_t *lock)
 {
 	(void)lock;
 
@@ -346,7 +347,7 @@ static int stress_pthread_mutex_init(stress_lock_t *lock)
 	return -1;
 }
 
-static int stress_pthread_mutex_deinit(stress_lock_t *lock)
+static int PURE stress_pthread_mutex_deinit(stress_lock_t *lock)
 {
 	(void)lock;
 
@@ -444,7 +445,7 @@ static int stress_futex_init(stress_lock_t *lock)
 	return 0;
 }
 
-static int stress_futex_deinit(stress_lock_t *lock)
+static int PURE stress_futex_deinit(stress_lock_t *lock)
 {
 	(void)lock;
 
@@ -479,7 +480,7 @@ static int stress_sem_posix_init(stress_lock_t *lock)
 	return sem_init(&lock->u.sem_posix, 0, 1);
 }
 
-static int stress_sem_posix_deinit(stress_lock_t *lock)
+static int PURE stress_sem_posix_deinit(stress_lock_t *lock)
 {
 	(void)lock;
 
@@ -572,7 +573,7 @@ static const stress_lock_funcs_t stress_lock_funcs = {
 
 #else
 
-static int stress_no_lock_fail(stress_lock_t *lock)
+static int PURE stress_no_lock_fail(stress_lock_t *lock)
 {
 	(void)lock;
 
