@@ -221,21 +221,21 @@ static void stress_numa_check_maps(
 
 		n = sscanf(buffer, "%" SCNxPTR, &addr);
 		if ((n == 1) && (ptr == (void *)addr)) {
-			char *ptr;
+			char *str;
 
 			/* find active= field */
-			ptr = strstr(buffer, "active=");
-			if (ptr) {
+			str = strstr(buffer, "active=");
+			if (str) {
 				int node;
 
 				/* skip to Nx field, read node numer */
-				while (*ptr && *ptr != ' ')
-					ptr++;
-				while (*ptr == ' ')
-					ptr++;
-				if (*ptr == 'N') {
-					ptr++;
-					if ((sscanf(ptr, "%d", &node) == 1) &&
+				while (*str && *str != ' ')
+					str++;
+				while (*str == ' ')
+					str++;
+				if (*str== 'N') {
+					str++;
+					if ((sscanf(str, "%d", &node) == 1) &&
 					    (expected_node == node)) {
 						(*correct_nodes)++;
 						break;
