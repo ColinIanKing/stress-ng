@@ -1,3 +1,76 @@
+stress-ng (0.18.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makfile: add Makefile.machine to make dist rule
+  * stress-dev: clean up build warning on non-x86 builds
+  * stress-numa: rename ptr with str to fix name shadowing warning
+  * stress-vm: remove debugging setting if in statement
+  * Makefile.machine: add check for existence of readelf
+  * core-ftrace: remove PURE attribute on void return functions
+  * stress-*: fix vm memory % size parameter handling
+  * stress-vm: provide more information when mmap fails
+  * stress-numa: make all of buf map to the current numa node
+  * stress-numa: parse /proc/self/numa_maps to see if buf is on the
+    expected node
+  * core-shim: remove a space
+  * core-*: add PURE attribute to pure functions
+  * core-killpid: constify variable saved_errno
+  * core-cpu: re-order CPUID strings, add some missing examples
+  * stress-umount: remove extraneous empty line
+  * stress-udp: add missing empty line
+  * stress-tmpfs: make variable i const
+  * stress-sparsematrix: move pointer next to inner scope
+  * stress-sockpair: convert nested if statement into switch statement
+  * stress-sigurg: inline helper function stress_send_error
+  * stress-sigsegv: remove empty line
+  * stress-sigrt: remove empty line
+  * stress-set: put rlimit resource ids into a const rlimit_resources array
+  * stress-session: make function argument err const
+  * stress-rotate: make variables lo and hi const
+  * stress-rmap: clean up switch statement, make i a register
+  * stress-resched: make variables percent and scale const
+  * stress-pci: reduce scope of pointer next
+  * stress-opcode: make variable tmp const
+  * stress-nice: make variable which const
+  * stress-mutex: make variable max const
+  * stress-mmap: make variable offset const
+  * stress-mlock: make variable mlocked const
+  * stress-*: add power10 builtin check support
+  * stress-mknod: constify variable j
+  * stress-memcpy: use the o1 and o2 variants in the "all" method
+  * stress-membarrier: remove empty line
+  * stress-led: reduce scope of pointer 'next'
+  * stress-klog: make buflen const
+  * stress-insertionsort: constify variable tmp
+  * stress-hdd: constify variable v
+  * stress-hash: explicitly use float values in chi computation
+  * stress-dev: add naive simple /dev/autofs exerciser
+  * stress-chattr: add mmap'd page modification to file, add metrics
+  * stress-dev: exercise /dev/cpu/0/msr ioctl reading of TSC
+  * stress-dev: add /dev/cpu/0/cpuid device stressor
+  * core-*: don't include <sys/sysctl.h> on Linux targets
+  * stress-cpu: constify some variables and add register to some variables
+  * stress-clock: constify variable clkid
+  * stress-chattr: constify variable bitmask
+  * stress-cgroup: constify variable offset
+  * stress-cacheline: constify variable 'now'
+  * stress-mlockmany: remove stray const in start of source
+  * stress-bitops: constify some variables
+  * stress-apparmor: constify variables, fix p wrap overflow using the
+    ternary operator
+  * Manual: add in recursive hints to CPU stressor manual
+  * Makefile: improve machine detection and disable -fmodulo-sched for
+    S390x builds
+  * stress-*: constify stressor_info_t structs
+  * stress-aiol: constify offset
+  * stress-af-alg: remove JMP debug message
+  * stress-acl: constify variables, clean up some code alignment
+  * stress-*: voidify returns from sig*() calls
+  * stress-sem: add --sem-shared option to share 1 semaphore with all sem
+    instances
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Fri, 6 Sep 2024 22:37:12 +0100
+
 stress-ng (0.18.03-1) unstable; urgency=medium
 
   [Aboorva Devarajan]
