@@ -17,5 +17,10 @@
 #
 
 all:
-	@$(CC) test/test-machine.c -o test-machine > /dev/null 2>&1 && readelf -h ./test-machine | 2>&1 grep Machine: | cut -d: -f2- | sed 's/\///g' | sed 's/[ ]*//g' | tr '[:upper:]' '[:lower:]' || echo "unknown"
-	@rm -f test-machine
+	@if which readelf > /dev/null ; then \
+		$(CC) test/test-machine.c -o test-machine > /dev/null 2>&1 && readelf -h ./test-machine | 2>&1 grep Machine: | cut -d: -f2- | sed 's/\///g' | sed 's/[ ]*//g' | tr '[:upper:]' '[:lower:]' || echo "unknown";  \
+		rm -f test-machine; \
+	else \
+		echo "unknown"; \
+	fi
+	
