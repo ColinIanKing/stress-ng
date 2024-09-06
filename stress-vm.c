@@ -3271,7 +3271,7 @@ static int stress_vm_child(stress_args_t *args, void *ctxt)
 		if (!vm_keep || (buf == NULL)) {
 			if (!stress_continue_flag())
 				return EXIT_SUCCESS;
-			if (1 | ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))) {
+			if (((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))) {
 				buf = MAP_FAILED;
 				errno = ENOMEM;
 			} else {
