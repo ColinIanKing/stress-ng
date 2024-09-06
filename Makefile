@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "persistent process pressurizer"
+# Codename "canny kernel crusher"
 #
-VERSION=0.18.03
+VERSION=0.18.04
 
 #
 # Determine supported toolchains
