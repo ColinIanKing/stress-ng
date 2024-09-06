@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_copy_file_bytes, "copy-file-bytes", TYPE_ID_UINT64_BYTES, MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES, NULL },
+	{ OPT_copy_file_bytes, "copy-file-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES, NULL },
 	END_OPT,
 };
 

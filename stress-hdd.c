@@ -1080,9 +1080,9 @@ finish:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_hdd_bytes,      "hdd-bytes",      TYPE_ID_UINT64_BYTES, MIN_HDD_BYTES, MAX_HDD_BYTES, NULL },
+	{ OPT_hdd_bytes,      "hdd-bytes",      TYPE_ID_UINT64_BYTES_FS, MIN_HDD_BYTES, MAX_HDD_BYTES, NULL },
 	{ OPT_hdd_opts,       "hdd-opts",       TYPE_ID_CALLBACK, 0, 0, stress_hdd_opts },
-	{ OPT_hdd_write_size, "hdd-write-size", TYPE_ID_UINT64_BYTES, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE, NULL },
+	{ OPT_hdd_write_size, "hdd-write-size", TYPE_ID_UINT64_BYTES_FS, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE, NULL },
 	END_OPT,
 };
 

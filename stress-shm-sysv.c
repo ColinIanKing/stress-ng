@@ -128,7 +128,7 @@ static const int shm_flags[] = {
 #endif
 
 static const stress_opt_t opts[] = {
-	{ OPT_shm_sysv_bytes, "shm-sysv-bytes", TYPE_ID_SIZE_T_BYTES, MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_shm_sysv_bytes, "shm-sysv-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT, NULL },
 	{ OPT_shm_sysv_mlock, "shm-sysv-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_shm_sysv_segs,  "shm-sysv-segs",  TYPE_ID_SIZE_T, MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS, NULL },
 	END_OPT,

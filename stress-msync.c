@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_msync_bytes, "msync-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MSYNC_BYTES, MAX_MSYNC_BYTES, NULL },
+	{ OPT_msync_bytes, "msync-bytes", TYPE_ID_SIZE_T_BYTES_FS, MIN_MSYNC_BYTES, MAX_MSYNC_BYTES, NULL },
 	END_OPT,
 };
 

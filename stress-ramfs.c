@@ -51,7 +51,7 @@ static int stress_ramfs_supported(const char *name)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_ramfs_size, "ramfs-size", TYPE_ID_UINT64_BYTES, 1 * MB, 1 * GB, NULL },
+	{ OPT_ramfs_size, "ramfs-size", TYPE_ID_UINT64_BYTES_VM, 1 * MB, 1 * GB, NULL },
 	{ OPT_ramfs_fill, "ramfs-fill", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

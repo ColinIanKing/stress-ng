@@ -509,11 +509,11 @@ static int stress_malloc(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_malloc_bytes,	"malloc-bytes",     TYPE_ID_SIZE_T_BYTES, MIN_MALLOC_BYTES, MAX_MALLOC_BYTES, NULL },
-	{ OPT_malloc_max,	"malloc-max",       TYPE_ID_SIZE_T_BYTES, MIN_MALLOC_MAX, MAX_MALLOC_MAX, NULL },
+	{ OPT_malloc_bytes,	"malloc-bytes",     TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_BYTES, MAX_MALLOC_BYTES, NULL },
+	{ OPT_malloc_max,	"malloc-max",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_MAX, MAX_MALLOC_MAX, NULL },
 	{ OPT_malloc_mlock,	"malloc-mlock",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_malloc_pthreads,	"malloc-pthreads",  TYPE_ID_SIZE_T, 0, MAX_MALLOC_PTHREADS, NULL },
-	{ OPT_malloc_threshold,	"malloc-thresh",    TYPE_ID_SIZE_T_BYTES, MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD, NULL },
+	{ OPT_malloc_threshold,	"malloc-thresh",    TYPE_ID_SIZE_T_BYTES_VM, MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD, NULL },
 	{ OPT_malloc_touch,	"malloc-touch",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_malloc_trim,	"malloc-trim",      TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_malloc_zerofree,	"malloc-zerofree",  TYPE_ID_BOOL, 0, 1, NULL },

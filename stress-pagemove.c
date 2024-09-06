@@ -37,7 +37,7 @@ typedef struct {
 } page_info_t;
 
 static const stress_opt_t opts[] = {
-	{ OPT_pagemove_bytes, "pagemove-bytes", TYPE_ID_SIZE_T_BYTES, MIN_PAGE_MOVE_BYTES, MAX_PAGE_MOVE_BYTES, NULL },
+	{ OPT_pagemove_bytes, "pagemove-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_PAGE_MOVE_BYTES, MAX_PAGE_MOVE_BYTES, NULL },
 	{ OPT_pagemove_mlock, "pagemove-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

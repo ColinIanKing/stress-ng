@@ -310,9 +310,9 @@ static int stress_bigheap(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_bigheap_bytes,  "bigheap-bytes",  TYPE_ID_SIZE_T_BYTES, MIN_BIGHEAP_BYTES,  MAX_BIGHEAP_BYTES,  NULL },
-	{ OPT_bigheap_growth, "bigheap-growth", TYPE_ID_UINT64,       MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH, NULL },
-	{ OPT_bigheap_mlock,  "bigheap-mlock",  TYPE_ID_BOOL,         0,                  1,                  NULL },
+	{ OPT_bigheap_bytes,  "bigheap-bytes",  TYPE_ID_SIZE_T_BYTES_VM, MIN_BIGHEAP_BYTES,  MAX_BIGHEAP_BYTES,  NULL },
+	{ OPT_bigheap_growth, "bigheap-growth", TYPE_ID_UINT64,          MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH, NULL },
+	{ OPT_bigheap_mlock,  "bigheap-mlock",  TYPE_ID_BOOL,            0,                  1,                  NULL },
 	END_OPT,
 };
 

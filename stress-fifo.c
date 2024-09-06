@@ -51,7 +51,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_fifo_data_size, "fifo-data-size", TYPE_ID_SIZE_T_BYTES, MIN_FIFO_DATA_SIZE, MAX_FIFO_DATA_SIZE, NULL },
+	{ OPT_fifo_data_size, "fifo-data-size", TYPE_ID_SIZE_T_BYTES_FS, MIN_FIFO_DATA_SIZE, MAX_FIFO_DATA_SIZE, NULL },
 	{ OPT_fifo_readers,   "fifo-readers",   TYPE_ID_UINT64, MIN_FIFO_READERS, MAX_FIFO_READERS, NULL },
 	END_OPT,
 };

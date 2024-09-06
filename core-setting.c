@@ -66,14 +66,16 @@ static void stress_settings_show_setting(const stress_setting_t *setting)
 		pr_inf(" %-20.20s %" PRId32 " (int32_t)\n", setting->name, setting->u.int32);
 		break;
 	case TYPE_ID_UINT64:
-	case TYPE_ID_UINT64_BYTES:
+	case TYPE_ID_UINT64_BYTES_FS:
+	case TYPE_ID_UINT64_BYTES_VM:
 		pr_inf(" %-20.20s %" PRIu64 " (uint64_t)\n", setting->name, setting->u.uint64);
 		break;
 	case TYPE_ID_INT64:
 		pr_inf(" %-20.20s %" PRId64 " (int64_t)\n", setting->name, setting->u.int64);
 		break;
 	case TYPE_ID_SIZE_T:
-	case TYPE_ID_SIZE_T_BYTES:
+	case TYPE_ID_SIZE_T_BYTES_FS:
+	case TYPE_ID_SIZE_T_BYTES_VM:
 	case TYPE_ID_SIZE_T_METHOD:
 		pr_inf(" %-20.20s %zu (size_t)\n", setting->name, setting->u.size);
 		break;
@@ -188,14 +190,16 @@ static int stress_set_setting_generic(
 		setting->u.int32 = *(const int32_t *)value;
 		break;
 	case TYPE_ID_UINT64:
-	case TYPE_ID_UINT64_BYTES:
+	case TYPE_ID_UINT64_BYTES_FS:
+	case TYPE_ID_UINT64_BYTES_VM:
 		setting->u.uint64 = *(const uint64_t *)value;
 		break;
 	case TYPE_ID_INT64:
 		setting->u.int64 = *(const int64_t *)value;
 		break;
 	case TYPE_ID_SIZE_T:
-	case TYPE_ID_SIZE_T_BYTES:
+	case TYPE_ID_SIZE_T_BYTES_FS:
+	case TYPE_ID_SIZE_T_BYTES_VM:
 	case TYPE_ID_SIZE_T_METHOD:
 		setting->u.size = *(const size_t *)value;
 		break;
@@ -314,7 +318,8 @@ bool stress_get_setting(const char *name, void *value)
 				*(int32_t *)value = setting->u.int32;
 				break;
 			case TYPE_ID_UINT64:
-			case TYPE_ID_UINT64_BYTES:
+			case TYPE_ID_UINT64_BYTES_FS:
+			case TYPE_ID_UINT64_BYTES_VM:
 				set = true;
 				*(uint64_t *)value = setting->u.uint64;
 				break;
@@ -323,7 +328,8 @@ bool stress_get_setting(const char *name, void *value)
 				*(int64_t *)value = setting->u.int64;
 				break;
 			case TYPE_ID_SIZE_T:
-			case TYPE_ID_SIZE_T_BYTES:
+			case TYPE_ID_SIZE_T_BYTES_FS:
+			case TYPE_ID_SIZE_T_BYTES_VM:
 			case TYPE_ID_SIZE_T_METHOD:
 				set = true;
 				*(size_t *)value = setting->u.size;

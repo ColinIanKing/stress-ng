@@ -3464,7 +3464,7 @@ static const char *stress_vm_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_vm_bytes,    "vm-bytes",    TYPE_ID_SIZE_T_BYTES, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
+	{ OPT_vm_bytes,    "vm-bytes",    TYPE_ID_SIZE_T_BYTES_VM, MIN_VM_BYTES, MAX_VM_BYTES, NULL },
 	{ OPT_vm_hang,     "vm-hang",     TYPE_ID_UINT64, MIN_VM_HANG, MAX_VM_HANG, NULL },
 	{ OPT_vm_keep,     "vm-keep",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_vm_madvise,  "vm-madvise",  TYPE_ID_SIZE_T_METHOD, 0, 0, stress_vm_madvise },

@@ -71,7 +71,7 @@ typedef struct {
 #endif
 
 static const stress_opt_t opts[] = {
-	{ OPT_userfaultfd_bytes, "userfaultfd-bytes", TYPE_ID_SIZE_T_BYTES, MIN_USERFAULT_BYTES, MAX_USERFAULT_BYTES, NULL },
+	{ OPT_userfaultfd_bytes, "userfaultfd-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_USERFAULT_BYTES, MAX_USERFAULT_BYTES, NULL },
 	END_OPT,
 };
 

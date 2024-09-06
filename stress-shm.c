@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_shm_bytes, "shm-bytes", TYPE_ID_SIZE_T_BYTES, MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_shm_bytes, "shm-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT, NULL },
 	{ OPT_shm_mlock, "shm-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_shm_objs,  "shm-objs",  TYPE_ID_SIZE_T, MIN_SHM_POSIX_OBJECTS, MAX_48, NULL },
 	END_OPT,

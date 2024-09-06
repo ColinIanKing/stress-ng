@@ -45,7 +45,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_msg_types, "msg-types", TYPE_ID_INT32, 0, 100, NULL },
-	{ OPT_msg_bytes, "msg-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MSG_BYTES, MAX_MSG_BYTES, NULL },
+	{ OPT_msg_bytes, "msg-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MSG_BYTES, MAX_MSG_BYTES, NULL },
 	END_OPT,
 };
 

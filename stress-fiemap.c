@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_fiemap_bytes, "fiemap-bytes", TYPE_ID_UINT64_BYTES, MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE, NULL },
+	{ OPT_fiemap_bytes, "fiemap-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE, NULL },
 	END_OPT,
 };
 

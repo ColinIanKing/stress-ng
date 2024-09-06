@@ -584,9 +584,14 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 		setting.u.uint64 = stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, setting.u.uint64, min, max);
 		return stress_set_setting(opt_name, TYPE_ID_UINT64, &setting.u.uint64);
-	case TYPE_ID_UINT64_BYTES:
+	case TYPE_ID_UINT64_BYTES_FS:
 		/* uint64 in bytes units */
 		setting.u.uint64 = stress_get_uint64_byte_filesystem(opt_arg, 1);
+		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
+		return stress_set_setting(opt_name, TYPE_ID_UINT64, &setting.u.uint64);
+	case TYPE_ID_UINT64_BYTES_VM:
+		/* uint64 in bytes units */
+		setting.u.uint64 = stress_get_uint64_byte_memory(opt_arg, 1);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
 		return stress_set_setting(opt_name, TYPE_ID_UINT64, &setting.u.uint64);
 	case TYPE_ID_INT64:
@@ -597,9 +602,14 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 		setting.u.size = (size_t)stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_set_setting(opt_name, TYPE_ID_SIZE_T, &setting.u.size);
-	case TYPE_ID_SIZE_T_BYTES:
+	case TYPE_ID_SIZE_T_BYTES_FS:
 		/* size_t in bytes units */
 		setting.u.size = (size_t)stress_get_uint64_byte_filesystem(opt_arg, 1);
+		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
+		return stress_set_setting(opt_name, TYPE_ID_SIZE_T, &setting.u.size);
+	case TYPE_ID_SIZE_T_BYTES_VM:
+		/* size_t in bytes units */
+		setting.u.size = (size_t)stress_get_uint64_byte_memory(opt_arg, 1);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
 		return stress_set_setting(opt_name, TYPE_ID_SIZE_T, &setting.u.size);
 	case TYPE_ID_SIZE_T_METHOD:

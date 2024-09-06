@@ -1089,7 +1089,7 @@ static int stress_memrate(stress_args_t *args)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_memrate_bytes,  "memrate-bytes",  TYPE_ID_UINT64_BYTES, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
+	{ OPT_memrate_bytes,  "memrate-bytes",  TYPE_ID_UINT64_BYTES_VM, MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES, NULL },
 	{ OPT_memrate_flush,  "memrate-flush",  TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memrate_rd_mbs, "memrate-rd-mbs", TYPE_ID_UINT64, 1, 1000000, NULL },
 	{ OPT_memrate_wr_mbs, "memrate-wr-mbs", TYPE_ID_UINT64, 1, 1000000, NULL },

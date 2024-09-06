@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_readahead_bytes, "readahead-bytes", TYPE_ID_UINT64_BYTES, MIN_READAHEAD_BYTES, MAX_READAHEAD_BYTES, NULL },
+	{ OPT_readahead_bytes, "readahead-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_READAHEAD_BYTES, MAX_READAHEAD_BYTES, NULL },
 	END_OPT,
 };
 

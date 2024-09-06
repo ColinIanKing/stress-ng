@@ -1075,7 +1075,7 @@ static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, str
 
 static const stress_opt_t opts[] = {
 	{ OPT_mmap_async,       "mmap-async",       TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_mmap_bytes,       "mmap-bytes",       TYPE_ID_SIZE_T_BYTES, MIN_MMAP_BYTES, MAX_MMAP_BYTES, NULL },
+	{ OPT_mmap_bytes,       "mmap-bytes",       TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAP_BYTES, MAX_MMAP_BYTES, NULL },
 	{ OPT_mmap_file,        "mmap-file",        TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_madvise,     "mmap-madvise",     TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_mmap_mergeable,   "mmap-mergeable",   TYPE_ID_BOOL, 0, 1, NULL },

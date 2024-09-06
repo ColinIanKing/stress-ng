@@ -65,7 +65,7 @@ typedef struct {
 #endif
 
 static const stress_opt_t opts[] = {
-	{ OPT_vm_rw_bytes, "vm-rw-bytes", TYPE_ID_SIZE_T_BYTES, MIN_VM_RW_BYTES, MAX_VM_RW_BYTES, NULL },
+	{ OPT_vm_rw_bytes, "vm-rw-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_VM_RW_BYTES, MAX_VM_RW_BYTES, NULL },
 	END_OPT,
 };
 

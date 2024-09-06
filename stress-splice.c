@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_splice_bytes, "splice-bytes", TYPE_ID_SIZE_T_BYTES, MIN_SPLICE_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_splice_bytes, "splice-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_SPLICE_BYTES, MAX_MEM_LIMIT, NULL },
 	END_OPT,
 };
 

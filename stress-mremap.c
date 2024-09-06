@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_mremap_bytes, "mremap-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MREMAP_BYTES, MAX_MREMAP_BYTES, NULL },
+	{ OPT_mremap_bytes, "mremap-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MREMAP_BYTES, MAX_MREMAP_BYTES, NULL },
 	{ OPT_mremap_mlock, "mremap-mlock", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

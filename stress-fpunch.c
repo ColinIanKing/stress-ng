@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_fpunch_bytes, "fpunch-bytes", TYPE_ID_UINT64_BYTES, MIN_FPUNCH_BYTES, MAX_FPUNCH_BYTES, NULL },
+	{ OPT_fpunch_bytes, "fpunch-bytes", TYPE_ID_UINT64_BYTES_FS, MIN_FPUNCH_BYTES, MAX_FPUNCH_BYTES, NULL },
 	END_OPT,
 };
 

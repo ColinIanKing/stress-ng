@@ -1354,7 +1354,7 @@ static const stress_opt_t opts[] = {
 	{ OPT_zlib_mem_level,    "zlib-mem-level",    TYPE_ID_UINT32, 1, 9, NULL },
 	{ OPT_zlib_method,       "zlib-method",       TYPE_ID_SIZE_T_METHOD, 0, 0, stress_zlib_method },
 	{ OPT_zlib_window_bits,  "zlib-window-bits",  TYPE_ID_CALLBACK, 0, 0, stress_zlib_window_bits },
-	{ OPT_zlib_stream_bytes, "zlib-stream-bytes", TYPE_ID_UINT64_BYTES, 0, MAX_MEM_LIMIT, NULL },
+	{ OPT_zlib_stream_bytes, "zlib-stream-bytes", TYPE_ID_UINT64_BYTES_VM, 0, MAX_MEM_LIMIT, NULL },
 	{ OPT_zlib_strategy,     "zlib-stategy",      TYPE_ID_UINT32, Z_DEFAULT_STRATEGY, Z_FIXED, NULL },
 	END_OPT,
 };

@@ -1006,7 +1006,7 @@ static const char *stress_stream_madvise(const size_t i)
 
 static const stress_opt_t opts[] = {
 	{ OPT_stream_index,   "stream-index",   TYPE_ID_UINT32, 0, 3, NULL },
-	{ OPT_stream_l3_size, "stream-l3-size", TYPE_ID_UINT64_BYTES, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
+	{ OPT_stream_l3_size, "stream-l3-size", TYPE_ID_UINT64_BYTES_VM, MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE, NULL },
 	{ OPT_stream_madvise, "stream-madvise", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_stream_madvise },
 	{ OPT_stream_mlock,   "stream-mlock",   TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,

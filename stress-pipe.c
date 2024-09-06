@@ -706,10 +706,10 @@ finish:
 
 static const stress_opt_t opts[] = {
 #if defined(F_SETPIPE_SZ)
-	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_SIZE_T_BYTES, 4096, 1024 * 1024, NULL },
+	{ OPT_pipe_size,      "pipe-size",      TYPE_ID_SIZE_T_BYTES_VM, 4096, 1024 * 1024, NULL },
 #endif
 	/* FIXME: was min = 8, max = stress_get_page_size() */
-	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_SIZE_T_BYTES, 8, 4096, NULL },
+	{ OPT_pipe_data_size, "pipe-data-size", TYPE_ID_SIZE_T_BYTES_VM, 8, 4096, NULL },
 	{ OPT_pipe_vmsplice,  "pipe-vmsplice",  TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

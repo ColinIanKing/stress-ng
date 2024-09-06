@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_mmapfork_bytes, "mmapfork-bytes", TYPE_ID_SIZE_T_BYTES, MIN_MMAPFORK_BYTES, MAX_MMAPFORK_BYTES, NULL },
+	{ OPT_mmapfork_bytes, "mmapfork-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_MMAPFORK_BYTES, MAX_MMAPFORK_BYTES, NULL },
 	END_OPT,
 };
 

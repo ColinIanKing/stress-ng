@@ -44,7 +44,7 @@ static const stress_help_t help[] = {
 
 static const stress_opt_t opts[] = {
 	{ OPT_ring_pipe_num,	"ring-pipe-num",    TYPE_ID_SIZE_T, STRESS_RING_PIPE_NUM_MIN, STRESS_RING_PIPE_NUM_MAX, NULL },
-	{ OPT_ring_pipe_size,	"ring-pipe-size",   TYPE_ID_SIZE_T_BYTES, STRESS_RING_PIPE_SIZE_MIN, STRESS_RING_PIPE_SIZE_MAX, NULL },
+	{ OPT_ring_pipe_size,	"ring-pipe-size",   TYPE_ID_SIZE_T_BYTES_VM, STRESS_RING_PIPE_SIZE_MIN, STRESS_RING_PIPE_SIZE_MAX, NULL },
 	{ OPT_ring_pipe_splice,	"ring-pipe-splice", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

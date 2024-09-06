@@ -41,9 +41,9 @@ typedef struct {
 } brk_context_t;
 
 static const stress_opt_t opts[] = {
-	{ OPT_brk_bytes,   "brk-bytes",   TYPE_ID_SIZE_T_BYTES, MIN_BRK_BYTES, MAX_BRK_BYTES, NULL },
-	{ OPT_brk_mlock,   "brk-mlock",   TYPE_ID_BOOL,         0,             1,             NULL },
-	{ OPT_brk_notouch, "brk-notouch", TYPE_ID_BOOL,         0,             1,             NULL },
+	{ OPT_brk_bytes,   "brk-bytes",   TYPE_ID_SIZE_T_BYTES_VM, MIN_BRK_BYTES, MAX_BRK_BYTES, NULL },
+	{ OPT_brk_mlock,   "brk-mlock",   TYPE_ID_BOOL,            0,             1,             NULL },
+	{ OPT_brk_notouch, "brk-notouch", TYPE_ID_BOOL,            0,             1,             NULL },
 	END_OPT,
 };
 

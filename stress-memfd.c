@@ -48,7 +48,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_memfd_bytes,   "memfd-bytes",   TYPE_ID_SIZE_T_BYTES, MIN_MEMFD_BYTES, MAX_MEM_LIMIT, NULL },
+	{ OPT_memfd_bytes,   "memfd-bytes",   TYPE_ID_SIZE_T_BYTES_VM, MIN_MEMFD_BYTES, MAX_MEM_LIMIT, NULL },
 	{ OPT_memfd_fds,     "memfd-fds",     TYPE_ID_INT32, MIN_MEMFD_FDS, MAX_MEMFD_FDS, NULL },
 	{ OPT_memfd_madvise, "memfd-madvise", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_memfd_mlock,   "memfd-mlock",   TYPE_ID_BOOL, 0, 1, NULL },

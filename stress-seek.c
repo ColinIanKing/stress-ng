@@ -375,7 +375,7 @@ finish:
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_seek_size,  "seek-size",  TYPE_ID_UINT64_BYTES, MIN_SEEK_SIZE, MAX_SEEK_SIZE, NULL },
+	{ OPT_seek_size,  "seek-size",  TYPE_ID_UINT64_BYTES_FS, MIN_SEEK_SIZE, MAX_SEEK_SIZE, NULL },
 	{ OPT_seek_punch, "seek-punch", TYPE_ID_BOOL, 0, 1, NULL },
 	END_OPT,
 };

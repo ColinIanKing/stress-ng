@@ -327,7 +327,7 @@ finish:
 
 static const stress_opt_t opts[] = {
 	{ OPT_vforkmany_vm,       "vforkmany-vm",       TYPE_ID_BOOL, 0, 1, NULL },
-	{ OPT_vforkmany_vm_bytes, "vforkmany-vm-bytes", TYPE_ID_SIZE_T_BYTES, MIN_VFORKMANY_VM_BYTES, MAX_VFORKMANY_VM_BYTES, NULL },
+	{ OPT_vforkmany_vm_bytes, "vforkmany-vm-bytes", TYPE_ID_SIZE_T_BYTES_VM, MIN_VFORKMANY_VM_BYTES, MAX_VFORKMANY_VM_BYTES, NULL },
 	END_OPT,
 };
 

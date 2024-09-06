@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 };
 
 static const stress_opt_t opts[] = {
-	{ OPT_sendfile_size, "sendfile-size", TYPE_ID_UINT64_BYTES, MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE, NULL },
+	{ OPT_sendfile_size, "sendfile-size", TYPE_ID_UINT64_BYTES_VM, MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE, NULL },
 	END_OPT,
 };
 
