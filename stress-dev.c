@@ -3529,7 +3529,8 @@ static void stress_dev_cpu_cpuid(
 }
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_X86)
 /* exercise arch/x86/kernel/msr.c driver */
 
 #define X86_IOC_RDMSR_REGS	_IOWR('c', 0xA0, __u32[8])
