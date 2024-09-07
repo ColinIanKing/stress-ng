@@ -3566,7 +3566,9 @@ static void stress_dev_cpu_msr(
 #endif
 
 #if defined(__linux__) &&	\
-    defined(HAVE_LINUX_AUTO_DEV_IOCTL_H)
+    defined(HAVE_LINUX_AUTO_DEV_IOCTL_H) &&	\
+    defined(AUTOFS_TYPE_ANY) &&			\
+    defined(AUTOFS_DEV_IOCTL_ISMOUNTPOINT)
 static void stress_dev_autofs_linux(
 	stress_args_t *args,
 	const int fd,
@@ -3719,8 +3721,10 @@ static const stress_dev_func_t dev_funcs[] = {
     defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/cpu/0/msr", stress_dev_cpu_msr),
 #endif
-#if defined(__linux__) &&	\
-    defined(HAVE_LINUX_AUTO_DEV_IOCTL_H)
+#if defined(__linux__) &&			\
+    defined(HAVE_LINUX_AUTO_DEV_IOCTL_H) &&	\
+    defined(AUTOFS_TYPE_ANY) &&			\
+    defined(AUTOFS_DEV_IOCTL_ISMOUNTPOINT)
 	DEV_FUNC("/dev/autofs", stress_dev_autofs_linux),
 #endif
 };
