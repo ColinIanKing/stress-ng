@@ -38,7 +38,6 @@ void stress_settings_free(void)
 
 		if (setting->type_id == TYPE_ID_STR)
 			free(setting->u.str);
-		free(setting->name);
 		free(setting);
 		setting = next;
 	}
@@ -226,7 +225,7 @@ static int stress_set_setting_generic(
 		goto err;
 
 	setting->stressor_name = stressor_name;
-	setting->name = strdup(name);
+	setting->name = name;
 	setting->proc = g_stressor_current;
 	setting->type_id = type_id;
 	setting->global = global;
@@ -285,7 +284,6 @@ static int stress_set_setting_generic(
 	case TYPE_ID_STR:
 		setting->u.str = stress_const_optdup(value);
 		if (!setting->u.str) {
-			free(setting->name);
 			free(setting);
 			goto err;
 		}

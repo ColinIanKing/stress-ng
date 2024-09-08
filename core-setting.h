@@ -52,7 +52,7 @@ typedef struct stress_setting {
 	struct stress_setting *next;	/* next setting in list */
 	struct stress_stressor_info *proc;
 	const char *stressor_name;	/* name of stressor */
-	char *name;			/* name of setting */
+	const char *name;		/* name of setting */
 	stress_type_id_t type_id;	/* setting type */
 	bool		global;		/* true if global */
 	union {				/* setting value */
@@ -69,7 +69,7 @@ typedef struct stress_setting {
 		unsigned int	uint;	/* TYPE_ID_UINT */
 		signed int	sint;	/* TYPE_ID_INT, TYPE_ID_INT_DOMAIN, TYPE_ID_INT_PORT */
 		off_t		off;	/* TYPE_ID_OFF_T */
-		char 		*str;	/* TYPE_ID_STR */
+		char		*str;	/* TYPE_ID_STR */
 		bool		boolean;/* TYPE_ID_BOOL */
 	} u;
 } stress_setting_t;
