@@ -1524,7 +1524,7 @@ static void stress_dev_rtc_linux(
 
 #if !defined(RTC_IRQP_READ32) &&	\
     defined(_IOR)
-#define RTC_IRQP_READ32               _IOR('p', 0x0b, __u32)
+#define RTC_IRQP_READ32               _IOR('p', 0x0b, uint32_t)
 #endif
 
 #if defined(RTC_IRQP_READ)
@@ -3533,7 +3533,7 @@ static void stress_dev_cpu_cpuid(
     defined(STRESS_ARCH_X86)
 /* exercise arch/x86/kernel/msr.c driver */
 
-#define X86_IOC_RDMSR_REGS	_IOWR('c', 0xA0, __u32[8])
+#define X86_IOC_RDMSR_REGS	_IOWR('c', 0xA0, uint32_t[8])
 
 static void stress_dev_cpu_msr(
 	stress_args_t *args,
