@@ -578,9 +578,9 @@ static void stress_hdd_opts(const char *opt_name, const char *opt_arg, stress_ty
 		}
 	}
 
-	stress_set_setting("hdd-flags", TYPE_ID_INT, &hdd_flags);
-	stress_set_setting("hdd-oflags", TYPE_ID_INT, &hdd_oflags);
-	stress_set_setting("hdd-opts-set", TYPE_ID_BOOL, &opts_set);
+	stress_set_setting("hdd", "hdd-flags", TYPE_ID_INT, &hdd_flags);
+	stress_set_setting("hdd", "hdd-oflags", TYPE_ID_INT, &hdd_oflags);
+	stress_set_setting("hdd", "hdd-opts-set", TYPE_ID_BOOL, &opts_set);
 	free(str);
 }
 

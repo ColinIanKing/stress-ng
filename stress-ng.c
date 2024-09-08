@@ -1654,6 +1654,8 @@ static int MLOCKED_TEXT stress_run_child(
 		stats->args.info = g_stressor_current->stressor->info;
 		stats->args.ci.counter = 0;
 
+		if (instance == 0)
+			stress_settings_dbg(&stats->args);
 		stress_set_oom_adjustment(&stats->args, false);
 
 		(void)shim_memset(*checksum, 0, sizeof(**checksum));
@@ -3209,7 +3211,7 @@ next_opt:
 				bogo_ops = stress_get_uint64(optarg);
 				stress_check_range(stress_opt_name(c), bogo_ops, MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
-				stress_set_setting(stress_opt_name(c), TYPE_ID_UINT64, &bogo_ops);
+				stress_set_setting_global(stress_opt_name(c), TYPE_ID_UINT64, &bogo_ops);
 				if (g_stressor_current)
 					g_stressor_current->bogo_ops = bogo_ops;
 				goto next_opt;
@@ -3220,7 +3222,7 @@ next_opt:
 
 				for (j = 0; info->opts[j].opt_name; j++) {
 					if (info->opts[j].opt == c) {
-						ret = stress_parse_opt(optarg, &info->opts[j]);
+						ret = stress_parse_opt(stressors[i].name, optarg, &info->opts[j]);
 						if (ret < 0)
 							return EXIT_FAILURE;
 						goto next_opt;
@@ -3231,7 +3233,7 @@ next_opt:
 
 		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
 			if (c == opt_flags[i].opt) {
-				stress_set_setting_true(stress_opt_name(c), NULL);
+				stress_set_setting_true("global", stress_opt_name(c), NULL);
 				g_opt_flags |= opt_flags[i].opt_flag;
 				goto next_opt;
 			}
@@ -3250,7 +3252,7 @@ next_opt:
 			stress_check_range_bytes("cache-size", u64, 1 * KB, 4 * GB);
 			/* round down to 64 byte boundary */
 			u64 &= ~(uint64_t)63;
-			stress_set_setting("cache-size", TYPE_ID_UINT64, &u64);
+			stress_set_setting_global("cache-size", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_backoff:
 			i64 = (int64_t)stress_get_uint64(optarg);
@@ -3265,11 +3267,11 @@ next_opt:
 			if ((ret <= 0) || (ret > 3))
 				ret = DEFAULT_CACHE_LEVEL;
 			i16 = (int16_t)ret;
-			stress_set_setting("cache-level", TYPE_ID_INT16, &i16);
+			stress_set_setting_global("cache-level", TYPE_ID_INT16, &i16);
 			break;
 		case OPT_cache_ways:
 			u32 = stress_get_uint32(optarg);
-			stress_set_setting("cache-ways", TYPE_ID_UINT32, &u32);
+			stress_set_setting_global("cache-ways", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_class:
 			ret = stress_get_class(optarg, &u32);
@@ -3278,7 +3280,7 @@ next_opt:
 			else if (ret > 0)
 				exit(EXIT_SUCCESS);
 			else {
-				stress_set_setting("class", TYPE_ID_UINT32, &u32);
+				stress_set_setting_global("class", TYPE_ID_UINT32, &u32);
 				stress_enable_classes(u32);
 			}
 			break;
@@ -3293,11 +3295,11 @@ next_opt:
 			break;
 		case OPT_ionice_class:
 			i32 = stress_get_opt_ionice_class(optarg);
-			stress_set_setting("ionice-class", TYPE_ID_INT32, &i32);
+			stress_set_setting_global("ionice-class", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_ionice_level:
 			i32 = stress_get_int32(optarg);
-			stress_set_setting("ionice-level", TYPE_ID_INT32, &i32);
+			stress_set_setting_global("ionice-level", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_job:
 			stress_set_setting_global("job", TYPE_ID_STR, (void *)optarg);
@@ -3333,7 +3335,7 @@ next_opt:
 						"50%% (%s) of free memory\n",
 						stress_uint64_to_str(buf, sizeof(buf), (uint64_t)bytes));
 				}
-				stress_set_setting("oom-avoid-bytes", TYPE_ID_SIZE_T, &bytes);
+				stress_set_setting_global("oom-avoid-bytes", TYPE_ID_SIZE_T, &bytes);
 				g_opt_flags |= OPT_FLAGS_OOM_AVOID;
 			}
 			break;
@@ -3353,7 +3355,7 @@ next_opt:
 			i32 = stress_get_int32(optarg);
 			stress_get_processors(&i32);
 			stress_check_max_stressors("random", i32);
-			stress_set_setting("random", TYPE_ID_INT32, &i32);
+			stress_set_setting_global("random", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched:
 			i32 = stress_get_opt_sched(optarg);

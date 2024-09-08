@@ -1064,13 +1064,13 @@ static void stress_mmap_stressful(const char *opt_name, const char *opt_arg, str
 	*type_id = TYPE_ID_SIZE_T;
 	*(size_t *)value = 0;
 
-	(void)stress_set_setting_true("mmap-mergeable", opt_arg);
-	(void)stress_set_setting_true("mmap-mprotect", opt_arg);
-	(void)stress_set_setting_true("mmap-file", opt_arg);
-	(void)stress_set_setting_true("mmap-odirect", opt_arg);
-	(void)stress_set_setting_true("mmap-madvise", opt_arg);
-	(void)stress_set_setting_true("mmap-mlock", opt_arg);
-	(void)stress_set_setting_true("mmap-slow-munmap", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-mergeable", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-mprotect", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-file", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-odirect", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-madvise", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-mlock", opt_arg);
+	(void)stress_set_setting_true("mmap", "mmap-slow-munmap", opt_arg);
 }
 
 static const stress_opt_t opts[] = {

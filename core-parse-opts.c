@@ -540,7 +540,7 @@ uint64_t stress_get_uint64_time(const char *const str)
 	return stress_get_uint64_scale(str, scales, "time");
 }
 
-int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
+int stress_parse_opt(const char *stressor_name, const char *opt_arg, const stress_opt_t *opt)
 {
 	const char *opt_name = opt->opt_name;
 	const uint64_t min = opt->min;
@@ -559,59 +559,59 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 	case TYPE_ID_UINT8:
 		setting.u.uint8 = stress_get_uint8(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.uint8, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT8, &setting.u.uint8);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT8, &setting.u.uint8);
 	case TYPE_ID_INT8:
 		setting.u.int8 = stress_get_int8(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int8, (int64_t)min, (int64_t)max);
-		return stress_set_setting(opt_name, TYPE_ID_INT8, &setting.u.int8);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT8, &setting.u.int8);
 	case TYPE_ID_UINT16:
 		setting.u.uint16 = stress_get_uint16(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.uint16, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT16, &setting.u.uint16);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT16, &setting.u.uint16);
 	case TYPE_ID_INT16:
 		setting.u.int16 = stress_get_int16(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int16, (int64_t)min, (int64_t)max);
-		return stress_set_setting(opt_name, TYPE_ID_INT16, &setting.u.int16);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT16, &setting.u.int16);
 	case TYPE_ID_UINT32:
 		setting.u.uint32 = stress_get_uint32(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.uint32, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT32, &setting.u.uint32);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT32, &setting.u.uint32);
 	case TYPE_ID_INT32:
 		setting.u.int32 = stress_get_int32(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int32, (int64_t)min, (int64_t)max);
-		return stress_set_setting(opt_name, TYPE_ID_INT32, &setting.u.int32);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT32, &setting.u.int32);
 	case TYPE_ID_UINT64:
 		setting.u.uint64 = stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, setting.u.uint64, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT64, &setting.u.uint64);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT64, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES_FS:
 		/* uint64 in bytes units */
 		setting.u.uint64 = stress_get_uint64_byte_filesystem(opt_arg, 1);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT64, &setting.u.uint64);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_FS, &setting.u.uint64);
 	case TYPE_ID_UINT64_BYTES_VM:
 		/* uint64 in bytes units */
 		setting.u.uint64 = stress_get_uint64_byte_memory(opt_arg, 1);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.uint64, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT64, &setting.u.uint64);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT64_BYTES_VM, &setting.u.uint64);
 	case TYPE_ID_INT64:
 		setting.u.int64 = stress_get_int64(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.int64, (int64_t)min, (int64_t)max);
-		return stress_set_setting(opt_name, TYPE_ID_INT64, &setting.u.int64);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT64, &setting.u.int64);
 	case TYPE_ID_SIZE_T:
 		setting.u.size = (size_t)stress_get_uint64(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_SIZE_T, &setting.u.size);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES_FS:
 		/* size_t in bytes units */
 		setting.u.size = (size_t)stress_get_uint64_byte_filesystem(opt_arg, 1);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_SIZE_T, &setting.u.size);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_FS, &setting.u.size);
 	case TYPE_ID_SIZE_T_BYTES_VM:
 		/* size_t in bytes units */
 		setting.u.size = (size_t)stress_get_uint64_byte_memory(opt_arg, 1);
 		stress_check_range(opt_name, (uint64_t)setting.u.size, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_SIZE_T, &setting.u.size);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T_BYTES_VM, &setting.u.size);
 	case TYPE_ID_SIZE_T_METHOD:
 		method_func = (stress_method_func)opt->data;
 		if (!method_func) {
@@ -620,7 +620,7 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 		}
 		for (i = 0; (str = method_func(i)) != NULL ; i++) {
 			if (strcmp(str, opt_arg) == 0)
-				return stress_set_setting(opt_name, TYPE_ID_SIZE_T_METHOD, &i);
+				return stress_set_setting(stressor_name, opt_name, TYPE_ID_SIZE_T_METHOD, &i);
 		}
 		if (i == 0) {
 			(void)fprintf(stderr, "option %s choice '%s' not known, there are none available (stressor unimplemented)\n", opt_name, opt_arg);
@@ -634,36 +634,36 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 	case TYPE_ID_SSIZE_T:
 		setting.u.ssize = (ssize_t)stress_get_int64(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.ssize, (int64_t)min, (int64_t)max);
-		return stress_set_setting(opt_name, TYPE_ID_SSIZE_T, &setting.u.ssize);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_SSIZE_T, &setting.u.ssize);
 	case TYPE_ID_UINT:
 		setting.u.uint = stress_get_uint(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.uint, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_UINT, &setting.u.uint);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT, &setting.u.uint);
 	case TYPE_ID_INT:
 		setting.u.sint = stress_get_int(opt_arg);
 		stress_check_signed_range(opt_name, (int64_t)setting.u.sint, (int64_t)min, (int64_t)max);
-		return stress_set_setting(opt_name, TYPE_ID_INT, &setting.u.sint);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT, &setting.u.sint);
 	case TYPE_ID_INT_DOMAIN:
 		domain_mask = (opt->data == NULL) ? 0 : *(int *)opt->data;
 		if (stress_set_net_domain(domain_mask, opt_name, opt_arg, &setting.u.sint) < 0)
 			longjmp(g_error_env, 1);
-		return stress_set_setting(opt_name, TYPE_ID_UINT, &setting.u.sint);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_UINT, &setting.u.sint);
 	case TYPE_ID_INT_PORT:
 		stress_set_net_port(opt_name, opt_arg, (int)min, (int)max, &setting.u.sint);
-        	return stress_set_setting(opt_name, TYPE_ID_INT, &setting.u.sint);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_INT, &setting.u.sint);
 	case TYPE_ID_OFF_T:
 		/* off_t always in bytes units */
 		setting.u.off = (off_t)stress_get_uint64_byte_filesystem(opt_arg, 1);
 		stress_check_range_bytes(opt_name, (uint64_t)setting.u.off, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_OFF_T, &setting.u.off);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_OFF_T, &setting.u.off);
 	case TYPE_ID_STR:
-		return stress_set_setting(opt_name, TYPE_ID_STR, opt_arg);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_STR, opt_arg);
 	case TYPE_ID_BOOL:
 		if (!opt_arg)
-			return stress_set_setting_true(opt_name, opt_arg);
+			return stress_set_setting_true(stressor_name, opt_name, opt_arg);
 		setting.u.boolean = (bool)stress_get_uint8(opt_arg);
 		stress_check_range(opt_name, (uint64_t)setting.u.boolean, min, max);
-		return stress_set_setting(opt_name, TYPE_ID_BOOL, &setting.u.boolean);
+		return stress_set_setting(stressor_name, opt_name, TYPE_ID_BOOL, &setting.u.boolean);
 	case TYPE_ID_CALLBACK:
  		callback_func = (stress_callback_func)opt->data;
 		if (!callback_func) {
@@ -673,7 +673,7 @@ int stress_parse_opt(const char *opt_arg, const stress_opt_t *opt)
 		type_id = TYPE_ID_UNDEFINED;
 		callback_func(opt_name, opt_arg, &type_id, &setting.u);
 		if (type_id != TYPE_ID_UNDEFINED)
-			return stress_set_setting(opt_name, type_id, &setting.u);
+			return stress_set_setting(stressor_name, opt_name, type_id, &setting.u);
 		return EXIT_SUCCESS;
 	case TYPE_ID_UNDEFINED:
 	default:

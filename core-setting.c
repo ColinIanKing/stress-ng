@@ -23,6 +23,8 @@
 static stress_setting_t *setting_head;	/* setting list head */
 static stress_setting_t *setting_tail;	/* setting list tail */
 
+typedef void (*pr_func_t)(const char *fmt, ...) FORMAT(printf, 1, 2);
+
 /*
  *  stress_settings_free()
  *	free the saved settings
@@ -44,64 +46,93 @@ void stress_settings_free(void)
 	setting_tail = NULL;
 }
 
-static void stress_settings_show_setting(const stress_setting_t *setting)
+static void stress_settings_show_setting(
+	const stress_setting_t *setting,
+	const pr_func_t pr_func,
+	const bool show_type)
 {
+	char tmp[32];
+
 	switch (setting->type_id) {
 	case TYPE_ID_UINT8:
-		pr_inf(" %-20.20s %" PRIu8 " (uint8_t)\n", setting->name, setting->u.uint8);
+		pr_func(" %-20.20s %" PRIu8 "%s\n", setting->name,
+			setting->u.uint8, show_type ? " (uint8_t)" : "");
 		break;
 	case TYPE_ID_INT8:
-		pr_inf(" %-20.20s %" PRId8 " (int8_t)\n", setting->name, setting->u.int8);
+		pr_func(" %-20.20s %" PRId8 "%s\n", setting->name,
+			setting->u.int8, show_type ? " (int8_t)" : "");
 		break;
 	case TYPE_ID_UINT16:
-		pr_inf(" %-20.20s %" PRIu16 " (uint16_t)\n", setting->name, setting->u.uint16);
+		pr_func(" %-20.20s %" PRIu16 "%s\n", setting->name,
+			setting->u.uint16, show_type ? " (uint16_t)" : "");
 		break;
 	case TYPE_ID_INT16:
-		pr_inf(" %-20.20s %" PRId16 " (int16_t)\n", setting->name, setting->u.int16);
+		pr_func(" %-20.20s %" PRId16 "%s\n", setting->name,
+			setting->u.int16, show_type ? " (int16_t)" : "");
 		break;
 	case TYPE_ID_UINT32:
-		pr_inf(" %-20.20s %" PRIu32 " (uint32_t)\n", setting->name, setting->u.uint32);
+		pr_func(" %-20.20s %" PRIu32 "%s\n", setting->name,
+			setting->u.uint32, show_type ? " (uint32_t)" : "");
 		break;
 	case TYPE_ID_INT32:
-		pr_inf(" %-20.20s %" PRId32 " (int32_t)\n", setting->name, setting->u.int32);
+		pr_func(" %-20.20s %" PRId32 "%s\n", setting->name,
+			setting->u.int32, show_type ? " (int32_t)" : "");
 		break;
 	case TYPE_ID_UINT64:
+		pr_func(" %-20.20s %" PRIu64 "%s\n", setting->name,
+			setting->u.uint64, show_type ? " (uint64_t)" : "");
+		break;
 	case TYPE_ID_UINT64_BYTES_FS:
 	case TYPE_ID_UINT64_BYTES_VM:
-		pr_inf(" %-20.20s %" PRIu64 " (uint64_t)\n", setting->name, setting->u.uint64);
+		pr_func(" %-20.20s %s %s\n", setting->name,
+			stress_uint64_to_str(tmp, sizeof(tmp), setting->u.uint64),
+			show_type ? " (uint64_t)" : "");
 		break;
 	case TYPE_ID_INT64:
-		pr_inf(" %-20.20s %" PRId64 " (int64_t)\n", setting->name, setting->u.int64);
+		pr_func(" %-20.20s %" PRId64 "%s\n", setting->name,
+			setting->u.int64, show_type ? " (int64_t)" : "");
 		break;
 	case TYPE_ID_SIZE_T:
+	case TYPE_ID_SIZE_T_METHOD:
+		pr_func(" %-20.20s %zu %s\n", setting->name,
+			setting->u.size, show_type ? " (size_t)" : "");
+		break;
 	case TYPE_ID_SIZE_T_BYTES_FS:
 	case TYPE_ID_SIZE_T_BYTES_VM:
-	case TYPE_ID_SIZE_T_METHOD:
-		pr_inf(" %-20.20s %zu (size_t)\n", setting->name, setting->u.size);
+		pr_func(" %-20.20s %s %s\n", setting->name,
+			stress_uint64_to_str(tmp, sizeof(tmp), (uint64_t)setting->u.size),
+			show_type ? " (size_t)" : "");
 		break;
 	case TYPE_ID_SSIZE_T:
-		pr_inf(" %-20.20s %zd (ssize_t)\n", setting->name, setting->u.ssize);
+		pr_func(" %-20.20s %zd %s\n", setting->name,
+			setting->u.ssize, show_type ? " (ssize_t)" : "");
 		break;
 	case TYPE_ID_UINT:
-		pr_inf(" %-20.20s %u (unsigned int)\n", setting->name, setting->u.uint);
+		pr_func(" %-20.20s %u %s\n", setting->name,
+			setting->u.uint, show_type ? " (unsigned int)": "");
 		break;
 	case TYPE_ID_INT:
 	case TYPE_ID_INT_DOMAIN:
 	case TYPE_ID_INT_PORT:
-		pr_inf(" %-20.20s %d (signed int)\n", setting->name, setting->u.sint);
+		pr_func(" %-20.20s %d %s\n", setting->name,
+			setting->u.sint, show_type ? " (signed int)" : "");
 		break;
 	case TYPE_ID_OFF_T:
-		pr_inf(" %-20.20s %ju (off_t)\n", setting->name, (uintmax_t)setting->u.off);
+		pr_func(" %-20.20s %ju %s\n", setting->name,
+			(uintmax_t)setting->u.off, show_type ? " (off_t)" : "");
 		break;
 	case TYPE_ID_STR:
-		pr_inf(" %-20.20s %s (string)\n", setting->name, setting->u.str);
+		pr_func(" %-20.20s %s %sn", setting->name,
+			setting->u.str, show_type ? " (string)" : "");
 		break;
 	case TYPE_ID_BOOL:
-		pr_inf(" %-20.20s %u (boolean)\n", setting->name, setting->u.boolean);
+		pr_func(" %-20.20s %u %s\n", setting->name,
+			setting->u.boolean, show_type ? " (boolean)" : "");
 		break;
 	case TYPE_ID_UNDEFINED:
 	default:
-		pr_inf(" %-20.20s (unknown type)\n", setting->name);
+		pr_func(" %-20.20s %s\n", setting->name,
+			show_type ? "  (unknown type)" : "");
 		break;
 	}
 }
@@ -137,7 +168,39 @@ void stress_settings_show(void)
 	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
 
 	for (i = 0; i < n; i++)
-		stress_settings_show_setting(settings[i]);
+		stress_settings_show_setting(settings[i], pr_inf, true);
+	free(settings);
+}
+
+void stress_settings_dbg(stress_args_t *args)
+{
+	stress_setting_t *setting;
+	stress_setting_t **settings;
+	size_t i, n;
+
+	if (args->instance != 0)
+		return;
+	for (n = 0, setting = setting_head; setting; setting = setting->next) {
+		if (strcmp(setting->stressor_name, args->name) == 0)
+			n++;
+	}
+
+	if (n == 0)
+		return;
+
+	settings = calloc(n, sizeof(*settings));
+	if (!settings)
+		return;
+
+	pr_dbg("%s: %zu setting%s:\n", args->name, n, n == 1 ? "" : "s");
+	for (i = 0, setting = setting_head; setting; setting = setting->next) {
+		if (strcmp(setting->stressor_name, args->name) == 0)
+			settings[i++] = setting;
+	}
+	qsort(settings, n, sizeof(*settings), stress_setting_cmp);
+
+	for (i = 0; i < n; i++)
+		stress_settings_show_setting(settings[i], pr_dbg, false);
 	free(settings);
 }
 
@@ -146,6 +209,7 @@ void stress_settings_show(void)
  *	set a new setting
  */
 static int stress_set_setting_generic(
+	const char *stressor_name,
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value,
@@ -161,6 +225,7 @@ static int stress_set_setting_generic(
 	if (!setting)
 		goto err;
 
+	setting->stressor_name = stressor_name;
 	setting->name = strdup(name);
 	setting->proc = g_stressor_current;
 	setting->type_id = type_id;
@@ -233,7 +298,7 @@ static int stress_set_setting_generic(
 		break;
 	}
 #if defined(DEBUG_SETTINGS)
-	stress_settings_show_setting(setting);
+	stress_settings_show_setting(setting, pr_dbg, true);
 #endif
 
 	if (setting_tail) {
@@ -255,11 +320,12 @@ err:
  *	set a new setting
  */
 int stress_set_setting(
+	const char *stressor_name,
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return stress_set_setting_generic(name, type_id, value, false);
+	return stress_set_setting_generic(stressor_name, name, type_id, value, false);
 }
 
 /*
@@ -271,9 +337,8 @@ int stress_set_setting_global(
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return stress_set_setting_generic(name, type_id, value, true);
+	return stress_set_setting_generic("global", name, type_id, value, true);
 }
-
 
 /*
  *  stress_get_setting()
@@ -366,7 +431,7 @@ bool stress_get_setting(const char *name, void *value)
 				break;
 			}
 #if defined(DEBUG_SETTINGS)
-			stress_settings_show_setting(setting);
+			stress_settings_show_setting(setting, pr_dbg, true);
 #endif
 		}
 	}
@@ -377,10 +442,13 @@ bool stress_get_setting(const char *name, void *value)
  *  stress_set_setting_true()
  *	create a setting of name name to true, ignore opt
  */
-int stress_set_setting_true(const char *name, const char *opt)
+int stress_set_setting_true(
+	const char *stressor_name,
+	const char *name,
+	const char *opt)
 {
         bool val = true;
 
         (void)opt;
-        return stress_set_setting(name, TYPE_ID_BOOL, &val);
+        return stress_set_setting(stressor_name, name, TYPE_ID_BOOL, &val);
 }

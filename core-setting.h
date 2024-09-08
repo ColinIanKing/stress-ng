@@ -51,6 +51,7 @@ typedef enum {
 typedef struct stress_setting {
 	struct stress_setting *next;	/* next setting in list */
 	struct stress_stressor_info *proc;
+	const char *stressor_name;	/* name of stressor */
 	char *name;			/* name of setting */
 	stress_type_id_t type_id;	/* setting type */
 	bool		global;		/* true if global */
@@ -75,11 +76,12 @@ typedef struct stress_setting {
 
 extern void stress_settings_free(void);
 extern void stress_settings_show(void);
-extern int stress_set_setting(const char *name,
+extern int stress_set_setting(const char *stressor_name, const char *name,
 	const stress_type_id_t type_id, const void *value);
 extern int stress_set_setting_global(const char *name,
 	const stress_type_id_t type_id, const void *value);
 extern bool stress_get_setting(const char *name, void *value);
-extern int stress_set_setting_true(const char *name, const char *opt);
+extern int stress_set_setting_true(const char *stressor_name, const char *name, const char *opt);
+extern void stress_settings_dbg(stress_args_t *args);
 
 #endif

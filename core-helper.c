@@ -1223,7 +1223,7 @@ int stress_set_timer_slack_ns(const char *opt)
 	timer_slack = stress_get_uint32(opt);
 	if (timer_slack == 0)
 		pr_inf("note: setting timer_slack to 0 resets it to the default of 50,000 ns\n");
-	(void)stress_set_setting("timer-slack", TYPE_ID_UINT32, &timer_slack);
+	(void)stress_set_setting("global", "timer-slack", TYPE_ID_UINT32, &timer_slack);
 #else
 	UNEXPECTED
 	(void)opt;
