@@ -125,8 +125,8 @@ static void stress_settings_show_setting(
 			setting->u.str, show_type ? " (string)" : "");
 		break;
 	case TYPE_ID_BOOL:
-		pr_func(" %-20.20s %u %s\n", setting->name,
-			setting->u.boolean, show_type ? " (boolean)" : "");
+		pr_func(" %-20.20s %s %s\n", setting->name,
+			setting->u.boolean ? "true" : "false", show_type ? " (boolean)" : "");
 		break;
 	case TYPE_ID_UNDEFINED:
 	default:
