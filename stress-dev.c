@@ -1198,12 +1198,9 @@ static inline bool is_scsi_dev(dev_info_t *dev_info)
 static void stress_dev_scsi_blk(
 	stress_args_t *args,
 	const int fd,
-	dev_info_t *dev_info)
+	const char *devpath)
 {
-	VOID_ARGS(args, fd, dev_info);
-
-	if (!is_scsi_dev(dev_info))
-		return;
+	VOID_ARGS(args, fd, devpath);
 
 #if defined(SG_GET_VERSION_NUM)
 	{
@@ -3727,6 +3724,9 @@ static const stress_dev_func_t dev_funcs[] = {
     defined(AUTOFS_DEV_IOCTL_ISMOUNTPOINT)
 	DEV_FUNC("/dev/autofs", stress_dev_autofs_linux),
 #endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/bsg", stress_dev_scsi_blk),
+#endif
 };
 
 static void stress_dev_procname(const char *path)
@@ -3931,7 +3931,9 @@ static inline void stress_dev_rw(
 
 		if (S_ISBLK(buf.st_mode)) {
 			stress_dev_blk(args, fd, path);
-			stress_dev_scsi_blk(args, fd, dev_info);
+
+			if (is_scsi_dev(dev_info))
+				stress_dev_scsi_blk(args, fd, path);
 #if defined(HAVE_LINUX_HDREG_H)
 			stress_dev_hd_linux(args, fd, path);
 #endif
