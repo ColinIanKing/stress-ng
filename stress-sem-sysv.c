@@ -37,6 +37,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"sem-sysv N",		"start N workers doing System V semaphore operations" },
 	{ NULL,	"sem-sysv-ops N",	"stop after N System V sem bogo operations" },
 	{ NULL,	"sem-sysv-procs N",	"number of processes to start per worker" },
+	{ NULL, "sem-sysv-setall",	"exercise semctl SETALL (will alter the processes' semaphore set)"},
 	{ NULL,	NULL,			NULL }
 };
 
@@ -51,7 +52,8 @@ typedef union stress_semun {
 #endif
 
 static const stress_opt_t opts[] = {
-	{ OPT_sem_sysv_procs, "sem-sysv-procs", TYPE_ID_UINT64, MIN_SEM_SYSV_PROCS, MAX_SEM_SYSV_PROCS, NULL },
+	{ OPT_sem_sysv_procs,  "sem-sysv-procs",  TYPE_ID_UINT64, MIN_SEM_SYSV_PROCS, MAX_SEM_SYSV_PROCS, NULL },
+	{ OPT_sem_sysv_setall, "sem-sysv-setall", TYPE_ID_BOOL, 0, 1, 0 },
 	END_OPT,
 };
 
@@ -153,7 +155,9 @@ static void stress_semaphore_sysv_get_procinfo(bool *get_procinfo)
  *  stress_semaphore_sysv_thrash()
  *	exercise the semaphore
  */
-static int OPTIMIZE3 stress_semaphore_sysv_thrash(stress_args_t *args)
+static int OPTIMIZE3 stress_semaphore_sysv_thrash(
+	stress_args_t *args,
+	const bool semaphore_sysv_setall)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
 	int rc = EXIT_SUCCESS;
@@ -284,13 +288,13 @@ timed_out:
 			s.array = calloc(nsems, sizeof(*s.array));
 			if (s.array) {
 				VOID_RET(int, semctl(sem_id, 2, GETALL, s));
-#if defined(SETALL) && 0
+#if defined(SETALL)
 				/*
 				 *  SETALL across the semaphores will clobber the state
 				 *  and cause waits on semaphores because of the unlocked
 				 *  state change. Currently this is disabled.
 				 */
-				if (ret == 0)
+				if ((ret == 0) && (semaphore_sysv_setall))
 					ret = semctl(sem_id, 2, SETALL, s);
 #endif
 				free(s.array);
@@ -516,7 +520,8 @@ timed_out:
 static pid_t semaphore_sysv_spawn(
 	stress_args_t *args,
 	stress_pid_t **s_pids_head,
-	stress_pid_t *s_pid)
+	stress_pid_t *s_pid,
+	const bool semaphore_sysv_setall)
 {
 again:
 	s_pid->pid = fork();
@@ -531,7 +536,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		_exit(stress_semaphore_sysv_thrash(args));
+		_exit(stress_semaphore_sysv_thrash(args, semaphore_sysv_setall));
 	} else {
 		stress_sync_start_s_pid_list_add(s_pids_head, s_pid);
 	}
@@ -548,6 +553,7 @@ static int stress_sem_sysv(stress_args_t *args)
 	uint64_t i;
 	uint64_t semaphore_sysv_procs = DEFAULT_SEM_SYSV_PROCS;
 	int rc = EXIT_SUCCESS;
+	bool semaphore_sysv_setall = false;
 
 	if (stress_sigchld_set_handler(args) < 0)
 		return EXIT_NO_RESOURCE;
@@ -563,6 +569,7 @@ static int stress_sem_sysv(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			semaphore_sysv_procs = MIN_SEM_SYSV_PROCS;
 	}
+	(void)stress_get_setting("sem-sysv-setall", &semaphore_sysv_setall);
 
 	if (stress_sighandler(args->name, SIGCHLD, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -576,7 +583,7 @@ static int stress_sem_sysv(stress_args_t *args)
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		stress_sync_start_init(&s_pids[i]);
 
-		if (semaphore_sysv_spawn(args, &s_pids_head, &s_pids[i]) < 0)
+		if (semaphore_sysv_spawn(args, &s_pids_head, &s_pids[i], semaphore_sysv_setall) < 0)
 			goto reap;
 		if (!stress_continue_flag())
 			goto reap;

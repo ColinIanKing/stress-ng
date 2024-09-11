@@ -871,6 +871,7 @@ const struct option stress_long_options[] = {
 	{ "sem-sysv",		1,	0,	OPT_sem_sysv },
 	{ "sem-sysv-ops",	1,	0,	OPT_sem_sysv_ops },
 	{ "sem-sysv-procs",	1,	0,	OPT_sem_sysv_procs },
+	{ "sem-sysv-setall",	0,	0,	OPT_sem_sysv_setall },
 	{ "sendfile",		1,	0,	OPT_sendfile },
 	{ "sendfile-ops",	1,	0,	OPT_sendfile_ops },
 	{ "sendfile-size",	1,	0,	OPT_sendfile_size },
