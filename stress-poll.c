@@ -229,6 +229,15 @@ abort:
 			poll_fds[i].revents = 0;
 		}
 
+		/*
+		 * Exercise POLLNVAL revents being set on fds[1] by
+		 * setting the fd to a highly probable invalid fd
+		 * number. This should not make poll fail and should
+		 * set poll_fds[1].revents to POLLNVAL
+		 */
+		if (max_fds > 2)
+			poll_fds[1].fd = 10000;
+
 		do {
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
