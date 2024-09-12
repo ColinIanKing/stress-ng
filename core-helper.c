@@ -3844,7 +3844,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
  */
 const char *stress_get_fs_type(const char *filename)
 {
-	intmax_t blocks;
+	uintmax_t blocks;
 	const char *fs_name = stress_get_fs_info(filename, &blocks);
 
 	if (fs_name) {
