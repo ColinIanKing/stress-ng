@@ -203,22 +203,18 @@ static int stress_af_alg_hash(
 {
 	int fd, rc;
 	size_t j;
-	const int digest_size = info->digest_size;
-	char *input, *digest;
+	const size_t digest_size = (size_t)info->digest_size;
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
+	char input[DATA_LEN + ALLOC_SLOP] ALIGN64;
+	char *digest;
 
 	if (UNLIKELY(digest_size < 1))
 		return EXIT_NO_RESOURCE;
 
-	input = malloc(DATA_LEN + ALLOC_SLOP);
-	if (!input)
+	digest = malloc(digest_size + ALLOC_SLOP);
+	if (!digest)
 		return EXIT_NO_RESOURCE;
-	digest = malloc((size_t)(digest_size + ALLOC_SLOP));
-	if (!digest) {
-		free(input);
-		return EXIT_NO_RESOURCE;
-	}
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
@@ -305,7 +301,7 @@ retry_bind:
 			/* Silently ignore incorrectly sized data */
 			continue;
 		}
-		ret = recv(fd, digest, (size_t)digest_size, MSG_WAITALL);
+		ret = recv(fd, digest, digest_size, MSG_WAITALL);
 		if (ret != (ssize_t)digest_size) {
 			if (ret < 0) {
 				if (errno == EINTR)
@@ -338,8 +334,6 @@ err_close:
 	(void)close(fd);
 err:
 	free(digest);
-	free(input);
-
 	return rc;
 }
 
@@ -354,24 +348,15 @@ static int stress_af_alg_cipher(
 	const ssize_t iv_size = info->iv_size;
 	const size_t cbuf_size = CMSG_SPACE(sizeof(__u32)) +
 				  CMSG_SPACE(4) + CMSG_SPACE(iv_size);
-	char *input, *output, *cbuf;
 	const char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
 	int retries = MAX_AF_ALG_RETRIES_BIND;
+	char input[DATA_LEN + ALLOC_SLOP] ALIGN64;
+	char output[DATA_LEN + ALLOC_SLOP] ALIGN64;
+	char *cbuf;
 
-	input = malloc(DATA_LEN + ALLOC_SLOP);
-	if (!input)
-		return EXIT_NO_RESOURCE;
-	output = malloc(DATA_LEN + ALLOC_SLOP);
-	if (!output) {
-		free(input);
-		return EXIT_NO_RESOURCE;
-	}
 	cbuf = malloc(cbuf_size);
-	if (!cbuf) {
-		free(output);
-		free(input);
+	if (!cbuf)
 		return EXIT_NO_RESOURCE;
-	}
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
@@ -426,7 +411,7 @@ retry_bind:
 #if defined(ALG_SET_KEY)
 		char *key;
 
-		key = calloc(1, (size_t)(info->max_key_size + ALLOC_SLOP));
+		key = malloc((size_t)(info->max_key_size + ALLOC_SLOP));
 		if (!key) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
@@ -444,7 +429,6 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err;
 		}
-		free(key);
 #else
 		/* Not supported, skip */
 		rc = EXIT_SUCCESS;
@@ -454,8 +438,8 @@ retry_bind:
 #if defined(ALG_SET_AEAD_ASSOCLEN)
 		char *assocdata;
 
-		assocdata = calloc(1, (size_t)(info->max_auth_size + ALLOC_SLOP));
-		if (!assocdata) {
+		assocdata = malloc((size_t)(info->max_auth_size + ALLOC_SLOP));
+		if (assocdata) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
@@ -472,7 +456,6 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err;
 		}
-		free(assocdata);
 #else
 		/* Not supported, skip */
 		rc = EXIT_SUCCESS;
@@ -647,9 +630,6 @@ err_close:
 	(void)close(fd);
 err:
 	free(cbuf);
-	free(output);
-	free(input);
-
 	return rc;
 }
 
@@ -662,12 +642,8 @@ static int stress_af_alg_rng(
 	ssize_t j;
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
-	char *output;
 	const ssize_t output_size = 16;
-
-	output = malloc(output_size + ALLOC_SLOP);
-	if (!output)
-		return EXIT_NO_RESOURCE;
+	char output[output_size + ALLOC_SLOP] ALIGN64;
 
 	(void)shim_memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
@@ -739,7 +715,6 @@ retry_bind:
 err_close:
 	(void)close(fd);
 err:
-	free(output);
 	return rc;
 }
 
