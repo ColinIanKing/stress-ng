@@ -758,8 +758,8 @@ do_stress --zombie 1 --zombie-max 1000000
 
 DURATION=600
 do_stress --sysfs 16
-DURATION=360
 do_stress --procfs 32
+DURATION=360
 do_stress --sysinval 8 --pathological
 
 DURATION=120
