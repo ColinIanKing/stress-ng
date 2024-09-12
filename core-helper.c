@@ -3805,24 +3805,19 @@ static const char *stress_fs_magic_to_name(const unsigned long fs_magic)
 }
 #endif
 
-/*
- *  stress_get_fs_type()
- *	return the file system type that the given filename is in
- */
-const char *stress_get_fs_type(const char *filename)
+const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 {
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
     defined(HAVE_SYS_STATFS_H)
 	struct statfs buf;
-	static char tmp[256];
 
+	*blocks = (intmax_t)0;
 	if (!filename)
-		return "";
+		return NULL;
 	if (statfs(filename, &buf) != 0)
-		return "";
-	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
-		stress_fs_magic_to_name((unsigned long)buf.f_type), (uintmax_t)buf.f_bavail);
-	return tmp;
+		return NULL;
+	*blocks = (uintmax_t)buf.f_bavail;
+	return stress_fs_magic_to_name((unsigned long)buf.f_type);
 #elif (defined(__FreeBSD__) &&		\
        defined(HAVE_SYS_MOUNT_H) &&	\
        defined(HAVE_SYS_PARAM_H)) ||	\
@@ -3831,16 +3826,35 @@ const char *stress_get_fs_type(const char *filename)
 	struct statfs buf;
 	static char tmp[80];
 
+	*blocks = (intmax_t)0;
 	if (statfs(filename, &buf) != 0)
-		return "";
-	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
-		buf.f_fstypename, (intmax_t)buf.f_bavail);
+		return NULL;
+	*blocks = (uintmax_t)buf.f_bavail;
+	(void)shim_strscpy(tmp, buf.f_fstypename, sizeof(tmp));
 	return tmp;
 #else
-	(void)filename;
-
-	return "";
+	*blocks = (intmax_t)0;
+	return NULL;
 #endif
+}
+
+/*
+ *  stress_get_fs_type()
+ *	return the file system type that the given filename is in
+ */
+const char *stress_get_fs_type(const char *filename)
+{
+	intmax_t blocks;
+	const char *fs_name = stress_get_fs_info(filename, &blocks);
+
+	if (fs_name) {
+		static char tmp[256];
+
+		(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s (%ju blocks available)",
+			fs_name, blocks);
+		return tmp;
+	}
+	return "";
 }
 
 /*

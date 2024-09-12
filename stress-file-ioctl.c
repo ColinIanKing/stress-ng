@@ -22,9 +22,33 @@
 
 #include <sys/ioctl.h>
 
+#if defined(HAVE_SYS_STATFS_H)
+#include <sys/statfs.h>
+#endif
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif
+
+#if defined(HAVE_LINUX_BTRFS_H)
+#include <linux/btrfs.h>
+#endif
+
+#if defined(_IOR)
+#if !defined(EXT4_IOC_GETVERSION)
+#define EXT4_IOC_GETVERSION	_IOR('f', 3, long)
+#endif
+#if !defined(EXT4_IOC_GETRSVSZ)
+#define EXT4_IOC_GETRSVSZ	_IOR('f', 5, long)
+#endif
+#endif
+
+typedef void (*stress_file_ioctl_fs_func_t)(const int fd);
+
+typedef struct {
+	const char *name;
+	const stress_file_ioctl_fs_func_t fs_func;
+} stress_file_ioctl_fs_t;
 
 static const stress_help_t help[] = {
 	{ NULL,	"file-ioctl N",		"start N workers exercising file specific ioctls" },
@@ -111,6 +135,117 @@ struct shim_space_resv {
 
 #endif
 
+static void stress_file_ioctl_btrfs(const int fd)
+{
+#if defined(FS_IOC_GETVERSION)
+	{
+		int version;
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETVERSION, &version));
+	}
+#endif
+#if defined(FS_IOC_GETFSLABEL)
+	{
+		char label[257];
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
+	}
+#endif
+#if defined(BTRFS_IOC_SYNC)
+	VOID_RET(int, ioctl(fd, BTRFS_IOC_SYNC, NULL));
+#endif
+#if defined(BTRFS_IOC_SUBVOL_GETFLAGS)
+	{
+		uint64_t flags;
+
+		/* EINVAL */
+		VOID_RET(int, ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, &flags));
+	}
+#endif
+}
+
+static void stress_file_ioctl_ext(const int fd)
+{
+#if defined(EXT4_IOC_GETVERSION)
+	{
+		long version;
+
+		VOID_RET(int, ioctl(fd, EXT4_IOC_GETVERSION, &version));
+	}
+#endif
+#if defined(EXT4_IOC_GETRSVSZ)
+	{
+		long rsvsz;
+
+		VOID_RET(int, ioctl(fd, EXT4_IOC_GETRSVSZ, &rsvsz));
+	}
+#endif
+#if defined(FS_IOC_GETFSLABEL)
+	{
+		char label[17];
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
+	}
+#endif
+}
+
+static void stress_file_ioctl_nilfs(const int fd)
+{
+#if defined(FS_IOC_GETVERSION)
+	{
+		int version;
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETVERSION, &version));
+	}
+#endif
+#if defined(FS_IOC_GETFSLABEL)
+	{
+		char label[81];
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
+	}
+#endif
+}
+
+static void stress_file_ioctl_reiserfs(const int fd)
+{
+#if defined(FS_IOC_GETVERSION)
+	{
+		int version;
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETVERSION, &version));
+	}
+#endif
+}
+
+static void stress_file_ioctl_xfs(const int fd)
+{
+#if defined(FS_IOC_GETVERSION)
+	{
+		int version;
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETVERSION, &version));
+	}
+#endif
+#if defined(FS_IOC_GETFSLABEL)
+	{
+		char label[17];
+
+		VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
+	}
+#endif
+}
+
+static const stress_file_ioctl_fs_t stress_file_ioctl_fs[] = {
+	{ "btrfs",	stress_file_ioctl_btrfs },
+	{ "ext2",	stress_file_ioctl_ext },
+	{ "ext3",	stress_file_ioctl_ext },
+	{ "ext4",	stress_file_ioctl_ext },
+	{ "nilfs",	stress_file_ioctl_nilfs },
+	{ "reiserfs",	stress_file_ioctl_reiserfs },
+	{ "xfs",	stress_file_ioctl_xfs }
+};
+
 /*
  *  stress_file_ioctl
  *	stress file ioctls
@@ -125,6 +260,10 @@ static int stress_file_ioctl(stress_args_t *args)
 #endif
 	const off_t file_sz = 1024 * 1024;
 	const uint32_t rnd = stress_mwc32();
+	const char *fs_type = NULL;
+	stress_file_ioctl_fs_func_t fs_func = NULL;
+	size_t i;
+	uintmax_t blocks;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -138,6 +277,16 @@ static int stress_file_ioctl(stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
+
+	fs_type = stress_get_fs_info(filename, &blocks);
+	if (fs_type) {
+		for (i = 0; i < SIZEOF_ARRAY(stress_file_ioctl_fs); i++) {
+			if (strcmp(fs_type, stress_file_ioctl_fs[i].name) == 0) {
+				fs_func = stress_file_ioctl_fs[i].fs_func;
+			}
+		}
+	}
+
 	(void)shim_unlink(filename);
 
 #if defined(FICLONE) || defined(FICLONERANGE)
@@ -564,6 +713,9 @@ static int stress_file_ioctl(stress_args_t *args)
 			rc = EXIT_NOT_IMPLEMENTED;
 			goto tidy;
 		}
+
+		if (fs_func)
+			fs_func(fd);
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
