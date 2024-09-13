@@ -657,6 +657,7 @@ do_stress --shm-sysv -1 --sem-sysv-setall
 do_stress --seek -1 --seek-punch
 
 do_stress --sem -1 --sem-procs 64
+do_stress --sem -1 --sem-shared
 
 do_stress --sleep -1 --sleep-max 4096
 
