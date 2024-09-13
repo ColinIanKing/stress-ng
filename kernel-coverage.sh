@@ -652,6 +652,7 @@ do_stress --shm -1 --shm-mlock
 
 do_stress --shm-sysv -1 --shm-sysv-segs 128
 do_stress --shm-sysv -1 --shm-sysv-mlock
+do_stress --shm-sysv -1 --sem-sysv-setall
 
 do_stress --seek -1 --seek-punch
 
