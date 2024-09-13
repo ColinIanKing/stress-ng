@@ -513,6 +513,8 @@ do_stress --fork -1 --fork-pageout
 
 do_stress --forkheavy -1 --forkheavy-mlock
 
+do_stress --get -1 --get-slow-sync
+
 do_stress --goto -1 --goto-direction forward
 do_stress --goto -1 --goto-direction backward
 
