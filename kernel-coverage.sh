@@ -446,6 +446,8 @@ do_stress --all 1
 #
 #  Exercise various stressor options
 #
+do_stress --acl -1 --acl-rand
+
 do_stress --affinity -1 --affinity-pin
 do_stress --affinity -1 --affinity-rand
 do_stress --affinity -1 --affinity-sleep
