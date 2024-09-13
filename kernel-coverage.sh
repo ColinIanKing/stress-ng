@@ -545,6 +545,9 @@ do_stress --malloc -1 --malloc-trim
 
 do_stress --memfd -1 --memfd-fds 4096
 do_stress --memfd -1 --memfd-mlock
+do_stress --memfd -1 --memfd-zap-pte
+
+do_stress --memhotplug -1 --memhotplug-mmap
 
 do_stress --memrate -1 --memrate-flush
 
