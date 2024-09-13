@@ -87,7 +87,6 @@ cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>
 # Pedantic flags
 #
 ifeq ($(PEDANTIC),1)
-
 PEDANTIC_FLAGS := \
 	-Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
@@ -104,8 +103,13 @@ MACHINE = $(shell make -f Makefile.machine)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
 flag = -Wformat -fstack-protector-strong \
-	-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
 	-Werror=format-security
+#
+# add -D_FORTIFY_SOURCE=2 if _FORTIFY_SOURCE is not already defined
+#
+ifeq ($(shell echo _FORTIFY_SOURCE | $(CC) $(CFLAGS) -E -xc - | tail -1),_FORTIFY_SOURCE)
+flag += -D_FORTIFY_SOURCE=2
+endif
 override CFLAGS += $(cc_supports_flag)
 endif
 endif
