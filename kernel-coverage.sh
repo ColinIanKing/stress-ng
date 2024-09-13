@@ -464,6 +464,7 @@ do_stress --cpu -1 --taskset 1,2,3
 do_stress --cpu -1 --taskset 0
 do_stress --cpu -1 --cpu-load-slice 50
 do_stress --cpu -1 --thermalstat 1 --vmstat 1 --tz
+do_stress --cpu -1 --raplstat 1 --rapl
 
 do_stress --cpu-online -1 --cpu-online-all --vmstat 1 --tz --pathological
 do_stress --cpu-online -1 --cpu-online-affinity --pathological
