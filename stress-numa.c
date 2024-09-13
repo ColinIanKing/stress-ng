@@ -619,7 +619,7 @@ static int stress_numa(stress_args_t *args)
 		}
 
 		/*
-		 *  Fetch CPU and node, we just waste some cycled
+		 *  Fetch CPU and node, we just waste some cycles
 		 *  doing this for stress reasons only
 		 */
 		(void)shim_getcpu(&cpu, &curr_node, NULL);
