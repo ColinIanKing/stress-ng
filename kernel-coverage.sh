@@ -752,6 +752,12 @@ do_stress --workload -1 --workload-sched batch --workload-load 90
 do_stress --workload -1 --workload-sched deadline --workload-load 90
 do_stress --workload -1 --workload-threads 8
 
+do_stress --yield -1 --yield-sched deadline
+do_stress --yield -1 --yield-sched idle
+do_stress --yield -1 --yield-sched fifo
+do_stress --yield -1 --yield-sched other
+do_stress --yield -1 --yield-sched rr
+    
 do_stress --zombie 1 --zombie-max 1000000
 
 #
