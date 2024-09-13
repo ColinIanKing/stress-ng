@@ -558,6 +558,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [A study on performance measures for auto-scaling CPU-intensive containerized applications](https://link.springer.com/article/10.1007/s10586-018-02890-1)
 * [Scavenger: A Black-Box Batch Workload Resource Manager for Improving Utilization in Cloud Environments](https://www3.cs.stonybrook.edu/~sjavadi/files/javadi_socc2019.pdf)
 * [Estimating Cloud Application Performance Based on Micro-Benchmark Profiling](https://core.ac.uk/download/pdf/198051426.pdf)
+* [Anomaly Detection in NFV Using Tree-Based Unsupervised Learning Method](https://osf.io/preprints/indiarxiv/fxubm)
 
 2020:
 * [Performance and Energy Trade-Offs for Parallel Applications on Heterogeneous Multi-Processing Systems](https://www.mdpi.com/1996-1073/13/9/2409/htm)
