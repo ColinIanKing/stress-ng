@@ -564,6 +564,7 @@ do_stress --mmap -1 --mmap-osync
 do_stress --mmap -1 --mmap-mmap2
 do_stress --mmap -1 --mmap-write-check
 do_stress --mmap -1 --mmap-stressful
+do_stress --mmap -1 --mmap-slow-munmap
 do_stress --mmap -1 --thrash
 
 do_stress --mmapaddr -1 --mmapaddr-mlock
