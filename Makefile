@@ -44,6 +44,10 @@ endif
 ifneq ($(shell $(CC) -v 2>&1 | grep oneAPI | grep Compiler),)
 COMPILER = icx
 endif
+ifeq ($(shell echo | $(CC) -E -Wp,-v - 2>&1 | grep musl  > /dev/null && echo 1),1)
+COMPILER = musl-gcc
+override CFLAGS += -DHAVE_CC_MUSL_GCC
+endif
 ifneq ($(shell $(CC) -v 2>&1 | grep scan-build),)
 COMPILER = scan-build
 endif

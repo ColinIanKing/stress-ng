@@ -57,8 +57,8 @@
 #elif defined(__clang__)
 /* clang */
 #define HAVE_COMPILER_CLANG
-#elif defined(__GNUC__) && 	\
-      !defined(__USE_GNU)
+#elif defined(__GNUC__) && 		\
+      defined(HAVE_CC_MUSL_GCC)
 /* musl gcc */
 #define HAVE_COMPILER_MUSL
 #define HAVE_COMPILER_GCC_OR_MUSL
