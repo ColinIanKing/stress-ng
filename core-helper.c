@@ -3833,6 +3833,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 	(void)shim_strscpy(tmp, buf.f_fstypename, sizeof(tmp));
 	return tmp;
 #else
+	(void)filename;
 	*blocks = (intmax_t)0;
 	return NULL;
 #endif
