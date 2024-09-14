@@ -1784,6 +1784,9 @@ static char *stress_get_libc_version(void)
 	return buf;
 #elif defined(__DARWIN_C_LEVEL)
 	return "Darwin libc";
+#elif defined(HAVE_CC_MUSL_GCC)
+	/* Built with MUSL_GCC, highly probably it's musl libc being used too */
+	return "musl libc";
 #else
 	return "unknown libc version";
 #endif
