@@ -137,6 +137,8 @@ struct shim_space_resv {
 
 static void stress_file_ioctl_btrfs(const int fd)
 {
+	(void)fd;
+
 #if defined(FS_IOC_GETVERSION)
 	{
 		int version;
@@ -166,6 +168,8 @@ static void stress_file_ioctl_btrfs(const int fd)
 
 static void stress_file_ioctl_ext(const int fd)
 {
+	(void)fd;
+
 #if defined(EXT4_IOC_GETVERSION)
 	{
 		long version;
@@ -191,6 +195,8 @@ static void stress_file_ioctl_ext(const int fd)
 
 static void stress_file_ioctl_nilfs(const int fd)
 {
+	(void)fd;
+
 #if defined(FS_IOC_GETVERSION)
 	{
 		int version;
@@ -209,6 +215,8 @@ static void stress_file_ioctl_nilfs(const int fd)
 
 static void stress_file_ioctl_reiserfs(const int fd)
 {
+	(void)fd;
+
 #if defined(FS_IOC_GETVERSION)
 	{
 		int version;
@@ -219,7 +227,10 @@ static void stress_file_ioctl_reiserfs(const int fd)
 }
 
 static void stress_file_ioctl_xfs(const int fd)
+
 {
+	(void)fd;
+
 #if defined(FS_IOC_GETVERSION)
 	{
 		int version;
