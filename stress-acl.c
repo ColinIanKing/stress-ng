@@ -98,7 +98,7 @@ static inline void stress_acl_delete_all(const char *filename, const acl_type_t 
  *	naive acl comparison, assumes that acl_to_text generates
  *	the same strings for identical acls
  */
-static inline int stress_acl_cmp(acl_t acl1, acl_t acl2)
+static inline int stress_acl_cmp(const acl_t acl1, const acl_t acl2)
 {
 	char *acl_txt1, *acl_txt2;
 	ssize_t len1, len2;
