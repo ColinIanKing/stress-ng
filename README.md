@@ -454,6 +454,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [mm: optimize the redundant loop](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cf3f9a593dab87a032d2b6a6fb205e7f3de4f0a1)
 * [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
 * [powerpc/qspinlock: Fix deadlock in MCS queue](https://lore.kernel.org/lkml/20240829022830.1164355-1-nysal@linux.ibm.com/T/)
+* [kernel regression with ext4 and ea_inode mount flags and exercising xattrs](https://bugs.launchpad.net/linux/+bug/2080853)
 
 ## Kernel improvements that used stress-ng
 
