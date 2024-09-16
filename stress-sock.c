@@ -881,7 +881,7 @@ free_controls:
 	return rc;
 }
 
-static bool stress_send_error(const int err)
+static bool PURE stress_send_error(const int err)
 {
 	return ((err != EINTR) &&
 		(err != EPIPE) &&
