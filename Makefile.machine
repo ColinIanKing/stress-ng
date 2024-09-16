@@ -23,4 +23,3 @@ all:
 	else \
 		echo "unknown"; \
 	fi
-	
