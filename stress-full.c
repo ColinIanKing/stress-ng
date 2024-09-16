@@ -36,8 +36,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(__linux__)
+#if defined(__linux__)	||	\
+    defined(__sun__) ||		\
+    defined(__FreeBSD__) ||	\
+    defined(__NetBSD__)
 
+#if defined(__linux__)
 typedef struct {
 	const char *name;
 	const int whence;
@@ -48,6 +52,7 @@ static const stress_whences_t whences[] = {
 	{ "SEEK_CUR",	SEEK_CUR },
 	{ "SEEK_END",	SEEK_END }
 };
+#endif
 
 /*
  *  stress_data_is_not_zero()
@@ -198,8 +203,9 @@ try_read:
 			(void)munmap((void *)ptr, args->page_size);
 		}
 
+#if defined(__linux__)
 		/*
-		 *  Seeks will always succeed
+		 *  On Linux seeks will always succeed
 		 */
 		offset = (off_t)stress_mwc64();
 		ret = lseek(fd, offset, whences[w].whence);
@@ -209,6 +215,7 @@ try_read:
 				errno, strerror(errno));
 			goto fail;
 		}
+#endif
 		w++;
 		if (w >= SIZEOF_ARRAY(whences))
 			w = 0;
