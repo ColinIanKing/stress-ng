@@ -589,8 +589,8 @@ static size_t rb_objmem;
  */
 static int sparse_rb_node_cmp(sparse_rb_t *n1, sparse_rb_t *n2)
 {
-	register uint64_t n1xy = n1->xy;
-	register uint64_t n2xy = n2->xy;
+	register const uint64_t n1xy = n1->xy;
+	register const uint64_t n2xy = n2->xy;
 
 	if (n1xy == n2xy)
 		return 0;
@@ -1107,8 +1107,8 @@ static int stress_sparse_method_test(
 
 	t1 = stress_time_now();
 	for (i = 0; stress_continue_flag() && (i < sparsematrix_items); i++) {
-		const uint32_t x = stress_mwc32modn(sparsematrix_size);
-		const uint32_t y = stress_mwc32modn(sparsematrix_size);
+		register const uint32_t x = stress_mwc32modn(sparsematrix_size);
+		register const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t gv, v = value_map(x, y);
 
 		if (v == 0)
@@ -1133,8 +1133,8 @@ static int stress_sparse_method_test(
 	stress_mwc_set_seed(w, z);
 	t1 = stress_time_now();
 	for (i = 0; stress_continue_flag() && (i < sparsematrix_items); i++) {
-		const uint32_t x = stress_mwc32modn(sparsematrix_size);
-		const uint32_t y = stress_mwc32modn(sparsematrix_size);
+		register const uint32_t x = stress_mwc32modn(sparsematrix_size);
+		register const uint32_t y = stress_mwc32modn(sparsematrix_size);
 		uint32_t gv, v = value_map(x, y);
 
 		if (v == 0)
