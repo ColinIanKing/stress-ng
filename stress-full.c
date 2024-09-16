@@ -90,7 +90,9 @@ static int stress_full(stress_args_t *args)
 {
 	void *buffer;
 	const size_t buffer_size = 4096;
+#if defined(__linux__)
 	size_t w = 0;
+#endif
 	int rc = EXIT_FAILURE;
 	int fd = -1;
 
@@ -215,10 +217,10 @@ try_read:
 				errno, strerror(errno));
 			goto fail;
 		}
-#endif
 		w++;
 		if (w >= SIZEOF_ARRAY(whences))
 			w = 0;
+#endif
 
 		/*
 		 *  Exercise a couple of ioctls
