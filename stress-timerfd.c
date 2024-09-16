@@ -46,7 +46,7 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"timerfd N",	  "start N workers producing timerfd events" },
-	{ NULL, "timerfd-fds N", "number of timerfd file descriptors to open" },
+	{ NULL, "timerfd-fds N",  "number of timerfd file descriptors to open" },
 	{ NULL,	"timerfd-freq F", "run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,	"timerfd-ops N",  "stop after N timerfd bogo events" },
 	{ NULL,	"timerfd-rand",	  "enable random timerfd frequency" },
