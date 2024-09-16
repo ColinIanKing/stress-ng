@@ -36,7 +36,8 @@ static const stress_help_t help[] = {
 #define F_GETOWNER_UIDS  	(17)
 #endif
 
-#if defined(F_DUPFD) || 	\
+#if defined(F_CREATED_QUERY) || \
+    defined(F_DUPFD) || 	\
     defined(F_DUPFD_CLOEXEC) || \
     defined(F_GETFD) ||		\
     defined(F_SETFD) ||		\
@@ -757,6 +758,16 @@ ofd_lock_abort:	{ /* Nowt */ }
 			}
 			(void)close(dupfd);
 		}
+	}
+#endif
+
+#if defined(F_CREATED_QUERY)
+	{
+		int ret;
+
+		/* Linux 6.12 */
+		ret = fcntl(fd, F_CREATED_QUERY, 0);
+		check_return(args, ret, "F_CREATED_QUERY", rc);
 	}
 #endif
 }
