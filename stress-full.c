@@ -204,8 +204,9 @@ try_read:
 		offset = (off_t)stress_mwc64();
 		ret = lseek(fd, offset, whences[w].whence);
 		if (ret < 0) {
-			pr_fail("%s: lseek(fd, %jd, %s)\n",
-				args->name, (intmax_t)offset, whences[w].name);
+			pr_fail("%s: lseek(fd, %jd, %s) failed, errno=%d (%s)\n",
+				args->name, (intmax_t)offset, whences[w].name,
+				errno, strerror(errno));
 			goto fail;
 		}
 		w++;
