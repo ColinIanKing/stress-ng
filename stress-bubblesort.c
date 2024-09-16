@@ -41,61 +41,22 @@ typedef struct {
 	const bubblesort_func_t bubblesort_func;
 } stress_bubblesort_method_t;
 
-static inline OPTIMIZE3 void bubblesort_swap(void * RESTRICT p1, void * RESTRICT p2, register size_t size)
-{
-	switch (size) {
-	case 8: {
-			register uint64_t tmp64;
-
-			tmp64 = *(uint64_t *)p1;
-			*(uint64_t *)p1 = *(uint64_t *)p2;
-			*(uint64_t *)p2 = tmp64;
-			return;
-		}
-	case 4: {
-			register uint32_t tmp32;
-
-			tmp32 = *(uint32_t *)p1;
-			*(uint32_t *)p1 = *(uint32_t *)p2;
-			*(uint32_t *)p2 = tmp32;
-			return;
-		}
-	case 2: {
-			register uint16_t tmp16;
-
-			tmp16 = *(uint16_t *)p1;
-			*(uint16_t *)p1 = *(uint16_t *)p2;
-			*(uint16_t *)p2 = tmp16;
-			return;
-		}
-	default: {
-			register uint8_t *u8p1 = (uint8_t *)p1;
-			register uint8_t *u8p2 = (uint8_t *)p2;
-
-			do {
-				register uint8_t tmp;
-
-				tmp = *(u8p1);
-				*(u8p1++) = *(u8p2);
-				*(u8p2++) = tmp;
-			} while (--size);
-			return;
-		}
-	}
-}
-
 static int bubblesort_fast(
 	void *base,
 	size_t nmemb,
 	size_t size,
 	int (*compar)(const void *, const void *))
 {
+	sort_swap_func_t swap_func;
+
 	if (UNLIKELY(nmemb <= 1))
 		return 0;
 	if (UNLIKELY(size < 1)) {
 		errno = EINVAL;
 		return -1;
 	}
+
+	swap_func = sort_swap_func(size);
 
 	do {
 		register size_t i, n = 0;
@@ -104,7 +65,7 @@ static int bubblesort_fast(
 
 		for (i = 1; i < nmemb; i++) {
 			if (compar((void *)p1, (void *)p2) > 0) {
-				bubblesort_swap((void *)p1, (void *)p2, size);
+				swap_func((void *)p1, (void *)p2, size);
 				n = i;
 			}
 			p1 = p2;
@@ -123,6 +84,7 @@ static int bubblesort_naive(
 	int (*compar)(const void *, const void *))
 {
 	bool swapped;
+	sort_swap_func_t swap_func;
 
 	if (UNLIKELY(nmemb <= 1))
 		return 0;
@@ -130,6 +92,8 @@ static int bubblesort_naive(
 		errno = EINVAL;
 		return -1;
 	}
+
+	swap_func = sort_swap_func(size);
 
 	do {
 		register size_t i;
@@ -139,7 +103,7 @@ static int bubblesort_naive(
 		swapped = false;
 		for (i = 1; i < nmemb; i++) {
 			if (compar((void *)p1, (void *)p2) > 0) {
-				bubblesort_swap((void *)p1, (void *)p2, size);
+				swap_func((void *)p1, (void *)p2, size);
 				swapped = true;
 			}
 			p1 = p2;

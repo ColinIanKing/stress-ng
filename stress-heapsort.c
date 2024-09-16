@@ -42,107 +42,6 @@ typedef struct {
 	const heapsort_func_t heapsort_func;
 } stress_heapsort_method_t;
 
-typedef void (*heapsort_swap_func)(void *p1, void *p2, register size_t size);
-typedef void (*heapsort_copy_func)(void *p1, void *p2, register size_t size);
-
-static void OPTIMIZE3 heapsort_swap8(void *p1, void *p2, register size_t size)
-{
-	register uint64_t tmp64;
-
-	(void)size;
-
-	tmp64 = *(uint64_t *)p1;
-	*(uint64_t *)p1 = *(uint64_t *)p2;
-	*(uint64_t *)p2 = tmp64;
-}
-
-static void OPTIMIZE3 heapsort_swap4(void *p1, void *p2, register size_t size)
-{
-	register uint32_t tmp32;
-
-	(void)size;
-
-	tmp32 = *(uint32_t *)p1;
-	*(uint32_t *)p1 = *(uint32_t *)p2;
-	*(uint32_t *)p2 = tmp32;
-}
-
-static void OPTIMIZE3 heapsort_swap2(void *p1, void *p2, register size_t size)
-{
-	register uint16_t tmp16;
-
-	(void)size;
-
-	tmp16 = *(uint16_t *)p1;
-	*(uint16_t *)p1 = *(uint16_t *)p2;
-	*(uint16_t *)p2 = tmp16;
-}
-
-static void OPTIMIZE3 heapsort_swap1(void *p1, void *p2, register size_t size)
-{
-	register uint8_t tmp8;
-
-	(void)size;
-
-	tmp8 = *(uint8_t *)p1;
-	*(uint8_t *)p1 = *(uint8_t *)p2;
-	*(uint8_t *)p2 = tmp8;
-}
-
-static void OPTIMIZE3 heapsort_swap(void *p1, void *p2, register size_t size)
-{
-	register uint8_t *u8p1 = (uint8_t *)p1;
-	register uint8_t *u8p2 = (uint8_t *)p2;
-
-	do {
-		register uint8_t tmp;
-
-		tmp = *(u8p1);
-		*(u8p1++) = *(u8p2);
-		*(u8p2++) = tmp;
-	} while (--size);
-}
-
-static void OPTIMIZE3 heapsort_copy8(void *p1, void *p2, register size_t size)
-{
-	(void)size;
-
-	*(uint64_t *)p1 = *(uint64_t *)p2;
-}
-
-static void OPTIMIZE3 heapsort_copy4(void *p1, void *p2, register size_t size)
-{
-	(void)size;
-
-	*(uint32_t *)p1 = *(uint32_t *)p2;
-}
-
-static void OPTIMIZE3 heapsort_copy2(void *p1, void *p2, register size_t size)
-{
-	(void)size;
-
-	*(uint16_t *)p1 = *(uint16_t *)p2;
-}
-
-static void OPTIMIZE3 heapsort_copy1(void *p1, void *p2, register size_t size)
-{
-	(void)size;
-
-	*(uint8_t *)p1 = *(uint8_t *)p2;
-}
-
-static void OPTIMIZE3 heapsort_copy(void *p1, void *p2, register size_t size)
-{
-	register uint8_t *u8p1, *u8p2;
-
-	u8p1 = (uint8_t *)p1;
-	u8p2 = (uint8_t *)p2;
-
-	do {
-		*(u8p1++) = *(u8p2++);
-	} while (--size);
-}
-
 static int heapsort_nonlibc(
 	void *base,
 	size_t nmemb,
@@ -151,8 +50,8 @@ static int heapsort_nonlibc(
 {
 	register uint8_t *u8base;
 	register size_t l = (nmemb / 2) + 1;
-	heapsort_swap_func swap_func;
-	heapsort_copy_func copy_func;
+	sort_swap_func_t swap_func;
+	sort_copy_func_t copy_func;
 
 	if (UNLIKELY(nmemb <= 1))
 		return 0;
@@ -161,28 +60,8 @@ static int heapsort_nonlibc(
 		return -1;
 	}
 
-	switch (size) {
-	case 8:
-		swap_func = heapsort_swap8;
-		copy_func = heapsort_copy8;
-		break;
-	case 4:
-		swap_func = heapsort_swap4;
-		copy_func = heapsort_copy4;
-		break;
-	case 2:
-		swap_func = heapsort_swap2;
-		copy_func = heapsort_copy2;
-		break;
-	case 1:
-		swap_func = heapsort_swap1;
-		copy_func = heapsort_copy1;
-		break;
-	default:
-		swap_func = heapsort_swap;
-		copy_func = heapsort_copy;
-		break;
-	}
+	swap_func = sort_swap_func(size);
+	copy_func = sort_copy_func(size);
 
 	/*
 	 *  Phase #1, create initial heap

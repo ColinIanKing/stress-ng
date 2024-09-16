@@ -116,3 +116,135 @@ PRAGMA_UNROLL_N(8)
 		}
 	}
 }
+
+static void OPTIMIZE3 sort_swap8(void *p1, void *p2, register size_t size)
+{
+	register uint64_t tmp64;
+
+	(void)size;
+
+	tmp64 = *(uint64_t *)p1;
+	*(uint64_t *)p1 = *(uint64_t *)p2;
+	*(uint64_t *)p2 = tmp64;
+}
+
+static void OPTIMIZE3 sort_swap4(void *p1, void *p2, register size_t size)
+{
+	register uint32_t tmp32;
+
+	(void)size;
+
+	tmp32 = *(uint32_t *)p1;
+	*(uint32_t *)p1 = *(uint32_t *)p2;
+	*(uint32_t *)p2 = tmp32;
+}
+
+static void OPTIMIZE3 sort_swap2(void *p1, void *p2, register size_t size)
+{
+	register uint16_t tmp16;
+
+	(void)size;
+
+	tmp16 = *(uint16_t *)p1;
+	*(uint16_t *)p1 = *(uint16_t *)p2;
+	*(uint16_t *)p2 = tmp16;
+}
+
+static void OPTIMIZE3 sort_swap1(void *p1, void *p2, register size_t size)
+{
+	register uint8_t tmp8;
+
+	(void)size;
+
+	tmp8 = *(uint8_t *)p1;
+	*(uint8_t *)p1 = *(uint8_t *)p2;
+	*(uint8_t *)p2 = tmp8;
+}
+
+static void OPTIMIZE3 sort_swap(void *p1, void *p2, register size_t size)
+{
+	register uint8_t *u8p1 = (uint8_t *)p1;
+	register uint8_t *u8p2 = (uint8_t *)p2;
+
+	do {
+		register uint8_t tmp;
+
+		tmp = *(u8p1);
+		*(u8p1++) = *(u8p2);
+		*(u8p2++) = tmp;
+	} while (--size);
+}
+
+static void OPTIMIZE3 sort_copy8(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint64_t *)p1 = *(uint64_t *)p2;
+}
+
+static void OPTIMIZE3 sort_copy4(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint32_t *)p1 = *(uint32_t *)p2;
+}
+
+static void OPTIMIZE3 sort_copy2(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint16_t *)p1 = *(uint16_t *)p2;
+}
+
+static void OPTIMIZE3 sort_copy1(void *p1, void *p2, register size_t size)
+{
+	(void)size;
+
+	*(uint8_t *)p1 = *(uint8_t *)p2;
+}
+
+static void OPTIMIZE3 sort_copy(void *p1, void *p2, register size_t size)
+{
+	register uint8_t *u8p1, *u8p2;
+
+	u8p1 = (uint8_t *)p1;
+	u8p2 = (uint8_t *)p2;
+
+	do {
+		*(u8p1++) = *(u8p2++);
+	} while (--size);
+}
+
+sort_swap_func_t sort_swap_func(const size_t size)
+{
+	switch (size) {
+	case 8:
+		return sort_swap8;
+	case 4:
+		return sort_swap4;
+	case 2:
+		return sort_swap2;
+	case 1:
+		return sort_swap1;
+	default:
+		break;
+	}
+	return sort_swap;
+}
+
+sort_copy_func_t sort_copy_func(const size_t size)
+{
+	switch (size) {
+	case 8:
+		return sort_copy8;
+	case 4:
+		return sort_copy4;
+	case 2:
+		return sort_copy2;
+	case 1:
+		return sort_copy1;
+	default:
+		break;
+	}
+	return sort_copy;
+}
