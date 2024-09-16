@@ -439,7 +439,7 @@ retry_bind:
 		char *assocdata;
 
 		assocdata = malloc((size_t)(info->max_auth_size + ALLOC_SLOP));
-		if (assocdata) {
+		if (!assocdata) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
