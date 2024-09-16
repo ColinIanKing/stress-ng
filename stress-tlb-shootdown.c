@@ -45,7 +45,10 @@ static const stress_help_t help[] = {
  *  stress_tlb_shootdown_read_mem()
  *	read from every cache line in mem
  */
-static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(const uint8_t *mem, const size_t size, const size_t page_size)
+static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(
+	const uint8_t *mem,
+	const size_t size,
+	const size_t page_size)
 {
 	const volatile uint8_t *vmem;
 
@@ -77,7 +80,10 @@ static inline void OPTIMIZE3 stress_tlb_shootdown_read_mem(const uint8_t *mem, c
  *  stress_tlb_shootdown_read_mem()
  *	write to every cache line in mem
  */
-static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(uint8_t *mem, const size_t size, const size_t page_size)
+static inline void OPTIMIZE3 stress_tlb_shootdown_write_mem(
+	uint8_t *mem,
+	const size_t size,
+	const size_t page_size)
 {
 	volatile uint8_t *vmem;
 	const uint8_t rnd8 = stress_mwc8();
