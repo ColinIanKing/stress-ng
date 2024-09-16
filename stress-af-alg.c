@@ -429,6 +429,7 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err;
 		}
+		free(key);
 #else
 		/* Not supported, skip */
 		rc = EXIT_SUCCESS;
@@ -456,6 +457,7 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err;
 		}
+		free(assocdata);
 #else
 		/* Not supported, skip */
 		rc = EXIT_SUCCESS;
