@@ -442,7 +442,12 @@ static void do_fcntl(
 		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLK, &f);
-		if ((ret < 0) && (errno == EAGAIN))
+		/*
+		 * According to POSIX.1 editions 2008, 2013, 2016 and 2018, in
+		 * this context EACCES and EAGAIN mean the same, although
+		 * Haiku seems to be the only supported OS to return EACCES.
+		 */
+		if ((ret < 0) && (errno == EACCES || errno == EAGAIN))
 			goto lock_abort;
 		check_return(args, ret, "F_SETLK (F_WRLCK)", rc);
 
