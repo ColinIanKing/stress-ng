@@ -147,10 +147,14 @@ To build on Dilos, one requires GCC and GNU make, build using:
 	CC=gcc gmake
 ```
 
-To build on Haiku Alpha 4:
+To build on Haiku R1/beta5:
 ```
+	# GCC
 	make clean
 	make
+	# Clang
+	CC=clang make clean
+	CC=clang make
 ```
 
 To build a static image (example, for Android), use:
