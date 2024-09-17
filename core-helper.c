@@ -1787,6 +1787,8 @@ static char *stress_get_libc_version(void)
 #elif defined(HAVE_CC_MUSL_GCC)
 	/* Built with MUSL_GCC, highly probably it's musl libc being used too */
 	return "musl libc";
+#elif defined(__HAIKU__)
+	return "Haiku libc";
 #else
 	return "unknown libc version";
 #endif
