@@ -171,10 +171,17 @@ static void stress_touch_dir_clean(stress_args_t *args)
 	if (!dir)
 		return;
 	while ((d = readdir(dir)) != NULL) {
-		char filename[PATH_MAX + sizeof(d->d_name) + 1];
+		/*
+		 * One file name (with a path) and one NUL character (PATH_MAX),
+		 * one slash (1), another file name without a path (NAME_MAX).
+		 * This can produce a result that exceeds the OS limit, but the
+		 * buffer size will be sufficient to join the strings safely
+		 * without upsetting the compiler.
+		 */
+		char filename[PATH_MAX + 1 + NAME_MAX];
 		struct stat statbuf;
 
-		(void)snprintf(filename, sizeof(filename), "%s/%s\n", tmp, d->d_name);
+		(void)snprintf(filename, sizeof(filename), "%s/%s", tmp, d->d_name);
 		if (shim_stat(filename, &statbuf) < 0)
 			continue;
 		if ((statbuf.st_mode & S_IFMT) == S_IFREG)
