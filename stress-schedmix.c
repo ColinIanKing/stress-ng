@@ -60,6 +60,7 @@ static const stress_opt_t opts[] = {
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 
 #if defined(HAVE_SCHEDMIX_SEM)

@@ -78,6 +78,7 @@ const char * PURE stress_get_sched_name(const int sched)
     !defined(__OpenBSD__) && 						\
     !defined(__minix__) &&						\
     !defined(__APPLE__) &&						\
+    !defined(__HAIKU__) &&						\
     !defined(__serenity__)
 
 static const char prefix[] = "sched";

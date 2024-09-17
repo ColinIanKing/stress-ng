@@ -405,6 +405,7 @@ static const shim_rlimit_resource_t limits[] = {
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 static const int sched_policies[] = {
 #if defined(SCHED_DEADLINE)
@@ -5348,6 +5349,7 @@ static int syscall_sched_getattr(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_GETPARAM
 static int syscall_sched_getparam(void)
@@ -5367,6 +5369,7 @@ static int syscall_sched_getparam(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_GET_PRIORITY_MAX
 static int syscall_sched_get_priority_max(void)
@@ -5389,6 +5392,7 @@ static int syscall_sched_get_priority_max(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_GET_PRIORITY_MIN
 static int syscall_sched_get_priority_min(void)
@@ -5411,6 +5415,7 @@ static int syscall_sched_get_priority_min(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_GETSCHEDULER
 static int syscall_sched_getscheduler(void)
@@ -5429,6 +5434,7 @@ static int syscall_sched_getscheduler(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_RR_GET_INTERVAL
 static int syscall_sched_rr_get_interval(void)
@@ -5486,6 +5492,7 @@ static int syscall_sched_setattr(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_SETPARAM
 static int syscall_sched_setparam(void)
@@ -5508,6 +5515,7 @@ static int syscall_sched_setparam(void)
      !defined(__OpenBSD__) &&						\
      !defined(__minix__) &&						\
      !defined(__APPLE__) &&						\
+     !defined(__HAIKU__) &&						\
      !defined(__serenity__)
 #define HAVE_SYSCALL_SCHED_SETSCHEDULER
 static int syscall_sched_setscheduler(void)
