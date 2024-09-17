@@ -59,6 +59,9 @@ static int stress_xattr(stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE;
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
+#if defined(O_TMPFILE)
+	char dirname[PATH_MAX];
+#endif
 	char bad_filename[PATH_MAX + 4];
 	char *hugevalue = NULL;
 	const char *fs_type;
@@ -68,6 +71,7 @@ static int stress_xattr(stress_args_t *args)
 #else
 	const size_t hugevalue_sz = 256 * KB;
 #endif
+	uint32_t rnd32;
 
 #if defined(XATTR_SIZE_MAX)
 	large_tmp = calloc(XATTR_SIZE_MAX + 2, sizeof(*large_tmp));
@@ -84,7 +88,8 @@ static int stress_xattr(stress_args_t *args)
 		goto out_free;
 	}
 
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+	rnd32 = stress_mwc32();
+	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd32);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
@@ -92,6 +97,9 @@ static int stress_xattr(stress_args_t *args)
 		goto out;
 	}
 	fs_type = stress_get_fs_type(filename);
+#if defined(O_TMPFILE)
+	(void)stress_temp_dir_args(args, dirname, sizeof(dirname));
+#endif
 	(void)snprintf(bad_filename, sizeof(bad_filename), "%s_bad", filename);
 
 	hugevalue = calloc(1, hugevalue_sz);
@@ -529,6 +537,26 @@ static int stress_xattr(stress_args_t *args)
 			goto out_close;
 		}
 #endif
+
+#if defined(O_TMPFILE)
+		{
+			/*
+			 *  Try to reproduce issue fixed in Linux commit
+		         *  dd7db149bcd9 ("ubifs: ubifs_jnl_change_xattr: 
+			 *  Remove assertion 'nlink > 0' for host inode")
+			 */
+			int tmp_fd;
+
+			tmp_fd = open(dirname, O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+			if (tmp_fd) {
+				fsetxattr(tmp_fd, "user.var_1", "somevalue", 9, XATTR_CREATE);
+				fsetxattr(tmp_fd, "user.var_1", "somevalue", 9, XATTR_REPLACE);
+				fsetxattr(tmp_fd, "user.var_1", "anothervalue", 12, XATTR_REPLACE);
+				(void)close(tmp_fd);
+			}
+		}
+#endif
+
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
