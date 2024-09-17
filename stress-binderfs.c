@@ -204,10 +204,18 @@ static int stress_binderfs(stress_args_t *args)
 #if defined(BINDER_CTL_ADD)
 		for (i = 0; i < 256; i++) {
 			(void)shim_memset(&device, 0, sizeof(device));
-			(void)snprintf(device.name, sizeof(device.name), "sng-%d\n", i);
+			(void)snprintf(device.name, sizeof(device.name), "sng-%d", i);
 			ret = ioctl(fd, BINDER_CTL_ADD, &device);
 			if (ret < 0)
 				goto close_control;
+		}
+		for (i = 0; i < 256; i++) {
+			char devpath[PATH_MAX];
+			char devname[32];
+
+			(void)snprintf(devname, sizeof(devname), "sng-%d", i);
+			(void)stress_mk_filename(devpath, sizeof(devpath), pathname, devname);
+			(void)unlink(devpath);
 		}
 close_control:
 #else
