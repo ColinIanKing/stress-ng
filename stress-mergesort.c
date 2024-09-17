@@ -57,7 +57,7 @@ static inline void ALWAYS_INLINE mergesort_copy(uint8_t *RESTRICT p1, uint8_t *R
 }
 
 /*
- *  mergALWAYS_INLINE esort_partition4
+ *  mergesort_partition4
  *  	partitioning with 4 byte data
  */
 static inline void mergesort_partition4(
