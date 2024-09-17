@@ -190,6 +190,14 @@ again:
 
 				/* Exercise invalid signal */
 				(void)shim_rt_sigqueueinfo(pid, 0, &info);
+
+				/*
+				 *  Exercise invalid info, see Linux commit ee17e5d6201c
+				 *  signal: Make siginmask safe when passed a signal of 0
+				 */
+				(void)shim_memset(&info, 0, sizeof(info));
+				info.si_code = 1;
+				(void)shim_rt_sigqueueinfo(pid, 0, &info);
 			}
 #endif
 			stress_bogo_inc(args);
