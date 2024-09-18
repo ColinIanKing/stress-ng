@@ -129,17 +129,17 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		nilfs)	MKFS_CMD="mkfs.nilfs2"
-			MKFS_ARGS="-f -O block_count ${FSIMAGE}"
+			MKFS_ARGS="-f -b 1024 -O block_count ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		fat)	MKFS_CMD="mkfs.fat"
-			MKFS_ARGS="${FSIMAGE}"
+			MKFS_ARGS="-S 1024 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		vfat)	MKFS_CMD="mkfs.vfat"
-			MKFS_ARGS="${FSIMAGE}"
+			MKFS_ARGS="-S 1024 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
@@ -158,7 +158,7 @@ mount_filesystem()
 			MNT_CMD="sudo mount -t ubifs /dev/ubi0_0 ${MNT}"
 			;;
 		udf)	MKFS_CMD="mkfs.udf"
-			MKFS_ARGS="${FSIMAGE}"
+			MKFS_ARGS="-b 1024 -md hd ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
@@ -168,7 +168,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		f2fs)	MKFS_CMD="mkfs.f2fs"
-			MKFS_ARGS="-f ${FSIMAGE} -i -O encrypt,extra_attr,inode_checksum,quota,verity,sb_checksum,compression,lost_found"
+			MKFS_ARGS="-f ${FSIMAGE} -i -O encrypt,extra_attr,inode_checksum,quota,verity,sb_checksum,compression,lost_found,flexible_inline_xattr,inode_crtime"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
@@ -178,7 +178,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		btrfs)	MKFS_CMD="mkfs.btrfs"
-			MKFS_ARGS="-O extref -R quota,free-space-tree -f ${FSIMAGE}"
+			MKFS_ARGS="-O extref -csum xxhash -R quota,free-space-tree -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o compress,autodefrag,datasum -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
@@ -192,7 +192,7 @@ mount_filesystem()
 			;;
 		reiserfs)
 			MKFS_CMD="mkfs.reiserfs"
-			MKFS_ARGS="-q -f ${FSIMAGE}"
+			MKFS_ARGS="-q -f -h tea -b 1024 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop -o acl ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
