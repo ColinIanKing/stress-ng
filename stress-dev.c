@@ -253,6 +253,11 @@ typedef struct stress_dev_func {
 	void (*func)(stress_args_t *args, const int fd, const char *devpath);
 } stress_dev_func_t;
 
+typedef struct stress_sys_dev_info {
+	struct stress_sys_dev_info	*next;
+	char *sysdevpath;
+} sys_dev_info_t;
+
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static shim_pthread_spinlock_t parport_lock;
@@ -3865,6 +3870,7 @@ static const int open_flags[] = {
  */
 static inline void stress_dev_rw(
 	stress_args_t *args,
+	sys_dev_info_t **sys_dev_info,
 	int32_t loops)
 {
 	int fd, ret;
@@ -3887,6 +3893,13 @@ static inline void stress_dev_rw(
 #endif
 		dev_info_t *dev_info;
 		char *path;
+
+		if (*sys_dev_info) {
+			char buf[4096];
+
+			VOID_RET(ssize_t, stress_system_read((*sys_dev_info)->sysdevpath, buf, sizeof(buf)));
+			*sys_dev_info = (*sys_dev_info)->next;
+		}
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -4097,6 +4110,7 @@ static void *stress_dev_thread(void *arg)
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pa->args;
+	sys_dev_info_t *sys_dev_info = (sys_dev_info_t *)pa->data;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -4105,7 +4119,7 @@ static void *stress_dev_thread(void *arg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	while (stress_continue_flag())
-		stress_dev_rw(args, -1);
+		stress_dev_rw(args, &sys_dev_info, -1);
 
 	return &nowt;
 }
@@ -4114,7 +4128,10 @@ static void *stress_dev_thread(void *arg)
  *  stress_dev_files()
  *	stress all device files
  */
-static void stress_dev_files(stress_args_t *args, dev_info_t *dev_info_list)
+static void stress_dev_files(
+	stress_args_t *args,
+	dev_info_t *dev_info_list,
+	sys_dev_info_t **sys_dev_info)
 {
 	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
 	static int try_failed = 0;
@@ -4156,7 +4173,7 @@ static void stress_dev_files(stress_args_t *args, dev_info_t *dev_info_list)
 		if (!ret) {
 			pthread_dev_info = di;
 			(void)shim_pthread_spin_unlock(&lock);
-			stress_dev_rw(args, loops);
+			stress_dev_rw(args, sys_dev_info, loops);
 			stress_bogo_inc(args);
 		}
 		di->state->open_succeeded = true;
@@ -4387,6 +4404,135 @@ static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_
 	free(dev_info_sorted);
 }
 
+#if defined(__linux__)
+/*
+ *  stress_sys_dev_get()
+ *	traverse /sys/dev device directories adding paths to list
+ */
+static void stress_sys_dev_infos_get(
+	stress_args_t *args,
+	const char *path,
+	sys_dev_info_t **list,
+	sys_dev_info_t **list_end,
+	const int depth)
+{
+	struct dirent **dlist;
+	int i, n;
+	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+
+	if (!stress_continue(args))
+		return;
+
+	n = scandir(path, &dlist, NULL, alphasort);
+	if (n <= 0)
+		return;
+
+	for (i = 0; stress_continue(args) && (i < n); i++) {
+		int ret;
+		struct stat buf;
+		char tmp[PATH_MAX];
+		struct dirent *d = dlist[i];
+		sys_dev_info_t *sys_dev_info;
+
+		if (!stress_continue(args))
+			break;
+		if (stress_is_dot_filename(d->d_name))
+			continue;
+
+		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+
+		switch (shim_dirent_type(path, d)) {
+		case SHIM_DT_LNK:
+			if (depth > 2)
+				continue;
+			ret = shim_stat(tmp, &buf);
+			if (ret < 0)
+				continue;
+			if ((buf.st_mode & flags) == 0)
+				continue;
+			stress_sys_dev_infos_get(args, tmp, list, list_end, depth + 1);
+			break;
+		case SHIM_DT_DIR:
+			ret = shim_stat(tmp, &buf);
+			if (ret < 0)
+				continue;
+			if ((buf.st_mode & flags) == 0)
+				continue;
+			stress_sys_dev_infos_get(args, tmp, list, list_end, depth + 1);
+			break;
+		case SHIM_DT_REG:
+			sys_dev_info = malloc(sizeof(*sys_dev_info));
+			if (!sys_dev_info)
+				break;
+			sys_dev_info->next = *list;
+			sys_dev_info->sysdevpath = strdup(tmp);
+			if (!sys_dev_info->sysdevpath) {
+				free(sys_dev_info);
+				break;
+			}
+			if (*list_end == NULL) {
+				*list_end = sys_dev_info;
+				*list = sys_dev_info;
+			} else {
+				(*list_end)->next = sys_dev_info;
+				*list_end = sys_dev_info;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	stress_dirent_list_free(dlist, n);
+}
+
+/*
+ *  stress_sys_dev_infos_free()
+ *	free circular sys_dev_info_t list
+ */
+static void stress_sys_dev_infos_free(sys_dev_info_t **list)
+{
+	sys_dev_info_t *sys_dev_info;
+
+	if (*list == NULL)
+		return;
+
+	sys_dev_info = *list;
+
+	while (sys_dev_info) {
+		sys_dev_info_t *next = sys_dev_info->next;
+
+		free(sys_dev_info->sysdevpath);
+		free(sys_dev_info);
+		sys_dev_info = next;
+
+		if (sys_dev_info == *list)
+			break;
+	}
+	*list = NULL;
+}
+
+#else
+
+static inline void stress_sys_dev_infos_get(
+	stress_args_t *args,
+	const char *path,
+	sys_dev_info_t **list,
+	sys_dev_info_t **list_end,
+	const int depth)
+{
+	(void)args;
+	(void)path;
+	(void)list;
+	(void)list_end;
+	(void)depth;
+}
+
+static inline void stress_sys_dev_infos_free(sys_dev_info_t **list)
+{
+	(void)list;
+}
+#endif
+
 /*
  *  stress_dev
  *	stress reading all of /dev
@@ -4403,14 +4549,16 @@ static int stress_dev(stress_args_t *args)
 	dev_info_t dev_null = { "/dev/null", "null", 0, &dev_state_null, NULL };
 	size_t mmap_dev_states_size;
 	const size_t page_size = args->page_size;
+
 	dev_info_t *dev_info_list = NULL;
 	size_t dev_info_list_len = 0;
+
+	sys_dev_info_t *sys_dev_info_list = NULL, *sys_dev_info_list_end = NULL;
 
 	stress_dev_state_init(&dev_state_null);
 
 	pthread_dev_info = &dev_null;
 	pa.args = args;
-	pa.data = NULL;
 
 	(void)shim_memset(ret, 0, sizeof(ret));
 
@@ -4434,7 +4582,9 @@ static int stress_dev(stress_args_t *args)
 		stress_dev_info_add(dev_file, &dev_info_list, &dev_info_list_len);
 	} else {
 		stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list, &dev_info_list_len);
+		stress_sys_dev_infos_get(args, "/sys/dev", &sys_dev_info_list, &sys_dev_info_list_end, 0);
 	}
+	pa.data = (void *)sys_dev_info_list;
 
 	/* This should be rare */
 	if (dev_info_list_len == 0) {
@@ -4492,6 +4642,7 @@ again:
 		} else {
 			size_t i;
 			int r;
+			sys_dev_info_t *sys_dev_info = sys_dev_info_list;
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
@@ -4517,7 +4668,7 @@ again:
 			}
 
 			do {
-				stress_dev_files(args, dev_info_list);
+				stress_dev_files(args, dev_info_list, &sys_dev_info);
 			} while (stress_continue(args));
 
 			r = shim_pthread_spin_lock(&lock);
@@ -4558,6 +4709,7 @@ deinit:
 	(void)ioctl_set_timeout;
 	(void)ioctl_clr_timeout;
 
+	stress_sys_dev_infos_free(&sys_dev_info_list);
 	stress_dev_infos_free(&dev_info_list);
 
 	return rc;
