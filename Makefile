@@ -742,7 +742,7 @@ stress-ng: config.h $(OBJS)
 	$(eval LDFLAGS_EXTRA := $(shell grep CONFIG_LDFLAGS config | sed 's/CONFIG_LDFLAGS +=//' | tr '\n' ' '))
 	$(PRE_V)$(LINK_TOOL) $(OBJS) -lm $(LDFLAGS) $(LDFLAGS_EXTRA) $(CFLAGS) -o $@
 
-stress-eigen-ops.o: config.h
+stress-eigen-ops.o: config.h stress-eigen-ops.cpp stress-eigen-ops.c
 	@if grep -q '^#define HAVE_EIGEN' config.h; then \
 		echo "CXX stress-eigen-ops.cpp";	\
 		$(CXX) -c -o stress-eigen-ops.o stress-eigen-ops.cpp; \
