@@ -64,6 +64,8 @@ static int stress_config_read(const char *path, uint64_t *value)
  */
 void stress_config_check(void)
 {
+	size_t shmall = 0, freemem = 0, totalmem = 0, freeswap = 0, totalswap = 0, freetotal;
+
 #if defined(__linux__)
 	{
 		char path[PATH_MAX];
@@ -141,4 +143,11 @@ void stress_config_check(void)
 		}
 	}
 #endif
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
+	freetotal = freemem + freeswap;
+	if (((freemem > 0) && (freemem < (size_t)(256 * MB))) ||
+	    ((freetotal > 0) && (freetotal < (size_t)(512 * MB)))) {
+		pr_inf("note: system has only %zu MB of free memory and swap, "
+			"recommend using --oom-avoid\n", freetotal / (size_t)MB);
+	}
 }
