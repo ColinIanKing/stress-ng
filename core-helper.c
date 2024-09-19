@@ -1660,25 +1660,6 @@ int stress_temp_dir_rm_args(stress_args_t *args)
 }
 
 /*
- *  stress_cwd_readwriteable()
- *	check if cwd is read/writeable
- */
-void stress_cwd_readwriteable(void)
-{
-	char path[PATH_MAX];
-
-	if (getcwd(path, sizeof(path)) == NULL) {
-		pr_dbg("getcwd: Cannot determine current working directory\n");
-		return;
-	}
-	if (access(path, R_OK | W_OK)) {
-		pr_inf("Working directory %s is not read/writeable, "
-			"some I/O tests may fail\n", path);
-		return;
-	}
-}
-
-/*
  *  stress_get_signal_name()
  *	return string version of signal number, NULL if not found
  */

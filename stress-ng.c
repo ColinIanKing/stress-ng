@@ -4002,7 +4002,6 @@ int main(int argc, char **argv, char **envp)
 	 *  Setup running environment
 	 */
 	stress_process_dumpable(false);
-	stress_cwd_readwriteable();
 	stress_set_oom_adjustment(NULL, false);
 
 	/*
