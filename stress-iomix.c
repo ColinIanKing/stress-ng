@@ -993,6 +993,16 @@ static void stress_iomix_cachestat(
 			cstat_range.off = (uint64_t)0ULL;
 			cstat_range.len = (uint64_t)iomix_bytes;
 			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, 0));
+
+			/* exercise invalid flags */
+			cstat_range.off = (uint64_t)0ULL;
+			cstat_range.len = (uint64_t)buf.st_size;
+			VOID_RET(int, shim_cachestat(fd, &cstat_range, &cstat, ~0));
+
+			/* exercise invalid fd */
+			cstat_range.off = (uint64_t)0ULL;
+			cstat_range.len = (uint64_t)buf.st_size;
+			VOID_RET(int, shim_cachestat(100000, &cstat_range, &cstat, 0));
 		}
 		(void)shim_usleep(50000);
 	} while (stress_bogo_inc_lock(args, counter_lock, true));
