@@ -475,7 +475,13 @@ static void stress_dev_dm_linux(
 		dm->version[0] = DM_VERSION_MAJOR;
 		dm->version[1] = DM_VERSION_MINOR;
 		dm->version[2] = 0;
+		VOID_RET(int, ioctl(fd, DM_VERSION, dm));
 
+		/* and try illegal version info */
+		shim_memset(buf, 0, sizeof(buf));
+		dm->version[0] = ~DM_VERSION_MAJOR;
+		dm->version[1] = ~DM_VERSION_MINOR;
+		dm->version[2] = ~0;
 		VOID_RET(int, ioctl(fd, DM_VERSION, dm));
 	}
 #endif
@@ -511,6 +517,16 @@ static void stress_dev_dm_linux(
 					dm2->data_start = sizeof(struct dm_ioctl);
 					(void)strcpy(dm2->name, nl->name);
 					VOID_RET(int, ioctl(fd, DM_DEV_STATUS, dm2));
+
+					/* and exercise invalid dev name */
+					shim_memset(buf2, 0, sizeof(buf2));
+					dm2->version[0] = DM_VERSION_MAJOR;
+					dm2->version[1] = DM_VERSION_MINOR;
+					dm2->version[2] = 0;
+					dm2->data_size = 4096;
+					dm2->data_start = sizeof(struct dm_ioctl);
+					stress_rndstr(dm2->name, 32);
+					VOID_RET(int, ioctl(fd, DM_DEV_STATUS, dm2));
 				}
 #endif
 				if (nl->next == 0)
@@ -521,15 +537,27 @@ static void stress_dev_dm_linux(
 	}
 #endif
 
-#if defined(DM_VERSION) &&	\
-    defined(HAVE_LIST_VERSIONS)
+#if defined(DM_LIST_VERSIONS) &&	\
+    defined(HAVE_DM_IOCTL)
 	{
 		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
 		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
 
+		shim_memset(buf, 0, sizeof(buf));
+		dm->version[0] = DM_VERSION_MAJOR;
+		dm->version[1] = DM_VERSION_MINOR;
+		dm->version[2] = 0;
 		dm->data_size = 4096;
-		dm->data_start = sizeof(arg);
-		VOID_RET(ioctl(fd, DM_LIST_VERSIONS, dm));
+		dm->data_start = sizeof(buf);
+		VOID_RET(int, ioctl(fd, DM_LIST_VERSIONS, dm));
+
+		shim_memset(buf, 0, sizeof(buf));
+		dm->version[0] = DM_VERSION_MAJOR;
+		dm->version[1] = DM_VERSION_MINOR;
+		dm->version[2] = 0;
+		dm->data_size = ~0;
+		dm->data_start = sizeof(buf);
+		VOID_RET(int, ioctl(fd, DM_LIST_VERSIONS, dm));
 	}
 #endif
 
