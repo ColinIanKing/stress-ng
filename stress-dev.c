@@ -1444,6 +1444,13 @@ static void stress_dev_scsi_generic_linux(
 		VOID_RET(int, ioctl(fd, BLKSECTGET, &n));
 	}
 #endif
+/*
+#if defined(SCSI_IOCTL_SYNC)
+	{
+		VOID_RET(int, ioctl(fd, SCSI_IOCTL_SYNC, 0));
+	}
+#endif
+*/
 }
 #endif
 
@@ -3811,6 +3818,7 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/bsg", stress_dev_scsi_blk),
+	DEV_FUNC("/dev/sg", stress_dev_scsi_blk),
 #endif
 };
 
