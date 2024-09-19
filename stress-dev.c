@@ -468,19 +468,71 @@ static void stress_dev_dm_linux(
 #if defined(DM_VERSION) &&	\
     defined(HAVE_DM_IOCTL)
 	{
-		struct dm_ioctl dm;
+		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
+		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
 
-		VOID_RET(int, ioctl(fd, DM_VERSION, &dm));
+		shim_memset(buf, 0, sizeof(buf));
+		dm->version[0] = DM_VERSION_MAJOR;
+		dm->version[1] = DM_VERSION_MINOR;
+		dm->version[2] = 0;
+
+		VOID_RET(int, ioctl(fd, DM_VERSION, dm));
 	}
 #endif
-#if defined(DM_DEV_STATUS) &&	\
+#if defined(DM_LIST_DEVICES) &&	\
     defined(HAVE_DM_IOCTL)
 	{
-		struct dm_ioctl dm;
+		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
+		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
 
-		VOID_RET(int, ioctl(fd, DM_DEV_STATUS, &dm));
+		shim_memset(buf, 0, sizeof(buf));
+		dm->version[0] = DM_VERSION_MAJOR;
+		dm->version[1] = DM_VERSION_MINOR;
+		dm->version[2] = 0;
+		dm->data_size = 4096;
+		dm->data_start = sizeof(struct dm_ioctl);
+
+		if (ioctl(fd, DM_LIST_DEVICES, dm) == 0) {
+			struct dm_name_list *nl = (struct dm_name_list *)(buf + dm->data_start);
+			uint32_t i;
+
+			for (i = 0; i < dm->data_size; i++) {
+#if defined(DM_DEV_STATUS)
+				if (strlen(nl->name) < 4096) {
+
+					uint8_t buf2[sizeof(struct dm_ioctl) + 4096];
+					struct dm_ioctl *dm2 = (struct dm_ioctl *)buf2;
+
+					shim_memset(buf2, 0, sizeof(buf2));
+					dm2->version[0] = DM_VERSION_MAJOR;
+					dm2->version[1] = DM_VERSION_MINOR;
+					dm2->version[2] = 0;
+					dm2->data_size = 4096;
+					dm2->data_start = sizeof(struct dm_ioctl);
+					(void)strcpy(dm2->name, nl->name);
+					VOID_RET(int, ioctl(fd, DM_DEV_STATUS, dm2));
+				}
+#endif
+				if (nl->next == 0)
+					break;
+				nl = (struct dm_name_list *)((uintptr_t)nl + nl->next);
+			}
+		}
 	}
 #endif
+
+#if defined(DM_VERSION) &&	\
+    defined(HAVE_LIST_VERSIONS)
+	{
+		uint8_t buf[sizeof(struct dm_ioctl) + 4096];
+		struct dm_ioctl *dm = (struct dm_ioctl *)buf;
+
+		dm->data_size = 4096;
+		dm->data_start = sizeof(arg);
+		VOID_RET(ioctl(fd, DM_LIST_VERSIONS, dm));
+	}
+#endif
+
 #if defined(RWF_NOWAIT) &&	\
     defined(O_DIRECT) &&	\
     defined(HAVE_PREADV2)
@@ -3628,7 +3680,7 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_DM_IOCTL_H)
-	DEV_FUNC("/dev/dm",	stress_dev_dm_linux),
+	DEV_FUNC("/dev/mapper/control",	stress_dev_dm_linux),
 #endif
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_VIDEODEV2_H)
