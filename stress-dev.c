@@ -896,6 +896,12 @@ static void stress_dev_tty(
 	}
 #endif
 
+#if defined(TIOCCONS)
+	{
+		VOID_RET(int, ioctl(fd, TIOCCONS, 0));
+	}
+#endif
+
 	/* Modem */
 #if defined(TIOCGSOFTCAR)
 	{
