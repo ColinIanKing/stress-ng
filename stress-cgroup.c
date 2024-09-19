@@ -321,6 +321,8 @@ static void stress_cgroup_new_group(const char *realpathname)
 			{ "cpu.pressure",		NULL },
 			{ "cpu.uclamp.min",		"10.0" },
 			{ "cpu.uclamp.max",		"95.0" },
+			{ "cpu.idle",			"1" },
+			{ "cpu.idle",			"0" },
 			{ "memory.current",		NULL },
 			{ "memory.min",			"1M" },
 			{ "memory.low",			"2M" },
@@ -334,11 +336,14 @@ static void stress_cgroup_new_group(const char *realpathname)
 			{ "memory.stat",		NULL },
 			{ "memory.numa_stat",		NULL },
 			{ "memory.swap.current",	NULL },
+			{ "memory.swap.high",		NULL },
 			{ "memory.swap.peak",		NULL },
 			{ "memory.swap.max",		NULL },
 			{ "memory.swap.events",		NULL },
 			{ "memory.zswap.current",	NULL },
 			{ "memory.zswap.max",		NULL },
+			{ "memory.zswap.writeback",	"0" },
+			{ "memory.zswap.writeback",	"1" },
 			{ "memory.pressure",		NULL },
 			{ "io.stat",			NULL },
 			{ "io.cost.qos",		NULL },
@@ -350,10 +355,16 @@ static void stress_cgroup_new_group(const char *realpathname)
 			{ "io.stat",			NULL },
 			{ "pids.max",			"10000" },
 			{ "pids.current",		NULL },
+			{ "pids.peak",			NULL },
+			{ "pids.events",		NULL },
+			{ "pids.events.local",		NULL },
 			{ "cpuset.cpus",		"0" },	/* force child to cpu 0 */
 			{ "cpuset.cpus.effective",	NULL },
 			{ "cpuset.mems",		"0" },	/* force child to mem 0 */
 			{ "cpuset.mems.effective",	NULL },
+			{ "cpuset.cpus.exclusive",	NULL },
+			{ "cpuset.cpus.exclusive.effective",	NULL },
+			{ "cpuset.cpus.isolated",	NULL },
 			{ "cpuset.cpus.partition",	NULL },
 			{ "rdma.max",			NULL },
 			{ "rdma.current",		NULL },
@@ -373,8 +384,22 @@ static void stress_cgroup_new_group(const char *realpathname)
 			{ "hugetlb.2GB.rsvd.max",	NULL },
 			{ "misc.capacity",		NULL },
 			{ "misc.current",		NULL },
+			{ "misc.peak",			NULL },
 			{ "misc.max",			NULL },
 			{ "misc.events",		NULL },
+			{ "misc.events.local",		NULL },
+			{ "cgroup.type",		NULL },
+			{ "cgroup.procs",		NULL },
+			{ "cgroup.threads",		NULL },
+			{ "cgroup.controllers",		NULL },
+			{ "cgroup.subtree_control",	NULL },
+			{ "cgroup.events",		NULL },
+			{ "cgroup.max.descendants",	NULL },
+			{ "cgroup.max.depth",		NULL },
+			{ "cgroup.stat",		NULL },
+			{ "cgroup.pressure",		NULL },
+			{ "cgroup.freeze",		"0" },	/* freeze child */
+			{ "cgroup.freeze",		"1" },	/* unfreeze child */
 		};
 
 		/* Parent, exercise child in the cgroup */
@@ -396,7 +421,7 @@ static void stress_cgroup_new_group(const char *realpathname)
 			stress_cgroup_read(filename);
 
 			if (values[i].value) {
-				stress_system_write(filename, values[i].value, strlen(values[i].value));
+				(void)stress_system_write(filename, values[i].value, strlen(values[i].value));
 				stress_cgroup_read(filename);
 			}
 			stress_cgroup_del_pid(realpathname, pid);
