@@ -286,7 +286,7 @@ clear_journal()
 
 do_stress()
 {
-	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --klog-check --status 5 -x smi -v --interrupts"
+	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics --klog-check --status 5 -x smi -v --interrupts --change-cpu"
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
@@ -755,6 +755,7 @@ do_stress --vm -1 --vm-madvise random
 do_stress --vm -1 --vm-madvise sequential
 do_stress --vm -1 --vm-madvise unmergeable
 do_stress --vm -1 --vm-madvise willneed --page-in
+do_stress --vm -1 --vm-populate --ksm
 
 do_stress --vm-addr -1 --vm-addr-mlock
 
