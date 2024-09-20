@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "11 September 2024"
+.TH STRESS-NG 1 "20 September 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -203,7 +203,7 @@ timeout 60s      # stop each stressor after 60 seconds
 # vm stressor options:
 #
 vm 2             # 2 vm stressors
-vm-bytes 128M    # 128MB available memory shared by 2 vm stressors
+vm-bytes 128M    # 128 MB available memory shared by 2 vm stressors
 vm-keep          # keep vm mapping
 vm-populate      # populate memory
 #
@@ -391,7 +391,7 @@ stressors and will slow down stressor allocation speeds.
 .TP
 .B \-\-oom\-avoid\-bytes N
 Specify a low memory threshold to avoid making any further memory allocations.
-The parameter can be specified as an absolute number of bytes (e.g. 2M for 2MB)
+The parameter can be specified as an absolute number of bytes (e.g. 2M for 2 MB)
 or a percentage of the current free memory, e.g. 5% (the default is 2.5%).
 This option implicitly enables \-\-oom\-avoid.  The option allows the system
 to have enough free memory to try to avoid the out-of-memory killer terminating
@@ -736,7 +736,7 @@ the default is 16; 1 to 4096 are allowed.
 .RS 5
 .TQ
 .B \-\-aiol N
-start N workers that issue multiple 4K random asynchronous I/O writes using
+start N workers that issue multiple 4 K random asynchronous I/O writes using
 the Linux aio system calls io_setup(2), io_submit(2), io_getevents(2) and
 io_destroy(2).  By default, each worker process will handle 16 concurrent I/O
 requests.
@@ -950,8 +950,8 @@ as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
 .B \-\-bigheap\-growth N
-specify amount of memory to grow heap by per iteration. Size can be from 4K to
-64MB. Default is 64K.
+specify amount of memory to grow heap by per iteration. Size can be from 4 K to
+64 MB. Default is 64 K.
 .TP
 .B \-\-bigheap\-mlock
 attempt to mlock future allocated pages into memory causing more memory pressure. If
@@ -1125,7 +1125,7 @@ stop the bsearch worker after N bogo bsearch operations are completed.
 .TP
 .B \-\-bsearch\-size N
 specify the size (number of 32 bit integers) in the array to bsearch. Size can
-be from 1K to 4M.
+be from 1 K to 4 M.
 .RE
 .TP
 .B bubblesort stressor
@@ -2488,9 +2488,9 @@ the tens of thousands of functions equates to one bogo-op.
 .B \-\-far\-branch\-pages N
 specify the number of pages to allocate for far branch functions. The
 number for functions per page depends on the processor architecture,
-for example, x86 will have 4096 x 1 byte return instructions per 4K
+for example, x86 will have 4096 x 1 byte return instructions per 4 K
 page, where as SPARC64 will have only 512 x 8 byte return instructions
-per 4K page.
+per 4 K page.
 .RE
 .TP
 .B Page fault stressor
@@ -2586,7 +2586,7 @@ stop the fibsearch worker after N bogo fibsearch operations are completed.
 .TP
 .B \-\-fibsearch\-size N
 specify the size (number of 32 bit integers) in the array to fibsearch. Size can
-be from 1K to 4M.
+be from 1 K to 4 M.
 .RE
 .TP
 .B File extent (fiemap) stressor
@@ -3294,7 +3294,7 @@ exclusive, for example fadv-willneed cannot be used with fadv-dontneed.
 stop hdd stress workers after N bogo operations.
 .TP
 .B \-\-hdd\-write\-size N
-specify size of each write in bytes. Size can be from 1 byte to 4MB.
+specify size of each write in bytes. Size can be from 1 byte to 4 MB.
 .RE
 .TP
 .B BSD heapsort stressor
@@ -3351,7 +3351,7 @@ stop the hsearch workers after N bogo hsearch operations are completed.
 .TP
 .B \-\-hsearch\-size N
 specify the number of hash entries to be inserted into the hash table. Size can
-be from 1K to 4M.
+be from 1 K to 4 M.
 .RE
 .TP
 .B CPU instruction cache load stressor
@@ -3669,7 +3669,7 @@ stop the judy workers after N bogo judy operations are completed.
 .TP
 .B \-\-judy\-size N
 specify the size (number of 32 bit integers) in the Judy array to exercise.
-Size can be from 1K to 4M 32 bit integers.
+Size can be from 1 K to 4 M 32 bit integers.
 .RE
 .TP
 .B Kcmp stressor (Linux)
@@ -3896,7 +3896,7 @@ have been reached.
 .TQ
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
-memory from a 16MB mmap'd region (Intel x86 and ARM CPUs only).  This will
+memory from a 16 MB mmap'd region (Intel x86 and ARM CPUs only).  This will
 cause cacheline misses and stalling of CPUs.
 .TP
 .B \-\-lockbus\-nosplit
@@ -4053,8 +4053,8 @@ longjmp calls).
 .RS 5
 .TQ
 .B \-\-loop N
-start N workers that exercise the loopback control device. This creates 2MB
-loopback devices, expands them to 4MB, performs some loopback status information
+start N workers that exercise the loopback control device. This creates 2 MB
+loopback devices, expands them to 4 MB, performs some loopback status information
 get and set operations and then destoys them. Linux only and requires
 CAP_SYS_ADMIN capability.
 .TP
@@ -4081,7 +4081,7 @@ stop the lsearch workers after N bogo lsearch operations are completed.
 .TP
 .B \-\-lsearch\-size N
 specify the size (number of 32 bit integers) in the array to lsearch. Size can
-be from 1K to 4M.
+be from 1 K to 4 M.
 .RE
 .TP
 .B Linux Security Modules system call stressor
@@ -4101,7 +4101,7 @@ stop after N loops of fetching security modules lists and fetching LSM attribute
 .TQ
 .B \-\-madvise N
 start N workers that apply random madvise(2) advise settings on pages of
-a 4MB file backed shared memory mapping.
+a 4 MB file backed shared memory mapping.
 .TP
 .B \-\-madvise\-hwpoison
 enable MADV_HWPOISON page poisoning (if available, only when run as root). This
@@ -4124,7 +4124,7 @@ reallocation and freeing are chosen at random; 50% of the time memory
 is allocation (via one of malloc, calloc or realloc, posix_memalign,
 aligned_alloc, memalign) and 50% of the time allocations are free'd.
 Allocation sizes are also random, with the maximum allocation size controlled
-by the \-\-malloc\-bytes option, the default size being 64K.  The worker is
+by the \-\-malloc\-bytes option, the default size being 64 K.  The worker is
 re-started if it is killed by the out of memory (OOM) killer.
 .TP
 .B \-\-malloc\-bytes N
@@ -4415,7 +4415,7 @@ and ftruncate(2) for allocation and mmap(2) to map the allocation into the
 process address space.  (Linux only).
 .TP
 .B \-\-memfd\-bytes N
-allocate N bytes per memfd stress worker, the default is 256MB. One can specify
+allocate N bytes per memfd stress worker, the default is 256 MB. One can specify
 the size in as % of total available memory or in units of Bytes, KBytes, MBytes
 and GBytes using the suffix b, k, m or g.
 .TP
@@ -4449,7 +4449,7 @@ start N workers that offline and online memory hotplug regions. Linux only
 and requires CAP_SYS_ADMIN capabilities.
 .TP
 .B \-\memhotplug\-mmap
-enable random 1K to 1MB memory mapping/unmappings before each offline event.
+enable random 1 K to 1 MB memory mapping/unmappings before each offline event.
 .TP
 .B \-\-memhotplug\-ops N
 stop memhotplug stressors after N memory offline and online bogo operations.
@@ -4472,7 +4472,7 @@ write rates are specified.
 .TP
 .B \-\-memrate\-bytes N
 specify the size of the memory buffer being exercised. The default size
-is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and
+is 256 MB. One can specify the size in units of Bytes, KBytes, MBytes and
 GBytes using the suffix b, k, m or g, or cache sizes with L1, L2, L3 or
 LLC (lower level cache size).
 .TP
@@ -4498,7 +4498,7 @@ processes.
 .RS 5
 .TQ
 .B \-\-memthrash N
-start N workers that thrash and exercise a 16MB buffer in various ways to
+start N workers that thrash and exercise a 16 MB buffer in various ways to
 try and trip thermal overrun.  Each stressor will start 1 or more threads.
 The number of threads is chosen so that there will be at least 1 thread
 per CPU. Note that the optimal choice for N is a value that divides into
@@ -4772,7 +4772,7 @@ option allows the setting of N child processes per stressor.
 .B \-\-mmap N
 start N workers continuously calling mmap(2)/munmap(2).  The initial mapping
 is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random
-4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings.
+4 K unmappings, then pseudo-random 4 K mappings, and then linear 4 K unmappings.
 Note that this can cause systems to trip the kernel OOM killer on Linux
 systems if not enough physical memory and swap is not available.  The
 MAP_POPULATE option is used to populate pages into memory on systems that
@@ -4791,7 +4791,7 @@ enable file based memory mapping and use asynchronous msync'ing on each page,
 see \-\-mmap\-file.
 .TP
 .B \-\-mmap\-bytes N
-allocate N bytes per mmap stress worker, the default is 256MB. One can specify
+allocate N bytes per mmap stress worker, the default is 256 MB. One can specify
 the size as % of total available memory or in units of Bytes, KBytes, MBytes
 and GBytes using the suffix b, k, m or g.
 .TP
@@ -4810,7 +4810,7 @@ attempt to mlock mmap'd pages into memory causing more memory pressure by
 preventing pages from swapped out.
 .TP
 .B \-\-mmap\-mmap2
-use mmap2 for 4K page aligned offsets if mmap2 is available, otherwise fall back
+use mmap2 for 4 K page aligned offsets if mmap2 is available, otherwise fall back
 to mmap.
 .TP
 .B \-\-mmap\-mprotect
@@ -4912,7 +4912,7 @@ will use shared memory mappings.
 .TQ
 .B \-\-mmapfixed N
 start N workers that perform fixed address allocations from the top virtual
-address down to 128K.  The allocated sizes are from 1 page to 8 pages and
+address down to 128 K.  The allocated sizes are from 1 page to 8 pages and
 various random mmap flags are used MAP_SHARED/MAP_PRIVATE, MAP_LOCKED,
 MAP_NORESERVE, MAP_POPULATE. If successfully map'd then the allocation
 is remap'd first to a large range of addresses based on a random start
@@ -4941,7 +4941,7 @@ of pages are unmapped. By default 8192 mappings are attempted per round
 of mappings or until swapping is detected.
 .TP
 .B \-\-mmaphuge\-file
-attempt to mmap on a 16MB temporary file and random 4K offsets. If this fails,
+attempt to mmap on a 16 MB temporary file and random 4 K offsets. If this fails,
 anonymous mappings are used instead.
 .TP
 .B \-\-mmaphuge\-mlock
@@ -5181,7 +5181,7 @@ way down to a page size and then back up to the original size.  This worker
 is only available for Linux.
 .TP
 .B \-\-mremap\-bytes N
-initially allocate N bytes per remap stress worker, the default is 256MB. One
+initially allocate N bytes per remap stress worker, the default is 256 MB. One
 can specify the size in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
@@ -5236,7 +5236,7 @@ mapped memory. This exercises the msync(2) MS_SYNC and MS_INVALIDATE sync
 operations.
 .TP
 .B \-\-msync\-bytes N
-allocate N bytes for the memory mapped file, the default is 256MB. One
+allocate N bytes for the memory mapped file, the default is 256 MB. One
 can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
@@ -5434,14 +5434,14 @@ fallocate and fdatasync. For just /dev/null write benchmarking use the
 stop null stress workers after N /dev/null bogo operations.
 .TP
 .B \-\-null\-write
-just write to /dev/null with 4K writes with no additional exercising on /dev/null.
+just write to /dev/null with 4 K writes with no additional exercising on /dev/null.
 .RE
 .TP
 .B Migrate memory pages over NUMA nodes stressor
 .RS 5
 .TQ
 .B \-\-numa N
-start N workers that migrate stressors and a 4MB memory mapped buffer around
+start N workers that migrate stressors and a 4 MB memory mapped buffer around
 all the available NUMA nodes.  This uses migrate_pages(2) to move the stressors
 and mbind(2) and move_pages(2) to move the pages of the mapped buffer. After
 each move, the buffer is written to force activity over the bus which results
@@ -5451,7 +5451,7 @@ than 1 NUMA node.
 .B \-\-numa\-bytes N
 specify the total number bytes to be exercised by all the workers, the given
 size is divided by the number of workers and rounded to the nearest page
-size. The default is 4MB per worker. One can specify the size as % of total
+size. The default is 4 MB per worker. One can specify the size as % of total
 available memory or in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
@@ -5896,7 +5896,7 @@ stop prctl workers after N batches of prctl calls
 start N workers that benchmark prefetch and non-prefetch reads of a L3
 cache sized buffer. The buffer is read with loops of 8 \(mu 64 bit reads
 per iteration. In the prefetch cases, data is prefetched ahead of the
-current read position by various sized offsets, from 64 bytes to 8K
+current read position by various sized offsets, from 64 bytes to 8 K
 to find the best memory read throughput. The stressor reports the
 non-prefetch read rate and the best prefetched read rate. It also reports
 the prefetch offset and an estimate of the amount of time between the
@@ -6070,6 +6070,31 @@ entries may vary between kernels, this bogo ops metric is probably very
 misleading.
 .RE
 .TP
+.B pwrite/pread lseek I/O stressor
+.RS 5
+.TQ
+.B \-\-pseek N
+start N workers that exercise pwrite() and pread() with lseek() positioning tests.
+Each worker has 4 sub-processes that perform repeated pwrite() and pread()
+operations using the same shared file descriptor. Two of the processes
+are started using pthreads (if available), another two processes are started
+with fork(). Using pwrite() and pread() should perform I/O without
+altering the shared file descriptor file offset. The main worker process
+performs I/O using lseek()/write() and lseek()/read() calls that change the 
+file offset; lseeks are sanity checked to see if they are being altered by pwrite()
+and pread() calls.
+.TP
+.B \-\-pseek\-io\-size N
+specify size of each write/read I/O operation in bytes. Size can be from 1 byte to 1 MB.
+.TP
+.B \-\-pseek\-ops N
+stop after N writes by the main worker process.
+.TP
+.B \-\-pseek\-rand
+normally each sub-process writes to a fix file offset, using this option
+will randomize the offset on each write/read cycle.
+.RE
+.TP
 .B Pthread stressor
 .RS 5
 .TQ
@@ -6218,7 +6243,7 @@ tmpfs (Linux only). This alternates between mounting and umounting a
 ramfs or tmpfs file system using the traditional mount(2) and
 umount(2) system call as well as the newer Linux 5.2 fsopen(2),
 fsmount(2), fsconfig(2) and move_mount(2) system calls if they
-are available. The default ram file system size is 2MB.
+are available. The default ram file system size is 2 MB.
 .TP
 .B \-\-ramfs\-fill
 fill ramfs with zero'd data using fallocate(2) if it is available or
@@ -6505,7 +6530,7 @@ same as \-\-hdd\-opts but without the iovec option.
 stop revio stress workers after N bogo operations.
 .TP
 .B \-\-revio\-write\-size N
-specify size of each write in bytes. Size can be from 1 byte to 4MB.
+specify size of each write in bytes. Size can be from 1 byte to 4 MB.
 .RE
 .TP
 .B Ring pipes stressor
@@ -6740,7 +6765,7 @@ operations on a file. The default file size is 16 GB.
 stop seek stress workers after N bogo seek operations.
 .TP
 .B \-\-seek\-punch
-punch randomly located 8K holes into the file to cause more extents to force
+punch randomly located 8 K holes into the file to cause more extents to force
 a more demanding seek stressor, (Linux only).
 .TP
 .B \-\-seek\-size N
@@ -6801,7 +6826,7 @@ and is an opt-in option as it will affect the semaphore being exercised.
 .TQ
 .B \-\-sendfile N
 start N workers that send an empty file to /dev/null. This operation spends
-nearly all the time in the kernel.  The default sendfile size is 4MB.  The
+nearly all the time in the kernel.  The default sendfile size is 4 MB.  The
 sendfile options are for Linux only.
 .TP
 .B \-\-sendfile\-ops N
@@ -6809,7 +6834,7 @@ stop sendfile workers after N sendfile bogo operations.
 .TP
 .B \-\-sendfile\-size S
 specify the size to be copied with each sendfile call. The default size is
-4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes
+4 MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .RE
 .TP
@@ -6857,7 +6882,7 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .B \-\-shm N
 start N workers that open and allocate shared memory objects using the POSIX
 shared memory interfaces.  By default, the test will repeatedly create and
-destroy 32 shared memory objects, each of which is 8MB in size.
+destroy 32 shared memory objects, each of which is 8 MB in size.
 .TP
 .B \-\-shm\-bytes N
 specify the size of the POSIX shared memory objects to be created. One can
@@ -6878,7 +6903,7 @@ complete.
 .B \-\-shm\-sysv N
 start N workers that allocate shared memory using the System V shared memory
 interface.  By default, the test will repeatedly create and destroy 8 shared
-memory segments, each of which is 8MB in size.
+memory segments, each of which is 8 MB in size.
 .TP
 .B \-\-shm\-sysv\-bytes N
 specify the size of the shared memory segment to be created. One can specify
@@ -7155,7 +7180,7 @@ stop the skiplist worker after N skiplist store and search cycles are completed.
 .TP
 .B \-\-skiplist\-size N
 specify the size (number of integers) to store and search in the skiplist. Size can
-be from 1K to 4M.
+be from 1 K to 4 M.
 .RE
 .TP
 .B Time interrupts and context switches stressor
@@ -7450,7 +7475,7 @@ between kernel address space and user address space using splice(2). This is
 only available for Linux.
 .TP
 .B \-\-splice\-bytes N
-transfer N bytes per splice call, the default is 64K. One can specify the size
+transfer N bytes per splice call, the default is 64 K. One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
@@ -7493,7 +7518,7 @@ allocation mappings.
 .RS 5
 .TQ
 .B \-\-stackmmap N
-start N workers that use a 2MB stack that is memory mapped onto a temporary
+start N workers that use a 2 MB stack that is memory mapped onto a temporary
 file. A recursive function works down the stack and flushes dirty stack pages
 back to the memory mapped file using msync(2) until the end of the stack is
 reached (stack overflow). This exercises dirty page and stack exception handling.
@@ -7582,7 +7607,7 @@ and L3 caching and hence forces higher memory read/write latencies.
 Specify the CPU Level 3 cache size in bytes.  One can specify the size in
 units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 If the L3 cache size is not provided, then stress\-ng will attempt to
-determine the cache size, and failing this, will default the size to 4MB.
+determine the cache size, and failing this, will default the size to 4 MB.
 .TP
 .B \-\-stream\-mlock
 attempt to mlock the stream buffers into memory to prevent them from being
@@ -8076,7 +8101,7 @@ stop the tsearch workers after N bogo tree operations are completed.
 .TP
 .B \-\-tsearch\-size N
 specify the size (number of 32 bit integers) in the array to tsearch. Size
-can be from 1K to 4M.
+can be from 1 K to 4 M.
 .RE
 .TP
 .B Network tunnel stressor
@@ -8217,7 +8242,7 @@ faults and also context switches during the handling of the page faults.
 (Linux only).
 .TP
 .B \-\-userfaultfd\-bytes N
-mmap N bytes per userfaultfd worker to page fault on, the default is 16MB.
+mmap N bytes per userfaultfd worker to page fault on, the default is 16 MB.
 One can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
@@ -8537,7 +8562,7 @@ every page in the new process with using madvise MADV_MERGEABLE,
 MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .TP
 .B \-\-vforkmany\-vm\-bytes N
-mmap N bytes per vm worker for more memory pressure, the default is 64MB. This
+mmap N bytes per vm worker for more memory pressure, the default is 64 MB. This
 also enables the \-\-vforkmany\-vm option.  One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
@@ -8553,7 +8578,7 @@ killer on Linux systems if not enough physical memory and swap is not
 available.
 .TP
 .B \-\-vm\-bytes N
-mmap N bytes in total, this is shared by each vm worker, the default is 256MB.
+mmap N bytes in total, this is shared by each vm worker, the default is 256 MB.
 One can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
@@ -8808,7 +8833,7 @@ swapping. Only available on systems that support MAP_POPULATE (since Linux
 .B \-\-vm\-addr N
 start N workers that exercise virtual memory addressing using various
 methods to walk through a memory mapped address range. This will exercise
-mapped private addresses from 8MB to 64MB per worker and try to generate
+mapped private addresses from 8 MB to 64 MB per worker and try to generate
 cache and TLB inefficient addressing patterns. Each method will set the
 memory to a random pattern in a write phase and then sanity check this
 in a read phase.
@@ -8894,7 +8919,7 @@ supported on Linux.  Memory transfers are only verified if the \-\-verify
 option is enabled.
 .TP
 .B \-\-vm\-rw\-bytes N
-mmap N bytes per vm\-rw worker, the default is 16MB. One can specify the size
+mmap N bytes per vm\-rw worker, the default is 16 MB. One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
@@ -8922,7 +8947,7 @@ kernel address space and user address space using vmsplice(2) and splice(2).
 This is only available for Linux.
 .TP
 .B \-\-vm\-splice\-bytes N
-transfer N bytes per vmsplice call, the default is 64K. One can specify the
+transfer N bytes per vmsplice call, the default is 64 K. One can specify the
 size as % of total available memory or in units of Bytes, KBytes, MBytes and
 GBytes using the suffix b, k, m or g.
 .TP
@@ -9133,13 +9158,13 @@ inc64	T{
 increment a 64 bit integer.
 T}
 memmove	T{
-copy (move) a 1MB buffer using memmove(3).
+copy (move) a 1 MB buffer using memmove(3).
 T}
 memread	T{
-read from a 1MB buffer using fast memory reads.
+read from a 1 MB buffer using fast memory reads.
 T}
 memset	T{
-write to a 1MB buffer using memset(3).
+write to a 1 MB buffer using memset(3).
 T}
 mcw64	T{
 compute 64 bit random numbers using a mwc random generator.
@@ -9282,7 +9307,7 @@ just /dev/zero read benchmarking use the \-\-zero\-read option.
 stop zero stress workers after N /dev/zero bogo read operations.
 .TP
 .B \-\-zero\-read
-just read /dev/zero with 4K reads with no additional exercising on /dev/zero.
+just read /dev/zero with 4 K reads with no additional exercising on /dev/zero.
 .RE
 .TP
 .B Zlib stressor
@@ -9422,7 +9447,7 @@ T}
 .TP
 .B \-\-zlib\-ops N
 stop after N bogo compression operations, each bogo compression operation
-is a compression of 64K of random data at the highest compression level.
+is a compression of 64 K of random data at the highest compression level.
 .TP
 .B \-\-zlib\-strategy S
 specifies the strategy to use when deflating data. This is used to tune the
@@ -9496,7 +9521,7 @@ for 1 hour. Thus each stressor uses 10% of the available memory.
 \f[CR]stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s\f[]
 .IP
 runs for 60 seconds with 4 cpu stressors, 2 io stressors and 1 vm stressor
-using 1GB of virtual memory.
+using 1 GB of virtual memory.
 .LP
 \f[CR]stress\-ng \-\-iomix 2 \-\-iomix\-bytes 10% -t 10m\f[]
 .IP

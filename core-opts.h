@@ -1076,6 +1076,11 @@ typedef enum {
 
 	OPT_progress,
 
+	OPT_pseek,
+	OPT_pseek_ops,
+	OPT_pseek_rand,
+	OPT_pseek_io_size,
+
 	OPT_pthread,
 	OPT_pthread_ops,
 	OPT_pthread_max,

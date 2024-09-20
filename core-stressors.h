@@ -233,6 +233,7 @@
 	MACRO(prio_inv)		\
 	MACRO(priv_instr)	\
 	MACRO(procfs)		\
+	MACRO(pseek)		\
 	MACRO(pthread)		\
 	MACRO(ptrace)		\
 	MACRO(pty)		\
