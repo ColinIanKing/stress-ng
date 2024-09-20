@@ -911,6 +911,8 @@ seq_wr_retry:
 					}
 					continue;
 				}
+				/* max size is offset + bytes written */
+				hdd_bytes_max = i + ret;
 				stress_bogo_inc(args);
 			}
 		}
