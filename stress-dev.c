@@ -515,7 +515,7 @@ static void stress_dev_dm_linux(
 					dm2->version[2] = 0;
 					dm2->data_size = 4096;
 					dm2->data_start = sizeof(struct dm_ioctl);
-					(void)strcpy(dm2->name, nl->name);
+					(void)shim_strscpy(dm2->name, nl->name, sizeof(dm2->name));
 					VOID_RET(int, ioctl(fd, DM_DEV_STATUS, dm2));
 
 					/* and exercise invalid dev name */
@@ -3696,7 +3696,7 @@ static void stress_dev_autofs_linux(
 
 		init_autofs_dev_ioctl(info);
 		info->ioctlfd = -1;
-		shim_strscpy(info->path, tmp, tmp_len);
+		(void)shim_strscpy(info->path, tmp, tmp_len);
 		info->ismountpoint.in.type = AUTOFS_TYPE_ANY;
 		info->size = size;
 		VOID_RET(int, ioctl(fd, AUTOFS_DEV_IOCTL_ISMOUNTPOINT, info));
