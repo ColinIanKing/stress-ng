@@ -145,6 +145,11 @@ void stress_klog_start(void)
 			(void)snprintf(ts, sizeof(ts), "[%" PRIu64 ".%6.6" PRIu64 "]",
 				timestamp / 1000000, timestamp % 1000000);
 
+			if (strstr(buf, "audit:")) {
+				msg = "audit";
+				goto log_info;
+			}
+
 			/* Check for CPU throttling messages */
 			if ((strstr(buf, "CPU") || strstr(buf, "cpu")) &&
 			    (strstr(buf, "throttle") || strstr(buf, "throttling"))) {
