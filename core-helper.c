@@ -2800,7 +2800,49 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
  */
 static inline bool stress_check_root(void)
 {
-	return (geteuid() == 0);
+	if (geteuid() == 0)
+		return true;
+
+#if defined(__CYGWIN__)
+	{
+		/*
+		 * Cygwin would only return uid 0 if the Windows user is mapped
+		 * to this uid by a custom /etc/passwd file.  Regardless of uid,
+		 * a process has administrator privileges if the local
+		 * administrator group (S-1-5-32-544) is present in the process
+		 * token.  By default, Cygwin maps this group to gid 544 but it
+		 * may be mapped to gid 0 by a custom /etc/group file.
+		 */
+		gid_t *gids;
+		long gids_max;
+		int ngids;
+
+#if defined(_SC_NGROUPS_MAX)
+		gids_max = sysconf(_SC_NGROUPS_MAX);
+		if ((gids_max < 0) || (gids_max > 65536))
+			gids_max = 65536;
+#else
+		gids_max = 65536;
+#endif
+		gids = calloc((size_t)gids_max, sizeof(*gids));
+		if (!gids)
+			return false;
+
+		ngids = getgroups((int)gids_max, gids);
+		if (ngids > 0) {
+			int i;
+
+			for (i = 0; i < ngids; i++) {
+				if ((gids[i] == 0) || (gids[i] == 544)) {
+					free(gids);
+					return true;
+				}
+			}
+		}
+		free(gids);
+	}
+#endif
+	return false;
 }
 
 #if defined(HAVE_SYS_CAPABILITY_H)
