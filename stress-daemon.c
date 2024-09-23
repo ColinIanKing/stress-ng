@@ -66,7 +66,7 @@ static int stress_make_daemon(
 	int rc = EXIT_SUCCESS;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
-		goto err;
+		goto err_close_fd;
 	if (setsid() < 0) {
 		if (errno != ENOSYS) {
 			pr_fail("%s: setsid failed, errno=%d (%s)\n", args->name,
@@ -75,9 +75,9 @@ static int stress_make_daemon(
 
 			sz = write(fd, &rc, sizeof(rc));
 			if (sz != sizeof(rc))
-				goto err;
+				goto err_close_fd;
 		}
-		goto err;
+		goto err_close_fd;
 	}
 
 	(void)close(0);
@@ -100,12 +100,12 @@ static int stress_make_daemon(
 	 *  as stdout/stderr are now closed
 	 */
 	if ((fds[0] = open("/dev/null", O_RDWR)) < 0) {
-		goto err;
+		goto err_close_fd;
 	}
 	if ((fds[1] = dup(0)) < 0)
-		goto err0;
+		goto err_close_fds0;
 	if ((fds[2] = dup(0)) < 0)
-		goto err1;
+		goto err_close_fds1;
 
 	while (stress_continue_flag()) {
 		pid_t pid;
@@ -121,17 +121,17 @@ static int stress_make_daemon(
 					backoff = MAX_BACKOFF;
 				continue;
 			}
-			goto err2;
+			goto err_close_fds2;
 		} else if (pid == 0) {
 			/* Child */
 			if (chdir("/") < 0)
-				goto err2;
+				goto err_close_fds2;
 			(void)umask(0);
 			VOID_RET(int, stress_drop_capabilities(args->name));
 
 			sz = write(fd, &rc, sizeof(rc));
 			if (sz != sizeof(rc))
-				goto err2;
+				goto err_close_fds2;
 		} else {
 			/* Parent, will be reaped by init unless daemon_wait is true */
 			daemon_wait_pid(pid, daemon_wait);
@@ -139,10 +139,14 @@ static int stress_make_daemon(
 		}
 	}
 
-err2:	(void)close(fds[2]);
-err1:	(void)close(fds[1]);
-err0: 	(void)close(fds[0]);
-err:	(void)close(fd);
+err_close_fds2:
+	(void)close(fds[2]);
+err_close_fds1:
+	(void)close(fds[1]);
+err_close_fds0:
+	(void)close(fds[0]);
+err_close_fd:
+	(void)close(fd);
 
 	return rc;
 }
