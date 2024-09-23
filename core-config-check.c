@@ -93,8 +93,12 @@ void stress_config_check(void)
 				is_snap = true;
 		}
 		if (is_snap) {
+			bool oom_avoid = true;
+
 			pr_warn("note: stress-ng appears to be a snap and may not "
 				"run correctly inside this unsupported environment\n");
+			pr_inf("note: forcibly enabling --oom-avoid for this environment\n");
+			stress_set_setting_global("oom-avoid", TYPE_ID_BOOL, &oom_avoid);
 		}
 	}
 
