@@ -3207,6 +3207,39 @@ STRESS_PRAGMA_POP
 		(void)ret;
 	}
 #endif
+
+#if defined(SNDRV_CTL_IOCTL_ELEM_LIST)
+	{
+		struct snd_ctl_elem_list list;
+
+
+		(void)shim_memset(&list, 0, sizeof(list));
+
+		if (ioctl(fd, SNDRV_CTL_IOCTL_ELEM_LIST, &list) == 0) {
+			struct snd_ctl_elem_id *eids;
+
+			eids = calloc(list.count, sizeof(struct snd_ctl_elem_id));
+			if (eids) {
+				list.space = list.count;
+				list.pids = eids;
+
+				if (ioctl(fd, SNDRV_CTL_IOCTL_ELEM_LIST, &list) == 0) {
+#if defined(SNDRV_CTL_IOCTL_ELEM_INFO)
+					unsigned int i;
+
+					for (i = 0; i < list.count; i++) {
+						struct snd_ctl_elem_info info;
+
+						info.id.numid = eids[i].numid;
+						VOID_RET(int, ioctl(fd, SNDRV_CTL_IOCTL_ELEM_INFO, &info));
+					}
+#endif
+				}
+				free(eids);
+			}
+		}
+	}
+#endif
 }
 
 #if defined(__linux__)
