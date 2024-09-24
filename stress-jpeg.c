@@ -78,14 +78,15 @@ static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(const double x, const
 	const double tau = 2 * M_PI;
 	double cx, cy;
 	double value;
+	double third = 0.3333333333333333333L;
 
 	value = shim_sin((whence - x) * tau);
 	value += shim_cos((whence + y) * tau);
 	value += shim_sin((whence + x - y) * tau);
 	value += shim_sin((whence + x + y) * tau);
 
-	cx = x - 0.5 + shim_sin(whence * tau) / 3.0;
-	cy = y - 0.5 + shim_cos(whence * tau) / 3.0;
+	cx = x - 0.5 + shim_sin(whence * tau) * third;
+	cy = y - 0.5 + shim_cos(whence * tau) * third;
 	value += shim_sin(shim_sqrt(128.0 * (cx * cx + cy * cy)));
 
 	return value;
@@ -98,9 +99,10 @@ static void OPTIMIZE3 stress_rgb_plasma(
 {
 	register uint8_t *ptr = rgb;
 	register int32_t sy;
-	const double tx = ((double)stress_mwc32()) / 100.0;
-	const double ty = ((double)stress_mwc32()) / 100.0;
-	const double tz = ((double)stress_mwc32()) / 100.0;
+	const double hundredth = 0.01L;
+	const double tx = ((double)stress_mwc32()) * hundredth;
+	const double ty = ((double)stress_mwc32()) * hundredth;
+	const double tz = ((double)stress_mwc32()) * hundredth;
 	const double dx = 1.0 / (double)x_max;
 	const double dy = 1.0 / (double)y_max;
 	double y;
