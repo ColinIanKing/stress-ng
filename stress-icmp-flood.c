@@ -72,6 +72,8 @@ static int stress_icmp_flood(stress_args_t *args)
 	struct sockaddr_in servaddr;
 	uint64_t counter, sendto_fails = 0, sendto_ok;
 	double bytes = 0.0, t_start, duration, rate;
+	const uint16_t id = htons((uint16_t)args->instance);
+	uint16_t seq = 0;
 
 	char ALIGN64 pkt[MAX_PKT_LEN];
 	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
@@ -108,6 +110,23 @@ static int stress_icmp_flood(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	(void)shim_memset(pkt, 0, sizeof(pkt));
+	ip_hdr->version = 4;
+	ip_hdr->ihl = 5;
+	ip_hdr->tos = 0;
+	ip_hdr->id = id;
+	ip_hdr->frag_off = 0;
+	ip_hdr->ttl = 64;
+	ip_hdr->protocol = IPPROTO_ICMP;
+	ip_hdr->saddr = (in_addr_t)addr;
+	ip_hdr->daddr = (in_addr_t)addr;
+
+	icmp_hdr->type = ICMP_ECHO;
+	icmp_hdr->code = 0;
+	icmp_hdr->un.echo.sequence = htons(seq);
+
+	stress_rndbuf(payload, MAX_PAYLOAD_SIZE);
+
 	t_start = stress_time_now();
 	do {
 		const size_t payload_len = stress_mwc32modn(MAX_PAYLOAD_SIZE) + 1;
@@ -115,29 +134,10 @@ static int stress_icmp_flood(stress_args_t *args)
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
 		ssize_t ret;
 
-		(void)shim_memset(pkt, 0, sizeof(pkt));
-
-		ip_hdr->version = 4;
-		ip_hdr->ihl = 5;
-		ip_hdr->tos = 0;
 		ip_hdr->tot_len = htons(pkt_len);
-		ip_hdr->id = stress_mwc16();
-		ip_hdr->frag_off = 0;
-		ip_hdr->ttl = 64;
-		ip_hdr->protocol = IPPROTO_ICMP;
-		ip_hdr->saddr = (in_addr_t)addr;
-		ip_hdr->daddr = (in_addr_t)addr;
+		icmp_hdr->un.echo.id = id;
 
-		icmp_hdr->type = ICMP_ECHO;
-		icmp_hdr->code = 0;
-		icmp_hdr->un.echo.sequence = stress_mwc16();
-		icmp_hdr->un.echo.id = stress_mwc16();
-
-		/*
-		 * Generating random data is expensive so do it every 64 packets
-		 */
-		if ((stress_bogo_get(args) & 0x3f) == 0)
-			stress_rndbuf(payload, payload_len);
+		payload[0]++;
 		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 
@@ -148,6 +148,7 @@ static int stress_icmp_flood(stress_args_t *args)
 			bytes += (double)ret;
 		}
 		stress_bogo_inc(args);
+		seq++;
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
 
