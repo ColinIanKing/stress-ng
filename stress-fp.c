@@ -389,8 +389,8 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
     defined(HAVE_Float128)
 	{ "float128div",	"float128 divide",	stress_fp_float128_div,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
 #endif
-	{ "ibm128div",		"ibm128 divide",	stress_fp_ibm128_div,	STRESS_FP_TYPE_IBM128,		0.0, 0.0 },
 #if defined(HAVE__ibm128)
+	{ "ibm128div",		"ibm128 divide",	stress_fp_ibm128_div,	STRESS_FP_TYPE_IBM128,		0.0, 0.0 },
 #endif
 #if defined(HAVE__float80)
 	{ "float80div",		"float80 divide",	stress_fp_float80_div,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
