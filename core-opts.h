@@ -418,6 +418,7 @@ typedef enum {
 	OPT_fanotify_ops,
 
 	OPT_far_branch,
+	OPT_far_branch_flush,
 	OPT_far_branch_ops,
 	OPT_far_branch_pages,
 

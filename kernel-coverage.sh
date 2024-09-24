@@ -506,6 +506,8 @@ do_stress --exec -1 --exec-fork-method fork
 do_stress --exec -1 --exec-fork-method spawn
 do_stress --exec -1 --exec-fork-method vfork
 
+do_stress --far-branch -1 --far-branch-flush
+
 do_stress --fifo -1 --fifo-data-size 4096
 do_stress --fifo -1 --fifo-readers 64
 

@@ -25,12 +25,14 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"far-branch N",		"start N far branching workers" },
+	{ NULL, "far-branch-flush",	"periodically flush instruction cache" },
 	{ NULL,	"far-branch-ops N",	"stop after N far branching bogo operations" },
 	{ NULL, "far-branch-pages N",	"number of pages to populate with functions" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const stress_opt_t opts[] = {
+	{ OPT_far_branch_flush, "far-branch-flush", TYPE_ID_BOOL, 0, 1, NULL },
 	{ OPT_far_branch_pages, "far-branch-pages", TYPE_ID_SIZE_T, 1, 65536, NULL },
 	END_OPT,
 };
@@ -70,6 +72,22 @@ static void MLOCKED_TEXT stress_sig_handler(
 	stress_continue_set_flag(false);
 
 	siglongjmp(jmp_env, 1);
+}
+
+static void stress_far_branch_page_flush(void *page, const size_t page_size)
+{
+	if (mprotect(page, page_size, PROT_READ | PROT_WRITE | PROT_EXEC) == 0) {
+		size_t i;
+		uint8_t *data = (uint8_t *)page;
+
+		for (i = 0; i < 64; i++)
+			data[i] ^= 0xff;
+		for (i = 0; i < 64; i++)
+			data[i] ^= 0xff;
+	}
+
+	shim_flush_icache((char *)page, (char *)page + page_size);
+	(void)mprotect(page, page_size, PROT_READ | PROT_EXEC);
 }
 
 #if defined(MAP_FIXED_NOREPLACE) ||	\
@@ -263,7 +281,9 @@ static int stress_far_branch(stress_args_t *args)
 	NOCLOBBER void **pages = NULL;
 	NOCLOBBER size_t total_funcs = 0;
 	NOCLOBBER double calls = 0.0;
+	NOCLOBBER bool far_branch_flush = false;
 
+	(void)stress_get_setting("far-branch-flush", &far_branch_flush);
 	(void)stress_get_setting("far-branch-pages", &n_pages);
 	max_funcs = (n_pages * page_size) / stress_ret_opcode.stride;
 
@@ -388,9 +408,13 @@ static int stress_far_branch(stress_args_t *args)
 		}
 		stress_bogo_inc(args);
 		calls += (double)total_funcs;
+
+		if (UNLIKELY(far_branch_flush)) {
+			for (i = 0; i < n_pages; i++)
+				stress_far_branch_page_flush(pages[i], page_size);
+		}
 	} while (stress_continue(args));
 	duration = stress_time_now() - t_start;
-
 
 	rate = (duration > 0.0) ? calls / duration : 0.0;
 	stress_metrics_set(args, 0, "function calls per sec",

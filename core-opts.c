@@ -238,6 +238,7 @@ const struct option stress_long_options[] = {
 	{ "fanotify",		1,	0,	OPT_fanotify },
 	{ "fanotify-ops",	1,	0,	OPT_fanotify_ops },
 	{ "far-branch",		1,	0,	OPT_far_branch },
+	{ "far-branch-flush",	0,	0,	OPT_far_branch_flush },
 	{ "far-branch-ops",	1,	0,	OPT_far_branch_ops },
 	{ "far-branch-pages",	1,	0,	OPT_far_branch_pages },
 	{ "fault",		1,	0,	OPT_fault },

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "20 September 2024"
+.TH STRESS-NG 1 "24 September 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2480,6 +2480,10 @@ are placed in pages that are memory mapped with a wide spread of
 fixed virtual addresses.  Function calls are pre-shuffled
 to create a randomized mix of addresses to call. This stresses the
 instruction cache and any instruction TLBs.
+.TP
+.B \-\-far\-branch\-flush
+attempt to periodically flush instruction cache to produce instruction
+cache misses.
 .TP
 .B \-\-far\-branch\-ops N
 stop after N far branch bogo-ops. One full cycle of calling all
