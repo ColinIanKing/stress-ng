@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-export PATH=$PATH:/usr/bin
+export PATH=$PATH:/usr/bin:/usr/sbin
 PERF_PARANOID=/proc/sys/kernel/perf_event_paranoid
 SWAP=/tmp/swap.img
 FSIMAGE=/tmp/fs.img
