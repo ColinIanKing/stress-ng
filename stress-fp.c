@@ -42,7 +42,8 @@
 #define STRESS_FP_TYPE_FLOAT64		(6)
 #define STRESS_FP_TYPE_FLOAT80		(7)
 #define STRESS_FP_TYPE_FLOAT128		(8)
-#define STRESS_FP_TYPE_ALL		(9)
+#define STRESS_FP_TYPE_IBM128		(9)
+#define STRESS_FP_TYPE_ALL		(10)
 
 static const stress_help_t help[] = {
 	{ NULL,	"fp N",	 	"start N workers performing floating point math ops" },
@@ -134,7 +135,16 @@ typedef struct {
 		_Float128 mul;		/* value to multiply */
 		_Float128 mul_rev;	/* value to multiply to revert back */
 	} f128;
-
+#endif
+#if defined(HAVE__ibm128)
+	struct {
+		__ibm128 r_init;	/* initialization value for r */
+		__ibm128 r[2];	/* result of computation */
+		__ibm128 add;		/* value to add */
+		__ibm128 add_rev;	/* value to add to revert back */
+		__ibm128 mul;		/* value to multiply */
+		__ibm128 mul_rev;	/* value to multiply to revert back */
+	} ibm128;
 #endif
 } fp_data_t;
 
@@ -311,6 +321,12 @@ STRESS_FP_MUL(f128, stress_fp_float128_mul, false)
 STRESS_FP_DIV(f128, stress_fp_float128_div, false)
 #endif
 
+#if defined(HAVE__ibm128)
+STRESS_FP_ADD(ibm128, stress_fp_ibm128_add, false)
+STRESS_FP_MUL(ibm128, stress_fp_ibm128_mul, false)
+STRESS_FP_DIV(ibm128, stress_fp_ibm128_div, false)
+#endif
+
 typedef struct {
 	const char *name;
 	const char *description;
@@ -326,6 +342,9 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE__float128) ||	\
     defined(HAVE_Float128)
 	{ "float128add",	"float128 add",		stress_fp_float128_add,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
+#endif
+#if defined(HAVE__ibm128)
+	{ "ibm128add",		"ibm128 add",		stress_fp_ibm128_add,	STRESS_FP_TYPE_IBM128,		0.0, 0.0 },
 #endif
 #if defined(HAVE__float80)
 	{ "float80add",		"float80 add",		stress_fp_float80_add,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
@@ -347,6 +366,9 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
     defined(HAVE_Float128)
 	{ "float128mul",	"float128 multiply",	stress_fp_float128_mul,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
 #endif
+#if defined(HAVE__ibm128)
+	{ "ibm128mul",		"ibm128 multiply",	stress_fp_ibm128_mul,	STRESS_FP_TYPE_IBM128,		0.0, 0.0 },
+#endif
 #if defined(HAVE__float80)
 	{ "float80mul",		"float80 multiply",	stress_fp_float80_mul,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
 #endif
@@ -366,6 +388,9 @@ static stress_fp_funcs_t stress_fp_funcs[] = {
 #if defined(HAVE__float128) || 	\
     defined(HAVE_Float128)
 	{ "float128div",	"float128 divide",	stress_fp_float128_div,	STRESS_FP_TYPE_FLOAT128,	0.0, 0.0 },
+#endif
+	{ "ibm128div",		"ibm128 divide",	stress_fp_ibm128_div,	STRESS_FP_TYPE_IBM128,		0.0, 0.0 },
+#if defined(HAVE__ibm128)
 #endif
 #if defined(HAVE__float80)
 	{ "float80div",		"float80 divide",	stress_fp_float80_div,	STRESS_FP_TYPE_FLOAT80,		0.0, 0.0 },
