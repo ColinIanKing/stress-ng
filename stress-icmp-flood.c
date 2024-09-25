@@ -90,7 +90,7 @@ static int stress_icmp_flood(stress_args_t *args)
 	uint32_t max_payload_size;
 	bool icmp_flood_max_size = false;
 
-	stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size);
+	(void)stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size);
 	max_payload_size = icmp_flood_max_size ? MAX_PAYLOAD_SIZE : DEFAULT_PAYLOAD_SIZE;
 
 	(void)shim_memset(pkt, 0, sizeof(pkt));
