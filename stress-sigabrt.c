@@ -20,8 +20,8 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"sigabrt N",	 "start N workers generating segmentation faults" },
-	{ NULL,	"sigabrt-ops N", "stop after N bogo segmentation faults" },
+	{ NULL,	"sigabrt N",	 "start N workers generating SIGABRT signals" },
+	{ NULL,	"sigabrt-ops N", "stop after N bogo SIGABRT operations" },
 	{ NULL,	NULL,		 NULL }
 };
 
