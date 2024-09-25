@@ -89,7 +89,7 @@ static inline void ALWAYS_INLINE stress_asm_riscv_pause(void)
 	__asm__ __volatile__ (".4byte 0x100000F");
 }
 
-/* cbo.zero instrution */
+/* cbo.zero instruction */
 #if defined(HAVE_ASM_RISCV_CBO_ZERO)
 static inline void ALWAYS_INLINE stress_asm_riscv_cbo_zero(char *addr)
 {
