@@ -34,14 +34,22 @@
 static const stress_help_t help[] = {
 	{ NULL,	"icmp-flood N",		"start N ICMP packet flood workers" },
 	{ NULL,	"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
+	{ NULL, "icmp-flood-max-size",	"use randomized packet sizes up to 65535 bytes" },
 	{ NULL,	NULL,			NULL }
 };
+
+static const stress_opt_t opts[] = {
+	{ OPT_icmp_flood_max_size, "icmp-flood-max-size", TYPE_ID_BOOL, 0, 1, NULL },
+	END_OPT,
+};
+
 
 #if defined(HAVE_NETINET_IP_H) &&	\
     defined(HAVE_NETINET_IP_ICMP_H) &&	\
     defined(HAVE_ICMPHDR)
 
-#define MAX_PAYLOAD_SIZE	(1000)
+#define MAX_PAYLOAD_SIZE	(65535 - sizeof(struct iphdr) - sizeof(struct icmphdr))
+#define DEFAULT_PAYLOAD_SIZE	(1000)
 #define MAX_PKT_LEN		(sizeof(struct iphdr) + \
 				 sizeof(struct icmphdr) + \
 				 MAX_PAYLOAD_SIZE + 1)
@@ -79,6 +87,11 @@ static int stress_icmp_flood(stress_args_t *args)
 	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
 	struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
+	uint32_t max_payload_size;
+	bool icmp_flood_max_size = false;
+
+	stress_get_setting("icmp-flood-max-size", &icmp_flood_max_size);
+	max_payload_size = icmp_flood_max_size ? MAX_PAYLOAD_SIZE : DEFAULT_PAYLOAD_SIZE;
 
 	(void)shim_memset(pkt, 0, sizeof(pkt));
 	stress_rndbuf(payload, MAX_PAYLOAD_SIZE);
@@ -129,7 +142,7 @@ static int stress_icmp_flood(stress_args_t *args)
 
 	t_start = stress_time_now();
 	do {
-		const size_t payload_len = stress_mwc32modn(MAX_PAYLOAD_SIZE) + 1;
+		const size_t payload_len = stress_mwc32modn(max_payload_size) + 1;
 		const size_t pkt_len =
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
 		ssize_t ret;
@@ -180,6 +193,7 @@ const stressor_info_t stress_icmp_flood_info = {
 	.supported = stress_icmp_flood_supported,
 	.class = CLASS_OS | CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help
 };
 #else
@@ -187,6 +201,7 @@ const stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_unimplemented,
 	.class = CLASS_OS | CLASS_NETWORK,
 	.verify = VERIFY_ALWAYS,
+	.opts = opts,
 	.help = help,
 	.unimplemented_reason = "built without netinet/ip.h, netinet/ip_icmp.h or struct icmphdr support"
 };

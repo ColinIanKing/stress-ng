@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "24 September 2024"
+.TH STRESS-NG 1 "25 September 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3378,6 +3378,9 @@ stop the icache workers after N bogo icache operations are completed.
 .B \-\-icmp\-flood N
 start N workers that flood localhost with randonly sized ICMP ping packets.
 This stressor requires the CAP_NET_RAW capbility.
+.TP
+.B \-\-icmp\-flood\-max\-size
+use a maximum packet size of 65535 bytes instead of the default of 1000 bytes.
 .TP
 .B \-\-icmp\-flood\-ops N
 stop icmp flood workers after N ICMP ping packets have been sent.

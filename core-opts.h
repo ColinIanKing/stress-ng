@@ -575,6 +575,7 @@ typedef enum {
 
 	OPT_icmp_flood,
 	OPT_icmp_flood_ops,
+	OPT_icmp_flood_max_size,
 
 	OPT_idle_page,
 	OPT_idle_page_ops,

@@ -360,6 +360,7 @@ const struct option stress_long_options[] = {
 	{ "icache-ops",		1,	0,	OPT_icache_ops },
 	{ "icmp-flood",		1,	0,	OPT_icmp_flood },
 	{ "icmp-flood-ops",	1,	0,	OPT_icmp_flood_ops },
+	{ "icmp-flood-max-size", 0,	0,	OPT_icmp_flood_max_size },
 	{ "idle-page",		1,	0,	OPT_idle_page },
 	{ "idle-page-ops",	1,	0,	OPT_idle_page_ops },
 	{ "ignite-cpu",		0,	0, 	OPT_ignite_cpu },
