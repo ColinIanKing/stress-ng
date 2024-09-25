@@ -105,9 +105,8 @@ endif
 #
 MACHINE = $(shell make -f Makefile.machine)
 ifneq ($(PRESERVE_CFLAGS),1)
-ifneq ($(MACHINE),$(filter $(MACHINE),alpha parisc ia64))
-flag = -Wformat -fstack-protector-strong \
-	-Werror=format-security
+ifneq ($(MACHINE),$(filter $(MACHINE),alpha hppa ia64))
+flag = -Wformat -fstack-protector-strong -Werror=format-security
 #
 # add -D_FORTIFY_SOURCE=2 if _FORTIFY_SOURCE is not already defined
 #
