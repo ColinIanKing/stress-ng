@@ -34,7 +34,7 @@
 #endif
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
-#endif                  
+#endif
 
 #if defined(HAVE_SEMAPHORE_H) && \
     defined(HAVE_LIB_PTHREAD) && \
