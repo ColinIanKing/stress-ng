@@ -32,6 +32,9 @@
 #if defined(HAVE_SEMAPHORE_H)
 #include <semaphore.h>
 #endif
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif                  
 
 #if defined(HAVE_SEMAPHORE_H) && \
     defined(HAVE_LIB_PTHREAD) && \
@@ -88,9 +91,19 @@ static inline void stress_schedmix_waste_time(stress_args_t *args)
 #if defined(HAVE_SCHEDMIX_SEM)
 	struct timespec timeout;
 #endif
-
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_SELECT)
+	fd_set rfds;
+	struct timeval tv;
+	const int fdstdin = fileno(stdin);
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_PSELECT)
+	struct timespec ts;
+	sigset_t sigmask;
+#endif
 redo:
-	n = stress_mwc8modn(25);
+	n = stress_mwc8modn(27);
 	switch (n) {
 	case 0:
 		shim_sched_yield();
@@ -237,6 +250,27 @@ redo:
 			schedmix_sem->owner = -1;
 			(void)sem_post(&schedmix_sem->sem);
 		}
+		break;
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_SELECT)
+	case 25:
+		FD_ZERO(&rfds);
+		FD_SET(fdstdin, &rfds);
+		tv.tv_sec = 0;
+		tv.tv_usec = 100;
+		(void)select(fdstdin + 1, &rfds, NULL, NULL, &tv);
+		break;
+#endif
+#if defined(HAVE_SYS_SELECT_H) &&       \
+    defined(HAVE_PSELECT)
+	case 26:
+		FD_ZERO(&rfds);
+		FD_SET(fdstdin, &rfds);
+		ts.tv_sec = 0;
+		ts.tv_nsec = 100000;
+		(void)sigemptyset(&sigmask);
+		(void)pselect(fdstdin + 1, &rfds, NULL, NULL, &ts, &sigmask);
 		break;
 #endif
 	default:
