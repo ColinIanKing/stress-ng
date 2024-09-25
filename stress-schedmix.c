@@ -356,6 +356,8 @@ static int stress_schedmix_child(stress_args_t *args)
 			 *  Only have 1 RT deadline instance running
 			 */
 			if (args->instance == 0) {
+				uint64_t rndtime = (uint64_t)stress_mwc8modn(64) + 32;
+
 				(void)shim_memset(&attr, 0, sizeof(attr));
 				attr.size = sizeof(attr);
 				attr.sched_flags = 0;
@@ -363,9 +365,9 @@ static int stress_schedmix_child(stress_args_t *args)
 				attr.sched_priority = 0;
 				attr.sched_policy = SCHED_DEADLINE;
 				/* runtime <= deadline <= period */
-				attr.sched_runtime = 64 * 1000000;
-				attr.sched_deadline = 128 * 1000000;
-				attr.sched_period = 256 * 1000000;
+				attr.sched_runtime = rndtime * 1000000;
+				attr.sched_deadline = rndtime * 2000000;
+				attr.sched_period = rndtime * 4000000;
 
 				ret = shim_sched_setattr(0, &attr, 0);
 				break;
