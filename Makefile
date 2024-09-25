@@ -560,6 +560,7 @@ STRESS_SRC = \
 	stress-sigchld.c \
 	stress-sigfd.c \
 	stress-sigfpe.c \
+	stress-sighup.c \
 	stress-sigill.c \
 	stress-sigio.c \
 	stress-signal.c \

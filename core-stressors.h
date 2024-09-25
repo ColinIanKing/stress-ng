@@ -282,6 +282,7 @@
 	MACRO(sigchld)		\
 	MACRO(sigfd)		\
 	MACRO(sigfpe)		\
+	MACRO(sighup)		\
 	MACRO(sigio)		\
 	MACRO(sigill)		\
 	MACRO(signal)		\

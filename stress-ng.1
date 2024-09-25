@@ -6989,6 +6989,18 @@ start N workers that rapidly cause division by zero SIGFPE faults.
 stop sigfpe stress workers after N bogo SIGFPE faults.
 .RE
 .TP
+.B SIGHUP stressor
+.RS 5
+.TQ
+.B \-\-sighup N
+start N workers that generate SIGHUP signals using raise(2) and by killing
+a group leader process with a child process indirectly receiving SIGHUP when it loses
+the group leader.
+.TP
+.B \-\-sighup\-ops N
+stop sighup stressor workers after N SIGHUP signals
+.RE
+.TP
 .B SIGILL stressor
 .RS 5
 .TQ
