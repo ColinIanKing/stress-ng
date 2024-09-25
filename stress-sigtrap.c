@@ -21,8 +21,8 @@
 #include "core-arch.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"sigtrap N",	 "start N workers generating segmentation faults" },
-	{ NULL,	"sigtrap-ops N", "stop after N bogo segmentation faults" },
+	{ NULL,	"sigtrap N",	 "start N workers generating SIGTRAP signals" },
+	{ NULL,	"sigtrap-ops N", "stop after N bogo SIGTRAP operations" },
 	{ NULL,	NULL,		 NULL }
 };
 
