@@ -137,13 +137,13 @@ rewait:
 				    (WTERMSIG(status) == SIGABRT)) {
 					if (sigabrt_info->handler_enabled) {
 						if (sigabrt_info->signalled == false) {
-							pr_fail("%s SIGABORT signal handler did not get called\n",
+							pr_fail("%s SIGABRT signal handler did not get called\n",
 								args->name);
 							rc = EXIT_FAILURE;
 						}
 					} else {
 						if (sigabrt_info->signalled == true) {
-							pr_fail("%s SIGABORT signal handler was unexpectedly called\n",
+							pr_fail("%s SIGABRT signal handler was unexpectedly called\n",
 								args->name);
 							rc = EXIT_FAILURE;
 						}
