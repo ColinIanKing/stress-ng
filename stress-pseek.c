@@ -130,14 +130,14 @@ retry:
 
 		if (lseek(info->fd, offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, set offset at %jd, errno=%d (%s)\n",
-				args->name, offset, errno, strerror(errno));
+				args->name, (intmax_t)offset, errno, strerror(errno));
 			return -1;
 		}
 
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
 		if (new_offset != offset) {
 			pr_fail("%s: lseek failed, set offset at %jd, current offset at %jd\n",
-				args->name, offset, new_offset);
+				args->name, (intmax_t)offset, (intmax_t)new_offset);
 			return -1;
 		}
 		ret = write(info->fd, proc->buf, info->pseek_io_size);
@@ -193,14 +193,14 @@ retry:
 
 		if (lseek(info->fd, offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, set offset at %jd, errno=%d (%s)\n",
-				args->name, offset, errno, strerror(errno));
+				args->name, (intmax_t)offset, errno, strerror(errno));
 			return -1;
 		}
 
 		new_offset = lseek(info->fd, 0, SEEK_CUR);
 		if (new_offset != offset) {
 			pr_fail("%s: lseek failed, set offset at %jd, current offset at %jd\n",
-				args->name, offset, new_offset);
+				args->name, (intmax_t)offset, (intmax_t)new_offset);
 			return -1;
 		}
 		ret = read(info->fd, proc->buf, (size_t)info->pseek_io_size);
