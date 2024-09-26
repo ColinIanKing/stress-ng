@@ -20,10 +20,11 @@
 #define CORE_MWC_H
 
 #include <stdint.h>
+#include "core-attribute.h"
 
 extern void stress_mwc_reseed(void);
 extern void stress_mwc_set_seed(const uint32_t w, const uint32_t z);
-extern void stress_mwc_get_seed(uint32_t *w, uint32_t *z);
+extern void stress_mwc_get_seed(uint32_t *w, uint32_t *z) NONNULL(1, 2);
 extern void stress_mwc_seed(void);
 
 extern uint8_t stress_mwc1(void);
@@ -37,7 +38,7 @@ extern uint16_t stress_mwc16modn(const uint16_t max);
 extern uint32_t stress_mwc32modn(const uint32_t max);
 extern uint64_t stress_mwc64modn(const uint64_t max);
 
-extern void stress_rndbuf(void *buf, const size_t len);
-extern void stress_rndstr(char *str, const size_t len);
+extern void stress_rndbuf(void *buf, const size_t len) NONNULL(1);
+extern void stress_rndstr(char *str, const size_t len) NONNULL(1);
 
 #endif

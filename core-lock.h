@@ -19,13 +19,15 @@
 #ifndef CORE_LOCK_H
 #define CORE_LOCK_H
 
+#include "core-attribute.h"
+
 extern int stress_lock_mem_map(void);
 extern void stress_lock_mem_unmap(void);
 
-extern void *stress_lock_create(const char *name);
-extern int stress_lock_destroy(void *lock_handle);
-extern int stress_lock_acquire(void *lock_handle);
-extern int stress_lock_acquire_relax(void *lock_handle);
-extern int stress_lock_release(void *lock_handle);
+extern void *stress_lock_create(const char *name) NONNULL(1);
+extern int stress_lock_destroy(void *lock_handle) NONNULL(1);
+extern int stress_lock_acquire(void *lock_handle) NONNULL(1);
+extern int stress_lock_acquire_relax(void *lock_handle) NONNULL(1);
+extern int stress_lock_release(void *lock_handle) NONNULL(1);
 
 #endif

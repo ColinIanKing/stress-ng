@@ -19,6 +19,8 @@
 #ifndef CORE_CPUIDLE_H
 #define CORE_CPUIDLE_H
 
+#include "core-attribute.h"
+
 typedef struct cpu_cstate {
 	struct cpu_cstate *next;	/* next cpu c-state */
 	uint32_t residency;		/* residency in microseconds */
@@ -30,8 +32,8 @@ extern void stress_cpuidle_free(void);
 extern void stress_cpuidle_log_info(void);
 extern cpu_cstate_t *stress_cpuidle_cstate_list_head(void);
 
-extern void stress_cpuidle_read_cstates_begin(stress_cstate_stats_t *cstate_stats);
-extern void stress_cpuidle_read_cstates_end(stress_cstate_stats_t *cstate_stats);
-extern void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list);
+extern void stress_cpuidle_read_cstates_begin(stress_cstate_stats_t *cstate_stats) NONNULL(1);
+extern void stress_cpuidle_read_cstates_end(stress_cstate_stats_t *cstate_stats) NONNULL(1);
+extern void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list) NONNULL(2);
 
 #endif

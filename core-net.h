@@ -20,6 +20,7 @@
 #define CORE_NET_H
 
 #include <sys/socket.h>
+#include "core-attribute.h"
 
 /* Network domains flags */
 #define DOMAIN_INET		(0x00000001)	/* AF_INET */
@@ -35,19 +36,20 @@
 #define MIN_PORT		(1024)
 #define MAX_PORT		(65535)
 
+
 /* Network helpers */
 extern void stress_set_net_port(const char *optname, const char *opt,
-	const int min_port, const int max_port, int *port);
+	const int min_port, const int max_port, int *port) NONNULL(1, 2, 5);
 extern WARN_UNUSED int stress_set_net_domain(const int domain_mask,
-	const char *name, const char *domain_name, int *domain);
+	const char *name, const char *domain_name, int *domain) NONNULL(2, 3, 4);
 extern WARN_UNUSED int stress_set_sockaddr_if(const char *name, const uint32_t instance,
         const pid_t pid, const int domain, const int port, const char *ifname,
 	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
 extern WARN_UNUSED int stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t pid, const int domain, const int port,
-	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
+	struct sockaddr **sockaddr, socklen_t *len, const int net_addr) NONNULL(1, 6, 7);
 extern void stress_set_sockaddr_port(const int domain, const int port,
-	struct sockaddr *sockaddr);
+	struct sockaddr *sockaddr) NONNULL(3);
 extern int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr);
 extern WARN_UNUSED const char *stress_net_domain(const int domain);
 

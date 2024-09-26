@@ -19,9 +19,11 @@
 #ifndef CORE_THRASH_H
 #define CORE_THRASH_H
 
+#include "core-attribute.h"
+
 /* CPU thrashing start/stop helpers */
 extern int  stress_thrash_start(void);
 extern void stress_thrash_stop(void);
-extern int stress_pagein_self(const char *name);
+extern int stress_pagein_self(const char *name) NONNULL(1);
 
 #endif

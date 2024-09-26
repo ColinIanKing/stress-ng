@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024      Colin Ian King.
+ * Copyright (C) 2024      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,14 +16,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_MMAP_H
-#define CORE_MMAP_H
 
-#include "core-attribute.h"
+#include <stdlib.h>
+#include <string.h>
 
-extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
-extern int stress_mmap_check(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
-extern void stress_mmap_set_light(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
-extern int stress_mmap_check_light(uint8_t *buf, const size_t sz, const size_t page_size) NONNULL(1);
+#define NONNULL(...) __attribute__((nonnull (__VA_ARGS__)))
 
-#endif
+static void nonnull_func(void *dst, void *src, size_t len) NONNULL(1, 2);
+
+static void nonnull_func(void *dst, void *src, size_t len)
+{
+	(void)memcpy(dst, src, len);
+}
+
+int main(int argc, char **argv)
+{
+	char x[20];
+
+	nonnull_func(x, "test", 5);
+	/* nonnull_func(x, NULL, 5); */
+
+	return 0;
+}

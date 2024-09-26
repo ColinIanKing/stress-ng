@@ -19,6 +19,7 @@
 #ifndef CORE_PARSE_OPTS_H
 #define CORE_PARSE_OPTS_H
 
+#include "core-attribute.h"
 #include "core-setting.h"
 
 typedef struct {
@@ -46,28 +47,28 @@ extern void stress_check_range(const char *const opt, const uint64_t val,
 extern void stress_check_range_bytes(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 
-extern WARN_UNUSED int stress_get_int(const char *const str);
-extern WARN_UNUSED int8_t stress_get_int8(const char *const str);
-extern WARN_UNUSED int16_t stress_get_int16(const char *const str);
-extern WARN_UNUSED int32_t stress_get_int32(const char *const str);
-extern WARN_UNUSED int64_t stress_get_int64(const char *const str);
+extern WARN_UNUSED int stress_get_int(const char *const str) NONNULL(1);
+extern WARN_UNUSED int8_t stress_get_int8(const char *const str) NONNULL(1);
+extern WARN_UNUSED int16_t stress_get_int16(const char *const str) NONNULL(1);
+extern WARN_UNUSED int32_t stress_get_int32(const char *const str) NONNULL(1);
+extern WARN_UNUSED int64_t stress_get_int64(const char *const str) NONNULL(1);
 
-extern WARN_UNUSED unsigned int stress_get_uint(const char *const str);
-extern WARN_UNUSED uint8_t stress_get_uint8(const char *const str);
-extern WARN_UNUSED uint16_t stress_get_uint16(const char *const str);
-extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
-extern WARN_UNUSED uint64_t stress_get_uint64(const char *const str);
+extern WARN_UNUSED unsigned int stress_get_uint(const char *const str) NONNULL(1);
+extern WARN_UNUSED uint8_t stress_get_uint8(const char *const str) NONNULL(1);
+extern WARN_UNUSED uint16_t stress_get_uint16(const char *const str) NONNULL(1);
+extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str) NONNULL(1);
+extern WARN_UNUSED uint64_t stress_get_uint64(const char *const str) NONNULL(1);
 
 extern WARN_UNUSED uint64_t stress_get_uint64_scale(const char *const str,
-	const stress_scale_t scales[], const char *const msg);
+	const stress_scale_t scales[], const char *const msg) NONNULL(1, 2, 3);
 extern WARN_UNUSED uint64_t stress_get_uint64_byte(const char *const str);
 extern WARN_UNUSED uint64_t stress_get_uint64_percent(const char *const str,
-	const uint32_t instances, const uint64_t max, const char *const errmsg);
+	const uint32_t instances, const uint64_t max, const char *const errmsg) NONNULL(1);
 extern WARN_UNUSED uint64_t stress_get_uint64_byte_memory(const char *const str,
-	const uint32_t instances);
+	const uint32_t instances) NONNULL(1);
 extern WARN_UNUSED uint64_t stress_get_uint64_byte_filesystem(const char *const str,
-	const uint32_t instances);
-extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str);
+	const uint32_t instances) NONNULL(1);
+extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str) NONNULL(1);
 extern WARN_UNUSED int stress_parse_opt(const char *stressor_name, const char *optarg, const stress_opt_t *opt);
 extern WARN_UNUSED const char *stress_unimplemented_method(const size_t i);
 

@@ -20,13 +20,14 @@
 #define CORE_VMSTAT_H
 
 #include "stress-ng.h"
+#include "core-attribute.h"
 
-extern WARN_UNUSED int stress_set_status(const char *const opt);
-extern WARN_UNUSED int stress_set_vmstat(const char *const opt);
-extern WARN_UNUSED int stress_set_thermalstat(const char *const opt);
-extern WARN_UNUSED int stress_set_iostat(const char *const opt);
-extern WARN_UNUSED int stress_set_raplstat(const char *const opt);
-extern WARN_UNUSED char *stress_find_mount_dev(const char *name);
+extern WARN_UNUSED int stress_set_status(const char *const opt) NONNULL(1);
+extern WARN_UNUSED int stress_set_vmstat(const char *const opt) NONNULL(1);
+extern WARN_UNUSED int stress_set_thermalstat(const char *const opt) NONNULL(1);
+extern WARN_UNUSED int stress_set_iostat(const char *const opt) NONNULL(1);
+extern WARN_UNUSED int stress_set_raplstat(const char *const opt) NONNULL(1);
+extern WARN_UNUSED char *stress_find_mount_dev(const char *name) NONNULL(1);
 extern void stress_vmstat_start(void);
 extern void stress_vmstat_stop(void);
 

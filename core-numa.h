@@ -19,8 +19,10 @@
 #ifndef CORE_NUMA_H
 #define CORE_NUMA_H
 
-extern int stress_numa_count_mem_nodes(unsigned long *max_node);
+#include "core-attribute.h"
+
+extern int stress_numa_count_mem_nodes(unsigned long *max_node) NONNULL(1);
 extern int stress_numa_nodes(void);
-extern int stress_set_mbind(const char *arg);
+extern int stress_set_mbind(const char *arg) NONNULL(1);
 
 #endif

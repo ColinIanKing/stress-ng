@@ -20,13 +20,14 @@
 #define CORE_SORT_H
 
 #include <inttypes.h>
+#include "core-attribute.h"
 
 typedef void (*sort_swap_func_t)(void *p1, void *p2, register size_t size);
 typedef void (*sort_copy_func_t)(void *p1, void *p2, register size_t size);
 
-extern void stress_sort_data_int32_init(int32_t *data, const size_t n);
-extern void stress_sort_data_int32_shuffle(int32_t *data, const size_t n);
-extern void stress_sort_data_int32_mangle(int32_t *data, const size_t n);
+extern void stress_sort_data_int32_init(int32_t *data, const size_t n) NONNULL(1);
+extern void stress_sort_data_int32_shuffle(int32_t *data, const size_t n) NONNULL(1);
+extern void stress_sort_data_int32_mangle(int32_t *data, const size_t n) NONNULL(1);
 extern void stress_sort_compare_reset(void);
 extern uint64_t stress_sort_compare_get(void);
 extern uint64_t stress_sort_compares ALIGN64;

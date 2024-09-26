@@ -21,6 +21,7 @@
 #define CORE_RESOURCES_H
 
 #include <sys/socket.h>
+#include "core-attribute.h"
 #include "core-killpid.h"
 #include "core-pthread.h"
 
@@ -171,10 +172,10 @@ typedef struct {
 
 extern size_t stress_resources_allocate(stress_args_t *args, stress_resources_t *resources,
         const size_t num_resources, const size_t pipe_size, const size_t min_mem_free,
-	const bool do_fork);
+	const bool do_fork) NONNULL(1, 2);
 extern void stress_resources_access(const stress_args_t *args, stress_resources_t *resources,
-        const size_t num_resources);
+        const size_t num_resources) NONNULL(1, 2);
 extern void stress_resources_free(const stress_args_t *args, stress_resources_t *resources,
-        const size_t num_resources);
+        const size_t num_resources) NONNULL(1, 2);
 
 #endif

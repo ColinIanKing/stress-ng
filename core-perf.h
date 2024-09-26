@@ -20,6 +20,7 @@
 #define CORE_PERF_H
 
 #include "stress-ng.h"
+#include "core-attribute.h"
 
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
@@ -48,7 +49,7 @@ extern int stress_perf_enable(stress_perf_t *sp);
 extern int stress_perf_disable(stress_perf_t *sp);
 extern int stress_perf_close(stress_perf_t *sp);
 extern void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *procs_head,
-	const double duration);
+	const double duration) NONNULL(2);
 extern void stress_perf_init(void);
 #endif
 

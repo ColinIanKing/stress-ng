@@ -19,9 +19,11 @@
 #ifndef CORE_MODULE_H
 #define CORE_MODULE_H
 
+#include "core-attribute.h"
+
 extern int stress_module_load(const char *name, const char *alias,
-	const char *options, bool *already_loaded);
+	const char *options, bool *already_loaded) NONNULL(1, 2, 4);
 extern int stress_module_unload(const char *name, const char *alias,
-	const bool already_loaded);
+	const bool already_loaded) NONNULL(1, 2);
 
 #endif

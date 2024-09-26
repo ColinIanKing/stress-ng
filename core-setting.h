@@ -19,6 +19,8 @@
 #ifndef CORE_SETTING_H
 #define CORE_SETTING_H
 
+#include "core-attribute.h"
+
 /* native setting types */
 typedef enum {
 	TYPE_ID_UNDEFINED = 0,		/* no-id */
@@ -77,11 +79,12 @@ typedef struct stress_setting {
 extern void stress_settings_free(void);
 extern void stress_settings_show(void);
 extern int stress_set_setting(const char *stressor_name, const char *name,
-	const stress_type_id_t type_id, const void *value);
+	const stress_type_id_t type_id, const void *value) NONNULL(1, 2, 4);
 extern int stress_set_setting_global(const char *name,
-	const stress_type_id_t type_id, const void *value);
-extern bool stress_get_setting(const char *name, void *value);
-extern int stress_set_setting_true(const char *stressor_name, const char *name, const char *opt);
-extern void stress_settings_dbg(stress_args_t *args);
+	const stress_type_id_t type_id, const void *value) NONNULL(1, 3);
+extern bool stress_get_setting(const char *name, void *value) NONNULL(1, 2);
+extern int stress_set_setting_true(const char *stressor_name, const char *name,
+	const char *opt) NONNULL(1, 2);
+extern void stress_settings_dbg(stress_args_t *args) NONNULL(1);
 
 #endif

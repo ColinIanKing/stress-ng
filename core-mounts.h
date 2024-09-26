@@ -19,7 +19,9 @@
 #ifndef CORE_MOUNTS_H
 #define CORE_MOUNTS_H
 
-extern void stress_mount_free(char *mnts[], const int n);
-extern int stress_mount_get(char *mnts[], const int max);
+#include "core-attribute.h"
+
+extern void stress_mount_free(char *mnts[], const int n) NONNULL(1);
+extern int stress_mount_get(char *mnts[], const int max) NONNULL(1);
 
 #endif

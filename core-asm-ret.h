@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-attribute.h"
 
 #ifndef CORE_ASM_RET_H
 #define CORE_ASM_RET_H
@@ -31,6 +32,6 @@ typedef struct {
 typedef void (*stress_ret_func_t)(void);
 
 extern const stress_ret_opcode_t stress_ret_opcode;
-extern int stress_asm_ret_supported(const char *name);
+extern int stress_asm_ret_supported(const char *name) NONNULL(1);
 
 #endif

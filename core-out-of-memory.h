@@ -20,12 +20,13 @@
 #define CORE_OUT_OF_MEMORY_H
 
 #include "stress-ng.h"
+#include "core-attribute.h"
 
-typedef int stress_oomable_child_func_t(stress_args_t *args, void *context);
+typedef int stress_oomable_child_func_t(stress_args_t *args, void *context) NONNULL(1, 2);
 
 extern bool stress_process_oomed(const pid_t pid);
 extern void stress_set_oom_adjustment(stress_args_t *args, const bool killable);
 extern int stress_oomable_child(stress_args_t *args, void *context,
-	stress_oomable_child_func_t func, const int flag);
+	stress_oomable_child_func_t func, const int flag) NONNULL(1);
 
 #endif

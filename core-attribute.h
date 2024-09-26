@@ -180,4 +180,11 @@
 #define FORMAT(func, a, b)
 #endif
 
+#if defined(HAVE_ATTRIBUTE_NONNULL) &&				\
+    (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(7, 5, 0))
+#define NONNULL(...) __attribute__((nonnull (__VA_ARGS__)))
+#else
+#define NONNULL(...)
+#endif
+
 #endif

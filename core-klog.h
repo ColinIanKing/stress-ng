@@ -19,7 +19,9 @@
 #ifndef CORE_KLOG_H
 #define CORE_KLOG_H
 
+#include "core-attribute.h"
+
 extern void stress_klog_start(void);
-extern void stress_klog_stop(bool *success);
+extern void stress_klog_stop(bool *success) NONNULL(1);
 
 #endif

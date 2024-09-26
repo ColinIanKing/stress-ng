@@ -19,6 +19,8 @@
 #ifndef CORE_IO_PRIORITY_H
 #define CORE_IO_PRIORITY_H
 
+#include "core-attribute.h"
+
 /*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
  *  for these at present. Also refer to Documentation/block/ioprio.txt
@@ -48,7 +50,7 @@
 #define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | (data))
 #endif
 
-int32_t stress_get_opt_ionice_class(const char *const str);
+int32_t stress_get_opt_ionice_class(const char *const str) NONNULL(1);
 void stress_set_iopriority(const int32_t class, const int32_t level);
 
 #endif

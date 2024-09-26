@@ -19,6 +19,8 @@
 #ifndef CORE_TRY_OPEN_H
 #define CORE_TRY_OPEN_H
 
+#include "core-attribute.h"
+
 #define STRESS_TRY_OPEN_OK	  (0)		/* File can be opened */
 #define STRESS_TRY_OPEN_FORK_FAIL (1)		/* Try failed, e.g. can't fork */
 #define STRESS_TRY_OPEN_WAIT_FAIL (2)		/* Wait on child open failed */
@@ -27,8 +29,8 @@
 #define STRESS_TRY_AGAIN	  (5)		/* Device busy, try again */
 
 extern int stress_try_open(stress_args_t *args, const char *path,
-	const int flags, const unsigned long timeout_ns);
+	const int flags, const unsigned long timeout_ns) NONNULL(1, 2);
 extern int stress_open_timeout(const char *name, const char *path,
-	const int flags, const unsigned long timeout_ns);
+	const int flags, const unsigned long timeout_ns) NONNULL(1, 2);
 
 #endif
