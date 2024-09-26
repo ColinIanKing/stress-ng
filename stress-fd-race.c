@@ -121,7 +121,7 @@ static void stress_fd_race_close_fds(
 		if (shim_close_range(fds_min, fds_max, flag) == 0)
 			return;
 	}
-	switch (stress_mwc8modn(3)) {
+	switch (stress_mwc8modn(4)) {
 	case 0:
 	default:
 		/* Close fds in order */
@@ -134,6 +134,13 @@ static void stress_fd_race_close_fds(
 			(void)close(fds[i - 1]);
 		break;
 	case 2:
+		/* Close fds with stride */
+		for (i = 0; i < n; i += 2)
+			(void)close(fds[i]);
+		for (i = 1; i < n; i += 2)
+			(void)close(fds[i]);
+		break;
+	case 3:
 		/* Close fds in randomized order */
 		for (i = 0; i < n; i++) {
 			j = (size_t)stress_mwc32modn(n);
