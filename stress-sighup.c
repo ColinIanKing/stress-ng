@@ -118,40 +118,70 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		pid_t pid2;
-		int fds[2];
+		int fds_snd[2];
+		int fds_rcv[2];
 
-		if (pipe(fds) < 0)
-			return 0;
+		if (pipe(fds_snd) < 0)
+			_exit(0);
+		if (pipe(fds_rcv) < 0) {
+			stress_sighup_closefds(fds_snd);
+			_exit(0);
+		}
 
 		sighup_info->t_start = 0.0;
 
 		pid2 = fork();
 		if (pid2 < 0) {
-			stress_sighup_closefds(fds);
-			return 0;
+			stress_sighup_closefds(fds_snd);
+			stress_sighup_closefds(fds_rcv);
+			_exit(0);
 		} else if (pid2 == 0) {
+			VOID_RET(int, stress_sighandler(args->name, SIGHUP, stress_sighup_handler, NULL));
 			sighup_info->pid = getpid();
-			if (write(fds[1], &msg, 1) < 1)
+			if (read(fds_snd[0], &msg, 1) < 1) {
+				stress_sighup_closefds(fds_snd);
+				stress_sighup_closefds(fds_rcv);
 				_exit(0);
+			}
+			if (write(fds_rcv[1], &msg, 1) < 1) {
+				stress_sighup_closefds(fds_snd);
+				stress_sighup_closefds(fds_rcv);
+				_exit(0);
+			}
 			(void)kill(getpid(), SIGSTOP);
-			stress_sighup_closefds(fds);
+			stress_sighup_closefds(fds_snd);
+			stress_sighup_closefds(fds_rcv);
 			_exit(0);
 		} else {
-			sighup_info->pid = pid2;
 			setpgid(pid2, 0);
+			sighup_info->pid = pid2;
+
+			errno = 0;
 			/* Wait for child to stop itself */
-			if (read(fds[0], &msg, 0) < 1) {
-				/*
-				 * Parent kills itself and kernel delivers
-				 * SIGHUP to child
-				 */
-				sighup_info->t_start = stress_time_now();
-				(void)kill(getpid(), SIGKILL);
+			if (write(fds_snd[1], &msg, 1) < 1) {
+				stress_sighup_closefds(fds_snd);
+				stress_sighup_closefds(fds_rcv);
+				kill(pid2, SIGKILL);
+				_exit(0);
 			}
-			stress_sighup_closefds(fds);
+			if (read(fds_rcv[0], &msg, 1) < 1) {
+				stress_sighup_closefds(fds_snd);
+				stress_sighup_closefds(fds_rcv);
+				kill(pid2, SIGKILL);
+				_exit(0);
+			}
+			sighup_info->t_start = stress_time_now();
+			stress_sighup_closefds(fds_snd);
+			stress_sighup_closefds(fds_rcv);
+			/*
+			 * Parent kills itself and kernel delivers
+			 * SIGHUP to child
+			 */
+			(void)kill(getpid(), SIGKILL);
 			_exit(0);
 		}
 	}
+
 rewait:
 	ret = shim_waitpid(pid, &status, 0);
 	if (ret < 0) {
@@ -163,8 +193,15 @@ rewait:
 			(void)stress_kill_pid_wait(sighup_info->pid, &status);
 		return EXIT_FAILURE;
 	}
-	if (sighup_info->pid != 0)
+	if (sighup_info->pid != 0) {
+		int i;
+		for (i = 0; stress_continue(args) && (i < 1000); i++) {
+			if (kill(sighup_info->pid, 0) < 0)
+				break;
+			shim_usleep(250);
+		}
 		(void)stress_kill_pid_wait(sighup_info->pid, &status);
+	}
 	return 0;
 }
 
@@ -202,7 +239,6 @@ static int stress_sighup(stress_args_t *args)
 		const bool rnd = stress_mwc1();
 
 		sighup_info->signalled = false;
-
 		rc = rnd ? stress_sighup_raise_signal(args) :
 			   stress_sighup_process_group(args);
 		if (rc == EXIT_SUCCESS) {
