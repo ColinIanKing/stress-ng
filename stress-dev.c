@@ -4002,7 +4002,7 @@ static inline void stress_dev_rw(
 {
 	int fd, ret;
 	off_t offset;
-	struct stat buf;
+	struct stat statbuf;
 	struct pollfd fds[1];
 	fd_set rfds;
 	const double threshold = 0.25;
@@ -4059,17 +4059,17 @@ static inline void stress_dev_rw(
 
 		(void)stress_read_fdinfo(pid, fd);
 
-		if (shim_fstat(fd, &buf) < 0) {
+		if (shim_fstat(fd, &statbuf) < 0) {
 			pr_fail("%s: stat failed on %s, errno=%d (%s)\n",
 				args->name, path, errno, strerror(errno));
 		} else {
-			if ((S_ISBLK(buf.st_mode) | (S_ISCHR(buf.st_mode))) == 0) {
+			if ((S_ISBLK(statbuf.st_mode) | (S_ISCHR(statbuf.st_mode))) == 0) {
 				stress_dev_close_unlock(path, fd);
 				goto next;
 			}
 		}
 
-		if (S_ISBLK(buf.st_mode)) {
+		if (S_ISBLK(statbuf.st_mode)) {
 			stress_dev_blk(args, fd, path);
 
 			if (is_scsi_dev(dev_info))
@@ -4081,7 +4081,7 @@ static inline void stress_dev_rw(
 #if defined(HAVE_TERMIOS_H) &&	\
     defined(HAVE_TERMIOS) &&	\
     defined(TCGETS)
-		if (S_ISCHR(buf.st_mode) &&
+		if (S_ISCHR(statbuf.st_mode) &&
 		    strncmp("/dev/vsock", path, 10) &&
 		    strncmp("/dev/dri", path, 8) &&
 		    strncmp("/dev/nmem", path, 9) &&
@@ -4393,7 +4393,7 @@ static void stress_dev_infos_get(
 
 	for (i = 0; stress_continue(args) && (i < n); i++) {
 		int ret;
-		struct stat buf;
+		struct stat statbuf;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 		size_t len;
@@ -4437,10 +4437,10 @@ static void stress_dev_infos_get(
 
 		switch (shim_dirent_type(path, d)) {
 		case SHIM_DT_DIR:
-			ret = shim_stat(tmp, &buf);
+			ret = shim_stat(tmp, &statbuf);
 			if (ret < 0)
 				continue;
-			if ((buf.st_mode & flags) == 0)
+			if ((statbuf.st_mode & flags) == 0)
 				continue;
 			stress_dev_infos_get(args, tmp, tty_name, list, list_len);
 			break;
@@ -4556,7 +4556,7 @@ static void stress_sys_dev_infos_get(
 
 	for (i = 0; stress_continue(args) && (i < n); i++) {
 		int ret;
-		struct stat buf;
+		struct stat statbuf;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 		sys_dev_info_t *sys_dev_info;
@@ -4572,18 +4572,18 @@ static void stress_sys_dev_infos_get(
 		case SHIM_DT_LNK:
 			if (depth > 2)
 				continue;
-			ret = shim_stat(tmp, &buf);
+			ret = shim_stat(tmp, &statbuf);
 			if (ret < 0)
 				continue;
-			if ((buf.st_mode & flags) == 0)
+			if ((statbuf.st_mode & flags) == 0)
 				continue;
 			stress_sys_dev_infos_get(args, tmp, list, list_end, depth + 1);
 			break;
 		case SHIM_DT_DIR:
-			ret = shim_stat(tmp, &buf);
+			ret = shim_stat(tmp, &statbuf);
 			if (ret < 0)
 				continue;
-			if ((buf.st_mode & flags) == 0)
+			if ((statbuf.st_mode & flags) == 0)
 				continue;
 			stress_sys_dev_infos_get(args, tmp, list, list_end, depth + 1);
 			break;
