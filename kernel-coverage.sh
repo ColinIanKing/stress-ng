@@ -178,7 +178,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
 		btrfs)	MKFS_CMD="mkfs.btrfs"
-			MKFS_ARGS="-O extref -csum xxhash -R quota,free-space-tree -f ${FSIMAGE}"
+			MKFS_ARGS="-O extref --csum xxhash -R quota,free-space-tree -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o compress,autodefrag,datasum -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
