@@ -140,7 +140,7 @@ static const int close_range_flags[] = {
 
 /*
  *  stress_close_func()
- *	pthread that exits immediately
+ *	pthread that close file descriptors
  */
 static void *stress_close_func(void *arg)
 {
@@ -211,7 +211,7 @@ static void *stress_close_func(void *arg)
 
 /*
  *  stress_close()
- *	stress by creating pthreads
+ *	stress by closing file descriptors
  */
 static int stress_close(stress_args_t *args)
 {
