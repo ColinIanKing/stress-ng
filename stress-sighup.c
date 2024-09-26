@@ -205,7 +205,12 @@ static int stress_sighup(stress_args_t *args)
 
 		rc = rnd ? stress_sighup_raise_signal(args) :
 			   stress_sighup_process_group(args);
-	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
+		if (rc == EXIT_SUCCESS) {
+			stress_bogo_inc(args);
+		} else {
+			break;
+		}
+	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
