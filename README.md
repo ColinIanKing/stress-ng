@@ -657,6 +657,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [Impact of power consumption in containerized clouds: A comprehensive analysis of open-source power measurement tools](https://www.sciencedirect.com/science/article/pii/S1389128624002032)
 * [Evaluation of Thermal Stress on Heterogeneous IoT-Based Federated Learning](https://www.mdpi.com/2079-9292/13/16/3140)
 * [Anomaly Detection Within Mission-Critical Call Processing](https://arxiv.org/html/2408.14599v1)
+* [A Preliminary Assessment of the real-time capabilities of Real-Time Linux on Raspberry Pi 5](https://www.ecrts.org/wp-content/uploads/2024/07/ospert24-proceedings.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
