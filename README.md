@@ -457,8 +457,10 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [kernel oops in aafs_create in 6.8.1-1002-realtime kernel](https://bugs.launchpad.net/ubuntu-realtime/+bug/2068602)
 * [mm: optimize the redundant loop](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=cf3f9a593dab87a032d2b6a6fb205e7f3de4f0a1)
 * [MultiVM - L2 guest(s) running stress-ng getting stuck at booting after triggering crash](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2077722)
-* [powerpc/qspinlock: Fix deadlock in MCS queue](https://lore.kernel.org/lkml/20240829022830.1164355-1-nysal@linux.ibm.com/T/)
+* [powerpc/qspinlock: Fix deadlock in MCS queue](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=734ad0af3609464f8f93e00b6c0de1e112f44559)
 * [kernel regression with ext4 and ea_inode mount flags and exercising xattrs](https://bugs.launchpad.net/linux/+bug/2080853)
+* [sched_ext: TASK_DEAD tasks must be switched into SCX on ops_enable](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a8532fac7b5d27b8d62008a89593dccb6f9786ef)
+* [sched/deadline: Fix task_struct reference leak](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b58652db66c910c2245f5bee7deca41c12d707b9)
 
 ## Kernel improvements that used stress-ng
 
@@ -494,6 +496,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 2024:
 * [mm/vmalloc: eliminated the lock contention from twice to once](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=aaab830ad887629156ef17097c2ad24ce6fb8177)
 * [mm: switch mm->get_unmapped_area() to a flag](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=529ce23a764f25d172198b4c6ba90f1e2ad17f93)
+* [mm: always inline _compound_head() with CONFIG_HUGETLB_PAGE_OPTIMIZE_VMEMMAP=y](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ef5f379de302884b9b7ad9b62587a942a9f0bb55)
+* [mm: optimize the redundant loop of mm_update_owner_next()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=76ba6acfcce871db13ad51c6dc8f56fec2e92853)
 
 ## Presentations
 
