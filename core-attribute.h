@@ -187,4 +187,11 @@
 #define NONNULL(...)
 #endif
 
+#if defined(HAVE_ATTRIBUTE_RETURNS_NONNULL) &&				\
+    (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(7, 5, 0))
+#define RETURNS_NONNULL __attribute__((returns_nonnull))
+#else
+#define RETURNS_NONNULL
+#endif
+
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024      Colin Ian King.
+ * Copyright (C) 2024      Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,13 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#ifndef CORE_TIME_H
-#define CORE_TIME_H
 
-#include "core-attribute.h"
+#include <stdlib.h>
+#include <string.h>
 
-extern double stress_timeval_to_double(const struct timeval *tv) NONNULL(1);
-extern double stress_time_now(void);
-extern const char *stress_duration_to_str(const double duration, const bool int_secs, const bool report_secs) RETURNS_NONNULL;
+#define RETURNS_NONNULL __attribute__((returns_nonnull))
 
-#endif
+static char *returns_nonnull_func(void *dst, void *src, size_t len) RETURNS_NONNULL;
+
+static char *returns_nonnull_func(void *dst, void *src, size_t len)
+{
+	return "";
+}
+
+int main(int argc, char **argv)
+{
+	return (returns_nonnull_func == NULL);
+}
