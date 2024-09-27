@@ -73,7 +73,10 @@ static const stress_opt_t opts[] = {
 #if defined(HAVE_LIB_JPEG) &&	\
     defined(HAVE_LIBJPEG_H)
 
-static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(const double x, const double y, const double whence)
+static inline ALWAYS_INLINE double OPTIMIZE3 stress_plasma(
+	const double x,
+	const double y,
+	const double whence)
 {
 	const double tau = 2 * M_PI;
 	double cx, cy;
@@ -237,7 +240,10 @@ static void OPTIMIZE3 stress_rgb_flat(
  *  stress_jpeg_checksum_data()
  *	generate a 32 bit checksum on the jpeg compressed data
  */
-static void OPTIMIZE3 stress_jpeg_checksum_data(char *data, const size_t size, uint32_t *checksum)
+static void OPTIMIZE3 stress_jpeg_checksum_data(
+	char *data,
+	const size_t size,
+	uint32_t *checksum)
 {
 	register uint32_t sum = 0;
 	register uint8_t *ptr = (uint8_t *)data;
