@@ -27,9 +27,9 @@
 #define LOOPS_PER_CALL	(65536)
 
 static const stress_help_t help[] = {
-	{ NULL,	"vecfp N",	 "start N workers performing vector math ops" },
+	{ NULL,	"vecfp N",	"start N workers performing vector math ops" },
 	{ NULL,	"vecfp-ops N",	"stop after N vector math bogo operations" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	NULL,		NULL }
 };
 
 #if defined(HAVE_VECMATH)
