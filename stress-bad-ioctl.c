@@ -492,6 +492,10 @@ static int stress_bad_ioctl(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	int bad_ioctl_method = STRESS_BAD_IOCTL_CMD_RANDOM_INC;
 
+	lock = NULL;
+	dev_ioctl_info_head = NULL;
+	dev_ioctl_node = NULL;
+
 	(void)stress_get_setting("bad-ioctl-method", &bad_ioctl_method);
 
 	stress_bad_ioctl_dev_dir(args, "/dev", 0);
@@ -580,13 +584,13 @@ again:
 				if (threads[i].ret == 0)
 					(void)pthread_join(threads[i].pthread, NULL);
 			}
+			(void)stress_lock_destroy(lock);
 			_exit(EXIT_SUCCESS);
 		}
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)stress_lock_destroy(lock);
 	stress_bad_ioctl_dev_free(dev_ioctl_info_head);
 
 	return rc;
