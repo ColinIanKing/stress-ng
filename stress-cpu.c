@@ -2627,6 +2627,11 @@ static int TARGET_CLONES stress_cpu_union(const char *name)
 		u.bits64.b5 += (u.bits64.b4 << 1);
 		u.bits32.b1 ^= 1;
 		u.bits64.b7++;
+		/*
+		 *  The following operation on .b8 causes an assembler
+		 *  warning with pcc:
+		 *  "/tmp/ctm.sd7Pfx:12897: Warning: 0xffffffffffffff00 shortened to 0x0"
+		 */
 		u.bits8.b8 ^= 0xaa;
 		u.bits64.b8--;
 		u.bits16.b15 ^= 0xbeef;
