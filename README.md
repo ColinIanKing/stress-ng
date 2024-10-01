@@ -462,6 +462,7 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [sched_ext: TASK_DEAD tasks must be switched into SCX on ops_enable](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a8532fac7b5d27b8d62008a89593dccb6f9786ef)
 * [sched/deadline: Fix task_struct reference leak](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b58652db66c910c2245f5bee7deca41c12d707b9)
 * [sched_ext: Split the global DSQ per NUMA node](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b7b3b2dbae73b412c2d24b3d0ebf1110991e4510)
+* [calling getcpu with misaligned address causes kernel panic](https://bugzilla.kernel.org/show_bug.cgi?id=219339)
 
 ## Kernel improvements that used stress-ng
 
