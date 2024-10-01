@@ -158,6 +158,15 @@
 #define STRESS_STRESSOR_STATUS_BAD_METRICS	(3)
 #define STRESS_STRESSOR_STATUS_MAX		(4)
 
+/* Some Solaris systems don't have NAME_MAX */
+#if !defined(NAME_MAX)
+#if defined(MAXNAMELEN)
+#define NAME_MAX	(MAXNAMELEN - 1)
+#else
+#define NAME_MAX	(255)
+#endif
+#endif
+
 /*
  *  Per stressor misc rate metrics
  */
