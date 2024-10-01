@@ -285,6 +285,7 @@ static void stress_peekio_exercise(stress_peekio_proc_t *proc)
 	proc->ret = 0;
 }
 
+#if defined(HAVE_LIB_PTHREAD)
 static void *stress_peekio_pthread(void *parg)
 {
 	static void *nowt = NULL;
@@ -293,6 +294,7 @@ static void *stress_peekio_pthread(void *parg)
 	stress_peekio_exercise(proc);
 	return &nowt;
 }
+#endif
 
 static int stress_pseek_spawn(stress_args_t *args, stress_peekio_proc_t *proc)
 {
