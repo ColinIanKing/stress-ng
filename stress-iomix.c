@@ -142,6 +142,8 @@ static void stress_iomix_wr_seq_bursts(
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret == (off_t)-1) {
+			if (errno == EINTR)
+				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return;
@@ -209,6 +211,8 @@ static void stress_iomix_wr_rnd_bursts(
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
+				if (errno == EINTR)
+					return;
 				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				return;
@@ -248,6 +252,8 @@ static void stress_iomix_wr_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
+			if (errno == EINTR)
+				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return;
@@ -303,6 +309,8 @@ static void stress_iomix_rd_seq_bursts(
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret == (off_t)-1) {
+			if (errno == EINTR)
+				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return;
@@ -366,6 +374,8 @@ static void stress_iomix_rd_rnd_bursts(
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
+				if (errno == EINTR)
+					return;
 				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				return;
@@ -401,6 +411,8 @@ static void stress_iomix_rd_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
+			if (errno == EINTR)
+				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return;
@@ -576,6 +588,8 @@ static void stress_iomix_wr_bytes(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
+			if (errno == EINTR)
+				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return;
@@ -617,6 +631,8 @@ static void stress_iomix_wr_rev_bytes(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
+			if (errno == EINTR)
+				return;
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			return;
@@ -666,6 +682,8 @@ static void stress_iomix_rd_bytes(
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
+				if (errno == EINTR)
+					return;
 				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
 				return;
