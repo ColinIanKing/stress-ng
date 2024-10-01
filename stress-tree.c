@@ -126,7 +126,7 @@ typedef struct btree_node {
 } btree_node_t;
 
 /*
- *  We can enable struct packing for x86 since
+ *  We can enable struct packing for 64 bit x86 since
  *  this allows unaligned access of packed pointers.
  *  For large trees where stressing becomes memory
  *  bound once the tree is larger than the cache
@@ -134,7 +134,7 @@ typedef struct btree_node {
  *  since the memory stall penalty is much larger than
  *  the misaligned pointer access penalty.
  */
-#if !defined(STRESS_ARCH_X86)
+#if !defined(STRESS_ARCH_X86_64)
 #undef PACKED
 #define PACKED
 #endif
