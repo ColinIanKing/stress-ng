@@ -563,6 +563,7 @@ static int stress_file_ioctl(stress_args_t *args)
 			struct fsxattr xattr;
 
 			ret = ioctl(fd, FS_IOC_FSGETXATTR, &xattr);
+			exercised++;
 #if defined(FS_IOC_FSSETXATTR)
 			if (ret == 0)
 				ret = ioctl(fd, FS_IOC_FSSETXATTR, &xattr);
@@ -704,6 +705,7 @@ static int stress_file_ioctl(stress_args_t *args)
 
 			(void)memset(&uuid2, 0, sizeof(uuid2));
 			VOID_RET(int, ioctl(fd, FS_IOC_GETFSUUID, &uuid2));
+			exercised++;
 
 		}
 #endif
@@ -715,12 +717,14 @@ static int stress_file_ioctl(stress_args_t *args)
 
 			(void)memset(&sysfs_path, 0, sizeof(sysfs_path));
 			VOID_RET(int, ioctl(fd, FS_IOC_GETFSSYSFSPATH, &sysfs_path));
+			exercised++;
 		}
 #endif
 
 		if (!exercised) {	/* cppcheck-suppress knownConditionTrueFalse */
-			pr_inf("%s: no available file ioctls to exercise\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: no available file ioctls to exercise\n",
+					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;
 			goto tidy;
 		}
