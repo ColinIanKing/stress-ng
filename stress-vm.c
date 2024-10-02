@@ -869,7 +869,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 	}
 	val++;
 
-	stress_vm_check("gray code", bit_errors);
+	stress_vm_check("gray code (flip)", bit_errors);
 	stress_bogo_set(args, c);
 
 	return bit_errors;
@@ -1965,7 +1965,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	for (ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += prime)
 		bit_errors += 8 - stress_vm_count_bits8(*ptr);
 
-	stress_vm_check("prime-gray-zero", bit_errors);
+	stress_vm_check("prime-gray-one", bit_errors);
 abort:
 	offset++;
 	if (offset >= prime)
@@ -2704,7 +2704,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
-	stress_vm_check("cache-stripe", bit_errors);
+	stress_vm_check("cache-lines", bit_errors);
 abort:
 	stress_bogo_set(args, c);
 
@@ -2937,7 +2937,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 			goto abort;
 	}
 
-	stress_vm_check("walking one (data)", bit_errors);
+	stress_vm_check("fwdrev", bit_errors);
 abort:
 	stress_bogo_set(args, c);
 
