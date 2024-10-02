@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "canny kernel crusher"
+# Codename "manic machine masher"
 #
-VERSION=0.18.04
+VERSION=0.18.05
 
 #
 # Determine supported toolchains
