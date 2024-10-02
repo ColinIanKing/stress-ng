@@ -1,3 +1,147 @@
+stress-ng (0.18.05-1) unstable; urgency=medium
+
+  [Denis Ovsienko]
+  * README.md: Update Haiku particulars.
+  * stress-fcntl: fix multiple workers on Haiku
+  * stress-touch: Fix file name handling in stress_touch_dir_clean().
+  * Exempt Haiku from scheduling tests.
+
+  [Lukas Durfina]
+  * stress-vm: use correct method names for error messages
+  * stress-fp: support bf16
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * README.md: add another kernel bug report
+  * stress-tree: only pack tree struct for 64 bit x86-64
+  * stress-iomix: don't report an error in EINTR on lseek
+  * stress-file-ioctl: only report there are no ioctls tested on instance 0
+  * stress-ng.h: define NAME_MAX for systems that don't define this
+  * stress-pseek: only define stress_peekio_pthread if using pthreads
+  * README.md: add another kernel bug reference
+  * stress-bad-ioctl: fix lock segfault on removal
+  * stress-cpu: add comment about pcc warning in union exerciser
+  * core-*: add gcc function attribute returns_nonnull for extra sanity
+    checking
+  * stress-vecfp: minor space adjustments in array declaration
+  * stress-jpeg: break some long lines
+  * Manual: add notes about support for stress-ng
+  * README.md: add some more kernel bugs and performance improvement links
+  * README.md: Add another research paper link
+  * stress-fd-race: add even/odd fd stride close to random closing
+  * kernel-coverage: fix btrfs option -csum, should be --csum
+  * stress-close: clean up some block comments
+  * Manual: Fix typo "spinemm" ->" "spinmem"
+  * Manual: minor change, "note - " to "note: "
+  * README.md: Update number of stressors, 350+
+  * stress-dev: rename stat bufs to avoid name shadowing
+  * core-*: add gcc function attribute nonnull for extra sanity checking
+  * README.md: Add Lukas Durfina to contributor list
+  * stress-sighup: add send/recv handshake over pipe and sync on child death
+  * stress-sighup: add missing bogo-op counter
+  * stress-pseek: cast offsets to intmax_t to print with %j format specifier
+  * stress-icmp-flood: voidify return from stress_get_setting
+  * stress-sighup: add SIGHUP stressor
+  * stress-sigtrap: Fix short help, it has the wrong description
+  * stress-sigabrt: Fix short help, it has the wrong description
+  * stress-sigabrt: fix typo, SIGABORT -> SIGABRT
+  * core-asm-riscv.h: fix typo in comment
+  * stress-icmp-flood: add new --icmp-flood-max-size option
+  * stress-schedmix: remove trailing whitespaces
+  * stress-schedmix: add some randomness to deadline times
+  * stress-schedmix: add select and pselect timed delays to sched mix
+  * Makefile.machine: replace objdump with readelf to detect machine type
+  * Makefile: add $(PRE_V) before eigen if statement
+  * stress-jpeg: replace division with recipriocal multiply in plasma
+  * stress-icmp-flood: don't keep on setting packet up on each loop
+  * kernel-coverage: add /usr/sbin to $PATH
+  * stress-fp: fix incorrect placement of #if defined for ibm128 division
+  * stress-fp: add IBM powerpc ibm128 floating point add/mul/div operations
+  * stress-far-branch: add --far-branch-flush option to try to flush
+    instruction cache
+  * README.md: update number of stressors, 350 are now available
+  * core-helper: add root like detection for Cygwin
+  * stress-dev: exercise more sound control ioctls
+  * core-config-check: enable oom-avoid for containerized environment
+  * stress-daemon: rename err exit labels for improved readability
+  * core-klog: log audit kernel log messages
+  * stress-dev: use strscpy for safe copying of strings
+  * stress-pseek: pwrite/pread concurrent seek position stressor
+  * Manual: fix --hdd rd-seq option description
+  * Manual: fix --hdd rd-rnd option description
+  * stress-hdd: ensure hdd_bytes_max is set to the max number of bytes
+    written
+  * kernel-coverage: add --change-cpu per stressor and use --ksm for vm
+    stressor case
+  * stress-iomix: exercise cachestat(2) with invalid flags and invalid fd
+  * stress-cgroup: add more cgroup controls to read/write
+  * stress-dev: exercise ioctl command TIOCCONS
+  * stress-dev: add /dev/sg* devices to be exercised by stress_dev_scsi_blk
+  * stress-dev: fix DM_LIST_VERSIONS ioctl and add some invalid ioctl calls
+  * stress-dev: fix dm ioctl stressor, use /dev/mapper/control
+  * stress-ng: remove check to stress_cwd_readwriteable
+  * core-config-check: add hint to use --oom-avoid on low memory systems
+  * Makefile: add source dependencies for stress-eigen-ops.o
+  * kernel-coverage: add more per file system mount options for increased
+    kernel coverage
+  * stress-dev: exercise /sys/dev/* files on Linux systems
+  * core-helper: add naive Haiku libc information detection
+  * README.md: update contributors list
+  * stress-binderfs: exercise binderfs dev entry removal
+  * stress-mergesort: remove ALWAYS_INLINE from a comment
+  * stress-sigq: exercise invalid rt_sigqueueinfo call
+  * stress-xattr: exercise xattr on TMPFILE
+  * stress-tlb-shootdown: break func args into multiple lines
+  * stress-timerfd: minor alignment of data in source
+  * stress-sparsematrix: minor optimization hints
+  * stress-sock: make stress_send_error a PURE function
+  * stress-full: only declare and use variable w for linux builds
+  * README.md: Add LP#2080853 bug to known bugs found by stress-ng
+  * stress-full: enable of Solaris, FreeBSD and NetBSD
+  * stress-full: report errno for seek failures
+  * stress-af-alg: fix two heap memory leaks
+  * stress-af-alg: fix inverted assocdata allocation failure check
+  * Makefile: add rebuild dependency on Makefile.machine
+  * Makelfile.machine: remove tabbed empty line
+  * core-sort: add copy/swap helper functions for specific and generic sizes
+  * stress-fcntl: exercise Linux 6.12 F_CREATED_QUERY fcntl command
+  * stress-acl: stress_acl_cmp: constify acl1 and acl2 arguments
+  * core-helper: stress_get_libc_version: make educated guess that
+    musl-libc is being used
+  * stress-file-ioctl: voidify function arg fd if it's not used
+  * core-helper: stress_get_fs_info: voidify filename if it's not used
+  * Makefile: make musl-gcc detection more robust
+  * README.md: Add another research paper link
+  * Makefile: only define _FORTIFY_SOURCE if it's not defined
+  * stress-numa: fix typo in comment
+  * kernel-coverage: add --interrupts option to each test run
+  * kernel-coverage: add --acl-rand option to acl stressor
+  * kernel-coverage: add --mmap-slow-munmap to mmap stressor
+  * kernel-coverage: add --memfd-zap-pte option to memfd stressor
+  * kernel-coverage: add --get-slow-sync get stressor option
+  * kernel-coverage: add --swap-self swap option
+  * kernel-coverage: add --sockfd -1 --sockfd-reuse test case
+  * kernel-coverage: add --yield -1 --yield-sched scheduler tests
+  * kernel-coverage: add --c-state to cpu stress test case
+  * kernel-coverage: add --cpu -1 --raplstat 1 --rapl test case
+  * kernel-coverage: add --sem-shared option for sem stressor
+  * kernel-coverage: add --sem-sysv-setall sem-sysv test case
+  * stress-af-alg: put fixed sized buffers on the stack rather than heap
+  * core-helper: make blocks the correct unsigned type
+  * stress-file-ioctl: add some per-file system specific ioctls
+  * kernel-coverage: add -v verbose option when running stressors
+  * kernel-coverage: run procfs stressors for longer
+  * stress-poll: exercise invalid fd being passed into poll()
+  * stress-sem-sysv: add option --sem-sysv-setall
+  * stress-dev: exercise linux /dev/bsd/* scsi block devices
+  * core-setting: print bool type values as true or false
+  * core-setting: remove need for dup'ing name string
+  * stress-dev: replace __u32 with uint32_t to fix musl libc builds
+  * core-*: print per-stressor settings when -v is enabled
+  * stress-dev: check for autofs #defines for stress_dev_autofs_linux
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 2 Oct 2024 08:57:35 +0100
+
 stress-ng (0.18.04-1) unstable; urgency=medium
 
   * Makefile: bump version
