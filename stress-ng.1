@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "25 September 2024"
+.TH STRESS-NG 1 "2 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -528,6 +528,13 @@ option allows one to revert to the pre-0.15.08 behaviour.
 .B \-\-stdout
 all output goes to stdout. This is the new default for version 0.15.08. Use
 the \-\-stderr option for the original behaviour.
+.TP
+.B \-\-stressor\-time
+(requires \-v flag) log as debug the start and finish run times of each stressor
+instance, logged in the format: stressor [start|finish] HR:MN:SS.HS YYYY:MM:DD
+where HR is hours, MN is minutes, SS is seconds, HS is hundredths of seconds,
+YYYY is years, MM is months, DD is day of the month. If localtime(2) is not
+supported the time is logged as seconds past the Epoch.
 .TP
 .B \-\-stressors
 output the names of the available stressors.

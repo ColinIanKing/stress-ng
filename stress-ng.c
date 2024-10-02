@@ -175,6 +175,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
 	{ OPT_stderr,		OPT_FLAGS_STDERR },
 	{ OPT_stdout,		OPT_FLAGS_STDOUT },
+	{ OPT_stressor_time,	OPT_FLAGS_STRESSOR_TIME },
 	{ OPT_sync_start,	OPT_FLAGS_SYNC_START },
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
@@ -367,6 +368,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"status S",		"show stress-ng progress status every S seconds" },
 	{ NULL,		"stderr",		"all output to stderr" },
 	{ NULL,		"stdout",		"all output to stdout (now the default)" },
+	{ NULL,		"stressor-time",	"log start and end run times of each stressor" },
 	{ NULL,		"stressors",		"show available stress tests" },
 #if defined(HAVE_SYSLOG_H)
 	{ NULL,		"syslog",		"log messages to the syslog" },
@@ -1570,6 +1572,30 @@ static void stress_get_usage_stats(const int32_t ticks_per_sec, stress_stats_t *
 }
 
 /*
+ *  stress_log_time()
+ *	log start/end of stressor run, name is stressor, whence is the time and
+ *	tag is "start" or "finish".
+ */
+static void stress_log_time(const char *name, const double whence, const char *tag)
+{
+#if defined(HAVE_LOCALTIME_R)
+	time_t t = (time_t)whence;
+	struct tm tm;
+	double fractional, integral;
+
+	(void)localtime_r(&t, &tm);
+	fractional = modf(whence, &integral) * 100.0;
+	/* format stressor tag HH:MM:SS.HS YYYY:MM:DD */
+	pr_dbg("%s: %s %2.2d:%2.2d:%2.2d.%2.0f %4.4d:%2.2d:%2.2d\n",
+		name, tag, tm.tm_hour, tm.tm_min, tm.tm_sec, fractional,
+		tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+#else
+	/* fallback to Epoch time */
+	pr_dbg("%s: %s %.2f (Epoch time)\n", name, tag, whence);
+#endif
+}
+
+/*
  *  stress_run_child()
  *	invoke a stressor in a child process
  */
@@ -1589,7 +1615,7 @@ static int MLOCKED_TEXT stress_run_child(
 	const char *name = stress_readable_name(g_stressor_current->stressor);
 	int rc = EXIT_SUCCESS;
 	bool ok;
-	double finish, run_duration;
+	double finish = 0.0, run_duration;
 
 	sigalarmed = &stats->sigalarmed;
 
@@ -1664,6 +1690,8 @@ static int MLOCKED_TEXT stress_run_child(
 		if (g_opt_flags & OPT_FLAGS_RAPL)
 			(void)stress_rapl_get_power_stressor(g_shared->rapl_domains, NULL);
 #endif
+		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
+			stress_log_time(name, stats->start, "start");
 		rc = g_stressor_current->stressor->info->stressor(&stats->args);
 		stress_sync_state_store(&stats->s_pid, STRESS_SYNC_START_FLAG_FINISHED);
 		stress_block_signals();
@@ -1721,6 +1749,9 @@ static int MLOCKED_TEXT stress_run_child(
 		}
 		(*checksum)->data.ci.counter = stats->args.ci.counter;
 		stress_hash_checksum(*checksum);
+		finish = stress_time_now();
+		if (g_opt_flags & OPT_FLAGS_STRESSOR_TIME)
+			stress_log_time(name, finish, "finish");
 	}
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
@@ -1733,7 +1764,6 @@ static int MLOCKED_TEXT stress_run_child(
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
 		(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
-	finish = stress_time_now();
 	stats->duration = finish - stats->start;
 	stats->counter_total += stats->args.ci.counter;
 	stats->duration_total += stats->duration;

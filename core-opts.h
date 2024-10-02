@@ -86,6 +86,7 @@
 #define OPT_FLAGS_RAPL		 STRESS_BIT_ULL(55)	/* --rapl */
 #define OPT_FLAGS_RAPL_REQUIRED  STRESS_BIT_ULL(56)	/* set if RAPL is required */
 #define OPT_FLAGS_C_STATES	 STRESS_BIT_ULL(57)	/* --c-states */
+#define OPT_FLAGS_STRESSOR_TIME	 STRESS_BIT_ULL(58)	/* --stressor-time */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1444,6 +1445,8 @@ typedef enum {
 	OPT_stream_madvise,
 	OPT_stream_mlock,
 	OPT_stream_ops,
+
+	OPT_stressor_time,
 
 	OPT_stressors,
 
