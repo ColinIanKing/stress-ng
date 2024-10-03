@@ -214,6 +214,85 @@ exit_fdmem:
 	return rc;
 }
 
+#if defined(__linux__)
+/*
+ *  stress_proc_file_read()
+ *	read a proc file
+ */
+static void stress_proc_file_read(const char *filename)
+{
+	char buf[4096];
+	int fd;
+
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+		return;
+
+	while (read(fd, buf, sizeof(buf)) > 0)
+		;
+	(void)close(fd);
+}
+#endif
+
+/*
+ *  stress_proc_memory()
+ *	stress proc files that are memory related
+ */
+static inline void stress_proc_memory(void)
+{
+#if defined(__linux__)
+	static const char * const proc_files[] = {
+		"/proc/allocinfo",
+		"/proc/buddyinfo",
+		"/proc/meminfo",
+		"/proc/slabinfo",
+		"/proc/pagetypeinfo",
+		"/proc/pressure/memory",
+		"/proc/vmallocinfo",
+		"/proc/zoneinfo",
+	};
+
+	size_t i;
+	DIR *dir;
+	struct dirent *d;
+
+	for (i = 0; i < SIZEOF_ARRAY(proc_files); i++) {
+		stress_proc_file_read(proc_files[i]);
+	}
+
+	/*
+	 *  scan through all /proc/$PID directories
+	 *  reading proc_pid_files
+	 */
+	dir = opendir("/proc");
+	if (!dir)
+		return;
+
+	while ((d = readdir(dir)) != NULL) {
+		static const char * const proc_pid_files[] = {
+			"maps",
+			"numa_maps",
+			"projid_map",
+			"smaps",
+			"smaps_rollup",
+		};
+
+		if (!isdigit((int)d->d_name[0]))
+			continue;
+
+		for (i = 0; i < SIZEOF_ARRAY(proc_pid_files); i++) {
+			char filename[PATH_MAX];
+
+			(void)snprintf(filename, sizeof(filename),
+				"/proc/%s/%s", d->d_name,
+				proc_pid_files[i]);
+			stress_proc_file_read(filename);
+		}
+	}
+	(void)closedir(dir);
+#endif
+}
+
 /*
  *  stress_compact_memory()
  *	trigger memory compaction, Linux only
@@ -414,6 +493,8 @@ int stress_thrash_start(void)
 			stress_zone_reclaim();
 
 			stress_kmemleak_scan();
+
+			stress_proc_memory();
 
 			stress_thrash_state("sleep");
 			(void)sleep(1);
