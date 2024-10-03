@@ -3167,7 +3167,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "move-inv",		stress_vm_moving_inversion },
 	{ "modulo-x",		stress_vm_modulo_x },
 	{ "mscan",		stress_vm_mscan },
-#if defined(HAVE_NT_STORE64)
+#if defined(HAVE_NT_STORE128)
 	{ "wrrd128nt",		stress_vm_wrrd128nt },
 #endif
 	{ "prime-0",		stress_vm_prime_zero },
