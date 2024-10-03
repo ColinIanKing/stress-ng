@@ -46,6 +46,7 @@
 
 #define STRESS_LOCK_MAGIC	(0x387cb9e5)	/* magic when lock is used */
 #define STRESS_LOCK_MAGIC_FREE	(0x00000000)	/* magic when lock is free */
+#define STRESS_LOCK_MAX		(STRESS_PROCS_MAX * 2)	/* max for 2 per instance */
 
 #define STRESS_LOCK_MAX_BACKOFF	(1U << 18)
 
@@ -150,7 +151,6 @@ typedef struct stress_lock_funcs {
 
 static stress_lock_t *stress_locks;
 static stress_lock_t *stress_lock_big_lock;
-static size_t stress_locks_max;
 
 static stress_lock_t *stress_lock_get(void);
 static int stress_lock_put(stress_lock_t *lock);
@@ -694,7 +694,7 @@ static stress_lock_t *stress_lock_get(void)
 		return NULL;
 	if (stress_lock_funcs.acquire(stress_lock_big_lock) < 0)
 		return NULL;
-	for (i = 0; i < stress_locks_max; i++) {
+	for (i = 0; i < STRESS_LOCK_MAX; i++) {
 		if (stress_locks[i].magic == STRESS_LOCK_MAGIC_FREE) {
 			lock = &stress_locks[i];
 			lock->magic = STRESS_LOCK_MAGIC;
@@ -737,12 +737,10 @@ static int stress_lock_put(stress_lock_t *lock)
  */
 int stress_lock_mem_map(void)
 {
-	const size_t page_size = stress_get_page_size();
 	size_t mmap_size;
 	char name[64];
 
-	stress_locks_max = page_size / sizeof(*stress_locks);
-	mmap_size = stress_locks_max * sizeof(*stress_locks);
+	mmap_size = STRESS_LOCK_MAX * sizeof(*stress_locks);
 	stress_locks = (stress_lock_t *)mmap(NULL, mmap_size,
 						PROT_READ | PROT_WRITE,
 						MAP_ANONYMOUS | MAP_SHARED,
@@ -766,11 +764,10 @@ int stress_lock_mem_map(void)
  */
 void stress_lock_mem_unmap(void)
 {
-	const size_t mmap_size = stress_locks_max * sizeof(*stress_locks);
+	const size_t mmap_size = STRESS_LOCK_MAX * sizeof(*stress_locks);
 
 	(void)munmap((void *)stress_locks, mmap_size);
 	stress_locks = NULL;
 	stress_lock_big_lock = NULL;
-	stress_locks_max = 0;
 }
 
