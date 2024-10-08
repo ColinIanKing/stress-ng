@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
@@ -176,6 +177,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	const int instance = (int)args->instance;
 	size_t i;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
+	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 
 	(void)context;
 
@@ -193,8 +195,12 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		if (pid < 0) {
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
+			pid_t mypid = getpid();
+
 			shim_nice(1 + stress_mwc8modn(8));
 			do {
+				if (cap_sys_nice)
+					(void)setpriority(PRIO_PROCESS, mypid, 1 + stress_mwc8modn(18));
 				shim_sched_yield();
 			} while (stress_continue(args));
 		} else {
@@ -222,6 +228,11 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				rc = EXIT_FAILURE;
 				break;
 			}
+#if defined(HAVE_SETPRIORITY) &&	\
+    defined(PRIO_PROCESS)
+			if (cap_sys_nice)
+				(void)setpriority(PRIO_PROCESS, pid, 1 + stress_mwc8modn(18));
+#endif
 			(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
