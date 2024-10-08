@@ -21,9 +21,14 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
+#include "core-numa.h"
 #include "core-out-of-memory.h"
 
 #include <sched.h>
+
+#if defined(__NR_set_mempolicy)
+#define HAVE_SET_MEMPOLICY
+#endif
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&					     \
     (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
@@ -46,6 +51,31 @@ static const stress_help_t help[] = {
     defined(HAVE_SCHED_SETSCHEDULER)
 
 static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
+
+#if defined(HAVE_SET_MEMPOLICY)
+static int max_numa_node;
+static size_t node_mask_size;
+static unsigned long *node_mask;
+
+static const int mpol_modes[] = {
+	0,
+#if defined(MPOL_BIND)
+	MPOL_BIND,
+#if defined(MPOL_F_NUMA_BALANCING)
+	MPOL_BIND | MPOL_F_NUMA_BALANCING,
+#endif
+#endif
+#if defined(MPOL_INTERLEAVE)
+	MPOL_INTERLEAVE,
+#endif
+#if defined(MPOL_PREFERRED)
+	MPOL_PREFERRED,
+#endif
+#if defined(MPOL_LOCAL)
+	MPOL_LOCAL,
+#endif
+};
+#endif
 
 /*
  *  "Normal" non-realtime scheduling policies
@@ -215,6 +245,9 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			pid_t mypid = getpid();
 			unsigned int cpu, node;
 			int n = (int)mypid % 23;
+#if defined(HAVE_SET_MEMPOLICY)
+			int mode;
+#endif
 
 			/* pid process re-mix mwc */
 			while (n-- > 0)
@@ -243,6 +276,16 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 					for (n = 0; n < 1000; n++)
 						stress_asm_nop();
 					break;
+#if defined(HAVE_SET_MEMPOLICY)
+				case 6:
+					if (node_mask != MAP_FAILED) {
+						(void)shim_memset((void *)node_mask, 0, node_mask_size);
+						STRESS_SETBIT(node_mask, (int)stress_mwc16modn(max_numa_node));
+						mode = mpol_modes[stress_mwc8modn(SIZEOF_ARRAY(mpol_modes))];
+						(void)shim_set_mempolicy(mode, node_mask, max_numa_node);
+					}
+					break;
+#endif
 				default:
 					shim_sched_yield();
 					sleep(0);
@@ -296,6 +339,23 @@ static int stress_cpu_sched(stress_args_t *args)
 {
 	int rc;
 
+#if defined(HAVE_SET_MEMPOLICY)
+	unsigned long max_nodes = 0;
+
+	max_numa_node = stress_numa_count_mem_nodes(&max_nodes);
+	if (max_numa_node > 0) {
+		const size_t mask_elements = (max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
+		node_mask_size = mask_elements * sizeof(*node_mask);
+		node_mask = (unsigned long *)stress_mmap_populate(NULL, node_mask_size,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+	} else {
+		max_numa_node = 0;
+		node_mask = MAP_FAILED;
+		node_mask_size = 0;
+	}
+#endif
+
 	stress_set_oom_adjustment(args, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
@@ -304,6 +364,11 @@ static int stress_cpu_sched(stress_args_t *args)
 
 	rc = stress_oomable_child(args, NULL, stress_cpu_sched_child, STRESS_OOMABLE_DROP_CAP);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+#if defined(HAVE_SET_MEMPOLICY)
+	if (node_mask != MAP_FAILED)
+		(void)munmap((void *)node_mask, node_mask_size);
+#endif
 
 	return rc;
 }

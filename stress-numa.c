@@ -23,6 +23,7 @@
 #include "core-capabilities.h"
 #include "core-madvise.h"
 #include "core-mmap.h"
+#include "core-numa.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
@@ -53,61 +54,6 @@ static const stress_opt_t opts[] = {
     defined(__NR_migrate_pages) &&	\
     defined(__NR_move_pages) &&		\
     defined(__NR_set_mempolicy)
-
-#define BITS_PER_BYTE		(8)
-#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
-
-#if !defined(MPOL_DEFAULT)
-#define MPOL_DEFAULT		(0)
-#endif
-#if !defined(MPOL_PREFERRED)
-#define MPOL_PREFERRED		(1)
-#endif
-#if !defined(MPOL_BIND)
-#define MPOL_BIND		(2)
-#endif
-#if !defined(MPOL_INTERLEAVE)
-#define MPOL_INTERLEAVE		(3)
-#endif
-#if !defined(MPOL_LOCAL)
-#define MPOL_LOCAL		(4)
-#endif
-#if !defined(MPOL_PREFERRED_MANY)
-#define MPOL_PREFERRED_MANY	(5)
-#endif
-#if !defined(MPOL_WEIGHTED_INTERLEAVE)
-#define MPOL_WEIGHTED_INTERLEAVE (6)
-#endif
-
-#if !defined(MPOL_F_NODE)
-#define MPOL_F_NODE		(1 << 0)
-#endif
-#if !defined(MPOL_F_ADDR)
-#define MPOL_F_ADDR		(1 << 1)
-#endif
-#if !defined(MPOL_F_MEMS_ALLOWED)
-#define MPOL_F_MEMS_ALLOWED	(1 << 2)
-#endif
-
-#if !defined(MPOL_MF_STRICT)
-#define MPOL_MF_STRICT		(1 << 0)
-#endif
-#if !defined(MPOL_MF_MOVE)
-#define MPOL_MF_MOVE		(1 << 1)
-#endif
-#if !defined(MPOL_MF_MOVE_ALL)
-#define MPOL_MF_MOVE_ALL	(1 << 2)
-#endif
-
-#if !defined(MPOL_F_NUMA_BALANCING)
-#define MPOL_F_NUMA_BALANCING	(1 << 13)
-#endif
-#if !defined(MPOL_F_RELATIVE_NODES)
-#define MPOL_F_RELATIVE_NODES	(1 << 14)
-#endif
-#if !defined(MPOL_F_STATIC_NODES)
-#define MPOL_F_STATIC_NODES	(1 << 15)
-#endif
 
 typedef struct stress_node {
 	struct stress_node	*next;
