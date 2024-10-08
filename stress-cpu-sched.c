@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-asm-generic.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
@@ -212,12 +213,41 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
 			pid_t mypid = getpid();
+			unsigned int cpu, node;
+			int n = (int)mypid % 23;
+
+			/* pid process re-mix mwc */
+			while (n-- > 0)
+				stress_mwc32();
 
 			shim_nice(1 + stress_mwc8modn(8));
 			do {
-				if (cap_sys_nice)
-					(void)setpriority(PRIO_PROCESS, mypid, 1 + stress_mwc8modn(18));
-				shim_sched_yield();
+				switch (stress_mwc8modn(8)) {
+				case 0:
+					shim_sched_yield();
+					break;
+				case 1:
+					shim_nanosleep_uint64(stress_mwc32modn(25000));
+					break;
+				case 2:
+					if (cap_sys_nice)
+						(void)setpriority(PRIO_PROCESS, mypid, 1 + stress_mwc8modn(18));
+					break;
+				case 3:
+					shim_usleep_interruptible(0);
+					break;
+				case 4:
+					(void)shim_getcpu(&cpu, &node, NULL);
+					break;
+				case 5:
+					for (n = 0; n < 1000; n++)
+						stress_asm_nop();
+					break;
+				default:
+					shim_sched_yield();
+					sleep(0);
+					break;
+				}
 			} while (stress_continue(args));
 		} else {
 			stress_cpu_sched_pids[i].pid = pid;
