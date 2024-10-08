@@ -62,6 +62,7 @@
 	MACRO(copy_file)	\
 	MACRO(cpu)		\
 	MACRO(cpu_online)	\
+	MACRO(cpu_sched)	\
 	MACRO(crypt)		\
 	MACRO(cyclic)		\
 	MACRO(daemon)		\

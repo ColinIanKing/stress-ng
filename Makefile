@@ -340,6 +340,7 @@ STRESS_SRC = \
 	stress-copy-file.c \
 	stress-cpu.c \
 	stress-cpu-online.c \
+	stress-cpu-sched.c \
 	stress-crypt.c \
 	stress-cyclic.c \
 	stress-daemon.c \
