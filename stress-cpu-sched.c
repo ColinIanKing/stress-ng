@@ -106,23 +106,39 @@ static int stress_cpu_sched_setscheduler(
 	return 0;
 }
 
+/*
+ *  stress_cpu_sched_mix_pids()
+ *	change order of pids
+ */
 static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig_pids, const size_t n)
 {
-	int i;
+	register int i;
+	register size_t j;
 
-	(void)memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
+	switch (stress_mwc8modn(3)) {
+	case 0:
+		/* In order */
+		(void)memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
+		break;
+	case 1:
+		/* Shuffle */
+		(void)memcpy(mix_pids, orig_pids, n * sizeof(*mix_pids));
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < n; j++) {
+				stress_pid_t tmp;
 
-	for (i = 0; i < 3; i++) {
-		size_t j;
-
-		for (j = 0; j < n; j++) {
-			stress_pid_t tmp;
-
-			size_t k = stress_mwc8modn(n);
-			tmp = mix_pids[j];
-			mix_pids[j] = mix_pids[k];
-			mix_pids[k] = tmp;
+				size_t k = stress_mwc8modn(n);
+				tmp = mix_pids[j];
+				mix_pids[j] = mix_pids[k];
+				mix_pids[k] = tmp;
+			}
 		}
+		break;
+	case 2:
+		/* Reverse order */
+		for (j = 0; j < n; j++)
+			mix_pids[j] = orig_pids[(n - 1) - j];
+		break;
 	}
 }
 
