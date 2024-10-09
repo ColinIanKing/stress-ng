@@ -351,7 +351,7 @@ stress-ng: info:  [6998] successful run completed in 1 min
 
 ## Bugs and regressions found with stress-ng
 
-stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have been landed to address these issues:
+stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; appropriate fixes have been landed to address these issues:
 
 2015:
 * [KEYS: ensure we free the assoc array edit if edit is valid](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ca4da5dd1f99fe9c59f1709fb43e818b18ad20e0)
@@ -463,6 +463,8 @@ stress-ng has found Kernel and QEMU bugs/regressions and appropriate fixes have 
 * [sched/deadline: Fix task_struct reference leak](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b58652db66c910c2245f5bee7deca41c12d707b9)
 * [sched_ext: Split the global DSQ per NUMA node](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b7b3b2dbae73b412c2d24b3d0ebf1110991e4510)
 * [calling getcpu with misaligned address causes kernel panic](https://bugzilla.kernel.org/show_bug.cgi?id=219339)
+* [cygwin: pread/pwrite: prevent EBADF error after fork()](https://sourceware.org/pipermail/cygwin-patches/2024q3/012793.html)
+* [cygwin 3.5.4-1: signal handling destroys 'long double' values](https://sourceware.org/pipermail/cygwin/2024-October/256503.html)
 
 ## Kernel improvements that used stress-ng
 
