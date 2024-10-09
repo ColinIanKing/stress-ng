@@ -381,7 +381,6 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 #if defined(HAVE_SET_MEMPOLICY)
 			int mode;
 #endif
-
 			/* pid process re-mix mwc */
 			while (n-- > 0)
 				stress_mwc32();
@@ -420,6 +419,8 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 					break;
 #endif
 				default:
+					cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
+					stress_cpu_sched_setaffinity(args, mypid, cpu);
 					shim_sched_yield();
 					sleep(0);
 					break;
