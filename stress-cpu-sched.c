@@ -92,6 +92,41 @@ static const int normal_policies[] = {
 #endif
 };
 
+/*
+ *  stress_cpu_sched_nice()
+ *	attempt to try to use autogroup for linux, this
+ *	may fail with EAGAIN if not priviledged or has been
+ *	adjusted too many times.
+ */
+static int stress_cpu_sched_nice(const int inc)
+{
+#if defined(__linux__) &&		\
+    defined(HAVE_GETPRIORITY) &&	\
+    defined(HAVE_SETPRIORITY) && 	\
+    defined(PRIO_PROCESS)
+	int prio, ret, saved_errno;
+	char buffer[32];
+
+	errno = 0;
+	/* getpriority can return -1, so check errno */
+	prio = getpriority(PRIO_PROCESS, 0) + inc;
+	prio = (prio > 19) ? 19 : prio;
+
+	/* failed? fall back to shim'd variant of nice */
+	if (errno != 0)
+		return shim_nice(inc);
+	ret = setpriority(PRIO_PROCESS, 0, prio);
+	saved_errno = errno;
+	(void)snprintf(buffer, sizeof(buffer), "%d\n", prio);
+	VOID_RET(ssize_t, stress_system_write("/proc/self/autogroup", buffer, strlen(buffer)));
+
+	errno = saved_errno;
+	return ret;
+#else
+	return shim_nice(inc);
+#endif
+}
+
 static int stress_cpu_sched_setaffinity(
 	stress_args_t *args,
 	const pid_t pid,
@@ -205,17 +240,17 @@ static int stress_cpu_sched_clone_func(void *arg)
 	for (cpu = 0; cpu < cpus; cpu++) {
 		stress_cpu_sched_clone_exercise(args, pid, cpu);
 	}
-	(void)shim_nice(1);
+	(void)stress_cpu_sched_nice(1);
 	for (cpu = cpus - 1; cpu >= 0; cpu--) {
 		stress_cpu_sched_clone_exercise(args, pid, cpu);
 	}
-	(void)shim_nice(1);
+	(void)stress_cpu_sched_nice(1);
 	for (cpu = 0; cpu < cpus; cpu++) {
 		const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
 
 		stress_cpu_sched_clone_exercise(args, pid, new_cpu);
 	}
-	(void)shim_nice(1);
+	(void)stress_cpu_sched_nice(1);
 	return 0;
 }
 
@@ -326,7 +361,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			while (n-- > 0)
 				stress_mwc32();
 
-			shim_nice(1 + stress_mwc8modn(8));
+			stress_cpu_sched_nice(1 + stress_mwc8modn(8));
 			do {
 				switch (stress_mwc8modn(8)) {
 				case 0:
