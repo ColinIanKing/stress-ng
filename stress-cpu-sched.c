@@ -127,6 +127,10 @@ static int stress_cpu_sched_nice(const int inc)
 #endif
 }
 
+/*
+ *  stress_cpu_sched_setaffinity()
+ *	attempt to set CPU affinity of process 'pid' to cpu 'cpu'
+ */
 static int stress_cpu_sched_setaffinity(
 	stress_args_t *args,
 	const pid_t pid,
@@ -150,6 +154,10 @@ static int stress_cpu_sched_setaffinity(
 	return 0;
 }
 
+/*
+ *  stress_cpu_sched_setscheduler()
+ *	attempt to set CPU scheduler of process 'pid to random scheduler
+ */
 static int stress_cpu_sched_setscheduler(
 	stress_args_t *args,
 	const pid_t pid)
