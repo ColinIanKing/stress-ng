@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "8 October 2024"
+.TH STRESS-NG 1 "9 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -100,7 +100,7 @@ classes as it exercises all these four.  Selecting a specific class
 will run all the stressors that fall into that class only when run with
 the \-\-sequential option.
 
-Specifying a name followed by a question mark (for example \-\-class vm?) will
+Specifying a name followed by an escaped question mark (for example \-\-class vm\\?) will
 print out all the stressors in that specific class.
 .TP
 .B \-\-config
