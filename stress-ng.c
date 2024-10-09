@@ -4104,7 +4104,7 @@ int main(int argc, char **argv, char **envp)
 	stress_shared_map(stress_get_total_num_instances(stressors_head));
 
 	if (stress_lock_mem_map() < 0) {
-		pr_err("failed to create shared heap \n");
+		pr_err("failed to create shared heap\n");
 		ret = EXIT_FAILURE;
 		goto exit_lock_mem_unmap;
 	}
@@ -4113,7 +4113,7 @@ int main(int argc, char **argv, char **envp)
 	 *  And now shared memory is created, initialize pr_* lock mechanism
 	 */
 	if (!stress_shared_heap_init()) {
-		pr_err("failed to create shared heap \n");
+		pr_err("failed to create shared heap\n");
 		ret = EXIT_FAILURE;
 		goto exit_shared_unmap;
 	}
