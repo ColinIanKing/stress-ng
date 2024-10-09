@@ -243,7 +243,7 @@ static void stress_cpu_sched_clone_exercise(stress_args_t *args, const pid_t pid
 	(void)shim_getcpu(&new_cpu, &node, NULL);
 	shim_usleep_interruptible(0);
 	(void)stress_cpu_sched_setscheduler(args, pid);
-	shim_sched_yield();
+	(void)shim_sched_yield();
 }
 
 /*
@@ -389,10 +389,10 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			do {
 				switch (stress_mwc8modn(8)) {
 				case 0:
-					shim_sched_yield();
+					(void)shim_sched_yield();
 					break;
 				case 1:
-					shim_nanosleep_uint64(stress_mwc32modn(25000));
+					(void)shim_nanosleep_uint64(stress_mwc32modn(25000));
 					break;
 				case 2:
 					if (cap_sys_nice)
@@ -421,7 +421,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				default:
 					cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
 					(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
-					shim_sched_yield();
+					(void)shim_sched_yield();
 					sleep(0);
 					break;
 				}
@@ -460,6 +460,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			stress_bogo_inc(args);
 		}
 		(void)stress_cpu_sched_setaffinity(args, args->pid, stress_mwc32modn((uint32_t)cpus));
+		(void)shim_sched_yield();
 
 #if defined(HAVE_CLONE)
 		counter++;
