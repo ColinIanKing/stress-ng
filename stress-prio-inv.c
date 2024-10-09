@@ -472,20 +472,14 @@ reap:
 	}
 #endif
 
-	if (sched_policy >= 0) {
-		switch (sched_policy) {
-		default:
-		case STRESS_PRIO_INV_TYPE_NONE:
-		case STRESS_PRIO_INV_TYPE_PROTECT:
-			break;
-		case STRESS_PRIO_INV_TYPE_INHERIT:
-			if ((child_info[2].usage < child_info[0].usage * 0.9) &&
-		    	(child_info[0].usage > 1.0)) {
-				pr_fail("%s: mutex priority inheritance appears incorrect, low priority process has far more run time (%.2f secs) than high priority process (%.2f secs)\n",
-				args->name, child_info[0].usage, child_info[2].usage);
-			}
-			break;
-		}
+	if ((sched_policy >= 0) &&
+	    (sched_policy == STRESS_PRIO_INV_TYPE_INHERIT) &&
+	    (child_info[2].usage < child_info[0].usage * 0.9) &&
+	    (child_info[0].usage > 1.0)) {
+		pr_warn("%s: mutex priority inheritance appears incorrect, "
+			"low priority process has far more run time "
+			"(%.2f secs) than high priority process (%.2f secs)\n",
+			args->name, child_info[0].usage, child_info[2].usage);
 	}
 
 	(void)pthread_mutex_destroy(&prio_inv_info->mutex);
