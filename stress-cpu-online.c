@@ -328,7 +328,7 @@ static int stress_cpu_online(stress_args_t *args)
 			/* Don't try if already offline */
 			stress_cpu_online_get(cpu, &setting);
 			if (setting == 0) {
-				shim_sched_yield();
+				(void)shim_sched_yield();
 				continue;
 			}
 
@@ -376,7 +376,7 @@ static int stress_cpu_online(stress_args_t *args)
 				}
 			}
 			stress_bogo_inc(args);
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		}
 	} while (stress_continue(args));
 

@@ -242,7 +242,7 @@ static int stress_atomic_lock_acquire_relax(stress_lock_t *lock)
 			if (backoff > STRESS_LOCK_MAX_BACKOFF)
 				backoff = STRESS_LOCK_MAX_BACKOFF;
 #else
-			shim_sched_yield();
+			(void)shim_sched_yield();
 #endif
 			if (((stress_time_now() - t) > 5.0) && !stress_continue_flag()) {
 				errno = EAGAIN;

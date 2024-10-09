@@ -108,7 +108,7 @@ static int stress_signal(stress_args_t *args)
 		tmp = *pcounter;
 		if (LIKELY(shim_kill(pid, SIGCHLD) == 0)) {
 			while ((tmp == *pcounter) && stress_continue_flag()) {
-				shim_sched_yield();
+				(void)shim_sched_yield();
 			}
 		}
 

@@ -261,11 +261,11 @@ static int stress_uprobe(stress_args_t *args)
 terminate:
 		if (fd != -1)
 			(void)close(fd);
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		/* Stop events */
 		VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
 			O_WRONLY, "0\n"));
-		shim_sched_yield();
+		(void)shim_sched_yield();
 
 		/* Remove uprobe */
 		(void)snprintf(buf, sizeof(buf), "-:%s\n", event);

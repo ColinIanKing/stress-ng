@@ -209,7 +209,7 @@ static pid_t stress_access_spawn(
 			j++;
 			if (j >= SIZEOF_ARRAY(modes))
 				j = 0;
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		} while(stress_continue(args));
 		_exit(0);
 	} else {

@@ -280,7 +280,7 @@ static void stress_peekio_exercise(stress_peekio_proc_t *proc)
 			proc->ret = -1;
 			return ;
 		}
-		shim_sched_yield();
+		(void)shim_sched_yield();
 	}
 	proc->ret = 0;
 }

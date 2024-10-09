@@ -110,7 +110,7 @@ static int stress_schedpolicy(stress_args_t *args)
 		if (!stress_continue(args))
 			break;
 
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		errno = 0;
 
 		switch (new_policy) {

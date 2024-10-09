@@ -69,7 +69,7 @@ static void stress_link_unlink(
 		 *  so add a yield to try and help a little
 		 */
 		if ((i & 255) == 0)
-			shim_sched_yield();
+			(void)shim_sched_yield();
 	}
 }
 

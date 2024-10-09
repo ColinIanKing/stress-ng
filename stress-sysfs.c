@@ -194,7 +194,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		counter++;
 		(void)shim_pthread_spin_unlock(&lock);
 		if (counter > OPS_PER_SYSFS_FILE)
-			shim_sched_yield();
+			(void)shim_sched_yield();
 
 		if (!*path || !stress_continue_flag())
 			break;

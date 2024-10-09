@@ -221,7 +221,7 @@ L0x000:
 		stress_bogo_inc(args);
 #if defined(STRESS_ARCH_SH4)
 		/* For some reason, can't interrupt SH4 in QEMU, add yield to do so */
-		shim_sched_yield();
+		(void)shim_sched_yield();
 #endif
 		if (!stress_continue(args))
 			break;

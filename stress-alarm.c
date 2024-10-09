@@ -143,9 +143,9 @@ again:
 
 			(void)shim_kill(pid, SIGALRM);
 			shim_nanosleep_uint64(delay_ns);
-			shim_sched_yield();
+			(void)shim_sched_yield();
 			(void)shim_kill(pid, SIGALRM);
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		}
 
 		(void)shim_kill(pid, SIGUSR1);

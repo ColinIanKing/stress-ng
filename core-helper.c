@@ -4491,7 +4491,7 @@ void stress_yield_sleep_ms(void)
 	do {
 		double duration;
 
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		duration = stress_time_now() - t;
 		if (duration > 0.001)
 			break;

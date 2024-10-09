@@ -4038,7 +4038,7 @@ static inline void stress_dev_rw(
 
 		/* state info no yet associated */
 		if (UNLIKELY(!dev_info->state)) {
-			shim_sched_yield();
+			(void)shim_sched_yield();
 			continue;
 		}
 

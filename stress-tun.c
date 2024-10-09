@@ -377,7 +377,7 @@ child_cleanup_fd:
 					(struct sockaddr *)&addr, len);
 				if (n < 0)
 					break;
-				shim_sched_yield();
+				(void)shim_sched_yield();
 			}
 			(void)close(sfd);
 		}

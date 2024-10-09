@@ -106,12 +106,12 @@ redo:
 	n = stress_mwc8modn(27);
 	switch (n) {
 	case 0:
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		break;
 	case 1:
 		n = stress_mwc16();
 		for (i = 0; stress_continue(args) && (i < n); i++)
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		break;
 	case 2:
 		shim_nanosleep_uint64(stress_mwc32modn(1000000));
@@ -236,7 +236,7 @@ redo:
 			pid = schedmix_sem->owner;
 			if (pid > 1) {
 				(void)kill(pid, SIGSTOP);
-				shim_sched_yield();
+				(void)shim_sched_yield();
 				(void)kill(pid, SIGCONT);
 			}
 		} else {
@@ -246,7 +246,7 @@ redo:
 			schedmix_sem->owner = getpid();
 			n = stress_mwc16();
 			for (i = 0; stress_continue(args) && (i < n); i++)
-				shim_sched_yield();
+				(void)shim_sched_yield();
 			schedmix_sem->owner = -1;
 			(void)sem_post(&schedmix_sem->sem);
 		}

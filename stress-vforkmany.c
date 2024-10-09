@@ -235,7 +235,7 @@ vfork_again:
 			}
 			if (pid < 0) {
 				/* failed */
-				shim_sched_yield();
+				(void)shim_sched_yield();
 				_exit(0);
 			} else if (pid == 0) {
 				vforkmany_shared->invoked++;
@@ -277,7 +277,7 @@ vfork_again:
 				/* parent, wait for child, and exit if not first parent */
 				if (pid >= 1)
 					(void)vforkmany_wait(vforkmany_shared, pid);
-				shim_sched_yield();
+				(void)shim_sched_yield();
 				if (getpid() != start_pid)
 					_exit(0);
 			}

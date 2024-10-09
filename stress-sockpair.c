@@ -302,7 +302,7 @@ abort:
 					}
 					continue;
 				}
-				shim_sched_yield();
+				(void)shim_sched_yield();
 				stress_bogo_inc(args);
 			}
 		} while (stress_continue(args));

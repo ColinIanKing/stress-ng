@@ -474,7 +474,7 @@ static int stress_pty(stress_args_t *args)
 				}
 				VOID_RET(int, ioctl(ptys[i].follower, TIOCSETD, &orig_ldisc));
 				pr_block_end();
-				shim_sched_yield();
+				(void)shim_sched_yield();
 			}
 		}
 #endif

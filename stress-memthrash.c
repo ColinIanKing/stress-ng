@@ -761,7 +761,7 @@ static void *stress_memthrash_func(void *ctxt)
 					break;
 			func(context, mem_size);
 			stress_bogo_inc(args);
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		}
 	}
 	return &nowt;

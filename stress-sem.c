@@ -186,7 +186,7 @@ do_semwait:
 			 *  force a scheduling yield to try and force alternative
 			 *  thread(s) to have a turn on wait/post combo
 			 */
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		}
 	} while (stress_continue(args));
 

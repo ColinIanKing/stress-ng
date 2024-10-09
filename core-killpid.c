@@ -123,7 +123,7 @@ static int stress_wait_until_reaped(
 				break;
 			}
 		}
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		if (count > 10)
 			(void)sleep(1);
 	}

@@ -72,7 +72,7 @@ static int stress_sigxcpu(stress_args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-		shim_sched_yield();
+		(void)shim_sched_yield();
 	} while (stress_continue(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

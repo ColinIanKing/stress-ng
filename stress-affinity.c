@@ -108,7 +108,7 @@ static inline void stress_affinity_spin_delay(
 		((double)delay / (double)STRESS_NANOSECOND);
 
 	while ((stress_time_now() < end) && (cpu == info->cpu))
-		shim_sched_yield();
+		(void)shim_sched_yield();
 }
 
 /*

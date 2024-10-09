@@ -101,12 +101,12 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 						_exit(EXIT_FAILURE);
 					}
 				}
-				VOID_RET(int, shim_sched_yield());
+				(void)shim_sched_yield();
 				stress_bogo_inc(args);
 				(*yield_ptr)++;
 			}
 #else
-			VOID_RET(int, shim_sched_yield());
+			(void)shim_sched_yield();
 			stress_bogo_inc(args);
 			(*yield_ptr)++;
 #endif

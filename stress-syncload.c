@@ -134,10 +134,10 @@ static void stress_syncload_rdrand(void)
 
 static void stress_syncload_sched_yield(void)
 {
-	shim_sched_yield();
-	shim_sched_yield();
-	shim_sched_yield();
-	shim_sched_yield();
+	(void)shim_sched_yield();
+	(void)shim_sched_yield();
+	(void)shim_sched_yield();
+	(void)shim_sched_yield();
 }
 
 static void stress_syncload_mfence(void)

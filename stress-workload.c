@@ -719,7 +719,7 @@ static int stress_workload_exercise(
 		if (sleep_duration_ns > 10000.0) {
 			shim_nanosleep_uint64((uint64_t)sleep_duration_ns);
 		} else {
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		}
 		stress_workload_bucket_account(slice_offset_bucket, STRESS_DBL_MICROSECOND * (stress_time_now() - t_begin));
 		if (run_duration_sec > 0.0) {

@@ -61,7 +61,7 @@ static int stress_peterson_p0(stress_args_t *args)
 	shim_mfence();
 	while (peterson->m.flag[1] && (peterson->m.turn == 1)) {
 #if defined(STRESS_ARCH_RISCV)
-		shim_sched_yield();
+		(void)shim_sched_yield();
 #endif
 	}
 
@@ -97,7 +97,7 @@ static int stress_peterson_p1(stress_args_t *args)
 	shim_mfence();
 	while (peterson->m.flag[0] && (peterson->m.turn == 0)) {
 #if defined(STRESS_ARCH_RISCV)
-		shim_sched_yield();
+		(void)shim_sched_yield();
 #endif
 	}
 

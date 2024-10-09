@@ -348,7 +348,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 				const pid_t child_pid = getpid();
 
 				if (rnd & 0x01)
-					shim_sched_yield();
+					(void)shim_sched_yield();
 				if (rnd & 0x02) {
 					if (stress_race_sched_setaffinity(args, child_pid, cpu) < 0) {
 						rc = EXIT_FAILURE;
@@ -368,12 +368,12 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 					}
 				}
 				if (rnd & 0x10)
-					shim_sched_yield();
+					(void)shim_sched_yield();
 				_exit(0);
 			} else {
 				/* parent */
 				if (rnd & 0x20)
-					shim_sched_yield();
+					(void)shim_sched_yield();
 				if (rnd & 0x40) {
 					if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
 						rc = EXIT_FAILURE;
@@ -381,7 +381,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 					}
 				}
 				if (rnd & 0x80)
-					shim_sched_yield();
+					(void)shim_sched_yield();
 			}
 
 			if (max_forks < children.length)

@@ -301,10 +301,10 @@ static void stress_cgroup_new_group(const char *realpathname)
 
 			ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-			shim_sched_yield();
+			(void)shim_sched_yield();
 			if (ptr != MAP_FAILED)
 				(void)munmap(ptr, sz);
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		} while (stress_continue_flag());
 		_exit(0);
 	} else {
