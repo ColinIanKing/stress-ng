@@ -79,10 +79,10 @@ void *stress_shared_heap_init(void)
 }
 
 /*
- *  stress_shared_heap_deinit()
+ *  stress_shared_heap_free()
  *	free shared heap
  */
-void stress_shared_heap_deinit(void)
+void stress_shared_heap_free(void)
 {
 	if (g_shared->shared_heap.out_of_memory) {
 		pr_inf("shared heap: out of memory duplicating some strings, increase STRESS_MAX_SHARED_HEAP_SIZE to fix this\n");

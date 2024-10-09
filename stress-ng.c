@@ -4252,7 +4252,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Tidy up
 	 */
 	stress_global_lock_destroy();
-	stress_shared_heap_deinit();
+	stress_shared_heap_free();
 	stress_stressors_deinit();
 	stress_stressors_free();
 	stress_cpuidle_free();
