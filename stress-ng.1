@@ -548,9 +548,9 @@ log output (except for verbose \-v messages) to the syslog.
 .TP
 .B \-\-taskset list
 set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
-just use these CPUs (Linux only). The CPUs to be used are specified by a
-comma separated list of CPU (0 to N-1). One can specify a range of CPUs
-using '-', for example: \-\-taskset 0,2-3,6,7-11
+just use these CPUs (for systems that provide sched_setaffinity()). The CPUs
+to be used are specified by a comma separated list of CPU (0 to N-1). One
+can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11
 .TP
 .B \-\-temp\-path path
 specify a path for stress\-ng temporary directories and temporary files;
@@ -683,8 +683,8 @@ stop acl workers after N bogo acl settings have been set.
 .TQ
 .B \-\-affinity N
 start N workers that run 16 processes that rapidly change CPU affinity
-(only on Linux). Rapidly switching CPU affinity can contribute to
-poor cache behaviour and high context switch rate.
+(for systems that provide sched_setaffinity()). Rapidly switching CPU
+affinity can contribute to poor cache behaviour and high context switch rate.
 .TP
 .B \-\-affinity\-delay N
 delay for N nanoseconds before changing affinity to the next CPU.
