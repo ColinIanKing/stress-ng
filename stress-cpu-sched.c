@@ -42,8 +42,8 @@
 #define MAX_CPU_SCHED_PROCS		(16)
 
 static const stress_help_t help[] = {
-	{ NULL,	"cpu-sched N",		"start N workers that exercise cpu affinity" },
-	{ NULL,	"cpu-sched-ops N",	"stop after N bogo cpu affinity operations" },
+	{ NULL,	"cpu-sched N",		"start N workers that exercise cpu scheduling" },
+	{ NULL,	"cpu-sched-ops N",	"stop after N bogo cpu scheduling operations" },
 	{ NULL,	NULL,			NULL }
 };
 
