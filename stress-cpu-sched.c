@@ -173,6 +173,73 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 	}
 }
 
+#if defined(HAVE_CLONE)
+/*
+ *  stress_cpu_sched_clone_exercise()
+ *	exercise scheduler
+ */
+static void stress_cpu_sched_clone_exercise(stress_args_t *args, const pid_t pid, const int cpu)
+{
+	unsigned int new_cpu, node;
+
+	(void)stress_cpu_sched_setaffinity(args, pid, cpu);
+	(void)shim_getcpu(&new_cpu, &node, NULL);
+	shim_usleep_interruptible(0);
+	(void)stress_cpu_sched_setscheduler(args, pid);
+	shim_sched_yield();
+}
+
+/*
+ *  stress_cpu_sched_clone_func()
+ *	perform some scheduler twiddling
+ */
+static int stress_cpu_sched_clone_func(void *arg)
+{
+	const int cpus = (int)stress_get_processors_configured();
+	const pid_t pid = getpid();
+	stress_args_t *args = (stress_args_t *)arg;
+	int cpu;
+
+	(void)arg;
+
+	for (cpu = 0; cpu < cpus; cpu++) {
+		stress_cpu_sched_clone_exercise(args, pid, cpu);
+	}
+	for (cpu = cpus - 1; cpu >= 0; cpu--) {
+		stress_cpu_sched_clone_exercise(args, pid, cpu);
+	}
+	for (cpu = 0; cpu < cpus; cpu++) {
+		const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
+
+		stress_cpu_sched_clone_exercise(args, pid, new_cpu);
+	}
+	return 0;
+}
+
+/*
+ *  stress_cpu_sched_clone()
+ *	create a process and make it exercise scheduling
+ */
+static void stress_cpu_sched_clone(stress_args_t *args)
+{
+	char stack[8192];
+	char *stack_top = (char *)stress_get_stack_top(stack, sizeof(stack));
+	const int flag = SIGCHLD;
+	pid_t pid;
+
+	pid = clone(stress_cpu_sched_clone_func, stress_align_stack(stack_top), flag, (void *)args);
+	if (pid != -1) {
+		int status;
+
+		if (shim_waitpid(pid, &status, 0) < 0) {
+			/* apply hammer */
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		}
+	}
+}
+#endif
+
 /*
  *  stress_cpu_sched_next_cpu()
  *	select next cpu
@@ -225,6 +292,9 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	size_t i;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
+#if defined(HAVE_CLONE)
+	int counter = 0;
+#endif
 
 	(void)context;
 
@@ -325,6 +395,14 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
+
+#if defined(HAVE_CLONE)
+		counter++;
+		if (counter >= 2048) {
+			stress_cpu_sched_clone(args);
+			counter = 0;
+		}
+#endif
 	} while (stress_continue(args));
 
 	(void)stress_kill_and_wait_many(args, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS, SIGKILL, false);
