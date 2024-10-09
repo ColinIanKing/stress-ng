@@ -163,12 +163,12 @@ redo:
 		break;
 	case 13:
 		for (i = 0; stress_continue(args) && (i < 1000); i++)
-			sleep(0);
+			(void)sleep(0);
 		break;
 	case 14:
 		n = stress_mwc16modn(1000);
 		for (i = 0; stress_continue(args) && (i < n); i++)
-			sleep(0);
+			(void)sleep(0);
 		break;
 	case 15:
 		n = stress_mwc16modn(1000);
@@ -179,7 +179,7 @@ redo:
 		getpid();
 		break;
 	case 17:
-		VOID_RET(int, shim_usleep_interruptible(1000));
+		(void)shim_usleep_interruptible(1000);
 		break;
 	case 18:
 #if defined(HAVE_LINUX_MEMBARRIER_H) &&	\

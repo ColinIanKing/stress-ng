@@ -201,7 +201,7 @@ static void stress_softlockup_child(
 	 *  ramping up the scheduler priority
 	 */
 	while (softlockup_start && stress_continue(args)) {
-		shim_usleep(100000);
+		(void)shim_usleep(100000);
 	}
 
 	/*

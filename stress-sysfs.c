@@ -597,7 +597,7 @@ static void stress_sys_dir(
 		 *  has been reached
 		 */
 		do {
-			shim_usleep_interruptible(1000);
+			(void)shim_usleep_interruptible(1000);
 			/* Cater for very long delays */
 			if ((counter == 0) && (stress_time_now() > time_out))
 				break;

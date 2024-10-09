@@ -161,7 +161,7 @@ static int stress_uprobe(stress_args_t *args)
 		if (fd < 0) {
 			if (errno == EBUSY) {
 				if (stress_continue(args)) {
-					shim_usleep((stress_mwc8() + 10) * 1000);
+					(void)shim_usleep((stress_mwc8() + 10) * 1000);
 					continue;
 				} else {
 					rc = EXIT_SUCCESS;

@@ -119,7 +119,7 @@ static int stress_binderfs_umount(
 				args->name, t2 - t1);
 			return EXIT_FAILURE;
 		}
-		shim_usleep_interruptible(100000);
+		(void)shim_usleep_interruptible(100000);
 	}
 
 	/* Exercise mount on already umounted path */

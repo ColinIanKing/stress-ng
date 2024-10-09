@@ -171,7 +171,7 @@ static int stress_hrtimer_process(stress_args_t *args)
 	}
 
 	do {
-		shim_usleep(100000);
+		(void)shim_usleep(100000);
 	} while (stress_hrtimers_stress_continue());
 
 	stress_bogo_add_lock(args, lock, timer_counter);
@@ -247,7 +247,7 @@ static int stress_hrtimers(stress_args_t *args)
 
 	start_time = stress_time_now();
 	do {
-		shim_usleep(100000);
+		(void)shim_usleep(100000);
 	} while (stress_continue(args));
 
 reap:

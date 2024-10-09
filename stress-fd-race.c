@@ -381,7 +381,7 @@ static void *stress_fd_race_current(void *ptr)
 		const int fd_end = fd + 10;
 
 		if (context->current_fd == -1) {
-			shim_usleep(200000);
+			(void)shim_usleep(200000);
 			continue;
 		}
 

@@ -280,7 +280,7 @@ abort:
 						low_memory_count++;
 						if (!stress_continue_flag())
 							goto tidy;
-						shim_usleep(100000);
+						(void)shim_usleep(100000);
 					}
 				}
 

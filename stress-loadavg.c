@@ -256,7 +256,7 @@ static int stress_loadavg(stress_args_t *args)
 
 	do {
 		(void)shim_sched_yield();
-		shim_usleep_interruptible(100000);
+		(void)shim_usleep_interruptible(100000);
 	} while (keep_running() && stress_continue(args));
 
 	keep_thread_running_flag = false;

@@ -440,7 +440,7 @@ static int stress_prio_inv(stress_args_t *args)
 
 	/* Wait for termination */
 	while (stress_continue(args))
-		shim_usleep(250000);
+		(void)shim_usleep(250000);
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

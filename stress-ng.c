@@ -1286,7 +1286,7 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 		}
 		if (!unready)
 			break;
-		shim_usleep(10000);
+		(void)shim_usleep(10000);
 		unready = 0;
 	} while (stress_continue_flag());
 
@@ -1306,7 +1306,7 @@ void stress_sync_start_cont_list(stress_pid_t *s_pids_head)
 			}
 			if ((running + finished) == n_pids)
 				break;
-			shim_usleep(10000);
+			(void)shim_usleep(10000);
 		} while (stress_continue_flag());
 	}
 }

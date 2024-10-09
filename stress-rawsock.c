@@ -148,7 +148,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 
 		if (ready == args->num_instances)
 			break;
-		shim_usleep(20000);
+		(void)shim_usleep(20000);
 	}
 
 	while (!stop_rawsock && stress_continue(args)) {
@@ -162,7 +162,7 @@ static int OPTIMIZE3 stress_rawsock_client(stress_args_t *args, const int rawsoc
 			if (errno == ENOBUFS) {
 				/* Throttle */
 				VOID_RET(int, nice(1));
-				shim_usleep(250000);
+				(void)shim_usleep(250000);
 				continue;
 			}
 			break;
@@ -282,7 +282,7 @@ again:
 	pid = fork();
 	if (pid < 0) {
 		if (stress_redo_fork(args, errno)) {
-			shim_usleep(100000);
+			(void)shim_usleep(100000);
 			goto again;
 		}
 		if (stop_rawsock || !stress_continue(args))

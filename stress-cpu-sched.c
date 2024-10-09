@@ -241,7 +241,7 @@ static void stress_cpu_sched_clone_exercise(stress_args_t *args, const pid_t pid
 
 	(void)stress_cpu_sched_setaffinity(args, pid, cpu);
 	(void)shim_getcpu(&new_cpu, &node, NULL);
-	shim_usleep_interruptible(0);
+	(void)shim_usleep_interruptible(0);
 	(void)stress_cpu_sched_setscheduler(args, pid);
 	(void)shim_sched_yield();
 }
@@ -400,7 +400,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 						(void)setpriority(PRIO_PROCESS, mypid, 1 + stress_mwc8modn(18));
 					break;
 				case 3:
-					shim_usleep_interruptible(0);
+					(void)shim_usleep_interruptible(0);
 					break;
 				case 4:
 					(void)shim_getcpu(&current_cpu, &node, NULL);
@@ -429,7 +429,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 					cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
 					(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
 					(void)shim_sched_yield();
-					sleep(0);
+					(void)sleep(0);
 					break;
 				}
 			} while (stress_continue(args));

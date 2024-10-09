@@ -167,7 +167,7 @@ static void *stress_close_func(void *arg)
 			fds[i] = dup2(fileno(stderr), i + FDS_START);
 		}
 
-		shim_usleep_interruptible(delay);
+		(void)shim_usleep_interruptible(delay);
 		if (fd != -1)
 			(void)close(fd);
 		if (dupfd != -1)

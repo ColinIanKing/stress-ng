@@ -198,7 +198,7 @@ rewait:
 		for (i = 0; stress_continue(args) && (i < 1000); i++) {
 			if (kill(sighup_info->pid, 0) < 0)
 				break;
-			shim_usleep(250);
+			(void)shim_usleep(250);
 		}
 		(void)stress_kill_pid_wait(sighup_info->pid, &status);
 	}

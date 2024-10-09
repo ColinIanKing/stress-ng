@@ -4266,7 +4266,7 @@ int stress_munmap_retry_enomem(void *addr, size_t length)
 		if (errno != ENOMEM)
 			break;
 		saved_errno = errno;
-		shim_usleep(10000 * i);
+		(void)shim_usleep(10000 * i);
 		errno = saved_errno;
 	}
 	return ret;
@@ -4495,7 +4495,7 @@ void stress_yield_sleep_ms(void)
 		duration = stress_time_now() - t;
 		if (duration > 0.001)
 			break;
-		shim_usleep(1000);
+		(void)shim_usleep(1000);
 	} while (stress_continue_flag());
 }
 

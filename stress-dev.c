@@ -3942,7 +3942,7 @@ static int stress_dev_open_lock(
 	fd = stress_open_timeout(args->name, dev_info->path, mode, 250000000);
 	if (fd < 0) {
 		if (errno == EBUSY)
-			shim_usleep(10000);
+			(void)shim_usleep(10000);
 		return -1;
 	}
 	if (stress_dev_lock(dev_info->path, fd) < 0) {

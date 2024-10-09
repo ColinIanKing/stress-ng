@@ -437,7 +437,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 				 * keep the pressure up.
 				 */
 				if (stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-					shim_usleep(100000);
+					(void)shim_usleep(100000);
 					continue;
 				}
 				pr_inf_skip("%s: cannot enable swap%s, skipping test\n",

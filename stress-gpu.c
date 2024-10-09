@@ -486,7 +486,7 @@ static void *stress_gpu_pthread(void *arg)
 	uint64_t sleep_usecs = 100000UL * (uint64_t)args->num_instances;
 	uint64_t start_sleep_usecs = 100000UL * (uint64_t)args->instance;
 
-	shim_usleep(start_sleep_usecs);
+	(void)shim_usleep(start_sleep_usecs);
 	while (stress_continue(args)) {
 		double freq_mhz;
 
@@ -496,7 +496,7 @@ static void *stress_gpu_pthread(void *arg)
 			gpu_freq_sum += freq_mhz;
 			gpu_freq_count++;
 		}
-		shim_usleep(sleep_usecs);
+		(void)shim_usleep(sleep_usecs);
 	}
 	return NULL;
 }

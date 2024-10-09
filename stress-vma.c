@@ -545,7 +545,7 @@ static void stress_vma_loop(
 
 		pid = fork();
 		if (pid < 0) {
-			shim_usleep_interruptible(100000);
+			(void)shim_usleep_interruptible(100000);
 			continue;
 		} else if (pid == 0) {
 			pthread_t pthreads[n];
@@ -564,7 +564,7 @@ static void stress_vma_loop(
 				}
 			}
 			/* Let pthreads run for 10 seconds */
-			sleep(10);
+			(void)sleep(10);
 			for (i = 0; i < j; i++) {
 				if (pthreads_ret[i] == 0) {
 					VOID_RET(int, pthread_kill(pthreads[i], SIGBUS));
@@ -576,7 +576,7 @@ static void stress_vma_loop(
 			_exit(0);
 		}
 
-		sleep(10);
+		(void)sleep(10);
 		stress_vma_continue_flag = false;
 		VOID_RET(int, kill(pid, SIGKILL));
 		VOID_RET(int, shim_waitpid(pid, &status, 0));
@@ -621,7 +621,7 @@ static int stress_vma_child(stress_args_t *args, void *void_ctxt)
 	stress_sync_start_cont_list(s_pids_head);
 
 	do {
-		sleep(1);
+		(void)sleep(1);
 		stress_bogo_set(args, stress_vma_metrics->s.metrics[STRESS_VMA_MMAP]);
 	} while (stress_continue(args));
 
