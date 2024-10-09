@@ -273,6 +273,7 @@ static int stress_cpu_sched_clone_func(void *arg)
 		stress_cpu_sched_clone_exercise(args, pid, new_cpu);
 	}
 	(void)stress_cpu_sched_nice(1);
+	(void)shim_sched_yield();
 	return 0;
 }
 
@@ -416,8 +417,14 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 						mode = mpol_modes[stress_mwc8modn(SIZEOF_ARRAY(mpol_modes))];
 						(void)shim_set_mempolicy(mode, node_mask, max_numa_node);
 					}
-					break;
+#else
+					(void)shim_sched_yield();
+					(void)shim_sched_yield();
+					(void)shim_sched_yield();
+					(void)shim_sched_yield();
+					(void)shim_sched_yield();
 #endif
+					break;
 				default:
 					cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
 					(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
