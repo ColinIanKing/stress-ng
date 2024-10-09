@@ -205,14 +205,17 @@ static int stress_cpu_sched_clone_func(void *arg)
 	for (cpu = 0; cpu < cpus; cpu++) {
 		stress_cpu_sched_clone_exercise(args, pid, cpu);
 	}
+	(void)shim_nice(1);
 	for (cpu = cpus - 1; cpu >= 0; cpu--) {
 		stress_cpu_sched_clone_exercise(args, pid, cpu);
 	}
+	(void)shim_nice(1);
 	for (cpu = 0; cpu < cpus; cpu++) {
 		const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
 
 		stress_cpu_sched_clone_exercise(args, pid, new_cpu);
 	}
+	(void)shim_nice(1);
 	return 0;
 }
 
