@@ -290,7 +290,10 @@ static void stress_cpu_sched_clone(stress_args_t *args)
  *  stress_cpu_sched_next_cpu()
  *	select next cpu
  */
-int stress_cpu_sched_next_cpu(const int instance, const int last_cpu, const int cpus)
+static int stress_cpu_sched_next_cpu(
+	const int instance,
+	const int last_cpu,
+	const int cpus)
 {
 	struct timeval now;
 	int cpu;
@@ -359,7 +362,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
 			pid_t mypid = getpid();
-			unsigned int cpu, node;
+			unsigned int current_cpu, node;
 			int n = (int)mypid % 23;
 #if defined(HAVE_SET_MEMPOLICY)
 			int mode;
@@ -386,7 +389,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 					shim_usleep_interruptible(0);
 					break;
 				case 4:
-					(void)shim_getcpu(&cpu, &node, NULL);
+					(void)shim_getcpu(&current_cpu, &node, NULL);
 					break;
 				case 5:
 					for (n = 0; n < 1000; n++)
