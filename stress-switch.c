@@ -90,7 +90,7 @@ static void stress_switch_delay(
 	 *  Small delays take a while, so skip these
 	 */
 	if (*delay > 1000)
-		shim_nanosleep_uint64(*delay);
+		(void)shim_nanosleep_uint64(*delay);
 
 	/*
 	 *  This is expensive, so only update the

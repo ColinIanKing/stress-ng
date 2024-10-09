@@ -118,7 +118,7 @@ static void stress_group_sleep(uint64_t *counter)
 {
 	const uint64_t ns = stress_mwc64modn(100000000) + 50000000;
 
-	shim_nanosleep_uint64(ns);
+	(void)shim_nanosleep_uint64(ns);
 	(*counter)++;
 }
 

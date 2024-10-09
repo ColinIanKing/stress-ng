@@ -103,7 +103,7 @@ static void stress_ramfs_umount(stress_args_t *args, const char *path)
 #endif
 		if (ret == 0) {
 			if (i > 1) {
-				shim_nanosleep_uint64(ns);
+				(void)shim_nanosleep_uint64(ns);
 			}
 			continue;
 		}
@@ -118,7 +118,7 @@ static void stress_ramfs_umount(stress_args_t *args, const char *path)
 		case EBUSY:
 		case ENOMEM:
 			/* Wait and then re-try */
-			shim_nanosleep_uint64(ns);
+			(void)shim_nanosleep_uint64(ns);
 			break;
 		case EINVAL:
 			/*

@@ -3173,7 +3173,7 @@ static int OPTIMIZE3 stress_cpu(stress_args_t *args)
 			tv.tv_usec = (long)((delay - (double)tv.tv_sec) * STRESS_DBL_MICROSECOND);
 			(void)select(0, NULL, NULL, NULL, &tv);
 #else
-			shim_nanosleep_uint64((uint64_t)(delay * STRESS_DBL_NANOSECOND));
+			(void)shim_nanosleep_uint64((uint64_t)(delay * STRESS_DBL_NANOSECOND));
 #endif
 
 			t3_wall_clock = stress_time_now();

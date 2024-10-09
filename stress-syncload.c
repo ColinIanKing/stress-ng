@@ -326,7 +326,7 @@ static int stress_syncload(stress_args_t *args)
 		if (now < timeout) {
 			const uint64_t duration_us = (uint64_t)((timeout - now) * 1000000);
 
-			shim_nanosleep_uint64(duration_us * 1000);
+			(void)shim_nanosleep_uint64(duration_us * 1000);
 		}
 
 		stress_bogo_inc(args);

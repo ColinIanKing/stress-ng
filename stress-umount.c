@@ -78,7 +78,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 #endif
 		if (ret == 0) {
 			if (i > 1) {
-				shim_nanosleep_uint64(ns_delay);
+				(void)shim_nanosleep_uint64(ns_delay);
 			}
 			continue;
 		}
@@ -94,7 +94,7 @@ static int stress_umount_umount(stress_args_t *args, const char *path, const uin
 		case EBUSY:
 		case ENOMEM:
 			/* Wait and then re-try */
-			shim_nanosleep_uint64(ns_delay);
+			(void)shim_nanosleep_uint64(ns_delay);
 			break;
 		case EINVAL:
 		case ENOENT:
@@ -135,7 +135,7 @@ static void stress_umount_read_proc_mounts(stress_args_t *args, const char *path
 		} while (ret > 0);
 		(void)close(fd);
 
-		shim_nanosleep_uint64(stress_mwc64modn(1000000));
+		(void)shim_nanosleep_uint64(stress_mwc64modn(1000000));
 	} while (stress_continue(args));
 
 	_exit(0);
@@ -153,7 +153,7 @@ static void stress_umount_umounter(stress_args_t *args, const char *path)
 
 	do {
 		rc = stress_umount_umount(args, path, 10000);
-		shim_nanosleep_uint64(stress_mwc64modn(10000));
+		(void)shim_nanosleep_uint64(stress_mwc64modn(10000));
 	} while (stress_continue(args));
 
 	_exit(rc);

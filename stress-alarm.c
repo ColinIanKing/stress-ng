@@ -142,7 +142,7 @@ again:
 			const uint64_t delay_ns = 1000 + stress_mwc32modn(10000);
 
 			(void)shim_kill(pid, SIGALRM);
-			shim_nanosleep_uint64(delay_ns);
+			(void)shim_nanosleep_uint64(delay_ns);
 			(void)shim_sched_yield();
 			(void)shim_kill(pid, SIGALRM);
 			(void)shim_sched_yield();

@@ -114,12 +114,12 @@ redo:
 			(void)shim_sched_yield();
 		break;
 	case 2:
-		shim_nanosleep_uint64(stress_mwc32modn(1000000));
+		(void)shim_nanosleep_uint64(stress_mwc32modn(1000000));
 		break;
 	case 3:
 		n = stress_mwc8();
 		for (i = 0; stress_continue(args) && (i < n); i++)
-			shim_nanosleep_uint64(stress_mwc32modn(10000));
+			(void)shim_nanosleep_uint64(stress_mwc32modn(10000));
 		break;
 	case 4:
 		for (i = 0; stress_continue(args) && (i < 1000000); i++)

@@ -68,7 +68,7 @@ static bool keep_running(void)
  */
 static void stress_exit_group_sleep(void)
 {
-	shim_nanosleep_uint64(10000);
+	(void)shim_nanosleep_uint64(10000);
 }
 
 /*

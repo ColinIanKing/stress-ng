@@ -717,7 +717,7 @@ static int stress_workload_exercise(
 
 		sleep_duration_ns = (run_when - stress_time_now()) * STRESS_DBL_NANOSECOND;
 		if (sleep_duration_ns > 10000.0) {
-			shim_nanosleep_uint64((uint64_t)sleep_duration_ns);
+			(void)shim_nanosleep_uint64((uint64_t)sleep_duration_ns);
 		} else {
 			(void)shim_sched_yield();
 		}
@@ -734,7 +734,7 @@ static int stress_workload_exercise(
 				}
 				(void)mq_send(mq, (const char *)&workload[i], sizeof(workload[i]), 0);
 				if (sleep_secs > 0.0)
-					shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
+					(void)shim_nanosleep_uint64((uint64_t)(run_duration_sec * STRESS_DBL_NANOSECOND));
 #else
 				stress_workload_waste_time(workload_method, run_duration_sec, buffer, buffer_len);
 #endif
@@ -746,7 +746,7 @@ static int stress_workload_exercise(
 	}
 	sleep_duration_ns = (t_end - stress_time_now()) * STRESS_DBL_NANOSECOND;
 	if (sleep_duration_ns > 100.0)
-		shim_nanosleep_uint64((uint64_t)sleep_duration_ns);
+		(void)shim_nanosleep_uint64((uint64_t)sleep_duration_ns);
 
 	return EXIT_SUCCESS;
 }
