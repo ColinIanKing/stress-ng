@@ -440,8 +440,8 @@ int shim_gettid(void)
  *	calling thread
  */
 long shim_getcpu(
-	unsigned *cpu,
-	unsigned *node,
+	unsigned int *cpu,
+	unsigned int *node,
 	void *tcache)
 {
 #if defined(HAVE_GETCPU) && !defined(STRESS_ARCH_S390)
