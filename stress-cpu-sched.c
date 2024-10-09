@@ -82,13 +82,22 @@ static const int mpol_modes[] = {
  */
 static const int normal_policies[] = {
 #if defined(SCHED_OTHER)
-		SCHED_OTHER,
+	SCHED_OTHER,
+#endif
+#if defined(SCHED_OTHER) && defined(SCHED_RESET_ON_FORK)
+	SCHED_OTHER | SCHED_RESET_ON_FORK,
 #endif
 #if defined(SCHED_BATCH)
-		SCHED_BATCH,
+	SCHED_BATCH,
+#endif
+#if defined(SCHED_BATCH) && defined(SCHED_RESET_ON_FORK)
+	SCHED_BATCH | SCHED_RESET_ON_FORK,
 #endif
 #if defined(SCHED_IDLE)
-		SCHED_IDLE,
+	SCHED_IDLE,
+#endif
+#if defined(SCHED_IDLE) && defined(SCHED_RESET_ON_FORK)
+	SCHED_IDLE | SCHED_RESET_ON_FORK,
 #endif
 };
 
@@ -164,11 +173,16 @@ static int stress_cpu_sched_setscheduler(
 {
 	struct sched_param param;
 	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(normal_policies));
-	int ret;
+	int ret, policy;
 
 	(void)shim_memset(&param, 0, sizeof(param));
 	param.sched_priority = 0;
-	ret = sched_setscheduler(pid, normal_policies[i], &param);
+	policy = normal_policies[i];
+	ret = sched_setscheduler(pid, policy, &param);
+	if ((ret != 0) && (policy & SCHED_RESET_ON_FORK)) {
+		policy &= ~SCHED_RESET_ON_FORK;
+		ret = sched_setscheduler(pid, policy, &param);
+	}
 	if (ret == 0) {
 		ret = sched_getscheduler(pid);
 		if ((ret < 0) && (errno != ESRCH)) {
