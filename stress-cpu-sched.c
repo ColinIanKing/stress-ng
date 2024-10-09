@@ -420,7 +420,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 #endif
 				default:
 					cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
-					stress_cpu_sched_setaffinity(args, mypid, cpu);
+					(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
 					shim_sched_yield();
 					sleep(0);
 					break;
@@ -459,6 +459,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
+		(void)stress_cpu_sched_setaffinity(args, args->pid, stress_mwc32modn((uint32_t)cpus));
 
 #if defined(HAVE_CLONE)
 		counter++;
