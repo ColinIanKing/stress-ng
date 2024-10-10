@@ -17,7 +17,7 @@
 #
 
 all:
-	@if which readelf > /dev/null ; then \
+	@if which objdump > /dev/null ; then \
 		$(CC) test/test-machine.c -o test-machine > /dev/null 2>&1 && \
 			objdump -D ./test-machine | grep format | awk '{print $$4}' \
 			| sed 's/elf[0-9\-]*//' | sed 's/[\-]*linux//' || echo "unknown"; \
