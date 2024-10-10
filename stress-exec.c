@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-builtin.h"
+#include "core-capabilities.h"
 #include "core-pthread.h"
 
 #if defined(HAVE_SPAWN_H)
@@ -316,7 +317,7 @@ static int stress_exec_supported(const char *name)
 	 *  this could allow somebody to try and run another
 	 *  executable as root.
 	 */
-	if (geteuid() == 0) {
+	if (stress_check_capability(SHIM_CAP_IS_ROOT)) {
 		pr_inf_skip("%s stressor must not run as root, skipping the stressor\n", name);
 		return -1;
 	}
