@@ -756,6 +756,7 @@ static void stress_usage_help(const stress_help_t help_info[])
 		}
 		if (start != ptr) {
 			const int n = (int)(ptr - start);
+
 			if (!first)
 				(void)printf("%-30s", "");
 			(void)printf("%*.*s\n", n, n, start);
@@ -1501,7 +1502,6 @@ void stress_metrics_set_const_check(
 		return;
 
 	item = &metrics->items[idx];
-
 	item->description = const_description ?
 		description :
 		stress_shared_heap_dup_const(description);
