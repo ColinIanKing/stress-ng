@@ -119,100 +119,100 @@ make -j are supported.
 
 To build on BSD systems, one requires gcc and GNU make:
 ```
-        CC=gcc gmake clean
-	CC=gcc gmake
+    CC=gcc gmake clean
+    CC=gcc gmake
 ```
 
 To build on OS X systems, just use:
 ```
-	make clean
-	make -j
+    make clean
+    make -j
 ```
 
 To build on MINIX, gmake and clang are required:
 ```
-	CC=clang gmake clean
-	CC=clang gmake
+    CC=clang gmake clean
+    CC=clang gmake
 ```
 
 To build on SunOS, one requires GCC and GNU make, build using:
 ```
-	CC=gcc gmake clean
-	CC=gcc gmake
+    CC=gcc gmake clean
+    CC=gcc gmake
 ```
 
 To build on Dilos, one requires GCC and GNU make, build using:
 ```
-	CC=gcc gmake clean
-	CC=gcc gmake
+    CC=gcc gmake clean
+    CC=gcc gmake
 ```
 
 To build on Haiku R1/beta5:
 ```
-	# GCC
-	make clean
-	make
-	# Clang
-	CC=clang make clean
-	CC=clang make
+    # GCC
+    make clean
+    make
+    # Clang
+    CC=clang make clean
+    CC=clang make
 ```
 
 To build a static image (example, for Android), use:
 ```
-	# path to Android NDK
-	export NDK=$HOME/android-ndk-r27-beta2
-	export PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
-	export TARGET=aarch64-linux-android
-	# Define Android API level
-	export API=27
-	export CC=$TARGET$API-clang
+# path to Android NDK
+    export NDK=$HOME/android-ndk-r27-beta2
+    export PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
+    export TARGET=aarch64-linux-android
+    # Define Android API level
+    export API=27
+    export CC=$TARGET$API-clang
 
-	make clean
-	STATIC=1 make
+    make clean
+    STATIC=1 make
 ```
 
 To build with full warnings enabled:
 ```
-	make clean
-	PEDANTIC=1 make
+    make clean
+    PEDANTIC=1 make
 ```
 
 To build with the Tiny C compiler:
 ```
-	make clean
-	CC=tcc make
+    make clean
+    CC=tcc make
 ```
 
 To build  with the PCC portable C compiler use:
 ```
-	make clean
-	CC=pcc make
+    make clean
+    CC=pcc make
 ```
 
 To build with the musl C library:
 ```
-	make clean
-	CC=musl-gcc
+    make clean
+    CC=musl-gcc
 ```
 
 To build with the Intel C compiler icc use:
 ```
-	make clean
-	CC=icc make
+    make clean
+    CC=icc make
 ```
 
 To build with the Intel C compiler icx use:
 ```
-	make clean
-	CC=icx make
+    make clean
+    CC=icx make
 ```
 
 To perform a cross-compilation using gcc, use a static build, specify
 the toolchain (both CC and CXX). For example, a mips64 cross build:
 
 ```
-	make clean
-	STATIC=1 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ make -j $(nproc)
+    make clean
+    STATIC=1 CC=mips64-linux-gnuabi64-gcc CXX=mips64-linux-gnuabi64-g++ make -j $(nproc)
 ```
 
 To perform a cross-compile for qnx, for example, a aarch64 qnx cross build:
@@ -224,8 +224,8 @@ To perform a cross-compile for qnx, for example, a aarch64 qnx cross build:
 
 To build with debug (-g) enabled use:
 ```
-	make clean
-	DEBUG=1 make
+    make clean
+    DEBUG=1 make
 ```
 
 ## Contributing to stress-ng:
