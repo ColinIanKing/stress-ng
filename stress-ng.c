@@ -1774,7 +1774,6 @@ static int MLOCKED_TEXT stress_run_child(
 	    (g_shared && !g_shared->caught_sigint) &&
 	    (run_duration < (double)g_opt_timeout) &&
 	    (!(g_stressor_current->bogo_ops && stats->args.ci.counter >= g_stressor_current->bogo_ops))) {
-
 		pr_warn("%s: WARNING: finished prematurely after just %s\n",
 			name, stress_duration_to_str(run_duration, true, true));
 	}
@@ -1937,7 +1936,6 @@ wait_for_stressors:
 	if (!(g_opt_flags & OPT_FLAGS_SYNC_START))
 		stress_start_timeout();
 #endif
-
 	stress_wait_stressors(s_pids_head, ticks_per_sec, stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
@@ -2774,7 +2772,6 @@ err_unmap_shared:
 	(void)munmap((void *)g_shared, g_shared->length);
 	stress_stressors_free();
 	exit(EXIT_FAILURE);
-
 }
 
 /*
