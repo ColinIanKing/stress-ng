@@ -290,13 +290,11 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		double residencies[STRESS_CSTATES_MAX];
 		cpu_cstate_t *cc;
 		double c0_residency = 100.0;
-		char tmp[64];
 		bool valid = false;
 
 		if (ss->ignore.run)
 			continue;
 
-		(void)stress_munge_underscore(tmp, ss->stressor->name, sizeof(tmp));
 		for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
 			double duration_us = 0.0;
 			double residency_us = 0.0;
@@ -313,8 +311,8 @@ void stress_cpuidle_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		}
 
 		if (valid) {
-			pr_inf("%s:\n", tmp);
-			pr_yaml(yaml, "    - stressor: %s\n", tmp);
+			pr_inf("%s:\n", ss->stressor->name);
+			pr_yaml(yaml, "    - stressor: %s\n", ss->stressor->name);
 
 			for (i = 0, cc = cpu_cstate_list; (i < STRESS_CSTATES_MAX) && cc; i++, cc = cc->next) {
 				if (strcmp(cc->cstate, busy_state) == 0)

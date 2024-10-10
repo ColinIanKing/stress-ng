@@ -678,7 +678,7 @@ typedef struct stress {
 	const stressor_info_t *info;	/* stress test info */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op_t op;		/* ops option */
-	const char *name;		/* name of stress test */
+	char name[16];			/* stressor function name */
 } stress_t;
 
 /* Pointer to current running stressor proc info */

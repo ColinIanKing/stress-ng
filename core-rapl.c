@@ -334,12 +334,10 @@ void stress_rapl_dump(FILE *yaml, stress_stressor_t *stressors_list, stress_rapl
 				const double harmonic_mean = (double)count / harmonic_total;
 
                                 if (!dumped_heading) {
-					char tmp[64];
 					dumped_heading = true;
 
-					(void)stress_munge_underscore(tmp, ss->stressor->name, sizeof(tmp));
-					pr_inf("%s:\n", tmp);
-					pr_yaml(yaml, "    - stressor: %s\n", tmp);
+					pr_inf("%s:\n", ss->stressor->name);
+					pr_yaml(yaml, "    - stressor: %s\n", ss->stressor->name);
                                 }
 
 				pr_inf(" %-19s %8.2f W\n", rapl_domain->domain_name, harmonic_mean);

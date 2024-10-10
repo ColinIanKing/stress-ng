@@ -270,9 +270,11 @@ enum {
 STRESSORS(STRESSOR_INFO)
 
 /*
- *  Human readable stress test names.
+ *  Human readable stress test names, can't be const
+ *  because name is munged to human readable form
+ *  at start
  */
-static const stress_t stressors[] = {
+static stress_t stressors[] = {
 	STRESSORS(STRESSOR_ELEM)
 };
 
@@ -396,18 +398,6 @@ static const stress_help_t help_generic[] = {
 };
 
 /*
- *  stress_readable_name()
- *	convert stressor name to human readable name
- */
-static const char *stress_readable_name(const stress_t *stressor)
-{
-	static char name[64];
-
-	(void)stress_munge_underscore(name, stressor->name, sizeof(name));
-	return name;
-}
-
-/*
  *  stress_hash_checksum()
  *	generate a hash of the checksum data
  */
@@ -469,7 +459,7 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 						token);
 					for (j = 0; j < SIZEOF_ARRAY(stressors); j++) {
 						if (stressors[j].info->class & cl)
-							(void)printf(" %s", stress_readable_name(&stressors[j]));
+							(void)printf(" %s", stressors[j].name);
 					}
 					(void)printf("\n");
 					return 1;
@@ -783,7 +773,7 @@ static void stress_verifiable_mode(const stress_verify_t mode)
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info->verify == mode) {
-			(void)printf("%s%s", space ? " " : "", stress_readable_name(&stressors[i]));
+			(void)printf("%s%s", space ? " " : "", stressors[i].name);
 			space = true;
 		}
 	}
@@ -827,7 +817,7 @@ static inline void stress_show_stressor_names(void)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++)
-		(void)printf("%s%s", i ? " " : "", stress_readable_name(&stressors[i]));
+		(void)printf("%s%s", i ? " " : "", stressors[i].name);
 	(void)putchar('\n');
 }
 
@@ -1351,7 +1341,7 @@ static void stress_wait_stressors(
 			const pid_t pid = stats->s_pid.pid;
 
 			if (pid) {
-				const char *name = stress_readable_name(ss->stressor);
+				const char *name = ss->stressor->name;
 
 				stress_wait_pid(ss, pid, name, stats, success, resource_success, metrics_success);
 				stress_clean_dir(name, pid, (uint32_t)j);
@@ -1612,7 +1602,7 @@ static int MLOCKED_TEXT stress_run_child(
 	const size_t page_size,
 	const pid_t child_pid)
 {
-	const char *name = stress_readable_name(g_stressor_current->stressor);
+	const char *name = g_stressor_current->stressor->name;
 	int rc = EXIT_SUCCESS;
 	bool ok;
 	double finish = 0.0, run_duration;
@@ -1970,7 +1960,7 @@ static int stress_show_stressors(void)
 			const int32_t n = ss->num_instances;
 
 			if (n) {
-				const char *name = stress_readable_name(ss->stressor);
+				const char *name = ss->stressor->name;
 				ssize_t buffer_len;
 
 				buffer_len = snprintf(buffer, sizeof(buffer),
@@ -2025,7 +2015,7 @@ static void stress_exit_status_type(const char *name, const size_t type)
 			size_t buf_len;
 
 			(void)snprintf(buf, sizeof(buf), " %s (%" PRIu32")",
-				stress_readable_name(ss->stressor), count);
+				ss->stressor->name, count);
 			buf_len = strlen(buf);
 			new_str = realloc(str, str_len + buf_len);
 			if (!new_str) {
@@ -2217,7 +2207,7 @@ static void stress_metrics_dump(FILE *yaml)
 		if (!ss->stats)
 			continue;
 
-		name = stress_readable_name(ss->stressor);
+		name = ss->stressor->name;
 
 		for (j = 0; j < ss->num_instances; j++)
 			ss->completed_instances = 0;
@@ -2366,8 +2356,7 @@ static void stress_metrics_dump(FILE *yaml)
 			if (!ss->stats)
 				continue;
 
-			name = stress_readable_name(ss->stressor);
-
+			name = ss->stressor->name;
 			if (ss->stats[0]->metrics.max_metrics > SIZEOF_ARRAY(ss->stats[0]->metrics.items))
 				pr_metrics("note: %zd metrics were set, only reporting first %zd metrics\n",
 					ss->stats[0]->metrics.max_metrics, SIZEOF_ARRAY(ss->stats[0]->metrics.items));
@@ -2868,7 +2857,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			if (stressor->info->supported) {
 				for (ss = stressors_head; ss; ss = ss->next) {
 					if (!ss->ignore.run) {
-						const char *name = stress_readable_name(ss->stressor);
+						const char *name = ss->stressor->name;
 
 						if ((ss->stressor == stressor) && ss->num_instances &&
 						    (stressor->info->supported(name) < 0)) {
@@ -2881,7 +2870,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			if (stressor->info->stressor == stress_unimplemented) {
 				for (ss = stressors_head; ss; ss = ss->next) {
 					if (!ss->ignore.run) {
-						const char *name = stress_readable_name(ss->stressor);
+						const char *name = ss->stressor->name;
 
 						if ((ss->stressor == stressor) && ss->num_instances) {
 							stress_exclude_unimplemented(name, stressor->info);
@@ -3030,7 +3019,7 @@ static inline void stress_exclude_pathological(void)
 
 			if ((!ss->ignore.run) && (ss->stressor->info->class & CLASS_PATHOLOGICAL)) {
 				if (ss->num_instances > 0) {
-					const char* name = stress_readable_name(ss->stressor);
+					const char* name = ss->stressor->name;
 
 					pr_inf("disabled '%s' as it "
 						"may hang or reboot the machine "
@@ -3618,7 +3607,7 @@ static inline void stress_run_sequential(
 			if (progress) {
 				struct tm *tm_finish;
 				time_t t_finish;
-				const char *name = stress_readable_name(ss->stressor);
+				const char *name = ss->stressor->name;
 				char finish[64];
 
 				t_finish = time(NULL);
@@ -3719,7 +3708,7 @@ static inline void stress_run_permute(
 				if (!ss->ignore.permute) {
 					if (*str)
 						shim_strlcat(str, ", ", sizeof(str));
-					shim_strlcat(str, stress_readable_name(ss->stressor), sizeof(str));
+					shim_strlcat(str, ss->stressor->name, sizeof(str));
 				}
 				j++;
 			}
@@ -3827,6 +3816,14 @@ static void stress_global_lock_destroy(void)
 #endif
 }
 
+static inline void stress_fixup_stressor_names(void)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++)
+		stress_munge_underscore(stressors[i].name, stressors[i].name, sizeof(stressors[i].name));
+}
+
 int main(int argc, char **argv, char **envp)
 {
 	double duration = 0.0;			/* stressor run time in secs */
@@ -3851,6 +3848,8 @@ int main(int argc, char **argv, char **envp)
 
 	/* Enable stress-ng stack smashing message */
 	stress_set_stack_smash_check_flag(true);
+
+	stress_fixup_stressor_names();
 
 	if (stress_set_temp_path(".") < 0)
 		exit(EXIT_FAILURE);

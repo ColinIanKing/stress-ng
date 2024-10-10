@@ -234,6 +234,7 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			if ((total > 0) && (count > 0)) {
 				char munged[64];
+				const char *name = ss->stressor->name;
 				const double average = round((double)total / (double)count);
 				const char *plural = average > 1.0 ? "s" : "";
 
@@ -243,9 +244,8 @@ void stress_interrupts_dump(FILE *yaml, stress_stressor_t *stressors_list)
 				}
 
 				if (!pr_name) {
-					(void)stress_munge_underscore(munged, ss->stressor->name, sizeof(munged));
-					pr_inf("%s:\n", munged);
-					pr_yaml(yaml, "    - stressor: %s\n", munged);
+					pr_inf("%s:\n", name);
+					pr_yaml(yaml, "    - stressor: %s\n", name);
 					pr_name = true;
 				}
 

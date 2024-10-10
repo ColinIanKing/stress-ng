@@ -277,13 +277,13 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 
 			if (total) {
 				const double temp = (count > 0) ? ((double)total / count) / 1000.0 : 0.0;
+				const char *name = ss->stressor->name;
 				char tmp[64], *type;
 
-				(void)stress_munge_underscore(tmp, ss->stressor->name, sizeof(tmp));
 				if (!dumped_heading) {
 					dumped_heading = true;
-					pr_inf("%s:\n", tmp);
-					pr_yaml(yaml, "    - stressor: %s\n", tmp);
+					pr_inf("%s:\n", name);
+					pr_yaml(yaml, "    - stressor: %s\n", name);
 				}
 
 				if (stress_tz_type_instance(g_shared->tz_info, tz_info->type) <= 1) {
