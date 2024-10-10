@@ -348,6 +348,49 @@ static int stress_cpu_sched_next_cpu(
 	return last_cpu;
 }
 
+/*
+ *  stress_cpu_sched_exec()
+ *	cange affinity and scheduler then exec stress-ng that
+ *	immediately exits with the --exec-exit option
+ */
+static void stress_cpu_sched_exec(
+	stress_args_t *args,
+	const int cpus,
+	char *exec_prog)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0) {
+		return;
+	} else if (pid == 0) {
+		char *argv[4], *env[2];
+		const int cpu = stress_mwc32modn(cpus);
+		const pid_t mypid = getpid();
+
+		(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
+		(void)stress_cpu_sched_setscheduler(args, mypid);
+
+		argv[0] = exec_prog;
+		argv[1] = "--exec-exit";
+		argv[2] = NULL;
+		argv[3] = NULL;
+
+		env[0] = NULL;
+		env[1] = NULL;
+
+		_exit(execve(exec_prog, argv, env));
+	} else {
+		int status;
+
+		if (shim_waitpid(pid, &status, 0) < 0) {
+			/* apply hammer */
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		}
+	}
+}
+
 static int stress_cpu_sched_child(stress_args_t *args, void *context)
 {
 	/* Child */
@@ -355,10 +398,11 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	const int instance = (int)args->instance;
 	size_t i;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
+	char exec_path[PATH_MAX];
+	char *exec_prog = stress_get_proc_self_exe(exec_path, sizeof(exec_path));
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
-#if defined(HAVE_CLONE)
-	int counter = 0;
-#endif
+	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
+	uint32_t counter = 0;
 
 	(void)context;
 
@@ -472,13 +516,15 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		(void)stress_cpu_sched_setaffinity(args, args->pid, stress_mwc32modn((uint32_t)cpus));
 		(void)shim_sched_yield();
 
-#if defined(HAVE_CLONE)
 		counter++;
-		if (counter >= 2048) {
+#if defined(HAVE_CLONE)
+		if ((counter & 0x03ff) == 0)
 			stress_cpu_sched_clone(args);
-			counter = 0;
-		}
 #endif
+		if (((counter & 0xfff) == 0) &&
+		     exec_prog && not_root) {
+			stress_cpu_sched_exec(args, cpus, exec_prog);
+		}
 	} while (stress_continue(args));
 
 	(void)stress_kill_and_wait_many(args, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS, SIGKILL, false);
