@@ -50,6 +50,7 @@
 
 #include <ctype.h>
 #include <sched.h>
+#include <time.h>
 #include <math.h>
 #include <float.h>
 

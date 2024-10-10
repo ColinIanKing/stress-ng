@@ -26,6 +26,8 @@
 #include "core-nt-store.h"
 #include "core-put.h"
 
+#include <time.h>
+
 #if defined(HAVE_SYS_IO_H)
 #include <sys/io.h>
 #endif

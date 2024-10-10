@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-builtin.h"
 
+#include <time.h>
+
 #define MIN_TIMER_FREQ		(1)
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)

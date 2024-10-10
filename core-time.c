@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 
+#include <time.h>
+
 #define SECONDS_IN_MINUTE	(60.0)
 #define SECONDS_IN_HOUR		(60.0 * SECONDS_IN_MINUTE)
 #define SECONDS_IN_DAY		(24.0 * SECONDS_IN_HOUR)

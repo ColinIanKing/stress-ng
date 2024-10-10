@@ -109,7 +109,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 #if defined(HAVE_STRINGS_H)
 #include <strings.h>

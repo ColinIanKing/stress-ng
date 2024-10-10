@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
+#include <time.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"time-warp N",		"start N workers checking for timer/clock warping" },
 	{ NULL,	"time-warp-ops N",	"stop workers after N bogo timer/clock reads" },

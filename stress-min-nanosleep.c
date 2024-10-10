@@ -20,6 +20,8 @@
 #include "core-builtin.h"
 #include "core-cpuidle.h"
 
+#include <time.h>
+
 #define NANOSLEEP_MAX_SHIFT	(20)
 #define NANOSLEEP_MAX_NS	(1U << NANOSLEEP_MAX_SHIFT)
 #define NANOSLEEP_LOOPS		(16)

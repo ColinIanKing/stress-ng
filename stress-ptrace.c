@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
+#include <time.h>
+
 #if defined(HAVE_PTRACE)
 #include <sys/ptrace.h>
 #endif

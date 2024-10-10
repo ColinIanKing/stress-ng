@@ -19,6 +19,8 @@
  */
 #include "stress-ng.h"
 
+#include <time.h>
+
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
 #else

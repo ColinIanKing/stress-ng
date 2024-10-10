@@ -21,6 +21,8 @@
 #include "core-arch.h"
 #include "core-cpu.h"
 
+#include <time.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"x86syscall N",		"start N workers exercising functions using syscall" },
 	{ NULL,	"x86syscall-func F",	"use just syscall function F" },

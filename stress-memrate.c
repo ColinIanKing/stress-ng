@@ -26,6 +26,8 @@
 #include "core-target-clones.h"
 #include "core-vecmath.h"
 
+#include <time.h>
+
 #define MR_RD			(0)
 #define MR_WR			(1)
 

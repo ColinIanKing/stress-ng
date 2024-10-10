@@ -21,6 +21,8 @@
 #include "core-builtin.h"
 #include "core-capabilities.h"
 
+#include <time.h>
+
 #if defined(HAVE_SYS_FSUID_H)
 #include <sys/fsuid.h>
 #else

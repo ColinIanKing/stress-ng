@@ -24,6 +24,7 @@
 #include "core-sched.h"
 
 #include <sched.h>
+#include <time.h>
 #include <sys/times.h>
 
 #if defined(HAVE_LINUX_MEMBARRIER_H)

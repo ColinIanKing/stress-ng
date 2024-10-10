@@ -21,6 +21,8 @@
 #include "core-attribute.h"
 #include "core-builtin.h"
 
+#include <time.h>
+
 #if defined(HAVE_LIBAIO_H)
 #include <libaio.h>
 #endif

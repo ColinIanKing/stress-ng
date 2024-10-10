@@ -22,6 +22,8 @@
 #include "core-killpid.h"
 #include "core-try-open.h"
 
+#include <time.h>
+
 /*
  *  stress_try_kill()
  *	hammer away and try to kill a process

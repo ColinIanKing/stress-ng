@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <sys/times.h>
 #include <sched.h>
+#include <time.h>
 
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>

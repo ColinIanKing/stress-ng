@@ -23,6 +23,7 @@
 #include "core-mounts.h"
 
 #include <math.h>
+#include <time.h>
 
 #if defined(HAVE_LINUX_SYSCTL_H)
 #include <linux/sysctl.h>

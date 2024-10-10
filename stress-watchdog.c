@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 
+#include <time.h>
 #include <sys/ioctl.h>
 
 #if defined(HAVE_LINUX_WATCHDOG_H)

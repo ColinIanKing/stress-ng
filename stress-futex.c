@@ -21,6 +21,8 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 
+#include <time.h>
+
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>
 #endif

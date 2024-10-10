@@ -24,6 +24,8 @@
 #include "core-target-clones.h"
 #include "core-nt-store.h"
 
+#include <time.h>
+
 #define MISALIGN_LOOPS		(64)
 
 /* Disable atomic ops for SH4 as this breaks gcc on Debian sid */

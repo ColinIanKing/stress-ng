@@ -25,6 +25,7 @@
 
 #include <math.h>
 #include <sched.h>
+#include <time.h>
 
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(100000000)

@@ -22,6 +22,7 @@
 #include "core-syslog.h"
 
 #include <stdarg.h>
+#include <time.h>
 
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>

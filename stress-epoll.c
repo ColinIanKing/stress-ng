@@ -23,6 +23,8 @@
 #include "core-net.h"
 #include "core-pragma.h"
 
+#include <time.h>
+
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif

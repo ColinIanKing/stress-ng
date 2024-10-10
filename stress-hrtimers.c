@@ -23,6 +23,7 @@
 #include "core-out-of-memory.h"
 
 #include <sched.h>
+#include <time.h>
 
 static const stress_help_t help[] = {
 	{ NULL,	"hrtimers N",	  "start N workers that exercise high resolution timers" },

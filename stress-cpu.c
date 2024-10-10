@@ -29,6 +29,7 @@
 
 #include <math.h>
 #include <sched.h>
+#include <time.h>
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
