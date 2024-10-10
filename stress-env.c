@@ -21,6 +21,10 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
+#if defined(HAVE_SYS_PARAM_H)
+#include <sys/param.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"env N",	"start N workers setting environment vars" },
 	{ NULL,	"env-ops N",	"stop after N env bogo operations" },
