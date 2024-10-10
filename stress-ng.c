@@ -1003,7 +1003,7 @@ void stress_sync_start_wait_s_pid(stress_pid_t *s_pid)
 		return;
 
 	pid = s_pid->oomable_child ? s_pid->oomable_child : s_pid->pid;
-	if ((pid <= 1))
+	if (pid <= 1)
 		return;
 
 	stress_sync_state_store(s_pid, STRESS_SYNC_START_FLAG_WAITING);
