@@ -443,13 +443,15 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 		for (i = 0; (i < MAX_CPU_SCHED_PROCS) && stress_continue(args); i++) {
 			pid_t pid = pids[i].pid;
+			const bool stop_cont = stress_mwc1();
 
 			if (pid == -1)
 				continue;
 
 			cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
 
-			(void)kill(pid, SIGSTOP);
+			if (stop_cont)
+				(void)kill(pid, SIGSTOP);
 			if (stress_cpu_sched_setaffinity(args, pid, cpu) < 0) {
 				rc = EXIT_FAILURE;
 				break;
@@ -463,7 +465,8 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			if (cap_sys_nice)
 				(void)setpriority(PRIO_PROCESS, pid, 1 + stress_mwc8modn(18));
 #endif
-			(void)kill(pid, SIGCONT);
+			if (stop_cont)
+				(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
 		(void)stress_cpu_sched_setaffinity(args, args->pid, stress_mwc32modn((uint32_t)cpus));
