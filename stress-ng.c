@@ -2849,32 +2849,36 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		const stress_t *stressor = &stressors[i];
-		stress_stressor_t *ss;
 
-		if (stressor->info) {
-			if (stressor->info->supported) {
-				for (ss = stressors_head; ss; ss = ss->next) {
-					if (!ss->ignore.run) {
-						const char *name = ss->stressor->name;
+		if (!stressor->info)
+			continue;
 
-						if ((ss->stressor == stressor) && ss->num_instances &&
-						    (stressor->info->supported(name) < 0)) {
-							stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-							*unsupported = true;
-						}
+		if (stressor->info->supported) {
+			stress_stressor_t *ss;
+
+			for (ss = stressors_head; ss; ss = ss->next) {
+				if (!ss->ignore.run) {
+					const char *name = ss->stressor->name;
+
+					if ((ss->stressor == stressor) && ss->num_instances &&
+					    (stressor->info->supported(name) < 0)) {
+						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+						*unsupported = true;
 					}
 				}
 			}
-			if (stressor->info->stressor == stress_unimplemented) {
-				for (ss = stressors_head; ss; ss = ss->next) {
-					if (!ss->ignore.run) {
-						const char *name = ss->stressor->name;
+		}
+		if (stressor->info->stressor == stress_unimplemented) {
+			stress_stressor_t *ss;
 
-						if ((ss->stressor == stressor) && ss->num_instances) {
-							stress_exclude_unimplemented(name, stressor->info);
-							stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-							*unsupported = true;
-						}
+			for (ss = stressors_head; ss; ss = ss->next) {
+				if (!ss->ignore.run) {
+					const char *name = ss->stressor->name;
+
+					if ((ss->stressor == stressor) && ss->num_instances) {
+						stress_exclude_unimplemented(name, stressor->info);
+						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+						*unsupported = true;
 					}
 				}
 			}
