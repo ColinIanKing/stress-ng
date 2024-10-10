@@ -131,9 +131,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#if defined(HAVE_SYS_PARAM_H)
-//#include <sys/param.h>
-#endif
 #if defined(HAVE_SYSCALL_H)
 #include <sys/syscall.h>
 #endif
