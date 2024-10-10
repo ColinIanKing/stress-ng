@@ -97,7 +97,6 @@
  *  Standard includes, assume we have this as the
  *  minimal standard baseline
  */
-#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>

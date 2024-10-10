@@ -23,6 +23,7 @@
 #include <sys/uio.h>
 #endif
 
+#include <dirent.h>
 #include <sched.h>
 
 /*
