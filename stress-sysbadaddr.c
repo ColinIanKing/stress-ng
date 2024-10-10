@@ -2399,6 +2399,11 @@ static inline int stress_do_syscall(stress_args_t *args)
 #endif
 		size_t k;
 
+		for (k = 0; k < SIZEOF_ARRAY(sigs); k++) {
+			if (stress_sighandler(args->name, sigs[k], stress_sig_handler_exit, NULL) < 0)
+				_exit(EXIT_FAILURE);
+		}
+
 		/* Try to limit child from spawning */
 		limit_procs(2);
 
@@ -2408,10 +2413,6 @@ static inline int stress_do_syscall(stress_args_t *args)
 		/* Drop all capabilities */
 		if (stress_drop_capabilities(args->name) < 0) {
 			_exit(EXIT_NO_RESOURCE);
-		}
-		for (k = 0; k < SIZEOF_ARRAY(sigs); k++) {
-			if (stress_sighandler(args->name, sigs[k], stress_sig_handler_exit, NULL) < 0)
-				_exit(EXIT_FAILURE);
 		}
 
 		stress_parent_died_alarm();
