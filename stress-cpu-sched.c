@@ -316,7 +316,7 @@ static int stress_cpu_sched_next_cpu(
 	if (gettimeofday(&now, NULL) < 0)
 		return stress_mwc32modn(cpus);
 
-	switch (now.tv_sec & 7) {
+	switch (now.tv_sec % 12) {
 	default:
 	case 0:
 		/* random selection */
@@ -334,16 +334,32 @@ static int stress_cpu_sched_next_cpu(
 		return now.tv_sec % cpus;
 	case 4:
 		/* instance and seconds past EPOCH */
-		return (instance + now.tv_sec) % cpus;
+		return (instance + (now.tv_sec / 12)) % cpus;
 	case 5:
 		/* stride cpus by instance number */
 		return (last_cpu + instance + 1) % cpus;
 	case 6:
-		/* based on 10th of second */
-		return (now.tv_usec / 100000) % cpus;
+		/* based on instance number */
+		return instance % cpus;
 	case 7:
 		/* ping pong from last cpu */
 		return (cpus - 1) - last_cpu;
+	case 8:
+		/* based on fraction of second */
+		return (now.tv_usec / 72813) % cpus;
+	case 9:
+		/* prev with creeping brown noise */
+		cpu = last_cpu + (stress_mwc32modn(5) - 2);
+		cpu = (cpu < 0) ? cpu + cpus : cpu;
+		return cpu % cpus;
+	case 10:
+		/* odd/even */
+		cpu = last_cpu ^ 1;
+		return cpu % cpus;
+	case 11:
+		/* +/- 2 */
+		cpu = last_cpu ^ 2;
+		return cpu % cpus;
 	}
 	return last_cpu;
 }
