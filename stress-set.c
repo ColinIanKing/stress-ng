@@ -513,7 +513,12 @@ static int stress_set(stress_args_t *args)
 					rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
 					rlim.rlim_max = RLIM_INFINITY;
 					ret = setrlimit(rlimit_resources[i], &rlim);
-					if (ret != -EPERM) {
+					/*
+					 *  Cygwin can return -EINVAL as it's not supported in
+					 *  due to limited functionality in windows, so don't throw
+					 *  a failure for this specific failure.
+					 */
+					if ((ret != -EPERM) && (ret != -EINVAL)) {
 						pr_fail("%s: setrlimit failed, did not have privilege to set "
 							"hard limit, expected -EPERM, instead got errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
