@@ -25,9 +25,20 @@
 #include "core-out-of-memory.h"
 
 #include <sched.h>
+#include <time.h>
 
 #if defined(__NR_set_mempolicy)
 #define HAVE_SET_MEMPOLICY
+#endif
+
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME) &&	\
+    defined(SIGRTMIN) &&		\
+    defined(SIGEV_SIGNAL) &&		\
+    defined(CLOCK_REALTIME)
+#define HAVE_TIMER_CLOCK_REALTIME
 #endif
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&					     \
@@ -52,10 +63,15 @@ static const stress_help_t help[] = {
 
 static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
 
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+static timer_t timerid;
+#endif
+
 #if defined(HAVE_SET_MEMPOLICY)
 static int max_numa_node;
 static size_t node_mask_size;
 static unsigned long *node_mask;
+static int cpus;
 
 static const int mpol_modes[] = {
 	0,
@@ -140,10 +156,7 @@ static int stress_cpu_sched_nice(const int inc)
  *  stress_cpu_sched_setaffinity()
  *	attempt to set CPU affinity of process 'pid' to cpu 'cpu'
  */
-static int stress_cpu_sched_setaffinity(
-	stress_args_t *args,
-	const pid_t pid,
-	const int cpu)
+static int stress_cpu_sched_setaffinity(const pid_t pid, const int cpu)
 {
 	cpu_set_t cpu_set;
 	int ret;
@@ -153,12 +166,7 @@ static int stress_cpu_sched_setaffinity(
 	ret = sched_setaffinity(pid, sizeof(cpu_set), &cpu_set);
 	if (ret == 0) {
 		CPU_ZERO(&cpu_set);
-		ret = sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
-		if ((ret < 0) && (errno != ESRCH)) {
-			pr_fail("%s: sched_getaffinity failed on PID %jd, errno=%d (%s)\n",
-				args->name, (intmax_t)pid, errno, strerror(errno));
-			return ret;
-		}
+		(void)sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
 	}
 	return 0;
 }
@@ -167,9 +175,7 @@ static int stress_cpu_sched_setaffinity(
  *  stress_cpu_sched_setscheduler()
  *	attempt to set CPU scheduler of process 'pid to random scheduler
  */
-static int stress_cpu_sched_setscheduler(
-	stress_args_t *args,
-	const pid_t pid)
+static int stress_cpu_sched_setscheduler(const pid_t pid)
 {
 	struct sched_param param;
 	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(normal_policies));
@@ -183,14 +189,8 @@ static int stress_cpu_sched_setscheduler(
 		policy &= ~SCHED_RESET_ON_FORK;
 		ret = sched_setscheduler(pid, policy, &param);
 	}
-	if (ret == 0) {
-		ret = sched_getscheduler(pid);
-		if ((ret < 0) && (errno != ESRCH)) {
-			pr_fail("%s: sched_getscheduler failed on PID %jd, errno=%d (%s)\n",
-				args->name, (intmax_t)pid, errno, strerror(errno));
-			return ret;
-		}
-	}
+	if (ret == 0)
+		(void)sched_getscheduler(pid);
 	return 0;
 }
 
@@ -235,14 +235,14 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
  *  stress_cpu_sched_clone_exercise()
  *	exercise scheduler
  */
-static void stress_cpu_sched_clone_exercise(stress_args_t *args, const pid_t pid, const int cpu)
+static void stress_cpu_sched_clone_exercise(const pid_t pid, const int cpu)
 {
 	unsigned int new_cpu, node;
 
-	(void)stress_cpu_sched_setaffinity(args, pid, cpu);
+	(void)stress_cpu_sched_setaffinity(pid, cpu);
 	(void)shim_getcpu(&new_cpu, &node, NULL);
 	(void)shim_usleep_interruptible(0);
-	(void)stress_cpu_sched_setscheduler(args, pid);
+	(void)stress_cpu_sched_setscheduler(pid);
 	(void)shim_sched_yield();
 }
 
@@ -252,25 +252,23 @@ static void stress_cpu_sched_clone_exercise(stress_args_t *args, const pid_t pid
  */
 static int stress_cpu_sched_clone_func(void *arg)
 {
-	const int cpus = (int)stress_get_processors_configured();
 	const pid_t pid = getpid();
-	stress_args_t *args = (stress_args_t *)arg;
 	int cpu;
 
 	(void)arg;
 
 	for (cpu = 0; cpu < cpus; cpu++) {
-		stress_cpu_sched_clone_exercise(args, pid, cpu);
+		stress_cpu_sched_clone_exercise(pid, cpu);
 	}
 	(void)stress_cpu_sched_nice(1);
 	for (cpu = cpus - 1; cpu >= 0; cpu--) {
-		stress_cpu_sched_clone_exercise(args, pid, cpu);
+		stress_cpu_sched_clone_exercise(pid, cpu);
 	}
 	(void)stress_cpu_sched_nice(1);
 	for (cpu = 0; cpu < cpus; cpu++) {
 		const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
 
-		stress_cpu_sched_clone_exercise(args, pid, new_cpu);
+		stress_cpu_sched_clone_exercise(pid, new_cpu);
 	}
 	(void)stress_cpu_sched_nice(1);
 	(void)shim_sched_yield();
@@ -281,14 +279,14 @@ static int stress_cpu_sched_clone_func(void *arg)
  *  stress_cpu_sched_clone()
  *	create a process and make it exercise scheduling
  */
-static void stress_cpu_sched_clone(stress_args_t *args)
+static void stress_cpu_sched_clone(void)
 {
 	char stack[8192];
 	char *stack_top = (char *)stress_get_stack_top(stack, sizeof(stack));
 	const int flag = SIGCHLD;
 	pid_t pid;
 
-	pid = clone(stress_cpu_sched_clone_func, stress_align_stack(stack_top), flag, (void *)args);
+	pid = clone(stress_cpu_sched_clone_func, stress_align_stack(stack_top), flag, NULL);
 	if (pid != -1) {
 		int status;
 
@@ -305,22 +303,19 @@ static void stress_cpu_sched_clone(stress_args_t *args)
  *  stress_cpu_sched_next_cpu()
  *	select next cpu
  */
-static int stress_cpu_sched_next_cpu(
-	const int instance,
-	const int last_cpu,
-	const int cpus)
+static int stress_cpu_sched_next_cpu(const int instance, const int last_cpu)
 {
 	struct timeval now;
 	int cpu;
 
 	if (gettimeofday(&now, NULL) < 0)
-		return stress_mwc32modn(cpus);
+		return (int)stress_mwc32modn(cpus);
 
 	switch (now.tv_sec % 12) {
 	default:
 	case 0:
 		/* random selection */
-		return stress_mwc32modn(cpus);
+		return (int)stress_mwc32modn(cpus);
 	case 1:
 		/* next cpu */
 		cpu = last_cpu + 1;
@@ -331,7 +326,7 @@ static int stress_cpu_sched_next_cpu(
 		return cpu < 0 ? cpus - 1 : cpu;
 	case 3:
 		/* based on seconds past EPOCH */
-		return now.tv_sec % cpus;
+		return (int)(now.tv_sec % cpus);
 	case 4:
 		/* instance and seconds past EPOCH */
 		return (instance + (now.tv_sec / 12)) % cpus;
@@ -340,7 +335,7 @@ static int stress_cpu_sched_next_cpu(
 		return (last_cpu + instance + 1) % cpus;
 	case 6:
 		/* based on instance number */
-		return instance % cpus;
+		return (int)(instance % cpus);
 	case 7:
 		/* ping pong from last cpu */
 		return (cpus - 1) - last_cpu;
@@ -369,10 +364,7 @@ static int stress_cpu_sched_next_cpu(
  *	cange affinity and scheduler then exec stress-ng that
  *	immediately exits with the --exec-exit option
  */
-static void stress_cpu_sched_exec(
-	stress_args_t *args,
-	const int cpus,
-	char *exec_prog)
+static void stress_cpu_sched_exec(char *exec_prog)
 {
 	pid_t pid;
 
@@ -384,8 +376,8 @@ static void stress_cpu_sched_exec(
 		const int cpu = stress_mwc32modn(cpus);
 		const pid_t mypid = getpid();
 
-		(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
-		(void)stress_cpu_sched_setscheduler(args, mypid);
+		(void)stress_cpu_sched_setaffinity(mypid, cpu);
+		(void)stress_cpu_sched_setscheduler(mypid);
 
 		argv[0] = exec_prog;
 		argv[1] = "--exec-exit";
@@ -407,10 +399,46 @@ static void stress_cpu_sched_exec(
 	}
 }
 
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+/*
+ *  stress_cpu_sched_hrtimer_set()
+ *	set hrtimer to fire every nsec nanosecs
+ */
+static void stress_cpu_sched_hrtimer_set(const long int nsec)
+{
+	struct itimerspec timer;
+
+	timer.it_value.tv_nsec = nsec;
+	timer.it_value.tv_sec = 0;
+	timer.it_interval.tv_nsec = nsec;
+	timer.it_interval.tv_sec = 0;
+
+	(void)timer_settime(timerid, 0, &timer, NULL);
+}
+
+/*
+ *  stress_cpu_sched_hrtimer_handler
+ *	handle hrtimer signal, resched and set next timer
+ */
+static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
+{
+	(void)sig;
+
+	if (stress_continue_flag()) {
+		const pid_t pid = getpid();
+		const int cpu = (int)stress_mwc32modn(cpus);
+
+		(void)stress_cpu_sched_setaffinity(pid, cpu);
+		(void)stress_cpu_sched_setscheduler(pid);
+		stress_cpu_sched_hrtimer_set(20000000);
+	}
+}
+#endif
+
 static int stress_cpu_sched_child(stress_args_t *args, void *context)
 {
 	/* Child */
-	int cpu = 0, cpus = (int)stress_get_processors_configured(), rc = EXIT_SUCCESS;
+	int cpu = 0, rc = EXIT_SUCCESS;
 	const int instance = (int)args->instance;
 	size_t i;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
@@ -422,6 +450,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 	(void)context;
 
+	cpus = (int)stress_get_processors_configured();
 	if (cpus < 1)
 		cpus = 1;
 
@@ -442,6 +471,26 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 #if defined(HAVE_SET_MEMPOLICY)
 			int mode;
 #endif
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+			struct sigaction action;
+			int timer_ret = -1;
+
+			(void)shim_memset(&action, 0, sizeof(action));
+			action.sa_handler = stress_cpu_sched_hrtimer_handler;
+			(void)sigemptyset(&action.sa_mask);
+			if (sigaction(SIGRTMIN, &action, NULL) == 0) {
+				struct sigevent sev;
+
+				(void)shim_memset(&sev, 0, sizeof(sev));
+				sev.sigev_notify = SIGEV_SIGNAL;
+				sev.sigev_signo = SIGRTMIN;
+				sev.sigev_value.sival_ptr = &timerid;
+				timer_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
+				if (timer_ret == 0)
+					stress_cpu_sched_hrtimer_set(stress_mwc64modn(150000000) + 200000000);
+			}
+#endif
+
 			/* pid process re-mix mwc */
 			while (n-- > 0)
 				stress_mwc32();
@@ -486,13 +535,19 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 #endif
 					break;
 				default:
-					cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
-					(void)stress_cpu_sched_setaffinity(args, mypid, cpu);
+					cpu = stress_cpu_sched_next_cpu(instance, cpu);
+					(void)stress_cpu_sched_setaffinity(mypid, cpu);
 					(void)shim_sched_yield();
 					(void)sleep(0);
 					break;
 				}
 			} while (stress_continue(args));
+
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+			if (timer_ret == 0)
+				(void)timer_delete(timerid);
+#endif
+			_exit(0);
 		} else {
 			stress_cpu_sched_pids[i].pid = pid;
 		}
@@ -508,15 +563,15 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			if (pid == -1)
 				continue;
 
-			cpu = stress_cpu_sched_next_cpu(instance, cpu, cpus);
+			cpu = stress_cpu_sched_next_cpu(instance, cpu);
 
 			if (stop_cont)
 				(void)kill(pid, SIGSTOP);
-			if (stress_cpu_sched_setaffinity(args, pid, cpu) < 0) {
+			if (stress_cpu_sched_setaffinity(pid, cpu) < 0) {
 				rc = EXIT_FAILURE;
 				break;
 			}
-			if (stress_cpu_sched_setscheduler(args, pid) < 0) {
+			if (stress_cpu_sched_setscheduler(pid) < 0) {
 				rc = EXIT_FAILURE;
 				break;
 			}
@@ -529,17 +584,17 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
-		(void)stress_cpu_sched_setaffinity(args, args->pid, stress_mwc32modn((uint32_t)cpus));
+		(void)stress_cpu_sched_setaffinity(args->pid, stress_mwc32modn((uint32_t)cpus));
 		(void)shim_sched_yield();
 
 		counter++;
 #if defined(HAVE_CLONE)
 		if ((counter & 0x03ff) == 0)
-			stress_cpu_sched_clone(args);
+			stress_cpu_sched_clone();
 #endif
 		if (((counter & 0xfff) == 0) &&
 		     exec_prog && not_root) {
-			stress_cpu_sched_exec(args, cpus, exec_prog);
+			stress_cpu_sched_exec(exec_prog);
 		}
 	} while (stress_continue(args));
 
