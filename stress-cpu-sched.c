@@ -39,6 +39,7 @@
     defined(SIGEV_SIGNAL) &&		\
     defined(CLOCK_REALTIME)
 #define HAVE_TIMER_CLOCK_REALTIME
+#define TIMER_NS	(250000000)
 #endif
 
 #if defined(HAVE_SCHED_SETAFFINITY) &&					     \
@@ -230,12 +231,83 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 	}
 }
 
-#if defined(HAVE_CLONE)
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+static int stress_cpu_sched_hrtimer_block(void)
+{
+	sigset_t sigset;
+
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGRTMIN);
+	return sigprocmask(SIG_BLOCK, &sigset, NULL);
+}
+
+static int stress_cpu_sched_hrtimer_unblock(void)
+{
+	sigset_t sigset;
+
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGRTMIN);
+	sigaddset(&sigset, SIGALRM);
+	return sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+}
+
 /*
- *  stress_cpu_sched_clone_exercise()
+ *  stress_cpu_sched_hrtimer_set()
+ *	set hrtimer to fire every nsec nanosecs
+ */
+static void stress_cpu_sched_hrtimer_set(const long int nsec)
+{
+	if (timerid != (timer_t)-1) {
+		struct itimerspec timer;
+
+		timer.it_value.tv_nsec = nsec;
+		timer.it_value.tv_sec = 0;
+		timer.it_interval.tv_nsec = nsec;
+		timer.it_interval.tv_sec = 0;
+		(void)timer_settime(timerid, 0, &timer, NULL);
+	}
+}
+
+/*
+ *  stress_cpu_sched_hrtimer_handler
+ *	handle hrtimer signal, resched and set next timer
+ */
+static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
+{
+	sigset_t sigset;
+	bool cancel_timer = false;
+
+	(void)sig;
+
+	sigemptyset(&sigset);
+	if (sigpending(&sigset) < 0) {
+		cancel_timer = true;
+	} else if (sigismember(&sigset, SIGALRM)) {
+		cancel_timer = true;
+	}
+	if (cancel_timer) {
+		stress_cpu_sched_hrtimer_block();
+		stress_cpu_sched_hrtimer_set(0);
+		return;
+	}
+
+	if (stress_continue_flag()) {
+		const pid_t pid = getpid();
+		const int cpu = (int)stress_mwc32modn(cpus);
+
+		(void)stress_cpu_sched_setaffinity(pid, cpu);
+		(void)stress_cpu_sched_setscheduler(pid);
+		stress_cpu_sched_hrtimer_set(TIMER_NS);
+	}
+}
+#endif
+
+
+/*
+ *  stress_cpu_sched_child_exercise()
  *	exercise scheduler
  */
-static void stress_cpu_sched_clone_exercise(const pid_t pid, const int cpu)
+static void stress_cpu_sched_child_exercise(const pid_t pid, const int cpu)
 {
 	unsigned int new_cpu, node;
 
@@ -247,47 +319,47 @@ static void stress_cpu_sched_clone_exercise(const pid_t pid, const int cpu)
 }
 
 /*
- *  stress_cpu_sched_clone_func()
- *	perform some scheduler twiddling
- */
-static int stress_cpu_sched_clone_func(void *arg)
-{
-	const pid_t pid = getpid();
-	int cpu;
-
-	(void)arg;
-
-	for (cpu = 0; cpu < cpus; cpu++) {
-		stress_cpu_sched_clone_exercise(pid, cpu);
-	}
-	(void)stress_cpu_sched_nice(1);
-	for (cpu = cpus - 1; cpu >= 0; cpu--) {
-		stress_cpu_sched_clone_exercise(pid, cpu);
-	}
-	(void)stress_cpu_sched_nice(1);
-	for (cpu = 0; cpu < cpus; cpu++) {
-		const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
-
-		stress_cpu_sched_clone_exercise(pid, new_cpu);
-	}
-	(void)stress_cpu_sched_nice(1);
-	(void)shim_sched_yield();
-	return 0;
-}
-
-/*
- *  stress_cpu_sched_clone()
+ *  stress_cpu_sched_fork()
  *	create a process and make it exercise scheduling
  */
-static void stress_cpu_sched_clone(void)
+static void stress_cpu_sched_fork(void)
 {
-	char stack[8192];
-	char *stack_top = (char *)stress_get_stack_top(stack, sizeof(stack));
-	const int flag = SIGCHLD;
 	pid_t pid;
 
-	pid = clone(stress_cpu_sched_clone_func, stress_align_stack(stack_top), flag, NULL);
-	if (pid != -1) {
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+	stress_cpu_sched_hrtimer_set(0);
+	if (stress_cpu_sched_hrtimer_block() < 0)
+		return;
+#endif
+	pid = fork();
+	if (pid == -1) {
+		goto err;
+	} else if (pid == 0) {
+		const pid_t pid = getpid();
+		int cpu;
+
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+		if (timerid != (timer_t)-1) {
+			(void)timer_delete(timerid);
+			timerid = (timer_t)-1;
+		}
+#endif
+		for (cpu = 0; cpu < cpus; cpu++) {
+			stress_cpu_sched_child_exercise(pid, cpu);
+		}
+		(void)stress_cpu_sched_nice(1);
+		for (cpu = cpus - 1; cpu >= 0; cpu--) {
+			stress_cpu_sched_child_exercise(pid, cpu);
+		}
+		(void)stress_cpu_sched_nice(1);
+		for (cpu = 0; cpu < cpus; cpu++) {
+			const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
+			stress_cpu_sched_child_exercise(pid, new_cpu);
+		}
+		(void)stress_cpu_sched_nice(1);
+		(void)shim_sched_yield();
+		_exit(0);
+	} else {
 		int status;
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
@@ -296,8 +368,12 @@ static void stress_cpu_sched_clone(void)
 			(void)waitpid(pid, &status, 0);
 		}
 	}
-}
+err:
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+	stress_cpu_sched_hrtimer_set(TIMER_NS);
+	(void)stress_cpu_sched_hrtimer_unblock();
 #endif
+}
 
 /*
  *  stress_cpu_sched_next_cpu()
@@ -368,13 +444,29 @@ static void stress_cpu_sched_exec(char *exec_prog)
 {
 	pid_t pid;
 
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+	stress_cpu_sched_hrtimer_set(0);
+	if (stress_cpu_sched_hrtimer_block() < 0)
+		return;
+#endif
+
 	pid = fork();
 	if (pid < 0) {
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+		(void)stress_cpu_sched_hrtimer_unblock();
+#endif
 		return;
 	} else if (pid == 0) {
 		char *argv[4], *env[2];
 		const int cpu = stress_mwc32modn(cpus);
 		const pid_t mypid = getpid();
+
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+		if (timerid != (timer_t)-1) {
+			(void)timer_delete(timerid);
+			timerid = (timer_t)-1;
+		}
+#endif
 
 		(void)stress_cpu_sched_setaffinity(mypid, cpu);
 		(void)stress_cpu_sched_setscheduler(mypid);
@@ -396,44 +488,12 @@ static void stress_cpu_sched_exec(char *exec_prog)
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		}
-	}
-}
-
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
-/*
- *  stress_cpu_sched_hrtimer_set()
- *	set hrtimer to fire every nsec nanosecs
- */
-static void stress_cpu_sched_hrtimer_set(const long int nsec)
-{
-	struct itimerspec timer;
-
-	timer.it_value.tv_nsec = nsec;
-	timer.it_value.tv_sec = 0;
-	timer.it_interval.tv_nsec = nsec;
-	timer.it_interval.tv_sec = 0;
-
-	(void)timer_settime(timerid, 0, &timer, NULL);
-}
-
-/*
- *  stress_cpu_sched_hrtimer_handler
- *	handle hrtimer signal, resched and set next timer
- */
-static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
-{
-	(void)sig;
-
-	if (stress_continue_flag()) {
-		const pid_t pid = getpid();
-		const int cpu = (int)stress_mwc32modn(cpus);
-
-		(void)stress_cpu_sched_setaffinity(pid, cpu);
-		(void)stress_cpu_sched_setscheduler(pid);
-		stress_cpu_sched_hrtimer_set(20000000);
+		stress_cpu_sched_hrtimer_set(TIMER_NS);
+		(void)stress_cpu_sched_hrtimer_unblock();
+#endif
 	}
 }
-#endif
 
 static int stress_cpu_sched_child(stress_args_t *args, void *context)
 {
@@ -447,6 +507,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
 	uint32_t counter = 0;
+	double time_end = stress_time_now() + (double)g_opt_timeout;
 
 	(void)context;
 
@@ -474,6 +535,12 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 			struct sigaction action;
 			int timer_ret = -1;
+#endif
+
+			stress_parent_died_alarm();
+
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+			timerid = (timer_t)-1;
 
 			(void)shim_memset(&action, 0, sizeof(action));
 			action.sa_handler = stress_cpu_sched_hrtimer_handler;
@@ -486,8 +553,13 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				sev.sigev_signo = SIGRTMIN;
 				sev.sigev_value.sival_ptr = &timerid;
 				timer_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
-				if (timer_ret == 0)
-					stress_cpu_sched_hrtimer_set(stress_mwc64modn(150000000) + 200000000);
+				if (timer_ret == 0) {
+					const uint64_t ns = stress_mwc64modn(TIMER_NS >> 1) + (TIMER_NS >> 1);
+
+					stress_cpu_sched_hrtimer_set(ns);
+				}
+				else
+					timerid = (timer_t)-1;
 			}
 #endif
 
@@ -497,6 +569,8 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 			stress_cpu_sched_nice(1 + stress_mwc8modn(8));
 			do {
+				if (stress_time_now() >= time_end)
+					break;
 				switch (stress_mwc8modn(8)) {
 				case 0:
 					(void)shim_sched_yield();
@@ -544,8 +618,10 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			} while (stress_continue(args));
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
-			if (timer_ret == 0)
+			if (timerid != (timer_t)-1) {
 				(void)timer_delete(timerid);
+				timerid = (timer_t)-1;
+			}
 #endif
 			_exit(0);
 		} else {
@@ -588,10 +664,8 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		(void)shim_sched_yield();
 
 		counter++;
-#if defined(HAVE_CLONE)
 		if ((counter & 0x03ff) == 0)
-			stress_cpu_sched_clone();
-#endif
+			stress_cpu_sched_fork();
 		if (((counter & 0xfff) == 0) &&
 		     exec_prog && not_root) {
 			stress_cpu_sched_exec(exec_prog);
