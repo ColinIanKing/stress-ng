@@ -229,25 +229,34 @@ bool stress_cpu_is_x86(void)
 		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
 		"AMD ISBETTER",		/* early engineering samples of AMD K5 processor */
 		"AuthenticAMD",		/* AMD */
+		"BHyVE BHyVE",		/* bhyve VM */
 		"bhyve bhyve ",		/* bhyve VM */
 		"CyrixInstead",		/* Cyrix/early STMicroelectronics and IBM */
 		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
 		"E2K MACHINE\0",	/* MCST Elbrus */
+		"EVMMEVMMEVMM",		/* Intel KGT (Trusty) */
 		"GenuineAO486",		/* ao486 CPU (old) */
 		"GenuineTMx86",		/* Transmeta */
 		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
 		"Geode by NSC",		/* National Semiconductor */
 		"HygonGenuine",		/* Hygon */
-		"KVMKVMKVM\0\0\0",	/* KVM */
+		"HAXMHAXMHAXM",		/* Intel HAXM */
+		"Jailhouse\0\0\0",	/* Jailhouse */
+		"KVMKVMKVM\0\0\0",	/* Linux KVM */
+		"Linux KVM Hv",		/* Linux KVM Hyper-V emulation */
+		"SRESRESRESRE",		/* Lockheed Martin LMHS */
 		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
 		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
 		"MiSTer AO486",		/* ao486 CPU */
 		"NexGenDriven",		/* NexGen */
+		"___ NVMM ___",		/* NetBSD NVMM */
+		"OpenBSDVMM58",		/* OpenBSD VMM */
 		"RiseRiseRise",		/* Rise */
 		"SiS SiS SiS ",		/* SiS */
 		"TCGTCGTCGTCG",		/* QEMU */
 		"TransmetaCPU",		/* Transmeta */
 		"UMC UMC UMC ",		/* UMC */
+		"UnisysSpar64",		/* Unisys s-Par */
 		"VIA VIA VIA ",		/* VIA */
 		"VirtualApple",		/* Newer versions of Apple Rosetta 2 */
 		"Vortex86 SoC",		/* DM&P Vortex86 */
