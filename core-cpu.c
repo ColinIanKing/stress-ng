@@ -223,58 +223,74 @@ bool stress_cpu_is_x86(void)
 	 *  Kudos to https://en.wikipedia.org/wiki/CPUID
 	 */
 	static const char * const x86_id_str[] = {
+		"AMD ISBETTER",		/* early engineering samples of AMD K5 processor */
+		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
+		"AuthenticAMD",		/* AMD */
+		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
+		"CyrixInstead",		/* Cyrix/early STMicroelectronics and IBM */
+		"E2K MACHINE\0",	/* MCST Elbrus */
+		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
+		"GenuineAO486",		/* ao486 CPU (old) */
 		"GenuineIntel",		/* Intel */
 		"GenuineIotel",		/* Intel (https://twitter.com/InstLatX64/status/1101230794364862464) */
-		"ACRNACRNACRN",		/* Project ACRN */
-		"AMDisbetter!",		/* early engineering samples of AMD K5 processor */
-		"AMD ISBETTER",		/* early engineering samples of AMD K5 processor */
-		"AuthenticAMD",		/* AMD */
-		"BHyVE BHyVE",		/* bhyve VM */
-		"bhyve bhyve ",		/* bhyve VM */
-		"CyrixInstead",		/* Cyrix/early STMicroelectronics and IBM */
-		"CentaurHauls",		/* IDT WinChip/Centaur (Including some VIA and Zhaoxin CPUs) */
-		"E2K MACHINE\0",	/* MCST Elbrus */
-		"EVMMEVMMEVMM",		/* Intel KGT (Trusty) */
-		"GenuineAO486",		/* ao486 CPU (old) */
 		"GenuineTMx86",		/* Transmeta */
-		"Genuine  RDC",		/* RDC Semiconductor Co. Ltd. */
 		"Geode by NSC",		/* National Semiconductor */
 		"HygonGenuine",		/* Hygon */
-		"HAXMHAXMHAXM",		/* Intel HAXM */
-		"Jailhouse\0\0\0",	/* Jailhouse */
-		"KVMKVMKVM\0\0\0",	/* Linux KVM */
-		"Linux KVM Hv",		/* Linux KVM Hyper-V emulation */
-		"SRESRESRESRE",		/* Lockheed Martin LMHS */
-		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
 		"MicrosoftXTA",		/* Microsoft x86-to-ARM */
 		"MiSTer AO486",		/* ao486 CPU */
 		"NexGenDriven",		/* NexGen */
-		"___ NVMM ___",		/* NetBSD NVMM */
-		"OpenBSDVMM58",		/* OpenBSD VMM */
 		"RiseRiseRise",		/* Rise */
 		"SiS SiS SiS ",		/* SiS */
-		"TCGTCGTCGTCG",		/* QEMU */
 		"TransmetaCPU",		/* Transmeta */
 		"UMC UMC UMC ",		/* UMC */
-		"UnisysSpar64",		/* Unisys s-Par */
 		"VIA VIA VIA ",		/* VIA */
 		"VirtualApple",		/* Newer versions of Apple Rosetta 2 */
 		"Vortex86 SoC",		/* DM&P Vortex86 */
-		"VMwareVMware",		/* VMWare */
-		"XenVMMXenVMM",		/* XEN HVM */
 		"  Shanghai  ",		/* Zhaoxin */
-		" lrpepyh  vr",		/* Parallels */
-		" QNXQVMBSQG ",		/* QNX Hypervisor */
 	};
 
-	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
+	static const char * const x86_virt_id_str[] = {
+		" lrpepyh  vr",		/* Parallels */
+		" QNXQVMBSQG ",		/* QNX Hypervisor */
+		"ACRNACRNACRN",		/* Project ACRN */
+		"bhyve bhyve ",		/* bhyve VM */
+		"BHyVE BHyVE",		/* bhyve VM */
+		"EVMMEVMMEVMM",		/* Intel KGT (Trusty) */
+		"HAXMHAXMHAXM",		/* Intel HAXM */
+		"Jailhouse\0\0\0",	/* Jailhouse */
+		"Microsoft Hv",		/* Microsoft Hyper-V or Windows Virtual PC */
+		"KVMKVMKVM\0\0\0",	/* Linux KVM */
+		"Linux KVM Hv",		/* Linux KVM Hyper-V emulation */
+		"OpenBSDVMM58",		/* OpenBSD VMM */
+		"XenVMMXenVMM",		/* XEN HVM */
+		"SRESRESRESRE",		/* Lockheed Martin LMHS */
+		"TCGTCGTCGTCG",		/* QEMU */
+		"UnisysSpar64",		/* Unisys s-Par */
+		"VMwareVMware",		/* VMWare */
+		"___ NVMM ___",		/* NetBSD NVMM */
+	};
+
+	uint32_t eax, ebx, ecx, edx;
 	size_t i;
 
+	eax = 0, ebx = 0, ecx = 0, edx = 0;
 	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
 
 	/* Intel CPU? */
 	for (i = 0; i < SIZEOF_ARRAY(x86_id_str); i++) {
 		const char *str = x86_id_str[i];
+
+		if ((shim_memcmp(&ebx, str + 0, 4) == 0) &&
+		    (shim_memcmp(&edx, str + 4, 4) == 0) &&
+		    (shim_memcmp(&ecx, str + 8, 4) == 0))
+		return true;
+	}
+
+	/* Virtual machine? */
+	eax = 0x40000000, ebx = 0, ecx = 0, edx = 0;
+	stress_asm_x86_cpuid(eax, ebx, ecx, edx);
+	for (i = 0; i < SIZEOF_ARRAY(x86_virt_id_str); i++) {
+		const char *str = x86_virt_id_str[i];
 
 		if ((shim_memcmp(&ebx, str + 0, 4) == 0) &&
 		    (shim_memcmp(&edx, str + 4, 4) == 0) &&
