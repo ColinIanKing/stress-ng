@@ -119,6 +119,15 @@ static const int normal_policies[] = {
 };
 
 /*
+ *  stress_cpu_sched_rand_cpu()
+ *	return a random cpu number
+ */
+static int stress_cpu_sched_rand_cpu(void)
+{
+	return (int)stress_mwc32modn((uint32_t)cpus);
+}
+
+/*
  *  stress_cpu_sched_nice()
  *	attempt to try to use autogroup for linux, this
  *	may fail with EAGAIN if not priviledged or has been
@@ -139,7 +148,7 @@ static int stress_cpu_sched_nice(const int inc)
 	prio = (prio > 19) ? 19 : prio;
 
 	/* failed? fall back to shim'd variant of nice */
-	if (errno != 0)
+	if (UNLIKELY(errno != 0))
 		return shim_nice(inc);
 	ret = setpriority(PRIO_PROCESS, 0, prio);
 	saved_errno = errno;
@@ -257,7 +266,7 @@ static int stress_cpu_sched_hrtimer_unblock(void)
  */
 static void stress_cpu_sched_hrtimer_set(const long int nsec)
 {
-	if (timerid != (timer_t)-1) {
+	if (LIKELY(timerid != (timer_t)-1)) {
 		struct itimerspec timer;
 
 		timer.it_value.tv_nsec = nsec;
@@ -293,7 +302,7 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 
 	if (stress_continue_flag()) {
 		const pid_t pid = getpid();
-		const int cpu = (int)stress_mwc32modn(cpus);
+		const int cpu = stress_cpu_sched_rand_cpu();
 
 		(void)stress_cpu_sched_setaffinity(pid, cpu);
 		(void)stress_cpu_sched_setscheduler(pid);
@@ -353,7 +362,8 @@ static void stress_cpu_sched_fork(void)
 		}
 		(void)stress_cpu_sched_nice(1);
 		for (cpu = 0; cpu < cpus; cpu++) {
-			const int new_cpu = (int)stress_mwc32modn((uint32_t)cpus);
+			const int new_cpu = stress_cpu_sched_rand_cpu();
+
 			stress_cpu_sched_child_exercise(pid, new_cpu);
 		}
 		(void)stress_cpu_sched_nice(1);
@@ -385,13 +395,13 @@ static int stress_cpu_sched_next_cpu(const int instance, const int last_cpu)
 	int cpu;
 
 	if (gettimeofday(&now, NULL) < 0)
-		return (int)stress_mwc32modn(cpus);
+		return stress_cpu_sched_rand_cpu();
 
 	switch (now.tv_sec % 12) {
 	default:
 	case 0:
 		/* random selection */
-		return (int)stress_mwc32modn(cpus);
+		return stress_cpu_sched_rand_cpu();
 	case 1:
 		/* next cpu */
 		cpu = last_cpu + 1;
@@ -458,7 +468,7 @@ static void stress_cpu_sched_exec(char *exec_prog)
 		return;
 	} else if (pid == 0) {
 		char *argv[4], *env[2];
-		const int cpu = stress_mwc32modn(cpus);
+		const int cpu = stress_cpu_sched_rand_cpu();
 		const pid_t mypid = getpid();
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
@@ -545,7 +555,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			(void)shim_memset(&action, 0, sizeof(action));
 			action.sa_handler = stress_cpu_sched_hrtimer_handler;
 			(void)sigemptyset(&action.sa_mask);
-			if (sigaction(SIGRTMIN, &action, NULL) == 0) {
+			if (LIKELY(sigaction(SIGRTMIN, &action, NULL) == 0)) {
 				struct sigevent sev;
 
 				(void)shim_memset(&sev, 0, sizeof(sev));
@@ -553,13 +563,13 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				sev.sigev_signo = SIGRTMIN;
 				sev.sigev_value.sival_ptr = &timerid;
 				timer_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
-				if (timer_ret == 0) {
+				if (LIKELY(timer_ret == 0)) {
 					const uint64_t ns = stress_mwc64modn(TIMER_NS >> 1) + (TIMER_NS >> 1);
 
 					stress_cpu_sched_hrtimer_set(ns);
-				}
-				else
+				} else {
 					timerid = (timer_t)-1;
+				}
 			}
 #endif
 
@@ -569,7 +579,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 			stress_cpu_sched_nice(1 + stress_mwc8modn(8));
 			do {
-				if (stress_time_now() >= time_end)
+				if (UNLIKELY(stress_time_now() >= time_end))
 					break;
 				switch (stress_mwc8modn(8)) {
 				case 0:
@@ -581,6 +591,8 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				case 2:
 					if (cap_sys_nice)
 						(void)setpriority(PRIO_PROCESS, mypid, 1 + stress_mwc8modn(18));
+					else
+						(void)shim_usleep_interruptible(10);
 					break;
 				case 3:
 					(void)shim_usleep_interruptible(0);
@@ -594,7 +606,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 					break;
 #if defined(HAVE_SET_MEMPOLICY)
 				case 6:
-					if (node_mask != MAP_FAILED) {
+					if (UNLIKELY(node_mask != MAP_FAILED)) {
 						(void)shim_memset((void *)node_mask, 0, node_mask_size);
 						STRESS_SETBIT(node_mask, (int)stress_mwc16modn(max_numa_node));
 						mode = mpol_modes[stress_mwc8modn(SIZEOF_ARRAY(mpol_modes))];
@@ -618,7 +630,7 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			} while (stress_continue(args));
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
-			if (timerid != (timer_t)-1) {
+			if (LIKELY(timerid != (timer_t)-1)) {
 				(void)timer_delete(timerid);
 				timerid = (timer_t)-1;
 			}
@@ -633,21 +645,21 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		stress_cpu_sched_mix_pids(pids, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS);
 
 		for (i = 0; (i < MAX_CPU_SCHED_PROCS) && stress_continue(args); i++) {
-			pid_t pid = pids[i].pid;
+			const pid_t pid = pids[i].pid;
 			const bool stop_cont = stress_mwc1();
 
-			if (pid == -1)
+			if (UNLIKELY(pid == -1))
 				continue;
 
 			cpu = stress_cpu_sched_next_cpu(instance, cpu);
 
 			if (stop_cont)
 				(void)kill(pid, SIGSTOP);
-			if (stress_cpu_sched_setaffinity(pid, cpu) < 0) {
+			if (UNLIKELY(stress_cpu_sched_setaffinity(pid, cpu) < 0)) {
 				rc = EXIT_FAILURE;
 				break;
 			}
-			if (stress_cpu_sched_setscheduler(pid) < 0) {
+			if (UNLIKELY(stress_cpu_sched_setscheduler(pid) < 0)) {
 				rc = EXIT_FAILURE;
 				break;
 			}
@@ -660,7 +672,16 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				(void)kill(pid, SIGCONT);
 			stress_bogo_inc(args);
 		}
-		(void)stress_cpu_sched_setaffinity(args->pid, stress_mwc32modn((uint32_t)cpus));
+		for (i = 0; (i < (MAX_CPU_SCHED_PROCS >> 2)) && stress_continue(args); i++) {
+			const pid_t pid = pids[stress_mwc8modn(MAX_CPU_SCHED_PROCS)].pid;
+
+			if (LIKELY(pid != -1)) {
+				(void)kill(pid, SIGSTOP);
+				(void)kill(pid, SIGCONT);
+			}
+		}
+
+		(void)stress_cpu_sched_setaffinity(args->pid, stress_cpu_sched_rand_cpu());
 		(void)shim_sched_yield();
 
 		counter++;
