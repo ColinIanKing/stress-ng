@@ -30,6 +30,9 @@
 #if defined(__NR_set_mempolicy)
 #define HAVE_SET_MEMPOLICY
 #endif
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
@@ -274,6 +277,10 @@ static void stress_cpu_sched_hrtimer_set(const long int nsec)
 		timer.it_interval.tv_nsec = nsec;
 		timer.it_interval.tv_sec = 0;
 		(void)timer_settime(timerid, 0, &timer, NULL);
+#if defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_TIMERSLACK)
+		(void)prctl(PR_SET_TIMERSLACK, stress_mwc16() * 10);
+#endif
 	}
 }
 
@@ -521,6 +528,10 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 
 	(void)context;
 
+#if defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_TIMERSLACK)
+	(void)prctl(PR_SET_TIMERSLACK, 5);
+#endif
 	cpus = (int)stress_get_processors_configured();
 	if (cpus < 1)
 		cpus = 1;
