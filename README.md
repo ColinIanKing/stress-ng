@@ -465,6 +465,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [calling getcpu with misaligned address causes kernel panic](https://bugzilla.kernel.org/show_bug.cgi?id=219339)
 * [cygwin: pread/pwrite: prevent EBADF error after fork()](https://sourceware.org/pipermail/cygwin-patches/2024q3/012793.html)
 * [cygwin 3.5.4-1: signal handling destroys 'long double' values](https://sourceware.org/pipermail/cygwin/2024-October/256503.html)
+* [cygwin: timer_delete: Fix return value](https://sourceware.org/pipermail/cygwin-patches/2024q4/012803.html)
 * [security/keys: fix slab-out-of-bounds in key_task_permission](https://www.spinics.net/lists/kernel/msg5392458.html)
 
 ## Kernel improvements that used stress-ng
