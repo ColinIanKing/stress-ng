@@ -103,6 +103,7 @@ extern WARN_UNUSED int stress_cache_alloc(const char *name) NONNULL(1);
 extern void stress_cache_free(void);
 extern ssize_t stress_system_write(const char *path, const char *buf,
 	const size_t buf_len);
+extern ssize_t stress_system_discard(const char *path);
 extern WARN_UNUSED ssize_t stress_system_read(const char *path, char *buf,
 	const size_t buf_len);
 extern WARN_UNUSED bool stress_is_prime64(const uint64_t n);
@@ -142,6 +143,7 @@ extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int
 extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line) NONNULL(1);
 extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t sz);
 extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
+extern ssize_t stress_read_discard(const int fd);
 extern WARN_UNUSED ssize_t stress_read_buffer(const int fd, void* buffer,
 	const ssize_t size, const bool ignore_sig_eintr);
 extern WARN_UNUSED ssize_t stress_write_buffer(const int fd, const void* buffer,

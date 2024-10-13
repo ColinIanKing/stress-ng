@@ -2074,6 +2074,26 @@ ssize_t stress_system_write(
 }
 
 /*
+ *  stress_system_discard()
+ *	read and discard contents of a given file
+ */
+ssize_t stress_system_discard(const char *path)
+{
+	int fd;
+	ssize_t ret;
+
+	if (UNLIKELY(!path))
+		return -EINVAL;
+	fd = open(path, O_RDONLY);
+	if (UNLIKELY(fd < 0))
+		return -errno;
+	ret = stress_read_discard(fd);
+	(void)close(fd);
+
+	return ret;
+}
+
+/*
  *  stress_system_read()
  *	read a buffer from a /sys or /proc entry
  */
@@ -3294,6 +3314,25 @@ int stress_get_unused_uid(uid_t *uid)
 	return -1;
 }
 #endif
+
+/*
+ *  stress_read_discard(cont int fd)
+ *	read and discard contents of file fd
+ */
+ssize_t stress_read_discard(const int fd)
+{
+	ssize_t rbytes = 0, ret;
+
+	do {
+		char buffer[4096];
+
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret > 0)
+			rbytes += ret;
+	} while (ret > 0);
+
+	return rbytes;
+}
 
 /*
  *  stress_read_buffer()
