@@ -271,11 +271,8 @@ static int stress_flock_child(
 		UNEXPECTED
 #endif
 #if defined(__linux__)
-		if ((i & 0xff) == 0) {
-			char buf[4096];
-
-			VOID_RET(ssize_t, stress_system_read("/proc/locks", buf, sizeof(buf)));
-		}
+		if ((i & 0xff) == 0)
+			(void)stress_system_discard("/proc/locks");
 #else
 		(void)i;
 #endif

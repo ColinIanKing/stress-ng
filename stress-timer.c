@@ -104,9 +104,7 @@ static bool OPTIMIZE3 stress_timer_stress_continue(void)
 static inline void stress_proc_self_timer_read(void)
 {
 #if defined(__linux__)
-	char buf[1024];
-
-	VOID_RET(ssize_t, stress_system_read("/proc/self/timers", buf, sizeof(buf)));
+	(void)stress_system_discard("/proc/self/timers");
 #endif
 }
 

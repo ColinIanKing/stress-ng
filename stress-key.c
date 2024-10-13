@@ -376,12 +376,8 @@ static int stress_key(stress_args_t *args)
 #endif
 		}
 
-		{
-			char buf[4096];
-
-			VOID_RET(ssize_t, stress_system_read("/proc/keys", buf, sizeof(buf)));
-			VOID_RET(ssize_t, stress_system_read("/proc/key-users", buf, sizeof(buf)));
-		}
+		(void)stress_system_discard("/proc/keys");
+		(void)stress_system_discard("/proc/key-users");
 
 		/*
 		 *  Perform invalid keyctl command

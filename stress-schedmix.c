@@ -81,9 +81,6 @@ static inline void stress_schedmix_waste_time(stress_args_t *args)
 	int i, n, status;
 	pid_t pid;
 	double min1, min5, min15;
-#if defined(__linux__)
-	char buf[256];
-#endif
 	struct tms tms_buf;
 #if defined(HAVE_GETRUSAGE) &&	\
     (defined(RUSAGE_SELF) || defined(RUSAGE_CHILDREN))
@@ -214,10 +211,10 @@ redo:
 		break;
 #if defined(__linux__)
 	case 22:
-		VOID_RET(ssize_t, stress_system_read("/proc/pressure/cpu", buf, sizeof(buf)));
+		(void)stress_system_discard("/proc/pressure/cpu");
 		break;
 	case 23:
-		VOID_RET(ssize_t, stress_system_read("/proc/self/schedstat", buf, sizeof(buf)));
+		(void)stress_system_discard("/proc/self/schedstat");
 		break;
 #endif
 #if defined(HAVE_SCHEDMIX_SEM)
