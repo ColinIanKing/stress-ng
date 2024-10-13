@@ -26,6 +26,7 @@
 
 #include <sched.h>
 #include <time.h>
+#include <sys/times.h>
 
 #if defined(__NR_set_mempolicy)
 #define HAVE_SET_MEMPOLICY
@@ -704,6 +705,28 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 				if (stress_get_load_avg(&min1, &min5, &min15) < 0)
 					get_load_avg = false;
 			}
+		}
+		if ((counter & 0x01ff) == 0) {
+#if defined(HAVE_GETRUSAGE) &&		\
+    (defined(RUSAGE_SELF) ||		\
+     defined(RUSAGE_CHILDREN) ||	\
+     defined(RUSAGE_THREAD))
+			struct rusage usage;
+#if defined(RUSAGE_SELF)
+			(void)shim_getrusage(RUSAGE_SELF, &usage);
+#endif
+#if defined(RUSAGE_CHILDREN)
+			(void)shim_getrusage(RUSAGE_CHILDREN, &usage);
+#endif
+#if defined(RUSAGE_THREAD)
+			(void)shim_getrusage(RUSAGE_CHILDREN, &usage);
+#endif
+#else
+			struct tms t;
+
+			(void)times(&t);
+#endif
+
 		}
 
 		if ((counter & 0x03ff) == 0) {
