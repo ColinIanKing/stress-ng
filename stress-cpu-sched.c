@@ -696,6 +696,16 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		(void)shim_sched_yield();
 
 		counter++;
+		if (counter & 0x1ff) {
+			double min1, min5, min15;
+			static bool get_load_avg = true;
+
+			if (get_load_avg) {
+				if (stress_get_load_avg(&min1, &min5, &min15) < 0)
+					get_load_avg = false;
+			}
+		}
+
 		if ((counter & 0x03ff) == 0) {
 			stress_cpu_sched_fork();
 #if defined(__linux__)
