@@ -700,6 +700,9 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 			stress_cpu_sched_fork();
 #if defined(__linux__)
 			stress_system_discard("/sys/kernel/debug/sched/debug");
+			stress_system_discard("/proc/pressure/cpu");
+			stress_system_discard("/proc/pressure/irq");
+			stress_system_discard("/proc/schedstat);
 #endif
 		}
 		if (((counter & 0xfff) == 0) &&
