@@ -696,8 +696,12 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 		(void)shim_sched_yield();
 
 		counter++;
-		if ((counter & 0x03ff) == 0)
+		if ((counter & 0x03ff) == 0) {
 			stress_cpu_sched_fork();
+#if defined(__linux__)
+			stress_system_discard("/sys/kernel/debug/sched/debug");
+#endif
+		}
 		if (((counter & 0xfff) == 0) &&
 		     exec_prog && not_root) {
 			stress_cpu_sched_exec(exec_prog);
