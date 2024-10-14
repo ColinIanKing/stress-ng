@@ -543,9 +543,15 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
 	}
 	for (i = 0; (i < MAX_CPU_SCHED_PROCS) && stress_continue(args); i++) {
 		pid_t pid;
+		int retry = 0;
 
+again:
 		pid = fork();
 		if (pid < 0) {
+                	if ((retry++ < 10) && stress_redo_fork(args, errno)) {
+				(void)shim_usleep_interruptible(50000);
+                        	goto again; 
+			}
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
 			pid_t mypid = getpid();
