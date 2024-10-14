@@ -339,17 +339,23 @@ static void stress_cpu_sched_child_exercise(const pid_t pid, const int cpu)
  *  stress_cpu_sched_fork()
  *	create a process and make it exercise scheduling
  */
-static void stress_cpu_sched_fork(void)
+static void stress_cpu_sched_fork(stress_args_t *args)
 {
 	pid_t pid;
+	int retry = 0;
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(0);
 	if (stress_cpu_sched_hrtimer_block() < 0)
 		return;
 #endif
+again:
 	pid = fork();
 	if (pid == -1) {
+                if ((retry++ < 10) && stress_redo_fork(args, errno)) {
+			(void)shim_usleep_interruptible(50000);
+                        goto again;
+		}
 		goto err;
 	} else if (pid == 0) {
 		const pid_t pid = getpid();
@@ -458,9 +464,10 @@ static int stress_cpu_sched_next_cpu(const int instance, const int last_cpu)
  *	cange affinity and scheduler then exec stress-ng that
  *	immediately exits with the --exec-exit option
  */
-static void stress_cpu_sched_exec(char *exec_prog)
+static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)
 {
 	pid_t pid;
+	int retry = 0;
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(0);
@@ -468,8 +475,13 @@ static void stress_cpu_sched_exec(char *exec_prog)
 		return;
 #endif
 
+again:
 	pid = fork();
 	if (pid < 0) {
+                if ((retry++ < 10) && stress_redo_fork(args, errno)) {
+			(void)shim_usleep_interruptible(50000);
+                        goto again;
+		}
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		(void)stress_cpu_sched_hrtimer_unblock();
 #endif
@@ -550,7 +562,7 @@ again:
 		if (pid < 0) {
                 	if ((retry++ < 10) && stress_redo_fork(args, errno)) {
 				(void)shim_usleep_interruptible(50000);
-                        	goto again; 
+				goto again;
 			}
 			stress_cpu_sched_pids[i].pid = -1;
 		} else if (pid == 0) {
@@ -736,7 +748,7 @@ again:
 		}
 
 		if ((counter & 0x03ff) == 0) {
-			stress_cpu_sched_fork();
+			stress_cpu_sched_fork(args);
 #if defined(__linux__)
 			stress_system_discard("/sys/kernel/debug/sched/debug");
 			stress_system_discard("/proc/pressure/cpu");
@@ -746,7 +758,7 @@ again:
 		}
 		if (((counter & 0xfff) == 0) &&
 		     exec_prog && not_root) {
-			stress_cpu_sched_exec(exec_prog);
+			stress_cpu_sched_exec(args, exec_prog);
 		}
 	} while (stress_continue(args));
 
