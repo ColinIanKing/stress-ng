@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "9 October 2024"
+.TH STRESS-NG 1 "15 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2070,6 +2070,40 @@ moved to/from the buffer cache. Linux only.
 .TP
 .B \-\-dev\-shm\-ops N
 stop after N bogo allocation and mmap /dev/shm operations.
+.RE
+.TP
+.B Decimal floating point operations stressor
+.RS 5
+.TQ
+.B \-\-dfp N
+start N workers that exercise addition, multiplication and division
+operations on a range of decimal floating point types. For each type,
+8 floating point values are operated upon 65536 times in a loop per bogo op.
+.TP
+.B \-\-dfp\-method method
+select the decimal floating point method to use, available methods are:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	iterate over all the following floating point methods:
+df32add	32 bit decimal floating point add (_Decimal32)
+df64add	64 bit decimal floating point add (_Decimal64)
+df128add	128 bit decimal floating point add (_Decimal128)
+df32mul	32 bit decimal floating point multiply (_Decimal32)
+df64mul	64 bit decimal floating point multiply (_Decimal64)
+df128mul	128 bit decimal floating point multiply (_Decimal128)
+df32div	32 bit decimal floating point divide (_Decimal32)
+df64div	64 bit decimal floating point divide (_Decimal64)
+df128div	128 bit decimal floating point divide (_Decimal128)
+.TE
+.RS
+.PP
+Note that some of these decimal floating point methods may not be available on some systems.
+.RE
+.TP
+.B \-\-dfp\-ops N
+stop after N decimal floating point bogo ops.
 .RE
 .TP
 .B Directories stressor

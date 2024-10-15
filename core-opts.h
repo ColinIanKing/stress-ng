@@ -349,6 +349,10 @@ typedef enum {
 	OPT_dev_shm,
 	OPT_dev_shm_ops,
 
+	OPT_dfp,
+	OPT_dfp_method,
+	OPT_dfp_ops,
+
 	OPT_dir,
 	OPT_dir_ops,
 	OPT_dir_dirs,

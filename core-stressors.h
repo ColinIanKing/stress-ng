@@ -71,6 +71,7 @@
 	MACRO(dentry)		\
 	MACRO(dev)		\
 	MACRO(dev_shm)		\
+	MACRO(dfp)		\
 	MACRO(dir)		\
 	MACRO(dirdeep)		\
 	MACRO(dirmany)		\

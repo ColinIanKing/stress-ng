@@ -349,6 +349,7 @@ STRESS_SRC = \
 	stress-dentry.c \
 	stress-dev.c \
 	stress-dev-shm.c \
+	stress-dfp.c \
 	stress-dir.c \
 	stress-dirdeep.c \
 	stress-dirmany.c \
