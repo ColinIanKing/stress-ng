@@ -403,11 +403,9 @@ static int stress_prio_inv(stress_args_t *args)
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_NONE));
 		break;
 #endif
-#if defined(PTHREAD_PRIO_INHERIT)
 	case STRESS_PRIO_INV_TYPE_INHERIT:
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT));
 		break;
-#endif
 #if defined(PTHREAD_PRIO_PROTECT)
 	case STRESS_PRIO_INV_TYPE_PROTECT:
 		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_PROTECT));
