@@ -245,23 +245,18 @@ static void stress_cpu_sched_mix_pids(stress_pid_t *mix_pids, stress_pid_t *orig
 }
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
-static int stress_cpu_sched_hrtimer_block(void)
+
+/*
+ *  stress_cpu_sched_hrtimer_sigprocmask()
+ *	block/unblock SIGRTMIN
+ */
+static int stress_cpu_sched_hrtimer_sigprocmask(const int how)
 {
 	sigset_t sigset;
 
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGRTMIN);
-	return sigprocmask(SIG_BLOCK, &sigset, NULL);
-}
-
-static int stress_cpu_sched_hrtimer_unblock(void)
-{
-	sigset_t sigset;
-
-	sigemptyset(&sigset);
-	sigaddset(&sigset, SIGRTMIN);
-	sigaddset(&sigset, SIGALRM);
-	return sigprocmask(SIG_UNBLOCK, &sigset, NULL);
+	return sigprocmask(how, &sigset, NULL);
 }
 
 /*
@@ -303,7 +298,7 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 		cancel_timer = true;
 	}
 	if (cancel_timer) {
-		stress_cpu_sched_hrtimer_block();
+		stress_cpu_sched_hrtimer_sigprocmask(SIG_BLOCK);
 		stress_cpu_sched_hrtimer_set(0);
 		return;
 	}
@@ -346,7 +341,7 @@ static void stress_cpu_sched_fork(stress_args_t *args)
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(0);
-	if (stress_cpu_sched_hrtimer_block() < 0)
+	if (stress_cpu_sched_hrtimer_sigprocmask(SIG_BLOCK) < 0)
 		return;
 #endif
 again:
@@ -395,7 +390,7 @@ again:
 err:
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(TIMER_NS);
-	(void)stress_cpu_sched_hrtimer_unblock();
+	(void)stress_cpu_sched_hrtimer_sigprocmask(SIG_UNBLOCK);
 #endif
 }
 
@@ -471,7 +466,7 @@ static void stress_cpu_sched_exec(stress_args_t *args, char *exec_prog)
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(0);
-	if (stress_cpu_sched_hrtimer_block() < 0)
+	if (stress_cpu_sched_hrtimer_sigprocmask(SIG_BLOCK) < 0)
 		return;
 #endif
 
@@ -483,7 +478,7 @@ again:
                         goto again;
 		}
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
-		(void)stress_cpu_sched_hrtimer_unblock();
+		(void)stress_cpu_sched_hrtimer_sigprocmask(SIG_UNBLOCK);
 #endif
 		return;
 	} else if (pid == 0) {
@@ -520,7 +515,7 @@ again:
 		}
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		stress_cpu_sched_hrtimer_set(TIMER_NS);
-		(void)stress_cpu_sched_hrtimer_unblock();
+		(void)stress_cpu_sched_hrtimer_sigprocmask(SIG_UNBLOCK);
 #endif
 	}
 }
