@@ -123,7 +123,17 @@ mount_filesystem()
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
 			;;
-		minix)	MKFS_CMD="mkfs.minix"
+		minix1)	MKFS_CMD="mkfs.minix"
+			MKFS_ARGS="-1 ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
+			;;
+		minix2)	MKFS_CMD="mkfs.minix"
+			MKFS_ARGS="-2 ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
+			;;
+		minix3)	MKFS_CMD="mkfs.minix"
 			MKFS_ARGS="-3 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=${COUNT}
@@ -340,7 +350,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bcachefs bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in bcachefs bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	if mount_filesystem $FS; then
 		MNTDEV=$(findmnt -T $MNT -o SOURCE  --verbose -n)
