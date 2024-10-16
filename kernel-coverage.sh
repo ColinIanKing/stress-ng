@@ -399,6 +399,8 @@ do
 		do_stress --verity -1 --temp-path $MNT --iostat 1
 		echo "Filesystem: $FS"
 		do_stress --utime -1 --utime-fsync --temp-path $MNT --iostat 1
+		echo "Filesystem: $FS"
+		sudo $STRESS_NG --swap 4 --temp-path $MNT -t $DURATION --iostat 1 --status 5 --timestamp -v
 		DURATION=10
 		echo "Filesystem: $FS"
 		sudo $STRESS_NG --class filesystem --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1 --status 5
