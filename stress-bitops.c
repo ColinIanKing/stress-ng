@@ -606,7 +606,7 @@ static int OPTIMIZE3 stress_bitops_log2(const char *name, uint32_t *count)
 	uint32_t sum = 0;
 
 	for (i = 0; i < 1000; i++) {
-		static const int bitposition[32] ALIGN64 = {
+		static const int8_t bitposition[32] ALIGN64 = {
 			 0,  9,  1, 10, 13, 21,  2, 29,
 			11, 14, 16, 18, 22, 25,  3, 30,
 			 8, 12, 20, 28, 15, 17, 24, 7,
