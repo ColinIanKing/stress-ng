@@ -395,9 +395,9 @@ static inline void apparmor_corrupt_flip_bits_random(
 	const uint32_t n = stress_mwc32modn(17);
 
 	for (i = 0; i < n; i++) {
-		const uint32_t rnd = stress_mwc32();
+		const uint32_t rnd = stress_mwc32modn((uint32_t)len);
 
-		copy[rnd % len] ^= (1U << ((rnd >> 16) & 7));
+		copy[rnd] ^= (1U << ((rnd >> 16) & 7));
 	}
 }
 
@@ -464,9 +464,9 @@ static inline void apparmor_corrupt_clr_bits_random(
 	const uint32_t n = stress_mwc32modn(17);
 
 	for (i = 0; i < n; i++) {
-		const uint32_t rnd = stress_mwc32();
+		const uint32_t rnd = stress_mwc32modn((uint32_t)len);
 
-		copy[rnd % len] &= ~(1U << ((rnd >> 16) & 7));
+		copy[rnd] &= ~(1U << ((rnd >> 16) & 7));
 	}
 }
 
@@ -481,9 +481,9 @@ static inline void apparmor_corrupt_set_bits_random(
 	const uint32_t n = stress_mwc32modn(17);
 
 	for (i = 0; i < n; i++) {
-		const uint32_t rnd = stress_mwc32();
+		const uint32_t rnd = stress_mwc32modn((uint32_t)len);
 
-		copy[rnd % len] |= (1U << ((rnd >> 16) & 7));
+		copy[rnd] |= (1U << ((rnd >> 16) & 7));
 	}
 }
 
@@ -531,9 +531,9 @@ static inline void apparmor_corrupt_flip_bits_random_burst(
 static inline void apparmor_corrupt_flip_one_bit_random(
 	char *copy, const size_t len)
 {
-	const uint32_t rnd = stress_mwc32();
+	const uint32_t rnd = stress_mwc32modn((uint32_t)len);
 
-	copy[rnd % len] ^= 1U << stress_mwc8modn(8);
+	copy[rnd] ^= 1U << stress_mwc8modn(8);
 }
 
 /*
