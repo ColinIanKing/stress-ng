@@ -145,6 +145,9 @@ static int stress_schedpolicy(stress_args_t *args)
 #if defined(SCHED_BATCH)
 		case SCHED_BATCH:
 #endif
+#if defined(SCHED_EXT)
+		case SCHED_EXT:
+#endif
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
 #endif

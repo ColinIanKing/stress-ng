@@ -66,6 +66,9 @@ static void OPTIMIZE3 NORETURN stress_resched_child(
 #if defined(SCHED_BATCH)
 		SCHED_BATCH,
 #endif
+#if defined(SCHED_EXT)
+		SCHED_EXT,
+#endif
 #if defined(SCHED_IDLE)
 		SCHED_IDLE,
 #endif

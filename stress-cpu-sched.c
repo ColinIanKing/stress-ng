@@ -111,6 +111,9 @@ static const int normal_policies[] = {
 #if defined(SCHED_BATCH)
 	SCHED_BATCH,
 #endif
+#if defined(SCHED_EXT)
+	SCHED_EXT,
+#endif
 #if defined(SCHED_BATCH) && defined(SCHED_RESET_ON_FORK)
 	SCHED_BATCH | SCHED_RESET_ON_FORK,
 #endif
