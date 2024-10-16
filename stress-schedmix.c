@@ -380,6 +380,10 @@ static int stress_schedmix_child(stress_args_t *args)
 		case SCHED_BATCH:
 			goto case_sched_other;
 #endif
+#if defined(SCHED_EXT)
+		case SCHED_EXT:
+			goto case_sched_other;
+#endif
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
 #endif
