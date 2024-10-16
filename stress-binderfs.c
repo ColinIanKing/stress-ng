@@ -49,7 +49,8 @@ static int stress_binderfs_supported(const char *name)
     defined(HAVE_LINUX_ANDROID_BINDER_H) &&	\
     defined(HAVE_LINUX_ANDROID_BINDERFS_H)
 	int ret;
-	const char *path = stress_get_temp_path();
+	const char *tmppath = stress_get_temp_path();
+	char path[PATH_MAX];
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf_skip("%s stressor will be skipped, "
@@ -58,12 +59,17 @@ static int stress_binderfs_supported(const char *name)
 		return -1;
 	}
 
-	if (!path)
+	if (!tmppath)
 		return 0;	/* defer */
 
+	if (stress_temp_dir(path, sizeof(path), "binderfs", getpid(), 0) < 0)
+		return 0;	/* defer */
+	if (mkdir(path, S_IRWXU) < 0)
+		return 0;	/* defer */
 	ret = mount("binder", path, "binder", 0, 0);
 	if (ret >= 0) {
 		(void)umount(path);
+		(void)rmdir(path);
 		return 0;
 	}
 
@@ -74,6 +80,7 @@ static int stress_binderfs_supported(const char *name)
 	}
 	/* umount just in case it got mounted and mount way lying */
 	(void)umount(path);
+	(void)rmdir(path);
 	return -1;
 #else
 	pr_inf_skip("%s stressor will be skipped, binderfs not supported\n", name);
