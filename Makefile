@@ -516,6 +516,7 @@ STRESS_SRC = \
 	stress-pseek.c \
 	stress-pthread.c \
 	stress-ptrace.c \
+	stress-ptr-chase.c \
 	stress-pty.c \
 	stress-quota.c \
 	stress-qsort.c \

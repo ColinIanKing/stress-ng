@@ -238,6 +238,7 @@
 	MACRO(pseek)		\
 	MACRO(pthread)		\
 	MACRO(ptrace)		\
+	MACRO(ptr_chase)	\
 	MACRO(pty)		\
 	MACRO(qsort)		\
 	MACRO(quota)		\

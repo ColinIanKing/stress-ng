@@ -1098,6 +1098,10 @@ typedef enum {
 	OPT_ptrace,
 	OPT_ptrace_ops,
 
+	OPT_ptr_chase,
+	OPT_ptr_chase_ops,
+	OPT_ptr_chase_pages,
+
 	OPT_pty,
 	OPT_pty_ops,
 	OPT_pty_max,

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "15 October 2024"
+.TH STRESS-NG 1 "17 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6193,6 +6193,25 @@ ptrace(2).
 .TP
 .B \-\-ptrace\-ops N
 stop ptracer workers after N bogo system calls are traced.
+.RE
+.TP
+.B Pointer Chasing stressor
+.RS 5
+.TQ
+.B \-\-ptr\-chase N
+start N workers that chase memory pointers around page sized nodes of pointers.
+By default each stressor instance allocates 4096 pages of nodes, each node
+is an array of pointers that are randomly set to point to other node pages.
+The stressors follow randomly chosen pointers from each node, chasing around
+the entire node space. This exercises pointer fetching, pointer dereferencing
+and is a cache-read exercising stressor. The nodes are allocated with 50%
+of pages from the heap and 50% from mmap'd memory.
+.TP
+.B \-\-ptr\-chase\-ops N
+stop after N pointer chases
+.TP
+.B \-\-ptr\-chase\-pages N
+select number of pages to allocate for the nodes.
 .RE
 .TP
 .B Pseudo-terminals (pty) stressor
