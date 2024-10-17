@@ -42,6 +42,10 @@ static const stress_help_t help[] = {
 #define BITOPS_CLZ(x)	(UNLIKELY((x) == 0) ? 32 : __builtin_clz((x)))
 #endif
 
+#if defined(HAVE_BUILTIN_CTZ)
+#define BITOPS_CTZ(x)	(UNLIKELY((x) == 0) ? 32 : __builtin_ctz((x)))
+#endif
+
 static const stress_bitops_method_info_t bitops_methods[];
 
 static int stress_bitops_all(const char *name, uint32_t *count);
@@ -361,7 +365,7 @@ static int OPTIMIZE3 TARGET_CLONES stress_bitops_ctz(const char *name, uint32_t 
 
 #if defined(HAVE_BUILTIN_CTZ)
 		/* #4, Count trailing zeros, ctz method */
-		c2 = __builtin_ctz((unsigned int)v);
+		c2 = BITOPS_CTZ((unsigned int)v);
 		sum += c2;
 		if (UNLIKELY(c1 != c2)) {
 			pr_fail("%s: ctz builtin_ctz method failure, value 0x%" PRIx32 ", c1 = 0x%" PRIx32 ", c2 = 0x%" PRIx32 "\n",
