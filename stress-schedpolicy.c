@@ -238,9 +238,10 @@ case_sched_fifo:
 			} else if (ret != stress_sched_types[policy].sched) {
 				pr_fail("%s: sched_getscheduler "
 					"failed: PID %jd has policy %d (%s) "
-					"but function returned %d instead\n",
+					"but function returned %d (%s) instead\n",
 					args->name, (intmax_t)pid, new_policy,
-					new_policy_name, ret);
+					new_policy_name, ret,
+					stress_get_sched_name(ret));
 				rc = EXIT_FAILURE;
 				break;
 			}
