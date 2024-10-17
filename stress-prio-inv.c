@@ -472,8 +472,8 @@ reap:
 	}
 #endif
 
-	if ((sched_policy >= 0) &&
-	    (sched_policy == STRESS_PRIO_INV_TYPE_INHERIT) &&
+	if ((pthread_protocol >= 0) &&
+	    (pthread_protocol == STRESS_PRIO_INV_TYPE_INHERIT) &&
 	    (child_info[2].usage < child_info[0].usage * 0.9) &&
 	    (child_info[0].usage > 1.0)) {
 		pr_warn("%s: mutex priority inheritance appears incorrect, "
