@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "17 October 2024"
+.TH STRESS-NG 1 "18 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -6756,9 +6756,9 @@ from 1 to 64, default is 16.
 .B \-\-schedpolicy N
 start N workers that set the worker to various available scheduling
 policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO,
-SCHED_RR and SCHED_DEADLINE.  For the real time scheduling policies a
-random sched priority is selected between the minimum and maximum
-scheduling priority settings.
+SCHED_RR, SCHED_DEADLINE and SCHED_EXT. For the real time scheduling
+policies a random sched priority is selected between the minimum and
+maximum scheduling priority settings.
 .TP
 .B \-\-schedpolicy\-ops N
 stop after N bogo scheduling policy changes.
