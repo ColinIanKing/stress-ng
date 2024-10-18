@@ -607,6 +607,24 @@
 #define shim_tanl(x)		tanl((x))
 #endif
 
+#if defined(HAVE_BUILTIN_TANHF)
+#define shim_tanhf(x)		__builtin_tanhf((x))
+#else
+#define shim_tanhf(x)		tanhf((x))
+#endif
+
+#if defined(HAVE_BUILTIN_TANH)
+#define shim_tanh(x)		__builtin_tanh((x))
+#else
+#define shim_tanh(x)		tanh((x))
+#endif
+
+#if defined(HAVE_BUILTIN_TANHL)
+#define shim_tanhl(x)		__builtin_tanhl((x))
+#else
+#define shim_tanhl(x)		tanhl((x))
+#endif
+
 #if defined(HAVE_BUILTIN_SQRT)
 #define shim_sqrt(x)		__builtin_sqrt((x))
 #else

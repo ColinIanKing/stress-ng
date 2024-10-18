@@ -578,6 +578,10 @@ typedef enum {
 	OPT_hsearch_ops,
 	OPT_hsearch_size,
 
+	OPT_hyperbolic,
+	OPT_hyperbolic_method,
+	OPT_hyperbolic_ops,
+
 	OPT_icache,
 	OPT_icache_ops,
 

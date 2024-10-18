@@ -3422,6 +3422,58 @@ specify the number of hash entries to be inserted into the hash table. Size can
 be from 1 K to 4 M.
 .RE
 .TP
+.B Hyperbolic functions stressor
+.RS 5
+.TQ
+.B \-\-hyperbolic N
+start N workers that exercise sinh, cosh, and tanh hyperbolic
+functions using float, double and long double floating point
+variants. Each function is exercised 10,000 times per bogo-operation.
+.TP
+.B \-\-hyperbolic\-method function
+specify a hyperbolic stress function. By default, all the functions are exercised
+sequentially, however one can specify just one function to be used if required.
+Available options are as follows:
+.TS
+lB2 lB
+l lx.
+Method	Description
+all	T{
+iterate through all of the following hyperbolic functions
+T}
+cosh	T{
+hyperbolic cosine (double precision)
+T}
+coshf	T{
+hyperbolic cosine (float precision)
+T}
+coshl	T{
+hyperbolic cosine (long double precision)
+T}
+sinh	T{
+hyperbolic sine (double precision)
+T}
+sinhf	T{
+hyperbolic sine (float precision)
+T}
+sinhl	T{
+hyperbolic sine (long double precision)
+T}
+tanh	T{
+hyperbolic tangent (double precision)
+T}
+tanhf	T{
+hyperbolic tangent (float precision)
+T}
+tanhl 	T{
+hyperbolic tangent (long double precision)
+T}
+.TE
+.TP
+.B \-\-hyperbolic\-ops N
+stop after N bogo-operations.
+.RE
+.TP
 .B CPU instruction cache load stressor
 .RS 5
 .TQ
