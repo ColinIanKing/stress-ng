@@ -467,6 +467,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [cygwin 3.5.4-1: signal handling destroys 'long double' values](https://sourceware.org/pipermail/cygwin/2024-October/256503.html)
 * [cygwin: timer_delete: Fix return value](https://sourceware.org/pipermail/cygwin-patches/2024q4/012803.html)
 * [security/keys: fix slab-out-of-bounds in key_task_permission](https://www.spinics.net/lists/kernel/msg5392458.html)
+* [sched_ext: Don't hold scx_tasks_lock for too long](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?b07996c7abac0fe3f70bf74b0b3f76eb7852ef5a)
 
 ## Kernel improvements that used stress-ng
 
