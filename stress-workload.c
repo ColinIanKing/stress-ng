@@ -780,7 +780,7 @@ static int stress_workload(stress_args_t *args)
 	uint32_t workload_load = 30;
 	uint32_t workload_slice_us = 100000;	/* 1/10th second */
 	uint32_t workload_quanta_us = 1000;	/* 1/1000th second */
-	uint32_t workload_threads = 0;		/* 0 = disabled */
+	uint32_t workload_threads = 2;		/* 0 = disabled */
 	uint32_t max_quanta;
 	size_t workload_sched = 0;		/* undefined */
 	size_t workload_dist_idx = 0;

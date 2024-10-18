@@ -9298,7 +9298,7 @@ microseconds (1 millisecond).
 .TP
 .B \-\-workload\-threads N
 use N process threads to take scheduler work items of a workqueue and run the
-work item. When N is 0 (default), no threads are used and the work items are
+work item (default is 2). When N is 0, no threads are used and the work items are
 run back-to-back sequentially without using work queue. Using more than 2
 threads allows work items to be handled concurrently if enough idle processors
 are available.
