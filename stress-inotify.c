@@ -275,7 +275,7 @@ retry:
 			break;
 		} else if (err == 0) {
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				pr_fail("%s: timed waiting for event flags 0x%x\n", args->name, flags);
+				pr_fail("%s: timed out waiting for event flags 0x%x\n", args->name, flags);
 				rc = EXIT_FAILURE;
 			}
 			break;
