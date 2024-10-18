@@ -33,6 +33,11 @@
 #define HAVE_SCHED_SETATTR
 #endif
 
+#if defined(__linux__) && 	\
+    !defined(SCHED_EXT)
+#define SCHED_EXT	(7)
+#endif
+
 typedef struct {
 	const int sched;
 	const char *const sched_name;

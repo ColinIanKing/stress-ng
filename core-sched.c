@@ -36,11 +36,6 @@
 #define SCHED_FLAG_DL_OVERRUN           (0x04)
 #endif
 
-#if defined(__linux__) && !defined(SCHED_EXT)
-#define SCHED_EXT			(7)
-#endif
-
-
 const stress_sched_types_t stress_sched_types[] = {
 #if defined(SCHED_BATCH)
 	{ SCHED_BATCH,		"batch" },
