@@ -31,32 +31,51 @@ static const stress_help_t help[] = {
 };
 
 typedef struct {
+#if defined(HAVE_INT128_T)
+	__int128_t init[4];
+#else
 	int64_t init[4];
+#endif
 	struct {
+#if defined(HAVE_INT128_T)
+		__int128_t result128[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
 		int8_t result8[2];
 	} add ALIGN64;
 	struct {
+#if defined(HAVE_INT128_T)
+		__int128_t result128[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
 		int8_t result8[2];
 	} sub ALIGN64;
 	struct {
+#if defined(HAVE_INT128_T)
+		__int128_t result128[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
 		int8_t result8[2];
 	} mul ALIGN64;
 	struct {
+#if defined(HAVE_INT128_T)
+		__int128_t result128[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
 		int8_t result8[2];
 	} div ALIGN64;
 	struct {
+#if defined(HAVE_INT128_T)
+		__int128_t result128[2];
+#endif
 		int64_t result64[2];
 		int32_t result32[2];
 		int16_t result16[2];
@@ -292,26 +311,41 @@ PRAGMA_UNROLL_N(8)						\
 	return true;						\
 }
 
+#if defined(HAVE_INT128_T)
+STRESS_INTMATH_ADD(__int128_t, 128, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_ADD(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_ADD(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_ADD(int16_t, 16, TARGET_CLONES)
 STRESS_INTMATH_ADD(int8_t,   8, TARGET_CLONES)
 
+#if defined(HAVE_INT128_T)
+STRESS_INTMATH_SUB(__int128_t, 128, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_SUB(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_SUB(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_SUB(int16_t, 16, NO_TARGET_CLONES)
 STRESS_INTMATH_SUB(int8_t,   8, NO_TARGET_CLONES)
 
+#if defined(HAVE_INT128_T)
+STRESS_INTMATH_MUL(__int64_t, 128, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_MUL(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_MUL(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_MUL(int16_t, 16, NO_TARGET_CLONES)
 STRESS_INTMATH_MUL(int8_t,   8, NO_TARGET_CLONES)
 
+#if defined(HAVE_INT128_T)
+STRESS_INTMATH_DIV(__int128_t, 128, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_DIV(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_DIV(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_DIV(int16_t, 16, NO_TARGET_CLONES)
 STRESS_INTMATH_DIV(int8_t,   8, NO_TARGET_CLONES)
 
+#if defined(HAVE_INT128_T)
+STRESS_INTMATH_MOD(__int64_t, 128, NO_TARGET_CLONES)
+#endif
 STRESS_INTMATH_MOD(int64_t, 64, NO_TARGET_CLONES)
 STRESS_INTMATH_MOD(int32_t, 32, NO_TARGET_CLONES)
 STRESS_INTMATH_MOD(int16_t, 16, NO_TARGET_CLONES)
@@ -320,26 +354,41 @@ STRESS_INTMATH_MOD(int8_t,   8, NO_TARGET_CLONES)
 static const stress_intmath_method_t stress_intmath_methods[] = {
 	{ "all",	0,	NULL },
 
+#if defined(HAVE_INT128_T)
+	{ "add128",	800,	stress_intmath_add_128 },
+#endif
 	{ "add64",	800,	stress_intmath_add_64 },
 	{ "add32",	800,	stress_intmath_add_32 },
 	{ "add16",	800,	stress_intmath_add_16 },
 	{ "add8",	800,	stress_intmath_add_8 },
 
+#if defined(HAVE_INT128_T)
+	{ "sub128",	800,	stress_intmath_sub_128 },
+#endif
 	{ "sub64",	800,	stress_intmath_sub_64 },
 	{ "sub32",	800,	stress_intmath_sub_32 },
 	{ "sub16",	800,	stress_intmath_sub_16 },
 	{ "sub8",	800,	stress_intmath_sub_8 },
 
+#if defined(HAVE_INT128_T)
+	{ "mul128",	400,	stress_intmath_mul_128 },
+#endif
 	{ "mul64",	400,	stress_intmath_mul_64 },
 	{ "mul32",	400,	stress_intmath_mul_32 },
 	{ "mul16",	400,	stress_intmath_mul_16 },
 	{ "mul8",	400,	stress_intmath_mul_8 },
 
+#if defined(HAVE_INT128_T)
+	{ "div128",	400,	stress_intmath_div_128 },
+#endif
 	{ "div64",	400,	stress_intmath_div_64 },
 	{ "div32",	400,	stress_intmath_div_32 },
 	{ "div16",	400,	stress_intmath_div_16 },
 	{ "div8",	400,	stress_intmath_div_8 },
 
+#if defined(HAVE_INT128_T)
+	{ "mod128",	400,	stress_intmath_mod_128 },
+#endif
 	{ "mod64",	400,	stress_intmath_mod_64 },
 	{ "mod32",	400,	stress_intmath_mod_32 },
 	{ "mod16",	400,	stress_intmath_mod_16 },
@@ -393,7 +442,11 @@ static int stress_intmath(stress_args_t *args)
 	(void)stress_get_setting("intmath-method", &intmath_method);
 
 	for (i = 0; i < 4; i++)
+#if defined(HAVE_INT128_T)
+		vals.init[i] = ((__int128_t)stress_mwc64() << 64) | stress_mwc64();
+#else
 		vals.init[i] = (int64_t)stress_mwc64();
+#endif
 
 	(void)memset(stress_intmath_initialized, 0, sizeof(stress_intmath_initialized));
 

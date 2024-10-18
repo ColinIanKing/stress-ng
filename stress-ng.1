@@ -3513,7 +3513,7 @@ specify number of 32 bit integers to sort, default is 16384 (16 \(mu 1024).
 .TQ
 .B \-\-intmath N
 start N workers that perform addition, subtraction, multiplication, division and modulo
-math operations on 64, 32, 16 and 8 bit signed integers.
+math operations on 128, 64, 32, 16 and 8 bit signed integers.
 .TP
 .B \-\-intmath\-method method
 select the integer math method to use, available methods are:
@@ -3522,22 +3522,27 @@ lB2 lB
 l lx.
 Method	Description
 all	iterate over all the following integer methods:
+add128	128 bit signed integer addition
 add64	64 bit signed integer addition
 add32	32 bit signed integer addition
 add16	16 bit signed integer addition
 add8	8 bit signed integer addition
+sub128	128 bit signed integer subtraction
 sub64	64 bit signed integer subtraction
 sub32	32 bit signed integer subtraction
 sub16	16 bit signed integer subtraction
 sub8	8 bit signed integer subtraction
+mul128	128 bit signed integer multiplication
 mul64	64 bit signed integer multiplication
 mul32	32 bit signed integer multiplication
 mul16	16 bit signed integer multiplication
 mul8	8 bit signed integer multiplication
+div128	128 bit signed integer division
 div64	64 bit signed integer division
 div32	32 bit signed integer division
 div16	16 bit signed integer division
 div8	8 bit signed integer division
+mod128	128 bit signed integer modulo
 mod64	64 bit signed integer modulo
 mod32	32 bit signed integer modulo
 mod16	16 bit signed integer modulo
