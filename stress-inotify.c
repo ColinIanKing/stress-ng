@@ -204,13 +204,13 @@ static void exercise_inotify_rm_watch(const int bad_fd)
  */
 static int inotify_exercise(
 	stress_args_t *args,	/* Stressor args */
-	const char *filename,		/* Filename in test */
-	const char *watchname,		/* File/directory to watch using inotify */
-	const char *matchname,		/* Filename for inotify event to report */
+	const char *filename,	/* Filename in test */
+	const char *watchname,	/* File/directory to watch using inotify */
+	const char *matchname,	/* Filename for inotify event to report */
 	const stress_inotify_helper func, /* Helper func */
-	const uint32_t flags,		/* IN_* flags to watch for */
-	void *private,			/* Helper func private data */
-	const int bad_fd)		/* A bad file descriptor */
+	const uint32_t flags,	/* IN_* flags to watch for */
+	void *private,		/* Helper func private data */
+	const int bad_fd)	/* A bad file descriptor */
 {
 	int fd, wd, n = 0, rc = EXIT_SUCCESS;
 	uint32_t check_flags = flags;
