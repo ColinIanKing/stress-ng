@@ -237,7 +237,11 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
 
 	(void)shim_memset(&param, 0, sizeof(param));
 	policy = policies[i];
+#if defined(SCHED_RESET_ON_FORK)
 	policy_masked = policy & ~SCHED_RESET_ON_FORK;
+#else
+	policy_masked = policy;
+#endif
 
 	switch (policy_masked) {
 #if defined(SCHED_FIFO)
@@ -289,9 +293,11 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
 	default:
 		param.sched_priority = prio;
 		ret = sched_setscheduler(pid, policy, &param);
+#if defined(SCHED_RESET_ON_FORK)
 		if ((ret != 0) && (policy & SCHED_RESET_ON_FORK)) {
 			ret = sched_setscheduler(pid, policy_masked, &param);
 		}
+#endif
 		if (ret == 0)
 			(void)sched_getscheduler(pid);
 		break;
