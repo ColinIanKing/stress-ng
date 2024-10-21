@@ -224,9 +224,8 @@ static int stress_cpu_sched_setscheduler(const pid_t pid)
 	struct sched_param param;
 	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(policies));
 	int ret, policy_masked, policy, prio;
-#if (defined(SCHED_FIFO) ||	\
-     defined(SCHED_RR)) &&	\
-     defined(HAVE_SCHED_GETATTR)
+#if defined(SCHED_FIFO) ||	\
+     defined(SCHED_RR)
 	int prio_min, prio_max, prio_range;
 #endif
 #if defined(SCHED_DEADLINE) &&	\
