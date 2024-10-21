@@ -24,6 +24,7 @@
 
 #include <math.h>
 #include <sched.h>
+#include <time.h>
 #include <sys/file.h>
 #include <sys/times.h>
 
