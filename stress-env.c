@@ -171,7 +171,7 @@ static int stress_env_child(stress_args_t *args, void *context)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(value, arg_max);
+	(void)munmap((void *)value, arg_max);
 
 	return rc;
 }

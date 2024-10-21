@@ -325,7 +325,7 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
 	}
 
 	if (submit->sqes_mmap) {
-		(void)munmap(submit->sqes_mmap, submit->sqes_size);
+		(void)munmap((void *)submit->sqes_mmap, submit->sqes_size);
 		submit->sqes_mmap = NULL;
 	}
 

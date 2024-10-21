@@ -373,7 +373,7 @@ static int stress_jpeg(stress_args_t *args)
 	if (row_pointer == MAP_FAILED) {
 		pr_inf_skip("%s: cannot allocate row pointer array of size %" PRId32 " x %zu, skipping stressor\n",
 			args->name, y_max, sizeof(*row_pointer));
-		(void)munmap(rgb, rgb_size);
+		(void)munmap((void *)rgb, rgb_size);
 		return EXIT_NO_RESOURCE;
 	}
 

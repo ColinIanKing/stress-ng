@@ -372,7 +372,7 @@ err:
 
 	free(stress_plugin_methods);
 	(void)dlclose(stress_plugin_so_dl);
-	(void)munmap(sig_count, sig_count_size);
+	(void)munmap((void *)sig_count, sig_count_size);
 	return rc;
 }
 

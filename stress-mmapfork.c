@@ -258,7 +258,7 @@ reap:
 
 #if defined(MADV_WIPEONFORK)
 	if (wipe_ptr != MAP_FAILED)
-		(void)munmap(wipe_ptr, wipe_size);
+		(void)munmap((void *)wipe_ptr, wipe_size);
 #endif
 
 	if (segv_count) {

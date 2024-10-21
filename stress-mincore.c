@@ -131,7 +131,7 @@ static int stress_mincore(stress_args_t *args)
 	unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (unmapped != MAP_FAILED) {
-		if (munmap(unmapped, page_size) < 0)
+		if (munmap((void *)unmapped, page_size) < 0)
 			unmapped = MAP_FAILED;
 	}
 

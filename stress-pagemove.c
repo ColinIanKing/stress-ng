@@ -232,7 +232,7 @@ static int stress_pagemove_child(stress_args_t *args, void *context)
 	rc = EXIT_SUCCESS;
 fail:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap(buf, sz);
+	(void)munmap((void *)buf, sz);
 
 	rate = (duration > 0.0) ? count / duration : 0.0;
 	stress_metrics_set(args, 0, "page remaps per sec",

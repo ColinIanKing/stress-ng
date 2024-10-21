@@ -411,7 +411,7 @@ tidy_mmap:
 			args->name, info->race_count, info->try_count,
 			info->try_count > 0 ?
 				(double)info->race_count / (double)info->try_count * 100.0 : 0.0);
-		(void)munmap(info, sizeof(*info));
+		(void)munmap((void *)info, sizeof(*info));
 	}
 #endif
 	rate = (dup_count > 0.0) ? (double)dup_duration / dup_count : 0.0;

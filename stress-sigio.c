@@ -97,7 +97,7 @@ static int stress_sigio(stress_args_t *args)
 	pid = -1;
 
 	time_end = args->time_end;
-	buffers = stress_mmap_populate(NULL, 2 * BUFFER_SIZE,
+	buffers = (char *)stress_mmap_populate(NULL, 2 * BUFFER_SIZE,
 			PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffers == MAP_FAILED) {
@@ -112,7 +112,7 @@ static int stress_sigio(stress_args_t *args)
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap(buffers, 2 * BUFFER_SIZE);
+		(void)munmap((void *)buffers, 2 * BUFFER_SIZE);
 		return EXIT_NO_RESOURCE;
 	}
 	rd_fd = fds[0];
@@ -237,7 +237,7 @@ err:
 	if (fds[1] != -1)
 		(void)close(fds[1]);
 
-	(void)munmap(buffers, 2 * BUFFER_SIZE);
+	(void)munmap((void *)buffers, 2 * BUFFER_SIZE);
 
 	return rc;
 }

@@ -482,7 +482,7 @@ unreg:
 	}
 unmap_data:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap(data, sz);
+	(void)munmap((void *)data, sz);
 free_zeropage:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(zero_page);

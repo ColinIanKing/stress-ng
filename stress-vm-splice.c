@@ -81,7 +81,7 @@ static int stress_vm_splice(stress_args_t *args)
 	if (data == MAP_FAILED) {
 		pr_inf_skip("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
 			args->name, page_size, errno, strerror(errno));
-		(void)munmap(buf, sz);
+		(void)munmap((void *)buf, sz);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(data, page_size, "io-buffer");

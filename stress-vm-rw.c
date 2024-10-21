@@ -168,7 +168,7 @@ cleanup:
 
 	(void)close(ctxt->pipe_wr[1]);
 	(void)close(ctxt->pipe_rd[0]);
-	(void)munmap(buf, ctxt->sz);
+	(void)munmap((void *)buf, ctxt->sz);
 	return rc;
 }
 
@@ -350,7 +350,7 @@ fail:
 	(void)close(ctxt->pipe_rd[1]);
 	if (ctxt->pid > 1)
 		stress_kill_and_wait(args, ctxt->pid, SIGALRM, false);
-	(void)munmap(localbuf, ctxt->sz);
+	(void)munmap((void *)localbuf, ctxt->sz);
 
 	return EXIT_SUCCESS;
 }

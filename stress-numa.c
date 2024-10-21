@@ -848,7 +848,7 @@ static int stress_numa(stress_args_t *args)
 	rc = EXIT_SUCCESS;
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap(buf, numa_bytes);
+	(void)munmap((void *)buf, numa_bytes);
 
 pages_free:
 	(void)munmap((void *)pages, pages_size);

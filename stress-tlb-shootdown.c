@@ -363,11 +363,11 @@ PRAGMA_UNROLL_N(8)
 
 	stress_kill_and_wait_many(args, s_pids, tlb_procs, SIGALRM, true);
 err_munmap_mem:
-	(void)munmap(mem, mmap_size);
+	(void)munmap((void *)mem, mmap_size);
 err_munmap_memfd:
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
-	(void)munmap(memfd, mmapfd_size);
+	(void)munmap((void *)memfd, mmapfd_size);
 err_close:
 	(void)close(fd);
 err_rmdir:

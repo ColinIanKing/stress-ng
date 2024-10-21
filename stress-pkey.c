@@ -148,7 +148,7 @@ static int stress_pkey(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(pages, pages_size);
+	(void)munmap((void *)pages, pages_size);
 	return rc;
 }
 
