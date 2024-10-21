@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "18 October 2024"
+.TH STRESS-NG 1 "21 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1858,11 +1858,11 @@ stop after offline/online operations.
 start N workers that exercise the scheduler by moving processes to
 different CPUs. Each worker starts 16 child processes and repeatedly
 moves the processes to different CPUs and attempts changes their scheduler
-policy using SCHED_OTHER, SCHED_BATCH and SCHED_IDLE policies. The choice
-of CPU placement is based on 8 different mechanisms and is changed every
-second to mix process placements on all the available CPUS. The child
-processes are run with randomizied nice settings to exercise scheduler
-prioritization.
+policy using SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_EXT, SCHED_DEADLINE,
+SCHED_RR and SCHED_FIFO policies. The choice of CPU placement is based on
+8 different mechanisms and is changed every second to mix process placements
+on all the available CPUS. The child processes are run with randomizied
+nice settings to exercise scheduler prioritization.
 .TP
 .B \-\-cpu\-sched\-ops N
 stop after N child process move attempts.

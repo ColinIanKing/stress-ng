@@ -21,6 +21,10 @@
 
 #include "core-attribute.h"
 
+#if defined(HAVE_LINUX_SCHED_H)
+#include <linux/sched.h>
+#endif
+
 #if defined(HAVE_SYSCALL_H)
 #include <sys/syscall.h>
 #endif

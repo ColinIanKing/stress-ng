@@ -46,11 +46,18 @@
 #define TIMER_NS	(250000000)
 #endif
 
-#if defined(HAVE_SCHED_SETAFFINITY) &&					     \
-    (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	     \
-    (defined(SCHED_OTHER) || defined(SCHED_BATCH) || defined(SCHED_IDLE)) && \
-    !defined(__OpenBSD__) &&						     \
-    !defined(__minix__) &&						     \
+#if defined(HAVE_SCHED_SETAFFINITY) &&		\
+    (defined(_POSIX_PRIORITY_SCHEDULING) ||	\
+     defined(__linux__)) &&			\
+    (defined(SCHED_OTHER) ||			\
+     defined(SCHED_BATCH) ||			\
+     defined(SCHED_IDLE) ||			\
+     defined(SCHED_EXT) ||			\
+     defined(SCHED_FIFO) ||			\
+     defined(SCHED_RR) ||			\
+     defined(SCHED_DEADLINE)) &&		\
+    !defined(__OpenBSD__) &&			\
+    !defined(__minix__) &&			\
     !defined(__APPLE__)
 #define HAVE_SCHEDULING
 #endif
@@ -65,7 +72,6 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SCHEDULING) &&		\
     defined(HAVE_SCHED_SETSCHEDULER)
-
 static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
@@ -101,11 +107,12 @@ static const int mpol_modes[] = {
 /*
  *  "Normal" non-realtime scheduling policies
  */
-static const int normal_policies[] = {
+static const int policies[] = {
 #if defined(SCHED_OTHER)
 	SCHED_OTHER,
 #endif
-#if defined(SCHED_OTHER) && defined(SCHED_RESET_ON_FORK)
+#if defined(SCHED_OTHER) &&	\
+    defined(SCHED_RESET_ON_FORK)
 	SCHED_OTHER | SCHED_RESET_ON_FORK,
 #endif
 #if defined(SCHED_BATCH)
@@ -114,14 +121,34 @@ static const int normal_policies[] = {
 #if defined(SCHED_EXT)
 	SCHED_EXT,
 #endif
-#if defined(SCHED_BATCH) && defined(SCHED_RESET_ON_FORK)
+#if defined(SCHED_BATCH) &&	\
+    defined(SCHED_RESET_ON_FORK)
 	SCHED_BATCH | SCHED_RESET_ON_FORK,
 #endif
 #if defined(SCHED_IDLE)
 	SCHED_IDLE,
 #endif
-#if defined(SCHED_IDLE) && defined(SCHED_RESET_ON_FORK)
+#if defined(SCHED_IDLE) &&	\
+    defined(SCHED_RESET_ON_FORK)
 	SCHED_IDLE | SCHED_RESET_ON_FORK,
+#endif
+#if defined(SCHED_DEADLINE) &&	\
+    defined(HAVE_SCHED_GETATTR)
+	SCHED_DEADLINE,
+#endif
+#if defined(SCHED_FIFO)
+	SCHED_FIFO,
+#endif
+#if defined(SCHED_FIFO) &&	\
+    defined(SCHED_RESET_ON_FORK)
+	SCHED_FIFO | SCHED_RESET_ON_FORK,
+#endif
+#if defined(SCHED_RR)
+	SCHED_RR,
+#endif
+#if defined(SCHED_RR) &&	\
+    defined(SCHED_RESET_ON_FORK)
+	SCHED_RR | SCHED_RESET_ON_FORK,
 #endif
 };
 
@@ -195,19 +222,80 @@ static int stress_cpu_sched_setaffinity(const pid_t pid, const int cpu)
 static int stress_cpu_sched_setscheduler(const pid_t pid)
 {
 	struct sched_param param;
-	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(normal_policies));
-	int ret, policy;
+	const uint32_t i = stress_mwc8modn((uint8_t)SIZEOF_ARRAY(policies));
+	int ret, policy_masked, policy, prio;
+#if (defined(SCHED_FIFO) ||	\
+     defined(SCHED_RR)) &&	\
+     defined(HAVE_SCHED_GETATTR)
+	int prio_min, prio_max, prio_range;
+#endif
+#if defined(SCHED_DEADLINE) &&	\
+    defined(HAVE_SCHED_GETATTR)
+	struct shim_sched_attr attr;
+	uint64_t rndtime;
+#endif
 
 	(void)shim_memset(&param, 0, sizeof(param));
-	param.sched_priority = 0;
-	policy = normal_policies[i];
-	ret = sched_setscheduler(pid, policy, &param);
-	if ((ret != 0) && (policy & SCHED_RESET_ON_FORK)) {
-		policy &= ~SCHED_RESET_ON_FORK;
-		ret = sched_setscheduler(pid, policy, &param);
+	policy = policies[i];
+	policy_masked = policy & ~SCHED_RESET_ON_FORK;
+
+	switch (policy_masked) {
+#if defined(SCHED_FIFO)
+	case SCHED_FIFO:
+#endif
+#if defined(SCHED_RR)
+	case SCHED_RR:
+#endif
+#if defined(SCHED_FIFO) ||	\
+    defined(SCHED_RR)
+		prio_min = sched_get_priority_min(policy_masked);
+		prio_max = sched_get_priority_max(policy_masked);
+		prio_range = (prio_max - prio_min) / 2;
+		prio = prio_max - (int)stress_mwc32modn(prio_range);
+		break;
+#endif
+#if defined(SCHED_DEADLINE) &&	\
+    defined(HAVE_SCHED_GETATTR)
+	case SCHED_DEADLINE:
+#endif
+	default:
+		prio = 0;
+		break;
 	}
-	if (ret == 0)
-		(void)sched_getscheduler(pid);
+
+	switch (policy_masked) {
+#if defined(SCHED_DEADLINE) &&	\
+    defined(HAVE_SCHED_GETATTR)
+	case SCHED_DEADLINE:
+		rndtime = (uint64_t)stress_mwc8modn(64) + 32;
+
+		(void)shim_memset(&attr, 0, sizeof(attr));
+		attr.size = sizeof(attr);
+#if defined(SCHED_FLAG_RECLAIM)
+		attr.sched_flags = stress_mwc1() ? 0 : SCHED_FLAG_RECLAIM;
+#else
+		attr.sched_flags = 0;
+#endif
+		attr.sched_nice = 0;
+		attr.sched_priority = prio;
+		attr.sched_policy = policy;
+		/* runtime <= deadline <= period */
+		attr.sched_runtime = rndtime * 100000;
+		attr.sched_deadline = rndtime * 2000000;
+		attr.sched_period = rndtime * 4000000;
+		(void)shim_sched_setattr(0, &attr, 0);
+		break;
+#endif
+	default:
+		param.sched_priority = prio;
+		ret = sched_setscheduler(pid, policy, &param);
+		if ((ret != 0) && (policy & SCHED_RESET_ON_FORK)) {
+			ret = sched_setscheduler(pid, policy_masked, &param);
+		}
+		if (ret == 0)
+			(void)sched_getscheduler(pid);
+		break;
+	}
 	return 0;
 }
 
@@ -795,7 +883,7 @@ static int stress_cpu_sched(stress_args_t *args)
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_oomable_child(args, NULL, stress_cpu_sched_child, STRESS_OOMABLE_DROP_CAP);
+	rc = stress_oomable_child(args, NULL, stress_cpu_sched_child, 0);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_SET_MEMPOLICY)
