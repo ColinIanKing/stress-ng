@@ -410,6 +410,39 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 }
 #endif
 
+/*
+ *  stress_cpu_sched_set_handler()
+ *	set up HR timer handler
+ */
+static void stress_cpu_sched_set_handler(void)
+{
+#if defined(HAVE_TIMER_CLOCK_REALTIME)
+	struct sigaction action;
+	int timer_ret = -1;
+
+	timerid = (timer_t)-1;
+
+	(void)shim_memset(&action, 0, sizeof(action));
+	action.sa_handler = stress_cpu_sched_hrtimer_handler;
+	(void)sigemptyset(&action.sa_mask);
+	if (LIKELY(sigaction(SIGRTMIN, &action, NULL) == 0)) {
+		struct sigevent sev;
+
+		(void)shim_memset(&sev, 0, sizeof(sev));
+		sev.sigev_notify = SIGEV_SIGNAL;
+		sev.sigev_signo = SIGRTMIN;
+		sev.sigev_value.sival_ptr = &timerid;
+		timer_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
+		if (LIKELY(timer_ret == 0)) {
+			const uint64_t ns = stress_mwc64modn(TIMER_NS >> 1) + (TIMER_NS >> 1);
+
+			stress_cpu_sched_hrtimer_set(ns);
+		} else {
+			timerid = (timer_t)-1;
+		}
+	}
+#endif
+}
 
 /*
  *  stress_cpu_sched_child_exercise()
@@ -435,6 +468,8 @@ static void stress_cpu_sched_fork(stress_args_t *args)
 	pid_t pid;
 	int retry = 0;
 
+	stress_cpu_sched_set_handler();
+
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(0);
 	if (stress_cpu_sched_hrtimer_sigprocmask(SIG_BLOCK) < 0)
@@ -458,6 +493,7 @@ again:
 			timerid = (timer_t)-1;
 		}
 #endif
+
 		for (cpu = 0; cpu < cpus; cpu++) {
 			stress_cpu_sched_child_exercise(pid, cpu);
 		}
@@ -665,36 +701,10 @@ again:
 #if defined(HAVE_SET_MEMPOLICY)
 			int mode;
 #endif
-#if defined(HAVE_TIMER_CLOCK_REALTIME)
-			struct sigaction action;
-			int timer_ret = -1;
-#endif
 
 			stress_parent_died_alarm();
 
-#if defined(HAVE_TIMER_CLOCK_REALTIME)
-			timerid = (timer_t)-1;
-
-			(void)shim_memset(&action, 0, sizeof(action));
-			action.sa_handler = stress_cpu_sched_hrtimer_handler;
-			(void)sigemptyset(&action.sa_mask);
-			if (LIKELY(sigaction(SIGRTMIN, &action, NULL) == 0)) {
-				struct sigevent sev;
-
-				(void)shim_memset(&sev, 0, sizeof(sev));
-				sev.sigev_notify = SIGEV_SIGNAL;
-				sev.sigev_signo = SIGRTMIN;
-				sev.sigev_value.sival_ptr = &timerid;
-				timer_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
-				if (LIKELY(timer_ret == 0)) {
-					const uint64_t ns = stress_mwc64modn(TIMER_NS >> 1) + (TIMER_NS >> 1);
-
-					stress_cpu_sched_hrtimer_set(ns);
-				} else {
-					timerid = (timer_t)-1;
-				}
-			}
-#endif
+			stress_cpu_sched_set_handler();
 
 			/* pid process re-mix mwc */
 			while (n-- > 0)
