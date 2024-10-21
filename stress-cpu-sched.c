@@ -78,11 +78,11 @@ static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
 static timer_t timerid;
 #endif
 
+static int cpus;
 #if defined(HAVE_SET_MEMPOLICY)
 static int max_numa_node;
 static size_t node_mask_size;
 static unsigned long *node_mask;
-static int cpus;
 
 static const int mpol_modes[] = {
 	0,
