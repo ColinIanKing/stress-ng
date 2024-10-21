@@ -487,6 +487,8 @@ err:
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 	stress_cpu_sched_hrtimer_set(TIMER_NS);
 	(void)stress_cpu_sched_hrtimer_sigprocmask(SIG_UNBLOCK);
+#else
+	stress_asm_nothing();
 #endif
 }
 
