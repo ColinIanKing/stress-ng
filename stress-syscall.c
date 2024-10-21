@@ -508,27 +508,41 @@ static void syscall_shared_error(const int ret)
 }
 
 /*
- *  syscall_shared_error()
+ *  syscall_time_now()
  *	get nanosecond time delta since the first call
- *	this allows 18446744073 days of run time, or ~584 years
- *	of run time before overflow occurs.
+ *	this allows a couple of hundredd years of run
+ *	time before overflow occurs.
  */
 static uint64_t syscall_time_now(void)
 {
+#if defined(HAVE_CLOCK_GETTIME)
 	static struct timespec base_ts = { 0, 0 };
 	struct timespec ts;
-	uint64_t sec, ns;
+	int64_t sec, ns;
 
 	syscall_errno = errno;
 	if (UNLIKELY(clock_gettime(CLOCK_MONOTONIC, &ts) < 0))
-		return 0.0;
+		return 0;
 	if (base_ts.tv_sec == 0)
 		base_ts = ts;	/* first call, save the baseline time */
 
 	/* now return time delta since baseline time */
 	ns = ts.tv_nsec - base_ts.tv_nsec;
 	sec = (ts.tv_sec - base_ts.tv_sec) * 1000000000;
-	return sec + ns;
+	return (uint64_t)sec + ns;
+#else
+	static struct timeval base_tv = { 0, 0 };
+	struct timeval tv;
+	int64_t sec, ns;
+
+        if (gettimeofday(&tv, NULL) < 0)
+		return 0;
+	if (base_tv.tv_sec == 0)
+		base_tv = tv;
+	ns = (tv.tv_usec - base_tv.tv_usec) * 1000;
+	sec = (tv.tv_sec - base_tv.tv_sec) * 1000000000;
+	return (uint64_t)sec + ns;
+#endif
 }
 
 static const stress_help_t help[] = {
