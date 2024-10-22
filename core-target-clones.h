@@ -212,9 +212,17 @@
 #define TARGET_CLONE_POWER10
 #endif
 
+#if defined(HAVE_TARGET_CLONES_POWER11)
+#define TARGET_CLONE_POWER11 "cpu=power11",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_POWER11
+#endif
+
 #define TARGET_CLONES_ALL	\
 	TARGET_CLONE_POWER9	\
 	TARGET_CLONE_POWER10	\
+	TARGET_CLONE_POWER11	\
 	"default"
 
 #if defined(TARGET_CLONE_USE)
