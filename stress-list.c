@@ -28,20 +28,6 @@
 #define MAX_LIST_SIZE		(1000000)
 #define DEFAULT_LIST_SIZE	(5000)
 
-struct list_entry;
-
-typedef int (*stress_list_func)(stress_args_t *args,
-				struct list_entry *entries,
-				const struct list_entry *entries_end,
-				stress_metrics_t *metrics);
-
-typedef struct {
-	const char              *name;  /* human readable form of stressor */
-	const stress_list_func   func;	/* the list method function */
-} stress_list_method_info_t;
-
-static const stress_list_method_info_t list_methods[];
-
 static const stress_help_t help[] = {
 	{ NULL,	"list N",	 "start N workers that exercise list structures" },
 	{ NULL,	"list-method M", "select list method: all, circleq, list, slist, slistt, stailq, tailq" },
@@ -118,7 +104,7 @@ STAILQ_HEAD(stailhead, list_entry);
 TAILQ_HEAD(tailhead, list_entry);
 #endif
 
-struct list_entry {
+typedef struct list_entry {
 	uint64_t value;
 	union {
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
@@ -138,7 +124,19 @@ struct list_entry {
 #endif
 		struct list_entry *next;
 	} u;
-};
+} list_entry_t;
+
+typedef int (*stress_list_func)(stress_args_t *args,
+				list_entry_t *entries,
+				const list_entry_t *entries_end,
+				stress_metrics_t *metrics);
+
+typedef struct {
+	const char              *name;  /* human readable form of stressor */
+	const stress_list_func   func;	/* the list method function */
+} stress_list_method_info_t;
+
+static const stress_list_method_info_t list_methods[];
 
 /*
  *  stress_list_handler()
@@ -156,11 +154,11 @@ static void MLOCKED_TEXT stress_list_handler(int signum)
 
 static int OPTIMIZE3 stress_list_slistt(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register struct list_entry *entry, *head, *tail;
+	register list_entry_t *entry, *head, *tail;
 	bool found = false;
 	double t;
 	int rc = EXIT_SUCCESS;
@@ -174,7 +172,7 @@ static int OPTIMIZE3 stress_list_slistt(
 
 	t = stress_time_now();
 	for (entry = head; entry < entries_end; entry++) {
-		register struct list_entry *find;
+		register list_entry_t *find;
 
 		for (find = head; find; find = find->u.next) {
 			if (UNLIKELY(find == entry)) {
@@ -194,7 +192,7 @@ static int OPTIMIZE3 stress_list_slistt(
 	metrics->count += (double)(entry - entries);
 
 	while (head) {
-		register struct list_entry *next = head->u.next;
+		register list_entry_t *next = head->u.next;
 
 		head->u.next = NULL;
 		head = next;
@@ -205,11 +203,11 @@ static int OPTIMIZE3 stress_list_slistt(
 #if defined(HAVE_SYS_QUEUE_LIST)
 static int OPTIMIZE3 stress_list_list(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register struct list_entry *entry;
+	register list_entry_t *entry;
 	struct listhead head;
 	bool found = false;
 	double t;
@@ -224,7 +222,7 @@ static int OPTIMIZE3 stress_list_list(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register struct list_entry *find;
+		register list_entry_t *find;
 
 		LIST_FOREACH(find, &head, u.list_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -244,7 +242,7 @@ static int OPTIMIZE3 stress_list_list(
 	metrics->count += (double)(entry - entries);
 
 	while (!LIST_EMPTY(&head)) {
-		entry = (struct list_entry *)LIST_FIRST(&head);
+		entry = (list_entry_t *)LIST_FIRST(&head);
 		LIST_REMOVE(entry, u.list_entries);
 	}
 	LIST_INIT(&head);
@@ -256,11 +254,11 @@ static int OPTIMIZE3 stress_list_list(
 #if defined(HAVE_SYS_QUEUE_SLIST)
 static int OPTIMIZE3 stress_list_slist(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register struct list_entry *entry;
+	register list_entry_t *entry;
 	struct slisthead head;
 	bool found = false;
 	double t;
@@ -275,7 +273,7 @@ static int OPTIMIZE3 stress_list_slist(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register struct list_entry *find;
+		register list_entry_t *find;
 
 		SLIST_FOREACH(find, &head, u.slist_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -306,11 +304,11 @@ static int OPTIMIZE3 stress_list_slist(
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
 static int OPTIMIZE3 stress_list_circleq(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register struct list_entry *entry;
+	register list_entry_t *entry;
 	struct circleqhead head;
 	bool found = false;
 	double t;
@@ -325,7 +323,7 @@ static int OPTIMIZE3 stress_list_circleq(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register struct list_entry *find;
+		register list_entry_t *find;
 
 		CIRCLEQ_FOREACH(find, &head, u.circleq_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -344,7 +342,7 @@ static int OPTIMIZE3 stress_list_circleq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
 
-	while ((entry = (struct list_entry *)CIRCLEQ_FIRST(&head)) != (struct list_entry *)&head) {
+	while ((entry = (list_entry_t *)CIRCLEQ_FIRST(&head)) != (list_entry_t *)&head) {
 		CIRCLEQ_REMOVE(&head, entry, u.circleq_entries);
 	}
 	CIRCLEQ_INIT(&head);
@@ -356,11 +354,11 @@ static int OPTIMIZE3 stress_list_circleq(
 #if defined(HAVE_SYS_QUEUE_STAILQ)
 static int OPTIMIZE3 stress_list_stailq(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register struct list_entry *entry;
+	register list_entry_t *entry;
 	struct stailhead head;
 	bool found = false;
 	double t;
@@ -375,7 +373,7 @@ static int OPTIMIZE3 stress_list_stailq(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register struct list_entry *find;
+		register list_entry_t *find;
 
 		STAILQ_FOREACH(find, &head, u.stailq_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -394,7 +392,7 @@ static int OPTIMIZE3 stress_list_stailq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
 
-	while ((entry = (struct list_entry *)STAILQ_FIRST(&head)) != NULL) {
+	while ((entry = (list_entry_t *)STAILQ_FIRST(&head)) != NULL) {
 		STAILQ_REMOVE(&head, entry, list_entry, u.stailq_entries);
 	}
 	STAILQ_INIT(&head);
@@ -406,11 +404,11 @@ static int OPTIMIZE3 stress_list_stailq(
 #if defined(HAVE_SYS_QUEUE_TAILQ)
 static int OPTIMIZE3 stress_list_tailq(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
-	register struct list_entry *entry;
+	register list_entry_t *entry;
 	struct tailhead head;
 	bool found = false;
 	double t;
@@ -425,7 +423,7 @@ static int OPTIMIZE3 stress_list_tailq(
 
 	t = stress_time_now();
 	for (entry = entries; entry < entries_end; entry++) {
-		register struct list_entry *find;
+		register list_entry_t *find;
 
 		TAILQ_FOREACH(find, &head, u.tailq_entries) {
 			if (UNLIKELY(find == entry)) {
@@ -444,7 +442,7 @@ static int OPTIMIZE3 stress_list_tailq(
 	metrics->duration += stress_time_now() - t;
 	metrics->count += (double)(entry - entries);
 
-	while ((entry = (struct list_entry *)TAILQ_FIRST(&head)) != NULL) {
+	while ((entry = (list_entry_t *)TAILQ_FIRST(&head)) != NULL) {
 		TAILQ_REMOVE(&head, entry, u.tailq_entries);
 	}
 	TAILQ_INIT(&head);
@@ -455,8 +453,8 @@ static int OPTIMIZE3 stress_list_tailq(
 
 static int stress_list_all(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics);
 
 
@@ -485,8 +483,8 @@ static const stress_list_method_info_t list_methods[] = {
 
 static int stress_list_all(
 	stress_args_t *args,
-	struct list_entry *entries,
-	const struct list_entry *entries_end,
+	list_entry_t *entries,
+	const list_entry_t *entries_end,
 	stress_metrics_t *metrics)
 {
 	static size_t idx = 1;
@@ -518,7 +516,7 @@ static const stress_opt_t opts[] = {
 static int stress_list(stress_args_t *args)
 {
 	uint64_t v, list_size = DEFAULT_LIST_SIZE;
-	struct list_entry *entries, *entry, *entries_end;
+	list_entry_t *entries, *entry, *entries_end;
 	size_t n, i, j, bit, list_method = 0;
 	struct sigaction old_action;
 	int ret;
@@ -540,7 +538,7 @@ static int stress_list(stress_args_t *args)
 	}
 	n = (size_t)list_size;
 
-	entries = (struct list_entry *)calloc(n, sizeof(*entries));
+	entries = (list_entry_t *)calloc(n, sizeof(*entries));
 	if (!entries) {
 		pr_inf_skip("%s: malloc failed allocating %zu list entries, "
 			"out of memory, skipping stressor\n", args->name, n);
