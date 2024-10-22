@@ -70,7 +70,7 @@ static stress_lockf_info_t *stress_lockf_info_new(void)
 		lockf_infos.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
+		new = (stress_lockf_info_t *)calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
 	}

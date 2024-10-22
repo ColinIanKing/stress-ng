@@ -543,7 +543,7 @@ static int stress_list(stress_args_t *args)
 	}
 	n = (size_t)list_size;
 
-	entries = calloc(n, sizeof(*entries));
+	entries = (struct list_entry *)calloc(n, sizeof(*entries));
 	if (!entries) {
 		pr_inf_skip("%s: malloc failed allocating %zu list entries, "
 			"out of memory, skipping stressor\n", args->name, n);

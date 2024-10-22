@@ -72,7 +72,7 @@ static int stress_pty(stress_args_t *args)
 
 	(void)stress_get_setting("pty-max", &pty_max);
 
-	ptys = calloc(pty_max, sizeof(*ptys));
+	ptys = (stress_pty_info_t *)calloc(pty_max, sizeof(*ptys));
 	if (!ptys) {
 		pr_inf_skip("%s: allocation of pty array failed: %d (%s) "
 			"skipping stressor\n",

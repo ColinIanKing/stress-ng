@@ -380,7 +380,7 @@ static int stress_rawdev(stress_args_t *args)
 	stress_rawdev_func func;
 	stress_metrics_t *metrics;
 
-	metrics = calloc(SIZEOF_ARRAY(rawdev_methods), sizeof(*metrics));
+	metrics = (stress_metrics_t *)calloc(SIZEOF_ARRAY(rawdev_methods), sizeof(*metrics));
 	if (!metrics) {
 		pr_inf_skip("%s: cannot allocate metrics table, skipping stressor\n",
 			args->name);

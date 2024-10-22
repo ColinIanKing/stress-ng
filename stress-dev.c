@@ -3218,7 +3218,7 @@ STRESS_PRAGMA_POP
 		if (ioctl(fd, SNDRV_CTL_IOCTL_ELEM_LIST, &list) == 0) {
 			struct snd_ctl_elem_id *eids;
 
-			eids = calloc(list.count, sizeof(struct snd_ctl_elem_id));
+			eids = (struct snd_ctl_elem_id *)calloc(list.count, sizeof(struct snd_ctl_elem_id));
 			if (eids) {
 				list.space = list.count;
 				list.pids = eids;
@@ -3712,7 +3712,7 @@ static void stress_dev_autofs_linux(
 	(void)devpath;
 
 	size = sizeof(*info) + tmp_len;
-	info = calloc(1, size);
+	info = (struct autofs_dev_ioctl *)calloc(1, size);
 	if (!info)
 		return;
 
@@ -4350,7 +4350,7 @@ static void stress_dev_info_add(const char *path, dev_info_t **list, size_t *lis
 {
 	dev_info_t *new_dev;
 
-	new_dev = calloc(1, sizeof(*new_dev));
+	new_dev = (dev_info_t *)calloc(1, sizeof(*new_dev));
 	if (!new_dev)
 		return;
 
@@ -4511,7 +4511,7 @@ static void stress_dev_infos_mixup(dev_info_t **dev_info_list, const size_t dev_
 	dev_info_t **dev_info_sorted, *dev;
 	size_t i;
 
-	dev_info_sorted = calloc(dev_info_list_len, sizeof(*dev_info_sorted));
+	dev_info_sorted = (dev_info_t **)calloc(dev_info_list_len, sizeof(*dev_info_sorted));
 	if (!dev_info_sorted)
 		return;
 

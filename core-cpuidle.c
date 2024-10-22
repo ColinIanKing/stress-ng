@@ -341,7 +341,7 @@ void stress_cpuidle_log_info(void)
 	for (cc = cpu_cstate_list; cc; cc = cc->next) {
 		len += strlen(cc->cstate) + 2;
 	}
-	buf = calloc(len, sizeof(*buf));
+	buf = (char *)calloc(len, sizeof(*buf));
 	if (!buf)
 		return;
 

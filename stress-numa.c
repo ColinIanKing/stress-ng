@@ -266,7 +266,7 @@ static long stress_numa_get_mem_nodes(
 		/* Each hex digit represent 4 memory nodes */
 		for (i = 0; i < 4; i++) {
 			if (val & (1 << i)) {
-				stress_node_t *node = calloc(1, sizeof(*node));
+				stress_node_t *node = (stress_node_t *)calloc(1, sizeof(*node));
 				if (!node)
 					return -1;
 				node->node_id = node_id;

@@ -67,7 +67,7 @@ static stress_locka_info_t *stress_locka_info_new(void)
 		locka_infos.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
+		new = (stress_locka_info_t *)calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
 	}

@@ -313,7 +313,7 @@ case_sched_fifo:
 			const size_t large_attr_size = args->page_size + 16;
 			char *large_attr;
 
-			large_attr = calloc(large_attr_size, sizeof(*large_attr));
+			large_attr = (char *)calloc(large_attr_size, sizeof(*large_attr));
 			if (large_attr) {
 				(void)shim_memset(large_attr, 0, large_attr_size);
 

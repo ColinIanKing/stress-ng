@@ -174,7 +174,7 @@ int stress_set_mbind(const char *arg)
 	}
 
 	nodemask_sz = (max_node + (nodemask_bits - 1)) / nodemask_bits;
-	nodemask = calloc(nodemask_sz, sizeof(*nodemask));
+	nodemask = (unsigned long *)calloc(nodemask_sz, sizeof(*nodemask));
 	if (!nodemask) {
 		(void)fprintf(stderr, "parsing --mbind: cannot allocate NUMA nodemask, out of memory\n");
 		_exit(EXIT_FAILURE);

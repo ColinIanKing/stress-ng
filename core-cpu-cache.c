@@ -212,7 +212,7 @@ static int stress_cpu_cache_get_alpha(
 	 * L2 cache		: n/a
 	 * L3 cache		: n/a
 	 */
-	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
@@ -307,7 +307,7 @@ static int stress_cpu_cache_get_apple(stress_cpu_cache_cpu_t *cpu)
 	size_t i;
 	bool valid = false;
 
-	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
@@ -385,7 +385,7 @@ static int stress_cpu_cache_get_sparc64(
 	size_t i;
 	bool valid = false;
 
-	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
@@ -486,7 +486,7 @@ static int stress_cpu_cache_get_x86(stress_cpu_cache_cpu_t *cpu)
 		}
 
 		/* Now allocate */
-		cpu->caches = calloc(i, sizeof(*(cpu->caches)));
+		cpu->caches = (stress_cpu_cache_t *)calloc(i, sizeof(*(cpu->caches)));
 		if (!cpu->caches) {
 			pr_err("failed to allocate %zu bytes for cpu caches\n",
 			i * sizeof(*(cpu->caches)));
@@ -556,7 +556,7 @@ static int stress_cpu_cache_get_sh4(stress_cpu_cache_cpu_t *cpu)
 	if (!fp)
 		return 0;
 
-	cpu->caches = calloc(2, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(2, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			2 * sizeof(*(cpu->caches)));
@@ -648,7 +648,7 @@ static int stress_cpu_cache_get_m68k(stress_cpu_cache_cpu_t *cpu)
 		return 0;
 	}
 
-	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
@@ -871,7 +871,7 @@ static int stress_cpu_cache_get_index(
 		return 0;
 	}
 	cpu->cache_count = (uint32_t)n;
-	cpu->caches = calloc(cpu->cache_count, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(cpu->cache_count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		size_t cache_bytes = cpu->cache_count * sizeof(*(cpu->caches));
 
@@ -948,7 +948,7 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
 	size_t i;
 	bool valid = false;
 
-	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	cpu->caches = (stress_cpu_cache_t *)calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(*(cpu->caches)));
@@ -1103,11 +1103,11 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		pr_err("no CPUs found in %s\n", stress_sys_cpu_prefix);
 		goto out;
 	}
-	cpus = calloc(1, sizeof(*cpus));
+	cpus = (stress_cpu_cache_cpus_t *)calloc(1, sizeof(*cpus));
 	if (!cpus)
 		goto out;
 
-	cpus->cpus = calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
+	cpus->cpus = (stress_cpu_cache_cpu_t *)calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
 	if (!cpus->cpus) {
 		free(cpus);
 		cpus = NULL;
@@ -1164,11 +1164,11 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		pr_err("no CPUs found using sysctl hw.physicalcpu\n");
 		goto out;
 	}
-	cpus = calloc(1, sizeof(*cpus));
+	cpus = (stress_cpu_cache_cpus_t *)calloc(1, sizeof(*cpus));
 	if (!cpus)
 		goto out;
 
-	cpus->cpus = calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
+	cpus->cpus = (stress_cpu_cache_cpu_t *)calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
 	if (!cpus->cpus) {
 		free(cpus);
 		cpus = NULL;
@@ -1205,10 +1205,10 @@ stress_cpu_cache_cpus_t *stress_cpu_cache_get_all_details(void)
 		/* Nehalem-based processors or lower, no cache info */
 		return NULL;
 	}
-	cpus = calloc(1, sizeof(*cpus));
+	cpus = (stress_cpu_cache_cpus_t *)calloc(1, sizeof(*cpus));
 	if (!cpus)
 		return NULL;
-	cpus->cpus = calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
+	cpus->cpus = (stress_cpu_cache_cpu_t *)calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
 	if (!cpus->cpus) {
 		free(cpus);
 		return NULL;

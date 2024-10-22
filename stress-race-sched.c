@@ -236,7 +236,7 @@ static stress_race_sched_child_t *stress_race_sched_new(void)
 		children.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
+		new = (stress_race_sched_child_t *)calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
 	}

@@ -136,7 +136,7 @@ static int stress_crypt(stress_args_t *args)
 
 	(void)stress_get_setting("crypt-method", &crypt_method);
 
-	crypt_metrics = calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));
+	crypt_metrics = (stress_metrics_t *)calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));
 	if (!crypt_metrics) {
 		pr_inf_skip("%s: cannot allocate crypt metrics "
 			"array, skipping stressor\n",

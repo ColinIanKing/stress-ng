@@ -216,13 +216,13 @@ static int stress_radixsort(stress_args_t *args)
 	}
 	n = (int)radixsort_size;
 
-	text = calloc((size_t)n, STR_SIZE);
+	text = (unsigned char *)calloc((size_t)n, STR_SIZE);
 	if (!text) {
 		pr_inf_skip("%s: calloc failed allocating %d strings, "
 			"skipping stressor\n", args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
-	data = calloc((size_t)n, sizeof(*data));
+	data = (const unsigned char **)calloc((size_t)n, sizeof(*data));
 	if (!data) {
 		pr_inf_skip("%s: calloc failed allocating %d string pointers, "
 			"skipping stressor\n", args->name, n);

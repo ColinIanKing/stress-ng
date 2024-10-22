@@ -157,7 +157,7 @@ static int stress_randlist(stress_args_t *args)
 	if (randlist_size >= args->page_size)
 		do_mmap = true;
 
-	ptrs = calloc(randlist_items, sizeof(stress_randlist_item_t *));
+	ptrs = (stress_randlist_item_t **)calloc(randlist_items, sizeof(stress_randlist_item_t *));
 	if (!ptrs) {
 		pr_inf_skip("%s: cannot allocate %zd temporary pointers, skipping stressor\n",
 			args->name, randlist_items);
@@ -167,7 +167,7 @@ static int stress_randlist(stress_args_t *args)
 	if (randlist_compact) {
 		const size_t size = sizeof(*ptr) + randlist_size;
 
-		compact_ptr = calloc(randlist_items, size);
+		compact_ptr = (stress_randlist_item_t *)calloc(randlist_items, size);
 		if (!compact_ptr) {
 			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 			free(ptrs);

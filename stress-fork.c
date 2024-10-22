@@ -208,7 +208,7 @@ static void stress_fork_maps_reduce(const size_t page_size, const int reduce_mod
 					uint8_t *ptr, *unmap_start = NULL;
 					size_t unmap_len = 0, j;
 
-					vec = calloc(len / page_size, sizeof(*vec));
+					vec = (unsigned char *)calloc(len / page_size, sizeof(*vec));
 					if (!vec)
 						continue;
 

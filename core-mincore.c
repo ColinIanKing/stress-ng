@@ -83,7 +83,7 @@ static int stress_mincore_touch_pages_generic(
 	if (n_pages < 1)
 		return -1;
 
-	vec = calloc(n_pages, 1);
+	vec = (unsigned char *)calloc(n_pages, 1);
 	if (!vec) {
 		stress_mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 		return 0;

@@ -110,12 +110,12 @@ static int stress_shm_posix_child(
 	const size_t page_size = args->page_size;
 	struct sigaction sa;
 
-	addrs = calloc(shm_posix_objects, sizeof(*addrs));
+	addrs = (void **)calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
 		pr_fail("%s: calloc on addrs failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
+	shm_names = (char *)calloc(shm_posix_objects, SHM_NAME_LEN);
 	if (!shm_names) {
 		free(addrs);
 		pr_fail("%s: calloc on shm_names, out of memory\n", args->name);
@@ -424,7 +424,7 @@ again:
 			int status;
 			char *shm_names;
 
-			shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
+			shm_names = (char *)calloc(shm_posix_objects, SHM_NAME_LEN);
 			if (!shm_names) {
 				pr_fail("%s: calloc failed, out of memory\n", args->name);
 				(void)close(pipefds[0]);

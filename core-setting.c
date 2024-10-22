@@ -157,7 +157,7 @@ void stress_settings_show(void)
 	for (n = 0, setting = setting_head; setting; setting = setting->next)
 		n++;
 
-	settings = calloc(n, sizeof(*settings));
+	settings = (stress_setting_t **)calloc(n, sizeof(*settings));
 	if (!settings)
 		return;
 
@@ -187,7 +187,7 @@ void stress_settings_dbg(stress_args_t *args)
 	if (n == 0)
 		return;
 
-	settings = calloc(n, sizeof(*settings));
+	settings = (stress_setting_t **)calloc(n, sizeof(*settings));
 	if (!settings)
 		return;
 
@@ -220,7 +220,7 @@ static int stress_set_setting_generic(
 		(void)fprintf(stderr, "invalid setting '%s' value address (null)\n", name);
 		_exit(EXIT_NOT_SUCCESS);
 	}
-	setting = calloc(1, sizeof *setting);
+	setting = (stress_setting_t *)calloc(1, sizeof *setting);
 	if (!setting)
 		goto err;
 

@@ -209,7 +209,7 @@ static int stress_tmpfs_child(stress_args_t *args, void *ctxt)
 	flags |= MAP_POPULATE;
 #endif
 
-	mappings = calloc(pages, sizeof(*mappings));
+	mappings = (mapping_info_t *)calloc(pages, sizeof(*mappings));
 	if (!mappings) {
 		pr_inf_skip("%s: failed to allocate mapping array, skipping stressor\n",
 			args->name);

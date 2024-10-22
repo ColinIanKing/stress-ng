@@ -2844,7 +2844,7 @@ static inline bool stress_check_root(void)
 #else
 		gids_max = 65536;
 #endif
-		gids = calloc((size_t)gids_max, sizeof(*gids));
+		gids = (git_t *)calloc((size_t)gids_max, sizeof(*gids));
 		if (!gids)
 			return false;
 
@@ -3264,7 +3264,7 @@ int stress_get_unused_uid(uid_t *uid)
 		}
 		endpwent();
 
-		uids = calloc(n, sizeof(*uids));
+		uids = (uid_t *)calloc(n, sizeof(*uids));
 		if (!uids)
 			return -1;
 
@@ -3826,7 +3826,7 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 		n_bits += (flag_bits & 1U);
 
 	n_flags = 1U << n_bits;
-	perms = calloc((size_t)n_flags, sizeof(*perms));
+	perms = (int *)calloc((size_t)n_flags, sizeof(*perms));
 	if (!perms)
 		return 0;
 

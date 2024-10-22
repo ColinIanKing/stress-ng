@@ -384,7 +384,7 @@ static int stress_msg(stress_args_t *args)
 	(void)stress_get_setting("msg-types", &msg_types);
 	(void)stress_get_setting("msg-bytes", &msg_bytes);
 
-	msgq_ids = calloc(max_ids, sizeof(*msgq_ids));
+	msgq_ids = (int *)calloc(max_ids, sizeof(*msgq_ids));
 	if (!msgq_ids) {
 		pr_inf_skip("%s: failed to allocate msgq id array, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;

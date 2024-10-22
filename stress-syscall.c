@@ -2129,7 +2129,7 @@ static int syscall_getdents(void)
 	struct shim_linux_dirent *buf;
 	const size_t ndents = 32;
 
-	buf = calloc(ndents, sizeof(*buf));
+	buf = (struct shim_linux_dirent *)calloc(ndents, sizeof(*buf));
 	if (!buf)
 		return -1;
 

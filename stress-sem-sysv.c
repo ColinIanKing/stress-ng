@@ -285,7 +285,7 @@ timed_out:
 			nsems = ds.sem_nsems;
 			if (nsems < 64)
 				nsems = 64;
-			s.array = calloc(nsems, sizeof(*s.array));
+			s.array = (unsigned short *)calloc(nsems, sizeof(*s.array));
 			if (s.array) {
 				VOID_RET(int, semctl(sem_id, 2, GETALL, s));
 #if defined(SETALL)

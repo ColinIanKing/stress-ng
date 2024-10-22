@@ -819,7 +819,7 @@ static void NORETURN epoll_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	events = calloc(MAX_EPOLL_EVENTS, sizeof(*events));
+	events = (struct epoll_event *)calloc(MAX_EPOLL_EVENTS, sizeof(*events));
 	if (!events) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		rc = EXIT_FAILURE;

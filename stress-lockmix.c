@@ -117,7 +117,7 @@ static stress_lockmix_info_t *stress_lockmix_info_new(void)
 		lockmix_infos.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
+		new = (stress_lockmix_info_t *)calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
 	}

@@ -66,7 +66,7 @@ static stress_lockofd_info_t *stress_lockofd_info_new(void)
 		lockofd_infos.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
+		new = (stress_lockofd_info_t *)calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
 	}

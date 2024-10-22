@@ -584,7 +584,7 @@ static int stress_shm_sysv_child(
 	double shmat_duration = 0.0, shmat_count = 0.0;
 	double shmdt_duration = 0.0, shmdt_count = 0.0;
 
-	buffer = calloc(buffer_size, sizeof(*buffer));
+	buffer = (uint64_t *)calloc(buffer_size, sizeof(*buffer));
 	if (!buffer) {
 		pr_inf_skip("%s: cannot allocate %zu sized buffer, skipping stressor\n",
 			args->name, buffer_size);

@@ -107,7 +107,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 		if (i >= STRESS_THERMAL_ZONES_MAX)
 			break;
 
-		if ((tz_info = calloc(1, sizeof(*tz_info))) == NULL) {
+		if ((tz_info = (stress_tz_info_t *)calloc(1, sizeof(*tz_info))) == NULL) {
 			pr_err("cannot allocate thermal information\n");
 			(void)closedir(dir);
 			return -1;
@@ -249,7 +249,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		/*
 		 *  Allocate array, populate with tz_info and sort
 		 */
-		tz_infos = calloc(n, sizeof(*tz_infos));
+		tz_infos = (stress_tz_info_t **)calloc(n, sizeof(*tz_infos));
 		if (!tz_infos) {
 			pr_inf("thermal zones: cannot allocate memory to sort zones\n");
 			return;

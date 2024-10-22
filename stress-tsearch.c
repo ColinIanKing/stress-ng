@@ -63,7 +63,7 @@ static int stress_tsearch(stress_args_t *args)
 	}
 	n = (size_t)tsearch_size;
 
-	if ((data = calloc(n, sizeof(*data))) == NULL) {
+	if ((data = (int32_t *)calloc(n, sizeof(*data))) == NULL) {
 		pr_fail("%s: calloc failed allocating %zd integers, skipping stressor\n",
 			args->name, n);
 		return EXIT_NO_RESOURCE;

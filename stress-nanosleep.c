@@ -237,7 +237,7 @@ static int stress_nanosleep(stress_args_t *args)
 	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	ctxts = calloc(nanosleep_threads, sizeof(*ctxts));
+	ctxts = (stress_ctxt_t *)calloc(nanosleep_threads, sizeof(*ctxts));
 	if (!ctxts) {
 		pr_inf_skip("%s: could not allocate context for %" PRIu32
 			" pthreads, skipping stressor\n",

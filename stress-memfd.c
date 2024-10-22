@@ -264,13 +264,13 @@ static int stress_memfd_child(stress_args_t *args, void *context)
 	if (size < min_size)
 		size = min_size;
 
-	fds = calloc(memfd_fds, sizeof(*fds));
+	fds = (int *)calloc(memfd_fds, sizeof(*fds));
 	if (!fds) {
 		pr_inf("%s: cannot allocate fds buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	maps = calloc(memfd_fds, sizeof(*maps));
+	maps = (void **)calloc(memfd_fds, sizeof(*maps));
 	if (!maps) {
 		pr_inf("%s: cannot allocate maps buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));

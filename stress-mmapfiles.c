@@ -168,7 +168,7 @@ static int stress_mmapfiles_child(stress_args_t *args, void *context)
 	(void)stress_get_setting("mmapfiles-populate", &mmap_populate);
 	(void)stress_get_setting("mmapfiles-shared", &mmap_shared);
 
-	mappings = calloc((size_t)MMAP_MAX, sizeof(*mappings));
+	mappings = (stress_mapping_t *)calloc((size_t)MMAP_MAX, sizeof(*mappings));
 	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;

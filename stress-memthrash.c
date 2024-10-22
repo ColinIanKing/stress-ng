@@ -814,7 +814,7 @@ static int stress_memthrash_child(stress_args_t *args, void *ctxt)
 	int ret;
 	stress_pthread_info_t *pthread_info;
 
-	pthread_info = calloc(max_threads, sizeof(*pthread_info));
+	pthread_info = (stress_pthread_info_t *)calloc(max_threads, sizeof(*pthread_info));
 	if (!pthread_info) {
 		pr_inf_skip("%s: failed to allocate pthread information array, skipping stressor\n",
 			args->name);
@@ -916,7 +916,7 @@ static int stress_memthrash(stress_args_t *args)
 			context.numa_node_mask_size = 0;
 			context.numa_nodes = 0;
 		} else {
-			context.numa_node_mask = calloc((size_t)context.max_numa_nodes, numa_elements);
+			context.numa_node_mask = (unsigned long *)calloc((size_t)context.max_numa_nodes, numa_elements);
 			context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
 
 			if (!context.numa_node_mask) {

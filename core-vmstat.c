@@ -1295,7 +1295,7 @@ void stress_vmstat_start(void)
 #endif
 			static uint32_t thermalstat_count = 0;
 
-			therms = calloc(therms_len, sizeof(*therms));
+			therms = (char *)calloc(therms_len, sizeof(*therms));
 			if (therms) {
 #if defined(__linux__)
 				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {

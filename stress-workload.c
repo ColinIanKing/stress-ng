@@ -852,7 +852,7 @@ static int stress_workload(stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			goto exit_free_buffer;
 		}
-		threads = calloc((size_t)workload_threads, sizeof(*threads));
+		threads = (workload_thread_t *)calloc((size_t)workload_threads, sizeof(*threads));
 		if (!threads) {
 			pr_inf_skip("%s: failed to allocate %" PRIu32 " thread "
 				"descriptors, skipping stressor\n",
@@ -908,7 +908,7 @@ static int stress_workload(stress_args_t *args)
 	if (workload_threads > 0)
 		max_quanta *= workload_threads;
 
-	workload = calloc(max_quanta, sizeof(*workload));
+	workload = (stress_workload_t *)calloc(max_quanta, sizeof(*workload));
 	if (!workload) {
 		pr_inf_skip("%s: cannot allocate %" PRIu32 " scheduler workload timings, "
 			"skipping stressor\n", args->name, max_quanta);

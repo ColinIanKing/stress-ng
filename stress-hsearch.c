@@ -73,7 +73,7 @@ static int hcreate_nonlibc(size_t nel)
 		if (stress_is_prime64((uint64_t)nel))
 			break;
 	}
-	htable = calloc(nel, sizeof(*htable));
+	htable = (hash_table_t *)calloc(nel, sizeof(*htable));
 	if (!htable) {
 		htable_size = 0;
 		errno = ENOMEM;
@@ -188,7 +188,7 @@ static int OPTIMIZE3 stress_hsearch(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	keys = calloc(max, sizeof(*keys));
+	keys = (char **)calloc(max, sizeof(*keys));
 	if (!keys) {
 		pr_err("%s: cannot allocate keys\n", args->name);
 		goto free_hash;

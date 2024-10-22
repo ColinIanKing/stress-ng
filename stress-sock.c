@@ -177,7 +177,7 @@ static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ct
 	 *  Over-allocate ctrls, it is impossible to have more than
 	 *  buf_len strings strok'd from the array buf.
 	 */
-	ctrls = calloc((size_t)buf_len, sizeof(char *));
+	ctrls = (char **)calloc((size_t)buf_len, sizeof(char *));
 	if (!ctrls)
 		return NULL;
 

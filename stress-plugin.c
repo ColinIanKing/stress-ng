@@ -211,7 +211,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 		longjmp(g_error_env, 1);
 	}
 
-	stress_plugin_methods = calloc(n_funcs + 1, sizeof(*stress_plugin_methods));
+	stress_plugin_methods = (stress_plugin_method_info_t *)calloc(n_funcs + 1, sizeof(*stress_plugin_methods));
 	if (!stress_plugin_methods) {
 		fprintf(stderr, "plugin-so: cannot allocate %zu plugin methods\n", n_funcs);
 		longjmp(g_error_env, 1);

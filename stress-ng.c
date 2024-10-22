@@ -2550,7 +2550,7 @@ static void stress_log_args(int argc, char **argv)
 	const char *user = shim_getlogin();
 	const uid_t uid = getuid();
 
-	arglen = calloc((size_t)argc, sizeof(*arglen));
+	arglen = (size_t *)calloc((size_t)argc, sizeof(*arglen));
 	if (!arglen)
 		return;
 
@@ -2559,7 +2559,7 @@ static void stress_log_args(int argc, char **argv)
 		buflen += arglen[i] + 1;
 	}
 
-	buf = calloc(buflen, sizeof(*buf));
+	buf = (char *)calloc(buflen, sizeof(*buf));
 	if (!buf) {
 		free(arglen);
 		return;
@@ -2943,7 +2943,7 @@ static stress_stressor_t *stress_find_proc_info(const stress_t *stressor)
 			return ss;
 	}
 #endif
-	ss = calloc(1, sizeof(*ss));
+	ss = (stress_stressor_t *)calloc(1, sizeof(*ss));
 	if (!ss) {
 		(void)fprintf(stderr, "Cannot allocate stressor state info\n");
 		exit(EXIT_FAILURE);
@@ -3505,7 +3505,7 @@ static void stress_alloc_proc_resources(
 	stress_stats_t ***stats,
 	const int32_t n)
 {
-	*stats = calloc((size_t)n, sizeof(stress_stats_t *));
+	*stats = (stress_stats_t **)calloc((size_t)n, sizeof(stress_stats_t *));
 	if (!*stats) {
 		pr_err("cannot allocate stats array of %" PRIu32 " elements\n", n);
 		stress_stressors_free();

@@ -332,7 +332,7 @@ static int stress_fstat(stress_args_t *args)
 		(void)stress_mk_filename(path, sizeof(path), fstat_dir, d->d_name);
 		if (do_not_stat(path))
 			continue;
-		if ((si = calloc(1, sizeof(*si))) == NULL) {
+		if ((si = (stress_stat_info_t *)calloc(1, sizeof(*si))) == NULL) {
 			pr_err("%s: out of memory\n", args->name);
 			(void)closedir(dp);
 			goto free_cache;

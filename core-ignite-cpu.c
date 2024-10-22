@@ -149,7 +149,7 @@ void stress_ignite_cpu_start(void)
 	max_cpus = stress_get_processors_configured();
 	if (max_cpus < 1)
 		max_cpus = 1;	/* Has to have at least 1 cpu! */
-	cpu_settings = calloc((size_t)max_cpus, sizeof(*cpu_settings));
+	cpu_settings = (stress_cpu_setting_t *)calloc((size_t)max_cpus, sizeof(*cpu_settings));
 	if (!cpu_settings) {
 		pr_dbg("ignite-cpu: no cpu settings allocated\n");
 	} else {
@@ -272,7 +272,7 @@ void stress_ignite_cpu_start(void)
 			continue;
 		}
 
-		settings[i].setting = calloc(1, len + 1);
+		settings[i].setting = (char *)calloc(1, len + 1);
 		if (!settings[i].setting)
 			continue;
 

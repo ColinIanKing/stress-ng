@@ -289,19 +289,19 @@ static int stress_aiol_alloc(
 	ret = posix_memalign((void **)buffer, 4096, n * BUFFER_SZ);
 	if (ret)
 		goto err_msg;
-	*cb = calloc(n, sizeof(**cb));
+	*cb = (struct iocb *)calloc(n, sizeof(**cb));
 	if (!*cb)
 		goto free_buffer;
-	*events = calloc(n, sizeof(**events));
+	*events = (struct io_event *)calloc(n, sizeof(**events));
 	if (!*events)
 		goto free_cb;
-	*cbs = calloc(n, sizeof(**cbs));
+	*cbs = (struct iocb **)calloc(n, sizeof(**cbs));
 	if (!*cbs)
 		goto free_events;
-	*fds = calloc(n, sizeof(**fds));
+	*fds = (int *)calloc(n, sizeof(**fds));
 	if (!*fds)
 		goto free_cbs;
-	*iov = calloc(n, sizeof(**iov));
+	*iov = (struct iovec *)calloc(n, sizeof(**iov));
 	if (!*iov)
 		goto free_fds;
 	return 0;

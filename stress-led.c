@@ -68,7 +68,7 @@ static char *stress_led_orig_trigger(const char *str)
 	len = 1 + (end - start);
 	if (len < 2)
 		return NULL;
-	orig = calloc(len, sizeof(*orig));
+	orig = (char *)calloc(len, sizeof(*orig));
 	if (!orig)
 		return NULL;
 	(void)shim_strscpy(orig, start, len);
@@ -141,7 +141,7 @@ static stress_led_info_t *stress_led_info_get(void)
 	for (i = 0; i < n_devs; i++) {
 		stress_led_info_t *led_info;
 
-		led_info = calloc(1, sizeof(*led_info));
+		led_info = (stress_led_info_t *)calloc(1, sizeof(*led_info));
 		if (led_info) {
 			char led_path[PATH_MAX];
 			char buf[MAX_BUF_SIZE];

@@ -315,7 +315,7 @@ finish:
 	}
 
 	if (args->instance == 0) {
-		buf = calloc(sz, sizeof(*buf));
+		buf = (char *)calloc(sz, sizeof(*buf));
 		if (buf) {
 			for (ptr = buf, i = 0; i < max_signals; i++) {
 				if (signal_info.signalled & STRESS_BIT_ULL(i)) {

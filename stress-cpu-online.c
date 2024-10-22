@@ -196,7 +196,7 @@ static int stress_cpu_online(stress_args_t *args)
 		cpus = STRESS_CPU_ONLINE_MAX_CPUS;
 	}
 
-	cpu_online = calloc((size_t)cpus, sizeof(*cpu_online));
+	cpu_online = (bool *)calloc((size_t)cpus, sizeof(*cpu_online));
 	if (!cpu_online) {
 		pr_inf_skip("%s: out of memory allocating %" PRId32 " boolean flags, "
 			    "skipping stressor\n", args->name, cpus);

@@ -335,7 +335,7 @@ static int get_config(stress_args_t *args, EGLConfig *config)
 	}
 
 	/* Use calloc to avoid multiplication overflow */
-	configs = calloc((size_t)num_configs, sizeof(EGLConfig));
+	configs = (EGLConfig *)calloc((size_t)num_configs, sizeof(EGLConfig));
 	if (!configs) {
 		pr_inf_skip("%s: EGL: EGL allocation failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;

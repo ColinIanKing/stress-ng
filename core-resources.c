@@ -321,7 +321,7 @@ size_t stress_resources_allocate(
 			break;
 
 		if ((stress_mwc8() & 0xf) == 0) {
-			resources[i].m_malloc = calloc(1, page_size);
+			resources[i].m_malloc = (void *)calloc(1, page_size);
 			resources[i].m_malloc_size = page_size;
 			if (!stress_continue_flag())
 				break;

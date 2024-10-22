@@ -240,7 +240,7 @@ static int stress_aio(stress_args_t *args)
 			opt_aio_requests = MIN_AIO_REQUESTS;
 	}
 
-	if ((io_reqs = calloc(opt_aio_requests, sizeof(*io_reqs))) == NULL) {
+	if ((io_reqs = (stress_io_req_t *)calloc(opt_aio_requests, sizeof(*io_reqs))) == NULL) {
 		pr_inf_skip("%s: cannot allocate %" PRIu32 " io request "
 			    "structures, skipping stressor\n", args->name, opt_aio_requests);
 		return EXIT_NO_RESOURCE;

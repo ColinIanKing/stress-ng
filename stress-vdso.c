@@ -300,7 +300,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 							/*
 							 *  Add to list of wrapable vDSO functions
 							 */
-							vdso_sym = calloc(1, sizeof(*vdso_sym));
+							vdso_sym = (stress_vdso_sym_t *)calloc(1, sizeof(*vdso_sym));
 							if (vdso_sym == NULL)
 								return -1;
 

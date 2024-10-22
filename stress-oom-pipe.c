@@ -205,11 +205,11 @@ static int stress_oom_pipe(stress_args_t *args)
 	context.max_fd = stress_get_file_limit();
 	context.max_pipe_size = stress_probe_max_pipe_size();
 
-	context.fds = calloc(context.max_fd, sizeof(*context.fds));
+	context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));
 	if (!context.fds) {
 		/* Shrink down */
 		context.max_fd = 1024 * 1024;
-		context.fds = calloc(context.max_fd, sizeof(*context.fds));
+		context.fds = (int *)calloc(context.max_fd, sizeof(*context.fds));
 		if (!context.fds) {
 			pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
 				args->name, context.max_fd);

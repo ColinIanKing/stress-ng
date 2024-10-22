@@ -185,7 +185,7 @@ static int stress_heapsort(stress_args_t *args)
 	}
 	n = (size_t)heapsort_size;
 
-	if ((data = calloc(n, sizeof(*data))) == NULL) {
+	if ((data = (int32_t *)calloc(n, sizeof(*data))) == NULL) {
 		pr_inf_skip("%s: failed to allocate %zu integers, skipping stressor\n",
 			args->name, n);
 		return EXIT_NO_RESOURCE;

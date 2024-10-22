@@ -74,7 +74,7 @@ static int stress_xattr(stress_args_t *args)
 	uint32_t rnd32;
 
 #if defined(XATTR_SIZE_MAX)
-	large_tmp = calloc(XATTR_SIZE_MAX + 2, sizeof(*large_tmp));
+	large_tmp = (char *)calloc(XATTR_SIZE_MAX + 2, sizeof(*large_tmp));
 	if (!large_tmp) {
 		pr_inf_skip("%s: failed to allocate large xattr buffer, skipping stressor\n",
 			args->name);
@@ -102,7 +102,7 @@ static int stress_xattr(stress_args_t *args)
 #endif
 	(void)snprintf(bad_filename, sizeof(bad_filename), "%s_bad", filename);
 
-	hugevalue = calloc(1, hugevalue_sz);
+	hugevalue = (char *)calloc(1, hugevalue_sz);
 	if (hugevalue)
 		(void)shim_memset(hugevalue, 'X', hugevalue_sz - 1);
 

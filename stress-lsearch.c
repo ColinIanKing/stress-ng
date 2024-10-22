@@ -184,12 +184,12 @@ static int stress_lsearch(stress_args_t *args)
 	}
 	max = (size_t)lsearch_size;
 
-	if ((data = calloc(max, sizeof(*data))) == NULL) {
+	if ((data = (int32_t *)calloc(max, sizeof(*data))) == NULL) {
 		pr_inf_skip("%s: malloc failed allocating %zd integers, "
 			"out of memory, skipping stressor\n", args->name, max);
 		return EXIT_NO_RESOURCE;
 	}
-	if ((root = calloc(max, sizeof(*data))) == NULL) {
+	if ((root = (int32_t *)calloc(max, sizeof(*data))) == NULL) {
 		free(data);
 		pr_inf_skip("%s: malloc failed allocating %zd integers , "
 			"out of memory, skipping stressor\n", args->name, max);

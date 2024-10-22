@@ -161,7 +161,7 @@ static int stress_timerfd(stress_args_t *args)
 	}
 	(void)shim_unlink(file_fd_name);
 
-	timerfds = calloc((size_t)timerfd_fds, sizeof(*timerfds));
+	timerfds = (int *)calloc((size_t)timerfd_fds, sizeof(*timerfds));
 	if (!timerfds) {
 		pr_inf_skip("%s: cannot allocate %" PRIu32 " timerfd file descriptors, "
 			"skipping stressor\n", args->name, timerfd_fds);
@@ -172,7 +172,7 @@ static int stress_timerfd(stress_args_t *args)
 		timerfds[i] = -1;
 
 #if defined(USE_POLL)
-	pollfds = calloc((size_t)timerfd_fds, sizeof(*pollfds));
+	pollfds = (struct pollfd *)calloc((size_t)timerfd_fds, sizeof(*pollfds));
 	if (!pollfds) {
 		pr_inf_skip("%s: cannot allocate %" PRIu32 " pollfd file descriptors, "
 			"skipping stressor\n", args->name, timerfd_fds);

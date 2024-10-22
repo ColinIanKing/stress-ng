@@ -538,7 +538,7 @@ static int stress_pthread(stress_args_t *args)
 			 *  and this allows us to exercise the pthread stack
 			 *  setting.
 			 */
-			pthreads[i].stack = calloc(1, stack_size);
+			pthreads[i].stack = (void *)calloc(1, stack_size);
 			if (!pthreads[i].stack)
 				break;
 

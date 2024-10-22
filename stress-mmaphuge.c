@@ -241,7 +241,7 @@ static int stress_mmaphuge(stress_args_t *args)
 	ctxt.mmaphuge_file = false;
 	(void)stress_get_setting("mmaphuge-file", &ctxt.mmaphuge_file);
 
-	ctxt.bufs = calloc(ctxt.mmaphuge_mmaps, sizeof(*ctxt.bufs));
+	ctxt.bufs = (stress_mmaphuge_buf_t *)calloc(ctxt.mmaphuge_mmaps, sizeof(*ctxt.bufs));
 	if (!ctxt.bufs) {
 		pr_inf_skip("%s: cannot allocate buffer array, skipping stressor\n",
 			args->name);

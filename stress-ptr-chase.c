@@ -70,7 +70,7 @@ static int stress_ptr_chase(stress_args_t *args)
 	n = (size_t)ptr_chase_pages;
 	alloc_size = PAGE_SIZE_4K * ((n + 1) / 2);
 
-	ptrs_heap = calloc(1, alloc_size);
+	ptrs_heap = (stress_ptrs_t *)calloc(1, alloc_size);
 	if (!ptrs_heap) {
 		pr_inf("%s: heap allocation of %zu bytes failed, skipping stressor\n",
 			args->name, alloc_size);

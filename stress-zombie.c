@@ -104,7 +104,7 @@ static stress_zombie_t *stress_zombie_new(void)
 		zombies.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
+		new = (stress_zombie_t *)calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
 	}

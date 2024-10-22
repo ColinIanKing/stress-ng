@@ -255,7 +255,7 @@ static void *stress_malloc_loop(void *ptr)
 					if (len < (n * sizeof(uintptr_t)))
 						len = n * sizeof(uintptr_t);
 					stress_alloc_action("calloc", len);
-					info[i].addr = calloc(n, len / n);
+					info[i].addr = (void *)calloc(n, len / n);
 					len = n * (len / n);
 					break;
 #if defined(HAVE_POSIX_MEMALIGN)

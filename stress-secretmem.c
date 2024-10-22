@@ -98,7 +98,7 @@ static int stress_secretmem_child(stress_args_t *args, void *context)
 
 	(void)context;
 
-	mappings = calloc(MMAP_MAX, sizeof(*mappings));
+	mappings = (uint8_t **)calloc(MMAP_MAX, sizeof(*mappings));
 	if (!mappings) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;

@@ -692,11 +692,11 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 	if (n == 0)
 		return NULL;
 
-	hash_table = calloc(1, sizeof(*hash_table));
+	hash_table = (stress_hash_table_t *)calloc(1, sizeof(*hash_table));
 	if (!hash_table)
 		return NULL;
 
-	hash_table->table = calloc(n, sizeof(*(hash_table->table)));
+	hash_table->table = (stress_hash_t **)calloc(n, sizeof(*(hash_table->table)));
 	if (!hash_table->table) {
 		free(hash_table);
 		return NULL;

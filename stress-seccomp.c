@@ -237,7 +237,7 @@ static int stress_seccomp_set_huge_filter(stress_args_t *args)
 	for (j = 0; (n < n_max) && (n != max) && (j < 64); j++) {
 		struct sock_filter *huge_filter;
 
-		huge_filter = calloc(n, sizeof(*huge_filter));
+		huge_filter = (struct sock_filter *)calloc(n, sizeof(*huge_filter));
 		if (!huge_filter)
 			return -1;
 

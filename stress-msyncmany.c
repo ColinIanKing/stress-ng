@@ -47,7 +47,7 @@ static int stress_msyncmany_child(stress_args_t *args, void *context)
 			args->name, max);
 		return EXIT_NO_RESOURCE;
 	}
-	mappings = calloc((size_t)max, sizeof(*mappings));
+	mappings = (uint64_t **)calloc((size_t)max, sizeof(*mappings));
 	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;

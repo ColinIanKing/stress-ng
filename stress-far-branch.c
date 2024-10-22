@@ -341,14 +341,14 @@ static int stress_far_branch(stress_args_t *args)
 		}
 	}
 
-	funcs = calloc(max_funcs, sizeof(*funcs));
+	funcs = (stress_ret_func_t *)calloc(max_funcs, sizeof(*funcs));
 	if (!funcs) {
 		pr_inf_skip("%s: cannot allocate %zu function "
 			"pointers, skipping stressor\n",
 			args->name, max_funcs);
 		return EXIT_NO_RESOURCE;
 	}
-	pages = calloc(n_pages, sizeof(*pages));
+	pages = (void **)calloc(n_pages, sizeof(*pages));
 	if (!pages) {
 		pr_inf_skip("%s: cannot allocate %zu page "
 			"pointers, skipping stressor\n",

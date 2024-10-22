@@ -277,7 +277,7 @@ static int stress_memhotplug(stress_args_t *args)
 	}
 	rewinddir(dir);
 
-	mem_info = calloc(n, sizeof(*mem_info));
+	mem_info = (stress_mem_info_t *)calloc(n, sizeof(*mem_info));
 	if (!mem_info) {
 		pr_inf_skip("%s: failed to allocate %zd mem_info structs, skipping stressor\n",
 			args->name, n);

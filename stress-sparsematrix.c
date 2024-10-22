@@ -913,7 +913,7 @@ find_x:
 			return 0;
 		}
 	}
-	new_x_node = calloc(1, sizeof(*new_x_node));
+	new_x_node = (sparse_x_list_node_t *)calloc(1, sizeof(*new_x_node));
 	if (!new_x_node)
 		return -1;  /* Leaves new_y_node allocated */
 	new_x_node->x = x;
@@ -1238,7 +1238,7 @@ static void mmap_destroy(void *handle, size_t *objmem)
 		return;
 
 	pages = m->mmap_size / page_size;
-	vec = calloc(pages, 1);
+	vec = (unsigned char *)calloc(pages, 1);
 	if (!vec) {
 		*objmem = m->mmap_size;
 	} else {

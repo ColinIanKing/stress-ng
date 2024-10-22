@@ -539,7 +539,7 @@ finish:
 	if (len > 0) {
 		char *str;
 
-		str = calloc(len, sizeof(*str));
+		str = (char *)calloc(len, sizeof(*str));
 		if (str) {
 			int unhandled = 0;
 

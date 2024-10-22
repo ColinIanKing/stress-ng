@@ -124,7 +124,7 @@ int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 		(void)fclose(fp);
 		unreadable_energy_uj = false;
 
-		if ((rapl_domain = calloc(1, sizeof(*rapl_domain))) == NULL) {
+		if ((rapl_domain = (stress_rapl_domain_t *)calloc(1, sizeof(*rapl_domain))) == NULL) {
 			pr_inf("cannot allocate RAPL domain information\n");
 			(void)closedir(dir);
 			return -1;

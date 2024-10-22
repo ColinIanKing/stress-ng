@@ -987,7 +987,7 @@ static int stress_tree(stress_args_t *args)
 			tree_size = MIN_TREE_SIZE;
 	}
 	n = (size_t)tree_size;
-	nodes = calloc(n, sizeof(*nodes));
+	nodes = (struct tree_node *)calloc(n, sizeof(*nodes));
 	if (!nodes) {
 		pr_inf_skip("%s: malloc failed allocating %zd tree nodes, "
 			"skipping stressor\n", args->name, n);

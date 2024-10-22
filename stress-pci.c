@@ -107,7 +107,7 @@ static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, const
 {
 	stress_pci_info_t *pci_info = NULL;
 
-	pci_info = calloc(1, sizeof(*pci_info));
+	pci_info = (stress_pci_info_t *)calloc(1, sizeof(*pci_info));
 	if (pci_info) {
 		char pci_path[PATH_MAX];
 		int i;
