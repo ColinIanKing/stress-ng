@@ -22,6 +22,10 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 
+#if defined(HAVE_SYS_PROCCTL_H)
+#include <sys/procctl.h>
+#endif
+
 #define WAIT_TIMEOUT		(120)	/* waitpid timeout, 2 minutes */
 
 #if defined(__linux__)
@@ -178,6 +182,36 @@ void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
 		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 
 	(void)stress_set_adjustment(args, "/proc/self/oom_adj", str);
+}
+#elif defined(HAVE_SYS_PROCCTL_H) &&	\
+      defined(__FreeBSD__) &&		\
+      defined(PROC_SPROTECT) &&		\
+      (defined(PPROT_CLEAR) || 		\
+       defined(PPORT_SET))
+void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
+{
+	bool make_killable = killable;
+	int flag;
+
+	if (g_opt_flags & OPT_FLAGS_NO_OOM_ADJUST)
+		return;
+
+	/*
+	 *  main cannot be killable; if OPT_FLAGS_OOMABLE set make
+	 *  all child procs easily OOMable
+	 */
+	if (args && (g_opt_flags & OPT_FLAGS_OOMABLE))
+		make_killable = true;
+
+	flag = make_killable ? PPROT_CLEAR : PPROT_SET;
+	(void)procctl(P_PID, 0, PROC_SPROTECT, &flag);
+}
+
+bool PURE stress_process_oomed(const pid_t pid)
+{
+	(void)pid;
+
+	return false;
 }
 #else
 void stress_set_oom_adjustment(stress_args_t *args, const bool killable)
