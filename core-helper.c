@@ -77,6 +77,10 @@
 #include <sys/prctl.h>
 #endif
 
+#if defined(HAVE_SYS_PROCCTL_H)
+#include <sys/procctl.h>
+#endif
+
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
 #endif
@@ -1143,6 +1147,12 @@ void stress_parent_died_alarm(void)
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_PDEATHSIG)
 	(void)prctl(PR_SET_PDEATHSIG, SIGALRM);
+#elif defined(HAVE_SYS_PROCCTL_H) &&	\
+      defined(__FreeBSD__) &&		\
+      defined(PROC_PDEATHSIG_CTL)
+	int sig = SIGALRM;
+
+	(void)procctl(P_PID, 0, PROC_PDEATHSIG_CTL, &sig);
 #else
 	UNEXPECTED
 #endif
