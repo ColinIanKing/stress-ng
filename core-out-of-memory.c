@@ -76,11 +76,9 @@ bool stress_process_oomed(const pid_t pid)
 	return oomed;
 }
 
-static const char *stress_args_name(stress_args_t *args)
+static inline const char *stress_args_name(stress_args_t *args)
 {
-	if (!args)
-		return "main";
-	return args->name;
+	return args ? args->name : "main";
 }
 
 /*
