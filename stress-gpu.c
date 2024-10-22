@@ -139,7 +139,7 @@ static GLuint compile_shader(
 		if (infoLen > 1) {
 			char *infoLog;
 
-			infoLog = malloc((size_t)infoLen);
+			infoLog = (char *)malloc((size_t)infoLen);
 			if (!infoLog) {
 				pr_inf_skip("%s: failed to allocate infoLog, skipping stressor\n", args->name);
 				glDeleteShader(shader);
@@ -194,7 +194,7 @@ static int load_shaders(stress_args_t *args)
 		if (infoLen > 1) {
 			char *infoLog;
 
-			infoLog = malloc((size_t)infoLen);
+			infoLog = (char *)malloc((size_t)infoLen);
 			if (!infoLog) {
 				pr_inf_skip("%s: failed to allocate infoLog, skipping stressor\n", name);
 				glDeleteProgram(program);
@@ -290,7 +290,7 @@ static int gles2_init(
 		glBindTexture(GL_TEXTURE_2D, texobj);
 
 		bytesPerImage = texsize * texsize * 4;
-		teximage = malloc((size_t)bytesPerImage);
+		teximage = (GLubyte *)malloc((size_t)bytesPerImage);
 		if (!teximage) {
 			pr_inf_skip("%s: failed to allocate teximage, skipping stressor\n", args->name);
 			return EXIT_NO_RESOURCE;

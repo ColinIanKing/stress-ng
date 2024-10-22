@@ -760,7 +760,7 @@ stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 
 	/* Not found, so add a new hash */
 	len = strlen(str) + 1;
-	hash = malloc(sizeof(*hash) + len);
+	hash = (stress_hash_t *)malloc(sizeof(*hash) + len);
 	if (!hash)
 		return NULL;
 

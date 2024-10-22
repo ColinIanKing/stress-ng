@@ -200,7 +200,7 @@ int stress_parse_jobfile(
 				continue;
 			}
 
-			tmp = malloc(len);
+			tmp = (char *)malloc(len);
 			if (!tmp) {
 				(void)fprintf(stderr, "Out of memory parsing '%s'\n", jobfile);
 				return -1;

@@ -640,7 +640,7 @@ static stress_fd_race_filename_t *stress_fd_race_filename_add(
 			return NULL;
 	}
 
-	entry = malloc(sizeof(*entry));
+	entry = (stress_fd_race_filename_t *)malloc(sizeof(*entry));
 	if (!entry)
 		return NULL;
 
@@ -845,7 +845,7 @@ static int stress_fd_race(stress_args_t *args)
 		context.max_fd  = 1024 * 1024;
 
 	context.fds_size = sizeof(*fds) * (size_t)context.max_fd;
-	context.fds = malloc(context.fds_size);
+	context.fds = (int *)malloc(context.fds_size);
 	if (!context.fds) {
 		pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
 			args->name, context.max_fd);

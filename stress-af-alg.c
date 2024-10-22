@@ -212,7 +212,7 @@ static int stress_af_alg_hash(
 	if (UNLIKELY(digest_size < 1))
 		return EXIT_NO_RESOURCE;
 
-	digest = malloc(digest_size + ALLOC_SLOP);
+	digest = (char *)malloc(digest_size + ALLOC_SLOP);
 	if (!digest)
 		return EXIT_NO_RESOURCE;
 
@@ -354,7 +354,7 @@ static int stress_af_alg_cipher(
 	char output[DATA_LEN + ALLOC_SLOP] ALIGN64;
 	char *cbuf;
 
-	cbuf = malloc(cbuf_size);
+	cbuf = (char *)malloc(cbuf_size);
 	if (!cbuf)
 		return EXIT_NO_RESOURCE;
 
@@ -411,7 +411,7 @@ retry_bind:
 #if defined(ALG_SET_KEY)
 		char *key;
 
-		key = malloc((size_t)(info->max_key_size + ALLOC_SLOP));
+		key = (char *)malloc((size_t)(info->max_key_size + ALLOC_SLOP));
 		if (!key) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
@@ -439,7 +439,7 @@ retry_bind:
 #if defined(ALG_SET_AEAD_ASSOCLEN)
 		char *assocdata;
 
-		assocdata = malloc((size_t)(info->max_auth_size + ALLOC_SLOP));
+		assocdata = (char *)malloc((size_t)(info->max_auth_size + ALLOC_SLOP));
 		if (!assocdata) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
@@ -1061,7 +1061,7 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	 *  Add new item, if we can't allocate, silently
 	 *  ignore failure and don't add.
 	 */
-	ci = malloc(sizeof(*ci));
+	ci = (stress_crypto_info_t *)malloc(sizeof(*ci));
 	if (!ci)
 		return false;
 	*ci = *info;

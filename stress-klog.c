@@ -96,7 +96,7 @@ static int stress_klog(stress_args_t *args)
 			pr_inf("%s: truncating syslog buffer to 4MB\n", args->name);
 		len = 4 * MB;
 	}
-	buffer = malloc((size_t)len);
+	buffer = (char *)malloc((size_t)len);
 	if (!buffer) {
 		pr_err("%s: cannot allocate syslog buffer\n", args->name);
 		return EXIT_NO_RESOURCE;

@@ -295,7 +295,7 @@ static void *stress_malloc_loop(void *ptr)
 #endif
 				default:
 					stress_alloc_action("malloc", len);
-					info[i].addr = malloc(len);
+					info[i].addr = (uintptr_t *)malloc(len);
 					break;
 				}
 				if (LIKELY(info[i].addr != NULL)) {

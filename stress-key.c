@@ -119,7 +119,7 @@ static int stress_key(stress_args_t *args)
 	uint64_t keys_added = 0;
 	double t_start, duration, rate;
 
-	huge_description = malloc(key_huge_desc_size);
+	huge_description = (char *)malloc(key_huge_desc_size);
 	if (!huge_description) {
 		pr_inf_skip("%s: cannot allocate %zd byte description string, skipping stressor\n",
 			args->name, key_huge_desc_size);

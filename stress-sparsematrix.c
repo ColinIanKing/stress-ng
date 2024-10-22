@@ -296,7 +296,7 @@ static int OPTIMIZE3 hash_put(void *handle, const uint32_t x, const uint32_t y, 
 	}
 
 	/* Not found, allocate and add */
-	node = malloc(sizeof(*node));
+	node = (sparse_hash_node_t *)malloc(sizeof(*node));
 	if (!node)
 		return -1;
 	node->value = value;
@@ -643,7 +643,7 @@ static int OPTIMIZE3 rb_put(void *handle, const uint32_t x, const uint32_t y, co
 	if (!found) {
 		sparse_rb_t *new_node;
 
-		new_node = malloc(sizeof(*new_node));
+		new_node = (sparse_rb_t *)malloc(sizeof(*new_node));
 		if (!new_node)
 			return -1;
 		new_node->value = value;
@@ -766,7 +766,7 @@ static int OPTIMIZE3 splay_put(void *handle, const uint32_t x, const uint32_t y,
 	if (!found) {
 		sparse_splay_t *new_node;
 
-		new_node = malloc(sizeof(*new_node));
+		new_node = (sparse_splay_t *)malloc(sizeof(*new_node));
 		if (!new_node)
 			return -1;
 		new_node->value = value;
@@ -878,7 +878,7 @@ static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, 
 			goto find_x;
 		}
 		if (y_node->y > y) {
-			new_y_node = malloc(sizeof(*new_y_node));
+			new_y_node = (sparse_y_list_node_t *)malloc(sizeof(*new_y_node));
 			if (!new_y_node)
 				return -1;
 			new_y_node->y = y;
@@ -889,7 +889,7 @@ static int OPTIMIZE3 list_put(void *handle, const uint32_t x, const uint32_t y, 
 		}
 	}
 
-	new_y_node = malloc(sizeof(*new_y_node));
+	new_y_node = (sparse_y_list_node_t *)malloc(sizeof(*new_y_node));
 	if (!new_y_node)
 		return -1;
 	new_y_node->y = y;
@@ -904,7 +904,7 @@ find_x:
 			return 0;
 		}
 		if (x_node->x > x) {
-			new_x_node = malloc(sizeof(*new_x_node));
+			new_x_node = (sparse_x_list_node_t *)malloc(sizeof(*new_x_node));
 			if (!new_x_node)
 				return -1;  /* Leaves new_y_node allocated */
 			new_x_node->x = x;

@@ -4130,7 +4130,7 @@ static int syscall_name_to_handle_at(void)
 	int ret, mount_id;
 	struct file_handle *fhp, *tmp;
 
-	fhp = malloc(sizeof(*fhp));
+	fhp = (struct file_handle *)malloc(sizeof(*fhp));
 	if (!fhp)
 		return -1;
 
@@ -4234,7 +4234,7 @@ static int syscall_open_by_handle_at(void)
 	char buffer[5000];
 	char path[PATH_MAX + 1];
 
-	fhp = malloc(sizeof(*fhp));
+	fhp = (struct file_handle *)malloc(sizeof(*fhp));
 	if (!fhp)
 		return -1;
 

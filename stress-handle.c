@@ -123,7 +123,7 @@ static int stress_handle_child(stress_args_t *args, void *context)
 		int mount_id, mount_fd, fd, i;
 		char *ptr;
 
-		fhp = malloc(sizeof(*fhp));
+		fhp = (struct file_handle *)malloc(sizeof(*fhp));
 		if (!fhp)
 			continue;
 

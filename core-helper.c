@@ -1866,7 +1866,7 @@ void stress_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      epoch-secs: %ld\n", (long)t);
 	}
 
-	hostname = malloc(hostname_len + 1);
+	hostname = (char *)malloc(hostname_len + 1);
 	if (hostname && !gethostname(hostname, hostname_len)) {
 		pr_yaml(yaml, "      hostname: %s\n", hostname);
 	} else {

@@ -354,7 +354,7 @@ static inline void OPTIMIZE3 syscall_add(const long number)
 		h = h->next;
 	}
 
-	newh = malloc(sizeof(*newh));
+	newh = (stress_hash_syscall_t *)malloc(sizeof(*newh));
 	if (!newh)
 		return;	/* Can't add, ignore */
 

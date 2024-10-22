@@ -272,7 +272,7 @@ static stress_smart_data_t *stress_smart_data_read(const char *path)
 
 	values_size = i * sizeof(stress_smart_raw_value_t);
 	size = sizeof(stress_smart_data_t) + values_size;
-	data = malloc(size);
+	data = (stress_smart_data_t *)malloc(size);
 	if (!data)
 		return NULL;
 

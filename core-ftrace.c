@@ -199,7 +199,7 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 				tn->end_time_us += time_us;
 			}
 		} else {
-			tn = malloc(sizeof(*tn));
+			tn = (struct rb_node *)malloc(sizeof(*tn));
 			if (!tn)
 				goto memory_fail;
 			tn->func_name = strdup(func_name);

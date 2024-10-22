@@ -2628,7 +2628,7 @@ static void stress_dev_acpi_thermal_rel_get(
 
 	if ((length < 1) || (length > 64 * KB))
 		return;
-	buf = malloc((size_t)length);
+	buf = (char *)malloc((size_t)length);
 	if (!buf)
 		return;
 	VOID_RET(int, ioctl(fd, cmd, buf));
@@ -4588,7 +4588,7 @@ static void stress_sys_dev_infos_get(
 			stress_sys_dev_infos_get(args, tmp, list, list_end, depth + 1);
 			break;
 		case SHIM_DT_REG:
-			sys_dev_info = malloc(sizeof(*sys_dev_info));
+			sys_dev_info = (sys_dev_info_t *)malloc(sizeof(*sys_dev_info));
 			if (!sys_dev_info)
 				break;
 			sys_dev_info->next = *list;

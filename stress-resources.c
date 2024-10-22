@@ -68,7 +68,7 @@ static int stress_resources(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	resources = malloc(num_resources * sizeof(*resources));
+	resources = (stress_resources_t *)malloc(num_resources * sizeof(*resources));
 	if (!resources) {
 		pr_inf_skip("%s: cannot allocate %zd resource structures, skipping stressor\n",
 			args->name, num_resources);

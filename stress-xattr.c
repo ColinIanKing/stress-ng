@@ -446,7 +446,7 @@ static int stress_xattr(stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto out_close;
 		}
-		buffer = malloc((size_t)sret);
+		buffer = (char *)malloc((size_t)sret);
 		if (buffer) {
 			/* ...and fetch */
 			sret = shim_listxattr(filename, buffer, (size_t)sret);

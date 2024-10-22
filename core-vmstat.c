@@ -866,7 +866,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		vmstat->procs_blocked = 0;
 
 		for (;;) {
-			struct kinfo_proc * result;
+			struct kinfo_proc *result;
 			size_t i, n;
 
 			ret = sysctl((int *)name, (sizeof(name)/sizeof(*name))-1, NULL,
@@ -874,7 +874,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 			if (ret < 0)
 				break;
 
-			result = malloc(length);
+			result = (struct kinfo_proc *)malloc(length);
 			if (!result)
 				break;
 
