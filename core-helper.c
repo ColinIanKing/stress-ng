@@ -2212,12 +2212,21 @@ uint64_t stress_get_prime64(const uint64_t n)
  */
 size_t stress_get_max_file_limit(void)
 {
+#if defined(HAVE_GETDTABLESIZE)
+	int tablesize;
+#endif
 #if defined(RLIMIT_NOFILE)
 	struct rlimit rlim;
 #endif
 	size_t max_rlim = SIZE_MAX;
 	size_t max_sysconf;
 
+#if defined(HAVE_GETDTABLESIZE)
+	/* try the simple way fisrt */
+	tablesize = getdtablesize();
+	if (tablesize > 0)
+		return (size_t)tablesize;
+#endif
 #if defined(RLIMIT_NOFILE)
 	if (!getrlimit(RLIMIT_NOFILE, &rlim))
 		max_rlim = (size_t)rlim.rlim_cur;
