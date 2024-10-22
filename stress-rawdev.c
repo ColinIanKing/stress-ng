@@ -387,10 +387,7 @@ static int stress_rawdev(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	for (i = 0; i < SIZEOF_ARRAY(rawdev_methods); i++) {
-		metrics[i].duration = 0.0;
-		metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(metrics, SIZEOF_ARRAY(rawdev_methods));
 
 	if (!path) {
 		pr_inf("%s: cannot determine temporary path\n",

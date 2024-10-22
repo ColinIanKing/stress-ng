@@ -143,6 +143,9 @@ static int stress_peterson(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_zero_metrics(&peterson->p0, 1);
+	stress_zero_metrics(&peterson->p1, 1);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

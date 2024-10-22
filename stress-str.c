@@ -652,10 +652,7 @@ static int stress_str(stress_args_t *args)
 
 	stress_rndstr(info.str1, info.len1);
 
-	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
-		metrics[i].duration = 0.0;
-		metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

@@ -366,10 +366,7 @@ static int stress_trig(stress_args_t *args)
 
 	(void)stress_get_setting("trig-method", &trig_method);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_trig_metrics); i++) {
-		stress_trig_metrics[i].duration = 0.0;
-		stress_trig_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_trig_metrics, SIZEOF_ARRAY(stress_trig_metrics));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

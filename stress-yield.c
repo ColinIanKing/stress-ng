@@ -266,10 +266,7 @@ static int stress_yield(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(metrics, metrics_size, "metrics");
-	for (i = 0; i < yielders; i++) {
-		metrics[i].count = 0.0;
-		metrics[i].duration = 0.0;
-	}
+	stress_zero_metrics(metrics, yielders);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

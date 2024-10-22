@@ -411,10 +411,7 @@ static int stress_atomic(stress_args_t *args)
 
 	for (i = 0; i < n_atomic_procs; i++) {
 		stress_sync_start_init(&atomic_info[i].s_pid);
-		for (j = 0; j < STRESS_ATOMIC_MAX_FUNCS; j++) {
-			atomic_info[i].metrics[j].duration = 0.0;
-			atomic_info[i].metrics[j].count = 0.0;
-		}
+		stress_zero_metrics(atomic_info[i].metrics, STRESS_ATOMIC_MAX_FUNCS);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);

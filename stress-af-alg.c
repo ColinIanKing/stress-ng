@@ -1065,8 +1065,7 @@ static bool stress_af_alg_add_crypto(const stress_crypto_info_t *info)
 	if (!ci)
 		return false;
 	*ci = *info;
-	ci->metrics.duration = 0.0;
-	ci->metrics.count = 0.0;
+	stress_zero_metrics(&ci->metrics, 1);
 	ci->next = crypto_info_list;
 	crypto_info_list = ci;
 

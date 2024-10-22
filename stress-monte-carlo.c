@@ -575,12 +575,7 @@ static int stress_monte_carlo(stress_args_t *args)
 	}
 
 	for (i = 0; i < METHODS_MAX; i++) {
-		for (j = 0; j < RANDS_MAX; j++) {
-			metrics[i][j].duration = 0.0;
-			metrics[i][j].count = 0.0;
-			results[i][j].sum = 0.0;
-			results[i][j].count = 0.0;
-		}
+		stress_zero_metrics(metrics[i], RANDS_MAX);
 	}
 
 	monte_carlo_samples = 100000;

@@ -455,10 +455,7 @@ static int stress_funcret(stress_args_t *args)
 
 	(void)stress_get_setting("funcret-method", &funcret_method);
 
-	for (i = 0; i < NUM_STRESS_FUNCRET_METHODS; i++) {
-		stress_funcret_metrics[i].duration = 0.0;
-		stress_funcret_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_funcret_metrics, NUM_STRESS_FUNCRET_METHODS);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

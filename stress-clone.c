@@ -607,10 +607,8 @@ static int stress_clone(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(shared, sizeof(*shared), "clone-state");
+	stress_zero_metrics(&shared->metrics, 1);
 	shared->metrics.lock = stress_lock_create("metrics");
-	shared->metrics.duration = 0.0;
-	shared->metrics.count = 0.0;
-	shared->metrics.t_start = 0.0;
 
 	flag_count = stress_flag_permutation((int)all_flags, &flag_perms);
 

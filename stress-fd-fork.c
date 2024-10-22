@@ -149,9 +149,7 @@ static int stress_fd_fork(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	stress_set_vma_anon_name(info, sizeof(*info), "state");
-
-	info->metrics.count = 0.0;
-	info->metrics.duration = 0.0;
+	stress_zero_metrics(&info->metrics, 1);
 	info->use_close_range = true;
 
 	for (i = 1; i < fd_fork_fds; i++)

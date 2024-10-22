@@ -720,10 +720,7 @@ static int stress_cache(stress_args_t *args)
 		"shared cache writes per second",
 	};
 
-	for (j = 0; j < SIZEOF_ARRAY(metrics); j++) {
-		metrics[j].duration = 0.0;
-		metrics[j].count = 0.0;
-	}
+	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
 	disabled_flags = 0;
 

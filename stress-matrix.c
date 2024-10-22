@@ -861,10 +861,7 @@ static inline int stress_matrix_exercise(
 
 	current_method = matrix_methods[matrix_method].name;
 
-	for (i = 0; i < num_matrix_methods; i++) {
-		matrix_metrics[i].duration = 0.0;
-		matrix_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(matrix_metrics, num_matrix_methods);
 
 	a = (matrix_ptr_t)stress_mmap_populate(NULL, matrix_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);

@@ -193,10 +193,7 @@ static int stress_rotate(stress_args_t *args)
 	bool success = true;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	for (i = 1; i < SIZEOF_ARRAY(stress_rotate_metrics); i++) {
-		stress_rotate_metrics[i].duration = 0.0;
-		stress_rotate_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_rotate_metrics, SIZEOF_ARRAY(stress_rotate_metrics));
 
 	(void)stress_get_setting("rotate-method", &rotate_method);
 

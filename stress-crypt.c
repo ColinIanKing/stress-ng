@@ -143,10 +143,7 @@ static int stress_crypt(stress_args_t *args)
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
-		crypt_metrics[i].duration = 0.0;
-		crypt_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(crypt_metrics, SIZEOF_ARRAY(crypt_methods));
 #if defined(HAVE_CRYPT_R)
 	(void)memset(&data, 0, sizeof(data));
 #endif

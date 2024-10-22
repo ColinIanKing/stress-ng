@@ -110,7 +110,6 @@ static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, const
 	pci_info = (stress_pci_info_t *)calloc(1, sizeof(*pci_info));
 	if (pci_info) {
 		char pci_path[PATH_MAX];
-		int i;
 
 		(void)snprintf(pci_path, sizeof(pci_path),
 			"%s/%s", sys_pci_devices, name);
@@ -125,10 +124,8 @@ static void stress_pci_info_get_by_name(stress_pci_info_t **pci_info_list, const
 			free(pci_info);
 			return;
 		}
-		for (i = 0; i < PCI_METRICS_MAX; i++) {
-			pci_info->metrics[i].duration = 0.0;
-			pci_info->metrics[i].count = 0.0;
-		}
+
+		stress_zero_metrics(pci_info->metrics, PCI_METRICS_MAX);
 		pci_info->ignore = false;
 		pci_info->next = *pci_info_list;
 		*pci_info_list = pci_info;

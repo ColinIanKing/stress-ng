@@ -4948,3 +4948,19 @@ uint64_t stress_get_machine_id(void)
 #endif
 	return id;
 }
+
+/*
+ *  stress_zero_metrics()
+ *	initialize metrics array 0..n-1 items
+ */
+void stress_zero_metrics(stress_metrics_t *metrics, const size_t n)
+{
+	size_t i;
+
+	for (i = 0; i < n; i++) {
+		metrics[i].lock = NULL;
+		metrics[i].duration = 0.0;
+		metrics[i].count = 0.0;
+		metrics[i].t_start = 0.0;
+	}
+}

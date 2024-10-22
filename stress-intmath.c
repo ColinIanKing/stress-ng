@@ -450,10 +450,7 @@ static int stress_intmath(stress_args_t *args)
 
 	(void)memset(stress_intmath_initialized, 0, sizeof(stress_intmath_initialized));
 
-	for (i = 0; i < STRESS_INTMATH_MAX_METHODS; i++) {
-		stress_intmath_metrics[i].duration = 0.0;
-		stress_intmath_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_intmath_metrics, STRESS_INTMATH_MAX_METHODS);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

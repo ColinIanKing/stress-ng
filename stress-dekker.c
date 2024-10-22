@@ -156,6 +156,9 @@ static int stress_dekker(stress_args_t *args)
 	}
 
 	stress_set_vma_anon_name(dekker, sz, "dekker-mutex");
+	stress_zero_metrics(&dekker->p0, 1);
+	stress_zero_metrics(&dekker->p1, 1);
+
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

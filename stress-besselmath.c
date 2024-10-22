@@ -576,10 +576,7 @@ static int stress_besselmath(stress_args_t *args)
 
 	(void)stress_get_setting("besselmath-method", &besselmath_method);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_besselmath_metrics); i++) {
-		stress_besselmath_metrics[i].duration = 0.0;
-		stress_besselmath_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_besselmath_metrics, SIZEOF_ARRAY(stress_besselmath_methods));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

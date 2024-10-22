@@ -64,10 +64,8 @@ static int stress_sigrt(stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_zero_metrics(stress_sigrt_metrics, MAX_RTPIDS);
 	for (i = 0; i < MAX_RTPIDS; i++) {
-		stress_sigrt_metrics[i].duration = 0.0;
-		stress_sigrt_metrics[i].count = 0.0;
-
 		if (stress_sighandler(args->name, i + SIGRTMIN, stress_sighandler_nop, NULL) < 0) {
 			free(pids);
 			(void)munmap((void *)stress_sigrt_metrics, stress_sigrt_metrics_size);

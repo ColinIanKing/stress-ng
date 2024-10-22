@@ -1249,10 +1249,7 @@ static int stress_funccall(stress_args_t *args)
 
 	size_t i, j;
 
-	for (i = 0; i < NUM_STRESS_FUNCCALL_METHODS; i++) {
-		stress_funccall_metrics[i].duration = 0.0;
-		stress_funccall_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_funccall_metrics, NUM_STRESS_FUNCCALL_METHODS);
 
 	(void)stress_get_setting("funccall-method", &funccall_method);
 

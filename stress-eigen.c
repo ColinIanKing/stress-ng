@@ -120,10 +120,7 @@ static inline int stress_eigen_exercise(
 	register size_t i, j;
 	method_all_index = 1;
 
-	for (i = 0; i < NUM_EIGEN_METHODS; i++) {
-		eigen_metrics[i].duration = 0.0;
-		eigen_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(eigen_metrics, NUM_EIGEN_METHODS);
 
 	current_method = eigen_methods[eigen_method].name;
 

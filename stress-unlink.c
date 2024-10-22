@@ -206,10 +206,8 @@ static int stress_unlink(stress_args_t *args)
 			args->name, metrics_sz);
 		return EXIT_NO_RESOURCE;
 	}
-	for (i = 0; i < UNLINK_PROCS; i++) {
-		metrics[i].duration = 0.0;
-		metrics[i].count = 0.0;
-	}
+	stress_set_vma_anon_name(metrics, metrics_sz, "metrics");
+	stress_zero_metrics(metrics, UNLINK_PROCS);
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);

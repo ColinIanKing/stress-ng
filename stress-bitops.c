@@ -1044,10 +1044,7 @@ static int stress_bitops(stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	size_t i, j;
 
-	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
-		metrics[i].duration = 0.0;
-		metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
 	(void)stress_get_setting("bitops-method", &bitops_method);
 

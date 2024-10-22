@@ -309,11 +309,7 @@ static int stress_access(stress_args_t *args)
 		goto tidy;
 	}
 	stress_set_vma_anon_name(metrics, metrics_size, "metrics");
-
-	metrics[0].duration = 0.0;
-	metrics[0].count = 0.0;
-	metrics[1].duration = 0.0;
-	metrics[1].count = 0.0;
+	stress_zero_metrics(metrics, 2);
 
 	stress_sync_start_init(&s_pids[0]);
 	stress_sync_start_init(&s_pids[1]);

@@ -364,10 +364,7 @@ static int stress_mpfr(stress_args_t *args)
 	static stress_metrics_t metrics[SIZEOF_ARRAY(stress_mpfr_methods)];
 	int rc = EXIT_SUCCESS;
 
-	for (i = 0; i < SIZEOF_ARRAY(metrics); i++) {
-		metrics[i].count = 0.0;
-		metrics[i].duration = 0.0;
-	}
+	stress_zero_metrics(metrics, SIZEOF_ARRAY(metrics));
 
 	(void)stress_get_setting("mpfr-precision", &mpfr_precision);
 	precision = (mpfr_prec_t)mpfr_precision;

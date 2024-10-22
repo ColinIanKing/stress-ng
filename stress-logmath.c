@@ -524,10 +524,7 @@ static int stress_logmath(stress_args_t *args)
 
 	(void)stress_get_setting("logmath-method", &logmath_method);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_logmath_metrics); i++) {
-		stress_logmath_metrics[i].duration = 0.0;
-		stress_logmath_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_logmath_metrics, SIZEOF_ARRAY(stress_logmath_metrics));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

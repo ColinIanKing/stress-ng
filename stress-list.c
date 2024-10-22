@@ -526,10 +526,7 @@ static int stress_list(stress_args_t *args)
 	stress_metrics_t *metrics, list_metrics[SIZEOF_ARRAY(list_methods)];
 	stress_list_func func;
 
-	for (i = 0; i < SIZEOF_ARRAY(list_metrics); i++) {
-		list_metrics[i].duration = 0.0;
-		list_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(list_metrics, SIZEOF_ARRAY(list_metrics));
 
 	(void)stress_get_setting("list-method", &list_method);
 	func = list_methods[list_method].func;

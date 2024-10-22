@@ -607,10 +607,7 @@ static int stress_powmath(stress_args_t *args)
 
 	(void)stress_get_setting("powmath-method", &powmath_method);
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_powmath_metrics); i++) {
-		stress_powmath_metrics[i].duration = 0.0;
-		stress_powmath_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(stress_powmath_metrics, SIZEOF_ARRAY(stress_powmath_metrics));
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);

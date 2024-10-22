@@ -839,10 +839,7 @@ static inline int stress_matrix_3d_exercise(
 	method_all_index = 1;
 	current_method = matrix_3d_methods[matrix_3d_method].name;
 
-	for (i = 0; i < num_matrix_3d_methods; i++) {
-		matrix_3d_metrics[i].duration = 0.0;
-		matrix_3d_metrics[i].count = 0.0;
-	}
+	stress_zero_metrics(matrix_3d_metrics, num_matrix_3d_methods);
 
 	a = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
