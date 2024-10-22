@@ -2807,7 +2807,7 @@ void stress_shared_unmap(void)
  */
 static void stress_exclude_unimplemented(
 	const char *name,
-	const struct stressor_info *info)
+	const stressor_info_t *info)
 {
 	static const char msg[] = "stressor will be skipped, it is not implemented on "
 				  "this system";
