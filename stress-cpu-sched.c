@@ -484,7 +484,7 @@ again:
 		}
 		goto err;
 	} else if (pid == 0) {
-		const pid_t pid = getpid();
+		const pid_t child_pid = getpid();
 		int cpu;
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
@@ -495,17 +495,17 @@ again:
 #endif
 
 		for (cpu = 0; cpu < cpus; cpu++) {
-			stress_cpu_sched_child_exercise(pid, cpu);
+			stress_cpu_sched_child_exercise(child_pid, cpu);
 		}
 		(void)stress_cpu_sched_nice(1);
 		for (cpu = cpus - 1; cpu >= 0; cpu--) {
-			stress_cpu_sched_child_exercise(pid, cpu);
+			stress_cpu_sched_child_exercise(child_pid, cpu);
 		}
 		(void)stress_cpu_sched_nice(1);
 		for (cpu = 0; cpu < cpus; cpu++) {
 			const int new_cpu = stress_cpu_sched_rand_cpu();
 
-			stress_cpu_sched_child_exercise(pid, new_cpu);
+			stress_cpu_sched_child_exercise(child_pid, new_cpu);
 		}
 		(void)stress_cpu_sched_nice(1);
 		(void)shim_sched_yield();
