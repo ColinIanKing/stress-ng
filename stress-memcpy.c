@@ -310,6 +310,8 @@ static int stress_memcpy(stress_args_t *args)
 		pr_inf("%s: cannot allocate %d sized buffer\n", args->name, MEMCPY_MEMSIZE * 3);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buf, 3 * MEMCPY_MEMSIZE, "memcpy-buffer");
+
 	str1 = buf;
 	str2 = str1 + MEMCPY_MEMSIZE;
 	str3 = str2 + MEMCPY_MEMSIZE;
