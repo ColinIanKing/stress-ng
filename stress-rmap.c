@@ -250,12 +250,14 @@ static int stress_rmap(stress_args_t *args)
 			goto cleanup;
 
 		mappings[i] =
-			(uint32_t *)mmap(0, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
+			(uint32_t *)mmap(NULL, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, offset);
 		/* Squeeze at least a page in between each mapping */
 		paddings[i] =
-			(uint32_t *)mmap(0, page_size, PROT_READ | PROT_WRITE,
+			(uint32_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		if (paddings[i] != MAP_FAILED)
+			stress_set_vma_anon_name(paddings[i], page_size, "mmap-padding");
 	}
 
 	/*
