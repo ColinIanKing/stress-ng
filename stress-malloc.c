@@ -182,6 +182,7 @@ static void *stress_malloc_loop(void *ptr)
 		malloc_args->rc = EXIT_FAILURE;
 		return &nowt;
 	}
+	stress_set_vma_anon_name(info, info_size, "malloc-info");
 	for (;;) {
 		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
