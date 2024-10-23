@@ -150,7 +150,7 @@ static int stress_ptr_chase(stress_args_t *args)
 		total += PTRS_PER_4K_PAGE;
 	}
 
-	metric = (total > 0.0) ? 100.0 * (double)visited / (double)total : 0.0;
+	metric = (total > 0) ? 100.0 * (double)visited / (double)total : 0.0;
 	stress_metrics_set(args, 0, "% pointers chased", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 	rc = EXIT_SUCCESS;
