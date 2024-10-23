@@ -183,6 +183,7 @@ static int stress_context(stress_args_t *args)
 			args->name, STRESS_CONTEXTS, sizeof(context_data_t));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(context, context_size, "context-data");
 	if (args->instance == 0) {
 		pr_dbg("%s: context mapped at %p..%p\n", args->name,
 			(void *)context,
