@@ -501,6 +501,7 @@ static int stress_madvise(stress_args_t *args)
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(page, page_size, "data-page");
 
 	(void)snprintf(smaps, sizeof(smaps), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
 
