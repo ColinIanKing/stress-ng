@@ -479,6 +479,8 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 		(void)munmap((void *)mapped, pages * sizeof(*mapped));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(mappings, pages * sizeof(*mappings), "page-pointers");
+
 	if (context->mmap_mlock)
 		(void)shim_mlock(mappings, pages * sizeof(*mappings));
 	idx = (size_t *)mmap(NULL, pages * sizeof(*idx),
@@ -491,6 +493,8 @@ static int stress_mmap_child(stress_args_t *args, void *ctxt)
 		(void)munmap((void *)mapped, pages * sizeof(*mapped));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(idx, pages * sizeof(*idx), "page-index");
+
 	if (context->mmap_mlock)
 		(void)shim_mlock(idx, pages * sizeof(*idx));
 
