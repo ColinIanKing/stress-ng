@@ -366,6 +366,7 @@ static int stress_jpeg(stress_args_t *args)
 			args->name, x_max, y_max, 3);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(rgb, rgb_size, "rgb-data");
 	row_pointer_size = (size_t)y_max * sizeof(*row_pointer);
 	row_pointer = (JSAMPROW *)stress_mmap_populate(NULL, row_pointer_size,
 				PROT_READ | PROT_WRITE,
@@ -376,6 +377,7 @@ static int stress_jpeg(stress_args_t *args)
 		(void)munmap((void *)rgb, rgb_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(row_pointer, row_pointer_size, "row-pointers");
 
 	stress_mwc_set_seed(0xf1379ab2, 0x679ce25d);
 
