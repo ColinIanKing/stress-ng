@@ -101,6 +101,7 @@ static int stress_lsm(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap %zu byte sized buffer, skipping stressor\n", args->name, buf_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buf, buf_size, "lsm-data");
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
