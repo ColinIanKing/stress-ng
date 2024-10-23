@@ -161,6 +161,7 @@ static int stress_icache(stress_args_t *args)
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(page, page_size, "opcodes");
 	(void)shim_memcpy(page, &stress_ret_opcode.opcodes, stress_ret_opcode.len);
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
