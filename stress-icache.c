@@ -151,6 +151,8 @@ static int stress_icache(stress_args_t *args)
 	void *page;
 	int ret;
 
+	stress_catch_sigsegv();
+
 	page = stress_mmap_populate(NULL, page_size,
 			PROT_READ | PROT_WRITE | PROT_EXEC,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
