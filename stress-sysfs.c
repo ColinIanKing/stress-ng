@@ -698,6 +698,7 @@ static int stress_sysfs(stress_args_t *args)
 		pr_inf_skip("%s: cannot mmap shared context region, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(ctxt, sizeof(*ctxt), "sysfs-pthread-context");
 
 	n = scandir("/sys", &dlist, NULL, alphasort);
 	if (n <= 0)
