@@ -44,10 +44,11 @@ static int stress_pkey(stress_args_t *args)
 		PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (pages == MAP_FAILED) {
-		pr_inf_skip("%s: cannot allocate a page, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_inf_skip("%s: cannot allocate %zu pages, errno=%d (%s)\n",
+			args->name, pages_size, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(pages, pages_size, "pkey-pages");
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
