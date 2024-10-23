@@ -4561,13 +4561,13 @@ static void stress_dbg(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 /*
  *  stress_dbg()
- *	simple debug, messages must be less than 128 bytes
+ *	simple debug, messages must be less than 256 bytes
  */
 static void stress_dbg(const char *fmt, ...)
 {
 	va_list ap;
 	int n, sz;
-	static char buf[128];
+	static char buf[256];
 	n = snprintf(buf, sizeof(buf), "stress-ng: debug: [%jd] ", (intmax_t)getpid());
 	if (n < 0)
 		return;
@@ -4602,31 +4602,45 @@ bool stress_addr_readable(const void *addr, const size_t len)
 }
 
 /*
- *  stress_dump_objcode()
- *	dump to stdout 16 bytes object code if it is readable. SIGILL address
+ *  stress_dump_data()
+ *	dump to stdout 16 bytes of data code if it is readable. SIGILL address
  *	data is indicated with < > around it.
  */
-static void stress_dump_objcode(
+static void stress_dump_data(
 	const uint8_t *addr,
-	const uint8_t *sigill_addr,
+	const uint8_t *fault_addr,
 	const size_t len)
 {
+	char buf[128];
+
 	if (stress_addr_readable(addr, len)) {
 		size_t i;
 		bool show_opcode = false;
+		int n, sz = 0;
 
-		stress_dbg("stress-ng: info: 0x%p:", addr);
+		n = snprintf(buf + sz, sizeof(buf) - sz, "stress-ng: info: 0x%16.16" PRIxPTR ":", (uintptr_t)addr);
+		if (n < 0)
+			return;
+		sz += n;
+
 		for (i = 0; i < len; i++) {
-			if (&addr[i] == sigill_addr) {
-				stress_dbg("<%-2.2x>", addr[i]);
+			if (&addr[i] == fault_addr) {
+				n = snprintf(buf + sz, sizeof(buf) - sz, "<%-2.2x>", addr[i]);
+				if (n < 0)
+					return;
+				sz += n;
 				show_opcode = true;
 			} else {
-				stress_dbg("%s%-2.2x",
-					show_opcode ? "" : " ", addr[i]);
+				n = snprintf(buf + sz, sizeof(buf) - sz, "%s%-2.2x", show_opcode ? "" : " ", addr[i]);
+				if (n < 0)
+					return;
+				sz += n;
 				show_opcode = false;
 			}
 		}
-		stress_dbg("\n");
+		stress_dbg("%s\n", buf);
+	} else {
+		stress_dbg("stress-ng: info: 0x%16.16" PRIxPTR " not readable\n", (uintptr_t)addr);
 	}
 }
 
@@ -4704,6 +4718,66 @@ static const PURE char *stress_catch_sig_si_code(const int sig, const int sig_co
 }
 
 /*
+ *  stress_dump_readable_data()
+ *	3 lines of memory hexdump, aligned to 16 bytes boundary
+ */
+static void stress_dump_readable_data(uint8_t *fault_addr)
+{
+	int i;
+	uint8_t *addr = (uint8_t *)((uintptr_t)fault_addr & ~0xf);
+
+	for (i = 0; i < 3; i++, addr += 16) {
+		stress_dump_data(addr, fault_addr, 16);
+	}
+}
+
+/*
+ *  stress_dump_map_info()
+ *	find fault address in /proc/self/maps, dump out map info
+ */
+static void stress_dump_map_info(uint8_t *fault_addr)
+{
+#if defined(__linux__)
+	FILE *fp;
+	char buf[1024];
+
+	fp = fopen("/proc/self/maps", "r");
+	if (!fp)
+		return;
+	while ((fgets(buf, sizeof(buf), fp)) != NULL) {
+		uintptr_t begin, end;
+
+		if (sscanf(buf, "%" SCNxPTR "-%" SCNxPTR, &begin, &end) == 2) {
+			if (((uintptr_t)fault_addr >= begin) &&
+			    ((uintptr_t)fault_addr <= end)) {
+				char *ptr1, *ptr2;
+
+				/* truncate to first \n found */
+				ptr1 = strchr(buf, (int)'\n');
+				if (ptr1)
+					*ptr1 = '\0';
+
+				/* squeeze out duplicated spaces */
+				for (ptr1 = buf, ptr2 = buf; *ptr1; ptr1++) {
+					if ((*ptr1 == ' ') && (*(ptr1 + 1) == ' '))
+						continue;
+					*ptr2 = *ptr1;
+					ptr2++;
+
+				}
+				*ptr2 = '\0';
+				stress_dbg("stress-ng: info: %s\n", buf);
+				break;
+			}
+		}
+	}
+	(void)fclose(fp);
+#else
+	(void)fault_addr;
+#endif
+}
+
+/*
  *  stress_catch_sig_handler()
  *	handle signal, dump 16 bytes before and after the illegal opcode
  *	and terminate immediately to avoid any recursive signal handling
@@ -4725,23 +4799,20 @@ static void stress_catch_sig_handler(
 	handled = true;
 	if (sig == sig_expected) {
 		if (info) {
-			const uint8_t *addr = info->si_addr;
-			size_t i;
-
-			stress_dbg("caught %s, address 0x%p (%s)\n",
-				sig_expected_name, addr,
+			stress_dbg("caught %s, address 0x%16.16" PRIxPTR " (%s)\n",
+				sig_expected_name, (uintptr_t)info->si_addr,
 				stress_catch_sig_si_code(sig, info->si_code));
-			if (sig == SIGILL) {
-				addr -= 16;
-				for (i = 0; i < 3; i++, addr += 16)
-					stress_dump_objcode(addr, info->si_addr, 16);
-			}
+			stress_dump_readable_data((uint8_t *)info->si_addr);
+			stress_dump_map_info((uint8_t *)info->si_addr);
 		} else {
 			stress_dbg("caught %s, unknown address\n", sig_expected_name);
 		}
 	} else {
 		if (info) {
-			stress_dbg("caught unexpected SIGNAL %d, address 0x%p\n", sig, info->si_addr);
+			stress_dbg("caught unexpected SIGNAL %d, address 0x%16.16" PRIxPTR "\n",
+				sig, (uintptr_t)info->si_addr);
+			stress_dump_readable_data((uint8_t *)info->si_addr);
+			stress_dump_map_info((uint8_t *)info->si_addr);
 		} else {
 			stress_dbg("caught unexpected SIGNAL %d, unknown address\n", sig);
 		}
