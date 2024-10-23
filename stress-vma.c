@@ -660,6 +660,7 @@ static int stress_vma(stress_args_t *args)
 		(void)munmap(stress_vma_page, args->page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(stress_vma_metrics, sizeof(*stress_vma_metrics), "vma-metrics");
 
 	stress_set_proc_state(args->name, STRESS_STATE_SYNC_WAIT);
 	stress_sync_start_wait(args);
