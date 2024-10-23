@@ -677,6 +677,7 @@ static int stress_cyclic(stress_args_t *args)
 		(void)munmap((void *)rt_stats, size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(rt_stats->latencies, rt_stats->latencies_size, "latencies");
 	rt_stats->min_ns = INT64_MAX;
 	rt_stats->max_ns = INT64_MIN;
 	rt_stats->ns = 0.0;
