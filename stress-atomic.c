@@ -20,6 +20,11 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
+#if ULONG_MAX == 0xffffffffffffffff
+#define STRESS_ATOMIC_64BIT		(1)
+#endif
+#define STRESS_ATOMIC_64BIT		(1)
+
 #define STRESS_ATOMIC_STRINGIZE(x)	#x
 
 #define STRESS_ATOMIC_MAX_PROCS		(3)
@@ -283,6 +288,25 @@ static const stress_help_t help[] = {
 #define ATOMIC_OPTIMIZE
 #endif
 
+#if defined(STRESS_ATOMIC_64BIT) &&	\
+    defined(HAVE_INT128_T)
+static int ATOMIC_OPTIMIZE stress_atomic_uint128(
+	stress_args_t *args,
+	double *duration,
+	double *count)
+{
+	static int idx = 0;
+	int rc = 0;
+
+	DO_ATOMIC_OPS(args, __uint128_t, &g_shared->atomic.val128[idx], duration, count, rc);
+	idx++;
+	idx &= (SIZEOF_ARRAY(g_shared->atomic.val128) - 1);
+
+	return rc;
+}
+#endif
+
+#if defined(STRESS_ATOMIC_64BIT)
 static int ATOMIC_OPTIMIZE stress_atomic_uint64(
 	stress_args_t *args,
 	double *duration,
@@ -291,13 +315,13 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint64(
 	static int idx = 0;
 	int rc = 0;
 
-	if (sizeof(long int) == sizeof(uint64_t))
-		DO_ATOMIC_OPS(args, uint64_t, &g_shared->atomic.val64[idx], duration, count, rc);
+	DO_ATOMIC_OPS(args, uint64_t, &g_shared->atomic.val64[idx], duration, count, rc);
 	idx++;
 	idx &= (SIZEOF_ARRAY(g_shared->atomic.val64) - 1);
 
 	return rc;
 }
+#endif
 
 static int ATOMIC_OPTIMIZE stress_atomic_uint32(
 	stress_args_t *args,
@@ -347,13 +371,20 @@ static int ATOMIC_OPTIMIZE stress_atomic_uint8(
 typedef struct {
 	const atomic_func_t func;
 	const char *name;
+	const int arch_bits;
 } atomic_func_info_t;
 
 static atomic_func_info_t atomic_func_info[] = {
-	{ stress_atomic_uint64,	"uint64" },
-	{ stress_atomic_uint32,	"uint32" },
-	{ stress_atomic_uint16,	"uint16" },
-	{ stress_atomic_uint8,	"uint8"  },
+#if defined(STRESS_ATOMIC_64BIT) &&	\
+    defined(HAVE_INT128_T)
+	{ stress_atomic_uint128, "uint128", 64 },
+#endif
+#if defined(STRESS_ATOMIC_64BIT)
+	{ stress_atomic_uint64,	 "uint64",  64 },
+#endif
+	{ stress_atomic_uint32,	 "uint32",  32 },
+	{ stress_atomic_uint16,	 "uint16",  32 },
+	{ stress_atomic_uint8,	 "uint8",   32 },
 };
 
 typedef struct {
@@ -363,21 +394,25 @@ typedef struct {
 
 static int stress_atomic_exercise(
 	stress_args_t *args,
-	stress_atomic_info_t *atomic_info)
+	stress_atomic_info_t *atomic_info,
+	const int arch_bits)
 {
 	const int rounds = 1000;
 
 	do {
-		size_t i;
+		register size_t i;
 
 		for (i = 0; i < STRESS_ATOMIC_MAX_FUNCS; i++) {
-			int j;
-			const atomic_func_t func = atomic_func_info[i].func;
+			if (arch_bits >= atomic_func_info[i].arch_bits) {
+				register int j;
 
-			for (j = 0; j < rounds; j++) {
-				if (func(args, &atomic_info->metrics[i].duration,
-				     &atomic_info->metrics[i].count) < 0)
-					return -1;
+				const atomic_func_t func = atomic_func_info[i].func;
+
+				for (j = 0; j < rounds; j++) {
+					if (func(args, &atomic_info->metrics[i].duration,
+				     		 &atomic_info->metrics[i].count) < 0)
+						return -1;
+				}
 			}
 		}
 		stress_bogo_inc(args);
@@ -396,6 +431,7 @@ static int stress_atomic(stress_args_t *args)
 	stress_atomic_info_t *atomic_info;
 	stress_pid_t *s_pid_head = NULL;
 	const size_t n_atomic_procs = STRESS_ATOMIC_MAX_PROCS + 1;
+	const int arch_bits = (sizeof(long int) == sizeof(uint64_t)) ? 64 : 32;
 	int rc = EXIT_SUCCESS;
 
 	atomic_info_sz = sizeof(*atomic_info) * n_atomic_procs;
@@ -422,7 +458,7 @@ static int stress_atomic(stress_args_t *args)
 		pid = fork();
 		if (pid == 0) {
 			stress_sync_start_wait_s_pid(&atomic_info[i].s_pid);
-			if (stress_atomic_exercise(args, &atomic_info[i]) < 0)
+			if (stress_atomic_exercise(args, &atomic_info[i], arch_bits) < 0)
 				_exit(EXIT_FAILURE);
 			_exit(EXIT_SUCCESS);
 		}
@@ -435,7 +471,7 @@ static int stress_atomic(stress_args_t *args)
 	stress_sync_start_cont_list(s_pid_head);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (stress_atomic_exercise(args, &atomic_info[n_atomic_procs - 1]) < 0)
+	if (stress_atomic_exercise(args, &atomic_info[n_atomic_procs - 1], arch_bits) < 0)
 		rc = EXIT_FAILURE;
 
 	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
@@ -459,16 +495,18 @@ static int stress_atomic(stress_args_t *args)
 	}
 
 	for (j = 0; j < STRESS_ATOMIC_MAX_FUNCS; j++) {
-		double duration = 0.0, count = 0.0, rate;
-		char str[60];
+		if (arch_bits >= atomic_func_info[j].arch_bits) {
+			double duration = 0.0, count = 0.0, rate;
+			char str[60];
 
-		for (i = 0; i < n_atomic_procs; i++) {
-			duration += atomic_info[i].metrics[j].duration;
-			count += atomic_info[i].metrics[j].count;
+			for (i = 0; i < n_atomic_procs; i++) {
+				duration += atomic_info[i].metrics[j].duration;
+				count += atomic_info[i].metrics[j].count;
+			}
+			rate = (duration > 0.0) ? count / duration : 0.0;
+			(void)snprintf(str, sizeof(str), "%s atomic ops per sec", atomic_func_info[j].name);
+			stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 		}
-		rate = (duration > 0.0) ? count / duration : 0.0;
-		(void)snprintf(str, sizeof(str), "%s atomic ops per sec", atomic_func_info[j].name);
-		stress_metrics_set(args, j, str, rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

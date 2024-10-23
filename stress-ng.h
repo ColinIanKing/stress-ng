@@ -613,6 +613,9 @@ typedef struct {
 		void *lock;		/* protection lock */
 	} warn_once;
 	union {
+#if defined(HAVE_INT128_T)
+		__uint128_t val128[4] ALIGN64;
+#endif
 		uint64_t val64[8] ALIGN64;
 		uint32_t val32[16] ALIGN64;
 		uint16_t val16[32] ALIGN64;
