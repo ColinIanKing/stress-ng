@@ -262,6 +262,7 @@ typedef struct stress_stressor_info {
 #define UNEXPECTED
 #endif
 
+/* Voidification of returns */
 #define VOID_RET(type, x)	\
 do {				\
 	type void_ret = x;	\
@@ -409,7 +410,6 @@ typedef union {
 
 typedef uint32_t stress_class_t;
 
-
 typedef struct {
 	void *lock;			/* optional lock */
 	double	duration;		/* time per op */
@@ -502,7 +502,6 @@ extern const char stress_config[];
 #define MAXIMIZED_FILE_SIZE	((sizeof(off_t) < 8) ? MAX_FILE_LIMIT : MAX_32)
 
 /* Stressor defaults */
-
 #define TIMEOUT_NOT_SET		(~0ULL)
 #define UNDEFINED		(-1)
 #define PAGE_MAPPED		(0x01)
