@@ -77,6 +77,7 @@ static void stress_sem_init(const uint32_t num_instances)
 		sem_global = NULL;
 		return;
 	}
+	stress_set_vma_anon_name(sem_global, sizeof(*sem_global), "shared-semaphore");
 	if (sem_init(sem_global, 0, (unsigned int)num_instances) < 0) {
 		sem_global_errno = errno;
 		(void)munmap((void *)sem_global, sizeof(*sem_global));
