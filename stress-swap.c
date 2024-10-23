@@ -348,6 +348,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 		ret = EXIT_NO_RESOURCE;
 		goto tidy_ret;
 	}
+	stress_set_vma_anon_name(page, page_size, "swap-page");
 	(void)stress_madvise_mergeable(page, page_size);
 
 	stress_swap_clean_dir(args);
