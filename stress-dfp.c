@@ -390,7 +390,7 @@ static int stress_dfp(stress_args_t *args)
 			args->name, DFP_ELEMENTS);
 		return EXIT_NO_RESOURCE;
 	}
-	stress_set_vma_anon_name(dfp_data, mmap_size, "fp-data");
+	stress_set_vma_anon_name(dfp_data, mmap_size, "dfp-data");
 	(void)stress_madvise_mergeable(dfp_data, mmap_size);
 
 	(void)stress_get_setting("fp-method", &fp_method);
