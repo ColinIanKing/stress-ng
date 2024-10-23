@@ -39,6 +39,27 @@
 			: "ir" (inc));			\
 	} while (0)
 
+/*
+ *  Position independent code uses %ebx, so we need
+ *  to swap it with a temp register so as not to
+ *  clobber it with cpuid.
+ */
+#if (defined(__pie__) || defined(__PIE__)) &&		\
+    defined(STRESS_ARCH_X86_32) && 			\
+    !NEED_GNUC(5, 0, 0)
+#define stress_asm_x86_cpuid(a, b, c, d)		\
+	do {						\
+		__asm__ __volatile__ (			\
+			"xchg{l} {%%}ebx, %k1\n"	\
+			"cpuid\n"			\
+			"xchg{l} {%%}ebx, %k1\n"	\
+			: "=a"(a),			\
+			  "=&r"(b),			\
+			  "=c"(c),			\
+			  "=d"(d)			\
+			: "0"(a),"2"(c));		\
+        } while (0)
+#else
 #define stress_asm_x86_cpuid(a, b, c, d)		\
 	do {						\
 		__asm__ __volatile__ (			\
@@ -49,6 +70,7 @@
 			  "=d"(d)			\
 			: "0"(a),"2"(c));		\
 	} while (0)
+#endif
 
 #if defined(HAVE_ASM_X86_PAUSE)
 static inline void ALWAYS_INLINE stress_asm_x86_pause(void)
