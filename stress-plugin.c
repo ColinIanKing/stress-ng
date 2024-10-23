@@ -285,6 +285,7 @@ static int stress_plugin(stress_args_t *args)
 		(void)dlclose(stress_plugin_so_dl);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(sig_count, sig_count_size, "signal-counters");
 
 	func = stress_plugin_methods[plugin_method].func;
 	if (args->instance == 0)
