@@ -839,6 +839,7 @@ mmap_retry:
 			goto reap_mem;
 		goto mmap_retry;
 	}
+	stress_set_vma_anon_name(mem, MEM_SIZE, "memthrash-data");
 	(void)stress_madvise_mergeable(mem, MEM_SIZE);
 
 	for (i = 0; i < max_threads; i++) {
