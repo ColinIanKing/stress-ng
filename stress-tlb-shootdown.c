@@ -216,6 +216,7 @@ static int stress_tlb_shootdown(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto err_munmap_memfd;
 	}
+	stress_set_vma_anon_name(mem, mmap_size, "tlb-shootdown-buffer");
 	(void)shim_memset(mem, 0xff, mmap_size);
 
 	if (sched_getaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial) < 0) {
