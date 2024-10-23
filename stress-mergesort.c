@@ -278,6 +278,7 @@ static int stress_mergesort(stress_args_t *args)
 			args->name, n);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(data, data_size, "mergesort-data");
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
