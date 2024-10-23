@@ -497,6 +497,7 @@ static int stress_schedmix(stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (schedmix_sem != MAP_FAILED) {
+		stress_set_vma_anon_name(schedmix_sem, sizeof(*schedmix_sem), "semaphores");
 		if (sem_init(&schedmix_sem->sem, 0, 1) < 0) {
 			(void)munmap((void *)schedmix_sem, sizeof(*schedmix_sem));
 			schedmix_sem = NULL;
