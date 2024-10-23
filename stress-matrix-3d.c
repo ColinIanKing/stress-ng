@@ -847,18 +847,24 @@ static inline int stress_matrix_3d_exercise(
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_ret;
 	}
+	stress_set_vma_anon_name(a, matrix_3d_mmap_size, "matrix-a");
+
 	b = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_a;
 	}
+	stress_set_vma_anon_name(b, matrix_3d_mmap_size, "matrix-b");
+
 	r = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
 		pr_fail("%s: matrix allocation failed, out of memory\n", args->name);
 		goto tidy_b;
 	}
+	stress_set_vma_anon_name(r, matrix_3d_mmap_size, "matrix-r");
+
 	if (verify) {
 		s = (matrix_3d_ptr_t)stress_mmap_populate(NULL, matrix_3d_mmap_size,
 			PROT_READ | PROT_WRITE, flags, -1, 0);
