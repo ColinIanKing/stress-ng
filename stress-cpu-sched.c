@@ -887,6 +887,8 @@ static int stress_cpu_sched(stress_args_t *args)
 		node_mask = (unsigned long *)stress_mmap_populate(NULL, node_mask_size,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, 0, 0);
+		if (node_mask != MAP_FAILED)
+			stress_set_vma_anon_name(node_mask, node_mask_size, "node-mask");
 	} else {
 		max_numa_node = 0;
 		node_mask = MAP_FAILED;
