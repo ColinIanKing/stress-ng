@@ -3427,6 +3427,7 @@ static int stress_vm(stress_args_t *args)
 		}
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(context.bit_error_count, page_size, "bit-error-count");
 
 	*context.bit_error_count = 0ULL;
 
