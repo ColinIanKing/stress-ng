@@ -444,6 +444,7 @@ static int stress_atomic(stress_args_t *args)
 			args->name, atomic_info_sz);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(atomic_info, atomic_info_sz, "atomic-data");
 
 	for (i = 0; i < n_atomic_procs; i++) {
 		stress_sync_start_init(&atomic_info[i].s_pid);
