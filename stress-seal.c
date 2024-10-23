@@ -76,6 +76,7 @@ static int stress_seal(stress_args_t *args)
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}
+	stress_set_vma_anon_name(buf, page_size, "write-buffer");
 	(void)shim_memset(buf, 0xff, page_size);
 	(void)stress_madvise_mergeable(buf, page_size);
 
