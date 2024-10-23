@@ -368,6 +368,8 @@ static int stress_far_branch(stress_args_t *args)
 
 			pages[k] = stress_far_mmap(page_size, base, offset,
 						funcs, &total_funcs);
+			if (pages[k] != MAP_FAILED)
+				stress_set_vma_anon_name(pages[k], page_size, "functions-page");
 		}
 	}
 
