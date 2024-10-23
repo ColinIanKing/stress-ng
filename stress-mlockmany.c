@@ -189,6 +189,7 @@ static int stress_mlockmany(stress_args_t *args)
 				if (ptr == MAP_FAILED)
 					_exit(0);
 
+				stress_set_vma_anon_name(ptr, mmap_size, "mlocked-pages");
 				(void)stress_mincore_touch_pages(ptr, mmap_size);
 				(void)stress_madvise_mergeable(ptr, mmap_size);
 
