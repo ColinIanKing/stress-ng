@@ -86,6 +86,7 @@ static int stress_ptr_chase(stress_args_t *args)
 			args->name, n, errno, strerror(errno));
 		goto tidy_ptrs_heap;
 	}
+	stress_set_vma_anon_name(ptrs_mmap, alloc_size, "pointer-nodes");
 
 	ptrs_size = n * sizeof(*ptrs);
 	ptrs = (stress_ptrs_t **)stress_mmap_populate(NULL, ptrs_size,
@@ -98,6 +99,7 @@ static int stress_ptr_chase(stress_args_t *args)
 			args->name, n, errno, strerror(errno));
 		goto tidy_ptrs_mmap;
 	}
+	stress_set_vma_anon_name(ptrs, ptrs_size, "pointers");
 
 	if (args->instance == 0)
 		pr_dbg("%s using %zu pages, %zu pointers\n",
