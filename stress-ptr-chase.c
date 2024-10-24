@@ -58,7 +58,8 @@ static int stress_ptr_chase(stress_args_t *args)
 	register stress_ptrs_t *ptr;
 	size_t ptrs_size, total = 0, visited = 0;
 	size_t alloc_size;
-	double metric;
+	double metric, t_start, duration;
+	uint64_t counter;
 
 	if (!stress_get_setting("ptr-chase-pages", &ptr_chase_pages)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -130,6 +131,7 @@ static int stress_ptr_chase(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	ptr = ptrs[0];
+	t_start = stress_time_now();
 	do {
 		register size_t j = stress_mwc16() & (PTRS_PER_4K_PAGE - 1);
 		register uintptr_t addr = (uintptr_t)ptr->next[j];
@@ -139,6 +141,7 @@ static int stress_ptr_chase(stress_args_t *args)
 
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
+	duration = stress_time_now() - t_start;
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -154,6 +157,10 @@ static int stress_ptr_chase(stress_args_t *args)
 
 	metric = (total > 0) ? 100.0 * (double)visited / (double)total : 0.0;
 	stress_metrics_set(args, 0, "% pointers chased", metric, STRESS_METRIC_HARMONIC_MEAN);
+
+	counter = stress_bogo_get(args);
+	metric = (counter > 0) ? (duration * STRESS_DBL_NANOSECOND) / (double)counter: 0.0;
+	stress_metrics_set(args, 0, "nanosec per pointer", metric, STRESS_METRIC_HARMONIC_MEAN);
 
 	rc = EXIT_SUCCESS;
 
