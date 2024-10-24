@@ -775,7 +775,21 @@ ofd_lock_abort:	{ /* Nowt */ }
 		check_return(args, ret, "F_CREATED_QUERY", rc);
 	}
 #endif
+#if defined(F_READAHEAD)
+	{
+		/* FreeBSD */
+		VOID_RET(int, fcntl(fd, F_READAHEAD, 1024));
+		VOID_RET(int, fcntl(fd, F_READAHEAD, -1));
+	}
+#endif
+#if defined(F_RDAHEAD)
+	{
+		/* FreeBSD and Darwin */
+		VOID_RET(int, fcntl(fd, F_RDAHEAD, 1));
+		VOID_RET(int, fcntl(fd, F_RDAHEAD, 0));
+	}
 }
+#endif
 
 /*
  *  stress_fcntl
