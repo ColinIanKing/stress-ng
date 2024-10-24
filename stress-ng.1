@@ -785,10 +785,10 @@ stop the AppArmor workers after N bogo operations.
 .TQ
 .B \-\-atomic N
 start N workers that exercise various GCC __atomic_*() built in operations
-on 8, 16, 32, 64 and 128 bit integers that are shared among the N workers. This
+on 8, 16, 32 and 64 bit integers that are shared among the N workers. This
 stressor is only available for builds using GCC 4.7.4 or higher. The stressor
 forces many front end cache stalls and cache references. Note that 32 bit systems
-do not currently exercise 64 and 128 bit integers.
+do not currently exercise 64 bit integers.
 .TP
 .B \-\-atomic\-ops N
 stop the atomic workers after N bogo atomic operations.

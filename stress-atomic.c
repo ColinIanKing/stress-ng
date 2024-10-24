@@ -20,6 +20,9 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
+/* Current disable 128 bit support, some toolchains don't support it */
+#undef HAVE_INT128_T
+
 #if ULONG_MAX == 0xffffffffffffffff
 #define STRESS_ATOMIC_64BIT		(1)
 #endif
