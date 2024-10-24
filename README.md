@@ -160,7 +160,8 @@ To build on Haiku R1/beta5:
 To build a static image (example, for Android), use:
 ```
 # path to Android NDK
-    export NDK=$HOME/android-ndk-r27-beta2
+# get NDK from https://developer.android.com/ndk/downloads
+    export NDK=$HOME/android-ndk-r27c
     export PATH=$PATH:$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin
     export TARGET=aarch64-linux-android
     # Define Android API level
