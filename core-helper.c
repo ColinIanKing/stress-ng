@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <pwd.h>
 #include <sys/ioctl.h>
+#include <time.h>
 
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
