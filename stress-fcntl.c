@@ -788,8 +788,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 		VOID_RET(int, fcntl(fd, F_RDAHEAD, 1));
 		VOID_RET(int, fcntl(fd, F_RDAHEAD, 0));
 	}
-}
 #endif
+}
 
 /*
  *  stress_fcntl
