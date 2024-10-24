@@ -19,7 +19,7 @@
 #ifndef CORE_PTHREAD_H
 #define CORE_PTHREAD_H
 
-#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
 #endif
 
