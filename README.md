@@ -171,12 +171,6 @@ To build a static image (example, for Android), use:
     STATIC=1 make
 ```
 
-To build with full warnings enabled:
-```
-    make clean
-    PEDANTIC=1 make
-```
-
 To build with the Tiny C compiler:
 ```
     make clean
@@ -222,10 +216,34 @@ To perform a cross-compile for qnx, for example, a aarch64 qnx cross build:
     CC=aarch64-unknown-nto-qnx7.1.0-gcc CXX=aarch64-unknown-nto-qnx7.1.0-g++ STATIC=1 make
 ```
 
-To build with debug (-g) enabled use:
+Build option: DEBUG, build with debug (-g) enabled:
 ```
     make clean
     DEBUG=1 make
+```
+
+Build option: LTO, Link Time Optimization:
+```
+    make clean
+    LTO=1 make
+```
+
+Build option: PEDANTIC, enable pedantic build flags:
+```
+    make clean
+    PEDANTIC=1 make
+```
+
+Build option: GARBAGE_COLLECT, warn of unused code:
+```
+    make clean
+    GARBAGE_COLLECT=1 make
+```
+
+Build option: UNEXPECTED=1, warn of unexpected #ifdef'd out code:
+```
+    make clean
+    UNEXPECTED=1 make
 ```
 
 ## Contributing to stress-ng:
