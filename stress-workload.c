@@ -33,6 +33,7 @@
 
 #include <math.h>
 #include <sched.h>
+#include <time.h>
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
