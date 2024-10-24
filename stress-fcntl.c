@@ -789,6 +789,29 @@ ofd_lock_abort:	{ /* Nowt */ }
 		VOID_RET(int, fcntl(fd, F_RDAHEAD, 0));
 	}
 #endif
+#if defined(F_MAXFD)
+	{
+		/* NetBSD */
+		VOID_RET(int, fcntl(fd, F_MAXFD, 0));
+	}
+#endif
+#if defined(F_GETNOSIGPIPE)
+	{
+		/* NetBSD */
+		VOID_RET(int, fcntl(fd, F_GETNOSIGPIPE, 0));
+	}
+#endif
+#if defined(F_GETPATH)
+	{
+		/* NetBSD */
+#if defined(MAXPATHLEN)
+		char path[MAXPATHLEN];
+#else
+		char path[PATH_MAX];
+#endif
+		VOID_RET(int, fcntl(fd, F_GETPATH, path));
+	}
+#endif
 }
 
 /*
