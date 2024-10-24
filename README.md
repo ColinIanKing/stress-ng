@@ -222,7 +222,7 @@ Build option: DEBUG, build with debug (-g) enabled:
     DEBUG=1 make
 ```
 
-Build option: LTO, Link Time Optimization:
+Build option: LTO, Link Time Optimization (~1-2% performance improvement on compute stressors):
 ```
     make clean
     LTO=1 make
