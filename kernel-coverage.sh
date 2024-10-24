@@ -350,7 +350,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bcachefs bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in bcachefs bfs btrfs ext2 ext3 ext4 exfat f2fs fat hfs hfsplus jfs minix1 minix2 minix3 nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	if mount_filesystem $FS; then
 		MNTDEV=$(findmnt -T $MNT -o SOURCE  --verbose -n)
