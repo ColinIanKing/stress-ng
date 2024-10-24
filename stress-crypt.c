@@ -178,13 +178,14 @@ static int stress_crypt(stress_args_t *args)
 
 		for (i = 0; i < 8; i++)
 			orig_setting[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
+		orig_setting[i] = '\0';
 		for (i = 0; i < sizeof(orig_phrase) - 1; i++)
 			orig_phrase[i] = seedchars[stress_mwc32() & 0x3f];
 		orig_phrase[i] = '\0';
 
 		if (crypt_method == 0) {
 			for (i = 1; stress_continue(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++, cm++) {
-				(void)shim_memcpy(setting, orig_setting, sizeof(orig_setting));
+				(void)shim_memcpy(setting + 3, orig_setting, sizeof(orig_setting) - 3);
 				(void)shim_memcpy(setting, cm->prefix, cm->prefix_len);
 				(void)shim_memcpy(phrase, orig_phrase, sizeof(orig_phrase));
 #if defined (HAVE_CRYPT_R)
