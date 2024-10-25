@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "23 October 2024"
+.TH STRESS-NG 1 "25 October 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -7617,6 +7617,9 @@ for the data to change in slot 0 and copies the changed value into memory slot 1
 The stessor benchmarks the time for the transactions to occur between both
 processes. Note that the optimal number of stressors is half the number of online
 CPUs in a system. By default 32 bit write/reads are used.
+.TP
+.B \-\-spinmem\-affinity
+move spinmem stressor processes to randomly selected CPUs every million spinmem transactions.
 .TP
 .B \-\-spinmem\-ops N
 stop after N spinmem bogo operations. A bogo operation is 1000 transactions betewen

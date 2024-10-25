@@ -1425,6 +1425,7 @@ typedef enum {
 	OPT_sparsematrix_size,
 
 	OPT_spinmem,
+	OPT_spinmem_affinity,
 	OPT_spinmem_ops,
 	OPT_spinmem_method,
 

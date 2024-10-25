@@ -1000,6 +1000,7 @@ const struct option stress_long_options[] = {
 	{ "spawn",		1,	0,	OPT_spawn },
 	{ "spawn-ops",		1,	0,	OPT_spawn_ops },
 	{ "spinmem",		1,	0,	OPT_spinmem },
+	{ "spinmem-affinity",	0,	0,	OPT_spinmem_affinity },
 	{ "spinmem-ops",	1,	0,	OPT_spinmem_ops },
 	{ "spinmem-method",	1,	0,	OPT_spinmem_method },
 	{ "splice",		1,	0,	OPT_splice },

@@ -19,6 +19,8 @@
 #include "stress-ng.h"
 #include "core-killpid.h"
 
+#include <sched.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"spinmem",	  "start N workers exercising shared memory spin write/read operations" },
 	{ NULL, "spinmem-ops",	  "stop after N bogo shared memory spin write/read operations" },
@@ -107,6 +109,22 @@ static const spinmem_funcs_t spinmem_funcs[] = {
 	{ "64bit", stress_spinmem_reader64, stress_spinmem_writer64 },
 };
 
+#if defined(HAVE_SCHED_SETAFFINITY)
+/*
+ *  stress_spinmem_change_affinity()
+ *	move current process to a random CPU
+ */
+static inline void stress_spinmem_change_affinity(const uint32_t cpus)
+{
+	cpu_set_t mask;
+	const uint32_t cpu = stress_mwc32modn(cpus);
+
+	CPU_ZERO(&mask);
+	CPU_SET((int)cpu, &mask);
+	VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
+}
+#endif
+
 /*
  *  stress_spinmem()
  *      stress spin write/reads on shared memory
@@ -122,8 +140,21 @@ static int stress_spinmem(stress_args_t *args)
 	double rate;
 	size_t spinmem_method = 2; /* 32bit default */
 	spinmem_func_t spinmem_reader, spinmem_writer;
+	bool spinmem_affinity = false;
+#if defined(HAVE_SCHED_SETAFFINITY)
+	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
+#endif
 
+	(void)stress_get_setting("spinmem-affinity", &spinmem_affinity);
 	(void)stress_get_setting("spinmem-method", &spinmem_method);
+
+#if !defined(HAVE_SCHED_SETAFFINITY)
+	if ((spinmem_affinity) && (args->instance == 0)) {
+		pr_inf("%s: disabling spinmem_affinity option, "
+			"CPU affinity not supported\n", args->name);
+		spinmem_affinity = false;
+	}
+#endif
 
 	mapping = (uint8_t *)stress_mmap_populate(NULL,
 			args->page_size, PROT_READ | PROT_WRITE,
@@ -163,10 +194,41 @@ static int stress_spinmem(stress_args_t *args)
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	} else if (pid == 0) {
+#if defined(HAVE_SCHED_SETAFFINITY)
+		if (spinmem_affinity) {
+			do {
+				register int i;
+
+				for (i = 0; i < 1000; i++) {
+					spinmem_reader(mapping);
+					stress_spinmem_change_affinity(cpus);
+				}
+			} while (stress_continue(args));
+			_exit(0);
+		}
+#endif
 		do {
 			spinmem_reader(mapping);
 		} while (stress_continue(args));
+		_exit(0);
 	} else {
+#if defined(HAVE_SCHED_SETAFFINITY)
+		if (spinmem_affinity) {
+			do {
+				register int i;
+
+				for (i = 0; i < 1000; i++) {
+					double t = stress_time_now();
+					spinmem_writer(mapping);
+					duration += stress_time_now() - t;
+					count += SPINMEM_LOOPS;
+					stress_bogo_inc(args);
+				}
+				stress_spinmem_change_affinity(cpus);
+			} while (stress_continue(args));
+			goto completed;
+		}
+#endif
 		do {
 			double t = stress_time_now();
 			spinmem_writer(mapping);
@@ -176,6 +238,9 @@ static int stress_spinmem(stress_args_t *args)
 		} while (stress_continue(args));
 	}
 
+#if defined(HAVE_SCHED_SETAFFINITY)
+completed:
+#endif
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
@@ -197,7 +262,8 @@ static const char *stress_spinmem_method(const size_t i)
 }
 
 static const stress_opt_t opts[] = {
-	{ OPT_spinmem_method, "spinmem-method", TYPE_ID_SIZE_T_METHOD, 0, 0, stress_spinmem_method },
+	{ OPT_spinmem_affinity, "spinmem-affinity", TYPE_ID_BOOL, 0, 1, NULL },
+	{ OPT_spinmem_method,   "spinmem-method",   TYPE_ID_SIZE_T_METHOD, 0, 0, stress_spinmem_method },
 	END_OPT,
 };
 
