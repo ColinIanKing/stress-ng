@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-asm-x86.h"
 #include "core-asm-riscv.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-put.h"
@@ -696,7 +697,8 @@ static int stress_cache(stress_args_t *args)
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t proc_mask;
 	NOCLOBBER uint32_t cpu = 0;
-	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
+	uint32_t *cpus;
+	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 	NOCLOBBER bool pinned = false;
 #endif
 	NOCLOBBER uint32_t cache_flags = 0;
@@ -894,19 +896,27 @@ static int stress_cache(stress_args_t *args)
     defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 		if ((cache_flags & CACHE_FLAGS_NOAFF) && !pinned) {
-			int current;
+			const int current = sched_getcpu();
 
-			/* Pin to the current CPU */
-			current = sched_getcpu();
 			if (current < 0)
 				return EXIT_FAILURE;
 
 			cpu = (uint32_t)current;
 		} else {
-			do {
-				cpu++;
-				cpu = (cpu >= cpus ) ? 0 : cpu;
-			} while (!(CPU_ISSET(cpu, &proc_mask)));
+			static uint32_t cpu_idx = 0;
+
+			if (cpus) {
+				cpu = cpus[cpu_idx];
+				cpu_idx++;
+				cpu_idx = (cpu_idx >= n_cpus) ? 0 : cpu_idx;
+			} else {
+				const int current = sched_getcpu();
+
+				if (current < 0)
+					return EXIT_FAILURE;
+
+				cpu = (uint32_t)current;
+			}
 		}
 
 		if (!(cache_flags & CACHE_FLAGS_NOAFF) || !pinned) {
@@ -990,6 +1000,10 @@ next:
 		stress_metrics_set(args, j, metrics_description[j],
 			rate, STRESS_METRIC_HARMONIC_MEAN);
 	}
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_GETCPU)
+	stress_free_usable_cpus(&cpus);
+#endif
 
 	return ret;
 }
