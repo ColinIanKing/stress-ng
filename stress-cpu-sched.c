@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-asm-generic.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-killpid.h"
@@ -70,6 +71,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+static uint32_t n_cpus;
+static uint32_t *cpus;
+
 #if defined(HAVE_SCHEDULING) &&		\
     defined(HAVE_SCHED_SETSCHEDULER)
 static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
@@ -78,7 +82,6 @@ static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
 static timer_t timerid;
 #endif
 
-static int cpus;
 #if defined(HAVE_SET_MEMPOLICY)
 static int max_numa_node;
 static size_t node_mask_size;
@@ -153,12 +156,12 @@ static const int policies[] = {
 };
 
 /*
- *  stress_cpu_sched_rand_cpu()
- *	return a random cpu number
+ *  stress_cpu_sched_rand_cpu_idx()
+ *	return a random cpu index for cpus[] array
  */
-static int stress_cpu_sched_rand_cpu(void)
+static int stress_cpu_sched_rand_cpu_idx(void)
 {
-	return (int)stress_mwc32modn((uint32_t)cpus);
+	return (n_cpus > 0) ? (int)stress_mwc32modn(n_cpus) : 0;
 }
 
 /*
@@ -401,10 +404,12 @@ static void MLOCKED_TEXT stress_cpu_sched_hrtimer_handler(int sig)
 
 	if (stress_continue_flag()) {
 		const pid_t pid = getpid();
-		const int cpu = stress_cpu_sched_rand_cpu();
+		if (n_cpus > 0) {
+			const int cpu_idx = stress_cpu_sched_rand_cpu_idx();
 
-		(void)stress_cpu_sched_setaffinity(pid, cpu);
-		(void)stress_cpu_sched_setscheduler(pid);
+			(void)stress_cpu_sched_setaffinity(pid, (int)cpus[cpu_idx]);
+			(void)stress_cpu_sched_setscheduler(pid);
+		}
 		stress_cpu_sched_hrtimer_set(TIMER_NS);
 	}
 }
@@ -485,7 +490,7 @@ again:
 		goto err;
 	} else if (pid == 0) {
 		const pid_t child_pid = getpid();
-		int cpu;
+		int cpu_idx;
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 		if (timerid != (timer_t)-1) {
@@ -493,19 +498,18 @@ again:
 			timerid = (timer_t)-1;
 		}
 #endif
-
-		for (cpu = 0; cpu < cpus; cpu++) {
-			stress_cpu_sched_child_exercise(child_pid, cpu);
+		for (cpu_idx = 0; cpu_idx < (int)n_cpus; cpu_idx++) {
+			stress_cpu_sched_child_exercise(child_pid, cpus[cpu_idx]);
 		}
 		(void)stress_cpu_sched_nice(1);
-		for (cpu = cpus - 1; cpu >= 0; cpu--) {
-			stress_cpu_sched_child_exercise(child_pid, cpu);
+		for (cpu_idx = 0; cpu_idx < (int)n_cpus; cpu_idx++) {
+			stress_cpu_sched_child_exercise(child_pid, cpus[(n_cpus - 1) - cpu_idx]);
 		}
 		(void)stress_cpu_sched_nice(1);
-		for (cpu = 0; cpu < cpus; cpu++) {
-			const int new_cpu = stress_cpu_sched_rand_cpu();
+		for (cpu_idx = 0; cpu_idx < (int)n_cpus; cpu_idx++) {
+			const int cpu = cpus[stress_cpu_sched_rand_cpu_idx()];
 
-			stress_cpu_sched_child_exercise(child_pid, new_cpu);
+			stress_cpu_sched_child_exercise(child_pid, cpu);
 		}
 		(void)stress_cpu_sched_nice(1);
 		(void)shim_sched_yield();
@@ -529,63 +533,63 @@ err:
 }
 
 /*
- *  stress_cpu_sched_next_cpu()
- *	select next cpu
+ *  stress_cpu_sched_next_cpu_idx()
+ *	select next cpu index
  */
-static int stress_cpu_sched_next_cpu(const int instance, const int last_cpu)
+static int stress_cpu_sched_next_cpu_idx(const int instance, const int last_cpu_idx)
 {
 	struct timeval now;
-	int cpu;
+	int cpu_idx;
 
 	if (gettimeofday(&now, NULL) < 0)
-		return stress_cpu_sched_rand_cpu();
+		return stress_cpu_sched_rand_cpu_idx();
 
 	switch (now.tv_sec % 12) {
 	default:
 	case 0:
 		/* random selection */
-		return stress_cpu_sched_rand_cpu();
+		return stress_cpu_sched_rand_cpu_idx();
 	case 1:
-		/* next cpu */
-		cpu = last_cpu + 1;
-		return cpu >= cpus ? 0 : cpu;
+		/* next cpu index */
+		cpu_idx = last_cpu_idx + 1;
+		return cpu_idx >= (int)n_cpus ? 0 : cpu_idx;
 	case 2:
 		/* prev cpu */
-		cpu = last_cpu - 1;
-		return cpu < 0 ? cpus - 1 : cpu;
+		cpu_idx = last_cpu_idx - 1;
+		return cpu_idx < 0 ? (int)n_cpus - 1 : cpu_idx;
 	case 3:
 		/* based on seconds past EPOCH */
-		return (int)(now.tv_sec % cpus);
+		return (int)(now.tv_sec % (int)n_cpus);
 	case 4:
 		/* instance and seconds past EPOCH */
-		return (instance + (now.tv_sec / 12)) % cpus;
+		return (instance + (now.tv_sec / 12)) % n_cpus;
 	case 5:
-		/* stride cpus by instance number */
-		return (last_cpu + instance + 1) % cpus;
+		/* stride n_cpus by instance number */
+		return (last_cpu_idx + instance + 1) % n_cpus;
 	case 6:
 		/* based on instance number */
-		return (int)(instance % cpus);
+		return (int)(instance % n_cpus);
 	case 7:
 		/* ping pong from last cpu */
-		return (cpus - 1) - last_cpu;
+		return ((int)n_cpus - 1) - last_cpu_idx;
 	case 8:
 		/* based on fraction of second */
-		return (now.tv_usec / 72813) % cpus;
+		return (int)(now.tv_usec / 72813) % n_cpus;
 	case 9:
 		/* prev with creeping brown noise */
-		cpu = last_cpu + (stress_mwc32modn(5) - 2);
-		cpu = (cpu < 0) ? cpu + cpus : cpu;
-		return cpu % cpus;
+		cpu_idx = last_cpu_idx + (stress_mwc32modn(5) - 2);
+		cpu_idx = (cpu_idx < 0) ? cpu_idx + (int)n_cpus : cpu_idx;
+		return (int)(cpu_idx % n_cpus);
 	case 10:
 		/* odd/even */
-		cpu = last_cpu ^ 1;
-		return cpu % cpus;
+		cpu_idx = last_cpu_idx ^ 1;
+		return (int)(cpu_idx % n_cpus);
 	case 11:
 		/* +/- 2 */
-		cpu = last_cpu ^ 2;
-		return cpu % cpus;
+		cpu_idx = last_cpu_idx ^ 2;
+		return (int)(cpu_idx % n_cpus);
 	}
-	return last_cpu;
+	return last_cpu_idx;
 }
 
 /*
@@ -617,7 +621,7 @@ again:
 		return;
 	} else if (pid == 0) {
 		char *argv[4], *env[2];
-		const int cpu = stress_cpu_sched_rand_cpu();
+		const int cpu_idx = stress_cpu_sched_rand_cpu_idx();
 		const pid_t mypid = getpid();
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
@@ -627,7 +631,8 @@ again:
 		}
 #endif
 
-		(void)stress_cpu_sched_setaffinity(mypid, cpu);
+		if (n_cpus > 0)
+			(void)stress_cpu_sched_setaffinity(mypid, cpus[cpu_idx]);
 		(void)stress_cpu_sched_setscheduler(mypid);
 
 		argv[0] = exec_prog;
@@ -657,7 +662,7 @@ again:
 static int stress_cpu_sched_child(stress_args_t *args, void *context)
 {
 	/* Child */
-	int cpu = 0, rc = EXIT_SUCCESS;
+	int cpu_idx = 0, rc = EXIT_SUCCESS;
 	const int instance = (int)args->instance;
 	size_t i;
 	stress_pid_t pids[MAX_CPU_SCHED_PROCS];
@@ -674,9 +679,6 @@ static int stress_cpu_sched_child(stress_args_t *args, void *context)
     defined(PR_SET_TIMERSLACK)
 	(void)prctl(PR_SET_TIMERSLACK, 5);
 #endif
-	cpus = (int)stress_get_processors_configured();
-	if (cpus < 1)
-		cpus = 1;
 
 	(void)shim_memset(pids, 0, sizeof(pids));
 	for (i = 0; i < MAX_CPU_SCHED_PROCS; i++) {
@@ -754,8 +756,10 @@ again:
 #endif
 					break;
 				default:
-					cpu = stress_cpu_sched_next_cpu(instance, cpu);
-					(void)stress_cpu_sched_setaffinity(mypid, cpu);
+					if (n_cpus > 0) {
+						cpu_idx = stress_cpu_sched_next_cpu_idx(instance, cpu_idx);
+						(void)stress_cpu_sched_setaffinity(mypid, cpus[cpu_idx]);
+					}
 					(void)shim_sched_yield();
 					(void)sleep(0);
 					break;
@@ -784,13 +788,15 @@ again:
 			if (UNLIKELY(pid == -1))
 				continue;
 
-			cpu = stress_cpu_sched_next_cpu(instance, cpu);
+			cpu_idx = stress_cpu_sched_next_cpu_idx(instance, cpu_idx);
 
 			if (stop_cont)
 				(void)kill(pid, SIGSTOP);
-			if (UNLIKELY(stress_cpu_sched_setaffinity(pid, cpu) < 0)) {
-				rc = EXIT_FAILURE;
-				break;
+			if (n_cpus > 0) {
+				if (UNLIKELY(stress_cpu_sched_setaffinity(pid, cpus[cpu_idx]) < 0)) {
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 			if (UNLIKELY(stress_cpu_sched_setscheduler(pid) < 0)) {
 				rc = EXIT_FAILURE;
@@ -814,7 +820,8 @@ again:
 			}
 		}
 
-		(void)stress_cpu_sched_setaffinity(args->pid, stress_cpu_sched_rand_cpu());
+		if (n_cpus > 0)
+			(void)stress_cpu_sched_setaffinity(args->pid, cpus[stress_cpu_sched_rand_cpu_idx()]);
 		(void)shim_sched_yield();
 
 		counter++;
@@ -866,6 +873,7 @@ again:
 	} while (stress_continue(args));
 
 	(void)stress_kill_and_wait_many(args, stress_cpu_sched_pids, MAX_CPU_SCHED_PROCS, SIGKILL, false);
+
 	return rc;
 }
 
@@ -876,6 +884,8 @@ again:
 static int stress_cpu_sched(stress_args_t *args)
 {
 	int rc;
+
+	n_cpus = stress_get_usable_cpus(&cpus, true);
 
 #if defined(HAVE_SET_MEMPOLICY)
 	unsigned long max_nodes = 0;
@@ -910,6 +920,7 @@ static int stress_cpu_sched(stress_args_t *args)
 		(void)munmap((void *)node_mask, node_mask_size);
 #endif
 
+	stress_free_usable_cpus(&cpus);
 	return rc;
 }
 
