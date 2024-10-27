@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
@@ -591,16 +592,20 @@ static int stress_cacheline_all(
  */
 static inline void stress_cacheline_change_affinity(
 	stress_args_t *args,
-	const uint32_t cpus,
+	const uint32_t n_cpus,
+	const uint32_t *cpus,
 	bool parent)
 {
-	cpu_set_t mask;
-	const double now = stress_time_now() * 100;
-	uint32_t cpu = ((uint32_t)args->instance + (uint32_t)parent + (uint32_t)now) % cpus;
+	if (n_cpus > 0) {
+		cpu_set_t mask;
+		const double now = stress_time_now() * 100;
+		const uint32_t cpu_idx = ((uint32_t)args->instance + (uint32_t)parent + (uint32_t)now) % n_cpus;
+		const uint32_t cpu = cpus[cpu_idx];
 
-	CPU_ZERO(&mask);
-	CPU_SET((int)cpu, &mask);
-	VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
+		CPU_ZERO(&mask);
+		CPU_SET((int)cpu, &mask);
+		VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
+	}
 }
 #endif
 
@@ -615,7 +620,8 @@ static int stress_cacheline_child(
 	int rc;
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY)
-	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
+	uint32_t *cpus;
+	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 #endif
 
 	(void)cacheline_affinity;
@@ -628,10 +634,14 @@ static int stress_cacheline_child(
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_SETAFFINITY)
 		if (cacheline_affinity)
-			stress_cacheline_change_affinity(args, cpus, parent);
+			stress_cacheline_change_affinity(args, n_cpus, cpus, parent);
 #endif
 	} while ((rc == EXIT_SUCCESS) && stress_continue(args));
 
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY)
+	stress_free_usable_cpus(&cpus);
+#endif
 	return rc;
 }
 
