@@ -22,4 +22,7 @@
 extern int stress_set_cpu_affinity(const char *arg);
 extern int stress_change_cpu(stress_args_t *args, const int old_cpu);
 
+extern WARN_UNUSED uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity);
+extern void stress_free_usable_cpus(uint32_t **cpus);
+
 #endif

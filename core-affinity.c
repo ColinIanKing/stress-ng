@@ -191,3 +191,73 @@ int stress_set_cpu_affinity(const char *arg)
 	_exit(EXIT_FAILURE);
 }
 #endif
+
+/*
+ *  stress_get_usable_cpus()
+ *	get an uint32_t array of cpu numbers of usable cpus.
+ */
+uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
+{
+	uint32_t i, n_cpus = stress_get_processors_configured();
+
+#if defined(HAVE_SCHED_GETAFFINITY)
+	if (use_affinity) {
+		/* if affinity has been set.. */
+		if (CPU_COUNT(&stress_affinity_cpu_set) > 0) {
+			uint32_t n;
+
+			/* don't want to overrun the cpu set */
+			n_cpus = STRESS_MINIMUM(n_cpus, CPU_SETSIZE);
+
+			for (n = 0, i = 0; i < n_cpus; i++) {
+				if (CPU_ISSET((int)i, &stress_affinity_cpu_set))
+					n++;
+			}
+			if (n == 0) {
+				/* Should not happen */
+				*cpus = NULL;
+				return 0;
+			}
+			n_cpus = n;
+			*cpus = (uint32_t *)malloc(sizeof(**cpus) * n_cpus);
+			if (*cpus == NULL)
+				return 0;
+
+			for (n = 0, i = 0; i < n_cpus; i++) {
+				if (CPU_ISSET((int)i, &stress_affinity_cpu_set)) {
+					(*cpus)[n] = i;
+					n++;
+				}
+			}
+			return n;
+		}
+	}
+#endif
+	if (n_cpus == 0) {
+		/* Should not happen */
+		*cpus = NULL;
+		return 0;
+	}
+
+	*cpus = (uint32_t *)malloc(sizeof(**cpus) * n_cpus);
+	if (*cpus == NULL)
+		return 0;
+
+	for (i = 0; i < n_cpus; i++) {
+		(*cpus)[i] = i;
+	}
+	return n_cpus;
+}
+
+/*
+ *  stress_free_usable_cpus()
+ *	free *cpus
+ */
+void stress_free_usable_cpus(uint32_t **cpus)
+{
+	if (!cpus)
+		return;
+	if (*cpus)
+		free(*cpus);
+	*cpus = NULL;
+}
