@@ -218,8 +218,7 @@ uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
 				*cpus = NULL;
 				return 0;
 			}
-			n_cpus = n;
-			*cpus = (uint32_t *)malloc(sizeof(**cpus) * n_cpus);
+			*cpus = (uint32_t *)malloc(sizeof(**cpus) * n);
 			if (*cpus == NULL)
 				return 0;
 
