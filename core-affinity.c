@@ -65,6 +65,20 @@ static int stress_parse_cpu(const char *const str)
 }
 
 /*
+ * stress_set_cpu_affinity_current()
+ * @set: cpu_set to set the cpu affinity to current process
+ */
+static void stress_set_cpu_affinity_current(cpu_set_t *set)
+{
+	if (sched_setaffinity(0, sizeof(cpu_set_t), set) < 0) {
+		pr_err("%s: cannot set CPU affinity, errno=%d (%s)\n",
+			option, errno, strerror(errno));
+		_exit(EXIT_FAILURE);
+	}
+	(void)shim_memcpy(&stress_affinity_cpu_set, set, sizeof(stress_affinity_cpu_set));
+}
+
+/*
  * stress_set_cpu_affinity()
  * @arg: list of CPUs to set affinity to, comma separated
  *
@@ -76,8 +90,21 @@ int stress_set_cpu_affinity(const char *arg)
 	char *str, *ptr, *token;
 	const int32_t max_cpus = stress_get_processors_configured();
 	bool setbits = false;
+	int i;
 
 	CPU_ZERO(&set);
+
+	if (!strcmp(arg, "odd")) {
+		for (i = 1; i < max_cpus; i += 2)
+			CPU_SET(i, &set);
+		stress_set_cpu_affinity_current(&set);
+		return 0;
+	} else if (!strcmp(arg, "even")) {
+		for (i = 0; i < max_cpus; i += 2)
+			CPU_SET(i, &set);
+		stress_set_cpu_affinity_current(&set);
+		return 0;
+	}
 
 	str = stress_const_optdup(arg);
 	if (!str) {
@@ -86,7 +113,7 @@ int stress_set_cpu_affinity(const char *arg)
 	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
-		int i, lo, hi;
+		int lo, hi;
 		char *tmpptr = strstr(token, "-");
 
 		hi = lo = stress_parse_cpu(token);
@@ -116,17 +143,11 @@ int stress_set_cpu_affinity(const char *arg)
 			setbits = true;
 		}
 	}
-	if (setbits) {
-		if (sched_setaffinity(getpid(), sizeof(set), &set) < 0) {
-			pr_err("%s: cannot set CPU affinity, errno=%d (%s)\n",
-				option, errno, strerror(errno));
-			free(str);
-			_exit(EXIT_FAILURE);
-		}
-		(void)shim_memcpy(&stress_affinity_cpu_set, &set, sizeof(stress_affinity_cpu_set));
-	}
-
 	free(str);
+
+	if (setbits)
+		stress_set_cpu_affinity_current(&set);
+
 	return 0;
 }
 
