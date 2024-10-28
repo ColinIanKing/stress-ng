@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-pthread.h"
 
@@ -60,6 +61,11 @@ static const stress_opt_t opts[] = {
     defined(HAVE_SCHED_GET_PRIORITY_MAX) &&	\
     defined(SCHED_FIFO)
 
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+uint32_t *cpus;
+uint32_t n_cpus;
+#endif
+
 static pthread_mutex_t ALIGN64 mutex;
 
 typedef struct {
@@ -84,16 +90,9 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 	static void *nowt = NULL;
 	const int max = (pthread_info->prio_max * 7) / 8;
 	int metrics_count = 0;
-#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-	uint32_t cpus = (uint32_t)stress_get_processors_configured();
-#endif
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	int mutexattr_ret;
 	pthread_mutexattr_t mutexattr;
-#endif
-#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-	if (!cpus)
-		cpus = 1;
 #endif
 
 	stress_mwc_reseed();
@@ -143,9 +142,9 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 		param.sched_priority = pthread_info->prio_min;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
-		if (pthread_info->mutex_affinity) {
+		if ((pthread_info->mutex_affinity) && (n_cpus > 0)) {
 			cpu_set_t cpuset;
-			const uint32_t cpu = stress_mwc32modn(cpus);
+			const uint32_t cpu = cpus[stress_mwc32modn(n_cpus)];
 
 			CPU_ZERO(&cpuset);
 			CPU_SET(cpu, &cpuset);
@@ -205,6 +204,11 @@ static int stress_mutex(stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+	n_cpus = stress_get_usable_cpus(&cpus, true);
+	pr_inf("n_cpus = %d\n", n_cpus);
+#endif
+
 	prio_min = sched_get_priority_min(SCHED_FIFO);
 	prio_max = sched_get_priority_max(SCHED_FIFO);
 
@@ -237,6 +241,9 @@ static int stress_mutex(stress_args_t *args)
 
 	if (!created) {
 		pr_inf("%s: could not create any pthreads\n", args->name);
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+		stress_free_usable_cpus(&cpus);
+#endif
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -261,6 +268,9 @@ static int stress_mutex(stress_args_t *args)
 	stress_metrics_set(args, 0, "nanosecs per mutex",
 		rate * STRESS_DBL_NANOSECOND, STRESS_METRIC_HARMONIC_MEAN);
 
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+	stress_free_usable_cpus(&cpus);
+#endif
 	return EXIT_SUCCESS;
 }
 
