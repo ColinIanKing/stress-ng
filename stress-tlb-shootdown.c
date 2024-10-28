@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
@@ -156,13 +157,12 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
-	const int32_t max_cpus = stress_get_processors_configured();
+	uint32_t *cpus;
+	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 	stress_pid_t *s_pids, *s_pids_head = NULL;
 	const pid_t pid = getpid();
-	cpu_set_t proc_mask_initial;
 	int rc = EXIT_SUCCESS;
-	cpu_set_t proc_mask;
-	int32_t tlb_procs, i;
+	uint32_t tlb_procs, i;
 	uint8_t *mem;
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_DONTNEED)
@@ -175,7 +175,8 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	s_pids = stress_s_pids_mmap(MAX_TLB_PROCS);
 	if (s_pids == MAP_FAILED) {
 		pr_inf_skip("%s: failed to mmap %d PIDs, skipping stressor\n", args->name, MAX_TLB_PROCS);
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto err_free_cpus;
 	}
 
 #if defined(HAVE_MADVISE) &&	\
@@ -219,39 +220,19 @@ static int stress_tlb_shootdown(stress_args_t *args)
 	stress_set_vma_anon_name(mem, mmap_size, "tlb-shootdown-buffer");
 	(void)shim_memset(mem, 0xff, mmap_size);
 
-	if (sched_getaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial) < 0) {
-		pr_fail("%s: sched_getaffinity could not get CPU affinity, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		rc = EXIT_FAILURE;
-		goto err_munmap_mem;
-	}
-
-	tlb_procs = max_cpus;
+	tlb_procs = n_cpus;
 	if (tlb_procs > MAX_TLB_PROCS)
 		tlb_procs = MAX_TLB_PROCS;
 	if (tlb_procs < MIN_TLB_PROCS)
 		tlb_procs = MIN_TLB_PROCS;
 
-	CPU_ZERO(&proc_mask);
-	CPU_OR(&proc_mask, &proc_mask_initial, &proc_mask);
-
 	for (i = 0; i < tlb_procs; i++)
 		stress_sync_start_init(&s_pids[i]);
 
 	for (i = 0; i < tlb_procs; i++) {
-		int32_t j, cpu = -1;
+		uint32_t cpu_idx = 0;
 		const size_t stride = (137 + (size_t)stress_get_next_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
 		const size_t mem_mask = (mmap_size - 1);
-
-		for (j = 0; j < max_cpus; j++) {
-			if (CPU_ISSET(j, &proc_mask)) {
-				cpu = j;
-				CPU_CLR(j, &proc_mask);
-				break;
-			}
-		}
-		if (cpu == -1)
-			break;
 
 		s_pids[i].pid = fork();
 		if (s_pids[i].pid < 0) {
@@ -270,9 +251,11 @@ static int stress_tlb_shootdown(stress_args_t *args)
 
                         stress_sync_start_wait_s_pid(&s_pids[i]);
 
-			CPU_ZERO(&mask);
-			CPU_SET(cpu % max_cpus, &mask);
-			(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
+			if (n_cpus > 0) {
+				CPU_ZERO(&mask);
+				CPU_SET((int)cpus[cpu_idx], &mask);
+				(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
+			}
 
 			t_start = stress_time_now();
 			t_next = t_start + 1.0;
@@ -307,11 +290,12 @@ PRAGMA_UNROLL_N(8)
 				/*
 				 *  periodically change cpu affinity
 				 */
-				if (stress_time_now() >= t_next) {
-					cpu++;
-					cpu %= max_cpus;
+				if ((stress_time_now() >= t_next) && (n_cpus > 0)) {
+					cpu_idx++;
+					cpu_idx = (cpu_idx >= n_cpus) ? 0 : cpu_idx;
+
 					CPU_ZERO(&mask);
-					CPU_SET(cpu, &mask);
+					CPU_SET(cpus[cpu_idx], &mask);
 					(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
 					t_next += 1.0;
 				}
@@ -363,7 +347,7 @@ PRAGMA_UNROLL_N(8)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	stress_kill_and_wait_many(args, s_pids, tlb_procs, SIGALRM, true);
-err_munmap_mem:
+
 	(void)munmap((void *)mem, mmap_size);
 err_munmap_memfd:
 #if defined(HAVE_MADVISE) &&	\
@@ -376,6 +360,9 @@ err_rmdir:
 err_s_pids:
 	(void)stress_s_pids_munmap(s_pids, MAX_TLB_PROCS);
 #endif
+err_free_cpus:
+	stress_free_usable_cpus(&cpus);
+
 	return rc;
 }
 
