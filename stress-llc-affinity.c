@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-capabilities.h"
 #include "core-cpu-cache.h"
 #include "core-numa.h"
@@ -152,9 +153,10 @@ static void TARGET_CLONES OPTIMIZE3 stress_llc_read_cache_line_n(
  */
 static int stress_llc_affinity(stress_args_t *args)
 {
-	const int32_t max_cpus = stress_get_processors_configured();
+	uint32_t *cpus;
+	const uint32_t n_cpus = stress_get_usable_cpus(&cpus, true);
 	const size_t page_size = args->page_size;
-	int32_t cpu = (int32_t)args->instance;
+	uint32_t cpu_idx = args->instance;
 	size_t llc_size, cache_line_size, mmap_sz;
 	uint64_t *buf, *buf_end;
 	uint64_t affinity_changes = 0;
@@ -184,7 +186,7 @@ static int stress_llc_affinity(stress_args_t *args)
 		}
 	}
 
-	mmap_sz = STRESS_MAXIMUM(max_cpus * page_size, llc_size);
+	mmap_sz = STRESS_MAXIMUM(n_cpus * page_size, llc_size);
 
 	/*
 	 *  Allocate a LLC sized buffer to exercise
@@ -219,24 +221,24 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	t_start = stress_time_now();
 	do {
-		int32_t i;
-
-		for (i = 0; stress_continue_flag() && (i < max_cpus); i++) {
-			const int32_t set_cpu = (cpu + i) % max_cpus;
+		if (n_cpus > 0) {
 			cpu_set_t mask;
 
 			CPU_ZERO(&mask);
-			CPU_SET(set_cpu, &mask);
+			CPU_SET((int)cpus[cpu_idx], &mask);
+
+			cpu_idx++;
+			cpu_idx = (cpu_idx >= n_cpus) ? 0 : cpu_idx;
 
 			if (sched_setaffinity(0, sizeof(mask), &mask) == 0)
 				affinity_changes++;
-
-			read_func(buf, buf_end, &read_duration, cache_line_size);
-			reads += (double)mmap_sz;
-
-			write_func(buf, buf_end, &write_duration, cache_line_size);
-			writes += (double)mmap_sz;
 		}
+
+		read_func(buf, buf_end, &read_duration, cache_line_size);
+		reads += (double)mmap_sz;
+
+		write_func(buf, buf_end, &write_duration, cache_line_size);
+		writes += (double)mmap_sz;
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
@@ -256,6 +258,8 @@ static int stress_llc_affinity(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)buf, mmap_sz);
+
+	stress_free_usable_cpus(&cpus);
 
 	return EXIT_SUCCESS;
 }
