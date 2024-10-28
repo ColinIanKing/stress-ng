@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-builtin.h"
 #include "core-out-of-memory.h"
 
@@ -50,7 +51,7 @@ typedef struct {
 typedef struct stress_race_sched {
 	struct stress_race_sched *next;
 	pid_t	pid;
-	int	cpu;
+	uint32_t cpu_idx;
 } stress_race_sched_child_t;
 
 typedef struct {
@@ -91,6 +92,9 @@ static const stress_opt_t opts[] = {
     defined(HAVE_SCHED_SETSCHEDULER)
 static stress_race_sched_list_t children;
 
+static uint32_t n_cpus;
+static uint32_t *cpus;
+
 /*
  *  "Normal" non-realtime scheduling policies
  */
@@ -109,11 +113,11 @@ static const int normal_policies[] = {
 #endif
 };
 
-static int stress_call_race_sched_method(const int cpu, const int max_cpus, size_t method_index)
+static uint32_t stress_call_race_sched_method_idx(const uint32_t cpu_idx, size_t method_index)
 {
 
 	static size_t method_all_index = 1;
-	int new_cpu = cpu;
+	uint32_t new_cpu_idx = cpu_idx;
 
 again:
 	switch (stress_race_sched_methods[method_index].method) {
@@ -125,52 +129,66 @@ again:
 			method_all_index = 1;
 		goto again;
 	case RACE_SCHED_METHOD_NEXT:
-		new_cpu++;
-		if (new_cpu >= max_cpus)
-			new_cpu = 0;
+		if (n_cpus > 0) {
+			new_cpu_idx++;
+			if (new_cpu_idx >= n_cpus)
+				new_cpu_idx = 0;
+		}
 		break;
 	case RACE_SCHED_METHOD_PREV:
-		new_cpu--;
-		if (new_cpu < 0)
-			new_cpu = max_cpus - 1;
+		if (n_cpus > 0) {
+			if (cpu_idx == 0)
+				new_cpu_idx = n_cpus - 1;
+			else
+				new_cpu_idx = cpu_idx - 1;
+		}
 		break;
 	case RACE_SCHED_METHOD_RAND:
-		new_cpu = (int)stress_mwc32modn((uint32_t)max_cpus);
+		if (n_cpus > 0)
+			new_cpu_idx = (int)stress_mwc32modn((uint32_t)n_cpus);
 		break;
 	case RACE_SCHED_METHOD_RANDINC:
-		new_cpu += (int)(stress_mwc8modn((uint32_t)max_cpus) & 0x3) + 1;
-		new_cpu = (uint32_t)new_cpu % (uint32_t)max_cpus;
+		if (n_cpus > 0) {
+			new_cpu_idx += (int)(stress_mwc8modn((uint32_t)n_cpus) & 0x3) + 1;
+			new_cpu_idx %= n_cpus;
+		}
 		break;
 	case RACE_SCHED_METHOD_SYNCNEXT:
-		/* Move every second */
-		new_cpu = (uint32_t)rint(stress_time_now()) % (uint32_t)max_cpus;
+		if (n_cpus > 0) {
+			/* Move every second */
+			new_cpu_idx = (uint32_t)rint(stress_time_now()) % n_cpus;
+		}
 		break;
 	case RACE_SCHED_METHOD_SYNCPREV:
-		/* Move every second */
-		new_cpu = (~(uint32_t)rint(stress_time_now())) % (uint32_t)max_cpus;
+		if (n_cpus > 0) {
+			/* Move every second */
+			new_cpu_idx = (~(uint32_t)rint(stress_time_now())) % n_cpus;
+		}
 		break;
 	}
-	return new_cpu;
+	return new_cpu_idx;
 }
 
 static int stress_race_sched_setaffinity(
 	stress_args_t *args,
 	const pid_t pid,
-	const int cpu)
+	const int cpu_idx)
 {
 	cpu_set_t cpu_set;
 	int ret;
 
-	CPU_ZERO(&cpu_set);
-	CPU_SET(cpu, &cpu_set);
-	ret = sched_setaffinity(pid, sizeof(cpu_set), &cpu_set);
-	if (ret == 0) {
+	if (n_cpus > 0) {
 		CPU_ZERO(&cpu_set);
-		ret = sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
-		if ((ret < 0) && (errno != ESRCH)) {
-			pr_fail("%s: sched_getaffinity failed on PID %jd, errno=%d (%s)\n",
-				args->name, (intmax_t)pid, errno, strerror(errno));
-			return ret;
+		CPU_SET(cpus[cpu_idx], &cpu_set);
+		ret = sched_setaffinity(pid, sizeof(cpu_set), &cpu_set);
+		if (ret == 0) {
+			CPU_ZERO(&cpu_set);
+			ret = sched_getaffinity(pid, sizeof(cpu_set), &cpu_set);
+			if ((ret < 0) && (errno != ESRCH)) {
+				pr_fail("%s: sched_getaffinity failed on PID %jd, errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
+				return ret;
+			}
 		}
 	}
 	return 0;
@@ -200,7 +218,6 @@ static int stress_race_sched_setscheduler(
 
 static int stress_race_sched_exercise(
 	stress_args_t *args,
-	const int cpus,
 	const size_t method_index)
 {
 	stress_race_sched_child_t *child;
@@ -209,10 +226,10 @@ static int stress_race_sched_exercise(
 	for (i = 0; stress_continue_flag() && (i < 20); i++)  {
 		for (child = children.head; child; child = child->next) {
 			if (stress_mwc1()) {
-				const int cpu = stress_call_race_sched_method(child->cpu, cpus, method_index);
+				const uint32_t cpu_idx = stress_call_race_sched_method_idx(child->cpu_idx, method_index);
 
-				child->cpu = cpu;
-				if (stress_race_sched_setaffinity(args, child->pid, cpu) < 0)
+				child->cpu_idx = cpu_idx;
+				if (stress_race_sched_setaffinity(args, child->pid, cpu_idx) < 0)
 					rc = -1;
 				if (stress_race_sched_setscheduler(args, child->pid) < 0)
 					rc = -1;
@@ -304,24 +321,23 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 	/* Child */
 	uint32_t max_forks = 0;
 	uint32_t children_max = DEFAULT_CHILDREN;
-	int cpu = 0, cpus = (int)stress_get_processors_configured(), rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
+	uint32_t cpu_idx = 0;
 	size_t method_index = 0;
 	const pid_t mypid = getpid();
+	n_cpus = stress_get_usable_cpus(&cpus, true);
 
 	(void)stress_get_setting("race-sched-method", &method_index);
 
 	(void)context;
-
-	if (cpus < 1)
-		cpus = 1;
 
 	do {
 		const bool low_mem_reap = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
 					   stress_low_memory((size_t)(1 * MB)));
 		const uint8_t rnd = stress_mwc8();
 
-		cpu = stress_call_race_sched_method(cpu, cpus, method_index);
-		if (stress_race_sched_setaffinity(args, mypid, cpu) < 0) {
+		cpu_idx = stress_call_race_sched_method_idx(cpu_idx, method_index);
+		if (stress_race_sched_setaffinity(args, mypid, cpu_idx) < 0) {
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -333,14 +349,14 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 			if (!child_info)
 				break;
 
-			child_info->cpu = cpu;
+			child_info->cpu_idx = cpu_idx;
 			child_info->pid = fork();
 			if (child_info->pid < 0) {
 				/*
 				 * Reached max forks or error
 				 * (e.g. EPERM)? .. then reap
 				 */
-				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+				if (stress_race_sched_exercise(args, method_index) < 0) {
 					rc = EXIT_FAILURE;
 					break;
 				}
@@ -353,7 +369,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 				if (rnd & 0x01)
 					(void)shim_sched_yield();
 				if (rnd & 0x02) {
-					if (stress_race_sched_setaffinity(args, child_pid, cpu) < 0) {
+					if (stress_race_sched_setaffinity(args, child_pid, cpu_idx) < 0) {
 						rc = EXIT_FAILURE;
 						break;
 					}
@@ -365,7 +381,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 					}
 				}
 				if (rnd & 0x08) {
-					if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+					if (stress_race_sched_exercise(args, method_index) < 0) {
 						rc = EXIT_FAILURE;
 						break;
 					}
@@ -378,7 +394,7 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 				if (rnd & 0x20)
 					(void)shim_sched_yield();
 				if (rnd & 0x40) {
-					if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+					if (stress_race_sched_exercise(args, method_index) < 0) {
 						rc = EXIT_FAILURE;
 						break;
 					}
@@ -392,14 +408,14 @@ static int stress_race_sched_child(stress_args_t *args, void *context)
 			stress_bogo_inc(args);
 		} else {
 			if (rnd & 0x01) {
-				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+				if (stress_race_sched_exercise(args, method_index) < 0) {
 					rc = EXIT_FAILURE;
 					break;
 				}
 			}
 			stress_race_sched_head_remove(WNOHANG);
 			if (rnd & 0x02) {
-				if (stress_race_sched_exercise(args, cpus, method_index) < 0) {
+				if (stress_race_sched_exercise(args, method_index) < 0) {
 					rc = EXIT_FAILURE;
 					break;
 				}
