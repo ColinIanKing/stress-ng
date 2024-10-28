@@ -732,17 +732,24 @@ static int stress_cache(stress_args_t *args)
 	if (sigsetjmp(jmp_env, 1)) {
 		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
 			args->name);
-		return EXIT_NO_RESOURCE;
+		ret = EXIT_NO_RESOURCE;
+		goto tidy_cpus;
 	}
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0) {
+		ret = EXIT_NO_RESOURCE;
+		goto tidy_cpus;
+	}
 #if !defined(STRESS_ARCH_X86)
-	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0) {
+		ret = EXIT_NO_RESOURCE;
+		goto tidy_cpus;
+	}
 #endif
-	if (stress_sighandler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0)
-		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0) {
+		ret = EXIT_NO_RESOURCE;
+		goto tidy_cpus;
+	}
 
 	(void)stress_get_cache_flags("cache-cldemote", &cache_flags, CACHE_FLAGS_CLDEMOTE);
 	(void)stress_get_cache_flags("cache-cflushopt", &cache_flags, CACHE_FLAGS_CLFLUSHOPT);
