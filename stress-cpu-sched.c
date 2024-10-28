@@ -71,12 +71,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static uint32_t n_cpus;
-static uint32_t *cpus;
-
 #if defined(HAVE_SCHEDULING) &&		\
     defined(HAVE_SCHED_SETSCHEDULER)
 static stress_pid_t stress_cpu_sched_pids[MAX_CPU_SCHED_PROCS];
+static uint32_t n_cpus;
+static uint32_t *cpus;
 
 #if defined(HAVE_TIMER_CLOCK_REALTIME)
 static timer_t timerid;
