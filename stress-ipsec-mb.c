@@ -96,6 +96,7 @@ typedef struct {
 } stress_ipsec_features_t;
 
 static stress_ipsec_features_t mb_features[] = {
+#if defined(HAVE_INIT_MB_MGR_AVX)
 	{
 		IMB_FEATURE_AVX | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI,
 		init_mb_mgr_avx,
@@ -103,6 +104,7 @@ static stress_ipsec_features_t mb_features[] = {
 		false,
 		{ 0.0, 0.0 }
 	},
+#endif
 	{
 		IMB_FEATURE_AVX2 | IMB_FEATURE_AVX | IMB_FEATURE_CMOV |
 		IMB_FEATURE_AESNI,
