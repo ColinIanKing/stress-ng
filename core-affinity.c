@@ -252,6 +252,8 @@ uint32_t stress_get_usable_cpus(uint32_t **cpus, const bool use_affinity)
 			return n;
 		}
 	}
+#else
+	(void)use_affinity;
 #endif
 	if (n_cpus == 0) {
 		/* Should not happen */
