@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-affinity.h"
 #include "core-arch.h"
 #include "core-asm-x86.h"
 #include "core-builtin.h"
@@ -36,6 +37,11 @@ static sigset_t set;
 
 #define MAX_READ_THREADS	(4)
 #define MAX_MAPPINGS		(2)
+
+#if defined(HAVE_SCHED_SETAFFINITY)
+static uint32_t n_cpus;
+static uint32_t *cpus;
+#endif
 
 /*
  *  page_write_sync()
@@ -307,9 +313,6 @@ static void *stress_memory_contend_thread(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (const stress_pthread_args_t *)arg;
-#if defined(HAVE_SCHED_SETAFFINITY)
-	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
-#endif
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -318,17 +321,17 @@ static void *stress_memory_contend_thread(void *arg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	while (stress_continue_flag()) {
-#if defined(HAVE_SCHED_SETAFFINITY)
-		cpu_set_t mask;
-		const uint32_t cpu = stress_mwc32modn(cpus);
-#endif
 		stress_memory_contend(pa);
 
 #if defined(HAVE_SCHED_SETAFFINITY)
+		if (n_cpus > 0) {
+			cpu_set_t mask;
+			const uint32_t cpu = cpus[stress_mwc32modn(n_cpus)];
 
-		CPU_ZERO(&mask);
-		CPU_SET(cpu, &mask);
-		(void)sched_setaffinity(0, sizeof(mask), &mask);
+			CPU_ZERO(&mask);
+			CPU_SET(cpu, &mask);
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
+		}
 #endif
 	}
 
@@ -349,9 +352,17 @@ static int stress_mcontend(stress_args_t *args)
 	stress_pthread_args_t pa;
 	int fd, rc;
 
+#if defined(HAVE_SCHED_SETAFFINITY)
+	n_cpus = stress_get_usable_cpus(&cpus, true);
+#endif
+
 	rc = stress_temp_dir_mk_args(args);
-	if (rc < 0)
+	if (rc < 0) {
+#if defined(HAVE_SCHED_SETAFFINITY)
+		stress_free_usable_cpus(&cpus);
+#endif
 		return stress_exit_status(-rc);
+	}
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
@@ -361,6 +372,9 @@ static int stress_mcontend(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
+#if defined(HAVE_SCHED_SETAFFINITY)
+		stress_free_usable_cpus(&cpus);
+#endif
 		return EXIT_NO_RESOURCE;
 	}
 	(void)shim_unlink(filename);
@@ -371,6 +385,9 @@ static int stress_mcontend(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
+#if defined(HAVE_SCHED_SETAFFINITY)
+		stress_free_usable_cpus(&cpus);
+#endif
 		return EXIT_NO_RESOURCE;
 
 	}
@@ -387,6 +404,9 @@ static int stress_mcontend(stress_args_t *args)
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
+#if defined(HAVE_SCHED_SETAFFINITY)
+		stress_free_usable_cpus(&cpus);
+#endif
 		return EXIT_NO_RESOURCE;
 	}
 	data[1] = stress_mmap_populate(NULL, args->page_size , PROT_READ | PROT_WRITE,
@@ -397,6 +417,9 @@ static int stress_mcontend(stress_args_t *args)
 		(void)munmap(data[0], args->page_size);
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
+#if defined(HAVE_SCHED_SETAFFINITY)
+		stress_free_usable_cpus(&cpus);
+#endif
 		return EXIT_NO_RESOURCE;
 	}
 	(void)close(fd);
@@ -434,6 +457,9 @@ static int stress_mcontend(stress_args_t *args)
 	(void)munmap(data[1], args->page_size);
 
 	(void)stress_temp_dir_rm_args(args);
+#if defined(HAVE_SCHED_SETAFFINITY)
+	stress_free_usable_cpus(&cpus);
+#endif
 
 	return EXIT_SUCCESS;
 }
