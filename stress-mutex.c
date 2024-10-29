@@ -206,7 +206,6 @@ static int stress_mutex(stress_args_t *args)
 
 #if defined(HAVE_PTHREAD_SETAFFINITY_NP)
 	n_cpus = stress_get_usable_cpus(&cpus, true);
-	pr_inf("n_cpus = %d\n", n_cpus);
 #endif
 
 	prio_min = sched_get_priority_min(SCHED_FIFO);
