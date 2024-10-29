@@ -2864,7 +2864,7 @@ static inline bool stress_check_root(void)
 #else
 		gids_max = 65536;
 #endif
-		gids = (git_t *)calloc((size_t)gids_max, sizeof(*gids));
+		gids = (gid_t *)calloc((size_t)gids_max, sizeof(*gids));
 		if (!gids)
 			return false;
 
