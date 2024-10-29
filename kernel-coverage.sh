@@ -336,7 +336,7 @@ if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
 	echo 0 | sudo tee /proc/sys/vm/oom_kill_allocating_task >& /dev/null
 fi
 
-fallocate -l 8G $SWAP
+fallocate -l 2G $SWAP
 chmod 0600 $SWAP
 sudo chown root:root $SWAP
 sudo mkswap $SWAP
