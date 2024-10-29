@@ -748,7 +748,6 @@ do_stress --udp-flood -1 --udp-flood-domain ipv6
 
 do_stress --utime -1 --utime-fsync
 
-do_stress --vfork 1 --vfork-vm
 do_stress --vfork 1 --vfork-max 64
 
 do_stress --vforkmany 1 --vforkmany-vm
