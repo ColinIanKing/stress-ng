@@ -67,14 +67,14 @@ static void stress_illegal_op(void)
 #endif
 
 #if defined(STRESS_ARCH_MIPS)
-#if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB))
+#if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
 	__asm__ __volatile__(".byte 0x00,0x00,0x00,0x3b\n");
 }
 #endif
-#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL))
+#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
