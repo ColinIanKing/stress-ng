@@ -53,6 +53,8 @@ static void stress_illegal_op(void)
 #define HAVE_ILLEGAL_OP
 static void stress_illegal_op(void)
 {
+	/* Loong64 is LE */
+	__asm__ __volatile__(".byte 0x3f,0x00,0x00,0x00\n");
 }
 #endif
 
@@ -65,7 +67,20 @@ static void stress_illegal_op(void)
 #endif
 
 #if defined(STRESS_ARCH_MIPS)
-/* No implemented */
+#if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB))
+#define HAVE_ILLEGAL_OP
+static void stress_illegal_op(void)
+{
+	__asm__ __volatile__(".byte 0x00,0x00,0x00,0x3b\n");
+}
+#endif
+#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL))
+#define HAVE_ILLEGAL_OP
+static void stress_illegal_op(void)
+{
+	__asm__ __volatile__(".byte 0x3b,0x00,0x00,0x00\n");
+}
+#endif
 #endif
 
 #if defined(STRESS_ARCH_PPC64)
