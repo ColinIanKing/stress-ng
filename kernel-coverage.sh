@@ -695,6 +695,8 @@ do_stress --sock -1 --sock-opts send --sock-zerocopy
 
 do_stress --sockfd -1 --sockfd-reuse
 
+do_stress --spinmem -1 --spinmem-affinity
+
 do_stress --splice -1 --splice-bytes 4K
 
 do_stress --stack -1 --stack-mlock
