@@ -534,6 +534,8 @@ do_stress --goto -1 --goto-direction backward
 
 do_stress --hrtimers -1 --hrtimers-adjust
 
+do_stress --icmp-flood -1 --icmp-flood-max-size
+
 do_stress --itimer -1 --itimer-rand
 do_stress --itimer -1 --itimer-freq 1000
 
