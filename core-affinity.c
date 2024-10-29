@@ -162,6 +162,7 @@ int stress_change_cpu(stress_args_t *args, const int old_cpu)
 	int from_cpu;
 
 	cpu_set_t mask;
+	(void)args;
 
 	/* only change cpu when --change-cpu is enabled */
 	if ((g_opt_flags & OPT_FLAGS_CHANGE_CPU) == 0)
@@ -185,14 +186,12 @@ int stress_change_cpu(stress_args_t *args, const int old_cpu)
 	}
 
 	if (sched_setaffinity(0, sizeof(mask), &mask) >= 0) {
+		const int moved_cpu = (int)stress_get_cpu();
 		/*
-		unsigned int moved_cpu;
-
-		moved_cpu = stress_get_cpu();
 		pr_dbg("%s: process [%jd] (child of instance %d on CPU %u moved to CPU %u)\n",
 			args->name, (intmax_t)getpid(), args->instance, from_cpu, moved_cpu);
 		*/
-		return (int)moved_cpu;
+		return moved_cpu;
 	}
 	return (int)from_cpu;
 }
