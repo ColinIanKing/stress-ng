@@ -26,7 +26,6 @@
 #if ULONG_MAX == 0xffffffffffffffff
 #define STRESS_ATOMIC_64BIT		(1)
 #endif
-#define STRESS_ATOMIC_64BIT		(1)
 
 #define STRESS_ATOMIC_STRINGIZE(x)	#x
 
