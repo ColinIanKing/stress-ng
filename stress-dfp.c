@@ -400,37 +400,89 @@ static int stress_dfp(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < DFP_ELEMENTS; i++) {
-		long double ld;
 		uint32_t r;
-
 #if defined(HAVE_Decimal32)
-		r = stress_mwc32();
-		ld = (long double)i + (long double)r / ((long double)(1ULL << 38));
-		dfp_data[i].d32.r_init = ld;
-		dfp_data[i].d32.r[0] = ld;
-		dfp_data[i].d32.r[1] = ld;
+		_Decimal32 d32;
+#endif
+#if defined(HAVE_Decimal64)
+		_Decimal64 d64;
+#endif
+#if defined(HAVE_Decimal128)
+		_Decimal128 d128;
 #endif
 
 		r = stress_mwc32();
-		ld = (long double)r / ((long double)(1ULL << 31));
 #if defined(HAVE_Decimal32)
-		dfp_data[i].d32.add = ld;
+		d32 = (_Decimal32)i + (_Decimal32)r / ((_Decimal32)(1ULL << 38));
+		dfp_data[i].d32.r_init = d32;
+		dfp_data[i].d32.r[0] = d32;
+		dfp_data[i].d32.r[1] = d32;
 #endif
-
-		ld = -(ld * 0.992);
-#if defined(HAVE_Decimal32)
-		dfp_data[i].d32.add_rev = ld;
+#if defined(HAVE_Decimal64)
+		d64 = (_Decimal64)i + (_Decimal64)r / ((_Decimal64)(1ULL << 38));
+		dfp_data[i].d64.r_init = d64;
+		dfp_data[i].d64.r[0] = d64;
+		dfp_data[i].d64.r[1] = d64;
+#endif
+#if defined(HAVE_Decimal128)
+		d128 = (_Decimal128)i + (_Decimal128)r / ((_Decimal128)(1ULL << 38));
+		dfp_data[i].d128.r_init = d128;
+		dfp_data[i].d128.r[0] = d128;
+		dfp_data[i].d128.r[1] = d128;
 #endif
 
 		r = stress_mwc32();
-		ld = (long double)i + (long double)r / ((long double)(1ULL << 36));
 #if defined(HAVE_Decimal32)
-		dfp_data[i].d32.mul = ld;
+		d32 = (_Decimal32)r / ((_Decimal32)(1ULL << 31));
+		dfp_data[i].d32.add = d32;
+#endif
+#if defined(HAVE_Decimal64)
+		d64 = (_Decimal64)r / ((_Decimal64)(1ULL << 31));
+		dfp_data[i].d64.add = d64;
+#endif
+#if defined(HAVE_Decimal128)
+		d128 = (_Decimal128)r / ((_Decimal128)(1ULL << 31));
+		dfp_data[i].d128.add = d128;
 #endif
 
-		ld = 0.9995 / ld;
 #if defined(HAVE_Decimal32)
-		dfp_data[i].d32.mul_rev = ld;
+		d32 = -(d32 * (_Decimal32)0.992);
+		dfp_data[i].d32.add_rev = d32;
+#endif
+#if defined(HAVE_Decimal64)
+		d64 = -(d64 * (_Decimal64)0.992);
+		dfp_data[i].d64.add_rev = d64;
+#endif
+#if defined(HAVE_Decimal128)
+		d128 = -(d128 * (_Decimal128)0.992);
+		dfp_data[i].d128.add_rev = d128;
+#endif
+
+		r = stress_mwc32();
+#if defined(HAVE_Decimal32)
+		d32 = (_Decimal32)i + (_Decimal32)r / ((_Decimal32)(1ULL << 36));
+		dfp_data[i].d32.mul = d32;
+#endif
+#if defined(HAVE_Decimal64)
+		d64 = (_Decimal64)i + (_Decimal64)r / ((_Decimal64)(1ULL << 36));
+		dfp_data[i].d64.mul = d64;
+#endif
+#if defined(HAVE_Decimal128)
+		d128 = (_Decimal128)i + (_Decimal128)r / ((_Decimal128)(1ULL << 36));
+		dfp_data[i].d128.mul = d128;
+#endif
+
+#if defined(HAVE_Decimal32)
+		d32 = (_Decimal32)0.9995 / d32;
+		dfp_data[i].d32.mul_rev = d32;
+#endif
+#if defined(HAVE_Decimal64)
+		d64 = (_Decimal64)0.9995 / d64;
+		dfp_data[i].d64.mul_rev = d64;
+#endif
+#if defined(HAVE_Decimal128)
+		d128 = (_Decimal128)0.9995 / d128;
+		dfp_data[i].d128.mul_rev = d128;
 #endif
 	}
 
