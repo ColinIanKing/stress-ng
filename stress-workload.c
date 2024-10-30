@@ -40,6 +40,8 @@
 #endif
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_MQ_POSIX) &&		\
     defined(HAVE_MQUEUE_H)
 #define WORKLOAD_THREADED	(1)
 #endif
