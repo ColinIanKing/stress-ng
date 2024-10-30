@@ -303,7 +303,8 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 		if (libc_ok) {
-			int saved_errno, ret_libc, ret_not_libc;
+			int saved_errno, ret_not_libc;
+			const int ret_libc = (int)syscall(__NR_getpid);
 
 			/*
 			 *  Test case 3: call syscall with libc syscall bounds.
@@ -317,14 +318,6 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 				pr_inf("%s: user dispatch failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-
-			/*
-			 *  getpid via the libc syscall, normal system call
-			 */
-			errno = 0;
-			dispatcher_on();
-			ret_libc = (int)syscall(__NR_getpid);
-			dispatcher_off();
 
 			/*
 			 *  getpid via non-libc syscall, will be handled by SIGSYS
