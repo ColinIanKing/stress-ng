@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "manic machine masher"
+# Codename "stupendous scheduler stressor"
 #
-VERSION=0.18.05
+VERSION=0.18.06
 
 #
 # Determine supported toolchains
