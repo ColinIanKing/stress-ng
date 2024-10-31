@@ -1,3 +1,275 @@
+stress-ng (0.18.06-1) unstable; urgency=medium
+
+  [Daniel Hodges]
+  * core-sched: Add support for sched_ext scheduling policies
+
+  [Jimmy Ho]
+  * fix stress-prio-inv bug
+
+  [Lukas Durfina]
+  * stress-vm: Check correct define for 128 bit nt stores
+
+  [Matteo Italia]
+  * stress-bitops: add macro to handle undefined return for the ctz(0)
+    case as well
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-usersyscall: move ret_libc to start of if block
+  * stress-atomic: remove STRESS_ATOMIC_64BIT
+  * stress-workload: add checks for HAVE_LIB_RT and HAVE_MQ_POSIX
+  * stress-dfp: fix missing 64 and 128 bit _Decimal initializations
+  * stress-sigill: fix MIPS build failure, remove extraneous )
+  * kernel-coverage: reduce swap for more vm pressure
+  * stress-mutex: remove n_cpus debug message
+  * core-helper: fix Cygwin build issue, git_t -> gid_t
+  * kernel-coverage: add --icmp-flood -1 --icmp-flood-max-size
+  * kernel-coverage: add --spinmem -1 --spinmem-affinity test
+  * kernel-coverage: remove vfork-vm option, it does not exist
+  * core-affinity: fix build failure and warning with previous commit
+  * core-affinity: disable affinity change debug, it can spam the output
+  * stress-sigill: add loong64 and mips illegal instructions
+  * core-affinity: voidify unused arg use_affinity
+  * stress-cpu-sched: move n_cpus and cpus
+  * stress-ng: allow one to specify odd or even CPUs with --taskset option
+  * stress-tlb-shootdown: use --taskset cpu mask
+  * stress-cache: fix more resource leak on array cpus
+  * stress-cache: handle sched_getcpu failure with error message and fix
+    resource leak on cpus
+  * stress-spinmem: fix resource leak on array cpus
+  * stress-llc-affinity: fix resource leak on cpus array
+  * stress-ipsec-mb: add build time check for init_mb_mgr_avx
+  * test/test-libipsec-mb.h: include header
+  * stress-race-sched: use --taskset cpu mask to select cpus for
+    cpu-affinity setting
+  * stress-mutex: use --taskset cpu mask for --mutex-affinity option
+  * stress-mcontend: use --taskset cpu mask to select cpus for
+    cpu-affinity setting
+  * stress-llc-affinity: use --taskset cpu mask to select cpus for
+    cpu-affinity setting
+  * stress-cpu-sched:  use --taskset cpu mask to select cpus for
+    cpu-affinity setting
+  * stress-cacheline: use --taskset cpu mask to select cpus for
+    cpu-affinity setting
+  * stress-cache: use --taskset cpu mask to select cpus for cpu-affinity
+    setting
+  * core-affinity: use correct number of cpus to scan cpuset
+  * stress-spinmem: use --taskset cpu mask for --spinmem-affinity option
+  * core-affinity: add helpers to get/free array of usable cpus
+  * stress-spinmem: add --spinmem-affinity option to move processes
+    around CPUs
+  * stress-atomic: disable 128 bit atomics for now
+  * stress-fcntl: add a few more NetBSD specific fcntl commands
+  * stress-fcntl: fix incorrect #endif placement
+  * stress-fcntl: add some FreeBSD + Darwin fcntl commands
+  * kernel-coverage: add ext2 and ext3 into the fs stress mix
+  * README.md: update nodes for Android NDK builds
+  * core-pthread: include <pthread.h> if it exists
+  * stress-workload: include <time.h> to fix Android build issues
+  * core-helper, stress-workload: include <time.h> to fix Android build
+    issues
+  * stress-crypt: ensure orig_setting is eos terminated, only copy what
+    is required
+  * README.md: add note on LTO performance improvements
+  * README.md: document various build options
+  * stress-ptr-cached: add metric on duration per pointer chase operation
+  * stress-zlib: add anonymous mapped name for zlib data checksums
+  * stress-zero: add anonymous mapped name for read/write buffers
+  * stress-workload: add anonymous mapped name for generic data buffer
+  * stress-vma: add anonymous mapped name for vma metrics
+  * stress-vm: add anonymous mapped name for bit error counter page
+  * stress-vm-addr: add anonymous mapped name for bit error counter page
+  * stress-unshare: add anonymous mapped name for unshare metrics
+  * stress-tlb-shootdown: add anonymous mapped name for tlb-shootdown
+    buffer
+  * stress-sysinval: add anonymous mapped name for various page mappings
+  * stress-sysfs: add anonymous mapped name for shared pthread context
+    data
+  * stress-swap: add anonymous mapped name for mmap'd swap page
+  * stress-sparsematrix: add anonymous mapped name for mmap'd sparse data
+  * stress-sem: add anonymous mapped name for globally shared semaphore
+  * stress-seal: add anonymous mapped name for write buffer
+  * stress-schedmix: add anonymous mapped name for shared semaphore
+    mappings
+  * stress-rmap: add anonymous mapped name for page padding mappings
+  * stress-ptr-chase: add anonymous mapped name for pointer nodes and
+    pointers
+  * stress-pseek: add anonymous mapped name for pseek process state and
+    I/O buffers
+  * stress-plugin: add anonymous mapped name for signal counter data
+  * stress-pkey: add anonymous mapped name for pkey pages
+  * stress-pipe: add anonymous mapped name for read/write buffers
+  * stress-peterson: add anonymous mapped name shared lock structure
+  * stress-msync: add anonymous mapped name for I/O read buffer
+  * stress-mmapfiles: add anonymous mapped name for shared mmap'd file
+    information
+  * stress-mmap: add anonymous mapped name for page pointers and page
+    index
+  * stress-mlockmany: add anonymous mapped name for mlocked pages
+  * stress-misaligned: add anonymous mapped name shared page for
+    misaligned transactions
+  * stress-min-nanosleep: add anonymous mapped name for nanosleep delay
+    tracking
+  * stress-mergesort:  add anonymous mapped name for sorting data buffer
+  * stress-memthrash: add anonymous mapped name for memory thrashing
+    buffer
+  * stress-memcpy: add anonymous mapped name for memcpy buffer
+  * stress-matrix: add anonymous mapped name for matrices a,b and r
+  * stress-matrix-3d: add anonymous mapped name for matrices a,b and r
+  * stress-malloc: add anonymous mapped name for malloc tracking
+    information
+  * stress-madvise: add anonymous mapped name for single page mapping
+  * stress-lsm: add anonymous mapped name for lsm data buffer
+  * stress-jpg: add anonymous mapped name for rgb data and row pointers
+  * stress-icache: add anonymous mapped name for object code
+  * stress-far-branch: add anonymous mapped name for each page mapped
+    for functions
+  * stress-dfp: fix anonymous mapped page name, fp -> dfp
+  * stress-dev: add anonymous mapped name for device state information
+  * stress-cyclic: add anonymous mapped name for latencies
+  * stress-cpu-sched: add anonymous mapped name for node masks
+  * stress-context: add anonymous mapped name for context data
+  * stress-atomic: add anonymous mapped name for atomic-info data
+  * stress-ptr-chase: compare total with integer rather than float value
+  * stress-monte-carlo: ensure results array is correctly initialized
+  * stress-icache: catch and debug state if SIGSEGVs occur
+  * core-helper: improve debug dump of SIG* issues
+  * core-asm-x86.h: add cpuid implementation for 32 bit -fPIC builds on
+    older toolchains
+  * stress-atomic: add support for 128 bit atomics on 64 bit systems
+  * stress-ng.h: minor clean ups, no code change
+  * stress-ng: replace struct stressor_info with stressor_info_t
+  * stress-has: replace struct stress_hash_method_info with typedef
+    stress_hash_method_info_t
+  * stress-list: replace struct list_entry with typedef list_entry_t
+  * core-out-of-memory: implement stress_set_oom_adjustment for FreeBSD
+  * core-out-of-memory: inline helper function stress_args_name
+  * core-helper: implement stress_parent_died_alarm for FreeBSD
+  * core-helper: use getdtablesize for max fd if it is available
+  * core-helper, stress-*: add stress_zero_metrics helper to zero metrics
+  * stress-cpu-sched: rename pid to child_pid to avoid name shadowing
+  * core-*, stress-*: cast return from calloc to appropriate type
+  * core-*, stress-*: cast return from malloc to appropriate type
+  * core-target-clones.h: add power11 to target clones
+  * stress-syscall: fix kfreebsd Debian build, include <time.h>
+  * stress-syscall: fall back to gettimeofday if clock_gettime is
+    unavailable
+  * stress-*: cast munmap 1st arg and mmap return to appropriate types
+  * stress-cpu-sched: add helper function to setup HR timer
+  * stress-intmath: fix cut-n-paste errro in type, should __int128_t
+    instead of __int64_t
+  * stress-cpu-sched: add doing nothing asm for empty err exit path
+  * stress-cpu-sched: remove check on HAVE_SCHED_GETATTR for prio
+    variables
+  * stress-cpu-sched: make declaration of cpus not dependent on
+    HAVE_SET_MEMPOLICY
+  * stress-cpu-sched: only use SCHED_RESET_ON_FORK if it is defined
+  * core-target-clones.h: add Lunarlake target clones
+  * stress-cpu-sched: add SCHED_RR, SCHED_FIFO and SCHED_DEADLINE
+    schedulers
+  * stress-hyperbolic: add hyperbolic cosh, sinh and tanh function
+    stressor
+  * stress-inotify: clean up some comments
+  * stress-intmath: add support for 128 bit integers
+  * stress-workload: default --workload-threads to 2 instead of zero
+  * stress-fanotify: remove from scheduler clas
+  * stress-inotify: remove from scheduler class
+  * stress-inotify: fix spelling mistake "timed" -> "timed out"
+  * Manual: add SCHED_EXT to supported scheduling policies
+  * README.md: add another kernel bug reference
+  * core-sched: move SCHED_EXT #define to core-sched.h
+  * README.md: Update contributors list
+  * stress-ptr-chase: add new pointer chasing cache/pointer stressor
+  * README.md: Update contributors list
+  * stress-schedpolicy: log the name of the mismatched scheduler type
+  * stress-bitops: make bitposition a int8_t type since all values
+    are < 256
+  * Revert "kernel-coverage: remove swap on loop-back filesystems"
+  * stress-binderfs: perform binderfs on temp path subdirectory
+  * kernel-coverage: remove swap on loop-back filesystems
+  * stress-apparmor: use stress_mwc32modn() for size modulo'd random
+    values
+  * stress-x86cpuid: add some more x86 CPUID leaf checks
+  * stress-prio-inv: Fix incorrect check for PTHREAD_PRIO_{INHERIT | NONE
+    | PROTECT}
+  * stress-dfp: fix copyright year
+  * stress-dfp: add _Decimal32/64/128 floating point add/mul/div stressors
+  * kernel-coverage: cater for minix 1 to minux 3 fs types
+  * stress-cpu-sched: replace block/unblock functions with
+    stress_cpu_sched_hrtimer_sigprocmask
+  * stress-cpu-sched: add fork retries for other forks
+  * stress-cpu-sched: add fork retries
+  * README.md: add a Cygwin bug link
+  * stress-cpu-sched: periodically fetch process run time stats
+  * stress-cpu-sched: periodically read load average
+  * stress-cpu-sched: fix missing "
+  * stress-cpu-sched: exercise some linux sched specific proc files
+  * stress-*: use stress_system_discard for discarded reads
+  * stress-cpu-sched: periodically try to read
+    /sys/kernel/debug/sched/debug
+  * core-helper: add file read/discard helpers to read all data from a
+    file
+  * stress-cpu-sched: twiddle cpu slack on each timer reset
+  * core-cpu: add virtual machine cpu ids
+  * core-cpu: Add some more Hypervisor ID string in EBX,ECX,EDX strings
+  * stress-cpu-sched: add some random SIGSTOP/SIGCONT on child processes
+  * stress-set: cater for setrlimit returning -EINVAL on sigrlimit
+  * stress-cpu-sched: replace clone with fork and ensure all child
+    processes die
+  * stress-cpu-sched: add RT hrtimer to change cpu and scheduler
+  * stress-cpu-sched: add more mechanisms to select next cpu to use
+  * stress-cpu-sched: exec stress-ng from a fork'd child for more stress
+  * stress-exec: use capability check shim to check for root privilege
+  * stress-cpu-sched: add randomization to SIGSTOP/SIGCONT on children
+  * README.md: add another kernel fix link
+  * README.md: replace tab with 4 spaces in build example guide
+  * stress-sysbadaddr: move signal handlers earlier in child processes
+  * Makefile.machine: check if objdump exists rather than readelf
+  * stress-ng: add/remove some new lines
+  * stress-ng: restructure loop stress_exclude_unsupported
+  * stress-ng: remove extraneous ( )
+  * stress-ng: remove some empty lines
+  * stress-ng.h: remove #include <sys/param.h> from header
+  * stress-ng.h: move #include <sys/param.h> to stress-env.c
+  * stress-ng.h: move #include <time.h> to sources that just require it
+  * stress-ng.h: move #include <sys/resource.h> to core-shim.h
+  * stress-ng.h: move #include <dirent.h> to core-shim.h
+  * stress-ng: mungify stressor names at startup time
+  * stress-ng: remove space after \n in error messages
+  * core-shared-heap: rename stress_shared_heap_deinit to
+    stress_shared_heap_free
+  * Manual: use an escaped ? (e.g. \?) in class option example
+  * stress-prio-inv: make priority inheritance error a warning
+  * core-*: stress-*: voidify returns from various sleep function calls
+  * core-shim: explicitly specify int for params in shim_getcpu()
+  * stress-*: voidify return from shim_nanosleep_uint64()
+  * stress-cpu-sched: add some more sched_yield calls
+  * core-*, stress-*: voidify returns from shim_sched_yield()
+  * stress-cpu-sched: add a yield after each bogo-loop round
+  * stress-cpu-sched: periodically move stressor instance to different CPU
+  * stress-cpu-sched: periodically allow child to change it's CPU
+  * stress-cpu-sched: add SCHED_RESET_ON_FORK flag to sched_setscheduler
+    policy
+  * README.md: Add some Cygwin bug report/fix URLS
+  * Manual: updated notes about systems that provide sched_setaffinity
+  * stress-cpu-sched: fix a couple of pedantic build warnings
+  * stress-cpu-sched: add some function block comments
+  * stress-cpu-sched: update short help info
+  * core-cpu-sched: attempt to do autogroup adjustments for nice on Linux
+  * stress-cpu-sched: add nice calls to clone'd process
+  * stress-cpu-sched: add periodic clone process scheduler exercising
+  * stress-core-sched: exercise set_mempolicy for more work
+  * stress-cpu-sched: add some per child process time wasting mechanisms
+  * stress-cpu-sched: add different ordering to pids
+  * stress-cpu-sched: add random setpriority setting on child process
+  * stress-cpu-sched: yet another scheduler stressor
+  * core-thrash: read memory related proc files on Linux
+  * core-lock: increase number of concurrent locks to 2 * STRESS_PROCS_MAX
+  * Add new --stressor-time option to debug log the start/finish times
+    of stressors
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 31 Oct 2024 09:50:48 +0000
+
 stress-ng (0.18.05-1) unstable; urgency=medium
 
   [Denis Ovsienko]
