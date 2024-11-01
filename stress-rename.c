@@ -267,6 +267,7 @@ restart:
 #endif
 		return rc;
 	}
+	(void)fflush(fp);
 	(void)fclose(fp);
 
 	while (stress_continue(args)) {

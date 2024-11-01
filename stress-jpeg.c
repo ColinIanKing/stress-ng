@@ -316,6 +316,7 @@ PRAGMA_UNROLL_N(8)
 
 	(void)jpeg_write_scanlines(&cinfo, row_pointer, (JDIMENSION)y_max);
 	jpeg_finish_compress(&cinfo);
+	(void)fflush(fp);
 	(void)fclose(fp);
 	jpeg_destroy_compress(&cinfo);
 	t2 = stress_time_now();

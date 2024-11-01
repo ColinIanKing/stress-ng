@@ -3770,6 +3770,7 @@ static void stress_yaml_close(FILE *yaml)
 {
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
+		(void)fflush(yaml);
 		(void)fclose(yaml);
 	}
 }

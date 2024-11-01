@@ -513,6 +513,9 @@ again:
 			 * corruption since the child will
 			 * die soon anyhow
 			 */
+			(void)fflush(stdout);
+			(void)fflush(stderr);
+
 			(void)fclose(stdin);
 			(void)fclose(stdout);
 			(void)fclose(stderr);

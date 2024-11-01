@@ -223,9 +223,11 @@ log_info:
 				last_logged = stress_time_now();
 			}
 		}
+		(void)fflush(klog_fp);
 		(void)fclose(klog_fp);
 		_exit(EXIT_SUCCESS);
 	}
+	(void)fflush(klog_fp);
 	(void)fclose(klog_fp);
 #endif
 }
