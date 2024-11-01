@@ -163,11 +163,6 @@ static int stress_fp_error(stress_args_t *args)
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID, &rc);
 #endif
-#if defined(EDOM) && defined(FE_INVALID)
-		stress_fp_clear_error();
-		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
-			true, false, EDOM, FE_INVALID, &rc);
-#endif
 #if defined(FE_INEXACT)
 #if !defined(STRESS_ARCH_ALPHA)
 		/*
