@@ -4563,7 +4563,7 @@ static int syscall_ppoll(void)
 	VOID_RET(int, sigemptyset(&sigmask));
 
 	t1 = syscall_time_now();
-	ret = ppoll(fds, SIZEOF_ARRAY(fds), &ts, &sigmask);
+	ret = shim_ppoll(fds, SIZEOF_ARRAY(fds), &ts, &sigmask);
 	t2 = syscall_time_now();
 	return ret;
 }

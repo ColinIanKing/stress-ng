@@ -277,7 +277,7 @@ abort:
 			(void)sigemptyset(&sigmask);
 			(void)sigaddset(&sigmask, SIGPIPE);
 
-			ret = ppoll(poll_fds, max_fds, &ts, &sigmask);
+			ret = shim_ppoll(poll_fds, max_fds, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
 				pr_fail("%s: ppoll failed, errno=%d (%s)\n",
@@ -298,7 +298,7 @@ abort:
 			/* Exercise illegal poll timeout */
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1999999999;
-			VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
+			VOID_RET(int, shim_ppoll(poll_fds, max_fds, &ts, &sigmask));
 			if (!stress_continue(args))
 				break;
 
@@ -317,7 +317,7 @@ abort:
 					if (LIKELY(setrlimit(RLIMIT_NOFILE, &new_rlim) == 0)) {
 						ts.tv_sec = 0;
 						ts.tv_nsec = 0;
-						VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
+						VOID_RET(int, shim_ppoll(poll_fds, max_fds, &ts, &sigmask));
 
 						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
 						if (!stress_continue(args))

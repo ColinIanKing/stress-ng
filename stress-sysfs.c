@@ -328,7 +328,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			ts.tv_nsec = 1000;
 
 			(void)sigemptyset(&sigmask);
-			VOID_RET(int, ppoll(fds, 1, &ts, &sigmask));
+			VOID_RET(int, shim_ppoll(fds, 1, &ts, &sigmask));
 		}
 #else
 		UNEXPECTED

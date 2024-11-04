@@ -516,7 +516,7 @@ mmap_test:
 			fds[0].events = POLLIN;
 			fds[0].revents = 0;
 
-			VOID_RET(int, ppoll(fds, 1, &ts, &sigmask));
+			VOID_RET(int, shim_ppoll(fds, 1, &ts, &sigmask));
 		}
 #endif
 

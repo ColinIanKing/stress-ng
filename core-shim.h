@@ -23,6 +23,10 @@
 #include <sys/uio.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #include <dirent.h>
 #include <sched.h>
 #include <sys/resource.h>
@@ -325,6 +329,20 @@ typedef struct shim_timex {
 } shim_timex_t;
 #endif
 
+#if defined(HAVE_PPOLL)
+typedef nfds_t shim_nfds_t;
+
+typedef struct pollfd shim_pollfd_t;
+#else
+typedef unsigned int shim_nfds_t;
+
+typedef struct shim_pollfd {
+	int fd;
+	short events;
+	short revents;
+} shim_pollfd_t;
+#endif
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
@@ -502,5 +520,7 @@ extern int shim_lstat(const char *pathname, struct stat *statbuf);
 extern int shim_stat(const char *pathname, struct stat *statbuf);
 extern unsigned char shim_dirent_type(const char *path, const struct dirent *d);
 extern int shim_mseal(void *addr, size_t len, unsigned long flags);
+extern int shim_ppoll(struct pollfd *fds, nfds_t nfds,
+	const struct timespec *tmo_p, const sigset_t *sigmask);
 
 #endif

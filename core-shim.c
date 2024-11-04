@@ -2824,3 +2824,40 @@ int shim_mseal(void *addr, size_t len, unsigned long flags)
 	return shim_enosys(0, addr, len, flags);
 #endif
 }
+
+
+/*
+ *  shim_ppoll()
+ *	shim wrapper for ppoll
+ */
+int shim_ppoll(
+	struct pollfd *fds,
+	nfds_t nfds,
+	const struct timespec *tmo_p,
+	const sigset_t *sigmask)
+{
+
+#if defined(HAVE_PPOLL)
+
+#if defined(_FORTIFY_SOURCE)
+#undef STRESS__FORTIFY_SOURCE
+#define STRESS__FORTIFY_SOURCE _FORTIFY_SOURCE
+#undef _FORTIFY_SOURCE
+#define _FORTIFY_SOURCE 2
+#endif
+
+	return ppoll(fds, nfds, tmo_p, sigmask);
+
+#if defined(STRESS__FORTIFY_SOURCE)
+#undef _FORTIFY_SOURCE
+#define _FORTIFY_SOURCE STRESS__FORTIFY_SOURCE
+#undef STRESS__FORTIFY_SOURCE
+#endif
+
+#elif defined(__NR_ppoll)
+	return (int)syscall(__NR_ppoll, fds, nfds, tmo_p, sigmask);
+#else
+	return shim_enosys(0, fds, nfds, tmo_p, sigmask);
+#endif
+}
+

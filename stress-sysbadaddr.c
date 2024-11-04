@@ -1515,7 +1515,7 @@ static void bad_ppoll1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	sigset_t *ss = (sigset_t *)(inc_addr(addr, sizeof(struct pollfd) + sizeof(struct timespec)));
 
 	(*counter)++;
-	VOID_RET(int, ppoll((struct pollfd *)addr, (nfds_t)1, ts, ss));
+	VOID_RET(int, shim_ppoll((struct pollfd *)addr, (nfds_t)1, ts, ss));
 }
 
 static void bad_ppoll2(stress_bad_addr_t *ba, volatile uint64_t *counter)
@@ -1528,7 +1528,7 @@ static void bad_ppoll2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 	ts.tv_nsec = 0;
 
 	(*counter)++;
-	VOID_RET(int, ppoll((struct pollfd *)ba->addr, (nfds_t)16, &ts, &sigmask));
+	VOID_RET(int, shim_ppoll((struct pollfd *)ba->addr, (nfds_t)16, &ts, &sigmask));
 }
 
 static void bad_ppoll3(stress_bad_addr_t *ba, volatile uint64_t *counter)
@@ -1543,7 +1543,7 @@ static void bad_ppoll3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		(void)sigemptyset(&sigmask);
 
 		(*counter)++;
-		VOID_RET(int, ppoll(&pfd, (nfds_t)1, (struct timespec *)ba->addr, &sigmask));
+		VOID_RET(int, shim_ppoll(&pfd, (nfds_t)1, (struct timespec *)ba->addr, &sigmask));
 	}
 }
 
@@ -1560,7 +1560,7 @@ static void bad_ppoll4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		ts.tv_nsec = 0;
 
 		(*counter)++;
-		VOID_RET(int, ppoll(&pfd, (nfds_t)1, &ts, (sigset_t *)ba->addr));
+		VOID_RET(int, shim_ppoll(&pfd, (nfds_t)1, &ts, (sigset_t *)ba->addr));
 	}
 }
 #endif
