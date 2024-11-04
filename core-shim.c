@@ -2831,8 +2831,8 @@ int shim_mseal(void *addr, size_t len, unsigned long flags)
  *	shim wrapper for ppoll
  */
 int shim_ppoll(
-	struct pollfd *fds,
-	nfds_t nfds,
+	shim_pollfd_t *fds,
+	shim_nfds_t nfds,
 	const struct timespec *tmo_p,
 	const sigset_t *sigmask)
 {

@@ -520,7 +520,7 @@ extern int shim_lstat(const char *pathname, struct stat *statbuf);
 extern int shim_stat(const char *pathname, struct stat *statbuf);
 extern unsigned char shim_dirent_type(const char *path, const struct dirent *d);
 extern int shim_mseal(void *addr, size_t len, unsigned long flags);
-extern int shim_ppoll(struct pollfd *fds, nfds_t nfds,
+extern int shim_ppoll(shim_pollfd_t *fds, shim_nfds_t nfds,
 	const struct timespec *tmo_p, const sigset_t *sigmask);
 
 #endif
