@@ -19,6 +19,17 @@
  */
 #define STRESS_CORE_SHIM
 
+/*
+ *  For ALT Linux gcc use at most _FORTIFY_SOURCE level 2
+ *  https://github.com/ColinIanKing/stress-ng/issues/452
+ */
+#if defined(HAVE_ALT_LINUX_GCC) &&	\
+    defined(_FORTIFY_SOURCE) &&		\
+    _FORTIFY_SOURCE > 2
+#undef _FORTIFY_SOURCE
+#define _FORTIFY_SOURCE	2
+#endif
+
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-attribute.h"
@@ -2825,7 +2836,6 @@ int shim_mseal(void *addr, size_t len, unsigned long flags)
 #endif
 }
 
-
 /*
  *  shim_ppoll()
  *	shim wrapper for ppoll
@@ -2836,26 +2846,20 @@ int shim_ppoll(
 	const struct timespec *tmo_p,
 	const sigset_t *sigmask)
 {
-
 #if defined(HAVE_PPOLL)
-
-#if defined(_FORTIFY_SOURCE)
-#undef STRESS__FORTIFY_SOURCE
-#define STRESS__FORTIFY_SOURCE _FORTIFY_SOURCE
-#undef _FORTIFY_SOURCE
-#define _FORTIFY_SOURCE 2
-#endif
-
 	return ppoll(fds, nfds, tmo_p, sigmask);
+#elif defined(__NR_ppoll) && defined(_NSIG)
+	struct timespec tval;
 
-#if defined(STRESS__FORTIFY_SOURCE)
-#undef _FORTIFY_SOURCE
-#define _FORTIFY_SOURCE STRESS__FORTIFY_SOURCE
-#undef STRESS__FORTIFY_SOURCE
-#endif
-
-#elif defined(__NR_ppoll)
-	return (int)syscall(__NR_ppoll, fds, nfds, tmo_p, sigmask);
+	/*
+	 * The kernel will update the timeout, so use a tmp val
+	 * instead
+	 */
+	if (tmo_p != NULL) {
+		tval = *tmo_p;
+		tmo_p = &tval;
+	}
+	return (int)syscall(__NR_ppoll, fds, nfds, tmo_p, sigmask, _NSIG / 8);
 #else
 	return shim_enosys(0, fds, nfds, tmo_p, sigmask);
 #endif

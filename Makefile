@@ -52,6 +52,14 @@ ifneq ($(shell $(CC) -v 2>&1 | grep scan-build),)
 COMPILER = scan-build
 endif
 
+#
+# check for ALT linux gcc, define HAVE_ALT_LINUX_GCC, see core-shim.c
+# https://github.com/ColinIanKing/stress-ng/issues/452
+#
+ifneq ($(shell $(CC) -v 2>&1 | grep Target | grep "alt-linux"),)
+override CFLAGS += -DHAVE_ALT_LINUX_GCC
+endif
+
 KERNEL=$(shell uname -s)
 NODENAME=$(shell uname -n)
 
