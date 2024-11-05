@@ -198,21 +198,24 @@
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_TARGET_CLONES)
 
-#if defined(HAVE_TARGET_CLONES_POWER9)
+#if defined(HAVE_TARGET_CLONES_POWER9) &&	\
+    defined(HAVE_BUILTIN_CPU_IS_POWER10)
 #define TARGET_CLONE_POWER9 "cpu=power9",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_POWER9
 #endif
 
-#if defined(HAVE_TARGET_CLONES_POWER10)
+#if defined(HAVE_TARGET_CLONES_POWER10)	&&	\
+    defined(HAVE_BUILTIN_CPU_IS_POWER10)
 #define TARGET_CLONE_POWER10 "cpu=power10",
 #define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_POWER10
 #endif
 
-#if defined(HAVE_TARGET_CLONES_POWER11)
+#if defined(HAVE_TARGET_CLONES_POWER11) &&	\
+    defined(HAVE_BUILTIN_CPU_IS_POWER11)
 #define TARGET_CLONE_POWER11 "cpu=power11",
 #define TARGET_CLONE_USE
 #else
