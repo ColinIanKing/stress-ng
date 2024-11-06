@@ -140,6 +140,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 
 	do {
 		double t;
+		int saved_errno = 0;
 
 		if (stress_brk_abs(ptr, start_ptr) > brk_bytes) {
 			ptr = start_ptr;
@@ -174,6 +175,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 				tmp = (uintptr_t *)((uintptr_t)ptr - sizeof(uintptr_t));
 				*tmp = (uintptr_t)tmp;
 			} else {
+				saved_errno = errno;
 				if (brk_failed_ptr == ptr) {
 					brk_failed_count++;
 					if (brk_failed_count > 32) {
@@ -187,6 +189,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		} else if (i < 9) {
 			/* brk to same brk position */
 			if (UNLIKELY(shim_brk(ptr) < 0)) {
+				saved_errno = errno;
 				ptr = start_ptr;
 				i = 0;
 			}
@@ -194,6 +197,7 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 			/* Shrink brk by 1 page */
 			t = stress_time_now();
 			if (LIKELY(shim_sbrk(-page_size) != (void *)-1)) {
+				saved_errno = errno;
 				sbrk_shr_duration += stress_time_now() - t;
 				sbrk_shr_count += 1.0;
 				ptr -= page_size;
@@ -225,13 +229,13 @@ static int OPTIMIZE3 stress_brk_child(stress_args_t *args, void *context)
 		}
 
 		if (UNLIKELY(ptr == (void *)-1)) {
-			if (LIKELY((errno == ENOMEM) || (errno == EAGAIN))) {
+			if (LIKELY((saved_errno == ENOMEM) || (saved_errno == EAGAIN))) {
 				VOID_RET(int, shim_brk(start_ptr));
 				i = 0;
 			} else {
 				pr_fail("%s: sbrk(%d) failed: errno=%d (%s)\n",
-					args->name, (int)page_size, errno,
-					strerror(errno));
+					args->name, (int)page_size, saved_errno,
+					strerror(saved_errno));
 				return EXIT_FAILURE;
 			}
 		}
