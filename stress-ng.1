@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "28 October 2024"
+.TH STRESS-NG 1 "7 November 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -551,7 +551,8 @@ set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
 just use these CPUs (for systems that provide sched_setaffinity()). The CPUs
 to be used are specified by a comma separated list of CPU (0 to N-1). One
 can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11,
-or use "even" for even numbered CPUs and "odd" for odd numbered CPUs.
+or use "even" for even numbered CPUs, "odd" for odd numbered CPUs, "all" for
+all cpus or "random" of a random selection of CPUs.
 .TP
 .B \-\-temp\-path path
 specify a path for stress\-ng temporary directories and temporary files;

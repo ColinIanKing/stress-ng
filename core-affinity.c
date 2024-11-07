@@ -104,6 +104,17 @@ int stress_set_cpu_affinity(const char *arg)
 			CPU_SET(i, &set);
 		stress_set_cpu_affinity_current(&set);
 		return 0;
+	} else if (!strcmp(arg, "all")) {
+		for (i = 0; i < max_cpus; i++)
+			CPU_SET(i, &set);
+		stress_set_cpu_affinity_current(&set);
+		return 0;
+	} else if (!strcmp(arg, "random")) {
+		for (i = 0; i < max_cpus; i++)
+			if (stress_mwc1())
+				CPU_SET(i, &set);
+		stress_set_cpu_affinity_current(&set);
+		return 0;
 	}
 
 	str = stress_const_optdup(arg);
