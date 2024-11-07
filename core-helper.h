@@ -194,5 +194,6 @@ extern void *stress_mmap_populate(void *addr, size_t length, int prot,
 extern bool stress_addr_readable(const void *addr, const size_t len);
 extern uint64_t stress_get_machine_id(void);
 extern void stress_zero_metrics(stress_metrics_t *metrics, const size_t n);
+extern void stress_backtrace(void);
 
 #endif

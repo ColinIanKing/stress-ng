@@ -1376,6 +1376,8 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		(void)snprintf(buf, sizeof(buf), "%s: info:  [%jd] stressor terminated with unexpected %s\n",
 			g_app_name, (intmax_t)getpid(), stress_strsignal(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
+		if (signum == SIGABRT)
+			stress_backtrace();
 		stress_kill_stressors(SIGALRM, true);
 		_exit(EXIT_SIGNALED);
 	default:

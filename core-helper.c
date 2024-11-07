@@ -39,6 +39,10 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
+#if defined(HAVE_EXECINFO_H)
+#include <execinfo.h>
+#endif
+
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif
@@ -137,6 +141,8 @@ int __dso_handle;
 #define MEM_CACHE_SIZE			(2 * MB)
 #define PAGE_4K_SHIFT			(12)
 #define PAGE_4K				(1 << PAGE_4K_SHIFT)
+
+#define BACKTRACE_BUF_SIZE		(64)
 
 #define STRESS_ABS_MIN_STACK_SIZE	(64 * 1024)
 
@@ -5054,4 +5060,38 @@ void stress_zero_metrics(stress_metrics_t *metrics, const size_t n)
 		metrics[i].count = 0.0;
 		metrics[i].t_start = 0.0;
 	}
+}
+
+/*
+ *  stress_backtrace
+ *	dump stack trace to stdout, this could be called
+ *	from a signal context so try to keep buffer small
+ *	and fflush on all printfs to ensure we dump as
+ *	much as possible.
+ */
+void stress_backtrace(void)
+{
+#if defined(HAVE_EXECINFO_H) &&	\
+    defined(HAVE_BACKTRACE)
+	int i, n_ptrs;
+	void *buffer[BACKTRACE_BUF_SIZE];
+	char **strings;
+
+	n_ptrs = backtrace(buffer, BACKTRACE_BUF_SIZE);
+	if (n_ptrs < 1)
+		return;
+
+	strings = backtrace_symbols(buffer, n_ptrs);
+	if (!strings)
+		return;
+
+	printf("backtrace:\n");
+	fflush(stdout);
+
+	for (i = 0; i < n_ptrs; i++) {
+		printf("  %s\n", strings[i]);
+		fflush(stdout);
+	}
+	free(strings);
+#endif
 }
