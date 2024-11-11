@@ -23,6 +23,7 @@
 #include "core-killpid.h"
 #include "core-out-of-memory.h"
 #include "core-pthread.h"
+#include "core-put.h"
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
@@ -479,10 +480,10 @@ static void *stress_vma_access(void *ptr)
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		const size_t offset = page_size * stress_mwc8modn(STRESS_VMA_PAGES);
-		uint8_t *ptr8 = (uint8_t *)(data + offset);
+		volatile uint8_t *ptr8 = (volatile uint8_t *)(data + offset);
 
 		stress_vma_metrics->s.metrics[STRESS_VMA_ACCESS]++;
-		++(*ptr8);
+		stress_uint8_put(*ptr8);
 	}
 	return NULL;
 }
