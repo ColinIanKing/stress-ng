@@ -383,7 +383,7 @@ static int stress_prefetch(stress_args_t *args)
 		prefetch_info[i].rate = 0.0;
 	}
 	if (args->instance == 0) {
-		pr_inf("%s: using a %zd KB L3 cache with prefetch method '%s'\n",
+		pr_inf("%s: using a %zdK L3 cache with prefetch method '%s'\n",
 		args->name, l3_data_size >> 10, prefetch_methods[prefetch_method].name);
 	}
 
