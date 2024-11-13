@@ -488,6 +488,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [security/keys: fix slab-out-of-bounds in key_task_permission](https://www.spinics.net/lists/kernel/msg5392458.html)
 * [sched_ext: Don't hold scx_tasks_lock for too long](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?b07996c7abac0fe3f70bf74b0b3f76eb7852ef5a)
 * [sched/numa: Fix the potential null pointer dereference in task_numa_work()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?9c70b2a33cd2aa6a5a59c5523ef053bd42265209)
+* [reiserfs panic using fsize stressor](https://bugzilla.kernel.org/show_bug.cgi?id=219497)
 
 ## Kernel improvements that used stress-ng
 
