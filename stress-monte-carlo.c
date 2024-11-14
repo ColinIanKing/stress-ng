@@ -164,7 +164,7 @@ static double stress_mc_drand48_rand(void)
 static void OPTIMIZE3 stress_mc_drand48_seed(void)
 {
 	register const uint64_t seed64 = (shim_time(NULL) + 1) * getpid();
-	unsigned short seed[3];
+	unsigned short int seed[3];
 
 	seed[0] = seed64 & 0xffff;
 	seed[1] = (seed64 >> 16) & 0xffff;

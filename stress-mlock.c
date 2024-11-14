@@ -178,7 +178,7 @@ static size_t stress_mlock_max_lockable(void)
 
 #if defined(_SC_MEMLOCK)
 	{
-		const long lockmax = sysconf(_SC_MEMLOCK);
+		const long int lockmax = sysconf(_SC_MEMLOCK);
 
 		sysconf_max = (lockmax > 0) ? (size_t)lockmax : MLOCK_MAX;
 	}

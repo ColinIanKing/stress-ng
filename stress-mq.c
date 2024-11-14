@@ -108,10 +108,10 @@ static int stress_mq(stress_args_t *args)
 
 #if defined(_SC_MQ_PRIO_MAX)
 	{
-		long sysconf_ret;
+		long int sysconf_ret;
 
 		sysconf_ret = sysconf(_SC_MQ_PRIO_MAX);
-		if ((sysconf_ret > 0) && (sysconf_ret < (long)UINT_MAX))
+		if ((sysconf_ret > 0) && (sysconf_ret < (long int)UINT_MAX))
 			max_prio = (unsigned int)(sysconf_ret + 1);
 	}
 #endif
@@ -197,7 +197,7 @@ static int stress_mq(stress_args_t *args)
 			args->name, mq_size, sz);
 	}
 	pr_dbg("%s: POSIX message queue %s with %lu messages\n",
-		args->name, mq_name, (unsigned long)attr.mq_maxmsg);
+		args->name, mq_name, (unsigned long int)attr.mq_maxmsg);
 
 	if (time(&time_start) == ((time_t)-1)) {
 		do_timed = false;

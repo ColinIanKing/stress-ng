@@ -417,7 +417,7 @@ static void vdso_sym_list_remove_duplicates(stress_vdso_sym_t **list)
  */
 static int stress_vdso_supported(const char *name)
 {
-	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
+	unsigned long int vdso = getauxval(AT_SYSINFO_EHDR);
 
 	if (vdso == 0) {
 		pr_inf_skip("%s stressor will be skipped, failed to find vDSO address\n", name);

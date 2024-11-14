@@ -94,7 +94,7 @@ static void stress_sigill_handler(int signum)
  */
 static int stress_tsc_supported(const char *name)
 {
-	unsigned long cycles;
+	unsigned long int cycles;
 
 	if (stress_sighandler(name, SIGILL, stress_sigill_handler, NULL) < 0)
 		return -1;

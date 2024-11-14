@@ -148,7 +148,7 @@ static void *stress_pthread_func(void *c)
 		stress_sleep_time_now(&t1);
 		for (cc = cstate_list; cc; cc = cc->next) {
 			if (cc->residency > 0) {
-				const unsigned long residency_ns = (unsigned long)(cc->residency + 1) * 1000UL;
+				const unsigned long int residency_ns = (unsigned long int)(cc->residency + 1) * 1000UL;
 
 				expected += cc->residency;
 				tv.tv_nsec = residency_ns % 1000000000;

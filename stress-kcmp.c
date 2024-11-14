@@ -66,7 +66,7 @@ struct shim_kcmp_epoll_slot {
 
 #define SHIM_KCMP(pid1, pid2, type, idx1, idx2)				\
 	(int)shim_kcmp((pid_t)pid1, (pid_t)pid2, (int)type,		\
-		  (unsigned long)idx1, (unsigned long)idx2)		\
+		  (unsigned long int)idx1, (unsigned long int)idx2)	\
 
 #define KCMP(pid1, pid2, type, idx1, idx2)				\
 do {									\
@@ -291,9 +291,9 @@ again:
 				slot.efd = (uint32_t)efd;
 				slot.tfd = (uint32_t)sfd;
 				slot.toff = (uint32_t)0;
-				KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
-				KCMP(pid2, pid1, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
-				KCMP(pid2, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long int)&slot);
+				KCMP(pid2, pid1, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long int)&slot);
+				KCMP(pid2, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long int)&slot);
 			}
 #endif
 
@@ -315,7 +315,7 @@ again:
 					slot.efd = (uint32_t)efd;
 					slot.tfd = (uint32_t)sfd;
 					slot.toff = (uint32_t)0;
-					KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+					KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long int)&slot);
 				}
 #endif
 			}

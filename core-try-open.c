@@ -57,13 +57,13 @@ int stress_try_open(
 	stress_args_t *args,
 	const char *path,
 	const int flags,
-	const unsigned long timeout_ns)
+	const unsigned long int timeout_ns)
 {
 	pid_t pid;
 	int ret, status = 0;
 	struct stat statbuf;
 	const int retries = 20;
-	const unsigned long sleep_ns = timeout_ns / retries;
+	const unsigned long int sleep_ns = timeout_ns / retries;
 	int i;
 
 	(void)args;
@@ -139,7 +139,7 @@ int stress_open_timeout(
 	const char *name,
 	const char *path,
 	const int flags,
-	const unsigned long timeout_ns)
+	const unsigned long int timeout_ns)
 {
 	int ret, t_ret, tmp;
 	struct sigevent sev;
@@ -184,7 +184,7 @@ int stress_open_timeout(
 	const char *name,
 	const char *path,
 	const int flags,
-	const unsigned long timeout_ns)
+	const unsigned long int timeout_ns)
 {
 	(void)name;
 	(void)timeout_ns;

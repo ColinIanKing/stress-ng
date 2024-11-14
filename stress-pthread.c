@@ -94,7 +94,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_LINUX_FUTEX_H) &&	\
     defined(HAVE_SYSCALL) &&		\
     defined(__NR_get_robust_list)
-static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
+static inline long int sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
 {
 	return syscall(__NR_get_robust_list, pid, head_ptr, len_ptr);
 }
@@ -104,7 +104,7 @@ static inline long sys_get_robust_list(int pid, struct robust_list_head **head_p
     defined(HAVE_LINUX_FUTEX_H) &&	\
     defined(HAVE_SYSCALL) &&		\
     defined(__NR_set_robust_list)
-static inline long sys_set_robust_list(struct robust_list_head *head, size_t len)
+static inline long int sys_set_robust_list(struct robust_list_head *head, size_t len)
 {
 	return syscall(__NR_set_robust_list, head, len);
 }
@@ -167,13 +167,13 @@ static void OPTIMIZE3 stress_pthread_tid_address(stress_args_t *args)
 	uint64_t tid_addr = 0;
 
 	if (LIKELY(prctl(PR_GET_TID_ADDRESS, &tid_addr, 0, 0, 0) == 0)) {
-		unsigned long set_tid_addr;
+		unsigned long int set_tid_addr;
 
 		if (sizeof(void *) == 4)  {
 			set_tid_addr = stress_little_endian() ?
 				(tid_addr & 0xffffffff) : (tid_addr >> 32);
 		} else {
-			set_tid_addr = (unsigned long)tid_addr;
+			set_tid_addr = (unsigned long int)tid_addr;
 		}
 
 		if (set_tid_addr) {
@@ -253,11 +253,11 @@ static void *stress_pthread_func(void *parg)
 			}
 
 			/* Exercise invalid zero length */
-			VOID_RET(long, sys_set_robust_list(&new_head, 0));
+			VOID_RET(long int, sys_set_robust_list(&new_head, 0));
 
 #if 0
 			/* Exercise invalid length */
-			VOID_RET(long, sys_set_robust_list(new_head, (size_t)-1));
+			VOID_RET(long int, sys_set_robust_list(new_head, (size_t)-1));
 #endif
 		}
 #endif
@@ -265,7 +265,7 @@ static void *stress_pthread_func(void *parg)
 	 *  Check get_robust_list with an invalid PID
 	 */
 	}
-	VOID_RET(long, sys_get_robust_list(-1, &head, &len));
+	VOID_RET(long int, sys_get_robust_list(-1, &head, &len));
 #endif
 
 	/*

@@ -209,8 +209,8 @@ static inline int handle_page_fault(
 
 		copy.copy = 0;
 		copy.mode = 0;
-		copy.dst = (unsigned long)addr;
-		copy.src = (unsigned long)zero_page;
+		copy.dst = (unsigned long int)addr;
+		copy.src = (unsigned long int)zero_page;
 		copy.len = page_size;
 
 		if (ioctl(fd, UFFDIO_COPY, &copy) < 0) {
@@ -221,7 +221,7 @@ static inline int handle_page_fault(
 	} else {
 		struct uffdio_zeropage zeropage;
 
-		zeropage.range.start = (unsigned long)addr;
+		zeropage.range.start = (unsigned long int)addr;
 		zeropage.range.len = page_size;
 		zeropage.mode = 0;
 		if (ioctl(fd, UFFDIO_ZEROPAGE, &zeropage) < 0) {
@@ -328,7 +328,7 @@ static int stress_userfaultfd_child(stress_args_t *args, void *context)
 
 	/* Register fault handling mode */
 	(void)shim_memset(&reg, 0, sizeof(reg));
-	reg.range.start = (unsigned long)data;
+	reg.range.start = (unsigned long int)data;
 	reg.range.len = sz;
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
 	if (ioctl(fd, UFFDIO_REGISTER, &reg) < 0) {

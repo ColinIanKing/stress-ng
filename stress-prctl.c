@@ -173,7 +173,7 @@ static inline void stress_arch_prctl(void)
 		ret = shim_arch_prctl(ARCH_GET_CPUID, 0);
 #if defined(ARCH_SET_CPUID)
 		if (ret >= 0)
-			VOID_RET(int, shim_arch_prctl(ARCH_SET_CPUID, (unsigned long)ret));
+			VOID_RET(int, shim_arch_prctl(ARCH_SET_CPUID, (unsigned long int)ret));
 #endif
 	}
 #endif
@@ -184,9 +184,9 @@ static inline void stress_arch_prctl(void)
     defined(STRESS_ARCH_X86_64)
 	{
 		int ret;
-		unsigned long fs;
+		unsigned long int fs;
 
-		ret = shim_arch_prctl(ARCH_GET_FS, (unsigned long)&fs);
+		ret = shim_arch_prctl(ARCH_GET_FS, (unsigned long int)&fs);
 #if defined(ARCH_SET_FS)
 		if (ret == 0)
 			ret = shim_arch_prctl(ARCH_SET_FS, fs);
@@ -201,9 +201,9 @@ static inline void stress_arch_prctl(void)
     defined(STRESS_ARCH_X86_64)
 	{
 		int ret;
-		unsigned long gs;
+		unsigned long int gs;
 
-		ret = shim_arch_prctl(ARCH_GET_GS, (unsigned long)&gs);
+		ret = shim_arch_prctl(ARCH_GET_GS, (unsigned long int)&gs);
 #if defined(ARCH_SET_GS)
 		if (ret == 0)
 			ret = shim_arch_prctl(ARCH_SET_GS, gs);
@@ -219,7 +219,7 @@ static inline void stress_arch_prctl(void)
 	{
 		uint64_t features;
 
-		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_SUPP, (unsigned long)&features));
+		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_SUPP, (unsigned long int)&features));
 	}
 #endif
 #if defined(HAVE_ASM_PRCTL_H) &&		\
@@ -229,7 +229,7 @@ static inline void stress_arch_prctl(void)
 	{
 		uint64_t features;
 
-		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_PERM, (unsigned long)&features));
+		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_PERM, (unsigned long int)&features));
 	}
 #endif
 #if defined(HAVE_ASM_PRCTL_H) &&		\
@@ -237,7 +237,7 @@ static inline void stress_arch_prctl(void)
     defined(ARCH_REQ_XCOMP_PERM) &&		\
     defined(STRESS_ARCH_X86_64)
 	{
-		unsigned long idx;
+		unsigned long int idx;
 
 		for (idx = 0; idx < 255; idx++) {
 			int ret;
@@ -840,9 +840,9 @@ static int stress_prctl_child(
 
 #if defined(PR_SPEC_STORE_BYPASS)
 		{
-			unsigned long lval;
+			unsigned long int lval;
 
-			lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
+			lval = (unsigned long int)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
 
 			if (lval & PR_SPEC_PRCTL) {
 				lval &= ~PR_SPEC_PRCTL;
@@ -861,9 +861,9 @@ static int stress_prctl_child(
 
 #if defined(PR_SPEC_INDIRECT_BRANCH)
 		{
-			unsigned long lval;
+			unsigned long int lval;
 
-			lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
+			lval = (unsigned long int)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
 			if (lval & PR_SPEC_PRCTL) {
 				lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
@@ -880,9 +880,9 @@ static int stress_prctl_child(
 
 #if defined(PR_SPEC_L1D_FLUSH)
 		{
-			unsigned long lval;
+			unsigned long int lval;
 
-			lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, 0, 0, 0);
+			lval = (unsigned long int)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, 0, 0, 0);
 			if (lval & PR_SPEC_PRCTL) {
 				lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
@@ -923,7 +923,7 @@ static int stress_prctl_child(
 #if defined(PR_SCHED_CORE) &&	\
     defined(PR_SCHED_CORE_GET)
 	{
-		unsigned long cookie = 0;
+		unsigned long int cookie = 0;
 		const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
 		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
@@ -972,10 +972,10 @@ static int stress_prctl_child(
 	{
 		int arg;
 
-		arg = (unsigned long)prctl(PR_SME_GET_VL, 0, 0, 0, 0);
+		arg = (unsigned long int)prctl(PR_SME_GET_VL, 0, 0, 0, 0);
 #if defined(PR_SME_SET_VL)
 		if (arg >= 0)
-			arg = prctl(PR_SME_SET_VL, (unsigned long)arg, 0, 0, 0, 0);
+			arg = prctl(PR_SME_SET_VL, (unsigned long int)arg, 0, 0, 0, 0);
 #endif
 		(void)arg;
 	}
@@ -988,7 +988,7 @@ static int stress_prctl_child(
 		bits = prctl(PR_GET_MDWE, 0, 0, 0, 0);
 #if defined(PR_SET_MDWE)
 		if (bits >= 0)
-			bits = prctl(PR_SET_MDWE, (unsigned long)bits, 0, 0, 0, 0);
+			bits = prctl(PR_SET_MDWE, (unsigned long int)bits, 0, 0, 0, 0);
 #endif
 		(void)bits;
 	}
@@ -1030,7 +1030,7 @@ static int stress_prctl_child(
 
 #if defined(PR_GET_AUXV)
 	{
-		unsigned long aux_vec[1];
+		unsigned long int aux_vec[1];
 		/*
 		 *  exercise PR_GET_AUXV introduced in Linux 6.4
 		 */
@@ -1041,7 +1041,7 @@ static int stress_prctl_child(
 #if defined(PR_RISCV_V_GET_CONTROL)
 	/* RISC-V only, but try it on all arches */
 	{
-		signed long ctrl;
+		signed long int ctrl;
 
 		ctrl = prctl(PR_RISCV_V_GET_CONTROL, 0, 0, 0);
 #if defined(PR_RISCV_V_SET_CONTROL)

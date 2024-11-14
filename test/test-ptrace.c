@@ -29,7 +29,7 @@ int main(void)
 {
 	int pid = 1, ret;
 	void *addr = NULL;
-	unsigned long data;
+	unsigned long int data;
 
 	ret = ptrace(PTRACE_SYSCALL, pid, 0, 0);
 	(void)ret;

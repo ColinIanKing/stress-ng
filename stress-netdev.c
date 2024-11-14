@@ -57,7 +57,7 @@ static void stress_netdev_check(
 	stress_args_t *args,
 	struct ifreq *ifr,
 	const int fd,
-	const unsigned long cmd,
+	const unsigned long int cmd,
 	const char *cmd_name,
 	int *rc)
 {

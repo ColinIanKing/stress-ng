@@ -759,8 +759,8 @@ static void bad_getpeername3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_get_mempolicy1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
-	VOID_RET(long, shim_get_mempolicy((int *)ba->addr,
-			(unsigned long *)inc_addr(ba->addr, 1), 1,
+	VOID_RET(long int, shim_get_mempolicy((int *)ba->addr,
+			(unsigned long int *)inc_addr(ba->addr, 1), 1,
 			inc_addr(ba->addr, 2), 0UL));
 }
 
@@ -769,15 +769,15 @@ static void bad_get_mempolicy2(stress_bad_addr_t *ba, volatile uint64_t *counter
 	int mode = 0;
 
 	(*counter)++;
-	VOID_RET(long, shim_get_mempolicy(&mode, (unsigned long *)ba->addr, 1, ba->addr, 0UL));
+	VOID_RET(long int, shim_get_mempolicy(&mode, (unsigned long int *)ba->addr, 1, ba->addr, 0UL));
 }
 
 static void bad_get_mempolicy3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
-	unsigned long nodemask = 1;
+	unsigned long int nodemask = 1;
 
 	(*counter)++;
-	VOID_RET(long, shim_get_mempolicy((int *)ba->addr, &nodemask, 1, ba->addr, 0UL));
+	VOID_RET(long int, shim_get_mempolicy((int *)ba->addr, &nodemask, 1, ba->addr, 0UL));
 }
 
 
@@ -1252,28 +1252,28 @@ static void bad_migrate_pages1(stress_bad_addr_t *ba, volatile uint64_t *counter
 {
 	if (ba->unreadable) {
 		(*counter)++;
-		VOID_RET(long, shim_migrate_pages(getpid(), 1, (unsigned long *)ba->addr,
-						(unsigned long *)inc_addr(ba->addr, 1)));
+		VOID_RET(long int, shim_migrate_pages(getpid(), 1, (unsigned long int *)ba->addr,
+						(unsigned long int *)inc_addr(ba->addr, 1)));
 	}
 }
 
 static void bad_migrate_pages2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
-		unsigned long nodes = 0;
+		unsigned long int nodes = 0;
 
 		(*counter)++;
-		VOID_RET(long, shim_migrate_pages(getpid(), 1, &nodes, (unsigned long *)ba->addr));
+		VOID_RET(long int, shim_migrate_pages(getpid(), 1, &nodes, (unsigned long int *)ba->addr));
 	}
 }
 
 static void bad_migrate_pages3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	if (ba->unreadable) {
-		unsigned long nodes = 0;
+		unsigned long int nodes = 0;
 
 		(*counter)++;
-		VOID_RET(long, shim_migrate_pages(getpid(), 1, (unsigned long *)ba->addr, &nodes));
+		VOID_RET(long int, shim_migrate_pages(getpid(), 1, (unsigned long int *)ba->addr, &nodes));
 	}
 }
 
@@ -1307,7 +1307,7 @@ static void bad_mlock2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_move_pages1(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
-	VOID_RET(long, shim_move_pages(getpid(), (unsigned long)1, (void **)ba->addr,
+	VOID_RET(long int, shim_move_pages(getpid(), (unsigned long int)1, (void **)ba->addr,
 					(const int *)inc_addr(ba->addr, 1), (int *)inc_addr(ba->addr, 2), 0));
 }
 
@@ -1317,7 +1317,7 @@ static void bad_move_pages2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 		int nodes = 0, status;
 
 		(*counter)++;
-		VOID_RET(long, shim_move_pages(getpid(), (unsigned long)1, (void **)ba->addr, &nodes, &status, 0));
+		VOID_RET(long int, shim_move_pages(getpid(), (unsigned long int)1, (void **)ba->addr, &nodes, &status, 0));
 	}
 }
 
@@ -1329,7 +1329,7 @@ static void bad_move_pages3(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 		pages[0] = ba->addr;
 		(*counter)++;
-		VOID_RET(long, shim_move_pages(getpid(), (unsigned long)1, pages, (int *)ba->addr, &status, 0));
+		VOID_RET(long int, shim_move_pages(getpid(), (unsigned long int)1, pages, (int *)ba->addr, &status, 0));
 	}
 }
 
@@ -1341,7 +1341,7 @@ static void bad_move_pages4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 
 		pages[0] = ba->addr;
 		(*counter)++;
-		VOID_RET(long, shim_move_pages(getpid(), (unsigned long)1, pages, &nodes, (int *)ba->addr, 0));
+		VOID_RET(long int, shim_move_pages(getpid(), (unsigned long int)1, pages, &nodes, (int *)ba->addr, 0));
 	}
 }
 #endif
@@ -1350,7 +1350,7 @@ static void bad_move_pages4(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_mseal(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
-	VOID_RET(long, shim_mseal((void **)ba->addr, 4096, 0));
+	VOID_RET(long int, shim_mseal((void **)ba->addr, 4096, 0));
 }
 #endif
 
@@ -1491,7 +1491,7 @@ static void bad_preadv2(stress_bad_addr_t *ba, volatile uint64_t *counter)
 static void bad_ptrace(stress_bad_addr_t *ba, volatile uint64_t *counter)
 {
 	(*counter)++;
-	VOID_RET(long, ptrace(PTRACE_GETREGS, getpid(), (void *)ba->addr, (void *)inc_addr(ba->addr, 1)));
+	VOID_RET(long int, ptrace(PTRACE_GETREGS, getpid(), (void *)ba->addr, (void *)inc_addr(ba->addr, 1)));
 }
 #endif
 

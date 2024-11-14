@@ -68,7 +68,7 @@ typedef	loff_t		shim_loff_t;
 #elif defined(HAVE_OFF_T)
 typedef	off_t		shim_loff_t;
 #else
-typedef long		shim_loff_t;
+typedef long int	shim_loff_t;
 #endif
 
 #if defined(HAVE_OFF64_T)
@@ -139,7 +139,7 @@ struct shim_clone_args {
 };
 
 struct shim_getcpu_cache {
-        unsigned long blob[128 / sizeof(long)];
+        unsigned long int blob[128 / sizeof(long)];
 };
 
 /* futex2 waitv shim */
@@ -155,9 +155,9 @@ struct shim_futex_waitv {
  *  that have a layer of OS abstraction
  */
 struct shim_linux_dirent {
-	unsigned long	d_ino;		/* Inode number */
-	unsigned long	d_off;		/* Offset to next linux_dirent */
-	unsigned short	d_reclen;	/* Length of this linux_dirent */
+	unsigned long int d_ino;	/* Inode number */
+	unsigned long int d_off;	/* Offset to next linux_dirent */
+	unsigned short int d_reclen;	/* Length of this linux_dirent */
 	char		d_name[];	/* Filename (null-terminated) */
 };
 
@@ -171,7 +171,7 @@ typedef int64_t shim_ino64_t;
 struct shim_linux_dirent64 {
 	shim_ino64_t	d_ino;		/* 64-bit inode number */
 	shim_off64_t	d_off;		/* 64-bit offset to next structure */
-	unsigned short	d_reclen;	/* Size of this dirent */
+	unsigned short int d_reclen;	/* Size of this dirent */
 	unsigned char	d_type;		/* File type */
 	char		d_name[];	/* Filename (null-terminated) */
 };
@@ -305,7 +305,7 @@ struct shim_ustat {
 #if defined(HAVE_DADDR_T)
 	daddr_t	f_tfree;
 #else
-	long	f_tfree;
+	long int f_tfree;
 #endif
 	ino_t	f_tinode;
 	char	f_fname[6];
@@ -338,8 +338,8 @@ typedef unsigned int shim_nfds_t;
 
 typedef struct shim_pollfd {
 	int fd;
-	short events;
-	short revents;
+	short int events;
+	short int revents;
 } shim_pollfd_t;
 #endif
 
@@ -366,27 +366,27 @@ extern ssize_t shim_copy_file_range(int fd_in, shim_off64_t *off_in, int fd_out,
 extern int shim_posix_fallocate(int fd, off_t offset, off_t len);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
 extern int shim_gettid(void);
-extern long shim_getcpu(unsigned int *cpu, unsigned int *node, void *tcache);
+extern long int shim_getcpu(unsigned int *cpu, unsigned int *node, void *tcache);
 extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
 	unsigned int count);
 extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp,
 	unsigned int count);
 extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
 extern void shim_flush_icache(void *begin, void *end);
-extern long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1,
-	unsigned long idx2);
+extern long int shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long int idx1,
+	unsigned long int idx2);
 extern int shim_klogctl(int type, char *bufp, int len);
 extern int shim_membarrier(int cmd, int flags, int cpu_id);
 extern int shim_memfd_create(const char *name, unsigned int flags);
-extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
-	unsigned long maxnode, void *addr, unsigned long flags);
-extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
-	unsigned long maxnode);
-extern long shim_mbind(void *addr, unsigned long len, int mode,
-	const unsigned long *nodemask, unsigned long maxnode, unsigned flags);
-extern long shim_migrate_pages(int pid, unsigned long maxnode,
-	const unsigned long *old_nodes, const unsigned long *new_nodes);
-extern long shim_move_pages(int pid, unsigned long count, void **pages,
+extern int shim_get_mempolicy(int *mode, unsigned long int *nodemask,
+	unsigned long int maxnode, void *addr, unsigned long int flags);
+extern int shim_set_mempolicy(int mode, unsigned long int *nodemask,
+	unsigned long int maxnode);
+extern long int shim_mbind(void *addr, unsigned long int len, int mode,
+	const unsigned long int *nodemask, unsigned long int maxnode, unsigned flags);
+extern long int shim_migrate_pages(int pid, unsigned long int maxnode,
+	const unsigned long int *old_nodes, const unsigned long int *new_nodes);
+extern long int shim_move_pages(int pid, unsigned long int count, void **pages,
 	const int *nodes, int *status, int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
@@ -469,7 +469,7 @@ extern int shim_fremovexattr(int fd, const char *name);
 extern ssize_t shim_llistxattr(const char *path, char *list, size_t size);
 extern int shim_reboot(int magic, int magic2, int cmd, void *arg);
 extern ssize_t shim_process_madvise(int pidfd, const struct iovec *iovec,
-	unsigned long vlen, int advice, unsigned int flags);
+	unsigned int long vlen, int advice, unsigned int flags);
 extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
 extern int shim_clock_adjtime(clockid_t clk_id, shim_timex_t *buf);
 extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
@@ -481,18 +481,18 @@ extern int shim_close_range(unsigned int fd, unsigned int max_fd,
 	unsigned int flags);
 extern int shim_lookup_dcookie(uint64_t cookie, char *buffer, size_t len);
 extern ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz);
-extern long shim_sgetmask(void);
-extern long shim_ssetmask(long newmask);
+extern long int shim_sgetmask(void);
+extern long int shim_ssetmask(long int newmask);
 extern int shim_stime(const time_t *t);
 extern int shim_vhangup(void);
-extern int shim_arch_prctl(int code, unsigned long addr);
+extern int shim_arch_prctl(int code, unsigned long int addr);
 extern int shim_tgkill(int tgid, int tid, int sig);
 extern int shim_tkill(int tid, int sig);
-extern int shim_memfd_secret(unsigned long flags);
+extern int shim_memfd_secret(unsigned long int flags);
 extern int shim_getrusage(int who, struct rusage *usage);
 extern int shim_quotactl_fd(unsigned int fd, unsigned int cmd, int id,
 	void *addr);
-extern int shim_modify_ldt(int func, void *ptr, unsigned long bytecount);
+extern int shim_modify_ldt(int func, void *ptr, unsigned long int bytecount);
 extern int shim_process_mrelease(int pidfd, unsigned int flags);
 extern int shim_futex_waitv(struct shim_futex_waitv *waiters,
 	unsigned int nr_futexes, unsigned int flags, struct timespec *timeout,
@@ -509,8 +509,8 @@ extern int shim_finit_module(int fd, const char *uargs, int flags);
 extern int shim_delete_module(const char *name, unsigned int flags);
 extern int shim_raise(int sig);
 extern int shim_kill(pid_t pid, int sig);
-extern int shim_set_mempolicy_home_node(unsigned long start, unsigned long len,
-        unsigned long home_node, unsigned long flags);
+extern int shim_set_mempolicy_home_node(unsigned long int start, unsigned long int len,
+        unsigned long int home_node, unsigned long int flags);
 extern int shim_fchmodat(int dfd, const char *filename, mode_t mode,
 	unsigned int flags);
 extern int shim_fchmodat2(int dfd, const char *filename, mode_t mode,
@@ -519,7 +519,7 @@ extern int shim_fstat(int fd, struct stat *statbuf);
 extern int shim_lstat(const char *pathname, struct stat *statbuf);
 extern int shim_stat(const char *pathname, struct stat *statbuf);
 extern unsigned char shim_dirent_type(const char *path, const struct dirent *d);
-extern int shim_mseal(void *addr, size_t len, unsigned long flags);
+extern int shim_mseal(void *addr, size_t len, unsigned long int flags);
 extern int shim_ppoll(shim_pollfd_t *fds, shim_nfds_t nfds,
 	const struct timespec *tmo_p, const sigset_t *sigmask);
 

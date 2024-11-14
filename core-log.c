@@ -244,7 +244,7 @@ static int pr_msg(
 
 			(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
 				tm.tm_hour, tm.tm_min, tm.tm_sec,
-				(long)tv.tv_usec / 10000);
+				(long int)tv.tv_usec / 10000);
 #else
 			strncpy(ts, empty_ts, sizeof(ts));
 #endif

@@ -265,7 +265,7 @@ static int stress_fifo(stress_args_t *args)
 
 #if defined(HAVE_PATHCONF) &&	\
     defined(_PC_PIPE_BUF)
-	VOID_RET(long, pathconf(fifoname, _PC_PIPE_BUF));
+	VOID_RET(long int, pathconf(fifoname, _PC_PIPE_BUF));
 #endif
 
 	for (i = 0; i < fifo_readers; i++) {

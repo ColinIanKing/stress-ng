@@ -54,7 +54,7 @@ static const stress_opt_t opts[] = {
     defined(HAVE_MQ_SYSV)
 
 typedef struct {
-	long mtype;
+	long int mtype;
 	union {
 		uint32_t value;
 		char data[MAX_MSG_BYTES];
@@ -235,7 +235,7 @@ static int OPTIMIZE3 stress_msg_receiver(
 
 	while (stress_continue(args)) {
 		register uint32_t i;
-		register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
+		register const long int mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
 		for (i = 0; stress_continue(args); i++) {
 #if defined(IPC_NOWAIT)

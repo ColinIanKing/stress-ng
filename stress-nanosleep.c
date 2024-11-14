@@ -106,7 +106,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
  *  stress_nanosleep_ns()
  *	nanosleep for a given number of nanoseconds
  */
-static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
+static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long int nsec)
 {
 	struct timespec tv;
 #if defined(HAVE_CLOCK_GETTIME) &&	\
@@ -121,7 +121,7 @@ static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long nsec)
 		struct timespec t2;
 
 		if (clock_gettime(CLOCK_MONOTONIC, &t2) == 0) {
-			long long dt_nsec;
+			long long int dt_nsec;
 
 			dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
 			dt_nsec += t2.tv_nsec - t1.tv_nsec;
@@ -167,15 +167,15 @@ static void *stress_nanosleep_pthread(void *c)
 		if (ctxt->mask & STRESS_NANOSLEEP_CSTATE) {
 			for (cc = ctxt->cstate_list; cc; cc = cc->next) {
 				if (cc->residency > 0)
-					stress_nanosleep_ns(ctxt, 1000 * (long)(cc->residency + 1));
+					stress_nanosleep_ns(ctxt, 1000 * (long int)(cc->residency + 1));
 			}
 		}
 		if (ctxt->mask & STRESS_NANOSLEEP_RANDOM) {
-			register unsigned long i;
+			register unsigned long int i;
 
 			for (i = 1 << 18; i > 0; i >>=1) {
-				register const unsigned long mask = (i - 1);
-				register const long nsec = (long)(stress_mwc32() & mask) + 8;
+				register const unsigned long int mask = (i - 1);
+				register const long int nsec = (long int)(stress_mwc32() & mask) + 8;
 
 				if (stress_nanosleep_ns(ctxt, nsec) < 0)
 					break;
@@ -306,7 +306,7 @@ tidy:
 	overhead_nsec = 0.0;
 	for (i = 0; i < benchmark_loops; i++) {
 		struct timespec t1, t2;
-		long long dt_nsec;
+		long long int dt_nsec;
 
 		(void)clock_gettime(CLOCK_MONOTONIC, &t1);
 		(void)clock_gettime(CLOCK_MONOTONIC, &t2);

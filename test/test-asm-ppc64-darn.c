@@ -22,9 +22,9 @@
 #error ppc64 darn instruction not supported
 #endif
 
-static inline unsigned long rand64(void)
+static inline unsigned long int rand64(void)
 {
-	unsigned long val;
+	unsigned long int val;
 
 	/* Unconditioned raw deliver a raw number */
 	__asm__ __volatile__("darn %0, 0\n" : "=r"(val) :);

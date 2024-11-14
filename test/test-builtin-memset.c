@@ -19,7 +19,7 @@
 
 int main(int argc, char **argv)
 {
-	unsigned long dst;
+	unsigned long int dst;
 
 	__builtin_memset(&dst, 0, sizeof(dst));
 

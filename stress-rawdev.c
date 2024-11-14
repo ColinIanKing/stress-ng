@@ -70,7 +70,7 @@ static int stress_rawdev_supported(const char *name)
  *  shift_ul()
  *	shift v by shift bits, always return non-zero
  */
-static inline unsigned long shift_ul(unsigned long v, unsigned int shift)
+static inline unsigned long int shift_ul(unsigned long int v, unsigned int shift)
 {
 	v >>= shift;
 	return (v == 0) ? 1 : v;
@@ -145,7 +145,7 @@ static int stress_rawdev_wiggle(
 	ssize_t ret;
 
 	for (i = shift_ul(blks, 8); (i < blks) && stress_continue(args); i += shift_ul(blks, 8)) {
-		unsigned long j;
+		unsigned long int j;
 
 		for (j = 0; (j < shift_ul(blks, 8)) && stress_continue(args); j += shift_ul(blks, 10)) {
 			const off_t offset = (off_t)(i - j) * (off_t)blksz;

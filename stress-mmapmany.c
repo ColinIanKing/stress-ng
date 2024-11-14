@@ -49,7 +49,7 @@ static void stress_mmapmany_read_proc_file(const char *path)
 static int stress_mmapmany_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
-	const long max = STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
+	const long int max = STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
 	uint64_t **mappings;
 	const uint64_t pattern0 = stress_mwc64();
 	const uint64_t pattern1 = stress_mwc64();

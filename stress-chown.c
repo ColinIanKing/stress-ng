@@ -233,7 +233,7 @@ static int stress_chown(stress_args_t *args)
 
 #if defined(HAVE_PATHCONF) &&	\
     defined(_PC_CHOWN_RESTRICTED)
-	VOID_RET(long, pathconf(filename, _PC_CHOWN_RESTRICTED));
+	VOID_RET(long int, pathconf(filename, _PC_CHOWN_RESTRICTED));
 #endif
 
 	rc = EXIT_SUCCESS;

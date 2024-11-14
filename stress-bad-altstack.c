@@ -114,7 +114,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 static int stress_bad_altstack_child(stress_args_t *args)
 {
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
-	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
+	unsigned long int vdso = getauxval(AT_SYSINFO_EHDR);
 #else
 	UNEXPECTED
 #endif

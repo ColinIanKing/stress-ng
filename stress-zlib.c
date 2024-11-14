@@ -1583,7 +1583,7 @@ static int stress_zlib_deflate(
 	if (args->instance == 0) {
 		pr_dbg("DEF: lvl=%d mem-lvl=%d wbits=%d strategy=%d stream-bytes=%llu\n",
 			zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
-			zlib_args.strategy, (unsigned long long)zlib_args.stream_bytes);
+			zlib_args.strategy, (unsigned long long int)zlib_args.stream_bytes);
 	}
 	do {
 		ret = deflateInit2(&stream_def, zlib_args.level,

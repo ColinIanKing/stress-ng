@@ -39,7 +39,7 @@ static const stress_opt_t opts[] = {
     !defined(HAVE_COMPILER_PCC) &&	\
     defined(STRESS_ARCH_X86_64)
 
-typedef long (*stress_wfunc_t)(void);
+typedef long int (*stress_wfunc_t)(void);
 
 /*
  *  syscall symbol mapping name to address and wrapper function
@@ -87,9 +87,9 @@ static int stress_x86syscall_supported(const char *name)
  *  x86_64_syscall0()
  *	syscall 0 arg wrapper
  */
-static inline long OPTIMIZE3 x86_64_syscall0(long number)
+static inline long int OPTIMIZE3 x86_64_syscall0(long int number)
 {
-	long ret;
+	long int ret;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
@@ -106,11 +106,11 @@ static inline long OPTIMIZE3 x86_64_syscall0(long number)
  *  x86_64_syscall1()
  *	syscall 1 arg wrapper
  */
-static inline long OPTIMIZE3 x86_64_syscall1(long number, long arg1)
+static inline long int OPTIMIZE3 x86_64_syscall1(long int number, long int arg1)
 {
-	long ret;
-	long tmp_arg1 = arg1;
-	register long asm_arg1 __asm__("rdi") = tmp_arg1;
+	long int ret;
+	long int tmp_arg1 = arg1;
+	register long int asm_arg1 __asm__("rdi") = tmp_arg1;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
@@ -127,13 +127,13 @@ static inline long OPTIMIZE3 x86_64_syscall1(long number, long arg1)
  *  x86_64_syscall2()
  *	syscall 2 arg wrapper
  */
-static inline long OPTIMIZE3 x86_64_syscall2(long number, long arg1, long arg2)
+static inline long int OPTIMIZE3 x86_64_syscall2(long int number, int long arg1, int long arg2)
 {
-	long ret;
-	long tmp_arg1 = arg1;
-	long tmp_arg2 = arg2;
-	register long asm_arg1 __asm__("rdi") = tmp_arg1;
-	register long asm_arg2 __asm__("rsi") = tmp_arg2;
+	long int ret;
+	long int tmp_arg1 = arg1;
+	long int tmp_arg2 = arg2;
+	register long int asm_arg1 __asm__("rdi") = tmp_arg1;
+	register long int asm_arg2 __asm__("rsi") = tmp_arg2;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
@@ -150,15 +150,15 @@ static inline long OPTIMIZE3 x86_64_syscall2(long number, long arg1, long arg2)
  *  x86_64_syscall3()
  *	syscall 3 arg wrapper
  */
-static inline long OPTIMIZE3 x86_64_syscall3(long number, long arg1, long arg2, long arg3)
+static inline long int OPTIMIZE3 x86_64_syscall3(long int number, long int arg1, long int arg2, long int arg3)
 {
-	long ret;
-	long tmp_arg1 = arg1;
-	long tmp_arg2 = arg2;
-	long tmp_arg3 = arg3;
-	register long asm_arg1 __asm__("rdi") = tmp_arg1;
-	register long asm_arg2 __asm__("rsi") = tmp_arg2;
-	register long asm_arg3 __asm__("rdx") = tmp_arg3;
+	long int ret;
+	long int tmp_arg1 = arg1;
+	long int tmp_arg2 = arg2;
+	long int tmp_arg3 = arg3;
+	register long int asm_arg1 __asm__("rdi") = tmp_arg1;
+	register long int asm_arg2 __asm__("rsi") = tmp_arg2;
+	register long int asm_arg3 __asm__("rdx") = tmp_arg3;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
@@ -176,7 +176,7 @@ static inline long OPTIMIZE3 x86_64_syscall3(long number, long arg1, long arg2, 
  *  wrap_getuid()
  *	invoke getuid()
  */
-static long wrap_getuid(void)
+static long int wrap_getuid(void)
 {
 	return x86_64_syscall0(__NR_getuid);
 }
@@ -187,7 +187,7 @@ static long wrap_getuid(void)
  *  wrap_geteuid()
  *	invoke geteuid()
  */
-static long wrap_geteuid(void)
+static long int wrap_geteuid(void)
 {
 	return x86_64_syscall0(__NR_geteuid);
 }
@@ -198,7 +198,7 @@ static long wrap_geteuid(void)
  *  wrap_getgid()
  *	invoke getgid()
  */
-static long wrap_getgid(void)
+static long int wrap_getgid(void)
 {
 	return x86_64_syscall0(__NR_getgid);
 }
@@ -209,7 +209,7 @@ static long wrap_getgid(void)
  *  wrap_getpid()
  *	invoke getpid()
  */
-static long wrap_getpid(void)
+static long int wrap_getpid(void)
 {
 	return x86_64_syscall0(__NR_getpid);
 }
@@ -220,11 +220,11 @@ static long wrap_getpid(void)
  *  wrap_getcpu()
  *	invoke getcpu()
  */
-static long wrap_getcpu(void)
+static long int wrap_getcpu(void)
 {
-	unsigned cpu, node;
+	unsigned int cpu, node;
 
-	return x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
+	return x86_64_syscall3(__NR_getcpu, (long int)&cpu, (long int)&node, (long int)NULL);
 }
 #endif
 
@@ -233,11 +233,11 @@ static long wrap_getcpu(void)
  *  wrap_gettimeofday()
  *	invoke gettimeofday()
  */
-static long wrap_gettimeofday(void)
+static long int wrap_gettimeofday(void)
 {
 	struct timeval tv;
 
-	return x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
+	return x86_64_syscall2(__NR_gettimeofday, (long int)&tv, (long int)NULL);
 }
 #endif
 
@@ -246,11 +246,11 @@ static long wrap_gettimeofday(void)
  *  wrap_time()
  *	invoke time()
  */
-static long wrap_time(void)
+static long int wrap_time(void)
 {
 	time_t t;
 
-	return x86_64_syscall1(__NR_time, (long)&t);
+	return x86_64_syscall1(__NR_time, (long int)&t);
 }
 #endif
 
@@ -258,9 +258,9 @@ static long wrap_time(void)
  *  wrap_dummy()
  *	dummy empty function for baseline
  */
-static long wrap_dummy(void)
+static long int wrap_dummy(void)
 {
-	return (long)-1;
+	return (long int)-1;
 }
 
 /*
@@ -488,7 +488,7 @@ static int stress_x86syscall(stress_args_t *args)
 		time_t time1 = 0, time2 = 0;
 
 		if ((time(&time1) != (time_t)-1) &&
-		    ((time_t)x86_64_syscall1(__NR_time, (long)&time2) != (time_t)-1)) {
+		    ((time_t)x86_64_syscall1(__NR_time, (long int)&time2) != (time_t)-1)) {
 			if (time2 < time1) {
 				pr_fail("%s: time syscall returned %" PRIdMAX
 					" which was less than expected value %" PRIdMAX "\n",

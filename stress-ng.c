@@ -1078,7 +1078,7 @@ static void stress_wait_aggressive(
 	const useconds_t usec_sleep =
 		ticks_per_sec ? 1000000 / ((useconds_t)5 * ticks_per_sec) : 1000000 / 250;
 
-	pr_dbg("changing stressor cpu affinity every %lu usecs\n", (unsigned long)usec_sleep);
+	pr_dbg("changing stressor cpu affinity every %lu usecs\n", (unsigned long int)usec_sleep);
 
 	while (wait_flag) {
 		const int32_t cpus = stress_get_processors_configured();
@@ -1715,7 +1715,7 @@ static int MLOCKED_TEXT stress_run_child(
 				pr_dbg("%s: terminated by SIGALRM externally at %2.2d:%2.2d:%2.2d.%2.2ld by user %d\n",
 					name,
 					tm->tm_hour, tm->tm_min, tm->tm_sec,
-					(long)sigalrm_info.when.tv_usec / 10000,
+					(long int)sigalrm_info.when.tv_usec / 10000,
 					sigalrm_info.uid);
 			} else {
 				pr_dbg("%s: terminated by SIGALRM externally by user %d\n",

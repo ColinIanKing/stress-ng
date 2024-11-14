@@ -77,8 +77,8 @@ struct shim_aio_sigset {
 
 static int shim_io_pgetevents(
 	io_context_t ctx_id,
-	long min_nr,
-	long nr,
+	long int min_nr,
+	long int nr,
 	struct io_event *events,
 	struct timespec *timeout,
 	const struct shim_aio_sigset *usig)
@@ -97,15 +97,15 @@ static int shim_io_destroy(io_context_t ctx_id)
 	return (int)syscall(__NR_io_destroy, ctx_id);
 }
 
-static int shim_io_submit(io_context_t ctx_id, long nr, struct iocb **iocbpp)
+static int shim_io_submit(io_context_t ctx_id, long int nr, struct iocb **iocbpp)
 {
 	return (int)syscall(__NR_io_submit, ctx_id, nr, iocbpp);
 }
 
 static int shim_io_getevents(
 	io_context_t ctx_id,
-	long min_nr,
-	long nr,
+	long int min_nr,
+	long int nr,
 	struct io_event *events,
 	struct timespec *timeout)
 {
@@ -120,8 +120,8 @@ static int shim_io_getevents(
  */
 static int shim_io_getevents_random(
 	const io_context_t ctx_id,
-	const long min_nr,
-	const long nr,
+	const long int min_nr,
+	const long int nr,
 	struct io_event *const events,
 	struct timespec *const timeout)
 {
@@ -197,7 +197,7 @@ static int stress_aiol_submit(
 		int ret;
 
 		errno = 0;
-		ret = shim_io_submit(ctx, (long)n, cbs);
+		ret = shim_io_submit(ctx, (long int)n, cbs);
 		if (ret >= 0) {
 			break;
 		} else {
@@ -242,7 +242,7 @@ static ssize_t stress_aiol_wait(
 			timeout_ptr = &timeout;
 		}
 
-		ret = shim_io_getevents_random(ctx, 1, (long)(n - i), events, timeout_ptr);
+		ret = shim_io_getevents_random(ctx, 1, (long int)(n - i), events, timeout_ptr);
 		if (ret < 0) {
 			if (errno == EINTR) {
 				if (stress_continue_flag()) {

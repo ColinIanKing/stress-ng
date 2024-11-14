@@ -53,7 +53,7 @@
 /* used for table of perf events to gather */
 typedef struct {
 	const unsigned int type;	/* perf types */
-	unsigned long config;		/* perf type specific config */
+	unsigned long int config;	/* perf type specific config */
 	const char *path;		/* perf trace point path (only for trace points) */
 	const char *label;		/* human readable name for perf type */
 } stress_perf_info_t;
@@ -366,7 +366,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	{ 0, 0, NULL, NULL }
 };
 
-static inline size_t stress_perf_info_find(const unsigned int type, const unsigned long config)
+static inline size_t stress_perf_info_find(const unsigned int type, const unsigned long int config)
 {
 	size_t i;
 
@@ -384,7 +384,7 @@ static inline size_t stress_perf_info_find(const unsigned int type, const unsign
 static inline void stress_perf_type_tracepoint_resolve_config(stress_perf_info_t *pi)
 {
 	char path[PATH_MAX];
-	unsigned long config;
+	unsigned long int config;
 	FILE *fp;
 
 	if (!pi->path)
@@ -427,7 +427,7 @@ static inline int stress_sys_perf_event_open(
 	pid_t pid,
 	int cpu,
 	int group_fd,
-	unsigned long flags)
+	unsigned long int flags)
 {
 	return (int)syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
 }
@@ -679,9 +679,9 @@ static const char *stress_perf_stat_scale(const uint64_t counter, const double d
  */
 typedef struct {
 	const unsigned int	type;
-	const unsigned long	config;
+	const unsigned long int	config;
 	const unsigned int	ref_type;
-	const unsigned long	ref_config;
+	const unsigned long int	ref_config;
 	const bool		percent;	/* scale by 100.0 for percentages? */
 	const char 		*fmt;		/* snprintf format */
 } perf_relative_t;

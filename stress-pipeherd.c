@@ -183,7 +183,7 @@ static int stress_pipeherd(stress_args_t *args)
     defined(HAVE_RUSAGE_RU_NVCSW)
 	(void)shim_memset(&usage, 0, sizeof(usage));
 	if (shim_getrusage(RUSAGE_CHILDREN, &usage) == 0) {
-		long total = usage.ru_nvcsw + usage.ru_nivcsw;
+		long int total = usage.ru_nvcsw + usage.ru_nivcsw;
 
 		(void)shim_memset(&usage, 0, sizeof(usage));
 		if (getrusage(RUSAGE_SELF, &usage) == 0) {

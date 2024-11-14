@@ -29,8 +29,8 @@
 #define STRESS_TRY_AGAIN	  (5)		/* Device busy, try again */
 
 extern int stress_try_open(stress_args_t *args, const char *path,
-	const int flags, const unsigned long timeout_ns) NONNULL(1, 2);
+	const int flags, const unsigned long int timeout_ns) NONNULL(1, 2);
 extern int stress_open_timeout(const char *name, const char *path,
-	const int flags, const unsigned long timeout_ns) NONNULL(1, 2);
+	const int flags, const unsigned long int timeout_ns) NONNULL(1, 2);
 
 #endif

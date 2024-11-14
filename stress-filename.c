@@ -548,13 +548,13 @@ again:
 
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_NAME_MAX)
-			VOID_RET(long, pathconf(pathname, _PC_NAME_MAX));
+			VOID_RET(long int, pathconf(pathname, _PC_NAME_MAX));
 #endif
 #if defined(_PC_PATH_MAX)
-			VOID_RET(long, pathconf(pathname, _PC_PATH_MAX));
+			VOID_RET(long int, pathconf(pathname, _PC_PATH_MAX));
 #endif
 #if defined(_PC_NO_TRUNC)
-			VOID_RET(long, pathconf(pathname, _PC_NO_TRUNC));
+			VOID_RET(long int, pathconf(pathname, _PC_NO_TRUNC));
 #endif
 #endif
 

@@ -58,7 +58,7 @@
 
 static inline uint64_t ALWAYS_INLINE stress_asm_riscv_rdtime(void)
 {
-	register unsigned long ticks;
+	register unsigned long int ticks;
 
         __asm__ __volatile__("rdtime %0"
                               : "=r" (ticks)

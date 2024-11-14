@@ -20,7 +20,7 @@
 
 int main(void)
 {
-	long r = lrand48();
+	long int r = lrand48();
 
 	return (int)r;
 }

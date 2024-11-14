@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 static int stress_msyncmany_child(stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
-	long max = sysconf(_SC_MAPPED_FILES);
+	long int max = sysconf(_SC_MAPPED_FILES);
 	uint64_t **mappings;
 	int fd = *(int *)context;
 	size_t i, n;

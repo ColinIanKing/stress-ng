@@ -141,10 +141,10 @@ static int stress_sync_file(stress_args_t *args)
 	fs_type = stress_get_fs_type(filename);
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_ASYNC_IO)
-	VOID_RET(long, pathconf(filename, _PC_ASYNC_IO));
+	VOID_RET(long int, pathconf(filename, _PC_ASYNC_IO));
 #endif
 #if defined(_PC_SYNC_IO)
-	VOID_RET(long, pathconf(filename, _PC_SYNC_IO));
+	VOID_RET(long int, pathconf(filename, _PC_SYNC_IO));
 #endif
 #endif
 	(void)shim_unlink(filename);

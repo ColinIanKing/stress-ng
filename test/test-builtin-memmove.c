@@ -21,8 +21,8 @@
 int main(int argc, char **argv)
 {
 	void *ptr;
-	unsigned long dst;
-	unsigned long src = ~0;
+	unsigned long int dst;
+	unsigned long int src = ~0;
 
 	ptr = __builtin_memmove(&dst, &src, sizeof(dst));
 	(void)ptr;

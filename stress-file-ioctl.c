@@ -36,10 +36,10 @@
 
 #if defined(_IOR)
 #if !defined(EXT4_IOC_GETVERSION)
-#define EXT4_IOC_GETVERSION	_IOR('f', 3, long)
+#define EXT4_IOC_GETVERSION	_IOR('f', 3, long int)
 #endif
 #if !defined(EXT4_IOC_GETRSVSZ)
-#define EXT4_IOC_GETRSVSZ	_IOR('f', 5, long)
+#define EXT4_IOC_GETRSVSZ	_IOR('f', 5, long int)
 #endif
 #endif
 
@@ -172,14 +172,14 @@ static void stress_file_ioctl_ext(const int fd)
 
 #if defined(EXT4_IOC_GETVERSION)
 	{
-		long version;
+		long int version;
 
 		VOID_RET(int, ioctl(fd, EXT4_IOC_GETVERSION, &version));
 	}
 #endif
 #if defined(EXT4_IOC_GETRSVSZ)
 	{
-		long rsvsz;
+		long int rsvsz;
 
 		VOID_RET(int, ioctl(fd, EXT4_IOC_GETRSVSZ, &rsvsz));
 	}

@@ -754,7 +754,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	int mib[2];
 	struct uvmexp u;
 	size_t size;
-	long cp_time[CPUSTATES];
+	long int cp_time[CPUSTATES];
 	struct vmtotal t;
 
 	mib[0] = CTL_VM;

@@ -19,6 +19,6 @@
 
 int main(int argc, char **argv)
 {
-	return __builtin_popcountll((unsigned long long)argc);
+	return __builtin_popcountll((unsigned long long int)argc);
 }
 

@@ -118,22 +118,22 @@ static struct sock_filter filter[] = {
 static struct sock_filter filter_random[64];
 
 static struct sock_fprog prog_allow_all = {
-	.len = (unsigned short)SIZEOF_ARRAY(filter_allow_all),
+	.len = (unsigned short int)SIZEOF_ARRAY(filter_allow_all),
 	.filter = filter_allow_all
 };
 
 static struct sock_fprog prog_allow_write = {
-	.len = (unsigned short)SIZEOF_ARRAY(filter_allow_write),
+	.len = (unsigned short int)SIZEOF_ARRAY(filter_allow_write),
 	.filter = filter_allow_write
 };
 
 static struct sock_fprog prog = {
-	.len = (unsigned short)SIZEOF_ARRAY(filter),
+	.len = (unsigned short int)SIZEOF_ARRAY(filter),
 	.filter = filter
 };
 
 static struct sock_fprog prog_random = {
-	.len = (unsigned short)SIZEOF_ARRAY(filter_random),
+	.len = (unsigned short int)SIZEOF_ARRAY(filter_random),
 	.filter = filter_random
 };
 
@@ -243,7 +243,7 @@ static int stress_seccomp_set_huge_filter(stress_args_t *args)
 
 		for (i = 0; i < n; i++)
 			huge_filter[i] = bpf_stmt;
-		huge_prog.len = (unsigned short)n;
+		huge_prog.len = (unsigned short int)n;
 		huge_prog.filter = huge_filter;
 
 #if defined(__NR_seccomp)

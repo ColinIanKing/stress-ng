@@ -156,7 +156,7 @@ const char ALIGN64 stress_ascii32[32] =
 static bool stress_stack_check_flag;
 
 typedef struct {
-	const unsigned long	fs_magic;
+	const unsigned long int	fs_magic;
 	const char *		fs_name;
 } stress_fs_name_t;
 
@@ -635,7 +635,7 @@ size_t stress_get_page_size(void)
 #if defined(_SC_PAGESIZE)
 	{
 		/* Use modern sysconf */
-		const long sz = sysconf(_SC_PAGESIZE);
+		const long int sz = sysconf(_SC_PAGESIZE);
 		if (sz > 0) {
 			page_size = (size_t)sz;
 			return page_size;
@@ -647,7 +647,7 @@ size_t stress_get_page_size(void)
 #if defined(HAVE_GETPAGESIZE)
 	{
 		/* Use deprecated getpagesize */
-		const long sz = getpagesize();
+		const long int sz = getpagesize();
 		if (sz > 0) {
 			page_size = (size_t)sz;
 			return page_size;
@@ -989,7 +989,7 @@ uint64_t stress_get_phys_mem_size(void)
 	uint64_t phys_pages;
 	const size_t page_size = stress_get_page_size();
 	const uint64_t max_pages = ~0ULL / page_size;
-	long ret;
+	long int ret;
 
 	errno = 0;
 	ret = sysconf(STRESS_SC_PAGES);
@@ -1880,7 +1880,7 @@ void stress_yaml_runinfo(FILE *yaml)
 			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
 		pr_yaml(yaml, "      time-hh-mm-ss: %2.2d:%2.2d:%2.2d\n",
 			tm->tm_hour, tm->tm_min, tm->tm_sec);
-		pr_yaml(yaml, "      epoch-secs: %ld\n", (long)t);
+		pr_yaml(yaml, "      epoch-secs: %ld\n", (long int)t);
 	}
 
 	hostname = (char *)malloc(hostname_len + 1);
@@ -2250,7 +2250,7 @@ size_t stress_get_max_file_limit(void)
 #endif
 #if defined(_SC_OPEN_MAX)
 	{
-		const long open_max = sysconf(_SC_OPEN_MAX);
+		const long int open_max = sysconf(_SC_OPEN_MAX);
 
 		max_sysconf = (open_max > 0) ? (size_t)open_max : SIZE_MAX;
 	}
@@ -2860,7 +2860,7 @@ static inline bool stress_check_root(void)
 		 * may be mapped to gid 0 by a custom /etc/group file.
 		 */
 		gid_t *gids;
-		long gids_max;
+		long int gids_max;
 		int ngids;
 
 #if defined(_SC_NGROUPS_MAX)
@@ -3571,12 +3571,12 @@ size_t stress_get_hostname_length(void)
  *	also includes SVE register saving overhead
  *	https://blog.linuxplumbersconf.org/2017/ocw/system/presentations/4671/original/plumbers-dm-2017.pdf
  */
-static inline long stress_get_min_aux_sig_stack_size(void)
+static inline long int stress_get_min_aux_sig_stack_size(void)
 {
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_GETAUXVAL) &&	\
     defined(AT_MINSIGSTKSZ)
-	const long sz = (long)getauxval(AT_MINSIGSTKSZ);
+	const long int sz = (long int)getauxval(AT_MINSIGSTKSZ);
 
 	if (sz > 0)
 		return sz;
@@ -3593,11 +3593,11 @@ static inline long stress_get_min_aux_sig_stack_size(void)
  */
 size_t stress_get_sig_stack_size(void)
 {
-	static long sz = -1;
-	long min;
+	static long int sz = -1;
+	long int min;
 #if defined(_SC_SIGSTKSZ) ||	\
     defined(SIGSTKSZ)
-	long tmp;
+	long int tmp;
 #endif
 
 	/* return cached copy */
@@ -3625,11 +3625,11 @@ size_t stress_get_sig_stack_size(void)
  */
 size_t stress_get_min_sig_stack_size(void)
 {
-	static long sz = -1;
-	long min;
+	static long int sz = -1;
+	long int min;
 #if defined(_SC_MINSIGSTKSZ) ||	\
     defined(SIGSTKSZ)
-	long tmp;
+	long int tmp;
 #endif
 
 	/* return cached copy */
@@ -3657,8 +3657,8 @@ size_t stress_get_min_sig_stack_size(void)
  */
 size_t stress_get_min_pthread_stack_size(void)
 {
-	static long sz = -1;
-	long min, tmp;
+	static long int sz = -1;
+	long int min, tmp;
 
 	/* return cached copy */
 	if (sz > 0)
@@ -3883,7 +3883,7 @@ size_t stress_flag_permutation(const int flags, int **permutations)
  *  stress_fs_magic_to_name()
  *	return the human readable file system type based on fs type magic
  */
-static const char *stress_fs_magic_to_name(const unsigned long fs_magic)
+static const char *stress_fs_magic_to_name(const unsigned long int fs_magic)
 {
 	static char unknown[32];
 	size_t i;
@@ -3910,7 +3910,7 @@ const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 	if (statfs(filename, &buf) != 0)
 		return NULL;
 	*blocks = (uintmax_t)buf.f_bavail;
-	return stress_fs_magic_to_name((unsigned long)buf.f_type);
+	return stress_fs_magic_to_name((unsigned long int)buf.f_type);
 #elif (defined(__FreeBSD__) &&		\
        defined(HAVE_SYS_MOUNT_H) &&	\
        defined(HAVE_SYS_PARAM_H)) ||	\
@@ -4234,9 +4234,9 @@ void stress_set_vma_anon_name(const void *addr, const size_t size, const char *n
     defined(PR_SET_VMA) &&		\
     defined(PR_SET_VMA_ANON_NAME)
 	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME,
-			(unsigned long)addr,
-			(unsigned long)size,
-			(unsigned long)name));
+			(unsigned long int)addr,
+			(unsigned long int)size,
+			(unsigned long int)name));
 #else
 	(void)addr;
 	(void)size;
@@ -4291,10 +4291,10 @@ void stress_unset_chattr_flags(const char *pathname)
     defined(_IOW)
 
 #define SHIM_EXT2_IMMUTABLE_FL		0x00000010
-#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
+#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long int)
 
 	int fd;
-	unsigned long flags = 0;
+	unsigned long int flags = 0;
 
 	if (!pathname)
 		return;

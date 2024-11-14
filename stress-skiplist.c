@@ -24,7 +24,7 @@
 #define DEFAULT_SKIPLIST_SIZE	(1 * KB)
 
 typedef struct skip_node {
-	unsigned long value;
+	unsigned long int value;
 	struct skip_node *skip_nodes[1];
 } skip_node_t;
 
@@ -95,7 +95,7 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
  *  skip_list_insert()
  *	insert a value into the skiplist
  */
-static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const unsigned long value)
+static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const unsigned long int value)
 {
 	skip_node_t **skip_nodes;
 	skip_node_t *skip_node = list->head;
@@ -149,7 +149,7 @@ static skip_node_t OPTIMIZE3 *skip_list_insert(skip_list_t *list, const unsigned
  *  skip_list_search()
  *	search the skiplist for a specific value
  */
-static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned long value)
+static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned long int value)
 {
 	skip_node_t *skip_node = list->head;
 	register size_t i;
@@ -165,13 +165,13 @@ static skip_node_t OPTIMIZE3 *skip_list_search(skip_list_t *list, const unsigned
  *  skip_list_ln2()
  *	compute maximum skiplist level
  */
-static inline unsigned long OPTIMIZE3 skip_list_ln2(register unsigned long n)
+static inline unsigned long int OPTIMIZE3 skip_list_ln2(register unsigned long int n)
 {
 #if defined(HAVE_BUILTIN_CLZL)
 	/* this is fine as long as n > 0 */
 	return (sizeof(n) * 8) - __builtin_clzl(n);
 #else
-	register unsigned long i = 0;
+	register unsigned long int i = 0;
 
 	while (n) {
 		i++;
@@ -206,7 +206,7 @@ static void skip_list_free(skip_list_t *list)
  */
 static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 {
-	unsigned long n, i, ln2n;
+	unsigned long int n, i, ln2n;
 	uint64_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
 	int rc = EXIT_FAILURE;
 
@@ -216,7 +216,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			skiplist_size = MIN_SKIPLIST_SIZE;
 	}
-	n = (unsigned long)skiplist_size;
+	n = (unsigned long int)skiplist_size;
 	ln2n = skip_list_ln2(n);
 
 	/*
@@ -244,7 +244,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			const unsigned long v = (i >> 1) ^ i;
+			const unsigned long int v = (i >> 1) ^ i;
 
 			if (!skip_list_insert(&list, v)) {
 				pr_inf("%s: out of memory initializing the skip list\n",
@@ -255,7 +255,7 @@ static int OPTIMIZE3 stress_skiplist(stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			const unsigned long v = (i >> 1) ^ i;
+			const unsigned long int v = (i >> 1) ^ i;
 
 			if (!skip_list_search(&list, v)) {
 				pr_fail("%s node containing value %lu was not found\n",

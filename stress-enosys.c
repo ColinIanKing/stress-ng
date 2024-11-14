@@ -63,7 +63,7 @@ static const stress_help_t help[] = {
 
 typedef struct hash_syscall {
 	struct hash_syscall *next;
-	long	number;
+	long int number;
 } stress_hash_syscall_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
@@ -78,28 +78,28 @@ static bool stress_x86syscall_available;
  *  x86_64_syscall6()
  *      syscall 6 arg wrapper
  */
-static inline long x86_64_syscall6(
-	long number, long arg1, long arg2,
-	long arg3, long arg4, long arg5, long arg6)
+static inline long int x86_64_syscall6(
+	long int number, long int arg1, long int arg2,
+	long int arg3, long int arg4, long int arg5, long int arg6)
 {
-	long ret;
+	long int ret;
 
 	stress_call_type = CALL_BY_X86_SYSCALL;
 
 	{
-		long tmp_arg1 = arg1;
-		long tmp_arg2 = arg2;
-		long tmp_arg3 = arg3;
-		long tmp_arg4 = arg4;
-		long tmp_arg5 = arg5;
-		long tmp_arg6 = arg6;
+		long int tmp_arg1 = arg1;
+		long int tmp_arg2 = arg2;
+		long int tmp_arg3 = arg3;
+		long int tmp_arg4 = arg4;
+		long int tmp_arg5 = arg5;
+		long int tmp_arg6 = arg6;
 
-		register long asm_arg1 __asm__ ("rdi") = tmp_arg1;
-		register long asm_arg2 __asm__ ("rsi") = tmp_arg2;
-		register long asm_arg3 __asm__ ("rdx") = tmp_arg3;
-		register long asm_arg4 __asm__ ("r10") = tmp_arg4;
-		register long asm_arg5 __asm__ ("r8")  = tmp_arg5;
-		register long asm_arg6 __asm__ ("r9")  = tmp_arg6;
+		register long int asm_arg1 __asm__ ("rdi") = tmp_arg1;
+		register long int asm_arg2 __asm__ ("rsi") = tmp_arg2;
+		register long int asm_arg3 __asm__ ("rdx") = tmp_arg3;
+		register long int asm_arg4 __asm__ ("r10") = tmp_arg4;
+		register long int asm_arg5 __asm__ ("r8")  = tmp_arg5;
+		register long int asm_arg6 __asm__ ("r9")  = tmp_arg6;
 
 		__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
@@ -117,9 +117,9 @@ static inline long x86_64_syscall6(
 
 #if defined(STRESS_EXERCISE_X86_0X80)
 static inline int x86_0x80_syscall6(
-	long number, long arg1, long arg2,
-	long arg3, long arg4, long arg5,
-	long arg6)
+	long int number, long int arg1, long int arg2,
+	long int arg3, long int arg4, int long arg5,
+	long int arg6)
 {
 	int ret;
 
@@ -156,9 +156,9 @@ static inline int x86_0x80_syscall6(
 
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
-static inline long syscall7(long number, long arg1, long arg2,
-			    long arg3, long arg4, long arg5,
-			    long arg6, long arg7)
+static inline long int syscall7(long int number, long int arg1, long int arg2,
+			    long int arg3, long int arg4, long int arg5,
+			    long int arg6, long int arg7)
 {
 	stress_call_type = CALL_BY_SYSCALL;
 
@@ -194,9 +194,9 @@ static void itimer_set(stress_args_t *args)
 
 static void exercise_syscall(
 	stress_args_t *args,
-	long number, long arg1, long arg2,
-	long arg3, long arg4, long arg5,
-	long arg6, long arg7)
+	long int number, long int arg1, long int arg2,
+	long int arg3, long int arg4, long int arg5,
+	long int arg6, long int arg7)
 {
 	int ret;
 	NOCLOBBER bool enosys = false;
@@ -320,12 +320,12 @@ static const int syscall_ignore[] = {
 #endif
 };
 
-static inline bool OPTIMIZE3 syscall_find(long number)
+static inline bool OPTIMIZE3 syscall_find(long int number)
 {
 	register stress_hash_syscall_t *h;
 	register int i;
-	register const long number16 = number & 0xffff;
-	const unsigned long idx = (unsigned long)number;
+	register const long int number16 = number & 0xffff;
+	const unsigned long int idx = (unsigned long int)number;
 
 	/* Really make sure some syscalls are never called */
 	for (i = 0; i < (int)SIZEOF_ARRAY(syscall_ignore); i++) {
@@ -342,10 +342,10 @@ static inline bool OPTIMIZE3 syscall_find(long number)
 	return false;
 }
 
-static inline void OPTIMIZE3 syscall_add(const long number)
+static inline void OPTIMIZE3 syscall_add(const long int number)
 {
-	const unsigned long idx = (unsigned long)number;
-	const unsigned long hash = idx % HASH_SYSCALL_SIZE;
+	const unsigned long int idx = (unsigned long int)number;
+	const unsigned long int hash = idx % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
 
 	while (h) {
@@ -416,7 +416,7 @@ static const int exit_sigs[] = {
 #endif
 };
 
-static const long skip_syscalls[] = {
+static const long int skip_syscalls[] = {
 /* Traditional SYS_ syscall interface */
 #if defined(SYS_accept)
 	SYS_accept,
@@ -3865,7 +3865,7 @@ static const long skip_syscalls[] = {
  *  limit_procs()
  *	try to limit child resources
  */
-static void limit_procs(const unsigned long procs)
+static void limit_procs(const unsigned long int procs)
 {
 #if defined(RLIMIT_CPU) || defined(RLIMIT_NPROC)
 	struct rlimit lim;
@@ -3877,8 +3877,8 @@ static void limit_procs(const unsigned long procs)
 	(void)setrlimit(RLIMIT_CPU, &lim);
 #endif
 #if defined(RLIMIT_NPROC)
-	lim.rlim_cur = (unsigned long)procs;
-	lim.rlim_max = (unsigned long)procs;
+	lim.rlim_cur = (unsigned long int)procs;
+	lim.rlim_max = (unsigned long int)procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);
 #else
 	(void)procs;
@@ -3908,7 +3908,7 @@ static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
  */
 static inline int stress_do_syscall(
 	stress_args_t *args,
-	const long number,
+	const long int number,
 	const bool do_random)
 {
 	pid_t pid;
@@ -3925,7 +3925,7 @@ static inline int stress_do_syscall(
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		size_t i;
-		long arg;
+		long int arg;
 		char buffer[1024];
 
 		/* Try to limit child from spawning */
@@ -3966,16 +3966,16 @@ static inline int stress_do_syscall(
 		}
 
 		exercise_syscall(args, number,
-			(long)stress_mwc64(), (long)stress_mwc64(),
-			(long)stress_mwc64(), (long)stress_mwc64(),
-			(long)stress_mwc64(), (long)stress_mwc64(),
-			(long)stress_mwc64());
+			(long int)stress_mwc64(), (long int)stress_mwc64(),
+			(long int)stress_mwc64(), (long int)stress_mwc64(),
+			(long int)stress_mwc64(), (long int)stress_mwc64(),
+			(long int)stress_mwc64());
 
 		exercise_syscall(args, number,
-			(long)buffer, (long)buffer,
-			(long)buffer, (long)buffer,
-			(long)buffer, (long)buffer,
-			(long)buffer);
+			(long int)buffer, (long int)buffer,
+			(long int)buffer, (long int)buffer,
+			(long int)buffer, (long int)buffer,
+			(long int)buffer);
 		_exit(0);
 	} else {
 		int ret, status;
@@ -4067,13 +4067,13 @@ again:
 			}
 		}
 	} else {
-		const unsigned long mask24 = 0xffffffUL;
+		const unsigned long int mask24 = 0xffffffUL;
 #if ULONG_MAX > 0xffffffff
-		const unsigned long mask40 = 0xffffffffffUL;
-		const unsigned long mask48 = 0xffffffffffffUL;
-		const unsigned long mask56 = 0xffffffffffffffUL;
+		const unsigned long int mask40 = 0xffffffffffUL;
+		const unsigned long int mask48 = 0xffffffffffffUL;
+		const unsigned long int mask56 = 0xffffffffffffffUL;
 #endif
-		const unsigned long mask64 = ULONG_MAX;
+		const unsigned long int mask64 = ULONG_MAX;
 
 		ssize_t j;
 
@@ -4093,7 +4093,7 @@ again:
 			syscall_add(skip_syscalls[j]);
 
 		do {
-			unsigned long number;
+			unsigned long int number;
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
@@ -4106,29 +4106,29 @@ again:
 			for (j = 0; j < 1024; j++) {
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)stress_mwc8() & mask64, true);
+				stress_do_syscall(args, (long int)stress_mwc8() & mask64, true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)stress_mwc16() & mask64, true);
+				stress_do_syscall(args, (long int)stress_mwc16() & mask64, true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)stress_mwc32() & mask24, true);
+				stress_do_syscall(args, (long int)stress_mwc32() & mask24, true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)stress_mwc32() & mask64, true);
+				stress_do_syscall(args, (long int)stress_mwc32() & mask64, true);
 				if (!stress_continue(args))
 					goto finish;
 #if ULONG_MAX > 0xffffffff
-				stress_do_syscall(args, (long)(stress_mwc64() & mask40), true);
+				stress_do_syscall(args, (long int)(stress_mwc64() & mask40), true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)(stress_mwc64() & mask48), true);
+				stress_do_syscall(args, (long int)(stress_mwc64() & mask48), true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)(stress_mwc64() & mask56), true);
+				stress_do_syscall(args, (long int)(stress_mwc64() & mask56), true);
 				if (!stress_continue(args))
 					goto finish;
-				stress_do_syscall(args, (long)(stress_mwc64() & mask64), true);
+				stress_do_syscall(args, (long int)(stress_mwc64() & mask64), true);
 #endif
 			}
 
@@ -4150,7 +4150,7 @@ again:
 
 			/* Various high syscalls */
 			for (number = 0xff; number; number <<= 8) {
-				long n;
+				long int n;
 
 				for (n = 0; n < 0x100; n++) {
 					if (!stress_continue(args))

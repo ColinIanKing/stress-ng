@@ -450,7 +450,7 @@ static int stress_set(stress_args_t *args)
 #if defined(__NR_sgetmask) &&	\
     defined(__NR_ssetmask)
 		{
-			long mask;
+			long int mask;
 
 			mask = shim_sgetmask();
 			shim_ssetmask(mask);

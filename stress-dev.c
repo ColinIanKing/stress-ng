@@ -943,7 +943,7 @@ static void stress_dev_tty(
 
 #if defined(KDGKBMODE)
 	{
-		long mode;
+		long int mode;
 
 		VOID_RET(int, ioctl(fd, KDGKBMODE, &mode));
 	}
@@ -951,7 +951,7 @@ static void stress_dev_tty(
 
 #if defined(KDGKBMETA)
 	{
-		long mode;
+		long int mode;
 
 		VOID_RET(int, ioctl(fd, KDGKBMETA, &mode));
 	}
@@ -1050,7 +1050,7 @@ static void stress_dev_blk(
 #if defined(BLKRAGET)
 	/* readahead */
 	{
-		unsigned long ra;
+		unsigned long int ra;
 		int ret;
 
 		ret = ioctl(fd, BLKRAGET, &ra);
@@ -1065,7 +1065,7 @@ static void stress_dev_blk(
 #if defined(BLKFRAGET)
 	/* readahead */
 	{
-		unsigned long fra;
+		unsigned long int fra;
 		int ret;
 
 		ret = ioctl(fd, BLKFRAGET, &fra);
@@ -1140,7 +1140,7 @@ static void stress_dev_blk(
 
 #if defined(BLKROTATIONAL)
 	{
-		unsigned short rotational;
+		unsigned short int rotational;
 
 		VOID_RET(int, ioctl(fd, BLKROTATIONAL, &rotational));
 	}
@@ -1148,7 +1148,7 @@ static void stress_dev_blk(
 
 #if defined(BLKSECTGET)
 	{
-		unsigned short max_sectors;
+		unsigned short int max_sectors;
 
 		VOID_RET(int, ioctl(fd, BLKSECTGET, &max_sectors));
 	}
@@ -1156,7 +1156,7 @@ static void stress_dev_blk(
 
 #if defined(BLKGETSIZE)
 	{
-		unsigned long sz;
+		unsigned long int sz;
 
 		VOID_RET(int, ioctl(fd, BLKGETSIZE, &sz));
 	}
@@ -1475,7 +1475,7 @@ static void stress_dev_random_linux(
 
 #if defined(RNDGETENTCNT)
 	{
-		long entropy;
+		long int entropy;
 
 		VOID_RET(int, ioctl(fd, RNDGETENTCNT, &entropy));
 	}
@@ -1624,7 +1624,7 @@ static void stress_dev_rtc_linux(
 
 #if defined(RTC_IRQP_READ)
 	{
-		unsigned long irqp;
+		unsigned long int irqp;
 
 		VOID_RET(int, ioctl(fd, RTC_IRQP_READ, &irqp));
 	}
@@ -1638,7 +1638,7 @@ static void stress_dev_rtc_linux(
 #endif
 #if defined(RTC_EPOCH_READ)
 	{
-		unsigned long epoch;
+		unsigned long int epoch;
 
 		VOID_RET(int, ioctl(fd, RTC_EPOCH_READ, &epoch));
 	}
@@ -1968,14 +1968,14 @@ static void stress_dev_cdrom_linux(
 #endif
 #if defined(CDROM_NEXT_WRITABLE)
 	IOCTL_TIMEOUT(0.10, {
-		long next;
+		long int next;
 
 		VOID_RET(int, ioctl(fd, CDROM_NEXT_WRITABLE, &next));
 	}, return);
 #endif
 #if defined(CDROM_LAST_WRITTEN)
 	IOCTL_TIMEOUT(0.10, {
-		long last;
+		long int last;
 
 		VOID_RET(int, ioctl(fd, CDROM_LAST_WRITTEN, &last));
 	}, return);
@@ -2269,9 +2269,9 @@ static void stress_dev_console_linux(
 		ret = ioctl(fd, KDGKBLED, &argp);
 #if defined(KDSKBLED)
 		if (ret == 0) {
-			unsigned long bad_val = ~0UL, val;
+			unsigned long int bad_val = ~0UL, val;
 
-			val = (unsigned long)argp;
+			val = (unsigned long int)argp;
 			VOID_RET(int, ioctl(fd, KDSKBLED, val));
 
 			/* Exercise Invalid KDSKBLED ioctl call with invalid flags */
@@ -2290,12 +2290,12 @@ static void stress_dev_console_linux(
     defined(KDGETMODE)
 	{
 		int ret;
-		unsigned long argp = 0;
+		unsigned long int argp = 0;
 
 		ret = ioctl(fd, KDGETMODE, &argp);
 #if defined(KDSETMODE)
 		if (ret == 0) {
-			unsigned long bad_val = ~0UL;
+			unsigned long int bad_val = ~0UL;
 
 			VOID_RET(int, ioctl(fd, KDSETMODE, argp));
 
@@ -2422,7 +2422,7 @@ static void stress_dev_console_linux(
     defined(GIO_UNISCRNMAP) && \
     defined(E_TABSZ)
 	{
-		unsigned short argp[E_TABSZ];
+		unsigned short int argp[E_TABSZ];
 		int ret;
 
 		ret = ioctl(fd, GIO_UNISCRNMAP, argp);
@@ -2438,12 +2438,12 @@ static void stress_dev_console_linux(
     defined(KDGKBMODE)
 	{
 		int ret;
-		unsigned long argp = 0;
+		unsigned long int argp = 0;
 
 		ret = ioctl(fd, KDGKBMODE, &argp);
 #if defined(KDSKBMODE)
 		if (ret == 0) {
-			unsigned long bad_val = ~0UL;
+			unsigned long int bad_val = ~0UL;
 
 			VOID_RET(int, ioctl(fd, KDSKBMODE, argp));
 
@@ -2463,12 +2463,12 @@ static void stress_dev_console_linux(
     defined(KDGKBMETA)
 	{
 		int ret;
-		unsigned long argp = 0;
+		unsigned long int argp = 0;
 
 		ret = ioctl(fd, KDGKBMETA, &argp);
 #if defined(KDSKBMETA)
 		if (ret == 0) {
-			unsigned long bad_val = ~0UL;
+			unsigned long int bad_val = ~0UL;
 
 			VOID_RET(int, ioctl(fd, KDSKBMETA, argp));
 
@@ -2607,22 +2607,22 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(__linux__)
-#define ACPI_THERMAL_GET_TRT_LEN	_IOR('s', 1, unsigned long)
-#define ACPI_THERMAL_GET_ART_LEN	_IOR('s', 2, unsigned long)
-#define ACPI_THERMAL_GET_TRT_COUNT	_IOR('s', 3, unsigned long)
-#define ACPI_THERMAL_GET_ART_COUNT	_IOR('s', 4, unsigned long)
+#define ACPI_THERMAL_GET_TRT_LEN	_IOR('s', 1, unsigned long int)
+#define ACPI_THERMAL_GET_ART_LEN	_IOR('s', 2, unsigned long int)
+#define ACPI_THERMAL_GET_TRT_COUNT	_IOR('s', 3, unsigned long int)
+#define ACPI_THERMAL_GET_ART_COUNT	_IOR('s', 4, unsigned long int)
 
-#define ACPI_THERMAL_GET_TRT		_IOR('s', 5, unsigned long)
-#define ACPI_THERMAL_GET_ART		_IOR('s', 6, unsigned long)
+#define ACPI_THERMAL_GET_TRT		_IOR('s', 5, unsigned long int)
+#define ACPI_THERMAL_GET_ART		_IOR('s', 6, unsigned long int)
 
-#define ACPI_THERMAL_GET_PSVT_LEN	_IOR('s', 7, unsigned long)
-#define ACPI_THERMAL_GET_PSVT_COUNT	_IOR('s', 8, unsigned long)
-#define ACPI_THERMAL_GET_PSVT		_IOR('s', 9, unsigned long)
+#define ACPI_THERMAL_GET_PSVT_LEN	_IOR('s', 7, unsigned long int)
+#define ACPI_THERMAL_GET_PSVT_COUNT	_IOR('s', 8, unsigned long int)
+#define ACPI_THERMAL_GET_PSVT		_IOR('s', 9, unsigned long int)
 
 static void stress_dev_acpi_thermal_rel_get(
 	const int fd,
-	unsigned long cmd,
-	unsigned long length)
+	unsigned long int cmd,
+	unsigned long int length)
 {
 	char *buf;
 
@@ -2641,7 +2641,7 @@ static void stress_dev_acpi_thermal_rel_linux(
 	const char *devpath)
 {
 	int count;
-	unsigned long length;
+	unsigned long int length;
 
 	VOID_ARGS(args, fd, devpath);
 
@@ -2799,7 +2799,7 @@ static void stress_dev_hpet_linux(
 #endif
 #if defined(HPET_IRQFREQ)
 	{
-		unsigned long freq;
+		unsigned long int freq;
 
 		VOID_RET(int, ioctl(fd, HPET_IRQFREQ, &freq));
 	}
@@ -2925,9 +2925,9 @@ static void stress_dev_lirc_linux(
 #endif
 
 #if defined(HAVE_LINUX_HDREG_H)
-static void stress_dev_hd_linux_ioctl_long(int fd, unsigned long cmd)
+static void stress_dev_hd_linux_ioctl_long(int fd, unsigned long int cmd)
 {
-	long val;
+	long int val;
 
 	VOID_RET(int, ioctl(fd, cmd, &val));
 }

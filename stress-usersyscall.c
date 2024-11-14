@@ -103,9 +103,9 @@ static int stress_supported(const char *name)
  *  x86_64_syscall0()
  *      syscall 0 arg wrapper
  */
-static inline long x86_64_syscall0(const long number)
+static inline long int x86_64_syscall0(const long int number)
 {
-	register long ret;
+	register long int ret;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
@@ -248,7 +248,7 @@ static int OPTIMIZE3 stress_usersyscall(stress_args_t *args)
 		}
 		/*  Expect ENOSYS for the system call return */
 		errno = 0;
-		VOID_RET(long, syscall(USR_SYSCALL));
+		VOID_RET(long int, syscall(USR_SYSCALL));
 		if (UNLIKELY(errno != ENOSYS)) {
 			pr_fail("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

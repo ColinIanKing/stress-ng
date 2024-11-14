@@ -24,7 +24,7 @@
 
 static inline void tlbie(void *addr)
 {
-	unsigned long address = (unsigned long)addr;
+	unsigned long int address = (unsigned long int)addr;
 
 	__asm__ __volatile__("tlbie %0, 0" : : "r" (address) : "memory");
 }

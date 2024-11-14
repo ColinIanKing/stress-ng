@@ -144,7 +144,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 #if defined(RTC_EPOCH_READ)
 	{
-		unsigned long tmp;
+		unsigned long int tmp;
 
 		if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
@@ -163,7 +163,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 #if defined(RTC_IRQP_READ)
 	{
-		unsigned long tmp;
+		unsigned long int tmp;
 
 		if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {
@@ -199,7 +199,7 @@ static inline int stress_rtc_dev(stress_args_t *args)
 
 #if defined(RTC_VL_READ)
 	{
-		unsigned long tmp;
+		unsigned long int tmp;
 
 		if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
 			if ((errno != EINVAL) && (errno != EINTR) && (errno != ENOTTY)) {

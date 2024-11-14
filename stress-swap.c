@@ -33,8 +33,8 @@
 #include <sys/swap.h>
 #endif
 
-#define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
-#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
+#define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long int)
+#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long int)
 #define SHIM_FS_NOCOW_FL		0x00800000 /* No Copy-on-Write file */
 
 static const stress_help_t help[] = {
@@ -370,7 +370,7 @@ static int stress_swap_child(stress_args_t *args, void *context)
 
 #if defined(__linux__)
 	{
-		unsigned long flags;
+		unsigned long int flags;
 
 		/*
 		 *  Disable Copy-on-Write on file where possible, since

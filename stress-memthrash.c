@@ -36,7 +36,7 @@
 #endif
 
 #define BITS_PER_BYTE		(8)
-#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
+#define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
 
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
@@ -63,8 +63,8 @@ typedef struct {
 	uint32_t max_threads;
 #if defined(HAVE_MEMTHRASH_NUMA)
 	int numa_nodes;
-	unsigned long max_numa_nodes;
-	unsigned long *numa_node_mask;
+	unsigned long int max_numa_nodes;
+	unsigned long int *numa_node_mask;
 	size_t numa_node_mask_size;
 #endif
 } stress_memthrash_context_t;
@@ -629,14 +629,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	if ((context->numa_nodes < 1) || (context->max_numa_nodes < 1))
 		return;
 
-	node = (unsigned long)stress_mwc32modn((uint32_t)context->numa_nodes);
+	node = (unsigned long int)stress_mwc32modn((uint32_t)context->numa_nodes);
 	(void)shim_memset(context->numa_node_mask, 0, context->numa_node_mask_size);
 
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
-		STRESS_SETBIT(context->numa_node_mask, (unsigned long)node);
+		STRESS_SETBIT(context->numa_node_mask, (unsigned long int)node);
 
 		(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, context->numa_node_mask, context->max_numa_nodes, 0);
-		STRESS_CLRBIT(context->numa_node_mask, (unsigned long)node);
+		STRESS_CLRBIT(context->numa_node_mask, (unsigned long int)node);
 		node++;
 		if (node >= context->numa_nodes)
 			node = 0;
@@ -917,7 +917,7 @@ static int stress_memthrash(stress_args_t *args)
 			context.numa_node_mask_size = 0;
 			context.numa_nodes = 0;
 		} else {
-			context.numa_node_mask = (unsigned long *)calloc((size_t)context.max_numa_nodes, numa_elements);
+			context.numa_node_mask = (unsigned long int *)calloc((size_t)context.max_numa_nodes, numa_elements);
 			context.numa_node_mask_size = (size_t)context.max_numa_nodes * numa_elements;
 
 			if (!context.numa_node_mask) {

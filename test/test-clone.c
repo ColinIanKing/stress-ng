@@ -34,7 +34,7 @@ static int clone_child(void *arg)
 int main(void)
 {
 	pid_t pid;
-	static unsigned long stack[STACK_SIZE];
+	static unsigned long int stack[STACK_SIZE];
 
 	pid = clone(clone_child, &stack[STACK_SIZE - 1], SIGCHLD | CLONE_VM, NULL);
 

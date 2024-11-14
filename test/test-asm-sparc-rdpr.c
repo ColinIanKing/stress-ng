@@ -22,7 +22,7 @@
     defined(__sparc_v9__)
 int main(void)
 {
-	unsigned long ver;
+	unsigned long int ver;
 
 	__asm__ __volatile__("rdpr %%ver, %0" : "=r" (ver));
 

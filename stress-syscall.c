@@ -38,7 +38,7 @@
 #define SYSCALL_METHOD_GEOMEAN2 (12)
 #define SYSCALL_METHOD_GEOMEAN3 (13)
 
-#define NUMA_LONG_BITS	(sizeof(unsigned long) * 8)
+#define NUMA_LONG_BITS	(sizeof(unsigned long int) * 8)
 
 /* 1 day in nanoseconds */
 #define SYSCALL_DAY_NS		(8.64E13)
@@ -2237,8 +2237,8 @@ static int syscall_getitimer(void)
 #define HAVE_SYSCALL_GET_MEMPOLICY
 static int syscall_get_mempolicy(void)
 {
-	unsigned long node_mask[NUMA_LONG_BITS];
-	unsigned long max_nodes = 1;
+	unsigned long int node_mask[NUMA_LONG_BITS];
+	unsigned long int max_nodes = 1;
 	int ret, mode;
 	void *buf;
 
@@ -2838,7 +2838,7 @@ static int syscall_io_uring_setup(void)
 
 	(void)shim_memset(&p, 0, sizeof(p));
 	t1 = syscall_time_now();
-	fd = syscall(__NR_io_uring_setup, (unsigned long)SIZEOF_ARRAY(p), &p);
+	fd = syscall(__NR_io_uring_setup, (unsigned long int)SIZEOF_ARRAY(p), &p);
 	t2 = syscall_time_now();
 	if (fd >= 0)
 		(void)close(fd);
@@ -3262,8 +3262,8 @@ static int syscall_map_shadow_stack(void)
 #define HAVE_SYSCALL_MBIND
 static int syscall_mbind(void)
 {
-	unsigned long node_mask[NUMA_LONG_BITS];
-	long ret;
+	unsigned long int node_mask[NUMA_LONG_BITS];
+	long int ret;
 	void *buf;
 
 	buf = mmap(NULL, syscall_page_size, PROT_READ | PROT_WRITE,
@@ -3319,9 +3319,9 @@ static int syscall_memfd_create(void)
 #define HAVE_SYSCALL_MIGRATE_PAGES
 static int syscall_migrate_pages(void)
 {
-	long ret;
-	unsigned long old_node_mask[NUMA_LONG_BITS];
-	unsigned long new_node_mask[NUMA_LONG_BITS];
+	long int ret;
+	unsigned long int old_node_mask[NUMA_LONG_BITS];
+	unsigned long int new_node_mask[NUMA_LONG_BITS];
 
 	(void)shim_memset(old_node_mask, 0, sizeof(old_node_mask));
 	STRESS_SETBIT(old_node_mask, 0);
@@ -3595,7 +3595,7 @@ static int syscall_mmap(void)
 #define HAVE_SYSCALL_MOVE_PAGES
 static int syscall_move_pages(void)
 {
-	long ret;
+	long int ret;
 	void *buf;
 	void *pages[1];
 	int status[1];
@@ -4015,7 +4015,7 @@ static int syscall_msgrcv(void)
 	int msgq_id, ret;
 
 	struct syscall_msgbuf {
-		long mtype;
+		long int mtype;
 		uint32_t value;
 	} msg_snd, msg_rcv;
 
@@ -4050,7 +4050,7 @@ static int syscall_msgsnd(void)
 	int msgq_id, ret;
 
 	struct syscall_msgbuf {
-		long mtype;
+		long int mtype;
 		uint32_t value;
 	} msg_snd;
 
@@ -5281,9 +5281,9 @@ static int syscall_riscv_hwprobe(void)
 	};
 
 	int ret;
-	long i;
+	long int i;
 	struct shim_riscv_hwprobe pairs[8];
-	unsigned long cpus;
+	unsigned long int cpus;
 
 	for (i = 0; i < 8; i++)
                 pairs[i].key = i;
@@ -5579,7 +5579,7 @@ static int syscall_seccomp(void)
 	};
 
 	static struct sock_fprog prog_allow_all = {
-		.len = (unsigned short)SIZEOF_ARRAY(filter_allow_all),
+		.len = (unsigned short int)SIZEOF_ARRAY(filter_allow_all),
 		.filter = filter_allow_all
 	};
 	int ret;
@@ -5860,8 +5860,8 @@ static int syscall_setitimer(void)
 #define HAVE_SYSCALL_SET_MEMPOLICY
 static int syscall_set_mempolicy(void)
 {
-	unsigned long node_mask[NUMA_LONG_BITS];
-	unsigned long max_nodes = 1;
+	unsigned long int node_mask[NUMA_LONG_BITS];
+	unsigned long int max_nodes = 1;
 	int ret, mode;
 	void *buf;
 

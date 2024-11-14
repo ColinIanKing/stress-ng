@@ -922,7 +922,7 @@ static int stress_cpu_cache_get_auxval(stress_cpu_cache_cpu_t *cpu)
      defined(AT_L2_CACHESIZE) ||	\
      defined(AT_L3_CACHESIZE))
 	typedef struct {
-		const unsigned long auxval_type;
+		const unsigned long int auxval_type;
 		const stress_cpu_cache_type_t type;	/* cache type */
 		const uint16_t level;			/* cache level 1, 2 */
 		const cache_size_type_t size_type;	/* cache size field */

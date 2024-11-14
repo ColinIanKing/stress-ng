@@ -38,8 +38,8 @@ static const char option[] = "option --mbind";
  * @node: node number to check
  */
 static void stress_check_numa_range(
-	const unsigned long max_node,
-	const unsigned long node)
+	const unsigned long int max_node,
+	const unsigned long int node)
 {
 	if (node >= max_node) {
 		if (max_node > 1) {
@@ -58,13 +58,13 @@ static void stress_check_numa_range(
  *  stress_numa_count_mem_nodes()
  *	determine the number of NUMA memory nodes
  */
-int stress_numa_count_mem_nodes(unsigned long *max_node)
+int stress_numa_count_mem_nodes(unsigned long int *max_node)
 {
 	FILE *fp;
-	unsigned long node_id = 0;
+	unsigned long int node_id = 0;
 	char buffer[8192], *ptr;
 	const char *str = NULL;
-	long n = 0;
+	long int n = 0;
 
 	*max_node = 0;
 
@@ -126,7 +126,7 @@ int stress_numa_count_mem_nodes(unsigned long *max_node)
  */
 int stress_numa_nodes(void)
 {
-	unsigned long max_node = 0;
+	unsigned long int max_node = 0;
 	static int nodes = -1;	/* used as a cached copy */
 
 	if (nodes == -1) {
@@ -143,9 +143,9 @@ int stress_numa_nodes(void)
  *
  * Returns: NUMA node number, or exits the program on invalid number in str
  */
-static unsigned long stress_parse_node(const char *const str)
+static unsigned long int stress_parse_node(const char *const str)
 {
-	unsigned long val;
+	unsigned long int val;
 
 	if (sscanf(str, "%lu", &val) != 1) {
 		(void)fprintf(stderr, "%s: invalid number '%s'\n", option, str);
@@ -163,8 +163,8 @@ static unsigned long stress_parse_node(const char *const str)
 int stress_set_mbind(const char *arg)
 {
 	char *str, *ptr, *token;
-	unsigned long max_node;
-	unsigned long *nodemask;
+	unsigned long int max_node;
+	unsigned long int *nodemask;
 	const size_t nodemask_bits = sizeof(*nodemask) * 8;
 	size_t nodemask_sz;
 
@@ -174,7 +174,7 @@ int stress_set_mbind(const char *arg)
 	}
 
 	nodemask_sz = (max_node + (nodemask_bits - 1)) / nodemask_bits;
-	nodemask = (unsigned long *)calloc(nodemask_sz, sizeof(*nodemask));
+	nodemask = (unsigned long int *)calloc(nodemask_sz, sizeof(*nodemask));
 	if (!nodemask) {
 		(void)fprintf(stderr, "parsing --mbind: cannot allocate NUMA nodemask, out of memory\n");
 		_exit(EXIT_FAILURE);
@@ -187,7 +187,7 @@ int stress_set_mbind(const char *arg)
 	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
-		unsigned long i, lo, hi;
+		unsigned long int i, lo, hi;
 		char *tmpptr = strstr(token, "-");
 
 		hi = lo = stress_parse_node(token);
@@ -234,7 +234,7 @@ int PURE stress_numa_nodes(void)
 	return 1;
 }
 
-int stress_numa_count_mem_nodes(unsigned long *max_node)
+int stress_numa_count_mem_nodes(unsigned long int *max_node)
 {
 	*max_node = 0;
 

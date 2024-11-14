@@ -134,9 +134,9 @@ static int stress_loop(stress_args_t *args)
 		int ctrl_dev, loop_dev;
 		void *ptr;
 		size_t i;
-		long dev_num;
+		long int dev_num;
 #if defined(LOOP_SET_DIRECT_IO)
-		unsigned long dio;
+		unsigned long int dio;
 #endif
 		char dev_name[PATH_MAX];
 #if defined(LOOP_GET_STATUS)
@@ -146,7 +146,7 @@ static int stress_loop(stress_args_t *args)
 		struct loop_info64 info64;
 #endif
 #if defined(LOOP_SET_BLOCK_SIZE)
-		unsigned long blk_size;
+		unsigned long int blk_size;
 		static const uint16_t blk_sizes[] = {
 			256,	/* Invalid */
 			512,	/* Valid */
@@ -295,7 +295,7 @@ static int stress_loop(stress_args_t *args)
 		 *  produce kernel warnings but should not break the
 		 *  kernel.
 		 */
-		blk_size = (unsigned long)blk_sizes[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(blk_sizes))];
+		blk_size = (unsigned long int)blk_sizes[stress_mwc8modn((uint8_t)SIZEOF_ARRAY(blk_sizes))];
 		VOID_RET(int, ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size));
 
 #endif

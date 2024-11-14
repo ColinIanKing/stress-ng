@@ -84,7 +84,7 @@ static timer_t timerid;
 #if defined(HAVE_SET_MEMPOLICY)
 static int max_numa_node;
 static size_t node_mask_size;
-static unsigned long *node_mask;
+static unsigned long int *node_mask;
 
 static const int mpol_modes[] = {
 	0,
@@ -887,13 +887,13 @@ static int stress_cpu_sched(stress_args_t *args)
 	n_cpus = stress_get_usable_cpus(&cpus, true);
 
 #if defined(HAVE_SET_MEMPOLICY)
-	unsigned long max_nodes = 0;
+	unsigned long int max_nodes = 0;
 
 	max_numa_node = stress_numa_count_mem_nodes(&max_nodes);
 	if (max_numa_node > 0) {
 		const size_t mask_elements = (max_nodes + NUMA_LONG_BITS - 1) / NUMA_LONG_BITS;
 		node_mask_size = mask_elements * sizeof(*node_mask);
-		node_mask = (unsigned long *)stress_mmap_populate(NULL, node_mask_size,
+		node_mask = (unsigned long int *)stress_mmap_populate(NULL, node_mask_size,
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, 0, 0);
 		if (node_mask != MAP_FAILED)

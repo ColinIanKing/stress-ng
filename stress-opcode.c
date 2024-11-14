@@ -156,7 +156,7 @@ static struct sock_filter filter[] = {
 };
 
 static struct sock_fprog prog = {
-	.len = (unsigned short)SIZEOF_ARRAY(filter),
+	.len = (unsigned short int)SIZEOF_ARRAY(filter),
 	.filter = filter
 };
 #endif

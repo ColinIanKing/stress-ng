@@ -26,7 +26,7 @@
 #include "core-attribute.h"
 
 #define BITS_PER_BYTE		(8)
-#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
+#define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
 
 #if !defined(MPOL_DEFAULT)
 #define MPOL_DEFAULT		(0)
@@ -80,7 +80,7 @@
 #define MPOL_F_STATIC_NODES	(1 << 15)
 #endif
 
-extern int stress_numa_count_mem_nodes(unsigned long *max_node) NONNULL(1);
+extern int stress_numa_count_mem_nodes(unsigned long int *max_node) NONNULL(1);
 extern int stress_numa_nodes(void);
 extern int stress_set_mbind(const char *arg) NONNULL(1);
 

@@ -92,8 +92,8 @@ static int stress_ioport_supported(const char *name)
  */
 static int stress_ioport_ioperm(
 	stress_args_t *args,
-	unsigned long from,
-	unsigned long num,
+	unsigned long int from,
+	unsigned long int num,
 	int turn_on)
 {
 	if (ioperm(from, num, turn_on) == 0) {

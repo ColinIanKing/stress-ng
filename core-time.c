@@ -116,7 +116,7 @@ static inline void stress_format_time(
 	double *duration,		/* Duration left in seconds */
 	size_t *len)			/* Length of string left at ptr */
 {
-	const unsigned long val = (unsigned long)(*duration / secs_in_units);
+	const unsigned long int val = (unsigned long int)(*duration / secs_in_units);
 
 	if (always_format || (val > 0)) {
 		int ret;

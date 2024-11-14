@@ -45,11 +45,11 @@ static const stress_help_t help[] = {
 #define SHIM_FS_NOCOW_FL		0x00800000 /* Do not cow file */
 #define SHIM_EXT4_PROJINHERIT_FL	0x20000000 /* Create with parents projid */
 
-#define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
-#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
+#define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long int)
+#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long int)
 
 typedef struct {
-	const unsigned long flag;
+	const unsigned long int flag;
 	const char attr;
 } stress_chattr_flag_t;
 
@@ -86,7 +86,7 @@ static void MLOCKED_TEXT stress_chattr_fault_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 
-static char *stress_chattr_flags_str(const unsigned long flags, char *str, const size_t str_len)
+static char *stress_chattr_flags_str(const unsigned long int flags, char *str, const size_t str_len)
 {
 	unsigned int i;
 	size_t j = 0;
@@ -110,8 +110,8 @@ static char *stress_chattr_flags_str(const unsigned long flags, char *str, const
 static int do_chattr(
 	stress_args_t *args,
 	const char *filename,
-	const unsigned long flags,
-	const unsigned long mask,
+	const unsigned long int flags,
+	const unsigned long int mask,
 	uint64_t *chattr_count)
 {
 	int i;
@@ -120,8 +120,8 @@ static int do_chattr(
 	for (i = 0; (i < 128) && stress_continue(args); i++) {
 		NOCLOBBER int fd, fdw;
 		int ret;
-		unsigned long zero = 0UL, tmp, check;
-		NOCLOBBER unsigned long orig_flags;
+		unsigned long int zero = 0UL, tmp, check;
+		NOCLOBBER unsigned long int orig_flags;
 		NOCLOBBER unsigned int j;
 		NOCLOBBER uint8_t *page;
 
@@ -160,7 +160,7 @@ static int do_chattr(
 		/* work through flags disabling them one by one */
 		tmp = orig_flags;
 		for (j = 0; (j < sizeof(orig_flags) * 8); j++) {
-			register const unsigned long bitmask = 1ULL << j;
+			register const unsigned long int bitmask = 1ULL << j;
 
 			if (orig_flags & bitmask) {
 				tmp &= ~bitmask;
@@ -297,7 +297,7 @@ static int do_chattr(
 		 */
 		tmp = 0;
 		for (j = 0; (j < sizeof(orig_flags) * 8); j++) {
-			register const unsigned long bitmask = 1ULL << j;
+			register const unsigned long int bitmask = 1ULL << j;
 
 			tmp |= bitmask;
 			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &tmp);
@@ -329,7 +329,7 @@ static int stress_chattr(stress_args_t *args)
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX], pathname[PATH_MAX];
-	unsigned long mask = 0;
+	unsigned long int mask = 0;
 	int *flag_perms = NULL;
 	size_t i, idx, flag_count;
 	uint64_t chattr_count = 0;
@@ -399,7 +399,7 @@ static int stress_chattr(stress_args_t *args)
 
 		/* Try next flag permutation */
 		if ((flag_count > 0) && (flag_perms)) {
-			(void)do_chattr(args, filename, (unsigned long)flag_perms[idx], mask, &chattr_count);
+			(void)do_chattr(args, filename, (unsigned long int)flag_perms[idx], mask, &chattr_count);
 			idx++;
 			if (idx >= flag_count)
 				idx = 0;

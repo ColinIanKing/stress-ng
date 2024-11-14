@@ -238,7 +238,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_read_rate##size(		\
 			time_t sec = (time_t)dur_remainder;	\
 								\
 			t.tv_sec = sec;				\
-			t.tv_nsec = (long)((dur_remainder -	\
+			t.tv_nsec = (long int)((dur_remainder -	\
 				(double)sec) *			\
 				STRESS_NANOSECOND);		\
 			(void)nanosleep(&t, NULL);		\
@@ -320,7 +320,7 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 			time_t sec = (time_t)dur_remainder;
 
 			t.tv_sec = sec;
-			t.tv_nsec = (long)((dur_remainder -
+			t.tv_nsec = (long int)((dur_remainder -
 				(double)sec) *
 				STRESS_NANOSECOND);
 			(void)nanosleep(&t, NULL);
@@ -338,7 +338,7 @@ static uint64_t OPTIMIZE3 stress_memrate_memset_rate(
 			time_t sec = (time_t)dur_remainder;
 
 			t.tv_sec = sec;
-			t.tv_nsec = (long)((dur_remainder -
+			t.tv_nsec = (long int)((dur_remainder -
 				(double)sec) *
 				STRESS_NANOSECOND);
 			(void)nanosleep(&t, NULL);
@@ -448,7 +448,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 			time_t sec = (time_t)dur_remainder;
 
 			t.tv_sec = sec;
-			t.tv_nsec = (long)((dur_remainder -
+			t.tv_nsec = (long int)((dur_remainder -
 				(double)sec) *
 				STRESS_NANOSECOND);
 			(void)nanosleep(&t, NULL);
@@ -468,7 +468,7 @@ static inline uint64_t OPTIMIZE3 stress_memrate_stos_rate(
 			time_t sec = (time_t)dur_remainder;
 
 			t.tv_sec = sec;
-			t.tv_nsec = (long)((dur_remainder -
+			t.tv_nsec = (long int)((dur_remainder -
 				(double)sec) *
 				STRESS_NANOSECOND);
 			(void)nanosleep(&t, NULL);
@@ -671,7 +671,7 @@ static uint64_t TARGET_CLONES OPTIMIZE3 stress_memrate_write_rate##size(	\
 			time_t sec = (time_t)dur_remainder;	\
 								\
 			t.tv_sec = sec;				\
-			t.tv_nsec = (long)((dur_remainder -	\
+			t.tv_nsec = (long int)((dur_remainder -	\
 				(double)sec) * 			\
 				STRESS_NANOSECOND);		\
 			(void)nanosleep(&t, NULL);		\
@@ -798,7 +798,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 			time_t sec = (time_t)dur_remainder;	\
 								\
 			t.tv_sec = sec;				\
-			t.tv_nsec = (long)((dur_remainder -	\
+			t.tv_nsec = (long int)((dur_remainder -	\
 				(double)sec) * 			\
 				STRESS_NANOSECOND);		\
 			(void)nanosleep(&t, NULL);		\

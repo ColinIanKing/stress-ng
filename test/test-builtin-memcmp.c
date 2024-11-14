@@ -19,8 +19,8 @@
 
 int main(int argc, char **argv)
 {
-	unsigned long dst;
-	unsigned long src = ~0;
+	unsigned long int dst;
+	unsigned long int src = ~0;
 
 	return __builtin_memcmp(&dst, &src, sizeof(dst));
 }

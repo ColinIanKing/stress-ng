@@ -154,7 +154,7 @@ static int stress_urandom(stress_args_t *args)
 		if (fd_rnd >= 0) {
 			double t;
 #if defined(RNDGETENTCNT)
-			unsigned long val = 0;
+			unsigned long int val = 0;
 
 			if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)
 				goto next;

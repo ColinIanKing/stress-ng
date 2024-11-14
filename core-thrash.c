@@ -197,7 +197,7 @@ static int stress_pagein_proc(const pid_t pid)
 			continue;
 
 		for (off = begin; thrash_run && (off < end); off += page_size) {
-			unsigned long data;
+			unsigned long int data;
 			off_t pos;
 
 			pos = lseek(fdmem, off, SEEK_SET);

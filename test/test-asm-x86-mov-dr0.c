@@ -23,7 +23,7 @@
     defined(__i386__)   || defined(__i386)
 int main(int argc, char **argv)
 {
-	unsigned long dr0;
+	unsigned long int dr0;
 
 	__asm__ __volatile__("mov %%dr0, %0" : "=r"(dr0) : : "memory");
 

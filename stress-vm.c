@@ -250,16 +250,16 @@ static inline PURE size_t stress_vm_count_bits8(uint8_t v)
 static inline size_t PURE stress_vm_count_bits(uint64_t v)
 {
 #if defined(HAVE_BUILTIN_POPCOUNTLL)
-	if (sizeof(unsigned long long) == sizeof(uint64_t)) {
-		return (size_t)__builtin_popcountll((unsigned long long)v);
+	if (sizeof(unsigned long long int) == sizeof(uint64_t)) {
+		return (size_t)__builtin_popcountll((unsigned long long int)v);
 	}
 #endif
 #if defined(HAVE_BUILTIN_POPCOUNTL)
-	if (sizeof(unsigned long) == sizeof(uint64_t)) {
-		return (size_t)__builtin_popcountl((unsigned long)v);
-	} else if (sizeof(unsigned long) == sizeof(uint32_t)) {
-		const unsigned long lo = (unsigned long)(v >> 32);
-		const unsigned long hi = (unsigned long)(v & 0xffffffff);
+	if (sizeof(unsigned long int) == sizeof(uint64_t)) {
+		return (size_t)__builtin_popcountl((unsigned long int)v);
+	} else if (sizeof(unsigned long int) == sizeof(uint32_t)) {
+		const unsigned long int lo = (unsigned long int)(v >> 32);
+		const unsigned long int hi = (unsigned long int)(v & 0xffffffff);
 
 		return (size_t)__builtin_popcountl(hi) + __builtin_popcountl(lo);
 	}

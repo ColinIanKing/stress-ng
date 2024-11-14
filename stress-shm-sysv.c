@@ -76,7 +76,7 @@ static const stress_help_t help[] = {
 
 #define KEY_GET_RETRIES		(40)
 #define BITS_PER_BYTE		(8)
-#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
+#define NUMA_LONG_BITS		(sizeof(unsigned long int) * BITS_PER_BYTE)
 #if !defined(MPOL_F_ADDR)
 #define MPOL_F_ADDR		(1 << 1)
 #endif
@@ -816,7 +816,7 @@ static int stress_shm_sysv_child(
     defined(__NR_set_mempolicy)
 			{
 				int ret, mode;
-				unsigned long node_mask[NUMA_LONG_BITS];
+				unsigned long int node_mask[NUMA_LONG_BITS];
 
 				ret = shim_get_mempolicy(&mode, node_mask, 1,
 					addrs[i], MPOL_F_ADDR);

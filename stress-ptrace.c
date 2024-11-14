@@ -181,10 +181,10 @@ again:
 				const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
 				/* exercise invalid options */
-				VOID_RET(long, ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD));
+				VOID_RET(long int, ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD));
 
 				/* exercise invalid pid */
-				VOID_RET(long, ptrace(PTRACE_SETOPTIONS, bad_pid, 0, PTRACE_O_TRACESYSGOOD));
+				VOID_RET(long int, ptrace(PTRACE_SETOPTIONS, bad_pid, 0, PTRACE_O_TRACESYSGOOD));
 			}
 			i++;
 

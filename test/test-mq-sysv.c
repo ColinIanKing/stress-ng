@@ -35,7 +35,7 @@
 #define MAX_SIZE        (8)
 
 typedef struct {
-	long mtype;
+	long int mtype;
 	char msg[MAX_SIZE];
 } msg_t;
 

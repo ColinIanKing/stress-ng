@@ -20,7 +20,7 @@
 
 int main(int argc, char **argv)
 {
-	long long x = 23;
+	long long int x = 23;
 
 	return (int)__builtin_llabs(x);
 }

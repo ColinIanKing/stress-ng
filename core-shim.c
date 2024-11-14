@@ -142,11 +142,11 @@ extern int setdomainname(const char *name, size_t len);
  *	the sysnr argument and all following 1..N syscall
  *	arguments.  Returns -1 and sets errno to ENOSYS
  */
-static inline long shim_enosys(long sysnr, ...)
+static inline long int shim_enosys(long sysnr, ...)
 {
 	(void)sysnr;
 	errno = ENOSYS;
-	return (long)-1;
+	return (long int)-1;
 }
 
 /*
@@ -451,20 +451,20 @@ int shim_gettid(void)
  *	wrapper for getcpu(2) - get CPU and NUMA node of
  *	calling thread
  */
-long shim_getcpu(
+long int shim_getcpu(
 	unsigned int *cpu,
 	unsigned int *node,
 	void *tcache)
 {
 #if defined(HAVE_GETCPU) && !defined(STRESS_ARCH_S390)
 	(void)tcache;
-	return (long)getcpu(cpu, node);
+	return (long int)getcpu(cpu, node);
 #elif defined(__NR_getcpu) &&	\
       defined(HAVE_SYSCALL)
-	return (long)syscall(__NR_getcpu, cpu, node, tcache);
+	return (long int)syscall(__NR_getcpu, cpu, node, tcache);
 #else
 	UNEXPECTED
-	return (long)shim_enosys(0, cpu, node, tcache);
+	return (long int)shim_enosys(0, cpu, node, tcache);
 #endif
 }
 
@@ -547,14 +547,14 @@ void shim_flush_icache(void *begin, void *end)
  *	wrapper for Linux kcmp(2) - compare two processes to
  *	see if they share a kernel resource.
  */
-long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2)
+long int shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long int idx1, unsigned long int idx2)
 {
 #if defined(__NR_kcmp) &&	\
     defined(HAVE_SYSCALL)
 	errno = 0;
-	return (long)syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
+	return (long int)syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
 #else
-	return (long)shim_enosys(0, pid1, pid2, type, idx1, idx2);
+	return (long int)shim_enosys(0, pid1, pid2, type, idx1, idx2);
 #endif
 }
 
@@ -610,10 +610,10 @@ int shim_memfd_create(const char *name, unsigned int flags)
  */
 int shim_get_mempolicy(
 	int *mode,
-	unsigned long *nodemask,
-	unsigned long maxnode,
+	unsigned long int *nodemask,
+	unsigned long int maxnode,
 	void *addr,
-	unsigned long flags)
+	unsigned long int flags)
 {
 #if defined(__NR_get_mempolicy) &&	\
     defined(HAVE_SYSCALL)
@@ -630,8 +630,8 @@ int shim_get_mempolicy(
  */
 int shim_set_mempolicy(
 	int mode,
-	unsigned long *nodemask,
-	unsigned long maxnode)
+	unsigned long int *nodemask,
+	unsigned long int maxnode)
 {
 #if defined(__NR_set_mempolicy) &&	\
     defined(HAVE_SYSCALL)
@@ -646,20 +646,20 @@ int shim_set_mempolicy(
  *  shim_mbind()
  *	wrapper for mbind(2) - set memory policy for a memory range
  */
-long shim_mbind(
+long int shim_mbind(
 	void *addr,
-	unsigned long len,
+	unsigned long int len,
 	int mode,
-	const unsigned long *nodemask,
-	unsigned long maxnode,
+	const unsigned long int *nodemask,
+	unsigned long int maxnode,
 	unsigned flags)
 {
 #if defined(__NR_mbind) &&	\
     defined(HAVE_SYSCALL)
-	return (long)syscall(__NR_mbind,
+	return (long int)syscall(__NR_mbind,
 		addr, len, mode, nodemask, maxnode, flags);
 #else
-	return (long)shim_enosys(0, addr, len, mode, nodemask, maxnode, flags);
+	return (long int)shim_enosys(0, addr, len, mode, nodemask, maxnode, flags);
 #endif
 }
 
@@ -667,18 +667,18 @@ long shim_mbind(
  *  shim_migrate_pages()
  *	wrapper for migrate_pages(2) - move all pages in a process to other nodes
  */
-long shim_migrate_pages(
+long int shim_migrate_pages(
 	int pid,
-	unsigned long maxnode,
-	const unsigned long *old_nodes,
-	const unsigned long *new_nodes)
+	unsigned long int maxnode,
+	const unsigned long int *old_nodes,
+	const unsigned long int *new_nodes)
 {
 #if defined(__NR_migrate_pages) &&	\
     defined(HAVE_SYSCALL)
-	return (long)syscall(__NR_migrate_pages,
+	return (long int)syscall(__NR_migrate_pages,
 		pid, maxnode, old_nodes, new_nodes);
 #else
-	return (long)shim_enosys(0, pid, maxnode, old_nodes, new_nodes);
+	return (long int)shim_enosys(0, pid, maxnode, old_nodes, new_nodes);
 #endif
 }
 
@@ -686,9 +686,9 @@ long shim_migrate_pages(
  *  shim_move_pages()
  *	wrapper for move_pages(2) - move pages in a process to other nodes
  */
-long shim_move_pages(
+long int shim_move_pages(
 	int pid,
-	unsigned long count,
+	unsigned long int count,
 	void **pages,
 	const int *nodes,
 	int *status,
@@ -696,10 +696,10 @@ long shim_move_pages(
 {
 #if defined(__NR_move_pages) &&	\
     defined(HAVE_SYSCALL)
-	return (long)syscall(__NR_move_pages, pid, count, pages, nodes,
+	return (long int)syscall(__NR_move_pages, pid, count, pages, nodes,
 		status, flags);
 #else
-	return (long)shim_enosys(0, pid, count, pages, nodes, status, flags);
+	return (long int)shim_enosys(0, pid, count, pages, nodes, status, flags);
 #endif
 }
 
@@ -2026,7 +2026,7 @@ int shim_reboot(int magic, int magic2, int cmd, void *arg)
 ssize_t shim_process_madvise(
 	int pidfd,
 	const struct iovec *iovec,
-	unsigned long vlen,
+	unsigned long int vlen,
 	int advice,
 	unsigned int flags)
 {
@@ -2266,13 +2266,13 @@ ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz)
  *  shim_sgetmask
  *	wrapper for obsolute linux system call sgetmask()
  */
-long shim_sgetmask(void)
+long int shim_sgetmask(void)
 {
 #if defined(__NR_sgetmask) &&	\
     defined(HAVE_SYSCALL)
-	return (long)syscall(__NR_sgetmask);
+	return (long int)syscall(__NR_sgetmask);
 #else
-	return (long)shim_enosys(0);
+	return (long int)shim_enosys(0);
 #endif
 }
 
@@ -2280,13 +2280,13 @@ long shim_sgetmask(void)
  *  shim_ssetmask
  *	wrapper for obsolute linux system call ssetmask()
  */
-long shim_ssetmask(long newmask)
+long int shim_ssetmask(long int newmask)
 {
 #if defined(__NR_ssetmask) &&	\
     defined(HAVE_SYSCALL)
-	return (long)syscall(__NR_ssetmask, newmask);
+	return (long int)syscall(__NR_ssetmask, newmask);
 #else
-	return (long)shim_enosys(0, newmask);
+	return (long int)shim_enosys(0, newmask);
 #endif
 }
 
@@ -2338,7 +2338,7 @@ int shim_vhangup(void)
  *  shim_arch_prctl()
  *	wrapper for arch specific prctl system call
  */
-int shim_arch_prctl(int code, unsigned long addr)
+int shim_arch_prctl(int code, unsigned long int addr)
 {
 #if defined(__NR_arch_prctl) && 	\
       defined(__linux__) &&		\
@@ -2390,7 +2390,7 @@ int shim_tkill(int tid, int sig)
  *  shim_memfd_secret()
  *	wrapper for the new memfd_secret system call
  */
-int shim_memfd_secret(unsigned long flags)
+int shim_memfd_secret(unsigned long int flags)
 {
 #if defined(__NR_memfd_secret) &&	\
     defined(HAVE_SYSCALL)
@@ -2436,7 +2436,7 @@ int shim_quotactl_fd(unsigned int fd, unsigned int cmd, int id, void *addr)
  *  shim_modify_ldt()
  *	system call wrapper for modify_ldt()
  */
-int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
+int shim_modify_ldt(int func, void *ptr, unsigned long int bytecount)
 {
 #if defined(HAVE_MODIFY_LDT) &&	\
     defined(__NR_modify_ldt) &&	\
@@ -2685,10 +2685,10 @@ int shim_kill(pid_t pid, int sig)
  *	wrapper for NUMA system call set_mempolicy_home_node()
  */
 int shim_set_mempolicy_home_node(
-        unsigned long start,
-        unsigned long len,
-        unsigned long home_node,
-        unsigned long flags)
+        unsigned long int start,
+        unsigned long int len,
+        unsigned long int home_node,
+        unsigned long int flags)
 {
 #if defined(__NR_set_mempolicy_home_node)
         return (int)syscall(__NR_set_mempolicy_home_node, start, len, home_node, flags);
@@ -2825,7 +2825,7 @@ unsigned char shim_dirent_type(const char *path, const struct dirent *d)
  *  shim_mseal()
  *	shim wrapper for the Linux 5.10 mseal system call
  */
-int shim_mseal(void *addr, size_t len, unsigned long flags)
+int shim_mseal(void *addr, size_t len, unsigned long int flags)
 {
 #if defined(HAVE_MSEAL)
 	return mseal(addr, len, flags);

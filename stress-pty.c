@@ -481,13 +481,13 @@ static int stress_pty(stress_args_t *args)
 
 #if defined(HAVE_PATHCONF)
 #if defined(_PC_MAX_CANON)
-		VOID_RET(long, pathconf("/dev/ptmx", _PC_MAX_CANON));
+		VOID_RET(long int, pathconf("/dev/ptmx", _PC_MAX_CANON));
 #endif
 #if defined(_PC_MAX_INPUT)
-		VOID_RET(long, pathconf("/dev/ptmx", _PC_MAX_INPUT));
+		VOID_RET(long int, pathconf("/dev/ptmx", _PC_MAX_INPUT));
 #endif
 #if defined(_PC_VDISABLE)
-		VOID_RET(long, pathconf("/dev/ptmx", _PC_VDISABLE));
+		VOID_RET(long int, pathconf("/dev/ptmx", _PC_VDISABLE));
 #endif
 #endif
 

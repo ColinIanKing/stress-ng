@@ -45,7 +45,7 @@ static uint64_t timer_counter;
 static uint64_t max_ops;
 static timer_t timerid;
 static double time_end;
-static long ns_delay;
+static long int ns_delay;
 static int overrun;
 void *lock;
 
@@ -90,7 +90,7 @@ static void MLOCKED_TEXT OPTIMIZE3 stress_hrtimers_handler(int sig)
 
 	if (UNLIKELY((timer_counter & 4095) == 0)) {
 		if (ns_delay >= 0) {
-			const long ns_adjust = ns_delay >> 2;
+			const long int ns_adjust = ns_delay >> 2;
 
 			if (timer_getoverrun(timerid)) {
 				ns_delay += ns_adjust;

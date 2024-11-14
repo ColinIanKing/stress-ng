@@ -279,7 +279,7 @@ static int stress_set_setting_generic(
 		setting->u.sint = *(const int *)value;
 		break;
 	case TYPE_ID_OFF_T:
-		setting->u.off = *(const long *)value;
+		setting->u.off = *(const long int *)value;
 		break;
 	case TYPE_ID_STR:
 		setting->u.str = stress_const_optdup(value);
@@ -413,7 +413,7 @@ bool stress_get_setting(const char *name, void *value)
 				break;
 			case TYPE_ID_OFF_T:
 				set = true;
-				*(long  *)value = setting->u.off;
+				*(long int *)value = setting->u.off;
 				break;
 			case TYPE_ID_STR:
 				set = true;

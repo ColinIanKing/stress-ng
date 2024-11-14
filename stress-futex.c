@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
  *  stress_futex_wait()
  *     exercise futex_wait and every 16th time futex_waitv
  */
-static int stress_futex_wait(uint32_t *futex, const int val, const long nsec)
+static int stress_futex_wait(uint32_t *futex, const int val, const long int nsec)
 {
 	struct timespec t;
 
@@ -82,7 +82,7 @@ static int stress_futex_wait(uint32_t *futex, const int val, const long nsec)
 	/* UNEXPECTED */
 #endif
 	t.tv_sec = 0;
-	t.tv_nsec = (long)nsec;
+	t.tv_nsec = (long int)nsec;
 
 	return shim_futex_wait(futex, val, &t);
 }

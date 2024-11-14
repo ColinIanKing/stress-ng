@@ -89,14 +89,14 @@ static int dnotify_exercise(
 	const char *filename,		/* Filename in test */
 	const char *watchname,		/* File or directory to watch using dnotify */
 	const stress_dnotify_helper func,/* Helper func */
-	const unsigned long flags,	/* DN_* flags to watch for */
+	const unsigned long int flags,	/* DN_* flags to watch for */
 	void *private)			/* Helper func private data */
 {
 	int fd, i = 0, rc = 0;
 #if defined(DN_MULTISHOT)
-	unsigned long flags_ms = flags | DN_MULTISHOT;
+	unsigned long int flags_ms = flags | DN_MULTISHOT;
 #else
-	unsigned long flags_ms = flags;
+	unsigned long int flags_ms = flags;
 #endif
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {

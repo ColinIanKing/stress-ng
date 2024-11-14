@@ -151,7 +151,7 @@ static void stress_plugin_so(const char *opt_name, const char *opt_arg, stress_t
 	Elf64_Sym * symtab = NULL;
 	ElfW(Dyn) *section;
 	char * strtab = NULL;
-	unsigned long symentries = 0;
+	unsigned long int symentries = 0;
 	size_t i, size, n_funcs;
 
 	stress_plugin_methods = NULL;

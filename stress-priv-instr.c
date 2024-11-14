@@ -182,7 +182,7 @@ static void *page;
 
 static void stress_ppc64_tlbie(void)
 {
-        unsigned long address = (unsigned long)page;
+        unsigned long int address = (unsigned long int)page;
 
 	__asm__ __volatile__("tlbie %0, 0" : : "r" (address) : "memory");
 }
@@ -256,7 +256,7 @@ static op_info_t op_info[] =
 #define HAVE_PRIV_INSTR
 static void stress_sparc_rdpr(void)
 {
-	unsigned long ver;
+	unsigned long int ver;
 
 	__asm__ __volatile__("rdpr %%ver, %0" : "=r" (ver));
 }
@@ -344,7 +344,7 @@ static void stress_x86_lmsw(void)
 #if defined(HAVE_ASM_X86_MOV_CR0)
 static void stress_x86_mov_cr0(void)
 {
-	unsigned long cr0;
+	unsigned long int cr0;
 
 	__asm__ __volatile__("mov %%cr0, %0" : "=r"(cr0) : : "memory");
 }
@@ -353,7 +353,7 @@ static void stress_x86_mov_cr0(void)
 #if defined(HAVE_ASM_X86_MOV_DR0)
 static void stress_x86_mov_dr0(void)
 {
-	unsigned long dr0;
+	unsigned long int dr0;
 
 	__asm__ __volatile__("mov %%dr0, %0" : "=r"(dr0) : : "memory");
 }

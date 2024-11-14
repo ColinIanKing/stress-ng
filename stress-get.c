@@ -212,7 +212,7 @@ static int stress_getdomainname(stress_args_t *args)
 static int stress_gethostid(stress_args_t *args)
 {
 #if defined(HAVE_GETHOSTID)
-	VOID_RET(long, gethostid());
+	VOID_RET(long int, gethostid());
 #endif
 	(void)args;
 
@@ -330,7 +330,7 @@ static int stress_getgroups(stress_args_t *args)
 	 *  valgrind happy.
 	 */
 	(void)shim_memset(gids, 0, sizeof(gids));
-	VOID_RET(long, syscall(__NR_getgroups, -1, gids));
+	VOID_RET(long int, syscall(__NR_getgroups, -1, gids));
 #endif
 
 	return EXIT_SUCCESS;

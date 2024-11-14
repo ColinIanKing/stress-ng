@@ -20,16 +20,16 @@
 
 struct packed_test {
 	int i;
-	long l;
+	long int l;
 	char c;
-	short s;
+	shortint  s;
 } PACKED;
 
 struct unpacked_test {
 	int i;
-	long l;
+	long int l;
 	char c;
-	short s;
+	short int s;
 };
 
 int main(int argc, char **argv)

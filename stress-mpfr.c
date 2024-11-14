@@ -136,8 +136,8 @@ static void stress_mpfr_phi(const mpfr_prec_t precision, mpfr_t *result)
 	mpfr_init2(b, precision);
 	mpfr_init2(c, precision);
 
-	mpfr_set_ui(a, (unsigned long)stress_mwc64(), MPFR_RNDD);
-	mpfr_set_ui(b, (unsigned long)stress_mwc64(), MPFR_RNDD);
+	mpfr_set_ui(a, (unsigned long int)stress_mwc64(), MPFR_RNDD);
+	mpfr_set_ui(b, (unsigned long int)stress_mwc64(), MPFR_RNDD);
 
 	for (i = 0; i <= 1000; i++) {
 		mpfr_add(c, a, b, MPFR_RNDD);
@@ -215,7 +215,7 @@ static void stress_mpfr_apery(const mpfr_prec_t precision, mpfr_t *result)
 	for (i = 1; i <= 1000; i++) {
 		mpfr_set(apery_prev, apery, MPFR_RNDD);
 
-		mpfr_set_ui(tmp, (unsigned long)i, MPFR_RNDD);
+		mpfr_set_ui(tmp, (unsigned long int)i, MPFR_RNDD);
 		mpfr_mul(n3, tmp, tmp, MPFR_RNDD);
 		mpfr_mul(n3, n3, tmp, MPFR_RNDD);
 		mpfr_ui_div(tmp, 1UL, n3, MPFR_RNDD);
@@ -306,7 +306,7 @@ static void stress_mpfr_exp(const mpfr_prec_t precision, mpfr_t *result)
 	mpfr_set_d(r, 0.0, MPFR_RNDD);
 
 	for (i = 1; i <= 100; i++) {
-		mpfr_set_ui(tmp, (unsigned long)i, MPFR_RNDD);
+		mpfr_set_ui(tmp, (unsigned long int)i, MPFR_RNDD);
 		mpfr_exp(tmp, tmp, MPFR_RNDD);
 		mpfr_add(r, r, tmp, MPFR_RNDD);
 	}
@@ -332,7 +332,7 @@ static void stress_mpfr_log(const mpfr_prec_t precision, mpfr_t *result)
 	mpfr_set_d(r, 0.0, MPFR_RNDD);
 
 	for (i = 1; i <= 100; i++) {
-		mpfr_set_ui(tmp, (unsigned long)i, MPFR_RNDD);
+		mpfr_set_ui(tmp, (unsigned long int)i, MPFR_RNDD);
 		mpfr_log(tmp, tmp, MPFR_RNDD);
 		mpfr_add(r, r, tmp, MPFR_RNDD);
 	}

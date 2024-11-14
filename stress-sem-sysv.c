@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 typedef union stress_semun {
 	int              val;	/* Value for SETVAL */
 	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */		/* cppcheck-suppress unusedStructMember */
-	unsigned short  *array;	/* Array for GETALL, SETALL */			/* cppcheck-suppress unusedStructMember */
+	unsigned short int *array;	/* Array for GETALL, SETALL */		/* cppcheck-suppress unusedStructMember */
 	struct seminfo  *__buf;	/* Buffer for IPC_INFO (Linux-specific) */	/* cppcheck-suppress unusedStructMember */
 } stress_semun_t;
 #endif
@@ -285,7 +285,7 @@ timed_out:
 			nsems = ds.sem_nsems;
 			if (nsems < 64)
 				nsems = 64;
-			s.array = (unsigned short *)calloc(nsems, sizeof(*s.array));
+			s.array = (unsigned short int *)calloc(nsems, sizeof(*s.array));
 			if (s.array) {
 				VOID_RET(int, semctl(sem_id, 2, GETALL, s));
 #if defined(SETALL)
@@ -491,7 +491,7 @@ timed_out:
 		{
 			struct sembuf semwait;
 
-			semwait.sem_num = (unsigned short)-1;
+			semwait.sem_num = (unsigned short int)-1;
 			semwait.sem_op = -1;
 			semwait.sem_flg = SEM_UNDO;
 

@@ -966,10 +966,11 @@ static inline int shim_cachestat(
 	struct shim_cachestat *cstat,
 	unsigned int flags)
 {
-	return (int)syscall(__NR_cachestat, (unsigned long)fd,
-			(unsigned long)cstat_range,
-			(unsigned long)cstat,
-			(unsigned long)flags);
+	return (int)syscall(__NR_cachestat,
+			(unsigned long int)fd,
+			(unsigned long int)cstat_range,
+			(unsigned long int)cstat,
+			(unsigned long int)flags);
 }
 
 /*

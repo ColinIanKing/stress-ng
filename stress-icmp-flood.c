@@ -76,7 +76,7 @@ static int stress_icmp_flood(stress_args_t *args)
 {
 	int fd, rc = EXIT_FAILURE;
 	const int set_on = 1;
-	const unsigned long addr = inet_addr("127.0.0.1");
+	const unsigned long int addr = inet_addr("127.0.0.1");
 	struct sockaddr_in servaddr;
 	uint64_t counter, sendto_fails = 0, sendto_ok;
 	double bytes = 0.0, t_start, duration, rate;
