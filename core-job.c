@@ -30,10 +30,10 @@
 #define ISBLANK(ch)	isblank((int)(ch))
 
 /*
- *  stress_chop()
+ *  stress_str_chop()
  *	chop off end of line that matches char ch
  */
-static inline void stress_chop(char *str, const char ch)
+static inline void stress_str_chop(char *str, const char ch)
 {
 	char *ptr = strchr(str, ch);
 
@@ -149,11 +149,11 @@ int stress_parse_jobfile(
 		lineno++;
 
 		/* remove \n */
-		stress_chop(buf, '\n');
+		stress_str_chop(buf, '\n');
 		(void)shim_strscpy(txt, buf, sizeof(txt) - 1);
 
 		/* remove comments */
-		stress_chop(buf, '#');
+		stress_str_chop(buf, '#');
 		if (!*buf)
 			continue;
 
