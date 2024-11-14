@@ -130,7 +130,7 @@ endif
 #
 ifneq ($(filter-out clang icc scan-build,$(COMPILER)),)
 override CFLAGS += $(foreach flag,-fipa-pta -fivopts,$(cc_supports_flag))
-ifneq ($(MACHINE),$(filter $(MACHINE),ibms390))
+ifneq ($(MACHINE),$(filter $(MACHINE),ibms390 s390))
 override CFLAGS += $(foreach flag,-fmodulo-sched,$(cc_supports_flag))
 endif
 endif
