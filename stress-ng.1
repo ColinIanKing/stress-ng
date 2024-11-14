@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "13 November 2024"
+.TH STRESS-NG 1 "14 November 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -553,6 +553,10 @@ to be used are specified by a comma separated list of CPU (0 to N-1). One
 can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11,
 or use "even" for even numbered CPUs, "odd" for odd numbered CPUs, "all" for
 all cpus or "random" of a random selection of CPUs.
+.TP
+.B \-\-taskset\-random
+randomly change stressor CPU affinity at five times the clock tick rate (if
+defined) or at 400Hz while waiting for stressors to complete.
 .TP
 .B \-\-temp\-path path
 specify a path for stress\-ng temporary directories and temporary files;

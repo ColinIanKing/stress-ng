@@ -181,6 +181,7 @@ static const stress_opt_flag_t opt_flags[] = {
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
 #endif
+	{ OPT_taskset_random,	OPT_FLAGS_TASKSET_RANDOM },
 	{ OPT_thrash, 		OPT_FLAGS_THRASH },
 	{ OPT_times,		OPT_FLAGS_TIMES },
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
@@ -1077,6 +1078,8 @@ static void stress_wait_aggressive(
 	const useconds_t usec_sleep =
 		ticks_per_sec ? 1000000 / ((useconds_t)5 * ticks_per_sec) : 1000000 / 250;
 
+	pr_dbg("changing stressor cpu affinity every %lu usecs\n", (unsigned long)usec_sleep);
+
 	while (wait_flag) {
 		const int32_t cpus = stress_get_processors_configured();
 		bool procs_alive = false;
@@ -1327,7 +1330,7 @@ static void stress_wait_stressors(
 	 *  to impact on memory locality (e.g. NUMA) to
 	 *  try to thrash the system when in aggressive mode
 	 */
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+	if (g_opt_flags & (OPT_FLAGS_AGGRESSIVE | OPT_FLAGS_TASKSET_RANDOM))
 		stress_wait_aggressive(ticks_per_sec, stressors_list);
 #else
 	(void)ticks_per_sec;

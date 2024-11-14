@@ -1064,6 +1064,7 @@ const struct option stress_long_options[] = {
 	{ "syslog",		0,	0,	OPT_syslog },
 #endif
 	{ "taskset",		1,	0,	OPT_taskset },
+	{ "taskset-random",	0,	0,	OPT_taskset_random },
 	{ "tee",		1,	0,	OPT_tee },
 	{ "tee-ops",		1,	0,	OPT_tee_ops },
 	{ "temp-path",		1,	0,	OPT_temp_path },

@@ -87,6 +87,7 @@
 #define OPT_FLAGS_RAPL_REQUIRED  STRESS_BIT_ULL(56)	/* set if RAPL is required */
 #define OPT_FLAGS_C_STATES	 STRESS_BIT_ULL(57)	/* --c-states */
 #define OPT_FLAGS_STRESSOR_TIME	 STRESS_BIT_ULL(58)	/* --stressor-time */
+#define OPT_FLAGS_TASKSET_RANDOM STRESS_BIT_ULL(59)	/* --taskset-random */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1504,6 +1505,8 @@ typedef enum {
 	OPT_tee_ops,
 
 	OPT_taskset,
+
+	OPT_taskset_random,
 
 	OPT_temp_path,
 
