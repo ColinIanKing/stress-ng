@@ -940,7 +940,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	register uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = stress_get_prime64(sz + 4096);
-	register uint64_t j, c = stress_bogo_get(args);
+	register uint64_t j, c;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -950,12 +950,13 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 
 	(void)shim_memset(buf, 0x00, sz);
 
+	c = stress_bogo_get(args);
 	for (i = 0; i < sz; i++) {
 		ptr[i] += val;
 		stress_asm_mb();
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
-			return 0;
+			break;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -964,13 +965,14 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	 *  in a totally sub-optimal way to exercise
 	 *  memory and cache stalls
 	 */
+	c = stress_bogo_get(args);
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		j = stress_vm_mod(j, sz);
 		ptr[j] -= val;
 		stress_asm_mb();
 		c++;
 		if (UNLIKELY(max_ops && (c >= max_ops)))
-			return 0;
+			break;
 	}
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
