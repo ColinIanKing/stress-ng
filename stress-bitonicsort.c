@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 #include "core-sort.h"
 
 #define MIN_BITONICSORT_SIZE		(1 * KB)
@@ -179,6 +180,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		if (UNLIKELY(verify)) {
 			register size_t i;
 
+PRAGMA_UNROLL_N(4)
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr + 1)) {
 					pr_fail("%s: sort error "
@@ -203,6 +205,7 @@ static int OPTIMIZE3 stress_bitonicsort(stress_args_t *args)
 		if (UNLIKELY(verify)) {
 			register size_t i;
 
+PRAGMA_UNROLL_N(4)
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr + 1)) {
 					pr_fail("%s: reverse sort "
