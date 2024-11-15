@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-sort.h"
+#include "core-pragma.h"
 
 #define MIN_HEAPSORT_SIZE	(1 * KB)
 #define MAX_HEAPSORT_SIZE	(4 * MB)
@@ -63,6 +64,7 @@ static int bubblesort_fast(
 		register uintptr_t p1 = (uintptr_t)base;
 		register uintptr_t p2 = size + (uintptr_t)base;
 
+PRAGMA_UNROLL_N(4)
 		for (i = 1; i < nmemb; i++) {
 			if (compar((void *)p1, (void *)p2) > 0) {
 				swap_func((void *)p1, (void *)p2, size);
@@ -101,6 +103,7 @@ static int bubblesort_naive(
 		register uintptr_t p2 = size + (uintptr_t)base;
 
 		swapped = false;
+PRAGMA_UNROLL_N(4)
 		for (i = 1; i < nmemb; i++) {
 			if (compar((void *)p1, (void *)p2) > 0) {
 				swap_func((void *)p1, (void *)p2, size);
