@@ -22,6 +22,7 @@
 #include "core-cpu-cache.h"
 #include "core-killpid.h"
 #include "core-lock.h"
+#include "core-pragma.h"
 
 #include <sched.h>
 
@@ -119,6 +120,7 @@ static int stress_cacheline_adjacent(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		(*data8)++;
 		(void)(*data8adjacent);
@@ -166,6 +168,7 @@ static int stress_cacheline_copy(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		register uint8_t val8;
 
@@ -202,6 +205,7 @@ static int stress_cacheline_inc(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		(*data8)++;
 		stress_asm_mb();
@@ -242,6 +246,7 @@ static int stress_cacheline_rdwr(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		uint8_t tmp;
 
@@ -317,6 +322,7 @@ static int stress_cacheline_mix(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		register uint8_t val8;
 
@@ -357,6 +363,7 @@ static int stress_cacheline_rdrev64(
 		val8 = *data8;
 
 		/* read cache line backwards */
+PRAGMA_UNROLL
 		for (j = cacheline_size - 8; j >= 0; j -= 8) {
 			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + (size_t)j);
 
@@ -395,6 +402,7 @@ static int stress_cacheline_rdfwd64(
 		val8 = *data8;
 
 		/* read cache line forwards */
+PRAGMA_UNROLL
 		for (j = 0; j < cacheline_size; j += 8) {
 			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
 
@@ -429,6 +437,7 @@ static int stress_cacheline_rdints(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		uint8_t val8;
 
@@ -476,6 +485,7 @@ static int stress_cacheline_bits(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		register uint8_t val8;
 
@@ -517,6 +527,7 @@ static int stress_cacheline_atomicinc(
 	(void)parent;
 	(void)l1_cacheline_size;
 
+PRAGMA_UNROLL
 	for (i = 0; i < 1024; i++) {
 		SHIM_ATOMIC_INC(data8);
 		SHIM_ATOMIC_INC(data8);
