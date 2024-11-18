@@ -32,7 +32,7 @@ static const char name[] = "klog-check";
 /*
  *  strings that are to be ignored as an error
  */
-static const char *err_exceptions[] = {
+static const char * const err_exceptions[] = {
 	"audit: backlog",
 	"x86/split lock detection",
 	"detected capacity change from",
