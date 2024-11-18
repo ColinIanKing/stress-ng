@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 #include "core-rapl.h"
 
 #if defined(STRESS_RAPL)
@@ -190,7 +191,8 @@ int stress_rapl_get_domains(stress_rapl_domain_t **rapl_domains)
 
 	if (!n) {
 		if (unreadable_energy_uj)
-			pr_inf("device does not have any user readable RAPL domains, cannot measure power usage; perhaps run as root\n");
+			pr_inf("device does not have any user readable RAPL domains, cannot measure power usage%s\n",
+				stress_check_capability(SHIM_CAP_IS_ROOT) ? "" : "; perhaps run as root");
 		else
 			pr_inf("device does not have any RAPL domains, cannot measure power usage\n");
 		return -1;
