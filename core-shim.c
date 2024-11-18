@@ -2296,7 +2296,6 @@ long int shim_ssetmask(long int newmask)
 #endif
 }
 
-/* use praga to avoid stime already declared warning */
 /*
  *  shim_stime()
  *	wrapper for obsolete SVr4 stime system call
