@@ -201,14 +201,54 @@ static inline void OPTIMIZE3 stress_opcode_random(
 	const void *ops_end,
 	const volatile uint64_t *op)
 {
-	register uint32_t *ops = (uint32_t *)ops_begin;
+#if defined(STRESS_ARCH_X86)
+	static const uint8_t x86_prefixes[] = {
+		0xf0,	/* lock */
+		0xf1,	/* repne/repnz */
+		0xf3,	/* rep or repe/repz */
+		0x2e,	/* CS segment override */
+		0x36,	/* SS segment override */
+		0x3e,	/* DS segment override */
+		0x26,	/* ES segment override */
+		0x64,	/* FS segment override */
+		0x65,	/* GS segment override */
+		0x2e,	/* branch not taken */
+		0x3e,	/* branch taken */
+		0x66,	/* operand size override */
+		0x67,	/* address size override */
+	};
+
+	static const uint8_t x86_prefix_length[] = {
+		1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 1, 1, 1,
+		2, 2, 2, 2, 2, 2, 2, 2,
+		3, 3, 3, 3, 4, 4, 8, 14,
+		15, 16, 17
+	};
+	uint32_t rnd;
+#endif
+	register uint32_t *ops32 = (uint32_t *)ops_begin;
 
 	(void)op;
 	(void)page_size;
 
 PRAGMA_UNROLL_N(8)
-	while (ops < (const uint32_t *)ops_end)
-		*(ops++) = stress_mwc32();
+	while (ops32 < (const uint32_t *)ops_end)
+		*(ops32++) = stress_mwc32();
+
+#if defined(STRESS_ARCH_X86)
+	rnd = stress_mwc32();
+	if ((rnd & 0xff) < 8) {
+		register uint8_t *ops8 = (uint8_t *)ops_begin;
+		int i, n = x86_prefix_length[stress_mwc8modn(SIZEOF_ARRAY(x86_prefix_length))];
+
+		for (i = 0; (i < n) && (ops8 < (uint8_t *)ops_end); i++)
+			*(ops8++) = x86_prefixes[stress_mwc8modn(SIZEOF_ARRAY(x86_prefixes))];
+	}
+#endif
 }
 
 #if !defined(STRESS_OPCODE_SIZE)
