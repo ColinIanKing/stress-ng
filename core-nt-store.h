@@ -154,13 +154,10 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
 /* gcc x86 non-temporal stores */
 static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, double value)
 {
-	if (sizeof(double) == sizeof(uint64_t)) {
-		union alias {
-			uint64_t u;
-			double d;
-		};
+	if (sizeof(double) == sizeof(long long int)) {
+		register void *vptr = (void *)&value;	/* avoid type punning warnings */
 
-		__builtin_ia32_movnti64((long long int *)addr, ((union alias)value).u);
+		__builtin_ia32_movnti64((long long int *)addr, *(long long int *)vptr);
 	} else {
 		*addr = value;
 	}
