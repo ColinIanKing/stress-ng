@@ -1,4 +1,6 @@
 config
+config.h
+configs/
 perf-event.h
 personality.h
 git-commit-id.h
