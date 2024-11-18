@@ -3898,6 +3898,11 @@ static const char *stress_fs_magic_to_name(const unsigned long int fs_magic)
 }
 #endif
 
+/*
+ *  stress_get_fs_info()
+ *	for a given filename, determine the filesystem it is stored
+ *	on and return filesystem type and number of blocks
+ */
 const char *stress_get_fs_info(const char *filename, uintmax_t *blocks)
 {
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
@@ -4387,6 +4392,10 @@ static int PURE stress_dot_filter(const struct dirent *d)
 	return 1;
 }
 
+/*
+ *  stress_unset_inode_flags()
+ *	unset the inode flag bits specified in flag
+ */
 static void stress_unset_inode_flags(const char *filename, const int flag)
 {
 #if defined(FS_IOC_SETFLAGS)
