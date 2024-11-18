@@ -1583,7 +1583,7 @@ pid_t shim_wait(int *wstatus)
 }
 
 /*
- *   shim_wait3(()
+ *   shim_wait3()
  *	wrapper for wait3()
  *
  */
@@ -1600,7 +1600,7 @@ pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage)
 }
 
 /*
- *   shim_wait4(()
+ *   shim_wait4()
  *	wrapper for wait4()
  *
  */
