@@ -99,12 +99,20 @@ cc_supports_flag = $(shell $(CC) -Werror $(flag) -E -xc /dev/null > /dev/null 2>
 # Pedantic flags
 #
 ifeq ($(PEDANTIC),1)
+ifeq ($(COMPILER),icc)
+PEDANTIC_FLAGS := \
+	-Wcast-qual -Wfloat-equal -Wmissing-declarations \
+	-Wno-long-long -Wshadow -Wno-missing-field-initializers \
+	-Wno-missing-braces -Wno-sign-compare -Wno-multichar \
+	-DHAVE_PEDANTIC
+else
 PEDANTIC_FLAGS := \
 	-Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
 	-Wredundant-decls -Wshadow -Wno-missing-field-initializers \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar \
 	-DHAVE_PEDANTIC
+endif
 override CFLAGS += $(foreach flag,$(PEDANTIC_FLAGS),$(cc_supports_flag))
 endif
 
