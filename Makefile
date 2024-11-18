@@ -111,7 +111,7 @@ endif
 #
 # Test for hardening flags and apply them if applicable
 #
-MACHINE = $(shell make -f Makefile.machine)
+MACHINE := $(shell make -f Makefile.machine)
 ifneq ($(PRESERVE_CFLAGS),1)
 ifneq ($(MACHINE),$(filter $(MACHINE),alpha hppa ia64))
 flag = -Wformat -fstack-protector-strong -Werror=format-security
@@ -215,6 +215,14 @@ ifeq ($(STATIC),1)
 override LDFLAGS += -static -z muldefs
 override CFLAGS += -DBUILD_STATIC
 endif
+
+#
+# Finalize flags
+#
+
+override CFLAGS := $(CFLAGS)
+override LDFLAGS := $(LDFLAGS)
+override VNNI_CFLAGS := $(VNNI_CFLAGS)
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
