@@ -348,7 +348,12 @@ static TARGET_CLONES void stress_workload_fma(void)
 	const double c = (double)(r ^ 0xa5a55a5a);
 
 	stress_double_put((a * b) + c);
+	stress_double_put((a * c) + b);
+	stress_double_put((b * c) + a);
+
 	stress_double_put(a + (b * c));
+	stress_double_put(a + (c * b));
+	stress_double_put(b + (c * a));
 }
 
 static void stress_workload_math(const double v1, const double v2)
