@@ -485,7 +485,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [cygwin: pread/pwrite: prevent EBADF error after fork()](https://sourceware.org/pipermail/cygwin-patches/2024q3/012793.html)
 * [cygwin 3.5.4-1: signal handling destroys 'long double' values](https://sourceware.org/pipermail/cygwin/2024-October/256503.html)
 * [cygwin: timer_delete: Fix return value](https://sourceware.org/pipermail/cygwin-patches/2024q4/012803.html)
-* [security/keys: fix slab-out-of-bounds in key_task_permission](https://www.spinics.net/lists/kernel/msg5392458.html)
+* [security/keys: fix slab-out-of-bounds in key_task_permission](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?4a74da044ec9ec8679e6beccc4306b936b62873f)
 * [sched_ext: Don't hold scx_tasks_lock for too long](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?b07996c7abac0fe3f70bf74b0b3f76eb7852ef5a)
 * [sched/numa: Fix the potential null pointer dereference in task_numa_work()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?9c70b2a33cd2aa6a5a59c5523ef053bd42265209)
 * [reiserfs panic using fsize stressor](https://bugzilla.kernel.org/show_bug.cgi?id=219497)
