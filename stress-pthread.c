@@ -631,8 +631,7 @@ static int stress_pthread(stress_args_t *args)
 		}
 
 #if defined(HAVE_PTHREAD_SIGQUEUE) &&	\
-    defined(HAVE_SIGWAITINFO) &&	\
-    !defined(__CYGWIN__)
+    defined(HAVE_SIGWAITINFO)
 		for (j = 0; j < i; j++) {
 			union sigval value;
 
