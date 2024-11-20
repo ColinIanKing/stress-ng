@@ -272,9 +272,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("mmap_lock/mmap_lock_start_locking","MMAP lock start"),
 	PERF_INFO_TP("mmap_lock/mmap_lock_released",	"MMAP lock release"),
-#if 1
 	PERF_INFO_TP("mmap_lock/mmap_lock_acquire_returned","MMAP lock acquire"),
-#endif
 
 	PERF_INFO_TP("rcu/rcu_utilization",		"RCU Utilization"),
 	PERF_INFO_TP("rcu/rcu_stall_warning",		"RCU Stall Warning"),
@@ -310,6 +308,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("ipi/ipi_entry",			"IPI Entry"),
 	PERF_INFO_TP("ipi/ipi_raise",			"IPI Raise"),
 	PERF_INFO_TP("ipi/ipi_send_cpu",		"IPI Send CPU"),
+	PERF_INFO_TP("ipi/ipi_send_cpumask",		"IPI Send CPU Mask"),
 	PERF_INFO_TP("ipi/ipi_exit",			"IPI Exit"),
 
 	PERF_INFO_TP("irq_vectors/x86_platform_ipi_entry", "x86 Platform IPI Entry"),
@@ -325,7 +324,8 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("iomap/iomap_writepage",		"IOMAP Write Page"),
 #endif
 
-	PERF_INFO_TP("io_uring/io_uring_submit_sqe",	"IO uring submit"),
+	PERF_INFO_TP("io_uring/io_uring_submit_sqe",	"IO uring submit SQE"),
+	PERF_INFO_TP("io_uring/io_uring_submit_req",	"IO uring submit REQ"),
 	PERF_INFO_TP("io_uring/io_uring_complete",	"IO uring complete"),
 
 	PERF_INFO_TP("writeback/writeback_dirty_inode",	"Writeback Dirty Inode"),
@@ -356,9 +356,12 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 
 	PERF_INFO_TP("filemap/mm_filemap_add_to_page_cache",		"Filemap Page-Cache Add"),
 	PERF_INFO_TP("filemap/mm_filemap_delete_from_page_cache",	"Filemap Page-Cache Del"),
+	PERF_INFO_TP("filemap/mm_filemap_fault",	"Filemap Page Fault"),
+	PERF_INFO_TP("filemap/mm_filemap_map_pages",	"Filemap Map Pages"),
 
 	PERF_INFO_TP("oom/compact_retry",		"OOM Compact Retry"),
 	PERF_INFO_TP("oom/wake_reaper",			"OOM Wake Reaper"),
+	PERF_INFO_TP("oom/mark_victim",			"OOM Mark Victim"),
 	PERF_INFO_TP("oom/oom_score_adj_update",	"OOM Score Adjust Update"),
 
 	PERF_INFO_TP("thermal/thermal_zone_trip",	"Thermal Zone Trip"),
