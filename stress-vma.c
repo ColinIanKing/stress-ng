@@ -143,7 +143,8 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 	uintptr_t ui_addr;
 	size_t i;
 	char *text_start, *text_end, *heap_end;
-	size_t mmap_size = args->page_size * STRESS_VMA_PAGES;
+	const size_t page_size = args->page_size;
+	size_t mmap_size = page_size * STRESS_VMA_PAGES;
 
 	/* Determine text start and heap end */
 	stress_exec_text_addr(&text_start, &text_end);
@@ -154,30 +155,26 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		return NULL;
 
 	/* determine page aligned heap end and some slop */
-	heap_end = (void *)(((uintptr_t)addr & mask) + (args->page_size * 16));
+	heap_end = (void *)(((uintptr_t)addr & mask) + (page_size * 16));
 	free(addr);
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		ssize_t ret;
+		void *test_addr;
 
 		if (sizeof(uintptr_t) > 4) {
-			const uint64_t page_63 = (stress_mwc64() << 12) & 0x7fffffffffffffffULL;
+			const uint64_t addr_bits = stress_mwc8modn(28) + 32;
+			const uint64_t addr_mask = (1ULL << addr_bits) - 1ULL;
 
-			if (stress_mwc1()) {
-				ui_addr = stress_mwc64modn((1ULL << 38) - 1) | page_63;
-			} else {
-				ui_addr = (1ULL << 36) | page_63;
-			}
+			ui_addr = stress_mwc64() & addr_mask;
 			/* occasionally use 32 bit addr in 64 bit addr space */
 			if (stress_mwc8modn(5) == 0)
 				ui_addr &= 0x7fffffffUL;
 		} else {
-			const uint32_t page_31 = (stress_mwc32() << 12) & 0x7fffffffUL;
+			const uint64_t addr_bits = stress_mwc8modn(31);
+			const uint64_t addr_mask = (1ULL << addr_bits) - 1ULL;
 
-			if (stress_mwc1())
-				ui_addr = stress_mwc32modn((1UL << 28) - 1) | page_31;
-			else
-				ui_addr = (1ULL << 20) | page_31;
+			ui_addr = stress_mwc32() & addr_mask;
 		}
 		addr = (void *)(ui_addr & mask);
 
@@ -185,14 +182,14 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		if ((addr >= (void *)text_start) && ((addr + mmap_size) <= (void *)heap_end))
 			continue;
 
-		for (i = 0; i < STRESS_VMA_PAGES; i++) {
+		for (i = 0, test_addr = addr; i < STRESS_VMA_PAGES; i++, test_addr += page_size) {
 			int fd[2], err;
 
 			if (pipe(fd) < 0)
 				return NULL;
 			/* Can we read the page at addr into a pipe? */
 
-			ret = write(fd[1], addr + (i * args->page_size), args->page_size);
+			ret = write(fd[1], test_addr, page_size);
 			err = errno;
 			(void)close(fd[0]);
 			(void)close(fd[1]);
@@ -202,16 +199,22 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 				void *mapped;
 
 				/* Is it actually mappable? */
-				mapped = mmap(addr, args->page_size * STRESS_VMA_PAGES, PROT_READ | PROT_WRITE,
+				mapped = mmap(test_addr, page_size, PROT_READ | PROT_WRITE,
 						MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-				if (mapped != MAP_FAILED) {
-					(void)munmap(mapped, args->page_size);
-					goto finish;
+				if (mapped == MAP_FAILED) {
+					(void)munmap(mapped, page_size);
+					addr = NULL;
+					break;
 				}
+			} else {
+				addr = NULL;
+				break;
 			}
 		}
+		/* all pages deemed unused then we've found a suitable address */
+		if (i == STRESS_VMA_PAGES)
+			break;
 	}
-finish:
 	return addr;
 }
 
