@@ -134,7 +134,7 @@ static void stress_vma_page_name(const void *addr, size_t page_size)
 
 
 /*
- *  stress_vma_get_addr()
+ *  stress_mmapaddr_get_addr()
  *	try to find an unmapp'd address
  */
 static void *stress_mmapaddr_get_addr(stress_args_t *args)
