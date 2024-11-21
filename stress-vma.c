@@ -142,9 +142,9 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 	const uintptr_t mask = ~(((uintptr_t)args->page_size) - 1);
 	void *addr = NULL;
 	uintptr_t ui_addr;
+	size_t i;
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
-		int fd[2], err;
 		ssize_t ret;
 
 		if (sizeof(uintptr_t) > 4) {
@@ -168,28 +168,33 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		}
 		addr = (void *)(ui_addr & mask);
 
-		if (pipe(fd) < 0)
-			return NULL;
-		/* Can we read the page at addr into a pipe? */
-		ret = write(fd[1], addr, args->page_size);
-		err = errno;
+		for (i = 0; i < STRESS_VMA_PAGES; i++) {
+			int fd[2], err;
 
-		(void)close(fd[0]);
-		(void)close(fd[1]);
+			if (pipe(fd) < 0)
+				return NULL;
+			/* Can we read the page at addr into a pipe? */
 
-		/* Not mapped or readable */
-		if ((ret < 0) && (err == EFAULT)) {
-			void *mapped;
+			ret = write(fd[1], addr + (i * args->page_size), args->page_size);
+			err = errno;
+			(void)close(fd[0]);
+			(void)close(fd[1]);
 
-			/* Is it actually mappable? */
-			mapped = mmap(addr, args->page_size * STRESS_VMA_PAGES, PROT_READ | PROT_WRITE,
-					MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-			if (mapped != MAP_FAILED) {
-				(void)munmap(mapped, args->page_size);
-				break;
+			/* Not mapped or readable */
+			if ((ret < 0) && (err == EFAULT)) {
+				void *mapped;
+
+				/* Is it actually mappable? */
+				mapped = mmap(addr, args->page_size * STRESS_VMA_PAGES, PROT_READ | PROT_WRITE,
+						MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+				if (mapped != MAP_FAILED) {
+					(void)munmap(mapped, args->page_size);
+					goto finish;
+				}
 			}
 		}
 	}
+finish:
 	return addr;
 }
 
