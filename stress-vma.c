@@ -182,7 +182,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 			void *mapped;
 
 			/* Is it actually mappable? */
-			mapped = mmap(addr, args->page_size * 16, PROT_READ | PROT_WRITE,
+			mapped = mmap(addr, args->page_size * STRESS_VMA_PAGES, PROT_READ | PROT_WRITE,
 					MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 			if (mapped != MAP_FAILED) {
 				(void)munmap(mapped, args->page_size);
