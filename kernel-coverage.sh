@@ -824,5 +824,5 @@ if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
-sudo lcov -c -o kernel.info >& /dev/null
+sudo lcov -c -o kernel.info --keep-going >& /dev/null
 sudo genhtml -o html kernel.info
