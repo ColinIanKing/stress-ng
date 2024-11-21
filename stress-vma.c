@@ -41,17 +41,16 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
-	stress_args_t *args;
-	void *data;
-	pid_t pid;
-	void *mappings[STRESS_VMA_PAGES];
+	stress_args_t *args;			/* stress-ng context */
+	void *data;				/* mmap'd data, size STRESS_VMA_PAGES */
+	pid_t pid;				/* process ID */
 } stress_vma_context_t;
 
 typedef void * (*stress_vma_func_t)(void *ptr);
 
 typedef struct {
-	stress_vma_func_t	vma_func;
-	size_t 			count;
+	stress_vma_func_t	vma_func;	/* vma stressing function */
+	size_t 			count;		/* number of instances to invoke */
 } stress_thread_info_t;
 
 #define STRESS_VMA_MMAP		(0)
@@ -198,6 +197,10 @@ finish:
 	return addr;
 }
 
+/*
+ *  stress_vma_mmap()
+ *	mmap pages
+ */
 static void *stress_vma_mmap(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -249,6 +252,10 @@ static void *stress_vma_mmap(void *ptr)
 	return NULL;
 }
 
+/*
+ *  stress_vma_munmap()
+ *	munmap pages
+ */
 static void *stress_vma_munmap(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -265,6 +272,10 @@ static void *stress_vma_munmap(void *ptr)
 	return NULL;
 }
 
+/*
+ *  stress_vma_mlock()
+ *	mlock pages
+ */
 static void *stress_vma_mlock(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -291,6 +302,10 @@ static void *stress_vma_mlock(void *ptr)
 	return NULL;
 }
 
+/*
+ *  stress_vma_mmap()
+ *	munlock pages
+ */
 static void *stress_vma_munlock(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -309,6 +324,10 @@ static void *stress_vma_munlock(void *ptr)
 }
 
 #if defined(HAVE_MADVISE)
+/*
+ *  stress_vma_madvise()
+ *	madvise pages
+ */
 static void *stress_vma_madvise(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -368,6 +387,10 @@ static void *stress_vma_madvise(void *ptr)
 #endif
 
 #if defined(HAVE_MINCORE)
+/*
+ *  stress_vma_mincore()
+ *	exercise mincore on pages
+ */
 static void *stress_vma_mincore(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -388,6 +411,10 @@ static void *stress_vma_mincore(void *ptr)
 }
 #endif
 
+/*
+ *  stress_vma_mprotect()
+ *	exercise mprotect on pages
+ */
 static void *stress_vma_mprotect(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -422,6 +449,10 @@ static void *stress_vma_mprotect(void *ptr)
 	return NULL;
 }
 
+/*
+ *  stress_vma_msync()
+ *	msync pages
+ */
 static void *stress_vma_msync(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -453,6 +484,10 @@ static void *stress_vma_msync(void *ptr)
 }
 
 #if defined(__linux__)
+/*
+ *  stress_vma_msync()
+ *	exercise /proc/self/maps
+ */
 static void *stress_vma_maps(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -476,6 +511,10 @@ static void *stress_vma_maps(void *ptr)
 }
 #endif
 
+/*
+ *  stress_vma_access()
+ *	read access pages
+ */
 static void *stress_vma_access(void *ptr)
 {
 	stress_vma_context_t *ctxt = (stress_vma_context_t *)ptr;
@@ -512,6 +551,10 @@ static const stress_thread_info_t vma_funcs[] = {
 	{ stress_vma_access,	20 },
 };
 
+/*
+ *  stress_vm_handle_sigsegv()
+ *	account for SIGSEGV signals
+ */
 static void stress_vm_handle_sigsegv(int signo)
 {
 	(void)signo;
@@ -519,6 +562,10 @@ static void stress_vm_handle_sigsegv(int signo)
 	stress_vma_metrics->s.metrics[STRESS_VMA_SIGSEGV]++;
 }
 
+/*
+ *  stress_vm_handle_sigbus()
+ *	account for SIGBUS signals
+ */
 static void stress_vm_handle_sigbus(int signo)
 {
 	(void)signo;
