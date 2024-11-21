@@ -142,6 +142,20 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 	void *addr = NULL;
 	uintptr_t ui_addr;
 	size_t i;
+	char *text_start, *text_end, *heap_end;
+	size_t mmap_size = args->page_size * STRESS_VMA_PAGES;
+
+	/* Determine text start and heap end */
+	stress_exec_text_addr(&text_start, &text_end);
+	if ((!text_start) && (!text_end))
+		return NULL;
+	addr = malloc(1);
+	if (!addr)
+		return NULL;
+
+	/* determine page aligned heap end and some slop */
+	heap_end = (void *)(((uintptr_t)addr & mask) + (args->page_size * 16));
+	free(addr);
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		ssize_t ret;
@@ -166,6 +180,10 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 				ui_addr = (1ULL << 20) | page_31;
 		}
 		addr = (void *)(ui_addr & mask);
+
+		/* retry if we're in text and heap sections */
+		if ((addr >= (void *)text_start) && ((addr + mmap_size) <= (void *)heap_end))
+			continue;
 
 		for (i = 0; i < STRESS_VMA_PAGES; i++) {
 			int fd[2], err;
