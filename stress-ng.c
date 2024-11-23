@@ -88,6 +88,13 @@
 #define STRESS_SYNC_START_FLAG_RUNNING		(2)
 #define STRESS_SYNC_START_FLAG_FINISHED		(3)
 
+typedef void (*stress_sighandler_t)(int signum);
+
+typedef struct stress_signal_map {
+	int signum;
+	stress_sighandler_t handler;
+} stress_signal_map_t;
+
 /* Stress test classes */
 typedef struct {
 	const stress_class_t class;	/* Class type bit mask */
@@ -190,75 +197,70 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_verify,		OPT_FLAGS_VERIFY | OPT_FLAGS_PR_FAIL },
 };
 
-/*
- *  Attempt to catch a range of signals so we can clean up rather than leave
- *  cruft everywhere.
- */
-static const int stress_terminate_signals[] = {
+static void MLOCKED_TEXT stress_handle_terminate(int signum);
+
+static const stress_signal_map_t stress_signal_map[] = {
 	/* POSIX.1-1990 */
 #if defined(SIGHUP)
-	SIGHUP,
+	{ SIGHUP, 	stress_handle_terminate },
 #endif
 #if defined(SIGINT)
-	SIGINT,
+	{ SIGINT,	stress_handle_terminate },
 #endif
 #if defined(SIGILL)
-	SIGILL,
+	{ SIGILL,	stress_handle_terminate },
 #endif
 #if defined(SIGQUIT)
-	SIGQUIT,
+	{ SIGQUIT,	stress_handle_terminate },
 #endif
 #if defined(SIGABRT)
-	SIGABRT,
+	{ SIGABRT,	stress_handle_terminate },
 #endif
 #if defined(SIGFPE)
-	SIGFPE,
+	{ SIGFPE,	stress_handle_terminate },
 #endif
 #if defined(SIGSEGV)
-	SIGSEGV,
+	{ SIGSEGV,	stress_handle_terminate },
 #endif
 #if defined(SIGTERM)
-	SIGTERM,
+	{ SIGTERM,	stress_handle_terminate },
 #endif
 #if defined(SIGXCPU)
-	SIGXCPU,
+	{ SIGXCPU,	stress_handle_terminate },
 #endif
 #if defined(SIGXFSZ)
-	SIGXFSZ,
+	{ SIGXFSZ,	stress_handle_terminate },
 #endif
 	/* Linux various */
 #if defined(SIGIOT)
-	SIGIOT,
+	{ SIGIOT,	stress_handle_terminate },
 #endif
 #if defined(SIGSTKFLT)
-	SIGSTKFLT,
+	{ SIGSTKFLT,	stress_handle_terminate },
 #endif
 #if defined(SIGPWR)
-	SIGPWR,
+	{ SIGPWR,	stress_handle_terminate },
 #endif
 #if defined(SIGINFO)
-	SIGINFO,
+	{ SIGINFO,	stress_handle_terminate },
 #endif
 #if defined(SIGVTALRM)
-	SIGVTALRM,
+	{ SIGVTALRM,	stress_handle_terminate },
 #endif
-};
-
-static const int stress_ignore_signals[] = {
 #if defined(SIGUSR1)
-	SIGUSR1,
+	{ SIGUSR1,	SIG_IGN },
 #endif
 #if defined(SIGUSR2)
-	SIGUSR2,
+	{ SIGUSR2,	SIG_IGN },
 #endif
 #if defined(SIGTTOU)
-	SIGTTOU,
+	{ SIGTTOU,	SIG_IGN },
 #endif
 #if defined(SIGTTIN)
-	SIGTTIN,
+	{ SIGTTIN,	SIG_IGN },
 #endif
 #if defined(SIGWINCH)
-	SIGWINCH,
+	{ SIGWINCH,	SIG_IGN },
 #endif
 };
 
@@ -4058,19 +4060,13 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Enable signal handers
 	 */
-	for (i = 0; i < SIZEOF_ARRAY(stress_terminate_signals); i++) {
-		if (stress_sighandler("stress-ng", stress_terminate_signals[i],
-					stress_handle_terminate, NULL) < 0) {
+	for (i = 0; i < SIZEOF_ARRAY(stress_signal_map); i++) {
+		if (stress_sighandler("stress-ng",
+				stress_signal_map[i].signum,
+				stress_signal_map[i].handler, NULL) < 0) {
 			ret = EXIT_FAILURE;
 			goto exit_logging_close;
 		}
-	}
-	/*
-	 *  Ignore other signals
-	 */
-	for (i = 0; i < SIZEOF_ARRAY(stress_ignore_signals); i++) {
-		VOID_RET(int, stress_sighandler("stress-ng", stress_ignore_signals[i],
-						SIG_IGN, NULL));
 	}
 
 	/*
