@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "14 November 2024"
+.TH STRESS-NG 1 "25 November 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3998,6 +3998,9 @@ start N workers that exercise the last level of cache (LLC) by read/write
 activity across a LLC sized buffer and then changing CPU affinity after
 each round of read/writes. This can cause non-local memory stalls and
 LLC read/write misses.
+.TP
+.B \-\-llc\-affinity\-clflush
+where possible, flush cachelines after each cachline write, x86 and ppc64 only.
 .TP
 .B \-\-llc\-affinity\-mlock
 attempt to mlock the LLC sized buffer into memory to prevent it from being

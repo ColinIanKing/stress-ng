@@ -706,6 +706,7 @@ typedef enum {
 	OPT_list_size,
 
 	OPT_llc_affinity,
+	OPT_llc_affinity_clflush,
 	OPT_llc_affinity_mlock,
 	OPT_llc_affinity_ops,
 
