@@ -50,7 +50,7 @@ static const stress_help_t help[] = {
 static const stress_opt_t opts[] = {
 	{ OPT_gpu_devnode, "gpu-devnode",  TYPE_ID_STR,    0, 0,        NULL },
 	{ OPT_gpu_frag,    "gpu-frag",     TYPE_ID_INT32,  1, INT_MAX,  NULL },
-	{ OPT_gpu_uploads, "gpu-upload",   TYPE_ID_INT32,  1, INT_MAX,  NULL },
+	{ OPT_gpu_upload,  "gpu-upload",   TYPE_ID_INT32,  1, INT_MAX,  NULL },
 	{ OPT_gpu_size,    "gpu-tex-size", TYPE_ID_INT32,  1, INT_MAX,  NULL },
 	{ OPT_gpu_xsize,   "gpu-xsize",    TYPE_ID_UINT32, 1, UINT_MAX, NULL },
 	{ OPT_gpu_ysize,   "gpu-ysize",    TYPE_ID_UINT32, 1, UINT_MAX, NULL },
