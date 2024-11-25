@@ -134,7 +134,9 @@ static const stress_opt_t opts[] = {
 	END_OPT,
 };
 
-#if defined(HAVE_SHM_SYSV)
+#if defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_SHM_H) &&	\
+    defined(HAVE_SHM_SYSV)
 
 static void stress_shm_metrics(
 	stress_args_t *args,
