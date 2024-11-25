@@ -336,7 +336,7 @@ const struct option stress_long_options[] = {
 	{ "gpu-frag",		1,	0,	OPT_gpu_frag },
 	{ "gpu-ops",		1,	0,	OPT_gpu_ops },
 	{ "gpu-tex-size",	1,	0,	OPT_gpu_size },
-	{ "gpu-upload",		1,	0,	OPT_gpu_uploads },
+	{ "gpu-upload",		1,	0,	OPT_gpu_upload },
 	{ "gpu-xsize",		1,	0,	OPT_gpu_xsize },
 	{ "gpu-ysize",		1,	0,	OPT_gpu_ysize },
 	{ "handle",		1,	0,	OPT_handle },

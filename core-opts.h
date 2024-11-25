@@ -548,7 +548,7 @@ typedef enum {
 	OPT_gpu_ops,
 	OPT_gpu_devnode,
 	OPT_gpu_frag,
-	OPT_gpu_uploads,
+	OPT_gpu_upload,
 	OPT_gpu_size,
 	OPT_gpu_xsize,
 	OPT_gpu_ysize,
