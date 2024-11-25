@@ -19,6 +19,8 @@
 #ifndef CORE_SHIM_H
 #define CORE_SHIM_H
 
+#include "core-attribute.h"
+
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif
@@ -343,6 +345,12 @@ typedef struct shim_pollfd {
 } shim_pollfd_t;
 #endif
 
+typedef struct shim_xattr_args {
+        uint64_t value ALIGN8;
+        uint32_t size;
+        uint32_t flags;
+} shim_xattr_args;
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
@@ -451,10 +459,16 @@ extern int shim_clone3(struct shim_clone_args *cl_args, size_t size);
 extern int shim_ustat(dev_t dev, struct shim_ustat *ubuf);
 extern ssize_t shim_getxattr(const char *path, const char *name, void *value,
 	size_t size);
+extern ssize_t shim_getxattrat(int dfd, const char *path, unsigned int at_flags,
+	const char *name, struct shim_xattr_args *args, size_t size);
 extern ssize_t shim_listxattr(const char *path, char *list, size_t size);
+extern ssize_t shim_listxattrat(int dfd, const char *path, unsigned int at_flags,
+	char *list, size_t size);
 extern ssize_t shim_flistxattr(int fd, char *list, size_t size);
 extern int shim_setxattr(const char *path, const char *name, const void *value,
 	size_t size, int flags);
+extern int shim_setxattrat(int dfd, const char *path, unsigned int at_flags,
+	const char *name, const struct shim_xattr_args *args, size_t size);
 extern int shim_fsetxattr(int fd, const char *name, const void *value,
 	size_t size, int flags);
 extern int shim_lsetxattr(const char *path, const char *name,
@@ -464,6 +478,8 @@ extern ssize_t shim_lgetxattr(const char *path, const char *name, void *value,
 extern ssize_t shim_fgetxattr(int fd, const char *name, void *value,
 	size_t size);
 extern int shim_removexattr(const char *path, const char *name);
+extern int shim_removexattrat(int dfd, const char *path, unsigned int at_flags,
+	const char *name);
 extern int shim_lremovexattr(const char *path, const char *name);
 extern int shim_fremovexattr(int fd, const char *name);
 extern ssize_t shim_llistxattr(const char *path, char *list, size_t size);

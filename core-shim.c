@@ -1805,6 +1805,24 @@ ssize_t shim_getxattr(
 }
 
 /*
+ *  shim_getxattrat
+ *	wrapper for getxattrat (Linux 6.13)
+ */
+ssize_t shim_getxattrat(int dfd, const char *path, unsigned int at_flags,
+		    const char *name, struct shim_xattr_args *args,
+		    size_t size)
+{
+#if defined(HAVE_GETXATTRAT)
+	return (ssize_t)getxattrat(dfd, path, name, at_flags, name, args, size);
+#elif defined(__NR_getxattrat) &&	\
+      defined(HAVE_SYSCALL)
+	return (ssize_t)syscall(__NR_getxattrat, dfd, path, name, at_flags, name, args, size);
+#else
+	return (ssize_t)shim_enosys(0, dfd, path, name, at_flags, name, args, size);
+#endif
+}
+
+/*
  *  shim_listxattr
  *	wrapper for listxattr
  */
@@ -1821,6 +1839,22 @@ ssize_t shim_listxattr(const char *path, char *list, size_t size)
 	return (ssize_t)syscall(__NR_listxattr, path, list, size);
 #else
 	return (ssize_t)shim_enosys(0, path, list, size);
+#endif
+}
+
+/*
+ *  shim_listxattrat
+ *	wrapper for listxattrat
+ */
+ssize_t shim_listxattrat(int dfd, const char *path, unsigned int at_flags, char *list, size_t size)
+{
+#if defined(HAVE_LISTXATTRAT)
+	return listxattrat(dfd, path, at_flags, list, size);
+#elif defined(__NR_listxattrat) &&	\
+      defined(HAVE_SYSCALL)
+	return (ssize_t)syscall(__NR_listxattrat, dfd, path, at_flags, list, size);
+#else
+	return (ssize_t)shim_enosys(0, dfd, path, at_flags, list, size);
 #endif
 }
 
@@ -1861,6 +1895,24 @@ int shim_setxattr(const char *path, const char *name, const void *value, size_t 
 	return (int)syscall(__NR_setxattr, path, name, value, size, flags);
 #else
 	return (int)shim_enosys(0, path, name, value, size, flags);
+#endif
+}
+
+/*
+ *  shim_setxattrat
+ *	wrapper for setxattrat (Linux 6.13)
+ */
+int shim_setxattrat(int dfd, const char *path, unsigned int at_flags,
+		const char *name, const struct shim_xattr_args *args,
+		size_t size)
+{
+#if defined(HAVE_SETXATTRAT)
+	return setxattr(dfd, path, name, at_flags, name, args, size);
+#elif defined(__NR_setxattrat) &&	\
+      defined(HAVE_SYSCALL)
+	return (int)syscall(__NR_setxattrat, dfd, path, name, at_flags, name, args, size);
+#else
+	return (int)shim_enosys(0, dfd, path, name, at_flags, name, args, size);
 #endif
 }
 
@@ -1955,6 +2007,23 @@ int shim_removexattr(const char *path, const char *name)
 	return (int)shim_enosys(0, path, name);
 #endif
 }
+
+/*
+ *  shim_removexattrat
+ *	wrapper for removexattrat
+ */
+int shim_removexattrat(int dfd, const char *path, unsigned int at_flags, const char *name)
+{
+#if defined(HAVE_REMOVEXATTRAT)
+	return removexattrat(dfd, path, at_flags, name);
+#elif defined(__NR_removexattrat) &&	\
+      defined(HAVE_SYSCALL)
+	return (int)syscall(__NR_removexattrat, dfd, path, at_flags, name);
+#else
+	return (int)shim_enosys(0, dfd, path, at_flags, name);
+#endif
+}
+
 
 /*
  *  shim_lremovexattr

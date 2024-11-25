@@ -141,7 +141,7 @@
 /* Force alignment macros */
 #define ALIGN128	ALIGNED(128)
 #define ALIGN64		ALIGNED(64)
-
+#define ALIGN8		ALIGNED(8)
 
 #if (defined(HAVE_COMPILER_GCC_OR_MUSL) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(HAVE_COMPILER_CLANG) && NEED_CLANG(3, 0, 0))
