@@ -328,9 +328,9 @@ static void stress_dir_read_concurrent(
 	stress_args_t *args,
 	const char *pathname)
 {
-	shim_nice(1);
-	shim_nice(1);
-	shim_nice(1);
+	(void)shim_nice(1);
+	(void)shim_nice(1);
+	(void)shim_nice(1);
 
 	do {
 		if (stress_dir_read(args, pathname) < 0)

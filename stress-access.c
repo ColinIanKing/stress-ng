@@ -172,8 +172,8 @@ static pid_t stress_access_spawn(
 		stress_sync_start_wait_s_pid(s_pid);
 
 		stress_mwc_reseed();
-		shim_nice(1);
-		shim_nice(1);
+		(void)shim_nice(1);
+		(void)shim_nice(1);
 
 		do {
 			double t;

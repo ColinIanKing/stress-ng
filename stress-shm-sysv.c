@@ -1063,9 +1063,13 @@ fork_again:
 			 * Nicing the child may OOM it first as this
 			 * doubles the OOM score
 			 */
-			if (nice(5) < 0)
-				pr_dbg("%s: nice of child failed, "
-					"(instance %d)\n", args->name, args->instance);
+			errno = 0;
+			VOID_RET(int, nice(5));
+			if (errno != 0)
+				pr_dbg("%s: nice of child failed, errno=%d (%s) "
+					"(instance %d)\n", args->name,
+					errno, strerror(errno),
+					args->instance);
 
 			(void)close(pipefds[0]);
 			rc = stress_shm_sysv_child(args, pipefds[1], sz, page_size, shm_sysv_segments, shm_sysv_mlock);

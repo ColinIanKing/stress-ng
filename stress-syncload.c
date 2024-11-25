@@ -175,10 +175,7 @@ static void stress_syncload_atomic(void)
 
 static void stress_syncload_nice(void)
 {
-	int niceness;
-
-	niceness = nice(0);
-	(void)niceness;
+	VOID_RET(int, nice(0));
 }
 
 static void stress_syncload_spinwrite(void)

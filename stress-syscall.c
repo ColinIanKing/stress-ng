@@ -4175,12 +4175,11 @@ static int syscall_nanosleep(void)
 #define HAVE_SYSCALL_NICE
 static int syscall_nice(void)
 {
-	int ret;
-
 	t1 = syscall_time_now();
-	ret = nice(0);
+	VOID_RET(int, nice(0));
 	t2 = syscall_time_now();
-	return ret;
+
+	return errno ? -errno : 0;
 }
 
 #define HAVE_SYSCALL_OPEN
