@@ -21,6 +21,7 @@
 #include "core-attribute.h"
 #include "core-cpu-cache.h"
 #include "core-madvise.h"
+#include "core-pragma.h"
 
 #define DEBUG_TAG_INFO		(0)
 
@@ -210,9 +211,11 @@ static int OPTIMIZE3 stress_l1cache_forward(
 	for (i = 0; i < 1000000; i++) {
 		register volatile uint8_t *ptr;
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
 			*(ptr);
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
 			*(ptr) = (uint8_t)set;
 
@@ -245,9 +248,11 @@ static int OPTIMIZE3 stress_l1cache_forward_and_verify(
 	for (i = 0; i < 1000000; i++) {
 		register volatile uint8_t *ptr;
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
 			(void)*(ptr);
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
 			*(ptr) = (uint8_t)set;
 
@@ -290,9 +295,11 @@ static int OPTIMIZE3 stress_l1cache_reverse(
 	for (i = 0; i < 1000000; i++) {
 		register volatile uint8_t *ptr;
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
 			*(ptr);
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
 			*(ptr) = (uint8_t)set;
 
@@ -327,9 +334,11 @@ static int OPTIMIZE3 stress_l1cache_reverse_and_verify(
 	for (i = 0; i < 1000000; i++) {
 		register volatile uint8_t *ptr;
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
 			*(ptr);
 
+PRAGMA_UNROLL_N(2)
 		for (ptr = cache_end - l1cache_set_size + 1; ptr >= cache_start; ptr -= l1cache_set_size)
 			*(ptr) = (uint8_t)set;
 
@@ -378,10 +387,12 @@ static int OPTIMIZE3 stress_l1cache_random(
 		register size_t j;
 
 		stress_mwc_set_seed(w, z);
+PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			(void)*(ptr + stress_mwc32modn((uint32_t)cache_size));
 
 		stress_mwc_set_seed(w, z);
+PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			*(ptr + stress_mwc32modn((uint32_t)cache_size)) = (uint8_t)set;
 
@@ -422,10 +433,12 @@ static int OPTIMIZE3 stress_l1cache_random_and_verify(
 		register size_t j;
 
 		stress_mwc_set_seed(w, z);
+PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			(void)*(ptr + stress_mwc32modn((uint32_t)cache_size));
 
 		stress_mwc_set_seed(w, z);
+PRAGMA_UNROLL_N(2)
 		for (j = 0; j < loops; j++)
 			*(ptr + stress_mwc32modn((uint32_t)cache_size)) = (uint8_t)set;
 
