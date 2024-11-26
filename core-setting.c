@@ -121,7 +121,7 @@ static void stress_settings_show_setting(
 			(uintmax_t)setting->u.off, show_type ? " (off_t)" : "");
 		break;
 	case TYPE_ID_STR:
-		pr_func(" %-20.20s %s %sn", setting->name,
+		pr_func(" %-20.20s %s %s\n", setting->name,
 			setting->u.str, show_type ? " (string)" : "");
 		break;
 	case TYPE_ID_BOOL:
