@@ -100,6 +100,7 @@
 	MACRO(fifo)		\
 	MACRO(file_ioctl)	\
 	MACRO(filename)		\
+	MACRO(flipflop)		\
 	MACRO(flock)		\
 	MACRO(flushcache)	\
 	MACRO(fma)		\

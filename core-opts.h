@@ -467,6 +467,12 @@ typedef enum {
 	OPT_filename_ops,
 	OPT_filename_opts,
 
+	OPT_flipflop,
+	OPT_flipflop_bits,
+	OPT_flipflop_ops,
+	OPT_flipflop_taskset1,
+	OPT_flipflop_taskset2,
+
 	OPT_flock,
 	OPT_flock_ops,
 

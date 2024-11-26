@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "25 November 2024"
+.TH STRESS-NG 1 "26 November 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2737,6 +2737,35 @@ use characters allowed by the ext2, ext3, ext4 file systems, namely any 8
 bit character apart from NUL and /
 T}
 .TE
+.RE
+.TP
+.B Single cacheline coherency scalability stressor
+.RS 5
+.TQ
+.B \-\-flipflop N
+start N workers where each worker creates two groups of threads of the same size
+where each group is affined to a set of CPUs. A continous bitmap that has enough
+bits for each thread pair is exercised, each thread pair tries to flip/flop their
+specific bit using cmpxchg (compare/exchange); one thread tries
+to flip the bit from 0 to 1 and the other tries to flop the bit from 1 to 0.
+This stressor makes threads compete on the same cacheline and measures the
+total number of flip/flop operations and the distribution of successful flip/flops
+among the threads (to see if thread pairs get starved in favour of others).
+.TP
+.B \-\-flipflop\-bits N
+specifies number of bits in the bitmap (and hence number of flip/flop thread pairs).
+.TP
+.B \-\-flipflop\-taskset1 list
+list of CPUs to affine the flip threads to. These are specified by a comma separated
+list of CPU (0 to N-1). One can specify a range of CPUs using '-', for
+example: \-\-flipflop\-taskset 0,2-3,6,7-11, or use "even" for even numbered CPUs,
+"odd" for odd numbered CPUs, "all" for all cpus or "random" of a random selection of CPUs.
+.TP
+.B \-\-flipflop\-taskset2 list
+list of CPUs to affine the flop threads to. See \-\-flipflop\-taskset1 for list syntax.
+.TP
+.B \-\-flipflop\-ops N
+stop after N bogo-ops, in this case a bogo-op is 100,000 flip-flop operations.
 .RE
 .TP
 .B BSD File locking (flock) stressor
@@ -6218,7 +6247,7 @@ operations using the same shared file descriptor. Two of the processes
 are started using pthreads (if available), another two processes are started
 with fork(). Using pwrite() and pread() should perform I/O without
 altering the shared file descriptor file offset. The main worker process
-performs I/O using lseek()/write() and lseek()/read() calls that change the 
+performs I/O using lseek()/write() and lseek()/read() calls that change the
 file offset; lseeks are sanity checked to see if they are being altered by pwrite()
 and pread() calls.
 .TP

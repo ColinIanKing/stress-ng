@@ -81,39 +81,49 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
 /*
  * stress_set_cpu_affinity()
  * @arg: list of CPUs to set affinity to, comma separated
+ * @set: cpuset to set
+ * @setbits: number of bits set
  *
  * Returns: 0 - OK
  */
-int stress_set_cpu_affinity(const char *arg)
+int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 {
-	cpu_set_t set;
 	char *str, *ptr, *token;
 	const int32_t max_cpus = stress_get_processors_configured();
-	bool setbits = false;
 	int i;
 
-	CPU_ZERO(&set);
+	*setbits = 0;
+	CPU_ZERO(set);
 
 	if (!strcmp(arg, "odd")) {
-		for (i = 1; i < max_cpus; i += 2)
-			CPU_SET(i, &set);
-		stress_set_cpu_affinity_current(&set);
+		for (i = 1; i < max_cpus; i += 2) {
+			CPU_SET(i, set);
+			(*setbits)++;
+		}
 		return 0;
 	} else if (!strcmp(arg, "even")) {
-		for (i = 0; i < max_cpus; i += 2)
-			CPU_SET(i, &set);
-		stress_set_cpu_affinity_current(&set);
+		for (i = 0; i < max_cpus; i += 2) {
+			CPU_SET(i, set);
+			(*setbits)++;
+		}
 		return 0;
 	} else if (!strcmp(arg, "all")) {
-		for (i = 0; i < max_cpus; i++)
-			CPU_SET(i, &set);
-		stress_set_cpu_affinity_current(&set);
+		for (i = 0; i < max_cpus; i++) {
+			CPU_SET(i, set);
+			(*setbits)++;
+		}
 		return 0;
 	} else if (!strcmp(arg, "random")) {
-		for (i = 0; i < max_cpus; i++)
-			if (stress_mwc1())
-				CPU_SET(i, &set);
-		stress_set_cpu_affinity_current(&set);
+		for (i = 0; i < max_cpus; i++) {
+			if (stress_mwc1()) {
+				CPU_SET(i, set);
+				(*setbits)++;
+			}
+		}
+		if (*setbits == 0) {
+			CPU_SET(stress_mwc32modn((uint32_t)max_cpus), set);
+			(*setbits)++;
+		}
 		return 0;
 	}
 
@@ -150,16 +160,33 @@ int stress_set_cpu_affinity(const char *arg)
 		stress_check_cpu_affinity_range(max_cpus, hi);
 
 		for (i = lo; i <= hi; i++) {
-			CPU_SET(i, &set);
-			setbits = true;
+			CPU_SET(i, set);
+			*setbits = true;
 		}
 	}
 	free(str);
 
-	if (setbits)
-		stress_set_cpu_affinity_current(&set);
+	if (*setbits)
+		stress_set_cpu_affinity_current(set);
 
 	return 0;
+}
+
+/*
+ * stress_set_cpu_affinity()
+ * @arg: list of CPUs to set affinity to, comma separated
+ *
+ * Returns: 0 - OK
+ */
+int stress_set_cpu_affinity(const char *arg)
+{
+	cpu_set_t set;
+	int setbits, ret;
+
+	ret = stress_parse_cpu_affinity(arg, &set, &setbits);
+	if ((ret == 0) && (setbits))
+		stress_set_cpu_affinity_current(&set);
+	return ret;
 }
 
 /*
