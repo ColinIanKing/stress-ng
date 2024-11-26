@@ -26,7 +26,8 @@
 
 static const char option[] = "taskset";
 
-#if defined(HAVE_SCHED_SETAFFINITY)
+#if defined(HAVE_SCHED_SETAFFINITY) && \
+    defined(HAVE_CPU_SET_T)
 
 static cpu_set_t stress_affinity_cpu_set;
 

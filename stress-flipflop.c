@@ -47,6 +47,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LIB_PTHREAD) && 	\
+    defined(HAVE_CPU_SET_T) &&		\
+    defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SYNC_VAL_COMPARE_AND_SWAP)
 
 struct stress_flipflop_worker {
@@ -359,7 +361,7 @@ const stressor_info_t stress_flipflop_info = {
 	.opts = opts,
 	.verify = VERIFY_NONE,
 	.help = help,
-	.unimplemented_reason = "built without pthread support or __sync_val_compare_and_swap()"
+	.unimplemented_reason = "built without pthread support, __sync_val_compare_and_swap(), cpu_set_t or sched_setaffinity()"
 };
 
 #endif
