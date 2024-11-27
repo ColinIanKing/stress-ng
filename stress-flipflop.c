@@ -316,7 +316,8 @@ static int stress_flipflop(stress_args_t *args)
 	if (args->instance == 0) {
 		qsort(dist, 2 * flipflop_bits, sizeof(uint64_t), stress_flipflop_uint64_cmp);
 
-		pr_inf("%s: ran for %.2lfs loops/tries/successes = %lu / %lu (%2.02lf%%) / %lu (%2.02lf%%)\n",
+		pr_inf("%s: ran for %.2lfs loops/tries/successes = %" PRIu64 " / %" PRIu64
+			" (%2.02lf%%) / %" PRIu64 " (%2.02lf%%)\n",
 			args->name, duration, nr_loops, nr_tries,
 			100.0 * (double)nr_tries / (double)nr_loops,
 			nr_successes,
