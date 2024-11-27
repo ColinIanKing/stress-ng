@@ -692,6 +692,7 @@ stress-ng has found various Kernel, QEMU bugs/regressions, and libc bugs; approp
 * [Anomaly Detection Within Mission-Critical Call Processing](https://arxiv.org/html/2408.14599v1)
 * [A Preliminary Assessment of the real-time capabilities of Real-Time Linux on Raspberry Pi 5](https://www.ecrts.org/wp-content/uploads/2024/07/ospert24-proceedings.pdf)
 * [A Comparison of Real-Time Linux-Based Architectures for Embedded Musical Applications](https://www.researchgate.net/publication/358135895_A_Comparison_of_Real-Time_Linux-Based_Architectures_for_Embedded_Musical_Applications)
+* [Nona: Accurate Power Prediction Model Using Neural Networks](https://dl.acm.org/doi/pdf/10.1145/3649329.3655668)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
