@@ -156,7 +156,7 @@ void stress_package_set(int package, cpu_set_t *set, int *setbits)
 
 	if (package >= n_packages) {
 		if (n_packages > 1)
-			(void)fprintf(stderr, "%s: package %d not found, only packages 0-%d available\n", option, package, n_packages);
+			(void)fprintf(stderr, "%s: package %d not found, only packages 0-%d available\n", option, package, n_packages - 1);
 		else
 			(void)fprintf(stderr, "%s: package %d not found, only package 0 available\n", option, package);
 		free(packages);
