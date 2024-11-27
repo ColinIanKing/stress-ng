@@ -96,38 +96,6 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 	*setbits = 0;
 	CPU_ZERO(set);
 
-	if (!strcmp(arg, "odd")) {
-		for (i = 1; i < max_cpus; i += 2) {
-			CPU_SET(i, set);
-			(*setbits)++;
-		}
-		return 0;
-	} else if (!strcmp(arg, "even")) {
-		for (i = 0; i < max_cpus; i += 2) {
-			CPU_SET(i, set);
-			(*setbits)++;
-		}
-		return 0;
-	} else if (!strcmp(arg, "all")) {
-		for (i = 0; i < max_cpus; i++) {
-			CPU_SET(i, set);
-			(*setbits)++;
-		}
-		return 0;
-	} else if (!strcmp(arg, "random")) {
-		for (i = 0; i < max_cpus; i++) {
-			if (stress_mwc1()) {
-				CPU_SET(i, set);
-				(*setbits)++;
-			}
-		}
-		if (*setbits == 0) {
-			CPU_SET(stress_mwc32modn((uint32_t)max_cpus), set);
-			(*setbits)++;
-		}
-		return 0;
-	}
-
 	str = stress_const_optdup(arg);
 	if (!str) {
 		(void)fprintf(stderr, "out of memory duplicating argument '%s'\n", arg);
@@ -137,6 +105,50 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		int lo, hi;
 		char *tmpptr = strstr(token, "-");
+
+		if (!strcmp(token, "odd")) {
+			for (i = 1; i < max_cpus; i += 2) {
+				if (!CPU_ISSET(i, set)) {
+					CPU_SET(i, set);
+					(*setbits)++;
+				}
+			}
+			continue;
+		} else if (!strcmp(token, "even")) {
+			for (i = 0; i < max_cpus; i += 2) {
+				if (!CPU_ISSET(i, set)) {
+					CPU_SET(i, set);
+					(*setbits)++;
+				}
+			}
+			continue;
+		} else if (!strcmp(token, "all")) {
+			for (i = 0; i < max_cpus; i++) {
+				if (!CPU_ISSET(i, set)) {
+					CPU_SET(i, set);
+					(*setbits)++;
+				}
+			}
+			continue;
+		} else if (!strcmp(token, "random")) {
+			for (i = 0; i < max_cpus; i++) {
+				if (stress_mwc1()) {
+					if (!CPU_ISSET(i, set)) {
+						CPU_SET(i, set);
+						(*setbits)++;
+					}
+				}
+			}
+			if (*setbits == 0) {
+				i = stress_mwc32modn((uint32_t)max_cpus);
+
+				if (!CPU_ISSET(i, set)) {
+					CPU_SET(i, set);
+					(*setbits)++;
+				}
+			}
+			continue;
+		}
 
 		hi = lo = stress_parse_cpu(token);
 		if (tmpptr) {
@@ -161,12 +173,15 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 		stress_check_cpu_affinity_range(max_cpus, hi);
 
 		for (i = lo; i <= hi; i++) {
-			CPU_SET(i, set);
-			*setbits = true;
+			if (!CPU_ISSET(i, set)) {
+				CPU_SET(i, set);
+				(*setbits)++;
+			}
 		}
 	}
 	free(str);
 
+pr_inf("BITS: %d\n", *setbits);
 	if (*setbits)
 		stress_set_cpu_affinity_current(set);
 
