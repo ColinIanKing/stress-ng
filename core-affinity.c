@@ -96,7 +96,7 @@ static void stress_package_set(int package, cpu_set_t *set, int *setbits)
 	int i, n_packages = 0;
 
 	/* Must be at most max_cpus worth of packages (over estimated) */
-	packages = calloc(sizeof(*packages), max_cpus);
+	packages = calloc(max_cpus, sizeof(*packages));
 	if (!packages) {
 		(void)fprintf(stderr, "%s: cannot allocate %d cpusets, aborting\n", option, max_cpus);
 		_exit(EXIT_FAILURE);
