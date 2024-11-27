@@ -156,29 +156,17 @@ static void MLOCKED_TEXT NORETURN stress_rlimit_handler(int signum)
  */
 static void drop_niceness(void)
 {
-	int nice_val, i;
-
-	errno = 0;
-	nice_val = nice(0);
-
-	/* Should never fail */
-	if (errno)
-		return;
+	int i;
 
 	/*
 	 *  Traditionally no more than -20, but see if we
 	 *  can force it lower if we are originally running
 	 *  at nice level 19
 	 */
-	for (i = 0; i < 40; i++) {
-		int old_nice_val = nice_val;
-
+	errno = EPERM;
+	for (i = -40; (i < 0) && errno; i++) {
 		errno = 0;
-		nice_val = nice(-1);
-		if (errno)
-			return;
-		if (nice_val == old_nice_val)
-			return;
+		VOID_RET(int, nice(i));
 	}
 }
 
