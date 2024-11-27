@@ -245,7 +245,7 @@ PRAGMA_UNROLL_N(8)
 		register uint8_t *ops8 = (uint8_t *)ops_begin;
 		int i, n = x86_prefix_length[stress_mwc8modn(SIZEOF_ARRAY(x86_prefix_length))];
 
-		for (i = 0; (i < n) && (ops8 < (uint8_t *)ops_end); i++)
+		for (i = 0; (i < n) && (ops8 < (const uint8_t *)ops_end); i++)
 			*(ops8++) = x86_prefixes[stress_mwc8modn(SIZEOF_ARRAY(x86_prefixes))];
 	}
 #endif
