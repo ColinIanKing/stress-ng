@@ -204,7 +204,6 @@ static void OPTIMIZE3 stress_pthread_tid_address(stress_args_t *args)
  */
 static void *stress_pthread_func(void *parg)
 {
-	static void *nowt = NULL;
 	int ret;
 	const double t_run = stress_time_now();
 	pid_t tgid_unused;
@@ -420,7 +419,7 @@ die:
 
 	stress_pthread_tid_address(args);
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

@@ -26,11 +26,10 @@
 #if defined(HAVE_LIB_PTHREAD)
 static void *stress_resources_pthread_func(void *ctxt)
 {
-        static void *nowt;
-
         (void)ctxt;
         (void)sleep(1);
-        return &nowt;
+
+        return &g_nowt;
 }
 #endif
 

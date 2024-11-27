@@ -77,8 +77,6 @@ static void stress_exit_group_sleep(void)
  */
 static void *stress_exit_group_func(void *arg)
 {
-	static void *nowt = NULL;
-
 	(void)arg;
 
 	if (pthread_mutex_lock(&mutex) == 0) {
@@ -94,7 +92,7 @@ static void *stress_exit_group_func(void *arg)
 
 	/* should never get here */
 	exit_group_failed++;
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

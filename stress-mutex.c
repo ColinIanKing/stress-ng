@@ -87,7 +87,6 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 {
 	pthread_info_t *pthread_info = (pthread_info_t *)arg;
 	stress_args_t *args = pthread_info->args;
-	static void *nowt = NULL;
 	const int max = (pthread_info->prio_max * 7) / 8;
 	int metrics_count = 0;
 #if defined(HAVE_PTHREAD_MUTEXATTR)
@@ -168,7 +167,7 @@ static void OPTIMIZE3 *mutex_exercise(void *arg)
 	}
 #endif
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

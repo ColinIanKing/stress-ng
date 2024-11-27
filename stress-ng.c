@@ -129,6 +129,7 @@ const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */
+void *g_nowt = NULL;				/* used by thread returns */
 
 #if defined(SA_SIGINFO)
 typedef struct {

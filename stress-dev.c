@@ -4234,7 +4234,6 @@ next:
  */
 static void *stress_dev_thread(void *arg)
 {
-	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pa->args;
 	sys_dev_info_t *sys_dev_info = (sys_dev_info_t *)pa->data;
@@ -4248,7 +4247,7 @@ static void *stress_dev_thread(void *arg)
 	while (stress_continue_flag())
 		stress_dev_rw(args, &sys_dev_info, -1);
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

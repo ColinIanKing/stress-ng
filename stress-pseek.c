@@ -288,11 +288,10 @@ static void stress_peekio_exercise(stress_peekio_proc_t *proc)
 #if defined(HAVE_LIB_PTHREAD)
 static void *stress_peekio_pthread(void *parg)
 {
-	static void *nowt = NULL;
 	stress_peekio_proc_t *proc = (stress_peekio_proc_t *)parg;
 
 	stress_peekio_exercise(proc);
-	return &nowt;
+	return &g_nowt;
 }
 #endif
 

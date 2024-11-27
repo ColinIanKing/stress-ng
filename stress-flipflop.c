@@ -82,7 +82,6 @@ static void stress_flipflop_sigusr1_handler(int signum)
 
 static void *stress_flipflop_worker(void *arg)
 {
-	static void *nowt = NULL;
 	stress_flipflop_worker_t *w = arg;
 	const bool check_max_loops = (w->nr_max_loops > 0);
 
@@ -91,7 +90,7 @@ static void *stress_flipflop_worker(void *arg)
 	/* wait on hold or until finished flag */
 	while (*(volatile bool *)w->worker_hold) {
 		if (!stress_continue_flag())
-			return &nowt;
+			return &g_nowt;
 	}
 
 	while (!*(volatile bool *)w->worker_exit) {
@@ -116,7 +115,7 @@ static void *stress_flipflop_worker(void *arg)
 
 	/* Interrupt parent in sleep */
 	(void)kill(w->ppid, SIGUSR1);
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

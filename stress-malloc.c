@@ -158,7 +158,6 @@ static void *stress_malloc_loop(void *ptr)
 	stress_args_t *args = malloc_args->args;
 	const size_t page_size = args->page_size;
 	const size_t info_size = malloc_max * sizeof(*info);
-	static void *nowt = NULL;
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_MALLOC_TRIM)
@@ -180,7 +179,7 @@ static void *stress_malloc_loop(void *ptr)
 		pr_inf("%s: cannot mmap address buffer of size %zd bytes: %d (%s)\n",
 			args->name, info_size, errno, strerror(errno));
 		malloc_args->rc = EXIT_FAILURE;
-		return &nowt;
+		return &g_nowt;
 	}
 	stress_set_vma_anon_name(info, info_size, "malloc-info");
 	for (;;) {
@@ -346,7 +345,7 @@ static void *stress_malloc_loop(void *ptr)
 	stress_alloc_action("munmap", info_size);
 	(void)munmap((void *)info, info_size);
 
-	return &nowt;
+	return &g_nowt;
 }
 
 static void MLOCKED_TEXT stress_malloc_sigsegv_handler(int signum)

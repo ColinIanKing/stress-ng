@@ -194,7 +194,6 @@ static int stress_inode_flags_stressor(
  */
 static void *stress_inode_flags_thread(void *arg)
 {
-	static void *nowt = NULL;
 	stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 
 	/*
@@ -205,7 +204,7 @@ static void *stress_inode_flags_thread(void *arg)
 
 	pa->pthread_ret = stress_inode_flags_stressor(pa->args, pa->data);
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

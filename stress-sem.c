@@ -103,7 +103,6 @@ static void OPTIMIZE3 *stress_sem_thrash(void *arg)
 	const stress_pthread_args_t *p_args = arg;
 	stress_args_t *args = p_args->args;
 	stress_sem_pthread_t *pthread = (stress_sem_pthread_t *)p_args->data;
-	static void *nowt = NULL;
 
 	do {
 		int i, j = -1;
@@ -192,7 +191,7 @@ do_semwait:
 	} while (stress_continue(args));
 
 do_return:
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

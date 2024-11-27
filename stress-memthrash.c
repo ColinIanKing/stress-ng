@@ -737,7 +737,6 @@ static void stress_memthrash_find_primes(void)
  */
 static void *stress_memthrash_func(void *ctxt)
 {
-	static void *nowt = NULL;
 	const stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const stress_memthrash_func_t func = context->memthrash_method->func;
 	stress_args_t *args = context->args;
@@ -764,7 +763,7 @@ static void *stress_memthrash_func(void *ctxt)
 			(void)shim_sched_yield();
 		}
 	}
-	return &nowt;
+	return &g_nowt;
 }
 
 static inline uint32_t stress_memthrash_max(

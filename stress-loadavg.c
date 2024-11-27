@@ -113,7 +113,6 @@ static uint64_t stress_loadavg_threads_max(void)
  */
 static void *stress_loadavg_func(void *arg)
 {
-	static void *nowt = NULL;
 	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pargs->args;
 #if defined(LOADAVG_IO)
@@ -141,7 +140,7 @@ static void *stress_loadavg_func(void *arg)
 
 	(void)keep_running();
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

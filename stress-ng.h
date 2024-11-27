@@ -687,6 +687,7 @@ extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */
 extern volatile bool g_stress_continue_flag; /* false to exit stressor */
 extern jmp_buf g_error_env;		/* parsing error env */
+extern void *g_nowt;			/* void pointer to NULL */
 
 /*
  *  stress_continue_flag()

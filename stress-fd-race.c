@@ -241,7 +241,6 @@ static inline int stress_race_fd_recv(const int fd)
 static void *stress_fd_race_pthread(void *ptr)
 {
 	stress_fd_race_context *context = (stress_fd_race_context *)ptr;
-	static int nowt;
 
 	int i;
 
@@ -262,7 +261,7 @@ static void *stress_fd_race_pthread(void *ptr)
 	(void)pthread_barrier_wait(&context->barrier);
 
 	/* termination of pthread will close fds */
-	return &nowt;
+	return &g_nowt;
 }
 
 /*
@@ -371,7 +370,6 @@ retry:
  */
 static void *stress_fd_race_current(void *ptr)
 {
-	static int nowt;
 	stress_fd_race_context *context = (stress_fd_race_context *)ptr;
 	stress_args_t *args = context->args;
 
@@ -470,7 +468,7 @@ static void *stress_fd_race_current(void *ptr)
 		}
 	} while (stress_continue(args));
 
-	return &nowt;
+	return &g_nowt;
 }
 
 

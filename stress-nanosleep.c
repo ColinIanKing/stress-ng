@@ -155,7 +155,6 @@ static int stress_nanosleep_ns(stress_ctxt_t *ctxt, const long int nsec)
  */
 static void *stress_nanosleep_pthread(void *c)
 {
-	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	stress_args_t *args = ctxt->args;
 
@@ -190,7 +189,7 @@ static void *stress_nanosleep_pthread(void *c)
 
 		ctxt->counter++;
 	}
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

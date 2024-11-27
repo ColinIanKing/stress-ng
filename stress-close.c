@@ -144,7 +144,6 @@ static const int close_range_flags[] = {
  */
 static void *stress_close_func(void *arg)
 {
-	static void *nowt = NULL;
 	stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pargs->args;
 
@@ -206,7 +205,7 @@ static void *stress_close_func(void *arg)
 		VOID_RET(int, shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, ~0U));
 	}
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

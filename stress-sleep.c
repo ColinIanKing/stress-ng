@@ -119,7 +119,6 @@ static double stress_time_delta(
  */
 static void *stress_pthread_func(void *c)
 {
-	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	stress_args_t *args = ctxt->args;
 #if defined(HAVE_ASM_X86_TPAUSE) &&	\
@@ -355,7 +354,7 @@ skip_pselect:
 #endif
 		stress_bogo_inc_lock(args, stress_sleep_counter_lock, true);
 	}
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

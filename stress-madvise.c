@@ -342,7 +342,6 @@ static void *stress_madvise_pages(void *arg)
 	void *buf = ctxt->buf;
 	const size_t sz = ctxt->sz;
 	const size_t page_size = args->page_size;
-	static void *nowt = NULL;
 
 	if (ctxt->is_thread) {
 		sigset_t set;
@@ -422,7 +421,7 @@ static void *stress_madvise_pages(void *arg)
 	}
 #endif
 
-	return &nowt;
+	return &g_nowt;
 }
 
 static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)

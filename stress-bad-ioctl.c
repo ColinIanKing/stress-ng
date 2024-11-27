@@ -397,7 +397,6 @@ static inline void stress_bad_ioctl_rw(
  */
 static void *stress_bad_ioctl_thread(void *arg)
 {
-	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pa->args;
 	const stress_bad_ioctl_thread_t *thread = (const stress_bad_ioctl_thread_t *)pa->data;
@@ -411,7 +410,7 @@ static void *stress_bad_ioctl_thread(void *arg)
 	while (stress_continue_flag())
 		stress_bad_ioctl_rw(args, true, thread->thread_index);
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

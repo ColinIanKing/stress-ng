@@ -604,7 +604,6 @@ timeout_close:
  */
 static void *stress_proc_rw_thread(void *ctxt_ptr)
 {
-	static void *nowt = NULL;
 	const stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
 
 	/*
@@ -620,7 +619,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 			break;
 	}
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

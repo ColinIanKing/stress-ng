@@ -123,7 +123,6 @@ static int stress_membarrier_exercise(stress_args_t *args, membarrier_info_t *in
 
 static void *stress_membarrier_thread(void *arg)
 {
-	static void *nowt = NULL;
 	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
 	stress_args_t *args = pargs->args;
 	membarrier_info_t *info = (membarrier_info_t *)pargs->data;
@@ -139,7 +138,7 @@ static void *stress_membarrier_thread(void *arg)
 			break;
 	}
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

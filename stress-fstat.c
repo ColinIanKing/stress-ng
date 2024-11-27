@@ -210,7 +210,6 @@ static int stress_fstat_helper(const stress_fstat_context_t *ctxt)
  */
 static void *stress_fstat_thread(void *ptr)
 {
-	static void *nowt = NULL;
 	stress_fstat_pthread_info_t *pthread_info = (stress_fstat_pthread_info_t *)ptr;
 	const stress_fstat_context_t *ctxt = pthread_info->ctxt;
 
@@ -237,7 +236,7 @@ static void *stress_fstat_thread(void *ptr)
 		(void)shim_sched_yield();
 	}
 
-	return &nowt;
+	return &g_nowt;
 }
 #endif
 

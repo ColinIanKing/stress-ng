@@ -456,7 +456,6 @@ drain:
  */
 static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
-	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
 	stress_args_t *args = ctxt->args;
 
@@ -469,7 +468,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	while (stress_continue(args))
 		stress_sys_rw(ctxt);
 
-	return &nowt;
+	return &g_nowt;
 }
 
 static const char * const sys_skip_paths[] = {

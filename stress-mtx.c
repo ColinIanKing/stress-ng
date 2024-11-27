@@ -64,7 +64,6 @@ static void OPTIMIZE3 *mtx_exercise(void *arg)
 {
 	pthread_info_t *pthread_info = (pthread_info_t *)arg;
 	stress_args_t *args = pthread_info->args;
-	static void *nowt = NULL;
 	int metrics_count = 0;
 
 	stress_mwc_reseed();
@@ -101,7 +100,7 @@ static void OPTIMIZE3 *mtx_exercise(void *arg)
 		}
 	} while (stress_continue(args));
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*

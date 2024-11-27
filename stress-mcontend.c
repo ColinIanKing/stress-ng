@@ -311,7 +311,6 @@ static inline OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *
  */
 static void *stress_memory_contend_thread(void *arg)
 {
-	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (const stress_pthread_args_t *)arg;
 
 	/*
@@ -335,7 +334,7 @@ static void *stress_memory_contend_thread(void *arg)
 #endif
 	}
 
-	return &nowt;
+	return &g_nowt;
 }
 
 /*
