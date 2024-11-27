@@ -209,6 +209,12 @@ static int stress_flipflop(stress_args_t *args)
 	(void)stress_get_setting("flipflop-taskset1", &flipflop_taskset1);
 	(void)stress_get_setting("flipflop-taskset2", &flipflop_taskset2);
 
+	/* Should never happen, keeps static analyzer happy */
+	if (flipflop_bits < 1) {
+		pr_inf("%s: flipflop-bits less than one, aborting\n", args->name);
+		return EXIT_FAILURE;
+	}
+
 	if (stress_sighandler(args->name, SIGUSR1, stress_flipflop_sigusr1_handler, NULL))
 		return EXIT_NO_RESOURCE;
 
