@@ -20,9 +20,11 @@
 #include "stress-ng.h"
 #include "core-attribute.h"
 #include "core-builtin.h"
+#include "core-helper.h"
 #include "core-madvise.h"
 #include "core-put.h"
 #include "core-target-clones.h"
+#include "core-pragma.h"
 
 #include <sys/ioctl.h>
 
@@ -53,34 +55,6 @@ static const stress_whences_t whences[] = {
 	{ "SEEK_END",	SEEK_END }
 };
 #endif
-
-/*
- *  stress_data_is_not_zero()
- *	checks if buffer is zero, buffer expected to be page aligned
- */
-static inline ALWAYS_INLINE bool PURE OPTIMIZE3 stress_data_is_not_zero(void *buffer, const size_t len)
-{
-#if defined(HAVE_INT128_T)
-	typedef __uint128_t cmptype_t;
-#else
-	typedef uint64_t cmptype_t;
-#endif
-	register const cmptype_t *ptr_end = (cmptype_t *)((uintptr_t)buffer + len);
-	register cmptype_t *ptr = (cmptype_t *)buffer;
-
-	while (ptr < ptr_end) {
-		register cmptype_t v;
-
-		v = ptr[0];
-		v |= ptr[1];
-		v |= ptr[2];
-		v |= ptr[3];
-		ptr += 4;
-		if (v)
-			return true;
-	}
-	return false;
-}
 
 /*
  *  stress_full

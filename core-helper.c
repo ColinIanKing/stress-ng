@@ -30,6 +30,7 @@
 #include "core-pthread.h"
 #include "core-pragma.h"
 #include "core-sort.h"
+#include "core-target-clones.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -5103,4 +5104,30 @@ void stress_backtrace(void)
 	}
 	free(strings);
 #endif
+}
+
+/*
+ *  stress_data_is_not_zero()
+ *	checks if buffer is zero, buffer must be 128 bit aligned
+ */
+bool OPTIMIZE3 stress_data_is_not_zero(uint64_t *buffer, const size_t len)
+{
+	register const uint64_t *end64 = buffer + (len / sizeof(uint64_t));
+	register uint64_t *ptr64;
+	register const uint8_t *end8;
+	register uint8_t *ptr8;
+
+PRAGMA_UNROLL_N(8)
+	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
+		if (UNLIKELY(*ptr64))
+			return true;
+	}
+
+	end8 = ((uint8_t *)buffer) + len;
+PRAGMA_UNROLL_N(8)
+	for (ptr8 = (uint8_t *)ptr64; ptr8 < end8; ptr8++) {
+		if (UNLIKELY(*ptr8))
+			return true;
+	}
+	return false;
 }

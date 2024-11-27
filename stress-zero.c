@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-helper.h"
 #include "core-madvise.h"
 #include "core-pragma.h"
 
@@ -33,30 +34,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"zero-ops N",	"stop after N /dev/zero bogo read operations" },
 	{ NULL,	NULL,		NULL }
 };
-
-/*
- *  stress_is_not_zero()
- *	checks if buffer is zero, buffer must be 64 bit aligned
- */
-static bool OPTIMIZE3 stress_is_not_zero(uint64_t *buffer, const size_t len)
-{
-	register const uint8_t *end8 = ((uint8_t *)buffer) + len;
-	register uint8_t *ptr8;
-	register const uint64_t *end64 = buffer + (len / sizeof(uint64_t));
-	register uint64_t *ptr64;
-
-PRAGMA_UNROLL_N(8)
-	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
-		if (UNLIKELY(*ptr64))
-			return true;
-	}
-PRAGMA_UNROLL_N(8)
-	for (ptr8 = (uint8_t *)ptr64; ptr8 < end8; ptr8++) {
-		if (UNLIKELY(*ptr8))
-			return true;
-	}
-	return false;
-}
 
 #if defined(__linux__)
 
@@ -163,7 +140,7 @@ static int stress_zero(stress_args_t *args)
 		} while (stress_continue(args));
 		duration += stress_time_now() - t;
 
-		if ((ret > 0) && stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+		if ((ret > 0) && stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 			pr_fail("%s: non-zero value from a read of /dev/zero\n",
 				args->name);
 			rc = EXIT_FAILURE;
@@ -200,7 +177,7 @@ static int stress_zero(stress_args_t *args)
 			}
 			duration += stress_time_now() - t;
 
-			if ((ret > 0) && stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+			if ((ret > 0) && stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 				pr_fail("%s: non-zero value from a read of /dev/zero\n",
 					args->name);
 				rc = EXIT_FAILURE;
@@ -243,7 +220,7 @@ static int stress_zero(stress_args_t *args)
 					(void)munmap(rd_buffer, page_size);
 					return EXIT_FAILURE;
 				}
-				if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
+				if (stress_data_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 					pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
 						args->name, mmap_flags[i].flag_str);
 				}
