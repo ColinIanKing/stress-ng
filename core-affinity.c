@@ -111,7 +111,7 @@ void stress_package_set(int package, cpu_set_t *set, int *setbits)
 
 	while ((d = readdir(dir)) != NULL) {
 		char filename[PATH_MAX];
-		char token[64], *tmpptr;
+		char str[1024], *tmpptr, *ptr, *token;
 		cpu_set_t newset;
 		int lo, hi;
 
@@ -122,23 +122,25 @@ void stress_package_set(int package, cpu_set_t *set, int *setbits)
 
 		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/package_cpus_list", path, d->d_name);
 
-		if (stress_system_read(filename, token, sizeof(token)) < 1)
+		if (stress_system_read(filename, str, sizeof(str)) < 1)
 			continue;
-
-		tmpptr = strstr(token, "-");
-		if (sscanf(token, "%d", &i) != 1)
-			continue;
-		lo = hi = i;
-		if (tmpptr) {
-			tmpptr++;
-			if (sscanf(tmpptr, "%d", &i) != 1)
-				continue;
-			hi = i;
-		}
 
 		CPU_ZERO(&newset);
-		for (i = lo; i <= hi; i++)
-			CPU_SET(i, &newset);
+		for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
+			tmpptr = strstr(token, "-");
+			if (sscanf(token, "%d", &i) != 1)
+				continue;
+			lo = hi = i;
+			if (tmpptr) {
+				tmpptr++;
+				if (sscanf(tmpptr, "%d", &i) != 1)
+					continue;
+				hi = i;
+			}
+
+			for (i = lo; i <= hi; i++)
+				CPU_SET(i, &newset);
+		}
 
 		for (i = 0; i < n_packages; i++) {
 			if (CPU_EQUAL(&packages[i], &newset))
