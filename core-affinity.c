@@ -86,7 +86,7 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
  *  stress_package_set()
  *	find package and set the cpu set with cpus in the cpu set
  */
-void stress_package_set(int package, cpu_set_t *set, int *setbits)
+static void stress_package_set(int package, cpu_set_t *set, int *setbits)
 {
 	DIR *dir;
 	static const char path[] = "/sys/devices/system/cpu";
