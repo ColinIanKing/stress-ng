@@ -83,29 +83,40 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
 }
 
 /*
- *  stress_package_set()
- *	find package and set the cpu set with cpus in the cpu set
+ *  stress_get_topology_set()
+ *	find cpus in a specific topology
  */
-static void stress_package_set(int package, cpu_set_t *set, int *setbits)
+static void stress_get_topology_set(
+	const char *topology_list,
+	const char *topology,
+	const char *str,
+	cpu_set_t *set,
+	int *setbits)
 {
 	DIR *dir;
 	static const char path[] = "/sys/devices/system/cpu";
 	struct dirent *d;
 	int max_cpus = (int)stress_get_processors_configured();
-	cpu_set_t *packages;
-	int i, n_packages = 0;
+	cpu_set_t *sets;
+	int i, n_sets = 0, which;
+
+	if (sscanf(str + strlen(topology) , "%d", &which) != 1) {
+		(void)fprintf(stderr, "%s: invalid argument '%s' missing integer\n", topology, str);
+		_exit(EXIT_FAILURE);
+	}
 
 	/* Must be at most max_cpus worth of packages (over estimated) */
-	packages = calloc(max_cpus, sizeof(*packages));
-	if (!packages) {
+	sets = calloc(max_cpus, sizeof(*sets));
+	if (!sets) {
 		(void)fprintf(stderr, "%s: cannot allocate %d cpusets, aborting\n", option, max_cpus);
 		_exit(EXIT_FAILURE);
 	}
 
 	dir = opendir(path);
 	if (!dir) {
-		(void)fprintf(stderr, "%s: cannot scan '%s', package option not available\n", option, path);
-		free(packages);
+		(void)fprintf(stderr, "%s: cannot scan '%s', %s option not available\n",
+			option, topology, path);
+		free(sets);
 		_exit(EXIT_FAILURE);
 	}
 
@@ -120,7 +131,7 @@ static void stress_package_set(int package, cpu_set_t *set, int *setbits)
 		if (!isdigit(d->d_name[3]))
 			continue;
 
-		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/package_cpus_list", path, d->d_name);
+		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/%s", path, d->d_name, topology_list);
 
 		if (stress_system_read(filename, str, sizeof(str)) < 1)
 			continue;
@@ -142,30 +153,32 @@ static void stress_package_set(int package, cpu_set_t *set, int *setbits)
 				CPU_SET(i, &newset);
 		}
 
-		for (i = 0; i < n_packages; i++) {
-			if (CPU_EQUAL(&packages[i], &newset))
+		for (i = 0; i < n_sets; i++) {
+			if (CPU_EQUAL(&sets[i], &newset))
 				break;
 		}
 		/* not found, it's a new package cpu list */
-		if (i == n_packages) {
-			(void)memcpy(&packages[i], &newset, sizeof(newset));
-			n_packages++;
+		if (i == n_sets) {
+			(void)memcpy(&sets[i], &newset, sizeof(newset));
+			n_sets++;
 		}
 	}
 	(void)closedir(dir);
 
-	if (package >= n_packages) {
-		if (n_packages > 1)
-			(void)fprintf(stderr, "%s: package %d not found, only packages 0-%d available\n", option, package, n_packages - 1);
+	if (which >= n_sets) {
+		if (n_sets > 1)
+			(void)fprintf(stderr, "%s: %s %d not found, only %ss 0-%d available\n",
+				option, topology, which, topology, n_sets - 1);
 		else
-			(void)fprintf(stderr, "%s: package %d not found, only package 0 available\n", option, package);
-		free(packages);
+			(void)fprintf(stderr, "%s: %s %d not found, only %s 0 available\n",
+				option, topology, which, topology);
+		free(sets);
 		_exit(EXIT_FAILURE);
 	}
-	CPU_OR(set, set, &packages[package]);
+	CPU_OR(set, set, &sets[which]);
 	*setbits = CPU_COUNT(set);
 
-	free(packages);
+	free(sets);
 }
 
 /*
@@ -238,8 +251,16 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 			}
 			continue;
 		} else if (!strncmp(token, "package", 7)) {
-			if (isdigit(token[7]))
-				stress_package_set(atoi(token + 7), set, setbits);
+			stress_get_topology_set("package_cpus_list", "package", token, set, setbits);
+			continue;
+		} else if (!strncmp(token, "cluster", 7)) {
+			stress_get_topology_set("cluster_cpus_list", "cluster", token, set, setbits);
+			continue;
+		} else if (!strncmp(token, "die", 3)) {
+			stress_get_topology_set("die_cpus_list", "die", token, set, setbits);
+			continue;
+		} else if (!strncmp(token, "core", 3)) {
+			stress_get_topology_set("core_cpus_list", "core", token, set, setbits);
 			continue;
 		}
 

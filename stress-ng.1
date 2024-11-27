@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "26 November 2024"
+.TH STRESS-NG 1 "27 November 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -550,10 +550,37 @@ log output (except for verbose \-v messages) to the syslog.
 set CPU affinity based on the list of CPUs provided; stress\-ng is bound to
 just use these CPUs (for systems that provide sched_setaffinity()). The CPUs
 to be used are specified by a comma separated list of CPU (0 to N-1). One
-can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11,
-or use "even" for even numbered CPUs, "odd" for odd numbered CPUs, "all" for
-all cpus, "random" of a random selection of CPUs, or "packageN" for the CPUs
-in CPU package N.
+can specify a range of CPUs using '-', for example: \-\-taskset 0,2-3,6,7-11
+or the following keywords:
+.TS
+lB2 lB
+l lx.
+Keyword	Description
+even	T{
+even numbered CPUs
+T}
+odd	T{
+odd numbered CPUs
+T}
+all	T{
+all CPUs
+T}
+random	T{
+random selection of CPUs
+T}
+packageN	T{
+CPUs in package N as specified by /sys/devices/system/cpu/cpu*/topology/package_cpus_list
+T}
+clusterN	T{
+CPUs in package N as specified by /sys/devices/system/cpu/cpu*/topology/cluster_cpus_list
+T}
+dieN	T{
+CPUs in package N as specified by /sys/devices/system/cpu/cpu*/topology/die_cpus_list
+T}
+coreN	T{
+CPUs in package N as specified by /sys/devices/system/cpu/cpu*/topology/core_cpus_list
+T}
+.TE
 .TP
 .B \-\-taskset\-random
 randomly change stressor CPU affinity at five times the clock tick rate (if
@@ -2757,14 +2784,12 @@ among the threads (to see if thread pairs get starved in favour of others).
 specifies number of bits in the bitmap (and hence number of flip/flop thread pairs).
 .TP
 .B \-\-flipflop\-taskset1 list
-list of CPUs to affine the flip threads to. These are specified by a comma separated
-list of CPU (0 to N-1). One can specify a range of CPUs using '-', for
-example: \-\-flipflop\-taskset 0,2-3,6,7-11, or use "even" for even numbered CPUs,
-"odd" for odd numbered CPUs, "all" for all cpus, "random" of a random selection of CPUs,
-or "packageN" for the CPUs in CPU package N.
+list of CPUs to affine the flip threads to. Refer to the \-\-taskset option description
+for the syntax of the list argument.
 .TP
 .B \-\-flipflop\-taskset2 list
-list of CPUs to affine the flop threads to. See \-\-flipflop\-taskset1 for list syntax.
+list of CPUs to affine the flop threads to. Refer to the \-\-taskset option description
+for the syntax of the list argument.
 .TP
 .B \-\-flipflop\-ops N
 stop after N bogo-ops, in this case a bogo-op is 100,000 flip-flop operations.
