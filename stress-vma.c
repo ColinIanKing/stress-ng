@@ -160,7 +160,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 
 	while (stress_vma_continue_flag && stress_vma_continue(args)) {
 		ssize_t ret;
-		void *test_addr;
+		uintptr_t test_addr;
 
 		if (sizeof(uintptr_t) > 4) {
 			const uint64_t addr_bits = stress_mwc8modn(28) + 32;
@@ -179,17 +179,17 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 		addr = (void *)(ui_addr & mask);
 
 		/* retry if we're in text and heap sections */
-		if ((addr >= (void *)text_start) && ((addr + mmap_size) <= (void *)heap_end))
+		if ((addr >= (void *)text_start) && ((void *)((uintptr_t)addr + mmap_size) <= (void *)heap_end))
 			continue;
 
-		for (i = 0, test_addr = addr; i < STRESS_VMA_PAGES; i++, test_addr += page_size) {
+		for (i = 0, test_addr = (uintptr_t)addr; i < STRESS_VMA_PAGES; i++, test_addr += page_size) {
 			int fd[2], err;
 
 			if (pipe(fd) < 0)
 				return NULL;
 			/* Can we read the page at addr into a pipe? */
 
-			ret = write(fd[1], test_addr, page_size);
+			ret = write(fd[1], (void *)test_addr, page_size);
 			err = errno;
 			(void)close(fd[0]);
 			(void)close(fd[1]);
@@ -199,7 +199,7 @@ static void *stress_mmapaddr_get_addr(stress_args_t *args)
 				void *mapped;
 
 				/* Is it actually mappable? */
-				mapped = mmap(test_addr, page_size, PROT_READ | PROT_WRITE,
+				mapped = mmap((void *)test_addr, page_size, PROT_READ | PROT_WRITE,
 						MAP_FIXED | MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 				if (mapped == MAP_FAILED) {
 					(void)munmap(mapped, page_size);
