@@ -22,7 +22,10 @@
 #include "core-affinity.h"
 #include "core-builtin.h"
 
+#include <ctype.h>
 #include <sched.h>
+#include <sys/types.h>
+#include <dirent.h>
 
 static const char option[] = "taskset";
 
@@ -77,6 +80,90 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
 		_exit(EXIT_FAILURE);
 	}
 	(void)shim_memcpy(&stress_affinity_cpu_set, set, sizeof(stress_affinity_cpu_set));
+}
+
+/*
+ *  stress_package_set()
+ *	find package and set the cpu set with cpus in the cpu set
+ */
+void stress_package_set(int package, cpu_set_t *set, int *setbits)
+{
+	DIR *dir;
+	static const char path[] = "/sys/devices/system/cpu";
+	struct dirent *d;
+	int max_cpus = (int)stress_get_processors_configured();
+	cpu_set_t *packages;
+	int i, n_packages = 0;
+
+	/* Must be at most max_cpus worth of packages (over estimated) */
+	packages = calloc(sizeof(*packages), max_cpus);
+	if (!packages) {
+		(void)fprintf(stderr, "%s: cannot allocate %d cpusets, aborting\n", option, max_cpus);
+		_exit(EXIT_FAILURE);
+	}
+
+	dir = opendir(path);
+	if (!dir) {
+		(void)fprintf(stderr, "%s: cannot scan '%s', package option not available\n", option, path);
+		free(packages);
+		_exit(EXIT_FAILURE);
+	}
+
+	while ((d = readdir(dir)) != NULL) {
+		char filename[PATH_MAX];
+		char token[64], *tmpptr;
+		cpu_set_t newset;
+		int lo, hi;
+
+		if (strncmp(d->d_name, "cpu", 3))
+			continue;
+		if (!isdigit(d->d_name[3]))
+			continue;
+
+		(void)snprintf(filename, sizeof(filename), "%s/%s/topology/package_cpus_list", path, d->d_name);
+
+		if (stress_system_read(filename, token, sizeof(token)) < 1)
+			continue;
+
+		tmpptr = strstr(token, "-");
+		if (sscanf(token, "%d", &i) != 1)
+			continue;
+		lo = hi = i;
+		if (tmpptr) {
+			tmpptr++;
+			if (sscanf(tmpptr, "%d", &i) != 1)
+				continue;
+			hi = i;
+		}
+
+		CPU_ZERO(&newset);
+		for (i = lo; i <= hi; i++)
+			CPU_SET(i, &newset);
+
+		for (i = 0; i < n_packages; i++) {
+			if (CPU_EQUAL(&packages[i], &newset))
+				break;
+		}
+		/* not found, it's a new package cpu list */
+		if (i == n_packages) {
+			(void)memcpy(&packages[i], &newset, sizeof(newset));
+			n_packages++;
+		}
+	}
+	(void)closedir(dir);
+
+	if (package >= n_packages) {
+		if (n_packages > 1)
+			(void)fprintf(stderr, "%s: package %d not found, only packages 0-%d available\n", option, package, n_packages);
+		else
+			(void)fprintf(stderr, "%s: package %d not found, only package 0 available\n", option, package);
+		free(packages);
+		_exit(EXIT_FAILURE);
+	}
+	CPU_OR(set, set, &packages[package]);
+	*setbits = CPU_COUNT(set);
+
+	free(packages);
 }
 
 /*
@@ -148,6 +235,10 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 				}
 			}
 			continue;
+		} else if (!strncmp(token, "package", 7)) {
+			if (isdigit(token[7]))
+				stress_package_set(atoi(token + 7), set, setbits);
+			continue;
 		}
 
 		hi = lo = stress_parse_cpu(token);
@@ -181,7 +272,6 @@ int stress_parse_cpu_affinity(const char *arg, cpu_set_t *set, int *setbits)
 	}
 	free(str);
 
-pr_inf("BITS: %d\n", *setbits);
 	if (*setbits)
 		stress_set_cpu_affinity_current(set);
 
