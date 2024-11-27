@@ -6234,8 +6234,8 @@ T}
 select the scheduling policy. "Normal" policies (batch, idle and other)
 can be selected as an unprivileged user, however "Real Time" policies
 (fifo and rr) can only be selected with the appropriate privilege.
-By default "rr" is selected but will it fall back to "other" for unprivileged
-users.
+By default "fifo" is selected but it will fall back to "other" for
+unprivileged users.
 .RE
 .TP
 .B Privileged CPU instructions stressor
