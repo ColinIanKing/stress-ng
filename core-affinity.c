@@ -89,7 +89,7 @@ static void stress_set_cpu_affinity_current(cpu_set_t *set)
 static void stress_get_topology_set(
 	const char *topology_list,
 	const char *topology,
-	const char *str,
+	const char *arg,
 	cpu_set_t *set,
 	int *setbits)
 {
@@ -100,8 +100,8 @@ static void stress_get_topology_set(
 	cpu_set_t *sets;
 	int i, n_sets = 0, which;
 
-	if (sscanf(str + strlen(topology) , "%d", &which) != 1) {
-		(void)fprintf(stderr, "%s: invalid argument '%s' missing integer\n", topology, str);
+	if (sscanf(arg + strlen(topology) , "%d", &which) != 1) {
+		(void)fprintf(stderr, "%s: invalid argument '%s' missing integer\n", topology, arg);
 		_exit(EXIT_FAILURE);
 	}
 
