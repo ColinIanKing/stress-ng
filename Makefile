@@ -18,9 +18,9 @@
 #
 
 #
-# Codename "stupendous scheduler stressor"
+# Codename "portable process pressurizer"
 #
-VERSION=0.18.06
+VERSION=0.18.07
 
 #
 # Determine supported toolchains
