@@ -1,3 +1,113 @@
+stress-ng (0.18.07-1) unstable; urgency=medium
+
+  [Eder Zulian]
+  * Manual: stress-prio-inv default scheduling policy is fifo
+  * core-affinity: rename str to arg to avoid name shadowing on token
+    string str
+
+  [Ivan Shapovalov]
+  * Makefile: expand `$(*FLAGS)` and `$(MACHINE)` non-recursively
+
+  [Julee]
+  * stress-gpu: fix the gpu-upload option is not effective
+
+  [Po-Hsu Lin]
+  * Makefile: fix machine detection for Ubuntu Bionic s390x VM
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-file-ioctl: replace long int with long for ioctl macros
+  * Makefile.machine: remove need for which command
+  * README.md: add another research paper reference
+  * core-affinity: add die, core, cluster parsing options for affinity
+    lists
+  * core-helper: refactor, add helper function to check for zero'd buffer
+  * stress-flipflop: use PRIu64 format specifiers for uint64_t values
+  * stress-vma: don't use void * pointer arithmetic
+  * stress-flipflop: add sanity check to avoid static analysis warnings
+  * core-shim: fix order of int declaration for vlen in
+    shim_process_madvise
+  * core-affinity: swap args in calloc call
+  * stress-softlock: re-work drop_niceness to cater for POSIX conformant
+    nice() returns
+  * stress-opcode: add missing const cast
+  * stress-flipflop: constify casts in stress_flipflop_uint64_cmp
+  * core-affinity: make stress_package_set static
+  * core-*, stress-*: replace local static nowt pointer with global g_nowt
+  * core-affinity: fix off-by 1 when printing max packages available
+  * core-affinity: parse package list, e.g 0-3,7-11
+  * core-affinity: parse affinity list, allow packageN to be specified
+  * core-affinity: parse affinity list with mix of ranges and odd,even,
+    random,all
+  * Makefile.config: add built time check for cpu_set_t
+  * core-setting: add missing \n in string type output
+  * stress-flip-flop: add new single cacheline coherency scalability
+    stressor
+  * stress-l1cache: unroll loops to improve throughput
+  * stress-*: handle nice returns in a portable way
+  * README.md: add another paper citation
+  * core-shim: add new Linux 6.13 xattrat system calls
+  * stress-shm-sysv: requires sys/ipc.h and sys_shm.h so check for these
+  * stress-llc-affinity: add cache line flushing option
+    --llc-affinity-clflush
+  * stress-gpu: rename option OPT_gpu_uploads to OPT_gpu_uploads (2)
+  * README.md: update contributors list
+  * stress-gpu: rename option OPT_gpu_uploads to OPT_gpu_uploads
+  * stress-ng: use generalized signal handler setup
+  * kernel-coverage: add --keep-going to workaround gcov errors
+  * stress-vma: fix stress_mmapaddr_get_addr to return validated
+    non-mapped addresses
+  * stress-vma: retry address randomization if address is in text or heap
+    sections
+  * stress-vma: add missing comments
+  * stress-vma: try access test on all pages of mmap
+  * stress-vma: ensure test alloc is the correct number of pages in size
+  * stress-vma: fix incorrect func name in comment block
+  * core-perf: add some more perf events based on recent kernels
+  * Revert "stress-pthread: disable pthread_sigqueue call for CYGWIN"
+  * README.md: add another Cygwin fix to an issue found with stress-ng
+  * stress-workload: add a few more permutations of fma computation
+  * README.md: update bug report, replace link with git commit SHA link
+  * core-nt-store: improve double nt stores on x86
+  * stress-opcode: x86: generate random length of opcode prefix ops
+  * stress-rawdev: use %jd format specifiers for intmax_t
+  * Makefile: use a smaller set of -W settings for PEDANTIC icc builds
+  * core-klog: add another const in err_exceptions[]
+  * core-helper: add some missing comment blocks
+  * core-shim: remove comment about use of pragma
+  * core-shim: remove extraneous ( in comment
+  * core-shim: use arch specific cacheflush system calls
+  * core-rapl: only emit "perhaps run as root" messgage if not running as
+    root
+  * README.md: Update contributors list
+  * stress-cacheline: unroll loops, improve performance by 33%
+  * stress-bitonic: unroll test and verify loops for improved speed
+  * stress-bubblesort: unroll loops to improve performance
+  * core-*, stress-*: replace short with short int, long with long int
+  * stress-ng: add --taskset-random option to randomize stressor CPU
+    affinity
+  * core-job: rename stress_chop to stress_str_chop
+  * stress-vm: fix early termination of prime-incdec stressor
+  * README.md: add reiserfs bug report
+  * Manual: fix spelling mistake "optiob" -> "option"
+  * stress-prefetch: use K instead of KB for cache size
+  * stress-vma: use read rather than write on 8 bit pointer
+  * core-helper: add backtrace dumping, call when SIGABRT occurs
+  * core-affinity: --taskset: add "all" and "random" keywords
+  * stress-l1cache: fix reverse method, fix incorrect setting of data loop
+  * stress-brk: ensure the failure sbrk errno is being checked
+  * core-target-clones: add more power9,10,11 target clone build time
+    constraints
+  * core-shim: limit _FORTIFY_SOURCE to 2 for ALT linux gcc for ppoll
+    workaround
+  * core-shim: use shim'd types for shim_poll args
+  * core-shim: add shim to ppoll() and workaround fortification issues
+  * README.md: add another kernel commit to the 2024 kernel bug list
+  * stress-fp-error: remove duplicated sqrt
+  * core-*, stress-*: fflush opened writable files
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 1 Dec 2024 11:21:23 +0000
+
 stress-ng (0.18.06-1) unstable; urgency=medium
 
   [Daniel Hodges]
