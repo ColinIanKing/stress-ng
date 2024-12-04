@@ -546,18 +546,19 @@ static void stress_kill_stressors(const int sig, const bool force_sigkill)
 	}
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		if (!ss->ignore.run) {
-			int32_t i;
+		int32_t i;
 
-			for (i = 0; i < ss->num_instances; i++) {
-				stress_stats_t *const stats = ss->stats[i];
-				const pid_t pid = stats->s_pid.pid;
+		if (ss->ignore.run)
+			continue;
 
-				/* Don't kill -1 (group), or init processes! */
-				if ((pid > 1) && !stats->signalled) {
-					(void)shim_kill(pid, signum);
-					stats->signalled = true;
-				}
+		for (i = 0; i < ss->num_instances; i++) {
+			stress_stats_t *const stats = ss->stats[i];
+			const pid_t pid = stats->s_pid.pid;
+
+			/* Don't kill -1 (group), or init processes! */
+			if ((pid > 1) && !stats->signalled) {
+				(void)shim_kill(pid, signum);
+				stats->signalled = true;
 			}
 		}
 	}
@@ -1963,28 +1964,30 @@ static int stress_show_stressors(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		if (!ss->ignore.run) {
-			const int32_t n = ss->num_instances;
+		int32_t n;
 
-			if (n) {
-				const char *name = ss->stressor->name;
-				ssize_t buffer_len;
+		if (ss->ignore.run)
+			continue;
 
-				buffer_len = snprintf(buffer, sizeof(buffer),
-						"%s %" PRId32 " %s", previous ? "," : "", n, name);
-				previous = true;
-				if (buffer_len >= 0) {
-					newstr = realloc(str, (size_t)(len + buffer_len + 1));
-					if (!newstr) {
-						pr_err("Cannot allocate temporary buffer\n");
-						free(str);
-						return -1;
-					}
-					str = newstr;
-					(void)shim_strscpy(str + len, buffer, (size_t)(buffer_len + 1));
+		n = ss->num_instances;
+		if (n) {
+			const char *name = ss->stressor->name;
+			ssize_t buffer_len;
+
+			buffer_len = snprintf(buffer, sizeof(buffer),
+					"%s %" PRId32 " %s", previous ? "," : "", n, name);
+			previous = true;
+			if (buffer_len >= 0) {
+				newstr = realloc(str, (size_t)(len + buffer_len + 1));
+				if (!newstr) {
+					pr_err("Cannot allocate temporary buffer\n");
+					free(str);
+					return -1;
 				}
-				len += buffer_len;
+				str = newstr;
+				(void)shim_strscpy(str + len, buffer, (size_t)(buffer_len + 1));
 			}
+			len += buffer_len;
 		}
 	}
 	pr_inf("dispatching hogs:%s\n", str ? str : "");
@@ -2865,14 +2868,13 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			stress_stressor_t *ss;
 
 			for (ss = stressors_head; ss; ss = ss->next) {
-				if (!ss->ignore.run) {
-					const char *name = ss->stressor->name;
+				if (ss->ignore.run)
+					continue;
 
-					if ((ss->stressor == stressor) && ss->num_instances &&
-					    (stressor->info->supported(name) < 0)) {
+				if ((ss->stressor == stressor) && ss->num_instances &&
+					(stressor->info->supported(ss->stressor->name) < 0)) {
 						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
 						*unsupported = true;
-					}
 				}
 			}
 		}
@@ -2880,14 +2882,13 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 			stress_stressor_t *ss;
 
 			for (ss = stressors_head; ss; ss = ss->next) {
-				if (!ss->ignore.run) {
-					const char *name = ss->stressor->name;
+				if (ss->ignore.run)
+					continue;
 
-					if ((ss->stressor == stressor) && ss->num_instances) {
-						stress_exclude_unimplemented(name, stressor->info);
-						stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
-						*unsupported = true;
-					}
+				if ((ss->stressor == stressor) && ss->num_instances) {
+					stress_exclude_unimplemented(ss->stressor->name, stressor->info);
+					stress_ignore_stressor(ss, STRESS_STRESSOR_UNSUPPORTED);
+					*unsupported = true;
 				}
 			}
 		}
@@ -2908,13 +2909,15 @@ static void stress_set_proc_limits(void)
 		return;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		if (!ss->ignore.run) {
-			const stressor_info_t *info = ss->stressor->info;
+		const stressor_info_t *info;
 
-			if (info && info->set_limit && ss->num_instances) {
-				const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
-				info->set_limit(max);
-			}
+		if (ss->ignore.run)
+			continue;
+
+		info = ss->stressor->info;
+		if (info && info->set_limit && ss->num_instances) {
+			const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
+			info->set_limit(max);
 		}
 	}
 #endif
@@ -2972,12 +2975,14 @@ static void stress_stressors_init(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		if (!ss->ignore.run) {
-			const stressor_info_t *info = ss->stressor->info;
+		const stressor_info_t *info;
 
-			if (info && info->init)
-				info->init(ss->num_instances);
-		}
+		if (ss->ignore.run)
+			continue;
+
+		info = ss->stressor->info;
+		if (info && info->init)
+			info->init(ss->num_instances);
 	}
 }
 
@@ -2990,12 +2995,14 @@ static void stress_stressors_deinit(void)
 	stress_stressor_t *ss;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		if (!ss->ignore.run) {
-			const stressor_info_t *info = ss->stressor->info;
+		const stressor_info_t *info;
 
-			if (info && info->deinit)
-				info->deinit();
-		}
+		if (ss->ignore.run)
+			continue;
+
+		info = ss->stressor->info;
+		if (info && info->deinit)
+			info->deinit();
 	}
 }
 
@@ -3053,17 +3060,18 @@ static inline void stress_setup_stats_buffers(void)
 	stress_stats_t *stats = g_shared->stats;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		if (!ss->ignore.run) {
-			int32_t i;
+		int32_t i;
 
-			for (i = 0; i < ss->num_instances; i++, stats++) {
-				size_t j;
+		if (ss->ignore.run)
+			continue;
 
-				ss->stats[i] = stats;
-				for (j = 0; j < SIZEOF_ARRAY(stats->metrics.items); j++) {
-					stats->metrics.items[j].value = 0.0;
-					stats->metrics.items[j].description = NULL;
-				}
+		for (i = 0; i < ss->num_instances; i++, stats++) {
+			size_t j;
+
+			ss->stats[i] = stats;
+			for (j = 0; j < SIZEOF_ARRAY(stats->metrics.items); j++) {
+				stats->metrics.items[j].value = 0.0;
+				stats->metrics.items[j].description = NULL;
 			}
 		}
 	}
@@ -3571,16 +3579,17 @@ static void stress_setup_parallel(const uint32_t class, const int32_t instances)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->num_instances = instances;
-		if (!ss->ignore.run) {
-			/*
-			 * Share bogo ops between processes equally, rounding up
-			 * if nonzero bogo_ops
-			 */
-			ss->bogo_ops = ss->num_instances ?
-				(ss->bogo_ops + (ss->num_instances - 1)) / ss->num_instances : 0;
-			if (ss->num_instances)
-				stress_alloc_proc_resources(&ss->stats, ss->num_instances);
-		}
+		if (ss->ignore.run)
+			continue;
+
+		/*
+		 * Share bogo ops between processes equally, rounding up
+		 * if nonzero bogo_ops
+		 */
+		ss->bogo_ops = ss->num_instances ?
+			(ss->bogo_ops + (ss->num_instances - 1)) / ss->num_instances : 0;
+		if (ss->num_instances)
+			stress_alloc_proc_resources(&ss->stats, ss->num_instances);
 	}
 }
 
@@ -3611,37 +3620,37 @@ static inline void stress_run_sequential(
 	 *  Step through each stressor one by one
 	 */
 	for (ss = stressors_head; ss && stress_continue_flag(); ss = ss->next) {
-		if (!ss->ignore.run) {
-			stress_stressor_t *next;
+		stress_stressor_t *next;
 
-			if (progress) {
-				struct tm *tm_finish;
-				time_t t_finish;
-				const char *name = ss->stressor->name;
-				char finish[64];
+		if (ss->ignore.run)
+			continue;
 
-				t_finish = time(NULL);
-				t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
-				t_finish += g_opt_pause * (total_run - run - 1);
-				tm_finish = localtime(&t_finish);
-				if (tm_finish)
-					strftime(finish, sizeof(finish), "%T %F", tm_finish);
-				else
-					*finish = '\0';
+		if (progress) {
+			struct tm *tm_finish;
+			time_t t_finish;
+			const char *name = ss->stressor->name;
+			char finish[64];
 
-				run++;
-				pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
-					name, run, total_run,
-					(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
-					*finish ? ", finish at " : "",
-					finish);
-			}
- 			next = ss->next;
-			ss->next = NULL;
-			stress_run(ticks_per_sec, ss, duration, success, resource_success,
-				metrics_success, &checksum);
-			ss->next = next;
+			t_finish = time(NULL);
+			t_finish += g_opt_timeout * ((108 * (total_run - run)) / 100);
+			t_finish += g_opt_pause * (total_run - run - 1);
+			tm_finish = localtime(&t_finish);
+			if (tm_finish)
+				(void)strftime(finish, sizeof(finish), "%T %F", tm_finish);
+			else
+				*finish = '\0';
+
+			run++;
+			pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
+				name, run, total_run,
+				(total_run > 0) ?  100.0 * (double)run / (double)total_run : 100.0,
+				*finish ? ", finish at " : "", finish);
 		}
+		next = ss->next;
+		ss->next = NULL;
+		stress_run(ticks_per_sec, ss, duration, success, resource_success,
+			metrics_success, &checksum);
+		ss->next = next;
 	}
 	stress_metrics_check(success);
 }
@@ -3713,15 +3722,17 @@ static inline void stress_run_permute(
 		*str = '\0';
 		for (j = 0, ss = stressors_head; (j < max_perms) && ss; ss = ss->next) {
 			ss->ignore.permute = true;
-			if (!ss->ignore.run) {
-				ss->ignore.permute = ((i & (1U << j)) == 0);
-				if (!ss->ignore.permute) {
-					if (*str)
-						shim_strlcat(str, ", ", sizeof(str));
-					shim_strlcat(str, ss->stressor->name, sizeof(str));
-				}
-				j++;
+
+			if (ss->ignore.run)
+				continue;
+
+			ss->ignore.permute = ((i & (1U << j)) == 0);
+			if (!ss->ignore.permute) {
+				if (*str)
+					shim_strlcat(str, ", ", sizeof(str));
+				shim_strlcat(str, ss->stressor->name, sizeof(str));
 			}
+			j++;
 		}
 		run++;
 		pr_inf("starting %s, %zd of %zd (%.2f%%)%s%s\n",
