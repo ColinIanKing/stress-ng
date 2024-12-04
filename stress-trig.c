@@ -327,7 +327,7 @@ static const stress_trig_method_t stress_trig_methods[] = {
 
 stress_metrics_t stress_trig_metrics[SIZEOF_ARRAY(stress_trig_methods)];
 
-static bool stess_trig_exercise(stress_args_t *args, const size_t idx)
+static bool stress_trig_exercise(stress_args_t *args, const size_t idx)
 {
 	bool ret;
 	const double t = stress_time_now();
@@ -349,7 +349,7 @@ static bool stress_trig_all(stress_args_t *args)
 	bool ret = false;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_trig_methods); i++) {
-		ret |= stess_trig_exercise(args, i);
+		ret |= stress_trig_exercise(args, i);
 	}
 	return ret;
 }
@@ -373,7 +373,7 @@ static int stress_trig(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stess_trig_exercise(args, trig_method)) {
+		if (stress_trig_exercise(args, trig_method)) {
 			rc = EXIT_FAILURE;
 			break;
 		}

@@ -670,7 +670,7 @@ stress-ng (0.18.03-1) unstable; urgency=medium
   * stress-misaligned: use CLOCK_PROCESS_CPUTIME_ID for timer
   * core-time: stress_duration_to_str: add flag report_secs to always
     report secs
-  * stess-cgroup: add mount EBUSY retry. Also add mount/umount retry debug
+  * stress-cgroup: add mount EBUSY retry. Also add mount/umount retry debug
   * core-config-check: fix memory load on string lowstr
   * stress-lockmix: add a mixed file locking stressor
   * core-config-check: warn if the run environment is not suitable for
@@ -682,7 +682,7 @@ stress-ng (0.18.03-1) unstable; urgency=medium
   * stress-bsearch: rename bsearch-ternary to ternary in method option
   * stress-bsearch: add a 3-way ternary search method
   * stress-lsearch: add a key sentinel search method
-  * Makefile: add fibsearch (Fibonacci search) stessor
+  * Makefile: add fibsearch (Fibonacci search) stressor
   * stress-hash, stress-tree: add stressors to search class
   * stress-bubblesort: rename bubblesort method to bubblesort-fast
   * stress-sort*: add sort class
@@ -906,7 +906,7 @@ stress-ng (0.18.02-1) unstable; urgency=medium
   * stress-ng: remove empty lines, reformat a comment block
   * stress-ng: inline helper function stress_get_num_stressors
   * stress-ng: inline helper function stress_append_stressor
-  * stress-ng: munge stessor names using stress_readable_name helper
+  * stress-ng: munge stressor names using stress_readable_name helper
   * stress-ng stress_run_sequential: remove continue if statement
   * stress-jpeg: remove debug
   * stress-jpeg: fix overflow with brown noise generator
@@ -2671,7 +2671,7 @@ stress-ng (0.16.05-1) unstable; urgency=medium
   * stress-prctl: exercise PR_RISCV_V_{GET|SET}_CONTROL
   * stress-prctl: add PR_GET_AUXV
   * README.md: add another kernel issue found using stress-ng
-  * stess-schedmix: reduce scope of variable policy and remove
+  * stress-schedmix: reduce scope of variable policy and remove
     initialisation
   * test/test-vfork.c: replace exit with _exit
   * stress-jpeg: stress_rgb_compress_to_jpeg: ensure duration is
@@ -4225,14 +4225,14 @@ stress-ng (0.15.06-1) unstable; urgency=medium
   * stress-ng: add --oom-avoid-bytes option for the free memory avoid
     allocation threshold
   * stress-cache: remove % operator, using compare and re-assign to zero
-  * stess-msg: add --msg-bytes option to specify size of message being
+  * stress-msg: add --msg-bytes option to specify size of message being
     sent/recv'd
   * stress-msg: voidify return of msgctl
   * stress-*, test-*: remove trailing spaces at end of lines
   * stress-shm-sysv: define SHM_HUGE_* macros if required, drop IPC_PRIVATE
     error check
   * stress-shm-sysv: add SHM_HUGE_2MB flag when using SHM_HUGETLB
-  * stess-shm-sysv: plumb in --sym-sysv-bytes option to correct ID
+  * stress-shm-sysv: plumb in --sym-sysv-bytes option to correct ID
   * stress-shm-sysv: replace IPC_RMID with IPC_PRIVATE in error message
   * stress-shm-sysv: add missing space in error message
   * stress-cyclic: report the number of samples required for the test run
@@ -4410,7 +4410,7 @@ stress-ng (0.15.05-1) unstable; urgency=medium
   * stress-chown: don't prematurely finish stressors on ENOENT or ENOTDIR
   * stress-chmod: remove CHECK macro now that is no longer used
   * stress-chmod: don't prematurely finish stressors on ENOENT or ENOTDIR
-  * stess-flushcache: add oomable wrapper to restart if OOM'd
+  * stress-flushcache: add oomable wrapper to restart if OOM'd
   * stress-gpu: set MESA_SHADER_CACHE_DISABLE to true to avoid warnings
   * stress-fpunch: move extent count to metrics information
   * stress-epoll: #ifdef out epoll retry count and timeout exit
@@ -4558,7 +4558,7 @@ stress-ng (0.15.04-1) unstable; urgency=medium
     width
   * core-asm-arm.h: helper include file for ARM assembler helpers
   * stress-*: use generic stress_metrics_t type for per-stressor metrics
-  * stess-ng.h: rename stress_metrics_t to stress_metrics_data_t
+  * stress-ng.h: rename stress_metrics_t to stress_metrics_data_t
   * stress-waitcpu: add in ppc64 yieldy instructions
   * stress-waitcpu: use yield instruction for ARM
   * stress-waitcpu: use processor specific wait/pause instructions
@@ -4855,7 +4855,7 @@ stress-ng (0.15.02-1) unstable; urgency=medium
   * stress-brk: unmapping pages in brk will cause OS X segfaults, disable it
   * core-thermal-zone: order thermal zone entries by type
   * README.md: add another citation "The TSN Building Blocks in Linux"
-  * stress-branch: don't use -O3 on branch stessor for SH4
+  * stress-branch: don't use -O3 on branch stressor for SH4
 
  -- Colin Ian King <colin.i.king@gmail.com>  Thu, 12 Jan 2023 17:27:22 +0000
 
@@ -5219,7 +5219,7 @@ stress-ng (0.15.00-1) unstable; urgency=medium
   * stress-fiemap: report that the the ioctl was not supported
   * stress-hdd: add this to the filesystem class of stressors
   * core-helper: add a few more file system magics
-  * stess-fanotify: ensure filename2 is unlinked
+  * stress-fanotify: ensure filename2 is unlinked
   * core-helper: add ubifs magic to file system table
   * stress-sync-file: don't treat EINTR on fallocate as a failure
   * README.md: add another academic paper citation
@@ -8135,7 +8135,7 @@ stress-ng (0.13.00-1) unstable; urgency=medium
   * Add __restrict keyword build time check
   * stress-shm-sysv: remove some commented out debug cruft
   * stress-shm-sysv: fix random key generation
-  * stress-shm: fix comment, it is a POSIX shm stessor not SYS V
+  * stress-shm: fix comment, it is a POSIX shm stressor not SYS V
   * stress-shm-sysv: exercise shmat with RND option a little more
   * stress-hdd: ensure read is sync'd to the same random offsets as
     write
@@ -8885,7 +8885,7 @@ stress-ng (0.12.09-1) unstable; urgency=medium
   * stress-list: replace entry with entries
   * stress-dev: add TIOCGPTPEER ioctl
   * stress-dev: add TIOCSSERIAL ioctl
-  * stess-splice: add workaround to failed splice from /dev/zero to pipe
+  * stress-splice: add workaround to failed splice from /dev/zero to pipe
   * stress-landlock: remove empty line
   * kernel-coverage: add more f2fs mkfs options to exercise the fs more
   * stress-landlock: fix ENOSYS error return on unimplemented syscalls
@@ -12320,7 +12320,7 @@ stress-ng (0.09.56-0ubuntu1) unstable; urgency=medium
   * stress-ng.h: don't use sync_synchronized when building with pcc
   * stress-ng.h: make __builtin_prefetch a variadic function
   * stress-matrix-3d: disable for PCC builds as this breaks the compiler
-  * stess-ng.h: fully define  __builtin_prefetch for pcc
+  * stress-ng.h: fully define  __builtin_prefetch for pcc
   * Add build time check for gcc/clang label as a value feature
   * core-perf: add OOM and thermal zone trip perf stats (LP: #1820254)
   * core-perf: add filemap page cache perf stats (LP: #1820254)
@@ -13185,7 +13185,7 @@ stress-ng (0.09.40-1) unstable; urgency=medium
   * stress-sysfs: exercise each sysfs for a specific time or number of
     iterations
   * Add shim_usleep_interruptible, an interruptible usleep
-  * stess-sysfs: exercise each sysfs file for a 1/25 of a second
+  * stress-sysfs: exercise each sysfs file for a 1/25 of a second
   * stress-sysfs: improve draining control in threads
   * Add .gitignore
   * stress-sysfs: back off pthreads when kernel log spamming is detected
@@ -14430,7 +14430,7 @@ stress-ng (0.08.18-1) unstable; urgency=medium
   * stress-mergesort: use sizeof on size of object and not the type
   * stress-lsearch: use sizeof on size of object and not the type
   * stress-heapsort: use sizeof on size of object and not the type
-  * stess-fiemap: use sizeof on size of object and not the type
+  * stress-fiemap: use sizeof on size of object and not the type
   * stress-cpu: fix setting of data values for stats data
   * stress-cpu: use sizeof on size of object and not the type
   * stress-cpu-online: use sizeof on size of object and not the type
@@ -16215,7 +16215,7 @@ stress-ng (0.06.00-1) unstable; urgency=medium
   * stress-hdd: work through all the --hdd-opts if --maximize is enabled
   * stress-xattr: fix error messages, they were reporting wrong syscall
   * stress-af-alg: use array size so we don't need NULL sentinels
-  * stress-af-alg: Add skcipher stessing
+  * stress-af-alg: Add skcipher stressing
   * stress-procfs: add /proc/tty, /proc/self, /proc/thread_self
   * stress-key: Add some more keyctl calls
   * Rename stressor names to match their command line name
@@ -17202,7 +17202,7 @@ stress-ng (0.04.07-1) unstable; urgency=medium
 
 stress-ng (0.04.06-1) unstable; urgency=medium
 
-  * stess-sysfs: Do not read sysfs files when running as root (LP: #1464073)
+  * stress-sysfs: Do not read sysfs files when running as root (LP: #1464073)
 
  -- Colin King <colin.king@canonical.com>  Fri, 12 Jun 2015 09:44:00 +0100
 
@@ -18347,7 +18347,7 @@ stress-ng (0.02.06-1) unstable; urgency=medium
   * Makefile: bump version
   * Rename ctxt -> switch
   * Add metrics-brief example to man page
-  * Add Towers of Hanoi CPU stessor
+  * Add Towers of Hanoi CPU stressor
   * Add gray code cpu stressor
   * Add --metrics-brief option
   * Add brute force prime search

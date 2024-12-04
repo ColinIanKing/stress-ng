@@ -232,7 +232,7 @@ static const stress_hyperbolic_method_t stress_hyperbolic_methods[] = {
 
 stress_metrics_t stress_hyperbolic_metrics[SIZEOF_ARRAY(stress_hyperbolic_methods)];
 
-static bool stess_hyperbolic_exercise(stress_args_t *args, const size_t idx)
+static bool stress_hyperbolic_exercise(stress_args_t *args, const size_t idx)
 {
 	bool ret;
 	const double t = stress_time_now();
@@ -254,7 +254,7 @@ static bool stress_hyperbolic_all(stress_args_t *args)
 	bool ret = false;
 
 	for (i = 1; i < SIZEOF_ARRAY(stress_hyperbolic_methods); i++) {
-		ret |= stess_hyperbolic_exercise(args, i);
+		ret |= stress_hyperbolic_exercise(args, i);
 	}
 	return ret;
 }
@@ -278,7 +278,7 @@ static int stress_hyperbolic(stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stess_hyperbolic_exercise(args, hyperbolic_method)) {
+		if (stress_hyperbolic_exercise(args, hyperbolic_method)) {
 			rc = EXIT_FAILURE;
 			break;
 		}

@@ -155,7 +155,7 @@ static int stress_hrtimer_process(stress_args_t *args)
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
 		if ((errno == EAGAIN) || (errno == ENOMEM)) {
-			pr_inf_skip("%s: timer_create, errno=%d (%s), skipping stessor\n",
+			pr_inf_skip("%s: timer_create, errno=%d (%s), skipping stressor\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}

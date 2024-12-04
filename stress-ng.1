@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "27 November 2024"
+.TH STRESS-NG 1 "4 December 2024"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1196,7 +1196,7 @@ start N workers that perform random wide spread memory read and writes to
 thrash the CPU cache.  The code does not intelligently determine the CPU cache
 configuration and so it may be sub-optimal in producing hit-miss read/write
 activity for some processors.  Note: to exercise cache misses it is recommended
-to instead use the matrix-3d stessor using the \-\-matrix\-3d\-zyx option.
+to instead use the matrix-3d stressor using the \-\-matrix\-3d\-zyx option.
 .TP
 .B \-\-cache\-cldemote
 cache line demote (x86 only). This is a no-op for non-x86
@@ -7679,7 +7679,7 @@ start N workers that use a shared memory page to keep two processes synchronized
 using busy spin loops. One process is a writer that increments a value in memory slot 0
 and spin waits for the data to appear in memory slot 1. The other process spin waits
 for the data to change in slot 0 and copies the changed value into memory slot 1.
-The stessor benchmarks the time for the transactions to occur between both
+The stressor benchmarks the time for the transactions to occur between both
 processes. Note that the optimal number of stressors is half the number of online
 CPUs in a system. By default 32 bit write/reads are used.
 .TP

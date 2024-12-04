@@ -398,7 +398,7 @@ static int stress_msg(stress_args_t *args)
 			pr_fail("%s: msgget failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
-			pr_inf_skip("%s: msgget out of resources or not implemented, skipping stessor\n", args->name);
+			pr_inf_skip("%s: msgget out of resources or not implemented, skipping stressor\n", args->name);
 		}
 		free(msgq_ids);
 		return ret;

@@ -133,13 +133,13 @@ static int stress_set(stress_args_t *args)
 
 	hostname = (char *)calloc(hostname_len, sizeof(*hostname));
 	if (!hostname) {
-		pr_inf_skip("%s: cannot allocate hostname array of %zu bytes, skipping stessor\n",
+		pr_inf_skip("%s: cannot allocate hostname array of %zu bytes, skipping stressor\n",
 			args->name, hostname_len);
 		return EXIT_NO_RESOURCE;
 	}
 	longname = (char *)calloc(longname_len, sizeof(*hostname));
 	if (!longname) {
-		pr_inf_skip("%s: cannot allocate longname array of %zu bytes, skipping stessor\n",
+		pr_inf_skip("%s: cannot allocate longname array of %zu bytes, skipping stressor\n",
 			args->name, longname_len);
 		free(hostname);
 		return EXIT_NO_RESOURCE;

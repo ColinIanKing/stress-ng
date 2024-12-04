@@ -2148,7 +2148,7 @@ static void stress_metrics_check(bool *success)
 	}
 }
 
-static char *stess_description_yamlify(const char *description)
+static char *stress_description_yamlify(const char *description)
 {
 	static char yamlified[40];
 	char *dst;
@@ -2345,9 +2345,9 @@ static void stress_metrics_dump(FILE *yaml)
 				}
 				metric = ss->completed_instances ? total / ss->completed_instances : 0.0;
 				if (g_opt_flags & OPT_FLAGS_SN) {
-					pr_yaml(yaml, "      %s: %e\n", stess_description_yamlify(description), metric);
+					pr_yaml(yaml, "      %s: %e\n", stress_description_yamlify(description), metric);
 				} else {
-					pr_yaml(yaml, "      %s: %f\n", stess_description_yamlify(description), metric);
+					pr_yaml(yaml, "      %s: %f\n", stress_description_yamlify(description), metric);
 				}
 			}
 		}
@@ -3007,7 +3007,7 @@ static void stress_stressors_deinit(void)
 }
 
 /*
- *  stessor_set_defaults()
+ *  stressor_set_defaults()
  *	set up stressor default settings that can be overridden
  *	by user later on
  */

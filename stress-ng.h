@@ -709,7 +709,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_continue_set_flag(const bool s
 
 /*
  *  stress_bogo_add()
- *	add inc to the stessor bogo ops counter
+ *	add inc to the stressor bogo ops counter
  *	NOTE: try to only add to the counter inside a stressor
  *	and not a child process of a stressor. If one has to add to
  *	the counter in a child and the child is force KILL'd then indicate
@@ -726,7 +726,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_add(stress_args_t *args, 
 
 /*
  *  stress_bogo_inc()
- *	increment the stessor bogo ops counter
+ *	increment the stressor bogo ops counter
  *	NOTE: try to only increment the counter inside a stressor
  *	and not a child process of a stressor. If one has to increment
  *	the counter in a child and the child is force KILL'd then indicate
@@ -743,7 +743,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_inc(stress_args_t *args)
 
 /*
  *  stress_bogo_get()
- *	get the stessor bogo ops counter
+ *	get the stressor bogo ops counter
  */
 static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_bogo_get(stress_args_t *args)
 {
@@ -761,7 +761,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_bogo_ready(stress_args_t *args
 
 /*
  *  stress_bogo_set()
- *	set the stessor bogo ops counter
+ *	set the stressor bogo ops counter
  *	NOTE: try to only set the counter inside a stressor
  *	and not a child process of a stressor. If one has to set
  *	the counter in a child and the child is force KILL'd then indicate
@@ -802,7 +802,7 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 stress_continue(stress_args_t *args)
 
 /*
  *  stress_bogo_add_lock()
- *	add val to the stessor bogo ops counter with lock, return true
+ *	add val to the stressor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
 static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const int64_t val)
@@ -820,7 +820,7 @@ static inline void stress_bogo_add_lock(stress_args_t *args, void *lock, const i
 
 /*
  *  stress_bogo_inc_lock()
- *	increment the stessor bogo ops counter with lock, return true
+ *	increment the stressor bogo ops counter with lock, return true
  *	if stress_continue is true
  */
 static inline bool stress_bogo_inc_lock(stress_args_t *args, void *lock, const bool inc)
