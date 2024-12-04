@@ -174,7 +174,7 @@ static void stress_sctp_sockopts(const int fd)
 		static bool once = false;
 
 		if (once == false) {
-			STRESS_SCTP_SOCKOPT(SCTP_MAXSEG, int)
+			STRESS_SCTP_SOCKOPT(SCTP_MAXSEG, int64_t)
 			once = true;
 		}
 	}
@@ -209,7 +209,7 @@ static void stress_sctp_sockopts(const int fd)
 		static bool once = false;
 
 		if (once == false) {
-			STRESS_SCTP_SOCKOPT(SCTP_MAX_BURST, unsigned int)
+			STRESS_SCTP_SOCKOPT(SCTP_MAX_BURST, uint64_t)
 			once = true;
 		}
 	}
