@@ -91,6 +91,28 @@ static void stress_klog_kernel_cmdline(void)
 }
 #endif
 
+#if defined(__linux__)
+/*
+ *  stress_klog_convert_nl()
+ *	convert escaped nl to space
+ */
+static void stress_klog_convert_nl(char *buf)
+{
+	for (;;) {
+		char *ptr = strstr(buf, "\\x0a");
+
+		if (!ptr)
+			return;
+
+		*(ptr++) = ' ';
+		while (*ptr) {
+			*ptr = *(ptr + 3);
+			ptr++;
+		}
+	}
+}
+#endif
+
 /*
  *  stress_klog_start()
  *	start a child process that monitors kernel log
@@ -144,6 +166,8 @@ void stress_klog_start(void)
 
 			(void)snprintf(ts, sizeof(ts), "[%" PRIu64 ".%6.6" PRIu64 "]",
 				timestamp / 1000000, timestamp % 1000000);
+
+			stress_klog_convert_nl(buf);
 
 			if (strstr(buf, "audit:")) {
 				msg = "audit";
