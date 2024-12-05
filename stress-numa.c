@@ -439,13 +439,16 @@ static int stress_numa(stress_args_t *args)
 		(void)shim_getcpu(&cpu, &curr_node, &cache);
 
 		/*
-		 *  mbind the buffer, first try MPOL_STRICT which
-		 *  may fail with EIO
+		 *  mbind the buffer, first try MPOL_MF_STRICT which
+		 *  may fail with EIO, so retry wuth MPOL_MF_MOVE
 		 */
 		shim_memset(numa_mask->mask, 0x00, numa_mask->mask_size);
 		STRESS_SETBIT(numa_mask->mask, node);
 		lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
 			numa_mask->max_nodes, MPOL_MF_STRICT);
+		if ((lret < 0) && (errno == EIO))
+			lret = shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
+				numa_mask->max_nodes, MPOL_MF_MOVE);
 		if (UNLIKELY(lret < 0)) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
@@ -495,25 +498,25 @@ static int stress_numa(stress_args_t *args)
 
 		/* Exercise invalid start address */
 		VOID_RET(long int, shim_mbind((void *)(buf + 7), numa_bytes, MPOL_BIND, numa_mask->mask,
-			numa_mask->max_nodes, MPOL_MF_STRICT));
+			numa_mask->max_nodes, MPOL_MF_MOVE));
 
 		/* Exercise wrap around */
 		VOID_RET(long int, shim_mbind((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size * 2,
-			MPOL_BIND, numa_mask->mask, numa_mask->max_nodes, MPOL_MF_STRICT));
+			MPOL_BIND, numa_mask->mask, numa_mask->max_nodes, MPOL_MF_MOVE));
 
 		/* Exercise invalid length */
 		VOID_RET(long int, shim_mbind((void *)buf, ~0UL, MPOL_BIND, numa_mask->mask,
-			numa_mask->max_nodes, MPOL_MF_STRICT));
+			numa_mask->max_nodes, MPOL_MF_MOVE));
 
 		/* Exercise zero length, allowed, but is a no-op */
 		VOID_RET(long int, shim_mbind((void *)buf, 0, MPOL_BIND, numa_mask->mask,
-			numa_mask->max_nodes, MPOL_MF_STRICT));
+			numa_mask->max_nodes, MPOL_MF_MOVE));
 
 		/* Exercise invalid nodes */
 		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
-			0, MPOL_MF_STRICT));
+			0, MPOL_MF_MOVE));
 		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
-			0xffffffff, MPOL_MF_STRICT));
+			0xffffffff, MPOL_MF_MOVE));
 
 		/* Exercise invalid flags */
 		VOID_RET(long int, shim_mbind((void *)buf, numa_bytes, MPOL_BIND, numa_mask->mask,
