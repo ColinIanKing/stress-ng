@@ -89,10 +89,11 @@ static void stress_unlink_exercise(
 	stress_unlink_shuffle(idx, mask);
 
 	do {
+		for (i = 0; i < UNLINK_FILES; i++)
+			fds[i] = -1;
+
 		for (i = 0; stress_continue(args) && (i < UNLINK_FILES); i++) {
 			int mode, retries = 0;
-
-			fds[i] = -1;
 
 			if ((i & 7) == 7) {
 				if (link(filenames[i - 1], filenames[i]) == 0) {
