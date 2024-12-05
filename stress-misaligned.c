@@ -1192,7 +1192,7 @@ static void stress_misaligned_numa_pages(
 
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
 		(void)shim_mbind((void *)ptr, page_size, MPOL_BIND, numa_mask->mask,
-                        numa_mask->max_nodes, MPOL_MF_STRICT);
+                        numa_mask->max_nodes, MPOL_MF_MOVE);
 		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
 	}
 }
