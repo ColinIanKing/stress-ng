@@ -633,7 +633,10 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_numa(
 	for (ptr = (uint8_t *)mem; ptr < end; ptr += page_size) {
 		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
 
-		(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, numa_mask->mask, numa_mask->max_nodes, 0);
+		if (stress_mwc1())
+			(void)shim_mbind((void *)ptr, page_size, MPOL_PREFERRED, numa_mask->mask, numa_mask->max_nodes, 0);
+		else
+			(void)shim_mbind((void *)ptr, page_size, MPOL_BIND, numa_mask->mask, numa_mask->max_nodes, MPOL_MF_MOVE);
 		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
 		node++;
 		if (node >= numa_mask->nodes)
