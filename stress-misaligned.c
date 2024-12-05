@@ -22,9 +22,20 @@
 #include "core-builtin.h"
 #include "core-madvise.h"
 #include "core-target-clones.h"
+#include "core-numa.h"
 #include "core-nt-store.h"
 
 #include <time.h>
+
+#if defined(HAVE_LINUX_MEMPOLICY_H) &&  \
+    defined(__NR_mbind)
+#include <linux/mempolicy.h>
+#define HAVE_MISALIGNED_NUMA	(1)
+#endif
+
+#define BITS_PER_BYTE           (8)
+#define NUMA_LONG_BITS          (sizeof(unsigned long int) * BITS_PER_BYTE)
+
 
 #define MISALIGN_LOOPS		(64)
 
@@ -1162,6 +1173,31 @@ static void stress_misaligned_exercised(stress_args_t *args)
 	free(str);
 }
 
+#if defined(HAVE_MISALIGNED_NUMA)
+/*
+ *  stress_misaligned_numa_pages()
+ *	randomize NUMA node for pages in buffer
+ */
+static void stress_misaligned_numa_pages(
+	stress_numa_mask_t *numa_mask,
+	uint8_t *buffer,
+	const size_t page_size,
+	const size_t buffer_size)
+{
+	uint8_t *ptr, *ptr_end = buffer + buffer_size;
+
+	(void)shim_memset(numa_mask->mask, 0, numa_mask->mask_size);
+	for (ptr = buffer; ptr < ptr_end; ptr += page_size) {
+		const unsigned long int node = (unsigned long int)stress_mwc32modn((uint32_t)numa_mask->nodes);
+
+		STRESS_SETBIT(numa_mask->mask, (unsigned long int)node);
+		(void)shim_mbind((void *)ptr, page_size, MPOL_BIND, numa_mask->mask,
+                        numa_mask->max_nodes, MPOL_MF_STRICT);
+		STRESS_CLRBIT(numa_mask->mask, (unsigned long int)node);
+	}
+}
+#endif
+
 /*
  *  stress_misaligned()
  *	stress memory copies
@@ -1183,7 +1219,10 @@ static int stress_misaligned(stress_args_t *args)
 	const clockid_t clockid = CLOCK_REALTIME;
 #endif
 #endif
-
+#if defined(HAVE_MISALIGNED_NUMA)
+	stress_numa_mask_t *numa_mask;
+	int numa_loop;
+#endif
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
 
 	if (stress_sighandler(args->name, SIGBUS, stress_misaligned_handler, NULL) < 0)
@@ -1209,6 +1248,12 @@ static int stress_misaligned(stress_args_t *args)
 	}
 	stress_set_vma_anon_name(buffer, buffer_size, "misaligned-data");
 	(void)stress_madvise_mergeable(buffer, buffer_size);
+
+#if defined(HAVE_MISALIGNED_NUMA)
+	numa_mask = stress_numa_mask_alloc();
+	if (numa_mask)
+		stress_misaligned_numa_pages(numa_mask, buffer, page_size, buffer_size);
+#endif
 
 #if defined(HAVE_TIMER_FUNCTIONALITY)
 	(void)shim_memset(&sev, 0, sizeof(sev));
@@ -1247,6 +1292,9 @@ static int stress_misaligned(stress_args_t *args)
 		}
 	}
 
+#if defined(HAVE_MISALIGNED_NUMA)
+	numa_loop = 0;
+#endif
 	rc = EXIT_SUCCESS;
 	do {
 		if (stress_time_now() > args->time_end)
@@ -1260,6 +1308,20 @@ static int stress_misaligned(stress_args_t *args)
 #endif
 		method->func(args, (uintptr_t)buffer, page_size, &succeeded);
 		method->exercised = true;
+
+#if defined(HAVE_MISALIGNED_NUMA)
+		/*
+		 *  On NUMA systems with > 1 node, randomize the
+		 *  NUMA node binding of pages in the buffer
+		 */
+		if (numa_mask && (numa_mask->nodes > 1)) {
+			numa_loop++;
+			if (numa_loop > 1024) {
+				numa_loop = 0;
+				stress_misaligned_numa_pages(numa_mask, buffer, page_size, buffer_size);
+			}
+		}
+#endif
 		stress_bogo_inc(args);
 	} while (stress_continue(args));
 
@@ -1279,6 +1341,9 @@ static int stress_misaligned(stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(HAVE_MISALIGNED_NUMA)
+	stress_numa_mask_free(numa_mask);
+#endif
 	(void)munmap((void *)buffer, buffer_size);
 
 	if (!succeeded && (rc == EXIT_SUCCESS))
